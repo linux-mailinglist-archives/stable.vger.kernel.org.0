@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E078E4EF2F4
-	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 17:16:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 56CE94EF2AD
+	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 17:14:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349003AbiDAOxG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Apr 2022 10:53:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54894 "EHLO
+        id S1349243AbiDAOxY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Apr 2022 10:53:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54898 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350039AbiDAOrH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:47:07 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C2DC2A03E7;
-        Fri,  1 Apr 2022 07:36:59 -0700 (PDT)
+        with ESMTP id S1350245AbiDAOrU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:47:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D30F0258FC7;
+        Fri,  1 Apr 2022 07:37:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8FB71B8250B;
-        Fri,  1 Apr 2022 14:36:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30CA8C3410F;
-        Fri,  1 Apr 2022 14:36:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0B04560C00;
+        Fri,  1 Apr 2022 14:37:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7502AC2BBE4;
+        Fri,  1 Apr 2022 14:37:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648823818;
-        bh=Ih3fXBC704q44LXi1F9MRfHhMLxY/FZVM3wA3N1yrUU=;
+        s=k20201202; t=1648823821;
+        bh=aXdBUmeYj7xLL1w/h5tF7wvJEPsFBhS+z1UfUPL+4NA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eIfW6b+nSxkQh3VIAfE/tHHPtmcOAT5xySDc7bhabScL+V8rHng1rvox/CAD/kDfT
-         k7UC+PnytYv0JCsbSfI9ChOTBcoqC62TQDVNAHPocLv1chrmd0HTnCYTTKUI+z3NJn
-         qqwbnksqwk+aXyZzHRsiedXe3qCc7gC2dubT/P3TvTmd0X1idGIIE/kHr6ZmohBczc
-         YznB+RDxGPoHx8RK7HYcicJ01I3tvPoz/xx36xfDCEkawt/7B9MyJwArIMYGVbvlNI
-         S0AllEBrLfWufypzJ3t+OCp9wLjBIti/Y8T7pU9E9x9I5Spnr308x46kOxJ3FHxXqy
-         cI8a7JGb268Gw==
+        b=jMHQRqE0vVmIU6VS9eZp3kctm1g4kvr+bYBn3b/JZNUfP0evLLp906UPmJaBCzuwc
+         eslPuDtQ9C0vGF0RCCHQIDnH2JRxSC6LnpaOCJtpuLjtTKRUSaKl4diYuWcPRRJW4z
+         qCOROBm7Gt+3kuj9fBfo8YAYiT8KKThORTaUpEPsjp6Sya48LeJBa2T39kMU+3wMFE
+         wW38V42iQ8PwFbO68IDbd7ffRZbcxj1a6cV1MWs4qGWDsOyPlcsUmp7ty66BujBetH
+         x362FF9ta4DVomj0FNYhNeRPNZaqva9672KpCyKndqv0nFJrmcMfaLmiz0RDd6v2gM
+         cvtWuzuQaxwPA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vincent Mailhol <mailhol.vincent@wanadoo.fr>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        Sasha Levin <sashal@kernel.org>, wg@grandegger.com,
-        davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com,
-        linux-can@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.16 090/109] can: etas_es58x: es58x_fd_rx_event_msg(): initialize rx_event_msg before calling es58x_check_msg_len()
-Date:   Fri,  1 Apr 2022 10:32:37 -0400
-Message-Id: <20220401143256.1950537-90-sashal@kernel.org>
+Cc:     "Michael T. Kloos" <michael@michaelkloos.com>,
+        Palmer Dabbelt <palmer@rivosinc.com>,
+        Sasha Levin <sashal@kernel.org>, paul.walmsley@sifive.com,
+        palmer@dabbelt.com, aou@eecs.berkeley.edu,
+        linux-riscv@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.16 091/109] riscv: Fixed misaligned memory access. Fixed pointer comparison.
+Date:   Fri,  1 Apr 2022 10:32:38 -0400
+Message-Id: <20220401143256.1950537-91-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220401143256.1950537-1-sashal@kernel.org>
 References: <20220401143256.1950537-1-sashal@kernel.org>
@@ -58,61 +58,419 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
+From: "Michael T. Kloos" <michael@michaelkloos.com>
 
-[ Upstream commit 7a8cd7c0ee823a1cc893ab3feaa23e4b602bfb9a ]
+[ Upstream commit 9d1f0ec9f71780e69ceb9d91697600c747d6e02e ]
 
-Function es58x_fd_rx_event() invokes the es58x_check_msg_len() macro:
+Rewrote the RISC-V memmove() assembly implementation.  The
+previous implementation did not check memory alignment and it
+compared 2 pointers with a signed comparison.  The misaligned
+memory access would cause the kernel to crash on systems that
+did not emulate it in firmware and did not support it in hardware.
+Firmware emulation is slow and may not exist.  The RISC-V spec
+does not guarantee that support for misaligned memory accesses
+will exist.  It should not be depended on.
 
-| 	ret = es58x_check_msg_len(es58x_dev->dev, *rx_event_msg, msg_len);
+This patch now checks for XLEN granularity of co-alignment between
+the pointers.  Failing that, copying is done by loading from the 2
+contiguous and naturally aligned XLEN memory locations containing
+the overlapping XLEN sized data to be copied.  The data is shifted
+into the correct place and binary or'ed together on each
+iteration.  The result is then stored into the corresponding
+naturally aligned XLEN sized location in the destination.  For
+unaligned data at the terminations of the regions to be copied
+or for copies less than (2 * XLEN) in size, byte copy is used.
 
-While doing so, it dereferences an uninitialized
-variable: *rx_event_msg.
+This patch also now uses unsigned comparison for the pointers and
+migrates to the newer assembler annotations from the now deprecated
+ones.
 
-This is actually harmless because es58x_check_msg_len() only uses
-preprocessor macros (sizeof() and __stringify()) on
-*rx_event_msg. c.f. [1].
-
-Nonetheless, this pattern is confusing so the lines are reordered to
-make sure that rx_event_msg is correctly initialized.
-
-This patch also fixes a false positive warning reported by cppcheck:
-
-| cppcheck possible warnings: (new ones prefixed by >>, may not be real problems)
-|
-|    In file included from drivers/net/can/usb/etas_es58x/es58x_fd.c:
-| >> drivers/net/can/usb/etas_es58x/es58x_fd.c:174:8: warning: Uninitialized variable: rx_event_msg [uninitvar]
-|     ret = es58x_check_msg_len(es58x_dev->dev, *rx_event_msg, msg_len);
-|           ^
-
-[1] https://elixir.bootlin.com/linux/v5.16/source/drivers/net/can/usb/etas_es58x/es58x_core.h#L467
-
-Link: https://lore.kernel.org/all/20220306101302.708783-1-mailhol.vincent@wanadoo.fr
-Signed-off-by: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Michael T. Kloos <michael@michaelkloos.com>
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/usb/etas_es58x/es58x_fd.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ arch/riscv/lib/memmove.S | 368 +++++++++++++++++++++++++++++++++------
+ 1 file changed, 310 insertions(+), 58 deletions(-)
 
-diff --git a/drivers/net/can/usb/etas_es58x/es58x_fd.c b/drivers/net/can/usb/etas_es58x/es58x_fd.c
-index 4f0cae29f4d8..b71d1530638b 100644
---- a/drivers/net/can/usb/etas_es58x/es58x_fd.c
-+++ b/drivers/net/can/usb/etas_es58x/es58x_fd.c
-@@ -171,12 +171,11 @@ static int es58x_fd_rx_event_msg(struct net_device *netdev,
- 	const struct es58x_fd_rx_event_msg *rx_event_msg;
- 	int ret;
+diff --git a/arch/riscv/lib/memmove.S b/arch/riscv/lib/memmove.S
+index 07d1d2152ba5..e0609e1f0864 100644
+--- a/arch/riscv/lib/memmove.S
++++ b/arch/riscv/lib/memmove.S
+@@ -1,64 +1,316 @@
+-/* SPDX-License-Identifier: GPL-2.0 */
++/* SPDX-License-Identifier: GPL-2.0-only */
++/*
++ * Copyright (C) 2022 Michael T. Kloos <michael@michaelkloos.com>
++ */
  
-+	rx_event_msg = &es58x_fd_urb_cmd->rx_event_msg;
- 	ret = es58x_check_msg_len(es58x_dev->dev, *rx_event_msg, msg_len);
- 	if (ret)
- 		return ret;
+ #include <linux/linkage.h>
+ #include <asm/asm.h>
  
--	rx_event_msg = &es58x_fd_urb_cmd->rx_event_msg;
+-ENTRY(__memmove)
+-WEAK(memmove)
+-        move    t0, a0
+-        move    t1, a1
 -
- 	return es58x_rx_err_msg(netdev, rx_event_msg->error_code,
- 				rx_event_msg->event_code,
- 				get_unaligned_le64(&rx_event_msg->timestamp));
+-        beq     a0, a1, exit_memcpy
+-        beqz    a2, exit_memcpy
+-        srli    t2, a2, 0x2
+-
+-        slt     t3, a0, a1
+-        beqz    t3, do_reverse
+-
+-        andi    a2, a2, 0x3
+-        li      t4, 1
+-        beqz    t2, byte_copy
+-
+-word_copy:
+-        lw      t3, 0(a1)
+-        addi    t2, t2, -1
+-        addi    a1, a1, 4
+-        sw      t3, 0(a0)
+-        addi    a0, a0, 4
+-        bnez    t2, word_copy
+-        beqz    a2, exit_memcpy
+-        j       byte_copy
+-
+-do_reverse:
+-        add     a0, a0, a2
+-        add     a1, a1, a2
+-        andi    a2, a2, 0x3
+-        li      t4, -1
+-        beqz    t2, reverse_byte_copy
+-
+-reverse_word_copy:
+-        addi    a1, a1, -4
+-        addi    t2, t2, -1
+-        lw      t3, 0(a1)
+-        addi    a0, a0, -4
+-        sw      t3, 0(a0)
+-        bnez    t2, reverse_word_copy
+-        beqz    a2, exit_memcpy
+-
+-reverse_byte_copy:
+-        addi    a0, a0, -1
+-        addi    a1, a1, -1
++SYM_FUNC_START(__memmove)
++SYM_FUNC_START_WEAK(memmove)
++	/*
++	 * Returns
++	 *   a0 - dest
++	 *
++	 * Parameters
++	 *   a0 - Inclusive first byte of dest
++	 *   a1 - Inclusive first byte of src
++	 *   a2 - Length of copy n
++	 *
++	 * Because the return matches the parameter register a0,
++	 * we will not clobber or modify that register.
++	 *
++	 * Note: This currently only works on little-endian.
++	 * To port to big-endian, reverse the direction of shifts
++	 * in the 2 misaligned fixup copy loops.
++	 */
+ 
++	/* Return if nothing to do */
++	beq a0, a1, return_from_memmove
++	beqz a2, return_from_memmove
++
++	/*
++	 * Register Uses
++	 *      Forward Copy: a1 - Index counter of src
++	 *      Reverse Copy: a4 - Index counter of src
++	 *      Forward Copy: t3 - Index counter of dest
++	 *      Reverse Copy: t4 - Index counter of dest
++	 *   Both Copy Modes: t5 - Inclusive first multibyte/aligned of dest
++	 *   Both Copy Modes: t6 - Non-Inclusive last multibyte/aligned of dest
++	 *   Both Copy Modes: t0 - Link / Temporary for load-store
++	 *   Both Copy Modes: t1 - Temporary for load-store
++	 *   Both Copy Modes: t2 - Temporary for load-store
++	 *   Both Copy Modes: a5 - dest to src alignment offset
++	 *   Both Copy Modes: a6 - Shift ammount
++	 *   Both Copy Modes: a7 - Inverse Shift ammount
++	 *   Both Copy Modes: a2 - Alternate breakpoint for unrolled loops
++	 */
++
++	/*
++	 * Solve for some register values now.
++	 * Byte copy does not need t5 or t6.
++	 */
++	mv   t3, a0
++	add  t4, a0, a2
++	add  a4, a1, a2
++
++	/*
++	 * Byte copy if copying less than (2 * SZREG) bytes. This can
++	 * cause problems with the bulk copy implementation and is
++	 * small enough not to bother.
++	 */
++	andi t0, a2, -(2 * SZREG)
++	beqz t0, byte_copy
++
++	/*
++	 * Now solve for t5 and t6.
++	 */
++	andi t5, t3, -SZREG
++	andi t6, t4, -SZREG
++	/*
++	 * If dest(Register t3) rounded down to the nearest naturally
++	 * aligned SZREG address, does not equal dest, then add SZREG
++	 * to find the low-bound of SZREG alignment in the dest memory
++	 * region.  Note that this could overshoot the dest memory
++	 * region if n is less than SZREG.  This is one reason why
++	 * we always byte copy if n is less than SZREG.
++	 * Otherwise, dest is already naturally aligned to SZREG.
++	 */
++	beq  t5, t3, 1f
++		addi t5, t5, SZREG
++	1:
++
++	/*
++	 * If the dest and src are co-aligned to SZREG, then there is
++	 * no need for the full rigmarole of a full misaligned fixup copy.
++	 * Instead, do a simpler co-aligned copy.
++	 */
++	xor  t0, a0, a1
++	andi t1, t0, (SZREG - 1)
++	beqz t1, coaligned_copy
++	/* Fall through to misaligned fixup copy */
++
++misaligned_fixup_copy:
++	bltu a1, a0, misaligned_fixup_copy_reverse
++
++misaligned_fixup_copy_forward:
++	jal  t0, byte_copy_until_aligned_forward
++
++	andi a5, a1, (SZREG - 1) /* Find the alignment offset of src (a1) */
++	slli a6, a5, 3 /* Multiply by 8 to convert that to bits to shift */
++	sub  a5, a1, t3 /* Find the difference between src and dest */
++	andi a1, a1, -SZREG /* Align the src pointer */
++	addi a2, t6, SZREG /* The other breakpoint for the unrolled loop*/
++
++	/*
++	 * Compute The Inverse Shift
++	 * a7 = XLEN - a6 = XLEN + -a6
++	 * 2s complement negation to find the negative: -a6 = ~a6 + 1
++	 * Add that to XLEN.  XLEN = SZREG * 8.
++	 */
++	not  a7, a6
++	addi a7, a7, (SZREG * 8 + 1)
++
++	/*
++	 * Fix Misalignment Copy Loop - Forward
++	 * load_val0 = load_ptr[0];
++	 * do {
++	 * 	load_val1 = load_ptr[1];
++	 * 	store_ptr += 2;
++	 * 	store_ptr[0 - 2] = (load_val0 >> {a6}) | (load_val1 << {a7});
++	 *
++	 * 	if (store_ptr == {a2})
++	 * 		break;
++	 *
++	 * 	load_val0 = load_ptr[2];
++	 * 	load_ptr += 2;
++	 * 	store_ptr[1 - 2] = (load_val1 >> {a6}) | (load_val0 << {a7});
++	 *
++	 * } while (store_ptr != store_ptr_end);
++	 * store_ptr = store_ptr_end;
++	 */
++
++	REG_L t0, (0 * SZREG)(a1)
++	1:
++	REG_L t1, (1 * SZREG)(a1)
++	addi  t3, t3, (2 * SZREG)
++	srl   t0, t0, a6
++	sll   t2, t1, a7
++	or    t2, t0, t2
++	REG_S t2, ((0 * SZREG) - (2 * SZREG))(t3)
++
++	beq   t3, a2, 2f
++
++	REG_L t0, (2 * SZREG)(a1)
++	addi  a1, a1, (2 * SZREG)
++	srl   t1, t1, a6
++	sll   t2, t0, a7
++	or    t2, t1, t2
++	REG_S t2, ((1 * SZREG) - (2 * SZREG))(t3)
++
++	bne   t3, t6, 1b
++	2:
++	mv    t3, t6 /* Fix the dest pointer in case the loop was broken */
++
++	add  a1, t3, a5 /* Restore the src pointer */
++	j byte_copy_forward /* Copy any remaining bytes */
++
++misaligned_fixup_copy_reverse:
++	jal  t0, byte_copy_until_aligned_reverse
++
++	andi a5, a4, (SZREG - 1) /* Find the alignment offset of src (a4) */
++	slli a6, a5, 3 /* Multiply by 8 to convert that to bits to shift */
++	sub  a5, a4, t4 /* Find the difference between src and dest */
++	andi a4, a4, -SZREG /* Align the src pointer */
++	addi a2, t5, -SZREG /* The other breakpoint for the unrolled loop*/
++
++	/*
++	 * Compute The Inverse Shift
++	 * a7 = XLEN - a6 = XLEN + -a6
++	 * 2s complement negation to find the negative: -a6 = ~a6 + 1
++	 * Add that to XLEN.  XLEN = SZREG * 8.
++	 */
++	not  a7, a6
++	addi a7, a7, (SZREG * 8 + 1)
++
++	/*
++	 * Fix Misalignment Copy Loop - Reverse
++	 * load_val1 = load_ptr[0];
++	 * do {
++	 * 	load_val0 = load_ptr[-1];
++	 * 	store_ptr -= 2;
++	 * 	store_ptr[1] = (load_val0 >> {a6}) | (load_val1 << {a7});
++	 *
++	 * 	if (store_ptr == {a2})
++	 * 		break;
++	 *
++	 * 	load_val1 = load_ptr[-2];
++	 * 	load_ptr -= 2;
++	 * 	store_ptr[0] = (load_val1 >> {a6}) | (load_val0 << {a7});
++	 *
++	 * } while (store_ptr != store_ptr_end);
++	 * store_ptr = store_ptr_end;
++	 */
++
++	REG_L t1, ( 0 * SZREG)(a4)
++	1:
++	REG_L t0, (-1 * SZREG)(a4)
++	addi  t4, t4, (-2 * SZREG)
++	sll   t1, t1, a7
++	srl   t2, t0, a6
++	or    t2, t1, t2
++	REG_S t2, ( 1 * SZREG)(t4)
++
++	beq   t4, a2, 2f
++
++	REG_L t1, (-2 * SZREG)(a4)
++	addi  a4, a4, (-2 * SZREG)
++	sll   t0, t0, a7
++	srl   t2, t1, a6
++	or    t2, t0, t2
++	REG_S t2, ( 0 * SZREG)(t4)
++
++	bne   t4, t5, 1b
++	2:
++	mv    t4, t5 /* Fix the dest pointer in case the loop was broken */
++
++	add  a4, t4, a5 /* Restore the src pointer */
++	j byte_copy_reverse /* Copy any remaining bytes */
++
++/*
++ * Simple copy loops for SZREG co-aligned memory locations.
++ * These also make calls to do byte copies for any unaligned
++ * data at their terminations.
++ */
++coaligned_copy:
++	bltu a1, a0, coaligned_copy_reverse
++
++coaligned_copy_forward:
++	jal t0, byte_copy_until_aligned_forward
++
++	1:
++	REG_L t1, ( 0 * SZREG)(a1)
++	addi  a1, a1, SZREG
++	addi  t3, t3, SZREG
++	REG_S t1, (-1 * SZREG)(t3)
++	bne   t3, t6, 1b
++
++	j byte_copy_forward /* Copy any remaining bytes */
++
++coaligned_copy_reverse:
++	jal t0, byte_copy_until_aligned_reverse
++
++	1:
++	REG_L t1, (-1 * SZREG)(a4)
++	addi  a4, a4, -SZREG
++	addi  t4, t4, -SZREG
++	REG_S t1, ( 0 * SZREG)(t4)
++	bne   t4, t5, 1b
++
++	j byte_copy_reverse /* Copy any remaining bytes */
++
++/*
++ * These are basically sub-functions within the function.  They
++ * are used to byte copy until the dest pointer is in alignment.
++ * At which point, a bulk copy method can be used by the
++ * calling code.  These work on the same registers as the bulk
++ * copy loops.  Therefore, the register values can be picked
++ * up from where they were left and we avoid code duplication
++ * without any overhead except the call in and return jumps.
++ */
++byte_copy_until_aligned_forward:
++	beq  t3, t5, 2f
++	1:
++	lb   t1,  0(a1)
++	addi a1, a1, 1
++	addi t3, t3, 1
++	sb   t1, -1(t3)
++	bne  t3, t5, 1b
++	2:
++	jalr zero, 0x0(t0) /* Return to multibyte copy loop */
++
++byte_copy_until_aligned_reverse:
++	beq  t4, t6, 2f
++	1:
++	lb   t1, -1(a4)
++	addi a4, a4, -1
++	addi t4, t4, -1
++	sb   t1,  0(t4)
++	bne  t4, t6, 1b
++	2:
++	jalr zero, 0x0(t0) /* Return to multibyte copy loop */
++
++/*
++ * Simple byte copy loops.
++ * These will byte copy until they reach the end of data to copy.
++ * At that point, they will call to return from memmove.
++ */
+ byte_copy:
+-        lb      t3, 0(a1)
+-        addi    a2, a2, -1
+-        sb      t3, 0(a0)
+-        add     a1, a1, t4
+-        add     a0, a0, t4
+-        bnez    a2, byte_copy
+-
+-exit_memcpy:
+-        move a0, t0
+-        move a1, t1
+-        ret
+-END(__memmove)
++	bltu a1, a0, byte_copy_reverse
++
++byte_copy_forward:
++	beq  t3, t4, 2f
++	1:
++	lb   t1,  0(a1)
++	addi a1, a1, 1
++	addi t3, t3, 1
++	sb   t1, -1(t3)
++	bne  t3, t4, 1b
++	2:
++	ret
++
++byte_copy_reverse:
++	beq  t4, t3, 2f
++	1:
++	lb   t1, -1(a4)
++	addi a4, a4, -1
++	addi t4, t4, -1
++	sb   t1,  0(t4)
++	bne  t4, t3, 1b
++	2:
++
++return_from_memmove:
++	ret
++
++SYM_FUNC_END(memmove)
++SYM_FUNC_END(__memmove)
 -- 
 2.34.1
 
