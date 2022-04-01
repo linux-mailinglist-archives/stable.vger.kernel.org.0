@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E67084EED76
-	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 14:52:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F9E94EED7A
+	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 14:52:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345974AbiDAMx7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Apr 2022 08:53:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35890 "EHLO
+        id S235511AbiDAMyQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Apr 2022 08:54:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36034 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235692AbiDAMx6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 08:53:58 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 928DB210282
-        for <stable@vger.kernel.org>; Fri,  1 Apr 2022 05:52:08 -0700 (PDT)
+        with ESMTP id S1345938AbiDAMyQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 08:54:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0416C210286
+        for <stable@vger.kernel.org>; Fri,  1 Apr 2022 05:52:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id D144CCE2534
-        for <stable@vger.kernel.org>; Fri,  1 Apr 2022 12:52:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D939AC340EC;
-        Fri,  1 Apr 2022 12:52:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 704EC61A15
+        for <stable@vger.kernel.org>; Fri,  1 Apr 2022 12:52:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 816B1C340EC;
+        Fri,  1 Apr 2022 12:52:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648817525;
-        bh=YU9/kCG8DI6BnHEEGc3sHqYQCaskFLfW4ZJdEsOInuM=;
+        s=korg; t=1648817545;
+        bh=WplYov83DCFvGpifqfCzGv9ZjPNg6Qs20lJkFYLb27I=;
         h=Subject:To:Cc:From:Date:From;
-        b=dOWskmD3hjd0Va8l/g8mxzsHWzk01aa+0O595v0G9xotg2R9QYw10F+A2T7w1jM8I
-         SCHIr6mwQi1S5Gug5sAZ2v2qk00435S1JVGuQCPrD8gEKewmT81LYhirmvZuABCpyy
-         00I6uU2PZBX1hzZf79cDvldtPrHe69GfxDS39dhQ=
-Subject: FAILED: patch "[PATCH] mm: don't skip swap entry even if zap_details specified" failed to apply to 5.15-stable tree
+        b=UoJaVE69sDRGETWIYlApo0jeVjt/boW8mtv/9LJjm9Yugy4NUSs0lVWUw2lS9XJgJ
+         gGPA3L2Lg+sGK8NaoOVH68pvatZQp0ChCvOkpf+lkpOFiBOiBrUfjnu54H4aeOqSnT
+         VhmepfNzcLhgAo64UgCTcHdkKsuJPboO0rJDLpm4=
+Subject: FAILED: patch "[PATCH] mm: don't skip swap entry even if zap_details specified" failed to apply to 5.10-stable tree
 To:     peterx@redhat.com, aarcange@redhat.com, akpm@linux-foundation.org,
         apopple@nvidia.com, david@redhat.com, hughd@google.com,
         jhubbard@nvidia.com, kirill@shutemov.name, shy828301@gmail.com,
@@ -36,8 +36,8 @@ To:     peterx@redhat.com, aarcange@redhat.com, akpm@linux-foundation.org,
         vbabka@suse.cz, willy@infradead.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 01 Apr 2022 14:51:44 +0200
-Message-ID: <1648817504102234@kroah.com>
+Date:   Fri, 01 Apr 2022 14:51:46 +0200
+Message-ID: <164881750615344@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -52,7 +52,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
