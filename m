@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C02084EF7AA
-	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 18:20:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2C054EF7A0
+	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 18:20:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237180AbiDAQHM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Apr 2022 12:07:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37476 "EHLO
+        id S1345096AbiDAQL3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Apr 2022 12:11:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46954 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348920AbiDAQFL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 12:05:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 856D51A61D0
-        for <stable@vger.kernel.org>; Fri,  1 Apr 2022 08:30:49 -0700 (PDT)
+        with ESMTP id S1351322AbiDAQKS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 12:10:18 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1765104A50
+        for <stable@vger.kernel.org>; Fri,  1 Apr 2022 08:34:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1D27160EC3
-        for <stable@vger.kernel.org>; Fri,  1 Apr 2022 15:30:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DC31C2BBE4;
-        Fri,  1 Apr 2022 15:30:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A7707B82528
+        for <stable@vger.kernel.org>; Fri,  1 Apr 2022 15:34:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04BE1C2BBE4;
+        Fri,  1 Apr 2022 15:34:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648827048;
+        s=korg; t=1648827264;
         bh=abqarGtXeUe3d1vHtGj1eww477S9vpFeaJy9TLE/bbM=;
         h=Subject:To:Cc:From:Date:From;
-        b=jyitI9L6S46HflLwSOJCETDSND2ImkDk3qpITao46VwYJoFKF1o+LumtEXIjb0AG0
-         OhiQk8kpyq964fpMAfnWivzj9sNCTEuCv3Lx1SEcOkxL20Gau+SE58CNqhnZuftRcn
-         dpWthNhhRN9CFpKmB+Zx3YSQjFNE+9e4iZ6D0wD8=
+        b=tgAWDhKKMez5sDMy8Pie5jp4jDQ8Fc6qN3dT23OVxdyEeRWKEgmbcKXPugclyi15r
+         jFApgY1mBPs1EfXrry1oLfhpNjAGAI/hQNseQG/Z52E5HfCg0F9+1IoWKSPYBPEAJi
+         jdVNwpvPP/08iNrynKag7SZEYzx46xC7vyJttpG4=
 Subject: FAILED: patch "[PATCH] scsi: scsi_debug: Fix qc_lock use in sdebug_blk_mq_poll()" failed to apply to 5.17-stable tree
 To:     damien.lemoal@opensource.wdc.com, martin.petersen@oracle.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 01 Apr 2022 17:30:46 +0200
-Message-ID: <1648827046150105@kroah.com>
+Date:   Fri, 01 Apr 2022 17:34:21 +0200
+Message-ID: <16488272615283@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
