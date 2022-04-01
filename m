@@ -2,49 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 07F654EF3EE
-	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 17:28:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C4A514EF4D6
+	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 17:40:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244541AbiDAPEw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Apr 2022 11:04:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52116 "EHLO
+        id S1349089AbiDAPEy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Apr 2022 11:04:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52668 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349452AbiDAOzp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:55:45 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F795A94CC;
+        with ESMTP id S1349454AbiDAOzr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:55:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE2F7ABF4A;
         Fri,  1 Apr 2022 07:43:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 49710B824FD;
-        Fri,  1 Apr 2022 14:43:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2569EC340EE;
-        Fri,  1 Apr 2022 14:43:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5335A60A53;
+        Fri,  1 Apr 2022 14:43:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5AC80C34112;
+        Fri,  1 Apr 2022 14:43:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648824235;
-        bh=aocFPkyzseOCNsdg1UrLaHgsgGvcR7I5oaXDD6AYLMw=;
+        s=k20201202; t=1648824237;
+        bh=5SOjOQu++aaei18q5/nxEsl1dvMapYKvR0+id35pwL4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=liOa8aoDyp/atrus9KEW+tK0dT3FIsK7lcBRHL2ROwlPECIHrfFJC8eVtB9mjRDq5
-         LAPxSmHtCelW+5BUv5mP1GLjDP3zklnB8BfgH7RQvXZ7LJLO+UAotoI7E1uyq4ufZV
-         Ko5YqH7UZpbUZ7qePARV5mCL2a5dyxqaif1m7qfyN9y0ScJ6vw+0YfmO51mGgVw1cQ
-         gyYaSb/nN2T11bpqRsf1D9Pb0x0yv22B3ZlC83i0g9filY9BQ0F+Aclvt0irKdvp2h
-         cttvaHxr2WNWX/+AyQflI5xxmKVOskDCMoSyUhEBllunMzSVTxXziBrhIrJbyUPLXK
-         yJOAuvelfPPSA==
+        b=ZlCGCs1/OktvkGqhMLlxR27e9HsUqFFowQAkpJKzVzM3PmHByLpydrwPy6ktEgK+U
+         4O9nqQRqukv8Nb1BojmaTEkDWECTrM/hRa1zpLCuIE4GHK7h6yrCEnUT7KAtH+420V
+         YU9Nhe8qk6L0UU5DUW2azs+k0GHGXLUxcAW4iMJZGZC32FJ9usZ36jfokLOpnc5D5S
+         G0m5jQr4Ve7ZIcuQnEaASAfHWVU0E86RYneQiJ4S3OielVqyNI51dFrShPHoqTQe/Y
+         qsrX+nDKOchz0GbRGQeeaW5yTEy1y0vMDZ52l2lNbMTJszf9396ATnhYD7aRXBVOO2
+         oaHVlC+NThdNQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Harold Huang <baymaxhuang@gmail.com>,
-        Eric Dumazet <eric.dumazet@gmail.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
-        pabeni@redhat.com, mst@redhat.com, ast@kernel.org,
-        daniel@iogearbox.net, hawk@kernel.org, john.fastabend@gmail.com,
-        netdev@vger.kernel.org, kvm@vger.kernel.org,
-        virtualization@lists.linux-foundation.org, bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 44/65] tuntap: add sanity checks about msg_controllen in sendmsg
-Date:   Fri,  1 Apr 2022 10:41:45 -0400
-Message-Id: <20220401144206.1953700-44-sashal@kernel.org>
+Cc:     Robin Murphy <robin.murphy@arm.com>,
+        Yunfei Wang <yf.wang@mediatek.com>,
+        Miles Chen <miles.chen@mediatek.com>,
+        Joerg Roedel <jroedel@suse.de>,
+        Sasha Levin <sashal@kernel.org>, joro@8bytes.org,
+        will@kernel.org, matthias.bgg@gmail.com,
+        iommu@lists.linux-foundation.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.10 45/65] iommu/iova: Improve 32-bit free space estimate
+Date:   Fri,  1 Apr 2022 10:41:46 -0400
+Message-Id: <20220401144206.1953700-45-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220401144206.1953700-1-sashal@kernel.org>
 References: <20220401144206.1953700-1-sashal@kernel.org>
@@ -62,69 +62,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harold Huang <baymaxhuang@gmail.com>
+From: Robin Murphy <robin.murphy@arm.com>
 
-[ Upstream commit 74a335a07a17d131b9263bfdbdcb5e40673ca9ca ]
+[ Upstream commit 5b61343b50590fb04a3f6be2cdc4868091757262 ]
 
-In patch [1], tun_msg_ctl was added to allow pass batched xdp buffers to
-tun_sendmsg. Although we donot use msg_controllen in this path, we should
-check msg_controllen to make sure the caller pass a valid msg_ctl.
+For various reasons based on the allocator behaviour and typical
+use-cases at the time, when the max32_alloc_size optimisation was
+introduced it seemed reasonable to couple the reset of the tracked
+size to the update of cached32_node upon freeing a relevant IOVA.
+However, since subsequent optimisations focused on helping genuine
+32-bit devices make best use of even more limited address spaces, it
+is now a lot more likely for cached32_node to be anywhere in a "full"
+32-bit address space, and as such more likely for space to become
+available from IOVAs below that node being freed.
 
-[1]: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=fe8dd45bb7556246c6b76277b1ba4296c91c2505
+At this point, the short-cut in __cached_rbnode_delete_update() really
+doesn't hold up any more, and we need to fix the logic to reliably
+provide the expected behaviour. We still want cached32_node to only move
+upwards, but we should reset the allocation size if *any* 32-bit space
+has become available.
 
-Reported-by: Eric Dumazet <eric.dumazet@gmail.com>
-Suggested-by: Jason Wang <jasowang@redhat.com>
-Signed-off-by: Harold Huang <baymaxhuang@gmail.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
-Link: https://lore.kernel.org/r/20220303022441.383865-1-baymaxhuang@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reported-by: Yunfei Wang <yf.wang@mediatek.com>
+Signed-off-by: Robin Murphy <robin.murphy@arm.com>
+Reviewed-by: Miles Chen <miles.chen@mediatek.com>
+Link: https://lore.kernel.org/r/033815732d83ca73b13c11485ac39336f15c3b40.1646318408.git.robin.murphy@arm.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/tap.c   | 3 ++-
- drivers/net/tun.c   | 3 ++-
- drivers/vhost/net.c | 1 +
- 3 files changed, 5 insertions(+), 2 deletions(-)
+ drivers/iommu/iova.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/tap.c b/drivers/net/tap.c
-index f549d3a8e59c..8f7bb15206e9 100644
---- a/drivers/net/tap.c
-+++ b/drivers/net/tap.c
-@@ -1202,7 +1202,8 @@ static int tap_sendmsg(struct socket *sock, struct msghdr *m,
- 	struct xdp_buff *xdp;
- 	int i;
+diff --git a/drivers/iommu/iova.c b/drivers/iommu/iova.c
+index 1164d1a42cbc..4600e97acb26 100644
+--- a/drivers/iommu/iova.c
++++ b/drivers/iommu/iova.c
+@@ -138,10 +138,11 @@ __cached_rbnode_delete_update(struct iova_domain *iovad, struct iova *free)
+ 	cached_iova = rb_entry(iovad->cached32_node, struct iova, node);
+ 	if (free == cached_iova ||
+ 	    (free->pfn_hi < iovad->dma_32bit_pfn &&
+-	     free->pfn_lo >= cached_iova->pfn_lo)) {
++	     free->pfn_lo >= cached_iova->pfn_lo))
+ 		iovad->cached32_node = rb_next(&free->node);
++
++	if (free->pfn_lo < iovad->dma_32bit_pfn)
+ 		iovad->max32_alloc_size = iovad->dma_32bit_pfn;
+-	}
  
--	if (ctl && (ctl->type == TUN_MSG_PTR)) {
-+	if (m->msg_controllen == sizeof(struct tun_msg_ctl) &&
-+	    ctl && ctl->type == TUN_MSG_PTR) {
- 		for (i = 0; i < ctl->num; i++) {
- 			xdp = &((struct xdp_buff *)ctl->ptr)[i];
- 			tap_get_user_xdp(q, xdp);
-diff --git a/drivers/net/tun.c b/drivers/net/tun.c
-index ffbc7eda95ee..55ce141c93c7 100644
---- a/drivers/net/tun.c
-+++ b/drivers/net/tun.c
-@@ -2499,7 +2499,8 @@ static int tun_sendmsg(struct socket *sock, struct msghdr *m, size_t total_len)
- 	if (!tun)
- 		return -EBADFD;
- 
--	if (ctl && (ctl->type == TUN_MSG_PTR)) {
-+	if (m->msg_controllen == sizeof(struct tun_msg_ctl) &&
-+	    ctl && ctl->type == TUN_MSG_PTR) {
- 		struct tun_page tpage;
- 		int n = ctl->num;
- 		int flush = 0;
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index da02c3e96e7b..e303f6f073d2 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -472,6 +472,7 @@ static void vhost_tx_batch(struct vhost_net *net,
- 		goto signal_used;
- 
- 	msghdr->msg_control = &ctl;
-+	msghdr->msg_controllen = sizeof(ctl);
- 	err = sock->ops->sendmsg(sock, msghdr, 0);
- 	if (unlikely(err < 0)) {
- 		vq_err(&nvq->vq, "Fail to batch sending packets\n");
+ 	cached_iova = rb_entry(iovad->cached_node, struct iova, node);
+ 	if (free->pfn_lo >= cached_iova->pfn_lo)
 -- 
 2.34.1
 
