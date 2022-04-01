@@ -2,49 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 754B84EF2F5
-	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 17:16:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30A934EF493
+	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 17:32:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348803AbiDAOze (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Apr 2022 10:55:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60664 "EHLO
+        id S1348946AbiDAOxD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Apr 2022 10:53:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57420 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349807AbiDAOqu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:46:50 -0400
+        with ESMTP id S1349836AbiDAOqw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:46:52 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0912929EE0C;
-        Fri,  1 Apr 2022 07:36:34 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0ABBC24ED8D;
+        Fri,  1 Apr 2022 07:36:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C234360B8A;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 364CD60B9F;
+        Fri,  1 Apr 2022 14:36:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3178C340F2;
         Fri,  1 Apr 2022 14:36:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29766C2BBE4;
-        Fri,  1 Apr 2022 14:36:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648823766;
-        bh=zq+1QPbSekVzYFU/HR9QExlr4oS2/VMpbbXHvi4dsvA=;
+        s=k20201202; t=1648823767;
+        bh=aTDvfyBb6ZFwQUDdatUy1W5KmV+kCGUwHFAYnOu3iOA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jKiU8gUVHthbgpLbXtqI8ZH6Mj9hV7x22H1IZNSIs0Tylr2FRT3pyhb9wQeS10+xt
-         EWOEGq5CzRFfRXhrW6MJ6mrvoWzG8EbJcH48aibkmD0eclWg2aG1dZnHcLBCeJ3BR6
-         1tKTqFHxw34ShSdEkopX46rizJfQe7lVLAI5+yCvv8q6P1EjgSj8/n3rRFf/zgWQGR
-         jTZEYFyQV/drRKdK7YMQ8PBICdV/5dLeGEYizRzY2ytJV2JamczOoKC99TE23Oi2Pe
-         uMV5FKGJR4IokUNOQfVgzqle4Ar0iss9JSBf/bWpKXINc/0zE0KLncnYEpHez0CfnP
-         5DgWrCasU3O5A==
+        b=t/DJqzU3J8GMTr+9Fissfr3gsnc0/vOp+a9Uk7h0h/EJ0ftU2Bb3dkISjjoIl8hOv
+         6t5/UvvG6MIFcu/L7ejBercTn4TCL5K1oON/5ngCDDI2Aj0NctEkh84VSvjhY1cl55
+         xWk0d0QvGK/ASyiCFnebjyZDpPC6ufkEIcBPzGyMUlJZUYk0MlYSIG7cJD3/FaKGrq
+         eKmIwDiJFiQjKHhCSlGSPTZs+g5mBb4Ua8Wug72apKBoLAQkXhymEFnFEw/jvwjnTH
+         0v13aKaT03uiQ2ABxXMCgzlr4C5P636LzDkkD+SsRB7hjA5LRoto8sy47gVDNXiij8
+         64A//kJS80jFQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Johan Almbladh <johan.almbladh@anyfinetworks.com>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>,
-        lorenzo.bianconi83@gmail.com, ryder.lee@mediatek.com,
-        kvalo@kernel.org, davem@davemloft.net, kuba@kernel.org,
-        pabeni@redhat.com, matthias.bgg@gmail.com, Bo.Jiao@mediatek.com,
-        sujuan.chen@mediatek.com, shayne.chen@mediatek.com,
-        greearb@candelatech.com, linux-wireless@vger.kernel.org,
-        netdev@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.16 069/109] mt76: mt7915: fix injected MPDU transmission to not use HW A-MSDU
-Date:   Fri,  1 Apr 2022 10:32:16 -0400
-Message-Id: <20220401143256.1950537-69-sashal@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Javier Martinez Canillas <javierm@redhat.com>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        Sasha Levin <sashal@kernel.org>, airlied@linux.ie,
+        daniel@ffwll.ch, dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.16 070/109] drm/simpledrm: Add "panel orientation" property on non-upright mounted LCD panels
+Date:   Fri,  1 Apr 2022 10:32:17 -0400
+Message-Id: <20220401143256.1950537-70-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220401143256.1950537-1-sashal@kernel.org>
 References: <20220401143256.1950537-1-sashal@kernel.org>
@@ -62,46 +58,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Almbladh <johan.almbladh@anyfinetworks.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 28225a6ef80ebf46c46e5fbd5b1ee231a0b2b5b7 ]
+[ Upstream commit 94fa115f7b28a3f02611499175e134f0a823b686 ]
 
-Before, the hardware would be allowed to transmit injected 802.11 MPDUs
-as A-MSDU. This resulted in corrupted frames being transmitted. Now,
-injected MPDUs are transmitted as-is, without A-MSDU.
+Some devices use e.g. a portrait panel in a standard laptop casing made
+for landscape panels. efifb calls drm_get_panel_orientation_quirk() and
+sets fb_info.fbcon_rotate_hint to make fbcon rotate the console so that
+it shows up-right instead of on its side.
 
-The fix was verified with frame injection on MT7915 hardware, both with
-and without the injected frame being encrypted.
+When switching to simpledrm the fbcon renders on its side. Call the
+drm_connector_set_panel_orientation_with_quirk() helper to add
+a "panel orientation" property on devices listed in the quirk table,
+to make the fbcon (and aware userspace apps) rotate the image to
+display properly.
 
-If the hardware cannot do A-MSDU aggregation on MPDUs, this problem
-would also be present in the TX path where mac80211 does the 802.11
-encapsulation. However, I have not observed any such problem when
-disabling IEEE80211_HW_SUPPORTS_TX_ENCAP_OFFLOAD to force that mode.
-Therefore this fix is isolated to injected frames only.
-
-The same A-MSDU logic is also present in the mt7921 driver, so it is
-likely that this fix should be applied there too. I do not have access
-to mt7921 hardware so I have not been able to test that.
-
-Signed-off-by: Johan Almbladh <johan.almbladh@anyfinetworks.com>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Cc: Javier Martinez Canillas <javierm@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
+Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220221220045.11958-1-hdegoede@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt7915/mac.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/tiny/simpledrm.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/mac.c b/drivers/net/wireless/mediatek/mt76/mt7915/mac.c
-index 38d66411444a..93aa2242c0d9 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7915/mac.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7915/mac.c
-@@ -982,6 +982,7 @@ mt7915_mac_write_txwi_80211(struct mt7915_dev *dev, __le32 *txwi,
- 		val = MT_TXD3_SN_VALID |
- 		      FIELD_PREP(MT_TXD3_SEQ, IEEE80211_SEQ_TO_SN(seqno));
- 		txwi[3] |= cpu_to_le32(val);
-+		txwi[7] &= ~cpu_to_le32(MT_TXD7_HW_AMSDU);
- 	}
+diff --git a/drivers/gpu/drm/tiny/simpledrm.c b/drivers/gpu/drm/tiny/simpledrm.c
+index 5a6e89825bc2..3e3f9ba1e885 100644
+--- a/drivers/gpu/drm/tiny/simpledrm.c
++++ b/drivers/gpu/drm/tiny/simpledrm.c
+@@ -779,6 +779,9 @@ static int simpledrm_device_init_modeset(struct simpledrm_device *sdev)
+ 	if (ret)
+ 		return ret;
+ 	drm_connector_helper_add(connector, &simpledrm_connector_helper_funcs);
++	drm_connector_set_panel_orientation_with_quirk(connector,
++						       DRM_MODE_PANEL_ORIENTATION_UNKNOWN,
++						       mode->hdisplay, mode->vdisplay);
  
- 	val = FIELD_PREP(MT_TXD7_TYPE, fc_type) |
+ 	formats = simpledrm_device_formats(sdev, &nformats);
+ 
 -- 
 2.34.1
 
