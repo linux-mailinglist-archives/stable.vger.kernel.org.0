@@ -2,49 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DD94E4EF059
-	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 16:33:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BECC54EF178
+	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 16:40:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347505AbiDAOfT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Apr 2022 10:35:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40548 "EHLO
+        id S1348093AbiDAOh1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Apr 2022 10:37:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38502 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347576AbiDAOdM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:33:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C70C224D9BA;
-        Fri,  1 Apr 2022 07:29:50 -0700 (PDT)
+        with ESMTP id S1347583AbiDAOdN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:33:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD7A521592E;
+        Fri,  1 Apr 2022 07:29:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 651B561CB1;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5E293B82505;
+        Fri,  1 Apr 2022 14:29:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48058C34117;
         Fri,  1 Apr 2022 14:29:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C342EC3410F;
-        Fri,  1 Apr 2022 14:29:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648823389;
-        bh=8puUcxcsAgziHU04aioiE2ywk84f9b43kRquxeUisbs=;
+        s=k20201202; t=1648823391;
+        bh=BajCV1XP1yu2fNsxTPAu527PA7vDUg5dFLjTlsjP+bE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fxnr3xgAr0NpN2wbxyolnC6Q0OATeG76OZlW4SEQddwXY0fdvYq1vrg6yell85+kf
-         Y7pn+trPLQFLFWKs2/RWltXn7dB/9HVXY5gMU4l2dI/H1WOyGrMickwfMopZiGOHb9
-         nu4DZdkz3sgJs+9ZwYKcxBHVUVtTRJjzlfkbfjI7ZZOyGTBVDSr8wfMjp2wEvmTZiJ
-         8/yjtiNPPeQRReAb1F+vyj/Sp3wYyBsxtlkOktWnoGzXvpvJI0MiIxpa9uH/Zj5PBA
-         2///O3KmlBFpPLCyTZbGtLNeVuwFREt5KLDTOqQjvcRIsn3Q7rNuTEYXpG0ZU4o4JD
-         ZdTL0fCfG5llQ==
+        b=MNQBaLi1BDv4m+14KN/FDCEAMPa0bCa6U+nZYM4bSApM8oi0Z8yCSvks3XGKb/6DZ
+         SrCpaiiCa5M/OO9Kb8PhJiRUmkrSowcxPqGxwPGT3jhynscUZpc07W63l3npcEvzgN
+         ljaGI4XxzatQ4JKd3VkWJPuLhqSunmeGhJVsMmq9Dd/xzlfyQpri9AQNwh7Y0h+Wft
+         1PjUNH5MMEuhOyc39Ovmyvoh7FKKtTn2HoN8rxFUOH6iSAfMQM6Yb34uf+icxgKOFN
+         ZIj9UBo4Ax7NAMJuPcgGgoGeH38TfNEsi3xr7sUbrwrQMDxt6aL0g6GeDiJ1bIHcCS
+         3pcia6Fuykupg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        jikos@kernel.org, benjamin.tissoires@redhat.com,
-        linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.17 076/149] HID: apple: Report Magic Keyboard 2021 with fingerprint reader battery over USB
-Date:   Fri,  1 Apr 2022 10:24:23 -0400
-Message-Id: <20220401142536.1948161-76-sashal@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, balbi@kernel.org,
+        linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.17 077/149] usb: dwc3: pci: Set the swnode from inside dwc3_pci_quirks()
+Date:   Fri,  1 Apr 2022 10:24:24 -0400
+Message-Id: <20220401142536.1948161-77-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220401142536.1948161-1-sashal@kernel.org>
 References: <20220401142536.1948161-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -58,46 +57,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: José Expósito <jose.exposito89@gmail.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit cbfcfbfc384890a062a5d0cc4792df094a6cc7a8 ]
+[ Upstream commit e285cb403994419e997749c9a52b9370884ae0c8 ]
 
-Like the Apple Magic Keyboard 2015, when connected over USB, the 2021
-version with fingerprint reader registers 2 different interfaces. One of
-them is used to report the battery level.
+The quirk handling may need to set some different properties
+which means using a different swnode, move the setting of the swnode
+to inside dwc3_pci_quirks() so that the quirk handling can choose
+a different swnode.
 
-However, unlike when connected over Bluetooth, the battery level is not
-reported automatically and it is required to fetch it manually.
-
-Add the APPLE_RDESC_BATTERY quirk to fix the battery report descriptor
-and manually fetch the battery level.
-
-Tested with the ANSI variant of the keyboard with and without numpad.
-
-Signed-off-by: José Expósito <jose.exposito89@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20220213130524.18748-4-hdegoede@redhat.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-apple.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/dwc3/dwc3-pci.c | 11 ++++-------
+ 1 file changed, 4 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
-index 18de4ccb0fb2..590376d776a1 100644
---- a/drivers/hid/hid-apple.c
-+++ b/drivers/hid/hid-apple.c
-@@ -752,11 +752,11 @@ static const struct hid_device_id apple_devices[] = {
- 	{ HID_BLUETOOTH_DEVICE(BT_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_2021),
- 		.driver_data = APPLE_HAS_FN | APPLE_ISO_TILDE_QUIRK },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_FINGERPRINT_2021),
--		.driver_data = APPLE_HAS_FN | APPLE_ISO_TILDE_QUIRK },
-+		.driver_data = APPLE_HAS_FN | APPLE_ISO_TILDE_QUIRK | APPLE_RDESC_BATTERY },
- 	{ HID_BLUETOOTH_DEVICE(BT_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_FINGERPRINT_2021),
- 		.driver_data = APPLE_HAS_FN | APPLE_ISO_TILDE_QUIRK },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_NUMPAD_2021),
--		.driver_data = APPLE_HAS_FN | APPLE_ISO_TILDE_QUIRK },
-+		.driver_data = APPLE_HAS_FN | APPLE_ISO_TILDE_QUIRK | APPLE_RDESC_BATTERY },
- 	{ HID_BLUETOOTH_DEVICE(BT_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_NUMPAD_2021),
- 		.driver_data = APPLE_HAS_FN | APPLE_ISO_TILDE_QUIRK },
+diff --git a/drivers/usb/dwc3/dwc3-pci.c b/drivers/usb/dwc3/dwc3-pci.c
+index 06d0e88ec8af..4d9608cc55f7 100644
+--- a/drivers/usb/dwc3/dwc3-pci.c
++++ b/drivers/usb/dwc3/dwc3-pci.c
+@@ -185,7 +185,8 @@ static const struct software_node dwc3_pci_amd_mr_swnode = {
+ 	.properties = dwc3_pci_mr_properties,
+ };
+ 
+-static int dwc3_pci_quirks(struct dwc3_pci *dwc)
++static int dwc3_pci_quirks(struct dwc3_pci *dwc,
++			   const struct software_node *swnode)
+ {
+ 	struct pci_dev			*pdev = dwc->pci;
+ 
+@@ -242,7 +243,7 @@ static int dwc3_pci_quirks(struct dwc3_pci *dwc)
+ 		}
+ 	}
+ 
+-	return 0;
++	return device_add_software_node(&dwc->dwc3->dev, swnode);
+ }
+ 
+ #ifdef CONFIG_PM
+@@ -307,11 +308,7 @@ static int dwc3_pci_probe(struct pci_dev *pci, const struct pci_device_id *id)
+ 	dwc->dwc3->dev.parent = dev;
+ 	ACPI_COMPANION_SET(&dwc->dwc3->dev, ACPI_COMPANION(dev));
+ 
+-	ret = device_add_software_node(&dwc->dwc3->dev, (void *)id->driver_data);
+-	if (ret < 0)
+-		goto err;
+-
+-	ret = dwc3_pci_quirks(dwc);
++	ret = dwc3_pci_quirks(dwc, (void *)id->driver_data);
+ 	if (ret)
+ 		goto err;
  
 -- 
 2.34.1
