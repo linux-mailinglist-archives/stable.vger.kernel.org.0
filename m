@@ -2,244 +2,172 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D3EB4EFBE9
-	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 22:56:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A38984EFCEE
+	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 00:58:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351791AbiDAU6E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Apr 2022 16:58:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43804 "EHLO
+        id S1352621AbiDAXAN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Apr 2022 19:00:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32778 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352786AbiDAU6D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 16:58:03 -0400
-Received: from letterbox.kde.org (letterbox.kde.org [IPv6:2001:41c9:1:41e::242])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDD9E1B98A4
-        for <stable@vger.kernel.org>; Fri,  1 Apr 2022 13:56:11 -0700 (PDT)
-Received: from vertex.vmware.com (pool-108-36-85-85.phlapa.fios.verizon.net [108.36.85.85])
-        (Authenticated sender: zack)
-        by letterbox.kde.org (Postfix) with ESMTPSA id E752C28A54C;
-        Fri,  1 Apr 2022 21:56:06 +0100 (BST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kde.org; s=users;
-        t=1648846567; bh=tfeVlceSRZBZu03W2YFP4TmoUfd1ziVx1HM9W7D9bHM=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cgAs+C1mVGkooOkdPLOeCVduvfX68TJLmbTTvIvA/rfuK5xuwYZ1xybxQB24j5RjT
-         ZKL9s19oZgkLX991pv0hF4vnl34bNnFpgBZHAyonHb6nvnautFGjP7Iqe7ok7ilqyG
-         04S6qptv6LQxri3ALIpnPAFcGBkg7Mq8uzq8L8oFqbi557fX76WGdCQaHEw8OiqBBi
-         9yUjhHwB1kf9XkmXbmwdBu2tU0IgAMku6UazPm9IDdUcarHXOH9K5CbrQ2qXLosrwa
-         EUCydbXQ5UBYYZotyOF33NF1BeEhZTh51sF1osTiW6Jm9xRLHGZoS2gn8KYA1nIRxh
-         bOMZdXoyRNTIA==
-From:   Zack Rusin <zack@kde.org>
-To:     dri-devel@lists.freedesktop.org
-Cc:     krastevm@vmware.com, mombasawalam@vmware.com,
-        Zack Rusin <zackr@vmware.com>, stable@vger.kernel.org
-Subject: [PATCH 3/3] drm/vmwgfx: Fix gem refcounting on prime exported surfaces
-Date:   Fri,  1 Apr 2022 16:56:02 -0400
-Message-Id: <20220401205602.1172975-3-zack@kde.org>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20220401205602.1172975-1-zack@kde.org>
-References: <20220401205602.1172975-1-zack@kde.org>
-Reply-To: Zack Rusin <zackr@vmware.com>
+        with ESMTP id S234030AbiDAXAM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 19:00:12 -0400
+Received: from mout.gmx.net (mout.gmx.net [212.227.17.21])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 845911037;
+        Fri,  1 Apr 2022 15:58:19 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
+        s=badeba3b8450; t=1648853883;
+        bh=rEwbnzA7y5go1R83gZ81JCcwNi/lzBlUr1wv6FJe6zM=;
+        h=X-UI-Sender-Class:Date:To:References:From:Subject:In-Reply-To;
+        b=iTaf6/KJSq7E++xx8Citi6d+fpsWoSKDGHErB/CkfMQeiJOshd2qRGnID+xlHNRsC
+         JdIdSH1IyAHb9HLkiiAaYwv9YYoyThnB9Cm8N6u4KCyeQC48EnMoslmpbIdZV2Yf1S
+         cgxPyLejX2WM58j3GuEIxzMu1W2Zw1EYGFgKFjEg=
+X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
+Received: from [0.0.0.0] ([149.28.201.231]) by mail.gmx.net (mrgmx104
+ [212.227.17.174]) with ESMTPSA (Nemesis) id 1MiJVG-1oCFfY3C6A-00fS0L; Sat, 02
+ Apr 2022 00:58:03 +0200
+Message-ID: <b9b41fbd-e60d-6698-53f6-545a320acf1a@gmx.com>
+Date:   Sat, 2 Apr 2022 06:57:58 +0800
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.7.0
+Content-Language: en-US
+To:     dsterba@suse.cz, Qu Wenruo <wqu@suse.com>,
+        linux-btrfs@vger.kernel.org, Matt Corallo <blnxfsl@bluematt.me>,
+        stable@vger.kernel.org
+References: <1f622305ee7ecb3b6ec09f878c26ad0446e18311.1648798164.git.wqu@suse.com>
+ <20220401163954.GM15609@twin.jikos.cz>
+From:   Qu Wenruo <quwenruo.btrfs@gmx.com>
+Subject: Re: [PATCH] btrfs: force v2 space cache usage for subpage mount
+In-Reply-To: <20220401163954.GM15609@twin.jikos.cz>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:nMNBkjLq9aEwykYrVVXH0JZuoN5hnMM37ZjoxkYZ5gcIHrUYdMd
+ GiVN9oSVmke5IiWDn1lsj9zhvFiv1Xm+iHdThZ5MC7h8eboBo6bmBEqr7EHIuXJmjW8m7d9
+ bPycDt/fDMxsVAFGJvV+71FOpZ+nRcNafIderPnG8am8gOwhLmupOiZeAd1Qbjb/RSXKntC
+ sVTs0ebequgQ3jgLYgL7g==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:fzgU9CwD+T0=:RyqKPTf1gEQFByY66eVE3N
+ 0POgkSX2YSN1ro+rs5kkFdekYkJLinR4CWEoPrUxl2JLOonzymDue5c7VZ5Mi3nXHEDoJWxVx
+ Yffno8mWcu64UCPoZrRr6tqAPL84tObGvOKzomF8++kO6lsFygXBHtHTDD+bIvcbX+MBs0hBa
+ SEBw+/gPNi03y4xgsErePnmfE+uQG74GFKiXeNbFa2wKFDuSuBpG2TMf9yYUVglee+YrqkVMI
+ 0wyej5HYu1d461bjrX+Je4E+HYPNbpmqCidY1T7tHrb1tZ8k5CnwfOXiRM2nwvIe2psW6jv4A
+ E4NLedjVUHdkzRpiNGsTEIENtU87RmMY/oOBggBdAdn+5Aq8e4ijpX54iQrVMw2ivd53qLUXS
+ eKOwci62WWkH176wiu98dwkyNgxKeJOQcUEXlHRnMue+xLQ+kzqNwQnsREmWbDtXE+jo7z5gx
+ n3oBY/Bhbzfly2/Hmvx4tP8pXNZ13/VHZ4dQru29VDYlqxnUD4SF3bcXs+cVX4r7mmPtEWNt4
+ q3/solBjUq4Q4BvkbvQUg2Q9KTDMJMvmXI9ck7qaWGWBbF2rtp5cuN7L0JWjWSG89dCFtheGj
+ cetLQc3cexwrmXSn3+n9H2ZFVr/ByNsbP2/PsOgAMRUTbfHxjKZCkoJjCI6pU11B/Q4SxSC3D
+ kPOg52gqFmPlXG0as/9uFwPDY2AM3S1gvxT/uKSX/tiKHKeqOnRw1PAm74glB1B6hx5lqoQH1
+ XOQFtQfB8qDOZH1ELdMSex7w8gddw0GV9uyTamXFdim7oBgB6HeBseejwVN+5Ey90IuJOMFp6
+ +a1v0dGBthTUBHdFPB2S+S7esoBJ/e2SjM6EZW0g12MwNtmKPW7AAORaOOdsFHoc4YZEyNY/8
+ VRpXfnZwyNS7IlaRg/rheeiZSy2gYiziBXJdoDLuM33RF5T4wTqcButbd2ffXtstQCyzqfYkF
+ YNL1ZHWoicpc5bUVc1JdIvQ28koXMdlPkND1w7UJjCM/QErVO3xBmWD5InmYVVbTqOVwpEoK/
+ 21xWH+idpkIAdaEWkJVpVxNJXtWUaJcKqGwoOm5Qtqy+BPz5Y26seps/x5CO6lJNjP8u4ooRS
+ mQsc3OPAxkvEv0=
+X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,FREEMAIL_FROM,NICE_REPLY_A,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H4,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zack Rusin <zackr@vmware.com>
 
-vmwgfx exports two different kinds of gpu buffers to the userspace:
-surfaces and mob's. Surfaces are backed by mob's. Currently only
-surfaces are allowed with prime. Surfaces exported as prime weren't
-increasing the reference count on the backing mob's (gem objects), which
-meant that if the userspace destroyed the mob's, the exported surface
-was becoming invalid and its usage lead to crashes (due to usage after
-free).
 
-Surfaces need to increase the reference count on the backing mob's for
-the duration of the exported file descriptor for purposes of prime. Same
-has to happen when an already existing mob is passed to the surface, its
-reference count has to be increased.
+On 2022/4/2 00:39, David Sterba wrote:
+> On Fri, Apr 01, 2022 at 03:29:37PM +0800, Qu Wenruo wrote:
+>> [BUG]
+>> For a 4K sector sized btrfs with v1 cache enabled and only mounted on
+>> systems with 4K page size, if it's mounted on subpage (64K page size)
+>> systems, it can cause the following warning on v1 space cache:
+>>
+>>   BTRFS error (device dm-1): csum mismatch on free space cache
+>>   BTRFS warning (device dm-1): failed to load free space cache for bloc=
+k group 84082688, rebuilding it now
+>>
+>> Although not a big deal, as kernel can rebuild it without problem, such
+>> warning will bother end users, especially if they want to switch the
+>> same btrfs seamlessly between different page sized systems.
+>>
+>> [CAUSE]
+>> V1 free space cache is still using fixed PAGE_SIZE for various bitmap,
+>> like BITS_PER_BITMAP.
+>>
+>> Such hard-coded PAGE_SIZE usage will cause various mismatch, from v1
+>> cache size to checksum.
+>>
+>> Thus kernel will always reject v1 cache with a different PAGE_SIZE with
+>> csum mismatch.
+>>
+>> [FIX]
+>> Although we should fix v1 cache, it's already going to be marked
+>> deprecated soon.
+>>
+>> And we have v2 cache based on metadata (which is already fully subpage
+>> compatible), and it has almost everything superior than v1 cache.
+>>
+>> So just force subpage mount to use v2 cache on mount.
+>>
+>> Reported-by: Matt Corallo <blnxfsl@bluematt.me>
+>> CC: stable@vger.kernel.org # 5.15+
+>> Link: https://lore.kernel.org/linux-btrfs/61aa27d1-30fc-c1a9-f0f4-9df54=
+4395ec3@bluematt.me/
+>> Signed-off-by: Qu Wenruo <wqu@suse.com>
+>> ---
+>>   fs/btrfs/disk-io.c | 11 +++++++++++
+>>   1 file changed, 11 insertions(+)
+>>
+>> diff --git a/fs/btrfs/disk-io.c b/fs/btrfs/disk-io.c
+>> index d456f426924c..34eb6d4b904a 100644
+>> --- a/fs/btrfs/disk-io.c
+>> +++ b/fs/btrfs/disk-io.c
+>> @@ -3675,6 +3675,17 @@ int __cold open_ctree(struct super_block *sb, st=
+ruct btrfs_fs_devices *fs_device
+>>   	if (sectorsize < PAGE_SIZE) {
+>>   		struct btrfs_subpage_info *subpage_info;
+>>
+>> +		/*
+>> +		 * V1 space cache has some hardcoded PAGE_SIZE usage, and is
+>> +		 * going to be deprecated.
+>> +		 *
+>> +		 * Force to use v2 cache for subpage case.
+>> +		 */
+>> +		btrfs_clear_opt(fs_info->mount_opt, SPACE_CACHE);
+>> +		btrfs_set_and_info(fs_info, FREE_SPACE_TREE,
+>> +			"forcing free space tree for sector size %u with page size %lu",
+>> +			sectorsize, PAGE_SIZE);
+>
+> I'm not sure this is implemented the right way. Why is it unconditional?
 
-This fixes crashes with XA state tracker which is used for xrender
-acceleration on xf86-video-vmware.
+Isn't the same thing we do when parsing the mount options for switch
+v1->v2 cache?
 
-Signed-off-by: Zack Rusin <zackr@vmware.com>
-Cc: <stable@vger.kernel.org> # v5.17+
-Reviewed-by: Martin Krastev <krastevm@vmware.com>
-Reviewed-by: Maaz Mombasawala <mombasawalam@vmware.com>
----
- drivers/gpu/drm/vmwgfx/ttm_object.c      |  7 ++++++-
- drivers/gpu/drm/vmwgfx/vmwgfx_drv.h      |  2 ++
- drivers/gpu/drm/vmwgfx/vmwgfx_gem.c      |  6 ++----
- drivers/gpu/drm/vmwgfx/vmwgfx_prime.c    | 14 ++++++++++++--
- drivers/gpu/drm/vmwgfx/vmwgfx_resource.c | 12 ++++++++++++
- drivers/gpu/drm/vmwgfx/vmwgfx_surface.c  |  1 +
- 6 files changed, 35 insertions(+), 7 deletions(-)
+> Does any subsequent mount have to clear and set the bits after it has
+> been already? Or what if the free space tree is set at mkfs time, which
+> is now the default.
 
-diff --git a/drivers/gpu/drm/vmwgfx/ttm_object.c b/drivers/gpu/drm/vmwgfx/ttm_object.c
-index 26a55fef1ab5..53e9f81f7e1b 100644
---- a/drivers/gpu/drm/vmwgfx/ttm_object.c
-+++ b/drivers/gpu/drm/vmwgfx/ttm_object.c
-@@ -1,7 +1,7 @@
- /* SPDX-License-Identifier: GPL-2.0 OR MIT */
- /**************************************************************************
-  *
-- * Copyright (c) 2009-2013 VMware, Inc., Palo Alto, CA., USA
-+ * Copyright (c) 2009-2022 VMware, Inc., Palo Alto, CA., USA
-  * All Rights Reserved.
-  *
-  * Permission is hereby granted, free of charge, to any person obtaining a
-@@ -51,6 +51,7 @@
- #include <linux/module.h>
- #include "ttm_object.h"
- #include "vmwgfx_drv.h"
-+#include "vmwgfx_resource_priv.h"
- 
- MODULE_IMPORT_NS(DMA_BUF);
- 
-@@ -617,6 +618,7 @@ int ttm_prime_handle_to_fd(struct ttm_object_file *tfile,
- 	struct ttm_base_object *base;
- 	struct dma_buf *dma_buf;
- 	struct ttm_prime_object *prime;
-+	struct vmw_resource *res;
- 	int ret;
- 
- 	base = ttm_base_object_lookup(tfile, handle);
-@@ -667,6 +669,9 @@ int ttm_prime_handle_to_fd(struct ttm_object_file *tfile,
- 
- 	ret = dma_buf_fd(dma_buf, flags);
- 	if (ret >= 0) {
-+		res = user_surface_converter->base_obj_to_res(&prime->base);
-+		if (res)
-+			vmw_resource_prime_ref(res);
- 		*prime_fd = ret;
- 		ret = 0;
- 	} else
-diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_drv.h b/drivers/gpu/drm/vmwgfx/vmwgfx_drv.h
-index eabe3e8e9cf9..bb11f0d0b9b1 100644
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_drv.h
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_drv.h
-@@ -853,6 +853,8 @@ void vmw_resource_dirty_update(struct vmw_resource *res, pgoff_t start,
- 			       pgoff_t end);
- int vmw_resources_clean(struct vmw_buffer_object *vbo, pgoff_t start,
- 			pgoff_t end, pgoff_t *num_prefault);
-+void vmw_resource_prime_ref(struct vmw_resource *res);
-+void vmw_resource_prime_unref(struct vmw_resource *res);
- 
- /**
-  * vmw_resource_mob_attached - Whether a resource currently has a mob attached
-diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_gem.c b/drivers/gpu/drm/vmwgfx/vmwgfx_gem.c
-index ce609e7d758f..f41dc638df23 100644
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_gem.c
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_gem.c
-@@ -1,6 +1,6 @@
- /* SPDX-License-Identifier: GPL-2.0 OR MIT */
- /*
-- * Copyright 2021 VMware, Inc.
-+ * Copyright 2021-2022 VMware, Inc.
-  *
-  * Permission is hereby granted, free of charge, to any person
-  * obtaining a copy of this software and associated documentation
-@@ -46,9 +46,8 @@ vmw_buffer_object(struct ttm_buffer_object *bo)
- static void vmw_gem_object_free(struct drm_gem_object *gobj)
- {
- 	struct ttm_buffer_object *bo = drm_gem_ttm_of_gem(gobj);
--	if (bo) {
-+	if (bo)
- 		ttm_bo_put(bo);
--	}
- }
- 
- static int vmw_gem_object_open(struct drm_gem_object *obj,
-@@ -158,7 +157,6 @@ int vmw_gem_object_create_with_handle(struct vmw_private *dev_priv,
- 	return ret;
- }
- 
--
- int vmw_gem_object_create_ioctl(struct drm_device *dev, void *data,
- 				struct drm_file *filp)
- {
-diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_prime.c b/drivers/gpu/drm/vmwgfx/vmwgfx_prime.c
-index 2d72a5ee7c0c..2896d212db54 100644
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_prime.c
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_prime.c
-@@ -1,7 +1,7 @@
- // SPDX-License-Identifier: GPL-2.0 OR MIT
- /**************************************************************************
-  *
-- * Copyright 2013 VMware, Inc., Palo Alto, CA., USA
-+ * Copyright 2013-2022 VMware, Inc., Palo Alto, CA., USA
-  *
-  * Permission is hereby granted, free of charge, to any person obtaining a
-  * copy of this software and associated documentation files (the
-@@ -31,6 +31,7 @@
-  */
- 
- #include "vmwgfx_drv.h"
-+#include "vmwgfx_resource_priv.h"
- #include "ttm_object.h"
- #include <linux/dma-buf.h>
- 
-@@ -62,12 +63,21 @@ static void vmw_prime_unmap_dma_buf(struct dma_buf_attachment *attach,
- {
- }
- 
-+static void vmw_prime_release(struct dma_buf *dma_buf)
-+{
-+	struct ttm_prime_object *prime = dma_buf->priv;
-+	struct vmw_resource *res =
-+			user_surface_converter->base_obj_to_res(&prime->base);
-+	if (res)
-+		vmw_resource_prime_unref(res);
-+}
-+
- const struct dma_buf_ops vmw_prime_dmabuf_ops =  {
- 	.attach = vmw_prime_map_attach,
- 	.detach = vmw_prime_map_detach,
- 	.map_dma_buf = vmw_prime_map_dma_buf,
- 	.unmap_dma_buf = vmw_prime_unmap_dma_buf,
--	.release = NULL,
-+	.release = vmw_prime_release,
- };
- 
- int vmw_prime_fd_to_handle(struct drm_device *dev,
-diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_resource.c b/drivers/gpu/drm/vmwgfx/vmwgfx_resource.c
-index 6542f1498651..11de5d697351 100644
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_resource.c
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_resource.c
-@@ -1169,3 +1169,15 @@ int vmw_resources_clean(struct vmw_buffer_object *vbo, pgoff_t start,
- 
- 	return 0;
- }
-+
-+void vmw_resource_prime_ref(struct vmw_resource *res)
-+{
-+	if (res->backup)
-+		drm_gem_object_get(&res->backup->base.base);
-+}
-+
-+void vmw_resource_prime_unref(struct vmw_resource *res)
-+{
-+	if (res->backup)
-+		drm_gem_object_put(&res->backup->base.base);
-+}
-diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c b/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c
-index 00e8e27e4884..04fdf613df83 100644
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c
-@@ -1502,6 +1502,7 @@ vmw_gb_surface_define_internal(struct drm_device *dev,
- 				goto out_unlock;
- 			} else {
- 				backup_handle = req->base.buffer_handle;
-+				drm_gem_object_get(&res->backup->base.base);
- 			}
- 		}
- 	} else if (req->base.drm_surface_flags &
--- 
-2.32.0
+The function btrfs_set_and_info() will only inform the end users if the
+bit is not set.
+
+>
+> Next, remounting v1->v2 does more things, like removing the v1 tree if
+> it exists. And due to some bugs there are more bits for free space tree
+> to be set like FREE_SPACE_TREE_VALID.  So I don't thing this patch
+> covers all cases for the v2.
+
+You're right on remounting, but in the opposite way.
+There is nothing prevent the users from re-enabling v1 cache.
+
+I should also prevent user from setting v1 cache.
+
+Another concern is, I didn't see code cleaning up v1 cache when we do
+the v1->v2 switch.
+The only code doing such cleanup is cleanup_free_space_cache_v1() in
+free-space-cache.c, but it only gets called in
+btrfs_set_free_space_cache_v1_active().
+
+Or did I miss something?
+
+Thanks,
+Qu
 
