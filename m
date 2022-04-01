@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 092094EED0D
+	by mail.lfdr.de (Postfix) with ESMTP id A13624EED0F
 	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 14:23:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239063AbiDAMYG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Apr 2022 08:24:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52906 "EHLO
+        id S242859AbiDAMYJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Apr 2022 08:24:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52996 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240693AbiDAMYF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 08:24:05 -0400
+        with ESMTP id S240693AbiDAMYJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 08:24:09 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55F11278542
-        for <stable@vger.kernel.org>; Fri,  1 Apr 2022 05:22:16 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27687277967
+        for <stable@vger.kernel.org>; Fri,  1 Apr 2022 05:22:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E58976199D
-        for <stable@vger.kernel.org>; Fri,  1 Apr 2022 12:22:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02ADEC2BBE4;
-        Fri,  1 Apr 2022 12:22:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B9421619CC
+        for <stable@vger.kernel.org>; Fri,  1 Apr 2022 12:22:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB497C2BBE4;
+        Fri,  1 Apr 2022 12:22:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648815735;
-        bh=PTOuA10K06yZn4Cb2UakPYFyQcjQAy6QPK3Dd8DKr9U=;
+        s=korg; t=1648815738;
+        bh=P+nvO2O8nYZIARu82va07C9y36MAThgZ/tUXtVe5KII=;
         h=Subject:To:Cc:From:Date:From;
-        b=rZb4/ZbEREnJ0qhS5mznGAG5Snuftv75xlp7rZpy/LtkHtzqMFbAUcjssJQpoOUlm
-         +aGBB9JIFMcOuAU2a7j/NFwxNtLpAIG3baTXzt8AWbyUADKj4gUw1VPPVyVw8i9I1c
-         3GSV4mPlm10LZn2oTycodeAA7vLaUekrlq94lR+8=
-Subject: FAILED: patch "[PATCH] can: usb_8dev: usb_8dev_start_xmit(): fix double" failed to apply to 5.4-stable tree
+        b=xeLZ0UYEVKiQR0ENuFv+xXa75611FBlueW2jtb8yQW9WdwZXrAe1tuEHPBo37s/vS
+         GrwVjs+lA3JS3IQgL6r6jOrJelJPkg7QVL4Rf7ygQr1ttYmwPy2SOK3oo3KO9HFyuN
+         U4KUuDaorbguTR+WjjB7ve3CGhtlW6KI319FK4os=
+Subject: FAILED: patch "[PATCH] can: usb_8dev: usb_8dev_start_xmit(): fix double" failed to apply to 4.19-stable tree
 To:     hbh25y@gmail.com, mkl@pengutronix.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 01 Apr 2022 14:21:25 +0200
-Message-ID: <164881568523259@kroah.com>
+Date:   Fri, 01 Apr 2022 14:21:26 +0200
+Message-ID: <1648815686221218@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
