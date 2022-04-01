@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DF1EB4EF2A7
-	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 17:14:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A42AA4EF36D
+	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 17:21:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348592AbiDAOwS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Apr 2022 10:52:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34692 "EHLO
+        id S242933AbiDAOwY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Apr 2022 10:52:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60858 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349322AbiDAOps (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:45:48 -0400
+        with ESMTP id S1349335AbiDAOpt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:45:49 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E8ED29B111;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA98C29B115;
         Fri,  1 Apr 2022 07:35:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 42BB060B9F;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9C61360C00;
+        Fri,  1 Apr 2022 14:35:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B1DBC3410F;
         Fri,  1 Apr 2022 14:35:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5C61C36AE3;
-        Fri,  1 Apr 2022 14:35:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648823747;
-        bh=9/9iLykxpxjIxqulCf4eS0Gth61utHyAlCQBiVJTpdE=;
+        s=k20201202; t=1648823749;
+        bh=U7qmQUdlPuFQX3UPu1XTyBEATJfhjBe3w+EizXfZMvw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F2GyoCPuE5noCNOWe0Jexxn+1CwAUT9Fk/QvCtoPtInWU+L+990YZPUdM0ave7GmE
-         7nCbtS7Cn0/CE/fPotE+B6+l87obqJbV0SQW99dCrMP+Tee5w8yvwmqcV22sdx3R/E
-         uHXwqOBu1XcgF5FSgmkM1wJBjZZPD24cg1KzE7xHVG3OJyglcZi+iROwHKQfdtfs5U
-         JqWy0d5/W9oefqzd8taPY6e0pK3PMMX4dNwFbUUCu0q14FNLLRgoXrlVAcGQphmPoO
-         ObZSWsE0/9oYLREND2rtSEM+cGOVuu84YHLFRWwWdpk3gC+EtPqi6o5ZEytcsUuZAo
-         lJNZ90FhfrVjg==
+        b=rDIiOodwQbEPhAXW6qtxTV/EA4GboKkkhZCHRqI1MNhh5TKbjnuy+G8gcppq8xHTY
+         O95N+rQUslSUZdnf/KepyFD69CW8yP66mweRHc/gwGYF3vbcC9s8c5awJM9yrxb92X
+         My1UMKVGEugdesv2KQSOCjL6+eh1sctZ05DLJxVf0OLMZGYF46YSTXnzOD9MaVxDIL
+         wos9lk7jbbAR3Q09a5u2DrF6vWtAiCOeHVIwzz5SiA8PrBaP5/SLwuIn5Iyufr4kWR
+         NzxE71XF9ZNAxyrqL7bO37rDfln29agM/lxNePjhyHqaOVtSbxrX+eVwCQaDdBNCyv
+         XQW3VnlyuTmEg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jordy Zomer <jordy@jordyzomer.github.io>,
-        Jordy Zomer <jordy@pwning.systems>,
-        Mike Snitzer <snitzer@redhat.com>,
+Cc:     Mike Snitzer <snitzer@redhat.com>, Zhang Yi <yi.zhang@huawei.com>,
         Sasha Levin <sashal@kernel.org>, agk@redhat.com,
         snitzer@kernel.org, dm-devel@redhat.com
-Subject: [PATCH AUTOSEL 5.16 060/109] dm ioctl: prevent potential spectre v1 gadget
-Date:   Fri,  1 Apr 2022 10:32:07 -0400
-Message-Id: <20220401143256.1950537-60-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.16 061/109] dm: requeue IO if mapping table not yet available
+Date:   Fri,  1 Apr 2022 10:32:08 -0400
+Message-Id: <20220401143256.1950537-61-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220401143256.1950537-1-sashal@kernel.org>
 References: <20220401143256.1950537-1-sashal@kernel.org>
@@ -58,42 +56,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jordy Zomer <jordy@jordyzomer.github.io>
+From: Mike Snitzer <snitzer@redhat.com>
 
-[ Upstream commit cd9c88da171a62c4b0f1c70e50c75845969fbc18 ]
+[ Upstream commit fa247089de9936a46e290d4724cb5f0b845600f5 ]
 
-It appears like cmd could be a Spectre v1 gadget as it's supplied by a
-user and used as an array index. Prevent the contents of kernel memory
-from being leaked to userspace via speculative execution by using
-array_index_nospec.
+Update both bio-based and request-based DM to requeue IO if the
+mapping table not available.
 
-Signed-off-by: Jordy Zomer <jordy@pwning.systems>
+This race of IO being submitted before the DM device ready is so
+narrow, yet possible for initial table load given that the DM device's
+request_queue is created prior, that it best to requeue IO to handle
+this unlikely case.
+
+Reported-by: Zhang Yi <yi.zhang@huawei.com>
 Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-ioctl.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/md/dm-rq.c |  7 ++++++-
+ drivers/md/dm.c    | 11 +++--------
+ 2 files changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/md/dm-ioctl.c b/drivers/md/dm-ioctl.c
-index 21fe8652b095..901abd6dea41 100644
---- a/drivers/md/dm-ioctl.c
-+++ b/drivers/md/dm-ioctl.c
-@@ -18,6 +18,7 @@
- #include <linux/dm-ioctl.h>
- #include <linux/hdreg.h>
- #include <linux/compat.h>
-+#include <linux/nospec.h>
+diff --git a/drivers/md/dm-rq.c b/drivers/md/dm-rq.c
+index 579ab6183d4d..dffeb47a9efb 100644
+--- a/drivers/md/dm-rq.c
++++ b/drivers/md/dm-rq.c
+@@ -499,8 +499,13 @@ static blk_status_t dm_mq_queue_rq(struct blk_mq_hw_ctx *hctx,
  
- #include <linux/uaccess.h>
- #include <linux/ima.h>
-@@ -1788,6 +1789,7 @@ static ioctl_fn lookup_ioctl(unsigned int cmd, int *ioctl_flags)
- 	if (unlikely(cmd >= ARRAY_SIZE(_ioctls)))
- 		return NULL;
+ 	if (unlikely(!ti)) {
+ 		int srcu_idx;
+-		struct dm_table *map = dm_get_live_table(md, &srcu_idx);
++		struct dm_table *map;
  
-+	cmd = array_index_nospec(cmd, ARRAY_SIZE(_ioctls));
- 	*ioctl_flags = _ioctls[cmd].flags;
- 	return _ioctls[cmd].fn;
- }
++		map = dm_get_live_table(md, &srcu_idx);
++		if (unlikely(!map)) {
++			dm_put_live_table(md, srcu_idx);
++			return BLK_STS_RESOURCE;
++		}
+ 		ti = dm_table_find_target(map, 0);
+ 		dm_put_live_table(md, srcu_idx);
+ 	}
+diff --git a/drivers/md/dm.c b/drivers/md/dm.c
+index 356a0183e1ad..5522ea1f18c5 100644
+--- a/drivers/md/dm.c
++++ b/drivers/md/dm.c
+@@ -1563,15 +1563,10 @@ static void dm_submit_bio(struct bio *bio)
+ 	struct dm_table *map;
+ 
+ 	map = dm_get_live_table(md, &srcu_idx);
+-	if (unlikely(!map)) {
+-		DMERR_LIMIT("%s: mapping table unavailable, erroring io",
+-			    dm_device_name(md));
+-		bio_io_error(bio);
+-		goto out;
+-	}
+ 
+-	/* If suspended, queue this IO for later */
+-	if (unlikely(test_bit(DMF_BLOCK_IO_FOR_SUSPEND, &md->flags))) {
++	/* If suspended, or map not yet available, queue this IO for later */
++	if (unlikely(test_bit(DMF_BLOCK_IO_FOR_SUSPEND, &md->flags)) ||
++	    unlikely(!map)) {
+ 		if (bio->bi_opf & REQ_NOWAIT)
+ 			bio_wouldblock_error(bio);
+ 		else if (bio->bi_opf & REQ_RAHEAD)
 -- 
 2.34.1
 
