@@ -2,106 +2,244 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F2DBF4EFBAB
-	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 22:33:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D3EB4EFBE9
+	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 22:56:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236628AbiDAUe4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Apr 2022 16:34:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53226 "EHLO
+        id S1351791AbiDAU6E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Apr 2022 16:58:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43804 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236627AbiDAUez (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 16:34:55 -0400
-Received: from mail-wm1-x32f.google.com (mail-wm1-x32f.google.com [IPv6:2a00:1450:4864:20::32f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A61A426E007
-        for <stable@vger.kernel.org>; Fri,  1 Apr 2022 13:33:05 -0700 (PDT)
-Received: by mail-wm1-x32f.google.com with SMTP id l7-20020a05600c1d0700b0038c99618859so4273360wms.2
-        for <stable@vger.kernel.org>; Fri, 01 Apr 2022 13:33:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=astier-eu.20210112.gappssmtp.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to;
-        bh=Lla8R4PXg/dU464Bg728GYNjfxsjGcIx+VuygdwbQXY=;
-        b=vt+4iAtzb5kaqgHwNJSBXkqCXXX8qY86z7861l3d9snz3lA6qk0BSWFXeX1pMoznj5
-         NDpcKra/UyhUxCZkPF6SAQNqaMb6eN3dPmV2Q7vk/d/R/DlSo4FwP9HZFWRIKB09T7RG
-         qhywYWTId1dH1WzC1LOBchmCNDimYOswJu+WAfcCGnqVI03Jw4lXSg1yOdriyD5rRAoe
-         MxtgsbGhMpWCTlsJ79zJaCsRN2OL2UU9yvVxHqkIUgemSORHFGy9qIkf/r+f3snHAabg
-         vSL6KMkAVAVwrWQ/4Td1RZ1x0dWsEWUJ9tqCmASLqf7zMXZRzI+bk3BXEmYhyUacaBsy
-         K2QQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to;
-        bh=Lla8R4PXg/dU464Bg728GYNjfxsjGcIx+VuygdwbQXY=;
-        b=x9l4RMOrMpc8gpg793poHdxUIJ7dXrsWE9OdQWgEXnNZCMmcGCjPuno3eoE2Emeosw
-         Ne5EFCP+RpMaJh5jOzfrafxTVfGlVxFD1ucEzE7Cj++ZEXaYtsROhUb65605tWWkxmzr
-         yNjM/g0zT9CtcKDSHMnaBJXimqPA4hEiXrtSpPe1Gvr5L+7NNiiBNimABYpjX4ob7R3R
-         aRE8wWffUjetWz6Lld1YnTCOotFFmyAXNO3VODBrjYXuKak/7+mQCV0t7ngk3SkyzpQ6
-         xfJfYY+Y9OCTB1cJVicyEbMwZgfpPh4W50HDIJO7FVA1OG12YD54t06D03qZ3CKEWINo
-         aCZQ==
-X-Gm-Message-State: AOAM532vzm4F0B9yeE1CaiIozzDDR00KYTuNPZqcgKacTNk3t4kSR4AQ
-        CDsLQ8GXWvj4moz48B+jT08GHQ==
-X-Google-Smtp-Source: ABdhPJyAU0HMUKElzMdYCjku6ZPYDX3BM2AIUFITC+RuOtWy0PB9zLwyqmupKopNv/itYzW4ZoajKA==
-X-Received: by 2002:a05:600c:3547:b0:38c:92a6:5a17 with SMTP id i7-20020a05600c354700b0038c92a65a17mr10270509wmq.20.1648845184241;
-        Fri, 01 Apr 2022 13:33:04 -0700 (PDT)
-Received: from bilrost ([2a01:e0a:28f:75b0:dea6:32ff:fe0d:99f9])
-        by smtp.gmail.com with ESMTPSA id m20-20020a05600c4f5400b0038b5162260csm3770813wmq.23.2022.04.01.13.33.03
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 01 Apr 2022 13:33:03 -0700 (PDT)
-Date:   Fri, 1 Apr 2022 22:33:02 +0200
-From:   Anisse Astier <anisse@astier.eu>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Hans de Goede <hdegoede@redhat.com>,
-        Jani Nikula <jani.nikula@intel.com>,
-        maarten.lankhorst@linux.intel.com, mripard@kernel.org,
-        tzimmermann@suse.de, airlied@linux.ie, daniel@ffwll.ch,
-        dri-devel@lists.freedesktop.org
-Subject: Re: [PATCH AUTOSEL 5.17 001/149] drm: Add orientation quirk for GPD
- Win Max
-Message-ID: <YkdhftH7tyPU8Gqt@bilrost>
-References: <20220401142536.1948161-1-sashal@kernel.org>
+        with ESMTP id S1352786AbiDAU6D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 16:58:03 -0400
+Received: from letterbox.kde.org (letterbox.kde.org [IPv6:2001:41c9:1:41e::242])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDD9E1B98A4
+        for <stable@vger.kernel.org>; Fri,  1 Apr 2022 13:56:11 -0700 (PDT)
+Received: from vertex.vmware.com (pool-108-36-85-85.phlapa.fios.verizon.net [108.36.85.85])
+        (Authenticated sender: zack)
+        by letterbox.kde.org (Postfix) with ESMTPSA id E752C28A54C;
+        Fri,  1 Apr 2022 21:56:06 +0100 (BST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kde.org; s=users;
+        t=1648846567; bh=tfeVlceSRZBZu03W2YFP4TmoUfd1ziVx1HM9W7D9bHM=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=cgAs+C1mVGkooOkdPLOeCVduvfX68TJLmbTTvIvA/rfuK5xuwYZ1xybxQB24j5RjT
+         ZKL9s19oZgkLX991pv0hF4vnl34bNnFpgBZHAyonHb6nvnautFGjP7Iqe7ok7ilqyG
+         04S6qptv6LQxri3ALIpnPAFcGBkg7Mq8uzq8L8oFqbi557fX76WGdCQaHEw8OiqBBi
+         9yUjhHwB1kf9XkmXbmwdBu2tU0IgAMku6UazPm9IDdUcarHXOH9K5CbrQ2qXLosrwa
+         EUCydbXQ5UBYYZotyOF33NF1BeEhZTh51sF1osTiW6Jm9xRLHGZoS2gn8KYA1nIRxh
+         bOMZdXoyRNTIA==
+From:   Zack Rusin <zack@kde.org>
+To:     dri-devel@lists.freedesktop.org
+Cc:     krastevm@vmware.com, mombasawalam@vmware.com,
+        Zack Rusin <zackr@vmware.com>, stable@vger.kernel.org
+Subject: [PATCH 3/3] drm/vmwgfx: Fix gem refcounting on prime exported surfaces
+Date:   Fri,  1 Apr 2022 16:56:02 -0400
+Message-Id: <20220401205602.1172975-3-zack@kde.org>
+X-Mailer: git-send-email 2.32.0
+In-Reply-To: <20220401205602.1172975-1-zack@kde.org>
+References: <20220401205602.1172975-1-zack@kde.org>
+Reply-To: Zack Rusin <zackr@vmware.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20220401142536.1948161-1-sashal@kernel.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=unavailable autolearn_force=no
-        version=3.4.6
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Sasha,
+From: Zack Rusin <zackr@vmware.com>
 
-Le Fri, Apr 01, 2022 at 10:23:08AM -0400, Sasha Levin a écrit :
-> From: Anisse Astier <anisse@astier.eu>
-> 
-> [ Upstream commit 0b464ca3e0dd3cec65f28bc6d396d82f19080f69 ]
-> 
-> Panel is 800x1280, but mounted on a laptop form factor, sideways.
-> 
-> Signed-off-by: Anisse Astier <anisse@astier.eu>
-> Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-> Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-> Link: https://patchwork.freedesktop.org/patch/msgid/20211229222200.53128-3-anisse@astier.eu
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
+vmwgfx exports two different kinds of gpu buffers to the userspace:
+surfaces and mob's. Surfaces are backed by mob's. Currently only
+surfaces are allowed with prime. Surfaces exported as prime weren't
+increasing the reference count on the backing mob's (gem objects), which
+meant that if the userspace destroyed the mob's, the exported surface
+was becoming invalid and its usage lead to crashes (due to usage after
+free).
 
-I don't think this patch will be very useful, because it won't fix the
-device's display orientation without the previous patch it came with,
-titled "drm/i915/opregion: add support for mailbox #5 EDID"
-(e35d8762b04f89f9f5a188d0c440d3a2c1d010ed); while I'd like both to be
-added, I'd prefer if we waited a few more weeks to make sure it does not
-cause regressions.
+Surfaces need to increase the reference count on the backing mob's for
+the duration of the exported file descriptor for purposes of prime. Same
+has to happen when an already existing mob is passed to the surface, its
+reference count has to be increased.
 
-My advice is to drop this patch from all stable kernels for now.
+This fixes crashes with XA state tracker which is used for xrender
+acceleration on xf86-video-vmware.
 
-Regards,
+Signed-off-by: Zack Rusin <zackr@vmware.com>
+Cc: <stable@vger.kernel.org> # v5.17+
+Reviewed-by: Martin Krastev <krastevm@vmware.com>
+Reviewed-by: Maaz Mombasawala <mombasawalam@vmware.com>
+---
+ drivers/gpu/drm/vmwgfx/ttm_object.c      |  7 ++++++-
+ drivers/gpu/drm/vmwgfx/vmwgfx_drv.h      |  2 ++
+ drivers/gpu/drm/vmwgfx/vmwgfx_gem.c      |  6 ++----
+ drivers/gpu/drm/vmwgfx/vmwgfx_prime.c    | 14 ++++++++++++--
+ drivers/gpu/drm/vmwgfx/vmwgfx_resource.c | 12 ++++++++++++
+ drivers/gpu/drm/vmwgfx/vmwgfx_surface.c  |  1 +
+ 6 files changed, 35 insertions(+), 7 deletions(-)
 
-Anisse
-
+diff --git a/drivers/gpu/drm/vmwgfx/ttm_object.c b/drivers/gpu/drm/vmwgfx/ttm_object.c
+index 26a55fef1ab5..53e9f81f7e1b 100644
+--- a/drivers/gpu/drm/vmwgfx/ttm_object.c
++++ b/drivers/gpu/drm/vmwgfx/ttm_object.c
+@@ -1,7 +1,7 @@
+ /* SPDX-License-Identifier: GPL-2.0 OR MIT */
+ /**************************************************************************
+  *
+- * Copyright (c) 2009-2013 VMware, Inc., Palo Alto, CA., USA
++ * Copyright (c) 2009-2022 VMware, Inc., Palo Alto, CA., USA
+  * All Rights Reserved.
+  *
+  * Permission is hereby granted, free of charge, to any person obtaining a
+@@ -51,6 +51,7 @@
+ #include <linux/module.h>
+ #include "ttm_object.h"
+ #include "vmwgfx_drv.h"
++#include "vmwgfx_resource_priv.h"
+ 
+ MODULE_IMPORT_NS(DMA_BUF);
+ 
+@@ -617,6 +618,7 @@ int ttm_prime_handle_to_fd(struct ttm_object_file *tfile,
+ 	struct ttm_base_object *base;
+ 	struct dma_buf *dma_buf;
+ 	struct ttm_prime_object *prime;
++	struct vmw_resource *res;
+ 	int ret;
+ 
+ 	base = ttm_base_object_lookup(tfile, handle);
+@@ -667,6 +669,9 @@ int ttm_prime_handle_to_fd(struct ttm_object_file *tfile,
+ 
+ 	ret = dma_buf_fd(dma_buf, flags);
+ 	if (ret >= 0) {
++		res = user_surface_converter->base_obj_to_res(&prime->base);
++		if (res)
++			vmw_resource_prime_ref(res);
+ 		*prime_fd = ret;
+ 		ret = 0;
+ 	} else
+diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_drv.h b/drivers/gpu/drm/vmwgfx/vmwgfx_drv.h
+index eabe3e8e9cf9..bb11f0d0b9b1 100644
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_drv.h
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_drv.h
+@@ -853,6 +853,8 @@ void vmw_resource_dirty_update(struct vmw_resource *res, pgoff_t start,
+ 			       pgoff_t end);
+ int vmw_resources_clean(struct vmw_buffer_object *vbo, pgoff_t start,
+ 			pgoff_t end, pgoff_t *num_prefault);
++void vmw_resource_prime_ref(struct vmw_resource *res);
++void vmw_resource_prime_unref(struct vmw_resource *res);
+ 
+ /**
+  * vmw_resource_mob_attached - Whether a resource currently has a mob attached
+diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_gem.c b/drivers/gpu/drm/vmwgfx/vmwgfx_gem.c
+index ce609e7d758f..f41dc638df23 100644
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_gem.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_gem.c
+@@ -1,6 +1,6 @@
+ /* SPDX-License-Identifier: GPL-2.0 OR MIT */
+ /*
+- * Copyright 2021 VMware, Inc.
++ * Copyright 2021-2022 VMware, Inc.
+  *
+  * Permission is hereby granted, free of charge, to any person
+  * obtaining a copy of this software and associated documentation
+@@ -46,9 +46,8 @@ vmw_buffer_object(struct ttm_buffer_object *bo)
+ static void vmw_gem_object_free(struct drm_gem_object *gobj)
+ {
+ 	struct ttm_buffer_object *bo = drm_gem_ttm_of_gem(gobj);
+-	if (bo) {
++	if (bo)
+ 		ttm_bo_put(bo);
+-	}
+ }
+ 
+ static int vmw_gem_object_open(struct drm_gem_object *obj,
+@@ -158,7 +157,6 @@ int vmw_gem_object_create_with_handle(struct vmw_private *dev_priv,
+ 	return ret;
+ }
+ 
+-
+ int vmw_gem_object_create_ioctl(struct drm_device *dev, void *data,
+ 				struct drm_file *filp)
+ {
+diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_prime.c b/drivers/gpu/drm/vmwgfx/vmwgfx_prime.c
+index 2d72a5ee7c0c..2896d212db54 100644
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_prime.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_prime.c
+@@ -1,7 +1,7 @@
+ // SPDX-License-Identifier: GPL-2.0 OR MIT
+ /**************************************************************************
+  *
+- * Copyright 2013 VMware, Inc., Palo Alto, CA., USA
++ * Copyright 2013-2022 VMware, Inc., Palo Alto, CA., USA
+  *
+  * Permission is hereby granted, free of charge, to any person obtaining a
+  * copy of this software and associated documentation files (the
+@@ -31,6 +31,7 @@
+  */
+ 
+ #include "vmwgfx_drv.h"
++#include "vmwgfx_resource_priv.h"
+ #include "ttm_object.h"
+ #include <linux/dma-buf.h>
+ 
+@@ -62,12 +63,21 @@ static void vmw_prime_unmap_dma_buf(struct dma_buf_attachment *attach,
+ {
+ }
+ 
++static void vmw_prime_release(struct dma_buf *dma_buf)
++{
++	struct ttm_prime_object *prime = dma_buf->priv;
++	struct vmw_resource *res =
++			user_surface_converter->base_obj_to_res(&prime->base);
++	if (res)
++		vmw_resource_prime_unref(res);
++}
++
+ const struct dma_buf_ops vmw_prime_dmabuf_ops =  {
+ 	.attach = vmw_prime_map_attach,
+ 	.detach = vmw_prime_map_detach,
+ 	.map_dma_buf = vmw_prime_map_dma_buf,
+ 	.unmap_dma_buf = vmw_prime_unmap_dma_buf,
+-	.release = NULL,
++	.release = vmw_prime_release,
+ };
+ 
+ int vmw_prime_fd_to_handle(struct drm_device *dev,
+diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_resource.c b/drivers/gpu/drm/vmwgfx/vmwgfx_resource.c
+index 6542f1498651..11de5d697351 100644
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_resource.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_resource.c
+@@ -1169,3 +1169,15 @@ int vmw_resources_clean(struct vmw_buffer_object *vbo, pgoff_t start,
+ 
+ 	return 0;
+ }
++
++void vmw_resource_prime_ref(struct vmw_resource *res)
++{
++	if (res->backup)
++		drm_gem_object_get(&res->backup->base.base);
++}
++
++void vmw_resource_prime_unref(struct vmw_resource *res)
++{
++	if (res->backup)
++		drm_gem_object_put(&res->backup->base.base);
++}
+diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c b/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c
+index 00e8e27e4884..04fdf613df83 100644
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c
+@@ -1502,6 +1502,7 @@ vmw_gb_surface_define_internal(struct drm_device *dev,
+ 				goto out_unlock;
+ 			} else {
+ 				backup_handle = req->base.buffer_handle;
++				drm_gem_object_get(&res->backup->base.base);
+ 			}
+ 		}
+ 	} else if (req->base.drm_surface_flags &
+-- 
+2.32.0
 
