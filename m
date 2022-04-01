@@ -2,47 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 93B164EF41D
-	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 17:29:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98FD24EF4C8
+	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 17:40:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349897AbiDAO6O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Apr 2022 10:58:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52938 "EHLO
+        id S1348976AbiDAPE4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Apr 2022 11:04:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56736 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348400AbiDAOyT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:54:19 -0400
+        with ESMTP id S1349131AbiDAOzD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:55:03 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C25E2B519E;
-        Fri,  1 Apr 2022 07:42:58 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2958F2963CC;
+        Fri,  1 Apr 2022 07:43:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F0693B82370;
-        Fri,  1 Apr 2022 14:42:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C28CC34113;
-        Fri,  1 Apr 2022 14:42:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8481FB82370;
+        Fri,  1 Apr 2022 14:43:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6AFFCC340EE;
+        Fri,  1 Apr 2022 14:43:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648824176;
-        bh=tcNf97KQCR6uxgPgyDCtS9ULQ0aowwQvap/aa8f5CSw=;
+        s=k20201202; t=1648824182;
+        bh=q/+ewae8Ri6srJhRAceDtcO/mVUUjehSSEurl26zdHA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rFVCu2/lNug9Dj6tOfTEsLj3fXVmUUz/HS4F4MglDztxhrupVFbwUMsdRCkK+PYQC
-         U+fwVZPeZbzs0qwAxZJQyB8kvwE4k/kVFdX4MIzn1FPj9XD4sXmN7xrG7Nsx19gFpO
-         TFF5TLPRIOPRPHv4C80IOR7Erb+RfGiSTnLs+7YAZkr7FmHmn9LH6GhDtTZoSD79JI
-         /faxX/IFLFP0lwEt0Q2SCCeZ9mvCuxi42dZ6D1xye8885pGMKXu2jyq2QCqSe5gra6
-         xPPVcEKChBDtOJFaVxaQ33bNta23U2bkTVUiOGrxNB8D+7BHe01x7YWFYImlGNmG85
-         07QfLdN9xfD0A==
+        b=ReNwQnNAZuWwu0Gcz8gs07gItstToGRaAoPG3xL0UNAlpBisnB/og7aBcGuwJOvFp
+         m/vbaHQi2rtH4eiowrvgL/uv75bHh2CCB/Qc58I5hHfNFKr3lOtDchVEHSfB9j8WYd
+         hR7rTkK2BlyR3L8lOwm//tpxUZ14kRilR4IJcOhBUyzYIg/VJjPAZqPI0aR3Xu1GmD
+         6C5px9K/LGb1r5aKp0sxUPzMI1CTk/MSbKEqfvv+OhyyPrRXy6ihPP8+BAKRE8N5Fh
+         nKUatwg9LEofb4AqBVjJkVNDSLmj23EU7p5hmQzMsnhz6nOa/fPlWIkpgibr2vQDJ1
+         toeNzqbAV9t+g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Eric Dumazet <edumazet@google.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, yoshfuji@linux-ipv6.org,
-        dsahern@kernel.org, mareklindner@neomailbox.ch,
-        sw@simonwunderlich.de, a@unstable.cc, sven@narfation.org,
-        kuba@kernel.org, pabeni@redhat.com, netdev@vger.kernel.org,
-        b.a.t.m.a.n@lists.open-mesh.org
-Subject: [PATCH AUTOSEL 5.10 18/65] ipv6: make mc_forwarding atomic
-Date:   Fri,  1 Apr 2022 10:41:19 -0400
-Message-Id: <20220401144206.1953700-18-sashal@kernel.org>
+Cc:     Sourabh Jain <sourabhjain@linux.ibm.com>,
+        Abdul haleem <abdhalee@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, nathanl@linux.ibm.com,
+        ajd@linux.ibm.com, aik@ozlabs.ru, rafael.j.wysocki@intel.com,
+        adobriyan@gmail.com, npiggin@gmail.com,
+        christophe.leroy@csgroup.eu, arnd@arndb.de,
+        akpm@linux-foundation.org, nick.child@ibm.com, rppt@kernel.org,
+        linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.10 19/65] powerpc: Set crashkernel offset to mid of RMA region
+Date:   Fri,  1 Apr 2022 10:41:20 -0400
+Message-Id: <20220401144206.1953700-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220401144206.1953700-1-sashal@kernel.org>
 References: <20220401144206.1953700-1-sashal@kernel.org>
@@ -60,125 +62,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Sourabh Jain <sourabhjain@linux.ibm.com>
 
-[ Upstream commit 145c7a793838add5e004e7d49a67654dc7eba147 ]
+[ Upstream commit 7c5ed82b800d8615cdda00729e7b62e5899f0b13 ]
 
-This fixes minor data-races in ip6_mc_input() and
-batadv_mcast_mla_rtr_flags_softif_get_ipv6()
+On large config LPARs (having 192 and more cores), Linux fails to boot
+due to insufficient memory in the first memblock. It is due to the
+memory reservation for the crash kernel which starts at 128MB offset of
+the first memblock. This memory reservation for the crash kernel doesn't
+leave enough space in the first memblock to accommodate other essential
+system resources.
 
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+The crash kernel start address was set to 128MB offset by default to
+ensure that the crash kernel get some memory below the RMA region which
+is used to be of size 256MB. But given that the RMA region size can be
+512MB or more, setting the crash kernel offset to mid of RMA size will
+leave enough space for the kernel to allocate memory for other system
+resources.
+
+Since the above crash kernel offset change is only applicable to the LPAR
+platform, the LPAR feature detection is pushed before the crash kernel
+reservation. The rest of LPAR specific initialization will still
+be done during pseries_probe_fw_features as usual.
+
+This patch is dependent on changes to paca allocation for boot CPU. It
+expect boot CPU to discover 1T segment support which is introduced by
+the patch posted here:
+https://lists.ozlabs.org/pipermail/linuxppc-dev/2022-January/239175.html
+
+Reported-by: Abdul haleem <abdhalee@linux.vnet.ibm.com>
+Signed-off-by: Sourabh Jain <sourabhjain@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220204085601.107257-1-sourabhjain@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/ipv6.h       | 2 +-
- net/batman-adv/multicast.c | 2 +-
- net/ipv6/addrconf.c        | 4 ++--
- net/ipv6/ip6_input.c       | 2 +-
- net/ipv6/ip6mr.c           | 8 ++++----
- 5 files changed, 9 insertions(+), 9 deletions(-)
+ arch/powerpc/kernel/rtas.c |  6 ++++++
+ arch/powerpc/kexec/core.c  | 15 +++++++++++----
+ 2 files changed, 17 insertions(+), 4 deletions(-)
 
-diff --git a/include/linux/ipv6.h b/include/linux/ipv6.h
-index f514a7dd8c9c..510f87656479 100644
---- a/include/linux/ipv6.h
-+++ b/include/linux/ipv6.h
-@@ -50,7 +50,7 @@ struct ipv6_devconf {
- 	__s32		use_optimistic;
- #endif
- #ifdef CONFIG_IPV6_MROUTE
--	__s32		mc_forwarding;
-+	atomic_t	mc_forwarding;
- #endif
- 	__s32		disable_ipv6;
- 	__s32		drop_unicast_in_l2_multicast;
-diff --git a/net/batman-adv/multicast.c b/net/batman-adv/multicast.c
-index 139894ca788b..c8a341cd652c 100644
---- a/net/batman-adv/multicast.c
-+++ b/net/batman-adv/multicast.c
-@@ -136,7 +136,7 @@ static u8 batadv_mcast_mla_rtr_flags_softif_get_ipv6(struct net_device *dev)
- {
- 	struct inet6_dev *in6_dev = __in6_dev_get(dev);
+diff --git a/arch/powerpc/kernel/rtas.c b/arch/powerpc/kernel/rtas.c
+index cccb32cf0e08..cf421eb7f90d 100644
+--- a/arch/powerpc/kernel/rtas.c
++++ b/arch/powerpc/kernel/rtas.c
+@@ -1296,6 +1296,12 @@ int __init early_init_dt_scan_rtas(unsigned long node,
+ 	entryp = of_get_flat_dt_prop(node, "linux,rtas-entry", NULL);
+ 	sizep  = of_get_flat_dt_prop(node, "rtas-size", NULL);
  
--	if (in6_dev && in6_dev->cnf.mc_forwarding)
-+	if (in6_dev && atomic_read(&in6_dev->cnf.mc_forwarding))
- 		return BATADV_NO_FLAGS;
- 	else
- 		return BATADV_MCAST_WANT_NO_RTR6;
-diff --git a/net/ipv6/addrconf.c b/net/ipv6/addrconf.c
-index 7c5bf39dca5d..86bcb1825698 100644
---- a/net/ipv6/addrconf.c
-+++ b/net/ipv6/addrconf.c
-@@ -542,7 +542,7 @@ static int inet6_netconf_fill_devconf(struct sk_buff *skb, int ifindex,
- #ifdef CONFIG_IPV6_MROUTE
- 	if ((all || type == NETCONFA_MC_FORWARDING) &&
- 	    nla_put_s32(skb, NETCONFA_MC_FORWARDING,
--			devconf->mc_forwarding) < 0)
-+			atomic_read(&devconf->mc_forwarding)) < 0)
- 		goto nla_put_failure;
++#ifdef CONFIG_PPC64
++	/* need this feature to decide the crashkernel offset */
++	if (of_get_flat_dt_prop(node, "ibm,hypertas-functions", NULL))
++		powerpc_firmware_features |= FW_FEATURE_LPAR;
++#endif
++
+ 	if (basep && entryp && sizep) {
+ 		rtas.base = *basep;
+ 		rtas.entry = *entryp;
+diff --git a/arch/powerpc/kexec/core.c b/arch/powerpc/kexec/core.c
+index 56da5eb2b923..80c79cb5010c 100644
+--- a/arch/powerpc/kexec/core.c
++++ b/arch/powerpc/kexec/core.c
+@@ -147,11 +147,18 @@ void __init reserve_crashkernel(void)
+ 	if (!crashk_res.start) {
+ #ifdef CONFIG_PPC64
+ 		/*
+-		 * On 64bit we split the RMO in half but cap it at half of
+-		 * a small SLB (128MB) since the crash kernel needs to place
+-		 * itself and some stacks to be in the first segment.
++		 * On the LPAR platform place the crash kernel to mid of
++		 * RMA size (512MB or more) to ensure the crash kernel
++		 * gets enough space to place itself and some stack to be
++		 * in the first segment. At the same time normal kernel
++		 * also get enough space to allocate memory for essential
++		 * system resource in the first segment. Keep the crash
++		 * kernel starts at 128MB offset on other platforms.
+ 		 */
+-		crashk_res.start = min(0x8000000ULL, (ppc64_rma_size / 2));
++		if (firmware_has_feature(FW_FEATURE_LPAR))
++			crashk_res.start = ppc64_rma_size / 2;
++		else
++			crashk_res.start = min(0x8000000ULL, (ppc64_rma_size / 2));
+ #else
+ 		crashk_res.start = KDUMP_KERNELBASE;
  #endif
- 	if ((all || type == NETCONFA_PROXY_NEIGH) &&
-@@ -5515,7 +5515,7 @@ static inline void ipv6_store_devconf(struct ipv6_devconf *cnf,
- 	array[DEVCONF_USE_OPTIMISTIC] = cnf->use_optimistic;
- #endif
- #ifdef CONFIG_IPV6_MROUTE
--	array[DEVCONF_MC_FORWARDING] = cnf->mc_forwarding;
-+	array[DEVCONF_MC_FORWARDING] = atomic_read(&cnf->mc_forwarding);
- #endif
- 	array[DEVCONF_DISABLE_IPV6] = cnf->disable_ipv6;
- 	array[DEVCONF_ACCEPT_DAD] = cnf->accept_dad;
-diff --git a/net/ipv6/ip6_input.c b/net/ipv6/ip6_input.c
-index 06d60662717d..15ea3d082534 100644
---- a/net/ipv6/ip6_input.c
-+++ b/net/ipv6/ip6_input.c
-@@ -509,7 +509,7 @@ int ip6_mc_input(struct sk_buff *skb)
- 	/*
- 	 *      IPv6 multicast router mode is now supported ;)
- 	 */
--	if (dev_net(skb->dev)->ipv6.devconf_all->mc_forwarding &&
-+	if (atomic_read(&dev_net(skb->dev)->ipv6.devconf_all->mc_forwarding) &&
- 	    !(ipv6_addr_type(&hdr->daddr) &
- 	      (IPV6_ADDR_LOOPBACK|IPV6_ADDR_LINKLOCAL)) &&
- 	    likely(!(IP6CB(skb)->flags & IP6SKB_FORWARDED))) {
-diff --git a/net/ipv6/ip6mr.c b/net/ipv6/ip6mr.c
-index 41cb348a7c3c..5f0ac47acc74 100644
---- a/net/ipv6/ip6mr.c
-+++ b/net/ipv6/ip6mr.c
-@@ -740,7 +740,7 @@ static int mif6_delete(struct mr_table *mrt, int vifi, int notify,
- 
- 	in6_dev = __in6_dev_get(dev);
- 	if (in6_dev) {
--		in6_dev->cnf.mc_forwarding--;
-+		atomic_dec(&in6_dev->cnf.mc_forwarding);
- 		inet6_netconf_notify_devconf(dev_net(dev), RTM_NEWNETCONF,
- 					     NETCONFA_MC_FORWARDING,
- 					     dev->ifindex, &in6_dev->cnf);
-@@ -908,7 +908,7 @@ static int mif6_add(struct net *net, struct mr_table *mrt,
- 
- 	in6_dev = __in6_dev_get(dev);
- 	if (in6_dev) {
--		in6_dev->cnf.mc_forwarding++;
-+		atomic_inc(&in6_dev->cnf.mc_forwarding);
- 		inet6_netconf_notify_devconf(dev_net(dev), RTM_NEWNETCONF,
- 					     NETCONFA_MC_FORWARDING,
- 					     dev->ifindex, &in6_dev->cnf);
-@@ -1558,7 +1558,7 @@ static int ip6mr_sk_init(struct mr_table *mrt, struct sock *sk)
- 	} else {
- 		rcu_assign_pointer(mrt->mroute_sk, sk);
- 		sock_set_flag(sk, SOCK_RCU_FREE);
--		net->ipv6.devconf_all->mc_forwarding++;
-+		atomic_inc(&net->ipv6.devconf_all->mc_forwarding);
- 	}
- 	write_unlock_bh(&mrt_lock);
- 
-@@ -1591,7 +1591,7 @@ int ip6mr_sk_done(struct sock *sk)
- 			 * so the RCU grace period before sk freeing
- 			 * is guaranteed by sk_destruct()
- 			 */
--			net->ipv6.devconf_all->mc_forwarding--;
-+			atomic_dec(&net->ipv6.devconf_all->mc_forwarding);
- 			write_unlock_bh(&mrt_lock);
- 			inet6_netconf_notify_devconf(net, RTM_NEWNETCONF,
- 						     NETCONFA_MC_FORWARDING,
 -- 
 2.34.1
 
