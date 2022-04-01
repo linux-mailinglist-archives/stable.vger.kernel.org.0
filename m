@@ -2,49 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B92B4EF2A2
-	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 17:14:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63B684EF271
+	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 17:13:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349477AbiDAOzw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Apr 2022 10:55:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60508 "EHLO
+        id S1348972AbiDAOxF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Apr 2022 10:53:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60520 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350005AbiDAOrF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:47:05 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AB822A03C4;
-        Fri,  1 Apr 2022 07:36:55 -0700 (PDT)
+        with ESMTP id S1350019AbiDAOrG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:47:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C47D22A03E0;
+        Fri,  1 Apr 2022 07:36:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id DE04ECE2585;
-        Fri,  1 Apr 2022 14:36:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86F68C2BBE4;
-        Fri,  1 Apr 2022 14:36:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6698C60B8D;
+        Fri,  1 Apr 2022 14:36:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2805C36AE3;
+        Fri,  1 Apr 2022 14:36:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648823780;
-        bh=8CFmazhXImik3BIUnQsKZe9iS5ZceAaTZVntSr+XZt4=;
+        s=k20201202; t=1648823781;
+        bh=fMG8qmMkatb/ALXVaoU86uFYKtdvjs1G7iwQUSKByjo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jYhjXhVs/QdWQ+CrsqtZ0BYyj101ZaKvlC1YtnX43Q7WsEDMIheq3z7MH+anTH+Od
-         5llK+Y/Y6AMkSuciR5MZjomHOMmtJjMPgF77prdBI7+h8+oTjH018pZTRZMtzGQr1R
-         wlA9DMpWQmBNIehGP4rDJU6LORznl/DF15sEl6pkWOx+kk0+XOKJcRFSbEX5X3jHgL
-         MlyHE0DImaktGDuTsLoKFiNEbN1HwcEx6U4dY5I08QKa/djngY+OIuVcJ6fyRG5+O0
-         57G5m4YqBVPGNhd75AzOUUdNo0Gj92XPRR5ql+98lSW9KalBxNMK1wH8q9FewNj+2z
-         Dh3nKfovjMKig==
+        b=dUbZc7jm5WOD5CW7m5VLpylWqEWVJGvyM4mlCeKoAHZH4NcjYVYp++qDW9+nVFc9E
+         QaFaaUy8HVVp8r5emZH4Wo94djEWHb4G4mYbPYStSVUCV7MSbF9XaUxVaib0yrfRPv
+         K9Oza6jcHIgp0TpYwt0X7OZY9MoAtyr9429xXx7jUyACGodNbW4U23E1Laf0Vnj9yI
+         gWNhsEJWavkutDnW2QGenmtvUYc7EVcNBsFcQz/Bxq3Egsl9mQ3oeYK/dyZf6iH0Qk
+         e657NtV4MskIejHDlRoGW2StNdyhKVDBqpIUfc46EGC/jKT+bshP/Co4IrsvwaoNE7
+         e4UIBC9TPnC7g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yang Li <yang.lee@linux.alibaba.com>,
-        Abaci Robot <abaci@linux.alibaba.com>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>,
-        lorenzo.bianconi83@gmail.com, ryder.lee@mediatek.com,
-        kvalo@kernel.org, davem@davemloft.net, kuba@kernel.org,
-        pabeni@redhat.com, matthias.bgg@gmail.com, xing.song@mediatek.com,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.16 072/109] mt76: mt7615: Fix assigning negative values to unsigned variable
-Date:   Fri,  1 Apr 2022 10:32:19 -0400
-Message-Id: <20220401143256.1950537-72-sashal@kernel.org>
+Cc:     Randy Dunlap <rdunlap@infradead.org>,
+        "Juergen E. Fischer" <fischer@norbit.de>,
+        "James E.J. Bottomley" <jejb@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Igor Zhbanov <i.zhbanov@omprussia.ru>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.16 073/109] scsi: aha152x: Fix aha152x_setup() __setup handler return value
+Date:   Fri,  1 Apr 2022 10:32:20 -0400
+Message-Id: <20220401143256.1950537-73-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220401143256.1950537-1-sashal@kernel.org>
 References: <20220401143256.1950537-1-sashal@kernel.org>
@@ -62,39 +59,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Li <yang.lee@linux.alibaba.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 9273ffcc9a11942bd586bb42584337ef3962b692 ]
+[ Upstream commit cc8294ec4738d25e2bb2d71f7d82a9bf7f4a157b ]
 
-Smatch reports the following:
-drivers/net/wireless/mediatek/mt76/mt7615/mac.c:1865
-mt7615_mac_adjust_sensitivity() warn: assigning (-110) to unsigned
-variable 'def_th'
-drivers/net/wireless/mediatek/mt76/mt7615/mac.c:1865
-mt7615_mac_adjust_sensitivity() warn: assigning (-98) to unsigned
-variable 'def_th'
+__setup() handlers should return 1 if the command line option is handled
+and 0 if not (or maybe never return 0; doing so just pollutes init's
+environment with strings that are not init arguments/parameters).
 
-Reported-by: Abaci Robot <abaci@linux.alibaba.com>
-Signed-off-by: Yang Li <yang.lee@linux.alibaba.com>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Return 1 from aha152x_setup() to indicate that the boot option has been
+handled.
+
+Link: lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
+Link: https://lore.kernel.org/r/20220223000623.5920-1-rdunlap@infradead.org
+Cc: "Juergen E. Fischer" <fischer@norbit.de>
+Cc: "James E.J. Bottomley" <jejb@linux.ibm.com>
+Cc: "Martin K. Petersen" <martin.petersen@oracle.com>
+Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt7615/mac.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/aha152x.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/mac.c b/drivers/net/wireless/mediatek/mt76/mt7615/mac.c
-index c79abce543f3..0089c8b29b7b 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7615/mac.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7615/mac.c
-@@ -1732,7 +1732,7 @@ mt7615_mac_adjust_sensitivity(struct mt7615_phy *phy,
- 	struct mt7615_dev *dev = phy->dev;
- 	int false_cca = ofdm ? phy->false_cca_ofdm : phy->false_cca_cck;
- 	bool ext_phy = phy != &dev->phy;
--	u16 def_th = ofdm ? -98 : -110;
-+	s16 def_th = ofdm ? -98 : -110;
- 	bool update = false;
- 	s8 *sensitivity;
- 	int signal;
+diff --git a/drivers/scsi/aha152x.c b/drivers/scsi/aha152x.c
+index d17880b57d17..2449b4215b32 100644
+--- a/drivers/scsi/aha152x.c
++++ b/drivers/scsi/aha152x.c
+@@ -3375,13 +3375,11 @@ static int __init aha152x_setup(char *str)
+ 	setup[setup_count].synchronous = ints[0] >= 6 ? ints[6] : 1;
+ 	setup[setup_count].delay       = ints[0] >= 7 ? ints[7] : DELAY_DEFAULT;
+ 	setup[setup_count].ext_trans   = ints[0] >= 8 ? ints[8] : 0;
+-	if (ints[0] > 8) {                                                /*}*/
++	if (ints[0] > 8)
+ 		printk(KERN_NOTICE "aha152x: usage: aha152x=<IOBASE>[,<IRQ>[,<SCSI ID>"
+ 		       "[,<RECONNECT>[,<PARITY>[,<SYNCHRONOUS>[,<DELAY>[,<EXT_TRANS>]]]]]]]\n");
+-	} else {
++	else
+ 		setup_count++;
+-		return 0;
+-	}
+ 
+ 	return 1;
+ }
 -- 
 2.34.1
 
