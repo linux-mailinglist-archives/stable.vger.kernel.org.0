@@ -2,48 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4509A4EF30F
-	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 17:16:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 029DC4EF264
+	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 17:13:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349324AbiDAOzL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Apr 2022 10:55:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60558 "EHLO
+        id S1349590AbiDAO5D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Apr 2022 10:57:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60334 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352321AbiDAOuO (ORCPT
+        with ESMTP id S1352316AbiDAOuO (ORCPT
         <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:50:14 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88078F5B;
-        Fri,  1 Apr 2022 07:41:29 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFF0C1F047B;
+        Fri,  1 Apr 2022 07:41:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 5DAD9CE258F;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DA25E611E6;
         Fri,  1 Apr 2022 14:40:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21B7EC340EE;
-        Fri,  1 Apr 2022 14:40:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FC94C36AE2;
+        Fri,  1 Apr 2022 14:40:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648824050;
-        bh=OUyOOl54sxaGvC8uGjPJH5iu0OEiwKvOzm17ZD/Dil8=;
+        s=k20201202; t=1648824052;
+        bh=kjuBNnbI+Yjinw7VoawrZRPNdjU4KrvX+KNkVbNlDjM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PMCHjzWICPPhAEcPQA0fa1RkAjwcsJeHJ7kJJViYM0E9jyk+Xm5ZPYh1SxmLGYcSP
-         +0pxJDCsdMlOJBaaddPrY308p4QexBaXhzya4VlJBXpZj/+mnN2bUZnrdD5J7m3q03
-         OjbZ5GrNh0zO5DPeIG2HNpuX/2Qs8LncWGKJKuO+bB/CxF4ScHwS2Qk8t2Ff3ROjl3
-         flFxn7uuduO4WyOXm7Lh2kXJ9Ebv/CPjWUB27XzCy1KSdV5pkavJQAW+o/YrnCbs1K
-         oi+v1/AwP+2+Npr7ZY9qr5RpGwuGWXIxtqaH2dy+heKSE8sQ5wQxj8EMjD9+ImeLZq
-         efrVJyisdAKKQ==
+        b=ndIYvCFF8XIh3Av4BW94dXtU8fn9ImUsPusjldoFdlA3r/kERzA+dNu7UqmsYGlWS
+         T050VNikV9uJz/Z0chOPngKV6Jilwf7jn91zr6t2Of2Y/UzK4UtFlJ+3vFhtZ6KJah
+         g5Z/jFPUpazBJ0djW+bOBVUt9Cr/VrbOZfMcSekHgoHEAB+ivrMBx/B+CFIVlgvVGx
+         IBVQ0UD2MtsJgjbmKkNUoDpi4qPfO1XJa/m2mQr7e6CzfxnEmcf76jWAt7oCRp150W
+         Y1qV9JHkSRUZoFtHTGiVe1gqqAlrO/2M1x3pPPtyx7cx4lL6mgAg9gSY4mkJMVWwao
+         Qg7RhXvJguknA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hangyu Hua <hbh25y@gmail.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Sasha Levin <sashal@kernel.org>, john@phrozen.org,
-        linux-mips@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 66/98] mips: ralink: fix a refcount leak in ill_acc_of_setup()
-Date:   Fri,  1 Apr 2022 10:37:10 -0400
-Message-Id: <20220401143742.1952163-66-sashal@kernel.org>
+Cc:     Sven Eckelmann <sven@narfation.org>,
+        =?UTF-8?q?Leonardo=20M=C3=B6rlein?= <freifunk@irrelefant.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
+        pabeni@redhat.com, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 67/98] macvtap: advertise link netns via netlink
+Date:   Fri,  1 Apr 2022 10:37:11 -0400
+Message-Id: <20220401143742.1952163-67-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220401143742.1952163-1-sashal@kernel.org>
 References: <20220401143742.1952163-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -57,30 +59,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangyu Hua <hbh25y@gmail.com>
+From: Sven Eckelmann <sven@narfation.org>
 
-[ Upstream commit 4a0a1436053b17e50b7c88858fb0824326641793 ]
+[ Upstream commit a02192151b7dbf855084c38dca380d77c7658353 ]
 
-of_node_put(np) needs to be called when pdev == NULL.
+Assign rtnl_link_ops->get_link_net() callback so that IFLA_LINK_NETNSID is
+added to rtnetlink messages. This fixes iproute2 which otherwise resolved
+the link interface to an interface in the wrong namespace.
 
-Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Test commands:
+
+  ip netns add nst
+  ip link add dummy0 type dummy
+  ip link add link macvtap0 link dummy0 type macvtap
+  ip link set macvtap0 netns nst
+  ip -netns nst link show macvtap0
+
+Before:
+
+  10: macvtap0@gre0: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN mode DEFAULT group default qlen 500
+      link/ether 5e:8f:ae:1d:60:50 brd ff:ff:ff:ff:ff:ff
+
+After:
+
+  10: macvtap0@if2: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN mode DEFAULT group default qlen 500
+      link/ether 5e:8f:ae:1d:60:50 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+
+Reported-by: Leonardo Mörlein <freifunk@irrelefant.net>
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Link: https://lore.kernel.org/r/20220228003240.1337426-1-sven@narfation.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/ralink/ill_acc.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/macvtap.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/arch/mips/ralink/ill_acc.c b/arch/mips/ralink/ill_acc.c
-index bdf53807d7c2..bea857c9da8b 100644
---- a/arch/mips/ralink/ill_acc.c
-+++ b/arch/mips/ralink/ill_acc.c
-@@ -61,6 +61,7 @@ static int __init ill_acc_of_setup(void)
- 	pdev = of_find_device_by_node(np);
- 	if (!pdev) {
- 		pr_err("%pOFn: failed to lookup pdev\n", np);
-+		of_node_put(np);
- 		return -EINVAL;
- 	}
+diff --git a/drivers/net/macvtap.c b/drivers/net/macvtap.c
+index 694e2f5dbbe5..39801c31e507 100644
+--- a/drivers/net/macvtap.c
++++ b/drivers/net/macvtap.c
+@@ -133,11 +133,17 @@ static void macvtap_setup(struct net_device *dev)
+ 	dev->tx_queue_len = TUN_READQ_SIZE;
+ }
+ 
++static struct net *macvtap_link_net(const struct net_device *dev)
++{
++	return dev_net(macvlan_dev_real_dev(dev));
++}
++
+ static struct rtnl_link_ops macvtap_link_ops __read_mostly = {
+ 	.kind		= "macvtap",
+ 	.setup		= macvtap_setup,
+ 	.newlink	= macvtap_newlink,
+ 	.dellink	= macvtap_dellink,
++	.get_link_net	= macvtap_link_net,
+ 	.priv_size      = sizeof(struct macvtap_dev),
+ };
  
 -- 
 2.34.1
