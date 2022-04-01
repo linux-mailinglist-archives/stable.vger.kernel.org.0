@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A7414EF555
-	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 17:45:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F0FD04EF558
+	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 17:45:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351092AbiDAPNg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Apr 2022 11:13:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33068 "EHLO
+        id S1351106AbiDAPNi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Apr 2022 11:13:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33064 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350674AbiDAPAZ (ORCPT
+        with ESMTP id S1350677AbiDAPAZ (ORCPT
         <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 11:00:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19A1438DB6;
-        Fri,  1 Apr 2022 07:48:48 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C9D43968C;
+        Fri,  1 Apr 2022 07:48:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A893D60BC2;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 24C5FB8250F;
+        Fri,  1 Apr 2022 14:48:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C236C36AE7;
         Fri,  1 Apr 2022 14:48:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09042C36AE2;
-        Fri,  1 Apr 2022 14:48:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648824527;
-        bh=Qj6uimDyTmbZaD6GAykTGIdpN+2S2nZoy/poGnpQv+0=;
+        s=k20201202; t=1648824528;
+        bh=wjXQQTdaflwbzbxWBAyrELlCTqUdnI4ogLiQTlNBoCo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s0j2N+aff47Ck/40PsLqPCFO5xu5yTDj+zT3Ja8xbzJmtPlzaqNUFenbWu50HC8CY
-         kOarcNG35ZiwBNo7LqdhxjqmnPdCiNFzibs0xlzODZN+Sd/3U6lD6rGVUgVMsiX+/0
-         XN6/nAHTpynahSaN6w0tzr+udOlVoQA3JOJpHlkfI9GVKIGYF+iXxYo0csOv2S8R5H
-         IzPQGH+O/bIYZDS7S8s0rSNtwB1iJDEGqHvRbaU8h5sSkgbsFtVIT5NJgD6xtI8TFa
-         phQxSxPSjfdaxJDS6C72sYE6spDXTHNs9CaGCZSGnosgNm4/J3Hc70NmW6WDdJrn5O
-         3Exr0Rj6KBSYA==
+        b=JV7gDlcyYZOlRnhhBXdV5WDHxL1M6bLUreAImxifUQplRATNHK9zL9vJaFzn6k/4+
+         e+ZCvhwWuQN2wOiphSqzIGjjSwIr/iE5tBrWPO41N2RK9y4iQTJ945W7GeEyFDEM0+
+         77rdnEA5JDqogUFwSAxbhI5rSxahWcoddbR+P/24LR86blGzEsXNgdG2AmyjZVQO/L
+         oBdWBwy8O5m2eet+WYGDDAQR95J1LyLOAYoHiDchRWq7csVEe2GzLen7VpLj5vCKqf
+         FGKO7eqyLmOHHor6In2ghjOVjv3NGOMKPAOstLnqX5+Uw0YtG47Q6Jw0lP9IFpSY7y
+         yv1TB2tT0pjIw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        Jack Wang <jinpu.wang@ionos.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, jinpu.wang@cloud.ionos.com,
-        jejb@linux.ibm.com, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 08/16] scsi: pm8001: Fix pm8001_mpi_task_abort_resp()
-Date:   Fri,  1 Apr 2022 10:48:19 -0400
-Message-Id: <20220401144827.1955845-8-sashal@kernel.org>
+Cc:     Randy Dunlap <rdunlap@infradead.org>,
+        "Juergen E. Fischer" <fischer@norbit.de>,
+        "James E.J. Bottomley" <jejb@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Igor Zhbanov <i.zhbanov@omprussia.ru>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 09/16] scsi: aha152x: Fix aha152x_setup() __setup handler return value
+Date:   Fri,  1 Apr 2022 10:48:20 -0400
+Message-Id: <20220401144827.1955845-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220401144827.1955845-1-sashal@kernel.org>
 References: <20220401144827.1955845-1-sashal@kernel.org>
@@ -58,43 +59,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 7e6b7e740addcea450041b5be8e42f0a4ceece0f ]
+[ Upstream commit cc8294ec4738d25e2bb2d71f7d82a9bf7f4a157b ]
 
-The call to pm8001_ccb_task_free() at the end of
-pm8001_mpi_task_abort_resp() already frees the ccb tag. So when the device
-NCQ_ABORT_ALL_FLAG is set, the tag should not be freed again.  Also change
-the hardcoded 0xBFFFFFFF value to ~NCQ_ABORT_ALL_FLAG as it ought to be.
+__setup() handlers should return 1 if the command line option is handled
+and 0 if not (or maybe never return 0; doing so just pollutes init's
+environment with strings that are not init arguments/parameters).
 
-Link: https://lore.kernel.org/r/20220220031810.738362-19-damien.lemoal@opensource.wdc.com
-Reviewed-by: Jack Wang <jinpu.wang@ionos.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Return 1 from aha152x_setup() to indicate that the boot option has been
+handled.
+
+Link: lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
+Link: https://lore.kernel.org/r/20220223000623.5920-1-rdunlap@infradead.org
+Cc: "Juergen E. Fischer" <fischer@norbit.de>
+Cc: "James E.J. Bottomley" <jejb@linux.ibm.com>
+Cc: "Martin K. Petersen" <martin.petersen@oracle.com>
+Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/pm8001/pm8001_hwi.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/scsi/aha152x.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/scsi/pm8001/pm8001_hwi.c b/drivers/scsi/pm8001/pm8001_hwi.c
-index f374abfb7f1f..f5c7fffec081 100644
---- a/drivers/scsi/pm8001/pm8001_hwi.c
-+++ b/drivers/scsi/pm8001/pm8001_hwi.c
-@@ -3766,12 +3766,11 @@ int pm8001_mpi_task_abort_resp(struct pm8001_hba_info *pm8001_ha, void *piomb)
- 	mb();
+diff --git a/drivers/scsi/aha152x.c b/drivers/scsi/aha152x.c
+index f44d0487236e..bd850c5faf77 100644
+--- a/drivers/scsi/aha152x.c
++++ b/drivers/scsi/aha152x.c
+@@ -3381,13 +3381,11 @@ static int __init aha152x_setup(char *str)
+ 	setup[setup_count].synchronous = ints[0] >= 6 ? ints[6] : 1;
+ 	setup[setup_count].delay       = ints[0] >= 7 ? ints[7] : DELAY_DEFAULT;
+ 	setup[setup_count].ext_trans   = ints[0] >= 8 ? ints[8] : 0;
+-	if (ints[0] > 8) {                                                /*}*/
++	if (ints[0] > 8)
+ 		printk(KERN_NOTICE "aha152x: usage: aha152x=<IOBASE>[,<IRQ>[,<SCSI ID>"
+ 		       "[,<RECONNECT>[,<PARITY>[,<SYNCHRONOUS>[,<DELAY>[,<EXT_TRANS>]]]]]]]\n");
+-	} else {
++	else
+ 		setup_count++;
+-		return 0;
+-	}
  
- 	if (pm8001_dev->id & NCQ_ABORT_ALL_FLAG) {
--		pm8001_tag_free(pm8001_ha, tag);
- 		sas_free_task(t);
--		/* clear the flag */
--		pm8001_dev->id &= 0xBFFFFFFF;
--	} else
-+		pm8001_dev->id &= ~NCQ_ABORT_ALL_FLAG;
-+	} else {
- 		t->task_done(t);
-+	}
- 
- 	return 0;
+ 	return 1;
  }
 -- 
 2.34.1
