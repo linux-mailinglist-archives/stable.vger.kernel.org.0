@@ -2,44 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 965B54EF334
-	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 17:16:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 281DB4EF450
+	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 17:31:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348205AbiDAOwH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Apr 2022 10:52:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34122 "EHLO
+        id S1346200AbiDAOzD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Apr 2022 10:55:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55258 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348987AbiDAOpR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:45:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 609CF2986FE;
-        Fri,  1 Apr 2022 07:35:15 -0700 (PDT)
+        with ESMTP id S1352206AbiDAOuJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:50:09 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62BFB2B19C6;
+        Fri,  1 Apr 2022 07:41:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 37F7B60A3C;
-        Fri,  1 Apr 2022 14:35:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB368C340EE;
-        Fri,  1 Apr 2022 14:35:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2E64CB82500;
+        Fri,  1 Apr 2022 14:35:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3897C340EE;
+        Fri,  1 Apr 2022 14:35:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648823714;
-        bh=O9osNwnWnovFmioDsg9RoWnkdzW2wddKSctaV6asboM=;
+        s=k20201202; t=1648823720;
+        bh=wVy5NP4YCSoyEzZjb6vJTotOF7bMrwyo1S8x1rMxh4E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ebl9Z8ddJtdkFowA8rzp0qPVMTt8NX8Q3F0aI3FMaGDnejJSU2GZKu/DrmmYajWuo
-         ssG86mJNTliJB4AhhR5/OBw8VlFL51n6O5FOWF95Oo7ZZ7dGfUaLL4jRmcRoOqJgbS
-         gsXIueFNmXk+mgZXxMwTllmS65yFL0romOoGe+WCHjGDtQWYmJPKQN3bzBU95e+9/I
-         AX2os95UKXc2kmmha/+C6T6hVNmMDlrjZXKq6cEBe9eODw5J9/ywX16V2gcVaxpOBP
-         TIe/ODKOijDjaksuUHlIstuX1byeinmU9JZcyBY/X7XSrh9nztlGhehQkV4nIaTxqq
-         kQK++S8aT/LdQ==
+        b=Wx/uy+wCWHZIcsR2R8bw+EPTcQ8xLUCg6YZPEWFThS2hs8nwu0V50tQYyKEXXpXli
+         3O98M/oRJG8YbuDH0c0DNzgr9HNf2Sw4q765y84PWtM78A2MwpK9rHTusFI1hvuRm2
+         q7JbWXDFBNrdrkdlLlN2Z6bFWJ7RIGIGdrraUZclXDWpiSBImkRh40h+2l+klIXyFh
+         YD/zNxR9bRvlEowzLpqiPnWVhVlvquWSI/ffDjSXmaWP1ZAfAZ+4axnHvXw4QVxe72
+         MuVK8HOVyCmkdGLivfnA7ZZ0Zp5uQaV/N3r3+oX/bea9mkPZ8g/a4K6j0PX5anzHlY
+         JNANsALIDj/8w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Sasha Levin <sashal@kernel.org>, sre@kernel.org, wens@csie.org,
-        linux-pm@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.16 049/109] power: supply: axp288-charger: Set Vhold to 4.4V
-Date:   Fri,  1 Apr 2022 10:31:56 -0400
-Message-Id: <20220401143256.1950537-49-sashal@kernel.org>
+Cc:     Sung Joon Kim <sungkim@amd.com>,
+        Meenakshikumar Somasundaram <Meenakshikumar.Somasundaram@amd.com>,
+        Jun Lei <Jun.Lei@amd.com>, Jasdeep Dhillon <jdhillon@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, harry.wentland@amd.com,
+        sunpeng.li@amd.com, Rodrigo.Siqueira@amd.com,
+        christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@linux.ie,
+        daniel@ffwll.ch, wenjing.liu@amd.com, george.shen@amd.com,
+        Jimmy.Kizito@amd.com, Wesley.Chalmers@amd.com, Jerry.Zuo@amd.com,
+        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.16 050/109] drm/amd/display: reset lane settings after each PHY repeater LT
+Date:   Fri,  1 Apr 2022 10:31:57 -0400
+Message-Id: <20220401143256.1950537-50-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220401143256.1950537-1-sashal@kernel.org>
 References: <20220401143256.1950537-1-sashal@kernel.org>
@@ -57,83 +64,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Sung Joon Kim <sungkim@amd.com>
 
-[ Upstream commit 5ac121b81b4051e7fc83d5b3456a5e499d5bd147 ]
+[ Upstream commit 3b853c316c9321e195414a6fb121d1c2d45b1e87 ]
 
-The AXP288's recommended and factory default Vhold value (minimum
-input voltage below which the input current draw will be reduced)
-is 4.4V. This lines up with other charger IC's such as the TI
-bq2419x/bq2429x series which use 4.36V or 4.44V.
+[why]
+In LTTPR non-transparent mode, we need
+to reset the cached lane settings before performing
+link training on the next PHY repeater. Otherwise,
+the cached lane settings will be used for the next
+clock recovery e.g. VS = MAX (3) which should not be
+the case according to the DP specs. We expect to use
+minimum lane settings on each clock recovery sequence.
 
-For some reason some BIOS-es initialize Vhold to 4.6V or even 4.7V
-which combined with the typical voltage drop over typically low
-wire gauge micro-USB cables leads to the input-current getting
-capped below 1A (with a 2A capable dedicated charger) based on Vhold.
+[how]
+Reset DPCD and HW lane settings on each repeater LT.
+Set training pattern to 0 for the repeater that failed LT
+at the proper place.
 
-This leads to slow charging, or even to the device slowly discharging
-if the device is in heavy use.
-
-As the Linux AXP288 drivers use the builtin BC1.2 charger detection
-and send the input-current-limit according to the detected charger
-there really is no reason not to use the recommended 4.4V Vhold.
-
-Set Vhold to 4.4V to fix the slow charging issue on various devices.
-
-There is one exception, the special-case of the HP X2 2-in-1s which
-combine this BC1.2 capable PMIC with a Type-C port and a 5V/3A factory
-provided charger with a Type-C plug which does not do BC1.2. These
-have their input-current-limit hardcoded to 3A (like under Windows)
-and use a higher Vhold on purpose to limit the current when used
-with other chargers. To avoid touching Vhold on these HP X2 laptops
-the code setting Vhold is added to an else branch of the if checking
-for these models.
-
-Note this also fixes the sofar unused VBUS_ISPOUT_VHOLD_SET_MASK
-define, which was wrong.
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Reviewed-by: Meenakshikumar Somasundaram <Meenakshikumar.Somasundaram@amd.com>
+Reviewed-by: Jun Lei <Jun.Lei@amd.com>
+Acked-by: Jasdeep Dhillon <jdhillon@amd.com>
+Signed-off-by: Sung Joon Kim <sungkim@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/axp288_charger.c | 14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/power/supply/axp288_charger.c b/drivers/power/supply/axp288_charger.c
-index ec41f6cd3f93..c498e62ab4e2 100644
---- a/drivers/power/supply/axp288_charger.c
-+++ b/drivers/power/supply/axp288_charger.c
-@@ -42,11 +42,11 @@
- #define VBUS_ISPOUT_CUR_LIM_1500MA	0x1	/* 1500mA */
- #define VBUS_ISPOUT_CUR_LIM_2000MA	0x2	/* 2000mA */
- #define VBUS_ISPOUT_CUR_NO_LIM		0x3	/* 2500mA */
--#define VBUS_ISPOUT_VHOLD_SET_MASK	0x31
-+#define VBUS_ISPOUT_VHOLD_SET_MASK	0x38
- #define VBUS_ISPOUT_VHOLD_SET_BIT_POS	0x3
- #define VBUS_ISPOUT_VHOLD_SET_OFFSET	4000	/* 4000mV */
- #define VBUS_ISPOUT_VHOLD_SET_LSB_RES	100	/* 100mV */
--#define VBUS_ISPOUT_VHOLD_SET_4300MV	0x3	/* 4300mV */
-+#define VBUS_ISPOUT_VHOLD_SET_4400MV	0x4	/* 4400mV */
- #define VBUS_ISPOUT_VBUS_PATH_DIS	BIT(7)
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c b/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
+index 135ea1c422f2..f46aa7f8c35d 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
+@@ -2124,21 +2124,26 @@ static enum link_training_result dp_perform_8b_10b_link_training(
+ 				repeater_id--) {
+ 			status = perform_clock_recovery_sequence(link, lt_settings, repeater_id);
  
- #define CHRG_CCCV_CC_MASK		0xf		/* 4 bits */
-@@ -769,6 +769,16 @@ static int charger_init_hw_regs(struct axp288_chrg_info *info)
- 		ret = axp288_charger_vbus_path_select(info, true);
- 		if (ret < 0)
- 			return ret;
-+	} else {
-+		/* Set Vhold to the factory default / recommended 4.4V */
-+		val = VBUS_ISPOUT_VHOLD_SET_4400MV << VBUS_ISPOUT_VHOLD_SET_BIT_POS;
-+		ret = regmap_update_bits(info->regmap, AXP20X_VBUS_IPSOUT_MGMT,
-+					 VBUS_ISPOUT_VHOLD_SET_MASK, val);
-+		if (ret < 0) {
-+			dev_err(&info->pdev->dev, "register(%x) write error(%d)\n",
-+				AXP20X_VBUS_IPSOUT_MGMT, ret);
-+			return ret;
-+		}
+-			if (status != LINK_TRAINING_SUCCESS)
++			if (status != LINK_TRAINING_SUCCESS) {
++				repeater_training_done(link, repeater_id);
+ 				break;
++			}
+ 
+ 			status = perform_channel_equalization_sequence(link,
+ 					lt_settings,
+ 					repeater_id);
+ 
++			repeater_training_done(link, repeater_id);
++
+ 			if (status != LINK_TRAINING_SUCCESS)
+ 				break;
+ 
+-			repeater_training_done(link, repeater_id);
++			for (lane = 0; lane < LANE_COUNT_DP_MAX; lane++) {
++				lt_settings->dpcd_lane_settings[lane].raw = 0;
++				lt_settings->hw_lane_settings[lane].VOLTAGE_SWING = 0;
++				lt_settings->hw_lane_settings[lane].PRE_EMPHASIS = 0;
++			}
+ 		}
+-
+-		for (lane = 0; lane < (uint8_t)lt_settings->link_settings.lane_count; lane++)
+-			lt_settings->dpcd_lane_settings[lane].raw = 0;
  	}
  
- 	/* Read current charge voltage and current limit */
+ 	if (status == LINK_TRAINING_SUCCESS) {
 -- 
 2.34.1
 
