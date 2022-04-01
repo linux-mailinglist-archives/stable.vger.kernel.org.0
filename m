@@ -2,45 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 487474EF16B
-	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 16:40:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C6C5A4EF162
+	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 16:40:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347399AbiDAOfx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Apr 2022 10:35:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56230 "EHLO
+        id S1347744AbiDAOfw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Apr 2022 10:35:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40548 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348301AbiDAOdy (ORCPT
+        with ESMTP id S1348300AbiDAOdy (ORCPT
         <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:33:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76577FEB;
-        Fri,  1 Apr 2022 07:31:49 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23BD1BC7;
+        Fri,  1 Apr 2022 07:31:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 12E0961CC9;
-        Fri,  1 Apr 2022 14:31:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79D23C2BBE4;
-        Fri,  1 Apr 2022 14:31:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C758CB82507;
+        Fri,  1 Apr 2022 14:31:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F9E6C340F2;
+        Fri,  1 Apr 2022 14:31:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648823508;
-        bh=hU3Q0C6ciYXg84ZqJPR6S0ruqfbCwlbRuBLw65YdvU0=;
+        s=k20201202; t=1648823512;
+        bh=779IwsmopQVzwMT4JAhiVrfy59820UbMAuQJyjmPsyc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bs6jOih6TcmUhl4qmZ8/LGinIdpmyZiyapbQL/pnNvKVOPbgl5MsK5kkNObn4h0zG
-         IgXs4cvtbZPY2+ar1SfMwNE4O2IpZ6j7dUllHvK58bhJMNlfMCJrRvXstWB+2zd/fw
-         IH6zp9tx9n4YVmdkChGqcS3fAo8t+TzFJfEHpWl5nYp6F368A/JK2xhGHW8nLlQYqe
-         CFjfHnrVctwgWLMAVe89xKXS+n9wktGijKopHadq4msubbANdBM6f3F8+GiMMRfK+0
-         DxuH/2hZnotaS/mF4W9AFvLNz6g3YLcOIPVnmEV7edQRiTJecRMKYQEEwyVhqqca18
-         mizET6q0lhOig==
+        b=aw2L5bwvrQpVeZa0+CLGgxdImC5HLV2ppl1CLnfAYHuAUiHdlay/uY/109sCGmsiF
+         krSIniGRAdk190hdDqvgClhVHbhAxv91B9R1Ge7zsfyXhcz0eN6HvT1S8gH+8sFWsh
+         j+VrDVjUiYe1cVMWy7F2JXxTFu/JK6dskfFxMquVhSNhdV2B70jEYZv195g9ckxJnF
+         xAHywSmfu+FNQAtmSTqJZ3fSjyyyAm1DrHLnESg/BHZj4vLO0yJyX/qWdxFjoAuvJI
+         FhgICMl/09H+23SVGbo5CxlRu6VrrPemKjupNRLxDtNXI/PcBEm3gZd/z4Qs8AZPRj
+         +sqfmv8424y2Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Michael Ellerman <mpe@ellerman.id.au>,
-        Paul Menzel <pmenzel@molgen.mpg.de>,
-        Peter Zijlstra <peterz@infradead.org>,
+        kernel test robot <lkp@intel.com>,
+        "Naveen N . Rao" <naveen.n.rao@linux.vnet.ibm.com>,
         Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.17 122/149] powerpc/code-patching: Pre-map patch area
-Date:   Fri,  1 Apr 2022 10:25:09 -0400
-Message-Id: <20220401142536.1948161-122-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, ast@kernel.org,
+        daniel@iogearbox.net, andrii@kernel.org, akpm@linux-foundation.org,
+        catalin.marinas@arm.com, anshuman.khandual@arm.com,
+        npiggin@gmail.com, linuxppc-dev@lists.ozlabs.org,
+        netdev@vger.kernel.org, bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.17 123/149] powerpc/64e: Tie PPC_BOOK3E_64 to PPC_FSL_BOOK3E
+Date:   Fri,  1 Apr 2022 10:25:10 -0400
+Message-Id: <20220401142536.1948161-123-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220401142536.1948161-1-sashal@kernel.org>
 References: <20220401142536.1948161-1-sashal@kernel.org>
@@ -60,95 +64,56 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Michael Ellerman <mpe@ellerman.id.au>
 
-[ Upstream commit 591b4b268435f00d2f0b81f786c2c7bd5ef66416 ]
+[ Upstream commit 1a76e520ee1831a81dabf8a9a58c6453f700026e ]
 
-Paul reported a warning with DEBUG_ATOMIC_SLEEP=y:
+Since the IBM A2 CPU support was removed, see commit
+fb5a515704d7 ("powerpc: Remove platforms/wsp and associated pieces"),
+the only 64-bit Book3E CPUs we support are Freescale (NXP) ones.
 
-  BUG: sleeping function called from invalid context at include/linux/sched/mm.h:256
-  in_atomic(): 0, irqs_disabled(): 1, non_block: 0, pid: 1, name: swapper/0
-  preempt_count: 0, expected: 0
-  ...
-  Call Trace:
-    dump_stack_lvl+0xa0/0xec (unreliable)
-    __might_resched+0x2f4/0x310
-    kmem_cache_alloc+0x220/0x4b0
-    __pud_alloc+0x74/0x1d0
-    hash__map_kernel_page+0x2cc/0x390
-    do_patch_instruction+0x134/0x4a0
-    arch_jump_label_transform+0x64/0x78
-    __jump_label_update+0x148/0x180
-    static_key_enable_cpuslocked+0xd0/0x120
-    static_key_enable+0x30/0x50
-    check_kvm_guest+0x60/0x88
-    pSeries_smp_probe+0x54/0xb0
-    smp_prepare_cpus+0x3e0/0x430
-    kernel_init_freeable+0x20c/0x43c
-    kernel_init+0x30/0x1a0
-    ret_from_kernel_thread+0x5c/0x64
+However our Kconfig still allows configurating a kernel that has 64-bit
+Book3E support, but no Freescale CPU support enabled. Such a kernel
+would never boot, it doesn't know about any CPUs.
 
-Peter pointed out that this is because do_patch_instruction() has
-disabled interrupts, but then map_patch_area() calls map_kernel_page()
-then hash__map_kernel_page() which does a sleeping memory allocation.
+It also causes build errors, as reported by lkp, because
+PPC_BARRIER_NOSPEC is not enabled in such a configuration:
 
-We only see the warning in KVM guests with SMT enabled, which is not
-particularly common, or on other platforms if CONFIG_KPROBES is
-disabled, also not common. The reason we don't see it in most
-configurations is that another path that happens to have interrupts
-enabled has allocated the required page tables for us, eg. there's a
-path in kprobes init that does that. That's just pure luck though.
+  powerpc64-linux-ld: arch/powerpc/net/bpf_jit_comp64.o:(.toc+0x0):
+  undefined reference to `powerpc_security_features'
 
-As Christophe suggested, the simplest solution is to do a dummy
-map/unmap when we initialise the patching, so that any required page
-table levels are pre-allocated before the first call to
-do_patch_instruction(). This works because the unmap doesn't free any
-page tables that were allocated by the map, it just clears the PTE,
-leaving the page table levels there for the next map.
+To fix this, force PPC_FSL_BOOK3E to be selected whenever we are
+building a 64-bit Book3E kernel.
 
-Reported-by: Paul Menzel <pmenzel@molgen.mpg.de>
-Debugged-by: Peter Zijlstra <peterz@infradead.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Reported-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
 Suggested-by: Christophe Leroy <christophe.leroy@csgroup.eu>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220223015821.473097-1-mpe@ellerman.id.au
+Link: https://lore.kernel.org/r/20220304061222.2478720-1-mpe@ellerman.id.au
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/lib/code-patching.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ arch/powerpc/platforms/Kconfig.cputype | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/lib/code-patching.c b/arch/powerpc/lib/code-patching.c
-index 906d43463366..00c68e7fb11e 100644
---- a/arch/powerpc/lib/code-patching.c
-+++ b/arch/powerpc/lib/code-patching.c
-@@ -43,9 +43,14 @@ int raw_patch_instruction(u32 *addr, ppc_inst_t instr)
- #ifdef CONFIG_STRICT_KERNEL_RWX
- static DEFINE_PER_CPU(struct vm_struct *, text_poke_area);
+diff --git a/arch/powerpc/platforms/Kconfig.cputype b/arch/powerpc/platforms/Kconfig.cputype
+index 87bc1929ee5a..e2e1fec91c6e 100644
+--- a/arch/powerpc/platforms/Kconfig.cputype
++++ b/arch/powerpc/platforms/Kconfig.cputype
+@@ -107,6 +107,7 @@ config PPC_BOOK3S_64
  
-+static int map_patch_area(void *addr, unsigned long text_poke_addr);
-+static void unmap_patch_area(unsigned long addr);
-+
- static int text_area_cpu_up(unsigned int cpu)
- {
- 	struct vm_struct *area;
-+	unsigned long addr;
-+	int err;
- 
- 	area = get_vm_area(PAGE_SIZE, VM_ALLOC);
- 	if (!area) {
-@@ -53,6 +58,15 @@ static int text_area_cpu_up(unsigned int cpu)
- 			cpu);
- 		return -1;
- 	}
-+
-+	// Map/unmap the area to ensure all page tables are pre-allocated
-+	addr = (unsigned long)area->addr;
-+	err = map_patch_area(empty_zero_page, addr);
-+	if (err)
-+		return err;
-+
-+	unmap_patch_area(addr);
-+
- 	this_cpu_write(text_poke_area, area);
- 
- 	return 0;
+ config PPC_BOOK3E_64
+ 	bool "Embedded processors"
++	select PPC_FSL_BOOK3E
+ 	select PPC_FPU # Make it a choice ?
+ 	select PPC_SMP_MUXED_IPI
+ 	select PPC_DOORBELL
+@@ -295,7 +296,7 @@ config FSL_BOOKE
+ config PPC_FSL_BOOK3E
+ 	bool
+ 	select ARCH_SUPPORTS_HUGETLBFS if PHYS_64BIT || PPC64
+-	select FSL_EMB_PERFMON
++	imply FSL_EMB_PERFMON
+ 	select PPC_SMP_MUXED_IPI
+ 	select PPC_DOORBELL
+ 	select PPC_KUEP
 -- 
 2.34.1
 
