@@ -2,115 +2,141 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A47F4EF554
-	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 17:44:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 710654EF56A
+	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 17:45:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350967AbiDAPNe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Apr 2022 11:13:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34700 "EHLO
+        id S1355127AbiDAPNz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Apr 2022 11:13:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47958 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350581AbiDAPAM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 11:00:12 -0400
-Received: from mail1.bemta33.messagelabs.com (mail1.bemta33.messagelabs.com [67.219.247.4])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F359185444;
-        Fri,  1 Apr 2022 07:48:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=motorola.com;
-        s=Selector; t=1648824482; i=@motorola.com;
-        bh=WROaxWWWhA/Ka6VGT9NzyKO1Nh1SHOr11ZyLRrXkfR8=;
-        h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-         Content-Type:In-Reply-To;
-        b=YT9MHsIuTMP2sKtPAnUbU0aitOxqst3UA6DNHLU8FJfIZhJs2z5MLzgJ36d//TE0D
-         Dy9bSmjDl8rJQzHru+mHwo/wtYC6H+jpOW05rfNoS9FtUx6I9VBQujTMrKWykQ6D0N
-         UaiZKF9Omck/NXOkcKnss+ieA6tdETflC9/37mtxr/881LKMNdpb+66GjZBQnCkRD7
-         b5OAniYpPD0ev5qRTg/Bzq5S41jlf8wtF+/9OzhH2L2oUGjOAZVe3qkBqtaVflDO4E
-         0tjqPvHJpHo5gVJAqFwbGDI712b2GHLfeBmJUqvByMIbAgxz4nZmZ5snLvaIc7/I1h
-         KCz6tnMYj/hPg==
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrEIsWRWlGSWpSXmKPExsWS8eKJqO5CAfc
-  kgwm7dS2OtT1ht5izOdriyYF2RovmxevZLDonLmG3WNi2hMXi8q45bBaLlrUyWzycfZXR4u2d
-  6SwWCzY+YnTg9pjdMZPVY/MKLY9NqzrZPPbPXcPusbhvMqvH501yHoe2v2ELYI9izcxLyq9IY
-  M248+w1U8F01orOT/+ZGhins3QxcnEICUxnknh4o4sZwlnEJLFrx1Egh5ODRUBF4s7MnywgNp
-  uAmsSC16vA4iICxhL9Z2exg9jMAk+ZJCbO4gOxhQWCJNq6/4LFeQWUJZ58W8YIYgsJhEv8XbC
-  cFSIuKHFy5hMWiF4tiRv/XjJ1MXIA2dISy/9xgIQ5BTQl2hdvY5nAyDsLSccsJB2zEDoWMDKv
-  YrROKspMzyjJTczM0TU0MNA1NDTRNTfUNTI00kus0k3UKy3WTU0sLtEFcsuL9VKLi/WKK3OTc
-  1L08lJLNjECoyKlyP3KDsb7K3/qHWKU5GBSEuW9vMEtSYgvKT+lMiOxOCO+qDQntfgQowwHh5
-  IELx+fe5KQYFFqempFWmYOMEJh0hIcPEoivIasQGne4oLE3OLMdIjUKUZFKXHeIyB9AiCJjNI
-  8uDZYUrjEKCslzMvIwMAgxFOQWpSbWYIq/4pRnINRSZh3Ez/QFJ7MvBK46a+AFjMBLda/4Qqy
-  uCQRISXVwORdufPntCVVDsll+msvc+y9vsjfK4PbbNZirX3zFCsbJxjkGiilrNDWq2334HJ2m
-  2CatKWG5dX9i3UNqQwOOVGPeL01X7sc7fS2Kjgc4nb7/KK1EzTn2zRbr7z6I3C+6SMla9WtlR
-  YvbnoYvZDXSlx+pum74VqtTf338s6GGwQz3n42L8+M+c90/d7oNNFTWzbO2WbYz/BP68/T0B+
-  /X3S+O3xG4/qDSy2eAcVXtvmo3nl9pi972yU5P+uUE8mPs/bnhNa+MggS0pv39MbaRMXbK6Vu
-  V3XpP+D89tyZnyHuynT5gy4u8c4sgfYyZb1Klvdvn3hoJJ/QmrG85SN7Sk74ufXi9gc4mi9yV
-  nwOV2Ipzkg01GIuKk4EALAcgk2FAwAA
-X-Env-Sender: w36195@motorola.com
-X-Msg-Ref: server-8.tower-715.messagelabs.com!1648824481!21610!1
-X-Originating-IP: [104.232.228.21]
-X-SYMC-ESS-Client-Auth: outbound-route-from=pass
-X-StarScan-Received: 
-X-StarScan-Version: 9.85.5; banners=-,-,-
-X-VirusChecked: Checked
-Received: (qmail 20062 invoked from network); 1 Apr 2022 14:48:01 -0000
-Received: from unknown (HELO va32lpfpp01.lenovo.com) (104.232.228.21)
-  by server-8.tower-715.messagelabs.com with ECDHE-RSA-AES256-GCM-SHA384 encrypted SMTP; 1 Apr 2022 14:48:01 -0000
-Received: from va32lmmrp01.lenovo.com (va32lmmrp01.mot.com [10.62.177.113])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by va32lpfpp01.lenovo.com (Postfix) with ESMTPS id 4KVNM52X3GzgNVf;
-        Fri,  1 Apr 2022 14:48:01 +0000 (UTC)
-Received: from p1g3 (unknown [10.45.5.41])
+        with ESMTP id S1350653AbiDAPAX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 11:00:23 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 451EA11C35;
+        Fri,  1 Apr 2022 07:48:32 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        (Authenticated sender: w36195)
-        by va32lmmrp01.lenovo.com (Postfix) with ESMTPSA id 4KVNM46W96zf6f8;
-        Fri,  1 Apr 2022 14:48:00 +0000 (UTC)
-Date:   Fri, 1 Apr 2022 09:47:54 -0500
-From:   Dan Vacura <w36195@motorola.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-usb@vger.kernel.org, stable@vger.kernel.org,
-        Jonathan Corbet <corbet@lwn.net>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Felipe Balbi <balbi@kernel.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Carlos Bilbao <bilbao@vt.edu>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org
-Subject: Re: [PATCH] usb: gadget: uvc: allow changing interface name via
- configfs
-Message-ID: <YkcQmrm30D7cNPDo@p1g3>
-References: <20220331211155.412906-1-w36195@motorola.com>
- <YkaZcSsadjHp1yJZ@kroah.com>
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D6F0760AC9;
+        Fri,  1 Apr 2022 14:48:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C42CC2BBE4;
+        Fri,  1 Apr 2022 14:48:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1648824511;
+        bh=aDjIbtXpZcKp3KyrL3zGXS1AA90UMCdcBlY1qKml0nA=;
+        h=From:To:Cc:Subject:Date:From;
+        b=Ey+LGhs6zVh3i5IJlfCZHu7bYX1sj/7Hz0tX48kGYgKouDEnbY98CIfdP2YajZvHX
+         uLTZqzeE8A13QjAAXRyUPlLUOr7QIhkXYA/ULAMNnKYZ00GmHWImYhXwDmMwhUpE+K
+         QPDfRgoWX/BKFrJt/KqNnm7qXVluiHUD5NyfYUk242+fVFCPPbRqlymcolCt3ik+5g
+         Ok8LOgIv8B4zaLmwa6bLYgjb4NzXXLetYalRZGD1tlKxRBc2eu1Su9xxz0eZJEHm+z
+         2SleE1eDH3iYtTnxrMQzS23gtiZiJ4ynyAWW0lYHiH2vkLHjTVs2RZkUX8jT3R1N3z
+         4bqoRal6JnDFQ==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Zekun Shen <bruceshenzk@gmail.com>,
+        Brendan Dolan-Gavitt <brendandg@nyu.edu>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
+        Sasha Levin <sashal@kernel.org>, jirislaby@kernel.org,
+        mickflemm@gmail.com, mcgrof@kernel.org, kvalo@kernel.org,
+        davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 01/16] ath5k: fix OOB in ath5k_eeprom_read_pcal_info_5111
+Date:   Fri,  1 Apr 2022 10:48:12 -0400
+Message-Id: <20220401144827.1955845-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YkaZcSsadjHp1yJZ@kroah.com>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Apr 01, 2022 at 08:19:29AM +0200, Greg Kroah-Hartman wrote:
-> On Thu, Mar 31, 2022 at 04:11:50PM -0500, Dan Vacura wrote:
-> > Add a configfs entry, "function_name", to change the iInterface field
-> > for VideoControl. This name is used on host devices for user selection,
-> > useful when multiple cameras are present. The default will remain "UVC
-> > Camera".
-> > 
-> > Cc: <stable@vger.kernel.org> # 5.10+
-> 
-> Why is adding a new feature a stable kernel issue?
-> 
-> confused,
-> 
-> greg k-h
+From: Zekun Shen <bruceshenzk@gmail.com>
 
-The intention is to get this change integrated into the Android GKI 5.10
-and 5.15 release lines.
+[ Upstream commit 564d4eceb97eaf381dd6ef6470b06377bb50c95a ]
 
-Sorry for the confusion or if I misunderstood the process,
+The bug was found during fuzzing. Stacktrace locates it in
+ath5k_eeprom_convert_pcal_info_5111.
+When none of the curve is selected in the loop, idx can go
+up to AR5K_EEPROM_N_PD_CURVES. The line makes pd out of bound.
+pd = &chinfo[pier].pd_curves[idx];
 
-Dan
+There are many OOB writes using pd later in the code. So I
+added a sanity check for idx. Checks for other loops involving
+AR5K_EEPROM_N_PD_CURVES are not needed as the loop index is not
+used outside the loops.
+
+The patch is NOT tested with real device.
+
+The following is the fuzzing report
+
+BUG: KASAN: slab-out-of-bounds in ath5k_eeprom_read_pcal_info_5111+0x126a/0x1390 [ath5k]
+Write of size 1 at addr ffff8880174a4d60 by task modprobe/214
+
+CPU: 0 PID: 214 Comm: modprobe Not tainted 5.6.0 #1
+Call Trace:
+ dump_stack+0x76/0xa0
+ print_address_description.constprop.0+0x16/0x200
+ ? ath5k_eeprom_read_pcal_info_5111+0x126a/0x1390 [ath5k]
+ ? ath5k_eeprom_read_pcal_info_5111+0x126a/0x1390 [ath5k]
+ __kasan_report.cold+0x37/0x7c
+ ? ath5k_eeprom_read_pcal_info_5111+0x126a/0x1390 [ath5k]
+ kasan_report+0xe/0x20
+ ath5k_eeprom_read_pcal_info_5111+0x126a/0x1390 [ath5k]
+ ? apic_timer_interrupt+0xa/0x20
+ ? ath5k_eeprom_init_11a_pcal_freq+0xbc0/0xbc0 [ath5k]
+ ? ath5k_pci_eeprom_read+0x228/0x3c0 [ath5k]
+ ath5k_eeprom_init+0x2513/0x6290 [ath5k]
+ ? ath5k_eeprom_init_11a_pcal_freq+0xbc0/0xbc0 [ath5k]
+ ? usleep_range+0xb8/0x100
+ ? apic_timer_interrupt+0xa/0x20
+ ? ath5k_eeprom_read_pcal_info_2413+0x2f20/0x2f20 [ath5k]
+ ath5k_hw_init+0xb60/0x1970 [ath5k]
+ ath5k_init_ah+0x6fe/0x2530 [ath5k]
+ ? kasprintf+0xa6/0xe0
+ ? ath5k_stop+0x140/0x140 [ath5k]
+ ? _dev_notice+0xf6/0xf6
+ ? apic_timer_interrupt+0xa/0x20
+ ath5k_pci_probe.cold+0x29a/0x3d6 [ath5k]
+ ? ath5k_pci_eeprom_read+0x3c0/0x3c0 [ath5k]
+ ? mutex_lock+0x89/0xd0
+ ? ath5k_pci_eeprom_read+0x3c0/0x3c0 [ath5k]
+ local_pci_probe+0xd3/0x160
+ pci_device_probe+0x23f/0x3e0
+ ? pci_device_remove+0x280/0x280
+ ? pci_device_remove+0x280/0x280
+ really_probe+0x209/0x5d0
+
+Reported-by: Brendan Dolan-Gavitt <brendandg@nyu.edu>
+Signed-off-by: Zekun Shen <bruceshenzk@gmail.com>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/YckvDdj3mtCkDRIt@a-10-27-26-18.dynapool.vpn.nyu.edu
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/net/wireless/ath/ath5k/eeprom.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/drivers/net/wireless/ath/ath5k/eeprom.c b/drivers/net/wireless/ath/ath5k/eeprom.c
+index 94d34ee02265..01163b333945 100644
+--- a/drivers/net/wireless/ath/ath5k/eeprom.c
++++ b/drivers/net/wireless/ath/ath5k/eeprom.c
+@@ -746,6 +746,9 @@ ath5k_eeprom_convert_pcal_info_5111(struct ath5k_hw *ah, int mode,
+ 			}
+ 		}
+ 
++		if (idx == AR5K_EEPROM_N_PD_CURVES)
++			goto err_out;
++
+ 		ee->ee_pd_gains[mode] = 1;
+ 
+ 		pd = &chinfo[pier].pd_curves[idx];
+-- 
+2.34.1
 
