@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 25AC54EEFFC
-	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 16:30:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EDCF4EEFD8
+	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 16:30:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347142AbiDAOav (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Apr 2022 10:30:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38372 "EHLO
+        id S1347084AbiDAObQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Apr 2022 10:31:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39110 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347151AbiDAOaR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:30:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6AE0A28A021;
-        Fri,  1 Apr 2022 07:27:27 -0700 (PDT)
+        with ESMTP id S1347078AbiDAOah (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:30:37 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40B6028AC56;
+        Fri,  1 Apr 2022 07:27:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 369EA61C27;
+        by ams.source.kernel.org (Postfix) with ESMTPS id ACF40B82402;
+        Fri,  1 Apr 2022 14:27:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26BF7C2BBE4;
         Fri,  1 Apr 2022 14:27:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 642D7C340F2;
-        Fri,  1 Apr 2022 14:27:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648823246;
-        bh=/W904OnNAqirvLGft/TJEDt2A3BrJgSla57s39MEQDs=;
+        s=k20201202; t=1648823248;
+        bh=BRK+9JeOfueA1hXgfeqN+d3kw7Pcf0cfVeiYcuNNvxY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CLZWffP1a0Jgxrnm17flBW7oO/ZvxmarERqBBUuWRh26bAXeNi/s46ZWyXR7++ljy
-         DjisCC5+j9h6Rg6b0RhQuZ1snaRX6QIuEoK375ZqmLLmX9P2aaiEgGcwglO4YijhFF
-         yWnKoa0ghsBXJriMny1q/oR6jbyA0yak6fuDN71mz9FC0XjFpUfX4QX1WMfH+d5FUB
-         ZzbiUn3VQQUSehM9o5pw3sHcObVxUtZJ9xF1RkDCejhzjdZYe+aez6rRDA5TVjw0MI
-         6yRC5ycK1LZAteWEF7XMNnlXw6A0cEptGKuqoJp3LRxd1gElFuYoItym3zTxiPeF6X
-         zYCy4Q5vf3BCA==
+        b=iGMovSujhBAyEwN8A0irQt5nTDhf4fvmlr4aDTUIityelEkTFPIAmRBlWNn2m6VN+
+         CNdRbjr5XjeBY3O3od1ZVlUf73I93w36r4OvOXZIKFvMcu+2lb9d4CZZHXE5pHaY8G
+         u1kwQdpMfvdjdv46+n9W67MvMcWG5oMesswfuDY4dXPOWrD9cYaJuYboyKSMm2Y7Tw
+         Z5vnvQUn7ks+Pu7q1mCZeF+jXbdLGc1B4ynT+eRZzsshjP+sW3W/unA7VKZU/lpJW5
+         pE9GuBV1ixjSsv8aCp8SEhnjGqyz8ig7QuJFMF7vXVNwqrvywW/n8voWhgMsY4RkMH
+         6oCAEgnw+oSOA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tony Lu <tonylu@linux.alibaba.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, kgraul@linux.ibm.com,
-        kuba@kernel.org, pabeni@redhat.com, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.17 032/149] net/smc: Send directly when TCP_CORK is cleared
-Date:   Fri,  1 Apr 2022 10:23:39 -0400
-Message-Id: <20220401142536.1948161-32-sashal@kernel.org>
+Cc:     Yongzhi Liu <lyz_cs@pku.edu.cn>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Robert Foss <robert.foss@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, andrzej.hajda@intel.com,
+        narmstrong@baylibre.com, airlied@linux.ie, daniel@ffwll.ch,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.17 033/149] drm/bridge: Add missing pm_runtime_put_sync
+Date:   Fri,  1 Apr 2022 10:23:40 -0400
+Message-Id: <20220401142536.1948161-33-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220401142536.1948161-1-sashal@kernel.org>
 References: <20220401142536.1948161-1-sashal@kernel.org>
@@ -58,109 +59,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lu <tonylu@linux.alibaba.com>
+From: Yongzhi Liu <lyz_cs@pku.edu.cn>
 
-[ Upstream commit ea785a1a573b390a150010b3c5b81e1ccd8c98a8 ]
+[ Upstream commit 46f47807738441e354873546dde0b000106c068a ]
 
-According to the man page of TCP_CORK [1], if set, don't send out
-partial frames. All queued partial frames are sent when option is
-cleared again.
+pm_runtime_get_sync() will increase the rumtime PM counter
+even when it returns an error. Thus a pairing decrement is needed
+to prevent refcount leak. Fix this by replacing this API with
+pm_runtime_resume_and_get(), which will not change the runtime
+PM counter on error. Besides, a matching decrement is needed
+on the error handling path to keep the counter balanced.
 
-When applications call setsockopt to disable TCP_CORK, this call is
-protected by lock_sock(), and tries to mod_delayed_work() to 0, in order
-to send pending data right now. However, the delayed work smc_tx_work is
-also protected by lock_sock(). There introduces lock contention for
-sending data.
-
-To fix it, send pending data directly which acts like TCP, without
-lock_sock() protected in the context of setsockopt (already lock_sock()ed),
-and cancel unnecessary dealyed work, which is protected by lock.
-
-[1] https://linux.die.net/man/7/tcp
-
-Signed-off-by: Tony Lu <tonylu@linux.alibaba.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Yongzhi Liu <lyz_cs@pku.edu.cn>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Robert Foss <robert.foss@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/1643008835-73961-1-git-send-email-lyz_cs@pku.edu.cn
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/smc/af_smc.c |  4 ++--
- net/smc/smc_tx.c | 25 +++++++++++++++----------
- net/smc/smc_tx.h |  1 +
- 3 files changed, 18 insertions(+), 12 deletions(-)
+ drivers/gpu/drm/bridge/nwl-dsi.c | 18 ++++++++++++------
+ 1 file changed, 12 insertions(+), 6 deletions(-)
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 284befa90967..67fc72047c9c 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -2636,8 +2636,8 @@ static int smc_setsockopt(struct socket *sock, int level, int optname,
- 		    sk->sk_state != SMC_CLOSED) {
- 			if (!val) {
- 				SMC_STAT_INC(smc, cork_cnt);
--				mod_delayed_work(smc->conn.lgr->tx_wq,
--						 &smc->conn.tx_work, 0);
-+				smc_tx_pending(&smc->conn);
-+				cancel_delayed_work(&smc->conn.tx_work);
- 			}
- 		}
- 		break;
-diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
-index be241d53020f..7b0b6e24582f 100644
---- a/net/smc/smc_tx.c
-+++ b/net/smc/smc_tx.c
-@@ -597,27 +597,32 @@ int smc_tx_sndbuf_nonempty(struct smc_connection *conn)
- 	return rc;
- }
+diff --git a/drivers/gpu/drm/bridge/nwl-dsi.c b/drivers/gpu/drm/bridge/nwl-dsi.c
+index af07eeb47ca0..1529b9e3d576 100644
+--- a/drivers/gpu/drm/bridge/nwl-dsi.c
++++ b/drivers/gpu/drm/bridge/nwl-dsi.c
+@@ -861,18 +861,19 @@ nwl_dsi_bridge_mode_set(struct drm_bridge *bridge,
+ 	memcpy(&dsi->mode, adjusted_mode, sizeof(dsi->mode));
+ 	drm_mode_debug_printmodeline(adjusted_mode);
  
--/* Wakeup sndbuf consumers from process context
-- * since there is more data to transmit
-- */
--void smc_tx_work(struct work_struct *work)
-+void smc_tx_pending(struct smc_connection *conn)
- {
--	struct smc_connection *conn = container_of(to_delayed_work(work),
--						   struct smc_connection,
--						   tx_work);
- 	struct smc_sock *smc = container_of(conn, struct smc_sock, conn);
- 	int rc;
- 
--	lock_sock(&smc->sk);
- 	if (smc->sk.sk_err)
--		goto out;
+-	pm_runtime_get_sync(dev);
++	if (pm_runtime_resume_and_get(dev) < 0)
 +		return;
  
- 	rc = smc_tx_sndbuf_nonempty(conn);
- 	if (!rc && conn->local_rx_ctrl.prod_flags.write_blocked &&
- 	    !atomic_read(&conn->bytes_to_rcv))
- 		conn->local_rx_ctrl.prod_flags.write_blocked = 0;
-+}
+ 	if (clk_prepare_enable(dsi->lcdif_clk) < 0)
+-		return;
++		goto runtime_put;
+ 	if (clk_prepare_enable(dsi->core_clk) < 0)
+-		return;
++		goto runtime_put;
+ 
+ 	/* Step 1 from DSI reset-out instructions */
+ 	ret = reset_control_deassert(dsi->rst_pclk);
+ 	if (ret < 0) {
+ 		DRM_DEV_ERROR(dev, "Failed to deassert PCLK: %d\n", ret);
+-		return;
++		goto runtime_put;
+ 	}
+ 
+ 	/* Step 2 from DSI reset-out instructions */
+@@ -882,13 +883,18 @@ nwl_dsi_bridge_mode_set(struct drm_bridge *bridge,
+ 	ret = reset_control_deassert(dsi->rst_esc);
+ 	if (ret < 0) {
+ 		DRM_DEV_ERROR(dev, "Failed to deassert ESC: %d\n", ret);
+-		return;
++		goto runtime_put;
+ 	}
+ 	ret = reset_control_deassert(dsi->rst_byte);
+ 	if (ret < 0) {
+ 		DRM_DEV_ERROR(dev, "Failed to deassert BYTE: %d\n", ret);
+-		return;
++		goto runtime_put;
+ 	}
 +
-+/* Wakeup sndbuf consumers from process context
-+ * since there is more data to transmit
-+ */
-+void smc_tx_work(struct work_struct *work)
-+{
-+	struct smc_connection *conn = container_of(to_delayed_work(work),
-+						   struct smc_connection,
-+						   tx_work);
-+	struct smc_sock *smc = container_of(conn, struct smc_sock, conn);
- 
--out:
-+	lock_sock(&smc->sk);
-+	smc_tx_pending(conn);
- 	release_sock(&smc->sk);
++	return;
++
++runtime_put:
++	pm_runtime_put_sync(dev);
  }
  
-diff --git a/net/smc/smc_tx.h b/net/smc/smc_tx.h
-index 07e6ad76224a..a59f370b8b43 100644
---- a/net/smc/smc_tx.h
-+++ b/net/smc/smc_tx.h
-@@ -27,6 +27,7 @@ static inline int smc_tx_prepared_sends(struct smc_connection *conn)
- 	return smc_curs_diff(conn->sndbuf_desc->len, &sent, &prep);
- }
- 
-+void smc_tx_pending(struct smc_connection *conn);
- void smc_tx_work(struct work_struct *work);
- void smc_tx_init(struct smc_sock *smc);
- int smc_tx_sendmsg(struct smc_sock *smc, struct msghdr *msg, size_t len);
+ static void
 -- 
 2.34.1
 
