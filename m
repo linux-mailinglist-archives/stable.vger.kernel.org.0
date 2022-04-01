@@ -2,53 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 01C094EEBD2
-	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 12:49:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C07E74EEBD7
+	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 12:52:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345218AbiDAKux (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Apr 2022 06:50:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55508 "EHLO
+        id S1345483AbiDAKyD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Apr 2022 06:54:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34038 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345219AbiDAKuw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 06:50:52 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F29D017AA5
-        for <stable@vger.kernel.org>; Fri,  1 Apr 2022 03:49:02 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A1E58B82469
-        for <stable@vger.kernel.org>; Fri,  1 Apr 2022 10:49:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B426C2BBE4;
-        Fri,  1 Apr 2022 10:48:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648810140;
-        bh=YNNCEMFAI5YAFl3CuWy2Zg3iy1VV5MneDuj126QOqKU=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=VTXhB58PNyu9uNsplbU521DvAVT1yrfYNXAIC6Rn0sEYQ/3Gc5aoWsCx1G4nxkyK7
-         5GesadOvY1hQCb9zsUIUoc2od1OdHK8RaUXdJY0VK9TUN4Yv6lhKySX6iU4ks/2elq
-         9tTu4T17MmBerPKnOtfaGSFSdESX6OMIzyV4jM4E=
-Date:   Fri, 1 Apr 2022 12:47:12 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Joshua Freedman <freedman.joshua@gmail.com>
-Cc:     lis8215@gmail.com, paul@crapouillou.net, stable@vger.kernel.org,
-        sboyd@kernel.org
-Subject: Re: kernel 5.16.12 and above broke yoga c930 sound and mic
-Message-ID: <YkbYMBpNztYHUsD2@kroah.com>
-References: <CAJQ3t4RxYXkREhwBb_JgYj4=ty+VtnV9m65U79ZLbmmj4mN7WA@mail.gmail.com>
- <YkQUGVC3MBSnc2LI@kroah.com>
- <CAJQ3t4TqK+q5zeHCQ2uxGvhT4q0Bpe6PBuDTm28HqyHwH5mzhQ@mail.gmail.com>
- <YkQnGmxdi9GWZmfC@kroah.com>
- <CAJQ3t4SnNyHEaWizzVDbaMSdHDRe9wHGx2RdgJJea=G4sFmdnw@mail.gmail.com>
- <YkQ44cqrnIH6aoxg@kroah.com>
- <CAJQ3t4Rg2WhDoynG=NmHX5dgt3u5BB3gfpAbskb4gQ_R8qxmxA@mail.gmail.com>
+        with ESMTP id S1345224AbiDAKwp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 06:52:45 -0400
+Received: from mail-wm1-x329.google.com (mail-wm1-x329.google.com [IPv6:2a00:1450:4864:20::329])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C4A04D603
+        for <stable@vger.kernel.org>; Fri,  1 Apr 2022 03:50:55 -0700 (PDT)
+Received: by mail-wm1-x329.google.com with SMTP id v64-20020a1cac43000000b0038cfd1b3a6dso3243385wme.5
+        for <stable@vger.kernel.org>; Fri, 01 Apr 2022 03:50:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=QBKwD8HUOk6ZcRr/nLKL5Hzmfbcc34y7j+Mh2z7MZlA=;
+        b=I5Hvt5BVjSAhFjOahgRq+v8E8jlzYBL2YIlZi+yuzZYLfb7G1eZ+ra/Cqw/xGQ0Qib
+         JhG4lFsDyyevg5xwxnZgJR3iI7v5D836Bg3BHf9/jRB99F5G8e35Bz8GME4JQPYpEZ8y
+         F/HNdkGIWnnUYEhbbMaOs4/exiwV2f5LtOgPUp0ZJuk80nh6ezzLApOI+Y4Og1OoR4eC
+         ug+Qwh9TWSrO/AgrZ18o8Pv2Gu4qrQ2s8ukRiQ38qdtVnvJAYnBY4PfDtIVTA5j5P2aP
+         R7uMmuxcRMXnFzhVn0KlBeMnNGsRoCmEfWDKaTcGJ67Mdka9zey3R4iewbIWohtzPwjc
+         muTA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=QBKwD8HUOk6ZcRr/nLKL5Hzmfbcc34y7j+Mh2z7MZlA=;
+        b=p6l15zPn/kLRe3BT+mBlVN3GgFH2pFFFMykg7Qr1P7Lbbj6vhnOpBB3LXrVlUeph/V
+         ncvOtc6reAz/EjOQe1xLoSeJYsVJXhFRO8ygYLs2PmdouSa27zusD0FKHi9nSxGjSQ+g
+         NuLR5xSAz6g+oDiWitS7HVJDxrtAKbDIqmEtWDywga4xxpNOVv6H5+n7dlDMcjzlO1xE
+         m8KdeBt2mCZ6gTQFY9YU/MkyI3aZ5QNZxibDodB0TRiJY6togCoL/avTeb5Acz+gjxFV
+         v4FzeDPvFW5b6jnJ5DHwPnUrf1C6672KB6FUkZEUAmlBWC6msfDrdBM6Ys0ceQkHSO5A
+         FyEQ==
+X-Gm-Message-State: AOAM533YEaJi6Q+EM3chKeOHiC03qFk4p51SAemFK9Th4cfpsb8EwPgJ
+        HCGstRS19KScAUBJDclZbz3c8Q==
+X-Google-Smtp-Source: ABdhPJyNpBs9mmnzElZBquk0tBzk/CsYPd29bsHI3BohmQevd2bTWg1eoxFRWhMMDLZjtNuBUXIFOA==
+X-Received: by 2002:a05:600c:4fcd:b0:38c:7495:e644 with SMTP id o13-20020a05600c4fcd00b0038c7495e644mr8344490wmq.102.1648810253781;
+        Fri, 01 Apr 2022 03:50:53 -0700 (PDT)
+Received: from joneslee-l.cable.virginm.net (cpc155339-bagu17-2-0-cust87.1-3.cable.virginm.net. [86.27.177.88])
+        by smtp.gmail.com with ESMTPSA id c5-20020a5d63c5000000b002040822b680sm2379542wrw.81.2022.04.01.03.50.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 01 Apr 2022 03:50:53 -0700 (PDT)
+From:   Lee Jones <lee.jones@linaro.org>
+To:     lee.jones@linaro.org
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Johannes Berg <johannes@sipsolutions.net>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH 1/1] nl80211: Prevent out-of-bounds read when processing NL80211_ATTR_REG_ALPHA2
+Date:   Fri,  1 Apr 2022 11:50:46 +0100
+Message-Id: <20220401105046.1952815-1-lee.jones@linaro.org>
+X-Mailer: git-send-email 2.35.1.1094.g7c7d902a7c-goog
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAJQ3t4Rg2WhDoynG=NmHX5dgt3u5BB3gfpAbskb4gQ_R8qxmxA@mail.gmail.com>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,17 +71,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Mar 30, 2022 at 04:54:53PM -0400, Joshua Freedman wrote:
-> This felt really anti-climactic haha,  but hopefully it's useful?
-> cat bisect.log
-> Bisecting: 81 revisions left to test after this (roughly 6 steps)
-> [770aac3c84e0c83a19985413fa9fbfc126cc0ff6] net: mdio-ipq4019: add delay
-> after clock enable
+Checks are presently in place in validate_nla() to ensure strings
+greater than 2 are not passed in by the user which could potentially
+cause issues.
 
-Wait, you still have more steps to go here.  Did you test this kernel?
-If so, you need to continue using 'git bisect good' and 'git bisect bad'
-to find the offending commit.  This looks just like the first step?
+However, there is nothing to prevent userspace from only providing a
+single (1) Byte as the data length parameter via nla_put().  If this
+were to happen, it would cause an OOB read in regulatory_hint_user(),
+since it makes assumptions that alpha2[0] and alpha2[1] will always be
+accessible.
 
-thanks,
+Add an additional check, to ensure enough data has been allocated to
+hold both Bytes.
 
-greg k-h
+Cc: <stable@vger.kernel.org>
+Cc: Johannes Berg <johannes@sipsolutions.net>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: Paolo Abeni <pabeni@redhat.com>
+Cc: linux-wireless@vger.kernel.org
+Cc: netdev@vger.kernel.org
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+---
+ net/wireless/nl80211.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
+index ee1c2b6b69711..80a516033db36 100644
+--- a/net/wireless/nl80211.c
++++ b/net/wireless/nl80211.c
+@@ -7536,6 +7536,10 @@ static int nl80211_req_set_reg(struct sk_buff *skb, struct genl_info *info)
+ 		if (!info->attrs[NL80211_ATTR_REG_ALPHA2])
+ 			return -EINVAL;
+ 
++		if (nla_len(info->attrs[NL80211_ATTR_REG_ALPHA2]) !=
++		    nl80211_policy[NL80211_ATTR_REG_ALPHA2].len)
++			return -EINVAL;
++
+ 		data = nla_data(info->attrs[NL80211_ATTR_REG_ALPHA2]);
+ 		return regulatory_hint_user(data, user_reg_hint_type);
+ 	case NL80211_USER_REG_HINT_INDOOR:
+-- 
+2.35.1.1094.g7c7d902a7c-goog
+
