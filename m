@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 86A124EF467
-	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 17:31:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA20E4EF579
+	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 17:46:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348999AbiDAPGR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Apr 2022 11:06:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54398 "EHLO
+        id S1355191AbiDAPOP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Apr 2022 11:14:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349835AbiDAO6I (ORCPT
+        with ESMTP id S1349842AbiDAO6I (ORCPT
         <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:58:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24BAF15E8BF;
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37028160141;
         Fri,  1 Apr 2022 07:45:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A830AB823EB;
-        Fri,  1 Apr 2022 14:45:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 289E1C2BBE4;
-        Fri,  1 Apr 2022 14:44:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C72E060AC0;
+        Fri,  1 Apr 2022 14:45:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE19EC34112;
+        Fri,  1 Apr 2022 14:45:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648824300;
-        bh=b51VNEiKO+Fx8+RwLfJTXx0nWoth9Ssof+K5dUkMstw=;
+        s=k20201202; t=1648824302;
+        bh=p0lrJlKrVgc16/tpif2TS+ZCGj6bNUmABgF8O8twQUo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TcZzUHQaKd8yRf0uwYORUI6/kKAVZVmSXxz/fevcP5wlARb7wrSPkk5b+K6lJH1rO
-         HAV6XPl7GdmpvFLQzO+gTqoBRdsrJiu58VI0WLpXLhnAAgnOqlY6PPh6i7Ef4zk7FE
-         X088XLJQwY88njNaf2m6gGplkn33E+3uGa8Zy6T+FwfDoBmUCTMTbFKseHD1anDwoN
-         SqqtqXt9z/c4G00hqnuu4fIIhj5FzIMmJRxDUUXS8X4tNOcCO7vTAsaLNA9bNStKIB
-         eUqzgq/qg5EJ0+OO4fVDBaa+0qTv/cZjWVzk5SJIBccdE2AkRo+BLmDrVjtYHAJUfW
-         U1I1LXm9ap5bw==
+        b=faRmfnbMsF5uGPeppkDwbGNUFyECrHoK2QyOx0awGgfVlQBK1M31NEp61yQbkuirC
+         aFKWDSiWz7rcgUxK9CnMEZh5PW6ASmSV6Jv85FLinKMxY6u7lApydK8IR/YxwDdK4K
+         8nlaMkS3mGpH1TMmyIchDNyIwsVf7xiT12vDJBb/pJwBwRbSkxLqR9rpcnKQ+P2XGO
+         rRjDOceBIqSBc6TythNCsQTNGHIedVF51W+Ne6Mlj/wS6nCjKG8/QfofpT7RNxWRi8
+         zPL7hq/9Rr2uWdSlQcPssMGpMUR1/rUtXeKRkuqziIhMlYZ/qDfV3lNFUrREzL+okO
+         v8Yb6S+nk/jFQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Maxim Kiselev <bigunclemax@gmail.com>,
-        Maxim Kochetkov <fido_max@inbox.ru>,
-        Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
-        krzk+dt@kernel.org, devicetree@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.4 05/37] powerpc: dts: t104xrdb: fix phy type for FMAN 4/5
-Date:   Fri,  1 Apr 2022 10:44:14 -0400
-Message-Id: <20220401144446.1954694-5-sashal@kernel.org>
+Cc:     Jakub Sitnicki <jakub@cloudflare.com>,
+        Menglong Dong <imagedong@tencent.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, daniel@iogearbox.net,
+        andrii@kernel.org, davem@davemloft.net, kuba@kernel.org,
+        pabeni@redhat.com, netdev@vger.kernel.org, bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 06/37] bpf: Make dst_port field in struct bpf_sock 16-bit wide
+Date:   Fri,  1 Apr 2022 10:44:15 -0400
+Message-Id: <20220401144446.1954694-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220401144446.1954694-1-sashal@kernel.org>
 References: <20220401144446.1954694-1-sashal@kernel.org>
@@ -60,45 +59,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Kiselev <bigunclemax@gmail.com>
+From: Jakub Sitnicki <jakub@cloudflare.com>
 
-[ Upstream commit 17846485dff91acce1ad47b508b633dffc32e838 ]
+[ Upstream commit 4421a582718ab81608d8486734c18083b822390d ]
 
-T1040RDB has two RTL8211E-VB phys which requires setting
-of internal delays for correct work.
+Menglong Dong reports that the documentation for the dst_port field in
+struct bpf_sock is inaccurate and confusing. From the BPF program PoV, the
+field is a zero-padded 16-bit integer in network byte order. The value
+appears to the BPF user as if laid out in memory as so:
 
-Changing the phy-connection-type property to `rgmii-id`
-will fix this issue.
+  offsetof(struct bpf_sock, dst_port) + 0  <port MSB>
+                                      + 8  <port LSB>
+                                      +16  0x00
+                                      +24  0x00
 
-Signed-off-by: Maxim Kiselev <bigunclemax@gmail.com>
-Reviewed-by: Maxim Kochetkov <fido_max@inbox.ru>
-Reviewed-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20211230151123.1258321-1-bigunclemax@gmail.com
+32-, 16-, and 8-bit wide loads from the field are all allowed, but only if
+the offset into the field is 0.
+
+32-bit wide loads from dst_port are especially confusing. The loaded value,
+after converting to host byte order with bpf_ntohl(dst_port), contains the
+port number in the upper 16-bits.
+
+Remove the confusion by splitting the field into two 16-bit fields. For
+backward compatibility, allow 32-bit wide loads from offsetof(struct
+bpf_sock, dst_port).
+
+While at it, allow loads 8-bit loads at offset [0] and [1] from dst_port.
+
+Reported-by: Menglong Dong <imagedong@tencent.com>
+Signed-off-by: Jakub Sitnicki <jakub@cloudflare.com>
+Link: https://lore.kernel.org/r/20220130115518.213259-2-jakub@cloudflare.com
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/boot/dts/fsl/t104xrdb.dtsi | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ include/uapi/linux/bpf.h |  3 ++-
+ net/core/filter.c        | 10 +++++++++-
+ 2 files changed, 11 insertions(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/boot/dts/fsl/t104xrdb.dtsi b/arch/powerpc/boot/dts/fsl/t104xrdb.dtsi
-index 099a598c74c0..bfe1ed5be337 100644
---- a/arch/powerpc/boot/dts/fsl/t104xrdb.dtsi
-+++ b/arch/powerpc/boot/dts/fsl/t104xrdb.dtsi
-@@ -139,12 +139,12 @@ pca9546@77 {
- 		fman@400000 {
- 			ethernet@e6000 {
- 				phy-handle = <&phy_rgmii_0>;
--				phy-connection-type = "rgmii";
-+				phy-connection-type = "rgmii-id";
- 			};
+diff --git a/include/uapi/linux/bpf.h b/include/uapi/linux/bpf.h
+index 63038eb23560..4d0d932a7017 100644
+--- a/include/uapi/linux/bpf.h
++++ b/include/uapi/linux/bpf.h
+@@ -3068,7 +3068,8 @@ struct bpf_sock {
+ 	__u32 src_ip4;
+ 	__u32 src_ip6[4];
+ 	__u32 src_port;		/* host byte order */
+-	__u32 dst_port;		/* network byte order */
++	__be16 dst_port;	/* network byte order */
++	__u16 :16;		/* zero padding */
+ 	__u32 dst_ip4;
+ 	__u32 dst_ip6[4];
+ 	__u32 state;
+diff --git a/net/core/filter.c b/net/core/filter.c
+index d39518f691b4..54c5e3c379f6 100644
+--- a/net/core/filter.c
++++ b/net/core/filter.c
+@@ -6708,6 +6708,7 @@ bool bpf_sock_is_valid_access(int off, int size, enum bpf_access_type type,
+ 			      struct bpf_insn_access_aux *info)
+ {
+ 	const int size_default = sizeof(__u32);
++	int field_size;
  
- 			ethernet@e8000 {
- 				phy-handle = <&phy_rgmii_1>;
--				phy-connection-type = "rgmii";
-+				phy-connection-type = "rgmii-id";
- 			};
+ 	if (off < 0 || off >= sizeof(struct bpf_sock))
+ 		return false;
+@@ -6719,7 +6720,6 @@ bool bpf_sock_is_valid_access(int off, int size, enum bpf_access_type type,
+ 	case offsetof(struct bpf_sock, family):
+ 	case offsetof(struct bpf_sock, type):
+ 	case offsetof(struct bpf_sock, protocol):
+-	case offsetof(struct bpf_sock, dst_port):
+ 	case offsetof(struct bpf_sock, src_port):
+ 	case bpf_ctx_range(struct bpf_sock, src_ip4):
+ 	case bpf_ctx_range_till(struct bpf_sock, src_ip6[0], src_ip6[3]):
+@@ -6727,6 +6727,14 @@ bool bpf_sock_is_valid_access(int off, int size, enum bpf_access_type type,
+ 	case bpf_ctx_range_till(struct bpf_sock, dst_ip6[0], dst_ip6[3]):
+ 		bpf_ctx_record_field_size(info, size_default);
+ 		return bpf_ctx_narrow_access_ok(off, size, size_default);
++	case bpf_ctx_range(struct bpf_sock, dst_port):
++		field_size = size == size_default ?
++			size_default : sizeof_field(struct bpf_sock, dst_port);
++		bpf_ctx_record_field_size(info, field_size);
++		return bpf_ctx_narrow_access_ok(off, size, field_size);
++	case offsetofend(struct bpf_sock, dst_port) ...
++	     offsetof(struct bpf_sock, dst_ip4) - 1:
++		return false;
+ 	}
  
- 			mdio0: mdio@fc000 {
+ 	return size == size_default;
 -- 
 2.34.1
 
