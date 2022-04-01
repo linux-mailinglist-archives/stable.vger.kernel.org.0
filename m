@@ -2,51 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 025C94EF495
-	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 17:32:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74EF34EF295
+	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 17:14:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349049AbiDAOxe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Apr 2022 10:53:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57462 "EHLO
+        id S1347909AbiDAOxx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Apr 2022 10:53:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55162 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350967AbiDAOsN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:48:13 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D330456C00;
-        Fri,  1 Apr 2022 07:38:47 -0700 (PDT)
+        with ESMTP id S1351077AbiDAOsX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:48:23 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E323F53A65;
+        Fri,  1 Apr 2022 07:38:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A5E4160C9B;
-        Fri,  1 Apr 2022 14:38:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A073C34111;
-        Fri,  1 Apr 2022 14:38:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 419DB60E9A;
+        Fri,  1 Apr 2022 14:38:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48C57C340F2;
+        Fri,  1 Apr 2022 14:38:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648823890;
-        bh=GKiX9zmf6wgj9kKeqAQq4g6lPgJw+nzRuNJuwqjpxcE=;
+        s=k20201202; t=1648823894;
+        bh=SyTOn7y6nyPh5CZweMHgg1YlsPXWzamM40RkWEELlmY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dycUvBvC6fIgfaFHQV7+zWhXjqxOb7rHk6ZOZ1F/e1HEPYw3F2f3gNiO7/Qzex76r
-         E0bPISH5ByGfXnGT7bNmIJ++09q4vsPyV/QRpubRk+3xdneY2qufiQang9lW5pvzWs
-         7eCv5wEp29BKWUw0sB7ujiBnyUhjNfqw/DU+7vn6Ff77PskZo78OsGv4eLZg4IbsEB
-         8gYUPwqSk5Fy6JLQJRYCF3OUwZVV+eoY2kUHJQrgZgX/7pVVAh7Jpoxc4D4SY3ewZZ
-         dXUxGoXKIiySuaYB7x9LBxhgsxu9H13tyTipItuh9dhypzWIktM5ytCHbrmw8mHQa2
-         SkE9sU3X6bxEQ==
+        b=Gt2jCrElkE84zA750pU7JCuyEhWvpZFAkBpt9+Zn5rr8YWsQ2XVsvtj089iYETYct
+         ZYTLwmmKXy8N8YnFZM/4nzigjIpdB2Tbl2h5PESj6SMaFTzMh1k+Vv/IL6Zu8jPMbz
+         QtWQovoSxp0zlSrlPIM03bltdY78mWDXnKrB0aJPhmwv0LAgbvMQqmpllWrVRSmI8d
+         EuToyUDFI0NEfoTy5eR5BsdZuJvvmCvvhiNQ+/wQl42vI40mvaNgUa6oCd5gXGQhRv
+         cd0Dua4paZUteJ6Xxia0Qs+5ddqFYAV4PV3l19eiHLoI3SFUO6MVfgGu1N1ODSFdtI
+         hPZ+XL9wTx/7g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Anthony Koo <Anthony.Koo@amd.com>,
-        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, harry.wentland@amd.com,
-        sunpeng.li@amd.com, christian.koenig@amd.com, Xinhui.Pan@amd.com,
-        airlied@linux.ie, daniel@ffwll.ch, roman.li@amd.com,
-        pulehui@huawei.com, robin.chen@amd.com, po-tchen@amd.com,
-        mikita.lipski@amd.com, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.15 06/98] drm/amd/display: Use PSR version selected during set_psr_caps
-Date:   Fri,  1 Apr 2022 10:36:10 -0400
-Message-Id: <20220401143742.1952163-6-sashal@kernel.org>
+Cc:     Wayne Chang <waynec@nvidia.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, balbi@kernel.org,
+        thierry.reding@gmail.com, jonathanh@nvidia.com,
+        jakobkoschel@gmail.com, rikard.falkeborn@gmail.com,
+        chunfeng.yun@mediatek.com, linux-usb@vger.kernel.org,
+        linux-tegra@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 07/98] usb: gadget: tegra-xudc: Do not program SPARAM
+Date:   Fri,  1 Apr 2022 10:36:11 -0400
+Message-Id: <20220401143742.1952163-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220401143742.1952163-1-sashal@kernel.org>
 References: <20220401143742.1952163-1-sashal@kernel.org>
@@ -64,49 +60,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+From: Wayne Chang <waynec@nvidia.com>
 
-[ Upstream commit b80ddeb29d9df449f875f0b6f5de08d7537c02b8 ]
+[ Upstream commit 62fb61580eb48fc890b7bc9fb5fd263367baeca8 ]
 
-[Why]
-If the DPCD caps specifies a PSR version newer than PSR_VERSION_1 then
-we fallback to using PSR_VERSION_1 in amdgpu_dm_set_psr_caps.
+According to the Tegra Technical Reference Manual, SPARAM
+is a read-only register and should not be programmed in
+the driver.
 
-This gets overriden with the raw DPCD value in amdgpu_dm_link_setup_psr,
-which can result in DMCUB hanging if we pass in an unsupported PSR
-version number.
+The change removes the wrong SPARAM usage.
 
-[How]
-Fix the hang by using link->psr_settings.psr_version directly during
-amdgpu_dm_link_setup_psr.
-
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Reviewed-by: Anthony Koo <Anthony.Koo@amd.com>
-Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Wayne Chang <waynec@nvidia.com>
+Link: https://lore.kernel.org/r/20220107090443.149021-1-waynec@nvidia.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_psr.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/usb/gadget/udc/tegra-xudc.c | 8 --------
+ 1 file changed, 8 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_psr.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_psr.c
-index 70a554f1e725..7072fb2ec07f 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_psr.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_psr.c
-@@ -74,10 +74,8 @@ bool amdgpu_dm_link_setup_psr(struct dc_stream_state *stream)
+diff --git a/drivers/usb/gadget/udc/tegra-xudc.c b/drivers/usb/gadget/udc/tegra-xudc.c
+index 43f1b0d461c1..716d9ab2d2ff 100644
+--- a/drivers/usb/gadget/udc/tegra-xudc.c
++++ b/drivers/usb/gadget/udc/tegra-xudc.c
+@@ -32,9 +32,6 @@
+ #include <linux/workqueue.h>
  
- 	link = stream->link;
+ /* XUSB_DEV registers */
+-#define SPARAM 0x000
+-#define  SPARAM_ERSTMAX_MASK GENMASK(20, 16)
+-#define  SPARAM_ERSTMAX(x) (((x) << 16) & SPARAM_ERSTMAX_MASK)
+ #define DB 0x004
+ #define  DB_TARGET_MASK GENMASK(15, 8)
+ #define  DB_TARGET(x) (((x) << 8) & DB_TARGET_MASK)
+@@ -3295,11 +3292,6 @@ static void tegra_xudc_init_event_ring(struct tegra_xudc *xudc)
+ 	unsigned int i;
+ 	u32 val;
  
--	psr_config.psr_version = link->dpcd_caps.psr_caps.psr_version;
+-	val = xudc_readl(xudc, SPARAM);
+-	val &= ~(SPARAM_ERSTMAX_MASK);
+-	val |= SPARAM_ERSTMAX(XUDC_NR_EVENT_RINGS);
+-	xudc_writel(xudc, val, SPARAM);
 -
--	if (psr_config.psr_version > 0) {
--		psr_config.psr_exit_link_training_required = 0x1;
-+	if (link->psr_settings.psr_version != DC_PSR_VERSION_UNSUPPORTED) {
-+		psr_config.psr_version = link->psr_settings.psr_version;
- 		psr_config.psr_frame_capture_indication_req = 0;
- 		psr_config.psr_rfb_setup_time = 0x37;
- 		psr_config.psr_sdp_transmit_line_num_deadline = 0x20;
+ 	for (i = 0; i < ARRAY_SIZE(xudc->event_ring); i++) {
+ 		memset(xudc->event_ring[i], 0, XUDC_EVENT_RING_SIZE *
+ 		       sizeof(*xudc->event_ring[i]));
 -- 
 2.34.1
 
