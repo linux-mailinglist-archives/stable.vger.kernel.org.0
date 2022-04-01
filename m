@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E89384EF42D
-	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 17:30:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C49304EF4F3
+	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 17:41:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350262AbiDAPHf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Apr 2022 11:07:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55842 "EHLO
+        id S1351949AbiDAPHZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Apr 2022 11:07:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55848 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349967AbiDAO61 (ORCPT
+        with ESMTP id S1349960AbiDAO61 (ORCPT
         <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:58:27 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CC5D170095;
-        Fri,  1 Apr 2022 07:45:33 -0700 (PDT)
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D006170DBA;
+        Fri,  1 Apr 2022 07:45:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EF4A5B823EB;
+        by sin.source.kernel.org (Postfix) with ESMTPS id 0AC54CE2580;
+        Fri,  1 Apr 2022 14:45:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BCE4C2BBE4;
         Fri,  1 Apr 2022 14:45:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8919C34111;
-        Fri,  1 Apr 2022 14:45:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648824330;
-        bh=VLYhNfb0mXOrcYi3ghDws1UjY7TqoESPfhQk47N3zR4=;
+        s=k20201202; t=1648824332;
+        bh=XCSQX8WQjXiXJZ5xL6UXOgj8u/7rIRyS3/P24UyWvm0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U2MZn3yj4b5aJ09vEMG55idW6Bw6/6Kyofcz5HpUtjU68JQBySAIgvzOTu/FxIw4f
-         i9oxmNAQvQt84bkZm9FWy1b/FXCLBLiCOj38sPilnOiSctFzYBqco48Es0ltccrOgE
-         6C4OaUIPy1l4bsMMXzMn4POlSQZRZezZJL45b+GwcnKNmehPHPG8H35N8nLl/0mNZl
-         VzfUbOz3vtwd4QI9NXaSl206mU3Vvsyv3qBMyiQ4hVluWbsFR5xuvjq7X/SVoMiEKj
-         pRL1cfQrVOpwnXBmVJaNe1jyNjIwdMmBjX/qjTeV9eWykvivaAmhYKDe6RM9yUmIgk
-         GMysODWLUzKVw==
+        b=qKnyUBQaQRdx0tEqHyXs2y6wp+DbSrm4GeiaBwPo1HwAP9tzWWCwmlaiyShsBOdZG
+         ATY56amIuSMmpplezz3h1P7lkBACvKJqW2Q2N9adj0aMaHUpWH3CogwloCiPlNK4pa
+         UEUZ8GjRcC4jiEKS4S5xhH+WYgRNPSwepiNJsop9EJkaEY2j/xsGd02+UdnlxPYJUx
+         St0RRLun0CIHvFCukJCLNaW/t5buJIqp9tA407PekhjUg0krVrRPVneVHJNmI5DWMd
+         3y8J39QxBs3JQsERZ29x7tXAzuO1MqzVdaKP0XZjb1iDjdqV4mUYAWPYmA9o095ePI
+         xhgxJ7ucDgKag==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Sasha Levin <sashal@kernel.org>, sre@kernel.org, wens@csie.org,
-        linux-pm@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 17/37] power: supply: axp288-charger: Set Vhold to 4.4V
-Date:   Fri,  1 Apr 2022 10:44:26 -0400
-Message-Id: <20220401144446.1954694-17-sashal@kernel.org>
+Cc:     Ido Schimmel <idosch@nvidia.com>, Wang Hai <wanghai38@huawei.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, kuba@kernel.org,
+        pabeni@redhat.com, yoshfuji@linux-ipv6.org, dsahern@kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 18/37] ipv4: Invalidate neighbour for broadcast address upon address addition
+Date:   Fri,  1 Apr 2022 10:44:27 -0400
+Message-Id: <20220401144446.1954694-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220401144446.1954694-1-sashal@kernel.org>
 References: <20220401144446.1954694-1-sashal@kernel.org>
@@ -57,83 +58,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Ido Schimmel <idosch@nvidia.com>
 
-[ Upstream commit 5ac121b81b4051e7fc83d5b3456a5e499d5bd147 ]
+[ Upstream commit 0c51e12e218f20b7d976158fdc18019627326f7a ]
 
-The AXP288's recommended and factory default Vhold value (minimum
-input voltage below which the input current draw will be reduced)
-is 4.4V. This lines up with other charger IC's such as the TI
-bq2419x/bq2429x series which use 4.36V or 4.44V.
+In case user space sends a packet destined to a broadcast address when a
+matching broadcast route is not configured, the kernel will create a
+unicast neighbour entry that will never be resolved [1].
 
-For some reason some BIOS-es initialize Vhold to 4.6V or even 4.7V
-which combined with the typical voltage drop over typically low
-wire gauge micro-USB cables leads to the input-current getting
-capped below 1A (with a 2A capable dedicated charger) based on Vhold.
+When the broadcast route is configured, the unicast neighbour entry will
+not be invalidated and continue to linger, resulting in packets being
+dropped.
 
-This leads to slow charging, or even to the device slowly discharging
-if the device is in heavy use.
+Solve this by invalidating unresolved neighbour entries for broadcast
+addresses after routes for these addresses are internally configured by
+the kernel. This allows the kernel to create a broadcast neighbour entry
+following the next route lookup.
 
-As the Linux AXP288 drivers use the builtin BC1.2 charger detection
-and send the input-current-limit according to the detected charger
-there really is no reason not to use the recommended 4.4V Vhold.
+Another possible solution that is more generic but also more complex is
+to have the ARP code register a listener to the FIB notification chain
+and invalidate matching neighbour entries upon the addition of broadcast
+routes.
 
-Set Vhold to 4.4V to fix the slow charging issue on various devices.
+It is also possible to wave off the issue as a user space problem, but
+it seems a bit excessive to expect user space to be that intimately
+familiar with the inner workings of the FIB/neighbour kernel code.
 
-There is one exception, the special-case of the HP X2 2-in-1s which
-combine this BC1.2 capable PMIC with a Type-C port and a 5V/3A factory
-provided charger with a Type-C plug which does not do BC1.2. These
-have their input-current-limit hardcoded to 3A (like under Windows)
-and use a higher Vhold on purpose to limit the current when used
-with other chargers. To avoid touching Vhold on these HP X2 laptops
-the code setting Vhold is added to an else branch of the if checking
-for these models.
+[1] https://lore.kernel.org/netdev/55a04a8f-56f3-f73c-2aea-2195923f09d1@huawei.com/
 
-Note this also fixes the sofar unused VBUS_ISPOUT_VHOLD_SET_MASK
-define, which was wrong.
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Reported-by: Wang Hai <wanghai38@huawei.com>
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Tested-by: Wang Hai <wanghai38@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/axp288_charger.c | 14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ include/net/arp.h       | 1 +
+ net/ipv4/arp.c          | 9 +++++++--
+ net/ipv4/fib_frontend.c | 5 ++++-
+ 3 files changed, 12 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/power/supply/axp288_charger.c b/drivers/power/supply/axp288_charger.c
-index 7d09e49f04d3..2ee6bb7c0804 100644
---- a/drivers/power/supply/axp288_charger.c
-+++ b/drivers/power/supply/axp288_charger.c
-@@ -41,11 +41,11 @@
- #define VBUS_ISPOUT_CUR_LIM_1500MA	0x1	/* 1500mA */
- #define VBUS_ISPOUT_CUR_LIM_2000MA	0x2	/* 2000mA */
- #define VBUS_ISPOUT_CUR_NO_LIM		0x3	/* 2500mA */
--#define VBUS_ISPOUT_VHOLD_SET_MASK	0x31
-+#define VBUS_ISPOUT_VHOLD_SET_MASK	0x38
- #define VBUS_ISPOUT_VHOLD_SET_BIT_POS	0x3
- #define VBUS_ISPOUT_VHOLD_SET_OFFSET	4000	/* 4000mV */
- #define VBUS_ISPOUT_VHOLD_SET_LSB_RES	100	/* 100mV */
--#define VBUS_ISPOUT_VHOLD_SET_4300MV	0x3	/* 4300mV */
-+#define VBUS_ISPOUT_VHOLD_SET_4400MV	0x4	/* 4400mV */
- #define VBUS_ISPOUT_VBUS_PATH_DIS	BIT(7)
+diff --git a/include/net/arp.h b/include/net/arp.h
+index 4950191f6b2b..4a23a97195f3 100644
+--- a/include/net/arp.h
++++ b/include/net/arp.h
+@@ -71,6 +71,7 @@ void arp_send(int type, int ptype, __be32 dest_ip,
+ 	      const unsigned char *src_hw, const unsigned char *th);
+ int arp_mc_map(__be32 addr, u8 *haddr, struct net_device *dev, int dir);
+ void arp_ifdown(struct net_device *dev);
++int arp_invalidate(struct net_device *dev, __be32 ip, bool force);
  
- #define CHRG_CCCV_CC_MASK		0xf		/* 4 bits */
-@@ -744,6 +744,16 @@ static int charger_init_hw_regs(struct axp288_chrg_info *info)
- 		ret = axp288_charger_vbus_path_select(info, true);
- 		if (ret < 0)
- 			return ret;
-+	} else {
-+		/* Set Vhold to the factory default / recommended 4.4V */
-+		val = VBUS_ISPOUT_VHOLD_SET_4400MV << VBUS_ISPOUT_VHOLD_SET_BIT_POS;
-+		ret = regmap_update_bits(info->regmap, AXP20X_VBUS_IPSOUT_MGMT,
-+					 VBUS_ISPOUT_VHOLD_SET_MASK, val);
-+		if (ret < 0) {
-+			dev_err(&info->pdev->dev, "register(%x) write error(%d)\n",
-+				AXP20X_VBUS_IPSOUT_MGMT, ret);
-+			return ret;
+ struct sk_buff *arp_create(int type, int ptype, __be32 dest_ip,
+ 			   struct net_device *dev, __be32 src_ip,
+diff --git a/net/ipv4/arp.c b/net/ipv4/arp.c
+index 7b951992c372..b8fe943ae89d 100644
+--- a/net/ipv4/arp.c
++++ b/net/ipv4/arp.c
+@@ -1116,13 +1116,18 @@ static int arp_req_get(struct arpreq *r, struct net_device *dev)
+ 	return err;
+ }
+ 
+-static int arp_invalidate(struct net_device *dev, __be32 ip)
++int arp_invalidate(struct net_device *dev, __be32 ip, bool force)
+ {
+ 	struct neighbour *neigh = neigh_lookup(&arp_tbl, &ip, dev);
+ 	int err = -ENXIO;
+ 	struct neigh_table *tbl = &arp_tbl;
+ 
+ 	if (neigh) {
++		if ((neigh->nud_state & NUD_VALID) && !force) {
++			neigh_release(neigh);
++			return 0;
 +		}
++
+ 		if (neigh->nud_state & ~NUD_NOARP)
+ 			err = neigh_update(neigh, NULL, NUD_FAILED,
+ 					   NEIGH_UPDATE_F_OVERRIDE|
+@@ -1169,7 +1174,7 @@ static int arp_req_delete(struct net *net, struct arpreq *r,
+ 		if (!dev)
+ 			return -EINVAL;
  	}
+-	return arp_invalidate(dev, ip);
++	return arp_invalidate(dev, ip, true);
+ }
  
- 	/* Read current charge voltage and current limit */
+ /*
+diff --git a/net/ipv4/fib_frontend.c b/net/ipv4/fib_frontend.c
+index a95102fe6637..ef3e7a3e3a29 100644
+--- a/net/ipv4/fib_frontend.c
++++ b/net/ipv4/fib_frontend.c
+@@ -1122,9 +1122,11 @@ void fib_add_ifaddr(struct in_ifaddr *ifa)
+ 		return;
+ 
+ 	/* Add broadcast address, if it is explicitly assigned. */
+-	if (ifa->ifa_broadcast && ifa->ifa_broadcast != htonl(0xFFFFFFFF))
++	if (ifa->ifa_broadcast && ifa->ifa_broadcast != htonl(0xFFFFFFFF)) {
+ 		fib_magic(RTM_NEWROUTE, RTN_BROADCAST, ifa->ifa_broadcast, 32,
+ 			  prim, 0);
++		arp_invalidate(dev, ifa->ifa_broadcast, false);
++	}
+ 
+ 	if (!ipv4_is_zeronet(prefix) && !(ifa->ifa_flags & IFA_F_SECONDARY) &&
+ 	    (prefix != addr || ifa->ifa_prefixlen < 32)) {
+@@ -1140,6 +1142,7 @@ void fib_add_ifaddr(struct in_ifaddr *ifa)
+ 				  prim, 0);
+ 			fib_magic(RTM_NEWROUTE, RTN_BROADCAST, prefix | ~mask,
+ 				  32, prim, 0);
++			arp_invalidate(dev, prefix | ~mask, false);
+ 		}
+ 	}
+ }
 -- 
 2.34.1
 
