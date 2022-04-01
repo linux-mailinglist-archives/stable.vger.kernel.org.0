@@ -2,68 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C07E74EEBD7
-	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 12:52:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A02414EEC43
+	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 13:21:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345483AbiDAKyD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Apr 2022 06:54:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34038 "EHLO
+        id S233893AbiDALXH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Apr 2022 07:23:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51210 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345224AbiDAKwp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 06:52:45 -0400
-Received: from mail-wm1-x329.google.com (mail-wm1-x329.google.com [IPv6:2a00:1450:4864:20::329])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C4A04D603
-        for <stable@vger.kernel.org>; Fri,  1 Apr 2022 03:50:55 -0700 (PDT)
-Received: by mail-wm1-x329.google.com with SMTP id v64-20020a1cac43000000b0038cfd1b3a6dso3243385wme.5
-        for <stable@vger.kernel.org>; Fri, 01 Apr 2022 03:50:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=QBKwD8HUOk6ZcRr/nLKL5Hzmfbcc34y7j+Mh2z7MZlA=;
-        b=I5Hvt5BVjSAhFjOahgRq+v8E8jlzYBL2YIlZi+yuzZYLfb7G1eZ+ra/Cqw/xGQ0Qib
-         JhG4lFsDyyevg5xwxnZgJR3iI7v5D836Bg3BHf9/jRB99F5G8e35Bz8GME4JQPYpEZ8y
-         F/HNdkGIWnnUYEhbbMaOs4/exiwV2f5LtOgPUp0ZJuk80nh6ezzLApOI+Y4Og1OoR4eC
-         ug+Qwh9TWSrO/AgrZ18o8Pv2Gu4qrQ2s8ukRiQ38qdtVnvJAYnBY4PfDtIVTA5j5P2aP
-         R7uMmuxcRMXnFzhVn0KlBeMnNGsRoCmEfWDKaTcGJ67Mdka9zey3R4iewbIWohtzPwjc
-         muTA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=QBKwD8HUOk6ZcRr/nLKL5Hzmfbcc34y7j+Mh2z7MZlA=;
-        b=p6l15zPn/kLRe3BT+mBlVN3GgFH2pFFFMykg7Qr1P7Lbbj6vhnOpBB3LXrVlUeph/V
-         ncvOtc6reAz/EjOQe1xLoSeJYsVJXhFRO8ygYLs2PmdouSa27zusD0FKHi9nSxGjSQ+g
-         NuLR5xSAz6g+oDiWitS7HVJDxrtAKbDIqmEtWDywga4xxpNOVv6H5+n7dlDMcjzlO1xE
-         m8KdeBt2mCZ6gTQFY9YU/MkyI3aZ5QNZxibDodB0TRiJY6togCoL/avTeb5Acz+gjxFV
-         v4FzeDPvFW5b6jnJ5DHwPnUrf1C6672KB6FUkZEUAmlBWC6msfDrdBM6Ys0ceQkHSO5A
-         FyEQ==
-X-Gm-Message-State: AOAM533YEaJi6Q+EM3chKeOHiC03qFk4p51SAemFK9Th4cfpsb8EwPgJ
-        HCGstRS19KScAUBJDclZbz3c8Q==
-X-Google-Smtp-Source: ABdhPJyNpBs9mmnzElZBquk0tBzk/CsYPd29bsHI3BohmQevd2bTWg1eoxFRWhMMDLZjtNuBUXIFOA==
-X-Received: by 2002:a05:600c:4fcd:b0:38c:7495:e644 with SMTP id o13-20020a05600c4fcd00b0038c7495e644mr8344490wmq.102.1648810253781;
-        Fri, 01 Apr 2022 03:50:53 -0700 (PDT)
-Received: from joneslee-l.cable.virginm.net (cpc155339-bagu17-2-0-cust87.1-3.cable.virginm.net. [86.27.177.88])
-        by smtp.gmail.com with ESMTPSA id c5-20020a5d63c5000000b002040822b680sm2379542wrw.81.2022.04.01.03.50.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 01 Apr 2022 03:50:53 -0700 (PDT)
-From:   Lee Jones <lee.jones@linaro.org>
-To:     lee.jones@linaro.org
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Johannes Berg <johannes@sipsolutions.net>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH 1/1] nl80211: Prevent out-of-bounds read when processing NL80211_ATTR_REG_ALPHA2
-Date:   Fri,  1 Apr 2022 11:50:46 +0100
-Message-Id: <20220401105046.1952815-1-lee.jones@linaro.org>
-X-Mailer: git-send-email 2.35.1.1094.g7c7d902a7c-goog
+        with ESMTP id S232781AbiDALXE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 07:23:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 111EB25CBB4;
+        Fri,  1 Apr 2022 04:21:13 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8628F618D1;
+        Fri,  1 Apr 2022 11:21:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCE8DC2BBE4;
+        Fri,  1 Apr 2022 11:21:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1648812072;
+        bh=dXmleCzB7QZP2oZPahh2esGr/t3XcZXpumVYPEyceHw=;
+        h=From:To:Cc:Subject:Date:From;
+        b=Hy1I+c5GbkocCzyWots0KGwMZiXHnvR8e4pCQWpeD/xEp+T3f8ZeFyXt07D9C73zB
+         kWY2EaRSjn4gqZeBR/iIglXs2TCa0SfRxoNeWPleWdcj18Gojyr3HVKERGBq9T4SAI
+         pMQWvKYK330SGlrCNrZBwtzwgkM9Nyx7kjOzwXeCdDHDTzAjOyOZEqoskHihwFuTXe
+         j7E10qtHxCI8zXvg+6PLb7/LEgttKGsc9o6jRYSwKNilYYoENvGr9X45VV/T14fVbJ
+         i7TwFAWdev2mMqPEhaz79YLZn4HBrAwt8kbDW5B5P+ipPt5bYZv8F9sdK4ZopF26Vz
+         JYPTov0Xcve/Q==
+Received: from johan by xi.lan with local (Exim 4.94.2)
+        (envelope-from <johan+linaro@kernel.org>)
+        id 1naFL6-00054R-G8; Fri, 01 Apr 2022 13:21:12 +0200
+From:   Johan Hovold <johan+linaro@kernel.org>
+To:     Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Stanimir Varbanov <svarbanov@mm-sol.com>,
+        Andy Gross <agross@kernel.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>
+Cc:     Rob Herring <robh@kernel.org>,
+        =?UTF-8?q?Krzysztof=20Wilczy=C5=84ski?= <kw@linux.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        linux-pci@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Johan Hovold <johan+linaro@kernel.org>, stable@vger.kernel.org
+Subject: [PATCH RESEND] PCI: qcom: fix pipe clock imbalance
+Date:   Fri,  1 Apr 2022 13:20:05 +0200
+Message-Id: <20220401112005.19417-1-johan+linaro@kernel.org>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -71,46 +62,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Checks are presently in place in validate_nla() to ensure strings
-greater than 2 are not passed in by the user which could potentially
-cause issues.
+Commit ed8cc3b1fc84 ("PCI: qcom: Add support for SDM845 PCIe
+controller") introduced a clock imbalance by enabling the pipe clock
+both in init() and in post_init() but only disabling in post_deinit().
 
-However, there is nothing to prevent userspace from only providing a
-single (1) Byte as the data length parameter via nla_put().  If this
-were to happen, it would cause an OOB read in regulatory_hint_user(),
-since it makes assumptions that alpha2[0] and alpha2[1] will always be
-accessible.
+Note that the pipe clock was also never disabled in the init() error
+paths and that enabling the clock before powering up the PHY looks
+questionable.
 
-Add an additional check, to ensure enough data has been allocated to
-hold both Bytes.
-
-Cc: <stable@vger.kernel.org>
-Cc: Johannes Berg <johannes@sipsolutions.net>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: Paolo Abeni <pabeni@redhat.com>
-Cc: linux-wireless@vger.kernel.org
-Cc: netdev@vger.kernel.org
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Fixes: ed8cc3b1fc84 ("PCI: qcom: Add support for SDM845 PCIe controller")
+Cc: stable@vger.kernel.org      # 5.6
+Cc: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
 ---
- net/wireless/nl80211.c | 4 ++++
- 1 file changed, 4 insertions(+)
 
-diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
-index ee1c2b6b69711..80a516033db36 100644
---- a/net/wireless/nl80211.c
-+++ b/net/wireless/nl80211.c
-@@ -7536,6 +7536,10 @@ static int nl80211_req_set_reg(struct sk_buff *skb, struct genl_info *info)
- 		if (!info->attrs[NL80211_ATTR_REG_ALPHA2])
- 			return -EINVAL;
+Resending with lists on CC.
+
+Johan
+
+
+ drivers/pci/controller/dwc/pcie-qcom.c | 6 ------
+ 1 file changed, 6 deletions(-)
+
+diff --git a/drivers/pci/controller/dwc/pcie-qcom.c b/drivers/pci/controller/dwc/pcie-qcom.c
+index b79d98e5e228..20a0e6533a1c 100644
+--- a/drivers/pci/controller/dwc/pcie-qcom.c
++++ b/drivers/pci/controller/dwc/pcie-qcom.c
+@@ -1238,12 +1238,6 @@ static int qcom_pcie_init_2_7_0(struct qcom_pcie *pcie)
+ 		goto err_disable_clocks;
+ 	}
  
-+		if (nla_len(info->attrs[NL80211_ATTR_REG_ALPHA2]) !=
-+		    nl80211_policy[NL80211_ATTR_REG_ALPHA2].len)
-+			return -EINVAL;
-+
- 		data = nla_data(info->attrs[NL80211_ATTR_REG_ALPHA2]);
- 		return regulatory_hint_user(data, user_reg_hint_type);
- 	case NL80211_USER_REG_HINT_INDOOR:
+-	ret = clk_prepare_enable(res->pipe_clk);
+-	if (ret) {
+-		dev_err(dev, "cannot prepare/enable pipe clock\n");
+-		goto err_disable_clocks;
+-	}
+-
+ 	/* Wait for reset to complete, required on SM8450 */
+ 	usleep_range(1000, 1500);
+ 
 -- 
-2.35.1.1094.g7c7d902a7c-goog
+2.35.1
 
