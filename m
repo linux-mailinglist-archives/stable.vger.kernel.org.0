@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 370834EF2B9
-	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 17:15:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2AC784EF4C9
+	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 17:40:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352783AbiDAPH4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Apr 2022 11:07:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48046 "EHLO
+        id S1352771AbiDAPHw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Apr 2022 11:07:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54410 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350284AbiDAO7b (ORCPT
+        with ESMTP id S1350286AbiDAO7b (ORCPT
         <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:59:31 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1A585A584;
-        Fri,  1 Apr 2022 07:46:56 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B0C25A587;
+        Fri,  1 Apr 2022 07:46:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4EB3360AD8;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 00FF960AD8;
+        Fri,  1 Apr 2022 14:46:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39229C340EE;
         Fri,  1 Apr 2022 14:46:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B25DBC34112;
-        Fri,  1 Apr 2022 14:46:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648824415;
-        bh=cJlFvzMHW7WTOmQ6vt7zmZJ0D8WNclTUP86pr0QX1kY=;
+        s=k20201202; t=1648824417;
+        bh=pU/H+u9rFtp4ENuB1Hm1S3gmfaCJ6UJyWiYaxiMbYOg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aM4IoplUz8dCy3ApEZ3G1SWV6Oge9gkISb//dNcD4XU2xDIgBLkGt68xmcSCo+fEM
-         BqOKrJ+QMJBiBAyxJPG6IyDXuZH3tm0dXTLJbgzeS04KLHiQDnIRByCHjuNVr8WJ1p
-         6+lp/yK8XSo+PyRStKjAty6t2Y6YS1CnQVtGlWkqD7BlQRVzGCmZY9BeiutOG4390/
-         yxf03qBMfPG5EoeuV/fgGqd9ClpXD6zdVzq5vuO93sirArT6p4StVRETdQj+LufMts
-         Y5s70rnRW5HlK+w4Vm/n3Av1f+VppxbGCc/dbKOUce79BD/9HXoElbxn5dFOeOxVHU
-         gQRk4YvpffXQA==
+        b=mM01b3VenxyNrvwoTtMVfDtXS53HE/vZEGmLJmsh2KiHKk2ln136Q+dNbY8OrNYZc
+         ILukTjIJsFYCS7CISEoCcqC9ayV41b0WLyeVNP652rgBlHaD+Ii6R7j6NQ/It82RWh
+         Zw8w/AURoccR9UA1P7WQwBWRVHrfTPBId60eN+KDEF/IgKAfoaPDUXYGe7cLjSeShU
+         dJD6drFL043+Ews8+bZeHvUVtEuioI1lA2lOh3tykey3hYL+1aLGobXjCF7fZNXXWK
+         iZLgkAEO3w+15klE4VhbcIlzA8NhpqoDWz7Qzyc3wWdGIxDoM+xxFrMYdLVNvOIdmL
+         w0poPKKZ5J8fg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jordy Zomer <jordy@jordyzomer.github.io>,
-        Jordy Zomer <jordy@pwning.systems>,
-        Mike Snitzer <snitzer@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, agk@redhat.com,
-        snitzer@kernel.org, dm-devel@redhat.com
-Subject: [PATCH AUTOSEL 4.19 15/29] dm ioctl: prevent potential spectre v1 gadget
-Date:   Fri,  1 Apr 2022 10:45:58 -0400
-Message-Id: <20220401144612.1955177-15-sashal@kernel.org>
+Cc:     Alex Deucher <alexander.deucher@amd.com>,
+        Felix Kuehling <Felix.Kuehling@amd.com>,
+        Sasha Levin <sashal@kernel.org>, christian.koenig@amd.com,
+        Xinhui.Pan@amd.com, airlied@linux.ie, daniel@ffwll.ch,
+        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.19 16/29] drm/amdkfd: make CRAT table missing message informational only
+Date:   Fri,  1 Apr 2022 10:45:59 -0400
+Message-Id: <20220401144612.1955177-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220401144612.1955177-1-sashal@kernel.org>
 References: <20220401144612.1955177-1-sashal@kernel.org>
@@ -58,42 +58,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jordy Zomer <jordy@jordyzomer.github.io>
+From: Alex Deucher <alexander.deucher@amd.com>
 
-[ Upstream commit cd9c88da171a62c4b0f1c70e50c75845969fbc18 ]
+[ Upstream commit 9dff13f9edf755a15f6507874185a3290c1ae8bb ]
 
-It appears like cmd could be a Spectre v1 gadget as it's supplied by a
-user and used as an array index. Prevent the contents of kernel memory
-from being leaked to userspace via speculative execution by using
-array_index_nospec.
+The driver has a fallback so make the message informational
+rather than a warning. The driver has a fallback if the
+Component Resource Association Table (CRAT) is missing, so
+make this informational now.
 
-Signed-off-by: Jordy Zomer <jordy@pwning.systems>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1906
+Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-ioctl.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/amd/amdkfd/kfd_crat.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/md/dm-ioctl.c b/drivers/md/dm-ioctl.c
-index 17cbad58834f..0aae4a46db66 100644
---- a/drivers/md/dm-ioctl.c
-+++ b/drivers/md/dm-ioctl.c
-@@ -17,6 +17,7 @@
- #include <linux/dm-ioctl.h>
- #include <linux/hdreg.h>
- #include <linux/compat.h>
-+#include <linux/nospec.h>
- 
- #include <linux/uaccess.h>
- 
-@@ -1670,6 +1671,7 @@ static ioctl_fn lookup_ioctl(unsigned int cmd, int *ioctl_flags)
- 	if (unlikely(cmd >= ARRAY_SIZE(_ioctls)))
- 		return NULL;
- 
-+	cmd = array_index_nospec(cmd, ARRAY_SIZE(_ioctls));
- 	*ioctl_flags = _ioctls[cmd].flags;
- 	return _ioctls[cmd].fn;
- }
+diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_crat.c b/drivers/gpu/drm/amd/amdkfd/kfd_crat.c
+index ee4996029a86..e2780643f4c3 100644
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_crat.c
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_crat.c
+@@ -733,7 +733,7 @@ int kfd_create_crat_image_acpi(void **crat_image, size_t *size)
+ 	/* Fetch the CRAT table from ACPI */
+ 	status = acpi_get_table(CRAT_SIGNATURE, 0, &crat_table);
+ 	if (status == AE_NOT_FOUND) {
+-		pr_warn("CRAT table not found\n");
++		pr_info("CRAT table not found\n");
+ 		return -ENODATA;
+ 	} else if (ACPI_FAILURE(status)) {
+ 		const char *err = acpi_format_exception(status);
 -- 
 2.34.1
 
