@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EDCF4EEFD8
-	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 16:30:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 13B1C4EEFFF
+	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 16:30:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347084AbiDAObQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Apr 2022 10:31:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39110 "EHLO
+        id S1347287AbiDAObT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Apr 2022 10:31:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39112 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347078AbiDAOah (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:30:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40B6028AC56;
+        with ESMTP id S242275AbiDAOam (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:30:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CF9228AC59;
         Fri,  1 Apr 2022 07:27:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ACF40B82402;
-        Fri,  1 Apr 2022 14:27:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26BF7C2BBE4;
-        Fri,  1 Apr 2022 14:27:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2C9DA61C4A;
+        Fri,  1 Apr 2022 14:27:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 103FCC340F2;
+        Fri,  1 Apr 2022 14:27:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648823248;
-        bh=BRK+9JeOfueA1hXgfeqN+d3kw7Pcf0cfVeiYcuNNvxY=;
+        s=k20201202; t=1648823250;
+        bh=aLld6KZRQXUSWQeHmBhbogz/ELlNHaTEwqpmomHhdk8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iGMovSujhBAyEwN8A0irQt5nTDhf4fvmlr4aDTUIityelEkTFPIAmRBlWNn2m6VN+
-         CNdRbjr5XjeBY3O3od1ZVlUf73I93w36r4OvOXZIKFvMcu+2lb9d4CZZHXE5pHaY8G
-         u1kwQdpMfvdjdv46+n9W67MvMcWG5oMesswfuDY4dXPOWrD9cYaJuYboyKSMm2Y7Tw
-         Z5vnvQUn7ks+Pu7q1mCZeF+jXbdLGc1B4ynT+eRZzsshjP+sW3W/unA7VKZU/lpJW5
-         pE9GuBV1ixjSsv8aCp8SEhnjGqyz8ig7QuJFMF7vXVNwqrvywW/n8voWhgMsY4RkMH
-         6oCAEgnw+oSOA==
+        b=rcgHwhDtooFz/04I8LlPVvlRjGColWEa9f6CNu9dmemfPZASSMTeZuhB5ApXCStJF
+         hlEmNrxPuncmvKZHD4kqq3/DeoE7ybus0LZHJgQ4iZUsSCuWbgetSljgT71S2VpMkd
+         XFXGMMqeVwPlXEI9/l/Uf2R//9LBFfEdcANVG7P6KxoWWk08PQVqJ2ErQko3OmQsNb
+         51fawhtIDL7Vz7t74JCCMjlsCswvbtMFyjpPnWYJdS7/VuVCbHtpFaGtwbthxe1Bd4
+         xcP1pH1UBNwqFth1DbA5VNAB1UsVwalXUBP+fA5CLnZ0JU5K5pjkagIlmUcKXAepzO
+         IIqbFunBNSERw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yongzhi Liu <lyz_cs@pku.edu.cn>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Robert Foss <robert.foss@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, andrzej.hajda@intel.com,
-        narmstrong@baylibre.com, airlied@linux.ie, daniel@ffwll.ch,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.17 033/149] drm/bridge: Add missing pm_runtime_put_sync
-Date:   Fri,  1 Apr 2022 10:23:40 -0400
-Message-Id: <20220401142536.1948161-33-sashal@kernel.org>
+Cc:     Jakub Sitnicki <jakub@cloudflare.com>,
+        Menglong Dong <imagedong@tencent.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, daniel@iogearbox.net,
+        andrii@kernel.org, davem@davemloft.net, kuba@kernel.org,
+        pabeni@redhat.com, netdev@vger.kernel.org, bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.17 034/149] bpf: Make dst_port field in struct bpf_sock 16-bit wide
+Date:   Fri,  1 Apr 2022 10:23:41 -0400
+Message-Id: <20220401142536.1948161-34-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220401142536.1948161-1-sashal@kernel.org>
 References: <20220401142536.1948161-1-sashal@kernel.org>
@@ -59,75 +59,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yongzhi Liu <lyz_cs@pku.edu.cn>
+From: Jakub Sitnicki <jakub@cloudflare.com>
 
-[ Upstream commit 46f47807738441e354873546dde0b000106c068a ]
+[ Upstream commit 4421a582718ab81608d8486734c18083b822390d ]
 
-pm_runtime_get_sync() will increase the rumtime PM counter
-even when it returns an error. Thus a pairing decrement is needed
-to prevent refcount leak. Fix this by replacing this API with
-pm_runtime_resume_and_get(), which will not change the runtime
-PM counter on error. Besides, a matching decrement is needed
-on the error handling path to keep the counter balanced.
+Menglong Dong reports that the documentation for the dst_port field in
+struct bpf_sock is inaccurate and confusing. From the BPF program PoV, the
+field is a zero-padded 16-bit integer in network byte order. The value
+appears to the BPF user as if laid out in memory as so:
 
-Signed-off-by: Yongzhi Liu <lyz_cs@pku.edu.cn>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Robert Foss <robert.foss@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/1643008835-73961-1-git-send-email-lyz_cs@pku.edu.cn
+  offsetof(struct bpf_sock, dst_port) + 0  <port MSB>
+                                      + 8  <port LSB>
+                                      +16  0x00
+                                      +24  0x00
+
+32-, 16-, and 8-bit wide loads from the field are all allowed, but only if
+the offset into the field is 0.
+
+32-bit wide loads from dst_port are especially confusing. The loaded value,
+after converting to host byte order with bpf_ntohl(dst_port), contains the
+port number in the upper 16-bits.
+
+Remove the confusion by splitting the field into two 16-bit fields. For
+backward compatibility, allow 32-bit wide loads from offsetof(struct
+bpf_sock, dst_port).
+
+While at it, allow loads 8-bit loads at offset [0] and [1] from dst_port.
+
+Reported-by: Menglong Dong <imagedong@tencent.com>
+Signed-off-by: Jakub Sitnicki <jakub@cloudflare.com>
+Link: https://lore.kernel.org/r/20220130115518.213259-2-jakub@cloudflare.com
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/nwl-dsi.c | 18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
+ include/uapi/linux/bpf.h |  3 ++-
+ net/core/filter.c        | 10 +++++++++-
+ 2 files changed, 11 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/bridge/nwl-dsi.c b/drivers/gpu/drm/bridge/nwl-dsi.c
-index af07eeb47ca0..1529b9e3d576 100644
---- a/drivers/gpu/drm/bridge/nwl-dsi.c
-+++ b/drivers/gpu/drm/bridge/nwl-dsi.c
-@@ -861,18 +861,19 @@ nwl_dsi_bridge_mode_set(struct drm_bridge *bridge,
- 	memcpy(&dsi->mode, adjusted_mode, sizeof(dsi->mode));
- 	drm_mode_debug_printmodeline(adjusted_mode);
+diff --git a/include/uapi/linux/bpf.h b/include/uapi/linux/bpf.h
+index b0383d371b9a..1275b08e9deb 100644
+--- a/include/uapi/linux/bpf.h
++++ b/include/uapi/linux/bpf.h
+@@ -5500,7 +5500,8 @@ struct bpf_sock {
+ 	__u32 src_ip4;
+ 	__u32 src_ip6[4];
+ 	__u32 src_port;		/* host byte order */
+-	__u32 dst_port;		/* network byte order */
++	__be16 dst_port;	/* network byte order */
++	__u16 :16;		/* zero padding */
+ 	__u32 dst_ip4;
+ 	__u32 dst_ip6[4];
+ 	__u32 state;
+diff --git a/net/core/filter.c b/net/core/filter.c
+index 9eb785842258..82fcb7533663 100644
+--- a/net/core/filter.c
++++ b/net/core/filter.c
+@@ -8033,6 +8033,7 @@ bool bpf_sock_is_valid_access(int off, int size, enum bpf_access_type type,
+ 			      struct bpf_insn_access_aux *info)
+ {
+ 	const int size_default = sizeof(__u32);
++	int field_size;
  
--	pm_runtime_get_sync(dev);
-+	if (pm_runtime_resume_and_get(dev) < 0)
-+		return;
- 
- 	if (clk_prepare_enable(dsi->lcdif_clk) < 0)
--		return;
-+		goto runtime_put;
- 	if (clk_prepare_enable(dsi->core_clk) < 0)
--		return;
-+		goto runtime_put;
- 
- 	/* Step 1 from DSI reset-out instructions */
- 	ret = reset_control_deassert(dsi->rst_pclk);
- 	if (ret < 0) {
- 		DRM_DEV_ERROR(dev, "Failed to deassert PCLK: %d\n", ret);
--		return;
-+		goto runtime_put;
+ 	if (off < 0 || off >= sizeof(struct bpf_sock))
+ 		return false;
+@@ -8044,7 +8045,6 @@ bool bpf_sock_is_valid_access(int off, int size, enum bpf_access_type type,
+ 	case offsetof(struct bpf_sock, family):
+ 	case offsetof(struct bpf_sock, type):
+ 	case offsetof(struct bpf_sock, protocol):
+-	case offsetof(struct bpf_sock, dst_port):
+ 	case offsetof(struct bpf_sock, src_port):
+ 	case offsetof(struct bpf_sock, rx_queue_mapping):
+ 	case bpf_ctx_range(struct bpf_sock, src_ip4):
+@@ -8053,6 +8053,14 @@ bool bpf_sock_is_valid_access(int off, int size, enum bpf_access_type type,
+ 	case bpf_ctx_range_till(struct bpf_sock, dst_ip6[0], dst_ip6[3]):
+ 		bpf_ctx_record_field_size(info, size_default);
+ 		return bpf_ctx_narrow_access_ok(off, size, size_default);
++	case bpf_ctx_range(struct bpf_sock, dst_port):
++		field_size = size == size_default ?
++			size_default : sizeof_field(struct bpf_sock, dst_port);
++		bpf_ctx_record_field_size(info, field_size);
++		return bpf_ctx_narrow_access_ok(off, size, field_size);
++	case offsetofend(struct bpf_sock, dst_port) ...
++	     offsetof(struct bpf_sock, dst_ip4) - 1:
++		return false;
  	}
  
- 	/* Step 2 from DSI reset-out instructions */
-@@ -882,13 +883,18 @@ nwl_dsi_bridge_mode_set(struct drm_bridge *bridge,
- 	ret = reset_control_deassert(dsi->rst_esc);
- 	if (ret < 0) {
- 		DRM_DEV_ERROR(dev, "Failed to deassert ESC: %d\n", ret);
--		return;
-+		goto runtime_put;
- 	}
- 	ret = reset_control_deassert(dsi->rst_byte);
- 	if (ret < 0) {
- 		DRM_DEV_ERROR(dev, "Failed to deassert BYTE: %d\n", ret);
--		return;
-+		goto runtime_put;
- 	}
-+
-+	return;
-+
-+runtime_put:
-+	pm_runtime_put_sync(dev);
- }
- 
- static void
+ 	return size == size_default;
 -- 
 2.34.1
 
