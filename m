@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 926AB4EF340
-	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 17:17:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E744C4EF25D
+	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 17:13:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349467AbiDAOzv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Apr 2022 10:55:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33224 "EHLO
+        id S1349186AbiDAO4F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Apr 2022 10:56:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54914 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350006AbiDAOrF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:47:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2DA22A03CC;
-        Fri,  1 Apr 2022 07:36:55 -0700 (PDT)
+        with ESMTP id S1350176AbiDAOrR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:47:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6707D2A129A;
+        Fri,  1 Apr 2022 07:37:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5B3B660B9F;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5F494B82519;
+        Fri,  1 Apr 2022 14:36:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 410DFC340EE;
         Fri,  1 Apr 2022 14:36:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DEADC2BBE4;
-        Fri,  1 Apr 2022 14:36:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648823813;
-        bh=1JoZfE6UdxHEB+nH3V/p32G6m+oS2lKo835qRMi3X5E=;
+        s=k20201202; t=1648823815;
+        bh=3zdgk+amzkz5hnhB65s9Sk8Gho2/tyIKqasTtRUMeCk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fDUAxvwFlSBH8/bDMJtr9m5/u3ffvEUNjFDWIF3CYWpjE21gI09a6rpHQCU8OC+Se
-         JXWYrVdvci1cIqCWpsC9hDAsu7LZQsQwqtx7FAXcWAUprN3RDDonYcsQRpss9VnLPz
-         ngw2wOcAK65wg4lpPjnLLn56cN/GMv/c3Up4pBlEZImSU24rag0Y6/tR0TQVv4xnp0
-         L3Ry34CCM+S4nABhii80/gdH4FXjrPMX7tbcjOMqwM47uxg8/p8ORGhf5TCYLtbq8K
-         5vMNv9LdZMd7G+HVBlbVt2X4s8ePhlkn7ZIF8ZQ0IthKXibO4Deb9Qsvx/UTxILWsR
-         QafxC1l6V8XJQ==
+        b=BctNgRVSEtxk445FEEonZjxTEkrFaTRSvsc6VmRRFUM9KAnv8RoNRyUnSfwgS7DCx
+         9y9oQ/PtuezvATvJcokVBbUkF3Q1xR8c1G9smDulNBM5QLDrYoMSXyXgZMLNrxfJDp
+         JveV+TQLD9vOI2pjf7+7He7Ua7GAvuqIxcr0LH35gjPqxDEYboXXfGQjXpY9dWER/V
+         AlrQ/5ujqGcXwFBojaiRDsj4e7h/HeavhYDJF/0AHLSnBLtYoSrckcbJ/mZYlhiflk
+         CDevnVMncdBJVCnOlUVLlMDJLTj2BJ00FTyTqHlZPyGLKsSRYpBJo3MXI5kTzovr5H
+         aH6P3VO0fEbeQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hangyu Hua <hbh25y@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.16 087/109] powerpc/secvar: fix refcount leak in format_show()
-Date:   Fri,  1 Apr 2022 10:32:34 -0400
-Message-Id: <20220401143256.1950537-87-sashal@kernel.org>
+Cc:     Jianglei Nie <niejianglei2021@163.com>,
+        Hannes Reinecke <hare@suse.de>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, jejb@linux.ibm.com,
+        linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.16 088/109] scsi: libfc: Fix use after free in fc_exch_abts_resp()
+Date:   Fri,  1 Apr 2022 10:32:35 -0400
+Message-Id: <20220401143256.1950537-88-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220401143256.1950537-1-sashal@kernel.org>
 References: <20220401143256.1950537-1-sashal@kernel.org>
@@ -56,47 +58,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangyu Hua <hbh25y@gmail.com>
+From: Jianglei Nie <niejianglei2021@163.com>
 
-[ Upstream commit d601fd24e6964967f115f036a840f4f28488f63f ]
+[ Upstream commit 271add11994ba1a334859069367e04d2be2ebdd4 ]
 
-Refcount leak will happen when format_show returns failure in multiple
-cases. Unified management of of_node_put can fix this problem.
+fc_exch_release(ep) will decrease the ep's reference count. When the
+reference count reaches zero, it is freed. But ep is still used in the
+following code, which will lead to a use after free.
 
-Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220302021959.10959-1-hbh25y@gmail.com
+Return after the fc_exch_release() call to avoid use after free.
+
+Link: https://lore.kernel.org/r/20220303015115.459778-1-niejianglei2021@163.com
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Jianglei Nie <niejianglei2021@163.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/secvar-sysfs.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/scsi/libfc/fc_exch.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/powerpc/kernel/secvar-sysfs.c b/arch/powerpc/kernel/secvar-sysfs.c
-index a0a78aba2083..1ee4640a2641 100644
---- a/arch/powerpc/kernel/secvar-sysfs.c
-+++ b/arch/powerpc/kernel/secvar-sysfs.c
-@@ -26,15 +26,18 @@ static ssize_t format_show(struct kobject *kobj, struct kobj_attribute *attr,
- 	const char *format;
+diff --git a/drivers/scsi/libfc/fc_exch.c b/drivers/scsi/libfc/fc_exch.c
+index 841000445b9a..aa223db4cf53 100644
+--- a/drivers/scsi/libfc/fc_exch.c
++++ b/drivers/scsi/libfc/fc_exch.c
+@@ -1701,6 +1701,7 @@ static void fc_exch_abts_resp(struct fc_exch *ep, struct fc_frame *fp)
+ 	if (cancel_delayed_work_sync(&ep->timeout_work)) {
+ 		FC_EXCH_DBG(ep, "Exchange timer canceled due to ABTS response\n");
+ 		fc_exch_release(ep);	/* release from pending timer hold */
++		return;
+ 	}
  
- 	node = of_find_compatible_node(NULL, NULL, "ibm,secvar-backend");
--	if (!of_device_is_available(node))
--		return -ENODEV;
-+	if (!of_device_is_available(node)) {
-+		rc = -ENODEV;
-+		goto out;
-+	}
- 
- 	rc = of_property_read_string(node, "format", &format);
- 	if (rc)
--		return rc;
-+		goto out;
- 
- 	rc = sprintf(buf, "%s\n", format);
- 
-+out:
- 	of_node_put(node);
- 
- 	return rc;
+ 	spin_lock_bh(&ep->ex_lock);
 -- 
 2.34.1
 
