@@ -2,219 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BE314EEB60
-	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 12:33:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 96CFA4EEBB8
+	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 12:43:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240955AbiDAKfO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Apr 2022 06:35:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59574 "EHLO
+        id S1344990AbiDAKpI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Apr 2022 06:45:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38832 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344064AbiDAKfN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 06:35:13 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A4ECE76
-        for <stable@vger.kernel.org>; Fri,  1 Apr 2022 03:33:24 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A34DD61740
-        for <stable@vger.kernel.org>; Fri,  1 Apr 2022 10:33:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9445C340F2;
-        Fri,  1 Apr 2022 10:33:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648809203;
-        bh=smTsikKECcMYny/QbK5eyk7CDE+/US9qDJF4Gw0XPGE=;
-        h=Subject:To:Cc:From:Date:From;
-        b=CX3CLuNuKIyLmYipjyTk9MsXi2DjF7uJ3VhLiUbxoQMGQ0K7ZOHLuCb1Ys85Nux0X
-         7Ihi5mSfTto2QLxiCIKoBC831XAVpl8gHa5/3FE5yFTfeDRLNN7n1LtKTStM6Zn1o+
-         92KOOBW/XBIQ88u/MGsmGoDgN9aa2F423cvmmhRo=
-Subject: FAILED: patch "[PATCH] mtd: rawnand: protect access to rawnand devices while in" failed to apply to 5.4-stable tree
-To:     sean@geanix.com, boris.brezillon@collabora.com,
-        miquel.raynal@bootlin.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 01 Apr 2022 12:33:16 +0200
-Message-ID: <164880919617154@kroah.com>
+        with ESMTP id S1344962AbiDAKpE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 06:45:04 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id E3E7E266B66
+        for <stable@vger.kernel.org>; Fri,  1 Apr 2022 03:43:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1648809794;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=+4pBRJ5YN5a24OMJIf40rb52pBXc7gp40076N5cz8GU=;
+        b=SLEbSpuk0w46PFkb0Wo2+bMnIhsz42yAB/tl0PGZzPqATTs8ME5OEAoqWOIrnrA4dzxvAc
+        MYngs/tK10L9E8vPrPd+wZSEYbkC1gZfTA6Cvu6nv6NULEQazfmjOeoCpkIyYXhjQ3jWeu
+        GpMf8tDN6H3fnl7EAKuuv+qHiJ2Upd8=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-669-3jLmQ79dNC2OTn8DEQS3rQ-1; Fri, 01 Apr 2022 06:43:13 -0400
+X-MC-Unique: 3jLmQ79dNC2OTn8DEQS3rQ-1
+Received: by mail-wm1-f70.google.com with SMTP id t124-20020a1c4682000000b0038c8e8f8212so1016555wma.2
+        for <stable@vger.kernel.org>; Fri, 01 Apr 2022 03:43:12 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:references:from:organization:in-reply-to
+         :content-transfer-encoding;
+        bh=+4pBRJ5YN5a24OMJIf40rb52pBXc7gp40076N5cz8GU=;
+        b=Z2tCvcO9lVHUSWoIUMsZfL578ieRlW2NoXp7Lijrz5TITEALpdPiV62IaJNR5X5mHl
+         XwlodoMSjEDuZPeNbKY5wz9Nc84tYBA12pmqalCanCj4Z/qJIb5vGkTjJat/zK0PhJ4f
+         gKUxy00lEFG72ldrq9YiuOilK6EgGnsB7PPT9n4sPlpVTqIdLKni6qRt6xDxnDQq+KdJ
+         2tgeuibmo9vgE7geFZw1dfRg6sHwPxYHsV/QM5+nOixX8U4WtS9YJPZs21Pk1fJeLRR+
+         iRynAabAK6/VlsA4tDcl5x5NzDGi3jdPd76PkYmk86BKLuEfTePZ6acNwXjpx8QVp5dq
+         5ffg==
+X-Gm-Message-State: AOAM532LkAuaLMIjI3s9cn0gpi+NdCA4+173PkGhdB0xmhSIZbq6DEi0
+        4A8wJb53zSEe/qVIU5dCd0wSSLuJG8uu4Fwln0Uz6qYZUcqvGhe7i+zcDN1KZLHoakeFLnU+6Ji
+        rwkKxUGqvzQZVG8M/
+X-Received: by 2002:a05:600c:2192:b0:38c:8b45:ecf5 with SMTP id e18-20020a05600c219200b0038c8b45ecf5mr8320503wme.85.1648809791888;
+        Fri, 01 Apr 2022 03:43:11 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxRTBc25bk4mXGUimWBG0gQaL17FMWYkZ/3pdWCRPJysHyjJZ+NIDT/7uYxgPkQaxE1+XJR8A==
+X-Received: by 2002:a05:600c:2192:b0:38c:8b45:ecf5 with SMTP id e18-20020a05600c219200b0038c8b45ecf5mr8320486wme.85.1648809791602;
+        Fri, 01 Apr 2022 03:43:11 -0700 (PDT)
+Received: from ?IPV6:2003:cb:c706:9e00:229d:4a10:2574:c6fa? (p200300cbc7069e00229d4a102574c6fa.dip0.t-ipconnect.de. [2003:cb:c706:9e00:229d:4a10:2574:c6fa])
+        by smtp.gmail.com with ESMTPSA id b10-20020a05600018aa00b002042a98168csm2125388wri.15.2022.04.01.03.43.10
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 01 Apr 2022 03:43:11 -0700 (PDT)
+Message-ID: <0aefbc18-4232-0bae-b37a-d4c6995e3d00@redhat.com>
+Date:   Fri, 1 Apr 2022 12:43:10 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.6.2
+Subject: Re: [PATCH v2 1/2] hugetlb: Fix hugepages_setup when deal with
+ pernode
+Content-Language: en-US
+To:     Peng Liu <liupeng256@huawei.com>, mike.kravetz@oracle.com,
+        akpm@linux-foundation.org, yaozhenguo1@gmail.com,
+        linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+References: <20220401101232.2790280-1-liupeng256@huawei.com>
+ <20220401101232.2790280-2-liupeng256@huawei.com>
+From:   David Hildenbrand <david@redhat.com>
+Organization: Red Hat
+In-Reply-To: <20220401101232.2790280-2-liupeng256@huawei.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_LOW,RCVD_IN_MSPIKE_H4,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,
+        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 01.04.22 12:12, Peng Liu wrote:
+> Hugepages can be specified to pernode since "hugetlbfs: extend
+> the definition of hugepages parameter to support node allocation",
+> but the following problem is observed.
+> 
+> Confusing behavior is observed when both 1G and 2M hugepage is set
+> after "numa=off".
+>  cmdline hugepage settings:
+>   hugepagesz=1G hugepages=0:3,1:3
+>   hugepagesz=2M hugepages=0:1024,1:1024
+>  results:
+>   HugeTLB registered 1.00 GiB page size, pre-allocated 0 pages
+>   HugeTLB registered 2.00 MiB page size, pre-allocated 1024 pages
+> 
+> Furthermore, confusing behavior can be also observed when invalid
+> node behind valid node.
+> 
+> To fix this, hugetlb_hstate_alloc_pages should be called even when
+> hugepages_setup going to invalid.
 
-The patch below does not apply to the 5.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Shouldn't we bail out if someone requests node-specific allocations but
+we are not running with NUMA?
 
-thanks,
+What's the result after your change?
 
-greg k-h
+> 
+> Cc: <stable@vger.kernel.org>
 
------------------- original commit in Linus's tree ------------------
+I am not sure if this is really stable material.
 
-From 8cba323437a49a45756d661f500b324fc2d486fe Mon Sep 17 00:00:00 2001
-From: Sean Nyekjaer <sean@geanix.com>
-Date: Tue, 8 Feb 2022 09:52:13 +0100
-Subject: [PATCH] mtd: rawnand: protect access to rawnand devices while in
- suspend
+> Fixes: b5389086ad7b ("hugetlbfs: extend the definition of hugepages parameter to support node allocation")
+> Signed-off-by: Peng Liu <liupeng256@huawei.com>
 
-Prevent rawnand access while in a suspended state.
+-- 
+Thanks,
 
-Commit 013e6292aaf5 ("mtd: rawnand: Simplify the locking") allows the
-rawnand layer to return errors rather than waiting in a blocking wait.
-
-Tested on a iMX6ULL.
-
-Fixes: 013e6292aaf5 ("mtd: rawnand: Simplify the locking")
-Signed-off-by: Sean Nyekjaer <sean@geanix.com>
-Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20220208085213.1838273-1-sean@geanix.com
-
-diff --git a/drivers/mtd/nand/raw/nand_base.c b/drivers/mtd/nand/raw/nand_base.c
-index 3e4a525ac3ca..612ae60e9763 100644
---- a/drivers/mtd/nand/raw/nand_base.c
-+++ b/drivers/mtd/nand/raw/nand_base.c
-@@ -338,16 +338,19 @@ static int nand_isbad_bbm(struct nand_chip *chip, loff_t ofs)
-  *
-  * Return: -EBUSY if the chip has been suspended, 0 otherwise
-  */
--static int nand_get_device(struct nand_chip *chip)
-+static void nand_get_device(struct nand_chip *chip)
- {
--	mutex_lock(&chip->lock);
--	if (chip->suspended) {
-+	/* Wait until the device is resumed. */
-+	while (1) {
-+		mutex_lock(&chip->lock);
-+		if (!chip->suspended) {
-+			mutex_lock(&chip->controller->lock);
-+			return;
-+		}
- 		mutex_unlock(&chip->lock);
--		return -EBUSY;
--	}
--	mutex_lock(&chip->controller->lock);
- 
--	return 0;
-+		wait_event(chip->resume_wq, !chip->suspended);
-+	}
- }
- 
- /**
-@@ -576,9 +579,7 @@ static int nand_block_markbad_lowlevel(struct nand_chip *chip, loff_t ofs)
- 		nand_erase_nand(chip, &einfo, 0);
- 
- 		/* Write bad block marker to OOB */
--		ret = nand_get_device(chip);
--		if (ret)
--			return ret;
-+		nand_get_device(chip);
- 
- 		ret = nand_markbad_bbm(chip, ofs);
- 		nand_release_device(chip);
-@@ -3826,9 +3827,7 @@ static int nand_read_oob(struct mtd_info *mtd, loff_t from,
- 	    ops->mode != MTD_OPS_RAW)
- 		return -ENOTSUPP;
- 
--	ret = nand_get_device(chip);
--	if (ret)
--		return ret;
-+	nand_get_device(chip);
- 
- 	if (!ops->datbuf)
- 		ret = nand_do_read_oob(chip, from, ops);
-@@ -4415,13 +4414,11 @@ static int nand_write_oob(struct mtd_info *mtd, loff_t to,
- 			  struct mtd_oob_ops *ops)
- {
- 	struct nand_chip *chip = mtd_to_nand(mtd);
--	int ret;
-+	int ret = 0;
- 
- 	ops->retlen = 0;
- 
--	ret = nand_get_device(chip);
--	if (ret)
--		return ret;
-+	nand_get_device(chip);
- 
- 	switch (ops->mode) {
- 	case MTD_OPS_PLACE_OOB:
-@@ -4481,9 +4478,7 @@ int nand_erase_nand(struct nand_chip *chip, struct erase_info *instr,
- 		return -EIO;
- 
- 	/* Grab the lock and see if the device is available */
--	ret = nand_get_device(chip);
--	if (ret)
--		return ret;
-+	nand_get_device(chip);
- 
- 	/* Shift to get first page */
- 	page = (int)(instr->addr >> chip->page_shift);
-@@ -4570,7 +4565,7 @@ static void nand_sync(struct mtd_info *mtd)
- 	pr_debug("%s: called\n", __func__);
- 
- 	/* Grab the lock and see if the device is available */
--	WARN_ON(nand_get_device(chip));
-+	nand_get_device(chip);
- 	/* Release it and go back */
- 	nand_release_device(chip);
- }
-@@ -4587,9 +4582,7 @@ static int nand_block_isbad(struct mtd_info *mtd, loff_t offs)
- 	int ret;
- 
- 	/* Select the NAND device */
--	ret = nand_get_device(chip);
--	if (ret)
--		return ret;
-+	nand_get_device(chip);
- 
- 	nand_select_target(chip, chipnr);
- 
-@@ -4660,6 +4653,8 @@ static void nand_resume(struct mtd_info *mtd)
- 			__func__);
- 	}
- 	mutex_unlock(&chip->lock);
-+
-+	wake_up_all(&chip->resume_wq);
- }
- 
- /**
-@@ -5438,6 +5433,7 @@ static int nand_scan_ident(struct nand_chip *chip, unsigned int maxchips,
- 	chip->cur_cs = -1;
- 
- 	mutex_init(&chip->lock);
-+	init_waitqueue_head(&chip->resume_wq);
- 
- 	/* Enforce the right timings for reset/detection */
- 	chip->current_interface_config = nand_get_reset_interface_config();
-diff --git a/include/linux/mtd/rawnand.h b/include/linux/mtd/rawnand.h
-index 5b88cd51fadb..dcf90144d70b 100644
---- a/include/linux/mtd/rawnand.h
-+++ b/include/linux/mtd/rawnand.h
-@@ -1240,6 +1240,7 @@ struct nand_secure_region {
-  * @lock: Lock protecting the suspended field. Also used to serialize accesses
-  *        to the NAND device
-  * @suspended: Set to 1 when the device is suspended, 0 when it's not
-+ * @resume_wq: wait queue to sleep if rawnand is in suspended state.
-  * @cur_cs: Currently selected target. -1 means no target selected, otherwise we
-  *          should always have cur_cs >= 0 && cur_cs < nanddev_ntargets().
-  *          NAND Controller drivers should not modify this value, but they're
-@@ -1294,6 +1295,7 @@ struct nand_chip {
- 	/* Internals */
- 	struct mutex lock;
- 	unsigned int suspended : 1;
-+	wait_queue_head_t resume_wq;
- 	int cur_cs;
- 	int read_retries;
- 	struct nand_secure_region *secure_regions;
+David / dhildenb
 
