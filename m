@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DECB34EF3AA
-	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 17:26:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94C144EF304
+	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 17:16:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347892AbiDAPD7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Apr 2022 11:03:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58418 "EHLO
+        id S1346215AbiDAPDv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Apr 2022 11:03:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348959AbiDAOzM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:55:12 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54E2F2B5AFC;
-        Fri,  1 Apr 2022 07:43:12 -0700 (PDT)
+        with ESMTP id S1348808AbiDAOzT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:55:19 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F3022963F0;
+        Fri,  1 Apr 2022 07:43:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 93C8FCE258C;
-        Fri,  1 Apr 2022 14:43:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EEFF6C34111;
-        Fri,  1 Apr 2022 14:43:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 21818B823EB;
+        Fri,  1 Apr 2022 14:43:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 758FDC2BBE4;
+        Fri,  1 Apr 2022 14:43:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648824189;
-        bh=WcRdAptjnyOPzOpes/N1dS6k4W0eh5dG3T/LsETwNkA=;
+        s=k20201202; t=1648824192;
+        bh=JnF4kJS7E34D+Ls3+jnc6FhaP0lY3jxcchq/2J9G21c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EpTZfezIl6opK9nImkKsw2hbwyB++X4L0PCrbrO60tkROU0PVDVAR0e2nuDEtO3ng
-         yXtjGaVhK2BMlhEawiYaOn0g+oI5jiG+Ud7Bh242G3+SYKCih92+kC+/NcBedPrvJi
-         r5BCTB3V5v3XYLosWKfTU3B19gKQwWO45JACtPFBI9uvOenEoYL8pUXrVwg0cMW1bW
-         Z+84tm21zQatHyT3ejMuQ/KT7Z21jyYsLTQ36b61MozZ6xPaoTh+rLyN0XXFLLNMKj
-         AznTvgxfYe95m45OvDKM48/cAiKfiwMPldUMPyoBfa8lScUIkg6zug5R6GL5BmJNBs
-         8wJYM38dQB5gQ==
+        b=WyJQYVu8DEgRxDBHvEH9uQTpic/37OoThUWlTzbsYEUkascSGjMy2iDkUBZBUe+Xm
+         kJrPmLIN7JhjzUw24Q9xMP8b/aJPRn8yNQhLOWBlpIzti16OepyUugzcmmkACAabNw
+         Mh7pY558S/uiqTSOb53NMdHIkPGTebnPbKhgDLZomXbnVVQj5J7jfx+q4zgJCkXtS5
+         rFE/VdLhJtP5cKwUl41zMDMnFD8QPHUYGa6yOV60JC8nI95+3uU30Vrr9jpH05q2KT
+         yHMuFl0NOXePtAcMiD+bN9hoCVGcM22ayF3wodofJEspzCWTrMm5Xi9vWRWsL+w/rS
+         i4hHuZXvCNWaw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Sasha Levin <sashal@kernel.org>, thomas.petazzoni@bootlin.com,
-        bhelgaas@google.com, linux-pci@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.10 21/65] PCI: aardvark: Fix support for MSI interrupts
-Date:   Fri,  1 Apr 2022 10:41:22 -0400
-Message-Id: <20220401144206.1953700-21-sashal@kernel.org>
+Cc:     Zhou Guanghui <zhouguanghui1@huawei.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        joro@8bytes.org, robin.murphy@arm.com, thunder.leizhen@huawei.com,
+        jean-philippe@linaro.org, tglx@linutronix.de,
+        chenxiang66@hisilicon.com, christophe.jaillet@wanadoo.fr,
+        linux-arm-kernel@lists.infradead.org,
+        iommu@lists.linux-foundation.org
+Subject: [PATCH AUTOSEL 5.10 22/65] iommu/arm-smmu-v3: fix event handling soft lockup
+Date:   Fri,  1 Apr 2022 10:41:23 -0400
+Message-Id: <20220401144206.1953700-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220401144206.1953700-1-sashal@kernel.org>
 References: <20220401144206.1953700-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -60,79 +60,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Zhou Guanghui <zhouguanghui1@huawei.com>
 
-[ Upstream commit b0b0b8b897f8e12b2368e868bd7cdc5742d5c5a9 ]
+[ Upstream commit 30de2b541af98179780054836b48825fcfba4408 ]
 
-Aardvark hardware supports Multi-MSI and MSI_FLAG_MULTI_PCI_MSI is already
-set for the MSI chip. But when allocating MSI interrupt numbers for
-Multi-MSI, the numbers need to be properly aligned, otherwise endpoint
-devices send MSI interrupt with incorrect numbers.
+During event processing, events are read from the event queue one
+by one until the queue is empty.If the master device continuously
+requests address access at the same time and the SMMU generates
+events, the cyclic processing of the event takes a long time and
+softlockup warnings may be reported.
 
-Fix this issue by using function bitmap_find_free_region() instead of
-bitmap_find_next_zero_area().
+arm-smmu-v3 arm-smmu-v3.34.auto: event 0x0a received:
+arm-smmu-v3 arm-smmu-v3.34.auto: 	0x00007f220000280a
+arm-smmu-v3 arm-smmu-v3.34.auto: 	0x000010000000007e
+arm-smmu-v3 arm-smmu-v3.34.auto: 	0x00000000034e8670
+watchdog: BUG: soft lockup - CPU#0 stuck for 22s! [irq/268-arm-smm:247]
+Call trace:
+ _dev_info+0x7c/0xa0
+ arm_smmu_evtq_thread+0x1c0/0x230
+ irq_thread_fn+0x30/0x80
+ irq_thread+0x128/0x210
+ kthread+0x134/0x138
+ ret_from_fork+0x10/0x1c
+Kernel panic - not syncing: softlockup: hung tasks
 
-To ensure that aligned MSI interrupt numbers are used by endpoint devices,
-we cannot use Linux virtual irq numbers (as they are random and not
-properly aligned). Instead we need to use the aligned hwirq numbers.
+Fix this by calling cond_resched() after the event information is
+printed.
 
-This change fixes receiving MSI interrupts on Armada 3720 boards and
-allows using NVMe disks which use Multi-MSI feature with 3 interrupts.
-
-Without this NVMe disks freeze booting as linux nvme-core.c is waiting
-60s for an interrupt.
-
-Link: https://lore.kernel.org/r/20220110015018.26359-4-kabel@kernel.org
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Marek Behún <kabel@kernel.org>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Signed-off-by: Zhou Guanghui <zhouguanghui1@huawei.com>
+Link: https://lore.kernel.org/r/20220119070754.26528-1-zhouguanghui1@huawei.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pci-aardvark.c | 16 ++++++----------
- 1 file changed, 6 insertions(+), 10 deletions(-)
+ drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/pci/controller/pci-aardvark.c b/drivers/pci/controller/pci-aardvark.c
-index f30144c8c0bd..40f7b885ca96 100644
---- a/drivers/pci/controller/pci-aardvark.c
-+++ b/drivers/pci/controller/pci-aardvark.c
-@@ -1184,7 +1184,7 @@ static void advk_msi_irq_compose_msi_msg(struct irq_data *data,
+diff --git a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
+index 7067b7c11626..483c1362cc4a 100644
+--- a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
++++ b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
+@@ -1368,6 +1368,7 @@ static irqreturn_t arm_smmu_evtq_thread(int irq, void *dev)
+ 				dev_info(smmu->dev, "\t0x%016llx\n",
+ 					 (unsigned long long)evt[i]);
  
- 	msg->address_lo = lower_32_bits(msi_msg);
- 	msg->address_hi = upper_32_bits(msi_msg);
--	msg->data = data->irq;
-+	msg->data = data->hwirq;
- }
++			cond_resched();
+ 		}
  
- static int advk_msi_set_affinity(struct irq_data *irq_data,
-@@ -1201,15 +1201,11 @@ static int advk_msi_irq_domain_alloc(struct irq_domain *domain,
- 	int hwirq, i;
- 
- 	mutex_lock(&pcie->msi_used_lock);
--	hwirq = bitmap_find_next_zero_area(pcie->msi_used, MSI_IRQ_NUM,
--					   0, nr_irqs, 0);
--	if (hwirq >= MSI_IRQ_NUM) {
--		mutex_unlock(&pcie->msi_used_lock);
--		return -ENOSPC;
--	}
--
--	bitmap_set(pcie->msi_used, hwirq, nr_irqs);
-+	hwirq = bitmap_find_free_region(pcie->msi_used, MSI_IRQ_NUM,
-+					order_base_2(nr_irqs));
- 	mutex_unlock(&pcie->msi_used_lock);
-+	if (hwirq < 0)
-+		return -ENOSPC;
- 
- 	for (i = 0; i < nr_irqs; i++)
- 		irq_domain_set_info(domain, virq + i, hwirq + i,
-@@ -1227,7 +1223,7 @@ static void advk_msi_irq_domain_free(struct irq_domain *domain,
- 	struct advk_pcie *pcie = domain->host_data;
- 
- 	mutex_lock(&pcie->msi_used_lock);
--	bitmap_clear(pcie->msi_used, d->hwirq, nr_irqs);
-+	bitmap_release_region(pcie->msi_used, d->hwirq, order_base_2(nr_irqs));
- 	mutex_unlock(&pcie->msi_used_lock);
- }
- 
+ 		/*
 -- 
 2.34.1
 
