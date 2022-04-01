@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F6FC4EF573
-	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 17:46:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E7A244EF50B
+	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 17:41:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355151AbiDAPOF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Apr 2022 11:14:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48574 "EHLO
+        id S242947AbiDAPF0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Apr 2022 11:05:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48054 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349173AbiDAO43 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:56:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B76A3D5EBC;
-        Fri,  1 Apr 2022 07:44:03 -0700 (PDT)
+        with ESMTP id S1349545AbiDAO4u (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:56:50 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E761EF32B3;
+        Fri,  1 Apr 2022 07:44:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 479D560AC0;
-        Fri,  1 Apr 2022 14:44:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1533C3410F;
-        Fri,  1 Apr 2022 14:44:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A0FB0B8240E;
+        Fri,  1 Apr 2022 14:44:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70B43C2BBE4;
+        Fri,  1 Apr 2022 14:44:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648824242;
-        bh=+RxYCEjQQj8P+LMNvgfvSSh2+sfRo/9Kks0pUvW7OUw=;
+        s=k20201202; t=1648824246;
+        bh=tzTiadN5Zj6DRCCirKrLyN3UU6bVuQqMqdBzqv4dZr4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sAre0WQdtiSB363Te8QXXLWqc+1wEb3GRJzuJy1X9lyVvR031WoUdy2TxmV1UYAt5
-         y54TBI4B1ObmdrLldf6w2ztyXdTTZQqLHSyo6ulHSr8+su+FhF+SPHrRtqdu77uS94
-         as6FH5yLxIF7lyIPoQbfKwRKePLWTTABXm8uUX06Oz+YwUIDOnXzuwWiOS9fPRgH4d
-         VZHKToSQ2pjiVtAQrdvBTRhJu5xxfl9lKufd2Mch1KKgCoCmAniVq3qWC6C+XOADEr
-         51WDG4Dia/xFogrM3Fhaok9cuOHj989LK9EQ+h/h85P7ENQ5F86gxCKOBKXWCnR68B
-         zQLPduRZnP3jw==
+        b=YzEg6+Xqx57qQsD7F8ic07oxZiB8DGLoYpcyLsOoJUgxO7VGjigU1Y4BNGU21QvBm
+         JPdmeD4h4BRMWyePdLWpB5O40yuXQwF/kUUHg/5Q/TZQX3GulKZvid5JeiYtJshd8N
+         mrjqtZY49cBG99jPDQX19en1dES1xGWdQHDPlfjGaMCvfYl/aUhfGa6iu0kr/MtGUe
+         0BPHuw5Uh5uQwCI6wYH5KpHS6ntIB1HyOX/A5LTiEXyCAOXhB1XRRd/pOWhqy98v59
+         BDn650SNjiewzYBTWkdmguK7Ftc0yDNV0fwX+XeWy8qpX206oPe6c0a+wZp+SbMzwn
+         EBAKAPbuX3OuQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Michael Chan <michael.chan@broadcom.com>,
-        Colin Winegarden <colin.winegarden@broadcom.com>,
-        Pavan Chebbi <pavan.chebbi@broadcom.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, kuba@kernel.org,
-        pabeni@redhat.com, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 48/65] bnxt_en: Eliminate unintended link toggle during FW reset
-Date:   Fri,  1 Apr 2022 10:41:49 -0400
-Message-Id: <20220401144206.1953700-48-sashal@kernel.org>
+Cc:     Li Chen <lchen@ambarella.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Kishon Vijay Abraham I <kishon@ti.com>,
+        Sasha Levin <sashal@kernel.org>, bhelgaas@google.com,
+        Zhiqiang.Hou@nxp.com, yangyingliang@huawei.com,
+        linux-pci@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 49/65] PCI: endpoint: Fix misused goto label
+Date:   Fri,  1 Apr 2022 10:41:50 -0400
+Message-Id: <20220401144206.1953700-49-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220401144206.1953700-1-sashal@kernel.org>
 References: <20220401144206.1953700-1-sashal@kernel.org>
@@ -59,45 +59,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Chan <michael.chan@broadcom.com>
+From: Li Chen <lchen@ambarella.com>
 
-[ Upstream commit 7c492a2530c1f05441da541307c2534230dfd59b ]
+[ Upstream commit bf8d87c076f55b8b4dfdb6bc6c6b6dc0c2ccb487 ]
 
-If the flow control settings have been changed, a subsequent FW reset
-may cause the ethernet link to toggle unnecessarily.  This link toggle
-will increase the down time by a few seconds.
+Fix a misused goto label jump since that can result in a memory leak.
 
-The problem is caused by bnxt_update_phy_setting() detecting a false
-mismatch in the flow control settings between the stored software
-settings and the current FW settings after the FW reset.  This mismatch
-is caused by the AUTONEG bit added to link_info->req_flow_ctrl in an
-inconsistent way in bnxt_set_pauseparam() in autoneg mode.  The AUTONEG
-bit should not be added to link_info->req_flow_ctrl.
-
-Reviewed-by: Colin Winegarden <colin.winegarden@broadcom.com>
-Reviewed-by: Pavan Chebbi <pavan.chebbi@broadcom.com>
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/r/17e7b9b9ee6.c6d9c6a02564.4545388417402742326@zohomail.com
+Signed-off-by: Li Chen <lchen@ambarella.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Acked-by: Kishon Vijay Abraham I <kishon@ti.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/pci/endpoint/functions/pci-epf-test.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
-index 98087b278d1f..f8f775619520 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
-@@ -2041,9 +2041,7 @@ static int bnxt_set_pauseparam(struct net_device *dev,
+diff --git a/drivers/pci/endpoint/functions/pci-epf-test.c b/drivers/pci/endpoint/functions/pci-epf-test.c
+index b861840e867c..262b2c4c70c9 100644
+--- a/drivers/pci/endpoint/functions/pci-epf-test.c
++++ b/drivers/pci/endpoint/functions/pci-epf-test.c
+@@ -451,7 +451,7 @@ static int pci_epf_test_write(struct pci_epf_test *epf_test)
+ 		if (!epf_test->dma_supported) {
+ 			dev_err(dev, "Cannot transfer data using DMA\n");
+ 			ret = -EINVAL;
+-			goto err_map_addr;
++			goto err_dma_map;
  		}
  
- 		link_info->autoneg |= BNXT_AUTONEG_FLOW_CTRL;
--		if (bp->hwrm_spec_code >= 0x10201)
--			link_info->req_flow_ctrl =
--				PORT_PHY_CFG_REQ_AUTO_PAUSE_AUTONEG_PAUSE;
-+		link_info->req_flow_ctrl = 0;
- 	} else {
- 		/* when transition from auto pause to force pause,
- 		 * force a link change
+ 		src_phys_addr = dma_map_single(dma_dev, buf, reg->size,
 -- 
 2.34.1
 
