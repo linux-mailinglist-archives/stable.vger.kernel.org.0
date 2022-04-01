@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 76A6B4EF4CA
-	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 17:40:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 023E94EF505
+	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 17:41:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348314AbiDAOwq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Apr 2022 10:52:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59910 "EHLO
+        id S1344375AbiDAOz2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Apr 2022 10:55:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34474 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349157AbiDAOpi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:45:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24035299A4B;
-        Fri,  1 Apr 2022 07:35:26 -0700 (PDT)
+        with ESMTP id S1348734AbiDAOoP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:44:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED334296D2B;
+        Fri,  1 Apr 2022 07:35:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A9C4F60A3D;
-        Fri,  1 Apr 2022 14:34:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83411C340F2;
-        Fri,  1 Apr 2022 14:34:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A3AEF60B98;
+        Fri,  1 Apr 2022 14:34:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1212C3410F;
+        Fri,  1 Apr 2022 14:34:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648823695;
-        bh=h6tEdTEiLa3QMvSfq+L4/ZRy7SJQezJ633iJ7+1klsM=;
+        s=k20201202; t=1648823699;
+        bh=fyBbIOLAXtls+WKXRpPj1SEbx8F+22RILRzryEetKtE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EKZP1uH6QieLhU1pKEh5QHV6RWg5Wn4FfbYgBQttlgxK6eVkX1PLtQ4ObTM5lWEbL
-         JiHCFX7swmVdIsAx0XZrVjXCCd+WjM/mdpKK/JTHsDhaNkRLQylKxJYUgcsNskVLdK
-         0e9HKKGNpviJ6+G2ALc/6mN3HiAdGLYD+/3IMDyUBShSzSbqRZNAD4SJPQ5xWWteP3
-         HFWDb7aVeFy80u+duOMleA9xYyzH7aiVk1G/Qe4JPoSGbCOtQlVkKXuSvR2vi8VUoA
-         odI6C/1oPjEPgzewb5L8qMbqmFUdI3bPWu+9VbyLN3Ddc3TCNXdKMkaZ0LNrGl4sOb
-         8eC3XRWGeFbvQ==
+        b=gKOZWwOOktFFPfI4AP/jZQpcsH4hZJ21/HxekQLAztIHWM8PKBJsb3dZHZNMtH7JA
+         t0HjpLKRAC8DyPInmnmGYgtSxwF+PIikHpIz3+1hBlpak/cBUEwQTrqhD0GwaVK+bj
+         pcyBs4kvlvhiPSlp3n+9reCGpdlLx2gqZHRP1cOr8bL1DAlKtlLs0zbe2W2fV+L1y3
+         JrwQfNFclqpe6PHni6ENdNDF42nAGDg0z/z7I1HqSliIAWhSF1QrkfXalAogbmnvGH
+         Ka2MjAOtQHZREgs8dUAnmJIwdwYE3R+mFCsBPL7xtBmAerhwyAuoM875wNGO81ROvv
+         npoxUzgTNqjvw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marc Zyngier <maz@kernel.org>,
-        Alexandru Elisei <alexandru.elisei@arm.com>,
-        Sasha Levin <sashal@kernel.org>, pbonzini@redhat.com,
-        corbet@lwn.net, catalin.marinas@arm.com, will@kernel.org,
-        oupton@google.com, drjones@redhat.com, kvm@vger.kernel.org,
-        linux-doc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        kvmarm@lists.cs.columbia.edu
-Subject: [PATCH AUTOSEL 5.16 042/109] KVM: arm64: Do not change the PMU event filter after a VCPU has run
-Date:   Fri,  1 Apr 2022 10:31:49 -0400
-Message-Id: <20220401143256.1950537-42-sashal@kernel.org>
+Cc:     Hou Zhiqiang <Zhiqiang.Hou@nxp.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Kishon Vijay Abraham I <kishon@ti.com>,
+        Sasha Levin <sashal@kernel.org>, bhelgaas@google.com,
+        yangyingliang@huawei.com, lchen@ambarella.com,
+        linux-pci@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.16 043/109] PCI: endpoint: Fix alignment fault error in copy tests
+Date:   Fri,  1 Apr 2022 10:31:50 -0400
+Message-Id: <20220401143256.1950537-43-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220401143256.1950537-1-sashal@kernel.org>
 References: <20220401143256.1950537-1-sashal@kernel.org>
@@ -60,162 +59,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Hou Zhiqiang <Zhiqiang.Hou@nxp.com>
 
-[ Upstream commit 5177fe91e4cf78a659aada2c9cf712db4d788481 ]
+[ Upstream commit 829cc0e2ea2d61fb6c54bc3f8a17f86c56e11864 ]
 
-Userspace can specify which events a guest is allowed to use with the
-KVM_ARM_VCPU_PMU_V3_FILTER attribute. The list of allowed events can be
-identified by a guest from reading the PMCEID{0,1}_EL0 registers.
+The copy test uses the memcpy() to copy data between IO memory spaces.
+This can trigger an alignment fault error (pasted the error logs below)
+because memcpy() may use unaligned accesses on a mapped memory that is
+just IO, which does not support unaligned memory accesses.
 
-Changing the PMU event filter after a VCPU has run can cause reads of the
-registers performed before the filter is changed to return different values
-than reads performed with the new event filter in place. The architecture
-defines the two registers as read-only, and this behaviour contradicts
-that.
+Fix it by using the correct memcpy API to copy from/to IO memory.
 
-Keep track when the first VCPU has run and deny changes to the PMU event
-filter to prevent this from happening.
+Alignment fault error logs:
+   Unable to handle kernel paging request at virtual address ffff8000101cd3c1
+   Mem abort info:
+     ESR = 0x96000021
+     EC = 0x25: DABT (current EL), IL = 32 bits
+     SET = 0, FnV = 0
+     EA = 0, S1PTW = 0
+     FSC = 0x21: alignment fault
+   Data abort info:
+     ISV = 0, ISS = 0x00000021
+     CM = 0, WnR = 0
+   swapper pgtable: 4k pages, 48-bit VAs, pgdp=0000000081773000
+   [ffff8000101cd3c1] pgd=1000000082410003, p4d=1000000082410003, pud=1000000082411003, pmd=1000000082412003, pte=0068004000001f13
+   Internal error: Oops: 96000021 [#1] PREEMPT SMP
+   Modules linked in:
+   CPU: 0 PID: 6 Comm: kworker/0:0H Not tainted 5.15.0-rc1-next-20210914-dirty #2
+   Hardware name: LS1012A RDB Board (DT)
+   Workqueue: kpcitest pci_epf_test_cmd_handler
+   pstate: 80000005 (Nzcv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+   pc : __memcpy+0x168/0x230
+   lr : pci_epf_test_cmd_handler+0x6f0/0xa68
+   sp : ffff80001003bce0
+   x29: ffff80001003bce0 x28: ffff800010135000 x27: ffff8000101e5000
+   x26: ffff8000101cd000 x25: ffff6cda941cf6c8 x24: 0000000000000000
+   x23: ffff6cda863f2000 x22: ffff6cda9096c800 x21: ffff800010135000
+   x20: ffff6cda941cf680 x19: ffffaf39fd999000 x18: 0000000000000000
+   x17: 0000000000000000 x16: 0000000000000000 x15: ffffaf39fd2b6000
+   x14: 0000000000000000 x13: 15f5c8fa2f984d57 x12: 604d132b60275454
+   x11: 065cee5e5fb428b6 x10: aae662eb17d0cf3e x9 : 1d97c9a1b4ddef37
+   x8 : 7541b65edebf928c x7 : e71937c4fc595de0 x6 : b8a0e09562430d1c
+   x5 : ffff8000101e5401 x4 : ffff8000101cd401 x3 : ffff8000101e5380
+   x2 : fffffffffffffff1 x1 : ffff8000101cd3c0 x0 : ffff8000101e5000
+   Call trace:
+    __memcpy+0x168/0x230
+    process_one_work+0x1ec/0x370
+    worker_thread+0x44/0x478
+    kthread+0x154/0x160
+    ret_from_fork+0x10/0x20
+   Code: a984346c a9c4342c f1010042 54fffee8 (a97c3c8e)
+   ---[ end trace 568c28c7b6336335 ]---
 
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-[ Alexandru E: Added commit message, updated ioctl documentation ]
-Signed-off-by: Alexandru Elisei <alexandru.elisei@arm.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20220127161759.53553-2-alexandru.elisei@arm.com
+Link: https://lore.kernel.org/r/20211217094708.28678-1-Zhiqiang.Hou@nxp.com
+Signed-off-by: Hou Zhiqiang <Zhiqiang.Hou@nxp.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Kishon Vijay Abraham I <kishon@ti.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/virt/kvm/devices/vcpu.rst |  2 +-
- arch/arm64/include/asm/kvm_host.h       |  1 +
- arch/arm64/kvm/arm.c                    |  4 +++
- arch/arm64/kvm/pmu-emul.c               | 33 +++++++++++++++----------
- 4 files changed, 26 insertions(+), 14 deletions(-)
+ drivers/pci/endpoint/functions/pci-epf-test.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/Documentation/virt/kvm/devices/vcpu.rst b/Documentation/virt/kvm/devices/vcpu.rst
-index 60a29972d3f1..d063aaee5bb7 100644
---- a/Documentation/virt/kvm/devices/vcpu.rst
-+++ b/Documentation/virt/kvm/devices/vcpu.rst
-@@ -70,7 +70,7 @@ irqchip.
- 	 -ENODEV  PMUv3 not supported or GIC not initialized
- 	 -ENXIO   PMUv3 not properly configured or in-kernel irqchip not
- 	 	  configured as required prior to calling this attribute
--	 -EBUSY   PMUv3 already initialized
-+	 -EBUSY   PMUv3 already initialized or a VCPU has already run
- 	 -EINVAL  Invalid filter range
- 	 =======  ======================================================
- 
-diff --git a/arch/arm64/include/asm/kvm_host.h b/arch/arm64/include/asm/kvm_host.h
-index d016f27af6da..8c7ba346d713 100644
---- a/arch/arm64/include/asm/kvm_host.h
-+++ b/arch/arm64/include/asm/kvm_host.h
-@@ -137,6 +137,7 @@ struct kvm_arch {
- 
- 	/* Memory Tagging Extension enabled for the guest */
- 	bool mte_enabled;
-+	bool ran_once;
- };
- 
- struct kvm_vcpu_fault_info {
-diff --git a/arch/arm64/kvm/arm.c b/arch/arm64/kvm/arm.c
-index 1eadf9088880..6f3be4d44abe 100644
---- a/arch/arm64/kvm/arm.c
-+++ b/arch/arm64/kvm/arm.c
-@@ -629,6 +629,10 @@ static int kvm_vcpu_first_run_init(struct kvm_vcpu *vcpu)
- 	if (kvm_vm_is_protected(kvm))
- 		kvm_call_hyp_nvhe(__pkvm_vcpu_init_traps, vcpu);
- 
-+	mutex_lock(&kvm->lock);
-+	kvm->arch.ran_once = true;
-+	mutex_unlock(&kvm->lock);
+diff --git a/drivers/pci/endpoint/functions/pci-epf-test.c b/drivers/pci/endpoint/functions/pci-epf-test.c
+index 90d84d3bc868..c7e45633beaf 100644
+--- a/drivers/pci/endpoint/functions/pci-epf-test.c
++++ b/drivers/pci/endpoint/functions/pci-epf-test.c
+@@ -285,7 +285,17 @@ static int pci_epf_test_copy(struct pci_epf_test *epf_test)
+ 		if (ret)
+ 			dev_err(dev, "Data transfer failed\n");
+ 	} else {
+-		memcpy(dst_addr, src_addr, reg->size);
++		void *buf;
 +
- 	return ret;
- }
- 
-diff --git a/arch/arm64/kvm/pmu-emul.c b/arch/arm64/kvm/pmu-emul.c
-index a5e4bbf5e68f..c996fc562da4 100644
---- a/arch/arm64/kvm/pmu-emul.c
-+++ b/arch/arm64/kvm/pmu-emul.c
-@@ -921,6 +921,8 @@ static bool pmu_irq_is_valid(struct kvm *kvm, int irq)
- 
- int kvm_arm_pmu_v3_set_attr(struct kvm_vcpu *vcpu, struct kvm_device_attr *attr)
- {
-+	struct kvm *kvm = vcpu->kvm;
-+
- 	if (!kvm_vcpu_has_pmu(vcpu))
- 		return -ENODEV;
- 
-@@ -938,7 +940,7 @@ int kvm_arm_pmu_v3_set_attr(struct kvm_vcpu *vcpu, struct kvm_device_attr *attr)
- 		int __user *uaddr = (int __user *)(long)attr->addr;
- 		int irq;
- 
--		if (!irqchip_in_kernel(vcpu->kvm))
-+		if (!irqchip_in_kernel(kvm))
- 			return -EINVAL;
- 
- 		if (get_user(irq, uaddr))
-@@ -948,7 +950,7 @@ int kvm_arm_pmu_v3_set_attr(struct kvm_vcpu *vcpu, struct kvm_device_attr *attr)
- 		if (!(irq_is_ppi(irq) || irq_is_spi(irq)))
- 			return -EINVAL;
- 
--		if (!pmu_irq_is_valid(vcpu->kvm, irq))
-+		if (!pmu_irq_is_valid(kvm, irq))
- 			return -EINVAL;
- 
- 		if (kvm_arm_pmu_irq_initialized(vcpu))
-@@ -963,7 +965,7 @@ int kvm_arm_pmu_v3_set_attr(struct kvm_vcpu *vcpu, struct kvm_device_attr *attr)
- 		struct kvm_pmu_event_filter filter;
- 		int nr_events;
- 
--		nr_events = kvm_pmu_event_mask(vcpu->kvm) + 1;
-+		nr_events = kvm_pmu_event_mask(kvm) + 1;
- 
- 		uaddr = (struct kvm_pmu_event_filter __user *)(long)attr->addr;
- 
-@@ -975,12 +977,17 @@ int kvm_arm_pmu_v3_set_attr(struct kvm_vcpu *vcpu, struct kvm_device_attr *attr)
- 		     filter.action != KVM_PMU_EVENT_DENY))
- 			return -EINVAL;
- 
--		mutex_lock(&vcpu->kvm->lock);
-+		mutex_lock(&kvm->lock);
-+
-+		if (kvm->arch.ran_once) {
-+			mutex_unlock(&kvm->lock);
-+			return -EBUSY;
++		buf = kzalloc(reg->size, GFP_KERNEL);
++		if (!buf) {
++			ret = -ENOMEM;
++			goto err_map_addr;
 +		}
- 
--		if (!vcpu->kvm->arch.pmu_filter) {
--			vcpu->kvm->arch.pmu_filter = bitmap_alloc(nr_events, GFP_KERNEL_ACCOUNT);
--			if (!vcpu->kvm->arch.pmu_filter) {
--				mutex_unlock(&vcpu->kvm->lock);
-+		if (!kvm->arch.pmu_filter) {
-+			kvm->arch.pmu_filter = bitmap_alloc(nr_events, GFP_KERNEL_ACCOUNT);
-+			if (!kvm->arch.pmu_filter) {
-+				mutex_unlock(&kvm->lock);
- 				return -ENOMEM;
- 			}
- 
-@@ -991,17 +998,17 @@ int kvm_arm_pmu_v3_set_attr(struct kvm_vcpu *vcpu, struct kvm_device_attr *attr)
- 			 * events, the default is to allow.
- 			 */
- 			if (filter.action == KVM_PMU_EVENT_ALLOW)
--				bitmap_zero(vcpu->kvm->arch.pmu_filter, nr_events);
-+				bitmap_zero(kvm->arch.pmu_filter, nr_events);
- 			else
--				bitmap_fill(vcpu->kvm->arch.pmu_filter, nr_events);
-+				bitmap_fill(kvm->arch.pmu_filter, nr_events);
- 		}
- 
- 		if (filter.action == KVM_PMU_EVENT_ALLOW)
--			bitmap_set(vcpu->kvm->arch.pmu_filter, filter.base_event, filter.nevents);
-+			bitmap_set(kvm->arch.pmu_filter, filter.base_event, filter.nevents);
- 		else
--			bitmap_clear(vcpu->kvm->arch.pmu_filter, filter.base_event, filter.nevents);
-+			bitmap_clear(kvm->arch.pmu_filter, filter.base_event, filter.nevents);
- 
--		mutex_unlock(&vcpu->kvm->lock);
-+		mutex_unlock(&kvm->lock);
- 
- 		return 0;
++
++		memcpy_fromio(buf, src_addr, reg->size);
++		memcpy_toio(dst_addr, buf, reg->size);
++		kfree(buf);
  	}
+ 	ktime_get_ts64(&end);
+ 	pci_epf_test_print_rate("COPY", reg->size, &start, &end, use_dma);
 -- 
 2.34.1
 
