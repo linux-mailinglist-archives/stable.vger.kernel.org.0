@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 937FF4EF55A
-	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 17:45:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A8C3D4EF55F
+	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 17:45:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351350AbiDAPNk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Apr 2022 11:13:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47818 "EHLO
+        id S1351848AbiDAPNr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Apr 2022 11:13:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33066 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350672AbiDAPAZ (ORCPT
+        with ESMTP id S1350676AbiDAPAZ (ORCPT
         <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 11:00:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E80232FFC0;
-        Fri,  1 Apr 2022 07:48:44 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 383D239140;
+        Fri,  1 Apr 2022 07:48:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 82F0060C9B;
+        by ams.source.kernel.org (Postfix) with ESMTPS id DF2D4B82500;
+        Fri,  1 Apr 2022 14:48:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68BC9C340F2;
         Fri,  1 Apr 2022 14:48:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A551C2BBE4;
-        Fri,  1 Apr 2022 14:48:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648824523;
-        bh=VOQJl+M10hiXQCzmqGdvprLeFI05sGhBpUkds2yTKOc=;
+        s=k20201202; t=1648824525;
+        bh=NrhotgYaEmvmytZ5SsnIyI+yW0k65GrkEjY84+HFvTI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T0XfFtO7Fmvy2mvagSRLptfwf6QOzRYoYhVrIS1dgft2M5W4aIUrTllV3+NeFjg3Z
-         TXcsBb+31OVJo0xYNJONeqQ8iMDK5PHnURYmwvsJhAbJqEGAoNGhoKOcly9UgGJ0Cj
-         bEVZ4UJ2sGxBW9Iz3Hl26CCsPYKixl5yfN22bu0WMMizYYMRg9dThcifCWDlOSYTlo
-         hIUJOdaPKnTK/2SJXb/L8boIPIsG19TMkA51c4gb460gr2Vvx6pgIUhxOQfm6+iZSx
-         9LpeKPesyp5KYWIpXmbm+szSwR0R2BIABPsZggeBtNQmF5KlOq1kDbEtuT/yJVudWy
-         OVLzufUgta1lg==
+        b=ZB/zK2amGa9yqIXvO6ehMNAfVoIojcmYhyGWc0Vy53xWPuTQfxO3bygpV8SPy6PYx
+         gifKrcQgYa9R4ov00CpCdH0/ouLO5Peeb1ZU+ktgdEP4QPaFNxDlk0KiihEKAjtjKn
+         GX0+4W6rJk3mX+5jy/2QWJzvJfpDwid8cCxxhy3Id3yPo969n7nwHNR0owMc43mOB0
+         AMvI7fQEyXn4WcT7hXujyK5k9JFRIIKOGNB3C92RQYqhZDEb9skKRIb+4LnAAEVlvG
+         q7WX6CxOu4dFTSIYDEI8IVIAVJ5/gn97WrHHDPAL8KAxYGLMPbKxbfH5Z/DHi4a/g9
+         FIzKjEExEeIxQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zhou Guanghui <zhouguanghui1@huawei.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        joro@8bytes.org, iommu@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 4.9 06/16] iommu/arm-smmu-v3: fix event handling soft lockup
-Date:   Fri,  1 Apr 2022 10:48:17 -0400
-Message-Id: <20220401144827.1955845-6-sashal@kernel.org>
+Cc:     Jordy Zomer <jordy@jordyzomer.github.io>,
+        Jordy Zomer <jordy@pwning.systems>,
+        Mike Snitzer <snitzer@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, agk@redhat.com,
+        snitzer@kernel.org, dm-devel@redhat.com
+Subject: [PATCH AUTOSEL 4.9 07/16] dm ioctl: prevent potential spectre v1 gadget
+Date:   Fri,  1 Apr 2022 10:48:18 -0400
+Message-Id: <20220401144827.1955845-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220401144827.1955845-1-sashal@kernel.org>
 References: <20220401144827.1955845-1-sashal@kernel.org>
@@ -56,53 +58,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhou Guanghui <zhouguanghui1@huawei.com>
+From: Jordy Zomer <jordy@jordyzomer.github.io>
 
-[ Upstream commit 30de2b541af98179780054836b48825fcfba4408 ]
+[ Upstream commit cd9c88da171a62c4b0f1c70e50c75845969fbc18 ]
 
-During event processing, events are read from the event queue one
-by one until the queue is empty.If the master device continuously
-requests address access at the same time and the SMMU generates
-events, the cyclic processing of the event takes a long time and
-softlockup warnings may be reported.
+It appears like cmd could be a Spectre v1 gadget as it's supplied by a
+user and used as an array index. Prevent the contents of kernel memory
+from being leaked to userspace via speculative execution by using
+array_index_nospec.
 
-arm-smmu-v3 arm-smmu-v3.34.auto: event 0x0a received:
-arm-smmu-v3 arm-smmu-v3.34.auto: 	0x00007f220000280a
-arm-smmu-v3 arm-smmu-v3.34.auto: 	0x000010000000007e
-arm-smmu-v3 arm-smmu-v3.34.auto: 	0x00000000034e8670
-watchdog: BUG: soft lockup - CPU#0 stuck for 22s! [irq/268-arm-smm:247]
-Call trace:
- _dev_info+0x7c/0xa0
- arm_smmu_evtq_thread+0x1c0/0x230
- irq_thread_fn+0x30/0x80
- irq_thread+0x128/0x210
- kthread+0x134/0x138
- ret_from_fork+0x10/0x1c
-Kernel panic - not syncing: softlockup: hung tasks
-
-Fix this by calling cond_resched() after the event information is
-printed.
-
-Signed-off-by: Zhou Guanghui <zhouguanghui1@huawei.com>
-Link: https://lore.kernel.org/r/20220119070754.26528-1-zhouguanghui1@huawei.com
-Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Jordy Zomer <jordy@pwning.systems>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/arm-smmu-v3.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/md/dm-ioctl.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/iommu/arm-smmu-v3.c b/drivers/iommu/arm-smmu-v3.c
-index 48d382008788..db40ce599e97 100644
---- a/drivers/iommu/arm-smmu-v3.c
-+++ b/drivers/iommu/arm-smmu-v3.c
-@@ -1171,6 +1171,7 @@ static irqreturn_t arm_smmu_evtq_thread(int irq, void *dev)
- 				dev_info(smmu->dev, "\t0x%016llx\n",
- 					 (unsigned long long)evt[i]);
+diff --git a/drivers/md/dm-ioctl.c b/drivers/md/dm-ioctl.c
+index eb2659a12310..70245782e7f6 100644
+--- a/drivers/md/dm-ioctl.c
++++ b/drivers/md/dm-ioctl.c
+@@ -16,6 +16,7 @@
+ #include <linux/dm-ioctl.h>
+ #include <linux/hdreg.h>
+ #include <linux/compat.h>
++#include <linux/nospec.h>
  
-+			cond_resched();
- 		}
+ #include <asm/uaccess.h>
  
- 		/*
+@@ -1642,6 +1643,7 @@ static ioctl_fn lookup_ioctl(unsigned int cmd, int *ioctl_flags)
+ 	if (unlikely(cmd >= ARRAY_SIZE(_ioctls)))
+ 		return NULL;
+ 
++	cmd = array_index_nospec(cmd, ARRAY_SIZE(_ioctls));
+ 	*ioctl_flags = _ioctls[cmd].flags;
+ 	return _ioctls[cmd].fn;
+ }
 -- 
 2.34.1
 
