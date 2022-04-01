@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 97F644EEF66
+	by mail.lfdr.de (Postfix) with ESMTP id 016224EEF64
 	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 16:26:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346898AbiDAO14 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Apr 2022 10:27:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35422 "EHLO
+        id S1346864AbiDAO1z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Apr 2022 10:27:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35408 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346896AbiDAO1v (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:27:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 576F41C3485;
-        Fri,  1 Apr 2022 07:26:00 -0700 (PDT)
+        with ESMTP id S1346904AbiDAO1w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:27:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C2EB26B381;
+        Fri,  1 Apr 2022 07:26:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0EFB1B82466;
-        Fri,  1 Apr 2022 14:25:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82C7AC2BBE4;
-        Fri,  1 Apr 2022 14:25:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 13D41B82501;
+        Fri,  1 Apr 2022 14:26:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 553BFC34113;
+        Fri,  1 Apr 2022 14:25:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648823157;
-        bh=ojpEPaBK/DLYVyDyPMobAMFGBNIOOTKPinVwitXCphk=;
+        s=k20201202; t=1648823159;
+        bh=vwcMnsD7Ok9YwEwegpDLQI4p1s8O9QrAaan6MHoLLos=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Drq+KQBzB3PreA+LTXa/9+dXoYvJ4zlqeVznjESbHh7CV9RhY2Hop41Z1WmQzvxGX
-         /BpJ1nK942LZJ17psdOz3s3osZqhTLmm2Z2GhOSCeINet2iyGcS+VLvU6IRrKsOuV+
-         7APSMW9JHTpI9F/Wh9yWTLYP6c0jzlYS5dJ8P3h8t8ttF3F8/w+6rYWGQUmMoDzuHf
-         cl184hY7MG7U60Da2KwlRgXSQamOmflPxHXMAcwbzECJ1yUo4W7Zz4LI7JlBavj4jC
-         HHg8Qe0MTp94acI8W07FaFYTRuFzKK2fXBNV4a6RoYVOICpiPvwKj6Ljjg/FSWrgT+
-         ++0E6h39efWPg==
+        b=OR1LQUfVSkCRPU+93E05uFbJ41AXDH3mKidd44P+A+cRCohHDdqwZWKZjbPyAncax
+         IC7pqZbZbziY/1PG6xFKg0X7+kqwY85/TQRl6s5o0Rh+3krG0u8K5dh/jilpkiwXNI
+         RgNGHPfGNTF9XkdqqW/ADAF0SeumDYuFF2sGJUsrRS8iUEOJOMkYcrcKSBiMNKzd+F
+         CRRrl5UBSacdr5jbBXqW04unBBW6JBabQoNUgQi+owQn76ySJqlow7M7i8KBtHmBsZ
+         aw3LlWfqll+6z9gwwJ31iBv1SmEiaaudRIM/MlPZbmq2wmYbin4/v2Kwtxzkawymnu
+         WyLF4HGuGD3qg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Philipp Zabel <philipp.zabel@gmail.com>,
-        Jani Nikula <jani.nikula@intel.com>,
+Cc:     Jani Nikula <jani.nikula@intel.com>,
+        Philipp Zabel <philipp.zabel@gmail.com>,
         Sasha Levin <sashal@kernel.org>,
         maarten.lankhorst@linux.intel.com, mripard@kernel.org,
         tzimmermann@suse.de, airlied@linux.ie, daniel@ffwll.ch,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.17 007/149] drm/edid: remove non_desktop quirk for HPN-3515 and LEN-B800.
-Date:   Fri,  1 Apr 2022 10:23:14 -0400
-Message-Id: <20220401142536.1948161-7-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.17 008/149] drm/edid: improve non-desktop quirk logging
+Date:   Fri,  1 Apr 2022 10:23:15 -0400
+Message-Id: <20220401142536.1948161-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220401142536.1948161-1-sashal@kernel.org>
 References: <20220401142536.1948161-1-sashal@kernel.org>
@@ -59,41 +59,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Philipp Zabel <philipp.zabel@gmail.com>
+From: Jani Nikula <jani.nikula@intel.com>
 
-[ Upstream commit 50dc95d561a2552b0d76a9f91b38005195bf2974 ]
+[ Upstream commit ce99534e978d4a36787dbe5e5c57749d12e6bf4a ]
 
-Now that there is support for the Microsoft VSDB for HMDs, remove the
-non-desktop quirk for two devices that are verified to contain it in
-their EDID: HPN-3515 and LEN-B800.
-Presumably most of the other Windows Mixed Reality headsets contain it
-as well, but there are ACR-7FCE and SEC-5194 devices without it.
+Improve non-desktop quirk logging if the EDID indicates non-desktop. If
+both are set, note about redundant quirk. If there's no quirk but the
+EDID indicates non-desktop, don't log non-desktop is set to 0.
 
-Tested with LEN-B800.
-
-Signed-off-by: Philipp Zabel <philipp.zabel@gmail.com>
-Reviewed-by: Jani Nikula <jani.nikula@intel.com>
+Cc: Philipp Zabel <philipp.zabel@gmail.com>
 Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220123101653.147333-2-philipp.zabel@gmail.com
+Reviewed-by: Philipp Zabel <philipp.zabel@gmail.com>
+Tested-by: Philipp Zabel <philipp.zabel@gmail.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20211228101051.317989-1-jani.nikula@intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_edid.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/gpu/drm/drm_edid.c | 17 ++++++++++-------
+ 1 file changed, 10 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/gpu/drm/drm_edid.c b/drivers/gpu/drm/drm_edid.c
-index f5f5de362ff2..e8adfa90807c 100644
+index e8adfa90807c..e42a15e3f2ab 100644
 --- a/drivers/gpu/drm/drm_edid.c
 +++ b/drivers/gpu/drm/drm_edid.c
-@@ -212,9 +212,7 @@ static const struct edid_quirk {
+@@ -5331,17 +5331,13 @@ u32 drm_add_display_info(struct drm_connector *connector, const struct edid *edi
+ 	info->width_mm = edid->width_cm * 10;
+ 	info->height_mm = edid->height_cm * 10;
  
- 	/* Windows Mixed Reality Headsets */
- 	EDID_QUIRK('A', 'C', 'R', 0x7fce, EDID_QUIRK_NON_DESKTOP),
--	EDID_QUIRK('H', 'P', 'N', 0x3515, EDID_QUIRK_NON_DESKTOP),
- 	EDID_QUIRK('L', 'E', 'N', 0x0408, EDID_QUIRK_NON_DESKTOP),
--	EDID_QUIRK('L', 'E', 'N', 0xb800, EDID_QUIRK_NON_DESKTOP),
- 	EDID_QUIRK('F', 'U', 'J', 0x1970, EDID_QUIRK_NON_DESKTOP),
- 	EDID_QUIRK('D', 'E', 'L', 0x7fce, EDID_QUIRK_NON_DESKTOP),
- 	EDID_QUIRK('S', 'E', 'C', 0x144a, EDID_QUIRK_NON_DESKTOP),
+-	info->non_desktop = !!(quirks & EDID_QUIRK_NON_DESKTOP);
+-
+ 	drm_get_monitor_range(connector, edid);
+ 
+-	DRM_DEBUG_KMS("non_desktop set to %d\n", info->non_desktop);
+-
+ 	if (edid->revision < 3)
+-		return quirks;
++		goto out;
+ 
+ 	if (!(edid->input & DRM_EDID_INPUT_DIGITAL))
+-		return quirks;
++		goto out;
+ 
+ 	info->color_formats |= DRM_COLOR_FORMAT_RGB444;
+ 	drm_parse_cea_ext(connector, edid);
+@@ -5362,7 +5358,7 @@ u32 drm_add_display_info(struct drm_connector *connector, const struct edid *edi
+ 
+ 	/* Only defined for 1.4 with digital displays */
+ 	if (edid->revision < 4)
+-		return quirks;
++		goto out;
+ 
+ 	switch (edid->input & DRM_EDID_DIGITAL_DEPTH_MASK) {
+ 	case DRM_EDID_DIGITAL_DEPTH_6:
+@@ -5399,6 +5395,13 @@ u32 drm_add_display_info(struct drm_connector *connector, const struct edid *edi
+ 
+ 	drm_update_mso(connector, edid);
+ 
++out:
++	if (quirks & EDID_QUIRK_NON_DESKTOP) {
++		drm_dbg_kms(connector->dev, "Non-desktop display%s\n",
++			    info->non_desktop ? " (redundant quirk)" : "");
++		info->non_desktop = true;
++	}
++
+ 	return quirks;
+ }
+ 
 -- 
 2.34.1
 
