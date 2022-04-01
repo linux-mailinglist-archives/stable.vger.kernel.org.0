@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 69B694EF3E2
-	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 17:28:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A39BE4EF3BF
+	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 17:27:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349641AbiDAO5H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Apr 2022 10:57:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33224 "EHLO
+        id S1348503AbiDAO5F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Apr 2022 10:57:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54884 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352471AbiDAOuX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:50:23 -0400
+        with ESMTP id S1352190AbiDAOuH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:50:07 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 351AF2B331F;
-        Fri,  1 Apr 2022 07:41:46 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC11F2B19F0;
+        Fri,  1 Apr 2022 07:41:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C0B97B824AF;
-        Fri,  1 Apr 2022 14:41:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FF3AC2BBE4;
-        Fri,  1 Apr 2022 14:41:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1EEB0B8240E;
+        Fri,  1 Apr 2022 14:41:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90180C340EE;
+        Fri,  1 Apr 2022 14:41:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648824065;
-        bh=clkxCeeVshCjj/tkcXT/aa1TUVS1+JD8nre3csosIJQ=;
+        s=k20201202; t=1648824070;
+        bh=2dZ7OAK7j4+71RxiCJlc/DXdaFzM7IsGc/Q99MbtN5A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nTE327a1mVpStR+h18dmDZT5wPCn9P6ADkUKoL8OFPjWa5Wjb6YhX8FiwdsqmnUGW
-         a2Kf4A+8AdvSyDbYbkchgQGEn+B7kgk8cWeznt40x8wBQwIIypndPO8KbnJ6/EC4TZ
-         7aX4p/UrPygWyPO3AnIFxbsZZxYbr5YYQvVU7YxxJK8LenKZFB+kxt3XGjCYsAtKTc
-         7VZotjeiI09bx/Y3v2031EddIKPAPa0J9c4wnR1u3uw5DK33tpXDo5fLKIWsgCGaT2
-         fXIyRq0XMw+u6LQJUTT8X2pkgjm7solj6wIugQzw5DnIHpxKsnNrh+8W3p5anfb0yI
-         PbJWNRT0XiC8g==
+        b=HscLtMKvUg1j3H42KS31/eI6BM357+UuMoGPDWotNyXJoZayUMjCyyYsH+FtePrn1
+         tRwTGWhb9K8kn3H4lAD8MJv+REtB9+melSjr4FHLp27CO/dHfsUWgccr71UPsou2Tg
+         4qT1RCdEiQMnEnFjUnV9I1IWuJn1Xt2T+MttIXjIqacoHiwyS2LqM59RcYZoTJioEs
+         PwXm61Pvh0Ry2VXkdMqyrIlCUGmLmm4y3ittfN6QCOpF0CMWMPnpl7CmCK+ASqb0cx
+         20LQmFqdRrIV3dJKcRsTYesE4BoQL1B3sl4iWx83hmKiiVSqwuO8GvjypeN/DtPvbJ
+         trx+ENkwT4sNA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Li Chen <lchen@ambarella.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Kishon Vijay Abraham I <kishon@ti.com>,
-        Sasha Levin <sashal@kernel.org>, bhelgaas@google.com,
-        yangyingliang@huawei.com, Zhiqiang.Hou@nxp.com,
-        linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 73/98] PCI: endpoint: Fix misused goto label
-Date:   Fri,  1 Apr 2022 10:37:17 -0400
-Message-Id: <20220401143742.1952163-73-sashal@kernel.org>
+Cc:     Alexander Lobakin <alobakin@pm.me>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Sasha Levin <sashal@kernel.org>, f.fainelli@gmail.com,
+        liam.howlett@oracle.com, ldufour@linux.ibm.com,
+        akpm@linux-foundation.org, ebiederm@xmission.com,
+        linux-mips@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 74/98] MIPS: fix fortify panic when copying asm exception handlers
+Date:   Fri,  1 Apr 2022 10:37:18 -0400
+Message-Id: <20220401143742.1952163-74-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220401143742.1952163-1-sashal@kernel.org>
 References: <20220401143742.1952163-1-sashal@kernel.org>
@@ -59,34 +59,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Chen <lchen@ambarella.com>
+From: Alexander Lobakin <alobakin@pm.me>
 
-[ Upstream commit bf8d87c076f55b8b4dfdb6bc6c6b6dc0c2ccb487 ]
+[ Upstream commit d17b66417308996e7e64b270a3c7f3c1fbd4cfc8 ]
 
-Fix a misused goto label jump since that can result in a memory leak.
+With KCFLAGS="-O3", I was able to trigger a fortify-source
+memcpy() overflow panic on set_vi_srs_handler().
+Although O3 level is not supported in the mainline, under some
+conditions that may've happened with any optimization settings,
+it's just a matter of inlining luck. The panic itself is correct,
+more precisely, 50/50 false-positive and not at the same time.
+From the one side, no real overflow happens. Exception handler
+defined in asm just gets copied to some reserved places in the
+memory.
+But the reason behind is that C code refers to that exception
+handler declares it as `char`, i.e. something of 1 byte length.
+It's obvious that the asm function itself is way more than 1 byte,
+so fortify logics thought we are going to past the symbol declared.
+The standard way to refer to asm symbols from C code which is not
+supposed to be called from C is to declare them as
+`extern const u8[]`. This is fully correct from any point of view,
+as any code itself is just a bunch of bytes (including 0 as it is
+for syms like _stext/_etext/etc.), and the exact size is not known
+at the moment of compilation.
+Adjust the type of the except_vec_vi_*() and related variables.
+Make set_handler() take `const` as a second argument to avoid
+cast-away warnings and give a little more room for optimization.
 
-Link: https://lore.kernel.org/r/17e7b9b9ee6.c6d9c6a02564.4545388417402742326@zohomail.com
-Signed-off-by: Li Chen <lchen@ambarella.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Acked-by: Kishon Vijay Abraham I <kishon@ti.com>
+Signed-off-by: Alexander Lobakin <alobakin@pm.me>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/endpoint/functions/pci-epf-test.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/mips/include/asm/setup.h |  2 +-
+ arch/mips/kernel/traps.c      | 22 +++++++++++-----------
+ 2 files changed, 12 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/pci/endpoint/functions/pci-epf-test.c b/drivers/pci/endpoint/functions/pci-epf-test.c
-index c7e45633beaf..5b833f00e980 100644
---- a/drivers/pci/endpoint/functions/pci-epf-test.c
-+++ b/drivers/pci/endpoint/functions/pci-epf-test.c
-@@ -451,7 +451,7 @@ static int pci_epf_test_write(struct pci_epf_test *epf_test)
- 		if (!epf_test->dma_supported) {
- 			dev_err(dev, "Cannot transfer data using DMA\n");
- 			ret = -EINVAL;
--			goto err_map_addr;
-+			goto err_dma_map;
- 		}
+diff --git a/arch/mips/include/asm/setup.h b/arch/mips/include/asm/setup.h
+index bb36a400203d..8c56b862fd9c 100644
+--- a/arch/mips/include/asm/setup.h
++++ b/arch/mips/include/asm/setup.h
+@@ -16,7 +16,7 @@ static inline void setup_8250_early_printk_port(unsigned long base,
+ 	unsigned int reg_shift, unsigned int timeout) {}
+ #endif
  
- 		src_phys_addr = dma_map_single(dma_dev, buf, reg->size,
+-extern void set_handler(unsigned long offset, void *addr, unsigned long len);
++void set_handler(unsigned long offset, const void *addr, unsigned long len);
+ extern void set_uncached_handler(unsigned long offset, void *addr, unsigned long len);
+ 
+ typedef void (*vi_handler_t)(void);
+diff --git a/arch/mips/kernel/traps.c b/arch/mips/kernel/traps.c
+index 6f07362de5ce..edd93430b954 100644
+--- a/arch/mips/kernel/traps.c
++++ b/arch/mips/kernel/traps.c
+@@ -2085,19 +2085,19 @@ static void *set_vi_srs_handler(int n, vi_handler_t addr, int srs)
+ 		 * If no shadow set is selected then use the default handler
+ 		 * that does normal register saving and standard interrupt exit
+ 		 */
+-		extern char except_vec_vi, except_vec_vi_lui;
+-		extern char except_vec_vi_ori, except_vec_vi_end;
+-		extern char rollback_except_vec_vi;
+-		char *vec_start = using_rollback_handler() ?
+-			&rollback_except_vec_vi : &except_vec_vi;
++		extern const u8 except_vec_vi[], except_vec_vi_lui[];
++		extern const u8 except_vec_vi_ori[], except_vec_vi_end[];
++		extern const u8 rollback_except_vec_vi[];
++		const u8 *vec_start = using_rollback_handler() ?
++				      rollback_except_vec_vi : except_vec_vi;
+ #if defined(CONFIG_CPU_MICROMIPS) || defined(CONFIG_CPU_BIG_ENDIAN)
+-		const int lui_offset = &except_vec_vi_lui - vec_start + 2;
+-		const int ori_offset = &except_vec_vi_ori - vec_start + 2;
++		const int lui_offset = except_vec_vi_lui - vec_start + 2;
++		const int ori_offset = except_vec_vi_ori - vec_start + 2;
+ #else
+-		const int lui_offset = &except_vec_vi_lui - vec_start;
+-		const int ori_offset = &except_vec_vi_ori - vec_start;
++		const int lui_offset = except_vec_vi_lui - vec_start;
++		const int ori_offset = except_vec_vi_ori - vec_start;
+ #endif
+-		const int handler_len = &except_vec_vi_end - vec_start;
++		const int handler_len = except_vec_vi_end - vec_start;
+ 
+ 		if (handler_len > VECTORSPACING) {
+ 			/*
+@@ -2305,7 +2305,7 @@ void per_cpu_trap_init(bool is_boot_cpu)
+ }
+ 
+ /* Install CPU exception handler */
+-void set_handler(unsigned long offset, void *addr, unsigned long size)
++void set_handler(unsigned long offset, const void *addr, unsigned long size)
+ {
+ #ifdef CONFIG_CPU_MICROMIPS
+ 	memcpy((void *)(ebase + offset), ((unsigned char *)addr - 1), size);
 -- 
 2.34.1
 
