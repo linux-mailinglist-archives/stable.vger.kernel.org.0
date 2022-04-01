@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BF5974EF351
-	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 17:17:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AEB674EF3FF
+	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 17:28:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352788AbiDAPH5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Apr 2022 11:07:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55592 "EHLO
+        id S1352840AbiDAPIM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Apr 2022 11:08:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55858 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350494AbiDAPAF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 11:00:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4C045AA6F;
-        Fri,  1 Apr 2022 07:47:14 -0700 (PDT)
+        with ESMTP id S1350505AbiDAPAG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 11:00:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0C6A5AECF;
+        Fri,  1 Apr 2022 07:47:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4243C60A53;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6C91DB8240E;
+        Fri,  1 Apr 2022 14:47:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EF6FC340F2;
         Fri,  1 Apr 2022 14:47:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE2C5C2BBE4;
-        Fri,  1 Apr 2022 14:47:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648824433;
-        bh=92zbB0x/lQbbR39HEEkf4od6bfyiRr8ajymqPCUOB9I=;
+        s=k20201202; t=1648824435;
+        bh=mI114Ao+RDfpQC5D6nzgqT0P7mQSo7soZtMayzbFJZU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qKem/l+iKrghwJaSQ4WPlclEAHNYjU+g9h5m7I8a3ZQasqj0EM17+d+ZEptPxrWxt
-         H5kGC9Dp/wquIT/+bhoGUYHN1YYcQ2czoSwMmo1FczE+85vhnBJjvVz9zfCPNqlhVK
-         Epjsi6io5XN19XacJI2bM1nAxVnVID5Hd8/M+KvfhTm3KBz+WbHVza2TfnEfggvdJZ
-         pRxP2jUdiiwK+OMJ6zHwrcZ5bia9IgSH4S8NsWFLApm8Hb7Pfd9lJ6/HOZ8/5MZDbc
-         eQzl6NZwfI4Vjqf0GVT9abfEFWim9EH7jFXjZ/CSNkZ676C7HIm6chYXHIrumvNSOm
-         QGkBAyJaMpWSw==
+        b=NqvThGSDGqq1oM5fA76QMuCAQPkwqXTeOrXLqogAC2M3mwc1fpvyCLKwS9CCDuWaa
+         v+UtwrA0TST4rOV+8O6NHBHjf74Vff9nrDYASqaKkgTNeuh23X45dA49MWYB8Q4PpV
+         Jp8fnM17NCiUcEvWypG97FO4BDyziCEKaf+cHpLn70U37stmqRdBxWZ7twzfGBqa4z
+         CRqTsjR6DoUJrvX5w0XdSd7zC1mbam6BZ4zaT5TWIc+jp58YlvuVLu6FOWX2bZiRhg
+         kK+gd2VKzo8cYf0Cu3mMNs5JWBxIKay2IibOILWxuugUIp7YdyZIMAFGLAEzvoKEnP
+         LGReILrcn6csg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Michael Ellerman <mpe@ellerman.id.au>,
-        Paul Menzel <pmenzel@molgen.mpg.de>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.19 23/29] powerpc/code-patching: Pre-map patch area
-Date:   Fri,  1 Apr 2022 10:46:06 -0400
-Message-Id: <20220401144612.1955177-23-sashal@kernel.org>
+Cc:     Jianglei Nie <niejianglei2021@163.com>,
+        Hannes Reinecke <hare@suse.de>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, jejb@linux.ibm.com,
+        linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 24/29] scsi: libfc: Fix use after free in fc_exch_abts_resp()
+Date:   Fri,  1 Apr 2022 10:46:07 -0400
+Message-Id: <20220401144612.1955177-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220401144612.1955177-1-sashal@kernel.org>
 References: <20220401144612.1955177-1-sashal@kernel.org>
@@ -58,97 +58,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Jianglei Nie <niejianglei2021@163.com>
 
-[ Upstream commit 591b4b268435f00d2f0b81f786c2c7bd5ef66416 ]
+[ Upstream commit 271add11994ba1a334859069367e04d2be2ebdd4 ]
 
-Paul reported a warning with DEBUG_ATOMIC_SLEEP=y:
+fc_exch_release(ep) will decrease the ep's reference count. When the
+reference count reaches zero, it is freed. But ep is still used in the
+following code, which will lead to a use after free.
 
-  BUG: sleeping function called from invalid context at include/linux/sched/mm.h:256
-  in_atomic(): 0, irqs_disabled(): 1, non_block: 0, pid: 1, name: swapper/0
-  preempt_count: 0, expected: 0
-  ...
-  Call Trace:
-    dump_stack_lvl+0xa0/0xec (unreliable)
-    __might_resched+0x2f4/0x310
-    kmem_cache_alloc+0x220/0x4b0
-    __pud_alloc+0x74/0x1d0
-    hash__map_kernel_page+0x2cc/0x390
-    do_patch_instruction+0x134/0x4a0
-    arch_jump_label_transform+0x64/0x78
-    __jump_label_update+0x148/0x180
-    static_key_enable_cpuslocked+0xd0/0x120
-    static_key_enable+0x30/0x50
-    check_kvm_guest+0x60/0x88
-    pSeries_smp_probe+0x54/0xb0
-    smp_prepare_cpus+0x3e0/0x430
-    kernel_init_freeable+0x20c/0x43c
-    kernel_init+0x30/0x1a0
-    ret_from_kernel_thread+0x5c/0x64
+Return after the fc_exch_release() call to avoid use after free.
 
-Peter pointed out that this is because do_patch_instruction() has
-disabled interrupts, but then map_patch_area() calls map_kernel_page()
-then hash__map_kernel_page() which does a sleeping memory allocation.
-
-We only see the warning in KVM guests with SMT enabled, which is not
-particularly common, or on other platforms if CONFIG_KPROBES is
-disabled, also not common. The reason we don't see it in most
-configurations is that another path that happens to have interrupts
-enabled has allocated the required page tables for us, eg. there's a
-path in kprobes init that does that. That's just pure luck though.
-
-As Christophe suggested, the simplest solution is to do a dummy
-map/unmap when we initialise the patching, so that any required page
-table levels are pre-allocated before the first call to
-do_patch_instruction(). This works because the unmap doesn't free any
-page tables that were allocated by the map, it just clears the PTE,
-leaving the page table levels there for the next map.
-
-Reported-by: Paul Menzel <pmenzel@molgen.mpg.de>
-Debugged-by: Peter Zijlstra <peterz@infradead.org>
-Suggested-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220223015821.473097-1-mpe@ellerman.id.au
+Link: https://lore.kernel.org/r/20220303015115.459778-1-niejianglei2021@163.com
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Jianglei Nie <niejianglei2021@163.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/lib/code-patching.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ drivers/scsi/libfc/fc_exch.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/powerpc/lib/code-patching.c b/arch/powerpc/lib/code-patching.c
-index bb245dbf6c57..2b9a92ea2d89 100644
---- a/arch/powerpc/lib/code-patching.c
-+++ b/arch/powerpc/lib/code-patching.c
-@@ -46,9 +46,14 @@ int raw_patch_instruction(unsigned int *addr, unsigned int instr)
- #ifdef CONFIG_STRICT_KERNEL_RWX
- static DEFINE_PER_CPU(struct vm_struct *, text_poke_area);
- 
-+static int map_patch_area(void *addr, unsigned long text_poke_addr);
-+static void unmap_patch_area(unsigned long addr);
-+
- static int text_area_cpu_up(unsigned int cpu)
- {
- 	struct vm_struct *area;
-+	unsigned long addr;
-+	int err;
- 
- 	area = get_vm_area(PAGE_SIZE, VM_ALLOC);
- 	if (!area) {
-@@ -56,6 +61,15 @@ static int text_area_cpu_up(unsigned int cpu)
- 			cpu);
- 		return -1;
+diff --git a/drivers/scsi/libfc/fc_exch.c b/drivers/scsi/libfc/fc_exch.c
+index 384458d1f73c..9fa0aa235cb4 100644
+--- a/drivers/scsi/libfc/fc_exch.c
++++ b/drivers/scsi/libfc/fc_exch.c
+@@ -1709,6 +1709,7 @@ static void fc_exch_abts_resp(struct fc_exch *ep, struct fc_frame *fp)
+ 	if (cancel_delayed_work_sync(&ep->timeout_work)) {
+ 		FC_EXCH_DBG(ep, "Exchange timer canceled due to ABTS response\n");
+ 		fc_exch_release(ep);	/* release from pending timer hold */
++		return;
  	}
-+
-+	// Map/unmap the area to ensure all page tables are pre-allocated
-+	addr = (unsigned long)area->addr;
-+	err = map_patch_area(empty_zero_page, addr);
-+	if (err)
-+		return err;
-+
-+	unmap_patch_area(addr);
-+
- 	this_cpu_write(text_poke_area, area);
  
- 	return 0;
+ 	spin_lock_bh(&ep->ex_lock);
 -- 
 2.34.1
 
