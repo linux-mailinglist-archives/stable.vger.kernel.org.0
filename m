@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EB43F4EF196
-	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 16:40:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE6144EF0D2
+	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 16:39:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348016AbiDAOhG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Apr 2022 10:37:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39794 "EHLO
+        id S1348020AbiDAOhY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Apr 2022 10:37:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347310AbiDAOc3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:32:29 -0400
+        with ESMTP id S1347401AbiDAOcb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:32:31 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDC111EA286;
-        Fri,  1 Apr 2022 07:28:42 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 109BF1EA5F4;
+        Fri,  1 Apr 2022 07:28:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8E63AB8240E;
-        Fri,  1 Apr 2022 14:28:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B31DC2BBE4;
-        Fri,  1 Apr 2022 14:28:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A6BBCB8240E;
+        Fri,  1 Apr 2022 14:28:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2048C36AE5;
+        Fri,  1 Apr 2022 14:28:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648823320;
-        bh=fnYaDxJ7uaS/SP7Ui3FGqO635IVj63CD0EGocJ9Mak8=;
+        s=k20201202; t=1648823324;
+        bh=ztBeVF9WB83uKZD3kNmhGZbstigJErovXUlgTqCNbBY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QrWWR30Aec1Hrbu5U4bxnxvQRrwX63FeyYxROo+F62Vwt3Sj7RnN5hLwK2HslKDrI
-         riEp3JEUbc0TzPHqfJVhqsUSZu71yVvuMpPpkXnY1jfUHWGDsZVsBx+Gf6hz4GC/OR
-         dolgr26vfKfWz2VOQMGJrusyjmSOojpx1q4FfgH+6lL1oQ63fgcnAOhQlGPuA7dVA7
-         NX1Uwl/mc/pqpLbI0l2bLZNPPHKM/hUPA1q13ec+yRNUcrTJDBaSgXcvIqmEQu61bq
-         2h5KTvqFZJWSzzSeIO/oaED3g/NDvpuUHxRNbnJmfVBC0sefoV9RZYzR1Z206SVPt2
-         7G/Ruz8ZlK29A==
+        b=N32vJlpUZM1U33gexbg3wJllv+Q6KhX0MH2LZLSuz3H2N90md4muYd0CCd/wRmvVy
+         /nLgFBv5UjYYSz2M5WAr9Xt3qSSSbq3jD4OrQVo3f+Ei63so+17tROKfl7AiQtgEPl
+         TIR9LDuhhXnPKqtyy6Y4tW4Q1m2DerB2gr5GLlul2kZx8lHsS3LQ3B13Gt6/hVGiPZ
+         vemEXNauqRLX8Zu8OGzaUak5OKkSb40C7GOkeGQClEB/SI6pIuyoHpqwfSmLkGLWhE
+         PyUuK16/Fv0oObrY2YQeOD5iiesYU9j8EziOOy9cPy6x5pjGrqB3I/3qrED1ZBhubk
+         mMMNWR49QXLdA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ricardo Koller <ricarkol@google.com>,
-        Reiji Watanabe <reijiw@google.com>,
-        Andrew Jones <drjones@redhat.com>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        pbonzini@redhat.com, shuah@kernel.org,
-        linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu,
-        kvm@vger.kernel.org, linux-kselftest@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.17 056/149] kvm: selftests: aarch64: use a tighter assert in vgic_poke_irq()
-Date:   Fri,  1 Apr 2022 10:24:03 -0400
-Message-Id: <20220401142536.1948161-56-sashal@kernel.org>
+Cc:     Zhou Guanghui <zhouguanghui1@huawei.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        joro@8bytes.org, robin.murphy@arm.com, thunder.leizhen@huawei.com,
+        jgg@ziepe.ca, jean-philippe@linaro.org, tglx@linutronix.de,
+        christophe.jaillet@wanadoo.fr,
+        linux-arm-kernel@lists.infradead.org,
+        iommu@lists.linux-foundation.org
+Subject: [PATCH AUTOSEL 5.17 057/149] iommu/arm-smmu-v3: fix event handling soft lockup
+Date:   Fri,  1 Apr 2022 10:24:04 -0400
+Message-Id: <20220401142536.1948161-57-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220401142536.1948161-1-sashal@kernel.org>
 References: <20220401142536.1948161-1-sashal@kernel.org>
@@ -60,49 +60,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ricardo Koller <ricarkol@google.com>
+From: Zhou Guanghui <zhouguanghui1@huawei.com>
 
-[ Upstream commit b53de63a89244c196d8a2ea76b6754e3fdb4b626 ]
+[ Upstream commit 30de2b541af98179780054836b48825fcfba4408 ]
 
-vgic_poke_irq() checks that the attr argument passed to the vgic device
-ioctl is sane. Make this check tighter by moving it to after the last
-attr update.
+During event processing, events are read from the event queue one
+by one until the queue is empty.If the master device continuously
+requests address access at the same time and the SMMU generates
+events, the cyclic processing of the event takes a long time and
+softlockup warnings may be reported.
 
-Signed-off-by: Ricardo Koller <ricarkol@google.com>
-Reported-by: Reiji Watanabe <reijiw@google.com>
-Cc: Andrew Jones <drjones@redhat.com>
-Reviewed-by: Andrew Jones <drjones@redhat.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20220127030858.3269036-6-ricarkol@google.com
+arm-smmu-v3 arm-smmu-v3.34.auto: event 0x0a received:
+arm-smmu-v3 arm-smmu-v3.34.auto: 	0x00007f220000280a
+arm-smmu-v3 arm-smmu-v3.34.auto: 	0x000010000000007e
+arm-smmu-v3 arm-smmu-v3.34.auto: 	0x00000000034e8670
+watchdog: BUG: soft lockup - CPU#0 stuck for 22s! [irq/268-arm-smm:247]
+Call trace:
+ _dev_info+0x7c/0xa0
+ arm_smmu_evtq_thread+0x1c0/0x230
+ irq_thread_fn+0x30/0x80
+ irq_thread+0x128/0x210
+ kthread+0x134/0x138
+ ret_from_fork+0x10/0x1c
+Kernel panic - not syncing: softlockup: hung tasks
+
+Fix this by calling cond_resched() after the event information is
+printed.
+
+Signed-off-by: Zhou Guanghui <zhouguanghui1@huawei.com>
+Link: https://lore.kernel.org/r/20220119070754.26528-1-zhouguanghui1@huawei.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/kvm/lib/aarch64/vgic.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/tools/testing/selftests/kvm/lib/aarch64/vgic.c b/tools/testing/selftests/kvm/lib/aarch64/vgic.c
-index 7c876ccf9294..5d45046c1b80 100644
---- a/tools/testing/selftests/kvm/lib/aarch64/vgic.c
-+++ b/tools/testing/selftests/kvm/lib/aarch64/vgic.c
-@@ -140,9 +140,6 @@ static void vgic_poke_irq(int gic_fd, uint32_t intid,
- 	uint64_t val;
- 	bool intid_is_private = INTID_IS_SGI(intid) || INTID_IS_PPI(intid);
+diff --git a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
+index 6dc6d8b6b368..f60381cdf1c4 100644
+--- a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
++++ b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
+@@ -1558,6 +1558,7 @@ static irqreturn_t arm_smmu_evtq_thread(int irq, void *dev)
+ 				dev_info(smmu->dev, "\t0x%016llx\n",
+ 					 (unsigned long long)evt[i]);
  
--	/* Check that the addr part of the attr is within 32 bits. */
--	assert(attr <= KVM_DEV_ARM_VGIC_OFFSET_MASK);
--
- 	uint32_t group = intid_is_private ? KVM_DEV_ARM_VGIC_GRP_REDIST_REGS
- 					  : KVM_DEV_ARM_VGIC_GRP_DIST_REGS;
++			cond_resched();
+ 		}
  
-@@ -152,6 +149,9 @@ static void vgic_poke_irq(int gic_fd, uint32_t intid,
- 		attr += SZ_64K;
- 	}
- 
-+	/* Check that the addr part of the attr is within 32 bits. */
-+	assert((attr & ~KVM_DEV_ARM_VGIC_OFFSET_MASK) == 0);
-+
- 	/*
- 	 * All calls will succeed, even with invalid intid's, as long as the
- 	 * addr part of the attr is within 32 bits (checked above). An invalid
+ 		/*
 -- 
 2.34.1
 
