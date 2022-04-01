@@ -2,43 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 249354EF49D
-	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 17:32:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9D864EF2EB
+	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 17:16:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349741AbiDAO5u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Apr 2022 10:57:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57460 "EHLO
+        id S1349757AbiDAO5x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Apr 2022 10:57:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57440 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352588AbiDAOvA (ORCPT
+        with ESMTP id S1352586AbiDAOvA (ORCPT
         <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:51:00 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A26652B4481;
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A26E62B4482;
         Fri,  1 Apr 2022 07:42:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 92DDEB824FD;
-        Fri,  1 Apr 2022 14:41:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93063C2BBE4;
-        Fri,  1 Apr 2022 14:41:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B3A36612AC;
+        Fri,  1 Apr 2022 14:41:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88701C2BBE4;
+        Fri,  1 Apr 2022 14:41:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648824114;
-        bh=WK7tB+5PUmSKJ5UKAfBqMVxWt6Hj85EBkF01L8UeFSU=;
+        s=k20201202; t=1648824118;
+        bh=qgFdeG3Vq5khwU4VSpWjW9nkT+Svh4lCeUnEgtUgcHM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h8Cv9XFfjUdF95kumtAYFJeJAKMNCmHZSwHnF8Wc7kQuP2aSpNINs0ihNmVfjaHky
-         uHk1N59NQQ4TKqH+s34XebLTKUttya0G2hhPgMXfzvXHjCvnQCeky8dYLkwcZzdycu
-         EGiPTNTkLPPf9nV5H8pvYQBk2QGaxMLER42zhA81j7s/LumWvfS4AE98p3lv4M7nio
-         atUG79ssW9KPnssTMSGLkO/fwTmjBagk9M7n0B92lB3S4P3PiHE+tP6ybOkcu3GH9z
-         ZLbJWcF6GTBqXDpeRlaCnox5SE5g9NLHUF9mQxNrq/w3YbwQ018esACMFl26+rKNG3
-         JMsQKHUod8AVw==
+        b=mP2UzSpyrjdwvzQdnq/tlOew6sFirJuosoV7w94VP7R4LB5ho1/l+PE1NSkWBU0Ln
+         ZjLfOQ/D/8LZTUjs/ISCo3hKOcbbUy4mpiaVPVTRGqLkXvn3a/ygmv+tJxRb+hjBh1
+         zEJi0OXPZfXBAks/yQKXTeNM9BSTFRzIQEoN6GbtNKDMkpitfncb+7K58qZ7FWwVmQ
+         VlSJy6Q3PBs/pu3wDGvpEfK7mpL0dFlblXHWxusJruWawcX3G2pc7+Hm925gkS69LG
+         nP5jWty8EsyGhJ/YRdmwWGkoQOj34cCPwcKiulDwlbA049nPjFm0D95Ce/u3T4wwZb
+         yZJrRPGk9XoRg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xiubo Li <xiubli@redhat.com>, Jeff Layton <jlayton@kernel.org>,
-        Ilya Dryomov <idryomov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, ceph-devel@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 95/98] ceph: fix memory leak in ceph_readdir when note_last_dentry returns error
-Date:   Fri,  1 Apr 2022 10:37:39 -0400
-Message-Id: <20220401143742.1952163-95-sashal@kernel.org>
+Cc:     Feng Tang <feng.tang@intel.com>, kernel test robot <lkp@intel.com>,
+        Guo Ren <guoren@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>, nathan@kernel.org,
+        peterz@infradead.org, ndesaulniers@google.com,
+        keescook@chromium.org, penguin-kernel@I-love.SAKURA.ne.jp,
+        isabbasso@riseup.net, dan.j.williams@intel.com,
+        linux-csky@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 96/98] lib/Kconfig.debug: add ARCH dependency for FUNCTION_ALIGN option
+Date:   Fri,  1 Apr 2022 10:37:40 -0400
+Message-Id: <20220401143742.1952163-96-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220401143742.1952163-1-sashal@kernel.org>
 References: <20220401143742.1952163-1-sashal@kernel.org>
@@ -56,51 +62,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiubo Li <xiubli@redhat.com>
+From: Feng Tang <feng.tang@intel.com>
 
-[ Upstream commit f639d9867eea647005dc824e0e24f39ffc50d4e4 ]
+[ Upstream commit 1bf18da62106225dbc47aab41efee2aeb99caccd ]
 
-Reset the last_readdir at the same time, and add a comment explaining
-why we don't free last_readdir when dir_emit returns false.
+0Day robots reported there is compiling issue for 'csky' ARCH when
+CONFIG_DEBUG_FORCE_DATA_SECTION_ALIGNED is enabled [1]:
 
-Signed-off-by: Xiubo Li <xiubli@redhat.com>
-Reviewed-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+All errors (new ones prefixed by >>):
+
+   {standard input}: Assembler messages:
+>> {standard input}:2277: Error: pcrel offset for branch to .LS000B too far (0x3c)
+
+Which was discussed in [2].  And as there is no solution for csky yet, add
+some dependency for this config to limit it to several ARCHs which have no
+compiling issue so far.
+
+[1]. https://lore.kernel.org/lkml/202202271612.W32UJAj2-lkp@intel.com/
+[2]. https://www.spinics.net/lists/linux-kbuild/msg30298.html
+
+Link: https://lkml.kernel.org/r/20220304021100.GN4548@shbuild999.sh.intel.com
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Feng Tang <feng.tang@intel.com>
+Cc: Guo Ren <guoren@kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ceph/dir.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ lib/Kconfig.debug | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/ceph/dir.c b/fs/ceph/dir.c
-index 133dbd9338e7..d91fa53e12b3 100644
---- a/fs/ceph/dir.c
-+++ b/fs/ceph/dir.c
-@@ -478,8 +478,11 @@ static int ceph_readdir(struct file *file, struct dir_context *ctx)
- 					2 : (fpos_off(rde->offset) + 1);
- 			err = note_last_dentry(dfi, rde->name, rde->name_len,
- 					       next_offset);
--			if (err)
-+			if (err) {
-+				ceph_mdsc_put_request(dfi->last_readdir);
-+				dfi->last_readdir = NULL;
- 				return err;
-+			}
- 		} else if (req->r_reply_info.dir_end) {
- 			dfi->next_offset = 2;
- 			/* keep last name */
-@@ -520,6 +523,12 @@ static int ceph_readdir(struct file *file, struct dir_context *ctx)
- 		if (!dir_emit(ctx, rde->name, rde->name_len,
- 			      ceph_present_ino(inode->i_sb, le64_to_cpu(rde->inode.in->ino)),
- 			      le32_to_cpu(rde->inode.in->mode) >> 12)) {
-+			/*
-+			 * NOTE: Here no need to put the 'dfi->last_readdir',
-+			 * because when dir_emit stops us it's most likely
-+			 * doesn't have enough memory, etc. So for next readdir
-+			 * it will continue.
-+			 */
- 			dout("filldir stopping us...\n");
- 			return 0;
- 		}
+diff --git a/lib/Kconfig.debug b/lib/Kconfig.debug
+index 2a9b6dcdac4f..55e89b237b6f 100644
+--- a/lib/Kconfig.debug
++++ b/lib/Kconfig.debug
+@@ -414,7 +414,8 @@ config SECTION_MISMATCH_WARN_ONLY
+ 	  If unsure, say Y.
+ 
+ config DEBUG_FORCE_FUNCTION_ALIGN_64B
+-	bool "Force all function address 64B aligned" if EXPERT
++	bool "Force all function address 64B aligned"
++	depends on EXPERT && (X86_64 || ARM64 || PPC32 || PPC64 || ARC)
+ 	help
+ 	  There are cases that a commit from one domain changes the function
+ 	  address alignment of other domains, and cause magic performance
 -- 
 2.34.1
 
