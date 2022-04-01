@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 039734EF430
-	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 17:30:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92EB94EF268
+	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 17:13:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348929AbiDAOyf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Apr 2022 10:54:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60384 "EHLO
+        id S1349548AbiDAO4u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Apr 2022 10:56:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60524 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351859AbiDAOti (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:49:38 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09B912B04C4;
-        Fri,  1 Apr 2022 07:40:30 -0700 (PDT)
+        with ESMTP id S1351881AbiDAOtj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:49:39 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7288B2B04D6;
+        Fri,  1 Apr 2022 07:40:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id C2302CE2586;
-        Fri,  1 Apr 2022 14:39:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57A3BC340F2;
-        Fri,  1 Apr 2022 14:39:45 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 6192CCE258C;
+        Fri,  1 Apr 2022 14:39:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA1EFC36AE2;
+        Fri,  1 Apr 2022 14:39:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648823986;
-        bh=LY9RsvrfVBQFrwrtSbWIidsZi96BvSQXyVJXHcA9wk4=;
+        s=k20201202; t=1648823987;
+        bh=/yfV8bz2vNtdrO0Qc04Iiksnfpc9KJXbAWkZeRolfpM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q66x8fGh9wn/MRoVKOTyCmmM/TM36KjKjkHDrG11a8Ndtv7uCq6NvuAESM9qCEC8J
-         w/Q7zsm83mWOgw3PVy+1lP1SJYqREvf+8t6eOo0D+/oD1Y2wYsOV0FvMBHfB828hhS
-         pc+or4m99u883K3Cq1vkvNOLNIgFeul5IF5CXnSADBiT14BRS5HrZbqeDJGLE0ru9H
-         fpdm1JO+PXdu+0GpyVwdbRpehcDK52yv4uvyo/EDBKyZs7tiOeCn/5wElJhNLOgdcR
-         DIGwzSeRMXrHdUVf5KZwe0haZi0/2UB1WA4dQePZQFzCQswsfVizxfa+4YKcpifQLF
-         +2RjHfmL1eukw==
+        b=obNVBtC1g2S4ILnYhbori0gBZtMPEuvE0/OrtNf9LfuO6yRbO2BAi2hICDaSdeV2m
+         vAlUWecV/F0+QLWNwnulKzHm9XUV3X8JgHv6Sj7husEAIk7SC/VVmAzTjEC/YPy8PK
+         UAkIUxOjJMxT3qmrT1aZVH+YZUIhMhgw8jLDr6YTmqH+hbGG/Mbxogir4NmIg+uUN2
+         uH9Aezze6G9cQbhktR4mcExjexCKho1nGi9ELe1QlW9SyNgvXflrDMt8l3D0nM7ZSZ
+         LlJ3wV4nrlGt5zwGEK38n/lkC1GN88V7w6gQ1l9Q8Z+cczvPQqhPpegp8jNsqni+Xh
+         TPkUQArxvgoBQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Sasha Levin <sashal@kernel.org>, sre@kernel.org, wens@csie.org,
-        linux-pm@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 41/98] power: supply: axp288-charger: Set Vhold to 4.4V
-Date:   Fri,  1 Apr 2022 10:36:45 -0400
-Message-Id: <20220401143742.1952163-41-sashal@kernel.org>
+Cc:     Maxim Mikityanskiy <maximmi@nvidia.com>,
+        Tariq Toukan <tariqt@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
+        kuba@kernel.org, pabeni@redhat.com, netdev@vger.kernel.org,
+        linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 42/98] net/mlx5e: Disable TX queues before registering the netdev
+Date:   Fri,  1 Apr 2022 10:36:46 -0400
+Message-Id: <20220401143742.1952163-42-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220401143742.1952163-1-sashal@kernel.org>
 References: <20220401143742.1952163-1-sashal@kernel.org>
@@ -57,83 +59,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Maxim Mikityanskiy <maximmi@nvidia.com>
 
-[ Upstream commit 5ac121b81b4051e7fc83d5b3456a5e499d5bd147 ]
+[ Upstream commit d08c6e2a4d0308a7922d7ef3b1b3af45d4096aad ]
 
-The AXP288's recommended and factory default Vhold value (minimum
-input voltage below which the input current draw will be reduced)
-is 4.4V. This lines up with other charger IC's such as the TI
-bq2419x/bq2429x series which use 4.36V or 4.44V.
+Normally, the queues are disabled when the channels are deactivated, and
+enabled when the channels are activated. However, on register, the
+channels are not active, but the queues are enabled by default. This
+change fixes it, preventing mlx5e_xmit from running when the channels
+are deactivated in the beginning.
 
-For some reason some BIOS-es initialize Vhold to 4.6V or even 4.7V
-which combined with the typical voltage drop over typically low
-wire gauge micro-USB cables leads to the input-current getting
-capped below 1A (with a 2A capable dedicated charger) based on Vhold.
-
-This leads to slow charging, or even to the device slowly discharging
-if the device is in heavy use.
-
-As the Linux AXP288 drivers use the builtin BC1.2 charger detection
-and send the input-current-limit according to the detected charger
-there really is no reason not to use the recommended 4.4V Vhold.
-
-Set Vhold to 4.4V to fix the slow charging issue on various devices.
-
-There is one exception, the special-case of the HP X2 2-in-1s which
-combine this BC1.2 capable PMIC with a Type-C port and a 5V/3A factory
-provided charger with a Type-C plug which does not do BC1.2. These
-have their input-current-limit hardcoded to 3A (like under Windows)
-and use a higher Vhold on purpose to limit the current when used
-with other chargers. To avoid touching Vhold on these HP X2 laptops
-the code setting Vhold is added to an else branch of the if checking
-for these models.
-
-Note this also fixes the sofar unused VBUS_ISPOUT_VHOLD_SET_MASK
-define, which was wrong.
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Signed-off-by: Maxim Mikityanskiy <maximmi@nvidia.com>
+Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/axp288_charger.c | 14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en_main.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/power/supply/axp288_charger.c b/drivers/power/supply/axp288_charger.c
-index b9553be9bed5..fb9db7f43895 100644
---- a/drivers/power/supply/axp288_charger.c
-+++ b/drivers/power/supply/axp288_charger.c
-@@ -41,11 +41,11 @@
- #define VBUS_ISPOUT_CUR_LIM_1500MA	0x1	/* 1500mA */
- #define VBUS_ISPOUT_CUR_LIM_2000MA	0x2	/* 2000mA */
- #define VBUS_ISPOUT_CUR_NO_LIM		0x3	/* 2500mA */
--#define VBUS_ISPOUT_VHOLD_SET_MASK	0x31
-+#define VBUS_ISPOUT_VHOLD_SET_MASK	0x38
- #define VBUS_ISPOUT_VHOLD_SET_BIT_POS	0x3
- #define VBUS_ISPOUT_VHOLD_SET_OFFSET	4000	/* 4000mV */
- #define VBUS_ISPOUT_VHOLD_SET_LSB_RES	100	/* 100mV */
--#define VBUS_ISPOUT_VHOLD_SET_4300MV	0x3	/* 4300mV */
-+#define VBUS_ISPOUT_VHOLD_SET_4400MV	0x4	/* 4400mV */
- #define VBUS_ISPOUT_VBUS_PATH_DIS	BIT(7)
- 
- #define CHRG_CCCV_CC_MASK		0xf		/* 4 bits */
-@@ -744,6 +744,16 @@ static int charger_init_hw_regs(struct axp288_chrg_info *info)
- 		ret = axp288_charger_vbus_path_select(info, true);
- 		if (ret < 0)
- 			return ret;
-+	} else {
-+		/* Set Vhold to the factory default / recommended 4.4V */
-+		val = VBUS_ISPOUT_VHOLD_SET_4400MV << VBUS_ISPOUT_VHOLD_SET_BIT_POS;
-+		ret = regmap_update_bits(info->regmap, AXP20X_VBUS_IPSOUT_MGMT,
-+					 VBUS_ISPOUT_VHOLD_SET_MASK, val);
-+		if (ret < 0) {
-+			dev_err(&info->pdev->dev, "register(%x) write error(%d)\n",
-+				AXP20X_VBUS_IPSOUT_MGMT, ret);
-+			return ret;
-+		}
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+index f075bb8ccd00..01301bee420c 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+@@ -4914,6 +4914,7 @@ mlx5e_create_netdev(struct mlx5_core_dev *mdev, const struct mlx5e_profile *prof
  	}
  
- 	/* Read current charge voltage and current limit */
+ 	netif_carrier_off(netdev);
++	netif_tx_disable(netdev);
+ 	dev_net_set(netdev, mlx5_core_net(mdev));
+ 
+ 	return netdev;
 -- 
 2.34.1
 
