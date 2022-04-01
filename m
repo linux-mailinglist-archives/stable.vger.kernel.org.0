@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B91674EF486
-	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 17:31:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC0DA4EF2C4
+	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 17:15:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348353AbiDAOyZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Apr 2022 10:54:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60560 "EHLO
+        id S239212AbiDAOyX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Apr 2022 10:54:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32898 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351442AbiDAOsz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:48:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A73E6004D;
-        Fri,  1 Apr 2022 07:39:44 -0700 (PDT)
+        with ESMTP id S1351350AbiDAOss (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:48:48 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F7381EA5F8;
+        Fri,  1 Apr 2022 07:39:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 201DC60C8B;
-        Fri,  1 Apr 2022 14:39:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA653C34112;
-        Fri,  1 Apr 2022 14:39:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 43D9EB8240E;
+        Fri,  1 Apr 2022 14:39:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1019CC2BBE4;
+        Fri,  1 Apr 2022 14:39:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648823967;
-        bh=DhyRSmYkqVp0mD9tp8xB/iWyiPaIGIOPXQyeKGIgjq8=;
+        s=k20201202; t=1648823971;
+        bh=fyBbIOLAXtls+WKXRpPj1SEbx8F+22RILRzryEetKtE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GabFQgBNjXvoMaMWtr/GnokIhKsCOquKZ93zN0sH87joGZwMLlM+YqFm5ubCs/pZK
-         QS9LcB/KZMgH55iC9cRtr8XMfzWWoJtuP7hIllt3KzRcUwrJx3NfouFeLoc6lRaEkZ
-         vXDN8ZAnVOQ/UaooZLdJjkxOCjCgHKeL1vVi2Ee2xOoGK25I78oltrf02ZwpBDwgRG
-         3m8Vff0IRIb6QRVZhXqscVr9Blc0ZYwVhkx32H/PI9Xw0TuTY4to81wrAbDeXp9ibk
-         ilrHDw3Y0A/vuZ5xjby84nNnYAITq3Jpsmrbmd2hqUYEnZA0tOPI6LrZG3+eDWHtPN
-         kjKLvUKTH/e0w==
+        b=CIu4VQusmabfkRjzYgIOYFQw9ccSITinobhyK/K3IoCCcEKOd9y2vnxmFcK3rx4I+
+         2FxZcqDgkZ3qxU53cm4I54Dfgqkb/M4VDkFxA7s03LJWgDdarm5xaS4tGJjRWPbuGC
+         i+4Ltq+CE5zlFa2jg+U/1xC2qH0lop6x0r1+MtqkeNskmjtkwHoVMSQJiJFCx0ZlQ9
+         bJrbDQlnZjwqoCXoMv9sWuddpYHYVXngdGzdGHSLVUlPI+bL+h7GpTJOzS8vReX7OJ
+         mX+Di8l8rNw9R6OpMbgSvlSN0zAfv30bD3tRKPmqnly+O20o9jauSvVsSrN/XDMD+7
+         eAKibUwhaPWXw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Neal Liu <neal_liu@aspeedtech.com>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 34/98] usb: ehci: add pci device support for Aspeed platforms
-Date:   Fri,  1 Apr 2022 10:36:38 -0400
-Message-Id: <20220401143742.1952163-34-sashal@kernel.org>
+Cc:     Hou Zhiqiang <Zhiqiang.Hou@nxp.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Kishon Vijay Abraham I <kishon@ti.com>,
+        Sasha Levin <sashal@kernel.org>, bhelgaas@google.com,
+        lchen@ambarella.com, yangyingliang@huawei.com,
+        linux-pci@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 35/98] PCI: endpoint: Fix alignment fault error in copy tests
+Date:   Fri,  1 Apr 2022 10:36:39 -0400
+Message-Id: <20220401143742.1952163-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220401143742.1952163-1-sashal@kernel.org>
 References: <20220401143742.1952163-1-sashal@kernel.org>
@@ -57,50 +59,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Neal Liu <neal_liu@aspeedtech.com>
+From: Hou Zhiqiang <Zhiqiang.Hou@nxp.com>
 
-[ Upstream commit c3c9cee592828528fd228b01d312c7526c584a42 ]
+[ Upstream commit 829cc0e2ea2d61fb6c54bc3f8a17f86c56e11864 ]
 
-Enable Aspeed quirks in commit 7f2d73788d90 ("usb: ehci:
-handshake CMD_RUN instead of STS_HALT") to support Aspeed
-ehci-pci device.
+The copy test uses the memcpy() to copy data between IO memory spaces.
+This can trigger an alignment fault error (pasted the error logs below)
+because memcpy() may use unaligned accesses on a mapped memory that is
+just IO, which does not support unaligned memory accesses.
 
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Neal Liu <neal_liu@aspeedtech.com>
-Link: https://lore.kernel.org/r/20220208101657.76459-1-neal_liu@aspeedtech.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix it by using the correct memcpy API to copy from/to IO memory.
+
+Alignment fault error logs:
+   Unable to handle kernel paging request at virtual address ffff8000101cd3c1
+   Mem abort info:
+     ESR = 0x96000021
+     EC = 0x25: DABT (current EL), IL = 32 bits
+     SET = 0, FnV = 0
+     EA = 0, S1PTW = 0
+     FSC = 0x21: alignment fault
+   Data abort info:
+     ISV = 0, ISS = 0x00000021
+     CM = 0, WnR = 0
+   swapper pgtable: 4k pages, 48-bit VAs, pgdp=0000000081773000
+   [ffff8000101cd3c1] pgd=1000000082410003, p4d=1000000082410003, pud=1000000082411003, pmd=1000000082412003, pte=0068004000001f13
+   Internal error: Oops: 96000021 [#1] PREEMPT SMP
+   Modules linked in:
+   CPU: 0 PID: 6 Comm: kworker/0:0H Not tainted 5.15.0-rc1-next-20210914-dirty #2
+   Hardware name: LS1012A RDB Board (DT)
+   Workqueue: kpcitest pci_epf_test_cmd_handler
+   pstate: 80000005 (Nzcv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+   pc : __memcpy+0x168/0x230
+   lr : pci_epf_test_cmd_handler+0x6f0/0xa68
+   sp : ffff80001003bce0
+   x29: ffff80001003bce0 x28: ffff800010135000 x27: ffff8000101e5000
+   x26: ffff8000101cd000 x25: ffff6cda941cf6c8 x24: 0000000000000000
+   x23: ffff6cda863f2000 x22: ffff6cda9096c800 x21: ffff800010135000
+   x20: ffff6cda941cf680 x19: ffffaf39fd999000 x18: 0000000000000000
+   x17: 0000000000000000 x16: 0000000000000000 x15: ffffaf39fd2b6000
+   x14: 0000000000000000 x13: 15f5c8fa2f984d57 x12: 604d132b60275454
+   x11: 065cee5e5fb428b6 x10: aae662eb17d0cf3e x9 : 1d97c9a1b4ddef37
+   x8 : 7541b65edebf928c x7 : e71937c4fc595de0 x6 : b8a0e09562430d1c
+   x5 : ffff8000101e5401 x4 : ffff8000101cd401 x3 : ffff8000101e5380
+   x2 : fffffffffffffff1 x1 : ffff8000101cd3c0 x0 : ffff8000101e5000
+   Call trace:
+    __memcpy+0x168/0x230
+    process_one_work+0x1ec/0x370
+    worker_thread+0x44/0x478
+    kthread+0x154/0x160
+    ret_from_fork+0x10/0x20
+   Code: a984346c a9c4342c f1010042 54fffee8 (a97c3c8e)
+   ---[ end trace 568c28c7b6336335 ]---
+
+Link: https://lore.kernel.org/r/20211217094708.28678-1-Zhiqiang.Hou@nxp.com
+Signed-off-by: Hou Zhiqiang <Zhiqiang.Hou@nxp.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Kishon Vijay Abraham I <kishon@ti.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/ehci-pci.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/pci/endpoint/functions/pci-epf-test.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/host/ehci-pci.c b/drivers/usb/host/ehci-pci.c
-index e87cf3a00fa4..638f03b89739 100644
---- a/drivers/usb/host/ehci-pci.c
-+++ b/drivers/usb/host/ehci-pci.c
-@@ -21,6 +21,9 @@ static const char hcd_name[] = "ehci-pci";
- /* defined here to avoid adding to pci_ids.h for single instance use */
- #define PCI_DEVICE_ID_INTEL_CE4100_USB	0x2e70
- 
-+#define PCI_VENDOR_ID_ASPEED		0x1a03
-+#define PCI_DEVICE_ID_ASPEED_EHCI	0x2603
+diff --git a/drivers/pci/endpoint/functions/pci-epf-test.c b/drivers/pci/endpoint/functions/pci-epf-test.c
+index 90d84d3bc868..c7e45633beaf 100644
+--- a/drivers/pci/endpoint/functions/pci-epf-test.c
++++ b/drivers/pci/endpoint/functions/pci-epf-test.c
+@@ -285,7 +285,17 @@ static int pci_epf_test_copy(struct pci_epf_test *epf_test)
+ 		if (ret)
+ 			dev_err(dev, "Data transfer failed\n");
+ 	} else {
+-		memcpy(dst_addr, src_addr, reg->size);
++		void *buf;
 +
- /*-------------------------------------------------------------------------*/
- #define PCI_DEVICE_ID_INTEL_QUARK_X1000_SOC		0x0939
- static inline bool is_intel_quark_x1000(struct pci_dev *pdev)
-@@ -222,6 +225,12 @@ static int ehci_pci_setup(struct usb_hcd *hcd)
- 			ehci->has_synopsys_hc_bug = 1;
- 		}
- 		break;
-+	case PCI_VENDOR_ID_ASPEED:
-+		if (pdev->device == PCI_DEVICE_ID_ASPEED_EHCI) {
-+			ehci_info(ehci, "applying Aspeed HC workaround\n");
-+			ehci->is_aspeed = 1;
++		buf = kzalloc(reg->size, GFP_KERNEL);
++		if (!buf) {
++			ret = -ENOMEM;
++			goto err_map_addr;
 +		}
-+		break;
++
++		memcpy_fromio(buf, src_addr, reg->size);
++		memcpy_toio(dst_addr, buf, reg->size);
++		kfree(buf);
  	}
- 
- 	/* optional debug port, normally in the first BAR */
+ 	ktime_get_ts64(&end);
+ 	pci_epf_test_print_rate("COPY", reg->size, &start, &end, use_dma);
 -- 
 2.34.1
 
