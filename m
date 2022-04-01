@@ -2,49 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0625D4EEFB3
-	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 16:28:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CAE754EEFC0
+	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 16:28:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347056AbiDAO3y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Apr 2022 10:29:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39610 "EHLO
+        id S1347070AbiDAOaV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Apr 2022 10:30:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38692 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347144AbiDAO3O (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:29:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08335287A2E;
-        Fri,  1 Apr 2022 07:27:09 -0700 (PDT)
+        with ESMTP id S1347167AbiDAO3f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:29:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12EDF289580;
+        Fri,  1 Apr 2022 07:27:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9368561C33;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 58287B8240F;
+        Fri,  1 Apr 2022 14:27:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B77DFC34111;
         Fri,  1 Apr 2022 14:27:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 109F3C2BBE4;
-        Fri,  1 Apr 2022 14:27:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648823228;
-        bh=mOr3lNQXdbCJKrjBLq76MigGAjQCXtmASAMKe4k0eGs=;
+        s=k20201202; t=1648823230;
+        bh=9HPQ1yBP34PJp4l7O2fDVsXAP3wYuOWAlQbA2g0q+EI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dgqYvqFlugiMbIb63Z7ypu21gjUojGLk7a87MS7hc8qoKoJehw55qjbKXldIePGMU
-         fC9IYBVOc5aQunoz8RV/nr/M+0GlRXnhB56rZYy91zXAWaUTNkAbt5xZ51WTMrGpjV
-         hWI4ZyaF3mwVP+8tKqjwayLi7iT+G/ZNDNO3/EIr9k7zW2MNymL0vQH48aFDs9PP3g
-         7Rt5YHByKGJCf3HpcIuUTj+DW8n1nJoGnvYd7nO2/OUb6VLYmcEOiEYcpY10R9D/CU
-         2zGB9hS9dP+mxsAFctduMQdOkyXplVybF+NnoXfJTPHSAERxl8d4jxCUZF2q3IDeEM
-         A5oVTYRwu8jWw==
+        b=UOemKmKPoXES6Q1TqXbEeEKa+mTGhybIUm9/sJnXDPcNfWQk0izG+9u8n5Ovc6xdX
+         aX7z2BWiO+8/G9eJeneLI9q4luM3FaZNVyHbSfvTVwXiX/h+xiu9l56noApRTrTycb
+         nY2MMtZA53nX88aU4K125hyCyxkO9dwYWZX58AzPpRxkPDNdsKQ+4/du5AooPbAMW5
+         sP/vyQQExLBrYdUyg2heQEDxaT3KvZB+llI8LwTuCQIqoOBZiH6XJ3qlIgVglDpruF
+         +Bb800Bem4/SUd4sH+mbU3KLcJZ8DKkfaB9jtP3KIb4LhE59Dbe/q8DT1ws+FJuAtx
+         /3nWjffSOV3qQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Tianci.Yin" <tianci.yin@amd.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        Yang Wang <kevinyang.wang@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, christian.koenig@amd.com,
-        Xinhui.Pan@amd.com, airlied@linux.ie, daniel@ffwll.ch,
-        andrey.grodzovsky@amd.com, evan.quan@amd.com, Jack.Zhang1@amd.com,
-        lijo.lazar@amd.com, kevin1.wang@amd.com,
-        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.17 024/149] drm/amdgpu: Fix an error message in rmmod
-Date:   Fri,  1 Apr 2022 10:23:31 -0400
-Message-Id: <20220401142536.1948161-24-sashal@kernel.org>
+Cc:     Amit Cohen <amcohen@nvidia.com>, Ido Schimmel <idosch@nvidia.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, petrm@nvidia.com,
+        davem@davemloft.net, pabeni@redhat.com, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.17 025/149] mlxsw: spectrum: Guard against invalid local ports
+Date:   Fri,  1 Apr 2022 10:23:32 -0400
+Message-Id: <20220401142536.1948161-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220401142536.1948161-1-sashal@kernel.org>
 References: <20220401142536.1948161-1-sashal@kernel.org>
@@ -62,45 +57,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Tianci.Yin" <tianci.yin@amd.com>
+From: Amit Cohen <amcohen@nvidia.com>
 
-[ Upstream commit 7270e8957eb9aacf5914605d04865f3829a14bce ]
+[ Upstream commit bcdfd615f83b4bd04678109bf18022d1476e4bbf ]
 
-[why]
-In rmmod procedure, kfd sends cp a dequeue request, but the
-request does not get response, then an error message "cp
-queue pipe 4 queue 0 preemption failed" printed.
+When processing events generated by the device's firmware, the driver
+protects itself from events reported for non-existent local ports, but
+not for the CPU port (local port 0), which exists, but does not have all
+the fields as any local port.
 
-[how]
-Performing kfd suspending after disabling gfxoff can fix it.
+This can result in a NULL pointer dereference when trying access
+'struct mlxsw_sp_port' fields which are not initialized for CPU port.
 
-Acked-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Reviewed-by: Yang Wang <kevinyang.wang@amd.com>
-Signed-off-by: Tianci.Yin <tianci.yin@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Commit 63b08b1f6834 ("mlxsw: spectrum: Protect driver from buggy firmware")
+already handled such issue by bailing early when processing a PUDE event
+reported for the CPU port.
+
+Generalize the approach by moving the check to a common function and
+making use of it in all relevant places.
+
+Signed-off-by: Amit Cohen <amcohen@nvidia.com>
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_device.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/mellanox/mlxsw/spectrum.c           | 4 +---
+ drivers/net/ethernet/mellanox/mlxsw/spectrum.h           | 7 +++++++
+ drivers/net/ethernet/mellanox/mlxsw/spectrum_ptp.c       | 3 +--
+ drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c | 3 +--
+ 4 files changed, 10 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-index ed077de426d9..b793682071b2 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-@@ -2708,11 +2708,11 @@ static int amdgpu_device_ip_fini_early(struct amdgpu_device *adev)
- 		}
- 	}
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
+index aa411dec62f0..eb1319d63613 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
+@@ -2148,13 +2148,11 @@ static void mlxsw_sp_pude_event_func(const struct mlxsw_reg_info *reg,
+ 	struct mlxsw_sp *mlxsw_sp = priv;
+ 	struct mlxsw_sp_port *mlxsw_sp_port;
+ 	enum mlxsw_reg_pude_oper_status status;
+-	unsigned int max_ports;
+ 	u16 local_port;
  
--	amdgpu_amdkfd_suspend(adev, false);
--
- 	amdgpu_device_set_pg_state(adev, AMD_PG_STATE_UNGATE);
- 	amdgpu_device_set_cg_state(adev, AMD_CG_STATE_UNGATE);
+-	max_ports = mlxsw_core_max_ports(mlxsw_sp->core);
+ 	local_port = mlxsw_reg_pude_local_port_get(pude_pl);
  
-+	amdgpu_amdkfd_suspend(adev, false);
+-	if (WARN_ON_ONCE(!local_port || local_port >= max_ports))
++	if (WARN_ON_ONCE(!mlxsw_sp_local_port_is_valid(mlxsw_sp, local_port)))
+ 		return;
+ 	mlxsw_sp_port = mlxsw_sp->ports[local_port];
+ 	if (!mlxsw_sp_port)
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum.h b/drivers/net/ethernet/mellanox/mlxsw/spectrum.h
+index bb2442e1f705..30942b6ffcf9 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/spectrum.h
++++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum.h
+@@ -481,6 +481,13 @@ int
+ mlxsw_sp_port_vlan_classification_set(struct mlxsw_sp_port *mlxsw_sp_port,
+ 				      bool is_8021ad_tagged,
+ 				      bool is_8021q_tagged);
++static inline bool
++mlxsw_sp_local_port_is_valid(struct mlxsw_sp *mlxsw_sp, u16 local_port)
++{
++	unsigned int max_ports = mlxsw_core_max_ports(mlxsw_sp->core);
 +
- 	/* Workaroud for ASICs need to disable SMC first */
- 	amdgpu_device_smu_fini_early(adev);
++	return local_port < max_ports && local_port;
++}
  
+ /* spectrum_buffers.c */
+ struct mlxsw_sp_hdroom_prio {
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_ptp.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_ptp.c
+index 0ff163fbc775..35422e64d89f 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_ptp.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_ptp.c
+@@ -568,12 +568,11 @@ void mlxsw_sp1_ptp_got_timestamp(struct mlxsw_sp *mlxsw_sp, bool ingress,
+ 				 u8 domain_number, u16 sequence_id,
+ 				 u64 timestamp)
+ {
+-	unsigned int max_ports = mlxsw_core_max_ports(mlxsw_sp->core);
+ 	struct mlxsw_sp_port *mlxsw_sp_port;
+ 	struct mlxsw_sp1_ptp_key key;
+ 	u8 types;
+ 
+-	if (WARN_ON_ONCE(local_port >= max_ports))
++	if (WARN_ON_ONCE(!mlxsw_sp_local_port_is_valid(mlxsw_sp, local_port)))
+ 		return;
+ 	mlxsw_sp_port = mlxsw_sp->ports[local_port];
+ 	if (!mlxsw_sp_port)
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
+index 65c1724c63b0..bffdb41fc4ed 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
+@@ -2616,7 +2616,6 @@ static void mlxsw_sp_fdb_notify_mac_process(struct mlxsw_sp *mlxsw_sp,
+ 					    char *sfn_pl, int rec_index,
+ 					    bool adding)
+ {
+-	unsigned int max_ports = mlxsw_core_max_ports(mlxsw_sp->core);
+ 	struct mlxsw_sp_port_vlan *mlxsw_sp_port_vlan;
+ 	struct mlxsw_sp_bridge_device *bridge_device;
+ 	struct mlxsw_sp_bridge_port *bridge_port;
+@@ -2630,7 +2629,7 @@ static void mlxsw_sp_fdb_notify_mac_process(struct mlxsw_sp *mlxsw_sp,
+ 
+ 	mlxsw_reg_sfn_mac_unpack(sfn_pl, rec_index, mac, &fid, &local_port);
+ 
+-	if (WARN_ON_ONCE(local_port >= max_ports))
++	if (WARN_ON_ONCE(!mlxsw_sp_local_port_is_valid(mlxsw_sp, local_port)))
+ 		return;
+ 	mlxsw_sp_port = mlxsw_sp->ports[local_port];
+ 	if (!mlxsw_sp_port) {
 -- 
 2.34.1
 
