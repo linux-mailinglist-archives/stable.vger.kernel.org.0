@@ -2,49 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B54E4EF368
-	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 17:20:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DECB34EF3AA
+	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 17:26:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347710AbiDAPD5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Apr 2022 11:03:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58072 "EHLO
+        id S1347892AbiDAPD7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Apr 2022 11:03:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58418 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349315AbiDAOzL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:55:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 938C12B5AFA;
-        Fri,  1 Apr 2022 07:43:08 -0700 (PDT)
+        with ESMTP id S1348959AbiDAOzM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:55:12 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54E2F2B5AFC;
+        Fri,  1 Apr 2022 07:43:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1352760AC9;
-        Fri,  1 Apr 2022 14:43:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C52A4C2BBE4;
-        Fri,  1 Apr 2022 14:43:05 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 93C8FCE258C;
+        Fri,  1 Apr 2022 14:43:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EEFF6C34111;
+        Fri,  1 Apr 2022 14:43:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648824187;
-        bh=W6HnVfTwfJpgq3nd1f8/mAA5fzzjIEPSN9yF5g/HZi8=;
+        s=k20201202; t=1648824189;
+        bh=WcRdAptjnyOPzOpes/N1dS6k4W0eh5dG3T/LsETwNkA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pcmsZ+3Z9lIWA+1OSbCBvTknLAMW4J1u8wWw/rLpnVmQy4OqlWjdr6oZnKWSpdEMR
-         UqFNt1isC7S9rCbo8/Y4dtGDdDxwmkIynOrKBmk5gcx+GUqoWb0SZKN0t/vjhSoP5l
-         tJ5VbhywbCqK7O0agODK+4RCkyKJneo8VbMjFRD0pZowRH1xID6psYexc5ABfc6z3M
-         gO7d3p5diuG5xD7YneR28QcEQz4JV2cKJdVnCGpOCwcf525Y+T/tzrjIEuozWh6Yf3
-         +yz6EKGF4Kty3nrqxx9sG98+8eZ0k2MZBPuNXiuwhITkdnGTkHKJtPTsH0+uU8xrFr
-         H6/L4xQezvbTg==
+        b=EpTZfezIl6opK9nImkKsw2hbwyB++X4L0PCrbrO60tkROU0PVDVAR0e2nuDEtO3ng
+         yXtjGaVhK2BMlhEawiYaOn0g+oI5jiG+Ud7Bh242G3+SYKCih92+kC+/NcBedPrvJi
+         r5BCTB3V5v3XYLosWKfTU3B19gKQwWO45JACtPFBI9uvOenEoYL8pUXrVwg0cMW1bW
+         Z+84tm21zQatHyT3ejMuQ/KT7Z21jyYsLTQ36b61MozZ6xPaoTh+rLyN0XXFLLNMKj
+         AznTvgxfYe95m45OvDKM48/cAiKfiwMPldUMPyoBfa8lScUIkg6zug5R6GL5BmJNBs
+         8wJYM38dQB5gQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Rajneesh Bhardwaj <rajneesh.bhardwaj@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        Alex Deucher <Alexander.Deucher@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, Xinhui.Pan@amd.com,
-        airlied@linux.ie, daniel@ffwll.ch, nirmoy.das@amd.com,
-        matthew.auld@intel.com, Roy.Sun@amd.com, tzimmermann@suse.de,
-        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.10 20/65] drm/amdgpu: Fix recursive locking warning
-Date:   Fri,  1 Apr 2022 10:41:21 -0400
-Message-Id: <20220401144206.1953700-20-sashal@kernel.org>
+Cc:     =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Sasha Levin <sashal@kernel.org>, thomas.petazzoni@bootlin.com,
+        bhelgaas@google.com, linux-pci@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.10 21/65] PCI: aardvark: Fix support for MSI interrupts
+Date:   Fri,  1 Apr 2022 10:41:22 -0400
+Message-Id: <20220401144206.1953700-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220401144206.1953700-1-sashal@kernel.org>
 References: <20220401144206.1953700-1-sashal@kernel.org>
@@ -63,136 +60,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rajneesh Bhardwaj <rajneesh.bhardwaj@amd.com>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit 447c7997b62a5115ba4da846dcdee4fc12298a6a ]
+[ Upstream commit b0b0b8b897f8e12b2368e868bd7cdc5742d5c5a9 ]
 
-Noticed the below warning while running a pytorch workload on vega10
-GPUs. Change to trylock to avoid conflicts with already held reservation
-locks.
+Aardvark hardware supports Multi-MSI and MSI_FLAG_MULTI_PCI_MSI is already
+set for the MSI chip. But when allocating MSI interrupt numbers for
+Multi-MSI, the numbers need to be properly aligned, otherwise endpoint
+devices send MSI interrupt with incorrect numbers.
 
-[  +0.000003] WARNING: possible recursive locking detected
-[  +0.000003] 5.13.0-kfd-rajneesh #1030 Not tainted
-[  +0.000004] --------------------------------------------
-[  +0.000002] python/4822 is trying to acquire lock:
-[  +0.000004] ffff932cd9a259f8 (reservation_ww_class_mutex){+.+.}-{3:3},
-at: amdgpu_bo_release_notify+0xc4/0x160 [amdgpu]
-[  +0.000203]
-              but task is already holding lock:
-[  +0.000003] ffff932cbb7181f8 (reservation_ww_class_mutex){+.+.}-{3:3},
-at: ttm_eu_reserve_buffers+0x270/0x470 [ttm]
-[  +0.000017]
-              other info that might help us debug this:
-[  +0.000002]  Possible unsafe locking scenario:
+Fix this issue by using function bitmap_find_free_region() instead of
+bitmap_find_next_zero_area().
 
-[  +0.000003]        CPU0
-[  +0.000002]        ----
-[  +0.000002]   lock(reservation_ww_class_mutex);
-[  +0.000004]   lock(reservation_ww_class_mutex);
-[  +0.000003]
-               *** DEADLOCK ***
+To ensure that aligned MSI interrupt numbers are used by endpoint devices,
+we cannot use Linux virtual irq numbers (as they are random and not
+properly aligned). Instead we need to use the aligned hwirq numbers.
 
-[  +0.000002]  May be due to missing lock nesting notation
+This change fixes receiving MSI interrupts on Armada 3720 boards and
+allows using NVMe disks which use Multi-MSI feature with 3 interrupts.
 
-[  +0.000003] 7 locks held by python/4822:
-[  +0.000003]  #0: ffff932c4ac028d0 (&process->mutex){+.+.}-{3:3}, at:
-kfd_ioctl_map_memory_to_gpu+0x10b/0x320 [amdgpu]
-[  +0.000232]  #1: ffff932c55e830a8 (&info->lock#2){+.+.}-{3:3}, at:
-amdgpu_amdkfd_gpuvm_map_memory_to_gpu+0x64/0xf60 [amdgpu]
-[  +0.000241]  #2: ffff932cc45b5e68 (&(*mem)->lock){+.+.}-{3:3}, at:
-amdgpu_amdkfd_gpuvm_map_memory_to_gpu+0xdf/0xf60 [amdgpu]
-[  +0.000236]  #3: ffffb2b35606fd28
-(reservation_ww_class_acquire){+.+.}-{0:0}, at:
-amdgpu_amdkfd_gpuvm_map_memory_to_gpu+0x232/0xf60 [amdgpu]
-[  +0.000235]  #4: ffff932cbb7181f8
-(reservation_ww_class_mutex){+.+.}-{3:3}, at:
-ttm_eu_reserve_buffers+0x270/0x470 [ttm]
-[  +0.000015]  #5: ffffffffc045f700 (*(sspp++)){....}-{0:0}, at:
-drm_dev_enter+0x5/0xa0 [drm]
-[  +0.000038]  #6: ffff932c52da7078 (&vm->eviction_lock){+.+.}-{3:3},
-at: amdgpu_vm_bo_update_mapping+0xd5/0x4f0 [amdgpu]
-[  +0.000195]
-              stack backtrace:
-[  +0.000003] CPU: 11 PID: 4822 Comm: python Not tainted
-5.13.0-kfd-rajneesh #1030
-[  +0.000005] Hardware name: GIGABYTE MZ01-CE0-00/MZ01-CE0-00, BIOS F02
-08/29/2018
-[  +0.000003] Call Trace:
-[  +0.000003]  dump_stack+0x6d/0x89
-[  +0.000010]  __lock_acquire+0xb93/0x1a90
-[  +0.000009]  lock_acquire+0x25d/0x2d0
-[  +0.000005]  ? amdgpu_bo_release_notify+0xc4/0x160 [amdgpu]
-[  +0.000184]  ? lock_is_held_type+0xa2/0x110
-[  +0.000006]  ? amdgpu_bo_release_notify+0xc4/0x160 [amdgpu]
-[  +0.000184]  __ww_mutex_lock.constprop.17+0xca/0x1060
-[  +0.000007]  ? amdgpu_bo_release_notify+0xc4/0x160 [amdgpu]
-[  +0.000183]  ? lock_release+0x13f/0x270
-[  +0.000005]  ? lock_is_held_type+0xa2/0x110
-[  +0.000006]  ? amdgpu_bo_release_notify+0xc4/0x160 [amdgpu]
-[  +0.000183]  amdgpu_bo_release_notify+0xc4/0x160 [amdgpu]
-[  +0.000185]  ttm_bo_release+0x4c6/0x580 [ttm]
-[  +0.000010]  amdgpu_bo_unref+0x1a/0x30 [amdgpu]
-[  +0.000183]  amdgpu_vm_free_table+0x76/0xa0 [amdgpu]
-[  +0.000189]  amdgpu_vm_free_pts+0xb8/0xf0 [amdgpu]
-[  +0.000189]  amdgpu_vm_update_ptes+0x411/0x770 [amdgpu]
-[  +0.000191]  amdgpu_vm_bo_update_mapping+0x324/0x4f0 [amdgpu]
-[  +0.000191]  amdgpu_vm_bo_update+0x251/0x610 [amdgpu]
-[  +0.000191]  update_gpuvm_pte+0xcc/0x290 [amdgpu]
-[  +0.000229]  ? amdgpu_vm_bo_map+0xd7/0x130 [amdgpu]
-[  +0.000190]  amdgpu_amdkfd_gpuvm_map_memory_to_gpu+0x912/0xf60
-[amdgpu]
-[  +0.000234]  kfd_ioctl_map_memory_to_gpu+0x182/0x320 [amdgpu]
-[  +0.000218]  kfd_ioctl+0x2b9/0x600 [amdgpu]
-[  +0.000216]  ? kfd_ioctl_unmap_memory_from_gpu+0x270/0x270 [amdgpu]
-[  +0.000216]  ? lock_release+0x13f/0x270
-[  +0.000006]  ? __fget_files+0x107/0x1e0
-[  +0.000007]  __x64_sys_ioctl+0x8b/0xd0
-[  +0.000007]  do_syscall_64+0x36/0x70
-[  +0.000004]  entry_SYSCALL_64_after_hwframe+0x44/0xae
-[  +0.000007] RIP: 0033:0x7fbff90a7317
-[  +0.000004] Code: b3 66 90 48 8b 05 71 4b 2d 00 64 c7 00 26 00 00 00
-48 c7 c0 ff ff ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 b8 10 00 00 00 0f
-05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 41 4b 2d 00 f7 d8 64 89 01 48
-[  +0.000005] RSP: 002b:00007fbe301fe648 EFLAGS: 00000246 ORIG_RAX:
-0000000000000010
-[  +0.000006] RAX: ffffffffffffffda RBX: 00007fbcc402d820 RCX:
-00007fbff90a7317
-[  +0.000003] RDX: 00007fbe301fe690 RSI: 00000000c0184b18 RDI:
-0000000000000004
-[  +0.000003] RBP: 00007fbe301fe690 R08: 0000000000000000 R09:
-00007fbcc402d880
-[  +0.000003] R10: 0000000002001000 R11: 0000000000000246 R12:
-00000000c0184b18
-[  +0.000003] R13: 0000000000000004 R14: 00007fbf689593a0 R15:
-00007fbcc402d820
+Without this NVMe disks freeze booting as linux nvme-core.c is waiting
+60s for an interrupt.
 
-Cc: Christian König <christian.koenig@amd.com>
-Cc: Felix Kuehling <Felix.Kuehling@amd.com>
-Cc: Alex Deucher <Alexander.Deucher@amd.com>
-
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Signed-off-by: Rajneesh Bhardwaj <rajneesh.bhardwaj@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Link: https://lore.kernel.org/r/20220110015018.26359-4-kabel@kernel.org
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_object.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/pci/controller/pci-aardvark.c | 16 ++++++----------
+ 1 file changed, 6 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_object.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_object.c
-index ad9863b84f1f..f615ecc06a22 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_object.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_object.c
-@@ -1338,7 +1338,8 @@ void amdgpu_bo_release_notify(struct ttm_buffer_object *bo)
- 	    !(abo->flags & AMDGPU_GEM_CREATE_VRAM_WIPE_ON_RELEASE))
- 		return;
+diff --git a/drivers/pci/controller/pci-aardvark.c b/drivers/pci/controller/pci-aardvark.c
+index f30144c8c0bd..40f7b885ca96 100644
+--- a/drivers/pci/controller/pci-aardvark.c
++++ b/drivers/pci/controller/pci-aardvark.c
+@@ -1184,7 +1184,7 @@ static void advk_msi_irq_compose_msi_msg(struct irq_data *data,
  
--	dma_resv_lock(bo->base.resv, NULL);
-+	if (WARN_ON_ONCE(!dma_resv_trylock(bo->base.resv)))
-+		return;
+ 	msg->address_lo = lower_32_bits(msi_msg);
+ 	msg->address_hi = upper_32_bits(msi_msg);
+-	msg->data = data->irq;
++	msg->data = data->hwirq;
+ }
  
- 	r = amdgpu_fill_buffer(abo, AMDGPU_POISON, bo->base.resv, &fence);
- 	if (!WARN_ON(r)) {
+ static int advk_msi_set_affinity(struct irq_data *irq_data,
+@@ -1201,15 +1201,11 @@ static int advk_msi_irq_domain_alloc(struct irq_domain *domain,
+ 	int hwirq, i;
+ 
+ 	mutex_lock(&pcie->msi_used_lock);
+-	hwirq = bitmap_find_next_zero_area(pcie->msi_used, MSI_IRQ_NUM,
+-					   0, nr_irqs, 0);
+-	if (hwirq >= MSI_IRQ_NUM) {
+-		mutex_unlock(&pcie->msi_used_lock);
+-		return -ENOSPC;
+-	}
+-
+-	bitmap_set(pcie->msi_used, hwirq, nr_irqs);
++	hwirq = bitmap_find_free_region(pcie->msi_used, MSI_IRQ_NUM,
++					order_base_2(nr_irqs));
+ 	mutex_unlock(&pcie->msi_used_lock);
++	if (hwirq < 0)
++		return -ENOSPC;
+ 
+ 	for (i = 0; i < nr_irqs; i++)
+ 		irq_domain_set_info(domain, virq + i, hwirq + i,
+@@ -1227,7 +1223,7 @@ static void advk_msi_irq_domain_free(struct irq_domain *domain,
+ 	struct advk_pcie *pcie = domain->host_data;
+ 
+ 	mutex_lock(&pcie->msi_used_lock);
+-	bitmap_clear(pcie->msi_used, d->hwirq, nr_irqs);
++	bitmap_release_region(pcie->msi_used, d->hwirq, order_base_2(nr_irqs));
+ 	mutex_unlock(&pcie->msi_used_lock);
+ }
+ 
 -- 
 2.34.1
 
