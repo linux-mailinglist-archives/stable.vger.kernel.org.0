@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 760884EF488
-	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 17:31:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA4834EF374
+	for <lists+stable@lfdr.de>; Fri,  1 Apr 2022 17:21:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348247AbiDAOv5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Apr 2022 10:51:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34268 "EHLO
+        id S1349397AbiDAOzb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Apr 2022 10:55:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60646 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348897AbiDAOpD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:45:03 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D360B2963FA;
-        Fri,  1 Apr 2022 07:35:06 -0700 (PDT)
+        with ESMTP id S1349279AbiDAOpn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 Apr 2022 10:45:43 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D439D29A55D;
+        Fri,  1 Apr 2022 07:35:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5A049B824D8;
-        Fri,  1 Apr 2022 14:35:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3B4AC3410F;
-        Fri,  1 Apr 2022 14:35:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1F11D60B9A;
+        Fri,  1 Apr 2022 14:35:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FC87C34112;
+        Fri,  1 Apr 2022 14:35:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648823705;
-        bh=dWrtl0p3lfTQeyzneUChNj+TkxqwMqD0fFCZ2g8vvJY=;
+        s=k20201202; t=1648823706;
+        bh=Rbs7DnAUFvAXbZTT5xlzrTp8sk6yUOBZFc755WKAgkw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LS57cKcW+qWptlghJJX9e07CfrY7+yIWpQiodzXU5E30GXLM/fm1QO8PkfpUSc3YV
-         QmOXap3mLwktKelkiCurmgTe3XBAkoU2SYBCbKjD7dLwzhRwh5rLqpgLITtwvgwUIf
-         N8BxX6dLMZe2fEcolY5Cw29ITnj1sosyR0pEtjGI/CynVtLXjlVfHxRmMQ4/0JMsAz
-         ztJ0fpOno2BRjq5O6ijUPXmcUInkszwYcX9FIEDuy9/xixtcwHMMyR0jwHT9DtLAEo
-         FU0HyaBVqSWAp1v/N8REUYzAtcTccQoLstABMbduHXIJE/lCCml08ElzP+rVO+82R9
-         4+dJRYCCELyPw==
+        b=DN9cvSxCAO+iR7b+OAbTV1xCXGkYicYiKc+pNAoWdf9VMTmr5h+AUg+6gthaXr5U1
+         UxKDa17xPX1OqNDmY400yxvNE65bMLfZGU488iWxe1HBoIDxQuafwV/ZjhXWe+qXFd
+         vkhCX1xzRJbqcPkkHDxc/yDh20OnsVdbVL+oYaUldFaLWw+RmIMgrR4Lz3mf0uqiR4
+         E34hWKLLDonFz8V2RxirgLR0h7zCo6zJE9q1ZaGFlJLyCH992y5XYxYbUaWrHS6cMH
+         CbEBeArHDzRciDGsXwuCqW+HPF6Ysi/UmD8YHOo/H4tmr3Rw5OykKB9hmjc916hME6
+         mdyXGQzP/Q5yA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Sasha Levin <sashal@kernel.org>, lukas@wunner.de,
-        zhangliguang@linux.alibaba.com, mani@kernel.org,
-        hdegoede@redhat.com, ameynarkhede03@gmail.com,
-        naveennaidu479@gmail.com, linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.16 045/109] PCI: pciehp: Add Qualcomm quirk for Command Completed erratum
-Date:   Fri,  1 Apr 2022 10:31:52 -0400
-Message-Id: <20220401143256.1950537-45-sashal@kernel.org>
+Cc:     Sreekanth Reddy <sreekanth.reddy@broadcom.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, sathya.prakash@broadcom.com,
+        kashyap.desai@broadcom.com, sumit.saxena@broadcom.com,
+        jejb@linux.ibm.com, mpi3mr-linuxdrv.pdl@broadcom.com,
+        linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.16 046/109] scsi: mpi3mr: Fix reporting of actual data transfer size
+Date:   Fri,  1 Apr 2022 10:31:53 -0400
+Message-Id: <20220401143256.1950537-46-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220401143256.1950537-1-sashal@kernel.org>
 References: <20220401143256.1950537-1-sashal@kernel.org>
@@ -59,42 +59,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+From: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
 
-[ Upstream commit 9f72d4757cbe4d1ed669192f6d23817c9e437c4b ]
+[ Upstream commit 9992246127246a27cc7184f05cce6f62ac48f84e ]
 
-The Qualcomm PCI bridge device (Device ID 0x0110) found in chipsets such as
-SM8450 does not set the Command Completed bit unless writes to the Slot
-Command register change "Control" bits.
+The driver is missing to set the residual size while completing an
+I/O. Ensure proper data transfer size is reported to the kernel on I/O
+completion based on the transfer length reported by the firmware.
 
-This results in timeouts like below:
-
-  pcieport 0001:00:00.0: pciehp: Timeout on hotplug command 0x03c0 (issued 2020 msec ago)
-
-Add the device to the Command Completed quirk to mark commands "completed"
-immediately unless they change the "Control" bits.
-
-Link: https://lore.kernel.org/r/20220210145003.135907-1-manivannan.sadhasivam@linaro.org
-Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Link: https://lore.kernel.org/r/20220210095817.22828-7-sreekanth.reddy@broadcom.com
+Signed-off-by: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/hotplug/pciehp_hpc.c | 2 ++
+ drivers/scsi/mpi3mr/mpi3mr_os.c | 2 ++
  1 file changed, 2 insertions(+)
 
-diff --git a/drivers/pci/hotplug/pciehp_hpc.c b/drivers/pci/hotplug/pciehp_hpc.c
-index 1d3108e6c128..dd6236ffa2fd 100644
---- a/drivers/pci/hotplug/pciehp_hpc.c
-+++ b/drivers/pci/hotplug/pciehp_hpc.c
-@@ -1084,6 +1084,8 @@ static void quirk_cmd_compl(struct pci_dev *pdev)
- }
- DECLARE_PCI_FIXUP_CLASS_EARLY(PCI_VENDOR_ID_INTEL, PCI_ANY_ID,
- 			      PCI_CLASS_BRIDGE_PCI, 8, quirk_cmd_compl);
-+DECLARE_PCI_FIXUP_CLASS_EARLY(PCI_VENDOR_ID_QCOM, 0x0110,
-+			      PCI_CLASS_BRIDGE_PCI, 8, quirk_cmd_compl);
- DECLARE_PCI_FIXUP_CLASS_EARLY(PCI_VENDOR_ID_QCOM, 0x0400,
- 			      PCI_CLASS_BRIDGE_PCI, 8, quirk_cmd_compl);
- DECLARE_PCI_FIXUP_CLASS_EARLY(PCI_VENDOR_ID_QCOM, 0x0401,
+diff --git a/drivers/scsi/mpi3mr/mpi3mr_os.c b/drivers/scsi/mpi3mr/mpi3mr_os.c
+index fe10f257b5a4..224a4155d9b4 100644
+--- a/drivers/scsi/mpi3mr/mpi3mr_os.c
++++ b/drivers/scsi/mpi3mr/mpi3mr_os.c
+@@ -2204,6 +2204,8 @@ void mpi3mr_process_op_reply_desc(struct mpi3mr_ioc *mrioc,
+ 		scmd->result = DID_OK << 16;
+ 		goto out_success;
+ 	}
++
++	scsi_set_resid(scmd, scsi_bufflen(scmd) - xfer_count);
+ 	if (ioc_status == MPI3_IOCSTATUS_SCSI_DATA_UNDERRUN &&
+ 	    xfer_count == 0 && (scsi_status == MPI3_SCSI_STATUS_BUSY ||
+ 	    scsi_status == MPI3_SCSI_STATUS_RESERVATION_CONFLICT ||
 -- 
 2.34.1
 
