@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A7DEA4F03DF
-	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 16:20:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F36C4F03E1
+	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 16:20:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242997AbiDBOWO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 2 Apr 2022 10:22:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34714 "EHLO
+        id S1356169AbiDBOWa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 2 Apr 2022 10:22:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35928 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236168AbiDBOWO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 10:22:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFB2A12D0BF
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 07:20:22 -0700 (PDT)
+        with ESMTP id S236168AbiDBOWa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 10:22:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78DCE12D0B1
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 07:20:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4AD42615A0
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 14:20:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5943EC340EC;
-        Sat,  2 Apr 2022 14:20:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 16E12615A6
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 14:20:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23B5AC340EC;
+        Sat,  2 Apr 2022 14:20:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648909221;
-        bh=ckI7EInboXYzGr2pzNpBklwN/AnRMvu5wlJPCbSB8kE=;
+        s=korg; t=1648909237;
+        bh=wUHAZNHbn8CAUadjGVThGOZAqy+J0N8yv/elc2536LU=;
         h=Subject:To:Cc:From:Date:From;
-        b=WLfyQ8+sHitGuc2TpBeXKyjs85a1vEiHOOzKmshs9duZ2z17fDaqXNiwvHyPc/fOH
-         36e5DZFT9FqAUSSjo33EEis5F2+HnHLrayDlewm9Scdi8RUatTcyg/ZpuiXxxgJukk
-         Po1vV4qQGruU8JY4o+LRJqowMBgydXGZXw0EKtu0=
-Subject: FAILED: patch "[PATCH] scsi: qla2xxx: Fix missed DMA unmap for NVMe ls requests" failed to apply to 4.19-stable tree
+        b=rB1t0oKkZbninxoVq/a2XmJFEnbm1s8sfC+ddQGbQB34O30Hh49ozajquakbi4/In
+         SRq1GpzGT/eU+y9wDIbk2d9zGeusUwHJqEk0rycYau68hgYPfCT5CxHJ79nqxYbx6/
+         bONneQt8lvr7+mtfIfL3e+Jx3rwySfYtUCDo4JYc=
+Subject: FAILED: patch "[PATCH] scsi: qla2xxx: Fix crash during module load unload test" failed to apply to 5.15-stable tree
 To:     aeasi@marvell.com, himanshu.madhani@oracle.com,
-        martin.petersen@oracle.com, njavali@marvell.com
+        martin.petersen@oracle.com, mpatalan@redhat.com,
+        njavali@marvell.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 02 Apr 2022 16:20:11 +0200
-Message-ID: <164890921124141@kroah.com>
+Date:   Sat, 02 Apr 2022 16:20:26 +0200
+Message-ID: <164890922647116@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +50,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,69 +61,56 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From c85ab7d9e27a80e48d5b7d7fb2fe2b0fdb2de523 Mon Sep 17 00:00:00 2001
+From 0972252450f90db56dd5415a20e2aec21a08d036 Mon Sep 17 00:00:00 2001
 From: Arun Easi <aeasi@marvell.com>
-Date: Thu, 10 Mar 2022 01:25:55 -0800
-Subject: [PATCH] scsi: qla2xxx: Fix missed DMA unmap for NVMe ls requests
+Date: Thu, 10 Mar 2022 01:25:56 -0800
+Subject: [PATCH] scsi: qla2xxx: Fix crash during module load unload test
 
-At NVMe ELS request time, request structure is DMA mapped and never
-unmapped. Fix this by calling the unmap on ELS completion.
+During purex packet handling the driver was incorrectly freeing a
+pre-allocated structure. Fix this by skipping that entry.
 
-Link: https://lore.kernel.org/r/20220310092604.22950-5-njavali@marvell.com
-Fixes: e84067d74301 ("scsi: qla2xxx: Add FC-NVMe F/W initialization and transport registration")
+System crashed with the following stack during a module unload test.
+
+Call Trace:
+	sbitmap_init_node+0x7f/0x1e0
+	sbitmap_queue_init_node+0x24/0x150
+	blk_mq_init_bitmaps+0x3d/0xa0
+	blk_mq_init_tags+0x68/0x90
+	blk_mq_alloc_map_and_rqs+0x44/0x120
+	blk_mq_alloc_set_map_and_rqs+0x63/0x150
+	blk_mq_alloc_tag_set+0x11b/0x230
+	scsi_add_host_with_dma.cold+0x3f/0x245
+	qla2x00_probe_one+0xd5a/0x1b80 [qla2xxx]
+
+Call Trace with slub_debug and debug kernel:
+	kasan_report_invalid_free+0x50/0x80
+	__kasan_slab_free+0x137/0x150
+	slab_free_freelist_hook+0xc6/0x190
+	kfree+0xe8/0x2e0
+	qla2x00_free_device+0x3bb/0x5d0 [qla2xxx]
+	qla2x00_remove_one+0x668/0xcf0 [qla2xxx]
+
+Link: https://lore.kernel.org/r/20220310092604.22950-6-njavali@marvell.com
+Fixes: 62e9dd177732 ("scsi: qla2xxx: Change in PUREX to handle FPIN ELS requests")
 Cc: stable@vger.kernel.org
+Reported-by: Marco Patalano <mpatalan@redhat.com>
+Tested-by: Marco Patalano <mpatalan@redhat.com>
 Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
 Signed-off-by: Arun Easi <aeasi@marvell.com>
 Signed-off-by: Nilesh Javali <njavali@marvell.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 
-diff --git a/drivers/scsi/qla2xxx/qla_nvme.c b/drivers/scsi/qla2xxx/qla_nvme.c
-index 3bf5cbd754a7..794a95b2e3b4 100644
---- a/drivers/scsi/qla2xxx/qla_nvme.c
-+++ b/drivers/scsi/qla2xxx/qla_nvme.c
-@@ -175,6 +175,18 @@ static void qla_nvme_release_fcp_cmd_kref(struct kref *kref)
- 	qla2xxx_rel_qpair_sp(sp->qpair, sp);
- }
- 
-+static void qla_nvme_ls_unmap(struct srb *sp, struct nvmefc_ls_req *fd)
-+{
-+	if (sp->flags & SRB_DMA_VALID) {
-+		struct srb_iocb *nvme = &sp->u.iocb_cmd;
-+		struct qla_hw_data *ha = sp->fcport->vha->hw;
-+
-+		dma_unmap_single(&ha->pdev->dev, nvme->u.nvme.cmd_dma,
-+				 fd->rqstlen, DMA_TO_DEVICE);
-+		sp->flags &= ~SRB_DMA_VALID;
-+	}
-+}
-+
- static void qla_nvme_release_ls_cmd_kref(struct kref *kref)
- {
- 	struct srb *sp = container_of(kref, struct srb, cmd_kref);
-@@ -191,6 +203,8 @@ static void qla_nvme_release_ls_cmd_kref(struct kref *kref)
- 	spin_unlock_irqrestore(&priv->cmd_lock, flags);
- 
- 	fd = priv->fd;
-+
-+	qla_nvme_ls_unmap(sp, fd);
- 	fd->done(fd, priv->comp_status);
- out:
- 	qla2x00_rel_sp(sp);
-@@ -361,6 +375,8 @@ static int qla_nvme_ls_req(struct nvme_fc_local_port *lport,
- 	dma_sync_single_for_device(&ha->pdev->dev, nvme->u.nvme.cmd_dma,
- 	    fd->rqstlen, DMA_TO_DEVICE);
- 
-+	sp->flags |= SRB_DMA_VALID;
-+
- 	rval = qla2x00_start_sp(sp);
- 	if (rval != QLA_SUCCESS) {
- 		ql_log(ql_log_warn, vha, 0x700e,
-@@ -368,6 +384,7 @@ static int qla_nvme_ls_req(struct nvme_fc_local_port *lport,
- 		wake_up(&sp->nvme_ls_waitq);
- 		sp->priv = NULL;
- 		priv->sp = NULL;
-+		qla_nvme_ls_unmap(sp, fd);
- 		qla2x00_rel_sp(sp);
- 		return rval;
+diff --git a/drivers/scsi/qla2xxx/qla_os.c b/drivers/scsi/qla2xxx/qla_os.c
+index 58c83525f006..9c4f2b38b34e 100644
+--- a/drivers/scsi/qla2xxx/qla_os.c
++++ b/drivers/scsi/qla2xxx/qla_os.c
+@@ -3901,6 +3901,8 @@ qla24xx_free_purex_list(struct purex_list *list)
+ 	spin_lock_irqsave(&list->lock, flags);
+ 	list_for_each_entry_safe(item, next, &list->head, list) {
+ 		list_del(&item->list);
++		if (item == &item->vha->default_item)
++			continue;
+ 		kfree(item);
  	}
+ 	spin_unlock_irqrestore(&list->lock, flags);
 
