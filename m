@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0657F4F03E0
-	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 16:20:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1993A4F03E2
+	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 16:22:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240489AbiDBOWX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 2 Apr 2022 10:22:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35426 "EHLO
+        id S243746AbiDBOXR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 2 Apr 2022 10:23:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38924 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236168AbiDBOWW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 10:22:22 -0400
+        with ESMTP id S1356264AbiDBOXM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 10:23:12 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A13512D0B1
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 07:20:31 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1913412E14C
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 07:21:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0B9F5B80159
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 14:20:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 733B7C340EC;
-        Sat,  2 Apr 2022 14:20:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C3D32B80159
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 14:21:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C6D6C340EC;
+        Sat,  2 Apr 2022 14:21:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648909228;
-        bh=RsZc7W01zZvkqZabfRqdTFzlxkT0NDY1dlsnhSx4OFQ=;
+        s=korg; t=1648909278;
+        bh=ndZi4A9hLUXuLR92ztCzT5MogGAygfefOYvVQJrMrVc=;
         h=Subject:To:Cc:From:Date:From;
-        b=H5/i0l3kIFEjM9TgfJj5Jk/IvEjYS2TxHlvvOcO3dpi7jULqgdpbk3b34WBPSSUHy
-         7cngHE5GRYLYS4x3xgKKumwgYHrTi3+cbfE2yZaYr0PNDGJd3zd2ZZyfnraQ+jbPQp
-         xR5X0gMVMsZpXvTFlJrhZVthX292/qDBhzv8ht4E=
-Subject: FAILED: patch "[PATCH] scsi: qla2xxx: Fix crash during module load unload test" failed to apply to 5.10-stable tree
-To:     aeasi@marvell.com, himanshu.madhani@oracle.com,
-        martin.petersen@oracle.com, mpatalan@redhat.com,
-        njavali@marvell.com
+        b=iFT2QnUBlpqol8Bcflh2Hk0fZuoZtIVjZrG8csf5sNRBzLn+gVU4aqO1q3TiZ71xf
+         9IKBKfmd4Sw023uEP5DQloBw7hNHGOMmNVpOYj8cd9P0LFJD0Gsfg9uW/nY4Os0O7p
+         j0qkzfmpWOauRjf6SFqfDA70HtHaGozsnrRVQ5BA=
+Subject: FAILED: patch "[PATCH] scsi: qla2xxx: Fix stuck session of PRLI reject" failed to apply to 5.10-stable tree
+To:     qutran@marvell.com, himanshu.madhani@oracle.com,
+        martin.petersen@oracle.com, njavali@marvell.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 02 Apr 2022 16:20:26 +0200
-Message-ID: <164890922618589@kroah.com>
+Date:   Sat, 02 Apr 2022 16:21:11 +0200
+Message-ID: <16489092711327@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -61,56 +60,37 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 0972252450f90db56dd5415a20e2aec21a08d036 Mon Sep 17 00:00:00 2001
-From: Arun Easi <aeasi@marvell.com>
-Date: Thu, 10 Mar 2022 01:25:56 -0800
-Subject: [PATCH] scsi: qla2xxx: Fix crash during module load unload test
+From f3502e2e98a92981601edc3dadf4b0f43c79836b Mon Sep 17 00:00:00 2001
+From: Quinn Tran <qutran@marvell.com>
+Date: Thu, 10 Mar 2022 01:26:01 -0800
+Subject: [PATCH] scsi: qla2xxx: Fix stuck session of PRLI reject
 
-During purex packet handling the driver was incorrectly freeing a
-pre-allocated structure. Fix this by skipping that entry.
+Remove stale recovery code that prevents normal path recovery.
 
-System crashed with the following stack during a module unload test.
-
-Call Trace:
-	sbitmap_init_node+0x7f/0x1e0
-	sbitmap_queue_init_node+0x24/0x150
-	blk_mq_init_bitmaps+0x3d/0xa0
-	blk_mq_init_tags+0x68/0x90
-	blk_mq_alloc_map_and_rqs+0x44/0x120
-	blk_mq_alloc_set_map_and_rqs+0x63/0x150
-	blk_mq_alloc_tag_set+0x11b/0x230
-	scsi_add_host_with_dma.cold+0x3f/0x245
-	qla2x00_probe_one+0xd5a/0x1b80 [qla2xxx]
-
-Call Trace with slub_debug and debug kernel:
-	kasan_report_invalid_free+0x50/0x80
-	__kasan_slab_free+0x137/0x150
-	slab_free_freelist_hook+0xc6/0x190
-	kfree+0xe8/0x2e0
-	qla2x00_free_device+0x3bb/0x5d0 [qla2xxx]
-	qla2x00_remove_one+0x668/0xcf0 [qla2xxx]
-
-Link: https://lore.kernel.org/r/20220310092604.22950-6-njavali@marvell.com
-Fixes: 62e9dd177732 ("scsi: qla2xxx: Change in PUREX to handle FPIN ELS requests")
+Link: https://lore.kernel.org/r/20220310092604.22950-11-njavali@marvell.com
+Fixes: 1cbc0efcd9be ("scsi: qla2xxx: Fix retry for PRLI RJT with reason of BUSY")
 Cc: stable@vger.kernel.org
-Reported-by: Marco Patalano <mpatalan@redhat.com>
-Tested-by: Marco Patalano <mpatalan@redhat.com>
 Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Arun Easi <aeasi@marvell.com>
+Signed-off-by: Quinn Tran <qutran@marvell.com>
 Signed-off-by: Nilesh Javali <njavali@marvell.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 
-diff --git a/drivers/scsi/qla2xxx/qla_os.c b/drivers/scsi/qla2xxx/qla_os.c
-index 58c83525f006..9c4f2b38b34e 100644
---- a/drivers/scsi/qla2xxx/qla_os.c
-+++ b/drivers/scsi/qla2xxx/qla_os.c
-@@ -3901,6 +3901,8 @@ qla24xx_free_purex_list(struct purex_list *list)
- 	spin_lock_irqsave(&list->lock, flags);
- 	list_for_each_entry_safe(item, next, &list->head, list) {
- 		list_del(&item->list);
-+		if (item == &item->vha->default_item)
-+			continue;
- 		kfree(item);
- 	}
- 	spin_unlock_irqrestore(&list->lock, flags);
+diff --git a/drivers/scsi/qla2xxx/qla_init.c b/drivers/scsi/qla2xxx/qla_init.c
+index 7f5b5811c23d..3f3417a3e891 100644
+--- a/drivers/scsi/qla2xxx/qla_init.c
++++ b/drivers/scsi/qla2xxx/qla_init.c
+@@ -2105,13 +2105,6 @@ qla24xx_handle_prli_done_event(struct scsi_qla_host *vha, struct event_arg *ea)
+ 		qla24xx_post_gpdb_work(vha, ea->fcport, 0);
+ 		break;
+ 	default:
+-		if ((ea->iop[0] == LSC_SCODE_ELS_REJECT) &&
+-		    (ea->iop[1] == 0x50000)) {   /* reson 5=busy expl:0x0 */
+-			set_bit(RELOGIN_NEEDED, &vha->dpc_flags);
+-			ea->fcport->fw_login_state = DSC_LS_PLOGI_COMP;
+-			break;
+-		}
+-
+ 		sp = ea->sp;
+ 		ql_dbg(ql_dbg_disc, vha, 0x2118,
+ 		       "%s %d %8phC priority %s, fc4type %x prev try %s\n",
 
