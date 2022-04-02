@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A59A4F011F
-	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 13:34:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB4E64F0128
+	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 13:37:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231656AbiDBLf1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 2 Apr 2022 07:35:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35126 "EHLO
+        id S234667AbiDBLir (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 2 Apr 2022 07:38:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49076 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234504AbiDBLf0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 07:35:26 -0400
+        with ESMTP id S242177AbiDBLif (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 07:38:35 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B30BD9D
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 04:33:34 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 513BE5520D
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 04:36:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EB86A61257
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 11:33:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03E16C340EC;
-        Sat,  2 Apr 2022 11:33:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E142061350
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 11:36:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F072EC340EC;
+        Sat,  2 Apr 2022 11:36:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648899213;
-        bh=QumuaWRyEFH5/ZxpiLErubCVYgvCPvezP4oMKm3u2gc=;
+        s=korg; t=1648899402;
+        bh=Rq9Womjky0bI3tlgUIig3oZAz0eFnkDDz08NHVS9jus=;
         h=Subject:To:Cc:From:Date:From;
-        b=u6sH3AmdTiGuF2PL4/4Xot0SkkJl16imGIEwD3RreeIwJHhk2yVUKgnz73s1yY39D
-         6+ynhN2fOAz7luPGE43twUYnafcx4llx9KH7UZmr3C3/9T/wUiDzBpbfzsAQlEPS+r
-         021X3Wqw+shjFi8LuflfCqGZ6LaMTlJIXyPKIQOA=
-Subject: FAILED: patch "[PATCH] mmc: core: use sysfs_emit() instead of sprintf()" failed to apply to 5.10-stable tree
-To:     s.shtylyov@omp.ru, ulf.hansson@linaro.org
+        b=UnWtAWA0nk1lVy4vFI+x4Lf84TrqdRVUDFBIukLc1NgJFE0sPIpaAO/QaCk25mTnK
+         aMlk3bQab+x+pkjx3cBI8k+XbFeh6RdlQTacK6TeIBg7Jkl8mkVgyH16VhSfJwafst
+         BKIVnsTPjLkYr1+sdoexM3fsb9MC3C+hj9hZpYQY=
+Subject: FAILED: patch "[PATCH] coredump: Use the vma snapshot in fill_files_note" failed to apply to 5.17-stable tree
+To:     ebiederm@xmission.com, keescook@chromium.org, willy@infradead.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 02 Apr 2022 13:33:23 +0200
-Message-ID: <1648899203160121@kroah.com>
+Date:   Sat, 02 Apr 2022 13:36:39 +0200
+Message-ID: <164889939941112@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.17-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,223 +59,176 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From f5d8a5fe77ce933f53eb8f2e22bb7a1a2019ea11 Mon Sep 17 00:00:00 2001
-From: Sergey Shtylyov <s.shtylyov@omp.ru>
-Date: Tue, 8 Feb 2022 15:02:15 +0300
-Subject: [PATCH] mmc: core: use sysfs_emit() instead of sprintf()
+From 390031c942116d4733310f0684beb8db19885fe6 Mon Sep 17 00:00:00 2001
+From: "Eric W. Biederman" <ebiederm@xmission.com>
+Date: Tue, 8 Mar 2022 13:04:19 -0600
+Subject: [PATCH] coredump: Use the vma snapshot in fill_files_note
 
-sprintf() (still used in the MMC core for the sysfs output) is vulnerable
-to the buffer overflow.  Use the new-fangled sysfs_emit() instead.
+Matthew Wilcox reported that there is a missing mmap_lock in
+file_files_note that could possibly lead to a user after free.
 
-Found by Linux Verification Center (linuxtesting.org) with the SVACE static
-analysis tool.
+Solve this by using the existing vma snapshot for consistency
+and to avoid the need to take the mmap_lock anywhere in the
+coredump code except for dump_vma_snapshot.
 
-Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
+Update the dump_vma_snapshot to capture vm_pgoff and vm_file
+that are neeeded by fill_files_note.
+
+Add free_vma_snapshot to free the captured values of vm_file.
+
+Reported-by: Matthew Wilcox <willy@infradead.org>
+Link: https://lkml.kernel.org/r/20220131153740.2396974-1-willy@infradead.org
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/717729b2-d65b-c72e-9fac-471d28d00b5a@omp.ru
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: a07279c9a8cd ("binfmt_elf, binfmt_elf_fdpic: use a VMA list snapshot")
+Fixes: 2aa362c49c31 ("coredump: extend core dump note section to contain file names of mapped files")
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
 
-diff --git a/drivers/mmc/core/bus.c b/drivers/mmc/core/bus.c
-index 096ae624be9a..58a60afa650b 100644
---- a/drivers/mmc/core/bus.c
-+++ b/drivers/mmc/core/bus.c
-@@ -15,6 +15,7 @@
- #include <linux/stat.h>
- #include <linux/of.h>
- #include <linux/pm_runtime.h>
-+#include <linux/sysfs.h>
+diff --git a/fs/binfmt_elf.c b/fs/binfmt_elf.c
+index 7f0c391832cf..ca5296cae979 100644
+--- a/fs/binfmt_elf.c
++++ b/fs/binfmt_elf.c
+@@ -1641,17 +1641,16 @@ static void fill_siginfo_note(struct memelfnote *note, user_siginfo_t *csigdata,
+  *   long file_ofs
+  * followed by COUNT filenames in ASCII: "FILE1" NUL "FILE2" NUL...
+  */
+-static int fill_files_note(struct memelfnote *note)
++static int fill_files_note(struct memelfnote *note, struct coredump_params *cprm)
+ {
+-	struct mm_struct *mm = current->mm;
+-	struct vm_area_struct *vma;
+ 	unsigned count, size, names_ofs, remaining, n;
+ 	user_long_t *data;
+ 	user_long_t *start_end_ofs;
+ 	char *name_base, *name_curpos;
++	int i;
  
- #include <linux/mmc/card.h>
- #include <linux/mmc/host.h>
-@@ -34,13 +35,13 @@ static ssize_t type_show(struct device *dev,
+ 	/* *Estimated* file count and total data size needed */
+-	count = mm->map_count;
++	count = cprm->vma_count;
+ 	if (count > UINT_MAX / 64)
+ 		return -EINVAL;
+ 	size = count * 64;
+@@ -1673,11 +1672,12 @@ static int fill_files_note(struct memelfnote *note)
+ 	name_base = name_curpos = ((char *)data) + names_ofs;
+ 	remaining = size - names_ofs;
+ 	count = 0;
+-	for (vma = mm->mmap; vma != NULL; vma = vma->vm_next) {
++	for (i = 0; i < cprm->vma_count; i++) {
++		struct core_vma_metadata *m = &cprm->vma_meta[i];
+ 		struct file *file;
+ 		const char *filename;
  
- 	switch (card->type) {
- 	case MMC_TYPE_MMC:
--		return sprintf(buf, "MMC\n");
-+		return sysfs_emit(buf, "MMC\n");
- 	case MMC_TYPE_SD:
--		return sprintf(buf, "SD\n");
-+		return sysfs_emit(buf, "SD\n");
- 	case MMC_TYPE_SDIO:
--		return sprintf(buf, "SDIO\n");
-+		return sysfs_emit(buf, "SDIO\n");
- 	case MMC_TYPE_SD_COMBO:
--		return sprintf(buf, "SDcombo\n");
-+		return sysfs_emit(buf, "SDcombo\n");
- 	default:
- 		return -EFAULT;
+-		file = vma->vm_file;
++		file = m->file;
+ 		if (!file)
+ 			continue;
+ 		filename = file_path(file, name_curpos, remaining);
+@@ -1697,9 +1697,9 @@ static int fill_files_note(struct memelfnote *note)
+ 		memmove(name_curpos, filename, n);
+ 		name_curpos += n;
+ 
+-		*start_end_ofs++ = vma->vm_start;
+-		*start_end_ofs++ = vma->vm_end;
+-		*start_end_ofs++ = vma->vm_pgoff;
++		*start_end_ofs++ = m->start;
++		*start_end_ofs++ = m->end;
++		*start_end_ofs++ = m->pgoff;
+ 		count++;
  	}
-diff --git a/drivers/mmc/core/bus.h b/drivers/mmc/core/bus.h
-index 8105852c4b62..3996b191b68d 100644
---- a/drivers/mmc/core/bus.h
-+++ b/drivers/mmc/core/bus.h
-@@ -9,6 +9,7 @@
- #define _MMC_CORE_BUS_H
  
- #include <linux/device.h>
-+#include <linux/sysfs.h>
+@@ -1710,7 +1710,7 @@ static int fill_files_note(struct memelfnote *note)
+ 	 * Count usually is less than mm->map_count,
+ 	 * we need to move filenames down.
+ 	 */
+-	n = mm->map_count - count;
++	n = cprm->vma_count - count;
+ 	if (n != 0) {
+ 		unsigned shift_bytes = n * 3 * sizeof(data[0]);
+ 		memmove(name_base - shift_bytes, name_base,
+@@ -1909,7 +1909,7 @@ static int fill_note_info(struct elfhdr *elf, int phdrs,
+ 	fill_auxv_note(&info->auxv, current->mm);
+ 	info->size += notesize(&info->auxv);
  
- struct mmc_host;
- struct mmc_card;
-@@ -17,7 +18,7 @@ struct mmc_card;
- static ssize_t mmc_##name##_show (struct device *dev, struct device_attribute *attr, char *buf)	\
- {										\
- 	struct mmc_card *card = mmc_dev_to_card(dev);				\
--	return sprintf(buf, fmt, args);						\
-+	return sysfs_emit(buf, fmt, args);					\
- }										\
- static DEVICE_ATTR(name, S_IRUGO, mmc_##name##_show, NULL)
+-	if (fill_files_note(&info->files) == 0)
++	if (fill_files_note(&info->files, cprm) == 0)
+ 		info->size += notesize(&info->files);
  
-diff --git a/drivers/mmc/core/mmc.c b/drivers/mmc/core/mmc.c
-index bbbbcaf70a59..13abfcd130a5 100644
---- a/drivers/mmc/core/mmc.c
-+++ b/drivers/mmc/core/mmc.c
-@@ -12,6 +12,7 @@
- #include <linux/slab.h>
- #include <linux/stat.h>
- #include <linux/pm_runtime.h>
-+#include <linux/sysfs.h>
+ 	return 1;
+@@ -2098,7 +2098,7 @@ static int fill_note_info(struct elfhdr *elf, int phdrs,
+ 	fill_auxv_note(info->notes + 3, current->mm);
+ 	info->numnote = 4;
  
- #include <linux/mmc/host.h>
- #include <linux/mmc/card.h>
-@@ -812,12 +813,11 @@ static ssize_t mmc_fwrev_show(struct device *dev,
- {
- 	struct mmc_card *card = mmc_dev_to_card(dev);
+-	if (fill_files_note(info->notes + info->numnote) == 0) {
++	if (fill_files_note(info->notes + info->numnote, cprm) == 0) {
+ 		info->notes_files = info->notes + info->numnote;
+ 		info->numnote++;
+ 	}
+diff --git a/fs/coredump.c b/fs/coredump.c
+index 7f100a637264..7ed7d601e5e0 100644
+--- a/fs/coredump.c
++++ b/fs/coredump.c
+@@ -55,6 +55,7 @@
+ #include <trace/events/sched.h>
  
--	if (card->ext_csd.rev < 7) {
--		return sprintf(buf, "0x%x\n", card->cid.fwrev);
--	} else {
--		return sprintf(buf, "0x%*phN\n", MMC_FIRMWARE_LEN,
--			       card->ext_csd.fwrev);
--	}
-+	if (card->ext_csd.rev < 7)
-+		return sysfs_emit(buf, "0x%x\n", card->cid.fwrev);
-+	else
-+		return sysfs_emit(buf, "0x%*phN\n", MMC_FIRMWARE_LEN,
-+				  card->ext_csd.fwrev);
+ static bool dump_vma_snapshot(struct coredump_params *cprm);
++static void free_vma_snapshot(struct coredump_params *cprm);
+ 
+ static int core_uses_pid;
+ static unsigned int core_pipe_limit;
+@@ -765,7 +766,7 @@ void do_coredump(const kernel_siginfo_t *siginfo)
+ 			dump_emit(&cprm, "", 1);
+ 		}
+ 		file_end_write(cprm.file);
+-		kvfree(cprm.vma_meta);
++		free_vma_snapshot(&cprm);
+ 	}
+ 	if (ispipe && core_pipe_limit)
+ 		wait_for_dump_helpers(cprm.file);
+@@ -1099,6 +1100,20 @@ static struct vm_area_struct *next_vma(struct vm_area_struct *this_vma,
+ 	return gate_vma;
  }
  
- static DEVICE_ATTR(fwrev, S_IRUGO, mmc_fwrev_show, NULL);
-@@ -830,10 +830,10 @@ static ssize_t mmc_dsr_show(struct device *dev,
- 	struct mmc_host *host = card->host;
- 
- 	if (card->csd.dsr_imp && host->dsr_req)
--		return sprintf(buf, "0x%x\n", host->dsr);
-+		return sysfs_emit(buf, "0x%x\n", host->dsr);
- 	else
- 		/* return default DSR value */
--		return sprintf(buf, "0x%x\n", 0x404);
-+		return sysfs_emit(buf, "0x%x\n", 0x404);
- }
- 
- static DEVICE_ATTR(dsr, S_IRUGO, mmc_dsr_show, NULL);
-diff --git a/drivers/mmc/core/sd.c b/drivers/mmc/core/sd.c
-index bd87012c220c..24b0418a24bb 100644
---- a/drivers/mmc/core/sd.c
-+++ b/drivers/mmc/core/sd.c
-@@ -13,6 +13,7 @@
- #include <linux/stat.h>
- #include <linux/pm_runtime.h>
- #include <linux/scatterlist.h>
-+#include <linux/sysfs.h>
- 
- #include <linux/mmc/host.h>
- #include <linux/mmc/card.h>
-@@ -708,18 +709,16 @@ MMC_DEV_ATTR(ocr, "0x%08x\n", card->ocr);
- MMC_DEV_ATTR(rca, "0x%04x\n", card->rca);
- 
- 
--static ssize_t mmc_dsr_show(struct device *dev,
--                           struct device_attribute *attr,
--                           char *buf)
-+static ssize_t mmc_dsr_show(struct device *dev, struct device_attribute *attr,
-+			    char *buf)
- {
--       struct mmc_card *card = mmc_dev_to_card(dev);
--       struct mmc_host *host = card->host;
--
--       if (card->csd.dsr_imp && host->dsr_req)
--               return sprintf(buf, "0x%x\n", host->dsr);
--       else
--               /* return default DSR value */
--               return sprintf(buf, "0x%x\n", 0x404);
-+	struct mmc_card *card = mmc_dev_to_card(dev);
-+	struct mmc_host *host = card->host;
++static void free_vma_snapshot(struct coredump_params *cprm)
++{
++	if (cprm->vma_meta) {
++		int i;
++		for (i = 0; i < cprm->vma_count; i++) {
++			struct file *file = cprm->vma_meta[i].file;
++			if (file)
++				fput(file);
++		}
++		kvfree(cprm->vma_meta);
++		cprm->vma_meta = NULL;
++	}
++}
 +
-+	if (card->csd.dsr_imp && host->dsr_req)
-+		return sysfs_emit(buf, "0x%x\n", host->dsr);
-+	/* return default DSR value */
-+	return sysfs_emit(buf, "0x%x\n", 0x404);
- }
+ /*
+  * Under the mmap_lock, take a snapshot of relevant information about the task's
+  * VMAs.
+@@ -1135,6 +1150,11 @@ static bool dump_vma_snapshot(struct coredump_params *cprm)
+ 		m->end = vma->vm_end;
+ 		m->flags = vma->vm_flags;
+ 		m->dump_size = vma_dump_size(vma, cprm->mm_flags);
++		m->pgoff = vma->vm_pgoff;
++
++		m->file = vma->vm_file;
++		if (m->file)
++			get_file(m->file);
+ 	}
  
- static DEVICE_ATTR(dsr, S_IRUGO, mmc_dsr_show, NULL);
-@@ -735,9 +734,9 @@ static ssize_t info##num##_show(struct device *dev, struct device_attribute *att
- 												\
- 	if (num > card->num_info)								\
- 		return -ENODATA;								\
--	if (!card->info[num-1][0])								\
-+	if (!card->info[num - 1][0])								\
- 		return 0;									\
--	return sprintf(buf, "%s\n", card->info[num-1]);						\
-+	return sysfs_emit(buf, "%s\n", card->info[num - 1]);					\
- }												\
- static DEVICE_ATTR_RO(info##num)
+ 	mmap_write_unlock(mm);
+diff --git a/include/linux/coredump.h b/include/linux/coredump.h
+index 7d05370e555e..08a1d3e7e46d 100644
+--- a/include/linux/coredump.h
++++ b/include/linux/coredump.h
+@@ -12,6 +12,8 @@ struct core_vma_metadata {
+ 	unsigned long start, end;
+ 	unsigned long flags;
+ 	unsigned long dump_size;
++	unsigned long pgoff;
++	struct file   *file;
+ };
  
-diff --git a/drivers/mmc/core/sdio.c b/drivers/mmc/core/sdio.c
-index 41164748723d..25799accf8a0 100644
---- a/drivers/mmc/core/sdio.c
-+++ b/drivers/mmc/core/sdio.c
-@@ -7,6 +7,7 @@
- 
- #include <linux/err.h>
- #include <linux/pm_runtime.h>
-+#include <linux/sysfs.h>
- 
- #include <linux/mmc/host.h>
- #include <linux/mmc/card.h>
-@@ -40,9 +41,9 @@ static ssize_t info##num##_show(struct device *dev, struct device_attribute *att
- 												\
- 	if (num > card->num_info)								\
- 		return -ENODATA;								\
--	if (!card->info[num-1][0])								\
-+	if (!card->info[num - 1][0])								\
- 		return 0;									\
--	return sprintf(buf, "%s\n", card->info[num-1]);						\
-+	return sysfs_emit(buf, "%s\n", card->info[num - 1]);					\
- }												\
- static DEVICE_ATTR_RO(info##num)
- 
-diff --git a/drivers/mmc/core/sdio_bus.c b/drivers/mmc/core/sdio_bus.c
-index fda03b35c14a..c6268c38c69e 100644
---- a/drivers/mmc/core/sdio_bus.c
-+++ b/drivers/mmc/core/sdio_bus.c
-@@ -14,6 +14,7 @@
- #include <linux/pm_runtime.h>
- #include <linux/pm_domain.h>
- #include <linux/acpi.h>
-+#include <linux/sysfs.h>
- 
- #include <linux/mmc/card.h>
- #include <linux/mmc/host.h>
-@@ -35,7 +36,7 @@ field##_show(struct device *dev, struct device_attribute *attr, char *buf)				\
- 	struct sdio_func *func;						\
- 									\
- 	func = dev_to_sdio_func (dev);					\
--	return sprintf(buf, format_string, args);			\
-+	return sysfs_emit(buf, format_string, args);			\
- }									\
- static DEVICE_ATTR_RO(field)
- 
-@@ -52,9 +53,9 @@ static ssize_t info##num##_show(struct device *dev, struct device_attribute *att
- 												\
- 	if (num > func->num_info)								\
- 		return -ENODATA;								\
--	if (!func->info[num-1][0])								\
-+	if (!func->info[num - 1][0])								\
- 		return 0;									\
--	return sprintf(buf, "%s\n", func->info[num-1]);						\
-+	return sysfs_emit(buf, "%s\n", func->info[num - 1]);					\
- }												\
- static DEVICE_ATTR_RO(info##num)
- 
+ struct coredump_params {
 
