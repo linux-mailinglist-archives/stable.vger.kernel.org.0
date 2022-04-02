@@ -2,41 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D99C04F00EC
-	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 13:05:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F37E94F00ED
+	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 13:05:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229890AbiDBLHP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 2 Apr 2022 07:07:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54372 "EHLO
+        id S1345140AbiDBLHp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 2 Apr 2022 07:07:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56616 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234952AbiDBLHO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 07:07:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 618B0197517
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 04:05:23 -0700 (PDT)
+        with ESMTP id S234952AbiDBLHo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 07:07:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8C871A2A39
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 04:05:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F2B7D6130B
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 11:05:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 147A1C340EE;
-        Sat,  2 Apr 2022 11:05:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 67D9C6125A
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 11:05:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4958DC340EE;
+        Sat,  2 Apr 2022 11:05:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648897522;
-        bh=hG6gQmRPPLQaTTODJntFGC0JloODdJVZhCSHeXPL/8U=;
+        s=korg; t=1648897550;
+        bh=dH/Gzs4dl7Ss10IoP6qCzYcUFE0h6e8jkQ+KuuEfFrQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=lwOGIpkQeuZYFeI4VT7vW/z7XlWeO6n5StSugHnPq/yV8CsZIyOJFwEwjk/42IDvp
-         Bj7LDooPull+puZg7Jr1mul65qE+C5geCzJTnv4a40+zuvK0sJ6oFwtctOkl0yQUAq
-         x34hp2h6cQwaCIily7/MspJ6KHy7cmIZlnoD1DnU=
-Subject: FAILED: patch "[PATCH] mm: only re-generate demotion targets when a numa node" failed to apply to 5.15-stable tree
-To:     osalvador@suse.de, akpm@linux-foundation.org,
-        baolin.wang@linux.alibaba.com, dave.hansen@linux.intel.com,
-        huntbag@linux.vnet.ibm.com, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, ying.huang@intel.com
+        b=wvHY533QZpHfLtHG+K5JLq6bbhtlMjTg7ue4khS+1lpxkGptOl7h5zAhOKoXTD3ji
+         c+A8AJiYIVY5sOXgFQuYGDRg4gTIeVJRnjflUcCF3/N/9UETG73ek18+asTvhDjhiK
+         zXGFaeAA6zrOQ8w6cDmS1Z+Li2kVfZJDyTidV4R8=
+Subject: FAILED: patch "[PATCH] mm: fix race between MADV_FREE reclaim and blkdev direct IO" failed to apply to 5.17-stable tree
+To:     mfo@canonical.com, akpm@linux-foundation.org,
+        dan.streetman@canonical.com, daniel.hill@canonical.com,
+        dongdong.tao@canonical.com, gavin.guo@canonical.com,
+        gerald.yang@canonical.com, halves@canonical.com, hch@infradead.org,
+        ioanna-maria.alifieraki@canonical.com, jay.vosburgh@canonical.com,
+        linmiaohe@huawei.com, matthew.ruffell@canonical.com,
+        minchan@kernel.org, ponnuvel.palaniyappan@canonical.com,
+        shy828301@gmail.com, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, ying.huang@intel.com,
+        yuzhao@google.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 02 Apr 2022 13:05:12 +0200
-Message-ID: <1648897512144212@kroah.com>
+Date:   Sat, 02 Apr 2022 13:05:48 +0200
+Message-ID: <1648897548136182@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -51,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.17-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -62,184 +68,454 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 734c15700cdf9062ae98d8b131c6fe873dfad26d Mon Sep 17 00:00:00 2001
-From: Oscar Salvador <osalvador@suse.de>
-Date: Tue, 22 Mar 2022 14:47:37 -0700
-Subject: [PATCH] mm: only re-generate demotion targets when a numa node
- changes its N_CPU state
+From 6c8e2a256915a223f6289f651d6b926cd7135c9e Mon Sep 17 00:00:00 2001
+From: Mauricio Faria de Oliveira <mfo@canonical.com>
+Date: Thu, 24 Mar 2022 18:14:09 -0700
+Subject: [PATCH] mm: fix race between MADV_FREE reclaim and blkdev direct IO
+ read
 
-Abhishek reported that after patch [1], hotplug operations are taking
-roughly double the expected time.  [2]
+Problem:
+=======
 
-The reason behind is that the CPU callbacks that
-migrate_on_reclaim_init() sets always call set_migration_target_nodes()
-whenever a CPU is brought up/down.
+Userspace might read the zero-page instead of actual data from a direct IO
+read on a block device if the buffers have been called madvise(MADV_FREE)
+on earlier (this is discussed below) due to a race between page reclaim on
+MADV_FREE and blkdev direct IO read.
 
-But we only care about numa nodes going from having cpus to become
-cpuless, and vice versa, as that influences the demotion_target order.
+- Race condition:
+  ==============
 
-We do already have two CPU callbacks (vmstat_cpu_online() and
-vmstat_cpu_dead()) that check exactly that, so get rid of the CPU
-callbacks in migrate_on_reclaim_init() and only call
-set_migration_target_nodes() from vmstat_cpu_{dead,online}() whenever a
-numa node change its N_CPU state.
+During page reclaim, the MADV_FREE page check in try_to_unmap_one() checks
+if the page is not dirty, then discards its rmap PTE(s) (vs.  remap back
+if the page is dirty).
 
-[1] https://lore.kernel.org/linux-mm/20210721063926.3024591-2-ying.huang@intel.com/
-[2] https://lore.kernel.org/linux-mm/eb438ddd-2919-73d4-bd9f-b7eecdd9577a@linux.vnet.ibm.com/
+However, after try_to_unmap_one() returns to shrink_page_list(), it might
+keep the page _anyway_ if page_ref_freeze() fails (it expects exactly
+_one_ page reference, from the isolation for page reclaim).
 
-[osalvador@suse.de: add feedback from Huang Ying]
-  Link: https://lkml.kernel.org/r/20220314150945.12694-1-osalvador@suse.de
+Well, blkdev_direct_IO() gets references for all pages, and on READ
+operations it only sets them dirty _later_.
 
-Link: https://lkml.kernel.org/r/20220310120749.23077-1-osalvador@suse.de
-Fixes: 884a6e5d1f93b ("mm/migrate: update node demotion order on hotplug events")
-Signed-off-by: Oscar Salvador <osalvador@suse.de>
-Reviewed-by: Baolin Wang <baolin.wang@linux.alibaba.com>
-Tested-by: Baolin Wang <baolin.wang@linux.alibaba.com>
-Reported-by: Abhishek Goel <huntbag@linux.vnet.ibm.com>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: "Huang, Ying" <ying.huang@intel.com>
-Cc: Abhishek Goel <huntbag@linux.vnet.ibm.com>
+So, if MADV_FREE'd pages (i.e., not dirty) are used as buffers for direct
+IO read from block devices, and page reclaim happens during
+__blkdev_direct_IO[_simple]() exactly AFTER bio_iov_iter_get_pages()
+returns, but BEFORE the pages are set dirty, the situation happens.
+
+The direct IO read eventually completes.  Now, when userspace reads the
+buffers, the PTE is no longer there and the page fault handler
+do_anonymous_page() services that with the zero-page, NOT the data!
+
+A synthetic reproducer is provided.
+
+- Page faults:
+  ===========
+
+If page reclaim happens BEFORE bio_iov_iter_get_pages() the issue doesn't
+happen, because that faults-in all pages as writeable, so
+do_anonymous_page() sets up a new page/rmap/PTE, and that is used by
+direct IO.  The userspace reads don't fault as the PTE is there (thus
+zero-page is not used/setup).
+
+But if page reclaim happens AFTER it / BEFORE setting pages dirty, the PTE
+is no longer there; the subsequent page faults can't help:
+
+The data-read from the block device probably won't generate faults due to
+DMA (no MMU) but even in the case it wouldn't use DMA, that happens on
+different virtual addresses (not user-mapped addresses) because `struct
+bio_vec` stores `struct page` to figure addresses out (which are different
+from user-mapped addresses) for the read.
+
+Thus userspace reads (to user-mapped addresses) still fault, then
+do_anonymous_page() gets another `struct page` that would address/ map to
+other memory than the `struct page` used by `struct bio_vec` for the read.
+(The original `struct page` is not available, since it wasn't freed, as
+page_ref_freeze() failed due to more page refs.  And even if it were
+available, its data cannot be trusted anymore.)
+
+Solution:
+========
+
+One solution is to check for the expected page reference count in
+try_to_unmap_one().
+
+There should be one reference from the isolation (that is also checked in
+shrink_page_list() with page_ref_freeze()) plus one or more references
+from page mapping(s) (put in discard: label).  Further references mean
+that rmap/PTE cannot be unmapped/nuked.
+
+(Note: there might be more than one reference from mapping due to
+fork()/clone() without CLONE_VM, which use the same `struct page` for
+references, until the copy-on-write page gets copied.)
+
+So, additional page references (e.g., from direct IO read) now prevent the
+rmap/PTE from being unmapped/dropped; similarly to the page is not freed
+per shrink_page_list()/page_ref_freeze()).
+
+- Races and Barriers:
+  ==================
+
+The new check in try_to_unmap_one() should be safe in races with
+bio_iov_iter_get_pages() in get_user_pages() fast and slow paths, as it's
+done under the PTE lock.
+
+The fast path doesn't take the lock, but it checks if the PTE has changed
+and if so, it drops the reference and leaves the page for the slow path
+(which does take that lock).
+
+The fast path requires synchronization w/ full memory barrier: it writes
+the page reference count first then it reads the PTE later, while
+try_to_unmap() writes PTE first then it reads page refcount.
+
+And a second barrier is needed, as the page dirty flag should not be read
+before the page reference count (as in __remove_mapping()).  (This can be
+a load memory barrier only; no writes are involved.)
+
+Call stack/comments:
+
+- try_to_unmap_one()
+  - page_vma_mapped_walk()
+    - map_pte()			# see pte_offset_map_lock():
+        pte_offset_map()
+        spin_lock()
+
+  - ptep_get_and_clear()	# write PTE
+  - smp_mb()			# (new barrier) GUP fast path
+  - page_ref_count()		# (new check) read refcount
+
+  - page_vma_mapped_walk_done()	# see pte_unmap_unlock():
+      pte_unmap()
+      spin_unlock()
+
+- bio_iov_iter_get_pages()
+  - __bio_iov_iter_get_pages()
+    - iov_iter_get_pages()
+      - get_user_pages_fast()
+        - internal_get_user_pages_fast()
+
+          # fast path
+          - lockless_pages_from_mm()
+            - gup_{pgd,p4d,pud,pmd,pte}_range()
+                ptep = pte_offset_map()		# not _lock()
+                pte = ptep_get_lockless(ptep)
+
+                page = pte_page(pte)
+                try_grab_compound_head(page)	# inc refcount
+                                            	# (RMW/barrier
+                                             	#  on success)
+
+                if (pte_val(pte) != pte_val(*ptep)) # read PTE
+                        put_compound_head(page) # dec refcount
+                        			# go slow path
+
+          # slow path
+          - __gup_longterm_unlocked()
+            - get_user_pages_unlocked()
+              - __get_user_pages_locked()
+                - __get_user_pages()
+                  - follow_{page,p4d,pud,pmd}_mask()
+                    - follow_page_pte()
+                        ptep = pte_offset_map_lock()
+                        pte = *ptep
+                        page = vm_normal_page(pte)
+                        try_grab_page(page)	# inc refcount
+                        pte_unmap_unlock()
+
+- Huge Pages:
+  ==========
+
+Regarding transparent hugepages, that logic shouldn't change, as MADV_FREE
+(aka lazyfree) pages are PageAnon() && !PageSwapBacked()
+(madvise_free_pte_range() -> mark_page_lazyfree() -> lru_lazyfree_fn())
+thus should reach shrink_page_list() -> split_huge_page_to_list() before
+try_to_unmap[_one](), so it deals with normal pages only.
+
+(And in case unlikely/TTU_SPLIT_HUGE_PMD/split_huge_pmd_address() happens,
+which should not or be rare, the page refcount should be greater than
+mapcount: the head page is referenced by tail pages.  That also prevents
+checking the head `page` then incorrectly call page_remove_rmap(subpage)
+for a tail page, that isn't even in the shrink_page_list()'s page_list (an
+effect of split huge pmd/pmvw), as it might happen today in this unlikely
+scenario.)
+
+MADV_FREE'd buffers:
+===================
+
+So, back to the "if MADV_FREE pages are used as buffers" note.  The case
+is arguable, and subject to multiple interpretations.
+
+The madvise(2) manual page on the MADV_FREE advice value says:
+
+1) 'After a successful MADV_FREE ... data will be lost when
+   the kernel frees the pages.'
+2) 'the free operation will be canceled if the caller writes
+   into the page' / 'subsequent writes ... will succeed and
+   then [the] kernel cannot free those dirtied pages'
+3) 'If there is no subsequent write, the kernel can free the
+   pages at any time.'
+
+Thoughts, questions, considerations... respectively:
+
+1) Since the kernel didn't actually free the page (page_ref_freeze()
+   failed), should the data not have been lost? (on userspace read.)
+2) Should writes performed by the direct IO read be able to cancel
+   the free operation?
+   - Should the direct IO read be considered as 'the caller' too,
+     as it's been requested by 'the caller'?
+   - Should the bio technique to dirty pages on return to userspace
+     (bio_check_pages_dirty() is called/used by __blkdev_direct_IO())
+     be considered in another/special way here?
+3) Should an upcoming write from a previously requested direct IO
+   read be considered as a subsequent write, so the kernel should
+   not free the pages? (as it's known at the time of page reclaim.)
+
+And lastly:
+
+Technically, the last point would seem a reasonable consideration and
+balance, as the madvise(2) manual page apparently (and fairly) seem to
+assume that 'writes' are memory access from the userspace process (not
+explicitly considering writes from the kernel or its corner cases; again,
+fairly)..  plus the kernel fix implementation for the corner case of the
+largely 'non-atomic write' encompassed by a direct IO read operation, is
+relatively simple; and it helps.
+
+Reproducer:
+==========
+
+@ test.c (simplified, but works)
+
+	#define _GNU_SOURCE
+	#include <fcntl.h>
+	#include <stdio.h>
+	#include <unistd.h>
+	#include <sys/mman.h>
+
+	int main() {
+		int fd, i;
+		char *buf;
+
+		fd = open(DEV, O_RDONLY | O_DIRECT);
+
+		buf = mmap(NULL, BUF_SIZE, PROT_READ | PROT_WRITE,
+                	   MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+
+		for (i = 0; i < BUF_SIZE; i += PAGE_SIZE)
+			buf[i] = 1; // init to non-zero
+
+		madvise(buf, BUF_SIZE, MADV_FREE);
+
+		read(fd, buf, BUF_SIZE);
+
+		for (i = 0; i < BUF_SIZE; i += PAGE_SIZE)
+			printf("%p: 0x%x\n", &buf[i], buf[i]);
+
+		return 0;
+	}
+
+@ block/fops.c (formerly fs/block_dev.c)
+
+	+#include <linux/swap.h>
+	...
+	... __blkdev_direct_IO[_simple](...)
+	{
+	...
+	+	if (!strcmp(current->comm, "good"))
+	+		shrink_all_memory(ULONG_MAX);
+	+
+         	ret = bio_iov_iter_get_pages(...);
+	+
+	+	if (!strcmp(current->comm, "bad"))
+	+		shrink_all_memory(ULONG_MAX);
+	...
+	}
+
+@ shell
+
+        # NUM_PAGES=4
+        # PAGE_SIZE=$(getconf PAGE_SIZE)
+
+        # yes | dd of=test.img bs=${PAGE_SIZE} count=${NUM_PAGES}
+        # DEV=$(losetup -f --show test.img)
+
+        # gcc -DDEV=\"$DEV\" \
+              -DBUF_SIZE=$((PAGE_SIZE * NUM_PAGES)) \
+              -DPAGE_SIZE=${PAGE_SIZE} \
+               test.c -o test
+
+        # od -tx1 $DEV
+        0000000 79 0a 79 0a 79 0a 79 0a 79 0a 79 0a 79 0a 79 0a
+        *
+        0040000
+
+        # mv test good
+        # ./good
+        0x7f7c10418000: 0x79
+        0x7f7c10419000: 0x79
+        0x7f7c1041a000: 0x79
+        0x7f7c1041b000: 0x79
+
+        # mv good bad
+        # ./bad
+        0x7fa1b8050000: 0x0
+        0x7fa1b8051000: 0x0
+        0x7fa1b8052000: 0x0
+        0x7fa1b8053000: 0x0
+
+Note: the issue is consistent on v5.17-rc3, but it's intermittent with the
+support of MADV_FREE on v4.5 (60%-70% error; needs swap).  [wrap
+do_direct_IO() in do_blockdev_direct_IO() @ fs/direct-io.c].
+
+- v5.17-rc3:
+
+        # for i in {1..1000}; do ./good; done \
+            | cut -d: -f2 | sort | uniq -c
+           4000  0x79
+
+        # mv good bad
+        # for i in {1..1000}; do ./bad; done \
+            | cut -d: -f2 | sort | uniq -c
+           4000  0x0
+
+        # free | grep Swap
+        Swap:             0           0           0
+
+- v4.5:
+
+        # for i in {1..1000}; do ./good; done \
+            | cut -d: -f2 | sort | uniq -c
+           4000  0x79
+
+        # mv good bad
+        # for i in {1..1000}; do ./bad; done \
+            | cut -d: -f2 | sort | uniq -c
+           2702  0x0
+           1298  0x79
+
+        # swapoff -av
+        swapoff /swap
+
+        # for i in {1..1000}; do ./bad; done \
+            | cut -d: -f2 | sort | uniq -c
+           4000  0x79
+
+Ceph/TCMalloc:
+=============
+
+For documentation purposes, the use case driving the analysis/fix is Ceph
+on Ubuntu 18.04, as the TCMalloc library there still uses MADV_FREE to
+release unused memory to the system from the mmap'ed page heap (might be
+committed back/used again; it's not munmap'ed.) - PageHeap::DecommitSpan()
+-> TCMalloc_SystemRelease() -> madvise() - PageHeap::CommitSpan() ->
+TCMalloc_SystemCommit() -> do nothing.
+
+Note: TCMalloc switched back to MADV_DONTNEED a few commits after the
+release in Ubuntu 18.04 (google-perftools/gperftools 2.5), so the issue
+just 'disappeared' on Ceph on later Ubuntu releases but is still present
+in the kernel, and can be hit by other use cases.
+
+The observed issue seems to be the old Ceph bug #22464 [1], where checksum
+mismatches are observed (and instrumentation with buffer dumps shows
+zero-pages read from mmap'ed/MADV_FREE'd page ranges).
+
+The issue in Ceph was reasonably deemed a kernel bug (comment #50) and
+mostly worked around with a retry mechanism, but other parts of Ceph could
+still hit that (rocksdb).  Anyway, it's less likely to be hit again as
+TCMalloc switched out of MADV_FREE by default.
+
+(Some kernel versions/reports from the Ceph bug, and relation with
+the MADV_FREE introduction/changes; TCMalloc versions not checked.)
+- 4.4 good
+- 4.5 (madv_free: introduction)
+- 4.9 bad
+- 4.10 good? maybe a swapless system
+- 4.12 (madv_free: no longer free instantly on swapless systems)
+- 4.13 bad
+
+[1] https://tracker.ceph.com/issues/22464
+
+Thanks:
+======
+
+Several people contributed to analysis/discussions/tests/reproducers in
+the first stages when drilling down on ceph/tcmalloc/linux kernel:
+
+- Dan Hill
+- Dan Streetman
+- Dongdong Tao
+- Gavin Guo
+- Gerald Yang
+- Heitor Alves de Siqueira
+- Ioanna Alifieraki
+- Jay Vosburgh
+- Matthew Ruffell
+- Ponnuvel Palaniyappan
+
+Reviews, suggestions, corrections, comments:
+
+- Minchan Kim
+- Yu Zhao
+- Huang, Ying
+- John Hubbard
+- Christoph Hellwig
+
+[mfo@canonical.com: v4]
+  Link: https://lkml.kernel.org/r/20220209202659.183418-1-mfo@canonical.comLink: https://lkml.kernel.org/r/20220131230255.789059-1-mfo@canonical.com
+
+Fixes: 802a3a92ad7a ("mm: reclaim MADV_FREE pages")
+Signed-off-by: Mauricio Faria de Oliveira <mfo@canonical.com>
+Reviewed-by: "Huang, Ying" <ying.huang@intel.com>
+Cc: Minchan Kim <minchan@kernel.org>
+Cc: Yu Zhao <yuzhao@google.com>
+Cc: Yang Shi <shy828301@gmail.com>
+Cc: Miaohe Lin <linmiaohe@huawei.com>
+Cc: Dan Hill <daniel.hill@canonical.com>
+Cc: Dan Streetman <dan.streetman@canonical.com>
+Cc: Dongdong Tao <dongdong.tao@canonical.com>
+Cc: Gavin Guo <gavin.guo@canonical.com>
+Cc: Gerald Yang <gerald.yang@canonical.com>
+Cc: Heitor Alves de Siqueira <halves@canonical.com>
+Cc: Ioanna Alifieraki <ioanna-maria.alifieraki@canonical.com>
+Cc: Jay Vosburgh <jay.vosburgh@canonical.com>
+Cc: Matthew Ruffell <matthew.ruffell@canonical.com>
+Cc: Ponnuvel Palaniyappan <ponnuvel.palaniyappan@canonical.com>
 Cc: <stable@vger.kernel.org>
+Cc: Christoph Hellwig <hch@infradead.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 
-diff --git a/include/linux/migrate.h b/include/linux/migrate.h
-index db96e10eb8da..90e75d5a54d6 100644
---- a/include/linux/migrate.h
-+++ b/include/linux/migrate.h
-@@ -48,7 +48,15 @@ int folio_migrate_mapping(struct address_space *mapping,
- 		struct folio *newfolio, struct folio *folio, int extra_count);
+diff --git a/mm/rmap.c b/mm/rmap.c
+index bfcc8e3d412f..5cb970d51f0a 100644
+--- a/mm/rmap.c
++++ b/mm/rmap.c
+@@ -1588,7 +1588,30 @@ static bool try_to_unmap_one(struct folio *folio, struct vm_area_struct *vma,
  
- extern bool numa_demotion_enabled;
-+extern void migrate_on_reclaim_init(void);
-+#ifdef CONFIG_HOTPLUG_CPU
-+extern void set_migration_target_nodes(void);
- #else
-+static inline void set_migration_target_nodes(void) {}
-+#endif
-+#else
+ 			/* MADV_FREE page check */
+ 			if (!folio_test_swapbacked(folio)) {
+-				if (!folio_test_dirty(folio)) {
++				int ref_count, map_count;
 +
-+static inline void set_migration_target_nodes(void) {}
- 
- static inline void putback_movable_pages(struct list_head *l) {}
- static inline int migrate_pages(struct list_head *l, new_page_t new,
-diff --git a/mm/migrate.c b/mm/migrate.c
-index 78b2cf87946d..bc9da3fd01aa 100644
---- a/mm/migrate.c
-+++ b/mm/migrate.c
-@@ -3209,7 +3209,7 @@ static void __set_migration_target_nodes(void)
- /*
-  * For callers that do not hold get_online_mems() already.
-  */
--static void set_migration_target_nodes(void)
-+void set_migration_target_nodes(void)
- {
- 	get_online_mems();
- 	__set_migration_target_nodes();
-@@ -3273,51 +3273,24 @@ static int __meminit migrate_on_reclaim_callback(struct notifier_block *self,
- 	return notifier_from_errno(0);
- }
- 
--/*
-- * React to hotplug events that might affect the migration targets
-- * like events that online or offline NUMA nodes.
-- *
-- * The ordering is also currently dependent on which nodes have
-- * CPUs.  That means we need CPU on/offline notification too.
-- */
--static int migration_online_cpu(unsigned int cpu)
--{
--	set_migration_target_nodes();
--	return 0;
--}
--
--static int migration_offline_cpu(unsigned int cpu)
-+void __init migrate_on_reclaim_init(void)
- {
--	set_migration_target_nodes();
--	return 0;
--}
--
--static int __init migrate_on_reclaim_init(void)
--{
--	int ret;
--
- 	node_demotion = kmalloc_array(nr_node_ids,
- 				      sizeof(struct demotion_nodes),
- 				      GFP_KERNEL);
- 	WARN_ON(!node_demotion);
- 
--	ret = cpuhp_setup_state_nocalls(CPUHP_MM_DEMOTION_DEAD, "mm/demotion:offline",
--					NULL, migration_offline_cpu);
-+	hotplug_memory_notifier(migrate_on_reclaim_callback, 100);
- 	/*
--	 * In the unlikely case that this fails, the automatic
--	 * migration targets may become suboptimal for nodes
--	 * where N_CPU changes.  With such a small impact in a
--	 * rare case, do not bother trying to do anything special.
-+	 * At this point, all numa nodes with memory/CPus have their state
-+	 * properly set, so we can build the demotion order now.
-+	 * Let us hold the cpu_hotplug lock just, as we could possibily have
-+	 * CPU hotplug events during boot.
- 	 */
--	WARN_ON(ret < 0);
--	ret = cpuhp_setup_state(CPUHP_AP_MM_DEMOTION_ONLINE, "mm/demotion:online",
--				migration_online_cpu, NULL);
--	WARN_ON(ret < 0);
--
--	hotplug_memory_notifier(migrate_on_reclaim_callback, 100);
--	return 0;
-+	cpus_read_lock();
-+	set_migration_target_nodes();
-+	cpus_read_unlock();
- }
--late_initcall(migrate_on_reclaim_init);
- #endif /* CONFIG_HOTPLUG_CPU */
- 
- bool numa_demotion_enabled = false;
-diff --git a/mm/vmstat.c b/mm/vmstat.c
-index d5cc8d739fac..b75b1a64b54c 100644
---- a/mm/vmstat.c
-+++ b/mm/vmstat.c
-@@ -28,6 +28,7 @@
- #include <linux/mm_inline.h>
- #include <linux/page_ext.h>
- #include <linux/page_owner.h>
-+#include <linux/migrate.h>
- 
- #include "internal.h"
- 
-@@ -2049,7 +2050,12 @@ static void __init init_cpu_node_state(void)
- static int vmstat_cpu_online(unsigned int cpu)
- {
- 	refresh_zone_stat_thresholds();
--	node_set_state(cpu_to_node(cpu), N_CPU);
++				/*
++				 * Synchronize with gup_pte_range():
++				 * - clear PTE; barrier; read refcount
++				 * - inc refcount; barrier; read PTE
++				 */
++				smp_mb();
 +
-+	if (!node_state(cpu_to_node(cpu), N_CPU)) {
-+		node_set_state(cpu_to_node(cpu), N_CPU);
-+		set_migration_target_nodes();
-+	}
++				ref_count = folio_ref_count(folio);
++				map_count = folio_mapcount(folio);
 +
- 	return 0;
- }
- 
-@@ -2072,6 +2078,8 @@ static int vmstat_cpu_dead(unsigned int cpu)
- 		return 0;
- 
- 	node_clear_state(node, N_CPU);
-+	set_migration_target_nodes();
++				/*
++				 * Order reads for page refcount and dirty flag
++				 * (see comments in __remove_mapping()).
++				 */
++				smp_rmb();
 +
- 	return 0;
- }
- 
-@@ -2103,6 +2111,9 @@ void __init init_mm_internals(void)
- 
- 	start_shepherd_timer();
- #endif
-+#if defined(CONFIG_MIGRATION) && defined(CONFIG_HOTPLUG_CPU)
-+	migrate_on_reclaim_init();
-+#endif
- #ifdef CONFIG_PROC_FS
- 	proc_create_seq("buddyinfo", 0444, NULL, &fragmentation_op);
- 	proc_create_seq("pagetypeinfo", 0400, NULL, &pagetypeinfo_op);
++				/*
++				 * The only page refs must be one from isolation
++				 * plus the rmap(s) (dropped by discard:).
++				 */
++				if (ref_count == 1 + map_count &&
++				    !folio_test_dirty(folio)) {
+ 					/* Invalidate as we cleared the pte */
+ 					mmu_notifier_invalidate_range(mm,
+ 						address, address + PAGE_SIZE);
 
