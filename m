@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F0E524F018F
-	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 14:43:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D6A5F4F0194
+	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 14:45:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243446AbiDBMpI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 2 Apr 2022 08:45:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57716 "EHLO
+        id S1354222AbiDBMqC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 2 Apr 2022 08:46:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32816 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233007AbiDBMpI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 08:45:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8459B3BF97
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 05:43:16 -0700 (PDT)
+        with ESMTP id S1353001AbiDBMqB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 08:46:01 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4794D63A7
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 05:44:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 42B00B80159
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 12:43:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B980C340EC;
-        Sat,  2 Apr 2022 12:43:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D7DE361469
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 12:44:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECC19C340EC;
+        Sat,  2 Apr 2022 12:44:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648903393;
-        bh=r6it4cXFBMtbx2c8Gj5lrttcZZAdtEBetC7rYfIAjSg=;
+        s=korg; t=1648903449;
+        bh=k5ZCqRcWMPf6ba0lRyO3cOElD6DXsoWIYsKBA/46RhA=;
         h=Subject:To:Cc:From:Date:From;
-        b=pZcjxt+czmSjUZfUfWcBORNkAJirHC3RnHjrfrIfQq2xpTCoOWY3DW8oCT0oRVZjb
-         iZ+zssDY0/1uQvwPzfrKipHG61h2eA2MMavGjKKJ7LNwfkKZxk/5hDWJsreKCSoOL7
-         b2/MgFGBAR44nYogtdtDfV3dgParAAmildARkVaM=
-Subject: FAILED: patch "[PATCH] exec: Force single empty string when argv is empty" failed to apply to 5.4-stable tree
-To:     keescook@chromium.org, ariadne@dereferenced.org,
-        brauner@kernel.org, dalias@libc.org, ebiederm@xmission.com,
-        luto@kernel.org, mtk.manpages@gmail.com, viro@zeniv.linux.org.uk,
-        willy@infradead.org
+        b=E9IW/y/BcpYz4K97WTAWbnNa/FDdrD9PnImjLBxZ4kENcGRLjaXKqKNF7elKeqtg0
+         LZRq+MIHiIJg1VCdxRlI0Tbt2G9cQxGAUFJKC90ahkEj0kfmbM0Pg7z9U4QoaDHGGl
+         mgIoVyxzAhjMJ61EwReR2Ui4/bcQRZ17f0f3dVuk=
+Subject: FAILED: patch "[PATCH] crypto: rsa-pkcs1pad - restore signature length check" failed to apply to 4.14-stable tree
+To:     ebiggers@google.com, herbert@gondor.apana.org.au,
+        stable@vger.kernel.org, tadeusz.struk@linaro.org, vt@altlinux.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 02 Apr 2022 14:43:05 +0200
-Message-ID: <164890338512664@kroah.com>
+Date:   Sat, 02 Apr 2022 14:43:58 +0200
+Message-ID: <164890343866191@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -51,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -62,127 +60,44 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From dcd46d897adb70d63e025f175a00a89797d31a43 Mon Sep 17 00:00:00 2001
-From: Kees Cook <keescook@chromium.org>
-Date: Mon, 31 Jan 2022 16:09:47 -0800
-Subject: [PATCH] exec: Force single empty string when argv is empty
+From d3481accd974541e6a5d6a1fb588924a3519c36e Mon Sep 17 00:00:00 2001
+From: Eric Biggers <ebiggers@google.com>
+Date: Tue, 18 Jan 2022 16:13:04 -0800
+Subject: [PATCH] crypto: rsa-pkcs1pad - restore signature length check
 
-Quoting[1] Ariadne Conill:
+RSA PKCS#1 v1.5 signatures are required to be the same length as the RSA
+key size.  RFC8017 specifically requires the verifier to check this
+(https://datatracker.ietf.org/doc/html/rfc8017#section-8.2.2).
 
-"In several other operating systems, it is a hard requirement that the
-second argument to execve(2) be the name of a program, thus prohibiting
-a scenario where argc < 1. POSIX 2017 also recommends this behaviour,
-but it is not an explicit requirement[2]:
+Commit a49de377e051 ("crypto: Add hash param to pkcs1pad") changed the
+kernel to allow longer signatures, but didn't explain this part of the
+change; it seems to be unrelated to the rest of the commit.
 
-    The argument arg0 should point to a filename string that is
-    associated with the process being started by one of the exec
-    functions.
-...
-Interestingly, Michael Kerrisk opened an issue about this in 2008[3],
-but there was no consensus to support fixing this issue then.
-Hopefully now that CVE-2021-4034 shows practical exploitative use[4]
-of this bug in a shellcode, we can reconsider.
+Revert this change, since it doesn't appear to be correct.
 
-This issue is being tracked in the KSPP issue tracker[5]."
+We can be pretty sure that no one is relying on overly-long signatures
+(which would have to be front-padded with zeroes) being supported, given
+that they would have been broken since commit c7381b012872
+("crypto: akcipher - new verify API for public key algorithms").
 
-While the initial code searches[6][7] turned up what appeared to be
-mostly corner case tests, trying to that just reject argv == NULL
-(or an immediately terminated pointer list) quickly started tripping[8]
-existing userspace programs.
+Fixes: a49de377e051 ("crypto: Add hash param to pkcs1pad")
+Cc: <stable@vger.kernel.org> # v4.6+
+Cc: Tadeusz Struk <tadeusz.struk@linaro.org>
+Suggested-by: Vitaly Chikunov <vt@altlinux.org>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 
-The next best approach is forcing a single empty string into argv and
-adjusting argc to match. The number of programs depending on argc == 0
-seems a smaller set than those calling execve with a NULL argv.
-
-Account for the additional stack space in bprm_stack_limits(). Inject an
-empty string when argc == 0 (and set argc = 1). Warn about the case so
-userspace has some notice about the change:
-
-    process './argc0' launched './argc0' with NULL argv: empty string added
-
-Additionally WARN() and reject NULL argv usage for kernel threads.
-
-[1] https://lore.kernel.org/lkml/20220127000724.15106-1-ariadne@dereferenced.org/
-[2] https://pubs.opengroup.org/onlinepubs/9699919799/functions/exec.html
-[3] https://bugzilla.kernel.org/show_bug.cgi?id=8408
-[4] https://www.qualys.com/2022/01/25/cve-2021-4034/pwnkit.txt
-[5] https://github.com/KSPP/linux/issues/176
-[6] https://codesearch.debian.net/search?q=execve%5C+*%5C%28%5B%5E%2C%5D%2B%2C+*NULL&literal=0
-[7] https://codesearch.debian.net/search?q=execlp%3F%5Cs*%5C%28%5B%5E%2C%5D%2B%2C%5Cs*NULL&literal=0
-[8] https://lore.kernel.org/lkml/20220131144352.GE16385@xsang-OptiPlex-9020/
-
-Reported-by: Ariadne Conill <ariadne@dereferenced.org>
-Reported-by: Michael Kerrisk <mtk.manpages@gmail.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Christian Brauner <brauner@kernel.org>
-Cc: Rich Felker <dalias@libc.org>
-Cc: Eric Biederman <ebiederm@xmission.com>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: linux-fsdevel@vger.kernel.org
-Cc: stable@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Acked-by: Christian Brauner <brauner@kernel.org>
-Acked-by: Ariadne Conill <ariadne@dereferenced.org>
-Acked-by: Andy Lutomirski <luto@kernel.org>
-Link: https://lore.kernel.org/r/20220201000947.2453721-1-keescook@chromium.org
-
-diff --git a/fs/exec.c b/fs/exec.c
-index 79f2c9483302..40b1008fb0f7 100644
---- a/fs/exec.c
-+++ b/fs/exec.c
-@@ -495,8 +495,14 @@ static int bprm_stack_limits(struct linux_binprm *bprm)
- 	 * the stack. They aren't stored until much later when we can't
- 	 * signal to the parent that the child has run out of stack space.
- 	 * Instead, calculate it here so it's possible to fail gracefully.
-+	 *
-+	 * In the case of argc = 0, make sure there is space for adding a
-+	 * empty string (which will bump argc to 1), to ensure confused
-+	 * userspace programs don't start processing from argv[1], thinking
-+	 * argc can never be 0, to keep them from walking envp by accident.
-+	 * See do_execveat_common().
- 	 */
--	ptr_size = (bprm->argc + bprm->envc) * sizeof(void *);
-+	ptr_size = (max(bprm->argc, 1) + bprm->envc) * sizeof(void *);
- 	if (limit <= ptr_size)
- 		return -E2BIG;
- 	limit -= ptr_size;
-@@ -1897,6 +1903,9 @@ static int do_execveat_common(int fd, struct filename *filename,
- 	}
+diff --git a/crypto/rsa-pkcs1pad.c b/crypto/rsa-pkcs1pad.c
+index 7b223adebabf..6b556ddeb3a0 100644
+--- a/crypto/rsa-pkcs1pad.c
++++ b/crypto/rsa-pkcs1pad.c
+@@ -538,7 +538,7 @@ static int pkcs1pad_verify(struct akcipher_request *req)
  
- 	retval = count(argv, MAX_ARG_STRINGS);
-+	if (retval == 0)
-+		pr_warn_once("process '%s' launched '%s' with NULL argv: empty string added\n",
-+			     current->comm, bprm->filename);
- 	if (retval < 0)
- 		goto out_free;
- 	bprm->argc = retval;
-@@ -1923,6 +1932,19 @@ static int do_execveat_common(int fd, struct filename *filename,
- 	if (retval < 0)
- 		goto out_free;
+ 	if (WARN_ON(req->dst) ||
+ 	    WARN_ON(!req->dst_len) ||
+-	    !ctx->key_size || req->src_len < ctx->key_size)
++	    !ctx->key_size || req->src_len != ctx->key_size)
+ 		return -EINVAL;
  
-+	/*
-+	 * When argv is empty, add an empty string ("") as argv[0] to
-+	 * ensure confused userspace programs that start processing
-+	 * from argv[1] won't end up walking envp. See also
-+	 * bprm_stack_limits().
-+	 */
-+	if (bprm->argc == 0) {
-+		retval = copy_string_kernel("", bprm);
-+		if (retval < 0)
-+			goto out_free;
-+		bprm->argc = 1;
-+	}
-+
- 	retval = bprm_execve(bprm, fd, filename, flags);
- out_free:
- 	free_bprm(bprm);
-@@ -1951,6 +1973,8 @@ int kernel_execve(const char *kernel_filename,
- 	}
- 
- 	retval = count_strings_kernel(argv);
-+	if (WARN_ON_ONCE(retval == 0))
-+		retval = -EINVAL;
- 	if (retval < 0)
- 		goto out_free;
- 	bprm->argc = retval;
+ 	req_ctx->out_buf = kmalloc(ctx->key_size + req->dst_len, GFP_KERNEL);
 
