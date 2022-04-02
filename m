@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CC1334F03FB
-	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 16:32:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 561F24F03FC
+	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 16:32:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356488AbiDBOeA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1356489AbiDBOeA (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sat, 2 Apr 2022 10:34:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40446 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40688 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356524AbiDBOdD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 10:33:03 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E47854BFC8
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 07:31:11 -0700 (PDT)
+        with ESMTP id S1356541AbiDBOdI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 10:33:08 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AA0B4BFC8
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 07:31:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9EF97B80945
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 14:31:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19996C340EC;
-        Sat,  2 Apr 2022 14:31:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6D884B8095A
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 14:31:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6D5AC340EC;
+        Sat,  2 Apr 2022 14:31:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648909869;
+        s=korg; t=1648909872;
         bh=0TnW/XpANW1fjknIImVhy+ZhUfmE7Xnhfo1z/KbzgV4=;
         h=Subject:To:Cc:From:Date:From;
-        b=FL589bn5afcsHYbwiVoH5/2q9Yg803a1upQfkJoCIBJSlTkxv4jamOY1/YXnSw8tX
-         ny92MhCZZo3A9pUBS8We34WUMdJLIyJV7bX/JAR8LDRnHgbUo1Fm+u5dnLLtlez4Ht
-         8RmJAZn0uanTm17xOx8d23yBR468deZI9FdlOZnY=
+        b=tJHlPZyTuzsHpMCLS/Mq1dFO2JUOeLTqbnyEcYPhXOItCoK9YZrTJc+dx7zY05Bif
+         bzjeigSktNwY+2IEG0Vett1LVtI324QfP+5K3TUkU19xfz/CzH32BEiZbyexvlFo87
+         fq9Pq1P9t2dxDIpu9NT5rywDC7Kuu4C6jZnQpBXM=
 Subject: FAILED: patch "[PATCH] scsi: qla2xxx: Increase max limit of ql2xnvme_queues" failed to apply to 5.17-stable tree
 To:     sdeodhar@marvell.com, himanshu.madhani@oracle.com,
         martin.petersen@oracle.com, njavali@marvell.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 02 Apr 2022 16:30:13 +0200
-Message-ID: <16489098133981@kroah.com>
+Date:   Sat, 02 Apr 2022 16:30:17 +0200
+Message-ID: <1648909817226192@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
