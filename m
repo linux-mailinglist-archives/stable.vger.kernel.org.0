@@ -2,158 +2,178 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ABADD4EFFFE
-	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 11:11:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E23474F0011
+	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 11:21:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347720AbiDBJLj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 2 Apr 2022 05:11:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58038 "EHLO
+        id S230348AbiDBJXY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 2 Apr 2022 05:23:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38736 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354020AbiDBJLe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 05:11:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD0562459C
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 02:09:42 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 064C96117E
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 09:09:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 188D8C340F2;
-        Sat,  2 Apr 2022 09:09:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648890581;
-        bh=wYpLbs/refYb3FkqZW9SRJtX8rp629wgMC5UUHl/ItY=;
-        h=Subject:To:Cc:From:Date:From;
-        b=dMoQl3y/eiyD7n5QsjJQ8t43svKQNypjwBd+ZX6NqiDTAI1f21/Ztklj4fn2NAsvn
-         VNY6r6jwHwE6p/G5N4Ef2IOAPoHjIqz2hZn9XoOriBniP43LlUsJwo25sDwac9ALJ7
-         ZIFfBsEDNvWou3DjrtznF0ewzz/bcJGcWs+jJnbc=
-Subject: FAILED: patch "[PATCH] io_uring: ensure recv and recvmsg handle MSG_WAITALL" failed to apply to 5.15-stable tree
-To:     axboe@kernel.dk, constantine.gavrilov@gmail.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 02 Apr 2022 11:09:31 +0200
-Message-ID: <164889057194113@kroah.com>
+        with ESMTP id S1354174AbiDBJXO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 05:23:14 -0400
+X-Greylist: delayed 363 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sat, 02 Apr 2022 02:21:22 PDT
+Received: from mo4-p00-ob.smtp.rzone.de (mo4-p00-ob.smtp.rzone.de [81.169.146.216])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BC1D1BB7A6
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 02:21:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1648890782;
+    s=strato-dkim-0002; d=hartkopp.net;
+    h=Message-Id:Date:Subject:Cc:To:From:Cc:Date:From:Subject:Sender;
+    bh=LKfAu0VSjmAUskfrWtHsKCMHOSxEBzyjsPM4e8r4/zQ=;
+    b=hA6boHnMCsnUr4v+k2rCyzi8Swfo/atNfOiTZuU9ZmM5DElaTRSLe2KA8aZ/UB5iPs
+    kB4Rp7FHbbakImz/dM1610jIpGP70EeB9TxopJct+mgLX/XiGdHQ9okldiq4xhG569uq
+    aAbiQPhjQtb9LsO8+8fQKE98eKunczcGK+tz3mwzQpNqltjikJ4y0R4owVZZSSYbu5Sx
+    Rxq1RafAmbty9/wgsqLEVDQunt/1SI2w1QT4DgTwvlth0I1rRNVI2sbwj/9DsHouGhhl
+    2/wNueBuOnyvkO8KKNV6fxkwYrhcspOwn4c/pe5VnBrrrJw+ckDVkGzwzBX4q34WjjSD
+    sTZg==
+Authentication-Results: strato.com;
+    dkim=none
+X-RZG-AUTH: ":P2MHfkW8eP4Mre39l357AZT/I7AY/7nT2yrDxb8mjGrp7owjzFK3JbFk1mS/xvEBL7X5sbo3UIh9IyLecSWJafUvprl4"
+X-RZG-CLASS-ID: mo00
+Received: from silver.lan
+    by smtp.strato.de (RZmta 47.42.2 AUTH)
+    with ESMTPSA id 4544c9y329D2EHw
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256 bits))
+        (Client did not present a certificate);
+    Sat, 2 Apr 2022 11:13:02 +0200 (CEST)
+From:   Oliver Hartkopp <socketcan@hartkopp.net>
+To:     stable@vger.kernel.org, sashal@kernel.org,
+        gregkh@linuxfoundation.org
+Cc:     Oliver Hartkopp <socketcan@hartkopp.net>,
+        syzbot+2339c27f5c66c652843e@syzkaller.appspotmail.com,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH stable v5.10-v5.17] can: isotp: sanitize CAN ID checks in isotp_bind()
+Date:   Sat,  2 Apr 2022 11:12:39 +0200
+Message-Id: <20220402091239.3039-1-socketcan@hartkopp.net>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_PASS,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Oliver Hartkopp <socketcan@hartkopp.net>
 
-The patch below does not apply to the 5.15-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+commit 3ea566422cbde9610c2734980d1286ab681bb40e upstream.
 
-thanks,
+Syzbot created an environment that lead to a state machine status that
+can not be reached with a compliant CAN ID address configuration.
+The provided address information consisted of CAN ID 0x6000001 and 0xC28001
+which both boil down to 11 bit CAN IDs 0x001 in sending and receiving.
 
-greg k-h
+Sanitize the SFF/EFF CAN ID values before performing the address checks.
 
------------------- original commit in Linus's tree ------------------
+Cc: stable@vger.kernel.org # v5.10 - v5.17
+Fixes: e057dd3fc20f ("can: add ISO 15765-2:2016 transport protocol")
+Link: https://lore.kernel.org/all/20220316164258.54155-1-socketcan@hartkopp.net
+Reported-by: syzbot+2339c27f5c66c652843e@syzkaller.appspotmail.com
+Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+---
+ net/can/isotp.c | 38 ++++++++++++++++++++------------------
+ 1 file changed, 20 insertions(+), 18 deletions(-)
 
-From 7ba89d2af17aa879dda30f5d5d3f152e587fc551 Mon Sep 17 00:00:00 2001
-From: Jens Axboe <axboe@kernel.dk>
-Date: Wed, 23 Mar 2022 09:32:35 -0600
-Subject: [PATCH] io_uring: ensure recv and recvmsg handle MSG_WAITALL
- correctly
-
-We currently don't attempt to get the full asked for length even if
-MSG_WAITALL is set, if we get a partial receive. If we do see a partial
-receive, then just note how many bytes we did and return -EAGAIN to
-get it retried.
-
-The iov is advanced appropriately for the vector based case, and we
-manually bump the buffer and remainder for the non-vector case.
-
-Cc: stable@vger.kernel.org
-Reported-by: Constantine Gavrilov <constantine.gavrilov@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index f41d91ce1fd0..a70de170aea1 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -612,6 +612,7 @@ struct io_sr_msg {
- 	int				msg_flags;
- 	int				bgid;
- 	size_t				len;
-+	size_t				done_io;
- };
+diff --git a/net/can/isotp.c b/net/can/isotp.c
+index d2a430b6a13b..f8e3aeb79e3f 100644
+--- a/net/can/isotp.c
++++ b/net/can/isotp.c
+@@ -1102,19 +1102,30 @@ static int isotp_bind(struct socket *sock, struct sockaddr *uaddr, int len)
+ 	struct sock *sk = sock->sk;
+ 	struct isotp_sock *so = isotp_sk(sk);
+ 	struct net *net = sock_net(sk);
+ 	int ifindex;
+ 	struct net_device *dev;
++	canid_t tx_id, rx_id;
+ 	int err = 0;
+ 	int notify_enetdown = 0;
+ 	int do_rx_reg = 1;
  
- struct io_open {
-@@ -5417,12 +5418,21 @@ static int io_recvmsg_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
- 	if (req->ctx->compat)
- 		sr->msg_flags |= MSG_CMSG_COMPAT;
- #endif
-+	sr->done_io = 0;
- 	return 0;
- }
+ 	if (len < ISOTP_MIN_NAMELEN)
+ 		return -EINVAL;
  
-+static bool io_net_retry(struct socket *sock, int flags)
-+{
-+	if (!(flags & MSG_WAITALL))
-+		return false;
-+	return sock->type == SOCK_STREAM || sock->type == SOCK_SEQPACKET;
-+}
+-	if (addr->can_addr.tp.tx_id & (CAN_ERR_FLAG | CAN_RTR_FLAG))
+-		return -EADDRNOTAVAIL;
++	/* sanitize tx/rx CAN identifiers */
++	tx_id = addr->can_addr.tp.tx_id;
++	if (tx_id & CAN_EFF_FLAG)
++		tx_id &= (CAN_EFF_FLAG | CAN_EFF_MASK);
++	else
++		tx_id &= CAN_SFF_MASK;
 +
- static int io_recvmsg(struct io_kiocb *req, unsigned int issue_flags)
- {
- 	struct io_async_msghdr iomsg, *kmsg;
-+	struct io_sr_msg *sr = &req->sr_msg;
- 	struct socket *sock;
- 	struct io_buffer *kbuf;
- 	unsigned flags;
-@@ -5465,6 +5475,10 @@ static int io_recvmsg(struct io_kiocb *req, unsigned int issue_flags)
- 			return io_setup_async_msg(req, kmsg);
- 		if (ret == -ERESTARTSYS)
- 			ret = -EINTR;
-+		if (ret > 0 && io_net_retry(sock, flags)) {
-+			sr->done_io += ret;
-+			return io_setup_async_msg(req, kmsg);
-+		}
- 		req_set_fail(req);
- 	} else if ((flags & MSG_WAITALL) && (kmsg->msg.msg_flags & (MSG_TRUNC | MSG_CTRUNC))) {
- 		req_set_fail(req);
-@@ -5474,6 +5488,10 @@ static int io_recvmsg(struct io_kiocb *req, unsigned int issue_flags)
- 	if (kmsg->free_iov)
- 		kfree(kmsg->free_iov);
- 	req->flags &= ~REQ_F_NEED_CLEANUP;
-+	if (ret >= 0)
-+		ret += sr->done_io;
-+	else if (sr->done_io)
-+		ret = sr->done_io;
- 	__io_req_complete(req, issue_flags, ret, io_put_kbuf(req, issue_flags));
- 	return 0;
- }
-@@ -5524,12 +5542,22 @@ static int io_recv(struct io_kiocb *req, unsigned int issue_flags)
- 			return -EAGAIN;
- 		if (ret == -ERESTARTSYS)
- 			ret = -EINTR;
-+		if (ret > 0 && io_net_retry(sock, flags)) {
-+			sr->len -= ret;
-+			sr->buf += ret;
-+			sr->done_io += ret;
-+			return -EAGAIN;
-+		}
- 		req_set_fail(req);
- 	} else if ((flags & MSG_WAITALL) && (msg.msg_flags & (MSG_TRUNC | MSG_CTRUNC))) {
- out_free:
- 		req_set_fail(req);
++	rx_id = addr->can_addr.tp.rx_id;
++	if (rx_id & CAN_EFF_FLAG)
++		rx_id &= (CAN_EFF_FLAG | CAN_EFF_MASK);
++	else
++		rx_id &= CAN_SFF_MASK;
+ 
+ 	if (!addr->can_ifindex)
+ 		return -ENODEV;
+ 
+ 	lock_sock(sk);
+@@ -1122,25 +1133,17 @@ static int isotp_bind(struct socket *sock, struct sockaddr *uaddr, int len)
+ 	/* do not register frame reception for functional addressing */
+ 	if (so->opt.flags & CAN_ISOTP_SF_BROADCAST)
+ 		do_rx_reg = 0;
+ 
+ 	/* do not validate rx address for functional addressing */
+-	if (do_rx_reg) {
+-		if (addr->can_addr.tp.rx_id == addr->can_addr.tp.tx_id) {
+-			err = -EADDRNOTAVAIL;
+-			goto out;
+-		}
+-
+-		if (addr->can_addr.tp.rx_id & (CAN_ERR_FLAG | CAN_RTR_FLAG)) {
+-			err = -EADDRNOTAVAIL;
+-			goto out;
+-		}
++	if (do_rx_reg && rx_id == tx_id) {
++		err = -EADDRNOTAVAIL;
++		goto out;
  	}
  
-+	if (ret >= 0)
-+		ret += sr->done_io;
-+	else if (sr->done_io)
-+		ret = sr->done_io;
- 	__io_req_complete(req, issue_flags, ret, io_put_kbuf(req, issue_flags));
- 	return 0;
- }
+ 	if (so->bound && addr->can_ifindex == so->ifindex &&
+-	    addr->can_addr.tp.rx_id == so->rxid &&
+-	    addr->can_addr.tp.tx_id == so->txid)
++	    rx_id == so->rxid && tx_id == so->txid)
+ 		goto out;
+ 
+ 	dev = dev_get_by_index(net, addr->can_ifindex);
+ 	if (!dev) {
+ 		err = -ENODEV;
+@@ -1160,12 +1163,11 @@ static int isotp_bind(struct socket *sock, struct sockaddr *uaddr, int len)
+ 		notify_enetdown = 1;
+ 
+ 	ifindex = dev->ifindex;
+ 
+ 	if (do_rx_reg)
+-		can_rx_register(net, dev, addr->can_addr.tp.rx_id,
+-				SINGLE_MASK(addr->can_addr.tp.rx_id),
++		can_rx_register(net, dev, rx_id, SINGLE_MASK(rx_id),
+ 				isotp_rcv, sk, "isotp", sk);
+ 
+ 	dev_put(dev);
+ 
+ 	if (so->bound && do_rx_reg) {
+@@ -1181,12 +1183,12 @@ static int isotp_bind(struct socket *sock, struct sockaddr *uaddr, int len)
+ 		}
+ 	}
+ 
+ 	/* switch to new settings */
+ 	so->ifindex = ifindex;
+-	so->rxid = addr->can_addr.tp.rx_id;
+-	so->txid = addr->can_addr.tp.tx_id;
++	so->rxid = rx_id;
++	so->txid = tx_id;
+ 	so->bound = 1;
+ 
+ out:
+ 	release_sock(sk);
+ 
+-- 
+2.30.2
 
