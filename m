@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0109F4F0199
-	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 14:45:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E05B4F0195
+	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 14:45:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354733AbiDBMqG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 2 Apr 2022 08:46:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33030 "EHLO
+        id S1353001AbiDBMqK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 2 Apr 2022 08:46:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33422 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353001AbiDBMqE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 08:46:04 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 030BB767C
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 05:44:13 -0700 (PDT)
+        with ESMTP id S1354730AbiDBMqJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 08:46:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05379B843
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 05:44:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9373061476
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 12:44:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3900C340EC;
-        Sat,  2 Apr 2022 12:44:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 90ED361476
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 12:44:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F3E3C340EE;
+        Sat,  2 Apr 2022 12:44:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648903452;
-        bh=2uColnBVd9V3mSUT3u3EV2553LpFJ8lPPHW2xQhKL0w=;
+        s=korg; t=1648903457;
+        bh=qYe2Rc0dXQ0K5QYKBUFvru55uTELgKiZ3aDl9qcdA1U=;
         h=Subject:To:Cc:From:Date:From;
-        b=VpnZpC6FnJ+TaRMR42KGgOYqnfOg+Q7H/6MeKi2UCDB02mNwM8br0UEKAjLAl72P8
-         PEfUPODL0kAVBWAlGJtavjw8EY0+9dlYPSEYG9oSHHYVhCRBXtpeGYeoXjsXSzp0Hs
-         48emhFJE9cBZiwsCdfmYha+sYRRqT19FRwFZXnyY=
-Subject: FAILED: patch "[PATCH] crypto: rsa-pkcs1pad - restore signature length check" failed to apply to 4.9-stable tree
+        b=ZfolIb19jmicDzBvihCxQdQ3w6eYe040RgB8wDxs1Kg8+Gprq3H4eU76LZmu2DSEl
+         qYZxc3HGpOrwxsZWAEJRTwWbEuG2KagI7fOztcujmyGBF5jFiMfq0J3GDkNNk5no4I
+         3wVC9OstizCzWHic5CN2M/+1L7RIP1s6bICj3zH4=
+Subject: FAILED: patch "[PATCH] crypto: rsa-pkcs1pad - fix buffer overread in" failed to apply to 4.19-stable tree
 To:     ebiggers@google.com, herbert@gondor.apana.org.au,
-        stable@vger.kernel.org, tadeusz.struk@linaro.org, vt@altlinux.org
+        stable@vger.kernel.org, tadeusz.struk@linaro.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 02 Apr 2022 14:43:59 +0200
-Message-ID: <164890343918185@kroah.com>
+Date:   Sat, 02 Apr 2022 14:44:14 +0200
+Message-ID: <1648903454171165@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,44 +60,32 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From d3481accd974541e6a5d6a1fb588924a3519c36e Mon Sep 17 00:00:00 2001
+From a24611ea356c7f3f0ec926da11b9482ac1f414fd Mon Sep 17 00:00:00 2001
 From: Eric Biggers <ebiggers@google.com>
-Date: Tue, 18 Jan 2022 16:13:04 -0800
-Subject: [PATCH] crypto: rsa-pkcs1pad - restore signature length check
+Date: Tue, 18 Jan 2022 16:13:05 -0800
+Subject: [PATCH] crypto: rsa-pkcs1pad - fix buffer overread in
+ pkcs1pad_verify_complete()
 
-RSA PKCS#1 v1.5 signatures are required to be the same length as the RSA
-key size.  RFC8017 specifically requires the verifier to check this
-(https://datatracker.ietf.org/doc/html/rfc8017#section-8.2.2).
-
-Commit a49de377e051 ("crypto: Add hash param to pkcs1pad") changed the
-kernel to allow longer signatures, but didn't explain this part of the
-change; it seems to be unrelated to the rest of the commit.
-
-Revert this change, since it doesn't appear to be correct.
-
-We can be pretty sure that no one is relying on overly-long signatures
-(which would have to be front-padded with zeroes) being supported, given
-that they would have been broken since commit c7381b012872
-("crypto: akcipher - new verify API for public key algorithms").
+Before checking whether the expected digest_info is present, we need to
+check that there are enough bytes remaining.
 
 Fixes: a49de377e051 ("crypto: Add hash param to pkcs1pad")
 Cc: <stable@vger.kernel.org> # v4.6+
 Cc: Tadeusz Struk <tadeusz.struk@linaro.org>
-Suggested-by: Vitaly Chikunov <vt@altlinux.org>
 Signed-off-by: Eric Biggers <ebiggers@google.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 
 diff --git a/crypto/rsa-pkcs1pad.c b/crypto/rsa-pkcs1pad.c
-index 7b223adebabf..6b556ddeb3a0 100644
+index 6b556ddeb3a0..9d804831c8b3 100644
 --- a/crypto/rsa-pkcs1pad.c
 +++ b/crypto/rsa-pkcs1pad.c
-@@ -538,7 +538,7 @@ static int pkcs1pad_verify(struct akcipher_request *req)
+@@ -476,6 +476,8 @@ static int pkcs1pad_verify_complete(struct akcipher_request *req, int err)
+ 	pos++;
  
- 	if (WARN_ON(req->dst) ||
- 	    WARN_ON(!req->dst_len) ||
--	    !ctx->key_size || req->src_len < ctx->key_size)
-+	    !ctx->key_size || req->src_len != ctx->key_size)
- 		return -EINVAL;
- 
- 	req_ctx->out_buf = kmalloc(ctx->key_size + req->dst_len, GFP_KERNEL);
+ 	if (digest_info) {
++		if (digest_info->size > dst_len - pos)
++			goto done;
+ 		if (crypto_memneq(out_buf + pos, digest_info->data,
+ 				  digest_info->size))
+ 			goto done;
 
