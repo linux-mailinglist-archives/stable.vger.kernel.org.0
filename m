@@ -2,133 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 561F24F03FC
-	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 16:32:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB3304F0434
+	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 16:44:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356489AbiDBOeA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 2 Apr 2022 10:34:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40688 "EHLO
+        id S1356786AbiDBOnk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 2 Apr 2022 10:43:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356541AbiDBOdI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 10:33:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AA0B4BFC8
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 07:31:14 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6D884B8095A
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 14:31:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6D5AC340EC;
-        Sat,  2 Apr 2022 14:31:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648909872;
-        bh=0TnW/XpANW1fjknIImVhy+ZhUfmE7Xnhfo1z/KbzgV4=;
-        h=Subject:To:Cc:From:Date:From;
-        b=tJHlPZyTuzsHpMCLS/Mq1dFO2JUOeLTqbnyEcYPhXOItCoK9YZrTJc+dx7zY05Bif
-         bzjeigSktNwY+2IEG0Vett1LVtI324QfP+5K3TUkU19xfz/CzH32BEiZbyexvlFo87
-         fq9Pq1P9t2dxDIpu9NT5rywDC7Kuu4C6jZnQpBXM=
-Subject: FAILED: patch "[PATCH] scsi: qla2xxx: Increase max limit of ql2xnvme_queues" failed to apply to 5.17-stable tree
-To:     sdeodhar@marvell.com, himanshu.madhani@oracle.com,
-        martin.petersen@oracle.com, njavali@marvell.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 02 Apr 2022 16:30:17 +0200
-Message-ID: <1648909817226192@kroah.com>
+        with ESMTP id S1356992AbiDBOni (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 10:43:38 -0400
+Received: from mail-ed1-x544.google.com (mail-ed1-x544.google.com [IPv6:2a00:1450:4864:20::544])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 573C5F3A4F
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 07:41:46 -0700 (PDT)
+Received: by mail-ed1-x544.google.com with SMTP id f18so1026807edc.5
+        for <stable@vger.kernel.org>; Sat, 02 Apr 2022 07:41:46 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=gQdIR6qGnrk8CJan1I1av2hjZb7D9+vs7C8oQYMZcrw=;
+        b=HEwVjhYbM4IXxo6kiiOHsXjvbycfK3KNGSwKwPj3Hb9JgEDB7QrIm1fas/0tlQTZqV
+         7vIglqgcld/ZqV7fauG45p/4oGiKKCkQ1fjZe0DzdqW89czE+r8jsxG5lo09pWoj+/6x
+         w9cnDGVBFvdVzyTRszmIY21tJ3Bo4whHfPMtKPE4oZUSta/m9he4djNnztMLqIDfgRE5
+         Hv7GdSjYA9WrxiSdFnZyNPchWqZQz4jo4KcQCRF+4KY1NTfte2tjasCGRAQd3KbIx2Ta
+         evEjS6kVoZ80mj8FMbS6NPbg0sd9sIuZEWRMq11yvPnnuUDXvc3xowVe3ay8kQ3iVTAU
+         zoVg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=gQdIR6qGnrk8CJan1I1av2hjZb7D9+vs7C8oQYMZcrw=;
+        b=NN822Mj4ewsD6eG2Kj7+if6K4V7W56Qyz0S2894CzFzbpIYXyMULPOSUt66Np8jwne
+         pXCQ5xcup+AAuVuBz/dvLECZ5zmPl3KVbg51j+xKsyJXYab8cGZsXii9VcZjwyl15863
+         g4D1FwGedpDemRKfpIXwFZMoywogQlSJADtUbOYElo2Q6Gy7m89lAGdSosthYtDpXw5a
+         wzLv37cXpDWN14QAr/1071CIFNXysbETnR2j3bLRN0tZFs2JaNXVIpk4eGOTIat6XuRP
+         oW+aHZu/KhNvMsFneVfmnNjSOEf2gmFlBQ1G0Fp05tdYMofyxOwYfUbSQg3rezdWChMW
+         ca4Q==
+X-Gm-Message-State: AOAM5332jlNqtgtQley3uZ0NYaZ2eLrbwm3hjDYJ+QFFgbMoXeOSUygo
+        0kOu5uf8dRCSzng2IPWKuLrhoz98U/iMTCOAGT8=
+X-Google-Smtp-Source: ABdhPJzDl4kWGls64znrDpepVsDgKF16yghbaJohKNHfFFrv+iJg3mvw6qg7BY4X1u1eipQ1g6ga4OLmt+HP1EUcNbY=
+X-Received: by 2002:a50:f68a:0:b0:418:e6e8:5ee2 with SMTP id
+ d10-20020a50f68a000000b00418e6e85ee2mr25152567edn.190.1648910504749; Sat, 02
+ Apr 2022 07:41:44 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Received: by 2002:a05:6408:10b5:b0:151:d72b:7202 with HTTP; Sat, 2 Apr 2022
+ 07:41:43 -0700 (PDT)
+Reply-To: susanraphel757@gmail.com
+From:   mrs susan raphel <mrssusanhelms757@gmail.com>
+Date:   Sat, 2 Apr 2022 07:41:43 -0700
+Message-ID: <CADFcXM4CyQxBzRcB3odVzk=-1PxC3AaL7_MoQb8LEyYpi4GhgA@mail.gmail.com>
+Subject: cry for help
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: Yes, score=6.0 required=5.0 tests=BAYES_50,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_HK_NAME_FM_MR_MRS,
+        T_SCC_BODY_TEXT_LINE,UNDISC_FREEM autolearn=no autolearn_force=no
+        version=3.4.6
+X-Spam-Report: *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
+        *      [score: 0.5004]
+        * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
+        *      https://www.dnswl.org/, no trust
+        *      [2a00:1450:4864:20:0:0:0:544 listed in]
+        [list.dnswl.org]
+        *  0.2 FREEMAIL_ENVFROM_END_DIGIT Envelope-from freemail username ends
+        *       in digit
+        *      [mrssusanhelms757[at]gmail.com]
+        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
+        *      provider
+        *      [mrssusanhelms757[at]gmail.com]
+        * -0.0 SPF_PASS SPF: sender matches SPF record
+        *  0.2 FREEMAIL_REPLYTO_END_DIGIT Reply-To freemail username ends in
+        *      digit
+        *      [susanraphel757[at]gmail.com]
+        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
+        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
+        *      envelope-from domain
+        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
+        *      author's domain
+        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
+        *       valid
+        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
+        *  0.0 T_HK_NAME_FM_MR_MRS No description available.
+        * -0.0 T_SCC_BODY_TEXT_LINE No description available.
+        *  3.9 UNDISC_FREEM Undisclosed recipients + freemail reply-to
+        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
+        *      different freemails
+X-Spam-Level: ******
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+-- 
+Dear Friend,
 
-The patch below does not apply to the 5.17-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+I warmly greet you.
 
-thanks,
+Please forgive me if my plea sounds a bit strange or embarrassing to
+you. I am 63 years old. am suffering from protracted cancer of the
+lungs which has also affected part of my brain cells due to
+complications,from all indication my condition is really deteriorating
+and it is quite obvious according to my doctors that i may not live
+for the next few months,because my condition has gotten to a critical
+and life threatening stage.
 
-greg k-h
+Regards to my situation as well as the doctors report i have decided
+to entrust my wealth and treasures to a trust worthy person. Get back
+to me if you can be trusted for more details.
 
------------------- original commit in Linus's tree ------------------
-
-From 3648bcf1c1374e9f42d241d83e2e50c0ef07a852 Mon Sep 17 00:00:00 2001
-From: Shreyas Deodhar <sdeodhar@marvell.com>
-Date: Thu, 10 Mar 2022 01:26:03 -0800
-Subject: [PATCH] scsi: qla2xxx: Increase max limit of ql2xnvme_queues
-
-Increase max limit of ql2xnvme_queues to (max_qpair - 1).
-
-Link: https://lore.kernel.org/r/20220310092604.22950-13-njavali@marvell.com
-Fixes: 65120de26a54 ("scsi: qla2xxx: Add ql2xnvme_queues module param to configure number of NVMe queues")
-Cc: stable@vger.kernel.org
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Shreyas Deodhar <sdeodhar@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-
-diff --git a/drivers/scsi/qla2xxx/qla_nvme.c b/drivers/scsi/qla2xxx/qla_nvme.c
-index 794a95b2e3b4..87c9404aa401 100644
---- a/drivers/scsi/qla2xxx/qla_nvme.c
-+++ b/drivers/scsi/qla2xxx/qla_nvme.c
-@@ -799,17 +799,22 @@ int qla_nvme_register_hba(struct scsi_qla_host *vha)
- 	ha = vha->hw;
- 	tmpl = &qla_nvme_fc_transport;
- 
--	if (ql2xnvme_queues < MIN_NVME_HW_QUEUES || ql2xnvme_queues > MAX_NVME_HW_QUEUES) {
-+	if (ql2xnvme_queues < MIN_NVME_HW_QUEUES) {
- 		ql_log(ql_log_warn, vha, 0xfffd,
--		    "ql2xnvme_queues=%d is out of range(MIN:%d - MAX:%d). Resetting ql2xnvme_queues to:%d\n",
--		    ql2xnvme_queues, MIN_NVME_HW_QUEUES, MAX_NVME_HW_QUEUES,
--		    DEF_NVME_HW_QUEUES);
-+		    "ql2xnvme_queues=%d is lower than minimum queues: %d. Resetting ql2xnvme_queues to:%d\n",
-+		    ql2xnvme_queues, MIN_NVME_HW_QUEUES, DEF_NVME_HW_QUEUES);
- 		ql2xnvme_queues = DEF_NVME_HW_QUEUES;
-+	} else if (ql2xnvme_queues > (ha->max_qpairs - 1)) {
-+		ql_log(ql_log_warn, vha, 0xfffd,
-+		       "ql2xnvme_queues=%d is greater than available IRQs: %d. Resetting ql2xnvme_queues to: %d\n",
-+		       ql2xnvme_queues, (ha->max_qpairs - 1),
-+		       (ha->max_qpairs - 1));
-+		ql2xnvme_queues = ((ha->max_qpairs - 1));
- 	}
- 
- 	qla_nvme_fc_transport.max_hw_queues =
- 	    min((uint8_t)(ql2xnvme_queues),
--		(uint8_t)(ha->max_qpairs ? ha->max_qpairs : 1));
-+		(uint8_t)((ha->max_qpairs - 1) ? (ha->max_qpairs - 1) : 1));
- 
- 	ql_log(ql_log_info, vha, 0xfffb,
- 	       "Number of NVME queues used for this port: %d\n",
-diff --git a/drivers/scsi/qla2xxx/qla_nvme.h b/drivers/scsi/qla2xxx/qla_nvme.h
-index d0e3c0e07baa..d299478371b2 100644
---- a/drivers/scsi/qla2xxx/qla_nvme.h
-+++ b/drivers/scsi/qla2xxx/qla_nvme.h
-@@ -14,7 +14,6 @@
- #include "qla_dsd.h"
- 
- #define MIN_NVME_HW_QUEUES 1
--#define MAX_NVME_HW_QUEUES 128
- #define DEF_NVME_HW_QUEUES 8
- 
- #define NVME_ATIO_CMD_OFF 32
-diff --git a/drivers/scsi/qla2xxx/qla_os.c b/drivers/scsi/qla2xxx/qla_os.c
-index 81451c11eef4..762229d495a8 100644
---- a/drivers/scsi/qla2xxx/qla_os.c
-+++ b/drivers/scsi/qla2xxx/qla_os.c
-@@ -344,7 +344,6 @@ MODULE_PARM_DESC(ql2xnvme_queues,
- 	"Number of NVMe Queues that can be configured.\n"
- 	"Final value will be min(ql2xnvme_queues, num_cpus,num_chip_queues)\n"
- 	"1 - Minimum number of queues supported\n"
--	"128 - Maximum number of queues supported\n"
- 	"8 - Default value");
- 
- static struct scsi_transport_template *qla2xxx_transport_template = NULL;
-
+Sincerely Your's
+Mrs. Susan Raphel
