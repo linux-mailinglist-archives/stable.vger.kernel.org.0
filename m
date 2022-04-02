@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9AA154F01A0
-	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 14:48:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D2334F01A3
+	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 14:48:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354756AbiDBMt5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 2 Apr 2022 08:49:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45640 "EHLO
+        id S1354763AbiDBMuZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 2 Apr 2022 08:50:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46502 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354751AbiDBMt4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 08:49:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87D213AA69
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 05:48:05 -0700 (PDT)
+        with ESMTP id S1354766AbiDBMuX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 08:50:23 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D10D38BC
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 05:48:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 253566147F
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 12:48:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30DF5C34110;
-        Sat,  2 Apr 2022 12:48:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 01146B80159
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 12:48:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DA0FC340EC;
+        Sat,  2 Apr 2022 12:48:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648903684;
-        bh=SXJJk155/UdWuM9JUic0fIlgk8FzW4l+5KhqgQf9g6g=;
+        s=korg; t=1648903708;
+        bh=T51/D+xloXVp2EYdegs0TEHo5UYe0C4gS4qR18zAKfc=;
         h=Subject:To:Cc:From:Date:From;
-        b=snRAQPKf7eG1czLLhY/MoeSGkyn34TLGU/cSquf/nt29G258mPGfUXAI4E4qa4MiM
-         i4D7T8EgJGiZOl9Tgj4ZhJQqCWNZMSfiJuz+33SPBKiD+6RpHyFPTokF4ywcKUGSlu
-         lm0yXaiPuKmpWMZS0Sqkzr+dt79kC8FghKbmKAg0=
-Subject: FAILED: patch "[PATCH] crypto: rsa-pkcs1pad - only allow with rsa" failed to apply to 4.19-stable tree
-To:     ebiggers@google.com, herbert@gondor.apana.org.au,
-        stable@vger.kernel.org
+        b=1b7rxVCbjVc3QTfwNN0oqSoxfiX8+ntfRfjne4PxVmnT/nbGVLGUqJpyfkaEaWno4
+         +Ttz2g/IOCqxCORbOmoP0K5RvvL/pVBmWQc5fmVTagPN5g1d1SBSDGkCeZZw5e0W/y
+         JnrzIT5znfSDcOlFBz0sBz6f2fR9En01zwwLO1M4=
+Subject: FAILED: patch "[PATCH] media: omap3isp: Use struct_group() for memcpy() region" failed to apply to 4.19-stable tree
+To:     keescook@chromium.org, arnd@arndb.de, gustavoars@kernel.org,
+        laurent.pinchart@ideasonboard.com, mchehab@kernel.org,
+        sakari.ailus@linux.intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 02 Apr 2022 14:48:02 +0200
-Message-ID: <16489036823350@kroah.com>
+Date:   Sat, 02 Apr 2022 14:48:26 +0200
+Message-ID: <1648903706252130@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,34 +61,127 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 9b30430ea356f237945e52f8a3a42158877bd5a9 Mon Sep 17 00:00:00 2001
-From: Eric Biggers <ebiggers@google.com>
-Date: Tue, 18 Jan 2022 16:13:02 -0800
-Subject: [PATCH] crypto: rsa-pkcs1pad - only allow with rsa
+From d4568fc8525897e683983806f813be1ae9eedaed Mon Sep 17 00:00:00 2001
+From: Kees Cook <keescook@chromium.org>
+Date: Mon, 24 Jan 2022 18:29:52 +0100
+Subject: [PATCH] media: omap3isp: Use struct_group() for memcpy() region
 
-The pkcs1pad template can be instantiated with an arbitrary akcipher
-algorithm, which doesn't make sense; it is specifically an RSA padding
-scheme.  Make it check that the underlying algorithm really is RSA.
+In preparation for FORTIFY_SOURCE performing compile-time and run-time
+field bounds checking for memcpy(), memmove(), and memset(), avoid
+intentionally writing across neighboring fields. Wrap the target region
+in struct_group(). This additionally fixes a theoretical misalignment
+of the copy (since the size of "buf" changes between 64-bit and 32-bit,
+but this is likely never built for 64-bit).
 
-Fixes: 3d5b1ecdea6f ("crypto: rsa - RSA padding algorithm")
-Cc: <stable@vger.kernel.org> # v4.5+
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+FWIW, I think this code is totally broken on 64-bit (which appears to
+not be a "real" build configuration): it would either always fail (with
+an uninitialized data->buf_size) or would cause corruption in userspace
+due to the copy_to_user() in the call path against an uninitialized
+data->buf value:
 
-diff --git a/crypto/rsa-pkcs1pad.c b/crypto/rsa-pkcs1pad.c
-index 8ac3e73e8ea6..1b3545781425 100644
---- a/crypto/rsa-pkcs1pad.c
-+++ b/crypto/rsa-pkcs1pad.c
-@@ -621,6 +621,11 @@ static int pkcs1pad_create(struct crypto_template *tmpl, struct rtattr **tb)
+omap3isp_stat_request_statistics_time32(...)
+    struct omap3isp_stat_data data64;
+    ...
+    omap3isp_stat_request_statistics(stat, &data64);
+
+int omap3isp_stat_request_statistics(struct ispstat *stat,
+                                     struct omap3isp_stat_data *data)
+    ...
+    buf = isp_stat_buf_get(stat, data);
+
+static struct ispstat_buffer *isp_stat_buf_get(struct ispstat *stat,
+                                               struct omap3isp_stat_data *data)
+...
+    if (buf->buf_size > data->buf_size) {
+            ...
+            return ERR_PTR(-EINVAL);
+    }
+    ...
+    rval = copy_to_user(data->buf,
+                        buf->virt_addr,
+                        buf->buf_size);
+
+Regardless, additionally initialize data64 to be zero-filled to avoid
+undefined behavior.
+
+Link: https://lore.kernel.org/lkml/20211215220505.GB21862@embeddedor
+
+Cc: Arnd Bergmann <arnd@arndb.de>
+Fixes: 378e3f81cb56 ("media: omap3isp: support 64-bit version of omap3isp_stat_data")
+Cc: stable@vger.kernel.org
+Reviewed-by: Gustavo A. R. Silva <gustavoars@kernel.org>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+
+diff --git a/drivers/media/platform/omap3isp/ispstat.c b/drivers/media/platform/omap3isp/ispstat.c
+index 5b9b57f4d9bf..68cf68dbcace 100644
+--- a/drivers/media/platform/omap3isp/ispstat.c
++++ b/drivers/media/platform/omap3isp/ispstat.c
+@@ -512,7 +512,7 @@ int omap3isp_stat_request_statistics(struct ispstat *stat,
+ int omap3isp_stat_request_statistics_time32(struct ispstat *stat,
+ 					struct omap3isp_stat_data_time32 *data)
+ {
+-	struct omap3isp_stat_data data64;
++	struct omap3isp_stat_data data64 = { };
+ 	int ret;
  
- 	rsa_alg = crypto_spawn_akcipher_alg(&ctx->spawn);
+ 	ret = omap3isp_stat_request_statistics(stat, &data64);
+@@ -521,7 +521,8 @@ int omap3isp_stat_request_statistics_time32(struct ispstat *stat,
  
-+	if (strcmp(rsa_alg->base.cra_name, "rsa") != 0) {
-+		err = -EINVAL;
-+		goto err_free_inst;
-+	}
-+
- 	err = -ENAMETOOLONG;
- 	hash_name = crypto_attr_alg_name(tb[2]);
- 	if (IS_ERR(hash_name)) {
+ 	data->ts.tv_sec = data64.ts.tv_sec;
+ 	data->ts.tv_usec = data64.ts.tv_usec;
+-	memcpy(&data->buf, &data64.buf, sizeof(*data) - sizeof(data->ts));
++	data->buf = (uintptr_t)data64.buf;
++	memcpy(&data->frame, &data64.frame, sizeof(data->frame));
+ 
+ 	return 0;
+ }
+diff --git a/include/uapi/linux/omap3isp.h b/include/uapi/linux/omap3isp.h
+index 87b55755f4ff..d9db7ad43890 100644
+--- a/include/uapi/linux/omap3isp.h
++++ b/include/uapi/linux/omap3isp.h
+@@ -162,6 +162,7 @@ struct omap3isp_h3a_aewb_config {
+  * struct omap3isp_stat_data - Statistic data sent to or received from user
+  * @ts: Timestamp of returned framestats.
+  * @buf: Pointer to pass to user.
++ * @buf_size: Size of buffer.
+  * @frame_number: Frame number of requested stats.
+  * @cur_frame: Current frame number being processed.
+  * @config_counter: Number of the configuration associated with the data.
+@@ -176,10 +177,12 @@ struct omap3isp_stat_data {
+ 	struct timeval ts;
+ #endif
+ 	void __user *buf;
+-	__u32 buf_size;
+-	__u16 frame_number;
+-	__u16 cur_frame;
+-	__u16 config_counter;
++	__struct_group(/* no tag */, frame, /* no attrs */,
++		__u32 buf_size;
++		__u16 frame_number;
++		__u16 cur_frame;
++		__u16 config_counter;
++	);
+ };
+ 
+ #ifdef __KERNEL__
+@@ -189,10 +192,12 @@ struct omap3isp_stat_data_time32 {
+ 		__s32	tv_usec;
+ 	} ts;
+ 	__u32 buf;
+-	__u32 buf_size;
+-	__u16 frame_number;
+-	__u16 cur_frame;
+-	__u16 config_counter;
++	__struct_group(/* no tag */, frame, /* no attrs */,
++		__u32 buf_size;
++		__u16 frame_number;
++		__u16 cur_frame;
++		__u16 config_counter;
++	);
+ };
+ #endif
+ 
 
