@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 516F94F01C1
+	by mail.lfdr.de (Postfix) with ESMTP id 9F0154F01C2
 	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 14:56:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354865AbiDBM6E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S229880AbiDBM6E (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sat, 2 Apr 2022 08:58:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44002 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44644 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354816AbiDBM5y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 08:57:54 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C56653716
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 05:56:02 -0700 (PDT)
+        with ESMTP id S1354847AbiDBM6B (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 08:58:01 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C95DB53716
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 05:56:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 48C01B80860
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 12:56:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8D67C340EC;
-        Sat,  2 Apr 2022 12:55:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 661C16147D
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 12:56:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74A75C340EC;
+        Sat,  2 Apr 2022 12:56:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648904160;
-        bh=HINPmfLGmnyxvSovis8Z0J8PBJm2XIdtXjdlxKEw6f0=;
+        s=korg; t=1648904168;
+        bh=GaoVMWnx2YeKb2tsLAsDi+h2sywOYYsv1KloJyizobE=;
         h=Subject:To:Cc:From:Date:From;
-        b=maWoFWBLGKX1OFsJh+AgFBpEbEFnL8jqayMAkABeeRXB91+ClmOLIFAX3Xb+li+F0
-         fj3LtHig1C/dwOucGA2Mjkmquoj90pjOq/xlN6NKbPJq53HozULY+T+oC22CnZcNV9
-         GPG2rGVapSPHxfPWrY/nOg0c6TOsXjkmDK9+D4Xk=
-Subject: FAILED: patch "[PATCH] KVM: s390x: fix SCK locking" failed to apply to 5.16-stable tree
+        b=Yzvi/+Yub83ZHUv8qooUe0w+mjnygaJdhi77UN41SlWgpP7MXxUMJoyHyv5VGyoF2
+         PBItWt7xqxQK5KeiqcGONEXGH+XepjUgUSlwp8Sxge4G95FQnLPTrirM0D1dTuW/ek
+         EhteZ8T52TFBhXEBzIHdJTHnrfJ/pd3AJKYLng9o=
+Subject: FAILED: patch "[PATCH] KVM: s390x: fix SCK locking" failed to apply to 5.15-stable tree
 To:     imbrenda@linux.ibm.com, borntraeger@linux.ibm.com,
         scgl@linux.ibm.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 02 Apr 2022 14:55:57 +0200
-Message-ID: <164890415743143@kroah.com>
+Date:   Sat, 02 Apr 2022 14:55:58 +0200
+Message-ID: <164890415859194@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.16-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
