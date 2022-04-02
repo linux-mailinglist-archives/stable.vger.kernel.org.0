@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DFE264F01CD
-	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 14:57:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B3F824F01D3
+	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 14:59:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344833AbiDBM7p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 2 Apr 2022 08:59:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46880 "EHLO
+        id S1354842AbiDBNBJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 2 Apr 2022 09:01:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51174 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354821AbiDBM7o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 08:59:44 -0400
+        with ESMTP id S1354841AbiDBNBI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 09:01:08 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD7B376E3D
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 05:57:52 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBD9513F1D
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 05:59:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 96E8EB80880
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 12:57:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0254CC340EC;
-        Sat,  2 Apr 2022 12:57:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AC582B80882
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 12:59:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B8A8C340EC;
+        Sat,  2 Apr 2022 12:59:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648904270;
-        bh=5MGGagu0AS0lY3UwwMFglC2RegPlGMgspIzTyqDtZRo=;
+        s=korg; t=1648904354;
+        bh=dHTMGzhaTXMSxVfUDot98gpW27xFX4KpfE39sqI6D+o=;
         h=Subject:To:Cc:From:Date:From;
-        b=2khSLyc5/vtwySTSaoDtFkVX4RLNkfxvgPSnidcYCk3L4QpwxXXRE6AdU4oDP194j
-         aXmIZdoHVSDQOplxOL++FrI/lOa4ijapSC+n/g3Sv9gN3UZK2ulIWOR/czBO6xQZZb
-         L3CjJgS/nyC06sqVVwSHeOiBkqPEMO5ZCzGnmrTk=
-Subject: FAILED: patch "[PATCH] drm/fb-helper: Mark screen buffers in system memory with" failed to apply to 5.10-stable tree
-To:     tzimmermann@suse.de, daniel.vetter@ffwll.ch, stable@vger.kernel.org
+        b=2VyImf6wDdm5o1E6QoyS3xJ5uVaGa5Onsrndyq6XQvdvvzgR+0uN3iH44qzyTrsig
+         bxL8Cg/9LJCUrvM2fFlNnMSPWiti3Sj6hb4alAQVIk1Hb2QMvq4Tt/46hthBfIkcNl
+         vKHxghppCLQDaliRMOIzFXu5x77FB/nwvdOBagyo=
+Subject: FAILED: patch "[PATCH] brcmfmac: pcie: Fix crashes due to early IRQs" failed to apply to 4.14-stable tree
+To:     marcan@marcan.st, andy.shevchenko@gmail.com,
+        arend.vanspriel@broadcom.com, kvalo@kernel.org,
+        linus.walleij@linaro.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 02 Apr 2022 14:57:32 +0200
-Message-ID: <16489042523683@kroah.com>
+Date:   Sat, 02 Apr 2022 14:59:03 +0200
+Message-ID: <164890434319270@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +50,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,66 +61,64 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From cd9f7f7ac5932129fe81b4c7559cfcb226ec7c5c Mon Sep 17 00:00:00 2001
-From: Thomas Zimmermann <tzimmermann@suse.de>
-Date: Tue, 1 Feb 2022 12:53:05 +0100
-Subject: [PATCH] drm/fb-helper: Mark screen buffers in system memory with
- FBINFO_VIRTFB
+From b50255c83b914defd61a57fbc81d452334b63f4c Mon Sep 17 00:00:00 2001
+From: Hector Martin <marcan@marcan.st>
+Date: Tue, 1 Feb 2022 01:07:10 +0900
+Subject: [PATCH] brcmfmac: pcie: Fix crashes due to early IRQs
 
-Mark screen buffers in system memory with FBINFO_VIRTFB. Otherwise, fbdev
-deferred I/O marks mmap'ed areas of system memory with VM_IO. (There's an
-inverse relationship between the two flags.)
+The driver was enabling IRQs before the message processing was
+initialized. This could cause IRQs to come in too early and crash the
+driver. Instead, move the IRQ enable and hostready to a bus preinit
+function, at which point everything is properly initialized.
 
-For shadow buffers, also set the FBINFO_READS_FAST hint.
+Fixes: 9e37f045d5e7 ("brcmfmac: Adding PCIe bus layer support.")
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Reviewed-by: Arend van Spriel <arend.vanspriel@broadcom.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Hector Martin <marcan@marcan.st>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20220131160713.245637-7-marcan@marcan.st
 
-v3:
-	* change FB_ to FBINFO_ in commit description
-v2:
-	* updated commit description (Daniel)
-	* added Fixes tag
-
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Fixes: d536540f304c ("drm/fb-helper: Add generic fbdev emulation .fb_probe function")
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: dri-devel@lists.freedesktop.org
-Cc: <stable@vger.kernel.org> # v4.19+
-Link: https://patchwork.freedesktop.org/patch/msgid/20220201115305.9333-1-tzimmermann@suse.de
-
-diff --git a/drivers/gpu/drm/drm_fb_helper.c b/drivers/gpu/drm/drm_fb_helper.c
-index 9727a59d35fd..805c5a666490 100644
---- a/drivers/gpu/drm/drm_fb_helper.c
-+++ b/drivers/gpu/drm/drm_fb_helper.c
-@@ -2340,6 +2340,7 @@ static int drm_fb_helper_generic_probe(struct drm_fb_helper *fb_helper,
- 	fbi->fbops = &drm_fbdev_fb_ops;
- 	fbi->screen_size = sizes->surface_height * fb->pitches[0];
- 	fbi->fix.smem_len = fbi->screen_size;
-+	fbi->flags = FBINFO_DEFAULT;
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
+index 3f3ca7612bcd..55f0111283c9 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
+@@ -1315,6 +1315,18 @@ static void brcmf_pcie_down(struct device *dev)
+ {
+ }
  
- 	drm_fb_helper_fill_info(fbi, fb_helper, sizes);
++static int brcmf_pcie_preinit(struct device *dev)
++{
++	struct brcmf_bus *bus_if = dev_get_drvdata(dev);
++	struct brcmf_pciedev *buspub = bus_if->bus_priv.pcie;
++
++	brcmf_dbg(PCIE, "Enter\n");
++
++	brcmf_pcie_intr_enable(buspub->devinfo);
++	brcmf_pcie_hostready(buspub->devinfo);
++
++	return 0;
++}
  
-@@ -2347,19 +2348,21 @@ static int drm_fb_helper_generic_probe(struct drm_fb_helper *fb_helper,
- 		fbi->screen_buffer = vzalloc(fbi->screen_size);
- 		if (!fbi->screen_buffer)
- 			return -ENOMEM;
-+		fbi->flags |= FBINFO_VIRTFB | FBINFO_READS_FAST;
+ static int brcmf_pcie_tx(struct device *dev, struct sk_buff *skb)
+ {
+@@ -1423,6 +1435,7 @@ static int brcmf_pcie_reset(struct device *dev)
+ }
  
- 		fbi->fbdefio = &drm_fbdev_defio;
+ static const struct brcmf_bus_ops brcmf_pcie_bus_ops = {
++	.preinit = brcmf_pcie_preinit,
+ 	.txdata = brcmf_pcie_tx,
+ 	.stop = brcmf_pcie_down,
+ 	.txctl = brcmf_pcie_tx_ctlpkt,
+@@ -1795,9 +1808,6 @@ static void brcmf_pcie_setup(struct device *dev, int ret,
+ 
+ 	init_waitqueue_head(&devinfo->mbdata_resp_wait);
+ 
+-	brcmf_pcie_intr_enable(devinfo);
+-	brcmf_pcie_hostready(devinfo);
 -
- 		fb_deferred_io_init(fbi);
- 	} else {
- 		/* buffer is mapped for HW framebuffer */
- 		ret = drm_client_buffer_vmap(fb_helper->buffer, &map);
- 		if (ret)
- 			return ret;
--		if (map.is_iomem)
-+		if (map.is_iomem) {
- 			fbi->screen_base = map.vaddr_iomem;
--		else
-+		} else {
- 			fbi->screen_buffer = map.vaddr;
-+			fbi->flags |= FBINFO_VIRTFB;
-+		}
- 
- 		/*
- 		 * Shamelessly leak the physical address to user-space. As
+ 	ret = brcmf_attach(&devinfo->pdev->dev);
+ 	if (ret)
+ 		goto fail;
 
