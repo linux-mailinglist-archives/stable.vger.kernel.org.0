@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D468C4F00EB
-	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 13:05:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D99C04F00EC
+	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 13:05:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234898AbiDBLHJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 2 Apr 2022 07:07:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53928 "EHLO
+        id S229890AbiDBLHP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 2 Apr 2022 07:07:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54372 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229890AbiDBLHI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 07:07:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 999681945EF
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 04:05:16 -0700 (PDT)
+        with ESMTP id S234952AbiDBLHO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 07:07:14 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 618B0197517
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 04:05:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 47284B806A1
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 11:05:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4F37C340EE;
-        Sat,  2 Apr 2022 11:05:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F2B7D6130B
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 11:05:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 147A1C340EE;
+        Sat,  2 Apr 2022 11:05:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648897514;
-        bh=aBrf3yivUK9DHfBbo6gEfy678oIkiMHupJNsueUnXHg=;
+        s=korg; t=1648897522;
+        bh=hG6gQmRPPLQaTTODJntFGC0JloODdJVZhCSHeXPL/8U=;
         h=Subject:To:Cc:From:Date:From;
-        b=m3QC2XsrWXteSusgzg8BrLHoVIr1Zrf+JNzw1SdcyJZCAPFY9aoem6IZj6b9o/j7t
-         qJspV7N3/7NLJL0+IA2tHgYAaQMySPyNOtvhrojx/z6s7wf/Z6paKFG4teED3/FCYr
-         t6N6KwNCIpf4rvdUF3fH8PS6Pw0/zU600sH9Y+Aw=
-Subject: FAILED: patch "[PATCH] mm: only re-generate demotion targets when a numa node" failed to apply to 5.16-stable tree
+        b=lwOGIpkQeuZYFeI4VT7vW/z7XlWeO6n5StSugHnPq/yV8CsZIyOJFwEwjk/42IDvp
+         Bj7LDooPull+puZg7Jr1mul65qE+C5geCzJTnv4a40+zuvK0sJ6oFwtctOkl0yQUAq
+         x34hp2h6cQwaCIily7/MspJ6KHy7cmIZlnoD1DnU=
+Subject: FAILED: patch "[PATCH] mm: only re-generate demotion targets when a numa node" failed to apply to 5.15-stable tree
 To:     osalvador@suse.de, akpm@linux-foundation.org,
         baolin.wang@linux.alibaba.com, dave.hansen@linux.intel.com,
         huntbag@linux.vnet.ibm.com, stable@vger.kernel.org,
         torvalds@linux-foundation.org, ying.huang@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 02 Apr 2022 13:05:11 +0200
-Message-ID: <164889751189160@kroah.com>
+Date:   Sat, 02 Apr 2022 13:05:12 +0200
+Message-ID: <1648897512144212@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -51,7 +51,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.16-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
