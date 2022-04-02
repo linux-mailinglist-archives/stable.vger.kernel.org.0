@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EC544F01CA
+	by mail.lfdr.de (Postfix) with ESMTP id 3E4994F01C9
 	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 14:57:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354820AbiDBM6y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1347406AbiDBM6y (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sat, 2 Apr 2022 08:58:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46376 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46334 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354823AbiDBM6w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 08:58:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C668A195314
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 05:56:58 -0700 (PDT)
+        with ESMTP id S1354820AbiDBM6u (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 08:58:50 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84CC05A16D
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 05:56:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 61D4A61490
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 12:56:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6EB46C340EC;
-        Sat,  2 Apr 2022 12:56:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 34F0FB8076C
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 12:56:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97BC9C340EC;
+        Sat,  2 Apr 2022 12:56:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648904217;
-        bh=t8NT8O9EbLepqQoaKQIUKzSdfs6Vx49dLury2RtfilA=;
+        s=korg; t=1648904215;
+        bh=V1EGpYskNk/aZvGVd7sD31xOTH17ftKaQ3WN1mfg+64=;
         h=Subject:To:Cc:From:Date:From;
-        b=mvXjYvLv2DAnA/TNHWqQ2Ifyu1B3x03dIcYkfZ436BQdqCJqypCQ5pn/c5+tmNbWs
-         wzCFlAKmi+C1DnlX3uxJ63p4OHN+8h6Jeu8q2u6SgswQxTe3RY+0Acc1GWv86eg7yK
-         hSXouYa/7fFkXCbkLtxd1/zSJ+AP/QXjqbcUCa4w=
-Subject: FAILED: patch "[PATCH] KVM: use __vcalloc for very large allocations" failed to apply to 4.14-stable tree
+        b=LTB4ndEUlpGFixaMXA3ZHDE9B3w7cpahGdKFDJw2vhucc9DSoAlftBPmLQ2vZKvv4
+         5KUjfBcuqEaiRQS+BnycJIf0D0b6SH7jeHSKSQT6gIgSqkkyl2WljM6GwzzTrSoAvV
+         OKcDi0aTEvUZ0+cjv1577nD7UlMWVraZI8S7t3HY=
+Subject: FAILED: patch "[PATCH] KVM: use __vcalloc for very large allocations" failed to apply to 4.9-stable tree
 To:     pbonzini@redhat.com, david@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sat, 02 Apr 2022 14:56:32 +0200
-Message-ID: <1648904192115122@kroah.com>
+Message-ID: <1648904192147197@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
