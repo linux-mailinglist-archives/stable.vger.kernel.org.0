@@ -2,141 +2,141 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B58E14F0087
-	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 12:28:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 757DD4F0095
+	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 12:28:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239094AbiDBK3x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 2 Apr 2022 06:29:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52062 "EHLO
+        id S1354319AbiDBK36 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 2 Apr 2022 06:29:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354313AbiDBK3v (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 06:29:51 -0400
+        with ESMTP id S1354317AbiDBK35 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 06:29:57 -0400
 Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 662D21AA4A6;
-        Sat,  2 Apr 2022 03:27:58 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 788D41AA4AB;
+        Sat,  2 Apr 2022 03:28:06 -0700 (PDT)
 Received: from pps.filterd (m0246632.ppops.net [127.0.0.1])
-        by mx0b-00069f02.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 2322rVrp018751;
-        Sat, 2 Apr 2022 10:27:56 GMT
+        by mx0b-00069f02.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 2322rwHf018854;
+        Sat, 2 Apr 2022 10:28:04 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
  subject : date : message-id : in-reply-to : references :
  content-transfer-encoding : content-type : mime-version;
- s=corp-2021-07-09; bh=rM2OYNDnjOSXgpIxpKd8yTK/tasdQ+W01Fq39WF5u3k=;
- b=JClaEBIN4ha/AbM4ZRTODlSiq4Mh6EuVvSigpdDkcj7U+Tv1gAJzmPflZ7+OTriLpwLq
- UGEhUkpOsB9e4QIDCBVWLEs9y8YolTa/f/X27WTlv0UcBo/b5fLLWRttKWsMDHCKgaI1
- qX1K6BL6+aU1KVTnG6yVV13v2auEx3VUQfUYRkrtTinG6xWRQu/2Bm9/dpRESOk8dko0
- DwMkWPO/yD0Bu5NdNx6epS8XAy38YL5L5+39nTuhGt5Voy3kmMsg2Z0juBHddnObvbU5
- Z4qrxFVcJsGsux6u0XzF0l/lFvlhgIHFsKPUVw9ERALltu1pwxWF8si6rJ3WlWLsko27 xg== 
-Received: from iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta03.appoci.oracle.com [130.35.103.27])
-        by mx0b-00069f02.pphosted.com with ESMTP id 3f6e3sgb06-1
+ s=corp-2021-07-09; bh=9uzLC0RNS5lLuWjzCZuI4dVyBqgt1uGnSMgLjZYLMFE=;
+ b=FGT41RxIKCNRTupgYFbB3aFTvlVks/54Obi4b/0GgJvBqL/OwbN2vxHbasM/c2Td+bxj
+ 0/975RQr9DKDcJCtQsTWYJAyeqBL430FYdNC5F1vSH3uUExEhBuVAX7GJ1jYdt7DWHLl
+ QjIECYgZmEYXo7/Kc8GLbLhUu7BgCheF5gN7J7/z1RMo/gUliV468BnHsSbM6FZleJ4n
+ qh3KCT2PYp0+kmtquk8lYqZR1sraM2aoxgT6bOJeseeu+x0j6Nt2tu+8Tgrr4IfEtxuD
+ 7mg6CCOFpv25QdoRFh/1qWAggWd105rfiwzxD24PR25uXJlmAt3Cn0k+Sn/jI6LBtMGm DA== 
+Received: from phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta03.appoci.oracle.com [138.1.37.129])
+        by mx0b-00069f02.pphosted.com with ESMTP id 3f6e3sgb0c-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Sat, 02 Apr 2022 10:27:56 +0000
-Received: from pps.filterd (iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
-        by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (8.16.1.2/8.16.1.2) with SMTP id 232AKhAm004384;
-        Sat, 2 Apr 2022 10:27:56 GMT
-Received: from nam02-bn1-obe.outbound.protection.outlook.com (mail-bn1nam07lp2048.outbound.protection.outlook.com [104.47.51.48])
-        by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com with ESMTP id 3f6cx163v3-1
+        Sat, 02 Apr 2022 10:28:04 +0000
+Received: from pps.filterd (phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
+        by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (8.16.1.2/8.16.1.2) with SMTP id 232ALcXU024459;
+        Sat, 2 Apr 2022 10:28:03 GMT
+Received: from nam02-bn1-obe.outbound.protection.outlook.com (mail-bn1nam07lp2044.outbound.protection.outlook.com [104.47.51.44])
+        by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com with ESMTP id 3f6cx0xcnb-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Sat, 02 Apr 2022 10:27:55 +0000
+        Sat, 02 Apr 2022 10:28:03 +0000
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=JKqrXL3M1oc5msM81mM6v013/YS7Uf73xgIwCvsLvE16hfG/2aCg7lWRHAiGmSsILj/xnSa61lMEKMZLTUXgbsGGB2VT3Jyb/n2AYjWiVedg5LG1GIx8sW2Md2wqsKKliJQ7npiOuJkCYjLQ3+RKsdI2S9mbf8pWZIrFlr+YW4wjiXON//65X3Xa73q42AV7gSQHGDwB9N3lq9AOKVcmfvZhkPXOvCydxvETErvQm7m95bvQ2whmTaPZGrwJk8VYZRuFbCDYvSX6dfA821vDSEAFqLY9vbonFzKSLKdEvsYs8aHhq+715iChBC/95qXF8p2DftYcRXL3wqzbbtC1aA==
+ b=GhRNW/Kzuzb21C9WIuiM7AUnAZwdbArMey6pr+oQPF9AjOhupuFyE/dlEGdrRt/I7cbhTy0Dy5kdVFFWu15MejOtAgI0OHou+2mjQTdWMZ9Sd1nb3dg8UvbwfUAOoNd5Md1h7uLxiraAO96THFt2I9XIaPKceyg0HYiOqgQ2M+wbMbKjZpXCRPPrbA+RjCL/INlKOkIqG5mlXnKnsYRagLdH1HL5CPhvFrMlP6wfnZrPCDSYoyEiagip5Kwk82ghSscnwV3E5KEQn/gRRN1QVfe66tZiUu98plsiwkTWIYzndpC/Us8+e9Md/7V/vpugtcDS1z5ZhhETmLAMfKKUNA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=rM2OYNDnjOSXgpIxpKd8yTK/tasdQ+W01Fq39WF5u3k=;
- b=E3omIxcxyWjshFWP/icpCCnK4u3MDSh1DVI41Tcb/NDz6HgY1nKDGBW784dMjFKW++YPNmVCp/x0o3LD0fuJfJMz5GARmpt77gIa7j48Jlcx+bBpQ/+9DyiV3UFsQs5i3lDpHR+BCtg08MFoAWj3rF7KmNz5XnDORzyjpAWAaLcvHRF831hF1SF1tY9cwMToQszz4ga+1xDmaaBmTbucV3sf78s79dfRC5OcbFs3yAGIiB3V/I0iod5EMXHfTaPLOJfZ7YXM3p2Ft3wW9JM6uXJnC+lpVUroVy1z/HBSCBuOJnZKu6ARbURWolYQCGTIbJG+HtuJvaGhy7mSFF9Otg==
+ bh=9uzLC0RNS5lLuWjzCZuI4dVyBqgt1uGnSMgLjZYLMFE=;
+ b=MBom38NTESPe3hCSIzUjORd6Mf+cYM33v8uJuWMe/I2uj0p1YoHdbv31awaWYkv704Min8+v3JipvIbpz/0cM6kr93u9HHzF8ePg7Gu1KvdnsPcbzmZUSY/BBghiGtNCdBO4LuYlcD/Rh6SVESEGbecz2sy5gg7PFlzMKwm5fR7aJb5g/0sBA08d2CbPY8s5YfrlGO7EMKAXS1Sv5a6h729VTaxDQp+ip37OvqqiQQJ0tXWDfsd1sswGeiKkNfK+K406tMEvzSxu6N9RuWWlxCV4Qz7D8q7LCMp+aU/8CGm5OM9EhHvZkyWQ5nv+snMf7waAPRsttaZEK8+tR2WqNA==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
  dkim=pass header.d=oracle.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=rM2OYNDnjOSXgpIxpKd8yTK/tasdQ+W01Fq39WF5u3k=;
- b=paEiSAN/Dut9h9ZunwRl+3LoJLqPVeB5TYKLGrNmPJtVFDH7m4xzG7vs26VeoLWqRoJE8XKwn1EYWGxtiZEVmr/mwsUVZ8iNqlok9xljmEmD7GxEYgq+e/czwLfpjCbvMhao4AG1Y/zzNv9BYBpPi6dtnqCMoxii7/LRvqjW6l0=
+ bh=9uzLC0RNS5lLuWjzCZuI4dVyBqgt1uGnSMgLjZYLMFE=;
+ b=nOnbmINcFB+P1Xa9iSa/WoM3Jp4PxYmC6Ey5LfuBWJWSW8JEvH8+L4Nj8fZWUec1pAnKBXqaz7fSX7P3+aVbkEQ49LYnLu5QwlQCyPimbIXPapNNePx25dVwhm7JPeEb//aIfgwVpIKZQVvs3AnmLRuXDrUH+7fxdUBsrTInUwg=
 Received: from PH0PR10MB5706.namprd10.prod.outlook.com (2603:10b6:510:148::10)
  by DM6PR10MB3049.namprd10.prod.outlook.com (2603:10b6:5:6f::18) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5123.19; Sat, 2 Apr
- 2022 10:27:54 +0000
+ 2022 10:28:01 +0000
 Received: from PH0PR10MB5706.namprd10.prod.outlook.com
  ([fe80::54da:72:aa08:9a8e]) by PH0PR10MB5706.namprd10.prod.outlook.com
  ([fe80::54da:72:aa08:9a8e%6]) with mapi id 15.20.5123.016; Sat, 2 Apr 2022
- 10:27:54 +0000
+ 10:28:01 +0000
 From:   Anand Jain <anand.jain@oracle.com>
 To:     stable@vger.kernel.org
 Cc:     linux-btrfs@vger.kernel.org,
         Andreas Gruenbacher <agruenba@redhat.com>,
         Anand Jain <anand.jain@oracle.com>
-Subject: [PATCH 13/17 stable-5.15.y] gup: Introduce FOLL_NOFAULT flag to disable page faults
-Date:   Sat,  2 Apr 2022 18:25:50 +0800
-Message-Id: <b1925ae2efbb181f76139437b1dd5129df6fdb81.1648636044.git.anand.jain@oracle.com>
+Subject: [PATCH 14/17 stable-5.15.y] iov_iter: Introduce nofault flag to disable page faults
+Date:   Sat,  2 Apr 2022 18:25:51 +0800
+Message-Id: <2a866656f6fea1026c1387f20fd965906146dcd3.1648636044.git.anand.jain@oracle.com>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <cover.1648636044.git.anand.jain@oracle.com>
 References: <cover.1648636044.git.anand.jain@oracle.com>
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-X-ClientProxiedBy: SG2PR04CA0206.apcprd04.prod.outlook.com
- (2603:1096:4:187::21) To PH0PR10MB5706.namprd10.prod.outlook.com
+X-ClientProxiedBy: SG2PR02CA0034.apcprd02.prod.outlook.com
+ (2603:1096:3:18::22) To PH0PR10MB5706.namprd10.prod.outlook.com
  (2603:10b6:510:148::10)
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: d1f2689f-87e4-479b-4348-08da14937267
+X-MS-Office365-Filtering-Correlation-Id: 846315f9-6999-4441-aab8-08da149376db
 X-MS-TrafficTypeDiagnostic: DM6PR10MB3049:EE_
-X-Microsoft-Antispam-PRVS: <DM6PR10MB3049C6908D28D6D1F489E9B1E5E39@DM6PR10MB3049.namprd10.prod.outlook.com>
+X-Microsoft-Antispam-PRVS: <DM6PR10MB304909EB3ACE7568D45CCDFCE5E39@DM6PR10MB3049.namprd10.prod.outlook.com>
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: +qR/swzYfLCEjU2p4/SiDHhnZBpTIoS2qM9S8wBKK4elfM5KFgkJ8RAB63kf1khtvT21YdnuPKAeAcrhJdTXTEP4aPfEhCDhz2zJMmxNINdDQNdsumSepcrDk4n+Bqcnf6mJ4H5qFiVAZN3rMPLdFwk39PlR/KjPIsFIA5L9cwGGspkiyk5ZW2SRy9Qn1tmRIq7+h55TZ6yorTkuckl6JG5ulazF4MS8u0B4o8uSHFuchrnFIVPVPXgS1dzhU4wyvGS10CdIZNWZISqyGv8fSABHCY5wu3oLx7ubL8VTR7FFatp9HwOdDGijEaBk+0x5qIJwvZFkOXKpJ1s26uvM4euY6sn1kOnake4mDl1ghPuDE0ELXCNbshQLyT8oI3+jxqA5fDbYN3O/okdUMWJCExJb/UrBxJ90o22kW+vjPCVFcEJSGZWhVCkK8uEyrpDyzn2HWjHBoJam+goGzKED6RsGzkRMbGS9Gu5V2OOoCjuhOnh4bJ9pzgFTKic0rdp2UbcY/YFaJBW/miZ38JHFDLLJcKJFS2KDBsttJMm58jZFpJGQyIEWGJjZVRY7LBnDrTCyADC7JsB1XJKbwD++rqxW19KmbFVGqaqQxjBHUIzNv3jqa0AKSdmvOLZoXEhJnsjjn8xJ/QCQ14UbTgGOHw==
+X-Microsoft-Antispam-Message-Info: Q3h1INZClVA1T8dkQnIW01BX/vH9HyFEaIFyb/JveWJ5vsEXoVW8AiUVthufsavzEew+FlWlofLw92gD32h+GG57Hqr22axxU9RoC1urcD1HFAdGGFdtj+4bBbQvJ4AwzwqoqztYbdrL5FicHX7V30rJVuW0W6o9eNLoBJM95IA1z/Pp5ZFwbgNe1JfAs+JmPKfZsWlJK7+ei+veTQOVJxC/ot3XAfPSOou7W550POIVlYhK2IpMX6RTujNSEW/AhwXnyXJqC7FwRp+b935zVbL8qgPTepuNC8l3mXKW33RppIdKOhRyY2QNzrBv6ksUp3c8Y3jUdrCqHTTwUvUnFp8CCj3Y/JH0deGA1Gx/YJVtgf9Dcpuhkpf9/qdmRAU5R9kbQjZ7N25LEIwfNEki4W5UTitAjtk5Zr09TIZXECLgiZgT5sUs31ycahbfB/IAFjLOnHT7VF5zu3hryDu3Wf6hfuIFPWdSX8ZF47gyeDQkbvXLUm5OQKoBaksX4CNDhpsmOL8vgCwn4FCf8jwFtjPcCEkFmZrgpVrMKrwbslrhSglzYIPG6AN+Xl7LwnFSHJIvXYxpAijeFrnXPuvLZcvbGk9J8hwroTlimSmIM3hWwkTJeY59HRpsD6jgmwERI1XekD/fRAkyxUBy0i79UQ==
 X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR10MB5706.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(366004)(8936002)(38100700002)(83380400001)(316002)(508600001)(6512007)(36756003)(86362001)(26005)(6486002)(44832011)(66476007)(6506007)(54906003)(2616005)(6666004)(4326008)(186003)(6916009)(66946007)(107886003)(66556008)(5660300002)(8676002)(2906002);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?rXGsSHnw94a1QHMy9J42FTknH/ZNdleBlIx6gSUiuFHf1QWsMjeLBEPjO2Yf?=
- =?us-ascii?Q?3LzVgOtwcE+sOSCFlW7OmPBQMRwg9TWDkOyQ1cJ4X9LRrX/KlYAmEEEDCdur?=
- =?us-ascii?Q?mfyqMeUvsiuCsIoOEHGjHOe8CpqRj3yQJphVwJunrK8A8y3TAc7peYpPrVzA?=
- =?us-ascii?Q?uigIPvBeWftwgo+IY460r4R1tbssCh4LEaUNGhBGE7FbHjPi3sZWJpH0/sNP?=
- =?us-ascii?Q?kTjIBUBuE24/umtLamKxwD0Z7rJyVP3++qNPyDlMXFA9pXFT+141eAArLlW7?=
- =?us-ascii?Q?Qh6Qf6PJdBAaIcKkIPDw/uNJARbKYX1aLbzgjOUOgcS356yfSRbpLxPObv8D?=
- =?us-ascii?Q?fDoRJI7jSPBZBpxn6A9a8wxPR3W07/hbrbs549PNzYS4cNmZhQ4E/VQdao0A?=
- =?us-ascii?Q?ofpykzXHPt1oUrOLatAowcc6HqAtNKsErE5up/g9liYv0nLI/MZ2d+0rAEb2?=
- =?us-ascii?Q?qZaVCCk1O82tGj/m/RIG/CgvRgYa4AJKV1vSbF4SlFfV/66mJ7fKTkbMGU+f?=
- =?us-ascii?Q?T+jvKp8xO/eiQIW1l0bRLAo7Libk2/ugGLp4TND7rY6jHFO07+0Em9eEPGZi?=
- =?us-ascii?Q?UoIdYbHfRFnoMpLDv4Y9AbYIHeS7zF8GhbIOb/NX7cDyE5vMuUlwYl1feypG?=
- =?us-ascii?Q?7ByRs2Sfn7B9VahsMiwCU2wuVFWzLYVb3jHH2NtvKZifmDK1FlD9OhWdurdB?=
- =?us-ascii?Q?EmzIm+L44PuQiDvTq5Epp4cWyv+Hox9HeNnhqbRb7kWTgYo1gf4A+ueLTYz2?=
- =?us-ascii?Q?YG+VDw2Ktydf6hzJ3cahNtN2nIfChF1H8M7JZkBFrEBS1UlaRmYO6i+ngumt?=
- =?us-ascii?Q?gdG0oOc8gVPvEff3stlucrffrEM37bAgU83WUrg9wlK7cNXJKAy2MMU1l9IZ?=
- =?us-ascii?Q?v1p09DJAj5yGnS/YvtbNoGY+OivKCKQrlvZMwMhQMWO+5wHY67EEL1vFvJjX?=
- =?us-ascii?Q?DLktay9BXeGYnZpt3K2XWhZek2OM3CAASMgxCfkgKASBhGjxgwctDVgcBl6Y?=
- =?us-ascii?Q?Mq4ZqIz8TDaEGhwcvWeL2zrKEAO2DxEKVEG3UdwEoYx+04WD8RqYVotHTQBp?=
- =?us-ascii?Q?o4aqGoWL2PJK26qTwoWXSMHmk6QZpIw2gxxlymrfrr+0kZrAS6JS/qCe9ymW?=
- =?us-ascii?Q?10BhDhmRJ3RTaStpUeH+sCI9H36/mmYaURVcEkyL9tgFIDaNCeLOH+VT0Ahf?=
- =?us-ascii?Q?rEOc2n4IPkb9yZ8Ne4+ZVi8KYTwPwcWVHoikHbiR1kXiHBDb69le9OQBQ9n1?=
- =?us-ascii?Q?jmyffv3Ptq7AW4pkwIpuPulKzVD6K6izbZPW1SnpgNf+fIr7nSBlQ2Kd64lB?=
- =?us-ascii?Q?Zms+DqVrpHOOdpg9o8F99f58mBFnBfOSj/F8Ffr9yxvLK/Q0xYRfNlPfp8Xz?=
- =?us-ascii?Q?9mOWs0bJ+UX5C/sN9+vqJzUy5K5uetovguyaOsm2iVtMHJpm3FTv6el0wrBO?=
- =?us-ascii?Q?4mwitfovx/TIABNq2eradnultna5woWdYasZ1llRSRtqQ1DAQvGEe9mOyzJS?=
- =?us-ascii?Q?zkvMJsqtltvp3Nh1kKto2I7RtFhUoNrLcEfVf0Ns8oYfzXxEm+dlARRfZCdx?=
- =?us-ascii?Q?5CAk2jkv4fYByZb6EOVhuXytX35AW2fMmQsR1NYTbbd6ttCXNPAyz8fQjeAo?=
- =?us-ascii?Q?7zN9+jrlY2ClZpwnigtc9eR2QhDc7tGdeK2AaSEGvuAJyoN029t6RHRRfH8z?=
- =?us-ascii?Q?QdQvtkt3/9Ra9KvS+pN1IwcfWmZrDwBhVPa/elV2jnLwFrKDl0tOBtddYcC+?=
- =?us-ascii?Q?cqV/YZCkMXDLCnQvk3KG5HSdVOWhcTw=3D?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?Y2BA5pN2/fgJ0mfguYry6Vn5RuZthdWIu5AzDupyoO0RfwjXAuq4r3TaomQo?=
+ =?us-ascii?Q?jsqZoQEYwfFt45hqIT8h0HHveCGqjsCWAPtbwyU63gkeFvUmGRABJ5worndC?=
+ =?us-ascii?Q?/W1ZgBSgwvGuu0rD21dzJ+pV6dnT/AXSVkFtysh/SJk78CYEN5attMDjVKvG?=
+ =?us-ascii?Q?9fqn+ohTVU/xUvUVFw9BZvHqbNJrHh5xFtVfahakl4qxj6BTmaT3qXl+kl6G?=
+ =?us-ascii?Q?7RdLVf1s30+wUK/m0geHrjXAx6XGmPGeffRwYZvyuAPVM1IQJ7ek+YixZIdp?=
+ =?us-ascii?Q?aO+rvQF9w3SIxtw9RODZvfNui1JfgCIOXCRNNS9s+WmxZ1vUYmcjGaEbx4ig?=
+ =?us-ascii?Q?STfTQeZSlggpXlUAM5pK64RDNuEFmzzIqmVYlKuNaS7Yxz/ZyLNAI+TndUfi?=
+ =?us-ascii?Q?Pgj8XTFgp8tvdkrS6BjV3eiCUDG4550gssDizHcv/HPChSaW6ubcLRHIAio2?=
+ =?us-ascii?Q?DQbTuUCMg+vH1lsmbKgeF7u8972eZzjE0Qqr6MJY1mVvyHLtZqd8LX2CxZbV?=
+ =?us-ascii?Q?s/28wtvmHRnx58iH0ebURtYUqHPvQy5SpQ7NY3QM2F3yH6DuWCp7ErSqGijy?=
+ =?us-ascii?Q?W6mCO5nwEEijopenj9dkQIaRbhWD/HNYtOQTuPlNfmBCUTauYhXXPZBOXiDe?=
+ =?us-ascii?Q?nz3NQcWSZFC3SQ8xr1F/Zb+4IT97NS26uzA+vUYU5C+mO95FlCd8APWV5ybl?=
+ =?us-ascii?Q?ywrsJYKZ1jIJlT58dDZX0k3NmwWxuySgO3JpK9IGzjVW8wwntFoVWhO4+5d6?=
+ =?us-ascii?Q?HMTAID0ZjEU9VrEq2aNZf+hAdJ8RgTarTLNexqPmzfX/QwX0RjEWxvT9/T37?=
+ =?us-ascii?Q?2ulTSA1LkSpIxWaguDSDF4Y8/49NFuN1mhzBsJ/+3BesQ1Cs+39xb2xeJEnA?=
+ =?us-ascii?Q?R2SkXFdr5tdU0nyHhI2rVEnUJwofI5XQuHtlXUAzyRL6y6nEGp0Tuq2CRyJU?=
+ =?us-ascii?Q?3xSIQEe5HzKTYDkzmgoaTo3uolKO1adc+H+e7b9hAKRCpzQioTLrBoBZvEn/?=
+ =?us-ascii?Q?PpQMo46UoBdeXbafqazAWbmOtgEcVfShlRQLMFx9UuyGm6O6Kvi2GsiiQB/I?=
+ =?us-ascii?Q?2LsCWPi3C1oUsuK2Xhx2+s6gkIdHTOTh3lWYoemlr7nJxdaK2q5BdSR6HJ2Y?=
+ =?us-ascii?Q?c8wVVSTwTFme99fQZ8OVnAuxtYgUuHw1wOjYBSIPlRUktbjVgRVR4pLKS3ws?=
+ =?us-ascii?Q?/X8OIx0ZY3F3Zlu+Kwg5mlPUQlwsHsdqlIfxhSCUk65Tp0rwCmT5CP0K9hOy?=
+ =?us-ascii?Q?9kovNLunNuqsc7VRSZoZD8XzXRtIHAqLU+ngjeuoYJMHjH8PbPzLvjhVbXpg?=
+ =?us-ascii?Q?pB47/0KKFjmcuYCJQqFZzZA7PfCzL1VQRzqlIQf9TOJTOsBqHSfuIrV1loI8?=
+ =?us-ascii?Q?PxUCmFXaZuBzQmbA4wGP4cdO7YBd+uP6GH+7XtjKvAhzRkcZbaYfH3PZL4pF?=
+ =?us-ascii?Q?byacydXiRAMGrqNw2MXH8UypHTZSJZUeRpWX55aBjq1uisRjBnUPMkTHcCEq?=
+ =?us-ascii?Q?ygk5I1KXYXXa1oFqedY20OrTt9rPf6F1chR7UOos57tTqXfwWqtge2tPRkPz?=
+ =?us-ascii?Q?z6X+QLgQOmKsoYg3nWRuY7tBIb47jHFwxioiW50EPgYNNUE/ci4Z9zEPPfKU?=
+ =?us-ascii?Q?qGCKFkilZafIql011bqGCCvoLnKyChOv7cYC5Ntxvvz4+a3LxJcrC1nTQ3bh?=
+ =?us-ascii?Q?hYHc9lP55XmU9xWYn18ABMFdEpCW4ANnWaH12cVltlBDtgWL9aKoxuNk4kls?=
+ =?us-ascii?Q?uEJ4qOZe9MDGIeB2+L3ejpFl413CqVM=3D?=
 X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: d1f2689f-87e4-479b-4348-08da14937267
+X-MS-Exchange-CrossTenant-Network-Message-Id: 846315f9-6999-4441-aab8-08da149376db
 X-MS-Exchange-CrossTenant-AuthSource: PH0PR10MB5706.namprd10.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 02 Apr 2022 10:27:54.0976
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 02 Apr 2022 10:28:01.4139
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 0YSY59EuC5iFZfs3MjBcH9jUatMuWyfcRT4c+CyxfxsGfFOCgw/dda7xtVrH+x/XqyRrOQ5LhlEx+jscC2POYQ==
+X-MS-Exchange-CrossTenant-UserPrincipalName: mQkqpYKq1zcz/tBpBZNH1/WTzHKDNq03fWCEc2cGE2ZdZTraGI+aS0TR8vf71v2QeVykDd1FB5WW6Qr6XL+OOw==
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR10MB3049
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.425,18.0.850
  definitions=2022-04-02_03:2022-03-30,2022-04-02 signatures=0
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=999 bulkscore=0
- suspectscore=0 adultscore=0 phishscore=0 mlxscore=0 spamscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2204020064
-X-Proofpoint-ORIG-GUID: 90nY1c_3FLV_slk5tyGjZvFd0SqMq-qh
-X-Proofpoint-GUID: 90nY1c_3FLV_slk5tyGjZvFd0SqMq-qh
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0 adultscore=0 mlxscore=0
+ bulkscore=0 suspectscore=0 spamscore=0 mlxlogscore=999 phishscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
+ definitions=main-2204020064
+X-Proofpoint-ORIG-GUID: cK_CmZEdsN1Lag4GMFYsBfIiq42GcUx4
+X-Proofpoint-GUID: cK_CmZEdsN1Lag4GMFYsBfIiq42GcUx4
 X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
         RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
@@ -149,56 +149,91 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Andreas Gruenbacher <agruenba@redhat.com>
 
-commit 55b8fe703bc51200d4698596c90813453b35ae63 upstream
+commit 3337ab08d08b1a375f88471d9c8b1cac968cb054 upstream
 
-Introduce a new FOLL_NOFAULT flag that causes get_user_pages to return
--EFAULT when it would otherwise trigger a page fault.  This is roughly
-similar to FOLL_FAST_ONLY but available on all architectures, and less
-fragile.
+Introduce a new nofault flag to indicate to iov_iter_get_pages not to
+fault in user pages.
+
+This is implemented by passing the FOLL_NOFAULT flag to get_user_pages,
+which causes get_user_pages to fail when it would otherwise fault in a
+page. We'll use the ->nofault flag to prevent iomap_dio_rw from faulting
+in pages when page faults are not allowed.
 
 Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 Signed-off-by: Anand Jain <anand.jain@oracle.com>
 ---
- include/linux/mm.h | 3 ++-
- mm/gup.c           | 4 +++-
- 2 files changed, 5 insertions(+), 2 deletions(-)
+ include/linux/uio.h |  1 +
+ lib/iov_iter.c      | 20 +++++++++++++++-----
+ 2 files changed, 16 insertions(+), 5 deletions(-)
 
-diff --git a/include/linux/mm.h b/include/linux/mm.h
-index 90c2d7f3c7a8..04345ff97f8c 100644
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -2858,7 +2858,8 @@ struct page *follow_page(struct vm_area_struct *vma, unsigned long address,
- #define FOLL_FORCE	0x10	/* get_user_pages read/write w/o permission */
- #define FOLL_NOWAIT	0x20	/* if a disk transfer is needed, start the IO
- 				 * and return without waiting upon it */
--#define FOLL_POPULATE	0x40	/* fault in page */
-+#define FOLL_POPULATE	0x40	/* fault in pages (with FOLL_MLOCK) */
-+#define FOLL_NOFAULT	0x80	/* do not fault in pages */
- #define FOLL_HWPOISON	0x100	/* check page is hwpoisoned */
- #define FOLL_NUMA	0x200	/* force NUMA hinting page fault */
- #define FOLL_MIGRATION	0x400	/* wait for page to replace migration entry */
-diff --git a/mm/gup.c b/mm/gup.c
-index bd53a5bb715d..a4c6affe6df3 100644
---- a/mm/gup.c
-+++ b/mm/gup.c
-@@ -943,6 +943,8 @@ static int faultin_page(struct vm_area_struct *vma,
- 	/* mlock all present pages, but do not fault in new pages */
- 	if ((*flags & (FOLL_POPULATE | FOLL_MLOCK)) == FOLL_MLOCK)
- 		return -ENOENT;
-+	if (*flags & FOLL_NOFAULT)
-+		return -EFAULT;
- 	if (*flags & FOLL_WRITE)
- 		fault_flags |= FAULT_FLAG_WRITE;
- 	if (*flags & FOLL_REMOTE)
-@@ -2868,7 +2870,7 @@ static int internal_get_user_pages_fast(unsigned long start,
+diff --git a/include/linux/uio.h b/include/linux/uio.h
+index 25d1c24fd829..6350354f97e9 100644
+--- a/include/linux/uio.h
++++ b/include/linux/uio.h
+@@ -35,6 +35,7 @@ struct iov_iter_state {
  
- 	if (WARN_ON_ONCE(gup_flags & ~(FOLL_WRITE | FOLL_LONGTERM |
- 				       FOLL_FORCE | FOLL_PIN | FOLL_GET |
--				       FOLL_FAST_ONLY)))
-+				       FOLL_FAST_ONLY | FOLL_NOFAULT)))
- 		return -EINVAL;
+ struct iov_iter {
+ 	u8 iter_type;
++	bool nofault;
+ 	bool data_source;
+ 	size_t iov_offset;
+ 	size_t count;
+diff --git a/lib/iov_iter.c b/lib/iov_iter.c
+index b137da9afd7a..6d146f77601d 100644
+--- a/lib/iov_iter.c
++++ b/lib/iov_iter.c
+@@ -514,6 +514,7 @@ void iov_iter_init(struct iov_iter *i, unsigned int direction,
+ 	WARN_ON(direction & ~(READ | WRITE));
+ 	*i = (struct iov_iter) {
+ 		.iter_type = ITER_IOVEC,
++		.nofault = false,
+ 		.data_source = direction,
+ 		.iov = iov,
+ 		.nr_segs = nr_segs,
+@@ -1529,13 +1530,17 @@ ssize_t iov_iter_get_pages(struct iov_iter *i,
+ 		return 0;
  
- 	if (gup_flags & FOLL_PIN)
+ 	if (likely(iter_is_iovec(i))) {
++		unsigned int gup_flags = 0;
+ 		unsigned long addr;
+ 
++		if (iov_iter_rw(i) != WRITE)
++			gup_flags |= FOLL_WRITE;
++		if (i->nofault)
++			gup_flags |= FOLL_NOFAULT;
++
+ 		addr = first_iovec_segment(i, &len, start, maxsize, maxpages);
+ 		n = DIV_ROUND_UP(len, PAGE_SIZE);
+-		res = get_user_pages_fast(addr, n,
+-				iov_iter_rw(i) != WRITE ?  FOLL_WRITE : 0,
+-				pages);
++		res = get_user_pages_fast(addr, n, gup_flags, pages);
+ 		if (unlikely(res <= 0))
+ 			return res;
+ 		return (res == n ? len : res * PAGE_SIZE) - *start;
+@@ -1651,15 +1656,20 @@ ssize_t iov_iter_get_pages_alloc(struct iov_iter *i,
+ 		return 0;
+ 
+ 	if (likely(iter_is_iovec(i))) {
++		unsigned int gup_flags = 0;
+ 		unsigned long addr;
+ 
++		if (iov_iter_rw(i) != WRITE)
++			gup_flags |= FOLL_WRITE;
++		if (i->nofault)
++			gup_flags |= FOLL_NOFAULT;
++
+ 		addr = first_iovec_segment(i, &len, start, maxsize, ~0U);
+ 		n = DIV_ROUND_UP(len, PAGE_SIZE);
+ 		p = get_pages_array(n);
+ 		if (!p)
+ 			return -ENOMEM;
+-		res = get_user_pages_fast(addr, n,
+-				iov_iter_rw(i) != WRITE ?  FOLL_WRITE : 0, p);
++		res = get_user_pages_fast(addr, n, gup_flags, p);
+ 		if (unlikely(res <= 0)) {
+ 			kvfree(p);
+ 			*pages = NULL;
 -- 
 2.33.1
 
