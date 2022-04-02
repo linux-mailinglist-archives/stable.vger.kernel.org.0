@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F10454F0114
-	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 13:32:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC77A4F011C
+	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 13:34:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354663AbiDBLdE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 2 Apr 2022 07:33:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57112 "EHLO
+        id S239238AbiDBLe0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 2 Apr 2022 07:34:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354679AbiDBLcv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 07:32:51 -0400
+        with ESMTP id S1354682AbiDBLeZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 07:34:25 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5F834A3E4
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 04:30:59 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 970A7E729A
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 04:32:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 53FAE61337
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 11:30:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E3B6C340EC;
-        Sat,  2 Apr 2022 11:30:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2C6876134A
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 11:32:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09F07C34111;
+        Sat,  2 Apr 2022 11:32:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648899058;
-        bh=tQ6UByMPzn32cQtopZZYnzAnR4Du56Hd6TIniR8bswQ=;
+        s=korg; t=1648899152;
+        bh=QYL6wfd8GdRZVRiMqumeZdgxnGGxQdFReGjda6w2U4k=;
         h=Subject:To:Cc:From:Date:From;
-        b=Yl1vflJgSf8X7cWAeCDAz+nH+uSB7mT9XAuFjLBk0Y14C9tfn8uXRHc2uSMniW7cH
-         Or4gq+xfTe6iiOCkMXtUnlc+YDnbbnHa33dj+4BKaS+crUqD4quS1quNE1AtsdjNz+
-         EQuylD91uoweFDyMk84bBqq8GSDCvoLD513U6w0Q=
-Subject: FAILED: patch "[PATCH] arm64: Do not defer reserve_crashkernel() for platforms with" failed to apply to 5.4-stable tree
-To:     vijayb@linux.microsoft.com, pasha.tatashin@soleen.com,
-        will@kernel.org
+        b=CjYccqIy6azCQUNBwXz5pYpqNjXS5fnyL7hX7z4RS8CyWHb+twZ7O5o9rnltUoc+C
+         h76HlPCsOqSbaCxt7nIJ7UTYBiGoSShGO9boApyPa1765coyZ2rgKXKkirJOdGAPp4
+         xrwKJBNa2gnoDlmkSwfV6gVnnr8B1U/piBwpm27k=
+Subject: FAILED: patch "[PATCH] ASoC: SOF: Intel: Fix NULL ptr dereference when ENOMEM" failed to apply to 5.10-stable tree
+To:     ammarfaizi2@gnuweeb.org, broonie@kernel.org, daniel.baluta@nxp.com,
+        kai.vehmanen@linux.intel.com, lgirdwood@gmail.com, perex@perex.cz,
+        peter.ujfalusi@linux.intel.com,
+        pierre-louis.bossart@linux.intel.com, rander.wang@intel.com,
+        ranjani.sridharan@linux.intel.com, tiwai@suse.com,
+        yang.jie@linux.intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 02 Apr 2022 13:30:48 +0200
-Message-ID: <164889904831232@kroah.com>
+Date:   Sat, 02 Apr 2022 13:32:29 +0200
+Message-ID: <164889914960214@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +53,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,164 +64,104 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 031495635b4668f94e964e037ca93d0d38bfde58 Mon Sep 17 00:00:00 2001
-From: Vijay Balakrishna <vijayb@linux.microsoft.com>
-Date: Wed, 2 Mar 2022 09:38:09 -0800
-Subject: [PATCH] arm64: Do not defer reserve_crashkernel() for platforms with
- no DMA memory zones
+From b7fb0ae09009d076964afe4c1a2bde1ee2bd88a9 Mon Sep 17 00:00:00 2001
+From: Ammar Faizi <ammarfaizi2@gnuweeb.org>
+Date: Fri, 25 Feb 2022 01:58:36 +0700
+Subject: [PATCH] ASoC: SOF: Intel: Fix NULL ptr dereference when ENOMEM
 
-The following patches resulted in deferring crash kernel reservation to
-mem_init(), mainly aimed at platforms with DMA memory zones (no IOMMU),
-in particular Raspberry Pi 4.
+Do not call snd_dma_free_pages() when snd_dma_alloc_pages() returns
+-ENOMEM because it leads to a NULL pointer dereference bug.
 
-commit 1a8e1cef7603 ("arm64: use both ZONE_DMA and ZONE_DMA32")
-commit 8424ecdde7df ("arm64: mm: Set ZONE_DMA size based on devicetree's dma-ranges")
-commit 0a30c53573b0 ("arm64: mm: Move reserve_crashkernel() into mem_init()")
-commit 2687275a5843 ("arm64: Force NO_BLOCK_MAPPINGS if crashkernel reservation is required")
+The dmesg says:
 
-Above changes introduced boot slowdown due to linear map creation for
-all the memory banks with NO_BLOCK_MAPPINGS, see discussion[1].  The proposed
-changes restore crash kernel reservation to earlier behavior thus avoids
-slow boot, particularly for platforms with IOMMU (no DMA memory zones).
+  [ T1387] sof-audio-pci-intel-tgl 0000:00:1f.3: error: memory alloc failed: -12
+  [ T1387] BUG: kernel NULL pointer dereference, address: 0000000000000000
+  [ T1387] #PF: supervisor read access in kernel mode
+  [ T1387] #PF: error_code(0x0000) - not-present page
+  [ T1387] PGD 0 P4D 0
+  [ T1387] Oops: 0000 [#1] PREEMPT SMP NOPTI
+  [ T1387] CPU: 6 PID: 1387 Comm: alsa-sink-HDA A Tainted: G        W         5.17.0-rc4-superb-owl-00055-g80d47f5de5e3
+  [ T1387] Hardware name: HP HP Laptop 14s-dq2xxx/87FD, BIOS F.15 09/15/2021
+  [ T1387] RIP: 0010:dma_free_noncontiguous+0x37/0x80
+  [ T1387] Code: [... snip ...]
+  [ T1387] RSP: 0000:ffffc90002b87770 EFLAGS: 00010246
+  [ T1387] RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
+  [ T1387] RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffff888101db30d0
+  [ T1387] RBP: 00000000fffffff4 R08: 0000000000000000 R09: 0000000000000000
+  [ T1387] R10: 0000000000000000 R11: ffffc90002b874d0 R12: 0000000000000001
+  [ T1387] R13: 0000000000058000 R14: ffff888105260c68 R15: ffff888105260828
+  [ T1387] FS:  00007f42e2ffd640(0000) GS:ffff888466b80000(0000) knlGS:0000000000000000
+  [ T1387] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  [ T1387] CR2: 0000000000000000 CR3: 000000014acf0003 CR4: 0000000000770ee0
+  [ T1387] PKRU: 55555554
+  [ T1387] Call Trace:
+  [ T1387]  <TASK>
+  [ T1387]  cl_stream_prepare+0x10a/0x120 [snd_sof_intel_hda_common 146addf995b9279ae7f509621078cccbe4f875e1]
+  [... snip ...]
+  [ T1387]  </TASK>
 
-Tested changes to confirm no ~150ms boot slowdown on our SoC with IOMMU
-and 8GB memory.  Also tested with ZONE_DMA and/or ZONE_DMA32 configs to confirm
-no regression to deferring scheme of crash kernel memory reservation.
-In both cases successfully collected kernel crash dump.
+Cc: Daniel Baluta <daniel.baluta@nxp.com>
+Cc: Jaroslav Kysela <perex@perex.cz>
+Cc: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Cc: Keyon Jie <yang.jie@linux.intel.com>
+Cc: Liam Girdwood <lgirdwood@gmail.com>
+Cc: Mark Brown <broonie@kernel.org>
+Cc: Rander Wang <rander.wang@intel.com>
+Cc: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Cc: Takashi Iwai <tiwai@suse.com>
+Cc: sound-open-firmware@alsa-project.org
+Cc: alsa-devel@alsa-project.org
+Cc: linux-kernel@vger.kernel.org
+Cc: stable@vger.kernel.org # v5.2+
+Fixes: d16046ffa6de040bf580a64d5f4d0aa18258a854 ("ASoC: SOF: Intel: Add Intel specific HDA firmware loader")
+Link: https://lore.kernel.org/lkml/20220224145124.15985-1-ammarfaizi2@gnuweeb.org/ # v1
+Link: https://lore.kernel.org/lkml/20220224180850.34592-1-ammarfaizi2@gnuweeb.org/ # v2
+Link: https://lore.kernel.org/lkml/20220224182818.40301-1-ammarfaizi2@gnuweeb.org/ # v3
+Reviewed-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Signed-off-by: Ammar Faizi <ammarfaizi2@gnuweeb.org>
+Link: https://lore.kernel.org/r/20220224185836.44907-1-ammarfaizi2@gnuweeb.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 
-[1] https://lore.kernel.org/all/9436d033-579b-55fa-9b00-6f4b661c2dd7@linux.microsoft.com/
-
-Signed-off-by: Vijay Balakrishna <vijayb@linux.microsoft.com>
-Cc: stable@vger.kernel.org
-Reviewed-by: Pasha Tatashin <pasha.tatashin@soleen.com>
-Link: https://lore.kernel.org/r/1646242689-20744-1-git-send-email-vijayb@linux.microsoft.com
-[will: Add #ifdef CONFIG_KEXEC_CORE guards to fix 'crashk_res' references in allnoconfig build]
-Signed-off-by: Will Deacon <will@kernel.org>
-
-diff --git a/arch/arm64/mm/init.c b/arch/arm64/mm/init.c
-index db63cc885771..919be440494f 100644
---- a/arch/arm64/mm/init.c
-+++ b/arch/arm64/mm/init.c
-@@ -61,8 +61,34 @@ EXPORT_SYMBOL(memstart_addr);
-  * unless restricted on specific platforms (e.g. 30-bit on Raspberry Pi 4).
-  * In such case, ZONE_DMA32 covers the rest of the 32-bit addressable memory,
-  * otherwise it is empty.
-+ *
-+ * Memory reservation for crash kernel either done early or deferred
-+ * depending on DMA memory zones configs (ZONE_DMA) --
-+ *
-+ * In absence of ZONE_DMA configs arm64_dma_phys_limit initialized
-+ * here instead of max_zone_phys().  This lets early reservation of
-+ * crash kernel memory which has a dependency on arm64_dma_phys_limit.
-+ * Reserving memory early for crash kernel allows linear creation of block
-+ * mappings (greater than page-granularity) for all the memory bank rangs.
-+ * In this scheme a comparatively quicker boot is observed.
-+ *
-+ * If ZONE_DMA configs are defined, crash kernel memory reservation
-+ * is delayed until DMA zone memory range size initilazation performed in
-+ * zone_sizes_init().  The defer is necessary to steer clear of DMA zone
-+ * memory range to avoid overlap allocation.  So crash kernel memory boundaries
-+ * are not known when mapping all bank memory ranges, which otherwise means
-+ * not possible to exclude crash kernel range from creating block mappings
-+ * so page-granularity mappings are created for the entire memory range.
-+ * Hence a slightly slower boot is observed.
-+ *
-+ * Note: Page-granularity mapppings are necessary for crash kernel memory
-+ * range for shrinking its size via /sys/kernel/kexec_crash_size interface.
-  */
--phys_addr_t arm64_dma_phys_limit __ro_after_init;
-+#if IS_ENABLED(CONFIG_ZONE_DMA) || IS_ENABLED(CONFIG_ZONE_DMA32)
-+phys_addr_t __ro_after_init arm64_dma_phys_limit;
-+#else
-+const phys_addr_t arm64_dma_phys_limit = PHYS_MASK + 1;
-+#endif
+diff --git a/sound/soc/sof/intel/hda-loader.c b/sound/soc/sof/intel/hda-loader.c
+index 33306d2023a7..9bbfdab8009d 100644
+--- a/sound/soc/sof/intel/hda-loader.c
++++ b/sound/soc/sof/intel/hda-loader.c
+@@ -47,7 +47,7 @@ static struct hdac_ext_stream *cl_stream_prepare(struct snd_sof_dev *sdev, unsig
+ 	ret = snd_dma_alloc_pages(SNDRV_DMA_TYPE_DEV_SG, &pci->dev, size, dmab);
+ 	if (ret < 0) {
+ 		dev_err(sdev->dev, "error: memory alloc failed: %d\n", ret);
+-		goto error;
++		goto out_put;
+ 	}
  
- #ifdef CONFIG_KEXEC_CORE
- /*
-@@ -153,8 +179,6 @@ static void __init zone_sizes_init(unsigned long min, unsigned long max)
- 	if (!arm64_dma_phys_limit)
- 		arm64_dma_phys_limit = dma32_phys_limit;
- #endif
--	if (!arm64_dma_phys_limit)
--		arm64_dma_phys_limit = PHYS_MASK + 1;
- 	max_zone_pfns[ZONE_NORMAL] = max;
+ 	hstream->period_bytes = 0;/* initialize period_bytes */
+@@ -58,22 +58,23 @@ static struct hdac_ext_stream *cl_stream_prepare(struct snd_sof_dev *sdev, unsig
+ 		ret = hda_dsp_iccmax_stream_hw_params(sdev, dsp_stream, dmab, NULL);
+ 		if (ret < 0) {
+ 			dev_err(sdev->dev, "error: iccmax stream prepare failed: %d\n", ret);
+-			goto error;
++			goto out_free;
+ 		}
+ 	} else {
+ 		ret = hda_dsp_stream_hw_params(sdev, dsp_stream, dmab, NULL);
+ 		if (ret < 0) {
+ 			dev_err(sdev->dev, "error: hdac prepare failed: %d\n", ret);
+-			goto error;
++			goto out_free;
+ 		}
+ 		hda_dsp_stream_spib_config(sdev, dsp_stream, HDA_DSP_SPIB_ENABLE, size);
+ 	}
  
- 	free_area_init(max_zone_pfns);
-@@ -315,6 +339,9 @@ void __init arm64_memblock_init(void)
+ 	return dsp_stream;
  
- 	early_init_fdt_scan_reserved_mem();
- 
-+	if (!IS_ENABLED(CONFIG_ZONE_DMA) && !IS_ENABLED(CONFIG_ZONE_DMA32))
-+		reserve_crashkernel();
-+
- 	high_memory = __va(memblock_end_of_DRAM() - 1) + 1;
+-error:
+-	hda_dsp_stream_put(sdev, direction, hstream->stream_tag);
++out_free:
+ 	snd_dma_free_pages(dmab);
++out_put:
++	hda_dsp_stream_put(sdev, direction, hstream->stream_tag);
+ 	return ERR_PTR(ret);
  }
  
-@@ -361,7 +388,8 @@ void __init bootmem_init(void)
- 	 * request_standard_resources() depends on crashkernel's memory being
- 	 * reserved, so do it here.
- 	 */
--	reserve_crashkernel();
-+	if (IS_ENABLED(CONFIG_ZONE_DMA) || IS_ENABLED(CONFIG_ZONE_DMA32))
-+		reserve_crashkernel();
- 
- 	memblock_dump_all();
- }
-diff --git a/arch/arm64/mm/mmu.c b/arch/arm64/mm/mmu.c
-index acfae9b41cc8..ed21bf83d0b7 100644
---- a/arch/arm64/mm/mmu.c
-+++ b/arch/arm64/mm/mmu.c
-@@ -517,7 +517,7 @@ static void __init map_mem(pgd_t *pgdp)
- 	 */
- 	BUILD_BUG_ON(pgd_index(direct_map_end - 1) == pgd_index(direct_map_end));
- 
--	if (can_set_direct_map() || crash_mem_map || IS_ENABLED(CONFIG_KFENCE))
-+	if (can_set_direct_map() || IS_ENABLED(CONFIG_KFENCE))
- 		flags |= NO_BLOCK_MAPPINGS | NO_CONT_MAPPINGS;
- 
- 	/*
-@@ -528,6 +528,17 @@ static void __init map_mem(pgd_t *pgdp)
- 	 */
- 	memblock_mark_nomap(kernel_start, kernel_end - kernel_start);
- 
-+#ifdef CONFIG_KEXEC_CORE
-+	if (crash_mem_map) {
-+		if (IS_ENABLED(CONFIG_ZONE_DMA) ||
-+		    IS_ENABLED(CONFIG_ZONE_DMA32))
-+			flags |= NO_BLOCK_MAPPINGS | NO_CONT_MAPPINGS;
-+		else if (crashk_res.end)
-+			memblock_mark_nomap(crashk_res.start,
-+			    resource_size(&crashk_res));
-+	}
-+#endif
-+
- 	/* map all the memory banks */
- 	for_each_mem_range(i, &start, &end) {
- 		if (start >= end)
-@@ -554,6 +565,25 @@ static void __init map_mem(pgd_t *pgdp)
- 	__map_memblock(pgdp, kernel_start, kernel_end,
- 		       PAGE_KERNEL, NO_CONT_MAPPINGS);
- 	memblock_clear_nomap(kernel_start, kernel_end - kernel_start);
-+
-+	/*
-+	 * Use page-level mappings here so that we can shrink the region
-+	 * in page granularity and put back unused memory to buddy system
-+	 * through /sys/kernel/kexec_crash_size interface.
-+	 */
-+#ifdef CONFIG_KEXEC_CORE
-+	if (crash_mem_map &&
-+	    !IS_ENABLED(CONFIG_ZONE_DMA) && !IS_ENABLED(CONFIG_ZONE_DMA32)) {
-+		if (crashk_res.end) {
-+			__map_memblock(pgdp, crashk_res.start,
-+				       crashk_res.end + 1,
-+				       PAGE_KERNEL,
-+				       NO_BLOCK_MAPPINGS | NO_CONT_MAPPINGS);
-+			memblock_clear_nomap(crashk_res.start,
-+					     resource_size(&crashk_res));
-+		}
-+	}
-+#endif
- }
- 
- void mark_rodata_ro(void)
 
