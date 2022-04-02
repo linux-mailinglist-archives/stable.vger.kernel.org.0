@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A9EE4F01E4
-	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 15:03:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9BCF54F01E6
+	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 15:03:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354938AbiDBNFB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 2 Apr 2022 09:05:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33750 "EHLO
+        id S1354948AbiDBNF2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 2 Apr 2022 09:05:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34328 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354933AbiDBNFB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 09:05:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B64CD13FA0
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 06:03:09 -0700 (PDT)
+        with ESMTP id S1354949AbiDBNF1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 09:05:27 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DA8A15FF3
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 06:03:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5164561456
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 13:03:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66D28C340EE;
-        Sat,  2 Apr 2022 13:03:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1A9D0B80886
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 13:03:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C07DC340EE;
+        Sat,  2 Apr 2022 13:03:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648904588;
-        bh=FPb8JnBDIYIX7PTkmdgxKl/O349AHWTSFuom+bpYfZo=;
+        s=korg; t=1648904611;
+        bh=xsq38zvUq5ZclIt116sYJkshaJqRLEschvj6f7LNScM=;
         h=Subject:To:Cc:From:Date:From;
-        b=ftE+giSZ+NURTlgtq/HOxc/e1xaPcByRtZjsizfoyQyT6iKtop8xGkKJSbUDFEJMA
-         MBsrVsTYaUGkhykf6F8SJVIdEWcd91ynSD8bA01ri+MXpGKUuWVWa10U5BjZA2Ijfj
-         BNamuG986/M2O9ypH6mUYeo3Ji4jZBhMu7tsc1hY=
-Subject: FAILED: patch "[PATCH] PCI: xgene: Revert "PCI: xgene: Use inbound resources for" failed to apply to 5.10-stable tree
-To:     maz@kernel.org, bhelgaas@google.com, dann.frazier@canonical.com,
-        kw@linux.com, lorenzo.pieralisi@arm.com, robh@kernel.org,
-        stgraber@ubuntu.com, toan@os.amperecomputing.com
+        b=v84FdjCE+VcwHUfDwlnh4FcZ/fssTl1QM8ruzVOLO7P8S/qDs+8xvROrt3+XLF3mk
+         sOkLRzuzeuhxelXmWpaE3O55psDLRhVQS7CmqgFZQxBytEA72wB6CPYLbEH/qUY8AD
+         mMUHj0WdpzgRIuJrVaSBosm+qIJjosnavp6xerW0=
+Subject: FAILED: patch "[PATCH] PCI: aardvark: Fix setting MSI address" failed to apply to 4.14-stable tree
+To:     pali@kernel.org, kabel@kernel.org, lorenzo.pieralisi@arm.com,
+        maz@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 02 Apr 2022 15:02:56 +0200
-Message-ID: <1648904576201106@kroah.com>
+Date:   Sat, 02 Apr 2022 15:03:26 +0200
+Message-ID: <164890460646185@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -50,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -61,107 +60,96 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 1874b6d7ab1bdc900e8398026350313ac29caddb Mon Sep 17 00:00:00 2001
-From: Marc Zyngier <maz@kernel.org>
-Date: Mon, 21 Mar 2022 10:48:42 +0000
-Subject: [PATCH] PCI: xgene: Revert "PCI: xgene: Use inbound resources for
- setup"
+From 46ad3dc4171b5ee1d12267d70112563d5760210a Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
+Date: Mon, 10 Jan 2022 02:50:06 +0100
+Subject: [PATCH] PCI: aardvark: Fix setting MSI address
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-Commit 6dce5aa59e0b ("PCI: xgene: Use inbound resources for setup")
-killed PCIe on my XGene-1 box (a Mustang board). The machine itself
-is still alive, but half of its storage (over NVMe) is gone, and the
-NVMe driver just times out.
+MSI address for receiving MSI interrupts needs to be correctly set before
+enabling processing of MSI interrupts.
 
-Note that this machine boots with a device tree provided by the
-UEFI firmware (2016 vintage), which could well be non conformant
-with the spec, hence the breakage.
+Move code for setting PCIE_MSI_ADDR_LOW_REG and PCIE_MSI_ADDR_HIGH_REG
+from advk_pcie_init_msi_irq_domain() to advk_pcie_setup_hw(), before
+enabling PCIE_CORE_CTRL2_MSI_ENABLE.
 
-With the patch reverted, the box boots 5.17-rc8 with flying colors.
+After this we can remove the now unused member msi_msg, which was used
+only for MSI doorbell address. MSI address can be any address which cannot
+be used to DMA to. So change it to the address of the main struct advk_pcie.
 
-Link: https://lore.kernel.org/all/Yf2wTLjmcRj+AbDv@xps13.dannf
-Link: https://lore.kernel.org/r/20220321104843.949645-2-maz@kernel.org
-Fixes: 6dce5aa59e0b ("PCI: xgene: Use inbound resources for setup")
-Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20220110015018.26359-12-kabel@kernel.org
+Fixes: 8c39d710363c ("PCI: aardvark: Add Aardvark PCI host controller driver")
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Marek Behún <kabel@kernel.org>
 Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Cc: stable@vger.kernel.org
-Cc: Rob Herring <robh@kernel.org>
-Cc: Toan Le <toan@os.amperecomputing.com>
-Cc: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Cc: Krzysztof Wilczyński <kw@linux.com>
-Cc: Bjorn Helgaas <bhelgaas@google.com>
-Cc: Stéphane Graber <stgraber@ubuntu.com>
-Cc: dann frazier <dann.frazier@canonical.com>
+Acked-by: Marc Zyngier <maz@kernel.org>
+Cc: stable@vger.kernel.org # f21a8b1b6837 ("PCI: aardvark: Move to MSI handling using generic MSI support")
 
-diff --git a/drivers/pci/controller/pci-xgene.c b/drivers/pci/controller/pci-xgene.c
-index 0d5acbfc7143..aa41ceaf031f 100644
---- a/drivers/pci/controller/pci-xgene.c
-+++ b/drivers/pci/controller/pci-xgene.c
-@@ -479,28 +479,27 @@ static int xgene_pcie_select_ib_reg(u8 *ib_reg_mask, u64 size)
- }
+diff --git a/drivers/pci/controller/pci-aardvark.c b/drivers/pci/controller/pci-aardvark.c
+index 35f78bfc0dc7..b20973fae24d 100644
+--- a/drivers/pci/controller/pci-aardvark.c
++++ b/drivers/pci/controller/pci-aardvark.c
+@@ -277,7 +277,6 @@ struct advk_pcie {
+ 	raw_spinlock_t msi_irq_lock;
+ 	DECLARE_BITMAP(msi_used, MSI_IRQ_NUM);
+ 	struct mutex msi_used_lock;
+-	u16 msi_msg;
+ 	int link_gen;
+ 	struct pci_bridge_emul bridge;
+ 	struct gpio_desc *reset_gpio;
+@@ -472,6 +471,7 @@ static void advk_pcie_disable_ob_win(struct advk_pcie *pcie, u8 win_num)
  
- static void xgene_pcie_setup_ib_reg(struct xgene_pcie *port,
--				    struct resource_entry *entry,
--				    u8 *ib_reg_mask)
-+				    struct of_pci_range *range, u8 *ib_reg_mask)
+ static void advk_pcie_setup_hw(struct advk_pcie *pcie)
  {
- 	void __iomem *cfg_base = port->cfg_base;
- 	struct device *dev = port->dev;
- 	void __iomem *bar_addr;
- 	u32 pim_reg;
--	u64 cpu_addr = entry->res->start;
--	u64 pci_addr = cpu_addr - entry->offset;
--	u64 size = resource_size(entry->res);
-+	u64 cpu_addr = range->cpu_addr;
-+	u64 pci_addr = range->pci_addr;
-+	u64 size = range->size;
- 	u64 mask = ~(size - 1) | EN_REG;
- 	u32 flags = PCI_BASE_ADDRESS_MEM_TYPE_64;
- 	u32 bar_low;
- 	int region;
++	phys_addr_t msi_addr;
+ 	u32 reg;
+ 	int i;
  
--	region = xgene_pcie_select_ib_reg(ib_reg_mask, size);
-+	region = xgene_pcie_select_ib_reg(ib_reg_mask, range->size);
- 	if (region < 0) {
- 		dev_warn(dev, "invalid pcie dma-range config\n");
- 		return;
- 	}
+@@ -560,6 +560,11 @@ static void advk_pcie_setup_hw(struct advk_pcie *pcie)
+ 	reg |= LANE_COUNT_1;
+ 	advk_writel(pcie, reg, PCIE_CORE_CTRL0_REG);
  
--	if (entry->res->flags & IORESOURCE_PREFETCH)
-+	if (range->flags & IORESOURCE_PREFETCH)
- 		flags |= PCI_BASE_ADDRESS_MEM_PREFETCH;
- 
- 	bar_low = pcie_bar_low_val((u32)cpu_addr, flags);
-@@ -531,13 +530,25 @@ static void xgene_pcie_setup_ib_reg(struct xgene_pcie *port,
- 
- static int xgene_pcie_parse_map_dma_ranges(struct xgene_pcie *port)
- {
--	struct pci_host_bridge *bridge = pci_host_bridge_from_priv(port);
--	struct resource_entry *entry;
-+	struct device_node *np = port->node;
-+	struct of_pci_range range;
-+	struct of_pci_range_parser parser;
-+	struct device *dev = port->dev;
- 	u8 ib_reg_mask = 0;
- 
--	resource_list_for_each_entry(entry, &bridge->dma_ranges)
--		xgene_pcie_setup_ib_reg(port, entry, &ib_reg_mask);
-+	if (of_pci_dma_range_parser_init(&parser, np)) {
-+		dev_err(dev, "missing dma-ranges property\n");
-+		return -EINVAL;
-+	}
++	/* Set MSI address */
++	msi_addr = virt_to_phys(pcie);
++	advk_writel(pcie, lower_32_bits(msi_addr), PCIE_MSI_ADDR_LOW_REG);
++	advk_writel(pcie, upper_32_bits(msi_addr), PCIE_MSI_ADDR_HIGH_REG);
 +
-+	/* Get the dma-ranges from DT */
-+	for_each_of_pci_range(&parser, &range) {
-+		u64 end = range.cpu_addr + range.size - 1;
+ 	/* Enable MSI */
+ 	reg = advk_readl(pcie, PCIE_CORE_CTRL2_REG);
+ 	reg |= PCIE_CORE_CTRL2_MSI_ENABLE;
+@@ -1175,10 +1180,10 @@ static void advk_msi_irq_compose_msi_msg(struct irq_data *data,
+ 					 struct msi_msg *msg)
+ {
+ 	struct advk_pcie *pcie = irq_data_get_irq_chip_data(data);
+-	phys_addr_t msi_msg = virt_to_phys(&pcie->msi_msg);
++	phys_addr_t msi_addr = virt_to_phys(pcie);
  
-+		dev_dbg(dev, "0x%08x 0x%016llx..0x%016llx -> 0x%016llx\n",
-+			range.flags, range.cpu_addr, end, range.pci_addr);
-+		xgene_pcie_setup_ib_reg(port, &range, &ib_reg_mask);
-+	}
- 	return 0;
+-	msg->address_lo = lower_32_bits(msi_msg);
+-	msg->address_hi = upper_32_bits(msi_msg);
++	msg->address_lo = lower_32_bits(msi_addr);
++	msg->address_hi = upper_32_bits(msi_addr);
+ 	msg->data = data->hwirq;
  }
  
+@@ -1337,18 +1342,10 @@ static struct msi_domain_info advk_msi_domain_info = {
+ static int advk_pcie_init_msi_irq_domain(struct advk_pcie *pcie)
+ {
+ 	struct device *dev = &pcie->pdev->dev;
+-	phys_addr_t msi_msg_phys;
+ 
+ 	raw_spin_lock_init(&pcie->msi_irq_lock);
+ 	mutex_init(&pcie->msi_used_lock);
+ 
+-	msi_msg_phys = virt_to_phys(&pcie->msi_msg);
+-
+-	advk_writel(pcie, lower_32_bits(msi_msg_phys),
+-		    PCIE_MSI_ADDR_LOW_REG);
+-	advk_writel(pcie, upper_32_bits(msi_msg_phys),
+-		    PCIE_MSI_ADDR_HIGH_REG);
+-
+ 	pcie->msi_inner_domain =
+ 		irq_domain_add_linear(NULL, MSI_IRQ_NUM,
+ 				      &advk_msi_domain_ops, pcie);
 
