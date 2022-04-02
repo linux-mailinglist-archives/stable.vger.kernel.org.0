@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 511B24F017A
-	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 14:30:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C45A04F016F
+	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 14:30:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241811AbiDBMbc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 2 Apr 2022 08:31:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40324 "EHLO
+        id S241909AbiDBMbl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 2 Apr 2022 08:31:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41092 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230173AbiDBMbb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 08:31:31 -0400
+        with ESMTP id S230173AbiDBMbk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 08:31:40 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8017137A2C
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 05:29:40 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1225742495
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 05:29:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1B062613F1
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 12:29:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E41DC340EC;
-        Sat,  2 Apr 2022 12:29:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A2986613F7
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 12:29:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4181C340EC;
+        Sat,  2 Apr 2022 12:29:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648902579;
-        bh=fr2lvHIwN1e1bpErNc2ODARvXk/S8WgHC5nxKpoT81Q=;
+        s=korg; t=1648902588;
+        bh=AveD865M96FQLbuafkSBvLrEwe4pefuMH2E7KA3y3/0=;
         h=Subject:To:Cc:From:Date:From;
-        b=GzCFkQP8wlCPvjC1E70eZ3yiy9eyvuxKuVyUr/EEqCczjKzPMhv5FIV6qHbDr0+od
-         cCPGuWHAwFI2MhgHRpgAQ2EKeNTFrt2odaNokmZT//31RNU7kfM6aGdcWn3pxpov1g
-         uS5G1mMusAuUvhprysA0/7HltzHFDAbWZddz6va4=
-Subject: FAILED: patch "[PATCH] drm/edid: fix CEA extension byte #3 parsing" failed to apply to 4.19-stable tree
+        b=klYA9HCyQingJR3lz3wnHTy2YIU7ywjP/dkZWprHNlweBzsV6YB+1pshILhnQpIT5
+         aRQy/m3N6vw3kphUKg5Fl1sBxHU9MlSz9GPLzej4j2unAOMufX3o3Zt+Hu5djit7im
+         SK0/gp1YbrjOX16lkzjU3MyxuWr6EYnxgNHUzBuQ=
+Subject: FAILED: patch "[PATCH] drm/edid: fix CEA extension byte #3 parsing" failed to apply to 5.4-stable tree
 To:     jani.nikula@intel.com, shawn.c.lee@intel.com,
         stable@vger.kernel.org, ville.syrjala@linux.intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sat, 02 Apr 2022 14:29:37 +0200
-Message-ID: <164890257744242@kroah.com>
+Message-ID: <1648902577120251@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
