@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A54714F01F2
-	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 15:05:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AF8E4F01F5
+	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 15:06:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354986AbiDBNHL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 2 Apr 2022 09:07:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41676 "EHLO
+        id S242655AbiDBNIf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 2 Apr 2022 09:08:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48296 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235480AbiDBNHL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 09:07:11 -0400
+        with ESMTP id S1355184AbiDBNI3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 09:08:29 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 539C610F6DB
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 06:05:19 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3581F11D7B9
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 06:06:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 10CAFB808BD
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 13:05:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CC2EC340EC;
-        Sat,  2 Apr 2022 13:05:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D6D5FB808C0
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 13:06:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15459C340EC;
+        Sat,  2 Apr 2022 13:06:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648904716;
-        bh=D8sccFMWssaRz4nNub9Smj4UuzCXTf3pd5qY2tNhaRY=;
+        s=korg; t=1648904794;
+        bh=PKT1KdivK7yyK+tBDd3RDeky6cjiJhf+SMBbGOYA3kc=;
         h=Subject:To:Cc:From:Date:From;
-        b=ynI/o6x16fTlDiwQJOg2uRVBvfZiDoPIZxOQ6FIEHSxTOStBx9d+E8nhTv0BtBLqC
-         9DOfoHgi4hg16Dx4+mx4SyGqNu2UiNT9YUTwIYkn273Iy8EvWV0lMhgRtgTzBih28R
-         hFnHpFK1OAocgX6fR0QAp3n2wS+0i9uxkFGKTJVE=
-Subject: FAILED: patch "[PATCH] drm/i915/opregion: check port number bounds for SWSCI display" failed to apply to 5.4-stable tree
-To:     jani.nikula@intel.com, lucas.demarchi@intel.com,
-        stable@vger.kernel.org, ville.syrjala@linux.intel.com
+        b=VdymyeaZ4PWMajiTI/rFahmrd3qjCnwRHS/7oPZGsjJl6lvIpUDnABdq7Ai4Hfwgu
+         YGgKPgle+oonVzw4yz3rE1S0ndRN/8RotmKpJ07626UYyT9iG5dAG6P19gbQQvrHiz
+         kZmhPl2Xbsej/8etKZZoMiaI9QTLPiaKXhmoNRoA=
+Subject: FAILED: patch "[PATCH] KVM: use __vcalloc for very large allocations" failed to apply to 5.16-stable tree
+To:     pbonzini@redhat.com, david@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 02 Apr 2022 15:05:14 +0200
-Message-ID: <164890471419208@kroah.com>
+Date:   Sat, 02 Apr 2022 15:06:31 +0200
+Message-ID: <1648904791231133@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -49,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.16-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,59 +59,94 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 24a644ebbfd3b13cda702f98907f9dd123e34bf9 Mon Sep 17 00:00:00 2001
-From: Jani Nikula <jani.nikula@intel.com>
-Date: Thu, 10 Feb 2022 12:36:42 +0200
-Subject: [PATCH] drm/i915/opregion: check port number bounds for SWSCI display
- power state
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From 37b2a6510a48ca361ced679f92682b7b7d7d0330 Mon Sep 17 00:00:00 2001
+From: Paolo Bonzini <pbonzini@redhat.com>
+Date: Tue, 8 Mar 2022 04:49:37 -0500
+Subject: [PATCH] KVM: use __vcalloc for very large allocations
 
-The mapping from enum port to whatever port numbering scheme is used by
-the SWSCI Display Power State Notification is odd, and the memory of it
-has faded. In any case, the parameter only has space for ports numbered
-[0..4], and UBSAN reports bit shift beyond it when the platform has port
-F or more.
+Allocations whose size is related to the memslot size can be arbitrarily
+large.  Do not use kvzalloc/kvcalloc, as those are limited to "not crazy"
+sizes that fit in 32 bits.
 
-Since the SWSCI functionality is supposed to be obsolete for new
-platforms (i.e. ones that might have port F or more), just bail out
-early if the mapped and mangled port number is beyond what the Display
-Power State Notification can support.
+Cc: stable@vger.kernel.org
+Fixes: 7661809d493b ("mm: don't allow oversized kvmalloc() calls")
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
-Fixes: 9c4b0a683193 ("drm/i915: add opregion function to notify bios of encoder enable/disable")
-Cc: <stable@vger.kernel.org> # v3.13+
-Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Cc: Lucas De Marchi <lucas.demarchi@intel.com>
-Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/4800
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/cc363f42d6b5a5932b6d218fefcc8bdfb15dbbe5.1644489329.git.jani.nikula@intel.com
-
-diff --git a/drivers/gpu/drm/i915/display/intel_opregion.c b/drivers/gpu/drm/i915/display/intel_opregion.c
-index af9d30f56cc1..ad1afe9df6c3 100644
---- a/drivers/gpu/drm/i915/display/intel_opregion.c
-+++ b/drivers/gpu/drm/i915/display/intel_opregion.c
-@@ -363,6 +363,21 @@ int intel_opregion_notify_encoder(struct intel_encoder *intel_encoder,
- 		port++;
- 	}
+diff --git a/arch/powerpc/kvm/book3s_hv_uvmem.c b/arch/powerpc/kvm/book3s_hv_uvmem.c
+index e414ca44839f..be441403925b 100644
+--- a/arch/powerpc/kvm/book3s_hv_uvmem.c
++++ b/arch/powerpc/kvm/book3s_hv_uvmem.c
+@@ -251,7 +251,7 @@ int kvmppc_uvmem_slot_init(struct kvm *kvm, const struct kvm_memory_slot *slot)
+ 	p = kzalloc(sizeof(*p), GFP_KERNEL);
+ 	if (!p)
+ 		return -ENOMEM;
+-	p->pfns = vzalloc(array_size(slot->npages, sizeof(*p->pfns)));
++	p->pfns = vcalloc(slot->npages, sizeof(*p->pfns));
+ 	if (!p->pfns) {
+ 		kfree(p);
+ 		return -ENOMEM;
+diff --git a/arch/x86/kvm/mmu/page_track.c b/arch/x86/kvm/mmu/page_track.c
+index 68eb1fb548b6..2e09d1b6249f 100644
+--- a/arch/x86/kvm/mmu/page_track.c
++++ b/arch/x86/kvm/mmu/page_track.c
+@@ -47,8 +47,8 @@ int kvm_page_track_create_memslot(struct kvm *kvm,
+ 			continue;
  
-+	/*
-+	 * The port numbering and mapping here is bizarre. The now-obsolete
-+	 * swsci spec supports ports numbered [0..4]. Port E is handled as a
-+	 * special case, but port F and beyond are not. The functionality is
-+	 * supposed to be obsolete for new platforms. Just bail out if the port
-+	 * number is out of bounds after mapping.
-+	 */
-+	if (port > 4) {
-+		drm_dbg_kms(&dev_priv->drm,
-+			    "[ENCODER:%d:%s] port %c (index %u) out of bounds for display power state notification\n",
-+			    intel_encoder->base.base.id, intel_encoder->base.name,
-+			    port_name(intel_encoder->port), port);
-+		return -EINVAL;
-+	}
-+
- 	if (!enable)
- 		parm |= 4 << 8;
+ 		slot->arch.gfn_track[i] =
+-			kvcalloc(npages, sizeof(*slot->arch.gfn_track[i]),
+-				 GFP_KERNEL_ACCOUNT);
++			__vcalloc(npages, sizeof(*slot->arch.gfn_track[i]),
++				  GFP_KERNEL_ACCOUNT);
+ 		if (!slot->arch.gfn_track[i])
+ 			goto track_free;
+ 	}
+@@ -75,7 +75,8 @@ int kvm_page_track_write_tracking_alloc(struct kvm_memory_slot *slot)
+ 	if (slot->arch.gfn_track[KVM_PAGE_TRACK_WRITE])
+ 		return 0;
+ 
+-	gfn_track = kvcalloc(slot->npages, sizeof(*gfn_track), GFP_KERNEL_ACCOUNT);
++	gfn_track = __vcalloc(slot->npages, sizeof(*gfn_track),
++			      GFP_KERNEL_ACCOUNT);
+ 	if (gfn_track == NULL)
+ 		return -ENOMEM;
+ 
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index f79bf4552082..4fa4d8269e5b 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -11838,7 +11838,7 @@ int memslot_rmap_alloc(struct kvm_memory_slot *slot, unsigned long npages)
+ 		if (slot->arch.rmap[i])
+ 			continue;
+ 
+-		slot->arch.rmap[i] = kvcalloc(lpages, sz, GFP_KERNEL_ACCOUNT);
++		slot->arch.rmap[i] = __vcalloc(lpages, sz, GFP_KERNEL_ACCOUNT);
+ 		if (!slot->arch.rmap[i]) {
+ 			memslot_rmap_free(slot);
+ 			return -ENOMEM;
+@@ -11875,7 +11875,7 @@ static int kvm_alloc_memslot_metadata(struct kvm *kvm,
+ 
+ 		lpages = __kvm_mmu_slot_lpages(slot, npages, level);
+ 
+-		linfo = kvcalloc(lpages, sizeof(*linfo), GFP_KERNEL_ACCOUNT);
++		linfo = __vcalloc(lpages, sizeof(*linfo), GFP_KERNEL_ACCOUNT);
+ 		if (!linfo)
+ 			goto out_free;
+ 
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index c941b97fa133..69c318fdff61 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -1274,9 +1274,9 @@ static int kvm_vm_release(struct inode *inode, struct file *filp)
+  */
+ static int kvm_alloc_dirty_bitmap(struct kvm_memory_slot *memslot)
+ {
+-	unsigned long dirty_bytes = 2 * kvm_dirty_bitmap_bytes(memslot);
++	unsigned long dirty_bytes = kvm_dirty_bitmap_bytes(memslot);
+ 
+-	memslot->dirty_bitmap = kvzalloc(dirty_bytes, GFP_KERNEL_ACCOUNT);
++	memslot->dirty_bitmap = __vcalloc(2, dirty_bytes, GFP_KERNEL_ACCOUNT);
+ 	if (!memslot->dirty_bitmap)
+ 		return -ENOMEM;
  
 
