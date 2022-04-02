@@ -2,316 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F6084F0127
-	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 13:37:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A32AE4F0142
+	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 13:46:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229980AbiDBLi4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 2 Apr 2022 07:38:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50568 "EHLO
+        id S1348735AbiDBLrn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 2 Apr 2022 07:47:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49354 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232461AbiDBLi4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 07:38:56 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4086455481
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 04:37:04 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E9B5FB8069B
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 11:37:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07A13C340EC;
-        Sat,  2 Apr 2022 11:37:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648899421;
-        bh=yFnXQL/JWroSHcXrweofHbIUdhfbXmCurBvJnFPuEtA=;
-        h=Subject:To:Cc:From:Date:From;
-        b=SS5ezAwKta+jWOxaQ08PXtjud3nrcIGlYCYjaLRnV0FY5tZqrSY+SGcGmPZfsk6mW
-         CdH8R0TSBnf2APIkCFFboYKONv79bsdl3Wwtnv31w7znyflg1THGZd0VU+LMNVjF0e
-         HOQzrqQg/3M70bznTLsx3nTt0e7hTP7OekhfAFbc=
-Subject: FAILED: patch "[PATCH] proc/vmcore: fix possible deadlock on concurrent mmap and" failed to apply to 5.16-stable tree
-To:     david@redhat.com, akpm@linux-foundation.org, bhe@redhat.com,
-        boqun.feng@gmail.com, dyoung@redhat.com, josh@joshtriplett.org,
-        paulmck@kernel.org, peterz@infradead.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, vgoyal@redhat.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 02 Apr 2022 13:36:58 +0200
-Message-ID: <164889941824213@kroah.com>
+        with ESMTP id S1345518AbiDBLrl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 07:47:41 -0400
+Received: from gnuweeb.org (gnuweeb.org [51.81.211.47])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3108A102412
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 04:45:50 -0700 (PDT)
+Received: from [192.168.165.80] (unknown [182.2.36.61])
+        by gnuweeb.org (Postfix) with ESMTPSA id C07A77E35B;
+        Sat,  2 Apr 2022 11:45:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gnuweeb.org;
+        s=default; t=1648899949;
+        bh=X14l+V8LdbqkPVyoxKIt3c19pBxXQcKS12fLDPG+f8c=;
+        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+        b=Du61JKS6nA+tb297WzIE6xvBcMQWDMg387+pbuEgKlSuifvXgZGQwEIAt/4woHtg0
+         +/SEG2VGlnEH/UIZ6jc20MI8RCtn6bO2Ya6I29GGXMxlO4c29i+WU/jVxWF6vhd7uz
+         4PFOtvu+5J1G6uo9/fmU8ho4TI2NVBeY3XerSpIjYks939MLKFA0CArlGrHrM6NQym
+         ZJd5MEs+KlHTRUNdsEynx/0vG2BDWUbctcXrIsAuUnS7uBwcDP8Hz6PioH0ojErNBG
+         WhsJRZQVZSXeasuEAGQZq850XEFWdVS1AGap8rkk3KowxxD+I4jKEL+XljNoC8TfrF
+         ySnTDWNJRiQSg==
+Message-ID: <ae44d3ab-3b08-c6f1-36a6-5b987f769c23@gnuweeb.org>
+Date:   Sat, 2 Apr 2022 18:45:37 +0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.7.0
+Subject: Re: FAILED: patch "[PATCH] ASoC: SOF: Intel: Fix NULL ptr dereference
+ when ENOMEM" failed to apply to 5.10-stable tree
+Content-Language: en-US
+To:     Greg KH <gregkh@linuxfoundation.org>, broonie@kernel.org,
+        daniel.baluta@nxp.com, kai.vehmanen@linux.intel.com,
+        lgirdwood@gmail.com, perex@perex.cz,
+        peter.ujfalusi@linux.intel.com,
+        pierre-louis.bossart@linux.intel.com, rander.wang@intel.com,
+        ranjani.sridharan@linux.intel.com, tiwai@suse.com,
+        yang.jie@linux.intel.com
+Cc:     stable@vger.kernel.org
+References: <164889914960214@kroah.com>
+From:   Ammar Faizi <ammarfaizi2@gnuweeb.org>
+In-Reply-To: <164889914960214@kroah.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,SPF_HELO_PASS,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 4/2/22 6:32 PM, Greg KH <gregkh@linuxfoundation.org> wrote:
+> The patch below does not apply to the 5.10-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
+> 
+> thanks,
+> 
+> greg k-h
 
-The patch below does not apply to the 5.16-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+I will submit backport patches (5.4 LTS and 5.10 LTS) for review tomorrow morning.
 
-thanks,
+Thanks!
 
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 5039b170369d22613ebc07e81410891f52280a45 Mon Sep 17 00:00:00 2001
-From: David Hildenbrand <david@redhat.com>
-Date: Wed, 23 Mar 2022 16:05:23 -0700
-Subject: [PATCH] proc/vmcore: fix possible deadlock on concurrent mmap and
- read
-
-Lockdep noticed that there is chance for a deadlock if we have concurrent
-mmap, concurrent read, and the addition/removal of a callback.
-
-As nicely explained by Boqun:
- "Lockdep warned about the above sequences because rw_semaphore is a
-  fair read-write lock, and the following can cause a deadlock:
-
-	TASK 1			TASK 2		TASK 3
-	======			======		======
-	down_write(mmap_lock);
-				down_read(vmcore_cb_rwsem)
-						down_write(vmcore_cb_rwsem); // blocked
-	down_read(vmcore_cb_rwsem); // cannot get the lock because of the fairness
-				down_read(mmap_lock); // blocked
-
-  IOW, a reader can block another read if there is a writer queued by
-  the second reader and the lock is fair"
-
-To fix this, convert to srcu to make this deadlock impossible.  We need
-srcu as our callbacks can sleep.  With this change, I cannot trigger any
-lockdep warnings.
-
-    ======================================================
-    WARNING: possible circular locking dependency detected
-    5.17.0-0.rc0.20220117git0c947b893d69.68.test.fc36.x86_64 #1 Not tainted
-    ------------------------------------------------------
-    makedumpfile/542 is trying to acquire lock:
-    ffffffff832d2eb8 (vmcore_cb_rwsem){.+.+}-{3:3}, at: mmap_vmcore+0x340/0x580
-
-    but task is already holding lock:
-    ffff8880af226438 (&mm->mmap_lock#2){++++}-{3:3}, at: vm_mmap_pgoff+0x84/0x150
-
-    which lock already depends on the new lock.
-
-    the existing dependency chain (in reverse order) is:
-
-    -> #1 (&mm->mmap_lock#2){++++}-{3:3}:
-           lock_acquire+0xc3/0x1a0
-           __might_fault+0x4e/0x70
-           _copy_to_user+0x1f/0x90
-           __copy_oldmem_page+0x72/0xc0
-           read_from_oldmem+0x77/0x1e0
-           read_vmcore+0x2c2/0x310
-           proc_reg_read+0x47/0xa0
-           vfs_read+0x101/0x340
-           __x64_sys_pread64+0x5d/0xa0
-           do_syscall_64+0x43/0x90
-           entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-    -> #0 (vmcore_cb_rwsem){.+.+}-{3:3}:
-           validate_chain+0x9f4/0x2670
-           __lock_acquire+0x8f7/0xbc0
-           lock_acquire+0xc3/0x1a0
-           down_read+0x4a/0x140
-           mmap_vmcore+0x340/0x580
-           proc_reg_mmap+0x3e/0x90
-           mmap_region+0x504/0x880
-           do_mmap+0x38a/0x520
-           vm_mmap_pgoff+0xc1/0x150
-           ksys_mmap_pgoff+0x178/0x200
-           do_syscall_64+0x43/0x90
-           entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-    other info that might help us debug this:
-
-     Possible unsafe locking scenario:
-
-           CPU0                    CPU1
-           ----                    ----
-      lock(&mm->mmap_lock#2);
-                                   lock(vmcore_cb_rwsem);
-                                   lock(&mm->mmap_lock#2);
-      lock(vmcore_cb_rwsem);
-
-     *** DEADLOCK ***
-
-    1 lock held by makedumpfile/542:
-     #0: ffff8880af226438 (&mm->mmap_lock#2){++++}-{3:3}, at: vm_mmap_pgoff+0x84/0x150
-
-    stack backtrace:
-    CPU: 0 PID: 542 Comm: makedumpfile Not tainted 5.17.0-0.rc0.20220117git0c947b893d69.68.test.fc36.x86_64 #1
-    Hardware name: Red Hat KVM, BIOS 0.5.1 01/01/2011
-    Call Trace:
-     __lock_acquire+0x8f7/0xbc0
-     lock_acquire+0xc3/0x1a0
-     down_read+0x4a/0x140
-     mmap_vmcore+0x340/0x580
-     proc_reg_mmap+0x3e/0x90
-     mmap_region+0x504/0x880
-     do_mmap+0x38a/0x520
-     vm_mmap_pgoff+0xc1/0x150
-     ksys_mmap_pgoff+0x178/0x200
-     do_syscall_64+0x43/0x90
-
-Link: https://lkml.kernel.org/r/20220119193417.100385-1-david@redhat.com
-Fixes: cc5f2704c934 ("proc/vmcore: convert oldmem_pfn_is_ram callback to more generic vmcore callbacks")
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Reported-by: Baoquan He <bhe@redhat.com>
-Acked-by: Baoquan He <bhe@redhat.com>
-Cc: Vivek Goyal <vgoyal@redhat.com>
-Cc: Dave Young <dyoung@redhat.com>
-Cc: "Paul E. McKenney" <paulmck@kernel.org>
-Cc: Josh Triplett <josh@joshtriplett.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Boqun Feng <boqun.feng@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-
-diff --git a/fs/proc/vmcore.c b/fs/proc/vmcore.c
-index 702754dd1daf..edeb01dfe05d 100644
---- a/fs/proc/vmcore.c
-+++ b/fs/proc/vmcore.c
-@@ -62,7 +62,8 @@ core_param(novmcoredd, vmcoredd_disabled, bool, 0);
- /* Device Dump Size */
- static size_t vmcoredd_orig_sz;
- 
--static DECLARE_RWSEM(vmcore_cb_rwsem);
-+static DEFINE_SPINLOCK(vmcore_cb_lock);
-+DEFINE_STATIC_SRCU(vmcore_cb_srcu);
- /* List of registered vmcore callbacks. */
- static LIST_HEAD(vmcore_cb_list);
- /* Whether the vmcore has been opened once. */
-@@ -70,8 +71,8 @@ static bool vmcore_opened;
- 
- void register_vmcore_cb(struct vmcore_cb *cb)
- {
--	down_write(&vmcore_cb_rwsem);
- 	INIT_LIST_HEAD(&cb->next);
-+	spin_lock(&vmcore_cb_lock);
- 	list_add_tail(&cb->next, &vmcore_cb_list);
- 	/*
- 	 * Registering a vmcore callback after the vmcore was opened is
-@@ -79,14 +80,14 @@ void register_vmcore_cb(struct vmcore_cb *cb)
- 	 */
- 	if (vmcore_opened)
- 		pr_warn_once("Unexpected vmcore callback registration\n");
--	up_write(&vmcore_cb_rwsem);
-+	spin_unlock(&vmcore_cb_lock);
- }
- EXPORT_SYMBOL_GPL(register_vmcore_cb);
- 
- void unregister_vmcore_cb(struct vmcore_cb *cb)
- {
--	down_write(&vmcore_cb_rwsem);
--	list_del(&cb->next);
-+	spin_lock(&vmcore_cb_lock);
-+	list_del_rcu(&cb->next);
- 	/*
- 	 * Unregistering a vmcore callback after the vmcore was opened is
- 	 * very unusual (e.g., forced driver removal), but we cannot stop
-@@ -94,7 +95,9 @@ void unregister_vmcore_cb(struct vmcore_cb *cb)
- 	 */
- 	if (vmcore_opened)
- 		pr_warn_once("Unexpected vmcore callback unregistration\n");
--	up_write(&vmcore_cb_rwsem);
-+	spin_unlock(&vmcore_cb_lock);
-+
-+	synchronize_srcu(&vmcore_cb_srcu);
- }
- EXPORT_SYMBOL_GPL(unregister_vmcore_cb);
- 
-@@ -103,9 +106,8 @@ static bool pfn_is_ram(unsigned long pfn)
- 	struct vmcore_cb *cb;
- 	bool ret = true;
- 
--	lockdep_assert_held_read(&vmcore_cb_rwsem);
--
--	list_for_each_entry(cb, &vmcore_cb_list, next) {
-+	list_for_each_entry_srcu(cb, &vmcore_cb_list, next,
-+				 srcu_read_lock_held(&vmcore_cb_srcu)) {
- 		if (unlikely(!cb->pfn_is_ram))
- 			continue;
- 		ret = cb->pfn_is_ram(cb, pfn);
-@@ -118,9 +120,9 @@ static bool pfn_is_ram(unsigned long pfn)
- 
- static int open_vmcore(struct inode *inode, struct file *file)
- {
--	down_read(&vmcore_cb_rwsem);
-+	spin_lock(&vmcore_cb_lock);
- 	vmcore_opened = true;
--	up_read(&vmcore_cb_rwsem);
-+	spin_unlock(&vmcore_cb_lock);
- 
- 	return 0;
- }
-@@ -133,6 +135,7 @@ ssize_t read_from_oldmem(char *buf, size_t count,
- 	unsigned long pfn, offset;
- 	size_t nr_bytes;
- 	ssize_t read = 0, tmp;
-+	int idx;
- 
- 	if (!count)
- 		return 0;
-@@ -140,7 +143,7 @@ ssize_t read_from_oldmem(char *buf, size_t count,
- 	offset = (unsigned long)(*ppos % PAGE_SIZE);
- 	pfn = (unsigned long)(*ppos / PAGE_SIZE);
- 
--	down_read(&vmcore_cb_rwsem);
-+	idx = srcu_read_lock(&vmcore_cb_srcu);
- 	do {
- 		if (count > (PAGE_SIZE - offset))
- 			nr_bytes = PAGE_SIZE - offset;
-@@ -165,7 +168,7 @@ ssize_t read_from_oldmem(char *buf, size_t count,
- 						       offset, userbuf);
- 		}
- 		if (tmp < 0) {
--			up_read(&vmcore_cb_rwsem);
-+			srcu_read_unlock(&vmcore_cb_srcu, idx);
- 			return tmp;
- 		}
- 
-@@ -176,8 +179,8 @@ ssize_t read_from_oldmem(char *buf, size_t count,
- 		++pfn;
- 		offset = 0;
- 	} while (count);
-+	srcu_read_unlock(&vmcore_cb_srcu, idx);
- 
--	up_read(&vmcore_cb_rwsem);
- 	return read;
- }
- 
-@@ -568,18 +571,18 @@ static int vmcore_remap_oldmem_pfn(struct vm_area_struct *vma,
- 			    unsigned long from, unsigned long pfn,
- 			    unsigned long size, pgprot_t prot)
- {
--	int ret;
-+	int ret, idx;
- 
- 	/*
--	 * Check if oldmem_pfn_is_ram was registered to avoid
--	 * looping over all pages without a reason.
-+	 * Check if a callback was registered to avoid looping over all
-+	 * pages without a reason.
- 	 */
--	down_read(&vmcore_cb_rwsem);
-+	idx = srcu_read_lock(&vmcore_cb_srcu);
- 	if (!list_empty(&vmcore_cb_list))
- 		ret = remap_oldmem_pfn_checked(vma, from, pfn, size, prot);
- 	else
- 		ret = remap_oldmem_pfn_range(vma, from, pfn, size, prot);
--	up_read(&vmcore_cb_rwsem);
-+	srcu_read_unlock(&vmcore_cb_srcu, idx);
- 	return ret;
- }
- 
-
+-- 
+Ammar Faizi
