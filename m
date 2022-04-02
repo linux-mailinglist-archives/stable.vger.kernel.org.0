@@ -2,75 +2,158 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F7484EFEE0
-	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 07:17:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8C644F0002
+	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 11:11:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238672AbiDBFRY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 2 Apr 2022 01:17:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36908 "EHLO
+        id S243265AbiDBJLa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 2 Apr 2022 05:11:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57628 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233094AbiDBFRX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 01:17:23 -0400
-Received: from gnuweeb.org (gnuweeb.org [51.81.211.47])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF6E21AC72A;
-        Fri,  1 Apr 2022 22:15:30 -0700 (PDT)
-Received: from [192.168.165.80] (unknown [182.2.36.61])
-        by gnuweeb.org (Postfix) with ESMTPSA id 0A80C7E356;
-        Sat,  2 Apr 2022 05:15:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gnuweeb.org;
-        s=default; t=1648876529;
-        bh=Y01PgXHrUoAQRiCbzvaK0s1BZI4Z5mxJMR1GYxrrdVg=;
-        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-        b=QOoNnEQVweFm7+5mdZPgNSNXRlwjrnkQlF3HXxICZaF+d7QVxXjySgkRNpDOHs24B
-         3LrIT/ouZF2ofwpm3Zc4Sz66mA6tC1jSBXgY28in5Wysjqr63ie6CPBc1UBAs59c4C
-         aO9bcjughMrLMQJCWyy+QJslnTVqGNUQBMyG6Jn/w5Dx9h9Ip2PJo9b3lQr7cQg8eF
-         q1ZYz+q+8ttgx90jxD3aWX6kngJyMIPorANmJKJDzMffWBXLWDh0ti4pUgWc63YQVC
-         DFFRSOHyBZ09q6JLlnsG+fTva9Rn+b3oLkbn/dC02ipbZY8hTPnxe+ZeMju6KcRn+/
-         6/rdXb9khCOxA==
-Message-ID: <c768b141-e463-5b4b-daba-794a02da3f1f@gnuweeb.org>
-Date:   Sat, 2 Apr 2022 12:15:18 +0700
+        with ESMTP id S239573AbiDBJL3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 05:11:29 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 588FB2459C
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 02:09:36 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B19CDB801BA
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 09:09:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8ED3C340EC;
+        Sat,  2 Apr 2022 09:09:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1648890573;
+        bh=youOxiMze6Ffxw3gk/mM/RGvRfDpDLgqkaFMQu7ZbgQ=;
+        h=Subject:To:Cc:From:Date:From;
+        b=1/2NYDeAzCsft0reNjuN6CM0KwxMuBlhTpOELZ4HavahPyk5jUPtMU8hpTTp6i5qV
+         sUsvuVd9Kb1oJS8vrnA4Q/JbK1Tnil8jYZqoPFPMNY3foZCfWZSxHSNC3LN5pfpC/3
+         i99kZ570Yx0g5iv01AMxqcdFNpMY3yRnaQmwTFrY=
+Subject: FAILED: patch "[PATCH] io_uring: ensure recv and recvmsg handle MSG_WAITALL" failed to apply to 5.17-stable tree
+To:     axboe@kernel.dk, constantine.gavrilov@gmail.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Sat, 02 Apr 2022 11:09:30 +0200
+Message-ID: <164889057016037@kroah.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.7.0
-Subject: Re: [PATCH v6 1/2] x86/delay: Fix the wrong asm constraint in
- `delay_loop()`
-Content-Language: en-US
-To:     Dave Hansen <dave.hansen@intel.com>,
-        Borislav Petkov <bp@alien8.de>,
-        Thomas Gleixner <tglx@linutronix.de>
-Cc:     Alviro Iskandar Setiawan <alviro.iskandar@gnuweeb.org>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
-        Tony Luck <tony.luck@intel.com>,
-        Yazen Ghannam <yazen.ghannam@amd.com>,
-        Linux Edac Mailing List <linux-edac@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Stable Kernel <stable@vger.kernel.org>,
-        GNU/Weeb Mailing List <gwml@vger.gnuweeb.org>,
-        x86 Mailing List <x86@kernel.org>,
-        David Laight <David.Laight@ACULAB.COM>,
-        Jiri Hladky <hladky.jiri@googlemail.com>
-References: <20220329104705.65256-1-ammarfaizi2@gnuweeb.org>
- <20220329104705.65256-2-ammarfaizi2@gnuweeb.org>
- <13463eca-03a2-da0d-c274-fb576a8a051f@intel.com>
-From:   Ammar Faizi <ammarfaizi2@gnuweeb.org>
-In-Reply-To: <13463eca-03a2-da0d-c274-fb576a8a051f@intel.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,SPF_HELO_PASS,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 4/2/22 12:42 AM, Dave Hansen wrote:
-> Was this found by inspection or was it causing real-world problems?
 
-It was found by inspection, no real-world problems found so far.
+The patch below does not apply to the 5.17-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
--- 
-Ammar Faizi
+thanks,
+
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 7ba89d2af17aa879dda30f5d5d3f152e587fc551 Mon Sep 17 00:00:00 2001
+From: Jens Axboe <axboe@kernel.dk>
+Date: Wed, 23 Mar 2022 09:32:35 -0600
+Subject: [PATCH] io_uring: ensure recv and recvmsg handle MSG_WAITALL
+ correctly
+
+We currently don't attempt to get the full asked for length even if
+MSG_WAITALL is set, if we get a partial receive. If we do see a partial
+receive, then just note how many bytes we did and return -EAGAIN to
+get it retried.
+
+The iov is advanced appropriately for the vector based case, and we
+manually bump the buffer and remainder for the non-vector case.
+
+Cc: stable@vger.kernel.org
+Reported-by: Constantine Gavrilov <constantine.gavrilov@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index f41d91ce1fd0..a70de170aea1 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -612,6 +612,7 @@ struct io_sr_msg {
+ 	int				msg_flags;
+ 	int				bgid;
+ 	size_t				len;
++	size_t				done_io;
+ };
+ 
+ struct io_open {
+@@ -5417,12 +5418,21 @@ static int io_recvmsg_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+ 	if (req->ctx->compat)
+ 		sr->msg_flags |= MSG_CMSG_COMPAT;
+ #endif
++	sr->done_io = 0;
+ 	return 0;
+ }
+ 
++static bool io_net_retry(struct socket *sock, int flags)
++{
++	if (!(flags & MSG_WAITALL))
++		return false;
++	return sock->type == SOCK_STREAM || sock->type == SOCK_SEQPACKET;
++}
++
+ static int io_recvmsg(struct io_kiocb *req, unsigned int issue_flags)
+ {
+ 	struct io_async_msghdr iomsg, *kmsg;
++	struct io_sr_msg *sr = &req->sr_msg;
+ 	struct socket *sock;
+ 	struct io_buffer *kbuf;
+ 	unsigned flags;
+@@ -5465,6 +5475,10 @@ static int io_recvmsg(struct io_kiocb *req, unsigned int issue_flags)
+ 			return io_setup_async_msg(req, kmsg);
+ 		if (ret == -ERESTARTSYS)
+ 			ret = -EINTR;
++		if (ret > 0 && io_net_retry(sock, flags)) {
++			sr->done_io += ret;
++			return io_setup_async_msg(req, kmsg);
++		}
+ 		req_set_fail(req);
+ 	} else if ((flags & MSG_WAITALL) && (kmsg->msg.msg_flags & (MSG_TRUNC | MSG_CTRUNC))) {
+ 		req_set_fail(req);
+@@ -5474,6 +5488,10 @@ static int io_recvmsg(struct io_kiocb *req, unsigned int issue_flags)
+ 	if (kmsg->free_iov)
+ 		kfree(kmsg->free_iov);
+ 	req->flags &= ~REQ_F_NEED_CLEANUP;
++	if (ret >= 0)
++		ret += sr->done_io;
++	else if (sr->done_io)
++		ret = sr->done_io;
+ 	__io_req_complete(req, issue_flags, ret, io_put_kbuf(req, issue_flags));
+ 	return 0;
+ }
+@@ -5524,12 +5542,22 @@ static int io_recv(struct io_kiocb *req, unsigned int issue_flags)
+ 			return -EAGAIN;
+ 		if (ret == -ERESTARTSYS)
+ 			ret = -EINTR;
++		if (ret > 0 && io_net_retry(sock, flags)) {
++			sr->len -= ret;
++			sr->buf += ret;
++			sr->done_io += ret;
++			return -EAGAIN;
++		}
+ 		req_set_fail(req);
+ 	} else if ((flags & MSG_WAITALL) && (msg.msg_flags & (MSG_TRUNC | MSG_CTRUNC))) {
+ out_free:
+ 		req_set_fail(req);
+ 	}
+ 
++	if (ret >= 0)
++		ret += sr->done_io;
++	else if (sr->done_io)
++		ret = sr->done_io;
+ 	__io_req_complete(req, issue_flags, ret, io_put_kbuf(req, issue_flags));
+ 	return 0;
+ }
+
