@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D2334F01A3
-	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 14:48:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6439C4F01A4
+	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 14:49:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354763AbiDBMuZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 2 Apr 2022 08:50:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46502 "EHLO
+        id S1354771AbiDBMu5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 2 Apr 2022 08:50:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48132 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354766AbiDBMuX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 08:50:23 -0400
+        with ESMTP id S1354750AbiDBMu4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 08:50:56 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D10D38BC
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 05:48:31 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD9A04667F
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 05:49:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 01146B80159
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 12:48:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DA0FC340EC;
-        Sat,  2 Apr 2022 12:48:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 89E2FB80159
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 12:49:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDA9BC340EC;
+        Sat,  2 Apr 2022 12:49:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648903708;
-        bh=T51/D+xloXVp2EYdegs0TEHo5UYe0C4gS4qR18zAKfc=;
+        s=korg; t=1648903741;
+        bh=k8U4bkUTm+8IsLDg8BFxCogPH/X/JGEK7JKcdlp+qk4=;
         h=Subject:To:Cc:From:Date:From;
-        b=1b7rxVCbjVc3QTfwNN0oqSoxfiX8+ntfRfjne4PxVmnT/nbGVLGUqJpyfkaEaWno4
-         +Ttz2g/IOCqxCORbOmoP0K5RvvL/pVBmWQc5fmVTagPN5g1d1SBSDGkCeZZw5e0W/y
-         JnrzIT5znfSDcOlFBz0sBz6f2fR9En01zwwLO1M4=
-Subject: FAILED: patch "[PATCH] media: omap3isp: Use struct_group() for memcpy() region" failed to apply to 4.19-stable tree
+        b=fNP8qkl97+U0bZviouKaKUsduSjLjnlnXnAuRXxZLFSClVfiiFhitF8HiiMp/qXwd
+         CWLVImYm+BF1N3g/T2RufHw1gNV1Gl+VmNwNwYuozJb1MDecJxTwbMfz+tv3ngJR+V
+         b/Rpt9c4D8/68pZiI6aOQIlbDSjqchzQdKuAsIF4=
+Subject: FAILED: patch "[PATCH] media: omap3isp: Use struct_group() for memcpy() region" failed to apply to 5.4-stable tree
 To:     keescook@chromium.org, arnd@arndb.de, gustavoars@kernel.org,
         laurent.pinchart@ideasonboard.com, mchehab@kernel.org,
         sakari.ailus@linux.intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 02 Apr 2022 14:48:26 +0200
-Message-ID: <1648903706252130@kroah.com>
+Date:   Sat, 02 Apr 2022 14:48:58 +0200
+Message-ID: <164890373821137@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -50,7 +50,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
