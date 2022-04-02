@@ -2,107 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F30FA4F0176
-	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 14:30:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D95C4F017F
+	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 14:32:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242391AbiDBMby (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 2 Apr 2022 08:31:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42178 "EHLO
+        id S239237AbiDBMdo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 2 Apr 2022 08:33:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51104 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242376AbiDBMbx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 08:31:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 025524F9DC
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 05:30:02 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AEE33B80762
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 12:30:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07832C340EC;
-        Sat,  2 Apr 2022 12:29:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648902599;
-        bh=FCCH4v+amHmN/prcCgFyQBTlpYj5tPFCj+ExnBuvb5Q=;
-        h=Subject:To:Cc:From:Date:From;
-        b=Z1qlWt6U3PNitEGu6k9BgppdH+DaUhG2cKKSzazfrHkUIGpQorKb5W76tHUOrn7lW
-         Jgg1CTgCn1K803kPiv2WBnFOKOREVsFK1zOfUDtUMjA0yx/WLzdsHH7gzKMcP+GmoZ
-         uCvGRSAripa3e9Nj0oZMRil82ICAfv9FGbI27vIw=
-Subject: FAILED: patch "[PATCH] drm/edid: fix CEA extension byte #3 parsing" failed to apply to 5.17-stable tree
-To:     jani.nikula@intel.com, shawn.c.lee@intel.com,
-        stable@vger.kernel.org, ville.syrjala@linux.intel.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 02 Apr 2022 14:29:39 +0200
-Message-ID: <1648902579159215@kroah.com>
+        with ESMTP id S237010AbiDBMdo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 08:33:44 -0400
+Received: from sipsolutions.net (s3.sipsolutions.net [IPv6:2a01:4f8:191:4433::2])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A88AD4CB7;
+        Sat,  2 Apr 2022 05:31:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=sipsolutions.net; s=mail; h=Content-Transfer-Encoding:MIME-Version:
+        Content-Type:References:In-Reply-To:Date:Cc:To:From:Subject:Message-ID:Sender
+        :Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:Resent-To:
+        Resent-Cc:Resent-Message-ID; bh=UAVTzm47GD54IBrYkM1lqLNeRH+0NrrAmVtDlVk4ieA=;
+        t=1648902712; x=1650112312; b=jhAbOmva7d7IAncDH99kwR4DvSJDZNZ9z/onxKts+iiDxWX
+        wc3Dvp2YlINSMZU0VhDd9E1RIwkJd7m6Lp/mXVUaqkwSYLHZk824NqNUyiLyr/I2s96thUETD4DKU
+        nWk2eC8L6+1fhx7Dga3NekntSfYz8aVtW4ldHA7nax78VQZUQmo3NASaSMyCg0YaJKdUyHiAEJ1W4
+        vc97JyGnThMOR3Mp2KEKZ+zBZN6qKeasrwETPFumY8n1F/L+jODJKDjBzFKp5Zm6NUEqDY7LbeXh6
+        pLiaQoUyg12kGjHFPilk6J0XvgSu4oyo2dkgKyaVWzWMMDWVbfAYbTDCgisbo3pw==;
+Received: by sipsolutions.net with esmtpsa (TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+        (Exim 4.95)
+        (envelope-from <johannes@sipsolutions.net>)
+        id 1nacus-003qWH-RX;
+        Sat, 02 Apr 2022 14:31:42 +0200
+Message-ID: <d04373063ca88490d95101e52cd1b65d123d207e.camel@sipsolutions.net>
+Subject: Re: [PATCH v5.18] ath9k: Save rate counts before clearing tx status
+ area
+From:   Johannes Berg <johannes@sipsolutions.net>
+To:     Toke =?ISO-8859-1?Q?H=F8iland-J=F8rgensen?= <toke@toke.dk>,
+        Kalle Valo <kvalo@kernel.org>
+Cc:     linux-wireless@vger.kernel.org,
+        Toke =?ISO-8859-1?Q?H=F8iland-J=F8rgensen?= <toke@redhat.com>,
+        stable@vger.kernel.org, Peter Seiderer <ps.report@gmx.net>
+Date:   Sat, 02 Apr 2022 14:31:41 +0200
+In-Reply-To: <20220402122752.2347797-1-toke@toke.dk>
+References: <20220402122752.2347797-1-toke@toke.dk>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.42.4 (3.42.4-1.fc35) 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+X-malware-bazaar: not-scanned
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_PASS,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Sat, 2022-04-02 at 14:27 +0200, Toke Høiland-Jørgensen wrote:
+> 
+> @@ -2591,12 +2602,6 @@ static void ath_tx_rc_status(struct ath_softc *sc, struct ath_buf *bf,
+>  				hw->max_rate_tries;
+>  	}
+>  
+> -	for (i = tx_rateindex + 1; i < hw->max_rates; i++) {
 
-The patch below does not apply to the 5.17-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+might want to drop that blank line too :)
 
-thanks,
+> -		tx_info->status.rates[i].count = 0;
+> -		tx_info->status.rates[i].idx = -1;
+> -	}
+> -
+> -	tx_info->status.rates[tx_rateindex].count = ts->ts_longretry + 1;
+>  }
 
-greg k-h
+since there's nothing else.
 
------------------- original commit in Linus's tree ------------------
-
-From 7344bad7fb6daa4877a1c064b52c7d5f9182c41b Mon Sep 17 00:00:00 2001
-From: Jani Nikula <jani.nikula@intel.com>
-Date: Wed, 23 Mar 2022 12:04:38 +0200
-Subject: [PATCH] drm/edid: fix CEA extension byte #3 parsing
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-
-Only an EDID CEA extension has byte #3, while the CTA DisplayID Data
-Block does not. Don't interpret bogus data for color formats.
-
-For most displays it's probably an unlikely scenario you'd have a CTA
-DisplayID Data Block without a CEA extension, but they do exist.
-
-Fixes: e28ad544f462 ("drm/edid: parse CEA blocks embedded in DisplayID")
-Cc: <stable@vger.kernel.org>
-Cc: Shawn C Lee <shawn.c.lee@intel.com>
-Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220323100438.1757295-1-jani.nikula@intel.com
-
-diff --git a/drivers/gpu/drm/drm_edid.c b/drivers/gpu/drm/drm_edid.c
-index f07af6786cec..cc7bd58369df 100644
---- a/drivers/gpu/drm/drm_edid.c
-+++ b/drivers/gpu/drm/drm_edid.c
-@@ -5188,10 +5188,14 @@ static void drm_parse_cea_ext(struct drm_connector *connector,
- 
- 	/* The existence of a CEA block should imply RGB support */
- 	info->color_formats = DRM_COLOR_FORMAT_RGB444;
--	if (edid_ext[3] & EDID_CEA_YCRCB444)
--		info->color_formats |= DRM_COLOR_FORMAT_YCBCR444;
--	if (edid_ext[3] & EDID_CEA_YCRCB422)
--		info->color_formats |= DRM_COLOR_FORMAT_YCBCR422;
-+
-+	/* CTA DisplayID Data Block does not have byte #3 */
-+	if (edid_ext[0] == CEA_EXT) {
-+		if (edid_ext[3] & EDID_CEA_YCRCB444)
-+			info->color_formats |= DRM_COLOR_FORMAT_YCBCR444;
-+		if (edid_ext[3] & EDID_CEA_YCRCB422)
-+			info->color_formats |= DRM_COLOR_FORMAT_YCBCR422;
-+	}
- 
- 	if (cea_db_offsets(edid_ext, &start, &end))
- 		return;
-
+johannes
