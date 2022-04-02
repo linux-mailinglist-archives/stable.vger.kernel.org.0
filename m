@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C338F4F033A
-	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 15:54:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E5844F03D8
+	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 16:19:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243365AbiDBNym (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 2 Apr 2022 09:54:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34036 "EHLO
+        id S229620AbiDBOVQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 2 Apr 2022 10:21:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59032 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243368AbiDBNyl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 09:54:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 264AC13F17
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 06:52:49 -0700 (PDT)
+        with ESMTP id S1356158AbiDBOVQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 10:21:16 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A71DA12D0B1
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 07:19:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B5831614A9
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 13:52:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C09AAC340EE;
-        Sat,  2 Apr 2022 13:52:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5B9A7B80159
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 14:19:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7BFDC340EC;
+        Sat,  2 Apr 2022 14:19:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648907568;
-        bh=bD+uBXT+/emXnd9DaTbSUjzw36R12gUGbdNWIyNVkbg=;
+        s=korg; t=1648909161;
+        bh=0vYapcCdsxJ1A9qqQIXy3OQ1qbk+jUjqo12RBytotzY=;
         h=Subject:To:Cc:From:Date:From;
-        b=o2HxRFs1Xi9P+ytDz5d4gWwqmw+nZqwuGTIERPPjPSNdTqfajgpM2baVP9uX7QniI
-         d8fMVag7zCwIIlaYPnm5RRoE2LUrYDTZbJ+2jEi38bw9ga9oSXWAb751P15uj4LHTR
-         oI+PCd0i2YUGZBS7Z1m/gmKbufgsRc0AoZjTddek=
-Subject: FAILED: patch "[PATCH] powerpc/tm: Fix more userspace r13 corruption" failed to apply to 4.9-stable tree
-To:     npiggin@gmail.com, mikey@neuling.org, mpe@ellerman.id.au
+        b=WY343OIkrdqKJBZc3IFHQRnZrfBoH9n79ClwWzjOObrQDs9zeJ/Z6ugy9R4Vh6+Gf
+         djYnFM8ffKJ7+KQwNJNVxbMXLBZ6zRHbJAUoOxUC9+SR0rm7FvIUhB3ulpgprfeAgJ
+         PGa1ra0bc3kE+fI0IIbX8om17snb1ysOymsXmBDg=
+Subject: FAILED: patch "[PATCH] scsi: qla2xxx: Fix hang due to session stuck" failed to apply to 4.9-stable tree
+To:     qutran@marvell.com, himanshu.madhani@oracle.com,
+        martin.petersen@oracle.com, njavali@marvell.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 02 Apr 2022 15:52:31 +0200
-Message-ID: <164890755117518@kroah.com>
+Date:   Sat, 02 Apr 2022 16:19:18 +0200
+Message-ID: <16489091587089@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-5.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,PDS_OTHER_BAD_TLD,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -59,112 +60,77 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 9d71165d3934e607070c4e48458c0cf161b1baea Mon Sep 17 00:00:00 2001
-From: Nicholas Piggin <npiggin@gmail.com>
-Date: Fri, 11 Mar 2022 12:47:33 +1000
-Subject: [PATCH] powerpc/tm: Fix more userspace r13 corruption
+From c02aada06d19a215c8291bd968a99a270e96f734 Mon Sep 17 00:00:00 2001
+From: Quinn Tran <qutran@marvell.com>
+Date: Thu, 10 Mar 2022 01:25:58 -0800
+Subject: [PATCH] scsi: qla2xxx: Fix hang due to session stuck
 
-Commit cf13435b730a ("powerpc/tm: Fix userspace r13 corruption") fixes a
-problem in treclaim where a SLB miss can occur on the
-thread_struct->ckpt_regs while SCRATCH0 is live with the saved user r13
-value, clobbering it with the kernel r13 and ultimately resulting in
-kernel r13 being stored in ckpt_regs.
+User experienced device lost. The log shows Get port data base command was
+queued up, failed, and requeued again. Every time it is requeued, it set
+the FCF_ASYNC_ACTIVE. This prevents any recovery code from occurring
+because driver thinks a recovery is in progress for this session. In
+essence, this session is hung.  The reason it gets into this place is the
+session deletion got in front of this call due to link perturbation.
 
-There is an equivalent problem in trechkpt where the user r13 value is
-loaded into r13 from chkpt_regs to be recheckpointed, but a SLB miss
-could occur on ckpt_regs accesses after that, which will result in r13
-being clobbered with a kernel value and that will get recheckpointed and
-then restored to user registers.
+Break the requeue cycle and exit.  The session deletion code will trigger a
+session relogin.
 
-The same memory page is accessed right before this critical window where
-a SLB miss could cause corruption, so hitting the bug requires the SLB
-entry be removed within a small window of instructions, which is
-possible if a SLB related MCE hits there. PAPR also permits the
-hypervisor to discard this SLB entry (because slb_shadow->persistent is
-only set to SLB_NUM_BOLTED) although it's not known whether any
-implementations would do this (KVM does not). So this is an extremely
-unlikely bug, only found by inspection.
+Link: https://lore.kernel.org/r/20220310092604.22950-8-njavali@marvell.com
+Fixes: 726b85487067 ("qla2xxx: Add framework for async fabric discovery")
+Cc: stable@vger.kernel.org
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Quinn Tran <qutran@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 
-Fix this by also storing user r13 in a temporary location on the kernel
-stack and don't change the r13 register from kernel r13 until the RI=0
-critical section that does not fault.
-
-The SCRATCH0 change is not strictly part of the fix, it's only used in
-the RI=0 section so it does not have the same problem as the previous
-SCRATCH0 bug.
-
-Fixes: 98ae22e15b43 ("powerpc: Add helper functions for transactional memory context switching")
-Cc: stable@vger.kernel.org # v3.9+
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Acked-by: Michael Neuling <mikey@neuling.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220311024733.48926-1-npiggin@gmail.com
-
-diff --git a/arch/powerpc/kernel/tm.S b/arch/powerpc/kernel/tm.S
-index 3beecc32940b..5a0f023a26e9 100644
---- a/arch/powerpc/kernel/tm.S
-+++ b/arch/powerpc/kernel/tm.S
-@@ -443,7 +443,8 @@ restore_gprs:
- 
- 	REST_GPR(0, r7)				/* GPR0 */
- 	REST_GPRS(2, 4, r7)			/* GPR2-4 */
--	REST_GPRS(8, 31, r7)			/* GPR8-31 */
-+	REST_GPRS(8, 12, r7)			/* GPR8-12 */
-+	REST_GPRS(14, 31, r7)			/* GPR14-31 */
- 
- 	/* Load up PPR and DSCR here so we don't run with user values for long */
- 	mtspr	SPRN_DSCR, r5
-@@ -479,18 +480,24 @@ restore_gprs:
- 	REST_GPR(6, r7)
- 
- 	/*
--	 * Store r1 and r5 on the stack so that we can access them after we
--	 * clear MSR RI.
-+	 * Store user r1 and r5 and r13 on the stack (in the unused save
-+	 * areas / compiler reserved areas), so that we can access them after
-+	 * we clear MSR RI.
- 	 */
- 
- 	REST_GPR(5, r7)
- 	std	r5, -8(r1)
--	ld	r5, GPR1(r7)
-+	ld	r5, GPR13(r7)
- 	std	r5, -16(r1)
-+	ld	r5, GPR1(r7)
-+	std	r5, -24(r1)
- 
- 	REST_GPR(7, r7)
- 
--	/* Clear MSR RI since we are about to use SCRATCH0. EE is already off */
-+	/* Stash the stack pointer away for use after recheckpoint */
-+	std	r1, PACAR1(r13)
+diff --git a/drivers/scsi/qla2xxx/qla_def.h b/drivers/scsi/qla2xxx/qla_def.h
+index bab2f665b6c2..8aa1cccebab1 100644
+--- a/drivers/scsi/qla2xxx/qla_def.h
++++ b/drivers/scsi/qla2xxx/qla_def.h
+@@ -5438,4 +5438,8 @@ struct ql_vnd_tgt_stats_resp {
+ #include "qla_gbl.h"
+ #include "qla_dbg.h"
+ #include "qla_inline.h"
 +
-+	/* Clear MSR RI since we are about to clobber r13. EE is already off */
- 	li	r5, 0
- 	mtmsrd	r5, 1
++#define IS_SESSION_DELETED(_fcport) (_fcport->disc_state == DSC_DELETE_PEND || \
++				      _fcport->disc_state == DSC_DELETED)
++
+ #endif
+diff --git a/drivers/scsi/qla2xxx/qla_init.c b/drivers/scsi/qla2xxx/qla_init.c
+index e468b05f90c0..5dfaa4d39cec 100644
+--- a/drivers/scsi/qla2xxx/qla_init.c
++++ b/drivers/scsi/qla2xxx/qla_init.c
+@@ -575,6 +575,14 @@ qla2x00_async_adisc(struct scsi_qla_host *vha, fc_port_t *fcport,
+ 	struct srb_iocb *lio;
+ 	int rval = QLA_FUNCTION_FAILED;
  
-@@ -501,9 +508,9 @@ restore_gprs:
- 	 * until we turn MSR RI back on.
- 	 */
++	if (IS_SESSION_DELETED(fcport)) {
++		ql_log(ql_log_warn, vha, 0xffff,
++		       "%s: %8phC is being delete - not sending command.\n",
++		       __func__, fcport->port_name);
++		fcport->flags &= ~FCF_ASYNC_ACTIVE;
++		return rval;
++	}
++
+ 	if (!vha->flags.online || (fcport->flags & FCF_ASYNC_SENT))
+ 		return rval;
  
--	SET_SCRATCH0(r1)
- 	ld	r5, -8(r1)
--	ld	r1, -16(r1)
-+	ld	r13, -16(r1)
-+	ld	r1, -24(r1)
+@@ -1338,8 +1346,15 @@ int qla24xx_async_gpdb(struct scsi_qla_host *vha, fc_port_t *fcport, u8 opt)
+ 	struct port_database_24xx *pd;
+ 	struct qla_hw_data *ha = vha->hw;
  
- 	/* Commit register state as checkpointed state: */
- 	TRECHKPT
-@@ -519,9 +526,9 @@ restore_gprs:
- 	 */
- 
- 	GET_PACA(r13)
--	GET_SCRATCH0(r1)
-+	ld	r1, PACAR1(r13)
- 
--	/* R1 is restored, so we are recoverable again.  EE is still off */
-+	/* R13, R1 is restored, so we are recoverable again.  EE is still off */
- 	li	r4, MSR_RI
- 	mtmsrd	r4, 1
- 
+-	if (!vha->flags.online || (fcport->flags & FCF_ASYNC_SENT) ||
+-	    fcport->loop_id == FC_NO_LOOP_ID) {
++	if (IS_SESSION_DELETED(fcport)) {
++		ql_log(ql_log_warn, vha, 0xffff,
++		       "%s: %8phC is being delete - not sending command.\n",
++		       __func__, fcport->port_name);
++		fcport->flags &= ~FCF_ASYNC_ACTIVE;
++		return rval;
++	}
++
++	if (!vha->flags.online || fcport->flags & FCF_ASYNC_SENT) {
+ 		ql_log(ql_log_warn, vha, 0xffff,
+ 		    "%s: %8phC online %d flags %x - not sending command.\n",
+ 		    __func__, fcport->port_name, vha->flags.online, fcport->flags);
 
