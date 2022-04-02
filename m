@@ -2,137 +2,141 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 019984F0079
-	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 12:26:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B72B4F007B
+	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 12:26:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354339AbiDBK2G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 2 Apr 2022 06:28:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49532 "EHLO
+        id S238093AbiDBK2K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 2 Apr 2022 06:28:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50200 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354322AbiDBK17 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 06:27:59 -0400
+        with ESMTP id S235885AbiDBK2J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 06:28:09 -0400
 Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57A1734664;
-        Sat,  2 Apr 2022 03:26:08 -0700 (PDT)
-Received: from pps.filterd (m0246631.ppops.net [127.0.0.1])
-        by mx0b-00069f02.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 2321ul3i013038;
-        Sat, 2 Apr 2022 10:26:07 GMT
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F5B5541A4;
+        Sat,  2 Apr 2022 03:26:18 -0700 (PDT)
+Received: from pps.filterd (m0246632.ppops.net [127.0.0.1])
+        by mx0b-00069f02.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 2322rwHS018854;
+        Sat, 2 Apr 2022 10:26:15 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
- subject : date : message-id : content-transfer-encoding : content-type :
- mime-version; s=corp-2021-07-09;
- bh=KGP5IQaFj0ujGHLwE2YF5gYQ1iuzuuyiFXTbkPxlF/o=;
- b=V0HJBdlP9tNiJcubbokZ2pOH5O6qxHoXp/fVdfaUxnWfyScPLp9FUBQ5lzdyqGEgwO0E
- CM+nvnsjjOSmFrrbEH+rFBDzyctaGixqlCUIqYjvvMG3OAuzuqpBXqbTAX2+7jZQ43bF
- RS8+RG8YhgluHSCP6yyvD3XchvzFQJyeE4si2CcnFAhWs1QRxYV5ImsBUwbhQx2uw0pp
- smbuKiPBbfy7ytLojrTnrNRSXQ6m7swwK5JZHTjJ2En6krvn67l8S2a9C/S2YBO/6yy/
- SHl4QGFRld8JTEOkWLY8wWSXNIS4Hv9GWI4++BwiTp/TZjEw2S9TluTaXgj5p//CgRRh cw== 
-Received: from iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta03.appoci.oracle.com [130.35.103.27])
-        by mx0b-00069f02.pphosted.com with ESMTP id 3f6d92rc9m-1
+ subject : date : message-id : in-reply-to : references :
+ content-transfer-encoding : content-type : mime-version;
+ s=corp-2021-07-09; bh=wfcmTsdZhhtnKBdbuGCK01uqUkxZiLAcX1OmoGlHkqo=;
+ b=SakPki/mvNd913d1RFVsb97xgjtCTLo4EvfOKt7hfYRVrU8Ax8ujpXHug/NMIKXFnN2x
+ LKQyMkv1uItDdjOOlLfmOScn7fWo2rZlBb3z2i7GpzeaXfeZxNW/nN0SYjfmDN8yVsdv
+ emgMO7A1MF4ZCgodAJyXHdIkuUklk7GPKf8zazEiN3pRq6SlHYgyqxT9wmsNh3vb5GTG
+ g21KoW67F/CKYu4zMeinEQrdajNNuL8+1Y6rZCKnfd/jqvcL3kf0fYGmx9Ggsc0B0GKX
+ +z8e6PWHTQQRFwBvlLQnrhwYuWlAtq5mOagMGnbpvPIHEDKDhAwbn155N4IwdjnxyQ+G Bg== 
+Received: from phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta03.appoci.oracle.com [138.1.37.129])
+        by mx0b-00069f02.pphosted.com with ESMTP id 3f6e3sgay5-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Sat, 02 Apr 2022 10:26:07 +0000
-Received: from pps.filterd (iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
-        by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (8.16.1.2/8.16.1.2) with SMTP id 232AL3ae004551;
-        Sat, 2 Apr 2022 10:26:06 GMT
-Received: from nam02-bn1-obe.outbound.protection.outlook.com (mail-bn1nam07lp2044.outbound.protection.outlook.com [104.47.51.44])
-        by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com with ESMTP id 3f6cx163fv-1
+        Sat, 02 Apr 2022 10:26:14 +0000
+Received: from pps.filterd (phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
+        by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (8.16.1.2/8.16.1.2) with SMTP id 232AMC9M024636;
+        Sat, 2 Apr 2022 10:26:13 GMT
+Received: from nam02-bn1-obe.outbound.protection.outlook.com (mail-bn1nam07lp2041.outbound.protection.outlook.com [104.47.51.41])
+        by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com with ESMTP id 3f6cx0xc86-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Sat, 02 Apr 2022 10:26:06 +0000
+        Sat, 02 Apr 2022 10:26:13 +0000
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=njkp1uBMufORcQXeL9/giLQH95siXy4KvQ5uy0UJvtq4Nfk1hoC9DyEYn4U2LDrUHlWZg1CuGSJDuKuNJUwMnpZMGdWeQTahZh2rzRq/MarxrKwWG6Rl0zHF8cdKywaZ3cEDgxO/MoP0dyyYAyNIKBBlHK/FesLtY2uBQvUBnNPELD1qkKxOawFFDrFkrXPha6hnEZoqvGA5JGMDSsxlgjOizutiaw/Xhh/hOoQcsq1Km0emC7bVR/8RY97rYfpnGF31R0I7wyICsLPqhOqvh3uTcm+lOLHiWV6NG33027wjby6LIhAf3BnNGp4OEjtgKx1lze9JYShqrjpUl/1N0Q==
+ b=elczaA8mXWJ9/D2LFr6VEz6kFsL5aqU41TOBQOpszCnEhZvpLcNT/dW6S4MNUouelU8hbv1ZQf5IdSWzC7zSBZlSCRCDZSQoISCypJjDzlmvaJrBDfM/f0D/cRqNF6MeMx5sGmclevNwVcL8URq2LjOl2DCw3WcD1VOpZzKUhD668R5NlNL6uL2KIlEDRY1aK+0Rs8KndRfDzGmavhPl1UJmcZ+aQHSlnPdY5h6Ww/t9O3dtWLrnYWHUtqQc3cPOZi6Rw8Vq0EEIDp/4+m57fi2gTvC0Lt1LQqW3bhBsN01AvYs0WZyIyUB+hWOvJ/k1wkG+kw5l6pbMvsDgElSdmQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=KGP5IQaFj0ujGHLwE2YF5gYQ1iuzuuyiFXTbkPxlF/o=;
- b=gk8DycmQToAqRsGduvtJt2psoLev5mdxXXVSvGGRtYj8SAMgDCJc+nvIK0hBOTSqe6MljFjQ/rL1g4VsRK6/aGOZtK0nwd9g1/oSXfZYcC0P1aVTVfBtSvh8YCaifUSGjKCol9p08MDQOsg8OC9dFObKjxi3LhIgcx8xAe3MhFYd6YgYDXtlUwgoQuy6r8nBXV1RwufOOzbzxxnZSOwwlSN1RyE56SVL4fO5AHGkIULjARqlRCRczmd36BhPkP6mKts6ZgHQbdQZCMc7b4+535j+11ky9YYMR+gj/H+k71RvUpG08xeuIKzgu1D1P86h9X0PlWTTblLR3JxqMTCTWQ==
+ bh=wfcmTsdZhhtnKBdbuGCK01uqUkxZiLAcX1OmoGlHkqo=;
+ b=eece0IapB95fxQk3khPSH8r0ELMltbSPovPUkn7l58w6K3f9gjAY4Ut7G6cmCMFi9F4TyTpjXQk529Nm0A3KXcju1JPsXxa6Ou6wBqWR7mMRLPZC7V3Q+38S32ioLut/m33FvFSUhhgCu8vhTDe0p9LCxZdih4dqRMJx8LKgnzMvVgKSK26BlxEbTel/NhDzgmCyI2O+P6sCWNNKeRzgqbM1gnYk1tbgDYdLZboJht1GcKbHu5L1ROSPGq/73jGJuf0G4OVRoS54JOozIjlHzD+j10z6eH2Ac2W3YTt1R5Wzdcpq3yXd8vUGzuKksVVd25lUKsYjLVC/wGatfVstXw==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
  dkim=pass header.d=oracle.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=KGP5IQaFj0ujGHLwE2YF5gYQ1iuzuuyiFXTbkPxlF/o=;
- b=gSpP2v6sCqMH1qHl+c39BswwmD2nD4wIVwvZkgsXAEyI0IQhOjWXFe1nv4FtznGkWhohT52JPGR9k98SSiCnemFytdgdfoFT4RC0+vEQ9AjvpxWFG8iZV2RwOqZcqB4RrxY0SMiskFiGShSAMlX26sJH9DH6hLLR1eVB4y2ugWc=
+ bh=wfcmTsdZhhtnKBdbuGCK01uqUkxZiLAcX1OmoGlHkqo=;
+ b=LNs7O5qCxylsdu4KHxsxoQ3KScPYws3pZBHXXx+iE68ScPCLMOl7mWjcN5pG057qck36qGTKYf/qKw+ko596KK4T0jDdo7o+mFCWrdfX52YPkydpdSsDQY936UW4vSFf4ey71ZdP/ZJ4P+mhrOY47uUAALALS/1p32LUxpXZzhI=
 Received: from PH0PR10MB5706.namprd10.prod.outlook.com (2603:10b6:510:148::10)
  by DM6PR10MB3049.namprd10.prod.outlook.com (2603:10b6:5:6f::18) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5123.19; Sat, 2 Apr
- 2022 10:26:03 +0000
+ 2022 10:26:11 +0000
 Received: from PH0PR10MB5706.namprd10.prod.outlook.com
  ([fe80::54da:72:aa08:9a8e]) by PH0PR10MB5706.namprd10.prod.outlook.com
  ([fe80::54da:72:aa08:9a8e%6]) with mapi id 15.20.5123.016; Sat, 2 Apr 2022
- 10:26:03 +0000
+ 10:26:11 +0000
 From:   Anand Jain <anand.jain@oracle.com>
 To:     stable@vger.kernel.org
-Cc:     linux-btrfs@vger.kernel.org, Anand Jain <anand.jain@oracle.com>
-Subject: [PATCH 00/17 stable-5.15.y] Fix mmap + page fault deadlocks
-Date:   Sat,  2 Apr 2022 18:25:37 +0800
-Message-Id: <cover.1648636044.git.anand.jain@oracle.com>
+Cc:     linux-btrfs@vger.kernel.org,
+        Andreas Gruenbacher <agruenba@redhat.com>,
+        Anand Jain <anand.jain@oracle.com>
+Subject: [PATCH 01/17 stable-5.15.y] powerpc/kvm: Fix kvm_use_magic_page
+Date:   Sat,  2 Apr 2022 18:25:38 +0800
+Message-Id: <77e3826f2e76b80da366e64395af36813d85ec36.1648636044.git.anand.jain@oracle.com>
 X-Mailer: git-send-email 2.33.1
+In-Reply-To: <cover.1648636044.git.anand.jain@oracle.com>
+References: <cover.1648636044.git.anand.jain@oracle.com>
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-X-ClientProxiedBy: SI2PR04CA0015.apcprd04.prod.outlook.com
- (2603:1096:4:197::21) To PH0PR10MB5706.namprd10.prod.outlook.com
+X-ClientProxiedBy: SG2PR01CA0174.apcprd01.prod.exchangelabs.com
+ (2603:1096:4:28::30) To PH0PR10MB5706.namprd10.prod.outlook.com
  (2603:10b6:510:148::10)
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 07c4e1ee-cd33-4549-881d-08da1493307d
+X-MS-Office365-Filtering-Correlation-Id: 59abeab6-30d0-4b2e-7caf-08da1493356d
 X-MS-TrafficTypeDiagnostic: DM6PR10MB3049:EE_
-X-Microsoft-Antispam-PRVS: <DM6PR10MB30499673A47A6170914209DCE5E39@DM6PR10MB3049.namprd10.prod.outlook.com>
+X-Microsoft-Antispam-PRVS: <DM6PR10MB3049F4F8E2EA4DDF55676DB7E5E39@DM6PR10MB3049.namprd10.prod.outlook.com>
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 0juuFLN8lqWzhduDVWEPpc2O/0kzJsF2haSKGluEXXLz1OAeWT4VMRjR9wh0iGryLvwnC7LZff6F8G8kyN0Gw4kS5bQsLbA8R0xgUiBvqk4YgDYiMbfgwVVaozPinZmspPoCsdTNIqe3YZJLOC4w72vMhIVIsFopsQHz49ePfqzObnKlCAjkwy9PSIiNxpA0CQLMg8QBkSH1HByVF7FXC+ETuh1AIoFMzkVXngs+k4aU/jhL+sJkblM5kosZrVgiFJsYlKjcEo9zl983KGmaMidep89Shbp/0an5Vg/llFYG6nWzAGXUKXc7BBx0IjvUsOKTNAb1ez3GmS2f/my3PnJ+KmESONQmarkVr/g8LqRSXchi6r/T3ux0QFyvTWHQF4H9fEYfm7denauZlLStgxbSyzijea9zo1CeN7SDLMjXLM9F/dmfDRYO/XWoktosX1Fxa/3+Q7NoKLkM7MyCiXwWt7Why3hIQDAtNZaDZ9+FYWh++BUpXUgU1ZVmo5yXjw3CYyBfb3ZtQ7ENBZVJwBh5DiS2Ie6Lg1xvCujxlvg/8jiI74hmWGL2qB3sgxLn6NMFkb3C+mD7hY/gXC0nMzofzwo3LzTlCZkYGJkNzt6C+JhZZN6RBNOr8xFmYz6Q/HFOGQ+hQOmzd0knxw5pCA==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR10MB5706.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(366004)(44832011)(26005)(6486002)(66476007)(6506007)(36756003)(6512007)(86362001)(5660300002)(66946007)(107886003)(66556008)(8676002)(2906002)(6916009)(2616005)(186003)(6666004)(4326008)(450100002)(38100700002)(8936002)(316002)(508600001)(83380400001);DIR:OUT;SFP:1101;
+X-Microsoft-Antispam-Message-Info: 6NWx/OlVOH7NNddh/YMgAeOCUKbNmZTwEjC4FH8ktY7yxNTu2Rfsl5Xj5a+AqHjROMSd1vz2iRCRSMiTdtTPlI1sIk0UDtpSs9nymMUzfdCo6Q7ew+k9bYgkyZ5l0+MJpi/db48RfqZSHJV1hcm0JdkKur4XKiTBGLQYytrXzz2o4MEDBcPSmn8N8O1ekrJaAR6Ie8jpPTUWUJU2He6MPmXID1fpmkCa/CLwafKxotO5HiSOtR+6d9ZSCga4imz3L9IRGH9V50ctla0Nimzmsd3UToAv4DVPyZg5Rv67zJNqymergD9tFLJl6YGKie7STWyt8b58/311eDPCH3SsMPee7gxa51evT4yBJ6oKft+lrVrGtA7X1WXpH8LlF0hEkgZBDRC7g5DmmZX7MhHlI7CLQtXwZpXerdULQXhw1cRkTMfHDLrQighJ2UMfahdcmeKYu/4pRQx7XgrqBqKO30JsTr2M3F3X95qrUrcjtr7+tNHEZuwkQOMbKrb8eFy6LJdPGdkQ15wiEtyQ/VD/6bhUUoFhkfkjKxYQuF5DVaKXjH0s51i566rVSUbEXP7GzcPw+LFlhttVpyVEqI6LJZxU8J3lkHPlFXQvG3tvpsrBbrRy4xRKRx+ofVnWOsQ3wZRpexJ6JbbB4WCiYo5/IQ==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR10MB5706.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(366004)(44832011)(26005)(6486002)(66476007)(54906003)(6506007)(36756003)(6512007)(86362001)(5660300002)(66946007)(107886003)(66556008)(8676002)(2906002)(6916009)(2616005)(186003)(6666004)(4326008)(38100700002)(8936002)(316002)(508600001)(83380400001);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?yrk80Hhwy+kCyMaCpXYmXetrMQezRR+BxRr9tpgAJP9eTmQv3hsLbKS74iXe?=
- =?us-ascii?Q?e8+Uwu52cEI6INN8sqURzhnKUkHnU7jMGEigBFEo1fpwrRDPBC3Y3VLtSDcL?=
- =?us-ascii?Q?NulspvF0Cf8JUtVmEjZ21apHVfPUtB7gy7ch9IJZgJGjEkJXM2cua6DkJI9t?=
- =?us-ascii?Q?O/Jh+WHB8b/Nd4ud7dYEjC60sya8dJJ0ySw3CnGG4KtBzEZBS7xbycswXihA?=
- =?us-ascii?Q?ha4++GbUJWLj0k7Z61/E6+9QnXywz7o3ili61pteTVB2dPevB1pNthGPEGRU?=
- =?us-ascii?Q?Z0fPZyhAvdvhBKdzJn+zVsRwRdyGgiqYHiBbVMZlMQv8mcix6V3Fwy5TqtsI?=
- =?us-ascii?Q?9ZHhxAGZAOtrYpjuftkvMGNx+AJmYTciuYswzNqGvOB2LV/EvDQvWcUFAG2X?=
- =?us-ascii?Q?3PJlDSWLYCx4+t6V991UxSw3k34+TTVzHPb1VK52pOnHya1Vw/QD1vbR4AuJ?=
- =?us-ascii?Q?naQPl2D6it9oH1mLI0raDSwOYMvXWpQpR2xe2MgtX3Kw/wp0Qi4MVXUlAGT9?=
- =?us-ascii?Q?bSArak/B+Z0yEhH4HhRpiQzAxYyAHJcyOXfehOqjgGdpArC7MmF9R9wvftTj?=
- =?us-ascii?Q?aSReYQWUGTUWj6lYUaguvhv4T0jSvfthDCU/DDaQN1a5SXnWeEsbzq4arK9A?=
- =?us-ascii?Q?xrshWwL8wEBYi4sNIoykqWdWwmApW52y1F0j7S/iOBWPAUiwcyAuwhmMt702?=
- =?us-ascii?Q?5yUJSVfMWtjJCN/FiEnBCXNkYD80Upk26C5TB4NeBCVxfnsVi9jfgc+Dbf6B?=
- =?us-ascii?Q?/EtqJ3cD99ht2O5swLJ6uOfzaeK0uQ6dQ3xYSbp/9fJX5EgjrNhhtFfAIluL?=
- =?us-ascii?Q?CeqI9cFCJYYcY5f9vpCVoSo2nhTUv1XZZI2iiP74Z33UJOiQP55W88t1oWZ7?=
- =?us-ascii?Q?L465amf6T7QJ6yBXQQuutYZS6Iu75fevzpQ+6ftvS20XKUgVNT+rChFxxPCQ?=
- =?us-ascii?Q?1/+FpaWKhz+AlehKSy0fqSiUEkPbkeNwiA0eotbV8hQnH8X89S+qBSC5W1lg?=
- =?us-ascii?Q?b9hXSAXrou2sMqs6G0IZYv7u6abgcolHljRXMzrzaZgjNz8xCvyesFJJ8+VY?=
- =?us-ascii?Q?PgPUGvy8iqyP3JyE0d23OcjojWouawfvMuO2uc5Yn5N3fXrmkEH/Q5Cp0PHb?=
- =?us-ascii?Q?zI50kCCN4B29Ttji3XuZY3m1shUZzMl1jWc7cEKoDep7WTHrwgwcVb4XU9cz?=
- =?us-ascii?Q?Fk93qPKk/wkMGdsTS+F4f+MIMMyfBLGLKxJW/iEeUmmx1/HCj8HSaOdialnL?=
- =?us-ascii?Q?ty78L9Np0oRomcoW6f6ho0x8UgTxr3xqzAJJhqlw2QMuYYKi66/0Xe2uTlNr?=
- =?us-ascii?Q?48wV0loCbGXBSoISeLA0qgotWf7UKlmI1KGObRUHCPd+ULdwfMft5ladqghG?=
- =?us-ascii?Q?Tp8GwahtT32R8dCOcf/om1O63SWrh6LAYUB2efHAYvNR+XDtbn488qDN1D1z?=
- =?us-ascii?Q?cwA/uuNtHVv3NRn0thkW6ueZAhvfxGOWJXESFtg6zXY87uks8zphn7NK5K8j?=
- =?us-ascii?Q?H49pPu3Ut/6U33crKfNftenH+t1g1aGlvJtvhJGJMx+e8WLM+GElg4YaH7Ih?=
- =?us-ascii?Q?T6RJ00JDebYTjpWghkLgf32U461Lwoy+D/bjQ1+jRnjsxNVoEOPops6i3hNv?=
- =?us-ascii?Q?aWGCgxO/VkQZq8XE2MbgfcoSwDkrneQfsEGNM9JOifb86Ysv5zQeVBcQgMeT?=
- =?us-ascii?Q?phCgb+ceAUyo1Z+Cij3P9a8plFGCemnIY4one326bgGqrNxKwWa/jseBMb87?=
- =?us-ascii?Q?SUJrcDk58g=3D=3D?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?eFr+oc3xCosu9NEMN5UqBsvTmAkn70psUQVQ0q4t8X7gSh1cpsE9kSjM2IQ/?=
+ =?us-ascii?Q?s8y13h6OsbuEQtNVonrGA8F3RnB08Jxd8PvOr4dvkGQWoMhY2j0y5GN1QZeU?=
+ =?us-ascii?Q?2JlzRiq22tXU/dOEMQ91ysqjyyY6vgBJVeX2GX+q7oM7CNEpdmp76fY0JItx?=
+ =?us-ascii?Q?EoXdJIT5Coz9aYRDvJnGR/n/jFvxKmC3ibq4UChojXqhFbr2ENTQmLdhqxUl?=
+ =?us-ascii?Q?kOTmZ33IcbBB3R5jihNlfUIAY5nlenobSjFTJZmF8HE+PcxcitKdp1ct0a8S?=
+ =?us-ascii?Q?DD3z/dOE+N8qjhIgmW6N9ZmymV3/QtgD9c1ueyYsqp1G7s3+W9kXm0JCtBJx?=
+ =?us-ascii?Q?Bn0EW3LrtUZ/cEL10N7pmaUUL2//o3x6UA2AK4seUfIf/IaUQQyL6bu1aqUy?=
+ =?us-ascii?Q?XLdSIjlwnF3uSyF/aEn1O1QLmpBilSLWzfa2uodCVH1f/mynrhKAdVzCjmtn?=
+ =?us-ascii?Q?SZ2NbwpjO1oo1bP0tZf54AmM0WyekXt8446+ZXsznK+OaUjPLv5+a/O3qs7f?=
+ =?us-ascii?Q?vh0hcVT9/tA9UaRpniN7MTzHBqLcbWxtnv6CQxs2vHeAAu6VhPTG44lgrnWi?=
+ =?us-ascii?Q?MX4q44IaBJX9t7RVmpPK/Xy2yQ4rKCFaG+jk5sMSucmW1k2WYTdDaKNmFHqj?=
+ =?us-ascii?Q?Prp3DKsCVvvVWqmZ+PqqVpzV4zjP+0C0qT0LQl8euRFvLB6vFdn142g7/MKV?=
+ =?us-ascii?Q?4o9nCCgHlORlrCkIR0P3AsePBV8CK7FGkFJNtSEYuQ7a+UBsO0GGPfTuNo28?=
+ =?us-ascii?Q?0j5Ay/LgVNevcoJAblAMXFby48pd0t3yvtg7aNNf5UJG6pyfXZ9BDR2zKF7d?=
+ =?us-ascii?Q?MzFx98+m2fxZuNEWDnTo29GVL1q0Fpaw4i32M3VEooTMWo7GwQf+LItqltK8?=
+ =?us-ascii?Q?ELhZpygethsg2aoYfOGeRZll7FrIvDkoWPCXy6PKlJ2/ptnE+PmsnSMmeIYt?=
+ =?us-ascii?Q?CaHleRDMnupzmKhhQ5/0XDOeAd5vBQdSlAa/JdhRYvb6O+U6Y+hCMV8rJwcd?=
+ =?us-ascii?Q?Zhbge7YrYwMQpn0bR3iV+4JAFftQLs0wAOQnCuyDAo4nN+cX2pyyKtczBxD0?=
+ =?us-ascii?Q?ZUjDmKoLwlyWJzN9ZkU3Aap5vznx+UtBTsSx9+vN/LNgXlLAkeXuAf2sjajT?=
+ =?us-ascii?Q?At53+6nC7kC1iGc04kXQyb/4S2FGUOexlDs50tp2Z0vqKO17eU0+vLp/oLvo?=
+ =?us-ascii?Q?3b6PzTb8oAr+aM+ROq4X6uzUcaBUbygvD1o83BC6vtQqqURHV2WR7afJ8x6T?=
+ =?us-ascii?Q?t3hcGCXiCDo6g4SgQHzitVzjxm+eqrohohrIx8f17xprCP2nH7piuktZveI4?=
+ =?us-ascii?Q?V1BKiiY2Cdi+Y/dspCCG1Hdlq+RB0gmy5AhsgzrBXTYVw8Km3Vu2aJUlaBCu?=
+ =?us-ascii?Q?WILA3u0jxhqHZoAmJHwUyvS04w3R9mpknV9CdYKfy5GNPQxNp4YLw+BnH2/p?=
+ =?us-ascii?Q?R8iOuNY9ajJxVK23HCBHRKk5Ksdze9B5/nzLbkimOArg8z1i8KRuD3TnTdsq?=
+ =?us-ascii?Q?1YyxgFivdz4jwcyLqWnMj+rUA1XR3j5LxpS67yp7uVO5yRm8qBgzkIijlrO4?=
+ =?us-ascii?Q?9vc+ivY21OVi/2YxX5woRg/ZiwCiI+GB0A/G1OMYobI7imqKen00Bznk1tJj?=
+ =?us-ascii?Q?M2sQMtp8mihlNlWiGGSdwHqynEFFvAxsUAV2cGXzqZePvojcMTZjwFd8UTTm?=
+ =?us-ascii?Q?jk8duFIjKY6DaJfvmFWBaKUC1SZJ62qxLSqDCk03OC8wtJLn4L14lcPHQII/?=
+ =?us-ascii?Q?UuC8k79Q/A=3D=3D?=
 X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 07c4e1ee-cd33-4549-881d-08da1493307d
+X-MS-Exchange-CrossTenant-Network-Message-Id: 59abeab6-30d0-4b2e-7caf-08da1493356d
 X-MS-Exchange-CrossTenant-AuthSource: PH0PR10MB5706.namprd10.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 02 Apr 2022 10:26:03.3720
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 02 Apr 2022 10:26:11.6399
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: A7inuLOp0R9gVF9+MVrqGEiLi9XqJf5ewrb2iDAyGDQOIb5Ix0L5sDukGiOlRwSvgZyIpP9D7XMuhMY8r39daw==
+X-MS-Exchange-CrossTenant-UserPrincipalName: nfqHE+oGq1LdWPPP7zFgRg+o3GeGLoxm5k4Qr1XTlTncCqnqe9ixl+R+5qEaaq8xZSms45XoR/wfTbBcj8AKKw==
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR10MB3049
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.425,18.0.850
  definitions=2022-04-02_03:2022-03-30,2022-04-02 signatures=0
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=597 bulkscore=0
- suspectscore=0 adultscore=0 phishscore=0 mlxscore=0 spamscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2204020064
-X-Proofpoint-ORIG-GUID: LHz2Rck-OP4TTa5bDsGDwnBhw7bx2fWD
-X-Proofpoint-GUID: LHz2Rck-OP4TTa5bDsGDwnBhw7bx2fWD
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0 adultscore=0 mlxscore=0
+ bulkscore=0 suspectscore=0 spamscore=0 mlxlogscore=999 phishscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
+ definitions=main-2204020064
+X-Proofpoint-ORIG-GUID: ButkwtZEGU9eqB5WuVspdL0cUzw5AEvF
+X-Proofpoint-GUID: ButkwtZEGU9eqB5WuVspdL0cUzw5AEvF
 X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
         RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
@@ -143,81 +147,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This set fixes a process hang issue in btrfs and gf2 filesystems. When we
-do a direct IO read or write when the buffer given by the user is
-memory-mapped to the file range we are going to do IO, we end up ending
-in a deadlock. This is triggered by the test case generic/647 from
-fstests.
+From: Andreas Gruenbacher <agruenba@redhat.com>
 
-This fix depends on the iov_iter and iomap changes introduced in the
-commit c03098d4b9ad ("Merge tag 'gfs2-v5.15-rc5-mmap-fault' of
-git://git.kernel.org/pub/scm/linux/kernel/git/gfs2/linux-gfs2") and they
-are part of this set for stable-5.15.y.
+commit 0c8eb2884a42d992c7726539328b7d3568f22143 upstream
 
-Please note that patch 3/17 in this patchset changes the prototype and
-renames an exported symbol as below. All its references are updated as
-well.
+When switching from __get_user to fault_in_pages_readable, commit
+9f9eae5ce717 broke kvm_use_magic_page: like __get_user,
+fault_in_pages_readable returns 0 on success.
 
--EXPORT_SYMBOL(iov_iter_fault_in_readable);
-+EXPORT_SYMBOL(fault_in_iov_iter_readable);
+Fixes: 9f9eae5ce717 ("powerpc/kvm: Prefer fault_in_pages_readable function")
+Cc: stable@vger.kernel.org # v4.18+
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Signed-off-by: Anand Jain <anand.jain@oracle.com>
+---
+ arch/powerpc/kernel/kvm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Andreas Gruenbacher (15):
-  powerpc/kvm: Fix kvm_use_magic_page
-  gup: Turn fault_in_pages_{readable,writeable} into
-    fault_in_{readable,writeable}
-  iov_iter: Turn iov_iter_fault_in_readable into
-    fault_in_iov_iter_readable
-  iov_iter: Introduce fault_in_iov_iter_writeable
-  gfs2: Add wrapper for iomap_file_buffered_write
-  gfs2: Clean up function may_grant
-  gfs2: Move the inode glock locking to gfs2_file_buffered_write
-  gfs2: Eliminate ip->i_gh
-  gfs2: Fix mmap + page fault deadlocks for buffered I/O
-  iomap: Fix iomap_dio_rw return value for user copies
-  iomap: Support partial direct I/O on user copy failures
-  iomap: Add done_before argument to iomap_dio_rw
-  gup: Introduce FOLL_NOFAULT flag to disable page faults
-  iov_iter: Introduce nofault flag to disable page faults
-  gfs2: Fix mmap + page fault deadlocks for direct I/O
-
-Bob Peterson (1):
-  gfs2: Introduce flag for glock holder auto-demotion
-
-Filipe Manana (1):
-  btrfs: fix deadlock due to page faults during direct IO reads and
-    writes
-
- arch/powerpc/kernel/kvm.c           |   3 +-
- arch/powerpc/kernel/signal_32.c     |   4 +-
- arch/powerpc/kernel/signal_64.c     |   2 +-
- arch/x86/kernel/fpu/signal.c        |   7 +-
- drivers/gpu/drm/armada/armada_gem.c |   7 +-
- fs/btrfs/file.c                     | 142 ++++++++++--
- fs/btrfs/ioctl.c                    |   5 +-
- fs/erofs/data.c                     |   2 +-
- fs/ext4/file.c                      |   5 +-
- fs/f2fs/file.c                      |   2 +-
- fs/fuse/file.c                      |   2 +-
- fs/gfs2/bmap.c                      |  60 +----
- fs/gfs2/file.c                      | 252 +++++++++++++++++++--
- fs/gfs2/glock.c                     | 330 +++++++++++++++++++++-------
- fs/gfs2/glock.h                     |  20 ++
- fs/gfs2/incore.h                    |   4 +-
- fs/iomap/buffered-io.c              |   2 +-
- fs/iomap/direct-io.c                |  29 ++-
- fs/ntfs/file.c                      |   2 +-
- fs/ntfs3/file.c                     |   2 +-
- fs/xfs/xfs_file.c                   |   6 +-
- fs/zonefs/super.c                   |   4 +-
- include/linux/iomap.h               |  11 +-
- include/linux/mm.h                  |   3 +-
- include/linux/pagemap.h             |  58 +----
- include/linux/uio.h                 |   4 +-
- lib/iov_iter.c                      |  98 +++++++--
- mm/filemap.c                        |   4 +-
- mm/gup.c                            | 139 +++++++++++-
- 29 files changed, 911 insertions(+), 298 deletions(-)
-
+diff --git a/arch/powerpc/kernel/kvm.c b/arch/powerpc/kernel/kvm.c
+index 617eba82531c..d89cf802d9aa 100644
+--- a/arch/powerpc/kernel/kvm.c
++++ b/arch/powerpc/kernel/kvm.c
+@@ -669,7 +669,7 @@ static void __init kvm_use_magic_page(void)
+ 	on_each_cpu(kvm_map_magic_page, &features, 1);
+ 
+ 	/* Quick self-test to see if the mapping works */
+-	if (!fault_in_pages_readable((const char *)KVM_MAGIC_PAGE, sizeof(u32))) {
++	if (fault_in_pages_readable((const char *)KVM_MAGIC_PAGE, sizeof(u32))) {
+ 		kvm_patching_worked = false;
+ 		return;
+ 	}
 -- 
 2.33.1
 
