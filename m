@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 45AD94F032F
-	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 15:54:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 442D04F0317
+	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 15:54:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243328AbiDBNyc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 2 Apr 2022 09:54:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33728 "EHLO
+        id S243337AbiDBNy2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 2 Apr 2022 09:54:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33642 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243365AbiDBNya (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 09:54:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5D6213DFD
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 06:52:37 -0700 (PDT)
+        with ESMTP id S243328AbiDBNy1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 09:54:27 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9547F13DFD
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 06:52:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6D224B8085E
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 13:52:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2F94C340EE;
-        Sat,  2 Apr 2022 13:52:34 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 0B5ADCE095A
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 13:52:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D3B9C340F0;
+        Sat,  2 Apr 2022 13:52:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648907555;
-        bh=KptHsWNGbgaOgbs8vG2YBCjHZyGo8PkmqpQ/+j7rT9I=;
+        s=korg; t=1648907552;
+        bh=VeBgJ48n17D7+KfxzNXqIvlNmYYE+K3SfV50Qink4vc=;
         h=Subject:To:Cc:From:Date:From;
-        b=sngrRD3sksBVb+cxHjGX1Vto+9yT91mVyVz642e9Al2G54V/YIaas3Wx0I4M1/Vpy
-         hzALfvjD+e2pMkTdKn2HAQdX+NjZf5aUBa93S8ovWGZRLFc+IQgXhX5uItY6whgFGI
-         /XrnvJO2DJjQx9UNo8dUxg7wRRiAPCuFX1KbLK5I=
-Subject: FAILED: patch "[PATCH] powerpc/tm: Fix more userspace r13 corruption" failed to apply to 5.15-stable tree
+        b=hGKfjH+jmdRwVaIAVq8k1WA2GmOKWOZ0MsVz0cT4SD9hQ+1qv0ixC+8/JCW+ySFYK
+         7cQVfCOjYzz18/f1/TC0EKrAIV0LheMapAwPZ0Ja4Qd27V1i7/1Yh7NIbG27ZxQ1Cx
+         GgIEb7aADddkjmrh4xGmKkWeYA1VDlHZlWX808f0=
+Subject: FAILED: patch "[PATCH] powerpc/tm: Fix more userspace r13 corruption" failed to apply to 5.10-stable tree
 To:     npiggin@gmail.com, mikey@neuling.org, mpe@ellerman.id.au
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sat, 02 Apr 2022 15:52:27 +0200
-Message-ID: <1648907547218245@kroah.com>
+Message-ID: <164890754780244@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
