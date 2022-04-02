@@ -2,115 +2,149 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DB3304F0434
-	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 16:44:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF1614F04C2
+	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 18:14:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356786AbiDBOnk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 2 Apr 2022 10:43:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48802 "EHLO
+        id S244392AbiDBQP5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 2 Apr 2022 12:15:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33040 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356992AbiDBOni (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 10:43:38 -0400
-Received: from mail-ed1-x544.google.com (mail-ed1-x544.google.com [IPv6:2a00:1450:4864:20::544])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 573C5F3A4F
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 07:41:46 -0700 (PDT)
-Received: by mail-ed1-x544.google.com with SMTP id f18so1026807edc.5
-        for <stable@vger.kernel.org>; Sat, 02 Apr 2022 07:41:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=gQdIR6qGnrk8CJan1I1av2hjZb7D9+vs7C8oQYMZcrw=;
-        b=HEwVjhYbM4IXxo6kiiOHsXjvbycfK3KNGSwKwPj3Hb9JgEDB7QrIm1fas/0tlQTZqV
-         7vIglqgcld/ZqV7fauG45p/4oGiKKCkQ1fjZe0DzdqW89czE+r8jsxG5lo09pWoj+/6x
-         w9cnDGVBFvdVzyTRszmIY21tJ3Bo4whHfPMtKPE4oZUSta/m9he4djNnztMLqIDfgRE5
-         Hv7GdSjYA9WrxiSdFnZyNPchWqZQz4jo4KcQCRF+4KY1NTfte2tjasCGRAQd3KbIx2Ta
-         evEjS6kVoZ80mj8FMbS6NPbg0sd9sIuZEWRMq11yvPnnuUDXvc3xowVe3ay8kQ3iVTAU
-         zoVg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=gQdIR6qGnrk8CJan1I1av2hjZb7D9+vs7C8oQYMZcrw=;
-        b=NN822Mj4ewsD6eG2Kj7+if6K4V7W56Qyz0S2894CzFzbpIYXyMULPOSUt66Np8jwne
-         pXCQ5xcup+AAuVuBz/dvLECZ5zmPl3KVbg51j+xKsyJXYab8cGZsXii9VcZjwyl15863
-         g4D1FwGedpDemRKfpIXwFZMoywogQlSJADtUbOYElo2Q6Gy7m89lAGdSosthYtDpXw5a
-         wzLv37cXpDWN14QAr/1071CIFNXysbETnR2j3bLRN0tZFs2JaNXVIpk4eGOTIat6XuRP
-         oW+aHZu/KhNvMsFneVfmnNjSOEf2gmFlBQ1G0Fp05tdYMofyxOwYfUbSQg3rezdWChMW
-         ca4Q==
-X-Gm-Message-State: AOAM5332jlNqtgtQley3uZ0NYaZ2eLrbwm3hjDYJ+QFFgbMoXeOSUygo
-        0kOu5uf8dRCSzng2IPWKuLrhoz98U/iMTCOAGT8=
-X-Google-Smtp-Source: ABdhPJzDl4kWGls64znrDpepVsDgKF16yghbaJohKNHfFFrv+iJg3mvw6qg7BY4X1u1eipQ1g6ga4OLmt+HP1EUcNbY=
-X-Received: by 2002:a50:f68a:0:b0:418:e6e8:5ee2 with SMTP id
- d10-20020a50f68a000000b00418e6e85ee2mr25152567edn.190.1648910504749; Sat, 02
- Apr 2022 07:41:44 -0700 (PDT)
+        with ESMTP id S1357819AbiDBQPy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 12:15:54 -0400
+Received: from pegase2.c-s.fr (pegase2.c-s.fr [93.17.235.10])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0421BE0F8;
+        Sat,  2 Apr 2022 09:13:57 -0700 (PDT)
+Received: from localhost (mailhub3.si.c-s.fr [172.26.127.67])
+        by localhost (Postfix) with ESMTP id 4KW2Cm3Wbzz9sSX;
+        Sat,  2 Apr 2022 18:13:56 +0200 (CEST)
+X-Virus-Scanned: amavisd-new at c-s.fr
+Received: from pegase2.c-s.fr ([172.26.127.65])
+        by localhost (pegase2.c-s.fr [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id uGOm-OX4ahYj; Sat,  2 Apr 2022 18:13:56 +0200 (CEST)
+Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
+        by pegase2.c-s.fr (Postfix) with ESMTP id 4KW2Cm2WMwz9sSQ;
+        Sat,  2 Apr 2022 18:13:56 +0200 (CEST)
+Received: from localhost (localhost [127.0.0.1])
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id 42F8E8B76D;
+        Sat,  2 Apr 2022 18:13:56 +0200 (CEST)
+X-Virus-Scanned: amavisd-new at c-s.fr
+Received: from messagerie.si.c-s.fr ([127.0.0.1])
+        by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
+        with ESMTP id 2GrwgdPFsQWp; Sat,  2 Apr 2022 18:13:56 +0200 (CEST)
+Received: from PO20335.IDSI0.si.c-s.fr (unknown [192.168.202.137])
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id E50368B768;
+        Sat,  2 Apr 2022 18:13:55 +0200 (CEST)
+Received: from PO20335.IDSI0.si.c-s.fr (localhost [127.0.0.1])
+        by PO20335.IDSI0.si.c-s.fr (8.17.1/8.16.1) with ESMTPS id 232GDkxx008659
+        (version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+        Sat, 2 Apr 2022 18:13:46 +0200
+Received: (from chleroy@localhost)
+        by PO20335.IDSI0.si.c-s.fr (8.17.1/8.17.1/Submit) id 232GDjBW008657;
+        Sat, 2 Apr 2022 18:13:45 +0200
+X-Authentication-Warning: PO20335.IDSI0.si.c-s.fr: chleroy set sender to christophe.leroy@csgroup.eu using -f
+From:   Christophe Leroy <christophe.leroy@csgroup.eu>
+To:     gregkh@linuxfoundation.org, stable@vger.kernel.org
+Cc:     Christophe Leroy <christophe.leroy@csgroup.eu>,
+        linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        Chen Jingwen <chenjingwen6@huawei.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH] [Rebased for 5.4] powerpc/kasan: Fix early region not updated correctly
+Date:   Sat,  2 Apr 2022 18:13:31 +0200
+Message-Id: <fc39c36ea92e03ed5eb218ddbe83b34361034d9d.1648915982.git.christophe.leroy@csgroup.eu>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
-Received: by 2002:a05:6408:10b5:b0:151:d72b:7202 with HTTP; Sat, 2 Apr 2022
- 07:41:43 -0700 (PDT)
-Reply-To: susanraphel757@gmail.com
-From:   mrs susan raphel <mrssusanhelms757@gmail.com>
-Date:   Sat, 2 Apr 2022 07:41:43 -0700
-Message-ID: <CADFcXM4CyQxBzRcB3odVzk=-1PxC3AaL7_MoQb8LEyYpi4GhgA@mail.gmail.com>
-Subject: cry for help
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: Yes, score=6.0 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_HK_NAME_FM_MR_MRS,
-        T_SCC_BODY_TEXT_LINE,UNDISC_FREEM autolearn=no autolearn_force=no
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1648916010; l=3434; i=christophe.leroy@csgroup.eu; s=20211009; h=from:subject:message-id; bh=Hq5fiOviUcMicNmDDK52z8tOXSe3kJkV1ZNLLWvxmjM=; b=MGfzrBP4AIGBuQCs9lA5I89BspUHZyTRwCnfjoJQivd4GjsGTB0UOEEEcO92OKqAlE9YrYd+PrR/ 5+l+2RPNDunazBsAqQx9uOftbbbERbPTGWey61v/+18CQmsfaboZ
+X-Developer-Key: i=christophe.leroy@csgroup.eu; a=ed25519; pk=HIzTzUj91asvincQGOFx6+ZF5AoUuP9GdOtQChs7Mm0=
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
         version=3.4.6
-X-Spam-Report: *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
-        *      [score: 0.5004]
-        * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
-        *      https://www.dnswl.org/, no trust
-        *      [2a00:1450:4864:20:0:0:0:544 listed in]
-        [list.dnswl.org]
-        *  0.2 FREEMAIL_ENVFROM_END_DIGIT Envelope-from freemail username ends
-        *       in digit
-        *      [mrssusanhelms757[at]gmail.com]
-        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
-        *      provider
-        *      [mrssusanhelms757[at]gmail.com]
-        * -0.0 SPF_PASS SPF: sender matches SPF record
-        *  0.2 FREEMAIL_REPLYTO_END_DIGIT Reply-To freemail username ends in
-        *      digit
-        *      [susanraphel757[at]gmail.com]
-        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
-        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
-        *      envelope-from domain
-        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
-        *      author's domain
-        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
-        *       valid
-        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
-        *  0.0 T_HK_NAME_FM_MR_MRS No description available.
-        * -0.0 T_SCC_BODY_TEXT_LINE No description available.
-        *  3.9 UNDISC_FREEM Undisclosed recipients + freemail reply-to
-        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
-        *      different freemails
-X-Spam-Level: ******
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Chen Jingwen <chenjingwen6@huawei.com>
+
+This is backport for 5.4
+
+Upstream commit 5647a94a26e352beed61788b46e035d9d12664cd
+
+The shadow's page table is not updated when PTE_RPN_SHIFT is 24
+and PAGE_SHIFT is 12. It not only causes false positives but
+also false negative as shown the following text.
+
+Fix it by bringing the logic of kasan_early_shadow_page_entry here.
+
+1. False Positive:
+==================================================================
+BUG: KASAN: vmalloc-out-of-bounds in pcpu_alloc+0x508/0xa50
+Write of size 16 at addr f57f3be0 by task swapper/0/1
+
+CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.15.0-12267-gdebe436e77c7 #1
+Call Trace:
+[c80d1c20] [c07fe7b8] dump_stack_lvl+0x4c/0x6c (unreliable)
+[c80d1c40] [c02ff668] print_address_description.constprop.0+0x88/0x300
+[c80d1c70] [c02ff45c] kasan_report+0x1ec/0x200
+[c80d1cb0] [c0300b20] kasan_check_range+0x160/0x2f0
+[c80d1cc0] [c03018a4] memset+0x34/0x90
+[c80d1ce0] [c0280108] pcpu_alloc+0x508/0xa50
+[c80d1d40] [c02fd7bc] __kmem_cache_create+0xfc/0x570
+[c80d1d70] [c0283d64] kmem_cache_create_usercopy+0x274/0x3e0
+[c80d1db0] [c2036580] init_sd+0xc4/0x1d0
+[c80d1de0] [c00044a0] do_one_initcall+0xc0/0x33c
+[c80d1eb0] [c2001624] kernel_init_freeable+0x2c8/0x384
+[c80d1ef0] [c0004b14] kernel_init+0x24/0x170
+[c80d1f10] [c001b26c] ret_from_kernel_thread+0x5c/0x64
+
+Memory state around the buggy address:
+ f57f3a80: f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8
+ f57f3b00: f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8
+>f57f3b80: f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8
+                                               ^
+ f57f3c00: f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8
+ f57f3c80: f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8
+==================================================================
+
+2. False Negative (with KASAN tests):
+==================================================================
+Before fix:
+    ok 45 - kmalloc_double_kzfree
+    # vmalloc_oob: EXPECTATION FAILED at lib/test_kasan.c:1039
+    KASAN failure expected in "((volatile char *)area)[3100]", but none occurred
+    not ok 46 - vmalloc_oob
+    not ok 1 - kasan
+
+==================================================================
+After fix:
+    ok 1 - kasan
+
+Fixes: cbd18991e24fe ("powerpc/mm: Fix an Oops in kasan_mmu_init()")
+Cc: stable@vger.kernel.org # 5.4.x
+Signed-off-by: Chen Jingwen <chenjingwen6@huawei.com>
+Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20211229035226.59159-1-chenjingwen6@huawei.com
+[chleroy: Backport for 5.4]
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+---
+ arch/powerpc/mm/kasan/kasan_init_32.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/powerpc/mm/kasan/kasan_init_32.c b/arch/powerpc/mm/kasan/kasan_init_32.c
+index 1cfe57b51d7e..3f78007a7282 100644
+--- a/arch/powerpc/mm/kasan/kasan_init_32.c
++++ b/arch/powerpc/mm/kasan/kasan_init_32.c
+@@ -121,7 +121,7 @@ static void __init kasan_remap_early_shadow_ro(void)
+ 		pmd_t *pmd = pmd_offset(pud_offset(pgd_offset_k(k_cur), k_cur), k_cur);
+ 		pte_t *ptep = pte_offset_kernel(pmd, k_cur);
+ 
+-		if ((pte_val(*ptep) & PTE_RPN_MASK) != pa)
++		if (pte_page(*ptep) != virt_to_page(lm_alias(kasan_early_shadow_page)))
+ 			continue;
+ 
+ 		__set_pte_at(&init_mm, k_cur, ptep, pfn_pte(PHYS_PFN(pa), prot), 0);
 -- 
-Dear Friend,
+2.35.1
 
-I warmly greet you.
-
-Please forgive me if my plea sounds a bit strange or embarrassing to
-you. I am 63 years old. am suffering from protracted cancer of the
-lungs which has also affected part of my brain cells due to
-complications,from all indication my condition is really deteriorating
-and it is quite obvious according to my doctors that i may not live
-for the next few months,because my condition has gotten to a critical
-and life threatening stage.
-
-Regards to my situation as well as the doctors report i have decided
-to entrust my wealth and treasures to a trust worthy person. Get back
-to me if you can be trusted for more details.
-
-Sincerely Your's
-Mrs. Susan Raphel
