@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 06B974F01B2
-	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 14:53:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DF104F01BC
+	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 14:55:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237323AbiDBMy7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 2 Apr 2022 08:54:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33368 "EHLO
+        id S1347731AbiDBM4v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 2 Apr 2022 08:56:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354781AbiDBMy5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 08:54:57 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0B64195314
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 05:53:05 -0700 (PDT)
+        with ESMTP id S243413AbiDBM4u (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 08:56:50 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3853B3C73A
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 05:54:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 63096CE0907
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 12:53:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82B02C340EC;
-        Sat,  2 Apr 2022 12:53:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DCF88B8076C
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 12:54:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 342F8C340EC;
+        Sat,  2 Apr 2022 12:54:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648903982;
-        bh=ldrv6p+4SWh43YlhMZkucAxNC0liAdwPzLewCv8FcYY=;
+        s=korg; t=1648904095;
+        bh=5Zpx/6kn7r2TjtjUJq3sytKsDCDDsVZ55VPL3iRxnhg=;
         h=Subject:To:Cc:From:Date:From;
-        b=OBC88e3RwjVfjImOTqiSunThv8XuYw9pYpkqzp1Vp3TjH9yiAJEUxH9XsQGZsRj4F
-         TPYO6JMl58xn5qVY3BZvp/Yi6QTDBrQ7rMrdTFFXxKlzOybLvqhPp5AjaK0N//lkji
-         ejhdC7c8JeS5mTk1a3faKSIYnNrI6Y9NBbd60qnk=
-Subject: FAILED: patch "[PATCH] media: davinci: vpif: fix use-after-free on driver unbind" failed to apply to 4.14-stable tree
-To:     johan@kernel.org, hverkuil-cisco@xs4all.nl, khilman@baylibre.com,
-        mchehab@kernel.org, prabhakar.csengg@gmail.com
+        b=moYubcjGui0nK0J2E9SGvb34z3/z9vbipANs113zJolgo2vMvzUMVFNIJ60RlXOND
+         MPffegGwkyTLERJezKp0X5fC4IfqmeqdVoIC7BnGWHOk6qYvySAcWDMh8YFXFv7TUS
+         Ym0Uepw+odrkW10UDOy3PrGR2uXks/AjYRO5bg/A=
+Subject: FAILED: patch "[PATCH] btrfs: don't access possibly stale fs_info data in" failed to apply to 5.4-stable tree
+To:     mudongliangabcd@gmail.com, dsterba@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 02 Apr 2022 14:52:48 +0200
-Message-ID: <16489039684239@kroah.com>
+Date:   Sat, 02 Apr 2022 14:54:44 +0200
+Message-ID: <164890408476234@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,181 +59,74 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 43acb728bbc40169d2e2425e84a80068270974be Mon Sep 17 00:00:00 2001
-From: Johan Hovold <johan@kernel.org>
-Date: Wed, 22 Dec 2021 15:20:24 +0100
-Subject: [PATCH] media: davinci: vpif: fix use-after-free on driver unbind
+From 79c9234ba596e903907de20573fd4bcc85315b06 Mon Sep 17 00:00:00 2001
+From: Dongliang Mu <mudongliangabcd@gmail.com>
+Date: Thu, 3 Mar 2022 22:40:27 +0800
+Subject: [PATCH] btrfs: don't access possibly stale fs_info data in
+ device_list_add
 
-The driver allocates and registers two platform device structures during
-probe, but the devices were never deregistered on driver unbind.
+Syzbot reported a possible use-after-free in printing information
+in device_list_add.
 
-This results in a use-after-free on driver unbind as the device
-structures were allocated using devres and would be freed by driver
-core when remove() returns.
+Very similar with the bug fixed by commit 0697d9a61099 ("btrfs: don't
+access possibly stale fs_info data for printing duplicate device"),
+but this time the use occurs in btrfs_info_in_rcu.
 
-Fix this by adding the missing deregistration calls to the remove()
-callback and failing probe on registration errors.
+  Call Trace:
+   kasan_report.cold+0x83/0xdf mm/kasan/report.c:459
+   btrfs_printk+0x395/0x425 fs/btrfs/super.c:244
+   device_list_add.cold+0xd7/0x2ed fs/btrfs/volumes.c:957
+   btrfs_scan_one_device+0x4c7/0x5c0 fs/btrfs/volumes.c:1387
+   btrfs_control_ioctl+0x12a/0x2d0 fs/btrfs/super.c:2409
+   vfs_ioctl fs/ioctl.c:51 [inline]
+   __do_sys_ioctl fs/ioctl.c:874 [inline]
+   __se_sys_ioctl fs/ioctl.c:860 [inline]
+   __x64_sys_ioctl+0x193/0x200 fs/ioctl.c:860
+   do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+   do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+   entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-Note that the platform device structures must be freed using a proper
-release callback to avoid leaking associated resources like device
-names.
+Fix this by modifying device->fs_info to NULL too.
 
-Fixes: 479f7a118105 ("[media] davinci: vpif: adaptions for DT support")
-Cc: stable@vger.kernel.org      # 4.12
-Cc: Kevin Hilman <khilman@baylibre.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Reviewed-by: Lad Prabhakar <prabhakar.csengg@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Reported-and-tested-by: syzbot+82650a4e0ed38f218363@syzkaller.appspotmail.com
+CC: stable@vger.kernel.org # 4.19+
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 
-diff --git a/drivers/media/platform/davinci/vpif.c b/drivers/media/platform/davinci/vpif.c
-index 1f5eacf48580..4a260f4ed236 100644
---- a/drivers/media/platform/davinci/vpif.c
-+++ b/drivers/media/platform/davinci/vpif.c
-@@ -41,6 +41,11 @@ MODULE_ALIAS("platform:" VPIF_DRIVER_NAME);
- #define VPIF_CH2_MAX_MODES	15
- #define VPIF_CH3_MAX_MODES	2
- 
-+struct vpif_data {
-+	struct platform_device *capture;
-+	struct platform_device *display;
-+};
-+
- DEFINE_SPINLOCK(vpif_lock);
- EXPORT_SYMBOL_GPL(vpif_lock);
- 
-@@ -423,17 +428,31 @@ int vpif_channel_getfid(u8 channel_id)
- }
- EXPORT_SYMBOL(vpif_channel_getfid);
- 
-+static void vpif_pdev_release(struct device *dev)
-+{
-+	struct platform_device *pdev = to_platform_device(dev);
-+
-+	kfree(pdev);
-+}
-+
- static int vpif_probe(struct platform_device *pdev)
- {
- 	static struct resource *res_irq;
- 	struct platform_device *pdev_capture, *pdev_display;
- 	struct device_node *endpoint = NULL;
-+	struct vpif_data *data;
- 	int ret;
- 
- 	vpif_base = devm_platform_ioremap_resource(pdev, 0);
- 	if (IS_ERR(vpif_base))
- 		return PTR_ERR(vpif_base);
- 
-+	data = kzalloc(sizeof(*data), GFP_KERNEL);
-+	if (!data)
-+		return -ENOMEM;
-+
-+	platform_set_drvdata(pdev, data);
-+
- 	pm_runtime_enable(&pdev->dev);
- 	pm_runtime_get(&pdev->dev);
- 
-@@ -461,49 +480,75 @@ static int vpif_probe(struct platform_device *pdev)
- 		goto err_put_rpm;
- 	}
- 
--	pdev_capture = devm_kzalloc(&pdev->dev, sizeof(*pdev_capture),
--				    GFP_KERNEL);
--	if (pdev_capture) {
--		pdev_capture->name = "vpif_capture";
--		pdev_capture->id = -1;
--		pdev_capture->resource = res_irq;
--		pdev_capture->num_resources = 1;
--		pdev_capture->dev.dma_mask = pdev->dev.dma_mask;
--		pdev_capture->dev.coherent_dma_mask = pdev->dev.coherent_dma_mask;
--		pdev_capture->dev.parent = &pdev->dev;
--		platform_device_register(pdev_capture);
--	} else {
--		dev_warn(&pdev->dev, "Unable to allocate memory for pdev_capture.\n");
-+	pdev_capture = kzalloc(sizeof(*pdev_capture), GFP_KERNEL);
-+	if (!pdev_capture) {
-+		ret = -ENOMEM;
-+		goto err_put_rpm;
- 	}
- 
--	pdev_display = devm_kzalloc(&pdev->dev, sizeof(*pdev_display),
--				    GFP_KERNEL);
--	if (pdev_display) {
--		pdev_display->name = "vpif_display";
--		pdev_display->id = -1;
--		pdev_display->resource = res_irq;
--		pdev_display->num_resources = 1;
--		pdev_display->dev.dma_mask = pdev->dev.dma_mask;
--		pdev_display->dev.coherent_dma_mask = pdev->dev.coherent_dma_mask;
--		pdev_display->dev.parent = &pdev->dev;
--		platform_device_register(pdev_display);
--	} else {
--		dev_warn(&pdev->dev, "Unable to allocate memory for pdev_display.\n");
-+	pdev_capture->name = "vpif_capture";
-+	pdev_capture->id = -1;
-+	pdev_capture->resource = res_irq;
-+	pdev_capture->num_resources = 1;
-+	pdev_capture->dev.dma_mask = pdev->dev.dma_mask;
-+	pdev_capture->dev.coherent_dma_mask = pdev->dev.coherent_dma_mask;
-+	pdev_capture->dev.parent = &pdev->dev;
-+	pdev_capture->dev.release = vpif_pdev_release;
-+
-+	ret = platform_device_register(pdev_capture);
-+	if (ret)
-+		goto err_put_pdev_capture;
-+
-+	pdev_display = kzalloc(sizeof(*pdev_display), GFP_KERNEL);
-+	if (!pdev_display) {
-+		ret = -ENOMEM;
-+		goto err_put_pdev_capture;
- 	}
- 
-+	pdev_display->name = "vpif_display";
-+	pdev_display->id = -1;
-+	pdev_display->resource = res_irq;
-+	pdev_display->num_resources = 1;
-+	pdev_display->dev.dma_mask = pdev->dev.dma_mask;
-+	pdev_display->dev.coherent_dma_mask = pdev->dev.coherent_dma_mask;
-+	pdev_display->dev.parent = &pdev->dev;
-+	pdev_display->dev.release = vpif_pdev_release;
-+
-+	ret = platform_device_register(pdev_display);
-+	if (ret)
-+		goto err_put_pdev_display;
-+
-+	data->capture = pdev_capture;
-+	data->display = pdev_display;
-+
- 	return 0;
- 
-+err_put_pdev_display:
-+	platform_device_put(pdev_display);
-+err_put_pdev_capture:
-+	platform_device_put(pdev_capture);
- err_put_rpm:
- 	pm_runtime_put(&pdev->dev);
- 	pm_runtime_disable(&pdev->dev);
-+	kfree(data);
- 
- 	return ret;
- }
- 
- static int vpif_remove(struct platform_device *pdev)
- {
-+	struct vpif_data *data = platform_get_drvdata(pdev);
-+
-+	if (data->capture)
-+		platform_device_unregister(data->capture);
-+	if (data->display)
-+		platform_device_unregister(data->display);
-+
- 	pm_runtime_put(&pdev->dev);
- 	pm_runtime_disable(&pdev->dev);
-+
-+	kfree(data);
-+
- 	return 0;
- }
- 
+diff --git a/fs/btrfs/volumes.c b/fs/btrfs/volumes.c
+index 5e3e13d4940b..1be7cb2f955f 100644
+--- a/fs/btrfs/volumes.c
++++ b/fs/btrfs/volumes.c
+@@ -921,16 +921,15 @@ static noinline struct btrfs_device *device_list_add(const char *path,
+ 		/*
+ 		 * We are going to replace the device path for a given devid,
+ 		 * make sure it's the same device if the device is mounted
++		 *
++		 * NOTE: the device->fs_info may not be reliable here so pass
++		 * in a NULL to message helpers instead. This avoids a possible
++		 * use-after-free when the fs_info and fs_info->sb are already
++		 * torn down.
+ 		 */
+ 		if (device->bdev) {
+ 			if (device->devt != path_devt) {
+ 				mutex_unlock(&fs_devices->device_list_mutex);
+-				/*
+-				 * device->fs_info may not be reliable here, so
+-				 * pass in a NULL instead. This avoids a
+-				 * possible use-after-free when the fs_info and
+-				 * fs_info->sb are already torn down.
+-				 */
+ 				btrfs_warn_in_rcu(NULL,
+ 	"duplicate device %s devid %llu generation %llu scanned by %s (%d)",
+ 						  path, devid, found_transid,
+@@ -938,7 +937,7 @@ static noinline struct btrfs_device *device_list_add(const char *path,
+ 						  task_pid_nr(current));
+ 				return ERR_PTR(-EEXIST);
+ 			}
+-			btrfs_info_in_rcu(device->fs_info,
++			btrfs_info_in_rcu(NULL,
+ 	"devid %llu device path %s changed to %s scanned by %s (%d)",
+ 					  devid, rcu_str_deref(device->name),
+ 					  path, current->comm,
 
