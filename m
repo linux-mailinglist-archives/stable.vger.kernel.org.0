@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B5FF04F04E9
-	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 18:32:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1083C4F04EE
+	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 18:32:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347271AbiDBQdx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 2 Apr 2022 12:33:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43618 "EHLO
+        id S1358164AbiDBQeo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 2 Apr 2022 12:34:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45770 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358418AbiDBQds (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 12:33:48 -0400
+        with ESMTP id S1358167AbiDBQem (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 12:34:42 -0400
 Received: from gnuweeb.org (gnuweeb.org [51.81.211.47])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F37D9DF07;
-        Sat,  2 Apr 2022 09:31:55 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87A69DF07;
+        Sat,  2 Apr 2022 09:32:50 -0700 (PDT)
 Received: from integral2.. (unknown [182.2.36.61])
-        by gnuweeb.org (Postfix) with ESMTPSA id 496827E312;
-        Sat,  2 Apr 2022 16:31:46 +0000 (UTC)
+        by gnuweeb.org (Postfix) with ESMTPSA id 900A07E312;
+        Sat,  2 Apr 2022 16:32:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gnuweeb.org;
-        s=default; t=1648917115;
-        bh=eBD0US2XIxp4F/ffI9gYxv6zA7XVqWq2OlUPNGB/UPo=;
+        s=default; t=1648917170;
+        bh=L0dEr0Og4BkrupUP+ZQZiQjoUM1WFhoD9Klvx4qS97o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eADNGdZi2euUZuamRSiTQ5O5Q7kME4KHnDQvK+4eOWOe8A3LI9bkDFakQZhA+x+6e
-         WpzdC3empnQs4JBvECdztpW5N5Nc2Xf/z+mPJ4iH5L4v4qCAPEAPMDI5WX2L+wI7u7
-         fyq56i5rOHxLR6J9NYjVdHy2Ru9etS+01p8KN8z5M2ZO5ZiB373DuXdvCx2e9maEIg
-         oC7R7gAfCYqzAqBPljh+NLVONCfjP2svRk+9beCDtmqx4EYFJiBZgtLnFHWZBgYY5w
-         0DMN/D7AcHefmYtXShnQO1h7iVdHFIrQYpvBLIuZJlVq3X07ztQoMgCspouD4Ir6lF
-         g1fps/OKkoYHQ==
+        b=V8xd221KsZYF1WR1tPJeNVdbfQePpjfHvsUHIg7oCvxMy1oqkRPIL7/QIJZXhaKcn
+         1pRJm9hRORB0334+T5XXOijW4+YuN4CDb2szcY/LZmHKF2D5HHIx0LA0zQnJlJd4l+
+         hsORtjS3CUyddm92h2mK/b+sS6b22DADUG5pEtE+Wgj52brEl03e0I+6FRZXs6Pc90
+         7KmC0GPv3r4ZxSr9L18dhRgZQvkYDl1gPUxMB5Y/vzLHMr6xxq/jIuY9BlldFcttxX
+         k/sm1CC8h13t6xlmyMaB5qm94HgjJWF4tgBMdO0mw/FYkZ61RA8cz31eEeL1DuJma+
+         Kouy0eV6onRWg==
 From:   Ammar Faizi <ammarfaizi2@gnuweeb.org>
 To:     stable@vger.kernel.org,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
@@ -44,9 +44,9 @@ Cc:     Ammar Faizi <ammarfaizi2@gnuweeb.org>,
         sound-open-firmware@alsa-project.org, alsa-devel@alsa-project.org,
         linux-kernel@vger.kernel.org, gwml@vger.gnuweeb.org,
         Mark Brown <broonie@kernel.org>
-Subject: [PATCH linux-5.4.y] ASoC: SOF: Intel: Fix NULL ptr dereference when ENOMEM
-Date:   Sat,  2 Apr 2022 23:31:38 +0700
-Message-Id: <20220402163138.11632-1-ammarfaizi2@gnuweeb.org>
+Subject: [PATCH linux-5.10.y] ASoC: SOF: Intel: Fix NULL ptr dereference when ENOMEM
+Date:   Sat,  2 Apr 2022 23:32:26 +0700
+Message-Id: <20220402163226.12209-1-ammarfaizi2@gnuweeb.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20220402163026.11299-1-ammarfaizi2@gnuweeb.org>
 References: 
@@ -116,17 +116,17 @@ Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 Signed-off-by: Ammar Faizi <ammarfaizi2@gnuweeb.org>
 Link: https://lore.kernel.org/r/20220224185836.44907-1-ammarfaizi2@gnuweeb.org
 Signed-off-by: Mark Brown <broonie@kernel.org>
-[ammarfaizi2: Backport to Linux 5.4 LTS]
+[ammarfaizi2: Backport to Linux 5.10 LTS]
 Signed-off-by: Ammar Faizi <ammarfaizi2@gnuweeb.org>
 ---
- sound/soc/sof/intel/hda-loader.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ sound/soc/sof/intel/hda-loader.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
 diff --git a/sound/soc/sof/intel/hda-loader.c b/sound/soc/sof/intel/hda-loader.c
-index 356bb134ae93..7573f3f9f0f2 100644
+index 2707a16c6a4d..347636a80b48 100644
 --- a/sound/soc/sof/intel/hda-loader.c
 +++ b/sound/soc/sof/intel/hda-loader.c
-@@ -50,7 +50,7 @@ static int cl_stream_prepare(struct snd_sof_dev *sdev, unsigned int format,
+@@ -47,7 +47,7 @@ static struct hdac_ext_stream *cl_stream_prepare(struct snd_sof_dev *sdev, unsig
  	ret = snd_dma_alloc_pages(SNDRV_DMA_TYPE_DEV_SG, &pci->dev, size, dmab);
  	if (ret < 0) {
  		dev_err(sdev->dev, "error: memory alloc failed: %x\n", ret);
@@ -135,17 +135,24 @@ index 356bb134ae93..7573f3f9f0f2 100644
  	}
  
  	hstream->period_bytes = 0;/* initialize period_bytes */
-@@ -60,16 +60,17 @@ static int cl_stream_prepare(struct snd_sof_dev *sdev, unsigned int format,
- 	ret = hda_dsp_stream_hw_params(sdev, dsp_stream, dmab, NULL);
- 	if (ret < 0) {
- 		dev_err(sdev->dev, "error: hdac prepare failed: %x\n", ret);
--		goto error;
-+		goto out_free;
+@@ -58,22 +58,23 @@ static struct hdac_ext_stream *cl_stream_prepare(struct snd_sof_dev *sdev, unsig
+ 		ret = hda_dsp_iccmax_stream_hw_params(sdev, dsp_stream, dmab, NULL);
+ 		if (ret < 0) {
+ 			dev_err(sdev->dev, "error: iccmax stream prepare failed: %x\n", ret);
+-			goto error;
++			goto out_free;
+ 		}
+ 	} else {
+ 		ret = hda_dsp_stream_hw_params(sdev, dsp_stream, dmab, NULL);
+ 		if (ret < 0) {
+ 			dev_err(sdev->dev, "error: hdac prepare failed: %x\n", ret);
+-			goto error;
++			goto out_free;
+ 		}
+ 		hda_dsp_stream_spib_config(sdev, dsp_stream, HDA_DSP_SPIB_ENABLE, size);
  	}
  
- 	hda_dsp_stream_spib_config(sdev, dsp_stream, HDA_DSP_SPIB_ENABLE, size);
- 
- 	return hstream->stream_tag;
+ 	return dsp_stream;
  
 -error:
 -	hda_dsp_stream_put(sdev, direction, hstream->stream_tag);
@@ -153,11 +160,11 @@ index 356bb134ae93..7573f3f9f0f2 100644
  	snd_dma_free_pages(dmab);
 +out_put:
 +	hda_dsp_stream_put(sdev, direction, hstream->stream_tag);
- 	return ret;
+ 	return ERR_PTR(ret);
  }
  
 
-base-commit: 2845ff3fd34499603249676495c524a35e795b45
+base-commit: d9c5818a0bc09e4cc9fe663edb69e4d6cdae4f70
 -- 
 2.32.0
 
