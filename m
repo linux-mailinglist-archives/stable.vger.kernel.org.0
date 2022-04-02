@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E8C644F0002
+	by mail.lfdr.de (Postfix) with ESMTP id 9BE6B4F0001
 	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 11:11:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243265AbiDBJLa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 2 Apr 2022 05:11:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57628 "EHLO
+        id S1354020AbiDBJLj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 2 Apr 2022 05:11:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58270 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239573AbiDBJL3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 05:11:29 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 588FB2459C
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 02:09:36 -0700 (PDT)
+        with ESMTP id S244053AbiDBJLh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 05:11:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6012E5373A
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 02:09:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B19CDB801BA
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 09:09:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8ED3C340EC;
-        Sat,  2 Apr 2022 09:09:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F0B18611A9
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 09:09:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08F0AC34110;
+        Sat,  2 Apr 2022 09:09:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648890573;
-        bh=youOxiMze6Ffxw3gk/mM/RGvRfDpDLgqkaFMQu7ZbgQ=;
+        s=korg; t=1648890584;
+        bh=hLhBM+xtWBpxXts1ZY7OBP431/twNyK4vyN8nE6npFI=;
         h=Subject:To:Cc:From:Date:From;
-        b=1/2NYDeAzCsft0reNjuN6CM0KwxMuBlhTpOELZ4HavahPyk5jUPtMU8hpTTp6i5qV
-         sUsvuVd9Kb1oJS8vrnA4Q/JbK1Tnil8jYZqoPFPMNY3foZCfWZSxHSNC3LN5pfpC/3
-         i99kZ570Yx0g5iv01AMxqcdFNpMY3yRnaQmwTFrY=
-Subject: FAILED: patch "[PATCH] io_uring: ensure recv and recvmsg handle MSG_WAITALL" failed to apply to 5.17-stable tree
+        b=f5iXnQNTeskaqQSLVdKW/DqWN94I09uFLPmqXn/sl11ADoEP5eoQoYH3GLvDmMKxs
+         +z6kyZlyc6p7hD7qMBJgxG4no1QPNuzl5Z+2GmLHyLJD3UkE2ytbodnNAh1DlvYF/h
+         MhcIuF9kDuYnGC9cK1pOeIYWfayvnik0iJFzrD78=
+Subject: FAILED: patch "[PATCH] io_uring: ensure recv and recvmsg handle MSG_WAITALL" failed to apply to 5.10-stable tree
 To:     axboe@kernel.dk, constantine.gavrilov@gmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 02 Apr 2022 11:09:30 +0200
-Message-ID: <164889057016037@kroah.com>
+Date:   Sat, 02 Apr 2022 11:09:31 +0200
+Message-ID: <1648890571193216@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.17-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
