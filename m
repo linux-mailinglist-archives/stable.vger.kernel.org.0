@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 12FF14F0129
-	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 13:37:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F6084F0127
+	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 13:37:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236677AbiDBLit (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 2 Apr 2022 07:38:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49878 "EHLO
+        id S229980AbiDBLi4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 2 Apr 2022 07:38:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50568 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232461AbiDBLiq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 07:38:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8A7B5520D
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 04:36:54 -0700 (PDT)
+        with ESMTP id S232461AbiDBLi4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 07:38:56 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4086455481
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 04:37:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 67D3660BA1
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 11:36:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78871C340EC;
-        Sat,  2 Apr 2022 11:36:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E9B5FB8069B
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 11:37:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07A13C340EC;
+        Sat,  2 Apr 2022 11:37:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648899413;
-        bh=esyuicz2oh8h8HAVENwu/etFCZMOkxCLVpvYTv8mXbs=;
+        s=korg; t=1648899421;
+        bh=yFnXQL/JWroSHcXrweofHbIUdhfbXmCurBvJnFPuEtA=;
         h=Subject:To:Cc:From:Date:From;
-        b=2NmxEvD9lrjQI1dwtt0GocFgv9DzA8hfCU7vh8OlzUVD6r0cn8Fx1ZAEPP4bZABW4
-         kJ5D70LOuF7Ppa5QEqu+d1ReC33fBQpT2MiSrktCHZ4y6+VY74vJe2DMzGEvQrgXu1
-         /QCGWxjKNzcqlUKQAEZpdBHNtoU0ywcDzJrw0VZE=
-Subject: FAILED: patch "[PATCH] coredump: Use the vma snapshot in fill_files_note" failed to apply to 5.16-stable tree
-To:     ebiederm@xmission.com, keescook@chromium.org, willy@infradead.org
+        b=SS5ezAwKta+jWOxaQ08PXtjud3nrcIGlYCYjaLRnV0FY5tZqrSY+SGcGmPZfsk6mW
+         CdH8R0TSBnf2APIkCFFboYKONv79bsdl3Wwtnv31w7znyflg1THGZd0VU+LMNVjF0e
+         HOQzrqQg/3M70bznTLsx3nTt0e7hTP7OekhfAFbc=
+Subject: FAILED: patch "[PATCH] proc/vmcore: fix possible deadlock on concurrent mmap and" failed to apply to 5.16-stable tree
+To:     david@redhat.com, akpm@linux-foundation.org, bhe@redhat.com,
+        boqun.feng@gmail.com, dyoung@redhat.com, josh@joshtriplett.org,
+        paulmck@kernel.org, peterz@infradead.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, vgoyal@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 02 Apr 2022 13:36:40 +0200
-Message-ID: <16488994005877@kroah.com>
+Date:   Sat, 02 Apr 2022 13:36:58 +0200
+Message-ID: <164889941824213@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,176 +62,256 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 390031c942116d4733310f0684beb8db19885fe6 Mon Sep 17 00:00:00 2001
-From: "Eric W. Biederman" <ebiederm@xmission.com>
-Date: Tue, 8 Mar 2022 13:04:19 -0600
-Subject: [PATCH] coredump: Use the vma snapshot in fill_files_note
+From 5039b170369d22613ebc07e81410891f52280a45 Mon Sep 17 00:00:00 2001
+From: David Hildenbrand <david@redhat.com>
+Date: Wed, 23 Mar 2022 16:05:23 -0700
+Subject: [PATCH] proc/vmcore: fix possible deadlock on concurrent mmap and
+ read
 
-Matthew Wilcox reported that there is a missing mmap_lock in
-file_files_note that could possibly lead to a user after free.
+Lockdep noticed that there is chance for a deadlock if we have concurrent
+mmap, concurrent read, and the addition/removal of a callback.
 
-Solve this by using the existing vma snapshot for consistency
-and to avoid the need to take the mmap_lock anywhere in the
-coredump code except for dump_vma_snapshot.
+As nicely explained by Boqun:
+ "Lockdep warned about the above sequences because rw_semaphore is a
+  fair read-write lock, and the following can cause a deadlock:
 
-Update the dump_vma_snapshot to capture vm_pgoff and vm_file
-that are neeeded by fill_files_note.
+	TASK 1			TASK 2		TASK 3
+	======			======		======
+	down_write(mmap_lock);
+				down_read(vmcore_cb_rwsem)
+						down_write(vmcore_cb_rwsem); // blocked
+	down_read(vmcore_cb_rwsem); // cannot get the lock because of the fairness
+				down_read(mmap_lock); // blocked
 
-Add free_vma_snapshot to free the captured values of vm_file.
+  IOW, a reader can block another read if there is a writer queued by
+  the second reader and the lock is fair"
 
-Reported-by: Matthew Wilcox <willy@infradead.org>
-Link: https://lkml.kernel.org/r/20220131153740.2396974-1-willy@infradead.org
-Cc: stable@vger.kernel.org
-Fixes: a07279c9a8cd ("binfmt_elf, binfmt_elf_fdpic: use a VMA list snapshot")
-Fixes: 2aa362c49c31 ("coredump: extend core dump note section to contain file names of mapped files")
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+To fix this, convert to srcu to make this deadlock impossible.  We need
+srcu as our callbacks can sleep.  With this change, I cannot trigger any
+lockdep warnings.
 
-diff --git a/fs/binfmt_elf.c b/fs/binfmt_elf.c
-index 7f0c391832cf..ca5296cae979 100644
---- a/fs/binfmt_elf.c
-+++ b/fs/binfmt_elf.c
-@@ -1641,17 +1641,16 @@ static void fill_siginfo_note(struct memelfnote *note, user_siginfo_t *csigdata,
-  *   long file_ofs
-  * followed by COUNT filenames in ASCII: "FILE1" NUL "FILE2" NUL...
-  */
--static int fill_files_note(struct memelfnote *note)
-+static int fill_files_note(struct memelfnote *note, struct coredump_params *cprm)
+    ======================================================
+    WARNING: possible circular locking dependency detected
+    5.17.0-0.rc0.20220117git0c947b893d69.68.test.fc36.x86_64 #1 Not tainted
+    ------------------------------------------------------
+    makedumpfile/542 is trying to acquire lock:
+    ffffffff832d2eb8 (vmcore_cb_rwsem){.+.+}-{3:3}, at: mmap_vmcore+0x340/0x580
+
+    but task is already holding lock:
+    ffff8880af226438 (&mm->mmap_lock#2){++++}-{3:3}, at: vm_mmap_pgoff+0x84/0x150
+
+    which lock already depends on the new lock.
+
+    the existing dependency chain (in reverse order) is:
+
+    -> #1 (&mm->mmap_lock#2){++++}-{3:3}:
+           lock_acquire+0xc3/0x1a0
+           __might_fault+0x4e/0x70
+           _copy_to_user+0x1f/0x90
+           __copy_oldmem_page+0x72/0xc0
+           read_from_oldmem+0x77/0x1e0
+           read_vmcore+0x2c2/0x310
+           proc_reg_read+0x47/0xa0
+           vfs_read+0x101/0x340
+           __x64_sys_pread64+0x5d/0xa0
+           do_syscall_64+0x43/0x90
+           entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+    -> #0 (vmcore_cb_rwsem){.+.+}-{3:3}:
+           validate_chain+0x9f4/0x2670
+           __lock_acquire+0x8f7/0xbc0
+           lock_acquire+0xc3/0x1a0
+           down_read+0x4a/0x140
+           mmap_vmcore+0x340/0x580
+           proc_reg_mmap+0x3e/0x90
+           mmap_region+0x504/0x880
+           do_mmap+0x38a/0x520
+           vm_mmap_pgoff+0xc1/0x150
+           ksys_mmap_pgoff+0x178/0x200
+           do_syscall_64+0x43/0x90
+           entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+    other info that might help us debug this:
+
+     Possible unsafe locking scenario:
+
+           CPU0                    CPU1
+           ----                    ----
+      lock(&mm->mmap_lock#2);
+                                   lock(vmcore_cb_rwsem);
+                                   lock(&mm->mmap_lock#2);
+      lock(vmcore_cb_rwsem);
+
+     *** DEADLOCK ***
+
+    1 lock held by makedumpfile/542:
+     #0: ffff8880af226438 (&mm->mmap_lock#2){++++}-{3:3}, at: vm_mmap_pgoff+0x84/0x150
+
+    stack backtrace:
+    CPU: 0 PID: 542 Comm: makedumpfile Not tainted 5.17.0-0.rc0.20220117git0c947b893d69.68.test.fc36.x86_64 #1
+    Hardware name: Red Hat KVM, BIOS 0.5.1 01/01/2011
+    Call Trace:
+     __lock_acquire+0x8f7/0xbc0
+     lock_acquire+0xc3/0x1a0
+     down_read+0x4a/0x140
+     mmap_vmcore+0x340/0x580
+     proc_reg_mmap+0x3e/0x90
+     mmap_region+0x504/0x880
+     do_mmap+0x38a/0x520
+     vm_mmap_pgoff+0xc1/0x150
+     ksys_mmap_pgoff+0x178/0x200
+     do_syscall_64+0x43/0x90
+
+Link: https://lkml.kernel.org/r/20220119193417.100385-1-david@redhat.com
+Fixes: cc5f2704c934 ("proc/vmcore: convert oldmem_pfn_is_ram callback to more generic vmcore callbacks")
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Reported-by: Baoquan He <bhe@redhat.com>
+Acked-by: Baoquan He <bhe@redhat.com>
+Cc: Vivek Goyal <vgoyal@redhat.com>
+Cc: Dave Young <dyoung@redhat.com>
+Cc: "Paul E. McKenney" <paulmck@kernel.org>
+Cc: Josh Triplett <josh@joshtriplett.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Boqun Feng <boqun.feng@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+
+diff --git a/fs/proc/vmcore.c b/fs/proc/vmcore.c
+index 702754dd1daf..edeb01dfe05d 100644
+--- a/fs/proc/vmcore.c
++++ b/fs/proc/vmcore.c
+@@ -62,7 +62,8 @@ core_param(novmcoredd, vmcoredd_disabled, bool, 0);
+ /* Device Dump Size */
+ static size_t vmcoredd_orig_sz;
+ 
+-static DECLARE_RWSEM(vmcore_cb_rwsem);
++static DEFINE_SPINLOCK(vmcore_cb_lock);
++DEFINE_STATIC_SRCU(vmcore_cb_srcu);
+ /* List of registered vmcore callbacks. */
+ static LIST_HEAD(vmcore_cb_list);
+ /* Whether the vmcore has been opened once. */
+@@ -70,8 +71,8 @@ static bool vmcore_opened;
+ 
+ void register_vmcore_cb(struct vmcore_cb *cb)
  {
--	struct mm_struct *mm = current->mm;
--	struct vm_area_struct *vma;
- 	unsigned count, size, names_ofs, remaining, n;
- 	user_long_t *data;
- 	user_long_t *start_end_ofs;
- 	char *name_base, *name_curpos;
-+	int i;
- 
- 	/* *Estimated* file count and total data size needed */
--	count = mm->map_count;
-+	count = cprm->vma_count;
- 	if (count > UINT_MAX / 64)
- 		return -EINVAL;
- 	size = count * 64;
-@@ -1673,11 +1672,12 @@ static int fill_files_note(struct memelfnote *note)
- 	name_base = name_curpos = ((char *)data) + names_ofs;
- 	remaining = size - names_ofs;
- 	count = 0;
--	for (vma = mm->mmap; vma != NULL; vma = vma->vm_next) {
-+	for (i = 0; i < cprm->vma_count; i++) {
-+		struct core_vma_metadata *m = &cprm->vma_meta[i];
- 		struct file *file;
- 		const char *filename;
- 
--		file = vma->vm_file;
-+		file = m->file;
- 		if (!file)
- 			continue;
- 		filename = file_path(file, name_curpos, remaining);
-@@ -1697,9 +1697,9 @@ static int fill_files_note(struct memelfnote *note)
- 		memmove(name_curpos, filename, n);
- 		name_curpos += n;
- 
--		*start_end_ofs++ = vma->vm_start;
--		*start_end_ofs++ = vma->vm_end;
--		*start_end_ofs++ = vma->vm_pgoff;
-+		*start_end_ofs++ = m->start;
-+		*start_end_ofs++ = m->end;
-+		*start_end_ofs++ = m->pgoff;
- 		count++;
- 	}
- 
-@@ -1710,7 +1710,7 @@ static int fill_files_note(struct memelfnote *note)
- 	 * Count usually is less than mm->map_count,
- 	 * we need to move filenames down.
+-	down_write(&vmcore_cb_rwsem);
+ 	INIT_LIST_HEAD(&cb->next);
++	spin_lock(&vmcore_cb_lock);
+ 	list_add_tail(&cb->next, &vmcore_cb_list);
+ 	/*
+ 	 * Registering a vmcore callback after the vmcore was opened is
+@@ -79,14 +80,14 @@ void register_vmcore_cb(struct vmcore_cb *cb)
  	 */
--	n = mm->map_count - count;
-+	n = cprm->vma_count - count;
- 	if (n != 0) {
- 		unsigned shift_bytes = n * 3 * sizeof(data[0]);
- 		memmove(name_base - shift_bytes, name_base,
-@@ -1909,7 +1909,7 @@ static int fill_note_info(struct elfhdr *elf, int phdrs,
- 	fill_auxv_note(&info->auxv, current->mm);
- 	info->size += notesize(&info->auxv);
+ 	if (vmcore_opened)
+ 		pr_warn_once("Unexpected vmcore callback registration\n");
+-	up_write(&vmcore_cb_rwsem);
++	spin_unlock(&vmcore_cb_lock);
+ }
+ EXPORT_SYMBOL_GPL(register_vmcore_cb);
  
--	if (fill_files_note(&info->files) == 0)
-+	if (fill_files_note(&info->files, cprm) == 0)
- 		info->size += notesize(&info->files);
+ void unregister_vmcore_cb(struct vmcore_cb *cb)
+ {
+-	down_write(&vmcore_cb_rwsem);
+-	list_del(&cb->next);
++	spin_lock(&vmcore_cb_lock);
++	list_del_rcu(&cb->next);
+ 	/*
+ 	 * Unregistering a vmcore callback after the vmcore was opened is
+ 	 * very unusual (e.g., forced driver removal), but we cannot stop
+@@ -94,7 +95,9 @@ void unregister_vmcore_cb(struct vmcore_cb *cb)
+ 	 */
+ 	if (vmcore_opened)
+ 		pr_warn_once("Unexpected vmcore callback unregistration\n");
+-	up_write(&vmcore_cb_rwsem);
++	spin_unlock(&vmcore_cb_lock);
++
++	synchronize_srcu(&vmcore_cb_srcu);
+ }
+ EXPORT_SYMBOL_GPL(unregister_vmcore_cb);
  
- 	return 1;
-@@ -2098,7 +2098,7 @@ static int fill_note_info(struct elfhdr *elf, int phdrs,
- 	fill_auxv_note(info->notes + 3, current->mm);
- 	info->numnote = 4;
+@@ -103,9 +106,8 @@ static bool pfn_is_ram(unsigned long pfn)
+ 	struct vmcore_cb *cb;
+ 	bool ret = true;
  
--	if (fill_files_note(info->notes + info->numnote) == 0) {
-+	if (fill_files_note(info->notes + info->numnote, cprm) == 0) {
- 		info->notes_files = info->notes + info->numnote;
- 		info->numnote++;
- 	}
-diff --git a/fs/coredump.c b/fs/coredump.c
-index 7f100a637264..7ed7d601e5e0 100644
---- a/fs/coredump.c
-+++ b/fs/coredump.c
-@@ -55,6 +55,7 @@
- #include <trace/events/sched.h>
+-	lockdep_assert_held_read(&vmcore_cb_rwsem);
+-
+-	list_for_each_entry(cb, &vmcore_cb_list, next) {
++	list_for_each_entry_srcu(cb, &vmcore_cb_list, next,
++				 srcu_read_lock_held(&vmcore_cb_srcu)) {
+ 		if (unlikely(!cb->pfn_is_ram))
+ 			continue;
+ 		ret = cb->pfn_is_ram(cb, pfn);
+@@ -118,9 +120,9 @@ static bool pfn_is_ram(unsigned long pfn)
  
- static bool dump_vma_snapshot(struct coredump_params *cprm);
-+static void free_vma_snapshot(struct coredump_params *cprm);
+ static int open_vmcore(struct inode *inode, struct file *file)
+ {
+-	down_read(&vmcore_cb_rwsem);
++	spin_lock(&vmcore_cb_lock);
+ 	vmcore_opened = true;
+-	up_read(&vmcore_cb_rwsem);
++	spin_unlock(&vmcore_cb_lock);
  
- static int core_uses_pid;
- static unsigned int core_pipe_limit;
-@@ -765,7 +766,7 @@ void do_coredump(const kernel_siginfo_t *siginfo)
- 			dump_emit(&cprm, "", 1);
+ 	return 0;
+ }
+@@ -133,6 +135,7 @@ ssize_t read_from_oldmem(char *buf, size_t count,
+ 	unsigned long pfn, offset;
+ 	size_t nr_bytes;
+ 	ssize_t read = 0, tmp;
++	int idx;
+ 
+ 	if (!count)
+ 		return 0;
+@@ -140,7 +143,7 @@ ssize_t read_from_oldmem(char *buf, size_t count,
+ 	offset = (unsigned long)(*ppos % PAGE_SIZE);
+ 	pfn = (unsigned long)(*ppos / PAGE_SIZE);
+ 
+-	down_read(&vmcore_cb_rwsem);
++	idx = srcu_read_lock(&vmcore_cb_srcu);
+ 	do {
+ 		if (count > (PAGE_SIZE - offset))
+ 			nr_bytes = PAGE_SIZE - offset;
+@@ -165,7 +168,7 @@ ssize_t read_from_oldmem(char *buf, size_t count,
+ 						       offset, userbuf);
  		}
- 		file_end_write(cprm.file);
--		kvfree(cprm.vma_meta);
-+		free_vma_snapshot(&cprm);
- 	}
- 	if (ispipe && core_pipe_limit)
- 		wait_for_dump_helpers(cprm.file);
-@@ -1099,6 +1100,20 @@ static struct vm_area_struct *next_vma(struct vm_area_struct *this_vma,
- 	return gate_vma;
+ 		if (tmp < 0) {
+-			up_read(&vmcore_cb_rwsem);
++			srcu_read_unlock(&vmcore_cb_srcu, idx);
+ 			return tmp;
+ 		}
+ 
+@@ -176,8 +179,8 @@ ssize_t read_from_oldmem(char *buf, size_t count,
+ 		++pfn;
+ 		offset = 0;
+ 	} while (count);
++	srcu_read_unlock(&vmcore_cb_srcu, idx);
+ 
+-	up_read(&vmcore_cb_rwsem);
+ 	return read;
  }
  
-+static void free_vma_snapshot(struct coredump_params *cprm)
-+{
-+	if (cprm->vma_meta) {
-+		int i;
-+		for (i = 0; i < cprm->vma_count; i++) {
-+			struct file *file = cprm->vma_meta[i].file;
-+			if (file)
-+				fput(file);
-+		}
-+		kvfree(cprm->vma_meta);
-+		cprm->vma_meta = NULL;
-+	}
-+}
-+
- /*
-  * Under the mmap_lock, take a snapshot of relevant information about the task's
-  * VMAs.
-@@ -1135,6 +1150,11 @@ static bool dump_vma_snapshot(struct coredump_params *cprm)
- 		m->end = vma->vm_end;
- 		m->flags = vma->vm_flags;
- 		m->dump_size = vma_dump_size(vma, cprm->mm_flags);
-+		m->pgoff = vma->vm_pgoff;
-+
-+		m->file = vma->vm_file;
-+		if (m->file)
-+			get_file(m->file);
- 	}
+@@ -568,18 +571,18 @@ static int vmcore_remap_oldmem_pfn(struct vm_area_struct *vma,
+ 			    unsigned long from, unsigned long pfn,
+ 			    unsigned long size, pgprot_t prot)
+ {
+-	int ret;
++	int ret, idx;
  
- 	mmap_write_unlock(mm);
-diff --git a/include/linux/coredump.h b/include/linux/coredump.h
-index 7d05370e555e..08a1d3e7e46d 100644
---- a/include/linux/coredump.h
-+++ b/include/linux/coredump.h
-@@ -12,6 +12,8 @@ struct core_vma_metadata {
- 	unsigned long start, end;
- 	unsigned long flags;
- 	unsigned long dump_size;
-+	unsigned long pgoff;
-+	struct file   *file;
- };
+ 	/*
+-	 * Check if oldmem_pfn_is_ram was registered to avoid
+-	 * looping over all pages without a reason.
++	 * Check if a callback was registered to avoid looping over all
++	 * pages without a reason.
+ 	 */
+-	down_read(&vmcore_cb_rwsem);
++	idx = srcu_read_lock(&vmcore_cb_srcu);
+ 	if (!list_empty(&vmcore_cb_list))
+ 		ret = remap_oldmem_pfn_checked(vma, from, pfn, size, prot);
+ 	else
+ 		ret = remap_oldmem_pfn_range(vma, from, pfn, size, prot);
+-	up_read(&vmcore_cb_rwsem);
++	srcu_read_unlock(&vmcore_cb_srcu, idx);
+ 	return ret;
+ }
  
- struct coredump_params {
 
