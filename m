@@ -2,141 +2,141 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C40C4F0088
-	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 12:28:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FA9C4F0090
+	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 12:28:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354294AbiDBK3I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 2 Apr 2022 06:29:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51774 "EHLO
+        id S1354309AbiDBK3Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 2 Apr 2022 06:29:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352322AbiDBK3H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 06:29:07 -0400
-Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7D311AA059;
-        Sat,  2 Apr 2022 03:27:16 -0700 (PDT)
-Received: from pps.filterd (m0246627.ppops.net [127.0.0.1])
-        by mx0b-00069f02.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 2321i01H024919;
-        Sat, 2 Apr 2022 10:27:14 GMT
+        with ESMTP id S1352322AbiDBK3P (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 06:29:15 -0400
+Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F01151AA056;
+        Sat,  2 Apr 2022 03:27:23 -0700 (PDT)
+Received: from pps.filterd (m0246631.ppops.net [127.0.0.1])
+        by mx0b-00069f02.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 2321ueEU012994;
+        Sat, 2 Apr 2022 10:27:22 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
  subject : date : message-id : in-reply-to : references :
  content-transfer-encoding : content-type : mime-version;
- s=corp-2021-07-09; bh=iU8HfhobRL1Jx/3CbnO3pwRLaev7nRNtwfuZ5T65NR8=;
- b=FuOKoTeEPHEofLu9eAJvX/BEbeGqyUwhOoz3igj+lowT1YNgmyuy9Nc9C9oToRAdMD5I
- qVd30Hbo7IXatac19BBiJhgZVaDNagkhjIm6xxJVPBrgfalkR8BtwT/6BPoUBd/HWL5X
- 8OsBlqup02S1Vl7mEgoNpN2B2SqLUSMe6BPxJ4vluFPu4YsqgsGuHb+aW+TeOrjSvjL7
- /yBXhkhxb5C5Q5XXAM8e6JQ/QhcNHxcBToaj5wrHaID8Q5ezTX61ZG16WdlT3S/j3Yka
- MTh1+NJA5b/knGUFC5Ay7NQUJbt+79KkRT0SpeGeSd0sQesu6w4eyApNP2CGGv8BYHW0 XA== 
-Received: from phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta03.appoci.oracle.com [138.1.37.129])
-        by mx0b-00069f02.pphosted.com with ESMTP id 3f6d318ds5-1
+ s=corp-2021-07-09; bh=u/v3316w8KLCnESzqpurHWRfFDLznln6FlAfW7lJLgc=;
+ b=WjvUUontuYNiI+uaIp1Y183xpZxIR3OuXdg4SyHD+7PRSZax1GwAdWqsixun86voWWwf
+ Ux+cvCDb/nwr+E5CZwu98MMf/qb9+ifr6xOf6xerptv4UddPvl0lhVyK+qGE+2lxvCd6
+ fuGfdISwu8Wg6ITa2Vz10Wfh/E6395pzqhXMxdpja9xcy6rkNaoOPSNN17iJy0qGCrr5
+ w10zlhSdiIT2HCMejPddCa24rOulxz9pVJG14tpIwmbOgCUPmUqFijpHcWSePE8ENuB9
+ 6S/tLH9jL1yQi6s6ktCd9WuCrHCoUMTA5kWyVgCNE+cON5Q6j+4EDd3dFe4E0m2ngzbG bQ== 
+Received: from iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta01.appoci.oracle.com [130.35.100.223])
+        by mx0b-00069f02.pphosted.com with ESMTP id 3f6d92rcad-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Sat, 02 Apr 2022 10:27:14 +0000
-Received: from pps.filterd (phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
-        by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (8.16.1.2/8.16.1.2) with SMTP id 232ALO9w024370;
-        Sat, 2 Apr 2022 10:27:13 GMT
-Received: from nam11-co1-obe.outbound.protection.outlook.com (mail-co1nam11lp2177.outbound.protection.outlook.com [104.47.56.177])
-        by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com with ESMTP id 3f6cx0xcf9-1
+        Sat, 02 Apr 2022 10:27:21 +0000
+Received: from pps.filterd (iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+        by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (8.16.1.2/8.16.1.2) with SMTP id 232AKiXS027588;
+        Sat, 2 Apr 2022 10:27:21 GMT
+Received: from nam02-bn1-obe.outbound.protection.outlook.com (mail-bn1nam07lp2049.outbound.protection.outlook.com [104.47.51.49])
+        by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com with ESMTP id 3f6cx165qs-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Sat, 02 Apr 2022 10:27:13 +0000
+        Sat, 02 Apr 2022 10:27:21 +0000
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Z3OKmZjBtZur1Nmnb2e5t2ZoiI0l4S4YU4tvye5WxfCf7w/7ncbLV6Xjvg8kYMFRW6mNXz0YPY8PsMJaq+E4a4hELQ3XOil4Qynv5Rskwy+acezg9y8iaKQ2Aqp4OWOiGc8EqL+SgU43DVDByxBY8xIuWLpmwqsSAX15HTcQIOPsYBqT0JaoT2dT4nuoC6oj1F42g84Fk2rHcbB0EFFKN3cgbYbxp4+lLzknMLXs/mAogEUmN+ujdPNPq5EloMnVikn8Xh3AQ6a+YqM3iCMmWd80d7lLZYco+78B7I3JrHGNwisNR4EBp/H4YQ3uKVqe9L/8Z89qgIILKX6IurRo/Q==
+ b=GGDKqZXI9YkBGEO4khcLL4n+IaNqT91ITWafZ2D3ZpSiZlOMwMe7ZCkZKvSz1BmkN16K7p3VbKXtdpe5+2Qasptwfc0HXk8FQ5AV5nakDC8sbN7DMKF5zSga9A/3t1oon/+1UZW0cs4gIXzRZyKyCtt5n3cKDVTV4tShbKvX+xjUUqOdtkcDNbEJq9+2EkkeybFVQm3k/IUfEhJXrIb08nKFw6QbuNf0tYEcnjbCMc7t228TbrTBmHsyfN/4EGhuW+9Duz2P4PO4paqXyf35juWqx0VtEpiauOMAXKGUjsAy77NoQ9YwEKex+1HAdY6vEdgToKPCjyTecJUXGVQ8iQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=iU8HfhobRL1Jx/3CbnO3pwRLaev7nRNtwfuZ5T65NR8=;
- b=U6TfGokfczU8CNbp19sXTMcztqON889clIxXxifw+3By2vKT5FqbnPfqsfuuiLG0KAHdyMgNZu9vsEMsXbfv9+uOqGsMmupS3KNVLb7lWc/QeSa4NgaRGQx9o62/uHhg+0RcOLwrHrvW92sgQxWXypPf17SX21aDVlpBjpsUxInxe/DqTB5sbIuDJrGGptCUEL1TsDE++c6KfsTG1xL1rptNGORlxpb55caTCJ+X9sC3jBKOMxe4OMqC/opV5kzIT6dWUhVvlDflpoHNl/IMHOuskhY0fWae33X7ATGCoBOw4XCJcRdHW7vEsUptkjfVQOSAB28BHmOldvg1DZdNzQ==
+ bh=u/v3316w8KLCnESzqpurHWRfFDLznln6FlAfW7lJLgc=;
+ b=HFyz4/hsUGa5FQ0u7VCqQzH8STIBGVHHyIY9RaGaOUB8F3b4gzrAVcIyP5DVqhUL+bGsjfGH6EMtt0ZiMxxW686J7/7cXkTrujsJjnLxq0BAyTXtsXL7y0DsWr9/s2kA3QH1zKUGxz6HhGsn+3hW4VkDU9DbY/hhcy9331krM6piEFc7T7mMrSRwI3IcmPYmImpZgFEenx8wWSJLJcP300JSlXPcWlPc0EKgBeIZTGYTZ1Y1VK5SbY7ppHb/gV/pNOtNjVqgDtxemf9LoyWqfC8ybybAAA7DP/W+D8VZCc+96QdpWxOHOnr/xQfdnWiQ/HrI2ZS/vspDywN/txCLaA==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
  dkim=pass header.d=oracle.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=iU8HfhobRL1Jx/3CbnO3pwRLaev7nRNtwfuZ5T65NR8=;
- b=dPqX2MhIzUVPZtSbzT/uenxBoghurZL3IGsEecpepxmqBMKfPHhPm0A2zUO5tlB9sp6i6F0uP+mdahnFmbMb4m+kzVVlMHczxQaTXFKBSjdJX34LqnwiXDMGVIfOr/YYLGGF+b9hI/XIT8McKoHMgjo4Whh9JTZzLg0U0v4yBMo=
+ bh=u/v3316w8KLCnESzqpurHWRfFDLznln6FlAfW7lJLgc=;
+ b=rd0M3Kyhrru0MP0OfFZ9cnPIeD5NyC8sBYorEhCHaG0DPj0lv5sextMkuAu8NJ7LKISmJQpcPcblVoPzBcG4rF1haCAbEQumtyjvzCscXTmb/ul74B7HWw1DJtbUx5LjlVzPnH3LbqhtdPzWfbhLTHB3A8UrDBchzj9KflUAoe4=
 Received: from PH0PR10MB5706.namprd10.prod.outlook.com (2603:10b6:510:148::10)
  by DM6PR10MB3049.namprd10.prod.outlook.com (2603:10b6:5:6f::18) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5123.19; Sat, 2 Apr
- 2022 10:27:11 +0000
+ 2022 10:27:19 +0000
 Received: from PH0PR10MB5706.namprd10.prod.outlook.com
  ([fe80::54da:72:aa08:9a8e]) by PH0PR10MB5706.namprd10.prod.outlook.com
  ([fe80::54da:72:aa08:9a8e%6]) with mapi id 15.20.5123.016; Sat, 2 Apr 2022
- 10:27:11 +0000
+ 10:27:19 +0000
 From:   Anand Jain <anand.jain@oracle.com>
 To:     stable@vger.kernel.org
 Cc:     linux-btrfs@vger.kernel.org,
         Andreas Gruenbacher <agruenba@redhat.com>,
         Anand Jain <anand.jain@oracle.com>
-Subject: [PATCH 08/17 stable-5.15.y] gfs2: Eliminate ip->i_gh
-Date:   Sat,  2 Apr 2022 18:25:45 +0800
-Message-Id: <f3cd4ff8a92d35a00dd2f2b3a379f354f57bedbb.1648636044.git.anand.jain@oracle.com>
+Subject: [PATCH 09/17 stable-5.15.y] gfs2: Fix mmap + page fault deadlocks for buffered I/O
+Date:   Sat,  2 Apr 2022 18:25:46 +0800
+Message-Id: <a3a8bd5036ed8942fe8fd8157dc7ce61d4e2f2aa.1648636044.git.anand.jain@oracle.com>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <cover.1648636044.git.anand.jain@oracle.com>
 References: <cover.1648636044.git.anand.jain@oracle.com>
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-X-ClientProxiedBy: SG2PR06CA0241.apcprd06.prod.outlook.com
- (2603:1096:4:ac::25) To PH0PR10MB5706.namprd10.prod.outlook.com
+X-ClientProxiedBy: SG2PR06CA0224.apcprd06.prod.outlook.com
+ (2603:1096:4:68::32) To PH0PR10MB5706.namprd10.prod.outlook.com
  (2603:10b6:510:148::10)
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: dbcb8ad1-4150-4d7b-a392-08da149358d5
+X-MS-Office365-Filtering-Correlation-Id: 45c94010-ea8b-455f-49d1-08da14935dc8
 X-MS-TrafficTypeDiagnostic: DM6PR10MB3049:EE_
-X-Microsoft-Antispam-PRVS: <DM6PR10MB30490C656EDFE226552B597FE5E39@DM6PR10MB3049.namprd10.prod.outlook.com>
+X-Microsoft-Antispam-PRVS: <DM6PR10MB3049DCF86E4519856416DF96E5E39@DM6PR10MB3049.namprd10.prod.outlook.com>
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: eaKxFdCqdenZV4VMU0RBuf2jO/JBjBZTJ56Qb095UmIx+3o2tFOW1eecCnkLKuK/MSbtSAQuGo8ZDzbUwfg/InqSMqONLjwu2Ox3EiSOT0/0sqaCw/4kRa1SL3psk8EAXgVyKIF9GSKTym0qgRkeAsakpVWu71llDj7L2hYQqkma699yQ5jC2kHIRIRelwUShXFnsIL/JcIj5L2g94KrKkU610fGtbzFIW6gPEhImG7wnaj7aw3Gm8MTUVUvQUcsESgwZMOl7eD77MfoxokH+sDseSLnn8ntLerIRxo7wLvmYNLvqXAdcQSalHQTFB2if0FV8lh6Zz3GEtV48Ls4+hKE0BiOCcg8413WcAW8zWEGwqFXbF5KTthJCIp4NBrc77tiojlceEOgAKRM0C/rGhd9dqU/3ROF6FgEttJPH1iO6AfgRWLbPGA4xiA6dcEWshFO2RFP8ciBP7TG4i62uNnxzPT56t1BuNzRBvBN+KWcCVWkleFUn/J1tJvsrLyxPIBelnjXUWdAuQHewTDLhSM/KCk3ANMVZMm5PZ+QpUi2OZ7vXEmRfIaN7sda+tAHzbtQFXiB/XlFQ9IsAEqeHO/Xj5sLuz940NOU2KScD0UApf9Aax1wkzO/pfYvWYLgIp6/N++oGWT3vai1e8rytw==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR10MB5706.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(366004)(44832011)(26005)(6486002)(66476007)(54906003)(6506007)(36756003)(6512007)(86362001)(5660300002)(66946007)(107886003)(66556008)(8676002)(2906002)(6916009)(2616005)(186003)(6666004)(4326008)(38100700002)(8936002)(316002)(508600001)(83380400001);DIR:OUT;SFP:1101;
+X-Microsoft-Antispam-Message-Info: S0s/kUyxfsEgwzi2CPqBG6ltYWXFzfha6H/UK9naf/u+tB/2vunHAOsab0NHhLg3xRZh0ompzLRDPbJqzmluQ/Z24+i/8LnwkTTx3NgpUF/n/DYoz3euNPPq9V+Sy8E48NajvYfvoYc5YgUXnAHSLXOYFYBVvIn4O6lk1u/LudPgK2F5XAdMzZNBmQmeLn3eV+11sp5FhU5K0nmpfTCAWqfBtFbTSCF/vsh4hYczyrAHn5iCfpylZrAWJ/guFXKnQs6YvFv4sdHh6jLe781ef2yqk9Yw7Tg+oPgQgm1hEs36vO5EnIn5CmxfqrZsnVQkKUiVh4/VX0wLnveoyhE1fGkQklUYOwa3cyosG94SXHvwkvK7L/xCXibwdDDYI5FvFqqckHpuns8pUKU3a+swJbBQFtHa0LcfHTIOwPXU7EhAxdeWZ3Tz/c5Ie8ongaTCJQ+KpLXNPpSdFWMueIUof4RSBfXvgJ6AcJx5VuNXsljZaI8ZbQ0VPrQfXRC1+44jIyb4Y00waulLCKcSR6lHzmZjwr2EoN27+kITjhLcoRz86wdQDWjcCUJlN5rrBLaBK5fzFxDmryvtZbQ7enCwM+9g0fJuws/z9tLYNP2jXxsZR0zcxOKT6bvqMVvSo9vEu7gEE0VwgojPuVhV3Wkq/w==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR10MB5706.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(366004)(8936002)(38100700002)(83380400001)(316002)(508600001)(6512007)(36756003)(86362001)(26005)(6486002)(44832011)(66476007)(6506007)(54906003)(2616005)(6666004)(4326008)(186003)(6916009)(66946007)(107886003)(66556008)(5660300002)(8676002)(2906002);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?eZDxuCNhu0CshhOnXEWdYY+RU/vwR8IHQBa2d26srbmL2/saiv1xh2Vad1An?=
- =?us-ascii?Q?QtGm7gbLoJXJ59/yuJZ6R9aPAv3bzePDgz42+PRRONQfe8F85cALllbpKmTt?=
- =?us-ascii?Q?N6RuhxuguYNiLfCCSRY/iZyMS6rmZhfXF9n/zdF3PG/7Pp3lsO0E/ZuaBwaW?=
- =?us-ascii?Q?EV5w2sQtcoMZh+4eNaRa4dknNxwxBLnFAFqB8xbrmrQ46R7sf+2JNUEBZ6kr?=
- =?us-ascii?Q?44tXSoLiX+SfrS9RlsYYIO4P1J1eQwayZe5i8zDOjJCOiq7TdzG7IJ0iDwOT?=
- =?us-ascii?Q?QSW4zAd8FQcWcswZZXQTiUEHRNUao7ppziSNZhpi+/WTAn/3oY3MgGJMYNZw?=
- =?us-ascii?Q?gY188m4BwShvIcAePN3An8MY3mCCtYLT6cX/Kpjx9HIdswQEL5aOk0X7hn0a?=
- =?us-ascii?Q?uEOiRaI2yjdqoZlAIAIK/Lp8x4hxVRJZd96RlOrSyCeXzed8zZouocHP486H?=
- =?us-ascii?Q?E8+dwgztS+aK/ccqHI1vZK7l6jeOgw62+5M0Pyd+UzDYdr8gxYpRtCrPId5l?=
- =?us-ascii?Q?+LyFfWawU1d+mGHE/jIs6TywQK7dv990R+hZ4biAtlCXyfXSzom3cni1K03G?=
- =?us-ascii?Q?7ZHtIoAp8eCpDFBUihWV99kuZK+KIE3mPbiS27c3eKhZtCATCSKWE78R3ZJr?=
- =?us-ascii?Q?2jyhXTSQWUjPEvTx9uQdIFoJRsnpYvTWb+a+wavnKBVeDhoAkIKIa55NZhcG?=
- =?us-ascii?Q?EedoMQDYpbFdkfkFYVBPrnTe+XJA5t0AaRm/rjgu0lqVdGwyRQpJ2QN5tRh4?=
- =?us-ascii?Q?T+4YhRcXeHQ6AH/uXIFbvL8C57ZgDE4LhsI9NcJhwx2gztf6Y0tOulWmfFz+?=
- =?us-ascii?Q?Q8vmrV5+pQO3hjM9g2CZwblh7LORIArZRBzuDX3o9WQenAEKjiDAywgI7nkf?=
- =?us-ascii?Q?ofrKE2tp+Yr2Gqkfr32GvlMiqIaZP5Rp1DYZTvCgHrnd6FoI726Zytng+sTd?=
- =?us-ascii?Q?IVKiQ2SufMGSXfmNB8XH2H00ZPjlb4vFr5VmLu+GtcjqZ+qnPcrtfVZz9zmj?=
- =?us-ascii?Q?kqpzVOsbdB8NXvBiL0pSls9xFzAxFBzYSL3ROsstrNrYGX7I6KR6ogRPjXnS?=
- =?us-ascii?Q?4FQAc+2evmjsx2Z1voKp+RHNX1G88ctyU9rkQWVCfdpCUEIoin8IWB3tJFQh?=
- =?us-ascii?Q?LqRAO3DQY0PPZMWdXvlHs7mlUdKhHkInouSyw5f77l+YQRukC2BlFFtNF8T1?=
- =?us-ascii?Q?9AVanhQbVB2faqUVTvIaBQpWjWhoR8x27kGp81q26IgrVWTQ4Vcu8IsNZwLj?=
- =?us-ascii?Q?nuvnCijb7gEO+s6+mSeu7Kp2VaiDrYgJgH34iIJsXC/a7U64ABZOIwUMyxtR?=
- =?us-ascii?Q?LguwanGAsNx/+sN1sRCoh3t6OeJNUD6QefU6G0/9zifW9dSUbei/FLiZhiQQ?=
- =?us-ascii?Q?SVvXvB5NnCXGbm3bw6w8KwhYsv0NFdJGHSOcPHH2y2flnkjW/EDV/f1NKJkZ?=
- =?us-ascii?Q?n/3hmAFdEmTRvyxYdjS77FFNOrodTfUkqmG/MaJ/1KOnzCGgPVFPz6KUBR3g?=
- =?us-ascii?Q?EVT8q/StLtovTP6svMOk6kgFP76+OPFQ0p1G7PNegqlWfq3x44C3Qj/9PaDv?=
- =?us-ascii?Q?7apN1iPJcNWlzzxk5nQcZ2g/NjbBk6Ttb3x9vmepSQGlFJfc9ENhH4gq6QJZ?=
- =?us-ascii?Q?tc8RRaUP8a8yMJcKbNIp28Cxn7QNwNd485t7UB0UgQ28NYHG7Dpvvd4id1aW?=
- =?us-ascii?Q?wNSlwTqI1QbOwAB/JsUMxTn5egxH7F5a/yvE3iyNoKfP+/9XTspSljMca921?=
- =?us-ascii?Q?5qniQEwviQ=3D=3D?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?W+rJgMJKbLxXQsemorMuzE/ZBZvdQ9Ot36SJj7P5AqU+IWIYlSpciFuSIXz+?=
+ =?us-ascii?Q?Xlgz0g0nJqPcytUUMX+SS65OGyHDIjp1JpzwJuLiUyb1i++FiF7946E+Qwut?=
+ =?us-ascii?Q?1KoOQGIcUW34DPT+OKZPr6wgjN4bh7UudV1ODnRyf0HPjh+3iQ+gR/JaLan7?=
+ =?us-ascii?Q?9TAwg9ZYV8U6Nbnew+njZJfEU6M8vDEtnsHqb3p+5twneOu9oc7zTm/tCmtV?=
+ =?us-ascii?Q?moCPteSdCfq2Te37zrpvygDAqMYTp5IHqirzC9/6gUWRRxznGpzKEgT/wY1a?=
+ =?us-ascii?Q?xBDs4M3mUYSz9IKAMiL2vCRbLmrW4Bo/KrP6YGs93wwWopYeUGtVpMa8c9Fq?=
+ =?us-ascii?Q?05uFskBXqiFQuF3nbiVqIkuE921yW0sAHDreuioj/NpPpmLjUj6qskadzpaW?=
+ =?us-ascii?Q?IPcOqSs1UpLJCeFqCVgHzBZkzGPkyKlWntM7TTc7Y4Qb/fRIwh8YXRql8rT6?=
+ =?us-ascii?Q?Tm8whDuOHPzDhVLFVxLoW9zxP6Ty2nhsR4M+lARqreEVbuTl6O5t/LyNnLGX?=
+ =?us-ascii?Q?FuAOrHgOB1XbwkypTVioIBO+HMw7sLYlg5TNOjA4dtvzvMEleu7/f+OVeZq6?=
+ =?us-ascii?Q?W6MWdOi2ZbEcF0zeJlh+/aEcQrL4pw36PTWTkk9G1xuQAE6v6A9VmlSTobSA?=
+ =?us-ascii?Q?pQzfkH/amBcokE9hOgHb4rH5CE0gcvG+2mY/JLjphEoF9TplcybZZIpaf3t/?=
+ =?us-ascii?Q?FafaCKGSSqw9Mjk54hYLGDQEXDBT8Qf4q7s1BUc99SETNaKJ+8tSE82zfoOw?=
+ =?us-ascii?Q?AIVs+2Kw0DbZYGZ4EXfiSkXPfRN/NPpQGqoBOUltMHrDKttPXlUJuEzjyXcY?=
+ =?us-ascii?Q?QLjU8mQ55NhL29JJoaC1fdLyBYmyHZJCcYIZB4aP4x515dLZg7AuAhKCTd7P?=
+ =?us-ascii?Q?gC3W88ASkYpVZb+PF4XcoOp6otO4Lh1qSOAEQtt1vPPXK6xkTSMtV587pfeR?=
+ =?us-ascii?Q?WdTUZHsA+NdHioh9a/wSgebOVBMU1+kBD5KQ4DbjUHd1PcAbEgfMrTRTYy12?=
+ =?us-ascii?Q?DjH2sm6SltNXvd4KJr6joj7WN89Y6OxsMNqaDdetOh+kwkG6PDibwniHho5n?=
+ =?us-ascii?Q?piBB79eTIQSf4VHIh3S/+TkSgqcQX7cy5RZdkAXbFTLU50XwguXuFKrCDPJt?=
+ =?us-ascii?Q?zhzqvprGj582R4gBwywRMaaYNHr1I0J/mui+9fK/pkwVvJLMjSNZMTb0EbT+?=
+ =?us-ascii?Q?HF0QTHzLyOCwSm7ZVxub7FSCSl9qETk3++gBxdS/fc1pJcWZLBDZtpVhfCLV?=
+ =?us-ascii?Q?IVH8Vqwdqr350phsf9pDHUd2z0mnYfHMmy6vhwMlJ0eecRiKvkg2aPuY8Pxp?=
+ =?us-ascii?Q?J+HSdBeTe99kK8hJpSf0NqslBnu/3TqpBRlbV+EVRqhizAhTIWKYSKewcGEL?=
+ =?us-ascii?Q?wNolPZxggackmpOde1cHa0XzEfAwe32b6wOaTJJXV9Y5Jh55IrQgLTb4aUOE?=
+ =?us-ascii?Q?G+inWeu/T1NnUOehLtZA/5FxMCv8fN12naNwmajnbe5Xr6Fz+YC3Bkrvkjz8?=
+ =?us-ascii?Q?os7NKTOLbodLuKyq32ornUjYdL/DaWCcrWN2M8fz1VrEchrQ2D4fGaQAmWS4?=
+ =?us-ascii?Q?L7KVM3y0rmEP9Xu1QPoRVHZtR4zFvjVqTaJN0o3Cw0z60B8LVCIrxKCtzEv5?=
+ =?us-ascii?Q?88fOLyQ3x9OCUBwvfeQ6hLiRB3upUqwegkqdOyZoredsnzaDuApICEZ8ZPP6?=
+ =?us-ascii?Q?sNlIxJBBjw3J2SDQvd0cJCZFuiQPB4zpJ7EeQaHkmAt8iboceGv+1TpDlHxS?=
+ =?us-ascii?Q?eSNOUbPDEw=3D=3D?=
 X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: dbcb8ad1-4150-4d7b-a392-08da149358d5
+X-MS-Exchange-CrossTenant-Network-Message-Id: 45c94010-ea8b-455f-49d1-08da14935dc8
 X-MS-Exchange-CrossTenant-AuthSource: PH0PR10MB5706.namprd10.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 02 Apr 2022 10:27:11.0271
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 02 Apr 2022 10:27:19.3282
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: +hyQAr2cuc87IevQ4mazUynY6bfAS2ianaALGE04zACvARTAim2wEXYamvi+0rbTknQf01oYsMQIUnwAFfFLfg==
+X-MS-Exchange-CrossTenant-UserPrincipalName: 9fN+528ZfZJGC20eCezdB76NBnkpoKSK6mDVkJBHAzTB/YyrwjJlAuu6vfNKlZXPnbyYIEJI4vrBCpYZ11tOaA==
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR10MB3049
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.425,18.0.850
  definitions=2022-04-02_03:2022-03-30,2022-04-02 signatures=0
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0 adultscore=0 mlxscore=0
- bulkscore=0 suspectscore=0 spamscore=0 mlxlogscore=999 phishscore=0
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0 malwarescore=0 spamscore=0
+ phishscore=0 mlxscore=0 mlxlogscore=999 bulkscore=0 suspectscore=0
  classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
  definitions=main-2204020064
-X-Proofpoint-GUID: -f52CWXjJKI5LTxqJWTOUbLb_00uBcY2
-X-Proofpoint-ORIG-GUID: -f52CWXjJKI5LTxqJWTOUbLb_00uBcY2
+X-Proofpoint-ORIG-GUID: H2DDe41TNbxPrZO13FfWv73HYF57IVMi
+X-Proofpoint-GUID: H2DDe41TNbxPrZO13FfWv73HYF57IVMi
 X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
         RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
@@ -149,123 +149,208 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Andreas Gruenbacher <agruenba@redhat.com>
 
-commit 1b223f7065bc7d89c4677c27381817cc95b117a8 upstream
+commit 00bfe02f479688a67a29019d1228f1470e26f014 upstream
 
-Now that gfs2_file_buffered_write is the only remaining user of
-ip->i_gh, we can move the glock holder to the stack (or rather, use the
-one we already have on the stack); there is no need for keeping the
-holder in the inode anymore.
+In the .read_iter and .write_iter file operations, we're accessing
+user-space memory while holding the inode glock.  There is a possibility
+that the memory is mapped to the same file, in which case we'd recurse
+on the same glock.
 
-This is slightly complicated by the fact that we're using ip->i_gh for
-the statfs inode in gfs2_file_buffered_write as well.  Writing to the
-statfs inode isn't very common, so allocate the statfs holder
-dynamically when needed.
+We could detect and work around this simple case of recursive locking,
+but more complex scenarios exist that involve multiple glocks,
+processes, and cluster nodes, and working around all of those cases
+isn't practical or even possible.
+
+Avoid these kinds of problems by disabling page faults while holding the
+inode glock.  If a page fault would occur, we either end up with a
+partial read or write or with -EFAULT if nothing could be read or
+written.  In either case, we know that we're not done with the
+operation, so we indicate that we're willing to give up the inode glock
+and then we fault in the missing pages.  If that made us lose the inode
+glock, we return a partial read or write.  Otherwise, we resume the
+operation.
+
+This locking problem was originally reported by Jan Kara.  Linus came up
+with the idea of disabling page faults.  Many thanks to Al Viro and
+Matthew Wilcox for their feedback.
 
 Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 Signed-off-by: Anand Jain <anand.jain@oracle.com>
 ---
- fs/gfs2/file.c   | 34 +++++++++++++++++++++-------------
- fs/gfs2/incore.h |  3 +--
- 2 files changed, 22 insertions(+), 15 deletions(-)
+ fs/gfs2/file.c | 99 +++++++++++++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 94 insertions(+), 5 deletions(-)
 
 diff --git a/fs/gfs2/file.c b/fs/gfs2/file.c
-index 59442e35fcf3..0c1b1d259369 100644
+index 0c1b1d259369..2565cdb36332 100644
 --- a/fs/gfs2/file.c
 +++ b/fs/gfs2/file.c
-@@ -877,16 +877,25 @@ static ssize_t gfs2_file_read_iter(struct kiocb *iocb, struct iov_iter *to)
- 	return written ? written : ret;
+@@ -777,6 +777,36 @@ static int gfs2_fsync(struct file *file, loff_t start, loff_t end,
+ 	return ret ? ret : ret1;
  }
  
--static ssize_t gfs2_file_buffered_write(struct kiocb *iocb, struct iov_iter *from)
-+static ssize_t gfs2_file_buffered_write(struct kiocb *iocb,
-+					struct iov_iter *from,
-+					struct gfs2_holder *gh)
- {
- 	struct file *file = iocb->ki_filp;
- 	struct inode *inode = file_inode(file);
- 	struct gfs2_inode *ip = GFS2_I(inode);
- 	struct gfs2_sbd *sdp = GFS2_SB(inode);
-+	struct gfs2_holder *statfs_gh = NULL;
- 	ssize_t ret;
- 
--	gfs2_holder_init(ip->i_gl, LM_ST_EXCLUSIVE, 0, &ip->i_gh);
--	ret = gfs2_glock_nq(&ip->i_gh);
-+	if (inode == sdp->sd_rindex) {
-+		statfs_gh = kmalloc(sizeof(*statfs_gh), GFP_NOFS);
-+		if (!statfs_gh)
-+			return -ENOMEM;
++static inline bool should_fault_in_pages(ssize_t ret, struct iov_iter *i,
++					 size_t *prev_count,
++					 size_t *window_size)
++{
++	char __user *p = i->iov[0].iov_base + i->iov_offset;
++	size_t count = iov_iter_count(i);
++	int pages = 1;
++
++	if (likely(!count))
++		return false;
++	if (ret <= 0 && ret != -EFAULT)
++		return false;
++	if (!iter_is_iovec(i))
++		return false;
++
++	if (*prev_count != count || !*window_size) {
++		int pages, nr_dirtied;
++
++		pages = min_t(int, BIO_MAX_VECS,
++			      DIV_ROUND_UP(iov_iter_count(i), PAGE_SIZE));
++		nr_dirtied = max(current->nr_dirtied_pause -
++				 current->nr_dirtied, 1);
++		pages = min(pages, nr_dirtied);
 +	}
 +
-+	gfs2_holder_init(ip->i_gl, LM_ST_EXCLUSIVE, 0, gh);
-+	ret = gfs2_glock_nq(gh);
++	*prev_count = count;
++	*window_size = (size_t)PAGE_SIZE * pages - offset_in_page(p);
++	return true;
++}
++
+ static ssize_t gfs2_file_direct_read(struct kiocb *iocb, struct iov_iter *to,
+ 				     struct gfs2_holder *gh)
+ {
+@@ -841,9 +871,17 @@ static ssize_t gfs2_file_read_iter(struct kiocb *iocb, struct iov_iter *to)
+ {
+ 	struct gfs2_inode *ip;
+ 	struct gfs2_holder gh;
++	size_t prev_count = 0, window_size = 0;
+ 	size_t written = 0;
+ 	ssize_t ret;
+ 
++	/*
++	 * In this function, we disable page faults when we're holding the
++	 * inode glock while doing I/O.  If a page fault occurs, we indicate
++	 * that the inode glock may be dropped, fault in the pages manually,
++	 * and retry.
++	 */
++
+ 	if (iocb->ki_flags & IOCB_DIRECT) {
+ 		ret = gfs2_file_direct_read(iocb, to, &gh);
+ 		if (likely(ret != -ENOTBLK))
+@@ -865,13 +903,34 @@ static ssize_t gfs2_file_read_iter(struct kiocb *iocb, struct iov_iter *to)
+ 	}
+ 	ip = GFS2_I(iocb->ki_filp->f_mapping->host);
+ 	gfs2_holder_init(ip->i_gl, LM_ST_SHARED, 0, &gh);
++retry:
+ 	ret = gfs2_glock_nq(&gh);
  	if (ret)
  		goto out_uninit;
++retry_under_glock:
++	pagefault_disable();
+ 	ret = generic_file_read_iter(iocb, to);
++	pagefault_enable();
+ 	if (ret > 0)
+ 		written += ret;
+-	gfs2_glock_dq(&gh);
++
++	if (should_fault_in_pages(ret, to, &prev_count, &window_size)) {
++		size_t leftover;
++
++		gfs2_holder_allow_demote(&gh);
++		leftover = fault_in_iov_iter_writeable(to, window_size);
++		gfs2_holder_disallow_demote(&gh);
++		if (leftover != window_size) {
++			if (!gfs2_holder_queued(&gh)) {
++				if (written)
++					goto out_uninit;
++				goto retry;
++			}
++			goto retry_under_glock;
++		}
++	}
++	if (gfs2_holder_queued(&gh))
++		gfs2_glock_dq(&gh);
+ out_uninit:
+ 	gfs2_holder_uninit(&gh);
+ 	return written ? written : ret;
+@@ -886,8 +945,17 @@ static ssize_t gfs2_file_buffered_write(struct kiocb *iocb,
+ 	struct gfs2_inode *ip = GFS2_I(inode);
+ 	struct gfs2_sbd *sdp = GFS2_SB(inode);
+ 	struct gfs2_holder *statfs_gh = NULL;
++	size_t prev_count = 0, window_size = 0;
++	size_t read = 0;
+ 	ssize_t ret;
  
-@@ -894,7 +903,7 @@ static ssize_t gfs2_file_buffered_write(struct kiocb *iocb, struct iov_iter *fro
++	/*
++	 * In this function, we disable page faults when we're holding the
++	 * inode glock while doing I/O.  If a page fault occurs, we indicate
++	 * that the inode glock may be dropped, fault in the pages manually,
++	 * and retry.
++	 */
++
+ 	if (inode == sdp->sd_rindex) {
+ 		statfs_gh = kmalloc(sizeof(*statfs_gh), GFP_NOFS);
+ 		if (!statfs_gh)
+@@ -895,10 +963,11 @@ static ssize_t gfs2_file_buffered_write(struct kiocb *iocb,
+ 	}
+ 
+ 	gfs2_holder_init(ip->i_gl, LM_ST_EXCLUSIVE, 0, gh);
++retry:
+ 	ret = gfs2_glock_nq(gh);
+ 	if (ret)
+ 		goto out_uninit;
+-
++retry_under_glock:
+ 	if (inode == sdp->sd_rindex) {
  		struct gfs2_inode *m_ip = GFS2_I(sdp->sd_statfs_inode);
  
- 		ret = gfs2_glock_nq_init(m_ip->i_gl, LM_ST_EXCLUSIVE,
--					 GL_NOCACHE, &m_ip->i_gh);
-+					 GL_NOCACHE, statfs_gh);
- 		if (ret)
- 			goto out_unlock;
+@@ -909,21 +978,41 @@ static ssize_t gfs2_file_buffered_write(struct kiocb *iocb,
  	}
-@@ -905,16 +914,15 @@ static ssize_t gfs2_file_buffered_write(struct kiocb *iocb, struct iov_iter *fro
- 	if (ret > 0)
+ 
+ 	current->backing_dev_info = inode_to_bdi(inode);
++	pagefault_disable();
+ 	ret = iomap_file_buffered_write(iocb, from, &gfs2_iomap_ops);
++	pagefault_enable();
+ 	current->backing_dev_info = NULL;
+-	if (ret > 0)
++	if (ret > 0) {
  		iocb->ki_pos += ret;
++		read += ret;
++	}
  
--	if (inode == sdp->sd_rindex) {
--		struct gfs2_inode *m_ip = GFS2_I(sdp->sd_statfs_inode);
--
--		gfs2_glock_dq_uninit(&m_ip->i_gh);
--	}
-+	if (inode == sdp->sd_rindex)
-+		gfs2_glock_dq_uninit(statfs_gh);
+ 	if (inode == sdp->sd_rindex)
+ 		gfs2_glock_dq_uninit(statfs_gh);
  
++	if (should_fault_in_pages(ret, from, &prev_count, &window_size)) {
++		size_t leftover;
++
++		gfs2_holder_allow_demote(gh);
++		leftover = fault_in_iov_iter_readable(from, window_size);
++		gfs2_holder_disallow_demote(gh);
++		if (leftover != window_size) {
++			if (!gfs2_holder_queued(gh)) {
++				if (read)
++					goto out_uninit;
++				goto retry;
++			}
++			goto retry_under_glock;
++		}
++	}
  out_unlock:
--	gfs2_glock_dq(&ip->i_gh);
-+	gfs2_glock_dq(gh);
+-	gfs2_glock_dq(gh);
++	if (gfs2_holder_queued(gh))
++		gfs2_glock_dq(gh);
  out_uninit:
--	gfs2_holder_uninit(&ip->i_gh);
-+	gfs2_holder_uninit(gh);
-+	if (statfs_gh)
-+		kfree(statfs_gh);
- 	return ret;
+ 	gfs2_holder_uninit(gh);
+ 	if (statfs_gh)
+ 		kfree(statfs_gh);
+-	return ret;
++	return read ? read : ret;
  }
  
-@@ -969,7 +977,7 @@ static ssize_t gfs2_file_write_iter(struct kiocb *iocb, struct iov_iter *from)
- 			goto out_unlock;
- 
- 		iocb->ki_flags |= IOCB_DSYNC;
--		buffered = gfs2_file_buffered_write(iocb, from);
-+		buffered = gfs2_file_buffered_write(iocb, from, &gh);
- 		if (unlikely(buffered <= 0)) {
- 			if (!ret)
- 				ret = buffered;
-@@ -990,7 +998,7 @@ static ssize_t gfs2_file_write_iter(struct kiocb *iocb, struct iov_iter *from)
- 		if (!ret || ret2 > 0)
- 			ret += ret2;
- 	} else {
--		ret = gfs2_file_buffered_write(iocb, from);
-+		ret = gfs2_file_buffered_write(iocb, from, &gh);
- 		if (likely(ret > 0))
- 			ret = generic_write_sync(iocb, ret);
- 	}
-diff --git a/fs/gfs2/incore.h b/fs/gfs2/incore.h
-index 0fe49770166e..3b82fd2e917b 100644
---- a/fs/gfs2/incore.h
-+++ b/fs/gfs2/incore.h
-@@ -386,9 +386,8 @@ struct gfs2_inode {
- 	u64 i_generation;
- 	u64 i_eattr;
- 	unsigned long i_flags;		/* GIF_... */
--	struct gfs2_glock *i_gl; /* Move into i_gh? */
-+	struct gfs2_glock *i_gl;
- 	struct gfs2_holder i_iopen_gh;
--	struct gfs2_holder i_gh; /* for prepare/commit_write only */
- 	struct gfs2_qadata *i_qadata; /* quota allocation data */
- 	struct gfs2_holder i_rgd_gh;
- 	struct gfs2_blkreserv i_res; /* rgrp multi-block reservation */
+ /**
 -- 
 2.33.1
 
