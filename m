@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 487B14F0190
-	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 14:43:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A59A24F018E
+	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 14:43:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239454AbiDBMpC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 2 Apr 2022 08:45:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57648 "EHLO
+        id S239818AbiDBMpF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 2 Apr 2022 08:45:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57686 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233007AbiDBMpC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 08:45:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8592E3DA58
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 05:43:10 -0700 (PDT)
+        with ESMTP id S233007AbiDBMpF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 08:45:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C5893DDEC
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 05:43:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3F1B3B80688
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 12:43:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9C2CC340EC;
-        Sat,  2 Apr 2022 12:43:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 31C18B80159
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 12:43:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92475C3410F;
+        Sat,  2 Apr 2022 12:43:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648903388;
-        bh=YaZ1s5OFjDl4fIm/mqqHKTkxWONPGk9r5cxQm36Q9Mw=;
+        s=korg; t=1648903391;
+        bh=5UKbOXYrs9m/EI0huSJu4WRCngn0rZSZvBjB6BpGvgg=;
         h=Subject:To:Cc:From:Date:From;
-        b=FpLmaq+UYhnkj4mNvX/F7iNxyxLMIZYs0ngD8CdkUlSlvqx73yPSsAe7/gOgqmjs+
-         IqBJzoDKISJXOmlgM1B/2xrLtRkrsTB92ypfnuu6FkwkXvM6tsHsFRQChcmstMUluY
-         p2w2kcX8QMe18oAjtLKLdvf3LpoM9Yk5D6iFootA=
-Subject: FAILED: patch "[PATCH] exec: Force single empty string when argv is empty" failed to apply to 4.14-stable tree
+        b=ZZa7cVAaM9gNT+oexi2h5qtxS+tp7XTTa4PMfv9CxkVgpbsE3Cii7OLjbSBDMbCav
+         DArBdCL3ViKDsFmZZRCeNoTzvshMnFzH0uacHvW39/GHxeLgR5UuozKRnsm0bQ/oBR
+         D9D08ruzWOij2NU/7AiQV9sTLIZhtwlQLwqIUoDM=
+Subject: FAILED: patch "[PATCH] exec: Force single empty string when argv is empty" failed to apply to 4.19-stable tree
 To:     keescook@chromium.org, ariadne@dereferenced.org,
         brauner@kernel.org, dalias@libc.org, ebiederm@xmission.com,
         luto@kernel.org, mtk.manpages@gmail.com, viro@zeniv.linux.org.uk,
         willy@infradead.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 02 Apr 2022 14:43:03 +0200
-Message-ID: <16489033838249@kroah.com>
+Date:   Sat, 02 Apr 2022 14:43:04 +0200
+Message-ID: <16489033844956@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -51,7 +51,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
