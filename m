@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A87EF4F0196
-	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 14:45:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4BF44F019A
+	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 14:47:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354739AbiDBMqV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 2 Apr 2022 08:46:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34022 "EHLO
+        id S1345646AbiDBMtK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 2 Apr 2022 08:49:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45072 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354730AbiDBMqV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 08:46:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FF2263A7
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 05:44:29 -0700 (PDT)
+        with ESMTP id S1344635AbiDBMtJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 08:49:09 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E7F23AA62
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 05:47:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0DD9E61479
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 12:44:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CE52C340EC;
-        Sat,  2 Apr 2022 12:44:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1A06FB80860
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 12:47:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50995C340EC;
+        Sat,  2 Apr 2022 12:47:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648903468;
-        bh=5AYF46unz162OQ255vgagScDpjn78ga+f40P/3yLFb0=;
+        s=korg; t=1648903635;
+        bh=1pE4GHyj+LU7o5WjbSqsAal5ofQj+HQ4/4ds/4ogZsA=;
         h=Subject:To:Cc:From:Date:From;
-        b=LDUktzr4eviqf6VRYadVU3nFViMhRzdlzG8ZjuYgIi+BOsMst6/zaBK9O/HbnRaON
-         LLcXpT4QN0BqXSs0bZvdzp+qkVNqHrT5LGxQ3Hl0h7BJWrcGf8foWTpOxmW/AB9EaP
-         LDJf+aZst+8f1yWJl4OIV0Zs85OJN1VW4bF9u8fk=
-Subject: FAILED: patch "[PATCH] crypto: rsa-pkcs1pad - fix buffer overread in" failed to apply to 4.9-stable tree
+        b=TQSe5igQHM48rBSfDbtP8KFKO3CZaIsWRziG+BYHeJva4/sfW/i1Uh9+4ZvosCIhx
+         nz8UM4Hk4bAokG1cQD1QWKANpB6OAxIQDTCKoBAQJMfRZv6AWL3hTuoj8IN7XRqNFQ
+         WBca9Ohw7JYDk/XUbTs7eus8LKg96iaAyLwoLy7k=
+Subject: FAILED: patch "[PATCH] crypto: rsa-pkcs1pad - only allow with rsa" failed to apply to 4.9-stable tree
 To:     ebiggers@google.com, herbert@gondor.apana.org.au,
-        stable@vger.kernel.org, tadeusz.struk@linaro.org
+        stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 02 Apr 2022 14:44:15 +0200
-Message-ID: <1648903455198173@kroah.com>
+Date:   Sat, 02 Apr 2022 14:47:13 +0200
+Message-ID: <1648903633192254@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,32 +60,34 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From a24611ea356c7f3f0ec926da11b9482ac1f414fd Mon Sep 17 00:00:00 2001
+From 9b30430ea356f237945e52f8a3a42158877bd5a9 Mon Sep 17 00:00:00 2001
 From: Eric Biggers <ebiggers@google.com>
-Date: Tue, 18 Jan 2022 16:13:05 -0800
-Subject: [PATCH] crypto: rsa-pkcs1pad - fix buffer overread in
- pkcs1pad_verify_complete()
+Date: Tue, 18 Jan 2022 16:13:02 -0800
+Subject: [PATCH] crypto: rsa-pkcs1pad - only allow with rsa
 
-Before checking whether the expected digest_info is present, we need to
-check that there are enough bytes remaining.
+The pkcs1pad template can be instantiated with an arbitrary akcipher
+algorithm, which doesn't make sense; it is specifically an RSA padding
+scheme.  Make it check that the underlying algorithm really is RSA.
 
-Fixes: a49de377e051 ("crypto: Add hash param to pkcs1pad")
-Cc: <stable@vger.kernel.org> # v4.6+
-Cc: Tadeusz Struk <tadeusz.struk@linaro.org>
+Fixes: 3d5b1ecdea6f ("crypto: rsa - RSA padding algorithm")
+Cc: <stable@vger.kernel.org> # v4.5+
 Signed-off-by: Eric Biggers <ebiggers@google.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 
 diff --git a/crypto/rsa-pkcs1pad.c b/crypto/rsa-pkcs1pad.c
-index 6b556ddeb3a0..9d804831c8b3 100644
+index 8ac3e73e8ea6..1b3545781425 100644
 --- a/crypto/rsa-pkcs1pad.c
 +++ b/crypto/rsa-pkcs1pad.c
-@@ -476,6 +476,8 @@ static int pkcs1pad_verify_complete(struct akcipher_request *req, int err)
- 	pos++;
+@@ -621,6 +621,11 @@ static int pkcs1pad_create(struct crypto_template *tmpl, struct rtattr **tb)
  
- 	if (digest_info) {
-+		if (digest_info->size > dst_len - pos)
-+			goto done;
- 		if (crypto_memneq(out_buf + pos, digest_info->data,
- 				  digest_info->size))
- 			goto done;
+ 	rsa_alg = crypto_spawn_akcipher_alg(&ctx->spawn);
+ 
++	if (strcmp(rsa_alg->base.cra_name, "rsa") != 0) {
++		err = -EINVAL;
++		goto err_free_inst;
++	}
++
+ 	err = -ENAMETOOLONG;
+ 	hash_name = crypto_attr_alg_name(tb[2]);
+ 	if (IS_ERR(hash_name)) {
 
