@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F0154F01C2
-	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 14:56:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB4614F01C3
+	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 14:56:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229880AbiDBM6E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 2 Apr 2022 08:58:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44644 "EHLO
+        id S239980AbiDBM61 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 2 Apr 2022 08:58:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46128 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354847AbiDBM6B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 08:58:01 -0400
+        with ESMTP id S235201AbiDBM60 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 08:58:26 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C95DB53716
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 05:56:09 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 760B153716
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 05:56:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 661C16147D
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 12:56:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74A75C340EC;
-        Sat,  2 Apr 2022 12:56:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 133066144B
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 12:56:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DF61C340EC;
+        Sat,  2 Apr 2022 12:56:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648904168;
-        bh=GaoVMWnx2YeKb2tsLAsDi+h2sywOYYsv1KloJyizobE=;
+        s=korg; t=1648904193;
+        bh=dzQpbawxWRK8Sv9AikeWAMzXvazuCmEeIdTJ/9jO0XM=;
         h=Subject:To:Cc:From:Date:From;
-        b=Yzvi/+Yub83ZHUv8qooUe0w+mjnygaJdhi77UN41SlWgpP7MXxUMJoyHyv5VGyoF2
-         PBItWt7xqxQK5KeiqcGONEXGH+XepjUgUSlwp8Sxge4G95FQnLPTrirM0D1dTuW/ek
-         EhteZ8T52TFBhXEBzIHdJTHnrfJ/pd3AJKYLng9o=
-Subject: FAILED: patch "[PATCH] KVM: s390x: fix SCK locking" failed to apply to 5.15-stable tree
-To:     imbrenda@linux.ibm.com, borntraeger@linux.ibm.com,
-        scgl@linux.ibm.com
+        b=lYGPeM23+OsJqGUE7aLzW9uoMMAYumP12ig7Y1e4ljQ4vHhQzGy01TxwM38uq/viv
+         hw4+sW6xCwoxuhbJQVL8eJtJQy+lnhopAaaR+ZAbActAlDqjUaCPw4FuN1lhSwAKwv
+         WKJCJdb2UwlTzmuJKWKL1+HRXqE25idzCJiw0klo=
+Subject: FAILED: patch "[PATCH] KVM: use __vcalloc for very large allocations" failed to apply to 5.15-stable tree
+To:     pbonzini@redhat.com, david@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 02 Apr 2022 14:55:58 +0200
-Message-ID: <164890415859194@kroah.com>
+Date:   Sat, 02 Apr 2022 14:56:30 +0200
+Message-ID: <164890419089185@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,126 +59,94 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From c0573ba5c5a2244dc02060b1f374d4593c1d20b7 Mon Sep 17 00:00:00 2001
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Date: Tue, 1 Mar 2022 15:33:40 +0100
-Subject: [PATCH] KVM: s390x: fix SCK locking
+From 37b2a6510a48ca361ced679f92682b7b7d7d0330 Mon Sep 17 00:00:00 2001
+From: Paolo Bonzini <pbonzini@redhat.com>
+Date: Tue, 8 Mar 2022 04:49:37 -0500
+Subject: [PATCH] KVM: use __vcalloc for very large allocations
 
-When handling the SCK instruction, the kvm lock is taken, even though
-the vcpu lock is already being held. The normal locking order is kvm
-lock first and then vcpu lock. This is can (and in some circumstances
-does) lead to deadlocks.
+Allocations whose size is related to the memslot size can be arbitrarily
+large.  Do not use kvzalloc/kvcalloc, as those are limited to "not crazy"
+sizes that fit in 32 bits.
 
-The function kvm_s390_set_tod_clock is called both by the SCK handler
-and by some IOCTLs to set the clock. The IOCTLs will not hold the vcpu
-lock, so they can safely take the kvm lock. The SCK handler holds the
-vcpu lock, but will also somehow need to acquire the kvm lock without
-relinquishing the vcpu lock.
-
-The solution is to factor out the code to set the clock, and provide
-two wrappers. One is called like the original function and does the
-locking, the other is called kvm_s390_try_set_tod_clock and uses
-trylock to try to acquire the kvm lock. This new wrapper is then used
-in the SCK handler. If locking fails, -EAGAIN is returned, which is
-eventually propagated to userspace, thus also freeing the vcpu lock and
-allowing for forward progress.
-
-This is not the most efficient or elegant way to solve this issue, but
-the SCK instruction is deprecated and its performance is not critical.
-
-The goal of this patch is just to provide a simple but correct way to
-fix the bug.
-
-Fixes: 6a3f95a6b04c ("KVM: s390: Intercept SCK instruction")
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
-Reviewed-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-Link: https://lore.kernel.org/r/20220301143340.111129-1-imbrenda@linux.ibm.com
 Cc: stable@vger.kernel.org
-Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+Fixes: 7661809d493b ("mm: don't allow oversized kvmalloc() calls")
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index b5ea95cf8686..b53ff693b66e 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -3961,14 +3961,12 @@ static int kvm_s390_handle_requests(struct kvm_vcpu *vcpu)
- 	return 0;
- }
+diff --git a/arch/powerpc/kvm/book3s_hv_uvmem.c b/arch/powerpc/kvm/book3s_hv_uvmem.c
+index e414ca44839f..be441403925b 100644
+--- a/arch/powerpc/kvm/book3s_hv_uvmem.c
++++ b/arch/powerpc/kvm/book3s_hv_uvmem.c
+@@ -251,7 +251,7 @@ int kvmppc_uvmem_slot_init(struct kvm *kvm, const struct kvm_memory_slot *slot)
+ 	p = kzalloc(sizeof(*p), GFP_KERNEL);
+ 	if (!p)
+ 		return -ENOMEM;
+-	p->pfns = vzalloc(array_size(slot->npages, sizeof(*p->pfns)));
++	p->pfns = vcalloc(slot->npages, sizeof(*p->pfns));
+ 	if (!p->pfns) {
+ 		kfree(p);
+ 		return -ENOMEM;
+diff --git a/arch/x86/kvm/mmu/page_track.c b/arch/x86/kvm/mmu/page_track.c
+index 68eb1fb548b6..2e09d1b6249f 100644
+--- a/arch/x86/kvm/mmu/page_track.c
++++ b/arch/x86/kvm/mmu/page_track.c
+@@ -47,8 +47,8 @@ int kvm_page_track_create_memslot(struct kvm *kvm,
+ 			continue;
  
--void kvm_s390_set_tod_clock(struct kvm *kvm,
--			    const struct kvm_s390_vm_tod_clock *gtod)
-+static void __kvm_s390_set_tod_clock(struct kvm *kvm, const struct kvm_s390_vm_tod_clock *gtod)
+ 		slot->arch.gfn_track[i] =
+-			kvcalloc(npages, sizeof(*slot->arch.gfn_track[i]),
+-				 GFP_KERNEL_ACCOUNT);
++			__vcalloc(npages, sizeof(*slot->arch.gfn_track[i]),
++				  GFP_KERNEL_ACCOUNT);
+ 		if (!slot->arch.gfn_track[i])
+ 			goto track_free;
+ 	}
+@@ -75,7 +75,8 @@ int kvm_page_track_write_tracking_alloc(struct kvm_memory_slot *slot)
+ 	if (slot->arch.gfn_track[KVM_PAGE_TRACK_WRITE])
+ 		return 0;
+ 
+-	gfn_track = kvcalloc(slot->npages, sizeof(*gfn_track), GFP_KERNEL_ACCOUNT);
++	gfn_track = __vcalloc(slot->npages, sizeof(*gfn_track),
++			      GFP_KERNEL_ACCOUNT);
+ 	if (gfn_track == NULL)
+ 		return -ENOMEM;
+ 
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index f79bf4552082..4fa4d8269e5b 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -11838,7 +11838,7 @@ int memslot_rmap_alloc(struct kvm_memory_slot *slot, unsigned long npages)
+ 		if (slot->arch.rmap[i])
+ 			continue;
+ 
+-		slot->arch.rmap[i] = kvcalloc(lpages, sz, GFP_KERNEL_ACCOUNT);
++		slot->arch.rmap[i] = __vcalloc(lpages, sz, GFP_KERNEL_ACCOUNT);
+ 		if (!slot->arch.rmap[i]) {
+ 			memslot_rmap_free(slot);
+ 			return -ENOMEM;
+@@ -11875,7 +11875,7 @@ static int kvm_alloc_memslot_metadata(struct kvm *kvm,
+ 
+ 		lpages = __kvm_mmu_slot_lpages(slot, npages, level);
+ 
+-		linfo = kvcalloc(lpages, sizeof(*linfo), GFP_KERNEL_ACCOUNT);
++		linfo = __vcalloc(lpages, sizeof(*linfo), GFP_KERNEL_ACCOUNT);
+ 		if (!linfo)
+ 			goto out_free;
+ 
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index c941b97fa133..69c318fdff61 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -1274,9 +1274,9 @@ static int kvm_vm_release(struct inode *inode, struct file *filp)
+  */
+ static int kvm_alloc_dirty_bitmap(struct kvm_memory_slot *memslot)
  {
- 	struct kvm_vcpu *vcpu;
- 	union tod_clock clk;
- 	unsigned long i;
+-	unsigned long dirty_bytes = 2 * kvm_dirty_bitmap_bytes(memslot);
++	unsigned long dirty_bytes = kvm_dirty_bitmap_bytes(memslot);
  
--	mutex_lock(&kvm->lock);
- 	preempt_disable();
+-	memslot->dirty_bitmap = kvzalloc(dirty_bytes, GFP_KERNEL_ACCOUNT);
++	memslot->dirty_bitmap = __vcalloc(2, dirty_bytes, GFP_KERNEL_ACCOUNT);
+ 	if (!memslot->dirty_bitmap)
+ 		return -ENOMEM;
  
- 	store_tod_clock_ext(&clk);
-@@ -3989,7 +3987,22 @@ void kvm_s390_set_tod_clock(struct kvm *kvm,
- 
- 	kvm_s390_vcpu_unblock_all(kvm);
- 	preempt_enable();
-+}
-+
-+void kvm_s390_set_tod_clock(struct kvm *kvm, const struct kvm_s390_vm_tod_clock *gtod)
-+{
-+	mutex_lock(&kvm->lock);
-+	__kvm_s390_set_tod_clock(kvm, gtod);
-+	mutex_unlock(&kvm->lock);
-+}
-+
-+int kvm_s390_try_set_tod_clock(struct kvm *kvm, const struct kvm_s390_vm_tod_clock *gtod)
-+{
-+	if (!mutex_trylock(&kvm->lock))
-+		return 0;
-+	__kvm_s390_set_tod_clock(kvm, gtod);
- 	mutex_unlock(&kvm->lock);
-+	return 1;
- }
- 
- /**
-diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-index 4ba8fc30d87a..798955b62fa3 100644
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -358,8 +358,8 @@ int kvm_s390_handle_sigp(struct kvm_vcpu *vcpu);
- int kvm_s390_handle_sigp_pei(struct kvm_vcpu *vcpu);
- 
- /* implemented in kvm-s390.c */
--void kvm_s390_set_tod_clock(struct kvm *kvm,
--			    const struct kvm_s390_vm_tod_clock *gtod);
-+void kvm_s390_set_tod_clock(struct kvm *kvm, const struct kvm_s390_vm_tod_clock *gtod);
-+int kvm_s390_try_set_tod_clock(struct kvm *kvm, const struct kvm_s390_vm_tod_clock *gtod);
- long kvm_arch_fault_in_page(struct kvm_vcpu *vcpu, gpa_t gpa, int writable);
- int kvm_s390_store_status_unloaded(struct kvm_vcpu *vcpu, unsigned long addr);
- int kvm_s390_vcpu_store_status(struct kvm_vcpu *vcpu, unsigned long addr);
-diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
-index 30b24c42ef99..5beb7a4a11b3 100644
---- a/arch/s390/kvm/priv.c
-+++ b/arch/s390/kvm/priv.c
-@@ -102,7 +102,20 @@ static int handle_set_clock(struct kvm_vcpu *vcpu)
- 		return kvm_s390_inject_prog_cond(vcpu, rc);
- 
- 	VCPU_EVENT(vcpu, 3, "SCK: setting guest TOD to 0x%llx", gtod.tod);
--	kvm_s390_set_tod_clock(vcpu->kvm, &gtod);
-+	/*
-+	 * To set the TOD clock the kvm lock must be taken, but the vcpu lock
-+	 * is already held in handle_set_clock. The usual lock order is the
-+	 * opposite.  As SCK is deprecated and should not be used in several
-+	 * cases, for example when the multiple epoch facility or TOD clock
-+	 * steering facility is installed (see Principles of Operation),  a
-+	 * slow path can be used.  If the lock can not be taken via try_lock,
-+	 * the instruction will be retried via -EAGAIN at a later point in
-+	 * time.
-+	 */
-+	if (!kvm_s390_try_set_tod_clock(vcpu->kvm, &gtod)) {
-+		kvm_s390_retry_instr(vcpu);
-+		return -EAGAIN;
-+	}
- 
- 	kvm_s390_set_psw_cc(vcpu, 0);
- 	return 0;
 
