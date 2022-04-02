@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BDF84F01E9
-	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 15:03:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 35D394F01EB
+	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 15:03:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354954AbiDBNFg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 2 Apr 2022 09:05:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34726 "EHLO
+        id S1354960AbiDBNFj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 2 Apr 2022 09:05:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34862 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354949AbiDBNFf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 09:05:35 -0400
+        with ESMTP id S1354956AbiDBNFi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 09:05:38 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41EBE19C0E
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 06:03:44 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF7141CFFE
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 06:03:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BAD41614AB
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 13:03:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6C27C3410F;
-        Sat,  2 Apr 2022 13:03:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8B7386149F
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 13:03:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9625FC340EC;
+        Sat,  2 Apr 2022 13:03:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648904623;
-        bh=YtkktX5fTWLotH/u35+rJlbvdruN4ZbuYvz3Ksl2ny8=;
+        s=korg; t=1648904626;
+        bh=hbxJFo/K+bJKvhydmWsJTAIHZRmbCpMdecQI18mSzQE=;
         h=Subject:To:Cc:From:Date:From;
-        b=TeSPngdquLE53CgV0/FOYmfvLBCLgWMAMvZOpSlgIXDu2Gh/WLqm8dPyNMbxkKNB6
-         HIP9hu4DydsI+TlYO8huhQxaPCMPkmCRf0n+w/oHeMv+vnT3nWYGMOR8pxZDMaCFHJ
-         XQxFkWLpZrrYZk8WeRg/sWyypGytL5FWUJ9Z1hYU=
-Subject: FAILED: patch "[PATCH] PCI: aardvark: Fix setting MSI address" failed to apply to 5.15-stable tree
+        b=qe1YLyue8E9qZtaXDkmjkngPw+MJYS9HBDSWFnr/IYZb8eSqCGg7vRcqoIXA6nSuj
+         zQb73RFfANF4MRp8g1hEbdTy9m+HPnYZ8JsnAet88Rm0FVdckZwB5EapxVuWh0G2/G
+         dY/7gBsGsMpXoVqGpSgQhMEZyzguW0IGkChvRO2w=
+Subject: FAILED: patch "[PATCH] PCI: aardvark: Fix setting MSI address" failed to apply to 5.16-stable tree
 To:     pali@kernel.org, kabel@kernel.org, lorenzo.pieralisi@arm.com,
         maz@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sat, 02 Apr 2022 15:03:29 +0200
-Message-ID: <164890460928140@kroah.com>
+Message-ID: <164890460929230@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.16-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
