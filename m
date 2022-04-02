@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C12F34F02E5
-	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 15:47:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE6374F02E8
+	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 15:47:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239809AbiDBNta (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 2 Apr 2022 09:49:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42150 "EHLO
+        id S1355705AbiDBNtj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 2 Apr 2022 09:49:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42734 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243417AbiDBNta (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 09:49:30 -0400
+        with ESMTP id S243417AbiDBNti (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 09:49:38 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC043160C21
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 06:47:38 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B37FA160C21
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 06:47:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 40CAE6152B
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 13:47:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5719BC340EE;
-        Sat,  2 Apr 2022 13:47:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4E6D561485
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 13:47:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5AA09C340EE;
+        Sat,  2 Apr 2022 13:47:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648907257;
-        bh=4uwQjF6TMvMqihsB8GeiysK03bV9TsMno6xYk0smfuE=;
+        s=korg; t=1648907265;
+        bh=l3QZcjvhEqXTx3VkJtTeID0bhB+qVuKqTBWj+iDYyuQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=Tyxw5CFxIIVHvz/Q4wCR4IEsAPBQ070ENCvZWOwrrncCvF7MJEmEDI9w+wUIokQhu
-         Qj1nGIbWMvaNwW3wES1IB+0xs5X4J9M+9vCZx9NuoiD3olvvrGWRcUGPmNTc5mj040
-         Ri+TI7bTiYjIc+K726YnW70xojlWcPbNf8u0IHOg=
-Subject: FAILED: patch "[PATCH] KVM: SVM: Allow AVIC support on system w/ physical APIC ID >" failed to apply to 4.14-stable tree
-To:     suravee.suthikulpanit@amd.com, mlevitsk@redhat.com,
-        pbonzini@redhat.com, seanjc@google.com
+        b=dZLRSkniaSjthEqVSmkyrU3m9Xq8719jEwnnLbxegB0k8aHv+ePJoNCAc/NjmP2aZ
+         htLQeaCIjpkI4k7OtXA+pPPngx3N8rnSSif+XhNaIhK7685Wv54D6YvY4XzBjqmYD+
+         hkh0erpGeNmM3g/giZ5VSYZKgHFsQoRgLqTNU9lU=
+Subject: FAILED: patch "[PATCH] KVM: SVM: Disable preemption across AVIC load/put during" failed to apply to 5.15-stable tree
+To:     seanjc@google.com, mlevitsk@redhat.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 02 Apr 2022 15:47:35 +0200
-Message-ID: <1648907255196223@kroah.com>
+Date:   Sat, 02 Apr 2022 15:47:43 +0200
+Message-ID: <164890726321143@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,90 +59,210 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 4a204f7895878363ca8211f50ec610408c8c70aa Mon Sep 17 00:00:00 2001
-From: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
-Date: Thu, 10 Feb 2022 18:08:51 -0600
-Subject: [PATCH] KVM: SVM: Allow AVIC support on system w/ physical APIC ID >
- 255
+From b652de1e3dfb3b49e539e88a684a68e333e1bd7c Mon Sep 17 00:00:00 2001
+From: Sean Christopherson <seanjc@google.com>
+Date: Tue, 1 Mar 2022 09:05:09 -0800
+Subject: [PATCH] KVM: SVM: Disable preemption across AVIC load/put during
+ APICv refresh
 
-Expand KVM's mask for the AVIC host physical ID to the full 12 bits defined
-by the architecture.  The number of bits consumed by hardware is model
-specific, e.g. early CPUs ignored bits 11:8, but there is no way for KVM
-to enumerate the "true" size.  So, KVM must allow using all bits, else it
-risks rejecting completely legal x2APIC IDs on newer CPUs.
+Disable preemption when loading/putting the AVIC during an APICv refresh.
+If the vCPU task is preempted and migrated ot a different pCPU, the
+unprotected avic_vcpu_load() could set the wrong pCPU in the physical ID
+cache/table.
 
-This means KVM relies on hardware to not assign x2APIC IDs that exceed the
-"true" width of the field, but presumably hardware is smart enough to tie
-the width to the max x2APIC ID.  KVM also relies on hardware to support at
-least 8 bits, as the legacy xAPIC ID is writable by software.  But, those
-assumptions are unavoidable due to the lack of any way to enumerate the
-"true" width.
+Pull the necessary code out of avic_vcpu_{,un}blocking() and into a new
+helper to reduce the probability of introducing this exact bug a third
+time.
 
+Fixes: df7e4827c549 ("KVM: SVM: call avic_vcpu_load/avic_vcpu_put when enabling/disabling AVIC")
 Cc: stable@vger.kernel.org
-Cc: Maxim Levitsky <mlevitsk@redhat.com>
-Suggested-by: Sean Christopherson <seanjc@google.com>
-Reviewed-by: Sean Christopherson <seanjc@google.com>
-Fixes: 44a95dae1d22 ("KVM: x86: Detect and Initialize AVIC support")
-Signed-off-by: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
-Message-Id: <20220211000851.185799-1-suravee.suthikulpanit@amd.com>
+Reported-by: Maxim Levitsky <mlevitsk@redhat.com>
+Signed-off-by: Sean Christopherson <seanjc@google.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
-diff --git a/arch/x86/include/asm/svm.h b/arch/x86/include/asm/svm.h
-index bb2fb78523ce..7eb2df5417fb 100644
---- a/arch/x86/include/asm/svm.h
-+++ b/arch/x86/include/asm/svm.h
-@@ -226,7 +226,7 @@ struct __attribute__ ((__packed__)) vmcb_control_area {
- #define AVIC_LOGICAL_ID_ENTRY_VALID_BIT			31
- #define AVIC_LOGICAL_ID_ENTRY_VALID_MASK		(1 << 31)
- 
--#define AVIC_PHYSICAL_ID_ENTRY_HOST_PHYSICAL_ID_MASK	(0xFFULL)
-+#define AVIC_PHYSICAL_ID_ENTRY_HOST_PHYSICAL_ID_MASK	GENMASK_ULL(11, 0)
- #define AVIC_PHYSICAL_ID_ENTRY_BACKING_PAGE_MASK	(0xFFFFFFFFFFULL << 12)
- #define AVIC_PHYSICAL_ID_ENTRY_IS_RUNNING_MASK		(1ULL << 62)
- #define AVIC_PHYSICAL_ID_ENTRY_VALID_MASK		(1ULL << 63)
 diff --git a/arch/x86/kvm/svm/avic.c b/arch/x86/kvm/svm/avic.c
-index 1afde44b1252..b37b353ec086 100644
+index aea0b13773fd..1afde44b1252 100644
 --- a/arch/x86/kvm/svm/avic.c
 +++ b/arch/x86/kvm/svm/avic.c
-@@ -870,17 +870,12 @@ avic_update_iommu_vcpu_affinity(struct kvm_vcpu *vcpu, int cpu, bool r)
- void __avic_vcpu_load(struct kvm_vcpu *vcpu, int cpu)
+@@ -616,38 +616,6 @@ static int avic_set_pi_irte_mode(struct kvm_vcpu *vcpu, bool activate)
+ 	return ret;
+ }
+ 
+-void avic_refresh_apicv_exec_ctrl(struct kvm_vcpu *vcpu)
+-{
+-	struct vcpu_svm *svm = to_svm(vcpu);
+-	struct vmcb *vmcb = svm->vmcb01.ptr;
+-	bool activated = kvm_vcpu_apicv_active(vcpu);
+-
+-	if (!enable_apicv)
+-		return;
+-
+-	if (activated) {
+-		/**
+-		 * During AVIC temporary deactivation, guest could update
+-		 * APIC ID, DFR and LDR registers, which would not be trapped
+-		 * by avic_unaccelerated_access_interception(). In this case,
+-		 * we need to check and update the AVIC logical APIC ID table
+-		 * accordingly before re-activating.
+-		 */
+-		avic_apicv_post_state_restore(vcpu);
+-		vmcb->control.int_ctl |= AVIC_ENABLE_MASK;
+-	} else {
+-		vmcb->control.int_ctl &= ~AVIC_ENABLE_MASK;
+-	}
+-	vmcb_mark_dirty(vmcb, VMCB_AVIC);
+-
+-	if (activated)
+-		avic_vcpu_load(vcpu, vcpu->cpu);
+-	else
+-		avic_vcpu_put(vcpu);
+-
+-	avic_set_pi_irte_mode(vcpu, activated);
+-}
+-
+ static void svm_ir_list_del(struct vcpu_svm *svm, struct amd_iommu_pi_data *pi)
+ {
+ 	unsigned long flags;
+@@ -899,7 +867,7 @@ avic_update_iommu_vcpu_affinity(struct kvm_vcpu *vcpu, int cpu, bool r)
+ 	return ret;
+ }
+ 
+-void avic_vcpu_load(struct kvm_vcpu *vcpu, int cpu)
++void __avic_vcpu_load(struct kvm_vcpu *vcpu, int cpu)
  {
  	u64 entry;
--	/* ID = 0xff (broadcast), ID > 0xff (reserved) */
- 	int h_physical_id = kvm_cpu_get_apicid(cpu);
+ 	/* ID = 0xff (broadcast), ID > 0xff (reserved) */
+@@ -936,7 +904,7 @@ void avic_vcpu_load(struct kvm_vcpu *vcpu, int cpu)
+ 	avic_update_iommu_vcpu_affinity(vcpu, h_physical_id, true);
+ }
+ 
+-void avic_vcpu_put(struct kvm_vcpu *vcpu)
++void __avic_vcpu_put(struct kvm_vcpu *vcpu)
+ {
+ 	u64 entry;
  	struct vcpu_svm *svm = to_svm(vcpu);
+@@ -955,13 +923,63 @@ void avic_vcpu_put(struct kvm_vcpu *vcpu)
+ 	WRITE_ONCE(*(svm->avic_physical_id_cache), entry);
+ }
  
- 	lockdep_assert_preemption_disabled();
- 
--	/*
--	 * Since the host physical APIC id is 8 bits,
--	 * we can support host APIC ID upto 255.
--	 */
--	if (WARN_ON(h_physical_id > AVIC_PHYSICAL_ID_ENTRY_HOST_PHYSICAL_ID_MASK))
-+	if (WARN_ON(h_physical_id & ~AVIC_PHYSICAL_ID_ENTRY_HOST_PHYSICAL_ID_MASK))
++static void avic_vcpu_load(struct kvm_vcpu *vcpu)
++{
++	int cpu = get_cpu();
++
++	WARN_ON(cpu != vcpu->cpu);
++
++	__avic_vcpu_load(vcpu, cpu);
++
++	put_cpu();
++}
++
++static void avic_vcpu_put(struct kvm_vcpu *vcpu)
++{
++	preempt_disable();
++
++	__avic_vcpu_put(vcpu);
++
++	preempt_enable();
++}
++
++void avic_refresh_apicv_exec_ctrl(struct kvm_vcpu *vcpu)
++{
++	struct vcpu_svm *svm = to_svm(vcpu);
++	struct vmcb *vmcb = svm->vmcb01.ptr;
++	bool activated = kvm_vcpu_apicv_active(vcpu);
++
++	if (!enable_apicv)
++		return;
++
++	if (activated) {
++		/**
++		 * During AVIC temporary deactivation, guest could update
++		 * APIC ID, DFR and LDR registers, which would not be trapped
++		 * by avic_unaccelerated_access_interception(). In this case,
++		 * we need to check and update the AVIC logical APIC ID table
++		 * accordingly before re-activating.
++		 */
++		avic_apicv_post_state_restore(vcpu);
++		vmcb->control.int_ctl |= AVIC_ENABLE_MASK;
++	} else {
++		vmcb->control.int_ctl &= ~AVIC_ENABLE_MASK;
++	}
++	vmcb_mark_dirty(vmcb, VMCB_AVIC);
++
++	if (activated)
++		avic_vcpu_load(vcpu);
++	else
++		avic_vcpu_put(vcpu);
++
++	avic_set_pi_irte_mode(vcpu, activated);
++}
++
+ void avic_vcpu_blocking(struct kvm_vcpu *vcpu)
+ {
+ 	if (!kvm_vcpu_apicv_active(vcpu))
  		return;
  
- 	/*
+-	preempt_disable();
+-
+        /*
+         * Unload the AVIC when the vCPU is about to block, _before_
+         * the vCPU actually blocks.
+@@ -976,21 +994,12 @@ void avic_vcpu_blocking(struct kvm_vcpu *vcpu)
+         * the cause of errata #1235).
+         */
+ 	avic_vcpu_put(vcpu);
+-
+-	preempt_enable();
+ }
+ 
+ void avic_vcpu_unblocking(struct kvm_vcpu *vcpu)
+ {
+-	int cpu;
+-
+ 	if (!kvm_vcpu_apicv_active(vcpu))
+ 		return;
+ 
+-	cpu = get_cpu();
+-	WARN_ON(cpu != vcpu->cpu);
+-
+-	avic_vcpu_load(vcpu, cpu);
+-
+-	put_cpu();
++	avic_vcpu_load(vcpu);
+ }
+diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
+index 7038c76fa841..c5e3f219803e 100644
+--- a/arch/x86/kvm/svm/svm.c
++++ b/arch/x86/kvm/svm/svm.c
+@@ -1318,13 +1318,13 @@ static void svm_vcpu_load(struct kvm_vcpu *vcpu, int cpu)
+ 		indirect_branch_prediction_barrier();
+ 	}
+ 	if (kvm_vcpu_apicv_active(vcpu))
+-		avic_vcpu_load(vcpu, cpu);
++		__avic_vcpu_load(vcpu, cpu);
+ }
+ 
+ static void svm_vcpu_put(struct kvm_vcpu *vcpu)
+ {
+ 	if (kvm_vcpu_apicv_active(vcpu))
+-		avic_vcpu_put(vcpu);
++		__avic_vcpu_put(vcpu);
+ 
+ 	svm_prepare_host_switch(vcpu);
+ 
 diff --git a/arch/x86/kvm/svm/svm.h b/arch/x86/kvm/svm/svm.h
-index e45b5645d5e0..e37bb3508cfa 100644
+index 70850cbe5bcb..e45b5645d5e0 100644
 --- a/arch/x86/kvm/svm/svm.h
 +++ b/arch/x86/kvm/svm/svm.h
-@@ -569,6 +569,17 @@ extern struct kvm_x86_nested_ops svm_nested_ops;
- 
- /* avic.c */
- 
-+#define AVIC_LOGICAL_ID_ENTRY_GUEST_PHYSICAL_ID_MASK	(0xFF)
-+#define AVIC_LOGICAL_ID_ENTRY_VALID_BIT			31
-+#define AVIC_LOGICAL_ID_ENTRY_VALID_MASK		(1 << 31)
-+
-+#define AVIC_PHYSICAL_ID_ENTRY_HOST_PHYSICAL_ID_MASK	GENMASK_ULL(11, 0)
-+#define AVIC_PHYSICAL_ID_ENTRY_BACKING_PAGE_MASK	(0xFFFFFFFFFFULL << 12)
-+#define AVIC_PHYSICAL_ID_ENTRY_IS_RUNNING_MASK		(1ULL << 62)
-+#define AVIC_PHYSICAL_ID_ENTRY_VALID_MASK		(1ULL << 63)
-+
-+#define VMCB_AVIC_APIC_BAR_MASK		0xFFFFFFFFFF000ULL
-+
- int avic_ga_log_notifier(u32 ga_tag);
- void avic_vm_destroy(struct kvm *kvm);
- int avic_vm_init(struct kvm *kvm);
+@@ -576,8 +576,8 @@ void avic_init_vmcb(struct vcpu_svm *svm);
+ int avic_incomplete_ipi_interception(struct kvm_vcpu *vcpu);
+ int avic_unaccelerated_access_interception(struct kvm_vcpu *vcpu);
+ int avic_init_vcpu(struct vcpu_svm *svm);
+-void avic_vcpu_load(struct kvm_vcpu *vcpu, int cpu);
+-void avic_vcpu_put(struct kvm_vcpu *vcpu);
++void __avic_vcpu_load(struct kvm_vcpu *vcpu, int cpu);
++void __avic_vcpu_put(struct kvm_vcpu *vcpu);
+ void avic_apicv_post_state_restore(struct kvm_vcpu *vcpu);
+ void avic_set_virtual_apic_mode(struct kvm_vcpu *vcpu);
+ void avic_refresh_apicv_exec_ctrl(struct kvm_vcpu *vcpu);
 
