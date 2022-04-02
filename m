@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 052834F03F9
+	by mail.lfdr.de (Postfix) with ESMTP id CC1334F03FB
 	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 16:32:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239878AbiDBOd7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 2 Apr 2022 10:33:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40104 "EHLO
+        id S1356488AbiDBOeA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 2 Apr 2022 10:34:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40446 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356507AbiDBOc7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 10:32:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8D5D4C420
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 07:31:07 -0700 (PDT)
+        with ESMTP id S1356524AbiDBOdD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 10:33:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E47854BFC8
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 07:31:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 56AB5615C4
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 14:31:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B87FC340EC;
-        Sat,  2 Apr 2022 14:31:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9EF97B80945
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 14:31:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19996C340EC;
+        Sat,  2 Apr 2022 14:31:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648909866;
-        bh=rsgAac8e8bbUxshF7Oiajn+JUEYSZS7ELLNe8SSbuSk=;
+        s=korg; t=1648909869;
+        bh=0TnW/XpANW1fjknIImVhy+ZhUfmE7Xnhfo1z/KbzgV4=;
         h=Subject:To:Cc:From:Date:From;
-        b=ZXUiFvX1yZouO+5br6/2AOABOTx0cDlO6fDsubXMJnhVhFk6pL6I/VUJxvTDkbZg+
-         kczUzeW8A/HTxDo0/Yq+x9Ai4tStqGPUdpVFOjUnTE7f1lgEDlIKYhkCL6S+/yhYc5
-         F75OUPLNQdlpdypK5jddCuPoUR0ByNaXzQgf6Gy4=
-Subject: FAILED: patch "[PATCH] scsi: qla2xxx: Fix loss of NVMe namespaces after driver" failed to apply to 5.17-stable tree
-To:     aeasi@marvell.com, himanshu.madhani@oracle.com,
-        martin.petersen@oracle.com, mpatalan@redhat.com,
-        njavali@marvell.com
+        b=FL589bn5afcsHYbwiVoH5/2q9Yg803a1upQfkJoCIBJSlTkxv4jamOY1/YXnSw8tX
+         ny92MhCZZo3A9pUBS8We34WUMdJLIyJV7bX/JAR8LDRnHgbUo1Fm+u5dnLLtlez4Ht
+         8RmJAZn0uanTm17xOx8d23yBR468deZI9FdlOZnY=
+Subject: FAILED: patch "[PATCH] scsi: qla2xxx: Increase max limit of ql2xnvme_queues" failed to apply to 5.17-stable tree
+To:     sdeodhar@marvell.com, himanshu.madhani@oracle.com,
+        martin.petersen@oracle.com, njavali@marvell.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 02 Apr 2022 16:30:06 +0200
-Message-ID: <1648909806128211@kroah.com>
+Date:   Sat, 02 Apr 2022 16:30:13 +0200
+Message-ID: <16489098133981@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -61,78 +60,75 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From db212f2eb3fb7f546366777e93c8f54614d39269 Mon Sep 17 00:00:00 2001
-From: Arun Easi <aeasi@marvell.com>
-Date: Thu, 10 Mar 2022 01:25:54 -0800
-Subject: [PATCH] scsi: qla2xxx: Fix loss of NVMe namespaces after driver
- reload test
+From 3648bcf1c1374e9f42d241d83e2e50c0ef07a852 Mon Sep 17 00:00:00 2001
+From: Shreyas Deodhar <sdeodhar@marvell.com>
+Date: Thu, 10 Mar 2022 01:26:03 -0800
+Subject: [PATCH] scsi: qla2xxx: Increase max limit of ql2xnvme_queues
 
-Driver registration of localport can race when it happens at the remote
-port discovery time. Fix this by calling the registration under a mutex.
+Increase max limit of ql2xnvme_queues to (max_qpair - 1).
 
-Link: https://lore.kernel.org/r/20220310092604.22950-4-njavali@marvell.com
-Fixes: e84067d74301 ("scsi: qla2xxx: Add FC-NVMe F/W initialization and transport registration")
+Link: https://lore.kernel.org/r/20220310092604.22950-13-njavali@marvell.com
+Fixes: 65120de26a54 ("scsi: qla2xxx: Add ql2xnvme_queues module param to configure number of NVMe queues")
 Cc: stable@vger.kernel.org
-Reported-by: Marco Patalano <mpatalan@redhat.com>
-Tested-by: Marco Patalano <mpatalan@redhat.com>
 Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Arun Easi <aeasi@marvell.com>
+Signed-off-by: Shreyas Deodhar <sdeodhar@marvell.com>
 Signed-off-by: Nilesh Javali <njavali@marvell.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 
 diff --git a/drivers/scsi/qla2xxx/qla_nvme.c b/drivers/scsi/qla2xxx/qla_nvme.c
-index 5723082d94d6..3bf5cbd754a7 100644
+index 794a95b2e3b4..87c9404aa401 100644
 --- a/drivers/scsi/qla2xxx/qla_nvme.c
 +++ b/drivers/scsi/qla2xxx/qla_nvme.c
-@@ -782,8 +782,6 @@ int qla_nvme_register_hba(struct scsi_qla_host *vha)
+@@ -799,17 +799,22 @@ int qla_nvme_register_hba(struct scsi_qla_host *vha)
  	ha = vha->hw;
  	tmpl = &qla_nvme_fc_transport;
  
--	WARN_ON(vha->nvme_local_port);
--
- 	if (ql2xnvme_queues < MIN_NVME_HW_QUEUES || ql2xnvme_queues > MAX_NVME_HW_QUEUES) {
+-	if (ql2xnvme_queues < MIN_NVME_HW_QUEUES || ql2xnvme_queues > MAX_NVME_HW_QUEUES) {
++	if (ql2xnvme_queues < MIN_NVME_HW_QUEUES) {
  		ql_log(ql_log_warn, vha, 0xfffd,
- 		    "ql2xnvme_queues=%d is out of range(MIN:%d - MAX:%d). Resetting ql2xnvme_queues to:%d\n",
-@@ -797,7 +795,7 @@ int qla_nvme_register_hba(struct scsi_qla_host *vha)
- 		(uint8_t)(ha->max_qpairs ? ha->max_qpairs : 1));
+-		    "ql2xnvme_queues=%d is out of range(MIN:%d - MAX:%d). Resetting ql2xnvme_queues to:%d\n",
+-		    ql2xnvme_queues, MIN_NVME_HW_QUEUES, MAX_NVME_HW_QUEUES,
+-		    DEF_NVME_HW_QUEUES);
++		    "ql2xnvme_queues=%d is lower than minimum queues: %d. Resetting ql2xnvme_queues to:%d\n",
++		    ql2xnvme_queues, MIN_NVME_HW_QUEUES, DEF_NVME_HW_QUEUES);
+ 		ql2xnvme_queues = DEF_NVME_HW_QUEUES;
++	} else if (ql2xnvme_queues > (ha->max_qpairs - 1)) {
++		ql_log(ql_log_warn, vha, 0xfffd,
++		       "ql2xnvme_queues=%d is greater than available IRQs: %d. Resetting ql2xnvme_queues to: %d\n",
++		       ql2xnvme_queues, (ha->max_qpairs - 1),
++		       (ha->max_qpairs - 1));
++		ql2xnvme_queues = ((ha->max_qpairs - 1));
+ 	}
+ 
+ 	qla_nvme_fc_transport.max_hw_queues =
+ 	    min((uint8_t)(ql2xnvme_queues),
+-		(uint8_t)(ha->max_qpairs ? ha->max_qpairs : 1));
++		(uint8_t)((ha->max_qpairs - 1) ? (ha->max_qpairs - 1) : 1));
  
  	ql_log(ql_log_info, vha, 0xfffb,
--	    "Number of NVME queues used for this port: %d\n",
-+	       "Number of NVME queues used for this port: %d\n",
- 	    qla_nvme_fc_transport.max_hw_queues);
+ 	       "Number of NVME queues used for this port: %d\n",
+diff --git a/drivers/scsi/qla2xxx/qla_nvme.h b/drivers/scsi/qla2xxx/qla_nvme.h
+index d0e3c0e07baa..d299478371b2 100644
+--- a/drivers/scsi/qla2xxx/qla_nvme.h
++++ b/drivers/scsi/qla2xxx/qla_nvme.h
+@@ -14,7 +14,6 @@
+ #include "qla_dsd.h"
  
- 	pinfo.node_name = wwn_to_u64(vha->node_name);
-@@ -805,13 +803,25 @@ int qla_nvme_register_hba(struct scsi_qla_host *vha)
- 	pinfo.port_role = FC_PORT_ROLE_NVME_INITIATOR;
- 	pinfo.port_id = vha->d_id.b24;
+ #define MIN_NVME_HW_QUEUES 1
+-#define MAX_NVME_HW_QUEUES 128
+ #define DEF_NVME_HW_QUEUES 8
  
--	ql_log(ql_log_info, vha, 0xffff,
--	    "register_localport: host-traddr=nn-0x%llx:pn-0x%llx on portID:%x\n",
--	    pinfo.node_name, pinfo.port_name, pinfo.port_id);
--	qla_nvme_fc_transport.dma_boundary = vha->host->dma_boundary;
--
--	ret = nvme_fc_register_localport(&pinfo, tmpl,
--	    get_device(&ha->pdev->dev), &vha->nvme_local_port);
-+	mutex_lock(&ha->vport_lock);
-+	/*
-+	 * Check again for nvme_local_port to see if any other thread raced
-+	 * with this one and finished registration.
-+	 */
-+	if (!vha->nvme_local_port) {
-+		ql_log(ql_log_info, vha, 0xffff,
-+		    "register_localport: host-traddr=nn-0x%llx:pn-0x%llx on portID:%x\n",
-+		    pinfo.node_name, pinfo.port_name, pinfo.port_id);
-+		qla_nvme_fc_transport.dma_boundary = vha->host->dma_boundary;
-+
-+		ret = nvme_fc_register_localport(&pinfo, tmpl,
-+						 get_device(&ha->pdev->dev),
-+						 &vha->nvme_local_port);
-+		mutex_unlock(&ha->vport_lock);
-+	} else {
-+		mutex_unlock(&ha->vport_lock);
-+		return 0;
-+	}
- 	if (ret) {
- 		ql_log(ql_log_warn, vha, 0xffff,
- 		    "register_localport failed: ret=%x\n", ret);
+ #define NVME_ATIO_CMD_OFF 32
+diff --git a/drivers/scsi/qla2xxx/qla_os.c b/drivers/scsi/qla2xxx/qla_os.c
+index 81451c11eef4..762229d495a8 100644
+--- a/drivers/scsi/qla2xxx/qla_os.c
++++ b/drivers/scsi/qla2xxx/qla_os.c
+@@ -344,7 +344,6 @@ MODULE_PARM_DESC(ql2xnvme_queues,
+ 	"Number of NVMe Queues that can be configured.\n"
+ 	"Final value will be min(ql2xnvme_queues, num_cpus,num_chip_queues)\n"
+ 	"1 - Minimum number of queues supported\n"
+-	"128 - Maximum number of queues supported\n"
+ 	"8 - Default value");
+ 
+ static struct scsi_transport_template *qla2xxx_transport_template = NULL;
 
