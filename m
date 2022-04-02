@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8AF8E4F01F5
-	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 15:06:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C75B04F01F6
+	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 15:07:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242655AbiDBNIf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 2 Apr 2022 09:08:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48296 "EHLO
+        id S1355002AbiDBNJB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 2 Apr 2022 09:09:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49116 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355184AbiDBNI3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 09:08:29 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3581F11D7B9
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 06:06:37 -0700 (PDT)
+        with ESMTP id S242680AbiDBNJA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 09:09:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 619DB11D7B8
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 06:07:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D6D5FB808C0
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 13:06:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15459C340EC;
-        Sat,  2 Apr 2022 13:06:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F18A261481
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 13:07:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D697C340EC;
+        Sat,  2 Apr 2022 13:07:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648904794;
-        bh=PKT1KdivK7yyK+tBDd3RDeky6cjiJhf+SMBbGOYA3kc=;
+        s=korg; t=1648904828;
+        bh=0dZuQtxD4PJSMQPalhB0t0JgNwugqtZjQqET3oG+uCg=;
         h=Subject:To:Cc:From:Date:From;
-        b=VdymyeaZ4PWMajiTI/rFahmrd3qjCnwRHS/7oPZGsjJl6lvIpUDnABdq7Ai4Hfwgu
-         YGgKPgle+oonVzw4yz3rE1S0ndRN/8RotmKpJ07626UYyT9iG5dAG6P19gbQQvrHiz
-         kZmhPl2Xbsej/8etKZZoMiaI9QTLPiaKXhmoNRoA=
-Subject: FAILED: patch "[PATCH] KVM: use __vcalloc for very large allocations" failed to apply to 5.16-stable tree
+        b=CbEjSBqp8k1oyD20Vpf/9ktASRrIgXTy+7EMwGhogZ6UFwrka99NCk9bb54dQYptx
+         VHqdU3F2QIS32RipE0u0g6q8umoImZdz5Z7TotUY7KR6Mw9HIb/FXSeVOQtSd+Gajw
+         OFTSubvEpUI9LyQ56ROLv18VI1KBUbdSAdFLilqQ=
+Subject: FAILED: patch "[PATCH] KVM: use __vcalloc for very large allocations" failed to apply to 5.17-stable tree
 To:     pbonzini@redhat.com, david@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 02 Apr 2022 15:06:31 +0200
-Message-ID: <1648904791231133@kroah.com>
+Date:   Sat, 02 Apr 2022 15:07:05 +0200
+Message-ID: <164890482522554@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.16-stable tree.
+The patch below does not apply to the 5.17-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
