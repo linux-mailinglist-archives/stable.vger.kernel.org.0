@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CBB904F01AC
-	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 14:52:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B0074F01AE
+	for <lists+stable@lfdr.de>; Sat,  2 Apr 2022 14:52:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232747AbiDBMyh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 2 Apr 2022 08:54:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33172 "EHLO
+        id S1354778AbiDBMyn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 2 Apr 2022 08:54:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347735AbiDBMyf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 08:54:35 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6A4B18C0C9
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 05:52:43 -0700 (PDT)
+        with ESMTP id S1351642AbiDBMym (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 2 Apr 2022 08:54:42 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 390B218C0C9
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 05:52:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 68CD3B8087F
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 12:52:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8868C340EC;
-        Sat,  2 Apr 2022 12:52:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ED339B8087F
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 12:52:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61F8FC340EC;
+        Sat,  2 Apr 2022 12:52:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648903961;
-        bh=iGz+B9Dgy7/2wjVecW0OH7QxeMpI670EI6fkoyLUWH0=;
+        s=korg; t=1648903968;
+        bh=iW6zdB8uS/OuDCFWOwtU5pgv3SIMuyyFw7ZIYlI1L2Q=;
         h=Subject:To:Cc:From:Date:From;
-        b=MUIWKkc5zQ+mRTpano8w1jF6SSmss9YxAOQVNcNSGW6eKWU1CSKiHXWRa/OeT8DfR
-         iRC8Mu9lYKHf7tgzyFhIVl1TViSjWVkswxeBeFaPInF5zSYItnEC6q/Teh9nkunXUv
-         KaLnmGyPTo1x7rBjob4TYXrCo0nQHGl1+PF2eMm0=
-Subject: FAILED: patch "[PATCH] media: davinci: vpif: fix unbalanced runtime PM enable" failed to apply to 4.9-stable tree
+        b=zdZkGcnKiy1DIN4/SbJ78Mog/AKw2TJ56Eblrfdcw//DhuT5+wFDgXbkRZO2KagnC
+         TaB5hBx23ndyKkVgmnylkHB/4Hr76f8WLAIUXcwKY83yXz7kAeJZ2BCGzeyyKlAvO+
+         JhTC1T4Wp/c5qvO0Hj139tyoKt336UCMsmI2urZw=
+Subject: FAILED: patch "[PATCH] media: davinci: vpif: fix use-after-free on driver unbind" failed to apply to 5.15-stable tree
 To:     johan@kernel.org, hverkuil-cisco@xs4all.nl, khilman@baylibre.com,
-        mchehab@kernel.org
+        mchehab@kernel.org, prabhakar.csengg@gmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 02 Apr 2022 14:52:28 +0200
-Message-ID: <164890394852224@kroah.com>
+Date:   Sat, 02 Apr 2022 14:52:46 +0200
+Message-ID: <164890396670110@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,54 +60,181 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From d42b3ad105b5d3481f6a56bc789aa2b27aa09325 Mon Sep 17 00:00:00 2001
+From 43acb728bbc40169d2e2425e84a80068270974be Mon Sep 17 00:00:00 2001
 From: Johan Hovold <johan@kernel.org>
-Date: Wed, 22 Dec 2021 15:20:23 +0100
-Subject: [PATCH] media: davinci: vpif: fix unbalanced runtime PM enable
+Date: Wed, 22 Dec 2021 15:20:24 +0100
+Subject: [PATCH] media: davinci: vpif: fix use-after-free on driver unbind
 
-Make sure to disable runtime PM before returning on probe errors.
+The driver allocates and registers two platform device structures during
+probe, but the devices were never deregistered on driver unbind.
+
+This results in a use-after-free on driver unbind as the device
+structures were allocated using devres and would be freed by driver
+core when remove() returns.
+
+Fix this by adding the missing deregistration calls to the remove()
+callback and failing probe on registration errors.
+
+Note that the platform device structures must be freed using a proper
+release callback to avoid leaking associated resources like device
+names.
 
 Fixes: 479f7a118105 ("[media] davinci: vpif: adaptions for DT support")
-Cc: stable@vger.kernel.org
+Cc: stable@vger.kernel.org      # 4.12
 Cc: Kevin Hilman <khilman@baylibre.com>
 Signed-off-by: Johan Hovold <johan@kernel.org>
+Reviewed-by: Lad Prabhakar <prabhakar.csengg@gmail.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 
 diff --git a/drivers/media/platform/davinci/vpif.c b/drivers/media/platform/davinci/vpif.c
-index 9752a5ec36f7..1f5eacf48580 100644
+index 1f5eacf48580..4a260f4ed236 100644
 --- a/drivers/media/platform/davinci/vpif.c
 +++ b/drivers/media/platform/davinci/vpif.c
-@@ -428,6 +428,7 @@ static int vpif_probe(struct platform_device *pdev)
+@@ -41,6 +41,11 @@ MODULE_ALIAS("platform:" VPIF_DRIVER_NAME);
+ #define VPIF_CH2_MAX_MODES	15
+ #define VPIF_CH3_MAX_MODES	2
+ 
++struct vpif_data {
++	struct platform_device *capture;
++	struct platform_device *display;
++};
++
+ DEFINE_SPINLOCK(vpif_lock);
+ EXPORT_SYMBOL_GPL(vpif_lock);
+ 
+@@ -423,17 +428,31 @@ int vpif_channel_getfid(u8 channel_id)
+ }
+ EXPORT_SYMBOL(vpif_channel_getfid);
+ 
++static void vpif_pdev_release(struct device *dev)
++{
++	struct platform_device *pdev = to_platform_device(dev);
++
++	kfree(pdev);
++}
++
+ static int vpif_probe(struct platform_device *pdev)
+ {
  	static struct resource *res_irq;
  	struct platform_device *pdev_capture, *pdev_display;
  	struct device_node *endpoint = NULL;
-+	int ret;
++	struct vpif_data *data;
+ 	int ret;
  
  	vpif_base = devm_platform_ioremap_resource(pdev, 0);
  	if (IS_ERR(vpif_base))
-@@ -456,8 +457,8 @@ static int vpif_probe(struct platform_device *pdev)
- 	res_irq = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
- 	if (!res_irq) {
- 		dev_warn(&pdev->dev, "Missing IRQ resource.\n");
--		pm_runtime_put(&pdev->dev);
--		return -EINVAL;
-+		ret = -EINVAL;
+ 		return PTR_ERR(vpif_base);
+ 
++	data = kzalloc(sizeof(*data), GFP_KERNEL);
++	if (!data)
++		return -ENOMEM;
++
++	platform_set_drvdata(pdev, data);
++
+ 	pm_runtime_enable(&pdev->dev);
+ 	pm_runtime_get(&pdev->dev);
+ 
+@@ -461,49 +480,75 @@ static int vpif_probe(struct platform_device *pdev)
+ 		goto err_put_rpm;
+ 	}
+ 
+-	pdev_capture = devm_kzalloc(&pdev->dev, sizeof(*pdev_capture),
+-				    GFP_KERNEL);
+-	if (pdev_capture) {
+-		pdev_capture->name = "vpif_capture";
+-		pdev_capture->id = -1;
+-		pdev_capture->resource = res_irq;
+-		pdev_capture->num_resources = 1;
+-		pdev_capture->dev.dma_mask = pdev->dev.dma_mask;
+-		pdev_capture->dev.coherent_dma_mask = pdev->dev.coherent_dma_mask;
+-		pdev_capture->dev.parent = &pdev->dev;
+-		platform_device_register(pdev_capture);
+-	} else {
+-		dev_warn(&pdev->dev, "Unable to allocate memory for pdev_capture.\n");
++	pdev_capture = kzalloc(sizeof(*pdev_capture), GFP_KERNEL);
++	if (!pdev_capture) {
++		ret = -ENOMEM;
 +		goto err_put_rpm;
  	}
  
- 	pdev_capture = devm_kzalloc(&pdev->dev, sizeof(*pdev_capture),
-@@ -491,6 +492,12 @@ static int vpif_probe(struct platform_device *pdev)
+-	pdev_display = devm_kzalloc(&pdev->dev, sizeof(*pdev_display),
+-				    GFP_KERNEL);
+-	if (pdev_display) {
+-		pdev_display->name = "vpif_display";
+-		pdev_display->id = -1;
+-		pdev_display->resource = res_irq;
+-		pdev_display->num_resources = 1;
+-		pdev_display->dev.dma_mask = pdev->dev.dma_mask;
+-		pdev_display->dev.coherent_dma_mask = pdev->dev.coherent_dma_mask;
+-		pdev_display->dev.parent = &pdev->dev;
+-		platform_device_register(pdev_display);
+-	} else {
+-		dev_warn(&pdev->dev, "Unable to allocate memory for pdev_display.\n");
++	pdev_capture->name = "vpif_capture";
++	pdev_capture->id = -1;
++	pdev_capture->resource = res_irq;
++	pdev_capture->num_resources = 1;
++	pdev_capture->dev.dma_mask = pdev->dev.dma_mask;
++	pdev_capture->dev.coherent_dma_mask = pdev->dev.coherent_dma_mask;
++	pdev_capture->dev.parent = &pdev->dev;
++	pdev_capture->dev.release = vpif_pdev_release;
++
++	ret = platform_device_register(pdev_capture);
++	if (ret)
++		goto err_put_pdev_capture;
++
++	pdev_display = kzalloc(sizeof(*pdev_display), GFP_KERNEL);
++	if (!pdev_display) {
++		ret = -ENOMEM;
++		goto err_put_pdev_capture;
  	}
  
++	pdev_display->name = "vpif_display";
++	pdev_display->id = -1;
++	pdev_display->resource = res_irq;
++	pdev_display->num_resources = 1;
++	pdev_display->dev.dma_mask = pdev->dev.dma_mask;
++	pdev_display->dev.coherent_dma_mask = pdev->dev.coherent_dma_mask;
++	pdev_display->dev.parent = &pdev->dev;
++	pdev_display->dev.release = vpif_pdev_release;
++
++	ret = platform_device_register(pdev_display);
++	if (ret)
++		goto err_put_pdev_display;
++
++	data->capture = pdev_capture;
++	data->display = pdev_display;
++
  	return 0;
-+
-+err_put_rpm:
-+	pm_runtime_put(&pdev->dev);
-+	pm_runtime_disable(&pdev->dev);
-+
-+	return ret;
+ 
++err_put_pdev_display:
++	platform_device_put(pdev_display);
++err_put_pdev_capture:
++	platform_device_put(pdev_capture);
+ err_put_rpm:
+ 	pm_runtime_put(&pdev->dev);
+ 	pm_runtime_disable(&pdev->dev);
++	kfree(data);
+ 
+ 	return ret;
  }
  
  static int vpif_remove(struct platform_device *pdev)
+ {
++	struct vpif_data *data = platform_get_drvdata(pdev);
++
++	if (data->capture)
++		platform_device_unregister(data->capture);
++	if (data->display)
++		platform_device_unregister(data->display);
++
+ 	pm_runtime_put(&pdev->dev);
+ 	pm_runtime_disable(&pdev->dev);
++
++	kfree(data);
++
+ 	return 0;
+ }
+ 
 
