@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EE394F0909
+	by mail.lfdr.de (Postfix) with ESMTP id F1FC14F090C
 	for <lists+stable@lfdr.de>; Sun,  3 Apr 2022 13:38:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345578AbiDCLjz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 3 Apr 2022 07:39:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58700 "EHLO
+        id S1355326AbiDCLj6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 3 Apr 2022 07:39:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58734 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355326AbiDCLjy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 3 Apr 2022 07:39:54 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 468C237008
-        for <stable@vger.kernel.org>; Sun,  3 Apr 2022 04:38:00 -0700 (PDT)
+        with ESMTP id S1355425AbiDCLj5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 3 Apr 2022 07:39:57 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B485337005
+        for <stable@vger.kernel.org>; Sun,  3 Apr 2022 04:38:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C6162B80BFA
-        for <stable@vger.kernel.org>; Sun,  3 Apr 2022 11:37:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41147C340F0;
-        Sun,  3 Apr 2022 11:37:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4B0256106D
+        for <stable@vger.kernel.org>; Sun,  3 Apr 2022 11:38:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CFCAC340F0;
+        Sun,  3 Apr 2022 11:38:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648985877;
-        bh=TqElF+LJ6/JwVc3sfZcbZN+Oea4v2xyNCDxInlnz+lA=;
+        s=korg; t=1648985882;
+        bh=FcgRPn/s+mNvI/u9UaUcMIuhrfiZotxXIWobMYX2JRA=;
         h=Subject:To:Cc:From:Date:From;
-        b=AMODYdLdKuF11npbF4Ar4so6o5fN9R9B33aJavg7ec9tUN18yGZJiPal966Kreb9C
-         ylYPX6xVgG4owcialhwkPKnJRhI/3sfxp+qF49+R1e+ACRkkg2nfkpPCnmu0AIymAi
-         nmJJVtmw18L+f97oaiCqpA4i6I1UQiea5Xp+g0jY=
-Subject: FAILED: patch "[PATCH] ubifs: Rename whiteout atomically" failed to apply to 5.10-stable tree
+        b=PiKjh6rwhsMDFHQu4BlKbqonywasql6JEEZuLfjDX+1Op6dJ9fD0FHcSzZJuaiUlH
+         KTi4Jq0Y70a3VCCy8YXGv9JTIds8uzKfaLdrA/Gj/SgYThuk5n5vur8nqduI7ywllx
+         HBZ2xzifF5VlT+8QpCWY0nkng7BWSm0F3zJ+LzC0=
+Subject: FAILED: patch "[PATCH] ubifs: Fix 'ui->dirty' race between do_tmpfile() and" failed to apply to 4.9-stable tree
 To:     chengzhihao1@huawei.com, richard@nod.at
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 03 Apr 2022 13:37:46 +0200
-Message-ID: <16489858666284@kroah.com>
+Date:   Sun, 03 Apr 2022 13:38:00 +0200
+Message-ID: <164898588089252@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,425 +59,156 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 278d9a243635f26c05ad95dcf9c5a593b9e04dc6 Mon Sep 17 00:00:00 2001
+From 60eb3b9c9f11206996f57cb89521824304b305ad Mon Sep 17 00:00:00 2001
 From: Zhihao Cheng <chengzhihao1@huawei.com>
-Date: Mon, 27 Dec 2021 11:22:36 +0800
-Subject: [PATCH] ubifs: Rename whiteout atomically
+Date: Mon, 27 Dec 2021 11:22:37 +0800
+Subject: [PATCH] ubifs: Fix 'ui->dirty' race between do_tmpfile() and
+ writeback work
 
-Currently, rename whiteout has 3 steps:
-  1. create tmpfile(which associates old dentry to tmpfile inode) for
-     whiteout, and store tmpfile to disk
-  2. link whiteout, associate whiteout inode to old dentry agagin and
-     store old dentry, old inode, new dentry on disk
-  3. writeback dirty whiteout inode to disk
+'ui->dirty' is not protected by 'ui_mutex' in function do_tmpfile() which
+may race with ubifs_write_inode[wb_workfn] to access/update 'ui->dirty',
+finally dirty space is released twice.
 
-Suddenly power-cut or error occurring(eg. ENOSPC returned by budget,
-memory allocation failure) during above steps may cause kinds of problems:
-  Problem 1: ENOSPC returned by whiteout space budget (before step 2),
-	     old dentry will disappear after rename syscall, whiteout file
-	     cannot be found either.
+	open(O_TMPFILE)                wb_workfn
+do_tmpfile
+  ubifs_budget_space(ino_req = { .dirtied_ino = 1})
+  d_tmpfile // mark inode(tmpfile) dirty
+  ubifs_jnl_update // without holding tmpfile's ui_mutex
+    mark_inode_clean(ui)
+      if (ui->dirty)
+        ubifs_release_dirty_inode_budget(ui)  // release first time
+                                   ubifs_write_inode
+				     mutex_lock(&ui->ui_mutex)
+                                     ubifs_release_dirty_inode_budget(ui)
+				     // release second time
+				     mutex_unlock(&ui->ui_mutex)
+      ui->dirty = 0
 
-	     ls dir  // we get file, whiteout
-	     rename(dir/file, dir/whiteout, REANME_WHITEOUT)
-	     ENOSPC = ubifs_budget_space(&wht_req) // return
-	     ls dir  // empty (no file, no whiteout)
-  Problem 2: Power-cut happens before step 3, whiteout inode with 'nlink=1'
-	     is not stored on disk, whiteout dentry(old dentry) is written
-	     on disk, whiteout file is lost on next mount (We get "dead
-	     directory entry" after executing 'ls -l' on whiteout file).
+Run generic/476 can reproduce following message easily
+(See reproducer in [Link]):
 
-Now, we use following 3 steps to finish rename whiteout:
-  1. create an in-mem inode with 'nlink = 1' as whiteout
-  2. ubifs_jnl_rename (Write on disk to finish associating old dentry to
-     whiteout inode, associating new dentry with old inode)
-  3. iput(whiteout)
+  UBIFS error (ubi0:0 pid 2578): ubifs_assert_failed [ubifs]: UBIFS assert
+  failed: c->bi.dd_growth >= 0, in fs/ubifs/budget.c:554
+  UBIFS warning (ubi0:0 pid 2578): ubifs_ro_mode [ubifs]: switched to
+  read-only mode, error -22
+  Workqueue: writeback wb_workfn (flush-ubifs_0_0)
+  Call Trace:
+    ubifs_ro_mode+0x54/0x60 [ubifs]
+    ubifs_assert_failed+0x4b/0x80 [ubifs]
+    ubifs_release_budget+0x468/0x5a0 [ubifs]
+    ubifs_release_dirty_inode_budget+0x53/0x80 [ubifs]
+    ubifs_write_inode+0x121/0x1f0 [ubifs]
+    ...
+    wb_workfn+0x283/0x7b0
 
-Rely writing in-mem inode on disk by ubifs_jnl_rename() to finish rename
-whiteout, which avoids middle disk state caused by suddenly power-cut
-and error occurring.
+Fix it by holding tmpfile ubifs inode lock during ubifs_jnl_update().
+Similar problem exists in whiteout renaming, but previous fix("ubifs:
+Rename whiteout atomically") has solved the problem.
 
-Fixes: 9e0a1fff8db56ea ("ubifs: Implement RENAME_WHITEOUT")
+Fixes: 474b93704f32163 ("ubifs: Implement O_TMPFILE")
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=214765
 Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
 Signed-off-by: Richard Weinberger <richard@nod.at>
 
 diff --git a/fs/ubifs/dir.c b/fs/ubifs/dir.c
-index 745e6e3f246e..f2a6b45bfdae 100644
+index f2a6b45bfdae..faca567ef06b 100644
 --- a/fs/ubifs/dir.c
 +++ b/fs/ubifs/dir.c
-@@ -349,8 +349,56 @@ static int ubifs_create(struct user_namespace *mnt_userns, struct inode *dir,
- 	return err;
+@@ -397,6 +397,32 @@ static struct inode *create_whiteout(struct inode *dir, struct dentry *dentry)
+ 	return ERR_PTR(err);
  }
  
--static int do_tmpfile(struct inode *dir, struct dentry *dentry,
--		      umode_t mode, struct inode **whiteout)
-+static struct inode *create_whiteout(struct inode *dir, struct dentry *dentry)
++/**
++ * lock_2_inodes - a wrapper for locking two UBIFS inodes.
++ * @inode1: first inode
++ * @inode2: second inode
++ *
++ * We do not implement any tricks to guarantee strict lock ordering, because
++ * VFS has already done it for us on the @i_mutex. So this is just a simple
++ * wrapper function.
++ */
++static void lock_2_inodes(struct inode *inode1, struct inode *inode2)
 +{
-+	int err;
-+	umode_t mode = S_IFCHR | WHITEOUT_MODE;
-+	struct inode *inode;
-+	struct ubifs_info *c = dir->i_sb->s_fs_info;
-+	struct fscrypt_name nm;
-+
-+	/*
-+	 * Create an inode('nlink = 1') for whiteout without updating journal,
-+	 * let ubifs_jnl_rename() store it on flash to complete rename whiteout
-+	 * atomically.
-+	 */
-+
-+	dbg_gen("dent '%pd', mode %#hx in dir ino %lu",
-+		dentry, mode, dir->i_ino);
-+
-+	err = fscrypt_setup_filename(dir, &dentry->d_name, 0, &nm);
-+	if (err)
-+		return ERR_PTR(err);
-+
-+	inode = ubifs_new_inode(c, dir, mode);
-+	if (IS_ERR(inode)) {
-+		err = PTR_ERR(inode);
-+		goto out_free;
-+	}
-+
-+	init_special_inode(inode, inode->i_mode, WHITEOUT_DEV);
-+	ubifs_assert(c, inode->i_op == &ubifs_file_inode_operations);
-+
-+	err = ubifs_init_security(dir, inode, &dentry->d_name);
-+	if (err)
-+		goto out_inode;
-+
-+	/* The dir size is updated by do_rename. */
-+	insert_inode_hash(inode);
-+
-+	return inode;
-+
-+out_inode:
-+	make_bad_inode(inode);
-+	iput(inode);
-+out_free:
-+	fscrypt_free_filename(&nm);
-+	ubifs_err(c, "cannot create whiteout file, error %d", err);
-+	return ERR_PTR(err);
++	mutex_lock_nested(&ubifs_inode(inode1)->ui_mutex, WB_MUTEX_1);
++	mutex_lock_nested(&ubifs_inode(inode2)->ui_mutex, WB_MUTEX_2);
 +}
 +
-+static int ubifs_tmpfile(struct user_namespace *mnt_userns, struct inode *dir,
-+			 struct dentry *dentry, umode_t mode)
- {
- 	struct inode *inode;
- 	struct ubifs_info *c = dir->i_sb->s_fs_info;
-@@ -392,25 +440,13 @@ static int do_tmpfile(struct inode *dir, struct dentry *dentry,
- 	}
- 	ui = ubifs_inode(inode);
- 
--	if (whiteout) {
--		init_special_inode(inode, inode->i_mode, WHITEOUT_DEV);
--		ubifs_assert(c, inode->i_op == &ubifs_file_inode_operations);
--	}
--
- 	err = ubifs_init_security(dir, inode, &dentry->d_name);
- 	if (err)
- 		goto out_inode;
- 
- 	mutex_lock(&ui->ui_mutex);
- 	insert_inode_hash(inode);
--
--	if (whiteout) {
--		mark_inode_dirty(inode);
--		drop_nlink(inode);
--		*whiteout = inode;
--	} else {
--		d_tmpfile(dentry, inode);
--	}
-+	d_tmpfile(dentry, inode);
- 	ubifs_assert(c, ui->dirty);
- 
- 	instantiated = 1;
-@@ -432,8 +468,6 @@ static int do_tmpfile(struct inode *dir, struct dentry *dentry,
- 	make_bad_inode(inode);
- 	if (!instantiated)
- 		iput(inode);
--	else if (whiteout)
--		iput(*whiteout);
- out_budg:
- 	ubifs_release_budget(c, &req);
- 	if (!instantiated)
-@@ -443,12 +477,6 @@ static int do_tmpfile(struct inode *dir, struct dentry *dentry,
- 	return err;
- }
- 
--static int ubifs_tmpfile(struct user_namespace *mnt_userns, struct inode *dir,
--			 struct dentry *dentry, umode_t mode)
--{
--	return do_tmpfile(dir, dentry, mode, NULL);
--}
--
- /**
-  * vfs_dent_type - get VFS directory entry type.
-  * @type: UBIFS directory entry type
-@@ -1266,17 +1294,19 @@ static int do_rename(struct inode *old_dir, struct dentry *old_dentry,
- 					.dirtied_ino = 3 };
- 	struct ubifs_budget_req ino_req = { .dirtied_ino = 1,
- 			.dirtied_ino_d = ALIGN(old_inode_ui->data_len, 8) };
-+	struct ubifs_budget_req wht_req;
- 	struct timespec64 time;
- 	unsigned int saved_nlink;
- 	struct fscrypt_name old_nm, new_nm;
- 
- 	/*
--	 * Budget request settings: deletion direntry, new direntry, removing
--	 * the old inode, and changing old and new parent directory inodes.
-+	 * Budget request settings:
-+	 *   req: deletion direntry, new direntry, removing the old inode,
-+	 *   and changing old and new parent directory inodes.
- 	 *
--	 * However, this operation also marks the target inode as dirty and
--	 * does not write it, so we allocate budget for the target inode
--	 * separately.
-+	 *   wht_req: new whiteout inode for RENAME_WHITEOUT.
-+	 *
-+	 *   ino_req: marks the target inode as dirty and does not write it.
- 	 */
- 
- 	dbg_gen("dent '%pd' ino %lu in dir ino %lu to dent '%pd' in dir ino %lu flags 0x%x",
-@@ -1326,7 +1356,6 @@ static int do_rename(struct inode *old_dir, struct dentry *old_dentry,
- 
- 	if (flags & RENAME_WHITEOUT) {
- 		union ubifs_dev_desc *dev = NULL;
--		struct ubifs_budget_req wht_req;
- 
- 		dev = kmalloc(sizeof(union ubifs_dev_desc), GFP_NOFS);
- 		if (!dev) {
-@@ -1334,24 +1363,26 @@ static int do_rename(struct inode *old_dir, struct dentry *old_dentry,
- 			goto out_release;
- 		}
- 
--		err = do_tmpfile(old_dir, old_dentry, S_IFCHR | WHITEOUT_MODE, &whiteout);
--		if (err) {
-+		/*
-+		 * The whiteout inode without dentry is pinned in memory,
-+		 * umount won't happen during rename process because we
-+		 * got parent dentry.
-+		 */
-+		whiteout = create_whiteout(old_dir, old_dentry);
-+		if (IS_ERR(whiteout)) {
-+			err = PTR_ERR(whiteout);
- 			kfree(dev);
- 			goto out_release;
- 		}
- 
--		spin_lock(&whiteout->i_lock);
--		whiteout->i_state |= I_LINKABLE;
--		spin_unlock(&whiteout->i_lock);
--
- 		whiteout_ui = ubifs_inode(whiteout);
- 		whiteout_ui->data = dev;
- 		whiteout_ui->data_len = ubifs_encode_dev(dev, MKDEV(0, 0));
- 		ubifs_assert(c, !whiteout_ui->dirty);
- 
- 		memset(&wht_req, 0, sizeof(struct ubifs_budget_req));
--		wht_req.dirtied_ino = 1;
--		wht_req.dirtied_ino_d = ALIGN(whiteout_ui->data_len, 8);
-+		wht_req.new_ino = 1;
-+		wht_req.new_ino_d = ALIGN(whiteout_ui->data_len, 8);
- 		/*
- 		 * To avoid deadlock between space budget (holds ui_mutex and
- 		 * waits wb work) and writeback work(waits ui_mutex), do space
-@@ -1359,6 +1390,11 @@ static int do_rename(struct inode *old_dir, struct dentry *old_dentry,
- 		 */
- 		err = ubifs_budget_space(c, &wht_req);
- 		if (err) {
-+			/*
-+			 * Whiteout inode can not be written on flash by
-+			 * ubifs_jnl_write_inode(), because it's neither
-+			 * dirty nor zero-nlink.
-+			 */
- 			iput(whiteout);
- 			goto out_release;
- 		}
-@@ -1433,17 +1469,11 @@ static int do_rename(struct inode *old_dir, struct dentry *old_dentry,
- 		sync = IS_DIRSYNC(old_dir) || IS_DIRSYNC(new_dir);
- 		if (unlink && IS_SYNC(new_inode))
- 			sync = 1;
--	}
--
--	if (whiteout) {
--		inc_nlink(whiteout);
--		mark_inode_dirty(whiteout);
--
--		spin_lock(&whiteout->i_lock);
--		whiteout->i_state &= ~I_LINKABLE;
--		spin_unlock(&whiteout->i_lock);
--
--		iput(whiteout);
-+		/*
-+		 * S_SYNC flag of whiteout inherits from the old_dir, and we
-+		 * have already checked the old dir inode. So there is no need
-+		 * to check whiteout.
-+		 */
- 	}
- 
- 	err = ubifs_jnl_rename(c, old_dir, old_inode, &old_nm, new_dir,
-@@ -1454,6 +1484,11 @@ static int do_rename(struct inode *old_dir, struct dentry *old_dentry,
- 	unlock_4_inodes(old_dir, new_dir, new_inode, whiteout);
- 	ubifs_release_budget(c, &req);
- 
-+	if (whiteout) {
-+		ubifs_release_budget(c, &wht_req);
-+		iput(whiteout);
-+	}
++/**
++ * unlock_2_inodes - a wrapper for unlocking two UBIFS inodes.
++ * @inode1: first inode
++ * @inode2: second inode
++ */
++static void unlock_2_inodes(struct inode *inode1, struct inode *inode2)
++{
++	mutex_unlock(&ubifs_inode(inode2)->ui_mutex);
++	mutex_unlock(&ubifs_inode(inode1)->ui_mutex);
++}
 +
- 	mutex_lock(&old_inode_ui->ui_mutex);
- 	release = old_inode_ui->dirty;
- 	mark_inode_dirty_sync(old_inode);
-@@ -1462,11 +1497,16 @@ static int do_rename(struct inode *old_dir, struct dentry *old_dentry,
- 	if (release)
- 		ubifs_release_budget(c, &ino_req);
- 	if (IS_SYNC(old_inode))
--		err = old_inode->i_sb->s_op->write_inode(old_inode, NULL);
-+		/*
-+		 * Rename finished here. Although old inode cannot be updated
-+		 * on flash, old ctime is not a big problem, don't return err
-+		 * code to userspace.
-+		 */
-+		old_inode->i_sb->s_op->write_inode(old_inode, NULL);
+ static int ubifs_tmpfile(struct user_namespace *mnt_userns, struct inode *dir,
+ 			 struct dentry *dentry, umode_t mode)
+ {
+@@ -404,7 +430,7 @@ static int ubifs_tmpfile(struct user_namespace *mnt_userns, struct inode *dir,
+ 	struct ubifs_info *c = dir->i_sb->s_fs_info;
+ 	struct ubifs_budget_req req = { .new_ino = 1, .new_dent = 1};
+ 	struct ubifs_budget_req ino_req = { .dirtied_ino = 1 };
+-	struct ubifs_inode *ui, *dir_ui = ubifs_inode(dir);
++	struct ubifs_inode *ui;
+ 	int err, instantiated = 0;
+ 	struct fscrypt_name nm;
  
- 	fscrypt_free_filename(&old_nm);
- 	fscrypt_free_filename(&new_nm);
--	return err;
-+	return 0;
+@@ -452,18 +478,18 @@ static int ubifs_tmpfile(struct user_namespace *mnt_userns, struct inode *dir,
+ 	instantiated = 1;
+ 	mutex_unlock(&ui->ui_mutex);
+ 
+-	mutex_lock(&dir_ui->ui_mutex);
++	lock_2_inodes(dir, inode);
+ 	err = ubifs_jnl_update(c, dir, &nm, inode, 1, 0);
+ 	if (err)
+ 		goto out_cancel;
+-	mutex_unlock(&dir_ui->ui_mutex);
++	unlock_2_inodes(dir, inode);
+ 
+ 	ubifs_release_budget(c, &req);
+ 
+ 	return 0;
  
  out_cancel:
- 	if (unlink) {
-@@ -1487,11 +1527,11 @@ static int do_rename(struct inode *old_dir, struct dentry *old_dentry,
- 				inc_nlink(old_dir);
- 		}
- 	}
-+	unlock_4_inodes(old_dir, new_dir, new_inode, whiteout);
- 	if (whiteout) {
--		drop_nlink(whiteout);
-+		ubifs_release_budget(c, &wht_req);
- 		iput(whiteout);
- 	}
--	unlock_4_inodes(old_dir, new_dir, new_inode, whiteout);
- out_release:
- 	ubifs_release_budget(c, &ino_req);
- 	ubifs_release_budget(c, &req);
-diff --git a/fs/ubifs/journal.c b/fs/ubifs/journal.c
-index 8ea680dba61e..75dab0ae3939 100644
---- a/fs/ubifs/journal.c
-+++ b/fs/ubifs/journal.c
-@@ -1207,9 +1207,9 @@ int ubifs_jnl_xrename(struct ubifs_info *c, const struct inode *fst_dir,
-  * @sync: non-zero if the write-buffer has to be synchronized
-  *
-  * This function implements the re-name operation which may involve writing up
-- * to 4 inodes and 2 directory entries. It marks the written inodes as clean
-- * and returns zero on success. In case of failure, a negative error code is
-- * returned.
-+ * to 4 inodes(new inode, whiteout inode, old and new parent directory inodes)
-+ * and 2 directory entries. It marks the written inodes as clean and returns
-+ * zero on success. In case of failure, a negative error code is returned.
-  */
- int ubifs_jnl_rename(struct ubifs_info *c, const struct inode *old_dir,
- 		     const struct inode *old_inode,
-@@ -1222,14 +1222,15 @@ int ubifs_jnl_rename(struct ubifs_info *c, const struct inode *old_dir,
- 	void *p;
- 	union ubifs_key key;
- 	struct ubifs_dent_node *dent, *dent2;
--	int err, dlen1, dlen2, ilen, lnum, offs, len, orphan_added = 0;
-+	int err, dlen1, dlen2, ilen, wlen, lnum, offs, len, orphan_added = 0;
- 	int aligned_dlen1, aligned_dlen2, plen = UBIFS_INO_NODE_SZ;
- 	int last_reference = !!(new_inode && new_inode->i_nlink == 0);
- 	int move = (old_dir != new_dir);
--	struct ubifs_inode *new_ui;
-+	struct ubifs_inode *new_ui, *whiteout_ui;
- 	u8 hash_old_dir[UBIFS_HASH_ARR_SZ];
- 	u8 hash_new_dir[UBIFS_HASH_ARR_SZ];
- 	u8 hash_new_inode[UBIFS_HASH_ARR_SZ];
-+	u8 hash_whiteout_inode[UBIFS_HASH_ARR_SZ];
- 	u8 hash_dent1[UBIFS_HASH_ARR_SZ];
- 	u8 hash_dent2[UBIFS_HASH_ARR_SZ];
+-	mutex_unlock(&dir_ui->ui_mutex);
++	unlock_2_inodes(dir, inode);
+ out_inode:
+ 	make_bad_inode(inode);
+ 	if (!instantiated)
+@@ -690,32 +716,6 @@ static int ubifs_dir_release(struct inode *dir, struct file *file)
+ 	return 0;
+ }
  
-@@ -1249,9 +1250,20 @@ int ubifs_jnl_rename(struct ubifs_info *c, const struct inode *old_dir,
- 	} else
- 		ilen = 0;
- 
-+	if (whiteout) {
-+		whiteout_ui = ubifs_inode(whiteout);
-+		ubifs_assert(c, mutex_is_locked(&whiteout_ui->ui_mutex));
-+		ubifs_assert(c, whiteout->i_nlink == 1);
-+		ubifs_assert(c, !whiteout_ui->dirty);
-+		wlen = UBIFS_INO_NODE_SZ;
-+		wlen += whiteout_ui->data_len;
-+	} else
-+		wlen = 0;
-+
- 	aligned_dlen1 = ALIGN(dlen1, 8);
- 	aligned_dlen2 = ALIGN(dlen2, 8);
--	len = aligned_dlen1 + aligned_dlen2 + ALIGN(ilen, 8) + ALIGN(plen, 8);
-+	len = aligned_dlen1 + aligned_dlen2 + ALIGN(ilen, 8) +
-+	      ALIGN(wlen, 8) + ALIGN(plen, 8);
- 	if (move)
- 		len += plen;
- 
-@@ -1313,6 +1325,15 @@ int ubifs_jnl_rename(struct ubifs_info *c, const struct inode *old_dir,
- 		p += ALIGN(ilen, 8);
- 	}
- 
-+	if (whiteout) {
-+		pack_inode(c, p, whiteout, 0);
-+		err = ubifs_node_calc_hash(c, p, hash_whiteout_inode);
-+		if (err)
-+			goto out_release;
-+
-+		p += ALIGN(wlen, 8);
-+	}
-+
- 	if (!move) {
- 		pack_inode(c, p, old_dir, 1);
- 		err = ubifs_node_calc_hash(c, p, hash_old_dir);
-@@ -1352,6 +1373,9 @@ int ubifs_jnl_rename(struct ubifs_info *c, const struct inode *old_dir,
- 		if (new_inode)
- 			ubifs_wbuf_add_ino_nolock(&c->jheads[BASEHD].wbuf,
- 						  new_inode->i_ino);
-+		if (whiteout)
-+			ubifs_wbuf_add_ino_nolock(&c->jheads[BASEHD].wbuf,
-+						  whiteout->i_ino);
- 	}
- 	release_head(c, BASEHD);
- 
-@@ -1368,8 +1392,6 @@ int ubifs_jnl_rename(struct ubifs_info *c, const struct inode *old_dir,
- 		err = ubifs_tnc_add_nm(c, &key, lnum, offs, dlen2, hash_dent2, old_nm);
- 		if (err)
- 			goto out_ro;
+-/**
+- * lock_2_inodes - a wrapper for locking two UBIFS inodes.
+- * @inode1: first inode
+- * @inode2: second inode
+- *
+- * We do not implement any tricks to guarantee strict lock ordering, because
+- * VFS has already done it for us on the @i_mutex. So this is just a simple
+- * wrapper function.
+- */
+-static void lock_2_inodes(struct inode *inode1, struct inode *inode2)
+-{
+-	mutex_lock_nested(&ubifs_inode(inode1)->ui_mutex, WB_MUTEX_1);
+-	mutex_lock_nested(&ubifs_inode(inode2)->ui_mutex, WB_MUTEX_2);
+-}
 -
--		ubifs_delete_orphan(c, whiteout->i_ino);
- 	} else {
- 		err = ubifs_add_dirt(c, lnum, dlen2);
- 		if (err)
-@@ -1390,6 +1412,15 @@ int ubifs_jnl_rename(struct ubifs_info *c, const struct inode *old_dir,
- 		offs += ALIGN(ilen, 8);
- 	}
- 
-+	if (whiteout) {
-+		ino_key_init(c, &key, whiteout->i_ino);
-+		err = ubifs_tnc_add(c, &key, lnum, offs, wlen,
-+				    hash_whiteout_inode);
-+		if (err)
-+			goto out_ro;
-+		offs += ALIGN(wlen, 8);
-+	}
-+
- 	ino_key_init(c, &key, old_dir->i_ino);
- 	err = ubifs_tnc_add(c, &key, lnum, offs, plen, hash_old_dir);
- 	if (err)
-@@ -1410,6 +1441,11 @@ int ubifs_jnl_rename(struct ubifs_info *c, const struct inode *old_dir,
- 		new_ui->synced_i_size = new_ui->ui_size;
- 		spin_unlock(&new_ui->ui_lock);
- 	}
-+	/*
-+	 * No need to mark whiteout inode clean.
-+	 * Whiteout doesn't have non-zero size, no need to update
-+	 * synced_i_size for whiteout_ui.
-+	 */
- 	mark_inode_clean(c, ubifs_inode(old_dir));
- 	if (move)
- 		mark_inode_clean(c, ubifs_inode(new_dir));
+-/**
+- * unlock_2_inodes - a wrapper for unlocking two UBIFS inodes.
+- * @inode1: first inode
+- * @inode2: second inode
+- */
+-static void unlock_2_inodes(struct inode *inode1, struct inode *inode2)
+-{
+-	mutex_unlock(&ubifs_inode(inode2)->ui_mutex);
+-	mutex_unlock(&ubifs_inode(inode1)->ui_mutex);
+-}
+-
+ static int ubifs_link(struct dentry *old_dentry, struct inode *dir,
+ 		      struct dentry *dentry)
+ {
 
