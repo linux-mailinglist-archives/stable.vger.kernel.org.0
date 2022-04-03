@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2694C4F095D
-	for <lists+stable@lfdr.de>; Sun,  3 Apr 2022 14:32:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B06144F095C
+	for <lists+stable@lfdr.de>; Sun,  3 Apr 2022 14:32:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238694AbiDCMd6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 3 Apr 2022 08:33:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45050 "EHLO
+        id S241484AbiDCMdz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 3 Apr 2022 08:33:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45018 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242131AbiDCMd6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 3 Apr 2022 08:33:58 -0400
+        with ESMTP id S238694AbiDCMdz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 3 Apr 2022 08:33:55 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6626235854
-        for <stable@vger.kernel.org>; Sun,  3 Apr 2022 05:32:04 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 887E735256
+        for <stable@vger.kernel.org>; Sun,  3 Apr 2022 05:32:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E78B26113A
-        for <stable@vger.kernel.org>; Sun,  3 Apr 2022 12:32:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F108FC340ED;
-        Sun,  3 Apr 2022 12:32:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 242B061139
+        for <stable@vger.kernel.org>; Sun,  3 Apr 2022 12:32:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A4B6C340ED;
+        Sun,  3 Apr 2022 12:31:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648989123;
-        bh=Vtz0xC+OpegWiDe35RBXNo5gTeaJwVgnt0fpUPxXb/4=;
+        s=korg; t=1648989120;
+        bh=dYTMN68DzHgZkKbKTkYzglr5IQqlLk4I2Fu9I/ZkWoQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=lDovvESxfBuWKVQ8kNS20CuAaaWma2evdmZq4bZ23X1jpgDwr7Bimn8HTNdHgCNrW
-         7Au/XEO8wwCoe/gGayazH+z2jo2gvS31Zg2exlg8RNT+Obgoj6+ViwJdpcvrCJ8BPt
-         zkS50DKjSwlKd2DLLwdjJ0jx3b9OME9yLbB9V30g=
-Subject: FAILED: patch "[PATCH] rtc: check if __rtc_read_time was successful" failed to apply to 4.14-stable tree
+        b=NSVWZzv3CkmrnlYpF3UXVi07QP324yJ0PJV25PoT2WeTnnsaUdqGz0sjlb/4T95CQ
+         zOlYLMfEncVb50VjnNorVo9jMXR98Bxvm0riqWe/u5cWxC0sXLza1m33zoNHqp7r8w
+         Gpvj/khH3e8p9E7IrElXrPWo50Z2eI8XVuiI4pzs=
+Subject: FAILED: patch "[PATCH] rtc: check if __rtc_read_time was successful" failed to apply to 4.19-stable tree
 To:     trix@redhat.com, alexandre.belloni@bootlin.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sun, 03 Apr 2022 14:31:50 +0200
-Message-ID: <164898911015721@kroah.com>
+Message-ID: <164898911021489@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
