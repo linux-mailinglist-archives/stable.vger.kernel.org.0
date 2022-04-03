@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 29A2D4F0917
-	for <lists+stable@lfdr.de>; Sun,  3 Apr 2022 13:39:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 53FA24F0919
+	for <lists+stable@lfdr.de>; Sun,  3 Apr 2022 13:41:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349507AbiDCLlY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 3 Apr 2022 07:41:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34750 "EHLO
+        id S1347222AbiDCLnH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 3 Apr 2022 07:43:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39742 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238157AbiDCLlX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 3 Apr 2022 07:41:23 -0400
+        with ESMTP id S238157AbiDCLnG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 3 Apr 2022 07:43:06 -0400
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C01FFCD
-        for <stable@vger.kernel.org>; Sun,  3 Apr 2022 04:39:29 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9325A3968F
+        for <stable@vger.kernel.org>; Sun,  3 Apr 2022 04:41:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 1AC74CE0B85
-        for <stable@vger.kernel.org>; Sun,  3 Apr 2022 11:39:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39275C340ED;
-        Sun,  3 Apr 2022 11:39:26 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 0ED86CE0D07
+        for <stable@vger.kernel.org>; Sun,  3 Apr 2022 11:41:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CD05C340ED;
+        Sun,  3 Apr 2022 11:41:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648985966;
-        bh=lL5nEbP/rTinE8FfRb3aUPZT+8x5/KmN+AyDB99ijrU=;
+        s=korg; t=1648986069;
+        bh=D/YOg3vpON6UXh53ik260Qi0mtLll7Q+Cqj87wLwC4g=;
         h=Subject:To:Cc:From:Date:From;
-        b=gPVWLLG3IAQy1kjKH90wUHQnyHtTdOoaaaJEQTXLIzRmOchtIHyKVg4ZdwVU5ePyL
-         ubcE8NzJPeMfI3TgEnZtOL6k8srUHXTJuxf7bfjnc+vh5UuDMKcDCEIYHZLlhGnbJT
-         LQugo3ITyktVd8UypOtsYId2hPDcwuvrUML+O6bs=
-Subject: FAILED: patch "[PATCH] ubifs: Fix to add refcount once page is set private" failed to apply to 4.9-stable tree
-To:     chengzhihao1@huawei.com, richard@nod.at
+        b=mc+uknTWg+Krn+II5Y27JHR6sBLVXqzl1RXuSA5AuphOCBelyBhRvboo68jaeV8T+
+         XZhevcUJZhaHyfHjutBUIm1Flm6FiRcddqom+YtSw+lDim0oTc2DGYvb5Oos0YT57u
+         hgDH4Krx/qHnOAe920xClP68q428ZPVnwK68mtu4=
+Subject: FAILED: patch "[PATCH] nvme: allow duplicate NSIDs for private namespaces" failed to apply to 5.10-stable tree
+To:     sungup.moon@samsung.com, hch@lst.de, sagi@grimberg.me
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 03 Apr 2022 13:39:16 +0200
-Message-ID: <1648985956251182@kroah.com>
+Date:   Sun, 03 Apr 2022 13:41:06 +0200
+Message-ID: <164898606640119@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-6.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URI_DOTEDU autolearn=ham
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,182 +59,128 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 3b67db8a6ca83e6ff90b756d3da0c966f61cd37b Mon Sep 17 00:00:00 2001
-From: Zhihao Cheng <chengzhihao1@huawei.com>
-Date: Mon, 27 Dec 2021 11:22:41 +0800
-Subject: [PATCH] ubifs: Fix to add refcount once page is set private
+From 5974ea7ce0f9a5987fc8cf5e08ad6e3e70bb542e Mon Sep 17 00:00:00 2001
+From: Sungup Moon <sungup.moon@samsung.com>
+Date: Mon, 14 Mar 2022 20:05:45 +0900
+Subject: [PATCH] nvme: allow duplicate NSIDs for private namespaces
 
-MM defined the rule [1] very clearly that once page was set with PG_private
-flag, we should increment the refcount in that page, also main flows like
-pageout(), migrate_page() will assume there is one additional page
-reference count if page_has_private() returns true. Otherwise, we may
-get a BUG in page migration:
+A NVMe subsystem with multiple controller can have private namespaces
+that use the same NSID under some conditions:
 
-  page:0000000080d05b9d refcount:-1 mapcount:0 mapping:000000005f4d82a8
-  index:0xe2 pfn:0x14c12
-  aops:ubifs_file_address_operations [ubifs] ino:8f1 dentry name:"f30e"
-  flags: 0x1fffff80002405(locked|uptodate|owner_priv_1|private|node=0|
-  zone=1|lastcpupid=0x1fffff)
-  page dumped because: VM_BUG_ON_PAGE(page_count(page) != 0)
-  ------------[ cut here ]------------
-  kernel BUG at include/linux/page_ref.h:184!
-  invalid opcode: 0000 [#1] SMP
-  CPU: 3 PID: 38 Comm: kcompactd0 Not tainted 5.15.0-rc5
-  RIP: 0010:migrate_page_move_mapping+0xac3/0xe70
-  Call Trace:
-    ubifs_migrate_page+0x22/0xc0 [ubifs]
-    move_to_new_page+0xb4/0x600
-    migrate_pages+0x1523/0x1cc0
-    compact_zone+0x8c5/0x14b0
-    kcompactd+0x2bc/0x560
-    kthread+0x18c/0x1e0
-    ret_from_fork+0x1f/0x30
+ "If Namespace Management, ANA Reporting, or NVM Sets are supported, the
+  NSIDs shall be unique within the NVM subsystem. If the Namespace
+  Management, ANA Reporting, and NVM Sets are not supported, then NSIDs:
+   a) for shared namespace shall be unique; and
+   b) for private namespace are not required to be unique."
 
-Before the time, we should make clean a concept, what does refcount means
-in page gotten from grab_cache_page_write_begin(). There are 2 situations:
-Situation 1: refcount is 3, page is created by __page_cache_alloc.
-  TYPE_A - the write process is using this page
-  TYPE_B - page is assigned to one certain mapping by calling
-	   __add_to_page_cache_locked()
-  TYPE_C - page is added into pagevec list corresponding current cpu by
-	   calling lru_cache_add()
-Situation 2: refcount is 2, page is gotten from the mapping's tree
-  TYPE_B - page has been assigned to one certain mapping
-  TYPE_A - the write process is using this page (by calling
-	   page_cache_get_speculative())
-Filesystem releases one refcount by calling put_page() in xxx_write_end(),
-the released refcount corresponds to TYPE_A (write task is using it). If
-there are any processes using a page, page migration process will skip the
-page by judging whether expected_page_refs() equals to page refcount.
+Reference: Section 6.1.6 NSID and Namespace Usage; NVM Express 1.4c spec.
 
-The BUG is caused by following process:
-    PA(cpu 0)                           kcompactd(cpu 1)
-				compact_zone
-ubifs_write_begin
-  page_a = grab_cache_page_write_begin
-    add_to_page_cache_lru
-      lru_cache_add
-        pagevec_add // put page into cpu 0's pagevec
-  (refcnf = 3, for page creation process)
-ubifs_write_end
-  SetPagePrivate(page_a) // doesn't increase page count !
-  unlock_page(page_a)
-  put_page(page_a)  // refcnt = 2
-				[...]
+Make sure this specific setup is supported in Linux.
 
-    PB(cpu 0)
-filemap_read
-  filemap_get_pages
-    add_to_page_cache_lru
-      lru_cache_add
-        __pagevec_lru_add // traverse all pages in cpu 0's pagevec
-	  __pagevec_lru_add_fn
-	    SetPageLRU(page_a)
-				isolate_migratepages
-                                  isolate_migratepages_block
-				    get_page_unless_zero(page_a)
-				    // refcnt = 3
-                                      list_add(page_a, from_list)
-				migrate_pages(from_list)
-				  __unmap_and_move
-				    move_to_new_page
-				      ubifs_migrate_page(page_a)
-				        migrate_page_move_mapping
-					  expected_page_refs get 3
-                                  (migration[1] + mapping[1] + private[1])
-	 release_pages
-	   put_page_testzero(page_a) // refcnt = 3
-                                          page_ref_freeze  // refcnt = 0
-	     page_ref_dec_and_test(0 - 1 = -1)
-                                          page_ref_unfreeze
-                                            VM_BUG_ON_PAGE(-1 != 0, page)
+Fixes: 9ad1927a3bc2 ("nvme: always search for namespace head")
+Signed-off-by: Sungup Moon <sungup.moon@samsung.com>
+[hch: refactored and fixed the controller vs subsystem based naming
+      conflict]
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
 
-UBIFS doesn't increase the page refcount after setting private flag, which
-leads to page migration task believes the page is not used by any other
-processes, so the page is migrated. This causes concurrent accessing on
-page refcount between put_page() called by other process(eg. read process
-calls lru_cache_add) and page_ref_unfreeze() called by migration task.
-
-Actually zhangjun has tried to fix this problem [2] by recalculating page
-refcnt in ubifs_migrate_page(). It's better to follow MM rules [1], because
-just like Kirill suggested in [2], we need to check all users of
-page_has_private() helper. Like f2fs does in [3], fix it by adding/deleting
-refcount when setting/clearing private for a page. BTW, according to [4],
-we set 'page->private' as 1 because ubifs just simply SetPagePrivate().
-And, [5] provided a common helper to set/clear page private, ubifs can
-use this helper following the example of iomap, afs, btrfs, etc.
-
-Jump [6] to find a reproducer.
-
-[1] https://lore.kernel.org/lkml/2b19b3c4-2bc4-15fa-15cc-27a13e5c7af1@aol.com
-[2] https://www.spinics.net/lists/linux-mtd/msg04018.html
-[3] http://lkml.iu.edu/hypermail/linux/kernel/1903.0/03313.html
-[4] https://lore.kernel.org/linux-f2fs-devel/20210422154705.GO3596236@casper.infradead.org
-[5] https://lore.kernel.org/all/20200517214718.468-1-guoqing.jiang@cloud.ionos.com
-[6] https://bugzilla.kernel.org/show_bug.cgi?id=214961
-
-Fixes: 1e51764a3c2ac0 ("UBIFS: add new flash file system")
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
-
-diff --git a/fs/ubifs/file.c b/fs/ubifs/file.c
-index 5cfa28cd00cd..6b45a037a047 100644
---- a/fs/ubifs/file.c
-+++ b/fs/ubifs/file.c
-@@ -570,7 +570,7 @@ static int ubifs_write_end(struct file *file, struct address_space *mapping,
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index ccc5877d514b..6dc05c1fa7db 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -3627,15 +3627,20 @@ static const struct attribute_group *nvme_dev_attr_groups[] = {
+ 	NULL,
+ };
+ 
+-static struct nvme_ns_head *nvme_find_ns_head(struct nvme_subsystem *subsys,
++static struct nvme_ns_head *nvme_find_ns_head(struct nvme_ctrl *ctrl,
+ 		unsigned nsid)
+ {
+ 	struct nvme_ns_head *h;
+ 
+-	lockdep_assert_held(&subsys->lock);
++	lockdep_assert_held(&ctrl->subsys->lock);
+ 
+-	list_for_each_entry(h, &subsys->nsheads, entry) {
+-		if (h->ns_id != nsid)
++	list_for_each_entry(h, &ctrl->subsys->nsheads, entry) {
++		/*
++		 * Private namespaces can share NSIDs under some conditions.
++		 * In that case we can't use the same ns_head for namespaces
++		 * with the same NSID.
++		 */
++		if (h->ns_id != nsid || !nvme_is_unique_nsid(ctrl, h))
+ 			continue;
+ 		if (!list_empty(&h->list) && nvme_tryget_ns_head(h))
+ 			return h;
+@@ -3829,7 +3834,7 @@ static int nvme_init_ns_head(struct nvme_ns *ns, unsigned nsid,
  	}
  
- 	if (!PagePrivate(page)) {
--		SetPagePrivate(page);
-+		attach_page_private(page, (void *)1);
- 		atomic_long_inc(&c->dirty_pg_cnt);
- 		__set_page_dirty_nobuffers(page);
- 	}
-@@ -947,7 +947,7 @@ static int do_writepage(struct page *page, int len)
- 		release_existing_page_budget(c);
+ 	mutex_lock(&ctrl->subsys->lock);
+-	head = nvme_find_ns_head(ctrl->subsys, nsid);
++	head = nvme_find_ns_head(ctrl, nsid);
+ 	if (!head) {
+ 		ret = nvme_subsys_check_duplicate_ids(ctrl->subsys, ids);
+ 		if (ret) {
+diff --git a/drivers/nvme/host/multipath.c b/drivers/nvme/host/multipath.c
+index c97d7f843977..ba90555124c4 100644
+--- a/drivers/nvme/host/multipath.c
++++ b/drivers/nvme/host/multipath.c
+@@ -482,10 +482,11 @@ int nvme_mpath_alloc_disk(struct nvme_ctrl *ctrl, struct nvme_ns_head *head)
  
- 	atomic_long_dec(&c->dirty_pg_cnt);
--	ClearPagePrivate(page);
-+	detach_page_private(page);
- 	ClearPageChecked(page);
- 
- 	kunmap(page);
-@@ -1304,7 +1304,7 @@ static void ubifs_invalidatepage(struct page *page, unsigned int offset,
- 		release_existing_page_budget(c);
- 
- 	atomic_long_dec(&c->dirty_pg_cnt);
--	ClearPagePrivate(page);
-+	detach_page_private(page);
- 	ClearPageChecked(page);
- }
- 
-@@ -1471,8 +1471,8 @@ static int ubifs_migrate_page(struct address_space *mapping,
- 		return rc;
- 
- 	if (PagePrivate(page)) {
--		ClearPagePrivate(page);
--		SetPagePrivate(newpage);
-+		detach_page_private(page);
-+		attach_page_private(newpage, (void *)1);
- 	}
- 
- 	if (mode != MIGRATE_SYNC_NO_COPY)
-@@ -1496,7 +1496,7 @@ static int ubifs_releasepage(struct page *page, gfp_t unused_gfp_flags)
+ 	/*
+ 	 * Add a multipath node if the subsystems supports multiple controllers.
+-	 * We also do this for private namespaces as the namespace sharing data could
+-	 * change after a rescan.
++	 * We also do this for private namespaces as the namespace sharing flag
++	 * could change after a rescan.
+ 	 */
+-	if (!(ctrl->subsys->cmic & NVME_CTRL_CMIC_MULTI_CTRL) || !multipath)
++	if (!(ctrl->subsys->cmic & NVME_CTRL_CMIC_MULTI_CTRL) ||
++	    !nvme_is_unique_nsid(ctrl, head) || !multipath)
  		return 0;
- 	ubifs_assert(c, PagePrivate(page));
- 	ubifs_assert(c, 0);
--	ClearPagePrivate(page);
-+	detach_page_private(page);
- 	ClearPageChecked(page);
- 	return 1;
+ 
+ 	head->disk = blk_alloc_disk(ctrl->numa_node);
+diff --git a/drivers/nvme/host/nvme.h b/drivers/nvme/host/nvme.h
+index 1ea908d43e17..1552a48719d6 100644
+--- a/drivers/nvme/host/nvme.h
++++ b/drivers/nvme/host/nvme.h
+@@ -722,6 +722,25 @@ static inline bool nvme_check_ready(struct nvme_ctrl *ctrl, struct request *rq,
+ 		return queue_live;
+ 	return __nvme_check_ready(ctrl, rq, queue_live);
  }
-@@ -1567,7 +1567,7 @@ static vm_fault_t ubifs_vm_page_mkwrite(struct vm_fault *vmf)
- 	else {
- 		if (!PageChecked(page))
- 			ubifs_convert_page_budget(c);
--		SetPagePrivate(page);
-+		attach_page_private(page, (void *)1);
- 		atomic_long_inc(&c->dirty_pg_cnt);
- 		__set_page_dirty_nobuffers(page);
- 	}
++
++/*
++ * NSID shall be unique for all shared namespaces, or if at least one of the
++ * following conditions is met:
++ *   1. Namespace Management is supported by the controller
++ *   2. ANA is supported by the controller
++ *   3. NVM Set are supported by the controller
++ *
++ * In other case, private namespace are not required to report a unique NSID.
++ */
++static inline bool nvme_is_unique_nsid(struct nvme_ctrl *ctrl,
++		struct nvme_ns_head *head)
++{
++	return head->shared ||
++		(ctrl->oacs & NVME_CTRL_OACS_NS_MNGT_SUPP) ||
++		(ctrl->subsys->cmic & NVME_CTRL_CMIC_ANA) ||
++		(ctrl->ctratt & NVME_CTRL_CTRATT_NVM_SETS);
++}
++
+ int nvme_submit_sync_cmd(struct request_queue *q, struct nvme_command *cmd,
+ 		void *buf, unsigned bufflen);
+ int __nvme_submit_sync_cmd(struct request_queue *q, struct nvme_command *cmd,
+diff --git a/include/linux/nvme.h b/include/linux/nvme.h
+index 9dbc3ef4daf7..2dcee34d467d 100644
+--- a/include/linux/nvme.h
++++ b/include/linux/nvme.h
+@@ -345,6 +345,7 @@ enum {
+ 	NVME_CTRL_ONCS_TIMESTAMP		= 1 << 6,
+ 	NVME_CTRL_VWC_PRESENT			= 1 << 0,
+ 	NVME_CTRL_OACS_SEC_SUPP                 = 1 << 0,
++	NVME_CTRL_OACS_NS_MNGT_SUPP		= 1 << 3,
+ 	NVME_CTRL_OACS_DIRECTIVES		= 1 << 5,
+ 	NVME_CTRL_OACS_DBBUF_SUPP		= 1 << 8,
+ 	NVME_CTRL_LPA_CMD_EFFECTS_LOG		= 1 << 1,
 
