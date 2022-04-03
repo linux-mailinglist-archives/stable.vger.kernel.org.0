@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D3264F091F
-	for <lists+stable@lfdr.de>; Sun,  3 Apr 2022 13:45:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E8DE4F0922
+	for <lists+stable@lfdr.de>; Sun,  3 Apr 2022 13:45:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240628AbiDCLqz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 3 Apr 2022 07:46:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45442 "EHLO
+        id S238825AbiDCLrQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 3 Apr 2022 07:47:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45726 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357085AbiDCLqy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 3 Apr 2022 07:46:54 -0400
+        with ESMTP id S242965AbiDCLrP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 3 Apr 2022 07:47:15 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7763396A1
-        for <stable@vger.kernel.org>; Sun,  3 Apr 2022 04:45:00 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C34E240AF
+        for <stable@vger.kernel.org>; Sun,  3 Apr 2022 04:45:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 37085610A3
-        for <stable@vger.kernel.org>; Sun,  3 Apr 2022 11:45:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B706C340ED;
-        Sun,  3 Apr 2022 11:44:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DD5C460FE8
+        for <stable@vger.kernel.org>; Sun,  3 Apr 2022 11:45:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F04F2C340ED;
+        Sun,  3 Apr 2022 11:45:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648986299;
-        bh=aIUoojm1iyzidBz/iIeqKHqOCgGiuhTFbpNbTnoiSCQ=;
+        s=korg; t=1648986320;
+        bh=vYi/5t6VXKSz7FW/1OBfxWcafiNoDywl8ZCQFrL1tQ0=;
         h=Subject:To:Cc:From:Date:From;
-        b=WA3hxfHGfOZvMjkE1hW6O9+h+ONf2gR8o3XfOkgCfvS+6D0TAfXcyiFX3O6EFMJad
-         pe4JdrDDbI9QXpGu4MCwaE8wqycvS7oc8Hn4MGeX0E3JexXcD6z5p+kA+rkVSAg7aD
-         Gdf7dpLH6xFUYpRkaN9TDp157njpLQf45YmouX6k=
-Subject: FAILED: patch "[PATCH] ubifs: Fix to add refcount once page is set private" failed to apply to 4.19-stable tree
+        b=qDqMUqFgubtgFkRh4llGVtxgrgPWmvjtxIi1kV9VZh13pG5CGxGDnHY459J+2iNfu
+         /ykMHhwwExvgCamX4bl2zoJXaqCnPbZrhNOja3XGn83PPARzITNFLgoCMp0FhHoAmp
+         /phLIM/vfbtJmsn5MDiCTkcgx+JO42DYNUiW4V9Q=
+Subject: FAILED: patch "[PATCH] ubifs: Fix to add refcount once page is set private" failed to apply to 5.4-stable tree
 To:     chengzhihao1@huawei.com, richard@nod.at
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 03 Apr 2022 13:44:45 +0200
-Message-ID: <1648986285229193@kroah.com>
+Date:   Sun, 03 Apr 2022 13:45:17 +0200
+Message-ID: <164898631720297@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
