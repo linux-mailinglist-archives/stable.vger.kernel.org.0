@@ -2,42 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CD694F0831
-	for <lists+stable@lfdr.de>; Sun,  3 Apr 2022 08:52:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41CF24F08B7
+	for <lists+stable@lfdr.de>; Sun,  3 Apr 2022 12:25:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232620AbiDCGy1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 3 Apr 2022 02:54:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47830 "EHLO
+        id S233953AbiDCK05 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 3 Apr 2022 06:26:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40410 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229899AbiDCGy1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 3 Apr 2022 02:54:27 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F094033A3E
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 23:52:33 -0700 (PDT)
+        with ESMTP id S229719AbiDCK04 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 3 Apr 2022 06:26:56 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C37DE3703B;
+        Sun,  3 Apr 2022 03:25:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A0566B80BA2
-        for <stable@vger.kernel.org>; Sun,  3 Apr 2022 06:52:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 044E2C340ED;
-        Sun,  3 Apr 2022 06:52:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 87E5BB80A09;
+        Sun,  3 Apr 2022 10:25:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A416FC340ED;
+        Sun,  3 Apr 2022 10:24:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648968751;
-        bh=fnLbZxLuWAfhDnPon+cSShmHiURDc/FbpCVOq2BewNc=;
-        h=Subject:To:Cc:From:Date:From;
-        b=Xx7fvYcbaX868N3RkSpO263SAFTmOi+BN8pO4V6MrXfJBsExrLcStYCxk1a5rQAuT
-         Auw4lgXLHawEzv+t2wSQvfPqRisgS5H9gZZwjDJ/5hS8WBovv0LIVJYYs703xXqUyG
-         25CtSZHJqKA7DQDz/YAHN21wTxQ4aVpjTEx/yOIg=
-Subject: FAILED: patch "[PATCH] KVM: x86/mmu: do compare-and-exchange of gPTE via the user" failed to apply to 5.16-stable tree
-To:     pbonzini@redhat.com, kangel@zju.edu.cn, mlevitsk@redhat.com,
-        pgn@zju.edu.cn, qiuhao@sysec.org, tadeusz.struk@linaro.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 03 Apr 2022 08:52:28 +0200
-Message-ID: <164896874892186@kroah.com>
+        s=korg; t=1648981499;
+        bh=RvHM58+WCVSmdblL+XcB4dmfmhFU3wC8gZT9rrOz3DY=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=WtvY7jHbpQ0hk9paN5/seBFJmvgS7OB/skxReyOVy25PKTDkHbZIXjtPyvNtp4efi
+         pH07baedTwQD2WyOQxBiuKoECvft8ECfBQk4gzgQDOHlQFvTF37qBe2plosclWSxLq
+         lJgFirF+EEvFH+1nsHa8v8EAqJShGHYRcDcP55c4=
+Date:   Sun, 3 Apr 2022 12:24:48 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Ammar Faizi <ammarfaizi2@gnuweeb.org>
+Cc:     stable@vger.kernel.org, Daniel Baluta <daniel.baluta@nxp.com>,
+        Jaroslav Kysela <perex@perex.cz>,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Keyon Jie <yang.jie@linux.intel.com>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Peter Ujfalusi <peter.ujfalusi@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Rander Wang <rander.wang@intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Takashi Iwai <tiwai@suse.com>,
+        sound-open-firmware@alsa-project.org, alsa-devel@alsa-project.org,
+        linux-kernel@vger.kernel.org, gwml@vger.gnuweeb.org
+Subject: Re: [PATCH for-stable] ASoC: SOF: Intel: Fix NULL ptr dereference
+ when ENOMEM
+Message-ID: <Ykl18HLtHn/xwtdC@kroah.com>
+References: <20220402163026.11299-1-ammarfaizi2@gnuweeb.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220402163026.11299-1-ammarfaizi2@gnuweeb.org>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -48,160 +61,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Sat, Apr 02, 2022 at 11:30:26PM +0700, Ammar Faizi wrote:
+> 
+> Hello Greg,
+> 
+> commit b7fb0ae09009d076964afe4c1a2bde1ee2bd88a9 upstream.
+> 
+> Please take these two backport patches:
+> 1. For Linux 5.4 LTS.
+> 2. For Linux 5.10 LTS.
+> 
+> Both will be sent as a reply to this email.
+> 
+> Thank you!
+> 
+> =====
+> 
+> 5.4 failed report:
+> https://lore.kernel.org/stable/164889915082249@kroah.com/
+> 
+> 
+> 5.10 failed report:
+> https://lore.kernel.org/stable/164889914960214@kroah.com/
+> 
+> -- 
+> Ammar Faizi
+> 
 
-The patch below does not apply to the 5.16-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
-
-thanks,
+Both now queued up, thanks!
 
 greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 2a8859f373b0a86f0ece8ec8312607eacf12485d Mon Sep 17 00:00:00 2001
-From: Paolo Bonzini <pbonzini@redhat.com>
-Date: Tue, 29 Mar 2022 12:56:24 -0400
-Subject: [PATCH] KVM: x86/mmu: do compare-and-exchange of gPTE via the user
- address
-
-FNAME(cmpxchg_gpte) is an inefficient mess.  It is at least decent if it
-can go through get_user_pages_fast(), but if it cannot then it tries to
-use memremap(); that is not just terribly slow, it is also wrong because
-it assumes that the VM_PFNMAP VMA is contiguous.
-
-The right way to do it would be to do the same thing as
-hva_to_pfn_remapped() does since commit add6a0cd1c5b ("KVM: MMU: try to
-fix up page faults before giving up", 2016-07-05), using follow_pte()
-and fixup_user_fault() to determine the correct address to use for
-memremap().  To do this, one could for example extract hva_to_pfn()
-for use outside virt/kvm/kvm_main.c.  But really there is no reason to
-do that either, because there is already a perfectly valid address to
-do the cmpxchg() on, only it is a userspace address.  That means doing
-user_access_begin()/user_access_end() and writing the code in assembly
-to handle exceptions correctly.  Worse, the guest PTE can be 8-byte
-even on i686 so there is the extra complication of using cmpxchg8b to
-account for.  But at least it is an efficient mess.
-
-(Thanks to Linus for suggesting improvement on the inline assembly).
-
-Reported-by: Qiuhao Li <qiuhao@sysec.org>
-Reported-by: Gaoning Pan <pgn@zju.edu.cn>
-Reported-by: Yongkang Jia <kangel@zju.edu.cn>
-Reported-by: syzbot+6cde2282daa792c49ab8@syzkaller.appspotmail.com
-Debugged-by: Tadeusz Struk <tadeusz.struk@linaro.org>
-Tested-by: Maxim Levitsky <mlevitsk@redhat.com>
-Cc: stable@vger.kernel.org
-Fixes: bd53cb35a3e9 ("X86/KVM: Handle PFNs outside of kernel reach when touching GPTEs")
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-
-diff --git a/arch/x86/kvm/mmu/paging_tmpl.h b/arch/x86/kvm/mmu/paging_tmpl.h
-index 8621188b46df..01fee5f67ac3 100644
---- a/arch/x86/kvm/mmu/paging_tmpl.h
-+++ b/arch/x86/kvm/mmu/paging_tmpl.h
-@@ -34,9 +34,8 @@
- 	#define PT_HAVE_ACCESSED_DIRTY(mmu) true
- 	#ifdef CONFIG_X86_64
- 	#define PT_MAX_FULL_LEVELS PT64_ROOT_MAX_LEVEL
--	#define CMPXCHG cmpxchg
-+	#define CMPXCHG "cmpxchgq"
- 	#else
--	#define CMPXCHG cmpxchg64
- 	#define PT_MAX_FULL_LEVELS 2
- 	#endif
- #elif PTTYPE == 32
-@@ -52,7 +51,7 @@
- 	#define PT_GUEST_DIRTY_SHIFT PT_DIRTY_SHIFT
- 	#define PT_GUEST_ACCESSED_SHIFT PT_ACCESSED_SHIFT
- 	#define PT_HAVE_ACCESSED_DIRTY(mmu) true
--	#define CMPXCHG cmpxchg
-+	#define CMPXCHG "cmpxchgl"
- #elif PTTYPE == PTTYPE_EPT
- 	#define pt_element_t u64
- 	#define guest_walker guest_walkerEPT
-@@ -65,7 +64,9 @@
- 	#define PT_GUEST_DIRTY_SHIFT 9
- 	#define PT_GUEST_ACCESSED_SHIFT 8
- 	#define PT_HAVE_ACCESSED_DIRTY(mmu) ((mmu)->ept_ad)
--	#define CMPXCHG cmpxchg64
-+	#ifdef CONFIG_X86_64
-+	#define CMPXCHG "cmpxchgq"
-+	#endif
- 	#define PT_MAX_FULL_LEVELS PT64_ROOT_MAX_LEVEL
- #else
- 	#error Invalid PTTYPE value
-@@ -147,43 +148,36 @@ static int FNAME(cmpxchg_gpte)(struct kvm_vcpu *vcpu, struct kvm_mmu *mmu,
- 			       pt_element_t __user *ptep_user, unsigned index,
- 			       pt_element_t orig_pte, pt_element_t new_pte)
- {
--	int npages;
--	pt_element_t ret;
--	pt_element_t *table;
--	struct page *page;
--
--	npages = get_user_pages_fast((unsigned long)ptep_user, 1, FOLL_WRITE, &page);
--	if (likely(npages == 1)) {
--		table = kmap_atomic(page);
--		ret = CMPXCHG(&table[index], orig_pte, new_pte);
--		kunmap_atomic(table);
--
--		kvm_release_page_dirty(page);
--	} else {
--		struct vm_area_struct *vma;
--		unsigned long vaddr = (unsigned long)ptep_user & PAGE_MASK;
--		unsigned long pfn;
--		unsigned long paddr;
--
--		mmap_read_lock(current->mm);
--		vma = find_vma_intersection(current->mm, vaddr, vaddr + PAGE_SIZE);
--		if (!vma || !(vma->vm_flags & VM_PFNMAP)) {
--			mmap_read_unlock(current->mm);
--			return -EFAULT;
--		}
--		pfn = ((vaddr - vma->vm_start) >> PAGE_SHIFT) + vma->vm_pgoff;
--		paddr = pfn << PAGE_SHIFT;
--		table = memremap(paddr, PAGE_SIZE, MEMREMAP_WB);
--		if (!table) {
--			mmap_read_unlock(current->mm);
--			return -EFAULT;
--		}
--		ret = CMPXCHG(&table[index], orig_pte, new_pte);
--		memunmap(table);
--		mmap_read_unlock(current->mm);
--	}
-+	signed char r;
- 
--	return (ret != orig_pte);
-+	if (!user_access_begin(ptep_user, sizeof(pt_element_t)))
-+		return -EFAULT;
-+
-+#ifdef CMPXCHG
-+	asm volatile("1:" LOCK_PREFIX CMPXCHG " %[new], %[ptr]\n"
-+		     "setnz %b[r]\n"
-+		     "2:"
-+		     _ASM_EXTABLE_TYPE_REG(1b, 2b, EX_TYPE_EFAULT_REG, %k[r])
-+		     : [ptr] "+m" (*ptep_user),
-+		       [old] "+a" (orig_pte),
-+		       [r] "=q" (r)
-+		     : [new] "r" (new_pte)
-+		     : "memory");
-+#else
-+	asm volatile("1:" LOCK_PREFIX "cmpxchg8b %[ptr]\n"
-+		     "setnz %b[r]\n"
-+		     "2:"
-+		     _ASM_EXTABLE_TYPE_REG(1b, 2b, EX_TYPE_EFAULT_REG, %k[r])
-+		     : [ptr] "+m" (*ptep_user),
-+		       [old] "+A" (orig_pte),
-+		       [r] "=q" (r)
-+		     : [new_lo] "b" ((u32)new_pte),
-+		       [new_hi] "c" ((u32)(new_pte >> 32))
-+		     : "memory");
-+#endif
-+
-+	user_access_end();
-+	return r;
- }
- 
- static bool FNAME(prefetch_invalid_gpte)(struct kvm_vcpu *vcpu,
-
