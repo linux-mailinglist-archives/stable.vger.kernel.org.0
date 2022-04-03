@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 095B44F0905
-	for <lists+stable@lfdr.de>; Sun,  3 Apr 2022 13:37:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BD274F0907
+	for <lists+stable@lfdr.de>; Sun,  3 Apr 2022 13:38:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235730AbiDCLjN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 3 Apr 2022 07:39:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58430 "EHLO
+        id S243446AbiDCLjU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 3 Apr 2022 07:39:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58484 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231165AbiDCLjL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 3 Apr 2022 07:39:11 -0400
+        with ESMTP id S231165AbiDCLjU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 3 Apr 2022 07:39:20 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6334337005
-        for <stable@vger.kernel.org>; Sun,  3 Apr 2022 04:37:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8B1437005
+        for <stable@vger.kernel.org>; Sun,  3 Apr 2022 04:37:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EE8A060FE8
-        for <stable@vger.kernel.org>; Sun,  3 Apr 2022 11:37:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01A64C340F0;
-        Sun,  3 Apr 2022 11:37:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 70EEB61008
+        for <stable@vger.kernel.org>; Sun,  3 Apr 2022 11:37:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C442C340F0;
+        Sun,  3 Apr 2022 11:37:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648985837;
-        bh=PfmDRBcQLM1/iZdO3KXNZMQ262ZPfigN2zSrUYAvZCw=;
+        s=korg; t=1648985845;
+        bh=lAQ7ooPJic/NcEwGmQRfhvsejCy2cLkq3xfUOPE80pk=;
         h=Subject:To:Cc:From:Date:From;
-        b=Kl47zYWhrhS1BO380uCIiIlz8FnrrYdrwRNqgn4+4SdOGlYvYskeVhUInm6PDNqhs
-         KGW6tG8arQkcHWcYwex5D12Ld4pgheu/k2kQUaGshRGi5Sb3Ovcm/VhwcY4Ka3hcLV
-         rXpOBKQMnLX8SxdJt8OSrrUCmGtYrRyK10lRDIqE=
-Subject: FAILED: patch "[PATCH] ubifs: Fix deadlock in concurrent rename whiteout and inode" failed to apply to 4.9-stable tree
+        b=r/UifQkCG+XQEvW4zRL+yF2i4y2kWUybdchqXsIxnNH7OXSC8lM4mbqGbxtYPya1A
+         FmUGm1LP6dGU2rhUKbUOAeMKF0m4cDhA9eAMDsXqvcYyGnTP1sl68yXjxXT4QOjipy
+         tJI850Q6bi+IfmuqbVtf+k//xE2FZrWWpzbreaBA=
+Subject: FAILED: patch "[PATCH] ubifs: Fix deadlock in concurrent rename whiteout and inode" failed to apply to 4.14-stable tree
 To:     chengzhihao1@huawei.com, richard@nod.at
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 03 Apr 2022 13:37:14 +0200
-Message-ID: <16489858345152@kroah.com>
+Date:   Sun, 03 Apr 2022 13:37:15 +0200
+Message-ID: <164898583590107@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
