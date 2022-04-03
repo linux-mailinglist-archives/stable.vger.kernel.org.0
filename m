@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EF90C4F09DA
-	for <lists+stable@lfdr.de>; Sun,  3 Apr 2022 15:17:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 753D34F09D3
+	for <lists+stable@lfdr.de>; Sun,  3 Apr 2022 15:16:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349008AbiDCNTN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 3 Apr 2022 09:19:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45520 "EHLO
+        id S1358822AbiDCNSc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 3 Apr 2022 09:18:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44942 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358826AbiDCNS7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 3 Apr 2022 09:18:59 -0400
+        with ESMTP id S1358798AbiDCNS3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 3 Apr 2022 09:18:29 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E18A8286FA
-        for <stable@vger.kernel.org>; Sun,  3 Apr 2022 06:16:46 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84823E54
+        for <stable@vger.kernel.org>; Sun,  3 Apr 2022 06:16:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 676A5B80D33
-        for <stable@vger.kernel.org>; Sun,  3 Apr 2022 13:16:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D16E3C340ED;
-        Sun,  3 Apr 2022 13:16:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 40E0AB80D33
+        for <stable@vger.kernel.org>; Sun,  3 Apr 2022 13:16:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8CF6CC340F0;
+        Sun,  3 Apr 2022 13:16:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648991804;
-        bh=XGxzuKd6vFd+YrUbHjr9G86WSG4eGHonNveZZ2Y1t+g=;
+        s=korg; t=1648991792;
+        bh=fGkgNGc9jDnH9nUHGZ1ko0h8zl/R5H8b6BkC8vWXdkg=;
         h=Subject:To:Cc:From:Date:From;
-        b=atoaAW2nijsp3U9OWbMF7rvVLbVNSVduf7mmylPdm1cqosDGKGzyuLh9gYy9v07sW
-         eFL+vRiboMUsnoeBCQaRfodnPkUQ8OSCEoPdc6N4NT+KcGwfFdL3ahTXmia3ftb48+
-         Va1aqWEp6EJZxWA/eTggJ7SFEUfvU4GTAVZ91nhA=
-Subject: FAILED: patch "[PATCH] iwlwifi: yoyo: fix DBGI_SRAM ini dump header." failed to apply to 5.17-stable tree
+        b=UCj/VaGRs3TU2etNBqv2IY4WnNcYYAoEaskFJJBoK4mCY/f8Cpcrd9U8d/VR0pGvJ
+         YcQkh2rqMf4BJ9mOmz6DwGDGfhAwzDtyID9t/CBSaE3DQ+Th3BR03Oht9loOUib0Pr
+         7p9kZR0HJ71Z3iGk/zz03Nif4WTzF/ve8fJ9jiHE=
+Subject: FAILED: patch "[PATCH] iwlwifi: yoyo: fix DBGI_SRAM ini dump header." failed to apply to 5.15-stable tree
 To:     rotem.saado@intel.com, luciano.coelho@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sun, 03 Apr 2022 15:16:30 +0200
-Message-ID: <1648991790212197@kroah.com>
+Message-ID: <1648991790182207@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.17-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
