@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 27CB44F096F
-	for <lists+stable@lfdr.de>; Sun,  3 Apr 2022 14:33:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71E044F0971
+	for <lists+stable@lfdr.de>; Sun,  3 Apr 2022 14:35:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356296AbiDCMfb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 3 Apr 2022 08:35:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46230 "EHLO
+        id S1348771AbiDCMh1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 3 Apr 2022 08:37:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55438 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357917AbiDCMfa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 3 Apr 2022 08:35:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E472BEBA
-        for <stable@vger.kernel.org>; Sun,  3 Apr 2022 05:33:35 -0700 (PDT)
+        with ESMTP id S236325AbiDCMh1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 3 Apr 2022 08:37:27 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7275D31201
+        for <stable@vger.kernel.org>; Sun,  3 Apr 2022 05:35:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9B702B80D33
-        for <stable@vger.kernel.org>; Sun,  3 Apr 2022 12:33:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE3E6C340ED;
-        Sun,  3 Apr 2022 12:33:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EE4F4B80D33
+        for <stable@vger.kernel.org>; Sun,  3 Apr 2022 12:35:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34F37C340F0;
+        Sun,  3 Apr 2022 12:35:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648989213;
-        bh=IHFaEZTofqjw0z/tdgWMR2J+LEF52s+FkTbSXuJ4CRc=;
+        s=korg; t=1648989330;
+        bh=eOGfE+xezYMEPBbnc/vm0JLuSVYaJsYav7yU8mRaz0o=;
         h=Subject:To:Cc:From:Date:From;
-        b=xSKfQhUcAaezRrX3yBRFKYNbBj41lM5amjuYNWvAWu5LPVKs3BJI6teX7CnehNivd
-         cggiV3N1oIbOVAuA8HYk2z2v2kIKs81WKuZv2Qco5y9X9Xqu29bAejHheSqBVtdvN5
-         s0uOdWHir6r5a4N218/2qvATwlCJY8RoXZHx/PGM=
-Subject: FAILED: patch "[PATCH] gfs2: gfs2_setattr_size error path fix" failed to apply to 4.9-stable tree
-To:     agruenba@redhat.com
+        b=I/GVi9pLeQgDPvuRYUsuM7qwlMoq2XBOZiRvJVbbpIV39a7Zbg9e74GfgraD2tWSJ
+         ZGMEaqRSzw1vu9mB71EWIR7LLTmHfbp84pqVPpjg1FZLxRIJxKB5qmxgIGkaja3SlP
+         ToAqYFNWTEjilm3TWRwZnjfF53NU8EtjQ5nJZNAA=
+Subject: FAILED: patch "[PATCH] rxrpc: Fix call timer start racing with call destruction" failed to apply to 4.19-stable tree
+To:     dhowells@redhat.com, marc.dionne@auristor.com, pabeni@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 03 Apr 2022 14:33:18 +0200
-Message-ID: <164898919875118@kroah.com>
+Date:   Sun, 03 Apr 2022 14:35:22 +0200
+Message-ID: <1648989322378@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,112 +59,201 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 7336905a89f19173bf9301cd50a24421162f417c Mon Sep 17 00:00:00 2001
-From: Andreas Gruenbacher <agruenba@redhat.com>
-Date: Fri, 10 Dec 2021 14:43:36 +0100
-Subject: [PATCH] gfs2: gfs2_setattr_size error path fix
+From 4a7f62f91933c8ae5308f9127fd8ea48188b6bc3 Mon Sep 17 00:00:00 2001
+From: David Howells <dhowells@redhat.com>
+Date: Wed, 30 Mar 2022 15:39:16 +0100
+Subject: [PATCH] rxrpc: Fix call timer start racing with call destruction
 
-When gfs2_setattr_size() fails, it calls gfs2_rs_delete(ip, NULL) to get
-rid of any reservations the inode may have.  Instead, it should pass in
-the inode's write count as the second parameter to allow
-gfs2_rs_delete() to figure out if the inode has any writers left.
+The rxrpc_call struct has a timer used to handle various timed events
+relating to a call.  This timer can get started from the packet input
+routines that are run in softirq mode with just the RCU read lock held.
+Unfortunately, because only the RCU read lock is held - and neither ref or
+other lock is taken - the call can start getting destroyed at the same time
+a packet comes in addressed to that call.  This causes the timer - which
+was already stopped - to get restarted.  Later, the timer dispatch code may
+then oops if the timer got deallocated first.
 
-In a next step, there are two instances of gfs2_rs_delete(ip, NULL) left
-where we know that there can be no other users of the inode.  Replace
-those with gfs2_rs_deltree(&ip->i_res) to avoid the unnecessary write
-count check.
+Fix this by trying to take a ref on the rxrpc_call struct and, if
+successful, passing that ref along to the timer.  If the timer was already
+running, the ref is discarded.
 
-With that, gfs2_rs_delete() is only called with the inode's actual write
-count, so get rid of the second parameter.
+The timer completion routine can then pass the ref along to the call's work
+item when it queues it.  If the timer or work item where already
+queued/running, the extra ref is discarded.
 
-Fixes: a097dc7e24cb ("GFS2: Make rgrp reservations part of the gfs2_inode structure")
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Fixes: a158bdd3247b ("rxrpc: Fix call timeouts")
+Reported-by: Marc Dionne <marc.dionne@auristor.com>
+Signed-off-by: David Howells <dhowells@redhat.com>
+Reviewed-by: Marc Dionne <marc.dionne@auristor.com>
+Tested-by: Marc Dionne <marc.dionne@auristor.com>
+cc: linux-afs@lists.infradead.org
+Link: http://lists.infradead.org/pipermail/linux-afs/2022-March/005073.html
+Link: https://lore.kernel.org/r/164865115696.2943015.11097991776647323586.stgit@warthog.procyon.org.uk
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 
-diff --git a/fs/gfs2/bmap.c b/fs/gfs2/bmap.c
-index d67108489148..fbdb7a30470a 100644
---- a/fs/gfs2/bmap.c
-+++ b/fs/gfs2/bmap.c
-@@ -2146,7 +2146,7 @@ int gfs2_setattr_size(struct inode *inode, u64 newsize)
+diff --git a/include/trace/events/rxrpc.h b/include/trace/events/rxrpc.h
+index e70c90116eda..4a3ab0ed6e06 100644
+--- a/include/trace/events/rxrpc.h
++++ b/include/trace/events/rxrpc.h
+@@ -83,12 +83,15 @@ enum rxrpc_call_trace {
+ 	rxrpc_call_error,
+ 	rxrpc_call_got,
+ 	rxrpc_call_got_kernel,
++	rxrpc_call_got_timer,
+ 	rxrpc_call_got_userid,
+ 	rxrpc_call_new_client,
+ 	rxrpc_call_new_service,
+ 	rxrpc_call_put,
+ 	rxrpc_call_put_kernel,
+ 	rxrpc_call_put_noqueue,
++	rxrpc_call_put_notimer,
++	rxrpc_call_put_timer,
+ 	rxrpc_call_put_userid,
+ 	rxrpc_call_queued,
+ 	rxrpc_call_queued_ref,
+@@ -278,12 +281,15 @@ enum rxrpc_tx_point {
+ 	EM(rxrpc_call_error,			"*E*") \
+ 	EM(rxrpc_call_got,			"GOT") \
+ 	EM(rxrpc_call_got_kernel,		"Gke") \
++	EM(rxrpc_call_got_timer,		"GTM") \
+ 	EM(rxrpc_call_got_userid,		"Gus") \
+ 	EM(rxrpc_call_new_client,		"NWc") \
+ 	EM(rxrpc_call_new_service,		"NWs") \
+ 	EM(rxrpc_call_put,			"PUT") \
+ 	EM(rxrpc_call_put_kernel,		"Pke") \
+-	EM(rxrpc_call_put_noqueue,		"PNQ") \
++	EM(rxrpc_call_put_noqueue,		"PnQ") \
++	EM(rxrpc_call_put_notimer,		"PnT") \
++	EM(rxrpc_call_put_timer,		"PTM") \
+ 	EM(rxrpc_call_put_userid,		"Pus") \
+ 	EM(rxrpc_call_queued,			"QUE") \
+ 	EM(rxrpc_call_queued_ref,		"QUR") \
+diff --git a/net/rxrpc/ar-internal.h b/net/rxrpc/ar-internal.h
+index 7bd6f8a66a3e..969e532f77a9 100644
+--- a/net/rxrpc/ar-internal.h
++++ b/net/rxrpc/ar-internal.h
+@@ -777,14 +777,12 @@ void rxrpc_propose_ACK(struct rxrpc_call *, u8, u32, bool, bool,
+ 		       enum rxrpc_propose_ack_trace);
+ void rxrpc_process_call(struct work_struct *);
  
- 	ret = do_shrink(inode, newsize);
- out:
--	gfs2_rs_delete(ip, NULL);
-+	gfs2_rs_delete(ip);
- 	gfs2_qa_put(ip);
- 	return ret;
- }
-diff --git a/fs/gfs2/file.c b/fs/gfs2/file.c
-index 8c39a8571b1f..5bac4f6e8e05 100644
---- a/fs/gfs2/file.c
-+++ b/fs/gfs2/file.c
-@@ -706,7 +706,7 @@ static int gfs2_release(struct inode *inode, struct file *file)
- 
- 	if (file->f_mode & FMODE_WRITE) {
- 		if (gfs2_rs_active(&ip->i_res))
--			gfs2_rs_delete(ip, &inode->i_writecount);
-+			gfs2_rs_delete(ip);
- 		gfs2_qa_put(ip);
- 	}
- 	return 0;
-diff --git a/fs/gfs2/inode.c b/fs/gfs2/inode.c
-index 89905f4f29bb..66a123306aec 100644
---- a/fs/gfs2/inode.c
-+++ b/fs/gfs2/inode.c
-@@ -793,7 +793,7 @@ static int gfs2_create_inode(struct inode *dir, struct dentry *dentry,
- 		if (free_vfs_inode) /* else evict will do the put for us */
- 			gfs2_glock_put(ip->i_gl);
- 	}
--	gfs2_rs_delete(ip, NULL);
-+	gfs2_rs_deltree(&ip->i_res);
- 	gfs2_qa_put(ip);
- fail_free_acls:
- 	posix_acl_release(default_acl);
-diff --git a/fs/gfs2/rgrp.c b/fs/gfs2/rgrp.c
-index 9b04a570c582..9df8a84f85a6 100644
---- a/fs/gfs2/rgrp.c
-+++ b/fs/gfs2/rgrp.c
-@@ -680,13 +680,14 @@ void gfs2_rs_deltree(struct gfs2_blkreserv *rs)
- /**
-  * gfs2_rs_delete - delete a multi-block reservation
-  * @ip: The inode for this reservation
-- * @wcount: The inode's write count, or NULL
-  *
-  */
--void gfs2_rs_delete(struct gfs2_inode *ip, atomic_t *wcount)
-+void gfs2_rs_delete(struct gfs2_inode *ip)
- {
-+	struct inode *inode = &ip->i_inode;
+-static inline void rxrpc_reduce_call_timer(struct rxrpc_call *call,
+-					   unsigned long expire_at,
+-					   unsigned long now,
+-					   enum rxrpc_timer_trace why)
+-{
+-	trace_rxrpc_timer(call, why, now);
+-	timer_reduce(&call->timer, expire_at);
+-}
++void rxrpc_reduce_call_timer(struct rxrpc_call *call,
++			     unsigned long expire_at,
++			     unsigned long now,
++			     enum rxrpc_timer_trace why);
 +
- 	down_write(&ip->i_rw_mutex);
--	if ((wcount == NULL) || (atomic_read(wcount) <= 1))
-+	if (atomic_read(&inode->i_writecount) <= 1)
- 		gfs2_rs_deltree(&ip->i_res);
- 	up_write(&ip->i_rw_mutex);
- }
-diff --git a/fs/gfs2/rgrp.h b/fs/gfs2/rgrp.h
-index 3e2ca1fb4305..46dd94e9e085 100644
---- a/fs/gfs2/rgrp.h
-+++ b/fs/gfs2/rgrp.h
-@@ -45,7 +45,7 @@ extern int gfs2_alloc_blocks(struct gfs2_inode *ip, u64 *bn, unsigned int *n,
- 			     bool dinode, u64 *generation);
++void rxrpc_delete_call_timer(struct rxrpc_call *call);
  
- extern void gfs2_rs_deltree(struct gfs2_blkreserv *rs);
--extern void gfs2_rs_delete(struct gfs2_inode *ip, atomic_t *wcount);
-+extern void gfs2_rs_delete(struct gfs2_inode *ip);
- extern void __gfs2_free_blocks(struct gfs2_inode *ip, struct gfs2_rgrpd *rgd,
- 			       u64 bstart, u32 blen, int meta);
- extern void gfs2_free_meta(struct gfs2_inode *ip, struct gfs2_rgrpd *rgd,
-diff --git a/fs/gfs2/super.c b/fs/gfs2/super.c
-index 64c67090f503..143a47359d1b 100644
---- a/fs/gfs2/super.c
-+++ b/fs/gfs2/super.c
-@@ -1396,7 +1396,7 @@ static void gfs2_evict_inode(struct inode *inode)
- 	truncate_inode_pages_final(&inode->i_data);
- 	if (ip->i_qadata)
- 		gfs2_assert_warn(sdp, ip->i_qadata->qa_ref == 0);
--	gfs2_rs_delete(ip, NULL);
-+	gfs2_rs_deltree(&ip->i_res);
- 	gfs2_ordered_del_inode(ip);
- 	clear_inode(inode);
- 	gfs2_dir_hash_inval(ip);
+ /*
+  * call_object.c
+@@ -808,6 +806,7 @@ void rxrpc_release_calls_on_socket(struct rxrpc_sock *);
+ bool __rxrpc_queue_call(struct rxrpc_call *);
+ bool rxrpc_queue_call(struct rxrpc_call *);
+ void rxrpc_see_call(struct rxrpc_call *);
++bool rxrpc_try_get_call(struct rxrpc_call *call, enum rxrpc_call_trace op);
+ void rxrpc_get_call(struct rxrpc_call *, enum rxrpc_call_trace);
+ void rxrpc_put_call(struct rxrpc_call *, enum rxrpc_call_trace);
+ void rxrpc_cleanup_call(struct rxrpc_call *);
+diff --git a/net/rxrpc/call_event.c b/net/rxrpc/call_event.c
+index df864e692267..22e05de5d1ca 100644
+--- a/net/rxrpc/call_event.c
++++ b/net/rxrpc/call_event.c
+@@ -310,7 +310,7 @@ void rxrpc_process_call(struct work_struct *work)
+ 	}
+ 
+ 	if (call->state == RXRPC_CALL_COMPLETE) {
+-		del_timer_sync(&call->timer);
++		rxrpc_delete_call_timer(call);
+ 		goto out_put;
+ 	}
+ 
+diff --git a/net/rxrpc/call_object.c b/net/rxrpc/call_object.c
+index 4eb91d958a48..043508fd8d8a 100644
+--- a/net/rxrpc/call_object.c
++++ b/net/rxrpc/call_object.c
+@@ -53,10 +53,30 @@ static void rxrpc_call_timer_expired(struct timer_list *t)
+ 
+ 	if (call->state < RXRPC_CALL_COMPLETE) {
+ 		trace_rxrpc_timer(call, rxrpc_timer_expired, jiffies);
+-		rxrpc_queue_call(call);
++		__rxrpc_queue_call(call);
++	} else {
++		rxrpc_put_call(call, rxrpc_call_put);
++	}
++}
++
++void rxrpc_reduce_call_timer(struct rxrpc_call *call,
++			     unsigned long expire_at,
++			     unsigned long now,
++			     enum rxrpc_timer_trace why)
++{
++	if (rxrpc_try_get_call(call, rxrpc_call_got_timer)) {
++		trace_rxrpc_timer(call, why, now);
++		if (timer_reduce(&call->timer, expire_at))
++			rxrpc_put_call(call, rxrpc_call_put_notimer);
+ 	}
+ }
+ 
++void rxrpc_delete_call_timer(struct rxrpc_call *call)
++{
++	if (del_timer_sync(&call->timer))
++		rxrpc_put_call(call, rxrpc_call_put_timer);
++}
++
+ static struct lock_class_key rxrpc_call_user_mutex_lock_class_key;
+ 
+ /*
+@@ -463,6 +483,17 @@ void rxrpc_see_call(struct rxrpc_call *call)
+ 	}
+ }
+ 
++bool rxrpc_try_get_call(struct rxrpc_call *call, enum rxrpc_call_trace op)
++{
++	const void *here = __builtin_return_address(0);
++	int n = atomic_fetch_add_unless(&call->usage, 1, 0);
++
++	if (n == 0)
++		return false;
++	trace_rxrpc_call(call->debug_id, op, n, here, NULL);
++	return true;
++}
++
+ /*
+  * Note the addition of a ref on a call.
+  */
+@@ -510,8 +541,7 @@ void rxrpc_release_call(struct rxrpc_sock *rx, struct rxrpc_call *call)
+ 	spin_unlock_bh(&call->lock);
+ 
+ 	rxrpc_put_call_slot(call);
+-
+-	del_timer_sync(&call->timer);
++	rxrpc_delete_call_timer(call);
+ 
+ 	/* Make sure we don't get any more notifications */
+ 	write_lock_bh(&rx->recvmsg_lock);
+@@ -618,6 +648,8 @@ static void rxrpc_destroy_call(struct work_struct *work)
+ 	struct rxrpc_call *call = container_of(work, struct rxrpc_call, processor);
+ 	struct rxrpc_net *rxnet = call->rxnet;
+ 
++	rxrpc_delete_call_timer(call);
++
+ 	rxrpc_put_connection(call->conn);
+ 	rxrpc_put_peer(call->peer);
+ 	kfree(call->rxtx_buffer);
+@@ -652,8 +684,6 @@ void rxrpc_cleanup_call(struct rxrpc_call *call)
+ 
+ 	memset(&call->sock_node, 0xcd, sizeof(call->sock_node));
+ 
+-	del_timer_sync(&call->timer);
+-
+ 	ASSERTCMP(call->state, ==, RXRPC_CALL_COMPLETE);
+ 	ASSERT(test_bit(RXRPC_CALL_RELEASED, &call->flags));
+ 
 
