@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 00C2F4F0972
-	for <lists+stable@lfdr.de>; Sun,  3 Apr 2022 14:35:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EB524F09B4
+	for <lists+stable@lfdr.de>; Sun,  3 Apr 2022 15:13:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357917AbiDCMhb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 3 Apr 2022 08:37:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55774 "EHLO
+        id S241910AbiDCNOF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 3 Apr 2022 09:14:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34772 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236325AbiDCMhb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 3 Apr 2022 08:37:31 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E4123467C
-        for <stable@vger.kernel.org>; Sun,  3 Apr 2022 05:35:36 -0700 (PDT)
+        with ESMTP id S239016AbiDCNOF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 3 Apr 2022 09:14:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1234CE45
+        for <stable@vger.kernel.org>; Sun,  3 Apr 2022 06:12:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 51F63B80D34
-        for <stable@vger.kernel.org>; Sun,  3 Apr 2022 12:35:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BAC97C340F0;
-        Sun,  3 Apr 2022 12:35:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A188861152
+        for <stable@vger.kernel.org>; Sun,  3 Apr 2022 13:12:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8995CC340ED;
+        Sun,  3 Apr 2022 13:12:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648989334;
-        bh=MdF0EfQt4za1en3k+131oVQl8HK1wrhNJDvaPk+Cnnk=;
+        s=korg; t=1648991530;
+        bh=cg0mJ/c7tW3uzoDHdPVbtomOrp0/oRrO814AcdcCAG8=;
         h=Subject:To:Cc:From:Date:From;
-        b=cDB1OaBR3kUIzpTTtrFw7gK8BzGfFA9uIGHkFdwUhlIBuBgBLOs4xE0S+ld7DdJAp
-         keOhnoI7Wdv0cPj+LhbDXxtC+dc7AkRRhHviV4bacJ7bAVvTC1EXqMTYZKtfeYKyEq
-         /JpdQP7tw+YffMhfzGWZUEgLcoL/aJkxqPvEQmUc=
-Subject: FAILED: patch "[PATCH] rxrpc: Fix call timer start racing with call destruction" failed to apply to 5.4-stable tree
-To:     dhowells@redhat.com, marc.dionne@auristor.com, pabeni@redhat.com
+        b=mklZEc21994pTBRqYClPNOCzhigyVo+sTmOFbeyokz+rFT6DRkCW3AIhfj7V7FdQJ
+         nF9l3kYTdo0L6tWhC0jIgZB8Ek372U4gy1QT1EwrN/gpcZIau/KCK2T+ucEW2Pipm7
+         gVo3YONld6N4++aUT9xjXTpYUCFBNMHHTRoaAORU=
+Subject: FAILED: patch "[PATCH] net: preserve skb_end_offset() in skb_unclone_keeptruesize()" failed to apply to 5.17-stable tree
+To:     edumazet@google.com, elver@google.com, kuba@kernel.org,
+        syzkaller@googlegroups.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 03 Apr 2022 14:35:23 +0200
-Message-ID: <1648989323210109@kroah.com>
+Date:   Sun, 03 Apr 2022 15:12:07 +0200
+Message-ID: <1648991527227151@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.17-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,201 +60,164 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 4a7f62f91933c8ae5308f9127fd8ea48188b6bc3 Mon Sep 17 00:00:00 2001
-From: David Howells <dhowells@redhat.com>
-Date: Wed, 30 Mar 2022 15:39:16 +0100
-Subject: [PATCH] rxrpc: Fix call timer start racing with call destruction
+From 2b88cba55883eaafbc9b7cbff0b2c7cdba71ed01 Mon Sep 17 00:00:00 2001
+From: Eric Dumazet <edumazet@google.com>
+Date: Mon, 21 Feb 2022 19:21:13 -0800
+Subject: [PATCH] net: preserve skb_end_offset() in skb_unclone_keeptruesize()
 
-The rxrpc_call struct has a timer used to handle various timed events
-relating to a call.  This timer can get started from the packet input
-routines that are run in softirq mode with just the RCU read lock held.
-Unfortunately, because only the RCU read lock is held - and neither ref or
-other lock is taken - the call can start getting destroyed at the same time
-a packet comes in addressed to that call.  This causes the timer - which
-was already stopped - to get restarted.  Later, the timer dispatch code may
-then oops if the timer got deallocated first.
+syzbot found another way to trigger the infamous WARN_ON_ONCE(delta < len)
+in skb_try_coalesce() [1]
 
-Fix this by trying to take a ref on the rxrpc_call struct and, if
-successful, passing that ref along to the timer.  If the timer was already
-running, the ref is discarded.
+I was able to root cause the issue to kfence.
 
-The timer completion routine can then pass the ref along to the call's work
-item when it queues it.  If the timer or work item where already
-queued/running, the extra ref is discarded.
+When kfence is in action, the following assertion is no longer true:
 
-Fixes: a158bdd3247b ("rxrpc: Fix call timeouts")
-Reported-by: Marc Dionne <marc.dionne@auristor.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-Reviewed-by: Marc Dionne <marc.dionne@auristor.com>
-Tested-by: Marc Dionne <marc.dionne@auristor.com>
-cc: linux-afs@lists.infradead.org
-Link: http://lists.infradead.org/pipermail/linux-afs/2022-March/005073.html
-Link: https://lore.kernel.org/r/164865115696.2943015.11097991776647323586.stgit@warthog.procyon.org.uk
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+int size = xxxx;
+void *ptr1 = kmalloc(size, gfp);
+void *ptr2 = kmalloc(size, gfp);
 
-diff --git a/include/trace/events/rxrpc.h b/include/trace/events/rxrpc.h
-index e70c90116eda..4a3ab0ed6e06 100644
---- a/include/trace/events/rxrpc.h
-+++ b/include/trace/events/rxrpc.h
-@@ -83,12 +83,15 @@ enum rxrpc_call_trace {
- 	rxrpc_call_error,
- 	rxrpc_call_got,
- 	rxrpc_call_got_kernel,
-+	rxrpc_call_got_timer,
- 	rxrpc_call_got_userid,
- 	rxrpc_call_new_client,
- 	rxrpc_call_new_service,
- 	rxrpc_call_put,
- 	rxrpc_call_put_kernel,
- 	rxrpc_call_put_noqueue,
-+	rxrpc_call_put_notimer,
-+	rxrpc_call_put_timer,
- 	rxrpc_call_put_userid,
- 	rxrpc_call_queued,
- 	rxrpc_call_queued_ref,
-@@ -278,12 +281,15 @@ enum rxrpc_tx_point {
- 	EM(rxrpc_call_error,			"*E*") \
- 	EM(rxrpc_call_got,			"GOT") \
- 	EM(rxrpc_call_got_kernel,		"Gke") \
-+	EM(rxrpc_call_got_timer,		"GTM") \
- 	EM(rxrpc_call_got_userid,		"Gus") \
- 	EM(rxrpc_call_new_client,		"NWc") \
- 	EM(rxrpc_call_new_service,		"NWs") \
- 	EM(rxrpc_call_put,			"PUT") \
- 	EM(rxrpc_call_put_kernel,		"Pke") \
--	EM(rxrpc_call_put_noqueue,		"PNQ") \
-+	EM(rxrpc_call_put_noqueue,		"PnQ") \
-+	EM(rxrpc_call_put_notimer,		"PnT") \
-+	EM(rxrpc_call_put_timer,		"PTM") \
- 	EM(rxrpc_call_put_userid,		"Pus") \
- 	EM(rxrpc_call_queued,			"QUE") \
- 	EM(rxrpc_call_queued_ref,		"QUR") \
-diff --git a/net/rxrpc/ar-internal.h b/net/rxrpc/ar-internal.h
-index 7bd6f8a66a3e..969e532f77a9 100644
---- a/net/rxrpc/ar-internal.h
-+++ b/net/rxrpc/ar-internal.h
-@@ -777,14 +777,12 @@ void rxrpc_propose_ACK(struct rxrpc_call *, u8, u32, bool, bool,
- 		       enum rxrpc_propose_ack_trace);
- void rxrpc_process_call(struct work_struct *);
- 
--static inline void rxrpc_reduce_call_timer(struct rxrpc_call *call,
--					   unsigned long expire_at,
--					   unsigned long now,
--					   enum rxrpc_timer_trace why)
--{
--	trace_rxrpc_timer(call, why, now);
--	timer_reduce(&call->timer, expire_at);
--}
-+void rxrpc_reduce_call_timer(struct rxrpc_call *call,
-+			     unsigned long expire_at,
-+			     unsigned long now,
-+			     enum rxrpc_timer_trace why);
-+
-+void rxrpc_delete_call_timer(struct rxrpc_call *call);
- 
- /*
-  * call_object.c
-@@ -808,6 +806,7 @@ void rxrpc_release_calls_on_socket(struct rxrpc_sock *);
- bool __rxrpc_queue_call(struct rxrpc_call *);
- bool rxrpc_queue_call(struct rxrpc_call *);
- void rxrpc_see_call(struct rxrpc_call *);
-+bool rxrpc_try_get_call(struct rxrpc_call *call, enum rxrpc_call_trace op);
- void rxrpc_get_call(struct rxrpc_call *, enum rxrpc_call_trace);
- void rxrpc_put_call(struct rxrpc_call *, enum rxrpc_call_trace);
- void rxrpc_cleanup_call(struct rxrpc_call *);
-diff --git a/net/rxrpc/call_event.c b/net/rxrpc/call_event.c
-index df864e692267..22e05de5d1ca 100644
---- a/net/rxrpc/call_event.c
-+++ b/net/rxrpc/call_event.c
-@@ -310,7 +310,7 @@ void rxrpc_process_call(struct work_struct *work)
- 	}
- 
- 	if (call->state == RXRPC_CALL_COMPLETE) {
--		del_timer_sync(&call->timer);
-+		rxrpc_delete_call_timer(call);
- 		goto out_put;
- 	}
- 
-diff --git a/net/rxrpc/call_object.c b/net/rxrpc/call_object.c
-index 4eb91d958a48..043508fd8d8a 100644
---- a/net/rxrpc/call_object.c
-+++ b/net/rxrpc/call_object.c
-@@ -53,10 +53,30 @@ static void rxrpc_call_timer_expired(struct timer_list *t)
- 
- 	if (call->state < RXRPC_CALL_COMPLETE) {
- 		trace_rxrpc_timer(call, rxrpc_timer_expired, jiffies);
--		rxrpc_queue_call(call);
-+		__rxrpc_queue_call(call);
-+	} else {
-+		rxrpc_put_call(call, rxrpc_call_put);
-+	}
-+}
-+
-+void rxrpc_reduce_call_timer(struct rxrpc_call *call,
-+			     unsigned long expire_at,
-+			     unsigned long now,
-+			     enum rxrpc_timer_trace why)
-+{
-+	if (rxrpc_try_get_call(call, rxrpc_call_got_timer)) {
-+		trace_rxrpc_timer(call, why, now);
-+		if (timer_reduce(&call->timer, expire_at))
-+			rxrpc_put_call(call, rxrpc_call_put_notimer);
- 	}
+if (ptr1 && ptr2)
+	ASSERT(ksize(ptr1) == ksize(ptr2));
+
+We attempted to fix these issues in the blamed commits, but forgot
+that TCP was possibly shifting data after skb_unclone_keeptruesize()
+has been used, notably from tcp_retrans_try_collapse().
+
+So we not only need to keep same skb->truesize value,
+we also need to make sure TCP wont fill new tailroom
+that pskb_expand_head() was able to get from a
+addr = kmalloc(...) followed by ksize(addr)
+
+Split skb_unclone_keeptruesize() into two parts:
+
+1) Inline skb_unclone_keeptruesize() for the common case,
+   when skb is not cloned.
+
+2) Out of line __skb_unclone_keeptruesize() for the 'slow path'.
+
+WARNING: CPU: 1 PID: 6490 at net/core/skbuff.c:5295 skb_try_coalesce+0x1235/0x1560 net/core/skbuff.c:5295
+Modules linked in:
+CPU: 1 PID: 6490 Comm: syz-executor161 Not tainted 5.17.0-rc4-syzkaller-00229-g4f12b742eb2b #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+RIP: 0010:skb_try_coalesce+0x1235/0x1560 net/core/skbuff.c:5295
+Code: bf 01 00 00 00 0f b7 c0 89 c6 89 44 24 20 e8 62 24 4e fa 8b 44 24 20 83 e8 01 0f 85 e5 f0 ff ff e9 87 f4 ff ff e8 cb 20 4e fa <0f> 0b e9 06 f9 ff ff e8 af b2 95 fa e9 69 f0 ff ff e8 95 b2 95 fa
+RSP: 0018:ffffc900063af268 EFLAGS: 00010293
+RAX: 0000000000000000 RBX: 00000000ffffffd5 RCX: 0000000000000000
+RDX: ffff88806fc05700 RSI: ffffffff872abd55 RDI: 0000000000000003
+RBP: ffff88806e675500 R08: 00000000ffffffd5 R09: 0000000000000000
+R10: ffffffff872ab659 R11: 0000000000000000 R12: ffff88806dd554e8
+R13: ffff88806dd9bac0 R14: ffff88806dd9a2c0 R15: 0000000000000155
+FS:  00007f18014f9700(0000) GS:ffff8880b9c00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000000020002000 CR3: 000000006be7a000 CR4: 00000000003506f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ <TASK>
+ tcp_try_coalesce net/ipv4/tcp_input.c:4651 [inline]
+ tcp_try_coalesce+0x393/0x920 net/ipv4/tcp_input.c:4630
+ tcp_queue_rcv+0x8a/0x6e0 net/ipv4/tcp_input.c:4914
+ tcp_data_queue+0x11fd/0x4bb0 net/ipv4/tcp_input.c:5025
+ tcp_rcv_established+0x81e/0x1ff0 net/ipv4/tcp_input.c:5947
+ tcp_v4_do_rcv+0x65e/0x980 net/ipv4/tcp_ipv4.c:1719
+ sk_backlog_rcv include/net/sock.h:1037 [inline]
+ __release_sock+0x134/0x3b0 net/core/sock.c:2779
+ release_sock+0x54/0x1b0 net/core/sock.c:3311
+ sk_wait_data+0x177/0x450 net/core/sock.c:2821
+ tcp_recvmsg_locked+0xe28/0x1fd0 net/ipv4/tcp.c:2457
+ tcp_recvmsg+0x137/0x610 net/ipv4/tcp.c:2572
+ inet_recvmsg+0x11b/0x5e0 net/ipv4/af_inet.c:850
+ sock_recvmsg_nosec net/socket.c:948 [inline]
+ sock_recvmsg net/socket.c:966 [inline]
+ sock_recvmsg net/socket.c:962 [inline]
+ ____sys_recvmsg+0x2c4/0x600 net/socket.c:2632
+ ___sys_recvmsg+0x127/0x200 net/socket.c:2674
+ __sys_recvmsg+0xe2/0x1a0 net/socket.c:2704
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Fixes: c4777efa751d ("net: add and use skb_unclone_keeptruesize() helper")
+Fixes: 097b9146c0e2 ("net: fix up truesize of cloned skb in skb_prepare_for_shift()")
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Marco Elver <elver@google.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+
+diff --git a/include/linux/skbuff.h b/include/linux/skbuff.h
+index 115be7f73487..31be38078918 100644
+--- a/include/linux/skbuff.h
++++ b/include/linux/skbuff.h
+@@ -1795,19 +1795,19 @@ static inline int skb_unclone(struct sk_buff *skb, gfp_t pri)
+ 	return 0;
  }
  
-+void rxrpc_delete_call_timer(struct rxrpc_call *call)
-+{
-+	if (del_timer_sync(&call->timer))
-+		rxrpc_put_call(call, rxrpc_call_put_timer);
-+}
-+
- static struct lock_class_key rxrpc_call_user_mutex_lock_class_key;
+-/* This variant of skb_unclone() makes sure skb->truesize is not changed */
++/* This variant of skb_unclone() makes sure skb->truesize
++ * and skb_end_offset() are not changed, whenever a new skb->head is needed.
++ *
++ * Indeed there is no guarantee that ksize(kmalloc(X)) == ksize(kmalloc(X))
++ * when various debugging features are in place.
++ */
++int __skb_unclone_keeptruesize(struct sk_buff *skb, gfp_t pri);
+ static inline int skb_unclone_keeptruesize(struct sk_buff *skb, gfp_t pri)
+ {
+ 	might_sleep_if(gfpflags_allow_blocking(pri));
  
- /*
-@@ -463,6 +483,17 @@ void rxrpc_see_call(struct rxrpc_call *call)
- 	}
+-	if (skb_cloned(skb)) {
+-		unsigned int save = skb->truesize;
+-		int res;
+-
+-		res = pskb_expand_head(skb, 0, 0, pri);
+-		skb->truesize = save;
+-		return res;
+-	}
++	if (skb_cloned(skb))
++		return __skb_unclone_keeptruesize(skb, pri);
+ 	return 0;
  }
  
-+bool rxrpc_try_get_call(struct rxrpc_call *call, enum rxrpc_call_trace op)
+diff --git a/net/core/skbuff.c b/net/core/skbuff.c
+index 27a2296241c9..725f2b356769 100644
+--- a/net/core/skbuff.c
++++ b/net/core/skbuff.c
+@@ -1787,6 +1787,38 @@ struct sk_buff *skb_realloc_headroom(struct sk_buff *skb, unsigned int headroom)
+ }
+ EXPORT_SYMBOL(skb_realloc_headroom);
+ 
++int __skb_unclone_keeptruesize(struct sk_buff *skb, gfp_t pri)
 +{
-+	const void *here = __builtin_return_address(0);
-+	int n = atomic_fetch_add_unless(&call->usage, 1, 0);
++	unsigned int saved_end_offset, saved_truesize;
++	struct skb_shared_info *shinfo;
++	int res;
 +
-+	if (n == 0)
-+		return false;
-+	trace_rxrpc_call(call->debug_id, op, n, here, NULL);
-+	return true;
++	saved_end_offset = skb_end_offset(skb);
++	saved_truesize = skb->truesize;
++
++	res = pskb_expand_head(skb, 0, 0, pri);
++	if (res)
++		return res;
++
++	skb->truesize = saved_truesize;
++
++	if (likely(skb_end_offset(skb) == saved_end_offset))
++		return 0;
++
++	shinfo = skb_shinfo(skb);
++
++	/* We are about to change back skb->end,
++	 * we need to move skb_shinfo() to its new location.
++	 */
++	memmove(skb->head + saved_end_offset,
++		shinfo,
++		offsetof(struct skb_shared_info, frags[shinfo->nr_frags]));
++
++	skb_set_end_offset(skb, saved_end_offset);
++
++	return 0;
 +}
 +
- /*
-  * Note the addition of a ref on a call.
-  */
-@@ -510,8 +541,7 @@ void rxrpc_release_call(struct rxrpc_sock *rx, struct rxrpc_call *call)
- 	spin_unlock_bh(&call->lock);
- 
- 	rxrpc_put_call_slot(call);
--
--	del_timer_sync(&call->timer);
-+	rxrpc_delete_call_timer(call);
- 
- 	/* Make sure we don't get any more notifications */
- 	write_lock_bh(&rx->recvmsg_lock);
-@@ -618,6 +648,8 @@ static void rxrpc_destroy_call(struct work_struct *work)
- 	struct rxrpc_call *call = container_of(work, struct rxrpc_call, processor);
- 	struct rxrpc_net *rxnet = call->rxnet;
- 
-+	rxrpc_delete_call_timer(call);
-+
- 	rxrpc_put_connection(call->conn);
- 	rxrpc_put_peer(call->peer);
- 	kfree(call->rxtx_buffer);
-@@ -652,8 +684,6 @@ void rxrpc_cleanup_call(struct rxrpc_call *call)
- 
- 	memset(&call->sock_node, 0xcd, sizeof(call->sock_node));
- 
--	del_timer_sync(&call->timer);
--
- 	ASSERTCMP(call->state, ==, RXRPC_CALL_COMPLETE);
- 	ASSERT(test_bit(RXRPC_CALL_RELEASED, &call->flags));
- 
+ /**
+  *	skb_expand_head - reallocate header of &sk_buff
+  *	@skb: buffer to reallocate
 
