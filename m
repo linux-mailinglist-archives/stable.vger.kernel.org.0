@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B4AC44F082C
-	for <lists+stable@lfdr.de>; Sun,  3 Apr 2022 08:47:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ECDDF4F082E
+	for <lists+stable@lfdr.de>; Sun,  3 Apr 2022 08:48:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350980AbiDCGtB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 3 Apr 2022 02:49:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35348 "EHLO
+        id S1353755AbiDCGuO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 3 Apr 2022 02:50:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35858 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236493AbiDCGtB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 3 Apr 2022 02:49:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 481CC377F5
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 23:47:08 -0700 (PDT)
+        with ESMTP id S236493AbiDCGuN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 3 Apr 2022 02:50:13 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFCE1377FB
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 23:48:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F1796B801B8
-        for <stable@vger.kernel.org>; Sun,  3 Apr 2022 06:47:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FB5DC340ED;
-        Sun,  3 Apr 2022 06:47:05 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 0736ECE0B76
+        for <stable@vger.kernel.org>; Sun,  3 Apr 2022 06:48:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F41A3C340ED;
+        Sun,  3 Apr 2022 06:48:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648968425;
-        bh=3j5mue5V/bm89H32TFXPENj5bLXI5K5e7ulu5F1x+5s=;
+        s=korg; t=1648968494;
+        bh=BuvIztRLQ7GnnAickTBNsLD3VDuBhBIaGlJRSyTuRcA=;
         h=Subject:To:Cc:From:Date:From;
-        b=KJXF3q5UVZjFF9Y3UB9TeLcmue2+4z+XbGHhuom4rrStR3cdAgp20A2f3ahhItFde
-         F7s7APCjuOg52iIzNtP+vZy4/+vui+n4qwK0VmsNcJyCxKzOL0K9Xh1uUmLQstN4Cx
-         GxlF0SMh+ASq2wLflA00lhFTgT1MyjQ51MlvJezc=
-Subject: FAILED: patch "[PATCH] KVM: x86: Avoid theoretical NULL pointer dereference in" failed to apply to 5.4-stable tree
+        b=tM/1wArl/6yGJkZNw8Qk7OOHo38mxikr+Ww8IVjl4HsAif+eKqAyyk5FzNMLJukNm
+         gSBJF2JzXcOQokHLdy/6IWbX+IX4h45Ab3y3lMjtj46LoI7yoPsFpjng8UPbGx61aS
+         Swm4G1cCZfXY5qNb6pWaCw/rUOswFRJFBxx6TE0A=
+Subject: FAILED: patch "[PATCH] KVM: x86: Check lapic_in_kernel() before attempting to set a" failed to apply to 5.10-stable tree
 To:     vkuznets@redhat.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 03 Apr 2022 08:46:52 +0200
-Message-ID: <16489684126143@kroah.com>
+Date:   Sun, 03 Apr 2022 08:48:11 +0200
+Message-ID: <1648968491155128@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,34 +59,38 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 00b5f37189d24ac3ed46cb7f11742094778c46ce Mon Sep 17 00:00:00 2001
+From 7ec37d1cbe17d8189d9562178d8b29167fe1c31a Mon Sep 17 00:00:00 2001
 From: Vitaly Kuznetsov <vkuznets@redhat.com>
-Date: Fri, 25 Mar 2022 14:21:39 +0100
-Subject: [PATCH] KVM: x86: Avoid theoretical NULL pointer dereference in
- kvm_irq_delivery_to_apic_fast()
+Date: Fri, 25 Mar 2022 14:21:38 +0100
+Subject: [PATCH] KVM: x86: Check lapic_in_kernel() before attempting to set a
+ SynIC irq
 
-When kvm_irq_delivery_to_apic_fast() is called with APIC_DEST_SELF
-shorthand, 'src' must not be NULL. Crash the VM with KVM_BUG_ON()
-instead of crashing the host.
+When KVM_CAP_HYPERV_SYNIC{,2} is activated, KVM already checks for
+irqchip_in_kernel() so normally SynIC irqs should never be set. It is,
+however,  possible for a misbehaving VMM to write to SYNIC/STIMER MSRs
+causing erroneous behavior.
+
+The immediate issue being fixed is that kvm_irq_delivery_to_apic()
+(kvm_irq_delivery_to_apic_fast()) crashes when called with
+'irq.shorthand = APIC_DEST_SELF' and 'src == NULL'.
 
 Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Message-Id: <20220325132140.25650-3-vkuznets@redhat.com>
+Message-Id: <20220325132140.25650-2-vkuznets@redhat.com>
 Cc: stable@vger.kernel.org
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
-diff --git a/arch/x86/kvm/lapic.c b/arch/x86/kvm/lapic.c
-index 80a2020c4db4..66b0eb0bda94 100644
---- a/arch/x86/kvm/lapic.c
-+++ b/arch/x86/kvm/lapic.c
-@@ -1024,6 +1024,10 @@ bool kvm_irq_delivery_to_apic_fast(struct kvm *kvm, struct kvm_lapic *src,
- 	*r = -1;
+diff --git a/arch/x86/kvm/hyperv.c b/arch/x86/kvm/hyperv.c
+index a32f54ab84a2..f715b5a2b0e4 100644
+--- a/arch/x86/kvm/hyperv.c
++++ b/arch/x86/kvm/hyperv.c
+@@ -449,6 +449,9 @@ static int synic_set_irq(struct kvm_vcpu_hv_synic *synic, u32 sint)
+ 	struct kvm_lapic_irq irq;
+ 	int ret, vector;
  
- 	if (irq->shorthand == APIC_DEST_SELF) {
-+		if (KVM_BUG_ON(!src, kvm)) {
-+			*r = 0;
-+			return true;
-+		}
- 		*r = kvm_apic_set_irq(src->vcpu, irq, dest_map);
- 		return true;
- 	}
++	if (KVM_BUG_ON(!lapic_in_kernel(vcpu), vcpu->kvm))
++		return -EINVAL;
++
+ 	if (sint >= ARRAY_SIZE(synic->sint))
+ 		return -EINVAL;
+ 
 
