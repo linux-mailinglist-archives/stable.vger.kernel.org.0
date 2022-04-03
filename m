@@ -2,69 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 479FB4F0A6B
-	for <lists+stable@lfdr.de>; Sun,  3 Apr 2022 16:54:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 256844F0B6D
+	for <lists+stable@lfdr.de>; Sun,  3 Apr 2022 18:57:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235146AbiDCOz1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 3 Apr 2022 10:55:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60920 "EHLO
+        id S242383AbiDCQ7h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 3 Apr 2022 12:59:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50902 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236786AbiDCOz0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 3 Apr 2022 10:55:26 -0400
-Received: from outgoing.mit.edu (outgoing-auth-1.mit.edu [18.9.28.11])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AB89FF4;
-        Sun,  3 Apr 2022 07:53:31 -0700 (PDT)
-Received: from cwcc.thunk.org (pool-108-7-220-252.bstnma.fios.verizon.net [108.7.220.252])
-        (authenticated bits=0)
-        (User authenticated as tytso@ATHENA.MIT.EDU)
-        by outgoing.mit.edu (8.14.7/8.12.4) with ESMTP id 233ErMCs020996
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Sun, 3 Apr 2022 10:53:22 -0400
-Received: by cwcc.thunk.org (Postfix, from userid 15806)
-        id 1FBF915C003E; Sun,  3 Apr 2022 10:53:22 -0400 (EDT)
-From:   "Theodore Ts'o" <tytso@mit.edu>
-To:     Tadeusz Struk <tadeusz.struk@linaro.org>,
-        linux-ext4@vger.kernel.org
-Cc:     "Theodore Ts'o" <tytso@mit.edu>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Ritesh Harjani <riteshh@linux.ibm.com>,
-        Andreas Dilger <adilger.kernel@dilger.ca>,
-        syzbot+7a806094edd5d07ba029@syzkaller.appspotmail.com
-Subject: Re: [PATCH v3] ext4: limit length to bitmap_maxbytes - blocksize in punch_hole
-Date:   Sun,  3 Apr 2022 10:53:17 -0400
-Message-Id: <164899700423.964485.7890254685030914129.b4-ty@mit.edu>
-X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20220331200515.153214-1-tadeusz.struk@linaro.org>
-References: <20220331200515.153214-1-tadeusz.struk@linaro.org>
+        with ESMTP id S236624AbiDCQ7g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 3 Apr 2022 12:59:36 -0400
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79AB0326D9;
+        Sun,  3 Apr 2022 09:57:42 -0700 (PDT)
+From:   Thomas Gleixner <tglx@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1649005061;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=tfXrkBnVhjzrSwPZ0Laq9qOonGjVgWvsNc2Gv3Ncd+c=;
+        b=dvO3fnMR8Rqjh/M8WmNPijFfQ7EVMUklhEGzbPDD3IlHlBiI58R0d5aM32WjMV5AqmSXbu
+        jmtex8GkM13wX6Db/DejMcADu9QhrRZdauTKyjclSUKdExs+BkxUXcaQC9xvAYQGg05xXR
+        uzF+d1BUltlSSqr9Py8FTY5YXLgXf+c0a4b35Z6Z9UngSSCjOyZSh1hRBzcq9o2f/edgGv
+        3/aFpTMQ+J0Hpm6roDPTuY5F+drRLhHZFyfaRRDIgpuF9VFo9heJEX+AQijjLLLmPJUUVC
+        Jpd6QwKE50NKnkOW89E6BMBdXY4DDIEmVp/FreSp4PUOLaTx5XvYXaVaSkCvCQ==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1649005061;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=tfXrkBnVhjzrSwPZ0Laq9qOonGjVgWvsNc2Gv3Ncd+c=;
+        b=PNYRgzlU5vnuF03DCEere9Ai1yJR65djGR9xY/V4o8Hw6YV0C8ksumiS9+y2t6Z4dxYOMG
+        M5MKdjILbTSCrzDw==
+To:     Ammar Faizi <ammarfaizi2@gnuweeb.org>,
+        Borislav Petkov <bp@alien8.de>
+Cc:     Ammar Faizi <ammarfaizi2@gnuweeb.org>,
+        Alviro Iskandar Setiawan <alviro.iskandar@gnuweeb.org>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
+        Tony Luck <tony.luck@intel.com>,
+        Yazen Ghannam <yazen.ghannam@amd.com>,
+        Linux Edac Mailing List <linux-edac@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Stable Kernel <stable@vger.kernel.org>,
+        GNU/Weeb Mailing List <gwml@vger.gnuweeb.org>,
+        x86 Mailing List <x86@kernel.org>,
+        David Laight <David.Laight@ACULAB.COM>,
+        Jiri Hladky <hladky.jiri@googlemail.com>
+Subject: Re: [PATCH v6 1/2] x86/delay: Fix the wrong asm constraint in
+ `delay_loop()`
+In-Reply-To: <20220329104705.65256-2-ammarfaizi2@gnuweeb.org>
+References: <20220329104705.65256-1-ammarfaizi2@gnuweeb.org>
+ <20220329104705.65256-2-ammarfaizi2@gnuweeb.org>
+Date:   Sun, 03 Apr 2022 18:57:40 +0200
+Message-ID: <87zgl2ksu3.ffs@tglx>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 31 Mar 2022 13:05:15 -0700, Tadeusz Struk wrote:
-> Syzbot found an issue [1] in ext4_fallocate().
-> The C reproducer [2] calls fallocate(), passing size 0xffeffeff000ul,
-> and offset 0x1000000ul, which, when added together exceed the
-> bitmap_maxbytes for the inode. This triggers a BUG in
-> ext4_ind_remove_space(). According to the comments in this function
-> the 'end' parameter needs to be one block after the last block to be
-> removed. In the case when the BUG is triggered it points to the last
-> block. Modify the ext4_punch_hole() function and add constraint that
-> caps the length to satisfy the one before laster block requirement.
-> 
-> [...]
+On Tue, Mar 29 2022 at 17:47, Ammar Faizi wrote:
+> The asm constraint does not reflect that the asm statement can modify
+> the value of @loops. But the asm statement in delay_loop() does modify
+> the @loops.
+>
+> Specifiying the wrong constraint may lead to undefined behavior, it may
+> clobber random stuff (e.g. local variable, important temporary value in
+> regs, etc.). This is especially dangerous when the compiler decides to
+> inline the function and since it doesn't know that the value gets
+> modified, it might decide to use it from a register directly without
+> reloading it.
+>
+> Fix this by changing the constraint from "a" (as an input) to "+a" (as
+> an input and output).
 
-Applied, thanks!
+This analysis is plain wrong. The assembly code operates on a register
+and not on memory:
 
-[1/1] ext4: limit length to bitmap_maxbytes - blocksize in punch_hole
-      commit: dfc99c5e84e46c610a7bf81dc4a3a126253be459
+	asm volatile(
+		"	test %0,%0	\n"
+		"	jz 3f		\n"
+		"	jmp 1f		\n"
 
-Best regards,
--- 
-Theodore Ts'o <tytso@mit.edu>
+		".align 16		\n"
+		"1:	jmp 2f		\n"
+
+		".align 16		\n"
+		"2:	dec %0		\n"
+		"	jnz 2b		\n"
+		"3:	dec %0		\n"
+
+		: /* we don't need output */
+---->		:"a" (loops)
+
+This tells the compiler to use [RE]AX and initialize it from the
+variable 'loops'. It's never written back because all '%0' in the above
+assembly are substituted with [RE]AX. This also tells the compiler that
+the inline assembly clobbers [RE]AX and that's all it needs to know.
+
+Nothing to fix here, whether the code is inlined or not.
+
+Thanks,
+
+        tglx
