@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0462B4F0815
-	for <lists+stable@lfdr.de>; Sun,  3 Apr 2022 08:39:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3F9F4F0818
+	for <lists+stable@lfdr.de>; Sun,  3 Apr 2022 08:41:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233058AbiDCGlT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 3 Apr 2022 02:41:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46474 "EHLO
+        id S234836AbiDCGnM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 3 Apr 2022 02:43:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50054 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229608AbiDCGlS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 3 Apr 2022 02:41:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBB3A36B4D
-        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 23:39:25 -0700 (PDT)
+        with ESMTP id S232339AbiDCGnL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 3 Apr 2022 02:43:11 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BCE736B4D
+        for <stable@vger.kernel.org>; Sat,  2 Apr 2022 23:41:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5A7C660F9F
-        for <stable@vger.kernel.org>; Sun,  3 Apr 2022 06:39:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66FD3C340F2;
-        Sun,  3 Apr 2022 06:39:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 421C6B80C94
+        for <stable@vger.kernel.org>; Sun,  3 Apr 2022 06:41:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D9D8C340ED;
+        Sun,  3 Apr 2022 06:41:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648967964;
-        bh=OIGEcEzhzwHNJXgzqGknld4a11SBpjtPjZz32WaHtmc=;
+        s=korg; t=1648968075;
+        bh=fgHmMLQxHGUbPKSchE5JcQW2yAlcOTmQo6B0Q3loFsg=;
         h=Subject:To:Cc:From:Date:From;
-        b=CnmVVthcBR/mP3wlJKYKfTvD7x8xwVelhRydcUYBTDxsv7rcj4BPmdZs9k+Uxnuf3
-         SVziihH6xEHkFp49Tsp8UePlhMFDEart/NNDZtqyeOhRVzhA4l+DZ5aXELkHcNRm4/
-         QU0gFloc4Vlayu54mZrzlzSD0OSBLhASv1L2UVOs=
-Subject: FAILED: patch "[PATCH] KVM: x86: Forbid VMM to set SYNIC/STIMER MSRs when SynIC" failed to apply to 4.14-stable tree
-To:     vkuznets@redhat.com, pbonzini@redhat.com
+        b=LOoM6zfJB0Nw6xjVGaGZ4MLgYM811ik1HEo7h3A7HAusvfN976a0X4E/qJGmkxIbk
+         YKidcmG3EJdk8jaifK1MLPYYF7wGY6Fgty0u+H/Jmjs2jLsUCG44CC+RdN6srkVD9A
+         aVQkg+7d7ar7VzxW/gzXS1kwr4gEp/SMtpgQ9oeU=
+Subject: FAILED: patch "[PATCH] KVM: x86/mmu: do compare-and-exchange of gPTE via the user" failed to apply to 5.4-stable tree
+To:     pbonzini@redhat.com, kangel@zju.edu.cn, mlevitsk@redhat.com,
+        pgn@zju.edu.cn, qiuhao@sysec.org, tadeusz.struk@linaro.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 03 Apr 2022 08:39:14 +0200
-Message-ID: <1648967954120249@kroah.com>
+Date:   Sun, 03 Apr 2022 08:41:13 +0200
+Message-ID: <1648968073137142@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,65 +60,148 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From b1e34d325397a33d97d845e312d7cf2a8b646b44 Mon Sep 17 00:00:00 2001
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
-Date: Fri, 25 Mar 2022 14:21:40 +0100
-Subject: [PATCH] KVM: x86: Forbid VMM to set SYNIC/STIMER MSRs when SynIC
- wasn't activated
+From 2a8859f373b0a86f0ece8ec8312607eacf12485d Mon Sep 17 00:00:00 2001
+From: Paolo Bonzini <pbonzini@redhat.com>
+Date: Tue, 29 Mar 2022 12:56:24 -0400
+Subject: [PATCH] KVM: x86/mmu: do compare-and-exchange of gPTE via the user
+ address
 
-Setting non-zero values to SYNIC/STIMER MSRs activates certain features,
-this should not happen when KVM_CAP_HYPERV_SYNIC{,2} was not activated.
+FNAME(cmpxchg_gpte) is an inefficient mess.  It is at least decent if it
+can go through get_user_pages_fast(), but if it cannot then it tries to
+use memremap(); that is not just terribly slow, it is also wrong because
+it assumes that the VM_PFNMAP VMA is contiguous.
 
-Note, it would've been better to forbid writing anything to SYNIC/STIMER
-MSRs, including zeroes, however, at least QEMU tries clearing
-HV_X64_MSR_STIMER0_CONFIG without SynIC. HV_X64_MSR_EOM MSR is somewhat
-'special' as writing zero there triggers an action, this also should not
-happen when SynIC wasn't activated.
+The right way to do it would be to do the same thing as
+hva_to_pfn_remapped() does since commit add6a0cd1c5b ("KVM: MMU: try to
+fix up page faults before giving up", 2016-07-05), using follow_pte()
+and fixup_user_fault() to determine the correct address to use for
+memremap().  To do this, one could for example extract hva_to_pfn()
+for use outside virt/kvm/kvm_main.c.  But really there is no reason to
+do that either, because there is already a perfectly valid address to
+do the cmpxchg() on, only it is a userspace address.  That means doing
+user_access_begin()/user_access_end() and writing the code in assembly
+to handle exceptions correctly.  Worse, the guest PTE can be 8-byte
+even on i686 so there is the extra complication of using cmpxchg8b to
+account for.  But at least it is an efficient mess.
 
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Message-Id: <20220325132140.25650-4-vkuznets@redhat.com>
+(Thanks to Linus for suggesting improvement on the inline assembly).
+
+Reported-by: Qiuhao Li <qiuhao@sysec.org>
+Reported-by: Gaoning Pan <pgn@zju.edu.cn>
+Reported-by: Yongkang Jia <kangel@zju.edu.cn>
+Reported-by: syzbot+6cde2282daa792c49ab8@syzkaller.appspotmail.com
+Debugged-by: Tadeusz Struk <tadeusz.struk@linaro.org>
+Tested-by: Maxim Levitsky <mlevitsk@redhat.com>
 Cc: stable@vger.kernel.org
+Fixes: bd53cb35a3e9 ("X86/KVM: Handle PFNs outside of kernel reach when touching GPTEs")
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
-diff --git a/arch/x86/kvm/hyperv.c b/arch/x86/kvm/hyperv.c
-index f715b5a2b0e4..4177c17a26bf 100644
---- a/arch/x86/kvm/hyperv.c
-+++ b/arch/x86/kvm/hyperv.c
-@@ -239,7 +239,7 @@ static int synic_set_msr(struct kvm_vcpu_hv_synic *synic,
- 	struct kvm_vcpu *vcpu = hv_synic_to_vcpu(synic);
- 	int ret;
+diff --git a/arch/x86/kvm/mmu/paging_tmpl.h b/arch/x86/kvm/mmu/paging_tmpl.h
+index 8621188b46df..01fee5f67ac3 100644
+--- a/arch/x86/kvm/mmu/paging_tmpl.h
++++ b/arch/x86/kvm/mmu/paging_tmpl.h
+@@ -34,9 +34,8 @@
+ 	#define PT_HAVE_ACCESSED_DIRTY(mmu) true
+ 	#ifdef CONFIG_X86_64
+ 	#define PT_MAX_FULL_LEVELS PT64_ROOT_MAX_LEVEL
+-	#define CMPXCHG cmpxchg
++	#define CMPXCHG "cmpxchgq"
+ 	#else
+-	#define CMPXCHG cmpxchg64
+ 	#define PT_MAX_FULL_LEVELS 2
+ 	#endif
+ #elif PTTYPE == 32
+@@ -52,7 +51,7 @@
+ 	#define PT_GUEST_DIRTY_SHIFT PT_DIRTY_SHIFT
+ 	#define PT_GUEST_ACCESSED_SHIFT PT_ACCESSED_SHIFT
+ 	#define PT_HAVE_ACCESSED_DIRTY(mmu) true
+-	#define CMPXCHG cmpxchg
++	#define CMPXCHG "cmpxchgl"
+ #elif PTTYPE == PTTYPE_EPT
+ 	#define pt_element_t u64
+ 	#define guest_walker guest_walkerEPT
+@@ -65,7 +64,9 @@
+ 	#define PT_GUEST_DIRTY_SHIFT 9
+ 	#define PT_GUEST_ACCESSED_SHIFT 8
+ 	#define PT_HAVE_ACCESSED_DIRTY(mmu) ((mmu)->ept_ad)
+-	#define CMPXCHG cmpxchg64
++	#ifdef CONFIG_X86_64
++	#define CMPXCHG "cmpxchgq"
++	#endif
+ 	#define PT_MAX_FULL_LEVELS PT64_ROOT_MAX_LEVEL
+ #else
+ 	#error Invalid PTTYPE value
+@@ -147,43 +148,36 @@ static int FNAME(cmpxchg_gpte)(struct kvm_vcpu *vcpu, struct kvm_mmu *mmu,
+ 			       pt_element_t __user *ptep_user, unsigned index,
+ 			       pt_element_t orig_pte, pt_element_t new_pte)
+ {
+-	int npages;
+-	pt_element_t ret;
+-	pt_element_t *table;
+-	struct page *page;
+-
+-	npages = get_user_pages_fast((unsigned long)ptep_user, 1, FOLL_WRITE, &page);
+-	if (likely(npages == 1)) {
+-		table = kmap_atomic(page);
+-		ret = CMPXCHG(&table[index], orig_pte, new_pte);
+-		kunmap_atomic(table);
+-
+-		kvm_release_page_dirty(page);
+-	} else {
+-		struct vm_area_struct *vma;
+-		unsigned long vaddr = (unsigned long)ptep_user & PAGE_MASK;
+-		unsigned long pfn;
+-		unsigned long paddr;
+-
+-		mmap_read_lock(current->mm);
+-		vma = find_vma_intersection(current->mm, vaddr, vaddr + PAGE_SIZE);
+-		if (!vma || !(vma->vm_flags & VM_PFNMAP)) {
+-			mmap_read_unlock(current->mm);
+-			return -EFAULT;
+-		}
+-		pfn = ((vaddr - vma->vm_start) >> PAGE_SHIFT) + vma->vm_pgoff;
+-		paddr = pfn << PAGE_SHIFT;
+-		table = memremap(paddr, PAGE_SIZE, MEMREMAP_WB);
+-		if (!table) {
+-			mmap_read_unlock(current->mm);
+-			return -EFAULT;
+-		}
+-		ret = CMPXCHG(&table[index], orig_pte, new_pte);
+-		memunmap(table);
+-		mmap_read_unlock(current->mm);
+-	}
++	signed char r;
  
--	if (!synic->active && !host)
-+	if (!synic->active && (!host || data))
- 		return 1;
- 
- 	trace_kvm_hv_synic_set_msr(vcpu->vcpu_id, msr, data, host);
-@@ -285,6 +285,9 @@ static int synic_set_msr(struct kvm_vcpu_hv_synic *synic,
- 	case HV_X64_MSR_EOM: {
- 		int i;
- 
-+		if (!synic->active)
-+			break;
+-	return (ret != orig_pte);
++	if (!user_access_begin(ptep_user, sizeof(pt_element_t)))
++		return -EFAULT;
 +
- 		for (i = 0; i < ARRAY_SIZE(synic->sint); i++)
- 			kvm_hv_notify_acked_sint(vcpu, i);
- 		break;
-@@ -664,7 +667,7 @@ static int stimer_set_config(struct kvm_vcpu_hv_stimer *stimer, u64 config,
- 	struct kvm_vcpu_hv *hv_vcpu = to_hv_vcpu(vcpu);
- 	struct kvm_vcpu_hv_synic *synic = to_hv_synic(vcpu);
++#ifdef CMPXCHG
++	asm volatile("1:" LOCK_PREFIX CMPXCHG " %[new], %[ptr]\n"
++		     "setnz %b[r]\n"
++		     "2:"
++		     _ASM_EXTABLE_TYPE_REG(1b, 2b, EX_TYPE_EFAULT_REG, %k[r])
++		     : [ptr] "+m" (*ptep_user),
++		       [old] "+a" (orig_pte),
++		       [r] "=q" (r)
++		     : [new] "r" (new_pte)
++		     : "memory");
++#else
++	asm volatile("1:" LOCK_PREFIX "cmpxchg8b %[ptr]\n"
++		     "setnz %b[r]\n"
++		     "2:"
++		     _ASM_EXTABLE_TYPE_REG(1b, 2b, EX_TYPE_EFAULT_REG, %k[r])
++		     : [ptr] "+m" (*ptep_user),
++		       [old] "+A" (orig_pte),
++		       [r] "=q" (r)
++		     : [new_lo] "b" ((u32)new_pte),
++		       [new_hi] "c" ((u32)(new_pte >> 32))
++		     : "memory");
++#endif
++
++	user_access_end();
++	return r;
+ }
  
--	if (!synic->active && !host)
-+	if (!synic->active && (!host || config))
- 		return 1;
- 
- 	if (unlikely(!host && hv_vcpu->enforce_cpuid && new_config.direct_mode &&
-@@ -693,7 +696,7 @@ static int stimer_set_count(struct kvm_vcpu_hv_stimer *stimer, u64 count,
- 	struct kvm_vcpu *vcpu = hv_stimer_to_vcpu(stimer);
- 	struct kvm_vcpu_hv_synic *synic = to_hv_synic(vcpu);
- 
--	if (!synic->active && !host)
-+	if (!synic->active && (!host || count))
- 		return 1;
- 
- 	trace_kvm_hv_stimer_set_count(hv_stimer_to_vcpu(stimer)->vcpu_id,
+ static bool FNAME(prefetch_invalid_gpte)(struct kvm_vcpu *vcpu,
 
