@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1399C4F09C3
-	for <lists+stable@lfdr.de>; Sun,  3 Apr 2022 15:13:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F51B4F09CB
+	for <lists+stable@lfdr.de>; Sun,  3 Apr 2022 15:16:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346266AbiDCNO0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 3 Apr 2022 09:14:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34938 "EHLO
+        id S245237AbiDCNRT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 3 Apr 2022 09:17:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43398 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239016AbiDCNOZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 3 Apr 2022 09:14:25 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E89D1170
-        for <stable@vger.kernel.org>; Sun,  3 Apr 2022 06:12:31 -0700 (PDT)
+        with ESMTP id S1349661AbiDCNRT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 3 Apr 2022 09:17:19 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A24092BC2
+        for <stable@vger.kernel.org>; Sun,  3 Apr 2022 06:15:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EDBD7B80D35
-        for <stable@vger.kernel.org>; Sun,  3 Apr 2022 13:12:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C296C340F0;
-        Sun,  3 Apr 2022 13:12:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 64478B80D28
+        for <stable@vger.kernel.org>; Sun,  3 Apr 2022 13:15:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0197C340ED;
+        Sun,  3 Apr 2022 13:15:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648991548;
-        bh=7DY8wABeoupG2xD/uLux8s4CNjOGRq0LSOd88//DVNY=;
+        s=korg; t=1648991723;
+        bh=KE70KTnEO3JJj7HDC364WZatbPBnjU6vE+KtyLHTmRk=;
         h=Subject:To:Cc:From:Date:From;
-        b=Hh0eyk17iun4aQJiQUC8btFaNwoI0S/b12Ex2IETYBdR9Ftm2BS4nzUVjqWJSZ3wb
-         GLtl8M47Ex2UmyekufkimAz6QstVr6/nX2deSo5/j7Sf7kpFp0ntDuno696W+tBeMK
-         26bhSn5XpVJT6Kc4z+sQK1CpTGU3yhPBucxGdji0=
-Subject: FAILED: patch "[PATCH] net: preserve skb_end_offset() in skb_unclone_keeptruesize()" failed to apply to 5.4-stable tree
-To:     edumazet@google.com, elver@google.com, kuba@kernel.org,
-        syzkaller@googlegroups.com
+        b=s8LGy1chTzpovQ37x+EYOY9vLpQAgN5uluuoobDawXz5JdffZ4ZuVB11DBvWXHNqo
+         M774WTEYtTKBlLd8gNQG0cNoE1IkiUciR2MgrxD4UI9/beP3Y6kiFD5BSi7VI/XB7F
+         Ha18NZ7rNNR54wu4iQW3ViqjzzNAB6hXJe27AABw=
+Subject: FAILED: patch "[PATCH] iwlwifi: nvm: Correct HE capability" failed to apply to 5.16-stable tree
+To:     abhishek.naik@intel.com, luciano.coelho@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 03 Apr 2022 15:12:13 +0200
-Message-ID: <1648991533244203@kroah.com>
+Date:   Sun, 03 Apr 2022 15:15:12 +0200
+Message-ID: <164899171224968@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.16-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,164 +59,30 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 2b88cba55883eaafbc9b7cbff0b2c7cdba71ed01 Mon Sep 17 00:00:00 2001
-From: Eric Dumazet <edumazet@google.com>
-Date: Mon, 21 Feb 2022 19:21:13 -0800
-Subject: [PATCH] net: preserve skb_end_offset() in skb_unclone_keeptruesize()
+From 85643396c71241aa8b5afc4e23e1099b170f6517 Mon Sep 17 00:00:00 2001
+From: Abhishek Naik <abhishek.naik@intel.com>
+Date: Sun, 30 Jan 2022 11:53:06 +0200
+Subject: [PATCH] iwlwifi: nvm: Correct HE capability
 
-syzbot found another way to trigger the infamous WARN_ON_ONCE(delta < len)
-in skb_try_coalesce() [1]
+The HE PHY capability - Tx 1024-QAM < 242-tone RU support
+was not handled for Ms RFs, add the relevant code for it.
 
-I was able to root cause the issue to kfence.
+Signed-off-by: Abhishek Naik <abhishek.naik@intel.com>
+Fixes: 1381eb5c8ed5 ("iwlwifi: correct HE capabilities")
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20220130115024.01e232ce98ca.I765d26e9eb6ae9424542ccb7dd7f7ba61b1b6449@changeid
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 
-When kfence is in action, the following assertion is no longer true:
-
-int size = xxxx;
-void *ptr1 = kmalloc(size, gfp);
-void *ptr2 = kmalloc(size, gfp);
-
-if (ptr1 && ptr2)
-	ASSERT(ksize(ptr1) == ksize(ptr2));
-
-We attempted to fix these issues in the blamed commits, but forgot
-that TCP was possibly shifting data after skb_unclone_keeptruesize()
-has been used, notably from tcp_retrans_try_collapse().
-
-So we not only need to keep same skb->truesize value,
-we also need to make sure TCP wont fill new tailroom
-that pskb_expand_head() was able to get from a
-addr = kmalloc(...) followed by ksize(addr)
-
-Split skb_unclone_keeptruesize() into two parts:
-
-1) Inline skb_unclone_keeptruesize() for the common case,
-   when skb is not cloned.
-
-2) Out of line __skb_unclone_keeptruesize() for the 'slow path'.
-
-WARNING: CPU: 1 PID: 6490 at net/core/skbuff.c:5295 skb_try_coalesce+0x1235/0x1560 net/core/skbuff.c:5295
-Modules linked in:
-CPU: 1 PID: 6490 Comm: syz-executor161 Not tainted 5.17.0-rc4-syzkaller-00229-g4f12b742eb2b #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-RIP: 0010:skb_try_coalesce+0x1235/0x1560 net/core/skbuff.c:5295
-Code: bf 01 00 00 00 0f b7 c0 89 c6 89 44 24 20 e8 62 24 4e fa 8b 44 24 20 83 e8 01 0f 85 e5 f0 ff ff e9 87 f4 ff ff e8 cb 20 4e fa <0f> 0b e9 06 f9 ff ff e8 af b2 95 fa e9 69 f0 ff ff e8 95 b2 95 fa
-RSP: 0018:ffffc900063af268 EFLAGS: 00010293
-RAX: 0000000000000000 RBX: 00000000ffffffd5 RCX: 0000000000000000
-RDX: ffff88806fc05700 RSI: ffffffff872abd55 RDI: 0000000000000003
-RBP: ffff88806e675500 R08: 00000000ffffffd5 R09: 0000000000000000
-R10: ffffffff872ab659 R11: 0000000000000000 R12: ffff88806dd554e8
-R13: ffff88806dd9bac0 R14: ffff88806dd9a2c0 R15: 0000000000000155
-FS:  00007f18014f9700(0000) GS:ffff8880b9c00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000000020002000 CR3: 000000006be7a000 CR4: 00000000003506f0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- <TASK>
- tcp_try_coalesce net/ipv4/tcp_input.c:4651 [inline]
- tcp_try_coalesce+0x393/0x920 net/ipv4/tcp_input.c:4630
- tcp_queue_rcv+0x8a/0x6e0 net/ipv4/tcp_input.c:4914
- tcp_data_queue+0x11fd/0x4bb0 net/ipv4/tcp_input.c:5025
- tcp_rcv_established+0x81e/0x1ff0 net/ipv4/tcp_input.c:5947
- tcp_v4_do_rcv+0x65e/0x980 net/ipv4/tcp_ipv4.c:1719
- sk_backlog_rcv include/net/sock.h:1037 [inline]
- __release_sock+0x134/0x3b0 net/core/sock.c:2779
- release_sock+0x54/0x1b0 net/core/sock.c:3311
- sk_wait_data+0x177/0x450 net/core/sock.c:2821
- tcp_recvmsg_locked+0xe28/0x1fd0 net/ipv4/tcp.c:2457
- tcp_recvmsg+0x137/0x610 net/ipv4/tcp.c:2572
- inet_recvmsg+0x11b/0x5e0 net/ipv4/af_inet.c:850
- sock_recvmsg_nosec net/socket.c:948 [inline]
- sock_recvmsg net/socket.c:966 [inline]
- sock_recvmsg net/socket.c:962 [inline]
- ____sys_recvmsg+0x2c4/0x600 net/socket.c:2632
- ___sys_recvmsg+0x127/0x200 net/socket.c:2674
- __sys_recvmsg+0xe2/0x1a0 net/socket.c:2704
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-Fixes: c4777efa751d ("net: add and use skb_unclone_keeptruesize() helper")
-Fixes: 097b9146c0e2 ("net: fix up truesize of cloned skb in skb_prepare_for_shift()")
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Marco Elver <elver@google.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-
-diff --git a/include/linux/skbuff.h b/include/linux/skbuff.h
-index 115be7f73487..31be38078918 100644
---- a/include/linux/skbuff.h
-+++ b/include/linux/skbuff.h
-@@ -1795,19 +1795,19 @@ static inline int skb_unclone(struct sk_buff *skb, gfp_t pri)
- 	return 0;
- }
- 
--/* This variant of skb_unclone() makes sure skb->truesize is not changed */
-+/* This variant of skb_unclone() makes sure skb->truesize
-+ * and skb_end_offset() are not changed, whenever a new skb->head is needed.
-+ *
-+ * Indeed there is no guarantee that ksize(kmalloc(X)) == ksize(kmalloc(X))
-+ * when various debugging features are in place.
-+ */
-+int __skb_unclone_keeptruesize(struct sk_buff *skb, gfp_t pri);
- static inline int skb_unclone_keeptruesize(struct sk_buff *skb, gfp_t pri)
- {
- 	might_sleep_if(gfpflags_allow_blocking(pri));
- 
--	if (skb_cloned(skb)) {
--		unsigned int save = skb->truesize;
--		int res;
--
--		res = pskb_expand_head(skb, 0, 0, pri);
--		skb->truesize = save;
--		return res;
--	}
-+	if (skb_cloned(skb))
-+		return __skb_unclone_keeptruesize(skb, pri);
- 	return 0;
- }
- 
-diff --git a/net/core/skbuff.c b/net/core/skbuff.c
-index 27a2296241c9..725f2b356769 100644
---- a/net/core/skbuff.c
-+++ b/net/core/skbuff.c
-@@ -1787,6 +1787,38 @@ struct sk_buff *skb_realloc_headroom(struct sk_buff *skb, unsigned int headroom)
- }
- EXPORT_SYMBOL(skb_realloc_headroom);
- 
-+int __skb_unclone_keeptruesize(struct sk_buff *skb, gfp_t pri)
-+{
-+	unsigned int saved_end_offset, saved_truesize;
-+	struct skb_shared_info *shinfo;
-+	int res;
-+
-+	saved_end_offset = skb_end_offset(skb);
-+	saved_truesize = skb->truesize;
-+
-+	res = pskb_expand_head(skb, 0, 0, pri);
-+	if (res)
-+		return res;
-+
-+	skb->truesize = saved_truesize;
-+
-+	if (likely(skb_end_offset(skb) == saved_end_offset))
-+		return 0;
-+
-+	shinfo = skb_shinfo(skb);
-+
-+	/* We are about to change back skb->end,
-+	 * we need to move skb_shinfo() to its new location.
-+	 */
-+	memmove(skb->head + saved_end_offset,
-+		shinfo,
-+		offsetof(struct skb_shared_info, frags[shinfo->nr_frags]));
-+
-+	skb_set_end_offset(skb, saved_end_offset);
-+
-+	return 0;
-+}
-+
- /**
-  *	skb_expand_head - reallocate header of &sk_buff
-  *	@skb: buffer to reallocate
+diff --git a/drivers/net/wireless/intel/iwlwifi/iwl-nvm-parse.c b/drivers/net/wireless/intel/iwlwifi/iwl-nvm-parse.c
+index 0693dfda43a3..0dfd69fcd5d7 100644
+--- a/drivers/net/wireless/intel/iwlwifi/iwl-nvm-parse.c
++++ b/drivers/net/wireless/intel/iwlwifi/iwl-nvm-parse.c
+@@ -784,6 +784,7 @@ iwl_nvm_fixup_sband_iftd(struct iwl_trans *trans,
+ 	switch (CSR_HW_RFID_TYPE(trans->hw_rf_id)) {
+ 	case IWL_CFG_RF_TYPE_GF:
+ 	case IWL_CFG_RF_TYPE_MR:
++	case IWL_CFG_RF_TYPE_MS:
+ 		iftype_data->he_cap.he_cap_elem.phy_cap_info[9] |=
+ 			IEEE80211_HE_PHY_CAP9_TX_1024_QAM_LESS_THAN_242_TONE_RU;
+ 		if (!is_ap)
 
