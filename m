@@ -2,249 +2,149 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 580FA4F09FC
-	for <lists+stable@lfdr.de>; Sun,  3 Apr 2022 15:36:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7855D4F0A03
+	for <lists+stable@lfdr.de>; Sun,  3 Apr 2022 15:50:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234405AbiDCNi2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 3 Apr 2022 09:38:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57370 "EHLO
+        id S1358930AbiDCNwF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 3 Apr 2022 09:52:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58232 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232011AbiDCNi2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 3 Apr 2022 09:38:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D4FC33A17
-        for <stable@vger.kernel.org>; Sun,  3 Apr 2022 06:36:33 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B6758B80D1B
-        for <stable@vger.kernel.org>; Sun,  3 Apr 2022 13:36:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17EC7C340ED;
-        Sun,  3 Apr 2022 13:36:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648992990;
-        bh=FohMgVfNx0atJ21I1e+bQKneB8Ebba8ZNq3vZu5n4KA=;
-        h=Subject:To:Cc:From:Date:From;
-        b=z7Iwwvj7TUjbs1Q5zmnxGesCguh8FxIaMUMbUIsKz1xeFTjrSDZ/LWn5Qch2Ual9P
-         Qj2tk4ongYUAJ/H2J0lxkHPmvQo8hAzonIwaZ+FyHeCROzA2W/4LYwK43rSoPZi0Dy
-         zBmdz8sneV39edAs5n4dj8o0akGaSa/dl0YGsQw8=
-Subject: FAILED: patch "[PATCH] ubi: Fix race condition between ctrl_cdev_ioctl and" failed to apply to 4.9-stable tree
-To:     libaokun1@huawei.com, hulkci@huawei.com, richard@nod.at
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 03 Apr 2022 15:36:27 +0200
-Message-ID: <1648992987220143@kroah.com>
+        with ESMTP id S1358927AbiDCNwE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 3 Apr 2022 09:52:04 -0400
+Received: from pegase2.c-s.fr (pegase2.c-s.fr [93.17.235.10])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C04B2716C;
+        Sun,  3 Apr 2022 06:50:07 -0700 (PDT)
+Received: from localhost (mailhub3.si.c-s.fr [172.26.127.67])
+        by localhost (Postfix) with ESMTP id 4KWZzK48Xzz9sSb;
+        Sun,  3 Apr 2022 15:50:05 +0200 (CEST)
+X-Virus-Scanned: amavisd-new at c-s.fr
+Received: from pegase2.c-s.fr ([172.26.127.65])
+        by localhost (pegase2.c-s.fr [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id bxRquiQoyJOC; Sun,  3 Apr 2022 15:50:05 +0200 (CEST)
+Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
+        by pegase2.c-s.fr (Postfix) with ESMTP id 4KWZzK32c8z9sSY;
+        Sun,  3 Apr 2022 15:50:05 +0200 (CEST)
+Received: from localhost (localhost [127.0.0.1])
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id 5150C8B768;
+        Sun,  3 Apr 2022 15:50:05 +0200 (CEST)
+X-Virus-Scanned: amavisd-new at c-s.fr
+Received: from messagerie.si.c-s.fr ([127.0.0.1])
+        by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
+        with ESMTP id ng3gta0JI4UG; Sun,  3 Apr 2022 15:50:05 +0200 (CEST)
+Received: from PO20335.IDSI0.si.c-s.fr (unknown [192.168.202.138])
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id EFE738B763;
+        Sun,  3 Apr 2022 15:50:04 +0200 (CEST)
+Received: from PO20335.IDSI0.si.c-s.fr (localhost [127.0.0.1])
+        by PO20335.IDSI0.si.c-s.fr (8.17.1/8.16.1) with ESMTPS id 233DnrsL036216
+        (version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+        Sun, 3 Apr 2022 15:49:53 +0200
+Received: (from chleroy@localhost)
+        by PO20335.IDSI0.si.c-s.fr (8.17.1/8.17.1/Submit) id 233Dnpti036215;
+        Sun, 3 Apr 2022 15:49:51 +0200
+X-Authentication-Warning: PO20335.IDSI0.si.c-s.fr: chleroy set sender to christophe.leroy@csgroup.eu using -f
+From:   Christophe Leroy <christophe.leroy@csgroup.eu>
+To:     gregkh@linuxfoundation.org, stable@vger.kernel.org
+Cc:     Christophe Leroy <christophe.leroy@csgroup.eu>,
+        linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        Chen Jingwen <chenjingwen6@huawei.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH] [Rebased for 5.4] powerpc/kasan: Fix early region not updated correctly
+Date:   Sun,  3 Apr 2022 15:49:43 +0200
+Message-Id: <d4d9f1d352e617848a8ec19013fcce8d0cf2ceea.1648993765.git.christophe.leroy@csgroup.eu>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1648993782; l=3434; i=christophe.leroy@csgroup.eu; s=20211009; h=from:subject:message-id; bh=KlFvn8BO7MoeFJ9yLc4EVbX3iwf2xoGGklrSnVyeRjg=; b=3Y5IDTkh17i4k7MKuSB4VhLTxb8vFMLF8danx9w4SRJbwqoziZldjLIUb7XEZltC1x4MFyO2aTwe TYocrM1ZDLO3zRo2HUMUMQrnO4gCCspJ9qMK0Q9q1V9KJWd6bd/u
+X-Developer-Key: i=christophe.leroy@csgroup.eu; a=ed25519; pk=HIzTzUj91asvincQGOFx6+ZF5AoUuP9GdOtQChs7Mm0=
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-6.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,HEXHASH_WORD,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Chen Jingwen <chenjingwen6@huawei.com>
 
-The patch below does not apply to the 4.9-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+This is backport for 5.4
 
-thanks,
+Upstream commit dd75080aa8409ce10d50fb58981c6b59bf8707d3
 
-greg k-h
+The shadow's page table is not updated when PTE_RPN_SHIFT is 24
+and PAGE_SHIFT is 12. It not only causes false positives but
+also false negative as shown the following text.
 
------------------- original commit in Linus's tree ------------------
+Fix it by bringing the logic of kasan_early_shadow_page_entry here.
 
-From 3cbf0e392f173ba0ce425968c8374a6aa3e90f2e Mon Sep 17 00:00:00 2001
-From: Baokun Li <libaokun1@huawei.com>
-Date: Fri, 5 Nov 2021 17:30:22 +0800
-Subject: [PATCH] ubi: Fix race condition between ctrl_cdev_ioctl and
- ubi_cdev_ioctl
+1. False Positive:
+==================================================================
+BUG: KASAN: vmalloc-out-of-bounds in pcpu_alloc+0x508/0xa50
+Write of size 16 at addr f57f3be0 by task swapper/0/1
 
-Hulk Robot reported a KASAN report about use-after-free:
- ==================================================================
- BUG: KASAN: use-after-free in __list_del_entry_valid+0x13d/0x160
- Read of size 8 at addr ffff888035e37d98 by task ubiattach/1385
- [...]
- Call Trace:
-  klist_dec_and_del+0xa7/0x4a0
-  klist_put+0xc7/0x1a0
-  device_del+0x4d4/0xed0
-  cdev_device_del+0x1a/0x80
-  ubi_attach_mtd_dev+0x2951/0x34b0 [ubi]
-  ctrl_cdev_ioctl+0x286/0x2f0 [ubi]
+CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.15.0-12267-gdebe436e77c7 #1
+Call Trace:
+[c80d1c20] [c07fe7b8] dump_stack_lvl+0x4c/0x6c (unreliable)
+[c80d1c40] [c02ff668] print_address_description.constprop.0+0x88/0x300
+[c80d1c70] [c02ff45c] kasan_report+0x1ec/0x200
+[c80d1cb0] [c0300b20] kasan_check_range+0x160/0x2f0
+[c80d1cc0] [c03018a4] memset+0x34/0x90
+[c80d1ce0] [c0280108] pcpu_alloc+0x508/0xa50
+[c80d1d40] [c02fd7bc] __kmem_cache_create+0xfc/0x570
+[c80d1d70] [c0283d64] kmem_cache_create_usercopy+0x274/0x3e0
+[c80d1db0] [c2036580] init_sd+0xc4/0x1d0
+[c80d1de0] [c00044a0] do_one_initcall+0xc0/0x33c
+[c80d1eb0] [c2001624] kernel_init_freeable+0x2c8/0x384
+[c80d1ef0] [c0004b14] kernel_init+0x24/0x170
+[c80d1f10] [c001b26c] ret_from_kernel_thread+0x5c/0x64
 
- Allocated by task 1414:
-  device_add+0x60a/0x18b0
-  cdev_device_add+0x103/0x170
-  ubi_create_volume+0x1118/0x1a10 [ubi]
-  ubi_cdev_ioctl+0xb7f/0x1ba0 [ubi]
+Memory state around the buggy address:
+ f57f3a80: f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8
+ f57f3b00: f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8
+>f57f3b80: f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8
+                                               ^
+ f57f3c00: f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8
+ f57f3c80: f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8
+==================================================================
 
- Freed by task 1385:
-  cdev_device_del+0x1a/0x80
-  ubi_remove_volume+0x438/0x6c0 [ubi]
-  ubi_cdev_ioctl+0xbf4/0x1ba0 [ubi]
- [...]
- ==================================================================
+2. False Negative (with KASAN tests):
+==================================================================
+Before fix:
+    ok 45 - kmalloc_double_kzfree
+    # vmalloc_oob: EXPECTATION FAILED at lib/test_kasan.c:1039
+    KASAN failure expected in "((volatile char *)area)[3100]", but none occurred
+    not ok 46 - vmalloc_oob
+    not ok 1 - kasan
 
-The lock held by ctrl_cdev_ioctl is ubi_devices_mutex, but the lock held
-by ubi_cdev_ioctl is ubi->device_mutex. Therefore, the two locks can be
-concurrent.
+==================================================================
+After fix:
+    ok 1 - kasan
 
-ctrl_cdev_ioctl contains two operations: ubi_attach and ubi_detach.
-ubi_detach is bug-free because it uses reference counting to prevent
-concurrency. However, uif_init and uif_close in ubi_attach may race with
-ubi_cdev_ioctl.
+Fixes: cbd18991e24fe ("powerpc/mm: Fix an Oops in kasan_mmu_init()")
+Cc: stable@vger.kernel.org # 5.4.x
+Signed-off-by: Chen Jingwen <chenjingwen6@huawei.com>
+Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20211229035226.59159-1-chenjingwen6@huawei.com
+[chleroy: Backport for 5.4]
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+---
+ arch/powerpc/mm/kasan/kasan_init_32.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-uif_init will race with ubi_cdev_ioctl as in the following stack.
-           cpu1                   cpu2                  cpu3
-_______________________|________________________|______________________
-ctrl_cdev_ioctl
- ubi_attach_mtd_dev
-  uif_init
-                           ubi_cdev_ioctl
-                            ubi_create_volume
-                             cdev_device_add
-   ubi_add_volume
-   // sysfs exist
-   kill_volumes
-                                                    ubi_cdev_ioctl
-                                                     ubi_remove_volume
-                                                      cdev_device_del
-                                                       // first free
-    ubi_free_volume
-     cdev_del
-     // double free
-   cdev_device_del
-
-And uif_close will race with ubi_cdev_ioctl as in the following stack.
-           cpu1                   cpu2                  cpu3
-_______________________|________________________|______________________
-ctrl_cdev_ioctl
- ubi_attach_mtd_dev
-  uif_init
-                           ubi_cdev_ioctl
-                            ubi_create_volume
-                             cdev_device_add
-  ubi_debugfs_init_dev
-  //error goto out_uif;
-  uif_close
-   kill_volumes
-                                                    ubi_cdev_ioctl
-                                                     ubi_remove_volume
-                                                      cdev_device_del
-                                                       // first free
-    ubi_free_volume
-    // double free
-
-The cause of this problem is that commit 714fb87e8bc0 make device
-"available" before it becomes accessible via sysfs. Therefore, we
-roll back the modification. We will fix the race condition between
-ubi device creation and udev by removing ubi_get_device in
-vol_attribute_show and dev_attribute_show.This avoids accessing
-uninitialized ubi_devices[ubi_num].
-
-ubi_get_device is used to prevent devices from being deleted during
-sysfs execution. However, now kernfs ensures that devices will not
-be deleted before all reference counting are released.
-The key process is shown in the following stack.
-
-device_del
-  device_remove_attrs
-    device_remove_groups
-      sysfs_remove_groups
-        sysfs_remove_group
-          remove_files
-            kernfs_remove_by_name
-              kernfs_remove_by_name_ns
-                __kernfs_remove
-                  kernfs_drain
-
-Fixes: 714fb87e8bc0 ("ubi: Fix race condition between ubi device creation and udev")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Baokun Li <libaokun1@huawei.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
-
-diff --git a/drivers/mtd/ubi/build.c b/drivers/mtd/ubi/build.c
-index a7e3eb9befb6..a32050fecabf 100644
---- a/drivers/mtd/ubi/build.c
-+++ b/drivers/mtd/ubi/build.c
-@@ -351,9 +351,6 @@ static ssize_t dev_attribute_show(struct device *dev,
- 	 * we still can use 'ubi->ubi_num'.
- 	 */
- 	ubi = container_of(dev, struct ubi_device, dev);
--	ubi = ubi_get_device(ubi->ubi_num);
--	if (!ubi)
--		return -ENODEV;
+diff --git a/arch/powerpc/mm/kasan/kasan_init_32.c b/arch/powerpc/mm/kasan/kasan_init_32.c
+index 1cfe57b51d7e..3f78007a7282 100644
+--- a/arch/powerpc/mm/kasan/kasan_init_32.c
++++ b/arch/powerpc/mm/kasan/kasan_init_32.c
+@@ -121,7 +121,7 @@ static void __init kasan_remap_early_shadow_ro(void)
+ 		pmd_t *pmd = pmd_offset(pud_offset(pgd_offset_k(k_cur), k_cur), k_cur);
+ 		pte_t *ptep = pte_offset_kernel(pmd, k_cur);
  
- 	if (attr == &dev_eraseblock_size)
- 		ret = sprintf(buf, "%d\n", ubi->leb_size);
-@@ -382,7 +379,6 @@ static ssize_t dev_attribute_show(struct device *dev,
- 	else
- 		ret = -EINVAL;
+-		if ((pte_val(*ptep) & PTE_RPN_MASK) != pa)
++		if (pte_page(*ptep) != virt_to_page(lm_alias(kasan_early_shadow_page)))
+ 			continue;
  
--	ubi_put_device(ubi);
- 	return ret;
- }
- 
-@@ -979,9 +975,6 @@ int ubi_attach_mtd_dev(struct mtd_info *mtd, int ubi_num,
- 			goto out_detach;
- 	}
- 
--	/* Make device "available" before it becomes accessible via sysfs */
--	ubi_devices[ubi_num] = ubi;
--
- 	err = uif_init(ubi);
- 	if (err)
- 		goto out_detach;
-@@ -1026,6 +1019,7 @@ int ubi_attach_mtd_dev(struct mtd_info *mtd, int ubi_num,
- 	wake_up_process(ubi->bgt_thread);
- 	spin_unlock(&ubi->wl_lock);
- 
-+	ubi_devices[ubi_num] = ubi;
- 	ubi_notify_all(ubi, UBI_VOLUME_ADDED, NULL);
- 	return ubi_num;
- 
-@@ -1034,7 +1028,6 @@ int ubi_attach_mtd_dev(struct mtd_info *mtd, int ubi_num,
- out_uif:
- 	uif_close(ubi);
- out_detach:
--	ubi_devices[ubi_num] = NULL;
- 	ubi_wl_close(ubi);
- 	ubi_free_all_volumes(ubi);
- 	vfree(ubi->vtbl);
-diff --git a/drivers/mtd/ubi/vmt.c b/drivers/mtd/ubi/vmt.c
-index 139ee132bfbc..1bc7b3a05604 100644
---- a/drivers/mtd/ubi/vmt.c
-+++ b/drivers/mtd/ubi/vmt.c
-@@ -56,16 +56,11 @@ static ssize_t vol_attribute_show(struct device *dev,
- {
- 	int ret;
- 	struct ubi_volume *vol = container_of(dev, struct ubi_volume, dev);
--	struct ubi_device *ubi;
--
--	ubi = ubi_get_device(vol->ubi->ubi_num);
--	if (!ubi)
--		return -ENODEV;
-+	struct ubi_device *ubi = vol->ubi;
- 
- 	spin_lock(&ubi->volumes_lock);
- 	if (!ubi->volumes[vol->vol_id]) {
- 		spin_unlock(&ubi->volumes_lock);
--		ubi_put_device(ubi);
- 		return -ENODEV;
- 	}
- 	/* Take a reference to prevent volume removal */
-@@ -103,7 +98,6 @@ static ssize_t vol_attribute_show(struct device *dev,
- 	vol->ref_count -= 1;
- 	ubi_assert(vol->ref_count >= 0);
- 	spin_unlock(&ubi->volumes_lock);
--	ubi_put_device(ubi);
- 	return ret;
- }
- 
+ 		__set_pte_at(&init_mm, k_cur, ptep, pfn_pte(PHYS_PFN(pa), prot), 0);
+-- 
+2.35.1
 
