@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F1FC14F090C
-	for <lists+stable@lfdr.de>; Sun,  3 Apr 2022 13:38:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 17A5F4F090D
+	for <lists+stable@lfdr.de>; Sun,  3 Apr 2022 13:38:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355326AbiDCLj6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 3 Apr 2022 07:39:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58734 "EHLO
+        id S1355425AbiDCLkI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 3 Apr 2022 07:40:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58788 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355425AbiDCLj5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 3 Apr 2022 07:39:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B485337005
-        for <stable@vger.kernel.org>; Sun,  3 Apr 2022 04:38:03 -0700 (PDT)
+        with ESMTP id S241169AbiDCLkH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 3 Apr 2022 07:40:07 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5FE637005
+        for <stable@vger.kernel.org>; Sun,  3 Apr 2022 04:38:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4B0256106D
-        for <stable@vger.kernel.org>; Sun,  3 Apr 2022 11:38:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CFCAC340F0;
-        Sun,  3 Apr 2022 11:38:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9CE16B80D11
+        for <stable@vger.kernel.org>; Sun,  3 Apr 2022 11:38:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DBD04C340F0;
+        Sun,  3 Apr 2022 11:38:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648985882;
-        bh=FcgRPn/s+mNvI/u9UaUcMIuhrfiZotxXIWobMYX2JRA=;
+        s=korg; t=1648985891;
+        bh=sODwFrN4/ZfqKwUJn1tfKIA08fJdmCsAmwJur8g6nAs=;
         h=Subject:To:Cc:From:Date:From;
-        b=PiKjh6rwhsMDFHQu4BlKbqonywasql6JEEZuLfjDX+1Op6dJ9fD0FHcSzZJuaiUlH
-         KTi4Jq0Y70a3VCCy8YXGv9JTIds8uzKfaLdrA/Gj/SgYThuk5n5vur8nqduI7ywllx
-         HBZ2xzifF5VlT+8QpCWY0nkng7BWSm0F3zJ+LzC0=
-Subject: FAILED: patch "[PATCH] ubifs: Fix 'ui->dirty' race between do_tmpfile() and" failed to apply to 4.9-stable tree
+        b=ml/y6Pbat2x0tYjWGvBNMeBr+HCMpc0VY418MtapjVCQwRVDzDKnlUUitpl3uLBFp
+         oD6nFiCqbOaSL/h7Hw2uHRmRV2ZA+f/VCubmlSNmJY25uSiaa6Bak/wsTH8ggeLHcP
+         JfIsds2F6e2yWIareylOkA4yp/4N+G+7/8p2b1b0=
+Subject: FAILED: patch "[PATCH] ubifs: Fix 'ui->dirty' race between do_tmpfile() and" failed to apply to 4.14-stable tree
 To:     chengzhihao1@huawei.com, richard@nod.at
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sun, 03 Apr 2022 13:38:00 +0200
-Message-ID: <164898588089252@kroah.com>
+Message-ID: <164898588021415@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
