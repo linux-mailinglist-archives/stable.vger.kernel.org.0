@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B06144F095C
-	for <lists+stable@lfdr.de>; Sun,  3 Apr 2022 14:32:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A6C664F0969
+	for <lists+stable@lfdr.de>; Sun,  3 Apr 2022 14:33:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241484AbiDCMdz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 3 Apr 2022 08:33:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45018 "EHLO
+        id S242131AbiDCMfQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 3 Apr 2022 08:35:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45352 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238694AbiDCMdz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 3 Apr 2022 08:33:55 -0400
+        with ESMTP id S233637AbiDCMfO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 3 Apr 2022 08:35:14 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 887E735256
-        for <stable@vger.kernel.org>; Sun,  3 Apr 2022 05:32:01 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F99D35256
+        for <stable@vger.kernel.org>; Sun,  3 Apr 2022 05:33:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 242B061139
-        for <stable@vger.kernel.org>; Sun,  3 Apr 2022 12:32:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A4B6C340ED;
-        Sun,  3 Apr 2022 12:31:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A9F3C61032
+        for <stable@vger.kernel.org>; Sun,  3 Apr 2022 12:33:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B620AC340ED;
+        Sun,  3 Apr 2022 12:33:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1648989120;
-        bh=dYTMN68DzHgZkKbKTkYzglr5IQqlLk4I2Fu9I/ZkWoQ=;
+        s=korg; t=1648989199;
+        bh=K0R+oXlwKxSnPTRYUaorbIGNccv+G/NuJZxvpb+c/HU=;
         h=Subject:To:Cc:From:Date:From;
-        b=NSVWZzv3CkmrnlYpF3UXVi07QP324yJ0PJV25PoT2WeTnnsaUdqGz0sjlb/4T95CQ
-         zOlYLMfEncVb50VjnNorVo9jMXR98Bxvm0riqWe/u5cWxC0sXLza1m33zoNHqp7r8w
-         Gpvj/khH3e8p9E7IrElXrPWo50Z2eI8XVuiI4pzs=
-Subject: FAILED: patch "[PATCH] rtc: check if __rtc_read_time was successful" failed to apply to 4.19-stable tree
-To:     trix@redhat.com, alexandre.belloni@bootlin.com
+        b=y56eNSKl78Ci3HTCZCQjPCR+mjDmkQZV2A4NS9a0enhEpkTfX2DnUeX7goEz5NZ74
+         a0luHaCNrXqg+aE/R2TQNnpybnXYAe9zwL9bxQc42LDQvvAGEveSyCb8PX2cSstAXl
+         5hVBTILEuyqr19svXM63saD6VxseOeceoThiIXiI=
+Subject: FAILED: patch "[PATCH] gfs2: gfs2_setattr_size error path fix" failed to apply to 5.10-stable tree
+To:     agruenba@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 03 Apr 2022 14:31:50 +0200
-Message-ID: <164898911021489@kroah.com>
+Date:   Sun, 03 Apr 2022 14:33:16 +0200
+Message-ID: <164898919690219@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,52 +59,112 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 915593a7a663b2ad08b895a5f3ba8b19d89d4ebf Mon Sep 17 00:00:00 2001
-From: Tom Rix <trix@redhat.com>
-Date: Sat, 26 Mar 2022 12:42:36 -0700
-Subject: [PATCH] rtc: check if __rtc_read_time was successful
+From 7336905a89f19173bf9301cd50a24421162f417c Mon Sep 17 00:00:00 2001
+From: Andreas Gruenbacher <agruenba@redhat.com>
+Date: Fri, 10 Dec 2021 14:43:36 +0100
+Subject: [PATCH] gfs2: gfs2_setattr_size error path fix
 
-Clang static analysis reports this issue
-interface.c:810:8: warning: Passed-by-value struct
-  argument contains uninitialized data
-  now = rtc_tm_to_ktime(tm);
-      ^~~~~~~~~~~~~~~~~~~
+When gfs2_setattr_size() fails, it calls gfs2_rs_delete(ip, NULL) to get
+rid of any reservations the inode may have.  Instead, it should pass in
+the inode's write count as the second parameter to allow
+gfs2_rs_delete() to figure out if the inode has any writers left.
 
-tm is set by a successful call to __rtc_read_time()
-but its return status is not checked.  Check if
-it was successful before setting the enabled flag.
-Move the decl of err to function scope.
+In a next step, there are two instances of gfs2_rs_delete(ip, NULL) left
+where we know that there can be no other users of the inode.  Replace
+those with gfs2_rs_deltree(&ip->i_res) to avoid the unnecessary write
+count check.
 
-Fixes: 2b2f5ff00f63 ("rtc: interface: ignore expired timers when enqueuing new timers")
-Signed-off-by: Tom Rix <trix@redhat.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/20220326194236.2916310-1-trix@redhat.com
+With that, gfs2_rs_delete() is only called with the inode's actual write
+count, so get rid of the second parameter.
 
-diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
-index d8e835798153..9edd662c69ac 100644
---- a/drivers/rtc/interface.c
-+++ b/drivers/rtc/interface.c
-@@ -804,9 +804,13 @@ static int rtc_timer_enqueue(struct rtc_device *rtc, struct rtc_timer *timer)
- 	struct timerqueue_node *next = timerqueue_getnext(&rtc->timerqueue);
- 	struct rtc_time tm;
- 	ktime_t now;
-+	int err;
+Fixes: a097dc7e24cb ("GFS2: Make rgrp reservations part of the gfs2_inode structure")
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+
+diff --git a/fs/gfs2/bmap.c b/fs/gfs2/bmap.c
+index d67108489148..fbdb7a30470a 100644
+--- a/fs/gfs2/bmap.c
++++ b/fs/gfs2/bmap.c
+@@ -2146,7 +2146,7 @@ int gfs2_setattr_size(struct inode *inode, u64 newsize)
+ 
+ 	ret = do_shrink(inode, newsize);
+ out:
+-	gfs2_rs_delete(ip, NULL);
++	gfs2_rs_delete(ip);
+ 	gfs2_qa_put(ip);
+ 	return ret;
+ }
+diff --git a/fs/gfs2/file.c b/fs/gfs2/file.c
+index 8c39a8571b1f..5bac4f6e8e05 100644
+--- a/fs/gfs2/file.c
++++ b/fs/gfs2/file.c
+@@ -706,7 +706,7 @@ static int gfs2_release(struct inode *inode, struct file *file)
+ 
+ 	if (file->f_mode & FMODE_WRITE) {
+ 		if (gfs2_rs_active(&ip->i_res))
+-			gfs2_rs_delete(ip, &inode->i_writecount);
++			gfs2_rs_delete(ip);
+ 		gfs2_qa_put(ip);
+ 	}
+ 	return 0;
+diff --git a/fs/gfs2/inode.c b/fs/gfs2/inode.c
+index 89905f4f29bb..66a123306aec 100644
+--- a/fs/gfs2/inode.c
++++ b/fs/gfs2/inode.c
+@@ -793,7 +793,7 @@ static int gfs2_create_inode(struct inode *dir, struct dentry *dentry,
+ 		if (free_vfs_inode) /* else evict will do the put for us */
+ 			gfs2_glock_put(ip->i_gl);
+ 	}
+-	gfs2_rs_delete(ip, NULL);
++	gfs2_rs_deltree(&ip->i_res);
+ 	gfs2_qa_put(ip);
+ fail_free_acls:
+ 	posix_acl_release(default_acl);
+diff --git a/fs/gfs2/rgrp.c b/fs/gfs2/rgrp.c
+index 9b04a570c582..9df8a84f85a6 100644
+--- a/fs/gfs2/rgrp.c
++++ b/fs/gfs2/rgrp.c
+@@ -680,13 +680,14 @@ void gfs2_rs_deltree(struct gfs2_blkreserv *rs)
+ /**
+  * gfs2_rs_delete - delete a multi-block reservation
+  * @ip: The inode for this reservation
+- * @wcount: The inode's write count, or NULL
+  *
+  */
+-void gfs2_rs_delete(struct gfs2_inode *ip, atomic_t *wcount)
++void gfs2_rs_delete(struct gfs2_inode *ip)
+ {
++	struct inode *inode = &ip->i_inode;
 +
-+	err = __rtc_read_time(rtc, &tm);
-+	if (err)
-+		return err;
+ 	down_write(&ip->i_rw_mutex);
+-	if ((wcount == NULL) || (atomic_read(wcount) <= 1))
++	if (atomic_read(&inode->i_writecount) <= 1)
+ 		gfs2_rs_deltree(&ip->i_res);
+ 	up_write(&ip->i_rw_mutex);
+ }
+diff --git a/fs/gfs2/rgrp.h b/fs/gfs2/rgrp.h
+index 3e2ca1fb4305..46dd94e9e085 100644
+--- a/fs/gfs2/rgrp.h
++++ b/fs/gfs2/rgrp.h
+@@ -45,7 +45,7 @@ extern int gfs2_alloc_blocks(struct gfs2_inode *ip, u64 *bn, unsigned int *n,
+ 			     bool dinode, u64 *generation);
  
- 	timer->enabled = 1;
--	__rtc_read_time(rtc, &tm);
- 	now = rtc_tm_to_ktime(tm);
- 
- 	/* Skip over expired timers */
-@@ -820,7 +824,6 @@ static int rtc_timer_enqueue(struct rtc_device *rtc, struct rtc_timer *timer)
- 	trace_rtc_timer_enqueue(timer);
- 	if (!next || ktime_before(timer->node.expires, next->expires)) {
- 		struct rtc_wkalrm alarm;
--		int err;
- 
- 		alarm.time = rtc_ktime_to_tm(timer->node.expires);
- 		alarm.enabled = 1;
+ extern void gfs2_rs_deltree(struct gfs2_blkreserv *rs);
+-extern void gfs2_rs_delete(struct gfs2_inode *ip, atomic_t *wcount);
++extern void gfs2_rs_delete(struct gfs2_inode *ip);
+ extern void __gfs2_free_blocks(struct gfs2_inode *ip, struct gfs2_rgrpd *rgd,
+ 			       u64 bstart, u32 blen, int meta);
+ extern void gfs2_free_meta(struct gfs2_inode *ip, struct gfs2_rgrpd *rgd,
+diff --git a/fs/gfs2/super.c b/fs/gfs2/super.c
+index 64c67090f503..143a47359d1b 100644
+--- a/fs/gfs2/super.c
++++ b/fs/gfs2/super.c
+@@ -1396,7 +1396,7 @@ static void gfs2_evict_inode(struct inode *inode)
+ 	truncate_inode_pages_final(&inode->i_data);
+ 	if (ip->i_qadata)
+ 		gfs2_assert_warn(sdp, ip->i_qadata->qa_ref == 0);
+-	gfs2_rs_delete(ip, NULL);
++	gfs2_rs_deltree(&ip->i_res);
+ 	gfs2_ordered_del_inode(ip);
+ 	clear_inode(inode);
+ 	gfs2_dir_hash_inval(ip);
 
