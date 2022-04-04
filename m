@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 089BD4F1381
-	for <lists+stable@lfdr.de>; Mon,  4 Apr 2022 12:57:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AFEE64F138D
+	for <lists+stable@lfdr.de>; Mon,  4 Apr 2022 13:01:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356285AbiDDK7K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Apr 2022 06:59:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39744 "EHLO
+        id S1358884AbiDDLDi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Apr 2022 07:03:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229594AbiDDK7J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Apr 2022 06:59:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3C7A3389C
-        for <stable@vger.kernel.org>; Mon,  4 Apr 2022 03:57:13 -0700 (PDT)
+        with ESMTP id S236147AbiDDLDh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Apr 2022 07:03:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B4593D1CE
+        for <stable@vger.kernel.org>; Mon,  4 Apr 2022 04:01:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7109960A5A
-        for <stable@vger.kernel.org>; Mon,  4 Apr 2022 10:57:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8166EC340F3;
-        Mon,  4 Apr 2022 10:57:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A9E6160B2D
+        for <stable@vger.kernel.org>; Mon,  4 Apr 2022 11:01:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1331C2BBE4;
+        Mon,  4 Apr 2022 11:01:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649069832;
-        bh=ZX8ipD5NYo4nouI3ldDBiEK3tLeM2wgOF9u4+ODCrLc=;
+        s=korg; t=1649070101;
+        bh=HCb8V/LWx4nQOou1s40BnxIhOFiWL0TYmCIqCURGR6g=;
         h=Subject:To:Cc:From:Date:From;
-        b=L08MwulOjzKXksrPXuZDn1tRPFOw86KModl922s33p76M47Dt3aa31eQHC1fvKRIe
-         elXTlakiDU+vCzVuvQZXJ0FcfwiOtY/JzDKUG6JgnwyCVc9bCeOwcKR9axAp1bBFmO
-         mCXOiEPI4iCIQo+jwMsc1ULeRM0jje9vcGHUNBNo=
-Subject: FAILED: patch "[PATCH] clk: qcom: smd: Add missing RPM clocks for msm8992/4" failed to apply to 5.16-stable tree
-To:     konrad.dybcio@somainline.org, bjorn.andersson@linaro.org
+        b=U69YwdIrEd+USNTI2CZJNJQJEiVW4mdbtoln9REZnLHTquMLqry497V8vnfmcJZhS
+         L600k0ahyoP6FxwDLAeSM9qra/5sL44GmKmLUSz7Tv+ugXkQKZUtkawQNPmSmtQ9Hq
+         fYv6H4eRrOAtnR+/f7/6Qk/AdjO0jVfXXeVIBRYs=
+Subject: FAILED: patch "[PATCH] vdpa/mlx5: Avoid processing works if workqueue was destroyed" failed to apply to 5.15-stable tree
+To:     elic@nvidia.com, mst@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 04 Apr 2022 12:57:02 +0200
-Message-ID: <16490698224784@kroah.com>
+Date:   Mon, 04 Apr 2022 13:01:38 +0200
+Message-ID: <16490700981919@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.16-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,90 +59,50 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From f804360bb3a50decbed6e2761247964dca72c080 Mon Sep 17 00:00:00 2001
-From: Konrad Dybcio <konrad.dybcio@somainline.org>
-Date: Sat, 26 Feb 2022 22:41:25 +0100
-Subject: [PATCH] clk: qcom: smd: Add missing RPM clocks for msm8992/4
+From ad6dc1daaf29f97f23cc810d60ee01c0e83f4c6b Mon Sep 17 00:00:00 2001
+From: Eli Cohen <elic@nvidia.com>
+Date: Mon, 21 Mar 2022 16:13:03 +0200
+Subject: [PATCH] vdpa/mlx5: Avoid processing works if workqueue was destroyed
 
-XO and MSS_CFG were omitted when first adding the clocks for these SoCs.
-Add them, and while at it, move the XO clock to the top of the definition
-list, as ideally everyone should start using it sooner or later..
+If mlx5_vdpa gets unloaded while a VM is running, the workqueue will be
+destroyed. However, vhost might still have reference to the kick
+function and might attempt to push new works. This could lead to null
+pointer dereference.
 
-Fixes: b4297844995f ("clk: qcom: smd: Add support for MSM8992/4 rpm clocks")
-Signed-off-by: Konrad Dybcio <konrad.dybcio@somainline.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220226214126.21209-2-konrad.dybcio@somainline.org
+To fix this, set mvdev->wq to NULL just before destroying and verify
+that the workqueue is not NULL in mlx5_vdpa_kick_vq before attempting to
+push a new work.
 
-diff --git a/drivers/clk/qcom/clk-smd-rpm.c b/drivers/clk/qcom/clk-smd-rpm.c
-index ea28e45ca371..418f017e933f 100644
---- a/drivers/clk/qcom/clk-smd-rpm.c
-+++ b/drivers/clk/qcom/clk-smd-rpm.c
-@@ -413,6 +413,7 @@ static const struct clk_ops clk_smd_rpm_branch_ops = {
- 	.recalc_rate	= clk_smd_rpm_recalc_rate,
- };
+Fixes: 5262912ef3cf ("vdpa/mlx5: Add support for control VQ and MAC setting")
+Signed-off-by: Eli Cohen <elic@nvidia.com>
+Link: https://lore.kernel.org/r/20220321141303.9586-1-elic@nvidia.com
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+index c0f0ecb82c6f..2f4fb09f1e89 100644
+--- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
++++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+@@ -1712,7 +1712,7 @@ static void mlx5_vdpa_kick_vq(struct vdpa_device *vdev, u16 idx)
+ 		return;
  
-+DEFINE_CLK_SMD_RPM_BRANCH(sdm660, bi_tcxo, bi_tcxo_a, QCOM_SMD_RPM_MISC_CLK, 0, 19200000);
- DEFINE_CLK_SMD_RPM(msm8916, pcnoc_clk, pcnoc_a_clk, QCOM_SMD_RPM_BUS_CLK, 0);
- DEFINE_CLK_SMD_RPM(msm8916, snoc_clk, snoc_a_clk, QCOM_SMD_RPM_BUS_CLK, 1);
- DEFINE_CLK_SMD_RPM(msm8916, bimc_clk, bimc_a_clk, QCOM_SMD_RPM_MEM_CLK, 0);
-@@ -604,7 +605,11 @@ DEFINE_CLK_SMD_RPM_XO_BUFFER(msm8992, ln_bb_clk, ln_bb_a_clk, 8, 19200000);
- DEFINE_CLK_SMD_RPM(msm8992, ce1_clk, ce1_a_clk, QCOM_SMD_RPM_CE_CLK, 0);
- DEFINE_CLK_SMD_RPM(msm8992, ce2_clk, ce2_a_clk, QCOM_SMD_RPM_CE_CLK, 1);
+ 	if (unlikely(is_ctrl_vq_idx(mvdev, idx))) {
+-		if (!mvdev->cvq.ready)
++		if (!mvdev->wq || !mvdev->cvq.ready)
+ 			return;
  
-+DEFINE_CLK_SMD_RPM_BRANCH(msm8992, mss_cfg_ahb_clk, mss_cfg_ahb_a_clk,
-+			  QCOM_SMD_RPM_MCFG_CLK, 0, 19200000);
- static struct clk_smd_rpm *msm8992_clks[] = {
-+	[RPM_SMD_XO_CLK_SRC] = &sdm660_bi_tcxo,
-+	[RPM_SMD_XO_A_CLK_SRC] = &sdm660_bi_tcxo_a,
- 	[RPM_SMD_PNOC_CLK] = &msm8916_pcnoc_clk,
- 	[RPM_SMD_PNOC_A_CLK] = &msm8916_pcnoc_a_clk,
- 	[RPM_SMD_OCMEMGX_CLK] = &msm8974_ocmemgx_clk,
-@@ -637,6 +642,8 @@ static struct clk_smd_rpm *msm8992_clks[] = {
- 	[RPM_SMD_LN_BB_A_CLK] = &msm8992_ln_bb_a_clk,
- 	[RPM_SMD_MMSSNOC_AHB_CLK] = &msm8974_mmssnoc_ahb_clk,
- 	[RPM_SMD_MMSSNOC_AHB_A_CLK] = &msm8974_mmssnoc_ahb_a_clk,
-+	[RPM_SMD_MSS_CFG_AHB_CLK] = &msm8992_mss_cfg_ahb_clk,
-+	[RPM_SMD_MSS_CFG_AHB_A_CLK] = &msm8992_mss_cfg_ahb_a_clk,
- 	[RPM_SMD_QDSS_CLK] = &msm8916_qdss_clk,
- 	[RPM_SMD_QDSS_A_CLK] = &msm8916_qdss_a_clk,
- 	[RPM_SMD_RF_CLK1] = &msm8916_rf_clk1,
-@@ -661,6 +668,8 @@ static const struct rpm_smd_clk_desc rpm_clk_msm8992 = {
- DEFINE_CLK_SMD_RPM(msm8994, ce3_clk, ce3_a_clk, QCOM_SMD_RPM_CE_CLK, 2);
+ 		wqent = kzalloc(sizeof(*wqent), GFP_ATOMIC);
+@@ -2779,9 +2779,12 @@ static void mlx5_vdpa_dev_del(struct vdpa_mgmt_dev *v_mdev, struct vdpa_device *
+ 	struct mlx5_vdpa_mgmtdev *mgtdev = container_of(v_mdev, struct mlx5_vdpa_mgmtdev, mgtdev);
+ 	struct mlx5_vdpa_dev *mvdev = to_mvdev(dev);
+ 	struct mlx5_vdpa_net *ndev = to_mlx5_vdpa_ndev(mvdev);
++	struct workqueue_struct *wq;
  
- static struct clk_smd_rpm *msm8994_clks[] = {
-+	[RPM_SMD_XO_CLK_SRC] = &sdm660_bi_tcxo,
-+	[RPM_SMD_XO_A_CLK_SRC] = &sdm660_bi_tcxo_a,
- 	[RPM_SMD_PNOC_CLK] = &msm8916_pcnoc_clk,
- 	[RPM_SMD_PNOC_A_CLK] = &msm8916_pcnoc_a_clk,
- 	[RPM_SMD_OCMEMGX_CLK] = &msm8974_ocmemgx_clk,
-@@ -693,6 +702,8 @@ static struct clk_smd_rpm *msm8994_clks[] = {
- 	[RPM_SMD_LN_BB_A_CLK] = &msm8992_ln_bb_a_clk,
- 	[RPM_SMD_MMSSNOC_AHB_CLK] = &msm8974_mmssnoc_ahb_clk,
- 	[RPM_SMD_MMSSNOC_AHB_A_CLK] = &msm8974_mmssnoc_ahb_a_clk,
-+	[RPM_SMD_MSS_CFG_AHB_CLK] = &msm8992_mss_cfg_ahb_clk,
-+	[RPM_SMD_MSS_CFG_AHB_A_CLK] = &msm8992_mss_cfg_ahb_a_clk,
- 	[RPM_SMD_QDSS_CLK] = &msm8916_qdss_clk,
- 	[RPM_SMD_QDSS_A_CLK] = &msm8916_qdss_a_clk,
- 	[RPM_SMD_RF_CLK1] = &msm8916_rf_clk1,
-@@ -857,8 +868,6 @@ static const struct rpm_smd_clk_desc rpm_clk_msm8998 = {
- 	.num_clks = ARRAY_SIZE(msm8998_clks),
- };
- 
--DEFINE_CLK_SMD_RPM_BRANCH(sdm660, bi_tcxo, bi_tcxo_a, QCOM_SMD_RPM_MISC_CLK, 0,
--								19200000);
- DEFINE_CLK_SMD_RPM_XO_BUFFER(sdm660, ln_bb_clk3, ln_bb_clk3_a, 3, 19200000);
- DEFINE_CLK_SMD_RPM_XO_BUFFER_PINCTRL(sdm660, ln_bb_clk3_pin, ln_bb_clk3_pin_a, 3, 19200000);
- 
-diff --git a/include/linux/soc/qcom/smd-rpm.h b/include/linux/soc/qcom/smd-rpm.h
-index 860dd8cdf9f3..82c9d489833a 100644
---- a/include/linux/soc/qcom/smd-rpm.h
-+++ b/include/linux/soc/qcom/smd-rpm.h
-@@ -40,6 +40,7 @@ struct qcom_smd_rpm;
- #define QCOM_SMD_RPM_AGGR_CLK	0x72676761
- #define QCOM_SMD_RPM_HWKM_CLK	0x6d6b7768
- #define QCOM_SMD_RPM_PKA_CLK	0x616b70
-+#define QCOM_SMD_RPM_MCFG_CLK	0x6766636d
- 
- int qcom_rpm_smd_write(struct qcom_smd_rpm *rpm,
- 		       int state,
+ 	mlx5_notifier_unregister(mvdev->mdev, &ndev->nb);
+-	destroy_workqueue(mvdev->wq);
++	wq = mvdev->wq;
++	mvdev->wq = NULL;
++	destroy_workqueue(wq);
+ 	_vdpa_unregister_device(dev);
+ 	mgtdev->ndev = NULL;
+ }
 
