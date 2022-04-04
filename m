@@ -2,69 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B50364F0D90
-	for <lists+stable@lfdr.de>; Mon,  4 Apr 2022 04:38:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 008984F0DCC
+	for <lists+stable@lfdr.de>; Mon,  4 Apr 2022 05:52:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376915AbiDDCkY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 3 Apr 2022 22:40:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48798 "EHLO
+        id S1356124AbiDDDxh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 3 Apr 2022 23:53:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47594 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356313AbiDDCkX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 3 Apr 2022 22:40:23 -0400
-Received: from mta-out-05.alice.it (mta-out-05.alice.it [217.169.118.11])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id B21F31C132
-        for <stable@vger.kernel.org>; Sun,  3 Apr 2022 19:38:26 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alice.it; s=20211207; t=1649039906; 
-        bh=47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=;
-        h=Reply-To:From:To:Date:Message-ID:MIME-Version;
-        b=M5gscEcCwQ2kwP5hyfy5O0jgqZgI4NiXIz7a6xUafGcr9lfwbOpN0pZTmhqbiA+iPL6brGxGe3r6wQ4F73lnTfXOKMHn/x0X5y+oMSQkqcC+pmphYwojmR94Qc2C2mIXoJQoHCrcoT0yN5RH3jUL8ZurgnfQ90Ig//zMk8OSIgeDI2PURz2Ei8gqvdVekowGed7PmSzI0TdMe1AN4MzHSPvbSr91H99p5XlszjEwW4KUA+sWEiN/YV3/mYRZJGpko+YBHzuz2WxRThTZxBT9I+QlvY2AoquNeg4Dtg5jMxaDv6aRv6SSaMdnElB5m6UrHOUPY6lwsUmubXImf0eE1Q==
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgedvvddrudejuddgieduucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuvffgnffgvefqoffkvfetnffktedpqfgfvfenuceurghilhhouhhtmecufedtudenucfgmhhpthihuchsuhgsjhgvtghtucdluddtmdengfhmphhthicusghougihucdlhedtmdenucfjughrpehrhffvfffkggestddtfedttddttdenucfhrhhomhephggvuchhrghvvgcurghnuchofhhfvghruchtohcuihhnvhgvshhtuchinhcuhihouhhrucgtohhunhhtrhihuchunhguvghrucgruchjohhinhhtuchvvghnthhurhgvuchprghrthhnvghrshhhihhpuchplhgvrghsvgcurhgvphhlhicufhhorhcumhhorhgvucguvghtrghilhhsuceofhgpphgvnhhnrgesrghlihgtvgdrihhtqeenucggtffrrghtthgvrhhnpeehjeetgefhleetiedtkeelfffgjeeugeegleekueffgfegtdekkeeifedvvdffteenucfkphepudejiedrvddvjedrvdegvddrudeltdenucevlhhushhtvghrufhiiigvpeduheekudenucfrrghrrghmpehhvghloheprghlihgtvgdrihhtpdhinhgvthepudejiedrvddvjedrvdegvddrudeltddpmhgrihhlfhhrohhmpehfpghpvghnnhgrsegrlhhitggvrdhithdpnhgspghrtghpthhtohepuddprhgtphhtthhopehsthgrsghlvgesvhhgvghrrdhkvghrnhgvlhdrohhrgh
-X-RazorGate-Vade-Verdict: clean 60
-X-RazorGate-Vade-Classification: clean
-Received: from alice.it (176.227.242.190) by mta-out-05.alice.it (5.8.807.04) (authenticated as f_penna@alice.it)
-        id 623DD3C5011D92D1 for stable@vger.kernel.org; Mon, 4 Apr 2022 04:38:24 +0200
-Reply-To: dougfield20@inbox.lv
-From:   We have an offer to invest in your country under a
-         joint venture partnership please reply for more
-         details <f_penna@alice.it>
-To:     stable@vger.kernel.org
-Date:   03 Apr 2022 19:38:23 -0700
-Message-ID: <20220403193823.8634DA0218525B81@alice.it>
+        with ESMTP id S1349282AbiDDDxe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 3 Apr 2022 23:53:34 -0400
+Received: from mail-wr1-x42d.google.com (mail-wr1-x42d.google.com [IPv6:2a00:1450:4864:20::42d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1164B31218
+        for <stable@vger.kernel.org>; Sun,  3 Apr 2022 20:51:38 -0700 (PDT)
+Received: by mail-wr1-x42d.google.com with SMTP id h4so12448849wrc.13
+        for <stable@vger.kernel.org>; Sun, 03 Apr 2022 20:51:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=brainfault-org.20210112.gappssmtp.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=r5K6b0sc6oOdX9PQxMtrYXV8USG1YlONAxoBoZNU3l4=;
+        b=KK3qDVtl6tM1RC0vWJnjyjAOaBy9HeE8/J3cKTugiWs6TNndA8Vg82MGSJiu79ETZ9
+         X+G314yykqvPYI2h4vxy4qqe0E8bDEu6Pk23l8xjJMUNi4sSsIUwyXUPZb3codKUinnS
+         7eLz56OFMh+1h+AdCdVcpMxwkT0tCike5pComkqD4oMYKXMz8k3wGwwT7UrbveBFjtRV
+         Ql3xXEdAWWyf/cRgLKSfwCvFdjvS0exmaL4XX1iOCKrs/N84Me5KcmEyAJsWdb4YGTs4
+         8yDSipiD22wqji5E7+BXbjOGj1jhfghTr1RjRNbedQ0BdvxbxVt2GRKJULuUKAon/jNy
+         T/Zw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=r5K6b0sc6oOdX9PQxMtrYXV8USG1YlONAxoBoZNU3l4=;
+        b=xoTAteabPsPm1rXs68fBwJsZmXr2DCSZGVPKkA1dtN8j7P9CVkX2VgSBz0+5//RqU8
+         TQPvjRHCEO2MR/PJap++vygKniMGrqWLJdljNZp3SrsEeiS9MRs67SVf+nrwfU5BcCeP
+         Jv2INlDhtbP5tGFm2l9wxmNq3nm8ouSMUa8gKgjjeCw62FZyY/YL9NoIeyRTpyfC1JUx
+         fiOL7tYcIwivV9tJoGyE5WG2rdQ1F9m7ofVRfrtd/EDk8YjIPU+5Cdvv8nEydNgsdf3e
+         /TWzioavH16PQBOt2XyJWq9A6aIItDgptsAnMLUK4pFEVnqDJCixYfT6RSkIeCr5w/aM
+         /nRg==
+X-Gm-Message-State: AOAM533FhTfZ3diayMhoqPodF6QZLRftGDZKyU6Yag5cROdtq8YzboBo
+        h4Zx1SO4cLfzH98+S4PBPOGaMrp2Qj6nm+wrBJYp8w==
+X-Google-Smtp-Source: ABdhPJy03E7/LbI9hh3U5hDa7d5BQW5aEeRI/tPy/1Eq7sLg6T5XYwIswOiGCVJ6FybEoaUugQyf7PY6NWQ6q5tyzFU=
+X-Received: by 2002:a5d:6c6b:0:b0:1ea:77ea:dde8 with SMTP id
+ r11-20020a5d6c6b000000b001ea77eadde8mr15660633wrz.690.1649044297423; Sun, 03
+ Apr 2022 20:51:37 -0700 (PDT)
 MIME-Version: 1.0
-X-Spam-Status: Yes, score=7.4 required=5.0 tests=BAYES_50,BODY_EMPTY,
-        DKIM_INVALID,DKIM_SIGNED,EMPTY_MESSAGE,FREEMAIL_FROM,FREEMAIL_REPLYTO,
-        FREEMAIL_REPLYTO_END_DIGIT,MISSING_SUBJECT,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_BL,RCVD_IN_MSPIKE_L4,SPF_HELO_NONE,SPF_PASS
-        autolearn=no autolearn_force=no version=3.4.6
-X-Spam-Report: * -0.7 RCVD_IN_DNSWL_LOW RBL: Sender listed at https://www.dnswl.org/,
-        *       low trust
-        *      [217.169.118.11 listed in list.dnswl.org]
-        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
-        *      [score: 0.4991]
-        *  0.2 FREEMAIL_REPLYTO_END_DIGIT Reply-To freemail username ends in
-        *      digit
-        *      [dougfield20[at]inbox.lv]
-        * -0.0 SPF_PASS SPF: sender matches SPF record
-        *  1.7 RCVD_IN_MSPIKE_L4 RBL: Bad reputation (-4)
-        *      [217.169.118.11 listed in bl.mailspike.net]
-        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
-        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
-        *      provider
-        *      [f_penna[at]alice.it]
-        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
-        *       valid
-        *  0.0 RCVD_IN_MSPIKE_BL Mailspike blacklisted
-        *  1.8 MISSING_SUBJECT Missing Subject: header
-        *  2.3 EMPTY_MESSAGE Message appears to have no textual parts and no
-        *      Subject: text
-        *  0.1 DKIM_INVALID DKIM or DK signature exists, but is not valid
-        *  0.0 BODY_EMPTY No body text in message
-        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
-        *      different freemails
-X-Spam-Level: *******
+References: <20220317035521.272486-1-apatel@ventanamicro.com>
+In-Reply-To: <20220317035521.272486-1-apatel@ventanamicro.com>
+From:   Anup Patel <anup@brainfault.org>
+Date:   Mon, 4 Apr 2022 09:20:27 +0530
+Message-ID: <CAAhSdy35a5PrdSzonK6EeH0nynFxvvUzScaYRPeA=CmG5yuz+Q@mail.gmail.com>
+Subject: Re: [PATCH] RISC-V: KVM: Don't clear hgatp CSR in kvm_arch_vcpu_put()
+To:     Anup Patel <apatel@ventanamicro.com>
+Cc:     Paolo Bonzini <pbonzini@redhat.com>,
+        Atish Patra <atishp@atishpatra.org>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Alistair Francis <Alistair.Francis@wdc.com>,
+        KVM General <kvm@vger.kernel.org>,
+        "open list:KERNEL VIRTUAL MACHINE FOR RISC-V (KVM/riscv)" 
+        <kvm-riscv@lists.infradead.org>,
+        linux-riscv <linux-riscv@lists.infradead.org>,
+        "linux-kernel@vger.kernel.org List" <linux-kernel@vger.kernel.org>,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, Mar 17, 2022 at 9:25 AM Anup Patel <apatel@ventanamicro.com> wrote:
+>
+> We might have RISC-V systems (such as QEMU) where VMID is not part
+> of the TLB entry tag so these systems will have to flush all TLB
+> entries upon any change in hgatp.VMID.
+>
+> Currently, we zero-out hgatp CSR in kvm_arch_vcpu_put() and we
+> re-program hgatp CSR in kvm_arch_vcpu_load(). For above described
+> systems, this will flush all TLB entries whenever VCPU exits to
+> user-space hence reducing performance.
+>
+> This patch fixes above described performance issue by not clearing
+> hgatp CSR in kvm_arch_vcpu_put().
+>
+> Fixes: 34bde9d8b9e6 ("RISC-V: KVM: Implement VCPU world-switch")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Anup Patel <apatel@ventanamicro.com>
+
+I have queued this patch for RC fixes.
+
+Thanks,
+Anup
+
+> ---
+>  arch/riscv/kvm/vcpu.c | 2 --
+>  1 file changed, 2 deletions(-)
+>
+> diff --git a/arch/riscv/kvm/vcpu.c b/arch/riscv/kvm/vcpu.c
+> index 624166004e36..6785aef4cbd4 100644
+> --- a/arch/riscv/kvm/vcpu.c
+> +++ b/arch/riscv/kvm/vcpu.c
+> @@ -653,8 +653,6 @@ void kvm_arch_vcpu_put(struct kvm_vcpu *vcpu)
+>                                      vcpu->arch.isa);
+>         kvm_riscv_vcpu_host_fp_restore(&vcpu->arch.host_context);
+>
+> -       csr_write(CSR_HGATP, 0);
+> -
+>         csr->vsstatus = csr_read(CSR_VSSTATUS);
+>         csr->vsie = csr_read(CSR_VSIE);
+>         csr->vstvec = csr_read(CSR_VSTVEC);
+> --
+> 2.25.1
+>
