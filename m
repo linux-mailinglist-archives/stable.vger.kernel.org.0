@@ -2,64 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BF9A4F207C
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 02:40:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4504A4F2119
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 06:08:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229458AbiDEAlt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Apr 2022 20:41:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38768 "EHLO
+        id S229665AbiDEC0D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Apr 2022 22:26:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229446AbiDEAls (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Apr 2022 20:41:48 -0400
-Received: from mail-oa1-x33.google.com (mail-oa1-x33.google.com [IPv6:2001:4860:4864:20::33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 294EE1FC9D1
-        for <stable@vger.kernel.org>; Mon,  4 Apr 2022 17:25:55 -0700 (PDT)
-Received: by mail-oa1-x33.google.com with SMTP id 586e51a60fabf-e1dcc0a327so8158787fac.1
-        for <stable@vger.kernel.org>; Mon, 04 Apr 2022 17:25:55 -0700 (PDT)
+        with ESMTP id S229668AbiDEC0D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Apr 2022 22:26:03 -0400
+Received: from NAM10-MW2-obe.outbound.protection.outlook.com (mail-mw2nam10on2113.outbound.protection.outlook.com [40.107.94.113])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE49218115B;
+        Mon,  4 Apr 2022 18:21:13 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=f5ce0ZmtwjqeiK0dTFOlX60Jg2MOtJER2RQGvcSW8ekYBV7P+ZVhqG9YHLGKDNug+ZRpiHueXle0NQvhhKRs9fVumbGYs6wdT6R44vJ6VU1Zb1lZc6Gs0Y8xtmmqceAVO+mnfG13tb6CgEdbLJbs0JKhzPYXn1oH/NK7xeUsAbT7FQogNTwaJe6oY377o3aMWZL9m6t2Ihccn55B7/vl6j3jEZE1h8lukZxx2HDJ5sijWn4BOLN29Hn7OnQwG6lxFmVOLSUutqmH7CjUYvFV+HGj1bbLguEloQVa07RY8v5UCE3RDb1ljz+3q1k8Hm2cmrgvX5sEsnFHZMr//Hm8Kg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=qah2VP26lCPgl7TStyEOv0eJ1Wooz3QrsG8GA1UEhWk=;
+ b=GcUTA2OQI+IVOAQDZ78HRGni/LjsOTJv8yz8iGt27QRj3P4+aE7c5Id5H9u+nacAkTTvOFAL/OMEEA9+qn2tpgtiQOwQjJdRDH+OsiwalBZRqmHeU5n8ln4FZ/tD9EMrlLCmzYURzSjYs+7zamY5YxG1YLFdbI+HXOE+1akdl8K9f6yrgEPYOj6iDxBj8ixkyELj1jxppJwfvhRchZV2hyllIh3wUFOnj5Ao54aXKV2ohC3LAP6RaZtKEb5TosyWlKWz6OzqKt6KGmvJbDGyERd6G12yj5opZwkvdPjbsJ9Wgje2t7xNbAVTx3ZigfMXXgk/2hsnKvkEar5SXcIA5g==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=os.amperecomputing.com; dmarc=pass action=none
+ header.from=os.amperecomputing.com; dkim=pass
+ header.d=os.amperecomputing.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=EoASACADHZW9hyAkhpjT8nEm+Pqkb+q7uqFEp3Yyy4g=;
-        b=wgvppesePXFqcNrIe0MZC1hqaBo8qFbli34GNIExbJ6bl+DJzz5OuPJ+3/Fw4RSPpg
-         iYrmtuipvHXxCVC/VgTZ7Y/qGrSeWj7T25gwHHQ724M26EQrZOwmtuQ60lLMf7Z59Wbf
-         prfeB9euPTKw5bWBCCZs7rheabu9XuKcNMF0SccaJr20UDeODSA7vtsnldSFrUGyRk9o
-         ivExC3KIN0IVqyowzKzIAx5T6mrjvChj0DBME2H974bkjhF6M0vMtheByPHPHvBLlmMC
-         QCg7WZ4hjMSchsxE7hLrAejGj5WBrx5x1eR5FjigTT4AXD8o6ASf0C6pqrBUjjHC4swJ
-         2k2g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=EoASACADHZW9hyAkhpjT8nEm+Pqkb+q7uqFEp3Yyy4g=;
-        b=idbBx83pQzqOOxC+zi13A53DIMyaZFEEcWkjWqq6xCc765I5yelJLqo72k+URFmTjG
-         bX4O2/IvizuLNRa10eeGsqvSUUhy7CIp5cBdnuAuAa36s7xjHNjac8NNExFeD18adwJL
-         bi9p/saHRt4uGQxtCePfmGKNVowpiIz0d94NXFG4AQkRWtA3gTQlGXmP12E34B6MDeeV
-         G8R9Hc0LI5w1sbn2ciBjKng03LE6t7K8lTIIFHdpWojkMoFenbVN61EcgB+hDQWG/RBo
-         +C1pUZAYNcLIjOL0TdWR1WXauLFwqGcdNJti4qUbhTebhjzK0j1rzFWyMrk++xvjtMmB
-         sjRg==
-X-Gm-Message-State: AOAM531aaQTZ/ak5SvbTK35b8VVWv7RIYB6ZCupZKjytShdwYp+PNRNB
-        w5zZi2vDgSiJnz2pqdzsW5bj5ADTmhHwOw==
-X-Google-Smtp-Source: ABdhPJzToD9wRtFK/uXqTbqi/27R8M++xbxydWgcHSeLIQpDQV794EcehSfpKCxAHG1AyE2aljqrwg==
-X-Received: by 2002:a17:90a:cf94:b0:1ca:9374:97fc with SMTP id i20-20020a17090acf9400b001ca937497fcmr910059pju.162.1649116597298;
-        Mon, 04 Apr 2022 16:56:37 -0700 (PDT)
-Received: from localhost.localdomain ([198.8.77.157])
-        by smtp.gmail.com with ESMTPSA id i7-20020a628707000000b004fa6eb33b02sm13157977pfe.49.2022.04.04.16.56.36
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 04 Apr 2022 16:56:36 -0700 (PDT)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     io-uring@vger.kernel.org
-Cc:     Jens Axboe <axboe@kernel.dk>, stable@vger.kernel.org
-Subject: [PATCH 3/6] io_uring: move read/write file prep state into actual opcode handler
-Date:   Mon,  4 Apr 2022 17:56:23 -0600
-Message-Id: <20220404235626.374753-4-axboe@kernel.dk>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220404235626.374753-1-axboe@kernel.dk>
-References: <20220404235626.374753-1-axboe@kernel.dk>
-MIME-Version: 1.0
+ d=os.amperecomputing.com; s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=qah2VP26lCPgl7TStyEOv0eJ1Wooz3QrsG8GA1UEhWk=;
+ b=CfkheW32b02gieNOHfbkHTcM9Vn98e4tR0z9SRvzwmrr9BgzTZoIR61+t/k3i8Kq+8P6Vb+VhF1MDrkJfBjImNsatk7d/VjkJxnBrnaoeUkC01JFXD5uDgjv1Dt8KCsHlKaalTy86MjXkwR7w9Fr9Py/Ej+BLmNlIKWFHFax/R4=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=os.amperecomputing.com;
+Received: from SA0PR01MB6329.prod.exchangelabs.com (2603:10b6:806:ee::12) by
+ DM6PR01MB4924.prod.exchangelabs.com (2603:10b6:5:5e::14) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.5123.25; Mon, 4 Apr 2022 23:42:10 +0000
+Received: from SA0PR01MB6329.prod.exchangelabs.com
+ ([fe80::f56a:e18f:b6c4:ddb5]) by SA0PR01MB6329.prod.exchangelabs.com
+ ([fe80::f56a:e18f:b6c4:ddb5%9]) with mapi id 15.20.5123.031; Mon, 4 Apr 2022
+ 23:42:09 +0000
+From:   Darren Hart <darren@os.amperecomputing.com>
+To:     LKML <linux-kernel@vger.kernel.org>,
+        Linux Arm <linux-arm-kernel@lists.infradead.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Sudeep Holla <sudeep.holla@arm.com>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Barry Song <song.bao.hua@hisilicon.com>,
+        Valentin Schneider <valentin.schneider@arm.com>,
+        "D . Scott Phillips" <scott@os.amperecomputing.com>,
+        Ilkka Koskinen <ilkka@os.amperecomputing.com>,
+        Carl Worth <carl@os.amperecomputing.com>,
+        stable@vger.kernel.org
+Subject: [PATCH v4] topology: make core_mask include at least cluster_siblings
+Date:   Mon,  4 Apr 2022 16:40:37 -0700
+Message-Id: <3d58dc946a4fa1cc696d05baad1cf05ae686a86d.1649115057.git.darren@os.amperecomputing.com>
+X-Mailer: git-send-email 2.31.1
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+Content-Type: text/plain
+X-ClientProxiedBy: BL0PR0102CA0058.prod.exchangelabs.com
+ (2603:10b6:208:25::35) To SA0PR01MB6329.prod.exchangelabs.com
+ (2603:10b6:806:ee::12)
+MIME-Version: 1.0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 7dd126a3-40c3-48b6-203f-08da1694bc28
+X-MS-TrafficTypeDiagnostic: DM6PR01MB4924:EE_
+X-Microsoft-Antispam-PRVS: <DM6PR01MB49242D28631759932364C53AF7E59@DM6PR01MB4924.prod.exchangelabs.com>
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: 1RWxmMY+3t0l7cnd4efZqtkUZhcJF8Py97HiMpvwzO+Vqlt3tKwN18BiWStgJfmAAgnS/1uyTYiLFEgMf3tJOW4Bnr1PO9dP7QP6y62WkHcP8LyeFa4yBTOkvrhiMtZ+RGBw0JZzMKMYLig4bK54/jTSRxfLx0j7fg8Dj8h0970rpjrMLxEHLpkO5jdSy4RpiJcZyKbXSBMyksonwX+8Nbs5IRC2+A70qDDQX+4rWz4wm+8OX+Bny123waJnvSgqCZ+uOR+yFVb1Ca1uJVm8F+5ITraYEwOgDUS84dILPy2etqXYxBLQMnwcuJVW9GuJWF5ug8HZ/zRWvOkKKMxae+k+S/ZLav/BIOVisItCJbzy+qmxrgOGMS6jcP1jXp9PSnUCdMy3qJjDwyTG5ktVwQ2XBPvihE8YCveG48JZOBzE9KyNH7LgWnhOZS24gMVPtcuMzLuimFNPnwaSZvJ1Ddkbu1DShuAbopIofHE2EOFpmHjl+V0gvA1hPydmvTvzsAdHMtWs0Hx2sjGSPoQtJPGM+HLRgs6+DuCYbOkhLt58yH4AoAqJIiQgsrKUUt7YS1juroKe+ohE85ZFFh5x09ER9jcoYQyO46N4FmwRtvAg5/9gBx1tBXnZw2Sc/fgGyUunN18lhuYxvOoJIvDRAS9Jc9brp38lOW3DVXTYFXAJ0HHq6IqKkJsrls9tPG98kZ7zIV7Kpreq+Hl1uRsYgg==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA0PR01MB6329.prod.exchangelabs.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(38350700002)(38100700002)(316002)(508600001)(52116002)(6512007)(6506007)(6666004)(110136005)(54906003)(4326008)(8676002)(66946007)(66476007)(7416002)(2616005)(2906002)(83380400001)(186003)(26005)(8936002)(86362001)(66556008)(5660300002)(6486002);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?u9FYvcF4OVivJMCF6SdXqoGC4B8LzKlrAXrqy53m5pHe4VjjGUORJ96ywqp0?=
+ =?us-ascii?Q?92NtH/SezYFjXHhQfmFsobtTOAdaxxxSZ7fjB9Yukc8c0hw/wm4w6ZtZeOlJ?=
+ =?us-ascii?Q?KE4p19kUyv0Vb0E8UZqxNGtEkfLFQkQYv89zEhOBHrFIuf4E1gb0JsWsk123?=
+ =?us-ascii?Q?FrhU/mu8Nfm562I+0YYku7+quZEkL+yJ88E1sCJWWvH6ME9ca0vX0i8QuQy5?=
+ =?us-ascii?Q?Wu2OVw5f7baTuIKFvgrsse7gJW9ph6nt7KOnjyoOKPrdiUn0VZPYu9Ew2GS8?=
+ =?us-ascii?Q?tdp5HnOsC+a0TbNlS+KkZL3+nPAu38Y4RiRqtpqdLU2wgRPeIpgqhyUhHu1b?=
+ =?us-ascii?Q?G5jO6v/Sb+g6euYRY0kj86ydFaUq8glztiE7ujZx6W0vLT7RUZg9E+kyuptv?=
+ =?us-ascii?Q?6qr3kg1mDcek3hjartWLRTKS8i2+4m1auU86i86+6gs8o9TgGhim2VyHGH6A?=
+ =?us-ascii?Q?A7/Ph1RAoVDspCJ+xh4If1xCo+VInyvjycV9gzq7jH0kScWKKYBQvFlgEhwq?=
+ =?us-ascii?Q?MVDSTOlbjTSO7zdUaD92+At7seSWjxdpv7u12LoZVDxOpRwRmm43as7mGIRd?=
+ =?us-ascii?Q?RU0SUMpmZ+/KD5y9PpEv7Jci9zsD7rUUFjBZm6MYvx35av9CYk2RPVN7KFqb?=
+ =?us-ascii?Q?u630GSOWAnxDQthEz6BMO7HPbq2Dha1cUN0AmBFgfJAhTH99aMWcxKCKNTZN?=
+ =?us-ascii?Q?sWzymci6J5TV0V39BkAALbCk3tR3GTPzo/oPeKvU99UIUWmQiw5fff/f7BLi?=
+ =?us-ascii?Q?It2XKpU5FdwqDwXub8IijKsWK4hTkcbL0iYz+hfz0jNZPgvq1GcJZhbi8fYM?=
+ =?us-ascii?Q?pNxM6mlEaKpJjLsGEVxQb36zler6tanCk+CTdjGChKONS1GIeNaBSRM8A3Bt?=
+ =?us-ascii?Q?Rk9PF2MWXwN75COsMIPqOyyXZuB3Aj2p4twMZhmfzszYOIzAc6t/9ubkH9Xz?=
+ =?us-ascii?Q?8MwCbi2De3GejBOQULwp71PxbHIlgbRgFmJ59Ed+qrYc/RdiJqC53RT6yJfz?=
+ =?us-ascii?Q?vX8SDLkKxLmyOo5cUEypTkxUCZGfmWfeEprp5xdu10NktV7oZ27NS54c+g+q?=
+ =?us-ascii?Q?H++flMKIdEwbPgNb/Lv43bx+CZWPROma9yb5fypJNOK44lWgH85gZS3lVa6E?=
+ =?us-ascii?Q?2vp89+j7k43Sjm7qWHfnYrxeHFGi7VMXHQNxvtsc+zzuS3V/nhL/bja0URow?=
+ =?us-ascii?Q?itdMwENdxtCaUkRnXVDj16h9A2CAvLqGYMpWtVym8ZEaqfokfoOw+cSgUDat?=
+ =?us-ascii?Q?OY3CzNwOBj3Bvs6gzH6FL/WaB1UXIMyBCFfXVhL2ABv4Gzulv5xMC3sQ1fuE?=
+ =?us-ascii?Q?k+HI+hZrpUdR4q41Y9UrM8nyrtZzFTWnd1npZKQuEXr3S8EoUIK/o66RKo3a?=
+ =?us-ascii?Q?u8eiFusQq98HaMe39WNjLOEym6pmo4782Wjh6F6q/ymc9v+RmbzuFHVsO8Uf?=
+ =?us-ascii?Q?lVoIFBLTan820pHuCrHPZ2zWYt5hrdP1xQUd/vd3rIk8qX2iexGXSABHmSk+?=
+ =?us-ascii?Q?fnbk05sPwoi2odm+5REq+icAsjwT2E3rCWVXRXCU7uEyZS9b5oTAQKDaizEy?=
+ =?us-ascii?Q?eeHP/zPqMth6yZ9BtqatHWu8e4u+fuUv29Bss1BhF50m2McrqCnhU6HTPbXH?=
+ =?us-ascii?Q?OQPaeaXYHcCiBt8z//iE2hzLy2psECdFahWM6/f6IjDyePTtDKze4dwog4hX?=
+ =?us-ascii?Q?NjceRMp/Oz2k8rVE3kfPmvs14sdSGOhVaWmVdTjtoEXTBOuGnYXt7EDkSOWj?=
+ =?us-ascii?Q?Dv9/elOP/cOIdwIshD3LU7ukgdEKoP4VO2DRBOSR19qg1o7F4WqY?=
+X-OriginatorOrg: os.amperecomputing.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 7dd126a3-40c3-48b6-203f-08da1694bc28
+X-MS-Exchange-CrossTenant-AuthSource: SA0PR01MB6329.prod.exchangelabs.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 04 Apr 2022 23:42:09.7031
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 3bc2b170-fd94-476d-b0ce-4229bdc904a7
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: IHSxCvSOAKReUhC9CghMureSWfof0gidUUF2ZMV4JwLYK3Uj6vKlcMZJE9XTf8gtDOcYGSLNFDLs3pko+z0sCZt/PcVGYVOYIQ3UooY99B9Ja8d0Wufm+vEbiuOsudOI
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR01MB4924
+X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS,
         T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -67,192 +126,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In preparation for not necessarily having a file assigned at prep time,
-defer any initialization associated with the file to when the opcode
-handler is run.
+Ampere Altra defines CPU clusters in the ACPI PPTT. They share a Snoop
+Control Unit, but have no shared CPU-side last level cache.
 
-Cc: stable@vger.kernel.org # v5.15+
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+cpu_coregroup_mask() will return a cpumask with weight 1, while
+cpu_clustergroup_mask() will return a cpumask with weight 2.
+
+As a result, build_sched_domain() will BUG() once per CPU with:
+
+BUG: arch topology borken
+the CLS domain not a subset of the MC domain
+
+The MC level cpumask is then extended to that of the CLS child, and is
+later removed entirely as redundant. This sched domain topology is an
+improvement over previous topologies, or those built without
+SCHED_CLUSTER, particularly for certain latency sensitive workloads.
+With the current scheduler model and heuristics, this is a desirable
+default topology for Ampere Altra and Altra Max system.
+
+Rather than create a custom sched domains topology structure and
+introduce new logic in arch/arm64 to detect these systems, update the
+core_mask so coregroup is never a subset of clustergroup, extending it
+to cluster_siblings if necessary. Only do this if CONFIG_SCHED_CLUSTER
+is enabled to avoid also changing the topology (MC) when
+CONFIG_SCHED_CLUSTER is disabled.
+
+This has the added benefit over a custom topology of working for both
+symmetric and asymmetric topologies. It does not address systems where
+the CLUSTER topology is above a populated MC topology, but these are not
+considered today and can be addressed separately if and when they
+appear.
+
+The final sched domain topology for a 2 socket Ampere Altra system is
+unchanged with or without CONFIG_SCHED_CLUSTER, and the BUG is avoided:
+
+For CPU0:
+
+CONFIG_SCHED_CLUSTER=y
+CLS  [0-1]
+DIE  [0-79]
+NUMA [0-159]
+
+CONFIG_SCHED_CLUSTER is not set
+DIE  [0-79]
+NUMA [0-159]
+
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Sudeep Holla <sudeep.holla@arm.com>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Vincent Guittot <vincent.guittot@linaro.org>
+Cc: Barry Song <song.bao.hua@hisilicon.com>
+Cc: Valentin Schneider <valentin.schneider@arm.com>
+Cc: D. Scott Phillips <scott@os.amperecomputing.com>
+Cc: Ilkka Koskinen <ilkka@os.amperecomputing.com>
+Cc: Carl Worth <carl@os.amperecomputing.com>
+Cc: <stable@vger.kernel.org> # 5.16.x
+Suggested-by: Barry Song <song.bao.hua@hisilicon.com>
+Signed-off-by: Darren Hart <darren@os.amperecomputing.com>
 ---
- fs/io_uring.c | 101 ++++++++++++++++++++++++++------------------------
- 1 file changed, 53 insertions(+), 48 deletions(-)
+v1: Drop MC level if coregroup weight == 1
+v2: New sd topo in arch/arm64/kernel/smp.c
+v3: No new topo, extend core_mask to cluster_siblings
+v4: Rebase on 5.18-rc1 for GregKH to pull. Add IS_ENABLED(CONFIG_SCHED_CLUSTER).
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 0152ef49cf46..969f65de9972 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -592,7 +592,8 @@ struct io_rw {
- 	/* NOTE: kiocb has the file as the first member, so don't do it here */
- 	struct kiocb			kiocb;
- 	u64				addr;
--	u64				len;
-+	u32				len;
-+	u32				flags;
- };
+ drivers/base/arch_topology.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/drivers/base/arch_topology.c b/drivers/base/arch_topology.c
+index 1d6636ebaac5..5497c5ab7318 100644
+--- a/drivers/base/arch_topology.c
++++ b/drivers/base/arch_topology.c
+@@ -667,6 +667,15 @@ const struct cpumask *cpu_coregroup_mask(int cpu)
+ 			core_mask = &cpu_topology[cpu].llc_sibling;
+ 	}
  
- struct io_connect {
-@@ -3178,42 +3179,11 @@ static inline bool io_file_supports_nowait(struct io_kiocb *req)
- 
- static int io_prep_rw(struct io_kiocb *req, const struct io_uring_sqe *sqe)
- {
--	struct io_ring_ctx *ctx = req->ctx;
- 	struct kiocb *kiocb = &req->rw.kiocb;
--	struct file *file = req->file;
- 	unsigned ioprio;
- 	int ret;
- 
--	if (!io_req_ffs_set(req))
--		req->flags |= io_file_get_flags(file) << REQ_F_SUPPORT_NOWAIT_BIT;
--
- 	kiocb->ki_pos = READ_ONCE(sqe->off);
--	kiocb->ki_flags = iocb_flags(file);
--	ret = kiocb_set_rw_flags(kiocb, READ_ONCE(sqe->rw_flags));
--	if (unlikely(ret))
--		return ret;
--
--	/*
--	 * If the file is marked O_NONBLOCK, still allow retry for it if it
--	 * supports async. Otherwise it's impossible to use O_NONBLOCK files
--	 * reliably. If not, or it IOCB_NOWAIT is set, don't retry.
--	 */
--	if ((kiocb->ki_flags & IOCB_NOWAIT) ||
--	    ((file->f_flags & O_NONBLOCK) && !io_file_supports_nowait(req)))
--		req->flags |= REQ_F_NOWAIT;
--
--	if (ctx->flags & IORING_SETUP_IOPOLL) {
--		if (!(kiocb->ki_flags & IOCB_DIRECT) || !file->f_op->iopoll)
--			return -EOPNOTSUPP;
--
--		kiocb->ki_flags |= IOCB_HIPRI | IOCB_ALLOC_CACHE;
--		kiocb->ki_complete = io_complete_rw_iopoll;
--		req->iopoll_completed = 0;
--	} else {
--		if (kiocb->ki_flags & IOCB_HIPRI)
--			return -EINVAL;
--		kiocb->ki_complete = io_complete_rw;
--	}
- 
- 	ioprio = READ_ONCE(sqe->ioprio);
- 	if (ioprio) {
-@@ -3229,6 +3199,7 @@ static int io_prep_rw(struct io_kiocb *req, const struct io_uring_sqe *sqe)
- 	req->imu = NULL;
- 	req->rw.addr = READ_ONCE(sqe->addr);
- 	req->rw.len = READ_ONCE(sqe->len);
-+	req->rw.flags = READ_ONCE(sqe->rw_flags);
- 	req->buf_index = READ_ONCE(sqe->buf_index);
- 	return 0;
- }
-@@ -3732,13 +3703,6 @@ static inline int io_rw_prep_async(struct io_kiocb *req, int rw)
- 	return 0;
- }
- 
--static int io_read_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
--{
--	if (unlikely(!(req->file->f_mode & FMODE_READ)))
--		return -EBADF;
--	return io_prep_rw(req, sqe);
--}
--
- /*
-  * This is our waitqueue callback handler, registered through __folio_lock_async()
-  * when we initially tried to do the IO with the iocb armed our waitqueue.
-@@ -3826,6 +3790,49 @@ static bool need_read_all(struct io_kiocb *req)
- 		S_ISBLK(file_inode(req->file)->i_mode);
- }
- 
-+static int io_rw_init_file(struct io_kiocb *req, fmode_t mode)
-+{
-+	struct kiocb *kiocb = &req->rw.kiocb;
-+	struct io_ring_ctx *ctx = req->ctx;
-+	struct file *file = req->file;
-+	int ret;
-+
-+	if (unlikely(!file || !(file->f_mode & mode)))
-+		return -EBADF;
-+
-+	if (!io_req_ffs_set(req))
-+		req->flags |= io_file_get_flags(file) << REQ_F_SUPPORT_NOWAIT_BIT;
-+
-+	kiocb->ki_flags = iocb_flags(file);
-+	ret = kiocb_set_rw_flags(kiocb, req->rw.flags);
-+	if (unlikely(ret))
-+		return ret;
-+
 +	/*
-+	 * If the file is marked O_NONBLOCK, still allow retry for it if it
-+	 * supports async. Otherwise it's impossible to use O_NONBLOCK files
-+	 * reliably. If not, or it IOCB_NOWAIT is set, don't retry.
++	 * For systems with no shared cpu-side LLC but with clusters defined,
++	 * extend core_mask to cluster_siblings. The sched domain builder will
++	 * then remove MC as redundant with CLS if SCHED_CLUSTER is enabled.
 +	 */
-+	if ((kiocb->ki_flags & IOCB_NOWAIT) ||
-+	    ((file->f_flags & O_NONBLOCK) && !io_file_supports_nowait(req)))
-+		req->flags |= REQ_F_NOWAIT;
++	if (IS_ENABLED(CONFIG_SCHED_CLUSTER) &&
++	    cpumask_subset(core_mask, &cpu_topology[cpu].cluster_sibling))
++		core_mask = &cpu_topology[cpu].cluster_sibling;
 +
-+	if (ctx->flags & IORING_SETUP_IOPOLL) {
-+		if (!(kiocb->ki_flags & IOCB_DIRECT) || !file->f_op->iopoll)
-+			return -EOPNOTSUPP;
-+
-+		kiocb->ki_flags |= IOCB_HIPRI | IOCB_ALLOC_CACHE;
-+		kiocb->ki_complete = io_complete_rw_iopoll;
-+		req->iopoll_completed = 0;
-+	} else {
-+		if (kiocb->ki_flags & IOCB_HIPRI)
-+			return -EINVAL;
-+		kiocb->ki_complete = io_complete_rw;
-+	}
-+
-+	return 0;
-+}
-+
- static int io_read(struct io_kiocb *req, unsigned int issue_flags)
- {
- 	struct io_rw_state __s, *s = &__s;
-@@ -3861,6 +3868,9 @@ static int io_read(struct io_kiocb *req, unsigned int issue_flags)
- 		iov_iter_restore(&s->iter, &s->iter_state);
- 		iovec = NULL;
- 	}
-+	ret = io_rw_init_file(req, FMODE_READ);
-+	if (unlikely(ret))
-+		return ret;
- 	req->result = iov_iter_count(&s->iter);
- 
- 	if (force_nonblock) {
-@@ -3964,13 +3974,6 @@ static int io_read(struct io_kiocb *req, unsigned int issue_flags)
- 	return 0;
+ 	return core_mask;
  }
  
--static int io_write_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
--{
--	if (unlikely(!(req->file->f_mode & FMODE_WRITE)))
--		return -EBADF;
--	return io_prep_rw(req, sqe);
--}
--
- static int io_write(struct io_kiocb *req, unsigned int issue_flags)
- {
- 	struct io_rw_state __s, *s = &__s;
-@@ -3991,6 +3994,9 @@ static int io_write(struct io_kiocb *req, unsigned int issue_flags)
- 		iov_iter_restore(&s->iter, &s->iter_state);
- 		iovec = NULL;
- 	}
-+	ret = io_rw_init_file(req, FMODE_WRITE);
-+	if (unlikely(ret))
-+		return ret;
- 	req->result = iov_iter_count(&s->iter);
- 
- 	if (force_nonblock) {
-@@ -6987,11 +6993,10 @@ static int io_req_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
- 	case IORING_OP_READV:
- 	case IORING_OP_READ_FIXED:
- 	case IORING_OP_READ:
--		return io_read_prep(req, sqe);
- 	case IORING_OP_WRITEV:
- 	case IORING_OP_WRITE_FIXED:
- 	case IORING_OP_WRITE:
--		return io_write_prep(req, sqe);
-+		return io_prep_rw(req, sqe);
- 	case IORING_OP_POLL_ADD:
- 		return io_poll_add_prep(req, sqe);
- 	case IORING_OP_POLL_REMOVE:
 -- 
-2.35.1
+2.31.1
 
