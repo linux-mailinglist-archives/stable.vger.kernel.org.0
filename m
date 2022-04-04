@@ -2,59 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8030D4F135D
-	for <lists+stable@lfdr.de>; Mon,  4 Apr 2022 12:53:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 22BE74F1380
+	for <lists+stable@lfdr.de>; Mon,  4 Apr 2022 12:57:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358511AbiDDKzF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Apr 2022 06:55:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57774 "EHLO
+        id S1355773AbiDDK7D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Apr 2022 06:59:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39706 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358561AbiDDKzE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Apr 2022 06:55:04 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 288BD3CFED;
-        Mon,  4 Apr 2022 03:53:09 -0700 (PDT)
+        with ESMTP id S229594AbiDDK7D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Apr 2022 06:59:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42F4B3389C
+        for <stable@vger.kernel.org>; Mon,  4 Apr 2022 03:57:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B846B60AE8;
-        Mon,  4 Apr 2022 10:53:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AEA4CC34110;
-        Mon,  4 Apr 2022 10:53:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1649069588;
-        bh=DxTthHQCW6asftQXjQGow73DCTtmUV2NMx0blS7OttM=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KO4XTTGUiNiUJPuDvhahZ+xPDpp8AWdRuz9QFPnTkzN166mdCocCUhkJkXuJptv2p
-         qlTiElBVuM9rZuGVpb9//WEcSjjJHR5MuxwGDgXJeo4shmqT+864SrAePB/vDcnuZQ
-         936yJiXFZktHtS1mQky66QazsPpMNvoSfA+38Ezc5C1TYvUDgaUyvPQco63Vb5gVFm
-         JXzZsG+QFjFHrzQF2pck+r7Eqg7mt9HGIfK6ow0Ui4JSG+4jt9srQ1DT4ccSxhCF6r
-         wh16gjrqsA8sXsHKhjDbKxGzsEwksY/rDHupe9oVW9PHWYGkC+KCsm68zKCC+3M2zZ
-         TbtBBRmqCZ+KA==
-From:   Christian Brauner <brauner@kernel.org>
-To:     Amir Goldstein <amir73il@gmail.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Miklos Szeredi <mszeredi@redhat.com>,
-        Al Viro <viro@zeniv.linux.org.uk>
-Cc:     Christian Brauner <brauner@kernel.org>,
-        linux-fsdevel@vger.kernel.org, linux-unionfs@vger.kernel.org,
-        Aleksa Sarai <cyphar@cyphar.com>,
-        Giuseppe Scrivano <gscrivan@redhat.com>,
-        Rodrigo Campos Catelin <rodrigo@sdfg.com.ar>,
-        Seth Forshee <sforshee@digitalocean.com>,
-        Luca Bocassi <luca.boccassi@microsoft.com>,
-        Lennart Poettering <mzxreary@0pointer.de>,
-        =?UTF-8?q?St=C3=A9phane=20Graber?= <stgraber@ubuntu.com>,
-        stable@vger.kernel.org
-Subject: [PATCH v4 02/19] exportfs: support idmapped mounts
-Date:   Mon,  4 Apr 2022 12:51:41 +0200
-Message-Id: <20220404105159.1567595-3-brauner@kernel.org>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20220404105159.1567595-1-brauner@kernel.org>
-References: <20220404105159.1567595-1-brauner@kernel.org>
+        by ams.source.kernel.org (Postfix) with ESMTPS id F4078B815A0
+        for <stable@vger.kernel.org>; Mon,  4 Apr 2022 10:57:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BA3EC2BBE4;
+        Mon,  4 Apr 2022 10:57:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1649069824;
+        bh=DyHHCaiH9KBHEYtEyLhPM9Q7ICua/+Qf8ck3v1xFLFM=;
+        h=Subject:To:Cc:From:Date:From;
+        b=s5YGc6vNg6jQYjN2UEtrBIp4K/05N8JIjpqLunaOXOu+Hyyzz61OrUedqQKG24l8k
+         nQAfywefOeudbG/20oobu9Bdno7Pg0OdZalEvuH40NOfJWAtKEE/mM42FPaP6rqDPZ
+         Q6EdZN7pzE0sSJ3fKTTRj+Prz8i56IcfJmUilF8M=
+Subject: FAILED: patch "[PATCH] clk: qcom: smd: Add missing RPM clocks for msm8992/4" failed to apply to 5.15-stable tree
+To:     konrad.dybcio@somainline.org, bjorn.andersson@linaro.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 04 Apr 2022 12:57:02 +0200
+Message-ID: <164906982276139@kroah.com>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1950; h=from:subject; bh=DxTthHQCW6asftQXjQGow73DCTtmUV2NMx0blS7OttM=; b=owGbwMvMwCU28Zj0gdSKO4sYT6slMSR5nT30tu6CB7eLT3D0/wUcTAesIq2t5ZjmLwzP3Vof0elt 2cbYUcrCIMbFICumyOLQbhIut5ynYrNRpgbMHFYmkCEMXJwCMJEj6Qz/81t2rvw8d/+Kaa4Jm7a7Xw qwNV3SYbZrW0bXBt6kU1emX2NkOLlL7+XJlus3hRVTFB99nf+xu2ebbvfU3iqPZevOnTy2hRcA
-X-Developer-Key: i=brauner@kernel.org; a=openpgp; fpr=4880B8C9BD0E5106FC070F4F7B3C391EFEA93624
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -66,58 +47,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Make the two locations where exportfs helpers check permission to lookup
-a given inode idmapped mount aware by switching it to the lookup_one()
-helper. This is a bugfix for the open_by_handle_at() system call which
-doesn't take idmapped mounts into account currently. It's not tied to a
-specific commit so we'll just Cc stable.
 
-In addition this is required to support idmapped base layers in overlay.
-The overlay filesystem uses exportfs to encode and decode file handles
-for its index=on mount option and when nfs_export=on.
+The patch below does not apply to the 5.15-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Cc: <stable@vger.kernel.org>
-Cc: <linux-fsdevel@vger.kernel.org>
-Tested-by: Giuseppe Scrivano <gscrivan@redhat.com>
-Reviewed-by: Amir Goldstein <amir73il@gmail.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Christian Brauner (Microsoft) <brauner@kernel.org>
----
-/* v2 */
-unchanged
+thanks,
 
-/* v3 */
-unchanged
+greg k-h
 
-/* v4 */
-unchanged
----
- fs/exportfs/expfs.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+------------------ original commit in Linus's tree ------------------
 
-diff --git a/fs/exportfs/expfs.c b/fs/exportfs/expfs.c
-index 0106eba46d5a..3ef80d000e13 100644
---- a/fs/exportfs/expfs.c
-+++ b/fs/exportfs/expfs.c
-@@ -145,7 +145,7 @@ static struct dentry *reconnect_one(struct vfsmount *mnt,
- 	if (err)
- 		goto out_err;
- 	dprintk("%s: found name: %s\n", __func__, nbuf);
--	tmp = lookup_one_len_unlocked(nbuf, parent, strlen(nbuf));
-+	tmp = lookup_one_unlocked(mnt_user_ns(mnt), nbuf, parent, strlen(nbuf));
- 	if (IS_ERR(tmp)) {
- 		dprintk("%s: lookup failed: %d\n", __func__, PTR_ERR(tmp));
- 		err = PTR_ERR(tmp);
-@@ -525,7 +525,8 @@ exportfs_decode_fh_raw(struct vfsmount *mnt, struct fid *fid, int fh_len,
- 		}
+From f804360bb3a50decbed6e2761247964dca72c080 Mon Sep 17 00:00:00 2001
+From: Konrad Dybcio <konrad.dybcio@somainline.org>
+Date: Sat, 26 Feb 2022 22:41:25 +0100
+Subject: [PATCH] clk: qcom: smd: Add missing RPM clocks for msm8992/4
+
+XO and MSS_CFG were omitted when first adding the clocks for these SoCs.
+Add them, and while at it, move the XO clock to the top of the definition
+list, as ideally everyone should start using it sooner or later..
+
+Fixes: b4297844995f ("clk: qcom: smd: Add support for MSM8992/4 rpm clocks")
+Signed-off-by: Konrad Dybcio <konrad.dybcio@somainline.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220226214126.21209-2-konrad.dybcio@somainline.org
+
+diff --git a/drivers/clk/qcom/clk-smd-rpm.c b/drivers/clk/qcom/clk-smd-rpm.c
+index ea28e45ca371..418f017e933f 100644
+--- a/drivers/clk/qcom/clk-smd-rpm.c
++++ b/drivers/clk/qcom/clk-smd-rpm.c
+@@ -413,6 +413,7 @@ static const struct clk_ops clk_smd_rpm_branch_ops = {
+ 	.recalc_rate	= clk_smd_rpm_recalc_rate,
+ };
  
- 		inode_lock(target_dir->d_inode);
--		nresult = lookup_one_len(nbuf, target_dir, strlen(nbuf));
-+		nresult = lookup_one(mnt_user_ns(mnt), nbuf,
-+				     target_dir, strlen(nbuf));
- 		if (!IS_ERR(nresult)) {
- 			if (unlikely(nresult->d_inode != result->d_inode)) {
- 				dput(nresult);
--- 
-2.32.0
++DEFINE_CLK_SMD_RPM_BRANCH(sdm660, bi_tcxo, bi_tcxo_a, QCOM_SMD_RPM_MISC_CLK, 0, 19200000);
+ DEFINE_CLK_SMD_RPM(msm8916, pcnoc_clk, pcnoc_a_clk, QCOM_SMD_RPM_BUS_CLK, 0);
+ DEFINE_CLK_SMD_RPM(msm8916, snoc_clk, snoc_a_clk, QCOM_SMD_RPM_BUS_CLK, 1);
+ DEFINE_CLK_SMD_RPM(msm8916, bimc_clk, bimc_a_clk, QCOM_SMD_RPM_MEM_CLK, 0);
+@@ -604,7 +605,11 @@ DEFINE_CLK_SMD_RPM_XO_BUFFER(msm8992, ln_bb_clk, ln_bb_a_clk, 8, 19200000);
+ DEFINE_CLK_SMD_RPM(msm8992, ce1_clk, ce1_a_clk, QCOM_SMD_RPM_CE_CLK, 0);
+ DEFINE_CLK_SMD_RPM(msm8992, ce2_clk, ce2_a_clk, QCOM_SMD_RPM_CE_CLK, 1);
+ 
++DEFINE_CLK_SMD_RPM_BRANCH(msm8992, mss_cfg_ahb_clk, mss_cfg_ahb_a_clk,
++			  QCOM_SMD_RPM_MCFG_CLK, 0, 19200000);
+ static struct clk_smd_rpm *msm8992_clks[] = {
++	[RPM_SMD_XO_CLK_SRC] = &sdm660_bi_tcxo,
++	[RPM_SMD_XO_A_CLK_SRC] = &sdm660_bi_tcxo_a,
+ 	[RPM_SMD_PNOC_CLK] = &msm8916_pcnoc_clk,
+ 	[RPM_SMD_PNOC_A_CLK] = &msm8916_pcnoc_a_clk,
+ 	[RPM_SMD_OCMEMGX_CLK] = &msm8974_ocmemgx_clk,
+@@ -637,6 +642,8 @@ static struct clk_smd_rpm *msm8992_clks[] = {
+ 	[RPM_SMD_LN_BB_A_CLK] = &msm8992_ln_bb_a_clk,
+ 	[RPM_SMD_MMSSNOC_AHB_CLK] = &msm8974_mmssnoc_ahb_clk,
+ 	[RPM_SMD_MMSSNOC_AHB_A_CLK] = &msm8974_mmssnoc_ahb_a_clk,
++	[RPM_SMD_MSS_CFG_AHB_CLK] = &msm8992_mss_cfg_ahb_clk,
++	[RPM_SMD_MSS_CFG_AHB_A_CLK] = &msm8992_mss_cfg_ahb_a_clk,
+ 	[RPM_SMD_QDSS_CLK] = &msm8916_qdss_clk,
+ 	[RPM_SMD_QDSS_A_CLK] = &msm8916_qdss_a_clk,
+ 	[RPM_SMD_RF_CLK1] = &msm8916_rf_clk1,
+@@ -661,6 +668,8 @@ static const struct rpm_smd_clk_desc rpm_clk_msm8992 = {
+ DEFINE_CLK_SMD_RPM(msm8994, ce3_clk, ce3_a_clk, QCOM_SMD_RPM_CE_CLK, 2);
+ 
+ static struct clk_smd_rpm *msm8994_clks[] = {
++	[RPM_SMD_XO_CLK_SRC] = &sdm660_bi_tcxo,
++	[RPM_SMD_XO_A_CLK_SRC] = &sdm660_bi_tcxo_a,
+ 	[RPM_SMD_PNOC_CLK] = &msm8916_pcnoc_clk,
+ 	[RPM_SMD_PNOC_A_CLK] = &msm8916_pcnoc_a_clk,
+ 	[RPM_SMD_OCMEMGX_CLK] = &msm8974_ocmemgx_clk,
+@@ -693,6 +702,8 @@ static struct clk_smd_rpm *msm8994_clks[] = {
+ 	[RPM_SMD_LN_BB_A_CLK] = &msm8992_ln_bb_a_clk,
+ 	[RPM_SMD_MMSSNOC_AHB_CLK] = &msm8974_mmssnoc_ahb_clk,
+ 	[RPM_SMD_MMSSNOC_AHB_A_CLK] = &msm8974_mmssnoc_ahb_a_clk,
++	[RPM_SMD_MSS_CFG_AHB_CLK] = &msm8992_mss_cfg_ahb_clk,
++	[RPM_SMD_MSS_CFG_AHB_A_CLK] = &msm8992_mss_cfg_ahb_a_clk,
+ 	[RPM_SMD_QDSS_CLK] = &msm8916_qdss_clk,
+ 	[RPM_SMD_QDSS_A_CLK] = &msm8916_qdss_a_clk,
+ 	[RPM_SMD_RF_CLK1] = &msm8916_rf_clk1,
+@@ -857,8 +868,6 @@ static const struct rpm_smd_clk_desc rpm_clk_msm8998 = {
+ 	.num_clks = ARRAY_SIZE(msm8998_clks),
+ };
+ 
+-DEFINE_CLK_SMD_RPM_BRANCH(sdm660, bi_tcxo, bi_tcxo_a, QCOM_SMD_RPM_MISC_CLK, 0,
+-								19200000);
+ DEFINE_CLK_SMD_RPM_XO_BUFFER(sdm660, ln_bb_clk3, ln_bb_clk3_a, 3, 19200000);
+ DEFINE_CLK_SMD_RPM_XO_BUFFER_PINCTRL(sdm660, ln_bb_clk3_pin, ln_bb_clk3_pin_a, 3, 19200000);
+ 
+diff --git a/include/linux/soc/qcom/smd-rpm.h b/include/linux/soc/qcom/smd-rpm.h
+index 860dd8cdf9f3..82c9d489833a 100644
+--- a/include/linux/soc/qcom/smd-rpm.h
++++ b/include/linux/soc/qcom/smd-rpm.h
+@@ -40,6 +40,7 @@ struct qcom_smd_rpm;
+ #define QCOM_SMD_RPM_AGGR_CLK	0x72676761
+ #define QCOM_SMD_RPM_HWKM_CLK	0x6d6b7768
+ #define QCOM_SMD_RPM_PKA_CLK	0x616b70
++#define QCOM_SMD_RPM_MCFG_CLK	0x6766636d
+ 
+ int qcom_rpm_smd_write(struct qcom_smd_rpm *rpm,
+ 		       int state,
 
