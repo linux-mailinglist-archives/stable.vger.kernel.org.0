@@ -2,449 +2,1053 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3681B4F170E
-	for <lists+stable@lfdr.de>; Mon,  4 Apr 2022 16:35:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 665C44F1767
+	for <lists+stable@lfdr.de>; Mon,  4 Apr 2022 16:43:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377467AbiDDOgy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Apr 2022 10:36:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39952 "EHLO
+        id S1350504AbiDDOpo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Apr 2022 10:45:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52474 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354302AbiDDOgx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Apr 2022 10:36:53 -0400
-Received: from mga14.intel.com (mga14.intel.com [192.55.52.115])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0734E3EB89;
-        Mon,  4 Apr 2022 07:34:56 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1649082895; x=1680618895;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=OoEYWCKCrLz8SGhfdYGyDQbaneQ6HRtGgb2G02L69vE=;
-  b=lChkupIgyCWUXC56jH5+QdNm0c3pfPaUzNbIVO21vh4A0ccPh6/BmSr9
-   UyLMmlZgAephSQ6ONqCvQP8Wyb3cG6pt7h+5t94trLEB46TDY+Dxu+KCg
-   GqCXPwh+caJhVQmiq8wz9fxzWq13BcY/0v2NLWo6BUSl1vMxIXz03ClAa
-   zEJVNIrCeM8il/EhNWASRCbNvz1l3Rabsunw5XBPX5qXA7u+uvHaPxEun
-   OVdZtSxbKp+G51Eptxv/sdMOUA3lmh0qxldimSuvGuf3xszWrTbK5iBze
-   RHpfkF7b77g2ccw8OLwq6MyTHmlxGWfBAcANcwxYrqLPlkzR4Oycu9RIX
-   A==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10307"; a="260704496"
-X-IronPort-AV: E=Sophos;i="5.90,234,1643702400"; 
-   d="scan'208";a="260704496"
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Apr 2022 07:34:55 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.90,234,1643702400"; 
-   d="scan'208";a="657521449"
-Received: from silpixa00393544.ir.intel.com ([10.237.213.118])
-  by orsmga004.jf.intel.com with ESMTP; 04 Apr 2022 07:34:52 -0700
-From:   Marco Chiappero <marco.chiappero@intel.com>
-To:     herbert@gondor.apana.org.au
-Cc:     linux-crypto@vger.kernel.org, qat-linux@intel.com,
-        giovanni.cabiddu@intel.com,
-        Marco Chiappero <marco.chiappero@intel.com>,
-        stable@vger.kernel.org
-Subject: [PATCH 4/8] crypto: qat - rework the VF2PF interrupt handling logic
-Date:   Mon,  4 Apr 2022 15:38:25 +0100
-Message-Id: <20220404143829.147404-5-marco.chiappero@intel.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220404143829.147404-1-marco.chiappero@intel.com>
-References: <20220404143829.147404-1-marco.chiappero@intel.com>
+        with ESMTP id S1379696AbiDDOpK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Apr 2022 10:45:10 -0400
+Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77DBAB00
+        for <stable@vger.kernel.org>; Mon,  4 Apr 2022 07:42:40 -0700 (PDT)
+Received: by mail-pj1-x102d.google.com with SMTP id bx5so8928982pjb.3
+        for <stable@vger.kernel.org>; Mon, 04 Apr 2022 07:42:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=m0m3J6Lrln0OGoYzBkuUTAUqaOfacSdOKi5451Ugzv0=;
+        b=bTMJzrg5T7N4RIop+UAVd5E6X3IL302m8NFN/X0ZV6Yfrq67b5T7sDDT1DX/sXput/
+         amTAdL8PEjf7G7PRa8moQdeOFp27AJS/XntYmiUbvf3bcxY9J1ZgriL8MHTtBXlJJDbj
+         KIFy9qLeXuMBZ0S8+KQTpxBbbYTPJe55cGiaUV+R1JLRFox+AFlamT94Xnfu/jXqPUxY
+         UE2TPXT3PwAwcjTOoRQSTtKzBVXNnD/32V0RT9MAb9woog7ljUWz5UjtOi8Vvp/B1a+w
+         1OMJGvS5r6T1rbxm7Uwo7v8cdJfIXIc6yUZ2Z28wJElndXpRUGQ2sAX0jUwUWueMVlZA
+         46tA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=m0m3J6Lrln0OGoYzBkuUTAUqaOfacSdOKi5451Ugzv0=;
+        b=SS5lFRAhUh2eZz9kMKR69vJIMnVzXrCJ7x+ZDVDRFZHzF+1d2wURsDHx9NXNccmBPX
+         L3wO9gHAcCHpAVrCRmcE1pn/cXxN1AVPyFnC6i371MITAzE4FD6p2jmds3JQxOBcPFJW
+         Bg4kw867W52tVSb0edZjo1HuMmQwKGQG/OCmtf6jG7v0u8dZC9F+3ePfUEl02v+bRUrH
+         twDDhd24QydwCo8zWjH+ALkJi2wZkE48SkgKw/P7L8HQMVIBJrdtjQ8kFnkyhky0Vmit
+         By323b+uS0tK85LIv6JU96JsZtLFVz/T8IiB3Wn7xdliki9vTRZD40QqbUigB3y/KpLm
+         LB+w==
+X-Gm-Message-State: AOAM533pvI0Zn4XVeWSuTradEsQIQ/oVB0c3xhzkQ9acasJtQLbIkZt1
+        9yAYqn/0Z5WrJ6xKQbF4qe5B/5txpaAf0VaObhw=
+X-Google-Smtp-Source: ABdhPJzP64QC89MZUHr0gfuljRLm5Xe8g5Np0VKnI/Gi0JcTk1uHKrCbLd96mEFLpq4HRC+l6H3EVA==
+X-Received: by 2002:a17:902:ce87:b0:156:5c6e:b6e4 with SMTP id f7-20020a170902ce8700b001565c6eb6e4mr31585plg.12.1649083359236;
+        Mon, 04 Apr 2022 07:42:39 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id i2-20020a17090ac40200b001bd0e552d27sm10676915pjt.11.2022.04.04.07.42.38
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 04 Apr 2022 07:42:38 -0700 (PDT)
+Message-ID: <624b03de.1c69fb81.90cde.b689@mx.google.com>
+Date:   Mon, 04 Apr 2022 07:42:38 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Organization: Intel Research and Development Ireland Ltd - Co. Reg. #308263 - Collinstown Industrial Park, Leixlip, County Kildare - Ireland
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-5.17.y
+X-Kernelci-Kernel: v5.17.1-1120-g9b2c6cfeca348
+X-Kernelci-Report-Type: build
+Subject: stable-rc/linux-5.17.y build: 178 builds: 2 failed, 176 passed,
+ 4 errors, 2 warnings (v5.17.1-1120-g9b2c6cfeca348)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Change the VF2PF interrupt handler in the PF ISR and the definition of
-the internal PFVF API to correct the current implementation, which can
-result in missed interrupts.
+stable-rc/linux-5.17.y build: 178 builds: 2 failed, 176 passed, 4 errors, 2=
+ warnings (v5.17.1-1120-g9b2c6cfeca348)
 
-More specifically, current HW generations consider a write to the mask
-register, regardless of the value, as an acknowledge of any pending
-VF2PF interrupt. Therefore, if there is an interrupt between the source
-register read and the mask register write, such interrupt will not be
-delivered and silently acknowledged, resulting in a lost VF2PF message.
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.17.=
+y/kernel/v5.17.1-1120-g9b2c6cfeca348/
 
-To work around the problem, rather than disabling specific interrupts,
-disable all the interrupts and re-enable only the ones that we are not
-serving (excluding the already disabled ones too). This will force any
-other pending interrupt to be triggered and be serviced by a subsequent
-ISR.
+Tree: stable-rc
+Branch: linux-5.17.y
+Git Describe: v5.17.1-1120-g9b2c6cfeca348
+Git Commit: 9b2c6cfeca348bde0e818807f7a02b4655a96eb8
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Built: 7 unique architectures
 
-This new approach requires, however, changes to the interrupt related
-pfvf_ops functions. In particular, get_vf2pf_sources() has now been
-removed in favor of disable_pending_vf2pf_interrupts(), which not only
-retrieves and returns the pending (and enabled) sources, but also
-disables them.
-As a consequence, introduce the adf_disable_pending_vf2pf_interrupts()
-utility in place of adf_disable_vf2pf_interrupts_irq(), which is no
-longer needed.
+Build Failures Detected:
 
-Cc: stable@vger.kernel.org
-Fixes: 993161d ("crypto: qat - fix handling of VF to PF interrupts")
-Signed-off-by: Marco Chiappero <marco.chiappero@intel.com>
-Reviewed-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+arm:
+    rpc_defconfig: (gcc-10) FAIL
+
+mips:
+    decstation_64_defconfig: (gcc-10) FAIL
+
+Errors and Warnings Detected:
+
+arc:
+
+arm64:
+
+arm:
+    rpc_defconfig (gcc-10): 2 errors
+
+i386:
+
+mips:
+    32r2el_defconfig (gcc-10): 1 warning
+    ci20_defconfig (gcc-10): 1 warning
+    fuloong2e_defconfig (gcc-10): 1 error
+    lemote2f_defconfig (gcc-10): 1 error
+
+riscv:
+
+x86_64:
+
+Errors summary:
+
+    2    cc1: error: =E2=80=98-mloongson-mmi=E2=80=99 must be used with =E2=
+=80=98-mhard-float=E2=80=99
+    1    arch/arm/kernel/head.S:319: Error: missing expression -- `ldr r7,=
+=3D0x'
+    1    arch/arm/kernel/head.S:319: Error: missing expression -- `ldr r3,=
+=3D0x'
+
+Warnings summary:
+
+    1    arch/mips/boot/dts/ingenic/jz4780.dtsi:513.33-515.6: Warning (unit=
+_address_format): /nemc@13410000/efuse@d0/eth-mac-addr@0x22: unit name shou=
+ld not have leading "0x"
+    1    arch/mips/boot/dts/img/boston.dts:128.19-178.5: Warning (pci_devic=
+e_reg): /pci@14000000/pci2_root@0,0,0: PCI unit address format error, expec=
+ted "0,0"
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D
+
+Detailed per-defconfig build reports:
+
+---------------------------------------------------------------------------=
+-----
+32r2el_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    arch/mips/boot/dts/img/boston.dts:128.19-178.5: Warning (pci_device_reg=
+): /pci@14000000/pci2_root@0,0,0: PCI unit address format error, expected "=
+0,0"
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+am200epdkit_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+ar7_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+aspeed_g4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+aspeed_g5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+assabet_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+at91_dt_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ath25_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ath79_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+axm55xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+axs103_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+axs103_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+badge4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+bcm2835_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+bcm47xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+bcm63xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+bigsur_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+bmips_be_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+bmips_stb_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+capcella_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+cavium_octeon_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+cerfcube_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+ci20_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    arch/mips/boot/dts/ingenic/jz4780.dtsi:513.33-515.6: Warning (unit_addr=
+ess_format): /nemc@13410000/efuse@d0/eth-mac-addr@0x22: unit name should no=
+t have leading "0x"
+
+---------------------------------------------------------------------------=
+-----
+cm_x300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+cobalt_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+colibri_pxa270_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+colibri_pxa300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+collie_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+corgi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+cu1000-neo_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+cu1830-neo_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+davinci_all_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+db1xxx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+decstation_64_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings=
+, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+decstation_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+decstation_r4k_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warning=
+s, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+defconfig (riscv, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+defconfig (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+defconfig+arm64-chromebook (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warn=
+ings, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+dove_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+e55_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+ep93xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+eseries_pxa_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+exynos_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ezx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+footbridge_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+fuloong2e_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings, 0 s=
+ection mismatches
+
+Errors:
+    cc1: error: =E2=80=98-mloongson-mmi=E2=80=99 must be used with =E2=80=
+=98-mhard-float=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+gcw0_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+gemini_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+gpr_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+h3600_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+h5000_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+hackkit_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+haps_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+haps_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+hisi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+hsdk_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+i386_defconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+imote2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+imx_v4_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+imx_v6_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+integrator_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+iop32x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip22_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip27_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip28_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip32_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ixp4xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+jazz_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+jmr3927_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+jornada720_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+keystone_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+lart_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+lemote2f_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings, 0 se=
+ction mismatches
+
+Errors:
+    cc1: error: =E2=80=98-mloongson-mmi=E2=80=99 must be used with =E2=80=
+=98-mhard-float=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+loongson1b_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+loongson1c_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+loongson2k_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+loongson3_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+lpc18xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+lpc32xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+lpd270_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+lubbock_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+magician_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+mainstone_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_kvm_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_qemu_32r6_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnin=
+gs, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltaaprp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltasmvp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltasmvp_eva_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltaup_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltaup_xpa_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
+0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+milbeaut_m10v_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+mini2440_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+mmp2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+moxart_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mpc30x_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mps2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+mtx1_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+multi_v4t_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+multi_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+multi_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+mvebu_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+mvebu_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+mxs_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+neponset_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+netwinder_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+nhk8815_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+nommu_k210_defconfig (riscv, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
+0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+nommu_k210_sdcard_defconfig (riscv, gcc-10) =E2=80=94 PASS, 0 errors, 0 war=
+nings, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+nsimosci_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+nsimosci_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warning=
+s, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+omap1_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+omap2plus_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+omega2p_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+orion5x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+oxnas_v6_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+palmz72_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+pcm027_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+pic32mzda_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+pleb_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa168_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa255-idp_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa3xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa910_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+qcom_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+qi_lb60_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+rb532_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+rbtx49xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+realview_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+rm200_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+rpc_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 section=
+ mismatches
+
+Errors:
+    arch/arm/kernel/head.S:319: Error: missing expression -- `ldr r7,=3D0x'
+    arch/arm/kernel/head.S:319: Error: missing expression -- `ldr r3,=3D0x'
+
+---------------------------------------------------------------------------=
+-----
+rs90_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+rt305x_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+rv32_defconfig (riscv, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+s3c2410_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+s3c6400_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+s5pv210_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+sama5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+sama7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+sb1250_swarm_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+shannon_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+shmobile_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+simpad_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+socfpga_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+spear13xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+spear3xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+spear6xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+spitz_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+stm32_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+sunxi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+tb0219_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+tb0226_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+tb0287_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+tct_hammer_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+tegra_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+trizeps4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+u8500_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+vdk_hs38_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+vdk_hs38_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
+0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+versatile_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+vexpress_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+vf610m4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+viper_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+vocore2_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+vt8500_v6_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
+0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+workpad_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+x86_64_defconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+x86_64_defconfig+x86-chromebook (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, =
+0 warnings, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+xcep_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+zeus_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
 ---
- .../crypto/qat/qat_common/adf_accel_devices.h |  2 +-
- drivers/crypto/qat/qat_common/adf_gen2_pfvf.c | 58 +++++++++-----
- drivers/crypto/qat/qat_common/adf_gen4_pfvf.c | 44 ++++++++---
- drivers/crypto/qat/qat_common/adf_isr.c       | 17 ++---
- .../qat/qat_dh895xcc/adf_dh895xcc_hw_data.c   | 76 +++++++++++++------
- 5 files changed, 132 insertions(+), 65 deletions(-)
-
-diff --git a/drivers/crypto/qat/qat_common/adf_accel_devices.h b/drivers/crypto/qat/qat_common/adf_accel_devices.h
-index a03c6cf72331..dfa7ee41c5e9 100644
---- a/drivers/crypto/qat/qat_common/adf_accel_devices.h
-+++ b/drivers/crypto/qat/qat_common/adf_accel_devices.h
-@@ -152,9 +152,9 @@ struct adf_pfvf_ops {
- 	int (*enable_comms)(struct adf_accel_dev *accel_dev);
- 	u32 (*get_pf2vf_offset)(u32 i);
- 	u32 (*get_vf2pf_offset)(u32 i);
--	u32 (*get_vf2pf_sources)(void __iomem *pmisc_addr);
- 	void (*enable_vf2pf_interrupts)(void __iomem *pmisc_addr, u32 vf_mask);
- 	void (*disable_vf2pf_interrupts)(void __iomem *pmisc_addr, u32 vf_mask);
-+	u32 (*disable_pending_vf2pf_interrupts)(void __iomem *pmisc_addr);
- 	int (*send_msg)(struct adf_accel_dev *accel_dev, struct pfvf_message msg,
- 			u32 pfvf_offset, struct mutex *csr_lock);
- 	struct pfvf_message (*recv_msg)(struct adf_accel_dev *accel_dev,
-diff --git a/drivers/crypto/qat/qat_common/adf_gen2_pfvf.c b/drivers/crypto/qat/qat_common/adf_gen2_pfvf.c
-index 1a9072aac2ca..def4cc8e1039 100644
---- a/drivers/crypto/qat/qat_common/adf_gen2_pfvf.c
-+++ b/drivers/crypto/qat/qat_common/adf_gen2_pfvf.c
-@@ -13,6 +13,7 @@
- #include "adf_pfvf_utils.h"
- 
-  /* VF2PF interrupts */
-+#define ADF_GEN2_VF_MSK			0xFFFF
- #define ADF_GEN2_ERR_REG_VF2PF(vf_src)	(((vf_src) & 0x01FFFE00) >> 9)
- #define ADF_GEN2_ERR_MSK_VF2PF(vf_mask)	(((vf_mask) & 0xFFFF) << 9)
- 
-@@ -50,23 +51,6 @@ static u32 adf_gen2_vf_get_pfvf_offset(u32 i)
- 	return ADF_GEN2_VF_PF2VF_OFFSET;
- }
- 
--static u32 adf_gen2_get_vf2pf_sources(void __iomem *pmisc_addr)
--{
--	u32 errsou3, errmsk3, vf_int_mask;
--
--	/* Get the interrupt sources triggered by VFs */
--	errsou3 = ADF_CSR_RD(pmisc_addr, ADF_GEN2_ERRSOU3);
--	vf_int_mask = ADF_GEN2_ERR_REG_VF2PF(errsou3);
--
--	/* To avoid adding duplicate entries to work queue, clear
--	 * vf_int_mask_sets bits that are already masked in ERRMSK register.
--	 */
--	errmsk3 = ADF_CSR_RD(pmisc_addr, ADF_GEN2_ERRMSK3);
--	vf_int_mask &= ~ADF_GEN2_ERR_REG_VF2PF(errmsk3);
--
--	return vf_int_mask;
--}
--
- static void adf_gen2_enable_vf2pf_interrupts(void __iomem *pmisc_addr,
- 					     u32 vf_mask)
- {
-@@ -89,6 +73,44 @@ static void adf_gen2_disable_vf2pf_interrupts(void __iomem *pmisc_addr,
- 	}
- }
- 
-+static u32 adf_gen2_disable_pending_vf2pf_interrupts(void __iomem *pmisc_addr)
-+{
-+	u32 sources, disabled, pending;
-+	u32 errsou3, errmsk3;
-+
-+	/* Get the interrupt sources triggered by VFs */
-+	errsou3 = ADF_CSR_RD(pmisc_addr, ADF_GEN2_ERRSOU3);
-+	sources = ADF_GEN2_ERR_REG_VF2PF(errsou3);
-+
-+	if (!sources)
-+		return 0;
-+
-+	/* Get the already disabled interrupts */
-+	errmsk3 = ADF_CSR_RD(pmisc_addr, ADF_GEN2_ERRMSK3);
-+	disabled = ADF_GEN2_ERR_REG_VF2PF(errmsk3);
-+
-+	pending = sources & ~disabled;
-+	if (!pending)
-+		return 0;
-+
-+	/* Due to HW limitations, when disabling the interrupts, we can't
-+	 * just disable the requested sources, as this would lead to missed
-+	 * interrupts if ERRSOU3 changes just before writing to ERRMSK3.
-+	 * To work around it, disable all and re-enable only the sources that
-+	 * are not in vf_mask and were not already disabled. Re-enabling will
-+	 * trigger a new interrupt for the sources that have changed in the
-+	 * meantime, if any.
-+	 */
-+	errmsk3 |= ADF_GEN2_ERR_MSK_VF2PF(ADF_GEN2_VF_MSK);
-+	ADF_CSR_WR(pmisc_addr, ADF_GEN2_ERRMSK3, errmsk3);
-+
-+	errmsk3 &= ADF_GEN2_ERR_MSK_VF2PF(sources | disabled);
-+	ADF_CSR_WR(pmisc_addr, ADF_GEN2_ERRMSK3, errmsk3);
-+
-+	/* Return the sources of the (new) interrupt(s) */
-+	return pending;
-+}
-+
- static u32 gen2_csr_get_int_bit(enum gen2_csr_pos offset)
- {
- 	return ADF_PFVF_INT << offset;
-@@ -362,9 +384,9 @@ void adf_gen2_init_pf_pfvf_ops(struct adf_pfvf_ops *pfvf_ops)
- 	pfvf_ops->enable_comms = adf_enable_pf2vf_comms;
- 	pfvf_ops->get_pf2vf_offset = adf_gen2_pf_get_pfvf_offset;
- 	pfvf_ops->get_vf2pf_offset = adf_gen2_pf_get_pfvf_offset;
--	pfvf_ops->get_vf2pf_sources = adf_gen2_get_vf2pf_sources;
- 	pfvf_ops->enable_vf2pf_interrupts = adf_gen2_enable_vf2pf_interrupts;
- 	pfvf_ops->disable_vf2pf_interrupts = adf_gen2_disable_vf2pf_interrupts;
-+	pfvf_ops->disable_pending_vf2pf_interrupts = adf_gen2_disable_pending_vf2pf_interrupts;
- 	pfvf_ops->send_msg = adf_gen2_pf2vf_send;
- 	pfvf_ops->recv_msg = adf_gen2_vf2pf_recv;
- }
-diff --git a/drivers/crypto/qat/qat_common/adf_gen4_pfvf.c b/drivers/crypto/qat/qat_common/adf_gen4_pfvf.c
-index d80d493a7756..40fdab857f95 100644
---- a/drivers/crypto/qat/qat_common/adf_gen4_pfvf.c
-+++ b/drivers/crypto/qat/qat_common/adf_gen4_pfvf.c
-@@ -15,6 +15,7 @@
- /* VF2PF interrupt source registers */
- #define ADF_4XXX_VM2PF_SOU		0x41A180
- #define ADF_4XXX_VM2PF_MSK		0x41A1C0
-+#define ADF_GEN4_VF_MSK			0xFFFF
- 
- #define ADF_PFVF_GEN4_MSGTYPE_SHIFT	2
- #define ADF_PFVF_GEN4_MSGTYPE_MASK	0x3F
-@@ -36,16 +37,6 @@ static u32 adf_gen4_pf_get_vf2pf_offset(u32 i)
- 	return ADF_4XXX_VM2PF_OFFSET(i);
- }
- 
--static u32 adf_gen4_get_vf2pf_sources(void __iomem *pmisc_addr)
--{
--	u32 sou, mask;
--
--	sou = ADF_CSR_RD(pmisc_addr, ADF_4XXX_VM2PF_SOU);
--	mask = ADF_CSR_RD(pmisc_addr, ADF_4XXX_VM2PF_MSK);
--
--	return sou & ~mask;
--}
--
- static void adf_gen4_enable_vf2pf_interrupts(void __iomem *pmisc_addr,
- 					     u32 vf_mask)
- {
-@@ -64,6 +55,37 @@ static void adf_gen4_disable_vf2pf_interrupts(void __iomem *pmisc_addr,
- 	ADF_CSR_WR(pmisc_addr, ADF_4XXX_VM2PF_MSK, val);
- }
- 
-+static u32 adf_gen4_disable_pending_vf2pf_interrupts(void __iomem *pmisc_addr)
-+{
-+	u32 sources, disabled, pending;
-+
-+	/* Get the interrupt sources triggered by VFs */
-+	sources = ADF_CSR_RD(pmisc_addr, ADF_4XXX_VM2PF_SOU);
-+	if (!sources)
-+		return 0;
-+
-+	/* Get the already disabled interrupts */
-+	disabled = ADF_CSR_RD(pmisc_addr, ADF_4XXX_VM2PF_MSK);
-+
-+	pending = sources & ~disabled;
-+	if (!pending)
-+		return 0;
-+
-+	/* Due to HW limitations, when disabling the interrupts, we can't
-+	 * just disable the requested sources, as this would lead to missed
-+	 * interrupts if VM2PF_SOU changes just before writing to VM2PF_MSK.
-+	 * To work around it, disable all and re-enable only the sources that
-+	 * are not in vf_mask and were not already disabled. Re-enabling will
-+	 * trigger a new interrupt for the sources that have changed in the
-+	 * meantime, if any.
-+	 */
-+	ADF_CSR_WR(pmisc_addr, ADF_4XXX_VM2PF_MSK, ADF_GEN4_VF_MSK);
-+	ADF_CSR_WR(pmisc_addr, ADF_4XXX_VM2PF_MSK, disabled | sources);
-+
-+	/* Return the sources of the (new) interrupt(s) */
-+	return pending;
-+}
-+
- static int adf_gen4_pfvf_send(struct adf_accel_dev *accel_dev,
- 			      struct pfvf_message msg, u32 pfvf_offset,
- 			      struct mutex *csr_lock)
-@@ -115,9 +137,9 @@ void adf_gen4_init_pf_pfvf_ops(struct adf_pfvf_ops *pfvf_ops)
- 	pfvf_ops->enable_comms = adf_enable_pf2vf_comms;
- 	pfvf_ops->get_pf2vf_offset = adf_gen4_pf_get_pf2vf_offset;
- 	pfvf_ops->get_vf2pf_offset = adf_gen4_pf_get_vf2pf_offset;
--	pfvf_ops->get_vf2pf_sources = adf_gen4_get_vf2pf_sources;
- 	pfvf_ops->enable_vf2pf_interrupts = adf_gen4_enable_vf2pf_interrupts;
- 	pfvf_ops->disable_vf2pf_interrupts = adf_gen4_disable_vf2pf_interrupts;
-+	pfvf_ops->disable_pending_vf2pf_interrupts = adf_gen4_disable_pending_vf2pf_interrupts;
- 	pfvf_ops->send_msg = adf_gen4_pfvf_send;
- 	pfvf_ops->recv_msg = adf_gen4_pfvf_recv;
- }
-diff --git a/drivers/crypto/qat/qat_common/adf_isr.c b/drivers/crypto/qat/qat_common/adf_isr.c
-index a35149f8bf1e..23f7fff32c64 100644
---- a/drivers/crypto/qat/qat_common/adf_isr.c
-+++ b/drivers/crypto/qat/qat_common/adf_isr.c
-@@ -76,32 +76,29 @@ void adf_disable_vf2pf_interrupts(struct adf_accel_dev *accel_dev, u32 vf_mask)
- 	spin_unlock_irqrestore(&accel_dev->pf.vf2pf_ints_lock, flags);
- }
- 
--static void adf_disable_vf2pf_interrupts_irq(struct adf_accel_dev *accel_dev,
--					     u32 vf_mask)
-+static u32 adf_disable_pending_vf2pf_interrupts(struct adf_accel_dev *accel_dev)
- {
- 	void __iomem *pmisc_addr = adf_get_pmisc_base(accel_dev);
-+	u32 pending;
- 
- 	spin_lock(&accel_dev->pf.vf2pf_ints_lock);
--	GET_PFVF_OPS(accel_dev)->disable_vf2pf_interrupts(pmisc_addr, vf_mask);
-+	pending = GET_PFVF_OPS(accel_dev)->disable_pending_vf2pf_interrupts(pmisc_addr);
- 	spin_unlock(&accel_dev->pf.vf2pf_ints_lock);
-+
-+	return pending;
- }
- 
- static bool adf_handle_vf2pf_int(struct adf_accel_dev *accel_dev)
- {
--	void __iomem *pmisc_addr = adf_get_pmisc_base(accel_dev);
- 	bool irq_handled = false;
- 	unsigned long vf_mask;
- 
--	/* Get the interrupt sources triggered by VFs */
--	vf_mask = GET_PFVF_OPS(accel_dev)->get_vf2pf_sources(pmisc_addr);
--
-+	/* Get the interrupt sources triggered by VFs, except for those already disabled */
-+	vf_mask = adf_disable_pending_vf2pf_interrupts(accel_dev);
- 	if (vf_mask) {
- 		struct adf_accel_vf_info *vf_info;
- 		int i;
- 
--		/* Disable VF2PF interrupts for VFs with pending ints */
--		adf_disable_vf2pf_interrupts_irq(accel_dev, vf_mask);
--
- 		/*
- 		 * Handle VF2PF interrupt unless the VF is malicious and
- 		 * is attempting to flood the host OS with VF2PF interrupts.
-diff --git a/drivers/crypto/qat/qat_dh895xcc/adf_dh895xcc_hw_data.c b/drivers/crypto/qat/qat_dh895xcc/adf_dh895xcc_hw_data.c
-index 61d5467e0d92..91095ad479dc 100644
---- a/drivers/crypto/qat/qat_dh895xcc/adf_dh895xcc_hw_data.c
-+++ b/drivers/crypto/qat/qat_dh895xcc/adf_dh895xcc_hw_data.c
-@@ -7,6 +7,8 @@
- #include "adf_dh895xcc_hw_data.h"
- #include "icp_qat_hw.h"
- 
-+#define ADF_DH895XCC_VF_MSK	0xFFFFFFFF
-+
- /* Worker thread to service arbiter mappings */
- static const u32 thrd_to_arb_map[ADF_DH895XCC_MAX_ACCELENGINES] = {
- 	0x12222AAA, 0x11666666, 0x12222AAA, 0x11666666,
-@@ -121,29 +123,6 @@ static void adf_enable_ints(struct adf_accel_dev *accel_dev)
- 		   ADF_DH895XCC_SMIA1_MASK);
- }
- 
--static u32 get_vf2pf_sources(void __iomem *pmisc_bar)
--{
--	u32 errsou3, errmsk3, errsou5, errmsk5, vf_int_mask;
--
--	/* Get the interrupt sources triggered by VFs */
--	errsou3 = ADF_CSR_RD(pmisc_bar, ADF_GEN2_ERRSOU3);
--	vf_int_mask = ADF_DH895XCC_ERR_REG_VF2PF_L(errsou3);
--
--	/* To avoid adding duplicate entries to work queue, clear
--	 * vf_int_mask_sets bits that are already masked in ERRMSK register.
--	 */
--	errmsk3 = ADF_CSR_RD(pmisc_bar, ADF_GEN2_ERRMSK3);
--	vf_int_mask &= ~ADF_DH895XCC_ERR_REG_VF2PF_L(errmsk3);
--
--	/* Do the same for ERRSOU5 */
--	errsou5 = ADF_CSR_RD(pmisc_bar, ADF_GEN2_ERRSOU5);
--	errmsk5 = ADF_CSR_RD(pmisc_bar, ADF_GEN2_ERRMSK5);
--	vf_int_mask |= ADF_DH895XCC_ERR_REG_VF2PF_U(errsou5);
--	vf_int_mask &= ~ADF_DH895XCC_ERR_REG_VF2PF_U(errmsk5);
--
--	return vf_int_mask;
--}
--
- static void enable_vf2pf_interrupts(void __iomem *pmisc_addr, u32 vf_mask)
- {
- 	/* Enable VF2PF Messaging Ints - VFs 0 through 15 per vf_mask[15:0] */
-@@ -157,7 +136,6 @@ static void enable_vf2pf_interrupts(void __iomem *pmisc_addr, u32 vf_mask)
- 	if (vf_mask >> 16) {
- 		u32 val = ADF_CSR_RD(pmisc_addr, ADF_GEN2_ERRMSK5)
- 			  & ~ADF_DH895XCC_ERR_MSK_VF2PF_U(vf_mask);
--
- 		ADF_CSR_WR(pmisc_addr, ADF_GEN2_ERRMSK5, val);
- 	}
- }
-@@ -180,6 +158,54 @@ static void disable_vf2pf_interrupts(void __iomem *pmisc_addr, u32 vf_mask)
- 	}
- }
- 
-+static u32 disable_pending_vf2pf_interrupts(void __iomem *pmisc_addr)
-+{
-+	u32 sources, pending, disabled;
-+	u32 errsou3, errmsk3;
-+	u32 errsou5, errmsk5;
-+
-+	/* Get the interrupt sources triggered by VFs */
-+	errsou3 = ADF_CSR_RD(pmisc_addr, ADF_GEN2_ERRSOU3);
-+	errsou5 = ADF_CSR_RD(pmisc_addr, ADF_GEN2_ERRSOU5);
-+	sources = ADF_DH895XCC_ERR_REG_VF2PF_L(errsou3)
-+		  | ADF_DH895XCC_ERR_REG_VF2PF_U(errsou5);
-+
-+	if (!sources)
-+		return 0;
-+
-+	/* Get the already disabled interrupts */
-+	errmsk3 = ADF_CSR_RD(pmisc_addr, ADF_GEN2_ERRMSK3);
-+	errmsk5 = ADF_CSR_RD(pmisc_addr, ADF_GEN2_ERRMSK5);
-+	disabled = ADF_DH895XCC_ERR_REG_VF2PF_L(errmsk3)
-+		   | ADF_DH895XCC_ERR_REG_VF2PF_U(errmsk5);
-+
-+	pending = sources & ~disabled;
-+	if (!pending)
-+		return 0;
-+
-+	/* Due to HW limitations, when disabling the interrupts, we can't
-+	 * just disable the requested sources, as this would lead to missed
-+	 * interrupts if sources changes just before writing to ERRMSK3 and
-+	 * ERRMSK5.
-+	 * To work around it, disable all and re-enable only the sources that
-+	 * are not in vf_mask and were not already disabled. Re-enabling will
-+	 * trigger a new interrupt for the sources that have changed in the
-+	 * meantime, if any.
-+	 */
-+	errmsk3 |= ADF_DH895XCC_ERR_MSK_VF2PF_L(ADF_DH895XCC_VF_MSK);
-+	errmsk5 |= ADF_DH895XCC_ERR_MSK_VF2PF_U(ADF_DH895XCC_VF_MSK);
-+	ADF_CSR_WR(pmisc_addr, ADF_GEN2_ERRMSK3, errmsk3);
-+	ADF_CSR_WR(pmisc_addr, ADF_GEN2_ERRMSK5, errmsk5);
-+
-+	errmsk3 &= ADF_DH895XCC_ERR_MSK_VF2PF_L(sources | disabled);
-+	errmsk5 &= ADF_DH895XCC_ERR_MSK_VF2PF_U(sources | disabled);
-+	ADF_CSR_WR(pmisc_addr, ADF_GEN2_ERRMSK3, errmsk3);
-+	ADF_CSR_WR(pmisc_addr, ADF_GEN2_ERRMSK5, errmsk5);
-+
-+	/* Return the sources of the (new) interrupt(s) */
-+	return pending;
-+}
-+
- static void configure_iov_threads(struct adf_accel_dev *accel_dev, bool enable)
- {
- 	adf_gen2_cfg_iov_thds(accel_dev, enable,
-@@ -227,9 +253,9 @@ void adf_init_hw_data_dh895xcc(struct adf_hw_device_data *hw_data)
- 	hw_data->disable_iov = adf_disable_sriov;
- 
- 	adf_gen2_init_pf_pfvf_ops(&hw_data->pfvf_ops);
--	hw_data->pfvf_ops.get_vf2pf_sources = get_vf2pf_sources;
- 	hw_data->pfvf_ops.enable_vf2pf_interrupts = enable_vf2pf_interrupts;
- 	hw_data->pfvf_ops.disable_vf2pf_interrupts = disable_vf2pf_interrupts;
-+	hw_data->pfvf_ops.disable_pending_vf2pf_interrupts = disable_pending_vf2pf_interrupts;
- 	adf_gen2_init_hw_csr_ops(&hw_data->csr_ops);
- }
- 
--- 
-2.34.1
-
+For more info write to <info@kernelci.org>
