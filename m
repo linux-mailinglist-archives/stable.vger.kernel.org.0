@@ -2,50 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 07F814F1AF7
-	for <lists+stable@lfdr.de>; Mon,  4 Apr 2022 23:18:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 19CC24F1B09
+	for <lists+stable@lfdr.de>; Mon,  4 Apr 2022 23:18:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379329AbiDDVTO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Apr 2022 17:19:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53150 "EHLO
+        id S240513AbiDDVTf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Apr 2022 17:19:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380258AbiDDTV0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Apr 2022 15:21:26 -0400
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 246F037A93
-        for <stable@vger.kernel.org>; Mon,  4 Apr 2022 12:19:29 -0700 (PDT)
-Received: from gallifrey.ext.pengutronix.de ([2001:67c:670:201:5054:ff:fe8d:eefb] helo=bjornoya.blackshift.org)
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <mkl@pengutronix.de>)
-        id 1nbSEZ-0003k0-1H; Mon, 04 Apr 2022 21:19:27 +0200
-Received: from pengutronix.de (2a03-f580-87bc-d400-3524-91ca-8473-ba45.ip6.dokom21.de [IPv6:2a03:f580:87bc:d400:3524:91ca:8473:ba45])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (Client did not present a certificate)
-        (Authenticated sender: mkl-all@blackshift.org)
-        by smtp.blackshift.org (Postfix) with ESMTPSA id 2B5BE5A437;
-        Mon,  4 Apr 2022 19:19:26 +0000 (UTC)
-Date:   Mon, 4 Apr 2022 21:19:25 +0200
-From:   Marc Kleine-Budde <mkl@pengutronix.de>
-To:     gregkh@linuxfoundation.org
-Cc:     hbh25y@gmail.com, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] can: m_can: m_can_tx_handler(): fix use
- after free of skb" failed to apply to 5.10-stable tree
-Message-ID: <20220404191925.liav72moiotwwxxp@pengutronix.de>
-References: <164881453855199@kroah.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="mynnw4f4u67t4avy"
-Content-Disposition: inline
-In-Reply-To: <164881453855199@kroah.com>
-X-SA-Exim-Connect-IP: 2001:67c:670:201:5054:ff:fe8d:eefb
-X-SA-Exim-Mail-From: mkl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: stable@vger.kernel.org
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+        with ESMTP id S1380266AbiDDTZS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Apr 2022 15:25:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57D2E3B037;
+        Mon,  4 Apr 2022 12:23:22 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CD06160E07;
+        Mon,  4 Apr 2022 19:23:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26F08C2BBE4;
+        Mon,  4 Apr 2022 19:23:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1649100201;
+        bh=FIdzzLgCt+ibG7BLkK9z9odlDVaP2an4lCC1DuV652s=;
+        h=Date:To:From:Subject:From;
+        b=WAeQJgXDkIFuL5eY+Sj47O2f19n9BYMgg9wFIY7nYwTYoTUAXtyEtCG9r1vYvmBVx
+         psDGxLO4+nRMjtsGRkBYs3zaMX/pp5ecvUzFf9ebdAltkI6nLq1wmcN5yrcDBWoxKw
+         8NBNnuumsybsAEIwxQh4ZwuektnHrKsMzMjHb95w=
+Date:   Mon, 04 Apr 2022 12:23:20 -0700
+To:     mm-commits@vger.kernel.org, tglx@linutronix.de,
+        stable@vger.kernel.org, peterz@infradead.org, jcmvbkbc@gmail.com,
+        akpm@linux-foundation.org
+From:   Andrew Morton <akpm@linux-foundation.org>
+Subject: + highmem-fix-checks-in-__kmap_local_sched_inout.patch added to -mm tree
+Message-Id: <20220404192321.26F08C2BBE4@smtp.kernel.org>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -53,94 +46,105 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---mynnw4f4u67t4avy
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The patch titled
+     Subject: highmem: fix checks in __kmap_local_sched_{in,out}
+has been added to the -mm tree.  Its filename is
+     highmem-fix-checks-in-__kmap_local_sched_inout.patch
 
-On 01.04.2022 14:02:18, gregkh@linuxfoundation.org wrote:
->=20
-> The patch below does not apply to the 5.10-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
+This patch should soon appear at
+    https://ozlabs.org/~akpm/mmots/broken-out/highmem-fix-checks-in-__kmap_local_sched_inout.patch
+and later at
+    https://ozlabs.org/~akpm/mmotm/broken-out/highmem-fix-checks-in-__kmap_local_sched_inout.patch
 
-Here you are...or...it should show up here sooner or later:
-https://lore.kernel.org/all/20220404190830.1241263-1-mkl@pengutronix.de
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
-regards,
-Marc
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
 
->=20
-> thanks,
->=20
-> greg k-h
->=20
-> ------------------ original commit in Linus's tree ------------------
->=20
-> From 2e8e79c416aae1de224c0f1860f2e3350fa171f8 Mon Sep 17 00:00:00 2001
-> From: Marc Kleine-Budde <mkl@pengutronix.de>
-> Date: Thu, 17 Mar 2022 08:57:35 +0100
-> Subject: [PATCH] can: m_can: m_can_tx_handler(): fix use after free of skb
->=20
-> can_put_echo_skb() will clone skb then free the skb. Move the
-> can_put_echo_skb() for the m_can version 3.0.x directly before the
-> start of the xmit in hardware, similar to the 3.1.x branch.
->=20
-> Fixes: 80646733f11c ("can: m_can: update to support CAN FD features")
-> Link: https://lore.kernel.org/all/20220317081305.739554-1-mkl@pengutronix=
-=2Ede
-> Cc: stable@vger.kernel.org
-> Reported-by: Hangyu Hua <hbh25y@gmail.com>
-> Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
->=20
-> diff --git a/drivers/net/can/m_can/m_can.c b/drivers/net/can/m_can/m_can.c
-> index 1a4b56f6fa8c..b3b5bc1c803b 100644
-> --- a/drivers/net/can/m_can/m_can.c
-> +++ b/drivers/net/can/m_can/m_can.c
-> @@ -1637,8 +1637,6 @@ static netdev_tx_t m_can_tx_handler(struct m_can_cl=
-assdev *cdev)
->  		if (err)
->  			goto out_fail;
-> =20
-> -		can_put_echo_skb(skb, dev, 0, 0);
-> -
->  		if (cdev->can.ctrlmode & CAN_CTRLMODE_FD) {
->  			cccr =3D m_can_read(cdev, M_CAN_CCCR);
->  			cccr &=3D ~CCCR_CMR_MASK;
-> @@ -1655,6 +1653,9 @@ static netdev_tx_t m_can_tx_handler(struct m_can_cl=
-assdev *cdev)
->  			m_can_write(cdev, M_CAN_CCCR, cccr);
->  		}
->  		m_can_write(cdev, M_CAN_TXBTIE, 0x1);
-> +
-> +		can_put_echo_skb(skb, dev, 0, 0);
-> +
->  		m_can_write(cdev, M_CAN_TXBAR, 0x1);
->  		/* End of xmit function for version 3.0.x */
->  	} else {
->=20
->=20
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
 
---=20
-Pengutronix e.K.                 | Marc Kleine-Budde           |
-Embedded Linux                   | https://www.pengutronix.de  |
-Vertretung West/Dortmund         | Phone: +49-231-2826-924     |
-Amtsgericht Hildesheim, HRA 2686 | Fax:   +49-5121-206917-5555 |
+------------------------------------------------------
+From: Max Filippov <jcmvbkbc@gmail.com>
+Subject: highmem: fix checks in __kmap_local_sched_{in,out}
 
---mynnw4f4u67t4avy
-Content-Type: application/pgp-signature; name="signature.asc"
+When CONFIG_DEBUG_KMAP_LOCAL is enabled __kmap_local_sched_{in,out} check
+that even slots in the tsk->kmap_ctrl.pteval are unmapped.  The slots are
+initialized with 0 value, but the check is done with pte_none.  0 pte
+however does not necessarily mean that pte_none will return true.  e.g. 
+on xtensa it returns false, resulting in the following runtime warnings:
 
------BEGIN PGP SIGNATURE-----
+ WARNING: CPU: 0 PID: 101 at mm/highmem.c:627 __kmap_local_sched_out+0x51/0x108
+ CPU: 0 PID: 101 Comm: touch Not tainted 5.17.0-rc7-00010-gd3a1cdde80d2-dirty #13
+ Call Trace:
+   dump_stack+0xc/0x40
+   __warn+0x8f/0x174
+   warn_slowpath_fmt+0x48/0xac
+   __kmap_local_sched_out+0x51/0x108
+   __schedule+0x71a/0x9c4
+   preempt_schedule_irq+0xa0/0xe0
+   common_exception_return+0x5c/0x93
+   do_wp_page+0x30e/0x330
+   handle_mm_fault+0xa70/0xc3c
+   do_page_fault+0x1d8/0x3c4
+   common_exception+0x7f/0x7f
 
-iQEzBAABCgAdFiEEBsvAIBsPu6mG7thcrX5LkNig010FAmJLRLoACgkQrX5LkNig
-011mqggAm+nro9UoFEYQaAr6bIHebgH30W7Aw1fp8gYG64UwU27xZGKTsso1sIxj
-L5JRyO8PR4aDySit4xm51oSCpxf9svBUATr7v742X+eYeShB1UhT7qUz2T/lAev2
-zrUlueMTalZobspI+lwYnunnZK9ROKI+6DwVPSky8FC6dKvjqW5fa/epWsZkjqcN
-iJDMV8WOJsJiER7WVr0Oo6E+NHP+CfW6D7JuBvgdmBGt1kNKS+JuUixYbiqaoBCX
-peN7zF2JtYXAg31jMfntcrDvEVYiY9k5uwuhnTSZziclnYeNf9taX/GBYkaUVj6c
-aUAC1EJkRhldYDKsjsavxGY0can3AQ==
-=Ginx
------END PGP SIGNATURE-----
+ WARNING: CPU: 0 PID: 101 at mm/highmem.c:664 __kmap_local_sched_in+0x50/0xe0
+ CPU: 0 PID: 101 Comm: touch Tainted: G        W         5.17.0-rc7-00010-gd3a1cdde80d2-dirty #13
+ Call Trace:
+   dump_stack+0xc/0x40
+   __warn+0x8f/0x174
+   warn_slowpath_fmt+0x48/0xac
+   __kmap_local_sched_in+0x50/0xe0
+   finish_task_switch$isra$0+0x1ce/0x2f8
+   __schedule+0x86e/0x9c4
+   preempt_schedule_irq+0xa0/0xe0
+   common_exception_return+0x5c/0x93
+   do_wp_page+0x30e/0x330
+   handle_mm_fault+0xa70/0xc3c
+   do_page_fault+0x1d8/0x3c4
+   common_exception+0x7f/0x7f
 
---mynnw4f4u67t4avy--
+Fix it by replacing !pte_none(pteval) with pte_val(pteval) != 0.
+
+Link: https://lkml.kernel.org/r/20220403235159.3498065-1-jcmvbkbc@gmail.com
+Fixes: 5fbda3ecd14a ("sched: highmem: Store local kmaps in task struct")
+Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
+Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ mm/highmem.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+--- a/mm/highmem.c~highmem-fix-checks-in-__kmap_local_sched_inout
++++ a/mm/highmem.c
+@@ -624,7 +624,7 @@ void __kmap_local_sched_out(void)
+ 
+ 		/* With debug all even slots are unmapped and act as guard */
+ 		if (IS_ENABLED(CONFIG_DEBUG_KMAP_LOCAL) && !(i & 0x01)) {
+-			WARN_ON_ONCE(!pte_none(pteval));
++			WARN_ON_ONCE(pte_val(pteval) != 0);
+ 			continue;
+ 		}
+ 		if (WARN_ON_ONCE(pte_none(pteval)))
+@@ -661,7 +661,7 @@ void __kmap_local_sched_in(void)
+ 
+ 		/* With debug all even slots are unmapped and act as guard */
+ 		if (IS_ENABLED(CONFIG_DEBUG_KMAP_LOCAL) && !(i & 0x01)) {
+-			WARN_ON_ONCE(!pte_none(pteval));
++			WARN_ON_ONCE(pte_val(pteval) != 0);
+ 			continue;
+ 		}
+ 		if (WARN_ON_ONCE(pte_none(pteval)))
+_
+
+Patches currently in -mm which might be from jcmvbkbc@gmail.com are
+
+highmem-fix-checks-in-__kmap_local_sched_inout.patch
+
