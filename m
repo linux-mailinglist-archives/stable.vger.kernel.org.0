@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 623E64F1033
+	by mail.lfdr.de (Postfix) with ESMTP id E174E4F1034
 	for <lists+stable@lfdr.de>; Mon,  4 Apr 2022 09:44:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348614AbiDDHph (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Apr 2022 03:45:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59208 "EHLO
+        id S245760AbiDDHpo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Apr 2022 03:45:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59620 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245760AbiDDHpg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Apr 2022 03:45:36 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F7B411148
-        for <stable@vger.kernel.org>; Mon,  4 Apr 2022 00:43:41 -0700 (PDT)
+        with ESMTP id S1355884AbiDDHpm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Apr 2022 03:45:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41C85381A6
+        for <stable@vger.kernel.org>; Mon,  4 Apr 2022 00:43:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E85EE611CE
-        for <stable@vger.kernel.org>; Mon,  4 Apr 2022 07:43:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F31F3C2BBE4;
-        Mon,  4 Apr 2022 07:43:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D16516123E
+        for <stable@vger.kernel.org>; Mon,  4 Apr 2022 07:43:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6413C34110;
+        Mon,  4 Apr 2022 07:43:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649058220;
-        bh=kMDPtmaptLsNCpd45aXZ41mSDiWGI8vgTOO9ArEsacY=;
+        s=korg; t=1649058225;
+        bh=Pw/w5b0pMT6O+RoV8rcCVYZydbEn3Rmz+FY2+9kIJWY=;
         h=Subject:To:Cc:From:Date:From;
-        b=GSwEorzKUi84x6rkQYkqTdp+QPZodAA6ExOxYi1jkr8Fgp62NeJ6l5ss2leeYe7SI
-         dcD8CbOlNO2D7JBiqFW03B3XhoH6EDCTesP0/F9kwdDz/oKQN/qHDhk455s7uIGU8C
-         0hTvkKstDZjXJL/4nzJfK1nDszdQN3wkqE8qIZoo=
-Subject: FAILED: patch "[PATCH] x86/sev: Unroll string mmio with" failed to apply to 5.15-stable tree
+        b=exvxg8aLOlGGesaXoHsNGdIeFJt+uBZZ3EB9RmZSzQ46Bn6OvSUgypWibq3td5FDc
+         S2dIbtv0WGGewdMco2ILVLli2fWJzbXuBWrwEwYNi8Gxuisg0BLaGHyPA0Y4x31BRz
+         5VBOk8TrDIV2n8oiYz0ZvDDh3ObJOXaH900nW1ks=
+Subject: FAILED: patch "[PATCH] x86/sev: Unroll string mmio with" failed to apply to 5.16-stable tree
 To:     jroedel@suse.de, bp@suse.de, stable@vger.kernel.org,
         thomas.lendacky@amd.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 04 Apr 2022 09:43:37 +0200
-Message-ID: <16490582177495@kroah.com>
+Date:   Mon, 04 Apr 2022 09:43:42 +0200
+Message-ID: <1649058222102139@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.16-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
