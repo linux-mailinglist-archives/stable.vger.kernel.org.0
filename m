@@ -2,178 +2,145 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A53874F1B11
-	for <lists+stable@lfdr.de>; Mon,  4 Apr 2022 23:18:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 068304F1B18
+	for <lists+stable@lfdr.de>; Mon,  4 Apr 2022 23:18:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379430AbiDDVTg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Apr 2022 17:19:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33206 "EHLO
+        id S1353366AbiDDVTj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Apr 2022 17:19:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48418 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379767AbiDDSDV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Apr 2022 14:03:21 -0400
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40B3937BCA;
-        Mon,  4 Apr 2022 11:01:25 -0700 (PDT)
-Date:   Mon, 04 Apr 2022 18:01:22 -0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1649095283;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=wX8w8FV4yP7/hACZ/Dkubahfg7SLkix1Wjx+nmRLJUU=;
-        b=LaMADLt/l4qyMI5pC7WKkpqmut6W0mjP5aAozvaZhOgI6Nb/vWEGSLXaX9Ou/ra0VhFFD5
-        JcMdWTtMeyf2Lyoky7F4TMn1QugrvFlxiGVBqj5aLwzGW0ucMdHpCnJzEJI5EaLAf/EkN6
-        Wao2LLBBsVg5AvvSTZf2hqhVVGJJ7DlIvC6EBq1K61sW09GxnGC7X2dAqOWffGw+jR64WA
-        N8Uw3Pl0BgGhaaH3rn54j7vdfztDomPx+mtDVybJrFcU+LgiJn9505PaA3iyySQx4zmPzu
-        G46aDWd2gIJSLx6KPfqbYtg/QkB8PUio8NezQznRxfWtSeiKVW1iprtJ/c34pA==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1649095283;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=wX8w8FV4yP7/hACZ/Dkubahfg7SLkix1Wjx+nmRLJUU=;
-        b=E+K+bx2uZut2Ke6OKYm5DsmLWzcL8IvtlAaOAcxsvb+LSi85vslkt2jx2Y6XN3OowESBuJ
-        vQ6dK5r6QwggCMDQ==
-From:   "tip-bot2 for Dave Hansen" <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: x86/urgent] x86/mm/tlb: Revert retpoline avoidance approach
-Cc:     kernel test robot <oliver.sang@intel.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Borislav Petkov <bp@suse.de>, Nadav Amit <namit@vmware.com>,
-        <stable@vger.kernel.org>, x86@kernel.org,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <164874672286.389.7021457716635788197.tip-bot2@tip-bot2>
-References: <164874672286.389.7021457716635788197.tip-bot2@tip-bot2>
+        with ESMTP id S1379832AbiDDSOV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Apr 2022 14:14:21 -0400
+Received: from mail.toke.dk (mail.toke.dk [45.145.95.4])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 600AC3EA8F;
+        Mon,  4 Apr 2022 11:12:24 -0700 (PDT)
+From:   =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=toke.dk; s=20161023;
+        t=1649095942; bh=t7buVznG3yYA/clRrtCyeVOjJjj86PX29F+Mo7FFbD4=;
+        h=From:To:Cc:Subject:Date:From;
+        b=hgq637ASRyJWWnpb/5p+PzMyiwCmOZ1E7FjoJroS8IjnYnPBEyiAnozUq4Y/4O/Zv
+         WBms5xwx7I26Q4XR4Zp1Gb/P0Gdtc9QBBglKjvQeeognTIjidKHl3mNCG/GuzSXTvv
+         zbDR2M6WhuKDO55eUOEn3lsGFz1zxtTAV+2xGJ2lZ1c/Hf+HUjrjrjn6Q7aEVYAhEL
+         uDjO0cEOOp3nJXy3jc3Xiy2ligDg+8BhzKQqZa1MUfxJuCLyI4peA5R2Ga/iP1vyNE
+         o6p7ATmqefViqKsIkik/jBSDExZGlXvFe9flumwCL1ob8uXetNEKzcG0jQaKB0LG6E
+         WfBrU6/4AY8DA==
+To:     =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
+        Kalle Valo <kvalo@kernel.org>
+Cc:     linux-wireless@vger.kernel.org,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
+        stable@vger.kernel.org, Peter Seiderer <ps.report@gmx.net>
+Subject: [PATCH for-5.18 v2] ath9k: Fix usage of driver-private space in tx_info
+Date:   Mon,  4 Apr 2022 20:11:51 +0200
+Message-Id: <20220404181151.2669173-1-toke@toke.dk>
 MIME-Version: 1.0
-Message-ID: <164909528267.389.5092308187702493426.tip-bot2@tip-bot2>
-Robot-ID: <tip-bot2@linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the x86/urgent branch of tip:
+From: Toke Høiland-Jørgensen <toke@redhat.com>
 
-Commit-ID:     d39268ad24c0fd0665d0c5cf55a7c1a0ebf94766
-Gitweb:        https://git.kernel.org/tip/d39268ad24c0fd0665d0c5cf55a7c1a0ebf94766
-Author:        Dave Hansen <dave.hansen@linux.intel.com>
-AuthorDate:    Fri, 18 Mar 2022 06:52:59 -07:00
-Committer:     Borislav Petkov <bp@suse.de>
-CommitterDate: Mon, 04 Apr 2022 19:41:36 +02:00
+The ieee80211_tx_info_clear_status() helper also clears the rate counts and
+the driver-private part of struct ieee80211_tx_info, so using it breaks
+quite a few other things. So back out of using it, and instead define a
+ath-internal helper that only clears the area between the
+status_driver_data and the rates info. Combined with moving the
+ath_frame_info struct to status_driver_data, this avoids clearing anything
+we shouldn't be, and so we can keep the existing code for handling the rate
+information.
 
-x86/mm/tlb: Revert retpoline avoidance approach
+While fixing this I also noticed that the setting of
+tx_info->status.rates[tx_rateindex].count on hardware underrun errors was
+always immediately overridden by the normal setting of the same fields, so
+rearrange the code so that the underrun detection actually takes effect.
 
-0day reported a regression on a microbenchmark which is intended to
-stress the TLB flushing path:
+The new helper could be generalised to a 'memset_between()' helper, but
+leave it as a driver-internal helper for now since this needs to go to
+stable.
 
-	https://lore.kernel.org/all/20220317090415.GE735@xsang-OptiPlex-9020/
-
-It pointed at a commit from Nadav which intended to remove retpoline
-overhead in the TLB flushing path by taking the 'cond'-ition in
-on_each_cpu_cond_mask(), pre-calculating it, and incorporating it into
-'cpumask'.  That allowed the code to use a bunch of earlier direct
-calls instead of later indirect calls that need a retpoline.
-
-But, in practice, threads can go idle (and into lazy TLB mode where
-they don't need to flush their TLB) between the early and late calls.
-It works in this direction and not in the other because TLB-flushing
-threads tend to hold mmap_lock for write.  Contention on that lock
-causes threads to _go_ idle right in this early/late window.
-
-There was not any performance data in the original commit specific
-to the retpoline overhead.  I did a few tests on a system with
-retpolines:
-
-	https://lore.kernel.org/all/dd8be93c-ded6-b962-50d4-96b1c3afb2b7@intel.com/
-
-which showed a possible small win.  But, that small win pales in
-comparison with the bigger loss induced on non-retpoline systems.
-
-Revert the patch that removed the retpolines.  This was not a
-clean revert, but it was self-contained enough not to be too painful.
-
-Fixes: 6035152d8eeb ("x86/mm/tlb: Open-code on_each_cpu_cond_mask() for tlb_is_not_lazy()")
-Reported-by: kernel test robot <oliver.sang@intel.com>
-Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Nadav Amit <namit@vmware.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/164874672286.389.7021457716635788197.tip-bot2@tip-bot2
+Cc: stable@vger.kernel.org
+Reported-by: Peter Seiderer <ps.report@gmx.net>
+Fixes: 037250f0a45c ("ath9k: Properly clear TX status area before reporting to mac80211")
+Signed-off-by: Toke Høiland-Jørgensen <toke@redhat.com>
 ---
- arch/x86/mm/tlb.c | 37 +++++--------------------------------
- 1 file changed, 5 insertions(+), 32 deletions(-)
+ drivers/net/wireless/ath/ath9k/xmit.c | 30 ++++++++++++++++++---------
+ 1 file changed, 20 insertions(+), 10 deletions(-)
 
-diff --git a/arch/x86/mm/tlb.c b/arch/x86/mm/tlb.c
-index 6eb4d91..d400b6d 100644
---- a/arch/x86/mm/tlb.c
-+++ b/arch/x86/mm/tlb.c
-@@ -855,13 +855,11 @@ done:
- 			nr_invalidate);
- }
- 
--static bool tlb_is_not_lazy(int cpu)
-+static bool tlb_is_not_lazy(int cpu, void *data)
+diff --git a/drivers/net/wireless/ath/ath9k/xmit.c b/drivers/net/wireless/ath/ath9k/xmit.c
+index cbcf96ac303e..db83cc4ba810 100644
+--- a/drivers/net/wireless/ath/ath9k/xmit.c
++++ b/drivers/net/wireless/ath/ath9k/xmit.c
+@@ -141,8 +141,8 @@ static struct ath_frame_info *get_frame_info(struct sk_buff *skb)
  {
- 	return !per_cpu(cpu_tlbstate_shared.is_lazy, cpu);
+ 	struct ieee80211_tx_info *tx_info = IEEE80211_SKB_CB(skb);
+ 	BUILD_BUG_ON(sizeof(struct ath_frame_info) >
+-		     sizeof(tx_info->rate_driver_data));
+-	return (struct ath_frame_info *) &tx_info->rate_driver_data[0];
++		     sizeof(tx_info->status.status_driver_data));
++	return (struct ath_frame_info *) &tx_info->status.status_driver_data[0];
  }
  
--static DEFINE_PER_CPU(cpumask_t, flush_tlb_mask);
--
- DEFINE_PER_CPU_SHARED_ALIGNED(struct tlb_state_shared, cpu_tlbstate_shared);
- EXPORT_PER_CPU_SYMBOL(cpu_tlbstate_shared);
+ static void ath_send_bar(struct ath_atx_tid *tid, u16 seqno)
+@@ -2542,6 +2542,16 @@ static void ath_tx_complete_buf(struct ath_softc *sc, struct ath_buf *bf,
+ 	spin_unlock_irqrestore(&sc->tx.txbuflock, flags);
+ }
  
-@@ -890,36 +888,11 @@ STATIC_NOPV void native_flush_tlb_multi(const struct cpumask *cpumask,
- 	 * up on the new contents of what used to be page tables, while
- 	 * doing a speculative memory access.
- 	 */
--	if (info->freed_tables) {
-+	if (info->freed_tables)
- 		on_each_cpu_mask(cpumask, flush_tlb_func, (void *)info, true);
--	} else {
--		/*
--		 * Although we could have used on_each_cpu_cond_mask(),
--		 * open-coding it has performance advantages, as it eliminates
--		 * the need for indirect calls or retpolines. In addition, it
--		 * allows to use a designated cpumask for evaluating the
--		 * condition, instead of allocating one.
--		 *
--		 * This code works under the assumption that there are no nested
--		 * TLB flushes, an assumption that is already made in
--		 * flush_tlb_mm_range().
--		 *
--		 * cond_cpumask is logically a stack-local variable, but it is
--		 * more efficient to have it off the stack and not to allocate
--		 * it on demand. Preemption is disabled and this code is
--		 * non-reentrant.
--		 */
--		struct cpumask *cond_cpumask = this_cpu_ptr(&flush_tlb_mask);
--		int cpu;
++static void ath_clear_tx_status(struct ieee80211_tx_info *tx_info)
++{
++	void *ptr = &tx_info->status;
++
++	memset(ptr + sizeof(tx_info->status.rates), 0,
++	       sizeof(tx_info->status) -
++	       sizeof(tx_info->status.rates) -
++	       sizeof(tx_info->status.status_driver_data));
++}
++
+ static void ath_tx_rc_status(struct ath_softc *sc, struct ath_buf *bf,
+ 			     struct ath_tx_status *ts, int nframes, int nbad,
+ 			     int txok)
+@@ -2553,7 +2563,7 @@ static void ath_tx_rc_status(struct ath_softc *sc, struct ath_buf *bf,
+ 	struct ath_hw *ah = sc->sc_ah;
+ 	u8 i, tx_rateindex;
+ 
+-	ieee80211_tx_info_clear_status(tx_info);
++	ath_clear_tx_status(tx_info);
+ 
+ 	if (txok)
+ 		tx_info->status.ack_signal = ts->ts_rssi;
+@@ -2569,6 +2579,13 @@ static void ath_tx_rc_status(struct ath_softc *sc, struct ath_buf *bf,
+ 	tx_info->status.ampdu_len = nframes;
+ 	tx_info->status.ampdu_ack_len = nframes - nbad;
+ 
++	tx_info->status.rates[tx_rateindex].count = ts->ts_longretry + 1;
++
++	for (i = tx_rateindex + 1; i < hw->max_rates; i++) {
++		tx_info->status.rates[i].count = 0;
++		tx_info->status.rates[i].idx = -1;
++	}
++
+ 	if ((ts->ts_status & ATH9K_TXERR_FILT) == 0 &&
+ 	    (tx_info->flags & IEEE80211_TX_CTL_NO_ACK) == 0) {
+ 		/*
+@@ -2590,13 +2607,6 @@ static void ath_tx_rc_status(struct ath_softc *sc, struct ath_buf *bf,
+ 			tx_info->status.rates[tx_rateindex].count =
+ 				hw->max_rate_tries;
+ 	}
 -
--		cpumask_clear(cond_cpumask);
--
--		for_each_cpu(cpu, cpumask) {
--			if (tlb_is_not_lazy(cpu))
--				__cpumask_set_cpu(cpu, cond_cpumask);
--		}
--		on_each_cpu_mask(cond_cpumask, flush_tlb_func, (void *)info, true);
+-	for (i = tx_rateindex + 1; i < hw->max_rates; i++) {
+-		tx_info->status.rates[i].count = 0;
+-		tx_info->status.rates[i].idx = -1;
 -	}
-+	else
-+		on_each_cpu_cond_mask(tlb_is_not_lazy, flush_tlb_func,
-+				(void *)info, 1, cpumask);
+-
+-	tx_info->status.rates[tx_rateindex].count = ts->ts_longretry + 1;
  }
  
- void flush_tlb_multi(const struct cpumask *cpumask,
+ static void ath_tx_processq(struct ath_softc *sc, struct ath_txq *txq)
+-- 
+2.35.1
+
