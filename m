@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 22BE74F1380
-	for <lists+stable@lfdr.de>; Mon,  4 Apr 2022 12:57:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5F324F1382
+	for <lists+stable@lfdr.de>; Mon,  4 Apr 2022 12:57:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355773AbiDDK7D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Apr 2022 06:59:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39706 "EHLO
+        id S229594AbiDDK7P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Apr 2022 06:59:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39776 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229594AbiDDK7D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Apr 2022 06:59:03 -0400
+        with ESMTP id S1358621AbiDDK7O (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Apr 2022 06:59:14 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42F4B3389C
-        for <stable@vger.kernel.org>; Mon,  4 Apr 2022 03:57:07 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D9BE3D1C7
+        for <stable@vger.kernel.org>; Mon,  4 Apr 2022 03:57:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F4078B815A0
-        for <stable@vger.kernel.org>; Mon,  4 Apr 2022 10:57:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BA3EC2BBE4;
-        Mon,  4 Apr 2022 10:57:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F1600B81369
+        for <stable@vger.kernel.org>; Mon,  4 Apr 2022 10:57:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D282C2BBE4;
+        Mon,  4 Apr 2022 10:57:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649069824;
-        bh=DyHHCaiH9KBHEYtEyLhPM9Q7ICua/+Qf8ck3v1xFLFM=;
+        s=korg; t=1649069835;
+        bh=+baC1cVkmg3AvH2DYfGiJFilUmur/4rATSvJnYNIDW4=;
         h=Subject:To:Cc:From:Date:From;
-        b=s5YGc6vNg6jQYjN2UEtrBIp4K/05N8JIjpqLunaOXOu+Hyyzz61OrUedqQKG24l8k
-         nQAfywefOeudbG/20oobu9Bdno7Pg0OdZalEvuH40NOfJWAtKEE/mM42FPaP6rqDPZ
-         Q6EdZN7pzE0sSJ3fKTTRj+Prz8i56IcfJmUilF8M=
-Subject: FAILED: patch "[PATCH] clk: qcom: smd: Add missing RPM clocks for msm8992/4" failed to apply to 5.15-stable tree
+        b=Bv4eRtHAhXeFeXKg2INxMN7eQIynjhclIcoiX5XOViyR4KyMVS3NgMd4dIiK/JOvp
+         UBk1sB+ENKt/EVqZAzQNrTOchxeSaoyxkkCRyw0Dg+JKMq62fZHXj7zu1x59WSPYUP
+         H6Td2ExP+13RUS6/At1+TjudNx8MLPKtnDdi37tA=
+Subject: FAILED: patch "[PATCH] clk: qcom: smd: Add missing RPM clocks for msm8992/4" failed to apply to 5.17-stable tree
 To:     konrad.dybcio@somainline.org, bjorn.andersson@linaro.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 04 Apr 2022 12:57:02 +0200
-Message-ID: <164906982276139@kroah.com>
+Message-ID: <1649069822198107@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.17-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
