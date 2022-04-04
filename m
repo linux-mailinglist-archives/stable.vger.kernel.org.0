@@ -2,57 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B5C2F4F20E4
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 06:08:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E38B4F2192
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 06:09:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229579AbiDECOk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Apr 2022 22:14:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40036 "EHLO
+        id S230186AbiDECwS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Apr 2022 22:52:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48480 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229563AbiDECOj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Apr 2022 22:14:39 -0400
-Received: from mail-oa1-x34.google.com (mail-oa1-x34.google.com [IPv6:2001:4860:4864:20::34])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26DA13FC198
-        for <stable@vger.kernel.org>; Mon,  4 Apr 2022 18:09:11 -0700 (PDT)
-Received: by mail-oa1-x34.google.com with SMTP id 586e51a60fabf-df0940c4eeso12806111fac.8
-        for <stable@vger.kernel.org>; Mon, 04 Apr 2022 18:09:11 -0700 (PDT)
+        with ESMTP id S231861AbiDECwC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Apr 2022 22:52:02 -0400
+Received: from mail-qv1-xf31.google.com (mail-qv1-xf31.google.com [IPv6:2607:f8b0:4864:20::f31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3344142BBAF
+        for <stable@vger.kernel.org>; Mon,  4 Apr 2022 18:59:56 -0700 (PDT)
+Received: by mail-qv1-xf31.google.com with SMTP id kl29so8989367qvb.2
+        for <stable@vger.kernel.org>; Mon, 04 Apr 2022 18:59:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20210112.gappssmtp.com; s=20210112;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=r1zL7etsFWAjTL7k30RuIcl4I9NBAzusOAZ5H2Xv0MQ=;
-        b=EoIQUdrqi++Lki235St3D85KQks6Lz/CMO/UpRT8fZ3GG9Q//mzfV2jk6JRB+D+Jj0
-         +75d3sJPPO6ypOlwcv2GJE+Yd7OXBMsLjbfqZkKnzbL0qxaU5mdZO8Mn7/tBHlOkHqSj
-         3T63UGSaodmOjnT01hDDJPd9iAnU92lEhkDAaaOPwbn4MED2BFam2gtIRSqfuoZUbUNN
-         7snnoBwl7dgAZ7FX35EfDelX5KMNxwYgui8UrxiXC5Rq6OqEVEvwalSDEDCQuAr/ygbQ
-         KYhmdXSGnSl98zdvCRTfwgM0T9D0MJNIjyknWl+YIjIaZNe9OJque3dxIMSVFQ9tyYlk
-         eu+Q==
+        bh=oUSkiCIKDszKfMa2Axzg9BrbFIepg9ZI9Q2puU5x6rA=;
+        b=IvpqiESKT2bbOm8PxEjnVW7PRd2mEMS1DEOkcc5HHSBoVCS+RNmS2PJEDgd14+Neb8
+         bgcpnEaF27WXTCOTVPg5CxRNl4h3vUlaMdkP/55vHT/AvF3Uw+RjCsEkNA5vOBoZp75A
+         UEujNWpGtLbFNmrlqWbzO654dPb+Gk9BW/vmDbfmmGfEr9J/FE7ii3tS+fpza1C35Gmw
+         QMET71bIjB5to3Qwy2vRn3nq1DVel5jytfHbkr2VctYTnHv6aaGmM0Y0iwwanZNV+FhO
+         5cdPyXjTROYHf0KCI4hNy9v5xevAhV3z1ZaV1othnD2FdUAl7yQir9DaiDx8Z2/WdHOo
+         bEYQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=r1zL7etsFWAjTL7k30RuIcl4I9NBAzusOAZ5H2Xv0MQ=;
-        b=hbLqSToUQfHY5Y9wJU5iDFbaPj/+SOviC8UyEbb8x6wqLNGHZaH6Rt5ftb/Q4BU8n+
-         h4IV0OBL9sMPPKqKAx55q+JOUNWCPOeFhHTn4IRaQna8Vifuwd2PvEWFBiwhDTctSgIJ
-         M9M7sFl4JjkqHohbrPp/RRuDcHl64p1TaFrN1tXl50TCp5nn9SijLuUOUROMoXbcKz9J
-         TqT93qSt4ZJNogVRg9Fv4tsRu2Q9poeRuQIqYEYs4/92gpIh6w2vbJDS8VD3E7621V1c
-         Q1skJMPdU0Rq7PGxeCYIdfVlc/s78WWvR4Tatu6GDb9GxC7AHJqDnCcX9MS1P7UE40Q1
-         Sxdw==
-X-Gm-Message-State: AOAM5305vIf1VKeeykE9ASDYunzxOig8rGLTvRLRoLx/SXqgxiHcuQDX
-        PxgCpiBo8y9+dZiKoTJes5F3G30l0nWtgQ==
-X-Google-Smtp-Source: ABdhPJxlHxaTfay/FsjsJGa0g/3dMmc7Vo350CI1dwQiyIn61sBvw3UFf86Aqf/afiHkqhc/z9yvXA==
-X-Received: by 2002:a17:90a:e2c3:b0:1ca:75b7:63d5 with SMTP id fr3-20020a17090ae2c300b001ca75b763d5mr798533pjb.111.1649116595258;
-        Mon, 04 Apr 2022 16:56:35 -0700 (PDT)
+        bh=oUSkiCIKDszKfMa2Axzg9BrbFIepg9ZI9Q2puU5x6rA=;
+        b=KBFuqNjYSZ/R0oqbmMrti3DkPugDhsj47YkEQHUSL0XZwN6mUMUeiNANUpYR1V4M4b
+         s8G9i6AW5AbkDRfDjEXByAXFrDADeRiZobfvBOU2kTU78g20c/zSKGSaQqryF4WiEFep
+         WRskfTsG57zp41tJehvvRUPguUh3v9YzJRa6UOrqT0PcQFC7WSLwq7oAk/I/gjWGlz27
+         gS3rijFIQrAwVnaXcBCe1m/tZ5JeSM0bOBFTIyjEzaTYKFLHk/um+8y0DOTYnQA1kEyi
+         9s46SmY/QmGkHQJ57yzlsp2hrknh/SiVNQdk5gJfQJ+faNUcN8g2inUPR//iw30bQ+9K
+         1/gQ==
+X-Gm-Message-State: AOAM530sjLd4yIAeenip2RlVfs8MoosbculMO/ZT3pt9CgpOS2Id2QJy
+        vYXxXxM1WN9isCHaU4TWjKFDJ9Q4NtlyIQ==
+X-Google-Smtp-Source: ABdhPJwofPNRykDB98EX86mbuRhidKD3QC3l8EqNCZttbCCnJV2I5vX+2W8UEML7OhO4P5r/nQ5rYQ==
+X-Received: by 2002:a05:6a00:1c9e:b0:4fa:d946:378b with SMTP id y30-20020a056a001c9e00b004fad946378bmr598956pfw.46.1649116596282;
+        Mon, 04 Apr 2022 16:56:36 -0700 (PDT)
 Received: from localhost.localdomain ([198.8.77.157])
-        by smtp.gmail.com with ESMTPSA id i7-20020a628707000000b004fa6eb33b02sm13157977pfe.49.2022.04.04.16.56.34
+        by smtp.gmail.com with ESMTPSA id i7-20020a628707000000b004fa6eb33b02sm13157977pfe.49.2022.04.04.16.56.35
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 04 Apr 2022 16:56:34 -0700 (PDT)
+        Mon, 04 Apr 2022 16:56:35 -0700 (PDT)
 From:   Jens Axboe <axboe@kernel.dk>
 To:     io-uring@vger.kernel.org
 Cc:     Jens Axboe <axboe@kernel.dk>, stable@vger.kernel.org
-Subject: [PATCH 1/6] io_uring: don't check req->file in io_fsync_prep()
-Date:   Mon,  4 Apr 2022 17:56:21 -0600
-Message-Id: <20220404235626.374753-2-axboe@kernel.dk>
+Subject: [PATCH 2/6] io_uring: defer splice/tee file validity check until command issue
+Date:   Mon,  4 Apr 2022 17:56:22 -0600
+Message-Id: <20220404235626.374753-3-axboe@kernel.dk>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220404235626.374753-1-axboe@kernel.dk>
 References: <20220404235626.374753-1-axboe@kernel.dk>
@@ -60,37 +60,153 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+        T_SCC_BODY_TEXT_LINE autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is a leftover from the really old days where we weren't able to
-track and error early if we need a file and it wasn't assigned. Kill
-the check.
+In preparation for not using the file at prep time, defer checking if this
+file refers to a valid io_uring instance until issue time.
+
+This also means we can get rid of the cleanup flag for splice and tee.
 
 Cc: stable@vger.kernel.org # v5.15+
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 ---
- fs/io_uring.c | 3 ---
- 1 file changed, 3 deletions(-)
+ fs/io_uring.c | 49 +++++++++++++++++++++----------------------------
+ 1 file changed, 21 insertions(+), 28 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index a8413f006417..9108c56bff5b 100644
+index 9108c56bff5b..0152ef49cf46 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -4513,9 +4513,6 @@ static int io_fsync_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
- {
- 	struct io_ring_ctx *ctx = req->ctx;
+@@ -654,10 +654,10 @@ struct io_epoll {
  
--	if (!req->file)
--		return -EBADF;
+ struct io_splice {
+ 	struct file			*file_out;
+-	struct file			*file_in;
+ 	loff_t				off_out;
+ 	loff_t				off_in;
+ 	u64				len;
++	int				splice_fd_in;
+ 	unsigned int			flags;
+ };
+ 
+@@ -1687,14 +1687,6 @@ static void io_prep_async_work(struct io_kiocb *req)
+ 		if (def->unbound_nonreg_file)
+ 			req->work.flags |= IO_WQ_WORK_UNBOUND;
+ 	}
 -
- 	if (unlikely(ctx->flags & IORING_SETUP_IOPOLL))
+-	switch (req->opcode) {
+-	case IORING_OP_SPLICE:
+-	case IORING_OP_TEE:
+-		if (!S_ISREG(file_inode(req->splice.file_in)->i_mode))
+-			req->work.flags |= IO_WQ_WORK_UNBOUND;
+-		break;
+-	}
+ }
+ 
+ static void io_prep_async_link(struct io_kiocb *req)
+@@ -4369,18 +4361,11 @@ static int __io_splice_prep(struct io_kiocb *req,
+ 	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
  		return -EINVAL;
- 	if (unlikely(sqe->addr || sqe->ioprio || sqe->buf_index ||
+ 
+-	sp->file_in = NULL;
+ 	sp->len = READ_ONCE(sqe->len);
+ 	sp->flags = READ_ONCE(sqe->splice_flags);
+-
+ 	if (unlikely(sp->flags & ~valid_flags))
+ 		return -EINVAL;
+-
+-	sp->file_in = io_file_get(req->ctx, req, READ_ONCE(sqe->splice_fd_in),
+-				  (sp->flags & SPLICE_F_FD_IN_FIXED));
+-	if (!sp->file_in)
+-		return -EBADF;
+-	req->flags |= REQ_F_NEED_CLEANUP;
++	sp->splice_fd_in = READ_ONCE(sqe->splice_fd_in);
+ 	return 0;
+ }
+ 
+@@ -4395,20 +4380,27 @@ static int io_tee_prep(struct io_kiocb *req,
+ static int io_tee(struct io_kiocb *req, unsigned int issue_flags)
+ {
+ 	struct io_splice *sp = &req->splice;
+-	struct file *in = sp->file_in;
+ 	struct file *out = sp->file_out;
+ 	unsigned int flags = sp->flags & ~SPLICE_F_FD_IN_FIXED;
++	struct file *in;
+ 	long ret = 0;
+ 
+ 	if (issue_flags & IO_URING_F_NONBLOCK)
+ 		return -EAGAIN;
++
++	in = io_file_get(req->ctx, req, sp->splice_fd_in,
++				  (sp->flags & SPLICE_F_FD_IN_FIXED));
++	if (!in) {
++		ret = -EBADF;
++		goto done;
++	}
++
+ 	if (sp->len)
+ 		ret = do_tee(in, out, sp->len, flags);
+ 
+ 	if (!(sp->flags & SPLICE_F_FD_IN_FIXED))
+ 		io_put_file(in);
+-	req->flags &= ~REQ_F_NEED_CLEANUP;
+-
++done:
+ 	if (ret != sp->len)
+ 		req_set_fail(req);
+ 	io_req_complete(req, ret);
+@@ -4427,15 +4419,22 @@ static int io_splice_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+ static int io_splice(struct io_kiocb *req, unsigned int issue_flags)
+ {
+ 	struct io_splice *sp = &req->splice;
+-	struct file *in = sp->file_in;
+ 	struct file *out = sp->file_out;
+ 	unsigned int flags = sp->flags & ~SPLICE_F_FD_IN_FIXED;
+ 	loff_t *poff_in, *poff_out;
++	struct file *in;
+ 	long ret = 0;
+ 
+ 	if (issue_flags & IO_URING_F_NONBLOCK)
+ 		return -EAGAIN;
+ 
++	in = io_file_get(req->ctx, req, sp->splice_fd_in,
++				  (sp->flags & SPLICE_F_FD_IN_FIXED));
++	if (!in) {
++		ret = -EBADF;
++		goto done;
++	}
++
+ 	poff_in = (sp->off_in == -1) ? NULL : &sp->off_in;
+ 	poff_out = (sp->off_out == -1) ? NULL : &sp->off_out;
+ 
+@@ -4444,8 +4443,7 @@ static int io_splice(struct io_kiocb *req, unsigned int issue_flags)
+ 
+ 	if (!(sp->flags & SPLICE_F_FD_IN_FIXED))
+ 		io_put_file(in);
+-	req->flags &= ~REQ_F_NEED_CLEANUP;
+-
++done:
+ 	if (ret != sp->len)
+ 		req_set_fail(req);
+ 	io_req_complete(req, ret);
+@@ -7176,11 +7174,6 @@ static void io_clean_op(struct io_kiocb *req)
+ 			kfree(io->free_iov);
+ 			break;
+ 			}
+-		case IORING_OP_SPLICE:
+-		case IORING_OP_TEE:
+-			if (!(req->splice.flags & SPLICE_F_FD_IN_FIXED))
+-				io_put_file(req->splice.file_in);
+-			break;
+ 		case IORING_OP_OPENAT:
+ 		case IORING_OP_OPENAT2:
+ 			if (req->open.filename)
 -- 
 2.35.1
 
