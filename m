@@ -2,49 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D20574F1651
-	for <lists+stable@lfdr.de>; Mon,  4 Apr 2022 15:44:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A81AB4F1682
+	for <lists+stable@lfdr.de>; Mon,  4 Apr 2022 15:51:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357703AbiDDNq1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Apr 2022 09:46:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39986 "EHLO
+        id S1377281AbiDDNxo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Apr 2022 09:53:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57220 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356825AbiDDNqY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Apr 2022 09:46:24 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3C0930546
-        for <stable@vger.kernel.org>; Mon,  4 Apr 2022 06:44:27 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 59ECCB81217
-        for <stable@vger.kernel.org>; Mon,  4 Apr 2022 13:44:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1F4FC2BBE4;
-        Mon,  4 Apr 2022 13:44:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649079865;
-        bh=O2/vUxU5p8xd22dTZiFvI6fxO1PgFEUwK0EHp+o9sC8=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=hXM3jOgwGPVPgXIZKLmvfmakhW0KVtlfyKnloW7agV5H2AdT459SERNYAFL1ItKG1
-         wX9w/CuYRXpNMWUUtcUeM4zI5XlRtxhPaKxQSox9w5CqEpOJaFXYe1hdrZUi3pmiNM
-         YQoptdyuKvSvPDJjAPDh4/sIp4MNd0N3Vw1/9PzM=
-Date:   Mon, 4 Apr 2022 15:44:22 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     Sasha Levin <sashal@kernel.org>,
-        linux-stable <stable@vger.kernel.org>,
-        lkft-triage@lists.linaro.org
-Subject: Re: stable-rc: 5.4: blk-mq.h:62:33: error: field 'kobj' has
- incomplete type
-Message-ID: <Ykr2Nrvvo529xFIH@kroah.com>
-References: <CA+G9fYty-Vjznwm6=x3fQystvRoYODKaM_kWrJZmjM8vsA6gFw@mail.gmail.com>
+        with ESMTP id S1359251AbiDDNwt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Apr 2022 09:52:49 -0400
+Received: from mail-oa1-x2c.google.com (mail-oa1-x2c.google.com [IPv6:2001:4860:4864:20::2c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 909882A706
+        for <stable@vger.kernel.org>; Mon,  4 Apr 2022 06:50:52 -0700 (PDT)
+Received: by mail-oa1-x2c.google.com with SMTP id 586e51a60fabf-d39f741ba0so10653103fac.13
+        for <stable@vger.kernel.org>; Mon, 04 Apr 2022 06:50:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=UJ7ifLL/vt7TzqWMHfr/T5EroEWr8e059AicCh65jwE=;
+        b=XdBxqwZ6hlXamq+EWOsWwZc2zeRgoCwCqOUQwsgb5NTwPspoxxb1w0Onbn4/IwsWXN
+         oBhYY2EniOXswlpd6EFCV4DGAHPIQoHZ4DR9HBGivSxgA1BXhRRqli935/RvYWgb2xGu
+         wKKnsPEUP/7Be2RBiFDzI2nwvmjM4sKPcBRZVZE/WeAQnxANwpd002AeQ5K8cbw+HO8t
+         YP+jzRVuWISNKa0QLHasAEGOQSW1OHcw16BCf77kPpieQPPywEnX0F5Ea/fD/sdno8B3
+         0sQ6zqlIs0nnhgLJgZtSec5Ze8eEOxP/sIVmHUuseH9VJYI5LkYMD2Aq/496qBPfXQm5
+         gzDQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=UJ7ifLL/vt7TzqWMHfr/T5EroEWr8e059AicCh65jwE=;
+        b=ZNpVd7vC9wDuiSz9wzDccN8EoPVUAoyDhfezoIPUwvUdWu0nzgZypI4wkspuiBHWn+
+         W3ZfeKnbKFzj3941FmNRRDcPISoBmm1ICjuhswgx9AE2lh0wsLADVCExbD0driF/R3sj
+         5ElRZgz9PcaY5fncuHL+EP3GkeJxj+B01I4pnWWLP6nzN+iJ9yEHmoCdoJOf2YHqx1z9
+         ROQbnBZdbggq5tfybqFjsZeloLi+ejzZsEiLC9USgDcfUWR3CQHlofL2r70UWi72zV0a
+         YGbGfwEQrwyfvffxrmeW2KTTl+VOdVXRL6O34iobUDIdogSdFWEvvnD0J4+VcUm0dfT/
+         08Qg==
+X-Gm-Message-State: AOAM5305RHWwg+dwbjQi2JWfeUTCglFD442950Z18YSQggHTDQhwQ4Za
+        TF9gP6DieMkqDvTsbVTzaWAv3w==
+X-Google-Smtp-Source: ABdhPJz20MpJx7LSy5moQ816FyGIBvEreDKN4HMKOHtNCOu/4APRQAt0B1hh6o4oY3S/Sn+csHU31g==
+X-Received: by 2002:a05:6870:3113:b0:d3:473b:3f1d with SMTP id v19-20020a056870311300b000d3473b3f1dmr3732oaa.116.1649080251783;
+        Mon, 04 Apr 2022 06:50:51 -0700 (PDT)
+Received: from ripper ([2600:1700:a0:3dc8:205:1bff:fec0:b9b3])
+        by smtp.gmail.com with ESMTPSA id 14-20020a056870134e00b000ddaf3927b1sm4218569oac.32.2022.04.04.06.50.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 04 Apr 2022 06:50:51 -0700 (PDT)
+Date:   Mon, 4 Apr 2022 06:53:16 -0700
+From:   Bjorn Andersson <bjorn.andersson@linaro.org>
+To:     Johan Hovold <johan+linaro@kernel.org>
+Cc:     Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Stanimir Varbanov <svarbanov@mm-sol.com>,
+        Andy Gross <agross@kernel.org>, Rob Herring <robh@kernel.org>,
+        Krzysztof Wilczy??ski <kw@linux.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        linux-pci@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH v2] PCI: qcom: Fix pipe clock imbalance
+Message-ID: <Ykr4TOYYh4X8o02E@ripper>
+References: <20220401133351.10113-1-johan+linaro@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CA+G9fYty-Vjznwm6=x3fQystvRoYODKaM_kWrJZmjM8vsA6gFw@mail.gmail.com>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+In-Reply-To: <20220401133351.10113-1-johan+linaro@kernel.org>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -52,63 +75,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Apr 04, 2022 at 06:36:01PM +0530, Naresh Kamboju wrote:
-> Linux stable-rc 5.4 branch build breaks on all architecture for allnoconfig.
-> 
-> metadata:
->     git_describe: v5.4.188-369-ga60d79f382c9
->     git_repo: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
->     git_sha: a60d79f382c91dcb19578178a5032af6ccbf4c89
->     kconfig:allnoconfig
->     kernel_version: 5.4.189-rc1
->     target_arch: x86_64
->     toolchain: gcc-11
-> 
-> In file included from include/linux/blk-cgroup.h:25,
->                  from include/linux/writeback.h:14,
->                  from include/linux/memcontrol.h:22,
->                  from include/linux/swap.h:9,
->                  from include/linux/suspend.h:5,
->                  from arch/x86/kernel/asm-offsets.c:13:
-> include/linux/blk-mq.h:62:33: error: field 'kobj' has incomplete type
->    62 |         struct kobject          kobj;
->       |                                 ^~~~
-> include/linux/blk-mq.h: In function 'blk_mq_rq_from_pdu':
-> include/linux/blk-mq.h:352:29: error: invalid application of 'sizeof'
-> to incomplete type 'struct request'
->   352 |         return pdu - sizeof(struct request);
->       |                             ^~~~~~
-> include/linux/blk-mq.h: In function 'blk_mq_rq_to_pdu':
-> include/linux/blk-mq.h:356:19: error: invalid use of undefined type
-> 'struct request'
->   356 |         return rq + 1;
->       |                   ^
-> include/linux/blk-mq.h: In function 'request_to_qc_t':
-> include/linux/blk-mq.h:370:15: error: invalid use of undefined type
-> 'struct request'
->   370 |         if (rq->tag != -1)
->       |               ^~
-> include/linux/blk-mq.h:371:26: error: invalid use of undefined type
-> 'struct request'
->   371 |                 return rq->tag | (hctx->queue_num << BLK_QC_T_SHIFT);
->       |                          ^~
-> include/linux/blk-mq.h:373:18: error: invalid use of undefined type
-> 'struct request'
->   373 |         return rq->internal_tag | (hctx->queue_num << BLK_QC_T_SHIFT) |
->       |                  ^~
-> include/linux/blk-mq.h: In function 'blk_mq_cleanup_rq':
-> include/linux/blk-mq.h:379:15: error: invalid use of undefined type
-> 'struct request'
->   379 |         if (rq->q->mq_ops->cleanup_rq)
->       |               ^~
-> include/linux/blk-mq.h:380:19: error: invalid use of undefined type
-> 'struct request'
->   380 |                 rq->q->mq_ops->cleanup_rq(rq);
->       |                   ^~
-> make[2]: *** [scripts/Makefile.build:99: arch/x86/kernel/asm-offsets.s] Error 1
-> 
-> Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+On Fri 01 Apr 06:33 PDT 2022, Johan Hovold wrote:
 
-Now fixed up, thanks!
+> Commit ed8cc3b1fc84 ("PCI: qcom: Add support for SDM845 PCIe
+> controller") introduced a clock imbalance by enabling the pipe clock
+> both in init() and in post_init() but only disabling in post_deinit().
+> 
+> Note that the pipe clock was also never disabled in the init() error
+> paths and that enabling the clock before powering up the PHY looks
+> questionable.
+> 
+> Fixes: ed8cc3b1fc84 ("PCI: qcom: Add support for SDM845 PCIe controller")
+> Cc: stable@vger.kernel.org      # 5.6
+> Cc: Bjorn Andersson <bjorn.andersson@linaro.org>
 
-greg k-h
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+
+> Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+> ---
+> 
+> Changes in v2
+>  - Capitalise "Fix" in subject line according to PCI subsystem
+>    convention
+> 
+> 
+>  drivers/pci/controller/dwc/pcie-qcom.c | 6 ------
+>  1 file changed, 6 deletions(-)
+> 
+> diff --git a/drivers/pci/controller/dwc/pcie-qcom.c b/drivers/pci/controller/dwc/pcie-qcom.c
+> index b79d98e5e228..20a0e6533a1c 100644
+> --- a/drivers/pci/controller/dwc/pcie-qcom.c
+> +++ b/drivers/pci/controller/dwc/pcie-qcom.c
+> @@ -1238,12 +1238,6 @@ static int qcom_pcie_init_2_7_0(struct qcom_pcie *pcie)
+>  		goto err_disable_clocks;
+>  	}
+>  
+> -	ret = clk_prepare_enable(res->pipe_clk);
+> -	if (ret) {
+> -		dev_err(dev, "cannot prepare/enable pipe clock\n");
+> -		goto err_disable_clocks;
+> -	}
+> -
+>  	/* Wait for reset to complete, required on SM8450 */
+>  	usleep_range(1000, 1500);
+>  
+> -- 
+> 2.35.1
+> 
