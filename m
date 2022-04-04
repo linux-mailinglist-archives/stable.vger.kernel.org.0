@@ -2,57 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D3A54F157B
-	for <lists+stable@lfdr.de>; Mon,  4 Apr 2022 15:06:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC2B74F1630
+	for <lists+stable@lfdr.de>; Mon,  4 Apr 2022 15:40:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235283AbiDDNIP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Apr 2022 09:08:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46596 "EHLO
+        id S237447AbiDDNmm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Apr 2022 09:42:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350725AbiDDNIK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Apr 2022 09:08:10 -0400
-Received: from mail-yb1-xb31.google.com (mail-yb1-xb31.google.com [IPv6:2607:f8b0:4864:20::b31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED5D3FC1
-        for <stable@vger.kernel.org>; Mon,  4 Apr 2022 06:06:13 -0700 (PDT)
-Received: by mail-yb1-xb31.google.com with SMTP id l14so5082240ybe.4
-        for <stable@vger.kernel.org>; Mon, 04 Apr 2022 06:06:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:from:date:message-id:subject:to:cc;
-        bh=Pz18IJpl3w5Y1XoWgzEqbRbukEktXr4RhLO4P7cpCLw=;
-        b=W+twQQ/g5kLLlVO3Pv5CnrnLYaCCLqN3g+TZ/8JqU9tpSVno+UeqjHynSqnf7Oz5qR
-         e1vWXOHaH2vY2Iymsh/p2iyYznaYdHzMhWGzRBPZEtoBkAaDJ5hQ2BU5LogDO/pbgAqH
-         kXzsU+2B+ESeipNg3Aivn7ANAssFNbL9b+kWSHLyQM3HvaCZ9EeaghWmtIBaR89QGUCn
-         iuqbtdWiCCpNGSIm57gjlvqWhgAF+VJ/SZzkV3uLxyfcNAmin/Gx6iJVwE/zOvgmSzyj
-         +hQB++qYC+3xZeuZE1/zQC+AfpmcW6cXU6VcY2wzUDyCBmV0G9cxh3jz+z4wUUxPydvW
-         KvQA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
-        bh=Pz18IJpl3w5Y1XoWgzEqbRbukEktXr4RhLO4P7cpCLw=;
-        b=3J0Wdyy41z3PDmHu0Dmyz/fWw58MTRbtMfnX28DJr+hoawNo9Fvn5lv6aipF4uqb9c
-         SXDgdrE0LUnZwDf5+cHbTNOYI1twNxIyc/2lcLtHAoqigJtABFuBLY2O9o0ER7nr8jko
-         5ysy04Cu1qZ6cHGx8f/RyYhYFcyvomchGVWZdF9ews7GgkxoGvbppA0zmCWkv8JyggdH
-         QqG9aLvOs1xDo1kpbb2f1WTSujT6zvoJJI7P0OShdjIQKVF6WWCd46xvI6LcPuFPxRH6
-         +iTxpjljuCbgLYDaE9S8H77M32g+QQpe67aloRzO/gq1zMyta4UkBmqKJFQYBW84uwgL
-         33hw==
-X-Gm-Message-State: AOAM532EQ5U25NwiPS6T05Wa0D6KOSc5xZmata2TibmXnKK9QndnANcb
-        +Ks+91h6LiclWUmHfpb04YtGnvCFRFslsN0cYOL5RQ==
-X-Google-Smtp-Source: ABdhPJwUl/bfPDj16KsxzbRPCxwpfiJJbPLGaR9jtUfnYU7XsYKodoKbEtLt5WbRMB7fRQpt+JHqI3VL7ALLR3CJFlE=
-X-Received: by 2002:a25:d14e:0:b0:63d:b1e2:a86d with SMTP id
- i75-20020a25d14e000000b0063db1e2a86dmr7507109ybg.603.1649077573002; Mon, 04
- Apr 2022 06:06:13 -0700 (PDT)
+        with ESMTP id S235139AbiDDNml (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Apr 2022 09:42:41 -0400
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAA37655F;
+        Mon,  4 Apr 2022 06:40:45 -0700 (PDT)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out1.suse.de (Postfix) with ESMTPS id 63E27210DE;
+        Mon,  4 Apr 2022 13:40:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+        t=1649079644; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=4FEe5HKY/xcgBfsPpkp8pzVyfKeVfmAA+0jcQ6LELag=;
+        b=SQOtCIojzc13oOxKzr6vw0G3ccw+icjQdLW2rBRkFCf1gBWsZdEVKOEs3soqeYzEujbabx
+        3x6+fEgm8yfXvSWacu806AqWTXpXGXJ8UB5cfquM36YJpAnv60C3+VBEiAiUNnAMmpX6/w
+        ZhN4FT1olpjo38+eu1JqSQiCrugeLRc=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+        s=susede2_ed25519; t=1649079644;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=4FEe5HKY/xcgBfsPpkp8pzVyfKeVfmAA+0jcQ6LELag=;
+        b=6eRqB+Z/NnPRxDVWXKa1slGQtIWUVaDNZw28WhWoEeSIBz6uR2XGRqVOcLLv7FpdTNVD5u
+        myY1Dgukb1Qk6aBw==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 48B0E13216;
+        Mon,  4 Apr 2022 13:40:44 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id 08MQEVz1SmJ9JgAAMHmgww
+        (envelope-from <vbabka@suse.cz>); Mon, 04 Apr 2022 13:40:44 +0000
+Message-ID: <29914f07-6ee5-a562-2b8e-ed15c861f3eb@suse.cz>
+Date:   Mon, 4 Apr 2022 15:40:44 +0200
 MIME-Version: 1.0
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Mon, 4 Apr 2022 18:36:01 +0530
-Message-ID: <CA+G9fYty-Vjznwm6=x3fQystvRoYODKaM_kWrJZmjM8vsA6gFw@mail.gmail.com>
-Subject: stable-rc: 5.4: blk-mq.h:62:33: error: field 'kobj' has incomplete type
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Cc:     linux-stable <stable@vger.kernel.org>, lkft-triage@lists.linaro.org
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.7.0
+Subject: Re: [PATCH] tools/vm/slabinfo: Handle files in debugfs
+Content-Language: en-US
+To:     =?UTF-8?Q?St=c3=a9phane_Graber?= <stgraber@ubuntu.com>,
+        linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Faiyaz Mohammed <faiyazm@codeaurora.org>,
+        stable@vger.kernel.org
+References: <20220331140339.1362390-1-stgraber@ubuntu.com>
+From:   Vlastimil Babka <vbabka@suse.cz>
+In-Reply-To: <20220331140339.1362390-1-stgraber@ubuntu.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-5.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -61,64 +76,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Linux stable-rc 5.4 branch build breaks on all architecture for allnoconfig.
+On 3/31/22 16:03, Stéphane Graber wrote:
+> Commit 64dd68497be76 relocated and renamed the alloc_calls and
+> free_calls files from /sys/kernel/slab/NAME/*_calls over to
+> /sys/kernel/debug/slab/NAME/*_calls but didn't update the slabinfo tool
+> with the new location.
+> 
+> This change will now have slabinfo look at the new location (and filenames)
+> with a fallback to the prior files.
+> 
+> Fixes: 64dd68497be76 ("mm: slub: move sysfs slab alloc/free interfaces to debugfs")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Stéphane Graber <stgraber@ubuntu.com>
+> Tested-by: Stéphane Graber <stgraber@ubuntu.com>
+> ---
+>  tools/vm/slabinfo.c | 26 ++++++++++++++++++++++++--
+>  1 file changed, 24 insertions(+), 2 deletions(-)
+> 
+> diff --git a/tools/vm/slabinfo.c b/tools/vm/slabinfo.c
+> index 9b68658b6bb8..5b98f3ee58a5 100644
+> --- a/tools/vm/slabinfo.c
+> +++ b/tools/vm/slabinfo.c
+> @@ -233,6 +233,24 @@ static unsigned long read_slab_obj(struct slabinfo *s, const char *name)
+>  	return l;
+>  }
+>  
+> +static unsigned long read_debug_slab_obj(struct slabinfo *s, const char *name)
+> +{
+> +	char x[128];
+> +	FILE *f;
+> +	size_t l;
+> +
+> +	snprintf(x, 128, "/sys/kernel/debug/slab/%s/%s", s->name, name);
+> +	f = fopen(x, "r");
+> +	if (!f) {
+> +		buffer[0] = 0;
+> +		l = 0;
+> +	} else {
+> +		l = fread(buffer, 1, sizeof(buffer), f);
+> +		buffer[l] = 0;
+> +		fclose(f);
+> +	}
+> +	return l;
+> +}
 
-metadata:
-    git_describe: v5.4.188-369-ga60d79f382c9
-    git_repo: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
-    git_sha: a60d79f382c91dcb19578178a5032af6ccbf4c89
-    kconfig:allnoconfig
-    kernel_version: 5.4.189-rc1
-    target_arch: x86_64
-    toolchain: gcc-11
+slabinfo is not the nicest code already, but still this basically duplicates
+read_slab_obj() just to add a prefix to the path, so it could be done in a
+unified way?
 
-In file included from include/linux/blk-cgroup.h:25,
-                 from include/linux/writeback.h:14,
-                 from include/linux/memcontrol.h:22,
-                 from include/linux/swap.h:9,
-                 from include/linux/suspend.h:5,
-                 from arch/x86/kernel/asm-offsets.c:13:
-include/linux/blk-mq.h:62:33: error: field 'kobj' has incomplete type
-   62 |         struct kobject          kobj;
-      |                                 ^~~~
-include/linux/blk-mq.h: In function 'blk_mq_rq_from_pdu':
-include/linux/blk-mq.h:352:29: error: invalid application of 'sizeof'
-to incomplete type 'struct request'
-  352 |         return pdu - sizeof(struct request);
-      |                             ^~~~~~
-include/linux/blk-mq.h: In function 'blk_mq_rq_to_pdu':
-include/linux/blk-mq.h:356:19: error: invalid use of undefined type
-'struct request'
-  356 |         return rq + 1;
-      |                   ^
-include/linux/blk-mq.h: In function 'request_to_qc_t':
-include/linux/blk-mq.h:370:15: error: invalid use of undefined type
-'struct request'
-  370 |         if (rq->tag != -1)
-      |               ^~
-include/linux/blk-mq.h:371:26: error: invalid use of undefined type
-'struct request'
-  371 |                 return rq->tag | (hctx->queue_num << BLK_QC_T_SHIFT);
-      |                          ^~
-include/linux/blk-mq.h:373:18: error: invalid use of undefined type
-'struct request'
-  373 |         return rq->internal_tag | (hctx->queue_num << BLK_QC_T_SHIFT) |
-      |                  ^~
-include/linux/blk-mq.h: In function 'blk_mq_cleanup_rq':
-include/linux/blk-mq.h:379:15: error: invalid use of undefined type
-'struct request'
-  379 |         if (rq->q->mq_ops->cleanup_rq)
-      |               ^~
-include/linux/blk-mq.h:380:19: error: invalid use of undefined type
-'struct request'
-  380 |                 rq->q->mq_ops->cleanup_rq(rq);
-      |                   ^~
-make[2]: *** [scripts/Makefile.build:99: arch/x86/kernel/asm-offsets.s] Error 1
+>  
+>  /*
+>   * Put a size string together
+> @@ -409,14 +427,18 @@ static void show_tracking(struct slabinfo *s)
+>  {
+>  	printf("\n%s: Kernel object allocation\n", s->name);
+>  	printf("-----------------------------------------------------------------------\n");
+> -	if (read_slab_obj(s, "alloc_calls"))
+> +	if (read_debug_slab_obj(s, "alloc_traces"))
+> +		printf("%s", buffer);
+> +	else if (read_slab_obj(s, "alloc_calls"))
+>  		printf("%s", buffer);
+>  	else
+>  		printf("No Data\n");
+>  
+>  	printf("\n%s: Kernel object freeing\n", s->name);
+>  	printf("------------------------------------------------------------------------\n");
+> -	if (read_slab_obj(s, "free_calls"))
+> +	if (read_debug_slab_obj(s, "free_traces"))
+> +		printf("%s", buffer);
+> +	else if (read_slab_obj(s, "free_calls"))
+>  		printf("%s", buffer);
+>  	else
+>  		printf("No Data\n");
 
-Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
-
---
-Linaro LKFT
-https://lkft.linaro.org
-
-[1] https://builds.tuxbuild.com/27KejBvVC9gRN1Yk21Nqn51Ptv6/
