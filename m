@@ -2,152 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A47F64F1235
-	for <lists+stable@lfdr.de>; Mon,  4 Apr 2022 11:41:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D21D4F123B
+	for <lists+stable@lfdr.de>; Mon,  4 Apr 2022 11:44:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244822AbiDDJnk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Apr 2022 05:43:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55632 "EHLO
+        id S1354565AbiDDJqI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Apr 2022 05:46:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58904 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244030AbiDDJnj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Apr 2022 05:43:39 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3545F3584E;
-        Mon,  4 Apr 2022 02:41:44 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D4EDAB8075B;
-        Mon,  4 Apr 2022 09:41:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13608C2BBE4;
-        Mon,  4 Apr 2022 09:41:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1649065301;
-        bh=cBNn7x0rjPHdpw09Pnzzj0qz9uwvqfup4vnhB/JA3pk=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=H76Ohh/XJIzt6XfXDXlzZTGQyXB0NuwUJ68Rj1VerP9hIj46vo38SHoEsVdsvxB1c
-         iTExd/2A78ZIpqTvqdK9hsFRBOBVPrAccDiC1T4mp3m0MtJ67Qf2rQQtDwoOUobLX7
-         pwHtu4Q1fbjGoaKC4I0VsbJKu10mFtS3ASj4sA+O19m/Ka2Ve4pJbjYLfJjKQEllpP
-         L7bvXJ7rTSZjLDED/xbIq4+aqgrgiwCFS9SJY+WyvhXNJw3QLsXyKBft/xtqK4B2IS
-         zu+Bmz/IQJNsjkiXyS9EYG4Xp+R/Td8MKo4XBL1aS+kmR8np2+8LD1pMgbfLEWsS1T
-         +RNXABJnlmxZg==
-Date:   Mon, 4 Apr 2022 10:41:37 +0100
-From:   Filipe Manana <fdmanana@kernel.org>
-To:     Anand Jain <anand.jain@oracle.com>
-Cc:     stable@vger.kernel.org, linux-btrfs@vger.kernel.org,
-        agruenba@redhat.com
-Subject: Re: [PATCH 00/17 stable-5.15.y] Fix mmap + page fault deadlocks
-Message-ID: <Ykq9UXXZLTZOJ6N+@debian9.Home>
-References: <cover.1648636044.git.anand.jain@oracle.com>
+        with ESMTP id S244030AbiDDJqH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Apr 2022 05:46:07 -0400
+Received: from mail-yb1-xb44.google.com (mail-yb1-xb44.google.com [IPv6:2607:f8b0:4864:20::b44])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D9E62BB02
+        for <stable@vger.kernel.org>; Mon,  4 Apr 2022 02:44:11 -0700 (PDT)
+Received: by mail-yb1-xb44.google.com with SMTP id f23so16490736ybj.7
+        for <stable@vger.kernel.org>; Mon, 04 Apr 2022 02:44:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:sender:from:date:message-id:subject:to;
+        bh=CNNPGySxSq7bZ1La6vvay1kp1T7RaMnfdFjrr49KhAk=;
+        b=juDa0Yw6buqdWmoHK6QWWkUn60WSIKFmFbVs8+wn+ma3f8VeDzRlgw2j4+UnHBt0Op
+         YfnLRFXTk73aX/4/udu/DlOjWUQOe7LFC3hUXo+6igmMVLQFd3Uplw2LHsLlkHEp6fdl
+         dMEhsHtG5icfAy0gMtqfuy+cSLyzDJ0H8s0TAes6FD+0ZvgKCFYKIWlxVzsUOO7yIaiQ
+         i0Oe8yxFiAVC1HIy6MpwLGemZL95OMaX+Vxyn1FMvFw0i/rAbtVFRe58Jx3fRP2rAo3c
+         yQxphtf/zFqQWggRENt7D4c2qyutPFlgtuNTdb0kvjqvA21CRw8S8HuqnaUgf4Z3XnZn
+         yo5A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
+         :to;
+        bh=CNNPGySxSq7bZ1La6vvay1kp1T7RaMnfdFjrr49KhAk=;
+        b=kTowmLi75FeeYH7It1oCSD6w3CRdNbwJljWGnwLn2lq/8FnQVbIGfnP85uo+RdKV/q
+         56P0PnRekTYDFgvPbcDJE7Jo57/GHgkxoiXmKZs2arAogwnXKz6dmRoa0lDP2oWEn9NL
+         Ww7pb1yYCpOu5pPUvPzy/+nS2VqFvT2XkvHHikW9CrmmeP2wsLKS8C/r54tCL0AVbP9B
+         IJ3TE9FzPkOJ+zWV71pOIyJ7VIEzr3iLO7xdBv+GYlS7zaU1YURgvJI0TVshBaak8QeL
+         pfVlp650qjEtfdAIhMtJqMfwQrgCDqrAusKVB8VouTOU6HbrAKUjJ3sZf40KNOOTBsTX
+         psGQ==
+X-Gm-Message-State: AOAM531loOstPkYtEQKO/ENFmEaJkUvRqlhqNE34r9FrMWQ104mlrFAx
+        tDykU7WgOaDPwPqA+6wVaL356cUUaWTAzftZwS4=
+X-Google-Smtp-Source: ABdhPJxKnigJCDdvbPWsmQX//3OpVSx7kjnOlps3Kc2deeWvmzBqgvWE9WR51PRQu0sA/kRwpLIcuBAIXZR9v/by8NU=
+X-Received: by 2002:a25:d2c4:0:b0:63d:d9a2:29e7 with SMTP id
+ j187-20020a25d2c4000000b0063dd9a229e7mr2979145ybg.564.1649065450896; Mon, 04
+ Apr 2022 02:44:10 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <cover.1648636044.git.anand.jain@oracle.com>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+Sender: vmrjude906@gmail.com
+Received: by 2002:a05:7010:a607:b0:239:64df:1595 with HTTP; Mon, 4 Apr 2022
+ 02:44:10 -0700 (PDT)
+From:   Nance Terry Lee <nance173terry@gmail.com>
+Date:   Mon, 4 Apr 2022 09:44:10 +0000
+X-Google-Sender-Auth: NERHsqsSxki81YdHSkOhkKSGw2Q
+Message-ID: <CAHKUWg-AiW2cF-ARG_0nK1_-2WVuuB5MBHd1iy3hUP2aQBUQwA@mail.gmail.com>
+Subject: Hello My Dear Friend
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: Yes, score=7.5 required=5.0 tests=BAYES_50,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,HK_SCAM,LOTS_OF_MONEY,MONEY_FRAUD_5,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,UNDISC_MONEY autolearn=no
         autolearn_force=no version=3.4.6
+X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
+        *      https://www.dnswl.org/, no trust
+        *      [2607:f8b0:4864:20:0:0:0:b44 listed in]
+        [list.dnswl.org]
+        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
+        *      [score: 0.5000]
+        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
+        * -0.0 SPF_PASS SPF: sender matches SPF record
+        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
+        *      provider
+        *      [vmrjude906[at]gmail.com]
+        *  0.2 FREEMAIL_ENVFROM_END_DIGIT Envelope-from freemail username ends
+        *       in digit
+        *      [vmrjude906[at]gmail.com]
+        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
+        *      author's domain
+        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
+        *       valid
+        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
+        *      envelope-from domain
+        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
+        * -0.0 T_SCC_BODY_TEXT_LINE No description available.
+        *  0.0 LOTS_OF_MONEY Huge... sums of money
+        *  0.0 HK_SCAM No description available.
+        *  3.7 UNDISC_MONEY Undisclosed recipients + money/fraud signs
+        *  2.9 MONEY_FRAUD_5 Lots of money and many fraud phrases
+X-Spam-Level: *******
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Apr 02, 2022 at 06:25:37PM +0800, Anand Jain wrote:
-> This set fixes a process hang issue in btrfs and gf2 filesystems. When we
-> do a direct IO read or write when the buffer given by the user is
-> memory-mapped to the file range we are going to do IO, we end up ending
-> in a deadlock. This is triggered by the test case generic/647 from
-> fstests.
-> 
-> This fix depends on the iov_iter and iomap changes introduced in the
-> commit c03098d4b9ad ("Merge tag 'gfs2-v5.15-rc5-mmap-fault' of
-> git://git.kernel.org/pub/scm/linux/kernel/git/gfs2/linux-gfs2") and they
-> are part of this set for stable-5.15.y.
-> 
-> Please note that patch 3/17 in this patchset changes the prototype and
-> renames an exported symbol as below. All its references are updated as
-> well.
-> 
-> -EXPORT_SYMBOL(iov_iter_fault_in_readable);
-> +EXPORT_SYMBOL(fault_in_iov_iter_readable);
-> 
-> Andreas Gruenbacher (15):
->   powerpc/kvm: Fix kvm_use_magic_page
->   gup: Turn fault_in_pages_{readable,writeable} into
->     fault_in_{readable,writeable}
->   iov_iter: Turn iov_iter_fault_in_readable into
->     fault_in_iov_iter_readable
->   iov_iter: Introduce fault_in_iov_iter_writeable
->   gfs2: Add wrapper for iomap_file_buffered_write
->   gfs2: Clean up function may_grant
->   gfs2: Move the inode glock locking to gfs2_file_buffered_write
->   gfs2: Eliminate ip->i_gh
->   gfs2: Fix mmap + page fault deadlocks for buffered I/O
->   iomap: Fix iomap_dio_rw return value for user copies
->   iomap: Support partial direct I/O on user copy failures
->   iomap: Add done_before argument to iomap_dio_rw
->   gup: Introduce FOLL_NOFAULT flag to disable page faults
->   iov_iter: Introduce nofault flag to disable page faults
->   gfs2: Fix mmap + page fault deadlocks for direct I/O
-> 
-> Bob Peterson (1):
->   gfs2: Introduce flag for glock holder auto-demotion
-> 
-> Filipe Manana (1):
->   btrfs: fix deadlock due to page faults during direct IO reads and
->     writes
+Hello My Dear Friend,
 
-If this patchset is backported, then at least the following two commits
-must also be backported:
+I am Dr. Nance Terry Lee, the United Nations Representative Washington
+-DC - USA.
+I hereby inform you that your UN pending compensation funds the sum of
+$4.2million has been approved to be released to you through Diplomatic
+Courier Service.
 
-commit fe673d3f5bf1fc50cdc4b754831db91a2ec10126
-Author: Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Tue Mar 8 11:55:48 2022 -0800
+In the light of the above, you are advised to send your full receiving
+information as below:
 
-    mm: gup: make fault_in_safe_writeable() use fixup_user_fault()
+1. Your full name
+2. Full receiving address
+3. Your mobile number
+4. Nearest airport
 
-commit ca93e44bfb5fd7996b76f0f544999171f647f93b
-Author: Filipe Manana <fdmanana@suse.com>
-Date:   Wed Mar 2 11:48:39 2022 +0000
+Upon the receipt of the above information, I will proceed with the
+delivery process of your compensation funds to your door step through
+our special agent, if you have any questions, don't hesitate to ask
+me.
 
-    btrfs: fallback to blocking mode when doing async dio over multiple extents
+Kindly revert back to this office immediately.
 
-Maybe there's more that need to be backported. So cc'ing Andreas in
-case he's aware of any such other commits.
-
-> 
->  arch/powerpc/kernel/kvm.c           |   3 +-
->  arch/powerpc/kernel/signal_32.c     |   4 +-
->  arch/powerpc/kernel/signal_64.c     |   2 +-
->  arch/x86/kernel/fpu/signal.c        |   7 +-
->  drivers/gpu/drm/armada/armada_gem.c |   7 +-
->  fs/btrfs/file.c                     | 142 ++++++++++--
->  fs/btrfs/ioctl.c                    |   5 +-
->  fs/erofs/data.c                     |   2 +-
->  fs/ext4/file.c                      |   5 +-
->  fs/f2fs/file.c                      |   2 +-
->  fs/fuse/file.c                      |   2 +-
->  fs/gfs2/bmap.c                      |  60 +----
->  fs/gfs2/file.c                      | 252 +++++++++++++++++++--
->  fs/gfs2/glock.c                     | 330 +++++++++++++++++++++-------
->  fs/gfs2/glock.h                     |  20 ++
->  fs/gfs2/incore.h                    |   4 +-
->  fs/iomap/buffered-io.c              |   2 +-
->  fs/iomap/direct-io.c                |  29 ++-
->  fs/ntfs/file.c                      |   2 +-
->  fs/ntfs3/file.c                     |   2 +-
->  fs/xfs/xfs_file.c                   |   6 +-
->  fs/zonefs/super.c                   |   4 +-
->  include/linux/iomap.h               |  11 +-
->  include/linux/mm.h                  |   3 +-
->  include/linux/pagemap.h             |  58 +----
->  include/linux/uio.h                 |   4 +-
->  lib/iov_iter.c                      |  98 +++++++--
->  mm/filemap.c                        |   4 +-
->  mm/gup.c                            | 139 +++++++++++-
->  29 files changed, 911 insertions(+), 298 deletions(-)
-> 
-> -- 
-> 2.33.1
-> 
+Thanks.
+Dr. Nance Terry Lee.
+United Nations Representative
+Washington-DC USA.
+Tel: +1-703-9877 5463
+Fax: +1-703-9268 5422
