@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 016624F108B
-	for <lists+stable@lfdr.de>; Mon,  4 Apr 2022 10:12:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB72D4F1090
+	for <lists+stable@lfdr.de>; Mon,  4 Apr 2022 10:12:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344797AbiDDIMr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Apr 2022 04:12:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57806 "EHLO
+        id S1349068AbiDDINQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Apr 2022 04:13:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237926AbiDDIMr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Apr 2022 04:12:47 -0400
+        with ESMTP id S1377926AbiDDIMx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Apr 2022 04:12:53 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0EC12FFDC
-        for <stable@vger.kernel.org>; Mon,  4 Apr 2022 01:10:50 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 644162FFE4
+        for <stable@vger.kernel.org>; Mon,  4 Apr 2022 01:10:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 97C8DB81025
-        for <stable@vger.kernel.org>; Mon,  4 Apr 2022 08:10:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3A05C2BBE4;
-        Mon,  4 Apr 2022 08:10:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 23FC7B81023
+        for <stable@vger.kernel.org>; Mon,  4 Apr 2022 08:10:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83052C2BBE4;
+        Mon,  4 Apr 2022 08:10:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649059848;
-        bh=8ArsffvT9IBTE47juEJBiFGjw/YGXKQ+8rmab/qoK1U=;
+        s=korg; t=1649059854;
+        bh=s1q3hWDfbVY6cSuoAo+PpvTnJRdWnt40R8ZAinkdh+w=;
         h=Subject:To:Cc:From:Date:From;
-        b=UUaTUXuvRScUkSOyYwAP28WINX4ESrECOPDh5TstRl0d2FMeCwqhl4Ybe3p/FaSjT
-         MGlCLI4+H6sdO9eP06PedypXqFjjp98QOXfx6a43NA/9Q4PhVfZu+cNoBCiZ39sfuJ
-         /ic/I32Ik/RHspkqbDX5XM5+0qt3qNK05nMK8PCk=
-Subject: FAILED: patch "[PATCH] tracing: Have type enum modifications copy the strings" failed to apply to 4.19-stable tree
+        b=UxPPoGs+KvfhrAhPFGuZH8YqS9XWHNlYxHjR4IPl2eSiYNWa2licFOE+j2fc4ymQZ
+         y9bHg9tebl4wQ+SelFwl/CJ87GD8Dt5LfwyalMV0pWjJ0g6yD7qL3l8C8khI5RXbbJ
+         l/0moHCibdxNyJv4YzkK7ks4brUbCMwmdlBgCFkw=
+Subject: FAILED: patch "[PATCH] tracing: Have type enum modifications copy the strings" failed to apply to 5.4-stable tree
 To:     rostedt@goodmis.org, maz@kernel.org, svens@linux.ibm.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 04 Apr 2022 10:10:45 +0200
-Message-ID: <1649059845215213@kroah.com>
+Date:   Mon, 04 Apr 2022 10:10:52 +0200
+Message-ID: <16490598521299@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
