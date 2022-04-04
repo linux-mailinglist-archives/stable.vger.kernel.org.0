@@ -2,62 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 702044F122D
-	for <lists+stable@lfdr.de>; Mon,  4 Apr 2022 11:39:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A47F64F1235
+	for <lists+stable@lfdr.de>; Mon,  4 Apr 2022 11:41:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354392AbiDDJlb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Apr 2022 05:41:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47846 "EHLO
+        id S244822AbiDDJnk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Apr 2022 05:43:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55632 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354258AbiDDJla (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Apr 2022 05:41:30 -0400
-Received: from mail-yw1-x1131.google.com (mail-yw1-x1131.google.com [IPv6:2607:f8b0:4864:20::1131])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE7C022BE3
-        for <stable@vger.kernel.org>; Mon,  4 Apr 2022 02:39:34 -0700 (PDT)
-Received: by mail-yw1-x1131.google.com with SMTP id 00721157ae682-2e5e9025c20so92216437b3.7
-        for <stable@vger.kernel.org>; Mon, 04 Apr 2022 02:39:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:from:date:message-id:subject:to:cc;
-        bh=VBtq5kN44g3n+UMYylFBwtFXXfxhetga0boAUFLgn6o=;
-        b=ldxfYVNLgqbCdbT0y6eHTNkc73ckmyJNYVYiLeKfOgCUvxn8BOCtoSC59Z1+ifT0bB
-         k0ovJRcc+MgZfN3sHV+nWKVcOCvrTTLoywiwALVpXrVF+k00uP4pycugaPKnyv74sjAy
-         kEUehRjITwXHZGAIbVFHq9tSVuAHi0OI/DAlK74jVpjmmCgFVuvj71FfjKVO7xXbO3vE
-         BNA1u5rnU1DCsfTER2sWeFmY4HCPhNKswC9OVGp2IwhyLLr9wUaboQbkKqhTLGR+3Qjz
-         7BqwgaPMPmS9XNYRkMAnmpaVVLvEi7n6jac+FlNGbuZ+/JIsIRIBCpPnhD/5HgnVmg36
-         RXBA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
-        bh=VBtq5kN44g3n+UMYylFBwtFXXfxhetga0boAUFLgn6o=;
-        b=yQfYbOxIf+5P+rRpVyGpr7oEteh27RVWXvrzJte3uLet7bph/HtmJ92O6u04L9kC01
-         sGd9JkW85sjR7gufBZ3RIYU2DN8G44nwgPI/zFvqzLVYjyYmBlbwAQiZCWlYFe9t3NaY
-         1Mp00kjYyRuR4tY4/bqnkYx59g5hg3zNSTh3ETMrHYi03xTbl8KzVOiPEU+5zGCsuCzP
-         M/3X44m5QtsFQEEpraEuBZ9CcuxCNS17DxS1lhuvfl5aIEjyAJ9y1/zdeOnIGMhQJc/F
-         lXSUeH2d+yB0ICBtnMqXS70QorXXZBpCzQ+8GvIreaXJ0ZB7HC2FF59gtfsJEKTNoZK9
-         xa+g==
-X-Gm-Message-State: AOAM530akxMB0+8b2zhgandgEZHD0FiY0WA0OJL6BsqeGnH+AfFKmQKJ
-        PHw8JsDOMbae0AqoeQjtF7H/mPHkg+O3tsjE42dUog==
-X-Google-Smtp-Source: ABdhPJyAz1RdCDYXT//COuACj5PL3lsEQAS6kkfx6EIalBjFgJh7Cxl7r1eHpList/Ephz9hUmmSitH451RX4T9Qx5o=
-X-Received: by 2002:a81:478b:0:b0:2ea:da8c:5c21 with SMTP id
- u133-20020a81478b000000b002eada8c5c21mr22201615ywa.189.1649065173718; Mon, 04
- Apr 2022 02:39:33 -0700 (PDT)
+        with ESMTP id S244030AbiDDJnj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Apr 2022 05:43:39 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3545F3584E;
+        Mon,  4 Apr 2022 02:41:44 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D4EDAB8075B;
+        Mon,  4 Apr 2022 09:41:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13608C2BBE4;
+        Mon,  4 Apr 2022 09:41:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1649065301;
+        bh=cBNn7x0rjPHdpw09Pnzzj0qz9uwvqfup4vnhB/JA3pk=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=H76Ohh/XJIzt6XfXDXlzZTGQyXB0NuwUJ68Rj1VerP9hIj46vo38SHoEsVdsvxB1c
+         iTExd/2A78ZIpqTvqdK9hsFRBOBVPrAccDiC1T4mp3m0MtJ67Qf2rQQtDwoOUobLX7
+         pwHtu4Q1fbjGoaKC4I0VsbJKu10mFtS3ASj4sA+O19m/Ka2Ve4pJbjYLfJjKQEllpP
+         L7bvXJ7rTSZjLDED/xbIq4+aqgrgiwCFS9SJY+WyvhXNJw3QLsXyKBft/xtqK4B2IS
+         zu+Bmz/IQJNsjkiXyS9EYG4Xp+R/Td8MKo4XBL1aS+kmR8np2+8LD1pMgbfLEWsS1T
+         +RNXABJnlmxZg==
+Date:   Mon, 4 Apr 2022 10:41:37 +0100
+From:   Filipe Manana <fdmanana@kernel.org>
+To:     Anand Jain <anand.jain@oracle.com>
+Cc:     stable@vger.kernel.org, linux-btrfs@vger.kernel.org,
+        agruenba@redhat.com
+Subject: Re: [PATCH 00/17 stable-5.15.y] Fix mmap + page fault deadlocks
+Message-ID: <Ykq9UXXZLTZOJ6N+@debian9.Home>
+References: <cover.1648636044.git.anand.jain@oracle.com>
 MIME-Version: 1.0
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Mon, 4 Apr 2022 15:09:22 +0530
-Message-ID: <CA+G9fYs-zEGZghAXK9cqi-6avLVa_3mS62Y2jGsM9+x6+jJzcg@mail.gmail.com>
-Subject: stable-rc: queues/5.15, 5.16 and 5.17 : arm64 tinyconfig builds failed
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Cc:     linux-stable <stable@vger.kernel.org>,
-        lkft-triage@lists.linaro.org,
-        Vijay Balakrishna <vijayb@linux.microsoft.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Pasha Tatashin <pasha.tatashin@soleen.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <cover.1648636044.git.anand.jain@oracle.com>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -66,37 +53,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Following arm64 tinyconfig builds failed on queue/5.15..5.17.
-   arm64-gcc-11-tinyconfig - FAILED
-   arm64-gcc-10-tinyconfig- FAILED
-   arm64-clang-12-tinyconfig- FAILED
-   arm64-clang-13-tinyconfig- FAILED
+On Sat, Apr 02, 2022 at 06:25:37PM +0800, Anand Jain wrote:
+> This set fixes a process hang issue in btrfs and gf2 filesystems. When we
+> do a direct IO read or write when the buffer given by the user is
+> memory-mapped to the file range we are going to do IO, we end up ending
+> in a deadlock. This is triggered by the test case generic/647 from
+> fstests.
+> 
+> This fix depends on the iov_iter and iomap changes introduced in the
+> commit c03098d4b9ad ("Merge tag 'gfs2-v5.15-rc5-mmap-fault' of
+> git://git.kernel.org/pub/scm/linux/kernel/git/gfs2/linux-gfs2") and they
+> are part of this set for stable-5.15.y.
+> 
+> Please note that patch 3/17 in this patchset changes the prototype and
+> renames an exported symbol as below. All its references are updated as
+> well.
+> 
+> -EXPORT_SYMBOL(iov_iter_fault_in_readable);
+> +EXPORT_SYMBOL(fault_in_iov_iter_readable);
+> 
+> Andreas Gruenbacher (15):
+>   powerpc/kvm: Fix kvm_use_magic_page
+>   gup: Turn fault_in_pages_{readable,writeable} into
+>     fault_in_{readable,writeable}
+>   iov_iter: Turn iov_iter_fault_in_readable into
+>     fault_in_iov_iter_readable
+>   iov_iter: Introduce fault_in_iov_iter_writeable
+>   gfs2: Add wrapper for iomap_file_buffered_write
+>   gfs2: Clean up function may_grant
+>   gfs2: Move the inode glock locking to gfs2_file_buffered_write
+>   gfs2: Eliminate ip->i_gh
+>   gfs2: Fix mmap + page fault deadlocks for buffered I/O
+>   iomap: Fix iomap_dio_rw return value for user copies
+>   iomap: Support partial direct I/O on user copy failures
+>   iomap: Add done_before argument to iomap_dio_rw
+>   gup: Introduce FOLL_NOFAULT flag to disable page faults
+>   iov_iter: Introduce nofault flag to disable page faults
+>   gfs2: Fix mmap + page fault deadlocks for direct I/O
+> 
+> Bob Peterson (1):
+>   gfs2: Introduce flag for glock holder auto-demotion
+> 
+> Filipe Manana (1):
+>   btrfs: fix deadlock due to page faults during direct IO reads and
+>     writes
 
+If this patchset is backported, then at least the following two commits
+must also be backported:
 
-arch/arm64/mm/init.c:90:19: error: conflicting type qualifiers for
-'arm64_dma_phys_limit'
-   90 | const phys_addr_t arm64_dma_phys_limit = PHYS_MASK + 1;
-      |                   ^~~~~~~~~~~~~~~~~~~~
-In file included from include/asm-generic/qrwlock.h:14,
-                 from ./arch/arm64/include/generated/asm/qrwlock.h:1,
-                 from arch/arm64/include/asm/spinlock.h:9,
-                 from include/linux/spinlock.h:94,
-                 from include/linux/swap.h:5,
-                 from arch/arm64/mm/init.c:12:
-arch/arm64/include/asm/processor.h:102:20: note: previous declaration
-of 'arm64_dma_phys_limit' with type 'phys_addr_t' {aka 'long long
-unsigned int'}
-  102 | extern phys_addr_t arm64_dma_phys_limit;
-      |                    ^~~~~~~~~~~~~~~~~~~~
-make[3]: *** [scripts/Makefile.build:277: arch/arm64/mm/init.o] Error 1
+commit fe673d3f5bf1fc50cdc4b754831db91a2ec10126
+Author: Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Tue Mar 8 11:55:48 2022 -0800
 
-Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+    mm: gup: make fault_in_safe_writeable() use fixup_user_fault()
 
-Is this the suspected commit ?
+commit ca93e44bfb5fd7996b76f0f544999171f647f93b
+Author: Filipe Manana <fdmanana@suse.com>
+Date:   Wed Mar 2 11:48:39 2022 +0000
 
-arm64: Do not defer reserve_crashkernel() for platforms with no DMA memory zones
-commit 031495635b4668f94e964e037ca93d0d38bfde58 upstream.
+    btrfs: fallback to blocking mode when doing async dio over multiple extents
 
-https://qa-reports.linaro.org/_/comparetest/?project=1019&project=1110&project=1150&suite=build&test=arm64-gcc-11-tinyconfig
+Maybe there's more that need to be backported. So cc'ing Andreas in
+case he's aware of any such other commits.
 
-- Naresh
+> 
+>  arch/powerpc/kernel/kvm.c           |   3 +-
+>  arch/powerpc/kernel/signal_32.c     |   4 +-
+>  arch/powerpc/kernel/signal_64.c     |   2 +-
+>  arch/x86/kernel/fpu/signal.c        |   7 +-
+>  drivers/gpu/drm/armada/armada_gem.c |   7 +-
+>  fs/btrfs/file.c                     | 142 ++++++++++--
+>  fs/btrfs/ioctl.c                    |   5 +-
+>  fs/erofs/data.c                     |   2 +-
+>  fs/ext4/file.c                      |   5 +-
+>  fs/f2fs/file.c                      |   2 +-
+>  fs/fuse/file.c                      |   2 +-
+>  fs/gfs2/bmap.c                      |  60 +----
+>  fs/gfs2/file.c                      | 252 +++++++++++++++++++--
+>  fs/gfs2/glock.c                     | 330 +++++++++++++++++++++-------
+>  fs/gfs2/glock.h                     |  20 ++
+>  fs/gfs2/incore.h                    |   4 +-
+>  fs/iomap/buffered-io.c              |   2 +-
+>  fs/iomap/direct-io.c                |  29 ++-
+>  fs/ntfs/file.c                      |   2 +-
+>  fs/ntfs3/file.c                     |   2 +-
+>  fs/xfs/xfs_file.c                   |   6 +-
+>  fs/zonefs/super.c                   |   4 +-
+>  include/linux/iomap.h               |  11 +-
+>  include/linux/mm.h                  |   3 +-
+>  include/linux/pagemap.h             |  58 +----
+>  include/linux/uio.h                 |   4 +-
+>  lib/iov_iter.c                      |  98 +++++++--
+>  mm/filemap.c                        |   4 +-
+>  mm/gup.c                            | 139 +++++++++++-
+>  29 files changed, 911 insertions(+), 298 deletions(-)
+> 
+> -- 
+> 2.33.1
+> 
