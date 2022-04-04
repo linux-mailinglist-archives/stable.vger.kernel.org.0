@@ -2,138 +2,145 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C94D34F1AE2
-	for <lists+stable@lfdr.de>; Mon,  4 Apr 2022 23:17:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 07F814F1AF7
+	for <lists+stable@lfdr.de>; Mon,  4 Apr 2022 23:18:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379297AbiDDVTF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Apr 2022 17:19:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46572 "EHLO
+        id S1379329AbiDDVTO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Apr 2022 17:19:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53150 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380221AbiDDTP6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Apr 2022 15:15:58 -0400
-Received: from mail-pg1-x534.google.com (mail-pg1-x534.google.com [IPv6:2607:f8b0:4864:20::534])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F2DEC1F
-        for <stable@vger.kernel.org>; Mon,  4 Apr 2022 12:14:02 -0700 (PDT)
-Received: by mail-pg1-x534.google.com with SMTP id q19so9129676pgm.6
-        for <stable@vger.kernel.org>; Mon, 04 Apr 2022 12:14:02 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=c4u3LisD0YovsKFLAfe9eAFbMPT4YBYO/cPLaZ3rQW0=;
-        b=eMxvz+n4nmz9wmi0NcktOcE0xY83HriQLYCOehqNDADgaub420qeTF8ewhXaWO1JKp
-         QnzU+CVwmdmWJA7wJCRx+iH5POJutZH+Y6OgOa17GOp9OU0xTY5b2vxrcvjbkJktezzC
-         qvaAHQCSie3K5p4/UVE3glpcaA+xRfXkUDcxlaQAX/kiXk1Ak+JVvbU/qWiqSLP2/9nl
-         t0z08CY5MFg0bwfTZ0XnkabbnFum3zDqk18tJJW03vSBDmXrX5wKWylnxHAeIEfLq9Dg
-         81QAJF2sRF+MiP/h8zA1upgRXlDxdMyKnpLKchKsnk8EFX8ueVH3QZFJAEk1Vb4WMEC9
-         EUUg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=c4u3LisD0YovsKFLAfe9eAFbMPT4YBYO/cPLaZ3rQW0=;
-        b=cYiha6VcOMKf1X1N6PfA+DBnqM/bX7jFE5oKNmqyVNHhFQPikLr+HlTM4xloAn/WRJ
-         STNoTQ5zA7j96r+EI/ajDeBuqv5VBA3bU5Z/KL2zmuwG+LExN3znca2otH1uP/oypBft
-         NzhYsfW9eKAjJdfekjepORGjOt5D06+IFtBfEP3itG0R4FOiJJTcyqfJ1pbB54ocuUPJ
-         BpBb6ElucY4ocApsj20if/mXW1jY1LMOT6Ui577IG7GNo1+nCuMqionz9cBbrjKE4xey
-         lZIqri6pSivIV85EzA7ZQFq7E0a5mIqJz8/NhlHkt6oTW8msnX0+6ira05dA42AiChhR
-         nhbQ==
-X-Gm-Message-State: AOAM5334AZk99325vNXpSklcRYvnuzxPK8WIJBbASYB25TiTgKOk5M7i
-        iWjk6ib/Kjh8f6oEHSScXTSXzgEZaPQPmBev+3E=
-X-Google-Smtp-Source: ABdhPJwZvurgwkitll/f30NFv5Qa3nIk6BH5D21IjewbkNOZiwLtEl4yRmMNUrSI3xTWJCldAWWg1g==
-X-Received: by 2002:a63:5d4d:0:b0:398:fd64:3793 with SMTP id o13-20020a635d4d000000b00398fd643793mr1085351pgm.597.1649099640932;
-        Mon, 04 Apr 2022 12:14:00 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id g5-20020a056a0023c500b004fae15ab86dsm12637779pfc.52.2022.04.04.12.13.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 04 Apr 2022 12:13:59 -0700 (PDT)
-Message-ID: <624b4377.1c69fb81.d3a61.07e1@mx.google.com>
-Date:   Mon, 04 Apr 2022 12:13:59 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S1380258AbiDDTV0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Apr 2022 15:21:26 -0400
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 246F037A93
+        for <stable@vger.kernel.org>; Mon,  4 Apr 2022 12:19:29 -0700 (PDT)
+Received: from gallifrey.ext.pengutronix.de ([2001:67c:670:201:5054:ff:fe8d:eefb] helo=bjornoya.blackshift.org)
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <mkl@pengutronix.de>)
+        id 1nbSEZ-0003k0-1H; Mon, 04 Apr 2022 21:19:27 +0200
+Received: from pengutronix.de (2a03-f580-87bc-d400-3524-91ca-8473-ba45.ip6.dokom21.de [IPv6:2a03:f580:87bc:d400:3524:91ca:8473:ba45])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (Client did not present a certificate)
+        (Authenticated sender: mkl-all@blackshift.org)
+        by smtp.blackshift.org (Postfix) with ESMTPSA id 2B5BE5A437;
+        Mon,  4 Apr 2022 19:19:26 +0000 (UTC)
+Date:   Mon, 4 Apr 2022 21:19:25 +0200
+From:   Marc Kleine-Budde <mkl@pengutronix.de>
+To:     gregkh@linuxfoundation.org
+Cc:     hbh25y@gmail.com, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] can: m_can: m_can_tx_handler(): fix use
+ after free of skb" failed to apply to 5.10-stable tree
+Message-ID: <20220404191925.liav72moiotwwxxp@pengutronix.de>
+References: <164881453855199@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-5.10.y
-X-Kernelci-Kernel: v5.10.109-593-gd189d4a7b878
-X-Kernelci-Report-Type: test
-Subject: stable-rc/linux-5.10.y baseline: 52 runs,
- 1 regressions (v5.10.109-593-gd189d4a7b878)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="mynnw4f4u67t4avy"
+Content-Disposition: inline
+In-Reply-To: <164881453855199@kroah.com>
+X-SA-Exim-Connect-IP: 2001:67c:670:201:5054:ff:fe8d:eefb
+X-SA-Exim-Mail-From: mkl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: stable@vger.kernel.org
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.10.y baseline: 52 runs, 1 regressions (v5.10.109-593-gd18=
-9d4a7b878)
 
-Regressions Summary
--------------------
+--mynnw4f4u67t4avy
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
+On 01.04.2022 14:02:18, gregkh@linuxfoundation.org wrote:
+>=20
+> The patch below does not apply to the 5.10-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
 
+Here you are...or...it should show up here sooner or later:
+https://lore.kernel.org/all/20220404190830.1241263-1-mkl@pengutronix.de
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.10.y/ker=
-nel/v5.10.109-593-gd189d4a7b878/plan/baseline/
+regards,
+Marc
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.10.y
-  Describe: v5.10.109-593-gd189d4a7b878
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      d189d4a7b878ffe1fbb94de895104afbb8b669c1 =
+>=20
+> thanks,
+>=20
+> greg k-h
+>=20
+> ------------------ original commit in Linus's tree ------------------
+>=20
+> From 2e8e79c416aae1de224c0f1860f2e3350fa171f8 Mon Sep 17 00:00:00 2001
+> From: Marc Kleine-Budde <mkl@pengutronix.de>
+> Date: Thu, 17 Mar 2022 08:57:35 +0100
+> Subject: [PATCH] can: m_can: m_can_tx_handler(): fix use after free of skb
+>=20
+> can_put_echo_skb() will clone skb then free the skb. Move the
+> can_put_echo_skb() for the m_can version 3.0.x directly before the
+> start of the xmit in hardware, similar to the 3.1.x branch.
+>=20
+> Fixes: 80646733f11c ("can: m_can: update to support CAN FD features")
+> Link: https://lore.kernel.org/all/20220317081305.739554-1-mkl@pengutronix=
+=2Ede
+> Cc: stable@vger.kernel.org
+> Reported-by: Hangyu Hua <hbh25y@gmail.com>
+> Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+>=20
+> diff --git a/drivers/net/can/m_can/m_can.c b/drivers/net/can/m_can/m_can.c
+> index 1a4b56f6fa8c..b3b5bc1c803b 100644
+> --- a/drivers/net/can/m_can/m_can.c
+> +++ b/drivers/net/can/m_can/m_can.c
+> @@ -1637,8 +1637,6 @@ static netdev_tx_t m_can_tx_handler(struct m_can_cl=
+assdev *cdev)
+>  		if (err)
+>  			goto out_fail;
+> =20
+> -		can_put_echo_skb(skb, dev, 0, 0);
+> -
+>  		if (cdev->can.ctrlmode & CAN_CTRLMODE_FD) {
+>  			cccr =3D m_can_read(cdev, M_CAN_CCCR);
+>  			cccr &=3D ~CCCR_CMR_MASK;
+> @@ -1655,6 +1653,9 @@ static netdev_tx_t m_can_tx_handler(struct m_can_cl=
+assdev *cdev)
+>  			m_can_write(cdev, M_CAN_CCCR, cccr);
+>  		}
+>  		m_can_write(cdev, M_CAN_TXBTIE, 0x1);
+> +
+> +		can_put_echo_skb(skb, dev, 0, 0);
+> +
+>  		m_can_write(cdev, M_CAN_TXBAR, 0x1);
+>  		/* End of xmit function for version 3.0.x */
+>  	} else {
+>=20
+>=20
 
+--=20
+Pengutronix e.K.                 | Marc Kleine-Budde           |
+Embedded Linux                   | https://www.pengutronix.de  |
+Vertretung West/Dortmund         | Phone: +49-231-2826-924     |
+Amtsgericht Hildesheim, HRA 2686 | Fax:   +49-5121-206917-5555 |
 
+--mynnw4f4u67t4avy
+Content-Type: application/pgp-signature; name="signature.asc"
 
-Test Regressions
----------------- =
+-----BEGIN PGP SIGNATURE-----
 
+iQEzBAABCgAdFiEEBsvAIBsPu6mG7thcrX5LkNig010FAmJLRLoACgkQrX5LkNig
+011mqggAm+nro9UoFEYQaAr6bIHebgH30W7Aw1fp8gYG64UwU27xZGKTsso1sIxj
+L5JRyO8PR4aDySit4xm51oSCpxf9svBUATr7v742X+eYeShB1UhT7qUz2T/lAev2
+zrUlueMTalZobspI+lwYnunnZK9ROKI+6DwVPSky8FC6dKvjqW5fa/epWsZkjqcN
+iJDMV8WOJsJiER7WVr0Oo6E+NHP+CfW6D7JuBvgdmBGt1kNKS+JuUixYbiqaoBCX
+peN7zF2JtYXAg31jMfntcrDvEVYiY9k5uwuhnTSZziclnYeNf9taX/GBYkaUVj6c
+aUAC1EJkRhldYDKsjsavxGY0can3AQ==
+=Ginx
+-----END PGP SIGNATURE-----
 
-
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/624b17bc493aabd1e2ae06a1
-
-  Results:     90 PASS, 2 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-09-593-gd189d4a7b878/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/=
-baseline-rk3399-gru-kevin.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-09-593-gd189d4a7b878/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/=
-baseline-rk3399-gru-kevin.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220401.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
-/624b17bd493aabd1e2ae06c3
-        failing since 27 days (last pass: v5.10.103, first fail: v5.10.103-=
-106-g79bd6348914c)
-
-    2022-04-04T16:07:12.620236  /lava-6017851/1/../bin/lava-test-case
-    2022-04-04T16:07:12.630733  <8>[   34.053886] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-i2s1-probed RESULT=3Dfail>   =
-
- =20
+--mynnw4f4u67t4avy--
