@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8935E4F1790
-	for <lists+stable@lfdr.de>; Mon,  4 Apr 2022 16:48:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 336914F1817
+	for <lists+stable@lfdr.de>; Mon,  4 Apr 2022 17:16:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357562AbiDDOun (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Apr 2022 10:50:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43578 "EHLO
+        id S1378477AbiDDPSE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Apr 2022 11:18:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51196 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378355AbiDDOuR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Apr 2022 10:50:17 -0400
-Received: from mail-pf1-x435.google.com (mail-pf1-x435.google.com [IPv6:2607:f8b0:4864:20::435])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 639E765AA
-        for <stable@vger.kernel.org>; Mon,  4 Apr 2022 07:48:18 -0700 (PDT)
-Received: by mail-pf1-x435.google.com with SMTP id b15so9187584pfm.5
-        for <stable@vger.kernel.org>; Mon, 04 Apr 2022 07:48:18 -0700 (PDT)
+        with ESMTP id S1378492AbiDDPR6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Apr 2022 11:17:58 -0400
+Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7C4F2C137
+        for <stable@vger.kernel.org>; Mon,  4 Apr 2022 08:15:59 -0700 (PDT)
+Received: by mail-pl1-x635.google.com with SMTP id p17so8397818plo.9
+        for <stable@vger.kernel.org>; Mon, 04 Apr 2022 08:15:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20210112.gappssmtp.com; s=20210112;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=iywyMNMMVwqa8uM00GSfrsMSqMw+f8tiksV8DWQmGx0=;
-        b=lix8qJlrmHj11lWBn58rnYJ3Kpg8H1NQFpjfv21medj7Yc1u7Ox7bkb1yj/tGqlkAM
-         rRhSkWgEkPBKiNbZp0xwNG8kl6ZyDf2RNSbZ321q6gw5Tl+TXiYu761HCPOlONOJWJPn
-         jkdTght8AnT6CNLs3D/cfvP0qTP5VZv0pmfib3a9IXhkRLrZP7QUaObreBuAIqOtwm8+
-         dShf/wzqVzCByc1oY71wk6Du3tO9FkTQs7U54L9WvX5gpDBrC7xjWmysU8p9CRqAxDfh
-         M61loxuySpOi/Urjx2LfShVZZSxq4GXq87k1/RiHVufaVPjqj0VoQo3Uwa4GKC/gTzHi
-         YiiQ==
+        bh=Xie40pQLk8aPuXBi+0cILBXAp1n1HoWXmDYje7JDQb8=;
+        b=F4SFpKf8bornnU96X9Bs+upLbo6m7SxdZp3XutzVS+64KxOCANGlopR7cm3e2v75GY
+         jfBli0wVvjUoKaE8ygOu9mFKNxxcLadMyvQ6VkdkAG8Cj5lhJoKGmUk6PBe+6AKCm9at
+         KOsKOIJWfMaKSm3Ozh8IDxJZyDJ8M2ijI6rtqObrRFq6sLd1ydCur3RbxGQXyyAQ4eb5
+         mdx42iPIqC837SyJ1vCYf/Cm8FbNHJymBhFhId5rIPCPSXQSct9hyuLzHFcekSk+gyZE
+         kvmQIcxegHC5ucqHrPAEAdzeUwh3jx3HQZe4dtkKUgmO6XStM0xLzkDUyL+u0bQOX/Bo
+         Ex/Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=iywyMNMMVwqa8uM00GSfrsMSqMw+f8tiksV8DWQmGx0=;
-        b=TNpQVZ6nYN88+OS/Cl9efe1sABpOsjUis7boabPvsYQ6LM8iHTcKv/p4BtlYXMZ43v
-         Z0l0EIcF1tvu4DAGd4Lw1Q6Hz+FAvDssFBZtrToYMHrcFcOQeGzeOjtUvAna9ipzqdu/
-         pPeMqlRiF3u8Cf8FVoMG+IYtasvHhPYEap2YAkRMoR5BXsFF0rOiD8Y5ur1zOOEg1z6T
-         HEbLKZ5VgdQSellneD+k8DOUshbya/abjt58vp4AxsKrT3n9GeV/6Mx59igNBGIo+CH0
-         0KR2yuG3KFWGUtc0ObrxwzEIAEW9cr+SWFThoc0jLPRaemCZFgR7htl06iOpNW08YUqC
-         vUbA==
-X-Gm-Message-State: AOAM532ihotWHb/M2XugVY62VwnqVCI68wdpq0KffWhlbLayG7JvQF2a
-        /q4kmVrvPPFh558bbe5jtvS8BXDVyBe5Olei1Kg=
-X-Google-Smtp-Source: ABdhPJwsK0H2GfATljmQaArrGDRj/o2kPyCqun7eWjutrD7hjQade+ixthSynds612iglkGsZ2+s7A==
-X-Received: by 2002:a05:6a00:1c95:b0:4fa:81f5:b9d4 with SMTP id y21-20020a056a001c9500b004fa81f5b9d4mr24531pfw.49.1649083697120;
-        Mon, 04 Apr 2022 07:48:17 -0700 (PDT)
+        bh=Xie40pQLk8aPuXBi+0cILBXAp1n1HoWXmDYje7JDQb8=;
+        b=Sm/JCWfWbsipoUhjTenxAAqeW/3x6tE/uJthB7AmLal5XDgz0vG2dIqyCFr5WxbWqw
+         J/oGdfpLI7vxtoKdibzpiNfAXI1I76OgxUcyg6MnfKuWvUZziNuvoOwZYb0Y3MQxgZoC
+         ircOD/DSPhGIgBWFvnYT2Cv4OzbaSysfFDfLNVglQdDHhshzlH0tsmNgKYuc24eM+DEL
+         Hr+cRK3OfIoNGiHZR9hIsEDwDJp7sRRR+4JaNFJLcdK7QijJUGkO3AKCTcZ1oLQiQxlI
+         3oPuIFGX+olGPhVcXExtwJZyD7jzNLiOa+TZJEW29gXD1cQFwjuKJQJtxnhdFVvT0eNS
+         +6Eg==
+X-Gm-Message-State: AOAM530TQKI8oRgXex91Z6ZLtnx1xsAgKzIOdBu1kyAsB535LO+vzyr3
+        PbOslw0D259JLLAKJ+WhSIXproF9u6bkn4BqVh8=
+X-Google-Smtp-Source: ABdhPJycOYPjzlzYQwdB4ZGsRgIUPfOJTZm9/yfK5egpuh6tz/C3WaiFFzwmUQpfZz0qDtQDJOVWfA==
+X-Received: by 2002:a17:90a:d154:b0:1c6:64a5:a413 with SMTP id t20-20020a17090ad15400b001c664a5a413mr27275704pjw.6.1649085357053;
+        Mon, 04 Apr 2022 08:15:57 -0700 (PDT)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id w7-20020a63a747000000b003991d7d3728sm4468114pgo.74.2022.04.04.07.48.16
+        by smtp.gmail.com with ESMTPSA id x2-20020a63aa42000000b0038265eb2495sm10764177pgo.88.2022.04.04.08.15.56
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 04 Apr 2022 07:48:16 -0700 (PDT)
-Message-ID: <624b0530.1c69fb81.87341.a0b3@mx.google.com>
-Date:   Mon, 04 Apr 2022 07:48:16 -0700 (PDT)
+        Mon, 04 Apr 2022 08:15:56 -0700 (PDT)
+Message-ID: <624b0bac.1c69fb81.80f04.b691@mx.google.com>
+Date:   Mon, 04 Apr 2022 08:15:56 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.9.y
-X-Kernelci-Kernel: v4.9.309-163-g72bddc06e381
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Kernel: v4.19.237-257-g4e89415127311
 X-Kernelci-Report-Type: build
-Subject: stable-rc/linux-4.9.y build: 188 builds: 3 failed, 185 passed,
- 2 errors, 34 warnings (v4.9.309-163-g72bddc06e381)
+Subject: stable-rc/linux-4.19.y build: 204 builds: 20 failed, 184 passed,
+ 525 errors, 50 warnings (v4.19.237-257-g4e89415127311)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -70,86 +70,187 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.9.y build: 188 builds: 3 failed, 185 passed, 2 errors, 34=
- warnings (v4.9.309-163-g72bddc06e381)
+stable-rc/linux-4.19.y build: 204 builds: 20 failed, 184 passed, 525 errors=
+, 50 warnings (v4.19.237-257-g4e89415127311)
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
-/kernel/v4.9.309-163-g72bddc06e381/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.237-257-g4e89415127311/
 
 Tree: stable-rc
-Branch: linux-4.9.y
-Git Describe: v4.9.309-163-g72bddc06e381
-Git Commit: 72bddc06e38167246e8e14d632bf7674796eb3e5
+Branch: linux-4.19.y
+Git Describe: v4.19.237-257-g4e89415127311
+Git Commit: 4e89415127311b78dfd058c48dd87e92ab4e2c0c
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e-rc.git
-Built: 6 unique architectures
+Built: 7 unique architectures
 
 Build Failures Detected:
 
+arc:
+    allnoconfig: (gcc-10) FAIL
+    tinyconfig: (gcc-10) FAIL
+
+arm64:
+    allnoconfig: (gcc-10) FAIL
+    tinyconfig: (gcc-10) FAIL
+
 arm:
+    allnoconfig: (gcc-10) FAIL
+    mps2_defconfig: (gcc-10) FAIL
     rpc_defconfig: (gcc-10) FAIL
+    tinyconfig: (gcc-10) FAIL
+    xcep_defconfig: (gcc-10) FAIL
+
+i386:
+    allnoconfig: (gcc-10) FAIL
+    tinyconfig: (gcc-10) FAIL
 
 mips:
+    allnoconfig: (gcc-10) FAIL
     ip27_defconfig: (gcc-10) FAIL
     ip28_defconfig: (gcc-10) FAIL
+    tinyconfig: (gcc-10) FAIL
+
+riscv:
+    allnoconfig: (gcc-10) FAIL
+    defconfig: (gcc-10) FAIL
+    tinyconfig: (gcc-10) FAIL
+
+x86_64:
+    allnoconfig: (gcc-10) FAIL
+    tinyconfig: (gcc-10) FAIL
 
 Errors and Warnings Detected:
 
 arc:
+    allnoconfig (gcc-10): 18 errors
+    tinyconfig (gcc-10): 18 errors
 
 arm64:
+    allnoconfig (gcc-10): 22 errors
+    defconfig (gcc-10): 3 warnings
+    defconfig+arm64-chromebook (gcc-10): 3 warnings
+    tinyconfig (gcc-10): 34 errors
 
 arm:
-    mini2440_defconfig (gcc-10): 1 warning
+    allnoconfig (gcc-10): 26 errors
+    mps2_defconfig (gcc-10): 40 errors
     omap1_defconfig (gcc-10): 1 warning
     rpc_defconfig (gcc-10): 2 errors
-    s3c2410_defconfig (gcc-10): 1 warning
+    tinyconfig (gcc-10): 40 errors
+    xcep_defconfig (gcc-10): 20 errors
 
 i386:
-    allnoconfig (gcc-10): 3 warnings
-    i386_defconfig (gcc-10): 3 warnings
-    tinyconfig (gcc-10): 3 warnings
+    allnoconfig (gcc-10): 44 errors, 3 warnings
+    i386_defconfig (gcc-10): 2 warnings
+    tinyconfig (gcc-10): 43 errors, 3 warnings
 
 mips:
+    allnoconfig (gcc-10): 26 errors
+    lemote2f_defconfig (gcc-10): 1 warning
+    loongson3_defconfig (gcc-10): 1 warning
+    malta_qemu_32r6_defconfig (gcc-10): 1 warning
     mtx1_defconfig (gcc-10): 3 warnings
+    nlm_xlp_defconfig (gcc-10): 1 warning
+    tinyconfig (gcc-10): 26 errors
+
+riscv:
+    allnoconfig (gcc-10): 54 errors
+    tinyconfig (gcc-10): 54 errors
 
 x86_64:
-    allnoconfig (gcc-10): 5 warnings
-    tinyconfig (gcc-10): 4 warnings
-    x86_64_defconfig (gcc-10): 5 warnings
-    x86_64_defconfig+x86-chromebook (gcc-10): 5 warnings
+    allnoconfig (gcc-10): 29 errors, 11 warnings
+    tinyconfig (gcc-10): 29 errors, 11 warnings
+    x86_64_defconfig (gcc-10): 3 warnings
+    x86_64_defconfig+x86-chromebook (gcc-10): 3 warnings
 
 Errors summary:
 
+    172  include/linux/blk-mq.h:309:20: error: invalid use of undefined typ=
+e =E2=80=98struct request=E2=80=99
+    35   include/linux/blk-mq.h:337:5: error: invalid use of undefined type=
+ =E2=80=98struct request=E2=80=99
+    35   include/linux/blk-mq.h:336:8: error: invalid use of undefined type=
+ =E2=80=98struct request=E2=80=99
+    35   include/linux/blk-mq.h:323:12: error: invalid use of undefined typ=
+e =E2=80=98struct request=E2=80=99
+    35   include/linux/blk-mq.h:319:22: error: invalid application of =E2=
+=80=98sizeof=E2=80=99 to incomplete type =E2=80=98struct request=E2=80=99
+    35   include/linux/blk-mq.h:309:46: error: =E2=80=98MQ_RQ_COMPLETE=E2=
+=80=99 undeclared (first use in this function)
+    35   include/linux/blk-mq.h:309:29: error: =E2=80=98MQ_RQ_IN_FLIGHT=E2=
+=80=99 undeclared (first use in this function)
+    35   include/linux/blk-mq.h:145:2: error: unknown type name =E2=80=98so=
+ftirq_done_fn=E2=80=99
+    10   include/asm-generic/atomic-instrumented.h:421:37: error: invalid t=
+ype argument of unary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    10   arch/x86/include/asm/cmpxchg.h:89:13: error: invalid type argument=
+ of unary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    10   arch/x86/include/asm/cmpxchg.h:88:13: error: invalid type argument=
+ of unary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    10   arch/x86/include/asm/cmpxchg.h:87:13: error: invalid type argument=
+ of unary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    10   arch/x86/include/asm/cmpxchg.h:149:34: error: invalid type argumen=
+t of unary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    8    include/linux/blk-mq.h:62:18: error: field =E2=80=98kobj=E2=80=99 =
+has incomplete type
+    8    include/linux/blk-mq.h:309:20: error: invalid use of undefined typ=
+e 'struct request'
+    6    arch/riscv/include/asm/cmpxchg.h:338:41: error: invalid type argum=
+ent of unary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    6    arch/riscv/include/asm/cmpxchg.h:326:41: error: invalid type argum=
+ent of unary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    4    include/linux/blk-mq.h:337:5: error: invalid use of undefined type=
+ 'struct request'
+    4    include/linux/blk-mq.h:336:8: error: invalid use of undefined type=
+ 'struct request'
+    4    include/linux/blk-mq.h:323:12: error: invalid use of undefined typ=
+e 'struct request'
+    4    include/linux/blk-mq.h:319:22: error: invalid application of 'size=
+of' to incomplete type 'struct request'
+    4    include/linux/blk-mq.h:309:46: error: 'MQ_RQ_COMPLETE' undeclared =
+(first use in this function)
+    4    include/linux/blk-mq.h:309:29: error: 'MQ_RQ_IN_FLIGHT' undeclared=
+ (first use in this function)
+    4    include/linux/blk-mq.h:145:2: error: unknown type name 'softirq_do=
+ne_fn'
     1    arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3
     1    arm-linux-gnueabihf-gcc: error: missing argument to =E2=80=98-marc=
 h=3D=E2=80=99
 
 Warnings summary:
 
-    7    ld: warning: creating DT_TEXTREL in a PIE
-    7    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic su=
-ffix given and no register operands; using default for `btr'
-    4    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in rea=
-d-only section `.head.text'
-    4    arch/x86/entry/entry_64.S:1565: Warning: no instruction mnemonic s=
+    10   include/asm-generic/atomic-instrumented.h:421:20: warning: passing=
+ argument 1 of =E2=80=98kasan_check_write=E2=80=99 makes pointer from integ=
+er without a cast [-Wint-conversion]
+    6    aarch64-linux-gnu-ld: warning: -z norelro ignored
+    4    arch/x86/include/asm/cmpxchg.h:93:24: warning: cast to pointer fro=
+m integer of different size [-Wint-to-pointer-cast]
+    4    arch/x86/include/asm/cmpxchg.h:120:25: warning: cast to pointer fr=
+om integer of different size [-Wint-to-pointer-cast]
+    4    arch/x86/include/asm/cmpxchg.h:111:25: warning: cast to pointer fr=
+om integer of different size [-Wint-to-pointer-cast]
+    4    arch/x86/include/asm/cmpxchg.h:102:25: warning: cast to pointer fr=
+om integer of different size [-Wint-to-pointer-cast]
+    4    arch/x86/entry/entry_64.S:1738: Warning: no instruction mnemonic s=
 uffix given and no register operands; using default for `sysret'
-    3    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in rea=
-d-only section `.head.text'
-    3    arch/x86/entry/entry_32.S:452: Warning: no instruction mnemonic su=
-ffix given and no register operands; using default for `btr'
+    3    ld: warning: creating DT_TEXTREL in a PIE
     2    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 1073=
 741824 invokes undefined behavior [-Waggressive-loop-optimizations]
-    2    drivers/tty/serial/samsung.c:1786:34: warning: array =E2=80=98s3c2=
-4xx_uart_dt_match=E2=80=99 assumed to have one element
+    2    net/core/rtnetlink.c:3199:1: warning: the frame size of 1328 bytes=
+ is larger than 1024 bytes [-Wframe-larger-than=3D]
+    2    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in rea=
+d-only section `.head.text'
+    1    {standard input}:132: Warning: macro instruction expanded into mul=
+tiple instructions
     1    sound/pci/echoaudio/echoaudio_dsp.c:658:9: warning: iteration 1073=
 741824 invokes undefined behavior [-Waggressive-loop-optimizations]
-    1    drivers/gpio/gpio-omap.c:1135:34: warning: array =E2=80=98omap_gpi=
+    1    net/core/rtnetlink.c:3199:1: warning: the frame size of 1344 bytes=
+ is larger than 1024 bytes [-Wframe-larger-than=3D]
+    1    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in rea=
+d-only section `.head.text'
+    1    drivers/gpio/gpio-omap.c:1233:34: warning: array =E2=80=98omap_gpi=
 o_match=E2=80=99 assumed to have one element
-
-Section mismatches summary:
-
-    2    WARNING: modpost: Found 1 section mismatch(es).
 
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
@@ -157,6 +258,11 @@ Section mismatches summary:
 =3D=3D=3D=3D=3D
 
 Detailed per-defconfig build reports:
+
+---------------------------------------------------------------------------=
+-----
+32r2el_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -170,41 +276,525 @@ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section =
+allnoconfig (arm, gcc-10) =E2=80=94 FAIL, 26 errors, 0 warnings, 0 section =
 mismatches
 
-Warnings:
-    arch/x86/entry/entry_32.S:452: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
+Errors:
+    include/linux/blk-mq.h:145:2: error: unknown type name =E2=80=98softirq=
+_done_fn=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:29: error: =E2=80=98MQ_RQ_IN_FLIGHT=E2=80=99=
+ undeclared (first use in this function)
+    include/linux/blk-mq.h:309:46: error: =E2=80=98MQ_RQ_COMPLETE=E2=80=99 =
+undeclared (first use in this function)
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:319:22: error: invalid application of =E2=80=98s=
+izeof=E2=80=99 to incomplete type =E2=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:323:12: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:336:8: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:337:5: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:145:2: error: unknown type name =E2=80=98softirq=
+_done_fn=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:29: error: =E2=80=98MQ_RQ_IN_FLIGHT=E2=80=99=
+ undeclared (first use in this function)
+    include/linux/blk-mq.h:309:46: error: =E2=80=98MQ_RQ_COMPLETE=E2=80=99 =
+undeclared (first use in this function)
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:319:22: error: invalid application of =E2=80=98s=
+izeof=E2=80=99 to incomplete type =E2=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:323:12: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:336:8: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:337:5: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 5 warnings, 0 sectio=
+allnoconfig (riscv, gcc-10) =E2=80=94 FAIL, 54 errors, 0 warnings, 0 sectio=
 n mismatches
 
-Warnings:
-    arch/x86/entry/entry_64.S:1565: Warning: no instruction mnemonic suffix=
- given and no register operands; using default for `sysret'
-    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
+Errors:
+    include/linux/blk-mq.h:145:2: error: unknown type name =E2=80=98softirq=
+_done_fn=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:29: error: =E2=80=98MQ_RQ_IN_FLIGHT=E2=80=99=
+ undeclared (first use in this function)
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:46: error: =E2=80=98MQ_RQ_COMPLETE=E2=80=99 =
+undeclared (first use in this function)
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    arch/riscv/include/asm/cmpxchg.h:326:41: error: invalid type argument o=
+f unary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    arch/riscv/include/asm/cmpxchg.h:338:41: error: invalid type argument o=
+f unary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    include/linux/blk-mq.h:319:22: error: invalid application of =E2=80=98s=
+izeof=E2=80=99 to incomplete type =E2=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:323:12: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:336:8: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:337:5: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:145:2: error: unknown type name =E2=80=98softirq=
+_done_fn=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:29: error: =E2=80=98MQ_RQ_IN_FLIGHT=E2=80=99=
+ undeclared (first use in this function)
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:46: error: =E2=80=98MQ_RQ_COMPLETE=E2=80=99 =
+undeclared (first use in this function)
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    arch/riscv/include/asm/cmpxchg.h:326:41: error: invalid type argument o=
+f unary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    arch/riscv/include/asm/cmpxchg.h:338:41: error: invalid type argument o=
+f unary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    include/linux/blk-mq.h:319:22: error: invalid application of =E2=80=98s=
+izeof=E2=80=99 to incomplete type =E2=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:323:12: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:336:8: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:337:5: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:145:2: error: unknown type name =E2=80=98softirq=
+_done_fn=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:29: error: =E2=80=98MQ_RQ_IN_FLIGHT=E2=80=99=
+ undeclared (first use in this function)
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:46: error: =E2=80=98MQ_RQ_COMPLETE=E2=80=99 =
+undeclared (first use in this function)
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    arch/riscv/include/asm/cmpxchg.h:326:41: error: invalid type argument o=
+f unary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    arch/riscv/include/asm/cmpxchg.h:338:41: error: invalid type argument o=
+f unary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    include/linux/blk-mq.h:319:22: error: invalid application of =E2=80=98s=
+izeof=E2=80=99 to incomplete type =E2=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:323:12: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:336:8: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:337:5: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
+allnoconfig (arm64, gcc-10) =E2=80=94 FAIL, 22 errors, 0 warnings, 0 sectio=
+n mismatches
+
+Errors:
+    include/linux/blk-mq.h:145:2: error: unknown type name =E2=80=98softirq=
+_done_fn=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:29: error: =E2=80=98MQ_RQ_IN_FLIGHT=E2=80=99=
+ undeclared (first use in this function)
+    include/linux/blk-mq.h:309:46: error: =E2=80=98MQ_RQ_COMPLETE=E2=80=99 =
+undeclared (first use in this function)
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:319:22: error: invalid application of =E2=80=98s=
+izeof=E2=80=99 to incomplete type =E2=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:323:12: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:336:8: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:337:5: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:145:2: error: unknown type name =E2=80=98softirq=
+_done_fn=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:29: error: =E2=80=98MQ_RQ_IN_FLIGHT=E2=80=99=
+ undeclared (first use in this function)
+    include/linux/blk-mq.h:309:46: error: =E2=80=98MQ_RQ_COMPLETE=E2=80=99 =
+undeclared (first use in this function)
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:319:22: error: invalid application of =E2=80=98s=
+izeof=E2=80=99 to incomplete type =E2=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:323:12: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:336:8: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:337:5: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arc, gcc-10) =E2=80=94 FAIL, 18 errors, 0 warnings, 0 section =
+mismatches
+
+Errors:
+    include/linux/blk-mq.h:145:2: error: unknown type name 'softirq_done_fn'
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type 'st=
+ruct request'
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type 'st=
+ruct request'
+    include/linux/blk-mq.h:309:29: error: 'MQ_RQ_IN_FLIGHT' undeclared (fir=
+st use in this function)
+    include/linux/blk-mq.h:309:46: error: 'MQ_RQ_COMPLETE' undeclared (firs=
+t use in this function)
+    include/linux/blk-mq.h:319:22: error: invalid application of 'sizeof' t=
+o incomplete type 'struct request'
+    include/linux/blk-mq.h:323:12: error: invalid use of undefined type 'st=
+ruct request'
+    include/linux/blk-mq.h:336:8: error: invalid use of undefined type 'str=
+uct request'
+    include/linux/blk-mq.h:337:5: error: invalid use of undefined type 'str=
+uct request'
+    include/linux/blk-mq.h:145:2: error: unknown type name 'softirq_done_fn'
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type 'st=
+ruct request'
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type 'st=
+ruct request'
+    include/linux/blk-mq.h:309:29: error: 'MQ_RQ_IN_FLIGHT' undeclared (fir=
+st use in this function)
+    include/linux/blk-mq.h:309:46: error: 'MQ_RQ_COMPLETE' undeclared (firs=
+t use in this function)
+    include/linux/blk-mq.h:319:22: error: invalid application of 'sizeof' t=
+o incomplete type 'struct request'
+    include/linux/blk-mq.h:323:12: error: invalid use of undefined type 'st=
+ruct request'
+    include/linux/blk-mq.h:336:8: error: invalid use of undefined type 'str=
+uct request'
+    include/linux/blk-mq.h:337:5: error: invalid use of undefined type 'str=
+uct request'
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (x86_64, gcc-10) =E2=80=94 FAIL, 29 errors, 11 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    include/linux/blk-mq.h:145:2: error: unknown type name =E2=80=98softirq=
+_done_fn=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/asm-generic/atomic-instrumented.h:421:37: error: invalid type a=
+rgument of unary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    arch/x86/include/asm/cmpxchg.h:87:13: error: invalid type argument of u=
+nary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    arch/x86/include/asm/cmpxchg.h:88:13: error: invalid type argument of u=
+nary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    include/linux/blk-mq.h:309:29: error: =E2=80=98MQ_RQ_IN_FLIGHT=E2=80=99=
+ undeclared (first use in this function)
+    arch/x86/include/asm/cmpxchg.h:89:13: error: invalid type argument of u=
+nary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    include/linux/blk-mq.h:309:46: error: =E2=80=98MQ_RQ_COMPLETE=E2=80=99 =
+undeclared (first use in this function)
+    arch/x86/include/asm/cmpxchg.h:149:34: error: invalid type argument of =
+unary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    include/linux/blk-mq.h:319:22: error: invalid application of =E2=80=98s=
+izeof=E2=80=99 to incomplete type =E2=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:323:12: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:336:8: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:337:5: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:62:18: error: field =E2=80=98kobj=E2=80=99 has i=
+ncomplete type
+    include/linux/blk-mq.h:145:2: error: unknown type name =E2=80=98softirq=
+_done_fn=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/asm-generic/atomic-instrumented.h:421:37: error: invalid type a=
+rgument of unary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    arch/x86/include/asm/cmpxchg.h:87:13: error: invalid type argument of u=
+nary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    arch/x86/include/asm/cmpxchg.h:88:13: error: invalid type argument of u=
+nary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    include/linux/blk-mq.h:309:29: error: =E2=80=98MQ_RQ_IN_FLIGHT=E2=80=99=
+ undeclared (first use in this function)
+    arch/x86/include/asm/cmpxchg.h:89:13: error: invalid type argument of u=
+nary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    include/linux/blk-mq.h:309:46: error: =E2=80=98MQ_RQ_COMPLETE=E2=80=99 =
+undeclared (first use in this function)
+    arch/x86/include/asm/cmpxchg.h:149:34: error: invalid type argument of =
+unary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    include/linux/blk-mq.h:319:22: error: invalid application of =E2=80=98s=
+izeof=E2=80=99 to incomplete type =E2=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:323:12: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:336:8: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:337:5: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+
+Warnings:
+    include/asm-generic/atomic-instrumented.h:421:20: warning: passing argu=
+ment 1 of =E2=80=98kasan_check_write=E2=80=99 makes pointer from integer wi=
+thout a cast [-Wint-conversion]
+    arch/x86/include/asm/cmpxchg.h:93:24: warning: cast to pointer from int=
+eger of different size [-Wint-to-pointer-cast]
+    arch/x86/include/asm/cmpxchg.h:102:25: warning: cast to pointer from in=
+teger of different size [-Wint-to-pointer-cast]
+    arch/x86/include/asm/cmpxchg.h:111:25: warning: cast to pointer from in=
+teger of different size [-Wint-to-pointer-cast]
+    arch/x86/include/asm/cmpxchg.h:120:25: warning: cast to pointer from in=
+teger of different size [-Wint-to-pointer-cast]
+    arch/x86/entry/entry_64.S:1738: Warning: no instruction mnemonic suffix=
+ given and no register operands; using default for `sysret'
+    include/asm-generic/atomic-instrumented.h:421:20: warning: passing argu=
+ment 1 of =E2=80=98kasan_check_write=E2=80=99 makes pointer from integer wi=
+thout a cast [-Wint-conversion]
+    arch/x86/include/asm/cmpxchg.h:93:24: warning: cast to pointer from int=
+eger of different size [-Wint-to-pointer-cast]
+    arch/x86/include/asm/cmpxchg.h:102:25: warning: cast to pointer from in=
+teger of different size [-Wint-to-pointer-cast]
+    arch/x86/include/asm/cmpxchg.h:111:25: warning: cast to pointer from in=
+teger of different size [-Wint-to-pointer-cast]
+    arch/x86/include/asm/cmpxchg.h:120:25: warning: cast to pointer from in=
+teger of different size [-Wint-to-pointer-cast]
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (i386, gcc-10) =E2=80=94 FAIL, 44 errors, 3 warnings, 0 section=
+ mismatches
+
+Errors:
+    include/linux/blk-mq.h:145:2: error: unknown type name =E2=80=98softirq=
+_done_fn=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/asm-generic/atomic-instrumented.h:421:37: error: invalid type a=
+rgument of unary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    arch/x86/include/asm/cmpxchg.h:87:13: error: invalid type argument of u=
+nary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    arch/x86/include/asm/cmpxchg.h:88:13: error: invalid type argument of u=
+nary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    include/linux/blk-mq.h:309:29: error: =E2=80=98MQ_RQ_IN_FLIGHT=E2=80=99=
+ undeclared (first use in this function)
+    arch/x86/include/asm/cmpxchg.h:89:13: error: invalid type argument of u=
+nary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    include/linux/blk-mq.h:309:46: error: =E2=80=98MQ_RQ_COMPLETE=E2=80=99 =
+undeclared (first use in this function)
+    arch/x86/include/asm/cmpxchg.h:149:34: error: invalid type argument of =
+unary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    include/linux/blk-mq.h:319:22: error: invalid application of =E2=80=98s=
+izeof=E2=80=99 to incomplete type =E2=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:323:12: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:336:8: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:337:5: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:62:18: error: field =E2=80=98kobj=E2=80=99 has i=
+ncomplete type
+    include/linux/blk-mq.h:145:2: error: unknown type name =E2=80=98softirq=
+_done_fn=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/asm-generic/atomic-instrumented.h:421:37: error: invalid type a=
+rgument of unary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    arch/x86/include/asm/cmpxchg.h:87:13: error: invalid type argument of u=
+nary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    arch/x86/include/asm/cmpxchg.h:88:13: error: invalid type argument of u=
+nary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    include/linux/blk-mq.h:309:29: error: =E2=80=98MQ_RQ_IN_FLIGHT=E2=80=99=
+ undeclared (first use in this function)
+    arch/x86/include/asm/cmpxchg.h:89:13: error: invalid type argument of u=
+nary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    include/linux/blk-mq.h:309:46: error: =E2=80=98MQ_RQ_COMPLETE=E2=80=99 =
+undeclared (first use in this function)
+    arch/x86/include/asm/cmpxchg.h:149:34: error: invalid type argument of =
+unary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    include/linux/blk-mq.h:319:22: error: invalid application of =E2=80=98s=
+izeof=E2=80=99 to incomplete type =E2=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:323:12: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:336:8: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:337:5: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:62:18: error: field =E2=80=98kobj=E2=80=99 has i=
+ncomplete type
+    include/linux/blk-mq.h:145:2: error: unknown type name =E2=80=98softirq=
+_done_fn=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/asm-generic/atomic-instrumented.h:421:37: error: invalid type a=
+rgument of unary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    arch/x86/include/asm/cmpxchg.h:87:13: error: invalid type argument of u=
+nary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    arch/x86/include/asm/cmpxchg.h:88:13: error: invalid type argument of u=
+nary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    include/linux/blk-mq.h:309:29: error: =E2=80=98MQ_RQ_IN_FLIGHT=E2=80=99=
+ undeclared (first use in this function)
+    arch/x86/include/asm/cmpxchg.h:89:13: error: invalid type argument of u=
+nary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    include/linux/blk-mq.h:309:46: error: =E2=80=98MQ_RQ_COMPLETE=E2=80=99 =
+undeclared (first use in this function)
+    arch/x86/include/asm/cmpxchg.h:149:34: error: invalid type argument of =
+unary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    include/linux/blk-mq.h:319:22: error: invalid application of =E2=80=98s=
+izeof=E2=80=99 to incomplete type =E2=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:323:12: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:336:8: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:337:5: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+
+Warnings:
+    include/asm-generic/atomic-instrumented.h:421:20: warning: passing argu=
+ment 1 of =E2=80=98kasan_check_write=E2=80=99 makes pointer from integer wi=
+thout a cast [-Wint-conversion]
+    include/asm-generic/atomic-instrumented.h:421:20: warning: passing argu=
+ment 1 of =E2=80=98kasan_check_write=E2=80=99 makes pointer from integer wi=
+thout a cast [-Wint-conversion]
+    include/asm-generic/atomic-instrumented.h:421:20: warning: passing argu=
+ment 1 of =E2=80=98kasan_check_write=E2=80=99 makes pointer from integer wi=
+thout a cast [-Wint-conversion]
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (mips, gcc-10) =E2=80=94 FAIL, 26 errors, 0 warnings, 0 section=
+ mismatches
+
+Errors:
+    include/linux/blk-mq.h:145:2: error: unknown type name =E2=80=98softirq=
+_done_fn=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:29: error: =E2=80=98MQ_RQ_IN_FLIGHT=E2=80=99=
+ undeclared (first use in this function)
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:46: error: =E2=80=98MQ_RQ_COMPLETE=E2=80=99 =
+undeclared (first use in this function)
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:319:22: error: invalid application of =E2=80=98s=
+izeof=E2=80=99 to incomplete type =E2=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:323:12: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:336:8: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:337:5: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:145:2: error: unknown type name =E2=80=98softirq=
+_done_fn=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:29: error: =E2=80=98MQ_RQ_IN_FLIGHT=E2=80=99=
+ undeclared (first use in this function)
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:46: error: =E2=80=98MQ_RQ_COMPLETE=E2=80=99 =
+undeclared (first use in this function)
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:319:22: error: invalid application of =E2=80=98s=
+izeof=E2=80=99 to incomplete type =E2=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:323:12: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:336:8: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:337:5: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
 
 ---------------------------------------------------------------------------=
 -----
@@ -291,16 +881,10 @@ tion mismatches
 bmips_be_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
 ection mismatches
 
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
-
 ---------------------------------------------------------------------------=
 -----
 bmips_stb_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
 section mismatches
-
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
 
 ---------------------------------------------------------------------------=
 -----
@@ -374,13 +958,28 @@ decstation_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
 
 ---------------------------------------------------------------------------=
 -----
-defconfig (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+defconfig (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section m=
+ismatches
+
+Warnings:
+    aarch64-linux-gnu-ld: warning: -z norelro ignored
+    aarch64-linux-gnu-ld: warning: -z norelro ignored
+    aarch64-linux-gnu-ld: warning: -z norelro ignored
+
+---------------------------------------------------------------------------=
+-----
+defconfig (riscv, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 section m=
 ismatches
 
 ---------------------------------------------------------------------------=
 -----
-defconfig+arm64-chromebook (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warn=
+defconfig+arm64-chromebook (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 3 warn=
 ings, 0 section mismatches
+
+Warnings:
+    aarch64-linux-gnu-ld: warning: -z norelro ignored
+    aarch64-linux-gnu-ld: warning: -z norelro ignored
+    aarch64-linux-gnu-ld: warning: -z norelro ignored
 
 ---------------------------------------------------------------------------=
 -----
@@ -439,6 +1038,16 @@ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
+gcw0_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+gemini_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
 gpr_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
 n mismatches
 
@@ -459,17 +1068,30 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
+haps_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+haps_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
 hisi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
 n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-i386_defconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 secti=
+hsdk_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+i386_defconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 secti=
 on mismatches
 
 Warnings:
-    arch/x86/entry/entry_32.S:452: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
     ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
 y section `.head.text'
     ld: warning: creating DT_TEXTREL in a PIE
@@ -571,8 +1193,12 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-lemote2f_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
+lemote2f_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
+ction mismatches
+
+Warnings:
+    net/core/rtnetlink.c:3199:1: warning: the frame size of 1328 bytes is l=
+arger than 1024 bytes [-Wframe-larger-than=3D]
 
 ---------------------------------------------------------------------------=
 -----
@@ -586,8 +1212,12 @@ loongson1c_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
 
 ---------------------------------------------------------------------------=
 -----
-loongson3_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
+loongson3_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
+ection mismatches
+
+Warnings:
+    net/core/rtnetlink.c:3199:1: warning: the frame size of 1328 bytes is l=
+arger than 1024 bytes [-Wframe-larger-than=3D]
 
 ---------------------------------------------------------------------------=
 -----
@@ -636,8 +1266,12 @@ gs, 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-malta_qemu_32r6_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnin=
-gs, 0 section mismatches
+malta_qemu_32r6_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warnin=
+g, 0 section mismatches
+
+Warnings:
+    {standard input}:132: Warning: macro instruction expanded into multiple=
+ instructions
 
 ---------------------------------------------------------------------------=
 -----
@@ -671,12 +1305,8 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-mini2440_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    drivers/tty/serial/samsung.c:1786:34: warning: array =E2=80=98s3c24xx_u=
-art_dt_match=E2=80=99 assumed to have one element
+mini2440_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -690,13 +1320,100 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
+moxart_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
 mpc30x_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-mps2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
+mps2_defconfig (arm, gcc-10) =E2=80=94 FAIL, 40 errors, 0 warnings, 0 secti=
+on mismatches
+
+Errors:
+    include/linux/blk-mq.h:145:2: error: unknown type name =E2=80=98softirq=
+_done_fn=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:29: error: =E2=80=98MQ_RQ_IN_FLIGHT=E2=80=99=
+ undeclared (first use in this function)
+    include/linux/blk-mq.h:309:46: error: =E2=80=98MQ_RQ_COMPLETE=E2=80=99 =
+undeclared (first use in this function)
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:319:22: error: invalid application of =E2=80=98s=
+izeof=E2=80=99 to incomplete type =E2=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:323:12: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:336:8: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:337:5: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:145:2: error: unknown type name =E2=80=98softirq=
+_done_fn=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:29: error: =E2=80=98MQ_RQ_IN_FLIGHT=E2=80=99=
+ undeclared (first use in this function)
+    include/linux/blk-mq.h:309:46: error: =E2=80=98MQ_RQ_COMPLETE=E2=80=99 =
+undeclared (first use in this function)
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:319:22: error: invalid application of =E2=80=98s=
+izeof=E2=80=99 to incomplete type =E2=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:323:12: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:336:8: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:337:5: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:62:18: error: field =E2=80=98kobj=E2=80=99 has i=
+ncomplete type
+    include/linux/blk-mq.h:145:2: error: unknown type name =E2=80=98softirq=
+_done_fn=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:29: error: =E2=80=98MQ_RQ_IN_FLIGHT=E2=80=99=
+ undeclared (first use in this function)
+    include/linux/blk-mq.h:309:46: error: =E2=80=98MQ_RQ_COMPLETE=E2=80=99 =
+undeclared (first use in this function)
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:319:22: error: invalid application of =E2=80=98s=
+izeof=E2=80=99 to incomplete type =E2=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:323:12: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:336:8: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:337:5: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
 
 ---------------------------------------------------------------------------=
 -----
@@ -768,8 +1485,12 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-nlm_xlp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
+nlm_xlp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    net/core/rtnetlink.c:3199:1: warning: the frame size of 1344 bytes is l=
+arger than 1024 bytes [-Wframe-larger-than=3D]
 
 ---------------------------------------------------------------------------=
 -----
@@ -817,7 +1538,7 @@ omap1_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
 n mismatches
 
 Warnings:
-    drivers/gpio/gpio-omap.c:1135:34: warning: array =E2=80=98omap_gpio_mat=
+    drivers/gpio/gpio-omap.c:1233:34: warning: array =E2=80=98omap_gpio_mat=
 ch=E2=80=99 assumed to have one element
 
 ---------------------------------------------------------------------------=
@@ -827,8 +1548,18 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
+omega2p_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
 orion5x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+oxnas_v6_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -843,6 +1574,11 @@ ion mismatches
 ---------------------------------------------------------------------------=
 -----
 pic32mzda_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+pistachio_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
 section mismatches
 
 ---------------------------------------------------------------------------=
@@ -937,12 +1673,8 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-s3c2410_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    drivers/tty/serial/samsung.c:1786:34: warning: array =E2=80=98s3c24xx_u=
-art_dt_match=E2=80=99 assumed to have one element
+s3c2410_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1016,6 +1748,11 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
+tango4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
 tb0219_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
 
@@ -1041,39 +1778,575 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
+tinyconfig (i386, gcc-10) =E2=80=94 FAIL, 43 errors, 3 warnings, 0 section =
+mismatches
+
+Errors:
+    include/linux/blk-mq.h:145:2: error: unknown type name =E2=80=98softirq=
+_done_fn=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/asm-generic/atomic-instrumented.h:421:37: error: invalid type a=
+rgument of unary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    arch/x86/include/asm/cmpxchg.h:87:13: error: invalid type argument of u=
+nary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    arch/x86/include/asm/cmpxchg.h:88:13: error: invalid type argument of u=
+nary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    include/linux/blk-mq.h:309:29: error: =E2=80=98MQ_RQ_IN_FLIGHT=E2=80=99=
+ undeclared (first use in this function)
+    arch/x86/include/asm/cmpxchg.h:89:13: error: invalid type argument of u=
+nary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    include/linux/blk-mq.h:309:46: error: =E2=80=98MQ_RQ_COMPLETE=E2=80=99 =
+undeclared (first use in this function)
+    arch/x86/include/asm/cmpxchg.h:149:34: error: invalid type argument of =
+unary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    include/linux/blk-mq.h:319:22: error: invalid application of =E2=80=98s=
+izeof=E2=80=99 to incomplete type =E2=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:323:12: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:336:8: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:337:5: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:62:18: error: field =E2=80=98kobj=E2=80=99 has i=
+ncomplete type
+    include/linux/blk-mq.h:145:2: error: unknown type name =E2=80=98softirq=
+_done_fn=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/asm-generic/atomic-instrumented.h:421:37: error: invalid type a=
+rgument of unary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    arch/x86/include/asm/cmpxchg.h:87:13: error: invalid type argument of u=
+nary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    arch/x86/include/asm/cmpxchg.h:88:13: error: invalid type argument of u=
+nary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    include/linux/blk-mq.h:309:29: error: =E2=80=98MQ_RQ_IN_FLIGHT=E2=80=99=
+ undeclared (first use in this function)
+    arch/x86/include/asm/cmpxchg.h:89:13: error: invalid type argument of u=
+nary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    include/linux/blk-mq.h:309:46: error: =E2=80=98MQ_RQ_COMPLETE=E2=80=99 =
+undeclared (first use in this function)
+    arch/x86/include/asm/cmpxchg.h:149:34: error: invalid type argument of =
+unary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    include/linux/blk-mq.h:319:22: error: invalid application of =E2=80=98s=
+izeof=E2=80=99 to incomplete type =E2=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:323:12: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:336:8: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:337:5: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:145:2: error: unknown type name =E2=80=98softirq=
+_done_fn=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/asm-generic/atomic-instrumented.h:421:37: error: invalid type a=
+rgument of unary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    arch/x86/include/asm/cmpxchg.h:87:13: error: invalid type argument of u=
+nary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    arch/x86/include/asm/cmpxchg.h:88:13: error: invalid type argument of u=
+nary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    include/linux/blk-mq.h:309:29: error: =E2=80=98MQ_RQ_IN_FLIGHT=E2=80=99=
+ undeclared (first use in this function)
+    arch/x86/include/asm/cmpxchg.h:89:13: error: invalid type argument of u=
+nary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    include/linux/blk-mq.h:309:46: error: =E2=80=98MQ_RQ_COMPLETE=E2=80=99 =
+undeclared (first use in this function)
+    arch/x86/include/asm/cmpxchg.h:149:34: error: invalid type argument of =
+unary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    include/linux/blk-mq.h:319:22: error: invalid application of =E2=80=98s=
+izeof=E2=80=99 to incomplete type =E2=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:323:12: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:336:8: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:337:5: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+
+Warnings:
+    include/asm-generic/atomic-instrumented.h:421:20: warning: passing argu=
+ment 1 of =E2=80=98kasan_check_write=E2=80=99 makes pointer from integer wi=
+thout a cast [-Wint-conversion]
+    include/asm-generic/atomic-instrumented.h:421:20: warning: passing argu=
+ment 1 of =E2=80=98kasan_check_write=E2=80=99 makes pointer from integer wi=
+thout a cast [-Wint-conversion]
+    include/asm-generic/atomic-instrumented.h:421:20: warning: passing argu=
+ment 1 of =E2=80=98kasan_check_write=E2=80=99 makes pointer from integer wi=
+thout a cast [-Wint-conversion]
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 4 warnings, 0 section=
+tinyconfig (arc, gcc-10) =E2=80=94 FAIL, 18 errors, 0 warnings, 0 section m=
+ismatches
+
+Errors:
+    include/linux/blk-mq.h:145:2: error: unknown type name 'softirq_done_fn'
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type 'st=
+ruct request'
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type 'st=
+ruct request'
+    include/linux/blk-mq.h:309:29: error: 'MQ_RQ_IN_FLIGHT' undeclared (fir=
+st use in this function)
+    include/linux/blk-mq.h:309:46: error: 'MQ_RQ_COMPLETE' undeclared (firs=
+t use in this function)
+    include/linux/blk-mq.h:319:22: error: invalid application of 'sizeof' t=
+o incomplete type 'struct request'
+    include/linux/blk-mq.h:323:12: error: invalid use of undefined type 'st=
+ruct request'
+    include/linux/blk-mq.h:336:8: error: invalid use of undefined type 'str=
+uct request'
+    include/linux/blk-mq.h:337:5: error: invalid use of undefined type 'str=
+uct request'
+    include/linux/blk-mq.h:145:2: error: unknown type name 'softirq_done_fn'
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type 'st=
+ruct request'
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type 'st=
+ruct request'
+    include/linux/blk-mq.h:309:29: error: 'MQ_RQ_IN_FLIGHT' undeclared (fir=
+st use in this function)
+    include/linux/blk-mq.h:309:46: error: 'MQ_RQ_COMPLETE' undeclared (firs=
+t use in this function)
+    include/linux/blk-mq.h:319:22: error: invalid application of 'sizeof' t=
+o incomplete type 'struct request'
+    include/linux/blk-mq.h:323:12: error: invalid use of undefined type 'st=
+ruct request'
+    include/linux/blk-mq.h:336:8: error: invalid use of undefined type 'str=
+uct request'
+    include/linux/blk-mq.h:337:5: error: invalid use of undefined type 'str=
+uct request'
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arm, gcc-10) =E2=80=94 FAIL, 40 errors, 0 warnings, 0 section m=
+ismatches
+
+Errors:
+    include/linux/blk-mq.h:145:2: error: unknown type name =E2=80=98softirq=
+_done_fn=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:29: error: =E2=80=98MQ_RQ_IN_FLIGHT=E2=80=99=
+ undeclared (first use in this function)
+    include/linux/blk-mq.h:309:46: error: =E2=80=98MQ_RQ_COMPLETE=E2=80=99 =
+undeclared (first use in this function)
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:319:22: error: invalid application of =E2=80=98s=
+izeof=E2=80=99 to incomplete type =E2=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:323:12: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:336:8: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:337:5: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:145:2: error: unknown type name =E2=80=98softirq=
+_done_fn=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:29: error: =E2=80=98MQ_RQ_IN_FLIGHT=E2=80=99=
+ undeclared (first use in this function)
+    include/linux/blk-mq.h:309:46: error: =E2=80=98MQ_RQ_COMPLETE=E2=80=99 =
+undeclared (first use in this function)
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:319:22: error: invalid application of =E2=80=98s=
+izeof=E2=80=99 to incomplete type =E2=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:323:12: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:336:8: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:337:5: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:62:18: error: field =E2=80=98kobj=E2=80=99 has i=
+ncomplete type
+    include/linux/blk-mq.h:145:2: error: unknown type name =E2=80=98softirq=
+_done_fn=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:29: error: =E2=80=98MQ_RQ_IN_FLIGHT=E2=80=99=
+ undeclared (first use in this function)
+    include/linux/blk-mq.h:309:46: error: =E2=80=98MQ_RQ_COMPLETE=E2=80=99 =
+undeclared (first use in this function)
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:319:22: error: invalid application of =E2=80=98s=
+izeof=E2=80=99 to incomplete type =E2=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:323:12: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:336:8: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:337:5: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arm64, gcc-10) =E2=80=94 FAIL, 34 errors, 0 warnings, 0 section=
  mismatches
 
+Errors:
+    include/linux/blk-mq.h:145:2: error: unknown type name =E2=80=98softirq=
+_done_fn=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:29: error: =E2=80=98MQ_RQ_IN_FLIGHT=E2=80=99=
+ undeclared (first use in this function)
+    include/linux/blk-mq.h:309:46: error: =E2=80=98MQ_RQ_COMPLETE=E2=80=99 =
+undeclared (first use in this function)
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:319:22: error: invalid application of =E2=80=98s=
+izeof=E2=80=99 to incomplete type =E2=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:323:12: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:336:8: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:337:5: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:145:2: error: unknown type name =E2=80=98softirq=
+_done_fn=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:29: error: =E2=80=98MQ_RQ_IN_FLIGHT=E2=80=99=
+ undeclared (first use in this function)
+    include/linux/blk-mq.h:309:46: error: =E2=80=98MQ_RQ_COMPLETE=E2=80=99 =
+undeclared (first use in this function)
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:319:22: error: invalid application of =E2=80=98s=
+izeof=E2=80=99 to incomplete type =E2=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:323:12: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:336:8: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:337:5: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:62:18: error: field =E2=80=98kobj=E2=80=99 has i=
+ncomplete type
+    include/linux/blk-mq.h:145:2: error: unknown type name =E2=80=98softirq=
+_done_fn=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:29: error: =E2=80=98MQ_RQ_IN_FLIGHT=E2=80=99=
+ undeclared (first use in this function)
+    include/linux/blk-mq.h:309:46: error: =E2=80=98MQ_RQ_COMPLETE=E2=80=99 =
+undeclared (first use in this function)
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:319:22: error: invalid application of =E2=80=98s=
+izeof=E2=80=99 to incomplete type =E2=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:323:12: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:336:8: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:337:5: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (mips, gcc-10) =E2=80=94 FAIL, 26 errors, 0 warnings, 0 section =
+mismatches
+
+Errors:
+    include/linux/blk-mq.h:145:2: error: unknown type name =E2=80=98softirq=
+_done_fn=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:29: error: =E2=80=98MQ_RQ_IN_FLIGHT=E2=80=99=
+ undeclared (first use in this function)
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:46: error: =E2=80=98MQ_RQ_COMPLETE=E2=80=99 =
+undeclared (first use in this function)
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:319:22: error: invalid application of =E2=80=98s=
+izeof=E2=80=99 to incomplete type =E2=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:323:12: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:336:8: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:337:5: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:145:2: error: unknown type name =E2=80=98softirq=
+_done_fn=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:29: error: =E2=80=98MQ_RQ_IN_FLIGHT=E2=80=99=
+ undeclared (first use in this function)
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:46: error: =E2=80=98MQ_RQ_COMPLETE=E2=80=99 =
+undeclared (first use in this function)
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:319:22: error: invalid application of =E2=80=98s=
+izeof=E2=80=99 to incomplete type =E2=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:323:12: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:336:8: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:337:5: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (x86_64, gcc-10) =E2=80=94 FAIL, 29 errors, 11 warnings, 0 secti=
+on mismatches
+
+Errors:
+    include/linux/blk-mq.h:145:2: error: unknown type name =E2=80=98softirq=
+_done_fn=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/asm-generic/atomic-instrumented.h:421:37: error: invalid type a=
+rgument of unary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    arch/x86/include/asm/cmpxchg.h:87:13: error: invalid type argument of u=
+nary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    arch/x86/include/asm/cmpxchg.h:88:13: error: invalid type argument of u=
+nary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    include/linux/blk-mq.h:309:29: error: =E2=80=98MQ_RQ_IN_FLIGHT=E2=80=99=
+ undeclared (first use in this function)
+    arch/x86/include/asm/cmpxchg.h:89:13: error: invalid type argument of u=
+nary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    include/linux/blk-mq.h:309:46: error: =E2=80=98MQ_RQ_COMPLETE=E2=80=99 =
+undeclared (first use in this function)
+    arch/x86/include/asm/cmpxchg.h:149:34: error: invalid type argument of =
+unary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    include/linux/blk-mq.h:319:22: error: invalid application of =E2=80=98s=
+izeof=E2=80=99 to incomplete type =E2=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:323:12: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:336:8: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:337:5: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:62:18: error: field =E2=80=98kobj=E2=80=99 has i=
+ncomplete type
+    include/linux/blk-mq.h:145:2: error: unknown type name =E2=80=98softirq=
+_done_fn=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/asm-generic/atomic-instrumented.h:421:37: error: invalid type a=
+rgument of unary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    arch/x86/include/asm/cmpxchg.h:87:13: error: invalid type argument of u=
+nary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    arch/x86/include/asm/cmpxchg.h:88:13: error: invalid type argument of u=
+nary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    include/linux/blk-mq.h:309:29: error: =E2=80=98MQ_RQ_IN_FLIGHT=E2=80=99=
+ undeclared (first use in this function)
+    arch/x86/include/asm/cmpxchg.h:89:13: error: invalid type argument of u=
+nary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    include/linux/blk-mq.h:309:46: error: =E2=80=98MQ_RQ_COMPLETE=E2=80=99 =
+undeclared (first use in this function)
+    arch/x86/include/asm/cmpxchg.h:149:34: error: invalid type argument of =
+unary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    include/linux/blk-mq.h:319:22: error: invalid application of =E2=80=98s=
+izeof=E2=80=99 to incomplete type =E2=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:323:12: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:336:8: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:337:5: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+
 Warnings:
-    arch/x86/entry/entry_64.S:1565: Warning: no instruction mnemonic suffix=
+    include/asm-generic/atomic-instrumented.h:421:20: warning: passing argu=
+ment 1 of =E2=80=98kasan_check_write=E2=80=99 makes pointer from integer wi=
+thout a cast [-Wint-conversion]
+    arch/x86/include/asm/cmpxchg.h:93:24: warning: cast to pointer from int=
+eger of different size [-Wint-to-pointer-cast]
+    arch/x86/include/asm/cmpxchg.h:102:25: warning: cast to pointer from in=
+teger of different size [-Wint-to-pointer-cast]
+    arch/x86/include/asm/cmpxchg.h:111:25: warning: cast to pointer from in=
+teger of different size [-Wint-to-pointer-cast]
+    arch/x86/include/asm/cmpxchg.h:120:25: warning: cast to pointer from in=
+teger of different size [-Wint-to-pointer-cast]
+    arch/x86/entry/entry_64.S:1738: Warning: no instruction mnemonic suffix=
  given and no register operands; using default for `sysret'
-    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
+    include/asm-generic/atomic-instrumented.h:421:20: warning: passing argu=
+ment 1 of =E2=80=98kasan_check_write=E2=80=99 makes pointer from integer wi=
+thout a cast [-Wint-conversion]
+    arch/x86/include/asm/cmpxchg.h:93:24: warning: cast to pointer from int=
+eger of different size [-Wint-to-pointer-cast]
+    arch/x86/include/asm/cmpxchg.h:102:25: warning: cast to pointer from in=
+teger of different size [-Wint-to-pointer-cast]
+    arch/x86/include/asm/cmpxchg.h:111:25: warning: cast to pointer from in=
+teger of different size [-Wint-to-pointer-cast]
+    arch/x86/include/asm/cmpxchg.h:120:25: warning: cast to pointer from in=
+teger of different size [-Wint-to-pointer-cast]
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
+tinyconfig (riscv, gcc-10) =E2=80=94 FAIL, 54 errors, 0 warnings, 0 section=
+ mismatches
 
----------------------------------------------------------------------------=
------
-tinyconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section m=
-ismatches
-
-Warnings:
-    arch/x86/entry/entry_32.S:452: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
+Errors:
+    include/linux/blk-mq.h:145:2: error: unknown type name =E2=80=98softirq=
+_done_fn=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:29: error: =E2=80=98MQ_RQ_IN_FLIGHT=E2=80=99=
+ undeclared (first use in this function)
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:46: error: =E2=80=98MQ_RQ_COMPLETE=E2=80=99 =
+undeclared (first use in this function)
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    arch/riscv/include/asm/cmpxchg.h:326:41: error: invalid type argument o=
+f unary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    arch/riscv/include/asm/cmpxchg.h:338:41: error: invalid type argument o=
+f unary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    include/linux/blk-mq.h:319:22: error: invalid application of =E2=80=98s=
+izeof=E2=80=99 to incomplete type =E2=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:323:12: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:336:8: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:337:5: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:145:2: error: unknown type name =E2=80=98softirq=
+_done_fn=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:29: error: =E2=80=98MQ_RQ_IN_FLIGHT=E2=80=99=
+ undeclared (first use in this function)
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:46: error: =E2=80=98MQ_RQ_COMPLETE=E2=80=99 =
+undeclared (first use in this function)
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    arch/riscv/include/asm/cmpxchg.h:326:41: error: invalid type argument o=
+f unary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    arch/riscv/include/asm/cmpxchg.h:338:41: error: invalid type argument o=
+f unary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    include/linux/blk-mq.h:319:22: error: invalid application of =E2=80=98s=
+izeof=E2=80=99 to incomplete type =E2=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:323:12: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:336:8: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:337:5: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:145:2: error: unknown type name =E2=80=98softirq=
+_done_fn=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:29: error: =E2=80=98MQ_RQ_IN_FLIGHT=E2=80=99=
+ undeclared (first use in this function)
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:46: error: =E2=80=98MQ_RQ_COMPLETE=E2=80=99 =
+undeclared (first use in this function)
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    arch/riscv/include/asm/cmpxchg.h:326:41: error: invalid type argument o=
+f unary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    arch/riscv/include/asm/cmpxchg.h:338:41: error: invalid type argument o=
+f unary =E2=80=98*=E2=80=99 (have =E2=80=98int=E2=80=99)
+    include/linux/blk-mq.h:319:22: error: invalid application of =E2=80=98s=
+izeof=E2=80=99 to incomplete type =E2=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:323:12: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:336:8: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:337:5: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
 
 ---------------------------------------------------------------------------=
 -----
@@ -1122,6 +2395,11 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
+vocore2_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
 vt8500_v6_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
 0 section mismatches
 
@@ -1132,16 +2410,12 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-x86_64_defconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 5 warnings, 0 s=
+x86_64_defconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 s=
 ection mismatches
 
 Warnings:
-    arch/x86/entry/entry_64.S:1565: Warning: no instruction mnemonic suffix=
+    arch/x86/entry/entry_64.S:1738: Warning: no instruction mnemonic suffix=
  given and no register operands; using default for `sysret'
-    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
     ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
 y section `.head.text'
     ld: warning: creating DT_TEXTREL in a PIE
@@ -1149,38 +2423,61 @@ y section `.head.text'
 ---------------------------------------------------------------------------=
 -----
 x86_64_defconfig+x86-chromebook (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, =
-5 warnings, 0 section mismatches
+3 warnings, 0 section mismatches
 
 Warnings:
-    arch/x86/entry/entry_64.S:1565: Warning: no instruction mnemonic suffix=
+    arch/x86/entry/entry_64.S:1738: Warning: no instruction mnemonic suffix=
  given and no register operands; using default for `sysret'
-    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
     ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
 y section `.head.text'
     ld: warning: creating DT_TEXTREL in a PIE
 
 ---------------------------------------------------------------------------=
 -----
-xcep_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
+xcep_defconfig (arm, gcc-10) =E2=80=94 FAIL, 20 errors, 0 warnings, 0 secti=
+on mismatches
 
----------------------------------------------------------------------------=
------
-xilfpga_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-zebu_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-zebu_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
+Errors:
+    include/linux/blk-mq.h:145:2: error: unknown type name =E2=80=98softirq=
+_done_fn=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:29: error: =E2=80=98MQ_RQ_IN_FLIGHT=E2=80=99=
+ undeclared (first use in this function)
+    include/linux/blk-mq.h:309:46: error: =E2=80=98MQ_RQ_COMPLETE=E2=80=99 =
+undeclared (first use in this function)
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:319:22: error: invalid application of =E2=80=98s=
+izeof=E2=80=99 to incomplete type =E2=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:323:12: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:336:8: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:337:5: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:145:2: error: unknown type name =E2=80=98softirq=
+_done_fn=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:309:29: error: =E2=80=98MQ_RQ_IN_FLIGHT=E2=80=99=
+ undeclared (first use in this function)
+    include/linux/blk-mq.h:309:46: error: =E2=80=98MQ_RQ_COMPLETE=E2=80=99 =
+undeclared (first use in this function)
+    include/linux/blk-mq.h:309:20: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:319:22: error: invalid application of =E2=80=98s=
+izeof=E2=80=99 to incomplete type =E2=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:323:12: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:336:8: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
+    include/linux/blk-mq.h:337:5: error: invalid use of undefined type =E2=
+=80=98struct request=E2=80=99
 
 ---------------------------------------------------------------------------=
 -----
