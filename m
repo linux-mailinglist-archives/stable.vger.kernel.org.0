@@ -2,67 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 949AB4F1EFD
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 00:26:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E97F4F1EAB
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 00:25:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231531AbiDDVxv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Apr 2022 17:53:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60862 "EHLO
+        id S236659AbiDDVxr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Apr 2022 17:53:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381475AbiDDV0a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Apr 2022 17:26:30 -0400
-Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BEAA38D95
-        for <stable@vger.kernel.org>; Mon,  4 Apr 2022 14:16:32 -0700 (PDT)
-Received: by mail-pj1-x1030.google.com with SMTP id l4-20020a17090a49c400b001c6840df4a3so599509pjm.0
-        for <stable@vger.kernel.org>; Mon, 04 Apr 2022 14:16:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=Y4EmaI4Ga48tyMSFvsWdnwoxaC/ztLtHDt52oKpaU4k=;
-        b=eopQLuG2TR3lLPpwLVnXDBcvLJ8xA7aUeoMFKwqxu7DhXwOAzaSkyC2Aj8XlMAc20P
-         LUNnZ+145MPDok7epBfs3oADHFPCQcvJvVWn8NXgRUZANj06euMh65EzmDuKg5iP3mXu
-         92/a2Ds+jTVGDMQHT4cPKjBkG7TPCPbMWK4MZVHQ7ow2Xi46mBzcUVelNH4bOzOfYDVz
-         74iVrfqW0awYLyAmYiJiOQX+BwEKTNDwaLr1VI8p4IPiyoyaFUoW3tdLH3LkvF0/1mxf
-         Jcso01VWlJVKKtR8rRE/RXwzDKQjSZFTaEu0wVX/aNm9EALdNgTV+bPu/FCSHKCTPQgs
-         UYQg==
+        with ESMTP id S1382988AbiDDVci (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Apr 2022 17:32:38 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 5D77211F
+        for <stable@vger.kernel.org>; Mon,  4 Apr 2022 14:23:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1649107401;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=DfDyjcnnLyc2bSZ6jJAVhGllQHcKHgp84LgGIl4EXgM=;
+        b=O/xKp+aaN01eINcwTDKyUl7NxBl5p8xF0gD53R5bsy6IveDGmG5wJhuJ1FY8pX4TQNnSEF
+        BY09Z92CyZkTnant4pRtPKTIUgibfxGkyCJmn0gXOYOxJiI5fG7nh7tryVBjjLADr6vDDe
+        zS0WUN6tlzAVqVXbH0JbuJGTUYEs2KE=
+Received: from mail-qk1-f199.google.com (mail-qk1-f199.google.com
+ [209.85.222.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-9-lu6fI0TMP6S35VSZoxKcNg-1; Mon, 04 Apr 2022 17:23:20 -0400
+X-MC-Unique: lu6fI0TMP6S35VSZoxKcNg-1
+Received: by mail-qk1-f199.google.com with SMTP id 195-20020a3707cc000000b0067b0c849285so7105575qkh.5
+        for <stable@vger.kernel.org>; Mon, 04 Apr 2022 14:23:20 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=Y4EmaI4Ga48tyMSFvsWdnwoxaC/ztLtHDt52oKpaU4k=;
-        b=fR7EeujIAwtkhJQC2IAhZ9+vebyMhVg+e1y8oru0CURZ1e8QadNlrpwnJdoscVhtH2
-         +TgPKYn3GZ2eRCsRNnTdy5dEC1sIhDw8x0WroRiyd4n2M2EMcjZ3vN8rI+VVVVP57OBA
-         +Kmjml0v7wxRngOb7XDqohvV1g0DZsQT2PpUM0i81ETJ4zWIGAUUmbYHgYv+1Pn0qLCg
-         OrCDlHEl1O6FEIxVQXRZBfMqnbJBL7UojDdLVX13QLH+5kSBnOjkJgk/7OmmZ1T341kq
-         LX2zTK/3gjRyyBP8i75/NUk/Ey6Dx1G5J7oZohEe/KwnmkvWT1jUOSzc8rvdvCZhiJ41
-         d6QQ==
-X-Gm-Message-State: AOAM531eahJPuRrvheGuBqibvhPng/h25hdj3hTQ0H+FJwIfuwtXXWgS
-        vnKvFaHR2VhufLIOsgX7dmEwMMgyHCf0EQohjzA=
-X-Google-Smtp-Source: ABdhPJyhXCzipwqo1LEzqHIQebyVS/ZCW+mNpsPZvbiZxBdq6e4mOZAkjHDaYrujilWUdwmZtX74ag==
-X-Received: by 2002:a17:90b:87:b0:1ca:a84b:37e with SMTP id bb7-20020a17090b008700b001caa84b037emr165780pjb.168.1649106991754;
-        Mon, 04 Apr 2022 14:16:31 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id h12-20020a056a00230c00b004faf2563bcasm13732771pfh.114.2022.04.04.14.16.31
+        h=x-gm-message-state:message-id:subject:from:to:cc:date:in-reply-to
+         :references:organization:user-agent:mime-version
+         :content-transfer-encoding;
+        bh=DfDyjcnnLyc2bSZ6jJAVhGllQHcKHgp84LgGIl4EXgM=;
+        b=blxW0n5vbEBomgXkxYDBmB3Z22G2pHT3u4wMKAdsxeT+NEJRYozWJPWDe44CPjL5mc
+         DSW8jv6tnUb/lGyjPU+J3yXfxOAKmolsQlKDv05oSIPxeCsvkxCU0fYlFe14IfeQrqc6
+         1dsjxNgO6uQBPtz5DX2roNvs6Dq/YoJAEbfQ0eDtA1730hUZ6Fa76lU7xQHmfr5n40XJ
+         2IWTA/XrVHNYF2Q/binaGz2hNDgTRLRSjshdAnX7COPvTxce7RL7keOPuc0uhHhiIPvi
+         s1Fai2emRlLosrSy6H238jZmhmLAUYPF5WjTGSwXVvQN8tbV0HLPg+M6cXBLhyZi6bIW
+         M42w==
+X-Gm-Message-State: AOAM5337CauxGsEz/fekDuvha/VPAhUZ7WUHC4ftgqt0fwF+y8i+whGh
+        cinJD1IX71c81ND2XR0BI7tP5MI5JmFjrfusqZ2LolT+uf4plvVCI6fxZUfksCB/cI+VXd0MK+W
+        sMdh/pIjMjBPUkyip
+X-Received: by 2002:a05:620a:2487:b0:67b:3113:f83f with SMTP id i7-20020a05620a248700b0067b3113f83fmr179302qkn.604.1649107399546;
+        Mon, 04 Apr 2022 14:23:19 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwA/j5T9RBShOaLAqidOK7ozpdzXqamqb+Gc1f+d2xjbvub/SnKUIk0rJFYk2A/f+j9+SQqNg==
+X-Received: by 2002:a05:620a:2487:b0:67b:3113:f83f with SMTP id i7-20020a05620a248700b0067b3113f83fmr179283qkn.604.1649107399340;
+        Mon, 04 Apr 2022 14:23:19 -0700 (PDT)
+Received: from [192.168.8.138] (pool-71-126-244-162.bstnma.fios.verizon.net. [71.126.244.162])
+        by smtp.gmail.com with ESMTPSA id x6-20020ac86b46000000b002e02be9c0easm8354800qts.69.2022.04.04.14.23.17
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 04 Apr 2022 14:16:31 -0700 (PDT)
-Message-ID: <624b602f.1c69fb81.96e02.2f1f@mx.google.com>
-Date:   Mon, 04 Apr 2022 14:16:31 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        Mon, 04 Apr 2022 14:23:18 -0700 (PDT)
+Message-ID: <74509d19d84b879b624fa9f40bc8186fd09e750a.camel@redhat.com>
+Subject: Re: [PATCH] clk: base: fix an incorrect NULL check on list iterator
+From:   Lyude Paul <lyude@redhat.com>
+To:     Xiaomeng Tong <xiam0nd.tong@gmail.com>, bskeggs@redhat.com,
+        kherbst@redhat.com, airlied@linux.ie, daniel@ffwll.ch
+Cc:     martin.peres@free.fr, dri-devel@lists.freedesktop.org,
+        nouveau@lists.freedesktop.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Date:   Mon, 04 Apr 2022 17:23:17 -0400
+In-Reply-To: <20220327075824.11806-1-xiam0nd.tong@gmail.com>
+References: <20220327075824.11806-1-xiam0nd.tong@gmail.com>
+Organization: Red Hat Inc.
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.42.4 (3.42.4-2.DarkModeFix.fc35) 
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.15
-X-Kernelci-Kernel: v5.15.32-904-geae0a322eec07
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/5.15 baseline: 50 runs,
- 2 regressions (v5.15.32-904-geae0a322eec07)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H4,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
         T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -70,108 +81,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.15 baseline: 50 runs, 2 regressions (v5.15.32-904-geae0a3=
-22eec07)
+This should probably be prefixed with the title "drm/nouveau/clk:", but I can
+fix that before pushing it.
 
-Regressions Summary
--------------------
+Reviewed-by: Lyude Paul <lyude@redhat.com>
 
-platform           | arch  | lab           | compiler | defconfig          =
-        | regressions
--------------------+-------+---------------+----------+--------------------=
---------+------------
-kontron-pitx-imx8m | arm64 | lab-kontron   | gcc-10   | defconfig          =
-        | 1          =
-
-rk3399-gru-kevin   | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chr=
-omebook | 1          =
+Will push it to the appropriate repository shortly
 
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.15/ker=
-nel/v5.15.32-904-geae0a322eec07/plan/baseline/
+On Sun, 2022-03-27 at 15:58 +0800, Xiaomeng Tong wrote:
+> The bug is here:
+>         if (nvkm_cstate_valid(clk, cstate, max_volt, clk->temp))
+>                 return cstate;
+> 
+> The list iterator value 'cstate' will *always* be set and non-NULL
+> by list_for_each_entry_from_reverse(), so it is incorrect to assume
+> that the iterator value will be unchanged if the list is empty or no
+> element is found (In fact, it will be a bogus pointer to an invalid
+> structure object containing the HEAD). Also it missed a NULL check
+> at callsite and may lead to invalid memory access after that.
+> 
+> To fix this bug, just return 'encoder' when found, otherwise return
+> NULL. And add the NULL check.
+> 
+> Cc: stable@vger.kernel.org
+> Fixes: 1f7f3d91ad38a ("drm/nouveau/clk: Respect voltage limits in
+> nvkm_cstate_prog")
+> Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+> ---
+>  drivers/gpu/drm/nouveau/nvkm/subdev/clk/base.c | 6 ++++--
+>  1 file changed, 4 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/clk/base.c
+> b/drivers/gpu/drm/nouveau/nvkm/subdev/clk/base.c
+> index 57199be082fd..c2b5cc5f97ed 100644
+> --- a/drivers/gpu/drm/nouveau/nvkm/subdev/clk/base.c
+> +++ b/drivers/gpu/drm/nouveau/nvkm/subdev/clk/base.c
+> @@ -135,10 +135,10 @@ nvkm_cstate_find_best(struct nvkm_clk *clk, struct
+> nvkm_pstate *pstate,
+>  
+>         list_for_each_entry_from_reverse(cstate, &pstate->list, head) {
+>                 if (nvkm_cstate_valid(clk, cstate, max_volt, clk->temp))
+> -                       break;
+> +                       return cstate;
+>         }
+>  
+> -       return cstate;
+> +       return NULL;
+>  }
+>  
+>  static struct nvkm_cstate *
+> @@ -169,6 +169,8 @@ nvkm_cstate_prog(struct nvkm_clk *clk, struct
+> nvkm_pstate *pstate, int cstatei)
+>         if (!list_empty(&pstate->list)) {
+>                 cstate = nvkm_cstate_get(clk, pstate, cstatei);
+>                 cstate = nvkm_cstate_find_best(clk, pstate, cstate);
+> +               if (!cstate)
+> +                       return -EINVAL;
+>         } else {
+>                 cstate = &pstate->base;
+>         }
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.15
-  Describe: v5.15.32-904-geae0a322eec07
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      eae0a322eec07360d3e34f4ceba62ea28253d8df =
+-- 
+Cheers,
+ Lyude Paul (she/her)
+ Software Engineer at Red Hat
 
-
-
-Test Regressions
----------------- =
-
-
-
-platform           | arch  | lab           | compiler | defconfig          =
-        | regressions
--------------------+-------+---------------+----------+--------------------=
---------+------------
-kontron-pitx-imx8m | arm64 | lab-kontron   | gcc-10   | defconfig          =
-        | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/624b2ea47741acf3c4ae0687
-
-  Results:     51 PASS, 1 FAIL, 1 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.32-=
-904-geae0a322eec07/arm64/defconfig/gcc-10/lab-kontron/baseline-kontron-pitx=
--imx8m.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.32-=
-904-geae0a322eec07/arm64/defconfig/gcc-10/lab-kontron/baseline-kontron-pitx=
--imx8m.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220401.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.dwc3-usb1-probed: https://kernelci.org/test/case/id/624=
-b2ea47741acf3c4ae069a
-        new failure (last pass: v5.15.32-29-gfa2f2eb2bbe4)
-
-    2022-04-04T17:44:57.626430  /lava-105549/1/../bin/lava-test-case
-    2022-04-04T17:44:57.626812  <8>[   14.435005] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Ddwc3-usb1-probed RESULT=3Dfail>   =
-
- =
-
-
-
-platform           | arch  | lab           | compiler | defconfig          =
-        | regressions
--------------------+-------+---------------+----------+--------------------=
---------+------------
-rk3399-gru-kevin   | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chr=
-omebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/624b2fe8d58642ae31ae06b9
-
-  Results:     88 PASS, 4 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.32-=
-904-geae0a322eec07/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/ba=
-seline-rk3399-gru-kevin.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.32-=
-904-geae0a322eec07/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/ba=
-seline-rk3399-gru-kevin.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220401.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
-/624b2fe8d58642ae31ae06d9
-        failing since 27 days (last pass: v5.15.26-42-gc89c0807b943, first =
-fail: v5.15.26-257-g2b9a22cd5eb8)
-
-    2022-04-04T17:50:21.870212  /lava-6019301/1/../bin/lava-test-case   =
-
- =20
