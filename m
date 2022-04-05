@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B8404F37A6
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:21:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 813A94F3A66
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:01:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359415AbiDELSw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:18:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39466 "EHLO
+        id S1353729AbiDELpG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:45:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43198 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349123AbiDEJtL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 698B5AA033;
-        Tue,  5 Apr 2022 02:41:07 -0700 (PDT)
+        with ESMTP id S1354624AbiDEKO4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:14:56 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F78F6BDC9;
+        Tue,  5 Apr 2022 03:01:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 240BCB81B7F;
-        Tue,  5 Apr 2022 09:41:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 824DAC385A2;
-        Tue,  5 Apr 2022 09:41:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 50DF8B818F6;
+        Tue,  5 Apr 2022 10:01:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BECE0C385A2;
+        Tue,  5 Apr 2022 10:01:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151664;
-        bh=30UmqNFwoai9wgFjVcF4BvLOQMim/OFKlunka15uq0I=;
+        s=korg; t=1649152894;
+        bh=qtRo7NqPmOBJhZkP7N4XIeizdiNyvQ6+jtWSqnD7YvA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NOGHZfgwIzRsYpnx9LOMeSdUdMs3cF5z5QgxTRx0HzhbmqqxvexC1ZkP6LfAQMNva
-         Y4AtC+X1q87d85AShPJ1M8ymJOliK9yiIW5TAoQdZef59Pq80StJlQ6zZdvuYuVpU0
-         pSBHSBZTRMhaPNFmj+kz53TVx/kzo4VC6+TrSM0g=
+        b=05+Ya9PEDOYK8tpssy8uf8JkalUEe3pPI3L62kctjQ0du70JKwlcnsJJ8I+cmvIVg
+         qxVyk/8a7zRcJY6LWwX5oXZdmPt5gNt5D2Il9T7oxz5k24aQslEN8nfX9yBq08mFbt
+         nixfBnn2mKdNFAYsl3t7SHkmNL9QgnQf9zXfTGP0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?H=C3=A5kon=20Bugge?= <haakon.bugge@oracle.com>,
-        Avneesh Pant <avneesh.pant@oracle.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 459/913] IB/cma: Allow XRC INI QPs to set their local ACK timeout
+        stable@vger.kernel.org, Henry Lin <henryl@nvidia.com>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 5.10 027/599] xhci: fix runtime PM imbalance in USB2 resume
 Date:   Tue,  5 Apr 2022 09:25:21 +0200
-Message-Id: <20220405070353.607388366@linuxfoundation.org>
+Message-Id: <20220405070259.627300358@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070258.802373272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,38 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Håkon Bugge <haakon.bugge@oracle.com>
+From: Henry Lin <henryl@nvidia.com>
 
-[ Upstream commit 748663c8ccf6b2e5a800de19127c2cc1c4423fd2 ]
+commit 70c05e4cf63054cd755ca66c1819327b22cb085f upstream.
 
-XRC INI QPs should be able to adjust their local ACK timeout.
+A race between system resume and device-initiated resume may result in
+runtime PM imbalance on USB2 root hub. If a device-initiated resume
+starts and system resume xhci_bus_resume() directs U0 before hub driver
+sees the resuming device in RESUME state, device-initiated resume will
+not be finished in xhci_handle_usb2_port_link_resume(). In this case,
+usb_hcd_end_port_resume() call is missing.
 
-Fixes: 2c1619edef61 ("IB/cma: Define option to set ack timeout and pack tos_set")
-Link: https://lore.kernel.org/r/1644421175-31943-1-git-send-email-haakon.bugge@oracle.com
-Signed-off-by: Håkon Bugge <haakon.bugge@oracle.com>
-Suggested-by: Avneesh Pant <avneesh.pant@oracle.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This changes calls usb_hcd_end_port_resume() if resuming device reaches
+U0 to keep runtime PM balance.
+
+Fixes: a231ec41e6f6 ("xhci: refactor U0 link state handling in get_port_status")
+Cc: stable@vger.kernel.org
+Signed-off-by: Henry Lin <henryl@nvidia.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20220303110903.1662404-5-mathias.nyman@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/core/cma.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/host/xhci-hub.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/infiniband/core/cma.c b/drivers/infiniband/core/cma.c
-index db7b5de3bc76..a814dabcdff4 100644
---- a/drivers/infiniband/core/cma.c
-+++ b/drivers/infiniband/core/cma.c
-@@ -2640,7 +2640,7 @@ int rdma_set_ack_timeout(struct rdma_cm_id *id, u8 timeout)
- {
- 	struct rdma_id_private *id_priv;
- 
--	if (id->qp_type != IB_QPT_RC)
-+	if (id->qp_type != IB_QPT_RC && id->qp_type != IB_QPT_XRC_INI)
- 		return -EINVAL;
- 
- 	id_priv = container_of(id, struct rdma_id_private, id);
--- 
-2.34.1
-
+--- a/drivers/usb/host/xhci-hub.c
++++ b/drivers/usb/host/xhci-hub.c
+@@ -1002,6 +1002,9 @@ static void xhci_get_usb2_port_status(st
+ 		if (link_state == XDEV_U2)
+ 			*status |= USB_PORT_STAT_L1;
+ 		if (link_state == XDEV_U0) {
++			if (bus_state->resume_done[portnum])
++				usb_hcd_end_port_resume(&port->rhub->hcd->self,
++							portnum);
+ 			bus_state->resume_done[portnum] = 0;
+ 			clear_bit(portnum, &bus_state->resuming_ports);
+ 			if (bus_state->suspended_ports & (1 << portnum)) {
 
 
