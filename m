@@ -2,51 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 147E24F3A7E
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:01:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A9FF4F37CE
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:25:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381482AbiDELp7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:45:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36676 "EHLO
+        id S1359545AbiDELT6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:19:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39330 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354826AbiDEKQJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:16:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAF596C95A;
-        Tue,  5 Apr 2022 03:03:07 -0700 (PDT)
+        with ESMTP id S1349135AbiDEJtM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43F56CF;
+        Tue,  5 Apr 2022 02:41:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 77177B81BC0;
-        Tue,  5 Apr 2022 10:03:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9184C385A2;
-        Tue,  5 Apr 2022 10:03:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D534661673;
+        Tue,  5 Apr 2022 09:41:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDA60C385A4;
+        Tue,  5 Apr 2022 09:41:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152985;
-        bh=7T3V9Ql41ZXUXe2eHr5kADkK5LhNNXoQgf53a89Czf8=;
+        s=korg; t=1649151673;
+        bh=9n0s1PVnFShGn2pmObyGWleDrpp43npEIx1yGJvstUM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XoKYqACQi5ksIOTFMur+8DnXtj5FM7/y6D5345l+RubAeqz/+rNP70fgslsOakE2x
-         PmqMXDTaRBRFvloGrW+kvNEm2ndh/5njpPzktJRIvGO9V/DhR9yYlAMwvqycvXqLiB
-         RfCjUovO3aUB8/aVxLGYBNL4N5umklNdd2uOlv8Y=
+        b=s3N6DI+J+nPUi7QncrOKYDrkkKNlUgLiv9K0NefbTh/ZgGdSUO4OxPtGUE/6WxVBi
+         pnWYObaRPJB4WMgtz1g0PoZipzHh/+Ea1H9M3TunF9HwCwobX5Q+edupm8TTfVVZ6E
+         8WLdknoMmWDzNU8UAfAb77DQDrECRgDLRwOTRfZU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rik van Riel <riel@surriel.com>,
-        Miaohe Lin <linmiaohe@huawei.com>,
-        Naoya Horiguchi <naoya.horiguchi@nec.com>,
-        Oscar Salvador <osalvador@suse.de>,
-        John Hubbard <jhubbard@nvidia.com>,
-        Mel Gorman <mgorman@suse.de>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Matthew Wilcox <willy@infradead.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 060/599] mm: invalidate hwpoison page cache page in fault path
-Date:   Tue,  5 Apr 2022 09:25:54 +0200
-Message-Id: <20220405070300.613828921@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 493/913] power: supply: sbs-charger: Dont cancel work that is not initialized
+Date:   Tue,  5 Apr 2022 09:25:55 +0200
+Message-Id: <20220405070354.632314836@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
-References: <20220405070258.802373272@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -61,63 +55,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rik van Riel <riel@surriel.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit e53ac7374e64dede04d745ff0e70ff5048378d1f upstream.
+[ Upstream commit de85193cff0d94d030a53656d8fcc41794807bef ]
 
-Sometimes the page offlining code can leave behind a hwpoisoned clean
-page cache page.  This can lead to programs being killed over and over
-and over again as they fault in the hwpoisoned page, get killed, and
-then get re-spawned by whatever wanted to run them.
+This driver can use an interrupt or polling in order get the charger's
+status.
 
-This is particularly embarrassing when the page was offlined due to
-having too many corrected memory errors.  Now we are killing tasks due
-to them trying to access memory that probably isn't even corrupted.
+When using polling, a delayed work is used.
 
-This problem can be avoided by invalidating the page from the page fault
-handler, which already has a branch for dealing with these kinds of
-pages.  With this patch we simply pretend the page fault was successful
-if the page was invalidated, return to userspace, incur another page
-fault, read in the file from disk (to a new memory page), and then
-everything works again.
+However, the remove() function unconditionally call
+cancel_delayed_work_sync(), even if the delayed work is not used and is not
+initialized.
 
-Link: https://lkml.kernel.org/r/20220212213740.423efcea@imladris.surriel.com
-Signed-off-by: Rik van Riel <riel@surriel.com>
-Reviewed-by: Miaohe Lin <linmiaohe@huawei.com>
-Acked-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
-Reviewed-by: Oscar Salvador <osalvador@suse.de>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: Mel Gorman <mgorman@suse.de>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+In order to fix it, use devm_delayed_work_autocancel() and remove the now
+useless remove() function.
+
+Fixes: feb583e37f8a ("power: supply: add sbs-charger driver")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/memory.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/power/supply/sbs-charger.c | 18 +++++++-----------
+ 1 file changed, 7 insertions(+), 11 deletions(-)
 
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -3676,11 +3676,16 @@ static vm_fault_t __do_fault(struct vm_f
- 		return ret;
+diff --git a/drivers/power/supply/sbs-charger.c b/drivers/power/supply/sbs-charger.c
+index 6fa65d118ec1..b08f7d0c4181 100644
+--- a/drivers/power/supply/sbs-charger.c
++++ b/drivers/power/supply/sbs-charger.c
+@@ -18,6 +18,7 @@
+ #include <linux/interrupt.h>
+ #include <linux/regmap.h>
+ #include <linux/bitops.h>
++#include <linux/devm-helpers.h>
  
- 	if (unlikely(PageHWPoison(vmf->page))) {
--		if (ret & VM_FAULT_LOCKED)
-+		vm_fault_t poisonret = VM_FAULT_HWPOISON;
-+		if (ret & VM_FAULT_LOCKED) {
-+			/* Retry if a clean page was removed from the cache. */
-+			if (invalidate_inode_page(vmf->page))
-+				poisonret = 0;
- 			unlock_page(vmf->page);
-+		}
- 		put_page(vmf->page);
- 		vmf->page = NULL;
--		return VM_FAULT_HWPOISON;
-+		return poisonret;
+ #define SBS_CHARGER_REG_SPEC_INFO		0x11
+ #define SBS_CHARGER_REG_STATUS			0x13
+@@ -209,7 +210,12 @@ static int sbs_probe(struct i2c_client *client,
+ 		if (ret)
+ 			return dev_err_probe(&client->dev, ret, "Failed to request irq\n");
+ 	} else {
+-		INIT_DELAYED_WORK(&chip->work, sbs_delayed_work);
++		ret = devm_delayed_work_autocancel(&client->dev, &chip->work,
++						   sbs_delayed_work);
++		if (ret)
++			return dev_err_probe(&client->dev, ret,
++					     "Failed to init work for polling\n");
++
+ 		schedule_delayed_work(&chip->work,
+ 				      msecs_to_jiffies(SBS_CHARGER_POLL_TIME));
  	}
+@@ -220,15 +226,6 @@ static int sbs_probe(struct i2c_client *client,
+ 	return 0;
+ }
  
- 	if (unlikely(!(ret & VM_FAULT_LOCKED)))
+-static int sbs_remove(struct i2c_client *client)
+-{
+-	struct sbs_info *chip = i2c_get_clientdata(client);
+-
+-	cancel_delayed_work_sync(&chip->work);
+-
+-	return 0;
+-}
+-
+ #ifdef CONFIG_OF
+ static const struct of_device_id sbs_dt_ids[] = {
+ 	{ .compatible = "sbs,sbs-charger" },
+@@ -245,7 +242,6 @@ MODULE_DEVICE_TABLE(i2c, sbs_id);
+ 
+ static struct i2c_driver sbs_driver = {
+ 	.probe		= sbs_probe,
+-	.remove		= sbs_remove,
+ 	.id_table	= sbs_id,
+ 	.driver = {
+ 		.name	= "sbs-charger",
+-- 
+2.34.1
+
 
 
