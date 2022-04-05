@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F0DE34F31D9
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:46:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7440E4F338E
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:16:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353929AbiDEKJt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:09:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37372 "EHLO
+        id S245513AbiDEI4J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:56:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45532 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346096AbiDEJX3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:23:29 -0400
+        with ESMTP id S241130AbiDEIcv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:32:51 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D833B53C3;
-        Tue,  5 Apr 2022 02:12:56 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33DE816587;
+        Tue,  5 Apr 2022 01:28:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E553BB80DA1;
-        Tue,  5 Apr 2022 09:12:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F263C385A2;
-        Tue,  5 Apr 2022 09:12:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D6EE1B81BC6;
+        Tue,  5 Apr 2022 08:28:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2516DC385A2;
+        Tue,  5 Apr 2022 08:28:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149973;
-        bh=DY4XAKL26rlSLT9GnWVUUFFZgtewayqgtln5Q3okulk=;
+        s=korg; t=1649147299;
+        bh=Ce799mPfELJEVGE36aiBW8M/isovkz8cDcyTunmgCYA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vK0S4FO0QQoOEZlEiTHTSfuv+kJLbxWdtIVfHIpflV8+ZG1lIN1MrSNjrk5dMB6zS
-         KIedVDM2nyV6sl+E7rmHQ9i+9PWHpS6Zj5qfYzhGHuhLkAN81cqDa2ijvVFxBceODX
-         7+TRymeDfJMiATFYDJ5hhYPIwFg6vJhUtbCtMD1U=
+        b=fSYQWCwIu4zAyP2CLKXqXqOT028etxufeVa/SPRra7uwUIcKXxo2m2fKSmHTLTv6e
+         chwdUooQArXWlQaMOFICxYXAwhutczrPgdiVEQSA0S3aVfOQjJXa0dT4PcA0O1G29G
+         aDF7+dCdH5Nwh/7+9lY8YZ2C0/9qwbQFdSl5POYo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Richard Weinberger <richard@nod.at>
-Subject: [PATCH 5.16 0907/1017] ubifs: rename_whiteout: Fix double free for whiteout_ui->data
+        stable@vger.kernel.org, Maxim Levitsky <mlevitsk@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.17 1073/1126] KVM: x86: SVM: fix avic spec based definitions again
 Date:   Tue,  5 Apr 2022 09:30:20 +0200
-Message-Id: <20220405070421.147160509@linuxfoundation.org>
+Message-Id: <20220405070438.950343009@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,71 +53,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Maxim Levitsky <mlevitsk@redhat.com>
 
-commit 40a8f0d5e7b3999f096570edab71c345da812e3e upstream.
+commit 0dacc3df898e219fa774f39e5e10d686364e0a27 upstream.
 
-'whiteout_ui->data' will be freed twice if space budget fail for
-rename whiteout operation as following process:
+Due to wrong rebase, commit
+4a204f7895878 ("KVM: SVM: Allow AVIC support on system w/ physical APIC ID > 255")
 
-rename_whiteout
-  dev = kmalloc
-  whiteout_ui->data = dev
-  kfree(whiteout_ui->data)  // Free first time
-  iput(whiteout)
-    ubifs_free_inode
-      kfree(ui->data)	    // Double free!
+moved avic spec #defines back to avic.c.
 
-KASAN reports:
-==================================================================
-BUG: KASAN: double-free or invalid-free in ubifs_free_inode+0x4f/0x70
-Call Trace:
-  kfree+0x117/0x490
-  ubifs_free_inode+0x4f/0x70 [ubifs]
-  i_callback+0x30/0x60
-  rcu_do_batch+0x366/0xac0
-  __do_softirq+0x133/0x57f
+Move them back, and while at it extend AVIC_DOORBELL_PHYSICAL_ID_MASK to 12
+bits as well (it will be used in nested avic)
 
-Allocated by task 1506:
-  kmem_cache_alloc_trace+0x3c2/0x7a0
-  do_rename+0x9b7/0x1150 [ubifs]
-  ubifs_rename+0x106/0x1f0 [ubifs]
-  do_syscall_64+0x35/0x80
-
-Freed by task 1506:
-  kfree+0x117/0x490
-  do_rename.cold+0x53/0x8a [ubifs]
-  ubifs_rename+0x106/0x1f0 [ubifs]
-  do_syscall_64+0x35/0x80
-
-The buggy address belongs to the object at ffff88810238bed8 which
-belongs to the cache kmalloc-8 of size 8
-==================================================================
-
-Let ubifs_free_inode() free 'whiteout_ui->data'. BTW, delete unused
-assignment 'whiteout_ui->data_len = 0', process 'ubifs_evict_inode()
--> ubifs_jnl_delete_inode() -> ubifs_jnl_write_inode()' doesn't need it
-(because 'inc_nlink(whiteout)' won't be excuted by 'goto out_release',
- and the nlink of whiteout inode is 0).
-
-Fixes: 9e0a1fff8db56ea ("ubifs: Implement RENAME_WHITEOUT")
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
+Message-Id: <20220322172449.235575-5-mlevitsk@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ubifs/dir.c |    2 --
- 1 file changed, 2 deletions(-)
+ arch/x86/include/asm/svm.h |    8 +++++---
+ arch/x86/kvm/svm/svm.h     |   11 -----------
+ 2 files changed, 5 insertions(+), 14 deletions(-)
 
---- a/fs/ubifs/dir.c
-+++ b/fs/ubifs/dir.c
-@@ -1425,8 +1425,6 @@ static int do_rename(struct inode *old_d
+--- a/arch/x86/include/asm/svm.h
++++ b/arch/x86/include/asm/svm.h
+@@ -222,7 +222,7 @@ struct __attribute__ ((__packed__)) vmcb
  
- 		err = ubifs_budget_space(c, &wht_req);
- 		if (err) {
--			kfree(whiteout_ui->data);
--			whiteout_ui->data_len = 0;
- 			iput(whiteout);
- 			goto out_release;
- 		}
+ 
+ /* AVIC */
+-#define AVIC_LOGICAL_ID_ENTRY_GUEST_PHYSICAL_ID_MASK	(0xFF)
++#define AVIC_LOGICAL_ID_ENTRY_GUEST_PHYSICAL_ID_MASK	(0xFFULL)
+ #define AVIC_LOGICAL_ID_ENTRY_VALID_BIT			31
+ #define AVIC_LOGICAL_ID_ENTRY_VALID_MASK		(1 << 31)
+ 
+@@ -230,9 +230,11 @@ struct __attribute__ ((__packed__)) vmcb
+ #define AVIC_PHYSICAL_ID_ENTRY_BACKING_PAGE_MASK	(0xFFFFFFFFFFULL << 12)
+ #define AVIC_PHYSICAL_ID_ENTRY_IS_RUNNING_MASK		(1ULL << 62)
+ #define AVIC_PHYSICAL_ID_ENTRY_VALID_MASK		(1ULL << 63)
+-#define AVIC_PHYSICAL_ID_TABLE_SIZE_MASK		(0xFF)
++#define AVIC_PHYSICAL_ID_TABLE_SIZE_MASK		(0xFFULL)
+ 
+-#define AVIC_DOORBELL_PHYSICAL_ID_MASK			(0xFF)
++#define AVIC_DOORBELL_PHYSICAL_ID_MASK			GENMASK_ULL(11, 0)
++
++#define VMCB_AVIC_APIC_BAR_MASK				0xFFFFFFFFFF000ULL
+ 
+ #define AVIC_UNACCEL_ACCESS_WRITE_MASK		1
+ #define AVIC_UNACCEL_ACCESS_OFFSET_MASK		0xFF0
+--- a/arch/x86/kvm/svm/svm.h
++++ b/arch/x86/kvm/svm/svm.h
+@@ -558,17 +558,6 @@ extern struct kvm_x86_nested_ops svm_nes
+ 
+ /* avic.c */
+ 
+-#define AVIC_LOGICAL_ID_ENTRY_GUEST_PHYSICAL_ID_MASK	(0xFF)
+-#define AVIC_LOGICAL_ID_ENTRY_VALID_BIT			31
+-#define AVIC_LOGICAL_ID_ENTRY_VALID_MASK		(1 << 31)
+-
+-#define AVIC_PHYSICAL_ID_ENTRY_HOST_PHYSICAL_ID_MASK	GENMASK_ULL(11, 0)
+-#define AVIC_PHYSICAL_ID_ENTRY_BACKING_PAGE_MASK	(0xFFFFFFFFFFULL << 12)
+-#define AVIC_PHYSICAL_ID_ENTRY_IS_RUNNING_MASK		(1ULL << 62)
+-#define AVIC_PHYSICAL_ID_ENTRY_VALID_MASK		(1ULL << 63)
+-
+-#define VMCB_AVIC_APIC_BAR_MASK		0xFFFFFFFFFF000ULL
+-
+ int avic_ga_log_notifier(u32 ga_tag);
+ void avic_vm_destroy(struct kvm *kvm);
+ int avic_vm_init(struct kvm *kvm);
 
 
