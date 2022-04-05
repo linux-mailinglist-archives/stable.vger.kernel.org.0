@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0970F4F2DBA
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:46:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E55BB4F2AD2
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:06:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244320AbiDEJQ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:16:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49668 "EHLO
+        id S243737AbiDEJQU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:16:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51052 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245004AbiDEIxA (ORCPT
+        with ESMTP id S245002AbiDEIxA (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:53:00 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4841C211;
-        Tue,  5 Apr 2022 01:49:09 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4657220;
+        Tue,  5 Apr 2022 01:49:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D30B060FFB;
-        Tue,  5 Apr 2022 08:49:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7CA1C385A0;
-        Tue,  5 Apr 2022 08:49:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5FEA3B81BAE;
+        Tue,  5 Apr 2022 08:49:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A62F7C385A1;
+        Tue,  5 Apr 2022 08:49:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148548;
-        bh=LG0B36g9ZWWMdeW/WzkjNVZ5NcrqZuW9Ts6j3rxaxdc=;
+        s=korg; t=1649148551;
+        bh=nNs1tse4V7cKeod1E45I722hiSpOa7KRDfLhaBO2H64=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fn+PrGN0lSfcdsOAxUlcDZGec2lYCb7P1qO/iLM/gcf2hJKiEPRYnGfqB763ljLIe
-         ujn6kryChGA14HDrTG6BifUDfQIiMskiBIx/LzoeiEWo0sLPNyObuGjFEoEM/qxgpg
-         /nHRNdzvaWbqEldVHSUPkFyZTgFqgD5oBxdidm1Q=
+        b=z8H/7xyf5Aw1umOfJyHBryEwXFOtdNrdhznXEAAYRMDPEqqQJaOdipSwDHf/jo8lp
+         QF8m82L1Az2IZ9nDTBUcIxeSEA45Tlv/xUGQsPq0B6MiY7g0JwhYNcMI+qH7bqtLz1
+         TmyQ2G1pa3TMphbGO8YFowRUrMofC4Ep6xLj3HsY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Andre Przywara <andre.przywara@arm.com>,
         Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0396/1017] ARM: configs: multi_v5_defconfig: re-enable CONFIG_V4L_PLATFORM_DRIVERS
-Date:   Tue,  5 Apr 2022 09:21:49 +0200
-Message-Id: <20220405070406.040364622@linuxfoundation.org>
+Subject: [PATCH 5.16 0397/1017] ARM: configs: multi_v5_defconfig: re-enable DRM_PANEL and FB_xxx
+Date:   Tue,  5 Apr 2022 09:21:50 +0200
+Message-Id: <20220405070406.069721620@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -55,21 +55,26 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Andre Przywara <andre.przywara@arm.com>
 
-[ Upstream commit f5eb04d7a0e419d61f784de3ced708259ddb71d7 ]
+[ Upstream commit 9c44d0805f949c56121b4ae6949fb064537bf198 ]
 
-Commit 06b93644f4d1 ("media: Kconfig: add an option to filter in/out
-platform drivers") introduced CONFIG_MEDIA_PLATFORM_SUPPORT, to allow
-more fine grained control over the inclusion of certain Kconfig files.
-multi_v5_defconfig was selecting some drivers described in
-drivers/media/platform/Kconfig, which now wasn't included anymore.
+Commit 91185d55b32e ("drm: Remove DRM_KMS_FB_HELPER Kconfig option")
+led to de-selection of CONFIG_FB, which was a prerequisite for
+BACKLIGHT_CLASS_DEVICE, which CONFIG_DRM_PANEL_SIMPLE depended on.
+Explicitly set CONFIG_FB, to bring DRM_PANEL_SIMPLE, DRM_PANEL_EDP,
+FB_IMX and FB_ATMEL back into the generated .config.
+This also adds some new FB related features like fonts and the
+framebuffer console.
 
-Explicitly set the new symbol in multi_v5_defconfig to bring those
-drivers back.
-This enables some new V4L2 and VIDEOBUF2 features, but as modules only.
+See also commit 8c1768967e27 ("ARM: config: mutli v7: Reenable FB
+dependency"), which solved the same problem for multi_v7_defconfig.
 
-Fixes: 06b93644f4d1 ("media: Kconfig: add an option to filter in/out platform drivers")
+This relies on [1], to fix a broken Kconfig dependency.
+
+[1] https://lore.kernel.org/dri-devel/20220315084559.23510-1-tzimmermann@suse.de/raw
+
+Fixes: 91185d55b32e ("drm: Remove DRM_KMS_FB_HELPER Kconfig option")
 Signed-off-by: Andre Przywara <andre.przywara@arm.com>
-Link: https://lore.kernel.org/r/20220317183043.948432-3-andre.przywara@arm.com'
+Link: https://lore.kernel.org/r/20220317183043.948432-4-andre.przywara@arm.com'
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
@@ -77,17 +82,17 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+)
 
 diff --git a/arch/arm/configs/multi_v5_defconfig b/arch/arm/configs/multi_v5_defconfig
-index fe8d760256a4..dac1db2e181f 100644
+index dac1db2e181f..3e3beb0cc33d 100644
 --- a/arch/arm/configs/multi_v5_defconfig
 +++ b/arch/arm/configs/multi_v5_defconfig
-@@ -188,6 +188,7 @@ CONFIG_REGULATOR=y
- CONFIG_REGULATOR_FIXED_VOLTAGE=y
- CONFIG_MEDIA_SUPPORT=y
- CONFIG_MEDIA_CAMERA_SUPPORT=y
-+CONFIG_MEDIA_PLATFORM_SUPPORT=y
- CONFIG_V4L_PLATFORM_DRIVERS=y
- CONFIG_VIDEO_ASPEED=m
- CONFIG_VIDEO_ATMEL_ISI=m
+@@ -197,6 +197,7 @@ CONFIG_DRM_ATMEL_HLCDC=m
+ CONFIG_DRM_PANEL_SIMPLE=y
+ CONFIG_DRM_PANEL_EDP=y
+ CONFIG_DRM_ASPEED_GFX=m
++CONFIG_FB=y
+ CONFIG_FB_IMX=y
+ CONFIG_FB_ATMEL=y
+ CONFIG_BACKLIGHT_ATMEL_LCDC=y
 -- 
 2.34.1
 
