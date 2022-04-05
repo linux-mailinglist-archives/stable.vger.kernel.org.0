@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E37374F24DB
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 09:39:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A386E4F24DD
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 09:40:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231783AbiDEHlr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 03:41:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54908 "EHLO
+        id S231823AbiDEHlw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 03:41:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54904 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231794AbiDEHll (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:41:41 -0400
+        with ESMTP id S231826AbiDEHlo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:41:44 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B52494CD49;
-        Tue,  5 Apr 2022 00:39:42 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B5D34B40B;
+        Tue,  5 Apr 2022 00:39:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0E72E6123C;
-        Tue,  5 Apr 2022 07:39:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17D64C340EE;
-        Tue,  5 Apr 2022 07:39:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B7DED61693;
+        Tue,  5 Apr 2022 07:39:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8B0FC340EE;
+        Tue,  5 Apr 2022 07:39:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649144381;
-        bh=z0MZUq/cr6LSD5n9+SgDZwG8ExGGT+HKRqHuTFk8Ndk=;
+        s=korg; t=1649144384;
+        bh=z03uRE2H7zmi68R1Q0lvr3LCmd3ruYnHuWykD/0EvBo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dkHoZNoKgcQUo9fzQ4jqf7I0KqdaE/IJqvS2zRRzEZ7n1x27pGSQZzuEwNdwlRoVJ
-         0kU2fMyKdfU4m4amL+xKBYrcRgBtqYC1eCvIWN+6qWQR+PxKD4opD6A6kFUfGk+0t7
-         aWRt8OeQ8vS2JmPhn/YCuzEhMWlrXA21wYP6hdlM=
+        b=vw1YN8sSUMrgUEvyU7MmOgaP3FJR/SQdAtmFfqmxA4AY2ZO1OC9Ydikq/TbnxLOV9
+         cwDFIgQS4fBM6WyP8/QaxVyFIqGpyImcC+pBavHF7eAsv2JSGUyezAwogzzjJHVwnB
+         sLEw6tK8U1wGtyz8OPBETO03opmzi4wO+BRY3474=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Akira Yokosawa <akiyks@gmail.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Jonathan Corbet <corbet@lwn.net>
-Subject: [PATCH 5.17 0025/1126] docs: sphinx/requirements: Limit jinja2<3.1
-Date:   Tue,  5 Apr 2022 09:12:52 +0200
-Message-Id: <20220405070408.287710659@linuxfoundation.org>
+        stable@vger.kernel.org, James Clark <james.clark@arm.com>,
+        Mike Leach <mike.leach@linaro.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>
+Subject: [PATCH 5.17 0026/1126] coresight: Fix TRCCONFIGR.QE sysfs interface
+Date:   Tue,  5 Apr 2022 09:12:53 +0200
+Message-Id: <20220405070408.318377465@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -54,33 +55,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Akira Yokosawa <akiyks@gmail.com>
+From: James Clark <james.clark@arm.com>
 
-commit be78837ca3c88eebd405103a7a2ce891c466b0db upstream.
+commit ea75a342aed5ed72c87f38fbe0df2f5df7eae374 upstream.
 
-jinja2 release 3.1.0 (March 24, 2022) broke Sphinx<4.0.
-This looks like the result of deprecating Python 3.6.
-It has been tested against Sphinx 4.3.0 and later.
+It's impossible to program a valid value for TRCCONFIGR.QE
+when TRCIDR0.QSUPP==0b10. In that case the following is true:
 
-Setting an upper limit of <3.1 to junja2 can unbreak Sphinx<4.0
-including Sphinx 2.4.4.
+  Q element support is implemented, and only supports Q elements without
+  instruction counts. TRCCONFIGR.QE can only take the values 0b00 or 0b11.
 
-Signed-off-by: Akira Yokosawa <akiyks@gmail.com>
-Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
-Cc: stable@vger.kernel.org # v5.15+
-Link: https://lore.kernel.org/r/7dbff8a0-f4ff-34a0-71c7-1987baf471f9@gmail.com
-Signed-off-by: Jonathan Corbet <corbet@lwn.net>
+Currently the low bit of QSUPP is checked to see if the low bit of QE can
+be written to, but as you can see when QSUPP==0b10 the low bit is cleared
+making it impossible to ever write the only valid value of 0b11 to QE.
+0b10 would be written instead, which is a reserved QE value even for all
+values of QSUPP.
+
+The fix is to allow writing the low bit of QE for any non zero value of
+QSUPP.
+
+This change also ensures that the low bit is always set, even when the
+user attempts to only set the high bit.
+
+Signed-off-by: James Clark <james.clark@arm.com>
+Reviewed-by: Mike Leach <mike.leach@linaro.org>
+Fixes: d8c66962084f ("coresight-etm4x: Controls pertaining to the reset, mode, pe and events")
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20220120113047.2839622-2-james.clark@arm.com
+Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/sphinx/requirements.txt |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/hwtracing/coresight/coresight-etm4x-sysfs.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/Documentation/sphinx/requirements.txt
-+++ b/Documentation/sphinx/requirements.txt
-@@ -1,2 +1,4 @@
-+# jinja2>=3.1 is not compatible with Sphinx<4.0
-+jinja2<3.1
- sphinx_rtd_theme
- Sphinx==2.4.4
+--- a/drivers/hwtracing/coresight/coresight-etm4x-sysfs.c
++++ b/drivers/hwtracing/coresight/coresight-etm4x-sysfs.c
+@@ -367,8 +367,12 @@ static ssize_t mode_store(struct device
+ 	mode = ETM_MODE_QELEM(config->mode);
+ 	/* start by clearing QE bits */
+ 	config->cfg &= ~(BIT(13) | BIT(14));
+-	/* if supported, Q elements with instruction counts are enabled */
+-	if ((mode & BIT(0)) && (drvdata->q_support & BIT(0)))
++	/*
++	 * if supported, Q elements with instruction counts are enabled.
++	 * Always set the low bit for any requested mode. Valid combos are
++	 * 0b00, 0b01 and 0b11.
++	 */
++	if (mode && drvdata->q_support)
+ 		config->cfg |= BIT(13);
+ 	/*
+ 	 * if supported, Q elements with and without instruction
 
 
