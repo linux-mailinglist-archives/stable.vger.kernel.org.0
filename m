@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D84B4F3E3E
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 22:43:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 505934F4025
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:14:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240827AbiDEMMv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:12:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58496 "EHLO
+        id S245030AbiDEMVg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:21:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46470 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358402AbiDEK2W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:28:22 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B08BA0BCC;
-        Tue,  5 Apr 2022 03:18:00 -0700 (PDT)
+        with ESMTP id S1358436AbiDEK2Y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:28:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FDB2B247C;
+        Tue,  5 Apr 2022 03:18:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C39CFB81C98;
-        Tue,  5 Apr 2022 10:17:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D0C4C385A0;
-        Tue,  5 Apr 2022 10:17:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B5D60617AA;
+        Tue,  5 Apr 2022 10:18:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C49D2C385A0;
+        Tue,  5 Apr 2022 10:17:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153877;
-        bh=m2IoJP+1rZGsRK63zzk0z+bTCLuNZ8qbNXqYGWwlq2I=;
+        s=korg; t=1649153880;
+        bh=9HMECe3u2F6DkVfQDRSfxWSlqpn77kHqRP3q+B9jlqY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nd29em+4M015ixqTQBqzgAS4MRqnIO77aWX6eYfDL40G2d10TTJruuHVMNSXwxuJS
-         wUvl24wPFbL0ugVWi2OF9H03s/q7WzhXLvNbLarwT4ky/83rxnew+XUoIoRrpcAZt/
-         q5DcDy/xPCFrOMGUGBrAdVPMIlfESBmelY5SavY0=
+        b=YpuYuQriD/wu2AiBQR6ClOtHpG5mTa+7usHtfxyndkCSn80yQvn3H7tLlbTHywgGC
+         9WlaRpiYi7xn6uUoruxudm5BWUglniRWyaAzki/TDkxe20yyhlKmGreZZxc9YepzsR
+         CdHzsornobh0yFCQSxnXi6yw4/aJEVvipCqBMHB8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yangtao Li <tiny.windzz@gmail.com>,
-        Andrew Jeffery <andrew@aj.id.au>,
-        Joel Stanley <joel@jms.id.au>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 380/599] fsi: aspeed: convert to devm_platform_ioremap_resource
-Date:   Tue,  5 Apr 2022 09:31:14 +0200
-Message-Id: <20220405070310.139207610@linuxfoundation.org>
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 381/599] fsi: Aspeed: Fix a potential double free
+Date:   Tue,  5 Apr 2022 09:31:15 +0200
+Message-Id: <20220405070310.169388127@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -54,42 +54,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yangtao Li <tiny.windzz@gmail.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit a3469912f4caeea32ecbe0bf472b14634fecb38e ]
+[ Upstream commit 83ba7e895debc529803a7a258653f2fe9bf3bf40 ]
 
-Use devm_platform_ioremap_resource() to simplify code.
+A struct device can never be devm_alloc()'ed.
+Here, it is embedded in "struct fsi_master", and "struct fsi_master" is
+embedded in "struct fsi_master_aspeed".
 
-Signed-off-by: Yangtao Li <tiny.windzz@gmail.com>
-Reviewed-by: Andrew Jeffery <andrew@aj.id.au>
-Link: https://lore.kernel.org/r/20191228190631.26777-1-tiny.windzz@gmail.com
-Signed-off-by: Joel Stanley <joel@jms.id.au>
+Since "struct device" is embedded, the data structure embedding it must be
+released with the release function, as is already done here.
+
+So use kzalloc() instead of devm_kzalloc() when allocating "aspeed" and
+update all error handling branches accordingly.
+
+This prevent a potential double free().
+
+This also fix another issue if opb_readl() fails. Instead of a direct
+return, it now jumps in the error handling path.
+
+Fixes: 606397d67f41 ("fsi: Add ast2600 master driver")
+Suggested-by: Greg KH <gregkh@linuxfoundation.org>
+Suggested-by: Guenter Roeck <linux@roeck-us.net>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/2c123f8b0a40dc1a061fae982169fe030b4f47e6.1641765339.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/fsi/fsi-master-aspeed.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/fsi/fsi-master-aspeed.c | 17 +++++++++++------
+ 1 file changed, 11 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/fsi/fsi-master-aspeed.c b/drivers/fsi/fsi-master-aspeed.c
-index dbad73162c83..5d2469d44607 100644
+index 5d2469d44607..87edc77260d2 100644
 --- a/drivers/fsi/fsi-master-aspeed.c
 +++ b/drivers/fsi/fsi-master-aspeed.c
-@@ -525,7 +525,6 @@ static int tacoma_cabled_fsi_fixup(struct device *dev)
- static int fsi_master_aspeed_probe(struct platform_device *pdev)
- {
- 	struct fsi_master_aspeed *aspeed;
--	struct resource *res;
- 	int rc, links, reg;
- 	__be32 raw;
+@@ -534,25 +534,28 @@ static int fsi_master_aspeed_probe(struct platform_device *pdev)
+ 		return rc;
+ 	}
  
-@@ -541,8 +540,7 @@ static int fsi_master_aspeed_probe(struct platform_device *pdev)
+-	aspeed = devm_kzalloc(&pdev->dev, sizeof(*aspeed), GFP_KERNEL);
++	aspeed = kzalloc(sizeof(*aspeed), GFP_KERNEL);
+ 	if (!aspeed)
+ 		return -ENOMEM;
  
  	aspeed->dev = &pdev->dev;
  
--	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--	aspeed->base = devm_ioremap_resource(&pdev->dev, res);
-+	aspeed->base = devm_platform_ioremap_resource(pdev, 0);
- 	if (IS_ERR(aspeed->base))
- 		return PTR_ERR(aspeed->base);
+ 	aspeed->base = devm_platform_ioremap_resource(pdev, 0);
+-	if (IS_ERR(aspeed->base))
+-		return PTR_ERR(aspeed->base);
++	if (IS_ERR(aspeed->base)) {
++		rc = PTR_ERR(aspeed->base);
++		goto err_free_aspeed;
++	}
+ 
+ 	aspeed->clk = devm_clk_get(aspeed->dev, NULL);
+ 	if (IS_ERR(aspeed->clk)) {
+ 		dev_err(aspeed->dev, "couldn't get clock\n");
+-		return PTR_ERR(aspeed->clk);
++		rc = PTR_ERR(aspeed->clk);
++		goto err_free_aspeed;
+ 	}
+ 	rc = clk_prepare_enable(aspeed->clk);
+ 	if (rc) {
+ 		dev_err(aspeed->dev, "couldn't enable clock\n");
+-		return rc;
++		goto err_free_aspeed;
+ 	}
+ 
+ 	rc = setup_cfam_reset(aspeed);
+@@ -587,7 +590,7 @@ static int fsi_master_aspeed_probe(struct platform_device *pdev)
+ 	rc = opb_readl(aspeed, ctrl_base + FSI_MVER, &raw);
+ 	if (rc) {
+ 		dev_err(&pdev->dev, "failed to read hub version\n");
+-		return rc;
++		goto err_release;
+ 	}
+ 
+ 	reg = be32_to_cpu(raw);
+@@ -626,6 +629,8 @@ static int fsi_master_aspeed_probe(struct platform_device *pdev)
+ 
+ err_release:
+ 	clk_disable_unprepare(aspeed->clk);
++err_free_aspeed:
++	kfree(aspeed);
+ 	return rc;
+ }
  
 -- 
 2.34.1
