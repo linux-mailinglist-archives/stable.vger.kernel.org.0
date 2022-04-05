@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E72724F3118
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:39:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1A9F4F330B
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:08:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349017AbiDEKuE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:50:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50324 "EHLO
+        id S1347801AbiDEJ2Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:28:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344633AbiDEJmH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:42:07 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46BF8BE9E9;
-        Tue,  5 Apr 2022 02:27:49 -0700 (PDT)
+        with ESMTP id S244901AbiDEIwq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:46 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23E6C24594;
+        Tue,  5 Apr 2022 01:45:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D2CBAB81C9A;
-        Tue,  5 Apr 2022 09:27:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CD7FC385A2;
-        Tue,  5 Apr 2022 09:27:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B826B614EB;
+        Tue,  5 Apr 2022 08:45:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3079C385A1;
+        Tue,  5 Apr 2022 08:45:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150866;
-        bh=OZyYgrz1VCHrilKgZnyeOPJvQBaO39yx7428M/0XhW4=;
+        s=korg; t=1649148356;
+        bh=J0WD4djqociSdD8QofJp0UbOEnwx+j5yOsva2RrHM3Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xi7VMrbP+RO8uDm3JFKMaNrWQ9kBSfVnuP076E7TaQfI7fJFHwaT60p9EhVEcE7+B
-         kPvdxuEOqqNm4T5q10cYFsEWClyieKRgkqcYO+WNgWTo+P+XdCR4yDbGJCr45AYJG3
-         OTW+U9iO1gAUfsR8uuFxxJApsvsmyShW5tBfprVo=
+        b=xhyFssvBKuuKQKaLw3mTvxDxeJIvjtHrpM1BACKrf8rHzN0+oPmRTGg/shvhx0DTQ
+         /9XOMzORfJWNkprP8/uqJ0i+iIB9Q/I0Ro0QDCbfnrfob/RLUFWGf+9EX7zmShV3E1
+         9hRmT88Co3o08uBTNMj1e4MIrSjDsFO5niWGAEG8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lyude Paul <lyude@redhat.com>,
-        Karol Herbst <kherbst@redhat.com>
-Subject: [PATCH 5.15 177/913] drm/nouveau/backlight: Just set all backlight types as RAW
-Date:   Tue,  5 Apr 2022 09:20:39 +0200
-Message-Id: <20220405070345.158603494@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Olivier Moysan <olivier.moysan@foss.st.com>,
+        Alexandre Torgue <alexandre.torgue@foss.st.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0327/1017] ARM: dts: stm32: fix AV96 board SAI2 pin muxing on stm32mp15
+Date:   Tue,  5 Apr 2022 09:20:40 +0200
+Message-Id: <20220405070403.987625567@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,58 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lyude Paul <lyude@redhat.com>
+From: Olivier Moysan <olivier.moysan@foss.st.com>
 
-commit b21a142fd2055d8276169efcc95b624ff908a341 upstream.
+[ Upstream commit ee2aacb6f3a901a95b1dd68964b69c92cdbbf213 ]
 
-Currently we can get a warning on systems with eDP backlights like so:
+Replace sai2a-2 node name by sai2a-sleep-2, to avoid name
+duplication.
 
-  nv_backlight: invalid backlight type
-  WARNING: CPU: 4 PID: 454 at drivers/video/backlight/backlight.c:420
-    backlight_device_register+0x226/0x250
+Fixes: 1a9a9d226f0f ("ARM: dts: stm32: fix AV96 board SAI2 pin muxing on stm32mp15")
 
-This happens as a result of us not filling out props.type for the eDP
-backlight, even though we do it for all other backlight types.
-
-Since nothing in our driver uses anything but BACKLIGHT_RAW, let's take the
-props\.type assignments out of the codepaths for individual backlight types
-and just set it unconditionally to prevent this from happening again.
-
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Fixes: 6eca310e8924 ("drm/nouveau/kms/nv50-: Add basic DPCD backlight support for nouveau")
-Cc: <stable@vger.kernel.org> # v5.15+
-Reviewed-by: Karol Herbst <kherbst@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220204193319.451119-1-lyude@redhat.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Olivier Moysan <olivier.moysan@foss.st.com>
+Signed-off-by: Alexandre Torgue <alexandre.torgue@foss.st.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/nouveau/nouveau_backlight.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ arch/arm/boot/dts/stm32mp15-pinctrl.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/nouveau/nouveau_backlight.c
-+++ b/drivers/gpu/drm/nouveau/nouveau_backlight.c
-@@ -101,7 +101,6 @@ nv40_backlight_init(struct nouveau_encod
- 	if (!(nvif_rd32(device, NV40_PMC_BACKLIGHT) & NV40_PMC_BACKLIGHT_MASK))
- 		return -ENODEV;
+diff --git a/arch/arm/boot/dts/stm32mp15-pinctrl.dtsi b/arch/arm/boot/dts/stm32mp15-pinctrl.dtsi
+index 2ebafe27a865..d3553e0f0187 100644
+--- a/arch/arm/boot/dts/stm32mp15-pinctrl.dtsi
++++ b/arch/arm/boot/dts/stm32mp15-pinctrl.dtsi
+@@ -1190,7 +1190,7 @@
+ 		};
+ 	};
  
--	props->type = BACKLIGHT_RAW;
- 	props->max_brightness = 31;
- 	*ops = &nv40_bl_ops;
- 	return 0;
-@@ -340,7 +339,6 @@ nv50_backlight_init(struct nouveau_backl
- 	else
- 		*ops = &nva3_bl_ops;
- 
--	props->type = BACKLIGHT_RAW;
- 	props->max_brightness = 100;
- 
- 	return 0;
-@@ -408,6 +406,7 @@ nouveau_backlight_init(struct drm_connec
- 		goto fail_alloc;
- 	}
- 
-+	props.type = BACKLIGHT_RAW;
- 	bl->dev = backlight_device_register(backlight_name, connector->kdev,
- 					    nv_encoder, ops, &props);
- 	if (IS_ERR(bl->dev)) {
+-	sai2a_sleep_pins_c: sai2a-2 {
++	sai2a_sleep_pins_c: sai2a-sleep-2 {
+ 		pins {
+ 			pinmux = <STM32_PINMUX('D', 13, ANALOG)>, /* SAI2_SCK_A */
+ 				 <STM32_PINMUX('D', 11, ANALOG)>, /* SAI2_SD_A */
+-- 
+2.34.1
+
 
 
