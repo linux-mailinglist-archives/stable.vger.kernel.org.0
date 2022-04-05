@@ -2,42 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 760064F30A1
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:32:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DC384F33F7
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:24:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347581AbiDEJ1k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:27:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46572 "EHLO
+        id S1347577AbiDEJ1i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:27:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47606 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244269AbiDEIvy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:51:54 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6304CD3721;
-        Tue,  5 Apr 2022 01:40:40 -0700 (PDT)
+        with ESMTP id S244160AbiDEIvr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:51:47 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEA91D3AC3;
+        Tue,  5 Apr 2022 01:40:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 47FB1B81C83;
-        Tue,  5 Apr 2022 08:39:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9837CC385A1;
-        Tue,  5 Apr 2022 08:39:56 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 2BE2CCE1C2B;
+        Tue,  5 Apr 2022 08:40:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A759C385A3;
+        Tue,  5 Apr 2022 08:39:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147997;
-        bh=x/BbDqLS16fO//8ZLAlr4JSJFLAy2lcDbX54ZoBLp9w=;
+        s=korg; t=1649147999;
+        bh=c+SE1nfQd25OyP1t1PHgxyBCGD4MexGsb6rM39ymiUY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VQrCzlwpgDPleOtJHGMbtRNliUrmBxx5dfilwjAC63g2JDJ2PHS8dGVlAKSDzIQfQ
-         z8U1cWYdVmZvfPbMTf+zmdzwOgQPnNGg6uTbeMVlsRzxvjW9hByiaAe0Ahhz8S5hFP
-         0up4PY35VViLhFQngSCXgURlgK1lCrXo7c3hEs8A=
+        b=B70PR2y75cyDe6KHF4F87mu8g0szeS5IcppAYKbaas5L/gc2un2yxdzvQ6dFFC9no
+         2I21uKl4XcL8eHCtWRN/AqS/yJgiF3eezzeEYSDNo+MGuWXhEDjfmPXwGHvbcNF2Cz
+         eYAMLnt55GqCgJ4Xffxj+EbvcDpqV7JjVj9oftBA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Liguang Zhang <zhangliguang@linux.alibaba.com>,
+        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Rob Herring <robh@kernel.org>,
+        Toan Le <toan@os.amperecomputing.com>,
+        =?UTF-8?q?Krzysztof=20Wilczy=C5=84ski?= <kw@linux.com>,
         Bjorn Helgaas <bhelgaas@google.com>,
-        Lukas Wunner <lukas@wunner.de>
-Subject: [PATCH 5.16 0198/1017] PCI: pciehp: Clear cmd_busy bit in polling mode
-Date:   Tue,  5 Apr 2022 09:18:31 +0200
-Message-Id: <20220405070400.125584660@linuxfoundation.org>
+        =?UTF-8?q?St=C3=A9phane=20Graber?= <stgraber@ubuntu.com>,
+        dann frazier <dann.frazier@canonical.com>
+Subject: [PATCH 5.16 0199/1017] PCI: xgene: Revert "PCI: xgene: Fix IB window setup"
+Date:   Tue,  5 Apr 2022 09:18:32 +0200
+Message-Id: <20220405070400.156176848@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -55,53 +59,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liguang Zhang <zhangliguang@linux.alibaba.com>
+From: Marc Zyngier <maz@kernel.org>
 
-commit 92912b175178c7e895f5e5e9f1e30ac30319162b upstream.
+commit 825da4e9cec68713fbb02dc6f71fe1bf65fe8050 upstream.
 
-Writes to a Downstream Port's Slot Control register are PCIe hotplug
-"commands."  If the Port supports Command Completed events, software must
-wait for a command to complete before writing to Slot Control again.
+Commit c7a75d07827a ("PCI: xgene: Fix IB window setup") tried to
+fix the damages that 6dce5aa59e0b ("PCI: xgene: Use inbound resources
+for setup") caused, but actually didn't improve anything for some
+plarforms (at least Mustang and m400 are still broken).
 
-pcie_do_write_cmd() sets ctrl->cmd_busy when it writes to Slot Control.  If
-software notification is enabled, i.e., PCI_EXP_SLTCTL_HPIE and
-PCI_EXP_SLTCTL_CCIE are set, ctrl->cmd_busy is cleared by pciehp_isr().
+Given that 6dce5aa59e0b has been reverted, revert this patch as well,
+restoring the PCIe support on XGene to its pre-5.5, working state.
 
-But when software notification is disabled, as it is when pcie_init()
-powers off an empty slot, pcie_wait_cmd() uses pcie_poll_cmd() to poll for
-command completion, and it neglects to clear ctrl->cmd_busy, which leads to
-spurious timeouts:
-
-  pcieport 0000:00:03.0: pciehp: Timeout on hotplug command 0x01c0 (issued 2264 msec ago)
-  pcieport 0000:00:03.0: pciehp: Timeout on hotplug command 0x05c0 (issued 2288 msec ago)
-
-Clear ctrl->cmd_busy in pcie_poll_cmd() when it detects a Command Completed
-event (PCI_EXP_SLTSTA_CC).
-
-[bhelgaas: commit log]
-Fixes: a5dd4b4b0570 ("PCI: pciehp: Wait for hotplug command completion where necessary")
-Link: https://lore.kernel.org/r/20211111054258.7309-1-zhangliguang@linux.alibaba.com
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=215143
-Link: https://lore.kernel.org/r/20211126173309.GA12255@wunner.de
-Signed-off-by: Liguang Zhang <zhangliguang@linux.alibaba.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Lukas Wunner <lukas@wunner.de>
-Cc: stable@vger.kernel.org	# v4.19+
+Link: https://lore.kernel.org/r/YjN8pT5e6/8cRohQ@xps13.dannf
+Link: https://lore.kernel.org/r/20220321104843.949645-3-maz@kernel.org
+Fixes: c7a75d07827a ("PCI: xgene: Fix IB window setup")
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Cc: stable@vger.kernel.org
+Cc: Rob Herring <robh@kernel.org>
+Cc: Toan Le <toan@os.amperecomputing.com>
+Cc: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Cc: Krzysztof Wilczyński <kw@linux.com>
+Cc: Bjorn Helgaas <bhelgaas@google.com>
+Cc: Stéphane Graber <stgraber@ubuntu.com>
+Cc: dann frazier <dann.frazier@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/hotplug/pciehp_hpc.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/pci/controller/pci-xgene.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/pci/hotplug/pciehp_hpc.c
-+++ b/drivers/pci/hotplug/pciehp_hpc.c
-@@ -98,6 +98,8 @@ static int pcie_poll_cmd(struct controll
- 		if (slot_status & PCI_EXP_SLTSTA_CC) {
- 			pcie_capability_write_word(pdev, PCI_EXP_SLTSTA,
- 						   PCI_EXP_SLTSTA_CC);
-+			ctrl->cmd_busy = 0;
-+			smp_mb();
- 			return 1;
- 		}
- 		msleep(10);
+--- a/drivers/pci/controller/pci-xgene.c
++++ b/drivers/pci/controller/pci-xgene.c
+@@ -465,7 +465,7 @@ static int xgene_pcie_select_ib_reg(u8 *
+ 		return 1;
+ 	}
+ 
+-	if ((size > SZ_1K) && (size < SZ_4G) && !(*ib_reg_mask & (1 << 0))) {
++	if ((size > SZ_1K) && (size < SZ_1T) && !(*ib_reg_mask & (1 << 0))) {
+ 		*ib_reg_mask |= (1 << 0);
+ 		return 0;
+ 	}
 
 
