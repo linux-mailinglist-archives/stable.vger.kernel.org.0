@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 90F8E4F3C08
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:24:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B2E094F393C
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:45:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382279AbiDEMEG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:04:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58788 "EHLO
+        id S1377732AbiDELa1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:30:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57276 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358180AbiDEK2E (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:28:04 -0400
+        with ESMTP id S1352938AbiDEKFX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:05:23 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0618E9E9D4;
-        Tue,  5 Apr 2022 03:16:23 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42C50377F1;
+        Tue,  5 Apr 2022 02:54:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B35661777;
-        Tue,  5 Apr 2022 10:16:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC96DC385A1;
-        Tue,  5 Apr 2022 10:16:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C6D54614E9;
+        Tue,  5 Apr 2022 09:54:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE94FC385A1;
+        Tue,  5 Apr 2022 09:54:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153782;
-        bh=pYXJDCKrZ4i5oXRjcBWdNmahhcmghk2h12a8zcMcgfo=;
+        s=korg; t=1649152445;
+        bh=Ytr58gnACPtIgX8wj6A+Rgu50Y/LfhHdm8jAbP6A5yc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yXTxOcbYjykhdtVJ8iMVLBFzvGkIpvQH5rbh4/87PrdJDQV7BaoXyZm5uFK2XmRW8
-         L4xc8ykGQL5JL7o8IznENcGVtYxs7Q3wadtOBjOJ7WSvHk2aeB0dtBsYhadvi05TyJ
-         1ii2w9Y6EKp566yGAmuRrl/BFupFDvd1EkY4UzJE=
+        b=cLETTHxeX29X5QdGoKj5F22l+kNJvB+nvl7FaNNM1o1AbDGGhi/tJ10ua2lJBZDWa
+         N10k9mXR69ovXM66iKRcPHWoYmKJGMEZsM6LP4yHR0bmttheL72rZNccRGRWXD2Qu0
+         BkCdhuu3VN9SQ1pdl6bBUEWO+sx82H+GpMgYgtao=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cheng Li <lic121@chinatelecom.cn>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 345/599] libbpf: Unmap rings when umem deleted
-Date:   Tue,  5 Apr 2022 09:30:39 +0200
-Message-Id: <20220405070309.096443392@linuxfoundation.org>
+        stable@vger.kernel.org, Chen Jingwen <chenjingwen6@huawei.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.15 778/913] powerpc/kasan: Fix early region not updated correctly
+Date:   Tue,  5 Apr 2022 09:30:40 +0200
+Message-Id: <20220405070403.154530407@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
-References: <20220405070258.802373272@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,60 +54,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: lic121 <lic121@chinatelecom.cn>
+From: Chen Jingwen <chenjingwen6@huawei.com>
 
-[ Upstream commit 9c6e6a80ee741adf6cb3cfd8eef7d1554f91fceb ]
+commit dd75080aa8409ce10d50fb58981c6b59bf8707d3 upstream.
 
-xsk_umem__create() does mmap for fill/comp rings, but xsk_umem__delete()
-doesn't do the unmap. This works fine for regular cases, because
-xsk_socket__delete() does unmap for the rings. But for the case that
-xsk_socket__create_shared() fails, umem rings are not unmapped.
+The shadow's page table is not updated when PTE_RPN_SHIFT is 24
+and PAGE_SHIFT is 12. It not only causes false positives but
+also false negative as shown the following text.
 
-fill_save/comp_save are checked to determine if rings have already be
-unmapped by xsk. If fill_save and comp_save are NULL, it means that the
-rings have already been used by xsk. Then they are supposed to be
-unmapped by xsk_socket__delete(). Otherwise, xsk_umem__delete() does the
-unmap.
+Fix it by bringing the logic of kasan_early_shadow_page_entry here.
 
-Fixes: 2f6324a3937f ("libbpf: Support shared umems between queues and devices")
-Signed-off-by: Cheng Li <lic121@chinatelecom.cn>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/bpf/20220301132623.GA19995@vscode.7~
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+1. False Positive:
+==================================================================
+BUG: KASAN: vmalloc-out-of-bounds in pcpu_alloc+0x508/0xa50
+Write of size 16 at addr f57f3be0 by task swapper/0/1
+
+CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.15.0-12267-gdebe436e77c7 #1
+Call Trace:
+[c80d1c20] [c07fe7b8] dump_stack_lvl+0x4c/0x6c (unreliable)
+[c80d1c40] [c02ff668] print_address_description.constprop.0+0x88/0x300
+[c80d1c70] [c02ff45c] kasan_report+0x1ec/0x200
+[c80d1cb0] [c0300b20] kasan_check_range+0x160/0x2f0
+[c80d1cc0] [c03018a4] memset+0x34/0x90
+[c80d1ce0] [c0280108] pcpu_alloc+0x508/0xa50
+[c80d1d40] [c02fd7bc] __kmem_cache_create+0xfc/0x570
+[c80d1d70] [c0283d64] kmem_cache_create_usercopy+0x274/0x3e0
+[c80d1db0] [c2036580] init_sd+0xc4/0x1d0
+[c80d1de0] [c00044a0] do_one_initcall+0xc0/0x33c
+[c80d1eb0] [c2001624] kernel_init_freeable+0x2c8/0x384
+[c80d1ef0] [c0004b14] kernel_init+0x24/0x170
+[c80d1f10] [c001b26c] ret_from_kernel_thread+0x5c/0x64
+
+Memory state around the buggy address:
+ f57f3a80: f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8
+ f57f3b00: f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8
+>f57f3b80: f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8
+                                               ^
+ f57f3c00: f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8
+ f57f3c80: f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8
+==================================================================
+
+2. False Negative (with KASAN tests):
+==================================================================
+Before fix:
+    ok 45 - kmalloc_double_kzfree
+    # vmalloc_oob: EXPECTATION FAILED at lib/test_kasan.c:1039
+    KASAN failure expected in "((volatile char *)area)[3100]", but none occurred
+    not ok 46 - vmalloc_oob
+    not ok 1 - kasan
+
+==================================================================
+After fix:
+    ok 1 - kasan
+
+Fixes: cbd18991e24fe ("powerpc/mm: Fix an Oops in kasan_mmu_init()")
+Cc: stable@vger.kernel.org # 5.4.x
+Signed-off-by: Chen Jingwen <chenjingwen6@huawei.com>
+Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20211229035226.59159-1-chenjingwen6@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/lib/bpf/xsk.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ arch/powerpc/mm/kasan/kasan_init_32.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/tools/lib/bpf/xsk.c b/tools/lib/bpf/xsk.c
-index 3028f932e10c..c4390ef98b19 100644
---- a/tools/lib/bpf/xsk.c
-+++ b/tools/lib/bpf/xsk.c
-@@ -895,12 +895,23 @@ int xsk_socket__create(struct xsk_socket **xsk_ptr, const char *ifname,
- 
- int xsk_umem__delete(struct xsk_umem *umem)
+--- a/arch/powerpc/mm/kasan/kasan_init_32.c
++++ b/arch/powerpc/mm/kasan/kasan_init_32.c
+@@ -83,13 +83,12 @@ void __init
+ kasan_update_early_region(unsigned long k_start, unsigned long k_end, pte_t pte)
  {
-+	struct xdp_mmap_offsets off;
-+	int err;
-+
- 	if (!umem)
- 		return 0;
+ 	unsigned long k_cur;
+-	phys_addr_t pa = __pa(kasan_early_shadow_page);
  
- 	if (umem->refcount)
- 		return -EBUSY;
+ 	for (k_cur = k_start; k_cur != k_end; k_cur += PAGE_SIZE) {
+ 		pmd_t *pmd = pmd_off_k(k_cur);
+ 		pte_t *ptep = pte_offset_kernel(pmd, k_cur);
  
-+	err = xsk_get_mmap_offsets(umem->fd, &off);
-+	if (!err && umem->fill_save && umem->comp_save) {
-+		munmap(umem->fill_save->ring - off.fr.desc,
-+		       off.fr.desc + umem->config.fill_size * sizeof(__u64));
-+		munmap(umem->comp_save->ring - off.cr.desc,
-+		       off.cr.desc + umem->config.comp_size * sizeof(__u64));
-+	}
-+
- 	close(umem->fd);
- 	free(umem);
+-		if ((pte_val(*ptep) & PTE_RPN_MASK) != pa)
++		if (pte_page(*ptep) != virt_to_page(lm_alias(kasan_early_shadow_page)))
+ 			continue;
  
--- 
-2.34.1
-
+ 		__set_pte_at(&init_mm, k_cur, ptep, pte, 0);
 
 
