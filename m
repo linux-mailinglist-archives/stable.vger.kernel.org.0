@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E4644F393A
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:45:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C46DA4F3C0C
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:24:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377740AbiDELa2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:30:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35144 "EHLO
+        id S1382295AbiDEMEK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:04:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50832 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352977AbiDEKFZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:05:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CCEC66CAD;
-        Tue,  5 Apr 2022 02:54:09 -0700 (PDT)
+        with ESMTP id S1358183AbiDEK2F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:28:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 467C39E9D6;
+        Tue,  5 Apr 2022 03:16:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B0620616DC;
-        Tue,  5 Apr 2022 09:54:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE136C385A1;
-        Tue,  5 Apr 2022 09:54:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EC38FB81C8A;
+        Tue,  5 Apr 2022 10:16:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40774C385A1;
+        Tue,  5 Apr 2022 10:16:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152448;
-        bh=VCXhcLSrVvTeO0IQHQZr4uPBoieIuuvOWSLR6KAWsYs=;
+        s=korg; t=1649153787;
+        bh=qQkG5DprhOohE/vv7FqAicjZ5OSnoUow72LwglFkNNY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PN2bwnbjhHEVlI8YEhtlODtVOLJYkpV/zNQ+pJGw/3exfOIIZwU/i7ayfHqQTmXjo
-         b0H7uMDJ4F4+y/GbnWJ0QPnwCYw7hsiZ78Yu7Ocixqaoauc7tArLmzK3BoKrGpJ1B0
-         wrdlW72Pqn1ZuP2jWJYXaU0gabIh4JS0l53HMMmk=
+        b=yLYXVX1IAkGu7jGj93lP0Hwmmtk/00flU1CTCSo66D0HzFYcvCQxYleGrvsnqsbgB
+         otJVshTEmNBOOiQSoPt2JG7ct+Brnhhz1RoDqnCJ+W1QubN1vIEewETQ9SDMAP3Yc3
+         DiH96Z4ZnzXP91D2WlDYQsv3BbXdUJo9jhhSHucg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Anders Roxell <anders.roxell@linaro.org>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.15 779/913] powerpc/lib/sstep: Fix sthcx instruction
+        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
+        Jia-Ju Bai <baijiaju1990@gmail.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 347/599] platform/x86: huawei-wmi: check the return value of device_create_file()
 Date:   Tue,  5 Apr 2022 09:30:41 +0200
-Message-Id: <20220405070403.184599669@linuxfoundation.org>
+Message-Id: <20220405070309.153077583@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070258.802373272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,35 +55,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anders Roxell <anders.roxell@linaro.org>
+From: Jia-Ju Bai <baijiaju1990@gmail.com>
 
-commit a633cb1edddaa643fadc70abc88f89a408fa834a upstream.
+[ Upstream commit c91a5b1c221a58d008485cf7d02ccce73108b119 ]
 
-Looks like there been a copy paste mistake when added the instruction
-'stbcx' twice and one was probably meant to be 'sthcx'. Changing to
-'sthcx' from 'stbcx'.
+The function device_create_file() in huawei_wmi_battery_add() can fail,
+so its return value should be checked.
 
-Fixes: 350779a29f11 ("powerpc: Handle most loads and stores in instruction emulation code")
-Cc: stable@vger.kernel.org # v4.14+
-Reported-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220224162215.3406642-1-anders.roxell@linaro.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 355a070b09ab ("platform/x86: huawei-wmi: Add battery charging thresholds")
+Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
+Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+Link: https://lore.kernel.org/r/20220303022421.313-1-baijiaju1990@gmail.com
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/lib/sstep.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/platform/x86/huawei-wmi.c | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
---- a/arch/powerpc/lib/sstep.c
-+++ b/arch/powerpc/lib/sstep.c
-@@ -3306,7 +3306,7 @@ int emulate_loadstore(struct pt_regs *re
- 			__put_user_asmx(op->val, ea, err, "stbcx.", cr);
- 			break;
- 		case 2:
--			__put_user_asmx(op->val, ea, err, "stbcx.", cr);
-+			__put_user_asmx(op->val, ea, err, "sthcx.", cr);
- 			break;
- #endif
- 		case 4:
+diff --git a/drivers/platform/x86/huawei-wmi.c b/drivers/platform/x86/huawei-wmi.c
+index a2d846c4a7ee..eac3e6b4ea11 100644
+--- a/drivers/platform/x86/huawei-wmi.c
++++ b/drivers/platform/x86/huawei-wmi.c
+@@ -470,10 +470,17 @@ static DEVICE_ATTR_RW(charge_control_thresholds);
+ 
+ static int huawei_wmi_battery_add(struct power_supply *battery)
+ {
+-	device_create_file(&battery->dev, &dev_attr_charge_control_start_threshold);
+-	device_create_file(&battery->dev, &dev_attr_charge_control_end_threshold);
++	int err = 0;
+ 
+-	return 0;
++	err = device_create_file(&battery->dev, &dev_attr_charge_control_start_threshold);
++	if (err)
++		return err;
++
++	err = device_create_file(&battery->dev, &dev_attr_charge_control_end_threshold);
++	if (err)
++		device_remove_file(&battery->dev, &dev_attr_charge_control_start_threshold);
++
++	return err;
+ }
+ 
+ static int huawei_wmi_battery_remove(struct power_supply *battery)
+-- 
+2.34.1
+
 
 
