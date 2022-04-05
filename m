@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E6BCE4F2C41
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:24:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71DF44F2C30
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:24:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244190AbiDEKiO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:38:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48084 "EHLO
+        id S244383AbiDEKin (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:38:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38666 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240384AbiDEJeT (ORCPT
+        with ESMTP id S240310AbiDEJeT (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:34:19 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50754814BE;
-        Tue,  5 Apr 2022 02:23:46 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B86D81671;
+        Tue,  5 Apr 2022 02:23:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F1B65B81C69;
-        Tue,  5 Apr 2022 09:23:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B258C385A2;
-        Tue,  5 Apr 2022 09:23:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EE6BC61654;
+        Tue,  5 Apr 2022 09:23:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0EC01C385A0;
+        Tue,  5 Apr 2022 09:23:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150623;
-        bh=oQCCMyAG9uXwmvosH2y0DN3mABh0AUvwuzkV1JR0Ik0=;
+        s=korg; t=1649150626;
+        bh=YhiSsJ3TnEyST2jyx9qSBcFa+5qpcWGpbNlsUtKc+X0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mVr7G+BW/IAe/nfof+CxiFJ+JWWQwA+p8C2gF72dAvbBTtnUctBoKPq/+EL5UMkFY
-         9rld8aagnOefnGc9IpJSj8VsTXdlJLfgndBEfJPLQp5Mgek1EfjTfkQvqoSE8Ox9De
-         7yoHEI3PP9Knw9ID1ou1gqUfRNQg2JfmS6srpel8=
+        b=AUmdYR+kaO+MlucACf7CXlHUw++biXoweDtnCyR7CivE6fQzPYLOjdWIIkTXT2imW
+         g2MqE9A3ISLqEpHRPjBOPFTZD6hjYS35D37EwJrJjJpmm5ss73k+dvOF+ftJy5jmf3
+         jQgo+Qd0fLxRCdkOc5/DIPY/56NSo/G6MZMr5sxA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Dooks <ben.dooks@codethink.co.uk>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Palmer Dabbelt <palmer@rivosinc.com>,
-        Dimitri John Ledkov <dimitri.ledkov@canonical.com>
-Subject: [PATCH 5.15 120/913] PCI: fu740: Force 2.5GT/s for initial device probe
-Date:   Tue,  5 Apr 2022 09:19:42 +0200
-Message-Id: <20220405070343.424752095@linuxfoundation.org>
+        stable@vger.kernel.org, David Engraf <david.engraf@sysgo.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>, Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.15 121/913] arm64: signal: nofpsimd: Do not allocate fp/simd context when not available
+Date:   Tue,  5 Apr 2022 09:19:43 +0200
+Message-Id: <20220405070343.454672916@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -55,92 +54,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Dooks <ben.dooks@codethink.co.uk>
+From: David Engraf <david.engraf@sysgo.com>
 
-commit a382c757ec5ef83137a86125f43a4c43dc2ab50b upstream.
+commit 0a32c88ddb9af30e8a16d41d7b9b824c27d29459 upstream.
 
-The fu740 PCIe core does not probe any devices on the SiFive Unmatched
-board without this fix (or having U-Boot explicitly start the PCIe via
-either boot-script or user command). The fix is to start the link at
-2.5GT/s speeds and once the link is up then change the maximum speed back
-to the default.
+Commit 6d502b6ba1b2 ("arm64: signal: nofpsimd: Handle fp/simd context for
+signal frames") introduced saving the fp/simd context for signal handling
+only when support is available. But setup_sigframe_layout() always
+reserves memory for fp/simd context. The additional memory is not touched
+because preserve_fpsimd_context() is not called and thus the magic is
+invalid.
 
-The U-Boot driver claims to set the link-speed to 2.5GT/s to get the probe
-to work (and U-Boot does print link up at 2.5GT/s) in the following code:
-https://source.denx.de/u-boot/u-boot/-/blob/master/drivers/pci/pcie_dw_sifive.c?id=v2022.01#L271
+This may lead to an error when parse_user_sigframe() checks the fp/simd
+area and does not find a valid magic number.
 
-Link: https://lore.kernel.org/r/20220318152430.526320-1-ben.dooks@codethink.co.uk
-Signed-off-by: Ben Dooks <ben.dooks@codethink.co.uk>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Acked-by: Palmer Dabbelt <palmer@rivosinc.com>
-Signed-off-by: Dimitri John Ledkov <dimitri.ledkov@canonical.com>
+Signed-off-by: David Engraf <david.engraf@sysgo.com>
+Reviwed-by: Mark Brown <broonie@kernel.org>
+Fixes: 6d502b6ba1b267b3 ("arm64: signal: nofpsimd: Handle fp/simd context for signal frames")
+Cc: <stable@vger.kernel.org> # 5.6.x
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Link: https://lore.kernel.org/r/20220225104008.820289-1-david.engraf@sysgo.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/controller/dwc/pcie-fu740.c |   51 +++++++++++++++++++++++++++++++-
- 1 file changed, 50 insertions(+), 1 deletion(-)
+ arch/arm64/kernel/signal.c |   10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
---- a/drivers/pci/controller/dwc/pcie-fu740.c
-+++ b/drivers/pci/controller/dwc/pcie-fu740.c
-@@ -181,10 +181,59 @@ static int fu740_pcie_start_link(struct
+--- a/arch/arm64/kernel/signal.c
++++ b/arch/arm64/kernel/signal.c
+@@ -577,10 +577,12 @@ static int setup_sigframe_layout(struct
  {
- 	struct device *dev = pci->dev;
- 	struct fu740_pcie *afp = dev_get_drvdata(dev);
-+	u8 cap_exp = dw_pcie_find_capability(pci, PCI_CAP_ID_EXP);
-+	int ret;
-+	u32 orig, tmp;
-+
-+	/*
-+	 * Force 2.5GT/s when starting the link, due to some devices not
-+	 * probing at higher speeds. This happens with the PCIe switch
-+	 * on the Unmatched board when U-Boot has not initialised the PCIe.
-+	 * The fix in U-Boot is to force 2.5GT/s, which then gets cleared
-+	 * by the soft reset done by this driver.
-+	 */
-+	dev_dbg(dev, "cap_exp at %x\n", cap_exp);
-+	dw_pcie_dbi_ro_wr_en(pci);
-+
-+	tmp = dw_pcie_readl_dbi(pci, cap_exp + PCI_EXP_LNKCAP);
-+	orig = tmp & PCI_EXP_LNKCAP_SLS;
-+	tmp &= ~PCI_EXP_LNKCAP_SLS;
-+	tmp |= PCI_EXP_LNKCAP_SLS_2_5GB;
-+	dw_pcie_writel_dbi(pci, cap_exp + PCI_EXP_LNKCAP, tmp);
+ 	int err;
  
- 	/* Enable LTSSM */
- 	writel_relaxed(0x1, afp->mgmt_base + PCIEX8MGMT_APP_LTSSM_ENABLE);
--	return 0;
-+
-+	ret = dw_pcie_wait_for_link(pci);
-+	if (ret) {
-+		dev_err(dev, "error: link did not start\n");
-+		goto err;
+-	err = sigframe_alloc(user, &user->fpsimd_offset,
+-			     sizeof(struct fpsimd_context));
+-	if (err)
+-		return err;
++	if (system_supports_fpsimd()) {
++		err = sigframe_alloc(user, &user->fpsimd_offset,
++				     sizeof(struct fpsimd_context));
++		if (err)
++			return err;
 +	}
-+
-+	tmp = dw_pcie_readl_dbi(pci, cap_exp + PCI_EXP_LNKCAP);
-+	if ((tmp & PCI_EXP_LNKCAP_SLS) != orig) {
-+		dev_dbg(dev, "changing speed back to original\n");
-+
-+		tmp &= ~PCI_EXP_LNKCAP_SLS;
-+		tmp |= orig;
-+		dw_pcie_writel_dbi(pci, cap_exp + PCI_EXP_LNKCAP, tmp);
-+
-+		tmp = dw_pcie_readl_dbi(pci, PCIE_LINK_WIDTH_SPEED_CONTROL);
-+		tmp |= PORT_LOGIC_SPEED_CHANGE;
-+		dw_pcie_writel_dbi(pci, PCIE_LINK_WIDTH_SPEED_CONTROL, tmp);
-+
-+		ret = dw_pcie_wait_for_link(pci);
-+		if (ret) {
-+			dev_err(dev, "error: link did not start at new speed\n");
-+			goto err;
-+		}
-+	}
-+
-+	ret = 0;
-+err:
-+	WARN_ON(ret);	/* we assume that errors will be very rare */
-+	dw_pcie_dbi_ro_wr_dis(pci);
-+	return ret;
- }
  
- static int fu740_pcie_host_init(struct pcie_port *pp)
+ 	/* fault information, if valid */
+ 	if (add_all || current->thread.fault_code) {
 
 
