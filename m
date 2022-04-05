@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 07D364F2C7E
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:31:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A9D44F2AA8
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:05:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355998AbiDEKWk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:22:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44934 "EHLO
+        id S1356047AbiDEKWs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:22:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44554 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238331AbiDEJ3O (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:29:14 -0400
+        with ESMTP id S235369AbiDEJaT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:30:19 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9D1E22A;
-        Tue,  5 Apr 2022 02:16:40 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65B18E2F74;
+        Tue,  5 Apr 2022 02:17:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8E8EAB818F3;
-        Tue,  5 Apr 2022 09:16:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9EB2C385A0;
-        Tue,  5 Apr 2022 09:16:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1C5D4B81BBF;
+        Tue,  5 Apr 2022 09:17:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D5FDC385A2;
+        Tue,  5 Apr 2022 09:17:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150198;
-        bh=anzIg/BZjHKQ8DYTcO61nN8CXBqlOwewmajuONW2WQ4=;
+        s=korg; t=1649150223;
+        bh=/yt+JKhK1iOBl6Kc9z8/VMaIFaoyhQMuQvEUN61MtuY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CsE3siHh9tQiauic0O8RcDL7oPAOT2+tHJtUtaj3ouy+8XKwZUAYOfiBckRiNB10J
-         qBtOno52RIzflSBWoiPAhOUIqogV1yc60X9o8amUHMmA+zhOUpO61v0ZiKH7TX/2os
-         +Lmjt7ncDPwhvAYyTIDpwQ/YqiLfcqi9yu9uNKZw=
+        b=h2YphGftFuLvIdQ98ZfEIAajm/A1yFiDMLWh1hTy/XPm90OJuvpezSREgftI54gbo
+         34xanM4GwFqBIwQmuGZRTLxF+GWgUftQQFZHzaBfApaWvGEATPUvlGaB3vgJR1+8MP
+         jyAh+z9Cv1WQFpKCX1zmNJLWWaLI1sz2f+Jx4eSQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yong Wu <yong.wu@mediatek.com>,
+        stable@vger.kernel.org, Leilk Liu <leilk.liu@mediatek.com>,
         AngeloGioacchino Del Regno 
         <angelogioacchino.delregno@collabora.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Subject: [PATCH 5.16 0988/1017] dt-bindings: memory: mtk-smi: Correct minItems to 2 for the gals clocks
-Date:   Tue,  5 Apr 2022 09:31:41 +0200
-Message-Id: <20220405070423.529968394@linuxfoundation.org>
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.16 0997/1017] spi: mediatek: support tick_delay without enhance_timing
+Date:   Tue,  5 Apr 2022 09:31:50 +0200
+Message-Id: <20220405070423.796153423@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -55,52 +55,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yong Wu <yong.wu@mediatek.com>
+From: Leilk Liu <leilk.liu@mediatek.com>
 
-commit 996ebc0e332bfb3091395f9bd286d8349a57be62 upstream.
+commit 03b1be379dcee2e9c866c2a455a1a4a9581b3efd upstream.
 
-Mute the warning from "make dtbs_check":
+this patch support tick_delay bit[31:30] without enhance_timing feature.
 
-larb@14017000: clock-names: ['apb', 'smi'] is too short
-	arch/arm64/boot/dts/mediatek/mt8183-evb.dt.yaml
-	arch/arm64/boot/dts/mediatek/mt8183-kukui-jacuzzi-burnet.dt.yaml
-	...
-
-larb@16010000: clock-names: ['apb', 'smi'] is too short
-	arch/arm64/boot/dts/mediatek/mt8183-evb.dt.yaml
-	arch/arm64/boot/dts/mediatek/mt8183-kukui-jacuzzi-burnet.dt.yaml
-
-larb@17010000: clock-names: ['apb', 'smi'] is too short
-	arch/arm64/boot/dts/mediatek/mt8183-evb.dt.yaml
-	arch/arm64/boot/dts/mediatek/mt8183-kukui-jacuzzi-burnet.dt.yaml
-
-If a platform's larb supports gals, there will be some larbs have one
-more "gals" clock while the others still only need "apb"/"smi" clocks,
-then the minItems for clocks and clock-names are 2.
-
-Fixes: 27bb0e42855a ("dt-bindings: memory: mediatek: Convert SMI to DT schema")
-Signed-off-by: Yong Wu <yong.wu@mediatek.com>
+Fixes: f84d866ab43f("spi: mediatek: add tick_delay support")
+Signed-off-by: Leilk Liu <leilk.liu@mediatek.com>
 Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Link: https://lore.kernel.org/r/20220113111057.29918-4-yong.wu@mediatek.com
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Link: https://lore.kernel.org/r/20220315032411.2826-2-leilk.liu@mediatek.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/devicetree/bindings/memory-controllers/mediatek,smi-larb.yaml |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/spi/spi-mt65xx.c |   15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
---- a/Documentation/devicetree/bindings/memory-controllers/mediatek,smi-larb.yaml
-+++ b/Documentation/devicetree/bindings/memory-controllers/mediatek,smi-larb.yaml
-@@ -80,9 +80,10 @@ allOf:
-     then:
-       properties:
-         clocks:
--          minItems: 3
-+          minItems: 2
-           maxItems: 3
-         clock-names:
-+          minItems: 2
-           items:
-             - const: apb
-             - const: smi
+--- a/drivers/spi/spi-mt65xx.c
++++ b/drivers/spi/spi-mt65xx.c
+@@ -43,8 +43,11 @@
+ #define SPI_CFG1_PACKET_LOOP_OFFSET       8
+ #define SPI_CFG1_PACKET_LENGTH_OFFSET     16
+ #define SPI_CFG1_GET_TICK_DLY_OFFSET      29
++#define SPI_CFG1_GET_TICK_DLY_OFFSET_V1   30
+ 
+ #define SPI_CFG1_GET_TICK_DLY_MASK        0xe0000000
++#define SPI_CFG1_GET_TICK_DLY_MASK_V1     0xc0000000
++
+ #define SPI_CFG1_CS_IDLE_MASK             0xff
+ #define SPI_CFG1_PACKET_LOOP_MASK         0xff00
+ #define SPI_CFG1_PACKET_LENGTH_MASK       0x3ff0000
+@@ -346,9 +349,15 @@ static int mtk_spi_prepare_message(struc
+ 
+ 	/* tick delay */
+ 	reg_val = readl(mdata->base + SPI_CFG1_REG);
+-	reg_val &= ~SPI_CFG1_GET_TICK_DLY_MASK;
+-	reg_val |= ((chip_config->tick_delay & 0x7)
+-		<< SPI_CFG1_GET_TICK_DLY_OFFSET);
++	if (mdata->dev_comp->enhance_timing) {
++		reg_val &= ~SPI_CFG1_GET_TICK_DLY_MASK;
++		reg_val |= ((chip_config->tick_delay & 0x7)
++			    << SPI_CFG1_GET_TICK_DLY_OFFSET);
++	} else {
++		reg_val &= ~SPI_CFG1_GET_TICK_DLY_MASK_V1;
++		reg_val |= ((chip_config->tick_delay & 0x3)
++			    << SPI_CFG1_GET_TICK_DLY_OFFSET_V1);
++	}
+ 	writel(reg_val, mdata->base + SPI_CFG1_REG);
+ 
+ 	/* set hw cs timing */
 
 
