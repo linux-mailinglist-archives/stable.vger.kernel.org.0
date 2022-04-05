@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ED6694F2B61
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:10:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DD1B4F2BD5
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:21:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235397AbiDEJBs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:01:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60654 "EHLO
+        id S235362AbiDEJBj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:01:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53412 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237661AbiDEInE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:43:04 -0400
+        with ESMTP id S237681AbiDEInL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:43:11 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C57741705A;
-        Tue,  5 Apr 2022 01:35:30 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58E5D18E24;
+        Tue,  5 Apr 2022 01:35:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 62BDC60B0A;
-        Tue,  5 Apr 2022 08:35:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 787F9C385A1;
-        Tue,  5 Apr 2022 08:35:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DB6AE614E4;
+        Tue,  5 Apr 2022 08:35:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA18EC385A1;
+        Tue,  5 Apr 2022 08:35:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147729;
-        bh=Qkn4rQuY4vULlZ9kn3jjxMjdNkDLJ4Z9oqzqzL5TrYc=;
+        s=korg; t=1649147739;
+        bh=hlpP1U3hRUdL97y8XBp95xRS2hJfOceo/PY+X7k/Bs0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d+cCUZqCkNWaKrpq7KnccVgmqavMV4QROxDwBkP5JkdNIhDeIaKy0G2rTN30DZ9ZT
-         IvB+Oy2E4MFcPUtl6GUtijdkipQ78jpxGBgco05DL7RzAHv6WuhHNB0s/B2jr+0r2g
-         tSFHB2Aw51YqUBAcxMQbPd7HzUiqkWajHFPubTFE=
+        b=i7xyTrw8aj6aqsG4kLoPPttNmTCjbgzcyVboRkbBmS7WdhS5jIWq8XjqMgsHuk8we
+         7Uv1TPkGLXAPZjIwLNDhlR4XwJ55R+xMlcsZCGuadUzOTWRH1qO6Qf3XZoseU1IuiD
+         JbimObIoRy/8nvgH1BoTZjBecubPqIi84LoxqqQE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Peter Hutterer <peter.hutterer@who-t.net>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 5.16 0100/1017] Revert "Input: clear BTN_RIGHT/MIDDLE on buttonpads"
-Date:   Tue,  5 Apr 2022 09:16:53 +0200
-Message-Id: <20220405070357.165002721@linuxfoundation.org>
+        stable@vger.kernel.org, "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.16 0103/1017] cifs: fix NULL ptr dereference in smb2_ioctl_query_info()
+Date:   Tue,  5 Apr 2022 09:16:56 +0200
+Message-Id: <20220405070357.253622870@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -57,59 +53,329 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: José Expósito <jose.exposito89@gmail.com>
+From: Paulo Alcantara <pc@cjr.nz>
 
-commit 8b188fba75195745026e11d408e4a7e94e01d701 upstream.
+commit d6f5e358452479fa8a773b5c6ccc9e4ec5a20880 upstream.
 
-This reverts commit 37ef4c19b4c659926ce65a7ac709ceaefb211c40.
+When calling smb2_ioctl_query_info() with invalid
+smb_query_info::flags, a NULL ptr dereference is triggered when trying
+to kfree() uninitialised rqst[n].rq_iov array.
 
-The touchpad present in the Dell Precision 7550 and 7750 laptops
-reports a HID_DG_BUTTONTYPE of type MT_BUTTONTYPE_CLICKPAD. However,
-the device is not a clickpad, it is a touchpad with physical buttons.
+This also fixes leaked paths that are created in SMB2_open_init()
+which required SMB2_open_free() to properly free them.
 
-In order to fix this issue, a quirk for the device was introduced in
-libinput [1] [2] to disable the INPUT_PROP_BUTTONPAD property:
+Here is a small C reproducer that triggers it
 
-	[Precision 7x50 Touchpad]
-	MatchBus=i2c
-	MatchUdevType=touchpad
-	MatchDMIModalias=dmi:*svnDellInc.:pnPrecision7?50*
-	AttrInputPropDisable=INPUT_PROP_BUTTONPAD
+	#include <stdio.h>
+	#include <stdlib.h>
+	#include <stdint.h>
+	#include <unistd.h>
+	#include <fcntl.h>
+	#include <sys/ioctl.h>
 
-However, because of the change introduced in 37ef4c19b4 ("Input: clear
-BTN_RIGHT/MIDDLE on buttonpads") the BTN_RIGHT key bit is not mapped
-anymore breaking the device right click button and making impossible to
-workaround it in user space.
+	#define die(s) perror(s), exit(1)
+	#define QUERY_INFO 0xc018cf07
 
-In order to avoid breakage on other present or future devices, revert
-the patch causing the issue.
+	int main(int argc, char *argv[])
+	{
+		int fd;
 
-Signed-off-by: José Expósito <jose.exposito89@gmail.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Acked-by: Peter Hutterer <peter.hutterer@who-t.net>
-Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+		if (argc < 2)
+			exit(1);
+		fd = open(argv[1], O_RDONLY);
+		if (fd == -1)
+			die("open");
+		if (ioctl(fd, QUERY_INFO, (uint32_t[]) { 0, 0, 0, 4, 0, 0}) == -1)
+			die("ioctl");
+		close(fd);
+		return 0;
+	}
+
+	mount.cifs //srv/share /mnt -o ...
+	gcc repro.c && ./a.out /mnt/f0
+
+	[ 1832.124468] CIFS: VFS: \\w22-dc.zelda.test\test Invalid passthru query flags: 0x4
+	[ 1832.125043] general protection fault, probably for non-canonical address 0xdffffc0000000000: 0000 [#1] PREEMPT SMP KASAN NOPTI
+	[ 1832.125764] KASAN: null-ptr-deref in range [0x0000000000000000-0x0000000000000007]
+	[ 1832.126241] CPU: 3 PID: 1133 Comm: a.out Not tainted 5.17.0-rc8 #2
+	[ 1832.126630] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.15.0-0-g2dd4b9b-rebuilt.opensuse.org 04/01/2014
+	[ 1832.127322] RIP: 0010:smb2_ioctl_query_info+0x7a3/0xe30 [cifs]
+	[ 1832.127749] Code: 00 00 00 fc ff df 48 c1 ea 03 80 3c 02 00 0f 85 6c 05 00 00 48 b8 00 00 00 00 00 fc ff df 4d 8b 74 24 28 4c 89 f2 48 c1 ea 03 <80> 3c 02 00 0f 85 cb 04 00 00 49 8b 3e e8 bb fc fa ff 48 89 da 48
+	[ 1832.128911] RSP: 0018:ffffc90000957b08 EFLAGS: 00010256
+	[ 1832.129243] RAX: dffffc0000000000 RBX: ffff888117e9b850 RCX: ffffffffa020580d
+	[ 1832.129691] RDX: 0000000000000000 RSI: 0000000000000004 RDI: ffffffffa043a2c0
+	[ 1832.130137] RBP: ffff888117e9b878 R08: 0000000000000001 R09: 0000000000000003
+	[ 1832.130585] R10: fffffbfff4087458 R11: 0000000000000001 R12: ffff888117e9b800
+	[ 1832.131037] R13: 00000000ffffffea R14: 0000000000000000 R15: ffff888117e9b8a8
+	[ 1832.131485] FS:  00007fcee9900740(0000) GS:ffff888151a00000(0000) knlGS:0000000000000000
+	[ 1832.131993] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+	[ 1832.132354] CR2: 00007fcee9a1ef5e CR3: 0000000114cd2000 CR4: 0000000000350ee0
+	[ 1832.132801] Call Trace:
+	[ 1832.132962]  <TASK>
+	[ 1832.133104]  ? smb2_query_reparse_tag+0x890/0x890 [cifs]
+	[ 1832.133489]  ? cifs_mapchar+0x460/0x460 [cifs]
+	[ 1832.133822]  ? rcu_read_lock_sched_held+0x3f/0x70
+	[ 1832.134125]  ? cifs_strndup_to_utf16+0x15b/0x250 [cifs]
+	[ 1832.134502]  ? lock_downgrade+0x6f0/0x6f0
+	[ 1832.134760]  ? cifs_convert_path_to_utf16+0x198/0x220 [cifs]
+	[ 1832.135170]  ? smb2_check_message+0x1080/0x1080 [cifs]
+	[ 1832.135545]  cifs_ioctl+0x1577/0x3320 [cifs]
+	[ 1832.135864]  ? lock_downgrade+0x6f0/0x6f0
+	[ 1832.136125]  ? cifs_readdir+0x2e60/0x2e60 [cifs]
+	[ 1832.136468]  ? rcu_read_lock_sched_held+0x3f/0x70
+	[ 1832.136769]  ? __rseq_handle_notify_resume+0x80b/0xbe0
+	[ 1832.137096]  ? __up_read+0x192/0x710
+	[ 1832.137327]  ? __ia32_sys_rseq+0xf0/0xf0
+	[ 1832.137578]  ? __x64_sys_openat+0x11f/0x1d0
+	[ 1832.137850]  __x64_sys_ioctl+0x127/0x190
+	[ 1832.138103]  do_syscall_64+0x3b/0x90
+	[ 1832.138378]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+	[ 1832.138702] RIP: 0033:0x7fcee9a253df
+	[ 1832.138937] Code: 00 48 89 44 24 18 31 c0 48 8d 44 24 60 c7 04 24 10 00 00 00 48 89 44 24 08 48 8d 44 24 20 48 89 44 24 10 b8 10 00 00 00 0f 05 <41> 89 c0 3d 00 f0 ff ff 77 1f 48 8b 44 24 18 64 48 2b 04 25 28 00
+	[ 1832.140107] RSP: 002b:00007ffeba94a8a0 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+	[ 1832.140606] RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007fcee9a253df
+	[ 1832.141058] RDX: 00007ffeba94a910 RSI: 00000000c018cf07 RDI: 0000000000000003
+	[ 1832.141503] RBP: 00007ffeba94a930 R08: 00007fcee9b24db0 R09: 00007fcee9b45c4e
+	[ 1832.141948] R10: 00007fcee9918d40 R11: 0000000000000246 R12: 00007ffeba94aa48
+	[ 1832.142396] R13: 0000000000401176 R14: 0000000000403df8 R15: 00007fcee9b78000
+	[ 1832.142851]  </TASK>
+	[ 1832.142994] Modules linked in: cifs cifs_arc4 cifs_md4 bpf_preload [last unloaded: cifs]
+
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220321184404.20025-1-jose.exposito89@gmail.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/input/input.c |    6 ------
- 1 file changed, 6 deletions(-)
+ fs/cifs/smb2ops.c |  124 ++++++++++++++++++++++++++++--------------------------
+ 1 file changed, 65 insertions(+), 59 deletions(-)
 
---- a/drivers/input/input.c
-+++ b/drivers/input/input.c
-@@ -2285,12 +2285,6 @@ int input_register_device(struct input_d
- 	/* KEY_RESERVED is not supposed to be transmitted to userspace. */
- 	__clear_bit(KEY_RESERVED, dev->keybit);
+--- a/fs/cifs/smb2ops.c
++++ b/fs/cifs/smb2ops.c
+@@ -1631,6 +1631,7 @@ smb2_ioctl_query_info(const unsigned int
+ 	unsigned int size[2];
+ 	void *data[2];
+ 	int create_options = is_dir ? CREATE_NOT_FILE : CREATE_NOT_DIR;
++	void (*free_req1_func)(struct smb_rqst *r);
  
--	/* Buttonpads should not map BTN_RIGHT and/or BTN_MIDDLE. */
--	if (test_bit(INPUT_PROP_BUTTONPAD, dev->propbit)) {
--		__clear_bit(BTN_RIGHT, dev->keybit);
--		__clear_bit(BTN_MIDDLE, dev->keybit);
--	}
+ 	vars = kzalloc(sizeof(*vars), GFP_ATOMIC);
+ 	if (vars == NULL)
+@@ -1640,17 +1641,18 @@ smb2_ioctl_query_info(const unsigned int
+ 
+ 	resp_buftype[0] = resp_buftype[1] = resp_buftype[2] = CIFS_NO_BUFFER;
+ 
+-	if (copy_from_user(&qi, arg, sizeof(struct smb_query_info)))
+-		goto e_fault;
 -
- 	/* Make sure that bitmasks not mentioned in dev->evbit are clean. */
- 	input_cleanse_bitmasks(dev);
++	if (copy_from_user(&qi, arg, sizeof(struct smb_query_info))) {
++		rc = -EFAULT;
++		goto free_vars;
++	}
+ 	if (qi.output_buffer_length > 1024) {
+-		kfree(vars);
+-		return -EINVAL;
++		rc = -EINVAL;
++		goto free_vars;
+ 	}
  
+ 	if (!ses || !server) {
+-		kfree(vars);
+-		return -EIO;
++		rc = -EIO;
++		goto free_vars;
+ 	}
+ 
+ 	if (smb3_encryption_required(tcon))
+@@ -1659,8 +1661,8 @@ smb2_ioctl_query_info(const unsigned int
+ 	if (qi.output_buffer_length) {
+ 		buffer = memdup_user(arg + sizeof(struct smb_query_info), qi.output_buffer_length);
+ 		if (IS_ERR(buffer)) {
+-			kfree(vars);
+-			return PTR_ERR(buffer);
++			rc = PTR_ERR(buffer);
++			goto free_vars;
+ 		}
+ 	}
+ 
+@@ -1699,48 +1701,45 @@ smb2_ioctl_query_info(const unsigned int
+ 	rc = SMB2_open_init(tcon, server,
+ 			    &rqst[0], &oplock, &oparms, path);
+ 	if (rc)
+-		goto iqinf_exit;
++		goto free_output_buffer;
+ 	smb2_set_next_command(tcon, &rqst[0]);
+ 
+ 	/* Query */
+ 	if (qi.flags & PASSTHRU_FSCTL) {
+ 		/* Can eventually relax perm check since server enforces too */
+-		if (!capable(CAP_SYS_ADMIN))
++		if (!capable(CAP_SYS_ADMIN)) {
+ 			rc = -EPERM;
+-		else  {
+-			rqst[1].rq_iov = &vars->io_iov[0];
+-			rqst[1].rq_nvec = SMB2_IOCTL_IOV_SIZE;
+-
+-			rc = SMB2_ioctl_init(tcon, server,
+-					     &rqst[1],
+-					     COMPOUND_FID, COMPOUND_FID,
+-					     qi.info_type, true, buffer,
+-					     qi.output_buffer_length,
+-					     CIFSMaxBufSize -
+-					     MAX_SMB2_CREATE_RESPONSE_SIZE -
+-					     MAX_SMB2_CLOSE_RESPONSE_SIZE);
++			goto free_open_req;
+ 		}
++		rqst[1].rq_iov = &vars->io_iov[0];
++		rqst[1].rq_nvec = SMB2_IOCTL_IOV_SIZE;
++
++		rc = SMB2_ioctl_init(tcon, server, &rqst[1], COMPOUND_FID, COMPOUND_FID,
++				     qi.info_type, true, buffer, qi.output_buffer_length,
++				     CIFSMaxBufSize - MAX_SMB2_CREATE_RESPONSE_SIZE -
++				     MAX_SMB2_CLOSE_RESPONSE_SIZE);
++		free_req1_func = SMB2_ioctl_free;
+ 	} else if (qi.flags == PASSTHRU_SET_INFO) {
+ 		/* Can eventually relax perm check since server enforces too */
+-		if (!capable(CAP_SYS_ADMIN))
++		if (!capable(CAP_SYS_ADMIN)) {
+ 			rc = -EPERM;
+-		else if (qi.output_buffer_length < 8)
++			goto free_open_req;
++		}
++		if (qi.output_buffer_length < 8) {
+ 			rc = -EINVAL;
+-		else {
+-			rqst[1].rq_iov = &vars->si_iov[0];
+-			rqst[1].rq_nvec = 1;
+-
+-			/* MS-FSCC 2.4.13 FileEndOfFileInformation */
+-			size[0] = 8;
+-			data[0] = buffer;
+-
+-			rc = SMB2_set_info_init(tcon, server,
+-					&rqst[1],
+-					COMPOUND_FID, COMPOUND_FID,
+-					current->tgid,
+-					FILE_END_OF_FILE_INFORMATION,
+-					SMB2_O_INFO_FILE, 0, data, size);
++			goto free_open_req;
+ 		}
++		rqst[1].rq_iov = &vars->si_iov[0];
++		rqst[1].rq_nvec = 1;
++
++		/* MS-FSCC 2.4.13 FileEndOfFileInformation */
++		size[0] = 8;
++		data[0] = buffer;
++
++		rc = SMB2_set_info_init(tcon, server, &rqst[1], COMPOUND_FID, COMPOUND_FID,
++					current->tgid, FILE_END_OF_FILE_INFORMATION,
++					SMB2_O_INFO_FILE, 0, data, size);
++		free_req1_func = SMB2_set_info_free;
+ 	} else if (qi.flags == PASSTHRU_QUERY_INFO) {
+ 		rqst[1].rq_iov = &vars->qi_iov[0];
+ 		rqst[1].rq_nvec = 1;
+@@ -1751,6 +1750,7 @@ smb2_ioctl_query_info(const unsigned int
+ 				  qi.info_type, qi.additional_information,
+ 				  qi.input_buffer_length,
+ 				  qi.output_buffer_length, buffer);
++		free_req1_func = SMB2_query_info_free;
+ 	} else { /* unknown flags */
+ 		cifs_tcon_dbg(VFS, "Invalid passthru query flags: 0x%x\n",
+ 			      qi.flags);
+@@ -1758,7 +1758,7 @@ smb2_ioctl_query_info(const unsigned int
+ 	}
+ 
+ 	if (rc)
+-		goto iqinf_exit;
++		goto free_open_req;
+ 	smb2_set_next_command(tcon, &rqst[1]);
+ 	smb2_set_related(&rqst[1]);
+ 
+@@ -1769,14 +1769,14 @@ smb2_ioctl_query_info(const unsigned int
+ 	rc = SMB2_close_init(tcon, server,
+ 			     &rqst[2], COMPOUND_FID, COMPOUND_FID, false);
+ 	if (rc)
+-		goto iqinf_exit;
++		goto free_req_1;
+ 	smb2_set_related(&rqst[2]);
+ 
+ 	rc = compound_send_recv(xid, ses, server,
+ 				flags, 3, rqst,
+ 				resp_buftype, rsp_iov);
+ 	if (rc)
+-		goto iqinf_exit;
++		goto out;
+ 
+ 	/* No need to bump num_remote_opens since handle immediately closed */
+ 	if (qi.flags & PASSTHRU_FSCTL) {
+@@ -1786,18 +1786,22 @@ smb2_ioctl_query_info(const unsigned int
+ 			qi.input_buffer_length = le32_to_cpu(io_rsp->OutputCount);
+ 		if (qi.input_buffer_length > 0 &&
+ 		    le32_to_cpu(io_rsp->OutputOffset) + qi.input_buffer_length
+-		    > rsp_iov[1].iov_len)
+-			goto e_fault;
++		    > rsp_iov[1].iov_len) {
++			rc = -EFAULT;
++			goto out;
++		}
+ 
+ 		if (copy_to_user(&pqi->input_buffer_length,
+ 				 &qi.input_buffer_length,
+-				 sizeof(qi.input_buffer_length)))
+-			goto e_fault;
++				 sizeof(qi.input_buffer_length))) {
++			rc = -EFAULT;
++			goto out;
++		}
+ 
+ 		if (copy_to_user((void __user *)pqi + sizeof(struct smb_query_info),
+ 				 (const void *)io_rsp + le32_to_cpu(io_rsp->OutputOffset),
+ 				 qi.input_buffer_length))
+-			goto e_fault;
++			rc = -EFAULT;
+ 	} else {
+ 		pqi = (struct smb_query_info __user *)arg;
+ 		qi_rsp = (struct smb2_query_info_rsp *)rsp_iov[1].iov_base;
+@@ -1805,28 +1809,30 @@ smb2_ioctl_query_info(const unsigned int
+ 			qi.input_buffer_length = le32_to_cpu(qi_rsp->OutputBufferLength);
+ 		if (copy_to_user(&pqi->input_buffer_length,
+ 				 &qi.input_buffer_length,
+-				 sizeof(qi.input_buffer_length)))
+-			goto e_fault;
++				 sizeof(qi.input_buffer_length))) {
++			rc = -EFAULT;
++			goto out;
++		}
+ 
+ 		if (copy_to_user(pqi + 1, qi_rsp->Buffer,
+ 				 qi.input_buffer_length))
+-			goto e_fault;
++			rc = -EFAULT;
+ 	}
+ 
+- iqinf_exit:
+-	cifs_small_buf_release(rqst[0].rq_iov[0].iov_base);
+-	cifs_small_buf_release(rqst[1].rq_iov[0].iov_base);
+-	cifs_small_buf_release(rqst[2].rq_iov[0].iov_base);
++out:
+ 	free_rsp_buf(resp_buftype[0], rsp_iov[0].iov_base);
+ 	free_rsp_buf(resp_buftype[1], rsp_iov[1].iov_base);
+ 	free_rsp_buf(resp_buftype[2], rsp_iov[2].iov_base);
+-	kfree(vars);
++	SMB2_close_free(&rqst[2]);
++free_req_1:
++	free_req1_func(&rqst[1]);
++free_open_req:
++	SMB2_open_free(&rqst[0]);
++free_output_buffer:
+ 	kfree(buffer);
++free_vars:
++	kfree(vars);
+ 	return rc;
+-
+-e_fault:
+-	rc = -EFAULT;
+-	goto iqinf_exit;
+ }
+ 
+ static ssize_t
 
 
