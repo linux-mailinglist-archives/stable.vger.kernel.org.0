@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AB4244F2EAA
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:02:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DDD64F31E8
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:53:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241938AbiDEIgJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:36:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44590 "EHLO
+        id S242523AbiDEJhY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:37:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238967AbiDEITd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:19:33 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24F2275C38;
-        Tue,  5 Apr 2022 01:09:56 -0700 (PDT)
+        with ESMTP id S235787AbiDEJCl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:02:41 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C8472B26C;
+        Tue,  5 Apr 2022 01:54:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D887DB81B90;
-        Tue,  5 Apr 2022 08:09:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37CC5C385A0;
-        Tue,  5 Apr 2022 08:09:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 081A3B81A0C;
+        Tue,  5 Apr 2022 08:54:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 560A2C385A1;
+        Tue,  5 Apr 2022 08:54:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146193;
-        bh=+EkYPM/9VSMLeOdGLvUk8BbpTJ3vtgGT8IT5amiLLb0=;
+        s=korg; t=1649148862;
+        bh=h2v0DIlqn7MvODtMU7B5duk+eFWQY+7yWPinQ/7cefg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dtySrJGr6y5zD7e104cetnnJTzLWuJ7lx1rVolHLJvALwVi5oW69iAjEk0edvHXk/
-         BVpc8srD8f2AWoC0T6TWdl2VWb+r5M67E9YjbIVO2KJZ6sn1uYHtrF9eNYRH91pSU4
-         UDjJxM+2450f/6dt2TP9tOQYllKGijIRtv/MjVTs=
+        b=nF2npzTtmp/gmkK43I9f3I+82WRHvIeEGsc5GsPmlcHANv02sBUPGhLgrHm8igSSp
+         SXCYSNLiZQW3DNfrjQqSOWV5yX7/NjY3+uQDN1glfkCXAXU1+UjjREgCYQxRkQbCQs
+         kuz/GYs+iNRAYHsRBkNbCV0EN/WjuM1e1g6qLKsQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rob Clark <robdclark@chromium.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        stable@vger.kernel.org, Ilan Peer <ilan.peer@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0637/1126] drm/msm/a6xx: Fix missing ARRAY_SIZE() check
+Subject: [PATCH 5.16 0471/1017] mac80211: Remove a couple of obsolete TODO
 Date:   Tue,  5 Apr 2022 09:23:04 +0200
-Message-Id: <20220405070426.333993833@linuxfoundation.org>
+Message-Id: <20220405070408.279247446@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,51 +55,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Clark <robdclark@chromium.org>
+From: Ilan Peer <ilan.peer@intel.com>
 
-[ Upstream commit cca96584b35765bf9eb5f38ca55a144ea2ba0de4 ]
+[ Upstream commit cee04f3c3a00ffd2a2a6ed1028e0ab58a3a28d25 ]
 
-Fixes: f6d62d091cfd ("drm/msm/a6xx: add support for Adreno 660 GPU")
-Signed-off-by: Rob Clark <robdclark@chromium.org>
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Link: https://lore.kernel.org/r/20220305173405.914989-1-robdclark@gmail.com
+The HE capability IE is an extension IE so remove
+an irrelevant comments.
+
+Signed-off-by: Ilan Peer <ilan.peer@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20211129152938.550b95b5fca7.Ia31395e880172aefcc0a8c70ed060f84b94bdb83@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/adreno/a6xx_gpu.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ net/mac80211/main.c | 13 +++++--------
+ net/mac80211/mlme.c |  4 ----
+ 2 files changed, 5 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
-index 17cfad6424db..616be7265da4 100644
---- a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
-+++ b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
-@@ -655,19 +655,23 @@ static void a6xx_set_cp_protect(struct msm_gpu *gpu)
- {
- 	struct adreno_gpu *adreno_gpu = to_adreno_gpu(gpu);
- 	const u32 *regs = a6xx_protect;
--	unsigned i, count = ARRAY_SIZE(a6xx_protect), count_max = 32;
--
--	BUILD_BUG_ON(ARRAY_SIZE(a6xx_protect) > 32);
--	BUILD_BUG_ON(ARRAY_SIZE(a650_protect) > 48);
-+	unsigned i, count, count_max;
+diff --git a/net/mac80211/main.c b/net/mac80211/main.c
+index 45fb517591ee..5311c3cd3050 100644
+--- a/net/mac80211/main.c
++++ b/net/mac80211/main.c
+@@ -1131,17 +1131,14 @@ int ieee80211_register_hw(struct ieee80211_hw *hw)
+ 		local->scan_ies_len +=
+ 			2 + sizeof(struct ieee80211_vht_cap);
  
- 	if (adreno_is_a650(adreno_gpu)) {
- 		regs = a650_protect;
- 		count = ARRAY_SIZE(a650_protect);
- 		count_max = 48;
-+		BUILD_BUG_ON(ARRAY_SIZE(a650_protect) > 48);
- 	} else if (adreno_is_a660_family(adreno_gpu)) {
- 		regs = a660_protect;
- 		count = ARRAY_SIZE(a660_protect);
- 		count_max = 48;
-+		BUILD_BUG_ON(ARRAY_SIZE(a660_protect) > 48);
-+	} else {
-+		regs = a6xx_protect;
-+		count = ARRAY_SIZE(a6xx_protect);
-+		count_max = 32;
-+		BUILD_BUG_ON(ARRAY_SIZE(a6xx_protect) > 32);
- 	}
- 
+-	/* HE cap element is variable in size - set len to allow max size */
  	/*
+-	 * TODO: 1 is added at the end of the calculation to accommodate for
+-	 *	the temporary placing of the HE capabilities IE under EXT.
+-	 *	Remove it once it is placed in the final place.
+-	 */
+-	if (supp_he)
++	 * HE cap element is variable in size - set len to allow max size */
++	if (supp_he) {
+ 		local->scan_ies_len +=
+-			2 + sizeof(struct ieee80211_he_cap_elem) +
++			3 + sizeof(struct ieee80211_he_cap_elem) +
+ 			sizeof(struct ieee80211_he_mcs_nss_supp) +
+-			IEEE80211_HE_PPE_THRES_MAX_LEN + 1;
++			IEEE80211_HE_PPE_THRES_MAX_LEN;
++	}
+ 
+ 	if (!local->ops->hw_scan) {
+ 		/* For hw_scan, driver needs to set these up. */
+diff --git a/net/mac80211/mlme.c b/net/mac80211/mlme.c
+index 404b84650161..13496ba48514 100644
+--- a/net/mac80211/mlme.c
++++ b/net/mac80211/mlme.c
+@@ -650,10 +650,6 @@ static void ieee80211_add_he_ie(struct ieee80211_sub_if_data *sdata,
+ 	if (!he_cap || !reg_cap)
+ 		return;
+ 
+-	/*
+-	 * TODO: the 1 added is because this temporarily is under the EXTENSION
+-	 * IE. Get rid of it when it moves.
+-	 */
+ 	he_cap_size =
+ 		2 + 1 + sizeof(he_cap->he_cap_elem) +
+ 		ieee80211_he_mcs_nss_size(&he_cap->he_cap_elem) +
 -- 
 2.34.1
 
