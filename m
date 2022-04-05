@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8017A4F2C0D
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:22:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E2BF4F2E71
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:00:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344041AbiDEJRD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:17:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51136 "EHLO
+        id S236891AbiDEJDm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:03:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245019AbiDEIxC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:53:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4844D9D;
-        Tue,  5 Apr 2022 01:49:36 -0700 (PDT)
+        with ESMTP id S237091AbiDEIRl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:17:41 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2987B0A4F;
+        Tue,  5 Apr 2022 01:05:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 81EA160FFB;
-        Tue,  5 Apr 2022 08:49:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96349C385A1;
-        Tue,  5 Apr 2022 08:49:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1FD43B81BB0;
+        Tue,  5 Apr 2022 08:05:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51DBAC385A1;
+        Tue,  5 Apr 2022 08:05:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148576;
-        bh=m0gxXestR9TuCF6pwebEyOfHf08GivCI31KBId5HBac=;
+        s=korg; t=1649145902;
+        bh=7kR5Em9KAFPcdr/UzJk7L2Vdy1QzIZOvLSTG4t3zRps=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CwXOhh2jae1aaO0AzlLf6CAo6z0BIwPCQk0s2Np/wjeVxcV2Hdprq02iDWYoPjaFr
-         LhAX9a3slRIX/kke3H45VZ81pvmpgPYBlMVcwv4t5ICw5uBhhimvLukl0Ii/UxLuYz
-         jfhP2x6oZZe9q4syd/GzfLkZEOeQPAljwj2e83XA=
+        b=sy4oiWvy7873qRMDO+moYKD+SU1RjK2eyjNvs3Yu/kt+wBi5DnacRLqnaJkPXL/bM
+         UfIcFPiFlW6GP4zxOAf0tu+tb3kMBmm2hchkEHV0EekCS5jsQ4qsRsk/xHW/Il/d2G
+         6ysqHHu7j4hw1oaLTwYygCFFuPx8yX+P7Amj2oUA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wen Gong <quic_wgong@quicinc.com>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
+        stable@vger.kernel.org,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Abhinav Kumar <quic_abhinavk@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0405/1017] ath10k: fix memory overwrite of the WoWLAN wakeup packet pattern
+Subject: [PATCH 5.17 0571/1126] drm/msm/dsi/phy: fix 7nm v4.0 settings for C-PHY mode
 Date:   Tue,  5 Apr 2022 09:21:58 +0200
-Message-Id: <20220405070406.310457627@linuxfoundation.org>
+Message-Id: <20220405070424.394652316@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,54 +55,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wen Gong <quic_wgong@quicinc.com>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-[ Upstream commit e3fb3d4418fce5484dfe7995fcd94c18b10a431a ]
+[ Upstream commit bb07af2ed2a47dc6c4d0681f275bb27d4f845465 ]
 
-In function ath10k_wow_convert_8023_to_80211(), it will do memcpy for
-the new->pattern, and currently the new->pattern and new->mask is same
-with the old, then the memcpy of new->pattern will also overwrite the
-old->pattern, because the header format of new->pattern is 802.11,
-its length is larger than the old->pattern which is 802.3. Then the
-operation of "Copy frame body" will copy a mistake value because the
-body memory has been overwrite when memcpy the new->pattern.
+The dsi_7nm_phy_enable() disagrees with downstream for
+glbl_str_swi_cal_sel_ctrl and glbl_hstx_str_ctrl_0 values. Update
+programmed settings to match downstream driver. To remove the
+possibility for such errors in future drop less_than_1500_mhz
+assignment and specify settings explicitly.
 
-Assign another empty value to new_pattern to avoid the overwrite issue.
-
-Tested-on: QCA6174 hw3.2 SDIO WLAN.RMH.4.4.1-00049
-
-Fixes: fa3440fa2fa1 ("ath10k: convert wow pattern from 802.3 to 802.11")
-Signed-off-by: Wen Gong <quic_wgong@quicinc.com>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/20211222031347.25463-1-quic_wgong@quicinc.com
+Fixes: 5ac178381d26 ("drm/msm/dsi: support CPHY mode for 7nm pll/phy")
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Link: https://lore.kernel.org/r/20220217000837.435340-1-dmitry.baryshkov@linaro.org
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath10k/wow.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/msm/dsi/phy/dsi_phy_7nm.c | 22 ++++++++++++++--------
+ 1 file changed, 14 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath10k/wow.c b/drivers/net/wireless/ath/ath10k/wow.c
-index 7d65c115669f..20b9aa8ddf7d 100644
---- a/drivers/net/wireless/ath/ath10k/wow.c
-+++ b/drivers/net/wireless/ath/ath10k/wow.c
-@@ -337,14 +337,15 @@ static int ath10k_vif_wow_set_wakeups(struct ath10k_vif *arvif,
- 			if (patterns[i].mask[j / 8] & BIT(j % 8))
- 				bitmask[j] = 0xff;
- 		old_pattern.mask = bitmask;
--		new_pattern = old_pattern;
+diff --git a/drivers/gpu/drm/msm/dsi/phy/dsi_phy_7nm.c b/drivers/gpu/drm/msm/dsi/phy/dsi_phy_7nm.c
+index 36eb6109cb88..6e506feb111f 100644
+--- a/drivers/gpu/drm/msm/dsi/phy/dsi_phy_7nm.c
++++ b/drivers/gpu/drm/msm/dsi/phy/dsi_phy_7nm.c
+@@ -864,20 +864,26 @@ static int dsi_7nm_phy_enable(struct msm_dsi_phy *phy,
+ 	/* Alter PHY configurations if data rate less than 1.5GHZ*/
+ 	less_than_1500_mhz = (clk_req->bitclk_rate <= 1500000000);
  
- 		if (ar->wmi.rx_decap_mode == ATH10K_HW_TXRX_NATIVE_WIFI) {
--			if (patterns[i].pkt_offset < ETH_HLEN)
-+			if (patterns[i].pkt_offset < ETH_HLEN) {
- 				ath10k_wow_convert_8023_to_80211(&new_pattern,
- 								 &old_pattern);
--			else
-+			} else {
-+				new_pattern = old_pattern;
- 				new_pattern.pkt_offset += WOW_HDR_LEN - ETH_HLEN;
-+			}
- 		}
- 
- 		if (WARN_ON(new_pattern.pattern_len > WOW_MAX_PATTERN_SIZE))
+-	/* For C-PHY, no low power settings for lower clk rate */
+-	if (phy->cphy_mode)
+-		less_than_1500_mhz = false;
+-
+ 	if (phy->cfg->quirks & DSI_PHY_7NM_QUIRK_V4_1) {
+ 		vreg_ctrl_0 = less_than_1500_mhz ? 0x53 : 0x52;
+-		glbl_rescode_top_ctrl = less_than_1500_mhz ? 0x3d :  0x00;
+-		glbl_rescode_bot_ctrl = less_than_1500_mhz ? 0x39 :  0x3c;
++		if (phy->cphy_mode) {
++			glbl_rescode_top_ctrl = 0x00;
++			glbl_rescode_bot_ctrl = 0x3c;
++		} else {
++			glbl_rescode_top_ctrl = less_than_1500_mhz ? 0x3d :  0x00;
++			glbl_rescode_bot_ctrl = less_than_1500_mhz ? 0x39 :  0x3c;
++		}
+ 		glbl_str_swi_cal_sel_ctrl = 0x00;
+ 		glbl_hstx_str_ctrl_0 = 0x88;
+ 	} else {
+ 		vreg_ctrl_0 = less_than_1500_mhz ? 0x5B : 0x59;
+-		glbl_str_swi_cal_sel_ctrl = less_than_1500_mhz ? 0x03 : 0x00;
+-		glbl_hstx_str_ctrl_0 = less_than_1500_mhz ? 0x66 : 0x88;
++		if (phy->cphy_mode) {
++			glbl_str_swi_cal_sel_ctrl = 0x03;
++			glbl_hstx_str_ctrl_0 = 0x66;
++		} else {
++			glbl_str_swi_cal_sel_ctrl = less_than_1500_mhz ? 0x03 : 0x00;
++			glbl_hstx_str_ctrl_0 = less_than_1500_mhz ? 0x66 : 0x88;
++		}
+ 		glbl_rescode_top_ctrl = 0x03;
+ 		glbl_rescode_bot_ctrl = 0x3c;
+ 	}
 -- 
 2.34.1
 
