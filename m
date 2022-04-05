@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EA264F389D
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:35:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9F7B4F3C4E
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:25:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241543AbiDEL0V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:26:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48558 "EHLO
+        id S1346513AbiDEMHa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:07:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50516 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349511AbiDEJuA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:50:00 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 979A31B6;
-        Tue,  5 Apr 2022 02:48:01 -0700 (PDT)
+        with ESMTP id S1357456AbiDEK0Z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:26:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8201122BE9;
+        Tue,  5 Apr 2022 03:10:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 52C20B818F3;
-        Tue,  5 Apr 2022 09:48:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD348C385A2;
-        Tue,  5 Apr 2022 09:47:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C69B06172B;
+        Tue,  5 Apr 2022 10:10:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB49CC385A2;
+        Tue,  5 Apr 2022 10:10:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152079;
-        bh=ryI4nmnWCITwgMxyxAhVGbPtmN7Hf4iB4cJjnuFKMfs=;
+        s=korg; t=1649153411;
+        bh=dzWhcPIWdsa4A39sNEcEVgjZ6v05Z816/SN2s+i6y/Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CsJr897De82IAoZIGx9hb0XukUDwGOoql/OqpSwoAlCWVDJOHSqxKZzgMVAklcXP0
-         Ok6nnsA/jeqUY24cjnEYKlbtlkndXq3ELwVNZ9wqYVdNBv9IdD+uc8CI6xDgoaM+ts
-         OcsM37c5t1+8932y5bd9OqGqvRuhsUL4YtcqBGAU=
+        b=tbeJalYHgVjSOreVlHkVJvRSlLvY2wp6gfQVJ6fGQaOQEBH+wYhi8rcCI+ciZKbM+
+         VevoshsUkZUCeEHEiqk1HKYPl7unCO7V9IhsiDhJQOIrqu8Xlnv2DfO9m+DKeBJ9XL
+         GQ1k9WUnMU5kTmFhGBIeGEOhNWUILk0GuGTvToxg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        anton ivanov <anton.ivanov@cambridgegreys.com>,
-        Julius Werner <jwerner@chromium.org>,
-        David Gow <davidgow@google.com>,
+        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Fabio Estevam <festevam@gmail.com>,
+        NXP Linux Team <linux-imx@nxp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 646/913] firmware: google: Properly state IOMEM dependency
+Subject: [PATCH 5.10 214/599] ARM: dts: imx: Add missing LVDS decoder on M53Menlo
 Date:   Tue,  5 Apr 2022 09:28:28 +0200
-Message-Id: <20220405070359.203583469@linuxfoundation.org>
+Message-Id: <20220405070305.211683074@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070258.802373272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,56 +56,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Gow <davidgow@google.com>
+From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit 37fd83916da2e4cae03d350015c82a67b1b334c4 ]
+[ Upstream commit 0c6f71176ea43d6f4003a4d57f7bb518c5ad6145 ]
 
-The Google Coreboot implementation requires IOMEM functions
-(memmremap, memunmap, devm_memremap), but does not specify this is its
-Kconfig. This results in build errors when HAS_IOMEM is not set, such as
-on some UML configurations:
+The M53Menlo display unit uses an LVDS-to-DPI bridge, TI DS90CF364A.
+Describe this bridge in DT, otherwise the DT incorrectly describes
+DPI panel attached directly to LVDS source.
 
-/usr/bin/ld: drivers/firmware/google/coreboot_table.o: in function `coreboot_table_probe':
-coreboot_table.c:(.text+0x311): undefined reference to `memremap'
-/usr/bin/ld: coreboot_table.c:(.text+0x34e): undefined reference to `memunmap'
-/usr/bin/ld: drivers/firmware/google/memconsole-coreboot.o: in function `memconsole_probe':
-memconsole-coreboot.c:(.text+0x12d): undefined reference to `memremap'
-/usr/bin/ld: memconsole-coreboot.c:(.text+0x17e): undefined reference to `devm_memremap'
-/usr/bin/ld: memconsole-coreboot.c:(.text+0x191): undefined reference to `memunmap'
-/usr/bin/ld: drivers/firmware/google/vpd.o: in function `vpd_section_destroy.isra.0':
-vpd.c:(.text+0x300): undefined reference to `memunmap'
-/usr/bin/ld: drivers/firmware/google/vpd.o: in function `vpd_section_init':
-vpd.c:(.text+0x382): undefined reference to `memremap'
-/usr/bin/ld: vpd.c:(.text+0x459): undefined reference to `memunmap'
-/usr/bin/ld: drivers/firmware/google/vpd.o: in function `vpd_probe':
-vpd.c:(.text+0x59d): undefined reference to `memremap'
-/usr/bin/ld: vpd.c:(.text+0x5d3): undefined reference to `memunmap'
-collect2: error: ld returned 1 exit status
-
-Fixes: a28aad66da8b ("firmware: coreboot: Collapse platform drivers into bus core")
-Acked-By: anton ivanov <anton.ivanov@cambridgegreys.com>
-Acked-By: Julius Werner <jwerner@chromium.org>
-Signed-off-by: David Gow <davidgow@google.com>
-Link: https://lore.kernel.org/r/20220225041502.1901806-1-davidgow@google.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 716be61d1869 ("ARM: dts: imx53: Add Menlosystems M53 board")
+Signed-off-by: Marek Vasut <marex@denx.de>
+Cc: Shawn Guo <shawnguo@kernel.org>
+Cc: Fabio Estevam <festevam@gmail.com>
+Cc: NXP Linux Team <linux-imx@nxp.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/google/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/dts/imx53-m53menlo.dts | 29 ++++++++++++++++++++++++++--
+ 1 file changed, 27 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/firmware/google/Kconfig b/drivers/firmware/google/Kconfig
-index 931544c9f63d..983e07dc022e 100644
---- a/drivers/firmware/google/Kconfig
-+++ b/drivers/firmware/google/Kconfig
-@@ -21,7 +21,7 @@ config GOOGLE_SMI
+diff --git a/arch/arm/boot/dts/imx53-m53menlo.dts b/arch/arm/boot/dts/imx53-m53menlo.dts
+index 4f88e96d81dd..d5c68d1ea707 100644
+--- a/arch/arm/boot/dts/imx53-m53menlo.dts
++++ b/arch/arm/boot/dts/imx53-m53menlo.dts
+@@ -53,6 +53,31 @@
+ 		};
+ 	};
  
- config GOOGLE_COREBOOT_TABLE
- 	tristate "Coreboot Table Access"
--	depends on ACPI || OF
-+	depends on HAS_IOMEM && (ACPI || OF)
- 	help
- 	  This option enables the coreboot_table module, which provides other
- 	  firmware modules access to the coreboot table. The coreboot table
++	lvds-decoder {
++		compatible = "ti,ds90cf364a", "lvds-decoder";
++
++		ports {
++			#address-cells = <1>;
++			#size-cells = <0>;
++
++			port@0 {
++				reg = <0>;
++
++				lvds_decoder_in: endpoint {
++					remote-endpoint = <&lvds0_out>;
++				};
++			};
++
++			port@1 {
++				reg = <1>;
++
++				lvds_decoder_out: endpoint {
++					remote-endpoint = <&panel_in>;
++				};
++			};
++		};
++	};
++
+ 	panel {
+ 		compatible = "edt,etm0700g0dh6";
+ 		pinctrl-0 = <&pinctrl_display_gpio>;
+@@ -61,7 +86,7 @@
+ 
+ 		port {
+ 			panel_in: endpoint {
+-				remote-endpoint = <&lvds0_out>;
++				remote-endpoint = <&lvds_decoder_out>;
+ 			};
+ 		};
+ 	};
+@@ -450,7 +475,7 @@
+ 			reg = <2>;
+ 
+ 			lvds0_out: endpoint {
+-				remote-endpoint = <&panel_in>;
++				remote-endpoint = <&lvds_decoder_in>;
+ 			};
+ 		};
+ 	};
 -- 
 2.34.1
 
