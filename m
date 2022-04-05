@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CC124F339D
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:21:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 864C24F31FB
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:53:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243136AbiDEKtA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:49:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41936 "EHLO
+        id S1347794AbiDEJ2U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:28:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47862 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244449AbiDEJlT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:41:19 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FA86BB91B;
-        Tue,  5 Apr 2022 02:26:28 -0700 (PDT)
+        with ESMTP id S244908AbiDEIwq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68D5924948;
+        Tue,  5 Apr 2022 01:46:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 38F14B81C9F;
-        Tue,  5 Apr 2022 09:26:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C5A3C385A0;
-        Tue,  5 Apr 2022 09:26:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0BBDBB81BAE;
+        Tue,  5 Apr 2022 08:46:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D2B9C385A0;
+        Tue,  5 Apr 2022 08:46:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150786;
-        bh=dlYk8rC60OvZeHn5CTD5I6a5wqwswMluROqrjoBv3YU=;
+        s=korg; t=1649148364;
+        bh=dzWhcPIWdsa4A39sNEcEVgjZ6v05Z816/SN2s+i6y/Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l7Vhytfdge9AT8oQzkIJ+PVUL685R/BGANLNDFRZb6YhlC8jujxNzJWYoa8Mad2sW
-         mZbLnhALT90XXLeuxQoxDdnlKBgwQo6ebegVqlkG3REmvTqiVnf4AviA9OyWZsg4Ir
-         DeIYjhORh8JhULTxkGc335EHJOutbip7C4+IkXJs=
+        b=ZVCRmowKLwLrBY87p5mixckWL7fYWuoVuoj6ckBlFu6uu/0c8RSujwuJ3Yer5PQR9
+         whkO6hgeApiwRhbhI9SWULPX6p3xDFnZeVdU4fJX5rB2F5pRQ1XkigvYhr9+iBaKFj
+         uLirsO1bea443rxigRvNyyQRJYZWMIWN8b2HL8U0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
-        Arend van Spriel <arend.vanspriel@broadcom.com>,
-        Hector Martin <marcan@marcan.st>, Kalle Valo <kvalo@kernel.org>
-Subject: [PATCH 5.15 181/913] brcmfmac: pcie: Declare missing firmware files in pcie.c
+        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Fabio Estevam <festevam@gmail.com>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0330/1017] ARM: dts: imx: Add missing LVDS decoder on M53Menlo
 Date:   Tue,  5 Apr 2022 09:20:43 +0200
-Message-Id: <20220405070345.280041237@linuxfoundation.org>
+Message-Id: <20220405070404.077109510@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,51 +56,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hector Martin <marcan@marcan.st>
+From: Marek Vasut <marex@denx.de>
 
-commit 6d766d8cb505ec1fae63da8faef4fc5712c3d794 upstream.
+[ Upstream commit 0c6f71176ea43d6f4003a4d57f7bb518c5ad6145 ]
 
-Move one of the declarations from sdio.c to pcie.c, since it makes no
-sense in the former (SDIO support is optional), and add missing ones.
+The M53Menlo display unit uses an LVDS-to-DPI bridge, TI DS90CF364A.
+Describe this bridge in DT, otherwise the DT incorrectly describes
+DPI panel attached directly to LVDS source.
 
-Fixes: 75729e110e68 ("brcmfmac: expose firmware config files through modinfo")
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Reviewed-by: Arend van Spriel <arend.vanspriel@broadcom.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Hector Martin <marcan@marcan.st>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20220131160713.245637-5-marcan@marcan.st
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 716be61d1869 ("ARM: dts: imx53: Add Menlosystems M53 board")
+Signed-off-by: Marek Vasut <marex@denx.de>
+Cc: Shawn Guo <shawnguo@kernel.org>
+Cc: Fabio Estevam <festevam@gmail.com>
+Cc: NXP Linux Team <linux-imx@nxp.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c |    7 +++++++
- drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c |    1 -
- 2 files changed, 7 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/imx53-m53menlo.dts | 29 ++++++++++++++++++++++++++--
+ 1 file changed, 27 insertions(+), 2 deletions(-)
 
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
-@@ -59,6 +59,13 @@ BRCMF_FW_DEF(4366B, "brcmfmac4366b-pcie"
- BRCMF_FW_DEF(4366C, "brcmfmac4366c-pcie");
- BRCMF_FW_DEF(4371, "brcmfmac4371-pcie");
+diff --git a/arch/arm/boot/dts/imx53-m53menlo.dts b/arch/arm/boot/dts/imx53-m53menlo.dts
+index 4f88e96d81dd..d5c68d1ea707 100644
+--- a/arch/arm/boot/dts/imx53-m53menlo.dts
++++ b/arch/arm/boot/dts/imx53-m53menlo.dts
+@@ -53,6 +53,31 @@
+ 		};
+ 	};
  
-+/* firmware config files */
-+MODULE_FIRMWARE(BRCMF_FW_DEFAULT_PATH "brcmfmac*-pcie.txt");
-+MODULE_FIRMWARE(BRCMF_FW_DEFAULT_PATH "brcmfmac*-pcie.*.txt");
++	lvds-decoder {
++		compatible = "ti,ds90cf364a", "lvds-decoder";
 +
-+/* per-board firmware binaries */
-+MODULE_FIRMWARE(BRCMF_FW_DEFAULT_PATH "brcmfmac*-pcie.*.bin");
++		ports {
++			#address-cells = <1>;
++			#size-cells = <0>;
 +
- static const struct brcmf_firmware_mapping brcmf_pcie_fwnames[] = {
- 	BRCMF_FW_ENTRY(BRCM_CC_43602_CHIP_ID, 0xFFFFFFFF, 43602),
- 	BRCMF_FW_ENTRY(BRCM_CC_43465_CHIP_ID, 0xFFFFFFF0, 4366C),
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
-@@ -629,7 +629,6 @@ BRCMF_FW_CLM_DEF(43752, "brcmfmac43752-s
++			port@0 {
++				reg = <0>;
++
++				lvds_decoder_in: endpoint {
++					remote-endpoint = <&lvds0_out>;
++				};
++			};
++
++			port@1 {
++				reg = <1>;
++
++				lvds_decoder_out: endpoint {
++					remote-endpoint = <&panel_in>;
++				};
++			};
++		};
++	};
++
+ 	panel {
+ 		compatible = "edt,etm0700g0dh6";
+ 		pinctrl-0 = <&pinctrl_display_gpio>;
+@@ -61,7 +86,7 @@
  
- /* firmware config files */
- MODULE_FIRMWARE(BRCMF_FW_DEFAULT_PATH "brcmfmac*-sdio.*.txt");
--MODULE_FIRMWARE(BRCMF_FW_DEFAULT_PATH "brcmfmac*-pcie.*.txt");
+ 		port {
+ 			panel_in: endpoint {
+-				remote-endpoint = <&lvds0_out>;
++				remote-endpoint = <&lvds_decoder_out>;
+ 			};
+ 		};
+ 	};
+@@ -450,7 +475,7 @@
+ 			reg = <2>;
  
- /* per-board firmware binaries */
- MODULE_FIRMWARE(BRCMF_FW_DEFAULT_PATH "brcmfmac*-sdio.*.bin");
+ 			lvds0_out: endpoint {
+-				remote-endpoint = <&panel_in>;
++				remote-endpoint = <&lvds_decoder_in>;
+ 			};
+ 		};
+ 	};
+-- 
+2.34.1
+
 
 
