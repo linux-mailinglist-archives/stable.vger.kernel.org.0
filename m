@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B49D4F2B93
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:10:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA17C4F2BD6
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:21:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347962AbiDEJ25 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:28:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46826 "EHLO
+        id S236928AbiDEJDq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:03:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57574 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245014AbiDEIxB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:53:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0507ECDD;
-        Tue,  5 Apr 2022 01:49:29 -0700 (PDT)
+        with ESMTP id S237048AbiDEIRk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:17:40 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBC6CAFB30;
+        Tue,  5 Apr 2022 01:05:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9767360FFB;
-        Tue,  5 Apr 2022 08:49:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6B02C385A0;
-        Tue,  5 Apr 2022 08:49:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6BBC4B81BBC;
+        Tue,  5 Apr 2022 08:04:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B082BC385A0;
+        Tue,  5 Apr 2022 08:04:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148568;
-        bh=XoLi14Jvj17Qay94bQj6Gt2sk1ZC6Zgsi2JS+PwQfOI=;
+        s=korg; t=1649145897;
+        bh=jl+4nCqhoplCL8BSTrcvMb6idHEZMgoKG46ObsEUPOU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=orwezfakQtyGZw2sgPi68j8gXDoZp6jJVyFGy4CA/ilzWn3b29hc+1XSy5CQovqPh
-         rny3I5VhZW2SqUOxDf70IChreMZ2AR4h+dv05C+EJ8zNFUOOY46hNGBGgG3oxgWN42
-         qSodbzr1iWnLD6B/6SmzluEiVoFB+Qy6PrjpS57s=
+        b=ETs7QbbRa9bpUVJIUx57mcHFp2iMrjLVzCJM+A2UAPx7wYCzDtdDPrkA6MIOY4QNQ
+         qGZ+0218nSIGyzmB2Im8noDft1y0Zex9gvrNO1RF1eh5+y7sHGGsbN6by5Zp3SIe4D
+         bu1OkGHynlmdllsskyJY6GI+S3Yjr1KcFExnbhOI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Robert Foss <robert.foss@linaro.org>,
+        stable@vger.kernel.org, Kuogee Hsieh <quic_khsieh@quicinc.com>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0403/1017] drm/bridge: nwl-dsi: Fix PM disable depth imbalance in nwl_dsi_probe
+Subject: [PATCH 5.17 0569/1126] drm/msm/dp: always add fail-safe mode into connector mode list
 Date:   Tue,  5 Apr 2022 09:21:56 +0200
-Message-Id: <20220405070406.249577530@linuxfoundation.org>
+Message-Id: <20220405070424.335567219@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +55,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Kuogee Hsieh <quic_khsieh@quicinc.com>
 
-[ Upstream commit b146e343a9e05605b491b1bf4a2b62a39d5638d8 ]
+[ Upstream commit d4aca422539c441a7f3fec749287b36de37d9b6b ]
 
-The pm_runtime_enable will increase power disable depth.
-Thus a pairing decrement is needed on the error handling
-path to keep it balanced according to context.
+Some of DP link compliant test expects to return fail-safe mode
+if prefer detailed timing mode can not be supported by mainlink's
+lane and rate after link training. Therefore add fail-safe mode
+into connector mode list as backup mode. This patch fixes test
+case 4.2.2.1.
 
-Fixes: 44cfc6233447 ("drm/bridge: Add NWL MIPI DSI host controller support")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: Robert Foss <robert.foss@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220105104826.1418-1-linmq006@gmail.com
-Reviewed-by: Robert Foss <robert.foss@linaro.org>
+Changes in v2:
+-- add Fixes text string
+
+Fixes: 4b85d405cfe9 ( "drm/msm/dp: reduce link rate if failed at link training 1")
+Signed-off-by: Kuogee Hsieh <quic_khsieh@quicinc.com>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Link: https://lore.kernel.org/r/1643066274-25814-1-git-send-email-quic_khsieh@quicinc.com
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/nwl-dsi.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/msm/dp/dp_panel.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/gpu/drm/bridge/nwl-dsi.c b/drivers/gpu/drm/bridge/nwl-dsi.c
-index af07eeb47ca0..6e484d836cfe 100644
---- a/drivers/gpu/drm/bridge/nwl-dsi.c
-+++ b/drivers/gpu/drm/bridge/nwl-dsi.c
-@@ -1204,6 +1204,7 @@ static int nwl_dsi_probe(struct platform_device *pdev)
- 
- 	ret = nwl_dsi_select_input(dsi);
- 	if (ret < 0) {
-+		pm_runtime_disable(dev);
- 		mipi_dsi_host_unregister(&dsi->dsi_host);
- 		return ret;
+diff --git a/drivers/gpu/drm/msm/dp/dp_panel.c b/drivers/gpu/drm/msm/dp/dp_panel.c
+index 71db10c0f262..f1418722c549 100644
+--- a/drivers/gpu/drm/msm/dp/dp_panel.c
++++ b/drivers/gpu/drm/msm/dp/dp_panel.c
+@@ -212,6 +212,11 @@ int dp_panel_read_sink_caps(struct dp_panel *dp_panel,
+ 		if (drm_add_modes_noedid(connector, 640, 480))
+ 			drm_set_preferred_mode(connector, 640, 480);
+ 		mutex_unlock(&connector->dev->mode_config.mutex);
++	} else {
++		/* always add fail-safe mode as backup mode */
++		mutex_lock(&connector->dev->mode_config.mutex);
++		drm_add_modes_noedid(connector, 640, 480);
++		mutex_unlock(&connector->dev->mode_config.mutex);
  	}
+ 
+ 	if (panel->aux_cfg_update_done) {
 -- 
 2.34.1
 
