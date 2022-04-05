@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0938C4F2ACF
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:06:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF7D54F2C49
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:25:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245558AbiDEI4P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:56:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44562 "EHLO
+        id S1353700AbiDEKI5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:08:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241088AbiDEIcs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:32:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9866140D5;
-        Tue,  5 Apr 2022 01:27:11 -0700 (PDT)
+        with ESMTP id S1345262AbiDEJWX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:22:23 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78CB03F8B7;
+        Tue,  5 Apr 2022 02:10:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 52FD1B81BCE;
-        Tue,  5 Apr 2022 08:27:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AAB1DC385A2;
-        Tue,  5 Apr 2022 08:27:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2E77FB81A22;
+        Tue,  5 Apr 2022 09:10:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8038EC385A2;
+        Tue,  5 Apr 2022 09:09:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147229;
-        bh=XPMpb65O3CeKvKBW3+kH3pERPeRlgpPUhWQrxjl1KbM=;
+        s=korg; t=1649149798;
+        bh=Cah0xlxi9vX/JXqn6RvksIYmQRGk5+CJsMN43zZ9Jn4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C3P+YO+O0BGDaiThRh+TN+JPbimnpvcujG2HQlWsI7a4uGmZhfUR60mKa3f2CTYbc
-         44ou99sYajiZbjpa+Tkg8R+2wOEl1tAXEyZN2OpUuil7mPFxMvNVLentgSN1OXkt8Y
-         gYmufqdz4+dTfqxBSx/CcgAZA0lxlQ3DKFGqNjBs=
+        b=Jgn4sJdczJ9fV/yjdFXrbYAiDJurA5XtG+nsbNjwk6+bGhjAK7mD/XJNe0GdwDyAK
+         YCVCfhhoB3Hsrj3yp6HVvioEQsUjAQpQ17h0JMcfxhOrJOvhHHpG73GjshMTSjLlGU
+         y3VYlD8J5o5GKW3p9TzEJs/teih9h2c/lUB/+M5o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Richard Weinberger <richard@nod.at>
-Subject: [PATCH 5.17 1009/1126] ubifs: Rectify space amount budget for mkdir/tmpfile operations
-Date:   Tue,  5 Apr 2022 09:29:16 +0200
-Message-Id: <20220405070437.105514999@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Maximilian=20B=C3=B6hm?= <maximilian.boehm@elbmurf.de>,
+        Pavel Skripkin <paskripkin@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0846/1017] media: Revert "media: em28xx: add missing em28xx_close_extension"
+Date:   Tue,  5 Apr 2022 09:29:19 +0200
+Message-Id: <20220405070419.352052052@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,66 +57,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-commit a6dab6607d4681d227905d5198710b575dbdb519 upstream.
+[ Upstream commit fde18c3bac3f964d8333ae53b304d8fee430502b ]
 
-UBIFS should make sure the flash has enough space to store dirty (Data
-that is newer than disk) data (in memory), space budget is exactly
-designed to do that. If space budget calculates less data than we need,
-'make_reservation()' will do more work(return -ENOSPC if no free space
-lelf, sometimes we can see "cannot reserve xxx bytes in jhead xxx, error
--28" in ubifs error messages) with ubifs inodes locked, which may effect
-other syscalls.
+This reverts commit 2c98b8a3458df03abdc6945bbef67ef91d181938.
 
-A simple way to decide how much space do we need when make a budget:
-See how much space is needed by 'make_reservation()' in ubifs_jnl_xxx()
-function according to corresponding operation.
+Reverted patch causes problems with Hauppauge WinTV dualHD as Maximilian
+reported [1]. Since quick solution didn't come up let's just revert it
+to make this device work with upstream kernels.
 
-It's better to report ENOSPC in ubifs_budget_space(), as early as we can.
+Link: https://lore.kernel.org/all/6a72a37b-e972-187d-0322-16336e12bdc5@elbmurf.de/ [1]
 
-Fixes: 474b93704f32163 ("ubifs: Implement O_TMPFILE")
-Fixes: 1e51764a3c2ac05 ("UBIFS: add new flash file system")
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Maximilian Böhm <maximilian.boehm@elbmurf.de>
+Tested-by: Maximilian Böhm <maximilian.boehm@elbmurf.de>
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ubifs/dir.c |   12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ drivers/media/usb/em28xx/em28xx-cards.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
---- a/fs/ubifs/dir.c
-+++ b/fs/ubifs/dir.c
-@@ -428,15 +428,18 @@ static int ubifs_tmpfile(struct user_nam
- {
- 	struct inode *inode;
- 	struct ubifs_info *c = dir->i_sb->s_fs_info;
--	struct ubifs_budget_req req = { .new_ino = 1, .new_dent = 1};
-+	struct ubifs_budget_req req = { .new_ino = 1, .new_dent = 1,
-+					.dirtied_ino = 1};
- 	struct ubifs_budget_req ino_req = { .dirtied_ino = 1 };
- 	struct ubifs_inode *ui;
- 	int err, instantiated = 0;
- 	struct fscrypt_name nm;
+diff --git a/drivers/media/usb/em28xx/em28xx-cards.c b/drivers/media/usb/em28xx/em28xx-cards.c
+index f3b56c065ee1..ae25d2cbfdfe 100644
+--- a/drivers/media/usb/em28xx/em28xx-cards.c
++++ b/drivers/media/usb/em28xx/em28xx-cards.c
+@@ -4150,11 +4150,8 @@ static void em28xx_usb_disconnect(struct usb_interface *intf)
  
- 	/*
--	 * Budget request settings: new dirty inode, new direntry,
--	 * budget for dirtied inode will be released via writeback.
-+	 * Budget request settings: new inode, new direntry, changing the
-+	 * parent directory inode.
-+	 * Allocate budget separately for new dirtied inode, the budget will
-+	 * be released via writeback.
- 	 */
+ 	em28xx_close_extension(dev);
  
- 	dbg_gen("dent '%pd', mode %#hx in dir ino %lu",
-@@ -979,7 +982,8 @@ static int ubifs_mkdir(struct user_names
- 	struct ubifs_inode *dir_ui = ubifs_inode(dir);
- 	struct ubifs_info *c = dir->i_sb->s_fs_info;
- 	int err, sz_change;
--	struct ubifs_budget_req req = { .new_ino = 1, .new_dent = 1 };
-+	struct ubifs_budget_req req = { .new_ino = 1, .new_dent = 1,
-+					.dirtied_ino = 1};
- 	struct fscrypt_name nm;
+-	if (dev->dev_next) {
+-		em28xx_close_extension(dev->dev_next);
++	if (dev->dev_next)
+ 		em28xx_release_resources(dev->dev_next);
+-	}
+-
+ 	em28xx_release_resources(dev);
  
- 	/*
+ 	if (dev->dev_next) {
+-- 
+2.34.1
+
 
 
