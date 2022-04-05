@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 411194F3339
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:14:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC0504F3383
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:16:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242334AbiDEIhZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:37:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55022 "EHLO
+        id S240716AbiDEJfn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:35:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58320 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238191AbiDEISo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:18:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 214EBB91B0;
-        Tue,  5 Apr 2022 01:08:18 -0700 (PDT)
+        with ESMTP id S1343517AbiDEI45 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:56:57 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B7DB1D302;
+        Tue,  5 Apr 2022 01:52:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5DD2AB81B90;
-        Tue,  5 Apr 2022 08:08:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA315C385A1;
-        Tue,  5 Apr 2022 08:08:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3DB0E61511;
+        Tue,  5 Apr 2022 08:52:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4714EC385A3;
+        Tue,  5 Apr 2022 08:52:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146096;
-        bh=fTO4FNgiYK0sHRgMdAu5LNK4LHTq4UV5MSEOC31Srdw=;
+        s=korg; t=1649148773;
+        bh=QwLQUT2Jw7vwffeh6OOnj7GZe0N18ZdeXGnosRVYSSY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GxHgD9Z4hOUyY+ieVjEZWwaWtJ6PLetAxnpTuyNC97DIHQdYadaKFLsqNq3LWjr8S
-         o6Al6vO5Mu46k6HHaa0Fb0LpGKZ2PMw2cT3MgiZlabl1x8H2IF0tSAYo8uYj/sECYV
-         zsWZSVPFB5msVZCKFFF3z1SwyIVCSSf7PrCu8fjk=
+        b=ts2VnatClelLnyRPyS4W97wz8nrU98SbmwRRBg1HWLMBnFWwiWwEPyNxtjOdAklL2
+         foPZpQ1spRAeXRpM2j+QMSnNbg0V/ttnkwl1+MioJovdcVvZlu+sskG4dtRldCdC9M
+         31v/Vu1FxFQsmKgesprUeb32I1TFvV4MrKhDP1Jo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Lee Jones <lee.jones@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0642/1126] mfd: mc13xxx: Add check for mc13xxx_irq_request
-Date:   Tue,  5 Apr 2022 09:23:09 +0200
-Message-Id: <20220405070426.477724571@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0477/1017] i2c: bcm2835: Fix the error handling in bcm2835_i2c_probe()
+Date:   Tue,  5 Apr 2022 09:23:10 +0200
+Message-Id: <20220405070408.457752129@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +54,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit e477e51a41cb5d6034f3c5ea85a71ad4613996b9 ]
+[ Upstream commit b205f5850263632b6897d8f0bfaeeea4955f8663 ]
 
-As the potential failure of the devm_request_threaded_irq(),
-it should be better to check the return value of the
-mc13xxx_irq_request() and return error if fails.
+Some resource should be released if an error occurs in
+'bcm2835_i2c_probe()'.
+Add an error handling path and the needed 'clk_disable_unprepare()' and
+'clk_rate_exclusive_put()' calls.
 
-Fixes: 8e00593557c3 ("mfd: Add mc13892 support to mc13xxx")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
-Link: https://lore.kernel.org/r/20220224022331.3208275-1-jiasheng@iscas.ac.cn
+While at it, rework the bottom of the function to use this newly added
+error handling path and have an explicit and more standard "return 0;" at
+the end of the normal path.
+
+Fixes: bebff81fb8b9 ("i2c: bcm2835: Model Divider in CCF")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+[wsa: rebased]
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/mc13xxx-core.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-bcm2835.c | 21 ++++++++++++++++-----
+ 1 file changed, 16 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/mfd/mc13xxx-core.c b/drivers/mfd/mc13xxx-core.c
-index 8a4f1d90dcfd..1000572761a8 100644
---- a/drivers/mfd/mc13xxx-core.c
-+++ b/drivers/mfd/mc13xxx-core.c
-@@ -323,8 +323,10 @@ int mc13xxx_adc_do_conversion(struct mc13xxx *mc13xxx, unsigned int mode,
- 		adc1 |= MC13783_ADC1_ATOX;
+diff --git a/drivers/i2c/busses/i2c-bcm2835.c b/drivers/i2c/busses/i2c-bcm2835.c
+index 5149454eef4a..f72c6576d8a3 100644
+--- a/drivers/i2c/busses/i2c-bcm2835.c
++++ b/drivers/i2c/busses/i2c-bcm2835.c
+@@ -454,18 +454,20 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
+ 	ret = clk_prepare_enable(i2c_dev->bus_clk);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "Couldn't prepare clock");
+-		return ret;
++		goto err_put_exclusive_rate;
+ 	}
  
- 	dev_dbg(mc13xxx->dev, "%s: request irq\n", __func__);
--	mc13xxx_irq_request(mc13xxx, MC13XXX_IRQ_ADCDONE,
-+	ret = mc13xxx_irq_request(mc13xxx, MC13XXX_IRQ_ADCDONE,
- 			mc13xxx_handler_adcdone, __func__, &adcdone_data);
-+	if (ret)
-+		goto out;
+ 	i2c_dev->irq = platform_get_irq(pdev, 0);
+-	if (i2c_dev->irq < 0)
+-		return i2c_dev->irq;
++	if (i2c_dev->irq < 0) {
++		ret = i2c_dev->irq;
++		goto err_disable_unprepare_clk;
++	}
  
- 	mc13xxx_reg_write(mc13xxx, MC13XXX_ADC0, adc0);
- 	mc13xxx_reg_write(mc13xxx, MC13XXX_ADC1, adc1);
+ 	ret = request_irq(i2c_dev->irq, bcm2835_i2c_isr, IRQF_SHARED,
+ 			  dev_name(&pdev->dev), i2c_dev);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "Could not request IRQ\n");
+-		return -ENODEV;
++		goto err_disable_unprepare_clk;
+ 	}
+ 
+ 	adap = &i2c_dev->adapter;
+@@ -489,7 +491,16 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
+ 
+ 	ret = i2c_add_adapter(adap);
+ 	if (ret)
+-		free_irq(i2c_dev->irq, i2c_dev);
++		goto err_free_irq;
++
++	return 0;
++
++err_free_irq:
++	free_irq(i2c_dev->irq, i2c_dev);
++err_disable_unprepare_clk:
++	clk_disable_unprepare(i2c_dev->bus_clk);
++err_put_exclusive_rate:
++	clk_rate_exclusive_put(i2c_dev->bus_clk);
+ 
+ 	return ret;
+ }
 -- 
 2.34.1
 
