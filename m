@@ -2,46 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EA6294F2D14
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:35:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D2404F2C21
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:23:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235149AbiDEJBR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:01:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51290 "EHLO
+        id S235395AbiDEJBp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:01:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45586 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237456AbiDEImZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:42:25 -0400
+        with ESMTP id S237578AbiDEImt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:42:49 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C1E5DE7;
-        Tue,  5 Apr 2022 01:34:54 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0657BE0F8;
+        Tue,  5 Apr 2022 01:35:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ACD00B81B13;
-        Tue,  5 Apr 2022 08:34:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF296C385A1;
-        Tue,  5 Apr 2022 08:34:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A8B01B81A32;
+        Tue,  5 Apr 2022 08:35:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14A3EC385A0;
+        Tue,  5 Apr 2022 08:35:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147691;
-        bh=lmZ+OnSjM4E5Vl+GHeAAk6puN4cSKNSeRi0omoqJ7K0=;
+        s=korg; t=1649147702;
+        bh=PtiUFmJWekEDwY8UObS7pyYJvrAHvgLHr0gp6vBSGeo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XU8moSHHaVMcokmkKqyrG1x1NyFLA6G50LxxT3hWrPp4ciw2t3iUSrczdsvQkEeZq
-         QToLXXzjIZpNo5aSqH2DESlPTFHxhVblTZwfLhkoIV+cCXKY9aW/8YWt86PwiLu8SK
-         Iybe3w3YuLBf6lgVR1Rcnh6vQQKbe/MHrdROpOwc=
+        b=J/U4cjRXzd6+ZUDenPcZJIybOuw3Py16lBxvGWkAOVI93bAWATx4ZMW9lXrNnncdq
+         g/lLB0rGMqLVm24bfHxFzYh4y1Dix4jkFA7ZzA6CYszLDOu7K3j/EXEYfiTDcMTeB3
+         K5J2jnvfTSAyvyxsKDljqTHx+3r+mnYbhtVYP76U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alistair Popple <apopple@nvidia.com>,
-        David Hildenbrand <david@redhat.com>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        John Hubbard <jhubbard@nvidia.com>, Zi Yan <ziy@nvidia.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Oscar Salvador <osalvador@suse.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.16 0088/1017] mm/pages_alloc.c: dont create ZONE_MOVABLE beyond the end of a node
-Date:   Tue,  5 Apr 2022 09:16:41 +0200
-Message-Id: <20220405070356.806380229@linuxfoundation.org>
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.16 0091/1017] scsi: core: sd: Add silence_suspend flag to suppress some PM messages
+Date:   Tue,  5 Apr 2022 09:16:44 +0200
+Message-Id: <20220405070356.895353746@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -59,105 +53,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alistair Popple <apopple@nvidia.com>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-commit ddbc84f3f595cf1fc8234a191193b5d20ad43938 upstream.
+commit af4edb1d50c6d1044cb34bc43621411b7ba2cffe upstream.
 
-ZONE_MOVABLE uses the remaining memory in each node.  Its starting pfn
-is also aligned to MAX_ORDER_NR_PAGES.  It is possible for the remaining
-memory in a node to be less than MAX_ORDER_NR_PAGES, meaning there is
-not enough room for ZONE_MOVABLE on that node.
+Kernel messages produced during runtime PM can cause a never-ending cycle
+because user space utilities (e.g. journald or rsyslog) write the messages
+back to storage, causing runtime resume, more messages, and so on.
 
-Unfortunately this condition is not checked for.  This leads to
-zone_movable_pfn[] getting set to a pfn greater than the last pfn in a
-node.
+Messages that tell of things that are expected to happen are arguably
+unnecessary, so add a flag to suppress them. This flag is used by the UFS
+driver.
 
-calculate_node_totalpages() then sets zone->present_pages to be greater
-than zone->spanned_pages which is invalid, as spanned_pages represents
-the maximum number of pages in a zone assuming no holes.
-
-Subsequently it is possible free_area_init_core() will observe a zone of
-size zero with present pages.  In this case it will skip setting up the
-zone, including the initialisation of free_lists[].
-
-However populated_zone() checks zone->present_pages to see if a zone has
-memory available.  This is used by iterators such as
-walk_zones_in_node().  pagetypeinfo_showfree() uses this to walk the
-free_list of each zone in each node, which are assumed to be initialised
-due to the zone not being empty.
-
-As free_area_init_core() never initialised the free_lists[] this results
-in the following kernel crash when trying to read /proc/pagetypeinfo:
-
-  BUG: kernel NULL pointer dereference, address: 0000000000000000
-  #PF: supervisor read access in kernel mode
-  #PF: error_code(0x0000) - not-present page
-  PGD 0 P4D 0
-  Oops: 0000 [#1] PREEMPT SMP DEBUG_PAGEALLOC NOPTI
-  CPU: 0 PID: 456 Comm: cat Not tainted 5.16.0 #461
-  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.14.0-2 04/01/2014
-  RIP: 0010:pagetypeinfo_show+0x163/0x460
-  Code: 9e 82 e8 80 57 0e 00 49 8b 06 b9 01 00 00 00 4c 39 f0 75 16 e9 65 02 00 00 48 83 c1 01 48 81 f9 a0 86 01 00 0f 84 48 02 00 00 <48> 8b 00 4c 39 f0 75 e7 48 c7 c2 80 a2 e2 82 48 c7 c6 79 ef e3 82
-  RSP: 0018:ffffc90001c4bd10 EFLAGS: 00010003
-  RAX: 0000000000000000 RBX: ffff88801105f638 RCX: 0000000000000001
-  RDX: 0000000000000001 RSI: 000000000000068b RDI: ffff8880163dc68b
-  RBP: ffffc90001c4bd90 R08: 0000000000000001 R09: ffff8880163dc67e
-  R10: 656c6261766f6d6e R11: 6c6261766f6d6e55 R12: ffff88807ffb4a00
-  R13: ffff88807ffb49f8 R14: ffff88807ffb4580 R15: ffff88807ffb3000
-  FS:  00007f9c83eff5c0(0000) GS:ffff88807dc00000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 0000000000000000 CR3: 0000000013c8e000 CR4: 0000000000350ef0
-  Call Trace:
-   seq_read_iter+0x128/0x460
-   proc_reg_read_iter+0x51/0x80
-   new_sync_read+0x113/0x1a0
-   vfs_read+0x136/0x1d0
-   ksys_read+0x70/0xf0
-   __x64_sys_read+0x1a/0x20
-   do_syscall_64+0x3b/0xc0
-   entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-Fix this by checking that the aligned zone_movable_pfn[] does not exceed
-the end of the node, and if it does skip creating a movable zone on this
-node.
-
-Link: https://lkml.kernel.org/r/20220215025831.2113067-1-apopple@nvidia.com
-Fixes: 2a1e274acf0b ("Create the ZONE_MOVABLE zone")
-Signed-off-by: Alistair Popple <apopple@nvidia.com>
-Acked-by: David Hildenbrand <david@redhat.com>
-Acked-by: Mel Gorman <mgorman@techsingularity.net>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: Zi Yan <ziy@nvidia.com>
-Cc: Anshuman Khandual <anshuman.khandual@arm.com>
-Cc: Oscar Salvador <osalvador@suse.de>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Link: https://lore.kernel.org/r/20220228113652.970857-2-adrian.hunter@intel.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/page_alloc.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/scsi/scsi_error.c  |    9 +++++++--
+ drivers/scsi/sd.c          |    6 ++++--
+ include/scsi/scsi_device.h |    1 +
+ 3 files changed, 12 insertions(+), 4 deletions(-)
 
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -7910,10 +7910,17 @@ restart:
+--- a/drivers/scsi/scsi_error.c
++++ b/drivers/scsi/scsi_error.c
+@@ -483,8 +483,13 @@ static void scsi_report_sense(struct scs
  
- out2:
- 	/* Align start of ZONE_MOVABLE on all nids to MAX_ORDER_NR_PAGES */
--	for (nid = 0; nid < MAX_NUMNODES; nid++)
-+	for (nid = 0; nid < MAX_NUMNODES; nid++) {
-+		unsigned long start_pfn, end_pfn;
-+
- 		zone_movable_pfn[nid] =
- 			roundup(zone_movable_pfn[nid], MAX_ORDER_NR_PAGES);
+ 		if (sshdr->asc == 0x29) {
+ 			evt_type = SDEV_EVT_POWER_ON_RESET_OCCURRED;
+-			sdev_printk(KERN_WARNING, sdev,
+-				    "Power-on or device reset occurred\n");
++			/*
++			 * Do not print message if it is an expected side-effect
++			 * of runtime PM.
++			 */
++			if (!sdev->silence_suspend)
++				sdev_printk(KERN_WARNING, sdev,
++					    "Power-on or device reset occurred\n");
+ 		}
  
-+		get_pfn_range_for_nid(nid, &start_pfn, &end_pfn);
-+		if (zone_movable_pfn[nid] >= end_pfn)
-+			zone_movable_pfn[nid] = 0;
-+	}
-+
- out:
- 	/* restore the node_state */
- 	node_states[N_MEMORY] = saved_node_state;
+ 		if (sshdr->asc == 0x2a && sshdr->ascq == 0x01) {
+--- a/drivers/scsi/sd.c
++++ b/drivers/scsi/sd.c
+@@ -3754,7 +3754,8 @@ static int sd_suspend_common(struct devi
+ 		return 0;
+ 
+ 	if (sdkp->WCE && sdkp->media_present) {
+-		sd_printk(KERN_NOTICE, sdkp, "Synchronizing SCSI cache\n");
++		if (!sdkp->device->silence_suspend)
++			sd_printk(KERN_NOTICE, sdkp, "Synchronizing SCSI cache\n");
+ 		ret = sd_sync_cache(sdkp, &sshdr);
+ 
+ 		if (ret) {
+@@ -3776,7 +3777,8 @@ static int sd_suspend_common(struct devi
+ 	}
+ 
+ 	if (sdkp->device->manage_start_stop) {
+-		sd_printk(KERN_NOTICE, sdkp, "Stopping disk\n");
++		if (!sdkp->device->silence_suspend)
++			sd_printk(KERN_NOTICE, sdkp, "Stopping disk\n");
+ 		/* an error is not worth aborting a system sleep */
+ 		ret = sd_start_stop_device(sdkp, 0);
+ 		if (ignore_stop_errors)
+--- a/include/scsi/scsi_device.h
++++ b/include/scsi/scsi_device.h
+@@ -206,6 +206,7 @@ struct scsi_device {
+ 	unsigned rpm_autosuspend:1;	/* Enable runtime autosuspend at device
+ 					 * creation time */
+ 	unsigned ignore_media_change:1; /* Ignore MEDIA CHANGE on resume */
++	unsigned silence_suspend:1;	/* Do not print runtime PM related messages */
+ 
+ 	unsigned int queue_stopped;	/* request queue is quiesced */
+ 	bool offline_already;		/* Device offline message logged */
 
 
