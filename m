@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 10FE64F3522
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:48:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA6D84F2FC5
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:18:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350166AbiDEKvR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:51:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60902 "EHLO
+        id S1350125AbiDEKvQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:51:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60068 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345640AbiDEJnm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:43:42 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E978C1CBE;
-        Tue,  5 Apr 2022 02:29:26 -0700 (PDT)
+        with ESMTP id S1345620AbiDEJnk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:43:40 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99723C29;
+        Tue,  5 Apr 2022 02:29:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 64201B81CAC;
-        Tue,  5 Apr 2022 09:29:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA834C385A0;
-        Tue,  5 Apr 2022 09:29:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8B4F4616BD;
+        Tue,  5 Apr 2022 09:29:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95817C385A0;
+        Tue,  5 Apr 2022 09:29:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150957;
-        bh=xMuBtpSMi0tR4uqVjAuMkRQrPn1kVymN+i1l75YiSig=;
+        s=korg; t=1649150960;
+        bh=4lI4hnSkgIv5RGKjm3QIurZf7pNPW8XJsLWWlKGO3Bo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nBWUqc2oeU7PLo/X8jlJefJvXVBRqfFRJfCcmQRvUiRwLTVXNa2P1ksF/B2BK9ksO
-         OROciOf4OIHXZc5AUvJPtwh19QUMW8xIIOlSVXQTGM1NnCIhNlb6bEgZ9YfjgXgjHI
-         Vl+mQMycoJSPGUgc/VerCYNSRGPGxtDWsom4IqSA=
+        b=I2bmuKKPIJkhNIp4FcGghFj7RKZsX1QqIQJR4oZGL9U7YwxS/1Mj/mEEFMlAerbPA
+         muxszx6KKKkum2KqsBXYw58CTJ4trKe82wOkljtHlJ3x6M9wGD+IkX11zWT4DVl5E/
+         POBECA0EQJWA31u+wQjptfwRSjNTtEIrUIifuhOQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Igor Zhbanov <i.zhbanov@omprussia.ru>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 241/913] clocksource: acpi_pm: fix return value of __setup handler
-Date:   Tue,  5 Apr 2022 09:21:43 +0200
-Message-Id: <20220405070347.080719624@linuxfoundation.org>
+Subject: [PATCH 5.15 242/913] io_uring: dont check unrelated req->open.how in accept request
+Date:   Tue,  5 Apr 2022 09:21:44 +0200
+Message-Id: <20220405070347.111537778@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -55,48 +53,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Jens Axboe <axboe@kernel.dk>
 
-[ Upstream commit 6a861abceecb68497dd82a324fee45a5332dcece ]
+[ Upstream commit adf3a9e9f556613197583a1884f0de40a8bb6fb9 ]
 
-__setup() handlers should return 1 to obsolete_checksetup() in
-init/main.c to indicate that the boot option has been handled.
-A return of 0 causes the boot option/value to be listed as an Unknown
-kernel parameter and added to init's (limited) environment strings.
+Looks like a victim of too much copy/paste, we should not be looking
+at req->open.how in accept. The point is to check CLOEXEC and error
+out, which we don't invalid direct descriptors on exec. Hence any
+attempt to get a direct descriptor with CLOEXEC is invalid.
 
-The __setup() handler interface isn't meant to handle negative return
-values -- they are non-zero, so they mean "handled" (like a return
-value of 1 does), but that's just a quirk. So return 1 from
-parse_pmtmr(). Also print a warning message if kstrtouint() returns
-an error.
+No harm is done here, as req->open.how.flags overlaps with
+req->accept.flags, but it's very confusing and might change if either of
+those command structs are modified.
 
-Fixes: 6b148507d3d0 ("pmtmr: allow command line override of ioport")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
-Link: lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: aaa4db12ef7b ("io_uring: accept directly into fixed file table")
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clocksource/acpi_pm.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ fs/io_uring.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/clocksource/acpi_pm.c b/drivers/clocksource/acpi_pm.c
-index eb596ff9e7bb..279ddff81ab4 100644
---- a/drivers/clocksource/acpi_pm.c
-+++ b/drivers/clocksource/acpi_pm.c
-@@ -229,8 +229,10 @@ static int __init parse_pmtmr(char *arg)
- 	int ret;
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 156c54ebb62b..70e85f64dc38 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -5154,8 +5154,7 @@ static int io_accept_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+ 	accept->nofile = rlimit(RLIMIT_NOFILE);
  
- 	ret = kstrtouint(arg, 16, &base);
--	if (ret)
--		return ret;
-+	if (ret) {
-+		pr_warn("PMTMR: invalid 'pmtmr=' value: '%s'\n", arg);
-+		return 1;
-+	}
- 
- 	pr_info("PMTMR IOPort override: 0x%04x -> 0x%04x\n", pmtmr_ioport,
- 		base);
+ 	accept->file_slot = READ_ONCE(sqe->file_index);
+-	if (accept->file_slot && ((req->open.how.flags & O_CLOEXEC) ||
+-				  (accept->flags & SOCK_CLOEXEC)))
++	if (accept->file_slot && (accept->flags & SOCK_CLOEXEC))
+ 		return -EINVAL;
+ 	if (accept->flags & ~(SOCK_CLOEXEC | SOCK_NONBLOCK))
+ 		return -EINVAL;
 -- 
 2.34.1
 
