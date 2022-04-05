@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 88AB64F255A
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 09:47:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AC774F254B
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 09:47:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232007AbiDEHtX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 03:49:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47088 "EHLO
+        id S232107AbiDEHs7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 03:48:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46910 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233385AbiDEHrp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:47:45 -0400
+        with ESMTP id S233444AbiDEHru (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:47:50 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4620692D03;
-        Tue,  5 Apr 2022 00:44:04 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A8BDA0BD2;
+        Tue,  5 Apr 2022 00:44:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A1506616BF;
-        Tue,  5 Apr 2022 07:44:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABD60C340EE;
-        Tue,  5 Apr 2022 07:44:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 572CA616C3;
+        Tue,  5 Apr 2022 07:44:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DBD5C340EE;
+        Tue,  5 Apr 2022 07:44:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649144643;
-        bh=SFZhGojlTJsFtEcOoR6TsDZqCuHRKYKgaXsoBWxvPMc=;
+        s=korg; t=1649144645;
+        bh=oQCCMyAG9uXwmvosH2y0DN3mABh0AUvwuzkV1JR0Ik0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vhrdB62zTARGu1HtMObJHJTKA2hs1/jS5yMjP2o1oYqTawGPL9sWSv/u6wgQAewNz
-         9oA41j3vFoAfVqbGej+gXNeVUBdbEZ4XIwLR/Q5htdjI3DClpAl5KRcCxGDBfTtWo0
-         n8B7poUQmGrj9T1VyeHW6aPeJlr7NMsYUAhwW7uI=
+        b=q/AIrLSJ8TzFWYci46Xe5yJPmpQ1s7PJXazM3dXt7Bt3p0eAFmP0QO0mLxopxOEi2
+         vPwGZyy2NG3rd07pMWbv1viShD7w/nV5pCB80IJYQJv0mAuGtHnz8wZhn6woxZR7ip
+         2OD87M6Ef1caqlsH/AM7jnxWdCr3rkwtFbR/WP9o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+2339c27f5c66c652843e@syzkaller.appspotmail.com,
-        Oliver Hartkopp <socketcan@hartkopp.net>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.17 0118/1126] can: isotp: sanitize CAN ID checks in isotp_bind()
-Date:   Tue,  5 Apr 2022 09:14:25 +0200
-Message-Id: <20220405070411.037293289@linuxfoundation.org>
+        stable@vger.kernel.org, Ben Dooks <ben.dooks@codethink.co.uk>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Palmer Dabbelt <palmer@rivosinc.com>,
+        Dimitri John Ledkov <dimitri.ledkov@canonical.com>
+Subject: [PATCH 5.17 0119/1126] PCI: fu740: Force 2.5GT/s for initial device probe
+Date:   Tue,  5 Apr 2022 09:14:26 +0200
+Message-Id: <20220405070411.066405351@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -55,104 +55,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Hartkopp <socketcan@hartkopp.net>
+From: Ben Dooks <ben.dooks@codethink.co.uk>
 
-commit 3ea566422cbde9610c2734980d1286ab681bb40e upstream.
+commit a382c757ec5ef83137a86125f43a4c43dc2ab50b upstream.
 
-Syzbot created an environment that lead to a state machine status that
-can not be reached with a compliant CAN ID address configuration.
-The provided address information consisted of CAN ID 0x6000001 and 0xC28001
-which both boil down to 11 bit CAN IDs 0x001 in sending and receiving.
+The fu740 PCIe core does not probe any devices on the SiFive Unmatched
+board without this fix (or having U-Boot explicitly start the PCIe via
+either boot-script or user command). The fix is to start the link at
+2.5GT/s speeds and once the link is up then change the maximum speed back
+to the default.
 
-Sanitize the SFF/EFF CAN ID values before performing the address checks.
+The U-Boot driver claims to set the link-speed to 2.5GT/s to get the probe
+to work (and U-Boot does print link up at 2.5GT/s) in the following code:
+https://source.denx.de/u-boot/u-boot/-/blob/master/drivers/pci/pcie_dw_sifive.c?id=v2022.01#L271
 
-Fixes: e057dd3fc20f ("can: add ISO 15765-2:2016 transport protocol")
-Link: https://lore.kernel.org/all/20220316164258.54155-1-socketcan@hartkopp.net
-Reported-by: syzbot+2339c27f5c66c652843e@syzkaller.appspotmail.com
-Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Link: https://lore.kernel.org/r/20220318152430.526320-1-ben.dooks@codethink.co.uk
+Signed-off-by: Ben Dooks <ben.dooks@codethink.co.uk>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Acked-by: Palmer Dabbelt <palmer@rivosinc.com>
+Signed-off-by: Dimitri John Ledkov <dimitri.ledkov@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/can/isotp.c |   38 ++++++++++++++++++++------------------
- 1 file changed, 20 insertions(+), 18 deletions(-)
+ drivers/pci/controller/dwc/pcie-fu740.c |   51 +++++++++++++++++++++++++++++++-
+ 1 file changed, 50 insertions(+), 1 deletion(-)
 
---- a/net/can/isotp.c
-+++ b/net/can/isotp.c
-@@ -1104,6 +1104,7 @@ static int isotp_bind(struct socket *soc
- 	struct net *net = sock_net(sk);
- 	int ifindex;
- 	struct net_device *dev;
-+	canid_t tx_id, rx_id;
- 	int err = 0;
- 	int notify_enetdown = 0;
- 	int do_rx_reg = 1;
-@@ -1111,8 +1112,18 @@ static int isotp_bind(struct socket *soc
- 	if (len < ISOTP_MIN_NAMELEN)
- 		return -EINVAL;
- 
--	if (addr->can_addr.tp.tx_id & (CAN_ERR_FLAG | CAN_RTR_FLAG))
--		return -EADDRNOTAVAIL;
-+	/* sanitize tx/rx CAN identifiers */
-+	tx_id = addr->can_addr.tp.tx_id;
-+	if (tx_id & CAN_EFF_FLAG)
-+		tx_id &= (CAN_EFF_FLAG | CAN_EFF_MASK);
-+	else
-+		tx_id &= CAN_SFF_MASK;
+--- a/drivers/pci/controller/dwc/pcie-fu740.c
++++ b/drivers/pci/controller/dwc/pcie-fu740.c
+@@ -181,10 +181,59 @@ static int fu740_pcie_start_link(struct
+ {
+ 	struct device *dev = pci->dev;
+ 	struct fu740_pcie *afp = dev_get_drvdata(dev);
++	u8 cap_exp = dw_pcie_find_capability(pci, PCI_CAP_ID_EXP);
++	int ret;
++	u32 orig, tmp;
 +
-+	rx_id = addr->can_addr.tp.rx_id;
-+	if (rx_id & CAN_EFF_FLAG)
-+		rx_id &= (CAN_EFF_FLAG | CAN_EFF_MASK);
-+	else
-+		rx_id &= CAN_SFF_MASK;
++	/*
++	 * Force 2.5GT/s when starting the link, due to some devices not
++	 * probing at higher speeds. This happens with the PCIe switch
++	 * on the Unmatched board when U-Boot has not initialised the PCIe.
++	 * The fix in U-Boot is to force 2.5GT/s, which then gets cleared
++	 * by the soft reset done by this driver.
++	 */
++	dev_dbg(dev, "cap_exp at %x\n", cap_exp);
++	dw_pcie_dbi_ro_wr_en(pci);
++
++	tmp = dw_pcie_readl_dbi(pci, cap_exp + PCI_EXP_LNKCAP);
++	orig = tmp & PCI_EXP_LNKCAP_SLS;
++	tmp &= ~PCI_EXP_LNKCAP_SLS;
++	tmp |= PCI_EXP_LNKCAP_SLS_2_5GB;
++	dw_pcie_writel_dbi(pci, cap_exp + PCI_EXP_LNKCAP, tmp);
  
- 	if (!addr->can_ifindex)
- 		return -ENODEV;
-@@ -1124,21 +1135,13 @@ static int isotp_bind(struct socket *soc
- 		do_rx_reg = 0;
+ 	/* Enable LTSSM */
+ 	writel_relaxed(0x1, afp->mgmt_base + PCIEX8MGMT_APP_LTSSM_ENABLE);
+-	return 0;
++
++	ret = dw_pcie_wait_for_link(pci);
++	if (ret) {
++		dev_err(dev, "error: link did not start\n");
++		goto err;
++	}
++
++	tmp = dw_pcie_readl_dbi(pci, cap_exp + PCI_EXP_LNKCAP);
++	if ((tmp & PCI_EXP_LNKCAP_SLS) != orig) {
++		dev_dbg(dev, "changing speed back to original\n");
++
++		tmp &= ~PCI_EXP_LNKCAP_SLS;
++		tmp |= orig;
++		dw_pcie_writel_dbi(pci, cap_exp + PCI_EXP_LNKCAP, tmp);
++
++		tmp = dw_pcie_readl_dbi(pci, PCIE_LINK_WIDTH_SPEED_CONTROL);
++		tmp |= PORT_LOGIC_SPEED_CHANGE;
++		dw_pcie_writel_dbi(pci, PCIE_LINK_WIDTH_SPEED_CONTROL, tmp);
++
++		ret = dw_pcie_wait_for_link(pci);
++		if (ret) {
++			dev_err(dev, "error: link did not start at new speed\n");
++			goto err;
++		}
++	}
++
++	ret = 0;
++err:
++	WARN_ON(ret);	/* we assume that errors will be very rare */
++	dw_pcie_dbi_ro_wr_dis(pci);
++	return ret;
+ }
  
- 	/* do not validate rx address for functional addressing */
--	if (do_rx_reg) {
--		if (addr->can_addr.tp.rx_id == addr->can_addr.tp.tx_id) {
--			err = -EADDRNOTAVAIL;
--			goto out;
--		}
--
--		if (addr->can_addr.tp.rx_id & (CAN_ERR_FLAG | CAN_RTR_FLAG)) {
--			err = -EADDRNOTAVAIL;
--			goto out;
--		}
-+	if (do_rx_reg && rx_id == tx_id) {
-+		err = -EADDRNOTAVAIL;
-+		goto out;
- 	}
- 
- 	if (so->bound && addr->can_ifindex == so->ifindex &&
--	    addr->can_addr.tp.rx_id == so->rxid &&
--	    addr->can_addr.tp.tx_id == so->txid)
-+	    rx_id == so->rxid && tx_id == so->txid)
- 		goto out;
- 
- 	dev = dev_get_by_index(net, addr->can_ifindex);
-@@ -1162,8 +1165,7 @@ static int isotp_bind(struct socket *soc
- 	ifindex = dev->ifindex;
- 
- 	if (do_rx_reg)
--		can_rx_register(net, dev, addr->can_addr.tp.rx_id,
--				SINGLE_MASK(addr->can_addr.tp.rx_id),
-+		can_rx_register(net, dev, rx_id, SINGLE_MASK(rx_id),
- 				isotp_rcv, sk, "isotp", sk);
- 
- 	dev_put(dev);
-@@ -1183,8 +1185,8 @@ static int isotp_bind(struct socket *soc
- 
- 	/* switch to new settings */
- 	so->ifindex = ifindex;
--	so->rxid = addr->can_addr.tp.rx_id;
--	so->txid = addr->can_addr.tp.tx_id;
-+	so->rxid = rx_id;
-+	so->txid = tx_id;
- 	so->bound = 1;
- 
- out:
+ static int fu740_pcie_host_init(struct pcie_port *pp)
 
 
