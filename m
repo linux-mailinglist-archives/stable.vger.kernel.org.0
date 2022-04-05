@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B6F0C4F2AA6
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:05:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E02E14F2BE5
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:21:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353471AbiDEKHp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:07:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53068 "EHLO
+        id S237424AbiDEImN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:42:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52748 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344282AbiDEJTE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:19:04 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 333DDBC4;
-        Tue,  5 Apr 2022 02:07:11 -0700 (PDT)
+        with ESMTP id S238723AbiDEIaz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:30:55 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C86435860;
+        Tue,  5 Apr 2022 01:22:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C51B961003;
-        Tue,  5 Apr 2022 09:07:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2467C385A1;
-        Tue,  5 Apr 2022 09:07:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B054DB81B92;
+        Tue,  5 Apr 2022 08:22:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 235A2C385A0;
+        Tue,  5 Apr 2022 08:22:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149630;
-        bh=3FDGENo31HR4d2ixNLW5MS9/VHe0brDMr3Xy9M1Mn4o=;
+        s=korg; t=1649146960;
+        bh=uV0+HtcXJ22mDTGuuOc5n2oLv0BJ/rULAiWaCYiFIRg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZZ7oQfllXcJzBBrcWU0Sb1wvf4tdmiEttm/q6y02BdNMGwOV8AKt08PM7v9dMgGPV
-         PV06oNDNdCkDqKKS3tQjXZv5dMVnx4QB5F+OXWnZHd4z+oswWonZeq9pEZs/VXwH3y
-         /4oBFX8gQpWz7sOqI3LjZozJ3BK2SOOsDF6HUBc0=
+        b=zZprUE0CsnCpBsEVhuqj4+Ovr0nheZwPE6yAOxx1nrSTq2McRco4XGjfhrEghxLT5
+         IKXNPTqdODX6tN7PoMBjLaRLLnnOQzde9rCPkVS/sonNH2dMJ1WvrstDI3TeJNbe6j
+         Zr7uoNNf3WcEngbOXn5dIGUzH9qkOSahjJ57OiD4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eddie James <eajames@linux.ibm.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0783/1017] spi: fsi: Implement a timeout for polling status
-Date:   Tue,  5 Apr 2022 09:28:16 +0200
-Message-Id: <20220405070417.497911175@linuxfoundation.org>
+        stable@vger.kernel.org, Maxim Levitsky <mlevitsk@redhat.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.17 0950/1126] KVM: SVM: Allow AVIC support on system w/ physical APIC ID > 255
+Date:   Tue,  5 Apr 2022 09:28:17 +0200
+Message-Id: <20220405070435.389761780@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,75 +55,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eddie James <eajames@linux.ibm.com>
+From: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
 
-[ Upstream commit 89b35e3f28514087d3f1e28e8f5634fbfd07c554 ]
+commit 4a204f7895878363ca8211f50ec610408c8c70aa upstream.
 
-The data transfer routines must poll the status register to
-determine when more data can be shifted in or out. If the hardware
-gets into a bad state, these polling loops may never exit. Prevent
-this by returning an error if a timeout is exceeded.
+Expand KVM's mask for the AVIC host physical ID to the full 12 bits defined
+by the architecture.  The number of bits consumed by hardware is model
+specific, e.g. early CPUs ignored bits 11:8, but there is no way for KVM
+to enumerate the "true" size.  So, KVM must allow using all bits, else it
+risks rejecting completely legal x2APIC IDs on newer CPUs.
 
-Signed-off-by: Eddie James <eajames@linux.ibm.com>
-Link: https://lore.kernel.org/r/20220317211426.38940-1-eajames@linux.ibm.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This means KVM relies on hardware to not assign x2APIC IDs that exceed the
+"true" width of the field, but presumably hardware is smart enough to tie
+the width to the max x2APIC ID.  KVM also relies on hardware to support at
+least 8 bits, as the legacy xAPIC ID is writable by software.  But, those
+assumptions are unavoidable due to the lack of any way to enumerate the
+"true" width.
+
+Cc: stable@vger.kernel.org
+Cc: Maxim Levitsky <mlevitsk@redhat.com>
+Suggested-by: Sean Christopherson <seanjc@google.com>
+Reviewed-by: Sean Christopherson <seanjc@google.com>
+Fixes: 44a95dae1d22 ("KVM: x86: Detect and Initialize AVIC support")
+Signed-off-by: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
+Message-Id: <20220211000851.185799-1-suravee.suthikulpanit@amd.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/spi/spi-fsi.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ arch/x86/include/asm/svm.h |    2 +-
+ arch/x86/kvm/svm/avic.c    |    7 +------
+ arch/x86/kvm/svm/svm.h     |   11 +++++++++++
+ 3 files changed, 13 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/spi/spi-fsi.c b/drivers/spi/spi-fsi.c
-index b6c7467f0b59..d403a7a3021d 100644
---- a/drivers/spi/spi-fsi.c
-+++ b/drivers/spi/spi-fsi.c
-@@ -25,6 +25,7 @@
+--- a/arch/x86/include/asm/svm.h
++++ b/arch/x86/include/asm/svm.h
+@@ -226,7 +226,7 @@ struct __attribute__ ((__packed__)) vmcb
+ #define AVIC_LOGICAL_ID_ENTRY_VALID_BIT			31
+ #define AVIC_LOGICAL_ID_ENTRY_VALID_MASK		(1 << 31)
  
- #define SPI_FSI_BASE			0x70000
- #define SPI_FSI_INIT_TIMEOUT_MS		1000
-+#define SPI_FSI_STATUS_TIMEOUT_MS	100
- #define SPI_FSI_MAX_RX_SIZE		8
- #define SPI_FSI_MAX_TX_SIZE		40
- 
-@@ -299,6 +300,7 @@ static int fsi_spi_transfer_data(struct fsi_spi *ctx,
- 				 struct spi_transfer *transfer)
+-#define AVIC_PHYSICAL_ID_ENTRY_HOST_PHYSICAL_ID_MASK	(0xFFULL)
++#define AVIC_PHYSICAL_ID_ENTRY_HOST_PHYSICAL_ID_MASK	GENMASK_ULL(11, 0)
+ #define AVIC_PHYSICAL_ID_ENTRY_BACKING_PAGE_MASK	(0xFFFFFFFFFFULL << 12)
+ #define AVIC_PHYSICAL_ID_ENTRY_IS_RUNNING_MASK		(1ULL << 62)
+ #define AVIC_PHYSICAL_ID_ENTRY_VALID_MASK		(1ULL << 63)
+--- a/arch/x86/kvm/svm/avic.c
++++ b/arch/x86/kvm/svm/avic.c
+@@ -927,17 +927,12 @@ out:
+ void avic_vcpu_load(struct kvm_vcpu *vcpu, int cpu)
  {
- 	int rc = 0;
-+	unsigned long end;
- 	u64 status = 0ULL;
+ 	u64 entry;
+-	/* ID = 0xff (broadcast), ID > 0xff (reserved) */
+ 	int h_physical_id = kvm_cpu_get_apicid(cpu);
+ 	struct vcpu_svm *svm = to_svm(vcpu);
  
- 	if (transfer->tx_buf) {
-@@ -315,10 +317,14 @@ static int fsi_spi_transfer_data(struct fsi_spi *ctx,
- 			if (rc)
- 				return rc;
+ 	lockdep_assert_preemption_disabled();
  
-+			end = jiffies + msecs_to_jiffies(SPI_FSI_STATUS_TIMEOUT_MS);
- 			do {
- 				rc = fsi_spi_status(ctx, &status, "TX");
- 				if (rc)
- 					return rc;
+-	/*
+-	 * Since the host physical APIC id is 8 bits,
+-	 * we can support host APIC ID upto 255.
+-	 */
+-	if (WARN_ON(h_physical_id > AVIC_PHYSICAL_ID_ENTRY_HOST_PHYSICAL_ID_MASK))
++	if (WARN_ON(h_physical_id & ~AVIC_PHYSICAL_ID_ENTRY_HOST_PHYSICAL_ID_MASK))
+ 		return;
+ 
+ 	/*
+--- a/arch/x86/kvm/svm/svm.h
++++ b/arch/x86/kvm/svm/svm.h
+@@ -558,6 +558,17 @@ extern struct kvm_x86_nested_ops svm_nes
+ 
+ /* avic.c */
+ 
++#define AVIC_LOGICAL_ID_ENTRY_GUEST_PHYSICAL_ID_MASK	(0xFF)
++#define AVIC_LOGICAL_ID_ENTRY_VALID_BIT			31
++#define AVIC_LOGICAL_ID_ENTRY_VALID_MASK		(1 << 31)
 +
-+				if (time_after(jiffies, end))
-+					return -ETIMEDOUT;
- 			} while (status & SPI_FSI_STATUS_TDR_FULL);
- 
- 			sent += nb;
-@@ -329,10 +335,14 @@ static int fsi_spi_transfer_data(struct fsi_spi *ctx,
- 		u8 *rx = transfer->rx_buf;
- 
- 		while (transfer->len > recv) {
-+			end = jiffies + msecs_to_jiffies(SPI_FSI_STATUS_TIMEOUT_MS);
- 			do {
- 				rc = fsi_spi_status(ctx, &status, "RX");
- 				if (rc)
- 					return rc;
++#define AVIC_PHYSICAL_ID_ENTRY_HOST_PHYSICAL_ID_MASK	GENMASK_ULL(11, 0)
++#define AVIC_PHYSICAL_ID_ENTRY_BACKING_PAGE_MASK	(0xFFFFFFFFFFULL << 12)
++#define AVIC_PHYSICAL_ID_ENTRY_IS_RUNNING_MASK		(1ULL << 62)
++#define AVIC_PHYSICAL_ID_ENTRY_VALID_MASK		(1ULL << 63)
 +
-+				if (time_after(jiffies, end))
-+					return -ETIMEDOUT;
- 			} while (!(status & SPI_FSI_STATUS_RDR_FULL));
- 
- 			rc = fsi_spi_read_reg(ctx, SPI_FSI_DATA_RX, &in);
--- 
-2.34.1
-
++#define VMCB_AVIC_APIC_BAR_MASK		0xFFFFFFFFFF000ULL
++
+ int avic_ga_log_notifier(u32 ga_tag);
+ void avic_vm_destroy(struct kvm *kvm);
+ int avic_vm_init(struct kvm *kvm);
 
 
