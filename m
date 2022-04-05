@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B4B34F2534
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 09:47:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2CE84F257B
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 09:48:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231261AbiDEHsh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 03:48:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56584 "EHLO
+        id S232193AbiDEHuE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 03:50:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55376 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232478AbiDEHqg (ORCPT
+        with ESMTP id S232483AbiDEHqg (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:46:36 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C2569398C;
-        Tue,  5 Apr 2022 00:42:23 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B7B793993;
+        Tue,  5 Apr 2022 00:42:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id D103FCE1AC3;
-        Tue,  5 Apr 2022 07:42:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E84D8C3410F;
-        Tue,  5 Apr 2022 07:42:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 93CFD61607;
+        Tue,  5 Apr 2022 07:42:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DE3BC3410F;
+        Tue,  5 Apr 2022 07:42:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649144540;
-        bh=FFw/TabGIPTZLj+RA8uncX5NiEAAOyzvMe6+7gxoJD0=;
+        s=korg; t=1649144543;
+        bh=qHi3AlOuCH/EuE0DuSv/3Xe8gCCOBIG48WeW3IQvH2w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qsHDZ5e1mEUw53KgdYsy6K8RAUlCboIDFGNb8WUYaGgfIwZMsZy/zV9DqAKbR2tXX
-         lEDtXovW/Rm73OGC0DDTf84npg6cUV5iBYqYFLH2NYpBPN94LWPMSGtUgGEfgOmTOh
-         RzBf/vYYBlTb+JbaV5/Fk2ARU/u7pLkLZPGtuJcw=
+        b=yQ/iYDhodqGVYZ3jL4SI6Qi36/bn2obAbqv9vSDZkdc8BxYAfWsWA7EtnXoVuSP5I
+         OIuq8RKentZknlcrZAuIFKEvBg45wWmmdOOwoZj+rSuZyfGsLbTUtwpZXVw7IuKKGx
+         /ot/hTxrz5z/2wKyVkmLuXLP+DRvr8Mp7XeCSTXM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.17 0081/1126] scsi: core: sd: Add silence_suspend flag to suppress some PM messages
-Date:   Tue,  5 Apr 2022 09:13:48 +0200
-Message-Id: <20220405070409.947269419@linuxfoundation.org>
+Subject: [PATCH 5.17 0082/1126] scsi: ufs: Fix runtime PM messages never-ending cycle
+Date:   Tue,  5 Apr 2022 09:13:49 +0200
+Message-Id: <20220405070409.976672828@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -55,76 +55,93 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Adrian Hunter <adrian.hunter@intel.com>
 
-commit af4edb1d50c6d1044cb34bc43621411b7ba2cffe upstream.
+commit 71bb9ab6e3511b7bb98678a19eb8cf1ccbf3ca2f upstream.
 
 Kernel messages produced during runtime PM can cause a never-ending cycle
 because user space utilities (e.g. journald or rsyslog) write the messages
 back to storage, causing runtime resume, more messages, and so on.
 
-Messages that tell of things that are expected to happen are arguably
-unnecessary, so add a flag to suppress them. This flag is used by the UFS
-driver.
+Messages that tell of things that are expected to happen, are arguably
+unnecessary, so suppress them.
 
-Link: https://lore.kernel.org/r/20220228113652.970857-2-adrian.hunter@intel.com
+UFS driver messages are changes to from dev_err() to dev_dbg() which means
+they will not display unless activated by dynamic debug of building with
+-DDEBUG.
+
+sdev->silence_suspend is set to skip messages from sd_suspend_common()
+"Synchronizing SCSI cache", "Stopping disk" and scsi_report_sense()
+"Power-on or device reset occurred" message (Note, that message appears
+when the LUN is accessed after runtime PM, not during runtime PM)
+
+ Example messages from Ubuntu 21.10:
+
+ $ dmesg | tail
+ [ 1620.380071] ufshcd 0000:00:12.5: ufshcd_print_pwr_info:[RX, TX]: gear=[1, 1], lane[1, 1], pwr[SLOWAUTO_MODE, SLOWAUTO_MODE], rate = 0
+ [ 1620.408825] ufshcd 0000:00:12.5: ufshcd_print_pwr_info:[RX, TX]: gear=[4, 4], lane[2, 2], pwr[FAST MODE, FAST MODE], rate = 2
+ [ 1620.409020] ufshcd 0000:00:12.5: ufshcd_find_max_sup_active_icc_level: Regulator capability was not set, actvIccLevel=0
+ [ 1620.409524] sd 0:0:0:0: Power-on or device reset occurred
+ [ 1622.938794] sd 0:0:0:0: [sda] Synchronizing SCSI cache
+ [ 1622.939184] ufs_device_wlun 0:0:0:49488: Power-on or device reset occurred
+ [ 1625.183175] ufshcd 0000:00:12.5: ufshcd_print_pwr_info:[RX, TX]: gear=[1, 1], lane[1, 1], pwr[SLOWAUTO_MODE, SLOWAUTO_MODE], rate = 0
+ [ 1625.208041] ufshcd 0000:00:12.5: ufshcd_print_pwr_info:[RX, TX]: gear=[4, 4], lane[2, 2], pwr[FAST MODE, FAST MODE], rate = 2
+ [ 1625.208311] ufshcd 0000:00:12.5: ufshcd_find_max_sup_active_icc_level: Regulator capability was not set, actvIccLevel=0
+ [ 1625.209035] sd 0:0:0:0: Power-on or device reset occurred
+
+Note for stable: depends on patch "scsi: core: sd: Add silence_suspend flag
+to suppress some PM messages".
+
+Link: https://lore.kernel.org/r/20220228113652.970857-3-adrian.hunter@intel.com
 Cc: stable@vger.kernel.org
 Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/scsi_error.c  |    9 +++++++--
- drivers/scsi/sd.c          |    6 ++++--
- include/scsi/scsi_device.h |    1 +
- 3 files changed, 12 insertions(+), 4 deletions(-)
+ drivers/scsi/ufs/ufshcd.c |   21 +++++++++++++++++++--
+ 1 file changed, 19 insertions(+), 2 deletions(-)
 
---- a/drivers/scsi/scsi_error.c
-+++ b/drivers/scsi/scsi_error.c
-@@ -484,8 +484,13 @@ static void scsi_report_sense(struct scs
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -585,7 +585,12 @@ static void ufshcd_print_pwr_info(struct
+ 		"INVALID MODE",
+ 	};
  
- 		if (sshdr->asc == 0x29) {
- 			evt_type = SDEV_EVT_POWER_ON_RESET_OCCURRED;
--			sdev_printk(KERN_WARNING, sdev,
--				    "Power-on or device reset occurred\n");
-+			/*
-+			 * Do not print message if it is an expected side-effect
-+			 * of runtime PM.
-+			 */
-+			if (!sdev->silence_suspend)
-+				sdev_printk(KERN_WARNING, sdev,
-+					    "Power-on or device reset occurred\n");
- 		}
+-	dev_err(hba->dev, "%s:[RX, TX]: gear=[%d, %d], lane[%d, %d], pwr[%s, %s], rate = %d\n",
++	/*
++	 * Using dev_dbg to avoid messages during runtime PM to avoid
++	 * never-ending cycles of messages written back to storage by user space
++	 * causing runtime resume, causing more messages and so on.
++	 */
++	dev_dbg(hba->dev, "%s:[RX, TX]: gear=[%d, %d], lane[%d, %d], pwr[%s, %s], rate = %d\n",
+ 		 __func__,
+ 		 hba->pwr_info.gear_rx, hba->pwr_info.gear_tx,
+ 		 hba->pwr_info.lane_rx, hba->pwr_info.lane_tx,
+@@ -5024,6 +5029,12 @@ static int ufshcd_slave_configure(struct
+ 		pm_runtime_get_noresume(&sdev->sdev_gendev);
+ 	else if (ufshcd_is_rpm_autosuspend_allowed(hba))
+ 		sdev->rpm_autosuspend = 1;
++	/*
++	 * Do not print messages during runtime PM to avoid never-ending cycles
++	 * of messages written back to storage by user space causing runtime
++	 * resume, causing more messages and so on.
++	 */
++	sdev->silence_suspend = 1;
  
- 		if (sshdr->asc == 0x2a && sshdr->ascq == 0x01) {
---- a/drivers/scsi/sd.c
-+++ b/drivers/scsi/sd.c
-@@ -3752,7 +3752,8 @@ static int sd_suspend_common(struct devi
- 		return 0;
+ 	ufshcd_crypto_register(hba, q);
  
- 	if (sdkp->WCE && sdkp->media_present) {
--		sd_printk(KERN_NOTICE, sdkp, "Synchronizing SCSI cache\n");
-+		if (!sdkp->device->silence_suspend)
-+			sd_printk(KERN_NOTICE, sdkp, "Synchronizing SCSI cache\n");
- 		ret = sd_sync_cache(sdkp, &sshdr);
+@@ -7339,7 +7350,13 @@ static u32 ufshcd_find_max_sup_active_ic
  
- 		if (ret) {
-@@ -3774,7 +3775,8 @@ static int sd_suspend_common(struct devi
- 	}
- 
- 	if (sdkp->device->manage_start_stop) {
--		sd_printk(KERN_NOTICE, sdkp, "Stopping disk\n");
-+		if (!sdkp->device->silence_suspend)
-+			sd_printk(KERN_NOTICE, sdkp, "Stopping disk\n");
- 		/* an error is not worth aborting a system sleep */
- 		ret = sd_start_stop_device(sdkp, 0);
- 		if (ignore_stop_errors)
---- a/include/scsi/scsi_device.h
-+++ b/include/scsi/scsi_device.h
-@@ -206,6 +206,7 @@ struct scsi_device {
- 	unsigned rpm_autosuspend:1;	/* Enable runtime autosuspend at device
- 					 * creation time */
- 	unsigned ignore_media_change:1; /* Ignore MEDIA CHANGE on resume */
-+	unsigned silence_suspend:1;	/* Do not print runtime PM related messages */
- 
- 	unsigned int queue_stopped;	/* request queue is quiesced */
- 	bool offline_already;		/* Device offline message logged */
+ 	if (!hba->vreg_info.vcc || !hba->vreg_info.vccq ||
+ 						!hba->vreg_info.vccq2) {
+-		dev_err(hba->dev,
++		/*
++		 * Using dev_dbg to avoid messages during runtime PM to avoid
++		 * never-ending cycles of messages written back to storage by
++		 * user space causing runtime resume, causing more messages and
++		 * so on.
++		 */
++		dev_dbg(hba->dev,
+ 			"%s: Regulator capability was not set, actvIccLevel=%d",
+ 							__func__, icc_level);
+ 		goto out;
 
 
