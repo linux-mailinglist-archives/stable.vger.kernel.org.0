@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 10FCB4F39D9
+	by mail.lfdr.de (Postfix) with ESMTP id 5C7C54F39DA
 	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:57:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378798AbiDELi5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:38:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54584 "EHLO
+        id S1378802AbiDELjC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:39:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54798 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354022AbiDEKKs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:10:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BE354F9ED;
-        Tue,  5 Apr 2022 02:56:44 -0700 (PDT)
+        with ESMTP id S1354034AbiDEKLD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:11:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DDA54BBA5;
+        Tue,  5 Apr 2022 02:56:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C8A056157A;
-        Tue,  5 Apr 2022 09:56:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFB54C385A2;
-        Tue,  5 Apr 2022 09:56:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4168DB817D3;
+        Tue,  5 Apr 2022 09:56:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A581C385A1;
+        Tue,  5 Apr 2022 09:56:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152603;
-        bh=BBGt+GgEpJktuRha/6PB6GGM4VbMgSz88KLc5ZHLTZg=;
+        s=korg; t=1649152606;
+        bh=IS0LmQcQrqxmwm4rURgQy707TCHc6pQBCukr7IiT28Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MzYnBk/7/ZLzjC31R+akUzHNpAUiyrWJPSJSyqrHQEW4+Wrkcd1c9MSx/oL5ECemi
-         d8CdybSWZwsea8A/HDIUJtr+fv6HZGr7xhgtorp6Ie2/nqVd0Ew98ndn1tPsiEbzrV
-         4e8WWiTaq7z3sns460GBvtviCEj2vYItYu5uF4/Q=
+        b=jGybfjeodl4rp0U4xj9vIrZ1YLiMjO0rhSd93VhyLIb8c1wf7oo5aDoLC+gpl/u4q
+         Z2yyjx8XuLxzVjmd29u1eOVXLdX5S35O/EHPi7F0hUSBXymRm47piG3OsKcbpsUMSN
+         xp6ufrDje66aBsHViHBOWvIWTqDcupUtqrmlnYq8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 5.15 837/913] rtc: check if __rtc_read_time was successful
-Date:   Tue,  5 Apr 2022 09:31:39 +0200
-Message-Id: <20220405070404.919159950@linuxfoundation.org>
+        stable@vger.kernel.org, Andreas Gruenbacher <agruenba@redhat.com>
+Subject: [PATCH 5.15 838/913] gfs2: gfs2_setattr_size error path fix
+Date:   Tue,  5 Apr 2022 09:31:40 +0200
+Message-Id: <20220405070404.949894656@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -53,54 +52,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Andreas Gruenbacher <agruenba@redhat.com>
 
-commit 915593a7a663b2ad08b895a5f3ba8b19d89d4ebf upstream.
+commit 7336905a89f19173bf9301cd50a24421162f417c upstream.
 
-Clang static analysis reports this issue
-interface.c:810:8: warning: Passed-by-value struct
-  argument contains uninitialized data
-  now = rtc_tm_to_ktime(tm);
-      ^~~~~~~~~~~~~~~~~~~
+When gfs2_setattr_size() fails, it calls gfs2_rs_delete(ip, NULL) to get
+rid of any reservations the inode may have.  Instead, it should pass in
+the inode's write count as the second parameter to allow
+gfs2_rs_delete() to figure out if the inode has any writers left.
 
-tm is set by a successful call to __rtc_read_time()
-but its return status is not checked.  Check if
-it was successful before setting the enabled flag.
-Move the decl of err to function scope.
+In a next step, there are two instances of gfs2_rs_delete(ip, NULL) left
+where we know that there can be no other users of the inode.  Replace
+those with gfs2_rs_deltree(&ip->i_res) to avoid the unnecessary write
+count check.
 
-Fixes: 2b2f5ff00f63 ("rtc: interface: ignore expired timers when enqueuing new timers")
-Signed-off-by: Tom Rix <trix@redhat.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/20220326194236.2916310-1-trix@redhat.com
+With that, gfs2_rs_delete() is only called with the inode's actual write
+count, so get rid of the second parameter.
+
+Fixes: a097dc7e24cb ("GFS2: Make rgrp reservations part of the gfs2_inode structure")
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/rtc/interface.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ fs/gfs2/bmap.c  |    2 +-
+ fs/gfs2/file.c  |    2 +-
+ fs/gfs2/inode.c |    2 +-
+ fs/gfs2/rgrp.c  |    7 ++++---
+ fs/gfs2/rgrp.h  |    2 +-
+ fs/gfs2/super.c |    2 +-
+ 6 files changed, 9 insertions(+), 8 deletions(-)
 
---- a/drivers/rtc/interface.c
-+++ b/drivers/rtc/interface.c
-@@ -793,9 +793,13 @@ static int rtc_timer_enqueue(struct rtc_
- 	struct timerqueue_node *next = timerqueue_getnext(&rtc->timerqueue);
- 	struct rtc_time tm;
- 	ktime_t now;
-+	int err;
+--- a/fs/gfs2/bmap.c
++++ b/fs/gfs2/bmap.c
+@@ -2204,7 +2204,7 @@ int gfs2_setattr_size(struct inode *inod
+ 
+ 	ret = do_shrink(inode, newsize);
+ out:
+-	gfs2_rs_delete(ip, NULL);
++	gfs2_rs_delete(ip);
+ 	gfs2_qa_put(ip);
+ 	return ret;
+ }
+--- a/fs/gfs2/file.c
++++ b/fs/gfs2/file.c
+@@ -713,7 +713,7 @@ static int gfs2_release(struct inode *in
+ 
+ 	if (file->f_mode & FMODE_WRITE) {
+ 		if (gfs2_rs_active(&ip->i_res))
+-			gfs2_rs_delete(ip, &inode->i_writecount);
++			gfs2_rs_delete(ip);
+ 		gfs2_qa_put(ip);
+ 	}
+ 	return 0;
+--- a/fs/gfs2/inode.c
++++ b/fs/gfs2/inode.c
+@@ -811,7 +811,7 @@ fail_free_inode:
+ 		if (free_vfs_inode) /* else evict will do the put for us */
+ 			gfs2_glock_put(ip->i_gl);
+ 	}
+-	gfs2_rs_delete(ip, NULL);
++	gfs2_rs_deltree(&ip->i_res);
+ 	gfs2_qa_put(ip);
+ fail_free_acls:
+ 	posix_acl_release(default_acl);
+--- a/fs/gfs2/rgrp.c
++++ b/fs/gfs2/rgrp.c
+@@ -680,13 +680,14 @@ void gfs2_rs_deltree(struct gfs2_blkrese
+ /**
+  * gfs2_rs_delete - delete a multi-block reservation
+  * @ip: The inode for this reservation
+- * @wcount: The inode's write count, or NULL
+  *
+  */
+-void gfs2_rs_delete(struct gfs2_inode *ip, atomic_t *wcount)
++void gfs2_rs_delete(struct gfs2_inode *ip)
+ {
++	struct inode *inode = &ip->i_inode;
 +
-+	err = __rtc_read_time(rtc, &tm);
-+	if (err)
-+		return err;
+ 	down_write(&ip->i_rw_mutex);
+-	if ((wcount == NULL) || (atomic_read(wcount) <= 1))
++	if (atomic_read(&inode->i_writecount) <= 1)
+ 		gfs2_rs_deltree(&ip->i_res);
+ 	up_write(&ip->i_rw_mutex);
+ }
+--- a/fs/gfs2/rgrp.h
++++ b/fs/gfs2/rgrp.h
+@@ -45,7 +45,7 @@ extern int gfs2_alloc_blocks(struct gfs2
+ 			     bool dinode, u64 *generation);
  
- 	timer->enabled = 1;
--	__rtc_read_time(rtc, &tm);
- 	now = rtc_tm_to_ktime(tm);
- 
- 	/* Skip over expired timers */
-@@ -809,7 +813,6 @@ static int rtc_timer_enqueue(struct rtc_
- 	trace_rtc_timer_enqueue(timer);
- 	if (!next || ktime_before(timer->node.expires, next->expires)) {
- 		struct rtc_wkalrm alarm;
--		int err;
- 
- 		alarm.time = rtc_ktime_to_tm(timer->node.expires);
- 		alarm.enabled = 1;
+ extern void gfs2_rs_deltree(struct gfs2_blkreserv *rs);
+-extern void gfs2_rs_delete(struct gfs2_inode *ip, atomic_t *wcount);
++extern void gfs2_rs_delete(struct gfs2_inode *ip);
+ extern void __gfs2_free_blocks(struct gfs2_inode *ip, struct gfs2_rgrpd *rgd,
+ 			       u64 bstart, u32 blen, int meta);
+ extern void gfs2_free_meta(struct gfs2_inode *ip, struct gfs2_rgrpd *rgd,
+--- a/fs/gfs2/super.c
++++ b/fs/gfs2/super.c
+@@ -1398,7 +1398,7 @@ out:
+ 	truncate_inode_pages_final(&inode->i_data);
+ 	if (ip->i_qadata)
+ 		gfs2_assert_warn(sdp, ip->i_qadata->qa_ref == 0);
+-	gfs2_rs_delete(ip, NULL);
++	gfs2_rs_deltree(&ip->i_res);
+ 	gfs2_ordered_del_inode(ip);
+ 	clear_inode(inode);
+ 	gfs2_dir_hash_inval(ip);
 
 
