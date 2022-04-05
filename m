@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F4494F42E8
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:52:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 177974F4234
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:41:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345452AbiDEMVm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:21:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42284 "EHLO
+        id S1380946AbiDEMOO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:14:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53684 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357047AbiDEKZc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:25:32 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1073FC6276;
-        Tue,  5 Apr 2022 03:09:26 -0700 (PDT)
+        with ESMTP id S1357084AbiDEKZg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:25:36 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24AAAC6818;
+        Tue,  5 Apr 2022 03:09:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 99571B81C88;
-        Tue,  5 Apr 2022 10:09:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC7CFC385A1;
-        Tue,  5 Apr 2022 10:09:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 919B261500;
+        Tue,  5 Apr 2022 10:09:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9AAC6C385A1;
+        Tue,  5 Apr 2022 10:09:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153364;
-        bh=mI+XTsQ1O6xGf5rpKnBI4ad/qyxzjRQ9J85HszsMU7E=;
+        s=korg; t=1649153370;
+        bh=YHj8iQCd/OzW6n3qVyhCaXbJn2snqvg9rtDApIgkDJ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v1/NLZUq3MjYtX/PLOrUzsRgnbGelWOJfrC01jEzZOoxKmUW0/0ZWr2ccZNiS5ibK
-         QG0vfI++R7t6yLRjdxn1tHByz5ZLD5DYm13VlP4LUJr0+vUIMvkJrxyW1nGkC8sKE1
-         W1rmF0J0hZGnUW7qRecr+E5YgebrRVnA2tgFAxQ0=
+        b=j97EIoCRX29QQYFj35eX3LJ/aRX8tqasjRQiLZ4p7TdfLN7ebL6aqat6dhu6XEwU/
+         elVswZpSDU0KFMIvtJdsFyrwm165Faq4kcsOcM+tgsNcbrYFb92XPggfQNidEwCcKW
+         SGCjJ8QsToDO2myWSWAnNFF6MpOyOM/H+SsEMceI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen-Yu Tsai <wenst@chromium.org>,
-        Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 195/599] media: hantro: Fix overfill bottom register field name
-Date:   Tue,  5 Apr 2022 09:28:09 +0200
-Message-Id: <20220405070304.644342727@linuxfoundation.org>
+        stable@vger.kernel.org, "Z. Liu" <liuzx@knownsec.com>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 197/599] video: fbdev: matroxfb: set maxvram of vbG200eW to the same as vbG200 to avoid black screen
+Date:   Tue,  5 Apr 2022 09:28:11 +0200
+Message-Id: <20220405070304.703511882@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -56,62 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen-Yu Tsai <wenst@chromium.org>
+From: Z. Liu <liuzx@knownsec.com>
 
-[ Upstream commit 89d78e0133e71ba324fb67ca776223fba4353418 ]
+[ Upstream commit 62d89a7d49afe46e6b9bbe9e23b004ad848dbde4 ]
 
-The Hantro H1 hardware can crop off pixels from the right and bottom of
-the source frame. These are controlled with the H1_REG_IN_IMG_CTRL_OVRFLB
-and H1_REG_IN_IMG_CTRL_OVRFLR in the H1_REG_IN_IMG_CTRL register.
+Start from commit 11be60bd66d54 "matroxfb: add Matrox MGA-G200eW board
+support", when maxvram is 0x800000, monitor become black w/ error message
+said: "The current input timing is not supported by the monitor display.
+Please change your input timing to 1920x1080@60Hz ...".
 
-The ChromeOS kernel driver that this was based on incorrectly added the
-_D4 suffix H1_REG_IN_IMG_CTRL_OVRFLB. This field crops the bottom of the
-input frame, and the number is _not_ divided by 4. [1]
-
-Correct the name to avoid confusion when crop support with the selection
-API is added.
-
-[1] https://chromium.googlesource.com/chromiumos/third_party/kernel/+/refs/ \
-	heads/chromeos-4.19/drivers/staging/media/hantro/hantro_h1_vp8_enc.c#377
-
-Fixes: 775fec69008d ("media: add Rockchip VPU JPEG encoder driver")
-Fixes: a29add8c9bb2 ("media: rockchip/vpu: rename from rockchip to hantro")
-Signed-off-by: Chen-Yu Tsai <wenst@chromium.org>
-Reviewed-by: Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Fixes: 11be60bd66d5 ("matroxfb: add Matrox MGA-G200eW board support")
+Signed-off-by: Z. Liu <liuzx@knownsec.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/hantro/hantro_h1_jpeg_enc.c | 2 +-
- drivers/staging/media/hantro/hantro_h1_regs.h     | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/video/fbdev/matrox/matroxfb_base.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/staging/media/hantro/hantro_h1_jpeg_enc.c b/drivers/staging/media/hantro/hantro_h1_jpeg_enc.c
-index b88dc4ed06db..ed244aee196c 100644
---- a/drivers/staging/media/hantro/hantro_h1_jpeg_enc.c
-+++ b/drivers/staging/media/hantro/hantro_h1_jpeg_enc.c
-@@ -23,7 +23,7 @@ static void hantro_h1_set_src_img_ctrl(struct hantro_dev *vpu,
- 
- 	reg = H1_REG_IN_IMG_CTRL_ROW_LEN(pix_fmt->width)
- 		| H1_REG_IN_IMG_CTRL_OVRFLR_D4(0)
--		| H1_REG_IN_IMG_CTRL_OVRFLB_D4(0)
-+		| H1_REG_IN_IMG_CTRL_OVRFLB(0)
- 		| H1_REG_IN_IMG_CTRL_FMT(ctx->vpu_src_fmt->enc_fmt);
- 	vepu_write_relaxed(vpu, reg, H1_REG_IN_IMG_CTRL);
- }
-diff --git a/drivers/staging/media/hantro/hantro_h1_regs.h b/drivers/staging/media/hantro/hantro_h1_regs.h
-index d6e9825bb5c7..30e7e7b920b5 100644
---- a/drivers/staging/media/hantro/hantro_h1_regs.h
-+++ b/drivers/staging/media/hantro/hantro_h1_regs.h
-@@ -47,7 +47,7 @@
- #define H1_REG_IN_IMG_CTRL				0x03c
- #define     H1_REG_IN_IMG_CTRL_ROW_LEN(x)		((x) << 12)
- #define     H1_REG_IN_IMG_CTRL_OVRFLR_D4(x)		((x) << 10)
--#define     H1_REG_IN_IMG_CTRL_OVRFLB_D4(x)		((x) << 6)
-+#define     H1_REG_IN_IMG_CTRL_OVRFLB(x)		((x) << 6)
- #define     H1_REG_IN_IMG_CTRL_FMT(x)			((x) << 2)
- #define H1_REG_ENC_CTRL0				0x040
- #define    H1_REG_ENC_CTRL0_INIT_QP(x)			((x) << 26)
+diff --git a/drivers/video/fbdev/matrox/matroxfb_base.c b/drivers/video/fbdev/matrox/matroxfb_base.c
+index 570439b32655..daaa99818d3b 100644
+--- a/drivers/video/fbdev/matrox/matroxfb_base.c
++++ b/drivers/video/fbdev/matrox/matroxfb_base.c
+@@ -1377,7 +1377,7 @@ static struct video_board vbG200 = {
+ 	.lowlevel = &matrox_G100
+ };
+ static struct video_board vbG200eW = {
+-	.maxvram = 0x800000,
++	.maxvram = 0x100000,
+ 	.maxdisplayable = 0x800000,
+ 	.accelID = FB_ACCEL_MATROX_MGAG200,
+ 	.lowlevel = &matrox_G100
 -- 
 2.34.1
 
