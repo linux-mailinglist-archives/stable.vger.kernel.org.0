@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E04C94F2D0A
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:35:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AC294F2C37
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:24:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233885AbiDEKeE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:34:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40740 "EHLO
+        id S245541AbiDEJMC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:12:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52178 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239005AbiDEJdP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:33:15 -0400
+        with ESMTP id S244740AbiDEIwh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:37 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 349A71D0FB;
-        Tue,  5 Apr 2022 02:21:38 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 318851C909;
+        Tue,  5 Apr 2022 01:43:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E4FB7B81C6F;
-        Tue,  5 Apr 2022 09:21:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FC95C385A2;
-        Tue,  5 Apr 2022 09:21:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CAC32B81A0C;
+        Tue,  5 Apr 2022 08:43:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35685C385A0;
+        Tue,  5 Apr 2022 08:42:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150495;
-        bh=3TnHiDcoE4UN7piXzw8IEQIziQxDeP2KahwoBf8cuVg=;
+        s=korg; t=1649148179;
+        bh=m9IdsWkhwEHDsIk1mPp3Sw2dqcl6n6tF8/nLt+2Yvdk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rOVuOE+JM5IFVUpNiJIaERhtcJghxBdC2+eh67aGBGovCJlw72BE1OrYeYhmG/bDY
-         tsH+pkyATvWvEYw5Zv3SocE8meD35nQuHUiijuX1lBXvqlWU6+ll9EshiqbBoTrSTz
-         cs5seFWpMK1oAj/9jD58wIPaWcdjGjNGTuWlHvoc=
+        b=qIr/ID4T4kf6fETm6aAkPq5UAe0C31HShukJzS5oBpccu8VnBcALixluhiNMq7Mzj
+         65H5Wj+Rmfe3W2r6ad/2NVn4BjT5+FD/pLLBEppc5mXAP4JVLEUL8bVQng99+4ux77
+         JLjyBU6QA9/bJlxF8lRD5tK0nYVrWJJZSzwWAEXk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mason Yang <masonccyang@mxic.com.tw>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Zhengxun Li <zhengxunli@mxic.com.tw>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.15 075/913] spi: mxic: Fix the transmit path
+        stable@vger.kernel.org, Gilad Ben-Yossef <gilad@benyossef.com>,
+        Corentin Labbe <clabbe.montjoie@gmail.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0224/1017] crypto: ccree - dont attempt 0 len DMA mappings
 Date:   Tue,  5 Apr 2022 09:18:57 +0200
-Message-Id: <20220405070342.072193500@linuxfoundation.org>
+Message-Id: <20220405070400.899991650@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,66 +55,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miquel Raynal <miquel.raynal@bootlin.com>
+From: Gilad Ben-Yossef <gilad@benyossef.com>
 
-commit 5fd6739e0df7e320bcac103dfb95fe75941fea17 upstream.
+[ Upstream commit 1fb37b5692c915edcc2448a6b37255738c7c77e0 ]
 
-By working with external hardware ECC engines, we figured out that
-Under certain circumstances, it is needed for the SPI controller to
-check INT_TX_EMPTY and INT_RX_NOT_EMPTY in both receive and transmit
-path (not only in the receive path). The delay penalty being
-negligible, move this code in the common path.
+Refuse to try mapping zero bytes as this may cause a fault
+on some configurations / platforms and it seems the prev.
+attempt is not enough and we need to be more explicit.
 
-Fixes: b942d80b0a39 ("spi: Add MXIC controller driver")
-Cc: stable@vger.kernel.org
-Suggested-by: Mason Yang <masonccyang@mxic.com.tw>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Reviewed-by: Zhengxun Li <zhengxunli@mxic.com.tw>
-Reviewed-by: Mark Brown <broonie@kernel.org>
-Link: https://lore.kernel.org/linux-mtd/20220127091808.1043392-10-miquel.raynal@bootlin.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Gilad Ben-Yossef <gilad@benyossef.com>
+Reported-by: Corentin Labbe <clabbe.montjoie@gmail.com>
+Fixes: ce0fc6db38de ("crypto: ccree - protect against empty or NULL
+scatterlists")
+Tested-by: Corentin Labbe <clabbe.montjoie@gmail.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-mxic.c |   26 +++++++++++---------------
- 1 file changed, 11 insertions(+), 15 deletions(-)
+ drivers/crypto/ccree/cc_buffer_mgr.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/drivers/spi/spi-mxic.c
-+++ b/drivers/spi/spi-mxic.c
-@@ -304,25 +304,21 @@ static int mxic_spi_data_xfer(struct mxi
+diff --git a/drivers/crypto/ccree/cc_buffer_mgr.c b/drivers/crypto/ccree/cc_buffer_mgr.c
+index a5e041d9d2cf..11e0278c8631 100644
+--- a/drivers/crypto/ccree/cc_buffer_mgr.c
++++ b/drivers/crypto/ccree/cc_buffer_mgr.c
+@@ -258,6 +258,13 @@ static int cc_map_sg(struct device *dev, struct scatterlist *sg,
+ {
+ 	int ret = 0;
  
- 		writel(data, mxic->regs + TXD(nbytes % 4));
- 
--		if (rxbuf) {
--			ret = readl_poll_timeout(mxic->regs + INT_STS, sts,
--						 sts & INT_TX_EMPTY, 0,
--						 USEC_PER_SEC);
--			if (ret)
--				return ret;
-+		ret = readl_poll_timeout(mxic->regs + INT_STS, sts,
-+					 sts & INT_TX_EMPTY, 0, USEC_PER_SEC);
-+		if (ret)
-+			return ret;
- 
--			ret = readl_poll_timeout(mxic->regs + INT_STS, sts,
--						 sts & INT_RX_NOT_EMPTY, 0,
--						 USEC_PER_SEC);
--			if (ret)
--				return ret;
-+		ret = readl_poll_timeout(mxic->regs + INT_STS, sts,
-+					 sts & INT_RX_NOT_EMPTY, 0,
-+					 USEC_PER_SEC);
-+		if (ret)
-+			return ret;
- 
--			data = readl(mxic->regs + RXD);
-+		data = readl(mxic->regs + RXD);
-+		if (rxbuf) {
- 			data >>= (8 * (4 - nbytes));
- 			memcpy(rxbuf + pos, &data, nbytes);
--			WARN_ON(readl(mxic->regs + INT_STS) & INT_RX_NOT_EMPTY);
--		} else {
--			readl(mxic->regs + RXD);
- 		}
- 		WARN_ON(readl(mxic->regs + INT_STS) & INT_RX_NOT_EMPTY);
- 
++	if (!nbytes) {
++		*mapped_nents = 0;
++		*lbytes = 0;
++		*nents = 0;
++		return 0;
++	}
++
+ 	*nents = cc_get_sgl_nents(dev, sg, nbytes, lbytes);
+ 	if (*nents > max_sg_nents) {
+ 		*nents = 0;
+-- 
+2.34.1
+
 
 
