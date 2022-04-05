@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C8FF74F30D0
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:35:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 45F654F353A
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:49:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236262AbiDEJAO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:00:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54970 "EHLO
+        id S233679AbiDEJAr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:00:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48460 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237358AbiDEIlt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:41:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2487025F1;
-        Tue,  5 Apr 2022 01:34:27 -0700 (PDT)
+        with ESMTP id S237384AbiDEIly (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:41:54 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC49F632B;
+        Tue,  5 Apr 2022 01:34:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AD6CF609D0;
-        Tue,  5 Apr 2022 08:34:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2F9FC385A1;
-        Tue,  5 Apr 2022 08:34:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8ABB5B81B13;
+        Tue,  5 Apr 2022 08:34:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED65BC385A1;
+        Tue,  5 Apr 2022 08:34:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147666;
-        bh=MsixzbXzVCtdBce0+fcPjzQeiT8fYr0Q5qCNbdj9sXE=;
+        s=korg; t=1649147677;
+        bh=svZuOa8pDq3zAWgG/cti6ctsXMEigFytM+QrFm9Cwm8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zbVkISQlibrUJcVR3sjrgIITHc68KaC/E2XPSajjJXV7gxCo98Mq73u5dIUqUiG4T
-         3AhHKtuqpGGrLmYjctitY494RB6HCUynQEqdPGbvCza1bcDFO61HpuARkKWIjHSsyl
-         KQz52DMW7h7xYWOg6tWHAwN+IF5kn9bIGfsNizec=
+        b=vMB8pEqhTUcxwO3R1WN6SHsWJNiZgJ/hpqLzlc0oM7eoL1NPwuPtalPoWP90s9c48
+         DunCXoQ5UWfgQFO9iAO4+X9st9p3riZKTZJOlO3Tkd43krQAlV6vLh385zqQybEufs
+         3vfuwjai3w/EGyUGXvixhm2GXpAMedHqdQxWp1yU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Nyekjaer <sean@geanix.com>,
-        Boris Brezillon <boris.brezillon@collabora.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 5.16 0079/1017] mtd: rawnand: protect access to rawnand devices while in suspend
-Date:   Tue,  5 Apr 2022 09:16:32 +0200
-Message-Id: <20220405070356.536320799@linuxfoundation.org>
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Baokun Li <libaokun1@huawei.com>,
+        Richard Weinberger <richard@nod.at>
+Subject: [PATCH 5.16 0083/1017] jffs2: fix use-after-free in jffs2_clear_xattr_subsystem
+Date:   Tue,  5 Apr 2022 09:16:36 +0200
+Message-Id: <20220405070356.655820343@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -54,161 +54,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Nyekjaer <sean@geanix.com>
+From: Baokun Li <libaokun1@huawei.com>
 
-commit 8cba323437a49a45756d661f500b324fc2d486fe upstream.
+commit 4c7c44ee1650677fbe89d86edbad9497b7679b5c upstream.
 
-Prevent rawnand access while in a suspended state.
+When we mount a jffs2 image, assume that the first few blocks of
+the image are normal and contain at least one xattr-related inode,
+but the next block is abnormal. As a result, an error is returned
+in jffs2_scan_eraseblock(). jffs2_clear_xattr_subsystem() is then
+called in jffs2_build_filesystem() and then again in
+jffs2_do_fill_super().
 
-Commit 013e6292aaf5 ("mtd: rawnand: Simplify the locking") allows the
-rawnand layer to return errors rather than waiting in a blocking wait.
+Finally we can observe the following report:
+ ==================================================================
+ BUG: KASAN: use-after-free in jffs2_clear_xattr_subsystem+0x95/0x6ac
+ Read of size 8 at addr ffff8881243384e0 by task mount/719
 
-Tested on a iMX6ULL.
+ Call Trace:
+  dump_stack+0x115/0x16b
+  jffs2_clear_xattr_subsystem+0x95/0x6ac
+  jffs2_do_fill_super+0x84f/0xc30
+  jffs2_fill_super+0x2ea/0x4c0
+  mtd_get_sb+0x254/0x400
+  mtd_get_sb_by_nr+0x4f/0xd0
+  get_tree_mtd+0x498/0x840
+  jffs2_get_tree+0x25/0x30
+  vfs_get_tree+0x8d/0x2e0
+  path_mount+0x50f/0x1e50
+  do_mount+0x107/0x130
+  __se_sys_mount+0x1c5/0x2f0
+  __x64_sys_mount+0xc7/0x160
+  do_syscall_64+0x45/0x70
+  entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-Fixes: 013e6292aaf5 ("mtd: rawnand: Simplify the locking")
-Signed-off-by: Sean Nyekjaer <sean@geanix.com>
-Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
+ Allocated by task 719:
+  kasan_save_stack+0x23/0x60
+  __kasan_kmalloc.constprop.0+0x10b/0x120
+  kasan_slab_alloc+0x12/0x20
+  kmem_cache_alloc+0x1c0/0x870
+  jffs2_alloc_xattr_ref+0x2f/0xa0
+  jffs2_scan_medium.cold+0x3713/0x4794
+  jffs2_do_mount_fs.cold+0xa7/0x2253
+  jffs2_do_fill_super+0x383/0xc30
+  jffs2_fill_super+0x2ea/0x4c0
+ [...]
+
+ Freed by task 719:
+  kmem_cache_free+0xcc/0x7b0
+  jffs2_free_xattr_ref+0x78/0x98
+  jffs2_clear_xattr_subsystem+0xa1/0x6ac
+  jffs2_do_mount_fs.cold+0x5e6/0x2253
+  jffs2_do_fill_super+0x383/0xc30
+  jffs2_fill_super+0x2ea/0x4c0
+ [...]
+
+ The buggy address belongs to the object at ffff8881243384b8
+  which belongs to the cache jffs2_xattr_ref of size 48
+ The buggy address is located 40 bytes inside of
+  48-byte region [ffff8881243384b8, ffff8881243384e8)
+ [...]
+ ==================================================================
+
+The triggering of the BUG is shown in the following stack:
+-----------------------------------------------------------
+jffs2_fill_super
+  jffs2_do_fill_super
+    jffs2_do_mount_fs
+      jffs2_build_filesystem
+        jffs2_scan_medium
+          jffs2_scan_eraseblock        <--- ERROR
+        jffs2_clear_xattr_subsystem    <--- free
+    jffs2_clear_xattr_subsystem        <--- free again
+-----------------------------------------------------------
+
+An error is returned in jffs2_do_mount_fs(). If the error is returned
+by jffs2_sum_init(), the jffs2_clear_xattr_subsystem() does not need to
+be executed. If the error is returned by jffs2_build_filesystem(), the
+jffs2_clear_xattr_subsystem() also does not need to be executed again.
+So move jffs2_clear_xattr_subsystem() from 'out_inohash' to 'out_root'
+to fix this UAF problem.
+
+Fixes: aa98d7cf59b5 ("[JFFS2][XATTR] XATTR support on JFFS2 (version. 5)")
 Cc: stable@vger.kernel.org
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20220208085213.1838273-1-sean@geanix.com
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Baokun Li <libaokun1@huawei.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mtd/nand/raw/nand_base.c |   44 +++++++++++++++++----------------------
- include/linux/mtd/rawnand.h      |    2 +
- 2 files changed, 22 insertions(+), 24 deletions(-)
+ fs/jffs2/fs.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/mtd/nand/raw/nand_base.c
-+++ b/drivers/mtd/nand/raw/nand_base.c
-@@ -335,16 +335,19 @@ static int nand_isbad_bbm(struct nand_ch
-  *
-  * Return: -EBUSY if the chip has been suspended, 0 otherwise
-  */
--static int nand_get_device(struct nand_chip *chip)
-+static void nand_get_device(struct nand_chip *chip)
- {
--	mutex_lock(&chip->lock);
--	if (chip->suspended) {
-+	/* Wait until the device is resumed. */
-+	while (1) {
-+		mutex_lock(&chip->lock);
-+		if (!chip->suspended) {
-+			mutex_lock(&chip->controller->lock);
-+			return;
-+		}
- 		mutex_unlock(&chip->lock);
--		return -EBUSY;
--	}
--	mutex_lock(&chip->controller->lock);
- 
--	return 0;
-+		wait_event(chip->resume_wq, !chip->suspended);
-+	}
- }
- 
- /**
-@@ -573,9 +576,7 @@ static int nand_block_markbad_lowlevel(s
- 		nand_erase_nand(chip, &einfo, 0);
- 
- 		/* Write bad block marker to OOB */
--		ret = nand_get_device(chip);
--		if (ret)
--			return ret;
-+		nand_get_device(chip);
- 
- 		ret = nand_markbad_bbm(chip, ofs);
- 		nand_release_device(chip);
-@@ -3823,9 +3824,7 @@ static int nand_read_oob(struct mtd_info
- 	    ops->mode != MTD_OPS_RAW)
- 		return -ENOTSUPP;
- 
--	ret = nand_get_device(chip);
--	if (ret)
--		return ret;
-+	nand_get_device(chip);
- 
- 	if (!ops->datbuf)
- 		ret = nand_do_read_oob(chip, from, ops);
-@@ -4412,13 +4411,11 @@ static int nand_write_oob(struct mtd_inf
- 			  struct mtd_oob_ops *ops)
- {
- 	struct nand_chip *chip = mtd_to_nand(mtd);
--	int ret;
-+	int ret = 0;
- 
- 	ops->retlen = 0;
- 
--	ret = nand_get_device(chip);
--	if (ret)
--		return ret;
-+	nand_get_device(chip);
- 
- 	switch (ops->mode) {
- 	case MTD_OPS_PLACE_OOB:
-@@ -4478,9 +4475,7 @@ int nand_erase_nand(struct nand_chip *ch
- 		return -EIO;
- 
- 	/* Grab the lock and see if the device is available */
--	ret = nand_get_device(chip);
--	if (ret)
--		return ret;
-+	nand_get_device(chip);
- 
- 	/* Shift to get first page */
- 	page = (int)(instr->addr >> chip->page_shift);
-@@ -4567,7 +4562,7 @@ static void nand_sync(struct mtd_info *m
- 	pr_debug("%s: called\n", __func__);
- 
- 	/* Grab the lock and see if the device is available */
--	WARN_ON(nand_get_device(chip));
-+	nand_get_device(chip);
- 	/* Release it and go back */
- 	nand_release_device(chip);
- }
-@@ -4584,9 +4579,7 @@ static int nand_block_isbad(struct mtd_i
- 	int ret;
- 
- 	/* Select the NAND device */
--	ret = nand_get_device(chip);
--	if (ret)
--		return ret;
-+	nand_get_device(chip);
- 
- 	nand_select_target(chip, chipnr);
- 
-@@ -4657,6 +4650,8 @@ static void nand_resume(struct mtd_info
- 			__func__);
- 	}
- 	mutex_unlock(&chip->lock);
-+
-+	wake_up_all(&chip->resume_wq);
- }
- 
- /**
-@@ -5434,6 +5429,7 @@ static int nand_scan_ident(struct nand_c
- 	chip->cur_cs = -1;
- 
- 	mutex_init(&chip->lock);
-+	init_waitqueue_head(&chip->resume_wq);
- 
- 	/* Enforce the right timings for reset/detection */
- 	chip->current_interface_config = nand_get_reset_interface_config();
---- a/include/linux/mtd/rawnand.h
-+++ b/include/linux/mtd/rawnand.h
-@@ -1240,6 +1240,7 @@ struct nand_secure_region {
-  * @lock: Lock protecting the suspended field. Also used to serialize accesses
-  *        to the NAND device
-  * @suspended: Set to 1 when the device is suspended, 0 when it's not
-+ * @resume_wq: wait queue to sleep if rawnand is in suspended state.
-  * @cur_cs: Currently selected target. -1 means no target selected, otherwise we
-  *          should always have cur_cs >= 0 && cur_cs < nanddev_ntargets().
-  *          NAND Controller drivers should not modify this value, but they're
-@@ -1294,6 +1295,7 @@ struct nand_chip {
- 	/* Internals */
- 	struct mutex lock;
- 	unsigned int suspended : 1;
-+	wait_queue_head_t resume_wq;
- 	int cur_cs;
- 	int read_retries;
- 	struct nand_secure_region *secure_regions;
+--- a/fs/jffs2/fs.c
++++ b/fs/jffs2/fs.c
+@@ -603,8 +603,8 @@ out_root:
+ 	jffs2_free_ino_caches(c);
+ 	jffs2_free_raw_node_refs(c);
+ 	kvfree(c->blocks);
+- out_inohash:
+ 	jffs2_clear_xattr_subsystem(c);
++ out_inohash:
+ 	kfree(c->inocache_list);
+  out_wbuf:
+ 	jffs2_flash_cleanup(c);
 
 
