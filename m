@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 67EA14F2808
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:19:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD06C4F27DA
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:08:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232572AbiDEIKC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:10:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48372 "EHLO
+        id S233597AbiDEIJT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:09:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234042AbiDEH56 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:57:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F1BE96826;
-        Tue,  5 Apr 2022 00:51:48 -0700 (PDT)
+        with ESMTP id S233975AbiDEH5y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:57:54 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08AA1939AF;
+        Tue,  5 Apr 2022 00:51:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9A83BB81BB0;
-        Tue,  5 Apr 2022 07:51:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11BCDC36AE3;
-        Tue,  5 Apr 2022 07:51:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 75897B81B90;
+        Tue,  5 Apr 2022 07:51:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6806C3410F;
+        Tue,  5 Apr 2022 07:51:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145099;
-        bh=9w+H9RvQiAqbnv0t89CVqseGyEem3RzhqIHtFB3UxKo=;
+        s=korg; t=1649145102;
+        bh=oHVFxPkpSQYF4vQXl0hmS/0XMzT+M/SqED4Ids4AGWo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OCuENez1Wj5ERpItfjD93VI+jyDjlJ0/J9QOOPbPbmOsPmlhLUkAGhZgzX0XW+rfw
-         +MgNg703yTyScFFKqAOlMNImjsP4jWwHsShHK5KWi1ROQJn7qQwozuG9xzwMWOlwEp
-         HVZBM/IHaB0fdpqYrQ1aKkca4gN7IJTd1+0J01T8=
+        b=vwo6vvNLrKYJYz7AOc6FI2StfYu5A+mFjpZT5qyN9XR6QSIw8pCC3MS3AurrevFGK
+         wHDKzlOLBSRNaEKSKlB+ONMS+JCsJatSXrF05o9w7HK6QAA02Re08Hbx+BO/FjWuhm
+         xbqSiqfLY5Nzu8c7SrYIbfIxuMZOA/uQTuo/KWc0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Mike Marshall <hubcap@omnibond.com>,
-        David Howells <dhowells@redhat.com>
-Subject: [PATCH 5.17 0284/1126] iomap: Fix iomap_invalidatepage tracepoint
-Date:   Tue,  5 Apr 2022 09:17:11 +0200
-Message-Id: <20220405070415.949224018@linuxfoundation.org>
+        stable@vger.kernel.org, Dongliang Mu <mudongliangabcd@gmail.com>,
+        Gao Xiang <hsiangkao@linux.alibaba.com>,
+        Chao Yu <chao@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 0285/1126] fs: erofs: add sanity check for kobject in erofs_unregister_sysfs
+Date:   Tue,  5 Apr 2022 09:17:12 +0200
+Message-Id: <20220405070415.978906974@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -57,38 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Wilcox (Oracle) <willy@infradead.org>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-[ Upstream commit 1241ebeca3f94b417751cb3ff62454cefdac75bc ]
+[ Upstream commit a942da24abc5839c11a8fc2a4b7cb268ea94ba54 ]
 
-This tracepoint is defined to take an offset in the file, not an
-offset in the folio.
+Syzkaller hit 'WARNING: kobject bug in erofs_unregister_sysfs'. This bug
+is triggered by injecting fault in kobject_init_and_add of
+erofs_unregister_sysfs.
 
-Fixes: 1ac994525b9d ("iomap: Remove pgoff from tracepoints")
-Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Tested-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Acked-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Tested-by: Mike Marshall <hubcap@omnibond.com> # orangefs
-Tested-by: David Howells <dhowells@redhat.com> # afs
+Fix this by adding sanity check for kobject in erofs_unregister_sysfs
+
+Note that I've tested the patch and the crash does not occur any more.
+
+Link: https://lore.kernel.org/r/20220315132814.12332-1-dzm91@hust.edu.cn
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Fixes: 168e9a76200c ("erofs: add sysfs interface")
+Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+Reviewed-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/iomap/buffered-io.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/erofs/sysfs.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/fs/iomap/buffered-io.c b/fs/iomap/buffered-io.c
-index 6c51a75d0be6..d020a2e81a24 100644
---- a/fs/iomap/buffered-io.c
-+++ b/fs/iomap/buffered-io.c
-@@ -480,7 +480,8 @@ EXPORT_SYMBOL_GPL(iomap_releasepage);
- 
- void iomap_invalidate_folio(struct folio *folio, size_t offset, size_t len)
+diff --git a/fs/erofs/sysfs.c b/fs/erofs/sysfs.c
+index dac252bc9228..f3babf1e6608 100644
+--- a/fs/erofs/sysfs.c
++++ b/fs/erofs/sysfs.c
+@@ -221,9 +221,11 @@ void erofs_unregister_sysfs(struct super_block *sb)
  {
--	trace_iomap_invalidatepage(folio->mapping->host, offset, len);
-+	trace_iomap_invalidatepage(folio->mapping->host,
-+					folio_pos(folio) + offset, len);
+ 	struct erofs_sb_info *sbi = EROFS_SB(sb);
  
- 	/*
- 	 * If we're invalidating the entire folio, clear the dirty state
+-	kobject_del(&sbi->s_kobj);
+-	kobject_put(&sbi->s_kobj);
+-	wait_for_completion(&sbi->s_kobj_unregister);
++	if (sbi->s_kobj.state_in_sysfs) {
++		kobject_del(&sbi->s_kobj);
++		kobject_put(&sbi->s_kobj);
++		wait_for_completion(&sbi->s_kobj_unregister);
++	}
+ }
+ 
+ int __init erofs_init_sysfs(void)
 -- 
 2.34.1
 
