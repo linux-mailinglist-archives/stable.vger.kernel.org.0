@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BB234F351C
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:48:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA8684F3454
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:26:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345609AbiDEKtM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:49:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41744 "EHLO
+        id S1347928AbiDEJ2q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:28:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245657AbiDEJlo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:41:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E3AABD2DB;
-        Tue,  5 Apr 2022 02:27:19 -0700 (PDT)
+        with ESMTP id S244995AbiDEIxA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:53:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BC566146;
+        Tue,  5 Apr 2022 01:48:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 73EB3B81CAF;
-        Tue,  5 Apr 2022 09:27:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD521C385A0;
-        Tue,  5 Apr 2022 09:27:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 28D1961504;
+        Tue,  5 Apr 2022 08:48:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34481C385A1;
+        Tue,  5 Apr 2022 08:48:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150836;
-        bh=SU2f+hH/qpT+qf9grGit2HUanpz8gDUIGPtu0haDoJQ=;
+        s=korg; t=1649148526;
+        bh=guVlBzD+z8QYs49QmnLxHxL7TQNESW7NlPWrZw/7gKc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RcbB28xPdiYUOz5l21yvDx1BZbpQBjd80LmdsXUYYiO+rgZ45KeGincOrXO/ebPC7
-         lXeWG4X/XXm4K79ruVAEhzqS0oinS76BsH3dWBGqToKxbZ97N1e03cKekZA88Co5HT
-         gI3vx7NcfXQ92uGu5EwfxoXclAcNZNj5SWvrHUPA=
+        b=b9iYr5P8sal8J/3C/1AtJ3UU13sgHj3G7tVMM8SDddgKiUldgwkkkXxO/TV+Rk2cR
+         HDyMaXo5G43jrZGm+OmnuTXOSLlVgGA21fgAd6hjqQH1L5i0Ei9b8xJOa//V2Oz+Jl
+         Pq82boMR4PqTUbzv3QRV6uqKr81ELlNV4CsGgYdc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Scott Mayhew <smayhew@redhat.com>,
-        Paul Moore <paul@paul-moore.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 198/913] selinux: Fix selinux_sb_mnt_opts_compat()
-Date:   Tue,  5 Apr 2022 09:21:00 +0200
-Message-Id: <20220405070345.793362735@linuxfoundation.org>
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Dinh Nguyen <dinguyen@kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0349/1017] uaccess: fix nios2 and microblaze get_user_8()
+Date:   Tue,  5 Apr 2022 09:21:02 +0200
+Message-Id: <20220405070404.642334717@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,224 +54,142 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Scott Mayhew <smayhew@redhat.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit b8b87fd954b4b1bdd2d739c8f50bf685351a1a94 ]
+[ Upstream commit a97b693c3712f040c5802f32b2d685352e08cefa ]
 
-selinux_sb_mnt_opts_compat() is called under the sb_lock spinlock and
-shouldn't be performing any memory allocations.  Fix this by parsing the
-sids at the same time we're chopping up the security mount options
-string and then using the pre-parsed sids when doing the comparison.
+These two architectures implement 8-byte get_user() through
+a memcpy() into a four-byte variable, which won't fit.
 
-Fixes: cc274ae7763d ("selinux: fix sleeping function called from invalid context")
-Fixes: 69c4a42d72eb ("lsm,selinux: add new hook to compare new mount to an existing mount")
-Signed-off-by: Scott Mayhew <smayhew@redhat.com>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+Use a temporary 64-bit variable instead here, and use a double
+cast the way that risc-v and openrisc do to avoid compile-time
+warnings.
+
+Fixes: 6a090e97972d ("arch/microblaze: support get_user() of size 8 bytes")
+Fixes: 5ccc6af5e88e ("nios2: Memory management")
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Acked-by: Dinh Nguyen <dinguyen@kernel.org>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/selinux/hooks.c | 75 ++++++++++++++++++++++------------------
- 1 file changed, 41 insertions(+), 34 deletions(-)
+ arch/microblaze/include/asm/uaccess.h | 18 +++++++++---------
+ arch/nios2/include/asm/uaccess.h      | 26 ++++++++++++++++----------
+ 2 files changed, 25 insertions(+), 19 deletions(-)
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 0981008ac7d3..f3c8acf45ed9 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -355,6 +355,10 @@ static void inode_free_security(struct inode *inode)
+diff --git a/arch/microblaze/include/asm/uaccess.h b/arch/microblaze/include/asm/uaccess.h
+index 5b6e0e7788f4..3fe96979d2c6 100644
+--- a/arch/microblaze/include/asm/uaccess.h
++++ b/arch/microblaze/include/asm/uaccess.h
+@@ -130,27 +130,27 @@ extern long __user_bad(void);
  
- struct selinux_mnt_opts {
- 	const char *fscontext, *context, *rootcontext, *defcontext;
-+	u32 fscontext_sid;
-+	u32 context_sid;
-+	u32 rootcontext_sid;
-+	u32 defcontext_sid;
- };
+ #define __get_user(x, ptr)						\
+ ({									\
+-	unsigned long __gu_val = 0;					\
+ 	long __gu_err;							\
+ 	switch (sizeof(*(ptr))) {					\
+ 	case 1:								\
+-		__get_user_asm("lbu", (ptr), __gu_val, __gu_err);	\
++		__get_user_asm("lbu", (ptr), x, __gu_err);		\
+ 		break;							\
+ 	case 2:								\
+-		__get_user_asm("lhu", (ptr), __gu_val, __gu_err);	\
++		__get_user_asm("lhu", (ptr), x, __gu_err);		\
+ 		break;							\
+ 	case 4:								\
+-		__get_user_asm("lw", (ptr), __gu_val, __gu_err);	\
++		__get_user_asm("lw", (ptr), x, __gu_err);		\
+ 		break;							\
+-	case 8:								\
+-		__gu_err = __copy_from_user(&__gu_val, ptr, 8);		\
+-		if (__gu_err)						\
+-			__gu_err = -EFAULT;				\
++	case 8: {							\
++		__u64 __x = 0;						\
++		__gu_err = raw_copy_from_user(&__x, ptr, 8) ?		\
++							-EFAULT : 0;	\
++		(x) = (typeof(x))(typeof((x) - (x)))__x;		\
+ 		break;							\
++	}								\
+ 	default:							\
+ 		/* __gu_val = 0; __gu_err = -EINVAL;*/ __gu_err = __user_bad();\
+ 	}								\
+-	x = (__force __typeof__(*(ptr))) __gu_val;			\
+ 	__gu_err;							\
+ })
  
- static void selinux_free_mnt_opts(void *mnt_opts)
-@@ -611,15 +615,14 @@ static int bad_option(struct superblock_security_struct *sbsec, char flag,
- 	return 0;
+diff --git a/arch/nios2/include/asm/uaccess.h b/arch/nios2/include/asm/uaccess.h
+index ba9340e96fd4..ca9285a915ef 100644
+--- a/arch/nios2/include/asm/uaccess.h
++++ b/arch/nios2/include/asm/uaccess.h
+@@ -88,6 +88,7 @@ extern __must_check long strnlen_user(const char __user *s, long n);
+ /* Optimized macros */
+ #define __get_user_asm(val, insn, addr, err)				\
+ {									\
++	unsigned long __gu_val;						\
+ 	__asm__ __volatile__(						\
+ 	"       movi    %0, %3\n"					\
+ 	"1:   " insn " %1, 0(%2)\n"					\
+@@ -96,14 +97,20 @@ extern __must_check long strnlen_user(const char __user *s, long n);
+ 	"       .section __ex_table,\"a\"\n"				\
+ 	"       .word 1b, 2b\n"						\
+ 	"       .previous"						\
+-	: "=&r" (err), "=r" (val)					\
++	: "=&r" (err), "=r" (__gu_val)					\
+ 	: "r" (addr), "i" (-EFAULT));					\
++	val = (__force __typeof__(*(addr)))__gu_val;			\
  }
  
--static int parse_sid(struct super_block *sb, const char *s, u32 *sid,
--		     gfp_t gfp)
-+static int parse_sid(struct super_block *sb, const char *s, u32 *sid)
- {
- 	int rc = security_context_str_to_sid(&selinux_state, s,
--					     sid, gfp);
-+					     sid, GFP_KERNEL);
- 	if (rc)
- 		pr_warn("SELinux: security_context_str_to_sid"
- 		       "(%s) failed for (dev %s, type %s) errno=%d\n",
--		       s, sb->s_id, sb->s_type->name, rc);
-+		       s, sb ? sb->s_id : "?", sb ? sb->s_type->name : "?", rc);
- 	return rc;
- }
- 
-@@ -686,8 +689,7 @@ static int selinux_set_mnt_opts(struct super_block *sb,
- 	 */
- 	if (opts) {
- 		if (opts->fscontext) {
--			rc = parse_sid(sb, opts->fscontext, &fscontext_sid,
--					GFP_KERNEL);
-+			rc = parse_sid(sb, opts->fscontext, &fscontext_sid);
- 			if (rc)
- 				goto out;
- 			if (bad_option(sbsec, FSCONTEXT_MNT, sbsec->sid,
-@@ -696,8 +698,7 @@ static int selinux_set_mnt_opts(struct super_block *sb,
- 			sbsec->flags |= FSCONTEXT_MNT;
- 		}
- 		if (opts->context) {
--			rc = parse_sid(sb, opts->context, &context_sid,
--					GFP_KERNEL);
-+			rc = parse_sid(sb, opts->context, &context_sid);
- 			if (rc)
- 				goto out;
- 			if (bad_option(sbsec, CONTEXT_MNT, sbsec->mntpoint_sid,
-@@ -706,8 +707,7 @@ static int selinux_set_mnt_opts(struct super_block *sb,
- 			sbsec->flags |= CONTEXT_MNT;
- 		}
- 		if (opts->rootcontext) {
--			rc = parse_sid(sb, opts->rootcontext, &rootcontext_sid,
--					GFP_KERNEL);
-+			rc = parse_sid(sb, opts->rootcontext, &rootcontext_sid);
- 			if (rc)
- 				goto out;
- 			if (bad_option(sbsec, ROOTCONTEXT_MNT, root_isec->sid,
-@@ -716,8 +716,7 @@ static int selinux_set_mnt_opts(struct super_block *sb,
- 			sbsec->flags |= ROOTCONTEXT_MNT;
- 		}
- 		if (opts->defcontext) {
--			rc = parse_sid(sb, opts->defcontext, &defcontext_sid,
--					GFP_KERNEL);
-+			rc = parse_sid(sb, opts->defcontext, &defcontext_sid);
- 			if (rc)
- 				goto out;
- 			if (bad_option(sbsec, DEFCONTEXT_MNT, sbsec->def_sid,
-@@ -1008,21 +1007,29 @@ static int selinux_add_opt(int token, const char *s, void **mnt_opts)
- 		if (opts->context || opts->defcontext)
- 			goto Einval;
- 		opts->context = s;
-+		if (selinux_initialized(&selinux_state))
-+			parse_sid(NULL, s, &opts->context_sid);
- 		break;
- 	case Opt_fscontext:
- 		if (opts->fscontext)
- 			goto Einval;
- 		opts->fscontext = s;
-+		if (selinux_initialized(&selinux_state))
-+			parse_sid(NULL, s, &opts->fscontext_sid);
- 		break;
- 	case Opt_rootcontext:
- 		if (opts->rootcontext)
- 			goto Einval;
- 		opts->rootcontext = s;
-+		if (selinux_initialized(&selinux_state))
-+			parse_sid(NULL, s, &opts->rootcontext_sid);
- 		break;
- 	case Opt_defcontext:
- 		if (opts->context || opts->defcontext)
- 			goto Einval;
- 		opts->defcontext = s;
-+		if (selinux_initialized(&selinux_state))
-+			parse_sid(NULL, s, &opts->defcontext_sid);
- 		break;
- 	}
- 	return 0;
-@@ -2696,8 +2703,6 @@ static int selinux_sb_mnt_opts_compat(struct super_block *sb, void *mnt_opts)
- {
- 	struct selinux_mnt_opts *opts = mnt_opts;
- 	struct superblock_security_struct *sbsec = selinux_superblock(sb);
--	u32 sid;
--	int rc;
- 
- 	/*
- 	 * Superblock not initialized (i.e. no options) - reject if any
-@@ -2714,34 +2719,36 @@ static int selinux_sb_mnt_opts_compat(struct super_block *sb, void *mnt_opts)
- 		return (sbsec->flags & SE_MNTMASK) ? 1 : 0;
- 
- 	if (opts->fscontext) {
--		rc = parse_sid(sb, opts->fscontext, &sid, GFP_NOWAIT);
--		if (rc)
-+		if (opts->fscontext_sid == SECSID_NULL)
- 			return 1;
--		if (bad_option(sbsec, FSCONTEXT_MNT, sbsec->sid, sid))
-+		else if (bad_option(sbsec, FSCONTEXT_MNT, sbsec->sid,
-+				       opts->fscontext_sid))
- 			return 1;
- 	}
- 	if (opts->context) {
--		rc = parse_sid(sb, opts->context, &sid, GFP_NOWAIT);
--		if (rc)
-+		if (opts->context_sid == SECSID_NULL)
- 			return 1;
--		if (bad_option(sbsec, CONTEXT_MNT, sbsec->mntpoint_sid, sid))
-+		else if (bad_option(sbsec, CONTEXT_MNT, sbsec->mntpoint_sid,
-+				       opts->context_sid))
- 			return 1;
- 	}
- 	if (opts->rootcontext) {
--		struct inode_security_struct *root_isec;
--
--		root_isec = backing_inode_security(sb->s_root);
--		rc = parse_sid(sb, opts->rootcontext, &sid, GFP_NOWAIT);
--		if (rc)
--			return 1;
--		if (bad_option(sbsec, ROOTCONTEXT_MNT, root_isec->sid, sid))
-+		if (opts->rootcontext_sid == SECSID_NULL)
- 			return 1;
-+		else {
-+			struct inode_security_struct *root_isec;
+-#define __get_user_unknown(val, size, ptr, err) do {			\
++extern void __get_user_unknown(void);
 +
-+			root_isec = backing_inode_security(sb->s_root);
-+			if (bad_option(sbsec, ROOTCONTEXT_MNT, root_isec->sid,
-+				       opts->rootcontext_sid))
-+				return 1;
-+		}
- 	}
- 	if (opts->defcontext) {
--		rc = parse_sid(sb, opts->defcontext, &sid, GFP_NOWAIT);
--		if (rc)
-+		if (opts->defcontext_sid == SECSID_NULL)
- 			return 1;
--		if (bad_option(sbsec, DEFCONTEXT_MNT, sbsec->def_sid, sid))
-+		else if (bad_option(sbsec, DEFCONTEXT_MNT, sbsec->def_sid,
-+				       opts->defcontext_sid))
- 			return 1;
- 	}
- 	return 0;
-@@ -2761,14 +2768,14 @@ static int selinux_sb_remount(struct super_block *sb, void *mnt_opts)
- 		return 0;
++#define __get_user_8(val, ptr, err) do {				\
++	u64 __val = 0;							\
+ 	err = 0;							\
+-	if (__copy_from_user(&(val), ptr, size)) {			\
++	if (raw_copy_from_user(&(__val), ptr, sizeof(val))) {		\
+ 		err = -EFAULT;						\
++	} else {							\
++		val = (typeof(val))(typeof((val) - (val)))__val;	\
+ 	}								\
+ 	} while (0)
  
- 	if (opts->fscontext) {
--		rc = parse_sid(sb, opts->fscontext, &sid, GFP_KERNEL);
-+		rc = parse_sid(sb, opts->fscontext, &sid);
- 		if (rc)
- 			return rc;
- 		if (bad_option(sbsec, FSCONTEXT_MNT, sbsec->sid, sid))
- 			goto out_bad_option;
- 	}
- 	if (opts->context) {
--		rc = parse_sid(sb, opts->context, &sid, GFP_KERNEL);
-+		rc = parse_sid(sb, opts->context, &sid);
- 		if (rc)
- 			return rc;
- 		if (bad_option(sbsec, CONTEXT_MNT, sbsec->mntpoint_sid, sid))
-@@ -2777,14 +2784,14 @@ static int selinux_sb_remount(struct super_block *sb, void *mnt_opts)
- 	if (opts->rootcontext) {
- 		struct inode_security_struct *root_isec;
- 		root_isec = backing_inode_security(sb->s_root);
--		rc = parse_sid(sb, opts->rootcontext, &sid, GFP_KERNEL);
-+		rc = parse_sid(sb, opts->rootcontext, &sid);
- 		if (rc)
- 			return rc;
- 		if (bad_option(sbsec, ROOTCONTEXT_MNT, root_isec->sid, sid))
- 			goto out_bad_option;
- 	}
- 	if (opts->defcontext) {
--		rc = parse_sid(sb, opts->defcontext, &sid, GFP_KERNEL);
-+		rc = parse_sid(sb, opts->defcontext, &sid);
- 		if (rc)
- 			return rc;
- 		if (bad_option(sbsec, DEFCONTEXT_MNT, sbsec->def_sid, sid))
+@@ -119,8 +126,11 @@ do {									\
+ 	case 4:								\
+ 		__get_user_asm(val, "ldw", ptr, err);			\
+ 		break;							\
++	case 8:								\
++		__get_user_8(val, ptr, err);				\
++		break;							\
+ 	default:							\
+-		__get_user_unknown(val, size, ptr, err);		\
++		__get_user_unknown();					\
+ 		break;							\
+ 	}								\
+ } while (0)
+@@ -129,9 +139,7 @@ do {									\
+ 	({								\
+ 	long __gu_err = -EFAULT;					\
+ 	const __typeof__(*(ptr)) __user *__gu_ptr = (ptr);		\
+-	unsigned long __gu_val = 0;					\
+-	__get_user_common(__gu_val, sizeof(*(ptr)), __gu_ptr, __gu_err);\
+-	(x) = (__force __typeof__(x))__gu_val;				\
++	__get_user_common(x, sizeof(*(ptr)), __gu_ptr, __gu_err);	\
+ 	__gu_err;							\
+ 	})
+ 
+@@ -139,11 +147,9 @@ do {									\
+ ({									\
+ 	long __gu_err = -EFAULT;					\
+ 	const __typeof__(*(ptr)) __user *__gu_ptr = (ptr);		\
+-	unsigned long __gu_val = 0;					\
+ 	if (access_ok( __gu_ptr, sizeof(*__gu_ptr)))	\
+-		__get_user_common(__gu_val, sizeof(*__gu_ptr),		\
++		__get_user_common(x, sizeof(*__gu_ptr),			\
+ 			__gu_ptr, __gu_err);				\
+-	(x) = (__force __typeof__(x))__gu_val;				\
+ 	__gu_err;							\
+ })
+ 
 -- 
 2.34.1
 
