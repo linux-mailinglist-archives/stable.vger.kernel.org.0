@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 331C24F2EB0
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:03:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE0E04F31DF
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:46:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237908AbiDEJE1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:04:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43776 "EHLO
+        id S1356483AbiDEKX4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:23:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55690 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243285AbiDEIuT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:50:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C90C12AF2;
-        Tue,  5 Apr 2022 01:38:38 -0700 (PDT)
+        with ESMTP id S236247AbiDEJbO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:31:14 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 280F546B30;
+        Tue,  5 Apr 2022 02:18:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 267C061500;
-        Tue,  5 Apr 2022 08:38:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F80CC385A1;
-        Tue,  5 Apr 2022 08:38:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C79FBB81BBF;
+        Tue,  5 Apr 2022 09:18:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 262E5C385A2;
+        Tue,  5 Apr 2022 09:18:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147911;
-        bh=wxo5Qgm4ML6MQghSIyIPjrQXgvNxgJgLaqb67pNgPhk=;
+        s=korg; t=1649150328;
+        bh=Gz/VeTBBP33tvFp+j5VVKKb+rCBIgNQIXNdX6PH2aYA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=asGlX5E3gcurU0uTdjDN+GMNKXlfzFTkyDvvmhGdYlr3dmi725HpCmUCrtRv8+sER
-         vxQ9j7FrjBuYjiwU5hVjb8ffzSWK8gvi3gB/4yh9FvyDbPtc6E5LrU2aiYlwWptJVr
-         eQgn2o0L37EigUYBLkxUv29BRwdTeV21biqpsKBQ=
+        b=TY3AJ14jZRWz1PZ63IiBAXLBUTWrmGSHKFgO6ncJh5D/n4It23/luXRHUVmowghbE
+         eyBA/3kg47W5FxkeOfr8QjNXYUfp6G96xeiU5o6VeTNkSi2G/fCvTWiZLM/+lapvGU
+         eg4WKkhe2dkC9JdaKeVlbA0lvkODLgPn2Wmerfyo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tadeusz Struk <tadeusz.struk@linaro.org>,
-        Vitaly Chikunov <vt@altlinux.org>,
-        Eric Biggers <ebiggers@google.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.16 0167/1017] crypto: rsa-pkcs1pad - restore signature length check
-Date:   Tue,  5 Apr 2022 09:18:00 +0200
-Message-Id: <20220405070359.181100856@linuxfoundation.org>
+        stable@vger.kernel.org, Bartosz Golaszewski <brgl@bgdev.pl>,
+        Michael Walle <michael@walle.cc>,
+        Thorsten Leemhuis <linux@leemhuis.info>,
+        Marcelo Roberto Jimenez <marcelo.jimenez@gmail.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 5.15 019/913] Revert "gpio: Revert regression in sysfs-gpio (gpiolib.c)"
+Date:   Tue,  5 Apr 2022 09:18:01 +0200
+Message-Id: <20220405070340.390677274@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,46 +58,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Bartosz Golaszewski <brgl@bgdev.pl>
 
-commit d3481accd974541e6a5d6a1fb588924a3519c36e upstream.
+[ Upstream commit 56e337f2cf1326323844927a04e9dbce9a244835 ]
 
-RSA PKCS#1 v1.5 signatures are required to be the same length as the RSA
-key size.  RFC8017 specifically requires the verifier to check this
-(https://datatracker.ietf.org/doc/html/rfc8017#section-8.2.2).
+This reverts commit fc328a7d1fcce263db0b046917a66f3aa6e68719.
 
-Commit a49de377e051 ("crypto: Add hash param to pkcs1pad") changed the
-kernel to allow longer signatures, but didn't explain this part of the
-change; it seems to be unrelated to the rest of the commit.
+This commit - while attempting to fix a regression - has caused a number
+of other problems. As the fallout from it is more significant than the
+initial problem itself, revert it for now before we find a correct
+solution.
 
-Revert this change, since it doesn't appear to be correct.
-
-We can be pretty sure that no one is relying on overly-long signatures
-(which would have to be front-padded with zeroes) being supported, given
-that they would have been broken since commit c7381b012872
-("crypto: akcipher - new verify API for public key algorithms").
-
-Fixes: a49de377e051 ("crypto: Add hash param to pkcs1pad")
-Cc: <stable@vger.kernel.org> # v4.6+
-Cc: Tadeusz Struk <tadeusz.struk@linaro.org>
-Suggested-by: Vitaly Chikunov <vt@altlinux.org>
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/all/20220314192522.GA3031157@roeck-us.net/
+Link: https://lore.kernel.org/stable/20220314155509.552218-1-michael@walle.cc/
+Link: https://lore.kernel.org/all/20211217153555.9413-1-marcelo.jimenez@gmail.com/
+Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
+Reported-and-bisected-by: Guenter Roeck <linux@roeck-us.net>
+Reported-by: Michael Walle <michael@walle.cc>
+Cc: Thorsten Leemhuis <linux@leemhuis.info>
+Cc: Marcelo Roberto Jimenez <marcelo.jimenez@gmail.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/rsa-pkcs1pad.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpio/gpiolib.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/crypto/rsa-pkcs1pad.c
-+++ b/crypto/rsa-pkcs1pad.c
-@@ -538,7 +538,7 @@ static int pkcs1pad_verify(struct akciph
- 
- 	if (WARN_ON(req->dst) ||
- 	    WARN_ON(!req->dst_len) ||
--	    !ctx->key_size || req->src_len < ctx->key_size)
-+	    !ctx->key_size || req->src_len != ctx->key_size)
- 		return -EINVAL;
- 
- 	req_ctx->out_buf = kmalloc(ctx->key_size + req->dst_len, GFP_KERNEL);
+diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
+index 12b59cdffdf3..358f0ad9d0f8 100644
+--- a/drivers/gpio/gpiolib.c
++++ b/drivers/gpio/gpiolib.c
+@@ -1660,6 +1660,11 @@ static inline void gpiochip_irqchip_free_valid_mask(struct gpio_chip *gc)
+  */
+ int gpiochip_generic_request(struct gpio_chip *gc, unsigned int offset)
+ {
++#ifdef CONFIG_PINCTRL
++	if (list_empty(&gc->gpiodev->pin_ranges))
++		return 0;
++#endif
++
+ 	return pinctrl_gpio_request(gc->gpiodev->base + offset);
+ }
+ EXPORT_SYMBOL_GPL(gpiochip_generic_request);
+@@ -1671,6 +1676,11 @@ EXPORT_SYMBOL_GPL(gpiochip_generic_request);
+  */
+ void gpiochip_generic_free(struct gpio_chip *gc, unsigned int offset)
+ {
++#ifdef CONFIG_PINCTRL
++	if (list_empty(&gc->gpiodev->pin_ranges))
++		return;
++#endif
++
+ 	pinctrl_gpio_free(gc->gpiodev->base + offset);
+ }
+ EXPORT_SYMBOL_GPL(gpiochip_generic_free);
+-- 
+2.34.1
+
 
 
