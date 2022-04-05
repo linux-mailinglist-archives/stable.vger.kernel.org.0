@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 538D84F2F03
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:05:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D5C84F34F8
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:42:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350688AbiDEJ71 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:59:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34674 "EHLO
+        id S235539AbiDEIj6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:39:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344202AbiDEJSi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:18:38 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 387A548E55;
-        Tue,  5 Apr 2022 02:05:25 -0700 (PDT)
+        with ESMTP id S234774AbiDEI0R (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:26:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A755D13DEB;
+        Tue,  5 Apr 2022 01:20:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 99E16CE1BF8;
-        Tue,  5 Apr 2022 09:05:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B00AFC385A1;
-        Tue,  5 Apr 2022 09:05:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 517A8B81B92;
+        Tue,  5 Apr 2022 08:20:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89F75C385CF;
+        Tue,  5 Apr 2022 08:20:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149522;
-        bh=nRRBq/Jik1ej734zd5EJafMlkLa2+n+e12Jve3Y5fDU=;
+        s=korg; t=1649146850;
+        bh=8XMINSXaSbfKJrYh9dECjJqF0AVdv8TqKHJzrJ7r5kw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FfH0tEjNkU6gt8cn5rkxjGs8jvPuVTuS7wYQLUM2iNuY30ngftsCe1s0Gu6E7iXnx
-         Vo9Ub8bG6VX0vQlO7iJ6LrPEowuh6Z4vMSZRdvg9OfY/J6+7FhmV/psL4zQoIqYoEy
-         dqRTPGE3bTkGHp+8fHjaAJAuouQoUwstrDS1Y8fE=
+        b=AJmNOeoWyd1CdGVzYCMGrJKP64kT3seknrp7gXkXitJ8fBgDcG/6Z2thpfIlFujWO
+         hR95aUJUqysIbZE9wHA2B+pE68gbwmcxTVjNq/Om/4I8/JXH2gCWGRWOGH+U3OWgUS
+         MThtMz7PVVdS2hgRoBhUx83lOHsFzfONymMJ2jEI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Blakey <paulb@mellanox.com>,
-        dev@openvswitch.org, Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Tsuchiya Yuto <kitakar@gmail.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0744/1017] net: prefer nf_ct_put instead of nf_conntrack_put
+Subject: [PATCH 5.17 0910/1126] media: atomisp: fix dummy_ptr check to avoid duplicate active_bo
 Date:   Tue,  5 Apr 2022 09:27:37 +0200
-Message-Id: <20220405070416.347264359@linuxfoundation.org>
+Message-Id: <20220405070434.236659999@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,123 +54,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Tsuchiya Yuto <kitakar@gmail.com>
 
-[ Upstream commit 408bdcfce8dfd6902f75fbcd3b99d8b24b506597 ]
+[ Upstream commit 127efdbc51fe6064336c0452ce9c910b3e107cf0 ]
 
-Its the same as nf_conntrack_put(), but without the
-need for an indirect call.  The downside is a module dependency on
-nf_conntrack, but all of these already depend on conntrack anyway.
+The dummy_ptr check in hmm_init() [1] results in the following
+"hmm_init Failed to create sysfs" error exactly once every
+two times on atomisp reload by rmmod/insmod (although atomisp module
+loads and works fine regardless of this error):
 
-Cc: Paul Blakey <paulb@mellanox.com>
-Cc: dev@openvswitch.org
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+	[  140.230662] sysfs: cannot create duplicate filename '/devices/pci0000:00/0000:00:03.0/active_bo'
+	[  140.230668] CPU: 1 PID: 2502 Comm: insmod Tainted: G         C OE     5.15.0-rc4-1-surface-mainline #1 b8acf6eb64994414b2e20bad312a7a2c45f748f9
+	[  140.230675] Hardware name: OEMB OEMB/OEMB, BIOS 1.51116.238 03/09/2015
+	[  140.230678] Call Trace:
+	[  140.230687]  dump_stack_lvl+0x46/0x5a
+	[  140.230702]  sysfs_warn_dup.cold+0x17/0x24
+	[  140.230710]  sysfs_add_file_mode_ns+0x160/0x170
+	[  140.230717]  internal_create_group+0x126/0x390
+	[  140.230723]  hmm_init+0x5c/0x70 [atomisp 7a6a680bf400629363d2a6f58fd10e7299678b99]
+	[  140.230811]  atomisp_pci_probe.cold+0x1136/0x148e [atomisp 7a6a680bf400629363d2a6f58fd10e7299678b99]
+	[  140.230875]  local_pci_probe+0x45/0x80
+	[  140.230882]  ? pci_match_device+0xd7/0x130
+	[  140.230887]  pci_device_probe+0xfa/0x1b0
+	[  140.230892]  really_probe+0x1f5/0x3f0
+	[  140.230899]  __driver_probe_device+0xfe/0x180
+	[  140.230903]  driver_probe_device+0x1e/0x90
+	[  140.230908]  __driver_attach+0xc0/0x1c0
+	[  140.230912]  ? __device_attach_driver+0xe0/0xe0
+	[  140.230915]  ? __device_attach_driver+0xe0/0xe0
+	[  140.230919]  bus_for_each_dev+0x89/0xd0
+	[  140.230924]  bus_add_driver+0x12b/0x1e0
+	[  140.230929]  driver_register+0x8f/0xe0
+	[  140.230933]  ? 0xffffffffc153f000
+	[  140.230937]  do_one_initcall+0x57/0x220
+	[  140.230945]  do_init_module+0x5c/0x260
+	[  140.230952]  load_module+0x24bd/0x26a0
+	[  140.230962]  ? __do_sys_finit_module+0xae/0x110
+	[  140.230966]  __do_sys_finit_module+0xae/0x110
+	[  140.230972]  do_syscall_64+0x5c/0x80
+	[  140.230979]  ? syscall_exit_to_user_mode+0x23/0x40
+	[  140.230983]  ? do_syscall_64+0x69/0x80
+	[  140.230988]  ? exc_page_fault+0x72/0x170
+	[  140.230991]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+	[  140.230997] RIP: 0033:0x7f7fd5d8718d
+	[  140.231003] Code: b4 0c 00 0f 05 eb a9 66 0f 1f 44 00 00 f3 0f 1e fa 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d b3 6c 0c 00 f7 d8 64 89 01 48
+	[  140.231006] RSP: 002b:00007ffefc25f0e8 EFLAGS: 00000246 ORIG_RAX: 0000000000000139
+	[  140.231012] RAX: ffffffffffffffda RBX: 000055ac3edcd7f0 RCX: 00007f7fd5d8718d
+	[  140.231015] RDX: 0000000000000000 RSI: 000055ac3d723270 RDI: 0000000000000003
+	[  140.231017] RBP: 0000000000000000 R08: 0000000000000000 R09: 00007f7fd5e52380
+	[  140.231019] R10: 0000000000000003 R11: 0000000000000246 R12: 000055ac3d723270
+	[  140.231021] R13: 0000000000000000 R14: 000055ac3edd06e0 R15: 0000000000000000
+	[  140.231038] atomisp-isp2 0000:00:03.0: hmm_init Failed to create sysfs
+
+The problem is that dummy_ptr == 0 is a valid value. So, change the logic
+which checks if dummy_ptr was allocated.
+
+At this point, atomisp now gives WARN_ON() in hmm_free() [2] on atomisp
+reload by rmmod/insmod. Again, the check is wrong there.
+
+So, change both checks for mmgr_EXCEPTION, which is the error value when
+HMM allocation fails, and initialize dummy_ptr with such value.
+
+[1] added on commit
+    d9ab83953fa7 ("media: atomisp: don't cause a warn if probe failed")
+[2] added on commit
+    b83cc378dfc4 ("atomisp: clean up the hmm init/cleanup indirections")
+
+Link: https://lore.kernel.org/linux-media/20211017162337.44860-3-kitakar@gmail.com
+
+Signed-off-by: Tsuchiya Yuto <kitakar@gmail.com>
+Co-developed-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_conntrack_core.c |  4 ++--
- net/openvswitch/conntrack.c       | 14 ++++++++++----
- net/sched/act_ct.c                |  6 +++---
- 3 files changed, 15 insertions(+), 9 deletions(-)
+ drivers/staging/media/atomisp/pci/hmm/hmm.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/net/netfilter/nf_conntrack_core.c b/net/netfilter/nf_conntrack_core.c
-index 7f7997460764..917e708a4561 100644
---- a/net/netfilter/nf_conntrack_core.c
-+++ b/net/netfilter/nf_conntrack_core.c
-@@ -989,7 +989,7 @@ static int __nf_ct_resolve_clash(struct sk_buff *skb,
+diff --git a/drivers/staging/media/atomisp/pci/hmm/hmm.c b/drivers/staging/media/atomisp/pci/hmm/hmm.c
+index 6a5ee4607089..c1cda16f2dc0 100644
+--- a/drivers/staging/media/atomisp/pci/hmm/hmm.c
++++ b/drivers/staging/media/atomisp/pci/hmm/hmm.c
+@@ -39,7 +39,7 @@
+ struct hmm_bo_device bo_device;
+ struct hmm_pool	dynamic_pool;
+ struct hmm_pool	reserved_pool;
+-static ia_css_ptr dummy_ptr;
++static ia_css_ptr dummy_ptr = mmgr_EXCEPTION;
+ static bool hmm_initialized;
+ struct _hmm_mem_stat hmm_mem_stat;
  
- 		nf_ct_acct_merge(ct, ctinfo, loser_ct);
- 		nf_ct_add_to_dying_list(loser_ct);
--		nf_conntrack_put(&loser_ct->ct_general);
-+		nf_ct_put(loser_ct);
- 		nf_ct_set(skb, ct, ctinfo);
+@@ -209,7 +209,7 @@ int hmm_init(void)
  
- 		NF_CT_STAT_INC(net, clash_resolve);
-@@ -1920,7 +1920,7 @@ nf_conntrack_in(struct sk_buff *skb, const struct nf_hook_state *state)
- 		/* Invalid: inverse of the return code tells
- 		 * the netfilter core what to do */
- 		pr_debug("nf_conntrack_in: Can't track with proto module\n");
--		nf_conntrack_put(&ct->ct_general);
-+		nf_ct_put(ct);
- 		skb->_nfct = 0;
- 		/* Special case: TCP tracker reports an attempt to reopen a
- 		 * closed/aborted connection. We have to go back and create a
-diff --git a/net/openvswitch/conntrack.c b/net/openvswitch/conntrack.c
-index 8f47f4e78d32..f2b64cab9af7 100644
---- a/net/openvswitch/conntrack.c
-+++ b/net/openvswitch/conntrack.c
-@@ -574,7 +574,7 @@ ovs_ct_expect_find(struct net *net, const struct nf_conntrack_zone *zone,
- 			struct nf_conn *ct = nf_ct_tuplehash_to_ctrack(h);
- 
- 			nf_ct_delete(ct, 0, 0);
--			nf_conntrack_put(&ct->ct_general);
-+			nf_ct_put(ct);
- 		}
- 	}
- 
-@@ -723,7 +723,7 @@ static bool skb_nfct_cached(struct net *net,
- 		if (nf_ct_is_confirmed(ct))
- 			nf_ct_delete(ct, 0, 0);
- 
--		nf_conntrack_put(&ct->ct_general);
-+		nf_ct_put(ct);
- 		nf_ct_set(skb, NULL, 0);
- 		return false;
- 	}
-@@ -967,7 +967,8 @@ static int __ovs_ct_lookup(struct net *net, struct sw_flow_key *key,
- 
- 		/* Associate skb with specified zone. */
- 		if (tmpl) {
--			nf_conntrack_put(skb_nfct(skb));
-+			ct = nf_ct_get(skb, &ctinfo);
-+			nf_ct_put(ct);
- 			nf_conntrack_get(&tmpl->ct_general);
- 			nf_ct_set(skb, tmpl, IP_CT_NEW);
- 		}
-@@ -1328,7 +1329,12 @@ int ovs_ct_execute(struct net *net, struct sk_buff *skb,
- 
- int ovs_ct_clear(struct sk_buff *skb, struct sw_flow_key *key)
+ void hmm_cleanup(void)
  {
--	nf_conntrack_put(skb_nfct(skb));
-+	enum ip_conntrack_info ctinfo;
-+	struct nf_conn *ct;
-+
-+	ct = nf_ct_get(skb, &ctinfo);
-+
-+	nf_ct_put(ct);
- 	nf_ct_set(skb, NULL, IP_CT_UNTRACKED);
- 	ovs_ct_fill_key(skb, key, false);
+-	if (!dummy_ptr)
++	if (dummy_ptr == mmgr_EXCEPTION)
+ 		return;
+ 	sysfs_remove_group(&atomisp_dev->kobj, atomisp_attribute_group);
  
-diff --git a/net/sched/act_ct.c b/net/sched/act_ct.c
-index 4ffea1290ce1..240b3c5d2eb1 100644
---- a/net/sched/act_ct.c
-+++ b/net/sched/act_ct.c
-@@ -592,7 +592,7 @@ static bool tcf_ct_skb_nfct_cached(struct net *net, struct sk_buff *skb,
- 		if (nf_ct_is_confirmed(ct))
- 			nf_ct_kill(ct);
+@@ -288,7 +288,8 @@ void hmm_free(ia_css_ptr virt)
  
--		nf_conntrack_put(&ct->ct_general);
-+		nf_ct_put(ct);
- 		nf_ct_set(skb, NULL, IP_CT_UNTRACKED);
+ 	dev_dbg(atomisp_dev, "%s: free 0x%08x\n", __func__, virt);
  
- 		return false;
-@@ -757,7 +757,7 @@ static void tcf_ct_params_free(struct rcu_head *head)
- 	tcf_ct_flow_table_put(params);
+-	WARN_ON(!virt);
++	if (WARN_ON(virt == mmgr_EXCEPTION))
++		return;
  
- 	if (params->tmpl)
--		nf_conntrack_put(&params->tmpl->ct_general);
-+		nf_ct_put(params->tmpl);
- 	kfree(params);
- }
- 
-@@ -967,7 +967,7 @@ static int tcf_ct_act(struct sk_buff *skb, const struct tc_action *a,
- 		tc_skb_cb(skb)->post_ct = false;
- 		ct = nf_ct_get(skb, &ctinfo);
- 		if (ct) {
--			nf_conntrack_put(&ct->ct_general);
-+			nf_ct_put(ct);
- 			nf_ct_set(skb, NULL, IP_CT_UNTRACKED);
- 		}
+ 	bo = hmm_bo_device_search_start(&bo_device, (unsigned int)virt);
  
 -- 
 2.34.1
