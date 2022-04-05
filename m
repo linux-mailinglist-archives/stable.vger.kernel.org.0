@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B4154F25CC
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 09:50:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D0D704F2604
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 09:52:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233317AbiDEHwY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 03:52:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56214 "EHLO
+        id S230117AbiDEHx5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 03:53:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55672 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232243AbiDEHtR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:49:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8817317E09;
-        Tue,  5 Apr 2022 00:46:51 -0700 (PDT)
+        with ESMTP id S232238AbiDEHxV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:53:21 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3558F17E07;
+        Tue,  5 Apr 2022 00:48:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 642A3616C3;
-        Tue,  5 Apr 2022 07:46:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74D20C340EE;
-        Tue,  5 Apr 2022 07:46:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CA14AB81B9C;
+        Tue,  5 Apr 2022 07:48:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B570C3410F;
+        Tue,  5 Apr 2022 07:48:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649144810;
-        bh=VryVXZp+Tu1L37DZrhVu6MXeVoiC580k9xkLDbAaGf0=;
+        s=korg; t=1649144929;
+        bh=G/l9aUJULJwmI7YT0KaZ81Zov+Y/RRth+XG3A6aSc6U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=McnO4wrdOyHTopaKIk0LSlgE2EI3QCKtdZ9vzBHFZ0kKzn/jH3cDiEKvB3hrfdQ36
-         S1Qq+rVbnJfk3qatI/mClcYExXXJyIfrv/BMwTVXny5FwrXsb3I2bmjAn7pp6MKTbN
-         c5xZNOcVFE9kVhgp2qIAW+/dK1JgH396fsKjAqiA=
+        b=uoUrM8No3cBZ62fFt2zZptQwP3H00hEZ+tlMEeYrbnPC4rlPsj5AT6RL9UlREtg9k
+         sl67GEOST3mSoABRnoakc8cJhENNoe/FZfcre9hUyuYZG9q9bXzGAZUg81++B8t5aO
+         9jPK+1X2rpYEgf3JFd/X3NnfiEWUav+P5zuXnJYI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        Niels Dossche <niels.dossche@ugent.be>,
-        Niels Dossche <dossche.niels@gmail.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.17 0177/1126] btrfs: extend locking to all space_info members accesses
-Date:   Tue,  5 Apr 2022 09:15:24 +0200
-Message-Id: <20220405070412.798855358@linuxfoundation.org>
+        Christoph Anton Mitterer <calestyo@scientia.org>,
+        David Sterba <dsterba@suse.com>, ree.com@vger.kernel.org
+Subject: [PATCH 5.17 0178/1126] btrfs: verify the tranisd of the to-be-written dirty extent buffer
+Date:   Tue,  5 Apr 2022 09:15:25 +0200
+Message-Id: <20220405070412.828601574@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -57,49 +54,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niels Dossche <dossche.niels@gmail.com>
+From: Qu Wenruo <wqu@suse.com>
 
-commit 06bae876634ebf837ba70ea3de532b288326103d upstream.
+commit 3777369ff1518b579560611a0d0c33f930154f64 upstream.
 
-bytes_pinned is always accessed under space_info->lock, except in
-btrfs_preempt_reclaim_metadata_space, however the other members are
-accessed under that lock. The reserved member of the rsv's are also
-partially accessed under a lock and partially not. Move all these
-accesses into the same lock to ensure consistency.
+[BUG]
+There is a bug report that a bitflip in the transid part of an extent
+buffer makes btrfs to reject certain tree blocks:
 
-This could potentially race and lead to a flush instead of a commit but
-it's not a big problem as it's only for preemptive flush.
+  BTRFS error (device dm-0): parent transid verify failed on 1382301696 wanted 262166 found 22
 
+[CAUSE]
+Note the failed transid check, hex(262166) = 0x40016, while
+hex(22) = 0x16.
+
+It's an obvious bitflip.
+
+Furthermore, the reporter also confirmed the bitflip is from the
+hardware, so it's a real hardware caused bitflip, and such problem can
+not be detected by the existing tree-checker framework.
+
+As tree-checker can only verify the content inside one tree block, while
+generation of a tree block can only be verified against its parent.
+
+So such problem remain undetected.
+
+[FIX]
+Although tree-checker can not verify it at write-time, we still have a
+quick (but not the most accurate) way to catch such obvious corruption.
+
+Function csum_one_extent_buffer() is called before we submit metadata
+write.
+
+Thus it means, all the extent buffer passed in should be dirty tree
+blocks, and should be newer than last committed transaction.
+
+Using that we can catch the above bitflip.
+
+Although it's not a perfect solution, as if the corrupted generation is
+higher than the correct value, we have no way to catch it at all.
+
+Reported-by: Christoph Anton Mitterer <calestyo@scientia.org>
+Link: https://lore.kernel.org/linux-btrfs/2dfcbc130c55cc6fd067b93752e90bd2b079baca.camel@scientia.org/
 CC: stable@vger.kernel.org # 5.15+
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Niels Dossche <niels.dossche@ugent.be>
-Signed-off-by: Niels Dossche <dossche.niels@gmail.com>
+Signed-off-by: Qu Wenruo <wqu@sus,ree.com>
 Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/space-info.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/btrfs/disk-io.c |   26 ++++++++++++++++++++------
+ 1 file changed, 20 insertions(+), 6 deletions(-)
 
---- a/fs/btrfs/space-info.c
-+++ b/fs/btrfs/space-info.c
-@@ -1061,7 +1061,6 @@ static void btrfs_preempt_reclaim_metada
- 			trans_rsv->reserved;
- 		if (block_rsv_size < space_info->bytes_may_use)
- 			delalloc_size = space_info->bytes_may_use - block_rsv_size;
--		spin_unlock(&space_info->lock);
+--- a/fs/btrfs/disk-io.c
++++ b/fs/btrfs/disk-io.c
+@@ -441,17 +441,31 @@ static int csum_one_extent_buffer(struct
+ 	else
+ 		ret = btrfs_check_leaf_full(eb);
  
- 		/*
- 		 * We don't want to include the global_rsv in our calculation,
-@@ -1092,6 +1091,8 @@ static void btrfs_preempt_reclaim_metada
- 			flush = FLUSH_DELAYED_REFS_NR;
- 		}
- 
-+		spin_unlock(&space_info->lock);
+-	if (ret < 0) {
+-		btrfs_print_tree(eb, 0);
++	if (ret < 0)
++		goto error;
 +
- 		/*
- 		 * We don't want to reclaim everything, just a portion, so scale
- 		 * down the to_reclaim by 1/4.  If it takes us down to 0,
++	/*
++	 * Also check the generation, the eb reached here must be newer than
++	 * last committed. Or something seriously wrong happened.
++	 */
++	if (unlikely(btrfs_header_generation(eb) <= fs_info->last_trans_committed)) {
++		ret = -EUCLEAN;
+ 		btrfs_err(fs_info,
+-			"block=%llu write time tree block corruption detected",
+-			eb->start);
+-		WARN_ON(IS_ENABLED(CONFIG_BTRFS_DEBUG));
+-		return ret;
++			"block=%llu bad generation, have %llu expect > %llu",
++			  eb->start, btrfs_header_generation(eb),
++			  fs_info->last_trans_committed);
++		goto error;
+ 	}
+ 	write_extent_buffer(eb, result, 0, fs_info->csum_size);
+ 
+ 	return 0;
++
++error:
++	btrfs_print_tree(eb, 0);
++	btrfs_err(fs_info, "block=%llu write time tree block corruption detected",
++		  eb->start);
++	WARN_ON(IS_ENABLED(CONFIG_BTRFS_DEBUG));
++	return ret;
+ }
+ 
+ /* Checksum all dirty extent buffers in one bio_vec */
 
 
