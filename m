@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 995F24F33F8
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:24:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CC9B4F34C8
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:39:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344986AbiDEKk1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:40:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35502 "EHLO
+        id S1344996AbiDEKk3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:40:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53164 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244183AbiDEJlJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:41:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 741FCBB080;
-        Tue,  5 Apr 2022 02:25:30 -0700 (PDT)
+        with ESMTP id S244200AbiDEJlK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:41:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA4F4BB082;
+        Tue,  5 Apr 2022 02:25:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 28231B81C9A;
-        Tue,  5 Apr 2022 09:25:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8961CC385A0;
-        Tue,  5 Apr 2022 09:25:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3E62761654;
+        Tue,  5 Apr 2022 09:25:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49E71C385A0;
+        Tue,  5 Apr 2022 09:25:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150727;
-        bh=jLJHdncUYIgkXzg4FNI//hgrXP1ygYahSZ/ZDNplSPI=;
+        s=korg; t=1649150730;
+        bh=wxo5Qgm4ML6MQghSIyIPjrQXgvNxgJgLaqb67pNgPhk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cq2KvACsRiAWTPEjUJxMlOZpciRJEGml+cHSJZUZzSxNE7uDZAsOyXtCV2zJ9eZFN
-         jQJObPOcOe0jqDZMl9aLRcjZaunTkGqu8KhLsRWPWzVW/mX9WpYcNF2tLeU4oc0pPS
-         AYNks00TekPJhrZvZf9hzfrhk9VT95IYgPddq6Iw=
+        b=yzKXE/qQL5RODg5dmumMYGrPcaxCKO3QM6oW0kLbBhBRfsdVqI5YGBvWyU0f26utI
+         4hxpMMINatI8WRr5x8B+Su4HZnAnUX1z9MMVK4pU0VBw0H8FxX9rQuKMbp0Pr9iOi+
+         FyKhG6WVFAEHsNs1OKLp1Ebc8E7DyiAZ9RKXuSi4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vitaly Chikunov <vt@altlinux.org>,
+        stable@vger.kernel.org, Tadeusz Struk <tadeusz.struk@linaro.org>,
+        Vitaly Chikunov <vt@altlinux.org>,
         Eric Biggers <ebiggers@google.com>,
         Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.15 158/913] crypto: rsa-pkcs1pad - correctly get hash from source scatterlist
-Date:   Tue,  5 Apr 2022 09:20:20 +0200
-Message-Id: <20220405070344.576892112@linuxfoundation.org>
+Subject: [PATCH 5.15 159/913] crypto: rsa-pkcs1pad - restore signature length check
+Date:   Tue,  5 Apr 2022 09:20:21 +0200
+Message-Id: <20220405070344.607892594@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -56,33 +57,27 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Eric Biggers <ebiggers@google.com>
 
-commit e316f7179be22912281ce6331d96d7c121fb2b17 upstream.
+commit d3481accd974541e6a5d6a1fb588924a3519c36e upstream.
 
-Commit c7381b012872 ("crypto: akcipher - new verify API for public key
-algorithms") changed akcipher_alg::verify to take in both the signature
-and the actual hash and do the signature verification, rather than just
-return the hash expected by the signature as was the case before.  To do
-this, it implemented a hack where the signature and hash are
-concatenated with each other in one scatterlist.
+RSA PKCS#1 v1.5 signatures are required to be the same length as the RSA
+key size.  RFC8017 specifically requires the verifier to check this
+(https://datatracker.ietf.org/doc/html/rfc8017#section-8.2.2).
 
-Obviously, for this to work correctly, akcipher_alg::verify needs to
-correctly extract the two items from the scatterlist it is given.
-Unfortunately, it doesn't correctly extract the hash in the case where
-the signature is longer than the RSA key size, as it assumes that the
-signature's length is equal to the RSA key size.  This causes a prefix
-of the hash, or even the entire hash, to be taken from the *signature*.
+Commit a49de377e051 ("crypto: Add hash param to pkcs1pad") changed the
+kernel to allow longer signatures, but didn't explain this part of the
+change; it seems to be unrelated to the rest of the commit.
 
-(Note, the case of a signature longer than the RSA key size should not
-be allowed in the first place; a separate patch will fix that.)
+Revert this change, since it doesn't appear to be correct.
 
-It is unclear whether the resulting scheme has any useful security
-properties.
+We can be pretty sure that no one is relying on overly-long signatures
+(which would have to be front-padded with zeroes) being supported, given
+that they would have been broken since commit c7381b012872
+("crypto: akcipher - new verify API for public key algorithms").
 
-Fix this by correctly extracting the hash from the scatterlist.
-
-Fixes: c7381b012872 ("crypto: akcipher - new verify API for public key algorithms")
-Cc: <stable@vger.kernel.org> # v5.2+
-Reviewed-by: Vitaly Chikunov <vt@altlinux.org>
+Fixes: a49de377e051 ("crypto: Add hash param to pkcs1pad")
+Cc: <stable@vger.kernel.org> # v4.6+
+Cc: Tadeusz Struk <tadeusz.struk@linaro.org>
+Suggested-by: Vitaly Chikunov <vt@altlinux.org>
 Signed-off-by: Eric Biggers <ebiggers@google.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
@@ -92,14 +87,14 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/crypto/rsa-pkcs1pad.c
 +++ b/crypto/rsa-pkcs1pad.c
-@@ -495,7 +495,7 @@ static int pkcs1pad_verify_complete(stru
- 			   sg_nents_for_len(req->src,
- 					    req->src_len + req->dst_len),
- 			   req_ctx->out_buf + ctx->key_size,
--			   req->dst_len, ctx->key_size);
-+			   req->dst_len, req->src_len);
- 	/* Do the actual verification step. */
- 	if (memcmp(req_ctx->out_buf + ctx->key_size, out_buf + pos,
- 		   req->dst_len) != 0)
+@@ -538,7 +538,7 @@ static int pkcs1pad_verify(struct akciph
+ 
+ 	if (WARN_ON(req->dst) ||
+ 	    WARN_ON(!req->dst_len) ||
+-	    !ctx->key_size || req->src_len < ctx->key_size)
++	    !ctx->key_size || req->src_len != ctx->key_size)
+ 		return -EINVAL;
+ 
+ 	req_ctx->out_buf = kmalloc(ctx->key_size + req->dst_len, GFP_KERNEL);
 
 
