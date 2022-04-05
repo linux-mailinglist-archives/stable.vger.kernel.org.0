@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 21A194F4618
-	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 01:02:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 287A04F4472
+	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 00:24:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380680AbiDEMNo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:13:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53670 "EHLO
+        id S1380576AbiDEMNe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:13:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50490 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357942AbiDEK1a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:27:30 -0400
+        with ESMTP id S1357950AbiDEK1c (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:27:32 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C509939B6;
-        Tue,  5 Apr 2022 03:11:30 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05C389683A;
+        Tue,  5 Apr 2022 03:11:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C4B6FB81C88;
-        Tue,  5 Apr 2022 10:11:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11D2CC385A1;
-        Tue,  5 Apr 2022 10:11:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 32535B81C88;
+        Tue,  5 Apr 2022 10:11:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A2E4C385A0;
+        Tue,  5 Apr 2022 10:11:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153487;
-        bh=sRY6U65i0znfe3KehcP3ZybCJpLi0ibCWb/vy8ikJbg=;
+        s=korg; t=1649153493;
+        bh=tCRK5JOcnZrv6VCnTAEkt+Ni/+cwLKY96V9qbg3K580=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0ksSywIJvrslXgM9ZFm7DF79ErCOVgdP/eve+Ftl2OAavzAHhFDbmK5KmtgmSTLEh
-         Afd8A0Ic3WIMGdgpsThZo5m2TZ800dUFQf7iZfXIlEwA0X7vQN5RQAKeV56X04AT5h
-         MJCk/q5FkzTFQrexSrcR7uIXYe9IgA6dGPsW0e/0=
+        b=XW1X4fSn28bUDgu/LXJMr/yCSPwgFL5iDI2Ags4yEnbm7v3rKYL9Y69ei7C4RXfeo
+         m/qQQ1MbOEomnCTFr6qONj2Vg9DXUPf3BGKl5dkKYOF0RzYJNjRmq17RNGYifTtkn8
+         r0WRyjZJ0aRjGD7M5VFwPmjqUcuCMDM8DnGmpqco=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Codrin Ciubotariu <codrin.ciubotariu@microchip.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 238/599] media: vidtv: Check for null return of vzalloc
-Date:   Tue,  5 Apr 2022 09:28:52 +0200
-Message-Id: <20220405070305.922931016@linuxfoundation.org>
+Subject: [PATCH 5.10 239/599] ASoC: atmel: Add missing of_node_put() in at91sam9g20ek_audio_probe
+Date:   Tue,  5 Apr 2022 09:28:53 +0200
+Message-Id: <20220405070305.953195403@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -55,68 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit e6a21a14106d9718aa4f8e115b1e474888eeba44 ]
+[ Upstream commit f590797fa3c1bccdd19e55441592a23b46aef449 ]
 
-As the possible failure of the vzalloc(), e->encoder_buf might be NULL.
-Therefore, it should be better to check it in order
-to guarantee the success of the initialization.
-If fails, we need to free not only 'e' but also 'e->name'.
-Also, if the allocation for ctx fails, we need to free 'e->encoder_buf'
-else.
+This node pointer is returned by of_parse_phandle() with refcount
+incremented in this function.
+Calling of_node_put() to avoid the refcount leak.
 
-Fixes: f90cf6079bf6 ("media: vidtv: add a bridge driver")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Fixes: 531f67e41dcd ("ASoC: at91sam9g20ek-wm8731: convert to dt support")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Reviewed-by: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
+Link: https://lore.kernel.org/r/20220307124539.1743-1-linmq006@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/test-drivers/vidtv/vidtv_s302m.c | 17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
+ sound/soc/atmel/sam9g20_wm8731.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/media/test-drivers/vidtv/vidtv_s302m.c b/drivers/media/test-drivers/vidtv/vidtv_s302m.c
-index d79b65854627..4676083cee3b 100644
---- a/drivers/media/test-drivers/vidtv/vidtv_s302m.c
-+++ b/drivers/media/test-drivers/vidtv/vidtv_s302m.c
-@@ -455,6 +455,9 @@ struct vidtv_encoder
- 		e->name = kstrdup(args.name, GFP_KERNEL);
- 
- 	e->encoder_buf = vzalloc(VIDTV_S302M_BUF_SZ);
-+	if (!e->encoder_buf)
-+		goto out_kfree_e;
-+
- 	e->encoder_buf_sz = VIDTV_S302M_BUF_SZ;
- 	e->encoder_buf_offset = 0;
- 
-@@ -467,10 +470,8 @@ struct vidtv_encoder
- 	e->is_video_encoder = false;
- 
- 	ctx = kzalloc(priv_sz, GFP_KERNEL);
--	if (!ctx) {
--		kfree(e);
--		return NULL;
--	}
-+	if (!ctx)
-+		goto out_kfree_buf;
- 
- 	e->ctx = ctx;
- 	ctx->last_duration = 0;
-@@ -498,6 +499,14 @@ struct vidtv_encoder
- 	e->next = NULL;
- 
- 	return e;
-+
-+out_kfree_buf:
-+	kfree(e->encoder_buf);
-+
-+out_kfree_e:
-+	kfree(e->name);
-+	kfree(e);
-+	return NULL;
- }
- 
- void vidtv_s302m_encoder_destroy(struct vidtv_encoder *e)
+diff --git a/sound/soc/atmel/sam9g20_wm8731.c b/sound/soc/atmel/sam9g20_wm8731.c
+index ed1f69b57024..8a55d59a6c2a 100644
+--- a/sound/soc/atmel/sam9g20_wm8731.c
++++ b/sound/soc/atmel/sam9g20_wm8731.c
+@@ -214,6 +214,7 @@ static int at91sam9g20ek_audio_probe(struct platform_device *pdev)
+ 	cpu_np = of_parse_phandle(np, "atmel,ssc-controller", 0);
+ 	if (!cpu_np) {
+ 		dev_err(&pdev->dev, "dai and pcm info missing\n");
++		of_node_put(codec_np);
+ 		return -EINVAL;
+ 	}
+ 	at91sam9g20ek_dai.cpus->of_node = cpu_np;
 -- 
 2.34.1
 
