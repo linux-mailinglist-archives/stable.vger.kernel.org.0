@@ -2,49 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 785AD4F2798
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:08:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33D684F2819
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:19:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233364AbiDEIHj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:07:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54458 "EHLO
+        id S233563AbiDEIKp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:10:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47998 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234237AbiDEH6F (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:58:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DC651EAD8;
-        Tue,  5 Apr 2022 00:52:07 -0700 (PDT)
+        with ESMTP id S234207AbiDEH6D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:58:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2ACCB98F7B;
+        Tue,  5 Apr 2022 00:52:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6932F61748;
-        Tue,  5 Apr 2022 07:51:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49F5DC340EE;
-        Tue,  5 Apr 2022 07:51:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 15A7DB81B9C;
+        Tue,  5 Apr 2022 07:52:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6885BC34111;
+        Tue,  5 Apr 2022 07:52:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145118;
-        bh=4/1Ta9DLRHChKUxyfQZvPcc9G9gUQByvnjw5/X1NOmk=;
+        s=korg; t=1649145121;
+        bh=PJWGIhznlwDa6zonBzMyklkj0mkLnKHkQDd53wid34U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M/DkKaouovd/mDqlQlTQgSMSz0JNq8pPoOy4MUn3epuv3ms9yOIe+Fj0xZrTO6XnL
-         gl2iwMbajhKkOs6cLlCSPPrDEw7px5QN7epv7A6IALnlJ/pWyT2WVsB11qiuM9tGOr
-         WaQ5XMfEpd3/FMgpGWTVK5dzL7c7BEcP/NUiuI/w=
+        b=Hh0Q+0gjXqHPvDH+NNdZrUvUpk5O5RM3IWk7TTYGgkyvH3PQnpRp8VWvvTOYKknlY
+         j7ug96k8TbstnExRNX8v8jh8opSvX9KZ8gnE4nGPIoXoZYigsWXrH+PLpJ9eLBfpAB
+         Or4bKvk65Elhee2ci+hWF6gzw/1qel4XfUecRa4E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peng Liu <liupeng256@huawei.com>,
-        Marco Elver <elver@google.com>,
-        Daniel Latypov <dlatypov@google.com>,
-        Brendan Higgins <brendanhiggins@google.com>,
-        Alexander Potapenko <glider@google.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Wang Kefeng <wangkefeng.wang@huawei.com>,
-        David Gow <davidgow@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Sam Protsenko <semen.protsenko@linaro.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0290/1126] kunit: make kunit_test_timeout compatible with comment
-Date:   Tue,  5 Apr 2022 09:17:17 +0200
-Message-Id: <20220405070416.126304096@linuxfoundation.org>
+Subject: [PATCH 5.17 0291/1126] pinctrl: samsung: Remove EINT handler for Exynos850 ALIVE and CMGP gpios
+Date:   Tue,  5 Apr 2022 09:17:18 +0200
+Message-Id: <20220405070416.156152781@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -62,46 +54,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peng Liu <liupeng256@huawei.com>
+From: Sam Protsenko <semen.protsenko@linaro.org>
 
-[ Upstream commit bdd015f7b71b92c2e4ecabac689642cc72553e04 ]
+[ Upstream commit 96f79935015cf3d7ca6fabf63cd13b8af45a7713 ]
 
-In function kunit_test_timeout, it is declared "300 * MSEC_PER_SEC"
-represent 5min.  However, it is wrong when dealing with arm64 whose
-default HZ = 250, or some other situations.  Use msecs_to_jiffies to fix
-this, and kunit_test_timeout will work as desired.
+GPIO_ALIVE and GPIO_CMGP blocks in Exynos850 SoC don't have EINT
+capabilities (like EINT_SVC register), and there are no corresponding
+interrupts wired to GIC. Instead those blocks have wake-up interrupts
+for each pin. The ".eint_gpio_init" callbacks were specified by mistake
+for these blocks, when porting pinctrl code from downstream kernel. That
+leads to error messages like this:
 
-Link: https://lkml.kernel.org/r/20220309083753.1561921-3-liupeng256@huawei.com
-Fixes: 5f3e06208920 ("kunit: test: add support for test abort")
-Signed-off-by: Peng Liu <liupeng256@huawei.com>
-Reviewed-by: Marco Elver <elver@google.com>
-Reviewed-by: Daniel Latypov <dlatypov@google.com>
-Reviewed-by: Brendan Higgins <brendanhiggins@google.com>
-Tested-by: Brendan Higgins <brendanhiggins@google.com>
-Cc: Alexander Potapenko <glider@google.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Cc: Wang Kefeng <wangkefeng.wang@huawei.com>
-Cc: David Gow <davidgow@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+    samsung-pinctrl 11850000.pinctrl: irq number not available
+
+Remove ".eint_gpio_init" for pinctrl_alive and pinctrl_gpmc to fix this
+error. This change doesn't affect proper interrupt handling for related
+pins, as all those pins are handled in ".eint_wkup_init".
+
+Fixes: cdd3d945dcec ("pinctrl: samsung: Add Exynos850 SoC specific data")
+Signed-off-by: Sam Protsenko <semen.protsenko@linaro.org>
+Link: https://lore.kernel.org/r/20220114203757.4860-1-semen.protsenko@linaro.org
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/kunit/try-catch.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pinctrl/samsung/pinctrl-exynos-arm64.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/lib/kunit/try-catch.c b/lib/kunit/try-catch.c
-index be38a2c5ecc2..42825941f19f 100644
---- a/lib/kunit/try-catch.c
-+++ b/lib/kunit/try-catch.c
-@@ -52,7 +52,7 @@ static unsigned long kunit_test_timeout(void)
- 	 * If tests timeout due to exceeding sysctl_hung_task_timeout_secs,
- 	 * the task will be killed and an oops generated.
- 	 */
--	return 300 * MSEC_PER_SEC; /* 5 min */
-+	return 300 * msecs_to_jiffies(MSEC_PER_SEC); /* 5 min */
- }
- 
- void kunit_try_catch_run(struct kunit_try_catch *try_catch, void *context)
+diff --git a/drivers/pinctrl/samsung/pinctrl-exynos-arm64.c b/drivers/pinctrl/samsung/pinctrl-exynos-arm64.c
+index 2e490e7696f4..4102ce955bd7 100644
+--- a/drivers/pinctrl/samsung/pinctrl-exynos-arm64.c
++++ b/drivers/pinctrl/samsung/pinctrl-exynos-arm64.c
+@@ -585,13 +585,11 @@ static const struct samsung_pin_ctrl exynos850_pin_ctrl[] __initconst = {
+ 		/* pin-controller instance 0 ALIVE data */
+ 		.pin_banks	= exynos850_pin_banks0,
+ 		.nr_banks	= ARRAY_SIZE(exynos850_pin_banks0),
+-		.eint_gpio_init = exynos_eint_gpio_init,
+ 		.eint_wkup_init = exynos_eint_wkup_init,
+ 	}, {
+ 		/* pin-controller instance 1 CMGP data */
+ 		.pin_banks	= exynos850_pin_banks1,
+ 		.nr_banks	= ARRAY_SIZE(exynos850_pin_banks1),
+-		.eint_gpio_init = exynos_eint_gpio_init,
+ 		.eint_wkup_init = exynos_eint_wkup_init,
+ 	}, {
+ 		/* pin-controller instance 2 AUD data */
 -- 
 2.34.1
 
