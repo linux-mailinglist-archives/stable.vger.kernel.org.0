@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CFE6B4F3174
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:44:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 893824F3460
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:32:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350275AbiDEJ5A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:57:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40620 "EHLO
+        id S1350285AbiDEJ5E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:57:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40632 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238783AbiDEJQR (ORCPT
+        with ESMTP id S238821AbiDEJQR (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:16:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D93FD081A;
-        Tue,  5 Apr 2022 02:01:43 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4443BD1CCC;
+        Tue,  5 Apr 2022 02:01:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 83A8461564;
-        Tue,  5 Apr 2022 09:01:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92DCCC385A1;
-        Tue,  5 Apr 2022 09:01:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EE601B81A12;
+        Tue,  5 Apr 2022 09:01:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A30AC385A0;
+        Tue,  5 Apr 2022 09:01:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149302;
-        bh=ZrBx/V3acJlgQ12UnqLhqWAttKiqFm6Qs4xSb9E1cPg=;
+        s=korg; t=1649149305;
+        bh=c4RVyvYRsj9YXVP3ghCAxHj+YV5+ROVijwrQU5DYrUM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RcaZ4cS7JJhc9WwAGtizOnlIALhM6nKix0QXxWvXYaF97AUt47b5ibEPWeRpBJKMO
-         iGNTePEH2hjVSdLhgTG8BxayAuSQPOS/lrqY/j4V5D048BQA0UU83ZDeo0jnHWRn7a
-         m9SwHGt7g3aZRjhWwTmRbXIJzyTgXvZJ92uvA2/o=
+        b=2bnFFliwoRLqJGWIFTkqzDx8GPEo2eRxhf6S5f7Jp1KpEtAfLMnomicvgMGB9CvM5
+         nWW1Dndu6CSp0V3jvXQ5OjHUoxdhwkEA9w+9RkpdBDPEJOXs+fB1/U3MbZLWVNB+xl
+         TUmVgerJj1mPiG5BGRxZj95JSuekEKR0yYf34l1o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qing Wang <wangqing@vivo.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0666/1017] serial: 8250_lpss: Balance reference count for PCI DMA device
-Date:   Tue,  5 Apr 2022 09:26:19 +0200
-Message-Id: <20220405070414.051409396@linuxfoundation.org>
+Subject: [PATCH 5.16 0667/1017] NFS: Use of mapping_set_error() results in spurious errors
+Date:   Tue,  5 Apr 2022 09:26:20 +0200
+Message-Id: <20220405070414.081004263@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -54,111 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit 5318f70da7e82649d794fc27d8a127c22aa3566e ]
+[ Upstream commit 6c984083ec2453dfd3fcf98f392f34500c73e3f2 ]
 
-The pci_get_slot() increases its reference count, the caller
-must decrement the reference count by calling pci_dev_put().
+The use of mapping_set_error() in conjunction with calls to
+filemap_check_errors() is problematic because every error gets reported
+as either an EIO or an ENOSPC by filemap_check_errors() in functions
+such as filemap_write_and_wait() or filemap_write_and_wait_range().
+In almost all cases, we prefer to use the more nuanced wb errors.
 
-Fixes: 9a1870ce812e ("serial: 8250: don't use slave_id of dma_slave_config")
-Depends-on: a13e19cf3dc1 ("serial: 8250_lpss: split LPSS driver to separate module")
-Reported-by: Qing Wang <wangqing@vivo.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20220223151240.70248-1-andriy.shevchenko@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: b8946d7bfb94 ("NFS: Revalidate the file mapping on all fatal writeback errors")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_lpss.c | 28 ++++++++++++++++++++++------
- 1 file changed, 22 insertions(+), 6 deletions(-)
+ fs/nfs/write.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/tty/serial/8250/8250_lpss.c b/drivers/tty/serial/8250/8250_lpss.c
-index d3bafec7619d..0f5af061e0b4 100644
---- a/drivers/tty/serial/8250/8250_lpss.c
-+++ b/drivers/tty/serial/8250/8250_lpss.c
-@@ -117,8 +117,7 @@ static int byt_serial_setup(struct lpss8250 *lpss, struct uart_port *port)
- {
- 	struct dw_dma_slave *param = &lpss->dma_param;
- 	struct pci_dev *pdev = to_pci_dev(port->dev);
--	unsigned int dma_devfn = PCI_DEVFN(PCI_SLOT(pdev->devfn), 0);
--	struct pci_dev *dma_dev = pci_get_slot(pdev->bus, dma_devfn);
-+	struct pci_dev *dma_dev;
+diff --git a/fs/nfs/write.c b/fs/nfs/write.c
+index 9b7619ce17a7..7a23b4644507 100644
+--- a/fs/nfs/write.c
++++ b/fs/nfs/write.c
+@@ -315,7 +315,10 @@ static void nfs_mapping_set_error(struct page *page, int error)
+ 	struct address_space *mapping = page_file_mapping(page);
  
- 	switch (pdev->device) {
- 	case PCI_DEVICE_ID_INTEL_BYT_UART1:
-@@ -137,6 +136,8 @@ static int byt_serial_setup(struct lpss8250 *lpss, struct uart_port *port)
- 		return -EINVAL;
- 	}
- 
-+	dma_dev = pci_get_slot(pdev->bus, PCI_DEVFN(PCI_SLOT(pdev->devfn), 0));
-+
- 	param->dma_dev = &dma_dev->dev;
- 	param->m_master = 0;
- 	param->p_master = 1;
-@@ -152,6 +153,14 @@ static int byt_serial_setup(struct lpss8250 *lpss, struct uart_port *port)
- 	return 0;
+ 	SetPageError(page);
+-	mapping_set_error(mapping, error);
++	filemap_set_wb_err(mapping, error);
++	if (mapping->host)
++		errseq_set(&mapping->host->i_sb->s_wb_err,
++			   error == -ENOSPC ? -ENOSPC : -EIO);
+ 	nfs_set_pageerror(mapping);
  }
  
-+static void byt_serial_exit(struct lpss8250 *lpss)
-+{
-+	struct dw_dma_slave *param = &lpss->dma_param;
-+
-+	/* Paired with pci_get_slot() in the byt_serial_setup() above */
-+	put_device(param->dma_dev);
-+}
-+
- static int ehl_serial_setup(struct lpss8250 *lpss, struct uart_port *port)
- {
- 	struct uart_8250_dma *dma = &lpss->data.dma;
-@@ -170,6 +179,13 @@ static int ehl_serial_setup(struct lpss8250 *lpss, struct uart_port *port)
- 	return 0;
- }
- 
-+static void ehl_serial_exit(struct lpss8250 *lpss)
-+{
-+	struct uart_8250_port *up = serial8250_get_port(lpss->data.line);
-+
-+	up->dma = NULL;
-+}
-+
- #ifdef CONFIG_SERIAL_8250_DMA
- static const struct dw_dma_platform_data qrk_serial_dma_pdata = {
- 	.nr_channels = 2,
-@@ -344,8 +360,7 @@ static int lpss8250_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- 	return 0;
- 
- err_exit:
--	if (lpss->board->exit)
--		lpss->board->exit(lpss);
-+	lpss->board->exit(lpss);
- 	pci_free_irq_vectors(pdev);
- 	return ret;
- }
-@@ -356,8 +371,7 @@ static void lpss8250_remove(struct pci_dev *pdev)
- 
- 	serial8250_unregister_port(lpss->data.line);
- 
--	if (lpss->board->exit)
--		lpss->board->exit(lpss);
-+	lpss->board->exit(lpss);
- 	pci_free_irq_vectors(pdev);
- }
- 
-@@ -365,12 +379,14 @@ static const struct lpss8250_board byt_board = {
- 	.freq = 100000000,
- 	.base_baud = 2764800,
- 	.setup = byt_serial_setup,
-+	.exit = byt_serial_exit,
- };
- 
- static const struct lpss8250_board ehl_board = {
- 	.freq = 200000000,
- 	.base_baud = 12500000,
- 	.setup = ehl_serial_setup,
-+	.exit = ehl_serial_exit,
- };
- 
- static const struct lpss8250_board qrk_board = {
 -- 
 2.34.1
 
