@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C375C4F4551
-	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 00:41:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F12BF4F44B6
+	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 00:26:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1383303AbiDEMZ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:25:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46234 "EHLO
+        id S1383337AbiDEMZf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:25:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44796 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348675AbiDEKsF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:48:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59A0F63BF0;
-        Tue,  5 Apr 2022 03:27:20 -0700 (PDT)
+        with ESMTP id S1349228AbiDEKub (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:50:31 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5AC29E9F6;
+        Tue,  5 Apr 2022 03:27:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E3FC3B81B18;
-        Tue,  5 Apr 2022 10:27:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 527A1C385A0;
-        Tue,  5 Apr 2022 10:27:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 466E46141D;
+        Tue,  5 Apr 2022 10:27:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E368C385A6;
+        Tue,  5 Apr 2022 10:27:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649154437;
-        bh=izMv/LMDq16sbMxK8dWa52dHpvXUUl3PEqt/CPB1xl4=;
+        s=korg; t=1649154462;
+        bh=lQRtMgDTrcSWyqXbZhsMoWU1a+zIBYvvylab8ih+iEw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xpslcnrkn5jN71mI9tgTGudtnm1dzUnK1+bRFc4a1204DUVbZx/9U39Q8Tci4h8+p
-         UM3F7BwKL2oyl1PwbCO/FUAD1Bp4jqDGS9hWdBPpeF8/URn7jbxlhlXw2jWF2LYcny
-         f/gQHogbQiym2fWAMenOAq7kbPXP9izHz8qNXLiY=
+        b=07oYFlwcRp3hqPgD3yfDcAG60IN5z327dFE/2lOEOvbwvsgGKbd07D1THcCocyTZz
+         GD0qSQvlBFxKM+rNNJCuJWR6B8NXrx+bBlVdSrZAv7wk8R/rihpC7/AbPVVJSx3foJ
+         hZmjpHWQof2hYY7XHHM1byCn8e0u80rt2kQzKRbY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Igor Zhbanov <i.zhbanov@omprussia.ru>,
-        Chris von Recklinghausen <crecklin@redhat.com>,
-        Kees Cook <keescook@chromium.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 579/599] mm/usercopy: return 1 from hardened_usercopy __setup() handler
-Date:   Tue,  5 Apr 2022 09:34:33 +0200
-Message-Id: <20220405070316.073093929@linuxfoundation.org>
+        stable@vger.kernel.org, Kuldeep Singh <singh.kuldeep87k@gmail.com>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 5.10 587/599] ARM: dts: spear1340: Update serial node properties
+Date:   Tue,  5 Apr 2022 09:34:41 +0200
+Message-Id: <20220405070316.309838749@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -57,63 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Kuldeep Singh <singh.kuldeep87k@gmail.com>
 
-commit 05fe3c103f7e6b8b4fca8a7001dfc9ed4628085b upstream.
+commit 583d6b0062640def86f3265aa1042ecb6672516e upstream.
 
-__setup() handlers should return 1 if the command line option is handled
-and 0 if not (or maybe never return 0; it just pollutes init's
-environment).  This prevents:
+Reorder dma and dma-names property for serial node to make it compliant
+with bindings.
 
-  Unknown kernel command line parameters \
-  "BOOT_IMAGE=/boot/bzImage-517rc5 hardened_usercopy=off", will be \
-  passed to user space.
-
-  Run /sbin/init as init process
-   with arguments:
-     /sbin/init
-   with environment:
-     HOME=/
-     TERM=linux
-     BOOT_IMAGE=/boot/bzImage-517rc5
-     hardened_usercopy=off
-or
-     hardened_usercopy=on
-but when "hardened_usercopy=foo" is used, there is no Unknown kernel
-command line parameter.
-
-Return 1 to indicate that the boot option has been handled.
-Print a warning if strtobool() returns an error on the option string,
-but do not mark this as in unknown command line option and do not cause
-init's environment to be polluted with this string.
-
-Link: https://lkml.kernel.org/r/20220222034249.14795-1-rdunlap@infradead.org
-Link: lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
-Fixes: b5cb15d9372ab ("usercopy: Allow boot cmdline disabling of hardening")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
-Acked-by: Chris von Recklinghausen <crecklin@redhat.com>
-Cc: Kees Cook <keescook@chromium.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 6e8887f60f60 ("ARM: SPEAr13xx: Pass generic DW DMAC platform data from DT")
+Signed-off-by: Kuldeep Singh <singh.kuldeep87k@gmail.com>
+Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+Link: https://lore.kernel.org/r/20220326042313.97862-3-singh.kuldeep87k@gmail.com'
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/usercopy.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/spear1340.dtsi |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/mm/usercopy.c
-+++ b/mm/usercopy.c
-@@ -294,7 +294,10 @@ static bool enable_checks __initdata = t
+--- a/arch/arm/boot/dts/spear1340.dtsi
++++ b/arch/arm/boot/dts/spear1340.dtsi
+@@ -136,9 +136,9 @@
+ 				reg = <0xb4100000 0x1000>;
+ 				interrupts = <0 105 0x4>;
+ 				status = "disabled";
+-				dmas = <&dwdma0 12 0 1>,
+-					<&dwdma0 13 1 0>;
+-				dma-names = "tx", "rx";
++				dmas = <&dwdma0 13 0 1>,
++					<&dwdma0 12 1 0>;
++				dma-names = "rx", "tx";
+ 			};
  
- static int __init parse_hardened_usercopy(char *str)
- {
--	return strtobool(str, &enable_checks);
-+	if (strtobool(str, &enable_checks))
-+		pr_warn("Invalid option string for hardened_usercopy: '%s'\n",
-+			str);
-+	return 1;
- }
- 
- __setup("hardened_usercopy=", parse_hardened_usercopy);
+ 			thermal@e07008c4 {
 
 
