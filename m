@@ -2,140 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A3934F47E2
-	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 01:44:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CEF7C4F47B4
+	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 01:43:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346744AbiDEVWi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 17:22:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48138 "EHLO
+        id S231761AbiDEVQz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 17:16:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51126 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1573704AbiDETqW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 15:46:22 -0400
-Received: from mout.gmx.net (mout.gmx.net [212.227.17.21])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C96E414087;
-        Tue,  5 Apr 2022 12:44:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1649187852;
-        bh=BXQ8G9Dr8k3xNyKxt7GcxOAd7iGTbrc+JOzLOV5RqvU=;
-        h=X-UI-Sender-Class:Date:From:To:Cc:Subject:In-Reply-To:References;
-        b=c/J3VEbnYefBqbKhuaYmSYCRtp8LljUH7n9dOo4nnNZyr/chN6HnyRR2f7h7wSXjd
-         CCp6+n1Djb2DYTiMbm/j3bRU3URtxO9YD6n/ciZOTT68EN/kgQNE6G+qO8BuwVF+Aa
-         Z/BG5CoNCMGhSTKZv6KKnZlFy+Hu9peAKDBI8yaw=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from mir ([94.31.89.21]) by mail.gmx.net (mrgmx104 [212.227.17.168])
- with ESMTPSA (Nemesis) id 1MFsYx-1nmYTr0qh5-00HMCU; Tue, 05 Apr 2022 21:44:12
- +0200
-Date:   Tue, 5 Apr 2022 21:44:09 +0200
-From:   Stefan Lippers-Hollmann <s.l-h@gmx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Bard Liao <yung-chuan.liao@linux.intel.com>,
-        =?UTF-8?B?UMOpdGVy?= Ujfalusi <peter.ujfalusi@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 5.17 0943/1126] ASoC: Intel: sof_es8336: use NHLT
- information to set dmic and SSP
-Message-ID: <20220405214409.52f3ede7@mir>
-In-Reply-To: <20220405070435.188697055@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
-        <20220405070435.188697055@linuxfoundation.org>
-X-Mailer: Claws Mail 4.0.0 (GTK+ 3.24.33; x86_64-pc-linux-gnu)
+        with ESMTP id S1352510AbiDEUt3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 16:49:29 -0400
+Received: from alexa-out-sd-01.qualcomm.com (alexa-out-sd-01.qualcomm.com [199.106.114.38])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B40A42AC4;
+        Tue,  5 Apr 2022 13:23:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=quicinc.com; i=@quicinc.com; q=dns/txt; s=qcdkim;
+  t=1649190216; x=1680726216;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=+7AtI8Svdw+YyS90Bb5N100rWVe2spjtKW5TxoNJUo0=;
+  b=f8PILEMau1vB44h12kQZMho1IshiPyRNzOt+amq9svlQ1Ao+n8jcdHRA
+   yKx3WmD8QIBBX5naiwVV2featY2FuC3oH2Hqu+YaB51B1bqsJdcRPvapS
+   tvS5TgIQA+JZ7iOf1CbANi5fFomrID/sC8R9sB3lLgmX7P5X3WHzrbJd6
+   E=;
+Received: from unknown (HELO ironmsg01-sd.qualcomm.com) ([10.53.140.141])
+  by alexa-out-sd-01.qualcomm.com with ESMTP; 05 Apr 2022 13:23:24 -0700
+X-QCInternal: smtphost
+Received: from nasanex01c.na.qualcomm.com ([10.47.97.222])
+  by ironmsg01-sd.qualcomm.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Apr 2022 13:23:24 -0700
+Received: from nalasex01a.na.qualcomm.com (10.47.209.196) by
+ nasanex01c.na.qualcomm.com (10.47.97.222) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.986.22; Tue, 5 Apr 2022 13:23:23 -0700
+Received: from [10.110.86.177] (10.80.80.8) by nalasex01a.na.qualcomm.com
+ (10.47.209.196) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.22; Tue, 5 Apr 2022
+ 13:23:22 -0700
+Message-ID: <daafdfd8-312e-cf42-d7bb-3fb914d443dc@quicinc.com>
+Date:   Tue, 5 Apr 2022 13:23:22 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:txWOjwm3T5sVY1g/TCsV7PEFAamF3HDYlLhAeFzUJWIJ8Pwmk8M
- Yt3AvXEPy9GHynICk1Yh/J6Msry5YqwlQrOi2fcr1AwEav8kKYSogYOJaTYDorYt/+6loHb
- 1xCxhatseXMziahVddnYk6k3/iubRVPwGEhZerCXuvtYXznBZs3YA5fWnR+pOEo9Z9Jz+jm
- fTMANNVCFSnFWl4d6Me/Q==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:FkulZaLFO2w=:lgROdH3sTkvRRwtkQck4b0
- ZxEZsJDNtb9vh3Eubsth9tr5TxFyv/YTVXYheb5gUZIkzoasomNcj2jvkbZRy9lZZJQxbThkt
- Rkmnba/483239EKOSqKSPk8hQfoqdbuuRC+NtOjpMbQV03ZOhVe6WANX+WrwDW9XhbSsRAOgY
- aeAv98p5g8Q/llH3ywfhuuJ0c65qiPGtUu3pRDeh6TDV/V7LLCmH89v6qvrf5OaXog0jSHU6X
- gu8XliQMMBtc9k5hQ8WPDQhsVw8XFqG5D8pIhjvPJWJ76fZzPh76iAnVxG5Jmg+ggao+8KumA
- /lqQF593U6wRfDwvks+sBu1f8Z/BAU/DQApgizJYgvdUdN5Hlpss3lv3BWaoJZhGuJaK9mfLd
- P1jCrENw50lVraP30dR1rjSQeKr2sZ0RURocuRZhx7jWWv0gykHT2zFHDZD3S8SZGJ/wL5UDK
- WwOimnlSdWvDVSOLTLSOBVfBYkQuXWBa/kdH8aXv+haxtpX4VH2ZEmHW289r/ZpAWuX9+uivn
- XqCzgUIvvId6F+iCQyIEGBUQYWnKgqYiP2BFhoZYJe9+KhIoKzvuKalRRGjok5M+ftMce8xC+
- Yc6WQTpPaw6tr9is9UnhvBKVGkutL+HZT3aDgEUI73baLtQFj1icEbTFIrEUSRlgnyjSO1bcO
- pym0uXuR0HHYV9WHMHllMCSeBHQWljl9qfDI0a5fvhf8uO9fHej52wTL0WR9a68pnGkjuWSMN
- rg5Vew7SLUhjI+XTyVZ2fDf9Ds/9qmDdCTKdDJvSXYTp2homdssG7lXvi5fMnasJY/TyB2Z+F
- MyrZ0X1ClimOk/g9jq37r4lX4loLhMIxeXmajO6XLesEAE/ds3FPLndc3aYQxHsQE+ox2HOUj
- klqYvT43Hkm5iITxZrRdqqQHE6U0lTWrvH0Lb5FRaebn0pH463CJrFcMPlZxX2zuxF7hI6nvo
- kZyXRP3Ch9etZZ4WwxI7A1rOnhDWcWJ3zxCwsLhyyRGykwVUdgJ4suQu8ILhqxYHKeMKImfUy
- iqQIBMXOU6QLKrnjwBNmk3SXosNXy6RQdw8NHNWKHXmR9a20Wlm+MKCqchTz9fKbA5Oij+Jae
- xVcIxNv7OQiY/A=
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,FREEMAIL_FROM,RCVD_IN_DNSWL_LOW,RCVD_IN_MSPIKE_H4,
-        RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.6.0
+Subject: Re: [PATCH v2] bus: mhi: host: pci_generic: Add missing poweroff() PM
+ callback
+Content-Language: en-US
+To:     Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        <mhi@lists.linux.dev>
+CC:     <quic_hemantk@quicinc.com>, <linux-arm-msm@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <loic.poulain@linaro.org>,
+        <stable@vger.kernel.org>
+References: <20220405125907.5644-1-manivannan.sadhasivam@linaro.org>
+From:   Bhaumik Vasav Bhatt <quic_bbhatt@quicinc.com>
+In-Reply-To: <20220405125907.5644-1-manivannan.sadhasivam@linaro.org>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.80.80.8]
+X-ClientProxiedBy: nasanex01a.na.qualcomm.com (10.52.223.231) To
+ nalasex01a.na.qualcomm.com (10.47.209.196)
+X-Spam-Status: No, score=-5.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi
 
-On 2022-04-05, Greg Kroah-Hartman wrote:
-> From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+On 4/5/2022 5:59 AM, Manivannan Sadhasivam wrote:
+> During hibernation process, once thaw() stage completes, the MHI endpoint
+> devices will be in M0 state post recovery. After that, the devices will be
+> powered down so that the system can enter the target sleep state. During
+> this stage, the PCI core will put the devices in D3hot. But this transition
+> is allowed by the MHI spec. The devices can only enter D3hot when it is in
+> M3 state.
 >
-> [ Upstream commit 651c304df7f6e3fbb4779527efa3eb128ef91329 ]
+> So for fixing this issue, let's add the poweroff() callback that will get
+> executed before putting the system in target sleep state during
+> hibernation. This callback will power down the device properly so that it
+> could be restored during restore() or thaw() stage.
 >
-> Since we see a proliferation of devices with various configurations,
-> we want to automatically set the DMIC and SSP information. This patch
-> relies on the information extracted from NHLT and partially reverts
-> existing DMI quirks added by commit a164137ce91a ("ASoC: Intel: add
-> machine driver for SOF+ES8336")
+> Cc: stable@vger.kernel.org
+> Fixes: 5f0c2ee1fe8d ("bus: mhi: pci-generic: Fix hibernation")
+> Reported-by: Hemant Kumar <quic_hemantk@quicinc.com>
+> Suggested-by: Hemant Kumar <quic_hemantk@quicinc.com>
+> Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+> ---
 >
-> Note that NHLT can report multiple SSPs, choosing from the
-> ssp_link_mask in an MSB-first manner was found experimentally to work
-> fine.
+> Changes in v2:
 >
-> The only thing that cannot be detected is the GPIO type, and users may
-> want to use the quirk override parameter if the 'wrong' solution is
-> provided.
-[...]
+> * Hemant suggested to use restore function for poweroff() callback as we can
+> make sure that the device gets powered down properly.
+>
+>   drivers/bus/mhi/host/pci_generic.c | 1 +
+>   1 file changed, 1 insertion(+)
+>
+> diff --git a/drivers/bus/mhi/host/pci_generic.c b/drivers/bus/mhi/host/pci_generic.c
+> index 9527b7d63840..ef85dbfb3216 100644
+> --- a/drivers/bus/mhi/host/pci_generic.c
+> +++ b/drivers/bus/mhi/host/pci_generic.c
+> @@ -1085,6 +1085,7 @@ static const struct dev_pm_ops mhi_pci_pm_ops = {
+>   	.resume = mhi_pci_resume,
+>   	.freeze = mhi_pci_freeze,
+>   	.thaw = mhi_pci_restore,
+> +	.poweroff = mhi_pci_freeze,
 
-This patch, as part of v5.17.2-rc1 seems to introduce a build failure
-on x86_64 (with CONFIG_SND_SOC_INTEL_SOF_ES8336_MACH=3Dm):
+It is possible that .thaw() queues recovery work and recovery work is 
+still running
 
-  LD [M]  sound/soc/intel/boards/snd-soc-sof_rt5682.o
-  LD [M]  sound/soc/intel/boards/snd-soc-sof_cs42l42.o
-  CC [M]  sound/soc/intel/boards/sof_es8336.o
-/build/linux-5.17/sound/soc/intel/boards/sof_es8336.c: In function 'sof_es=
-8336_probe':
-/build/linux-5.17/sound/soc/intel/boards/sof_es8336.c:482:32: error: 'stru=
-ct snd_soc_acpi_mach_params' has no member named 'i2s_link_mask'; did you =
-mean 'link_mask'?
-  482 |         if (!mach->mach_params.i2s_link_mask) {
-      |                                ^~~~~~~~~~~~~
-      |                                link_mask
-/build/linux-5.17/sound/soc/intel/boards/sof_es8336.c:494:39: error: 'stru=
-ct snd_soc_acpi_mach_params' has no member named 'i2s_link_mask'; did you =
-mean 'link_mask'?
-  494 |                 if (mach->mach_params.i2s_link_mask & BIT(2))
-      |                                       ^~~~~~~~~~~~~
-      |                                       link_mask
-/build/linux-5.17/sound/soc/intel/boards/sof_es8336.c:496:44: error: 'stru=
-ct snd_soc_acpi_mach_params' has no member named 'i2s_link_mask'; did you =
-mean 'link_mask'?
-  496 |                 else if (mach->mach_params.i2s_link_mask & BIT(1))
-      |                                            ^~~~~~~~~~~~~
-      |                                            link_mask
-/build/linux-5.17/sound/soc/intel/boards/sof_es8336.c:498:45: error: 'stru=
-ct snd_soc_acpi_mach_params' has no member named 'i2s_link_mask'; did you =
-mean 'link_mask'?
-  498 |                 else  if (mach->mach_params.i2s_link_mask & BIT(0)=
-)
-      |                                             ^~~~~~~~~~~~~
-      |                                             link_mask
-make[4]: *** [/build/linux-5.17/scripts/Makefile.build:288: sound/soc/inte=
-l/boards/sof_es8336.o] Error 1
+while .poweroff() is called. I would suggest adding a flush_work() in 
+freeze such that
 
-Reverting just this patch lets the build, using the same buildconfig,
-succeed again.
+we don't try to power off while we're also trying to power on MHI from 
+recovery work.
 
-Regards
-	Stefan Lippers-Hollmann
+>   	.restore = mhi_pci_restore,
+>   #endif
+>   };
