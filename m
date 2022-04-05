@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BC5D84F27F5
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:09:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57EC24F2705
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:06:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233491AbiDEIJw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:09:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54862 "EHLO
+        id S233054AbiDEIFC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:05:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54952 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236460AbiDEICU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:02:20 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32B874ECE1;
-        Tue,  5 Apr 2022 01:00:23 -0700 (PDT)
+        with ESMTP id S236463AbiDEICW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:02:22 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 328DF4F9D9;
+        Tue,  5 Apr 2022 01:00:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CA833B81B14;
-        Tue,  5 Apr 2022 08:00:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CC14C340EE;
-        Tue,  5 Apr 2022 08:00:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C58AF61545;
+        Tue,  5 Apr 2022 08:00:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6E6DC340EE;
+        Tue,  5 Apr 2022 08:00:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145620;
-        bh=m0gxXestR9TuCF6pwebEyOfHf08GivCI31KBId5HBac=;
+        s=korg; t=1649145623;
+        bh=ILWExaWFs9IY44mWLEJ+w6njJpf64YYLdcomOi8/aGM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fZiZ7vyDZxTAYDj5kTrkn4GNQ4m4bfyUE4mLRO2EKrt9RIb5CagDKK9Xm9gIia5Zr
-         yGcjG5jIf66itSNSUboNoEGFKNOLkt80GeZVIbalOW+gURpwOff0GML2cSSJ0s5BJD
-         MSb/3V/LUIx7CRLlfIWA3kIKY3FTZ0LHFMdZmv0s=
+        b=eE3LUx1H3bW4ppBUX6pg+wzK/mXmcbNk85s3I+2DrIFatCclLHOacfV5q8Hn3TAQe
+         VnvYHyiTLD84nQmuUvR7pCa5Li6jvCuD32745dkB2LzvUgWLxJp9vPHOWLQ8RSAuBG
+         SgRJ7uLbWCpYqgITDwJK2vGvVpiRf7KwOLybydUk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wen Gong <quic_wgong@quicinc.com>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Melissa Wen <mwen@igalia.com>,
+        Melissa Wen <melissa.srw@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0430/1126] ath10k: fix memory overwrite of the WoWLAN wakeup packet pattern
-Date:   Tue,  5 Apr 2022 09:19:37 +0200
-Message-Id: <20220405070420.246409625@linuxfoundation.org>
+Subject: [PATCH 5.17 0431/1126] drm/v3d/v3d_drv: Check for error num after setting mask
+Date:   Tue,  5 Apr 2022 09:19:38 +0200
+Message-Id: <20220405070420.275711105@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -54,54 +55,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wen Gong <quic_wgong@quicinc.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit e3fb3d4418fce5484dfe7995fcd94c18b10a431a ]
+[ Upstream commit 4a39156166b90465da0f9a33b3442d63b5651bec ]
 
-In function ath10k_wow_convert_8023_to_80211(), it will do memcpy for
-the new->pattern, and currently the new->pattern and new->mask is same
-with the old, then the memcpy of new->pattern will also overwrite the
-old->pattern, because the header format of new->pattern is 802.11,
-its length is larger than the old->pattern which is 802.3. Then the
-operation of "Copy frame body" will copy a mistake value because the
-body memory has been overwrite when memcpy the new->pattern.
+Because of the possible failure of the dma_supported(), the
+dma_set_mask_and_coherent() may return error num.
+Therefore, it should be better to check it and return the error if
+fails.
+Also, we can create a variable for the mask to solve the
+alignment issue.
 
-Assign another empty value to new_pattern to avoid the overwrite issue.
-
-Tested-on: QCA6174 hw3.2 SDIO WLAN.RMH.4.4.1-00049
-
-Fixes: fa3440fa2fa1 ("ath10k: convert wow pattern from 802.3 to 802.11")
-Signed-off-by: Wen Gong <quic_wgong@quicinc.com>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/20211222031347.25463-1-quic_wgong@quicinc.com
+Fixes: 334dd38a3878 ("drm/v3d: Set dma_mask as well as coherent_dma_mask")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Reviewed-by: Melissa Wen <mwen@igalia.com>
+Signed-off-by: Melissa Wen <melissa.srw@gmail.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220110013807.4105270-1-jiasheng@iscas.ac.cn
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath10k/wow.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/v3d/v3d_drv.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath10k/wow.c b/drivers/net/wireless/ath/ath10k/wow.c
-index 7d65c115669f..20b9aa8ddf7d 100644
---- a/drivers/net/wireless/ath/ath10k/wow.c
-+++ b/drivers/net/wireless/ath/ath10k/wow.c
-@@ -337,14 +337,15 @@ static int ath10k_vif_wow_set_wakeups(struct ath10k_vif *arvif,
- 			if (patterns[i].mask[j / 8] & BIT(j % 8))
- 				bitmask[j] = 0xff;
- 		old_pattern.mask = bitmask;
--		new_pattern = old_pattern;
+diff --git a/drivers/gpu/drm/v3d/v3d_drv.c b/drivers/gpu/drm/v3d/v3d_drv.c
+index bd46396a1ae0..1afcd54fbbd5 100644
+--- a/drivers/gpu/drm/v3d/v3d_drv.c
++++ b/drivers/gpu/drm/v3d/v3d_drv.c
+@@ -219,6 +219,7 @@ static int v3d_platform_drm_probe(struct platform_device *pdev)
+ 	int ret;
+ 	u32 mmu_debug;
+ 	u32 ident1;
++	u64 mask;
  
- 		if (ar->wmi.rx_decap_mode == ATH10K_HW_TXRX_NATIVE_WIFI) {
--			if (patterns[i].pkt_offset < ETH_HLEN)
-+			if (patterns[i].pkt_offset < ETH_HLEN) {
- 				ath10k_wow_convert_8023_to_80211(&new_pattern,
- 								 &old_pattern);
--			else
-+			} else {
-+				new_pattern = old_pattern;
- 				new_pattern.pkt_offset += WOW_HDR_LEN - ETH_HLEN;
-+			}
- 		}
+ 	v3d = devm_drm_dev_alloc(dev, &v3d_drm_driver, struct v3d_dev, drm);
+ 	if (IS_ERR(v3d))
+@@ -237,8 +238,11 @@ static int v3d_platform_drm_probe(struct platform_device *pdev)
+ 		return ret;
  
- 		if (WARN_ON(new_pattern.pattern_len > WOW_MAX_PATTERN_SIZE))
+ 	mmu_debug = V3D_READ(V3D_MMU_DEBUG_INFO);
+-	dma_set_mask_and_coherent(dev,
+-		DMA_BIT_MASK(30 + V3D_GET_FIELD(mmu_debug, V3D_MMU_PA_WIDTH)));
++	mask = DMA_BIT_MASK(30 + V3D_GET_FIELD(mmu_debug, V3D_MMU_PA_WIDTH));
++	ret = dma_set_mask_and_coherent(dev, mask);
++	if (ret)
++		return ret;
++
+ 	v3d->va_width = 30 + V3D_GET_FIELD(mmu_debug, V3D_MMU_VA_WIDTH);
+ 
+ 	ident1 = V3D_READ(V3D_HUB_IDENT1);
 -- 
 2.34.1
 
