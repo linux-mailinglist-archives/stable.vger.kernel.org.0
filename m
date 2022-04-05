@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7373F4F3818
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:27:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98E8E4F3AF3
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:06:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376306AbiDELV0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:21:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43898 "EHLO
+        id S1343761AbiDELuR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:50:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57382 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349358AbiDEJtn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:43 -0400
+        with ESMTP id S1356137AbiDEKW7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:22:59 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47A04A187;
-        Tue,  5 Apr 2022 02:44:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0AD59B7C6C;
+        Tue,  5 Apr 2022 03:06:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D823261675;
-        Tue,  5 Apr 2022 09:44:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1D3DC385A2;
-        Tue,  5 Apr 2022 09:44:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5C9F96176C;
+        Tue,  5 Apr 2022 10:06:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67FFCC385A2;
+        Tue,  5 Apr 2022 10:06:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151865;
-        bh=C2yKtcHDtTIJB8VULrw6ebgViiHV2Kg1nkqwJGh5kjE=;
+        s=korg; t=1649153193;
+        bh=+wLlyC9LKuDGwI7yL9rGWrb0r1NuK/aUtCI4Q8IbSAs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iII4sSTRqP+YifhowUO2pdIpIJZvl40z2S8dDAwpbxhwxJ/X+atFYmtzogw4AHYla
-         aTNZV+iCOGIkYCLsg8kf9OG2I9/v+A1cb0U4Wn4N4cj1wAhggLLJ9tYFk4Tvu0AT51
-         CEL2gWvVXbMYlROq6fsEh6XdnG1n49vDVngOoyDk=
+        b=ykdVknljmILF+45ZJKLWCHaKTsWUFt8Jzyu0jSBtNhw3XbAxQBemHIv6a4Rj7+b3T
+         U6TOXx5c+OZM09Zl20vMlxxEDT41azJa0P7g3ffAcB28zTUR6sgMnb8wLbLrMedeCe
+         iWbfQuZgcYKTLMNw+zxjjjloD7uc5t5Y98q+HJ0w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andre Nash <alnash@fb.com>,
-        Neil Spring <ntspring@fb.com>, Wei Wang <weiwan@google.com>,
-        Yuchung Cheng <ycheng@google.com>,
-        Martin KaFai Lau <kafai@fb.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Eric Dumazet <edumazet@google.com>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 568/913] tcp: ensure PMTU updates are processed during fastopen
+Subject: [PATCH 5.10 136/599] spi: tegra114: Add missing IRQ check in tegra_spi_probe
 Date:   Tue,  5 Apr 2022 09:27:10 +0200
-Message-Id: <20220405070356.870224598@linuxfoundation.org>
+Message-Id: <20220405070302.888146683@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070258.802373272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,66 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit ed0c99dc0f499ff8b6e75b5ae6092ab42be1ad39 ]
+[ Upstream commit 4f92724d4b92c024e721063f520d66e11ca4b54b ]
 
-tp->rx_opt.mss_clamp is not populated, yet, during TFO send so we
-rise it to the local MSS. tp->mss_cache is not updated, however:
+This func misses checking for platform_get_irq()'s call and may passes the
+negative error codes to request_threaded_irq(), which takes unsigned IRQ #,
+causing it to fail with -EINVAL, overriding an original error code.
+Stop calling request_threaded_irq() with invalid IRQ #s.
 
-tcp_v6_connect():
-  tp->rx_opt.mss_clamp = IPV6_MIN_MTU - headers;
-  tcp_connect():
-     tcp_connect_init():
-       tp->mss_cache = min(mtu, tp->rx_opt.mss_clamp)
-     tcp_send_syn_data():
-       tp->rx_opt.mss_clamp = tp->advmss
-
-After recent fixes to ICMPv6 PTB handling we started dropping
-PMTU updates higher than tp->mss_cache. Because of the stale
-tp->mss_cache value PMTU updates during TFO are always dropped.
-
-Thanks to Wei for helping zero in on the problem and the fix!
-
-Fixes: c7bb4b89033b ("ipv6: tcp: drop silly ICMPv6 packet too big messages")
-Reported-by: Andre Nash <alnash@fb.com>
-Reported-by: Neil Spring <ntspring@fb.com>
-Reviewed-by: Wei Wang <weiwan@google.com>
-Acked-by: Yuchung Cheng <ycheng@google.com>
-Acked-by: Martin KaFai Lau <kafai@fb.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/20220321165957.1769954-1-kuba@kernel.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: f333a331adfa ("spi/tegra114: add spi driver")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220128165238.25615-1-linmq006@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_output.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/spi/spi-tegra114.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
-index 0492f6942778..369752f5f676 100644
---- a/net/ipv4/tcp_output.c
-+++ b/net/ipv4/tcp_output.c
-@@ -3734,6 +3734,7 @@ static void tcp_connect_queue_skb(struct sock *sk, struct sk_buff *skb)
-  */
- static int tcp_send_syn_data(struct sock *sk, struct sk_buff *syn)
- {
-+	struct inet_connection_sock *icsk = inet_csk(sk);
- 	struct tcp_sock *tp = tcp_sk(sk);
- 	struct tcp_fastopen_request *fo = tp->fastopen_req;
- 	int space, err = 0;
-@@ -3748,8 +3749,10 @@ static int tcp_send_syn_data(struct sock *sk, struct sk_buff *syn)
- 	 * private TCP options. The cost is reduced data space in SYN :(
- 	 */
- 	tp->rx_opt.mss_clamp = tcp_mss_clamp(tp, tp->rx_opt.mss_clamp);
-+	/* Sync mss_cache after updating the mss_clamp */
-+	tcp_sync_mss(sk, icsk->icsk_pmtu_cookie);
+diff --git a/drivers/spi/spi-tegra114.c b/drivers/spi/spi-tegra114.c
+index a2e5907276e7..ed42665b1224 100644
+--- a/drivers/spi/spi-tegra114.c
++++ b/drivers/spi/spi-tegra114.c
+@@ -1353,6 +1353,10 @@ static int tegra_spi_probe(struct platform_device *pdev)
+ 	tspi->phys = r->start;
  
--	space = __tcp_mtu_to_mss(sk, inet_csk(sk)->icsk_pmtu_cookie) -
-+	space = __tcp_mtu_to_mss(sk, icsk->icsk_pmtu_cookie) -
- 		MAX_TCP_OPTION_SPACE;
+ 	spi_irq = platform_get_irq(pdev, 0);
++	if (spi_irq < 0) {
++		ret = spi_irq;
++		goto exit_free_master;
++	}
+ 	tspi->irq = spi_irq;
  
- 	space = min_t(size_t, space, fo->size);
+ 	tspi->clk = devm_clk_get(&pdev->dev, "spi");
 -- 
 2.34.1
 
