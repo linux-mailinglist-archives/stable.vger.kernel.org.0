@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E9E234F2DF5
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:48:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B41174F2C02
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:22:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235115AbiDEI0h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:26:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37238 "EHLO
+        id S242917AbiDEJi2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:38:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41998 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239393AbiDEIUC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:20:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3642A8EB4C;
-        Tue,  5 Apr 2022 01:12:27 -0700 (PDT)
+        with ESMTP id S242642AbiDEJIP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:08:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C7947460C;
+        Tue,  5 Apr 2022 01:57:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DAFEAB81B92;
-        Tue,  5 Apr 2022 08:12:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DA97C385A1;
-        Tue,  5 Apr 2022 08:12:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ACD65614E4;
+        Tue,  5 Apr 2022 08:56:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB0D2C385A0;
+        Tue,  5 Apr 2022 08:56:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146344;
-        bh=hgwv3Bsh45tJ1pWCJ/OiWav3TISg2Dhm7A/oWtm79mM=;
+        s=korg; t=1649149018;
+        bh=HSH7fv6lD+ZSAT4GTJXOH7W3b71NxWp7xNa9VwW+ayI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MVYcs5i+21EqVA7VdLP6IXmxGE1PtqBM7xu6HyVDaM+bp/x0PzA4SKkFYSUejTyTX
-         KfnA0UlK76fJF4xvBCQf32pv3rO12LKTBn+5y2LIRA7xGrVVDhJhRf1hq9yN/Ugu83
-         H6scyoFGB5BX4lc8Hkb8RRzkSzjtYAAzd5UVhR6w=
+        b=VLZhZVfkycY6GGKf3/gjcr9oF1/Fl9QTeQvnRp8Ik6hOLIqvnWdPCO0AsQgW+mik6
+         WOoSKSS9qPqNhXPz5vryC20BERkjq74BZGqefVPw4FMCpMgiHS8ICIHh/Lw3j/0h/D
+         sBLazK7KWK9zsvfNe31eZzczOV7g7mFAdnAZBdvQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dirk Buchwalder <buchwalder@posteo.de>,
-        Robert Marko <robimarko@gmail.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, Alper Gun <alpergun@google.com>,
+        Peter Gonda <pgonda@google.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0731/1126] clk: qcom: ipq8074: Use floor ops for SDCC1 clock
+Subject: [PATCH 5.16 0565/1017] KVM: SVM: Exit to userspace on ENOMEM/EFAULT GHCB errors
 Date:   Tue,  5 Apr 2022 09:24:38 +0200
-Message-Id: <20220405070429.046370460@linuxfoundation.org>
+Message-Id: <20220405070411.052011524@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,47 +56,189 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dirk Buchwalder <buchwalder@posteo.de>
+From: Sean Christopherson <seanjc@google.com>
 
-[ Upstream commit b77d8306d84f83d1da68028a68c91da9c867b6f6 ]
+[ Upstream commit aa9f58415a8e45598bf44befa90b9d5babe09601 ]
 
-Use floor ops on SDCC1 APPS clock in order to round down selected clock
-frequency and avoid overclocking SD/eMMC cards.
+Exit to userspace if setup_vmgexit_scratch() fails due to OOM or because
+copying data from guest (userspace) memory failed/faulted.  The OOM
+scenario is clearcut, it's userspace's decision as to whether it should
+terminate the guest, free memory, etc...
 
-For example, currently HS200 cards were failling tuning as they were
-actually being clocked at 384MHz instead of 192MHz.
-This caused some boards to disable 1.8V I/O and force the eMMC into the
-standard HS mode (50MHz) and that appeared to work despite the eMMC being
-overclocked to 96Mhz in that case.
+As for -EFAULT, arguably, any guest issue is a violation of the guest's
+contract with userspace, and thus userspace needs to decide how to
+proceed.  E.g. userspace defines what is RAM vs. MMIO and communicates
+that directly to the guest, KVM is not involved in deciding what is/isn't
+RAM nor in communicating that information to the guest.  If the scratch
+GPA doesn't resolve to a memslot, then the guest is not honoring the
+memory configuration as defined by userspace.
 
-There was a previous commit to use floor ops on SDCC clocks, but it looks
-to have only covered SDCC2 clock.
+And if userspace unmaps an hva for whatever reason, then exiting to
+userspace with -EFAULT is absolutely the right thing to do.  KVM's ABI
+currently sucks and doesn't provide enough information to act on the
+-EFAULT, but that will hopefully be remedied in the future as there are
+multiple use cases, e.g. uffd and virtiofs truncation, that shouldn't
+require any work in KVM beyond returning -EFAULT with a small amount of
+metadata.
 
-Fixes: 9607f6224b39 ("clk: qcom: ipq8074: add PCIE, USB and SDCC clocks")
+KVM could define its ABI such that failure to access the scratch area is
+reflected into the guest, i.e. establish a contract with userspace, but
+that's undesirable as it limits KVM's options in the future, e.g. in the
+potential uffd case any failure on a uaccess needs to kick out to
+userspace.  KVM does have several cases where it reflects these errors
+into the guest, e.g. kvm_pv_clock_pairing() and Hyper-V emulation, but
+KVM would preferably "fix" those instead of propagating the falsehood
+that any memory failure is the guest's fault.
 
-Signed-off-by: Dirk Buchwalder <buchwalder@posteo.de>
-Signed-off-by: Robert Marko <robimarko@gmail.com>
-Reviewed-by: Stephen Boyd <sboyd@kernel.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220210173100.505128-1-robimarko@gmail.com
+Lastly, returning a boolean as an "error" for that a helper that isn't
+named accordingly never works out well.
+
+Fixes: ad5b353240c8 ("KVM: SVM: Do not terminate SEV-ES guests on GHCB validation failure")
+Cc: Alper Gun <alpergun@google.com>
+Cc: Peter Gonda <pgonda@google.com>
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20220225205209.3881130-1-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/qcom/gcc-ipq8074.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kvm/svm/sev.c | 36 +++++++++++++++++++++---------------
+ 1 file changed, 21 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/clk/qcom/gcc-ipq8074.c b/drivers/clk/qcom/gcc-ipq8074.c
-index b09d99343e09..541016db3c4b 100644
---- a/drivers/clk/qcom/gcc-ipq8074.c
-+++ b/drivers/clk/qcom/gcc-ipq8074.c
-@@ -1074,7 +1074,7 @@ static struct clk_rcg2 sdcc1_apps_clk_src = {
- 		.name = "sdcc1_apps_clk_src",
- 		.parent_names = gcc_xo_gpll0_gpll2_gpll0_out_main_div2,
- 		.num_parents = 4,
--		.ops = &clk_rcg2_ops,
-+		.ops = &clk_rcg2_floor_ops,
- 	},
- };
+diff --git a/arch/x86/kvm/svm/sev.c b/arch/x86/kvm/svm/sev.c
+index be2883141220..20a5d3abaeda 100644
+--- a/arch/x86/kvm/svm/sev.c
++++ b/arch/x86/kvm/svm/sev.c
+@@ -2352,7 +2352,7 @@ static void sev_es_sync_from_ghcb(struct vcpu_svm *svm)
+ 	memset(ghcb->save.valid_bitmap, 0, sizeof(ghcb->save.valid_bitmap));
+ }
  
+-static bool sev_es_validate_vmgexit(struct vcpu_svm *svm)
++static int sev_es_validate_vmgexit(struct vcpu_svm *svm)
+ {
+ 	struct kvm_vcpu *vcpu;
+ 	struct ghcb *ghcb;
+@@ -2457,7 +2457,7 @@ static bool sev_es_validate_vmgexit(struct vcpu_svm *svm)
+ 		goto vmgexit_err;
+ 	}
+ 
+-	return true;
++	return 0;
+ 
+ vmgexit_err:
+ 	vcpu = &svm->vcpu;
+@@ -2480,7 +2480,8 @@ static bool sev_es_validate_vmgexit(struct vcpu_svm *svm)
+ 	ghcb_set_sw_exit_info_1(ghcb, 2);
+ 	ghcb_set_sw_exit_info_2(ghcb, reason);
+ 
+-	return false;
++	/* Resume the guest to "return" the error code. */
++	return 1;
+ }
+ 
+ void sev_es_unmap_ghcb(struct vcpu_svm *svm)
+@@ -2539,7 +2540,7 @@ void pre_sev_run(struct vcpu_svm *svm, int cpu)
+ }
+ 
+ #define GHCB_SCRATCH_AREA_LIMIT		(16ULL * PAGE_SIZE)
+-static bool setup_vmgexit_scratch(struct vcpu_svm *svm, bool sync, u64 len)
++static int setup_vmgexit_scratch(struct vcpu_svm *svm, bool sync, u64 len)
+ {
+ 	struct vmcb_control_area *control = &svm->vmcb->control;
+ 	struct ghcb *ghcb = svm->sev_es.ghcb;
+@@ -2592,14 +2593,14 @@ static bool setup_vmgexit_scratch(struct vcpu_svm *svm, bool sync, u64 len)
+ 		}
+ 		scratch_va = kvzalloc(len, GFP_KERNEL_ACCOUNT);
+ 		if (!scratch_va)
+-			goto e_scratch;
++			return -ENOMEM;
+ 
+ 		if (kvm_read_guest(svm->vcpu.kvm, scratch_gpa_beg, scratch_va, len)) {
+ 			/* Unable to copy scratch area from guest */
+ 			pr_err("vmgexit: kvm_read_guest for scratch area failed\n");
+ 
+ 			kvfree(scratch_va);
+-			goto e_scratch;
++			return -EFAULT;
+ 		}
+ 
+ 		/*
+@@ -2615,13 +2616,13 @@ static bool setup_vmgexit_scratch(struct vcpu_svm *svm, bool sync, u64 len)
+ 	svm->sev_es.ghcb_sa = scratch_va;
+ 	svm->sev_es.ghcb_sa_len = len;
+ 
+-	return true;
++	return 0;
+ 
+ e_scratch:
+ 	ghcb_set_sw_exit_info_1(ghcb, 2);
+ 	ghcb_set_sw_exit_info_2(ghcb, GHCB_ERR_INVALID_SCRATCH_AREA);
+ 
+-	return false;
++	return 1;
+ }
+ 
+ static void set_ghcb_msr_bits(struct vcpu_svm *svm, u64 value, u64 mask,
+@@ -2759,17 +2760,18 @@ int sev_handle_vmgexit(struct kvm_vcpu *vcpu)
+ 
+ 	exit_code = ghcb_get_sw_exit_code(ghcb);
+ 
+-	if (!sev_es_validate_vmgexit(svm))
+-		return 1;
++	ret = sev_es_validate_vmgexit(svm);
++	if (ret)
++		return ret;
+ 
+ 	sev_es_sync_from_ghcb(svm);
+ 	ghcb_set_sw_exit_info_1(ghcb, 0);
+ 	ghcb_set_sw_exit_info_2(ghcb, 0);
+ 
+-	ret = 1;
+ 	switch (exit_code) {
+ 	case SVM_VMGEXIT_MMIO_READ:
+-		if (!setup_vmgexit_scratch(svm, true, control->exit_info_2))
++		ret = setup_vmgexit_scratch(svm, true, control->exit_info_2);
++		if (ret)
+ 			break;
+ 
+ 		ret = kvm_sev_es_mmio_read(vcpu,
+@@ -2778,7 +2780,8 @@ int sev_handle_vmgexit(struct kvm_vcpu *vcpu)
+ 					   svm->sev_es.ghcb_sa);
+ 		break;
+ 	case SVM_VMGEXIT_MMIO_WRITE:
+-		if (!setup_vmgexit_scratch(svm, false, control->exit_info_2))
++		ret = setup_vmgexit_scratch(svm, false, control->exit_info_2);
++		if (ret)
+ 			break;
+ 
+ 		ret = kvm_sev_es_mmio_write(vcpu,
+@@ -2811,6 +2814,7 @@ int sev_handle_vmgexit(struct kvm_vcpu *vcpu)
+ 			ghcb_set_sw_exit_info_2(ghcb, GHCB_ERR_INVALID_INPUT);
+ 		}
+ 
++		ret = 1;
+ 		break;
+ 	}
+ 	case SVM_VMGEXIT_UNSUPPORTED_EVENT:
+@@ -2830,6 +2834,7 @@ int sev_es_string_io(struct vcpu_svm *svm, int size, unsigned int port, int in)
+ {
+ 	int count;
+ 	int bytes;
++	int r;
+ 
+ 	if (svm->vmcb->control.exit_info_2 > INT_MAX)
+ 		return -EINVAL;
+@@ -2838,8 +2843,9 @@ int sev_es_string_io(struct vcpu_svm *svm, int size, unsigned int port, int in)
+ 	if (unlikely(check_mul_overflow(count, size, &bytes)))
+ 		return -EINVAL;
+ 
+-	if (!setup_vmgexit_scratch(svm, in, bytes))
+-		return 1;
++	r = setup_vmgexit_scratch(svm, in, bytes);
++	if (r)
++		return r;
+ 
+ 	return kvm_sev_es_string_io(&svm->vcpu, size, port, svm->sev_es.ghcb_sa,
+ 				    count, in);
 -- 
 2.34.1
 
