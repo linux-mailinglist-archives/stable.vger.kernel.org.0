@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FB414F409D
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:18:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 826804F3E46
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 22:43:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352006AbiDEMWL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:22:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33764 "EHLO
+        id S1351473AbiDEMWG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:22:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52544 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344115AbiDEKjp (ORCPT
+        with ESMTP id S1344137AbiDEKjp (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:39:45 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 986502409F;
-        Tue,  5 Apr 2022 03:24:57 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B99B92654C;
+        Tue,  5 Apr 2022 03:25:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4AEFCB81B18;
-        Tue,  5 Apr 2022 10:24:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99B8FC385A1;
-        Tue,  5 Apr 2022 10:24:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CB765B81C98;
+        Tue,  5 Apr 2022 10:25:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B866C385A1;
+        Tue,  5 Apr 2022 10:24:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649154295;
-        bh=8XMINSXaSbfKJrYh9dECjJqF0AVdv8TqKHJzrJ7r5kw=;
+        s=korg; t=1649154300;
+        bh=QLM2ZEVgjYzkdh/AaHI6bLcEGIY3utV+z9bS4wM40eI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zivi/Y8kml6U7Z8DxDWiLE4fpw/WwoVfCbi1M5fQ9+vgrtvQ/RwQDfmUkDuNsJXAL
-         3qy6grlKnE2qvZBQ8VHH1x7dpxKUHzAIrPE3lzLDTWmd0ZV3AtxDG7nIuyU5pSHwkE
-         ABXI64//Hvih02p6ff/LanoJ6itlR7akdNEgXmLM=
+        b=Fze3qrAXgUh6i/7ntK3d1VIWLBUD3HlgE33cuPvRdR82tD1Fy9nqsw3NEy5KP4Wgk
+         7KHTPgQYUvp9kLZcGf970do1d7EODZ5Tg/1rJ/zlW6LhGabENJsYWIdVDwftt0DB3Q
+         Iaeu7MEGzbtHLy/xOSdr8a4XWHiR9DPlhb13SC8Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tsuchiya Yuto <kitakar@gmail.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        stable@vger.kernel.org, Abel Vesa <abel.vesa@nxp.com>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 491/599] media: atomisp: fix dummy_ptr check to avoid duplicate active_bo
-Date:   Tue,  5 Apr 2022 09:33:05 +0200
-Message-Id: <20220405070313.439674168@linuxfoundation.org>
+Subject: [PATCH 5.10 493/599] ARM: dts: imx7: Use audio_mclk_post_div instead audio_mclk_root_clk
+Date:   Tue,  5 Apr 2022 09:33:07 +0200
+Message-Id: <20220405070313.498928825@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -54,114 +54,164 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tsuchiya Yuto <kitakar@gmail.com>
+From: Abel Vesa <abel.vesa@nxp.com>
 
-[ Upstream commit 127efdbc51fe6064336c0452ce9c910b3e107cf0 ]
+[ Upstream commit 4cb7df64c732b2b9918424095c11660c2a8c4a33 ]
 
-The dummy_ptr check in hmm_init() [1] results in the following
-"hmm_init Failed to create sysfs" error exactly once every
-two times on atomisp reload by rmmod/insmod (although atomisp module
-loads and works fine regardless of this error):
+The audio_mclk_root_clk was added as a gate with the CCGR121 (0x4790),
+but according to the reference manual, there is no such gate. Moreover,
+the consumer driver of the mentioned clock might gate it and leave
+the ECSPI2 (the true owner of that gate) hanging. So lets use the
+audio_mclk_post_div, which is the parent.
 
-	[  140.230662] sysfs: cannot create duplicate filename '/devices/pci0000:00/0000:00:03.0/active_bo'
-	[  140.230668] CPU: 1 PID: 2502 Comm: insmod Tainted: G         C OE     5.15.0-rc4-1-surface-mainline #1 b8acf6eb64994414b2e20bad312a7a2c45f748f9
-	[  140.230675] Hardware name: OEMB OEMB/OEMB, BIOS 1.51116.238 03/09/2015
-	[  140.230678] Call Trace:
-	[  140.230687]  dump_stack_lvl+0x46/0x5a
-	[  140.230702]  sysfs_warn_dup.cold+0x17/0x24
-	[  140.230710]  sysfs_add_file_mode_ns+0x160/0x170
-	[  140.230717]  internal_create_group+0x126/0x390
-	[  140.230723]  hmm_init+0x5c/0x70 [atomisp 7a6a680bf400629363d2a6f58fd10e7299678b99]
-	[  140.230811]  atomisp_pci_probe.cold+0x1136/0x148e [atomisp 7a6a680bf400629363d2a6f58fd10e7299678b99]
-	[  140.230875]  local_pci_probe+0x45/0x80
-	[  140.230882]  ? pci_match_device+0xd7/0x130
-	[  140.230887]  pci_device_probe+0xfa/0x1b0
-	[  140.230892]  really_probe+0x1f5/0x3f0
-	[  140.230899]  __driver_probe_device+0xfe/0x180
-	[  140.230903]  driver_probe_device+0x1e/0x90
-	[  140.230908]  __driver_attach+0xc0/0x1c0
-	[  140.230912]  ? __device_attach_driver+0xe0/0xe0
-	[  140.230915]  ? __device_attach_driver+0xe0/0xe0
-	[  140.230919]  bus_for_each_dev+0x89/0xd0
-	[  140.230924]  bus_add_driver+0x12b/0x1e0
-	[  140.230929]  driver_register+0x8f/0xe0
-	[  140.230933]  ? 0xffffffffc153f000
-	[  140.230937]  do_one_initcall+0x57/0x220
-	[  140.230945]  do_init_module+0x5c/0x260
-	[  140.230952]  load_module+0x24bd/0x26a0
-	[  140.230962]  ? __do_sys_finit_module+0xae/0x110
-	[  140.230966]  __do_sys_finit_module+0xae/0x110
-	[  140.230972]  do_syscall_64+0x5c/0x80
-	[  140.230979]  ? syscall_exit_to_user_mode+0x23/0x40
-	[  140.230983]  ? do_syscall_64+0x69/0x80
-	[  140.230988]  ? exc_page_fault+0x72/0x170
-	[  140.230991]  entry_SYSCALL_64_after_hwframe+0x44/0xae
-	[  140.230997] RIP: 0033:0x7f7fd5d8718d
-	[  140.231003] Code: b4 0c 00 0f 05 eb a9 66 0f 1f 44 00 00 f3 0f 1e fa 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d b3 6c 0c 00 f7 d8 64 89 01 48
-	[  140.231006] RSP: 002b:00007ffefc25f0e8 EFLAGS: 00000246 ORIG_RAX: 0000000000000139
-	[  140.231012] RAX: ffffffffffffffda RBX: 000055ac3edcd7f0 RCX: 00007f7fd5d8718d
-	[  140.231015] RDX: 0000000000000000 RSI: 000055ac3d723270 RDI: 0000000000000003
-	[  140.231017] RBP: 0000000000000000 R08: 0000000000000000 R09: 00007f7fd5e52380
-	[  140.231019] R10: 0000000000000003 R11: 0000000000000246 R12: 000055ac3d723270
-	[  140.231021] R13: 0000000000000000 R14: 000055ac3edd06e0 R15: 0000000000000000
-	[  140.231038] atomisp-isp2 0000:00:03.0: hmm_init Failed to create sysfs
-
-The problem is that dummy_ptr == 0 is a valid value. So, change the logic
-which checks if dummy_ptr was allocated.
-
-At this point, atomisp now gives WARN_ON() in hmm_free() [2] on atomisp
-reload by rmmod/insmod. Again, the check is wrong there.
-
-So, change both checks for mmgr_EXCEPTION, which is the error value when
-HMM allocation fails, and initialize dummy_ptr with such value.
-
-[1] added on commit
-    d9ab83953fa7 ("media: atomisp: don't cause a warn if probe failed")
-[2] added on commit
-    b83cc378dfc4 ("atomisp: clean up the hmm init/cleanup indirections")
-
-Link: https://lore.kernel.org/linux-media/20211017162337.44860-3-kitakar@gmail.com
-
-Signed-off-by: Tsuchiya Yuto <kitakar@gmail.com>
-Co-developed-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Signed-off-by: Abel Vesa <abel.vesa@nxp.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/atomisp/pci/hmm/hmm.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ arch/arm/boot/dts/imx7-colibri.dtsi     | 4 ++--
+ arch/arm/boot/dts/imx7-mba7.dtsi        | 2 +-
+ arch/arm/boot/dts/imx7d-nitrogen7.dts   | 2 +-
+ arch/arm/boot/dts/imx7d-pico-hobbit.dts | 4 ++--
+ arch/arm/boot/dts/imx7d-pico-pi.dts     | 4 ++--
+ arch/arm/boot/dts/imx7d-sdb.dts         | 4 ++--
+ arch/arm/boot/dts/imx7s-warp.dts        | 4 ++--
+ 7 files changed, 12 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/staging/media/atomisp/pci/hmm/hmm.c b/drivers/staging/media/atomisp/pci/hmm/hmm.c
-index 6a5ee4607089..c1cda16f2dc0 100644
---- a/drivers/staging/media/atomisp/pci/hmm/hmm.c
-+++ b/drivers/staging/media/atomisp/pci/hmm/hmm.c
-@@ -39,7 +39,7 @@
- struct hmm_bo_device bo_device;
- struct hmm_pool	dynamic_pool;
- struct hmm_pool	reserved_pool;
--static ia_css_ptr dummy_ptr;
-+static ia_css_ptr dummy_ptr = mmgr_EXCEPTION;
- static bool hmm_initialized;
- struct _hmm_mem_stat hmm_mem_stat;
+diff --git a/arch/arm/boot/dts/imx7-colibri.dtsi b/arch/arm/boot/dts/imx7-colibri.dtsi
+index 62b771c1d5a9..f1c60b0cb143 100644
+--- a/arch/arm/boot/dts/imx7-colibri.dtsi
++++ b/arch/arm/boot/dts/imx7-colibri.dtsi
+@@ -40,7 +40,7 @@
  
-@@ -209,7 +209,7 @@ int hmm_init(void)
+ 		dailink_master: simple-audio-card,codec {
+ 			sound-dai = <&codec>;
+-			clocks = <&clks IMX7D_AUDIO_MCLK_ROOT_CLK>;
++			clocks = <&clks IMX7D_AUDIO_MCLK_ROOT_DIV>;
+ 		};
+ 	};
+ };
+@@ -293,7 +293,7 @@
+ 		compatible = "fsl,sgtl5000";
+ 		#sound-dai-cells = <0>;
+ 		reg = <0x0a>;
+-		clocks = <&clks IMX7D_AUDIO_MCLK_ROOT_CLK>;
++		clocks = <&clks IMX7D_AUDIO_MCLK_ROOT_DIV>;
+ 		pinctrl-names = "default";
+ 		pinctrl-0 = <&pinctrl_sai1_mclk>;
+ 		VDDA-supply = <&reg_module_3v3_avdd>;
+diff --git a/arch/arm/boot/dts/imx7-mba7.dtsi b/arch/arm/boot/dts/imx7-mba7.dtsi
+index 50abf18ad30b..887497e3bb4b 100644
+--- a/arch/arm/boot/dts/imx7-mba7.dtsi
++++ b/arch/arm/boot/dts/imx7-mba7.dtsi
+@@ -250,7 +250,7 @@
+ 	tlv320aic32x4: audio-codec@18 {
+ 		compatible = "ti,tlv320aic32x4";
+ 		reg = <0x18>;
+-		clocks = <&clks IMX7D_AUDIO_MCLK_ROOT_CLK>;
++		clocks = <&clks IMX7D_AUDIO_MCLK_ROOT_DIV>;
+ 		clock-names = "mclk";
+ 		ldoin-supply = <&reg_audio_3v3>;
+ 		iov-supply = <&reg_audio_3v3>;
+diff --git a/arch/arm/boot/dts/imx7d-nitrogen7.dts b/arch/arm/boot/dts/imx7d-nitrogen7.dts
+index e0751e6ba3c0..a31de900139d 100644
+--- a/arch/arm/boot/dts/imx7d-nitrogen7.dts
++++ b/arch/arm/boot/dts/imx7d-nitrogen7.dts
+@@ -288,7 +288,7 @@
+ 	codec: wm8960@1a {
+ 		compatible = "wlf,wm8960";
+ 		reg = <0x1a>;
+-		clocks = <&clks IMX7D_AUDIO_MCLK_ROOT_CLK>;
++		clocks = <&clks IMX7D_AUDIO_MCLK_ROOT_DIV>;
+ 		clock-names = "mclk";
+ 		wlf,shared-lrclk;
+ 	};
+diff --git a/arch/arm/boot/dts/imx7d-pico-hobbit.dts b/arch/arm/boot/dts/imx7d-pico-hobbit.dts
+index 7b2198a9372c..d917dc4f2f22 100644
+--- a/arch/arm/boot/dts/imx7d-pico-hobbit.dts
++++ b/arch/arm/boot/dts/imx7d-pico-hobbit.dts
+@@ -31,7 +31,7 @@
  
- void hmm_cleanup(void)
- {
--	if (!dummy_ptr)
-+	if (dummy_ptr == mmgr_EXCEPTION)
- 		return;
- 	sysfs_remove_group(&atomisp_dev->kobj, atomisp_attribute_group);
+ 		dailink_master: simple-audio-card,codec {
+ 			sound-dai = <&sgtl5000>;
+-			clocks = <&clks IMX7D_AUDIO_MCLK_ROOT_CLK>;
++			clocks = <&clks IMX7D_AUDIO_MCLK_ROOT_DIV>;
+ 		};
+ 	};
+ };
+@@ -41,7 +41,7 @@
+ 		#sound-dai-cells = <0>;
+ 		reg = <0x0a>;
+ 		compatible = "fsl,sgtl5000";
+-		clocks = <&clks IMX7D_AUDIO_MCLK_ROOT_CLK>;
++		clocks = <&clks IMX7D_AUDIO_MCLK_ROOT_DIV>;
+ 		VDDA-supply = <&reg_2p5v>;
+ 		VDDIO-supply = <&reg_vref_1v8>;
+ 	};
+diff --git a/arch/arm/boot/dts/imx7d-pico-pi.dts b/arch/arm/boot/dts/imx7d-pico-pi.dts
+index 70bea95c06d8..f263e391e24c 100644
+--- a/arch/arm/boot/dts/imx7d-pico-pi.dts
++++ b/arch/arm/boot/dts/imx7d-pico-pi.dts
+@@ -31,7 +31,7 @@
  
-@@ -288,7 +288,8 @@ void hmm_free(ia_css_ptr virt)
+ 		dailink_master: simple-audio-card,codec {
+ 			sound-dai = <&sgtl5000>;
+-			clocks = <&clks IMX7D_AUDIO_MCLK_ROOT_CLK>;
++			clocks = <&clks IMX7D_AUDIO_MCLK_ROOT_DIV>;
+ 		};
+ 	};
+ };
+@@ -41,7 +41,7 @@
+ 		#sound-dai-cells = <0>;
+ 		reg = <0x0a>;
+ 		compatible = "fsl,sgtl5000";
+-		clocks = <&clks IMX7D_AUDIO_MCLK_ROOT_CLK>;
++		clocks = <&clks IMX7D_AUDIO_MCLK_ROOT_DIV>;
+ 		VDDA-supply = <&reg_2p5v>;
+ 		VDDIO-supply = <&reg_vref_1v8>;
+ 	};
+diff --git a/arch/arm/boot/dts/imx7d-sdb.dts b/arch/arm/boot/dts/imx7d-sdb.dts
+index ac0751bc1177..6823b9f1a2a3 100644
+--- a/arch/arm/boot/dts/imx7d-sdb.dts
++++ b/arch/arm/boot/dts/imx7d-sdb.dts
+@@ -378,14 +378,14 @@
+ 	codec: wm8960@1a {
+ 		compatible = "wlf,wm8960";
+ 		reg = <0x1a>;
+-		clocks = <&clks IMX7D_AUDIO_MCLK_ROOT_CLK>;
++		clocks = <&clks IMX7D_AUDIO_MCLK_ROOT_DIV>;
+ 		clock-names = "mclk";
+ 		wlf,shared-lrclk;
+ 		wlf,hp-cfg = <2 2 3>;
+ 		wlf,gpio-cfg = <1 3>;
+ 		assigned-clocks = <&clks IMX7D_AUDIO_MCLK_ROOT_SRC>,
+ 				  <&clks IMX7D_PLL_AUDIO_POST_DIV>,
+-				  <&clks IMX7D_AUDIO_MCLK_ROOT_CLK>;
++				  <&clks IMX7D_AUDIO_MCLK_ROOT_DIV>;
+ 		assigned-clock-parents = <&clks IMX7D_PLL_AUDIO_POST_DIV>;
+ 		assigned-clock-rates = <0>, <884736000>, <12288000>;
+ 	};
+diff --git a/arch/arm/boot/dts/imx7s-warp.dts b/arch/arm/boot/dts/imx7s-warp.dts
+index d6b4888fa686..e035dd5bf4f6 100644
+--- a/arch/arm/boot/dts/imx7s-warp.dts
++++ b/arch/arm/boot/dts/imx7s-warp.dts
+@@ -75,7 +75,7 @@
  
- 	dev_dbg(atomisp_dev, "%s: free 0x%08x\n", __func__, virt);
- 
--	WARN_ON(!virt);
-+	if (WARN_ON(virt == mmgr_EXCEPTION))
-+		return;
- 
- 	bo = hmm_bo_device_search_start(&bo_device, (unsigned int)virt);
- 
+ 		dailink_master: simple-audio-card,codec {
+ 			sound-dai = <&codec>;
+-			clocks = <&clks IMX7D_AUDIO_MCLK_ROOT_CLK>;
++			clocks = <&clks IMX7D_AUDIO_MCLK_ROOT_DIV>;
+ 		};
+ 	};
+ };
+@@ -232,7 +232,7 @@
+ 		#sound-dai-cells = <0>;
+ 		reg = <0x0a>;
+ 		compatible = "fsl,sgtl5000";
+-		clocks = <&clks IMX7D_AUDIO_MCLK_ROOT_CLK>;
++		clocks = <&clks IMX7D_AUDIO_MCLK_ROOT_DIV>;
+ 		pinctrl-names = "default";
+ 		pinctrl-0 = <&pinctrl_sai1_mclk>;
+ 		VDDA-supply = <&vgen4_reg>;
 -- 
 2.34.1
 
