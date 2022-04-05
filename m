@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CA2E4F2EBF
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:03:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D409F4F30A3
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:32:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234453AbiDEIZQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:25:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34810 "EHLO
+        id S241004AbiDEJfx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:35:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35398 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238265AbiDEISq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:18:46 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C67B26C964;
-        Tue,  5 Apr 2022 01:08:28 -0700 (PDT)
+        with ESMTP id S1343607AbiDEI5L (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:57:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23F4922B17;
+        Tue,  5 Apr 2022 01:53:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 628A9B81A37;
-        Tue,  5 Apr 2022 08:08:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCE64C385A0;
-        Tue,  5 Apr 2022 08:08:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7DA4E61003;
+        Tue,  5 Apr 2022 08:53:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 931B2C385A1;
+        Tue,  5 Apr 2022 08:53:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146107;
-        bh=3DZlFMKW8AtnIFijjSZArz2JKQNQA0Cg5vX6FoyXY4U=;
+        s=korg; t=1649148781;
+        bh=6OQ4XBU3Rd0gro+F3jMJqSQaH/YDj8FH7PqpZ7aqIyk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xMea7LW0Z22DKmnGPSQEXN6PSo8XJ5IVA4jRgoX35BVokGUjgRhTrrF3eYQoOuYbn
-         byIXgy66uddktNIV2wlIUXaLEP5hLuEel6Y2XVLJCK8z8DpmWL6dkwJaxfObgH5iHN
-         rZubE1G2iQ+Iw/L4d8BXO0zVtBYB4t5Pyejct8UI=
+        b=gxXdR4EmHcBwgGmV1x9EKM1xwOpXFfs/Sn7ASmECx+ScWSLBvoY3DYrXOybTRtcE3
+         FcEBsvVgeAIFHoFbjpgM01DkHuRTKxFi3+JaPeAxjJt9BLV+sL7ydo6q1OiACJPuC/
+         Bc82qtHsWmusbK7FkHwrUcjB3UPgf734hDMubzn4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sreekanth Reddy <sreekanth.reddy@broadcom.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Andrii Nakryiko <andrii@kernel.org>,
+        Kenta Tada <Kenta.Tada@sony.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0646/1126] scsi: mpt3sas: Fix incorrect 4GB boundary check
+Subject: [PATCH 5.16 0480/1017] selftests/bpf: Extract syscall wrapper
 Date:   Tue,  5 Apr 2022 09:23:13 +0200
-Message-Id: <20220405070426.592429846@linuxfoundation.org>
+Message-Id: <20220405070408.546956755@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,110 +54,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
+From: Kenta Tada <Kenta.Tada@sony.com>
 
-[ Upstream commit 208cc9fe6f21112b5cc6cb87065fb8ab66e79316 ]
+[ Upstream commit 78a2054156dd6265619b230cc5372b74f9ba5233 ]
 
-The driver must perform its 4GB boundary check using the pool's DMA address
-instead of using the virtual address.
+Extract the helper to set up SYS_PREFIX for fentry and kprobe selftests
+that use __x86_sys_* attach functions.
 
-Link: https://lore.kernel.org/r/20220303140230.13098-1-sreekanth.reddy@broadcom.com
-Fixes: d6adc251dd2f ("scsi: mpt3sas: Force PCIe scatterlist allocations to be within same 4 GB region")
-Signed-off-by: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Suggested-by: Andrii Nakryiko <andrii@kernel.org>
+Signed-off-by: Kenta Tada <Kenta.Tada@sony.com>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/bpf/20220124141622.4378-2-Kenta.Tada@sony.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/mpt3sas/mpt3sas_base.c | 25 ++++++++++++-------------
- 1 file changed, 12 insertions(+), 13 deletions(-)
+ tools/testing/selftests/bpf/progs/bpf_misc.h  | 19 +++++++++++++++++++
+ .../selftests/bpf/progs/test_probe_user.c     | 15 +--------------
+ 2 files changed, 20 insertions(+), 14 deletions(-)
+ create mode 100644 tools/testing/selftests/bpf/progs/bpf_misc.h
 
-diff --git a/drivers/scsi/mpt3sas/mpt3sas_base.c b/drivers/scsi/mpt3sas/mpt3sas_base.c
-index 76229b839560..fb5a3a348dbe 100644
---- a/drivers/scsi/mpt3sas/mpt3sas_base.c
-+++ b/drivers/scsi/mpt3sas/mpt3sas_base.c
-@@ -5736,14 +5736,13 @@ _base_release_memory_pools(struct MPT3SAS_ADAPTER *ioc)
-  */
+diff --git a/tools/testing/selftests/bpf/progs/bpf_misc.h b/tools/testing/selftests/bpf/progs/bpf_misc.h
+new file mode 100644
+index 000000000000..0b78bc9b1b4c
+--- /dev/null
++++ b/tools/testing/selftests/bpf/progs/bpf_misc.h
+@@ -0,0 +1,19 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef __BPF_MISC_H__
++#define __BPF_MISC_H__
++
++#if defined(__TARGET_ARCH_x86)
++#define SYSCALL_WRAPPER 1
++#define SYS_PREFIX "__x64_"
++#elif defined(__TARGET_ARCH_s390)
++#define SYSCALL_WRAPPER 1
++#define SYS_PREFIX "__s390x_"
++#elif defined(__TARGET_ARCH_arm64)
++#define SYSCALL_WRAPPER 1
++#define SYS_PREFIX "__arm64_"
++#else
++#define SYSCALL_WRAPPER 0
++#define SYS_PREFIX ""
++#endif
++
++#endif
+diff --git a/tools/testing/selftests/bpf/progs/test_probe_user.c b/tools/testing/selftests/bpf/progs/test_probe_user.c
+index 8812a90da4eb..702578a5e496 100644
+--- a/tools/testing/selftests/bpf/progs/test_probe_user.c
++++ b/tools/testing/selftests/bpf/progs/test_probe_user.c
+@@ -7,20 +7,7 @@
  
- static int
--mpt3sas_check_same_4gb_region(long reply_pool_start_address, u32 pool_sz)
-+mpt3sas_check_same_4gb_region(dma_addr_t start_address, u32 pool_sz)
- {
--	long reply_pool_end_address;
-+	dma_addr_t end_address;
+ #include <bpf/bpf_helpers.h>
+ #include <bpf/bpf_tracing.h>
+-
+-#if defined(__TARGET_ARCH_x86)
+-#define SYSCALL_WRAPPER 1
+-#define SYS_PREFIX "__x64_"
+-#elif defined(__TARGET_ARCH_s390)
+-#define SYSCALL_WRAPPER 1
+-#define SYS_PREFIX "__s390x_"
+-#elif defined(__TARGET_ARCH_arm64)
+-#define SYSCALL_WRAPPER 1
+-#define SYS_PREFIX "__arm64_"
+-#else
+-#define SYSCALL_WRAPPER 0
+-#define SYS_PREFIX ""
+-#endif
++#include "bpf_misc.h"
  
--	reply_pool_end_address = reply_pool_start_address + pool_sz;
-+	end_address = start_address + pool_sz - 1;
+ static struct sockaddr_in old;
  
--	if (upper_32_bits(reply_pool_start_address) ==
--		upper_32_bits(reply_pool_end_address))
-+	if (upper_32_bits(start_address) == upper_32_bits(end_address))
- 		return 1;
- 	else
- 		return 0;
-@@ -5804,7 +5803,7 @@ _base_allocate_pcie_sgl_pool(struct MPT3SAS_ADAPTER *ioc, u32 sz)
- 		}
- 
- 		if (!mpt3sas_check_same_4gb_region(
--		    (long)ioc->pcie_sg_lookup[i].pcie_sgl, sz)) {
-+		    ioc->pcie_sg_lookup[i].pcie_sgl_dma, sz)) {
- 			ioc_err(ioc, "PCIE SGLs are not in same 4G !! pcie sgl (0x%p) dma = (0x%llx)\n",
- 			    ioc->pcie_sg_lookup[i].pcie_sgl,
- 			    (unsigned long long)
-@@ -5859,8 +5858,8 @@ _base_allocate_chain_dma_pool(struct MPT3SAS_ADAPTER *ioc, u32 sz)
- 			    GFP_KERNEL, &ctr->chain_buffer_dma);
- 			if (!ctr->chain_buffer)
- 				return -EAGAIN;
--			if (!mpt3sas_check_same_4gb_region((long)
--			    ctr->chain_buffer, ioc->chain_segment_sz)) {
-+			if (!mpt3sas_check_same_4gb_region(
-+			    ctr->chain_buffer_dma, ioc->chain_segment_sz)) {
- 				ioc_err(ioc,
- 				    "Chain buffers are not in same 4G !!! Chain buff (0x%p) dma = (0x%llx)\n",
- 				    ctr->chain_buffer,
-@@ -5896,7 +5895,7 @@ _base_allocate_sense_dma_pool(struct MPT3SAS_ADAPTER *ioc, u32 sz)
- 	    GFP_KERNEL, &ioc->sense_dma);
- 	if (!ioc->sense)
- 		return -EAGAIN;
--	if (!mpt3sas_check_same_4gb_region((long)ioc->sense, sz)) {
-+	if (!mpt3sas_check_same_4gb_region(ioc->sense_dma, sz)) {
- 		dinitprintk(ioc, pr_err(
- 		    "Bad Sense Pool! sense (0x%p) sense_dma = (0x%llx)\n",
- 		    ioc->sense, (unsigned long long) ioc->sense_dma));
-@@ -5929,7 +5928,7 @@ _base_allocate_reply_pool(struct MPT3SAS_ADAPTER *ioc, u32 sz)
- 	    &ioc->reply_dma);
- 	if (!ioc->reply)
- 		return -EAGAIN;
--	if (!mpt3sas_check_same_4gb_region((long)ioc->reply_free, sz)) {
-+	if (!mpt3sas_check_same_4gb_region(ioc->reply_dma, sz)) {
- 		dinitprintk(ioc, pr_err(
- 		    "Bad Reply Pool! Reply (0x%p) Reply dma = (0x%llx)\n",
- 		    ioc->reply, (unsigned long long) ioc->reply_dma));
-@@ -5964,7 +5963,7 @@ _base_allocate_reply_free_dma_pool(struct MPT3SAS_ADAPTER *ioc, u32 sz)
- 	    GFP_KERNEL, &ioc->reply_free_dma);
- 	if (!ioc->reply_free)
- 		return -EAGAIN;
--	if (!mpt3sas_check_same_4gb_region((long)ioc->reply_free, sz)) {
-+	if (!mpt3sas_check_same_4gb_region(ioc->reply_free_dma, sz)) {
- 		dinitprintk(ioc,
- 		    pr_err("Bad Reply Free Pool! Reply Free (0x%p) Reply Free dma = (0x%llx)\n",
- 		    ioc->reply_free, (unsigned long long) ioc->reply_free_dma));
-@@ -6003,7 +6002,7 @@ _base_allocate_reply_post_free_array(struct MPT3SAS_ADAPTER *ioc,
- 	    GFP_KERNEL, &ioc->reply_post_free_array_dma);
- 	if (!ioc->reply_post_free_array)
- 		return -EAGAIN;
--	if (!mpt3sas_check_same_4gb_region((long)ioc->reply_post_free_array,
-+	if (!mpt3sas_check_same_4gb_region(ioc->reply_post_free_array_dma,
- 	    reply_post_free_array_sz)) {
- 		dinitprintk(ioc, pr_err(
- 		    "Bad Reply Free Pool! Reply Free (0x%p) Reply Free dma = (0x%llx)\n",
-@@ -6068,7 +6067,7 @@ base_alloc_rdpq_dma_pool(struct MPT3SAS_ADAPTER *ioc, int sz)
- 			 * resources and set DMA mask to 32 and allocate.
- 			 */
- 			if (!mpt3sas_check_same_4gb_region(
--				(long)ioc->reply_post[i].reply_post_free, sz)) {
-+				ioc->reply_post[i].reply_post_free_dma, sz)) {
- 				dinitprintk(ioc,
- 				    ioc_err(ioc, "bad Replypost free pool(0x%p)"
- 				    "reply_post_free_dma = (0x%llx)\n",
 -- 
 2.34.1
 
