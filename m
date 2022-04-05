@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AFFAD4F2F4B
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:11:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 73B054F3296
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:59:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355450AbiDEKTv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:19:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54460 "EHLO
+        id S237600AbiDEImw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:42:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45998 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345182AbiDEJWU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:22:20 -0400
+        with ESMTP id S240836AbiDEIcf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:32:35 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BC422A705;
-        Tue,  5 Apr 2022 02:09:29 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DE6789332;
+        Tue,  5 Apr 2022 01:25:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 46CC361576;
-        Tue,  5 Apr 2022 09:09:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57194C385A2;
-        Tue,  5 Apr 2022 09:09:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 719E560FFC;
+        Tue,  5 Apr 2022 08:25:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7741BC385A1;
+        Tue,  5 Apr 2022 08:25:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149768;
-        bh=ptLm1CuAHPAby5gzcyPilmATb+VXBfPZiFpNkxN4WFw=;
+        s=korg; t=1649147104;
+        bh=9FEs9vOrkJJDlurXarSttw8Ls20U/XrgNh9nEfnRwf0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cxCSNsGmcnkaXlV+R1IlU3RZEG28t0W611oGfBTEQyXoapoyIL9LJa9yTDSbx1Cur
-         dydAtfp6e1BjYxZxE/JmUSaTfGsV4s9OPzYQGD1aYbGOA0plxhC9V8jOfwhqlZp+tV
-         r2BLh6XB7CJI/S+/IAD+zSSZRXf5sXkenutBXzNg=
+        b=0U/WivuRd0c3y6ctwC54j00BdJHz73+kgN0tVtEhHoY4G5DCzU6K0HJR5RaGW7Y03
+         L0w+JrVg88ntvNsCCLqFEv1vhG07GKwpuQ0nOfl3a+lS8ue7sbFhlBDO1nwGip0QAi
+         dMpiI8lETVeQnRrF8DLGUgxj6rYAzFqn0Y3tpPvY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0797/1017] btrfs: do not double complete bio on errors during compressed reads
-Date:   Tue,  5 Apr 2022 09:28:30 +0200
-Message-Id: <20220405070417.908377432@linuxfoundation.org>
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Anders Roxell <anders.roxell@linaro.org>,
+        Segher Boessenkool <segher@kernel.crashing.org>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.17 0965/1126] powerpc: Fix build errors with newer binutils
+Date:   Tue,  5 Apr 2022 09:28:32 +0200
+Message-Id: <20220405070435.832266457@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,130 +55,164 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Anders Roxell <anders.roxell@linaro.org>
 
-[ Upstream commit f9f15de85d74e7eef021af059ca53a15f041cdd8 ]
+commit 8667d0d64dd1f84fd41b5897fd87fa9113ae05e3 upstream.
 
-I hit some weird panics while fixing up the error handling from
-btrfs_lookup_bio_sums().  Turns out the compression path will complete
-the bio we use if we set up any of the compression bios and then return
-an error, and then btrfs_submit_data_bio() will also call bio_endio() on
-the bio.
+Building tinyconfig with gcc (Debian 11.2.0-16) and assembler (Debian
+2.37.90.20220207) the following build error shows up:
 
-Fix this by making btrfs_submit_compressed_read() responsible for
-calling bio_endio() on the bio if there are any errors.  Currently it
-was only doing it if we created the compression bios, otherwise it was
-depending on btrfs_submit_data_bio() to do the right thing.  This
-creates the above problem, so fix up btrfs_submit_compressed_read() to
-always call bio_endio() in case of an error, and then simply return from
-btrfs_submit_data_bio() if we had to call
-btrfs_submit_compressed_read().
+  {standard input}: Assembler messages:
+  {standard input}:1190: Error: unrecognized opcode: `stbcix'
+  {standard input}:1433: Error: unrecognized opcode: `lwzcix'
+  {standard input}:1453: Error: unrecognized opcode: `stbcix'
+  {standard input}:1460: Error: unrecognized opcode: `stwcix'
+  {standard input}:1596: Error: unrecognized opcode: `stbcix'
+  ...
 
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Rework to add assembler directives [1] around the instruction. Going
+through them one by one shows that the changes should be safe.  Like
+__get_user_atomic_128_aligned() is only called in p9_hmi_special_emu(),
+which according to the name is specific to power9.  And __raw_rm_read*()
+are only called in things that are powernv or book3s_hv specific.
+
+[1] https://sourceware.org/binutils/docs/as/PowerPC_002dPseudo.html#PowerPC_002dPseudo
+
+Cc: stable@vger.kernel.org
+Co-developed-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
+Reviewed-by: Segher Boessenkool <segher@kernel.crashing.org>
+[mpe: Make commit subject more descriptive]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220224162215.3406642-2-anders.roxell@linaro.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/compression.c | 20 ++++++++++++++------
- fs/btrfs/inode.c       |  8 +++++++-
- 2 files changed, 21 insertions(+), 7 deletions(-)
+ arch/powerpc/include/asm/io.h        |   40 ++++++++++++++++++++++++++++-------
+ arch/powerpc/include/asm/uaccess.h   |    3 ++
+ arch/powerpc/platforms/powernv/rng.c |    6 ++++-
+ 3 files changed, 40 insertions(+), 9 deletions(-)
 
-diff --git a/fs/btrfs/compression.c b/fs/btrfs/compression.c
-index 32da97c3c19d..66d6a414b2ca 100644
---- a/fs/btrfs/compression.c
-+++ b/fs/btrfs/compression.c
-@@ -807,7 +807,7 @@ blk_status_t btrfs_submit_compressed_read(struct inode *inode, struct bio *bio,
- 	u64 em_len;
- 	u64 em_start;
- 	struct extent_map *em;
--	blk_status_t ret = BLK_STS_RESOURCE;
-+	blk_status_t ret;
- 	int faili = 0;
- 	u8 *sums;
- 
-@@ -820,14 +820,18 @@ blk_status_t btrfs_submit_compressed_read(struct inode *inode, struct bio *bio,
- 	read_lock(&em_tree->lock);
- 	em = lookup_extent_mapping(em_tree, file_offset, fs_info->sectorsize);
- 	read_unlock(&em_tree->lock);
--	if (!em)
--		return BLK_STS_IOERR;
-+	if (!em) {
-+		ret = BLK_STS_IOERR;
-+		goto out;
-+	}
- 
- 	ASSERT(em->compress_type != BTRFS_COMPRESS_NONE);
- 	compressed_len = em->block_len;
- 	cb = kmalloc(compressed_bio_size(fs_info, compressed_len), GFP_NOFS);
--	if (!cb)
-+	if (!cb) {
-+		ret = BLK_STS_RESOURCE;
- 		goto out;
-+	}
- 
- 	refcount_set(&cb->pending_sectors, compressed_len >> fs_info->sectorsize_bits);
- 	cb->errors = 0;
-@@ -850,8 +854,10 @@ blk_status_t btrfs_submit_compressed_read(struct inode *inode, struct bio *bio,
- 	nr_pages = DIV_ROUND_UP(compressed_len, PAGE_SIZE);
- 	cb->compressed_pages = kcalloc(nr_pages, sizeof(struct page *),
- 				       GFP_NOFS);
--	if (!cb->compressed_pages)
-+	if (!cb->compressed_pages) {
-+		ret = BLK_STS_RESOURCE;
- 		goto fail1;
-+	}
- 
- 	for (pg_index = 0; pg_index < nr_pages; pg_index++) {
- 		cb->compressed_pages[pg_index] = alloc_page(GFP_NOFS);
-@@ -937,7 +943,7 @@ blk_status_t btrfs_submit_compressed_read(struct inode *inode, struct bio *bio,
- 			comp_bio = NULL;
- 		}
- 	}
--	return 0;
-+	return BLK_STS_OK;
- 
- fail2:
- 	while (faili >= 0) {
-@@ -950,6 +956,8 @@ blk_status_t btrfs_submit_compressed_read(struct inode *inode, struct bio *bio,
- 	kfree(cb);
- out:
- 	free_extent_map(em);
-+	bio->bi_status = ret;
-+	bio_endio(bio);
- 	return ret;
- finish_cb:
- 	if (comp_bio) {
-diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
-index cc957cce23a1..68f5a94c82b7 100644
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -2536,10 +2536,15 @@ blk_status_t btrfs_submit_data_bio(struct inode *inode, struct bio *bio,
- 			goto out;
- 
- 		if (bio_flags & EXTENT_BIO_COMPRESSED) {
-+			/*
-+			 * btrfs_submit_compressed_read will handle completing
-+			 * the bio if there were any errors, so just return
-+			 * here.
-+			 */
- 			ret = btrfs_submit_compressed_read(inode, bio,
- 							   mirror_num,
- 							   bio_flags);
--			goto out;
-+			goto out_no_endio;
- 		} else {
- 			/*
- 			 * Lookup bio sums does extra checks around whether we
-@@ -2573,6 +2578,7 @@ blk_status_t btrfs_submit_data_bio(struct inode *inode, struct bio *bio,
- 		bio->bi_status = ret;
- 		bio_endio(bio);
- 	}
-+out_no_endio:
- 	return ret;
+--- a/arch/powerpc/include/asm/io.h
++++ b/arch/powerpc/include/asm/io.h
+@@ -359,25 +359,37 @@ static inline void __raw_writeq_be(unsig
+  */
+ static inline void __raw_rm_writeb(u8 val, volatile void __iomem *paddr)
+ {
+-	__asm__ __volatile__("stbcix %0,0,%1"
++	__asm__ __volatile__(".machine push;   \
++			      .machine power6; \
++			      stbcix %0,0,%1;  \
++			      .machine pop;"
+ 		: : "r" (val), "r" (paddr) : "memory");
  }
  
--- 
-2.34.1
-
+ static inline void __raw_rm_writew(u16 val, volatile void __iomem *paddr)
+ {
+-	__asm__ __volatile__("sthcix %0,0,%1"
++	__asm__ __volatile__(".machine push;   \
++			      .machine power6; \
++			      sthcix %0,0,%1;  \
++			      .machine pop;"
+ 		: : "r" (val), "r" (paddr) : "memory");
+ }
+ 
+ static inline void __raw_rm_writel(u32 val, volatile void __iomem *paddr)
+ {
+-	__asm__ __volatile__("stwcix %0,0,%1"
++	__asm__ __volatile__(".machine push;   \
++			      .machine power6; \
++			      stwcix %0,0,%1;  \
++			      .machine pop;"
+ 		: : "r" (val), "r" (paddr) : "memory");
+ }
+ 
+ static inline void __raw_rm_writeq(u64 val, volatile void __iomem *paddr)
+ {
+-	__asm__ __volatile__("stdcix %0,0,%1"
++	__asm__ __volatile__(".machine push;   \
++			      .machine power6; \
++			      stdcix %0,0,%1;  \
++			      .machine pop;"
+ 		: : "r" (val), "r" (paddr) : "memory");
+ }
+ 
+@@ -389,7 +401,10 @@ static inline void __raw_rm_writeq_be(u6
+ static inline u8 __raw_rm_readb(volatile void __iomem *paddr)
+ {
+ 	u8 ret;
+-	__asm__ __volatile__("lbzcix %0,0, %1"
++	__asm__ __volatile__(".machine push;   \
++			      .machine power6; \
++			      lbzcix %0,0, %1; \
++			      .machine pop;"
+ 			     : "=r" (ret) : "r" (paddr) : "memory");
+ 	return ret;
+ }
+@@ -397,7 +412,10 @@ static inline u8 __raw_rm_readb(volatile
+ static inline u16 __raw_rm_readw(volatile void __iomem *paddr)
+ {
+ 	u16 ret;
+-	__asm__ __volatile__("lhzcix %0,0, %1"
++	__asm__ __volatile__(".machine push;   \
++			      .machine power6; \
++			      lhzcix %0,0, %1; \
++			      .machine pop;"
+ 			     : "=r" (ret) : "r" (paddr) : "memory");
+ 	return ret;
+ }
+@@ -405,7 +423,10 @@ static inline u16 __raw_rm_readw(volatil
+ static inline u32 __raw_rm_readl(volatile void __iomem *paddr)
+ {
+ 	u32 ret;
+-	__asm__ __volatile__("lwzcix %0,0, %1"
++	__asm__ __volatile__(".machine push;   \
++			      .machine power6; \
++			      lwzcix %0,0, %1; \
++			      .machine pop;"
+ 			     : "=r" (ret) : "r" (paddr) : "memory");
+ 	return ret;
+ }
+@@ -413,7 +434,10 @@ static inline u32 __raw_rm_readl(volatil
+ static inline u64 __raw_rm_readq(volatile void __iomem *paddr)
+ {
+ 	u64 ret;
+-	__asm__ __volatile__("ldcix %0,0, %1"
++	__asm__ __volatile__(".machine push;   \
++			      .machine power6; \
++			      ldcix %0,0, %1;  \
++			      .machine pop;"
+ 			     : "=r" (ret) : "r" (paddr) : "memory");
+ 	return ret;
+ }
+--- a/arch/powerpc/include/asm/uaccess.h
++++ b/arch/powerpc/include/asm/uaccess.h
+@@ -125,8 +125,11 @@ do {								\
+  */
+ #define __get_user_atomic_128_aligned(kaddr, uaddr, err)		\
+ 	__asm__ __volatile__(				\
++		".machine push\n"			\
++		".machine altivec\n"			\
+ 		"1:	lvx  0,0,%1	# get user\n"	\
+ 		" 	stvx 0,0,%2	# put kernel\n"	\
++		".machine pop\n"			\
+ 		"2:\n"					\
+ 		".section .fixup,\"ax\"\n"		\
+ 		"3:	li %0,%3\n"			\
+--- a/arch/powerpc/platforms/powernv/rng.c
++++ b/arch/powerpc/platforms/powernv/rng.c
+@@ -43,7 +43,11 @@ static unsigned long rng_whiten(struct p
+ 	unsigned long parity;
+ 
+ 	/* Calculate the parity of the value */
+-	asm ("popcntd %0,%1" : "=r" (parity) : "r" (val));
++	asm (".machine push;   \
++	      .machine power7; \
++	      popcntd %0,%1;   \
++	      .machine pop;"
++	     : "=r" (parity) : "r" (val));
+ 
+ 	/* xor our value with the previous mask */
+ 	val ^= rng->mask;
 
 
