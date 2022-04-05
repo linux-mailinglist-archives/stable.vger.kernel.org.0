@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 04DCB4F3396
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:21:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A24C64F3258
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:56:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242528AbiDEJh0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:37:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35176 "EHLO
+        id S241984AbiDEIgQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:36:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34720 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235839AbiDEJCo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:02:44 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A82382D1C6;
-        Tue,  5 Apr 2022 01:54:28 -0700 (PDT)
+        with ESMTP id S239318AbiDEIT6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:19:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF5C382D07;
+        Tue,  5 Apr 2022 01:11:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 199EECE1C71;
-        Tue,  5 Apr 2022 08:54:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27F72C385A1;
-        Tue,  5 Apr 2022 08:54:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5E4F5609AD;
+        Tue,  5 Apr 2022 08:11:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 697ABC385A1;
+        Tue,  5 Apr 2022 08:11:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148865;
-        bh=b9CmBkPoTzeTLTQ03P0MF8/xi7jAsA2piHfG702kMsQ=;
+        s=korg; t=1649146263;
+        bh=VS76bT+X+G8by7uHjwM4STzGKCQS21k7e4HRKUp3dr8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PxepK3VUIEXKD51A8Xh2lMK10Q6ZJRoLe3AoPZqRbnSEBwFg8etZMCkGvQFbJ8a3T
-         mjyTb7bUBbpVPeIH3q2lbhrxKMqXTjEubq4WlZHblQSZv0iEfamjiT1oYN1o443KRB
-         aGa6GN+FrzESGy57zBpKgM33rrvqE1gTAndq+BDE=
+        b=ee6hG/ajFHaHSC/YrHMMLb9V/0LddQkCAPP/7cLoWThs/7CuF3qQnefFLawkV3cqD
+         xE7Z64fveRva845Y9D/0Xjg4hI3o1okrJpGVd+fXB3Ah88aeKBScn1dvu6sdt3Ir49
+         CM1wzXtH7A81EvXRUgmUI42W1/TtZXEdNJO0gxtk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Geliang Tang <geliang.tang@suse.com>,
-        Mat Martineau <mathew.j.martineau@linux.intel.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0507/1017] selftests: mptcp: add csum mib check for mptcp_connect
-Date:   Tue,  5 Apr 2022 09:23:40 +0200
-Message-Id: <20220405070409.349902133@linuxfoundation.org>
+        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 0674/1126] mt76: mt7921: fix mt7921_queues_acq implementation
+Date:   Tue,  5 Apr 2022 09:23:41 +0200
+Message-Id: <20220405070427.408600610@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,70 +53,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geliang Tang <geliang.tang@suse.com>
+From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-[ Upstream commit 24720d7452df2dff2e539d9dff28904e25bb1c6d ]
+[ Upstream commit 849ee6ac9dd3efd0a57cbc98b9a9d6ae87374aff ]
 
-This patch added the data checksum error mib counters check for the
-script mptcp_connect.sh when the data checksum is enabled.
+Fix mt7921_queues_acq implementation according to the vendor sdk.
 
-In do_transfer(), got the mib counters twice, before and after running
-the mptcp_connect commands. The latter minus the former is the actual
-number of the data checksum mib counter.
-
-The output looks like this:
-
-ns1 MPTCP -> ns2 (dead:beef:1::2:10007) MPTCP   (duration    86ms) [ OK ]
-ns1 MPTCP -> ns2 (10.0.2.1:10008      ) MPTCP   (duration    66ms) [ FAIL ]
-server got 1 data checksum error[s]
-
-Fixes: 94d66ba1d8e48 ("selftests: mptcp: enable checksum in mptcp_connect.sh")
-Closes: https://github.com/multipath-tcp/mptcp_net-next/issues/255
-Signed-off-by: Geliang Tang <geliang.tang@suse.com>
-Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 474a9f21e2e20 ("mt76: mt7921: add debugfs support")
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../selftests/net/mptcp/mptcp_connect.sh      | 19 +++++++++++++++++++
- 1 file changed, 19 insertions(+)
+ drivers/net/wireless/mediatek/mt76/mt7921/debugfs.c | 13 ++++++-------
+ drivers/net/wireless/mediatek/mt76/mt7921/regs.h    | 11 +++++------
+ 2 files changed, 11 insertions(+), 13 deletions(-)
 
-diff --git a/tools/testing/selftests/net/mptcp/mptcp_connect.sh b/tools/testing/selftests/net/mptcp/mptcp_connect.sh
-index 559173a8e387..d75fa97609c1 100755
---- a/tools/testing/selftests/net/mptcp/mptcp_connect.sh
-+++ b/tools/testing/selftests/net/mptcp/mptcp_connect.sh
-@@ -445,6 +445,8 @@ do_transfer()
- 	local stat_ackrx_last_l=$(get_mib_counter "${listener_ns}" "MPTcpExtMPCapableACKRX")
- 	local stat_cookietx_last=$(get_mib_counter "${listener_ns}" "TcpExtSyncookiesSent")
- 	local stat_cookierx_last=$(get_mib_counter "${listener_ns}" "TcpExtSyncookiesRecv")
-+	local stat_csum_err_s=$(get_mib_counter "${listener_ns}" "MPTcpExtDataCsumErr")
-+	local stat_csum_err_c=$(get_mib_counter "${connector_ns}" "MPTcpExtDataCsumErr")
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/debugfs.c b/drivers/net/wireless/mediatek/mt76/mt7921/debugfs.c
+index 45a393070e46..196b50e616fe 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7921/debugfs.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7921/debugfs.c
+@@ -129,23 +129,22 @@ mt7921_queues_acq(struct seq_file *s, void *data)
  
- 	timeout ${timeout_test} \
- 		ip netns exec ${listener_ns} \
-@@ -537,6 +539,23 @@ do_transfer()
- 		fi
- 	fi
+ 	mt7921_mutex_acquire(dev);
  
-+	if $checksum; then
-+		local csum_err_s=$(get_mib_counter "${listener_ns}" "MPTcpExtDataCsumErr")
-+		local csum_err_c=$(get_mib_counter "${connector_ns}" "MPTcpExtDataCsumErr")
-+
-+		local csum_err_s_nr=$((csum_err_s - stat_csum_err_s))
-+		if [ $csum_err_s_nr -gt 0 ]; then
-+			printf "[ FAIL ]\nserver got $csum_err_s_nr data checksum error[s]"
-+			rets=1
-+		fi
-+
-+		local csum_err_c_nr=$((csum_err_c - stat_csum_err_c))
-+		if [ $csum_err_c_nr -gt 0 ]; then
-+			printf "[ FAIL ]\nclient got $csum_err_c_nr data checksum error[s]"
-+			retc=1
-+		fi
-+	fi
-+
- 	if [ $retc -eq 0 ] && [ $rets -eq 0 ]; then
- 		printf "[ OK ]"
- 	fi
+-	for (i = 0; i < 16; i++) {
+-		int j, acs = i / 4, index = i % 4;
++	for (i = 0; i < 4; i++) {
+ 		u32 ctrl, val, qlen = 0;
++		int j;
+ 
+-		val = mt76_rr(dev, MT_PLE_AC_QEMPTY(acs, index));
+-		ctrl = BIT(31) | BIT(15) | (acs << 8);
++		val = mt76_rr(dev, MT_PLE_AC_QEMPTY(i));
++		ctrl = BIT(31) | BIT(11) | (i << 24);
+ 
+ 		for (j = 0; j < 32; j++) {
+ 			if (val & BIT(j))
+ 				continue;
+ 
+-			mt76_wr(dev, MT_PLE_FL_Q0_CTRL,
+-				ctrl | (j + (index << 5)));
++			mt76_wr(dev, MT_PLE_FL_Q0_CTRL, ctrl | j);
+ 			qlen += mt76_get_field(dev, MT_PLE_FL_Q3_CTRL,
+ 					       GENMASK(11, 0));
+ 		}
+-		seq_printf(s, "AC%d%d: queued=%d\n", acs, index, qlen);
++		seq_printf(s, "AC%d: queued=%d\n", i, qlen);
+ 	}
+ 
+ 	mt7921_mutex_release(dev);
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/regs.h b/drivers/net/wireless/mediatek/mt76/mt7921/regs.h
+index cbd38122c510..c8c92faa4624 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7921/regs.h
++++ b/drivers/net/wireless/mediatek/mt76/mt7921/regs.h
+@@ -17,13 +17,12 @@
+ #define MT_PLE_BASE			0x820c0000
+ #define MT_PLE(ofs)			(MT_PLE_BASE + (ofs))
+ 
+-#define MT_PLE_FL_Q0_CTRL		MT_PLE(0x1b0)
+-#define MT_PLE_FL_Q1_CTRL		MT_PLE(0x1b4)
+-#define MT_PLE_FL_Q2_CTRL		MT_PLE(0x1b8)
+-#define MT_PLE_FL_Q3_CTRL		MT_PLE(0x1bc)
++#define MT_PLE_FL_Q0_CTRL		MT_PLE(0x3e0)
++#define MT_PLE_FL_Q1_CTRL		MT_PLE(0x3e4)
++#define MT_PLE_FL_Q2_CTRL		MT_PLE(0x3e8)
++#define MT_PLE_FL_Q3_CTRL		MT_PLE(0x3ec)
+ 
+-#define MT_PLE_AC_QEMPTY(ac, n)		MT_PLE(0x300 + 0x10 * (ac) + \
+-					       ((n) << 2))
++#define MT_PLE_AC_QEMPTY(_n)		MT_PLE(0x500 + 0x40 * (_n))
+ #define MT_PLE_AMSDU_PACK_MSDU_CNT(n)	MT_PLE(0x10e0 + ((n) << 2))
+ 
+ #define MT_MDP_BASE			0x820cd000
 -- 
 2.34.1
 
