@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 61FE74F2F7D
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:16:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9BB04F3448
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:26:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349368AbiDEKul (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:50:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50102 "EHLO
+        id S1347898AbiDEJ2k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:28:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52254 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345089AbiDEJnA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:43:00 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0A0F559B;
-        Tue,  5 Apr 2022 02:28:30 -0700 (PDT)
+        with ESMTP id S244972AbiDEIww (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EEC31CB36;
+        Tue,  5 Apr 2022 01:48:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5FCA8B81C9A;
-        Tue,  5 Apr 2022 09:28:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5AA3C385A0;
-        Tue,  5 Apr 2022 09:28:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BFBE8614F9;
+        Tue,  5 Apr 2022 08:48:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5829C385A1;
+        Tue,  5 Apr 2022 08:48:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150908;
-        bh=oRLN2IlqOxkWoTJkzS7xdz28eTe0nNxu9oZttJFSR0E=;
+        s=korg; t=1649148493;
+        bh=ybT7+5zSo63r+ZXukOXUPT5DtGFQtgkMrq0vaM9uPB4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bQf0bH251KXBnM3lGYAkkkOJBLNfyP+swpgH/Juqn3RD002x4I3P8e8F2uI/ZwXJ7
-         l7fkbPrE0HJtOaodF3da4zqKAv4I+v/4xiSzJtPeNzkQLg8tz75MAiH+mbQGCXaD0K
-         kuPBa10qcRiZvQD0ZbBS4LpvyH4AHQ+ZyqNcv5do=
+        b=SCHNsgEzW0rdJINgNA75TiOr1LxjRvhUlpLPdXGm6s8QIq83lpnwFcVNpK9gFO6zp
+         ES7JTETSx6NrzN8niwYgynyfpy2aGKDYSkcaaJsZXuEwDBLis4qVUFz20ooWWt5ZR5
+         o31pAA6yACVc2xP5UcBI0TCr5zVPJqnkAtPF55co=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Corentin Labbe <clabbe@baylibre.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 225/913] crypto: amlogic - call finalize with bh disabled
+Subject: [PATCH 5.16 0374/1017] ASoC: fsi: Add check for clk_enable
 Date:   Tue,  5 Apr 2022 09:21:27 +0200
-Message-Id: <20220405070346.602117142@linuxfoundation.org>
+Message-Id: <20220405070405.388075877@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,35 +54,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corentin Labbe <clabbe@baylibre.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit dba633342994ce47d347bcf5522ba28301247b79 ]
+[ Upstream commit 405afed8a728f23cfaa02f75bbc8bdd6b7322123 ]
 
-Doing ipsec produces a spinlock recursion warning.
-This is due to not disabling BH during crypto completion function.
+As the potential failure of the clk_enable(),
+it should be better to check it and return error
+if fails.
 
-Fixes: 48fe583fe541 ("crypto: amlogic - Add crypto accelerator for amlogic GXL")
-Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: ab6f6d85210c ("ASoC: fsi: add master clock control functions")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Link: https://lore.kernel.org/r/20220302062844.46869-1-jiasheng@iscas.ac.cn
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/amlogic/amlogic-gxl-cipher.c | 2 ++
- 1 file changed, 2 insertions(+)
+ sound/soc/sh/fsi.c | 19 ++++++++++++++++---
+ 1 file changed, 16 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/crypto/amlogic/amlogic-gxl-cipher.c b/drivers/crypto/amlogic/amlogic-gxl-cipher.c
-index c6865cbd334b..e79514fce731 100644
---- a/drivers/crypto/amlogic/amlogic-gxl-cipher.c
-+++ b/drivers/crypto/amlogic/amlogic-gxl-cipher.c
-@@ -265,7 +265,9 @@ static int meson_handle_cipher_request(struct crypto_engine *engine,
- 	struct skcipher_request *breq = container_of(areq, struct skcipher_request, base);
+diff --git a/sound/soc/sh/fsi.c b/sound/soc/sh/fsi.c
+index cdf3b7f69ba7..e9a1eb6bdf66 100644
+--- a/sound/soc/sh/fsi.c
++++ b/sound/soc/sh/fsi.c
+@@ -816,14 +816,27 @@ static int fsi_clk_enable(struct device *dev,
+ 			return ret;
+ 		}
  
- 	err = meson_cipher(breq);
-+	local_bh_disable();
- 	crypto_finalize_skcipher_request(engine, breq, err);
-+	local_bh_enable();
+-		clk_enable(clock->xck);
+-		clk_enable(clock->ick);
+-		clk_enable(clock->div);
++		ret = clk_enable(clock->xck);
++		if (ret)
++			goto err;
++		ret = clk_enable(clock->ick);
++		if (ret)
++			goto disable_xck;
++		ret = clk_enable(clock->div);
++		if (ret)
++			goto disable_ick;
  
- 	return 0;
+ 		clock->count++;
+ 	}
+ 
+ 	return ret;
++
++disable_ick:
++	clk_disable(clock->ick);
++disable_xck:
++	clk_disable(clock->xck);
++err:
++	return ret;
  }
+ 
+ static int fsi_clk_disable(struct device *dev,
 -- 
 2.34.1
 
