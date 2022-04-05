@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CAEE4F3054
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:27:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 538D84F2F03
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:05:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235564AbiDEIkA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:40:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57822 "EHLO
+        id S1350688AbiDEJ71 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:59:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34674 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234734AbiDEI0N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:26:13 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67FC713D4E;
-        Tue,  5 Apr 2022 01:20:48 -0700 (PDT)
+        with ESMTP id S1344202AbiDEJSi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:18:38 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 387A548E55;
+        Tue,  5 Apr 2022 02:05:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C7E0A60B12;
-        Tue,  5 Apr 2022 08:20:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9B9AC385A1;
-        Tue,  5 Apr 2022 08:20:46 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 99E16CE1BF8;
+        Tue,  5 Apr 2022 09:05:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B00AFC385A1;
+        Tue,  5 Apr 2022 09:05:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146847;
-        bh=nnKz3CwlhnOgLRD0/OFJQpvEXwYz99+Bei9Evrp6ydk=;
+        s=korg; t=1649149522;
+        bh=nRRBq/Jik1ej734zd5EJafMlkLa2+n+e12Jve3Y5fDU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xRbPQKrIv2igVcISne/dY0eW3MALoVZQjpz/eqmKRApE3K7eOprQv7lAatyemq6p8
-         Jmd6A6BDiui+V3s6azNhwDT4AODmVoHCwAVMQsanXz8/wbHby+YsVZFw8DW8uUgvc+
-         zkSkKxgynWViOb9J33uh+fwIB0afZ+eirPNn9tGs=
+        b=FfH0tEjNkU6gt8cn5rkxjGs8jvPuVTuS7wYQLUM2iNuY30ngftsCe1s0Gu6E7iXnx
+         Vo9Ub8bG6VX0vQlO7iJ6LrPEowuh6Z4vMSZRdvg9OfY/J6+7FhmV/psL4zQoIqYoEy
+         dqRTPGE3bTkGHp+8fHjaAJAuouQoUwstrDS1Y8fE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        stable@vger.kernel.org, Paul Blakey <paulb@mellanox.com>,
+        dev@openvswitch.org, Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0909/1126] media: atomisp_gmin_platform: Add DMI quirk to not turn AXP ELDO2 regulator off on some boards
-Date:   Tue,  5 Apr 2022 09:27:36 +0200
-Message-Id: <20220405070434.208156230@linuxfoundation.org>
+Subject: [PATCH 5.16 0744/1017] net: prefer nf_ct_put instead of nf_conntrack_put
+Date:   Tue,  5 Apr 2022 09:27:37 +0200
+Message-Id: <20220405070416.347264359@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,65 +55,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit 2c39a01154ea57d596470afa1d278e3be3b37f6a ]
+[ Upstream commit 408bdcfce8dfd6902f75fbcd3b99d8b24b506597 ]
 
-The TrekStor SurfTab duo W1 10.1 has a hw bug where turning eldo2 back on
-after having turned it off causes the CPLM3218 ambient-light-sensor on
-the front camera sensor's I2C bus to crash, hanging the bus.
+Its the same as nf_conntrack_put(), but without the
+need for an indirect call.  The downside is a module dependency on
+nf_conntrack, but all of these already depend on conntrack anyway.
 
-Add a DMI quirk table for systems on which to leave eldo2 on.
-
-Note an alternative fix is to turn off the CPLM3218 ambient-light-sensor
-as long as the camera sensor is being used, this is what Windows seems
-to do as a workaround (based on analyzing the DSDT). But that is not
-easy to do cleanly under Linux.
-
-Link: https://lore.kernel.org/linux-media/20220116215204.307649-10-hdegoede@redhat.com
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Cc: Paul Blakey <paulb@mellanox.com>
+Cc: dev@openvswitch.org
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../media/atomisp/pci/atomisp_gmin_platform.c  | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ net/netfilter/nf_conntrack_core.c |  4 ++--
+ net/openvswitch/conntrack.c       | 14 ++++++++++----
+ net/sched/act_ct.c                |  6 +++---
+ 3 files changed, 15 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/staging/media/atomisp/pci/atomisp_gmin_platform.c b/drivers/staging/media/atomisp/pci/atomisp_gmin_platform.c
-index 1cc581074ba7..9a194fbb305b 100644
---- a/drivers/staging/media/atomisp/pci/atomisp_gmin_platform.c
-+++ b/drivers/staging/media/atomisp/pci/atomisp_gmin_platform.c
-@@ -748,6 +748,21 @@ static int axp_regulator_set(struct device *dev, struct gmin_subdev *gs,
- 	return 0;
+diff --git a/net/netfilter/nf_conntrack_core.c b/net/netfilter/nf_conntrack_core.c
+index 7f7997460764..917e708a4561 100644
+--- a/net/netfilter/nf_conntrack_core.c
++++ b/net/netfilter/nf_conntrack_core.c
+@@ -989,7 +989,7 @@ static int __nf_ct_resolve_clash(struct sk_buff *skb,
+ 
+ 		nf_ct_acct_merge(ct, ctinfo, loser_ct);
+ 		nf_ct_add_to_dying_list(loser_ct);
+-		nf_conntrack_put(&loser_ct->ct_general);
++		nf_ct_put(loser_ct);
+ 		nf_ct_set(skb, ct, ctinfo);
+ 
+ 		NF_CT_STAT_INC(net, clash_resolve);
+@@ -1920,7 +1920,7 @@ nf_conntrack_in(struct sk_buff *skb, const struct nf_hook_state *state)
+ 		/* Invalid: inverse of the return code tells
+ 		 * the netfilter core what to do */
+ 		pr_debug("nf_conntrack_in: Can't track with proto module\n");
+-		nf_conntrack_put(&ct->ct_general);
++		nf_ct_put(ct);
+ 		skb->_nfct = 0;
+ 		/* Special case: TCP tracker reports an attempt to reopen a
+ 		 * closed/aborted connection. We have to go back and create a
+diff --git a/net/openvswitch/conntrack.c b/net/openvswitch/conntrack.c
+index 8f47f4e78d32..f2b64cab9af7 100644
+--- a/net/openvswitch/conntrack.c
++++ b/net/openvswitch/conntrack.c
+@@ -574,7 +574,7 @@ ovs_ct_expect_find(struct net *net, const struct nf_conntrack_zone *zone,
+ 			struct nf_conn *ct = nf_ct_tuplehash_to_ctrack(h);
+ 
+ 			nf_ct_delete(ct, 0, 0);
+-			nf_conntrack_put(&ct->ct_general);
++			nf_ct_put(ct);
+ 		}
+ 	}
+ 
+@@ -723,7 +723,7 @@ static bool skb_nfct_cached(struct net *net,
+ 		if (nf_ct_is_confirmed(ct))
+ 			nf_ct_delete(ct, 0, 0);
+ 
+-		nf_conntrack_put(&ct->ct_general);
++		nf_ct_put(ct);
+ 		nf_ct_set(skb, NULL, 0);
+ 		return false;
+ 	}
+@@ -967,7 +967,8 @@ static int __ovs_ct_lookup(struct net *net, struct sw_flow_key *key,
+ 
+ 		/* Associate skb with specified zone. */
+ 		if (tmpl) {
+-			nf_conntrack_put(skb_nfct(skb));
++			ct = nf_ct_get(skb, &ctinfo);
++			nf_ct_put(ct);
+ 			nf_conntrack_get(&tmpl->ct_general);
+ 			nf_ct_set(skb, tmpl, IP_CT_NEW);
+ 		}
+@@ -1328,7 +1329,12 @@ int ovs_ct_execute(struct net *net, struct sk_buff *skb,
+ 
+ int ovs_ct_clear(struct sk_buff *skb, struct sw_flow_key *key)
+ {
+-	nf_conntrack_put(skb_nfct(skb));
++	enum ip_conntrack_info ctinfo;
++	struct nf_conn *ct;
++
++	ct = nf_ct_get(skb, &ctinfo);
++
++	nf_ct_put(ct);
+ 	nf_ct_set(skb, NULL, IP_CT_UNTRACKED);
+ 	ovs_ct_fill_key(skb, key, false);
+ 
+diff --git a/net/sched/act_ct.c b/net/sched/act_ct.c
+index 4ffea1290ce1..240b3c5d2eb1 100644
+--- a/net/sched/act_ct.c
++++ b/net/sched/act_ct.c
+@@ -592,7 +592,7 @@ static bool tcf_ct_skb_nfct_cached(struct net *net, struct sk_buff *skb,
+ 		if (nf_ct_is_confirmed(ct))
+ 			nf_ct_kill(ct);
+ 
+-		nf_conntrack_put(&ct->ct_general);
++		nf_ct_put(ct);
+ 		nf_ct_set(skb, NULL, IP_CT_UNTRACKED);
+ 
+ 		return false;
+@@ -757,7 +757,7 @@ static void tcf_ct_params_free(struct rcu_head *head)
+ 	tcf_ct_flow_table_put(params);
+ 
+ 	if (params->tmpl)
+-		nf_conntrack_put(&params->tmpl->ct_general);
++		nf_ct_put(params->tmpl);
+ 	kfree(params);
  }
  
-+/*
-+ * Some boards contain a hw-bug where turning eldo2 back on after having turned
-+ * it off causes the CPLM3218 ambient-light-sensor on the image-sensor's I2C bus
-+ * to crash, hanging the bus. Do not turn eldo2 off on these systems.
-+ */
-+static const struct dmi_system_id axp_leave_eldo2_on_ids[] = {
-+	{
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "TrekStor"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "SurfTab duo W1 10.1 (VT4)"),
-+		},
-+	},
-+	{ }
-+};
-+
- static int axp_v1p8_on(struct device *dev, struct gmin_subdev *gs)
- {
- 	int ret;
-@@ -782,6 +797,9 @@ static int axp_v1p8_off(struct device *dev, struct gmin_subdev *gs)
- 	if (ret)
- 		return ret;
+@@ -967,7 +967,7 @@ static int tcf_ct_act(struct sk_buff *skb, const struct tc_action *a,
+ 		tc_skb_cb(skb)->post_ct = false;
+ 		ct = nf_ct_get(skb, &ctinfo);
+ 		if (ct) {
+-			nf_conntrack_put(&ct->ct_general);
++			nf_ct_put(ct);
+ 			nf_ct_set(skb, NULL, IP_CT_UNTRACKED);
+ 		}
  
-+	if (dmi_check_system(axp_leave_eldo2_on_ids))
-+		return 0;
-+
- 	ret = axp_regulator_set(dev, gs, gs->eldo2_sel_reg, gs->eldo2_1p8v,
- 				ELDO_CTRL_REG, gs->eldo2_ctrl_shift, false);
- 	return ret;
 -- 
 2.34.1
 
