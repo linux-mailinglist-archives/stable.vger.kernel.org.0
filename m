@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EA7DF4F32FC
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:01:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E3294F3264
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:57:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234019AbiDEI5z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:57:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45546 "EHLO
+        id S232630AbiDEI5n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:57:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47534 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234755AbiDEIjT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:39:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87718C4;
-        Tue,  5 Apr 2022 01:33:15 -0700 (PDT)
+        with ESMTP id S234751AbiDEIjl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:39:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5802C6306;
+        Tue,  5 Apr 2022 01:33:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2476B60FFC;
-        Tue,  5 Apr 2022 08:33:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37A33C385A0;
-        Tue,  5 Apr 2022 08:33:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EBC1160B0E;
+        Tue,  5 Apr 2022 08:33:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03AA1C385A1;
+        Tue,  5 Apr 2022 08:33:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147594;
-        bh=hiepfgHCUoOr2gSHKgyDZg8utOmO3xMK1AQWFOpqwto=;
+        s=korg; t=1649147597;
+        bh=nYF/5LlqJxR+dXjtyHU6EiTxJe3DQ65PTODezaKI2RE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bX/02dTyAmdRkG+uHFOX6x145Gq/FQrEXIpFiFOT3oVJuBsMHl4NPfhcD+fU4GTAJ
-         a332jMOVkPGeNKjfqNG7RU8dI+Q0tH+c5/RgiAwIzSFV5eD9F3saB8/fMYgITsCE3U
-         +tpGDj5PtyGUt3tYM/8zP4bSz5w22tQjiRGKF0UI=
+        b=BEiN3f2unSOBTX8I7ML+pZ3rK8wrwjH1WKCKEWJ5ifAU6nuwE7W4L6XwDGTzI13MV
+         LjG25vJsaYSCggLOHbEvelHrHrn3XuM6oiIDbu2lBT/mWOij/ceZU/gkffct6TLDtN
+         PXCBZNe9CTAtUNUoPiXqaCVyY7cquTqZ3z7ZrS+A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Quentin Schulz <foss+kernel@0leil.net>,
-        Quentin Schulz <quentin.schulz@theobroma-systems.com>,
-        Heiko Stuebner <heiko@sntech.de>
-Subject: [PATCH 5.16 0052/1017] clk: rockchip: re-add rational best approximation algorithm to the fractional divider
-Date:   Tue,  5 Apr 2022 09:16:05 +0200
-Message-Id: <20220405070355.729518506@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
+        Stephen Boyd <sboyd@kernel.org>
+Subject: [PATCH 5.16 0053/1017] clk: uniphier: Fix fixed-rate initialization
+Date:   Tue,  5 Apr 2022 09:16:06 +0200
+Message-Id: <20220405070355.759180833@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -54,56 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quentin Schulz <quentin.schulz@theobroma-systems.com>
+From: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
 
-commit 10b74af310735860510a533433b1d3ab2e05a138 upstream.
+commit ca85a66710a8a1f6b0719397225c3e9ee0abb692 upstream.
 
-In commit 4e7cf74fa3b2 ("clk: fractional-divider: Export approximation
-algorithm to the CCF users"), the code handling the rational best
-approximation algorithm was replaced by a call to the core
-clk_fractional_divider_general_approximation function which did the same
-thing back then.
+Fixed-rate clocks in UniPhier don't have any parent clocks, however,
+initial data "init.flags" isn't initialized, so it might be determined
+that there is a parent clock for fixed-rate clock.
 
-However, in commit 82f53f9ee577 ("clk: fractional-divider: Introduce
-POWER_OF_TWO_PS flag"), this common code was made conditional on
-CLK_FRAC_DIVIDER_POWER_OF_TWO_PS flag which was not added back to the
-rockchip clock driver.
+This sets init.flags to zero as initialization.
 
-This broke the ltk050h3146w-a2 MIPI DSI display present on a PX30-based
-downstream board.
-
-Let's add the flag to the fractional divider flags so that the original
-and intended behavior is brought back to the rockchip clock drivers.
-
-Fixes: 82f53f9ee577 ("clk: fractional-divider: Introduce POWER_OF_TWO_PS flag")
-Cc: stable@vger.kernel.org
-Cc: Quentin Schulz <foss+kernel@0leil.net>
-Signed-off-by: Quentin Schulz <quentin.schulz@theobroma-systems.com>
-Link: https://lore.kernel.org/r/20220131163224.708002-1-quentin.schulz@theobroma-systems.com
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Cc: <stable@vger.kernel.org>
+Fixes: 734d82f4a678 ("clk: uniphier: add core support code for UniPhier clock driver")
+Signed-off-by: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
+Link: https://lore.kernel.org/r/1646808918-30899-1-git-send-email-hayashi.kunihiko@socionext.com
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/clk/rockchip/clk.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/clk/uniphier/clk-uniphier-fixed-rate.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/clk/rockchip/clk.c
-+++ b/drivers/clk/rockchip/clk.c
-@@ -180,6 +180,7 @@ static void rockchip_fractional_approxim
- 		unsigned long rate, unsigned long *parent_rate,
- 		unsigned long *m, unsigned long *n)
- {
-+	struct clk_fractional_divider *fd = to_clk_fd(hw);
- 	unsigned long p_rate, p_parent_rate;
- 	struct clk_hw *p_parent;
+--- a/drivers/clk/uniphier/clk-uniphier-fixed-rate.c
++++ b/drivers/clk/uniphier/clk-uniphier-fixed-rate.c
+@@ -24,6 +24,7 @@ struct clk_hw *uniphier_clk_register_fix
  
-@@ -190,6 +191,8 @@ static void rockchip_fractional_approxim
- 		*parent_rate = p_parent_rate;
- 	}
- 
-+	fd->flags |= CLK_FRAC_DIVIDER_POWER_OF_TWO_PS;
-+
- 	clk_fractional_divider_general_approximation(hw, rate, parent_rate, m, n);
- }
+ 	init.name = name;
+ 	init.ops = &clk_fixed_rate_ops;
++	init.flags = 0;
+ 	init.parent_names = NULL;
+ 	init.num_parents = 0;
  
 
 
