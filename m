@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BBE344F333A
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:14:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 302774F3056
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:27:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355957AbiDEKWY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:22:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44502 "EHLO
+        id S1355962AbiDEKWZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:22:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44534 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237382AbiDEJ3Q (ORCPT
+        with ESMTP id S238273AbiDEJ3Q (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:29:16 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C647E29D6;
-        Tue,  5 Apr 2022 02:16:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12808E29F9;
+        Tue,  5 Apr 2022 02:16:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B6DE615E4;
-        Tue,  5 Apr 2022 09:16:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9BE0C385A0;
-        Tue,  5 Apr 2022 09:16:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6D47F615E4;
+        Tue,  5 Apr 2022 09:16:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77B46C385A0;
+        Tue,  5 Apr 2022 09:16:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150204;
-        bh=58RmXMaSK5PuvhFzkytvjVsSYIvGzU7PtUDOIzpbiJs=;
+        s=korg; t=1649150206;
+        bh=7uhkbtOUa9s8KzYDK74oftBUK3hU4EOK2/CM37NcBEU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ffyRImDJN5h8IJ2CCHDY9JaYcZe917LAazHIDPkAjcKFfenJDWn+rMa3TKFIAteyd
-         GfLCTp396vEitMJ1OciChRbDEFygvQZPL70kLuwcO6GGQFFDkF4Cuth1L56sFQbjvZ
-         VA74XstYzpwBNJzE5RJq+GRiInmC276RCOTRgfto=
+        b=GtnkkaAWYzTzdlXQCQ6DjohZ+bWGvg/XjOcVyWh6aeQAMficZCkhmu9QVudoFf/+T
+         i62r9Y/Lfa8z/6Ze+18YJgzB+WWv2RMlOFg4j9jNBv81rQwcb2YQsGQG9RcsJFe8XB
+         xXBWKFhX8g+t3pbxM3eO/3GjPOs2jmJ9+QN/1Xh4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Richard Weinberger <richard@nod.at>
-Subject: [PATCH 5.16 0990/1017] ubi: fastmap: Return error code if memory allocation fails in add_aeb()
-Date:   Tue,  5 Apr 2022 09:31:43 +0200
-Message-Id: <20220405070423.588834231@linuxfoundation.org>
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zheng Bin <zhengbin13@huawei.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.16 0991/1017] ASoC: SOF: Intel: Fix build error without SND_SOC_SOF_PCI_DEV
+Date:   Tue,  5 Apr 2022 09:31:44 +0200
+Message-Id: <20220405070423.618095743@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -53,86 +55,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Zheng Bin <zhengbin13@huawei.com>
 
-commit c3c07fc25f37c157fde041b3a0c3dfcb1590cbce upstream.
+commit 664d66dc0a64b32e60a5ad59a9aebb08676a612b upstream.
 
-Abort fastmap scanning and return error code if memory allocation fails
-in add_aeb(). Otherwise ubi will get wrong peb statistics information
-after scanning.
+If SND_SOC_SOF_PCI_DEV is n, bulding fails:
 
-Fixes: dbb7d2a88d2a7b ("UBI: Add fastmap core")
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+sound/soc/sof/intel/pci-tng.o:(.data+0x1c0): undefined reference to `sof_pci_probe'
+sound/soc/sof/intel/pci-tng.o:(.data+0x1c8): undefined reference to `sof_pci_remove'
+sound/soc/sof/intel/pci-tng.o:(.data+0x1e0): undefined reference to `sof_pci_shutdown'
+sound/soc/sof/intel/pci-tng.o:(.data+0x290): undefined reference to `sof_pci_pm'
+
+Make SND_SOC_SOF_MERRIFIELD select SND_SOC_SOF_PCI_DEV to fix this.
+
+Fixes: 8d4ba1be3d22 ("ASoC: SOF: pci: split PCI into different drivers")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zheng Bin <zhengbin13@huawei.com>
+Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20220323092501.145879-1-zhengbin13@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mtd/ubi/fastmap.c |   28 +++++++++++++++++++---------
- 1 file changed, 19 insertions(+), 9 deletions(-)
+ sound/soc/sof/intel/Kconfig |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/mtd/ubi/fastmap.c
-+++ b/drivers/mtd/ubi/fastmap.c
-@@ -468,7 +468,9 @@ static int scan_pool(struct ubi_device *
- 			if (err == UBI_IO_FF_BITFLIPS)
- 				scrub = 1;
- 
--			add_aeb(ai, free, pnum, ec, scrub);
-+			ret = add_aeb(ai, free, pnum, ec, scrub);
-+			if (ret)
-+				goto out;
- 			continue;
- 		} else if (err == 0 || err == UBI_IO_BITFLIPS) {
- 			dbg_bld("Found non empty PEB:%i in pool", pnum);
-@@ -638,8 +640,10 @@ static int ubi_attach_fastmap(struct ubi
- 		if (fm_pos >= fm_size)
- 			goto fail_bad;
- 
--		add_aeb(ai, &ai->free, be32_to_cpu(fmec->pnum),
--			be32_to_cpu(fmec->ec), 0);
-+		ret = add_aeb(ai, &ai->free, be32_to_cpu(fmec->pnum),
-+			      be32_to_cpu(fmec->ec), 0);
-+		if (ret)
-+			goto fail;
- 	}
- 
- 	/* read EC values from used list */
-@@ -649,8 +653,10 @@ static int ubi_attach_fastmap(struct ubi
- 		if (fm_pos >= fm_size)
- 			goto fail_bad;
- 
--		add_aeb(ai, &used, be32_to_cpu(fmec->pnum),
--			be32_to_cpu(fmec->ec), 0);
-+		ret = add_aeb(ai, &used, be32_to_cpu(fmec->pnum),
-+			      be32_to_cpu(fmec->ec), 0);
-+		if (ret)
-+			goto fail;
- 	}
- 
- 	/* read EC values from scrub list */
-@@ -660,8 +666,10 @@ static int ubi_attach_fastmap(struct ubi
- 		if (fm_pos >= fm_size)
- 			goto fail_bad;
- 
--		add_aeb(ai, &used, be32_to_cpu(fmec->pnum),
--			be32_to_cpu(fmec->ec), 1);
-+		ret = add_aeb(ai, &used, be32_to_cpu(fmec->pnum),
-+			      be32_to_cpu(fmec->ec), 1);
-+		if (ret)
-+			goto fail;
- 	}
- 
- 	/* read EC values from erase list */
-@@ -671,8 +679,10 @@ static int ubi_attach_fastmap(struct ubi
- 		if (fm_pos >= fm_size)
- 			goto fail_bad;
- 
--		add_aeb(ai, &ai->erase, be32_to_cpu(fmec->pnum),
--			be32_to_cpu(fmec->ec), 1);
-+		ret = add_aeb(ai, &ai->erase, be32_to_cpu(fmec->pnum),
-+			      be32_to_cpu(fmec->ec), 1);
-+		if (ret)
-+			goto fail;
- 	}
- 
- 	ai->mean_ec = div_u64(ai->ec_sum, ai->ec_count);
+--- a/sound/soc/sof/intel/Kconfig
++++ b/sound/soc/sof/intel/Kconfig
+@@ -84,6 +84,7 @@ if SND_SOC_SOF_PCI
+ config SND_SOC_SOF_MERRIFIELD
+ 	tristate "SOF support for Tangier/Merrifield"
+ 	default SND_SOC_SOF_PCI
++	select SND_SOC_SOF_PCI_DEV
+ 	select SND_SOC_SOF_INTEL_ATOM_HIFI_EP
+ 	help
+ 	  This adds support for Sound Open Firmware for Intel(R) platforms
 
 
