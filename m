@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F02484F3591
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:51:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0E0F4F2EBD
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:03:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236561AbiDEI2H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:28:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45352 "EHLO
+        id S239779AbiDEJyQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:54:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58194 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239543AbiDEIUN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:20:13 -0400
+        with ESMTP id S1343739AbiDEJMm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:12:42 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43B37110E;
-        Tue,  5 Apr 2022 01:15:50 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A322636693;
+        Tue,  5 Apr 2022 02:00:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EB0CDB81B92;
-        Tue,  5 Apr 2022 08:15:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A557C385A1;
-        Tue,  5 Apr 2022 08:15:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4EF00B818F3;
+        Tue,  5 Apr 2022 09:00:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC148C385A0;
+        Tue,  5 Apr 2022 09:00:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146547;
-        bh=ua5vIw0517RX36TBBiaySxjD3XAV6nk60MX+XrVugGY=;
+        s=korg; t=1649149222;
+        bh=2xrrqqAmurLYBbNH7gEODCEGzcqKSrwq1J93E5yRers=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O6MbDsqbzkqFiSbjHL53Ojz6/TgyACGs4y/3zw++oVZW5tgrqh/JNHeWZ+TEEU6Z2
-         osCSlrZAHCDoejpyf71/jgQPmW1snLSTkqsnpOBERno/Mq+FjKYIQOp+inEC8QiMR0
-         8J2wU7bKpfOu6RDPHbW2HHAKECZ90CUD4/pTlcWw=
+        b=hbquNh/X0cuSG1GuBo4SB0L8bCCt4IM1i6DWZLoi/13O6YxSW3IKcc0GigcvAO6np
+         OvjGEJbHR9uMtZx0IIZA2uTnzAO2Yuy4oJcyq9NnbNvuZZjIzI81XVExWGiw6htcpU
+         ec1LacT4TuNJgLm6gXjkerOkDG3AYLyNFgaCqqUo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dmitry Osipenko <dmitry.osipenko@collabora.com>,
-        Maxime Ripard <maxime@cerno.tech>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Jan Sondhauss <jan.sondhauss@wago.com>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0804/1126] clk: Initialize orphan req_rate
-Date:   Tue,  5 Apr 2022 09:25:51 +0200
-Message-Id: <20220405070431.168654604@linuxfoundation.org>
+Subject: [PATCH 5.16 0639/1017] drivers: ethernet: cpsw: fix panic when interrupt coaleceing is set via ethtool
+Date:   Tue,  5 Apr 2022 09:25:52 +0200
+Message-Id: <20220405070413.250573972@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,65 +55,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxime Ripard <maxime@cerno.tech>
+From: Sondhauß, Jan <Jan.Sondhauss@wago.com>
 
-[ Upstream commit 5f7e2af00807f2117650e711a58b7f0e986ce1df ]
+[ Upstream commit 2844e2434385819f674d1fb4130c308c50ba681e ]
 
-When registering a clock that doesn't have a recalc_rate implementation,
-and doesn't have its parent registered yet, we initialize the clk_core
-rate and 'req_rate' fields to 0.
+cpsw_ethtool_begin directly returns the result of pm_runtime_get_sync
+when successful.
+pm_runtime_get_sync returns -error code on failure and 0 on successful
+resume but also 1 when the device is already active. So the common case
+for cpsw_ethtool_begin is to return 1. That leads to inconsistent calls
+to pm_runtime_put in the call-chain so that pm_runtime_put is called
+one too many times and as result leaving the cpsw dev behind suspended.
 
-The rate field is later updated when the parent is registered in
-clk_core_reparent_orphans_nolock() using __clk_recalc_rates(), but the
-'req_rate' field is never updated.
+The suspended cpsw dev leads to an access violation later on by
+different parts of the cpsw driver.
 
-This leads to an issue in clk_set_rate_range() and clk_put(), since
-those functions will call clk_set_rate() with the content of 'req_rate'
-to provide drivers with the opportunity to change the rate based on the
-new boundaries. In this case, we would call clk_set_rate() with a rate
-of 0, effectively enforcing the minimum allowed for this clock whenever
-we would call one of those two functions, even though the actual rate
-might be within range.
+Fix this by calling the return-friendly pm_runtime_resume_and_get
+function.
 
-Let's fix this by setting 'req_rate' in
-clk_core_reparent_orphans_nolock() with the rate field content just
-updated by the call to __clk_recalc_rates().
-
-Fixes: 1c8e600440c7 ("clk: Add rate constraints to clocks")
-Reported-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Tested-by: Dmitry Osipenko <dmitry.osipenko@collabora.com> # T30 Nexus7
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://lore.kernel.org/r/20220325161144.1901695-2-maxime@cerno.tech
-[sboyd@kernel.org: Reword comment]
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fixes: d43c65b05b84 ("ethtool: runtime-resume netdev parent in ethnl_ops_begin")
+Signed-off-by: Jan Sondhauss <jan.sondhauss@wago.com>
+Reviewed-by: Vignesh Raghavendra <vigneshr@ti.com>
+Link: https://lore.kernel.org/r/20220323084725.65864-1-jan.sondhauss@wago.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/clk.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ drivers/net/ethernet/ti/cpsw_ethtool.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/clk/clk.c b/drivers/clk/clk.c
-index fff5edb89d6d..01b64b962e76 100644
---- a/drivers/clk/clk.c
-+++ b/drivers/clk/clk.c
-@@ -3456,6 +3456,19 @@ static void clk_core_reparent_orphans_nolock(void)
- 			__clk_set_parent_after(orphan, parent, NULL);
- 			__clk_recalc_accuracies(orphan);
- 			__clk_recalc_rates(orphan, 0);
-+
-+			/*
-+			 * __clk_init_parent() will set the initial req_rate to
-+			 * 0 if the clock doesn't have clk_ops::recalc_rate and
-+			 * is an orphan when it's registered.
-+			 *
-+			 * 'req_rate' is used by clk_set_rate_range() and
-+			 * clk_put() to trigger a clk_set_rate() call whenever
-+			 * the boundaries are modified. Let's make sure
-+			 * 'req_rate' is set to something non-zero so that
-+			 * clk_set_rate_range() doesn't drop the frequency.
-+			 */
-+			orphan->req_rate = orphan->rate;
- 		}
- 	}
+diff --git a/drivers/net/ethernet/ti/cpsw_ethtool.c b/drivers/net/ethernet/ti/cpsw_ethtool.c
+index 158c8d3793f4..b5bae6324970 100644
+--- a/drivers/net/ethernet/ti/cpsw_ethtool.c
++++ b/drivers/net/ethernet/ti/cpsw_ethtool.c
+@@ -364,11 +364,9 @@ int cpsw_ethtool_op_begin(struct net_device *ndev)
+ 	struct cpsw_common *cpsw = priv->cpsw;
+ 	int ret;
+ 
+-	ret = pm_runtime_get_sync(cpsw->dev);
+-	if (ret < 0) {
++	ret = pm_runtime_resume_and_get(cpsw->dev);
++	if (ret < 0)
+ 		cpsw_err(priv, drv, "ethtool begin failed %d\n", ret);
+-		pm_runtime_put_noidle(cpsw->dev);
+-	}
+ 
+ 	return ret;
  }
 -- 
 2.34.1
