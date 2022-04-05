@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D1A164F3BFF
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:23:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EC504F3924
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:44:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382251AbiDEMDv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:03:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46622 "EHLO
+        id S1377650AbiDELaC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:30:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58720 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358087AbiDEK16 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:27:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1628A66F93;
-        Tue,  5 Apr 2022 03:15:16 -0700 (PDT)
+        with ESMTP id S1352042AbiDEKDv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:03:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 249E4AA00E;
+        Tue,  5 Apr 2022 02:52:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A72B561777;
-        Tue,  5 Apr 2022 10:15:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC751C385A0;
-        Tue,  5 Apr 2022 10:15:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E73A6616D0;
+        Tue,  5 Apr 2022 09:52:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04E61C385A2;
+        Tue,  5 Apr 2022 09:52:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153715;
-        bh=skmWsrYxd1nFuzuoFoPRzkN5xCHd15UFXWjK8eJ6ccA=;
+        s=korg; t=1649152367;
+        bh=93YLaa0zQ7hqgghUl04JHh02d/eZiQqyJBOIBGaKxuc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SRCJ3vSHldrDxXP97waiHLSdxTS97vGRcE2K2RVR29KT6dQHkcHvA4bauK8qJWCXk
-         z/lguWK7m9UrlNIysLRSIqAedwGknsRV4MzsSo0J/Hwz2iLKL0t5w2C7sgHSWeDFLE
-         KgFx5R64roaHK6HDr/eTm8tkptDEaPdYKSw4yeRU=
+        b=KWsyFwwb4BpjQHopkeE1AQNuhuUCwjo1tmgQaB6Qkhw2V7Ei/3dZpSreaVXVjyBIu
+         HsVIraZyxV22Djd9wfNV3D2Nv9xNU/CF3XBwbRnfk7UHV5n7kRfysZu77yt24fpfD5
+         JuWAautYPdMjFnMIW7wn9oQyAKbjDoDMYYQHFl6A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Ma=C3=ADra=20Canal?= <maira.canal@usp.br>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Richard Schleich <rs@noreya.tech>,
+        Stefan Wahren <stefan.wahren@i2se.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 320/599] drm/amd/display: Remove vupdate_int_entry definition
+Subject: [PATCH 5.15 752/913] ARM: dts: bcm2711: Add the missing L1/L2 cache information
 Date:   Tue,  5 Apr 2022 09:30:14 +0200
-Message-Id: <20220405070308.355568513@linuxfoundation.org>
+Message-Id: <20220405070402.374643926@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
-References: <20220405070258.802373272@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,157 +55,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maíra Canal <maira.canal@usp.br>
+From: Richard Schleich <rs@noreya.tech>
 
-[ Upstream commit 3679b8518cd213c25d555553ef212e233faf698c ]
+[ Upstream commit 618682b350990f8f1bee718949c4b3858711eb58 ]
 
-Remove the vupdate_int_entry definition and utilization to avoid the
-following warning by Clang:
+This patch fixes the kernel warning
+"cacheinfo: Unable to detect cache hierarchy for CPU 0"
+for the bcm2711 on newer kernel versions.
 
-drivers/gpu/drm/amd/amdgpu/../display/dc/irq/dcn21/irq_service_dcn21.c:410:2:
-warning: initializer overrides prior initialization of this subobject
-[-Winitializer-overrides]
-    vupdate_no_lock_int_entry(0),
-    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
-drivers/gpu/drm/amd/amdgpu/../display/dc/irq/dcn21/irq_service_dcn21.c:280:39:
-note: expanded from macro 'vupdate_no_lock_int_entry'
-    [DC_IRQ_SOURCE_VUPDATE1 + reg_num] = {\
-    ^~
-drivers/gpu/drm/amd/amdgpu/../display/dc/irq/dcn21/irq_service_dcn21.c:404:2:
-note: previous initialization is here
-    vupdate_int_entry(0),
-    ^~~~~~~~~~~~~~~~~~~~
-drivers/gpu/drm/amd/amdgpu/../display/dc/irq/dcn21/irq_service_dcn21.c:269:39:
-note: expanded from macro 'vupdate_int_entry'
-    [DC_IRQ_SOURCE_VUPDATE1 + reg_num] = {\
-    ^~
-drivers/gpu/drm/amd/amdgpu/../display/dc/irq/dcn21/irq_service_dcn21.c:411:2:
-warning: initializer overrides prior initialization of this subobject
-[-Winitializer-overrides]
-    vupdate_no_lock_int_entry(1),
-    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
-drivers/gpu/drm/amd/amdgpu/../display/dc/irq/dcn21/irq_service_dcn21.c:280:39:
-note: expanded from macro 'vupdate_no_lock_int_entry'
-    [DC_IRQ_SOURCE_VUPDATE1 + reg_num] = {\
-    ^~
-drivers/gpu/drm/amd/amdgpu/../display/dc/irq/dcn21/irq_service_dcn21.c:405:2:
-note: previous initialization is here
-    vupdate_int_entry(1),
-    ^~~~~~~~~~~~~~~~~~~~
-drivers/gpu/drm/amd/amdgpu/../display/dc/irq/dcn21/irq_service_dcn21.c:269:39:
-note: expanded from macro 'vupdate_int_entry'
-    [DC_IRQ_SOURCE_VUPDATE1 + reg_num] = {\
-    ^~
-drivers/gpu/drm/amd/amdgpu/../display/dc/irq/dcn21/irq_service_dcn21.c:412:2:
-warning: initializer overrides prior initialization of this subobject
-[-Winitializer-overrides]
-    vupdate_no_lock_int_entry(2),
-    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
-drivers/gpu/drm/amd/amdgpu/../display/dc/irq/dcn21/irq_service_dcn21.c:280:39:
-note: expanded from macro 'vupdate_no_lock_int_entry'
-    [DC_IRQ_SOURCE_VUPDATE1 + reg_num] = {\
-    ^~
-drivers/gpu/drm/amd/amdgpu/../display/dc/irq/dcn21/irq_service_dcn21.c:406:2:
-note: previous initialization is here
-    vupdate_int_entry(2),
-    ^~~~~~~~~~~~~~~~~~~~
-drivers/gpu/drm/amd/amdgpu/../display/dc/irq/dcn21/irq_service_dcn21.c:269:39:
-note: expanded from macro 'vupdate_int_entry'
-    [DC_IRQ_SOURCE_VUPDATE1 + reg_num] = {\
-    ^~
-drivers/gpu/drm/amd/amdgpu/../display/dc/irq/dcn21/irq_service_dcn21.c:413:2:
-warning: initializer overrides prior initialization of this subobject
-[-Winitializer-overrides]
-    vupdate_no_lock_int_entry(3),
-    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
-drivers/gpu/drm/amd/amdgpu/../display/dc/irq/dcn21/irq_service_dcn21.c:280:39:
-note: expanded from macro 'vupdate_no_lock_int_entry'
-    [DC_IRQ_SOURCE_VUPDATE1 + reg_num] = {\
-    ^~
-drivers/gpu/drm/amd/amdgpu/../display/dc/irq/dcn21/irq_service_dcn21.c:407:2:
-note: previous initialization is here
-    vupdate_int_entry(3),
-    ^~~~~~~~~~~~~~~~~~~~
-drivers/gpu/drm/amd/amdgpu/../display/dc/irq/dcn21/irq_service_dcn21.c:269:39:
-note: expanded from macro 'vupdate_int_entry'
-    [DC_IRQ_SOURCE_VUPDATE1 + reg_num] = {\
-    ^~
-drivers/gpu/drm/amd/amdgpu/../display/dc/irq/dcn21/irq_service_dcn21.c:414:2:
-warning: initializer overrides prior initialization of this subobject
-[-Winitializer-overrides]
-    vupdate_no_lock_int_entry(4),
-    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
-drivers/gpu/drm/amd/amdgpu/../display/dc/irq/dcn21/irq_service_dcn21.c:280:39:
-note: expanded from macro 'vupdate_no_lock_int_entry'
-    [DC_IRQ_SOURCE_VUPDATE1 + reg_num] = {\
-    ^~
-drivers/gpu/drm/amd/amdgpu/../display/dc/irq/dcn21/irq_service_dcn21.c:408:2:
-note: previous initialization is here
-    vupdate_int_entry(4),
-    ^~~~~~~~~~~~~~~~~~~~
-drivers/gpu/drm/amd/amdgpu/../display/dc/irq/dcn21/irq_service_dcn21.c:269:39:
-note: expanded from macro 'vupdate_int_entry'
-    [DC_IRQ_SOURCE_VUPDATE1 + reg_num] = {\
-    ^~
-drivers/gpu/drm/amd/amdgpu/../display/dc/irq/dcn21/irq_service_dcn21.c:415:2:
-warning: initializer overrides prior initialization of this subobject
-[-Winitializer-overrides]
-    vupdate_no_lock_int_entry(5),
-    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
-drivers/gpu/drm/amd/amdgpu/../display/dc/irq/dcn21/irq_service_dcn21.c:280:39:
-note: expanded from macro 'vupdate_no_lock_int_entry'
-    [DC_IRQ_SOURCE_VUPDATE1 + reg_num] = {\
-    ^~
-drivers/gpu/drm/amd/amdgpu/../display/dc/irq/dcn21/irq_service_dcn21.c:409:2:
-note: previous initialization is here
-    vupdate_int_entry(5),
-    ^~~~~~~~~~~~~~~~~~~~
-drivers/gpu/drm/amd/amdgpu/../display/dc/irq/dcn21/irq_service_dcn21.c:269:39:
-note: expanded from macro 'vupdate_int_entry'
-        [DC_IRQ_SOURCE_VUPDATE1 + reg_num] = {\
-        ^~
-6 warnings generated.
-
-Fixes: 688f97ed3f5e ("drm/amd/display: Add vupdate_no_lock interrupts for DCN2.1")
-Signed-off-by: Maíra Canal <maira.canal@usp.br>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Richard Schleich <rs@noreya.tech>
+Tested-by: Stefan Wahren <stefan.wahren@i2se.com>
+[florian: Align and remove comments matching property values]
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../amd/display/dc/irq/dcn21/irq_service_dcn21.c   | 14 --------------
- 1 file changed, 14 deletions(-)
+ arch/arm/boot/dts/bcm2711.dtsi | 50 ++++++++++++++++++++++++++++++++++
+ 1 file changed, 50 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/irq/dcn21/irq_service_dcn21.c b/drivers/gpu/drm/amd/display/dc/irq/dcn21/irq_service_dcn21.c
-index 0e0f494fbb5e..b037fd57fd36 100644
---- a/drivers/gpu/drm/amd/display/dc/irq/dcn21/irq_service_dcn21.c
-+++ b/drivers/gpu/drm/amd/display/dc/irq/dcn21/irq_service_dcn21.c
-@@ -227,14 +227,6 @@ static const struct irq_source_info_funcs vupdate_no_lock_irq_info_funcs = {
- 		.funcs = &pflip_irq_info_funcs\
- 	}
+diff --git a/arch/arm/boot/dts/bcm2711.dtsi b/arch/arm/boot/dts/bcm2711.dtsi
+index 21294f775a20..89af57482bc8 100644
+--- a/arch/arm/boot/dts/bcm2711.dtsi
++++ b/arch/arm/boot/dts/bcm2711.dtsi
+@@ -459,12 +459,26 @@
+ 		#size-cells = <0>;
+ 		enable-method = "brcm,bcm2836-smp"; // for ARM 32-bit
  
--#define vupdate_int_entry(reg_num)\
--	[DC_IRQ_SOURCE_VUPDATE1 + reg_num] = {\
--		IRQ_REG_ENTRY(OTG, reg_num,\
--			OTG_GLOBAL_SYNC_STATUS, VUPDATE_INT_EN,\
--			OTG_GLOBAL_SYNC_STATUS, VUPDATE_EVENT_CLEAR),\
--		.funcs = &vblank_irq_info_funcs\
--	}
--
- /* vupdate_no_lock_int_entry maps to DC_IRQ_SOURCE_VUPDATEx, to match semantic
-  * of DCE's DC_IRQ_SOURCE_VUPDATEx.
-  */
-@@ -348,12 +340,6 @@ irq_source_info_dcn21[DAL_IRQ_SOURCES_NUMBER] = {
- 	dc_underflow_int_entry(6),
- 	[DC_IRQ_SOURCE_DMCU_SCP] = dummy_irq_entry(),
- 	[DC_IRQ_SOURCE_VBIOS_SW] = dummy_irq_entry(),
--	vupdate_int_entry(0),
--	vupdate_int_entry(1),
--	vupdate_int_entry(2),
--	vupdate_int_entry(3),
--	vupdate_int_entry(4),
--	vupdate_int_entry(5),
- 	vupdate_no_lock_int_entry(0),
- 	vupdate_no_lock_int_entry(1),
- 	vupdate_no_lock_int_entry(2),
++		/* Source for d/i-cache-line-size and d/i-cache-sets
++		 * https://developer.arm.com/documentation/100095/0003
++		 * /Level-1-Memory-System/About-the-L1-memory-system?lang=en
++		 * Source for d/i-cache-size
++		 * https://www.raspberrypi.com/documentation/computers
++		 * /processors.html#bcm2711
++		 */
+ 		cpu0: cpu@0 {
+ 			device_type = "cpu";
+ 			compatible = "arm,cortex-a72";
+ 			reg = <0>;
+ 			enable-method = "spin-table";
+ 			cpu-release-addr = <0x0 0x000000d8>;
++			d-cache-size = <0x8000>;
++			d-cache-line-size = <64>;
++			d-cache-sets = <256>; // 32KiB(size)/64(line-size)=512ways/2-way set
++			i-cache-size = <0xc000>;
++			i-cache-line-size = <64>;
++			i-cache-sets = <256>; // 48KiB(size)/64(line-size)=768ways/3-way set
++			next-level-cache = <&l2>;
+ 		};
+ 
+ 		cpu1: cpu@1 {
+@@ -473,6 +487,13 @@
+ 			reg = <1>;
+ 			enable-method = "spin-table";
+ 			cpu-release-addr = <0x0 0x000000e0>;
++			d-cache-size = <0x8000>;
++			d-cache-line-size = <64>;
++			d-cache-sets = <256>; // 32KiB(size)/64(line-size)=512ways/2-way set
++			i-cache-size = <0xc000>;
++			i-cache-line-size = <64>;
++			i-cache-sets = <256>; // 48KiB(size)/64(line-size)=768ways/3-way set
++			next-level-cache = <&l2>;
+ 		};
+ 
+ 		cpu2: cpu@2 {
+@@ -481,6 +502,13 @@
+ 			reg = <2>;
+ 			enable-method = "spin-table";
+ 			cpu-release-addr = <0x0 0x000000e8>;
++			d-cache-size = <0x8000>;
++			d-cache-line-size = <64>;
++			d-cache-sets = <256>; // 32KiB(size)/64(line-size)=512ways/2-way set
++			i-cache-size = <0xc000>;
++			i-cache-line-size = <64>;
++			i-cache-sets = <256>; // 48KiB(size)/64(line-size)=768ways/3-way set
++			next-level-cache = <&l2>;
+ 		};
+ 
+ 		cpu3: cpu@3 {
+@@ -489,6 +517,28 @@
+ 			reg = <3>;
+ 			enable-method = "spin-table";
+ 			cpu-release-addr = <0x0 0x000000f0>;
++			d-cache-size = <0x8000>;
++			d-cache-line-size = <64>;
++			d-cache-sets = <256>; // 32KiB(size)/64(line-size)=512ways/2-way set
++			i-cache-size = <0xc000>;
++			i-cache-line-size = <64>;
++			i-cache-sets = <256>; // 48KiB(size)/64(line-size)=768ways/3-way set
++			next-level-cache = <&l2>;
++		};
++
++		/* Source for d/i-cache-line-size and d/i-cache-sets
++		 *  https://developer.arm.com/documentation/100095/0003
++		 *  /Level-2-Memory-System/About-the-L2-memory-system?lang=en
++		 *  Source for d/i-cache-size
++		 *  https://www.raspberrypi.com/documentation/computers
++		 *  /processors.html#bcm2711
++		 */
++		l2: l2-cache0 {
++			compatible = "cache";
++			cache-size = <0x100000>;
++			cache-line-size = <64>;
++			cache-sets = <1024>; // 1MiB(size)/64(line-size)=16384ways/16-way set
++			cache-level = <2>;
+ 		};
+ 	};
+ 
 -- 
 2.34.1
 
