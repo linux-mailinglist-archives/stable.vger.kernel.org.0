@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 11E974F320B
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:54:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA6344F335C
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:15:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245251AbiDEIyV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:54:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58688 "EHLO
+        id S245147AbiDEIyL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:54:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45670 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241061AbiDEIcq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:32:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D7C0B82C0;
-        Tue,  5 Apr 2022 01:26:23 -0700 (PDT)
+        with ESMTP id S241077AbiDEIcr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:32:47 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90D5813F1A;
+        Tue,  5 Apr 2022 01:26:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E2DD260FF5;
-        Tue,  5 Apr 2022 08:26:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01725C385A2;
-        Tue,  5 Apr 2022 08:26:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3F201B81BAF;
+        Tue,  5 Apr 2022 08:26:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C04BC385A2;
+        Tue,  5 Apr 2022 08:26:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147182;
-        bh=DY4XAKL26rlSLT9GnWVUUFFZgtewayqgtln5Q3okulk=;
+        s=korg; t=1649147212;
+        bh=nI7dbDDhx02UpWsfJfAL/zctEyT8a5ocPR6yVKs23Fo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=faMNc3iLdSInwtMB7xGgBbcJXCVszTZy9/3GA+t6bzKSWEd5x/jwZbvFVHTeVRflG
-         Spc5ixDSdvEME53nBia7VSGZKjpOzvMFyJkuiRcfW0PBh+ZtcUZK2URT3AHKUggpDV
-         mBsMtwtAmbNQyEIrljJEWnEQ3Va0sHdjyaWjyrvo=
+        b=JWYuuAqqcXP0x1W5htFwQlIQO0HpKUkwMHfg3Cnw1lZ5g7ixnDWFs2jcQipq9DEuM
+         QH44xixgRrMKK1+ITQHLwDshI9llY3SfBVfkwfX2BUz4WSGsXigGjjyp4hi6d1dh2t
+         HvVBcXtajeboGiXpHKydonRjZvT75CtugE0NWo80=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
         Richard Weinberger <richard@nod.at>
-Subject: [PATCH 5.17 1004/1126] ubifs: rename_whiteout: Fix double free for whiteout_ui->data
-Date:   Tue,  5 Apr 2022 09:29:11 +0200
-Message-Id: <20220405070436.960806977@linuxfoundation.org>
+Subject: [PATCH 5.17 1005/1126] ubifs: Fix deadlock in concurrent rename whiteout and inode writeback
+Date:   Tue,  5 Apr 2022 09:29:12 +0200
+Message-Id: <20220405070436.990536184@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -55,69 +55,113 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-commit 40a8f0d5e7b3999f096570edab71c345da812e3e upstream.
+commit afd427048047e8efdedab30e8888044e2be5aa9c upstream.
 
-'whiteout_ui->data' will be freed twice if space budget fail for
-rename whiteout operation as following process:
+Following hung tasks:
+[   77.028764] task:kworker/u8:4    state:D stack:    0 pid:  132
+[   77.028820] Call Trace:
+[   77.029027]  schedule+0x8c/0x1b0
+[   77.029067]  mutex_lock+0x50/0x60
+[   77.029074]  ubifs_write_inode+0x68/0x1f0 [ubifs]
+[   77.029117]  __writeback_single_inode+0x43c/0x570
+[   77.029128]  writeback_sb_inodes+0x259/0x740
+[   77.029148]  wb_writeback+0x107/0x4d0
+[   77.029163]  wb_workfn+0x162/0x7b0
 
-rename_whiteout
-  dev = kmalloc
-  whiteout_ui->data = dev
-  kfree(whiteout_ui->data)  // Free first time
-  iput(whiteout)
-    ubifs_free_inode
-      kfree(ui->data)	    // Double free!
+[   92.390442] task:aa              state:D stack:    0 pid: 1506
+[   92.390448] Call Trace:
+[   92.390458]  schedule+0x8c/0x1b0
+[   92.390461]  wb_wait_for_completion+0x82/0xd0
+[   92.390469]  __writeback_inodes_sb_nr+0xb2/0x110
+[   92.390472]  writeback_inodes_sb_nr+0x14/0x20
+[   92.390476]  ubifs_budget_space+0x705/0xdd0 [ubifs]
+[   92.390503]  do_rename.cold+0x7f/0x187 [ubifs]
+[   92.390549]  ubifs_rename+0x8b/0x180 [ubifs]
+[   92.390571]  vfs_rename+0xdb2/0x1170
+[   92.390580]  do_renameat2+0x554/0x770
 
-KASAN reports:
-==================================================================
-BUG: KASAN: double-free or invalid-free in ubifs_free_inode+0x4f/0x70
-Call Trace:
-  kfree+0x117/0x490
-  ubifs_free_inode+0x4f/0x70 [ubifs]
-  i_callback+0x30/0x60
-  rcu_do_batch+0x366/0xac0
-  __do_softirq+0x133/0x57f
+, are caused by concurrent rename whiteout and inode writeback processes:
+	rename_whiteout(Thread 1)	        wb_workfn(Thread2)
+ubifs_rename
+  do_rename
+    lock_4_inodes (Hold ui_mutex)
+    ubifs_budget_space
+      make_free_space
+        shrink_liability
+	  __writeback_inodes_sb_nr
+	    bdi_split_work_to_wbs (Queue new wb work)
+					      wb_do_writeback(wb work)
+						__writeback_single_inode
+					          ubifs_write_inode
+					            LOCK(ui_mutex)
+							   ↑
+	      wb_wait_for_completion (Wait wb work) <-- deadlock!
 
-Allocated by task 1506:
-  kmem_cache_alloc_trace+0x3c2/0x7a0
-  do_rename+0x9b7/0x1150 [ubifs]
-  ubifs_rename+0x106/0x1f0 [ubifs]
-  do_syscall_64+0x35/0x80
+Reproducer (Detail program in [Link]):
+  1. SYS_renameat2("/mp/dir/file", "/mp/dir/whiteout", RENAME_WHITEOUT)
+  2. Consume out of space before kernel(mdelay) doing budget for whiteout
 
-Freed by task 1506:
-  kfree+0x117/0x490
-  do_rename.cold+0x53/0x8a [ubifs]
-  ubifs_rename+0x106/0x1f0 [ubifs]
-  do_syscall_64+0x35/0x80
-
-The buggy address belongs to the object at ffff88810238bed8 which
-belongs to the cache kmalloc-8 of size 8
-==================================================================
-
-Let ubifs_free_inode() free 'whiteout_ui->data'. BTW, delete unused
-assignment 'whiteout_ui->data_len = 0', process 'ubifs_evict_inode()
--> ubifs_jnl_delete_inode() -> ubifs_jnl_write_inode()' doesn't need it
-(because 'inc_nlink(whiteout)' won't be excuted by 'goto out_release',
- and the nlink of whiteout inode is 0).
+Fix it by doing whiteout space budget before locking ubifs inodes.
+BTW, it also fixes wrong goto tag 'out_release' in whiteout budget
+error handling path(It should at least recover dir i_size and unlock
+4 ubifs inodes).
 
 Fixes: 9e0a1fff8db56ea ("ubifs: Implement RENAME_WHITEOUT")
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=214733
 Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
 Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ubifs/dir.c |    2 --
- 1 file changed, 2 deletions(-)
+ fs/ubifs/dir.c |   25 +++++++++++++++----------
+ 1 file changed, 15 insertions(+), 10 deletions(-)
 
 --- a/fs/ubifs/dir.c
 +++ b/fs/ubifs/dir.c
-@@ -1425,8 +1425,6 @@ static int do_rename(struct inode *old_d
+@@ -1324,6 +1324,7 @@ static int do_rename(struct inode *old_d
  
- 		err = ubifs_budget_space(c, &wht_req);
- 		if (err) {
--			kfree(whiteout_ui->data);
--			whiteout_ui->data_len = 0;
- 			iput(whiteout);
- 			goto out_release;
- 		}
+ 	if (flags & RENAME_WHITEOUT) {
+ 		union ubifs_dev_desc *dev = NULL;
++		struct ubifs_budget_req wht_req;
+ 
+ 		dev = kmalloc(sizeof(union ubifs_dev_desc), GFP_NOFS);
+ 		if (!dev) {
+@@ -1345,6 +1346,20 @@ static int do_rename(struct inode *old_d
+ 		whiteout_ui->data = dev;
+ 		whiteout_ui->data_len = ubifs_encode_dev(dev, MKDEV(0, 0));
+ 		ubifs_assert(c, !whiteout_ui->dirty);
++
++		memset(&wht_req, 0, sizeof(struct ubifs_budget_req));
++		wht_req.dirtied_ino = 1;
++		wht_req.dirtied_ino_d = ALIGN(whiteout_ui->data_len, 8);
++		/*
++		 * To avoid deadlock between space budget (holds ui_mutex and
++		 * waits wb work) and writeback work(waits ui_mutex), do space
++		 * budget before ubifs inodes locked.
++		 */
++		err = ubifs_budget_space(c, &wht_req);
++		if (err) {
++			iput(whiteout);
++			goto out_release;
++		}
+ 	}
+ 
+ 	lock_4_inodes(old_dir, new_dir, new_inode, whiteout);
+@@ -1419,16 +1434,6 @@ static int do_rename(struct inode *old_d
+ 	}
+ 
+ 	if (whiteout) {
+-		struct ubifs_budget_req wht_req = { .dirtied_ino = 1,
+-				.dirtied_ino_d = \
+-				ALIGN(ubifs_inode(whiteout)->data_len, 8) };
+-
+-		err = ubifs_budget_space(c, &wht_req);
+-		if (err) {
+-			iput(whiteout);
+-			goto out_release;
+-		}
+-
+ 		inc_nlink(whiteout);
+ 		mark_inode_dirty(whiteout);
+ 
 
 
