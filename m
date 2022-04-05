@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A4EE14F2A11
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 12:52:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A0D94F2BC4
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:21:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343585AbiDEI5H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:57:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53410 "EHLO
+        id S245568AbiDEI4U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:56:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49290 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242107AbiDEIgp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:36:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EEF9186CD;
-        Tue,  5 Apr 2022 01:32:22 -0700 (PDT)
+        with ESMTP id S241332AbiDEIdR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:33:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB380C4;
+        Tue,  5 Apr 2022 01:31:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 55B5E60B0E;
-        Tue,  5 Apr 2022 08:32:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62A5EC385A0;
-        Tue,  5 Apr 2022 08:32:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 57489B81BB1;
+        Tue,  5 Apr 2022 08:31:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDA37C385A1;
+        Tue,  5 Apr 2022 08:31:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147541;
-        bh=tSoeaE+WjF/2U0/bRU+xgk2xTbobXqV74Tlrj1zdDgY=;
+        s=korg; t=1649147476;
+        bh=VQoJwYInOWLKa8l6LiVhGeHLCLuxaGLZUqE8BseydWs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u9YDojFQmk4QpWjUNv5TlW5hvkHWGIUoAcWydr2/i51dG2HHMASF060lV8oZ8187C
-         24K01145MO7h2mBV8RMSsJc17YI40EwCpFF6hAOlerwFg9lRAEfFgv9V+a+MTEjvFl
-         i3guvNxSxBLx9AVnVnlTgSsW6AVIPuTX8rvCLaYY=
+        b=KbheNZRBonQ+LPSU+PPr/ibceBoQxT+zeGAdllR7jn8MVllcBWCYSTDO9lLqwOwmk
+         gpdNKPO5sAQhW00hp6JZ2AVIDuSIi8HVhWY5lNhCRMFv5BzQqqW54/PErFi5Pjr/yx
+         Ahrahk9pMWWIlEnvaRhYPuuiCU8FFvphncxPloqo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Michael=20H=C3=BCbner?= <michaelh.95@t-online.de>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0008/1017] HID: Add support for open wheel and no attachment to T300
-Date:   Tue,  5 Apr 2022 09:15:21 +0200
-Message-Id: <20220405070354.418014590@linuxfoundation.org>
+        stable@vger.kernel.org, Si-Wei Liu <si-wei.liu@oracle.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>, Eli Cohen <elic@nvidia.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0012/1017] vdpa/mlx5: should verify CTRL_VQ feature exists for MQ
+Date:   Tue,  5 Apr 2022 09:15:25 +0200
+Message-Id: <20220405070354.536559141@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -54,35 +55,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Hübner <michaelh.95@t-online.de>
+From: Si-Wei Liu <si-wei.liu@oracle.com>
 
-[ Upstream commit 0a5a587501b54e8c6d86960b047d4491fd40dcf2 ]
+[ Upstream commit 30c22f3816ffef8aa21a000e93c4ee1402a6ea65 ]
 
-Different add ons to the wheel base report different models. Having
-no wheel mounted to the base and using the open wheel attachment is
-added here.
+Per VIRTIO v1.1 specification, section 5.1.3.1 Feature bit requirements:
+"VIRTIO_NET_F_MQ Requires VIRTIO_NET_F_CTRL_VQ".
 
-Signed-off-by: Michael Hübner <michaelh.95@t-online.de>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+There's assumption in the mlx5_vdpa multiqueue code that MQ must come
+together with CTRL_VQ. However, there's nowhere in the upper layer to
+guarantee this assumption would hold. Were there an untrusted driver
+sending down MQ without CTRL_VQ, it would compromise various spots for
+e.g. is_index_valid() and is_ctrl_vq_idx(). Although this doesn't end
+up with immediate panic or security loophole as of today's code, the
+chance for this to be taken advantage of due to future code change is
+not zero.
+
+Harden the crispy assumption by failing the set_driver_features() call
+when seeing (MQ && !CTRL_VQ). For that end, verify_min_features() is
+renamed to verify_driver_features() to reflect the fact that it now does
+more than just validate the minimum features. verify_driver_features()
+is now used to accommodate various checks against the driver features
+for set_driver_features().
+
+Signed-off-by: Si-Wei Liu <si-wei.liu@oracle.com>
+Link: https://lore.kernel.org/r/1642206481-30721-3-git-send-email-si-wei.liu@oracle.com
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Reviewed-by: Eli Cohen <elic@nvidia.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-thrustmaster.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/vdpa/mlx5/net/mlx5_vnet.c | 18 ++++++++++++++++--
+ 1 file changed, 16 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hid/hid-thrustmaster.c b/drivers/hid/hid-thrustmaster.c
-index 9da4240530dd..c3e6d69fdfbd 100644
---- a/drivers/hid/hid-thrustmaster.c
-+++ b/drivers/hid/hid-thrustmaster.c
-@@ -64,7 +64,9 @@ struct tm_wheel_info {
-  */
- static const struct tm_wheel_info tm_wheels_infos[] = {
- 	{0x0306, 0x0006, "Thrustmaster T150RS"},
-+	{0x0200, 0x0005, "Thrustmaster T300RS (Missing Attachment)"},
- 	{0x0206, 0x0005, "Thrustmaster T300RS"},
-+	{0x0209, 0x0005, "Thrustmaster T300RS (Open Wheel Attachment)"},
- 	{0x0204, 0x0005, "Thrustmaster T300 Ferrari Alcantara Edition"},
- 	{0x0002, 0x0002, "Thrustmaster T500RS"}
- 	//{0x0407, 0x0001, "Thrustmaster TMX"}
+diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+index 7b4ab7cfc359..6b9ae5eb719e 100644
+--- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
++++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+@@ -1916,11 +1916,25 @@ static u64 mlx5_vdpa_get_features(struct vdpa_device *vdev)
+ 	return ndev->mvdev.mlx_features;
+ }
+ 
+-static int verify_min_features(struct mlx5_vdpa_dev *mvdev, u64 features)
++static int verify_driver_features(struct mlx5_vdpa_dev *mvdev, u64 features)
+ {
++	/* Minimum features to expect */
+ 	if (!(features & BIT_ULL(VIRTIO_F_ACCESS_PLATFORM)))
+ 		return -EOPNOTSUPP;
+ 
++	/* Double check features combination sent down by the driver.
++	 * Fail invalid features due to absence of the depended feature.
++	 *
++	 * Per VIRTIO v1.1 specification, section 5.1.3.1 Feature bit
++	 * requirements: "VIRTIO_NET_F_MQ Requires VIRTIO_NET_F_CTRL_VQ".
++	 * By failing the invalid features sent down by untrusted drivers,
++	 * we're assured the assumption made upon is_index_valid() and
++	 * is_ctrl_vq_idx() will not be compromised.
++	 */
++	if ((features & (BIT_ULL(VIRTIO_NET_F_MQ) | BIT_ULL(VIRTIO_NET_F_CTRL_VQ))) ==
++            BIT_ULL(VIRTIO_NET_F_MQ))
++		return -EINVAL;
++
+ 	return 0;
+ }
+ 
+@@ -1996,7 +2010,7 @@ static int mlx5_vdpa_set_features(struct vdpa_device *vdev, u64 features)
+ 
+ 	print_features(mvdev, features, true);
+ 
+-	err = verify_min_features(mvdev, features);
++	err = verify_driver_features(mvdev, features);
+ 	if (err)
+ 		return err;
+ 
 -- 
 2.34.1
 
