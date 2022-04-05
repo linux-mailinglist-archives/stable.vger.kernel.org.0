@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 814684F2BCE
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:21:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CCE84F2D98
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:45:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347439AbiDEJ0f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:26:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42692 "EHLO
+        id S1347562AbiDEJ1e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:27:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46838 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244180AbiDEIvs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:51:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8994C7B;
-        Tue,  5 Apr 2022 01:40:28 -0700 (PDT)
+        with ESMTP id S244161AbiDEIvr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:51:47 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE990D3AC2;
+        Tue,  5 Apr 2022 01:40:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 92CB9614E4;
-        Tue,  5 Apr 2022 08:39:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A166AC385A1;
-        Tue,  5 Apr 2022 08:39:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2B136B81C6C;
+        Tue,  5 Apr 2022 08:39:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 894EAC385A0;
+        Tue,  5 Apr 2022 08:39:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147966;
-        bh=0IXNH02d04Pp3qo3nL8AHAf9mxn0yRHztLc0LEJHT3U=;
+        s=korg; t=1649147968;
+        bh=AXM6EIGv3cMnti0AXeqKdjQ/tXW2ov+kO9R4rZJX9+c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NIBhJIQfgTGbAeRU3cftT5WjVUU7GOoBvN5nHrt5/Hgp3VccNq6SJGnVC/gwgk8Pw
-         wQtX6UfLdrCdZfEsGQF1ehPWWe5Ktrn3TOaxMtKKilIcNgE/zs/y346aDklIBxc0tI
-         aorXxIVEyQy9pilL9c8iVbnUXS0O7iotywjzJF4Y=
+        b=gL+9DUJAlebsHhTQyjY0N3tSNTVUA5f2lWpA48r55Bolgx6ZMmrK1moh5LDP9rEKr
+         LrTytXIbtBTiJ1+DlcCl2ZgcJse4n6Ov5uRNV91aQCgU9PY3BPDuI6jMiQf81jTO2X
+         UQbcYo69d6g5dwu/Y8LQX3fV96Od1oWQq7u2qBTI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jocelyn Falempe <jfalempe@redhat.com>,
-        Javier Martinez Canillas <javierm@redhat.com>,
-        Lyude Paul <lyude@redhat.com>,
-        Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH 5.16 0159/1017] mgag200 fix memmapsl configuration in GCTL6 register
-Date:   Tue,  5 Apr 2022 09:17:52 +0200
-Message-Id: <20220405070358.938357262@linuxfoundation.org>
+        stable@vger.kernel.org, Colin Ian King <colin.i.king@gmail.com>,
+        Stable@vger.kernel.org, Christian Lamparter <chunkeey@gmail.com>,
+        Kalle Valo <quic_kvalo@quicinc.com>
+Subject: [PATCH 5.16 0160/1017] carl9170: fix missing bit-wise or operator for tx_params
+Date:   Tue,  5 Apr 2022 09:17:53 +0200
+Message-Id: <20220405070358.968529673@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -55,80 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jocelyn Falempe <jfalempe@redhat.com>
+From: Colin Ian King <colin.i.king@gmail.com>
 
-commit 028a73e10705af1ffd51f2537460f616dc58680e upstream.
+commit 02a95374b5eebdbd3b6413fd7ddec151d2ea75a1 upstream.
 
-On some servers with MGA G200_SE_A (rev 42), booting with Legacy BIOS,
-the hardware hangs when using kdump and kexec into the kdump kernel.
-This happens when the uncompress code tries to write "Decompressing Linux"
-to the VGA Console.
+Currently tx_params is being re-assigned with a new value and the
+previous setting IEEE80211_HT_MCS_TX_RX_DIFF is being overwritten.
+The assignment operator is incorrect, the original intent was to
+bit-wise or the value in. Fix this by replacing the = operator
+with |= instead.
 
-It can be reproduced by writing to the VGA console (0xB8000) after
-booting to graphic mode, it generates the following error:
+Kudos to Christian Lamparter for suggesting the correct fix.
 
-kernel:NMI: PCI system error (SERR) for reason a0 on CPU 0.
-kernel:Dazed and confused, but trying to continue
-
-The root cause is the configuration of the MGA GCTL6 register
-
-According to the GCTL6 register documentation:
-
-bit 0 is gcgrmode:
-    0: Enables alpha mode, and the character generator addressing system is
-     activated.
-    1: Enables graphics mode, and the character addressing system is not
-     used.
-
-bit 1 is chainodd even:
-    0: The A0 signal of the memory address bus is used during system memory
-     addressing.
-    1: Allows A0 to be replaced by either the A16 signal of the system
-     address (ifmemmapsl is ‘00’), or by the hpgoddev (MISC<5>, odd/even
-     page select) field, described on page 3-294).
-
-bit 3-2 are memmapsl:
-    Memory map select bits 1 and 0. VGA.
-    These bits select where the video memory is mapped, as shown below:
-        00 => A0000h - BFFFFh
-        01 => A0000h - AFFFFh
-        10 => B0000h - B7FFFh
-        11 => B8000h - BFFFFh
-
-bit 7-4 are reserved.
-
-Current code set it to 0x05 => memmapsl to b01 => 0xa0000 (graphic mode)
-But on x86, the VGA console is at 0xb8000 (text mode)
-In arch/x86/boot/compressed/misc.c debug strings are written to 0xb8000
-As the driver doesn't use this mapping at 0xa0000, it is safe to set it to
-0xb8000 instead, to avoid kernel hang on G200_SE_A rev42, with kexec/kdump.
-
-Thus changing the value 0x05 to 0x0d
-
-Signed-off-by: Jocelyn Falempe <jfalempe@redhat.com>
-Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
-Acked-by: Lyude Paul <lyude@redhat.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220119102905.1194787-1-jfalempe@redhat.com
+Fixes: fe8ee9ad80b2 ("carl9170: mac80211 glue and command interface")
+Signed-off-by: Colin Ian King <colin.i.king@gmail.com>
+Cc: <Stable@vger.kernel.org>
+Acked-by: Christian Lamparter <chunkeey@gmail.com>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/20220125004406.344422-1-colin.i.king@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/mgag200/mgag200_mode.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/wireless/ath/carl9170/main.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/mgag200/mgag200_mode.c
-+++ b/drivers/gpu/drm/mgag200/mgag200_mode.c
-@@ -529,7 +529,10 @@ static void mgag200_set_format_regs(stru
- 	WREG_GFX(3, 0x00);
- 	WREG_GFX(4, 0x00);
- 	WREG_GFX(5, 0x40);
--	WREG_GFX(6, 0x05);
-+	/* GCTL6 should be 0x05, but we configure memmapsl to 0xb8000 (text mode),
-+	 * so that it doesn't hang when running kexec/kdump on G200_SE rev42.
-+	 */
-+	WREG_GFX(6, 0x0d);
- 	WREG_GFX(7, 0x0f);
- 	WREG_GFX(8, 0x0f);
+--- a/drivers/net/wireless/ath/carl9170/main.c
++++ b/drivers/net/wireless/ath/carl9170/main.c
+@@ -1915,7 +1915,7 @@ static int carl9170_parse_eeprom(struct
+ 		WARN_ON(!(tx_streams >= 1 && tx_streams <=
+ 			IEEE80211_HT_MCS_TX_MAX_STREAMS));
  
+-		tx_params = (tx_streams - 1) <<
++		tx_params |= (tx_streams - 1) <<
+ 			    IEEE80211_HT_MCS_TX_MAX_STREAMS_SHIFT;
+ 
+ 		carl9170_band_2GHz.ht_cap.mcs.tx_params |= tx_params;
 
 
