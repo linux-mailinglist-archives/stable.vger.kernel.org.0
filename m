@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BA0FD4F35A8
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:52:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 093A64F35AB
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:52:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232101AbiDEKxh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:53:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59294 "EHLO
+        id S232408AbiDEKx4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:53:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59526 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346086AbiDEJo1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:44:27 -0400
+        with ESMTP id S1346121AbiDEJo3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:44:29 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F169CC8BC0;
-        Tue,  5 Apr 2022 02:30:06 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D090C6271;
+        Tue,  5 Apr 2022 02:30:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 990ADB81CAC;
-        Tue,  5 Apr 2022 09:30:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E29EDC385A0;
-        Tue,  5 Apr 2022 09:30:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 28FE0B81C9A;
+        Tue,  5 Apr 2022 09:30:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 661F3C385A2;
+        Tue,  5 Apr 2022 09:30:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151004;
-        bh=cK/eTmMO1ar/cpLmr16wWiPao3SLZRntHcZdToKAgao=;
+        s=korg; t=1649151006;
+        bh=iOJnjeUVU/EsFOXQqOOf9bdL0qJ8z0IlD/iETWPdlfE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I7NXaezY2a1FQVAGvkKlDq3/iB21nkzNNIjA2GQN0tETT69nnrRZiZNHR4ZV8AAqU
-         37RVLI/kPxX6xPWSg4x4Xia4EZHy3GkaZQyo37S1JJHAiCAmzjzYW6DqToTPkJ6Obc
-         7jtouU1JHVxFewZr36UxrSbkJahwj4xf5E495HoY=
+        b=R4dyMSNpxPP/oygwXsvHikD50yPJvdPf2KfDnWcBWnBVPSSjoUAY7xQUahCtE6Rld
+         FVUEBIA4LcJqBDDpLPqhuQwLn61ClNErrU4CDvIUFPW8dX8kNOilQCW5kTln152E+V
+         uO7rXkmP4rN1x7IAT/vZAb/2xF2H7KS5i8NFDNx0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Fengnan Chang <changfengnan@vivo.com>,
-        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org,
+        Guillaume Tucker <guillaume.tucker@collabora.com>,
+        "kernelci.org bot" <bot@kernelci.org>,
+        Guenter Roeck <groeck@google.com>,
+        Shuah Khan <shuah@kernel.org>, Borislav Petkov <bp@suse.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 260/913] f2fs: fix compressed file start atomic write may cause data corruption
-Date:   Tue,  5 Apr 2022 09:22:02 +0200
-Message-Id: <20220405070347.649783086@linuxfoundation.org>
+Subject: [PATCH 5.15 261/913] selftests, x86: fix how check_cc.sh is being invoked
+Date:   Tue,  5 Apr 2022 09:22:03 +0200
+Message-Id: <20220405070347.679866937@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -56,76 +60,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fengnan Chang <changfengnan@vivo.com>
+From: Guillaume Tucker <guillaume.tucker@collabora.com>
 
-[ Upstream commit 9b56adcf525522e9ffa52471260298d91fc1d395 ]
+[ Upstream commit ef696f93ed9778d570bd5ac58414421cdd4f1aab ]
 
-When compressed file has blocks, f2fs_ioc_start_atomic_write will succeed,
-but compressed flag will be remained in inode. If write partial compreseed
-cluster and commit atomic write will cause data corruption.
+The $(CC) variable used in Makefiles could contain several arguments
+such as "ccache gcc".  These need to be passed as a single string to
+check_cc.sh, otherwise only the first argument will be used as the
+compiler command.  Without quotes, the $(CC) variable is passed as
+distinct arguments which causes the script to fail to build trivial
+programs.
 
-This is the reproduction process:
-Step 1:
-create a compressed file ,write 64K data , call fsync(), then the blocks
-are write as compressed cluster.
-Step2:
-iotcl(F2FS_IOC_START_ATOMIC_WRITE)  --- this should be fail, but not.
-write page 0 and page 3.
-iotcl(F2FS_IOC_COMMIT_ATOMIC_WRITE)  -- page 0 and 3 write as normal file,
-Step3:
-drop cache.
-read page 0-4   -- Since page 0 has a valid block address, read as
-non-compressed cluster, page 1 and 2 will be filled with compressed data
-or zero.
+Fix this by adding quotes around $(CC) when calling check_cc.sh to pass
+the whole string as a single argument to the script even if it has
+several words such as "ccache gcc".
 
-The root cause is, after commit 7eab7a696827 ("f2fs: compress: remove
-unneeded read when rewrite whole cluster"), in step 2, f2fs_write_begin()
-only set target page dirty, and in f2fs_commit_inmem_pages(), we will write
-partial raw pages into compressed cluster, result in corrupting compressed
-cluster layout.
-
-Fixes: 4c8ff7095bef ("f2fs: support data compression")
-Fixes: 7eab7a696827 ("f2fs: compress: remove unneeded read when rewrite whole cluster")
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Fengnan Chang <changfengnan@vivo.com>
-Reviewed-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Link: https://lkml.kernel.org/r/d0d460d7be0107a69e3c52477761a6fe694c1840.1646991629.git.guillaume.tucker@collabora.com
+Fixes: e9886ace222e ("selftests, x86: Rework x86 target architecture detection")
+Signed-off-by: Guillaume Tucker <guillaume.tucker@collabora.com>
+Tested-by: "kernelci.org bot" <bot@kernelci.org>
+Reviewed-by: Guenter Roeck <groeck@google.com>
+Cc: Shuah Khan <shuah@kernel.org>
+Cc: Borislav Petkov <bp@suse.de>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/data.c | 2 +-
- fs/f2fs/file.c | 5 ++++-
- 2 files changed, 5 insertions(+), 2 deletions(-)
+ tools/testing/selftests/vm/Makefile  | 6 +++---
+ tools/testing/selftests/x86/Makefile | 6 +++---
+ 2 files changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/fs/f2fs/data.c b/fs/f2fs/data.c
-index f6e9fc36b837..4cf522120cb1 100644
---- a/fs/f2fs/data.c
-+++ b/fs/f2fs/data.c
-@@ -3410,7 +3410,7 @@ static int f2fs_write_begin(struct file *file, struct address_space *mapping,
+diff --git a/tools/testing/selftests/vm/Makefile b/tools/testing/selftests/vm/Makefile
+index acf5eaeef9ff..a7fde142e814 100644
+--- a/tools/testing/selftests/vm/Makefile
++++ b/tools/testing/selftests/vm/Makefile
+@@ -50,9 +50,9 @@ TEST_GEN_FILES += split_huge_page_test
+ TEST_GEN_FILES += ksm_tests
  
- 		*fsdata = NULL;
+ ifeq ($(MACHINE),x86_64)
+-CAN_BUILD_I386 := $(shell ./../x86/check_cc.sh $(CC) ../x86/trivial_32bit_program.c -m32)
+-CAN_BUILD_X86_64 := $(shell ./../x86/check_cc.sh $(CC) ../x86/trivial_64bit_program.c)
+-CAN_BUILD_WITH_NOPIE := $(shell ./../x86/check_cc.sh $(CC) ../x86/trivial_program.c -no-pie)
++CAN_BUILD_I386 := $(shell ./../x86/check_cc.sh "$(CC)" ../x86/trivial_32bit_program.c -m32)
++CAN_BUILD_X86_64 := $(shell ./../x86/check_cc.sh "$(CC)" ../x86/trivial_64bit_program.c)
++CAN_BUILD_WITH_NOPIE := $(shell ./../x86/check_cc.sh "$(CC)" ../x86/trivial_program.c -no-pie)
  
--		if (len == PAGE_SIZE)
-+		if (len == PAGE_SIZE && !(f2fs_is_atomic_file(inode)))
- 			goto repeat;
+ TARGETS := protection_keys
+ BINARIES_32 := $(TARGETS:%=%_32)
+diff --git a/tools/testing/selftests/x86/Makefile b/tools/testing/selftests/x86/Makefile
+index b4142cd1c5c2..02a77056bca3 100644
+--- a/tools/testing/selftests/x86/Makefile
++++ b/tools/testing/selftests/x86/Makefile
+@@ -6,9 +6,9 @@ include ../lib.mk
+ .PHONY: all all_32 all_64 warn_32bit_failure clean
  
- 		ret = f2fs_prepare_compress_overwrite(inode, pagep,
-diff --git a/fs/f2fs/file.c b/fs/f2fs/file.c
-index 7ed44752c758..0e14dc41ed4e 100644
---- a/fs/f2fs/file.c
-+++ b/fs/f2fs/file.c
-@@ -2002,7 +2002,10 @@ static int f2fs_ioc_start_atomic_write(struct file *filp)
+ UNAME_M := $(shell uname -m)
+-CAN_BUILD_I386 := $(shell ./check_cc.sh $(CC) trivial_32bit_program.c -m32)
+-CAN_BUILD_X86_64 := $(shell ./check_cc.sh $(CC) trivial_64bit_program.c)
+-CAN_BUILD_WITH_NOPIE := $(shell ./check_cc.sh $(CC) trivial_program.c -no-pie)
++CAN_BUILD_I386 := $(shell ./check_cc.sh "$(CC)" trivial_32bit_program.c -m32)
++CAN_BUILD_X86_64 := $(shell ./check_cc.sh "$(CC)" trivial_64bit_program.c)
++CAN_BUILD_WITH_NOPIE := $(shell ./check_cc.sh "$(CC)" trivial_program.c -no-pie)
  
- 	inode_lock(inode);
- 
--	f2fs_disable_compressed_file(inode);
-+	if (!f2fs_disable_compressed_file(inode)) {
-+		ret = -EINVAL;
-+		goto out;
-+	}
- 
- 	if (f2fs_is_atomic_file(inode)) {
- 		if (is_inode_flag_set(inode, FI_ATOMIC_REVOKE_REQUEST))
+ TARGETS_C_BOTHBITS := single_step_syscall sysret_ss_attrs syscall_nt test_mremap_vdso \
+ 			check_initial_reg_state sigreturn iopl ioperm \
 -- 
 2.34.1
 
