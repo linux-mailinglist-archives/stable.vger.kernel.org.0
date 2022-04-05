@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D50604F2C17
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:22:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 139704F29E8
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 12:50:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245246AbiDEIyT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:54:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45884 "EHLO
+        id S1353744AbiDEKJJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:09:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59666 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241032AbiDEIco (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:32:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0E7EB6D25;
-        Tue,  5 Apr 2022 01:26:08 -0700 (PDT)
+        with ESMTP id S1345347AbiDEJW3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:22:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0A0F47AE4;
+        Tue,  5 Apr 2022 02:10:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2C178B81B13;
-        Tue,  5 Apr 2022 08:26:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69F70C385A2;
-        Tue,  5 Apr 2022 08:26:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7DEF161527;
+        Tue,  5 Apr 2022 09:10:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FCE4C385A0;
+        Tue,  5 Apr 2022 09:10:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147165;
-        bh=ordbT1ol/NytMCy2eDm57yDhNZz58uR1lbLYcHMG7BA=;
+        s=korg; t=1649149837;
+        bh=FwQBUKInjP4jnvxbqXA+7tsKrzdHs2KgsX0dQYJAh1Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j0me1tNXYldifSaWky/ag3w01hbX73M9fI6jJT6gU/lTI2dbUHWYPtSkOE4ioFsf9
-         Mx6Fw/PjIL+UXe+eH3x+/UhC/dT7nteOUc1LzdwrMVgwFqJRbyRfsOfmXq/ZXzZ2hx
-         R5qp7D3JWR8k/5btHWAcn9+uai36nrksPIxaafr8=
+        b=uBZX53MTpIwJ0bqRbcnr43MgQHs8bygVwgjJXLIK5sSb89rzi/Zq7nZGYHYEMHhuH
+         7k5B3Ol+msfWkOwW9LfjJA2F6GMp0xVVjrTwmt4nUYHi8edTYhw1egAuBv0737DFrE
+         /knp4++mCbQqedZyC2Wz/jGiNwYRjydc96GePiEQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
-        Mark Brown <broonie@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>
-Subject: [PATCH 5.17 1025/1126] modpost: restore the warning message for missing symbol versions
+        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.16 0859/1017] KVM: x86/mmu: Move "invalid" check out of kvm_tdp_mmu_get_root()
 Date:   Tue,  5 Apr 2022 09:29:32 +0200
-Message-Id: <20220405070437.567790746@linuxfoundation.org>
+Message-Id: <20220405070419.732710256@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +53,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Sean Christopherson <seanjc@google.com>
 
-commit bf5c0c2231bcab677e5cdfb7f73e6c79f6d8c2d4 upstream.
+commit 04dc4e6ce274fa729feda32aa957b27388a3870c upstream.
 
-This log message was accidentally chopped off.
+Move the check for an invalid root out of kvm_tdp_mmu_get_root() and into
+the one place it actually matters, tdp_mmu_next_root(), as the other user
+already has an implicit validity check.  A future bug fix will need to
+get references to invalid roots to honor mmu_notifier requests; there's
+no point in forcing what will be a common path to open code getting a
+reference to a root.
 
-I was wondering why this happened, but checking the ML log, Mark
-precisely followed my suggestion [1].
+No functional change intended.
 
-I just used "..." because I was too lazy to type the sentence fully.
-Sorry for the confusion.
-
-[1]: https://lore.kernel.org/all/CAK7LNAR6bXXk9-ZzZYpTqzFqdYbQsZHmiWspu27rtsFxvfRuVA@mail.gmail.com/
-
-Fixes: 4a6795933a89 ("kbuild: modpost: Explicitly warn about unprototyped symbols")
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Acked-by: Mark Brown <broonie@kernel.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20211215011557.399940-3-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- scripts/mod/modpost.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kvm/mmu/tdp_mmu.c |   12 ++++++++++--
+ arch/x86/kvm/mmu/tdp_mmu.h |    3 ---
+ 2 files changed, 10 insertions(+), 5 deletions(-)
 
---- a/scripts/mod/modpost.c
-+++ b/scripts/mod/modpost.c
-@@ -669,7 +669,7 @@ static void handle_modversion(const stru
- 	unsigned int crc;
+--- a/arch/x86/kvm/mmu/tdp_mmu.c
++++ b/arch/x86/kvm/mmu/tdp_mmu.c
+@@ -121,9 +121,14 @@ static struct kvm_mmu_page *tdp_mmu_next
+ 		next_root = list_first_or_null_rcu(&kvm->arch.tdp_mmu_roots,
+ 						   typeof(*next_root), link);
  
- 	if (sym->st_shndx == SHN_UNDEF) {
--		warn("EXPORT symbol \"%s\" [%s%s] version ...\n"
-+		warn("EXPORT symbol \"%s\" [%s%s] version generation failed, symbol will not be versioned.\n"
- 		     "Is \"%s\" prototyped in <asm/asm-prototypes.h>?\n",
- 		     symname, mod->name, mod->is_vmlinux ? "" : ".ko",
- 		     symname);
+-	while (next_root && !kvm_tdp_mmu_get_root(kvm, next_root))
++	while (next_root) {
++		if (!next_root->role.invalid &&
++		    kvm_tdp_mmu_get_root(kvm, next_root))
++			break;
++
+ 		next_root = list_next_or_null_rcu(&kvm->arch.tdp_mmu_roots,
+ 				&next_root->link, typeof(*next_root), link);
++	}
+ 
+ 	rcu_read_unlock();
+ 
+@@ -200,7 +205,10 @@ hpa_t kvm_tdp_mmu_get_vcpu_root_hpa(stru
+ 
+ 	role = page_role_for_level(vcpu, vcpu->arch.mmu->shadow_root_level);
+ 
+-	/* Check for an existing root before allocating a new one. */
++	/*
++	 * Check for an existing root before allocating a new one.  Note, the
++	 * role check prevents consuming an invalid root.
++	 */
+ 	for_each_tdp_mmu_root(kvm, root, kvm_mmu_role_as_id(role)) {
+ 		if (root->role.word == role.word &&
+ 		    kvm_tdp_mmu_get_root(kvm, root))
+--- a/arch/x86/kvm/mmu/tdp_mmu.h
++++ b/arch/x86/kvm/mmu/tdp_mmu.h
+@@ -10,9 +10,6 @@ hpa_t kvm_tdp_mmu_get_vcpu_root_hpa(stru
+ __must_check static inline bool kvm_tdp_mmu_get_root(struct kvm *kvm,
+ 						     struct kvm_mmu_page *root)
+ {
+-	if (root->role.invalid)
+-		return false;
+-
+ 	return refcount_inc_not_zero(&root->tdp_mmu_root_count);
+ }
+ 
 
 
