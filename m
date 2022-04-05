@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A9D44F2AA8
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:05:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA2FC4F2DF2
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:48:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356047AbiDEKWs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:22:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44554 "EHLO
+        id S1356074AbiDEKWv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:22:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44564 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235369AbiDEJaT (ORCPT
+        with ESMTP id S235433AbiDEJaT (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:30:19 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65B18E2F74;
-        Tue,  5 Apr 2022 02:17:06 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 603F53120F;
+        Tue,  5 Apr 2022 02:17:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1C5D4B81BBF;
-        Tue,  5 Apr 2022 09:17:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D5FDC385A2;
-        Tue,  5 Apr 2022 09:17:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E16BF615E4;
+        Tue,  5 Apr 2022 09:17:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED31AC385A2;
+        Tue,  5 Apr 2022 09:17:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150223;
-        bh=/yt+JKhK1iOBl6Kc9z8/VMaIFaoyhQMuQvEUN61MtuY=;
+        s=korg; t=1649150229;
+        bh=VyceP8V9963XvE21yMD5O+ylMNMf3kEiRPDdqj8YzSk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h2YphGftFuLvIdQ98ZfEIAajm/A1yFiDMLWh1hTy/XPm90OJuvpezSREgftI54gbo
-         34xanM4GwFqBIwQmuGZRTLxF+GWgUftQQFZHzaBfApaWvGEATPUvlGaB3vgJR1+8MP
-         jyAh+z9Cv1WQFpKCX1zmNJLWWaLI1sz2f+Jx4eSQ=
+        b=UAAE65FLRpEe6ZhCrj7FZwwB9kryEdwEs626OLbN+bUpTkXmSKex7CbbKW1GUd36N
+         GMuV2shT5qj3H2IrrBv3xFEAXVlTRyP7jd1hHnBq3gkeM1/Bh9619iVyFOENExCO/D
+         6TjvA4TiwVxVWOwbnnN9eIFmsmRWrT2Y7NwB3Ik8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leilk Liu <leilk.liu@mediatek.com>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.16 0997/1017] spi: mediatek: support tick_delay without enhance_timing
-Date:   Tue,  5 Apr 2022 09:31:50 +0200
-Message-Id: <20220405070423.796153423@linuxfoundation.org>
+        stable@vger.kernel.org, Kuldeep Singh <singh.kuldeep87k@gmail.com>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 5.16 0998/1017] ARM: dts: spear1340: Update serial node properties
+Date:   Tue,  5 Apr 2022 09:31:51 +0200
+Message-Id: <20220405070423.825252786@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -55,54 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leilk Liu <leilk.liu@mediatek.com>
+From: Kuldeep Singh <singh.kuldeep87k@gmail.com>
 
-commit 03b1be379dcee2e9c866c2a455a1a4a9581b3efd upstream.
+commit 583d6b0062640def86f3265aa1042ecb6672516e upstream.
 
-this patch support tick_delay bit[31:30] without enhance_timing feature.
+Reorder dma and dma-names property for serial node to make it compliant
+with bindings.
 
-Fixes: f84d866ab43f("spi: mediatek: add tick_delay support")
-Signed-off-by: Leilk Liu <leilk.liu@mediatek.com>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Link: https://lore.kernel.org/r/20220315032411.2826-2-leilk.liu@mediatek.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 6e8887f60f60 ("ARM: SPEAr13xx: Pass generic DW DMAC platform data from DT")
+Signed-off-by: Kuldeep Singh <singh.kuldeep87k@gmail.com>
+Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+Link: https://lore.kernel.org/r/20220326042313.97862-3-singh.kuldeep87k@gmail.com'
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/spi/spi-mt65xx.c |   15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ arch/arm/boot/dts/spear1340.dtsi |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/spi/spi-mt65xx.c
-+++ b/drivers/spi/spi-mt65xx.c
-@@ -43,8 +43,11 @@
- #define SPI_CFG1_PACKET_LOOP_OFFSET       8
- #define SPI_CFG1_PACKET_LENGTH_OFFSET     16
- #define SPI_CFG1_GET_TICK_DLY_OFFSET      29
-+#define SPI_CFG1_GET_TICK_DLY_OFFSET_V1   30
+--- a/arch/arm/boot/dts/spear1340.dtsi
++++ b/arch/arm/boot/dts/spear1340.dtsi
+@@ -134,9 +134,9 @@
+ 				reg = <0xb4100000 0x1000>;
+ 				interrupts = <0 105 0x4>;
+ 				status = "disabled";
+-				dmas = <&dwdma0 12 0 1>,
+-					<&dwdma0 13 1 0>;
+-				dma-names = "tx", "rx";
++				dmas = <&dwdma0 13 0 1>,
++					<&dwdma0 12 1 0>;
++				dma-names = "rx", "tx";
+ 			};
  
- #define SPI_CFG1_GET_TICK_DLY_MASK        0xe0000000
-+#define SPI_CFG1_GET_TICK_DLY_MASK_V1     0xc0000000
-+
- #define SPI_CFG1_CS_IDLE_MASK             0xff
- #define SPI_CFG1_PACKET_LOOP_MASK         0xff00
- #define SPI_CFG1_PACKET_LENGTH_MASK       0x3ff0000
-@@ -346,9 +349,15 @@ static int mtk_spi_prepare_message(struc
- 
- 	/* tick delay */
- 	reg_val = readl(mdata->base + SPI_CFG1_REG);
--	reg_val &= ~SPI_CFG1_GET_TICK_DLY_MASK;
--	reg_val |= ((chip_config->tick_delay & 0x7)
--		<< SPI_CFG1_GET_TICK_DLY_OFFSET);
-+	if (mdata->dev_comp->enhance_timing) {
-+		reg_val &= ~SPI_CFG1_GET_TICK_DLY_MASK;
-+		reg_val |= ((chip_config->tick_delay & 0x7)
-+			    << SPI_CFG1_GET_TICK_DLY_OFFSET);
-+	} else {
-+		reg_val &= ~SPI_CFG1_GET_TICK_DLY_MASK_V1;
-+		reg_val |= ((chip_config->tick_delay & 0x3)
-+			    << SPI_CFG1_GET_TICK_DLY_OFFSET_V1);
-+	}
- 	writel(reg_val, mdata->base + SPI_CFG1_REG);
- 
- 	/* set hw cs timing */
+ 			thermal@e07008c4 {
 
 
