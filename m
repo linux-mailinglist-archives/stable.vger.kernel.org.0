@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ED5AF4F39E2
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:57:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BE804F39E4
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:57:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378840AbiDELjR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:39:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32984 "EHLO
+        id S1378844AbiDELjT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:39:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51518 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354079AbiDEKL3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:11:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21A744DF76;
-        Tue,  5 Apr 2022 02:57:06 -0700 (PDT)
+        with ESMTP id S1354085AbiDEKLc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:11:32 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64A374CD4B;
+        Tue,  5 Apr 2022 02:57:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B46256157A;
-        Tue,  5 Apr 2022 09:57:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4A0DC385A2;
-        Tue,  5 Apr 2022 09:57:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6A20C616E7;
+        Tue,  5 Apr 2022 09:57:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A318C385A1;
+        Tue,  5 Apr 2022 09:57:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152625;
-        bh=iTXKqvGPA52czy0DyOfskTNfOi5wLMP9Uy+AzJwxCLg=;
+        s=korg; t=1649152627;
+        bh=WEzZA7KphCwxsPg16crtXDZyTJfB5qhlsaeZdSfVPQE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ftXrOx3l5XUrdwuaS8/2qAovzbhRkh7RKYhqeC4QnbeDfD1LmL4eeUOMcgO9RWx1x
-         l4klSUWZOqTW5updEXm4liRLM4RkTYOMNkbBC5KLkptU8JbEjzVxtaWncYKuP1Kte+
-         OfJt6jb5LIh87UfhQZTw2mb5xAYkpo7kO7E0zO5I=
+        b=rIIiU1yRaONXvbLdOX2AqMMjjBqmygcXC9mRIsEycejPEEnjztoz5XAkDgOu7mkwG
+         mFQ7RU18/UgnbfEaUGhBuxhgtXv8/0BbkhyCXblxG+QPJSmGsFdInV5bI6jBw5e3ez
+         wWDc0oxabKuMx1fLkdb11BJ63RzQqPYv44HkwCLY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jacky Bai <ping.bai@nxp.com>,
-        Peng Fan <peng.fan@nxp.com>, Robin Gong <yibin.gong@nxp.com>,
-        Jassi Brar <jaswinder.singh@linaro.org>
-Subject: [PATCH 5.15 844/913] mailbox: imx: fix wakeup failure from freeze mode
-Date:   Tue,  5 Apr 2022 09:31:46 +0200
-Message-Id: <20220405070405.127669353@linuxfoundation.org>
+        stable@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 5.15 845/913] crypto: arm/aes-neonbs-cbc - Select generic cbc and aes
+Date:   Tue,  5 Apr 2022 09:31:47 +0200
+Message-Id: <20220405070405.157449708@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -54,70 +52,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robin Gong <yibin.gong@nxp.com>
+From: Herbert Xu <herbert@gondor.apana.org.au>
 
-commit 892cb524ae8a27bf5e42f711318371acd9a9f74a upstream.
+commit c8bd296cca3434b13b28b074eaeb78a23284de77 upstream.
 
-Since IRQF_NO_SUSPEND used for imx mailbox driver, that means this irq
-can't be used for wakeup source so that can't wakeup from freeze mode.
-Add pm_system_wakeup() to wakeup from freeze mode.
+The algorithm __cbc-aes-neonbs requires a fallback so we need
+to select the config options for them or otherwise it will fail
+to register on boot-up.
 
-Fixes: b7b2796b9b31e("mailbox: imx: ONLY IPC MU needs IRQF_NO_SUSPEND flag")
-Reviewed-by: Jacky Bai <ping.bai@nxp.com>
-Reviewed-by: Peng Fan <peng.fan@nxp.com>
-Signed-off-by: Robin Gong <yibin.gong@nxp.com>
-Signed-off-by: Peng Fan <peng.fan@nxp.com>
-Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
+Fixes: 00b99ad2bac2 ("crypto: arm/aes-neonbs - Use generic cbc...")
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mailbox/imx-mailbox.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ arch/arm/crypto/Kconfig |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/mailbox/imx-mailbox.c
-+++ b/drivers/mailbox/imx-mailbox.c
-@@ -13,6 +13,7 @@
- #include <linux/module.h>
- #include <linux/of_device.h>
- #include <linux/pm_runtime.h>
-+#include <linux/suspend.h>
- #include <linux/slab.h>
- 
- #define IMX_MU_CHANS		16
-@@ -67,6 +68,7 @@ struct imx_mu_priv {
- 	const struct imx_mu_dcfg	*dcfg;
- 	struct clk		*clk;
- 	int			irq;
-+	bool			suspend;
- 
- 	u32 xcr[4];
- 
-@@ -307,6 +309,9 @@ static irqreturn_t imx_mu_isr(int irq, v
- 		return IRQ_NONE;
- 	}
- 
-+	if (priv->suspend)
-+		pm_system_wakeup();
-+
- 	return IRQ_HANDLED;
- }
- 
-@@ -652,6 +657,8 @@ static int __maybe_unused imx_mu_suspend
- 			priv->xcr[i] = imx_mu_read(priv, priv->dcfg->xCR[i]);
- 	}
- 
-+	priv->suspend = true;
-+
- 	return 0;
- }
- 
-@@ -673,6 +680,8 @@ static int __maybe_unused imx_mu_resume_
- 			imx_mu_write(priv, priv->xcr[i], priv->dcfg->xCR[i]);
- 	}
- 
-+	priv->suspend = false;
-+
- 	return 0;
- }
- 
+--- a/arch/arm/crypto/Kconfig
++++ b/arch/arm/crypto/Kconfig
+@@ -102,6 +102,8 @@ config CRYPTO_AES_ARM_BS
+ 	depends on KERNEL_MODE_NEON
+ 	select CRYPTO_SKCIPHER
+ 	select CRYPTO_LIB_AES
++	select CRYPTO_AES
++	select CRYPTO_CBC
+ 	select CRYPTO_SIMD
+ 	help
+ 	  Use a faster and more secure NEON based implementation of AES in CBC,
 
 
