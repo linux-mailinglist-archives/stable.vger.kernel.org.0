@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C5B84F3086
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:31:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 054BE4F338A
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:16:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239635AbiDEJOh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:14:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50986 "EHLO
+        id S241412AbiDEKsu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:48:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36680 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244916AbiDEIwr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EBE62495C;
-        Tue,  5 Apr 2022 01:46:18 -0700 (PDT)
+        with ESMTP id S244532AbiDEJl1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:41:27 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF1CDBB932;
+        Tue,  5 Apr 2022 02:26:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CC637B81C19;
-        Tue,  5 Apr 2022 08:46:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F317C385A1;
-        Tue,  5 Apr 2022 08:46:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8E947B81C9D;
+        Tue,  5 Apr 2022 09:26:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2008C385A3;
+        Tue,  5 Apr 2022 09:26:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148375;
-        bh=ej8YD3xB5V9woQICwarpd25mwtsSDI1jBorcXHF2D0g=;
+        s=korg; t=1649150794;
+        bh=5SKEbDrLT6+O1PlKgj+zrudt8PadU0+bYVvcmroswKE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DCL5pr7US6Vohpk0TRa27dnzxku1bLcr1LzFeNYQggFWd0dtPTvrIPAIZFUQ54W//
-         G7MqEEb54son5U/3FVlG1hOvJGToeIuh+bRlU71l+63BT2bIenn3M7+R2i5rXekt+G
-         2Zi/5EOCTbK/17HnOUGyL+I8qj9cnOXwav/SLGNk=
+        b=gXRpsE1vZXnNj0WtHqoa9rXQxFEQHJHZ1I7RuPoChXoyH56tNKQx6HrRGl7EqBREx
+         a4FeOtS3j3hzEMomPAj1a4XBaxbEaRInPJBjwXcf3HydRInrcnuNklSZ9W7DJpIR/a
+         cYNRb5HsIZKeiNXhxB4HFLwbnIyXv4vrC/h3Gah0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhou Qingyang <zhou1615@umn.edu>,
-        Pratyush Yadav <p.yadav@ti.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0333/1017] media: ti-vpe: cal: Fix a NULL pointer dereference in cal_ctx_v4l2_init_formats()
+        stable@vger.kernel.org,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Lucas De Marchi <lucas.demarchi@intel.com>,
+        Jani Nikula <jani.nikula@intel.com>
+Subject: [PATCH 5.15 184/913] drm/i915/opregion: check port number bounds for SWSCI display power state
 Date:   Tue,  5 Apr 2022 09:20:46 +0200
-Message-Id: <20220405070404.166454645@linuxfoundation.org>
+Message-Id: <20220405070345.370483428@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,47 +56,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhou Qingyang <zhou1615@umn.edu>
+From: Jani Nikula <jani.nikula@intel.com>
 
-[ Upstream commit abd77889851d2ead0d0c9c4d29f1808801477b00 ]
+commit 24a644ebbfd3b13cda702f98907f9dd123e34bf9 upstream.
 
-In cal_ctx_v4l2_init_formats(), devm_kzalloc() is assigned to
-ctx->active_fmt and there is a dereference of it after that, which could
-lead to NULL pointer dereference on failure of devm_kzalloc().
+The mapping from enum port to whatever port numbering scheme is used by
+the SWSCI Display Power State Notification is odd, and the memory of it
+has faded. In any case, the parameter only has space for ports numbered
+[0..4], and UBSAN reports bit shift beyond it when the platform has port
+F or more.
 
-Fix this bug by adding a NULL check of ctx->active_fmt.
+Since the SWSCI functionality is supposed to be obsolete for new
+platforms (i.e. ones that might have port F or more), just bail out
+early if the mapped and mangled port number is beyond what the Display
+Power State Notification can support.
 
-This bug was found by a static analyzer.
-
-Builds with 'make allyesconfig' show no new warnings, and our static
-analyzer no longer warns about this code.
-
-Fixes: 7168155002cf ("media: ti-vpe: cal: Move format handling to cal.c and expose helpers")
-Signed-off-by: Zhou Qingyang <zhou1615@umn.edu>
-Reviewed-by: Pratyush Yadav <p.yadav@ti.com>
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 9c4b0a683193 ("drm/i915: add opregion function to notify bios of encoder enable/disable")
+Cc: <stable@vger.kernel.org> # v3.13+
+Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Cc: Lucas De Marchi <lucas.demarchi@intel.com>
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/4800
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/cc363f42d6b5a5932b6d218fefcc8bdfb15dbbe5.1644489329.git.jani.nikula@intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/platform/ti-vpe/cal-video.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpu/drm/i915/display/intel_opregion.c |   15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
-diff --git a/drivers/media/platform/ti-vpe/cal-video.c b/drivers/media/platform/ti-vpe/cal-video.c
-index 7799da1cc261..3e936a2ca36c 100644
---- a/drivers/media/platform/ti-vpe/cal-video.c
-+++ b/drivers/media/platform/ti-vpe/cal-video.c
-@@ -823,6 +823,9 @@ static int cal_ctx_v4l2_init_formats(struct cal_ctx *ctx)
- 	/* Enumerate sub device formats and enable all matching local formats */
- 	ctx->active_fmt = devm_kcalloc(ctx->cal->dev, cal_num_formats,
- 				       sizeof(*ctx->active_fmt), GFP_KERNEL);
-+	if (!ctx->active_fmt)
-+		return -ENOMEM;
-+
- 	ctx->num_active_fmt = 0;
+--- a/drivers/gpu/drm/i915/display/intel_opregion.c
++++ b/drivers/gpu/drm/i915/display/intel_opregion.c
+@@ -376,6 +376,21 @@ int intel_opregion_notify_encoder(struct
+ 		return -EINVAL;
+ 	}
  
- 	for (j = 0, i = 0; ; ++j) {
--- 
-2.34.1
-
++	/*
++	 * The port numbering and mapping here is bizarre. The now-obsolete
++	 * swsci spec supports ports numbered [0..4]. Port E is handled as a
++	 * special case, but port F and beyond are not. The functionality is
++	 * supposed to be obsolete for new platforms. Just bail out if the port
++	 * number is out of bounds after mapping.
++	 */
++	if (port > 4) {
++		drm_dbg_kms(&dev_priv->drm,
++			    "[ENCODER:%d:%s] port %c (index %u) out of bounds for display power state notification\n",
++			    intel_encoder->base.base.id, intel_encoder->base.name,
++			    port_name(intel_encoder->port), port);
++		return -EINVAL;
++	}
++
+ 	if (!enable)
+ 		parm |= 4 << 8;
+ 
 
 
