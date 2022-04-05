@@ -2,47 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 183874F2D63
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:42:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 10D8C4F2CEA
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:34:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344423AbiDEKjr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:39:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46358 "EHLO
+        id S245749AbiDEJMP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:12:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46806 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241524AbiDEJgD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:36:03 -0400
+        with ESMTP id S244788AbiDEIwj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:39 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9A5392850;
-        Tue,  5 Apr 2022 02:24:19 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24BDD1A382;
+        Tue,  5 Apr 2022 01:43:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 609B9B81C85;
-        Tue,  5 Apr 2022 09:24:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6157C385C1;
-        Tue,  5 Apr 2022 09:24:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C3B52B81A32;
+        Tue,  5 Apr 2022 08:43:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3075FC385A0;
+        Tue,  5 Apr 2022 08:43:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150657;
-        bh=lzO+z6AoVIcvFgn8IXdAdIOaIsz6Yqp+xI/H9kDkdZA=;
+        s=korg; t=1649148235;
+        bh=DxHVQy1Fc+e0le2fwHX1vbuTw7y/q9K+F6271ZOTKMA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iUGpGwxXCADKA1vPHlfXm6X2qeG6J0GhgTmPYqfBB9KaFW1X+0KiiViTNyqalmgZX
-         PLEWTcG8WBFfYhAKnTAeDyfqQgJcqMKmkXJ17jaW5wdCOwMrrq2PXX3VR1v06ruEwS
-         +yz+09dPLiW2XlX+3xo2rZfqTvLJlAD9ROWcrPb4=
+        b=CWJZURdc1fL9wPImEJcnXfrtzXDnamN6/e6kDru9OrY8GIYsU70CQXwcvadS/VCbY
+         5N+1FGbxAaAV1ywxXVZ+rbK4G/TuSPaeYjwWW6rp8aZ1uWXo684JrnLSd7qFzktbor
+         yoNWZRJD/sFTAHGLv8lMggZQle0dpZgzBz2VMfSI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Geetika Moolchandani <Geetika.Moolchandani1@ibm.com>,
-        Nageswara R Sastry <rnsastry@linux.ibm.com>,
-        Ritesh Harjani <riteshh@linux.ibm.com>,
-        Ojaswin Mujoo <ojaswin@linux.ibm.com>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.15 134/913] ext4: make mb_optimize_scan performance mount option work with extents
+        stable@vger.kernel.org,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Rui Miguel Silva <rmfrfs@gmail.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Jerome Brunet <jbrunet@baylibre.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0283/1017] media: staging: media: imx: imx7-mipi-csis: Make subdev name unique
 Date:   Tue,  5 Apr 2022 09:19:56 +0200
-Message-Id: <20220405070343.847448731@linuxfoundation.org>
+Message-Id: <20220405070402.669618359@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,121 +58,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ojaswin Mujoo <ojaswin@linux.ibm.com>
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 
-commit 077d0c2c78df6f7260cdd015a991327efa44d8ad upstream.
+[ Upstream commit 5be7f8c91d25089be847a71b336c13b5bb0db772 ]
 
-Currently mb_optimize_scan scan feature which improves filesystem
-performance heavily (when FS is fragmented), seems to be not working
-with files with extents (ext4 by default has files with extents).
+When multiple CSIS instances are present in a single graph, they are
+currently all named "imx7-mipi-csis.0", which breaks the entity name
+uniqueness requirement. Fix it by using the device name to create the
+subdev name.
 
-This patch fixes that and makes mb_optimize_scan feature work
-for files with extents.
-
-Below are some performance numbers obtained when allocating a 10M and 100M
-file with and w/o this patch on a filesytem with no 1M contiguous block.
-
-<perf numbers>
-===============
-Workload: dd if=/dev/urandom of=test conv=fsync bs=1M count=10/100
-
-Time taken
-=====================================================
-no.     Size   without-patch     with-patch    Diff(%)
-1       10M      0m8.401s         0m5.623s     33.06%
-2       100M     1m40.465s        1m14.737s    25.6%
-
-<debug stats>
-=============
-w/o patch:
-  mballoc:
-    reqs: 17056
-    success: 11407
-    groups_scanned: 13643
-    cr0_stats:
-            hits: 37
-            groups_considered: 9472
-            useless_loops: 36
-            bad_suggestions: 0
-    cr1_stats:
-            hits: 11418
-            groups_considered: 908560
-            useless_loops: 1894
-            bad_suggestions: 0
-    cr2_stats:
-            hits: 1873
-            groups_considered: 6913
-            useless_loops: 21
-    cr3_stats:
-            hits: 21
-            groups_considered: 5040
-            useless_loops: 21
-    extents_scanned: 417364
-            goal_hits: 3707
-            2^n_hits: 37
-            breaks: 1873
-            lost: 0
-    buddies_generated: 239/240
-    buddies_time_used: 651080
-    preallocated: 705
-    discarded: 478
-
-with patch:
-  mballoc:
-    reqs: 12768
-    success: 11305
-    groups_scanned: 12768
-    cr0_stats:
-            hits: 1
-            groups_considered: 18
-            useless_loops: 0
-            bad_suggestions: 0
-    cr1_stats:
-            hits: 5829
-            groups_considered: 50626
-            useless_loops: 0
-            bad_suggestions: 0
-    cr2_stats:
-            hits: 6938
-            groups_considered: 580363
-            useless_loops: 0
-    cr3_stats:
-            hits: 0
-            groups_considered: 0
-            useless_loops: 0
-    extents_scanned: 309059
-            goal_hits: 0
-            2^n_hits: 1
-            breaks: 1463
-            lost: 0
-    buddies_generated: 239/240
-    buddies_time_used: 791392
-    preallocated: 673
-    discarded: 446
-
-Fixes: 196e402 (ext4: improve cr 0 / cr 1 group scanning)
-Cc: stable@kernel.org
-Reported-by: Geetika Moolchandani <Geetika.Moolchandani1@ibm.com>
-Reported-by: Nageswara R Sastry <rnsastry@linux.ibm.com>
-Suggested-by: Ritesh Harjani <riteshh@linux.ibm.com>
-Signed-off-by: Ojaswin Mujoo <ojaswin@linux.ibm.com>
-Link: https://lore.kernel.org/r/fc9a48f7f8dcfc83891a8b21f6dd8cdf056ed810.1646732698.git.ojaswin@linux.ibm.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 7807063b862b ("media: staging/imx7: add MIPI CSI-2 receiver subdev for i.MX7")
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Reviewed-by: Rui Miguel Silva <rmfrfs@gmail.com>
+Reviewed-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Reviewed-by: Jerome Brunet <jbrunet@baylibre.com>
+Tested-by: Jerome Brunet <jbrunet@baylibre.com> # On i.MX8MP
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/mballoc.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/staging/media/imx/imx7-mipi-csis.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
---- a/fs/ext4/mballoc.c
-+++ b/fs/ext4/mballoc.c
-@@ -1000,7 +1000,7 @@ static inline int should_optimize_scan(s
- 		return 0;
- 	if (ac->ac_criteria >= 2)
- 		return 0;
--	if (ext4_test_inode_flag(ac->ac_inode, EXT4_INODE_EXTENTS))
-+	if (!ext4_test_inode_flag(ac->ac_inode, EXT4_INODE_EXTENTS))
- 		return 0;
- 	return 1;
- }
+diff --git a/drivers/staging/media/imx/imx7-mipi-csis.c b/drivers/staging/media/imx/imx7-mipi-csis.c
+index 2b73fa55c938..9ea723bb5f20 100644
+--- a/drivers/staging/media/imx/imx7-mipi-csis.c
++++ b/drivers/staging/media/imx/imx7-mipi-csis.c
+@@ -32,7 +32,6 @@
+ #include <media/v4l2-subdev.h>
+ 
+ #define CSIS_DRIVER_NAME			"imx7-mipi-csis"
+-#define CSIS_SUBDEV_NAME			CSIS_DRIVER_NAME
+ 
+ #define CSIS_PAD_SINK				0
+ #define CSIS_PAD_SOURCE				1
+@@ -311,7 +310,6 @@ struct csi_state {
+ 	struct reset_control *mrst;
+ 	struct regulator *mipi_phy_regulator;
+ 	const struct mipi_csis_info *info;
+-	u8 index;
+ 
+ 	struct v4l2_subdev sd;
+ 	struct media_pad pads[CSIS_PADS_NUM];
+@@ -1303,8 +1301,8 @@ static int mipi_csis_subdev_init(struct csi_state *state)
+ 
+ 	v4l2_subdev_init(sd, &mipi_csis_subdev_ops);
+ 	sd->owner = THIS_MODULE;
+-	snprintf(sd->name, sizeof(sd->name), "%s.%d",
+-		 CSIS_SUBDEV_NAME, state->index);
++	snprintf(sd->name, sizeof(sd->name), "csis-%s",
++		 dev_name(state->dev));
+ 
+ 	sd->flags |= V4L2_SUBDEV_FL_HAS_DEVNODE;
+ 	sd->ctrl_handler = NULL;
+-- 
+2.34.1
+
 
 
