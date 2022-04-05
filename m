@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B2974F2A7D
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:04:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DBF2F4F2D38
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:36:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348864AbiDEKt2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:49:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41744 "EHLO
+        id S1347808AbiDEJ20 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:28:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46598 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343994AbiDEJl5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:41:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06CFEBD7F8;
-        Tue,  5 Apr 2022 02:27:31 -0700 (PDT)
+        with ESMTP id S244939AbiDEIwt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:49 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB0F12497C;
+        Tue,  5 Apr 2022 01:47:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 97B7D6144D;
-        Tue,  5 Apr 2022 09:27:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7A1FC385A2;
-        Tue,  5 Apr 2022 09:27:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 74279B81A0C;
+        Tue,  5 Apr 2022 08:47:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA432C385A0;
+        Tue,  5 Apr 2022 08:47:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150850;
-        bh=t7zuJu+RdC6rv7No6foqPNPTASGSj0hg90vUn6Vk3p8=;
+        s=korg; t=1649148427;
+        bh=kCf7i8CQ070ihBCpclSD5ljJByxCnKbymjN2NjY2v3o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wWE/Hu97h/mLiW71/kD8FJxs4MLGYnt89BjBKDfYnnPDGIQd4Y5B2ksldwsrDHM5K
-         ahGp3DMhen+yyoaQ+mQ7i8aln+lelrC+TvJSnLJ39eoi5MbdFPj3QZ1ip1Zjm0sIo6
-         kcT6ryja715NNkXBxkt9YbbqHqnDEbfTa7dqJSC4=
+        b=Yw+spYT2w0MvdbRvk4eChLVotBS7zYQrGAg7+0RC+JwYSivYqmtgy/2Zx3OCdCUX6
+         HIQAJU0ijY56QAEcl7GRiwGaSRYdmKIFq62VReLSlXI9IqVCws4BdJUzZFJu7JOFot
+         eh1fmnc7+cF2aE/RrdB1JY7VzlIryGDp0nLhMWjg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Peter Ujfalusi <peter.ujfalusi@gmail.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 202/913] spi: tegra210-quad: Fix missin IRQ check in tegra_qspi_probe
-Date:   Tue,  5 Apr 2022 09:21:04 +0200
-Message-Id: <20220405070345.913802108@linuxfoundation.org>
+Subject: [PATCH 5.16 0354/1017] ASoC: ti: davinci-i2s: Add check for clk_enable()
+Date:   Tue,  5 Apr 2022 09:21:07 +0200
+Message-Id: <20220405070404.792953766@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit 47c3e06ed95aa9b74932dbc6b23b544f644faf84 ]
+[ Upstream commit ed7c9fef11931fc5d32a83d68017ff390bf5c280 ]
 
-This func misses checking for platform_get_irq()'s call and may passes the
-negative error codes to request_threaded_irq(), which takes unsigned IRQ #,
-causing it to fail with -EINVAL, overriding an original error code.
-Stop calling request_threaded_irq() with invalid IRQ #s.
+As the potential failure of the clk_enable(),
+it should be better to check it and return error
+if fails.
 
-Fixes: 921fc1838fb0 ("spi: tegra210-quad: Add support for Tegra210 QSPI controller")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220128165956.27821-1-linmq006@gmail.com
+Fixes: 5f9a50c3e55e ("ASoC: Davinci: McBSP: add device tree support for McBSP")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Acked-by: Peter Ujfalusi <peter.ujfalusi@gmail.com>
+Link: https://lore.kernel.org/r/20220228031540.3571959-1-jiasheng@iscas.ac.cn
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-tegra210-quad.c | 2 ++
- 1 file changed, 2 insertions(+)
+ sound/soc/ti/davinci-i2s.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-tegra210-quad.c b/drivers/spi/spi-tegra210-quad.c
-index 2354ca1e3858..7967073c1354 100644
---- a/drivers/spi/spi-tegra210-quad.c
-+++ b/drivers/spi/spi-tegra210-quad.c
-@@ -1249,6 +1249,8 @@ static int tegra_qspi_probe(struct platform_device *pdev)
+diff --git a/sound/soc/ti/davinci-i2s.c b/sound/soc/ti/davinci-i2s.c
+index 6dca51862dd7..0363a088d2e0 100644
+--- a/sound/soc/ti/davinci-i2s.c
++++ b/sound/soc/ti/davinci-i2s.c
+@@ -708,7 +708,9 @@ static int davinci_i2s_probe(struct platform_device *pdev)
+ 	dev->clk = clk_get(&pdev->dev, NULL);
+ 	if (IS_ERR(dev->clk))
+ 		return -ENODEV;
+-	clk_enable(dev->clk);
++	ret = clk_enable(dev->clk);
++	if (ret)
++		goto err_put_clk;
  
- 	tqspi->phys = r->start;
- 	qspi_irq = platform_get_irq(pdev, 0);
-+	if (qspi_irq < 0)
-+		return qspi_irq;
- 	tqspi->irq = qspi_irq;
- 
- 	tqspi->clk = devm_clk_get(&pdev->dev, "qspi");
+ 	dev->dev = &pdev->dev;
+ 	dev_set_drvdata(&pdev->dev, dev);
+@@ -730,6 +732,7 @@ static int davinci_i2s_probe(struct platform_device *pdev)
+ 	snd_soc_unregister_component(&pdev->dev);
+ err_release_clk:
+ 	clk_disable(dev->clk);
++err_put_clk:
+ 	clk_put(dev->clk);
+ 	return ret;
+ }
 -- 
 2.34.1
 
