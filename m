@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 64A4A4F2F91
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:16:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 980F64F347A
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:37:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232176AbiDEJim (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:38:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43798 "EHLO
+        id S241587AbiDEIe3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:34:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45416 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243591AbiDEJJG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:09:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFF832497C;
-        Tue,  5 Apr 2022 01:58:17 -0700 (PDT)
+        with ESMTP id S239460AbiDEIUG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:20:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2931F986EA;
+        Tue,  5 Apr 2022 01:13:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 04BF0B81A12;
-        Tue,  5 Apr 2022 08:58:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B80BC385A0;
-        Tue,  5 Apr 2022 08:58:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B9C8F60B0A;
+        Tue,  5 Apr 2022 08:13:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA909C385A1;
+        Tue,  5 Apr 2022 08:13:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149094;
-        bh=2Gci9shBJk41yuSwtJb2QNRXdUIYgowOf12Zr2/m6kw=;
+        s=korg; t=1649146424;
+        bh=csgVznpz+CbDSMa65uT6mHegJRLSqN9GgMqe8LRJoHQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RO7lgctbDDsTql75CIql3y+4+45N4UoHPOq4Vr28yrKghVTyyeEjCxD10PI5P8ZYm
-         UoWZDPxtRecBYdIGUQY+LBNGnjIieCRaGV+yRI9X1+qg92hOUJUvBnkfZgAePWGiBc
-         Orkc8vsMiPStilFFlzdxv/B6hLAPLH1khzqqIexw=
+        b=KS736sv6URAg8KSfmKGMLOV2RhN9NlVOcmYWZBVbXeUJvpyWqe0WMRwQ3W3p4d41h
+         wFvNwqXBozoUD0RvjiE1uYgA+K+NVuupU/0OtlsUM5T4E1rTHfn8rL0oH156eEAEup
+         hK4dh+wE0Xe4RR+BydxhARZ/k/xy2pboys6Qri4A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
-        Hou Tao <houtao1@huawei.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0554/1017] bpf, arm64: Feed byte-offset into bpf line info
-Date:   Tue,  5 Apr 2022 09:24:27 +0200
-Message-Id: <20220405070410.727743056@linuxfoundation.org>
+        stable@vger.kernel.org, Libin Yang <libin.yang@intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Rander Wang <rander.wang@intel.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 0721/1126] soundwire: intel: fix wrong register name in intel_shim_wake
+Date:   Tue,  5 Apr 2022 09:24:28 +0200
+Message-Id: <20220405070428.756144289@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,44 +56,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hou Tao <houtao1@huawei.com>
+From: Libin Yang <libin.yang@intel.com>
 
-[ Upstream commit dda7596c109fc382876118627e29db7607cde35d ]
+[ Upstream commit 3957db3ae3dae6f8b8168791f154567fe49e1fd7 ]
 
-insn_to_jit_off passed to bpf_prog_fill_jited_linfo() is calculated in
-instruction granularity instead of bytes granularity, but BPF line info
-requires byte offset.
+When clearing the sdw wakests status, we should use SDW_SHIM_WAKESTS.
 
-bpf_prog_fill_jited_linfo() will be the last user of ctx.offset before
-it is freed, so convert the offset into byte-offset before calling into
-bpf_prog_fill_jited_linfo() in order to fix the line info dump on arm64.
-
-Fixes: 37ab566c178d ("bpf: arm64: Enable arm64 jit to provide bpf_line_info")
-Suggested-by: Daniel Borkmann <daniel@iogearbox.net>
-Signed-off-by: Hou Tao <houtao1@huawei.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20220226121906.5709-3-houtao1@huawei.com
+Fixes: 4a17c441c7cb ("soundwire: intel: revisit SHIM programming sequences.")
+Signed-off-by: Libin Yang <libin.yang@intel.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Rander Wang <rander.wang@intel.com>
+Signed-off-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+Link: https://lore.kernel.org/r/20220126011451.27853-1-yung-chuan.liao@linux.intel.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/net/bpf_jit_comp.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/soundwire/intel.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/net/bpf_jit_comp.c b/arch/arm64/net/bpf_jit_comp.c
-index 3c6d0d60820f..4d4e6ae39e56 100644
---- a/arch/arm64/net/bpf_jit_comp.c
-+++ b/arch/arm64/net/bpf_jit_comp.c
-@@ -1133,6 +1133,11 @@ struct bpf_prog *bpf_int_jit_compile(struct bpf_prog *prog)
- 	prog->jited_len = prog_size;
+diff --git a/drivers/soundwire/intel.c b/drivers/soundwire/intel.c
+index 122f7a29d8ca..63101f1ba271 100644
+--- a/drivers/soundwire/intel.c
++++ b/drivers/soundwire/intel.c
+@@ -448,8 +448,8 @@ static void intel_shim_wake(struct sdw_intel *sdw, bool wake_enable)
  
- 	if (!prog->is_func || extra_pass) {
-+		int i;
-+
-+		/* offset[prog->len] is the size of program */
-+		for (i = 0; i <= prog->len; i++)
-+			ctx.offset[i] *= AARCH64_INSN_SIZE;
- 		bpf_prog_fill_jited_linfo(prog, ctx.offset + 1);
- out_off:
- 		kfree(ctx.offset);
+ 		/* Clear wake status */
+ 		wake_sts = intel_readw(shim, SDW_SHIM_WAKESTS);
+-		wake_sts |= (SDW_SHIM_WAKEEN_ENABLE << link_id);
+-		intel_writew(shim, SDW_SHIM_WAKESTS_STATUS, wake_sts);
++		wake_sts |= (SDW_SHIM_WAKESTS_STATUS << link_id);
++		intel_writew(shim, SDW_SHIM_WAKESTS, wake_sts);
+ 	}
+ 	mutex_unlock(sdw->link_res->shim_lock);
+ }
 -- 
 2.34.1
 
