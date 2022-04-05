@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EF194F3131
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:39:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C82864F33D7
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:23:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238468AbiDEIoN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:44:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46068 "EHLO
+        id S1354050AbiDEKLN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:11:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37372 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241263AbiDEIdA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:33:00 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5D53E7;
-        Tue,  5 Apr 2022 01:31:01 -0700 (PDT)
+        with ESMTP id S1346605AbiDEJYa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:24:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D1F9B28;
+        Tue,  5 Apr 2022 02:13:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 93669B81B18;
-        Tue,  5 Apr 2022 08:31:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08517C385A1;
-        Tue,  5 Apr 2022 08:30:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 448EFB81C77;
+        Tue,  5 Apr 2022 09:13:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACC27C385A6;
+        Tue,  5 Apr 2022 09:13:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147459;
-        bh=huGTASasK66+O42HEm1qu8ol/K16alT3r/qn38hAIO0=;
+        s=korg; t=1649150025;
+        bh=1P7dqhC2TaTndTPDyXwVbqmJovUDvfg+vmyr+QM2+nU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FZIaaz6J9nQUpwC0/RThhAEVFna+JoH+Y1jxKZwT3+jsuJ6TmLXOxqGDkvP2DMMh/
-         7kg4TuGIFcOiag3kN0a0qG2Iuk0yBwQPN+tTjU0WWPcooOey/DMmUVdAqbQz7ImYGp
-         IadiFDAo1YMdTRR8MJTv0UaV3pSFLPxdStF3hCRQ=
+        b=PyE5dJAxszd9e6Fk7uDWyJqe3op38l8lFh3icx2Caw6sa405NQxtbEpdKZwGEwiCt
+         3TwIarIsSd/rNxx83t0hoc8oq/M1dQSjaoynyJhroFaJ+TX6a1kDO/gRf4Govi5KIq
+         rfkaFr2/Al0WMZg1QKZ+1Zv7H5I4T1gZcBUzdWqI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Martin Kepplinger <martin.kepplinger@puri.sm>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Rob Herring <robh@kernel.org>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>
-Subject: [PATCH 5.17 1093/1126] media: dt-bindings: media: hynix,hi846: add link-frequencies description
-Date:   Tue,  5 Apr 2022 09:30:40 +0200
-Message-Id: <20220405070439.527979939@linuxfoundation.org>
+        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 5.16 0928/1017] rtc: check if __rtc_read_time was successful
+Date:   Tue,  5 Apr 2022 09:30:41 +0200
+Message-Id: <20220405070421.761859139@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,37 +53,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Kepplinger <martin.kepplinger@puri.sm>
+From: Tom Rix <trix@redhat.com>
 
-commit a44b8e8c9b2615ea7cf2361cbca3c1dff8119c87 upstream.
+commit 915593a7a663b2ad08b895a5f3ba8b19d89d4ebf upstream.
 
-link-frequencies is required but only mentioned in the example. Add
-it to the description.
+Clang static analysis reports this issue
+interface.c:810:8: warning: Passed-by-value struct
+  argument contains uninitialized data
+  now = rtc_tm_to_ktime(tm);
+      ^~~~~~~~~~~~~~~~~~~
 
-Fixes: f3ce7200ca18 ("media: dt-bindings: media: document SK Hynix Hi-846 MIPI CSI-2 8M pixel sensor")
-Signed-off-by: Martin Kepplinger <martin.kepplinger@puri.sm>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Reviewed-by: Rob Herring <robh@kernel.org>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+tm is set by a successful call to __rtc_read_time()
+but its return status is not checked.  Check if
+it was successful before setting the enabled flag.
+Move the decl of err to function scope.
+
+Fixes: 2b2f5ff00f63 ("rtc: interface: ignore expired timers when enqueuing new timers")
+Signed-off-by: Tom Rix <trix@redhat.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: https://lore.kernel.org/r/20220326194236.2916310-1-trix@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/devicetree/bindings/media/i2c/hynix,hi846.yaml |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/rtc/interface.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/Documentation/devicetree/bindings/media/i2c/hynix,hi846.yaml
-+++ b/Documentation/devicetree/bindings/media/i2c/hynix,hi846.yaml
-@@ -69,8 +69,11 @@ properties:
-                   - const: 1
-                   - const: 2
- 
-+          link-frequencies: true
+--- a/drivers/rtc/interface.c
++++ b/drivers/rtc/interface.c
+@@ -804,9 +804,13 @@ static int rtc_timer_enqueue(struct rtc_
+ 	struct timerqueue_node *next = timerqueue_getnext(&rtc->timerqueue);
+ 	struct rtc_time tm;
+ 	ktime_t now;
++	int err;
 +
-         required:
-           - data-lanes
-+          - link-frequencies
++	err = __rtc_read_time(rtc, &tm);
++	if (err)
++		return err;
  
- required:
-   - compatible
+ 	timer->enabled = 1;
+-	__rtc_read_time(rtc, &tm);
+ 	now = rtc_tm_to_ktime(tm);
+ 
+ 	/* Skip over expired timers */
+@@ -820,7 +824,6 @@ static int rtc_timer_enqueue(struct rtc_
+ 	trace_rtc_timer_enqueue(timer);
+ 	if (!next || ktime_before(timer->node.expires, next->expires)) {
+ 		struct rtc_wkalrm alarm;
+-		int err;
+ 
+ 		alarm.time = rtc_ktime_to_tm(timer->node.expires);
+ 		alarm.enabled = 1;
 
 
