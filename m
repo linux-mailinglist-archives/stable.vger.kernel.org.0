@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 372B54F2D48
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:36:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DFDD4F2D5F
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:42:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242346AbiDEIh2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:37:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37236 "EHLO
+        id S242340AbiDEIh1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:37:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238139AbiDEISm (ORCPT
+        with ESMTP id S238154AbiDEISm (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:18:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C5616C941;
-        Tue,  5 Apr 2022 01:08:09 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78FC06C972;
+        Tue,  5 Apr 2022 01:08:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AA21E617EA;
-        Tue,  5 Apr 2022 08:08:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B656EC385AC;
-        Tue,  5 Apr 2022 08:08:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5329761824;
+        Tue,  5 Apr 2022 08:08:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 662D9C385A1;
+        Tue,  5 Apr 2022 08:08:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146088;
-        bh=SNPnTU2FhR3/j1aygeZyiR4/bDRnquHv0PF8lxvepnY=;
+        s=korg; t=1649146090;
+        bh=1I9ntHJiM21S0qLJy1WF+V3MuZ6FluhhpC6uOraCkoc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wyuib3RX4+oGtX0v+iCF+FaDkKycdSkSVq042Xln7gTS50AUfxD63nkxOLGpnLtdm
-         BKDkMw2cx+lq22aWd0no8cOFHJ8OYWHWp+BVJN80kdfdLLmtKxCGgWpycqRffh6PhR
-         L0B6+GZhq6b8WCUx94o2PoGH9BsGA507UDvczQek=
+        b=n6oQp72Dd7trtbHugHjZNFrA9TEi5/PahUcAMrof6Nvy6r1iLJ6iXeAvwsN+qlUnI
+         uQ1EI/LchAUX2dAi4GCqLJHK/V9tak7WT6LWjBZCsZAOsHHhQYv+9DlADCnMasCn4A
+         BHu8WCW6djtb6RuR/mRd0CPEC7GRDuEB2qK4AWcg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        "Maciej W. Rozycki" <macro@orcam.me.uk>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        stable@vger.kernel.org, Jakob Koschel <jakobkoschel@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0639/1126] MIPS: Sanitise Cavium switch cases in TLB handler synthesizers
-Date:   Tue,  5 Apr 2022 09:23:06 +0200
-Message-Id: <20220405070426.391325366@linuxfoundation.org>
+Subject: [PATCH 5.17 0640/1126] powerpc/sysdev: fix incorrect use to determine if list is empty
+Date:   Tue,  5 Apr 2022 09:23:07 +0200
+Message-Id: <20220405070426.420290480@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -55,71 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej W. Rozycki <macro@orcam.me.uk>
+From: Jakob Koschel <jakobkoschel@gmail.com>
 
-[ Upstream commit 6ddcba9d480b6bcced4223a729794dfa6becb7eb ]
+[ Upstream commit fa1321b11bd01752f5be2415e74a0e1a7c378262 ]
 
-It makes no sense to fall through to `break'.  Therefore reorder the
-switch statements so as to have the Cavium cases first, followed by the
-default case, which improves readability and pacifies code analysis
-tools.  No change in semantics, assembly produced is exactly the same.
+'gtm' will *always* be set by list_for_each_entry().
+It is incorrect to assume that the iterator value will be NULL if the
+list is empty.
 
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
-Fixes: bc431d2153cc ("MIPS: Fix fall-through warnings for Clang")
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Instead of checking the pointer it should be checked if
+the list is empty.
+
+Fixes: 83ff9dcf375c ("powerpc/sysdev: implement FSL GTM support")
+Signed-off-by: Jakob Koschel <jakobkoschel@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220228142434.576226-1-jakobkoschel@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/mm/tlbex.c | 23 ++++++++++-------------
- 1 file changed, 10 insertions(+), 13 deletions(-)
+ arch/powerpc/sysdev/fsl_gtm.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/mips/mm/tlbex.c b/arch/mips/mm/tlbex.c
-index b131e6a77383..5cda07688f67 100644
---- a/arch/mips/mm/tlbex.c
-+++ b/arch/mips/mm/tlbex.c
-@@ -2160,16 +2160,14 @@ static void build_r4000_tlb_load_handler(void)
- 		uasm_i_tlbr(&p);
+diff --git a/arch/powerpc/sysdev/fsl_gtm.c b/arch/powerpc/sysdev/fsl_gtm.c
+index 8963eaffb1b7..39186ad6b3c3 100644
+--- a/arch/powerpc/sysdev/fsl_gtm.c
++++ b/arch/powerpc/sysdev/fsl_gtm.c
+@@ -86,7 +86,7 @@ static LIST_HEAD(gtms);
+  */
+ struct gtm_timer *gtm_get_timer16(void)
+ {
+-	struct gtm *gtm = NULL;
++	struct gtm *gtm;
+ 	int i;
  
- 		switch (current_cpu_type()) {
--		default:
--			if (cpu_has_mips_r2_exec_hazard) {
--				uasm_i_ehb(&p);
--			fallthrough;
--
- 		case CPU_CAVIUM_OCTEON:
- 		case CPU_CAVIUM_OCTEON_PLUS:
- 		case CPU_CAVIUM_OCTEON2:
--				break;
--			}
-+			break;
-+		default:
-+			if (cpu_has_mips_r2_exec_hazard)
-+				uasm_i_ehb(&p);
-+			break;
- 		}
+ 	list_for_each_entry(gtm, &gtms, list_node) {
+@@ -103,7 +103,7 @@ struct gtm_timer *gtm_get_timer16(void)
+ 		spin_unlock_irq(&gtm->lock);
+ 	}
  
- 		/* Examine  entrylo 0 or 1 based on ptr. */
-@@ -2236,15 +2234,14 @@ static void build_r4000_tlb_load_handler(void)
- 		uasm_i_tlbr(&p);
- 
- 		switch (current_cpu_type()) {
--		default:
--			if (cpu_has_mips_r2_exec_hazard) {
--				uasm_i_ehb(&p);
--
- 		case CPU_CAVIUM_OCTEON:
- 		case CPU_CAVIUM_OCTEON_PLUS:
- 		case CPU_CAVIUM_OCTEON2:
--				break;
--			}
-+			break;
-+		default:
-+			if (cpu_has_mips_r2_exec_hazard)
-+				uasm_i_ehb(&p);
-+			break;
- 		}
- 
- 		/* Examine  entrylo 0 or 1 based on ptr. */
+-	if (gtm)
++	if (!list_empty(&gtms))
+ 		return ERR_PTR(-EBUSY);
+ 	return ERR_PTR(-ENODEV);
+ }
 -- 
 2.34.1
 
