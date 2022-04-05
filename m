@@ -2,132 +2,165 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1651C4F2A0E
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 12:52:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 041634F2B04
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:07:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237551AbiDEImt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:42:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58686 "EHLO
+        id S1353630AbiDEKIl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:08:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60034 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240541AbiDEIcG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:32:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F4387304C;
-        Tue,  5 Apr 2022 01:24:33 -0700 (PDT)
+        with ESMTP id S1344988AbiDEJWH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:22:07 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 821D723BE3;
+        Tue,  5 Apr 2022 02:08:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B2E35B81BBF;
-        Tue,  5 Apr 2022 08:24:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2504CC385A0;
-        Tue,  5 Apr 2022 08:24:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 09AFEB818F3;
+        Tue,  5 Apr 2022 09:08:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68991C385A0;
+        Tue,  5 Apr 2022 09:08:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147056;
-        bh=xOIsufLeQocMH3kgT/ty/OAH67nEMnuadhiPTuYHCw8=;
+        s=korg; t=1649149732;
+        bh=Qb/oTH/UWrZXJOhd5uOtZEXXGxt5HFJZw3S+Cihmmxc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sZyttx8UxaItoYaJ/hJst5YBJes105Yol2KCaeo9Tu8rrAgJ0mJYcsS3qtc0QpHdS
-         HoEnZhjd+9M1i+TUV8abvJCeAMjkp7+Ko0imICij9fkIv0hK8hXu4iF3YKTIVmAbpr
-         0TdEBmRkTXJbo9lm/jMfPRnwhL9yr7QAw9CZB+ok=
+        b=Ntt1aSOJuKMWjPgD0Te0jXc3BEY4+8lI5VG+A/d9pC5UNiQ40YExpz8OmA3b/WhWJ
+         s6aPFVLhvrtphRabAOmRaShet7NsaDznloDGHHheLLLqvsnSlUBhfOs2+qjiQODaGD
+         PH/AgBHaxe+0WH+uZGasnIPSVZa2KslejrEVb4Vg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Quinn Tran <qutran@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.17 0986/1126] scsi: qla2xxx: Fix hang due to session stuck
-Date:   Tue,  5 Apr 2022 09:28:53 +0200
-Message-Id: <20220405070436.438085056@linuxfoundation.org>
+        stable@vger.kernel.org, Richard Schleich <rs@noreya.tech>,
+        Stefan Wahren <stefan.wahren@i2se.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0821/1017] ARM: dts: bcm2837: Add the missing L1/L2 cache information
+Date:   Tue,  5 Apr 2022 09:28:54 +0200
+Message-Id: <20220405070418.617602378@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,PDS_OTHER_BAD_TLD,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quinn Tran <qutran@marvell.com>
+From: Richard Schleich <rs@noreya.tech>
 
-commit c02aada06d19a215c8291bd968a99a270e96f734 upstream.
+[ Upstream commit bdf8762da268d2a34abf517c36528413906e9cd5 ]
 
-User experienced device lost. The log shows Get port data base command was
-queued up, failed, and requeued again. Every time it is requeued, it set
-the FCF_ASYNC_ACTIVE. This prevents any recovery code from occurring
-because driver thinks a recovery is in progress for this session. In
-essence, this session is hung.  The reason it gets into this place is the
-session deletion got in front of this call due to link perturbation.
+This patch fixes the kernel warning
+"cacheinfo: Unable to detect cache hierarchy for CPU 0"
+for the bcm2837 on newer kernel versions.
 
-Break the requeue cycle and exit.  The session deletion code will trigger a
-session relogin.
-
-Link: https://lore.kernel.org/r/20220310092604.22950-8-njavali@marvell.com
-Fixes: 726b85487067 ("qla2xxx: Add framework for async fabric discovery")
-Cc: stable@vger.kernel.org
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Quinn Tran <qutran@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Richard Schleich <rs@noreya.tech>
+Tested-by: Stefan Wahren <stefan.wahren@i2se.com>
+[florian: Align and remove comments matching property values]
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_def.h  |    4 ++++
- drivers/scsi/qla2xxx/qla_init.c |   19 +++++++++++++++++--
- 2 files changed, 21 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/bcm2837.dtsi | 49 ++++++++++++++++++++++++++++++++++
+ 1 file changed, 49 insertions(+)
 
---- a/drivers/scsi/qla2xxx/qla_def.h
-+++ b/drivers/scsi/qla2xxx/qla_def.h
-@@ -5438,4 +5438,8 @@ struct ql_vnd_tgt_stats_resp {
- #include "qla_gbl.h"
- #include "qla_dbg.h"
- #include "qla_inline.h"
-+
-+#define IS_SESSION_DELETED(_fcport) (_fcport->disc_state == DSC_DELETE_PEND || \
-+				      _fcport->disc_state == DSC_DELETED)
-+
- #endif
---- a/drivers/scsi/qla2xxx/qla_init.c
-+++ b/drivers/scsi/qla2xxx/qla_init.c
-@@ -575,6 +575,14 @@ qla2x00_async_adisc(struct scsi_qla_host
- 	struct srb_iocb *lio;
- 	int rval = QLA_FUNCTION_FAILED;
+diff --git a/arch/arm/boot/dts/bcm2837.dtsi b/arch/arm/boot/dts/bcm2837.dtsi
+index 0199ec98cd61..5dbdebc46259 100644
+--- a/arch/arm/boot/dts/bcm2837.dtsi
++++ b/arch/arm/boot/dts/bcm2837.dtsi
+@@ -40,12 +40,26 @@
+ 		#size-cells = <0>;
+ 		enable-method = "brcm,bcm2836-smp"; // for ARM 32-bit
  
-+	if (IS_SESSION_DELETED(fcport)) {
-+		ql_log(ql_log_warn, vha, 0xffff,
-+		       "%s: %8phC is being delete - not sending command.\n",
-+		       __func__, fcport->port_name);
-+		fcport->flags &= ~FCF_ASYNC_ACTIVE;
-+		return rval;
-+	}
-+
- 	if (!vha->flags.online || (fcport->flags & FCF_ASYNC_SENT))
- 		return rval;
++		/* Source for d/i-cache-line-size and d/i-cache-sets
++		 * https://developer.arm.com/documentation/ddi0500/e/level-1-memory-system
++		 * /about-the-l1-memory-system?lang=en
++		 *
++		 * Source for d/i-cache-size
++		 * https://magpi.raspberrypi.com/articles/raspberry-pi-3-specs-benchmarks
++		 */
+ 		cpu0: cpu@0 {
+ 			device_type = "cpu";
+ 			compatible = "arm,cortex-a53";
+ 			reg = <0>;
+ 			enable-method = "spin-table";
+ 			cpu-release-addr = <0x0 0x000000d8>;
++			d-cache-size = <0x8000>;
++			d-cache-line-size = <64>;
++			d-cache-sets = <128>; // 32KiB(size)/64(line-size)=512ways/4-way set
++			i-cache-size = <0x8000>;
++			i-cache-line-size = <64>;
++			i-cache-sets = <256>; // 32KiB(size)/64(line-size)=512ways/2-way set
++			next-level-cache = <&l2>;
+ 		};
  
-@@ -1338,8 +1346,15 @@ int qla24xx_async_gpdb(struct scsi_qla_h
- 	struct port_database_24xx *pd;
- 	struct qla_hw_data *ha = vha->hw;
+ 		cpu1: cpu@1 {
+@@ -54,6 +68,13 @@
+ 			reg = <1>;
+ 			enable-method = "spin-table";
+ 			cpu-release-addr = <0x0 0x000000e0>;
++			d-cache-size = <0x8000>;
++			d-cache-line-size = <64>;
++			d-cache-sets = <128>; // 32KiB(size)/64(line-size)=512ways/4-way set
++			i-cache-size = <0x8000>;
++			i-cache-line-size = <64>;
++			i-cache-sets = <256>; // 32KiB(size)/64(line-size)=512ways/2-way set
++			next-level-cache = <&l2>;
+ 		};
  
--	if (!vha->flags.online || (fcport->flags & FCF_ASYNC_SENT) ||
--	    fcport->loop_id == FC_NO_LOOP_ID) {
-+	if (IS_SESSION_DELETED(fcport)) {
-+		ql_log(ql_log_warn, vha, 0xffff,
-+		       "%s: %8phC is being delete - not sending command.\n",
-+		       __func__, fcport->port_name);
-+		fcport->flags &= ~FCF_ASYNC_ACTIVE;
-+		return rval;
-+	}
+ 		cpu2: cpu@2 {
+@@ -62,6 +83,13 @@
+ 			reg = <2>;
+ 			enable-method = "spin-table";
+ 			cpu-release-addr = <0x0 0x000000e8>;
++			d-cache-size = <0x8000>;
++			d-cache-line-size = <64>;
++			d-cache-sets = <128>; // 32KiB(size)/64(line-size)=512ways/4-way set
++			i-cache-size = <0x8000>;
++			i-cache-line-size = <64>;
++			i-cache-sets = <256>; // 32KiB(size)/64(line-size)=512ways/2-way set
++			next-level-cache = <&l2>;
+ 		};
+ 
+ 		cpu3: cpu@3 {
+@@ -70,6 +98,27 @@
+ 			reg = <3>;
+ 			enable-method = "spin-table";
+ 			cpu-release-addr = <0x0 0x000000f0>;
++			d-cache-size = <0x8000>;
++			d-cache-line-size = <64>;
++			d-cache-sets = <128>; // 32KiB(size)/64(line-size)=512ways/4-way set
++			i-cache-size = <0x8000>;
++			i-cache-line-size = <64>;
++			i-cache-sets = <256>; // 32KiB(size)/64(line-size)=512ways/2-way set
++			next-level-cache = <&l2>;
++		};
 +
-+	if (!vha->flags.online || fcport->flags & FCF_ASYNC_SENT) {
- 		ql_log(ql_log_warn, vha, 0xffff,
- 		    "%s: %8phC online %d flags %x - not sending command.\n",
- 		    __func__, fcport->port_name, vha->flags.online, fcport->flags);
++		/* Source for cache-line-size + cache-sets
++		 * https://developer.arm.com/documentation/ddi0500
++		 * /e/level-2-memory-system/about-the-l2-memory-system?lang=en
++		 * Source for cache-size
++		 * https://datasheets.raspberrypi.com/cm/cm1-and-cm3-datasheet.pdf
++		 */
++		l2: l2-cache0 {
++			compatible = "cache";
++			cache-size = <0x80000>;
++			cache-line-size = <64>;
++			cache-sets = <512>; // 512KiB(size)/64(line-size)=8192ways/16-way set
++			cache-level = <2>;
+ 		};
+ 	};
+ };
+-- 
+2.34.1
+
 
 
