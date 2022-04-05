@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 515994F3105
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:36:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C1B074F33C9
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:23:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237393AbiDEIlz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:41:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34412 "EHLO
+        id S237505AbiDEKGz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:06:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51030 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238239AbiDEIa0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:30:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26AD322BF1;
-        Tue,  5 Apr 2022 01:22:00 -0700 (PDT)
+        with ESMTP id S1344267AbiDEJTD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:19:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0A1E220DE;
+        Tue,  5 Apr 2022 02:06:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A988361477;
-        Tue,  5 Apr 2022 08:21:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8A2BC385A9;
-        Tue,  5 Apr 2022 08:21:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7FFD461571;
+        Tue,  5 Apr 2022 09:06:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C039C385A1;
+        Tue,  5 Apr 2022 09:06:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146919;
-        bh=RMc2It4dGYVyP7I6bfOhhGG9ID4xvoJkIC5CZ+LRjz8=;
+        s=korg; t=1649149593;
+        bh=hUw5GvYClpR87kollzuNvmjc3unATiZOHiuZijPqx/s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KGLvcWaoom+KLUeUvlsIXnkSNTEDF7EsYUxguIyBvq1Q/rCGcu7KlIKX5i1Nl8rXe
-         1V2WSnIlUIQQxlZJmxx0geRCPpUMMyDcP/ygna3oWEopwqBhlbRo+Krc4ea6TPs/M6
-         UT7xfvT+YAB9HawCEeXod/zPMYjp6JzGBPWXwL80=
+        b=KaFJ2kWx1a7RhTHQy1JrDDFcTuIIzkbQlDmEjKCRvJAfaG4R4FBqWjtsAr5y67KKB
+         3Xp8mIkWfyapmUYMzg4k1/DsPS9roWt42ssgWcPyfWQ8GGr7md05RHE/Rlm5mBQiQ7
+         njr2dOFa5k0cmmNWu9dTmd8c0DiFCf5g/mjXmQr0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Bard Liao <yung-chuan.liao@linux.intel.com>,
-        =?UTF-8?q?P=C3=A9ter=20Ujfalusi?= <peter.ujfalusi@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0937/1126] ASoC: SOF: Intel: hda: retrieve DMIC number for I2S boards
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        "Souptick Joarder (HPE)" <jrdr.linux@gmail.com>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0771/1017] irqchip/nvic: Release nvic_base upon failure
 Date:   Tue,  5 Apr 2022 09:28:04 +0200
-Message-Id: <20220405070435.015903073@linuxfoundation.org>
+Message-Id: <20220405070417.145962088@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,115 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Souptick Joarder (HPE) <jrdr.linux@gmail.com>
 
-[ Upstream commit 92c1b7c0f780f0084f7b114be316ae4e182676e5 ]
+[ Upstream commit e414c25e3399b2b3d7337dc47abccab5c71b7c8f ]
 
-We currently extract the DMIC number only for HDaudio or SoundWire
-platforms. For I2S/TDM platforms, this wasn't necessary until now, but
-with devices with ES8336 we need to find a solution to detect dmics
-more reliably than with a DMI quirk.
+smatch warning was reported as below ->
 
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Reviewed-by: Péter Ujfalusi <peter.ujfalusi@linux.intel.com>
-Link: https://lore.kernel.org/r/20220308192610.392950-4-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+smatch warnings:
+drivers/irqchip/irq-nvic.c:131 nvic_of_init()
+warn: 'nvic_base' not released on lines: 97.
+
+Release nvic_base upon failure.
+
+Reported-by: kernel test robot <lkp@intel.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Souptick Joarder (HPE) <jrdr.linux@gmail.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20220218163303.33344-1-jrdr.linux@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sof/intel/hda.c | 46 +++++++++++++++++++++------------------
- 1 file changed, 25 insertions(+), 21 deletions(-)
+ drivers/irqchip/irq-nvic.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/sound/soc/sof/intel/hda.c b/sound/soc/sof/intel/hda.c
-index 848d1d563170..028751549f6d 100644
---- a/sound/soc/sof/intel/hda.c
-+++ b/sound/soc/sof/intel/hda.c
-@@ -432,11 +432,9 @@ static char *hda_model;
- module_param(hda_model, charp, 0444);
- MODULE_PARM_DESC(hda_model, "Use the given HDA board model.");
+diff --git a/drivers/irqchip/irq-nvic.c b/drivers/irqchip/irq-nvic.c
+index ba4759b3e269..94230306e0ee 100644
+--- a/drivers/irqchip/irq-nvic.c
++++ b/drivers/irqchip/irq-nvic.c
+@@ -107,6 +107,7 @@ static int __init nvic_of_init(struct device_node *node,
  
--#if IS_ENABLED(CONFIG_SND_SOC_SOF_HDA) || IS_ENABLED(CONFIG_SND_SOC_SOF_INTEL_SOUNDWIRE)
--static int hda_dmic_num = -1;
--module_param_named(dmic_num, hda_dmic_num, int, 0444);
-+static int dmic_num_override = -1;
-+module_param_named(dmic_num, dmic_num_override, int, 0444);
- MODULE_PARM_DESC(dmic_num, "SOF HDA DMIC number");
--#endif
- 
- #if IS_ENABLED(CONFIG_SND_SOC_SOF_HDA)
- static bool hda_codec_use_common_hdmi = IS_ENABLED(CONFIG_SND_HDA_CODEC_HDMI);
-@@ -644,24 +642,35 @@ static int hda_init(struct snd_sof_dev *sdev)
- 	return ret;
- }
- 
--#if IS_ENABLED(CONFIG_SND_SOC_SOF_HDA) || IS_ENABLED(CONFIG_SND_SOC_SOF_INTEL_SOUNDWIRE)
--
--static int check_nhlt_dmic(struct snd_sof_dev *sdev)
-+static int check_dmic_num(struct snd_sof_dev *sdev)
- {
- 	struct nhlt_acpi_table *nhlt;
--	int dmic_num;
-+	int dmic_num = 0;
- 
- 	nhlt = intel_nhlt_init(sdev->dev);
- 	if (nhlt) {
- 		dmic_num = intel_nhlt_get_dmic_geo(sdev->dev, nhlt);
- 		intel_nhlt_free(nhlt);
--		if (dmic_num >= 1 && dmic_num <= 4)
--			return dmic_num;
+ 	if (!nvic_irq_domain) {
+ 		pr_warn("Failed to allocate irq domain\n");
++		iounmap(nvic_base);
+ 		return -ENOMEM;
  	}
  
--	return 0;
-+	/* allow for module parameter override */
-+	if (dmic_num_override != -1) {
-+		dev_dbg(sdev->dev,
-+			"overriding DMICs detected in NHLT tables %d by kernel param %d\n",
-+			dmic_num, dmic_num_override);
-+		dmic_num = dmic_num_override;
-+	}
-+
-+	if (dmic_num < 0 || dmic_num > 4) {
-+		dev_dbg(sdev->dev, "invalid dmic_number %d\n", dmic_num);
-+		dmic_num = 0;
-+	}
-+
-+	return dmic_num;
- }
+@@ -116,6 +117,7 @@ static int __init nvic_of_init(struct device_node *node,
+ 	if (ret) {
+ 		pr_warn("Failed to allocate irq chips\n");
+ 		irq_domain_remove(nvic_irq_domain);
++		iounmap(nvic_base);
+ 		return ret;
+ 	}
  
-+#if IS_ENABLED(CONFIG_SND_SOC_SOF_HDA) || IS_ENABLED(CONFIG_SND_SOC_SOF_INTEL_SOUNDWIRE)
-+
- static const char *fixup_tplg_name(struct snd_sof_dev *sdev,
- 				   const char *sof_tplg_filename,
- 				   const char *idisp_str,
-@@ -697,16 +706,8 @@ static int dmic_topology_fixup(struct snd_sof_dev *sdev,
- 	const char *dmic_str;
- 	int dmic_num;
- 
--	/* first check NHLT for DMICs */
--	dmic_num = check_nhlt_dmic(sdev);
--
--	/* allow for module parameter override */
--	if (hda_dmic_num != -1) {
--		dev_dbg(sdev->dev,
--			"overriding DMICs detected in NHLT tables %d by kernel param %d\n",
--			dmic_num, hda_dmic_num);
--		dmic_num = hda_dmic_num;
--	}
-+	/* first check for DMICs (using NHLT or module parameter) */
-+	dmic_num = check_dmic_num(sdev);
- 
- 	switch (dmic_num) {
- 	case 1:
-@@ -1392,6 +1393,9 @@ struct snd_soc_acpi_mach *hda_machine_select(struct snd_sof_dev *sdev)
- 		if (!sof_pdata->tplg_filename)
- 			sof_pdata->tplg_filename = mach->sof_tplg_filename;
- 
-+		/* report to machine driver if any DMICs are found */
-+		mach->mach_params.dmic_num = check_dmic_num(sdev);
-+
- 		if (mach->link_mask) {
- 			mach->mach_params.links = mach->links;
- 			mach->mach_params.link_mask = mach->link_mask;
 -- 
 2.34.1
 
