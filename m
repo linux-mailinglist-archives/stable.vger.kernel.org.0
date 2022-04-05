@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F5D04F2E12
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:49:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4096D4F29F9
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 12:51:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343686AbiDEJMj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:12:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48748 "EHLO
+        id S1344720AbiDEKkI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:40:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50282 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244833AbiDEIwm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:42 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0B2022512;
-        Tue,  5 Apr 2022 01:44:31 -0700 (PDT)
+        with ESMTP id S243692AbiDEJkQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:40:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABD96B0A72;
+        Tue,  5 Apr 2022 02:24:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 415E5CE1C6D;
-        Tue,  5 Apr 2022 08:44:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58907C385A0;
-        Tue,  5 Apr 2022 08:44:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 33EF8614F9;
+        Tue,  5 Apr 2022 09:24:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FA0EC385A0;
+        Tue,  5 Apr 2022 09:24:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148268;
-        bh=iWedxj7YTagci/gi3EDpl5fIirs9sNJC96Xu5blLHW8=;
+        s=korg; t=1649150692;
+        bh=xrHz9wZKNUYJ0hOqUhbpLhkKn96N95JVuiFTxojv6kA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TNY1v7BuWUWRVYEMOtiB/QNDzRqXnF9xXL/PtY8yBPGG/sBN5Wn3J7Ev0GC8CKCMi
-         a6jshQd6MuiA2PMycfFgWi0fWYJowOGR1wPuR4IKy8vb/DEBtqL9XxrBGlRvl78ziQ
-         lTcv1ZaPwwh6FoMOGOLwu6qzNuLPTQddCiQmXmsw=
+        b=PK+VHNagBo7HHqGD0ijO3uqaxsu19gjHJDh+KKw91gfbu0RHuKmejVeFoopuySMT5
+         cWXP41Vpl1Rgh7GKZfIE8TTQ9YcNt6FjIvEKSW0DTFPDRfjLZr1xO5bsr1s4kcbSfa
+         EF235o3HjwjUNqMYXoxGr8JQzCUMsEf+ipjePdns=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0294/1017] memory: tegra20-emc: Correct memory device mask
-Date:   Tue,  5 Apr 2022 09:20:07 +0200
-Message-Id: <20220405070403.001122645@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Tudor Ambarus <tudor.ambarus@microchip.com>,
+        Eugen Hristev <eugen.hristev@microchip.com>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>
+Subject: [PATCH 5.15 146/913] ARM: dts: at91: sama7g5: Remove unused properties in i2c nodes
+Date:   Tue,  5 Apr 2022 09:20:08 +0200
+Message-Id: <20220405070344.211954659@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +55,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: Tudor Ambarus <tudor.ambarus@microchip.com>
 
-[ Upstream commit 9ff684342ee7d3ea2755c6e9b60bc43085baa3ad ]
+commit cbb92a7717d2e1c512b7e81c6b22c7298b58a881 upstream.
 
-Memory chip select is swapped when we read mode register, correct it.
-We didn't have devices that use a single LPDDR chip and both chips are
-always identical, hence this change is just a minor improvement.
+The "atmel,use-dma-rx", "atmel,use-dma-rx" dt properties are not used by
+the i2c-at91 driver, nor they are defined in the bindings file, thus remove
+them.
 
-Fixes: 131dd9a436d8 ("memory: tegra20-emc: Support matching timings by LPDDR2 configuration")
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-Link: https://lore.kernel.org/r/20211222043215.28237-2-digetx@gmail.com
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: 7540629e2fc7 ("ARM: dts: at91: add sama7g5 SoC DT and sama7g5-ek")
+Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+Reviewed-by: Eugen Hristev <eugen.hristev@microchip.com>
+Signed-off-by: Nicolas Ferre <nicolas.ferre@microchip.com>
+Link: https://lore.kernel.org/r/20220302161854.32177-1-tudor.ambarus@microchip.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/memory/tegra/tegra20-emc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/dts/sama7g5.dtsi |    6 ------
+ 1 file changed, 6 deletions(-)
 
-diff --git a/drivers/memory/tegra/tegra20-emc.c b/drivers/memory/tegra/tegra20-emc.c
-index 497b6edbf3ca..25ba3c5e4ad6 100644
---- a/drivers/memory/tegra/tegra20-emc.c
-+++ b/drivers/memory/tegra/tegra20-emc.c
-@@ -540,7 +540,7 @@ static int emc_read_lpddr_mode_register(struct tegra_emc *emc,
- 					unsigned int register_addr,
- 					unsigned int *register_data)
- {
--	u32 memory_dev = emem_dev + 1;
-+	u32 memory_dev = emem_dev ? 1 : 2;
- 	u32 val, mr_mask = 0xff;
- 	int err;
- 
--- 
-2.34.1
-
+--- a/arch/arm/boot/dts/sama7g5.dtsi
++++ b/arch/arm/boot/dts/sama7g5.dtsi
+@@ -319,8 +319,6 @@
+ 				dmas = <&dma0 AT91_XDMAC_DT_PERID(7)>,
+ 					<&dma0 AT91_XDMAC_DT_PERID(8)>;
+ 				dma-names = "rx", "tx";
+-				atmel,use-dma-rx;
+-				atmel,use-dma-tx;
+ 				status = "disabled";
+ 			};
+ 		};
+@@ -485,8 +483,6 @@
+ 				dmas = <&dma0 AT91_XDMAC_DT_PERID(21)>,
+ 					<&dma0 AT91_XDMAC_DT_PERID(22)>;
+ 				dma-names = "rx", "tx";
+-				atmel,use-dma-rx;
+-				atmel,use-dma-tx;
+ 				status = "disabled";
+ 			};
+ 		};
+@@ -511,8 +507,6 @@
+ 				dmas = <&dma0 AT91_XDMAC_DT_PERID(23)>,
+ 					<&dma0 AT91_XDMAC_DT_PERID(24)>;
+ 				dma-names = "rx", "tx";
+-				atmel,use-dma-rx;
+-				atmel,use-dma-tx;
+ 				status = "disabled";
+ 			};
+ 		};
 
 
