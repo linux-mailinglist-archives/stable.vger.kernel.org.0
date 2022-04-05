@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1916D4F3734
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:19:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 764F74F3727
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:19:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352501AbiDELLV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:11:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47444 "EHLO
+        id S235076AbiDELKb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:10:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348870AbiDEJsm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:48:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D252AB8232;
-        Tue,  5 Apr 2022 02:36:45 -0700 (PDT)
+        with ESMTP id S1348883AbiDEJso (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:48:44 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79453B82F1;
+        Tue,  5 Apr 2022 02:36:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6C0DD61368;
-        Tue,  5 Apr 2022 09:36:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EBA1C385A2;
-        Tue,  5 Apr 2022 09:36:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ECBAAB81C6F;
+        Tue,  5 Apr 2022 09:36:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DB99C385A0;
+        Tue,  5 Apr 2022 09:36:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151404;
-        bh=Lz+RnShiOWqhr9VZ2Hk0RmfdNwsgPLj1BY8SZvVpN7E=;
+        s=korg; t=1649151407;
+        bh=wrzKA6GCbzPNzzjub1bTM8BTkxgUSu+wwTfvBLMihEs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SEY+2zDl0pLMAPjzjIR14nvtC18XzCuHAKzgfa+6NOrw43x126tbxp28cbqWIc5de
-         6+zHEQzN7v7tXanjN0e1tIQ2FrhpChRfRMuQ2PYSYuOmPnvNA9dsTbq4ZIeuAzFo8z
-         wqkMlsjZmPebQH08KAGnei//iuznHeQj5psqe8FU=
+        b=n8+T5/5aBzh4NOCCj0tAorkv9cTNqd/uM/VT3vtDUKajun3QWmw2ufI45Y1xkTShR
+         +92Uvx4Q5wjuiS3o6JejvpSSk27/YhwohuYM035bbuk5/tCYB5LZSv9Ckvv9cQHZXT
+         RU2SZHvBmKz9fNLMWaS3qadyHv2CXpFvRgCJHEic=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Robert Hancock <robert.hancock@calian.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 402/913] drm/amd/pm: return -ENOTSUPP if there is no get_dpm_ultimate_freq function
-Date:   Tue,  5 Apr 2022 09:24:24 +0200
-Message-Id: <20220405070351.897150038@linuxfoundation.org>
+Subject: [PATCH 5.15 403/913] net: phy: at803x: move page selection fix to config_init
+Date:   Tue,  5 Apr 2022 09:24:25 +0200
+Message-Id: <20220405070351.927797234@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -54,40 +54,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Robert Hancock <robert.hancock@calian.com>
 
-[ Upstream commit 430e6a0212b2a0eb1de5e9d47a016fa79edf3978 ]
+[ Upstream commit 4f3a00c7f5b2cfe4e127fd3fe49b55e1b318c01f ]
 
-clang static analysis reports this represenative problem
-amdgpu_smu.c:144:18: warning: The left operand of '*' is a garbage value
-        return clk_freq * 100;
-               ~~~~~~~~ ^
+The fix to select the copper page on AR8031 was being done in the probe
+function rather than config_init, so it would not be redone after resume
+from suspend. Move this to config_init so it is always redone when
+needed.
 
-If there is no get_dpm_ultimate_freq function,
-smu_get_dpm_freq_range returns success without setting the
-output min,max parameters.  So return an -ENOTSUPP error.
-
-Fixes: e5ef784b1e17 ("drm/amd/powerplay: revise calling chain on retrieving frequency range")
-Signed-off-by: Tom Rix <trix@redhat.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: c329e5afb42f ("net: phy: at803x: select correct page on config init")
+Signed-off-by: Robert Hancock <robert.hancock@calian.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/pm/swsmu/amdgpu_smu.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/phy/at803x.c | 40 ++++++++++++++++------------------------
+ 1 file changed, 16 insertions(+), 24 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/pm/swsmu/amdgpu_smu.c b/drivers/gpu/drm/amd/pm/swsmu/amdgpu_smu.c
-index 6dc83cfad9d8..8acdb244b99f 100644
---- a/drivers/gpu/drm/amd/pm/swsmu/amdgpu_smu.c
-+++ b/drivers/gpu/drm/amd/pm/swsmu/amdgpu_smu.c
-@@ -138,7 +138,7 @@ int smu_get_dpm_freq_range(struct smu_context *smu,
- 			   uint32_t *min,
- 			   uint32_t *max)
- {
--	int ret = 0;
-+	int ret = -ENOTSUPP;
+diff --git a/drivers/net/phy/at803x.c b/drivers/net/phy/at803x.c
+index bdac087058b2..5ae39d236b30 100644
+--- a/drivers/net/phy/at803x.c
++++ b/drivers/net/phy/at803x.c
+@@ -666,25 +666,7 @@ static int at803x_probe(struct phy_device *phydev)
+ 			return ret;
+ 	}
  
- 	if (!min && !max)
- 		return -EINVAL;
+-	/* Some bootloaders leave the fiber page selected.
+-	 * Switch to the copper page, as otherwise we read
+-	 * the PHY capabilities from the fiber side.
+-	 */
+-	if (phydev->drv->phy_id == ATH8031_PHY_ID) {
+-		phy_lock_mdio_bus(phydev);
+-		ret = at803x_write_page(phydev, AT803X_PAGE_COPPER);
+-		phy_unlock_mdio_bus(phydev);
+-		if (ret)
+-			goto err;
+-	}
+-
+ 	return 0;
+-
+-err:
+-	if (priv->vddio)
+-		regulator_disable(priv->vddio);
+-
+-	return ret;
+ }
+ 
+ static void at803x_remove(struct phy_device *phydev)
+@@ -785,6 +767,22 @@ static int at803x_config_init(struct phy_device *phydev)
+ {
+ 	int ret;
+ 
++	if (phydev->drv->phy_id == ATH8031_PHY_ID) {
++		/* Some bootloaders leave the fiber page selected.
++		 * Switch to the copper page, as otherwise we read
++		 * the PHY capabilities from the fiber side.
++		 */
++		phy_lock_mdio_bus(phydev);
++		ret = at803x_write_page(phydev, AT803X_PAGE_COPPER);
++		phy_unlock_mdio_bus(phydev);
++		if (ret)
++			return ret;
++
++		ret = at8031_pll_config(phydev);
++		if (ret < 0)
++			return ret;
++	}
++
+ 	/* The RX and TX delay default is:
+ 	 *   after HW reset: RX delay enabled and TX delay disabled
+ 	 *   after SW reset: RX delay enabled, while TX delay retains the
+@@ -814,12 +812,6 @@ static int at803x_config_init(struct phy_device *phydev)
+ 	if (ret < 0)
+ 		return ret;
+ 
+-	if (phydev->drv->phy_id == ATH8031_PHY_ID) {
+-		ret = at8031_pll_config(phydev);
+-		if (ret < 0)
+-			return ret;
+-	}
+-
+ 	/* Ar803x extended next page bit is enabled by default. Cisco
+ 	 * multigig switches read this bit and attempt to negotiate 10Gbps
+ 	 * rates even if the next page bit is disabled. This is incorrect
 -- 
 2.34.1
 
