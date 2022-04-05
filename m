@@ -2,49 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B9FE64F32A6
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:59:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FF934F347C
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:37:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353595AbiDEKIV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:08:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34668 "EHLO
+        id S1343562AbiDEI5C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:57:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52856 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344435AbiDEJT6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:19:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D751BDF16;
-        Tue,  5 Apr 2022 02:08:20 -0700 (PDT)
+        with ESMTP id S240177AbiDEIbq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:31:46 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EB3CE017;
+        Tue,  5 Apr 2022 01:23:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AE19161564;
-        Tue,  5 Apr 2022 09:08:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C09B9C385A1;
-        Tue,  5 Apr 2022 09:08:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D7AC161003;
+        Tue,  5 Apr 2022 08:23:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC10EC385A0;
+        Tue,  5 Apr 2022 08:23:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149699;
-        bh=qMSq2ZM7H+t3XIYKOQd73sqX230ds6e20YdaLYU4CE0=;
+        s=korg; t=1649147026;
+        bh=TEt6u2v2p7dI5no1Pgbez4k7Gzktp4YSlW5alzX4JkU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dRF3RG0K1xl0Cwo3M4+IzUqsitx89FGqT7EQePtzt9GlSb+WgdyFUewN2yc8O6Hue
-         caIQ9HZsMP5FLFf5X20L9L1MTc04iJ6NqQfe/jjHQX9qNkzLOcijn3io8km1FGh5YE
-         WqvIJwBMVv59r9B8DSG3B+f7JG49A5+Q5ASELz28=
+        b=EdW+nK6Sf7m164Ji3Gdz8BefWRlnzVGcA4V5aZv0cd4XQPs4VEO8r7XxwFr/mL3IS
+         EAwUejYJgFsfl2UHoMm7WoQf10+K5aPWXOZAuTyvmKWk2V8tjcKtRHV2xw/KASoLas
+         KNpi2dXQRtI9aHaGSCTDvMURhjL3CoPFL1kwBmWM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Reddy Muralidhar <muralidhar.reddy@intel.com>,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Rander Wang <rander.wang@intel.com>,
-        Bard Liao <yung-chuan.liao@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0810/1017] ASoC: SOF: Intel: match sdw version on link_slaves_found
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Bikash Hazarika <bhazarika@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.17 0976/1126] scsi: qla2xxx: Fix wrong FDMI data for 64G adapter
 Date:   Tue,  5 Apr 2022 09:28:43 +0200
-Message-Id: <20220405070418.291130906@linuxfoundation.org>
+Message-Id: <20220405070436.150727713@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,85 +56,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bard Liao <yung-chuan.liao@linux.intel.com>
+From: Bikash Hazarika <bhazarika@marvell.com>
 
-[ Upstream commit f67c0c0d3b9048d86ea6ae52e36a2b78c48f265d ]
+commit 1cfbbacbee2d6ea3816386a483e3c7a96e5bd657 upstream.
 
-Codecs with the same part id, manufacturer id and part id, but different
-sdw version should be treated as different codecs. For example, rt711 and
-rt711-sdca are different. So, we should match sdw version as well.
+Corrected transmission speed mask values for FC.
 
-Reported-by: Reddy Muralidhar <muralidhar.reddy@intel.com>
-Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Reviewed-by: Rander Wang <rander.wang@intel.com>
-Signed-off-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20220120232157.199919-2-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Supported Speed: 16 32 20 Gb/s ===> Should be 64 instead of 20
+Supported Speed: 16G 32G 48G   ===> Should be 64G instead of 48G
+
+Link: https://lore.kernel.org/r/20220110050218.3958-9-njavali@marvell.com
+Cc: stable@vger.kernel.org
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Bikash Hazarika <bhazarika@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/sof/intel/hda.c | 15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+ drivers/scsi/qla2xxx/qla_def.h |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/sof/intel/hda.c b/sound/soc/sof/intel/hda.c
-index 25200a0e1dc9..fc88296ab898 100644
---- a/sound/soc/sof/intel/hda.c
-+++ b/sound/soc/sof/intel/hda.c
-@@ -1200,7 +1200,7 @@ static bool link_slaves_found(struct snd_sof_dev *sdev,
- 	struct hdac_bus *bus = sof_to_bus(sdev);
- 	struct sdw_intel_slave_id *ids = sdw->ids;
- 	int num_slaves = sdw->num_slaves;
--	unsigned int part_id, link_id, unique_id, mfg_id;
-+	unsigned int part_id, link_id, unique_id, mfg_id, version;
- 	int i, j, k;
+--- a/drivers/scsi/qla2xxx/qla_def.h
++++ b/drivers/scsi/qla2xxx/qla_def.h
+@@ -2891,7 +2891,11 @@ struct ct_fdmi2_hba_attributes {
+ #define FDMI_PORT_SPEED_8GB		0x10
+ #define FDMI_PORT_SPEED_16GB		0x20
+ #define FDMI_PORT_SPEED_32GB		0x40
+-#define FDMI_PORT_SPEED_64GB		0x80
++#define FDMI_PORT_SPEED_20GB		0x80
++#define FDMI_PORT_SPEED_40GB		0x100
++#define FDMI_PORT_SPEED_128GB		0x200
++#define FDMI_PORT_SPEED_64GB		0x400
++#define FDMI_PORT_SPEED_256GB		0x800
+ #define FDMI_PORT_SPEED_UNKNOWN		0x8000
  
- 	for (i = 0; i < link->num_adr; i++) {
-@@ -1210,12 +1210,14 @@ static bool link_slaves_found(struct snd_sof_dev *sdev,
- 		mfg_id = SDW_MFG_ID(adr);
- 		part_id = SDW_PART_ID(adr);
- 		link_id = SDW_DISCO_LINK_ID(adr);
-+		version = SDW_VERSION(adr);
- 
- 		for (j = 0; j < num_slaves; j++) {
- 			/* find out how many identical parts were reported on that link */
- 			if (ids[j].link_id == link_id &&
- 			    ids[j].id.part_id == part_id &&
--			    ids[j].id.mfg_id == mfg_id)
-+			    ids[j].id.mfg_id == mfg_id &&
-+			    ids[j].id.sdw_version == version)
- 				reported_part_count++;
- 		}
- 
-@@ -1224,21 +1226,24 @@ static bool link_slaves_found(struct snd_sof_dev *sdev,
- 
- 			if (ids[j].link_id != link_id ||
- 			    ids[j].id.part_id != part_id ||
--			    ids[j].id.mfg_id != mfg_id)
-+			    ids[j].id.mfg_id != mfg_id ||
-+			    ids[j].id.sdw_version != version)
- 				continue;
- 
- 			/* find out how many identical parts are expected */
- 			for (k = 0; k < link->num_adr; k++) {
- 				u64 adr2 = link->adr_d[k].adr;
--				unsigned int part_id2, link_id2, mfg_id2;
-+				unsigned int part_id2, link_id2, mfg_id2, version2;
- 
- 				mfg_id2 = SDW_MFG_ID(adr2);
- 				part_id2 = SDW_PART_ID(adr2);
- 				link_id2 = SDW_DISCO_LINK_ID(adr2);
-+				version2 = SDW_VERSION(adr2);
- 
- 				if (link_id2 == link_id &&
- 				    part_id2 == part_id &&
--				    mfg_id2 == mfg_id)
-+				    mfg_id2 == mfg_id &&
-+				    version2 == version)
- 					expected_part_count++;
- 			}
- 
--- 
-2.34.1
-
+ #define FC_CLASS_2	0x04
 
 
