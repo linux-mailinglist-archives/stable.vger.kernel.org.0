@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F29C4F320C
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:54:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 23F314F33B3
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:21:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237135AbiDEIlm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:41:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53140 "EHLO
+        id S233878AbiDEKGP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:06:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237186AbiDEI3J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:29:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0D9519C39;
-        Tue,  5 Apr 2022 01:21:16 -0700 (PDT)
+        with ESMTP id S1344236AbiDEJSy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:18:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9731D47545;
+        Tue,  5 Apr 2022 02:06:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A90C4B81BBC;
-        Tue,  5 Apr 2022 08:21:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC4E5C385A0;
-        Tue,  5 Apr 2022 08:21:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2773161572;
+        Tue,  5 Apr 2022 09:06:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3526AC385A0;
+        Tue,  5 Apr 2022 09:06:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146874;
-        bh=93YLaa0zQ7hqgghUl04JHh02d/eZiQqyJBOIBGaKxuc=;
+        s=korg; t=1649149560;
+        bh=PaGBNH3IO+vHhfj5CQrJJiXJVdx0NKXBLXt6WjCBSr8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PfxRSfsYV69vJkmDX/9wgmGjhgHVCZ03CI4kcNnTtJHRr2a2v4KN/b3OfjB2d+TQr
-         y/UNu+X15jaOavY6HalitYi7Myj+ZOujWP7989PHyPX+rUPmEFEIsy7kPXDGfDlrz1
-         57E7rCYSrBqrqO2E/nGzWL5FNcoSuXydySdz8RYs=
+        b=V1zU3BOnugZmeyj1XKtOxk5XuJ2WZm7AHF87oAEAQEzqsasYqAcZppHcssQt1JbiW
+         k6Z7d449V/uGkw5rrFiBIWt3ai8aTSzGYWdCRx9aoZDb6VSNkQKjt2T4lQ7cj12ZKY
+         lVGcJiWdyC+KaAOKhNTHryXIdkq9n5HF7lwLuJYs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Richard Schleich <rs@noreya.tech>,
-        Stefan Wahren <stefan.wahren@i2se.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
+        stable@vger.kernel.org,
+        Dave Stevenson <dave.stevenson@raspberrypi.com>,
+        Detlev Casanova <detlev.casanova@collabora.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0918/1126] ARM: dts: bcm2711: Add the missing L1/L2 cache information
+Subject: [PATCH 5.16 0752/1017] regulator: rpi-panel: Handle I2C errors/timing to the Atmel
 Date:   Tue,  5 Apr 2022 09:27:45 +0200
-Message-Id: <20220405070434.466920225@linuxfoundation.org>
+Message-Id: <20220405070416.582403822@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,111 +56,141 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Richard Schleich <rs@noreya.tech>
+From: Dave Stevenson <dave.stevenson@raspberrypi.com>
 
-[ Upstream commit 618682b350990f8f1bee718949c4b3858711eb58 ]
+[ Upstream commit 5665eee7a3800430e7dc3ef6f25722476b603186 ]
 
-This patch fixes the kernel warning
-"cacheinfo: Unable to detect cache hierarchy for CPU 0"
-for the bcm2711 on newer kernel versions.
+The Atmel is doing some things in the I2C ISR, during which
+period it will not respond to further commands. This is
+particularly true of the POWERON command.
 
-Signed-off-by: Richard Schleich <rs@noreya.tech>
-Tested-by: Stefan Wahren <stefan.wahren@i2se.com>
-[florian: Align and remove comments matching property values]
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Increase delays appropriately, and retry should I2C errors be
+reported.
+
+Signed-off-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
+Signed-off-by: Detlev Casanova <detlev.casanova@collabora.com>
+Link: https://lore.kernel.org/r/20220124220129.158891-3-detlev.casanova@collabora.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/bcm2711.dtsi | 50 ++++++++++++++++++++++++++++++++++
- 1 file changed, 50 insertions(+)
+ .../regulator/rpi-panel-attiny-regulator.c    | 56 +++++++++++++++----
+ 1 file changed, 46 insertions(+), 10 deletions(-)
 
-diff --git a/arch/arm/boot/dts/bcm2711.dtsi b/arch/arm/boot/dts/bcm2711.dtsi
-index 21294f775a20..89af57482bc8 100644
---- a/arch/arm/boot/dts/bcm2711.dtsi
-+++ b/arch/arm/boot/dts/bcm2711.dtsi
-@@ -459,12 +459,26 @@
- 		#size-cells = <0>;
- 		enable-method = "brcm,bcm2836-smp"; // for ARM 32-bit
+diff --git a/drivers/regulator/rpi-panel-attiny-regulator.c b/drivers/regulator/rpi-panel-attiny-regulator.c
+index ee46bfbf5eee..991b4730d768 100644
+--- a/drivers/regulator/rpi-panel-attiny-regulator.c
++++ b/drivers/regulator/rpi-panel-attiny-regulator.c
+@@ -37,11 +37,24 @@ static const struct regmap_config attiny_regmap_config = {
+ static int attiny_lcd_power_enable(struct regulator_dev *rdev)
+ {
+ 	unsigned int data;
++	int ret, i;
  
-+		/* Source for d/i-cache-line-size and d/i-cache-sets
-+		 * https://developer.arm.com/documentation/100095/0003
-+		 * /Level-1-Memory-System/About-the-L1-memory-system?lang=en
-+		 * Source for d/i-cache-size
-+		 * https://www.raspberrypi.com/documentation/computers
-+		 * /processors.html#bcm2711
-+		 */
- 		cpu0: cpu@0 {
- 			device_type = "cpu";
- 			compatible = "arm,cortex-a72";
- 			reg = <0>;
- 			enable-method = "spin-table";
- 			cpu-release-addr = <0x0 0x000000d8>;
-+			d-cache-size = <0x8000>;
-+			d-cache-line-size = <64>;
-+			d-cache-sets = <256>; // 32KiB(size)/64(line-size)=512ways/2-way set
-+			i-cache-size = <0xc000>;
-+			i-cache-line-size = <64>;
-+			i-cache-sets = <256>; // 48KiB(size)/64(line-size)=768ways/3-way set
-+			next-level-cache = <&l2>;
- 		};
- 
- 		cpu1: cpu@1 {
-@@ -473,6 +487,13 @@
- 			reg = <1>;
- 			enable-method = "spin-table";
- 			cpu-release-addr = <0x0 0x000000e0>;
-+			d-cache-size = <0x8000>;
-+			d-cache-line-size = <64>;
-+			d-cache-sets = <256>; // 32KiB(size)/64(line-size)=512ways/2-way set
-+			i-cache-size = <0xc000>;
-+			i-cache-line-size = <64>;
-+			i-cache-sets = <256>; // 48KiB(size)/64(line-size)=768ways/3-way set
-+			next-level-cache = <&l2>;
- 		};
- 
- 		cpu2: cpu@2 {
-@@ -481,6 +502,13 @@
- 			reg = <2>;
- 			enable-method = "spin-table";
- 			cpu-release-addr = <0x0 0x000000e8>;
-+			d-cache-size = <0x8000>;
-+			d-cache-line-size = <64>;
-+			d-cache-sets = <256>; // 32KiB(size)/64(line-size)=512ways/2-way set
-+			i-cache-size = <0xc000>;
-+			i-cache-line-size = <64>;
-+			i-cache-sets = <256>; // 48KiB(size)/64(line-size)=768ways/3-way set
-+			next-level-cache = <&l2>;
- 		};
- 
- 		cpu3: cpu@3 {
-@@ -489,6 +517,28 @@
- 			reg = <3>;
- 			enable-method = "spin-table";
- 			cpu-release-addr = <0x0 0x000000f0>;
-+			d-cache-size = <0x8000>;
-+			d-cache-line-size = <64>;
-+			d-cache-sets = <256>; // 32KiB(size)/64(line-size)=512ways/2-way set
-+			i-cache-size = <0xc000>;
-+			i-cache-line-size = <64>;
-+			i-cache-sets = <256>; // 48KiB(size)/64(line-size)=768ways/3-way set
-+			next-level-cache = <&l2>;
-+		};
+ 	regmap_write(rdev->regmap, REG_POWERON, 1);
++	msleep(80);
 +
-+		/* Source for d/i-cache-line-size and d/i-cache-sets
-+		 *  https://developer.arm.com/documentation/100095/0003
-+		 *  /Level-2-Memory-System/About-the-L2-memory-system?lang=en
-+		 *  Source for d/i-cache-size
-+		 *  https://www.raspberrypi.com/documentation/computers
-+		 *  /processors.html#bcm2711
-+		 */
-+		l2: l2-cache0 {
-+			compatible = "cache";
-+			cache-size = <0x100000>;
-+			cache-line-size = <64>;
-+			cache-sets = <1024>; // 1MiB(size)/64(line-size)=16384ways/16-way set
-+			cache-level = <2>;
- 		};
- 	};
+ 	/* Wait for nPWRDWN to go low to indicate poweron is done. */
+-	regmap_read_poll_timeout(rdev->regmap, REG_PORTB, data,
+-					data & BIT(0), 10, 1000000);
++	for (i = 0; i < 20; i++) {
++		ret = regmap_read(rdev->regmap, REG_PORTB, &data);
++		if (!ret) {
++			if (data & BIT(0))
++				break;
++		}
++		usleep_range(10000, 12000);
++	}
++	usleep_range(10000, 12000);
++
++	if (ret)
++		pr_err("%s: regmap_read_poll_timeout failed %d\n", __func__, ret);
  
+ 	/* Default to the same orientation as the closed source
+ 	 * firmware used for the panel.  Runtime rotation
+@@ -57,23 +70,34 @@ static int attiny_lcd_power_disable(struct regulator_dev *rdev)
+ {
+ 	regmap_write(rdev->regmap, REG_PWM, 0);
+ 	regmap_write(rdev->regmap, REG_POWERON, 0);
+-	udelay(1);
++	msleep(30);
+ 	return 0;
+ }
+ 
+ static int attiny_lcd_power_is_enabled(struct regulator_dev *rdev)
+ {
+ 	unsigned int data;
+-	int ret;
++	int ret, i;
+ 
+-	ret = regmap_read(rdev->regmap, REG_POWERON, &data);
++	for (i = 0; i < 10; i++) {
++		ret = regmap_read(rdev->regmap, REG_POWERON, &data);
++		if (!ret)
++			break;
++		usleep_range(10000, 12000);
++	}
+ 	if (ret < 0)
+ 		return ret;
+ 
+ 	if (!(data & BIT(0)))
+ 		return 0;
+ 
+-	ret = regmap_read(rdev->regmap, REG_PORTB, &data);
++	for (i = 0; i < 10; i++) {
++		ret = regmap_read(rdev->regmap, REG_PORTB, &data);
++		if (!ret)
++			break;
++		usleep_range(10000, 12000);
++	}
++
+ 	if (ret < 0)
+ 		return ret;
+ 
+@@ -103,20 +127,32 @@ static int attiny_update_status(struct backlight_device *bl)
+ {
+ 	struct regmap *regmap = bl_get_data(bl);
+ 	int brightness = bl->props.brightness;
++	int ret, i;
+ 
+ 	if (bl->props.power != FB_BLANK_UNBLANK ||
+ 	    bl->props.fb_blank != FB_BLANK_UNBLANK)
+ 		brightness = 0;
+ 
+-	return regmap_write(regmap, REG_PWM, brightness);
++	for (i = 0; i < 10; i++) {
++		ret = regmap_write(regmap, REG_PWM, brightness);
++		if (!ret)
++			break;
++	}
++
++	return ret;
+ }
+ 
+ static int attiny_get_brightness(struct backlight_device *bl)
+ {
+ 	struct regmap *regmap = bl_get_data(bl);
+-	int ret, brightness;
++	int ret, brightness, i;
++
++	for (i = 0; i < 10; i++) {
++		ret = regmap_read(regmap, REG_PWM, &brightness);
++		if (!ret)
++			break;
++	}
+ 
+-	ret = regmap_read(regmap, REG_PWM, &brightness);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -166,7 +202,7 @@ static int attiny_i2c_probe(struct i2c_client *i2c,
+ 	}
+ 
+ 	regmap_write(regmap, REG_POWERON, 0);
+-	mdelay(1);
++	msleep(30);
+ 
+ 	config.dev = &i2c->dev;
+ 	config.regmap = regmap;
 -- 
 2.34.1
 
