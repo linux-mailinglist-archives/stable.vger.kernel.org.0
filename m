@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ECA674F37F6
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:26:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 071064F3A9D
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:03:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359763AbiDELUq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:20:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44178 "EHLO
+        id S1381608AbiDELqd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:46:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45146 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349077AbiDEJtE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A575AA9940;
-        Tue,  5 Apr 2022 02:40:06 -0700 (PDT)
+        with ESMTP id S1354938AbiDEKQg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:16:36 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52C5521816;
+        Tue,  5 Apr 2022 03:04:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 535C6B818F3;
-        Tue,  5 Apr 2022 09:40:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BBC3C385A1;
-        Tue,  5 Apr 2022 09:40:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E411C61673;
+        Tue,  5 Apr 2022 10:04:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF2C3C385A1;
+        Tue,  5 Apr 2022 10:04:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151604;
-        bh=jf/0EApObABORwS/DhG/9UsbVEQxtDbTazbrKwfT8wI=;
+        s=korg; t=1649153043;
+        bh=AIwGneCgQREljoh3n2S10EY9Q3wkZzrK2N0v2FayM6A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z7djd2FVzQ6M0GVtSFpu0P1KVwIDQdQ92SZIFFzWd2KDbGlyPZ/XkYQVqXRHlEtyf
-         v/UGbxtUgz98nmBfsDsyWpSdE00cfRM+HqgODEQ2SDngbDCS4RukBOQgN/LHkPZF7i
-         B3x3DNKIVTBPgOkD0Sh3nYrDzEmTlMALGW38Z0Ls=
+        b=mHwt02+ECcjSvQWIN5LPheRBZjUPeNGU+moc6qdLICa0jATuj863rM46R4FMYKpS/
+         k8AGNk8YM1IFuR53in90ov8bFuU1Kr1vLBgYEul541cLkbLtqJv+Ysbhuxs0+zf6hz
+         2cUunZbcCxCepn6PNgvNkXbsFMzjeUuWer4Sxv2s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Abhinav Kumar <quic_abhinavk@quicinc.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 475/913] drm/msm/dpu: fix dp audio condition
+        stable@vger.kernel.org, Ang Tien Sung <tien.sung.ang@intel.com>,
+        Dinh Nguyen <dinguyen@kernel.org>
+Subject: [PATCH 5.10 043/599] firmware: stratix10-svc: add missing callback parameter on RSU
 Date:   Tue,  5 Apr 2022 09:25:37 +0200
-Message-Id: <20220405070354.093780241@linuxfoundation.org>
+Message-Id: <20220405070300.109136732@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070258.802373272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,41 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+From: Ang Tien Sung <tien.sung.ang@intel.com>
 
-[ Upstream commit 1e0505a5a7a2fea243f8e6d7e13fcde65f9e41bc ]
+commit b850b7a8b369322adf699ef48ceff4d902525c8c upstream.
 
-DP audio enablement code which is comparing intf_type,
-DRM_MODE_ENCODER_TMDS (= 2) with DRM_MODE_CONNECTOR_DisplayPort (= 10).
-Which would never succeed. Fix it to check for DRM_MODE_ENCODER_TMDS.
+Fix a bug whereby, the return response of parameter a1 from an
+SMC call is not properly set to the callback data during an
+INTEL_SIP_SMC_RSU_ERROR command.
 
-Fixes: d13e36d7d222 ("drm/msm/dp: add audio support for Display Port on MSM")
-Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Link: https://lore.kernel.org/r/20220217035358.465904-2-dmitry.baryshkov@linaro.org
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/lkml/20220216081513.28319-1-tien.sung.ang@intel.com
+Fixes: 6b50d882d38d ("firmware: add remote status update client support")
+Cc: stable@vger.kernel.org
+Signed-off-by: Ang Tien Sung <tien.sung.ang@intel.com>
+Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
+Link: https://lore.kernel.org/r/20220223144146.399263-1-dinguyen@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/msm/disp/dpu1/dpu_encoder.c | 2 +-
+ drivers/firmware/stratix10-svc.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_encoder.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_encoder.c
-index 0e9d3fa1544b..6bde3e234ec8 100644
---- a/drivers/gpu/drm/msm/disp/dpu1/dpu_encoder.c
-+++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_encoder.c
-@@ -1107,7 +1107,7 @@ static void _dpu_encoder_virt_enable_helper(struct drm_encoder *drm_enc)
- 	}
- 
- 
--	if (dpu_enc->disp_info.intf_type == DRM_MODE_CONNECTOR_DisplayPort &&
-+	if (dpu_enc->disp_info.intf_type == DRM_MODE_ENCODER_TMDS &&
- 		dpu_enc->cur_master->hw_mdptop &&
- 		dpu_enc->cur_master->hw_mdptop->ops.intf_audio_select)
- 		dpu_enc->cur_master->hw_mdptop->ops.intf_audio_select(
--- 
-2.34.1
-
+--- a/drivers/firmware/stratix10-svc.c
++++ b/drivers/firmware/stratix10-svc.c
+@@ -477,7 +477,7 @@ static int svc_normal_to_secure_thread(v
+ 		case INTEL_SIP_SMC_RSU_ERROR:
+ 			pr_err("%s: STATUS_ERROR\n", __func__);
+ 			cbdata->status = BIT(SVC_STATUS_ERROR);
+-			cbdata->kaddr1 = NULL;
++			cbdata->kaddr1 = &res.a1;
+ 			cbdata->kaddr2 = NULL;
+ 			cbdata->kaddr3 = NULL;
+ 			pdata->chan->scl->receive_cb(pdata->chan->scl, cbdata);
 
 
