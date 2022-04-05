@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D42F4F3641
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:57:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF6BA4F34EA
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:42:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344380AbiDEK7r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:59:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39896 "EHLO
+        id S234121AbiDEI0C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:26:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43750 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347690AbiDEJqj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:46:39 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 294DEDFD49;
-        Tue,  5 Apr 2022 02:32:59 -0700 (PDT)
+        with ESMTP id S238941AbiDEITc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:19:32 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BECA37563A;
+        Tue,  5 Apr 2022 01:09:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7CEFFB81C8B;
-        Tue,  5 Apr 2022 09:32:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5B44C385A2;
-        Tue,  5 Apr 2022 09:32:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 64E2FB81B18;
+        Tue,  5 Apr 2022 08:09:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFDC7C385A1;
+        Tue,  5 Apr 2022 08:09:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151176;
-        bh=UtAF4TJdgd6LI56pIhGRnVTmygJzn7Y55xHYTWv0Fco=;
+        s=korg; t=1649146188;
+        bh=4kehsUoFuHZvf+v386mFHnSayBJJEsioJWxUk8t19Es=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hzau5B5b0J8vv6tG5YKIQlzlekWPylQ2Mfz7MaECCnF0qES2D5CrI0HEBt60RWof0
-         eFEoU3am/Y5uQOnjrhuW0IBVWIA/fibtlDkx5VMH3L4OSP7kxKtGjCa952EiE8cjOZ
-         jgMsARjsoZ/1SSSh7cYukoRdIIf3MhxMPV1KROR8=
+        b=iLPkSAPAqHbqqM5LTeaxVNcovjo4S6lHFuTJBwz7mzSriNQ/MSDBw3NCm92JiMisc
+         IcEpnVw3yyzxWBpilHe2dUuyUnbijpc3CxTFQMd8vNxgz9zVLEuDVFshiApZHYV/FR
+         EKAifcCXq+0jMrlzTLKsbPS4JQeMTetkK7DVWEig=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Bjorn Helgaas <helgaas@kernel.org>,
+        Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Rob Herring <robh@kernel.org>,
+        Scott Branden <scott.branden@broadcom.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 320/913] ASoC: codecs: wc938x: fix accessing array out of bounds for enum type
+Subject: [PATCH 5.17 0635/1126] PCI: Reduce warnings on possible RW1C corruption
 Date:   Tue,  5 Apr 2022 09:23:02 +0200
-Message-Id: <20220405070349.442730334@linuxfoundation.org>
+Message-Id: <20220405070426.276000207@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,47 +58,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+From: Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
 
-[ Upstream commit cc587b7c8fbbe128f6bd0dad025a0caea5e6d164 ]
+[ Upstream commit 92c45b63ce22c8898aa41806e8d6692bcd577510 ]
 
-Accessing enums using integer would result in array out of bounds access
-on platforms like aarch64 where sizeof(long) is 8 compared to enum size
-which is 4 bytes.
+For hardware that only supports 32-bit writes to PCI there is the
+possibility of clearing RW1C (write-one-to-clear) bits. A rate-limited
+messages was introduced by fb2659230120, but rate-limiting is not the best
+choice here. Some devices may not show the warnings they should if another
+device has just produced a bunch of warnings. Also, the number of messages
+can be a nuisance on devices which are otherwise working fine.
 
-Fix this by using enumerated items instead of integers.
+Change the ratelimit to a single warning per bus. This ensures no bus is
+'starved' of emitting a warning and also that there isn't a continuous
+stream of warnings. It would be preferable to have a warning per device,
+but the pci_dev structure is not available here, and a lookup from devfn
+would be far too slow.
 
-Fixes: e8ba1e05bdc0 ("ASoC: codecs: wcd938x: add basic controls")
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20220222183212.11580-7-srinivas.kandagatla@linaro.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Suggested-by: Bjorn Helgaas <helgaas@kernel.org>
+Fixes: fb2659230120 ("PCI: Warn on possible RW1C corruption for sub-32 bit config writes")
+Link: https://lore.kernel.org/r/20200806041455.11070-1-mark.tomlinson@alliedtelesis.co.nz
+Signed-off-by: Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Reviewed-by: Rob Herring <robh@kernel.org>
+Acked-by: Scott Branden <scott.branden@broadcom.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/wcd938x.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/pci/access.c | 9 ++++++---
+ include/linux/pci.h  | 1 +
+ 2 files changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/sound/soc/codecs/wcd938x.c b/sound/soc/codecs/wcd938x.c
-index bbc261ab2025..54671bbf7471 100644
---- a/sound/soc/codecs/wcd938x.c
-+++ b/sound/soc/codecs/wcd938x.c
-@@ -2504,7 +2504,7 @@ static int wcd938x_tx_mode_get(struct snd_kcontrol *kcontrol,
- 	struct soc_enum *e = (struct soc_enum *)kcontrol->private_value;
- 	int path = e->shift_l;
+diff --git a/drivers/pci/access.c b/drivers/pci/access.c
+index 0d9f6b21babb..708c7529647f 100644
+--- a/drivers/pci/access.c
++++ b/drivers/pci/access.c
+@@ -159,9 +159,12 @@ int pci_generic_config_write32(struct pci_bus *bus, unsigned int devfn,
+ 	 * write happen to have any RW1C (write-one-to-clear) bits set, we
+ 	 * just inadvertently cleared something we shouldn't have.
+ 	 */
+-	dev_warn_ratelimited(&bus->dev, "%d-byte config write to %04x:%02x:%02x.%d offset %#x may corrupt adjacent RW1C bits\n",
+-			     size, pci_domain_nr(bus), bus->number,
+-			     PCI_SLOT(devfn), PCI_FUNC(devfn), where);
++	if (!bus->unsafe_warn) {
++		dev_warn(&bus->dev, "%d-byte config write to %04x:%02x:%02x.%d offset %#x may corrupt adjacent RW1C bits\n",
++			 size, pci_domain_nr(bus), bus->number,
++			 PCI_SLOT(devfn), PCI_FUNC(devfn), where);
++		bus->unsafe_warn = 1;
++	}
  
--	ucontrol->value.integer.value[0] = wcd938x->tx_mode[path];
-+	ucontrol->value.enumerated.item[0] = wcd938x->tx_mode[path];
+ 	mask = ~(((1 << (size * 8)) - 1) << ((where & 0x3) * 8));
+ 	tmp = readl(addr) & mask;
+diff --git a/include/linux/pci.h b/include/linux/pci.h
+index 8253a5413d7c..678fecdf6b81 100644
+--- a/include/linux/pci.h
++++ b/include/linux/pci.h
+@@ -668,6 +668,7 @@ struct pci_bus {
+ 	struct bin_attribute	*legacy_io;	/* Legacy I/O for this bus */
+ 	struct bin_attribute	*legacy_mem;	/* Legacy mem */
+ 	unsigned int		is_added:1;
++	unsigned int		unsafe_warn:1;	/* warned about RW1C config write */
+ };
  
- 	return 0;
- }
-@@ -2528,7 +2528,7 @@ static int wcd938x_rx_hph_mode_get(struct snd_kcontrol *kcontrol,
- 	struct snd_soc_component *component = snd_soc_kcontrol_component(kcontrol);
- 	struct wcd938x_priv *wcd938x = snd_soc_component_get_drvdata(component);
- 
--	ucontrol->value.integer.value[0] = wcd938x->hph_mode;
-+	ucontrol->value.enumerated.item[0] = wcd938x->hph_mode;
- 
- 	return 0;
- }
+ #define to_pci_bus(n)	container_of(n, struct pci_bus, dev)
 -- 
 2.34.1
 
