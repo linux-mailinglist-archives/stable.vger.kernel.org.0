@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F52E4F39AB
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:50:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DAF104F3C46
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:25:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356064AbiDELhZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:37:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54572 "EHLO
+        id S1344300AbiDEMHD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:07:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46718 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353648AbiDEKIr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:08:47 -0400
+        with ESMTP id S1358314AbiDEK2P (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:28:15 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9A54C1CB7;
-        Tue,  5 Apr 2022 02:55:32 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FB5113E8E;
+        Tue,  5 Apr 2022 03:17:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1BDA26157A;
-        Tue,  5 Apr 2022 09:55:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23DADC385A2;
-        Tue,  5 Apr 2022 09:55:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AD3436176C;
+        Tue,  5 Apr 2022 10:17:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C00B1C385A0;
+        Tue,  5 Apr 2022 10:17:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152531;
-        bh=cznyEpNzsTlaaxDVh7pqUaJlIdL/rp+lo6bpM9NMiN0=;
+        s=korg; t=1649153872;
+        bh=JiEiktOT5sIoAL4/JxpO7gXkYxhl538h8WZSyCiN6Eo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z9a3HbQly0JV/A6PxV26zw/gPmMvAORUrNQkimRDBGdSS2DdqUHCBok84Y+NdJhKy
-         oqKrkVorgVoWyJpGcS33D42lCAQ7uD5dzxE4pnbdZG89qVXjmInMssyCrNmTW3vZKg
-         t5F/b5BPe5dB8BakcZL6t1U9ItgpGiwOwbPv3elk=
+        b=c3EA0KWvGELfeR4SJWV88wR2xAiA6kMOkkbDaz0IoXSIRK3C6HkIZ/kHsb8PRor/4
+         iOaeQvo+JLl/KLHWWJo/eiMisOB2isW+XV7y6YCYYpwDfkC1hXKwzDzzzvHkARs56v
+         YtLJ34F7MQC6dTzbgFYtcyKq4fMAT1d9uc1vFhmo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.15 810/913] KVM: x86: Check lapic_in_kernel() before attempting to set a SynIC irq
+        stable@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 378/599] mxser: fix xmit_buf leak in activate when LSR == 0xff
 Date:   Tue,  5 Apr 2022 09:31:12 +0200
-Message-Id: <20220405070404.112004907@linuxfoundation.org>
+Message-Id: <20220405070310.078982813@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070258.802373272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,39 +53,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
+From: Jiri Slaby <jslaby@suse.cz>
 
-commit 7ec37d1cbe17d8189d9562178d8b29167fe1c31a upstream.
+[ Upstream commit cd3a4907ee334b40d7aa880c7ab310b154fd5cd4 ]
 
-When KVM_CAP_HYPERV_SYNIC{,2} is activated, KVM already checks for
-irqchip_in_kernel() so normally SynIC irqs should never be set. It is,
-however,  possible for a misbehaving VMM to write to SYNIC/STIMER MSRs
-causing erroneous behavior.
+When LSR is 0xff in ->activate() (rather unlike), we return an error.
+Provided ->shutdown() is not called when ->activate() fails, nothing
+actually frees the buffer in this case.
 
-The immediate issue being fixed is that kvm_irq_delivery_to_apic()
-(kvm_irq_delivery_to_apic_fast()) crashes when called with
-'irq.shorthand = APIC_DEST_SELF' and 'src == NULL'.
+Fix this by properly freeing the buffer in a designated label. We jump
+there also from the "!info->type" if now too.
 
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Message-Id: <20220325132140.25650-2-vkuznets@redhat.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: 6769140d3047 ("tty: mxser: use the tty_port_open method")
+Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+Link: https://lore.kernel.org/r/20220124071430.14907-6-jslaby@suse.cz
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/hyperv.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/tty/mxser.c | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
---- a/arch/x86/kvm/hyperv.c
-+++ b/arch/x86/kvm/hyperv.c
-@@ -446,6 +446,9 @@ static int synic_set_irq(struct kvm_vcpu
- 	struct kvm_lapic_irq irq;
- 	int ret, vector;
+diff --git a/drivers/tty/mxser.c b/drivers/tty/mxser.c
+index 3703987c4666..8344265a1948 100644
+--- a/drivers/tty/mxser.c
++++ b/drivers/tty/mxser.c
+@@ -858,6 +858,7 @@ static int mxser_activate(struct tty_port *port, struct tty_struct *tty)
+ 	struct mxser_port *info = container_of(port, struct mxser_port, port);
+ 	unsigned long page;
+ 	unsigned long flags;
++	int ret;
  
-+	if (KVM_BUG_ON(!lapic_in_kernel(vcpu), vcpu->kvm))
-+		return -EINVAL;
+ 	page = __get_free_page(GFP_KERNEL);
+ 	if (!page)
+@@ -867,9 +868,9 @@ static int mxser_activate(struct tty_port *port, struct tty_struct *tty)
+ 
+ 	if (!info->ioaddr || !info->type) {
+ 		set_bit(TTY_IO_ERROR, &tty->flags);
+-		free_page(page);
+ 		spin_unlock_irqrestore(&info->slock, flags);
+-		return 0;
++		ret = 0;
++		goto err_free_xmit;
+ 	}
+ 	info->port.xmit_buf = (unsigned char *) page;
+ 
+@@ -895,8 +896,10 @@ static int mxser_activate(struct tty_port *port, struct tty_struct *tty)
+ 		if (capable(CAP_SYS_ADMIN)) {
+ 			set_bit(TTY_IO_ERROR, &tty->flags);
+ 			return 0;
+-		} else
+-			return -ENODEV;
++		}
 +
- 	if (sint >= ARRAY_SIZE(synic->sint))
- 		return -EINVAL;
++		ret = -ENODEV;
++		goto err_free_xmit;
+ 	}
  
+ 	/*
+@@ -941,6 +944,10 @@ static int mxser_activate(struct tty_port *port, struct tty_struct *tty)
+ 	spin_unlock_irqrestore(&info->slock, flags);
+ 
+ 	return 0;
++err_free_xmit:
++	free_page(page);
++	info->port.xmit_buf = NULL;
++	return ret;
+ }
+ 
+ /*
+-- 
+2.34.1
+
 
 
