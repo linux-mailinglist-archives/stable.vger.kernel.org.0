@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 163E94F2E5C
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:00:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D116C4F2B43
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:09:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237039AbiDEJDy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:03:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55452 "EHLO
+        id S1344031AbiDEJQy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:16:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50766 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236712AbiDEIQ5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:16:57 -0400
+        with ESMTP id S244987AbiDEIw6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:58 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9973AD111;
-        Tue,  5 Apr 2022 01:04:31 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21A031EB;
+        Tue,  5 Apr 2022 01:48:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4ACB0B81BB7;
-        Tue,  5 Apr 2022 08:04:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3C6EC385A5;
-        Tue,  5 Apr 2022 08:03:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BC110B81B18;
+        Tue,  5 Apr 2022 08:48:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 088CBC385A1;
+        Tue,  5 Apr 2022 08:48:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145839;
-        bh=xFrfaAw0W6wPzfErlhGrafzRHMRpYYTkjh++zOYTdoY=;
+        s=korg; t=1649148515;
+        bh=vOzsy4dCO55H8J9nLmLlOgkfuzre8MNWIEBAqKkF684=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=btgwtxBGmqMXgD7iID5Xedra67D4IbviHofTHZ+J3LqmGdOh57kMdQhJSov9m3WlS
-         ChdSwf6JJA8WPy3DOSYl72kekP8Vn7k9sZxmgCBFXfxVokmB47fNBcjBwzylh+FMWF
-         G4da79FLGS8PdggngPSjcGeJXpiuOqTj0dE4zzgE=
+        b=c3vbMi1aRfsVSbX3T+fkn1FQvGGlxA6/CRNyLYC3/gR7Vrd+OcT9LBC7xf6O/IsEk
+         atNg1KsMAIw6aFPCQAiBsLiZFhrXMLBqyavJ40GRnF1xF+sdZ2UEJor2uffsFn+yfK
+         Q51N0Ez7YNs25TEppSt0QOmxH317hOEWuzh1f3ho=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Martin=20Povi=C5=A1er?= <povik+lin@cutebit.org>,
-        Sven Peter <sven@svenpeter.dev>,
-        Hector Martin <marcan@marcan.st>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0546/1126] i2c: pasemi: Drop I2C classes from platform driver variant
-Date:   Tue,  5 Apr 2022 09:21:33 +0200
-Message-Id: <20220405070423.659400652@linuxfoundation.org>
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Tzung-Bi Shih <tzungbi@kernel.org>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0382/1017] ASoC: mediatek: mt8192-mt6359: Fix error handling in mt8192_mt6359_dev_probe
+Date:   Tue,  5 Apr 2022 09:21:35 +0200
+Message-Id: <20220405070405.625215557@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,50 +55,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Povišer <povik+lin@cutebit.org>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 19e138e43a0820bb4dbf8fb5c7691f82e9221f2b ]
+[ Upstream commit e45ac7831ff3e2934d58cce319c17c8ec763c95c ]
 
-Drop I2C device-probing classes from platform variant of the PASemi
-controller as it is only used on platforms where I2C devices should
-be instantiated in devicetree. (The I2C_CLASS_DEPRECATED flag is not
-raised as up to this point no devices relied on the old behavior.)
+The device_node pointer is returned by of_parse_phandle()  with refcount
+incremented. We should use of_node_put() on it when done.
 
-Fixes: d88ae2932df0 ("i2c: pasemi: Add Apple platform driver")
-Signed-off-by: Martin Povišer <povik+lin@cutebit.org>
-Reviewed-by: Sven Peter <sven@svenpeter.dev>
-Acked-by: Hector Martin <marcan@marcan.st>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+This function only calls of_node_put() in the regular path.
+And it will cause refcount leak in error paths.
+Fix this by calling of_node_put() in error handling too.
+
+Fixes: 4e28491a7a19 ("ASoC: mediatek: mt8192-mt6359: fix device_node leak")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Reviewed-by: Tzung-Bi Shih <tzungbi@kernel.org>
+Link: https://lore.kernel.org/r/20220308015224.23585-1-linmq006@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-pasemi-core.c | 1 -
- drivers/i2c/busses/i2c-pasemi-pci.c  | 1 +
- 2 files changed, 1 insertion(+), 1 deletion(-)
+ .../mt8192/mt8192-mt6359-rt1015-rt5682.c       | 18 ++++++++++++------
+ 1 file changed, 12 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-pasemi-core.c b/drivers/i2c/busses/i2c-pasemi-core.c
-index 4e161a4089d8..7728c8460dc0 100644
---- a/drivers/i2c/busses/i2c-pasemi-core.c
-+++ b/drivers/i2c/busses/i2c-pasemi-core.c
-@@ -333,7 +333,6 @@ int pasemi_i2c_common_probe(struct pasemi_smbus *smbus)
- 	smbus->adapter.owner = THIS_MODULE;
- 	snprintf(smbus->adapter.name, sizeof(smbus->adapter.name),
- 		 "PA Semi SMBus adapter (%s)", dev_name(smbus->dev));
--	smbus->adapter.class = I2C_CLASS_HWMON | I2C_CLASS_SPD;
- 	smbus->adapter.algo = &smbus_algorithm;
- 	smbus->adapter.algo_data = smbus;
+diff --git a/sound/soc/mediatek/mt8192/mt8192-mt6359-rt1015-rt5682.c b/sound/soc/mediatek/mt8192/mt8192-mt6359-rt1015-rt5682.c
+index ab449d0e4e9b..c1d225b49851 100644
+--- a/sound/soc/mediatek/mt8192/mt8192-mt6359-rt1015-rt5682.c
++++ b/sound/soc/mediatek/mt8192/mt8192-mt6359-rt1015-rt5682.c
+@@ -1116,8 +1116,10 @@ static int mt8192_mt6359_dev_probe(struct platform_device *pdev)
+ 	}
  
-diff --git a/drivers/i2c/busses/i2c-pasemi-pci.c b/drivers/i2c/busses/i2c-pasemi-pci.c
-index 1ab1f28744fb..cfc89e04eb94 100644
---- a/drivers/i2c/busses/i2c-pasemi-pci.c
-+++ b/drivers/i2c/busses/i2c-pasemi-pci.c
-@@ -56,6 +56,7 @@ static int pasemi_smb_pci_probe(struct pci_dev *dev,
- 	if (!smbus->ioaddr)
- 		return -EBUSY;
+ 	card = (struct snd_soc_card *)of_device_get_match_data(&pdev->dev);
+-	if (!card)
+-		return -EINVAL;
++	if (!card) {
++		ret = -EINVAL;
++		goto put_platform_node;
++	}
+ 	card->dev = &pdev->dev;
  
-+	smbus->adapter.class = I2C_CLASS_HWMON | I2C_CLASS_SPD;
- 	error = pasemi_i2c_common_probe(smbus);
- 	if (error)
- 		return error;
+ 	hdmi_codec = of_parse_phandle(pdev->dev.of_node,
+@@ -1159,20 +1161,24 @@ static int mt8192_mt6359_dev_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
+-	if (!priv)
+-		return -ENOMEM;
++	if (!priv) {
++		ret = -ENOMEM;
++		goto put_hdmi_codec;
++	}
+ 	snd_soc_card_set_drvdata(card, priv);
+ 
+ 	ret = mt8192_afe_gpio_init(&pdev->dev);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "init gpio error %d\n", ret);
+-		return ret;
++		goto put_hdmi_codec;
+ 	}
+ 
+ 	ret = devm_snd_soc_register_card(&pdev->dev, card);
+ 
+-	of_node_put(platform_node);
++put_hdmi_codec:
+ 	of_node_put(hdmi_codec);
++put_platform_node:
++	of_node_put(platform_node);
+ 	return ret;
+ }
+ 
 -- 
 2.34.1
 
