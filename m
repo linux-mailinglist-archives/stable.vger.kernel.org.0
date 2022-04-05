@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BA5B4F3A71
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:01:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F1FB34F374E
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:19:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381412AbiDELpY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:45:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56010 "EHLO
+        id S1352720AbiDELM1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:12:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47412 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354643AbiDEKO5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:14:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 670476C1D4;
-        Tue,  5 Apr 2022 03:02:05 -0700 (PDT)
+        with ESMTP id S1348968AbiDEJsu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:48:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7D9DA27E1;
+        Tue,  5 Apr 2022 02:38:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0449961676;
-        Tue,  5 Apr 2022 10:02:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1498EC385A2;
-        Tue,  5 Apr 2022 10:02:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5335261576;
+        Tue,  5 Apr 2022 09:38:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C3B2C385A3;
+        Tue,  5 Apr 2022 09:38:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152924;
-        bh=vSw95j1GAoKc3GU1j3gp9FANPdfDZ7j9JLEz9y4X0q8=;
+        s=korg; t=1649151504;
+        bh=QgN7lXd/5D4nXDbVFwp/TInBYA77pHrREhhUm7GLROU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q6L1uVb/K2qLFs/TtKaHs/JBowQPlt23PMjdub2sxGeno/uSbda4w91iOjzqnBlFo
-         /4Cq16NOIsWgqcSCde4pneZn+nhujae4/V2tJBbrz+hZGX6d1WCMaVbPIilhAuUfT/
-         aDu656GS0gebmihCoG9dcvBA7ZtGIL7YHFL8mRp4=
+        b=x5buKPgAt5L6YpFN6h/0l1m7pt3x9UOJ38bmxyPbYEtx0e692u738G81sUzqDrqSd
+         Gq/ed79QbFJ/ugMipTiCvSyHecP5yLrzfO3bGxPtosw6a1DiepQEpDdaU1lCcvxdpZ
+         QWbh1HOIVmxm6An09NNZCsmA6sIpQzx8o+7+Ynq8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lina Wang <lina.wang@mediatek.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
+        stable@vger.kernel.org, Lennert Buytenhek <buytenh@arista.com>,
+        Corinna Vinschen <vinschen@redhat.com>,
+        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
+        Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 007/599] xfrm: fix tunnel model fragmentation behavior
+Subject: [PATCH 5.15 439/913] igc: avoid kernel warning when changing RX ring parameters
 Date:   Tue,  5 Apr 2022 09:25:01 +0200
-Message-Id: <20220405070259.031976190@linuxfoundation.org>
+Message-Id: <20220405070353.004872616@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
-References: <20220405070258.802373272@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,113 +57,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lina Wang <lina.wang@mediatek.com>
+From: Corinna Vinschen <vinschen@redhat.com>
 
-[ Upstream commit 4ff2980b6bd2aa6b4ded3ce3b7c0ccfab29980af ]
+[ Upstream commit 453307b569a0d41bddd07f26bf41b784cd82a4c9 ]
 
-in tunnel mode, if outer interface(ipv4) is less, it is easily to let
-inner IPV6 mtu be less than 1280. If so, a Packet Too Big ICMPV6 message
-is received. When send again, packets are fragmentized with 1280, they
-are still rejected with ICMPV6(Packet Too Big) by xfrmi_xmit2().
+Calling ethtool changing the RX ring parameters like this:
 
-According to RFC4213 Section3.2.2:
-if (IPv4 path MTU - 20) is less than 1280
-	if packet is larger than 1280 bytes
-		Send ICMPv6 "packet too big" with MTU=1280
-                Drop packet
-        else
-		Encapsulate but do not set the Don't Fragment
-                flag in the IPv4 header.  The resulting IPv4
-                packet might be fragmented by the IPv4 layer
-                on the encapsulator or by some router along
-                the IPv4 path.
-	endif
-else
-	if packet is larger than (IPv4 path MTU - 20)
-        	Send ICMPv6 "packet too big" with
-                MTU = (IPv4 path MTU - 20).
-                Drop packet.
-        else
-                Encapsulate and set the Don't Fragment flag
-                in the IPv4 header.
-        endif
-endif
-Packets should be fragmentized with ipv4 outer interface, so change it.
+  $ ethtool -G eth0 rx 1024
 
-After it is fragemtized with ipv4, there will be double fragmenation.
-No.48 & No.51 are ipv6 fragment packets, No.48 is double fragmentized,
-then tunneled with IPv4(No.49& No.50), which obey spec. And received peer
-cannot decrypt it rightly.
+on igc triggers kernel warnings like this:
 
-48              2002::10        2002::11 1296(length) IPv6 fragment (off=0 more=y ident=0xa20da5bc nxt=50)
-49   0x0000 (0) 2002::10        2002::11 1304         IPv6 fragment (off=0 more=y ident=0x7448042c nxt=44)
-50   0x0000 (0) 2002::10        2002::11 200          ESP (SPI=0x00035000)
-51              2002::10        2002::11 180          Echo (ping) request
-52   0x56dc     2002::10        2002::11 248          IPv6 fragment (off=1232 more=n ident=0xa20da5bc nxt=50)
+[  225.198467] ------------[ cut here ]------------
+[  225.198473] Missing unregister, handled but fix driver
+[  225.198485] WARNING: CPU: 7 PID: 959 at net/core/xdp.c:168
+xdp_rxq_info_reg+0x79/0xd0
+[...]
+[  225.198601] Call Trace:
+[  225.198604]  <TASK>
+[  225.198609]  igc_setup_rx_resources+0x3f/0xe0 [igc]
+[  225.198617]  igc_ethtool_set_ringparam+0x30e/0x450 [igc]
+[  225.198626]  ethnl_set_rings+0x18a/0x250
+[  225.198631]  genl_family_rcv_msg_doit+0xca/0x110
+[  225.198637]  genl_rcv_msg+0xce/0x1c0
+[  225.198640]  ? rings_prepare_data+0x60/0x60
+[  225.198644]  ? genl_get_cmd+0xd0/0xd0
+[  225.198647]  netlink_rcv_skb+0x4e/0xf0
+[  225.198652]  genl_rcv+0x24/0x40
+[  225.198655]  netlink_unicast+0x20e/0x330
+[  225.198659]  netlink_sendmsg+0x23f/0x480
+[  225.198663]  sock_sendmsg+0x5b/0x60
+[  225.198667]  __sys_sendto+0xf0/0x160
+[  225.198671]  ? handle_mm_fault+0xb2/0x280
+[  225.198676]  ? do_user_addr_fault+0x1eb/0x690
+[  225.198680]  __x64_sys_sendto+0x20/0x30
+[  225.198683]  do_syscall_64+0x38/0x90
+[  225.198687]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+[  225.198693] RIP: 0033:0x7f7ae38ac3aa
 
-xfrm6_noneed_fragment has fixed above issues. Finally, it acted like below:
-1   0x6206 192.168.1.138   192.168.1.1 1316 Fragmented IP protocol (proto=Encap Security Payload 50, off=0, ID=6206) [Reassembled in #2]
-2   0x6206 2002::10        2002::11    88   IPv6 fragment (off=0 more=y ident=0x1f440778 nxt=50)
-3   0x0000 2002::10        2002::11    248  ICMPv6    Echo (ping) request
+igc_ethtool_set_ringparam() copies the igc_ring structure but neglects to
+reset the xdp_rxq_info member before calling igc_setup_rx_resources().
+This in turn calls xdp_rxq_info_reg() with an already registered xdp_rxq_info.
 
-Signed-off-by: Lina Wang <lina.wang@mediatek.com>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Make sure to unregister the xdp_rxq_info structure first in
+igc_setup_rx_resources.
+
+Fixes: 73f1071c1d29 ("igc: Add support for XDP_TX action")
+Reported-by: Lennert Buytenhek <buytenh@arista.com>
+Signed-off-by: Corinna Vinschen <vinschen@redhat.com>
+Acked-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
+Tested-by: Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/xfrm6_output.c   | 16 ++++++++++++++++
- net/xfrm/xfrm_interface.c |  5 ++++-
- 2 files changed, 20 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/intel/igc/igc_main.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/net/ipv6/xfrm6_output.c b/net/ipv6/xfrm6_output.c
-index 6abb45a67199..ee349c243878 100644
---- a/net/ipv6/xfrm6_output.c
-+++ b/net/ipv6/xfrm6_output.c
-@@ -52,6 +52,19 @@ static int __xfrm6_output_finish(struct net *net, struct sock *sk, struct sk_buf
- 	return xfrm_output(sk, skb);
- }
+diff --git a/drivers/net/ethernet/intel/igc/igc_main.c b/drivers/net/ethernet/intel/igc/igc_main.c
+index a514cfc6c8a0..f99819fc559d 100644
+--- a/drivers/net/ethernet/intel/igc/igc_main.c
++++ b/drivers/net/ethernet/intel/igc/igc_main.c
+@@ -504,6 +504,9 @@ int igc_setup_rx_resources(struct igc_ring *rx_ring)
+ 	u8 index = rx_ring->queue_index;
+ 	int size, desc_len, res;
  
-+static int xfrm6_noneed_fragment(struct sk_buff *skb)
-+{
-+	struct frag_hdr *fh;
-+	u8 prevhdr = ipv6_hdr(skb)->nexthdr;
-+
-+	if (prevhdr != NEXTHDR_FRAGMENT)
-+		return 0;
-+	fh = (struct frag_hdr *)(skb->data + sizeof(struct ipv6hdr));
-+	if (fh->nexthdr == NEXTHDR_ESP || fh->nexthdr == NEXTHDR_AUTH)
-+		return 1;
-+	return 0;
-+}
-+
- static int __xfrm6_output(struct net *net, struct sock *sk, struct sk_buff *skb)
- {
- 	struct dst_entry *dst = skb_dst(skb);
-@@ -80,6 +93,9 @@ static int __xfrm6_output(struct net *net, struct sock *sk, struct sk_buff *skb)
- 		xfrm6_local_rxpmtu(skb, mtu);
- 		kfree_skb(skb);
- 		return -EMSGSIZE;
-+	} else if (toobig && xfrm6_noneed_fragment(skb)) {
-+		skb->ignore_df = 1;
-+		goto skip_frag;
- 	} else if (!skb->ignore_df && toobig && skb->sk) {
- 		xfrm_local_error(skb, mtu);
- 		kfree_skb(skb);
-diff --git a/net/xfrm/xfrm_interface.c b/net/xfrm/xfrm_interface.c
-index 4420c8fd318a..da518b4ca84c 100644
---- a/net/xfrm/xfrm_interface.c
-+++ b/net/xfrm/xfrm_interface.c
-@@ -303,7 +303,10 @@ xfrmi_xmit2(struct sk_buff *skb, struct net_device *dev, struct flowi *fl)
- 			if (mtu < IPV6_MIN_MTU)
- 				mtu = IPV6_MIN_MTU;
- 
--			icmpv6_ndo_send(skb, ICMPV6_PKT_TOOBIG, 0, mtu);
-+			if (skb->len > 1280)
-+				icmpv6_ndo_send(skb, ICMPV6_PKT_TOOBIG, 0, mtu);
-+			else
-+				goto xmit;
- 		} else {
- 			if (!(ip_hdr(skb)->frag_off & htons(IP_DF)))
- 				goto xmit;
++	/* XDP RX-queue info */
++	if (xdp_rxq_info_is_reg(&rx_ring->xdp_rxq))
++		xdp_rxq_info_unreg(&rx_ring->xdp_rxq);
+ 	res = xdp_rxq_info_reg(&rx_ring->xdp_rxq, ndev, index,
+ 			       rx_ring->q_vector->napi.napi_id);
+ 	if (res < 0) {
 -- 
 2.34.1
 
