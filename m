@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CEB2A4F2ED3
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:04:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C80514F3505
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:42:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343879AbiDEJOo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:14:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46836 "EHLO
+        id S237773AbiDEKsa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:48:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37348 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244911AbiDEIwr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6A1F2495D;
-        Tue,  5 Apr 2022 01:46:13 -0700 (PDT)
+        with ESMTP id S244525AbiDEJl1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:41:27 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A96DBB931;
+        Tue,  5 Apr 2022 02:26:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6987560FFB;
-        Tue,  5 Apr 2022 08:46:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FEB3C385A0;
-        Tue,  5 Apr 2022 08:46:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EEE31B81CAD;
+        Tue,  5 Apr 2022 09:26:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43FB0C385A0;
+        Tue,  5 Apr 2022 09:26:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148372;
-        bh=TwA/G5D1aguoJqEcmo6apo92p21wXULL1LEKJv35LcI=;
+        s=korg; t=1649150791;
+        bh=Zx4lWtvKcRuOo75kaWAnuXqPkXeLmjn2MI0+fP+jJTQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VGR7tqZTYFEx4Icl2BdO8iYl5H2PYR69nHLlsLbGllWCB9NY6CSFkYt4aWUF2MX+y
-         V4CxBiFq2nfnz9iGH1SZjNJIBa0J4gvHJHK4WbQPbr4rjW3JKjet43RvFUYhOBqRT5
-         w7W3yx5zNx1yZ3j63xioHxSl4jyK6HGwGvtfC3m4=
+        b=fOobZVyFHIHotiPWS5Tn3+ltenbPfn1yWzFjJaBWJekEU603lE3N/LhO4UM5zjbek
+         /rWxMwcyHVEXE2PrimDbptTEuNU3XoDosalEUkfE3xOn3x/dYhLQemp+BUGL2Xuqlf
+         ud4/bo6mXI04tbQLwUFzitBpPTwj3Sy+rLxeyVCk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0332/1017] media: video/hdmi: handle short reads of hdmi info frame.
+        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
+        Arend van Spriel <arend.vanspriel@broadcom.com>,
+        Hector Martin <marcan@marcan.st>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Kalle Valo <kvalo@kernel.org>
+Subject: [PATCH 5.15 183/913] brcmfmac: pcie: Fix crashes due to early IRQs
 Date:   Tue,  5 Apr 2022 09:20:45 +0200
-Message-Id: <20220405070404.136657970@linuxfoundation.org>
+Message-Id: <20220405070345.339700824@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,66 +56,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Hector Martin <marcan@marcan.st>
 
-[ Upstream commit 4a92fc6e55da5b87cecb572275deaff6ac9dd27e ]
+commit b50255c83b914defd61a57fbc81d452334b63f4c upstream.
 
-Calling hdmi_infoframe_unpack() with static sizeof(buffer) skips all
-the size checking done later in hdmi_infoframe_unpack().  A better
-value is the amount of data read into buffer.
+The driver was enabling IRQs before the message processing was
+initialized. This could cause IRQs to come in too early and crash the
+driver. Instead, move the IRQ enable and hostready to a bus preinit
+function, at which point everything is properly initialized.
 
-Fixes: 480b8b3e42c3 ("video/hdmi: Pass buffer size to infoframe unpack functions")
-Signed-off-by: Tom Rix <trix@redhat.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 9e37f045d5e7 ("brcmfmac: Adding PCIe bus layer support.")
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Reviewed-by: Arend van Spriel <arend.vanspriel@broadcom.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Hector Martin <marcan@marcan.st>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20220131160713.245637-7-marcan@marcan.st
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/i2c/adv7511-v4l2.c | 2 +-
- drivers/media/i2c/adv7604.c      | 2 +-
- drivers/media/i2c/adv7842.c      | 2 +-
- 3 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c |   16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/media/i2c/adv7511-v4l2.c b/drivers/media/i2c/adv7511-v4l2.c
-index 41f4e749a859..2217004264e4 100644
---- a/drivers/media/i2c/adv7511-v4l2.c
-+++ b/drivers/media/i2c/adv7511-v4l2.c
-@@ -544,7 +544,7 @@ static void log_infoframe(struct v4l2_subdev *sd, const struct adv7511_cfg_read_
- 	buffer[3] = 0;
- 	buffer[3] = hdmi_infoframe_checksum(buffer, len + 4);
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
+@@ -1315,6 +1315,18 @@ static void brcmf_pcie_down(struct devic
+ {
+ }
  
--	if (hdmi_infoframe_unpack(&frame, buffer, sizeof(buffer)) < 0) {
-+	if (hdmi_infoframe_unpack(&frame, buffer, len + 4) < 0) {
- 		v4l2_err(sd, "%s: unpack of %s infoframe failed\n", __func__, cri->desc);
- 		return;
- 	}
-diff --git a/drivers/media/i2c/adv7604.c b/drivers/media/i2c/adv7604.c
-index 44768b59a6ff..0ce323836dad 100644
---- a/drivers/media/i2c/adv7604.c
-+++ b/drivers/media/i2c/adv7604.c
-@@ -2484,7 +2484,7 @@ static int adv76xx_read_infoframe(struct v4l2_subdev *sd, int index,
- 		buffer[i + 3] = infoframe_read(sd,
- 				       adv76xx_cri[index].payload_addr + i);
++static int brcmf_pcie_preinit(struct device *dev)
++{
++	struct brcmf_bus *bus_if = dev_get_drvdata(dev);
++	struct brcmf_pciedev *buspub = bus_if->bus_priv.pcie;
++
++	brcmf_dbg(PCIE, "Enter\n");
++
++	brcmf_pcie_intr_enable(buspub->devinfo);
++	brcmf_pcie_hostready(buspub->devinfo);
++
++	return 0;
++}
  
--	if (hdmi_infoframe_unpack(frame, buffer, sizeof(buffer)) < 0) {
-+	if (hdmi_infoframe_unpack(frame, buffer, len + 3) < 0) {
- 		v4l2_err(sd, "%s: unpack of %s infoframe failed\n", __func__,
- 			 adv76xx_cri[index].desc);
- 		return -ENOENT;
-diff --git a/drivers/media/i2c/adv7842.c b/drivers/media/i2c/adv7842.c
-index 7f8acbdf0db4..8ab4c63839b4 100644
---- a/drivers/media/i2c/adv7842.c
-+++ b/drivers/media/i2c/adv7842.c
-@@ -2593,7 +2593,7 @@ static void log_infoframe(struct v4l2_subdev *sd, const struct adv7842_cfg_read_
- 	for (i = 0; i < len; i++)
- 		buffer[i + 3] = infoframe_read(sd, cri->payload_addr + i);
+ static int brcmf_pcie_tx(struct device *dev, struct sk_buff *skb)
+ {
+@@ -1423,6 +1435,7 @@ static int brcmf_pcie_reset(struct devic
+ }
  
--	if (hdmi_infoframe_unpack(&frame, buffer, sizeof(buffer)) < 0) {
-+	if (hdmi_infoframe_unpack(&frame, buffer, len + 3) < 0) {
- 		v4l2_err(sd, "%s: unpack of %s infoframe failed\n", __func__, cri->desc);
- 		return;
- 	}
--- 
-2.34.1
-
+ static const struct brcmf_bus_ops brcmf_pcie_bus_ops = {
++	.preinit = brcmf_pcie_preinit,
+ 	.txdata = brcmf_pcie_tx,
+ 	.stop = brcmf_pcie_down,
+ 	.txctl = brcmf_pcie_tx_ctlpkt,
+@@ -1795,9 +1808,6 @@ static void brcmf_pcie_setup(struct devi
+ 
+ 	init_waitqueue_head(&devinfo->mbdata_resp_wait);
+ 
+-	brcmf_pcie_intr_enable(devinfo);
+-	brcmf_pcie_hostready(devinfo);
+-
+ 	ret = brcmf_attach(&devinfo->pdev->dev);
+ 	if (ret)
+ 		goto fail;
 
 
