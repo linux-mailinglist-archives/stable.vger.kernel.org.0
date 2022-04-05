@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C442A4F328B
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:58:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 920784F2ED0
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:04:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236661AbiDEI2S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:28:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43530 "EHLO
+        id S1350309AbiDEJ5P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:57:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239609AbiDEIUQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:20:16 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D8E318B;
-        Tue,  5 Apr 2022 01:17:35 -0700 (PDT)
+        with ESMTP id S240508AbiDEJQR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:16:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 012471021;
+        Tue,  5 Apr 2022 02:02:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9EBB860AFB;
-        Tue,  5 Apr 2022 08:17:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE633C385A0;
-        Tue,  5 Apr 2022 08:17:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AC370B80DA1;
+        Tue,  5 Apr 2022 09:02:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C8BBC385A0;
+        Tue,  5 Apr 2022 09:01:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146654;
-        bh=BVIi+g5L5Dz9dt7BVtq5eeYnywyB95u7wznEa12hTnY=;
+        s=korg; t=1649149319;
+        bh=pfUa9LayJvonNRTRyNr0npSc/ylo332Q3BdAw9/BZgY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h7dLGZB8nlbxJILkSQztV2VG0WHeoNG5oss9wzHxPpAOCFmBfpw2kq2RuJsGN/BXk
-         QeFe/NwMS/DdyGn929CHgYmSeg2zBiYq3QgIN6ZNP1PfT0LdsHJfahOpADN0XOlyyv
-         ADIhq552R+WfsS3bSElrp7E5pltotCasN2EL1M5k=
+        b=ePllKA3J1JrbmPgg19vY3ZztgnPI1gx9kBfJWuDUO5mrnrs4MsnDHoZ1Q6Mv4kaoH
+         MsYLCNRBJOwYTH3Tj9BKbT8xSnSKzEIe3nuXFk7jp4G7GDQN3hd0ImHqGNBUwIY++5
+         hvqqXH3Be/JjCS85SS6EwRZKBDxJa8RJ6e+BaWVs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
-        Stefano Garzarella <sgarzare@redhat.com>,
-        Stefan Hajnoczi <stefanha@redhat.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Ying Xue <ying.xue@windriver.com>,
+        Hoang Le <hoang.h.le@dektech.com.au>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0801/1126] vsock/virtio: initialize vdev->priv before using VQs
+Subject: [PATCH 5.16 0635/1017] tipc: fix the timer expires after interval 100ms
 Date:   Tue,  5 Apr 2022 09:25:48 +0200
-Message-Id: <20220405070431.081221777@linuxfoundation.org>
+Message-Id: <20220405070413.132774458@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,46 +55,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefano Garzarella <sgarzare@redhat.com>
+From: Hoang Le <hoang.h.le@dektech.com.au>
 
-[ Upstream commit 4b5f1ad5566ada230aaa2ce861b28d1895f1ea68 ]
+[ Upstream commit 6a7d8cff4a3301087dd139293e9bddcf63827282 ]
 
-When we fill VQs with empty buffers and kick the host, it may send
-an interrupt. `vdev->priv` must be initialized before this since it
-is used in the virtqueue callbacks.
+In the timer callback function tipc_sk_timeout(), we're trying to
+reschedule another timeout to retransmit a setup request if destination
+link is congested. But we use the incorrect timeout value
+(msecs_to_jiffies(100)) instead of (jiffies + msecs_to_jiffies(100)),
+so that the timer expires immediately, it's irrelevant for original
+description.
 
-Fixes: 0deab087b16a ("vsock/virtio: use RCU to avoid use-after-free on the_virtio_vsock")
-Suggested-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+In this commit we correct the timeout value in sk_reset_timer()
+
+Fixes: 6787927475e5 ("tipc: buffer overflow handling in listener socket")
+Acked-by: Ying Xue <ying.xue@windriver.com>
+Signed-off-by: Hoang Le <hoang.h.le@dektech.com.au>
+Link: https://lore.kernel.org/r/20220321042229.314288-1-hoang.h.le@dektech.com.au
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/vmw_vsock/virtio_transport.c | 3 ++-
+ net/tipc/socket.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
-index 5afc194a58bb..3e5513934c9f 100644
---- a/net/vmw_vsock/virtio_transport.c
-+++ b/net/vmw_vsock/virtio_transport.c
-@@ -622,6 +622,8 @@ static int virtio_vsock_probe(struct virtio_device *vdev)
- 	INIT_WORK(&vsock->event_work, virtio_transport_event_work);
- 	INIT_WORK(&vsock->send_pkt_work, virtio_transport_send_pkt_work);
+diff --git a/net/tipc/socket.c b/net/tipc/socket.c
+index 7545321c3440..17f8c523e33b 100644
+--- a/net/tipc/socket.c
++++ b/net/tipc/socket.c
+@@ -2852,7 +2852,8 @@ static void tipc_sk_retry_connect(struct sock *sk, struct sk_buff_head *list)
  
-+	vdev->priv = vsock;
-+
- 	mutex_lock(&vsock->tx_lock);
- 	vsock->tx_run = true;
- 	mutex_unlock(&vsock->tx_lock);
-@@ -639,7 +641,6 @@ static int virtio_vsock_probe(struct virtio_device *vdev)
- 	if (virtio_has_feature(vdev, VIRTIO_VSOCK_F_SEQPACKET))
- 		vsock->seqpacket_allow = true;
- 
--	vdev->priv = vsock;
- 	rcu_assign_pointer(the_virtio_vsock, vsock);
- 
- 	mutex_unlock(&the_virtio_vsock_mutex);
+ 	/* Try again later if dest link is congested */
+ 	if (tsk->cong_link_cnt) {
+-		sk_reset_timer(sk, &sk->sk_timer, msecs_to_jiffies(100));
++		sk_reset_timer(sk, &sk->sk_timer,
++			       jiffies + msecs_to_jiffies(100));
+ 		return;
+ 	}
+ 	/* Prepare SYN for retransmit */
 -- 
 2.34.1
 
