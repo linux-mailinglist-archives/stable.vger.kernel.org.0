@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EECA74F2D86
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:43:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 55D2B4F2E02
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:48:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243221AbiDEJjO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:39:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41928 "EHLO
+        id S241574AbiDEIeT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:34:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34712 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243931AbiDEJJj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:09:39 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DDDA1BE98;
-        Tue,  5 Apr 2022 01:58:51 -0700 (PDT)
+        with ESMTP id S239490AbiDEIUI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:20:08 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDED3B3C;
+        Tue,  5 Apr 2022 01:14:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 970CCCE1C0D;
-        Tue,  5 Apr 2022 08:58:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB20FC385A0;
-        Tue,  5 Apr 2022 08:58:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 95886B81BA7;
+        Tue,  5 Apr 2022 08:14:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3CD7C385A1;
+        Tue,  5 Apr 2022 08:14:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149128;
-        bh=rbe+zv7Nmz16ANnvEAT8XDOSId2te/xaaarNcwHqQZA=;
+        s=korg; t=1649146458;
+        bh=cWcCNbB+zyH5SVcQxLF5Oid3an5qQ0YrX540UlV8RGA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tQPBa8xAI37p+1HIkWQuu2GCF/+tO136Kbcjs2IcuotyM/pfJ4LYTDKrIha6daUQJ
-         n1yafiXRCR8li+ikX0QsZrKkHTykYMMCem20k5c578n23QnGj2mOudFoZw6L9VCW2O
-         DiAJxc9We8T8EUIngzyR9EatXAeU9t3KfyAHzkcc=
+        b=IPs4DqnYvJtCSH1OhulAkDwsuwO5n/J4Qo9gKhvO3c+VhnnyJIdEkJ4YPpuSVmYqX
+         VxB8Fu05RUx9UJYQh+nUwXg+pNHsQr4tYSC5Q9d1Ji9j2xAJwJEehVelRpnCSFBTfc
+         NM9q37SwvhE2BB2L4K+OqEVGWop65iP28N/s30ds=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chengguang Xu <cgxu519@mykernel.net>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Chen-Yu Tsai <wenst@chromium.org>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0605/1017] RDMA/rxe: Change variable and function argument to proper type
-Date:   Tue,  5 Apr 2022 09:25:18 +0200
-Message-Id: <20220405070412.236112619@linuxfoundation.org>
+Subject: [PATCH 5.17 0772/1126] pinctrl: mediatek: paris: Fix pingroup pin config state readback
+Date:   Tue,  5 Apr 2022 09:25:19 +0200
+Message-Id: <20220405070430.240824721@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,71 +56,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chengguang Xu <cgxu519@mykernel.net>
+From: Chen-Yu Tsai <wenst@chromium.org>
 
-[ Upstream commit 7e8e611d6a0ff228577b1167335ffefb0f44d5d8 ]
+[ Upstream commit 54fe55fb384ade630ef20b9a8b8f3b2a89ad97f2 ]
 
-The type of wqe length is u32 so in order to avoid overflow and shadow
-casting change variable and relevant function argument to proper type.
+mtk_pconf_group_get(), used to read back pingroup pin config state,
+simply returns a set of configs saved from a previous invocation of
+mtk_pconf_group_set(). This is an unfiltered, unvalidated set passed
+in from the pinconf core, which does not match the current hardware
+state.
 
-Link: https://lore.kernel.org/r/20220307145047.3235675-1-cgxu519@mykernel.net
-Signed-off-by: Chengguang Xu <cgxu519@mykernel.net>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Since the driver library is designed to have one pin per group, pass
+through mtk_pconf_group_get() to mtk_pinconf_get(), to read back the
+current pin config state of the only pin in the group.
+
+Also drop the assignment of pin config state to the group.
+
+Fixes: 805250982bb5 ("pinctrl: mediatek: add pinctrl-paris that implements the vendor dt-bindings")
+Signed-off-by: Chen-Yu Tsai <wenst@chromium.org>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Link: https://lore.kernel.org/r/20220308100956.2750295-5-wenst@chromium.org
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/rxe/rxe_req.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/pinctrl/mediatek/pinctrl-paris.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/infiniband/sw/rxe/rxe_req.c b/drivers/infiniband/sw/rxe/rxe_req.c
-index 0c9d2af15f3d..79ed4ca2fe2c 100644
---- a/drivers/infiniband/sw/rxe/rxe_req.c
-+++ b/drivers/infiniband/sw/rxe/rxe_req.c
-@@ -362,7 +362,7 @@ static inline int get_mtu(struct rxe_qp *qp)
- 
- static struct sk_buff *init_req_packet(struct rxe_qp *qp,
- 				       struct rxe_send_wqe *wqe,
--				       int opcode, int payload,
-+				       int opcode, u32 payload,
- 				       struct rxe_pkt_info *pkt)
+diff --git a/drivers/pinctrl/mediatek/pinctrl-paris.c b/drivers/pinctrl/mediatek/pinctrl-paris.c
+index c668191933a0..3bda1aac650b 100644
+--- a/drivers/pinctrl/mediatek/pinctrl-paris.c
++++ b/drivers/pinctrl/mediatek/pinctrl-paris.c
+@@ -732,10 +732,10 @@ static int mtk_pconf_group_get(struct pinctrl_dev *pctldev, unsigned group,
+ 			       unsigned long *config)
  {
- 	struct rxe_dev		*rxe = to_rdev(qp->ibqp.device);
-@@ -455,7 +455,7 @@ static struct sk_buff *init_req_packet(struct rxe_qp *qp,
+ 	struct mtk_pinctrl *hw = pinctrl_dev_get_drvdata(pctldev);
++	struct mtk_pinctrl_group *grp = &hw->groups[group];
  
- static int finish_packet(struct rxe_qp *qp, struct rxe_send_wqe *wqe,
- 		       struct rxe_pkt_info *pkt, struct sk_buff *skb,
--		       int paylen)
-+		       u32 paylen)
- {
- 	int err;
- 
-@@ -503,7 +503,7 @@ static void update_wqe_state(struct rxe_qp *qp,
- static void update_wqe_psn(struct rxe_qp *qp,
- 			   struct rxe_send_wqe *wqe,
- 			   struct rxe_pkt_info *pkt,
--			   int payload)
-+			   u32 payload)
- {
- 	/* number of packets left to send including current one */
- 	int num_pkt = (wqe->dma.resid + payload + qp->mtu - 1) / qp->mtu;
-@@ -546,7 +546,7 @@ static void rollback_state(struct rxe_send_wqe *wqe,
+-	*config = hw->groups[group].config;
+-
+-	return 0;
++	 /* One pin per group only */
++	return mtk_pinconf_get(pctldev, grp->pin, config);
  }
  
- static void update_state(struct rxe_qp *qp, struct rxe_send_wqe *wqe,
--			 struct rxe_pkt_info *pkt, int payload)
-+			 struct rxe_pkt_info *pkt, u32 payload)
- {
- 	qp->req.opcode = pkt->opcode;
+ static int mtk_pconf_group_set(struct pinctrl_dev *pctldev, unsigned group,
+@@ -751,8 +751,6 @@ static int mtk_pconf_group_set(struct pinctrl_dev *pctldev, unsigned group,
+ 				      pinconf_to_config_argument(configs[i]));
+ 		if (ret < 0)
+ 			return ret;
+-
+-		grp->config = configs[i];
+ 	}
  
-@@ -618,7 +618,7 @@ int rxe_requester(void *arg)
- 	struct sk_buff *skb;
- 	struct rxe_send_wqe *wqe;
- 	enum rxe_hdr_mask mask;
--	int payload;
-+	u32 payload;
- 	int mtu;
- 	int opcode;
- 	int ret;
+ 	return 0;
 -- 
 2.34.1
 
