@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D96A94F33B1
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:21:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF5164F32FE
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:01:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235342AbiDEIjp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:39:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55728 "EHLO
+        id S235729AbiDEIkW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:40:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59134 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234304AbiDEIYn (ORCPT
+        with ESMTP id S233975AbiDEIYn (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:24:43 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C282B65C6;
-        Tue,  5 Apr 2022 01:20:12 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C17B12AA8;
+        Tue,  5 Apr 2022 01:20:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1EE2F60FFB;
-        Tue,  5 Apr 2022 08:20:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3437CC385A0;
-        Tue,  5 Apr 2022 08:20:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BF53860B12;
+        Tue,  5 Apr 2022 08:20:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0B0FC385A0;
+        Tue,  5 Apr 2022 08:20:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146811;
-        bh=ADEi5SU0fkm1OasEUzfXS5XLxdWFJrLpnS+LEgj9ZRA=;
+        s=korg; t=1649146814;
+        bh=yGnjY+lYxJXOnr0rrff8LCirneIsgVl27V7mWnMwbyg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jX/tHwZ+plIHXqp5I964WB3W3tu+0jITkfMVhxXTcVjmVCvWiB8xRQJTZUT5jWT0D
-         OAx8KwQLOTV2foqocsPxxgfJ8adEYZVvTdTuSaj2Bw1TQc7BxSc1edl+Wio8YZditv
-         FHoDZ7xEnO71+henpLjeNIqJenokQqTbzFwFSCbY=
+        b=IzfDuBtk3IVygzvX9QBtQbbO2yFEFqsfhKcGJaB13X7eitKAJYRF8bS0e1VSc6P1u
+         btPFFg+zQKapiNE3+hglTWuaHTJ+mygi3nVKJU0rFvmK8VHwsCBe68csKFoyikitJm
+         Q17y5mjCYatMGT3X6PAVac+QlveX9hm/z5ljshlA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Mirela Rabulea <mirela.rabulea@oss.nxp.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Rander Wang <rander.wang@intel.com>,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Peter Ujfalusi <peter.ujfalusi@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0897/1126] media: imx-jpeg: Prevent decoding NV12M jpegs into single-planar buffers
-Date:   Tue,  5 Apr 2022 09:27:24 +0200
-Message-Id: <20220405070433.852792904@linuxfoundation.org>
+Subject: [PATCH 5.17 0898/1126] ASoC: SOF: Intel: hda: Remove link assignment limitation
+Date:   Tue,  5 Apr 2022 09:27:25 +0200
+Message-Id: <20220405070433.883456893@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -56,40 +59,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mirela Rabulea <mirela.rabulea@oss.nxp.com>
+From: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
 
-[ Upstream commit 417591a766b3c040c346044541ff949c0b2bb7b2 ]
+[ Upstream commit 2ce0d008dcc59f9c01f43277b9f9743af7b01dad ]
 
-If the application queues an NV12M jpeg as output buffer, but then
-queues a single planar capture buffer, the kernel will crash with
-"Unable to handle kernel NULL pointer dereference" in mxc_jpeg_addrs,
-prevent this by finishing the job with error.
+The limitation to assign a link DMA channel for a BE iff the
+corresponding host DMA channel is assigned to a connected FE is only
+applicable if the PROCEN_FMT_QUIRK is set. So, remove it for platforms
+that do not enable the quirk.
 
-Signed-off-by: Mirela Rabulea <mirela.rabulea@oss.nxp.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Complements: a792bfc1c2bc ("ASoC: SOF: Intel: hda-stream: limit PROCEN workaround")
+Signed-off-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Rander Wang <rander.wang@intel.com>
+Reviewed-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Reviewed-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
+Link: https://lore.kernel.org/r/20220128130017.28508-1-peter.ujfalusi@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/imx-jpeg/mxc-jpeg.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ sound/soc/sof/intel/hda-dai.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/drivers/media/platform/imx-jpeg/mxc-jpeg.c b/drivers/media/platform/imx-jpeg/mxc-jpeg.c
-index 4ca96cf9def7..b249c1bbfac8 100644
---- a/drivers/media/platform/imx-jpeg/mxc-jpeg.c
-+++ b/drivers/media/platform/imx-jpeg/mxc-jpeg.c
-@@ -947,6 +947,12 @@ static void mxc_jpeg_device_run(void *priv)
- 	v4l2_m2m_buf_copy_metadata(src_buf, dst_buf, true);
+diff --git a/sound/soc/sof/intel/hda-dai.c b/sound/soc/sof/intel/hda-dai.c
+index cd12589355ef..28a54145c150 100644
+--- a/sound/soc/sof/intel/hda-dai.c
++++ b/sound/soc/sof/intel/hda-dai.c
+@@ -59,6 +59,8 @@ static struct hdac_ext_stream *
+ {
+ 	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
+ 	struct sof_intel_hda_stream *hda_stream;
++	const struct sof_intel_dsp_desc *chip;
++	struct snd_sof_dev *sdev;
+ 	struct hdac_ext_stream *res = NULL;
+ 	struct hdac_stream *stream = NULL;
  
- 	jpeg_src_buf = vb2_to_mxc_buf(&src_buf->vb2_buf);
-+	if (q_data_cap->fmt->colplanes != dst_buf->vb2_buf.num_planes) {
-+		dev_err(dev, "Capture format %s has %d planes, but capture buffer has %d planes\n",
-+			q_data_cap->fmt->name, q_data_cap->fmt->colplanes,
-+			dst_buf->vb2_buf.num_planes);
-+		jpeg_src_buf->jpeg_parse_error = true;
-+	}
- 	if (jpeg_src_buf->jpeg_parse_error) {
- 		jpeg->slot_data[ctx->slot].used = false;
- 		v4l2_m2m_src_buf_remove(ctx->fh.m2m_ctx);
+@@ -77,9 +79,20 @@ static struct hdac_ext_stream *
+ 			continue;
+ 
+ 		hda_stream = hstream_to_sof_hda_stream(hstream);
++		sdev = hda_stream->sdev;
++		chip = get_chip_info(sdev->pdata);
+ 
+ 		/* check if link is available */
+ 		if (!hstream->link_locked) {
++			/*
++			 * choose the first available link for platforms that do not have the
++			 * PROCEN_FMT_QUIRK set.
++			 */
++			if (!(chip->quirks & SOF_INTEL_PROCEN_FMT_QUIRK)) {
++				res = hstream;
++				break;
++			}
++
+ 			if (stream->opened) {
+ 				/*
+ 				 * check if the stream tag matches the stream
 -- 
 2.34.1
 
