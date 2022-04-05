@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DB894F3C30
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:24:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 142384F3C32
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:25:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238208AbiDEMFv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:05:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50638 "EHLO
+        id S237582AbiDEMGA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:06:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50648 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358241AbiDEK2K (ORCPT
+        with ESMTP id S1358255AbiDEK2K (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:28:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2401BC84;
-        Tue,  5 Apr 2022 03:17:22 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42F477655;
+        Tue,  5 Apr 2022 03:17:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7E5386176C;
-        Tue,  5 Apr 2022 10:17:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82624C385A1;
-        Tue,  5 Apr 2022 10:17:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E98FFB81CB3;
+        Tue,  5 Apr 2022 10:17:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E829C385A0;
+        Tue,  5 Apr 2022 10:17:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153841;
-        bh=acjGa2Mds/qC0cT2/655emFjJYDB8+CxawsXEriSDkw=;
+        s=korg; t=1649153844;
+        bh=JbaZZu96NMk2NGaOOEFcIIrtri2HPW2g9NuKPNcasSs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=duH2xNCnvK2x4lAJzTnJvw2Cw+a89VNVMs7gP1B4D/JbjMlDAVIFfW+6T3uzRjZYT
-         W5LXS6V/l4a4uXcnNenGGOoJuOqu695+ADHPMLWX17Gzt8qf2eskxQaWQADZe8o1D9
-         /5d+yzOB9tPrdlyqTgIbNHNxk4qk3XzBgcRzihL4=
+        b=X7tjd8IYoDVkB23uzjMp2gVnM101ksxUfFJcbBAR7yIKuuNVfCQbbzOzv8EV1k1xd
+         jwG2A67fSX4UGABC6z26+HjE75BDKye3VZCcwDSEVNs93UTVQw3gopyWXrjaapMkGK
+         hRcfBdrIfh/SbrWqZd6C0isP8N8e02cX7i7osnfE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
-        Hou Tao <houtao1@huawei.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 328/599] bpf, arm64: Feed byte-offset into bpf line info
-Date:   Tue,  5 Apr 2022 09:30:22 +0200
-Message-Id: <20220405070308.593452798@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Thierry Reding <treding@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 329/599] gpu: host1x: Fix a memory leak in host1x_remove()
+Date:   Tue,  5 Apr 2022 09:30:23 +0200
+Message-Id: <20220405070308.623593005@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -53,44 +55,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hou Tao <houtao1@huawei.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit dda7596c109fc382876118627e29db7607cde35d ]
+[ Upstream commit 025c6643a81564f066d8381b9e2f4603e0f8438f ]
 
-insn_to_jit_off passed to bpf_prog_fill_jited_linfo() is calculated in
-instruction granularity instead of bytes granularity, but BPF line info
-requires byte offset.
+Add a missing 'host1x_channel_list_free()' call in the remove function,
+as already done in the error handling path of the probe function.
 
-bpf_prog_fill_jited_linfo() will be the last user of ctx.offset before
-it is freed, so convert the offset into byte-offset before calling into
-bpf_prog_fill_jited_linfo() in order to fix the line info dump on arm64.
-
-Fixes: 37ab566c178d ("bpf: arm64: Enable arm64 jit to provide bpf_line_info")
-Suggested-by: Daniel Borkmann <daniel@iogearbox.net>
-Signed-off-by: Hou Tao <houtao1@huawei.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20220226121906.5709-3-houtao1@huawei.com
+Fixes: 8474b02531c4 ("gpu: host1x: Refactor channel allocation code")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/net/bpf_jit_comp.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/gpu/host1x/dev.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm64/net/bpf_jit_comp.c b/arch/arm64/net/bpf_jit_comp.c
-index 880f50c53086..9c6cab71ba98 100644
---- a/arch/arm64/net/bpf_jit_comp.c
-+++ b/arch/arm64/net/bpf_jit_comp.c
-@@ -1124,6 +1124,11 @@ struct bpf_prog *bpf_int_jit_compile(struct bpf_prog *prog)
- 	prog->jited_len = prog_size;
+diff --git a/drivers/gpu/host1x/dev.c b/drivers/gpu/host1x/dev.c
+index a2c09dca4eef..8659558b518d 100644
+--- a/drivers/gpu/host1x/dev.c
++++ b/drivers/gpu/host1x/dev.c
+@@ -520,6 +520,7 @@ static int host1x_remove(struct platform_device *pdev)
+ 	host1x_syncpt_deinit(host);
+ 	reset_control_assert(host->rst);
+ 	clk_disable_unprepare(host->clk);
++	host1x_channel_list_free(&host->channel_list);
+ 	host1x_iommu_exit(host);
  
- 	if (!prog->is_func || extra_pass) {
-+		int i;
-+
-+		/* offset[prog->len] is the size of program */
-+		for (i = 0; i <= prog->len; i++)
-+			ctx.offset[i] *= AARCH64_INSN_SIZE;
- 		bpf_prog_fill_jited_linfo(prog, ctx.offset + 1);
- out_off:
- 		kfree(ctx.offset);
+ 	return 0;
 -- 
 2.34.1
 
