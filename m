@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C47E64F2AF8
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:07:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 930864F2C6B
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:30:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345245AbiDEKky (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:40:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38324 "EHLO
+        id S1343888AbiDEJOt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:14:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46800 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244521AbiDEJl1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:41:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD799BBE01;
-        Tue,  5 Apr 2022 02:26:54 -0700 (PDT)
+        with ESMTP id S244896AbiDEIwp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:45 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6C5F2458A;
+        Tue,  5 Apr 2022 01:45:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5ADB06144D;
-        Tue,  5 Apr 2022 09:26:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DF1AC385A3;
-        Tue,  5 Apr 2022 09:26:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5028FB81BAE;
+        Tue,  5 Apr 2022 08:45:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96818C385A0;
+        Tue,  5 Apr 2022 08:45:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150813;
-        bh=vCNxLByh22qWpvDtzrk7nKcRMnmgzftlBFDb7fx5dWY=;
+        s=korg; t=1649148348;
+        bh=HWxjACHl9Ir8KVcVfW8mCP3H8HhaV08T+cFUkUDcZTQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LBbzIceB1Fhg4w25eaCo0HlI7z8/RAiSunTpQSFrWHIzTs3vb1NyOCy+gODLfVXpA
-         4usa4BrU0oDhsN2FBhOVhxHP9JvTUPBiHoLAua0+aMxnA07lyYlP7DD5MbCIV91P64
-         7TePqFiNVb7PLmKug5wjWrTDybgJkVoXs2K/1uG8=
+        b=WU8vSjhxfwUfKs9jwEym2vAk9tTId714y+au48/IY7aOnPNeRHE6IxhN8XDXNRcEa
+         HfLo0AcGokHdzlkdEDK5+XbNSn4HNLRiAFhSOTMwdxDeI1CP/uT2rOHd0bn3u7ett7
+         EGf/lYRA2f8kt5hLkW9t3kM8cpnuEr0psNWjMRT8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>
-Subject: [PATCH 5.15 173/913] xtensa: fix stop_machine_cpuslocked call in patch_text
-Date:   Tue,  5 Apr 2022 09:20:35 +0200
-Message-Id: <20220405070345.038365579@linuxfoundation.org>
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Nishanth Menon <nm@ti.com>, Dave Gerlach <d-gerlach@ti.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0324/1017] soc: ti: wkup_m3_ipc: Fix IRQ check in wkup_m3_ipc_probe
+Date:   Tue,  5 Apr 2022 09:20:37 +0200
+Message-Id: <20220405070403.897260482@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,34 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Max Filippov <jcmvbkbc@gmail.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-commit f406f2d03e07afc199dd8cf501f361dde6be8a69 upstream.
+[ Upstream commit c3d66a164c726cc3b072232d3b6d87575d194084 ]
 
-patch_text must invoke patch_text_stop_machine on all online CPUs, but
-it calls stop_machine_cpuslocked with NULL cpumask. As a result only one
-CPU runs patch_text_stop_machine potentially leaving stale icache
-entries on other CPUs. Fix that by calling stop_machine_cpuslocked with
-cpu_online_mask as the last argument.
+platform_get_irq() returns negative error number instead 0 on failure.
+And the doc of platform_get_irq() provides a usage example:
 
-Cc: stable@vger.kernel.org
-Fixes: 64711f9a47d4 ("xtensa: implement jump_label support")
-Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    int irq = platform_get_irq(pdev, 0);
+    if (irq < 0)
+        return irq;
+
+Fix the check of return value to catch errors correctly.
+
+Fixes: cdd5de500b2c ("soc: ti: Add wkup_m3_ipc driver")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Nishanth Menon <nm@ti.com>
+Acked-by: Dave Gerlach <d-gerlach@ti.com>
+Link: https://lore.kernel.org/r/20220114062840.16620-1-linmq006@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/xtensa/kernel/jump_label.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/soc/ti/wkup_m3_ipc.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/xtensa/kernel/jump_label.c
-+++ b/arch/xtensa/kernel/jump_label.c
-@@ -61,7 +61,7 @@ static void patch_text(unsigned long add
- 			.data = data,
- 		};
- 		stop_machine_cpuslocked(patch_text_stop_machine,
--					&patch, NULL);
-+					&patch, cpu_online_mask);
- 	} else {
- 		unsigned long flags;
+diff --git a/drivers/soc/ti/wkup_m3_ipc.c b/drivers/soc/ti/wkup_m3_ipc.c
+index 72386bd393fe..2f03ced0f411 100644
+--- a/drivers/soc/ti/wkup_m3_ipc.c
++++ b/drivers/soc/ti/wkup_m3_ipc.c
+@@ -450,9 +450,9 @@ static int wkup_m3_ipc_probe(struct platform_device *pdev)
+ 		return PTR_ERR(m3_ipc->ipc_mem_base);
  
+ 	irq = platform_get_irq(pdev, 0);
+-	if (!irq) {
++	if (irq < 0) {
+ 		dev_err(&pdev->dev, "no irq resource\n");
+-		return -ENXIO;
++		return irq;
+ 	}
+ 
+ 	ret = devm_request_irq(dev, irq, wkup_m3_txev_handler,
+-- 
+2.34.1
+
 
 
