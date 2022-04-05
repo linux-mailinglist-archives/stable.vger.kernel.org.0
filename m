@@ -2,45 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A7F34F2DC7
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:46:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15D4B4F2BA1
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:16:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245149AbiDEJLf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:11:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48678 "EHLO
+        id S239675AbiDEKfq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:35:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53906 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244711AbiDEIwf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:35 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1BBE1ADAC;
-        Tue,  5 Apr 2022 01:42:33 -0700 (PDT)
+        with ESMTP id S239725AbiDEJeA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:34:00 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0574A7DA8C;
+        Tue,  5 Apr 2022 02:23:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 68538B81BC5;
-        Tue,  5 Apr 2022 08:42:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA7A4C385A1;
-        Tue,  5 Apr 2022 08:42:31 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id F3B93CE1C78;
+        Tue,  5 Apr 2022 09:23:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D068DC385A0;
+        Tue,  5 Apr 2022 09:23:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148152;
-        bh=sVR33FUtTlVIApPJsjKgr9pJZo5UOvcNrviZQ+t5OWs=;
+        s=korg; t=1649150588;
+        bh=Cx5L+u3zeAs8deNWRcmU5/WrIwgYWoTaZ/7o2gEtJ7Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b1BrtOwQMBIprgW7QQiMELM6oyLN23UmztKNTmcW7BhtNtvVe2Y2Wp4uYggzdWd1N
-         KOtgpslQlL7uIKrtQps0dXV7X/snjFZTYsto54taDfP0md0LFifqe3GwvGv8SrE3ZK
-         f45HdpWOboK6dPDoI9O0u3yTN5xDimQfum/1DTIw=
+        b=U+U+CMcxQN5NTDoHd10LhqhUYdx6BlKFD04nSjU1bkXP+rWvxuJHgDCKDaGT6N1R3
+         UUHqG5RprphpiP0i+AlfqtZf6h3ry5vCWL2/24w4xJ+BLN6nw54ru/F2yLBKwLoLfW
+         fTg9SU7SXEwFfhoTB7Mavz2QZEppiYaSrRaA5gvo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0252/1017] hwrng: nomadik - Change clk_disable to clk_disable_unprepare
-Date:   Tue,  5 Apr 2022 09:19:25 +0200
-Message-Id: <20220405070401.742875596@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Charan Teja Kalla <quic_charante@quicinc.com>,
+        Suren Baghdasaryan <surenb@google.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        David Rientjes <rientjes@google.com>,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
+        Minchan Kim <minchan@kernel.org>,
+        Nadav Amit <nadav.amit@gmail.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.15 108/913] mm: madvise: return correct bytes advised with process_madvise
+Date:   Tue,  5 Apr 2022 09:19:30 +0200
+Message-Id: <20220405070343.064309939@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,47 +62,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Charan Teja Kalla <quic_charante@quicinc.com>
 
-[ Upstream commit 7f0f1f3ef62ed7a40e30aff28115bd94c4211d1d ]
+commit 5bd009c7c9a9e888077c07535dc0c70aeab242c3 upstream.
 
-The corresponding API for clk_prepare_enable is clk_disable_unprepare,
-other than clk_disable_unprepare.
+Patch series "mm: madvise: return correct bytes processed with
+process_madvise", v2.  With the process_madvise(), always choose to return
+non zero processed bytes over an error.  This can help the user to know on
+which VMA, passed in the 'struct iovec' vector list, is failed to advise
+thus can take the decission of retrying/skipping on that VMA.
 
-Fix this by changing clk_disable to clk_disable_unprepare.
+This patch (of 2):
 
-Fixes: beca35d05cc2 ("hwrng: nomadik - use clk_prepare_enable()")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The process_madvise() system call returns error even after processing some
+VMA's passed in the 'struct iovec' vector list which leaves the user
+confused to know where to restart the advise next.  It is also against
+this syscall man page[1] documentation where it mentions that "return
+value may be less than the total number of requested bytes, if an error
+occurred after some iovec elements were already processed.".
+
+Consider a user passed 10 VMA's in the 'struct iovec' vector list of which
+9 are processed but one.  Then it just returns the error caused on that
+failed VMA despite the first 9 VMA's processed, leaving the user confused
+about on which VMA it is failed.  Returning the number of bytes processed
+here can help the user to know which VMA it is failed on and thus can
+retry/skip the advise on that VMA.
+
+[1]https://man7.org/linux/man-pages/man2/process_madvise.2.html.
+
+Link: https://lkml.kernel.org/r/cover.1647008754.git.quic_charante@quicinc.com
+Link: https://lkml.kernel.org/r/125b61a0edcee5c2db8658aed9d06a43a19ccafc.1647008754.git.quic_charante@quicinc.com
+Fixes: ecb8ac8b1f14("mm/madvise: introduce process_madvise() syscall: an external memory hinting API")
+Signed-off-by: Charan Teja Kalla <quic_charante@quicinc.com>
+Cc: Suren Baghdasaryan <surenb@google.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: Minchan Kim <minchan@kernel.org>
+Cc: Nadav Amit <nadav.amit@gmail.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/hw_random/nomadik-rng.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ mm/madvise.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/char/hw_random/nomadik-rng.c b/drivers/char/hw_random/nomadik-rng.c
-index 67947a19aa22..e8f9621e7954 100644
---- a/drivers/char/hw_random/nomadik-rng.c
-+++ b/drivers/char/hw_random/nomadik-rng.c
-@@ -65,14 +65,14 @@ static int nmk_rng_probe(struct amba_device *dev, const struct amba_id *id)
- out_release:
- 	amba_release_regions(dev);
- out_clk:
--	clk_disable(rng_clk);
-+	clk_disable_unprepare(rng_clk);
- 	return ret;
- }
+--- a/mm/madvise.c
++++ b/mm/madvise.c
+@@ -1301,8 +1301,7 @@ SYSCALL_DEFINE5(process_madvise, int, pi
+ 		iov_iter_advance(&iter, iovec.iov_len);
+ 	}
  
- static void nmk_rng_remove(struct amba_device *dev)
- {
- 	amba_release_regions(dev);
--	clk_disable(rng_clk);
-+	clk_disable_unprepare(rng_clk);
- }
+-	if (ret == 0)
+-		ret = total_len - iov_iter_count(&iter);
++	ret = (total_len - iov_iter_count(&iter)) ? : ret;
  
- static const struct amba_id nmk_rng_ids[] = {
--- 
-2.34.1
-
+ release_mm:
+ 	mmput(mm);
 
 
