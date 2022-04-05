@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7313E4F37EC
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:26:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DEED54F3AA7
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:03:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359721AbiDELUh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:20:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47660 "EHLO
+        id S1381647AbiDELqs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:46:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48494 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349085AbiDEJtG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3ACCEA9957;
-        Tue,  5 Apr 2022 02:40:26 -0700 (PDT)
+        with ESMTP id S1354756AbiDEKPd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:15:33 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D3A36C4A5;
+        Tue,  5 Apr 2022 03:02:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D76BDB81C14;
-        Tue,  5 Apr 2022 09:40:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B2D8C385A1;
-        Tue,  5 Apr 2022 09:40:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BE4E161740;
+        Tue,  5 Apr 2022 10:02:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5E64C385A1;
+        Tue,  5 Apr 2022 10:02:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151623;
-        bh=2qwiJmnx37qZrjF2BfWvJ3zWu1bYMpI5eeMXH9PglFE=;
+        s=korg; t=1649152955;
+        bh=locgQxsyc0MpvAdZeZH1B7amSJ1o7txFD/CTHTitM/g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=guChPGv7uZDwiRO4mLYOMoD5SxkMSB5mA7BERtaSTwhDWR3+REVMX3ODZ8T5QtZNa
-         YhprtWj9mlwLLNu+FWtqNckBxUmGH22pDFQinf6JfgzTp80IS4ksdVga/JfhLxS2Ro
-         F7vHLLZfNwvZPvJYBga0XNx4+/mXWXhgHZyGK1JE=
+        b=JkaBythOPpsAqlnM1UmkT7GPGCubDuz0L2jj5NP97f1xYymLODM6pqSeHblqidvGh
+         AAoq35pmx1535L62sEVigAp0dVvWiTTcvv4mrmzX8dSD4sJahLBCz2Z8G1ukpGJHlV
+         iAXo2peRT/GWXjRsoznlcHDN23G9BuhJQmehFsNE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jack Wang <jinpu.wang@ionos.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 481/913] scsi: pm8001: Fix command initialization in pm8001_chip_ssp_tm_req()
-Date:   Tue,  5 Apr 2022 09:25:43 +0200
-Message-Id: <20220405070354.273841744@linuxfoundation.org>
+        stable@vger.kernel.org, Chao Yu <chao.yu@oppo.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>
+Subject: [PATCH 5.10 050/599] f2fs: fix to do sanity check on .cp_pack_total_block_count
+Date:   Tue,  5 Apr 2022 09:25:44 +0200
+Message-Id: <20220405070300.317859746@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070258.802373272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,43 +53,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+From: Chao Yu <chao@kernel.org>
 
-[ Upstream commit cd2268a180117aa8ebb23e090ba204324b2d0e93 ]
+commit 5b5b4f85b01604389f7a0f11ef180a725bf0e2d4 upstream.
 
-The ds_ads_m field of struct ssp_ini_tm_start_req has the type __le32.
-Assigning a value to it should thus use cpu_to_le32(). This fixes the
-sparse warning:
+As bughunter reported in bugzilla:
 
-warning: incorrect type in assignment (different base types)
-   expected restricted __le32 [addressable] [assigned] [usertype] ds_ads_m
-   got int
+https://bugzilla.kernel.org/show_bug.cgi?id=215709
 
-Link: https://lore.kernel.org/r/20220220031810.738362-7-damien.lemoal@opensource.wdc.com
-Fixes: dbf9bfe61571 ("[SCSI] pm8001: add SAS/SATA HBA driver")
-Reviewed-by: Jack Wang <jinpu.wang@ionos.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+f2fs may hang when mounting a fuzzed image, the dmesg shows as below:
+
+__filemap_get_folio+0x3a9/0x590
+pagecache_get_page+0x18/0x60
+__get_meta_page+0x95/0x460 [f2fs]
+get_checkpoint_version+0x2a/0x1e0 [f2fs]
+validate_checkpoint+0x8e/0x2a0 [f2fs]
+f2fs_get_valid_checkpoint+0xd0/0x620 [f2fs]
+f2fs_fill_super+0xc01/0x1d40 [f2fs]
+mount_bdev+0x18a/0x1c0
+f2fs_mount+0x15/0x20 [f2fs]
+legacy_get_tree+0x28/0x50
+vfs_get_tree+0x27/0xc0
+path_mount+0x480/0xaa0
+do_mount+0x7c/0xa0
+__x64_sys_mount+0x8b/0xe0
+do_syscall_64+0x38/0xc0
+entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+The root cause is cp_pack_total_block_count field in checkpoint was fuzzed
+to one, as calcuated, two cp pack block locates in the same block address,
+so then read latter cp pack block, it will block on the page lock due to
+the lock has already held when reading previous cp pack block, fix it by
+adding sanity check for cp_pack_total_block_count.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Chao Yu <chao.yu@oppo.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/pm8001/pm8001_hwi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/f2fs/checkpoint.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/scsi/pm8001/pm8001_hwi.c b/drivers/scsi/pm8001/pm8001_hwi.c
-index 1e1630a1a97c..bad0c8b8cbe1 100644
---- a/drivers/scsi/pm8001/pm8001_hwi.c
-+++ b/drivers/scsi/pm8001/pm8001_hwi.c
-@@ -4633,7 +4633,7 @@ int pm8001_chip_ssp_tm_req(struct pm8001_hba_info *pm8001_ha,
- 	memcpy(sspTMCmd.lun, task->ssp_task.LUN, 8);
- 	sspTMCmd.tag = cpu_to_le32(ccb->ccb_tag);
- 	if (pm8001_ha->chip_id != chip_8001)
--		sspTMCmd.ds_ads_m = 0x08;
-+		sspTMCmd.ds_ads_m = cpu_to_le32(0x08);
- 	circularQ = &pm8001_ha->inbnd_q_tbl[0];
- 	ret = pm8001_mpi_build_cmd(pm8001_ha, circularQ, opc, &sspTMCmd,
- 			sizeof(sspTMCmd), 0);
--- 
-2.34.1
-
+--- a/fs/f2fs/checkpoint.c
++++ b/fs/f2fs/checkpoint.c
+@@ -851,6 +851,7 @@ static struct page *validate_checkpoint(
+ 	struct page *cp_page_1 = NULL, *cp_page_2 = NULL;
+ 	struct f2fs_checkpoint *cp_block = NULL;
+ 	unsigned long long cur_version = 0, pre_version = 0;
++	unsigned int cp_blocks;
+ 	int err;
+ 
+ 	err = get_checkpoint_version(sbi, cp_addr, &cp_block,
+@@ -858,15 +859,16 @@ static struct page *validate_checkpoint(
+ 	if (err)
+ 		return NULL;
+ 
+-	if (le32_to_cpu(cp_block->cp_pack_total_block_count) >
+-					sbi->blocks_per_seg) {
++	cp_blocks = le32_to_cpu(cp_block->cp_pack_total_block_count);
++
++	if (cp_blocks > sbi->blocks_per_seg || cp_blocks <= F2FS_CP_PACKS) {
+ 		f2fs_warn(sbi, "invalid cp_pack_total_block_count:%u",
+ 			  le32_to_cpu(cp_block->cp_pack_total_block_count));
+ 		goto invalid_cp;
+ 	}
+ 	pre_version = *version;
+ 
+-	cp_addr += le32_to_cpu(cp_block->cp_pack_total_block_count) - 1;
++	cp_addr += cp_blocks - 1;
+ 	err = get_checkpoint_version(sbi, cp_addr, &cp_block,
+ 					&cp_page_2, version);
+ 	if (err)
 
 
