@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CA9A4F2A46
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 12:53:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C98E24F2A83
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:04:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347422AbiDEJ01 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:26:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46838 "EHLO
+        id S229765AbiDEKv0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:51:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59290 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245054AbiDEIxE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:53:04 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78961BC4;
-        Tue,  5 Apr 2022 01:50:49 -0700 (PDT)
+        with ESMTP id S1345760AbiDEJoD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:44:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2840C55A0;
+        Tue,  5 Apr 2022 02:29:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1435E60FFB;
-        Tue,  5 Apr 2022 08:50:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24367C385A0;
-        Tue,  5 Apr 2022 08:50:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 02C38616D6;
+        Tue,  5 Apr 2022 09:29:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12EDFC385A0;
+        Tue,  5 Apr 2022 09:29:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148648;
-        bh=MQT/c8B9STkSA+ZJifM4SkIT1HBwLZ19pKMHc5bvbbM=;
+        s=korg; t=1649150968;
+        bh=M67CU+T4xOG6XH0wlo3yuSohmbR82pONZTeDDfPjaTs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M0LcoLjLyaRJ4w/T31JSuQJK030wVsgSh2UVyOIs2+82dYsZ9VBdZtup+oEKc7psg
-         hZC3y/MatueEFLZ806JovIrjs3N2hlmxQ+Jla1eCOnQJiWW7wCfjJ650U38jKwBZyW
-         AvSI0aoqQE7w1Gx6+KMeT1zbCCKCrKAALuf+QmkQ=
+        b=PtbYBiv0paTZSK5d7BW/JrsxpZ5N3ulBDeNOTSW8g1XjR6rQgcHY0RsU6GCo8cmPJ
+         qbdrXHKboKrzmTpjBhmTcLKjQzSdt76ggSOf0XNIiKu8TU8W7y2+ty2OPb4jooGb99
+         YVbOmsqVsdqEzsQdp4WlVgnGBVDNLnIlUAy47E+E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Codrin Ciubotariu <codrin.ciubotariu@microchip.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0392/1017] ASoC: atmel: Fix error handling in sam9x5_wm8731_driver_probe
-Date:   Tue,  5 Apr 2022 09:21:45 +0200
-Message-Id: <20220405070405.921917455@linuxfoundation.org>
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+6e2de48f06cdb2884bfc@syzkaller.appspotmail.com
+Subject: [PATCH 5.15 245/913] watch_queue: Actually free the watch
+Date:   Tue,  5 Apr 2022 09:21:47 +0200
+Message-Id: <20220405070347.201194687@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,69 +54,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit 740dc3e846537c3743da98bf106f376023fd085c ]
+[ Upstream commit 3d8dcf278b1ee1eff1e90be848fa2237db4c07a7 ]
 
-The device_node pointer is returned by of_parse_phandle()  with refcount
-incremented. We should use of_node_put() on it when done.
+free_watch() does everything barring actually freeing the watch object.  Fix
+this by adding the missing kfree.
 
-This function only calls of_node_put() in the regular path.
-And it will cause refcount leak in error path.
+kmemleak produces a report something like the following.  Note that as an
+address can be seen in the first word, the watch would appear to have gone
+through call_rcu().
 
-Fixes: fdbcb3cba54b ("ASoC: atmel: machine driver for at91sam9x5-wm8731 boards")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Reviewed-by: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
-Link: https://lore.kernel.org/r/20220316111530.4551-1-linmq006@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+BUG: memory leak
+unreferenced object 0xffff88810ce4a200 (size 96):
+  comm "syz-executor352", pid 3605, jiffies 4294947473 (age 13.720s)
+  hex dump (first 32 bytes):
+    e0 82 48 0d 81 88 ff ff 00 00 00 00 00 00 00 00  ..H.............
+    80 a2 e4 0c 81 88 ff ff 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<ffffffff8214e6cc>] kmalloc include/linux/slab.h:581 [inline]
+    [<ffffffff8214e6cc>] kzalloc include/linux/slab.h:714 [inline]
+    [<ffffffff8214e6cc>] keyctl_watch_key+0xec/0x2e0 security/keys/keyctl.c:1800
+    [<ffffffff8214ec84>] __do_sys_keyctl+0x3c4/0x490 security/keys/keyctl.c:2016
+    [<ffffffff84493a25>] do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+    [<ffffffff84493a25>] do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+    [<ffffffff84600068>] entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Fixes: c73be61cede5 ("pipe: Add general notification queue support")
+Reported-and-tested-by: syzbot+6e2de48f06cdb2884bfc@syzkaller.appspotmail.com
+Signed-off-by: David Howells <dhowells@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/atmel/sam9x5_wm8731.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ kernel/watch_queue.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/soc/atmel/sam9x5_wm8731.c b/sound/soc/atmel/sam9x5_wm8731.c
-index 7c45dc4f8c1b..99310e40e7a6 100644
---- a/sound/soc/atmel/sam9x5_wm8731.c
-+++ b/sound/soc/atmel/sam9x5_wm8731.c
-@@ -142,7 +142,7 @@ static int sam9x5_wm8731_driver_probe(struct platform_device *pdev)
- 	if (!cpu_np) {
- 		dev_err(&pdev->dev, "atmel,ssc-controller node missing\n");
- 		ret = -EINVAL;
--		goto out;
-+		goto out_put_codec_np;
- 	}
- 	dai->cpus->of_node = cpu_np;
- 	dai->platforms->of_node = cpu_np;
-@@ -153,12 +153,9 @@ static int sam9x5_wm8731_driver_probe(struct platform_device *pdev)
- 	if (ret != 0) {
- 		dev_err(&pdev->dev, "Failed to set SSC %d for audio: %d\n",
- 			ret, priv->ssc_id);
--		goto out;
-+		goto out_put_cpu_np;
- 	}
- 
--	of_node_put(codec_np);
--	of_node_put(cpu_np);
--
- 	ret = devm_snd_soc_register_card(&pdev->dev, card);
- 	if (ret) {
- 		dev_err(&pdev->dev, "Platform device allocation failed\n");
-@@ -167,10 +164,14 @@ static int sam9x5_wm8731_driver_probe(struct platform_device *pdev)
- 
- 	dev_dbg(&pdev->dev, "%s ok\n", __func__);
- 
--	return ret;
-+	goto out_put_cpu_np;
- 
- out_put_audio:
- 	atmel_ssc_put_audio(priv->ssc_id);
-+out_put_cpu_np:
-+	of_node_put(cpu_np);
-+out_put_codec_np:
-+	of_node_put(codec_np);
- out:
- 	return ret;
+diff --git a/kernel/watch_queue.c b/kernel/watch_queue.c
+index 12348b41d7ad..38a135d68c05 100644
+--- a/kernel/watch_queue.c
++++ b/kernel/watch_queue.c
+@@ -398,6 +398,7 @@ static void free_watch(struct rcu_head *rcu)
+ 	put_watch_queue(rcu_access_pointer(watch->queue));
+ 	atomic_dec(&watch->cred->user->nr_watches);
+ 	put_cred(watch->cred);
++	kfree(watch);
  }
+ 
+ static void __put_watch(struct kref *kref)
 -- 
 2.34.1
 
