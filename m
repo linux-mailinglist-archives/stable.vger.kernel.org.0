@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 424704F3206
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:53:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6979F4F3480
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:37:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348999AbiDEKt5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:49:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50100 "EHLO
+        id S1347804AbiDEJ20 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:28:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46804 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344454AbiDEJmD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:42:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7C4FBD8B2;
-        Tue,  5 Apr 2022 02:27:41 -0700 (PDT)
+        with ESMTP id S244897AbiDEIwp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:45 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62F9F2458B;
+        Tue,  5 Apr 2022 01:45:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 67B206165C;
-        Tue,  5 Apr 2022 09:27:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FDE9C385A0;
-        Tue,  5 Apr 2022 09:27:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0A4D2B81A32;
+        Tue,  5 Apr 2022 08:45:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 510ECC385A4;
+        Tue,  5 Apr 2022 08:45:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150860;
-        bh=ADAnpuWgvatAfPDBvpAVYJ5LgziMw3umFs1wbdX/OoE=;
+        s=korg; t=1649148350;
+        bh=4mNg/F94fD5ePGFoWZAISjOcsN7uVsRt2932zEV02wk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vnh1MI8FFwnENUC8SkzYSRCsLOMdC/SnmFzhDA5O/X/jri9H8euGckX6xhdnUYAbF
-         Irm+AtigRs5W95sKkQAXQ7zxCRrBymt7OkIUVJqyX3877JDXlyvoPpUh75D7JJUUQV
-         H/QpDz43jYMOtWMtguu/utDZiX4emcuNYrg/resQ=
+        b=outQIfS5CRnkTOG/lzNo5NxL+OjL7LGOMP2YRTxiAIqeRrqdNGGzDncLQpHSb3Tmp
+         nWXlDdmtZgG1Udv/sT5m04xKK5tsfaO16ywMzIw2Hgtkc1+KgQdrX/n6+g9Koy+gjz
+         duYs51evoI5OXXk4p/lSg2h6rlnyLOq7pI1JaDZc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Nirmoy Das <nirmoy.das@linux.intel.com>
-Subject: [PATCH 5.15 175/913] drm/syncobj: flatten dma_fence_chains on transfer
-Date:   Tue,  5 Apr 2022 09:20:37 +0200
-Message-Id: <20220405070345.098131815@linuxfoundation.org>
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Stephan Gerhold <stephan@gerhold.net>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0325/1017] cpuidle: qcom-spm: Check if any CPU is managed by SPM
+Date:   Tue,  5 Apr 2022 09:20:38 +0200
+Message-Id: <20220405070403.927275915@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,109 +57,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian König <christian.koenig@amd.com>
+From: Stephan Gerhold <stephan@gerhold.net>
 
-commit 721255b52700b320c4ae2e23d57f7d9ad1db50b9 upstream.
+[ Upstream commit 0ee30ace67e425ab83a1673bf51f50b577328cf9 ]
 
-It is illegal to add a dma_fence_chain as timeline point. Flatten out
-the fences into a dma_fence_array instead.
+At the moment, the "qcom-spm-cpuidle" platform device is always created,
+even if none of the CPUs is actually managed by the SPM. On non-qcom
+platforms this will result in infinite probe-deferral due to the
+failing qcom_scm_is_available() call.
 
-Signed-off-by: Christian König <christian.koenig@amd.com>
-Reviewed-by: Nirmoy Das <nirmoy.das@linux.intel.com>
-Cc: <stable@vger.kernel.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220209182600.434803-1-christian.koenig@amd.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To avoid this, look through the CPU DT nodes and check if there is
+actually any CPU managed by a SPM (as indicated by the qcom,saw property).
+It should also be available because e.g. MSM8916 has qcom,saw defined
+but it's typically not enabled with ARM64/PSCI firmwares.
+
+This is needed in preparation of a follow-up change that calls
+qcom_scm_set_warm_boot_addr() a single time before registering any
+cpuidle drivers. Otherwise this call might be made even on devices
+that have this driver enabled but actually make use of PSCI.
+
+Fixes: 60f3692b5f0b ("cpuidle: qcom_spm: Detach state machine from main SPM handling")
+Reported-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Link: https://lore.kernel.org/r/86e3e09f-a8d7-3dff-3fc6-ddd7d30c5d78@samsung.com/
+Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
+Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Acked-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20211201130505.257379-2-stephan@gerhold.net
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_syncobj.c |   61 ++++++++++++++++++++++++++++++++++++++----
- 1 file changed, 56 insertions(+), 5 deletions(-)
+ drivers/cpuidle/cpuidle-qcom-spm.c | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
---- a/drivers/gpu/drm/drm_syncobj.c
-+++ b/drivers/gpu/drm/drm_syncobj.c
-@@ -853,12 +853,57 @@ drm_syncobj_fd_to_handle_ioctl(struct dr
- 					&args->handle);
- }
+diff --git a/drivers/cpuidle/cpuidle-qcom-spm.c b/drivers/cpuidle/cpuidle-qcom-spm.c
+index 01e77913a414..5f27dcc6c110 100644
+--- a/drivers/cpuidle/cpuidle-qcom-spm.c
++++ b/drivers/cpuidle/cpuidle-qcom-spm.c
+@@ -155,6 +155,22 @@ static struct platform_driver spm_cpuidle_driver = {
+ 	},
+ };
  
-+
-+/*
-+ * Try to flatten a dma_fence_chain into a dma_fence_array so that it can be
-+ * added as timeline fence to a chain again.
-+ */
-+static int drm_syncobj_flatten_chain(struct dma_fence **f)
++static bool __init qcom_spm_find_any_cpu(void)
 +{
-+	struct dma_fence_chain *chain = to_dma_fence_chain(*f);
-+	struct dma_fence *tmp, **fences;
-+	struct dma_fence_array *array;
-+	unsigned int count;
++	struct device_node *cpu_node, *saw_node;
 +
-+	if (!chain)
-+		return 0;
-+
-+	count = 0;
-+	dma_fence_chain_for_each(tmp, &chain->base)
-+		++count;
-+
-+	fences = kmalloc_array(count, sizeof(*fences), GFP_KERNEL);
-+	if (!fences)
-+		return -ENOMEM;
-+
-+	count = 0;
-+	dma_fence_chain_for_each(tmp, &chain->base)
-+		fences[count++] = dma_fence_get(tmp);
-+
-+	array = dma_fence_array_create(count, fences,
-+				       dma_fence_context_alloc(1),
-+				       1, false);
-+	if (!array)
-+		goto free_fences;
-+
-+	dma_fence_put(*f);
-+	*f = &array->base;
-+	return 0;
-+
-+free_fences:
-+	while (count--)
-+		dma_fence_put(fences[count]);
-+
-+	kfree(fences);
-+	return -ENOMEM;
++	for_each_of_cpu_node(cpu_node) {
++		saw_node = of_parse_phandle(cpu_node, "qcom,saw", 0);
++		if (of_device_is_available(saw_node)) {
++			of_node_put(saw_node);
++			of_node_put(cpu_node);
++			return true;
++		}
++		of_node_put(saw_node);
++	}
++	return false;
 +}
 +
- static int drm_syncobj_transfer_to_timeline(struct drm_file *file_private,
- 					    struct drm_syncobj_transfer *args)
+ static int __init qcom_spm_cpuidle_init(void)
  {
- 	struct drm_syncobj *timeline_syncobj = NULL;
--	struct dma_fence *fence;
- 	struct dma_fence_chain *chain;
-+	struct dma_fence *fence;
- 	int ret;
- 
- 	timeline_syncobj = drm_syncobj_find(file_private, args->dst_handle);
-@@ -869,16 +914,22 @@ static int drm_syncobj_transfer_to_timel
- 				     args->src_point, args->flags,
- 				     &fence);
+ 	struct platform_device *pdev;
+@@ -164,6 +180,10 @@ static int __init qcom_spm_cpuidle_init(void)
  	if (ret)
--		goto err;
-+		goto err_put_timeline;
-+
-+	ret = drm_syncobj_flatten_chain(&fence);
-+	if (ret)
-+		goto err_free_fence;
-+
- 	chain = dma_fence_chain_alloc();
- 	if (!chain) {
- 		ret = -ENOMEM;
--		goto err1;
-+		goto err_free_fence;
- 	}
-+
- 	drm_syncobj_add_point(timeline_syncobj, chain, fence, args->dst_point);
--err1:
-+err_free_fence:
- 	dma_fence_put(fence);
--err:
-+err_put_timeline:
- 	drm_syncobj_put(timeline_syncobj);
+ 		return ret;
  
- 	return ret;
++	/* Make sure there is actually any CPU managed by the SPM */
++	if (!qcom_spm_find_any_cpu())
++		return 0;
++
+ 	pdev = platform_device_register_simple("qcom-spm-cpuidle",
+ 					       -1, NULL, 0);
+ 	if (IS_ERR(pdev)) {
+-- 
+2.34.1
+
 
 
