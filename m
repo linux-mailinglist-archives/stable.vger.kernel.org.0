@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F49C4F3930
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:45:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC2AA4F3C05
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:23:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377704AbiDELaT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:30:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35096 "EHLO
+        id S1382273AbiDEMEB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:04:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58576 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352649AbiDEKEv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:04:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B36DBB93B;
-        Tue,  5 Apr 2022 02:53:38 -0700 (PDT)
+        with ESMTP id S1358152AbiDEK2C (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:28:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9789A9D4F7;
+        Tue,  5 Apr 2022 03:16:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F18F661741;
-        Tue,  5 Apr 2022 09:53:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAF58C385A2;
-        Tue,  5 Apr 2022 09:53:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2B93A61777;
+        Tue,  5 Apr 2022 10:16:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36A6AC385A0;
+        Tue,  5 Apr 2022 10:15:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152417;
-        bh=f5kwN4S2vdesuUj/xzMZWQjyIOdPLVM7/VR9lrPVkig=;
+        s=korg; t=1649153759;
+        bh=TkRjkbHf35GwvaY8YoQCXT3xu4BK4ElnagkTLzoI8O8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BuSg87JuxayP3ctVQis9jOmJ7kKvOxCvjLi4d5sf8P/Lv21Y6y7e7d3xDmzIcO4jZ
-         xDJ72ADbLX0uaooCc5PqFq6Eg8+adM+ti8LqV3122x0RL/2uy8+n2ugVikmG5BJWyQ
-         N2lWlWmZLDysOG2lHOGaxLkoFL82DCIw9L4fEWns=
+        b=Ldvo7AUv1ER97pdJt3liNMClUqE+3qdzDbvZYVEFC7eEwR80wCPztysd+/fjpyAtE
+         579mRRjGC5KRrQjd7PsUlzsLmohT4yFk+GiX/KNPqmXxAp+vLrJDJjDcLYudjZIWUn
+         AkoWq6RKme/UOG7UZUF7KFVqZeRl//ncGU4vw0kc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matt Kramer <mccleetus@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 769/913] ALSA: hda/realtek: Add alc256-samsung-headphone fixup
-Date:   Tue,  5 Apr 2022 09:30:31 +0200
-Message-Id: <20220405070402.883278443@linuxfoundation.org>
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 338/599] power: supply: wm8350-power: Add missing free in free_charger_irq
+Date:   Tue,  5 Apr 2022 09:30:32 +0200
+Message-Id: <20220405070308.890690877@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070258.802373272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,83 +55,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matt Kramer <mccleetus@gmail.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit ef248d9bd616b04df8be25539a4dc5db4b6c56f4 ]
+[ Upstream commit 6dee930f6f6776d1e5a7edf542c6863b47d9f078 ]
 
-This fixes the near-silence of the headphone jack on the ALC256-based
-Samsung Galaxy Book Flex Alpha (NP730QCJ). The magic verbs were found
-through trial and error, using known ALC298 hacks as inspiration. The
-fixup is auto-enabled only when the NP730QCJ is detected. It can be
-manually enabled using model=alc256-samsung-headphone.
+In free_charger_irq(), there is no free for 'WM8350_IRQ_CHG_FAST_RDY'.
+Therefore, it should be better to add it in order to avoid the memory leak.
 
-Signed-off-by: Matt Kramer <mccleetus@gmail.com>
-Link: https://lore.kernel.org/r/3168355.aeNJFYEL58@linus
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 14431aa0c5a4 ("power_supply: Add support for WM8350 PMU")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/sound/hd-audio/models.rst |  4 ++++
- sound/pci/hda/patch_realtek.c           | 11 +++++++++++
- 2 files changed, 15 insertions(+)
+ drivers/power/supply/wm8350_power.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/Documentation/sound/hd-audio/models.rst b/Documentation/sound/hd-audio/models.rst
-index d25335993e55..9b52f50a6854 100644
---- a/Documentation/sound/hd-audio/models.rst
-+++ b/Documentation/sound/hd-audio/models.rst
-@@ -261,6 +261,10 @@ alc-sense-combo
- huawei-mbx-stereo
-     Enable initialization verbs for Huawei MBX stereo speakers;
-     might be risky, try this at your own risk
-+alc298-samsung-headphone
-+    Samsung laptops with ALC298
-+alc256-samsung-headphone
-+    Samsung laptops with ALC256
- 
- ALC66x/67x/892
- ==============
-diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
-index 888d049d5304..f6e5ed34dd09 100644
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -6816,6 +6816,7 @@ enum {
- 	ALC236_FIXUP_HP_MUTE_LED,
- 	ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF,
- 	ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET,
-+	ALC256_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET,
- 	ALC295_FIXUP_ASUS_MIC_NO_PRESENCE,
- 	ALC269VC_FIXUP_ACER_VCOPPERBOX_PINS,
- 	ALC269VC_FIXUP_ACER_HEADSET_MIC,
-@@ -8138,6 +8139,14 @@ static const struct hda_fixup alc269_fixups[] = {
- 			{ }
- 		},
- 	},
-+	[ALC256_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET] = {
-+		.type = HDA_FIXUP_VERBS,
-+		.v.verbs = (const struct hda_verb[]) {
-+			{ 0x20, AC_VERB_SET_COEF_INDEX, 0x08},
-+			{ 0x20, AC_VERB_SET_PROC_COEF, 0x2fcf},
-+			{ }
-+		},
-+	},
- 	[ALC295_FIXUP_ASUS_MIC_NO_PRESENCE] = {
- 		.type = HDA_FIXUP_PINS,
- 		.v.pins = (const struct hda_pintbl[]) {
-@@ -8900,6 +8909,7 @@ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
- 	SND_PCI_QUIRK(0x144d, 0xc740, "Samsung Ativ book 8 (NP870Z5G)", ALC269_FIXUP_ATIV_BOOK_8),
- 	SND_PCI_QUIRK(0x144d, 0xc812, "Samsung Notebook Pen S (NT950SBE-X58)", ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
- 	SND_PCI_QUIRK(0x144d, 0xc830, "Samsung Galaxy Book Ion (NT950XCJ-X716A)", ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
-+	SND_PCI_QUIRK(0x144d, 0xc832, "Samsung Galaxy Book Flex Alpha (NP730QCJ)", ALC256_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
- 	SND_PCI_QUIRK(0x1458, 0xfa53, "Gigabyte BXBT-2807", ALC283_FIXUP_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x1462, 0xb120, "MSI Cubi MS-B120", ALC283_FIXUP_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x1462, 0xb171, "Cubi N 8GL (MS-B171)", ALC283_FIXUP_HEADSET_MIC),
-@@ -9242,6 +9252,7 @@ static const struct hda_model_fixup alc269_fixup_models[] = {
- 	{.id = ALC298_FIXUP_HUAWEI_MBX_STEREO, .name = "huawei-mbx-stereo"},
- 	{.id = ALC256_FIXUP_MEDION_HEADSET_NO_PRESENCE, .name = "alc256-medion-headset"},
- 	{.id = ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET, .name = "alc298-samsung-headphone"},
-+	{.id = ALC256_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET, .name = "alc256-samsung-headphone"},
- 	{.id = ALC255_FIXUP_XIAOMI_HEADSET_MIC, .name = "alc255-xiaomi-headset"},
- 	{.id = ALC274_FIXUP_HP_MIC, .name = "alc274-hp-mic-detect"},
- 	{.id = ALC245_FIXUP_HP_X360_AMP, .name = "alc245-hp-x360-amp"},
+diff --git a/drivers/power/supply/wm8350_power.c b/drivers/power/supply/wm8350_power.c
+index 9c46c48dccb1..908cfd45d262 100644
+--- a/drivers/power/supply/wm8350_power.c
++++ b/drivers/power/supply/wm8350_power.c
+@@ -524,6 +524,7 @@ static void free_charger_irq(struct wm8350 *wm8350)
+ 	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_TO, wm8350);
+ 	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_END, wm8350);
+ 	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_START, wm8350);
++	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_FAST_RDY, wm8350);
+ 	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_VBATT_LT_3P9, wm8350);
+ 	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_VBATT_LT_3P1, wm8350);
+ 	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_VBATT_LT_2P85, wm8350);
 -- 
 2.34.1
 
