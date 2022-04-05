@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 05D754F32CE
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:00:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 995F24F33F8
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:24:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344983AbiDEKk0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:40:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41798 "EHLO
+        id S1344986AbiDEKk1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:40:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35502 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244178AbiDEJlJ (ORCPT
+        with ESMTP id S244183AbiDEJlJ (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:41:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC983BABBA;
-        Tue,  5 Apr 2022 02:25:27 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 741FCBB080;
+        Tue,  5 Apr 2022 02:25:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 97B42B81C9A;
-        Tue,  5 Apr 2022 09:25:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D76DAC385A0;
-        Tue,  5 Apr 2022 09:25:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 28231B81C9A;
+        Tue,  5 Apr 2022 09:25:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8961CC385A0;
+        Tue,  5 Apr 2022 09:25:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150725;
-        bh=C/750eIEw2xnKQ7Z3W6sdUklRUAe3atwbovg2TFjKWM=;
+        s=korg; t=1649150727;
+        bh=jLJHdncUYIgkXzg4FNI//hgrXP1ygYahSZ/ZDNplSPI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nJU4hAxgmoS5bVBbc9scrGuLBifz2uYD6c7SUcNuxPVl1Tw7S8DTvYbi29e7StVZK
-         uSqIn6MmsX7TGnkdZw+XKap4fHI1QTChxGuPhF5YAHG3QCkSJdR7vg0bcWwQ3WHwCi
-         uz5ygbmwRF7VvfbYkKRKiIC54jnCMbDpAaefUw7w=
+        b=cq2KvACsRiAWTPEjUJxMlOZpciRJEGml+cHSJZUZzSxNE7uDZAsOyXtCV2zJ9eZFN
+         jQJObPOcOe0jqDZMl9aLRcjZaunTkGqu8KhLsRWPWzVW/mX9WpYcNF2tLeU4oc0pPS
+         AYNks00TekPJhrZvZf9hzfrhk9VT95IYgPddq6Iw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
+        stable@vger.kernel.org, Vitaly Chikunov <vt@altlinux.org>,
+        Eric Biggers <ebiggers@google.com>,
         Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.15 157/913] crypto: rsa-pkcs1pad - only allow with rsa
-Date:   Tue,  5 Apr 2022 09:20:19 +0200
-Message-Id: <20220405070344.545392184@linuxfoundation.org>
+Subject: [PATCH 5.15 158/913] crypto: rsa-pkcs1pad - correctly get hash from source scatterlist
+Date:   Tue,  5 Apr 2022 09:20:20 +0200
+Message-Id: <20220405070344.576892112@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -55,34 +56,50 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Eric Biggers <ebiggers@google.com>
 
-commit 9b30430ea356f237945e52f8a3a42158877bd5a9 upstream.
+commit e316f7179be22912281ce6331d96d7c121fb2b17 upstream.
 
-The pkcs1pad template can be instantiated with an arbitrary akcipher
-algorithm, which doesn't make sense; it is specifically an RSA padding
-scheme.  Make it check that the underlying algorithm really is RSA.
+Commit c7381b012872 ("crypto: akcipher - new verify API for public key
+algorithms") changed akcipher_alg::verify to take in both the signature
+and the actual hash and do the signature verification, rather than just
+return the hash expected by the signature as was the case before.  To do
+this, it implemented a hack where the signature and hash are
+concatenated with each other in one scatterlist.
 
-Fixes: 3d5b1ecdea6f ("crypto: rsa - RSA padding algorithm")
-Cc: <stable@vger.kernel.org> # v4.5+
+Obviously, for this to work correctly, akcipher_alg::verify needs to
+correctly extract the two items from the scatterlist it is given.
+Unfortunately, it doesn't correctly extract the hash in the case where
+the signature is longer than the RSA key size, as it assumes that the
+signature's length is equal to the RSA key size.  This causes a prefix
+of the hash, or even the entire hash, to be taken from the *signature*.
+
+(Note, the case of a signature longer than the RSA key size should not
+be allowed in the first place; a separate patch will fix that.)
+
+It is unclear whether the resulting scheme has any useful security
+properties.
+
+Fix this by correctly extracting the hash from the scatterlist.
+
+Fixes: c7381b012872 ("crypto: akcipher - new verify API for public key algorithms")
+Cc: <stable@vger.kernel.org> # v5.2+
+Reviewed-by: Vitaly Chikunov <vt@altlinux.org>
 Signed-off-by: Eric Biggers <ebiggers@google.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- crypto/rsa-pkcs1pad.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ crypto/rsa-pkcs1pad.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 --- a/crypto/rsa-pkcs1pad.c
 +++ b/crypto/rsa-pkcs1pad.c
-@@ -621,6 +621,11 @@ static int pkcs1pad_create(struct crypto
- 
- 	rsa_alg = crypto_spawn_akcipher_alg(&ctx->spawn);
- 
-+	if (strcmp(rsa_alg->base.cra_name, "rsa") != 0) {
-+		err = -EINVAL;
-+		goto err_free_inst;
-+	}
-+
- 	err = -ENAMETOOLONG;
- 	hash_name = crypto_attr_alg_name(tb[2]);
- 	if (IS_ERR(hash_name)) {
+@@ -495,7 +495,7 @@ static int pkcs1pad_verify_complete(stru
+ 			   sg_nents_for_len(req->src,
+ 					    req->src_len + req->dst_len),
+ 			   req_ctx->out_buf + ctx->key_size,
+-			   req->dst_len, ctx->key_size);
++			   req->dst_len, req->src_len);
+ 	/* Do the actual verification step. */
+ 	if (memcmp(req_ctx->out_buf + ctx->key_size, out_buf + pos,
+ 		   req->dst_len) != 0)
 
 
