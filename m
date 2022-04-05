@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 771B04F2DF3
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:48:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA9FF4F2BA0
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:16:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353945AbiDEKJw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:09:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60100 "EHLO
+        id S239214AbiDEIoy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:44:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346329AbiDEJXo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:23:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15445D95FF;
-        Tue,  5 Apr 2022 02:13:17 -0700 (PDT)
+        with ESMTP id S241123AbiDEIcv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:32:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B358216584;
+        Tue,  5 Apr 2022 01:28:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 98E7AB81C6F;
-        Tue,  5 Apr 2022 09:13:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1AE6C385A0;
-        Tue,  5 Apr 2022 09:13:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4EF97609D0;
+        Tue,  5 Apr 2022 08:28:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E334C385A1;
+        Tue,  5 Apr 2022 08:28:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149995;
-        bh=fkdUwpUrG/jDE4fqN8T3sCJjs6KYzmzagCalEt+f5gQ=;
+        s=korg; t=1649147296;
+        bh=FjlwNEak2Y5XHLiuM71zpUltWSfxCrU7knvshYNWE0c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GNtNH8BdvNsmWvY+2NU3G8yy6tvO5Wr5Y0iBW7vrg6/LFYbGd4QiO5FUaZTluZxyn
-         Wjzr1GavbO8D4I/K/hYRsAzLU8reDmtCxYzKYLWmUr0tEUb6mAazgCxqIE37crJmzE
-         Z+XTBzIGAU9L7KgUXyE66Wv40xkQOuietAJo99Bc=
+        b=f+zkipLGwWcfop8jTB2itFaVq6jPS2HukyvxjPIrbhhG6ry0t6UCKjyxm3DZI5MeM
+         I9INxh17hcRPtxftGNZuDMPouaPkOuTy1JbtABa6NEjjECBcI2a2ViWibsvZFlMCkk
+         pdI9lpbDuAphT1pr/qCRz7eFuiAtLdwJ9q3qufh4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Quinn Tran <qutran@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.16 0879/1017] scsi: qla2xxx: Fix scheduling while atomic
-Date:   Tue,  5 Apr 2022 09:29:52 +0200
-Message-Id: <20220405070420.326520567@linuxfoundation.org>
+        stable@vger.kernel.org, Jiaxin Yu <jiaxin.yu@mediatek.com>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.17 1046/1126] ASoC: mediatek: mt6358: add missing EXPORT_SYMBOLs
+Date:   Tue,  5 Apr 2022 09:29:53 +0200
+Message-Id: <20220405070438.174765036@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,73 +55,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quinn Tran <qutran@marvell.com>
+From: Jiaxin Yu <jiaxin.yu@mediatek.com>
 
-commit afd438ff874ca40b74321b3fa19bd61adfd7ca0c upstream.
+commit a7663c89f4193dbf717572e46e5a3251940dbdc8 upstream.
 
-The driver makes a call into midlayer (fc_remote_port_delete) which can put
-the thread to sleep. The thread that originates the call is in interrupt
-context. The combination of the two trigger a crash. Schedule the call in
-non-interrupt context where it is more safe.
+Fixes the following build errors when mt6358 is configured as module:
 
-kernel: BUG: scheduling while atomic: swapper/7/0/0x00010000
-kernel: Call Trace:
-kernel:  <IRQ>
-kernel:  dump_stack+0x66/0x81
-kernel:  __schedule_bug.cold.90+0x5/0x1d
-kernel:  __schedule+0x7af/0x960
-kernel:  schedule+0x28/0x80
-kernel:  schedule_timeout+0x26d/0x3b0
-kernel:  wait_for_completion+0xb4/0x140
-kernel:  ? wake_up_q+0x70/0x70
-kernel:  __wait_rcu_gp+0x12c/0x160
-kernel:  ? sdev_evt_alloc+0xc0/0x180 [scsi_mod]
-kernel:  synchronize_sched+0x6c/0x80
-kernel:  ? call_rcu_bh+0x20/0x20
-kernel:  ? __bpf_trace_rcu_invoke_callback+0x10/0x10
-kernel:  sdev_evt_alloc+0xfd/0x180 [scsi_mod]
-kernel:  starget_for_each_device+0x85/0xb0 [scsi_mod]
-kernel:  ? scsi_init_io+0x360/0x3d0 [scsi_mod]
-kernel:  scsi_init_io+0x388/0x3d0 [scsi_mod]
-kernel:  device_for_each_child+0x54/0x90
-kernel:  fc_remote_port_delete+0x70/0xe0 [scsi_transport_fc]
-kernel:  qla2x00_schedule_rport_del+0x62/0xf0 [qla2xxx]
-kernel:  qla2x00_mark_device_lost+0x9c/0xd0 [qla2xxx]
-kernel:  qla24xx_handle_plogi_done_event+0x55f/0x570 [qla2xxx]
-kernel:  qla2x00_async_login_sp_done+0xd2/0x100 [qla2xxx]
-kernel:  qla24xx_logio_entry+0x13a/0x3c0 [qla2xxx]
-kernel:  qla24xx_process_response_queue+0x306/0x400 [qla2xxx]
-kernel:  qla24xx_msix_rsp_q+0x3f/0xb0 [qla2xxx]
-kernel:  __handle_irq_event_percpu+0x40/0x180
-kernel:  handle_irq_event_percpu+0x30/0x80
-kernel:  handle_irq_event+0x36/0x60
+>> ERROR: modpost: "mt6358_set_mtkaif_protocol"
+>> [sound/soc/mediatek/mt8186/mt8186-mt6366-rt1019-rt5682s.ko] undefined!
+>> ERROR: modpost: "mt6358_set_mtkaif_protocol"
+>> [sound/soc/mediatek/mt8186/mt8186-mt6366-da7219-max98357.ko] undefined!
 
-Link: https://lore.kernel.org/r/20220110050218.3958-7-njavali@marvell.com
-Cc: stable@vger.kernel.org
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Quinn Tran <qutran@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 6a8d4198ca80 ("ASoC: mediatek: mt6358: add codec driver")
+Signed-off-by: Jiaxin Yu <jiaxin.yu@mediatek.com>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Link: https://lore.kernel.org/r/20220319120325.11882-1-jiaxin.yu@mediatek.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/qla2xxx/qla_init.c |    7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+ sound/soc/codecs/mt6358.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/scsi/qla2xxx/qla_init.c
-+++ b/drivers/scsi/qla2xxx/qla_init.c
-@@ -2231,12 +2231,7 @@ qla24xx_handle_plogi_done_event(struct s
- 		ql_dbg(ql_dbg_disc, vha, 0x20eb, "%s %d %8phC cmd error %x\n",
- 		    __func__, __LINE__, ea->fcport->port_name, ea->data[1]);
+--- a/sound/soc/codecs/mt6358.c
++++ b/sound/soc/codecs/mt6358.c
+@@ -107,6 +107,7 @@ int mt6358_set_mtkaif_protocol(struct sn
+ 	priv->mtkaif_protocol = mtkaif_protocol;
+ 	return 0;
+ }
++EXPORT_SYMBOL_GPL(mt6358_set_mtkaif_protocol);
  
--		ea->fcport->flags &= ~FCF_ASYNC_SENT;
--		qla2x00_set_fcport_disc_state(ea->fcport, DSC_LOGIN_FAILED);
--		if (ea->data[1] & QLA_LOGIO_LOGIN_RETRIED)
--			set_bit(RELOGIN_NEEDED, &vha->dpc_flags);
--		else
--			qla2x00_mark_device_lost(vha, ea->fcport, 1);
-+		qlt_schedule_sess_for_deletion(ea->fcport);
- 		break;
- 	case MBS_LOOP_ID_USED:
- 		/* data[1] = IO PARAM 1 = nport ID  */
+ static void playback_gpio_set(struct mt6358_priv *priv)
+ {
+@@ -273,6 +274,7 @@ int mt6358_mtkaif_calibration_enable(str
+ 			   1 << RG_AUD_PAD_TOP_DAT_MISO_LOOPBACK_SFT);
+ 	return 0;
+ }
++EXPORT_SYMBOL_GPL(mt6358_mtkaif_calibration_enable);
+ 
+ int mt6358_mtkaif_calibration_disable(struct snd_soc_component *cmpnt)
+ {
+@@ -296,6 +298,7 @@ int mt6358_mtkaif_calibration_disable(st
+ 	capture_gpio_reset(priv);
+ 	return 0;
+ }
++EXPORT_SYMBOL_GPL(mt6358_mtkaif_calibration_disable);
+ 
+ int mt6358_set_mtkaif_calibration_phase(struct snd_soc_component *cmpnt,
+ 					int phase_1, int phase_2)
+@@ -310,6 +313,7 @@ int mt6358_set_mtkaif_calibration_phase(
+ 			   phase_2 << RG_AUD_PAD_TOP_PHASE_MODE2_SFT);
+ 	return 0;
+ }
++EXPORT_SYMBOL_GPL(mt6358_set_mtkaif_calibration_phase);
+ 
+ /* dl pga gain */
+ enum {
 
 
