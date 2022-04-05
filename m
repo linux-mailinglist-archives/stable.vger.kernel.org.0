@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 99BF94F334B
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:15:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F2A24F3452
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:26:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237404AbiDEImH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:42:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60894 "EHLO
+        id S238154AbiDEKHJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:07:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60606 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238545AbiDEIak (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:30:40 -0400
+        with ESMTP id S1344275AbiDEJTD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:19:03 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90CF8DE91;
-        Tue,  5 Apr 2022 01:22:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FC02DC9;
+        Tue,  5 Apr 2022 02:06:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3170BB81BBF;
-        Tue,  5 Apr 2022 08:22:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9774DC385A2;
-        Tue,  5 Apr 2022 08:22:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B9AE8B81BBF;
+        Tue,  5 Apr 2022 09:06:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12AD5C385A0;
+        Tue,  5 Apr 2022 09:06:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146944;
-        bh=wsdO9d1F6uTe7dSW3RYVQHBqDtUksx2aJMjLKfL3E1Q=;
+        s=korg; t=1649149616;
+        bh=TzN9S2c1jJpI9v8G0EpdcxObJsrqJKiqIfBV48VR++4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EwbPD11V9VfUbOdV3qRpdmu/E5+0/LKlo7kitKnka6m1LWVhzesj4W0SSwnMiQwwI
-         fZnJOJvgKR+pEQT6KKOra7EIhEVFk8wtGG7FZWu1PcGws32NaKVX/z16bzJuCOKGRR
-         zB6DbYfmhmtVV7NjrTA2SC35dLIWw/Ma0s42kJF8=
+        b=N+d4YF2nTX/oV7e0RKqfS67JUVC1eGPgcYBTu4mAN4aHu3/0SrYQeB6avua4bufT9
+         1bBfSWipP87m740iP3/zpVLKnehPP7Tln9PI++n9EoXE+so1K5EbQCraDQQtu82P6G
+         zc2BmMCO7huiYvwXWMmckN1JMN/UoxoN6tB9WLqA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ritesh Harjani <riteshh@linux.ibm.com>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0945/1126] tracing: Have TRACE_DEFINE_ENUM affect trace event types as well
+        stable@vger.kernel.org, John David Anglin <dave.anglin@bell.net>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0779/1017] parisc: Fix non-access data TLB cache flush faults
 Date:   Tue,  5 Apr 2022 09:28:12 +0200
-Message-Id: <20220405070435.246395977@linuxfoundation.org>
+Message-Id: <20220405070417.381378238@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,81 +53,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (Google) <rostedt@goodmis.org>
+From: John David Anglin <dave.anglin@bell.net>
 
-[ Upstream commit b3bc8547d3be60898818885f5bf22d0a62e2eb48 ]
+[ Upstream commit f839e5f1cef36ce268950c387129b1bfefdaebc9 ]
 
-The macro TRACE_DEFINE_ENUM is used to convert enums in the kernel to
-their actual value when they are exported to user space via the trace
-event format file.
+When a page is not present, we get non-access data TLB faults from
+the fdc and fic instructions in flush_user_dcache_range_asm and
+flush_user_icache_range_asm. When these occur, the cache line is
+not invalidated and potentially we get memory corruption. The
+problem was hidden by the nullification of the flush instructions.
 
-Currently only the enums in the "print fmt" (TP_printk in the TRACE_EVENT
-macro) have the enums converted. But the enums can be used to denote array
-size:
+These faults also affect performance. With pa8800/pa8900 processors,
+there will be 32 faults per 4 KB page since the cache line is 128
+bytes.  There will be more faults with earlier processors.
 
-        field:unsigned int fc_ineligible_rc[EXT4_FC_REASON_MAX]; offset:12;      size:36;        signed:0;
+The problem is fixed by using flush_cache_pages(). It does the flush
+using a tmp alias mapping.
 
-The EXT4_FC_REASON_MAX has no meaning to userspace but it needs to know
-that information to know how to parse the array.
+The flush_cache_pages() call in flush_cache_range() flushed too
+large a range.
 
-Have the array indexes also be parsed as well.
+V2: Remove unnecessary preempt_disable() and preempt_enable() calls.
 
-Link: https://lore.kernel.org/all/cover.1646922487.git.riteshh@linux.ibm.com/
-
-Reported-by: Ritesh Harjani <riteshh@linux.ibm.com>
-Tested-by: Ritesh Harjani <riteshh@linux.ibm.com>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: John David Anglin <dave.anglin@bell.net>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace_events.c | 28 ++++++++++++++++++++++++++++
- 1 file changed, 28 insertions(+)
+ arch/parisc/kernel/cache.c | 28 +---------------------------
+ 1 file changed, 1 insertion(+), 27 deletions(-)
 
-diff --git a/kernel/trace/trace_events.c b/kernel/trace/trace_events.c
-index 2a19ea747ff4..f382ac9597f2 100644
---- a/kernel/trace/trace_events.c
-+++ b/kernel/trace/trace_events.c
-@@ -2637,6 +2637,33 @@ static void update_event_printk(struct trace_event_call *call,
+diff --git a/arch/parisc/kernel/cache.c b/arch/parisc/kernel/cache.c
+index 94150b91c96f..bce71cefe572 100644
+--- a/arch/parisc/kernel/cache.c
++++ b/arch/parisc/kernel/cache.c
+@@ -558,15 +558,6 @@ static void flush_cache_pages(struct vm_area_struct *vma, struct mm_struct *mm,
  	}
  }
  
-+static void update_event_fields(struct trace_event_call *call,
-+				struct trace_eval_map *map)
-+{
-+	struct ftrace_event_field *field;
-+	struct list_head *head;
-+	char *ptr;
-+	int len = strlen(map->eval_string);
-+
-+	head = trace_get_fields(call);
-+	list_for_each_entry(field, head, link) {
-+		ptr = strchr(field->type, '[');
-+		if (!ptr)
-+			continue;
-+		ptr++;
-+
-+		if (!isalpha(*ptr) && *ptr != '_')
-+			continue;
-+
-+		if (strncmp(map->eval_string, ptr, len) != 0)
-+			continue;
-+
-+		ptr = eval_replace(ptr, map, len);
-+		/* enum/sizeof string smaller than value */
-+		WARN_ON_ONCE(!ptr);
-+	}
-+}
-+
- void trace_event_eval_update(struct trace_eval_map **map, int len)
+-static void flush_user_cache_tlb(struct vm_area_struct *vma,
+-				 unsigned long start, unsigned long end)
+-{
+-	flush_user_dcache_range_asm(start, end);
+-	if (vma->vm_flags & VM_EXEC)
+-		flush_user_icache_range_asm(start, end);
+-	flush_tlb_range(vma, start, end);
+-}
+-
+ void flush_cache_mm(struct mm_struct *mm)
  {
- 	struct trace_event_call *call, *p;
-@@ -2672,6 +2699,7 @@ void trace_event_eval_update(struct trace_eval_map **map, int len)
- 					first = false;
- 				}
- 				update_event_printk(call, map[i]);
-+				update_event_fields(call, map[i]);
- 			}
- 		}
+ 	struct vm_area_struct *vma;
+@@ -581,17 +572,8 @@ void flush_cache_mm(struct mm_struct *mm)
+ 		return;
  	}
+ 
+-	preempt_disable();
+-	if (mm->context == mfsp(3)) {
+-		for (vma = mm->mmap; vma; vma = vma->vm_next)
+-			flush_user_cache_tlb(vma, vma->vm_start, vma->vm_end);
+-		preempt_enable();
+-		return;
+-	}
+-
+ 	for (vma = mm->mmap; vma; vma = vma->vm_next)
+ 		flush_cache_pages(vma, mm, vma->vm_start, vma->vm_end);
+-	preempt_enable();
+ }
+ 
+ void flush_cache_range(struct vm_area_struct *vma,
+@@ -605,15 +587,7 @@ void flush_cache_range(struct vm_area_struct *vma,
+ 		return;
+ 	}
+ 
+-	preempt_disable();
+-	if (vma->vm_mm->context == mfsp(3)) {
+-		flush_user_cache_tlb(vma, start, end);
+-		preempt_enable();
+-		return;
+-	}
+-
+-	flush_cache_pages(vma, vma->vm_mm, vma->vm_start, vma->vm_end);
+-	preempt_enable();
++	flush_cache_pages(vma, vma->vm_mm, start, end);
+ }
+ 
+ void
 -- 
 2.34.1
 
