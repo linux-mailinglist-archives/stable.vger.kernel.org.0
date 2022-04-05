@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D99C4F35BA
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:53:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A42E4F32DC
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:00:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233808AbiDEKyS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:54:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53166 "EHLO
+        id S1348010AbiDEJ3D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:29:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52234 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232773AbiDEJno (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:43:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0AE432ECD;
-        Tue,  5 Apr 2022 02:29:21 -0700 (PDT)
+        with ESMTP id S245052AbiDEIxE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:53:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74AD5F0E;
+        Tue,  5 Apr 2022 01:50:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 10FD3B81C9D;
-        Tue,  5 Apr 2022 09:29:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77F12C385A0;
-        Tue,  5 Apr 2022 09:29:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0F3DB60FFC;
+        Tue,  5 Apr 2022 08:50:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20845C385A1;
+        Tue,  5 Apr 2022 08:50:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150951;
-        bh=sVR33FUtTlVIApPJsjKgr9pJZo5UOvcNrviZQ+t5OWs=;
+        s=korg; t=1649148640;
+        bh=f0i/LJ/rej/qlGXRfE9/Nw2sVL0swZ4PvX3YV1//QE0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1N+UWkOk1ppUFY5lcyUM8VdBWWgvfhfJ2oO/BtazG0roR9x9hzZVKBj/AW++oAopP
-         5ESy9dQ/LUpDa0wBKx6+tgmlenP+H896teoCUrBTY31kaEacwDPcwIGvqCWChnPHaq
-         a+phDdPfVyibBooDYVEpmpBTXn041vP2b2O07U+Y=
+        b=hUi3GzexxHoKWF0mwAYBk3rUpnStU+2o56xsl/bwgVSBKFSDlCmxddH2aciHwTrCO
+         rxNJVzNs8oh8l84M5fVrNKxdVHd00Nd58SbRPsqwwjR+ZNApzMQxM4o92ExxXuPquN
+         /lY3znX73PhM5rxIRXCi8pe1hYrcru6CNlDmhHp8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 239/913] hwrng: nomadik - Change clk_disable to clk_disable_unprepare
-Date:   Tue,  5 Apr 2022 09:21:41 +0200
-Message-Id: <20220405070347.019946178@linuxfoundation.org>
+Subject: [PATCH 5.16 0389/1017] ASoC: msm8916-wcd-digital: Fix missing clk_disable_unprepare() in msm8916_wcd_digital_probe
+Date:   Tue,  5 Apr 2022 09:21:42 +0200
+Message-Id: <20220405070405.832556221@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,43 +56,43 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 7f0f1f3ef62ed7a40e30aff28115bd94c4211d1d ]
+[ Upstream commit 375a347da4889f64d86e1ab7f4e6702b6e9bf299 ]
 
-The corresponding API for clk_prepare_enable is clk_disable_unprepare,
-other than clk_disable_unprepare.
+Fix the missing clk_disable_unprepare() before return
+from msm8916_wcd_digital_probe in the error handling case.
 
-Fix this by changing clk_disable to clk_disable_unprepare.
-
-Fixes: beca35d05cc2 ("hwrng: nomadik - use clk_prepare_enable()")
+Fixes: 150db8c5afa1 ("ASoC: codecs: Add msm8916-wcd digital codec")
 Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Link: https://lore.kernel.org/r/20220307084523.28687-1-linmq006@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/hw_random/nomadik-rng.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/soc/codecs/msm8916-wcd-digital.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/char/hw_random/nomadik-rng.c b/drivers/char/hw_random/nomadik-rng.c
-index 67947a19aa22..e8f9621e7954 100644
---- a/drivers/char/hw_random/nomadik-rng.c
-+++ b/drivers/char/hw_random/nomadik-rng.c
-@@ -65,14 +65,14 @@ static int nmk_rng_probe(struct amba_device *dev, const struct amba_id *id)
- out_release:
- 	amba_release_regions(dev);
- out_clk:
--	clk_disable(rng_clk);
-+	clk_disable_unprepare(rng_clk);
- 	return ret;
+diff --git a/sound/soc/codecs/msm8916-wcd-digital.c b/sound/soc/codecs/msm8916-wcd-digital.c
+index fcc10c8bc625..9ad7fc0baf07 100644
+--- a/sound/soc/codecs/msm8916-wcd-digital.c
++++ b/sound/soc/codecs/msm8916-wcd-digital.c
+@@ -1201,7 +1201,7 @@ static int msm8916_wcd_digital_probe(struct platform_device *pdev)
+ 	ret = clk_prepare_enable(priv->mclk);
+ 	if (ret < 0) {
+ 		dev_err(dev, "failed to enable mclk %d\n", ret);
+-		return ret;
++		goto err_clk;
+ 	}
+ 
+ 	dev_set_drvdata(dev, priv);
+@@ -1209,6 +1209,9 @@ static int msm8916_wcd_digital_probe(struct platform_device *pdev)
+ 	return devm_snd_soc_register_component(dev, &msm8916_wcd_digital,
+ 				      msm8916_wcd_digital_dai,
+ 				      ARRAY_SIZE(msm8916_wcd_digital_dai));
++err_clk:
++	clk_disable_unprepare(priv->ahbclk);
++	return ret;
  }
  
- static void nmk_rng_remove(struct amba_device *dev)
- {
- 	amba_release_regions(dev);
--	clk_disable(rng_clk);
-+	clk_disable_unprepare(rng_clk);
- }
- 
- static const struct amba_id nmk_rng_ids[] = {
+ static int msm8916_wcd_digital_remove(struct platform_device *pdev)
 -- 
 2.34.1
 
