@@ -2,49 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CB334F29EB
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 12:51:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 969884F29E7
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 12:50:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347650AbiDEJ2B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:28:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52254 "EHLO
+        id S1347744AbiDEJ2O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:28:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50832 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244761AbiDEIwh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3907E0B0;
-        Tue,  5 Apr 2022 01:43:35 -0700 (PDT)
+        with ESMTP id S244775AbiDEIwi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:38 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D09E5FB5;
+        Tue,  5 Apr 2022 01:43:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8FD74B81A32;
-        Tue,  5 Apr 2022 08:43:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA5CAC385A0;
-        Tue,  5 Apr 2022 08:43:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E5FAFB81A32;
+        Tue,  5 Apr 2022 08:43:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50584C385A1;
+        Tue,  5 Apr 2022 08:43:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148213;
-        bh=/kvIRSziW0x3o2dd/pwWaUBnYSKR0XEkNQf4oUXD/mg=;
+        s=korg; t=1649148221;
+        bh=1xsjRKMqP5RqWtFVtYhBnlBrA69egcb28RKZGj3GV+Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zGheEi+otXcf3afYtCNJQVzgE+M0ic2amkZ2DWLhLFZ2yqyMS9KsfYyWGK78fWMv3
-         D6uFY2ZSsHYosbUUbu/rMHXr5h6xUdthx7oU32gi+p3WMqsN4fZTSyWdXc1EGKY4b9
-         uFsNzqevD3zyPjbYR70kr4PA68kKYq7k+sSXV7bs=
+        b=e7VbB3JjJcEhgOp5D4D58e7RifoUVfWZGZgVoIC3PcGQDwxi45wg+/agPchsE/xIa
+         oC3IoVNeGJ6rMYXV+Rc4WwtbaK/P71QPmcKsZ1jeMW8x24YsnSvPIbaVUvDdmp46Jy
+         I4Rl3KXwjil/5ohDq+iHpcU7ciY0Ks6GmZpblhVw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peng Liu <liupeng256@huawei.com>,
-        Marco Elver <elver@google.com>,
-        Daniel Latypov <dlatypov@google.com>,
-        Brendan Higgins <brendanhiggins@google.com>,
-        Alexander Potapenko <glider@google.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Wang Kefeng <wangkefeng.wang@huawei.com>,
-        David Gow <davidgow@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Jonathan Marek <jonathan@marek.ca>,
+        Robert Foss <robert.foss@linaro.org>,
+        Julian Grahsl <jgrahsl@snap.com>,
+        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0276/1017] kunit: make kunit_test_timeout compatible with comment
-Date:   Tue,  5 Apr 2022 09:19:49 +0200
-Message-Id: <20220405070402.459185133@linuxfoundation.org>
+Subject: [PATCH 5.16 0279/1017] media: camss: csid-170: fix non-10bit formats
+Date:   Tue,  5 Apr 2022 09:19:52 +0200
+Message-Id: <20220405070402.549655007@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -62,46 +58,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peng Liu <liupeng256@huawei.com>
+From: Jonathan Marek <jonathan@marek.ca>
 
-[ Upstream commit bdd015f7b71b92c2e4ecabac689642cc72553e04 ]
+[ Upstream commit 14d510e040f85ff05734fd6db8bae44b47886464 ]
 
-In function kunit_test_timeout, it is declared "300 * MSEC_PER_SEC"
-represent 5min.  However, it is wrong when dealing with arm64 whose
-default HZ = 250, or some other situations.  Use msecs_to_jiffies to fix
-this, and kunit_test_timeout will work as desired.
+Use the decode_format/data_type from the "format" struct instead of a
+hardcoded 10-bit format.
 
-Link: https://lkml.kernel.org/r/20220309083753.1561921-3-liupeng256@huawei.com
-Fixes: 5f3e06208920 ("kunit: test: add support for test abort")
-Signed-off-by: Peng Liu <liupeng256@huawei.com>
-Reviewed-by: Marco Elver <elver@google.com>
-Reviewed-by: Daniel Latypov <dlatypov@google.com>
-Reviewed-by: Brendan Higgins <brendanhiggins@google.com>
-Tested-by: Brendan Higgins <brendanhiggins@google.com>
-Cc: Alexander Potapenko <glider@google.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Cc: Wang Kefeng <wangkefeng.wang@huawei.com>
-Cc: David Gow <davidgow@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: eebe6d00e9bf ("media: camss: Add support for CSID hardware version Titan 170")
+Signed-off-by: Jonathan Marek <jonathan@marek.ca>
+Reviewed-by: Robert Foss <robert.foss@linaro.org>
+Tested-by: Julian Grahsl <jgrahsl@snap.com>
+Tested-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/kunit/try-catch.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/platform/qcom/camss/camss-csid-170.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/lib/kunit/try-catch.c b/lib/kunit/try-catch.c
-index 0dd434e40487..71e5c5853099 100644
---- a/lib/kunit/try-catch.c
-+++ b/lib/kunit/try-catch.c
-@@ -52,7 +52,7 @@ static unsigned long kunit_test_timeout(void)
- 	 * If tests timeout due to exceeding sysctl_hung_task_timeout_secs,
- 	 * the task will be killed and an oops generated.
- 	 */
--	return 300 * MSEC_PER_SEC; /* 5 min */
-+	return 300 * msecs_to_jiffies(MSEC_PER_SEC); /* 5 min */
- }
+diff --git a/drivers/media/platform/qcom/camss/camss-csid-170.c b/drivers/media/platform/qcom/camss/camss-csid-170.c
+index ac22ff29d2a9..aa65043c3303 100644
+--- a/drivers/media/platform/qcom/camss/camss-csid-170.c
++++ b/drivers/media/platform/qcom/camss/camss-csid-170.c
+@@ -366,7 +366,7 @@ static void csid_configure_stream(struct csid_device *csid, u8 enable)
+ 			val |= input_format->width & 0x1fff << TPG_DT_n_CFG_0_FRAME_WIDTH;
+ 			writel_relaxed(val, csid->base + CSID_TPG_DT_n_CFG_0(0));
  
- void kunit_try_catch_run(struct kunit_try_catch *try_catch, void *context)
+-			val = DATA_TYPE_RAW_10BIT << TPG_DT_n_CFG_1_DATA_TYPE;
++			val = format->data_type << TPG_DT_n_CFG_1_DATA_TYPE;
+ 			writel_relaxed(val, csid->base + CSID_TPG_DT_n_CFG_1(0));
+ 
+ 			val = tg->mode << TPG_DT_n_CFG_2_PAYLOAD_MODE;
+@@ -382,8 +382,9 @@ static void csid_configure_stream(struct csid_device *csid, u8 enable)
+ 		val = 1 << RDI_CFG0_BYTE_CNTR_EN;
+ 		val |= 1 << RDI_CFG0_FORMAT_MEASURE_EN;
+ 		val |= 1 << RDI_CFG0_TIMESTAMP_EN;
++		/* note: for non-RDI path, this should be format->decode_format */
+ 		val |= DECODE_FORMAT_PAYLOAD_ONLY << RDI_CFG0_DECODE_FORMAT;
+-		val |= DATA_TYPE_RAW_10BIT << RDI_CFG0_DATA_TYPE;
++		val |= format->data_type << RDI_CFG0_DATA_TYPE;
+ 		val |= vc << RDI_CFG0_VIRTUAL_CHANNEL;
+ 		val |= dt_id << RDI_CFG0_DT_ID;
+ 		writel_relaxed(val, csid->base + CSID_RDI_CFG0(0));
 -- 
 2.34.1
 
