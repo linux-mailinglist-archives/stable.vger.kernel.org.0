@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 560F84F2F07
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:05:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 998934F3515
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:48:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233699AbiDEIjJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:39:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56844 "EHLO
+        id S1350578AbiDEJ66 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:58:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34074 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240089AbiDEIWg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:22:36 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CB5EE0B0;
-        Tue,  5 Apr 2022 01:19:49 -0700 (PDT)
+        with ESMTP id S1344133AbiDEJSV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:18:21 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C531D3BA79;
+        Tue,  5 Apr 2022 02:04:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1398BB81BAF;
-        Tue,  5 Apr 2022 08:19:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76F69C385A0;
-        Tue,  5 Apr 2022 08:19:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 642E761564;
+        Tue,  5 Apr 2022 09:04:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E011C385A0;
+        Tue,  5 Apr 2022 09:04:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146786;
-        bh=aduOYBaXcm3bJGU5ljNOOCD1XxWS7V29veFoK8jq2cw=;
+        s=korg; t=1649149464;
+        bh=Vsd42PPUK3t7g0u09QB28bdvrrlD0K9u5QGtoOtoB+I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o3WZd/NIbtllwUoDfMLxvBzILy0zsxVIdE2TpTCxDtUSnZNwWvoeZAKnNzUShp7BS
-         j6oEbRLDciEhSnQ40ZnPhSo5vup63O9fwcb0Fb0xyvwLjusnW3+ysBBouleAc+hcl4
-         aXVjZC9yMbmrHxC+Oq2k2G4BtKi9+hSPmPhvBJ60=
+        b=0A2QG6zcRdcl0DGnrL7JXy8S+vu30kJe1qZ+fGG6hjaaj7G5C4c2vVrTpd3ATw3l4
+         QT7xAo3slekP3QYGUKZXb8Ql+62JbJKisGPwyUm2+oHZ0P8fiDOVF/0Mv6xSk22zlZ
+         sbZi8gBQ3R9wDrUHUt9xxq1tyEcGp3A+wyr7ILcw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Corentin Labbe <clabbe@baylibre.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        stable@vger.kernel.org, Stefano Garzarella <sgarzare@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Stefan Hajnoczi <stefanha@redhat.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0889/1126] media: staging: media: zoran: move videodev alloc
-Date:   Tue,  5 Apr 2022 09:27:16 +0200
-Message-Id: <20220405070433.622139953@linuxfoundation.org>
+Subject: [PATCH 5.16 0725/1017] vsock/virtio: enable VQs early on probe
+Date:   Tue,  5 Apr 2022 09:27:18 +0200
+Message-Id: <20220405070415.786966844@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,183 +56,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corentin Labbe <clabbe@baylibre.com>
+From: Stefano Garzarella <sgarzare@redhat.com>
 
-[ Upstream commit 82e3a496eb56da0b9f29fdc5b63cedb3289e91de ]
+[ Upstream commit 88704454ef8b00ea91537ae0d47d9348077e0e72 ]
 
-Move some code out of zr36057_init() and create new functions for handling
-zr->video_dev. This permit to ease code reading and fix a zr->video_dev
-memory leak.
+virtio spec requires drivers to set DRIVER_OK before using VQs.
+This is set automatically after probe returns, but virtio-vsock
+driver uses VQs in the probe function to fill rx and event VQs
+with new buffers.
 
-Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Let's fix this, calling virtio_device_ready() before using VQs
+in the probe function.
+
+Fixes: 0ea9e1d3a9e3 ("VSOCK: Introduce virtio_transport.ko")
+Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/zoran/zoran.h        |  2 +-
- drivers/staging/media/zoran/zoran_card.c   | 80 ++++++++++++++--------
- drivers/staging/media/zoran/zoran_driver.c |  5 +-
- 3 files changed, 54 insertions(+), 33 deletions(-)
+ net/vmw_vsock/virtio_transport.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/staging/media/zoran/zoran.h b/drivers/staging/media/zoran/zoran.h
-index b1ad2a2b914c..50d5a7acfab6 100644
---- a/drivers/staging/media/zoran/zoran.h
-+++ b/drivers/staging/media/zoran/zoran.h
-@@ -313,6 +313,6 @@ static inline struct zoran *to_zoran(struct v4l2_device *v4l2_dev)
+diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
+index 4a8548bdf86c..c5f936fbf876 100644
+--- a/net/vmw_vsock/virtio_transport.c
++++ b/net/vmw_vsock/virtio_transport.c
+@@ -627,6 +627,8 @@ static int virtio_vsock_probe(struct virtio_device *vdev)
  
- #endif
+ 	vdev->priv = vsock;
  
--int zoran_queue_init(struct zoran *zr, struct vb2_queue *vq);
-+int zoran_queue_init(struct zoran *zr, struct vb2_queue *vq, int dir);
- void zoran_queue_exit(struct zoran *zr);
- int zr_set_buf(struct zoran *zr);
-diff --git a/drivers/staging/media/zoran/zoran_card.c b/drivers/staging/media/zoran/zoran_card.c
-index c578ef3c32f5..a83314b16548 100644
---- a/drivers/staging/media/zoran/zoran_card.c
-+++ b/drivers/staging/media/zoran/zoran_card.c
-@@ -803,6 +803,52 @@ int zoran_check_jpg_settings(struct zoran *zr,
- 	return 0;
- }
- 
-+static int zoran_init_video_device(struct zoran *zr, struct video_device *video_dev, int dir)
-+{
-+	int err;
++	virtio_device_ready(vdev);
 +
-+	/* Now add the template and register the device unit. */
-+	*video_dev = zoran_template;
-+	video_dev->v4l2_dev = &zr->v4l2_dev;
-+	video_dev->lock = &zr->lock;
-+	video_dev->device_caps = V4L2_CAP_STREAMING | dir;
-+
-+	strscpy(video_dev->name, ZR_DEVNAME(zr), sizeof(video_dev->name));
-+	/*
-+	 * It's not a mem2mem device, but you can both capture and output from one and the same
-+	 * device. This should really be split up into two device nodes, but that's a job for
-+	 * another day.
-+	 */
-+	video_dev->vfl_dir = VFL_DIR_M2M;
-+	zoran_queue_init(zr, &zr->vq, V4L2_BUF_TYPE_VIDEO_CAPTURE);
-+
-+	err = video_register_device(video_dev, VFL_TYPE_VIDEO, video_nr[zr->id]);
-+	if (err < 0)
-+		return err;
-+	video_set_drvdata(video_dev, zr);
-+	return 0;
-+}
-+
-+static void zoran_exit_video_devices(struct zoran *zr)
-+{
-+	video_unregister_device(zr->video_dev);
-+	kfree(zr->video_dev);
-+}
-+
-+static int zoran_init_video_devices(struct zoran *zr)
-+{
-+	int err;
-+
-+	zr->video_dev = video_device_alloc();
-+	if (!zr->video_dev)
-+		return -ENOMEM;
-+
-+	err = zoran_init_video_device(zr, zr->video_dev, V4L2_CAP_VIDEO_CAPTURE);
-+	if (err)
-+		kfree(zr->video_dev);
-+	return err;
-+}
-+
- void zoran_open_init_params(struct zoran *zr)
- {
- 	int i;
-@@ -874,17 +920,11 @@ static int zr36057_init(struct zoran *zr)
- 	zoran_open_init_params(zr);
- 
- 	/* allocate memory *before* doing anything to the hardware in case allocation fails */
--	zr->video_dev = video_device_alloc();
--	if (!zr->video_dev) {
--		err = -ENOMEM;
--		goto exit;
--	}
- 	zr->stat_com = dma_alloc_coherent(&zr->pci_dev->dev,
- 					  BUZ_NUM_STAT_COM * sizeof(u32),
- 					  &zr->p_sc, GFP_KERNEL);
- 	if (!zr->stat_com) {
--		err = -ENOMEM;
--		goto exit_video;
-+		return -ENOMEM;
- 	}
- 	for (j = 0; j < BUZ_NUM_STAT_COM; j++)
- 		zr->stat_com[j] = cpu_to_le32(1); /* mark as unavailable to zr36057 */
-@@ -897,26 +937,9 @@ static int zr36057_init(struct zoran *zr)
- 		goto exit_statcom;
- 	}
- 
--	/* Now add the template and register the device unit. */
--	*zr->video_dev = zoran_template;
--	zr->video_dev->v4l2_dev = &zr->v4l2_dev;
--	zr->video_dev->lock = &zr->lock;
--	zr->video_dev->device_caps = V4L2_CAP_STREAMING | V4L2_CAP_VIDEO_CAPTURE;
--
--	strscpy(zr->video_dev->name, ZR_DEVNAME(zr), sizeof(zr->video_dev->name));
--	/*
--	 * It's not a mem2mem device, but you can both capture and output from one and the same
--	 * device. This should really be split up into two device nodes, but that's a job for
--	 * another day.
--	 */
--	zr->video_dev->vfl_dir = VFL_DIR_M2M;
--
--	zoran_queue_init(zr, &zr->vq);
--
--	err = video_register_device(zr->video_dev, VFL_TYPE_VIDEO, video_nr[zr->id]);
--	if (err < 0)
-+	err = zoran_init_video_devices(zr);
-+	if (err)
- 		goto exit_statcomb;
--	video_set_drvdata(zr->video_dev, zr);
- 
- 	zoran_init_hardware(zr);
- 	if (!pass_through) {
-@@ -931,9 +954,6 @@ static int zr36057_init(struct zoran *zr)
- 	dma_free_coherent(&zr->pci_dev->dev, BUZ_NUM_STAT_COM * sizeof(u32) * 2, zr->stat_comb, zr->p_scb);
- exit_statcom:
- 	dma_free_coherent(&zr->pci_dev->dev, BUZ_NUM_STAT_COM * sizeof(u32), zr->stat_com, zr->p_sc);
--exit_video:
--	kfree(zr->video_dev);
--exit:
- 	return err;
- }
- 
-@@ -965,7 +985,7 @@ static void zoran_remove(struct pci_dev *pdev)
- 	dma_free_coherent(&zr->pci_dev->dev, BUZ_NUM_STAT_COM * sizeof(u32) * 2, zr->stat_comb, zr->p_scb);
- 	pci_release_regions(pdev);
- 	pci_disable_device(zr->pci_dev);
--	video_unregister_device(zr->video_dev);
-+	zoran_exit_video_devices(zr);
- exit_free:
- 	v4l2_ctrl_handler_free(&zr->hdl);
- 	v4l2_device_unregister(&zr->v4l2_dev);
-diff --git a/drivers/staging/media/zoran/zoran_driver.c b/drivers/staging/media/zoran/zoran_driver.c
-index 46382e43f1bf..551db338c7f7 100644
---- a/drivers/staging/media/zoran/zoran_driver.c
-+++ b/drivers/staging/media/zoran/zoran_driver.c
-@@ -1008,7 +1008,7 @@ static const struct vb2_ops zr_video_qops = {
- 	.wait_finish            = vb2_ops_wait_finish,
- };
- 
--int zoran_queue_init(struct zoran *zr, struct vb2_queue *vq)
-+int zoran_queue_init(struct zoran *zr, struct vb2_queue *vq, int dir)
- {
- 	int err;
- 
-@@ -1016,7 +1016,8 @@ int zoran_queue_init(struct zoran *zr, struct vb2_queue *vq)
- 	INIT_LIST_HEAD(&zr->queued_bufs);
- 
- 	vq->dev = &zr->pci_dev->dev;
--	vq->type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-+	vq->type = dir;
-+
- 	vq->io_modes = VB2_USERPTR | VB2_DMABUF | VB2_MMAP | VB2_READ | VB2_WRITE;
- 	vq->drv_priv = zr;
- 	vq->buf_struct_size = sizeof(struct zr_buffer);
+ 	mutex_lock(&vsock->tx_lock);
+ 	vsock->tx_run = true;
+ 	mutex_unlock(&vsock->tx_lock);
 -- 
 2.34.1
 
