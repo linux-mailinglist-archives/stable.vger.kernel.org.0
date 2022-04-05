@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0521C4F2573
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 09:48:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 356E64F256B
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 09:47:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232166AbiDEHty (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 03:49:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52376 "EHLO
+        id S232236AbiDEHtq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 03:49:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233616AbiDEHsM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:48:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01956BB;
-        Tue,  5 Apr 2022 00:46:14 -0700 (PDT)
+        with ESMTP id S233646AbiDEHsV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:48:21 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5377DBB;
+        Tue,  5 Apr 2022 00:46:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 919FC616BF;
-        Tue,  5 Apr 2022 07:46:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 967BBC340EE;
-        Tue,  5 Apr 2022 07:46:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0F286B81B92;
+        Tue,  5 Apr 2022 07:46:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67F5EC340EE;
+        Tue,  5 Apr 2022 07:46:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649144774;
-        bh=CRkojIeG8hfsFSBTHg4oYYawOOdZgescy1u4wNygcPs=;
+        s=korg; t=1649144779;
+        bh=68aLZg2k8y7k/NuHYgwWso1X6n6Cr9BCaz8zPh9HeQ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hvh3vdij0ASwQpbR5uMz2JS/nVhbTOXYfVbz64Qo3bbWncwqLVLY8XHtVmCPM017J
-         HnU5tB20iZraw3D6psIRB0Recn7f2dTzjsi7nccB7N+Vkp7DxEXGOIPfi/+hThxMPH
-         ulT1vH+HWQhqj6/PZrTy2sqNxUHK5wXXNFHm2mZU=
+        b=F+MEWaJa/15wA4NDxuurDtoqwZKNCid8kz4o7H+ld3pwZP2lyOJaq9TkLMcL7A1T3
+         YTASzPTFM8avI3Anr/T3s1OVtlDhewxuXjJB6eHgGmZcJ0JAUgDOhMv5Sl6JHzmyB3
+         ATDQ4rqJpe+wYIK/KadBH7ck9FWr+XiVdTXFXGFA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan-Benedict Glaw <jbglaw@lug-owl.de>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
-        "Maciej W. Rozycki" <macro@orcam.me.uk>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Subject: [PATCH 5.17 0166/1126] DEC: Limit PMAX memory probing to R3k systems
-Date:   Tue,  5 Apr 2022 09:15:13 +0200
-Message-Id: <20220405070412.470033081@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?=D0=9C=D0=B8=D1=85=D0=B0=D0=B8=D0=BB?= 
+        <vrserver1@gmail.com>, Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>
+Subject: [PATCH 5.17 0167/1126] media: gpio-ir-tx: fix transmit with long spaces on Orange Pi PC
+Date:   Tue,  5 Apr 2022 09:15:14 +0200
+Message-Id: <20220405070412.500747608@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -55,70 +55,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej W. Rozycki <macro@orcam.me.uk>
+From: Sean Young <sean@mess.org>
 
-commit 244eae91a94c6dab82b3232967d10eeb9dfa21c6 upstream.
+commit 5ad05ecad4326ddaa26a83ba2233a67be24c1aaa upstream.
 
-Recent tightening of the opcode table in binutils so as to consistently
-disallow the assembly or disassembly of CP0 instructions not supported
-by the processor architecture chosen has caused a regression like below:
+Calling udelay for than 1000us does not always yield the correct
+results.
 
-arch/mips/dec/prom/locore.S: Assembler messages:
-arch/mips/dec/prom/locore.S:29: Error: opcode not supported on this processor: r4600 (mips3) `rfe'
-
-in a piece of code used to probe for memory with PMAX DECstation models,
-which have non-REX firmware.  Those computers always have an R2000 CPU
-and consequently the exception handler used in memory probing uses the
-RFE instruction, which those processors use.
-
-While adding 64-bit support this code was correctly excluded for 64-bit
-configurations, however it should have also been excluded for irrelevant
-32-bit configurations.  Do this now then, and only enable PMAX memory
-probing for R3k systems.
-
-Reported-by: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-Reported-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Cc: stable@vger.kernel.org # v2.6.12+
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc: stable@vger.kernel.org
+Reported-by: Михаил <vrserver1@gmail.com>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/mips/dec/prom/Makefile      |    2 +-
- arch/mips/include/asm/dec/prom.h |   15 +++++----------
- 2 files changed, 6 insertions(+), 11 deletions(-)
+ drivers/media/rc/gpio-ir-tx.c |   28 +++++++++++++++++++++-------
+ 1 file changed, 21 insertions(+), 7 deletions(-)
 
---- a/arch/mips/dec/prom/Makefile
-+++ b/arch/mips/dec/prom/Makefile
-@@ -6,4 +6,4 @@
+--- a/drivers/media/rc/gpio-ir-tx.c
++++ b/drivers/media/rc/gpio-ir-tx.c
+@@ -48,11 +48,29 @@ static int gpio_ir_tx_set_carrier(struct
+ 	return 0;
+ }
  
- lib-y			+= init.o memory.o cmdline.o identify.o console.o
- 
--lib-$(CONFIG_32BIT)	+= locore.o
-+lib-$(CONFIG_CPU_R3000)	+= locore.o
---- a/arch/mips/include/asm/dec/prom.h
-+++ b/arch/mips/include/asm/dec/prom.h
-@@ -43,16 +43,11 @@
-  */
- #define REX_PROM_MAGIC		0x30464354
- 
--#ifdef CONFIG_64BIT
--
--#define prom_is_rex(magic)	1	/* KN04 and KN05 are REX PROMs.  */
--
--#else /* !CONFIG_64BIT */
--
--#define prom_is_rex(magic)	((magic) == REX_PROM_MAGIC)
--
--#endif /* !CONFIG_64BIT */
--
-+/* KN04 and KN05 are REX PROMs, so only do the check for R3k systems.  */
-+static inline bool prom_is_rex(u32 magic)
++static void delay_until(ktime_t until)
 +{
-+	return !IS_ENABLED(CONFIG_CPU_R3000) || magic == REX_PROM_MAGIC;
++	/*
++	 * delta should never exceed 0.5 seconds (IR_MAX_DURATION) and on
++	 * m68k ndelay(s64) does not compile; so use s32 rather than s64.
++	 */
++	s32 delta;
++
++	while (true) {
++		delta = ktime_us_delta(until, ktime_get());
++		if (delta <= 0)
++			return;
++
++		/* udelay more than 1ms may not work */
++		delta = min(delta, 1000);
++		udelay(delta);
++	}
 +}
++
+ static void gpio_ir_tx_unmodulated(struct gpio_ir *gpio_ir, uint *txbuf,
+ 				   uint count)
+ {
+ 	ktime_t edge;
+-	s32 delta;
+ 	int i;
  
- /*
-  * 3MIN/MAXINE PROM entry points for DS5000/1xx's, DS5000/xx's and
+ 	local_irq_disable();
+@@ -63,9 +81,7 @@ static void gpio_ir_tx_unmodulated(struc
+ 		gpiod_set_value(gpio_ir->gpio, !(i % 2));
+ 
+ 		edge = ktime_add_us(edge, txbuf[i]);
+-		delta = ktime_us_delta(edge, ktime_get());
+-		if (delta > 0)
+-			udelay(delta);
++		delay_until(edge);
+ 	}
+ 
+ 	gpiod_set_value(gpio_ir->gpio, 0);
+@@ -97,9 +113,7 @@ static void gpio_ir_tx_modulated(struct
+ 		if (i % 2) {
+ 			// space
+ 			edge = ktime_add_us(edge, txbuf[i]);
+-			delta = ktime_us_delta(edge, ktime_get());
+-			if (delta > 0)
+-				udelay(delta);
++			delay_until(edge);
+ 		} else {
+ 			// pulse
+ 			ktime_t last = ktime_add_us(edge, txbuf[i]);
 
 
