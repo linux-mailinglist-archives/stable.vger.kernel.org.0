@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 95E004F2CAB
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:31:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B49D4F2B93
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:10:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347483AbiDEJ0v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:26:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34690 "EHLO
+        id S1347962AbiDEJ25 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:28:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46826 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236953AbiDEIRK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:17:10 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 233C5AFAEB;
-        Tue,  5 Apr 2022 01:04:56 -0700 (PDT)
+        with ESMTP id S245014AbiDEIxB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:53:01 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0507ECDD;
+        Tue,  5 Apr 2022 01:49:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B6363B81BB6;
-        Tue,  5 Apr 2022 08:04:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F13FC385A1;
-        Tue,  5 Apr 2022 08:04:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9767360FFB;
+        Tue,  5 Apr 2022 08:49:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6B02C385A0;
+        Tue,  5 Apr 2022 08:49:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145894;
-        bh=Fo2VUN7idF8pzKr+Cx20drHaaXF7A7bvOqOOrv8RvPE=;
+        s=korg; t=1649148568;
+        bh=XoLi14Jvj17Qay94bQj6Gt2sk1ZC6Zgsi2JS+PwQfOI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sXpK6TYNwwxubvMs235Jcp5gcYFdyf1vtatE0nE4jCTPgN/RMGaIeurCCsGpB/p5R
-         hoeE/7Y58ictZY+d8c7CKmrPyZw8Y/9T+7otw17Mu3Umeo7FLCvlfIrCaxw4ZKzVyh
-         NAc5NlcNbiyNi7yZA40aJ2LzaUgOdviSi0RNyqn8=
+        b=orwezfakQtyGZw2sgPi68j8gXDoZp6jJVyFGy4CA/ilzWn3b29hc+1XSy5CQovqPh
+         rny3I5VhZW2SqUOxDf70IChreMZ2AR4h+dv05C+EJ8zNFUOOY46hNGBGgG3oxgWN42
+         qSodbzr1iWnLD6B/6SmzluEiVoFB+Qy6PrjpS57s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuogee Hsieh <quic_khsieh@quicinc.com>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Robert Foss <robert.foss@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0568/1126] drm/msm/dp: stop link training after link training 2 failed
-Date:   Tue,  5 Apr 2022 09:21:55 +0200
-Message-Id: <20220405070424.306388258@linuxfoundation.org>
+Subject: [PATCH 5.16 0403/1017] drm/bridge: nwl-dsi: Fix PM disable depth imbalance in nwl_dsi_probe
+Date:   Tue,  5 Apr 2022 09:21:56 +0200
+Message-Id: <20220405070406.249577530@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,47 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuogee Hsieh <quic_khsieh@quicinc.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 9051d629dbf7a998a40f7eac65a9512b01bc3bb8 ]
+[ Upstream commit b146e343a9e05605b491b1bf4a2b62a39d5638d8 ]
 
-Each DP link training contains link training 1 followed by link
-training 2.  There is maximum of 5 retries of DP link training
-before declared link training failed. It is required to stop link
-training at end of link training 2 if it is failed so that next
-link training 1 can start freshly. This patch fixes link compliance
-test  case 4.3.1.13 (Source Device Link Training EQ Fallback Test).
+The pm_runtime_enable will increase power disable depth.
+Thus a pairing decrement is needed on the error handling
+path to keep it balanced according to context.
 
-Changes in v10:
---  group into one series
-
-Changes in v11:
--- drop drm/msm/dp: dp_link_parse_sink_count() return immediately if aux read
-
-Fixes: 2e0adc765d88 ("drm/msm/dp: do not end dp link training until video is ready")
-Signed-off-by: Kuogee Hsieh <quic_khsieh@quicinc.com>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Link: https://lore.kernel.org/r/1642531648-8448-5-git-send-email-quic_khsieh@quicinc.com
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Fixes: 44cfc6233447 ("drm/bridge: Add NWL MIPI DSI host controller support")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Robert Foss <robert.foss@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220105104826.1418-1-linmq006@gmail.com
+Reviewed-by: Robert Foss <robert.foss@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/dp/dp_ctrl.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpu/drm/bridge/nwl-dsi.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/msm/dp/dp_ctrl.c b/drivers/gpu/drm/msm/dp/dp_ctrl.c
-index 9c80b493f974..8d1ea694d06c 100644
---- a/drivers/gpu/drm/msm/dp/dp_ctrl.c
-+++ b/drivers/gpu/drm/msm/dp/dp_ctrl.c
-@@ -1748,6 +1748,9 @@ int dp_ctrl_on_link(struct dp_ctrl *dp_ctrl)
- 				/* end with failure */
- 				break; /* lane == 1 already */
- 			}
-+
-+			/* stop link training before start re training  */
-+			dp_ctrl_clear_training_pattern(ctrl);
- 		}
- 	}
+diff --git a/drivers/gpu/drm/bridge/nwl-dsi.c b/drivers/gpu/drm/bridge/nwl-dsi.c
+index af07eeb47ca0..6e484d836cfe 100644
+--- a/drivers/gpu/drm/bridge/nwl-dsi.c
++++ b/drivers/gpu/drm/bridge/nwl-dsi.c
+@@ -1204,6 +1204,7 @@ static int nwl_dsi_probe(struct platform_device *pdev)
  
+ 	ret = nwl_dsi_select_input(dsi);
+ 	if (ret < 0) {
++		pm_runtime_disable(dev);
+ 		mipi_dsi_host_unregister(&dsi->dsi_host);
+ 		return ret;
+ 	}
 -- 
 2.34.1
 
