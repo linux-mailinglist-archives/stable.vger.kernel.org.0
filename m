@@ -2,119 +2,188 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B48C34F47EC
-	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 01:44:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2855C4F47F4
+	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 01:44:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347781AbiDEVXC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 17:23:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49296 "EHLO
+        id S1348331AbiDEVXW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 17:23:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49192 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1447937AbiDEPrW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 11:47:22 -0400
-Received: from out03.mta.xmission.com (out03.mta.xmission.com [166.70.13.233])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D12BF8ED1
-        for <stable@vger.kernel.org>; Tue,  5 Apr 2022 07:24:43 -0700 (PDT)
-Received: from in01.mta.xmission.com ([166.70.13.51]:56694)
-        by out03.mta.xmission.com with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.93)
-        (envelope-from <ebiederm@xmission.com>)
-        id 1nbk6s-009yvT-AS; Tue, 05 Apr 2022 08:24:42 -0600
-Received: from ip68-227-174-4.om.om.cox.net ([68.227.174.4]:42426 helo=email.froward.int.ebiederm.org.xmission.com)
-        by in01.mta.xmission.com with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.93)
-        (envelope-from <ebiederm@xmission.com>)
-        id 1nbk6q-008FiW-9Z; Tue, 05 Apr 2022 08:24:41 -0600
-From:   "Eric W. Biederman" <ebiederm@xmission.com>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     keescook@chromium.org, willy@infradead.org, stable@vger.kernel.org
-References: <164889939941112@kroah.com>
-        <87mth0kfe4.fsf@email.froward.int.ebiederm.org>
-        <YkvikRzy2ahCbGV6@kroah.com>
-Date:   Tue, 05 Apr 2022 09:24:04 -0500
-In-Reply-To: <YkvikRzy2ahCbGV6@kroah.com> (Greg KH's message of "Tue, 5 Apr
-        2022 08:32:49 +0200")
-Message-ID: <87y20jip6j.fsf@email.froward.int.ebiederm.org>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.1 (gnu/linux)
+        with ESMTP id S1448238AbiDEPrw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 11:47:52 -0400
+Received: from smtp-relay-internal-1.canonical.com (smtp-relay-internal-1.canonical.com [185.125.188.123])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5BAE1A489B
+        for <stable@vger.kernel.org>; Tue,  5 Apr 2022 07:26:17 -0700 (PDT)
+Received: from mail-io1-f69.google.com (mail-io1-f69.google.com [209.85.166.69])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by smtp-relay-internal-1.canonical.com (Postfix) with ESMTPS id 07B2A3F1AE
+        for <stable@vger.kernel.org>; Tue,  5 Apr 2022 14:26:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
+        s=20210705; t=1649168774;
+        bh=Y3qA21GdVt9EyLc8wWOqDUmvTUTxeNLjjQVOf+YBvyo=;
+        h=From:To:Cc:Subject:Date:Message-Id:MIME-Version:Content-Type;
+        b=MBSCuYj2X2fkeAhKepEtoBndxGqanJRuud0WrH1IxI0nhdb2iTnzvLgV2co+wIckx
+         TFEjhFudq4GYiDXag/81IJOL3kaF7LupCYnpPr7gOM8xUNe9EhZ3wXvCF1Tuy6BbSJ
+         X0U5+DS413RRgo0RT/aPfcj4rgcB9nyHlbHICLy8Hy4RxHofJXwtAeNsgn7nqIslev
+         nsCh8qQ00keMXFnR9uMJ+gG+/Xd94Sx8s8bZh/QAuMUHYhdeHp0QT4kkBjAnjlXr6d
+         YLeqbeMekNxT/+mbI6MAOCeUXKEyVJeRTuC6oesmS/2ldqopZqJ3ei+Wv+hqrVgt5P
+         9s+JxDNq6Vdgw==
+Received: by mail-io1-f69.google.com with SMTP id x16-20020a6bfe10000000b006409f03e39eso8487904ioh.7
+        for <stable@vger.kernel.org>; Tue, 05 Apr 2022 07:26:13 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Y3qA21GdVt9EyLc8wWOqDUmvTUTxeNLjjQVOf+YBvyo=;
+        b=8FEW9Ylc7437I6LLSHuwhhcEjMtdVrnKXGU7noo6S7ptQwmKF9MyMqaXwaFeeeDkSq
+         286nSNG1u0Ce9xX/R1FOWaSbz3SUn92q8J6UsgsKdPqHna6qEfdYXS3MR8yGEaC8EDTo
+         Ox1PHazKGbdP9zIaX2WVhcV2RZS3prL2006nudTUdxmRcUUCLAweCKl3LDLwIi0/5iPO
+         BmMPP7XPb7BTx5u16Mia3SlL9JaduzkMA5ynwLI0KHvkopNDrDyYj5+X8oQeOWqVqmJY
+         5W19PUTavY9RNBVK2q0PArvSwY8XDcqWmS/Q3cbC3lvxoBNDoSoaWKDNgIoElyJxnZvx
+         yiag==
+X-Gm-Message-State: AOAM5321NVA0PrlbVWqlXSkwKE1iozbYq9vBMstrHRjucEZdbztDxcIN
+        Sznzsvt4iyj/wNaRPjEUrtGOAeET6SRGgjoPFSW3o2neV042ogmPo2DKKEZhnqc0t1YsAhHXvLw
+        ARBoz8HSO7yimI/+qDZ8nHk4Dh3M7j339gA==
+X-Received: by 2002:a05:6638:2107:b0:323:9164:144a with SMTP id n7-20020a056638210700b003239164144amr2184577jaj.198.1649168772931;
+        Tue, 05 Apr 2022 07:26:12 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyR+xk9Zo0F9Pe5uEJsI3dmBvG/yDamRyrdoDNHp8TqECE8eriliS6qBoGzeftd95eSg17U9Q==
+X-Received: by 2002:a05:6638:2107:b0:323:9164:144a with SMTP id n7-20020a056638210700b003239164144amr2184562jaj.198.1649168772632;
+        Tue, 05 Apr 2022 07:26:12 -0700 (PDT)
+Received: from localhost (c-73-14-97-161.hsd1.co.comcast.net. [73.14.97.161])
+        by smtp.gmail.com with ESMTPSA id x8-20020a0566022c4800b006464119d985sm8332729iov.43.2022.04.05.07.26.11
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 05 Apr 2022 07:26:11 -0700 (PDT)
+From:   dann frazier <dann.frazier@canonical.com>
+To:     Marc Zyngier <maz@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        stable@vger.kernel.org
+Cc:     Rob Herring <robh@kernel.org>,
+        Toan Le <toan@os.amperecomputing.com>,
+        =?UTF-8?q?Krzysztof=20Wilczy=C5=84ski?= <kw@linux.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        =?UTF-8?q?St=C3=A9phane=20Graber?= <stgraber@ubuntu.com>
+Subject: [PATCH v5.15+v5.16] PCI: xgene: Revert "PCI: xgene: Use inbound resources for setup"
+Date:   Tue,  5 Apr 2022 08:25:05 -0600
+Message-Id: <20220405142505.1268999-1-dann.frazier@canonical.com>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
-Content-Type: text/plain
-X-XM-SPF: eid=1nbk6q-008FiW-9Z;;;mid=<87y20jip6j.fsf@email.froward.int.ebiederm.org>;;;hst=in01.mta.xmission.com;;;ip=68.227.174.4;;;frm=ebiederm@xmission.com;;;spf=neutral
-X-XM-AID: U2FsdGVkX1/Y9NQRq0YbqYNyzfM0rwGBat+UkoR32/Q=
-X-SA-Exim-Connect-IP: 68.227.174.4
-X-SA-Exim-Mail-From: ebiederm@xmission.com
-X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
-        lindbergh.monkeyblade.net
-X-Spam-Level: 
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_LOW,
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
-X-Spam-Virus: No
-X-Spam-DCC: XMission; sa02 1397; Body=1 Fuz1=1 Fuz2=1 
-X-Spam-Combo: ;Greg KH <gregkh@linuxfoundation.org>
-X-Spam-Relay-Country: 
-X-Spam-Timing: total 1262 ms - load_scoreonly_sql: 0.04 (0.0%),
-        signal_user_changed: 4.9 (0.4%), b_tie_ro: 3.4 (0.3%), parse: 1.07
-        (0.1%), extract_message_metadata: 11 (0.9%), get_uri_detail_list: 2.1
-        (0.2%), tests_pri_-1000: 11 (0.9%), tests_pri_-950: 1.04 (0.1%),
-        tests_pri_-900: 0.81 (0.1%), tests_pri_-90: 982 (77.8%), check_bayes:
-        980 (77.7%), b_tokenize: 5 (0.4%), b_tok_get_all: 7 (0.6%),
-        b_comp_prob: 1.94 (0.2%), b_tok_touch_all: 962 (76.2%), b_finish: 0.79
-        (0.1%), tests_pri_0: 239 (19.0%), check_dkim_signature: 0.37 (0.0%),
-        check_dkim_adsp: 2.5 (0.2%), poll_dns_idle: 1.03 (0.1%), tests_pri_10:
-        1.71 (0.1%), tests_pri_500: 6 (0.5%), rewrite_mail: 0.00 (0.0%)
-Subject: Re: FAILED: patch "[PATCH] coredump: Use the vma snapshot in
- fill_files_note" failed to apply to 5.17-stable tree
-X-SA-Exim-Version: 4.2.1 (built Sat, 08 Feb 2020 21:53:50 +0000)
-X-SA-Exim-Scanned: Yes (on in01.mta.xmission.com)
+X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
+        lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Greg KH <gregkh@linuxfoundation.org> writes:
+From: Marc Zyngier <maz@kernel.org>
 
-> On Mon, Apr 04, 2022 at 11:00:19AM -0500, Eric W. Biederman wrote:
->> <gregkh@linuxfoundation.org> writes:
->> 
->> > The patch below does not apply to the 5.17-stable tree.
->> > If someone wants it applied there, or to any other stable or longterm
->> > tree, then please email the backport, including the original git commit
->> > id to <stable@vger.kernel.org>.
->> 
->> I believe it requires backporting these first.
->> 
->> commit 84158b7f6a06 ("coredump: Also dump first pages of non-executable ELF libraries")
->> commit 95c5436a4883 ("coredump: Snapshot the vmas in do_coredump")
->> commit 49c1866348f3 ("coredump: Remove the WARN_ON in dump_vma_snapshot")
->> 
->> The first is a more interesting bug fix from Jann Horn.
->> The other two are prerequisite cleanup-patches.
->
-> Thanks, that worked!
->
->> I will let other folks judge how concerned they are about missing
->> locking that was detected by code review.
->
-> locking where?  And if it's not resolved in Linus's tree yet, not much I
-> can do.
+commit 1874b6d7ab1bdc900e8398026350313ac29caddb upstream.
 
-Sorry for being unclear.  This patch "coredump: Use the vma snapshot in
-fill_file_note" solves a problem of missing locking by refactoring code
-so the locking is unnecessary.
+Commit 6dce5aa59e0b ("PCI: xgene: Use inbound resources for setup")
+killed PCIe on my XGene-1 box (a Mustang board). The machine itself
+is still alive, but half of its storage (over NVMe) is gone, and the
+NVMe driver just times out.
 
-> Also, what about for kernels older than 5.10?  Is this an issue there?
+Note that this machine boots with a device tree provided by the
+UEFI firmware (2016 vintage), which could well be non conformant
+with the spec, hence the breakage.
 
-The first fix for missing/problematic locking was added in
-commit a07279c9a8cd ("binfmt_elf, binfmt_elf_fdpic: use a VMA list
-snapshot").  Which is 5.10.  I don't know if that fix has ever been backported.
+With the patch reverted, the box boots 5.17-rc8 with flying colors.
 
-The actual issue of problematic locking that this change was addressing
-looks like it dates back to commit 2aa362c49c31 ("coredump: extend core
-dump note section to contain file names of mapped files").
+Link: https://lore.kernel.org/all/Yf2wTLjmcRj+AbDv@xps13.dannf
+Link: https://lore.kernel.org/r/20220321104843.949645-2-maz@kernel.org
+Fixes: 6dce5aa59e0b ("PCI: xgene: Use inbound resources for setup")
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Cc: stable@vger.kernel.org
+Cc: Rob Herring <robh@kernel.org>
+Cc: Toan Le <toan@os.amperecomputing.com>
+Cc: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Cc: Krzysztof Wilczyński <kw@linux.com>
+Cc: Bjorn Helgaas <bhelgaas@google.com>
+Cc: Stéphane Graber <stgraber@ubuntu.com>
+Cc: dann frazier <dann.frazier@canonical.com>
+[dannf: minor context adjustment]
+Signed-off-by: dann frazier <dann.frazier@canonical.com>
+---
+ drivers/pci/controller/pci-xgene.c | 33 ++++++++++++++++++++----------
+ 1 file changed, 22 insertions(+), 11 deletions(-)
 
+diff --git a/drivers/pci/controller/pci-xgene.c b/drivers/pci/controller/pci-xgene.c
+index 56d0d50338c89..02869d3ed0314 100644
+--- a/drivers/pci/controller/pci-xgene.c
++++ b/drivers/pci/controller/pci-xgene.c
+@@ -479,28 +479,27 @@ static int xgene_pcie_select_ib_reg(u8 *ib_reg_mask, u64 size)
+ }
+ 
+ static void xgene_pcie_setup_ib_reg(struct xgene_pcie_port *port,
+-				    struct resource_entry *entry,
+-				    u8 *ib_reg_mask)
++				    struct of_pci_range *range, u8 *ib_reg_mask)
+ {
+ 	void __iomem *cfg_base = port->cfg_base;
+ 	struct device *dev = port->dev;
+ 	void __iomem *bar_addr;
+ 	u32 pim_reg;
+-	u64 cpu_addr = entry->res->start;
+-	u64 pci_addr = cpu_addr - entry->offset;
+-	u64 size = resource_size(entry->res);
++	u64 cpu_addr = range->cpu_addr;
++	u64 pci_addr = range->pci_addr;
++	u64 size = range->size;
+ 	u64 mask = ~(size - 1) | EN_REG;
+ 	u32 flags = PCI_BASE_ADDRESS_MEM_TYPE_64;
+ 	u32 bar_low;
+ 	int region;
+ 
+-	region = xgene_pcie_select_ib_reg(ib_reg_mask, size);
++	region = xgene_pcie_select_ib_reg(ib_reg_mask, range->size);
+ 	if (region < 0) {
+ 		dev_warn(dev, "invalid pcie dma-range config\n");
+ 		return;
+ 	}
+ 
+-	if (entry->res->flags & IORESOURCE_PREFETCH)
++	if (range->flags & IORESOURCE_PREFETCH)
+ 		flags |= PCI_BASE_ADDRESS_MEM_PREFETCH;
+ 
+ 	bar_low = pcie_bar_low_val((u32)cpu_addr, flags);
+@@ -531,13 +530,25 @@ static void xgene_pcie_setup_ib_reg(struct xgene_pcie_port *port,
+ 
+ static int xgene_pcie_parse_map_dma_ranges(struct xgene_pcie_port *port)
+ {
+-	struct pci_host_bridge *bridge = pci_host_bridge_from_priv(port);
+-	struct resource_entry *entry;
++	struct device_node *np = port->node;
++	struct of_pci_range range;
++	struct of_pci_range_parser parser;
++	struct device *dev = port->dev;
+ 	u8 ib_reg_mask = 0;
+ 
+-	resource_list_for_each_entry(entry, &bridge->dma_ranges)
+-		xgene_pcie_setup_ib_reg(port, entry, &ib_reg_mask);
++	if (of_pci_dma_range_parser_init(&parser, np)) {
++		dev_err(dev, "missing dma-ranges property\n");
++		return -EINVAL;
++	}
++
++	/* Get the dma-ranges from DT */
++	for_each_of_pci_range(&parser, &range) {
++		u64 end = range.cpu_addr + range.size - 1;
+ 
++		dev_dbg(dev, "0x%08x 0x%016llx..0x%016llx -> 0x%016llx\n",
++			range.flags, range.cpu_addr, end, range.pci_addr);
++		xgene_pcie_setup_ib_reg(port, &range, &ib_reg_mask);
++	}
+ 	return 0;
+ }
+ 
+-- 
+2.35.1
 
-These are the kinds of bugs that creative people can use to get the
-kernel to do things it is not supposed to do.  On an ordinary day no one
-trips over so they are not a problem.  I am not good at assessing their
-impact so I just fix them and let other people figure out how much they
-want the fixes.
-
-Eric
