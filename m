@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F5E64F3508
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:42:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 118974F33DC
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:23:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242777AbiDEKgB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:36:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58708 "EHLO
+        id S238391AbiDEKgN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:36:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58706 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239500AbiDEJeA (ORCPT
+        with ESMTP id S239430AbiDEJeA (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:34:00 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DEC17939C;
-        Tue,  5 Apr 2022 02:22:58 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE63A7B12C;
+        Tue,  5 Apr 2022 02:23:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EE2646144D;
-        Tue,  5 Apr 2022 09:22:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CCEDC385A2;
-        Tue,  5 Apr 2022 09:22:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5D649B81C6F;
+        Tue,  5 Apr 2022 09:23:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACE57C385A2;
+        Tue,  5 Apr 2022 09:22:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150577;
-        bh=fHq6yezaEyDiwaMdcaDnIeQNeAFcl0kVKFCgE+Qc/VU=;
+        s=korg; t=1649150580;
+        bh=r14M1DWPwRyo4+jvdjnECycfq43gChG0BjIE5UEYJjs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z1tqkUU6DLdbKKhQDsOpK/kXe3R9VA5XLvCFILkjGWo1PKkJjCBjBu+xyuYMPnBf9
-         IeNm23Xnaq4inFwb/kF1h5PscuXzpiVtdRD26KwHJwL0HmE1dZvCNzQvnQhTWzhpOx
-         PjjFSmPpAfPTIIzJKLdnS03kXN6oPNmhYcgqALNc=
+        b=tbI9lrHIIdN3nvAKg8woDbHgDjj04VFYca2PKq7xQEF5wD9GLs7+tPBiHKtXxnwsU
+         i+Gm+sxW8EYRyxvOxiJmNc9UvZ0ogqoAqnn3A9M1IxpyUnOVFwW/JxFdSXr8Sv10e0
+         WqZRL5wtiGSqdqfuMYJEW64V+/D98qyuPrVACH+U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ali Pouladi <quic_apouladi@quicinc.com>,
-        Elliot Berman <quic_eberman@quicinc.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 5.15 104/913] rtc: pl031: fix rtc features null pointer dereference
-Date:   Tue,  5 Apr 2022 09:19:26 +0200
-Message-Id: <20220405070342.944359663@linuxfoundation.org>
+        stable@vger.kernel.org, Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Dayvison <sathlerds@gmail.com>,
+        Valentin Vidic <vvidic@valentin-vidic.from.hr>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.15 105/913] ocfs2: fix crash when mount with quota enabled
+Date:   Tue,  5 Apr 2022 09:19:27 +0200
+Message-Id: <20220405070342.973646511@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -54,49 +56,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ali Pouladi <quic_apouladi@quicinc.com>
+From: Joseph Qi <joseph.qi@linux.alibaba.com>
 
-commit ea6af39f3da50c86367a71eb3cc674ade3ed244c upstream.
+commit de19433423c7bedabbd4f9a25f7dbc62c5e78921 upstream.
 
-When there is no interrupt line, rtc alarm feature is disabled.
+There is a reported crash when mounting ocfs2 with quota enabled.
 
-The clearing of the alarm feature bit was being done prior to allocations
-of ldata->rtc device, resulting in a null pointer dereference.
+  RIP: 0010:ocfs2_qinfo_lock_res_init+0x44/0x50 [ocfs2]
+  Call Trace:
+    ocfs2_local_read_info+0xb9/0x6f0 [ocfs2]
+    dquot_load_quota_sb+0x216/0x470
+    dquot_load_quota_inode+0x85/0x100
+    ocfs2_enable_quotas+0xa0/0x1c0 [ocfs2]
+    ocfs2_fill_super.cold+0xc8/0x1bf [ocfs2]
+    mount_bdev+0x185/0x1b0
+    legacy_get_tree+0x27/0x40
+    vfs_get_tree+0x25/0xb0
+    path_mount+0x465/0xac0
+    __x64_sys_mount+0x103/0x140
 
-Clear RTC_FEATURE_ALARM after the rtc device is allocated.
+It is caused by when initializing dqi_gqlock, the corresponding dqi_type
+and dqi_sb are not properly initialized.
 
-Fixes: d9b0dd54a194 ("rtc: pl031: use RTC_FEATURE_ALARM")
-Cc: stable@vger.kernel.org
-Signed-off-by: Ali Pouladi <quic_apouladi@quicinc.com>
-Signed-off-by: Elliot Berman <quic_eberman@quicinc.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/20220225161924.274141-1-quic_eberman@quicinc.com
+This issue is introduced by commit 6c85c2c72819, which wants to avoid
+accessing uninitialized variables in error cases.  So make global quota
+info properly initialized.
+
+Link: https://lkml.kernel.org/r/20220323023644.40084-1-joseph.qi@linux.alibaba.com
+Link: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1007141
+Fixes: 6c85c2c72819 ("ocfs2: quota_local: fix possible uninitialized-variable access in ocfs2_local_read_info()")
+Signed-off-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Reported-by: Dayvison <sathlerds@gmail.com>
+Tested-by: Valentin Vidic <vvidic@valentin-vidic.from.hr>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/rtc/rtc-pl031.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ fs/ocfs2/quota_global.c |   23 ++++++++++++-----------
+ fs/ocfs2/quota_local.c  |    2 --
+ 2 files changed, 12 insertions(+), 13 deletions(-)
 
---- a/drivers/rtc/rtc-pl031.c
-+++ b/drivers/rtc/rtc-pl031.c
-@@ -350,9 +350,6 @@ static int pl031_probe(struct amba_devic
- 		}
- 	}
+--- a/fs/ocfs2/quota_global.c
++++ b/fs/ocfs2/quota_global.c
+@@ -337,7 +337,6 @@ void ocfs2_unlock_global_qf(struct ocfs2
+ /* Read information header from global quota file */
+ int ocfs2_global_read_info(struct super_block *sb, int type)
+ {
+-	struct inode *gqinode = NULL;
+ 	unsigned int ino[OCFS2_MAXQUOTAS] = { USER_QUOTA_SYSTEM_INODE,
+ 					      GROUP_QUOTA_SYSTEM_INODE };
+ 	struct ocfs2_global_disk_dqinfo dinfo;
+@@ -346,29 +345,31 @@ int ocfs2_global_read_info(struct super_
+ 	u64 pcount;
+ 	int status;
  
--	if (!adev->irq[0])
--		clear_bit(RTC_FEATURE_ALARM, ldata->rtc->features);
--
- 	device_init_wakeup(&adev->dev, true);
- 	ldata->rtc = devm_rtc_allocate_device(&adev->dev);
- 	if (IS_ERR(ldata->rtc)) {
-@@ -360,6 +357,9 @@ static int pl031_probe(struct amba_devic
- 		goto out;
- 	}
- 
-+	if (!adev->irq[0])
-+		clear_bit(RTC_FEATURE_ALARM, ldata->rtc->features);
++	oinfo->dqi_gi.dqi_sb = sb;
++	oinfo->dqi_gi.dqi_type = type;
++	ocfs2_qinfo_lock_res_init(&oinfo->dqi_gqlock, oinfo);
++	oinfo->dqi_gi.dqi_entry_size = sizeof(struct ocfs2_global_disk_dqblk);
++	oinfo->dqi_gi.dqi_ops = &ocfs2_global_ops;
++	oinfo->dqi_gqi_bh = NULL;
++	oinfo->dqi_gqi_count = 0;
 +
- 	ldata->rtc->ops = ops;
- 	ldata->rtc->range_min = vendor->range_min;
- 	ldata->rtc->range_max = vendor->range_max;
+ 	/* Read global header */
+-	gqinode = ocfs2_get_system_file_inode(OCFS2_SB(sb), ino[type],
++	oinfo->dqi_gqinode = ocfs2_get_system_file_inode(OCFS2_SB(sb), ino[type],
+ 			OCFS2_INVALID_SLOT);
+-	if (!gqinode) {
++	if (!oinfo->dqi_gqinode) {
+ 		mlog(ML_ERROR, "failed to get global quota inode (type=%d)\n",
+ 			type);
+ 		status = -EINVAL;
+ 		goto out_err;
+ 	}
+-	oinfo->dqi_gi.dqi_sb = sb;
+-	oinfo->dqi_gi.dqi_type = type;
+-	oinfo->dqi_gi.dqi_entry_size = sizeof(struct ocfs2_global_disk_dqblk);
+-	oinfo->dqi_gi.dqi_ops = &ocfs2_global_ops;
+-	oinfo->dqi_gqi_bh = NULL;
+-	oinfo->dqi_gqi_count = 0;
+-	oinfo->dqi_gqinode = gqinode;
++
+ 	status = ocfs2_lock_global_qf(oinfo, 0);
+ 	if (status < 0) {
+ 		mlog_errno(status);
+ 		goto out_err;
+ 	}
+ 
+-	status = ocfs2_extent_map_get_blocks(gqinode, 0, &oinfo->dqi_giblk,
++	status = ocfs2_extent_map_get_blocks(oinfo->dqi_gqinode, 0, &oinfo->dqi_giblk,
+ 					     &pcount, NULL);
+ 	if (status < 0)
+ 		goto out_unlock;
+--- a/fs/ocfs2/quota_local.c
++++ b/fs/ocfs2/quota_local.c
+@@ -702,8 +702,6 @@ static int ocfs2_local_read_info(struct
+ 	info->dqi_priv = oinfo;
+ 	oinfo->dqi_type = type;
+ 	INIT_LIST_HEAD(&oinfo->dqi_chunk);
+-	oinfo->dqi_gqinode = NULL;
+-	ocfs2_qinfo_lock_res_init(&oinfo->dqi_gqlock, oinfo);
+ 	oinfo->dqi_rec = NULL;
+ 	oinfo->dqi_lqi_bh = NULL;
+ 	oinfo->dqi_libh = NULL;
 
 
