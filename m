@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E23A84F42DD
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:51:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 56F1A4F414D
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:28:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1383439AbiDEMZt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:25:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39304 "EHLO
+        id S1383410AbiDEMZr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:25:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39282 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240067AbiDEKwk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:52:40 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8EEFA94DA;
-        Tue,  5 Apr 2022 03:28:11 -0700 (PDT)
+        with ESMTP id S238789AbiDEKyg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:54:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94CCFABF6F;
+        Tue,  5 Apr 2022 03:28:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 57B706181D;
-        Tue,  5 Apr 2022 10:28:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B31FC385A6;
-        Tue,  5 Apr 2022 10:28:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4654FB81C9B;
+        Tue,  5 Apr 2022 10:28:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DA52C385A2;
+        Tue,  5 Apr 2022 10:28:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649154490;
-        bh=cCG4DXsmOt2RjegLmBychxHXXVtElDKPMsn2x6Ymw+M=;
+        s=korg; t=1649154501;
+        bh=QY2EuOoLgTBXeW3ZsKJqoSutHxty6jHKXa2LviOib3I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kVOMOsfeVIisInkqW2ceLoPlxI+H3OmsTPcMStcOmFRphrxPs6N7ckrqoFQHbI5ax
-         pH5Kd4xVGc5bKCRuNT+7efH99G7QVmz9KhO1hjk2y6pBRzNgsz0epTnJRmTm6l5tf+
-         4jSr9iZ6s/1YpE1Gn/4Lr8kaIYU6AILCZB0oVQY4=
+        b=wQy5Q9lTsmoQWxfkk406Hmbf25tS9pLiUZtSqwre/Ujr9l1+XDNaYf+dsGsC0yz3/
+         tHTZmTpwq6M2t0vKIc3E8JEfLsmQ8dtY9Cgcds/Pvs2ItoBl8uO9BYP0R9PJFVF4X3
+         siW2gMVCQDykSpFqbkWsjnufCrqmmI1ZCaKgXP3s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alyssa Ross <hi@alyssa.is>,
-        Tzung-Bi Shih <tzungbi@google.com>,
-        Prashant Malani <pmalani@chromium.org>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Benson Leung <bleung@chromium.org>
-Subject: [PATCH 5.10 570/599] platform/chrome: cros_ec_typec: Check for EC device
-Date:   Tue,  5 Apr 2022 09:34:24 +0200
-Message-Id: <20220405070315.805023283@linuxfoundation.org>
+        stable@vger.kernel.org, Derek Will <derekrobertwill@gmail.com>,
+        Oliver Hartkopp <socketcan@hartkopp.net>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 571/599] can: isotp: restore accidentally removed MSG_PEEK feature
+Date:   Tue,  5 Apr 2022 09:34:25 +0200
+Message-Id: <20220405070315.834665766@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -56,48 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Prashant Malani <pmalani@chromium.org>
+From: Oliver Hartkopp <socketcan@hartkopp.net>
 
-commit ffebd90532728086007038986900426544e3df4e upstream.
+[ Upstream commit e382fea8ae54f5bb62869c6b69b33993d43adeca ]
 
-The Type C ACPI device on older Chromebooks is not generated correctly
-(since their EC firmware doesn't support the new commands required). In
-such cases, the crafted ACPI device doesn't have an EC parent, and it is
-therefore not useful (it shouldn't be generated in the first place since
-the EC firmware doesn't support any of the Type C commands).
+In commit 42bf50a1795a ("can: isotp: support MSG_TRUNC flag when
+reading from socket") a new check for recvmsg flags has been
+introduced that only checked for the flags that are handled in
+isotp_recvmsg() itself.
 
-To handle devices which use these older firmware revisions, check for
-the parent EC device handle, and fail the probe if it's not found.
+This accidentally removed the MSG_PEEK feature flag which is processed
+later in the call chain in __skb_try_recv_from_queue().
 
-Fixes: fdc6b21e2444 ("platform/chrome: Add Type C connector class driver")
-Reported-by: Alyssa Ross <hi@alyssa.is>
-Reviewed-by: Tzung-Bi Shih <tzungbi@google.com>
-Signed-off-by: Prashant Malani <pmalani@chromium.org>
-Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Reviewed-by: Alyssa Ross <hi@alyssa.is>
-Tested-by: Alyssa Ross <hi@alyssa.is>
-Link: https://lore.kernel.org/r/20220126190219.3095419-1-pmalani@chromium.org
-Signed-off-by: Benson Leung <bleung@chromium.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Add MSG_PEEK to the set of valid flags to restore the feature.
+
+Fixes: 42bf50a1795a ("can: isotp: support MSG_TRUNC flag when reading from socket")
+Link: https://github.com/linux-can/can-utils/issues/347#issuecomment-1079554254
+Link: https://lore.kernel.org/all/20220328113611.3691-1-socketcan@hartkopp.net
+Reported-by: Derek Will <derekrobertwill@gmail.com>
+Suggested-by: Derek Will <derekrobertwill@gmail.com>
+Tested-by: Derek Will <derekrobertwill@gmail.com>
+Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/chrome/cros_ec_typec.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ net/can/isotp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/platform/chrome/cros_ec_typec.c
-+++ b/drivers/platform/chrome/cros_ec_typec.c
-@@ -712,7 +712,13 @@ static int cros_typec_probe(struct platf
- 		return -ENOMEM;
+diff --git a/net/can/isotp.c b/net/can/isotp.c
+index 671c3673b7ea..63e6e8923200 100644
+--- a/net/can/isotp.c
++++ b/net/can/isotp.c
+@@ -1007,7 +1007,7 @@ static int isotp_recvmsg(struct socket *sock, struct msghdr *msg, size_t size,
+ 	int noblock = flags & MSG_DONTWAIT;
+ 	int ret = 0;
  
- 	typec->dev = dev;
-+
- 	typec->ec = dev_get_drvdata(pdev->dev.parent);
-+	if (!typec->ec) {
-+		dev_err(dev, "couldn't find parent EC device\n");
-+		return -ENODEV;
-+	}
-+
- 	platform_set_drvdata(pdev, typec);
+-	if (flags & ~(MSG_DONTWAIT | MSG_TRUNC))
++	if (flags & ~(MSG_DONTWAIT | MSG_TRUNC | MSG_PEEK))
+ 		return -EINVAL;
  
- 	ret = cros_typec_get_cmd_version(typec);
+ 	if (!so->bound)
+-- 
+2.34.1
+
 
 
