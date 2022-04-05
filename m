@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C84B54F3B4A
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:16:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F28D64F386B
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:33:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347980AbiDELws (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:52:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46470 "EHLO
+        id S1376764AbiDELXR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:23:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39370 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357058AbiDEKZd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:25:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EB812A6;
-        Tue,  5 Apr 2022 03:09:28 -0700 (PDT)
+        with ESMTP id S1349477AbiDEJtz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:55 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C99EC10B6;
+        Tue,  5 Apr 2022 02:47:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BD9976176C;
-        Tue,  5 Apr 2022 10:09:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CEC4CC385A0;
-        Tue,  5 Apr 2022 10:09:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8A961B81B14;
+        Tue,  5 Apr 2022 09:47:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D91D9C385A1;
+        Tue,  5 Apr 2022 09:47:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153367;
-        bh=hGfpX2/660mo2vFk//XI/hXob0LrOy9/SJhBumtFWJs=;
+        s=korg; t=1649152027;
+        bh=oYKkbZrm7pxnfDKheAyX3y1/Hm+QiAx86q2QPbVeBdo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RP/8l4F9jslyfeut2IOmxx7RnFH8+k10GVwyzCE270XIlGS7jiWqshzS5FAyKkqIM
-         Gpr807NLeZ59jV+eFzbxFsjkc7gxxg6rt6TVtvPdkutGqHXPpebzG/C8xVFHNy+x/9
-         We9MHqRR9D5EI/ED3J4n+A4GdGwT8bxbDEOhxoPY=
+        b=QV5g18gKkeW3IxWjsFhy2eLXmP+fzKJYgjLpYzPnBvVpevPQVxnVoZgEGXIo6jwPw
+         uyd3l61nZSmHjMi46Q2x2y5E/0OZPdorq8W+yaEwnsLgV1sxt5ctc3E7NgG2pCNqIj
+         eyfTqYtTAapWARbAgAeowKauH7haz/drs/Dz0AuY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jammy Huang <jammy_huang@aspeedtech.com>,
-        Joel Stanley <joel@jms.id.au>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        stable@vger.kernel.org,
+        Sergio Paracuellos <sergio.paracuellos@gmail.com>,
+        =?UTF-8?q?Ar=C4=B1n=C3=A7=20=C3=9CNAL?= <arinc.unal@arinc9.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 196/599] media: aspeed: Correct value for h-total-pixels
-Date:   Tue,  5 Apr 2022 09:28:10 +0200
-Message-Id: <20220405070304.674131677@linuxfoundation.org>
+Subject: [PATCH 5.15 629/913] staging: mt7621-dts: fix pinctrl properties for ethernet
+Date:   Tue,  5 Apr 2022 09:28:11 +0200
+Message-Id: <20220405070358.692961623@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
-References: <20220405070258.802373272@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,72 +55,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jammy Huang <jammy_huang@aspeedtech.com>
+From: Arınç ÜNAL <arinc.unal@arinc9.com>
 
-[ Upstream commit 4b732a0016853eaff35944f900b0db66f3914374 ]
+[ Upstream commit 0a93c0d75809582893e82039143591b9265b520e ]
 
-Previous reg-field, 0x98[11:0], stands for the period of the detected
-hsync signal.
-Use the correct reg, 0xa0, to get h-total in pixels.
+Add pinctrl properties with rgmii1 & mdio pins under ethernet node which
+was wrongfully put under an external phy node.
+GMAC1 will start working with this fix.
 
-Fixes: d2b4387f3bdf ("media: platform: Add Aspeed Video Engine driver")
-Signed-off-by: Jammy Huang <jammy_huang@aspeedtech.com>
-Reviewed-by: Joel Stanley <joel@jms.id.au>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Link: https://lore.kernel.org/netdev/02ecce91-7aad-4392-c9d7-f45ca1b31e0b@arinc9.com/T/
+
+Move GB-PC2 specific phy_external node to its own device tree.
+
+Reviewed-by: Sergio Paracuellos <sergio.paracuellos@gmail.com>
+Signed-off-by: Arınç ÜNAL <arinc.unal@arinc9.com>
+Link: https://lore.kernel.org/r/20220125153903.1469-5-arinc.unal@arinc9.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/aspeed-video.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/staging/mt7621-dts/gbpc2.dts   | 16 +++++++++++-----
+ drivers/staging/mt7621-dts/mt7621.dtsi | 13 +++----------
+ 2 files changed, 14 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/media/platform/aspeed-video.c b/drivers/media/platform/aspeed-video.c
-index debc7509c173..757a58829a51 100644
---- a/drivers/media/platform/aspeed-video.c
-+++ b/drivers/media/platform/aspeed-video.c
-@@ -151,7 +151,7 @@
- #define  VE_SRC_TB_EDGE_DET_BOT		GENMASK(28, VE_SRC_TB_EDGE_DET_BOT_SHF)
+diff --git a/drivers/staging/mt7621-dts/gbpc2.dts b/drivers/staging/mt7621-dts/gbpc2.dts
+index 52760e7351f6..f9b69091bfc0 100644
+--- a/drivers/staging/mt7621-dts/gbpc2.dts
++++ b/drivers/staging/mt7621-dts/gbpc2.dts
+@@ -12,10 +12,16 @@
+ 	function = "gpio";
+ };
  
- #define VE_MODE_DETECT_STATUS		0x098
--#define  VE_MODE_DETECT_H_PIXELS	GENMASK(11, 0)
-+#define  VE_MODE_DETECT_H_PERIOD	GENMASK(11, 0)
- #define  VE_MODE_DETECT_V_LINES_SHF	16
- #define  VE_MODE_DETECT_V_LINES		GENMASK(27, VE_MODE_DETECT_V_LINES_SHF)
- #define  VE_MODE_DETECT_STATUS_VSYNC	BIT(28)
-@@ -162,6 +162,8 @@
- #define  VE_SYNC_STATUS_VSYNC_SHF	16
- #define  VE_SYNC_STATUS_VSYNC		GENMASK(27, VE_SYNC_STATUS_VSYNC_SHF)
+-&gmac1 {
+-	status = "ok";
+-};
++&ethernet {
++	gmac1: mac@1 {
++		status = "ok";
++		phy-handle = <&phy_external>;
++	};
  
-+#define VE_H_TOTAL_PIXELS		0x0A0
+-&phy_external {
+-	status = "ok";
++	mdio-bus {
++		phy_external: ethernet-phy@5 {
++			reg = <5>;
++			phy-mode = "rgmii-rxid";
++		};
++	};
+ };
+diff --git a/drivers/staging/mt7621-dts/mt7621.dtsi b/drivers/staging/mt7621-dts/mt7621.dtsi
+index eca384cdec39..99b0eef1f3e2 100644
+--- a/drivers/staging/mt7621-dts/mt7621.dtsi
++++ b/drivers/staging/mt7621-dts/mt7621.dtsi
+@@ -391,6 +391,9 @@
+ 
+ 		mediatek,ethsys = <&sysc>;
+ 
++		pinctrl-names = "default";
++		pinctrl-0 = <&rgmii1_pins &rgmii2_pins &mdio_pins>;
 +
- #define VE_INTERRUPT_CTRL		0x304
- #define VE_INTERRUPT_STATUS		0x308
- #define  VE_INTERRUPT_MODE_DETECT_WD	BIT(0)
-@@ -765,6 +767,7 @@ static void aspeed_video_get_resolution(struct aspeed_video *video)
- 	u32 src_lr_edge;
- 	u32 src_tb_edge;
- 	u32 sync;
-+	u32 htotal;
- 	struct v4l2_bt_timings *det = &video->detected_timings;
+ 		gmac0: mac@0 {
+ 			compatible = "mediatek,eth-mac";
+ 			reg = <0>;
+@@ -408,22 +411,12 @@
+ 			reg = <1>;
+ 			status = "off";
+ 			phy-mode = "rgmii-rxid";
+-			phy-handle = <&phy_external>;
+ 		};
  
- 	det->width = MIN_WIDTH;
-@@ -809,6 +812,7 @@ static void aspeed_video_get_resolution(struct aspeed_video *video)
- 		src_tb_edge = aspeed_video_read(video, VE_SRC_TB_EDGE_DET);
- 		mds = aspeed_video_read(video, VE_MODE_DETECT_STATUS);
- 		sync = aspeed_video_read(video, VE_SYNC_STATUS);
-+		htotal = aspeed_video_read(video, VE_H_TOTAL_PIXELS);
+ 		mdio-bus {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
  
- 		video->frame_bottom = (src_tb_edge & VE_SRC_TB_EDGE_DET_BOT) >>
- 			VE_SRC_TB_EDGE_DET_BOT_SHF;
-@@ -825,8 +829,7 @@ static void aspeed_video_get_resolution(struct aspeed_video *video)
- 			VE_SRC_LR_EDGE_DET_RT_SHF;
- 		video->frame_left = src_lr_edge & VE_SRC_LR_EDGE_DET_LEFT;
- 		det->hfrontporch = video->frame_left;
--		det->hbackporch = (mds & VE_MODE_DETECT_H_PIXELS) -
--			video->frame_right;
-+		det->hbackporch = htotal - video->frame_right;
- 		det->hsync = sync & VE_SYNC_STATUS_HSYNC;
- 		if (video->frame_left > video->frame_right)
- 			continue;
+-			phy_external: ethernet-phy@5 {
+-				status = "off";
+-				reg = <5>;
+-				phy-mode = "rgmii-rxid";
+-
+-				pinctrl-names = "default";
+-				pinctrl-0 = <&rgmii2_pins>;
+-			};
+-
+ 			switch0: switch0@0 {
+ 				compatible = "mediatek,mt7621";
+ 				#address-cells = <1>;
 -- 
 2.34.1
 
