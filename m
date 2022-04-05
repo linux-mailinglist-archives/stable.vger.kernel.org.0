@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E79614F28D8
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:22:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FA514F28DE
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:22:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233891AbiDEIX0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:23:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34822 "EHLO
+        id S233925AbiDEIXj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:23:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34734 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236781AbiDEIRC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:17:02 -0400
+        with ESMTP id S237123AbiDEIRn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:17:43 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FB69ADD64;
-        Tue,  5 Apr 2022 01:04:38 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4979EB0A6F;
+        Tue,  5 Apr 2022 01:05:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7DAF0B81BB6;
-        Tue,  5 Apr 2022 08:04:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E98E0C385A6;
-        Tue,  5 Apr 2022 08:04:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BCB51B81BAF;
+        Tue,  5 Apr 2022 08:05:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0547C385A0;
+        Tue,  5 Apr 2022 08:05:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145858;
-        bh=PXuFf0IbjBV3uj1gU1sJ2tocw8L0iqRTTtJJ7qbANXg=;
+        s=korg; t=1649145919;
+        bh=iftefzfnNwWIV5Gp1aIdncGKpyuR27RKTguas8nZSYM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t0pboeJEe+DngftCK4BE33LZcDZuh5gQPkoj/XYKVLxDPV7/sGiDDl3t7Ea7mdn9L
-         8cng8TUEKlvltynLoFZVHdTE2zOl7yXOQbyAbgfl4SMzOXEeZgf3mEG33gQG51iBDY
-         WMiPli26oWuU10YeB/H6TwQ+WN2Y/JL8xCOMJAls=
+        b=T7A4/OjWXG/JhRO/Uboba7dSMB8ivuHrbzu1zG/ZgWgJUNh/aIWR3WSnvH+bFC4D7
+         u4BJzzgz6eMRboU5USudrlmuW33vtxGvglh09dUv53zOVX3JjNtVOoDZo9W2meQefM
+         bD7pXR8r6H4mDgBpr3CuSqiyDlP+t20tHso2IWOQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yiqing Yao <yiqing.yao@amd.com>,
-        Monk Liu <Monk.liu@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0548/1126] drm/amd/pm: enable pm sysfs write for one VF mode
-Date:   Tue,  5 Apr 2022 09:21:35 +0200
-Message-Id: <20220405070423.718090872@linuxfoundation.org>
+        stable@vger.kernel.org, Andrii Nakryiko <andrii@kernel.org>,
+        Jiri Olsa <jolsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 0550/1126] bpftool: Fix pretty print dump for maps without BTF loaded
+Date:   Tue,  5 Apr 2022 09:21:37 +0200
+Message-Id: <20220405070423.776542694@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -55,40 +53,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yiqing Yao <yiqing.yao@amd.com>
+From: Jiri Olsa <jolsa@kernel.org>
 
-[ Upstream commit e610941c45bad75aa839af015c27d236ab6749e5 ]
+[ Upstream commit f76d8507d23834f7e56b0fe95c82605e7d7e0efe ]
 
-[why]
-pm sysfs should be writable in one VF mode as is in passthrough
+The commit e5043894b21f ("bpftool: Use libbpf_get_error() to check error")
+fails to dump map without BTF loaded in pretty mode (-p option).
 
-[how]
-do not remove write access on pm sysfs if device is in one VF mode
+Fixing this by making sure get_map_kv_btf won't fail in case there's
+no BTF available for the map.
 
-Fixes: 11c9cc95f818 ("amdgpu/pm: Make sysfs pm attributes as read-only for VFs")
-Signed-off-by: Yiqing Yao <yiqing.yao@amd.com>
-Reviewed-by: Monk Liu <Monk.liu@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: e5043894b21f ("bpftool: Use libbpf_get_error() to check error")
+Suggested-by: Andrii Nakryiko <andrii@kernel.org>
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/bpf/20220216092102.125448-1-jolsa@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/pm/amdgpu_pm.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ tools/bpf/bpftool/map.c | 31 +++++++++++++++----------------
+ 1 file changed, 15 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/pm/amdgpu_pm.c b/drivers/gpu/drm/amd/pm/amdgpu_pm.c
-index 48cc009d9bdf..dc910003f3ca 100644
---- a/drivers/gpu/drm/amd/pm/amdgpu_pm.c
-+++ b/drivers/gpu/drm/amd/pm/amdgpu_pm.c
-@@ -2134,8 +2134,8 @@ static int default_attr_update(struct amdgpu_device *adev, struct amdgpu_device_
+diff --git a/tools/bpf/bpftool/map.c b/tools/bpf/bpftool/map.c
+index 7a341a472ea4..e746642de292 100644
+--- a/tools/bpf/bpftool/map.c
++++ b/tools/bpf/bpftool/map.c
+@@ -805,29 +805,30 @@ static int maps_have_btf(int *fds, int nb_fds)
+ 
+ static struct btf *btf_vmlinux;
+ 
+-static struct btf *get_map_kv_btf(const struct bpf_map_info *info)
++static int get_map_kv_btf(const struct bpf_map_info *info, struct btf **btf)
+ {
+-	struct btf *btf = NULL;
++	int err = 0;
+ 
+ 	if (info->btf_vmlinux_value_type_id) {
+ 		if (!btf_vmlinux) {
+ 			btf_vmlinux = libbpf_find_kernel_btf();
+-			if (libbpf_get_error(btf_vmlinux))
++			err = libbpf_get_error(btf_vmlinux);
++			if (err) {
+ 				p_err("failed to get kernel btf");
++				return err;
++			}
  		}
+-		return btf_vmlinux;
++		*btf = btf_vmlinux;
+ 	} else if (info->btf_value_type_id) {
+-		int err;
+-
+-		btf = btf__load_from_kernel_by_id(info->btf_id);
+-		err = libbpf_get_error(btf);
+-		if (err) {
++		*btf = btf__load_from_kernel_by_id(info->btf_id);
++		err = libbpf_get_error(*btf);
++		if (err)
+ 			p_err("failed to get btf");
+-			btf = ERR_PTR(err);
+-		}
++	} else {
++		*btf = NULL;
  	}
  
--	/* setting should not be allowed from VF */
--	if (amdgpu_sriov_vf(adev)) {
-+	/* setting should not be allowed from VF if not in one VF mode */
-+	if (amdgpu_sriov_vf(adev) && !amdgpu_sriov_is_pp_one_vf(adev)) {
- 		dev_attr->attr.mode &= ~S_IWUGO;
- 		dev_attr->store = NULL;
- 	}
+-	return btf;
++	return err;
+ }
+ 
+ static void free_map_kv_btf(struct btf *btf)
+@@ -862,8 +863,7 @@ map_dump(int fd, struct bpf_map_info *info, json_writer_t *wtr,
+ 	prev_key = NULL;
+ 
+ 	if (wtr) {
+-		btf = get_map_kv_btf(info);
+-		err = libbpf_get_error(btf);
++		err = get_map_kv_btf(info, &btf);
+ 		if (err) {
+ 			goto exit_free;
+ 		}
+@@ -1054,8 +1054,7 @@ static void print_key_value(struct bpf_map_info *info, void *key,
+ 	json_writer_t *btf_wtr;
+ 	struct btf *btf;
+ 
+-	btf = get_map_kv_btf(info);
+-	if (libbpf_get_error(btf))
++	if (get_map_kv_btf(info, &btf))
+ 		return;
+ 
+ 	if (json_output) {
 -- 
 2.34.1
 
