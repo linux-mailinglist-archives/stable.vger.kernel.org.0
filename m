@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A8934F31C1
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:46:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C673B4F312C
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:39:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350693AbiDEJ73 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:59:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34878 "EHLO
+        id S236702AbiDEJDd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:03:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52874 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344218AbiDEJSs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:18:48 -0400
+        with ESMTP id S237675AbiDEI3h (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:29:37 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E55548E65;
-        Tue,  5 Apr 2022 02:05:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C98DE1AF2B;
+        Tue,  5 Apr 2022 01:21:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AFA6861571;
-        Tue,  5 Apr 2022 09:05:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BAB53C385A0;
-        Tue,  5 Apr 2022 09:05:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 641BD60FF7;
+        Tue,  5 Apr 2022 08:21:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 797CCC385A0;
+        Tue,  5 Apr 2022 08:21:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149544;
-        bh=t/QupVy0dbCFdJvA+PQ1ww6kp1XlV5Q+WcimY+Qw8n8=;
+        s=korg; t=1649146879;
+        bh=npZND2F45RRYAssBboFeZcJHYiaFp/sJkE0rO0UbqL4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EZmkQ5dvZl5mV7qo+6WlTe41a/jxLrtl3K93we83Pq7FTbP+pLzOIEmnCR/EXTgIh
-         nUoDVQrtEd7YBEQB0jh5U+r/4XYgATpOdWwisgiOQla4k/mipwrwHdUTM21/ZsuHYT
-         Bt08yjxHTZRAuIE+QcvfVQdxU9LRs74yRN4aD9bQ=
+        b=aGyvQZ6EUCSvpWMrMAvE+Faln7LbehOiIGzL1HEqO5v1Vco2xaKzIq4P+JrTZPnCj
+         7FUV50Kul2g27uMMaXxqQU5NLyaAUiJJKBdwDobBGc9ty5RLL2wzlgxsL8QgvUa+PI
+         lYxe4kTZ4O249hU7xfW6TZSE3GV2aBnbmHVU7jzQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Phil Sutter <phil@nwl.cc>,
-        Florian Westphal <fw@strlen.de>,
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0716/1017] netfilter: egress: Report interface as outgoing
-Date:   Tue,  5 Apr 2022 09:27:09 +0200
-Message-Id: <20220405070415.522953768@linuxfoundation.org>
+Subject: [PATCH 5.17 0883/1126] btrfs: do not double complete bio on errors during compressed reads
+Date:   Tue,  5 Apr 2022 09:27:10 +0200
+Message-Id: <20220405070433.449856145@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,34 +54,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phil Sutter <phil@nwl.cc>
+From: Josef Bacik <josef@toxicpanda.com>
 
-[ Upstream commit d645552e9bd96671079b27015294ec7f9748fa2b ]
+[ Upstream commit f9f15de85d74e7eef021af059ca53a15f041cdd8 ]
 
-Otherwise packets in egress chains seem like they are being received by
-the interface, not sent out via it.
+I hit some weird panics while fixing up the error handling from
+btrfs_lookup_bio_sums().  Turns out the compression path will complete
+the bio we use if we set up any of the compression bios and then return
+an error, and then btrfs_submit_data_bio() will also call bio_endio() on
+the bio.
 
-Fixes: 42df6e1d221dd ("netfilter: Introduce egress hook")
-Signed-off-by: Phil Sutter <phil@nwl.cc>
-Signed-off-by: Florian Westphal <fw@strlen.de>
+Fix this by making btrfs_submit_compressed_read() responsible for
+calling bio_endio() on the bio if there are any errors.  Currently it
+was only doing it if we created the compression bios, otherwise it was
+depending on btrfs_submit_data_bio() to do the right thing.  This
+creates the above problem, so fix up btrfs_submit_compressed_read() to
+always call bio_endio() in case of an error, and then simply return from
+btrfs_submit_data_bio() if we had to call
+btrfs_submit_compressed_read().
+
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/netfilter_netdev.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/compression.c | 20 ++++++++++++++------
+ fs/btrfs/inode.c       |  8 +++++++-
+ 2 files changed, 21 insertions(+), 7 deletions(-)
 
-diff --git a/include/linux/netfilter_netdev.h b/include/linux/netfilter_netdev.h
-index e6487a691136..8676316547cc 100644
---- a/include/linux/netfilter_netdev.h
-+++ b/include/linux/netfilter_netdev.h
-@@ -99,7 +99,7 @@ static inline struct sk_buff *nf_hook_egress(struct sk_buff *skb, int *rc,
- 		return skb;
+diff --git a/fs/btrfs/compression.c b/fs/btrfs/compression.c
+index 71e5b2e9a1ba..6158b870a269 100644
+--- a/fs/btrfs/compression.c
++++ b/fs/btrfs/compression.c
+@@ -808,7 +808,7 @@ blk_status_t btrfs_submit_compressed_read(struct inode *inode, struct bio *bio,
+ 	u64 em_len;
+ 	u64 em_start;
+ 	struct extent_map *em;
+-	blk_status_t ret = BLK_STS_RESOURCE;
++	blk_status_t ret;
+ 	int faili = 0;
+ 	u8 *sums;
  
- 	nf_hook_state_init(&state, NF_NETDEV_EGRESS,
--			   NFPROTO_NETDEV, dev, NULL, NULL,
-+			   NFPROTO_NETDEV, NULL, dev, NULL,
- 			   dev_net(dev), NULL);
+@@ -821,14 +821,18 @@ blk_status_t btrfs_submit_compressed_read(struct inode *inode, struct bio *bio,
+ 	read_lock(&em_tree->lock);
+ 	em = lookup_extent_mapping(em_tree, file_offset, fs_info->sectorsize);
+ 	read_unlock(&em_tree->lock);
+-	if (!em)
+-		return BLK_STS_IOERR;
++	if (!em) {
++		ret = BLK_STS_IOERR;
++		goto out;
++	}
  
- 	/* nf assumes rcu_read_lock, not just read_lock_bh */
+ 	ASSERT(em->compress_type != BTRFS_COMPRESS_NONE);
+ 	compressed_len = em->block_len;
+ 	cb = kmalloc(compressed_bio_size(fs_info, compressed_len), GFP_NOFS);
+-	if (!cb)
++	if (!cb) {
++		ret = BLK_STS_RESOURCE;
+ 		goto out;
++	}
+ 
+ 	refcount_set(&cb->pending_sectors, compressed_len >> fs_info->sectorsize_bits);
+ 	cb->errors = 0;
+@@ -851,8 +855,10 @@ blk_status_t btrfs_submit_compressed_read(struct inode *inode, struct bio *bio,
+ 	nr_pages = DIV_ROUND_UP(compressed_len, PAGE_SIZE);
+ 	cb->compressed_pages = kcalloc(nr_pages, sizeof(struct page *),
+ 				       GFP_NOFS);
+-	if (!cb->compressed_pages)
++	if (!cb->compressed_pages) {
++		ret = BLK_STS_RESOURCE;
+ 		goto fail1;
++	}
+ 
+ 	for (pg_index = 0; pg_index < nr_pages; pg_index++) {
+ 		cb->compressed_pages[pg_index] = alloc_page(GFP_NOFS);
+@@ -938,7 +944,7 @@ blk_status_t btrfs_submit_compressed_read(struct inode *inode, struct bio *bio,
+ 			comp_bio = NULL;
+ 		}
+ 	}
+-	return 0;
++	return BLK_STS_OK;
+ 
+ fail2:
+ 	while (faili >= 0) {
+@@ -951,6 +957,8 @@ blk_status_t btrfs_submit_compressed_read(struct inode *inode, struct bio *bio,
+ 	kfree(cb);
+ out:
+ 	free_extent_map(em);
++	bio->bi_status = ret;
++	bio_endio(bio);
+ 	return ret;
+ finish_cb:
+ 	if (comp_bio) {
+diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
+index 5bbea5ec31fc..0f4408f9dadd 100644
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -2538,10 +2538,15 @@ blk_status_t btrfs_submit_data_bio(struct inode *inode, struct bio *bio,
+ 			goto out;
+ 
+ 		if (bio_flags & EXTENT_BIO_COMPRESSED) {
++			/*
++			 * btrfs_submit_compressed_read will handle completing
++			 * the bio if there were any errors, so just return
++			 * here.
++			 */
+ 			ret = btrfs_submit_compressed_read(inode, bio,
+ 							   mirror_num,
+ 							   bio_flags);
+-			goto out;
++			goto out_no_endio;
+ 		} else {
+ 			/*
+ 			 * Lookup bio sums does extra checks around whether we
+@@ -2575,6 +2580,7 @@ blk_status_t btrfs_submit_data_bio(struct inode *inode, struct bio *bio,
+ 		bio->bi_status = ret;
+ 		bio_endio(bio);
+ 	}
++out_no_endio:
+ 	return ret;
+ }
+ 
 -- 
 2.34.1
 
