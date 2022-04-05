@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 86A074F3124
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:39:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 409504F32BD
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:00:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347816AbiDEJ22 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:28:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46132 "EHLO
+        id S239613AbiDEJPV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:15:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46852 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244935AbiDEIws (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:48 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 712AA2497B;
-        Tue,  5 Apr 2022 01:47:07 -0700 (PDT)
+        with ESMTP id S244940AbiDEIwt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE5602497D;
+        Tue,  5 Apr 2022 01:47:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id E2F67CE1BF8;
-        Tue,  5 Apr 2022 08:47:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B55FC385A0;
-        Tue,  5 Apr 2022 08:47:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6C4D361509;
+        Tue,  5 Apr 2022 08:47:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B9E9C385A0;
+        Tue,  5 Apr 2022 08:47:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148424;
-        bh=xn5XjbNCQIGn7W+2fCIddx6tTuzdQS5XIwMYVgOCU0w=;
+        s=korg; t=1649148429;
+        bh=YDTpRcSaCATao+L5CmLPyxK92OlmEXkjxf7243VK0CQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lrCvAhXeYtYjZ91DWxHgAVaOctnG6sar4HSflSOmW8WTs2iYw8/kDA99ybcMSIDRd
-         yBjxriaZv21RH31rsaGfC3m7EmkpiO2mcj5/wHCKdTkJNwLKDT8f3/pkjOQ2mGCHAY
-         +JwFutddT6XESSWbRLDwsq0p4huK1PSepzijEYuw=
+        b=z8ul3/u9OhmKURHk1l7czvA45CRcXDwqX4MtLb5mBHNdU3VPqWvTfx9gLhHik1bwv
+         fOW8zRymojx5hVXB+fHpacwEvkGTH01+Cxp3Qbxb8TmZt5eFTGuKGb7iB+Dvs8bIKS
+         /PoCvMRBSMTwTx+jUa3w6ztHsyhoNZZDXkBMz3LQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aswath Govindraju <a-govindraju@ti.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0353/1017] mmc: sdhci_am654: Fix the driver data of AM64 SoC
-Date:   Tue,  5 Apr 2022 09:21:06 +0200
-Message-Id: <20220405070404.762768265@linuxfoundation.org>
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0355/1017] ALSA: spi: Add check for clk_enable()
+Date:   Tue,  5 Apr 2022 09:21:08 +0200
+Message-Id: <20220405070404.823053108@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -54,68 +53,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aswath Govindraju <a-govindraju@ti.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit 3b7340f1c89cc488e4df0b033bf7ae502ebbf5b2 ]
+[ Upstream commit ca1697eb09208f0168d94b88b72f57505339cbe5 ]
 
-The MMCSD IPs used in AM64 are the same as the ones used in J721E.
-Therefore, fix this by using the driver data from J721E for AM64 too, for
-both 8 and 4 bit instances.
+As the potential failure of the clk_enable(),
+it should be better to check it and return error
+if fails.
 
-Fixes: 754b7f2f7d2a ("mmc: sdhci_am654: Add Support for TI's AM64 SoC")
-Signed-off-by: Aswath Govindraju <a-govindraju@ti.com>
-Link: https://lore.kernel.org/r/20220211075056.26179-1-a-govindraju@ti.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: 3568459a5113 ("ALSA: at73c213: manage SSC clock")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Link: https://lore.kernel.org/r/20220228022839.3547266-1-jiasheng@iscas.ac.cn
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/sdhci_am654.c | 24 ++----------------------
- 1 file changed, 2 insertions(+), 22 deletions(-)
+ sound/spi/at73c213.c | 27 +++++++++++++++++++++------
+ 1 file changed, 21 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/mmc/host/sdhci_am654.c b/drivers/mmc/host/sdhci_am654.c
-index f654afbe8e83..b4891bb26648 100644
---- a/drivers/mmc/host/sdhci_am654.c
-+++ b/drivers/mmc/host/sdhci_am654.c
-@@ -514,26 +514,6 @@ static const struct sdhci_am654_driver_data sdhci_j721e_4bit_drvdata = {
- 	.flags = IOMUX_PRESENT,
- };
+diff --git a/sound/spi/at73c213.c b/sound/spi/at73c213.c
+index 76c0e37a838c..8a2da6b1012e 100644
+--- a/sound/spi/at73c213.c
++++ b/sound/spi/at73c213.c
+@@ -218,7 +218,9 @@ static int snd_at73c213_pcm_open(struct snd_pcm_substream *substream)
+ 	runtime->hw = snd_at73c213_playback_hw;
+ 	chip->substream = substream;
  
--static const struct sdhci_pltfm_data sdhci_am64_8bit_pdata = {
--	.ops = &sdhci_j721e_8bit_ops,
--	.quirks2 = SDHCI_QUIRK2_PRESET_VALUE_BROKEN,
--};
--
--static const struct sdhci_am654_driver_data sdhci_am64_8bit_drvdata = {
--	.pdata = &sdhci_am64_8bit_pdata,
--	.flags = DLL_PRESENT | DLL_CALIB,
--};
--
--static const struct sdhci_pltfm_data sdhci_am64_4bit_pdata = {
--	.ops = &sdhci_j721e_4bit_ops,
--	.quirks2 = SDHCI_QUIRK2_PRESET_VALUE_BROKEN,
--};
--
--static const struct sdhci_am654_driver_data sdhci_am64_4bit_drvdata = {
--	.pdata = &sdhci_am64_4bit_pdata,
--	.flags = IOMUX_PRESENT,
--};
--
- static const struct soc_device_attribute sdhci_am654_devices[] = {
- 	{ .family = "AM65X",
- 	  .revision = "SR1.0",
-@@ -759,11 +739,11 @@ static const struct of_device_id sdhci_am654_of_match[] = {
- 	},
- 	{
- 		.compatible = "ti,am64-sdhci-8bit",
--		.data = &sdhci_am64_8bit_drvdata,
-+		.data = &sdhci_j721e_8bit_drvdata,
- 	},
- 	{
- 		.compatible = "ti,am64-sdhci-4bit",
--		.data = &sdhci_am64_4bit_drvdata,
-+		.data = &sdhci_j721e_4bit_drvdata,
- 	},
- 	{ /* sentinel */ }
- };
+-	clk_enable(chip->ssc->clk);
++	err = clk_enable(chip->ssc->clk);
++	if (err)
++		return err;
+ 
+ 	return 0;
+ }
+@@ -776,7 +778,9 @@ static int snd_at73c213_chip_init(struct snd_at73c213 *chip)
+ 		goto out;
+ 
+ 	/* Enable DAC master clock. */
+-	clk_enable(chip->board->dac_clk);
++	retval = clk_enable(chip->board->dac_clk);
++	if (retval)
++		goto out;
+ 
+ 	/* Initialize at73c213 on SPI bus. */
+ 	retval = snd_at73c213_write_reg(chip, DAC_RST, 0x04);
+@@ -889,7 +893,9 @@ static int snd_at73c213_dev_init(struct snd_card *card,
+ 	chip->card = card;
+ 	chip->irq = -1;
+ 
+-	clk_enable(chip->ssc->clk);
++	retval = clk_enable(chip->ssc->clk);
++	if (retval)
++		return retval;
+ 
+ 	retval = request_irq(irq, snd_at73c213_interrupt, 0, "at73c213", chip);
+ 	if (retval) {
+@@ -1008,7 +1014,9 @@ static int snd_at73c213_remove(struct spi_device *spi)
+ 	int retval;
+ 
+ 	/* Stop playback. */
+-	clk_enable(chip->ssc->clk);
++	retval = clk_enable(chip->ssc->clk);
++	if (retval)
++		goto out;
+ 	ssc_writel(chip->ssc->regs, CR, SSC_BIT(CR_TXDIS));
+ 	clk_disable(chip->ssc->clk);
+ 
+@@ -1088,9 +1096,16 @@ static int snd_at73c213_resume(struct device *dev)
+ {
+ 	struct snd_card *card = dev_get_drvdata(dev);
+ 	struct snd_at73c213 *chip = card->private_data;
++	int retval;
+ 
+-	clk_enable(chip->board->dac_clk);
+-	clk_enable(chip->ssc->clk);
++	retval = clk_enable(chip->board->dac_clk);
++	if (retval)
++		return retval;
++	retval = clk_enable(chip->ssc->clk);
++	if (retval) {
++		clk_disable(chip->board->dac_clk);
++		return retval;
++	}
+ 	ssc_writel(chip->ssc->regs, CR, SSC_BIT(CR_TXEN));
+ 
+ 	return 0;
 -- 
 2.34.1
 
