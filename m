@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E5544F3C03
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:23:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 716E14F3989
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:49:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382266AbiDEMD4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:03:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58500 "EHLO
+        id S241297AbiDELfL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:35:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35144 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358166AbiDEK2D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:28:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEA9D9D4FE;
-        Tue,  5 Apr 2022 03:16:08 -0700 (PDT)
+        with ESMTP id S1352823AbiDEKFK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:05:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8886205EB;
+        Tue,  5 Apr 2022 02:53:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7A6A461777;
-        Tue,  5 Apr 2022 10:16:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8CBABC385A0;
-        Tue,  5 Apr 2022 10:16:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 72B56B81B13;
+        Tue,  5 Apr 2022 09:53:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE215C385A2;
+        Tue,  5 Apr 2022 09:53:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153767;
-        bh=zZEuxgGk8rvxo6si7nkjBxxalp/3KomTIUr2lNv5mmk=;
+        s=korg; t=1649152434;
+        bh=OjenJG737FwnU9dz57Y47PpcOUtRbaj0pVKRFDqpTfU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=btXYDWlqLgHlOEqR5CF2qZEUFZiywBT6vWZRzZIi9C2cEEgGdaLSt66fyVV2Fg7YL
-         OsBf3kQKwzEBU1grvGIdzT9sJm1c3IkxNP4Bqx2olw5RVe/xaDGnrJdQuxQuAOvYXL
-         aqFNYTOAH8rkYYIEFp+tGsyabfJfCus3m1H6BUew=
+        b=IBnNLeRv8D4yOrcCrUaRPh79K26Gkf6X2OLkD1g5SIvai488RgGAlmLU3VCtDrvGy
+         dlvF0kr2Od+WhugOAbZ/9Yxze1duZT8gXxhEgYRxCLacxbvz6PX3ysGKMIcMwwy8qI
+         qlolX6DNVKhV7Cfnnfyv2IoiTudYKVZGH8RiU9Yw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert Hancock <robert.hancock@calian.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 341/599] net: axienet: fix RX ring refill allocation failure handling
-Date:   Tue,  5 Apr 2022 09:30:35 +0200
-Message-Id: <20220405070308.981244679@linuxfoundation.org>
+        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.15 774/913] KVM: x86: hyper-v: Drop redundant ex parameter from kvm_hv_send_ipi()
+Date:   Tue,  5 Apr 2022 09:30:36 +0200
+Message-Id: <20220405070403.032251066@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
-References: <20220405070258.802373272@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,141 +53,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Hancock <robert.hancock@calian.com>
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
 
-[ Upstream commit 7a7d340ba4d9351e4c8847b898a2b996727a922a ]
+commit 50e523dd79f6a856d793ce5711719abe27cffbf2 upstream.
 
-If a memory allocation error occurred during an attempt to refill a slot
-in the RX ring after the packet was received, the hardware tail pointer
-would still have been updated to point to or past the slot which remained
-marked as previously completed. This would likely result in the DMA engine
-raising an error when it eventually tried to use that slot again.
+'struct kvm_hv_hcall' has all the required information already,
+there's no need to pass 'ex' additionally.
 
-If a slot cannot be refilled, then just stop processing and do not move
-the tail pointer past it. On the next attempt, we should skip receiving
-the packet from the empty slot and just try to refill it again.
+No functional change intended.
 
-This failure mode has not actually been observed, but was found as part
-of other driver updates.
-
-Fixes: 8a3b7a252dca ("drivers/net/ethernet/xilinx: added Xilinx AXI Ethernet driver")
-Signed-off-by: Robert Hancock <robert.hancock@calian.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org # 5.14.x
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Message-Id: <20220222154642.684285-2-vkuznets@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../net/ethernet/xilinx/xilinx_axienet_main.c | 72 +++++++++++--------
- 1 file changed, 42 insertions(+), 30 deletions(-)
+ arch/x86/kvm/hyperv.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/xilinx/xilinx_axienet_main.c b/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
-index 0baf85122f5a..bbdcba88c021 100644
---- a/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
-+++ b/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
-@@ -857,46 +857,53 @@ static void axienet_recv(struct net_device *ndev)
- 	while ((cur_p->status & XAXIDMA_BD_STS_COMPLETE_MASK)) {
- 		dma_addr_t phys;
+--- a/arch/x86/kvm/hyperv.c
++++ b/arch/x86/kvm/hyperv.c
+@@ -1874,7 +1874,7 @@ static void kvm_send_ipi_to_many(struct
+ 	}
+ }
  
--		tail_p = lp->rx_bd_p + sizeof(*lp->rx_bd_v) * lp->rx_bd_ci;
--
- 		/* Ensure we see complete descriptor update */
- 		dma_rmb();
--		phys = desc_get_phys_addr(lp, cur_p);
--		dma_unmap_single(ndev->dev.parent, phys, lp->max_frm_size,
--				 DMA_FROM_DEVICE);
+-static u64 kvm_hv_send_ipi(struct kvm_vcpu *vcpu, struct kvm_hv_hcall *hc, bool ex)
++static u64 kvm_hv_send_ipi(struct kvm_vcpu *vcpu, struct kvm_hv_hcall *hc)
+ {
+ 	struct kvm *kvm = vcpu->kvm;
+ 	struct hv_send_ipi_ex send_ipi_ex;
+@@ -1888,7 +1888,7 @@ static u64 kvm_hv_send_ipi(struct kvm_vc
+ 	u32 vector;
+ 	bool all_cpus;
  
- 		skb = cur_p->skb;
- 		cur_p->skb = NULL;
--		length = cur_p->app4 & 0x0000FFFF;
--
--		skb_put(skb, length);
--		skb->protocol = eth_type_trans(skb, ndev);
--		/*skb_checksum_none_assert(skb);*/
--		skb->ip_summed = CHECKSUM_NONE;
--
--		/* if we're doing Rx csum offload, set it up */
--		if (lp->features & XAE_FEATURE_FULL_RX_CSUM) {
--			csumstatus = (cur_p->app2 &
--				      XAE_FULL_CSUM_STATUS_MASK) >> 3;
--			if ((csumstatus == XAE_IP_TCP_CSUM_VALIDATED) ||
--			    (csumstatus == XAE_IP_UDP_CSUM_VALIDATED)) {
--				skb->ip_summed = CHECKSUM_UNNECESSARY;
-+
-+		/* skb could be NULL if a previous pass already received the
-+		 * packet for this slot in the ring, but failed to refill it
-+		 * with a newly allocated buffer. In this case, don't try to
-+		 * receive it again.
-+		 */
-+		if (likely(skb)) {
-+			length = cur_p->app4 & 0x0000FFFF;
-+
-+			phys = desc_get_phys_addr(lp, cur_p);
-+			dma_unmap_single(ndev->dev.parent, phys, lp->max_frm_size,
-+					 DMA_FROM_DEVICE);
-+
-+			skb_put(skb, length);
-+			skb->protocol = eth_type_trans(skb, ndev);
-+			/*skb_checksum_none_assert(skb);*/
-+			skb->ip_summed = CHECKSUM_NONE;
-+
-+			/* if we're doing Rx csum offload, set it up */
-+			if (lp->features & XAE_FEATURE_FULL_RX_CSUM) {
-+				csumstatus = (cur_p->app2 &
-+					      XAE_FULL_CSUM_STATUS_MASK) >> 3;
-+				if (csumstatus == XAE_IP_TCP_CSUM_VALIDATED ||
-+				    csumstatus == XAE_IP_UDP_CSUM_VALIDATED) {
-+					skb->ip_summed = CHECKSUM_UNNECESSARY;
-+				}
-+			} else if ((lp->features & XAE_FEATURE_PARTIAL_RX_CSUM) != 0 &&
-+				   skb->protocol == htons(ETH_P_IP) &&
-+				   skb->len > 64) {
-+				skb->csum = be32_to_cpu(cur_p->app3 & 0xFFFF);
-+				skb->ip_summed = CHECKSUM_COMPLETE;
- 			}
--		} else if ((lp->features & XAE_FEATURE_PARTIAL_RX_CSUM) != 0 &&
--			   skb->protocol == htons(ETH_P_IP) &&
--			   skb->len > 64) {
--			skb->csum = be32_to_cpu(cur_p->app3 & 0xFFFF);
--			skb->ip_summed = CHECKSUM_COMPLETE;
--		}
- 
--		netif_rx(skb);
-+			netif_rx(skb);
- 
--		size += length;
--		packets++;
-+			size += length;
-+			packets++;
-+		}
- 
- 		new_skb = netdev_alloc_skb_ip_align(ndev, lp->max_frm_size);
- 		if (!new_skb)
--			return;
-+			break;
- 
- 		phys = dma_map_single(ndev->dev.parent, new_skb->data,
- 				      lp->max_frm_size,
-@@ -905,7 +912,7 @@ static void axienet_recv(struct net_device *ndev)
- 			if (net_ratelimit())
- 				netdev_err(ndev, "RX DMA mapping error\n");
- 			dev_kfree_skb(new_skb);
--			return;
-+			break;
+-	if (!ex) {
++	if (hc->code == HVCALL_SEND_IPI) {
+ 		if (!hc->fast) {
+ 			if (unlikely(kvm_read_guest(kvm, hc->ingpa, &send_ipi,
+ 						    sizeof(send_ipi))))
+@@ -2278,14 +2278,14 @@ int kvm_hv_hypercall(struct kvm_vcpu *vc
+ 			ret = HV_STATUS_INVALID_HYPERCALL_INPUT;
+ 			break;
  		}
- 		desc_set_phys_addr(lp, phys, cur_p);
- 
-@@ -913,6 +920,11 @@ static void axienet_recv(struct net_device *ndev)
- 		cur_p->status = 0;
- 		cur_p->skb = new_skb;
- 
-+		/* Only update tail_p to mark this slot as usable after it has
-+		 * been successfully refilled.
-+		 */
-+		tail_p = lp->rx_bd_p + sizeof(*lp->rx_bd_v) * lp->rx_bd_ci;
-+
- 		if (++lp->rx_bd_ci >= lp->rx_bd_num)
- 			lp->rx_bd_ci = 0;
- 		cur_p = &lp->rx_bd_v[lp->rx_bd_ci];
--- 
-2.34.1
-
+-		ret = kvm_hv_send_ipi(vcpu, &hc, false);
++		ret = kvm_hv_send_ipi(vcpu, &hc);
+ 		break;
+ 	case HVCALL_SEND_IPI_EX:
+ 		if (unlikely(hc.fast || hc.rep)) {
+ 			ret = HV_STATUS_INVALID_HYPERCALL_INPUT;
+ 			break;
+ 		}
+-		ret = kvm_hv_send_ipi(vcpu, &hc, true);
++		ret = kvm_hv_send_ipi(vcpu, &hc);
+ 		break;
+ 	case HVCALL_POST_DEBUG_DATA:
+ 	case HVCALL_RETRIEVE_DEBUG_DATA:
 
 
