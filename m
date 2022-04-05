@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 85E7A4F3959
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:46:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 614894F3C2D
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:24:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242794AbiDELcC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:32:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33936 "EHLO
+        id S237235AbiDEMFl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:05:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52134 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353330AbiDEKF7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:05:59 -0400
+        with ESMTP id S1358232AbiDEK2J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:28:09 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D4B9BF512;
-        Tue,  5 Apr 2022 02:54:44 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 337922BEE;
+        Tue,  5 Apr 2022 03:17:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 161DEB81B13;
-        Tue,  5 Apr 2022 09:54:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5DF1FC385A1;
-        Tue,  5 Apr 2022 09:54:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CC7BAB81C8A;
+        Tue,  5 Apr 2022 10:17:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B6B3C385A0;
+        Tue,  5 Apr 2022 10:17:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152481;
-        bh=TEt6u2v2p7dI5no1Pgbez4k7Gzktp4YSlW5alzX4JkU=;
+        s=korg; t=1649153830;
+        bh=lxz+BQxzObui3/gEC8HfqBpX8a9uvR4SZ5egarfg99A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V6TxoMgu+35w5w1Ga6XEXrD4Y2goNM5jOljnineAyg3SQTtMXVDbVJYCNQs5g1/Ra
-         VPkawp1ZGhLTKoCI46LCgas4q/i4vNOpSq/77eQnGFNKo2eR965fiyDM3ggUTbh//S
-         3srYIioqc4VYdWzj3Tol9yND3xr/072mvd7EAwps=
+        b=JD3aqrciyUKv4RPOdGp0IzRRueRiphIT7e0mMNyd+SFU+GV7+eEOhoIVXrMPjRaLD
+         zl8g4zM5CiJ833EEZccGY2UJmx4pGfyVhRn2C6dpnqj2elEfwP3IVdPQhVc/RiieZt
+         7y7IONEJ7gGnhrMmdvINERfBkUdU7Rz95ekRG1wY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Bikash Hazarika <bhazarika@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.15 793/913] scsi: qla2xxx: Fix wrong FDMI data for 64G adapter
+        stable@vger.kernel.org, Derek Will <derekrobertwill@gmail.com>,
+        Oliver Hartkopp <socketcan@hartkopp.net>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 361/599] can: isotp: return -EADDRNOTAVAIL when reading from unbound socket
 Date:   Tue,  5 Apr 2022 09:30:55 +0200
-Message-Id: <20220405070403.603806154@linuxfoundation.org>
+Message-Id: <20220405070309.574325063@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070258.802373272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,40 +55,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bikash Hazarika <bhazarika@marvell.com>
+From: Oliver Hartkopp <socketcan@hartkopp.net>
 
-commit 1cfbbacbee2d6ea3816386a483e3c7a96e5bd657 upstream.
+[ Upstream commit 30ffd5332e06316bd69a654c06aa033872979b7c ]
 
-Corrected transmission speed mask values for FC.
+When reading from an unbound can-isotp socket the syscall blocked
+indefinitely. As unbound sockets (without given CAN address information)
+do not make sense anyway we directly return -EADDRNOTAVAIL on read()
+analogue to the known behavior from sendmsg().
 
-Supported Speed: 16 32 20 Gb/s ===> Should be 64 instead of 20
-Supported Speed: 16G 32G 48G   ===> Should be 64G instead of 48G
-
-Link: https://lore.kernel.org/r/20220110050218.3958-9-njavali@marvell.com
-Cc: stable@vger.kernel.org
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Bikash Hazarika <bhazarika@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: e057dd3fc20f ("can: add ISO 15765-2:2016 transport protocol")
+Link: https://github.com/linux-can/can-utils/issues/349
+Link: https://lore.kernel.org/all/20220316164258.54155-2-socketcan@hartkopp.net
+Suggested-by: Derek Will <derekrobertwill@gmail.com>
+Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_def.h |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ net/can/isotp.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/scsi/qla2xxx/qla_def.h
-+++ b/drivers/scsi/qla2xxx/qla_def.h
-@@ -2891,7 +2891,11 @@ struct ct_fdmi2_hba_attributes {
- #define FDMI_PORT_SPEED_8GB		0x10
- #define FDMI_PORT_SPEED_16GB		0x20
- #define FDMI_PORT_SPEED_32GB		0x40
--#define FDMI_PORT_SPEED_64GB		0x80
-+#define FDMI_PORT_SPEED_20GB		0x80
-+#define FDMI_PORT_SPEED_40GB		0x100
-+#define FDMI_PORT_SPEED_128GB		0x200
-+#define FDMI_PORT_SPEED_64GB		0x400
-+#define FDMI_PORT_SPEED_256GB		0x800
- #define FDMI_PORT_SPEED_UNKNOWN		0x8000
+diff --git a/net/can/isotp.c b/net/can/isotp.c
+index d0581dc6a65f..cb5546c186bc 100644
+--- a/net/can/isotp.c
++++ b/net/can/isotp.c
+@@ -1003,12 +1003,16 @@ static int isotp_recvmsg(struct socket *sock, struct msghdr *msg, size_t size,
+ {
+ 	struct sock *sk = sock->sk;
+ 	struct sk_buff *skb;
++	struct isotp_sock *so = isotp_sk(sk);
+ 	int err = 0;
+ 	int noblock;
  
- #define FC_CLASS_2	0x04
+ 	noblock = flags & MSG_DONTWAIT;
+ 	flags &= ~MSG_DONTWAIT;
+ 
++	if (!so->bound)
++		return -EADDRNOTAVAIL;
++
+ 	skb = skb_recv_datagram(sk, flags, noblock, &err);
+ 	if (!skb)
+ 		return err;
+-- 
+2.34.1
+
 
 
