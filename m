@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 17CFB4F3257
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:56:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F081C4F3007
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:20:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356217AbiDEKXa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:23:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38662 "EHLO
+        id S1356170AbiDEKXG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:23:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38666 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235451AbiDEJah (ORCPT
+        with ESMTP id S235427AbiDEJah (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:30:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B258E540B;
-        Tue,  5 Apr 2022 02:17:36 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0338E5414;
+        Tue,  5 Apr 2022 02:17:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6A830B80DA1;
-        Tue,  5 Apr 2022 09:17:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF260C385A0;
-        Tue,  5 Apr 2022 09:17:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4E7A1615E4;
+        Tue,  5 Apr 2022 09:17:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A9BDC385A3;
+        Tue,  5 Apr 2022 09:17:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150254;
-        bh=hkzJKH+9ntGpKLU8MpszvUYKaLGgVtdAemBPeotoG9c=;
+        s=korg; t=1649150259;
+        bh=6bkja0LTQHSZqPVobeIryLZm/EoL6/GJ5Tl85AYkTlQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0N1wQOGXpA8HR8aqqgBoGIJ0oCobM0S8YOlFV1spklCz1mxr6GsqDxsYPXkAVfjnP
-         BIyT5H6azdAY0mFFdxRcpZSyfl8knmAYPMlRlF6Tod7UCpoeQtkLmY7KeEF96Z7R9K
-         kd9BsRVIyGCosPB0/rFOFN5vUdwDJZf4ruftBIdM=
+        b=1mj3XuvF2/w29lPKccFcuHDwIEovtmFb1znAKobbCw11kL/YlnahWPJcaUmII9gXJ
+         k6uKbnMBmdmcXEtj60yWv+f8wXUWZpVteU3MHgAGZjhHnTH5RBmBD5gJCjG4wwk6+a
+         tSmb32LSCRNIDARieQaSrwDddgtiq9mYLyqVXxIA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Gabriel L. Somlo" <somlo@cmu.edu>,
-        Borislav Petkov <bp@alien8.de>, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.16 1010/1017] Revert "nbd: fix possible overflow on first_minor in nbd_dev_add()"
-Date:   Tue,  5 Apr 2022 09:32:03 +0200
-Message-Id: <20220405070424.178136408@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        kernel test robot <lkp@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.16 1012/1017] mmc: rtsx: Fix build errors/warnings for unused variable
+Date:   Tue,  5 Apr 2022 09:32:05 +0200
+Message-Id: <20220405070424.236537241@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -53,69 +55,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Ulf Hansson <ulf.hansson@linaro.org>
 
-commit 7198bfc2017644c6b92d2ecef9b8b8e0363bb5fd upstream.
+commit 3dd9a926ec2308e49445f22abef149fc64e9332e upstream.
 
-This reverts commit 6d35d04a9e18990040e87d2bbf72689252669d54.
+The struct device *dev, is no longer needed at various functions, let's
+therefore drop it to fix the build errors/warnings.
 
-Both Gabriel and Borislav report that this commit casues a regression
-with nbd:
-
-sysfs: cannot create duplicate filename '/dev/block/43:0'
-
-Revert it before 5.18-rc1 and we'll investigage this separately in
-due time.
-
-Link: https://lore.kernel.org/all/YkiJTnFOt9bTv6A2@zn.tnic/
-Reported-by: Gabriel L. Somlo <somlo@cmu.edu>
-Reported-by: Borislav Petkov <bp@alien8.de>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 7570fb41e450 ("mmc: rtsx: Let MMC core handle runtime PM")
+Cc: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Link: https://lore.kernel.org/r/20220301115300.64332-1-ulf.hansson@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/block/nbd.c |   24 ++++++++++++------------
- 1 file changed, 12 insertions(+), 12 deletions(-)
+ drivers/mmc/host/rtsx_pci_sdmmc.c |    6 ------
+ 1 file changed, 6 deletions(-)
 
---- a/drivers/block/nbd.c
-+++ b/drivers/block/nbd.c
-@@ -1800,6 +1800,17 @@ static struct nbd_device *nbd_dev_add(in
- 	refcount_set(&nbd->refs, 0);
- 	INIT_LIST_HEAD(&nbd->list);
- 	disk->major = NBD_MAJOR;
-+
-+	/* Too big first_minor can cause duplicate creation of
-+	 * sysfs files/links, since index << part_shift might overflow, or
-+	 * MKDEV() expect that the max bits of first_minor is 20.
-+	 */
-+	disk->first_minor = index << part_shift;
-+	if (disk->first_minor < index || disk->first_minor > MINORMASK) {
-+		err = -EINVAL;
-+		goto out_free_work;
-+	}
-+
- 	disk->minors = 1 << part_shift;
- 	disk->fops = &nbd_fops;
- 	disk->private_data = nbd;
-@@ -1904,19 +1915,8 @@ static int nbd_genl_connect(struct sk_bu
- 	if (!netlink_capable(skb, CAP_SYS_ADMIN))
- 		return -EPERM;
+--- a/drivers/mmc/host/rtsx_pci_sdmmc.c
++++ b/drivers/mmc/host/rtsx_pci_sdmmc.c
+@@ -806,7 +806,6 @@ static void sd_request(struct work_struc
+ 	struct mmc_request *mrq = host->mrq;
+ 	struct mmc_command *cmd = mrq->cmd;
+ 	struct mmc_data *data = mrq->data;
+-	struct device *dev = &host->pdev->dev;
  
--	if (info->attrs[NBD_ATTR_INDEX]) {
-+	if (info->attrs[NBD_ATTR_INDEX])
- 		index = nla_get_u32(info->attrs[NBD_ATTR_INDEX]);
--
--		/*
--		 * Too big first_minor can cause duplicate creation of
--		 * sysfs files/links, since index << part_shift might overflow, or
--		 * MKDEV() expect that the max bits of first_minor is 20.
--		 */
--		if (index < 0 || index > MINORMASK >> part_shift) {
--			printk(KERN_ERR "nbd: illegal input index %d\n", index);
--			return -EINVAL;
--		}
--	}
- 	if (!info->attrs[NBD_ATTR_SOCKETS]) {
- 		printk(KERN_ERR "nbd: must specify at least one socket\n");
- 		return -EINVAL;
+ 	unsigned int data_size = 0;
+ 	int err;
+@@ -1081,7 +1080,6 @@ static void sdmmc_set_ios(struct mmc_hos
+ {
+ 	struct realtek_pci_sdmmc *host = mmc_priv(mmc);
+ 	struct rtsx_pcr *pcr = host->pcr;
+-	struct device *dev = &host->pdev->dev;
+ 
+ 	if (host->eject)
+ 		return;
+@@ -1130,7 +1128,6 @@ static int sdmmc_get_ro(struct mmc_host
+ {
+ 	struct realtek_pci_sdmmc *host = mmc_priv(mmc);
+ 	struct rtsx_pcr *pcr = host->pcr;
+-	struct device *dev = &host->pdev->dev;
+ 	int ro = 0;
+ 	u32 val;
+ 
+@@ -1156,7 +1153,6 @@ static int sdmmc_get_cd(struct mmc_host
+ {
+ 	struct realtek_pci_sdmmc *host = mmc_priv(mmc);
+ 	struct rtsx_pcr *pcr = host->pcr;
+-	struct device *dev = &host->pdev->dev;
+ 	int cd = 0;
+ 	u32 val;
+ 
+@@ -1255,7 +1251,6 @@ static int sdmmc_switch_voltage(struct m
+ {
+ 	struct realtek_pci_sdmmc *host = mmc_priv(mmc);
+ 	struct rtsx_pcr *pcr = host->pcr;
+-	struct device *dev = &host->pdev->dev;
+ 	int err = 0;
+ 	u8 voltage;
+ 
+@@ -1308,7 +1303,6 @@ static int sdmmc_execute_tuning(struct m
+ {
+ 	struct realtek_pci_sdmmc *host = mmc_priv(mmc);
+ 	struct rtsx_pcr *pcr = host->pcr;
+-	struct device *dev = &host->pdev->dev;
+ 	int err = 0;
+ 
+ 	if (host->eject)
 
 
