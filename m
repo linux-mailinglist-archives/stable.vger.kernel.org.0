@@ -2,114 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CA414F47C0
-	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 01:43:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B9444F47D5
+	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 01:44:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232378AbiDEVU2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 17:20:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44158 "EHLO
+        id S1343717AbiDEVVp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 17:21:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42456 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385598AbiDEPPN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 11:15:13 -0400
-X-Greylist: delayed 1381 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 05 Apr 2022 06:31:49 PDT
-Received: from gateway23.websitewelcome.com (gateway23.websitewelcome.com [192.185.48.71])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B8C4262F
-        for <stable@vger.kernel.org>; Tue,  5 Apr 2022 06:31:48 -0700 (PDT)
-Received: from cm10.websitewelcome.com (cm10.websitewelcome.com [100.42.49.4])
-        by gateway23.websitewelcome.com (Postfix) with ESMTP id 05620151BF82
-        for <stable@vger.kernel.org>; Tue,  5 Apr 2022 08:08:47 -0500 (CDT)
-Received: from 162-215-252-75.unifiedlayer.com ([208.91.199.152])
-        by cmsmtp with SMTP
-        id bivOnHqWxRnrrbivOnJRtm; Tue, 05 Apr 2022 08:08:46 -0500
-X-Authority-Reason: nr=8
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=roeck-us.net; s=default; h=Content-Transfer-Encoding:Content-Type:
-        In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender
-        :Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
-        Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
-        List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=xz6VufNI4MnHhml5UwvXhoCvcF0yDshQWHa/HM/YqoA=; b=GqIHGIW2UMCJm1lZnmUjI7G1KT
-        5236zPjF59olbyzrTlyR57lC81eHcbU4XrSyA4o67ts9zDsg+y9lxc7tc/bcl4C+YIva53hNcLIMp
-        dSFv785YbqteL/2ibwlp7W3Z6qgFfEcGOTlrH7tsUxhAh33G+7iGE04TOABvusVHyQMebpb5f8hfZ
-        IhQ6I2QD3YFezPkSA5AGGTHMxruDvPqYQcBf4NGKno7TQVKkhcRHWUn8oE/NjBfe/5mvsCQiNwtFt
-        J6tPe7l6QiZOuObL2N4eKAb/MFi1Lpsxu8zj+IrSp0BQcgD4WYPUIRwZiEBmVgLUGPQgNElDMD2qe
-        rLqeUkQQ==;
-Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:54728)
-        by bh-25.webhostbox.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.94.2)
-        (envelope-from <linux@roeck-us.net>)
-        id 1nbivO-002i6Y-7O; Tue, 05 Apr 2022 13:08:46 +0000
-Message-ID: <e80a3eb4-335c-5f8c-dc22-e33176b225da@roeck-us.net>
-Date:   Tue, 5 Apr 2022 06:08:44 -0700
+        with ESMTP id S1384608AbiDEPO6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 11:14:58 -0400
+Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DDB93EA9A
+        for <stable@vger.kernel.org>; Tue,  5 Apr 2022 06:29:59 -0700 (PDT)
+Received: by mail-pj1-x1034.google.com with SMTP id 2so4701624pjw.2
+        for <stable@vger.kernel.org>; Tue, 05 Apr 2022 06:29:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=taii5VRMvjVJ1mPPn3HdZLqHVWoxT6IOzNO3e9Yh/fg=;
+        b=dNC9OXKMhC4/A5UPAGjLctqC3VXIFYy5c1NS6XLX+EasD1UZglcUdSiTwIo7mcGIsl
+         57u/cbbk9tfttNgc6H7mYiatqZUq7ZYS7MOjN4Ra8zqZGm5mLSrvbXzwTZgt3OfGZXc6
+         2yN1UHnUXOb7s7v9QI3f5UR2NdDQvkIxzELYzqkYSLhTyCrnKw9LQeiE3S9JPIlEQwr7
+         PT8mwCLVea7aonnTJb8fIIYsqjcvg/jKK6vXCxQH9DMZwdRI9Dk8rQUhUPJ3UbxkQCOE
+         VmOq2d3HjsnDS9xDVAH5xPsuLBQysWrSXMK303i5w/eK7/O129ClKrqwekNuYWTiaRNS
+         DE4g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=taii5VRMvjVJ1mPPn3HdZLqHVWoxT6IOzNO3e9Yh/fg=;
+        b=Nv1r6GwLuZ9IC9SE2bBiuMXpxMXPpvYXZLokHKIMjq9kFUjpXxyk8+oLmKUAZqh54s
+         fu39qzNQ0p+5w6zT9SYUd03Kzm0ctURwBgCZJzzmi0p2NHwuChWuuBcH3ScCarvEXAJ7
+         w10J/97qIhknLF2byOvZgUu/asIioWMzYkxi2o+3YJgv92qBqS+G5j5IgYd6iz8uPoKZ
+         pzX+WbxTcR4IKiWMS6/3Jo6BuE/VT9h9AdvS961x0TsWCxkBoOCaUahWHklWBEPsZS6l
+         cyUP7bysicKK/Uz65ncuNTpgnupgkzj3OXEYK1r0b1bRsqnDfhRxLJGJIoFTyDZCnhgz
+         L2xg==
+X-Gm-Message-State: AOAM531aH0q/9c+feM234E4np5724+m7Wg+QClBD/DdpbgzjNGm7fsa3
+        haqLfUYKd8gP5qVDkHIsH7p5JPzGt/cZzna8Hck=
+X-Google-Smtp-Source: ABdhPJwJ8Aowm71NcCKrTY8pHNXCq5jEbsxZHCse9L81N13o7RbV8TZ/KcgVNhFjDAJbddt2xgL7xA==
+X-Received: by 2002:a17:90a:d3d3:b0:1bf:2e8d:3175 with SMTP id d19-20020a17090ad3d300b001bf2e8d3175mr4221810pjw.2.1649165398620;
+        Tue, 05 Apr 2022 06:29:58 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id q28-20020a63751c000000b00398da17dcffsm2468816pgc.58.2022.04.05.06.29.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 05 Apr 2022 06:29:58 -0700 (PDT)
+Message-ID: <624c4456.1c69fb81.bab03.6762@mx.google.com>
+Date:   Tue, 05 Apr 2022 06:29:58 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.7.0
-Subject: Re: [PATCH 5.10 000/599] 5.10.110-rc1 review
-Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-References: <20220405070258.802373272@linuxfoundation.org>
-From:   Guenter Roeck <linux@roeck-us.net>
-In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - bh-25.webhostbox.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - roeck-us.net
-X-BWhitelist: no
-X-Source-IP: 108.223.40.66
-X-Source-L: No
-X-Exim-ID: 1nbivO-002i6Y-7O
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net [108.223.40.66]:54728
-X-Source-Auth: linux@roeck-us.net
-X-Email-Count: 11
-X-Source-Cap: cm9lY2s7YWN0aXZzdG07YmgtMjUud2ViaG9zdGJveC5uZXQ=
-X-Local-Domain: yes
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_PASS,SPF_SOFTFAIL,T_SCC_BODY_TEXT_LINE autolearn=no
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Kernel: v4.19.237-258-g1376b0e9d2319
+X-Kernelci-Report-Type: test
+Subject: stable-rc/linux-4.19.y baseline: 34 runs,
+ 1 regressions (v4.19.237-258-g1376b0e9d2319)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 4/5/22 00:24, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.110 release.
-> There are 599 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Thu, 07 Apr 2022 07:01:33 +0000.
-> Anything received after that time might be too late.
-> 
+stable-rc/linux-4.19.y baseline: 34 runs, 1 regressions (v4.19.237-258-g137=
+6b0e9d2319)
 
-Building um:defconfig ... failed
-Building csky:defconfig ... failed
-Building microblaze:mmu_defconfig ... failed
-------
-Error log:
+Regressions Summary
+-------------------
 
-fs/binfmt_elf.c: In function 'fill_note_info':
-fs/binfmt_elf.c:2050:45: error: 'siginfo' undeclared (first use in this function)
-  2050 |                 sz = elf_dump_thread_status(siginfo->si_signo, ets);
-       |                                             ^~~~~~~
-fs/binfmt_elf.c:2050:45: note: each undeclared identifier is reported only once for each function it appears in
-fs/binfmt_elf.c:2056:53: error: 'regs' undeclared (first use in this function)
-  2056 |         elf_core_copy_regs(&info->prstatus->pr_reg, regs);
-       |                                                     ^~~~
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 1          =
 
-Build just started, so there are likely going to be more failures.
 
-Guenter
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.19.y/ker=
+nel/v4.19.237-258-g1376b0e9d2319/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.19.y
+  Describe: v4.19.237-258-g1376b0e9d2319
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      1376b0e9d23193f0dff6107fba4c042b338b5676 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/624c1a6840e9d850beae06a4
+
+  Results:     83 PASS, 7 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
+37-258-g1376b0e9d2319/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora=
+/baseline-rk3399-gru-kevin.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
+37-258-g1376b0e9d2319/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora=
+/baseline-rk3399-gru-kevin.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220401.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
+/624c1a6840e9d850beae06c4
+        failing since 29 days (last pass: v4.19.232, first fail: v4.19.232-=
+45-g5da8d73687e7)
+
+    2022-04-05T10:30:47.422798  <8>[   35.918459] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Drockchip-i2s0-probed RESULT=3Dpass>
+    2022-04-05T10:30:48.439348  /lava-6025435/1/../bin/lava-test-case   =
+
+ =20
