@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DDB674F2738
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:07:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C81C4F27B5
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:08:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233230AbiDEIFZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:05:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55910 "EHLO
+        id S233543AbiDEIIK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:08:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57654 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235634AbiDEH74 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:59:56 -0400
+        with ESMTP id S235657AbiDEH77 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:59:59 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A235C1AF3A;
-        Tue,  5 Apr 2022 00:56:36 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FA931CB3C;
+        Tue,  5 Apr 2022 00:57:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4EF32B81B18;
-        Tue,  5 Apr 2022 07:56:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A454FC340EE;
-        Tue,  5 Apr 2022 07:56:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 00692B81B90;
+        Tue,  5 Apr 2022 07:57:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55B94C340EE;
+        Tue,  5 Apr 2022 07:57:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145394;
-        bh=DuYmSyEzedX7U/nY9Gg5hYz0dMAKEediBXzyg56hMdA=;
+        s=korg; t=1649145424;
+        bh=crWXL8M3ZbJbxnQixr9aRZM4fdsgYuS+RPOQpMn+idA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qav+hcWE46twwS5cupmpMzvQ03YCwF2/LUhMBY8J5nT6a8PwnWOWSRqVDe8WgHBt/
-         taXYdMtS42+jxhD2usR7LdI/LdpRkxkK2KUMTOCpCCgKVvg64MdKLFlN/hxwSsritH
-         LdzL8mrAZNZ2OKs6vkgrDBpP5AYSo9uCvHoyL00Q=
+        b=NrOjOaXorXTEc1lp/q7/RJZ+t1j/v9Ba2NyDs5Pufx9PjnHrQt6O67e4TN+z1IDl1
+         Ck7Ic7KGDIpz1XisbIAdVgyDUXnVoiiI5CK6Q4LINtzw9pwLeqA/4iDrVBcOKNCBE/
+         KB+2arXbQnyp9JNe5s7D5x72ILAXB1/41gGdY3Ac=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0382/1126] ASoC: atmel_ssc_dai: Handle errors for clk_enable
-Date:   Tue,  5 Apr 2022 09:18:49 +0200
-Message-Id: <20220405070418.838826040@linuxfoundation.org>
+Subject: [PATCH 5.17 0383/1126] ASoC: dwc-i2s: Handle errors for clk_enable
+Date:   Tue,  5 Apr 2022 09:18:50 +0200
+Message-Id: <20220405070418.868555065@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -56,36 +56,57 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit f9e2ca0640e59d19af0ff285ee5591ed39069b09 ]
+[ Upstream commit 45ea97d74313bae681328b0c36fa348036777644 ]
 
 As the potential failure of the clk_enable(),
-it should be better to check it and return error if fals.
+it should be better to check it, as same as clk_prepare_enable().
 
-Fixes: cbaadf0f90d6 ("ASoC: atmel_ssc_dai: refactor the startup and shutdown")
+Fixes: c9afc1834e81 ("ASoC: dwc: Disallow building designware_pcm as a module")
 Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Link: https://lore.kernel.org/r/20220301090637.3776558-1-jiasheng@iscas.ac.cn
+Link: https://lore.kernel.org/r/20220301084742.3751939-1-jiasheng@iscas.ac.cn
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/atmel/atmel_ssc_dai.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ sound/soc/dwc/dwc-i2s.c | 17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
 
-diff --git a/sound/soc/atmel/atmel_ssc_dai.c b/sound/soc/atmel/atmel_ssc_dai.c
-index 26e2bc690d86..c1dea8d62416 100644
---- a/sound/soc/atmel/atmel_ssc_dai.c
-+++ b/sound/soc/atmel/atmel_ssc_dai.c
-@@ -280,7 +280,10 @@ static int atmel_ssc_startup(struct snd_pcm_substream *substream,
+diff --git a/sound/soc/dwc/dwc-i2s.c b/sound/soc/dwc/dwc-i2s.c
+index 5cb58929090d..1edac3e10f34 100644
+--- a/sound/soc/dwc/dwc-i2s.c
++++ b/sound/soc/dwc/dwc-i2s.c
+@@ -403,9 +403,13 @@ static int dw_i2s_runtime_suspend(struct device *dev)
+ static int dw_i2s_runtime_resume(struct device *dev)
+ {
+ 	struct dw_i2s_dev *dw_dev = dev_get_drvdata(dev);
++	int ret;
  
- 	/* Enable PMC peripheral clock for this SSC */
- 	pr_debug("atmel_ssc_dai: Starting clock\n");
--	clk_enable(ssc_p->ssc->clk);
-+	ret = clk_enable(ssc_p->ssc->clk);
-+	if (ret)
-+		return ret;
-+
- 	ssc_p->mck_rate = clk_get_rate(ssc_p->ssc->clk);
+-	if (dw_dev->capability & DW_I2S_MASTER)
+-		clk_enable(dw_dev->clk);
++	if (dw_dev->capability & DW_I2S_MASTER) {
++		ret = clk_enable(dw_dev->clk);
++		if (ret)
++			return ret;
++	}
+ 	return 0;
+ }
  
- 	/* Reset the SSC unless initialized to keep it in a clean state */
+@@ -422,10 +426,13 @@ static int dw_i2s_resume(struct snd_soc_component *component)
+ {
+ 	struct dw_i2s_dev *dev = snd_soc_component_get_drvdata(component);
+ 	struct snd_soc_dai *dai;
+-	int stream;
++	int stream, ret;
+ 
+-	if (dev->capability & DW_I2S_MASTER)
+-		clk_enable(dev->clk);
++	if (dev->capability & DW_I2S_MASTER) {
++		ret = clk_enable(dev->clk);
++		if (ret)
++			return ret;
++	}
+ 
+ 	for_each_component_dais(component, dai) {
+ 		for_each_pcm_streams(stream)
 -- 
 2.34.1
 
