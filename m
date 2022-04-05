@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 728214F2ED5
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:04:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A837D4F314D
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:42:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238341AbiDEJys (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:54:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58014 "EHLO
+        id S1350111AbiDEJyw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:54:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36616 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343819AbiDEJOa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:14:30 -0400
+        with ESMTP id S1343837AbiDEJOl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:14:41 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D49643493;
-        Tue,  5 Apr 2022 02:00:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E02647394;
+        Tue,  5 Apr 2022 02:00:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 07A80614E4;
-        Tue,  5 Apr 2022 09:00:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19CD8C385A3;
-        Tue,  5 Apr 2022 09:00:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DC9E761003;
+        Tue,  5 Apr 2022 09:00:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C93BFC385A0;
+        Tue,  5 Apr 2022 09:00:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149244;
-        bh=/4hjeViN+EfUTKzkf5o0XiMashHr4EoRfdRaBYxu8NU=;
+        s=korg; t=1649149247;
+        bh=3LxEPkMJu4WUWNwLsa7IzbFHRo3wh5QvDBNDMq0dVUQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t/hLstPBRRs4z//bdtHEPbMcwUEEL7rz6sGsGXm02vp/RHX3A4ZNowMu+3vvdLK9o
-         +p8YbVPODw0r3TPzUBb0IOx6+yn7Qdof+pKtTxyF1HraYGhKUMZFo9EWnEmquJRQB/
-         Okh0Jo7pQzh3ADvetKBGoLKy1N3DDrOItzY7zcss=
+        b=gi8JsFgOqiYj0cSmg7JI3vdc7y6fjOu5X3XAWsZsuzPMVQIDaF0x19BGkbDWS1OR5
+         BELJiE/9xpRc6CIrI/ZYF67qV07654baFVNgERT7poXg4F46mmhuiyrruXWNkgjIaB
+         7+aDFnzXWjAOANfr2kHWkpbx52LOstLrKr7upBc4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Thierry Reding <thierry.reding@gmail.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Rodolfo Giometti <giometti@enneenne.com>,
+        Robert Hancock <robert.hancock@calian.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0647/1017] pwm: lpc18xx-sct: Initialize driver data and hardware before pwmchip_add()
-Date:   Tue,  5 Apr 2022 09:26:00 +0200
-Message-Id: <20220405070413.488705405@linuxfoundation.org>
+Subject: [PATCH 5.16 0648/1017] pps: clients: gpio: Propagate return value from pps_gpio_probe
+Date:   Tue,  5 Apr 2022 09:26:01 +0200
+Message-Id: <20220405070413.518743808@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -56,77 +56,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Robert Hancock <robert.hancock@calian.com>
 
-[ Upstream commit 0401f24cd238ae200a23a13925f98de3d2c883b8 ]
+[ Upstream commit abaca3179b41d4b3b115f27814ee36f6fb45e897 ]
 
-When a driver calls pwmchip_add() it has to be prepared to immediately
-get its callbacks called. So move allocation of driver data and hardware
-initialization before the call to pwmchip_add().
+If the pps-gpio driver was probed prior to the GPIO device it uses, the
+devm_gpiod_get call returned an -EPROBE_DEFER error, but pps_gpio_probe
+replaced that error code with -EINVAL, causing the pps-gpio probe to
+fail and not be retried later. Propagate the error return value so that
+deferred probe works properly.
 
-This fixes a potential NULL pointer exception and a race condition on
-register writes.
-
-Fixes: 841e6f90bb78 ("pwm: NXP LPC18xx PWM/SCT driver")
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
+Fixes: 161520451dfa (pps: new client driver using GPIO)
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Acked-by: Rodolfo Giometti <giometti@enneenne.com>
+Signed-off-by: Robert Hancock <robert.hancock@calian.com>
+Signed-off-by: Rodolfo Giometti <giometti@enneenne.com>
+Link: https://lore.kernel.org/r/20220112205214.2060954-1-robert.hancock@calian.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pwm/pwm-lpc18xx-sct.c | 20 +++++++++-----------
- 1 file changed, 9 insertions(+), 11 deletions(-)
+ drivers/pps/clients/pps-gpio.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/pwm/pwm-lpc18xx-sct.c b/drivers/pwm/pwm-lpc18xx-sct.c
-index 8e461f3baa05..8cc8ae16553c 100644
---- a/drivers/pwm/pwm-lpc18xx-sct.c
-+++ b/drivers/pwm/pwm-lpc18xx-sct.c
-@@ -395,12 +395,6 @@ static int lpc18xx_pwm_probe(struct platform_device *pdev)
- 	lpc18xx_pwm_writel(lpc18xx_pwm, LPC18XX_PWM_LIMIT,
- 			   BIT(lpc18xx_pwm->period_event));
+diff --git a/drivers/pps/clients/pps-gpio.c b/drivers/pps/clients/pps-gpio.c
+index 35799e6401c9..2f4b11b4dfcd 100644
+--- a/drivers/pps/clients/pps-gpio.c
++++ b/drivers/pps/clients/pps-gpio.c
+@@ -169,7 +169,7 @@ static int pps_gpio_probe(struct platform_device *pdev)
+ 	/* GPIO setup */
+ 	ret = pps_gpio_setup(dev);
+ 	if (ret)
+-		return -EINVAL;
++		return ret;
  
--	ret = pwmchip_add(&lpc18xx_pwm->chip);
--	if (ret < 0) {
--		dev_err(&pdev->dev, "pwmchip_add failed: %d\n", ret);
--		goto disable_pwmclk;
--	}
--
- 	for (i = 0; i < lpc18xx_pwm->chip.npwm; i++) {
- 		struct lpc18xx_pwm_data *data;
- 
-@@ -410,14 +404,12 @@ static int lpc18xx_pwm_probe(struct platform_device *pdev)
- 				    GFP_KERNEL);
- 		if (!data) {
- 			ret = -ENOMEM;
--			goto remove_pwmchip;
-+			goto disable_pwmclk;
- 		}
- 
- 		pwm_set_chip_data(pwm, data);
- 	}
- 
--	platform_set_drvdata(pdev, lpc18xx_pwm);
--
- 	val = lpc18xx_pwm_readl(lpc18xx_pwm, LPC18XX_PWM_CTRL);
- 	val &= ~LPC18XX_PWM_BIDIR;
- 	val &= ~LPC18XX_PWM_CTRL_HALT;
-@@ -425,10 +417,16 @@ static int lpc18xx_pwm_probe(struct platform_device *pdev)
- 	val |= LPC18XX_PWM_PRE(0);
- 	lpc18xx_pwm_writel(lpc18xx_pwm, LPC18XX_PWM_CTRL, val);
- 
-+	ret = pwmchip_add(&lpc18xx_pwm->chip);
-+	if (ret < 0) {
-+		dev_err(&pdev->dev, "pwmchip_add failed: %d\n", ret);
-+		goto disable_pwmclk;
-+	}
-+
-+	platform_set_drvdata(pdev, lpc18xx_pwm);
-+
- 	return 0;
- 
--remove_pwmchip:
--	pwmchip_remove(&lpc18xx_pwm->chip);
- disable_pwmclk:
- 	clk_disable_unprepare(lpc18xx_pwm->pwm_clk);
- 	return ret;
+ 	/* IRQ setup */
+ 	ret = gpiod_to_irq(data->gpio_pin);
 -- 
 2.34.1
 
