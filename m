@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4050C4F32D3
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:00:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86A074F3124
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:39:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348851AbiDEKtZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:49:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41746 "EHLO
+        id S1347816AbiDEJ22 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:28:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46132 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344131AbiDEJmA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:42:00 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69218BD886;
-        Tue,  5 Apr 2022 02:27:36 -0700 (PDT)
+        with ESMTP id S244935AbiDEIws (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:48 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 712AA2497B;
+        Tue,  5 Apr 2022 01:47:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F1F9E61659;
-        Tue,  5 Apr 2022 09:27:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1050FC385A2;
-        Tue,  5 Apr 2022 09:27:34 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id E2F67CE1BF8;
+        Tue,  5 Apr 2022 08:47:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B55FC385A0;
+        Tue,  5 Apr 2022 08:47:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150855;
-        bh=ZFT8Mc3bL9hDAzC31BSMLz9UOKn7pel1DMWpUYQe7kA=;
+        s=korg; t=1649148424;
+        bh=xn5XjbNCQIGn7W+2fCIddx6tTuzdQS5XIwMYVgOCU0w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FI1eDD4NOPByExCp8MWxgPlpGcE7SOzf0hPRhal3fgyCkktz52eHZQxzRwMHjc8PP
-         UDEyk1kBLkY1WFO16HDc5uPANtpzlMn74USxor7C3ttQnQxUBUr/UdXIBsrDoColWM
-         JNO/+XmzUl13xWr8YEefMxwTNrQWZZ+O1YKcC+Uw=
+        b=lrCvAhXeYtYjZ91DWxHgAVaOctnG6sar4HSflSOmW8WTs2iYw8/kDA99ybcMSIDRd
+         yBjxriaZv21RH31rsaGfC3m7EmkpiO2mcj5/wHCKdTkJNwLKDT8f3/pkjOQ2mGCHAY
+         +JwFutddT6XESSWbRLDwsq0p4huK1PSepzijEYuw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jianyong Wu <jianyong.wu@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 204/913] arm64/mm: avoid fixmap race condition when create pud mapping
+        stable@vger.kernel.org, Aswath Govindraju <a-govindraju@ti.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0353/1017] mmc: sdhci_am654: Fix the driver data of AM64 SoC
 Date:   Tue,  5 Apr 2022 09:21:06 +0200
-Message-Id: <20220405070345.974323986@linuxfoundation.org>
+Message-Id: <20220405070404.762768265@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,73 +54,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jianyong Wu <jianyong.wu@arm.com>
+From: Aswath Govindraju <a-govindraju@ti.com>
 
-[ Upstream commit ee017ee353506fcec58e481673e4331ff198a80e ]
+[ Upstream commit 3b7340f1c89cc488e4df0b033bf7ae502ebbf5b2 ]
 
-The 'fixmap' is a global resource and is used recursively by
-create pud mapping(), leading to a potential race condition in the
-presence of a concurrent call to alloc_init_pud():
+The MMCSD IPs used in AM64 are the same as the ones used in J721E.
+Therefore, fix this by using the driver data from J721E for AM64 too, for
+both 8 and 4 bit instances.
 
-kernel_init thread                          virtio-mem workqueue thread
-==================                          ===========================
-
-  alloc_init_pud(...)                       alloc_init_pud(...)
-  pudp = pud_set_fixmap_offset(...)         pudp = pud_set_fixmap_offset(...)
-  READ_ONCE(*pudp)
-  pud_clear_fixmap(...)
-                                            READ_ONCE(*pudp) // CRASH!
-
-As kernel may sleep during creating pud mapping, introduce a mutex lock to
-serialise use of the fixmap entries by alloc_init_pud(). However, there is
-no need for locking in early boot stage and it doesn't work well with
-KASLR enabled when early boot. So, enable lock when system_state doesn't
-equal to "SYSTEM_BOOTING".
-
-Signed-off-by: Jianyong Wu <jianyong.wu@arm.com>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Fixes: f4710445458c ("arm64: mm: use fixmap when creating page tables")
-Link: https://lore.kernel.org/r/20220201114400.56885-1-jianyong.wu@arm.com
-Signed-off-by: Will Deacon <will@kernel.org>
+Fixes: 754b7f2f7d2a ("mmc: sdhci_am654: Add Support for TI's AM64 SoC")
+Signed-off-by: Aswath Govindraju <a-govindraju@ti.com>
+Link: https://lore.kernel.org/r/20220211075056.26179-1-a-govindraju@ti.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/mm/mmu.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/mmc/host/sdhci_am654.c | 24 ++----------------------
+ 1 file changed, 2 insertions(+), 22 deletions(-)
 
-diff --git a/arch/arm64/mm/mmu.c b/arch/arm64/mm/mmu.c
-index 9d0380631690..03aa6bee7dae 100644
---- a/arch/arm64/mm/mmu.c
-+++ b/arch/arm64/mm/mmu.c
-@@ -63,6 +63,7 @@ static pmd_t bm_pmd[PTRS_PER_PMD] __page_aligned_bss __maybe_unused;
- static pud_t bm_pud[PTRS_PER_PUD] __page_aligned_bss __maybe_unused;
+diff --git a/drivers/mmc/host/sdhci_am654.c b/drivers/mmc/host/sdhci_am654.c
+index f654afbe8e83..b4891bb26648 100644
+--- a/drivers/mmc/host/sdhci_am654.c
++++ b/drivers/mmc/host/sdhci_am654.c
+@@ -514,26 +514,6 @@ static const struct sdhci_am654_driver_data sdhci_j721e_4bit_drvdata = {
+ 	.flags = IOMUX_PRESENT,
+ };
  
- static DEFINE_SPINLOCK(swapper_pgdir_lock);
-+static DEFINE_MUTEX(fixmap_lock);
- 
- void set_swapper_pgd(pgd_t *pgdp, pgd_t pgd)
- {
-@@ -328,6 +329,12 @@ static void alloc_init_pud(pgd_t *pgdp, unsigned long addr, unsigned long end,
- 	}
- 	BUG_ON(p4d_bad(p4d));
- 
-+	/*
-+	 * No need for locking during early boot. And it doesn't work as
-+	 * expected with KASLR enabled.
-+	 */
-+	if (system_state != SYSTEM_BOOTING)
-+		mutex_lock(&fixmap_lock);
- 	pudp = pud_set_fixmap_offset(p4dp, addr);
- 	do {
- 		pud_t old_pud = READ_ONCE(*pudp);
-@@ -358,6 +365,8 @@ static void alloc_init_pud(pgd_t *pgdp, unsigned long addr, unsigned long end,
- 	} while (pudp++, addr = next, addr != end);
- 
- 	pud_clear_fixmap();
-+	if (system_state != SYSTEM_BOOTING)
-+		mutex_unlock(&fixmap_lock);
- }
- 
- static void __create_pgd_mapping(pgd_t *pgdir, phys_addr_t phys,
+-static const struct sdhci_pltfm_data sdhci_am64_8bit_pdata = {
+-	.ops = &sdhci_j721e_8bit_ops,
+-	.quirks2 = SDHCI_QUIRK2_PRESET_VALUE_BROKEN,
+-};
+-
+-static const struct sdhci_am654_driver_data sdhci_am64_8bit_drvdata = {
+-	.pdata = &sdhci_am64_8bit_pdata,
+-	.flags = DLL_PRESENT | DLL_CALIB,
+-};
+-
+-static const struct sdhci_pltfm_data sdhci_am64_4bit_pdata = {
+-	.ops = &sdhci_j721e_4bit_ops,
+-	.quirks2 = SDHCI_QUIRK2_PRESET_VALUE_BROKEN,
+-};
+-
+-static const struct sdhci_am654_driver_data sdhci_am64_4bit_drvdata = {
+-	.pdata = &sdhci_am64_4bit_pdata,
+-	.flags = IOMUX_PRESENT,
+-};
+-
+ static const struct soc_device_attribute sdhci_am654_devices[] = {
+ 	{ .family = "AM65X",
+ 	  .revision = "SR1.0",
+@@ -759,11 +739,11 @@ static const struct of_device_id sdhci_am654_of_match[] = {
+ 	},
+ 	{
+ 		.compatible = "ti,am64-sdhci-8bit",
+-		.data = &sdhci_am64_8bit_drvdata,
++		.data = &sdhci_j721e_8bit_drvdata,
+ 	},
+ 	{
+ 		.compatible = "ti,am64-sdhci-4bit",
+-		.data = &sdhci_am64_4bit_drvdata,
++		.data = &sdhci_j721e_4bit_drvdata,
+ 	},
+ 	{ /* sentinel */ }
+ };
 -- 
 2.34.1
 
