@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A3DA34F28CB
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:22:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 228E24F28CD
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:22:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233226AbiDEIWx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:22:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41720 "EHLO
+        id S233555AbiDEIXA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:23:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56226 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235027AbiDEIOp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:14:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57F3D9D0E1;
-        Tue,  5 Apr 2022 01:03:16 -0700 (PDT)
+        with ESMTP id S235555AbiDEIQP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:16:15 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA1F4B0A;
+        Tue,  5 Apr 2022 01:03:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B26F61684;
-        Tue,  5 Apr 2022 08:03:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5E5BC385A3;
-        Tue,  5 Apr 2022 08:03:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0678EB81B18;
+        Tue,  5 Apr 2022 08:03:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CBF7C385A4;
+        Tue,  5 Apr 2022 08:03:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145795;
-        bh=k43HI1oa+1ay+oQjwrj4y1FFW04YWbKgIhD+6XlwZdk=;
+        s=korg; t=1649145805;
+        bh=0tnG8i1GQZyMXsloxwbwqj8+PZOJC5u1shC/sV5xwUI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tQTFSQ/RioE/keFYc6rAfshcuiwf8WZPKLQ5ntX6GTFdicRImtJReBohnYaUToybr
-         bdomr0XOV1fv3EmbJL1BzKimvCxO3G3JE2H7rDjYYTLPyfwsy+NhszBY2Ybhz08IVt
-         BNZ/4ozoke63njsGcb3NzaoYkdlRkj5J4ZkTyiTA=
+        b=P28+5NtjyB9voUKMtNgmPLEYCmN4heGynhANqT+F1T38ETlUHiFy94OdyjqGPJKJc
+         rd1T7Gn02UfYto2ajKX27HzGulTKGjNToEZVA4AuBIpWf50/7wosecBCVxcvq7I9il
+         mqSxeKSfpf/X5XUnDJrl5bT2pL0MeQg/q6eGaMlE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        =?UTF-8?q?Alex=20Benn=C3=A9e?= <alex.bennee@linaro.org>,
-        Ben Widawsky <ben.widawsky@intel.com>,
-        Dan Williams <dan.j.williams@intel.com>,
+        stable@vger.kernel.org, Andrii Nakryiko <andrii@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0532/1126] cxl/regs: Fix size of CXL Capability Header Register
-Date:   Tue,  5 Apr 2022 09:21:19 +0200
-Message-Id: <20220405070423.246673251@linuxfoundation.org>
+Subject: [PATCH 5.17 0535/1126] libbpf: Fix compilation warning due to mismatched printf format
+Date:   Tue,  5 Apr 2022 09:21:22 +0200
+Message-Id: <20220405070423.334924018@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -57,69 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Andrii Nakryiko <andrii@kernel.org>
 
-[ Upstream commit 74b0fe80409733055971bbfaf33c80a33fddeeb3 ]
+[ Upstream commit dc37dc617fabfb1c3a16d49f5d8cc20e9e3608ca ]
 
-In CXL 2.0, 8.2.5.1 CXL Capability Header Register: this register
-is given as 32 bits.
+On ppc64le architecture __s64 is long int and requires %ld. Cast to
+ssize_t and use %zd to avoid architecture-specific specifiers.
 
-8.2.3 which covers the CXL 2.0 Component registers, including the
-CXL Capability Header Register states that access restrictions
-specified in Section 8.2.2 apply.
-
-8.2.2 includes:
-* A 32 bit register shall be accessed as a 4 Byte quantity.
-...
-If these rules are not followed, the behavior is undefined.
-
-Discovered during review of CXL QEMU emulation. Alex Bennée pointed
-out there was a comment saying that 4 byte registers must be read
-with a 4 byte read, but 8 byte reads were being emulated.
-
-https://lore.kernel.org/qemu-devel/87bkzyd3c7.fsf@linaro.org/
-
-Fixing that, led to this code failing. Whilst a given hardware
-implementation 'might' work with an 8 byte read, it should not be relied
-upon. The QEMU emulation v5 will return 0 and log the wrong access width.
-
-The code moved, so one fixes tag for where this will directly apply and
-also a reference to the earlier introduction of the code for backports.
-
-Fixes: 0f06157e0135 ("cxl/core: Move register mapping infrastructure")
-Fixes: 08422378c4ad ("cxl/pci: Add HDM decoder capabilities")
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: Alex Bennée <alex.bennee@linaro.org>
-Reviewed-by: Ben Widawsky <ben.widawsky@intel.com>
-Link: https://lore.kernel.org/r/20220201153437.2873-1-Jonathan.Cameron@huawei.com
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Fixes: 4172843ed4a3 ("libbpf: Fix signedness bug in btf_dump_array_data()")
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20220209063909.1268319-1-andrii@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cxl/core/regs.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ tools/lib/bpf/btf_dump.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/cxl/core/regs.c b/drivers/cxl/core/regs.c
-index cdc0b75d94f2..6a18ff8739e0 100644
---- a/drivers/cxl/core/regs.c
-+++ b/drivers/cxl/core/regs.c
-@@ -35,7 +35,7 @@ void cxl_probe_component_regs(struct device *dev, void __iomem *base,
- 			      struct cxl_component_reg_map *map)
- {
- 	int cap, cap_count;
--	u64 cap_array;
-+	u32 cap_array;
+diff --git a/tools/lib/bpf/btf_dump.c b/tools/lib/bpf/btf_dump.c
+index 55aed9e398c3..07ebe70d3a30 100644
+--- a/tools/lib/bpf/btf_dump.c
++++ b/tools/lib/bpf/btf_dump.c
+@@ -1869,7 +1869,8 @@ static int btf_dump_array_data(struct btf_dump *d,
+ 	elem_type = skip_mods_and_typedefs(d->btf, elem_type_id, NULL);
+ 	elem_size = btf__resolve_size(d->btf, elem_type_id);
+ 	if (elem_size <= 0) {
+-		pr_warn("unexpected elem size %lld for array type [%u]\n", elem_size, id);
++		pr_warn("unexpected elem size %zd for array type [%u]\n",
++			(ssize_t)elem_size, id);
+ 		return -EINVAL;
+ 	}
  
- 	*map = (struct cxl_component_reg_map) { 0 };
- 
-@@ -45,7 +45,7 @@ void cxl_probe_component_regs(struct device *dev, void __iomem *base,
- 	 */
- 	base += CXL_CM_OFFSET;
- 
--	cap_array = readq(base + CXL_CM_CAP_HDR_OFFSET);
-+	cap_array = readl(base + CXL_CM_CAP_HDR_OFFSET);
- 
- 	if (FIELD_GET(CXL_CM_CAP_HDR_ID_MASK, cap_array) != CM_CAP_HDR_CAP_ID) {
- 		dev_err(dev,
 -- 
 2.34.1
 
