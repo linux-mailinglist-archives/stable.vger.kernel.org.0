@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 560134F2A32
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 12:53:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E28BB4F2A81
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:04:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347570AbiDEJ1f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:27:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46546 "EHLO
+        id S244709AbiDEKjF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:39:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58740 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244148AbiDEIvn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:51:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE780D3AC1;
-        Tue,  5 Apr 2022 01:40:26 -0700 (PDT)
+        with ESMTP id S238903AbiDEJdC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:33:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A013DB;
+        Tue,  5 Apr 2022 02:20:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C8EC86154A;
-        Tue,  5 Apr 2022 08:39:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D757DC385A4;
-        Tue,  5 Apr 2022 08:39:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2F041B81B75;
+        Tue,  5 Apr 2022 09:20:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E5E8C385A3;
+        Tue,  5 Apr 2022 09:20:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147994;
-        bh=zRmSmzz9vDRdCW6CbMwaehqfUXppBLkYD3vwE3+vKG0=;
+        s=korg; t=1649150420;
+        bh=hiepfgHCUoOr2gSHKgyDZg8utOmO3xMK1AQWFOpqwto=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dgNUj+HkMMGLJY1wM4aPdBqUb9LS6Udng9+3pEe+/eeEkb/ufActWOngP0Pq4sWb2
-         mMPv0QVUsq4fh/9vLwawQFghT6fO0641ddAWs6nMv0Uvm7frdPxguhQQZfmG0ExdNG
-         5ZzR1EPmOukj9WHLgULGydyWyiwDRV8ENcvvS0Ts=
+        b=cxGp3D6HN6wXyYpj8xegz+HJikfjf4v5a4G1h50RgsGke9vykPLgUYa1FKl8PMHaM
+         nRb4dzySLrMOS/6sCsqtICCq3pQsf5uwDpdz0N2oKbjp/JcgysYowlFpPXQyWrT0hd
+         5da+IYY9ofhCuJPMmrkJN4XftOA5DHDfk+oVnrug=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Rob Herring <robh@kernel.org>,
-        Richard Zhu <hongxing.zhu@nxp.com>
-Subject: [PATCH 5.16 0197/1017] PCI: imx6: Allow to probe when dw_pcie_wait_for_link() fails
-Date:   Tue,  5 Apr 2022 09:18:30 +0200
-Message-Id: <20220405070400.095326941@linuxfoundation.org>
+        stable@vger.kernel.org, Quentin Schulz <foss+kernel@0leil.net>,
+        Quentin Schulz <quentin.schulz@theobroma-systems.com>,
+        Heiko Stuebner <heiko@sntech.de>
+Subject: [PATCH 5.15 050/913] clk: rockchip: re-add rational best approximation algorithm to the fractional divider
+Date:   Tue,  5 Apr 2022 09:18:32 +0200
+Message-Id: <20220405070341.320272822@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,80 +54,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabio Estevam <festevam@gmail.com>
+From: Quentin Schulz <quentin.schulz@theobroma-systems.com>
 
-commit f81f095e87715e198471f4653952fe5e3f824874 upstream.
+commit 10b74af310735860510a533433b1d3ab2e05a138 upstream.
 
-The intention of commit 886a9c134755 ("PCI: dwc: Move link handling into
-common code") was to standardize the behavior of link down as explained
-in its commit log:
+In commit 4e7cf74fa3b2 ("clk: fractional-divider: Export approximation
+algorithm to the CCF users"), the code handling the rational best
+approximation algorithm was replaced by a call to the core
+clk_fractional_divider_general_approximation function which did the same
+thing back then.
 
-"The behavior for a link down was inconsistent as some drivers would fail
-probe in that case while others succeed. Let's standardize this to
-succeed as there are usecases where devices (and the link) appear later
-even without hotplug. For example, a reconfigured FPGA device."
+However, in commit 82f53f9ee577 ("clk: fractional-divider: Introduce
+POWER_OF_TWO_PS flag"), this common code was made conditional on
+CLK_FRAC_DIVIDER_POWER_OF_TWO_PS flag which was not added back to the
+rockchip clock driver.
 
-The pci-imx6 still fails to probe when the link is not present, which
-causes the following warning:
+This broke the ltk050h3146w-a2 MIPI DSI display present on a PX30-based
+downstream board.
 
-imx6q-pcie 8ffc000.pcie: Phy link never came up
-imx6q-pcie: probe of 8ffc000.pcie failed with error -110
-------------[ cut here ]------------
-WARNING: CPU: 0 PID: 30 at drivers/regulator/core.c:2257 _regulator_put.part.0+0x1b8/0x1dc
-Modules linked in:
-CPU: 0 PID: 30 Comm: kworker/u2:2 Not tainted 5.15.0-next-20211103 #1
-Hardware name: Freescale i.MX6 SoloX (Device Tree)
-Workqueue: events_unbound async_run_entry_fn
-[<c0111730>] (unwind_backtrace) from [<c010bb74>] (show_stack+0x10/0x14)
-[<c010bb74>] (show_stack) from [<c0f90290>] (dump_stack_lvl+0x58/0x70)
-[<c0f90290>] (dump_stack_lvl) from [<c012631c>] (__warn+0xd4/0x154)
-[<c012631c>] (__warn) from [<c0f87b00>] (warn_slowpath_fmt+0x74/0xa8)
-[<c0f87b00>] (warn_slowpath_fmt) from [<c076b4bc>] (_regulator_put.part.0+0x1b8/0x1dc)
-[<c076b4bc>] (_regulator_put.part.0) from [<c076b574>] (regulator_put+0x2c/0x3c)
-[<c076b574>] (regulator_put) from [<c08c3740>] (release_nodes+0x50/0x178)
+Let's add the flag to the fractional divider flags so that the original
+and intended behavior is brought back to the rockchip clock drivers.
 
-Fix this problem by ignoring the dw_pcie_wait_for_link() error like
-it is done on the other dwc drivers.
-
-Tested on imx6sx-sdb and imx6q-sabresd boards.
-
-Link: https://lore.kernel.org/r/20220106103645.2790803-1-festevam@gmail.com
-Fixes: 886a9c134755 ("PCI: dwc: Move link handling into common code")
-Signed-off-by: Fabio Estevam <festevam@gmail.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Rob Herring <robh@kernel.org>
-Reviewed-by: Richard Zhu <hongxing.zhu@nxp.com>
-Cc: <stable@vger.kernel.org>
+Fixes: 82f53f9ee577 ("clk: fractional-divider: Introduce POWER_OF_TWO_PS flag")
+Cc: stable@vger.kernel.org
+Cc: Quentin Schulz <foss+kernel@0leil.net>
+Signed-off-by: Quentin Schulz <quentin.schulz@theobroma-systems.com>
+Link: https://lore.kernel.org/r/20220131163224.708002-1-quentin.schulz@theobroma-systems.com
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/controller/dwc/pci-imx6.c |   10 ++--------
- 1 file changed, 2 insertions(+), 8 deletions(-)
+ drivers/clk/rockchip/clk.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/pci/controller/dwc/pci-imx6.c
-+++ b/drivers/pci/controller/dwc/pci-imx6.c
-@@ -779,9 +779,7 @@ static int imx6_pcie_start_link(struct d
- 	/* Start LTSSM. */
- 	imx6_pcie_ltssm_enable(dev);
+--- a/drivers/clk/rockchip/clk.c
++++ b/drivers/clk/rockchip/clk.c
+@@ -180,6 +180,7 @@ static void rockchip_fractional_approxim
+ 		unsigned long rate, unsigned long *parent_rate,
+ 		unsigned long *m, unsigned long *n)
+ {
++	struct clk_fractional_divider *fd = to_clk_fd(hw);
+ 	unsigned long p_rate, p_parent_rate;
+ 	struct clk_hw *p_parent;
  
--	ret = dw_pcie_wait_for_link(pci);
--	if (ret)
--		goto err_reset_phy;
-+	dw_pcie_wait_for_link(pci);
- 
- 	if (pci->link_gen == 2) {
- 		/* Allow Gen2 mode after the link is up. */
-@@ -817,11 +815,7 @@ static int imx6_pcie_start_link(struct d
- 		}
- 
- 		/* Make sure link training is finished as well! */
--		ret = dw_pcie_wait_for_link(pci);
--		if (ret) {
--			dev_err(dev, "Failed to bring link up!\n");
--			goto err_reset_phy;
--		}
-+		dw_pcie_wait_for_link(pci);
- 	} else {
- 		dev_info(dev, "Link: Gen2 disabled\n");
+@@ -190,6 +191,8 @@ static void rockchip_fractional_approxim
+ 		*parent_rate = p_parent_rate;
  	}
+ 
++	fd->flags |= CLK_FRAC_DIVIDER_POWER_OF_TWO_PS;
++
+ 	clk_fractional_divider_general_approximation(hw, rate, parent_rate, m, n);
+ }
+ 
 
 
