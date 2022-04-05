@@ -2,125 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 63D464F210E
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 06:08:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E0564F21CF
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 06:10:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229965AbiDECtI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Apr 2022 22:49:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44990 "EHLO
+        id S230059AbiDECrs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Apr 2022 22:47:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48460 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229972AbiDECsy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Apr 2022 22:48:54 -0400
-Received: from NAM10-BN7-obe.outbound.protection.outlook.com (mail-bn7nam10on2107.outbound.protection.outlook.com [40.107.92.107])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24EFC399712;
-        Mon,  4 Apr 2022 19:29:27 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=MomQ6+5p4922jEWxygp4xFnIEJjmJ6q5WkXkVFU5e0J3MfjVrSGiegZSbzjGf6irV/b7XZ1fod9LnUi1LKikvWAD0/BQGj874I6w+suc+sgbdQtF3y6APwEDFWP/X6r/CPpWWucq2Y1gktCCIQ6lJQuEzxik6oj1ZD0NEA8vTZdRdu6c0+VqlLvi4VIsB/dOvI4QcSjvt5eQXemSXLAmTfobCQ8h/kvRPYMsl092+AeF3wutJGDsTtQNwxvXvHQUxcewum4SxTAogwHl1597vNFapo7nHgjaR2SEi0MBzhgvttlxmSmZnVGhkCaxAQiHIzUIQvhhZF6NKclBempW1A==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=PVbEwSDn4pb7jVnQcLcXheAYewBRsQGXu4xv7e1KlYI=;
- b=X3atdfIVlLet2f9QMKuwDOOedLmiqKF0kkUj9PhyV2+TAwBeD3zF1dNl4cgzcM8lhUeqS+xnRtWIp7LiWzViUsqex+wK84BlmphT2MxvYO6Atvu7FLvQ+AHuUOfpCeQQvtuP551l1jv+nMTSCtcGXXNB2uhWOyC1ffJjKUGEiC26qY64vonm1db4l7Oi1AfGoXBZ7++kWfvxJRaKBxObZwy1olAwZBAxou4gRkKkROrFk13JBKNeXf1m//SRaRU8kYPlOOH3okIAno/IdYsXPbLtbFAhJ+j7uLkkhGKRhsY9K9TCMbC95s4dPnR7FpudgN6nmjgJ/ru+HVDFq0rF3g==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=os.amperecomputing.com; dmarc=pass action=none
- header.from=os.amperecomputing.com; dkim=pass
- header.d=os.amperecomputing.com; arc=none
+        with ESMTP id S230096AbiDECrf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Apr 2022 22:47:35 -0400
+Received: from mail-pg1-x535.google.com (mail-pg1-x535.google.com [IPv6:2607:f8b0:4864:20::535])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BC0532469C
+        for <stable@vger.kernel.org>; Mon,  4 Apr 2022 19:31:59 -0700 (PDT)
+Received: by mail-pg1-x535.google.com with SMTP id r66so1048519pgr.3
+        for <stable@vger.kernel.org>; Mon, 04 Apr 2022 19:31:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=os.amperecomputing.com; s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=PVbEwSDn4pb7jVnQcLcXheAYewBRsQGXu4xv7e1KlYI=;
- b=R6YxsGUmw/+iwRysJeOaJzBYyZvnnF0x2n5jRxuMZpx2tD0sMglVETBUcd6fxvPnZdGUYIzb3K0iVpelsYVObD3iN9nY6BxHZ01N+hAKoV9TjwABdMKcwnZthREV3jrfH/coOuINi2IizxEWxHlcmnGDeuqtKAvsnzBA0480uv8=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=os.amperecomputing.com;
-Received: from SA0PR01MB6329.prod.exchangelabs.com (2603:10b6:806:ee::12) by
- BN6PR01MB2754.prod.exchangelabs.com (2603:10b6:404:cd::12) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.5123.16; Tue, 5 Apr 2022 02:29:22 +0000
-Received: from SA0PR01MB6329.prod.exchangelabs.com
- ([fe80::f56a:e18f:b6c4:ddb5]) by SA0PR01MB6329.prod.exchangelabs.com
- ([fe80::f56a:e18f:b6c4:ddb5%9]) with mapi id 15.20.5123.031; Tue, 5 Apr 2022
- 02:29:22 +0000
-Date:   Mon, 4 Apr 2022 19:29:20 -0700
-From:   Darren Hart <darren@os.amperecomputing.com>
-To:     LKML <linux-kernel@vger.kernel.org>,
-        Linux Arm <linux-arm-kernel@lists.infradead.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Sudeep Holla <sudeep.holla@arm.com>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Barry Song <song.bao.hua@hisilicon.com>,
-        Valentin Schneider <valentin.schneider@arm.com>,
-        "D . Scott Phillips" <scott@os.amperecomputing.com>,
-        Ilkka Koskinen <ilkka@os.amperecomputing.com>,
-        Carl Worth <carl@os.amperecomputing.com>,
-        stable@vger.kernel.org, Dietmar Eggemann <dietmar.eggemann@arm.com>
-Subject: Re: [PATCH v4] topology: make core_mask include at least
- cluster_siblings
-Message-ID: <YkupgBs1ybDmofrY@fedora>
-References: <3d58dc946a4fa1cc696d05baad1cf05ae686a86d.1649115057.git.darren@os.amperecomputing.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3d58dc946a4fa1cc696d05baad1cf05ae686a86d.1649115057.git.darren@os.amperecomputing.com>
-X-ClientProxiedBy: MW4PR03CA0339.namprd03.prod.outlook.com
- (2603:10b6:303:dc::14) To SA0PR01MB6329.prod.exchangelabs.com
- (2603:10b6:806:ee::12)
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=S5Ft7vkLiBE/B5kd1gTyHDqyJHbI9BN41DFJnhDyp3Y=;
+        b=CcSvUhsECL39G6uQrH3GjJuY3WNc3fEOxf5obU35VJYrjn9Kr3Xjz5temReGSlZ/26
+         Z1uC1DuDdM22NQPdYHoSd6ngtn6im6nRqQsszmBBnfby1VDBFTR6TnD9zurUtpP+qwp4
+         4vAXT+J9/r2S6vOhw9/JQgseWLsfCEDZ1aYzkLDrpiVNowhDJBwcdRh+xssmz41fq6NQ
+         4MkF9B7hMlfpRbxEr5CI5xG3MGUmpSQsVIt1UmUr3ClKvhScOutVR/elOyDoDeS3OyTX
+         Fv9eA9Bnh8FQisMlX7RLOniaHqSHH0Ixu1x5smRUR8qoifL6jy0HN5ImVNdcHKXVBvJr
+         FpIA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=S5Ft7vkLiBE/B5kd1gTyHDqyJHbI9BN41DFJnhDyp3Y=;
+        b=3Bl7TtxdzqTes8n3a1IFu5wen3NEw6mhnqU77Y8qYg2ap/6szyDQQ92+vxmMpxpXrI
+         HBKJ3FCsD2yksi4YfBweUPmUHb3ZTG+PnosZNbmjIElO5BsTh+IUvzacNxap+VP3ibL3
+         lkvgIVWQjfDNmiJlScAeyyYLSnJvOt23NlRElcY4VR9xkqqCbT3U5G+E2roKvcFag/87
+         d6mQBEuJygW0/uNTR39uxF60M2Zh+uW1lcysdGl3XEZR9FLBplnsAgfJ8o55klm3TSdQ
+         vo4+foVGXeYculuoT1jlooTBO/xSY1bT0qgobqJx+DNO0nArr/bwYS2oDZyetIh7tE8w
+         ey7Q==
+X-Gm-Message-State: AOAM532z9B9kUxCDHmOQ0ElcPZJ7SIvGqnNHt3GmwoG8dFAmLAJ2xwU3
+        mSXyOUhTumPr+HROo11/C57EZZn6m7urtG7AHCo=
+X-Google-Smtp-Source: ABdhPJy4nGXQcP1kUVpS02rYVl5Sn+DYzjReTYkgzUgpxxL2xaZuAloPs9y5pWFQdaN+A0GdHEWxmw==
+X-Received: by 2002:a65:4b84:0:b0:382:65ea:bb10 with SMTP id t4-20020a654b84000000b0038265eabb10mr996645pgq.50.1649125918763;
+        Mon, 04 Apr 2022 19:31:58 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id j13-20020a056a00130d00b004f1025a4361sm14115453pfu.202.2022.04.04.19.31.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 04 Apr 2022 19:31:58 -0700 (PDT)
+Message-ID: <624baa1e.1c69fb81.932f4.523d@mx.google.com>
+Date:   Mon, 04 Apr 2022 19:31:58 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 64aa98d9-c804-47f8-99a1-08da16ac1842
-X-MS-TrafficTypeDiagnostic: BN6PR01MB2754:EE_
-X-Microsoft-Antispam-PRVS: <BN6PR01MB2754418EB6375F40D5C12ECFF7E49@BN6PR01MB2754.prod.exchangelabs.com>
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: WSfUqivJ/PHvyqkNtA7zeGj7OC6L2C2QrV8v8qw6fiEx1+wqGB8CyicRnRWJ1zwpvQh4juStuutuUnjFW6RhagxsL8L+SCj3+/S1ugry29gRMWKe3euYKI6oqSqZsjI0kQ1fH/kbwxsvPg1VrALvCC+OFniTl3AfK3HIxz0lnRPPQErR6l2kwQA0OWMVfIFtduOvf3Kh5Dyr6PMOsewKFEhRB2LHbvV2thE5r50q0mjewpSpAxB/uGtPY+tFbE9olzgzGtU/RcLi4kDpkrbFkbFZp6W62Mnbqf1AC7QJzbYoLokIYE4Sy+8nZ39vzuhUfQ8/rKv428fiNWhkLfRSVwaxi4tMFICxgtrhuR7Bn1KpE32p7vdC3y0yP0dAsh1ykYUMHSC9LF/FfaxDL6wktoKVr5JkFg3ylIrljr1P/VltHcQeAIfiFnQ1L+6UnZWOm8iYgFhraQ5KsAOG/ag7EvtNivoR2YUwzngkRb9lRpr1Gw7RzwFpJOa6c1M9NmnskHNd8S2Bg4UkTF7IUdUPcbWh9LKeJhCp3bwZW5IevMD6JANbOGH9Gtqu3ekzTqUrguCytntCdCImEHiEW+yqgr0EvCk5CRs2YRL5JRy+YNE/VSXyHBU7YvZ3ZhbYzpiPQvjFrSsAftBUD6WUNx7PhOs/HjCFXOqsSmfY9wQ18WZTuMEtOZEbNGUF+0//KJkSdeIx15uBPc4U6+SHNolb40oClGz5eZLYgmLu9PNFZCjRhFtWYH1zHsZmrVzQnti1v1o3TLq5syrkuNEsYtjKS3MJXDQI4HRsrKU53VryXBs=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA0PR01MB6329.prod.exchangelabs.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(7916004)(366004)(52116002)(9686003)(33716001)(6506007)(5660300002)(8676002)(4326008)(66476007)(66556008)(66946007)(6512007)(7416002)(86362001)(186003)(26005)(38100700002)(508600001)(38350700002)(83380400001)(316002)(8936002)(2906002)(54906003)(110136005)(966005)(6486002);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?cqhQQELp7MptStRw/iTTSk7+t6Nhs5aK9syLR8nGIeT+UGsJYvOHp4FNY7vU?=
- =?us-ascii?Q?E0MZD2hjW40CMGHkuvSTCJgw9gYLsgtAjXpn/EX7nhKxa6ZTRUwqqDHlXFDH?=
- =?us-ascii?Q?hPfKLydZlDVZYWCyfCaZx745EjPvHh5NKO08ZHusYUtkHbpEATLM0pAV/2io?=
- =?us-ascii?Q?L/bVtEfFb6Tvg5gjjyZtyyXD8lWLND6XO4SU9ihVajsCH8BtkBs7UtU/i5bz?=
- =?us-ascii?Q?FiaGJicY+qQz4r4sbQn5wmgyFkqhk/wERdq92xevI2mtSF007GD7QZGp5X49?=
- =?us-ascii?Q?zqq4aNivAUME5FlS7WuzxLHWTPmAzYKmTzWdU8A0T7gL+SooenDLKW+OeSvf?=
- =?us-ascii?Q?C/kchA8ORB2ZT72KQbntb5bsAI8qBwHWjShqasiJiSrMS8aZoYOxy5pyKpLo?=
- =?us-ascii?Q?NiiLMkh+IHNomZj6Xv2l0ZNOZGasrKIq97UQAhebNR3VNcjuWipki3mNa95r?=
- =?us-ascii?Q?0o8/4WH3yDMzRHOegLJDo1nR3eNn6pkuovFL2iu/W7GTTCigFKtOSknvCLHj?=
- =?us-ascii?Q?+LVQP44owrPpoRxBEX5N05JdA3jSj/GhgfAyl+tKkAioVhmMfJ+bUmeEcgnH?=
- =?us-ascii?Q?lHRDGrKuXY4r28NC31Ct3b0FAr2kFwELuqujMzRrPgLtMRzSunu8aJylIFh+?=
- =?us-ascii?Q?20wfPVrbtVdqcRigxLBiiHcYIOm1k7DA67ez9e/BbhfEKaBJ9SVNz+kk8nj2?=
- =?us-ascii?Q?f2AnTUOUdDXYIzMCP8McXwjvX20ofqPvijwp6zZKBcC1hupFoI7basiPW8HX?=
- =?us-ascii?Q?B6kG0c15LwzVJSnfexaN22lodXmKhz26Pt1Pu2dhuQjrfJFVajEgeMAx3Z/4?=
- =?us-ascii?Q?X4tK0xzWXHJ7QiQkG7SgJ/Ielq/wQU6mv3arxsxG+KDy/yZAinB6K2EplRAy?=
- =?us-ascii?Q?aK2rbaHLFuv7Ge8iaY8mMv+ZmaSZa72AfZg/+LdPxrjMf9AeUpTjgJr1/th/?=
- =?us-ascii?Q?NAb2FomW/Akjkl9A/kvb+0kOLa9khaXY5aIGRUyjuXGuVBovLIYFc3R8vt9D?=
- =?us-ascii?Q?tLHYFY4lBc7DBIuuUc4v3CwXdTYwpIwSi3hYEtx0L31C6neZgZbGlD6Txi+F?=
- =?us-ascii?Q?ZBP5OhHOtrOhvl32us4NiwV/0Dzekgt21JDDnpSoUAlrK5bTKFoszcoawq1H?=
- =?us-ascii?Q?E/rJNXGTiY24Q+MkBakHcCCCy9KLKq0uDYMFb6T+VA6I8VD5DK0pomHwdFqZ?=
- =?us-ascii?Q?mMf/uMIyNcKB1oHc3bqQ9ZKx/z9a4lfHxze9OfmxpmfSlLWqhcx57WATgl66?=
- =?us-ascii?Q?QoEysTb/tPjDTFwABj+j6qZtryxx1HSgLkJKDoXVymp7DHi10Y98IOJ3m+Ii?=
- =?us-ascii?Q?fWvRnDLky+/v91eHmcMhpek5jucl8khQ6/KfNv94N8g6C7eufaFtbcUEDWlr?=
- =?us-ascii?Q?rUnfqNzHSX/47e6sORFhAIn/CV7kKlj/8u4SLKXGbAIL9XqkYB3vOk6+a8gO?=
- =?us-ascii?Q?B+JB2DFeMrbhZbz5SY4/Kj1uvK2a0eGDShnhqMFqXv4HqpCPexGVsjLiHduS?=
- =?us-ascii?Q?C8ZHyFkOJ4Avagf9JGopRPD5OjWHNOtBrVGzaA9B76fgwd7RhASDrdBvCYX2?=
- =?us-ascii?Q?CCA6GLAz71EBNwI22bhvMNlKqbo8/zMZQeaZcepTj89LwcxUr237K/XRkZV4?=
- =?us-ascii?Q?94EWALK22JuFW1KACR8qJDjcxYUek83e7nm8Hvrwwt7q0m7QIrRn8coESa49?=
- =?us-ascii?Q?1Eiy1yr+ho324nwITQoWH5FqBw0SZAEmmhapU6WBSSadmOduCsaq+lIypUnr?=
- =?us-ascii?Q?us8yYsiyL27VqGY00ge4Cg8SX8WCHwVproQ0yenOY5c3cKGX4k8z?=
-X-OriginatorOrg: os.amperecomputing.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 64aa98d9-c804-47f8-99a1-08da16ac1842
-X-MS-Exchange-CrossTenant-AuthSource: SA0PR01MB6329.prod.exchangelabs.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 05 Apr 2022 02:29:22.5581
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3bc2b170-fd94-476d-b0ce-4229bdc904a7
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: kelRSB+r1EjueDFH6/RWvj/vR+n2XEwkTkubfrhrs6OBt1G6iYQOlmhTJ2otlIhtqeviy3UaVnpNZ4hTvuMqG0kAMgemrsXpuCJxy2eKBq+/WZD3nv8k0dikq/Kc7dUa
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN6PR01MB2754
-X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS,
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.10
+X-Kernelci-Kernel: v5.10.109-592-g78b72badb3402
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/5.10 baseline: 31 runs,
+ 1 regressions (v5.10.109-592-g78b72badb3402)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
         T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -128,113 +70,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Apr 04, 2022 at 04:40:37PM -0700, Darren Hart wrote:
-> Ampere Altra defines CPU clusters in the ACPI PPTT. They share a Snoop
-> Control Unit, but have no shared CPU-side last level cache.
-> 
-> cpu_coregroup_mask() will return a cpumask with weight 1, while
-> cpu_clustergroup_mask() will return a cpumask with weight 2.
-> 
-> As a result, build_sched_domain() will BUG() once per CPU with:
-> 
-> BUG: arch topology borken
-> the CLS domain not a subset of the MC domain
-> 
-> The MC level cpumask is then extended to that of the CLS child, and is
-> later removed entirely as redundant. This sched domain topology is an
-> improvement over previous topologies, or those built without
-> SCHED_CLUSTER, particularly for certain latency sensitive workloads.
-> With the current scheduler model and heuristics, this is a desirable
-> default topology for Ampere Altra and Altra Max system.
-> 
-> Rather than create a custom sched domains topology structure and
-> introduce new logic in arch/arm64 to detect these systems, update the
-> core_mask so coregroup is never a subset of clustergroup, extending it
-> to cluster_siblings if necessary. Only do this if CONFIG_SCHED_CLUSTER
-> is enabled to avoid also changing the topology (MC) when
-> CONFIG_SCHED_CLUSTER is disabled.
-> 
-> This has the added benefit over a custom topology of working for both
-> symmetric and asymmetric topologies. It does not address systems where
-> the CLUSTER topology is above a populated MC topology, but these are not
-> considered today and can be addressed separately if and when they
-> appear.
-> 
-> The final sched domain topology for a 2 socket Ampere Altra system is
-> unchanged with or without CONFIG_SCHED_CLUSTER, and the BUG is avoided:
-> 
-> For CPU0:
-> 
-> CONFIG_SCHED_CLUSTER=y
-> CLS  [0-1]
-> DIE  [0-79]
-> NUMA [0-159]
-> 
-> CONFIG_SCHED_CLUSTER is not set
-> DIE  [0-79]
-> NUMA [0-159]
-> 
-> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Cc: Sudeep Holla <sudeep.holla@arm.com>
-> Cc: "Rafael J. Wysocki" <rafael@kernel.org>
-> Cc: Catalin Marinas <catalin.marinas@arm.com>
-> Cc: Will Deacon <will@kernel.org>
-> Cc: Peter Zijlstra <peterz@infradead.org>
-> Cc: Vincent Guittot <vincent.guittot@linaro.org>
-> Cc: Barry Song <song.bao.hua@hisilicon.com>
-> Cc: Valentin Schneider <valentin.schneider@arm.com>
-> Cc: D. Scott Phillips <scott@os.amperecomputing.com>
-> Cc: Ilkka Koskinen <ilkka@os.amperecomputing.com>
-> Cc: Carl Worth <carl@os.amperecomputing.com>
-> Cc: <stable@vger.kernel.org> # 5.16.x
-> Suggested-by: Barry Song <song.bao.hua@hisilicon.com>
-> Signed-off-by: Darren Hart <darren@os.amperecomputing.com>
-> ---
-> v1: Drop MC level if coregroup weight == 1
-> v2: New sd topo in arch/arm64/kernel/smp.c
-> v3: No new topo, extend core_mask to cluster_siblings
-> v4: Rebase on 5.18-rc1 for GregKH to pull. Add IS_ENABLED(CONFIG_SCHED_CLUSTER).
+stable-rc/queue/5.10 baseline: 31 runs, 1 regressions (v5.10.109-592-g78b72=
+badb3402)
 
-A bit more context on the state of review:
+Regressions Summary
+-------------------
 
-Several folks reviewed, but I didn't add their Reviewed-by since I added the
-IS_ENABLED(CONFIG_SCHED_CLUSTER) test since they reviewed it last. This change
-preserves the stated intent of the change when CONFIG_SCHED_CLUSTER is disabled.
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 1          =
 
-Barry Song - Suggested this approach
-Vincent Guittot - informal review with reservations
-Sudeep Holla - Acked-by
-Dietmar Eggemann - informal review (added to Cc, apologies for the omission Dietmar)
 
-All but Barry's recommendation captured in the v3 thread:
-https://lore.kernel.org/linux-arm-kernel/f1deaeabfd31fdf512ff6502f38186ef842c2b1f.1646413117.git.darren@os.amperecomputing.com/
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
+nel/v5.10.109-592-g78b72badb3402/plan/baseline/
 
-Thanks,
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.10
+  Describe: v5.10.109-592-g78b72badb3402
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      78b72badb3402b9e2d2928d8c05df9ab7728ad72 =
 
-> 
->  drivers/base/arch_topology.c | 9 +++++++++
->  1 file changed, 9 insertions(+)
-> 
-> diff --git a/drivers/base/arch_topology.c b/drivers/base/arch_topology.c
-> index 1d6636ebaac5..5497c5ab7318 100644
-> --- a/drivers/base/arch_topology.c
-> +++ b/drivers/base/arch_topology.c
-> @@ -667,6 +667,15 @@ const struct cpumask *cpu_coregroup_mask(int cpu)
->  			core_mask = &cpu_topology[cpu].llc_sibling;
->  	}
->  
-> +	/*
-> +	 * For systems with no shared cpu-side LLC but with clusters defined,
-> +	 * extend core_mask to cluster_siblings. The sched domain builder will
-> +	 * then remove MC as redundant with CLS if SCHED_CLUSTER is enabled.
-> +	 */
-> +	if (IS_ENABLED(CONFIG_SCHED_CLUSTER) &&
-> +	    cpumask_subset(core_mask, &cpu_topology[cpu].cluster_sibling))
-> +		core_mask = &cpu_topology[cpu].cluster_sibling;
-> +
->  	return core_mask;
->  }
->  
--- 
-Darren Hart
-Ampere Computing / OS and Kernel
+
+
+Test Regressions
+---------------- =
+
+
+
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/624b779183e5f7ddfeae067c
+
+  Results:     90 PASS, 2 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.109=
+-592-g78b72badb3402/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/b=
+aseline-rk3399-gru-kevin.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.109=
+-592-g78b72badb3402/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/b=
+aseline-rk3399-gru-kevin.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220401.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
+/624b779183e5f7ddfeae069e
+        failing since 28 days (last pass: v5.10.103-56-ge5a40f18f4ce, first=
+ fail: v5.10.103-105-gf074cce6ae0d)
+
+    2022-04-04T22:56:08.422820  /lava-6020719/1/../bin/lava-test-case
+    2022-04-04T22:56:08.432987  <8>[   34.049403] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Drockchip-i2s1-probed RESULT=3Dfail>   =
+
+ =20
