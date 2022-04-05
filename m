@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 728894F3518
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:48:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E9D54F324A
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:54:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244462AbiDEKiv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:38:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53966 "EHLO
+        id S244800AbiDEJLE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:11:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46832 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236181AbiDEJev (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:34:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FD92887B2;
-        Tue,  5 Apr 2022 02:24:11 -0700 (PDT)
+        with ESMTP id S244615AbiDEIw2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:28 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF796D7629;
+        Tue,  5 Apr 2022 01:41:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E3D96B81C69;
-        Tue,  5 Apr 2022 09:24:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5233CC385A0;
-        Tue,  5 Apr 2022 09:24:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4E66561504;
+        Tue,  5 Apr 2022 08:41:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63349C385A0;
+        Tue,  5 Apr 2022 08:41:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150648;
-        bh=sKywzZUH5FV82mHccsP45ibhee3xzG3cgiuNbnWvg4U=;
+        s=korg; t=1649148088;
+        bh=73g0vRZHkLoIdRK+kuziBsFo9/eHSDkmHeaOqenIWfM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m+7GjQh+aPzoKpJGZ83JVPKNUXEYFOiikx1iZJVkPpoEW732oZhnJL5ItyeKj84OJ
-         ltTY5vUBLtI3I4sm7SG+Q7RrrJLGe3gkSfCch2u7XuhaQ/3z8qXHCXTf/NkYyMjVoV
-         t0oEgDw5rnf6M9aqGNs0XW3GapAAqkUDDp0spizA=
+        b=UZX+9RYPDd2056nyHZsFQqMlG22XqG0I+uQ+kMO4rWPHqqal78EMiU+3eVuPDzpJR
+         0TiXFi62sDt348GBk3vYh4UlcYsHRDX/aSdaihuojOyAdEKWSP4pXzIWnx3y2JAz7M
+         3wELVXb0XdU7d/v9VEB+OHocjh2tG14AmLOSVf3k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Baokun Li <libaokun1@huawei.com>,
-        Richard Weinberger <richard@nod.at>
-Subject: [PATCH 5.15 082/913] jffs2: fix memory leak in jffs2_scan_medium
+        stable@vger.kernel.org, Hannes Reinecke <hare@suse.de>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Eric Biggers <ebiggers@google.com>,
+        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0231/1017] block: dont delete queue kobject before its children
 Date:   Tue,  5 Apr 2022 09:19:04 +0200
-Message-Id: <20220405070342.281702665@linuxfoundation.org>
+Message-Id: <20220405070401.111268685@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,110 +56,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baokun Li <libaokun1@huawei.com>
+From: Eric Biggers <ebiggers@google.com>
 
-commit 9cdd3128874f5fe759e2c4e1360ab7fb96a8d1df upstream.
+[ Upstream commit 0f69288253e9fc7c495047720e523b9f1aba5712 ]
 
-If an error is returned in jffs2_scan_eraseblock() and some memory
-has been added to the jffs2_summary *s, we can observe the following
-kmemleak report:
+kobjects aren't supposed to be deleted before their child kobjects are
+deleted.  Apparently this is usually benign; however, a WARN will be
+triggered if one of the child kobjects has a named attribute group:
 
---------------------------------------------
-unreferenced object 0xffff88812b889c40 (size 64):
-  comm "mount", pid 692, jiffies 4294838325 (age 34.288s)
-  hex dump (first 32 bytes):
-    40 48 b5 14 81 88 ff ff 01 e0 31 00 00 00 50 00  @H........1...P.
-    00 00 01 00 00 00 01 00 00 00 02 00 00 00 09 08  ................
-  backtrace:
-    [<ffffffffae93a3a3>] __kmalloc+0x613/0x910
-    [<ffffffffaf423b9c>] jffs2_sum_add_dirent_mem+0x5c/0xa0
-    [<ffffffffb0f3afa8>] jffs2_scan_medium.cold+0x36e5/0x4794
-    [<ffffffffb0f3dbe1>] jffs2_do_mount_fs.cold+0xa7/0x2267
-    [<ffffffffaf40acf3>] jffs2_do_fill_super+0x383/0xc30
-    [<ffffffffaf40c00a>] jffs2_fill_super+0x2ea/0x4c0
-    [<ffffffffb0315d64>] mtd_get_sb+0x254/0x400
-    [<ffffffffb0315f5f>] mtd_get_sb_by_nr+0x4f/0xd0
-    [<ffffffffb0316478>] get_tree_mtd+0x498/0x840
-    [<ffffffffaf40bd15>] jffs2_get_tree+0x25/0x30
-    [<ffffffffae9f358d>] vfs_get_tree+0x8d/0x2e0
-    [<ffffffffaea7a98f>] path_mount+0x50f/0x1e50
-    [<ffffffffaea7c3d7>] do_mount+0x107/0x130
-    [<ffffffffaea7c5c5>] __se_sys_mount+0x1c5/0x2f0
-    [<ffffffffaea7c917>] __x64_sys_mount+0xc7/0x160
-    [<ffffffffb10142f5>] do_syscall_64+0x45/0x70
-unreferenced object 0xffff888114b54840 (size 32):
-  comm "mount", pid 692, jiffies 4294838325 (age 34.288s)
-  hex dump (first 32 bytes):
-    c0 75 b5 14 81 88 ff ff 02 e0 02 00 00 00 02 00  .u..............
-    00 00 84 00 00 00 44 00 00 00 6b 6b 6b 6b 6b a5  ......D...kkkkk.
-  backtrace:
-    [<ffffffffae93be24>] kmem_cache_alloc_trace+0x584/0x880
-    [<ffffffffaf423b04>] jffs2_sum_add_inode_mem+0x54/0x90
-    [<ffffffffb0f3bd44>] jffs2_scan_medium.cold+0x4481/0x4794
-    [...]
-unreferenced object 0xffff888114b57280 (size 32):
-  comm "mount", pid 692, jiffies 4294838393 (age 34.357s)
-  hex dump (first 32 bytes):
-    10 d5 6c 11 81 88 ff ff 08 e0 05 00 00 00 01 00  ..l.............
-    00 00 38 02 00 00 28 00 00 00 6b 6b 6b 6b 6b a5  ..8...(...kkkkk.
-  backtrace:
-    [<ffffffffae93be24>] kmem_cache_alloc_trace+0x584/0x880
-    [<ffffffffaf423c34>] jffs2_sum_add_xattr_mem+0x54/0x90
-    [<ffffffffb0f3a24f>] jffs2_scan_medium.cold+0x298c/0x4794
-    [...]
-unreferenced object 0xffff8881116cd510 (size 16):
-  comm "mount", pid 692, jiffies 4294838395 (age 34.355s)
-  hex dump (first 16 bytes):
-    00 00 00 00 00 00 00 00 09 e0 60 02 00 00 6b a5  ..........`...k.
-  backtrace:
-    [<ffffffffae93be24>] kmem_cache_alloc_trace+0x584/0x880
-    [<ffffffffaf423cc4>] jffs2_sum_add_xref_mem+0x54/0x90
-    [<ffffffffb0f3b2e3>] jffs2_scan_medium.cold+0x3a20/0x4794
-    [...]
---------------------------------------------
+    sysfs group 'modes' not found for kobject 'crypto'
+    WARNING: CPU: 0 PID: 1 at fs/sysfs/group.c:278 sysfs_remove_group+0x72/0x80
+    ...
+    Call Trace:
+      sysfs_remove_groups+0x29/0x40 fs/sysfs/group.c:312
+      __kobject_del+0x20/0x80 lib/kobject.c:611
+      kobject_cleanup+0xa4/0x140 lib/kobject.c:696
+      kobject_release lib/kobject.c:736 [inline]
+      kref_put include/linux/kref.h:65 [inline]
+      kobject_put+0x53/0x70 lib/kobject.c:753
+      blk_crypto_sysfs_unregister+0x10/0x20 block/blk-crypto-sysfs.c:159
+      blk_unregister_queue+0xb0/0x110 block/blk-sysfs.c:962
+      del_gendisk+0x117/0x250 block/genhd.c:610
 
-Therefore, we should call jffs2_sum_reset_collected(s) on exit to
-release the memory added in s. In addition, a new tag "out_buf" is
-added to prevent the NULL pointer reference caused by s being NULL.
-(thanks to Zhang Yi for this analysis)
+Fix this by moving the kobject_del() and the corresponding
+kobject_uevent() to the correct place.
 
-Fixes: e631ddba5887 ("[JFFS2] Add erase block summary support (mount time improvement)")
-Cc: stable@vger.kernel.org
-Co-developed-with: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Baokun Li <libaokun1@huawei.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 2c2086afc2b8 ("block: Protect less code with sysfs_lock in blk_{un,}register_queue()")
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/20220124215938.2769-3-ebiggers@kernel.org
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/jffs2/scan.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ block/blk-sysfs.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
---- a/fs/jffs2/scan.c
-+++ b/fs/jffs2/scan.c
-@@ -136,7 +136,7 @@ int jffs2_scan_medium(struct jffs2_sb_in
- 		if (!s) {
- 			JFFS2_WARNING("Can't allocate memory for summary\n");
- 			ret = -ENOMEM;
--			goto out;
-+			goto out_buf;
- 		}
- 	}
+diff --git a/block/blk-sysfs.c b/block/blk-sysfs.c
+index cd75b0f73dc6..2fe8da2a7216 100644
+--- a/block/blk-sysfs.c
++++ b/block/blk-sysfs.c
+@@ -949,9 +949,6 @@ void blk_unregister_queue(struct gendisk *disk)
+ 	 */
+ 	if (queue_is_mq(q))
+ 		blk_mq_unregister_dev(disk_to_dev(disk), q);
+-
+-	kobject_uevent(&q->kobj, KOBJ_REMOVE);
+-	kobject_del(&q->kobj);
+ 	blk_trace_remove_sysfs(disk_to_dev(disk));
  
-@@ -275,13 +275,15 @@ int jffs2_scan_medium(struct jffs2_sb_in
- 	}
- 	ret = 0;
-  out:
-+	jffs2_sum_reset_collected(s);
-+	kfree(s);
-+ out_buf:
- 	if (buf_size)
- 		kfree(flashbuf);
- #ifndef __ECOS
- 	else
- 		mtd_unpoint(c->mtd, 0, c->mtd->size);
- #endif
--	kfree(s);
- 	return ret;
- }
+ 	mutex_lock(&q->sysfs_lock);
+@@ -959,6 +956,11 @@ void blk_unregister_queue(struct gendisk *disk)
+ 		elv_unregister_queue(q);
+ 	disk_unregister_independent_access_ranges(disk);
+ 	mutex_unlock(&q->sysfs_lock);
++
++	/* Now that we've deleted all child objects, we can delete the queue. */
++	kobject_uevent(&q->kobj, KOBJ_REMOVE);
++	kobject_del(&q->kobj);
++
+ 	mutex_unlock(&q->sysfs_dir_lock);
  
+ 	kobject_put(&disk_to_dev(disk)->kobj);
+-- 
+2.34.1
+
 
 
