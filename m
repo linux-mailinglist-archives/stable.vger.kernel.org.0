@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A3A44F2F37
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:10:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 645694F32FF
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:01:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242299AbiDEJgv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:36:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51574 "EHLO
+        id S242406AbiDEJg5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:36:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52356 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235381AbiDEJBp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:01:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A5D5B3E;
-        Tue,  5 Apr 2022 01:53:50 -0700 (PDT)
+        with ESMTP id S235459AbiDEJCF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:02:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D38C6E86;
+        Tue,  5 Apr 2022 01:53:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2A55B614F9;
-        Tue,  5 Apr 2022 08:53:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CBC9C385A0;
-        Tue,  5 Apr 2022 08:53:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8B0CBB81BD9;
+        Tue,  5 Apr 2022 08:53:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC802C385A0;
+        Tue,  5 Apr 2022 08:53:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148829;
-        bh=o7C32F3i+PJr0RVLaJ/A++tomV2VND/4bsNJ7OCF4as=;
+        s=korg; t=1649148835;
+        bh=EIQ75Iss0C+N32dhwHmXt/LiiU6YMzb9YdD0k8MwtBA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hInlSQlqnRokQ/B9cN+4LIKRPlIJBKC3xfxgZrxobuBpNpJB5+cC2N8Y/c+iigVeR
-         k+kwPqqwH/swnLoEdq1EKDiW3l3E4kGb30bbYc9aaRqIuttjNMdoXdEJQvvTSpXm/5
-         0g2bFroB86DEGxumjcIivwym0C/0sU8Emg+3+IUM=
+        b=iVaD0yx+N9EKK1+VRVwSFU1S7FkcnbdcQtFWO2FrjEtG1+IWjvr4DiVwNIuR/vDkR
+         ggF/Ekssg9DBYNaTo7sSza6HtTsGHfPJzXcuC5BQcqb6IBpvZuDxcaSwrEoTC1T2OZ
+         b7P71VRpF6ZMM3IbK/2T378pirLwoJP7LEX5PhII=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0496/1017] HID: i2c-hid: fix GET/SET_REPORT for unnumbered reports
-Date:   Tue,  5 Apr 2022 09:23:29 +0200
-Message-Id: <20220405070409.022543014@linuxfoundation.org>
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Nikita Yushchenko <nikita.yoush@cogentembedded.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0497/1017] iommu/ipmmu-vmsa: Check for error num after setting mask
+Date:   Tue,  5 Apr 2022 09:23:30 +0200
+Message-Id: <20220405070409.052420079@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -55,89 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit a5e5e03e94764148a01757b2fa4737d3445c13a6 ]
+[ Upstream commit 1fdbbfd5099f797a4dac05e7ef0192ba4a9c39b4 ]
 
-Internally kernel prepends all report buffers, for both numbered and
-unnumbered reports, with report ID, therefore to properly handle unnumbered
-reports we should prepend it ourselves.
+Because of the possible failure of the dma_supported(), the
+dma_set_mask_and_coherent() may return error num.
+Therefore, it should be better to check it and return the error if
+fails.
 
-For the same reason we should skip the first byte of the buffer when
-calling i2c_hid_set_or_send_report() which then will take care of properly
-formatting the transfer buffer based on its separate report ID argument
-along with report payload.
-
-[jkosina@suse.cz: finalize trimmed sentence in changelog as spotted by Benjamin]
-Fixes: 9b5a9ae88573 ("HID: i2c-hid: implement ll_driver transport-layer callbacks")
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Tested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Fixes: 1c894225bf5b ("iommu/ipmmu-vmsa: IPMMU device is 40-bit bus master")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Reviewed-by: Nikita Yushchenko <nikita.yoush@cogentembedded.com>
+Link: https://lore.kernel.org/r/20220106024302.2574180-1-jiasheng@iscas.ac.cn
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/i2c-hid/i2c-hid-core.c | 32 ++++++++++++++++++++++--------
- 1 file changed, 24 insertions(+), 8 deletions(-)
+ drivers/iommu/ipmmu-vmsa.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
-index 4804d71e5293..65c1f20ec420 100644
---- a/drivers/hid/i2c-hid/i2c-hid-core.c
-+++ b/drivers/hid/i2c-hid/i2c-hid-core.c
-@@ -615,6 +615,17 @@ static int i2c_hid_get_raw_report(struct hid_device *hid,
- 	if (report_type == HID_OUTPUT_REPORT)
- 		return -EINVAL;
+diff --git a/drivers/iommu/ipmmu-vmsa.c b/drivers/iommu/ipmmu-vmsa.c
+index ca752bdc710f..61bd9a3004ed 100644
+--- a/drivers/iommu/ipmmu-vmsa.c
++++ b/drivers/iommu/ipmmu-vmsa.c
+@@ -1006,7 +1006,9 @@ static int ipmmu_probe(struct platform_device *pdev)
+ 	bitmap_zero(mmu->ctx, IPMMU_CTX_MAX);
+ 	mmu->features = of_device_get_match_data(&pdev->dev);
+ 	memset(mmu->utlb_ctx, IPMMU_CTX_INVALID, mmu->features->num_utlbs);
+-	dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(40));
++	ret = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(40));
++	if (ret)
++		return ret;
  
-+	/*
-+	 * In case of unnumbered reports the response from the device will
-+	 * not have the report ID that the upper layers expect, so we need
-+	 * to stash it the buffer ourselves and adjust the data size.
-+	 */
-+	if (!report_number) {
-+		buf[0] = 0;
-+		buf++;
-+		count--;
-+	}
-+
- 	/* +2 bytes to include the size of the reply in the query buffer */
- 	ask_count = min(count + 2, (size_t)ihid->bufsize);
- 
-@@ -636,6 +647,9 @@ static int i2c_hid_get_raw_report(struct hid_device *hid,
- 	count = min(count, ret_count - 2);
- 	memcpy(buf, ihid->rawbuf + 2, count);
- 
-+	if (!report_number)
-+		count++;
-+
- 	return count;
- }
- 
-@@ -652,17 +666,19 @@ static int i2c_hid_output_raw_report(struct hid_device *hid, __u8 *buf,
- 
- 	mutex_lock(&ihid->reset_lock);
- 
--	if (report_id) {
--		buf++;
--		count--;
--	}
--
-+	/*
-+	 * Note that both numbered and unnumbered reports passed here
-+	 * are supposed to have report ID stored in the 1st byte of the
-+	 * buffer, so we strip it off unconditionally before passing payload
-+	 * to i2c_hid_set_or_send_report which takes care of encoding
-+	 * everything properly.
-+	 */
- 	ret = i2c_hid_set_or_send_report(client,
- 				report_type == HID_FEATURE_REPORT ? 0x03 : 0x02,
--				report_id, buf, count, use_data);
-+				report_id, buf + 1, count - 1, use_data);
- 
--	if (report_id && ret >= 0)
--		ret++; /* add report_id to the number of transfered bytes */
-+	if (ret >= 0)
-+		ret++; /* add report_id to the number of transferred bytes */
- 
- 	mutex_unlock(&ihid->reset_lock);
- 
+ 	/* Map I/O memory and request IRQ. */
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 -- 
 2.34.1
 
