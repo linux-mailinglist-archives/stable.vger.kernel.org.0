@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DCFC74F3779
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:20:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C774A4F3A72
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:01:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353012AbiDELNh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:13:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47618 "EHLO
+        id S1381419AbiDELpd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:45:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45206 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349068AbiDEJtD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53CCEA94F4;
-        Tue,  5 Apr 2022 02:39:42 -0700 (PDT)
+        with ESMTP id S1354781AbiDEKPs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:15:48 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5BFC6C92C;
+        Tue,  5 Apr 2022 03:02:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D28B26164D;
-        Tue,  5 Apr 2022 09:39:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3661C385A1;
-        Tue,  5 Apr 2022 09:39:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 62725B81B7A;
+        Tue,  5 Apr 2022 10:02:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF214C385A1;
+        Tue,  5 Apr 2022 10:02:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151581;
-        bh=pUXd/odrjqglX+qTSbsO6wGpyhmHpt2EgqG6TEgFfPs=;
+        s=korg; t=1649152966;
+        bh=ZwI7hRZEPXkT1sDAUPYVc50SVib38PFUExf4pza0hMA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bH25kq0dDUCRkCG6rcOhjglLTNBjapineQj2IUi0b9kwPBvg/fpKjprztHER0Qu6y
-         fD9b6JyTCa6agUAIIi3Yh+AQPHDmM1D2F1IZZxahRkhrRdeJE0tZe0Vc9U6GfklOgT
-         vrTdcQlqk/yzkyg/nrV3dMs/sXyTzVQt3L93vSyY=
+        b=q49mN/8Wjh3e4UvAfmrlxtnsXUqmfaptrs1zl3/QDePftqEIMGxhf4KxxnaXKTVJ7
+         8ZwzJoUNOZUOgr/1gX+s6LkfoRi8wVarLqcez9d4jyh3HPiEUShX2H8TAXOlzPgrN0
+         XswQMm3SuZ0BSnohCWPw9XiEJDeEvBFbNboLzxPY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Amit Kumar Mahapatra <amit.kumar-mahapatra@xilinx.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 468/913] mtd: rawnand: pl353: Set the nand chip node as the flash node
+        stable@vger.kernel.org, Liam Beguin <liambeguin@gmail.com>,
+        Peter Rosin <peda@axentia.se>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.10 036/599] iio: inkern: make a best effort on offset calculation
 Date:   Tue,  5 Apr 2022 09:25:30 +0200
-Message-Id: <20220405070353.876030318@linuxfoundation.org>
+Message-Id: <20220405070259.898102419@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070258.802373272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,38 +56,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amit Kumar Mahapatra <amit.kumar-mahapatra@xilinx.com>
+From: Liam Beguin <liambeguin@gmail.com>
 
-[ Upstream commit a1fe2ace2c39dcdc7c053705459a73b7598b1e4f ]
+commit ca85123354e1a65a22170286387b4791997fe864 upstream.
 
-In devicetree the flash information is embedded within nand chip node,
-so during nand chip initialization the nand chip node should be passed
-to nand_set_flash_node() api, instead of nand controller node.
+iio_convert_raw_to_processed_unlocked() assumes the offset is an
+integer. Make a best effort to get a valid offset value for fractional
+cases without breaking implicit truncations.
 
-Fixes: 08d8c62164a3 ("mtd: rawnand: pl353: Add support for the ARM PL353 SMC NAND controller")
-Signed-off-by: Amit Kumar Mahapatra <amit.kumar-mahapatra@xilinx.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20220209053427.27676-1-amit.kumar-mahapatra@xilinx.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 48e44ce0f881 ("iio:inkern: Add function to read the processed value")
+Signed-off-by: Liam Beguin <liambeguin@gmail.com>
+Reviewed-by: Peter Rosin <peda@axentia.se>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/20220108205319.2046348-4-liambeguin@gmail.com
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mtd/nand/raw/pl35x-nand-controller.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iio/inkern.c |   32 +++++++++++++++++++++++++++-----
+ 1 file changed, 27 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/mtd/nand/raw/pl35x-nand-controller.c b/drivers/mtd/nand/raw/pl35x-nand-controller.c
-index 8a91e069ee2e..3c6f6aff649f 100644
---- a/drivers/mtd/nand/raw/pl35x-nand-controller.c
-+++ b/drivers/mtd/nand/raw/pl35x-nand-controller.c
-@@ -1062,7 +1062,7 @@ static int pl35x_nand_chip_init(struct pl35x_nandc *nfc,
- 	chip->controller = &nfc->controller;
- 	mtd = nand_to_mtd(chip);
- 	mtd->dev.parent = nfc->dev;
--	nand_set_flash_node(chip, nfc->dev->of_node);
-+	nand_set_flash_node(chip, np);
- 	if (!mtd->name) {
- 		mtd->name = devm_kasprintf(nfc->dev, GFP_KERNEL,
- 					   "%s", PL35X_NANDC_DRIVER_NAME);
--- 
-2.34.1
-
+--- a/drivers/iio/inkern.c
++++ b/drivers/iio/inkern.c
+@@ -561,13 +561,35 @@ EXPORT_SYMBOL_GPL(iio_read_channel_avera
+ static int iio_convert_raw_to_processed_unlocked(struct iio_channel *chan,
+ 	int raw, int *processed, unsigned int scale)
+ {
+-	int scale_type, scale_val, scale_val2, offset;
++	int scale_type, scale_val, scale_val2;
++	int offset_type, offset_val, offset_val2;
+ 	s64 raw64 = raw;
+-	int ret;
+ 
+-	ret = iio_channel_read(chan, &offset, NULL, IIO_CHAN_INFO_OFFSET);
+-	if (ret >= 0)
+-		raw64 += offset;
++	offset_type = iio_channel_read(chan, &offset_val, &offset_val2,
++				       IIO_CHAN_INFO_OFFSET);
++	if (offset_type >= 0) {
++		switch (offset_type) {
++		case IIO_VAL_INT:
++			break;
++		case IIO_VAL_INT_PLUS_MICRO:
++		case IIO_VAL_INT_PLUS_NANO:
++			/*
++			 * Both IIO_VAL_INT_PLUS_MICRO and IIO_VAL_INT_PLUS_NANO
++			 * implicitely truncate the offset to it's integer form.
++			 */
++			break;
++		case IIO_VAL_FRACTIONAL:
++			offset_val /= offset_val2;
++			break;
++		case IIO_VAL_FRACTIONAL_LOG2:
++			offset_val >>= offset_val2;
++			break;
++		default:
++			return -EINVAL;
++		}
++
++		raw64 += offset_val;
++	}
+ 
+ 	scale_type = iio_channel_read(chan, &scale_val, &scale_val2,
+ 					IIO_CHAN_INFO_SCALE);
 
 
