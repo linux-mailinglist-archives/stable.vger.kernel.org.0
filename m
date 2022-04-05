@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A0FF4F30D6
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:35:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA0FD4F35A8
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:52:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236878AbiDEJDj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:03:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56482 "EHLO
+        id S232101AbiDEKxh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:53:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59294 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237106AbiDEIRm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:17:42 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91BA2AFB0C;
-        Tue,  5 Apr 2022 01:05:13 -0700 (PDT)
+        with ESMTP id S1346086AbiDEJo1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:44:27 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F169CC8BC0;
+        Tue,  5 Apr 2022 02:30:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4B76EB81BBF;
-        Tue,  5 Apr 2022 08:05:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA778C385A7;
-        Tue,  5 Apr 2022 08:05:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 990ADB81CAC;
+        Tue,  5 Apr 2022 09:30:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E29EDC385A0;
+        Tue,  5 Apr 2022 09:30:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145911;
-        bh=bb88SYtp3zyNlkq/15otdBnpkl/912WXpaRl/MiFuJA=;
+        s=korg; t=1649151004;
+        bh=cK/eTmMO1ar/cpLmr16wWiPao3SLZRntHcZdToKAgao=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hGdvHT46JLLUxztU26V0IrQ2MZ6Y/LY8MB5IMZexXzNrVUzkDn6og2P9SvVyIaMmV
-         /yRUrtEZukVFogxq53mS1xREkk0QK8lxjKxyC6NK080u+YIMkitOg3gbnIXJ4wCqZN
-         nuziostoou2DjGSXMZy0isCiqJ46GtkDQHHRVZh4=
+        b=I7NXaezY2a1FQVAGvkKlDq3/iB21nkzNNIjA2GQN0tETT69nnrRZiZNHR4ZV8AAqU
+         37RVLI/kPxX6xPWSg4x4Xia4EZHy3GkaZQyo37S1JJHAiCAmzjzYW6DqToTPkJ6Obc
+         7jtouU1JHVxFewZr36UxrSbkJahwj4xf5E495HoY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Abhinav Kumar <quic_abhinavk@quicinc.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Fengnan Chang <changfengnan@vivo.com>,
+        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0574/1126] drm/msm/dpu: remove msm_dp cached in dpu_encoder_virt
-Date:   Tue,  5 Apr 2022 09:22:01 +0200
-Message-Id: <20220405070424.481080231@linuxfoundation.org>
+Subject: [PATCH 5.15 260/913] f2fs: fix compressed file start atomic write may cause data corruption
+Date:   Tue,  5 Apr 2022 09:22:02 +0200
+Message-Id: <20220405070347.649783086@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,55 +56,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+From: Fengnan Chang <changfengnan@vivo.com>
 
-[ Upstream commit b78f30a5c8a396ca31a905982c8cd955cd35807e ]
+[ Upstream commit 9b56adcf525522e9ffa52471260298d91fc1d395 ]
 
-Stop caching msm_dp instance in dpu_encoder_virt since it's not used
-now.
+When compressed file has blocks, f2fs_ioc_start_atomic_write will succeed,
+but compressed flag will be remained in inode. If write partial compreseed
+cluster and commit atomic write will cause data corruption.
 
-Fixes: 8a3b4c17f863 ("drm/msm/dp: employ bridge mechanism for display enable and disable")
-Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Link: https://lore.kernel.org/r/20220217035358.465904-4-dmitry.baryshkov@linaro.org
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+This is the reproduction process:
+Step 1:
+create a compressed file ,write 64K data , call fsync(), then the blocks
+are write as compressed cluster.
+Step2:
+iotcl(F2FS_IOC_START_ATOMIC_WRITE)  --- this should be fail, but not.
+write page 0 and page 3.
+iotcl(F2FS_IOC_COMMIT_ATOMIC_WRITE)  -- page 0 and 3 write as normal file,
+Step3:
+drop cache.
+read page 0-4   -- Since page 0 has a valid block address, read as
+non-compressed cluster, page 1 and 2 will be filled with compressed data
+or zero.
+
+The root cause is, after commit 7eab7a696827 ("f2fs: compress: remove
+unneeded read when rewrite whole cluster"), in step 2, f2fs_write_begin()
+only set target page dirty, and in f2fs_commit_inmem_pages(), we will write
+partial raw pages into compressed cluster, result in corrupting compressed
+cluster layout.
+
+Fixes: 4c8ff7095bef ("f2fs: support data compression")
+Fixes: 7eab7a696827 ("f2fs: compress: remove unneeded read when rewrite whole cluster")
+Reported-by: kernel test robot <lkp@intel.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Fengnan Chang <changfengnan@vivo.com>
+Reviewed-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/disp/dpu1/dpu_encoder.c | 5 -----
- 1 file changed, 5 deletions(-)
+ fs/f2fs/data.c | 2 +-
+ fs/f2fs/file.c | 5 ++++-
+ 2 files changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_encoder.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_encoder.c
-index 02d0fae1c6dc..16ae0cccbbb1 100644
---- a/drivers/gpu/drm/msm/disp/dpu1/dpu_encoder.c
-+++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_encoder.c
-@@ -168,7 +168,6 @@ enum dpu_enc_rc_states {
-  * @vsync_event_work:		worker to handle vsync event for autorefresh
-  * @topology:                   topology of the display
-  * @idle_timeout:		idle timeout duration in milliseconds
-- * @dp:				msm_dp pointer, for DP encoders
-  */
- struct dpu_encoder_virt {
- 	struct drm_encoder base;
-@@ -207,8 +206,6 @@ struct dpu_encoder_virt {
- 	struct msm_display_topology topology;
+diff --git a/fs/f2fs/data.c b/fs/f2fs/data.c
+index f6e9fc36b837..4cf522120cb1 100644
+--- a/fs/f2fs/data.c
++++ b/fs/f2fs/data.c
+@@ -3410,7 +3410,7 @@ static int f2fs_write_begin(struct file *file, struct address_space *mapping,
  
- 	u32 idle_timeout;
--
--	struct msm_dp *dp;
- };
+ 		*fsdata = NULL;
  
- #define to_dpu_encoder_virt(x) container_of(x, struct dpu_encoder_virt, base)
-@@ -2128,8 +2125,6 @@ int dpu_encoder_setup(struct drm_device *dev, struct drm_encoder *enc,
- 		timer_setup(&dpu_enc->vsync_event_timer,
- 				dpu_encoder_vsync_event_handler,
- 				0);
--	else if (disp_info->intf_type == DRM_MODE_ENCODER_TMDS)
--		dpu_enc->dp = priv->dp[disp_info->h_tile_instance[0]];
+-		if (len == PAGE_SIZE)
++		if (len == PAGE_SIZE && !(f2fs_is_atomic_file(inode)))
+ 			goto repeat;
  
- 	INIT_DELAYED_WORK(&dpu_enc->delayed_off_work,
- 			dpu_encoder_off_work);
+ 		ret = f2fs_prepare_compress_overwrite(inode, pagep,
+diff --git a/fs/f2fs/file.c b/fs/f2fs/file.c
+index 7ed44752c758..0e14dc41ed4e 100644
+--- a/fs/f2fs/file.c
++++ b/fs/f2fs/file.c
+@@ -2002,7 +2002,10 @@ static int f2fs_ioc_start_atomic_write(struct file *filp)
+ 
+ 	inode_lock(inode);
+ 
+-	f2fs_disable_compressed_file(inode);
++	if (!f2fs_disable_compressed_file(inode)) {
++		ret = -EINVAL;
++		goto out;
++	}
+ 
+ 	if (f2fs_is_atomic_file(inode)) {
+ 		if (is_inode_flag_set(inode, FI_ATOMIC_REVOKE_REQUEST))
 -- 
 2.34.1
 
