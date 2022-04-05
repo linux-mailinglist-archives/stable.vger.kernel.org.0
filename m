@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DAE7B4F42A0
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:50:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C9B34F4016
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:10:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1383426AbiDEMZr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:25:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39280 "EHLO
+        id S1383255AbiDEMZP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:25:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241325AbiDEK4a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:56:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47A6BAC905;
-        Tue,  5 Apr 2022 03:28:41 -0700 (PDT)
+        with ESMTP id S1348493AbiDEKrQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:47:16 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 301B33B56B;
+        Tue,  5 Apr 2022 03:27:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E06C1B81C8A;
-        Tue,  5 Apr 2022 10:28:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 340E8C385A0;
-        Tue,  5 Apr 2022 10:28:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D6EFAB81C98;
+        Tue,  5 Apr 2022 10:27:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2462DC385A1;
+        Tue,  5 Apr 2022 10:27:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649154518;
-        bh=jvR56L6/fJAphKqjnHqF7RG12HbFeNFPnqr3S53vyzQ=;
+        s=korg; t=1649154429;
+        bh=4djunoAxJHOaDgEd2iZ0RMBXmqeYYQMugjYVYuIJyBs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fqEL205MOy54ce9GKn9bx+/2AAm5f0uFC6V/hE6UgjeA2wvZ2PS4yB+cC8FQN7Z3e
-         HM+MSsQiKwFQdqjc8ZovaXsDAsGWMeQbXb0PlGIz7nWk/Qyq65uVqi3qgtlt6RDUiu
-         2M1gCXwuZeP/ocIxlEkeTIfmT5Qah5Oh0nbDBG60=
+        b=LTPxtBwWPsh8pE0vSIuV7d3j2OfY1E5LzRsChnK5BSjnuR8QXhxf1BcljSsZSlIAE
+         ibKAY7CMZX7herKRh+b5ZU0hJk55wxaDmB8VQstht6XAqYuHGlckifByj58LlfBCug
+         jgo63DXMBEGU3n49MuWIpsfPbLPqy3RKFLgLsoHw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.10 567/599] io_uring: fix memory leak of uid in files registration
-Date:   Tue,  5 Apr 2022 09:34:21 +0200
-Message-Id: <20220405070315.714802826@linuxfoundation.org>
+        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
+        Fangrui Song <maskray@google.com>,
+        Palmer Dabbelt <palmer@rivosinc.com>
+Subject: [PATCH 5.10 568/599] riscv module: remove (NOLOAD)
+Date:   Tue,  5 Apr 2022 09:34:22 +0200
+Message-Id: <20220405070315.744480047@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -53,31 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+From: Fangrui Song <maskray@google.com>
 
-commit c86d18f4aa93e0e66cda0e55827cd03eea6bc5f8 upstream.
+commit 60210a3d86dc57ce4a76a366e7841dda746a33f7 upstream.
 
-When there are no files for __io_sqe_files_scm() to process in the
-range, it'll free everything and return. However, it forgets to put uid.
+On ELF, (NOLOAD) sets the section type to SHT_NOBITS[1]. It is conceptually
+inappropriate for .plt, .got, and .got.plt sections which are always
+SHT_PROGBITS.
 
-Fixes: 08a451739a9b5 ("io_uring: allow sparse fixed file sets")
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Link: https://lore.kernel.org/r/accee442376f33ce8aaebb099d04967533efde92.1648226048.git.asml.silence@gmail.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+In GNU ld, if PLT entries are needed, .plt will be SHT_PROGBITS anyway
+and (NOLOAD) will be essentially ignored. In ld.lld, since
+https://reviews.llvm.org/D118840 ("[ELF] Support (TYPE=<value>) to
+customize the output section type"), ld.lld will report a `section type
+mismatch` error (later changed to a warning). Just remove (NOLOAD) to
+fix the warning.
+
+[1] https://lld.llvm.org/ELF/linker_script.html As of today, "The
+section should be marked as not loadable" on
+https://sourceware.org/binutils/docs/ld/Output-Section-Type.html is
+outdated for ELF.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/1597
+Fixes: ab1ef68e5401 ("RISC-V: Add sections of PLT and GOT for kernel module")
+Reported-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Fangrui Song <maskray@google.com>
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/io_uring.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/riscv/include/asm/module.lds.h |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -7350,6 +7350,7 @@ static int __io_sqe_files_scm(struct io_
- 			fput(fpl->fp[i]);
- 	} else {
- 		kfree_skb(skb);
-+		free_uid(fpl->user);
- 		kfree(fpl);
- 	}
- 
+--- a/arch/riscv/include/asm/module.lds.h
++++ b/arch/riscv/include/asm/module.lds.h
+@@ -2,8 +2,8 @@
+ /* Copyright (C) 2017 Andes Technology Corporation */
+ #ifdef CONFIG_MODULE_SECTIONS
+ SECTIONS {
+-	.plt (NOLOAD) : { BYTE(0) }
+-	.got (NOLOAD) : { BYTE(0) }
+-	.got.plt (NOLOAD) : { BYTE(0) }
++	.plt : { BYTE(0) }
++	.got : { BYTE(0) }
++	.got.plt : { BYTE(0) }
+ }
+ #endif
 
 
