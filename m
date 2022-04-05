@@ -2,48 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 31F944F33B2
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:21:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0426A4F2F3D
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:11:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356406AbiDEKXt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:23:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55688 "EHLO
+        id S1347448AbiDEJ0i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:26:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38468 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236250AbiDEJbO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:31:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 374B9C3C;
-        Tue,  5 Apr 2022 02:18:55 -0700 (PDT)
+        with ESMTP id S243323AbiDEIuV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:50:21 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BFB913D35;
+        Tue,  5 Apr 2022 01:38:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C5A7A61654;
-        Tue,  5 Apr 2022 09:18:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CAFBDC385A3;
-        Tue,  5 Apr 2022 09:18:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4FD54B81BBF;
+        Tue,  5 Apr 2022 08:38:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1E43C385A2;
+        Tue,  5 Apr 2022 08:38:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150334;
-        bh=5z96HNtCSD9lIA7Pp9tRzOIjIWNw7nGrfQ84IMYPEZA=;
+        s=korg; t=1649147917;
+        bh=FUcnqxzjXH5u3vbw4nDqrygn9TouK/7YERh2EEo0v3w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DRvvDLFl1DUBUp9QeB2J1s+4giLQygF+1dYd0UjVZkrV2GzGQ1q+pZ1dLyll31KhR
-         498I3wS4u3cfWg+y5rm0VrNDhycigmKwI6GWJrLzkQQqQot0smZ8qZv9wG3OruduKJ
-         wB907/TGar+XumwTL1tIDKqQZAALwfDMOULDwwFk=
+        b=hZ9KVrrS8pTFxDNNc5Q65OIpjrwYAB8d18F3eEpK+sHKicqm5LY0EihkZzJ1UDiar
+         7XViUCsZKb7TCbysWjdAaEaglZftF4nJHldTCDT1mIU1RG8qorxKvX6BVlPj2+kYt4
+         8wKwc/STja53WA7WF3ZpkZgH9SV9ywjmigvYV0H8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Biju Das <biju.das.jz@bp.renesas.com>,
-        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 020/913] spi: Fix erroneous sgs value with min_t()
+        stable@vger.kernel.org, Mingzhe Zou <mingzhe.zou@easystack.cn>,
+        Coly Li <colyli@suse.de>
+Subject: [PATCH 5.16 0169/1017] bcache: fixup multiple threads crash
 Date:   Tue,  5 Apr 2022 09:18:02 +0200
-Message-Id: <20220405070340.419902803@linuxfoundation.org>
+Message-Id: <20220405070359.242350780@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,59 +53,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Biju Das <biju.das.jz@bp.renesas.com>
+From: Mingzhe Zou <mingzhe.zou@easystack.cn>
 
-[ Upstream commit ebc4cb43ea5ada3db46c80156fca58a54b9bbca8 ]
+commit 887554ab96588de2917b6c8c73e552da082e5368 upstream.
 
-While computing sgs in spi_map_buf(), the data type
-used in min_t() for max_seg_size is 'unsigned int' where
-as that of ctlr->max_dma_len is 'size_t'.
+When multiple threads to check btree nodes in parallel, the main
+thread wait for all threads to stop or CACHE_SET_IO_DISABLE flag:
 
-min_t(unsigned int,x,y) gives wrong results if one of x/y is
-'size_t'
+wait_event_interruptible(check_state->wait,
+                         atomic_read(&check_state->started) == 0 ||
+                         test_bit(CACHE_SET_IO_DISABLE, &c->flags));
 
-Consider the below examples on a 64-bit machine (ie size_t is
-64-bits, and unsigned int is 32-bit).
-    case 1) min_t(unsigned int, 5, 0x100000001);
-    case 2) min_t(size_t, 5, 0x100000001);
+However, the bch_btree_node_read and bch_btree_node_read_done
+maybe call bch_cache_set_error, then the CACHE_SET_IO_DISABLE
+will be set. If the flag already set, the main thread return
+error. At the same time, maybe some threads still running and
+read NULL pointer, the kernel will crash.
 
-Case 1 returns '1', where as case 2 returns '5'. As you can see
-the result from case 1 is wrong.
+This patch change the event wait condition, the main thread must
+wait for all threads to stop.
 
-This patch fixes the above issue by using the data type of the
-parameters that are used in min_t with maximum data length.
-
-Fixes: commit 1a4e53d2fc4f68aa ("spi: Fix invalid sgs value")
-Reported-by: Linus Torvalds <torvalds@linux-foundation.org>
-Suggested-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
-Reviewed-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Link: https://lore.kernel.org/r/20220316175317.465-1-biju.das.jz@bp.renesas.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 8e7102273f597 ("bcache: make bch_btree_check() to be multithreaded")
+Signed-off-by: Mingzhe Zou <mingzhe.zou@easystack.cn>
+Cc: stable@vger.kernel.org # v5.7+
+Signed-off-by: Coly Li <colyli@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/spi/spi.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/md/bcache/btree.c     |    6 ++++--
+ drivers/md/bcache/writeback.c |    6 ++++--
+ 2 files changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
-index c7c8d13b2f83..cb7eb1e2e0e9 100644
---- a/drivers/spi/spi.c
-+++ b/drivers/spi/spi.c
-@@ -942,10 +942,10 @@ int spi_map_buf(struct spi_controller *ctlr, struct device *dev,
- 	int i, ret;
+--- a/drivers/md/bcache/btree.c
++++ b/drivers/md/bcache/btree.c
+@@ -2060,9 +2060,11 @@ int bch_btree_check(struct cache_set *c)
+ 		}
+ 	}
  
- 	if (vmalloced_buf || kmap_buf) {
--		desc_len = min_t(unsigned int, max_seg_size, PAGE_SIZE);
-+		desc_len = min_t(unsigned long, max_seg_size, PAGE_SIZE);
- 		sgs = DIV_ROUND_UP(len + offset_in_page(buf), desc_len);
- 	} else if (virt_addr_valid(buf)) {
--		desc_len = min_t(unsigned int, max_seg_size, ctlr->max_dma_len);
-+		desc_len = min_t(size_t, max_seg_size, ctlr->max_dma_len);
- 		sgs = DIV_ROUND_UP(len, desc_len);
- 	} else {
- 		return -EINVAL;
--- 
-2.34.1
-
++	/*
++	 * Must wait for all threads to stop.
++	 */
+ 	wait_event_interruptible(check_state->wait,
+-				 atomic_read(&check_state->started) == 0 ||
+-				  test_bit(CACHE_SET_IO_DISABLE, &c->flags));
++				 atomic_read(&check_state->started) == 0);
+ 
+ 	for (i = 0; i < check_state->total_threads; i++) {
+ 		if (check_state->infos[i].result) {
+--- a/drivers/md/bcache/writeback.c
++++ b/drivers/md/bcache/writeback.c
+@@ -998,9 +998,11 @@ void bch_sectors_dirty_init(struct bcach
+ 		}
+ 	}
+ 
++	/*
++	 * Must wait for all threads to stop.
++	 */
+ 	wait_event_interruptible(state->wait,
+-		 atomic_read(&state->started) == 0 ||
+-		 test_bit(CACHE_SET_IO_DISABLE, &c->flags));
++		 atomic_read(&state->started) == 0);
+ 
+ out:
+ 	kfree(state);
 
 
