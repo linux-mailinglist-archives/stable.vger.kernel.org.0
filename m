@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 390214F34A2
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:38:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 65D054F317B
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:44:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245238AbiDEIyR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:54:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46068 "EHLO
+        id S1355676AbiDEKVb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:21:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241065AbiDEIcq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:32:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5D3DB91B0;
-        Tue,  5 Apr 2022 01:26:36 -0700 (PDT)
+        with ESMTP id S1345522AbiDEJWr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:22:47 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51EAC4C7B8;
+        Tue,  5 Apr 2022 02:11:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 74B4E6117A;
-        Tue,  5 Apr 2022 08:26:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83083C385A2;
-        Tue,  5 Apr 2022 08:26:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E62F8B81A12;
+        Tue,  5 Apr 2022 09:11:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C54AC385A2;
+        Tue,  5 Apr 2022 09:11:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147195;
-        bh=YMuvDVCXN0t5GEpEso/ItGrfwaHKye26v8Bn/LLLC+k=;
+        s=korg; t=1649149868;
+        bh=/l/iLNcIVgBl6tLCGjPlH9RZNhMIyV8EQX/3Y4TFIDo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dD8ismDVo92r1QOkX+tb0IAcjFRhNxZmqDvazmqEDqMVPmgkweyXtZdXN1aH5vz61
-         OAoiE3qTiFthE7aS5mrpyZVTPzCUkB2fIUCXQYpGcV+hi/qkZIfRJi94iZl+r3zbHL
-         1T8bD+QR2fFdKOF+0R8xkoJQd/cQeQLOZ3QPJAdo=
+        b=ud390YaoTGTVy/NtgXt3n5IksjXeINsMV5l98jgv6cqILSwVyYuQYo9Y53D0ZBz8M
+         4p4OhlK2o/9alfhJLLEtTvt/rB0oBeugzq+WPxwqYfiOlWyWQAgPbVUbyri7d+LUWC
+         2eV+hpgZUBsmTP4/N/b8QUvbnm5OiWlnhCxpRnnc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Dionne <marc.dionne@auristor.com>,
-        David Howells <dhowells@redhat.com>,
-        linux-afs@lists.infradead.org, Paolo Abeni <pabeni@redhat.com>
-Subject: [PATCH 5.17 1035/1126] rxrpc: Fix call timer start racing with call destruction
+        stable@vger.kernel.org, Maxime Bizon <mbizon@freebox.fr>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Russell Currey <ruscur@russell.cc>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.16 0869/1017] powerpc: Add set_memory_{p/np}() and remove set_memory_attr()
 Date:   Tue,  5 Apr 2022 09:29:42 +0200
-Message-Id: <20220405070437.856096500@linuxfoundation.org>
+Message-Id: <20220405070420.031451125@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,200 +55,178 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-commit 4a7f62f91933c8ae5308f9127fd8ea48188b6bc3 upstream.
+commit f222ab83df92acf72691a2021e1f0d99880dcdf1 upstream.
 
-The rxrpc_call struct has a timer used to handle various timed events
-relating to a call.  This timer can get started from the packet input
-routines that are run in softirq mode with just the RCU read lock held.
-Unfortunately, because only the RCU read lock is held - and neither ref or
-other lock is taken - the call can start getting destroyed at the same time
-a packet comes in addressed to that call.  This causes the timer - which
-was already stopped - to get restarted.  Later, the timer dispatch code may
-then oops if the timer got deallocated first.
+set_memory_attr() was implemented by commit 4d1755b6a762 ("powerpc/mm:
+implement set_memory_attr()") because the set_memory_xx() couldn't
+be used at that time to modify memory "on the fly" as explained it
+the commit.
 
-Fix this by trying to take a ref on the rxrpc_call struct and, if
-successful, passing that ref along to the timer.  If the timer was already
-running, the ref is discarded.
+But set_memory_attr() uses set_pte_at() which leads to warnings when
+CONFIG_DEBUG_VM is selected, because set_pte_at() is unexpected for
+updating existing page table entries.
 
-The timer completion routine can then pass the ref along to the call's work
-item when it queues it.  If the timer or work item where already
-queued/running, the extra ref is discarded.
+The check could be bypassed by using __set_pte_at() instead,
+as it was the case before commit c988cfd38e48 ("powerpc/32:
+use set_memory_attr()") but since commit 9f7853d7609d ("powerpc/mm:
+Fix set_memory_*() against concurrent accesses") it is now possible
+to use set_memory_xx() functions to update page table entries
+"on the fly" because the update is now atomic.
 
-Fixes: a158bdd3247b ("rxrpc: Fix call timeouts")
-Reported-by: Marc Dionne <marc.dionne@auristor.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-Reviewed-by: Marc Dionne <marc.dionne@auristor.com>
-Tested-by: Marc Dionne <marc.dionne@auristor.com>
-cc: linux-afs@lists.infradead.org
-Link: http://lists.infradead.org/pipermail/linux-afs/2022-March/005073.html
-Link: https://lore.kernel.org/r/164865115696.2943015.11097991776647323586.stgit@warthog.procyon.org.uk
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+For DEBUG_PAGEALLOC we need to clear and set back _PAGE_PRESENT.
+Add set_memory_np() and set_memory_p() for that.
+
+Replace all uses of set_memory_attr() by the relevant set_memory_xx()
+and remove set_memory_attr().
+
+Fixes: c988cfd38e48 ("powerpc/32: use set_memory_attr()")
+Cc: stable@vger.kernel.org
+Reported-by: Maxime Bizon <mbizon@freebox.fr>
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Tested-by: Maxime Bizon <mbizon@freebox.fr>
+Reviewed-by: Russell Currey <ruscur@russell.cc>
+Depends-on: 9f7853d7609d ("powerpc/mm: Fix set_memory_*() against concurrent accesses")
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/cda2b44b55c96f9ac69fa92e68c01084ec9495c5.1640344012.git.christophe.leroy@csgroup.eu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/trace/events/rxrpc.h |    8 +++++++-
- net/rxrpc/ar-internal.h      |   15 +++++++--------
- net/rxrpc/call_event.c       |    2 +-
- net/rxrpc/call_object.c      |   40 +++++++++++++++++++++++++++++++++++-----
- 4 files changed, 50 insertions(+), 15 deletions(-)
+ arch/powerpc/include/asm/set_memory.h |   12 +++++++++-
+ arch/powerpc/mm/pageattr.c            |   39 +++++-----------------------------
+ arch/powerpc/mm/pgtable_32.c          |   24 +++++++++-----------
+ 3 files changed, 28 insertions(+), 47 deletions(-)
 
---- a/include/trace/events/rxrpc.h
-+++ b/include/trace/events/rxrpc.h
-@@ -83,12 +83,15 @@ enum rxrpc_call_trace {
- 	rxrpc_call_error,
- 	rxrpc_call_got,
- 	rxrpc_call_got_kernel,
-+	rxrpc_call_got_timer,
- 	rxrpc_call_got_userid,
- 	rxrpc_call_new_client,
- 	rxrpc_call_new_service,
- 	rxrpc_call_put,
- 	rxrpc_call_put_kernel,
- 	rxrpc_call_put_noqueue,
-+	rxrpc_call_put_notimer,
-+	rxrpc_call_put_timer,
- 	rxrpc_call_put_userid,
- 	rxrpc_call_queued,
- 	rxrpc_call_queued_ref,
-@@ -278,12 +281,15 @@ enum rxrpc_tx_point {
- 	EM(rxrpc_call_error,			"*E*") \
- 	EM(rxrpc_call_got,			"GOT") \
- 	EM(rxrpc_call_got_kernel,		"Gke") \
-+	EM(rxrpc_call_got_timer,		"GTM") \
- 	EM(rxrpc_call_got_userid,		"Gus") \
- 	EM(rxrpc_call_new_client,		"NWc") \
- 	EM(rxrpc_call_new_service,		"NWs") \
- 	EM(rxrpc_call_put,			"PUT") \
- 	EM(rxrpc_call_put_kernel,		"Pke") \
--	EM(rxrpc_call_put_noqueue,		"PNQ") \
-+	EM(rxrpc_call_put_noqueue,		"PnQ") \
-+	EM(rxrpc_call_put_notimer,		"PnT") \
-+	EM(rxrpc_call_put_timer,		"PTM") \
- 	EM(rxrpc_call_put_userid,		"Pus") \
- 	EM(rxrpc_call_queued,			"QUE") \
- 	EM(rxrpc_call_queued_ref,		"QUR") \
---- a/net/rxrpc/ar-internal.h
-+++ b/net/rxrpc/ar-internal.h
-@@ -777,14 +777,12 @@ void rxrpc_propose_ACK(struct rxrpc_call
- 		       enum rxrpc_propose_ack_trace);
- void rxrpc_process_call(struct work_struct *);
+--- a/arch/powerpc/include/asm/set_memory.h
++++ b/arch/powerpc/include/asm/set_memory.h
+@@ -6,6 +6,8 @@
+ #define SET_MEMORY_RW	1
+ #define SET_MEMORY_NX	2
+ #define SET_MEMORY_X	3
++#define SET_MEMORY_NP	4	/* Set memory non present */
++#define SET_MEMORY_P	5	/* Set memory present */
  
--static inline void rxrpc_reduce_call_timer(struct rxrpc_call *call,
--					   unsigned long expire_at,
--					   unsigned long now,
--					   enum rxrpc_timer_trace why)
+ int change_memory_attr(unsigned long addr, int numpages, long action);
+ 
+@@ -29,6 +31,14 @@ static inline int set_memory_x(unsigned
+ 	return change_memory_attr(addr, numpages, SET_MEMORY_X);
+ }
+ 
+-int set_memory_attr(unsigned long addr, int numpages, pgprot_t prot);
++static inline int set_memory_np(unsigned long addr, int numpages)
++{
++	return change_memory_attr(addr, numpages, SET_MEMORY_NP);
++}
++
++static inline int set_memory_p(unsigned long addr, int numpages)
++{
++	return change_memory_attr(addr, numpages, SET_MEMORY_P);
++}
+ 
+ #endif
+--- a/arch/powerpc/mm/pageattr.c
++++ b/arch/powerpc/mm/pageattr.c
+@@ -48,6 +48,12 @@ static int change_page_attr(pte_t *ptep,
+ 	case SET_MEMORY_X:
+ 		pte = pte_mkexec(pte);
+ 		break;
++	case SET_MEMORY_NP:
++		pte_update(&init_mm, addr, ptep, _PAGE_PRESENT, 0, 0);
++		break;
++	case SET_MEMORY_P:
++		pte_update(&init_mm, addr, ptep, 0, _PAGE_PRESENT, 0);
++		break;
+ 	default:
+ 		WARN_ON_ONCE(1);
+ 		break;
+@@ -96,36 +102,3 @@ int change_memory_attr(unsigned long add
+ 	return apply_to_existing_page_range(&init_mm, start, size,
+ 					    change_page_attr, (void *)action);
+ }
+-
+-/*
+- * Set the attributes of a page:
+- *
+- * This function is used by PPC32 at the end of init to set final kernel memory
+- * protection. It includes changing the maping of the page it is executing from
+- * and data pages it is using.
+- */
+-static int set_page_attr(pte_t *ptep, unsigned long addr, void *data)
 -{
--	trace_rxrpc_timer(call, why, now);
--	timer_reduce(&call->timer, expire_at);
+-	pgprot_t prot = __pgprot((unsigned long)data);
+-
+-	spin_lock(&init_mm.page_table_lock);
+-
+-	set_pte_at(&init_mm, addr, ptep, pte_modify(*ptep, prot));
+-	flush_tlb_kernel_range(addr, addr + PAGE_SIZE);
+-
+-	spin_unlock(&init_mm.page_table_lock);
+-
+-	return 0;
 -}
-+void rxrpc_reduce_call_timer(struct rxrpc_call *call,
-+			     unsigned long expire_at,
-+			     unsigned long now,
-+			     enum rxrpc_timer_trace why);
-+
-+void rxrpc_delete_call_timer(struct rxrpc_call *call);
+-
+-int set_memory_attr(unsigned long addr, int numpages, pgprot_t prot)
+-{
+-	unsigned long start = ALIGN_DOWN(addr, PAGE_SIZE);
+-	unsigned long sz = numpages * PAGE_SIZE;
+-
+-	if (numpages <= 0)
+-		return 0;
+-
+-	return apply_to_existing_page_range(&init_mm, start, sz, set_page_attr,
+-					    (void *)pgprot_val(prot));
+-}
+--- a/arch/powerpc/mm/pgtable_32.c
++++ b/arch/powerpc/mm/pgtable_32.c
+@@ -135,10 +135,12 @@ void mark_initmem_nx(void)
+ 	unsigned long numpages = PFN_UP((unsigned long)_einittext) -
+ 				 PFN_DOWN((unsigned long)_sinittext);
  
- /*
-  * call_object.c
-@@ -808,6 +806,7 @@ void rxrpc_release_calls_on_socket(struc
- bool __rxrpc_queue_call(struct rxrpc_call *);
- bool rxrpc_queue_call(struct rxrpc_call *);
- void rxrpc_see_call(struct rxrpc_call *);
-+bool rxrpc_try_get_call(struct rxrpc_call *call, enum rxrpc_call_trace op);
- void rxrpc_get_call(struct rxrpc_call *, enum rxrpc_call_trace);
- void rxrpc_put_call(struct rxrpc_call *, enum rxrpc_call_trace);
- void rxrpc_cleanup_call(struct rxrpc_call *);
---- a/net/rxrpc/call_event.c
-+++ b/net/rxrpc/call_event.c
-@@ -310,7 +310,7 @@ recheck_state:
- 	}
- 
- 	if (call->state == RXRPC_CALL_COMPLETE) {
--		del_timer_sync(&call->timer);
-+		rxrpc_delete_call_timer(call);
- 		goto out_put;
- 	}
- 
---- a/net/rxrpc/call_object.c
-+++ b/net/rxrpc/call_object.c
-@@ -53,10 +53,30 @@ static void rxrpc_call_timer_expired(str
- 
- 	if (call->state < RXRPC_CALL_COMPLETE) {
- 		trace_rxrpc_timer(call, rxrpc_timer_expired, jiffies);
--		rxrpc_queue_call(call);
-+		__rxrpc_queue_call(call);
+-	if (v_block_mapped((unsigned long)_sinittext))
++	if (v_block_mapped((unsigned long)_sinittext)) {
+ 		mmu_mark_initmem_nx();
+-	else
+-		set_memory_attr((unsigned long)_sinittext, numpages, PAGE_KERNEL);
 +	} else {
-+		rxrpc_put_call(call, rxrpc_call_put);
++		set_memory_nx((unsigned long)_sinittext, numpages);
++		set_memory_rw((unsigned long)_sinittext, numpages);
 +	}
-+}
-+
-+void rxrpc_reduce_call_timer(struct rxrpc_call *call,
-+			     unsigned long expire_at,
-+			     unsigned long now,
-+			     enum rxrpc_timer_trace why)
-+{
-+	if (rxrpc_try_get_call(call, rxrpc_call_got_timer)) {
-+		trace_rxrpc_timer(call, why, now);
-+		if (timer_reduce(&call->timer, expire_at))
-+			rxrpc_put_call(call, rxrpc_call_put_notimer);
- 	}
  }
  
-+void rxrpc_delete_call_timer(struct rxrpc_call *call)
-+{
-+	if (del_timer_sync(&call->timer))
-+		rxrpc_put_call(call, rxrpc_call_put_timer);
-+}
-+
- static struct lock_class_key rxrpc_call_user_mutex_lock_class_key;
- 
- /*
-@@ -463,6 +483,17 @@ void rxrpc_see_call(struct rxrpc_call *c
+ #ifdef CONFIG_STRICT_KERNEL_RWX
+@@ -152,18 +154,14 @@ void mark_rodata_ro(void)
+ 		return;
  	}
+ 
+-	numpages = PFN_UP((unsigned long)_etext) -
+-		   PFN_DOWN((unsigned long)_stext);
+-
+-	set_memory_attr((unsigned long)_stext, numpages, PAGE_KERNEL_ROX);
+ 	/*
+-	 * mark .rodata as read only. Use __init_begin rather than __end_rodata
+-	 * to cover NOTES and EXCEPTION_TABLE.
++	 * mark .text and .rodata as read only. Use __init_begin rather than
++	 * __end_rodata to cover NOTES and EXCEPTION_TABLE.
+ 	 */
+ 	numpages = PFN_UP((unsigned long)__init_begin) -
+-		   PFN_DOWN((unsigned long)__start_rodata);
++		   PFN_DOWN((unsigned long)_stext);
+ 
+-	set_memory_attr((unsigned long)__start_rodata, numpages, PAGE_KERNEL_RO);
++	set_memory_ro((unsigned long)_stext, numpages);
+ 
+ 	// mark_initmem_nx() should have already run by now
+ 	ptdump_check_wx();
+@@ -179,8 +177,8 @@ void __kernel_map_pages(struct page *pag
+ 		return;
+ 
+ 	if (enable)
+-		set_memory_attr(addr, numpages, PAGE_KERNEL);
++		set_memory_p(addr, numpages);
+ 	else
+-		set_memory_attr(addr, numpages, __pgprot(0));
++		set_memory_np(addr, numpages);
  }
- 
-+bool rxrpc_try_get_call(struct rxrpc_call *call, enum rxrpc_call_trace op)
-+{
-+	const void *here = __builtin_return_address(0);
-+	int n = atomic_fetch_add_unless(&call->usage, 1, 0);
-+
-+	if (n == 0)
-+		return false;
-+	trace_rxrpc_call(call->debug_id, op, n, here, NULL);
-+	return true;
-+}
-+
- /*
-  * Note the addition of a ref on a call.
-  */
-@@ -510,8 +541,7 @@ void rxrpc_release_call(struct rxrpc_soc
- 	spin_unlock_bh(&call->lock);
- 
- 	rxrpc_put_call_slot(call);
--
--	del_timer_sync(&call->timer);
-+	rxrpc_delete_call_timer(call);
- 
- 	/* Make sure we don't get any more notifications */
- 	write_lock_bh(&rx->recvmsg_lock);
-@@ -618,6 +648,8 @@ static void rxrpc_destroy_call(struct wo
- 	struct rxrpc_call *call = container_of(work, struct rxrpc_call, processor);
- 	struct rxrpc_net *rxnet = call->rxnet;
- 
-+	rxrpc_delete_call_timer(call);
-+
- 	rxrpc_put_connection(call->conn);
- 	rxrpc_put_peer(call->peer);
- 	kfree(call->rxtx_buffer);
-@@ -652,8 +684,6 @@ void rxrpc_cleanup_call(struct rxrpc_cal
- 
- 	memset(&call->sock_node, 0xcd, sizeof(call->sock_node));
- 
--	del_timer_sync(&call->timer);
--
- 	ASSERTCMP(call->state, ==, RXRPC_CALL_COMPLETE);
- 	ASSERT(test_bit(RXRPC_CALL_RELEASED, &call->flags));
- 
+ #endif /* CONFIG_DEBUG_PAGEALLOC */
 
 
