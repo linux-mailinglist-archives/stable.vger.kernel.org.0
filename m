@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BAD994F2BE3
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:21:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D9BC64F2D17
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:35:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241632AbiDEIeu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:34:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34848 "EHLO
+        id S239180AbiDEJxI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:53:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41484 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239455AbiDEIUG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:20:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 969B76C1D5;
-        Tue,  5 Apr 2022 01:13:41 -0700 (PDT)
+        with ESMTP id S243543AbiDEJJE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:09:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52B89B91B0;
+        Tue,  5 Apr 2022 01:58:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4B967B81BAF;
-        Tue,  5 Apr 2022 08:13:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84F88C385A1;
-        Tue,  5 Apr 2022 08:13:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A7D4761572;
+        Tue,  5 Apr 2022 08:58:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9145C385A0;
+        Tue,  5 Apr 2022 08:58:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146418;
-        bh=3SyFg1Ox2BVv77hwr5Q+brbLvYJwdOjO6I/B8CTdJ5k=;
+        s=korg; t=1649149092;
+        bh=kYZhOnBQIEQ5uNY6XMoHEpNf48Uv3rRYsl8kLmBQSDs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f877gaBDJ/tcX5L+0EeGaMrI56dTlIMwwHnmEs3105hPRVT7p+F2JGtaK95WTmoEs
-         JZ1XwneC4KDv7n9KHDHV/N1HWr+VypmmSxRo81Gsef6xYYuciNTxrBsKdYdHUDdQFd
-         +DE/cJCP2pLhdE9c5hiYDB6+v79sl5RIzhugWtHs=
+        b=k+YlihSIqIl71Y23T4AE9EOpDNFn1/ldemvHNusYvAhideNyRKi6voZQ8DMucEbkF
+         ROfn2TJQdcYUiPJaYZ2oQ2Xop3eaVP/S7H+PvnxZ8ZqiigL7jwnvtKQHd31G9hxnZK
+         tceIsxDCcqdcRSdCH8q0oRdKQ7ZR6vDbj80ChdK0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oleksij Rempel <o.rempel@pengutronix.de>,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        stable@vger.kernel.org, Hou Tao <houtao1@huawei.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0719/1126] misc: alcor_pci: Fix an error handling path
+Subject: [PATCH 5.16 0553/1017] bpf, arm64: Call build_prologue() first in first JIT pass
 Date:   Tue,  5 Apr 2022 09:24:26 +0200
-Message-Id: <20220405070428.697937935@linuxfoundation.org>
+Message-Id: <20220405070410.698756494@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,70 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Hou Tao <houtao1@huawei.com>
 
-[ Upstream commit 5b3dc949f554379edcb8ef6111aa5ecb78feb798 ]
+[ Upstream commit 68e4f238b0e9d3670a1612ad900a6e98b2b3f7dd ]
 
-A successful ida_simple_get() should be balanced by a corresponding
-ida_simple_remove().
+BPF line info needs ctx->offset to be the instruction offset in the whole JITed
+image instead of the body itself, so also call build_prologue() first in first
+JIT pass.
 
-Add the missing call in the error handling path of the probe.
-
-While at it, switch to ida_alloc()/ida_free() instead to
-ida_simple_get()/ida_simple_remove().
-The latter is deprecated and more verbose.
-
-Fixes: 4f556bc04e3c ("misc: cardreader: add new Alcor Micro Cardreader PCI driver")
-Reviewed-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/918a9875b7f67b7f8f123c4446452603422e8c5e.1644136776.git.christophe.jaillet@wanadoo.fr
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 37ab566c178d ("bpf: arm64: Enable arm64 jit to provide bpf_line_info")
+Signed-off-by: Hou Tao <houtao1@huawei.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20220226121906.5709-2-houtao1@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/cardreader/alcor_pci.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ arch/arm64/net/bpf_jit_comp.c | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/misc/cardreader/alcor_pci.c b/drivers/misc/cardreader/alcor_pci.c
-index de6d44a158bb..3f514d77a843 100644
---- a/drivers/misc/cardreader/alcor_pci.c
-+++ b/drivers/misc/cardreader/alcor_pci.c
-@@ -266,7 +266,7 @@ static int alcor_pci_probe(struct pci_dev *pdev,
- 	if (!priv)
- 		return -ENOMEM;
- 
--	ret = ida_simple_get(&alcor_pci_idr, 0, 0, GFP_KERNEL);
-+	ret = ida_alloc(&alcor_pci_idr, GFP_KERNEL);
- 	if (ret < 0)
- 		return ret;
- 	priv->id = ret;
-@@ -280,7 +280,8 @@ static int alcor_pci_probe(struct pci_dev *pdev,
- 	ret = pci_request_regions(pdev, DRV_NAME_ALCOR_PCI);
- 	if (ret) {
- 		dev_err(&pdev->dev, "Cannot request region\n");
--		return -ENOMEM;
-+		ret = -ENOMEM;
-+		goto error_free_ida;
+diff --git a/arch/arm64/net/bpf_jit_comp.c b/arch/arm64/net/bpf_jit_comp.c
+index 71ef9dcd9b57..3c6d0d60820f 100644
+--- a/arch/arm64/net/bpf_jit_comp.c
++++ b/arch/arm64/net/bpf_jit_comp.c
+@@ -1049,15 +1049,18 @@ struct bpf_prog *bpf_int_jit_compile(struct bpf_prog *prog)
+ 		goto out_off;
  	}
  
- 	if (!(pci_resource_flags(pdev, bar) & IORESOURCE_MEM)) {
-@@ -324,6 +325,8 @@ static int alcor_pci_probe(struct pci_dev *pdev,
+-	/* 1. Initial fake pass to compute ctx->idx. */
+-
+-	/* Fake pass to fill in ctx->offset. */
+-	if (build_body(&ctx, extra_pass)) {
++	/*
++	 * 1. Initial fake pass to compute ctx->idx and ctx->offset.
++	 *
++	 * BPF line info needs ctx->offset[i] to be the offset of
++	 * instruction[i] in jited image, so build prologue first.
++	 */
++	if (build_prologue(&ctx, was_classic)) {
+ 		prog = orig_prog;
+ 		goto out_off;
+ 	}
  
- error_release_regions:
- 	pci_release_regions(pdev);
-+error_free_ida:
-+	ida_free(&alcor_pci_idr, priv->id);
- 	return ret;
- }
- 
-@@ -337,7 +340,7 @@ static void alcor_pci_remove(struct pci_dev *pdev)
- 
- 	mfd_remove_devices(&pdev->dev);
- 
--	ida_simple_remove(&alcor_pci_idr, priv->id);
-+	ida_free(&alcor_pci_idr, priv->id);
- 
- 	pci_release_regions(pdev);
- 	pci_set_drvdata(pdev, NULL);
+-	if (build_prologue(&ctx, was_classic)) {
++	if (build_body(&ctx, extra_pass)) {
+ 		prog = orig_prog;
+ 		goto out_off;
+ 	}
 -- 
 2.34.1
 
