@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C6CBC4F32CB
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:00:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A9E04F2EAD
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:03:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350575AbiDEJ65 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:58:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60606 "EHLO
+        id S1350572AbiDEJ6z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:58:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42832 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344119AbiDEJSS (ORCPT
+        with ESMTP id S1344125AbiDEJSS (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:18:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7A4137A3E;
-        Tue,  5 Apr 2022 02:04:14 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13672381A6;
+        Tue,  5 Apr 2022 02:04:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 692A961564;
-        Tue,  5 Apr 2022 09:04:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42FDDC385A0;
-        Tue,  5 Apr 2022 09:04:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C1F1EB81B75;
+        Tue,  5 Apr 2022 09:04:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 285BCC385A3;
+        Tue,  5 Apr 2022 09:04:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149453;
-        bh=Kez2sL3RMdmqfeeAkd8I0EFnzgYorCR1t5sLLVWdCdc=;
+        s=korg; t=1649149456;
+        bh=IyvszfkDkm6hI3tAPv+IVXNBSOMINnf8lFK83KPg6kA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JcXB/rHgU7sSNrJUWvozvhZqQWwVpfeiHW5DgtCiDXVpN12SvwnI2/aIwKbehUV0B
-         M+m5DO4rpuB/jiLJ3OXSYPjnQnZYYoNaq3EyB9wERrOPo7CGpCP5A2gG8rSNJyvx97
-         RRzSJuyF/GTfZhOXBdjBTQrqYyH7QCgXTksyWGa0=
+        b=tE++zjriN/TTcOsPEHA5nA2XaH2jQ+pzTOlBbO/MwRXo/RA/7j/KVq68CRsytyHPE
+         jhz05znvDiZhQp61EyZIA9MFgugEum6PZjstBTvKCkLPl/nJXs2bGAFIY7eQRiv5kA
+         qQDHyBITcWjiotgYc8RqxpMmTfrpzr+uUOhiFyX4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Richter <tmricht@linux.ibm.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Sumanth Korikkar <sumanthk@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        Petr Vorel <petr.vorel@gmail.com>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0721/1017] perf stat: Fix forked applications enablement of counters
-Date:   Tue,  5 Apr 2022 09:27:14 +0200
-Message-Id: <20220405070415.668585336@linuxfoundation.org>
+Subject: [PATCH 5.16 0722/1017] clk: qcom: gcc-msm8994: Fix gpll4 width
+Date:   Tue,  5 Apr 2022 09:27:15 +0200
+Message-Id: <20220405070415.698257143@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -60,97 +56,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Richter <tmricht@linux.ibm.com>
+From: Konrad Dybcio <konrad.dybcio@somainline.org>
 
-[ Upstream commit d0a0a511493d269514fcbd852481cdca32c95350 ]
+[ Upstream commit 71021db1c532c2545ae53b9ee85b37b7154f51d4 ]
 
-I have run into the following issue:
+The gpll4 postdiv is actually a div4, so make sure that Linux is aware of
+this.
 
- # perf stat -a -e new_pmu/INSTRUCTION_7/ --  mytest -c1 7
+This fixes the following error messages:
 
- Performance counter stats for 'system wide':
+ mmc1: Card appears overclocked; req 200000000 Hz, actual 343999999 Hz
+ mmc1: Card appears overclocked; req 400000000 Hz, actual 687999999 Hz
 
-                 0      new_pmu/INSTRUCTION_7/
-
-       0.000366428 seconds time elapsed
- #
-
-The new PMU for s390 counts the execution of certain CPU instructions.
-The root cause is the extremely small run time of the mytest program. It
-just executes some assembly instructions and then exits.
-
-In above invocation the instruction is executed exactly one time (-c1
-option). The PMU is expected to report this one time execution by a
-counter value of one, but fails to do so in some cases, not all.
-
-Debugging reveals the invocation of the child process is done
-*before* the counter events are installed and enabled.
-
-Tracing reveals that sometimes the child process starts and exits before
-the event is installed on all CPUs. The more CPUs the machine has, the
-more often this miscount happens.
-
-Fix this by reversing the start of the work load after the events have
-been installed on the specified CPUs. Now the comment also matches the
-code.
-
-Output after:
-
- # perf stat -a -e new_pmu/INSTRUCTION_7/ --  mytest -c1 7
-
- Performance counter stats for 'system wide':
-
-                 1      new_pmu/INSTRUCTION_7/
-
-       0.000366428 seconds time elapsed
- #
-
-Now the correct result is reported rock solid all the time regardless
-how many CPUs are online.
-
-Reviewers notes:
-
-Jiri:
-
-Right, without -a the event has enable_on_exec so the race does not
-matter, but it's a problem for system wide with fork.
-
-Namhyung:
-
-Agreed. Also we may move the enable_counters() and the clock code out of
-the if block to be shared with the else block.
-
-Fixes: acf2892270dcc428 ("perf stat: Use perf_evlist__prepare/start_workload()")
-Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-Acked-by: Jiri Olsa <jolsa@kernel.org>
-Acked-by: Namhyung Kim <namhyung@kernel.org>
-Acked-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Sven Schnelle <svens@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Link: https://lore.kernel.org/r/20220317155346.577384-1-tmricht@linux.ibm.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: aec89f78cf01 ("clk: qcom: Add support for msm8994 global clock controller")
+Signed-off-by: Konrad Dybcio <konrad.dybcio@somainline.org>
+Link: https://lore.kernel.org/r/20220319174940.341137-1-konrad.dybcio@somainline.org
+Tested-by: Petr Vorel <petr.vorel@gmail.com>
+Reviewed-by: Petr Vorel <petr.vorel@gmail.com>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/builtin-stat.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/clk/qcom/gcc-msm8994.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/tools/perf/builtin-stat.c b/tools/perf/builtin-stat.c
-index 7974933dbc77..08c024038ca7 100644
---- a/tools/perf/builtin-stat.c
-+++ b/tools/perf/builtin-stat.c
-@@ -956,10 +956,10 @@ static int __run_perf_stat(int argc, const char **argv, int run_idx)
- 	 * Enable counters and exec the command:
- 	 */
- 	if (forks) {
--		evlist__start_workload(evsel_list);
- 		err = enable_counters();
- 		if (err)
- 			return -1;
-+		evlist__start_workload(evsel_list);
+diff --git a/drivers/clk/qcom/gcc-msm8994.c b/drivers/clk/qcom/gcc-msm8994.c
+index 5df9f1ead48e..4a9eb845b050 100644
+--- a/drivers/clk/qcom/gcc-msm8994.c
++++ b/drivers/clk/qcom/gcc-msm8994.c
+@@ -76,6 +76,7 @@ static struct clk_alpha_pll gpll4_early = {
  
- 		t0 = rdclock();
- 		clock_gettime(CLOCK_MONOTONIC, &ref_time);
+ static struct clk_alpha_pll_postdiv gpll4 = {
+ 	.offset = 0x1dc0,
++	.width = 4,
+ 	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
+ 	.clkr.hw.init = &(struct clk_init_data){
+ 		.name = "gpll4",
 -- 
 2.34.1
 
