@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 398294F322C
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:54:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C3834F32D6
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:00:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355549AbiDEKUW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:20:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44262 "EHLO
+        id S239211AbiDEIox (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:44:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45552 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345924AbiDEJXL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:23:11 -0400
+        with ESMTP id S241121AbiDEIcv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:32:51 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76CFFA6E38;
-        Tue,  5 Apr 2022 02:12:31 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C750315A31;
+        Tue,  5 Apr 2022 01:27:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D0A46B81A12;
-        Tue,  5 Apr 2022 09:12:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31BFDC385A2;
-        Tue,  5 Apr 2022 09:12:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 81B2CB81B13;
+        Tue,  5 Apr 2022 08:27:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4545C385A1;
+        Tue,  5 Apr 2022 08:27:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149948;
-        bh=baRRfmdaoZGbu2PPrt5s5Gx/3K/7lVG2bGsxzYUwojA=;
+        s=korg; t=1649147277;
+        bh=CsCfsrqveqsvvCg/VUPqJOnuL/ZARRvyzdCgukRxZig=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nXCqFDuBTB8uSV9hizY6cZZZHRdVSUd2icC+ER+Kr8SdFF94kULqTiUb4szaUauk6
-         IGkJM0WnX7B1R0Y5JzuZaHGoSNBSgx0qxqU2yvgC2q6miL+JluA07/JWK26joU7qwM
-         cCMZiwgS1sNkl5NaS9tSU5VG4pS79J1F36aD9ViE=
+        b=Chi9LlevsCp+K2EVpmYZvnEWiulU7wLFs4lsfpj9UmXpq30s2SBHHg1VzcQzUxsu+
+         0TGfqU2L6YCBdLrmNxXm1BiB7smI1lYSEdj2bQgisq9pHeNw5MRIlzfoNZTCiURKiP
+         vb7hpf5a2wtYj/z0FgjAU4r2kxS29ihyC3W4YofY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gwendal Grignou <gwendal@chromium.org>,
-        Benson Leung <bleung@chromium.org>
-Subject: [PATCH 5.16 0899/1017] platform: chrome: Split trace include file
-Date:   Tue,  5 Apr 2022 09:30:12 +0200
-Message-Id: <20220405070420.911912326@linuxfoundation.org>
+        stable@vger.kernel.org, Joerg Roedel <jroedel@suse.de>,
+        Borislav Petkov <bp@suse.de>,
+        Tom Lendacky <thomas.lendacky@amd.com>
+Subject: [PATCH 5.17 1066/1126] x86/sev: Unroll string mmio with CC_ATTR_GUEST_UNROLL_STRING_IO
+Date:   Tue,  5 Apr 2022 09:30:13 +0200
+Message-Id: <20220405070438.747427541@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,303 +54,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gwendal Grignou <gwendal@chromium.org>
+From: Joerg Roedel <jroedel@suse.de>
 
-commit eabd9a3807e17e211690e6c40f1405b427b64c48 upstream.
+commit 4009a4ac82dd95b8cd2b62bd30019476983f0aff upstream.
 
-cros_ec_trace.h defined 5 tracing events, 2 for cros_ec_proto and
-3 for cros_ec_sensorhub_ring.
-These 2 files are in different kernel modules, the traces are defined
-twice in the kernel which leads to problem enabling only some traces.
+The io-specific memcpy/memset functions use string mmio accesses to do
+their work. Under SEV, the hypervisor can't emulate these instructions
+because they read/write directly from/to encrypted memory.
 
-Move sensorhub traces from cros_ec_trace.h to cros_ec_sensorhub_trace.h
-and enable them only in cros_ec_sensorhub kernel module.
+KVM will inject a page fault exception into the guest when it is asked
+to emulate string mmio instructions for an SEV guest:
 
-Check we can now enable any single traces: without this patch,
-we can only enable all sensorhub traces or none.
+  BUG: unable to handle page fault for address: ffffc90000065068
+  #PF: supervisor read access in kernel mode
+  #PF: error_code(0x0000) - not-present page
+  PGD 8000100000067 P4D 8000100000067 PUD 80001000fb067 PMD 80001000fc067 PTE 80000000fed40173
+  Oops: 0000 [#1] PREEMPT SMP NOPTI
+  CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.17.0-rc7 #3
 
-Fixes: d453ceb6549a ("platform/chrome: sensorhub: Add trace events for sample")
+As string mmio for an SEV guest can not be supported by the
+hypervisor, unroll the instructions for CC_ATTR_GUEST_UNROLL_STRING_IO
+enabled kernels.
 
-Signed-off-by: Gwendal Grignou <gwendal@chromium.org>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220122001301.640337-1-gwendal@chromium.org
-Signed-off-by: Benson Leung <bleung@chromium.org>
+This issue appears when kernels are launched in recent libvirt-managed
+SEV virtual machines, because virt-install started to add a tpm-crb
+device to the guest by default and proactively because, raisins:
+
+  https://github.com/virt-manager/virt-manager/commit/eb58c09f488b0633ed1eea012cd311e48864401e
+
+and as that commit says, the default adding of a TPM can be disabled
+with "virt-install ... --tpm none".
+
+The kernel driver for tpm-crb uses memcpy_to/from_io() functions to
+access MMIO memory, resulting in a page-fault injected by KVM and
+crashing the kernel at boot.
+
+  [ bp: Massage and extend commit message. ]
+
+Fixes: d8aa7eea78a1 ('x86/mm: Add Secure Encrypted Virtualization (SEV) support')
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Tom Lendacky <thomas.lendacky@amd.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220321093351.23976-1-joro@8bytes.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/platform/chrome/Makefile                  |    3 
- drivers/platform/chrome/cros_ec_sensorhub_ring.c  |    3 
- drivers/platform/chrome/cros_ec_sensorhub_trace.h |  123 ++++++++++++++++++++++
- drivers/platform/chrome/cros_ec_trace.h           |   95 ----------------
- 4 files changed, 127 insertions(+), 97 deletions(-)
- create mode 100644 drivers/platform/chrome/cros_ec_sensorhub_trace.h
+ arch/x86/lib/iomem.c |   65 ++++++++++++++++++++++++++++++++++++++++++++-------
+ 1 file changed, 57 insertions(+), 8 deletions(-)
 
---- a/drivers/platform/chrome/Makefile
-+++ b/drivers/platform/chrome/Makefile
-@@ -2,6 +2,7 @@
+--- a/arch/x86/lib/iomem.c
++++ b/arch/x86/lib/iomem.c
+@@ -22,7 +22,7 @@ static __always_inline void rep_movs(voi
+ 		     : "memory");
+ }
  
- # tell define_trace.h where to find the cros ec trace header
- CFLAGS_cros_ec_trace.o:=		-I$(src)
-+CFLAGS_cros_ec_sensorhub_ring.o:=	-I$(src)
+-void memcpy_fromio(void *to, const volatile void __iomem *from, size_t n)
++static void string_memcpy_fromio(void *to, const volatile void __iomem *from, size_t n)
+ {
+ 	if (unlikely(!n))
+ 		return;
+@@ -38,9 +38,8 @@ void memcpy_fromio(void *to, const volat
+ 	}
+ 	rep_movs(to, (const void *)from, n);
+ }
+-EXPORT_SYMBOL(memcpy_fromio);
  
- obj-$(CONFIG_CHROMEOS_LAPTOP)		+= chromeos_laptop.o
- obj-$(CONFIG_CHROMEOS_PSTORE)		+= chromeos_pstore.o
-@@ -20,7 +21,7 @@ obj-$(CONFIG_CROS_EC_CHARDEV)		+= cros_e
- obj-$(CONFIG_CROS_EC_LIGHTBAR)		+= cros_ec_lightbar.o
- obj-$(CONFIG_CROS_EC_VBC)		+= cros_ec_vbc.o
- obj-$(CONFIG_CROS_EC_DEBUGFS)		+= cros_ec_debugfs.o
--cros-ec-sensorhub-objs			:= cros_ec_sensorhub.o cros_ec_sensorhub_ring.o cros_ec_trace.o
-+cros-ec-sensorhub-objs			:= cros_ec_sensorhub.o cros_ec_sensorhub_ring.o
- obj-$(CONFIG_CROS_EC_SENSORHUB)		+= cros-ec-sensorhub.o
- obj-$(CONFIG_CROS_EC_SYSFS)		+= cros_ec_sysfs.o
- obj-$(CONFIG_CROS_USBPD_LOGGER)		+= cros_usbpd_logger.o
---- a/drivers/platform/chrome/cros_ec_sensorhub_ring.c
-+++ b/drivers/platform/chrome/cros_ec_sensorhub_ring.c
-@@ -17,7 +17,8 @@
- #include <linux/sort.h>
- #include <linux/slab.h>
+-void memcpy_toio(volatile void __iomem *to, const void *from, size_t n)
++static void string_memcpy_toio(volatile void __iomem *to, const void *from, size_t n)
+ {
+ 	if (unlikely(!n))
+ 		return;
+@@ -56,14 +55,64 @@ void memcpy_toio(volatile void __iomem *
+ 	}
+ 	rep_movs((void *)to, (const void *) from, n);
+ }
++
++static void unrolled_memcpy_fromio(void *to, const volatile void __iomem *from, size_t n)
++{
++	const volatile char __iomem *in = from;
++	char *out = to;
++	int i;
++
++	for (i = 0; i < n; ++i)
++		out[i] = readb(&in[i]);
++}
++
++static void unrolled_memcpy_toio(volatile void __iomem *to, const void *from, size_t n)
++{
++	volatile char __iomem *out = to;
++	const char *in = from;
++	int i;
++
++	for (i = 0; i < n; ++i)
++		writeb(in[i], &out[i]);
++}
++
++static void unrolled_memset_io(volatile void __iomem *a, int b, size_t c)
++{
++	volatile char __iomem *mem = a;
++	int i;
++
++	for (i = 0; i < c; ++i)
++		writeb(b, &mem[i]);
++}
++
++void memcpy_fromio(void *to, const volatile void __iomem *from, size_t n)
++{
++	if (cc_platform_has(CC_ATTR_GUEST_UNROLL_STRING_IO))
++		unrolled_memcpy_fromio(to, from, n);
++	else
++		string_memcpy_fromio(to, from, n);
++}
++EXPORT_SYMBOL(memcpy_fromio);
++
++void memcpy_toio(volatile void __iomem *to, const void *from, size_t n)
++{
++	if (cc_platform_has(CC_ATTR_GUEST_UNROLL_STRING_IO))
++		unrolled_memcpy_toio(to, from, n);
++	else
++		string_memcpy_toio(to, from, n);
++}
+ EXPORT_SYMBOL(memcpy_toio);
  
--#include "cros_ec_trace.h"
-+#define CREATE_TRACE_POINTS
-+#include "cros_ec_sensorhub_trace.h"
- 
- /* Precision of fixed point for the m values from the filter */
- #define M_PRECISION BIT(23)
---- /dev/null
-+++ b/drivers/platform/chrome/cros_ec_sensorhub_trace.h
-@@ -0,0 +1,123 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+/*
-+ * Trace events for the ChromeOS Sensorhub kernel module
-+ *
-+ * Copyright 2021 Google LLC.
-+ */
-+
-+#undef TRACE_SYSTEM
-+#define TRACE_SYSTEM cros_ec
-+
-+#if !defined(_CROS_EC_SENSORHUB_TRACE_H_) || defined(TRACE_HEADER_MULTI_READ)
-+#define _CROS_EC_SENSORHUB_TRACE_H_
-+
-+#include <linux/types.h>
-+#include <linux/platform_data/cros_ec_sensorhub.h>
-+
-+#include <linux/tracepoint.h>
-+
-+TRACE_EVENT(cros_ec_sensorhub_timestamp,
-+	    TP_PROTO(u32 ec_sample_timestamp, u32 ec_fifo_timestamp, s64 fifo_timestamp,
-+		     s64 current_timestamp, s64 current_time),
-+	TP_ARGS(ec_sample_timestamp, ec_fifo_timestamp, fifo_timestamp, current_timestamp,
-+		current_time),
-+	TP_STRUCT__entry(
-+		__field(u32, ec_sample_timestamp)
-+		__field(u32, ec_fifo_timestamp)
-+		__field(s64, fifo_timestamp)
-+		__field(s64, current_timestamp)
-+		__field(s64, current_time)
-+		__field(s64, delta)
-+	),
-+	TP_fast_assign(
-+		__entry->ec_sample_timestamp = ec_sample_timestamp;
-+		__entry->ec_fifo_timestamp = ec_fifo_timestamp;
-+		__entry->fifo_timestamp = fifo_timestamp;
-+		__entry->current_timestamp = current_timestamp;
-+		__entry->current_time = current_time;
-+		__entry->delta = current_timestamp - current_time;
-+	),
-+	TP_printk("ec_ts: %9u, ec_fifo_ts: %9u, fifo_ts: %12lld, curr_ts: %12lld, curr_time: %12lld, delta %12lld",
-+		  __entry->ec_sample_timestamp,
-+		__entry->ec_fifo_timestamp,
-+		__entry->fifo_timestamp,
-+		__entry->current_timestamp,
-+		__entry->current_time,
-+		__entry->delta
-+	)
-+);
-+
-+TRACE_EVENT(cros_ec_sensorhub_data,
-+	    TP_PROTO(u32 ec_sensor_num, u32 ec_fifo_timestamp, s64 fifo_timestamp,
-+		     s64 current_timestamp, s64 current_time),
-+	TP_ARGS(ec_sensor_num, ec_fifo_timestamp, fifo_timestamp, current_timestamp, current_time),
-+	TP_STRUCT__entry(
-+		__field(u32, ec_sensor_num)
-+		__field(u32, ec_fifo_timestamp)
-+		__field(s64, fifo_timestamp)
-+		__field(s64, current_timestamp)
-+		__field(s64, current_time)
-+		__field(s64, delta)
-+	),
-+	TP_fast_assign(
-+		__entry->ec_sensor_num = ec_sensor_num;
-+		__entry->ec_fifo_timestamp = ec_fifo_timestamp;
-+		__entry->fifo_timestamp = fifo_timestamp;
-+		__entry->current_timestamp = current_timestamp;
-+		__entry->current_time = current_time;
-+		__entry->delta = current_timestamp - current_time;
-+	),
-+	TP_printk("ec_num: %4u, ec_fifo_ts: %9u, fifo_ts: %12lld, curr_ts: %12lld, curr_time: %12lld, delta %12lld",
-+		  __entry->ec_sensor_num,
-+		__entry->ec_fifo_timestamp,
-+		__entry->fifo_timestamp,
-+		__entry->current_timestamp,
-+		__entry->current_time,
-+		__entry->delta
-+	)
-+);
-+
-+TRACE_EVENT(cros_ec_sensorhub_filter,
-+	    TP_PROTO(struct cros_ec_sensors_ts_filter_state *state, s64 dx, s64 dy),
-+	TP_ARGS(state, dx, dy),
-+	TP_STRUCT__entry(
-+		__field(s64, dx)
-+		__field(s64, dy)
-+		__field(s64, median_m)
-+		__field(s64, median_error)
-+		__field(s64, history_len)
-+		__field(s64, x)
-+		__field(s64, y)
-+	),
-+	TP_fast_assign(
-+		__entry->dx = dx;
-+		__entry->dy = dy;
-+		__entry->median_m = state->median_m;
-+		__entry->median_error = state->median_error;
-+		__entry->history_len = state->history_len;
-+		__entry->x = state->x_offset;
-+		__entry->y = state->y_offset;
-+	),
-+	TP_printk("dx: %12lld. dy: %12lld median_m: %12lld median_error: %12lld len: %lld x: %12lld y: %12lld",
-+		  __entry->dx,
-+		__entry->dy,
-+		__entry->median_m,
-+		__entry->median_error,
-+		__entry->history_len,
-+		__entry->x,
-+		__entry->y
-+	)
-+);
-+
-+
-+#endif /* _CROS_EC_SENSORHUB_TRACE_H_ */
-+
-+/* this part must be outside header guard */
-+
-+#undef TRACE_INCLUDE_PATH
-+#define TRACE_INCLUDE_PATH .
-+
-+#undef TRACE_INCLUDE_FILE
-+#define TRACE_INCLUDE_FILE cros_ec_sensorhub_trace
-+
-+#include <trace/define_trace.h>
---- a/drivers/platform/chrome/cros_ec_trace.h
-+++ b/drivers/platform/chrome/cros_ec_trace.h
-@@ -15,7 +15,6 @@
- #include <linux/types.h>
- #include <linux/platform_data/cros_ec_commands.h>
- #include <linux/platform_data/cros_ec_proto.h>
--#include <linux/platform_data/cros_ec_sensorhub.h>
- 
- #include <linux/tracepoint.h>
- 
-@@ -71,100 +70,6 @@ TRACE_EVENT(cros_ec_request_done,
- 		  __entry->retval)
- );
- 
--TRACE_EVENT(cros_ec_sensorhub_timestamp,
--	    TP_PROTO(u32 ec_sample_timestamp, u32 ec_fifo_timestamp, s64 fifo_timestamp,
--		     s64 current_timestamp, s64 current_time),
--	TP_ARGS(ec_sample_timestamp, ec_fifo_timestamp, fifo_timestamp, current_timestamp,
--		current_time),
--	TP_STRUCT__entry(
--		__field(u32, ec_sample_timestamp)
--		__field(u32, ec_fifo_timestamp)
--		__field(s64, fifo_timestamp)
--		__field(s64, current_timestamp)
--		__field(s64, current_time)
--		__field(s64, delta)
--	),
--	TP_fast_assign(
--		__entry->ec_sample_timestamp = ec_sample_timestamp;
--		__entry->ec_fifo_timestamp = ec_fifo_timestamp;
--		__entry->fifo_timestamp = fifo_timestamp;
--		__entry->current_timestamp = current_timestamp;
--		__entry->current_time = current_time;
--		__entry->delta = current_timestamp - current_time;
--	),
--	TP_printk("ec_ts: %9u, ec_fifo_ts: %9u, fifo_ts: %12lld, curr_ts: %12lld, curr_time: %12lld, delta %12lld",
--		  __entry->ec_sample_timestamp,
--		__entry->ec_fifo_timestamp,
--		__entry->fifo_timestamp,
--		__entry->current_timestamp,
--		__entry->current_time,
--		__entry->delta
--	)
--);
--
--TRACE_EVENT(cros_ec_sensorhub_data,
--	    TP_PROTO(u32 ec_sensor_num, u32 ec_fifo_timestamp, s64 fifo_timestamp,
--		     s64 current_timestamp, s64 current_time),
--	TP_ARGS(ec_sensor_num, ec_fifo_timestamp, fifo_timestamp, current_timestamp, current_time),
--	TP_STRUCT__entry(
--		__field(u32, ec_sensor_num)
--		__field(u32, ec_fifo_timestamp)
--		__field(s64, fifo_timestamp)
--		__field(s64, current_timestamp)
--		__field(s64, current_time)
--		__field(s64, delta)
--	),
--	TP_fast_assign(
--		__entry->ec_sensor_num = ec_sensor_num;
--		__entry->ec_fifo_timestamp = ec_fifo_timestamp;
--		__entry->fifo_timestamp = fifo_timestamp;
--		__entry->current_timestamp = current_timestamp;
--		__entry->current_time = current_time;
--		__entry->delta = current_timestamp - current_time;
--	),
--	TP_printk("ec_num: %4u, ec_fifo_ts: %9u, fifo_ts: %12lld, curr_ts: %12lld, curr_time: %12lld, delta %12lld",
--		  __entry->ec_sensor_num,
--		__entry->ec_fifo_timestamp,
--		__entry->fifo_timestamp,
--		__entry->current_timestamp,
--		__entry->current_time,
--		__entry->delta
--	)
--);
--
--TRACE_EVENT(cros_ec_sensorhub_filter,
--	    TP_PROTO(struct cros_ec_sensors_ts_filter_state *state, s64 dx, s64 dy),
--	TP_ARGS(state, dx, dy),
--	TP_STRUCT__entry(
--		__field(s64, dx)
--		__field(s64, dy)
--		__field(s64, median_m)
--		__field(s64, median_error)
--		__field(s64, history_len)
--		__field(s64, x)
--		__field(s64, y)
--	),
--	TP_fast_assign(
--		__entry->dx = dx;
--		__entry->dy = dy;
--		__entry->median_m = state->median_m;
--		__entry->median_error = state->median_error;
--		__entry->history_len = state->history_len;
--		__entry->x = state->x_offset;
--		__entry->y = state->y_offset;
--	),
--	TP_printk("dx: %12lld. dy: %12lld median_m: %12lld median_error: %12lld len: %lld x: %12lld y: %12lld",
--		  __entry->dx,
--		__entry->dy,
--		__entry->median_m,
--		__entry->median_error,
--		__entry->history_len,
--		__entry->x,
--		__entry->y
--	)
--);
--
--
- #endif /* _CROS_EC_TRACE_H_ */
- 
- /* this part must be outside header guard */
+ void memset_io(volatile void __iomem *a, int b, size_t c)
+ {
+-	/*
+-	 * TODO: memset can mangle the IO patterns quite a bit.
+-	 * perhaps it would be better to use a dumb one:
+-	 */
+-	memset((void *)a, b, c);
++	if (cc_platform_has(CC_ATTR_GUEST_UNROLL_STRING_IO)) {
++		unrolled_memset_io(a, b, c);
++	} else {
++		/*
++		 * TODO: memset can mangle the IO patterns quite a bit.
++		 * perhaps it would be better to use a dumb one:
++		 */
++		memset((void *)a, b, c);
++	}
+ }
+ EXPORT_SYMBOL(memset_io);
 
 
