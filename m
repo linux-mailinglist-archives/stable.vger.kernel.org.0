@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 301804F3AE9
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:06:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 459894F37AE
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:21:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244880AbiDELuE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:50:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42296 "EHLO
+        id S1359448AbiDELTI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:19:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39370 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356087AbiDEKWy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:22:54 -0400
+        with ESMTP id S1349166AbiDEJtW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:22 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60621B0A68;
-        Tue,  5 Apr 2022 03:06:01 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0006164D6;
+        Tue,  5 Apr 2022 02:41:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F10C8616E7;
-        Tue,  5 Apr 2022 10:06:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0ACE6C385A1;
-        Tue,  5 Apr 2022 10:05:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 909E86164D;
+        Tue,  5 Apr 2022 09:41:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E50EC385A1;
+        Tue,  5 Apr 2022 09:41:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153160;
-        bh=Kd1EwI8DEHPHhzj8Tdinpg96Cd7BY48Ei1VqwLuA90w=;
+        s=korg; t=1649151717;
+        bh=jYK5sFnekXCxVL58RTzjeUc9TcSXOqyPwQlvV9P1BcY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2lzwdQaSFBGS/4AkWoJaz1/chsZQwNRFGNn2wwBg9xqJMjWFFi9aq0NXvzwE6iBTc
-         GF+hrCUYZKbqX9IVF4wqpuJvL/+6v1I9a+aIoGLrH8mO4XTTrd2T8thR6CdQeRtLGL
-         OqS5QTZdzdguUYuX9OUJm2XkzPyB46lFWhhDVF5o=
+        b=vHYZXIAK1tkF/d5N1ks0pF+yE15AtpZlLteVT4QuLR4oL7A16O6gNIlXpQ6OERy6A
+         ssLUVQ7ihEu5bokL1s1MeFiezSgheMuJsNfTp8ttO7MCZUZk3adCVvDHZ4eWEcsRyv
+         QrPwF+xBn6tNs6IHpjz0UvRh/pJkH+7va8GmgdgY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Engraf <david.engraf@sysgo.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.10 084/599] arm64: signal: nofpsimd: Do not allocate fp/simd context when not available
+        stable@vger.kernel.org, Yajun Deng <yajun.deng@linux.dev>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 516/913] RDMA/core: Fix ib_qp_usecnt_dec() called when error
 Date:   Tue,  5 Apr 2022 09:26:18 +0200
-Message-Id: <20220405070301.326435854@linuxfoundation.org>
+Message-Id: <20220405070355.320834170@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
-References: <20220405070258.802373272@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,50 +55,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Engraf <david.engraf@sysgo.com>
+From: Yajun Deng <yajun.deng@linux.dev>
 
-commit 0a32c88ddb9af30e8a16d41d7b9b824c27d29459 upstream.
+[ Upstream commit 7c4a539ec38f4ce400a0f3fcb5ff6c940fcd67bb ]
 
-Commit 6d502b6ba1b2 ("arm64: signal: nofpsimd: Handle fp/simd context for
-signal frames") introduced saving the fp/simd context for signal handling
-only when support is available. But setup_sigframe_layout() always
-reserves memory for fp/simd context. The additional memory is not touched
-because preserve_fpsimd_context() is not called and thus the magic is
-invalid.
+ib_destroy_qp() would called by ib_create_qp_user() if error, the former
+contains ib_qp_usecnt_dec(), but ib_qp_usecnt_inc() was not called before.
 
-This may lead to an error when parse_user_sigframe() checks the fp/simd
-area and does not find a valid magic number.
+So move ib_qp_usecnt_inc() into create_qp().
 
-Signed-off-by: David Engraf <david.engraf@sysgo.com>
-Reviwed-by: Mark Brown <broonie@kernel.org>
-Fixes: 6d502b6ba1b267b3 ("arm64: signal: nofpsimd: Handle fp/simd context for signal frames")
-Cc: <stable@vger.kernel.org> # 5.6.x
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Link: https://lore.kernel.org/r/20220225104008.820289-1-david.engraf@sysgo.com
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: d2b10794fc13 ("RDMA/core: Create clean QP creations interface for uverbs")
+Link: https://lore.kernel.org/r/20220303024232.2847388-1-yajun.deng@linux.dev
+Signed-off-by: Yajun Deng <yajun.deng@linux.dev>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/signal.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/infiniband/core/uverbs_cmd.c          | 1 -
+ drivers/infiniband/core/uverbs_std_types_qp.c | 1 -
+ drivers/infiniband/core/verbs.c               | 3 +--
+ 3 files changed, 1 insertion(+), 4 deletions(-)
 
---- a/arch/arm64/kernel/signal.c
-+++ b/arch/arm64/kernel/signal.c
-@@ -572,10 +572,12 @@ static int setup_sigframe_layout(struct
- {
- 	int err;
+diff --git a/drivers/infiniband/core/uverbs_cmd.c b/drivers/infiniband/core/uverbs_cmd.c
+index d1345d76d9b1..5a99e31df5f5 100644
+--- a/drivers/infiniband/core/uverbs_cmd.c
++++ b/drivers/infiniband/core/uverbs_cmd.c
+@@ -1438,7 +1438,6 @@ static int create_qp(struct uverbs_attr_bundle *attrs,
+ 		ret = PTR_ERR(qp);
+ 		goto err_put;
+ 	}
+-	ib_qp_usecnt_inc(qp);
  
--	err = sigframe_alloc(user, &user->fpsimd_offset,
--			     sizeof(struct fpsimd_context));
--	if (err)
--		return err;
-+	if (system_supports_fpsimd()) {
-+		err = sigframe_alloc(user, &user->fpsimd_offset,
-+				     sizeof(struct fpsimd_context));
-+		if (err)
-+			return err;
-+	}
+ 	obj->uevent.uobject.object = qp;
+ 	obj->uevent.event_file = READ_ONCE(attrs->ufile->default_async_file);
+diff --git a/drivers/infiniband/core/uverbs_std_types_qp.c b/drivers/infiniband/core/uverbs_std_types_qp.c
+index dd1075466f61..75353e09c6fe 100644
+--- a/drivers/infiniband/core/uverbs_std_types_qp.c
++++ b/drivers/infiniband/core/uverbs_std_types_qp.c
+@@ -254,7 +254,6 @@ static int UVERBS_HANDLER(UVERBS_METHOD_QP_CREATE)(
+ 		ret = PTR_ERR(qp);
+ 		goto err_put;
+ 	}
+-	ib_qp_usecnt_inc(qp);
  
- 	/* fault information, if valid */
- 	if (add_all || current->thread.fault_code) {
+ 	if (attr.qp_type == IB_QPT_XRC_TGT) {
+ 		obj->uxrcd = container_of(xrcd_uobj, struct ib_uxrcd_object,
+diff --git a/drivers/infiniband/core/verbs.c b/drivers/infiniband/core/verbs.c
+index 59e20936b800..b78cd65d20a6 100644
+--- a/drivers/infiniband/core/verbs.c
++++ b/drivers/infiniband/core/verbs.c
+@@ -1253,6 +1253,7 @@ static struct ib_qp *create_qp(struct ib_device *dev, struct ib_pd *pd,
+ 	if (ret)
+ 		goto err_security;
+ 
++	ib_qp_usecnt_inc(qp);
+ 	rdma_restrack_add(&qp->res);
+ 	return qp;
+ 
+@@ -1353,8 +1354,6 @@ struct ib_qp *ib_create_qp_kernel(struct ib_pd *pd,
+ 	if (IS_ERR(qp))
+ 		return qp;
+ 
+-	ib_qp_usecnt_inc(qp);
+-
+ 	if (qp_init_attr->cap.max_rdma_ctxs) {
+ 		ret = rdma_rw_init_mrs(qp, qp_init_attr);
+ 		if (ret)
+-- 
+2.34.1
+
 
 
