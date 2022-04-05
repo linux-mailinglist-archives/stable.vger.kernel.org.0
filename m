@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 897234F440A
-	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 00:12:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CADD4F44E8
+	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 00:32:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381405AbiDEMYm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:24:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55970 "EHLO
+        id S1380992AbiDEMYf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:24:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56632 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345139AbiDEKkp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:40:45 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0444DDCE;
-        Tue,  5 Apr 2022 03:26:14 -0700 (PDT)
+        with ESMTP id S1345280AbiDEKk6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:40:58 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EBBAD93;
+        Tue,  5 Apr 2022 03:26:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9F0DEB81B18;
-        Tue,  5 Apr 2022 10:26:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 151F4C385A1;
-        Tue,  5 Apr 2022 10:26:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0DBDBB81B18;
+        Tue,  5 Apr 2022 10:26:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52090C385A0;
+        Tue,  5 Apr 2022 10:26:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649154371;
-        bh=feGq1vv6b5m7Q0C96kxI5Jx7e8brMe/R0kBNnTceQgg=;
+        s=korg; t=1649154382;
+        bh=/Y0R8KyqaUA4NN0p4BSOO0086I2pd6URMR88meKY2Zs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZyJOqBjCKf0jrCAmB52mqGzmKB5yc2NpqQRiTlw8MIKDwUW/s4oFiqDyg04sGYgvt
-         hyJBBWko1dDHHjkGoAxmExGoF4Mc+kn8rn/edPJIj9aRjYSwaCQ2WmOaGZQoi392LG
-         V5SGme3oFrcx6rp2XTWwdKuF8yZ9IZiLnlOzyzBY=
+        b=uTnR/Y/K6KJmAEn9XcDJ7pfZR28fh1T54NjD8B8T64DngxVC07w5r4vuNYVlfpHmb
+         qLZf8othqMVJtSNac/PsodgDnqP0WY/R9g1gbrABGORCpa2wt/7mVviwOZDc7nZh3l
+         QpHnbTNdFSVXyo6M6ZD1JE1CSM2mOKsZIewqworE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Price <anprice@redhat.com>,
-        Andreas Gruenbacher <agruenba@redhat.com>
-Subject: [PATCH 5.10 554/599] gfs2: Make sure FITRIM minlen is rounded up to fs block size
-Date:   Tue,  5 Apr 2022 09:34:08 +0200
-Message-Id: <20220405070315.327162695@linuxfoundation.org>
+        stable@vger.kernel.org, Jacky Bai <ping.bai@nxp.com>,
+        Peng Fan <peng.fan@nxp.com>, Robin Gong <yibin.gong@nxp.com>,
+        Jassi Brar <jaswinder.singh@linaro.org>
+Subject: [PATCH 5.10 557/599] mailbox: imx: fix wakeup failure from freeze mode
+Date:   Tue,  5 Apr 2022 09:34:11 +0200
+Message-Id: <20220405070315.416940927@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -53,42 +54,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Price <anprice@redhat.com>
+From: Robin Gong <yibin.gong@nxp.com>
 
-commit 27ca8273fda398638ca994a207323a85b6d81190 upstream.
+commit 892cb524ae8a27bf5e42f711318371acd9a9f74a upstream.
 
-Per fstrim(8) we must round up the minlen argument to the fs block size.
-The current calculation doesn't take into account devices that have a
-discard granularity and requested minlen less than 1 fs block, so the
-value can get shifted away to zero in the translation to fs blocks.
+Since IRQF_NO_SUSPEND used for imx mailbox driver, that means this irq
+can't be used for wakeup source so that can't wakeup from freeze mode.
+Add pm_system_wakeup() to wakeup from freeze mode.
 
-The zero minlen passed to gfs2_rgrp_send_discards() then allows
-sb_issue_discard() to be called with nr_sects == 0 which returns -EINVAL
-and results in gfs2_rgrp_send_discards() returning -EIO.
-
-Make sure minlen is never < 1 fs block by taking the max of the
-requested minlen and the fs block size before comparing to the device's
-discard granularity and shifting to fs blocks.
-
-Fixes: 076f0faa764ab ("GFS2: Fix FITRIM argument handling")
-Signed-off-by: Andrew Price <anprice@redhat.com>
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Fixes: b7b2796b9b31e("mailbox: imx: ONLY IPC MU needs IRQF_NO_SUSPEND flag")
+Reviewed-by: Jacky Bai <ping.bai@nxp.com>
+Reviewed-by: Peng Fan <peng.fan@nxp.com>
+Signed-off-by: Robin Gong <yibin.gong@nxp.com>
+Signed-off-by: Peng Fan <peng.fan@nxp.com>
+Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/gfs2/rgrp.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/mailbox/imx-mailbox.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/fs/gfs2/rgrp.c
-+++ b/fs/gfs2/rgrp.c
-@@ -1389,7 +1389,8 @@ int gfs2_fitrim(struct file *filp, void
+--- a/drivers/mailbox/imx-mailbox.c
++++ b/drivers/mailbox/imx-mailbox.c
+@@ -13,6 +13,7 @@
+ #include <linux/module.h>
+ #include <linux/of_device.h>
+ #include <linux/pm_runtime.h>
++#include <linux/suspend.h>
+ #include <linux/slab.h>
  
- 	start = r.start >> bs_shift;
- 	end = start + (r.len >> bs_shift);
--	minlen = max_t(u64, r.minlen,
-+	minlen = max_t(u64, r.minlen, sdp->sd_sb.sb_bsize);
-+	minlen = max_t(u64, minlen,
- 		       q->limits.discard_granularity) >> bs_shift;
+ #define IMX_MU_xSR_GIPn(x)	BIT(28 + (3 - (x)))
+@@ -66,6 +67,7 @@ struct imx_mu_priv {
+ 	const struct imx_mu_dcfg	*dcfg;
+ 	struct clk		*clk;
+ 	int			irq;
++	bool			suspend;
  
- 	if (end <= start || minlen > sdp->sd_max_rg_data)
+ 	u32 xcr;
+ 
+@@ -277,6 +279,9 @@ static irqreturn_t imx_mu_isr(int irq, v
+ 		return IRQ_NONE;
+ 	}
+ 
++	if (priv->suspend)
++		pm_system_wakeup();
++
+ 	return IRQ_HANDLED;
+ }
+ 
+@@ -326,6 +331,8 @@ static int imx_mu_startup(struct mbox_ch
+ 		break;
+ 	}
+ 
++	priv->suspend = true;
++
+ 	return 0;
+ }
+ 
+@@ -543,6 +550,8 @@ static int imx_mu_probe(struct platform_
+ 
+ 	clk_disable_unprepare(priv->clk);
+ 
++	priv->suspend = false;
++
+ 	return 0;
+ 
+ disable_runtime_pm:
 
 
