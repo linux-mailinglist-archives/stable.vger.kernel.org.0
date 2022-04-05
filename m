@@ -2,40 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CEFF4F2CF5
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:34:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E208A4F2CAC
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:31:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236120AbiDEJbC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:31:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38078 "EHLO
+        id S235858AbiDEJCq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:02:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45582 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240936AbiDEIsR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:48:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9930327B1E;
-        Tue,  5 Apr 2022 01:36:35 -0700 (PDT)
+        with ESMTP id S238554AbiDEIoP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:44:15 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 422BA1EEF7;
+        Tue,  5 Apr 2022 01:35:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ACB9E61540;
-        Tue,  5 Apr 2022 08:36:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE35BC385A4;
-        Tue,  5 Apr 2022 08:36:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BE8AFB81C69;
+        Tue,  5 Apr 2022 08:35:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE745C385A4;
+        Tue,  5 Apr 2022 08:35:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147778;
-        bh=YZdqkHxdou06xEwB5O8wkX6sBT8EGjd1hPU579OKop8=;
+        s=korg; t=1649147755;
+        bh=k04tRHaCCcaSw16B5b4zqxD/SIoqsMzrPWW5b4SpaUY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=09AgoInte2gpBfjbn/ljy08/M8XtAjzBK3+tdc6I/8Le16Htm6RpCU3QNhJox2KRb
-         Xsk4fSKIDEWR4350fVnEkmsontbsro18fd9Tc0hLrdso0BjyjwFKHku2Y/EWIBO6GV
-         YYeBA6twWYWcawLlSY4m6rm4iQVcWlF9fa3lnwj4=
+        b=OGfH+9jzC5HqMF5zcAi7Ggqn0CPkaNBR2Uj1Hh9GblLN76StgJCyJTL9uH9qJm8OC
+         +hE9A2gw7DeGko5Xpni2NW6XpAu9yePF7TXGQR/euTcR4Q1MnXYvOu+t6L4PttGos+
+         oZ/CVY4jGlUyPwGCaMSOgZ624ZoS34h9GGeFR2j0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Chuck Lever <chuck.lever@oracle.com>
-Subject: [PATCH 5.16 0069/1017] NFSD: prevent integer overflow on 32 bit systems
-Date:   Tue,  5 Apr 2022 09:16:22 +0200
-Message-Id: <20220405070356.238304577@linuxfoundation.org>
+        stable@vger.kernel.org, Alistair Delva <adelva@google.com>,
+        Rishabh Bhatnagar <rishabhb@codeaurora.org>,
+        Ohad Ben-Cohen <ohad@wizery.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Sibi Sankar <sibis@codeaurora.org>,
+        linux-remoteproc@vger.kernel.org, kernel-team@android.com
+Subject: [PATCH 5.16 0073/1017] remoteproc: Fix count check in rproc_coredump_write()
+Date:   Tue,  5 Apr 2022 09:16:26 +0200
+Message-Id: <20220405070356.357754401@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -53,31 +58,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Alistair Delva <adelva@google.com>
 
-commit 23a9dbbe0faf124fc4c139615633b9d12a3a89ef upstream.
+commit f89672cc3681952f2d06314981a6b45f8b0045d1 upstream.
 
-On a 32 bit system, the "len * sizeof(*p)" operation can have an
-integer overflow.
+Check count for 0, to avoid a potential underflow. Make the check the
+same as the one in rproc_recovery_write().
 
+Fixes: 3afdc59e4390 ("remoteproc: Add coredump debugfs entry")
+Signed-off-by: Alistair Delva <adelva@google.com>
+Cc: Rishabh Bhatnagar <rishabhb@codeaurora.org>
 Cc: stable@vger.kernel.org
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Cc: Ohad Ben-Cohen <ohad@wizery.com>
+Cc: Bjorn Andersson <bjorn.andersson@linaro.org>
+Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
+Cc: Sibi Sankar <sibis@codeaurora.org>
+Cc: linux-remoteproc@vger.kernel.org
+Cc: kernel-team@android.com
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220119232139.1125908-1-adelva@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/sunrpc/xdr.h |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/remoteproc/remoteproc_debugfs.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/linux/sunrpc/xdr.h
-+++ b/include/linux/sunrpc/xdr.h
-@@ -731,6 +731,8 @@ xdr_stream_decode_uint32_array(struct xd
+--- a/drivers/remoteproc/remoteproc_debugfs.c
++++ b/drivers/remoteproc/remoteproc_debugfs.c
+@@ -76,7 +76,7 @@ static ssize_t rproc_coredump_write(stru
+ 	int ret, err = 0;
+ 	char buf[20];
  
- 	if (unlikely(xdr_stream_decode_u32(xdr, &len) < 0))
- 		return -EBADMSG;
-+	if (len > SIZE_MAX / sizeof(*p))
-+		return -EBADMSG;
- 	p = xdr_inline_decode(xdr, len * sizeof(*p));
- 	if (unlikely(!p))
- 		return -EBADMSG;
+-	if (count > sizeof(buf))
++	if (count < 1 || count > sizeof(buf))
+ 		return -EINVAL;
+ 
+ 	ret = copy_from_user(buf, user_buf, count);
 
 
