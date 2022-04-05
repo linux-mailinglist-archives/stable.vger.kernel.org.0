@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3797F4F377D
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:20:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00A414F3A60
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:01:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353051AbiDELNp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:13:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39130 "EHLO
+        id S245086AbiDELo4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:44:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35306 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349059AbiDEJtD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:03 -0400
+        with ESMTP id S1354637AbiDEKO5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:14:57 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C3B3954B5;
-        Tue,  5 Apr 2022 02:39:32 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DC554993C;
+        Tue,  5 Apr 2022 03:01:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4FF67B81C14;
-        Tue,  5 Apr 2022 09:39:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0219C385A1;
-        Tue,  5 Apr 2022 09:39:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 43AEFB81B7A;
+        Tue,  5 Apr 2022 10:01:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 821A1C385A2;
+        Tue,  5 Apr 2022 10:01:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151570;
-        bh=vFLGFY6Y2m6hnjaomhJJXAPRRbtKFLzx3D6TYfGQzDk=;
+        s=korg; t=1649152910;
+        bh=9bImAcmj4A53oHrgEvLh7UEsskyu85oh1R6Ve/FzEG0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D96o7GnKjnwvDpZSGlVfgfcFJrkTtnIh1nsF0sSS9INwO4bnnTelg/SRdFiVFDGS7
-         I0IxHWkr/+qhFGa/bR6E3ReWwYiO9VWC2IHzPwsgzJ/LrfuCZ1wpCJgoqwHR4yOYev
-         olKmbx3uRyUgrrK4k6j8f1G/NnPoOLgnC0J5igS8=
+        b=zNTwFzyUdTp7MGc07TaZbR5mBuvM3mulhAexXPM0i+nEW6a5AHSzFkpW72VfLPrB4
+         6cy2sW8XzgeDDqG0fzyYSTBheIFHV+aS4ozK6WTMqTQvHpM8ZDqbXUd27hRHhWmHIR
+         x+82wREYBNjFoh3unUW3Fi++fUqEtvl/S4rsWfcw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 464/913] iwlwifi: mvm: align locking in D3 test debugfs
+        stable@vger.kernel.org, James Clark <james.clark@arm.com>,
+        Mike Leach <mike.leach@linaro.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>
+Subject: [PATCH 5.10 032/599] coresight: Fix TRCCONFIGR.QE sysfs interface
 Date:   Tue,  5 Apr 2022 09:25:26 +0200
-Message-Id: <20220405070353.756715944@linuxfoundation.org>
+Message-Id: <20220405070259.777351752@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070258.802373272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,53 +55,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: James Clark <james.clark@arm.com>
 
-[ Upstream commit 59e1221f470c2e5d2f2d4c95153edd577a7071c5 ]
+commit ea75a342aed5ed72c87f38fbe0df2f5df7eae374 upstream.
 
-Since commit a05829a7222e ("cfg80211: avoid holding the RTNL when
-calling the driver") we're not only holding the RTNL when going
-in and out of suspend, but also the wiphy->mtx. Add that to the
-D3 test debugfs in iwlwifi since it's required for various calls
-to mac80211.
+It's impossible to program a valid value for TRCCONFIGR.QE
+when TRCIDR0.QSUPP==0b10. In that case the following is true:
 
-Fixes: a05829a7222e ("cfg80211: avoid holding the RTNL when calling the driver")
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Fixes: a05829a7222e ("cfg80211: avoid holding the RTNL when calling the driver")
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20220129105618.fcec0204e162.Ib73bf787ab4d83581de20eb89b1f8dbfcaaad0e3@changeid
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  Q element support is implemented, and only supports Q elements without
+  instruction counts. TRCCONFIGR.QE can only take the values 0b00 or 0b11.
+
+Currently the low bit of QSUPP is checked to see if the low bit of QE can
+be written to, but as you can see when QSUPP==0b10 the low bit is cleared
+making it impossible to ever write the only valid value of 0b11 to QE.
+0b10 would be written instead, which is a reserved QE value even for all
+values of QSUPP.
+
+The fix is to allow writing the low bit of QE for any non zero value of
+QSUPP.
+
+This change also ensures that the low bit is always set, even when the
+user attempts to only set the high bit.
+
+Signed-off-by: James Clark <james.clark@arm.com>
+Reviewed-by: Mike Leach <mike.leach@linaro.org>
+Fixes: d8c66962084f ("coresight-etm4x: Controls pertaining to the reset, mode, pe and events")
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20220120113047.2839622-2-james.clark@arm.com
+Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/intel/iwlwifi/mvm/d3.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/hwtracing/coresight/coresight-etm4x-sysfs.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/d3.c b/drivers/net/wireless/intel/iwlwifi/mvm/d3.c
-index d3013a51a509..00ca17f3b263 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/d3.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/d3.c
-@@ -2499,7 +2499,9 @@ static int iwl_mvm_d3_test_open(struct inode *inode, struct file *file)
- 
- 	/* start pseudo D3 */
- 	rtnl_lock();
-+	wiphy_lock(mvm->hw->wiphy);
- 	err = __iwl_mvm_suspend(mvm->hw, mvm->hw->wiphy->wowlan_config, true);
-+	wiphy_unlock(mvm->hw->wiphy);
- 	rtnl_unlock();
- 	if (err > 0)
- 		err = -EINVAL;
-@@ -2555,7 +2557,9 @@ static int iwl_mvm_d3_test_release(struct inode *inode, struct file *file)
- 	iwl_fw_dbg_read_d3_debug_data(&mvm->fwrt);
- 
- 	rtnl_lock();
-+	wiphy_lock(mvm->hw->wiphy);
- 	__iwl_mvm_resume(mvm, true);
-+	wiphy_unlock(mvm->hw->wiphy);
- 	rtnl_unlock();
- 
- 	iwl_mvm_resume_tcm(mvm);
--- 
-2.34.1
-
+--- a/drivers/hwtracing/coresight/coresight-etm4x-sysfs.c
++++ b/drivers/hwtracing/coresight/coresight-etm4x-sysfs.c
+@@ -364,8 +364,12 @@ static ssize_t mode_store(struct device
+ 	mode = ETM_MODE_QELEM(config->mode);
+ 	/* start by clearing QE bits */
+ 	config->cfg &= ~(BIT(13) | BIT(14));
+-	/* if supported, Q elements with instruction counts are enabled */
+-	if ((mode & BIT(0)) && (drvdata->q_support & BIT(0)))
++	/*
++	 * if supported, Q elements with instruction counts are enabled.
++	 * Always set the low bit for any requested mode. Valid combos are
++	 * 0b00, 0b01 and 0b11.
++	 */
++	if (mode && drvdata->q_support)
+ 		config->cfg |= BIT(13);
+ 	/*
+ 	 * if supported, Q elements with and without instruction
 
 
