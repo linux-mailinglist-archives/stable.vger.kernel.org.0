@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D9D764F3340
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:15:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D28A4F3106
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:36:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245297AbiDEIyo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:54:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45264 "EHLO
+        id S1353707AbiDEKI7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:08:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43066 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240957AbiDEIcl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:32:41 -0400
+        with ESMTP id S1345261AbiDEJWX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:22:23 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 396808FE7A;
-        Tue,  5 Apr 2022 01:25:28 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DC9A3E5C9;
+        Tue,  5 Apr 2022 02:10:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B80560FFC;
-        Tue,  5 Apr 2022 08:25:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD3B8C385A1;
-        Tue,  5 Apr 2022 08:25:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 231E561003;
+        Tue,  5 Apr 2022 09:10:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3ADC4C385A2;
+        Tue,  5 Apr 2022 09:10:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147127;
-        bh=bymNXs9RSnkFw+C4LkYHYp5fkQlBVZApsmk8h49t/k0=;
+        s=korg; t=1649149801;
+        bh=GsAv312AdYmmt1e+wMqZIwMIBSqRjZ1+lgs4z1QfSXo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IDQ7In1aEyagAmhskaibY/4gmFYYBg1U9X7jG0dcYpstG9h4j1b37ufNZR+TNb8ED
-         YYlfsY7WwlBRdhwIJDMXeOV5SFiWy/MIXidp6s1YsO+sAECbZeB2RImog8K+4Ib+Nh
-         1ipA3OwCe/Sd3Lk5lIbSYGp0C+eS8gUZAsbwyHAw=
+        b=lSeJOBgK80nxw8wQ7vV/hlN/sk36Ya6XJfLyfBK86/tifxY2YR6d33pKl7ldTNRUI
+         8ETtCA2FQ+7qvcjxFPFSZwMRU6UD3ShOTerYlbgiI3s/nj4yT7eQXULNchcMr0tJUy
+         FXInnObAOLhJ49xSXRT9STdqXgNPeeSPUh3GyX5g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Richard Weinberger <richard@nod.at>
-Subject: [PATCH 5.17 1012/1126] ubifs: Fix to add refcount once page is set private
-Date:   Tue,  5 Apr 2022 09:29:19 +0200
-Message-Id: <20220405070437.193663780@linuxfoundation.org>
+        stable@vger.kernel.org, syzkaller <syzkaller@googlegroups.com>,
+        Dongliang Mu <mudongliangabcd@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0847/1017] media: hdpvr: initialize dev->worker at hdpvr_register_videodev
+Date:   Tue,  5 Apr 2022 09:29:20 +0200
+Message-Id: <20220405070419.381404472@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,184 +56,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-commit 3b67db8a6ca83e6ff90b756d3da0c966f61cd37b upstream.
+[ Upstream commit 07922937e9a580825f9965c46fd15e23ba5754b6 ]
 
-MM defined the rule [1] very clearly that once page was set with PG_private
-flag, we should increment the refcount in that page, also main flows like
-pageout(), migrate_page() will assume there is one additional page
-reference count if page_has_private() returns true. Otherwise, we may
-get a BUG in page migration:
+hdpvr_register_videodev is responsible to initialize a worker in
+hdpvr_device. However, the worker is only initialized at
+hdpvr_start_streaming other than hdpvr_register_videodev.
+When hdpvr_probe does not initialize its worker, the hdpvr_disconnect
+will encounter one WARN in flush_work.The stack trace is as follows:
 
-  page:0000000080d05b9d refcount:-1 mapcount:0 mapping:000000005f4d82a8
-  index:0xe2 pfn:0x14c12
-  aops:ubifs_file_address_operations [ubifs] ino:8f1 dentry name:"f30e"
-  flags: 0x1fffff80002405(locked|uptodate|owner_priv_1|private|node=0|
-  zone=1|lastcpupid=0x1fffff)
-  page dumped because: VM_BUG_ON_PAGE(page_count(page) != 0)
-  ------------[ cut here ]------------
-  kernel BUG at include/linux/page_ref.h:184!
-  invalid opcode: 0000 [#1] SMP
-  CPU: 3 PID: 38 Comm: kcompactd0 Not tainted 5.15.0-rc5
-  RIP: 0010:migrate_page_move_mapping+0xac3/0xe70
-  Call Trace:
-    ubifs_migrate_page+0x22/0xc0 [ubifs]
-    move_to_new_page+0xb4/0x600
-    migrate_pages+0x1523/0x1cc0
-    compact_zone+0x8c5/0x14b0
-    kcompactd+0x2bc/0x560
-    kthread+0x18c/0x1e0
-    ret_from_fork+0x1f/0x30
+ hdpvr_disconnect+0xb8/0xf2 drivers/media/usb/hdpvr/hdpvr-core.c:425
+ usb_unbind_interface+0xbf/0x3a0 drivers/usb/core/driver.c:458
+ __device_release_driver drivers/base/dd.c:1206 [inline]
+ device_release_driver_internal+0x22a/0x230 drivers/base/dd.c:1237
+ bus_remove_device+0x108/0x160 drivers/base/bus.c:529
+ device_del+0x1fe/0x510 drivers/base/core.c:3592
+ usb_disable_device+0xd1/0x1d0 drivers/usb/core/message.c:1419
+ usb_disconnect+0x109/0x330 drivers/usb/core/hub.c:2228
 
-Before the time, we should make clean a concept, what does refcount means
-in page gotten from grab_cache_page_write_begin(). There are 2 situations:
-Situation 1: refcount is 3, page is created by __page_cache_alloc.
-  TYPE_A - the write process is using this page
-  TYPE_B - page is assigned to one certain mapping by calling
-	   __add_to_page_cache_locked()
-  TYPE_C - page is added into pagevec list corresponding current cpu by
-	   calling lru_cache_add()
-Situation 2: refcount is 2, page is gotten from the mapping's tree
-  TYPE_B - page has been assigned to one certain mapping
-  TYPE_A - the write process is using this page (by calling
-	   page_cache_get_speculative())
-Filesystem releases one refcount by calling put_page() in xxx_write_end(),
-the released refcount corresponds to TYPE_A (write task is using it). If
-there are any processes using a page, page migration process will skip the
-page by judging whether expected_page_refs() equals to page refcount.
+Fix this by moving the initialization of dev->worker to the starting of
+hdpvr_register_videodev
 
-The BUG is caused by following process:
-    PA(cpu 0)                           kcompactd(cpu 1)
-				compact_zone
-ubifs_write_begin
-  page_a = grab_cache_page_write_begin
-    add_to_page_cache_lru
-      lru_cache_add
-        pagevec_add // put page into cpu 0's pagevec
-  (refcnf = 3, for page creation process)
-ubifs_write_end
-  SetPagePrivate(page_a) // doesn't increase page count !
-  unlock_page(page_a)
-  put_page(page_a)  // refcnt = 2
-				[...]
-
-    PB(cpu 0)
-filemap_read
-  filemap_get_pages
-    add_to_page_cache_lru
-      lru_cache_add
-        __pagevec_lru_add // traverse all pages in cpu 0's pagevec
-	  __pagevec_lru_add_fn
-	    SetPageLRU(page_a)
-				isolate_migratepages
-                                  isolate_migratepages_block
-				    get_page_unless_zero(page_a)
-				    // refcnt = 3
-                                      list_add(page_a, from_list)
-				migrate_pages(from_list)
-				  __unmap_and_move
-				    move_to_new_page
-				      ubifs_migrate_page(page_a)
-				        migrate_page_move_mapping
-					  expected_page_refs get 3
-                                  (migration[1] + mapping[1] + private[1])
-	 release_pages
-	   put_page_testzero(page_a) // refcnt = 3
-                                          page_ref_freeze  // refcnt = 0
-	     page_ref_dec_and_test(0 - 1 = -1)
-                                          page_ref_unfreeze
-                                            VM_BUG_ON_PAGE(-1 != 0, page)
-
-UBIFS doesn't increase the page refcount after setting private flag, which
-leads to page migration task believes the page is not used by any other
-processes, so the page is migrated. This causes concurrent accessing on
-page refcount between put_page() called by other process(eg. read process
-calls lru_cache_add) and page_ref_unfreeze() called by migration task.
-
-Actually zhangjun has tried to fix this problem [2] by recalculating page
-refcnt in ubifs_migrate_page(). It's better to follow MM rules [1], because
-just like Kirill suggested in [2], we need to check all users of
-page_has_private() helper. Like f2fs does in [3], fix it by adding/deleting
-refcount when setting/clearing private for a page. BTW, according to [4],
-we set 'page->private' as 1 because ubifs just simply SetPagePrivate().
-And, [5] provided a common helper to set/clear page private, ubifs can
-use this helper following the example of iomap, afs, btrfs, etc.
-
-Jump [6] to find a reproducer.
-
-[1] https://lore.kernel.org/lkml/2b19b3c4-2bc4-15fa-15cc-27a13e5c7af1@aol.com
-[2] https://www.spinics.net/lists/linux-mtd/msg04018.html
-[3] http://lkml.iu.edu/hypermail/linux/kernel/1903.0/03313.html
-[4] https://lore.kernel.org/linux-f2fs-devel/20210422154705.GO3596236@casper.infradead.org
-[5] https://lore.kernel.org/all/20200517214718.468-1-guoqing.jiang@cloud.ionos.com
-[6] https://bugzilla.kernel.org/show_bug.cgi?id=214961
-
-Fixes: 1e51764a3c2ac0 ("UBIFS: add new flash file system")
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: syzkaller <syzkaller@googlegroups.com>
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ubifs/file.c |   14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/media/usb/hdpvr/hdpvr-video.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/fs/ubifs/file.c
-+++ b/fs/ubifs/file.c
-@@ -570,7 +570,7 @@ static int ubifs_write_end(struct file *
- 	}
+diff --git a/drivers/media/usb/hdpvr/hdpvr-video.c b/drivers/media/usb/hdpvr/hdpvr-video.c
+index 563128d11731..60e57e0f1927 100644
+--- a/drivers/media/usb/hdpvr/hdpvr-video.c
++++ b/drivers/media/usb/hdpvr/hdpvr-video.c
+@@ -308,7 +308,6 @@ static int hdpvr_start_streaming(struct hdpvr_device *dev)
  
- 	if (!PagePrivate(page)) {
--		SetPagePrivate(page);
-+		attach_page_private(page, (void *)1);
- 		atomic_long_inc(&c->dirty_pg_cnt);
- 		__set_page_dirty_nobuffers(page);
- 	}
-@@ -947,7 +947,7 @@ static int do_writepage(struct page *pag
- 		release_existing_page_budget(c);
+ 	dev->status = STATUS_STREAMING;
  
- 	atomic_long_dec(&c->dirty_pg_cnt);
--	ClearPagePrivate(page);
-+	detach_page_private(page);
- 	ClearPageChecked(page);
+-	INIT_WORK(&dev->worker, hdpvr_transmit_buffers);
+ 	schedule_work(&dev->worker);
  
- 	kunmap(page);
-@@ -1304,7 +1304,7 @@ static void ubifs_invalidatepage(struct
- 		release_existing_page_budget(c);
+ 	v4l2_dbg(MSG_BUFFER, hdpvr_debug, &dev->v4l2_dev,
+@@ -1165,6 +1164,9 @@ int hdpvr_register_videodev(struct hdpvr_device *dev, struct device *parent,
+ 	bool ac3 = dev->flags & HDPVR_FLAG_AC3_CAP;
+ 	int res;
  
- 	atomic_long_dec(&c->dirty_pg_cnt);
--	ClearPagePrivate(page);
-+	detach_page_private(page);
- 	ClearPageChecked(page);
- }
- 
-@@ -1471,8 +1471,8 @@ static int ubifs_migrate_page(struct add
- 		return rc;
- 
- 	if (PagePrivate(page)) {
--		ClearPagePrivate(page);
--		SetPagePrivate(newpage);
-+		detach_page_private(page);
-+		attach_page_private(newpage, (void *)1);
- 	}
- 
- 	if (mode != MIGRATE_SYNC_NO_COPY)
-@@ -1496,7 +1496,7 @@ static int ubifs_releasepage(struct page
- 		return 0;
- 	ubifs_assert(c, PagePrivate(page));
- 	ubifs_assert(c, 0);
--	ClearPagePrivate(page);
-+	detach_page_private(page);
- 	ClearPageChecked(page);
- 	return 1;
- }
-@@ -1567,7 +1567,7 @@ static vm_fault_t ubifs_vm_page_mkwrite(
- 	else {
- 		if (!PageChecked(page))
- 			ubifs_convert_page_budget(c);
--		SetPagePrivate(page);
-+		attach_page_private(page, (void *)1);
- 		atomic_long_inc(&c->dirty_pg_cnt);
- 		__set_page_dirty_nobuffers(page);
- 	}
++	// initialize dev->worker
++	INIT_WORK(&dev->worker, hdpvr_transmit_buffers);
++
+ 	dev->cur_std = V4L2_STD_525_60;
+ 	dev->width = 720;
+ 	dev->height = 480;
+-- 
+2.34.1
+
 
 
