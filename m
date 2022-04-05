@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 64B734F313F
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:40:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F6C54F2F62
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:11:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242568AbiDEJhk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:37:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51632 "EHLO
+        id S242637AbiDEJhq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:37:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52812 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236742AbiDEJDe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:03:34 -0400
+        with ESMTP id S237341AbiDEJEN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:04:13 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C12D1088;
-        Tue,  5 Apr 2022 01:55:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4921C13D1C;
+        Tue,  5 Apr 2022 01:55:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CB163B81BAE;
-        Tue,  5 Apr 2022 08:55:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40090C385A1;
-        Tue,  5 Apr 2022 08:55:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CA470B81C19;
+        Tue,  5 Apr 2022 08:55:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F414C385A0;
+        Tue,  5 Apr 2022 08:55:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148915;
-        bh=H3ecDX8pEltqiGL2hkKufhyYiHFUlZgmKssDWrOOcHw=;
+        s=korg; t=1649148946;
+        bh=CPlsjDJOEy9qPjg0ZKQmIWv0aTqA76GJ7JNdR05L9zQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kTps8JSKf0zlICE5+PXhKUzI9VPAFDycNZ1j3ZIAqORTpWVr6V2rJ+lADolggfV7m
-         /gAs4+Iljr6ULT1MSdbKq662sfSd837ERYrP8PDWQECiU7tACa4Sxo641J2OkxFlf/
-         BytBPRg1xWIigXZX48XF6Lqd/n9RWat8SNtR0EQI=
+        b=dZkOWT30GNKQXmqCelTBlYYXrggUpku5jQOEZtlBQWsraM29bduc2NChIR3n3W63T
+         XRdNMC364dy0p7XymmOFoQvi/z4fd2bAB/eO6+BXpTKtdmZyZG3QzjJ2U9u7JRvfYZ
+         EQzFIHAKQroBAM+Tnozas9T8BqNPFF/jmj3CxoaQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, Rotem Saado <rotem.saado@intel.com>,
         Luca Coelho <luciano.coelho@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0510/1017] iwlwifi: mvm: align locking in D3 test debugfs
-Date:   Tue,  5 Apr 2022 09:23:43 +0200
-Message-Id: <20220405070409.438251687@linuxfoundation.org>
+Subject: [PATCH 5.16 0511/1017] iwlwifi: yoyo: remove DBGI_SRAM address reset writing
+Date:   Tue,  5 Apr 2022 09:23:44 +0200
+Message-Id: <20220405070409.467578617@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -54,51 +54,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Rotem Saado <rotem.saado@intel.com>
 
-[ Upstream commit 59e1221f470c2e5d2f2d4c95153edd577a7071c5 ]
+[ Upstream commit ce014c9861544bb4e789323d0d8956a5ad262e25 ]
 
-Since commit a05829a7222e ("cfg80211: avoid holding the RTNL when
-calling the driver") we're not only holding the RTNL when going
-in and out of suspend, but also the wiphy->mtx. Add that to the
-D3 test debugfs in iwlwifi since it's required for various calls
-to mac80211.
+Due to preg protection we cannot write to this register
+while FW is running (when FW in Halt it is ok).
+since we have some cases that we need to dump this
+region while FW is running remove this writing from DRV.
+FW will do this writing.
 
-Fixes: a05829a7222e ("cfg80211: avoid holding the RTNL when calling the driver")
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Fixes: a05829a7222e ("cfg80211: avoid holding the RTNL when calling the driver")
+Signed-off-by: Rotem Saado <rotem.saado@intel.com>
+Fixes: 89639e06d0f3 ("iwlwifi: yoyo: support for new DBGI_SRAM region")
 Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20220129105618.fcec0204e162.Ib73bf787ab4d83581de20eb89b1f8dbfcaaad0e3@changeid
+Link: https://lore.kernel.org/r/iwlwifi.20220129105618.209f3078bc74.I463530bd2f40daedb39f6d9df987bb7cee209033@changeid
 Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/mvm/d3.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/wireless/intel/iwlwifi/fw/dbg.c   | 2 --
+ drivers/net/wireless/intel/iwlwifi/iwl-prph.h | 2 --
+ 2 files changed, 4 deletions(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/d3.c b/drivers/net/wireless/intel/iwlwifi/mvm/d3.c
-index a19f646a324f..75e9776001b8 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/d3.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/d3.c
-@@ -2566,7 +2566,9 @@ static int iwl_mvm_d3_test_open(struct inode *inode, struct file *file)
+diff --git a/drivers/net/wireless/intel/iwlwifi/fw/dbg.c b/drivers/net/wireless/intel/iwlwifi/fw/dbg.c
+index a39013c401c9..e2001e88a4b4 100644
+--- a/drivers/net/wireless/intel/iwlwifi/fw/dbg.c
++++ b/drivers/net/wireless/intel/iwlwifi/fw/dbg.c
+@@ -1562,8 +1562,6 @@ iwl_dump_ini_dbgi_sram_iter(struct iwl_fw_runtime *fwrt,
+ 		return -EBUSY;
  
- 	/* start pseudo D3 */
- 	rtnl_lock();
-+	wiphy_lock(mvm->hw->wiphy);
- 	err = __iwl_mvm_suspend(mvm->hw, mvm->hw->wiphy->wowlan_config, true);
-+	wiphy_unlock(mvm->hw->wiphy);
- 	rtnl_unlock();
- 	if (err > 0)
- 		err = -EINVAL;
-@@ -2622,7 +2624,9 @@ static int iwl_mvm_d3_test_release(struct inode *inode, struct file *file)
- 	iwl_fw_dbg_read_d3_debug_data(&mvm->fwrt);
+ 	range->range_data_size = reg->dev_addr.size;
+-	iwl_write_prph_no_grab(fwrt->trans, DBGI_SRAM_TARGET_ACCESS_CFG,
+-			       DBGI_SRAM_TARGET_ACCESS_CFG_RESET_ADDRESS_MSK);
+ 	for (i = 0; i < (le32_to_cpu(reg->dev_addr.size) / 4); i++) {
+ 		prph_data = iwl_read_prph(fwrt->trans, (i % 2) ?
+ 					  DBGI_SRAM_TARGET_ACCESS_RDATA_MSB :
+diff --git a/drivers/net/wireless/intel/iwlwifi/iwl-prph.h b/drivers/net/wireless/intel/iwlwifi/iwl-prph.h
+index a84ab02cf9d7..7d3fedfdb348 100644
+--- a/drivers/net/wireless/intel/iwlwifi/iwl-prph.h
++++ b/drivers/net/wireless/intel/iwlwifi/iwl-prph.h
+@@ -356,8 +356,6 @@
+ #define WFPM_GP2			0xA030B4
  
- 	rtnl_lock();
-+	wiphy_lock(mvm->hw->wiphy);
- 	__iwl_mvm_resume(mvm, true);
-+	wiphy_unlock(mvm->hw->wiphy);
- 	rtnl_unlock();
+ /* DBGI SRAM Register details */
+-#define DBGI_SRAM_TARGET_ACCESS_CFG			0x00A2E14C
+-#define DBGI_SRAM_TARGET_ACCESS_CFG_RESET_ADDRESS_MSK	0x10000
+ #define DBGI_SRAM_TARGET_ACCESS_RDATA_LSB		0x00A2E154
+ #define DBGI_SRAM_TARGET_ACCESS_RDATA_MSB		0x00A2E158
  
- 	iwl_mvm_resume_tcm(mvm);
 -- 
 2.34.1
 
