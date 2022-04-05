@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 85BD54F4528
-	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 00:40:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 589CC4F4631
+	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 01:03:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382502AbiDEMPh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:15:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36674 "EHLO
+        id S1382614AbiDEMQO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:16:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39852 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240485AbiDEKfq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:35:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAE2253A5D;
-        Tue,  5 Apr 2022 03:21:45 -0700 (PDT)
+        with ESMTP id S243494AbiDEKhC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:37:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CFB9541A6;
+        Tue,  5 Apr 2022 03:22:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5551261562;
-        Tue,  5 Apr 2022 10:21:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F77EC385A1;
-        Tue,  5 Apr 2022 10:21:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B5CE2B81C8A;
+        Tue,  5 Apr 2022 10:22:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25799C385A0;
+        Tue,  5 Apr 2022 10:22:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649154104;
-        bh=uVvsxXcsuV/zpwAblQs5D1i0APRLwni14f7UeSMlovg=;
+        s=korg; t=1649154124;
+        bh=AZLgzFAwxZdYdqe4eXTxIBX3b8sHli58R11pOaP4gmk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a0Peh79gjGe01tC1tKD7/PePKpdoZ+42F4G0NV5kZmHS1fbUOtxmKt/JQ35iZOjpF
-         arUJ8vdx2dWfHJk1WE9Na1loSbUwZUYqnyJb4utVF1AGK8fyKhsa+rI+vi3GRyKQTo
-         tLa254vaiiKSZ9iDk6FehfUbG1rXMH5p3SdqrK8I=
+        b=qXWQtcDGjNLGSn2j8E2Sj1C6wfnWbmVoiMnJ/b0nNyH7gFd6U3eWMX2t6lLlf75PG
+         yaL+SFXdoUtY/C4frIWf8cqUS8tGRhI8fJXOaSh+k19PGtCRed5fvVXGxOKniCPhGB
+         3Yr9W2NpPdo2pzPN8r5ok/sT7DJ+n0TaiuVnuTqs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Akira Kawata <akirakawata1@gmail.com>,
-        kernel test robot <lkp@intel.com>,
-        Kees Cook <keescook@chromium.org>,
+        stable@vger.kernel.org,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 460/599] fs/binfmt_elf: Fix AT_PHDR for unusual ELF files
-Date:   Tue,  5 Apr 2022 09:32:34 +0200
-Message-Id: <20220405070312.518246120@linuxfoundation.org>
+Subject: [PATCH 5.10 466/599] PM: core: keep irq flags in device_pm_check_callbacks()
+Date:   Tue,  5 Apr 2022 09:32:40 +0200
+Message-Id: <20220405070312.694906098@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -55,117 +55,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Akira Kawata <akirakawata1@gmail.com>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-[ Upstream commit 0da1d5002745cdc721bc018b582a8a9704d56c42 ]
+[ Upstream commit 524bb1da785a7ae43dd413cd392b5071c6c367f8 ]
 
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=197921
+The function device_pm_check_callbacks() can be called under the spin
+lock (in the reported case it happens from genpd_add_device() ->
+dev_pm_domain_set(), when the genpd uses spinlocks rather than mutexes.
 
-As pointed out in the discussion of buglink, we cannot calculate AT_PHDR
-as the sum of load_addr and exec->e_phoff.
+However this function uncoditionally uses spin_lock_irq() /
+spin_unlock_irq(), thus not preserving the CPU flags. Use the
+irqsave/irqrestore instead.
 
-: The AT_PHDR of ELF auxiliary vectors should point to the memory address
-: of program header. But binfmt_elf.c calculates this address as follows:
-:
-: NEW_AUX_ENT(AT_PHDR, load_addr + exec->e_phoff);
-:
-: which is wrong since e_phoff is the file offset of program header and
-: load_addr is the memory base address from PT_LOAD entry.
-:
-: The ld.so uses AT_PHDR as the memory address of program header. In normal
-: case, since the e_phoff is usually 64 and in the first PT_LOAD region, it
-: is the correct program header address.
-:
-: But if the address of program header isn't equal to the first PT_LOAD
-: address + e_phoff (e.g.  Put the program header in other non-consecutive
-: PT_LOAD region), ld.so will try to read program header from wrong address
-: then crash or use incorrect program header.
+The backtrace for the reference:
+[    2.752010] ------------[ cut here ]------------
+[    2.756769] raw_local_irq_restore() called with IRQs enabled
+[    2.762596] WARNING: CPU: 4 PID: 1 at kernel/locking/irqflag-debug.c:10 warn_bogus_irq_restore+0x34/0x50
+[    2.772338] Modules linked in:
+[    2.775487] CPU: 4 PID: 1 Comm: swapper/0 Tainted: G S                5.17.0-rc6-00384-ge330d0d82eff-dirty #684
+[    2.781384] Freeing initrd memory: 46024K
+[    2.785839] pstate: 60400005 (nZCv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+[    2.785841] pc : warn_bogus_irq_restore+0x34/0x50
+[    2.785844] lr : warn_bogus_irq_restore+0x34/0x50
+[    2.785846] sp : ffff80000805b7d0
+[    2.785847] x29: ffff80000805b7d0 x28: 0000000000000000 x27: 0000000000000002
+[    2.785850] x26: ffffd40e80930b18 x25: ffff7ee2329192b8 x24: ffff7edfc9f60800
+[    2.785853] x23: ffffd40e80930b18 x22: ffffd40e80930d30 x21: ffff7edfc0dffa00
+[    2.785856] x20: ffff7edfc09e3768 x19: 0000000000000000 x18: ffffffffffffffff
+[    2.845775] x17: 6572206f74206465 x16: 6c696166203a3030 x15: ffff80008805b4f7
+[    2.853108] x14: 0000000000000000 x13: ffffd40e809550b0 x12: 00000000000003d8
+[    2.860441] x11: 0000000000000148 x10: ffffd40e809550b0 x9 : ffffd40e809550b0
+[    2.867774] x8 : 00000000ffffefff x7 : ffffd40e809ad0b0 x6 : ffffd40e809ad0b0
+[    2.875107] x5 : 000000000000bff4 x4 : 0000000000000000 x3 : 0000000000000000
+[    2.882440] x2 : 0000000000000000 x1 : 0000000000000000 x0 : ffff7edfc03a8000
+[    2.889774] Call trace:
+[    2.892290]  warn_bogus_irq_restore+0x34/0x50
+[    2.896770]  _raw_spin_unlock_irqrestore+0x94/0xa0
+[    2.901690]  genpd_unlock_spin+0x20/0x30
+[    2.905724]  genpd_add_device+0x100/0x2d0
+[    2.909850]  __genpd_dev_pm_attach+0xa8/0x23c
+[    2.914329]  genpd_dev_pm_attach_by_id+0xc4/0x190
+[    2.919167]  genpd_dev_pm_attach_by_name+0x3c/0xd0
+[    2.924086]  dev_pm_domain_attach_by_name+0x24/0x30
+[    2.929102]  psci_dt_attach_cpu+0x24/0x90
+[    2.933230]  psci_cpuidle_probe+0x2d4/0x46c
+[    2.937534]  platform_probe+0x68/0xe0
+[    2.941304]  really_probe.part.0+0x9c/0x2fc
+[    2.945605]  __driver_probe_device+0x98/0x144
+[    2.950085]  driver_probe_device+0x44/0x15c
+[    2.954385]  __device_attach_driver+0xb8/0x120
+[    2.958950]  bus_for_each_drv+0x78/0xd0
+[    2.962896]  __device_attach+0xd8/0x180
+[    2.966843]  device_initial_probe+0x14/0x20
+[    2.971144]  bus_probe_device+0x9c/0xa4
+[    2.975092]  device_add+0x380/0x88c
+[    2.978679]  platform_device_add+0x114/0x234
+[    2.983067]  platform_device_register_full+0x100/0x190
+[    2.988344]  psci_idle_init+0x6c/0xb0
+[    2.992113]  do_one_initcall+0x74/0x3a0
+[    2.996060]  kernel_init_freeable+0x2fc/0x384
+[    3.000543]  kernel_init+0x28/0x130
+[    3.004132]  ret_from_fork+0x10/0x20
+[    3.007817] irq event stamp: 319826
+[    3.011404] hardirqs last  enabled at (319825): [<ffffd40e7eda0268>] __up_console_sem+0x78/0x84
+[    3.020332] hardirqs last disabled at (319826): [<ffffd40e7fd6d9d8>] el1_dbg+0x24/0x8c
+[    3.028458] softirqs last  enabled at (318312): [<ffffd40e7ec90410>] _stext+0x410/0x588
+[    3.036678] softirqs last disabled at (318299): [<ffffd40e7ed1bf68>] __irq_exit_rcu+0x158/0x174
+[    3.045607] ---[ end trace 0000000000000000 ]---
 
-This is because exec->e_phoff
-is the offset of PHDRs in the file and the address of PHDRs in the
-memory may differ from it. This patch fixes the bug by calculating the
-address of program headers from PT_LOADs directly.
-
-Signed-off-by: Akira Kawata <akirakawata1@gmail.com>
-Reported-by: kernel test robot <lkp@intel.com>
-Acked-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20220127124014.338760-2-akirakawata1@gmail.com
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/binfmt_elf.c | 24 ++++++++++++++++++------
- 1 file changed, 18 insertions(+), 6 deletions(-)
+ drivers/base/power/main.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/fs/binfmt_elf.c b/fs/binfmt_elf.c
-index 04c4aa7a1df2..ed507d27034b 100644
---- a/fs/binfmt_elf.c
-+++ b/fs/binfmt_elf.c
-@@ -170,8 +170,8 @@ static int padzero(unsigned long elf_bss)
+diff --git a/drivers/base/power/main.c b/drivers/base/power/main.c
+index 4167e2aef397..1dbaaddf540e 100644
+--- a/drivers/base/power/main.c
++++ b/drivers/base/power/main.c
+@@ -1994,7 +1994,9 @@ static bool pm_ops_is_empty(const struct dev_pm_ops *ops)
  
- static int
- create_elf_tables(struct linux_binprm *bprm, const struct elfhdr *exec,
--		unsigned long load_addr, unsigned long interp_load_addr,
--		unsigned long e_entry)
-+		unsigned long interp_load_addr,
-+		unsigned long e_entry, unsigned long phdr_addr)
+ void device_pm_check_callbacks(struct device *dev)
  {
- 	struct mm_struct *mm = current->mm;
- 	unsigned long p = bprm->p;
-@@ -256,7 +256,7 @@ create_elf_tables(struct linux_binprm *bprm, const struct elfhdr *exec,
- 	NEW_AUX_ENT(AT_HWCAP, ELF_HWCAP);
- 	NEW_AUX_ENT(AT_PAGESZ, ELF_EXEC_PAGESIZE);
- 	NEW_AUX_ENT(AT_CLKTCK, CLOCKS_PER_SEC);
--	NEW_AUX_ENT(AT_PHDR, load_addr + exec->e_phoff);
-+	NEW_AUX_ENT(AT_PHDR, phdr_addr);
- 	NEW_AUX_ENT(AT_PHENT, sizeof(struct elf_phdr));
- 	NEW_AUX_ENT(AT_PHNUM, exec->e_phnum);
- 	NEW_AUX_ENT(AT_BASE, interp_load_addr);
-@@ -820,7 +820,7 @@ static int parse_elf_properties(struct file *f, const struct elf_phdr *phdr,
- static int load_elf_binary(struct linux_binprm *bprm)
- {
- 	struct file *interpreter = NULL; /* to shut gcc up */
-- 	unsigned long load_addr = 0, load_bias = 0;
-+	unsigned long load_addr, load_bias = 0, phdr_addr = 0;
- 	int load_addr_set = 0;
- 	unsigned long error;
- 	struct elf_phdr *elf_ppnt, *elf_phdata, *interp_elf_phdata = NULL;
-@@ -1153,6 +1153,17 @@ static int load_elf_binary(struct linux_binprm *bprm)
- 				reloc_func_desc = load_bias;
- 			}
- 		}
+-	spin_lock_irq(&dev->power.lock);
++	unsigned long flags;
 +
-+		/*
-+		 * Figure out which segment in the file contains the Program
-+		 * Header table, and map to the associated memory address.
-+		 */
-+		if (elf_ppnt->p_offset <= elf_ex->e_phoff &&
-+		    elf_ex->e_phoff < elf_ppnt->p_offset + elf_ppnt->p_filesz) {
-+			phdr_addr = elf_ex->e_phoff - elf_ppnt->p_offset +
-+				    elf_ppnt->p_vaddr;
-+		}
-+
- 		k = elf_ppnt->p_vaddr;
- 		if ((elf_ppnt->p_flags & PF_X) && k < start_code)
- 			start_code = k;
-@@ -1188,6 +1199,7 @@ static int load_elf_binary(struct linux_binprm *bprm)
- 	}
++	spin_lock_irqsave(&dev->power.lock, flags);
+ 	dev->power.no_pm_callbacks =
+ 		(!dev->bus || (pm_ops_is_empty(dev->bus->pm) &&
+ 		 !dev->bus->suspend && !dev->bus->resume)) &&
+@@ -2003,7 +2005,7 @@ void device_pm_check_callbacks(struct device *dev)
+ 		(!dev->pm_domain || pm_ops_is_empty(&dev->pm_domain->ops)) &&
+ 		(!dev->driver || (pm_ops_is_empty(dev->driver->pm) &&
+ 		 !dev->driver->suspend && !dev->driver->resume));
+-	spin_unlock_irq(&dev->power.lock);
++	spin_unlock_irqrestore(&dev->power.lock, flags);
+ }
  
- 	e_entry = elf_ex->e_entry + load_bias;
-+	phdr_addr += load_bias;
- 	elf_bss += load_bias;
- 	elf_brk += load_bias;
- 	start_code += load_bias;
-@@ -1251,8 +1263,8 @@ static int load_elf_binary(struct linux_binprm *bprm)
- 		goto out;
- #endif /* ARCH_HAS_SETUP_ADDITIONAL_PAGES */
- 
--	retval = create_elf_tables(bprm, elf_ex,
--			  load_addr, interp_load_addr, e_entry);
-+	retval = create_elf_tables(bprm, elf_ex, interp_load_addr,
-+				   e_entry, phdr_addr);
- 	if (retval < 0)
- 		goto out;
- 
+ bool dev_pm_skip_suspend(struct device *dev)
 -- 
 2.34.1
 
