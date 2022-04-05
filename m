@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 73BC64F3A1D
+	by mail.lfdr.de (Postfix) with ESMTP id 023EC4F3A1C
 	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:58:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379158AbiDELk0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:40:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43776 "EHLO
+        id S1379129AbiDELkY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:40:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43778 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354387AbiDEKOA (ORCPT
+        with ESMTP id S1354383AbiDEKOA (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:14:00 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 443856C91A;
-        Tue,  5 Apr 2022 02:59:43 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 198846F4AE;
+        Tue,  5 Apr 2022 02:59:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E3CF7B81C86;
-        Tue,  5 Apr 2022 09:59:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5907CC385A1;
-        Tue,  5 Apr 2022 09:59:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BA3D1B81C86;
+        Tue,  5 Apr 2022 09:59:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10271C385A2;
+        Tue,  5 Apr 2022 09:59:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152780;
-        bh=1Y2tJszXJ8mM7Vg/4Mf9uvXQFr8vz3unAZ/gygB5MPE=;
+        s=korg; t=1649152783;
+        bh=WZ5lqIiERkhZAxCxhfRzo1GoFdYeuXgZNAeBjIF+Bag=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FQ0X5md+nJs0B8cqsnJW0l13TpKPlZOl2RtKGejqDHvF3Eqjtru/j/PBgW1/nCLtK
-         t2/H5Lpk7CR00iO6i8NxM2pitUh2hvxJlUyuVuumgSPuRtCfKh8WMTPyv6r3zFby5c
-         7B08kapqxH+mCEUSMW0A+QV8JSQ7KoGNs9+qOXPg=
+        b=zh5wFgAN2ZPKAzqcB6mFrI6ylYv/YEbDt+XcqZsBclZJULsyNLzHtSfUUWkf29tH+
+         2jwFhhz4dgBlM6F3qzr89MC1Q9zu150Xq6aH5GRTx5ujzQbQG+2j7wBU+pwhy25Gxu
+         2IBCZ7Fpofe0EXY47cx1Jv4KrUPkyOyaRKGlJidI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Martin Varghese <martin.varghese@nokia.com>,
-        Paolo Abeni <pabeni@redhat.com>
-Subject: [PATCH 5.15 899/913] openvswitch: Fixed nd target mask field in the flow dump.
-Date:   Tue,  5 Apr 2022 09:32:41 +0200
-Message-Id: <20220405070406.767887542@linuxfoundation.org>
+        stable@vger.kernel.org, Paul Menzel <pmenzel@molgen.mpg.de>,
+        "Paul E. McKenney" <paulmck@kernel.org>
+Subject: [PATCH 5.15 900/913] torture: Make torture.sh help message match reality
+Date:   Tue,  5 Apr 2022 09:32:42 +0200
+Message-Id: <20220405070406.797349971@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -54,49 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Varghese <martin.varghese@nokia.com>
+From: Paul E. McKenney <paulmck@kernel.org>
 
-commit f19c44452b58a84d95e209b847f5495d91c9983a upstream.
+commit f233673cd32a048f2eed69e56b61174c33fb740b upstream.
 
-IPv6 nd target mask was not getting populated in flow dump.
+This commit fixes a couple of typos: s/--doall/--do-all/ and
+s/--doallmodconfig/--do-allmodconfig/.
 
-In the function __ovs_nla_put_key the icmp code mask field was checked
-instead of icmp code key field to classify the flow as neighbour discovery.
+[ paulmck: Add Fixes: supplied by Paul Menzel. ]
 
-ufid:bdfbe3e5-60c2-43b0-a5ff-dfcac1c37328, recirc_id(0),dp_hash(0/0),
-skb_priority(0/0),in_port(ovs-nm1),skb_mark(0/0),ct_state(0/0),
-ct_zone(0/0),ct_mark(0/0),ct_label(0/0),
-eth(src=00:00:00:00:00:00/00:00:00:00:00:00,
-dst=00:00:00:00:00:00/00:00:00:00:00:00),
-eth_type(0x86dd),
-ipv6(src=::/::,dst=::/::,label=0/0,proto=58,tclass=0/0,hlimit=0/0,frag=no),
-icmpv6(type=135,code=0),
-nd(target=2001::2/::,
-sll=00:00:00:00:00:00/00:00:00:00:00:00,
-tll=00:00:00:00:00:00/00:00:00:00:00:00),
-packets:10, bytes:860, used:0.504s, dp:ovs, actions:ovs-nm2
-
-Fixes: e64457191a25 (openvswitch: Restructure datapath.c and flow.c)
-Signed-off-by: Martin Varghese <martin.varghese@nokia.com>
-Link: https://lore.kernel.org/r/20220328054148.3057-1-martinvarghesenokia@gmail.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Fixes: a115a775a8d5 ("torture: Add "make allmodconfig" to torture.sh")
+Reported-by: Paul Menzel <pmenzel@molgen.mpg.de>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/openvswitch/flow_netlink.c |    4 ++--
+ tools/testing/selftests/rcutorture/bin/torture.sh |    4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/net/openvswitch/flow_netlink.c
-+++ b/net/openvswitch/flow_netlink.c
-@@ -2201,8 +2201,8 @@ static int __ovs_nla_put_key(const struc
- 			icmpv6_key->icmpv6_type = ntohs(output->tp.src);
- 			icmpv6_key->icmpv6_code = ntohs(output->tp.dst);
- 
--			if (icmpv6_key->icmpv6_type == NDISC_NEIGHBOUR_SOLICITATION ||
--			    icmpv6_key->icmpv6_type == NDISC_NEIGHBOUR_ADVERTISEMENT) {
-+			if (swkey->tp.src == htons(NDISC_NEIGHBOUR_SOLICITATION) ||
-+			    swkey->tp.src == htons(NDISC_NEIGHBOUR_ADVERTISEMENT)) {
- 				struct ovs_key_nd *nd_key;
- 
- 				nla = nla_reserve(skb, OVS_KEY_ATTR_ND, sizeof(*nd_key));
+--- a/tools/testing/selftests/rcutorture/bin/torture.sh
++++ b/tools/testing/selftests/rcutorture/bin/torture.sh
+@@ -71,8 +71,8 @@ usage () {
+ 	echo "       --configs-rcutorture \"config-file list w/ repeat factor (3*TINY01)\""
+ 	echo "       --configs-locktorture \"config-file list w/ repeat factor (10*LOCK01)\""
+ 	echo "       --configs-scftorture \"config-file list w/ repeat factor (2*CFLIST)\""
+-	echo "       --doall"
+-	echo "       --doallmodconfig / --do-no-allmodconfig"
++	echo "       --do-all"
++	echo "       --do-allmodconfig / --do-no-allmodconfig"
+ 	echo "       --do-clocksourcewd / --do-no-clocksourcewd"
+ 	echo "       --do-kasan / --do-no-kasan"
+ 	echo "       --do-kcsan / --do-no-kcsan"
 
 
