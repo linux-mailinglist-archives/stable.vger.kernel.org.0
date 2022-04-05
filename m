@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A6BEE4F36D5
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:09:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6AAC24F36D1
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:09:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352390AbiDELIL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:08:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36324 "EHLO
+        id S1352372AbiDELIF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:08:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43550 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348777AbiDEJsf (ORCPT
+        with ESMTP id S1348585AbiDEJsf (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:48:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4D356A412;
-        Tue,  5 Apr 2022 02:35:06 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CF486FF54;
+        Tue,  5 Apr 2022 02:35:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6A8DE61680;
-        Tue,  5 Apr 2022 09:35:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70981C385A2;
-        Tue,  5 Apr 2022 09:35:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B3033B81C6F;
+        Tue,  5 Apr 2022 09:35:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 096BDC385A3;
+        Tue,  5 Apr 2022 09:35:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151305;
-        bh=f0i/LJ/rej/qlGXRfE9/Nw2sVL0swZ4PvX3YV1//QE0=;
+        s=korg; t=1649151311;
+        bh=9xEAKMpxGzf2culwYA+lPprUuDTBQpTKmsGMIu0d/v0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fa33y3vc0+bqFVaSekMHmTPxtrhw4J9+g15GhgUHsHJZW2gUnm7fZPhmReibA1BN4
-         kUqiE8H/6j0YlxayYcGUi/ZAb5sU8twsDlzElznA+Ob3bbaGT1Xo4zZesv2o8/abnj
-         uSumr+BifsEHi6j2xD+ID2xHlCPdeu8yEBcO8JI4=
+        b=aSjG8vGqEa+Oth5WYJv7kNlBFgJOVW0k4Q472L3ZSpI4JlMh5wNYRPePxhKSVlNZZ
+         7cM8qrxlLXAXVR4OD8nns2AIu5BDgvbf7Cq4Sk0DA5jU7wKAf3kab31xdntk2DQFFV
+         KEV+brqEf12XvIBJDXM86BmSOmcVdauSv3b72gVg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 366/913] ASoC: msm8916-wcd-digital: Fix missing clk_disable_unprepare() in msm8916_wcd_digital_probe
-Date:   Tue,  5 Apr 2022 09:23:48 +0200
-Message-Id: <20220405070350.817089346@linuxfoundation.org>
+Subject: [PATCH 5.15 367/913] mmc: davinci_mmc: Handle error for clk_enable
+Date:   Tue,  5 Apr 2022 09:23:49 +0200
+Message-Id: <20220405070350.847445805@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -54,45 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit 375a347da4889f64d86e1ab7f4e6702b6e9bf299 ]
+[ Upstream commit 09e7af76db02c74f2a339b3cb2d95460fa2ddbe4 ]
 
-Fix the missing clk_disable_unprepare() before return
-from msm8916_wcd_digital_probe in the error handling case.
+As the potential failure of the clk_enable(),
+it should be better to check it and return error
+if fails.
 
-Fixes: 150db8c5afa1 ("ASoC: codecs: Add msm8916-wcd digital codec")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220307084523.28687-1-linmq006@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: bbce5802afc5 ("davinci: mmc: updates to suspend/resume implementation")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Link: https://lore.kernel.org/r/20220308071415.1093393-1-jiasheng@iscas.ac.cn
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/msm8916-wcd-digital.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/mmc/host/davinci_mmc.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/msm8916-wcd-digital.c b/sound/soc/codecs/msm8916-wcd-digital.c
-index fcc10c8bc625..9ad7fc0baf07 100644
---- a/sound/soc/codecs/msm8916-wcd-digital.c
-+++ b/sound/soc/codecs/msm8916-wcd-digital.c
-@@ -1201,7 +1201,7 @@ static int msm8916_wcd_digital_probe(struct platform_device *pdev)
- 	ret = clk_prepare_enable(priv->mclk);
- 	if (ret < 0) {
- 		dev_err(dev, "failed to enable mclk %d\n", ret);
--		return ret;
-+		goto err_clk;
- 	}
+diff --git a/drivers/mmc/host/davinci_mmc.c b/drivers/mmc/host/davinci_mmc.c
+index 2a757c88f9d2..80de660027d8 100644
+--- a/drivers/mmc/host/davinci_mmc.c
++++ b/drivers/mmc/host/davinci_mmc.c
+@@ -1375,8 +1375,12 @@ static int davinci_mmcsd_suspend(struct device *dev)
+ static int davinci_mmcsd_resume(struct device *dev)
+ {
+ 	struct mmc_davinci_host *host = dev_get_drvdata(dev);
++	int ret;
++
++	ret = clk_enable(host->clk);
++	if (ret)
++		return ret;
  
- 	dev_set_drvdata(dev, priv);
-@@ -1209,6 +1209,9 @@ static int msm8916_wcd_digital_probe(struct platform_device *pdev)
- 	return devm_snd_soc_register_component(dev, &msm8916_wcd_digital,
- 				      msm8916_wcd_digital_dai,
- 				      ARRAY_SIZE(msm8916_wcd_digital_dai));
-+err_clk:
-+	clk_disable_unprepare(priv->ahbclk);
-+	return ret;
- }
+-	clk_enable(host->clk);
+ 	mmc_davinci_reset_ctrl(host, 0);
  
- static int msm8916_wcd_digital_remove(struct platform_device *pdev)
+ 	return 0;
 -- 
 2.34.1
 
