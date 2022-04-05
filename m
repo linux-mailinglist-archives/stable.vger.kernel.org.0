@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F5C44F31F3
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:53:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EB8D4F35FD
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:56:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233089AbiDEIiZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:38:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34686 "EHLO
+        id S241832AbiDEK4r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:56:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60902 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237956AbiDEISe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:18:34 -0400
+        with ESMTP id S1346585AbiDEJpM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:45:12 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAB6CB821D;
-        Tue,  5 Apr 2022 01:07:49 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1077CDAFD8;
+        Tue,  5 Apr 2022 02:31:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 83336617EE;
-        Tue,  5 Apr 2022 08:07:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90FE6C385A1;
-        Tue,  5 Apr 2022 08:07:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 640DA6165C;
+        Tue,  5 Apr 2022 09:31:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CB4CC385A2;
+        Tue,  5 Apr 2022 09:31:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146068;
-        bh=y+dar7JCW4XERL+1xxtW86hKLcwtyN/Rw9l7lfqSf5s=;
+        s=korg; t=1649151061;
+        bh=IsYGMWcOLC2kDDO8OFJfhbKJ+skf8w8cVCluqFXU9Jw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uYJV8jRNvYG1pbJjafeRnCl1e6xIZIKyw9a1yaLSnFRMrJMz4yUvs2wFrM/0AyiUi
-         DB54fuTEWE1IMsgTAZvNIGE9PPfB6I+2xdWXh3nT5DmNQj4lyNnzAM8yqrXJnMpcTL
-         XQihK4gWVimd6U1C8U2UoPCDUqVRhqvKbBwD7gP0=
+        b=BCa4LjXIhrR7Vc5D616cBa/5a1nuTo9LXGIdE/u7hiPIuR/0G5XTi2tb3ZB3nUNgm
+         Kszeg7VUoUnw4upXQQXafrN7068FUz/Wqoz4lLZ5eENxbNXbEnoLC93vQqf684fqsp
+         7wdCU/HnDQ+rN8Qt+Jn7xQ4F82W4qCMI3mkYT+KQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0593/1126] mt76: do not always copy ethhdr in reverse_frag0_hdr_trans
-Date:   Tue,  5 Apr 2022 09:22:20 +0200
-Message-Id: <20220405070425.040301065@linuxfoundation.org>
+        stable@vger.kernel.org, Robert Hancock <robert.hancock@calian.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 279/913] ASoC: xilinx: xlnx_formatter_pcm: Handle sysclk setting
+Date:   Tue,  5 Apr 2022 09:22:21 +0200
+Message-Id: <20220405070348.220728833@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,199 +54,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Bianconi <lorenzo@kernel.org>
+From: Robert Hancock <robert.hancock@calian.com>
 
-[ Upstream commit eea7437e80216ac29a87b417896ce75656816b56 ]
+[ Upstream commit 1c5091fbe7e0d0804158200b7feac5123f7b4fbd ]
 
-Do not always copy ethernet header in mt{7615,7915,7921}_reverse_frag0_hdr_trans
-and use a pointer instead.
+This driver did not set the MM2S Fs Multiplier Register to the proper
+value for playback streams. This needs to be set to the sample rate to
+MCLK multiplier, or random stream underflows can occur on the downstream
+I2S transmitter.
 
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Store the sysclk value provided via the set_sysclk callback and use that
+in conjunction with the sample rate in the hw_params callback to calculate
+the proper value to set for this register.
+
+Fixes: 6f6c3c36f091 ("ASoC: xlnx: add pcm formatter platform driver")
+Signed-off-by: Robert Hancock <robert.hancock@calian.com>
+Link: https://lore.kernel.org/r/20220120195832.1742271-2-robert.hancock@calian.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/wireless/mediatek/mt76/mt7615/mac.c   | 19 +++++++++----------
- .../net/wireless/mediatek/mt76/mt7915/mac.c   | 19 +++++++++----------
- .../net/wireless/mediatek/mt76/mt7921/mac.c   | 19 +++++++++----------
- 3 files changed, 27 insertions(+), 30 deletions(-)
+ sound/soc/xilinx/xlnx_formatter_pcm.c | 25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/mac.c b/drivers/net/wireless/mediatek/mt76/mt7615/mac.c
-index 6d0ff5af8fec..21941e7873d8 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7615/mac.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7615/mac.c
-@@ -253,12 +253,12 @@ static void mt7615_mac_fill_tm_rx(struct mt7615_phy *phy, __le32 *rxv)
- static int mt7615_reverse_frag0_hdr_trans(struct sk_buff *skb, u16 hdr_gap)
+diff --git a/sound/soc/xilinx/xlnx_formatter_pcm.c b/sound/soc/xilinx/xlnx_formatter_pcm.c
+index ce19a6058b27..5c4158069a5a 100644
+--- a/sound/soc/xilinx/xlnx_formatter_pcm.c
++++ b/sound/soc/xilinx/xlnx_formatter_pcm.c
+@@ -84,6 +84,7 @@ struct xlnx_pcm_drv_data {
+ 	struct snd_pcm_substream *play_stream;
+ 	struct snd_pcm_substream *capture_stream;
+ 	struct clk *axi_clk;
++	unsigned int sysclk;
+ };
+ 
+ /*
+@@ -314,6 +315,15 @@ static irqreturn_t xlnx_s2mm_irq_handler(int irq, void *arg)
+ 	return IRQ_NONE;
+ }
+ 
++static int xlnx_formatter_set_sysclk(struct snd_soc_component *component,
++				     int clk_id, int source, unsigned int freq, int dir)
++{
++	struct xlnx_pcm_drv_data *adata = dev_get_drvdata(component->dev);
++
++	adata->sysclk = freq;
++	return 0;
++}
++
+ static int xlnx_formatter_pcm_open(struct snd_soc_component *component,
+ 				   struct snd_pcm_substream *substream)
  {
- 	struct mt76_rx_status *status = (struct mt76_rx_status *)skb->cb;
-+	struct ethhdr *eth_hdr = (struct ethhdr *)(skb->data + hdr_gap);
- 	struct mt7615_sta *msta = (struct mt7615_sta *)status->wcid;
-+	__le32 *rxd = (__le32 *)skb->data;
- 	struct ieee80211_sta *sta;
- 	struct ieee80211_vif *vif;
- 	struct ieee80211_hdr hdr;
--	struct ethhdr eth_hdr;
--	__le32 *rxd = (__le32 *)skb->data;
- 	__le32 qos_ctrl, ht_ctrl;
+@@ -450,11 +460,25 @@ static int xlnx_formatter_pcm_hw_params(struct snd_soc_component *component,
+ 	u64 size;
+ 	struct snd_pcm_runtime *runtime = substream->runtime;
+ 	struct xlnx_pcm_stream_param *stream_data = runtime->private_data;
++	struct xlnx_pcm_drv_data *adata = dev_get_drvdata(component->dev);
  
- 	if (FIELD_GET(MT_RXD1_NORMAL_ADDR_TYPE, le32_to_cpu(rxd[1])) !=
-@@ -275,7 +275,6 @@ static int mt7615_reverse_frag0_hdr_trans(struct sk_buff *skb, u16 hdr_gap)
- 	vif = container_of((void *)msta->vif, struct ieee80211_vif, drv_priv);
+ 	active_ch = params_channels(params);
+ 	if (active_ch > stream_data->ch_limit)
+ 		return -EINVAL;
  
- 	/* store the info from RXD and ethhdr to avoid being overridden */
--	memcpy(&eth_hdr, skb->data + hdr_gap, sizeof(eth_hdr));
- 	hdr.frame_control = FIELD_GET(MT_RXD4_FRAME_CONTROL, rxd[4]);
- 	hdr.seq_ctrl = FIELD_GET(MT_RXD6_SEQ_CTRL, rxd[6]);
- 	qos_ctrl = FIELD_GET(MT_RXD6_QOS_CTL, rxd[6]);
-@@ -290,24 +289,24 @@ static int mt7615_reverse_frag0_hdr_trans(struct sk_buff *skb, u16 hdr_gap)
- 		ether_addr_copy(hdr.addr3, vif->bss_conf.bssid);
- 		break;
- 	case IEEE80211_FCTL_FROMDS:
--		ether_addr_copy(hdr.addr3, eth_hdr.h_source);
-+		ether_addr_copy(hdr.addr3, eth_hdr->h_source);
- 		break;
- 	case IEEE80211_FCTL_TODS:
--		ether_addr_copy(hdr.addr3, eth_hdr.h_dest);
-+		ether_addr_copy(hdr.addr3, eth_hdr->h_dest);
- 		break;
- 	case IEEE80211_FCTL_TODS | IEEE80211_FCTL_FROMDS:
--		ether_addr_copy(hdr.addr3, eth_hdr.h_dest);
--		ether_addr_copy(hdr.addr4, eth_hdr.h_source);
-+		ether_addr_copy(hdr.addr3, eth_hdr->h_dest);
-+		ether_addr_copy(hdr.addr4, eth_hdr->h_source);
- 		break;
- 	default:
- 		break;
- 	}
++	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK &&
++	    adata->sysclk) {
++		unsigned int mclk_fs = adata->sysclk / params_rate(params);
++
++		if (adata->sysclk % params_rate(params) != 0) {
++			dev_warn(component->dev, "sysclk %u not divisible by rate %u\n",
++				 adata->sysclk, params_rate(params));
++			return -EINVAL;
++		}
++
++		writel(mclk_fs, stream_data->mmio + XLNX_AUD_FS_MULTIPLIER);
++	}
++
+ 	if (substream->stream == SNDRV_PCM_STREAM_CAPTURE &&
+ 	    stream_data->xfer_mode == AES_TO_PCM) {
+ 		val = readl(stream_data->mmio + XLNX_AUD_STS);
+@@ -552,6 +576,7 @@ static int xlnx_formatter_pcm_new(struct snd_soc_component *component,
  
- 	skb_pull(skb, hdr_gap + sizeof(struct ethhdr) - 2);
--	if (eth_hdr.h_proto == htons(ETH_P_AARP) ||
--	    eth_hdr.h_proto == htons(ETH_P_IPX))
-+	if (eth_hdr->h_proto == cpu_to_be16(ETH_P_AARP) ||
-+	    eth_hdr->h_proto == cpu_to_be16(ETH_P_IPX))
- 		ether_addr_copy(skb_push(skb, ETH_ALEN), bridge_tunnel_header);
--	else if (eth_hdr.h_proto >= htons(ETH_P_802_3_MIN))
-+	else if (eth_hdr->h_proto >= cpu_to_be16(ETH_P_802_3_MIN))
- 		ether_addr_copy(skb_push(skb, ETH_ALEN), rfc1042_header);
- 	else
- 		skb_pull(skb, 2);
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/mac.c b/drivers/net/wireless/mediatek/mt76/mt7915/mac.c
-index d18a2e93cff5..bca340cf8dcc 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7915/mac.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7915/mac.c
-@@ -391,12 +391,12 @@ mt7915_mac_decode_he_radiotap(struct sk_buff *skb, __le32 *rxv, u32 mode)
- static int mt7915_reverse_frag0_hdr_trans(struct sk_buff *skb, u16 hdr_gap)
- {
- 	struct mt76_rx_status *status = (struct mt76_rx_status *)skb->cb;
-+	struct ethhdr *eth_hdr = (struct ethhdr *)(skb->data + hdr_gap);
- 	struct mt7915_sta *msta = (struct mt7915_sta *)status->wcid;
-+	__le32 *rxd = (__le32 *)skb->data;
- 	struct ieee80211_sta *sta;
- 	struct ieee80211_vif *vif;
- 	struct ieee80211_hdr hdr;
--	struct ethhdr eth_hdr;
--	__le32 *rxd = (__le32 *)skb->data;
- 	__le32 qos_ctrl, ht_ctrl;
- 
- 	if (FIELD_GET(MT_RXD3_NORMAL_ADDR_TYPE, le32_to_cpu(rxd[3])) !=
-@@ -413,7 +413,6 @@ static int mt7915_reverse_frag0_hdr_trans(struct sk_buff *skb, u16 hdr_gap)
- 	vif = container_of((void *)msta->vif, struct ieee80211_vif, drv_priv);
- 
- 	/* store the info from RXD and ethhdr to avoid being overridden */
--	memcpy(&eth_hdr, skb->data + hdr_gap, sizeof(eth_hdr));
- 	hdr.frame_control = FIELD_GET(MT_RXD6_FRAME_CONTROL, rxd[6]);
- 	hdr.seq_ctrl = FIELD_GET(MT_RXD8_SEQ_CTRL, rxd[8]);
- 	qos_ctrl = FIELD_GET(MT_RXD8_QOS_CTL, rxd[8]);
-@@ -428,24 +427,24 @@ static int mt7915_reverse_frag0_hdr_trans(struct sk_buff *skb, u16 hdr_gap)
- 		ether_addr_copy(hdr.addr3, vif->bss_conf.bssid);
- 		break;
- 	case IEEE80211_FCTL_FROMDS:
--		ether_addr_copy(hdr.addr3, eth_hdr.h_source);
-+		ether_addr_copy(hdr.addr3, eth_hdr->h_source);
- 		break;
- 	case IEEE80211_FCTL_TODS:
--		ether_addr_copy(hdr.addr3, eth_hdr.h_dest);
-+		ether_addr_copy(hdr.addr3, eth_hdr->h_dest);
- 		break;
- 	case IEEE80211_FCTL_TODS | IEEE80211_FCTL_FROMDS:
--		ether_addr_copy(hdr.addr3, eth_hdr.h_dest);
--		ether_addr_copy(hdr.addr4, eth_hdr.h_source);
-+		ether_addr_copy(hdr.addr3, eth_hdr->h_dest);
-+		ether_addr_copy(hdr.addr4, eth_hdr->h_source);
- 		break;
- 	default:
- 		break;
- 	}
- 
- 	skb_pull(skb, hdr_gap + sizeof(struct ethhdr) - 2);
--	if (eth_hdr.h_proto == htons(ETH_P_AARP) ||
--	    eth_hdr.h_proto == htons(ETH_P_IPX))
-+	if (eth_hdr->h_proto == cpu_to_be16(ETH_P_AARP) ||
-+	    eth_hdr->h_proto == cpu_to_be16(ETH_P_IPX))
- 		ether_addr_copy(skb_push(skb, ETH_ALEN), bridge_tunnel_header);
--	else if (eth_hdr.h_proto >= htons(ETH_P_802_3_MIN))
-+	else if (eth_hdr->h_proto >= cpu_to_be16(ETH_P_802_3_MIN))
- 		ether_addr_copy(skb_push(skb, ETH_ALEN), rfc1042_header);
- 	else
- 		skb_pull(skb, 2);
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/mac.c b/drivers/net/wireless/mediatek/mt76/mt7921/mac.c
-index c6a849ee817c..2b6bbe0682c0 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7921/mac.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7921/mac.c
-@@ -402,12 +402,12 @@ mt7921_mac_assoc_rssi(struct mt7921_dev *dev, struct sk_buff *skb)
- static int mt7921_reverse_frag0_hdr_trans(struct sk_buff *skb, u16 hdr_gap)
- {
- 	struct mt76_rx_status *status = (struct mt76_rx_status *)skb->cb;
-+	struct ethhdr *eth_hdr = (struct ethhdr *)(skb->data + hdr_gap);
- 	struct mt7921_sta *msta = (struct mt7921_sta *)status->wcid;
-+	__le32 *rxd = (__le32 *)skb->data;
- 	struct ieee80211_sta *sta;
- 	struct ieee80211_vif *vif;
- 	struct ieee80211_hdr hdr;
--	struct ethhdr eth_hdr;
--	__le32 *rxd = (__le32 *)skb->data;
- 	__le32 qos_ctrl, ht_ctrl;
- 
- 	if (FIELD_GET(MT_RXD3_NORMAL_ADDR_TYPE, le32_to_cpu(rxd[3])) !=
-@@ -424,7 +424,6 @@ static int mt7921_reverse_frag0_hdr_trans(struct sk_buff *skb, u16 hdr_gap)
- 	vif = container_of((void *)msta->vif, struct ieee80211_vif, drv_priv);
- 
- 	/* store the info from RXD and ethhdr to avoid being overridden */
--	memcpy(&eth_hdr, skb->data + hdr_gap, sizeof(eth_hdr));
- 	hdr.frame_control = FIELD_GET(MT_RXD6_FRAME_CONTROL, rxd[6]);
- 	hdr.seq_ctrl = FIELD_GET(MT_RXD8_SEQ_CTRL, rxd[8]);
- 	qos_ctrl = FIELD_GET(MT_RXD8_QOS_CTL, rxd[8]);
-@@ -439,24 +438,24 @@ static int mt7921_reverse_frag0_hdr_trans(struct sk_buff *skb, u16 hdr_gap)
- 		ether_addr_copy(hdr.addr3, vif->bss_conf.bssid);
- 		break;
- 	case IEEE80211_FCTL_FROMDS:
--		ether_addr_copy(hdr.addr3, eth_hdr.h_source);
-+		ether_addr_copy(hdr.addr3, eth_hdr->h_source);
- 		break;
- 	case IEEE80211_FCTL_TODS:
--		ether_addr_copy(hdr.addr3, eth_hdr.h_dest);
-+		ether_addr_copy(hdr.addr3, eth_hdr->h_dest);
- 		break;
- 	case IEEE80211_FCTL_TODS | IEEE80211_FCTL_FROMDS:
--		ether_addr_copy(hdr.addr3, eth_hdr.h_dest);
--		ether_addr_copy(hdr.addr4, eth_hdr.h_source);
-+		ether_addr_copy(hdr.addr3, eth_hdr->h_dest);
-+		ether_addr_copy(hdr.addr4, eth_hdr->h_source);
- 		break;
- 	default:
- 		break;
- 	}
- 
- 	skb_pull(skb, hdr_gap + sizeof(struct ethhdr) - 2);
--	if (eth_hdr.h_proto == htons(ETH_P_AARP) ||
--	    eth_hdr.h_proto == htons(ETH_P_IPX))
-+	if (eth_hdr->h_proto == cpu_to_be16(ETH_P_AARP) ||
-+	    eth_hdr->h_proto == cpu_to_be16(ETH_P_IPX))
- 		ether_addr_copy(skb_push(skb, ETH_ALEN), bridge_tunnel_header);
--	else if (eth_hdr.h_proto >= htons(ETH_P_802_3_MIN))
-+	else if (eth_hdr->h_proto >= cpu_to_be16(ETH_P_802_3_MIN))
- 		ether_addr_copy(skb_push(skb, ETH_ALEN), rfc1042_header);
- 	else
- 		skb_pull(skb, 2);
+ static const struct snd_soc_component_driver xlnx_asoc_component = {
+ 	.name		= DRV_NAME,
++	.set_sysclk	= xlnx_formatter_set_sysclk,
+ 	.open		= xlnx_formatter_pcm_open,
+ 	.close		= xlnx_formatter_pcm_close,
+ 	.hw_params	= xlnx_formatter_pcm_hw_params,
 -- 
 2.34.1
 
