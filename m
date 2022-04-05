@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB5E04F3332
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:14:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 01DA94F3517
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:48:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243145AbiDEJjE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:39:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41956 "EHLO
+        id S243192AbiDEJjK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:39:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58014 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244472AbiDEJKB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:10:01 -0400
+        with ESMTP id S244572AbiDEJKE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:10:04 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90E94252A6;
-        Tue,  5 Apr 2022 01:59:27 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 916122716D;
+        Tue,  5 Apr 2022 01:59:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E59C761562;
-        Tue,  5 Apr 2022 08:59:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02B60C385A1;
-        Tue,  5 Apr 2022 08:59:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4258A614E9;
+        Tue,  5 Apr 2022 08:59:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53563C385A0;
+        Tue,  5 Apr 2022 08:59:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149166;
-        bh=15CamLOBWM/6serVJ9kUMFZ3VamUvfHIdvHDnLEiAz8=;
+        s=korg; t=1649149171;
+        bh=QVXp6p/sKAkxfFAtgWgBEw3F9NYPX2bkUkaiLouRxGQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n2cPtKzUKylvxy+WpRD4bz6YLJtDCLykUwbbWuvpUlH/Jswz+YDKQtbwrHBxVu2Zn
-         CZgAn+1BXlQQVDIxokO/+lLh6SnPkQQjwbZgyqJf96a51ZHrzoTZ0FmU2PvME/QtVB
-         8Fo7gvn6wXtO7BRSMzIQ9/nB63oiJJQRJ7I55k0I=
+        b=qkNVp0J5xt1fD6Yk2MYEAt6f3dY8b9jprJo9IRNKIlcy+VrxarkMpdbax9XcxOmzA
+         w+BkrPsLPV+//atYSMmZEASk1jg6X70e0syKcz9g3wprgQw0o/hSoj+UFXd1OEjnID
+         gVMburylRz1S6Kb37mKnVdUNyl30zQK0IcMU45zc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Niels Dossche <dossche.niels@gmail.com>,
+        stable@vger.kernel.org, Mark Chen <markyawenchen@gmail.com>,
+        Sean Wang <sean.wang@mediatek.com>,
+        Yake Yang <yake.yang@mediatek.com>,
         Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0618/1017] Bluetooth: call hci_le_conn_failed with hdev lock in hci_le_conn_failed
-Date:   Tue,  5 Apr 2022 09:25:31 +0200
-Message-Id: <20220405070412.626792435@linuxfoundation.org>
+Subject: [PATCH 5.16 0619/1017] Bluetooth: btmtksdio: Fix kernel oops in btmtksdio_interrupt
+Date:   Tue,  5 Apr 2022 09:25:32 +0200
+Message-Id: <20220405070412.656676419@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -54,38 +56,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niels Dossche <dossche.niels@gmail.com>
+From: Yake Yang <yake.yang@mediatek.com>
 
-[ Upstream commit 9fa6b4cda3b414e990f008f45f9bcecbcb54d4d1 ]
+[ Upstream commit b062a0b9c1dc1ff63094337dccfe1568d5b62023 ]
 
-hci_le_conn_failed function's documentation says that the caller must
-hold hdev->lock. The only callsite that does not hold that lock is
-hci_le_conn_failed. The other 3 callsites hold the hdev->lock very
-locally. The solution is to hold the lock during the call to
-hci_le_conn_failed.
+Fix the following kernel oops in btmtksdio_interrrupt
 
-Fixes: 3c857757ef6e ("Bluetooth: Add directed advertising support through connect()")
-Signed-off-by: Niels Dossche <dossche.niels@gmail.com>
+[   14.339134]  btmtksdio_interrupt+0x28/0x54
+[   14.339139]  process_sdio_pending_irqs+0x68/0x1a0
+[   14.339144]  sdio_irq_work+0x40/0x70
+[   14.339154]  process_one_work+0x184/0x39c
+[   14.339160]  worker_thread+0x228/0x3e8
+[   14.339168]  kthread+0x148/0x3ac
+[   14.339176]  ret_from_fork+0x10/0x30
+
+That happened because hdev->power_on is already called before
+sdio_set_drvdata which btmtksdio_interrupt handler relies on is not
+properly set up.
+
+The details are shown as the below: hci_register_dev would run
+queue_work(hdev->req_workqueue, &hdev->power_on) as WQ_HIGHPRI
+workqueue_struct to complete the power-on sequeunce and thus hci_power_on
+may run before sdio_set_drvdata is done in btmtksdio_probe.
+
+The hci_dev_do_open in hci_power_on would initialize the device and enable
+the interrupt and thus it is possible that btmtksdio_interrupt is being
+called right before sdio_set_drvdata is filled out.
+
+When btmtksdio_interrupt is being called and sdio_set_drvdata is not filled
+, the kernel oops is going to happen because btmtksdio_interrupt access an
+uninitialized pointer.
+
+Fixes: 9aebfd4a2200 ("Bluetooth: mediatek: add support for MediaTek MT7663S and MT7668S SDIO devices")
+Reviewed-by: Mark Chen <markyawenchen@gmail.com>
+Co-developed-by: Sean Wang <sean.wang@mediatek.com>
+Signed-off-by: Sean Wang <sean.wang@mediatek.com>
+Signed-off-by: Yake Yang <yake.yang@mediatek.com>
 Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/hci_conn.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/bluetooth/btmtksdio.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/bluetooth/hci_conn.c b/net/bluetooth/hci_conn.c
-index bd669c95b9a7..55900496ac33 100644
---- a/net/bluetooth/hci_conn.c
-+++ b/net/bluetooth/hci_conn.c
-@@ -669,7 +669,9 @@ static void le_conn_timeout(struct work_struct *work)
- 	if (conn->role == HCI_ROLE_SLAVE) {
- 		/* Disable LE Advertising */
- 		le_disable_advertising(hdev);
-+		hci_dev_lock(hdev);
- 		hci_le_conn_failed(conn, HCI_ERROR_ADVERTISING_TIMEOUT);
-+		hci_dev_unlock(hdev);
- 		return;
+diff --git a/drivers/bluetooth/btmtksdio.c b/drivers/bluetooth/btmtksdio.c
+index 1cbdeca1fdc4..ff1f5dfbb6db 100644
+--- a/drivers/bluetooth/btmtksdio.c
++++ b/drivers/bluetooth/btmtksdio.c
+@@ -981,6 +981,8 @@ static int btmtksdio_probe(struct sdio_func *func,
+ 	hdev->manufacturer = 70;
+ 	set_bit(HCI_QUIRK_NON_PERSISTENT_SETUP, &hdev->quirks);
+ 
++	sdio_set_drvdata(func, bdev);
++
+ 	err = hci_register_dev(hdev);
+ 	if (err < 0) {
+ 		dev_err(&func->dev, "Can't register HCI device\n");
+@@ -988,8 +990,6 @@ static int btmtksdio_probe(struct sdio_func *func,
+ 		return err;
  	}
  
+-	sdio_set_drvdata(func, bdev);
+-
+ 	/* pm_runtime_enable would be done after the firmware is being
+ 	 * downloaded because the core layer probably already enables
+ 	 * runtime PM for this func such as the case host->caps &
 -- 
 2.34.1
 
