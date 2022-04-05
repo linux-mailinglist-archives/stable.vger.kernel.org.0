@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 78B194F2BF4
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:21:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 965CD4F2A80
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:04:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350646AbiDEJ7S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:59:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43640 "EHLO
+        id S1350622AbiDEJ7J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:59:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43644 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344163AbiDEJS2 (ORCPT
+        with ESMTP id S1344164AbiDEJS2 (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:18:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20A315F8CB;
-        Tue,  5 Apr 2022 02:04:52 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF4366212F;
+        Tue,  5 Apr 2022 02:04:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CF54AB81BAE;
-        Tue,  5 Apr 2022 09:04:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F9CBC385A0;
-        Tue,  5 Apr 2022 09:04:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8C274614E4;
+        Tue,  5 Apr 2022 09:04:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F170C385A0;
+        Tue,  5 Apr 2022 09:04:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149489;
-        bh=9EuO7UVHxSLp8WUNHOXpL3UyGhIzosuk62e3w+V64/g=;
+        s=korg; t=1649149495;
+        bh=pIuTGn7V2ZbvS6rqkuxePpmv09JwUS3+tmCDJx4nrgM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xfHW1cDCG601ngfhGGekvP6DsNj2cVHQD7/6NtApfAKKPK8CMD0SlAvsQPOeARMok
-         ttuzmnn7ywzxxvPFZViJoj+c9gkORrRzezcdDYxurkbfLM0vS9SbZTrtbXF5g+sX6b
-         Mckg6bLj6qppbc1rwey4+aksu1Q5j1alyvQyD6zg=
+        b=z5SDChZujxyFxqy4Wyj6Kr9eujBFj4Co9ArT0yt73EviNvJmXRdrKysRCFZH3ycnK
+         Ibij+RF9ImlLyHiNsh383kOMGUqvcdTh2hHwXV21JicyfsZaYpzk2QTe4rgp55bDUY
+         V1/TAUNbHcqKl0QK4iFQF+YbNllfSxbGZPI25kPU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jian Shen <shenjian15@huawei.com>,
-        Guangbin Huang <huangguangbin2@huawei.com>,
+        stable@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>,
+        David Ahern <dsahern@kernel.org>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0733/1017] net: hns3: refine the process when PF set VF VLAN
-Date:   Tue,  5 Apr 2022 09:27:26 +0200
-Message-Id: <20220405070416.024458185@linuxfoundation.org>
+Subject: [PATCH 5.16 0735/1017] selftests: test_vxlan_under_vrf: Fix broken test case
+Date:   Tue,  5 Apr 2022 09:27:28 +0200
+Message-Id: <20220405070416.082992146@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -55,90 +55,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jian Shen <shenjian15@huawei.com>
+From: Ido Schimmel <idosch@nvidia.com>
 
-[ Upstream commit 190cd8a72b0181c543ecada6243be3a50636941b ]
+[ Upstream commit b50d3b46f84282d795ae3076111acb75ae1031f3 ]
 
-Currently, when PF set VF VLAN, it sends notify mailbox to VF
-if VF alive. VF stop its traffic, and send request mailbox
-to PF, then PF updates VF VLAN. It's a bit complex. If VF is
-killed before sending request, PF will not set VF VLAN without
-any log.
+The purpose of the last test case is to test VXLAN encapsulation and
+decapsulation when the underlay lookup takes place in a non-default VRF.
+This is achieved by enslaving the physical device of the tunnel to a
+VRF.
 
-This patch refines the process, PF can set VF VLAN direclty,
-and then notify the VF. If VF is resetting at that time, the
-notify may be dropped, so VF should query it after reset finished.
+The binding of the VXLAN UDP socket to the VRF happens when the VXLAN
+device itself is opened, not when its physical device is opened. This
+was also mentioned in the cited commit ("tests that moving the underlay
+from a VRF to another works when down/up the VXLAN interface"), but the
+test did something else.
 
-Fixes: 92f11ea177cd ("net: hns3: fix set port based VLAN issue for VF")
-Signed-off-by: Jian Shen <shenjian15@huawei.com>
-Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Fix it by reopening the VXLAN device instead of its physical device.
+
+Before:
+
+ # ./test_vxlan_under_vrf.sh
+ Checking HV connectivity                                           [ OK ]
+ Check VM connectivity through VXLAN (underlay in the default VRF)  [ OK ]
+ Check VM connectivity through VXLAN (underlay in a VRF)            [FAIL]
+
+After:
+
+ # ./test_vxlan_under_vrf.sh
+ Checking HV connectivity                                           [ OK ]
+ Check VM connectivity through VXLAN (underlay in the default VRF)  [ OK ]
+ Check VM connectivity through VXLAN (underlay in a VRF)            [ OK ]
+
+Fixes: 03f1c26b1c56 ("test/net: Add script for VXLAN underlay in a VRF")
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Reviewed-by: David Ahern <dsahern@kernel.org>
+Link: https://lore.kernel.org/r/20220324200514.1638326-1-idosch@nvidia.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../hisilicon/hns3/hns3pf/hclge_main.c         | 18 +++++++++++++-----
- .../hisilicon/hns3/hns3vf/hclgevf_main.c       |  5 +++++
- 2 files changed, 18 insertions(+), 5 deletions(-)
+ tools/testing/selftests/net/test_vxlan_under_vrf.sh | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-index 9866e5c1a71b..cf3c798e5400 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-@@ -9449,11 +9449,16 @@ static int hclge_set_vf_mac(struct hnae3_handle *handle, int vf,
+diff --git a/tools/testing/selftests/net/test_vxlan_under_vrf.sh b/tools/testing/selftests/net/test_vxlan_under_vrf.sh
+index ea5a7a808f12..1fd1250ebc66 100755
+--- a/tools/testing/selftests/net/test_vxlan_under_vrf.sh
++++ b/tools/testing/selftests/net/test_vxlan_under_vrf.sh
+@@ -120,11 +120,11 @@ echo "[ OK ]"
  
- 	ether_addr_copy(vport->vf_info.mac, mac_addr);
+ # Move the underlay to a non-default VRF
+ ip -netns hv-1 link set veth0 vrf vrf-underlay
+-ip -netns hv-1 link set veth0 down
+-ip -netns hv-1 link set veth0 up
++ip -netns hv-1 link set vxlan0 down
++ip -netns hv-1 link set vxlan0 up
+ ip -netns hv-2 link set veth0 vrf vrf-underlay
+-ip -netns hv-2 link set veth0 down
+-ip -netns hv-2 link set veth0 up
++ip -netns hv-2 link set vxlan0 down
++ip -netns hv-2 link set vxlan0 up
  
-+	/* there is a timewindow for PF to know VF unalive, it may
-+	 * cause send mailbox fail, but it doesn't matter, VF will
-+	 * query it when reinit.
-+	 */
- 	if (test_bit(HCLGE_VPORT_STATE_ALIVE, &vport->state)) {
- 		dev_info(&hdev->pdev->dev,
- 			 "MAC of VF %d has been set to %s, and it will be reinitialized!\n",
- 			 vf, format_mac_addr);
--		return hclge_inform_reset_assert_to_vf(vport);
-+		(void)hclge_inform_reset_assert_to_vf(vport);
-+		return 0;
- 	}
- 
- 	dev_info(&hdev->pdev->dev, "MAC of VF %d has been set to %s\n",
-@@ -10681,14 +10686,17 @@ static int hclge_set_vf_vlan_filter(struct hnae3_handle *handle, int vfid,
- 		return ret;
- 	}
- 
--	/* for DEVICE_VERSION_V3, vf doesn't need to know about the port based
-+	/* there is a timewindow for PF to know VF unalive, it may
-+	 * cause send mailbox fail, but it doesn't matter, VF will
-+	 * query it when reinit.
-+	 * for DEVICE_VERSION_V3, vf doesn't need to know about the port based
- 	 * VLAN state.
- 	 */
- 	if (ae_dev->dev_version < HNAE3_DEVICE_VERSION_V3 &&
- 	    test_bit(HCLGE_VPORT_STATE_ALIVE, &vport->state))
--		hclge_push_vf_port_base_vlan_info(&hdev->vport[0],
--						  vport->vport_id, state,
--						  &vlan_info);
-+		(void)hclge_push_vf_port_base_vlan_info(&hdev->vport[0],
-+							vport->vport_id,
-+							state, &vlan_info);
- 
- 	return 0;
- }
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
-index 4d3d14b637c0..7e30bad08356 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
-@@ -3344,6 +3344,11 @@ static int hclgevf_reset_hdev(struct hclgevf_dev *hdev)
- 		return ret;
- 	}
- 
-+	/* get current port based vlan state from PF */
-+	ret = hclgevf_get_port_base_vlan_filter_state(hdev);
-+	if (ret)
-+		return ret;
-+
- 	set_bit(HCLGEVF_STATE_PROMISC_CHANGED, &hdev->state);
- 
- 	hclgevf_init_rxd_adv_layout(hdev);
+ echo -n "Check VM connectivity through VXLAN (underlay in a VRF)            "
+ ip netns exec vm-1 ping -c 1 -W 1 10.0.0.2 &> /dev/null || (echo "[FAIL]"; false)
 -- 
 2.34.1
 
