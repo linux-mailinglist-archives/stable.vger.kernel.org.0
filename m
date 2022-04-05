@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E6024F4052
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:16:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD04C4F4121
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:26:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1383376AbiDEMZp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:25:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34686 "EHLO
+        id S1383297AbiDEMZW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:25:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45362 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240531AbiDEKzR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:55:17 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7ABFCB1E;
-        Tue,  5 Apr 2022 03:28:32 -0700 (PDT)
+        with ESMTP id S1348617AbiDEKrt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:47:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF28F58385;
+        Tue,  5 Apr 2022 03:27:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 54995B81CBE;
-        Tue,  5 Apr 2022 10:28:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA2AFC385A2;
-        Tue,  5 Apr 2022 10:28:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 63BA2617AF;
+        Tue,  5 Apr 2022 10:27:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F382C385A1;
+        Tue,  5 Apr 2022 10:27:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649154510;
-        bh=PVq3t/od1EUjXkCWRdvUgf+9rluOtlL/JXvHCx8chYk=;
+        s=korg; t=1649154434;
+        bh=DYk/1tgFYAREGxESYGyO/u0W/NU7F91T01lwHxf8//o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JGnPf1sJyNFhtdzo9U+XWCeLXnxITz6W/TAnDWjQgy4hJjslhwPhVTCai/asTKfL9
-         FZv23Sbnez+1Oo3zGn+MQqABmP8BytrOdtA3jpYlrsZU9A0yhp0rRV5o/QFkTYJ4Lj
-         N+DT3gFTvT8Es38/QD+TKNgrbD4ruAWJNhqWbaPE=
+        b=b7Q3mO6/6cko8MFWfUYk3fPOU/hsnYW6pCkpEzP31+vzFYVukEPFipwzE90l2zHe3
+         z60sdpQZAHgPkGHDnIcRuuaQ69sGGDdCk+2bE05xYhA1g9CEiaRcgSiPHdX40ZxIJ5
+         K7n60JbW6kHCZn3CJvb03oCCJ7L7lzggLTgeRqtc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.10 574/599] ASoC: soc-compress: Change the check for codec_dai
-Date:   Tue,  5 Apr 2022 09:34:28 +0200
-Message-Id: <20220405070315.923969752@linuxfoundation.org>
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Igor Zhbanov <i.zhbanov@omprussia.ru>,
+        =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Michal Hocko <mhocko@kernel.org>,
+        Vladimir Davydov <vdavydov.dev@gmail.com>,
+        Roman Gushchin <roman.gushchin@linux.dev>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.10 578/599] mm/memcontrol: return 1 from cgroup.memory __setup() handler
+Date:   Tue,  5 Apr 2022 09:34:32 +0200
+Message-Id: <20220405070316.043091679@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -56,54 +60,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-commit ccb4214f7f2a8b75acf493f31128e464ee1a3536 upstream.
+commit 460a79e18842caca6fa0c415de4a3ac1e671ac50 upstream.
 
-It should be better to reverse the check on codec_dai
-and returned early in order to be easier to understand.
+__setup() handlers should return 1 if the command line option is handled
+and 0 if not (or maybe never return 0; it just pollutes init's
+environment).
 
-Fixes: de2c6f98817f ("ASoC: soc-compress: prevent the potentially use of null pointer")
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Reviewed-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20220310030041.1556323-1-jiasheng@iscas.ac.cn
-Signed-off-by: Mark Brown <broonie@kernel.org>
+The only reason that this particular __setup handler does not pollute
+init's environment is that the setup string contains a '.', as in
+"cgroup.memory".  This causes init/main.c::unknown_boottoption() to
+consider it to be an "Unused module parameter" and ignore it.  (This is
+for parsing of loadable module parameters any time after kernel init.)
+Otherwise the string "cgroup.memory=whatever" would be added to init's
+environment strings.
+
+Instead of relying on this '.' quirk, just return 1 to indicate that the
+boot option has been handled.
+
+Note that there is no warning message if someone enters:
+	cgroup.memory=anything_invalid
+
+Link: https://lkml.kernel.org/r/20220222005811.10672-1-rdunlap@infradead.org
+Fixes: f7e1cb6ec51b0 ("mm: memcontrol: account socket memory in unified hierarchy memory controller")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
+Link: lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
+Reviewed-by: Michal Koutný <mkoutny@suse.com>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
+Cc: Roman Gushchin <roman.gushchin@linux.dev>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/soc-compress.c |   19 +++++++++++--------
- 1 file changed, 11 insertions(+), 8 deletions(-)
+ mm/memcontrol.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/soc/soc-compress.c
-+++ b/sound/soc/soc-compress.c
-@@ -766,16 +766,19 @@ int snd_soc_new_compress(struct snd_soc_
- 		return -EINVAL;
+--- a/mm/memcontrol.c
++++ b/mm/memcontrol.c
+@@ -7124,7 +7124,7 @@ static int __init cgroup_memory(char *s)
+ 		if (!strcmp(token, "nokmem"))
+ 			cgroup_memory_nokmem = true;
  	}
+-	return 0;
++	return 1;
+ }
+ __setup("cgroup.memory=", cgroup_memory);
  
--	/* check client and interface hw capabilities */
--	if (codec_dai) {
--		if (snd_soc_dai_stream_valid(codec_dai, SNDRV_PCM_STREAM_PLAYBACK) &&
--		    snd_soc_dai_stream_valid(cpu_dai,   SNDRV_PCM_STREAM_PLAYBACK))
--			playback = 1;
--		if (snd_soc_dai_stream_valid(codec_dai, SNDRV_PCM_STREAM_CAPTURE) &&
--		    snd_soc_dai_stream_valid(cpu_dai,   SNDRV_PCM_STREAM_CAPTURE))
--			capture = 1;
-+	if (!codec_dai) {
-+		dev_err(rtd->card->dev, "Missing codec\n");
-+		return -EINVAL;
- 	}
- 
-+	/* check client and interface hw capabilities */
-+	if (snd_soc_dai_stream_valid(codec_dai, SNDRV_PCM_STREAM_PLAYBACK) &&
-+	    snd_soc_dai_stream_valid(cpu_dai,   SNDRV_PCM_STREAM_PLAYBACK))
-+		playback = 1;
-+	if (snd_soc_dai_stream_valid(codec_dai, SNDRV_PCM_STREAM_CAPTURE) &&
-+	    snd_soc_dai_stream_valid(cpu_dai,   SNDRV_PCM_STREAM_CAPTURE))
-+		capture = 1;
-+
- 	/*
- 	 * Compress devices are unidirectional so only one of the directions
- 	 * should be set, check for that (xor)
 
 
