@@ -2,42 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9525D4F2591
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 09:48:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A10DE4F259C
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 09:49:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232349AbiDEHud (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 03:50:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47748 "EHLO
+        id S232269AbiDEHup (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 03:50:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46588 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233541AbiDEHr4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:47:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8B5A9231A;
-        Tue,  5 Apr 2022 00:45:11 -0700 (PDT)
+        with ESMTP id S233001AbiDEHrU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:47:20 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E2A99D0FB;
+        Tue,  5 Apr 2022 00:43:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 88702616C6;
-        Tue,  5 Apr 2022 07:45:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93D50C340EE;
-        Tue,  5 Apr 2022 07:45:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 49E65B81B9C;
+        Tue,  5 Apr 2022 07:43:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6726BC340EE;
+        Tue,  5 Apr 2022 07:43:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649144711;
-        bh=/WCYyhiwKb7MyTHWUY4idC3q5eGds2twTG7P8apsP4g=;
+        s=korg; t=1649144604;
+        bh=gVHpXMI+KxfvCz+tiieA15/MP6y5NaF/EX5HSIc8trA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=licuQt5hKLt/R4S1V0MWDyWQJVjdI6xCKbSqlorNWYfgzISl+muA4oDXd4QywtE2K
-         ikmYY0RdhfevNzYyOohAgix8n18mOYZbjdNmp+BFQcFtYXhKVgzsmypl4ExyTh03Nn
-         F2QKXXaGRrzCDvXVGSslpIiJ4fkD76rYWSzy50xg=
+        b=rHS94Qk7dv2GzE9FoTCjkaYKcbsxdcRmuzpZmkpBSFHsQpjWeAvh3CzrxhS14ehBG
+         M7xsUvp5upMbOgwqxNre67aF8OoONn8TVyNVcvKwPIa8A/cjk5WvngiZGUFuMj/nZj
+         OkQOV3hbes1Ief5Y5oCI609fWVs8n0c+7DILr/aI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Javier Martinez Canillas <javierm@redhat.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH 5.17 0104/1126] drm/simpledrm: Add "panel orientation" property on non-upright mounted LCD panels
-Date:   Tue,  5 Apr 2022 09:14:11 +0200
-Message-Id: <20220405070410.621692235@linuxfoundation.org>
+        Charan Teja Kalla <quic_charante@quicinc.com>,
+        David Rientjes <rientjes@google.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Nadav Amit <nadav.amit@gmail.com>,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
+        Suren Baghdasaryan <surenb@google.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.17 0105/1126] mm: madvise: skip unmapped vma holes passed to process_madvise
+Date:   Tue,  5 Apr 2022 09:14:12 +0200
+Message-Id: <20220405070410.651540090@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -55,42 +62,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Charan Teja Kalla <quic_charante@quicinc.com>
 
-commit 94fa115f7b28a3f02611499175e134f0a823b686 upstream.
+commit 08095d6310a7ce43256b4251577bc66a25c6e1a6 upstream.
 
-Some devices use e.g. a portrait panel in a standard laptop casing made
-for landscape panels. efifb calls drm_get_panel_orientation_quirk() and
-sets fb_info.fbcon_rotate_hint to make fbcon rotate the console so that
-it shows up-right instead of on its side.
+The process_madvise() system call is expected to skip holes in vma passed
+through 'struct iovec' vector list.  But do_madvise, which
+process_madvise() calls for each vma, returns ENOMEM in case of unmapped
+holes, despite the VMA is processed.
 
-When switching to simpledrm the fbcon renders on its side. Call the
-drm_connector_set_panel_orientation_with_quirk() helper to add
-a "panel orientation" property on devices listed in the quirk table,
-to make the fbcon (and aware userspace apps) rotate the image to
-display properly.
+Thus process_madvise() should treat ENOMEM as expected and consider the
+VMA passed to as processed and continue processing other vma's in the
+vector list.  Returning -ENOMEM to user, despite the VMA is processed,
+will be unable to figure out where to start the next madvise.
 
-Cc: Javier Martinez Canillas <javierm@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
-Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220221220045.11958-1-hdegoede@redhat.com
+Link: https://lkml.kernel.org/r/4f091776142f2ebf7b94018146de72318474e686.1647008754.git.quic_charante@quicinc.com
+Fixes: ecb8ac8b1f14("mm/madvise: introduce process_madvise() syscall: an external memory hinting API")
+Signed-off-by: Charan Teja Kalla <quic_charante@quicinc.com>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Minchan Kim <minchan@kernel.org>
+Cc: Nadav Amit <nadav.amit@gmail.com>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: Suren Baghdasaryan <surenb@google.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/tiny/simpledrm.c |    3 +++
- 1 file changed, 3 insertions(+)
+ mm/madvise.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/tiny/simpledrm.c
-+++ b/drivers/gpu/drm/tiny/simpledrm.c
-@@ -798,6 +798,9 @@ static int simpledrm_device_init_modeset
- 	if (ret)
- 		return ret;
- 	drm_connector_helper_add(connector, &simpledrm_connector_helper_funcs);
-+	drm_connector_set_panel_orientation_with_quirk(connector,
-+						       DRM_MODE_PANEL_ORIENTATION_UNKNOWN,
-+						       mode->hdisplay, mode->vdisplay);
+--- a/mm/madvise.c
++++ b/mm/madvise.c
+@@ -1426,9 +1426,16 @@ SYSCALL_DEFINE5(process_madvise, int, pi
  
- 	formats = simpledrm_device_formats(sdev, &nformats);
- 
+ 	while (iov_iter_count(&iter)) {
+ 		iovec = iov_iter_iovec(&iter);
++		/*
++		 * do_madvise returns ENOMEM if unmapped holes are present
++		 * in the passed VMA. process_madvise() is expected to skip
++		 * unmapped holes passed to it in the 'struct iovec' list
++		 * and not fail because of them. Thus treat -ENOMEM return
++		 * from do_madvise as valid and continue processing.
++		 */
+ 		ret = do_madvise(mm, (unsigned long)iovec.iov_base,
+ 					iovec.iov_len, behavior);
+-		if (ret < 0)
++		if (ret < 0 && ret != -ENOMEM)
+ 			break;
+ 		iov_iter_advance(&iter, iovec.iov_len);
+ 	}
 
 
