@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EE6F44F3821
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:27:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DF074F3827
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:27:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376347AbiDELVj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:21:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43216 "EHLO
+        id S1376382AbiDELVq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:21:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44248 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349426AbiDEJtu (ORCPT
+        with ESMTP id S1349425AbiDEJtu (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DF4D22284;
-        Tue,  5 Apr 2022 02:45:30 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58AD822BFD;
+        Tue,  5 Apr 2022 02:45:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9C61D61576;
-        Tue,  5 Apr 2022 09:45:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8135C385A3;
-        Tue,  5 Apr 2022 09:45:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 068D8B818F3;
+        Tue,  5 Apr 2022 09:45:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F8FCC385A1;
+        Tue,  5 Apr 2022 09:45:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151929;
-        bh=V/Q7HNgsqsem44bPKXcSU/aQJQJuM9QmL0binbVJQA8=;
+        s=korg; t=1649151931;
+        bh=MMP6k/LNUR1jVifTaiPGoAePLM2M7XdwQlkDS3TOkuU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JDI1sfhujywQCoKb9rvVQzKdlxjjS9ilALYpBiKIWl6nW6EwD6cu9dV+NXNdkDbQO
-         WX+470hdemlbhz9pBpre+m99anpYXV7KwNJvkgLwPkhp4ARymjwjsZgE//K6pBPsyJ
-         3dNRuFLfY3Vgp2zzRF3DlGWc4mVh/zE5pXLdx++8=
+        b=Ahvqw/D85LTq4YZpIhKbGjbec1BZfBKVRTXX/zOnXq72fH9BPihDCn7qdJOPaqQlF
+         ofBROGXliKuFT0KaKnEC1CAOD1H3eVX8SYQhKcza7GU1WlY4bsGlJCBPEhu8TTVNP2
+         VeQllPDy5Cbpr3x2DrsmuSGWQHIsEGR3XHPDSQ+Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Konstantin Aladyshev <aladyshev22@gmail.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Zev Weiss <zev@bewilderbeest.net>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Marcelo Schmitt <marcelo.schmitt1@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 593/913] serial: 8250_aspeed_vuart: add PORT_ASPEED_VUART port type
-Date:   Tue,  5 Apr 2022 09:27:35 +0200
-Message-Id: <20220405070357.617553343@linuxfoundation.org>
+Subject: [PATCH 5.15 594/913] staging:iio:adc:ad7280a: Fix handing of device address bit reversing.
+Date:   Tue,  5 Apr 2022 09:27:36 +0200
+Message-Id: <20220405070357.647708324@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -56,88 +55,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zev Weiss <zev@bewilderbeest.net>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit a603ca60cebff8589882427a67f870ed946b3fc8 ]
+[ Upstream commit f281e4ddbbc0b60f061bc18a2834e9363ba85f9f ]
 
-Commit 54da3e381c2b ("serial: 8250_aspeed_vuart: use UPF_IOREMAP to
-set up register mapping") fixed a bug that had, as a side-effect,
-prevented the 8250_aspeed_vuart driver from enabling the VUART's
-FIFOs.  However, fixing that (and hence enabling the FIFOs) has in
-turn revealed what appears to be a hardware bug in the ASPEED VUART in
-which the host-side THRE bit doesn't get if the BMC-side receive FIFO
-trigger level is set to anything but one byte.  This causes problems
-for polled-mode writes from the host -- for example, Linux kernel
-console writes proceed at a glacial pace (less than 100 bytes per
-second) because the write path waits for a 10ms timeout to expire
-after every character instead of being able to continue on to the next
-character upon seeing THRE asserted.  (GRUB behaves similarly.)
+The bit reversal was wrong for bits 1 and 3 of the 5 bits.
+Result is driver failure to probe if you have more than 2 daisy-chained
+devices.  Discovered via QEMU based device emulation.
 
-As a workaround, introduce a new port type for the ASPEED VUART that's
-identical to PORT_16550A as it had previously been using, but with
-UART_FCR_R_TRIG_00 instead to set the receive FIFO trigger level to
-one byte, which (experimentally) seems to avoid the problematic THRE
-behavior.
+Fixes tag is for when this moved from a macro to a function, but it
+was broken before that.
 
-Fixes: 54da3e381c2b ("serial: 8250_aspeed_vuart: use UPF_IOREMAP to set up register mapping")
-Tested-by: Konstantin Aladyshev <aladyshev22@gmail.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Zev Weiss <zev@bewilderbeest.net>
-Link: https://lore.kernel.org/r/20220211004203.14915-1-zev@bewilderbeest.net
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: 065a7c0b1fec ("Staging: iio: adc: ad7280a.c: Fixed Macro argument reuse")
+Reviewed-by: Marcelo Schmitt <marcelo.schmitt1@gmail.com>
+Link: https://lore.kernel.org/r/20220206190328.333093-2-jic23@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_aspeed_vuart.c | 2 +-
- drivers/tty/serial/8250/8250_port.c         | 8 ++++++++
- include/uapi/linux/serial_core.h            | 3 +++
- 3 files changed, 12 insertions(+), 1 deletion(-)
+ drivers/staging/iio/adc/ad7280a.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/tty/serial/8250/8250_aspeed_vuart.c b/drivers/tty/serial/8250/8250_aspeed_vuart.c
-index 2350fb3bb5e4..c2cecc6f47db 100644
---- a/drivers/tty/serial/8250/8250_aspeed_vuart.c
-+++ b/drivers/tty/serial/8250/8250_aspeed_vuart.c
-@@ -487,7 +487,7 @@ static int aspeed_vuart_probe(struct platform_device *pdev)
- 	port.port.irq = irq_of_parse_and_map(np, 0);
- 	port.port.handle_irq = aspeed_vuart_handle_irq;
- 	port.port.iotype = UPIO_MEM;
--	port.port.type = PORT_16550A;
-+	port.port.type = PORT_ASPEED_VUART;
- 	port.port.uartclk = clk;
- 	port.port.flags = UPF_SHARE_IRQ | UPF_BOOT_AUTOCONF | UPF_IOREMAP
- 		| UPF_FIXED_PORT | UPF_FIXED_TYPE | UPF_NO_THRE_TEST;
-diff --git a/drivers/tty/serial/8250/8250_port.c b/drivers/tty/serial/8250/8250_port.c
-index ec88b706e882..b470bc747b99 100644
---- a/drivers/tty/serial/8250/8250_port.c
-+++ b/drivers/tty/serial/8250/8250_port.c
-@@ -307,6 +307,14 @@ static const struct serial8250_config uart_config[] = {
- 		.rxtrig_bytes	= {1, 32, 64, 112},
- 		.flags		= UART_CAP_FIFO | UART_CAP_SLEEP,
- 	},
-+	[PORT_ASPEED_VUART] = {
-+		.name		= "ASPEED VUART",
-+		.fifo_size	= 16,
-+		.tx_loadsz	= 16,
-+		.fcr		= UART_FCR_ENABLE_FIFO | UART_FCR_R_TRIG_00,
-+		.rxtrig_bytes	= {1, 4, 8, 14},
-+		.flags		= UART_CAP_FIFO,
-+	},
- };
+diff --git a/drivers/staging/iio/adc/ad7280a.c b/drivers/staging/iio/adc/ad7280a.c
+index fef0055b8990..20183b2ea127 100644
+--- a/drivers/staging/iio/adc/ad7280a.c
++++ b/drivers/staging/iio/adc/ad7280a.c
+@@ -107,9 +107,9 @@
+ static unsigned int ad7280a_devaddr(unsigned int addr)
+ {
+ 	return ((addr & 0x1) << 4) |
+-	       ((addr & 0x2) << 3) |
++	       ((addr & 0x2) << 2) |
+ 	       (addr & 0x4) |
+-	       ((addr & 0x8) >> 3) |
++	       ((addr & 0x8) >> 2) |
+ 	       ((addr & 0x10) >> 4);
+ }
  
- /* Uart divisor latch read */
-diff --git a/include/uapi/linux/serial_core.h b/include/uapi/linux/serial_core.h
-index c4042dcfdc0c..8885e69178bd 100644
---- a/include/uapi/linux/serial_core.h
-+++ b/include/uapi/linux/serial_core.h
-@@ -68,6 +68,9 @@
- /* NVIDIA Tegra Combined UART */
- #define PORT_TEGRA_TCU	41
- 
-+/* ASPEED AST2x00 virtual UART */
-+#define PORT_ASPEED_VUART	42
-+
- /* Intel EG20 */
- #define PORT_PCH_8LINE	44
- #define PORT_PCH_2LINE	45
 -- 
 2.34.1
 
