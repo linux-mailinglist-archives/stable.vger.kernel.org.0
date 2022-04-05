@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 86D794F2C93
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:31:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E0B764F2BD4
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:21:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235414AbiDEJBy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:01:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45538 "EHLO
+        id S235340AbiDEJBd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:01:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45542 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237555AbiDEImt (ORCPT
+        with ESMTP id S237553AbiDEImt (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:42:49 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0686FD3F;
-        Tue,  5 Apr 2022 01:35:07 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7295811172;
+        Tue,  5 Apr 2022 01:35:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8DA4CB81B92;
-        Tue,  5 Apr 2022 08:35:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB8EAC385A1;
-        Tue,  5 Apr 2022 08:35:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1E230B81BBF;
+        Tue,  5 Apr 2022 08:35:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87B50C385A1;
+        Tue,  5 Apr 2022 08:35:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147705;
-        bh=UGpzPQNI4GOt0ywa7n6WBbyYUgXZfRiJ3AkseXs1ivo=;
+        s=korg; t=1649147707;
+        bh=upjup/PH9p+NOiB48oXfZdK7fKPqGxjGolVx04MBn/8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TuxajA+rhxmMMPoAChwonX8UykM3QCM1xSjs0Tsfv0mxKKxiXLPggsB1UJUoHOj23
-         rOd0AORfU7ua1wPeV3dQEOZ6R5IvG0mUSAmqk6fqmRfiF04akMZjIhWhHYlz5i/QRr
-         6Oen50wAltaYx9/r+UUd+7oF3ZwVGOOGOQ+VLfPQ=
+        b=pG73wvd+N6RZ/803W6rHAouePhFZxOGW85/TsEhzS8lal4tMs9yRGzmZFfNw3kfrw
+         ZLeSAmwUq0EcHDl2QrSIWxijU+ea6Uxboma2VvdshDFLURg2w+letUViMOqWz5cY8h
+         jYGV3KSSxYmH0OQF2VAcsh8qFPNbCG1FGG65J8IQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        stable@vger.kernel.org, Shyam Sundar <ssundar@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        James Smart <jsmart2021@gmail.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.16 0092/1017] scsi: ufs: Fix runtime PM messages never-ending cycle
-Date:   Tue,  5 Apr 2022 09:16:45 +0200
-Message-Id: <20220405070356.925632006@linuxfoundation.org>
+Subject: [PATCH 5.16 0093/1017] scsi: scsi_transport_fc: Fix FPIN Link Integrity statistics counters
+Date:   Tue,  5 Apr 2022 09:16:46 +0200
+Message-Id: <20220405070356.955557248@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -53,95 +56,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: James Smart <jsmart2021@gmail.com>
 
-commit 71bb9ab6e3511b7bb98678a19eb8cf1ccbf3ca2f upstream.
+commit 07e0984b96ec1ba8c6de1c092b986b00ea0c114c upstream.
 
-Kernel messages produced during runtime PM can cause a never-ending cycle
-because user space utilities (e.g. journald or rsyslog) write the messages
-back to storage, causing runtime resume, more messages, and so on.
+In the original FPIN commit, stats were incremented by the event_count.
+Event_count is the minimum # of events that must occur before an FPIN is
+sent. Thus, its not the actual number of events, and could be significantly
+off (too low) as it doesn't reflect anything not reported.  Rather than
+attempt to count events, have the statistic count how many FPINS cross the
+threshold and were reported.
 
-Messages that tell of things that are expected to happen, are arguably
-unnecessary, so suppress them.
-
-UFS driver messages are changes to from dev_err() to dev_dbg() which means
-they will not display unless activated by dynamic debug of building with
--DDEBUG.
-
-sdev->silence_suspend is set to skip messages from sd_suspend_common()
-"Synchronizing SCSI cache", "Stopping disk" and scsi_report_sense()
-"Power-on or device reset occurred" message (Note, that message appears
-when the LUN is accessed after runtime PM, not during runtime PM)
-
- Example messages from Ubuntu 21.10:
-
- $ dmesg | tail
- [ 1620.380071] ufshcd 0000:00:12.5: ufshcd_print_pwr_info:[RX, TX]: gear=[1, 1], lane[1, 1], pwr[SLOWAUTO_MODE, SLOWAUTO_MODE], rate = 0
- [ 1620.408825] ufshcd 0000:00:12.5: ufshcd_print_pwr_info:[RX, TX]: gear=[4, 4], lane[2, 2], pwr[FAST MODE, FAST MODE], rate = 2
- [ 1620.409020] ufshcd 0000:00:12.5: ufshcd_find_max_sup_active_icc_level: Regulator capability was not set, actvIccLevel=0
- [ 1620.409524] sd 0:0:0:0: Power-on or device reset occurred
- [ 1622.938794] sd 0:0:0:0: [sda] Synchronizing SCSI cache
- [ 1622.939184] ufs_device_wlun 0:0:0:49488: Power-on or device reset occurred
- [ 1625.183175] ufshcd 0000:00:12.5: ufshcd_print_pwr_info:[RX, TX]: gear=[1, 1], lane[1, 1], pwr[SLOWAUTO_MODE, SLOWAUTO_MODE], rate = 0
- [ 1625.208041] ufshcd 0000:00:12.5: ufshcd_print_pwr_info:[RX, TX]: gear=[4, 4], lane[2, 2], pwr[FAST MODE, FAST MODE], rate = 2
- [ 1625.208311] ufshcd 0000:00:12.5: ufshcd_find_max_sup_active_icc_level: Regulator capability was not set, actvIccLevel=0
- [ 1625.209035] sd 0:0:0:0: Power-on or device reset occurred
-
-Note for stable: depends on patch "scsi: core: sd: Add silence_suspend flag
-to suppress some PM messages".
-
-Link: https://lore.kernel.org/r/20220228113652.970857-3-adrian.hunter@intel.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Link: https://lore.kernel.org/r/20220301175536.60250-1-jsmart2021@gmail.com
+Fixes: 3dcfe0de5a97 ("scsi: fc: Parse FPIN packets and update statistics")
+Cc: <stable@vger.kernel.org> # v5.11+
+Cc: Shyam Sundar <ssundar@marvell.com>
+Cc: Nilesh Javali <njavali@marvell.com>
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/ufs/ufshcd.c |   21 +++++++++++++++++++--
- 1 file changed, 19 insertions(+), 2 deletions(-)
+ drivers/scsi/scsi_transport_fc.c |   39 ++++++++++++++++-----------------------
+ 1 file changed, 16 insertions(+), 23 deletions(-)
 
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -585,7 +585,12 @@ static void ufshcd_print_pwr_info(struct
- 		"INVALID MODE",
- 	};
+--- a/drivers/scsi/scsi_transport_fc.c
++++ b/drivers/scsi/scsi_transport_fc.c
+@@ -34,7 +34,7 @@ static int fc_bsg_hostadd(struct Scsi_Ho
+ static int fc_bsg_rportadd(struct Scsi_Host *, struct fc_rport *);
+ static void fc_bsg_remove(struct request_queue *);
+ static void fc_bsg_goose_queue(struct fc_rport *);
+-static void fc_li_stats_update(struct fc_fn_li_desc *li_desc,
++static void fc_li_stats_update(u16 event_type,
+ 			       struct fc_fpin_stats *stats);
+ static void fc_delivery_stats_update(u32 reason_code,
+ 				     struct fc_fpin_stats *stats);
+@@ -670,42 +670,34 @@ fc_find_rport_by_wwpn(struct Scsi_Host *
+ EXPORT_SYMBOL(fc_find_rport_by_wwpn);
  
--	dev_err(hba->dev, "%s:[RX, TX]: gear=[%d, %d], lane[%d, %d], pwr[%s, %s], rate = %d\n",
-+	/*
-+	 * Using dev_dbg to avoid messages during runtime PM to avoid
-+	 * never-ending cycles of messages written back to storage by user space
-+	 * causing runtime resume, causing more messages and so on.
-+	 */
-+	dev_dbg(hba->dev, "%s:[RX, TX]: gear=[%d, %d], lane[%d, %d], pwr[%s, %s], rate = %d\n",
- 		 __func__,
- 		 hba->pwr_info.gear_rx, hba->pwr_info.gear_tx,
- 		 hba->pwr_info.lane_rx, hba->pwr_info.lane_tx,
-@@ -4999,6 +5004,12 @@ static int ufshcd_slave_configure(struct
- 		pm_runtime_get_noresume(&sdev->sdev_gendev);
- 	else if (ufshcd_is_rpm_autosuspend_allowed(hba))
- 		sdev->rpm_autosuspend = 1;
-+	/*
-+	 * Do not print messages during runtime PM to avoid never-ending cycles
-+	 * of messages written back to storage by user space causing runtime
-+	 * resume, causing more messages and so on.
-+	 */
-+	sdev->silence_suspend = 1;
+ static void
+-fc_li_stats_update(struct fc_fn_li_desc *li_desc,
++fc_li_stats_update(u16 event_type,
+ 		   struct fc_fpin_stats *stats)
+ {
+-	stats->li += be32_to_cpu(li_desc->event_count);
+-	switch (be16_to_cpu(li_desc->event_type)) {
++	stats->li++;
++	switch (event_type) {
+ 	case FPIN_LI_UNKNOWN:
+-		stats->li_failure_unknown +=
+-		    be32_to_cpu(li_desc->event_count);
++		stats->li_failure_unknown++;
+ 		break;
+ 	case FPIN_LI_LINK_FAILURE:
+-		stats->li_link_failure_count +=
+-		    be32_to_cpu(li_desc->event_count);
++		stats->li_link_failure_count++;
+ 		break;
+ 	case FPIN_LI_LOSS_OF_SYNC:
+-		stats->li_loss_of_sync_count +=
+-		    be32_to_cpu(li_desc->event_count);
++		stats->li_loss_of_sync_count++;
+ 		break;
+ 	case FPIN_LI_LOSS_OF_SIG:
+-		stats->li_loss_of_signals_count +=
+-		    be32_to_cpu(li_desc->event_count);
++		stats->li_loss_of_signals_count++;
+ 		break;
+ 	case FPIN_LI_PRIM_SEQ_ERR:
+-		stats->li_prim_seq_err_count +=
+-		    be32_to_cpu(li_desc->event_count);
++		stats->li_prim_seq_err_count++;
+ 		break;
+ 	case FPIN_LI_INVALID_TX_WD:
+-		stats->li_invalid_tx_word_count +=
+-		    be32_to_cpu(li_desc->event_count);
++		stats->li_invalid_tx_word_count++;
+ 		break;
+ 	case FPIN_LI_INVALID_CRC:
+-		stats->li_invalid_crc_count +=
+-		    be32_to_cpu(li_desc->event_count);
++		stats->li_invalid_crc_count++;
+ 		break;
+ 	case FPIN_LI_DEVICE_SPEC:
+-		stats->li_device_specific +=
+-		    be32_to_cpu(li_desc->event_count);
++		stats->li_device_specific++;
+ 		break;
+ 	}
+ }
+@@ -767,6 +759,7 @@ fc_fpin_li_stats_update(struct Scsi_Host
+ 	struct fc_rport *attach_rport = NULL;
+ 	struct fc_host_attrs *fc_host = shost_to_fc_host(shost);
+ 	struct fc_fn_li_desc *li_desc = (struct fc_fn_li_desc *)tlv;
++	u16 event_type = be16_to_cpu(li_desc->event_type);
+ 	u64 wwpn;
  
- 	ufshcd_crypto_register(hba, q);
+ 	rport = fc_find_rport_by_wwpn(shost,
+@@ -775,7 +768,7 @@ fc_fpin_li_stats_update(struct Scsi_Host
+ 	    (rport->roles & FC_PORT_ROLE_FCP_TARGET ||
+ 	     rport->roles & FC_PORT_ROLE_NVME_TARGET)) {
+ 		attach_rport = rport;
+-		fc_li_stats_update(li_desc, &attach_rport->fpin_stats);
++		fc_li_stats_update(event_type, &attach_rport->fpin_stats);
+ 	}
  
-@@ -7285,7 +7296,13 @@ static u32 ufshcd_find_max_sup_active_ic
+ 	if (be32_to_cpu(li_desc->pname_count) > 0) {
+@@ -789,14 +782,14 @@ fc_fpin_li_stats_update(struct Scsi_Host
+ 			    rport->roles & FC_PORT_ROLE_NVME_TARGET)) {
+ 				if (rport == attach_rport)
+ 					continue;
+-				fc_li_stats_update(li_desc,
++				fc_li_stats_update(event_type,
+ 						   &rport->fpin_stats);
+ 			}
+ 		}
+ 	}
  
- 	if (!hba->vreg_info.vcc || !hba->vreg_info.vccq ||
- 						!hba->vreg_info.vccq2) {
--		dev_err(hba->dev,
-+		/*
-+		 * Using dev_dbg to avoid messages during runtime PM to avoid
-+		 * never-ending cycles of messages written back to storage by
-+		 * user space causing runtime resume, causing more messages and
-+		 * so on.
-+		 */
-+		dev_dbg(hba->dev,
- 			"%s: Regulator capability was not set, actvIccLevel=%d",
- 							__func__, icc_level);
- 		goto out;
+ 	if (fc_host->port_name == be64_to_cpu(li_desc->attached_wwpn))
+-		fc_li_stats_update(li_desc, &fc_host->fpin_stats);
++		fc_li_stats_update(event_type, &fc_host->fpin_stats);
+ }
+ 
+ /*
 
 
