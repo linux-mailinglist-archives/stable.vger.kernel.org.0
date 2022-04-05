@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 29F1D4F2F5B
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:11:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC4344F31A9
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:45:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242398AbiDEJgw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:36:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52156 "EHLO
+        id S241935AbiDEIgI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:36:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235430AbiDEJCB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:02:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D843CCE;
-        Tue,  5 Apr 2022 01:53:53 -0700 (PDT)
+        with ESMTP id S238966AbiDEITd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:19:33 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71ADC75C12;
+        Tue,  5 Apr 2022 01:09:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EDC4D609D0;
-        Tue,  5 Apr 2022 08:53:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02667C385A1;
-        Tue,  5 Apr 2022 08:53:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 08B2EB81A32;
+        Tue,  5 Apr 2022 08:09:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77B3FC385A0;
+        Tue,  5 Apr 2022 08:09:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148832;
-        bh=sdZSVqqIUKYImkqKfFXcls0oMxfp3eb4lHqdIelvcyQ=;
+        s=korg; t=1649146190;
+        bh=/AS13XfuaTsFOWDXBRJbBDUfvHmVSfY8gACGMKNwWq8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nlKIHTwpaRWOv1ZtPIjIVJ+KPWihWUPePQxe8ajcFzR2H6CpoNmspHBmostWb+QvF
-         TP4lvM9YBLMJ3qGiDvr+1wpq1W5Mk6rqnKgSQXOKVDtuuoUc1FdEBEAJ6vpGtLQIXp
-         9zZNqFBhIMZWbdW4W3px+uVhS8s52h0tU+b90n7E=
+        b=2whj19hc9S6O0hcm+vajMToJGrOO1r9ygrbM075XNZb4crLMU6oWmOmSFaxkktN1U
+         +mkFezlR56kP9s55+ChsJYcbdHWetRPXGG7TreABV8BR7UpZev+V656z7HUuVUaNCt
+         36EbNE4vmeTuYLkfmft2AVZ4O+YlNUQcrytR+rVM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+53619be9444215e785ed@syzkaller.appspotmail.com,
-        Yonghong Song <yhs@fb.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Martin KaFai Lau <kafai@fb.com>,
+        stable@vger.kernel.org, Robert Hancock <robert.hancock@calian.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0470/1017] bpf: Fix a btf decl_tag bug when tagging a function
+Subject: [PATCH 5.17 0636/1126] net: axienet: fix RX ring refill allocation failure handling
 Date:   Tue,  5 Apr 2022 09:23:03 +0200
-Message-Id: <20220405070408.249913058@linuxfoundation.org>
+Message-Id: <20220405070426.305243557@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,139 +54,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yonghong Song <yhs@fb.com>
+From: Robert Hancock <robert.hancock@calian.com>
 
-[ Upstream commit d7e7b42f4f956f2c68ad8cda87d750093dbba737 ]
+[ Upstream commit 7a7d340ba4d9351e4c8847b898a2b996727a922a ]
 
-syzbot reported a btf decl_tag bug with stack trace below:
+If a memory allocation error occurred during an attempt to refill a slot
+in the RX ring after the packet was received, the hardware tail pointer
+would still have been updated to point to or past the slot which remained
+marked as previously completed. This would likely result in the DMA engine
+raising an error when it eventually tried to use that slot again.
 
-  general protection fault, probably for non-canonical address 0xdffffc0000000000: 0000 [#1] PREEMPT SMP KASAN
-  KASAN: null-ptr-deref in range [0x0000000000000000-0x0000000000000007]
-  CPU: 0 PID: 3592 Comm: syz-executor914 Not tainted 5.16.0-syzkaller-11424-gb7892f7d5cb2 #0
-  Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-  RIP: 0010:btf_type_vlen include/linux/btf.h:231 [inline]
-  RIP: 0010:btf_decl_tag_resolve+0x83e/0xaa0 kernel/bpf/btf.c:3910
-  ...
-  Call Trace:
-   <TASK>
-   btf_resolve+0x251/0x1020 kernel/bpf/btf.c:4198
-   btf_check_all_types kernel/bpf/btf.c:4239 [inline]
-   btf_parse_type_sec kernel/bpf/btf.c:4280 [inline]
-   btf_parse kernel/bpf/btf.c:4513 [inline]
-   btf_new_fd+0x19fe/0x2370 kernel/bpf/btf.c:6047
-   bpf_btf_load kernel/bpf/syscall.c:4039 [inline]
-   __sys_bpf+0x1cbb/0x5970 kernel/bpf/syscall.c:4679
-   __do_sys_bpf kernel/bpf/syscall.c:4738 [inline]
-   __se_sys_bpf kernel/bpf/syscall.c:4736 [inline]
-   __x64_sys_bpf+0x75/0xb0 kernel/bpf/syscall.c:4736
-   do_syscall_x64 arch/x86/entry/common.c:50 [inline]
-   do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
-   entry_SYSCALL_64_after_hwframe+0x44/0xae
+If a slot cannot be refilled, then just stop processing and do not move
+the tail pointer past it. On the next attempt, we should skip receiving
+the packet from the empty slot and just try to refill it again.
 
-The kasan error is triggered with an illegal BTF like below:
-   type 0: void
-   type 1: int
-   type 2: decl_tag to func type 3
-   type 3: func to func_proto type 8
-The total number of types is 4 and the type 3 is illegal
-since its func_proto type is out of range.
+This failure mode has not actually been observed, but was found as part
+of other driver updates.
 
-Currently, the target type of decl_tag can be struct/union, var or func.
-Both struct/union and var implemented their own 'resolve' callback functions
-and hence handled properly in kernel.
-But func type doesn't have 'resolve' callback function. When
-btf_decl_tag_resolve() tries to check func type, it tries to get
-vlen of its func_proto type, which triggered the above kasan error.
-
-To fix the issue, btf_decl_tag_resolve() needs to do btf_func_check()
-before trying to accessing func_proto type.
-In the current implementation, func type is checked with
-btf_func_check() in the main checking function btf_check_all_types().
-To fix the above kasan issue, let us implement 'resolve' callback
-func type properly. The 'resolve' callback will be also called
-in btf_check_all_types() for func types.
-
-Fixes: b5ea834dde6b ("bpf: Support for new btf kind BTF_KIND_TAG")
-Reported-by: syzbot+53619be9444215e785ed@syzkaller.appspotmail.com
-Signed-off-by: Yonghong Song <yhs@fb.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: Martin KaFai Lau <kafai@fb.com>
-Link: https://lore.kernel.org/bpf/20220203191727.741862-1-yhs@fb.com
+Fixes: 8a3b7a252dca ("drivers/net/ethernet/xilinx: added Xilinx AXI Ethernet driver")
+Signed-off-by: Robert Hancock <robert.hancock@calian.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/btf.c | 29 +++++++++++++++++++++--------
- 1 file changed, 21 insertions(+), 8 deletions(-)
+ .../net/ethernet/xilinx/xilinx_axienet_main.c | 72 +++++++++++--------
+ 1 file changed, 42 insertions(+), 30 deletions(-)
 
-diff --git a/kernel/bpf/btf.c b/kernel/bpf/btf.c
-index 1f7967ab9e46..ebbb2f4d3b9c 100644
---- a/kernel/bpf/btf.c
-+++ b/kernel/bpf/btf.c
-@@ -401,6 +401,9 @@ static struct btf_type btf_void;
- static int btf_resolve(struct btf_verifier_env *env,
- 		       const struct btf_type *t, u32 type_id);
+diff --git a/drivers/net/ethernet/xilinx/xilinx_axienet_main.c b/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
+index 377c94ec2486..90d96eb79984 100644
+--- a/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
++++ b/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
+@@ -857,46 +857,53 @@ static void axienet_recv(struct net_device *ndev)
+ 	while ((cur_p->status & XAXIDMA_BD_STS_COMPLETE_MASK)) {
+ 		dma_addr_t phys;
  
-+static int btf_func_check(struct btf_verifier_env *env,
-+			  const struct btf_type *t);
-+
- static bool btf_type_is_modifier(const struct btf_type *t)
- {
- 	/* Some of them is not strictly a C modifier
-@@ -576,6 +579,7 @@ static bool btf_type_needs_resolve(const struct btf_type *t)
- 	       btf_type_is_struct(t) ||
- 	       btf_type_is_array(t) ||
- 	       btf_type_is_var(t) ||
-+	       btf_type_is_func(t) ||
- 	       btf_type_is_decl_tag(t) ||
- 	       btf_type_is_datasec(t);
- }
-@@ -3521,9 +3525,24 @@ static s32 btf_func_check_meta(struct btf_verifier_env *env,
- 	return 0;
- }
- 
-+static int btf_func_resolve(struct btf_verifier_env *env,
-+			    const struct resolve_vertex *v)
-+{
-+	const struct btf_type *t = v->t;
-+	u32 next_type_id = t->type;
-+	int err;
-+
-+	err = btf_func_check(env, t);
-+	if (err)
-+		return err;
-+
-+	env_stack_pop_resolved(env, next_type_id, 0);
-+	return 0;
-+}
-+
- static struct btf_kind_operations func_ops = {
- 	.check_meta = btf_func_check_meta,
--	.resolve = btf_df_resolve,
-+	.resolve = btf_func_resolve,
- 	.check_member = btf_df_check_member,
- 	.check_kflag_member = btf_df_check_kflag_member,
- 	.log_details = btf_ref_type_log,
-@@ -4143,7 +4162,7 @@ static bool btf_resolve_valid(struct btf_verifier_env *env,
- 		return !btf_resolved_type_id(btf, type_id) &&
- 		       !btf_resolved_type_size(btf, type_id);
- 
--	if (btf_type_is_decl_tag(t))
-+	if (btf_type_is_decl_tag(t) || btf_type_is_func(t))
- 		return btf_resolved_type_id(btf, type_id) &&
- 		       !btf_resolved_type_size(btf, type_id);
- 
-@@ -4233,12 +4252,6 @@ static int btf_check_all_types(struct btf_verifier_env *env)
- 			if (err)
- 				return err;
- 		}
+-		tail_p = lp->rx_bd_p + sizeof(*lp->rx_bd_v) * lp->rx_bd_ci;
 -
--		if (btf_type_is_func(t)) {
--			err = btf_func_check(env, t);
--			if (err)
--				return err;
--		}
- 	}
+ 		/* Ensure we see complete descriptor update */
+ 		dma_rmb();
+-		phys = desc_get_phys_addr(lp, cur_p);
+-		dma_unmap_single(ndev->dev.parent, phys, lp->max_frm_size,
+-				 DMA_FROM_DEVICE);
  
- 	return 0;
+ 		skb = cur_p->skb;
+ 		cur_p->skb = NULL;
+-		length = cur_p->app4 & 0x0000FFFF;
+-
+-		skb_put(skb, length);
+-		skb->protocol = eth_type_trans(skb, ndev);
+-		/*skb_checksum_none_assert(skb);*/
+-		skb->ip_summed = CHECKSUM_NONE;
+-
+-		/* if we're doing Rx csum offload, set it up */
+-		if (lp->features & XAE_FEATURE_FULL_RX_CSUM) {
+-			csumstatus = (cur_p->app2 &
+-				      XAE_FULL_CSUM_STATUS_MASK) >> 3;
+-			if ((csumstatus == XAE_IP_TCP_CSUM_VALIDATED) ||
+-			    (csumstatus == XAE_IP_UDP_CSUM_VALIDATED)) {
+-				skb->ip_summed = CHECKSUM_UNNECESSARY;
++
++		/* skb could be NULL if a previous pass already received the
++		 * packet for this slot in the ring, but failed to refill it
++		 * with a newly allocated buffer. In this case, don't try to
++		 * receive it again.
++		 */
++		if (likely(skb)) {
++			length = cur_p->app4 & 0x0000FFFF;
++
++			phys = desc_get_phys_addr(lp, cur_p);
++			dma_unmap_single(ndev->dev.parent, phys, lp->max_frm_size,
++					 DMA_FROM_DEVICE);
++
++			skb_put(skb, length);
++			skb->protocol = eth_type_trans(skb, ndev);
++			/*skb_checksum_none_assert(skb);*/
++			skb->ip_summed = CHECKSUM_NONE;
++
++			/* if we're doing Rx csum offload, set it up */
++			if (lp->features & XAE_FEATURE_FULL_RX_CSUM) {
++				csumstatus = (cur_p->app2 &
++					      XAE_FULL_CSUM_STATUS_MASK) >> 3;
++				if (csumstatus == XAE_IP_TCP_CSUM_VALIDATED ||
++				    csumstatus == XAE_IP_UDP_CSUM_VALIDATED) {
++					skb->ip_summed = CHECKSUM_UNNECESSARY;
++				}
++			} else if ((lp->features & XAE_FEATURE_PARTIAL_RX_CSUM) != 0 &&
++				   skb->protocol == htons(ETH_P_IP) &&
++				   skb->len > 64) {
++				skb->csum = be32_to_cpu(cur_p->app3 & 0xFFFF);
++				skb->ip_summed = CHECKSUM_COMPLETE;
+ 			}
+-		} else if ((lp->features & XAE_FEATURE_PARTIAL_RX_CSUM) != 0 &&
+-			   skb->protocol == htons(ETH_P_IP) &&
+-			   skb->len > 64) {
+-			skb->csum = be32_to_cpu(cur_p->app3 & 0xFFFF);
+-			skb->ip_summed = CHECKSUM_COMPLETE;
+-		}
+ 
+-		netif_rx(skb);
++			netif_rx(skb);
+ 
+-		size += length;
+-		packets++;
++			size += length;
++			packets++;
++		}
+ 
+ 		new_skb = netdev_alloc_skb_ip_align(ndev, lp->max_frm_size);
+ 		if (!new_skb)
+-			return;
++			break;
+ 
+ 		phys = dma_map_single(ndev->dev.parent, new_skb->data,
+ 				      lp->max_frm_size,
+@@ -905,7 +912,7 @@ static void axienet_recv(struct net_device *ndev)
+ 			if (net_ratelimit())
+ 				netdev_err(ndev, "RX DMA mapping error\n");
+ 			dev_kfree_skb(new_skb);
+-			return;
++			break;
+ 		}
+ 		desc_set_phys_addr(lp, phys, cur_p);
+ 
+@@ -913,6 +920,11 @@ static void axienet_recv(struct net_device *ndev)
+ 		cur_p->status = 0;
+ 		cur_p->skb = new_skb;
+ 
++		/* Only update tail_p to mark this slot as usable after it has
++		 * been successfully refilled.
++		 */
++		tail_p = lp->rx_bd_p + sizeof(*lp->rx_bd_v) * lp->rx_bd_ci;
++
+ 		if (++lp->rx_bd_ci >= lp->rx_bd_num)
+ 			lp->rx_bd_ci = 0;
+ 		cur_p = &lp->rx_bd_v[lp->rx_bd_ci];
 -- 
 2.34.1
 
