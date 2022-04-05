@@ -2,48 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D4524F336C
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:16:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64C734F31AE
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:45:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347631AbiDEJ1z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:27:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53834 "EHLO
+        id S243626AbiDEKhQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:37:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38666 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244693AbiDEIwe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:34 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01690D8F4E;
-        Tue,  5 Apr 2022 01:42:04 -0700 (PDT)
+        with ESMTP id S239475AbiDEJd6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:33:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B0C24FC62;
+        Tue,  5 Apr 2022 02:22:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8B1F1B81C15;
-        Tue,  5 Apr 2022 08:42:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6CB0C385A1;
-        Tue,  5 Apr 2022 08:42:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0778261645;
+        Tue,  5 Apr 2022 09:22:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13D1EC385A0;
+        Tue,  5 Apr 2022 09:22:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148122;
-        bh=bgJm6wH0LQOptKnK7GXaPPAhDXn78DplyNlwQZkCo08=;
+        s=korg; t=1649150542;
+        bh=XB2ZAnqs10KWvSqh5mAX4FfDP5UtSANZ3tDNnXYKoYA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ThAiFEGcpxZFgDgk7K5QyAmRfLQ+bs1BBNyA0z82tZPtWHz39VTWuzisUNDyXJWAo
-         fr4M7jBOm2pqJCbLfcgH3miuhlpmusBNSSoPZoJ+fK4mcY2YPSrnP25EyaTp+pAf7J
-         m6Ei8yUXujmF7HhRk35hiXyXPhZVU1zdhUjZzKTk=
+        b=KDkSF+oAl5Xc7MWGNZyS/Adgz/ieoiP5Xo00a9yFbeB8v/b6ls9EfsitYVNKstwYK
+         fgvFSsqUHSkraLjHo+9SHkKTQ4CqEQZNifGul8/T/9Og8aSAQ1BvSkMejYzXFWWe61
+         7i39e60NMq0lv1AqJLDjt1vWQUrhVacc+2VOL0BQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Chanwoo Choi <cw00.choi@samsung.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Sam Protsenko <semen.protsenko@linaro.org>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0242/1017] clocksource/drivers/exynos_mct: Refactor resources allocation
-Date:   Tue,  5 Apr 2022 09:19:15 +0200
-Message-Id: <20220405070401.441469213@linuxfoundation.org>
+        stable@vger.kernel.org, Nikita Shubin <n.shubin@yadro.com>,
+        Palmer Dabbelt <palmer@rivosinc.com>
+Subject: [PATCH 5.15 094/913] riscv: Fix fill_callchain return value
+Date:   Tue,  5 Apr 2022 09:19:16 +0200
+Message-Id: <20220405070342.646868015@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,111 +53,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Szyprowski <m.szyprowski@samsung.com>
+From: Nikita Shubin <n.shubin@yadro.com>
 
-[ Upstream commit 7cd925a8823d16de5614d3f0aabea9948747accd ]
+commit 2b2b574ac587ec5bd7716a356492a85ab8b0ce9f upstream.
 
-Move interrupts allocation from exynos4_timer_resources() into separate
-function together with the interrupt number parsing code from
-mct_init_dt(), so the code for managing interrupts is kept together.
-While touching exynos4_timer_resources() function, move of_iomap() to it.
-No functional changes.
+perf_callchain_store return 0 on success, -1 otherwise,
+fix fill_callchain to return correct bool value.
 
-Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Reviewed-by: Chanwoo Choi <cw00.choi@samsung.com>
-Tested-by: Chanwoo Choi <cw00.choi@samsung.com>
-Reviewed-by: Krzysztof Kozlowski <krzk@kernel.org>
-Signed-off-by: Sam Protsenko <semen.protsenko@linaro.org>
-Link: https://lore.kernel.org/r/20211101193531.15078-2-semen.protsenko@linaro.org
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: dbeb90b0c1eb ("riscv: Add perf callchain support")
+Signed-off-by: Nikita Shubin <n.shubin@yadro.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/clocksource/exynos_mct.c | 50 +++++++++++++++++++-------------
- 1 file changed, 30 insertions(+), 20 deletions(-)
+ arch/riscv/kernel/perf_callchain.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/clocksource/exynos_mct.c b/drivers/clocksource/exynos_mct.c
-index 5e3e96d3d1b9..857cf12ebe57 100644
---- a/drivers/clocksource/exynos_mct.c
-+++ b/drivers/clocksource/exynos_mct.c
-@@ -504,11 +504,14 @@ static int exynos4_mct_dying_cpu(unsigned int cpu)
- 	return 0;
+--- a/arch/riscv/kernel/perf_callchain.c
++++ b/arch/riscv/kernel/perf_callchain.c
+@@ -73,7 +73,7 @@ void perf_callchain_user(struct perf_cal
+ 
+ static bool fill_callchain(void *entry, unsigned long pc)
+ {
+-	return perf_callchain_store(entry, pc);
++	return perf_callchain_store(entry, pc) == 0;
  }
  
--static int __init exynos4_timer_resources(struct device_node *np, void __iomem *base)
-+static int __init exynos4_timer_resources(struct device_node *np)
- {
--	int err, cpu;
- 	struct clk *mct_clk, *tick_clk;
- 
-+	reg_base = of_iomap(np, 0);
-+	if (!reg_base)
-+		panic("%s: unable to ioremap mct address space\n", __func__);
-+
- 	tick_clk = of_clk_get_by_name(np, "fin_pll");
- 	if (IS_ERR(tick_clk))
- 		panic("%s: unable to determine tick clock rate\n", __func__);
-@@ -519,9 +522,27 @@ static int __init exynos4_timer_resources(struct device_node *np, void __iomem *
- 		panic("%s: unable to retrieve mct clock instance\n", __func__);
- 	clk_prepare_enable(mct_clk);
- 
--	reg_base = base;
--	if (!reg_base)
--		panic("%s: unable to ioremap mct address space\n", __func__);
-+	return 0;
-+}
-+
-+static int __init exynos4_timer_interrupts(struct device_node *np,
-+					   unsigned int int_type)
-+{
-+	int nr_irqs, i, err, cpu;
-+
-+	mct_int_type = int_type;
-+
-+	/* This driver uses only one global timer interrupt */
-+	mct_irqs[MCT_G0_IRQ] = irq_of_parse_and_map(np, MCT_G0_IRQ);
-+
-+	/*
-+	 * Find out the number of local irqs specified. The local
-+	 * timer irqs are specified after the four global timer
-+	 * irqs are specified.
-+	 */
-+	nr_irqs = of_irq_count(np);
-+	for (i = MCT_L0_IRQ; i < nr_irqs; i++)
-+		mct_irqs[i] = irq_of_parse_and_map(np, i);
- 
- 	if (mct_int_type == MCT_INT_PPI) {
- 
-@@ -581,24 +602,13 @@ static int __init exynos4_timer_resources(struct device_node *np, void __iomem *
- 
- static int __init mct_init_dt(struct device_node *np, unsigned int int_type)
- {
--	u32 nr_irqs, i;
- 	int ret;
- 
--	mct_int_type = int_type;
--
--	/* This driver uses only one global timer interrupt */
--	mct_irqs[MCT_G0_IRQ] = irq_of_parse_and_map(np, MCT_G0_IRQ);
--
--	/*
--	 * Find out the number of local irqs specified. The local
--	 * timer irqs are specified after the four global timer
--	 * irqs are specified.
--	 */
--	nr_irqs = of_irq_count(np);
--	for (i = MCT_L0_IRQ; i < nr_irqs; i++)
--		mct_irqs[i] = irq_of_parse_and_map(np, i);
-+	ret = exynos4_timer_resources(np);
-+	if (ret)
-+		return ret;
- 
--	ret = exynos4_timer_resources(np, of_iomap(np, 0));
-+	ret = exynos4_timer_interrupts(np, int_type);
- 	if (ret)
- 		return ret;
- 
--- 
-2.34.1
-
+ void perf_callchain_kernel(struct perf_callchain_entry_ctx *entry,
 
 
