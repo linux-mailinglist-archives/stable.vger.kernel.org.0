@@ -2,45 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 257094F3B55
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:16:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8FD94F389E
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:35:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348343AbiDELxH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:53:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50696 "EHLO
+        id S241724AbiDEL0Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:26:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39988 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357384AbiDEK0Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:26:16 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BF4A2C676;
-        Tue,  5 Apr 2022 03:10:08 -0700 (PDT)
+        with ESMTP id S1349503AbiDEJt6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F7DD196;
+        Tue,  5 Apr 2022 02:47:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E5AB5B81C98;
-        Tue,  5 Apr 2022 10:10:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F8CBC385A3;
-        Tue,  5 Apr 2022 10:10:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E0B5161576;
+        Tue,  5 Apr 2022 09:47:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFB1BC385A2;
+        Tue,  5 Apr 2022 09:47:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153405;
-        bh=gMbvZ05ZpJKtXwRjQP06B4ijX/7d6xDwGRztoLLbyAs=;
+        s=korg; t=1649152073;
+        bh=pLIQlGkUzPkW36H+QN7RfbIl6w439D/LXITrrVw3+x8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JE00Fbm76y2yFMWW+Fd7t0MmS7mDN9jjXTHqfBLWtvCK8IgbNS9zwPJWfS0/YAEMe
-         39e2EEMBN4nFFaE6QGubLxom1Ar4CbW7jwAko2Vr/KM2/UVcv/wevhFtC3tYT3WjLW
-         ZE/+caxFKzQ6LSekzLfW++pT7pfpuMDGOds1RCpU=
+        b=ielukMC3bJP7GOPhRKt7LYaxhOjeANxHC0rumQqKecjWwqckC2hS6p0mzx29H9v82
+         YxW7nr2ZsB+vknV2Cx83x60U3VTucyKM41LJe4Z90c5+ZfKF+2vhWxZ4b7KrgDQJTl
+         +cOesVJO5PvD+zlyqYN4YFD4gOKfdpWQJKAVhncI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Paul Kocialkowski <paul.kocialkowski@bootlin.com>,
-        Maxime Ripard <maxime@cerno.tech>,
+        stable@vger.kernel.org, kgdb-bugreport@lists.sourceforge.net,
+        Jason Wessel <jason.wessel@windriver.com>,
+        Daniel Thompson <daniel.thompson@linaro.org>,
+        Douglas Anderson <dianders@chromium.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Igor Zhbanov <i.zhbanov@omprussia.ru>,
+        Randy Dunlap <rdunlap@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 212/599] ARM: dts: sun8i: v3s: Move the csi1 block to follow address order
-Date:   Tue,  5 Apr 2022 09:28:26 +0200
-Message-Id: <20220405070305.150190421@linuxfoundation.org>
+Subject: [PATCH 5.15 645/913] kgdbts: fix return value of __setup handler
+Date:   Tue,  5 Apr 2022 09:28:27 +0200
+Message-Id: <20220405070359.173490547@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
-References: <20220405070258.802373272@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,62 +59,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit c4af51698c4fb4fc683f2ac67f482cdf9ba2cd13 ]
+[ Upstream commit 96c9e802c64014a7716865332d732cc9c7f24593 ]
 
-The csi1 block node was mistakenly added before the gic node, although
-its address comes after the gic's. Move the node to its correct
-position.
+__setup() handlers should return 1 to indicate that the boot option
+has been handled. A return of 0 causes the boot option/value to be
+listed as an Unknown kernel parameter and added to init's (limited)
+environment strings. So return 1 from kgdbts_option_setup().
 
-Fixes: 90e048101fa1 ("ARM: dts: sun8i: V3/V3s/S3/S3L: add CSI1 device node")
-Signed-off-by: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://lore.kernel.org/r/20220205185429.2278860-2-paul.kocialkowski@bootlin.com
+Unknown kernel command line parameters "BOOT_IMAGE=/boot/bzImage-517rc7
+  kgdboc=kbd kgdbts=", will be passed to user space.
+
+ Run /sbin/init as init process
+   with arguments:
+     /sbin/init
+   with environment:
+     HOME=/
+     TERM=linux
+     BOOT_IMAGE=/boot/bzImage-517rc7
+     kgdboc=kbd
+     kgdbts=
+
+Link: lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
+Fixes: e8d31c204e36 ("kgdb: add kgdb internal test suite")
+Cc: kgdb-bugreport@lists.sourceforge.net
+Cc: Jason Wessel <jason.wessel@windriver.com>
+Cc: Daniel Thompson <daniel.thompson@linaro.org>
+Cc: Douglas Anderson <dianders@chromium.org>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Link: https://lore.kernel.org/r/20220308033255.22118-1-rdunlap@infradead.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/sun8i-v3s.dtsi | 22 +++++++++++-----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+ drivers/misc/kgdbts.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/sun8i-v3s.dtsi b/arch/arm/boot/dts/sun8i-v3s.dtsi
-index 89abd4cc7e23..b21ecb820b13 100644
---- a/arch/arm/boot/dts/sun8i-v3s.dtsi
-+++ b/arch/arm/boot/dts/sun8i-v3s.dtsi
-@@ -524,6 +524,17 @@
- 			#size-cells = <0>;
- 		};
+diff --git a/drivers/misc/kgdbts.c b/drivers/misc/kgdbts.c
+index 67c5b452dd35..88b91ad8e541 100644
+--- a/drivers/misc/kgdbts.c
++++ b/drivers/misc/kgdbts.c
+@@ -1070,10 +1070,10 @@ static int kgdbts_option_setup(char *opt)
+ {
+ 	if (strlen(opt) >= MAX_CONFIG_LEN) {
+ 		printk(KERN_ERR "kgdbts: config string too long\n");
+-		return -ENOSPC;
++		return 1;
+ 	}
+ 	strcpy(config, opt);
+-	return 0;
++	return 1;
+ }
  
-+		gic: interrupt-controller@1c81000 {
-+			compatible = "arm,gic-400";
-+			reg = <0x01c81000 0x1000>,
-+			      <0x01c82000 0x2000>,
-+			      <0x01c84000 0x2000>,
-+			      <0x01c86000 0x2000>;
-+			interrupt-controller;
-+			#interrupt-cells = <3>;
-+			interrupts = <GIC_PPI 9 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_HIGH)>;
-+		};
-+
- 		csi1: camera@1cb4000 {
- 			compatible = "allwinner,sun8i-v3s-csi";
- 			reg = <0x01cb4000 0x3000>;
-@@ -535,16 +546,5 @@
- 			resets = <&ccu RST_BUS_CSI>;
- 			status = "disabled";
- 		};
--
--		gic: interrupt-controller@1c81000 {
--			compatible = "arm,gic-400";
--			reg = <0x01c81000 0x1000>,
--			      <0x01c82000 0x2000>,
--			      <0x01c84000 0x2000>,
--			      <0x01c86000 0x2000>;
--			interrupt-controller;
--			#interrupt-cells = <3>;
--			interrupts = <GIC_PPI 9 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_HIGH)>;
--		};
- 	};
- };
+ __setup("kgdbts=", kgdbts_option_setup);
 -- 
 2.34.1
 
