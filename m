@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BFC04F2CC6
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:33:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 21EB64F2E50
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:00:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234191AbiDEIkJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:40:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53314 "EHLO
+        id S1350692AbiDEJ71 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:59:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44284 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234570AbiDEIZo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:25:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4314713D17;
-        Tue,  5 Apr 2022 01:20:47 -0700 (PDT)
+        with ESMTP id S1344199AbiDEJSh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:18:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B6B09BB96;
+        Tue,  5 Apr 2022 02:05:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EA174B81BAC;
-        Tue,  5 Apr 2022 08:20:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3136DC385A1;
-        Tue,  5 Apr 2022 08:20:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DC81F61571;
+        Tue,  5 Apr 2022 09:05:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECA80C385A1;
+        Tue,  5 Apr 2022 09:05:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146844;
-        bh=4pBJRB8w+YKZi9TSwaBVRrg0p/xCcnQyAssoSghSbO8=;
+        s=korg; t=1649149519;
+        bh=Me7CbwGB6LaBferc2IlQNNffvc01zJ+0rfh2uBnaN6U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vFCrb71k6leudLFUYBACNB5tdL02zlS9JNKZFIqzG3hhJJlHtbI8KV2Jkb+2AIwy4
-         XdoFQTefiRGlrgjF6+YmWxGq3Im08pDBk65nNWnM22LAYOpP4u8fNYBl1L8CIOuQ2f
-         8rneai/D6wcjcl2/twGnuTEo7QDlRZRijafyJ6oo=
+        b=ncSbLvfm1uQiNlC94uvrNolVa35XD+VFXqR5EfvJYE6552R9s2AY1NB7XFh1yk0U9
+         PZr6qMJcZCAdbdQnsjZli30RgccP/ERIJzw5N9NewpiLz6fLWK7UlT+jmHT8GtnfCF
+         dQFWAOjQK1DkbU0HWBUH4nHrYR7hSN9hdFMzkQC0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        stable@vger.kernel.org,
+        Linux Kernel Functional Testing <lkft@linaro.org>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0908/1126] ASoC: madera: Add dependencies on MFD
-Date:   Tue,  5 Apr 2022 09:27:35 +0200
-Message-Id: <20220405070434.179371175@linuxfoundation.org>
+Subject: [PATCH 5.16 0743/1017] selftests: tls: skip cmsg_to_pipe tests with TLS=n
+Date:   Tue,  5 Apr 2022 09:27:36 +0200
+Message-Id: <20220405070416.317631773@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,58 +57,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Charles Keepax <ckeepax@opensource.cirrus.com>
+From: Jakub Kicinski <kuba@kernel.org>
 
-[ Upstream commit ec29170c724ca30305fc3a19ba2ee73ecac65509 ]
+[ Upstream commit 5c7e49be96ea24776a5b5a07c732c477294add00 ]
 
-The Madera CODECs use regmap_irq functions but nothing ensures that
-regmap_irq is built into the kernel. Add dependencies on the ASoC
-symbols for the relevant MFD component. There is no point in building
-the ASoC driver if the MFD doesn't support it and the MFD part contains
-the necessary dependencies to ensure everything is built into the
-kernel.
+These are negative tests, testing TLS code rejects certain
+operations. They won't pass without TLS enabled, pure TCP
+accepts those operations.
 
-Reported-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20220203115025.16464-1-ckeepax@opensource.cirrus.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+Fixes: d87d67fd61ef ("selftests: tls: test splicing cmsgs")
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reviewed-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/Kconfig | 5 +++++
- 1 file changed, 5 insertions(+)
+ tools/testing/selftests/net/tls.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/sound/soc/codecs/Kconfig b/sound/soc/codecs/Kconfig
-index d3e5ae8310ef..30c00380499c 100644
---- a/sound/soc/codecs/Kconfig
-+++ b/sound/soc/codecs/Kconfig
-@@ -733,6 +733,7 @@ config SND_SOC_CS4349
+diff --git a/tools/testing/selftests/net/tls.c b/tools/testing/selftests/net/tls.c
+index 6e468e0f42f7..5d70b04c482c 100644
+--- a/tools/testing/selftests/net/tls.c
++++ b/tools/testing/selftests/net/tls.c
+@@ -683,6 +683,9 @@ TEST_F(tls, splice_cmsg_to_pipe)
+ 	char buf[10];
+ 	int p[2];
  
- config SND_SOC_CS47L15
- 	tristate
-+	depends on MFD_CS47L15
++	if (self->notls)
++		SKIP(return, "no TLS support");
++
+ 	ASSERT_GE(pipe(p), 0);
+ 	EXPECT_EQ(tls_send_cmsg(self->fd, 100, test_str, send_len, 0), 10);
+ 	EXPECT_EQ(splice(self->cfd, NULL, p[1], NULL, send_len, 0), -1);
+@@ -703,6 +706,9 @@ TEST_F(tls, splice_dec_cmsg_to_pipe)
+ 	char buf[10];
+ 	int p[2];
  
- config SND_SOC_CS47L24
- 	tristate
-@@ -740,15 +741,19 @@ config SND_SOC_CS47L24
- 
- config SND_SOC_CS47L35
- 	tristate
-+	depends on MFD_CS47L35
- 
- config SND_SOC_CS47L85
- 	tristate
-+	depends on MFD_CS47L85
- 
- config SND_SOC_CS47L90
- 	tristate
-+	depends on MFD_CS47L90
- 
- config SND_SOC_CS47L92
- 	tristate
-+	depends on MFD_CS47L92
- 
- # Cirrus Logic Quad-Channel ADC
- config SND_SOC_CS53L30
++	if (self->notls)
++		SKIP(return, "no TLS support");
++
+ 	ASSERT_GE(pipe(p), 0);
+ 	EXPECT_EQ(tls_send_cmsg(self->fd, 100, test_str, send_len, 0), 10);
+ 	EXPECT_EQ(recv(self->cfd, buf, send_len, 0), -1);
 -- 
 2.34.1
 
