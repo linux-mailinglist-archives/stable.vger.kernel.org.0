@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E00E64F2D39
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:36:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA2144F2D4D
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:36:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236887AbiDEJDk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:03:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55022 "EHLO
+        id S1344029AbiDEJQx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:16:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46832 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237095AbiDEIRl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:17:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E47D7B0A72;
-        Tue,  5 Apr 2022 01:05:10 -0700 (PDT)
+        with ESMTP id S245027AbiDEIxC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:53:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D270DDC7;
+        Tue,  5 Apr 2022 01:49:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9891EB81A32;
-        Tue,  5 Apr 2022 08:05:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D810C385A2;
-        Tue,  5 Apr 2022 08:05:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6FE3960FFB;
+        Tue,  5 Apr 2022 08:49:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82AEEC385A3;
+        Tue,  5 Apr 2022 08:49:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145908;
-        bh=DtgPalVCccaATQj0jaFNcsMve7obrls4FSjEP7bN7aM=;
+        s=korg; t=1649148586;
+        bh=moMl4mv1cQ04EJlf9b/nOiH9/cb7BtO/t5iNseANe2s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GNj8EJHpiFEkpB/DiqxzEJAtN835LJA6lZ9qNCb1JKco1v4hDDRpFv/kqN/mJMoHP
-         AO3szRo2Tk0ShYXAajVgKwoid41z09/i0nlKgZ1oA/p4hZJyit4VNb8KgyshWPQF/K
-         dBYwHm/ciuKmp62YfXcFhl/vSuCZeHGg8CoRxQZE=
+        b=MmpekmvLXycqoA1hf/fIvY5jEATP+ZvMYU1or7CcZ44ZgdBBfLWqa7E18YaM0yhPz
+         bu74Iu5g/a9j6+86E8z5YA8clxiny0rx9AjEDNPdZdkc8aWif25iGjBZnlI4nHz1Cg
+         VpxOijWnPC6SfYQuUrrelWdwBDc6/us2Yq9WmlHo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Abhinav Kumar <quic_abhinavk@quicinc.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        stable@vger.kernel.org, Yafang Shao <laoar.shao@gmail.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0573/1126] drm/msm/dpu: fix dp audio condition
-Date:   Tue,  5 Apr 2022 09:22:00 +0200
-Message-Id: <20220405070424.452243006@linuxfoundation.org>
+Subject: [PATCH 5.16 0409/1017] libbpf: Fix possible NULL pointer dereference when destroying skeleton
+Date:   Tue,  5 Apr 2022 09:22:02 +0200
+Message-Id: <20220405070406.428629566@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,39 +54,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+From: Yafang Shao <laoar.shao@gmail.com>
 
-[ Upstream commit 1e0505a5a7a2fea243f8e6d7e13fcde65f9e41bc ]
+[ Upstream commit a32ea51a3f17ce6524c9fc19d311e708331c8b5f ]
 
-DP audio enablement code which is comparing intf_type,
-DRM_MODE_ENCODER_TMDS (= 2) with DRM_MODE_CONNECTOR_DisplayPort (= 10).
-Which would never succeed. Fix it to check for DRM_MODE_ENCODER_TMDS.
+When I checked the code in skeleton header file generated with my own
+bpf prog, I found there may be possible NULL pointer dereference when
+destroying skeleton. Then I checked the in-tree bpf progs, finding that is
+a common issue. Let's take the generated samples/bpf/xdp_redirect_cpu.skel.h
+for example. Below is the generated code in
+xdp_redirect_cpu__create_skeleton():
 
-Fixes: d13e36d7d222 ("drm/msm/dp: add audio support for Display Port on MSM")
-Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Link: https://lore.kernel.org/r/20220217035358.465904-2-dmitry.baryshkov@linaro.org
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+	xdp_redirect_cpu__create_skeleton
+		struct bpf_object_skeleton *s;
+		s = (struct bpf_object_skeleton *)calloc(1, sizeof(*s));
+		if (!s)
+			goto error;
+		...
+	error:
+		bpf_object__destroy_skeleton(s);
+		return  -ENOMEM;
+
+After goto error, the NULL 's' will be deferenced in
+bpf_object__destroy_skeleton().
+
+We can simply fix this issue by just adding a NULL check in
+bpf_object__destroy_skeleton().
+
+Fixes: d66562fba1ce ("libbpf: Add BPF object skeleton support")
+Signed-off-by: Yafang Shao <laoar.shao@gmail.com>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/bpf/20220108134739.32541-1-laoar.shao@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/disp/dpu1/dpu_encoder.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/lib/bpf/libbpf.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_encoder.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_encoder.c
-index 1e648db439f9..02d0fae1c6dc 100644
---- a/drivers/gpu/drm/msm/disp/dpu1/dpu_encoder.c
-+++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_encoder.c
-@@ -1099,7 +1099,7 @@ static void _dpu_encoder_virt_enable_helper(struct drm_encoder *drm_enc)
- 	}
+diff --git a/tools/lib/bpf/libbpf.c b/tools/lib/bpf/libbpf.c
+index c7ba5e6ed9cf..23edb41637d4 100644
+--- a/tools/lib/bpf/libbpf.c
++++ b/tools/lib/bpf/libbpf.c
+@@ -11497,6 +11497,9 @@ void bpf_object__detach_skeleton(struct bpf_object_skeleton *s)
  
- 
--	if (dpu_enc->disp_info.intf_type == DRM_MODE_CONNECTOR_DisplayPort &&
-+	if (dpu_enc->disp_info.intf_type == DRM_MODE_ENCODER_TMDS &&
- 		dpu_enc->cur_master->hw_mdptop &&
- 		dpu_enc->cur_master->hw_mdptop->ops.intf_audio_select)
- 		dpu_enc->cur_master->hw_mdptop->ops.intf_audio_select(
+ void bpf_object__destroy_skeleton(struct bpf_object_skeleton *s)
+ {
++	if (!s)
++		return;
++
+ 	if (s->progs)
+ 		bpf_object__detach_skeleton(s);
+ 	if (s->obj)
 -- 
 2.34.1
 
