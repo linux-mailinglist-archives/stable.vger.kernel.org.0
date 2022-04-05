@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BF114F2790
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:08:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AAB134F26A0
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:05:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233303AbiDEIHb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:07:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57606 "EHLO
+        id S233079AbiDEIF5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:05:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44114 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235208AbiDEH73 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:59:29 -0400
+        with ESMTP id S235209AbiDEH7a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:59:30 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CF47344DB;
-        Tue,  5 Apr 2022 00:53:58 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 039E732EC3;
+        Tue,  5 Apr 2022 00:54:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A2D34B81BA7;
-        Tue,  5 Apr 2022 07:53:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07AA9C340EE;
-        Tue,  5 Apr 2022 07:53:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4B12EB81B9C;
+        Tue,  5 Apr 2022 07:54:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC9F7C340EE;
+        Tue,  5 Apr 2022 07:53:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145236;
-        bh=Zh/8yJOwchY4WnK5AxAwtRxXpaTTm1ot5ouHhpuoZ7I=;
+        s=korg; t=1649145239;
+        bh=ppIPX3URR0acf6wOyfL262wQNE8KPCBIqOOvB243B1U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Oycch8PCSDY7QH44RsehBAqeQSqSomszbqVwlQpNrIm6Rd/WHtpedSWupIY2Nm5Aa
-         WDXV652V8sMCer9C4cm63B6r2GlPZAoSTlw/RDOoNgcOL1FlB2koHW1tmEoPhsWUVV
-         /RRLqGXEzPupKtSQFKDqouKC/tJT+2EdqE0A/Y2g=
+        b=pOoe0VWNghxZVP30Uc83EZ2IdLETBqkBJAOiF0YJ4OOzZ4w7Wz8sARzUK16tooKPb
+         2tHBRZKSAc77tOCBAyej0g0nKKCBygpl4Wm6cBw5qXXiw6vFfifAh+oBRSxxs5CCNl
+         cMebm0zTsPt9bC3NPOPET+F75sX4/QxrcxlY7CGY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Petr Vorel <petr.vorel@gmail.com>,
-        Stephan Gerhold <stephan@gerhold.net>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0333/1126] arm64: dts: qcom: msm8916-j5: Fix typo
-Date:   Tue,  5 Apr 2022 09:18:00 +0200
-Message-Id: <20220405070417.391067229@linuxfoundation.org>
+Subject: [PATCH 5.17 0334/1126] arm64: dts: broadcom: bcm4908: use proper TWD binding
+Date:   Tue,  5 Apr 2022 09:18:01 +0200
+Message-Id: <20220405070417.420468619@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -55,34 +55,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petr Vorel <petr.vorel@gmail.com>
+From: Rafał Miłecki <rafal@milecki.pl>
 
-[ Upstream commit 1f87900493845c0a0d731496150e915649209f1c ]
+[ Upstream commit 33826e9c6ba76b265d4e26cb95493fa27ed78974 ]
 
-Fixes: bd943653b10d ("arm64: dts: qcom: Add device tree for Samsung J5 2015 (samsung-j5)")
+Block at <ff800400 0x4c> is a TWD that contains timers, watchdog and
+reset. Actual timers happen to be at block beginning but they only span
+across the first 0x28 registers. It means the old block description was
+incorrect (size 0x3c).
 
-Signed-off-by: Petr Vorel <petr.vorel@gmail.com>
-Reviewed-by: Stephan Gerhold <stephan@gerhold.net>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20211231213635.116324-1-petr.vorel@gmail.com
+Drop timers binding for now and use documented TWD binding. Timers
+should be properly documented and defined as TWD subnode.
+
+Fixes: 2961f69f151c ("arm64: dts: broadcom: add BCM4908 and Asus GT-AC5300 early DTS files")
+Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/msm8916-samsung-j5.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/broadcom/bcm4908/bcm4908.dtsi | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/msm8916-samsung-j5.dts b/arch/arm64/boot/dts/qcom/msm8916-samsung-j5.dts
-index 687bea438a57..6c408d61de75 100644
---- a/arch/arm64/boot/dts/qcom/msm8916-samsung-j5.dts
-+++ b/arch/arm64/boot/dts/qcom/msm8916-samsung-j5.dts
-@@ -41,7 +41,7 @@
+diff --git a/arch/arm64/boot/dts/broadcom/bcm4908/bcm4908.dtsi b/arch/arm64/boot/dts/broadcom/bcm4908/bcm4908.dtsi
+index 984c737fa627..6e738f2a3701 100644
+--- a/arch/arm64/boot/dts/broadcom/bcm4908/bcm4908.dtsi
++++ b/arch/arm64/boot/dts/broadcom/bcm4908/bcm4908.dtsi
+@@ -273,9 +273,9 @@
+ 		#size-cells = <1>;
+ 		ranges = <0x00 0x00 0xff800000 0x3000>;
+ 
+-		timer: timer@400 {
+-			compatible = "brcm,bcm6328-timer", "syscon";
+-			reg = <0x400 0x3c>;
++		twd: timer-mfd@400 {
++			compatible = "brcm,bcm4908-twd", "simple-mfd", "syscon";
++			reg = <0x400 0x4c>;
  		};
  
- 		home-key {
--			lable = "Home Key";
-+			label = "Home Key";
- 			gpios = <&msmgpio 109 GPIO_ACTIVE_LOW>;
- 			linux,code = <KEY_HOMEPAGE>;
- 		};
+ 		gpio0: gpio-controller@500 {
+@@ -330,7 +330,7 @@
+ 
+ 	reboot {
+ 		compatible = "syscon-reboot";
+-		regmap = <&timer>;
++		regmap = <&twd>;
+ 		offset = <0x34>;
+ 		mask = <1>;
+ 	};
 -- 
 2.34.1
 
