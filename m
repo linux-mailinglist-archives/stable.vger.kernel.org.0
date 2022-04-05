@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 52E8F4F34FF
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:42:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 297774F3286
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:58:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241184AbiDEKsd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:48:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41744 "EHLO
+        id S245153AbiDEKtH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:49:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53166 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244570AbiDEJl2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:41:28 -0400
+        with ESMTP id S244628AbiDEJlg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:41:36 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54D35BBE18;
-        Tue,  5 Apr 2022 02:27:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28291BBE2B;
+        Tue,  5 Apr 2022 02:27:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 06A49B81CAC;
+        by ams.source.kernel.org (Postfix) with ESMTPS id D21C3B81CAC;
+        Tue,  5 Apr 2022 09:27:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 194DFC385A0;
         Tue,  5 Apr 2022 09:27:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39EC3C385A8;
-        Tue,  5 Apr 2022 09:27:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150827;
-        bh=4indgIxOVeCiK3xftlvX5TxwsieTy/0NnuibO7kTWwg=;
+        s=korg; t=1649150830;
+        bh=EIqZGIC3MEY6zK++/3lavNvUv7djR+iZn/Z4aFTomR0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aHtWUZ0aDG550FkBn9kfYOruwh68tPX+8Q00WlZ0aQrasKLnA82hqT+h/8dhaGNRX
-         RYZBIh8MSFzxq2mQrsV98z+9ffHu9FdpNIVVim7Zzf2OGh4dvyNeh38fWm9yVLfQzQ
-         IJi/QxGuM2Yh+5KNo72+OGM0yZodClYcDoD4f8xk=
+        b=ZwOkzsDkdP6o6i6Ko/f+N3bhi/Ta9V6ujzLWXCKm4n0g/L/8EvaoMH07HptPCQ5Nl
+         vEInw+VepJ+mDaVOAMdnPjrFOKZVP3PuLYaNc3IZ9rirBqPyV4mP/4Du+j5DYybEeZ
+         K4+VhCK5wcBGSgOdw09XWGpPDIxG4FaIlmBn+6Ec=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Corentin Labbe <clabbe@baylibre.com>,
+        stable@vger.kernel.org, Corentin Labbe <clabbe.montjoie@gmail.com>,
         Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 195/913] crypto: sun8i-ss - really disable hash on A80
-Date:   Tue,  5 Apr 2022 09:20:57 +0200
-Message-Id: <20220405070345.703687177@linuxfoundation.org>
+Subject: [PATCH 5.15 196/913] crypto: authenc - Fix sleep in atomic context in decrypt_tail
+Date:   Tue,  5 Apr 2022 09:20:58 +0200
+Message-Id: <20220405070345.733437531@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -54,38 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corentin Labbe <clabbe@baylibre.com>
+From: Herbert Xu <herbert@gondor.apana.org.au>
 
-[ Upstream commit 881fc7fba6c3e7d77d608b9a50b01a89d5e0c61b ]
+[ Upstream commit 66eae850333d639fc278d6f915c6fc01499ea893 ]
 
-When adding hashes support to sun8i-ss, I have added them only on A83T.
-But I forgot that 0 is a valid algorithm ID, so hashes are enabled on A80 but
-with an incorrect ID.
-Anyway, even with correct IDs, hashes do not work on A80 and I cannot
-find why.
-So let's disable all of them on A80.
+The function crypto_authenc_decrypt_tail discards its flags
+argument and always relies on the flags from the original request
+when starting its sub-request.
 
-Fixes: d9b45418a917 ("crypto: sun8i-ss - support hash algorithms")
-Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
+This is clearly wrong as it may cause the SLEEPABLE flag to be
+set when it shouldn't.
+
+Fixes: 92d95ba91772 ("crypto: authenc - Convert to new AEAD interface")
+Reported-by: Corentin Labbe <clabbe.montjoie@gmail.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Tested-by: Corentin Labbe <clabbe.montjoie@gmail.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/allwinner/sun8i-ss/sun8i-ss-core.c | 2 ++
- 1 file changed, 2 insertions(+)
+ crypto/authenc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-core.c b/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-core.c
-index 80e89066dbd1..319fe3279a71 100644
---- a/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-core.c
-+++ b/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-core.c
-@@ -30,6 +30,8 @@
- static const struct ss_variant ss_a80_variant = {
- 	.alg_cipher = { SS_ALG_AES, SS_ALG_DES, SS_ALG_3DES,
- 	},
-+	.alg_hash = { SS_ID_NOTSUPP, SS_ID_NOTSUPP, SS_ID_NOTSUPP, SS_ID_NOTSUPP,
-+	},
- 	.op_mode = { SS_OP_ECB, SS_OP_CBC,
- 	},
- 	.ss_clks = {
+diff --git a/crypto/authenc.c b/crypto/authenc.c
+index 670bf1a01d00..17f674a7cdff 100644
+--- a/crypto/authenc.c
++++ b/crypto/authenc.c
+@@ -253,7 +253,7 @@ static int crypto_authenc_decrypt_tail(struct aead_request *req,
+ 		dst = scatterwalk_ffwd(areq_ctx->dst, req->dst, req->assoclen);
+ 
+ 	skcipher_request_set_tfm(skreq, ctx->enc);
+-	skcipher_request_set_callback(skreq, aead_request_flags(req),
++	skcipher_request_set_callback(skreq, flags,
+ 				      req->base.complete, req->base.data);
+ 	skcipher_request_set_crypt(skreq, src, dst,
+ 				   req->cryptlen - authsize, req->iv);
 -- 
 2.34.1
 
