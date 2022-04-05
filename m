@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E6564F24D7
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 09:39:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 422724F24D8
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 09:39:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231796AbiDEHli (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 03:41:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54404 "EHLO
+        id S231817AbiDEHlj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 03:41:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54500 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231733AbiDEHld (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:41:33 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 870164B43F;
-        Tue,  5 Apr 2022 00:39:35 -0700 (PDT)
+        with ESMTP id S231758AbiDEHle (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:41:34 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D58764B871;
+        Tue,  5 Apr 2022 00:39:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2BEDAB81B16;
-        Tue,  5 Apr 2022 07:39:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A1C1C340EE;
-        Tue,  5 Apr 2022 07:39:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 24EFC615CD;
+        Tue,  5 Apr 2022 07:39:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B97AC36AE9;
+        Tue,  5 Apr 2022 07:39:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649144373;
-        bh=B8Q+cSPIOi/M5XObkjw1M58uMGbxfVaxxo5QHsotE6w=;
+        s=korg; t=1649144375;
+        bh=/r3TLfXL+PhfwhI9AzBrwfuWC6FGOFGRuw5OYqQAU0s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lsmd6fewgbrgBllthUQAjmK+iCIHTIXj7+S5OXKPwo0l1fKkXqwf3fFKWsF4W5l4w
-         eNq+eDU0nQmAZk03NIzQWvvgT+6dmHf69DBZYo1mkksVEflt1KeKqRVkitLqLfOdMq
-         MQvWtYfxhWWaDls6TiSqsJziv3aLd7NMwgcapEl8=
+        b=w0XeXc4zxE0mcZ4BTyaHeBBwVYT7Nt06MRVjGykzxAEWsNxN283c6tc5G6AZNFXXu
+         zohWACO6lizod0IoScToUG6ZukIIkydWBwcEwOdKz3BTnxB4NZarWtrVhC6aQptE9E
+         WXdwd2osEKmelx7UWJ+1G/b8XjupJq7rVF8eWSiA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Manivannan Sadhasivam <mani@kernel.org>,
-        Yonglin Tan <yonglin.tan@outlook.com>,
+        Hemant Kumar <hemantk@codeaurora.org>,
+        Alex Elder <elder@linaro.org>,
+        Paul Davey <paul.davey@alliedtelesis.co.nz>,
         Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Subject: [PATCH 5.17 0022/1126] bus: mhi: pci_generic: Add mru_default for Quectel EM1xx series
-Date:   Tue,  5 Apr 2022 09:12:49 +0200
-Message-Id: <20220405070408.196497441@linuxfoundation.org>
+Subject: [PATCH 5.17 0023/1126] bus: mhi: Fix pm_state conversion to string
+Date:   Tue,  5 Apr 2022 09:12:50 +0200
+Message-Id: <20220405070408.228399226@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -54,35 +56,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yonglin Tan <yonglin.tan@outlook.com>
+From: Paul Davey <paul.davey@alliedtelesis.co.nz>
 
-commit 2413ffbf19a95cfcd7adf63135c5a9343a66d0a2 upstream.
+commit 64f93a9a27c1970fa8ee5ffc5a6ae2bda477ec5b upstream.
 
-For default mechanism, the driver uses default MRU 3500 if mru_default
-is not initialized. The Qualcomm configured the MRU size to 32768 in the
-WWAN device FW. So, we align the driver setting with Qualcomm FW setting.
+On big endian architectures the mhi debugfs files which report pm state
+give "Invalid State" for all states.  This is caused by using
+find_last_bit which takes an unsigned long* while the state is passed in
+as an enum mhi_pm_state which will be of int size.
 
-Link: https://lore.kernel.org/r/MEYP282MB2374EE345DADDB591AFDA6AFFD2E9@MEYP282MB2374.AUSP282.PROD.OUTLOOK.COM
-Fixes: ac4bf60bbaa0 ("bus: mhi: pci_generic: Introduce quectel EM1XXGR-L support")
+Fix by using __fls to pass the value of state instead of find_last_bit.
+
+Also the current API expects "mhi_pm_state" enumerator as the function
+argument but the function only works with bitmasks. So as Alex suggested,
+let's change the argument to u32 to avoid confusion.
+
+Fixes: a6e2e3522f29 ("bus: mhi: core: Add support for PM state transitions")
 Cc: stable@vger.kernel.org
+[mani: changed the function argument to u32]
 Reviewed-by: Manivannan Sadhasivam <mani@kernel.org>
-Signed-off-by: Yonglin Tan <yonglin.tan@outlook.com>
+Reviewed-by: Hemant Kumar <hemantk@codeaurora.org>
+Reviewed-by: Alex Elder <elder@linaro.org>
+Signed-off-by: Paul Davey <paul.davey@alliedtelesis.co.nz>
 Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Link: https://lore.kernel.org/r/20220301160308.107452-2-manivannan.sadhasivam@linaro.org
+Link: https://lore.kernel.org/r/20220301160308.107452-3-manivannan.sadhasivam@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/bus/mhi/pci_generic.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/bus/mhi/core/init.c     |   10 ++++++----
+ drivers/bus/mhi/core/internal.h |    2 +-
+ 2 files changed, 7 insertions(+), 5 deletions(-)
 
---- a/drivers/bus/mhi/pci_generic.c
-+++ b/drivers/bus/mhi/pci_generic.c
-@@ -327,6 +327,7 @@ static const struct mhi_pci_dev_info mhi
- 	.config = &modem_quectel_em1xx_config,
- 	.bar_num = MHI_PCI_DEFAULT_BAR_NUM,
- 	.dma_data_width = 32,
-+	.mru_default = 32768,
- 	.sideband_wake = true,
+--- a/drivers/bus/mhi/core/init.c
++++ b/drivers/bus/mhi/core/init.c
+@@ -77,12 +77,14 @@ static const char * const mhi_pm_state_s
+ 	[MHI_PM_STATE_LD_ERR_FATAL_DETECT] = "Linkdown or Error Fatal Detect",
  };
  
+-const char *to_mhi_pm_state_str(enum mhi_pm_state state)
++const char *to_mhi_pm_state_str(u32 state)
+ {
+-	unsigned long pm_state = state;
+-	int index = find_last_bit(&pm_state, 32);
++	int index;
+ 
+-	if (index >= ARRAY_SIZE(mhi_pm_state_str))
++	if (state)
++		index = __fls(state);
++
++	if (!state || index >= ARRAY_SIZE(mhi_pm_state_str))
+ 		return "Invalid State";
+ 
+ 	return mhi_pm_state_str[index];
+--- a/drivers/bus/mhi/core/internal.h
++++ b/drivers/bus/mhi/core/internal.h
+@@ -622,7 +622,7 @@ void mhi_free_bhie_table(struct mhi_cont
+ enum mhi_pm_state __must_check mhi_tryset_pm_state(
+ 					struct mhi_controller *mhi_cntrl,
+ 					enum mhi_pm_state state);
+-const char *to_mhi_pm_state_str(enum mhi_pm_state state);
++const char *to_mhi_pm_state_str(u32 state);
+ int mhi_queue_state_transition(struct mhi_controller *mhi_cntrl,
+ 			       enum dev_st_transition state);
+ void mhi_pm_st_worker(struct work_struct *work);
 
 
