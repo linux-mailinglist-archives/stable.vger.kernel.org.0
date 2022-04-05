@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 356E64F256B
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 09:47:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B9E64F258A
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 09:48:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232236AbiDEHtq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 03:49:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52818 "EHLO
+        id S232260AbiDEHuX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 03:50:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52920 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233646AbiDEHsV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:48:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5377DBB;
-        Tue,  5 Apr 2022 00:46:22 -0700 (PDT)
+        with ESMTP id S233660AbiDEHsY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:48:24 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A165EBB;
+        Tue,  5 Apr 2022 00:46:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0F286B81B92;
-        Tue,  5 Apr 2022 07:46:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67F5EC340EE;
-        Tue,  5 Apr 2022 07:46:19 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 12B7BCE1BE4;
+        Tue,  5 Apr 2022 07:46:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31233C340EE;
+        Tue,  5 Apr 2022 07:46:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649144779;
-        bh=68aLZg2k8y7k/NuHYgwWso1X6n6Cr9BCaz8zPh9HeQ0=;
+        s=korg; t=1649144782;
+        bh=yYKeKn+Ed/LkVtvm0fukD9Z7cSasuVdQaF41PeMuKEI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F+MEWaJa/15wA4NDxuurDtoqwZKNCid8kz4o7H+ld3pwZP2lyOJaq9TkLMcL7A1T3
-         YTASzPTFM8avI3Anr/T3s1OVtlDhewxuXjJB6eHgGmZcJ0JAUgDOhMv5Sl6JHzmyB3
-         ATDQ4rqJpe+wYIK/KadBH7ck9FWr+XiVdTXFXGFA=
+        b=pjaKrvcu/orh1Ot7PPoKDlr21xff985cHXM9mjRRGKcR72zkB/lHy3ONALixPEEF1
+         l9CETOOC45WQUev8KjZDp8VNkrfH2KmMDuBxGI058RL4EN6fHzyqdZonyA4hGc4dHl
+         bucon3xAFcW3LscmMjjXlB4KjVn3W0KPg/UQUk6Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?=D0=9C=D0=B8=D1=85=D0=B0=D0=B8=D0=BB?= 
-        <vrserver1@gmail.com>, Sean Young <sean@mess.org>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
         Mauro Carvalho Chehab <mchehab@kernel.org>
-Subject: [PATCH 5.17 0167/1126] media: gpio-ir-tx: fix transmit with long spaces on Orange Pi PC
-Date:   Tue,  5 Apr 2022 09:15:14 +0200
-Message-Id: <20220405070412.500747608@linuxfoundation.org>
+Subject: [PATCH 5.17 0168/1126] media: omap3isp: Use struct_group() for memcpy() region
+Date:   Tue,  5 Apr 2022 09:15:15 +0200
+Message-Id: <20220405070412.529965659@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -55,76 +57,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Young <sean@mess.org>
+From: Kees Cook <keescook@chromium.org>
 
-commit 5ad05ecad4326ddaa26a83ba2233a67be24c1aaa upstream.
+commit d4568fc8525897e683983806f813be1ae9eedaed upstream.
 
-Calling udelay for than 1000us does not always yield the correct
-results.
+In preparation for FORTIFY_SOURCE performing compile-time and run-time
+field bounds checking for memcpy(), memmove(), and memset(), avoid
+intentionally writing across neighboring fields. Wrap the target region
+in struct_group(). This additionally fixes a theoretical misalignment
+of the copy (since the size of "buf" changes between 64-bit and 32-bit,
+but this is likely never built for 64-bit).
 
+FWIW, I think this code is totally broken on 64-bit (which appears to
+not be a "real" build configuration): it would either always fail (with
+an uninitialized data->buf_size) or would cause corruption in userspace
+due to the copy_to_user() in the call path against an uninitialized
+data->buf value:
+
+omap3isp_stat_request_statistics_time32(...)
+    struct omap3isp_stat_data data64;
+    ...
+    omap3isp_stat_request_statistics(stat, &data64);
+
+int omap3isp_stat_request_statistics(struct ispstat *stat,
+                                     struct omap3isp_stat_data *data)
+    ...
+    buf = isp_stat_buf_get(stat, data);
+
+static struct ispstat_buffer *isp_stat_buf_get(struct ispstat *stat,
+                                               struct omap3isp_stat_data *data)
+...
+    if (buf->buf_size > data->buf_size) {
+            ...
+            return ERR_PTR(-EINVAL);
+    }
+    ...
+    rval = copy_to_user(data->buf,
+                        buf->virt_addr,
+                        buf->buf_size);
+
+Regardless, additionally initialize data64 to be zero-filled to avoid
+undefined behavior.
+
+Link: https://lore.kernel.org/lkml/20211215220505.GB21862@embeddedor
+
+Cc: Arnd Bergmann <arnd@arndb.de>
+Fixes: 378e3f81cb56 ("media: omap3isp: support 64-bit version of omap3isp_stat_data")
 Cc: stable@vger.kernel.org
-Reported-by: Михаил <vrserver1@gmail.com>
-Signed-off-by: Sean Young <sean@mess.org>
+Reviewed-by: Gustavo A. R. Silva <gustavoars@kernel.org>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/rc/gpio-ir-tx.c |   28 +++++++++++++++++++++-------
- 1 file changed, 21 insertions(+), 7 deletions(-)
+ drivers/media/platform/omap3isp/ispstat.c |    5 +++--
+ include/uapi/linux/omap3isp.h             |   21 +++++++++++++--------
+ 2 files changed, 16 insertions(+), 10 deletions(-)
 
---- a/drivers/media/rc/gpio-ir-tx.c
-+++ b/drivers/media/rc/gpio-ir-tx.c
-@@ -48,11 +48,29 @@ static int gpio_ir_tx_set_carrier(struct
+--- a/drivers/media/platform/omap3isp/ispstat.c
++++ b/drivers/media/platform/omap3isp/ispstat.c
+@@ -512,7 +512,7 @@ int omap3isp_stat_request_statistics(str
+ int omap3isp_stat_request_statistics_time32(struct ispstat *stat,
+ 					struct omap3isp_stat_data_time32 *data)
+ {
+-	struct omap3isp_stat_data data64;
++	struct omap3isp_stat_data data64 = { };
+ 	int ret;
+ 
+ 	ret = omap3isp_stat_request_statistics(stat, &data64);
+@@ -521,7 +521,8 @@ int omap3isp_stat_request_statistics_tim
+ 
+ 	data->ts.tv_sec = data64.ts.tv_sec;
+ 	data->ts.tv_usec = data64.ts.tv_usec;
+-	memcpy(&data->buf, &data64.buf, sizeof(*data) - sizeof(data->ts));
++	data->buf = (uintptr_t)data64.buf;
++	memcpy(&data->frame, &data64.frame, sizeof(data->frame));
+ 
  	return 0;
  }
+--- a/include/uapi/linux/omap3isp.h
++++ b/include/uapi/linux/omap3isp.h
+@@ -162,6 +162,7 @@ struct omap3isp_h3a_aewb_config {
+  * struct omap3isp_stat_data - Statistic data sent to or received from user
+  * @ts: Timestamp of returned framestats.
+  * @buf: Pointer to pass to user.
++ * @buf_size: Size of buffer.
+  * @frame_number: Frame number of requested stats.
+  * @cur_frame: Current frame number being processed.
+  * @config_counter: Number of the configuration associated with the data.
+@@ -176,10 +177,12 @@ struct omap3isp_stat_data {
+ 	struct timeval ts;
+ #endif
+ 	void __user *buf;
+-	__u32 buf_size;
+-	__u16 frame_number;
+-	__u16 cur_frame;
+-	__u16 config_counter;
++	__struct_group(/* no tag */, frame, /* no attrs */,
++		__u32 buf_size;
++		__u16 frame_number;
++		__u16 cur_frame;
++		__u16 config_counter;
++	);
+ };
  
-+static void delay_until(ktime_t until)
-+{
-+	/*
-+	 * delta should never exceed 0.5 seconds (IR_MAX_DURATION) and on
-+	 * m68k ndelay(s64) does not compile; so use s32 rather than s64.
-+	 */
-+	s32 delta;
-+
-+	while (true) {
-+		delta = ktime_us_delta(until, ktime_get());
-+		if (delta <= 0)
-+			return;
-+
-+		/* udelay more than 1ms may not work */
-+		delta = min(delta, 1000);
-+		udelay(delta);
-+	}
-+}
-+
- static void gpio_ir_tx_unmodulated(struct gpio_ir *gpio_ir, uint *txbuf,
- 				   uint count)
- {
- 	ktime_t edge;
--	s32 delta;
- 	int i;
+ #ifdef __KERNEL__
+@@ -189,10 +192,12 @@ struct omap3isp_stat_data_time32 {
+ 		__s32	tv_usec;
+ 	} ts;
+ 	__u32 buf;
+-	__u32 buf_size;
+-	__u16 frame_number;
+-	__u16 cur_frame;
+-	__u16 config_counter;
++	__struct_group(/* no tag */, frame, /* no attrs */,
++		__u32 buf_size;
++		__u16 frame_number;
++		__u16 cur_frame;
++		__u16 config_counter;
++	);
+ };
+ #endif
  
- 	local_irq_disable();
-@@ -63,9 +81,7 @@ static void gpio_ir_tx_unmodulated(struc
- 		gpiod_set_value(gpio_ir->gpio, !(i % 2));
- 
- 		edge = ktime_add_us(edge, txbuf[i]);
--		delta = ktime_us_delta(edge, ktime_get());
--		if (delta > 0)
--			udelay(delta);
-+		delay_until(edge);
- 	}
- 
- 	gpiod_set_value(gpio_ir->gpio, 0);
-@@ -97,9 +113,7 @@ static void gpio_ir_tx_modulated(struct
- 		if (i % 2) {
- 			// space
- 			edge = ktime_add_us(edge, txbuf[i]);
--			delta = ktime_us_delta(edge, ktime_get());
--			if (delta > 0)
--				udelay(delta);
-+			delay_until(edge);
- 		} else {
- 			// pulse
- 			ktime_t last = ktime_add_us(edge, txbuf[i]);
 
 
