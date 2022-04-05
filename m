@@ -2,119 +2,158 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B46324F3F4A
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 22:58:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F383A4F3E5B
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 22:43:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239866AbiDEOfr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 10:35:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36732 "EHLO
+        id S229868AbiDEOlt convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Tue, 5 Apr 2022 10:41:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56222 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1384976AbiDEOSh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 10:18:37 -0400
-Received: from mail-wm1-x32d.google.com (mail-wm1-x32d.google.com [IPv6:2a00:1450:4864:20::32d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 119DB90CF3;
-        Tue,  5 Apr 2022 06:05:50 -0700 (PDT)
-Received: by mail-wm1-x32d.google.com with SMTP id 123-20020a1c1981000000b0038b3616a71aso1604718wmz.4;
-        Tue, 05 Apr 2022 06:05:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=5OoGrDH7nK9oFjsVTIEbOFtr4JmfdoVI2IyJ2wjIRyw=;
-        b=bwrq0C1ajirhKSzPeBMF9M4xumTAECxTEkjAVIr9N/f/e13Ws70HiJje2vSD+LozFa
-         WUKJttLtri9u8/VPFQ2yn2Kkj0BQy1trEq672pajS5zZ/h1OQ6nKRlGo0D03FrtkyN4H
-         Y0bN8C0MwXLOOCzJf+mdEvBEreMuYHq2M+zd0TjqMEAcIwaUmgwUV6GfFt9qt+tzpHxQ
-         9gUZLRS0Fk5mCX7CEFWx7sVga6DYaeYUQxz4S4fcCrhGOy+RdDXIbu6N9B5MQQguGj1m
-         zKgbRV3tdh3m78Oo3Qi0QwtP8oq301EPtUHMoYxmcZ9W7sNBWZSEljuxnga2xR+tUrBU
-         2DAA==
+        with ESMTP id S1388412AbiDEOji (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 10:39:38 -0400
+Received: from mail-qt1-f169.google.com (mail-qt1-f169.google.com [209.85.160.169])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19D34122989;
+        Tue,  5 Apr 2022 06:16:21 -0700 (PDT)
+Received: by mail-qt1-f169.google.com with SMTP id 10so10862160qtz.11;
+        Tue, 05 Apr 2022 06:16:21 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=5OoGrDH7nK9oFjsVTIEbOFtr4JmfdoVI2IyJ2wjIRyw=;
-        b=zf+BPAt4X7IdBIOf+l3NHv+JKYGsFy3H6CEd3lVL2yl0c4JzIoAf3EE+aUkThidlEs
-         BFHkTZzGKNZY2H3J1Bbu22ZrNQBkmtFsOvcre35FcHEnkH3mbBLVWY/fx33gz4xfuJrs
-         zuHOKGZSxPlcUKIpocP5jO3IWO3U+QfjrryTOWHDCTwKvjpbUSAxCzSNvmlFtaXSpWts
-         TCZ7uDIGvzws5NFvV/reV0DV2zDzEEhHwiDG8wdD8kW2puM4Jm7/lSXmkLlJ+QC16qwr
-         MGJGZZ8aSjyXmt5v/eR4dXPIqV+zX/v3+yQNGvaA8eKBM3ex8mJ86jHt/Zc8MuFKUhhj
-         pJ/A==
-X-Gm-Message-State: AOAM533XS/NqRYmr1whMYbaAl7V7+R8Q+Nwmhz3E6eamnWHNDFJ40UPc
-        A9aWrseiFDM8sHrBHmMq83Y=
-X-Google-Smtp-Source: ABdhPJwlDd/JO2QncqV+Qg7YsvFj5rwcuVsPA18gfL0PHrdH/061R20sU1lTWEubutb8Zv6bVjYCWg==
-X-Received: by 2002:a05:600c:4e92:b0:38c:73e8:7dcd with SMTP id f18-20020a05600c4e9200b0038c73e87dcdmr3141891wmq.196.1649163948642;
-        Tue, 05 Apr 2022 06:05:48 -0700 (PDT)
-Received: from debian (host-78-145-97-89.as13285.net. [78.145.97.89])
-        by smtp.gmail.com with ESMTPSA id b8-20020a05600c4e0800b0038c6c37efc3sm2099463wmq.12.2022.04.05.06.05.47
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 05 Apr 2022 06:05:48 -0700 (PDT)
-Date:   Tue, 5 Apr 2022 14:05:46 +0100
-From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-To:     Thomas Zimmermann <tzimmermann@suse.de>
-Cc:     daniel@ffwll.ch, deller@gmx.de, sam@ravnborg.org,
-        javierm@redhat.com, zackr@vmware.com, hdegoede@redhat.com,
-        linux-fbdev@vger.kernel.org, Matthew Wilcox <willy@infradead.org>,
-        Xiyu Yang <xiyuyang19@fudan.edu.cn>,
-        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Zheyu Ma <zheyuma97@gmail.com>, stable@vger.kernel.org,
-        dri-devel@lists.freedesktop.org,
-        Zhen Lei <thunder.leizhen@huawei.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: Re: fbdev: Fix unregistering of framebuffers without device
-Message-ID: <Ykw+qlW+bjWcy4BR@debian>
-References: <20220404194402.29974-1-tzimmermann@suse.de>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=f8BEQiIeTdZ8MUyIQgmfaD47+sl12jVUvr2inorvkYY=;
+        b=CO1zsIydre5IRFvbHul/n+haDWvCdFh+lQnpypN4rPSGKzqeM3Y3praSkStx+3sboz
+         NsHTAGMckfUCDeUofd27QhbOHd+i4iVq4Onit94xjOUXMq0ivEq0ywoasJQBqKeex1cS
+         vps8bz2pNPTZzoHKCqAlNzjU3QB7xx8T6IgmqaYN4+IiIWmQupgjdP9cxOizVTsmibFG
+         rhN9zQA6tu6SKVKryjyb5jzyd5iWGyGLKS1thCHJmxsBjLx4slGiQ66G28CrsC10SHAB
+         9omAm4umSVUr3sG5jGk/fbkyfyhAf8tRIBmKlqWpJqhpOU5BTGssRbtGSyy5p9ushgS7
+         9LPQ==
+X-Gm-Message-State: AOAM530IuYlX5Kqh4Uc7/l/kvZwoexyxe1e1UILcluDu5j3RyLk1RTWg
+        cCL5od0akOCgjHB4i/W4ry27zbJ5zTqXOQ==
+X-Google-Smtp-Source: ABdhPJzbpt6KwS0oVo7YyWK5hM6fEkqyKsKkrKg6DxzjQJS2xNze2wodNokqsSKIKJxG9/rtyx56xQ==
+X-Received: by 2002:a05:620a:450f:b0:67d:b1ee:bd3 with SMTP id t15-20020a05620a450f00b0067db1ee0bd3mr2117460qkp.766.1649164579659;
+        Tue, 05 Apr 2022 06:16:19 -0700 (PDT)
+Received: from mail-yw1-f169.google.com (mail-yw1-f169.google.com. [209.85.128.169])
+        by smtp.gmail.com with ESMTPSA id y24-20020a37e318000000b0067d43d76184sm7804021qki.97.2022.04.05.06.16.18
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 05 Apr 2022 06:16:19 -0700 (PDT)
+Received: by mail-yw1-f169.google.com with SMTP id 00721157ae682-2eb57fd3f56so71376607b3.8;
+        Tue, 05 Apr 2022 06:16:18 -0700 (PDT)
+X-Received: by 2002:a81:3d81:0:b0:2eb:8069:5132 with SMTP id
+ k123-20020a813d81000000b002eb80695132mr2587791ywa.438.1649164578752; Tue, 05
+ Apr 2022 06:16:18 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220404194402.29974-1-tzimmermann@suse.de>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+References: <20220405070354.155796697@linuxfoundation.org> <20220405070359.334460978@linuxfoundation.org>
+In-Reply-To: <20220405070359.334460978@linuxfoundation.org>
+From:   Geert Uytterhoeven <geert@linux-m68k.org>
+Date:   Tue, 5 Apr 2022 15:16:07 +0200
+X-Gmail-Original-Message-ID: <CAMuHMdUovU-zaPPCV0tbOMEy3GsH6heSe+21koW3Ti3S+4qD5g@mail.gmail.com>
+Message-ID: <CAMuHMdUovU-zaPPCV0tbOMEy3GsH6heSe+21koW3Ti3S+4qD5g@mail.gmail.com>
+Subject: Re: [PATCH 5.16 0172/1017] media: gpio-ir-tx: fix transmit with long
+ spaces on Orange Pi PC
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        =?UTF-8?B?0JzQuNGF0LDQuNC7?= <vrserver1@gmail.com>,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
+X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Apr 04, 2022 at 09:44:02PM +0200, Thomas Zimmermann wrote:
-> OF framebuffers do not have an underlying device in the Linux
-> device hierarchy. Do a regular unregister call instead of hot
-> unplugging such a non-existing device. Fixes a NULL dereference.
-> An example error message on ppc64le is shown below.
-> 
-
-<snip>
-
-> 
-> Tested with 5.17 on qemu ppc64le emulation.
-> 
-> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-> Fixes: 27599aacbaef ("fbdev: Hot-unplug firmware fb devices on forced removal")
-> Reported-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-> Cc: Zack Rusin <zackr@vmware.com>
-> Cc: Javier Martinez Canillas <javierm@redhat.com>
-> Cc: Hans de Goede <hdegoede@redhat.com>
-> Cc: stable@vger.kernel.org # v5.11+
-> Cc: Helge Deller <deller@gmx.de>
-> Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-> Cc: Sam Ravnborg <sam@ravnborg.org>
-> Cc: Zheyu Ma <zheyuma97@gmail.com>
-> Cc: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-> Cc: Zhen Lei <thunder.leizhen@huawei.com>
-> Cc: Matthew Wilcox <willy@infradead.org>
-> Cc: Alex Deucher <alexander.deucher@amd.com>
-> Cc: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-> Cc: Guenter Roeck <linux@roeck-us.net>
-> Cc: linux-fbdev@vger.kernel.org
-> Cc: dri-devel@lists.freedesktop.org
-> Link: https://lore.kernel.org/all/YkHXO6LGHAN0p1pq@debian/ # [1]
-> Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+On Tue, Apr 5, 2022 at 1:33 PM Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+> From: Sean Young <sean@mess.org>
+>
+> commit 5ad05ecad4326ddaa26a83ba2233a67be24c1aaa upstream.
+>
+> Calling udelay for than 1000us does not always yield the correct
+> results.
+>
+> Cc: stable@vger.kernel.org
+> Reported-by: Михаил <vrserver1@gmail.com>
+> Signed-off-by: Sean Young <sean@mess.org>
+> Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 > ---
+>  drivers/media/rc/gpio-ir-tx.c |   28 +++++++++++++++++++++-------
+>  1 file changed, 21 insertions(+), 7 deletions(-)
+>
+> --- a/drivers/media/rc/gpio-ir-tx.c
+> +++ b/drivers/media/rc/gpio-ir-tx.c
+> @@ -48,11 +48,29 @@ static int gpio_ir_tx_set_carrier(struct
+>         return 0;
+>  }
+>
+> +static void delay_until(ktime_t until)
+> +{
+> +       /*
+> +        * delta should never exceed 0.5 seconds (IR_MAX_DURATION) and on
+> +        * m68k ndelay(s64) does not compile; so use s32 rather than s64.
+> +        */
+> +       s32 delta;
+> +
+> +       while (true) {
+> +               delta = ktime_us_delta(until, ktime_get());
+> +               if (delta <= 0)
+> +                       return;
+> +
+> +               /* udelay more than 1ms may not work */
+> +               delta = min(delta, 1000);
+> +               udelay(delta);
+> +       }
 
-Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
+Yeah, that's why we have mdelay(), which loops around udelay() if no
+arch-specific implementation is provided.
+
+> +}
+> +
+>  static void gpio_ir_tx_unmodulated(struct gpio_ir *gpio_ir, uint *txbuf,
+>                                    uint count)
+>  {
+>         ktime_t edge;
+> -       s32 delta;
+>         int i;
+>
+>         local_irq_disable();
+> @@ -63,9 +81,7 @@ static void gpio_ir_tx_unmodulated(struc
+>                 gpiod_set_value(gpio_ir->gpio, !(i % 2));
+>
+>                 edge = ktime_add_us(edge, txbuf[i]);
+> -               delta = ktime_us_delta(edge, ktime_get());
+> -               if (delta > 0)
+> -                       udelay(delta);
+> +               delay_until(edge);
+>         }
+>
+>         gpiod_set_value(gpio_ir->gpio, 0);
+> @@ -97,9 +113,7 @@ static void gpio_ir_tx_modulated(struct
+>                 if (i % 2) {
+>                         // space
+>                         edge = ktime_add_us(edge, txbuf[i]);
+> -                       delta = ktime_us_delta(edge, ktime_get());
+> -                       if (delta > 0)
+> -                               udelay(delta);
+> +                       delay_until(edge);
+>                 } else {
+>                         // pulse
+>                         ktime_t last = ktime_add_us(edge, txbuf[i]);
+
+Gr{oetje,eeting}s,
+
+                        Geert
 
 --
-Regards
-Sudip
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
