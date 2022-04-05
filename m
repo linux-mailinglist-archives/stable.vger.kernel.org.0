@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EA8E4F2EF9
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:05:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF7554F33D0
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:23:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235655AbiDEI1E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:27:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33834 "EHLO
+        id S1350194AbiDEJ4P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:56:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239421AbiDEIUE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:20:04 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFEDC8E1AF;
-        Tue,  5 Apr 2022 01:12:55 -0700 (PDT)
+        with ESMTP id S243024AbiDEJIg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:08:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC76C9136E;
+        Tue,  5 Apr 2022 01:57:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4A86860B0B;
-        Tue,  5 Apr 2022 08:12:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D3ADC385A0;
-        Tue,  5 Apr 2022 08:12:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 93D3EB81C6E;
+        Tue,  5 Apr 2022 08:57:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C219C385AF;
+        Tue,  5 Apr 2022 08:57:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146374;
-        bh=Uei5z8hVMTTP/ef+TzfjM7pNOY5Pj1gxvZnvJmGs/1Y=;
+        s=korg; t=1649149051;
+        bh=buYb17ZBaPoIae4E0yY0uhFDTDhV3hELVV3kLUdptVU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q4mc1mCh9xWOtv523XqvA1KkDf8qBHjcmiLhhTDhck7Us/Wty9kNcBmems3+0EO/3
-         GbmuFVpvGKRt8WXvgbK+cL0BvI0s60VuwaKfzS10hLbaYNzk82XuhflCjpomevHlsv
-         vqTEwMUWwuGPmz1wAeuANCvrw8leGopIqxHYqagQ=
+        b=1S17TENZQwrPuhvek+SWWjQ3pJIe0GmP8HRjM/kpiseh3ZRvy9EvzgQN3iln6VNBp
+         6yEwv5HDoaadg2TOqTMOO0HRqrPQZis2ySnmXWuqoQZCB43DKBMKEelAYJ/0kip2Up
+         o1mgG4vYVs7jkB+QW4B2c6BUbA0t8tfC79bzPA+s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        Martin Kaiser <martin@kaiser.cx>,
+        stable@vger.kernel.org, Rob Clark <robdclark@chromium.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0741/1126] staging: r8188eu: fix endless loop in recv_func
-Date:   Tue,  5 Apr 2022 09:24:48 +0200
-Message-Id: <20220405070429.336813771@linuxfoundation.org>
+Subject: [PATCH 5.16 0576/1017] drm/msm/a6xx: Fix missing ARRAY_SIZE() check
+Date:   Tue,  5 Apr 2022 09:24:49 +0200
+Message-Id: <20220405070411.377743319@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Kaiser <martin@kaiser.cx>
+From: Rob Clark <robdclark@chromium.org>
 
-[ Upstream commit 1327fcf175fa63d3b7a058b8148ed7714acdc035 ]
+[ Upstream commit cca96584b35765bf9eb5f38ca55a144ea2ba0de4 ]
 
-Fix an endless loop in recv_func. If pending_frame is not NULL, we're
-stuck in the while loop forever. We have to call rtw_alloc_recvframe
-each time we loop.
-
-Fixes: 15865124feed ("staging: r8188eu: introduce new core dir for RTL8188eu driver")
-Reported-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: Martin Kaiser <martin@kaiser.cx>
-Link: https://lore.kernel.org/r/20220226181457.1138035-4-martin@kaiser.cx
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: f6d62d091cfd ("drm/msm/a6xx: add support for Adreno 660 GPU")
+Signed-off-by: Rob Clark <robdclark@chromium.org>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Link: https://lore.kernel.org/r/20220305173405.914989-1-robdclark@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/r8188eu/core/rtw_recv.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/gpu/drm/msm/adreno/a6xx_gpu.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/staging/r8188eu/core/rtw_recv.c b/drivers/staging/r8188eu/core/rtw_recv.c
-index 51a13262a226..d120d61454a3 100644
---- a/drivers/staging/r8188eu/core/rtw_recv.c
-+++ b/drivers/staging/r8188eu/core/rtw_recv.c
-@@ -1853,8 +1853,7 @@ static int recv_func(struct adapter *padapter, struct recv_frame *rframe)
- 		struct recv_frame *pending_frame;
- 		int cnt = 0;
+diff --git a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
+index a305ff7e8c6f..f880a59a40fc 100644
+--- a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
++++ b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
+@@ -658,19 +658,23 @@ static void a6xx_set_cp_protect(struct msm_gpu *gpu)
+ {
+ 	struct adreno_gpu *adreno_gpu = to_adreno_gpu(gpu);
+ 	const u32 *regs = a6xx_protect;
+-	unsigned i, count = ARRAY_SIZE(a6xx_protect), count_max = 32;
+-
+-	BUILD_BUG_ON(ARRAY_SIZE(a6xx_protect) > 32);
+-	BUILD_BUG_ON(ARRAY_SIZE(a650_protect) > 48);
++	unsigned i, count, count_max;
  
--		pending_frame = rtw_alloc_recvframe(&padapter->recvpriv.uc_swdec_pending_queue);
--		while (pending_frame) {
-+		while ((pending_frame = rtw_alloc_recvframe(&padapter->recvpriv.uc_swdec_pending_queue))) {
- 			cnt++;
- 			recv_func_posthandle(padapter, pending_frame);
- 		}
+ 	if (adreno_is_a650(adreno_gpu)) {
+ 		regs = a650_protect;
+ 		count = ARRAY_SIZE(a650_protect);
+ 		count_max = 48;
++		BUILD_BUG_ON(ARRAY_SIZE(a650_protect) > 48);
+ 	} else if (adreno_is_a660_family(adreno_gpu)) {
+ 		regs = a660_protect;
+ 		count = ARRAY_SIZE(a660_protect);
+ 		count_max = 48;
++		BUILD_BUG_ON(ARRAY_SIZE(a660_protect) > 48);
++	} else {
++		regs = a6xx_protect;
++		count = ARRAY_SIZE(a6xx_protect);
++		count_max = 32;
++		BUILD_BUG_ON(ARRAY_SIZE(a6xx_protect) > 32);
+ 	}
+ 
+ 	/*
 -- 
 2.34.1
 
