@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C07C54F323C
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:54:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82B344F332A
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:14:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355477AbiDEKUC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:20:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60040 "EHLO
+        id S1353712AbiDEKJB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:09:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60052 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345278AbiDEJWY (ORCPT
+        with ESMTP id S1345285AbiDEJWY (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:22:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EC892AC76;
-        Tue,  5 Apr 2022 02:10:08 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C16C4131B;
+        Tue,  5 Apr 2022 02:10:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A45B4615E4;
-        Tue,  5 Apr 2022 09:10:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5BFAC385A0;
-        Tue,  5 Apr 2022 09:10:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7B27C614FC;
+        Tue,  5 Apr 2022 09:10:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82D0AC385A2;
+        Tue,  5 Apr 2022 09:10:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149807;
-        bh=kKgbNHwddUiwkQ0fNo9UvyNztXfEeCzHFDRq0uA6vRs=;
+        s=korg; t=1649149809;
+        bh=o7G5zI7MNaBY1ywbLUsSUnTGxhdeWJI4/+wNTDy21Fc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QtUMPd6GOI9aaYtZqx4V1H+YOusUHvCskNC8W+9mZNC4QQFiPenyf7xpn9y/7d9gy
-         wudekap3QsSh2BiHjzook/ncUUJKluKrI4j8YyJxVYQqI6m5rvgh3SSka+1x4Rv/Le
-         VlkkAK6o2lGiUPICKtmGnp/c1daKJUHe1asVLZNU=
+        b=l1Kc9RhStjWpmVq7BQF6TQmc/w6aTQe7WPz/4QUseW7qAjJQPg/doVApVYhhslo0A
+         HrLupx+1Q6TFGOEnPO1NdfF/NJTtd5gh6DzPE1EhDldSThuslXEbztMXFyCKg65DA3
+         QShF+7TMz32gcma+7N6E5YcM6Q5Vn79whO/NxJu8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, anthony tonitch <d.tonitch@gmail.com>,
+        stable@vger.kernel.org, Mauro Carvalho Chehab <mchehab@kernel.org>,
         Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
         Bard Liao <yung-chuan.liao@linux.intel.com>,
         =?UTF-8?q?P=C3=A9ter=20Ujfalusi?= <peter.ujfalusi@linux.intel.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0849/1017] ASoC: Intel: soc-acpi: add more ACPI HIDs for ES83x6 devices
-Date:   Tue,  5 Apr 2022 09:29:22 +0200
-Message-Id: <20220405070419.440021122@linuxfoundation.org>
+Subject: [PATCH 5.16 0850/1017] ASoC: Intel: Revert "ASoC: Intel: sof_es8336: add quirk for Huawei D15 2021"
+Date:   Tue,  5 Apr 2022 09:29:23 +0200
+Message-Id: <20220405070419.469138283@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -59,155 +59,43 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-[ Upstream commit 1cedb6eabf0f2dd8285d3bb0ce1abd2369529084 ]
+[ Upstream commit 1b5283483a782f6560999d8d5965b1874d104812 ]
 
-We only saw ESSX8336 so far, but now with reports of 'ESSX8326' we
-need to expand to a full list. Let's reuse the 'snd_soc_acpi_codecs'
-structure to store the information.
+This reverts commit ce6a70bfce21bb4edb7c0f29ecfb0522fa34ab71.
 
-Note that ES8326 will need a dedicated codec driver, but the plan is
-to use the same machine driver for all Everest Audio devices.
+The next patch will add run-time detection of the required SSP and
+this hard-coded quirk is not needed.
 
-Reported-by: anthony tonitch <d.tonitch@gmail.com>
+Acked-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
 Reviewed-by: Péter Ujfalusi <peter.ujfalusi@linux.intel.com>
-Link: https://lore.kernel.org/r/20220308192610.392950-9-pierre-louis.bossart@linux.intel.com
+Link: https://lore.kernel.org/r/20220308192610.392950-14-pierre-louis.bossart@linux.intel.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/common/soc-acpi-intel-bxt-match.c | 7 ++++++-
- sound/soc/intel/common/soc-acpi-intel-cml-match.c | 7 ++++++-
- sound/soc/intel/common/soc-acpi-intel-glk-match.c | 7 ++++++-
- sound/soc/intel/common/soc-acpi-intel-jsl-match.c | 7 ++++++-
- sound/soc/intel/common/soc-acpi-intel-tgl-match.c | 7 ++++++-
- 5 files changed, 30 insertions(+), 5 deletions(-)
+ sound/soc/intel/boards/sof_es8336.c | 8 --------
+ 1 file changed, 8 deletions(-)
 
-diff --git a/sound/soc/intel/common/soc-acpi-intel-bxt-match.c b/sound/soc/intel/common/soc-acpi-intel-bxt-match.c
-index 342d34052204..04a92e74d99b 100644
---- a/sound/soc/intel/common/soc-acpi-intel-bxt-match.c
-+++ b/sound/soc/intel/common/soc-acpi-intel-bxt-match.c
-@@ -41,6 +41,11 @@ static struct snd_soc_acpi_mach *apl_quirk(void *arg)
- 	return mach;
- }
- 
-+static const struct snd_soc_acpi_codecs essx_83x6 = {
-+	.num_codecs = 3,
-+	.codecs = { "ESSX8316", "ESSX8326", "ESSX8336"},
-+};
-+
- static const struct snd_soc_acpi_codecs bxt_codecs = {
- 	.num_codecs = 1,
- 	.codecs = {"MX98357A"}
-@@ -83,7 +88,7 @@ struct snd_soc_acpi_mach snd_soc_acpi_intel_bxt_machines[] = {
- 		.sof_tplg_filename = "sof-apl-tdf8532.tplg",
+diff --git a/sound/soc/intel/boards/sof_es8336.c b/sound/soc/intel/boards/sof_es8336.c
+index e6d599f0cd26..20d577eaab6d 100644
+--- a/sound/soc/intel/boards/sof_es8336.c
++++ b/sound/soc/intel/boards/sof_es8336.c
+@@ -247,14 +247,6 @@ static const struct dmi_system_id sof_es8336_quirk_table[] = {
+ 					SOF_ES8336_TGL_GPIO_QUIRK |
+ 					SOF_ES8336_ENABLE_DMIC)
  	},
- 	{
--		.id = "ESSX8336",
-+		.comp_ids = &essx_83x6,
- 		.drv_name = "sof-essx8336",
- 		.sof_fw_filename = "sof-apl.ri",
- 		.sof_tplg_filename = "sof-apl-es8336.tplg",
-diff --git a/sound/soc/intel/common/soc-acpi-intel-cml-match.c b/sound/soc/intel/common/soc-acpi-intel-cml-match.c
-index 4eebc79d4b48..14395833d89e 100644
---- a/sound/soc/intel/common/soc-acpi-intel-cml-match.c
-+++ b/sound/soc/intel/common/soc-acpi-intel-cml-match.c
-@@ -9,6 +9,11 @@
- #include <sound/soc-acpi.h>
- #include <sound/soc-acpi-intel-match.h>
+-	{
+-		.callback = sof_es8336_quirk_cb,
+-		.matches = {
+-			DMI_MATCH(DMI_SYS_VENDOR, "HUAWEI"),
+-			DMI_MATCH(DMI_BOARD_NAME, "BOHB-WAX9-PCB-B2"),
+-		},
+-		.driver_data = (void *)SOF_ES8336_SSP_CODEC(0)
+-	},
+ 	{}
+ };
  
-+static const struct snd_soc_acpi_codecs essx_83x6 = {
-+	.num_codecs = 3,
-+	.codecs = { "ESSX8316", "ESSX8326", "ESSX8336"},
-+};
-+
- static const struct snd_soc_acpi_codecs rt1011_spk_codecs = {
- 	.num_codecs = 1,
- 	.codecs = {"10EC1011"}
-@@ -82,7 +87,7 @@ struct snd_soc_acpi_mach snd_soc_acpi_intel_cml_machines[] = {
- 		.sof_tplg_filename = "sof-cml-da7219-max98390.tplg",
- 	},
- 	{
--		.id = "ESSX8336",
-+		.comp_ids = &essx_83x6,
- 		.drv_name = "sof-essx8336",
- 		.sof_fw_filename = "sof-cml.ri",
- 		.sof_tplg_filename = "sof-cml-es8336.tplg",
-diff --git a/sound/soc/intel/common/soc-acpi-intel-glk-match.c b/sound/soc/intel/common/soc-acpi-intel-glk-match.c
-index 8492b7e2a945..7aa6a870d5a5 100644
---- a/sound/soc/intel/common/soc-acpi-intel-glk-match.c
-+++ b/sound/soc/intel/common/soc-acpi-intel-glk-match.c
-@@ -9,6 +9,11 @@
- #include <sound/soc-acpi.h>
- #include <sound/soc-acpi-intel-match.h>
- 
-+static const struct snd_soc_acpi_codecs essx_83x6 = {
-+	.num_codecs = 3,
-+	.codecs = { "ESSX8316", "ESSX8326", "ESSX8336"},
-+};
-+
- static const struct snd_soc_acpi_codecs glk_codecs = {
- 	.num_codecs = 1,
- 	.codecs = {"MX98357A"}
-@@ -58,7 +63,7 @@ struct snd_soc_acpi_mach snd_soc_acpi_intel_glk_machines[] = {
- 		.sof_tplg_filename = "sof-glk-cs42l42.tplg",
- 	},
- 	{
--		.id = "ESSX8336",
-+		.comp_ids = &essx_83x6,
- 		.drv_name = "sof-essx8336",
- 		.sof_fw_filename = "sof-glk.ri",
- 		.sof_tplg_filename = "sof-glk-es8336.tplg",
-diff --git a/sound/soc/intel/common/soc-acpi-intel-jsl-match.c b/sound/soc/intel/common/soc-acpi-intel-jsl-match.c
-index 278ec196da7b..9d0d0e1437a4 100644
---- a/sound/soc/intel/common/soc-acpi-intel-jsl-match.c
-+++ b/sound/soc/intel/common/soc-acpi-intel-jsl-match.c
-@@ -9,6 +9,11 @@
- #include <sound/soc-acpi.h>
- #include <sound/soc-acpi-intel-match.h>
- 
-+static const struct snd_soc_acpi_codecs essx_83x6 = {
-+	.num_codecs = 3,
-+	.codecs = { "ESSX8316", "ESSX8326", "ESSX8336"},
-+};
-+
- static const struct snd_soc_acpi_codecs jsl_7219_98373_codecs = {
- 	.num_codecs = 1,
- 	.codecs = {"MX98373"}
-@@ -87,7 +92,7 @@ struct snd_soc_acpi_mach snd_soc_acpi_intel_jsl_machines[] = {
- 		.sof_tplg_filename = "sof-jsl-cs42l42-mx98360a.tplg",
- 	},
- 	{
--		.id = "ESSX8336",
-+		.comp_ids = &essx_83x6,
- 		.drv_name = "sof-essx8336",
- 		.sof_fw_filename = "sof-jsl.ri",
- 		.sof_tplg_filename = "sof-jsl-es8336.tplg",
-diff --git a/sound/soc/intel/common/soc-acpi-intel-tgl-match.c b/sound/soc/intel/common/soc-acpi-intel-tgl-match.c
-index da31bb3cca17..e2658bca6931 100644
---- a/sound/soc/intel/common/soc-acpi-intel-tgl-match.c
-+++ b/sound/soc/intel/common/soc-acpi-intel-tgl-match.c
-@@ -10,6 +10,11 @@
- #include <sound/soc-acpi-intel-match.h>
- #include "soc-acpi-intel-sdw-mockup-match.h"
- 
-+static const struct snd_soc_acpi_codecs essx_83x6 = {
-+	.num_codecs = 3,
-+	.codecs = { "ESSX8316", "ESSX8326", "ESSX8336"},
-+};
-+
- static const struct snd_soc_acpi_codecs tgl_codecs = {
- 	.num_codecs = 1,
- 	.codecs = {"MX98357A"}
-@@ -389,7 +394,7 @@ struct snd_soc_acpi_mach snd_soc_acpi_intel_tgl_machines[] = {
- 		.sof_tplg_filename = "sof-tgl-rt1011-rt5682.tplg",
- 	},
- 	{
--		.id = "ESSX8336",
-+		.comp_ids = &essx_83x6,
- 		.drv_name = "sof-essx8336",
- 		.sof_fw_filename = "sof-tgl.ri",
- 		.sof_tplg_filename = "sof-tgl-es8336.tplg",
 -- 
 2.34.1
 
