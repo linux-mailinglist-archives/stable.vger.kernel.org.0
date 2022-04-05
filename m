@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C82864F33D7
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:23:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B60FF4F3225
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:54:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354050AbiDEKLN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:11:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37372 "EHLO
+        id S245471AbiDEI4A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:56:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33636 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346605AbiDEJYa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:24:30 -0400
+        with ESMTP id S241189AbiDEIcy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:32:54 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D1F9B28;
-        Tue,  5 Apr 2022 02:13:48 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5633217073;
+        Tue,  5 Apr 2022 01:29:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 448EFB81C77;
-        Tue,  5 Apr 2022 09:13:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACC27C385A6;
-        Tue,  5 Apr 2022 09:13:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E95F1B81B18;
+        Tue,  5 Apr 2022 08:29:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40D64C385A5;
+        Tue,  5 Apr 2022 08:29:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150025;
-        bh=1P7dqhC2TaTndTPDyXwVbqmJovUDvfg+vmyr+QM2+nU=;
+        s=korg; t=1649147351;
+        bh=b9u20PZhQs/jTWosZgSYdjk7kUpAxmrC0Cj9hgZHClU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PyE5dJAxszd9e6Fk7uDWyJqe3op38l8lFh3icx2Caw6sa405NQxtbEpdKZwGEwiCt
-         3TwIarIsSd/rNxx83t0hoc8oq/M1dQSjaoynyJhroFaJ+TX6a1kDO/gRf4Govi5KIq
-         rfkaFr2/Al0WMZg1QKZ+1Zv7H5I4T1gZcBUzdWqI=
+        b=qOTrOTY1G+5KrCk/M4sLqxl7T6C1YdOF9cW/Pl/5KBJb5nkBbqdW2In/Cf53xVLL1
+         JQJAhTPjQXxjiWyQT6KgPGmz7t5X7S4a7pUXcJQsvOFxPvkEzCv/Lan1L/bDQlGCa3
+         5raWlItIB7mujAjxEggklQDuzJM82xGXivv7lBMg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 5.16 0928/1017] rtc: check if __rtc_read_time was successful
+        stable@vger.kernel.org, Yong Wu <yong.wu@mediatek.com>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Subject: [PATCH 5.17 1094/1126] dt-bindings: memory: mtk-smi: Rename clock to clocks
 Date:   Tue,  5 Apr 2022 09:30:41 +0200
-Message-Id: <20220405070421.761859139@linuxfoundation.org>
+Message-Id: <20220405070439.556591526@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,54 +55,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Yong Wu <yong.wu@mediatek.com>
 
-commit 915593a7a663b2ad08b895a5f3ba8b19d89d4ebf upstream.
+commit 5bf7fa48374eafe29dbb30448a0b0c083853583f upstream.
 
-Clang static analysis reports this issue
-interface.c:810:8: warning: Passed-by-value struct
-  argument contains uninitialized data
-  now = rtc_tm_to_ktime(tm);
-      ^~~~~~~~~~~~~~~~~~~
+The property "clock" should be rename to "clocks", and delete the "items",
+the minItems/maxItems should not be put under "items".
 
-tm is set by a successful call to __rtc_read_time()
-but its return status is not checked.  Check if
-it was successful before setting the enabled flag.
-Move the decl of err to function scope.
-
-Fixes: 2b2f5ff00f63 ("rtc: interface: ignore expired timers when enqueuing new timers")
-Signed-off-by: Tom Rix <trix@redhat.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/20220326194236.2916310-1-trix@redhat.com
+Fixes: 27bb0e42855a ("dt-bindings: memory: mediatek: Convert SMI to DT schema")
+Signed-off-by: Yong Wu <yong.wu@mediatek.com>
+Acked-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Link: https://lore.kernel.org/r/20220113111057.29918-2-yong.wu@mediatek.com
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/rtc/interface.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ Documentation/devicetree/bindings/memory-controllers/mediatek,smi-common.yaml |   28 ++++------
+ Documentation/devicetree/bindings/memory-controllers/mediatek,smi-larb.yaml   |   14 ++---
+ 2 files changed, 18 insertions(+), 24 deletions(-)
 
---- a/drivers/rtc/interface.c
-+++ b/drivers/rtc/interface.c
-@@ -804,9 +804,13 @@ static int rtc_timer_enqueue(struct rtc_
- 	struct timerqueue_node *next = timerqueue_getnext(&rtc->timerqueue);
- 	struct rtc_time tm;
- 	ktime_t now;
-+	int err;
-+
-+	err = __rtc_read_time(rtc, &tm);
-+	if (err)
-+		return err;
+--- a/Documentation/devicetree/bindings/memory-controllers/mediatek,smi-common.yaml
++++ b/Documentation/devicetree/bindings/memory-controllers/mediatek,smi-common.yaml
+@@ -88,10 +88,9 @@ allOf:
+               - mediatek,mt2701-smi-common
+     then:
+       properties:
+-        clock:
+-          items:
+-            minItems: 3
+-            maxItems: 3
++        clocks:
++          minItems: 3
++          maxItems: 3
+         clock-names:
+           items:
+             - const: apb
+@@ -108,10 +107,9 @@ allOf:
+       required:
+         - mediatek,smi
+       properties:
+-        clock:
+-          items:
+-            minItems: 3
+-            maxItems: 3
++        clocks:
++          minItems: 3
++          maxItems: 3
+         clock-names:
+           items:
+             - const: apb
+@@ -133,10 +131,9 @@ allOf:
  
- 	timer->enabled = 1;
--	__rtc_read_time(rtc, &tm);
- 	now = rtc_tm_to_ktime(tm);
+     then:
+       properties:
+-        clock:
+-          items:
+-            minItems: 4
+-            maxItems: 4
++        clocks:
++          minItems: 4
++          maxItems: 4
+         clock-names:
+           items:
+             - const: apb
+@@ -146,10 +143,9 @@ allOf:
  
- 	/* Skip over expired timers */
-@@ -820,7 +824,6 @@ static int rtc_timer_enqueue(struct rtc_
- 	trace_rtc_timer_enqueue(timer);
- 	if (!next || ktime_before(timer->node.expires, next->expires)) {
- 		struct rtc_wkalrm alarm;
--		int err;
+     else:  # for gen2 HW that don't have gals
+       properties:
+-        clock:
+-          items:
+-            minItems: 2
+-            maxItems: 2
++        clocks:
++          minItems: 2
++          maxItems: 2
+         clock-names:
+           items:
+             - const: apb
+--- a/Documentation/devicetree/bindings/memory-controllers/mediatek,smi-larb.yaml
++++ b/Documentation/devicetree/bindings/memory-controllers/mediatek,smi-larb.yaml
+@@ -79,10 +79,9 @@ allOf:
  
- 		alarm.time = rtc_ktime_to_tm(timer->node.expires);
- 		alarm.enabled = 1;
+     then:
+       properties:
+-        clock:
+-          items:
+-            minItems: 3
+-            maxItems: 3
++        clocks:
++          minItems: 3
++          maxItems: 3
+         clock-names:
+           items:
+             - const: apb
+@@ -91,10 +90,9 @@ allOf:
+ 
+     else:
+       properties:
+-        clock:
+-          items:
+-            minItems: 2
+-            maxItems: 2
++        clocks:
++          minItems: 2
++          maxItems: 2
+         clock-names:
+           items:
+             - const: apb
 
 
