@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 130894F4343
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:58:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E76D4F4091
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:18:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382829AbiDEMRA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:17:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44580 "EHLO
+        id S1382588AbiDEMQA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:16:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57288 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241825AbiDEKcm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:32:42 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15077DE905;
-        Tue,  5 Apr 2022 03:18:41 -0700 (PDT)
+        with ESMTP id S237533AbiDEKdk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:33:40 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75603DEBAD;
+        Tue,  5 Apr 2022 03:19:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C17A7B81C9B;
-        Tue,  5 Apr 2022 10:18:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1990CC385A0;
-        Tue,  5 Apr 2022 10:18:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BBB8B617CE;
+        Tue,  5 Apr 2022 10:19:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4BF0C385A0;
+        Tue,  5 Apr 2022 10:19:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153918;
-        bh=sjwe6HTk+VrskoTOBUJ0owPBc/lWtZnBAMxd+IY/hNY=;
+        s=korg; t=1649153949;
+        bh=lCSdk4p+UKFX1K5vODvPBm8UQRNJlya47e8kZdEbe0w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pd1K2PC9d9lQv119CSeIEQGQX6xUfiv4WLNMiYvVsRt5FA4TpllsD17aJg+gXVJPC
-         njui2zKmKfYJKpJxTdT2bWbo+CIgiClXJ02URShWt9WMWkmvsEuivJXhMJ//2q6v7F
-         RzreOoIFEtTnRlMOa4C9zzVBkqr/PFjzQA5fqrAQ=
+        b=vtxrCCm8ckFevYnCzlxz5LQ5p/cTk3c8qsPDXaW4r1uUP4bmvf3wW2HUKTKkNTItx
+         scXwrzH+WXVwDuU1vpiUtVFQWap36bHuETYMngjffARxtl+oqFcWPO/tojQjqnTBys
+         Vut9+Wq+mHfnle7VsXtryx0wRb9k74FPa1Yp9obw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
-        David Ahern <dsahern@kernel.org>,
+        stable@vger.kernel.org, Petr Machata <petrm@nvidia.com>,
+        Ido Schimmel <idosch@nvidia.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 367/599] ipv4: Fix route lookups when handling ICMP redirects and PMTU updates
-Date:   Tue,  5 Apr 2022 09:31:01 +0200
-Message-Id: <20220405070309.752208890@linuxfoundation.org>
+Subject: [PATCH 5.10 368/599] af_netlink: Fix shift out of bounds in group mask calculation
+Date:   Tue,  5 Apr 2022 09:31:02 +0200
+Message-Id: <20220405070309.781411076@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -55,113 +55,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guillaume Nault <gnault@redhat.com>
+From: Petr Machata <petrm@nvidia.com>
 
-[ Upstream commit 544b4dd568e3b09c1ab38a759d3187e7abda11a0 ]
+[ Upstream commit 0caf6d9922192dd1afa8dc2131abfb4df1443b9f ]
 
-The PMTU update and ICMP redirect helper functions initialise their fl4
-variable with either __build_flow_key() or build_sk_flow_key(). These
-initialisation functions always set ->flowi4_scope with
-RT_SCOPE_UNIVERSE and might set the ECN bits of ->flowi4_tos. This is
-not a problem when the route lookup is later done via
-ip_route_output_key_hash(), which properly clears the ECN bits from
-->flowi4_tos and initialises ->flowi4_scope based on the RTO_ONLINK
-flag. However, some helpers call fib_lookup() directly, without
-sanitising the tos and scope fields, so the route lookup can fail and,
-as a result, the ICMP redirect or PMTU update aren't taken into
-account.
+When a netlink message is received, netlink_recvmsg() fills in the address
+of the sender. One of the fields is the 32-bit bitfield nl_groups, which
+carries the multicast group on which the message was received. The least
+significant bit corresponds to group 1, and therefore the highest group
+that the field can represent is 32. Above that, the UB sanitizer flags the
+out-of-bounds shift attempts.
 
-Fix this by extracting the ->flowi4_tos and ->flowi4_scope sanitisation
-code into ip_rt_fix_tos(), then use this function in handlers that call
-fib_lookup() directly.
+Which bits end up being set in such case is implementation defined, but
+it's either going to be a wrong non-zero value, or zero, which is at least
+not misleading. Make the latter choice deterministic by always setting to 0
+for higher-numbered multicast groups.
 
-Note 1: We can't sanitise ->flowi4_tos and ->flowi4_scope in a central
-place (like __build_flow_key() or flowi4_init_output()), because
-ip_route_output_key_hash() expects non-sanitised values. When called
-with sanitised values, it can erroneously overwrite RT_SCOPE_LINK with
-RT_SCOPE_UNIVERSE in ->flowi4_scope. Therefore we have to be careful to
-sanitise the values only for those paths that don't call
-ip_route_output_key_hash().
+To get information about membership in groups >= 32, userspace is expected
+to use nl_pktinfo control messages[0], which are enabled by NETLINK_PKTINFO
+socket option.
+[0] https://lwn.net/Articles/147608/
 
-Note 2: The problem is mostly about sanitising ->flowi4_tos. Having
-->flowi4_scope initialised with RT_SCOPE_UNIVERSE instead of
-RT_SCOPE_LINK probably wasn't really a problem: sockets with the
-SOCK_LOCALROUTE flag set (those that'd result in RTO_ONLINK being set)
-normally shouldn't receive ICMP redirects or PMTU updates.
+The way to trigger this issue is e.g. through monitoring the BRVLAN group:
 
-Fixes: 4895c771c7f0 ("ipv4: Add FIB nexthop exceptions.")
-Signed-off-by: Guillaume Nault <gnault@redhat.com>
-Reviewed-by: David Ahern <dsahern@kernel.org>
+	# bridge monitor vlan &
+	# ip link add name br type bridge
+
+Which produces the following citation:
+
+	UBSAN: shift-out-of-bounds in net/netlink/af_netlink.c:162:19
+	shift exponent 32 is too large for 32-bit type 'int'
+
+Fixes: f7fa9b10edbb ("[NETLINK]: Support dynamic number of multicast groups per netlink family")
+Signed-off-by: Petr Machata <petrm@nvidia.com>
+Reviewed-by: Ido Schimmel <idosch@nvidia.com>
+Link: https://lore.kernel.org/r/2bef6aabf201d1fc16cca139a744700cff9dcb04.1647527635.git.petrm@nvidia.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/route.c | 18 ++++++++++++++----
- 1 file changed, 14 insertions(+), 4 deletions(-)
+ net/netlink/af_netlink.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/net/ipv4/route.c b/net/ipv4/route.c
-index ce787c386793..c72d0de8bf71 100644
---- a/net/ipv4/route.c
-+++ b/net/ipv4/route.c
-@@ -529,6 +529,15 @@ void __ip_select_ident(struct net *net, struct iphdr *iph, int segs)
- }
- EXPORT_SYMBOL(__ip_select_ident);
+diff --git a/net/netlink/af_netlink.c b/net/netlink/af_netlink.c
+index e55af5c078ac..f37916156ca5 100644
+--- a/net/netlink/af_netlink.c
++++ b/net/netlink/af_netlink.c
+@@ -149,6 +149,8 @@ static const struct rhashtable_params netlink_rhashtable_params;
  
-+static void ip_rt_fix_tos(struct flowi4 *fl4)
-+{
-+	__u8 tos = RT_FL_TOS(fl4);
-+
-+	fl4->flowi4_tos = tos & IPTOS_RT_MASK;
-+	fl4->flowi4_scope = tos & RTO_ONLINK ?
-+			    RT_SCOPE_LINK : RT_SCOPE_UNIVERSE;
-+}
-+
- static void __build_flow_key(const struct net *net, struct flowi4 *fl4,
- 			     const struct sock *sk,
- 			     const struct iphdr *iph,
-@@ -853,6 +862,7 @@ static void ip_do_redirect(struct dst_entry *dst, struct sock *sk, struct sk_buf
- 	rt = (struct rtable *) dst;
- 
- 	__build_flow_key(net, &fl4, sk, iph, oif, tos, prot, mark, 0);
-+	ip_rt_fix_tos(&fl4);
- 	__ip_do_redirect(rt, skb, &fl4, true);
- }
- 
-@@ -1077,6 +1087,7 @@ static void ip_rt_update_pmtu(struct dst_entry *dst, struct sock *sk,
- 	struct flowi4 fl4;
- 
- 	ip_rt_build_flow_key(&fl4, sk, skb);
-+	ip_rt_fix_tos(&fl4);
- 
- 	/* Don't make lookup fail for bridged encapsulations */
- 	if (skb && netif_is_any_bridge_port(skb->dev))
-@@ -1151,6 +1162,8 @@ void ipv4_sk_update_pmtu(struct sk_buff *skb, struct sock *sk, u32 mtu)
- 			goto out;
- 
- 		new = true;
-+	} else {
-+		ip_rt_fix_tos(&fl4);
- 	}
- 
- 	__ip_rt_update_pmtu((struct rtable *)xfrm_dst_path(&rt->dst), &fl4, mtu);
-@@ -2524,7 +2537,6 @@ static struct rtable *__mkroute_output(const struct fib_result *res,
- struct rtable *ip_route_output_key_hash(struct net *net, struct flowi4 *fl4,
- 					const struct sk_buff *skb)
+ static inline u32 netlink_group_mask(u32 group)
  {
--	__u8 tos = RT_FL_TOS(fl4);
- 	struct fib_result res = {
- 		.type		= RTN_UNSPEC,
- 		.fi		= NULL,
-@@ -2534,9 +2546,7 @@ struct rtable *ip_route_output_key_hash(struct net *net, struct flowi4 *fl4,
- 	struct rtable *rth;
++	if (group > 32)
++		return 0;
+ 	return group ? 1 << (group - 1) : 0;
+ }
  
- 	fl4->flowi4_iif = LOOPBACK_IFINDEX;
--	fl4->flowi4_tos = tos & IPTOS_RT_MASK;
--	fl4->flowi4_scope = ((tos & RTO_ONLINK) ?
--			 RT_SCOPE_LINK : RT_SCOPE_UNIVERSE);
-+	ip_rt_fix_tos(fl4);
- 
- 	rcu_read_lock();
- 	rth = ip_route_output_key_hash_rcu(net, fl4, &res, skb);
 -- 
 2.34.1
 
