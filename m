@@ -2,214 +2,222 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CC4CA4F3D98
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 22:35:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EA774F4644
+	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 01:11:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231913AbiDEOpY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 10:45:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36092 "EHLO
+        id S1383128AbiDEMY4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:24:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58046 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355029AbiDEOmM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 10:42:12 -0400
-Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A942911150
-        for <stable@vger.kernel.org>; Tue,  5 Apr 2022 06:19:03 -0700 (PDT)
-Received: by mail-pj1-x1031.google.com with SMTP id o5-20020a17090ad20500b001ca8a1dc47aso2512505pju.1
-        for <stable@vger.kernel.org>; Tue, 05 Apr 2022 06:19:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=Qw8CFqhAXIWVIh4SmlHGI51XmrKMNsXD3MWZLHAiG+M=;
-        b=yXQ6P2Wl4ldhw2wuCF7EP2Sp6RX/w3IUVeWic0Nr/vAsDWKy1pu5Rz1sEDdVrZ3OHf
-         3koQZFwwU75lAFpyavmXbMqGRgMeaZ1JO4x/7wJMRbmoiaiUr7FL41xt9AAua2CNjH5M
-         LcHHFuKCzPq9niC/ixqtxKog49tPoRfMBRaeT0zDDoAZR1915rK6KhdG3I28n2xlvMPd
-         xwA3LMdyGGl1mrkLptMnrYejHAi1nJj+JT/ryH7gqpXQbm0XymNFg1XrktVbY3ILiT/m
-         HqIVcz1mCr+XAeMgZ2d4GNp6X9UZo87uxCMF2/4kW+8hXjXLI6o+nsRUa9a95NU2Ukup
-         AC6g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=Qw8CFqhAXIWVIh4SmlHGI51XmrKMNsXD3MWZLHAiG+M=;
-        b=FC/iF7zopuhVGaxRRkcerrXDsZY5HYjxcyg9yY6fP/seAQgMbYmp3QK1abz853NOBT
-         U6/5zuXWBIU6nnTkxI7sjfKAwtJnRusHMllYO+iZ+g9iv8X42RPZG+57PVrmXvOrXHY8
-         UzBTnLDm9Loz/xRQ2bU7aI77Yx1MzMk+tKQqqxXEL1xOCzyy6jTxhFyTAOka6cl0i5tV
-         kIPRMH/snNJONjfKFD5MXaumUjqU0YNQL62KhvQ+tr9v17tYDY9JjZOuHdlIoN/VtfBK
-         Xdt/jPDQrokaXTxORIigcFbWDG7t/8ewNk4CN3Pz+SDSiv+JRiFVijGyz58HpXgypb/F
-         hCTA==
-X-Gm-Message-State: AOAM531V6glfOWsJWQoB/+LqjpGtz04XmY2m9Gr7rv7du1Un80iS5TTL
-        KjDu0PxPfHfk/uPtG7IT/4BHFcRTA/gISjeu8cc=
-X-Google-Smtp-Source: ABdhPJyU+MzHxaSXNTXaTlfSykurkD/gM4PXhJASSVC2hs0yGdlFmkZjFPaCR0X1NDYUUVLg7zqS+g==
-X-Received: by 2002:a17:902:f702:b0:156:aaa8:7479 with SMTP id h2-20020a170902f70200b00156aaa87479mr3532450plo.161.1649164742756;
-        Tue, 05 Apr 2022 06:19:02 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id x18-20020a63b212000000b00398f0e07c91sm10636765pge.29.2022.04.05.06.19.02
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 05 Apr 2022 06:19:02 -0700 (PDT)
-Message-ID: <624c41c6.1c69fb81.70309.b151@mx.google.com>
-Date:   Tue, 05 Apr 2022 06:19:02 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S1355857AbiDEKWK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:22:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 411A7A5EAD;
+        Tue,  5 Apr 2022 03:05:13 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2F3C16167E;
+        Tue,  5 Apr 2022 10:05:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32416C385A1;
+        Tue,  5 Apr 2022 10:05:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1649153112;
+        bh=ZcVQpwvFrXJtLOsqi3jPXEcTtdIZsDWqBIA96z9gCqY=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=ePSBlrTNElE/oHLICPC9XdCdNoLK9p1Eqqasiy+Pdb+6KH9vb//bmeV1785Q7G6CM
+         NaMm5Es2xtQM9AC+OqSd/N0293aFVyOxtap0hULlSX+W6Xzc5FFLkepO3aVmTwT30n
+         y8HjL49zx4NR9xiBJ702r2cfl5+TLsOM6ACWBtfM=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Jann Horn <jannh@google.com>, Kees Cook <keescook@chromium.org>
+Subject: [PATCH 5.10 105/599] pstore: Dont use semaphores in always-atomic-context code
+Date:   Tue,  5 Apr 2022 09:26:39 +0200
+Message-Id: <20220405070301.958868258@linuxfoundation.org>
+X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070258.802373272@linuxfoundation.org>
+User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.4
-X-Kernelci-Kernel: v5.4.188-370-gacb94d0ea63d
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/5.4 baseline: 47 runs,
- 3 regressions (v5.4.188-370-gacb94d0ea63d)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.4 baseline: 47 runs, 3 regressions (v5.4.188-370-gacb94d0=
-ea63d)
+From: Jann Horn <jannh@google.com>
 
-Regressions Summary
--------------------
+commit 8126b1c73108bc691f5643df19071a59a69d0bc6 upstream.
 
-platform                 | arch  | lab           | compiler | defconfig    =
-              | regressions
--------------------------+-------+---------------+----------+--------------=
---------------+------------
-qemu_arm-virt-gicv2-uefi | arm   | lab-broonie   | gcc-10   | multi_v7_defc=
-onfig         | 1          =
+pstore_dump() is *always* invoked in atomic context (nowadays in an RCU
+read-side critical section, before that under a spinlock).
+It doesn't make sense to try to use semaphores here.
 
-qemu_arm-virt-gicv3-uefi | arm   | lab-broonie   | gcc-10   | multi_v7_defc=
-onfig         | 1          =
+This is mostly a revert of commit ea84b580b955 ("pstore: Convert buf_lock
+to semaphore"), except that two parts aren't restored back exactly as they
+were:
 
-rk3399-gru-kevin         | arm64 | lab-collabora | gcc-10   | defconfig+arm=
-64-chromebook | 1          =
+ - keep the lock initialization in pstore_register
+ - in efi_pstore_write(), always set the "block" flag to false
+ - omit "is_locked", that was unnecessary since
+   commit 959217c84c27 ("pstore: Actually give up during locking failure")
+ - fix the bailout message
+
+The actual problem that the buggy commit was trying to address may have
+been that the use of preemptible() in efi_pstore_write() was wrong - it
+only looks at preempt_count() and the state of IRQs, but __rcu_read_lock()
+doesn't touch either of those under CONFIG_PREEMPT_RCU.
+(Sidenote: CONFIG_PREEMPT_RCU means that the scheduler can preempt tasks in
+RCU read-side critical sections, but you're not allowed to actively
+block/reschedule.)
+
+Lockdep probably never caught the problem because it's very rare that you
+actually hit the contended case, so lockdep always just sees the
+down_trylock(), not the down_interruptible(), and so it can't tell that
+there's a problem.
+
+Fixes: ea84b580b955 ("pstore: Convert buf_lock to semaphore")
+Cc: stable@vger.kernel.org
+Acked-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Signed-off-by: Jann Horn <jannh@google.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20220314185953.2068993-1-jannh@google.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/firmware/efi/efi-pstore.c |    2 +-
+ fs/pstore/platform.c              |   38 ++++++++++++++++++--------------------
+ include/linux/pstore.h            |    6 +++---
+ 3 files changed, 22 insertions(+), 24 deletions(-)
+
+--- a/drivers/firmware/efi/efi-pstore.c
++++ b/drivers/firmware/efi/efi-pstore.c
+@@ -266,7 +266,7 @@ static int efi_pstore_write(struct pstor
+ 		efi_name[i] = name[i];
+ 
+ 	ret = efivar_entry_set_safe(efi_name, vendor, PSTORE_EFI_ATTRIBUTES,
+-			      preemptible(), record->size, record->psi->buf);
++			      false, record->size, record->psi->buf);
+ 
+ 	if (record->reason == KMSG_DUMP_OOPS && try_module_get(THIS_MODULE))
+ 		if (!schedule_work(&efivar_work))
+--- a/fs/pstore/platform.c
++++ b/fs/pstore/platform.c
+@@ -143,21 +143,22 @@ static void pstore_timer_kick(void)
+ 	mod_timer(&pstore_timer, jiffies + msecs_to_jiffies(pstore_update_ms));
+ }
+ 
+-/*
+- * Should pstore_dump() wait for a concurrent pstore_dump()? If
+- * not, the current pstore_dump() will report a failure to dump
+- * and return.
+- */
+-static bool pstore_cannot_wait(enum kmsg_dump_reason reason)
++static bool pstore_cannot_block_path(enum kmsg_dump_reason reason)
+ {
+-	/* In NMI path, pstore shouldn't block regardless of reason. */
++	/*
++	 * In case of NMI path, pstore shouldn't be blocked
++	 * regardless of reason.
++	 */
+ 	if (in_nmi())
+ 		return true;
+ 
+ 	switch (reason) {
+ 	/* In panic case, other cpus are stopped by smp_send_stop(). */
+ 	case KMSG_DUMP_PANIC:
+-	/* Emergency restart shouldn't be blocked. */
++	/*
++	 * Emergency restart shouldn't be blocked by spinning on
++	 * pstore_info::buf_lock.
++	 */
+ 	case KMSG_DUMP_EMERG:
+ 		return true;
+ 	default:
+@@ -388,21 +389,19 @@ static void pstore_dump(struct kmsg_dump
+ 	unsigned long	total = 0;
+ 	const char	*why;
+ 	unsigned int	part = 1;
++	unsigned long	flags = 0;
+ 	int		ret;
+ 
+ 	why = kmsg_dump_reason_str(reason);
+ 
+-	if (down_trylock(&psinfo->buf_lock)) {
+-		/* Failed to acquire lock: give up if we cannot wait. */
+-		if (pstore_cannot_wait(reason)) {
+-			pr_err("dump skipped in %s path: may corrupt error record\n",
+-				in_nmi() ? "NMI" : why);
+-			return;
+-		}
+-		if (down_interruptible(&psinfo->buf_lock)) {
+-			pr_err("could not grab semaphore?!\n");
++	if (pstore_cannot_block_path(reason)) {
++		if (!spin_trylock_irqsave(&psinfo->buf_lock, flags)) {
++			pr_err("dump skipped in %s path because of concurrent dump\n",
++					in_nmi() ? "NMI" : why);
+ 			return;
+ 		}
++	} else {
++		spin_lock_irqsave(&psinfo->buf_lock, flags);
+ 	}
+ 
+ 	oopscount++;
+@@ -464,8 +463,7 @@ static void pstore_dump(struct kmsg_dump
+ 		total += record.size;
+ 		part++;
+ 	}
+-
+-	up(&psinfo->buf_lock);
++	spin_unlock_irqrestore(&psinfo->buf_lock, flags);
+ }
+ 
+ static struct kmsg_dumper pstore_dumper = {
+@@ -591,7 +589,7 @@ int pstore_register(struct pstore_info *
+ 		psi->write_user = pstore_write_user_compat;
+ 	psinfo = psi;
+ 	mutex_init(&psinfo->read_mutex);
+-	sema_init(&psinfo->buf_lock, 1);
++	spin_lock_init(&psinfo->buf_lock);
+ 
+ 	if (psi->flags & PSTORE_FLAGS_DMESG)
+ 		allocate_buf_for_compression();
+--- a/include/linux/pstore.h
++++ b/include/linux/pstore.h
+@@ -14,7 +14,7 @@
+ #include <linux/errno.h>
+ #include <linux/kmsg_dump.h>
+ #include <linux/mutex.h>
+-#include <linux/semaphore.h>
++#include <linux/spinlock.h>
+ #include <linux/time.h>
+ #include <linux/types.h>
+ 
+@@ -87,7 +87,7 @@ struct pstore_record {
+  * @owner:	module which is responsible for this backend driver
+  * @name:	name of the backend driver
+  *
+- * @buf_lock:	semaphore to serialize access to @buf
++ * @buf_lock:	spinlock to serialize access to @buf
+  * @buf:	preallocated crash dump buffer
+  * @bufsize:	size of @buf available for crash dump bytes (must match
+  *		smallest number of bytes available for writing to a
+@@ -178,7 +178,7 @@ struct pstore_info {
+ 	struct module	*owner;
+ 	const char	*name;
+ 
+-	struct semaphore buf_lock;
++	spinlock_t	buf_lock;
+ 	char		*buf;
+ 	size_t		bufsize;
+ 
 
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
-el/v5.4.188-370-gacb94d0ea63d/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.4
-  Describe: v5.4.188-370-gacb94d0ea63d
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      acb94d0ea63d24093c25e3ee06374217ad85f92e =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform                 | arch  | lab           | compiler | defconfig    =
-              | regressions
--------------------------+-------+---------------+----------+--------------=
---------------+------------
-qemu_arm-virt-gicv2-uefi | arm   | lab-broonie   | gcc-10   | multi_v7_defc=
-onfig         | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/624c0af32a0ec45153ae069e
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.188-3=
-70-gacb94d0ea63d/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_ar=
-m-virt-gicv2-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.188-3=
-70-gacb94d0ea63d/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_ar=
-m-virt-gicv2-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220401.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/624c0af32a0ec45153ae0=
-69f
-        failing since 110 days (last pass: v5.4.165-9-g27d736c7bdee, first =
-fail: v5.4.165-18-ge938927511cb) =
-
- =
-
-
-
-platform                 | arch  | lab           | compiler | defconfig    =
-              | regressions
--------------------------+-------+---------------+----------+--------------=
---------------+------------
-qemu_arm-virt-gicv3-uefi | arm   | lab-broonie   | gcc-10   | multi_v7_defc=
-onfig         | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/624c0adbbd07bf0ea6ae067d
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.188-3=
-70-gacb94d0ea63d/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_ar=
-m-virt-gicv3-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.188-3=
-70-gacb94d0ea63d/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_ar=
-m-virt-gicv3-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220401.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/624c0adbbd07bf0ea6ae0=
-67e
-        failing since 110 days (last pass: v5.4.165-9-g27d736c7bdee, first =
-fail: v5.4.165-18-ge938927511cb) =
-
- =
-
-
-
-platform                 | arch  | lab           | compiler | defconfig    =
-              | regressions
--------------------------+-------+---------------+----------+--------------=
---------------+------------
-rk3399-gru-kevin         | arm64 | lab-collabora | gcc-10   | defconfig+arm=
-64-chromebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/624c12ec2ba39b3f10ae06de
-
-  Results:     88 PASS, 2 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.188-3=
-70-gacb94d0ea63d/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/base=
-line-rk3399-gru-kevin.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.188-3=
-70-gacb94d0ea63d/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/base=
-line-rk3399-gru-kevin.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220401.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
-/624c12ec2ba39b3f10ae0700
-        failing since 30 days (last pass: v5.4.182-30-g45ccd59cc16f, first =
-fail: v5.4.182-53-ge31c0b084082)
-
-    2022-04-05T09:58:49.695003  <8>[   32.060551] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-i2s0-probed RESULT=3Dpass>
-    2022-04-05T09:58:50.705864  /lava-6025367/1/../bin/lava-test-case
-    2022-04-05T09:58:50.714318  <8>[   33.080923] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-i2s1-probed RESULT=3Dfail>   =
-
- =20
