@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D228C4F3807
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:27:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB0AF4F3B1C
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:14:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359854AbiDELVH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:21:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44280 "EHLO
+        id S245076AbiDELun (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:50:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60904 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349300AbiDEJtf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:35 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16A2A13D4F;
-        Tue,  5 Apr 2022 02:43:49 -0700 (PDT)
+        with ESMTP id S1356216AbiDEKXa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:23:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE0E3BAB87;
+        Tue,  5 Apr 2022 03:07:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 8A2D7CE1C6F;
-        Tue,  5 Apr 2022 09:43:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F867C385A1;
-        Tue,  5 Apr 2022 09:43:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6757AB81C88;
+        Tue,  5 Apr 2022 10:07:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1EA2C385A1;
+        Tue,  5 Apr 2022 10:07:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151826;
-        bh=KkqvdNudypKbbtIijKOGeT0cNlIeNDr+yKjHsjcNilc=;
+        s=korg; t=1649153268;
+        bh=5SKEbDrLT6+O1PlKgj+zrudt8PadU0+bYVvcmroswKE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RhYI/sa/H5n1aIiQ9ZHCuZWK2nNuMEbYr/dkOsXnpPQwLAbaPV94mtRSONhQhQcUR
-         P/wqciFanWps6YzUjbO9MELBmvg37NIP7oBDknbE8Wyb4yxaV4sAepUNQaXUCayXBO
-         U3KF+TIL5TVb8fBq7mQwfrkMREGjjPAje8UNqQnI=
+        b=wl1HRdf2VkrSjNrSj//IE136964rDpZFCpYYzHMkoO0ykx80IaUPFaIODYSeCzsJF
+         74S/Qkb4c0q5qKJ2TMQSJQnwKybyBRO/DnlowTxOaMG4h8gw8WnFlOUOTyOVEDlmjH
+         JIyhM/hp5nQi+sjiwvpAaiwAvHullvmCGgpVCSQ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Sitnicki <jakub@cloudflare.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Martin KaFai Lau <kafai@fb.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 555/913] selftests/bpf: Fix error reporting from sock_fields programs
-Date:   Tue,  5 Apr 2022 09:26:57 +0200
-Message-Id: <20220405070356.482811764@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Lucas De Marchi <lucas.demarchi@intel.com>,
+        Jani Nikula <jani.nikula@intel.com>
+Subject: [PATCH 5.10 124/599] drm/i915/opregion: check port number bounds for SWSCI display power state
+Date:   Tue,  5 Apr 2022 09:26:58 +0200
+Message-Id: <20220405070302.527802109@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070258.802373272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,46 +56,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Sitnicki <jakub@cloudflare.com>
+From: Jani Nikula <jani.nikula@intel.com>
 
-[ Upstream commit a4c9fe0ed4a13e25e43fcd44d9f89bc19ba8fbb7 ]
+commit 24a644ebbfd3b13cda702f98907f9dd123e34bf9 upstream.
 
-The helper macro that records an error in BPF programs that exercise sock
-fields access has been inadvertently broken by adaptation work that
-happened in commit b18c1f0aa477 ("bpf: selftest: Adapt sock_fields test to
-use skel and global variables").
+The mapping from enum port to whatever port numbering scheme is used by
+the SWSCI Display Power State Notification is odd, and the memory of it
+has faded. In any case, the parameter only has space for ports numbered
+[0..4], and UBSAN reports bit shift beyond it when the platform has port
+F or more.
 
-BPF_NOEXIST flag cannot be used to update BPF_MAP_TYPE_ARRAY. The operation
-always fails with -EEXIST, which in turn means the error never gets
-recorded, and the checks for errors always pass.
+Since the SWSCI functionality is supposed to be obsolete for new
+platforms (i.e. ones that might have port F or more), just bail out
+early if the mapped and mangled port number is beyond what the Display
+Power State Notification can support.
 
-Revert the change in update flags.
-
-Fixes: b18c1f0aa477 ("bpf: selftest: Adapt sock_fields test to use skel and global variables")
-Signed-off-by: Jakub Sitnicki <jakub@cloudflare.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Martin KaFai Lau <kafai@fb.com>
-Link: https://lore.kernel.org/bpf/20220317113920.1068535-2-jakub@cloudflare.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 9c4b0a683193 ("drm/i915: add opregion function to notify bios of encoder enable/disable")
+Cc: <stable@vger.kernel.org> # v3.13+
+Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Cc: Lucas De Marchi <lucas.demarchi@intel.com>
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/4800
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/cc363f42d6b5a5932b6d218fefcc8bdfb15dbbe5.1644489329.git.jani.nikula@intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/bpf/progs/test_sock_fields.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/i915/display/intel_opregion.c |   15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
-diff --git a/tools/testing/selftests/bpf/progs/test_sock_fields.c b/tools/testing/selftests/bpf/progs/test_sock_fields.c
-index 81b57b9aaaea..7967348b11af 100644
---- a/tools/testing/selftests/bpf/progs/test_sock_fields.c
-+++ b/tools/testing/selftests/bpf/progs/test_sock_fields.c
-@@ -113,7 +113,7 @@ static void tpcpy(struct bpf_tcp_sock *dst,
+--- a/drivers/gpu/drm/i915/display/intel_opregion.c
++++ b/drivers/gpu/drm/i915/display/intel_opregion.c
+@@ -376,6 +376,21 @@ int intel_opregion_notify_encoder(struct
+ 		return -EINVAL;
+ 	}
  
- #define RET_LOG() ({						\
- 	linum = __LINE__;					\
--	bpf_map_update_elem(&linum_map, &linum_idx, &linum, BPF_NOEXIST);	\
-+	bpf_map_update_elem(&linum_map, &linum_idx, &linum, BPF_ANY);	\
- 	return CG_OK;						\
- })
++	/*
++	 * The port numbering and mapping here is bizarre. The now-obsolete
++	 * swsci spec supports ports numbered [0..4]. Port E is handled as a
++	 * special case, but port F and beyond are not. The functionality is
++	 * supposed to be obsolete for new platforms. Just bail out if the port
++	 * number is out of bounds after mapping.
++	 */
++	if (port > 4) {
++		drm_dbg_kms(&dev_priv->drm,
++			    "[ENCODER:%d:%s] port %c (index %u) out of bounds for display power state notification\n",
++			    intel_encoder->base.base.id, intel_encoder->base.name,
++			    port_name(intel_encoder->port), port);
++		return -EINVAL;
++	}
++
+ 	if (!enable)
+ 		parm |= 4 << 8;
  
--- 
-2.34.1
-
 
 
