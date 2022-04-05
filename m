@@ -2,48 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E940A4F337B
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:16:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F02484F3591
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:51:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354100AbiDEKLm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:11:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53070 "EHLO
+        id S236561AbiDEI2H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:28:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45352 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343967AbiDEJQn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:16:43 -0400
+        with ESMTP id S239543AbiDEIUN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:20:13 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FAE4D5573;
-        Tue,  5 Apr 2022 02:02:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43B37110E;
+        Tue,  5 Apr 2022 01:15:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DDBA1B80DA1;
-        Tue,  5 Apr 2022 09:02:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51750C385A0;
-        Tue,  5 Apr 2022 09:02:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EB0CDB81B92;
+        Tue,  5 Apr 2022 08:15:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A557C385A1;
+        Tue,  5 Apr 2022 08:15:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149327;
-        bh=PbU3Zy+C03rpWGayUy2MlpDNrRuZYXE7DvqU86BFgbo=;
+        s=korg; t=1649146547;
+        bh=ua5vIw0517RX36TBBiaySxjD3XAV6nk60MX+XrVugGY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zy5RQS2jeJG3/HZF0ek9t+LIMLyfYtclN/kiY/dWkkTvYJ1JczavbFY1pSMrKa8N2
-         QN1drNQOiM5rQLJUBq0JdOERrVMoCh9jxHSgJ0rfP8y+/NUpxXX/gPLqLzlWcgCjgh
-         hd4+Rn8ToMAOW5hl4K890nQgUx+GmZJas3dpoqII=
+        b=O6MbDsqbzkqFiSbjHL53Ojz6/TgyACGs4y/3zw++oVZW5tgrqh/JNHeWZ+TEEU6Z2
+         osCSlrZAHCDoejpyf71/jgQPmW1snLSTkqsnpOBERno/Mq+FjKYIQOp+inEC8QiMR0
+         8J2wU7bKpfOu6RDPHbW2HHAKECZ90CUD4/pTlcWw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Alexander Lobakin <alexandr.lobakin@intel.com>,
-        Michal Kubiak <michal.kubiak@intel.com>,
-        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+        Maxime Ripard <maxime@cerno.tech>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0638/1017] ice: dont allow to run ice_send_event_to_aux() in atomic ctx
+Subject: [PATCH 5.17 0804/1126] clk: Initialize orphan req_rate
 Date:   Tue,  5 Apr 2022 09:25:51 +0200
-Message-Id: <20220405070413.221449890@linuxfoundation.org>
+Message-Id: <20220405070431.168654604@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,45 +56,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Lobakin <alexandr.lobakin@intel.com>
+From: Maxime Ripard <maxime@cerno.tech>
 
-[ Upstream commit 5a3156932da06f09953764de113419f254086faf ]
+[ Upstream commit 5f7e2af00807f2117650e711a58b7f0e986ce1df ]
 
-ice_send_event_to_aux() eventually descends to mutex_lock()
-(-> might_sched()), so it must not be called under non-task
-context. However, at least two fixes have happened already for the
-bug splats occurred due to this function being called from atomic
-context.
-To make the emergency landings softer, bail out early when executed
-in non-task context emitting a warn splat only once. This way we
-trade some events being potentially lost for system stability and
-avoid any related hangs and crashes.
+When registering a clock that doesn't have a recalc_rate implementation,
+and doesn't have its parent registered yet, we initialize the clk_core
+rate and 'req_rate' fields to 0.
 
-Fixes: 348048e724a0e ("ice: Implement iidc operations")
-Signed-off-by: Alexander Lobakin <alexandr.lobakin@intel.com>
-Tested-by: Michal Kubiak <michal.kubiak@intel.com>
-Reviewed-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
-Acked-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+The rate field is later updated when the parent is registered in
+clk_core_reparent_orphans_nolock() using __clk_recalc_rates(), but the
+'req_rate' field is never updated.
+
+This leads to an issue in clk_set_rate_range() and clk_put(), since
+those functions will call clk_set_rate() with the content of 'req_rate'
+to provide drivers with the opportunity to change the rate based on the
+new boundaries. In this case, we would call clk_set_rate() with a rate
+of 0, effectively enforcing the minimum allowed for this clock whenever
+we would call one of those two functions, even though the actual rate
+might be within range.
+
+Let's fix this by setting 'req_rate' in
+clk_core_reparent_orphans_nolock() with the rate field content just
+updated by the call to __clk_recalc_rates().
+
+Fixes: 1c8e600440c7 ("clk: Add rate constraints to clocks")
+Reported-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Tested-by: Dmitry Osipenko <dmitry.osipenko@collabora.com> # T30 Nexus7
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://lore.kernel.org/r/20220325161144.1901695-2-maxime@cerno.tech
+[sboyd@kernel.org: Reword comment]
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_idc.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/clk/clk.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_idc.c b/drivers/net/ethernet/intel/ice/ice_idc.c
-index adcc9a251595..a2714988dd96 100644
---- a/drivers/net/ethernet/intel/ice/ice_idc.c
-+++ b/drivers/net/ethernet/intel/ice/ice_idc.c
-@@ -34,6 +34,9 @@ void ice_send_event_to_aux(struct ice_pf *pf, struct iidc_event *event)
- {
- 	struct iidc_auxiliary_drv *iadrv;
- 
-+	if (WARN_ON_ONCE(!in_task()))
-+		return;
+diff --git a/drivers/clk/clk.c b/drivers/clk/clk.c
+index fff5edb89d6d..01b64b962e76 100644
+--- a/drivers/clk/clk.c
++++ b/drivers/clk/clk.c
+@@ -3456,6 +3456,19 @@ static void clk_core_reparent_orphans_nolock(void)
+ 			__clk_set_parent_after(orphan, parent, NULL);
+ 			__clk_recalc_accuracies(orphan);
+ 			__clk_recalc_rates(orphan, 0);
 +
- 	if (!pf->adev)
- 		return;
- 
++			/*
++			 * __clk_init_parent() will set the initial req_rate to
++			 * 0 if the clock doesn't have clk_ops::recalc_rate and
++			 * is an orphan when it's registered.
++			 *
++			 * 'req_rate' is used by clk_set_rate_range() and
++			 * clk_put() to trigger a clk_set_rate() call whenever
++			 * the boundaries are modified. Let's make sure
++			 * 'req_rate' is set to something non-zero so that
++			 * clk_set_rate_range() doesn't drop the frequency.
++			 */
++			orphan->req_rate = orphan->rate;
+ 		}
+ 	}
+ }
 -- 
 2.34.1
 
