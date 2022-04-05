@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B23054F2AAD
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:05:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CABA24F2E0E
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:49:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234620AbiDEIZz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:25:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34844 "EHLO
+        id S229514AbiDEJhM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:37:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33942 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238798AbiDEITY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:19:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D33A074617;
-        Tue,  5 Apr 2022 01:09:32 -0700 (PDT)
+        with ESMTP id S235605AbiDEJCY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:02:24 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B57E4BF40;
+        Tue,  5 Apr 2022 01:54:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6370E60A5A;
-        Tue,  5 Apr 2022 08:09:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F221C385A1;
-        Tue,  5 Apr 2022 08:09:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 68DDFB81A0C;
+        Tue,  5 Apr 2022 08:54:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5C69C385A0;
+        Tue,  5 Apr 2022 08:54:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146171;
-        bh=94tCqCpDfa0GaM5Otbk7GPqMCgsyJwd3rD7HBKSUU8E=;
+        s=korg; t=1649148849;
+        bh=Gh6dRGFWFQmf8B5m9q8iVsCS75Ilgj6gFgKCUtVsgWU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KniXB16StCamlQ8bRIbY6MwFSaAsl0VzD1HAxsUJOnAxDgOk9j0lx3eFOLHM3vlVf
-         bQDtWksHMwqGjY9vNbwOxS4tr7gtpobPV9C6YYPNOF2MeffXJzRKryVI9Bv+cc9R2u
-         AH5ixiHbIV1hg1/uejRo7u2gwccpLtr2KPx9QYd0=
+        b=XewtgC7TrAFQxtaJFjGT8gAwDmu042+wb0oFSk0DvIjBJMvmaXx4RHrA/gbwDUQq4
+         tHdBC7VGO/nYUZnUmY6sV07Gjbkqzf/Dc4yPOLfaXc+Jw7Dck2/istCLQQZol1l4Cw
+         iy7czptLziIcBWHH+FotcLuxpmLZmHBBbfOPIbTo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chengguang Xu <cgxu519@mykernel.net>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Hersen Wu <hersenwu@amd.com>,
+        Jasdeep Dhillon <jdhillon@amd.com>,
+        Roman Li <Roman.Li@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0667/1126] RDMA/rxe: Change variable and function argument to proper type
-Date:   Tue,  5 Apr 2022 09:23:34 +0200
-Message-Id: <20220405070427.205144061@linuxfoundation.org>
+Subject: [PATCH 5.16 0502/1017] drm/amd/display: Add affected crtcs to atomic state for dsc mst unplug
+Date:   Tue,  5 Apr 2022 09:23:35 +0200
+Message-Id: <20220405070409.200254124@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,71 +57,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chengguang Xu <cgxu519@mykernel.net>
+From: Roman Li <Roman.Li@amd.com>
 
-[ Upstream commit 7e8e611d6a0ff228577b1167335ffefb0f44d5d8 ]
+[ Upstream commit 128f8ed5902a287a6bb4afe0ffdae8a80b2a64ec ]
 
-The type of wqe length is u32 so in order to avoid overflow and shadow
-casting change variable and relevant function argument to proper type.
+[Why]
+When display topology changed on DSC hub we add all crtcs with dsc support to
+atomic state.
+Refer to patch:"drm/amd/display: Trigger modesets on MST DSC connectors"
+However the original implementation may skip crtc if the topology change
+caused by unplug.
+That potentially could lead to no-lightup or corruption on DSC hub after
+unplug event on one of the connectors.
 
-Link: https://lore.kernel.org/r/20220307145047.3235675-1-cgxu519@mykernel.net
-Signed-off-by: Chengguang Xu <cgxu519@mykernel.net>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+[How]
+Update add_affected_mst_dsc_crtcs() to use old connector state
+if new connector state has no crtc (undergoes modeset due to unplug)
+
+Fixes: 44be939ff7ac58 ("drm/amd/display: Trigger modesets on MST DSC connectors")
+
+Reviewed-by: Hersen Wu <hersenwu@amd.com>
+Acked-by: Jasdeep Dhillon <jdhillon@amd.com>
+Signed-off-by: Roman Li <Roman.Li@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/rxe/rxe_req.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/infiniband/sw/rxe/rxe_req.c b/drivers/infiniband/sw/rxe/rxe_req.c
-index 5eb89052dd66..b28036a7a3b8 100644
---- a/drivers/infiniband/sw/rxe/rxe_req.c
-+++ b/drivers/infiniband/sw/rxe/rxe_req.c
-@@ -359,7 +359,7 @@ static inline int get_mtu(struct rxe_qp *qp)
- 
- static struct sk_buff *init_req_packet(struct rxe_qp *qp,
- 				       struct rxe_send_wqe *wqe,
--				       int opcode, int payload,
-+				       int opcode, u32 payload,
- 				       struct rxe_pkt_info *pkt)
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index 0ec8051cdfb4..7cadb9e81d9d 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -10752,10 +10752,13 @@ static int dm_check_crtc_cursor(struct drm_atomic_state *state,
+ static int add_affected_mst_dsc_crtcs(struct drm_atomic_state *state, struct drm_crtc *crtc)
  {
- 	struct rxe_dev		*rxe = to_rdev(qp->ibqp.device);
-@@ -449,7 +449,7 @@ static struct sk_buff *init_req_packet(struct rxe_qp *qp,
+ 	struct drm_connector *connector;
+-	struct drm_connector_state *conn_state;
++	struct drm_connector_state *conn_state, *old_conn_state;
+ 	struct amdgpu_dm_connector *aconnector = NULL;
+ 	int i;
+-	for_each_new_connector_in_state(state, connector, conn_state, i) {
++	for_each_oldnew_connector_in_state(state, connector, old_conn_state, conn_state, i) {
++		if (!conn_state->crtc)
++			conn_state = old_conn_state;
++
+ 		if (conn_state->crtc != crtc)
+ 			continue;
  
- static int finish_packet(struct rxe_qp *qp, struct rxe_send_wqe *wqe,
- 		       struct rxe_pkt_info *pkt, struct sk_buff *skb,
--		       int paylen)
-+		       u32 paylen)
- {
- 	int err;
- 
-@@ -497,7 +497,7 @@ static void update_wqe_state(struct rxe_qp *qp,
- static void update_wqe_psn(struct rxe_qp *qp,
- 			   struct rxe_send_wqe *wqe,
- 			   struct rxe_pkt_info *pkt,
--			   int payload)
-+			   u32 payload)
- {
- 	/* number of packets left to send including current one */
- 	int num_pkt = (wqe->dma.resid + payload + qp->mtu - 1) / qp->mtu;
-@@ -540,7 +540,7 @@ static void rollback_state(struct rxe_send_wqe *wqe,
- }
- 
- static void update_state(struct rxe_qp *qp, struct rxe_send_wqe *wqe,
--			 struct rxe_pkt_info *pkt, int payload)
-+			 struct rxe_pkt_info *pkt, u32 payload)
- {
- 	qp->req.opcode = pkt->opcode;
- 
-@@ -612,7 +612,7 @@ int rxe_requester(void *arg)
- 	struct sk_buff *skb;
- 	struct rxe_send_wqe *wqe;
- 	enum rxe_hdr_mask mask;
--	int payload;
-+	u32 payload;
- 	int mtu;
- 	int opcode;
- 	int ret;
 -- 
 2.34.1
 
