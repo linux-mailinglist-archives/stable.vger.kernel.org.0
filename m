@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CFAC54F2CCC
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:33:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DFADE4F2D37
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:36:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241109AbiDEKKK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:10:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60096 "EHLO
+        id S1354003AbiDEKKf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:10:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37138 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346563AbiDEJY1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:24:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88ECCDA6F7;
-        Tue,  5 Apr 2022 02:13:38 -0700 (PDT)
+        with ESMTP id S1346967AbiDEJYv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:24:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27E41A205D;
+        Tue,  5 Apr 2022 02:14:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A0C6A6164D;
-        Tue,  5 Apr 2022 09:13:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7471C385A0;
-        Tue,  5 Apr 2022 09:13:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6713E61693;
+        Tue,  5 Apr 2022 09:14:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7386DC385A2;
+        Tue,  5 Apr 2022 09:14:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150017;
-        bh=L/KLRxBS/6cGYACuSzdQzMUxD28ReaSOYnDVgXhsFBY=;
+        s=korg; t=1649150046;
+        bh=xEF+OP1ljNay77jIZcx5islH8QqbrHyXClz2GbkB7RM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UmbGSUBKS/b6G32jozlxuDJdhichdJGumSTVPqfE15Qtf9mK03Q96X942zrV5HXcJ
-         UUvQ7F2YHLfjNqKmSO/Iw63RlP5f1durrNPm8LNBLPhbSJi9obWL4XqOYQaQEXzh27
-         am0U8lRebRIw8h7PMdK/ksDbtTn7OrzYoCorBABY=
+        b=lmVwKZ3qH8dF+d+qKJP+wMIaDcdIVHoUUwFHAXR61I8PNCsz355X/tr6gfNhiJqN0
+         7v8C5T1qgvZ8+Ev2ClZNJ/fF86IhNrfKrEzuOkg0e75ReKldUQ314RzLgZVXLBLpu8
+         tU14IKiB/hdgeDpVTK7WSTNANoW5F22WOIw5KmnA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sungup Moon <sungup.moon@samsung.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Sagi Grimberg <sagi@grimberg.me>
-Subject: [PATCH 5.16 0917/1017] nvme: allow duplicate NSIDs for private namespaces
-Date:   Tue,  5 Apr 2022 09:30:30 +0200
-Message-Id: <20220405070421.439945004@linuxfoundation.org>
+        stable@vger.kernel.org, Pankaj Raghav <p.raghav@samsung.com>,
+        Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 5.16 0918/1017] nvme: fix the read-only state for zoned namespaces with unsupposed features
+Date:   Tue,  5 Apr 2022 09:30:31 +0200
+Message-Id: <20220405070421.469209455@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -54,127 +53,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sungup Moon <sungup.moon@samsung.com>
+From: Pankaj Raghav <p.raghav@samsung.com>
 
-commit 5974ea7ce0f9a5987fc8cf5e08ad6e3e70bb542e upstream.
+commit 726be2c72efc0a64c206e854b8996ad3ab9c7507 upstream.
 
-A NVMe subsystem with multiple controller can have private namespaces
-that use the same NSID under some conditions:
+commit 2f4c9ba23b88 ("nvme: export zoned namespaces without Zone Append
+support read-only") marks zoned namespaces without append support
+read-only.  It does iso by setting NVME_NS_FORCE_RO in ns->flags in
+nvme_update_zone_info and checking for that flag later in
+nvme_update_disk_info to mark the disk as read-only.
 
- "If Namespace Management, ANA Reporting, or NVM Sets are supported, the
-  NSIDs shall be unique within the NVM subsystem. If the Namespace
-  Management, ANA Reporting, and NVM Sets are not supported, then NSIDs:
-   a) for shared namespace shall be unique; and
-   b) for private namespace are not required to be unique."
+But commit 73d90386b559 ("nvme: cleanup zone information initialization")
+rearranged nvme_update_disk_info to be called before
+nvme_update_zone_info and thus not marking the disk as read-only.
+The call order cannot be just reverted because nvme_update_zone_info sets
+certain queue parameters such as zone_write_granularity that depend on the
+prior call to nvme_update_disk_info.
 
-Reference: Section 6.1.6 NSID and Namespace Usage; NVM Express 1.4c spec.
+Remove the call to set_disk_ro in nvme_update_disk_info. and call
+set_disk_ro after nvme_update_zone_info and nvme_update_disk_info to set
+the permission for ZNS drives correctly. The same applies to the
+multipath disk path.
 
-Make sure this specific setup is supported in Linux.
-
-Fixes: 9ad1927a3bc2 ("nvme: always search for namespace head")
-Signed-off-by: Sungup Moon <sungup.moon@samsung.com>
-[hch: refactored and fixed the controller vs subsystem based naming
-      conflict]
+Fixes: 73d90386b559 ("nvme: cleanup zone information initialization")
+Signed-off-by: Pankaj Raghav <p.raghav@samsung.com>
 Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nvme/host/core.c      |   15 ++++++++++-----
- drivers/nvme/host/multipath.c |    7 ++++---
- drivers/nvme/host/nvme.h      |   19 +++++++++++++++++++
- include/linux/nvme.h          |    1 +
- 4 files changed, 34 insertions(+), 8 deletions(-)
+ drivers/nvme/host/core.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
 --- a/drivers/nvme/host/core.c
 +++ b/drivers/nvme/host/core.c
-@@ -3581,15 +3581,20 @@ static const struct attribute_group *nvm
- 	NULL,
- };
- 
--static struct nvme_ns_head *nvme_find_ns_head(struct nvme_subsystem *subsys,
-+static struct nvme_ns_head *nvme_find_ns_head(struct nvme_ctrl *ctrl,
- 		unsigned nsid)
- {
- 	struct nvme_ns_head *h;
- 
--	lockdep_assert_held(&subsys->lock);
-+	lockdep_assert_held(&ctrl->subsys->lock);
- 
--	list_for_each_entry(h, &subsys->nsheads, entry) {
--		if (h->ns_id != nsid)
-+	list_for_each_entry(h, &ctrl->subsys->nsheads, entry) {
-+		/*
-+		 * Private namespaces can share NSIDs under some conditions.
-+		 * In that case we can't use the same ns_head for namespaces
-+		 * with the same NSID.
-+		 */
-+		if (h->ns_id != nsid || !nvme_is_unique_nsid(ctrl, h))
- 			continue;
- 		if (!list_empty(&h->list) && nvme_tryget_ns_head(h))
- 			return h;
-@@ -3757,7 +3762,7 @@ static int nvme_init_ns_head(struct nvme
- 	int ret = 0;
- 
- 	mutex_lock(&ctrl->subsys->lock);
--	head = nvme_find_ns_head(ctrl->subsys, nsid);
-+	head = nvme_find_ns_head(ctrl, nsid);
- 	if (!head) {
- 		head = nvme_alloc_ns_head(ctrl, nsid, ids);
- 		if (IS_ERR(head)) {
---- a/drivers/nvme/host/multipath.c
-+++ b/drivers/nvme/host/multipath.c
-@@ -468,10 +468,11 @@ int nvme_mpath_alloc_disk(struct nvme_ct
- 
- 	/*
- 	 * Add a multipath node if the subsystems supports multiple controllers.
--	 * We also do this for private namespaces as the namespace sharing data could
--	 * change after a rescan.
-+	 * We also do this for private namespaces as the namespace sharing flag
-+	 * could change after a rescan.
- 	 */
--	if (!(ctrl->subsys->cmic & NVME_CTRL_CMIC_MULTI_CTRL) || !multipath)
-+	if (!(ctrl->subsys->cmic & NVME_CTRL_CMIC_MULTI_CTRL) ||
-+	    !nvme_is_unique_nsid(ctrl, head) || !multipath)
- 		return 0;
- 
- 	head->disk = blk_alloc_disk(ctrl->numa_node);
---- a/drivers/nvme/host/nvme.h
-+++ b/drivers/nvme/host/nvme.h
-@@ -712,6 +712,25 @@ static inline bool nvme_check_ready(stru
- 		return queue_live;
- 	return __nvme_check_ready(ctrl, rq, queue_live);
+@@ -1860,9 +1860,6 @@ static void nvme_update_disk_info(struct
+ 	nvme_config_discard(disk, ns);
+ 	blk_queue_max_write_zeroes_sectors(disk->queue,
+ 					   ns->ctrl->max_zeroes_sectors);
+-
+-	set_disk_ro(disk, (id->nsattr & NVME_NS_ATTR_RO) ||
+-		test_bit(NVME_NS_FORCE_RO, &ns->flags));
  }
-+
-+/*
-+ * NSID shall be unique for all shared namespaces, or if at least one of the
-+ * following conditions is met:
-+ *   1. Namespace Management is supported by the controller
-+ *   2. ANA is supported by the controller
-+ *   3. NVM Set are supported by the controller
-+ *
-+ * In other case, private namespace are not required to report a unique NSID.
-+ */
-+static inline bool nvme_is_unique_nsid(struct nvme_ctrl *ctrl,
-+		struct nvme_ns_head *head)
-+{
-+	return head->shared ||
-+		(ctrl->oacs & NVME_CTRL_OACS_NS_MNGT_SUPP) ||
-+		(ctrl->subsys->cmic & NVME_CTRL_CMIC_ANA) ||
-+		(ctrl->ctratt & NVME_CTRL_CTRATT_NVM_SETS);
-+}
-+
- int nvme_submit_sync_cmd(struct request_queue *q, struct nvme_command *cmd,
- 		void *buf, unsigned bufflen);
- int __nvme_submit_sync_cmd(struct request_queue *q, struct nvme_command *cmd,
---- a/include/linux/nvme.h
-+++ b/include/linux/nvme.h
-@@ -337,6 +337,7 @@ enum {
- 	NVME_CTRL_ONCS_TIMESTAMP		= 1 << 6,
- 	NVME_CTRL_VWC_PRESENT			= 1 << 0,
- 	NVME_CTRL_OACS_SEC_SUPP                 = 1 << 0,
-+	NVME_CTRL_OACS_NS_MNGT_SUPP		= 1 << 3,
- 	NVME_CTRL_OACS_DIRECTIVES		= 1 << 5,
- 	NVME_CTRL_OACS_DBBUF_SUPP		= 1 << 8,
- 	NVME_CTRL_LPA_CMD_EFFECTS_LOG		= 1 << 1,
+ 
+ static inline bool nvme_first_scan(struct gendisk *disk)
+@@ -1923,6 +1920,8 @@ static int nvme_update_ns_info(struct nv
+ 			goto out_unfreeze;
+ 	}
+ 
++	set_disk_ro(ns->disk, (id->nsattr & NVME_NS_ATTR_RO) ||
++		test_bit(NVME_NS_FORCE_RO, &ns->flags));
+ 	set_bit(NVME_NS_READY, &ns->flags);
+ 	blk_mq_unfreeze_queue(ns->disk->queue);
+ 
+@@ -1935,6 +1934,9 @@ static int nvme_update_ns_info(struct nv
+ 	if (nvme_ns_head_multipath(ns->head)) {
+ 		blk_mq_freeze_queue(ns->head->disk->queue);
+ 		nvme_update_disk_info(ns->head->disk, ns, id);
++		set_disk_ro(ns->head->disk,
++			    (id->nsattr & NVME_NS_ATTR_RO) ||
++				    test_bit(NVME_NS_FORCE_RO, &ns->flags));
+ 		nvme_mpath_revalidate_paths(ns);
+ 		blk_stack_limits(&ns->head->disk->queue->limits,
+ 				 &ns->queue->limits, 0);
 
 
