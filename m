@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F14124F30A0
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:32:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 626CC4F3639
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:57:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242311AbiDEIhV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:37:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43700 "EHLO
+        id S1343870AbiDEK7k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:59:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59290 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238546AbiDEITL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:19:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09368E095;
-        Tue,  5 Apr 2022 01:09:07 -0700 (PDT)
+        with ESMTP id S1347363AbiDEJq0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:46:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE637DEB8E;
+        Tue,  5 Apr 2022 02:32:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 894FDB81BB5;
-        Tue,  5 Apr 2022 08:09:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0EA3C385A2;
-        Tue,  5 Apr 2022 08:09:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3BD10616AE;
+        Tue,  5 Apr 2022 09:32:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48275C385A0;
+        Tue,  5 Apr 2022 09:32:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146146;
-        bh=TkRjkbHf35GwvaY8YoQCXT3xu4BK4ElnagkTLzoI8O8=;
+        s=korg; t=1649151170;
+        bh=w6FuNmjk0ktzg+89KqvBnzyKkTm7FYtqo88XXdFIqus=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=INaSO3T2AT5WT2LqRQAuQsGj+Tu8pBcZosAs1wf0S6gDvRpPLgKjxs+X+ck0qO2t2
-         bhGYgCTllLUoy+KJ70zTSS2d2qgiooaazu9dynpv045yTxopnoUwEolPG2iK86UBlW
-         JUb0k5fGEkdIJwXDMheabO0wTzpy+SpzeNwsC/vU=
+        b=ZgM+R6V/nDd+pA4yxm1jbRpjrgT9qCYwGmnh7ny6wbOCv0elWTyEL/kAhNOZ3dIKe
+         LB6ot+KzC44VgIHeHq7Hj7jvoHwUsIsWqK1DaOw2sz0gF0g/wDvvQOI2oSJAbJMLfR
+         d4HCM7fNA17y/acA4PYt+pw5Rhw4+wHvc3vsI7+o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        stable@vger.kernel.org,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0632/1126] power: supply: wm8350-power: Add missing free in free_charger_irq
-Date:   Tue,  5 Apr 2022 09:22:59 +0200
-Message-Id: <20220405070426.187623890@linuxfoundation.org>
+Subject: [PATCH 5.15 318/913] ASoC: codecs: rx-macro: fix accessing array out of bounds for enum type
+Date:   Tue,  5 Apr 2022 09:23:00 +0200
+Message-Id: <20220405070349.384127387@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,34 +55,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 
-[ Upstream commit 6dee930f6f6776d1e5a7edf542c6863b47d9f078 ]
+[ Upstream commit bcfe5f76cc4051ea3f9eb5d2c8ea621641f290a5 ]
 
-In free_charger_irq(), there is no free for 'WM8350_IRQ_CHG_FAST_RDY'.
-Therefore, it should be better to add it in order to avoid the memory leak.
+Accessing enums using integer would result in array out of bounds access
+on platforms like aarch64 where sizeof(long) is 8 compared to enum size
+which is 4 bytes.
 
-Fixes: 14431aa0c5a4 ("power_supply: Add support for WM8350 PMU")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Fixes: 4f692926f562 ("ASoC: codecs: lpass-rx-macro: add dapm widgets and route")
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20220222183212.11580-3-srinivas.kandagatla@linaro.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/wm8350_power.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/soc/codecs/lpass-rx-macro.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/power/supply/wm8350_power.c b/drivers/power/supply/wm8350_power.c
-index 9c46c48dccb1..908cfd45d262 100644
---- a/drivers/power/supply/wm8350_power.c
-+++ b/drivers/power/supply/wm8350_power.c
-@@ -524,6 +524,7 @@ static void free_charger_irq(struct wm8350 *wm8350)
- 	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_TO, wm8350);
- 	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_END, wm8350);
- 	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_START, wm8350);
-+	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_FAST_RDY, wm8350);
- 	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_VBATT_LT_3P9, wm8350);
- 	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_VBATT_LT_3P1, wm8350);
- 	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_VBATT_LT_2P85, wm8350);
+diff --git a/sound/soc/codecs/lpass-rx-macro.c b/sound/soc/codecs/lpass-rx-macro.c
+index fafb8265dbb3..23452900b9ae 100644
+--- a/sound/soc/codecs/lpass-rx-macro.c
++++ b/sound/soc/codecs/lpass-rx-macro.c
+@@ -2272,7 +2272,7 @@ static int rx_macro_mux_get(struct snd_kcontrol *kcontrol,
+ 	struct snd_soc_component *component = snd_soc_dapm_to_component(widget->dapm);
+ 	struct rx_macro *rx = snd_soc_component_get_drvdata(component);
+ 
+-	ucontrol->value.integer.value[0] =
++	ucontrol->value.enumerated.item[0] =
+ 			rx->rx_port_value[widget->shift];
+ 	return 0;
+ }
+@@ -2284,7 +2284,7 @@ static int rx_macro_mux_put(struct snd_kcontrol *kcontrol,
+ 	struct snd_soc_component *component = snd_soc_dapm_to_component(widget->dapm);
+ 	struct soc_enum *e = (struct soc_enum *)kcontrol->private_value;
+ 	struct snd_soc_dapm_update *update = NULL;
+-	u32 rx_port_value = ucontrol->value.integer.value[0];
++	u32 rx_port_value = ucontrol->value.enumerated.item[0];
+ 	u32 aif_rst;
+ 	struct rx_macro *rx = snd_soc_component_get_drvdata(component);
+ 
+@@ -2396,7 +2396,7 @@ static int rx_macro_get_hph_pwr_mode(struct snd_kcontrol *kcontrol,
+ 	struct snd_soc_component *component = snd_soc_kcontrol_component(kcontrol);
+ 	struct rx_macro *rx = snd_soc_component_get_drvdata(component);
+ 
+-	ucontrol->value.integer.value[0] = rx->hph_pwr_mode;
++	ucontrol->value.enumerated.item[0] = rx->hph_pwr_mode;
+ 	return 0;
+ }
+ 
+@@ -2406,7 +2406,7 @@ static int rx_macro_put_hph_pwr_mode(struct snd_kcontrol *kcontrol,
+ 	struct snd_soc_component *component = snd_soc_kcontrol_component(kcontrol);
+ 	struct rx_macro *rx = snd_soc_component_get_drvdata(component);
+ 
+-	rx->hph_pwr_mode = ucontrol->value.integer.value[0];
++	rx->hph_pwr_mode = ucontrol->value.enumerated.item[0];
+ 	return 0;
+ }
+ 
 -- 
 2.34.1
 
