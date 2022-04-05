@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EDB384F3023
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:26:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E31D4F2EC8
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:04:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236657AbiDEJDX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:03:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53000 "EHLO
+        id S232882AbiDEIi2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:38:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58008 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238070AbiDEIaL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:30:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95EC71D32C;
-        Tue,  5 Apr 2022 01:21:32 -0700 (PDT)
+        with ESMTP id S240024AbiDEIWM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:22:12 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42089BE13;
+        Tue,  5 Apr 2022 01:19:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DD8E460FF5;
-        Tue,  5 Apr 2022 08:21:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3930C385A0;
-        Tue,  5 Apr 2022 08:21:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D797DB81B92;
+        Tue,  5 Apr 2022 08:19:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A30DC385A0;
+        Tue,  5 Apr 2022 08:19:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146891;
-        bh=cbFoD/cSl0Wwoo5hfS907/U1A0IK3iWQWOOCuvSG7/8=;
+        s=korg; t=1649146778;
+        bh=Blv0c6ejg6rD0X1SOHhY8mR5VPAywL+8Nw0gmhTNI00=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KEtPc6552QirWKUCO5E5s1m0ynunoOupI7V4/RRIkkQ2sIe19mWn8MUEjp10FA1gO
-         HJ1SBWKArOk5oYUOTPx+AOhbP3/z8TjbbSnt+GnaWCe60EHSYMR7SVQGudm09PJyAM
-         KCYyALG50nHKzLwKGDm0DPErSVH1susGcWivHQWw=
+        b=0TcJPC5OHRe1Yo/YR4yBk7yZDewwmTaiqDIHpt8aSSiba3XxdFc/KgZIywpDWUloO
+         P4hHOJ8X7Hlg/gI8l4Zk0EZAVggQCbv4zaUcJbvPtJlLQyF8xUlxJn/ve2WoouWfZl
+         ddGcuwRDDLvnD73uUu0qhK/1TCUgQDhPb3y90zTo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <chao@kernel.org>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org, Dai Ngo <dai.ngo@oracle.com>,
+        Chuck Lever <chuck.lever@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0877/1126] f2fs: fix to do sanity check on curseg->alloc_type
-Date:   Tue,  5 Apr 2022 09:27:04 +0200
-Message-Id: <20220405070433.276293569@linuxfoundation.org>
+Subject: [PATCH 5.17 0878/1126] NFSD: Fix nfsd_breaker_owns_lease() return values
+Date:   Tue,  5 Apr 2022 09:27:05 +0200
+Message-Id: <20220405070433.304575820@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -54,84 +54,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <chao@kernel.org>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-[ Upstream commit f41ee8b91c00770d718be2ff4852a80017ae9ab3 ]
+[ Upstream commit 50719bf3442dd6cd05159e9c98d020b3919ce978 ]
 
-As Wenqing Liu reported in bugzilla:
+These have been incorrect since the function was introduced.
 
-https://bugzilla.kernel.org/show_bug.cgi?id=215657
+A proper kerneldoc comment is added since this function, though
+static, is part of an external interface.
 
-- Overview
-UBSAN: array-index-out-of-bounds in fs/f2fs/segment.c:3460:2 when mount and operate a corrupted image
-
-- Reproduce
-tested on kernel 5.17-rc4, 5.17-rc6
-
-1. mkdir test_crash
-2. cd test_crash
-3. unzip tmp2.zip
-4. mkdir mnt
-5. ./single_test.sh f2fs 2
-
-- Kernel dump
-[   46.434454] loop0: detected capacity change from 0 to 131072
-[   46.529839] F2FS-fs (loop0): Mounted with checkpoint version = 7548c2d9
-[   46.738319] ================================================================================
-[   46.738412] UBSAN: array-index-out-of-bounds in fs/f2fs/segment.c:3460:2
-[   46.738475] index 231 is out of range for type 'unsigned int [2]'
-[   46.738539] CPU: 2 PID: 939 Comm: umount Not tainted 5.17.0-rc6 #1
-[   46.738547] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.13.0-1ubuntu1.1 04/01/2014
-[   46.738551] Call Trace:
-[   46.738556]  <TASK>
-[   46.738563]  dump_stack_lvl+0x47/0x5c
-[   46.738581]  ubsan_epilogue+0x5/0x50
-[   46.738592]  __ubsan_handle_out_of_bounds+0x68/0x80
-[   46.738604]  f2fs_allocate_data_block+0xdff/0xe60 [f2fs]
-[   46.738819]  do_write_page+0xef/0x210 [f2fs]
-[   46.738934]  f2fs_do_write_node_page+0x3f/0x80 [f2fs]
-[   46.739038]  __write_node_page+0x2b7/0x920 [f2fs]
-[   46.739162]  f2fs_sync_node_pages+0x943/0xb00 [f2fs]
-[   46.739293]  f2fs_write_checkpoint+0x7bb/0x1030 [f2fs]
-[   46.739405]  kill_f2fs_super+0x125/0x150 [f2fs]
-[   46.739507]  deactivate_locked_super+0x60/0xc0
-[   46.739517]  deactivate_super+0x70/0xb0
-[   46.739524]  cleanup_mnt+0x11a/0x200
-[   46.739532]  __cleanup_mnt+0x16/0x20
-[   46.739538]  task_work_run+0x67/0xa0
-[   46.739547]  exit_to_user_mode_prepare+0x18c/0x1a0
-[   46.739559]  syscall_exit_to_user_mode+0x26/0x40
-[   46.739568]  do_syscall_64+0x46/0xb0
-[   46.739584]  entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-The root cause is we missed to do sanity check on curseg->alloc_type,
-result in out-of-bound accessing on sbi->block_count[] array, fix it.
-
-Signed-off-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Reported-by: Dai Ngo <dai.ngo@oracle.com>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/segment.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ fs/nfsd/nfs4state.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/fs/f2fs/segment.c b/fs/f2fs/segment.c
-index 1dabc8244083..416d802ebbea 100644
---- a/fs/f2fs/segment.c
-+++ b/fs/f2fs/segment.c
-@@ -4789,6 +4789,13 @@ static int sanity_check_curseg(struct f2fs_sb_info *sbi)
+diff --git a/fs/nfsd/nfs4state.c b/fs/nfsd/nfs4state.c
+index 32063733443d..f3b71fd1d134 100644
+--- a/fs/nfsd/nfs4state.c
++++ b/fs/nfsd/nfs4state.c
+@@ -4711,6 +4711,14 @@ nfsd_break_deleg_cb(struct file_lock *fl)
+ 	return ret;
+ }
  
- 		sanity_check_seg_type(sbi, curseg->seg_type);
++/**
++ * nfsd_breaker_owns_lease - Check if lease conflict was resolved
++ * @fl: Lock state to check
++ *
++ * Return values:
++ *   %true: Lease conflict was resolved
++ *   %false: Lease conflict was not resolved.
++ */
+ static bool nfsd_breaker_owns_lease(struct file_lock *fl)
+ {
+ 	struct nfs4_delegation *dl = fl->fl_owner;
+@@ -4718,11 +4726,11 @@ static bool nfsd_breaker_owns_lease(struct file_lock *fl)
+ 	struct nfs4_client *clp;
  
-+		if (curseg->alloc_type != LFS && curseg->alloc_type != SSR) {
-+			f2fs_err(sbi,
-+				 "Current segment has invalid alloc_type:%d",
-+				 curseg->alloc_type);
-+			return -EFSCORRUPTED;
-+		}
-+
- 		if (f2fs_test_bit(blkofs, se->cur_valid_map))
- 			goto out;
- 
+ 	if (!i_am_nfsd())
+-		return NULL;
++		return false;
+ 	rqst = kthread_data(current);
+ 	/* Note rq_prog == NFS_ACL_PROGRAM is also possible: */
+ 	if (rqst->rq_prog != NFS_PROGRAM || rqst->rq_vers < 4)
+-		return NULL;
++		return false;
+ 	clp = *(rqst->rq_lease_breaker);
+ 	return dl->dl_stid.sc_client == clp;
+ }
 -- 
 2.34.1
 
