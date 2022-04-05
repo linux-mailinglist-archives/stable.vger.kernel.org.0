@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 19F9E4F3224
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:54:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CADA54F315B
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:42:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353533AbiDEKII (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:08:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44180 "EHLO
+        id S1343622AbiDEI5O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:57:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52938 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344357AbiDEJTe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:19:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0A3BBA1;
-        Tue,  5 Apr 2022 02:07:49 -0700 (PDT)
+        with ESMTP id S239149AbiDEIbL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:31:11 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39FD75370B;
+        Tue,  5 Apr 2022 01:23:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7BD9861573;
-        Tue,  5 Apr 2022 09:07:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85C7AC385A0;
-        Tue,  5 Apr 2022 09:07:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8B554B81BBF;
+        Tue,  5 Apr 2022 08:23:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2B05C385A1;
+        Tue,  5 Apr 2022 08:23:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149668;
-        bh=P/lxEK3xXgM2nxhjaAHZNVVhYk11eH/eKFXBmOkQsxo=;
+        s=korg; t=1649146996;
+        bh=B+LL6HqRHaXg/j5A4/f7HpsysJBncMEphF9/Mdw/N7Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uOsrNKfHV/Zdp76lY7oq14/x5KBgu47WSiKkPhy5xt5E/GlpJ4Z7vnLg5ZdxIZxBR
-         1hZiL6SF9L7ZuzqJIdt3ruNDQbHVYxenhAINeW6ZyLVocizTSO39AsB6jfH+bOs+Y7
-         zuqw4LMg0277I/rjkGdAHxyxciLjXoSahyyPPEt4=
+        b=IUD6fql9DbiCYm3NHsHPKEYt7AQo1osr2JnApSPcpi5wRbmpIJJ89sUNpAOU1fAHP
+         53ShSUG7p/lv0rQ5oaVOW9yrGgJqORHm7kVddKeUndcueBaIxk9ICF6jm+5+NeiaPd
+         phNCVcMydfsVRXlS7UQBhEa0yNd0vndwEpfknFvU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0759/1017] memstick/mspro_block: fix handling of read-only devices
-Date:   Tue,  5 Apr 2022 09:27:52 +0200
-Message-Id: <20220405070416.789172716@linuxfoundation.org>
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 0926/1126] lib/test_lockup: fix kernel pointer check for separate address spaces
+Date:   Tue,  5 Apr 2022 09:27:53 +0200
+Message-Id: <20220405070434.700016124@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,51 +53,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 6dab421bfe06a59bf8f212a72e34673e8acf2018 ]
+[ Upstream commit 5a06fcb15b43d1f7bf740c672950122331cb5655 ]
 
-Use set_disk_ro to propagate the read-only state to the block layer
-instead of checking for it in ->open and leaking a reference in case
-of a read-only device.
+test_kernel_ptr() uses access_ok() to figure out if a given address
+points to user space instead of kernel space. However on architectures
+that set CONFIG_ALTERNATE_USER_ADDRESS_SPACE, a pointer can be valid
+for both, and the check always fails because access_ok() returns true.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/20220215094514.3828912-4-hch@lst.de
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Make the check for user space pointers conditional on the type of
+address space layout.
+
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/memstick/core/mspro_block.c | 10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ lib/test_lockup.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/memstick/core/mspro_block.c b/drivers/memstick/core/mspro_block.c
-index c0450397b673..7ea312f0840e 100644
---- a/drivers/memstick/core/mspro_block.c
-+++ b/drivers/memstick/core/mspro_block.c
-@@ -186,13 +186,8 @@ static int mspro_block_bd_open(struct block_device *bdev, fmode_t mode)
+diff --git a/lib/test_lockup.c b/lib/test_lockup.c
+index 6a0f329a794a..c3fd87d6c2dd 100644
+--- a/lib/test_lockup.c
++++ b/lib/test_lockup.c
+@@ -417,9 +417,14 @@ static bool test_kernel_ptr(unsigned long addr, int size)
+ 		return false;
  
- 	mutex_lock(&mspro_block_disk_lock);
- 
--	if (msb && msb->card) {
-+	if (msb && msb->card)
- 		msb->usage_count++;
--		if ((mode & FMODE_WRITE) && msb->read_only)
--			rc = -EROFS;
--		else
--			rc = 0;
--	}
- 
- 	mutex_unlock(&mspro_block_disk_lock);
- 
-@@ -1239,6 +1234,9 @@ static int mspro_block_init_disk(struct memstick_dev *card)
- 	set_capacity(msb->disk, capacity);
- 	dev_dbg(&card->dev, "capacity set %ld\n", capacity);
- 
-+	if (msb->read_only)
-+		set_disk_ro(msb->disk, true);
+ 	/* should be at least readable kernel address */
+-	if (access_ok((void __user *)ptr, 1) ||
+-	    access_ok((void __user *)ptr + size - 1, 1) ||
+-	    get_kernel_nofault(buf, ptr) ||
++	if (!IS_ENABLED(CONFIG_ALTERNATE_USER_ADDRESS_SPACE) &&
++	    (access_ok((void __user *)ptr, 1) ||
++	     access_ok((void __user *)ptr + size - 1, 1))) {
++		pr_err("user space ptr invalid in kernel: %#lx\n", addr);
++		return true;
++	}
 +
- 	rc = device_add_disk(&card->dev, msb->disk, NULL);
- 	if (rc)
- 		goto out_cleanup_disk;
++	if (get_kernel_nofault(buf, ptr) ||
+ 	    get_kernel_nofault(buf, ptr + size - 1)) {
+ 		pr_err("invalid kernel ptr: %#lx\n", addr);
+ 		return true;
 -- 
 2.34.1
 
