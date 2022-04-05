@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 659E44F2C90
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:31:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B30E44F2A41
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 12:53:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241154AbiDEK2w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:28:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55270 "EHLO
+        id S1356178AbiDEKXM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:23:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38664 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235975AbiDEJbC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:31:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 982011CFF4;
-        Tue,  5 Apr 2022 02:18:13 -0700 (PDT)
+        with ESMTP id S235400AbiDEJah (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:30:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F32D8E5412;
+        Tue,  5 Apr 2022 02:17:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 34951615E5;
-        Tue,  5 Apr 2022 09:18:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C86BC385A3;
-        Tue,  5 Apr 2022 09:18:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8F80B615E4;
+        Tue,  5 Apr 2022 09:17:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9626DC385A2;
+        Tue,  5 Apr 2022 09:17:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150292;
-        bh=1Y2tJszXJ8mM7Vg/4Mf9uvXQFr8vz3unAZ/gygB5MPE=;
+        s=korg; t=1649150257;
+        bh=WzivcXSmnyAyLc6VtEfU3zcYJ5LcHw/WrmshFZPnr7s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f0y0wWQBSoWJWmwSej2C87HjSfmMkBJtPajXrb9CvkDzNMeIsPzKZ/gHoVv38lhzU
-         G8fPnLVmEM8VJ0zEV+xeDbPopM95Y+Xpx7Q3SqzxXl7A1njhrUeB30uNFeGmj7k/vC
-         28uSBIHk/nT4ynYq7RZmCyrJ5jbUFIgQm6kKXEz8=
+        b=Xt9zdx9tYGyWBLvhR8QaAYiJxKvbG4OQ0IFOAJ3XhR7+Ln5VAPKj04/Ke25Cnb09w
+         6/ZHrBj8d2M6mpV3wSriuGF11Vf7Pl35fkR+MfNrLo7uJP71szkCCCnGYeJK6cJsUf
+         9a5KGvD9pVA0v0LBf5iy+wUNg3Ir1z69RwEr/ngg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Martin Varghese <martin.varghese@nokia.com>,
-        Paolo Abeni <pabeni@redhat.com>
-Subject: [PATCH 5.16 1007/1017] openvswitch: Fixed nd target mask field in the flow dump.
-Date:   Tue,  5 Apr 2022 09:32:00 +0200
-Message-Id: <20220405070424.091516766@linuxfoundation.org>
+        stable@vger.kernel.org, Ulf Hansson <ulf.hansson@linaro.org>,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>
+Subject: [PATCH 5.16 1011/1017] mmc: rtsx: Let MMC core handle runtime PM
+Date:   Tue,  5 Apr 2022 09:32:04 +0200
+Message-Id: <20220405070424.207454669@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -54,49 +53,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Varghese <martin.varghese@nokia.com>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-commit f19c44452b58a84d95e209b847f5495d91c9983a upstream.
+commit 7570fb41e450ba37bf9335fe3751fa9f502c30fa upstream.
 
-IPv6 nd target mask was not getting populated in flow dump.
+Since MMC core handles runtime PM reference counting, we can avoid doing
+redundant runtime PM work in the driver. That means the only thing
+commit 5b4258f6721f ("misc: rtsx: rts5249 support runtime PM") misses is
+to always enable runtime PM, to let its parent driver enable ASPM in the
+runtime idle routine.
 
-In the function __ovs_nla_put_key the icmp code mask field was checked
-instead of icmp code key field to classify the flow as neighbour discovery.
-
-ufid:bdfbe3e5-60c2-43b0-a5ff-dfcac1c37328, recirc_id(0),dp_hash(0/0),
-skb_priority(0/0),in_port(ovs-nm1),skb_mark(0/0),ct_state(0/0),
-ct_zone(0/0),ct_mark(0/0),ct_label(0/0),
-eth(src=00:00:00:00:00:00/00:00:00:00:00:00,
-dst=00:00:00:00:00:00/00:00:00:00:00:00),
-eth_type(0x86dd),
-ipv6(src=::/::,dst=::/::,label=0/0,proto=58,tclass=0/0,hlimit=0/0,frag=no),
-icmpv6(type=135,code=0),
-nd(target=2001::2/::,
-sll=00:00:00:00:00:00/00:00:00:00:00:00,
-tll=00:00:00:00:00:00/00:00:00:00:00:00),
-packets:10, bytes:860, used:0.504s, dp:ovs, actions:ovs-nm2
-
-Fixes: e64457191a25 (openvswitch: Restructure datapath.c and flow.c)
-Signed-off-by: Martin Varghese <martin.varghese@nokia.com>
-Link: https://lore.kernel.org/r/20220328054148.3057-1-martinvarghesenokia@gmail.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Fixes: 7499b529d97f ("mmc: rtsx: Use pm_runtime_{get,put}() to handle runtime PM")
+Reviewed-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Link: https://lore.kernel.org/r/20220216055435.2335297-1-kai.heng.feng@canonical.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/openvswitch/flow_netlink.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/mmc/host/rtsx_pci_sdmmc.c |   18 ------------------
+ 1 file changed, 18 deletions(-)
 
---- a/net/openvswitch/flow_netlink.c
-+++ b/net/openvswitch/flow_netlink.c
-@@ -2201,8 +2201,8 @@ static int __ovs_nla_put_key(const struc
- 			icmpv6_key->icmpv6_type = ntohs(output->tp.src);
- 			icmpv6_key->icmpv6_code = ntohs(output->tp.dst);
+--- a/drivers/mmc/host/rtsx_pci_sdmmc.c
++++ b/drivers/mmc/host/rtsx_pci_sdmmc.c
+@@ -823,7 +823,6 @@ static void sd_request(struct work_struc
+ 	}
  
--			if (icmpv6_key->icmpv6_type == NDISC_NEIGHBOUR_SOLICITATION ||
--			    icmpv6_key->icmpv6_type == NDISC_NEIGHBOUR_ADVERTISEMENT) {
-+			if (swkey->tp.src == htons(NDISC_NEIGHBOUR_SOLICITATION) ||
-+			    swkey->tp.src == htons(NDISC_NEIGHBOUR_ADVERTISEMENT)) {
- 				struct ovs_key_nd *nd_key;
+ 	mutex_lock(&pcr->pcr_mutex);
+-	pm_runtime_get_sync(dev);
  
- 				nla = nla_reserve(skb, OVS_KEY_ATTR_ND, sizeof(*nd_key));
+ 	rtsx_pci_start_run(pcr);
+ 
+@@ -860,8 +859,6 @@ static void sd_request(struct work_struc
+ 			data->bytes_xfered = data->blocks * data->blksz;
+ 	}
+ 
+-	pm_runtime_mark_last_busy(dev);
+-	pm_runtime_put_autosuspend(dev);
+ 	mutex_unlock(&pcr->pcr_mutex);
+ 
+ finish:
+@@ -1093,7 +1090,6 @@ static void sdmmc_set_ios(struct mmc_hos
+ 		return;
+ 
+ 	mutex_lock(&pcr->pcr_mutex);
+-	pm_runtime_get_sync(dev);
+ 
+ 	rtsx_pci_start_run(pcr);
+ 
+@@ -1127,8 +1123,6 @@ static void sdmmc_set_ios(struct mmc_hos
+ 	rtsx_pci_switch_clock(pcr, ios->clock, host->ssc_depth,
+ 			host->initial_mode, host->double_clk, host->vpclk);
+ 
+-	pm_runtime_mark_last_busy(dev);
+-	pm_runtime_put_autosuspend(dev);
+ 	mutex_unlock(&pcr->pcr_mutex);
+ }
+ 
+@@ -1144,7 +1138,6 @@ static int sdmmc_get_ro(struct mmc_host
+ 		return -ENOMEDIUM;
+ 
+ 	mutex_lock(&pcr->pcr_mutex);
+-	pm_runtime_get_sync(dev);
+ 
+ 	rtsx_pci_start_run(pcr);
+ 
+@@ -1154,8 +1147,6 @@ static int sdmmc_get_ro(struct mmc_host
+ 	if (val & SD_WRITE_PROTECT)
+ 		ro = 1;
+ 
+-	pm_runtime_mark_last_busy(dev);
+-	pm_runtime_put_autosuspend(dev);
+ 	mutex_unlock(&pcr->pcr_mutex);
+ 
+ 	return ro;
+@@ -1173,7 +1164,6 @@ static int sdmmc_get_cd(struct mmc_host
+ 		return cd;
+ 
+ 	mutex_lock(&pcr->pcr_mutex);
+-	pm_runtime_get_sync(dev);
+ 
+ 	rtsx_pci_start_run(pcr);
+ 
+@@ -1183,8 +1173,6 @@ static int sdmmc_get_cd(struct mmc_host
+ 	if (val & SD_EXIST)
+ 		cd = 1;
+ 
+-	pm_runtime_mark_last_busy(dev);
+-	pm_runtime_put_autosuspend(dev);
+ 	mutex_unlock(&pcr->pcr_mutex);
+ 
+ 	return cd;
+@@ -1282,7 +1270,6 @@ static int sdmmc_switch_voltage(struct m
+ 		return err;
+ 
+ 	mutex_lock(&pcr->pcr_mutex);
+-	pm_runtime_get_sync(dev);
+ 
+ 	rtsx_pci_start_run(pcr);
+ 
+@@ -1312,8 +1299,6 @@ out:
+ 	err = rtsx_pci_write_register(pcr, SD_BUS_STAT,
+ 			SD_CLK_TOGGLE_EN | SD_CLK_FORCE_STOP, 0);
+ 
+-	pm_runtime_mark_last_busy(dev);
+-	pm_runtime_put_autosuspend(dev);
+ 	mutex_unlock(&pcr->pcr_mutex);
+ 
+ 	return err;
+@@ -1334,7 +1319,6 @@ static int sdmmc_execute_tuning(struct m
+ 		return err;
+ 
+ 	mutex_lock(&pcr->pcr_mutex);
+-	pm_runtime_get_sync(dev);
+ 
+ 	rtsx_pci_start_run(pcr);
+ 
+@@ -1367,8 +1351,6 @@ static int sdmmc_execute_tuning(struct m
+ 		err = sd_change_phase(host, DDR50_RX_PHASE(pcr), true);
+ 
+ out:
+-	pm_runtime_mark_last_busy(dev);
+-	pm_runtime_put_autosuspend(dev);
+ 	mutex_unlock(&pcr->pcr_mutex);
+ 
+ 	return err;
 
 
