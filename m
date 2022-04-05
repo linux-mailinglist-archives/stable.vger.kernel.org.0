@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CAC454F28C4
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:21:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 18A034F28C7
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:21:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239910AbiDEIVy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:21:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41808 "EHLO
+        id S239940AbiDEIV4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:21:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41800 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233908AbiDEIKp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:10:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABD046D841;
-        Tue,  5 Apr 2022 01:02:50 -0700 (PDT)
+        with ESMTP id S234137AbiDEIMQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:12:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F169C6D963;
+        Tue,  5 Apr 2022 01:02:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 777BA61748;
-        Tue,  5 Apr 2022 08:02:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8588AC385A1;
-        Tue,  5 Apr 2022 08:02:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 16552617B4;
+        Tue,  5 Apr 2022 08:02:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F5D7C385A1;
+        Tue,  5 Apr 2022 08:02:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145769;
-        bh=UJ/54c6wLHr/AtOqJwdfuGclGS7Q/AGrlldy0PLD/tE=;
+        s=korg; t=1649145775;
+        bh=9HN7L/AvU5dDBp7W4b2h8uXF/+nuCB18CXbxQwBIn8Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aBF59F6y1BnNwGl/LzLFJRPSBHteoqhqDBIMRAkJApCqoyX14gjw6nwFT54XTOFUe
-         in4ALI0me+MvbdwOdvcYMzS2QgAgTLYGiXsp11V4LLzhQg8ktG05d6yFPQ5LaI36La
-         qHAtXMQurKGP6vFsyA91UOpthO0Pf9EWg+fooaXw=
+        b=FtgHNSaio4AcJjaQVB4Kf5jT2clXsklJ/pF95mf0oZd1RRQamguEzD7o6+z7Xt7Oy
+         EL7ESAbOgBSapsKXAk8SyRyPHxhrlOa3xEV+NQq9A6N0seTY/WukTLCJ8ZGwVaxN6d
+         YTX9csDQTdIayG+js4NLbtLGgPu/9+6Jr69TvG7E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alex Deucher <Alexander.Deucher@amd.com>,
-        Kent Russell <kent.russell@amd.com>,
-        Andrey Grodzovsky <Andrey.Grodzovsky@amd.com>,
-        Luben Tuikov <luben.tuikov@amd.com>,
-        Harish Kasiviswanathan <Harish.Kasiviswanathan@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0524/1126] drm/amdgpu: Dont offset by 2 in FRU EEPROM
-Date:   Tue,  5 Apr 2022 09:21:11 +0200
-Message-Id: <20220405070423.010334536@linuxfoundation.org>
+Subject: [PATCH 5.17 0525/1126] PCI: aardvark: Fix reading MSI interrupt number
+Date:   Tue,  5 Apr 2022 09:21:12 +0200
+Message-Id: <20220405070423.040184551@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -58,77 +56,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luben Tuikov <luben.tuikov@amd.com>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit 3f3a24a0a3a58677d2b4f3c442d7a1be05afb123 ]
+[ Upstream commit 805dfc18dd3d4dd97a987d4406593b5a225b1253 ]
 
-Read buffers no longer expose the I2C address, and so we don't need to
-offset by two when we get the read data.
+In advk_pcie_handle_msi() it is expected that when bit i in the W1C
+register PCIE_MSI_STATUS_REG is cleared, the PCIE_MSI_PAYLOAD_REG is
+updated to contain the MSI number corresponding to index i.
 
-Cc: Alex Deucher <Alexander.Deucher@amd.com>
-Cc: Kent Russell <kent.russell@amd.com>
-Cc: Andrey Grodzovsky <Andrey.Grodzovsky@amd.com>
-Fixes: bd607166af7fe3 ("drm/amdgpu: Enable reading FRU chip via I2C v3")
-Signed-off-by: Luben Tuikov <luben.tuikov@amd.com>
-Acked-by: Harish Kasiviswanathan <Harish.Kasiviswanathan@amd.com>
-Reviewed-by: Kent Russell <kent.russell@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Experiments show that this is not so, and instead PCIE_MSI_PAYLOAD_REG
+always contains the number of the last received MSI, overall.
+
+Do not read PCIE_MSI_PAYLOAD_REG register for determining MSI interrupt
+number. Since Aardvark already forbids more than 32 interrupts and uses
+own allocated hwirq numbers, the msi_idx already corresponds to the
+received MSI number.
+
+Link: https://lore.kernel.org/r/20220110015018.26359-3-kabel@kernel.org
+Fixes: 8c39d710363c ("PCI: aardvark: Add Aardvark PCI host controller driver")
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_fru_eeprom.c | 13 ++++---------
- 1 file changed, 4 insertions(+), 9 deletions(-)
+ drivers/pci/controller/pci-aardvark.c | 9 ++-------
+ 1 file changed, 2 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_fru_eeprom.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_fru_eeprom.c
-index 2a786e788627..978c46395ced 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_fru_eeprom.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_fru_eeprom.c
-@@ -91,17 +91,13 @@ static int amdgpu_fru_read_eeprom(struct amdgpu_device *adev, uint32_t addrptr,
- 
- int amdgpu_fru_get_product_info(struct amdgpu_device *adev)
+diff --git a/drivers/pci/controller/pci-aardvark.c b/drivers/pci/controller/pci-aardvark.c
+index 4f5b44827d21..10e936363461 100644
+--- a/drivers/pci/controller/pci-aardvark.c
++++ b/drivers/pci/controller/pci-aardvark.c
+@@ -1388,7 +1388,6 @@ static void advk_pcie_remove_irq_domain(struct advk_pcie *pcie)
+ static void advk_pcie_handle_msi(struct advk_pcie *pcie)
  {
--	unsigned char buff[AMDGPU_PRODUCT_NAME_LEN+2];
-+	unsigned char buff[AMDGPU_PRODUCT_NAME_LEN];
- 	u32 addrptr;
- 	int size, len;
--	int offset = 2;
+ 	u32 msi_val, msi_mask, msi_status, msi_idx;
+-	u16 msi_data;
  
- 	if (!is_fru_eeprom_supported(adev))
- 		return 0;
+ 	msi_mask = advk_readl(pcie, PCIE_MSI_MASK_REG);
+ 	msi_val = advk_readl(pcie, PCIE_MSI_STATUS_REG);
+@@ -1398,13 +1397,9 @@ static void advk_pcie_handle_msi(struct advk_pcie *pcie)
+ 		if (!(BIT(msi_idx) & msi_status))
+ 			continue;
  
--	if (adev->asic_type == CHIP_ALDEBARAN)
--		offset = 0;
--
- 	/* If algo exists, it means that the i2c_adapter's initialized */
- 	if (!adev->pm.smu_i2c.algo) {
- 		DRM_WARN("Cannot access FRU, EEPROM accessor not initialized");
-@@ -143,8 +139,7 @@ int amdgpu_fru_get_product_info(struct amdgpu_device *adev)
- 				AMDGPU_PRODUCT_NAME_LEN);
- 		len = AMDGPU_PRODUCT_NAME_LEN - 1;
+-		/*
+-		 * msi_idx contains bits [4:0] of the msi_data and msi_data
+-		 * contains 16bit MSI interrupt number
+-		 */
+ 		advk_writel(pcie, BIT(msi_idx), PCIE_MSI_STATUS_REG);
+-		msi_data = advk_readl(pcie, PCIE_MSI_PAYLOAD_REG) & PCIE_MSI_DATA_MASK;
+-		generic_handle_irq(msi_data);
++		if (generic_handle_domain_irq(pcie->msi_inner_domain, msi_idx) == -EINVAL)
++			dev_err_ratelimited(&pcie->pdev->dev, "unexpected MSI 0x%02x\n", msi_idx);
  	}
--	/* Start at 2 due to buff using fields 0 and 1 for the address */
--	memcpy(adev->product_name, &buff[offset], len);
-+	memcpy(adev->product_name, buff, len);
- 	adev->product_name[len] = '\0';
  
- 	addrptr += size + 1;
-@@ -162,7 +157,7 @@ int amdgpu_fru_get_product_info(struct amdgpu_device *adev)
- 		DRM_WARN("FRU Product Number is larger than 16 characters. This is likely a mistake");
- 		len = sizeof(adev->product_number) - 1;
- 	}
--	memcpy(adev->product_number, &buff[offset], len);
-+	memcpy(adev->product_number, buff, len);
- 	adev->product_number[len] = '\0';
- 
- 	addrptr += size + 1;
-@@ -189,7 +184,7 @@ int amdgpu_fru_get_product_info(struct amdgpu_device *adev)
- 		DRM_WARN("FRU Serial Number is larger than 16 characters. This is likely a mistake");
- 		len = sizeof(adev->serial) - 1;
- 	}
--	memcpy(adev->serial, &buff[offset], len);
-+	memcpy(adev->serial, buff, len);
- 	adev->serial[len] = '\0';
- 
- 	return 0;
+ 	advk_writel(pcie, PCIE_ISR0_MSI_INT_PENDING,
 -- 
 2.34.1
 
