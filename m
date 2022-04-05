@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CDC44F3B49
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:16:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F19384F3866
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:33:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347853AbiDELwp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:52:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50650 "EHLO
+        id S241820AbiDELXL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:23:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48206 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357001AbiDEKZY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:25:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB6AA1F603;
-        Tue,  5 Apr 2022 03:09:22 -0700 (PDT)
+        with ESMTP id S1349476AbiDEJtz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:55 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD74327CF2;
+        Tue,  5 Apr 2022 02:47:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2E02E61500;
-        Tue,  5 Apr 2022 10:09:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38E85C385A1;
-        Tue,  5 Apr 2022 10:09:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 68F2BB81B14;
+        Tue,  5 Apr 2022 09:47:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BABF1C385A1;
+        Tue,  5 Apr 2022 09:46:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153361;
-        bh=LUTYwhcnmybB6Lou8IoelB42nJG5tdqzX84/Z0p+xeY=;
+        s=korg; t=1649152019;
+        bh=Lq7uEknIvP4GPj5dBJRcnfmvSL9QX0ZCmPatFqEOiX0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PxTvuVB4Y4tNgonqZ/R/oQA9sG6zlCz7IGLTkEL1J4n522bagqh1Fi0rqx4gUoRJJ
-         N9RLELdoU0CwTnmvNSAnpOsQYbKtG5Jin70k6v+MbxV1Oas/61J1H0RtcREn9Q5YH3
-         3OQaCtgQiew2c3hSQniCmDLLb3w+ystVLr2RRSw8=
+        b=xTXvv0848gzPJaqWM3V0Upby3jzdbu6m2kkk6jC3O0vLOxA6pqv9Qs4DU4JT9hsOi
+         Ur453fUZmItSB+lNr/mKdMAKnM7sjGUraXKYcjEwm10TOQotj0a6H+TI3EYQd3axGA
+         fMbfjaTbhewLBM1zW0LbtZmL0gqAVU00Vu5rZM5M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        stable@vger.kernel.org, Alexey Khoroshilov <khoroshilov@ispras.ru>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 194/599] media: meson: vdec: potential dereference of null pointer
+Subject: [PATCH 5.15 626/913] NFS: remove unneeded check in decode_devicenotify_args()
 Date:   Tue,  5 Apr 2022 09:28:08 +0200
-Message-Id: <20220405070304.615044171@linuxfoundation.org>
+Message-Id: <20220405070358.603196433@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
-References: <20220405070258.802373272@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,94 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Alexey Khoroshilov <khoroshilov@ispras.ru>
 
-[ Upstream commit c8c80c996182239ff9b05eda4db50184cf3b2e99 ]
+[ Upstream commit cb8fac6d2727f79f211e745b16c9abbf4d8be652 ]
 
-As the possible failure of the kzalloc(), the 'new_ts' could be NULL
-pointer.
-Therefore, it should be better to check it in order to avoid the
-dereference of the NULL pointer.
-Also, the caller esparser_queue() needs to deal with the return value of
-the amvdec_add_ts().
+[You don't often get email from khoroshilov@ispras.ru. Learn why this is important at http://aka.ms/LearnAboutSenderIdentification.]
 
-Fixes: 876f123b8956 ("media: meson: vdec: bring up to compliance")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Suggested-by: Neil Armstrong <narmstrong@baylibre.com>
-Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Overflow check in not needed anymore after we switch to kmalloc_array().
+
+Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
+Fixes: a4f743a6bb20 ("NFSv4.1: Convert open-coded array allocation calls to kmalloc_array()")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/meson/vdec/esparser.c     | 7 ++++++-
- drivers/staging/media/meson/vdec/vdec_helpers.c | 8 ++++++--
- drivers/staging/media/meson/vdec/vdec_helpers.h | 4 ++--
- 3 files changed, 14 insertions(+), 5 deletions(-)
+ fs/nfs/callback_xdr.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/drivers/staging/media/meson/vdec/esparser.c b/drivers/staging/media/meson/vdec/esparser.c
-index db7022707ff8..86ccc8937afc 100644
---- a/drivers/staging/media/meson/vdec/esparser.c
-+++ b/drivers/staging/media/meson/vdec/esparser.c
-@@ -328,7 +328,12 @@ esparser_queue(struct amvdec_session *sess, struct vb2_v4l2_buffer *vbuf)
+diff --git a/fs/nfs/callback_xdr.c b/fs/nfs/callback_xdr.c
+index ce3d1d5b1291..ea17085ef884 100644
+--- a/fs/nfs/callback_xdr.c
++++ b/fs/nfs/callback_xdr.c
+@@ -271,10 +271,6 @@ __be32 decode_devicenotify_args(struct svc_rqst *rqstp,
+ 	n = ntohl(*p++);
+ 	if (n == 0)
+ 		goto out;
+-	if (n > ULONG_MAX / sizeof(*args->devs)) {
+-		status = htonl(NFS4ERR_BADXDR);
+-		goto out;
+-	}
  
- 	offset = esparser_get_offset(sess);
- 
--	amvdec_add_ts(sess, vb->timestamp, vbuf->timecode, offset, vbuf->flags);
-+	ret = amvdec_add_ts(sess, vb->timestamp, vbuf->timecode, offset, vbuf->flags);
-+	if (ret) {
-+		v4l2_m2m_buf_done(vbuf, VB2_BUF_STATE_ERROR);
-+		return ret;
-+	}
-+
- 	dev_dbg(core->dev, "esparser: ts = %llu pld_size = %u offset = %08X flags = %08X\n",
- 		vb->timestamp, payload_size, offset, vbuf->flags);
- 
-diff --git a/drivers/staging/media/meson/vdec/vdec_helpers.c b/drivers/staging/media/meson/vdec/vdec_helpers.c
-index 7f07a9175815..db4a854e59a3 100644
---- a/drivers/staging/media/meson/vdec/vdec_helpers.c
-+++ b/drivers/staging/media/meson/vdec/vdec_helpers.c
-@@ -227,13 +227,16 @@ int amvdec_set_canvases(struct amvdec_session *sess,
- }
- EXPORT_SYMBOL_GPL(amvdec_set_canvases);
- 
--void amvdec_add_ts(struct amvdec_session *sess, u64 ts,
--		   struct v4l2_timecode tc, u32 offset, u32 vbuf_flags)
-+int amvdec_add_ts(struct amvdec_session *sess, u64 ts,
-+		  struct v4l2_timecode tc, u32 offset, u32 vbuf_flags)
- {
- 	struct amvdec_timestamp *new_ts;
- 	unsigned long flags;
- 
- 	new_ts = kzalloc(sizeof(*new_ts), GFP_KERNEL);
-+	if (!new_ts)
-+		return -ENOMEM;
-+
- 	new_ts->ts = ts;
- 	new_ts->tc = tc;
- 	new_ts->offset = offset;
-@@ -242,6 +245,7 @@ void amvdec_add_ts(struct amvdec_session *sess, u64 ts,
- 	spin_lock_irqsave(&sess->ts_spinlock, flags);
- 	list_add_tail(&new_ts->list, &sess->timestamps);
- 	spin_unlock_irqrestore(&sess->ts_spinlock, flags);
-+	return 0;
- }
- EXPORT_SYMBOL_GPL(amvdec_add_ts);
- 
-diff --git a/drivers/staging/media/meson/vdec/vdec_helpers.h b/drivers/staging/media/meson/vdec/vdec_helpers.h
-index cfaed52ab526..798e5a8a9b3f 100644
---- a/drivers/staging/media/meson/vdec/vdec_helpers.h
-+++ b/drivers/staging/media/meson/vdec/vdec_helpers.h
-@@ -55,8 +55,8 @@ void amvdec_dst_buf_done_offset(struct amvdec_session *sess,
-  * @offset: offset in the VIFIFO where the associated packet was written
-  * @flags the vb2_v4l2_buffer flags
-  */
--void amvdec_add_ts(struct amvdec_session *sess, u64 ts,
--		   struct v4l2_timecode tc, u32 offset, u32 flags);
-+int amvdec_add_ts(struct amvdec_session *sess, u64 ts,
-+		  struct v4l2_timecode tc, u32 offset, u32 flags);
- void amvdec_remove_ts(struct amvdec_session *sess, u64 ts);
- 
- /**
+ 	args->devs = kmalloc_array(n, sizeof(*args->devs), GFP_KERNEL);
+ 	if (!args->devs) {
 -- 
 2.34.1
 
