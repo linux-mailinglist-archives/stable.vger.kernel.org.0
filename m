@@ -2,48 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B08744F37EB
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:26:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 147E24F3A7E
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:01:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359716AbiDELUg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:20:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39108 "EHLO
+        id S1381482AbiDELp7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:45:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36676 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349238AbiDEJt2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BA272315C;
-        Tue,  5 Apr 2022 02:43:08 -0700 (PDT)
+        with ESMTP id S1354826AbiDEKQJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:16:09 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAF596C95A;
+        Tue,  5 Apr 2022 03:03:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DD22B61675;
-        Tue,  5 Apr 2022 09:43:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4BD5C385A1;
-        Tue,  5 Apr 2022 09:43:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 77177B81BC0;
+        Tue,  5 Apr 2022 10:03:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9184C385A2;
+        Tue,  5 Apr 2022 10:03:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151787;
-        bh=7Vx2WvST/3UetrRUM4JsvOUg6Uksvk+kePktchHbQIc=;
+        s=korg; t=1649152985;
+        bh=7T3V9Ql41ZXUXe2eHr5kADkK5LhNNXoQgf53a89Czf8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AQbyk6RB/rovKedEwfyVqomq9KQD1X0SLCUfBYT3J0Hltx2WGV9HGjzNLOJryZfTt
-         IZSNikf7fWCwoCDPOUDt6HFQQaIDW7typSr7Mo8qW317eLm2qmN1T57Dg2JoE91Q93
-         5YZU/82u8ecKHU5n9JNTq7psbH3BWARytNhN1B8o=
+        b=XoKYqACQi5ksIOTFMur+8DnXtj5FM7/y6D5345l+RubAeqz/+rNP70fgslsOakE2x
+         PmqMXDTaRBRFvloGrW+kvNEm2ndh/5njpPzktJRIvGO9V/DhR9yYlAMwvqycvXqLiB
+         RfCjUovO3aUB8/aVxLGYBNL4N5umklNdd2uOlv8Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Igor Zhbanov <i.zhbanov@omprussia.ru>,
-        James Morris <jmorris@namei.org>,
-        Kentaro Takeda <takedakn@nttdata.co.jp>,
-        tomoyo-dev-en@lists.osdn.me, "Serge E. Hallyn" <serge@hallyn.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 492/913] TOMOYO: fix __setup handlers return values
+        stable@vger.kernel.org, Rik van Riel <riel@surriel.com>,
+        Miaohe Lin <linmiaohe@huawei.com>,
+        Naoya Horiguchi <naoya.horiguchi@nec.com>,
+        Oscar Salvador <osalvador@suse.de>,
+        John Hubbard <jhubbard@nvidia.com>,
+        Mel Gorman <mgorman@suse.de>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Matthew Wilcox <willy@infradead.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.10 060/599] mm: invalidate hwpoison page cache page in fault path
 Date:   Tue,  5 Apr 2022 09:25:54 +0200
-Message-Id: <20220405070354.602618440@linuxfoundation.org>
+Message-Id: <20220405070300.613828921@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070258.802373272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,72 +61,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Rik van Riel <riel@surriel.com>
 
-[ Upstream commit 39844b7e3084baecef52d1498b5fa81afa2cefa9 ]
+commit e53ac7374e64dede04d745ff0e70ff5048378d1f upstream.
 
-__setup() handlers should return 1 if the parameter is handled.
-Returning 0 causes the entire string to be added to init's
-environment strings (limited to 32 strings), unnecessarily polluting it.
+Sometimes the page offlining code can leave behind a hwpoisoned clean
+page cache page.  This can lead to programs being killed over and over
+and over again as they fault in the hwpoisoned page, get killed, and
+then get re-spawned by whatever wanted to run them.
 
-Using the documented strings "TOMOYO_loader=string1" and
-"TOMOYO_trigger=string2" causes an Unknown parameter message:
-  Unknown kernel command line parameters
-    "BOOT_IMAGE=/boot/bzImage-517rc5 TOMOYO_loader=string1 \
-     TOMOYO_trigger=string2", will be passed to user space.
+This is particularly embarrassing when the page was offlined due to
+having too many corrected memory errors.  Now we are killing tasks due
+to them trying to access memory that probably isn't even corrupted.
 
-and these strings are added to init's environment string space:
-  Run /sbin/init as init process
-    with arguments:
-     /sbin/init
-    with environment:
-     HOME=/
-     TERM=linux
-     BOOT_IMAGE=/boot/bzImage-517rc5
-     TOMOYO_loader=string1
-     TOMOYO_trigger=string2
+This problem can be avoided by invalidating the page from the page fault
+handler, which already has a branch for dealing with these kinds of
+pages.  With this patch we simply pretend the page fault was successful
+if the page was invalidated, return to userspace, incur another page
+fault, read in the file from disk (to a new memory page), and then
+everything works again.
 
-With this change, these __setup handlers act as expected,
-and init's environment is not polluted with these strings.
-
-Fixes: 0e4ae0e0dec63 ("TOMOYO: Make several options configurable.")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
-Link: https://lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
-Cc: James Morris <jmorris@namei.org>
-Cc: Kentaro Takeda <takedakn@nttdata.co.jp>
-Cc: tomoyo-dev-en@lists.osdn.me
-Cc: "Serge E. Hallyn" <serge@hallyn.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lkml.kernel.org/r/20220212213740.423efcea@imladris.surriel.com
+Signed-off-by: Rik van Riel <riel@surriel.com>
+Reviewed-by: Miaohe Lin <linmiaohe@huawei.com>
+Acked-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Reviewed-by: Oscar Salvador <osalvador@suse.de>
+Cc: John Hubbard <jhubbard@nvidia.com>
+Cc: Mel Gorman <mgorman@suse.de>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- security/tomoyo/load_policy.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ mm/memory.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/security/tomoyo/load_policy.c b/security/tomoyo/load_policy.c
-index 3445ae6fd479..363b65be87ab 100644
---- a/security/tomoyo/load_policy.c
-+++ b/security/tomoyo/load_policy.c
-@@ -24,7 +24,7 @@ static const char *tomoyo_loader;
- static int __init tomoyo_loader_setup(char *str)
- {
- 	tomoyo_loader = str;
--	return 0;
-+	return 1;
- }
+--- a/mm/memory.c
++++ b/mm/memory.c
+@@ -3676,11 +3676,16 @@ static vm_fault_t __do_fault(struct vm_f
+ 		return ret;
  
- __setup("TOMOYO_loader=", tomoyo_loader_setup);
-@@ -64,7 +64,7 @@ static const char *tomoyo_trigger;
- static int __init tomoyo_trigger_setup(char *str)
- {
- 	tomoyo_trigger = str;
--	return 0;
-+	return 1;
- }
+ 	if (unlikely(PageHWPoison(vmf->page))) {
+-		if (ret & VM_FAULT_LOCKED)
++		vm_fault_t poisonret = VM_FAULT_HWPOISON;
++		if (ret & VM_FAULT_LOCKED) {
++			/* Retry if a clean page was removed from the cache. */
++			if (invalidate_inode_page(vmf->page))
++				poisonret = 0;
+ 			unlock_page(vmf->page);
++		}
+ 		put_page(vmf->page);
+ 		vmf->page = NULL;
+-		return VM_FAULT_HWPOISON;
++		return poisonret;
+ 	}
  
- __setup("TOMOYO_trigger=", tomoyo_trigger_setup);
--- 
-2.34.1
-
+ 	if (unlikely(!(ret & VM_FAULT_LOCKED)))
 
 
