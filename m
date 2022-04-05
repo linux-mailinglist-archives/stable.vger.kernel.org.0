@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 624704F3983
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:49:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CEE444F3C04
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:23:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239834AbiDELfH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:35:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35092 "EHLO
+        id S1382269AbiDEMD7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:03:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50688 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352665AbiDEKEw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:04:52 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5483ABB910;
-        Tue,  5 Apr 2022 02:53:37 -0700 (PDT)
+        with ESMTP id S1358147AbiDEK2C (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:28:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 759DF9BBB8;
+        Tue,  5 Apr 2022 03:15:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 266BDCE1CA2;
-        Tue,  5 Apr 2022 09:53:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CC72C385A1;
-        Tue,  5 Apr 2022 09:53:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2ECB7B81C98;
+        Tue,  5 Apr 2022 10:15:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97DE9C385A0;
+        Tue,  5 Apr 2022 10:15:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152414;
-        bh=dOC/qeva2LJb0df2IyTGuQKNhvG4/vpycOtEmcS+tso=;
+        s=korg; t=1649153754;
+        bh=pllJwSg82srfAKyDgvJ4BWWLH9Horfff9Wx5+FML3QA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K9X234PuAWJShF74rKwKyqALJ8eSez9UUIEfHOvNZ/W6yAbmUsIKg3GUqAB3q/RbB
-         YM3puXLyVlInKlbixudn3eAkJGMugNS9Rh8bkoDaqXgtz2bW1NGNoByIGcbju46Xuf
-         oyrZ0Jsnb2IspKDNCbFp8Peb7sDrPIEhJNh7c/cM=
+        b=XtravBLMLz5dcQzsfBBzSsz6ZqUf7TThda3enjHf3DokVi2C5rJReiRwnJSOV2/li
+         H/tSNOAjr5V6Mn8lAPZJXqLUiy/KCCjofpGSaNuKliovM6pYs4vJea+CAqwvCTM6D7
+         3qyxNAJ6IYX/Z3KGR2+kX6ISoc/rEiJn2s0mAlxM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans Verkuil <hverkuil@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 768/913] media: atomisp: fix bad usage at error handling logic
+        stable@vger.kernel.org, Robert Hancock <robert.hancock@calian.com>,
+        Michal Simek <michal.simek@xilinx.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 336/599] i2c: xiic: Make bus names unique
 Date:   Tue,  5 Apr 2022 09:30:30 +0200
-Message-Id: <20220405070402.853528449@linuxfoundation.org>
+Message-Id: <20220405070308.830822507@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070258.802373272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,93 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mauro Carvalho Chehab <mchehab@kernel.org>
+From: Robert Hancock <robert.hancock@calian.com>
 
-[ Upstream commit fc0b582c858ed73f94c8f3375c203ea46f1f7402 ]
+[ Upstream commit 1d366c2f9df8279df2adbb60471f86fc40a1c39e ]
 
-As warned by sparse:
-	atomisp: drivers/staging/media/atomisp/pci/atomisp_acc.c:508 atomisp_acc_load_extensions() warn: iterator used outside loop: 'acc_fw'
+This driver is for an FPGA logic core, so there can be arbitrarily many
+instances of the bus on a given system. Previously all of the I2C bus
+names were "xiic-i2c" which caused issues with lm_sensors when trying to
+map human-readable names to sensor inputs because it could not properly
+distinguish the busses, for example. Append the platform device name to
+the I2C bus name so it is unique between different instances.
 
-The acc_fw interactor is used outside the loop, at the error handling
-logic. On most cases, this is actually safe there, but, if
-atomisp_css_set_acc_parameters() has an error, an attempt to use it
-will pick an invalid value for acc_fw.
-
-Reported-by: Hans Verkuil <hverkuil@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Fixes: e1d5b6598cdc ("i2c: Add support for Xilinx XPS IIC Bus Interface")
+Signed-off-by: Robert Hancock <robert.hancock@calian.com>
+Tested-by: Michal Simek <michal.simek@xilinx.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../staging/media/atomisp/pci/atomisp_acc.c   | 28 +++++++++++++------
- 1 file changed, 19 insertions(+), 9 deletions(-)
+ drivers/i2c/busses/i2c-xiic.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/staging/media/atomisp/pci/atomisp_acc.c b/drivers/staging/media/atomisp/pci/atomisp_acc.c
-index 9a1751895ab0..28cb271663c4 100644
---- a/drivers/staging/media/atomisp/pci/atomisp_acc.c
-+++ b/drivers/staging/media/atomisp/pci/atomisp_acc.c
-@@ -439,6 +439,18 @@ int atomisp_acc_s_mapped_arg(struct atomisp_sub_device *asd,
- 	return 0;
- }
+diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
+index 2a8568b97c14..8dabb6ffb1a4 100644
+--- a/drivers/i2c/busses/i2c-xiic.c
++++ b/drivers/i2c/busses/i2c-xiic.c
+@@ -756,7 +756,6 @@ static const struct i2c_adapter_quirks xiic_quirks = {
  
-+static void atomisp_acc_unload_some_extensions(struct atomisp_sub_device *asd,
-+					      int i,
-+					      struct atomisp_acc_fw *acc_fw)
-+{
-+	while (--i >= 0) {
-+		if (acc_fw->flags & acc_flag_to_pipe[i].flag) {
-+			atomisp_css_unload_acc_extension(asd, acc_fw->fw,
-+							 acc_flag_to_pipe[i].pipe_id);
-+		}
-+	}
-+}
-+
- /*
-  * Appends the loaded acceleration binary extensions to the
-  * current ISP mode. Must be called just before sh_css_start().
-@@ -479,16 +491,20 @@ int atomisp_acc_load_extensions(struct atomisp_sub_device *asd)
- 								     acc_fw->fw,
- 								     acc_flag_to_pipe[i].pipe_id,
- 								     acc_fw->type);
--				if (ret)
-+				if (ret) {
-+					atomisp_acc_unload_some_extensions(asd, i, acc_fw);
- 					goto error;
-+				}
+ static const struct i2c_adapter xiic_adapter = {
+ 	.owner = THIS_MODULE,
+-	.name = DRIVER_NAME,
+ 	.class = I2C_CLASS_DEPRECATED,
+ 	.algo = &xiic_algorithm,
+ 	.quirks = &xiic_quirks,
+@@ -793,6 +792,8 @@ static int xiic_i2c_probe(struct platform_device *pdev)
+ 	i2c_set_adapdata(&i2c->adap, i2c);
+ 	i2c->adap.dev.parent = &pdev->dev;
+ 	i2c->adap.dev.of_node = pdev->dev.of_node;
++	snprintf(i2c->adap.name, sizeof(i2c->adap.name),
++		 DRIVER_NAME " %s", pdev->name);
  
- 				ext_loaded = true;
- 			}
- 		}
- 
- 		ret = atomisp_css_set_acc_parameters(acc_fw);
--		if (ret < 0)
-+		if (ret < 0) {
-+			atomisp_acc_unload_some_extensions(asd, i, acc_fw);
- 			goto error;
-+		}
- 	}
- 
- 	if (!ext_loaded)
-@@ -497,6 +513,7 @@ int atomisp_acc_load_extensions(struct atomisp_sub_device *asd)
- 	ret = atomisp_css_update_stream(asd);
- 	if (ret) {
- 		dev_err(isp->dev, "%s: update stream failed.\n", __func__);
-+		atomisp_acc_unload_extensions(asd);
- 		goto error;
- 	}
- 
-@@ -504,13 +521,6 @@ int atomisp_acc_load_extensions(struct atomisp_sub_device *asd)
- 	return 0;
- 
- error:
--	while (--i >= 0) {
--		if (acc_fw->flags & acc_flag_to_pipe[i].flag) {
--			atomisp_css_unload_acc_extension(asd, acc_fw->fw,
--							 acc_flag_to_pipe[i].pipe_id);
--		}
--	}
--
- 	list_for_each_entry_continue_reverse(acc_fw, &asd->acc.fw, list) {
- 		if (acc_fw->type != ATOMISP_ACC_FW_LOAD_TYPE_OUTPUT &&
- 		    acc_fw->type != ATOMISP_ACC_FW_LOAD_TYPE_VIEWFINDER)
+ 	mutex_init(&i2c->lock);
+ 	init_waitqueue_head(&i2c->wait);
 -- 
 2.34.1
 
