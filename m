@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E56104F3C02
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:23:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 088844F3938
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:45:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382261AbiDEMDz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:03:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47148 "EHLO
+        id S1377727AbiDELa0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:30:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33938 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358174AbiDEK2D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:28:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F40F9E9D0;
-        Tue,  5 Apr 2022 03:16:17 -0700 (PDT)
+        with ESMTP id S1352880AbiDEKFQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:05:16 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E79E221819;
+        Tue,  5 Apr 2022 02:53:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EFFAD617A4;
-        Tue,  5 Apr 2022 10:16:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07AB7C385A1;
-        Tue,  5 Apr 2022 10:16:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 34D8BB81C9B;
+        Tue,  5 Apr 2022 09:53:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A0FDC385A2;
+        Tue,  5 Apr 2022 09:53:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153776;
-        bh=1I9ntHJiM21S0qLJy1WF+V3MuZ6FluhhpC6uOraCkoc=;
+        s=korg; t=1649152436;
+        bh=YmpZLRTg0VYSCq0h7FNTg3T582pHsUuY2WzC52Y/wWg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FhyHz2h9BW8tUYcyZmlOqpdK5kecLKW6Zp6Sk672B3DMjcDUbonvla/dk5RyQIAZq
-         iSpoSOLIgn7gvgfHCiBywx7Hlbc0h/Bw9s7/neJ1XuH+xuz3JYtmdRLtk230qUfIvp
-         TvMRHtI9GX9LzVtOh8SHTOvjf47sEHTvDC8So2gg=
+        b=e3gQU+wlCxVAoj0fV3qV+WjmXBnsr9jAA/4Dl/N1yL2qWJd3bDgrCAIvgFDBmDJar
+         m7i+gm11Um3Z81JQZr1SjEdE0BgsIM9N4Kjh9rBsVDjm45Pxrxo9/PPPnVwul1ecfL
+         RT3jnTLPIF7ElSrsI54xlTAn/BaF+m4z/iBWOmpU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakob Koschel <jakobkoschel@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 343/599] powerpc/sysdev: fix incorrect use to determine if list is empty
+        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.15 775/913] KVM: x86: hyper-v: Drop redundant ex parameter from kvm_hv_flush_tlb()
 Date:   Tue,  5 Apr 2022 09:30:37 +0200
-Message-Id: <20220405070309.039491125@linuxfoundation.org>
+Message-Id: <20220405070403.063242780@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
-References: <20220405070258.802373272@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,50 +53,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakob Koschel <jakobkoschel@gmail.com>
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
 
-[ Upstream commit fa1321b11bd01752f5be2415e74a0e1a7c378262 ]
+commit 82c1ead0d678af31e5d883656c12096a0004178b upstream.
 
-'gtm' will *always* be set by list_for_each_entry().
-It is incorrect to assume that the iterator value will be NULL if the
-list is empty.
+'struct kvm_hv_hcall' has all the required information already,
+there's no need to pass 'ex' additionally.
 
-Instead of checking the pointer it should be checked if
-the list is empty.
+No functional change intended.
 
-Fixes: 83ff9dcf375c ("powerpc/sysdev: implement FSL GTM support")
-Signed-off-by: Jakob Koschel <jakobkoschel@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220228142434.576226-1-jakobkoschel@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org # 5.14.x
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Message-Id: <20220222154642.684285-3-vkuznets@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/sysdev/fsl_gtm.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/kvm/hyperv.c |   23 ++++++-----------------
+ 1 file changed, 6 insertions(+), 17 deletions(-)
 
-diff --git a/arch/powerpc/sysdev/fsl_gtm.c b/arch/powerpc/sysdev/fsl_gtm.c
-index 8963eaffb1b7..39186ad6b3c3 100644
---- a/arch/powerpc/sysdev/fsl_gtm.c
-+++ b/arch/powerpc/sysdev/fsl_gtm.c
-@@ -86,7 +86,7 @@ static LIST_HEAD(gtms);
-  */
- struct gtm_timer *gtm_get_timer16(void)
+--- a/arch/x86/kvm/hyperv.c
++++ b/arch/x86/kvm/hyperv.c
+@@ -1749,7 +1749,7 @@ struct kvm_hv_hcall {
+ 	sse128_t xmm[HV_HYPERCALL_MAX_XMM_REGISTERS];
+ };
+ 
+-static u64 kvm_hv_flush_tlb(struct kvm_vcpu *vcpu, struct kvm_hv_hcall *hc, bool ex)
++static u64 kvm_hv_flush_tlb(struct kvm_vcpu *vcpu, struct kvm_hv_hcall *hc)
  {
--	struct gtm *gtm = NULL;
-+	struct gtm *gtm;
  	int i;
+ 	gpa_t gpa;
+@@ -1765,7 +1765,8 @@ static u64 kvm_hv_flush_tlb(struct kvm_v
+ 	int sparse_banks_len;
+ 	bool all_cpus;
  
- 	list_for_each_entry(gtm, &gtms, list_node) {
-@@ -103,7 +103,7 @@ struct gtm_timer *gtm_get_timer16(void)
- 		spin_unlock_irq(&gtm->lock);
- 	}
- 
--	if (gtm)
-+	if (!list_empty(&gtms))
- 		return ERR_PTR(-EBUSY);
- 	return ERR_PTR(-ENODEV);
- }
--- 
-2.34.1
-
+-	if (!ex) {
++	if (hc->code == HVCALL_FLUSH_VIRTUAL_ADDRESS_LIST ||
++	    hc->code == HVCALL_FLUSH_VIRTUAL_ADDRESS_SPACE) {
+ 		if (hc->fast) {
+ 			flush.address_space = hc->ingpa;
+ 			flush.flags = hc->outgpa;
+@@ -2246,32 +2247,20 @@ int kvm_hv_hypercall(struct kvm_vcpu *vc
+ 				kvm_hv_hypercall_complete_userspace;
+ 		return 0;
+ 	case HVCALL_FLUSH_VIRTUAL_ADDRESS_LIST:
+-		if (unlikely(!hc.rep_cnt || hc.rep_idx)) {
+-			ret = HV_STATUS_INVALID_HYPERCALL_INPUT;
+-			break;
+-		}
+-		ret = kvm_hv_flush_tlb(vcpu, &hc, false);
+-		break;
+-	case HVCALL_FLUSH_VIRTUAL_ADDRESS_SPACE:
+-		if (unlikely(hc.rep)) {
+-			ret = HV_STATUS_INVALID_HYPERCALL_INPUT;
+-			break;
+-		}
+-		ret = kvm_hv_flush_tlb(vcpu, &hc, false);
+-		break;
+ 	case HVCALL_FLUSH_VIRTUAL_ADDRESS_LIST_EX:
+ 		if (unlikely(!hc.rep_cnt || hc.rep_idx)) {
+ 			ret = HV_STATUS_INVALID_HYPERCALL_INPUT;
+ 			break;
+ 		}
+-		ret = kvm_hv_flush_tlb(vcpu, &hc, true);
++		ret = kvm_hv_flush_tlb(vcpu, &hc);
+ 		break;
++	case HVCALL_FLUSH_VIRTUAL_ADDRESS_SPACE:
+ 	case HVCALL_FLUSH_VIRTUAL_ADDRESS_SPACE_EX:
+ 		if (unlikely(hc.rep)) {
+ 			ret = HV_STATUS_INVALID_HYPERCALL_INPUT;
+ 			break;
+ 		}
+-		ret = kvm_hv_flush_tlb(vcpu, &hc, true);
++		ret = kvm_hv_flush_tlb(vcpu, &hc);
+ 		break;
+ 	case HVCALL_SEND_IPI:
+ 		if (unlikely(hc.rep)) {
 
 
