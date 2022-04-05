@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 000CE4F3E1F
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 22:41:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C232E4F3FEC
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:05:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379255AbiDEMYG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:24:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59204 "EHLO
+        id S1379740AbiDEMYO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:24:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59282 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356140AbiDEKW7 (ORCPT
+        with ESMTP id S1356139AbiDEKW7 (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:22:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1988BB8219;
-        Tue,  5 Apr 2022 03:06:40 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EA89B82DB;
+        Tue,  5 Apr 2022 03:06:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AA41D61777;
-        Tue,  5 Apr 2022 10:06:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF061C385A1;
-        Tue,  5 Apr 2022 10:06:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1B4D3B81BC0;
+        Tue,  5 Apr 2022 10:06:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 698A2C385A2;
+        Tue,  5 Apr 2022 10:06:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153199;
-        bh=EagtgJoqyPZf7J5pgJP96eRgqDmMIx2ztSMpC7BaJm4=;
+        s=korg; t=1649153201;
+        bh=Jc+JzbY33FN9h8pyG2ldw03fJ9OJVncRfFwxDY8PMaw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RwynnHPRs5YlwlbXuyqGBU+37FTZTxbNncEyjGNYCsxfunw+g8hW6nemjZ9ZgviW2
-         FXrtnWVowruDDU4oWrgnFErQkiN5CFtOsyKhbbhgdUvjuHpc9y8Yy8uy7qeCVYjDAv
-         VsdG6Gx5HEpXpqS3eoJpd26+lC0ljfuYKzAuKy1U=
+        b=cRcBN7VuWCLHl/tVwMvLnN5CXZElXBW5knDGQCY9lD23YyHSshcrlGzI+LfzoQGis
+         48khSqBAW5WL83oxXVL2J3SYVGBQqoomWtmgk9CzXCc5pQQSUWOGsaQ9pbNhLpHjpm
+         wtew+7LcKicxRGY85hFPK4N4FeVfTw1EwIZAAgE0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jianyong Wu <jianyong.wu@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 137/599] arm64/mm: avoid fixmap race condition when create pud mapping
-Date:   Tue,  5 Apr 2022 09:27:11 +0200
-Message-Id: <20220405070302.917553358@linuxfoundation.org>
+        stable@vger.kernel.org, "kernelci.org bot" <bot@kernelci.org>,
+        Muhammad Usama Anjum <usama.anjum@collabora.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 138/599] selftests/x86: Add validity check and allow field splitting
+Date:   Tue,  5 Apr 2022 09:27:12 +0200
+Message-Id: <20220405070302.948561867@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -54,73 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jianyong Wu <jianyong.wu@arm.com>
+From: Muhammad Usama Anjum <usama.anjum@collabora.com>
 
-[ Upstream commit ee017ee353506fcec58e481673e4331ff198a80e ]
+[ Upstream commit b06e15ebd5bfb670f93c7f11a29b8299c1178bc6 ]
 
-The 'fixmap' is a global resource and is used recursively by
-create pud mapping(), leading to a potential race condition in the
-presence of a concurrent call to alloc_init_pud():
+Add check to test if CC has a string. CC can have multiple sub-strings
+like "ccache gcc". Erorr pops up if it is treated as single string and
+double quotes are used around it. This can be fixed by removing the
+quotes and not treating CC as a single string.
 
-kernel_init thread                          virtio-mem workqueue thread
-==================                          ===========================
-
-  alloc_init_pud(...)                       alloc_init_pud(...)
-  pudp = pud_set_fixmap_offset(...)         pudp = pud_set_fixmap_offset(...)
-  READ_ONCE(*pudp)
-  pud_clear_fixmap(...)
-                                            READ_ONCE(*pudp) // CRASH!
-
-As kernel may sleep during creating pud mapping, introduce a mutex lock to
-serialise use of the fixmap entries by alloc_init_pud(). However, there is
-no need for locking in early boot stage and it doesn't work well with
-KASLR enabled when early boot. So, enable lock when system_state doesn't
-equal to "SYSTEM_BOOTING".
-
-Signed-off-by: Jianyong Wu <jianyong.wu@arm.com>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Fixes: f4710445458c ("arm64: mm: use fixmap when creating page tables")
-Link: https://lore.kernel.org/r/20220201114400.56885-1-jianyong.wu@arm.com
-Signed-off-by: Will Deacon <will@kernel.org>
+Fixes: e9886ace222e ("selftests, x86: Rework x86 target architecture detection")
+Reported-by: "kernelci.org bot" <bot@kernelci.org>
+Signed-off-by: Muhammad Usama Anjum <usama.anjum@collabora.com>
+Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
+Link: https://lkml.kernel.org/r/20220214184109.3739179-2-usama.anjum@collabora.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/mm/mmu.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ tools/testing/selftests/x86/check_cc.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/mm/mmu.c b/arch/arm64/mm/mmu.c
-index 991e599f7057..a9ec8c739d37 100644
---- a/arch/arm64/mm/mmu.c
-+++ b/arch/arm64/mm/mmu.c
-@@ -61,6 +61,7 @@ static pmd_t bm_pmd[PTRS_PER_PMD] __page_aligned_bss __maybe_unused;
- static pud_t bm_pud[PTRS_PER_PUD] __page_aligned_bss __maybe_unused;
+diff --git a/tools/testing/selftests/x86/check_cc.sh b/tools/testing/selftests/x86/check_cc.sh
+index 3e2089c8cf54..8c669c0d662e 100755
+--- a/tools/testing/selftests/x86/check_cc.sh
++++ b/tools/testing/selftests/x86/check_cc.sh
+@@ -7,7 +7,7 @@ CC="$1"
+ TESTPROG="$2"
+ shift 2
  
- static DEFINE_SPINLOCK(swapper_pgdir_lock);
-+static DEFINE_MUTEX(fixmap_lock);
- 
- void set_swapper_pgd(pgd_t *pgdp, pgd_t pgd)
- {
-@@ -314,6 +315,12 @@ static void alloc_init_pud(pgd_t *pgdp, unsigned long addr, unsigned long end,
- 	}
- 	BUG_ON(p4d_bad(p4d));
- 
-+	/*
-+	 * No need for locking during early boot. And it doesn't work as
-+	 * expected with KASLR enabled.
-+	 */
-+	if (system_state != SYSTEM_BOOTING)
-+		mutex_lock(&fixmap_lock);
- 	pudp = pud_set_fixmap_offset(p4dp, addr);
- 	do {
- 		pud_t old_pud = READ_ONCE(*pudp);
-@@ -344,6 +351,8 @@ static void alloc_init_pud(pgd_t *pgdp, unsigned long addr, unsigned long end,
- 	} while (pudp++, addr = next, addr != end);
- 
- 	pud_clear_fixmap();
-+	if (system_state != SYSTEM_BOOTING)
-+		mutex_unlock(&fixmap_lock);
- }
- 
- static void __create_pgd_mapping(pgd_t *pgdir, phys_addr_t phys,
+-if "$CC" -o /dev/null "$TESTPROG" -O0 "$@" 2>/dev/null; then
++if [ -n "$CC" ] && $CC -o /dev/null "$TESTPROG" -O0 "$@" 2>/dev/null; then
+     echo 1
+ else
+     echo 0
 -- 
 2.34.1
 
