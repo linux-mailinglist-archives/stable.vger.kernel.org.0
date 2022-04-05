@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC2F64F2E09
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:49:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 32E654F29E1
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 12:50:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347819AbiDEJ23 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:28:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48748 "EHLO
+        id S1345107AbiDEKkn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:40:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36286 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244931AbiDEIws (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F9EB24976;
-        Tue,  5 Apr 2022 01:46:57 -0700 (PDT)
+        with ESMTP id S244219AbiDEJlK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:41:10 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D4E9BB088;
+        Tue,  5 Apr 2022 02:25:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E329661504;
-        Tue,  5 Apr 2022 08:46:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2871C385A0;
-        Tue,  5 Apr 2022 08:46:55 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 5A3A9CE1C79;
+        Tue,  5 Apr 2022 09:25:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73780C385A0;
+        Tue,  5 Apr 2022 09:25:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148416;
-        bh=+B1K6yVJZhmk/O3MTEvRv6W2ZTCovqloX1k7D8NE4iU=;
+        s=korg; t=1649150738;
+        bh=lyl/QYeOAOaVkyrba6LwCYjzbpaPtg3ddCAsSWp4+5E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E8E2cWENb3fds7eVYeAfKjQYF37FNTDUwsDIHwNA0YZh20pMXE65Av/b81u5WTCPZ
-         PvW6/Uufch5RznOTRt9KZCcgccFVzHkm+NASSLUUhcMWQ65M2A1QtjWOWpHfs9fk36
-         Qfq+FhTePk9G3ZnxR9j0ZaNGwvNEJWNU/o0JU2Zk=
+        b=PXztr1PJopqy26NYFmP7qzfp3hyPeQUO53t4E5feUEN/IQZvDvlx7TpPNnTKAQQg5
+         vSEzFDsNCHyFn6cZgW8pE2eKYK0PaRZGJ4Ex5nQBGM0+B1NiUpdjN/fzHk031tIr80
+         bJ/pm2bPiSfUldHJ/U40TtyawxS2QqMk+TkkALyA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Marijn Suijten <marijn.suijten@somainline.org>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@somainline.org>,
-        Alex Elder <elder@linaro.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0310/1017] firmware: qcom: scm: Remove reassignment to desc following initializer
-Date:   Tue,  5 Apr 2022 09:20:23 +0200
-Message-Id: <20220405070403.478014847@linuxfoundation.org>
+        stable@vger.kernel.org, Shawn Guo <shawn.guo@linaro.org>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.15 162/913] PM: domains: Fix sleep-in-atomic bug caused by genpd_debug_remove()
+Date:   Tue,  5 Apr 2022 09:20:24 +0200
+Message-Id: <20220405070344.699889540@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,46 +54,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marijn Suijten <marijn.suijten@somainline.org>
+From: Shawn Guo <shawn.guo@linaro.org>
 
-[ Upstream commit 7823e5aa5d1dd9ed5849923c165eb8f29ad23c54 ]
+commit f6bfe8b5b2c2a5ac8bd2fc7bca3706e6c3fc26d8 upstream.
 
-Member assignments to qcom_scm_desc were moved into struct initializers
-in 57d3b816718c ("firmware: qcom_scm: Remove thin wrappers") including
-the case in qcom_scm_iommu_secure_ptbl_init, except that the - now
-duplicate - assignment to desc was left in place. While not harmful,
-remove this unnecessary extra reassignment.
+When a genpd with GENPD_FLAG_IRQ_SAFE gets removed, the following
+sleep-in-atomic bug will be seen, as genpd_debug_remove() will be called
+with a spinlock being held.
 
-Fixes: 57d3b816718c ("firmware: qcom_scm: Remove thin wrappers")
-Signed-off-by: Marijn Suijten <marijn.suijten@somainline.org>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@somainline.org>
-Reviewed-by: Alex Elder <elder@linaro.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20211208083423.22037-2-marijn.suijten@somainline.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+[    0.029183] BUG: sleeping function called from invalid context at kernel/locking/rwsem.c:1460
+[    0.029204] in_atomic(): 1, irqs_disabled(): 128, non_block: 0, pid: 1, name: swapper/0
+[    0.029219] preempt_count: 1, expected: 0
+[    0.029230] CPU: 1 PID: 1 Comm: swapper/0 Not tainted 5.17.0-rc4+ #489
+[    0.029245] Hardware name: Thundercomm TurboX CM2290 (DT)
+[    0.029256] Call trace:
+[    0.029265]  dump_backtrace.part.0+0xbc/0xd0
+[    0.029285]  show_stack+0x3c/0xa0
+[    0.029298]  dump_stack_lvl+0x7c/0xa0
+[    0.029311]  dump_stack+0x18/0x34
+[    0.029323]  __might_resched+0x10c/0x13c
+[    0.029338]  __might_sleep+0x4c/0x80
+[    0.029351]  down_read+0x24/0xd0
+[    0.029363]  lookup_one_len_unlocked+0x9c/0xcc
+[    0.029379]  lookup_positive_unlocked+0x10/0x50
+[    0.029392]  debugfs_lookup+0x68/0xac
+[    0.029406]  genpd_remove.part.0+0x12c/0x1b4
+[    0.029419]  of_genpd_remove_last+0xa8/0xd4
+[    0.029434]  psci_cpuidle_domain_probe+0x174/0x53c
+[    0.029449]  platform_probe+0x68/0xe0
+[    0.029462]  really_probe+0x190/0x430
+[    0.029473]  __driver_probe_device+0x90/0x18c
+[    0.029485]  driver_probe_device+0x40/0xe0
+[    0.029497]  __driver_attach+0xf4/0x1d0
+[    0.029508]  bus_for_each_dev+0x70/0xd0
+[    0.029523]  driver_attach+0x24/0x30
+[    0.029534]  bus_add_driver+0x164/0x22c
+[    0.029545]  driver_register+0x78/0x130
+[    0.029556]  __platform_driver_register+0x28/0x34
+[    0.029569]  psci_idle_init_domains+0x1c/0x28
+[    0.029583]  do_one_initcall+0x50/0x1b0
+[    0.029595]  kernel_init_freeable+0x214/0x280
+[    0.029609]  kernel_init+0x2c/0x13c
+[    0.029622]  ret_from_fork+0x10/0x20
+
+It doesn't seem necessary to call genpd_debug_remove() with the lock, so
+move it out from locking to fix the problem.
+
+Fixes: 718072ceb211 ("PM: domains: create debugfs nodes when adding power domains")
+Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
+Reviewed-by: Ulf Hansson <ulf.hansson@linaro.org>
+Cc: 5.11+ <stable@vger.kernel.org> # 5.11+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/firmware/qcom_scm.c | 6 ------
- 1 file changed, 6 deletions(-)
+ drivers/base/power/domain.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/firmware/qcom_scm.c b/drivers/firmware/qcom_scm.c
-index 7db8066b19fd..3f67bf774821 100644
---- a/drivers/firmware/qcom_scm.c
-+++ b/drivers/firmware/qcom_scm.c
-@@ -749,12 +749,6 @@ int qcom_scm_iommu_secure_ptbl_init(u64 addr, u32 size, u32 spare)
- 	};
- 	int ret;
+--- a/drivers/base/power/domain.c
++++ b/drivers/base/power/domain.c
+@@ -2058,9 +2058,9 @@ static int genpd_remove(struct generic_p
+ 		kfree(link);
+ 	}
  
--	desc.args[0] = addr;
--	desc.args[1] = size;
--	desc.args[2] = spare;
--	desc.arginfo = QCOM_SCM_ARGS(3, QCOM_SCM_RW, QCOM_SCM_VAL,
--				     QCOM_SCM_VAL);
--
- 	ret = qcom_scm_call(__scm->dev, &desc, NULL);
- 
- 	/* the pg table has been initialized already, ignore the error */
--- 
-2.34.1
-
+-	genpd_debug_remove(genpd);
+ 	list_del(&genpd->gpd_list_node);
+ 	genpd_unlock(genpd);
++	genpd_debug_remove(genpd);
+ 	cancel_work_sync(&genpd->power_off_work);
+ 	if (genpd_is_cpu_domain(genpd))
+ 		free_cpumask_var(genpd->cpus);
 
 
