@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EE4EA4F3D91
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 22:35:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F18E94F3F50
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 22:58:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382629AbiDEMQU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:16:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39468 "EHLO
+        id S1382626AbiDEMQS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:16:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243489AbiDEKhC (ORCPT
+        with ESMTP id S243499AbiDEKhC (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:37:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 537B053E35;
-        Tue,  5 Apr 2022 03:22:04 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44844541B9;
+        Tue,  5 Apr 2022 03:22:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0920AB81B96;
-        Tue,  5 Apr 2022 10:22:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54A2BC385A0;
-        Tue,  5 Apr 2022 10:22:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C9C0D616D7;
+        Tue,  5 Apr 2022 10:22:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD9F9C385A1;
+        Tue,  5 Apr 2022 10:22:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649154121;
-        bh=xm9x/FZCEUK/x/FQ/b38Amq5e9rRH5/BKJxWdvbog6E=;
+        s=korg; t=1649154127;
+        bh=bPX/khrWPtuH6lxw45TCKs76d2OxZC/P91UXYox1D2c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OQdMDUoCf7gNdNW2+bABiVG02LhiTQR9FgwgO0/PPb/4DeVVxhAMI4eRQKuOd7pzY
-         27z+OgbqyenRjiYQICXuqqDQ9buvi1e9bqJgxHjzKgqCGPlSVlVj8V2N4WxEctrqqa
-         tqmiYTmphPpJtlxNO03Crp8xlS79sl075XydikFc=
+        b=rdu+d9tpB1p0fC4NE3qvvl34HyGIY72VvLUBE6QB1t4SKVGSFXdnDAPWgUC6M2XBm
+         +z6I3yfM1J79Hhq/QjFdrTr91bRTqLBTUSrRZgOyYdBmgGEbcwTfFycYQDvvNxlf3w
+         Xi3yDa2aqo4ccro15xgzwnyy/tgGNwye4mpvFNX8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Darren Hart <darren@os.amperecomputing.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 465/599] ACPI/APEI: Limit printable size of BERT table data
-Date:   Tue,  5 Apr 2022 09:32:39 +0200
-Message-Id: <20220405070312.665406784@linuxfoundation.org>
+        stable@vger.kernel.org, John David Anglin <dave.anglin@bell.net>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 467/599] parisc: Fix handling off probe non-access faults
+Date:   Tue,  5 Apr 2022 09:32:41 +0200
+Message-Id: <20220405070312.724163665@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -55,70 +53,166 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darren Hart <darren@os.amperecomputing.com>
+From: John David Anglin <dave.anglin@bell.net>
 
-[ Upstream commit 3f8dec116210ca649163574ed5f8df1e3b837d07 ]
+[ Upstream commit e00b0a2ab8ec019c344e53bfc76e31c18bb587b7 ]
 
-Platforms with large BERT table data can trigger soft lockup errors
-while attempting to print the entire BERT table data to the console at
-boot:
+Currently, the parisc kernel does not fully support non-access TLB
+fault handling for probe instructions. In the fast path, we set the
+target register to zero if it is not a shadowed register. The slow
+path is not implemented, so we call do_page_fault. The architecture
+indicates that non-access faults should not cause a page fault from
+disk.
 
-  watchdog: BUG: soft lockup - CPU#160 stuck for 23s! [swapper/0:1]
+This change adds to code to provide non-access fault support for
+probe instructions. It also modifies the handling of faults on
+userspace so that if the address lies in a valid VMA and the access
+type matches that for the VMA, the probe target register is set to
+one. Otherwise, the target register is set to zero.
 
-Observed on Ampere Altra systems with a single BERT record of ~250KB.
+This was done to make probe instructions more useful for userspace.
+Probe instructions are not very useful if they set the target register
+to zero whenever a page is not present in memory. Nominally, the
+purpose of the probe instruction is determine whether read or write
+access to a given address is allowed.
 
-The original bert driver appears to have assumed relatively small table
-data. Since it is impractical to reassemble large table data from
-interwoven console messages, and the table data is available in
+This fixes a problem in function pointer comparison noticed in the
+glibc testsuite (stdio-common/tst-vfprintf-user-type). The same
+problem is likely in glibc (_dl_lookup_address).
 
-  /sys/firmware/acpi/tables/data/BERT
+V2 adds flush and lpa instruction support to handle_nadtlb_fault.
 
-limit the size for tables printed to the console to 1024 (for no reason
-other than it seemed like a good place to kick off the discussion, would
-appreciate feedback from existing users in terms of what size would
-maintain their current usage model).
-
-Alternatively, we could make printing a CONFIG option, use the
-bert_disable boot arg (or something similar), or use a debug log level.
-However, all those solutions require extra steps or change the existing
-behavior for small table data. Limiting the size preserves existing
-behavior on existing platforms with small table data, and eliminates the
-soft lockups for platforms with large table data, while still making it
-available.
-
-Signed-off-by: Darren Hart <darren@os.amperecomputing.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: John David Anglin <dave.anglin@bell.net>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/apei/bert.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ arch/parisc/include/asm/traps.h |  1 +
+ arch/parisc/kernel/traps.c      |  2 +
+ arch/parisc/mm/fault.c          | 89 +++++++++++++++++++++++++++++++++
+ 3 files changed, 92 insertions(+)
 
-diff --git a/drivers/acpi/apei/bert.c b/drivers/acpi/apei/bert.c
-index 86211422f4ee..598fd19b65fa 100644
---- a/drivers/acpi/apei/bert.c
-+++ b/drivers/acpi/apei/bert.c
-@@ -29,6 +29,7 @@
+diff --git a/arch/parisc/include/asm/traps.h b/arch/parisc/include/asm/traps.h
+index 8ecc1f0c0483..d0e090a2c000 100644
+--- a/arch/parisc/include/asm/traps.h
++++ b/arch/parisc/include/asm/traps.h
+@@ -17,6 +17,7 @@ void die_if_kernel(char *str, struct pt_regs *regs, long err);
+ const char *trap_name(unsigned long code);
+ void do_page_fault(struct pt_regs *regs, unsigned long code,
+ 		unsigned long address);
++int handle_nadtlb_fault(struct pt_regs *regs);
+ #endif
  
- #undef pr_fmt
- #define pr_fmt(fmt) "BERT: " fmt
-+#define ACPI_BERT_PRINT_MAX_LEN 1024
- 
- static int bert_disable;
- 
-@@ -58,8 +59,11 @@ static void __init bert_print_all(struct acpi_bert_region *region,
- 		}
- 
- 		pr_info_once("Error records from previous boot:\n");
--
--		cper_estatus_print(KERN_INFO HW_ERR, estatus);
-+		if (region_len < ACPI_BERT_PRINT_MAX_LEN)
-+			cper_estatus_print(KERN_INFO HW_ERR, estatus);
-+		else
-+			pr_info_once("Max print length exceeded, table data is available at:\n"
-+				     "/sys/firmware/acpi/tables/data/BERT");
- 
- 		/*
- 		 * Because the boot error source is "one-time polled" type,
+ #endif
+diff --git a/arch/parisc/kernel/traps.c b/arch/parisc/kernel/traps.c
+index 269b737d2629..bce47e0fb692 100644
+--- a/arch/parisc/kernel/traps.c
++++ b/arch/parisc/kernel/traps.c
+@@ -661,6 +661,8 @@ void notrace handle_interruption(int code, struct pt_regs *regs)
+ 			 by hand. Technically we need to emulate:
+ 			 fdc,fdce,pdc,"fic,4f",prober,probeir,probew, probeiw
+ 		*/
++		if (code == 17 && handle_nadtlb_fault(regs))
++			return;
+ 		fault_address = regs->ior;
+ 		fault_space = regs->isr;
+ 		break;
+diff --git a/arch/parisc/mm/fault.c b/arch/parisc/mm/fault.c
+index 716960f5d92e..5faa3cff4738 100644
+--- a/arch/parisc/mm/fault.c
++++ b/arch/parisc/mm/fault.c
+@@ -424,3 +424,92 @@ void do_page_fault(struct pt_regs *regs, unsigned long code,
+ 		goto no_context;
+ 	pagefault_out_of_memory();
+ }
++
++/* Handle non-access data TLB miss faults.
++ *
++ * For probe instructions, accesses to userspace are considered allowed
++ * if they lie in a valid VMA and the access type matches. We are not
++ * allowed to handle MM faults here so there may be situations where an
++ * actual access would fail even though a probe was successful.
++ */
++int
++handle_nadtlb_fault(struct pt_regs *regs)
++{
++	unsigned long insn = regs->iir;
++	int breg, treg, xreg, val = 0;
++	struct vm_area_struct *vma, *prev_vma;
++	struct task_struct *tsk;
++	struct mm_struct *mm;
++	unsigned long address;
++	unsigned long acc_type;
++
++	switch (insn & 0x380) {
++	case 0x280:
++		/* FDC instruction */
++		fallthrough;
++	case 0x380:
++		/* PDC and FIC instructions */
++		if (printk_ratelimit()) {
++			pr_warn("BUG: nullifying cache flush/purge instruction\n");
++			show_regs(regs);
++		}
++		if (insn & 0x20) {
++			/* Base modification */
++			breg = (insn >> 21) & 0x1f;
++			xreg = (insn >> 16) & 0x1f;
++			if (breg && xreg)
++				regs->gr[breg] += regs->gr[xreg];
++		}
++		regs->gr[0] |= PSW_N;
++		return 1;
++
++	case 0x180:
++		/* PROBE instruction */
++		treg = insn & 0x1f;
++		if (regs->isr) {
++			tsk = current;
++			mm = tsk->mm;
++			if (mm) {
++				/* Search for VMA */
++				address = regs->ior;
++				mmap_read_lock(mm);
++				vma = find_vma_prev(mm, address, &prev_vma);
++				mmap_read_unlock(mm);
++
++				/*
++				 * Check if access to the VMA is okay.
++				 * We don't allow for stack expansion.
++				 */
++				acc_type = (insn & 0x40) ? VM_WRITE : VM_READ;
++				if (vma
++				    && address >= vma->vm_start
++				    && (vma->vm_flags & acc_type) == acc_type)
++					val = 1;
++			}
++		}
++		if (treg)
++			regs->gr[treg] = val;
++		regs->gr[0] |= PSW_N;
++		return 1;
++
++	case 0x300:
++		/* LPA instruction */
++		if (insn & 0x20) {
++			/* Base modification */
++			breg = (insn >> 21) & 0x1f;
++			xreg = (insn >> 16) & 0x1f;
++			if (breg && xreg)
++				regs->gr[breg] += regs->gr[xreg];
++		}
++		treg = insn & 0x1f;
++		if (treg)
++			regs->gr[treg] = 0;
++		regs->gr[0] |= PSW_N;
++		return 1;
++
++	default:
++		break;
++	}
++
++	return 0;
++}
 -- 
 2.34.1
 
