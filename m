@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 62E0F4F3588
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:51:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82B284F3347
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:15:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237429AbiDEImO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:42:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53142 "EHLO
+        id S1354148AbiDEKMG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:12:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43640 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238931AbiDEIbD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:31:03 -0400
+        with ESMTP id S1344353AbiDEJTe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:19:34 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8F8D48E46;
-        Tue,  5 Apr 2022 01:23:06 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12E0419C;
+        Tue,  5 Apr 2022 02:07:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1AA8F61453;
-        Tue,  5 Apr 2022 08:23:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B15FC385A4;
-        Tue,  5 Apr 2022 08:23:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A467161571;
+        Tue,  5 Apr 2022 09:07:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B27F1C385A1;
+        Tue,  5 Apr 2022 09:07:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146985;
-        bh=2g2qu5ziKFJP1gI8z39vE2mp2FGrydzsCqGT96KerXg=;
+        s=korg; t=1649149666;
+        bh=6gpvLMzBnjn0DjTfgIKa+rsrDplZXOu7OHD95azo03s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hWsGYtibeMBywbWoLWxGsk/p+71lzuooEfr/PolQBfczedbNj5UHxprSjggkgs++2
-         aA/8Tf66PvRjREAaV9ujnk9JJitPmZIlj0BLXPqmIyLFGd1/qAZvHfzifHS6fdGWKS
-         L5+bNQaI8hfPawpuWTVgPkYxbWVNBYOo89C+EjUg=
+        b=faEPtxQiN5i2y8M5KOB19e5wOHiEEPCcgsZOsAKFYTAkj0bS42BjZZt7fgsWD/LX7
+         wzlad35UShsyyEnrnVwOq+d+MwZwR5cQORfq7u0TfdjIirl+tIpKNReZ5mXN9nZ8xh
+         FLZp+QSWg+DWSw4dC44YvMG61w6TlPq3mC+89oCk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Derek Fang <derek.fang@realtek.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Ning Li <lining2020x@163.com>,
+        Tejun Heo <tj@kernel.org>, Chunguang Xu <brookxu@tencent.com>,
+        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0923/1126] ASoC: rt5682s: Fix the wrong jack type detected
-Date:   Tue,  5 Apr 2022 09:27:50 +0200
-Message-Id: <20220405070434.611106560@linuxfoundation.org>
+Subject: [PATCH 5.16 0758/1017] block: throttle split bio in case of iops limit
+Date:   Tue,  5 Apr 2022 09:27:51 +0200
+Message-Id: <20220405070416.758774397@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,138 +55,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Derek Fang <derek.fang@realtek.com>
+From: Ming Lei <ming.lei@redhat.com>
 
-[ Upstream commit c07ac3ee76e5e5506bca9c03fbbb15e40ab28430 ]
+[ Upstream commit 9f5ede3c01f9951b0ae7d68b28762ad51d9bacc8 ]
 
-Some powers were changed during the jack insert detection and clk's
-enable/disable in CCF.
-If in parallel, the influence has a chance to detect the wrong jack
-type.
+Commit 111be8839817 ("block-throttle: avoid double charge") marks bio as
+BIO_THROTTLED unconditionally if __blk_throtl_bio() is called on this bio,
+then this bio won't be called into __blk_throtl_bio() any more. This way
+is to avoid double charge in case of bio splitting. It is reasonable for
+read/write throughput limit, but not reasonable for IOPS limit because
+block layer provides io accounting against split bio.
 
-We refer to the below commit of the variant codec (rt5682) to fix
-this issue.
-  ASoC: rt5682: Fix deadlock on resume
+Chunguang Xu has already observed this issue and fixed it in commit
+4f1e9630afe6 ("blk-throtl: optimize IOPS throttle for large IO scenarios").
+However, that patch only covers bio splitting in __blk_queue_split(), and
+we have other kind of bio splitting, such as bio_split() &
+submit_bio_noacct() and other ways.
 
-1. Remove rt5682s_headset_detect in rt5682s_jd_check_handler and
-   use jack_detect_work instead of.
-2. Use dapm mutex used in CCF to protect most of jack_detect_work.
+This patch tries to fix the issue in one generic way by always charging
+the bio for iops limit in blk_throtl_bio(). This way is reasonable:
+re-submission & fast-cloned bio is charged if it is submitted to same
+disk/queue, and BIO_THROTTLED will be cleared if bio->bi_bdev is changed.
 
-Signed-off-by: Derek Fang <derek.fang@realtek.com>
-Link: https://lore.kernel.org/r/20220223101450.4577-1-derek.fang@realtek.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+This new approach can get much more smooth/stable iops limit compared with
+commit 4f1e9630afe6 ("blk-throtl: optimize IOPS throttle for large IO
+scenarios") since that commit can't throttle current split bios actually.
+
+Also this way won't cause new double bio iops charge in
+blk_throtl_dispatch_work_fn() in which blk_throtl_bio() won't be called
+any more.
+
+Reported-by: Ning Li <lining2020x@163.com>
+Acked-by: Tejun Heo <tj@kernel.org>
+Cc: Chunguang Xu <brookxu@tencent.com>
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Link: https://lore.kernel.org/r/20220216044514.2903784-7-ming.lei@redhat.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/rt5682s.c | 26 +++++++++-----------------
- sound/soc/codecs/rt5682s.h |  1 -
- 2 files changed, 9 insertions(+), 18 deletions(-)
+ block/blk-merge.c    |  2 --
+ block/blk-throttle.c | 10 +++++++---
+ block/blk-throttle.h |  2 --
+ 3 files changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/sound/soc/codecs/rt5682s.c b/sound/soc/codecs/rt5682s.c
-index 1e662d1be2b3..92b8753f1267 100644
---- a/sound/soc/codecs/rt5682s.c
-+++ b/sound/soc/codecs/rt5682s.c
-@@ -822,6 +822,7 @@ static void rt5682s_jack_detect_handler(struct work_struct *work)
- {
- 	struct rt5682s_priv *rt5682s =
- 		container_of(work, struct rt5682s_priv, jack_detect_work.work);
-+	struct snd_soc_dapm_context *dapm;
- 	int val, btn_type;
- 
- 	if (!rt5682s->component || !rt5682s->component->card ||
-@@ -832,7 +833,9 @@ static void rt5682s_jack_detect_handler(struct work_struct *work)
- 		return;
- 	}
- 
--	mutex_lock(&rt5682s->jdet_mutex);
-+	dapm = snd_soc_component_get_dapm(rt5682s->component);
-+
-+	snd_soc_dapm_mutex_lock(dapm);
- 	mutex_lock(&rt5682s->calibrate_mutex);
- 
- 	val = snd_soc_component_read(rt5682s->component, RT5682S_AJD1_CTRL)
-@@ -889,6 +892,9 @@ static void rt5682s_jack_detect_handler(struct work_struct *work)
- 		rt5682s->irq_work_delay_time = 50;
- 	}
- 
-+	mutex_unlock(&rt5682s->calibrate_mutex);
-+	snd_soc_dapm_mutex_unlock(dapm);
-+
- 	snd_soc_jack_report(rt5682s->hs_jack, rt5682s->jack_type,
- 		SND_JACK_HEADSET | SND_JACK_BTN_0 | SND_JACK_BTN_1 |
- 		SND_JACK_BTN_2 | SND_JACK_BTN_3);
-@@ -898,9 +904,6 @@ static void rt5682s_jack_detect_handler(struct work_struct *work)
- 		schedule_delayed_work(&rt5682s->jd_check_work, 0);
- 	else
- 		cancel_delayed_work_sync(&rt5682s->jd_check_work);
+diff --git a/block/blk-merge.c b/block/blk-merge.c
+index a5b73bad9462..09bf679dc132 100644
+--- a/block/blk-merge.c
++++ b/block/blk-merge.c
+@@ -367,8 +367,6 @@ void __blk_queue_split(struct request_queue *q, struct bio **bio,
+ 		trace_block_split(split, (*bio)->bi_iter.bi_sector);
+ 		submit_bio_noacct(*bio);
+ 		*bio = split;
 -
--	mutex_unlock(&rt5682s->calibrate_mutex);
--	mutex_unlock(&rt5682s->jdet_mutex);
+-		blk_throtl_charge_bio_split(*bio);
+ 	}
  }
  
- static void rt5682s_jd_check_handler(struct work_struct *work)
-@@ -908,14 +911,9 @@ static void rt5682s_jd_check_handler(struct work_struct *work)
- 	struct rt5682s_priv *rt5682s =
- 		container_of(work, struct rt5682s_priv, jd_check_work.work);
+diff --git a/block/blk-throttle.c b/block/blk-throttle.c
+index 39bb6e68a9a2..96573fa4edf2 100644
+--- a/block/blk-throttle.c
++++ b/block/blk-throttle.c
+@@ -807,7 +807,8 @@ static bool tg_with_in_bps_limit(struct throtl_grp *tg, struct bio *bio,
+ 	unsigned long jiffy_elapsed, jiffy_wait, jiffy_elapsed_rnd;
+ 	unsigned int bio_size = throtl_bio_data_size(bio);
  
--	if (snd_soc_component_read(rt5682s->component, RT5682S_AJD1_CTRL)
--		& RT5682S_JDH_RS_MASK) {
-+	if (snd_soc_component_read(rt5682s->component, RT5682S_AJD1_CTRL) & RT5682S_JDH_RS_MASK) {
- 		/* jack out */
--		rt5682s->jack_type = rt5682s_headset_detect(rt5682s->component, 0);
--
--		snd_soc_jack_report(rt5682s->hs_jack, rt5682s->jack_type,
--			SND_JACK_HEADSET | SND_JACK_BTN_0 | SND_JACK_BTN_1 |
--			SND_JACK_BTN_2 | SND_JACK_BTN_3);
-+		schedule_delayed_work(&rt5682s->jack_detect_work, 0);
- 	} else {
- 		schedule_delayed_work(&rt5682s->jd_check_work, 500);
- 	}
-@@ -1323,7 +1321,6 @@ static int rt5682s_hp_amp_event(struct snd_soc_dapm_widget *w,
- 		struct snd_kcontrol *kcontrol, int event)
+-	if (bps_limit == U64_MAX) {
++	/* no need to throttle if this bio's bytes have been accounted */
++	if (bps_limit == U64_MAX || bio_flagged(bio, BIO_THROTTLED)) {
+ 		if (wait)
+ 			*wait = 0;
+ 		return true;
+@@ -919,9 +920,12 @@ static void throtl_charge_bio(struct throtl_grp *tg, struct bio *bio)
+ 	unsigned int bio_size = throtl_bio_data_size(bio);
+ 
+ 	/* Charge the bio to the group */
+-	tg->bytes_disp[rw] += bio_size;
++	if (!bio_flagged(bio, BIO_THROTTLED)) {
++		tg->bytes_disp[rw] += bio_size;
++		tg->last_bytes_disp[rw] += bio_size;
++	}
++
+ 	tg->io_disp[rw]++;
+-	tg->last_bytes_disp[rw] += bio_size;
+ 	tg->last_io_disp[rw]++;
+ 
+ 	/*
+diff --git a/block/blk-throttle.h b/block/blk-throttle.h
+index 175f03abd9e4..cb43f4417d6e 100644
+--- a/block/blk-throttle.h
++++ b/block/blk-throttle.h
+@@ -170,8 +170,6 @@ static inline bool blk_throtl_bio(struct bio *bio)
  {
- 	struct snd_soc_component *component = snd_soc_dapm_to_component(w->dapm);
--	struct rt5682s_priv *rt5682s = snd_soc_component_get_drvdata(component);
+ 	struct throtl_grp *tg = blkg_to_tg(bio->bi_blkg);
  
- 	switch (event) {
- 	case SND_SOC_DAPM_POST_PMU:
-@@ -1339,8 +1336,6 @@ static int rt5682s_hp_amp_event(struct snd_soc_dapm_widget *w,
- 		snd_soc_component_write(component, RT5682S_BIAS_CUR_CTRL_11, 0x6666);
- 		snd_soc_component_write(component, RT5682S_BIAS_CUR_CTRL_12, 0xa82a);
+-	if (bio_flagged(bio, BIO_THROTTLED))
+-		return false;
+ 	if (!tg->has_rules[bio_data_dir(bio)])
+ 		return false;
  
--		mutex_lock(&rt5682s->jdet_mutex);
--
- 		snd_soc_component_update_bits(component, RT5682S_HP_CTRL_2,
- 			RT5682S_HPO_L_PATH_MASK | RT5682S_HPO_R_PATH_MASK |
- 			RT5682S_HPO_SEL_IP_EN_SW, RT5682S_HPO_L_PATH_EN |
-@@ -1348,8 +1343,6 @@ static int rt5682s_hp_amp_event(struct snd_soc_dapm_widget *w,
- 		usleep_range(5000, 10000);
- 		snd_soc_component_update_bits(component, RT5682S_HP_AMP_DET_CTL_1,
- 			RT5682S_CP_SW_SIZE_MASK, RT5682S_CP_SW_SIZE_L | RT5682S_CP_SW_SIZE_S);
--
--		mutex_unlock(&rt5682s->jdet_mutex);
- 		break;
- 
- 	case SND_SOC_DAPM_POST_PMD:
-@@ -3103,7 +3096,6 @@ static int rt5682s_i2c_probe(struct i2c_client *i2c,
- 
- 	mutex_init(&rt5682s->calibrate_mutex);
- 	mutex_init(&rt5682s->sar_mutex);
--	mutex_init(&rt5682s->jdet_mutex);
- 	rt5682s_calibrate(rt5682s);
- 
- 	regmap_update_bits(rt5682s->regmap, RT5682S_MICBIAS_2,
-diff --git a/sound/soc/codecs/rt5682s.h b/sound/soc/codecs/rt5682s.h
-index 1bf2ef7ce578..397a2531b6f6 100644
---- a/sound/soc/codecs/rt5682s.h
-+++ b/sound/soc/codecs/rt5682s.h
-@@ -1446,7 +1446,6 @@ struct rt5682s_priv {
- 	struct delayed_work jd_check_work;
- 	struct mutex calibrate_mutex;
- 	struct mutex sar_mutex;
--	struct mutex jdet_mutex;
- 
- #ifdef CONFIG_COMMON_CLK
- 	struct clk_hw dai_clks_hw[RT5682S_DAI_NUM_CLKS];
 -- 
 2.34.1
 
