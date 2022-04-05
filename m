@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 968F64F2A21
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 12:52:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 385F84F2A09
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 12:51:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241582AbiDEIe1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:34:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43644 "EHLO
+        id S239455AbiDEJx6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:53:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51010 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239466AbiDEIUG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:20:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A08AAC93A;
-        Tue,  5 Apr 2022 01:13:53 -0700 (PDT)
+        with ESMTP id S245717AbiDEJMM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:12:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89CB72656A;
+        Tue,  5 Apr 2022 02:00:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DAAC960B0A;
-        Tue,  5 Apr 2022 08:13:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0155C385A0;
-        Tue,  5 Apr 2022 08:13:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5196E61572;
+        Tue,  5 Apr 2022 09:00:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A71CC385A0;
+        Tue,  5 Apr 2022 09:00:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146432;
-        bh=6tQ1SmCuXGWeuod34frKtsQaqkmflRErCJOG0nxktR4=;
+        s=korg; t=1649149210;
+        bh=Cipu5dWvA4Fcfg5SJvwbNaPMyLdpjhlldvr5qdKcBmo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pMfDM2+9AhgObbrFZlj4rNVRbWUDpAscwetchkkgHqMcimQ6A7x7byoy+vL+UwALc
-         ahbKQy+Bpj65POiU/jGTC1UdeNCDFd/PHMx1+qEPwykZe3W3XsJhf2YnWBr0ONu99y
-         pdcbMH9iF/r4efM9FnaPpMG68pJBykVhXYFafm0o=
+        b=KstjAr5ybHDHJF4+xQ1TMOFH5nCxI5Tnydp7I7oVp2ldmegfZf5S2mMsGCOWac+QZ
+         w0/vMLTl6UIrjR+DptCHieYN5IvqyPvxemgRiwuiAhOhgk/cjW5Ehu93iB5EVP/CvN
+         xtR/VUrR0tkoczOZ0RGQQdWle9U9N86ahHIrP80M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sergio Paracuellos <sergio.paracuellos@gmail.com>,
-        =?UTF-8?q?Ar=C4=B1n=C3=A7=20=C3=9CNAL?= <arinc.unal@arinc9.com>,
+        stable@vger.kernel.org, Leon Romanovsky <leonro@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0763/1126] staging: mt7621-dts: fix LEDs and pinctrl on GB-PC1 devicetree
+Subject: [PATCH 5.16 0597/1017] Revert "RDMA/core: Fix ib_qp_usecnt_dec() called when error"
 Date:   Tue,  5 Apr 2022 09:25:10 +0200
-Message-Id: <20220405070429.979017287@linuxfoundation.org>
+Message-Id: <20220405070411.998553080@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,134 +54,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arınç ÜNAL <arinc.unal@arinc9.com>
+From: Leon Romanovsky <leonro@nvidia.com>
 
-[ Upstream commit 6256e18686158fa49e019297f990f1c1817aabf1 ]
+[ Upstream commit 7922d3de4d270a9aedb71212fc0d5ae697ced516 ]
 
-Fix LED and pinctrl definitions on the GB-PC1 devicetree. Refer to the
-schematics of the device for more information.
+This reverts commit 7c4a539ec38f4ce400a0f3fcb5ff6c940fcd67bb. which causes
+to the following error in mlx4.
 
-LED fixes:
-- Change GPIO6 LED label from system to power as GPIO6 is connected to
-PLED.
-- Add default-on default-trigger to power LED.
-- Change GPIO8 LED label from status to system as GPIO8 is connected to
-SYS_LED.
-- Add disk-activity default-trigger to system LED.
-- Switch to the color:function naming scheme.
-- Remove lan1 and lan2 LEDs as they don't exist.
+  Destroy of kernel CQ shouldn't fail
+  WARNING: CPU: 4 PID: 18064 at include/rdma/ib_verbs.h:3936 mlx4_ib_dealloc_xrcd+0x12e/0x1b0 [mlx4_ib]
+  Modules linked in: bonding ib_ipoib ip_gre ipip tunnel4 geneve rdma_ucm nf_tables ib_umad mlx4_en mlx4_ib ib_uverbs mlx4_core ip6_gre gre ip6_tunnel tunnel6 iptable_raw openvswitch nsh rpcrdma ib_iser libiscsi scsi_transport_iscsi rdma_cm iw_cm ib_cm ib_core xt_conntrack xt_MASQUERADE nf_conntrack_netlink nfnetlink xt_addrtype iptable_nat nf_nat br_netfilter overlay fuse [last unloaded: mlx4_core]
+  CPU: 4 PID: 18064 Comm: ibv_xsrq_pingpo Not tainted 5.17.0-rc7_master_62c6ecb #1
+  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.13.0-0-gf21b5a4aeb02-prebuilt.qemu.org 04/01/2014
+  RIP: 0010:mlx4_ib_dealloc_xrcd+0x12e/0x1b0 [mlx4_ib]
+  Code: 1e 93 08 00 40 80 fd 01 0f 87 fa f1 04 00 83 e5 01 0f 85 2b ff ff ff 48 c7 c7 20 4f b6 a0 c6 05 fd 92 08 00 01 e8 47 c9 82 e2 <0f> 0b e9 11 ff ff ff 0f b6 2d eb 92 08 00 40 80 fd 01 0f 87 b1 f1
+  RSP: 0018:ffff8881a4957750 EFLAGS: 00010286
+  RAX: 0000000000000000 RBX: ffff8881ac4b6800 RCX: 0000000000000000
+  RDX: 0000000000000027 RSI: 0000000000000004 RDI: ffffed103492aedc
+  RBP: 0000000000000000 R08: 0000000000000001 R09: ffff8884d2e378eb
+  R10: ffffed109a5c6f1d R11: 0000000000000001 R12: ffff888132620000
+  R13: ffff8881a4957a90 R14: ffff8881aa2d4000 R15: ffff8881a4957ad0
+  FS:  00007f0401747740(0000) GS:ffff8884d2e00000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 000055f8ae036118 CR3: 000000012fe94005 CR4: 0000000000370ea0
+  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+  Call Trace:
+   <TASK>
+   ib_dealloc_xrcd_user+0xce/0x120 [ib_core]
+   ib_uverbs_dealloc_xrcd+0xad/0x210 [ib_uverbs]
+   uverbs_free_xrcd+0xe8/0x190 [ib_uverbs]
+   destroy_hw_idr_uobject+0x7a/0x130 [ib_uverbs]
+   uverbs_destroy_uobject+0x164/0x730 [ib_uverbs]
+   uobj_destroy+0x72/0xf0 [ib_uverbs]
+   ib_uverbs_cmd_verbs+0x19fb/0x3110 [ib_uverbs]
+   ib_uverbs_ioctl+0x169/0x260 [ib_uverbs]
+   __x64_sys_ioctl+0x856/0x1550
+   do_syscall_64+0x3d/0x90
+   entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-Pinctrl fixes:
-- Claim state_default node under pinctrl node.
-- Change pinctrl0 node name to state-default.
-- Change gpio node name to gpio-pinmux to respect
-Documentation/devicetree/bindings/pinctrl/ralink,rt2880-pinmux.yaml.
-- Sort pin groups alphabetically.
-
-Misc fixes:
-- Fix formatting.
-- Use the status value "okay".
-- Define hexadecimal addresses in lower case.
-- Make hexadecimal addresses for memory easier to read.
-
-Link: https://github.com/ngiger/GnuBee_Docs/blob/master/GB-PCx/Documents/GB-PC1_V1.0_Schematic.pdf
-Tested-by: Sergio Paracuellos <sergio.paracuellos@gmail.com>
-Signed-off-by: Arınç ÜNAL <arinc.unal@arinc9.com>
-Link: https://lore.kernel.org/r/20220311090320.3068-1-arinc.unal@arinc9.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 7c4a539ec38f ("RDMA/core: Fix ib_qp_usecnt_dec() called when error")
+Link: https://lore.kernel.org/r/74c11029adaf449b3b9228a77cc82f39e9e892c8.1646851220.git.leonro@nvidia.com
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/mt7621-dts/gbpc1.dts | 40 +++++++++++++---------------
- 1 file changed, 18 insertions(+), 22 deletions(-)
+ drivers/infiniband/core/uverbs_cmd.c          | 1 +
+ drivers/infiniband/core/uverbs_std_types_qp.c | 1 +
+ drivers/infiniband/core/verbs.c               | 3 ++-
+ 3 files changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/staging/mt7621-dts/gbpc1.dts b/drivers/staging/mt7621-dts/gbpc1.dts
-index e38a083811e5..5ae94b1ad599 100644
---- a/drivers/staging/mt7621-dts/gbpc1.dts
-+++ b/drivers/staging/mt7621-dts/gbpc1.dts
-@@ -12,7 +12,8 @@
+diff --git a/drivers/infiniband/core/uverbs_cmd.c b/drivers/infiniband/core/uverbs_cmd.c
+index 5a99e31df5f5..d1345d76d9b1 100644
+--- a/drivers/infiniband/core/uverbs_cmd.c
++++ b/drivers/infiniband/core/uverbs_cmd.c
+@@ -1438,6 +1438,7 @@ static int create_qp(struct uverbs_attr_bundle *attrs,
+ 		ret = PTR_ERR(qp);
+ 		goto err_put;
+ 	}
++	ib_qp_usecnt_inc(qp);
  
- 	memory@0 {
- 		device_type = "memory";
--		reg = <0x0 0x1c000000>, <0x20000000 0x4000000>;
-+		reg = <0x00000000 0x1c000000>,
-+		      <0x20000000 0x04000000>;
- 	};
+ 	obj->uevent.uobject.object = qp;
+ 	obj->uevent.event_file = READ_ONCE(attrs->ufile->default_async_file);
+diff --git a/drivers/infiniband/core/uverbs_std_types_qp.c b/drivers/infiniband/core/uverbs_std_types_qp.c
+index 75353e09c6fe..dd1075466f61 100644
+--- a/drivers/infiniband/core/uverbs_std_types_qp.c
++++ b/drivers/infiniband/core/uverbs_std_types_qp.c
+@@ -254,6 +254,7 @@ static int UVERBS_HANDLER(UVERBS_METHOD_QP_CREATE)(
+ 		ret = PTR_ERR(qp);
+ 		goto err_put;
+ 	}
++	ib_qp_usecnt_inc(qp);
  
- 	chosen {
-@@ -38,24 +39,16 @@
- 	gpio-leds {
- 		compatible = "gpio-leds";
+ 	if (attr.qp_type == IB_QPT_XRC_TGT) {
+ 		obj->uxrcd = container_of(xrcd_uobj, struct ib_uxrcd_object,
+diff --git a/drivers/infiniband/core/verbs.c b/drivers/infiniband/core/verbs.c
+index 961055eb330d..e821dc94a43e 100644
+--- a/drivers/infiniband/core/verbs.c
++++ b/drivers/infiniband/core/verbs.c
+@@ -1253,7 +1253,6 @@ static struct ib_qp *create_qp(struct ib_device *dev, struct ib_pd *pd,
+ 	if (ret)
+ 		goto err_security;
  
--		system {
--			label = "gb-pc1:green:system";
-+		power {
-+			label = "green:power";
- 			gpios = <&gpio 6 GPIO_ACTIVE_LOW>;
-+			linux,default-trigger = "default-on";
- 		};
+-	ib_qp_usecnt_inc(qp);
+ 	rdma_restrack_add(&qp->res);
+ 	return qp;
  
--		status {
--			label = "gb-pc1:green:status";
-+		system {
-+			label = "green:system";
- 			gpios = <&gpio 8 GPIO_ACTIVE_LOW>;
--		};
--
--		lan1 {
--			label = "gb-pc1:green:lan1";
--			gpios = <&gpio 24 GPIO_ACTIVE_LOW>;
--		};
--
--		lan2 {
--			label = "gb-pc1:green:lan2";
--			gpios = <&gpio 25 GPIO_ACTIVE_LOW>;
-+			linux,default-trigger = "disk-activity";
- 		};
- 	};
- };
-@@ -95,9 +88,8 @@
+@@ -1354,6 +1353,8 @@ struct ib_qp *ib_create_qp_kernel(struct ib_pd *pd,
+ 	if (IS_ERR(qp))
+ 		return qp;
  
- 		partition@50000 {
- 			label = "firmware";
--			reg = <0x50000 0x1FB0000>;
-+			reg = <0x50000 0x1fb0000>;
- 		};
--
- 	};
- };
- 
-@@ -106,9 +98,12 @@
- };
- 
- &pinctrl {
--	state_default: pinctrl0 {
--		default_gpio: gpio {
--			groups = "wdt", "rgmii2", "uart3";
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&state_default>;
++	ib_qp_usecnt_inc(qp);
 +
-+	state_default: state-default {
-+		gpio-pinmux {
-+			groups = "rgmii2", "uart3", "wdt";
- 			function = "gpio";
- 		};
- 	};
-@@ -117,12 +112,13 @@
- &switch0 {
- 	ports {
- 		port@0 {
-+			status = "okay";
- 			label = "ethblack";
--			status = "ok";
- 		};
-+
- 		port@4 {
-+			status = "okay";
- 			label = "ethblue";
--			status = "ok";
- 		};
- 	};
- };
+ 	if (qp_init_attr->cap.max_rdma_ctxs) {
+ 		ret = rdma_rw_init_mrs(qp, qp_init_attr);
+ 		if (ret)
 -- 
 2.34.1
 
