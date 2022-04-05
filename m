@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E3EDF4F2822
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:19:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95AD34F2709
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:06:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233640AbiDEIKx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:10:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57502 "EHLO
+        id S233087AbiDEIFH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:05:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45374 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235682AbiDEIAA (ORCPT
+        with ESMTP id S235681AbiDEIAA (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:00:00 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE9821AF0B;
-        Tue,  5 Apr 2022 00:57:53 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CE0A1AF33;
+        Tue,  5 Apr 2022 00:57:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8E126B81B16;
-        Tue,  5 Apr 2022 07:57:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E36A2C340EE;
-        Tue,  5 Apr 2022 07:57:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 475C8B81B90;
+        Tue,  5 Apr 2022 07:57:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9838CC340EE;
+        Tue,  5 Apr 2022 07:57:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145471;
-        bh=8mpqbhnW66PrHas+2f9jspuJkogyrSZJfKwVIMMyMoo=;
+        s=korg; t=1649145474;
+        bh=QlK+fwpu7ZtD2C3yV/ydrvguyf3FpGIVVQmFwYhvBoU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d9+niP+mhuyG7I1EYkpxFU8E0Sz85eNmJBtfSApbOU03efqW7O2SeCsniJGx/djc/
-         cCT1rAxdSVTp18tm1WqzzKsreFc+U/zTjm0m1jNONdbSYUBUfyRvX5kqlwn68UihG7
-         wwrPH+B2PSeB3q7+qJmIZXL3ry80p2UrdtVIFiEc=
+        b=Pgn9cO2gS8nMPdLsZzs0ErlSwuWfAHOBVpCUEQbCAqt4LSrStauBCAcqjkNGsKawY
+         t1lGuoiT48H2W3jMOB+0kXeyW9q7hotunr7ZsqyByYrYzclg/lkxSNUFjlcWWp0yga
+         05DvMEvr90ePRkIVIhUU4za/2f/waXmTgDB8ZR7Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0416/1126] ASoC: msm8916-wcd-analog: Fix error handling in pm8916_wcd_analog_spmi_probe
-Date:   Tue,  5 Apr 2022 09:19:23 +0200
-Message-Id: <20220405070419.836839577@linuxfoundation.org>
+Subject: [PATCH 5.17 0417/1126] ASoC: mediatek: mt8195: Fix error handling in mt8195_mt6359_rt1019_rt5682_dev_probe
+Date:   Tue,  5 Apr 2022 09:19:24 +0200
+Message-Id: <20220405070419.865907939@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -56,75 +56,45 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 9ebd62d60edcd4d9c75485e5ccd0b79581ad3c49 ]
+[ Upstream commit c4b7174fe5bb875a09a78674a14a1589d1a672f3 ]
 
-In the error handling path, the clk_prepare_enable() function
-call should be balanced by a corresponding 'clk_disable_unprepare()'
-call , as already done in the remove function.
+The device_node pointer is returned by of_parse_phandle()  with refcount
+incremented. We should use of_node_put() on it when done.
 
-Fixes: de66b3455023 ("ASoC: codecs: msm8916-wcd-analog: add MBHC support")
+This function only calls of_node_put() in the regular path.
+And it will cause refcount leak in error path.
+
+Fixes: 082482a50227 ("ASoC: mediatek: mt8195: release device_node after snd_soc_register_card")
 Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220316041924.17560-1-linmq006@gmail.com
+Link: https://lore.kernel.org/r/20220316084623.24238-1-linmq006@gmail.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/msm8916-wcd-analog.c | 22 ++++++++++++++++------
- 1 file changed, 16 insertions(+), 6 deletions(-)
+ sound/soc/mediatek/mt8195/mt8195-mt6359-rt1019-rt5682.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/msm8916-wcd-analog.c b/sound/soc/codecs/msm8916-wcd-analog.c
-index 485cda46dbb9..e52a559c52d6 100644
---- a/sound/soc/codecs/msm8916-wcd-analog.c
-+++ b/sound/soc/codecs/msm8916-wcd-analog.c
-@@ -1222,8 +1222,10 @@ static int pm8916_wcd_analog_spmi_probe(struct platform_device *pdev)
- 	}
+diff --git a/sound/soc/mediatek/mt8195/mt8195-mt6359-rt1019-rt5682.c b/sound/soc/mediatek/mt8195/mt8195-mt6359-rt1019-rt5682.c
+index 29c2d3407cc7..e3146311722f 100644
+--- a/sound/soc/mediatek/mt8195/mt8195-mt6359-rt1019-rt5682.c
++++ b/sound/soc/mediatek/mt8195/mt8195-mt6359-rt1019-rt5682.c
+@@ -1342,7 +1342,8 @@ static int mt8195_mt6359_rt1019_rt5682_dev_probe(struct platform_device *pdev)
+ 					      "mediatek,dai-link");
+ 		if (ret) {
+ 			dev_dbg(&pdev->dev, "Parse dai-link fail\n");
+-			return -EINVAL;
++			ret = -EINVAL;
++			goto put_node;
+ 		}
+ 	} else {
+ 		if (!sof_on)
+@@ -1398,6 +1399,7 @@ static int mt8195_mt6359_rt1019_rt5682_dev_probe(struct platform_device *pdev)
  
- 	irq = platform_get_irq_byname(pdev, "mbhc_switch_int");
--	if (irq < 0)
--		return irq;
-+	if (irq < 0) {
-+		ret = irq;
-+		goto err_disable_clk;
-+	}
+ 	ret = devm_snd_soc_register_card(&pdev->dev, card);
  
- 	ret = devm_request_threaded_irq(dev, irq, NULL,
- 			       pm8916_mbhc_switch_irq_handler,
-@@ -1235,8 +1237,10 @@ static int pm8916_wcd_analog_spmi_probe(struct platform_device *pdev)
- 
- 	if (priv->mbhc_btn_enabled) {
- 		irq = platform_get_irq_byname(pdev, "mbhc_but_press_det");
--		if (irq < 0)
--			return irq;
-+		if (irq < 0) {
-+			ret = irq;
-+			goto err_disable_clk;
-+		}
- 
- 		ret = devm_request_threaded_irq(dev, irq, NULL,
- 				       mbhc_btn_press_irq_handler,
-@@ -1247,8 +1251,10 @@ static int pm8916_wcd_analog_spmi_probe(struct platform_device *pdev)
- 			dev_err(dev, "cannot request mbhc button press irq\n");
- 
- 		irq = platform_get_irq_byname(pdev, "mbhc_but_rel_det");
--		if (irq < 0)
--			return irq;
-+		if (irq < 0) {
-+			ret = irq;
-+			goto err_disable_clk;
-+		}
- 
- 		ret = devm_request_threaded_irq(dev, irq, NULL,
- 				       mbhc_btn_release_irq_handler,
-@@ -1265,6 +1271,10 @@ static int pm8916_wcd_analog_spmi_probe(struct platform_device *pdev)
- 	return devm_snd_soc_register_component(dev, &pm8916_wcd_analog,
- 				      pm8916_wcd_analog_dai,
- 				      ARRAY_SIZE(pm8916_wcd_analog_dai));
-+
-+err_disable_clk:
-+	clk_disable_unprepare(priv->mclk);
-+	return ret;
- }
- 
- static int pm8916_wcd_analog_spmi_remove(struct platform_device *pdev)
++put_node:
+ 	of_node_put(platform_node);
+ 	of_node_put(adsp_node);
+ 	of_node_put(dp_node);
 -- 
 2.34.1
 
