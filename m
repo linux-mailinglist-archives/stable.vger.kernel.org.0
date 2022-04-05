@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CABA24F2E0E
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:49:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D16A94F2C79
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:31:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229514AbiDEJhM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:37:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33942 "EHLO
+        id S234664AbiDEIZ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:25:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44590 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235605AbiDEJCY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:02:24 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B57E4BF40;
-        Tue,  5 Apr 2022 01:54:11 -0700 (PDT)
+        with ESMTP id S238860AbiDEIT1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:19:27 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39DCA74DD6;
+        Tue,  5 Apr 2022 01:09:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 68DDFB81A0C;
-        Tue,  5 Apr 2022 08:54:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5C69C385A0;
-        Tue,  5 Apr 2022 08:54:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AD3EEB81A37;
+        Tue,  5 Apr 2022 08:09:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 229C2C385A1;
+        Tue,  5 Apr 2022 08:09:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148849;
-        bh=Gh6dRGFWFQmf8B5m9q8iVsCS75Ilgj6gFgKCUtVsgWU=;
+        s=korg; t=1649146174;
+        bh=rl/MI6WofjkOvqKQtyXDowqRNhShvVly0bYkFmUdOUY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XewtgC7TrAFQxtaJFjGT8gAwDmu042+wb0oFSk0DvIjBJMvmaXx4RHrA/gbwDUQq4
-         tHdBC7VGO/nYUZnUmY6sV07Gjbkqzf/Dc4yPOLfaXc+Jw7Dck2/istCLQQZol1l4Cw
-         iy7czptLziIcBWHH+FotcLuxpmLZmHBBbfOPIbTo=
+        b=xnqsK0/VF31RPw++eBtS8V7ElCeNjrylWu9XAocGbXg+ykiH5Q6Kt14Vm28o5TLQO
+         kuo06pyaDRJbueOOr3dPEb0iNyRDr4qeRTcuDdLn63lnntWAo01oWUyHmMCFxCzFPL
+         npOdFbbkgwcYROE2+Yjk7/yQrAHIF2b/xV1KgabQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hersen Wu <hersenwu@amd.com>,
-        Jasdeep Dhillon <jdhillon@amd.com>,
-        Roman Li <Roman.Li@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Bob Pearson <rpearsonhpe@gmail.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0502/1017] drm/amd/display: Add affected crtcs to atomic state for dsc mst unplug
+Subject: [PATCH 5.17 0668/1126] RDMA/rxe: Fix ref error in rxe_av.c
 Date:   Tue,  5 Apr 2022 09:23:35 +0200
-Message-Id: <20220405070409.200254124@linuxfoundation.org>
+Message-Id: <20220405070427.234421231@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,55 +54,300 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roman Li <Roman.Li@amd.com>
+From: Bob Pearson <rpearsonhpe@gmail.com>
 
-[ Upstream commit 128f8ed5902a287a6bb4afe0ffdae8a80b2a64ec ]
+[ Upstream commit 63221acb0c63141cc7650f8eefb148337061e6db ]
 
-[Why]
-When display topology changed on DSC hub we add all crtcs with dsc support to
-atomic state.
-Refer to patch:"drm/amd/display: Trigger modesets on MST DSC connectors"
-However the original implementation may skip crtc if the topology change
-caused by unplug.
-That potentially could lead to no-lightup or corruption on DSC hub after
-unplug event on one of the connectors.
+The commit referenced below can take a reference to the AH which is never
+dropped. This only happens in the UD request path. This patch optionally
+passes that AH back to the caller so that it can hold the reference while
+the AV is being accessed and then drop it. Code to do this is added to
+rxe_req.c. The AV is also passed to rxe_prepare in rxe_net.c as an
+optimization.
 
-[How]
-Update add_affected_mst_dsc_crtcs() to use old connector state
-if new connector state has no crtc (undergoes modeset due to unplug)
-
-Fixes: 44be939ff7ac58 ("drm/amd/display: Trigger modesets on MST DSC connectors")
-
-Reviewed-by: Hersen Wu <hersenwu@amd.com>
-Acked-by: Jasdeep Dhillon <jdhillon@amd.com>
-Signed-off-by: Roman Li <Roman.Li@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: e2fe06c90806 ("RDMA/rxe: Lookup kernel AH from ah index in UD WQEs")
+Link: https://lore.kernel.org/r/20220304000808.225811-2-rpearsonhpe@gmail.com
+Signed-off-by: Bob Pearson <rpearsonhpe@gmail.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/infiniband/sw/rxe/rxe_av.c   | 19 +++++++++-
+ drivers/infiniband/sw/rxe/rxe_loc.h  |  5 ++-
+ drivers/infiniband/sw/rxe/rxe_net.c  | 17 +++++----
+ drivers/infiniband/sw/rxe/rxe_req.c  | 55 +++++++++++++++++-----------
+ drivers/infiniband/sw/rxe/rxe_resp.c |  2 +-
+ 5 files changed, 63 insertions(+), 35 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-index 0ec8051cdfb4..7cadb9e81d9d 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -10752,10 +10752,13 @@ static int dm_check_crtc_cursor(struct drm_atomic_state *state,
- static int add_affected_mst_dsc_crtcs(struct drm_atomic_state *state, struct drm_crtc *crtc)
- {
- 	struct drm_connector *connector;
--	struct drm_connector_state *conn_state;
-+	struct drm_connector_state *conn_state, *old_conn_state;
- 	struct amdgpu_dm_connector *aconnector = NULL;
- 	int i;
--	for_each_new_connector_in_state(state, connector, conn_state, i) {
-+	for_each_oldnew_connector_in_state(state, connector, old_conn_state, conn_state, i) {
-+		if (!conn_state->crtc)
-+			conn_state = old_conn_state;
-+
- 		if (conn_state->crtc != crtc)
- 			continue;
+diff --git a/drivers/infiniband/sw/rxe/rxe_av.c b/drivers/infiniband/sw/rxe/rxe_av.c
+index 38c7b6fb39d7..360a567159fe 100644
+--- a/drivers/infiniband/sw/rxe/rxe_av.c
++++ b/drivers/infiniband/sw/rxe/rxe_av.c
+@@ -99,11 +99,14 @@ void rxe_av_fill_ip_info(struct rxe_av *av, struct rdma_ah_attr *attr)
+ 	av->network_type = type;
+ }
  
+-struct rxe_av *rxe_get_av(struct rxe_pkt_info *pkt)
++struct rxe_av *rxe_get_av(struct rxe_pkt_info *pkt, struct rxe_ah **ahp)
+ {
+ 	struct rxe_ah *ah;
+ 	u32 ah_num;
+ 
++	if (ahp)
++		*ahp = NULL;
++
+ 	if (!pkt || !pkt->qp)
+ 		return NULL;
+ 
+@@ -117,10 +120,22 @@ struct rxe_av *rxe_get_av(struct rxe_pkt_info *pkt)
+ 	if (ah_num) {
+ 		/* only new user provider or kernel client */
+ 		ah = rxe_pool_get_index(&pkt->rxe->ah_pool, ah_num);
+-		if (!ah || ah->ah_num != ah_num || rxe_ah_pd(ah) != pkt->qp->pd) {
++		if (!ah) {
+ 			pr_warn("Unable to find AH matching ah_num\n");
+ 			return NULL;
+ 		}
++
++		if (rxe_ah_pd(ah) != pkt->qp->pd) {
++			pr_warn("PDs don't match for AH and QP\n");
++			rxe_drop_ref(ah);
++			return NULL;
++		}
++
++		if (ahp)
++			*ahp = ah;
++		else
++			rxe_drop_ref(ah);
++
+ 		return &ah->av;
+ 	}
+ 
+diff --git a/drivers/infiniband/sw/rxe/rxe_loc.h b/drivers/infiniband/sw/rxe/rxe_loc.h
+index b1e174afb1d4..b92bb7a15290 100644
+--- a/drivers/infiniband/sw/rxe/rxe_loc.h
++++ b/drivers/infiniband/sw/rxe/rxe_loc.h
+@@ -19,7 +19,7 @@ void rxe_av_to_attr(struct rxe_av *av, struct rdma_ah_attr *attr);
+ 
+ void rxe_av_fill_ip_info(struct rxe_av *av, struct rdma_ah_attr *attr);
+ 
+-struct rxe_av *rxe_get_av(struct rxe_pkt_info *pkt);
++struct rxe_av *rxe_get_av(struct rxe_pkt_info *pkt, struct rxe_ah **ahp);
+ 
+ /* rxe_cq.c */
+ int rxe_cq_chk_attr(struct rxe_dev *rxe, struct rxe_cq *cq,
+@@ -102,7 +102,8 @@ void rxe_mw_cleanup(struct rxe_pool_elem *arg);
+ /* rxe_net.c */
+ struct sk_buff *rxe_init_packet(struct rxe_dev *rxe, struct rxe_av *av,
+ 				int paylen, struct rxe_pkt_info *pkt);
+-int rxe_prepare(struct rxe_pkt_info *pkt, struct sk_buff *skb);
++int rxe_prepare(struct rxe_av *av, struct rxe_pkt_info *pkt,
++		struct sk_buff *skb);
+ int rxe_xmit_packet(struct rxe_qp *qp, struct rxe_pkt_info *pkt,
+ 		    struct sk_buff *skb);
+ const char *rxe_parent_name(struct rxe_dev *rxe, unsigned int port_num);
+diff --git a/drivers/infiniband/sw/rxe/rxe_net.c b/drivers/infiniband/sw/rxe/rxe_net.c
+index be72bdbfb4ba..580cfd742dd2 100644
+--- a/drivers/infiniband/sw/rxe/rxe_net.c
++++ b/drivers/infiniband/sw/rxe/rxe_net.c
+@@ -289,13 +289,13 @@ static void prepare_ipv6_hdr(struct dst_entry *dst, struct sk_buff *skb,
+ 	ip6h->payload_len = htons(skb->len - sizeof(*ip6h));
+ }
+ 
+-static int prepare4(struct rxe_pkt_info *pkt, struct sk_buff *skb)
++static int prepare4(struct rxe_av *av, struct rxe_pkt_info *pkt,
++		    struct sk_buff *skb)
+ {
+ 	struct rxe_qp *qp = pkt->qp;
+ 	struct dst_entry *dst;
+ 	bool xnet = false;
+ 	__be16 df = htons(IP_DF);
+-	struct rxe_av *av = rxe_get_av(pkt);
+ 	struct in_addr *saddr = &av->sgid_addr._sockaddr_in.sin_addr;
+ 	struct in_addr *daddr = &av->dgid_addr._sockaddr_in.sin_addr;
+ 
+@@ -315,11 +315,11 @@ static int prepare4(struct rxe_pkt_info *pkt, struct sk_buff *skb)
+ 	return 0;
+ }
+ 
+-static int prepare6(struct rxe_pkt_info *pkt, struct sk_buff *skb)
++static int prepare6(struct rxe_av *av, struct rxe_pkt_info *pkt,
++		    struct sk_buff *skb)
+ {
+ 	struct rxe_qp *qp = pkt->qp;
+ 	struct dst_entry *dst;
+-	struct rxe_av *av = rxe_get_av(pkt);
+ 	struct in6_addr *saddr = &av->sgid_addr._sockaddr_in6.sin6_addr;
+ 	struct in6_addr *daddr = &av->dgid_addr._sockaddr_in6.sin6_addr;
+ 
+@@ -340,16 +340,17 @@ static int prepare6(struct rxe_pkt_info *pkt, struct sk_buff *skb)
+ 	return 0;
+ }
+ 
+-int rxe_prepare(struct rxe_pkt_info *pkt, struct sk_buff *skb)
++int rxe_prepare(struct rxe_av *av, struct rxe_pkt_info *pkt,
++		struct sk_buff *skb)
+ {
+ 	int err = 0;
+ 
+ 	if (skb->protocol == htons(ETH_P_IP))
+-		err = prepare4(pkt, skb);
++		err = prepare4(av, pkt, skb);
+ 	else if (skb->protocol == htons(ETH_P_IPV6))
+-		err = prepare6(pkt, skb);
++		err = prepare6(av, pkt, skb);
+ 
+-	if (ether_addr_equal(skb->dev->dev_addr, rxe_get_av(pkt)->dmac))
++	if (ether_addr_equal(skb->dev->dev_addr, av->dmac))
+ 		pkt->mask |= RXE_LOOPBACK_MASK;
+ 
+ 	return err;
+diff --git a/drivers/infiniband/sw/rxe/rxe_req.c b/drivers/infiniband/sw/rxe/rxe_req.c
+index b28036a7a3b8..204e31bbd61f 100644
+--- a/drivers/infiniband/sw/rxe/rxe_req.c
++++ b/drivers/infiniband/sw/rxe/rxe_req.c
+@@ -358,6 +358,7 @@ static inline int get_mtu(struct rxe_qp *qp)
+ }
+ 
+ static struct sk_buff *init_req_packet(struct rxe_qp *qp,
++				       struct rxe_av *av,
+ 				       struct rxe_send_wqe *wqe,
+ 				       int opcode, u32 payload,
+ 				       struct rxe_pkt_info *pkt)
+@@ -365,7 +366,6 @@ static struct sk_buff *init_req_packet(struct rxe_qp *qp,
+ 	struct rxe_dev		*rxe = to_rdev(qp->ibqp.device);
+ 	struct sk_buff		*skb;
+ 	struct rxe_send_wr	*ibwr = &wqe->wr;
+-	struct rxe_av		*av;
+ 	int			pad = (-payload) & 0x3;
+ 	int			paylen;
+ 	int			solicited;
+@@ -374,21 +374,9 @@ static struct sk_buff *init_req_packet(struct rxe_qp *qp,
+ 
+ 	/* length from start of bth to end of icrc */
+ 	paylen = rxe_opcode[opcode].length + payload + pad + RXE_ICRC_SIZE;
+-
+-	/* pkt->hdr, port_num and mask are initialized in ifc layer */
+-	pkt->rxe	= rxe;
+-	pkt->opcode	= opcode;
+-	pkt->qp		= qp;
+-	pkt->psn	= qp->req.psn;
+-	pkt->mask	= rxe_opcode[opcode].mask;
+-	pkt->paylen	= paylen;
+-	pkt->wqe	= wqe;
++	pkt->paylen = paylen;
+ 
+ 	/* init skb */
+-	av = rxe_get_av(pkt);
+-	if (!av)
+-		return NULL;
+-
+ 	skb = rxe_init_packet(rxe, av, paylen, pkt);
+ 	if (unlikely(!skb))
+ 		return NULL;
+@@ -447,13 +435,13 @@ static struct sk_buff *init_req_packet(struct rxe_qp *qp,
+ 	return skb;
+ }
+ 
+-static int finish_packet(struct rxe_qp *qp, struct rxe_send_wqe *wqe,
+-		       struct rxe_pkt_info *pkt, struct sk_buff *skb,
+-		       u32 paylen)
++static int finish_packet(struct rxe_qp *qp, struct rxe_av *av,
++			 struct rxe_send_wqe *wqe, struct rxe_pkt_info *pkt,
++			 struct sk_buff *skb, u32 paylen)
+ {
+ 	int err;
+ 
+-	err = rxe_prepare(pkt, skb);
++	err = rxe_prepare(av, pkt, skb);
+ 	if (err)
+ 		return err;
+ 
+@@ -608,6 +596,7 @@ static int rxe_do_local_ops(struct rxe_qp *qp, struct rxe_send_wqe *wqe)
+ int rxe_requester(void *arg)
+ {
+ 	struct rxe_qp *qp = (struct rxe_qp *)arg;
++	struct rxe_dev *rxe = to_rdev(qp->ibqp.device);
+ 	struct rxe_pkt_info pkt;
+ 	struct sk_buff *skb;
+ 	struct rxe_send_wqe *wqe;
+@@ -619,6 +608,8 @@ int rxe_requester(void *arg)
+ 	struct rxe_send_wqe rollback_wqe;
+ 	u32 rollback_psn;
+ 	struct rxe_queue *q = qp->sq.queue;
++	struct rxe_ah *ah;
++	struct rxe_av *av;
+ 
+ 	rxe_add_ref(qp);
+ 
+@@ -705,14 +696,28 @@ int rxe_requester(void *arg)
+ 		payload = mtu;
+ 	}
+ 
+-	skb = init_req_packet(qp, wqe, opcode, payload, &pkt);
++	pkt.rxe = rxe;
++	pkt.opcode = opcode;
++	pkt.qp = qp;
++	pkt.psn = qp->req.psn;
++	pkt.mask = rxe_opcode[opcode].mask;
++	pkt.wqe = wqe;
++
++	av = rxe_get_av(&pkt, &ah);
++	if (unlikely(!av)) {
++		pr_err("qp#%d Failed no address vector\n", qp_num(qp));
++		wqe->status = IB_WC_LOC_QP_OP_ERR;
++		goto err_drop_ah;
++	}
++
++	skb = init_req_packet(qp, av, wqe, opcode, payload, &pkt);
+ 	if (unlikely(!skb)) {
+ 		pr_err("qp#%d Failed allocating skb\n", qp_num(qp));
+ 		wqe->status = IB_WC_LOC_QP_OP_ERR;
+-		goto err;
++		goto err_drop_ah;
+ 	}
+ 
+-	ret = finish_packet(qp, wqe, &pkt, skb, payload);
++	ret = finish_packet(qp, av, wqe, &pkt, skb, payload);
+ 	if (unlikely(ret)) {
+ 		pr_debug("qp#%d Error during finish packet\n", qp_num(qp));
+ 		if (ret == -EFAULT)
+@@ -720,9 +725,12 @@ int rxe_requester(void *arg)
+ 		else
+ 			wqe->status = IB_WC_LOC_QP_OP_ERR;
+ 		kfree_skb(skb);
+-		goto err;
++		goto err_drop_ah;
+ 	}
+ 
++	if (ah)
++		rxe_drop_ref(ah);
++
+ 	/*
+ 	 * To prevent a race on wqe access between requester and completer,
+ 	 * wqe members state and psn need to be set before calling
+@@ -751,6 +759,9 @@ int rxe_requester(void *arg)
+ 
+ 	goto next_wqe;
+ 
++err_drop_ah:
++	if (ah)
++		rxe_drop_ref(ah);
+ err:
+ 	wqe->state = wqe_state_error;
+ 	__rxe_do_task(&qp->comp.task);
+diff --git a/drivers/infiniband/sw/rxe/rxe_resp.c b/drivers/infiniband/sw/rxe/rxe_resp.c
+index 380934e38923..192cb9a096a1 100644
+--- a/drivers/infiniband/sw/rxe/rxe_resp.c
++++ b/drivers/infiniband/sw/rxe/rxe_resp.c
+@@ -632,7 +632,7 @@ static struct sk_buff *prepare_ack_packet(struct rxe_qp *qp,
+ 	if (ack->mask & RXE_ATMACK_MASK)
+ 		atmack_set_orig(ack, qp->resp.atomic_orig);
+ 
+-	err = rxe_prepare(ack, skb);
++	err = rxe_prepare(&qp->pri_av, ack, skb);
+ 	if (err) {
+ 		kfree_skb(skb);
+ 		return NULL;
 -- 
 2.34.1
 
