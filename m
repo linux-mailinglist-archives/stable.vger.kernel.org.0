@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DDBEF4F2E16
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:49:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E395A4F2B89
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:10:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241628AbiDEIet (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:34:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45418 "EHLO
+        id S241597AbiDEIed (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:34:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45644 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239450AbiDEIUF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:20:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DAE256200;
-        Tue,  5 Apr 2022 01:13:34 -0700 (PDT)
+        with ESMTP id S239457AbiDEIUG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:20:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B98E76A43C;
+        Tue,  5 Apr 2022 01:13:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 29CF160B0A;
-        Tue,  5 Apr 2022 08:13:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3AD46C385A0;
-        Tue,  5 Apr 2022 08:13:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 77D7AB81A37;
+        Tue,  5 Apr 2022 08:13:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC66DC385A0;
+        Tue,  5 Apr 2022 08:13:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146413;
-        bh=3LxEPkMJu4WUWNwLsa7IzbFHRo3wh5QvDBNDMq0dVUQ=;
+        s=korg; t=1649146416;
+        bh=MgDDT8VuQWca49TghJ4tLzY7YNfYN4Yv/TzRySXi/dQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eLDDgC0P4EXFm+rlWaSYnBD2Chua7UTPIB/HULjK+82SeDj52tkrvjM8VXIrMQ7Nx
-         nBlQvTJy9bLYLqcRiYi/oqrJQP0qHkSiJslkRDl6dWv5inoFKRCi1iH9SAFer+YFRW
-         We+H3UDuLlWX8pWHY3mweuBn8sjuFX+UtUhY7u8U=
+        b=azuykinysNGxWi1fY1clezDdzjHz7ckJrLM38Z7dNGdo2Vn3bLK4n/HoREYpecomY
+         f2IIDBw5t2v8RzYE4d+6WUMfg4eltGeG9v8XMTwJs//MBDPjWkm5NVfXp8mNVZ+CUx
+         Fqg8hw+bgCWcE1sLhobXllJPEAHxK02gtNuo9JIw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Rodolfo Giometti <giometti@enneenne.com>,
-        Robert Hancock <robert.hancock@calian.com>,
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0717/1126] pps: clients: gpio: Propagate return value from pps_gpio_probe
-Date:   Tue,  5 Apr 2022 09:24:24 +0200
-Message-Id: <20220405070428.641244285@linuxfoundation.org>
+Subject: [PATCH 5.17 0718/1126] fsi: Aspeed: Fix a potential double free
+Date:   Tue,  5 Apr 2022 09:24:25 +0200
+Message-Id: <20220405070428.669582485@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -56,41 +54,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Hancock <robert.hancock@calian.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit abaca3179b41d4b3b115f27814ee36f6fb45e897 ]
+[ Upstream commit 83ba7e895debc529803a7a258653f2fe9bf3bf40 ]
 
-If the pps-gpio driver was probed prior to the GPIO device it uses, the
-devm_gpiod_get call returned an -EPROBE_DEFER error, but pps_gpio_probe
-replaced that error code with -EINVAL, causing the pps-gpio probe to
-fail and not be retried later. Propagate the error return value so that
-deferred probe works properly.
+A struct device can never be devm_alloc()'ed.
+Here, it is embedded in "struct fsi_master", and "struct fsi_master" is
+embedded in "struct fsi_master_aspeed".
 
-Fixes: 161520451dfa (pps: new client driver using GPIO)
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Acked-by: Rodolfo Giometti <giometti@enneenne.com>
-Signed-off-by: Robert Hancock <robert.hancock@calian.com>
-Signed-off-by: Rodolfo Giometti <giometti@enneenne.com>
-Link: https://lore.kernel.org/r/20220112205214.2060954-1-robert.hancock@calian.com
+Since "struct device" is embedded, the data structure embedding it must be
+released with the release function, as is already done here.
+
+So use kzalloc() instead of devm_kzalloc() when allocating "aspeed" and
+update all error handling branches accordingly.
+
+This prevent a potential double free().
+
+This also fix another issue if opb_readl() fails. Instead of a direct
+return, it now jumps in the error handling path.
+
+Fixes: 606397d67f41 ("fsi: Add ast2600 master driver")
+Suggested-by: Greg KH <gregkh@linuxfoundation.org>
+Suggested-by: Guenter Roeck <linux@roeck-us.net>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/2c123f8b0a40dc1a061fae982169fe030b4f47e6.1641765339.git.christophe.jaillet@wanadoo.fr
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pps/clients/pps-gpio.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/fsi/fsi-master-aspeed.c | 17 +++++++++++------
+ 1 file changed, 11 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/pps/clients/pps-gpio.c b/drivers/pps/clients/pps-gpio.c
-index 35799e6401c9..2f4b11b4dfcd 100644
---- a/drivers/pps/clients/pps-gpio.c
-+++ b/drivers/pps/clients/pps-gpio.c
-@@ -169,7 +169,7 @@ static int pps_gpio_probe(struct platform_device *pdev)
- 	/* GPIO setup */
- 	ret = pps_gpio_setup(dev);
- 	if (ret)
--		return -EINVAL;
-+		return ret;
+diff --git a/drivers/fsi/fsi-master-aspeed.c b/drivers/fsi/fsi-master-aspeed.c
+index 8606e55c1721..0bed2fab8055 100644
+--- a/drivers/fsi/fsi-master-aspeed.c
++++ b/drivers/fsi/fsi-master-aspeed.c
+@@ -542,25 +542,28 @@ static int fsi_master_aspeed_probe(struct platform_device *pdev)
+ 		return rc;
+ 	}
  
- 	/* IRQ setup */
- 	ret = gpiod_to_irq(data->gpio_pin);
+-	aspeed = devm_kzalloc(&pdev->dev, sizeof(*aspeed), GFP_KERNEL);
++	aspeed = kzalloc(sizeof(*aspeed), GFP_KERNEL);
+ 	if (!aspeed)
+ 		return -ENOMEM;
+ 
+ 	aspeed->dev = &pdev->dev;
+ 
+ 	aspeed->base = devm_platform_ioremap_resource(pdev, 0);
+-	if (IS_ERR(aspeed->base))
+-		return PTR_ERR(aspeed->base);
++	if (IS_ERR(aspeed->base)) {
++		rc = PTR_ERR(aspeed->base);
++		goto err_free_aspeed;
++	}
+ 
+ 	aspeed->clk = devm_clk_get(aspeed->dev, NULL);
+ 	if (IS_ERR(aspeed->clk)) {
+ 		dev_err(aspeed->dev, "couldn't get clock\n");
+-		return PTR_ERR(aspeed->clk);
++		rc = PTR_ERR(aspeed->clk);
++		goto err_free_aspeed;
+ 	}
+ 	rc = clk_prepare_enable(aspeed->clk);
+ 	if (rc) {
+ 		dev_err(aspeed->dev, "couldn't enable clock\n");
+-		return rc;
++		goto err_free_aspeed;
+ 	}
+ 
+ 	rc = setup_cfam_reset(aspeed);
+@@ -595,7 +598,7 @@ static int fsi_master_aspeed_probe(struct platform_device *pdev)
+ 	rc = opb_readl(aspeed, ctrl_base + FSI_MVER, &raw);
+ 	if (rc) {
+ 		dev_err(&pdev->dev, "failed to read hub version\n");
+-		return rc;
++		goto err_release;
+ 	}
+ 
+ 	reg = be32_to_cpu(raw);
+@@ -634,6 +637,8 @@ static int fsi_master_aspeed_probe(struct platform_device *pdev)
+ 
+ err_release:
+ 	clk_disable_unprepare(aspeed->clk);
++err_free_aspeed:
++	kfree(aspeed);
+ 	return rc;
+ }
+ 
 -- 
 2.34.1
 
