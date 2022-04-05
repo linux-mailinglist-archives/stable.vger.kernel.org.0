@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A76C04F2C26
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:23:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 378E94F2B45
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:09:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238416AbiDEJQF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:16:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50874 "EHLO
+        id S1347866AbiDEJ2f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:28:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46156 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244998AbiDEIxA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:53:00 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4839BE3F;
-        Tue,  5 Apr 2022 01:49:00 -0700 (PDT)
+        with ESMTP id S244952AbiDEIwu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 304B71BEAD;
+        Tue,  5 Apr 2022 01:47:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 0D140CE1C2B;
-        Tue,  5 Apr 2022 08:48:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 246FEC385A1;
-        Tue,  5 Apr 2022 08:48:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C2A90614F9;
+        Tue,  5 Apr 2022 08:47:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF3B8C385A1;
+        Tue,  5 Apr 2022 08:47:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148537;
-        bh=dUPMWY3No3ZtlmW5feTBsUwdpyUR2ssd5bqEdS1TjXY=;
+        s=korg; t=1649148452;
+        bh=1LZ8fotZSm4eQU/oN7SWa3oKTSpE6lIwBc6KvTf1Ti4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fl0dC/Iy96KmL0TKHoU1eg7Io/rjcAIzPrzy529NxlewwRXP02E9z065klMH6XceV
-         1uQ3D5Acq+tXL6X5zhVsxHgkrrVeW3P5B8BuWLwvoPCbH8YmQp5kfgKTzL8iegs30v
-         H7+Zgo3rPMdevAdzwe2bPckaWtkFOKrC8Lnvvd9U=
+        b=pgdC5Fr8VkoB8YX/G/ZaCMMOyn8E4a3vHgTbQ027urqBpRIYXF1g7sVvipCj1l1P9
+         WAE9lQiCuKB1A+T8JXDhml9U3IxAjo8UJrH+AdAU7d0E7SwZT0L/cbKVeNyXNpWLH0
+         yEwGulnxSasYt6yED0D9sibMZH/9I5/mDCWUhrgc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Mark Brown <broonie@kernel.org>,
+        Nicolas Dufresne <nicolas.dufresne@collabora.com>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0343/1017] ASoC: codecs: wcd934x: fix kcontrol max values
-Date:   Tue,  5 Apr 2022 09:20:56 +0200
-Message-Id: <20220405070404.464710729@linuxfoundation.org>
+Subject: [PATCH 5.16 0345/1017] media: v4l2-core: Initialize h264 scaling matrix
+Date:   Tue,  5 Apr 2022 09:20:58 +0200
+Message-Id: <20220405070404.523528515@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -55,46 +57,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+From: Nicolas Dufresne <nicolas.dufresne@collabora.com>
 
-[ Upstream commit 61163c3e7480106804269182e24db05244866493 ]
+[ Upstream commit 0f6146d476fc99862899e70f2554ee77b444b7b9 ]
 
-set "HPH Type" Kcontrol max value of WCD_MBHC_HPH_STEREO instead of UINT_MAX.
-set "HPHL/R Impedance" Kcontrols max value to INT_MAX instead of UINT_MAX as
-max field is integer type.
+In the final H264 API, it is not required to set scaling matrix if
+they are not present in the bitstream. A flag was added in order to let
+the driver know. The downside is that it leaves the default control
+value to 0, which isn't valid. As per the spec (see formulas 7-8/7-9),
+when the scaling matrix are absent from the bitstream, flat values
+of 16 should be used. This improves this control semantic in a way
+that the control value are always valid. Drivers can then use
+the scaling_matrix control values without having to check its presence.
+Same method was employed for MPEG2_QUANTISATION.
 
-Without this patch amixer for these controls will show -1 as max value to userspace.
+This fixes issues with MTK VCODEC H264 decoder when using GStreamer.
+GStreamer does not set this control if its not present in the bitstream.
+As MTK VDCODEC was using the initialized to 0 values, the frames ended
+up completely gray.
 
-Fixes: 9fb9b1690f0b ("ASoC: codecs: wcd934x: add mbhc support")
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20220222183212.11580-9-srinivas.kandagatla@linaro.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 54889c51b833d236 ("media: uapi: h264: Rename and clarify PPS_FLAG_SCALING_MATRIX_PRESENT")
+Signed-off-by: Nicolas Dufresne <nicolas.dufresne@collabora.com>
+Tested-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/wcd934x.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/media/v4l2-core/v4l2-ctrls-core.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/sound/soc/codecs/wcd934x.c b/sound/soc/codecs/wcd934x.c
-index e63c6b723d76..68c9d694d379 100644
---- a/sound/soc/codecs/wcd934x.c
-+++ b/sound/soc/codecs/wcd934x.c
-@@ -3023,14 +3023,14 @@ static int wcd934x_hph_impedance_get(struct snd_kcontrol *kcontrol,
- 	return 0;
- }
- static const struct snd_kcontrol_new hph_type_detect_controls[] = {
--	SOC_SINGLE_EXT("HPH Type", 0, 0, UINT_MAX, 0,
-+	SOC_SINGLE_EXT("HPH Type", 0, 0, WCD_MBHC_HPH_STEREO, 0,
- 		       wcd934x_get_hph_type, NULL),
- };
+diff --git a/drivers/media/v4l2-core/v4l2-ctrls-core.c b/drivers/media/v4l2-core/v4l2-ctrls-core.c
+index 70adfc1b9c81..fb9b99e9e12b 100644
+--- a/drivers/media/v4l2-core/v4l2-ctrls-core.c
++++ b/drivers/media/v4l2-core/v4l2-ctrls-core.c
+@@ -113,6 +113,7 @@ static void std_init_compound(const struct v4l2_ctrl *ctrl, u32 idx,
+ 	struct v4l2_ctrl_mpeg2_quantisation *p_mpeg2_quant;
+ 	struct v4l2_ctrl_vp8_frame *p_vp8_frame;
+ 	struct v4l2_ctrl_fwht_params *p_fwht_params;
++	struct v4l2_ctrl_h264_scaling_matrix *p_h264_scaling_matrix;
+ 	void *p = ptr.p + idx * ctrl->elem_size;
  
- static const struct snd_kcontrol_new impedance_detect_controls[] = {
--	SOC_SINGLE_EXT("HPHL Impedance", 0, 0, UINT_MAX, 0,
-+	SOC_SINGLE_EXT("HPHL Impedance", 0, 0, INT_MAX, 0,
- 		       wcd934x_hph_impedance_get, NULL),
--	SOC_SINGLE_EXT("HPHR Impedance", 0, 1, UINT_MAX, 0,
-+	SOC_SINGLE_EXT("HPHR Impedance", 0, 1, INT_MAX, 0,
- 		       wcd934x_hph_impedance_get, NULL),
- };
+ 	if (ctrl->p_def.p_const)
+@@ -160,6 +161,15 @@ static void std_init_compound(const struct v4l2_ctrl *ctrl, u32 idx,
+ 		p_fwht_params->flags = V4L2_FWHT_FL_PIXENC_YUV |
+ 			(2 << V4L2_FWHT_FL_COMPONENTS_NUM_OFFSET);
+ 		break;
++	case V4L2_CTRL_TYPE_H264_SCALING_MATRIX:
++		p_h264_scaling_matrix = p;
++		/*
++		 * The default (flat) H.264 scaling matrix when none are
++		 * specified in the bitstream, this is according to formulas
++		 *  (7-8) and (7-9) of the specification.
++		 */
++		memset(p_h264_scaling_matrix, 16, sizeof(*p_h264_scaling_matrix));
++		break;
+ 	}
+ }
  
 -- 
 2.34.1
