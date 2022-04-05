@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A2A04F37C8
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:25:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E90254F3A83
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:02:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359523AbiDELTt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:19:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43462 "EHLO
+        id S1381495AbiDELqK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:46:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34318 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349209AbiDEJt1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEA3822B0F;
-        Tue,  5 Apr 2022 02:42:44 -0700 (PDT)
+        with ESMTP id S1354878AbiDEKQ1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:16:27 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 021C26CA52;
+        Tue,  5 Apr 2022 03:03:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4CE6461576;
-        Tue,  5 Apr 2022 09:42:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5EEB1C385A1;
-        Tue,  5 Apr 2022 09:42:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A9DECB81B7A;
+        Tue,  5 Apr 2022 10:03:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1821CC385A2;
+        Tue,  5 Apr 2022 10:03:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151763;
-        bh=Okagw7fie1fM2en2TnMuv+aoslOZlViKQELnMUuOEYg=;
+        s=korg; t=1649152999;
+        bh=+Rq5kr++CHOFLK889vTt2MZZI3piacdfiSHz+bWCC4M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JOeMnUQEhiHGX4ip0YxnBypBh64CYxDk64w0Kvtzb4QfWI5OWHl2Sw4MBI541VP9k
-         92c8zBYg8zY3M/h2lxIt6GIzLSq+AflKi/dXMfGPBrMg+fYBfS4mwehx1OTH0/3m8k
-         YjtM+r3esxMDJ0W1zhQv81WU9g2p4dkXuWEU8Zpo=
+        b=ELeuAKEKl+RD4bfE0Lq1+NUaL3GtRTf2dVayasZy9oJgWEzOGP+abPYVoXF7KKEZF
+         /LlGY3oAYE5DRdBnNrjt3J7rQxX9nEqr3JddBbpns5rh63Djj0vaekYhq9ZNaQrn/m
+         L81VZzaYEuwf1ImcSlcrAC86Ynmp52Sp05RApLTY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bastien Nocera <hadess@hadess.net>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 496/913] power: supply: bq24190_charger: Fix bq24190_vbus_is_enabled() wrong false return
+        stable@vger.kernel.org, Manish Chopra <manishc@marvell.com>,
+        Ariel Elior <aelior@marvell.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 064/599] qed: validate and restrict untrusted VFs vlan promisc mode
 Date:   Tue,  5 Apr 2022 09:25:58 +0200
-Message-Id: <20220405070354.722366911@linuxfoundation.org>
+Message-Id: <20220405070300.732695358@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070258.802373272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,57 +54,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Manish Chopra <manishc@marvell.com>
 
-[ Upstream commit f7731754fdce33dad19be746f647d6ac47c5d695 ]
+commit cbcc44db2cf7b836896733acc0e5ea966136ed22 upstream.
 
-The datasheet says that the BQ24190_REG_POC_CHG_CONFIG bits can
-have a value of either 10(0x2) or 11(0x3) for OTG (5V boost regulator)
-mode.
+Today when VFs are put in promiscuous mode, they can request PF
+to configure device for them to receive all VLANs traffic regardless
+of what vlan is configured by the PF (via ip link) and PF allows this
+config request regardless of whether VF is trusted or not.
 
-Sofar bq24190_vbus_is_enabled() was only checking for 10 but some BIOS-es
-uses 11 when enabling the regulator at boot.
+>From security POV, when VLAN is configured for VF through PF (via ip link),
+honour such config requests from VF only when they are configured to be
+trusted, otherwise restrict such VFs vlan promisc mode config.
 
-Make bq24190_vbus_is_enabled() also check for 11 so that it does not
-wrongly returns false when the bits are set to 11.
-
-Fixes: 66b6bef2c4e0 ("power: supply: bq24190_charger: Export 5V boost converter as regulator")
-Cc: Bastien Nocera <hadess@hadess.net>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: f990c82c385b ("qed*: Add support for ndo_set_vf_trust")
+Signed-off-by: Manish Chopra <manishc@marvell.com>
+Signed-off-by: Ariel Elior <aelior@marvell.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/power/supply/bq24190_charger.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/qlogic/qed/qed_sriov.c |   28 ++++++++++++++++++++++++++--
+ drivers/net/ethernet/qlogic/qed/qed_sriov.h |    1 +
+ 2 files changed, 27 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/power/supply/bq24190_charger.c b/drivers/power/supply/bq24190_charger.c
-index 35ff0c8fe96f..16c4876fe5af 100644
---- a/drivers/power/supply/bq24190_charger.c
-+++ b/drivers/power/supply/bq24190_charger.c
-@@ -39,6 +39,7 @@
- #define BQ24190_REG_POC_CHG_CONFIG_DISABLE		0x0
- #define BQ24190_REG_POC_CHG_CONFIG_CHARGE		0x1
- #define BQ24190_REG_POC_CHG_CONFIG_OTG			0x2
-+#define BQ24190_REG_POC_CHG_CONFIG_OTG_ALT		0x3
- #define BQ24190_REG_POC_SYS_MIN_MASK		(BIT(3) | BIT(2) | BIT(1))
- #define BQ24190_REG_POC_SYS_MIN_SHIFT		1
- #define BQ24190_REG_POC_SYS_MIN_MIN			3000
-@@ -550,7 +551,11 @@ static int bq24190_vbus_is_enabled(struct regulator_dev *dev)
- 	pm_runtime_mark_last_busy(bdi->dev);
- 	pm_runtime_put_autosuspend(bdi->dev);
- 
--	return ret ? ret : val == BQ24190_REG_POC_CHG_CONFIG_OTG;
-+	if (ret)
-+		return ret;
+--- a/drivers/net/ethernet/qlogic/qed/qed_sriov.c
++++ b/drivers/net/ethernet/qlogic/qed/qed_sriov.c
+@@ -2982,12 +2982,16 @@ static int qed_iov_pre_update_vport(stru
+ 	u8 mask = QED_ACCEPT_UCAST_UNMATCHED | QED_ACCEPT_MCAST_UNMATCHED;
+ 	struct qed_filter_accept_flags *flags = &params->accept_flags;
+ 	struct qed_public_vf_info *vf_info;
++	u16 tlv_mask;
 +
-+	return (val == BQ24190_REG_POC_CHG_CONFIG_OTG ||
-+		val == BQ24190_REG_POC_CHG_CONFIG_OTG_ALT);
++	tlv_mask = BIT(QED_IOV_VP_UPDATE_ACCEPT_PARAM) |
++		   BIT(QED_IOV_VP_UPDATE_ACCEPT_ANY_VLAN);
+ 
+ 	/* Untrusted VFs can't even be trusted to know that fact.
+ 	 * Simply indicate everything is configured fine, and trace
+ 	 * configuration 'behind their back'.
+ 	 */
+-	if (!(*tlvs & BIT(QED_IOV_VP_UPDATE_ACCEPT_PARAM)))
++	if (!(*tlvs & tlv_mask))
+ 		return 0;
+ 
+ 	vf_info = qed_iov_get_public_vf_info(hwfn, vfid, true);
+@@ -3004,6 +3008,13 @@ static int qed_iov_pre_update_vport(stru
+ 			flags->tx_accept_filter &= ~mask;
+ 	}
+ 
++	if (params->update_accept_any_vlan_flg) {
++		vf_info->accept_any_vlan = params->accept_any_vlan;
++
++		if (vf_info->forced_vlan && !vf_info->is_trusted_configured)
++			params->accept_any_vlan = false;
++	}
++
+ 	return 0;
  }
  
- static const struct regulator_ops bq24190_vbus_ops = {
--- 
-2.34.1
-
+@@ -5121,6 +5132,12 @@ static void qed_iov_handle_trust_change(
+ 
+ 		params.update_ctl_frame_check = 1;
+ 		params.mac_chk_en = !vf_info->is_trusted_configured;
++		params.update_accept_any_vlan_flg = 0;
++
++		if (vf_info->accept_any_vlan && vf_info->forced_vlan) {
++			params.update_accept_any_vlan_flg = 1;
++			params.accept_any_vlan = vf_info->accept_any_vlan;
++		}
+ 
+ 		if (vf_info->rx_accept_mode & mask) {
+ 			flags->update_rx_mode_config = 1;
+@@ -5136,13 +5153,20 @@ static void qed_iov_handle_trust_change(
+ 		if (!vf_info->is_trusted_configured) {
+ 			flags->rx_accept_filter &= ~mask;
+ 			flags->tx_accept_filter &= ~mask;
++			params.accept_any_vlan = false;
+ 		}
+ 
+ 		if (flags->update_rx_mode_config ||
+ 		    flags->update_tx_mode_config ||
+-		    params.update_ctl_frame_check)
++		    params.update_ctl_frame_check ||
++		    params.update_accept_any_vlan_flg) {
++			DP_VERBOSE(hwfn, QED_MSG_IOV,
++				   "vport update config for %s VF[abs 0x%x rel 0x%x]\n",
++				   vf_info->is_trusted_configured ? "trusted" : "untrusted",
++				   vf->abs_vf_id, vf->relative_vf_id);
+ 			qed_sp_vport_update(hwfn, &params,
+ 					    QED_SPQ_MODE_EBLOCK, NULL);
++		}
+ 	}
+ }
+ 
+--- a/drivers/net/ethernet/qlogic/qed/qed_sriov.h
++++ b/drivers/net/ethernet/qlogic/qed/qed_sriov.h
+@@ -62,6 +62,7 @@ struct qed_public_vf_info {
+ 	bool is_trusted_request;
+ 	u8 rx_accept_mode;
+ 	u8 tx_accept_mode;
++	bool accept_any_vlan;
+ };
+ 
+ struct qed_iov_vf_init_params {
 
 
