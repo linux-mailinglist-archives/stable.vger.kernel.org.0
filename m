@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D10B4F3850
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:32:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E31AC4F3852
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:32:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376748AbiDELW4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:22:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43898 "EHLO
+        id S241087AbiDELW7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:22:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39416 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349466AbiDEJtz (ORCPT
+        with ESMTP id S1349471AbiDEJtz (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5CB1E033;
-        Tue,  5 Apr 2022 02:46:43 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36DA0FD21;
+        Tue,  5 Apr 2022 02:46:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 51B4A61675;
-        Tue,  5 Apr 2022 09:46:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59564C385A2;
-        Tue,  5 Apr 2022 09:46:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D2B9AB81B76;
+        Tue,  5 Apr 2022 09:46:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23093C385A1;
+        Tue,  5 Apr 2022 09:46:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152002;
-        bh=eGTpxXH09wxPDurXHU6C89R4dTMpZZ0TsDKQfzO4kZw=;
+        s=korg; t=1649152005;
+        bh=/4hjeViN+EfUTKzkf5o0XiMashHr4EoRfdRaBYxu8NU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xzAGA+Y7oJL3xGTDU7C8L0gz32nfchISASk8ldMTd07WFW7gYG3pHfAVqbI3UhfAK
-         j8WDJbk5iVAohu8AJP33JLNy3deYfbf/Hz/rC/g9ZXQFKPVtqbmJykCf0/OLkp7qtJ
-         DA19+1yR55nbY7ejgKph45/j90f+3wJZIe7iqGS4=
+        b=LYV6fiLYMQaJQ4Pd6a3xnJlTetcnF68ZhqFsUHKl+18XvJufsC/q+VTap7NZti/Wi
+         gYISxzuUtGz6phlH5a7VENaELDahvi+VAWAM9Eid+TYSDrrIqzG9bF2klEXeFm57SH
+         CsNRzxOa/2p4pE8HfWSo9c679LVATzmCXNLBbWlA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joel Stanley <joel@jms.id.au>,
-        Eddie James <eajames@linux.ibm.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Thierry Reding <thierry.reding@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 581/913] fsi: scom: Remove retries in indirect scoms
-Date:   Tue,  5 Apr 2022 09:27:23 +0200
-Message-Id: <20220405070357.260412447@linuxfoundation.org>
+Subject: [PATCH 5.15 582/913] pwm: lpc18xx-sct: Initialize driver data and hardware before pwmchip_add()
+Date:   Tue,  5 Apr 2022 09:27:24 +0200
+Message-Id: <20220405070357.290361080@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -54,112 +56,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joel Stanley <joel@jms.id.au>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit ab1b79159ad5a6dc4e4994b49737f7feb13b7155 ]
+[ Upstream commit 0401f24cd238ae200a23a13925f98de3d2c883b8 ]
 
-In commit f72ddbe1d7b7 ("fsi: scom: Remove retries") the retries were
-removed from get and put scoms. That patch missed the retires in get and
-put indirect scom.
+When a driver calls pwmchip_add() it has to be prepared to immediately
+get its callbacks called. So move allocation of driver data and hardware
+initialization before the call to pwmchip_add().
 
-For the same reason, remove them from the scom driver to allow the
-caller to decide to retry.
+This fixes a potential NULL pointer exception and a race condition on
+register writes.
 
-This removes the following special case which would have caused the
-retry code to return early:
-
- -       if ((ind_data & XSCOM_DATA_IND_COMPLETE) || (err != SCOM_PIB_BLOCKED))
- -               return 0;
-
-I believe this case is handled.
-
-Fixes: f72ddbe1d7b7 ("fsi: scom: Remove retries")
-Signed-off-by: Joel Stanley <joel@jms.id.au>
-Reviewed-by: Eddie James <eajames@linux.ibm.com>
-Link: https://lore.kernel.org/r/20211207033811.518981-3-joel@jms.id.au
-Signed-off-by: Joel Stanley <joel@jms.id.au>
+Fixes: 841e6f90bb78 ("pwm: NXP LPC18xx PWM/SCT driver")
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/fsi/fsi-scom.c | 41 +++++++++++++++--------------------------
- 1 file changed, 15 insertions(+), 26 deletions(-)
+ drivers/pwm/pwm-lpc18xx-sct.c | 20 +++++++++-----------
+ 1 file changed, 9 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/fsi/fsi-scom.c b/drivers/fsi/fsi-scom.c
-index 3b427f7e9027..bcb756dc9866 100644
---- a/drivers/fsi/fsi-scom.c
-+++ b/drivers/fsi/fsi-scom.c
-@@ -145,7 +145,7 @@ static int put_indirect_scom_form0(struct scom_device *scom, uint64_t value,
- 				   uint64_t addr, uint32_t *status)
- {
- 	uint64_t ind_data, ind_addr;
--	int rc, retries, err = 0;
-+	int rc, err;
+diff --git a/drivers/pwm/pwm-lpc18xx-sct.c b/drivers/pwm/pwm-lpc18xx-sct.c
+index 8e461f3baa05..8cc8ae16553c 100644
+--- a/drivers/pwm/pwm-lpc18xx-sct.c
++++ b/drivers/pwm/pwm-lpc18xx-sct.c
+@@ -395,12 +395,6 @@ static int lpc18xx_pwm_probe(struct platform_device *pdev)
+ 	lpc18xx_pwm_writel(lpc18xx_pwm, LPC18XX_PWM_LIMIT,
+ 			   BIT(lpc18xx_pwm->period_event));
  
- 	if (value & ~XSCOM_DATA_IND_DATA)
- 		return -EINVAL;
-@@ -156,19 +156,14 @@ static int put_indirect_scom_form0(struct scom_device *scom, uint64_t value,
- 	if (rc || (*status & SCOM_STATUS_ANY_ERR))
- 		return rc;
- 
--	for (retries = 0; retries < SCOM_MAX_IND_RETRIES; retries++) {
--		rc = __get_scom(scom, &ind_data, addr, status);
--		if (rc || (*status & SCOM_STATUS_ANY_ERR))
--			return rc;
-+	rc = __get_scom(scom, &ind_data, addr, status);
-+	if (rc || (*status & SCOM_STATUS_ANY_ERR))
-+		return rc;
- 
--		err = (ind_data & XSCOM_DATA_IND_ERR_MASK) >> XSCOM_DATA_IND_ERR_SHIFT;
--		*status = err << SCOM_STATUS_PIB_RESP_SHIFT;
--		if ((ind_data & XSCOM_DATA_IND_COMPLETE) || (err != SCOM_PIB_BLOCKED))
--			return 0;
-+	err = (ind_data & XSCOM_DATA_IND_ERR_MASK) >> XSCOM_DATA_IND_ERR_SHIFT;
-+	*status = err << SCOM_STATUS_PIB_RESP_SHIFT;
- 
--		msleep(1);
+-	ret = pwmchip_add(&lpc18xx_pwm->chip);
+-	if (ret < 0) {
+-		dev_err(&pdev->dev, "pwmchip_add failed: %d\n", ret);
+-		goto disable_pwmclk;
 -	}
--	return rc;
-+	return 0;
- }
- 
- static int put_indirect_scom_form1(struct scom_device *scom, uint64_t value,
-@@ -188,7 +183,7 @@ static int get_indirect_scom_form0(struct scom_device *scom, uint64_t *value,
- 				   uint64_t addr, uint32_t *status)
- {
- 	uint64_t ind_data, ind_addr;
--	int rc, retries, err = 0;
-+	int rc, err;
- 
- 	ind_addr = addr & XSCOM_ADDR_DIRECT_PART;
- 	ind_data = (addr & XSCOM_ADDR_INDIRECT_PART) | XSCOM_DATA_IND_READ;
-@@ -196,21 +191,15 @@ static int get_indirect_scom_form0(struct scom_device *scom, uint64_t *value,
- 	if (rc || (*status & SCOM_STATUS_ANY_ERR))
- 		return rc;
- 
--	for (retries = 0; retries < SCOM_MAX_IND_RETRIES; retries++) {
--		rc = __get_scom(scom, &ind_data, addr, status);
--		if (rc || (*status & SCOM_STATUS_ANY_ERR))
--			return rc;
 -
--		err = (ind_data & XSCOM_DATA_IND_ERR_MASK) >> XSCOM_DATA_IND_ERR_SHIFT;
--		*status = err << SCOM_STATUS_PIB_RESP_SHIFT;
--		*value = ind_data & XSCOM_DATA_IND_DATA;
-+	rc = __get_scom(scom, &ind_data, addr, status);
-+	if (rc || (*status & SCOM_STATUS_ANY_ERR))
-+		return rc;
+ 	for (i = 0; i < lpc18xx_pwm->chip.npwm; i++) {
+ 		struct lpc18xx_pwm_data *data;
  
--		if ((ind_data & XSCOM_DATA_IND_COMPLETE) || (err != SCOM_PIB_BLOCKED))
--			return 0;
-+	err = (ind_data & XSCOM_DATA_IND_ERR_MASK) >> XSCOM_DATA_IND_ERR_SHIFT;
-+	*status = err << SCOM_STATUS_PIB_RESP_SHIFT;
-+	*value = ind_data & XSCOM_DATA_IND_DATA;
+@@ -410,14 +404,12 @@ static int lpc18xx_pwm_probe(struct platform_device *pdev)
+ 				    GFP_KERNEL);
+ 		if (!data) {
+ 			ret = -ENOMEM;
+-			goto remove_pwmchip;
++			goto disable_pwmclk;
+ 		}
  
--		msleep(1);
--	}
--	return rc;
-+	return 0;
- }
+ 		pwm_set_chip_data(pwm, data);
+ 	}
  
- static int raw_put_scom(struct scom_device *scom, uint64_t value,
+-	platform_set_drvdata(pdev, lpc18xx_pwm);
+-
+ 	val = lpc18xx_pwm_readl(lpc18xx_pwm, LPC18XX_PWM_CTRL);
+ 	val &= ~LPC18XX_PWM_BIDIR;
+ 	val &= ~LPC18XX_PWM_CTRL_HALT;
+@@ -425,10 +417,16 @@ static int lpc18xx_pwm_probe(struct platform_device *pdev)
+ 	val |= LPC18XX_PWM_PRE(0);
+ 	lpc18xx_pwm_writel(lpc18xx_pwm, LPC18XX_PWM_CTRL, val);
+ 
++	ret = pwmchip_add(&lpc18xx_pwm->chip);
++	if (ret < 0) {
++		dev_err(&pdev->dev, "pwmchip_add failed: %d\n", ret);
++		goto disable_pwmclk;
++	}
++
++	platform_set_drvdata(pdev, lpc18xx_pwm);
++
+ 	return 0;
+ 
+-remove_pwmchip:
+-	pwmchip_remove(&lpc18xx_pwm->chip);
+ disable_pwmclk:
+ 	clk_disable_unprepare(lpc18xx_pwm->pwm_clk);
+ 	return ret;
 -- 
 2.34.1
 
