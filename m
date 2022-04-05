@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D7DC4F3C3C
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:25:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B579B4F392E
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:45:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244097AbiDEMGi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:06:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50662 "EHLO
+        id S1377693AbiDELaR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:30:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35156 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358258AbiDEK2K (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:28:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF7C3DE92;
-        Tue,  5 Apr 2022 03:17:33 -0700 (PDT)
+        with ESMTP id S1352582AbiDEKEo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:04:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F7D6BB0AD;
+        Tue,  5 Apr 2022 02:53:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8E4146176C;
-        Tue,  5 Apr 2022 10:17:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 996AFC385A1;
-        Tue,  5 Apr 2022 10:17:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B321461745;
+        Tue,  5 Apr 2022 09:53:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8E09C385A2;
+        Tue,  5 Apr 2022 09:53:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153853;
-        bh=u9rCPfReMu1CF3XAbSDPGJv4mLkXhlcRuj4PzOdlpg8=;
+        s=korg; t=1649152406;
+        bh=eAu7CtqUbejdrEQNt9DreNr/zKSssNpE1NjUjFYTwPA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fa79Birc6F8XGlSTUc+g+shWlZ42vPzjfTI9MyFJ5q6kvAHZd6oC82VRD1jtQ3WHk
-         igaXBYWaycYbXH9MQ7jxKU+MKA658ib/004J4uAmNkkrEB7YHJjxmj+GPpfu2lhnKb
-         73R7eeZTpOH+VAufRJcDxOJIhn4QroSj+zTzRvtw=
+        b=U5v+EwKmJr9liLSdnbw5x6JNwIlXT8shL3U9m2zc38UN9I3brThRoMg4t8itmnIMU
+         QaQ0VSwJsDSxBaCHiqOhYjC63gykRvT/xoQjUhr0GP3qd6kRXizbsBKl/hY+60XWW+
+         FvFZJIEgJjlVkC+mKqhO0IWkGAbKmb7s2aPEFQUM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Rander Wang <rander.wang@intel.com>,
+        Anthony I Gilea <i@cpp.in>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 332/599] powerpc/Makefile: Dont pass -mcpu=powerpc64 when building 32-bit
-Date:   Tue,  5 Apr 2022 09:30:26 +0200
-Message-Id: <20220405070308.712573783@linuxfoundation.org>
+Subject: [PATCH 5.15 765/913] ASoC: Intel: sof_sdw: fix quirks for 2022 HP Spectre x360 13"
+Date:   Tue,  5 Apr 2022 09:30:27 +0200
+Message-Id: <20220405070402.763474011@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
-References: <20220405070258.802373272@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,55 +56,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Anthony I Gilea <i@cpp.in>
 
-[ Upstream commit 2863dd2db23e0407f6c50b8ba5c0e55abef894f1 ]
+[ Upstream commit ce73ef6ec67104d1fcc4c5911d77ce83288a0998 ]
 
-When CONFIG_GENERIC_CPU=y (true for all our defconfigs) we pass
--mcpu=powerpc64 to the compiler, even when we're building a 32-bit
-kernel.
+HP changed the DMI identification for 2022 devices:
+Product Name: HP Spectre x360 Conv 13-ap0001na
+Product Name: 8709
+This patch relaxes the DMI_MATCH criterion to work with all versions of this product.
 
-This happens because we have an ifdef CONFIG_PPC_BOOK3S_64/else block in
-the Makefile that was written before 32-bit supported GENERIC_CPU. Prior
-to that the else block only applied to 64-bit Book3E.
-
-The GCC man page says -mcpu=powerpc64 "[specifies] a pure ... 64-bit big
-endian PowerPC ... architecture machine [type], with an appropriate,
-generic processor model assumed for scheduling purposes."
-
-It's unclear how that interacts with -m32, which we are also passing,
-although obviously -m32 is taking precedence in some sense, as the
-32-bit kernel only contains 32-bit instructions.
-
-This was noticed by inspection, not via any bug reports, but it does
-affect code generation. Comparing before/after code generation, there
-are some changes to instruction scheduling, and the after case (with
--mcpu=powerpc64 removed) the compiler seems more keen to use r8.
-
-Fix it by making the else case only apply to Book3E 64, which excludes
-32-bit.
-
-Fixes: 0e00a8c9fd92 ("powerpc: Allow CPU selection also on PPC32")
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220215112858.304779-1-mpe@ellerman.id.au
+Reviewed-by: Rander Wang <rander.wang@intel.com>
+Signed-off-by: Anthony I Gilea <i@cpp.in>
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20220304204532.54675-4-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/soundwire/dmi-quirks.c   | 2 +-
+ sound/soc/intel/boards/sof_sdw.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/Makefile b/arch/powerpc/Makefile
-index 5c8c06215dd4..7a96cdefbd4e 100644
---- a/arch/powerpc/Makefile
-+++ b/arch/powerpc/Makefile
-@@ -172,7 +172,7 @@ else
- CFLAGS-$(CONFIG_GENERIC_CPU) += $(call cc-option,-mtune=power7,$(call cc-option,-mtune=power5))
- CFLAGS-$(CONFIG_GENERIC_CPU) += $(call cc-option,-mcpu=power5,-mcpu=power4)
- endif
--else
-+else ifdef CONFIG_PPC_BOOK3E_64
- CFLAGS-$(CONFIG_GENERIC_CPU) += -mcpu=powerpc64
- endif
- 
+diff --git a/drivers/soundwire/dmi-quirks.c b/drivers/soundwire/dmi-quirks.c
+index 0ca2a3e3a02e..747983743a14 100644
+--- a/drivers/soundwire/dmi-quirks.c
++++ b/drivers/soundwire/dmi-quirks.c
+@@ -59,7 +59,7 @@ static const struct dmi_system_id adr_remap_quirk_table[] = {
+ 	{
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "HP"),
+-			DMI_MATCH(DMI_PRODUCT_NAME, "HP Spectre x360 Convertible"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "HP Spectre x360 Conv"),
+ 		},
+ 		.driver_data = (void *)intel_tgl_bios,
+ 	},
+diff --git a/sound/soc/intel/boards/sof_sdw.c b/sound/soc/intel/boards/sof_sdw.c
+index 76759b209906..0bf3e56e1d58 100644
+--- a/sound/soc/intel/boards/sof_sdw.c
++++ b/sound/soc/intel/boards/sof_sdw.c
+@@ -184,7 +184,7 @@ static const struct dmi_system_id sof_sdw_quirk_table[] = {
+ 		.callback = sof_sdw_quirk_cb,
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "HP"),
+-			DMI_MATCH(DMI_PRODUCT_NAME, "HP Spectre x360 Convertible"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "HP Spectre x360 Conv"),
+ 		},
+ 		.driver_data = (void *)(SOF_SDW_TGL_HDMI |
+ 					SOF_SDW_PCH_DMIC |
 -- 
 2.34.1
 
