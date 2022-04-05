@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EB7874F362B
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:57:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E51B04F361B
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:56:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244689AbiDEK7X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:59:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39768 "EHLO
+        id S243599AbiDEK6d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:58:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59292 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346780AbiDEJp2 (ORCPT
+        with ESMTP id S1346783AbiDEJp2 (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:45:28 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A258BCF2;
-        Tue,  5 Apr 2022 02:31:49 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE92DDB4BF;
+        Tue,  5 Apr 2022 02:31:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D8161B81CC1;
-        Tue,  5 Apr 2022 09:31:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DECBC385A3;
-        Tue,  5 Apr 2022 09:31:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 97250B81CC4;
+        Tue,  5 Apr 2022 09:31:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E01AFC385A3;
+        Tue,  5 Apr 2022 09:31:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151106;
-        bh=+tmigAPgxOUXyG8vpQNW9jGjOLFsVPcicykoJQBLNEE=;
+        s=korg; t=1649151109;
+        bh=eVZftVlJ42o4VmZTs29/3AwJXmVvKUpsGDEe+yjvsqk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mZfS9IMco6+3jEsTvD6y9XJbWfRE728c7gRJulZ7NN4nzTf5UukqR2roVBzQRaF01
-         hbJ9w5+X7OmK+zT1lDnKoTpL9JMhL/uuMWMkG1AyE3muTVRjdkOoIRsLnuNUrRCEjo
-         76DPmsRY6XWNKnP+A7uG5rULN2Xyv6z9pVT92oiQ=
+        b=zUMjfG53+cIsN6+5nFJznzk/wSm2iGk//y0Jt2vXa9F9EhM1iOMllC9ah1+K89cHa
+         sbvDXJVxU/TMmdYG8qy8MaW2LYrpMFqKdLeFbuL5N/UN0B7Q4Jv9GSS1QM+vgVN1kg
+         /CPvFKAU4xgvxd0dYZ7TEA9aC+IsfypyLiUuO74w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        stable@vger.kernel.org,
+        Daniel Thompson <daniel.thompson@linaro.org>,
         Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 297/913] soc: qcom: ocmem: Fix missing put_device() call in of_get_ocmem
-Date:   Tue,  5 Apr 2022 09:22:39 +0200
-Message-Id: <20220405070348.759773335@linuxfoundation.org>
+Subject: [PATCH 5.15 298/913] soc: qcom: aoss: remove spurious IRQF_ONESHOT flags
+Date:   Tue,  5 Apr 2022 09:22:40 +0200
+Message-Id: <20220405070348.789077973@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -54,35 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Daniel Thompson <daniel.thompson@linaro.org>
 
-[ Upstream commit 0ff027027e05a866491bbb53494f0e2a61354c85 ]
+[ Upstream commit 8030cb9a55688c1339edd284d9d6ce5f9fc75160 ]
 
-The reference taken by 'of_find_device_by_node()' must be released when
-not needed anymore.
-Add the corresponding 'put_device()' in the error handling path.
+Quoting the header comments, IRQF_ONESHOT is "Used by threaded interrupts
+which need to keep the irq line disabled until the threaded handler has
+been run.". When applied to an interrupt that doesn't request a threaded
+irq then IRQF_ONESHOT has a lesser known (undocumented?) side effect,
+which it to disable the forced threading of the irq. For "normal" kernels
+(without forced threading) then, if there is no thread_fn, then
+IRQF_ONESHOT is a nop.
 
-Fixes: 01f937ffc468 ("soc: qcom: ocmem: don't return NULL in of_get_ocmem")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+In this case disabling forced threading is not appropriate for this driver
+because it calls wake_up_all() and this API cannot be called from
+no-thread interrupt handlers on PREEMPT_RT systems (deadlock risk, triggers
+sleeping-while-atomic warnings).
+
+Fix this by removing IRQF_ONESHOT.
+
+Fixes: 2209481409b7 ("soc: qcom: Add AOSS QMP driver")
+Signed-off-by: Daniel Thompson <daniel.thompson@linaro.org>
+[bjorn: Added Fixes tag]
 Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220107073126.2335-1-linmq006@gmail.com
+Link: https://lore.kernel.org/r/20220127173554.158111-1-daniel.thompson@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/qcom/ocmem.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/soc/qcom/qcom_aoss.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/soc/qcom/ocmem.c b/drivers/soc/qcom/ocmem.c
-index f1875dc31ae2..85f82e195ef8 100644
---- a/drivers/soc/qcom/ocmem.c
-+++ b/drivers/soc/qcom/ocmem.c
-@@ -206,6 +206,7 @@ struct ocmem *of_get_ocmem(struct device *dev)
- 	ocmem = platform_get_drvdata(pdev);
- 	if (!ocmem) {
- 		dev_err(dev, "Cannot get ocmem\n");
-+		put_device(&pdev->dev);
- 		return ERR_PTR(-ENODEV);
+diff --git a/drivers/soc/qcom/qcom_aoss.c b/drivers/soc/qcom/qcom_aoss.c
+index 536c3e4114fb..a0659cf27845 100644
+--- a/drivers/soc/qcom/qcom_aoss.c
++++ b/drivers/soc/qcom/qcom_aoss.c
+@@ -548,7 +548,7 @@ static int qmp_probe(struct platform_device *pdev)
  	}
- 	return ocmem;
+ 
+ 	irq = platform_get_irq(pdev, 0);
+-	ret = devm_request_irq(&pdev->dev, irq, qmp_intr, IRQF_ONESHOT,
++	ret = devm_request_irq(&pdev->dev, irq, qmp_intr, 0,
+ 			       "aoss-qmp", qmp);
+ 	if (ret < 0) {
+ 		dev_err(&pdev->dev, "failed to request interrupt\n");
 -- 
 2.34.1
 
