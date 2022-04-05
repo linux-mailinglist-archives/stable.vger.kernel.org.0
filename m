@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E73024F2D93
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:44:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DB7E4F29F7
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 12:51:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242844AbiDEJiO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:38:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41918 "EHLO
+        id S242849AbiDEJiP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:38:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58396 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240218AbiDEJF7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:05:59 -0400
+        with ESMTP id S240407AbiDEJGG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:06:06 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6E6D45AD6;
-        Tue,  5 Apr 2022 01:56:24 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97DE94838C;
+        Tue,  5 Apr 2022 01:56:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 88992B81C6C;
-        Tue,  5 Apr 2022 08:56:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA28EC385A0;
-        Tue,  5 Apr 2022 08:56:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4933FB81C6F;
+        Tue,  5 Apr 2022 08:56:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A830CC385A0;
+        Tue,  5 Apr 2022 08:56:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148979;
-        bh=NAF+/mvkE5mniULEoXlQw3jnfQqX1ycYWJpfYP5xMoQ=;
+        s=korg; t=1649148982;
+        bh=MhbfE+TlUu5XyErtSUHPH19ufIBaaUhqTicyOzfIEE0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K081Hw8ihQUepbykygd7C4TbiMlRM3KbU5lWkSqG2mYC08R1KkW3zvxvu4rAc1UtI
-         jcxnpv6RmO812xKzNXov68n1nGErabhtK7kv7emh1DJXDlyAsYAmdx46WWvFfboA9z
-         9zG7qYHEHR6kEI6pkCNAfDcD1hjNw2fM6LhRYOJw=
+        b=TWl+aoDquoXRZE4AYUGsCrnVRCTIFy3GCJ+zceEdeLgVfyaSzaCtPSmBg3xon7A3N
+         E/JqTv4VQzomx4Fh5JNVgE1NjFcbfb0P/o/M5v3wfp5/qm369W6RhD8kB1IVtz+Nhu
+         pRh6grLOYJRf4FFwQtWTOgGsesvZpqWewa0jX4jE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
         Luca Coelho <luciano.coelho@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0513/1017] iwlwifi: Fix -EIO error code that is never returned
-Date:   Tue,  5 Apr 2022 09:23:46 +0200
-Message-Id: <20220405070409.526088086@linuxfoundation.org>
+Subject: [PATCH 5.16 0514/1017] iwlwifi: mvm: Fix an error code in iwl_mvm_up()
+Date:   Tue,  5 Apr 2022 09:23:47 +0200
+Message-Id: <20220405070409.555267247@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -54,37 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit c305c94bdc18e45b5ad1db54da4269f8cbfdff6b ]
+[ Upstream commit 583d18336abdfb1b355270289ff8f6a2608ba905 ]
 
-Currently the error -EIO is being assinged to variable ret when
-the READY_BIT is not set but the function iwlagn_mac_start returns
-0 rather than ret. Fix this by returning ret instead of 0.
+Return -ENODEV instead of success on this error path.
 
-Addresses-Coverity: ("Unused value")
-Fixes: 7335613ae27a ("iwlwifi: move all mac80211 related functions to one place")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Link: https://lore.kernel.org/r/20210907104658.14706-1-colin.king@canonical.com
+Fixes: dd36a507c806 ("iwlwifi: mvm: look for the first supported channel when add/remove phy ctxt")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/20210816183930.GA2068@kili
 Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/dvm/mac80211.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/intel/iwlwifi/mvm/fw.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/dvm/mac80211.c b/drivers/net/wireless/intel/iwlwifi/dvm/mac80211.c
-index 754876cd27ce..e8bd4f0e3d2d 100644
---- a/drivers/net/wireless/intel/iwlwifi/dvm/mac80211.c
-+++ b/drivers/net/wireless/intel/iwlwifi/dvm/mac80211.c
-@@ -299,7 +299,7 @@ static int iwlagn_mac_start(struct ieee80211_hw *hw)
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/fw.c b/drivers/net/wireless/intel/iwlwifi/mvm/fw.c
+index 58d5395acf73..6d17d7a71182 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/fw.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/fw.c
+@@ -1553,8 +1553,10 @@ int iwl_mvm_up(struct iwl_mvm *mvm)
+ 	while (!sband && i < NUM_NL80211_BANDS)
+ 		sband = mvm->hw->wiphy->bands[i++];
  
- 	priv->is_open = 1;
- 	IWL_DEBUG_MAC80211(priv, "leave\n");
--	return 0;
-+	return ret;
- }
+-	if (WARN_ON_ONCE(!sband))
++	if (WARN_ON_ONCE(!sband)) {
++		ret = -ENODEV;
+ 		goto error;
++	}
  
- static void iwlagn_mac_stop(struct ieee80211_hw *hw)
+ 	chan = &sband->channels[0];
+ 
 -- 
 2.34.1
 
