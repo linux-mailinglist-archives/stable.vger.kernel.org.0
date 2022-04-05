@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 822EF4F2C3A
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:24:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DDB894F2B92
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:10:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347911AbiDEJ2m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:28:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46572 "EHLO
+        id S239652AbiDEJfa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:35:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55452 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244954AbiDEIwu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:50 -0400
+        with ESMTP id S235003AbiDEIOp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:14:45 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60D6D1BEB5;
-        Tue,  5 Apr 2022 01:47:40 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 288439BAEF;
+        Tue,  5 Apr 2022 01:03:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0A5FBB81B18;
-        Tue,  5 Apr 2022 08:47:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 677B9C385A1;
-        Tue,  5 Apr 2022 08:47:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8978AB81B18;
+        Tue,  5 Apr 2022 08:03:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C551BC385A1;
+        Tue,  5 Apr 2022 08:03:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148457;
-        bh=Qc5JUQdNaG632zqHws9pZ7Yz8zs6uc92MCr5DjfyIrU=;
+        s=korg; t=1649145792;
+        bh=seiBGHh9QwPdT6SoSG5DhIi5R0FVf3d1hYryzIDXDX4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=udM90tDwepP53CTvpfwom1vNKNaIu/PnoHpojnuwkySVysMrq5Ffdd41CuIwVSp4P
-         pJidtKyA2eW6fbYxBSBMWKfqAX8201XaQUYsgIMfLXEWMIOJCG3S5RpHQWj15hhgj6
-         nqzb1GOV1X49b4JSjJkdflbMaAHi2MP2kpthdK8Q=
+        b=iAsBoB94yFeQpt6uslWyXpq78Vcfk6PhO+3SAu++cvAmRndDtFaoKbHryLW+5wf55
+         xehN4NvSnLrKbIs3DmuBC0+FjdtXJJ26CT6e0lDiYFr/aYvA9N/HowQHZ+ZggV7UL3
+         7yRbXPM6cQdxN+1pNV+FR9QQtw3jNCBA2HsDl4nI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jia-Ju Bai <baijiaju1990@gmail.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        stable@vger.kernel.org, Dan Williams <dan.j.williams@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0364/1017] memory: emif: check the pointer temp in get_device_details()
-Date:   Tue,  5 Apr 2022 09:21:17 +0200
-Message-Id: <20220405070405.090094681@linuxfoundation.org>
+Subject: [PATCH 5.17 0531/1126] tools/testing/cxl: Fix root port to host bridge assignment
+Date:   Tue,  5 Apr 2022 09:21:18 +0200
+Message-Id: <20220405070423.217388650@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,35 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
+From: Dan Williams <dan.j.williams@intel.com>
 
-[ Upstream commit 5b5ab1bfa1898c6d52936a57c25c5ceba2cb2f87 ]
+[ Upstream commit a4a0ce242fcd7022349212c4e2f795762e6ff050 ]
 
-The pointer temp is allocated by devm_kzalloc(), so it should be
-checked for error handling.
+Mocked root-ports are meant to be round-robin assigned to host-bridges.
 
-Fixes: 7ec944538dde ("memory: emif: add basic infrastructure for EMIF driver")
-Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-Link: https://lore.kernel.org/r/20220225132552.27894-1-baijiaju1990@gmail.com
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Fixes: 67dcdd4d3b83 ("tools/testing/cxl: Introduce a mocked-up CXL port hierarchy")
+Link: https://lore.kernel.org/r/164298431629.3018233.14004377108116384485.stgit@dwillia2-desk3.amr.corp.intel.com
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/memory/emif.c | 2 +-
+ tools/testing/cxl/test/cxl.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/memory/emif.c b/drivers/memory/emif.c
-index d4d4044e05b3..ecc78d6f89ed 100644
---- a/drivers/memory/emif.c
-+++ b/drivers/memory/emif.c
-@@ -1025,7 +1025,7 @@ static struct emif_data *__init_or_module get_device_details(
- 	temp	= devm_kzalloc(dev, sizeof(*pd), GFP_KERNEL);
- 	dev_info = devm_kzalloc(dev, sizeof(*dev_info), GFP_KERNEL);
+diff --git a/tools/testing/cxl/test/cxl.c b/tools/testing/cxl/test/cxl.c
+index 736d99006fb7..f0a410962af0 100644
+--- a/tools/testing/cxl/test/cxl.c
++++ b/tools/testing/cxl/test/cxl.c
+@@ -511,7 +511,7 @@ static __init int cxl_test_init(void)
  
--	if (!emif || !pd || !dev_info) {
-+	if (!emif || !temp || !dev_info) {
- 		dev_err(dev, "%s:%d: allocation error\n", __func__, __LINE__);
- 		goto error;
- 	}
+ 	for (i = 0; i < ARRAY_SIZE(cxl_root_port); i++) {
+ 		struct platform_device *bridge =
+-			cxl_host_bridge[i / NR_CXL_ROOT_PORTS];
++			cxl_host_bridge[i % ARRAY_SIZE(cxl_host_bridge)];
+ 		struct platform_device *pdev;
+ 
+ 		pdev = platform_device_alloc("cxl_root_port", i);
 -- 
 2.34.1
 
