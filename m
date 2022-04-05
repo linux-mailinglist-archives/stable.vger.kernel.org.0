@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7ABC24F2A02
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 12:51:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 20E304F2CF8
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:34:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234178AbiDEJ4A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:56:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60308 "EHLO
+        id S236884AbiDEI2r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:28:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34732 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243577AbiDEJPX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:15:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79374954B5;
-        Tue,  5 Apr 2022 02:01:27 -0700 (PDT)
+        with ESMTP id S239580AbiDEIUO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:20:14 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47BB79FD1;
+        Tue,  5 Apr 2022 01:16:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0966461571;
-        Tue,  5 Apr 2022 09:01:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17B4AC385A1;
-        Tue,  5 Apr 2022 09:01:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EF502609D0;
+        Tue,  5 Apr 2022 08:16:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A6C7C385A0;
+        Tue,  5 Apr 2022 08:16:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149286;
-        bh=B4ZcG0QXqpeghTBVKDIRTsP/36gZD9K13i5RowxWSZc=;
+        s=korg; t=1649146613;
+        bh=Me7CbwGB6LaBferc2IlQNNffvc01zJ+0rfh2uBnaN6U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DSeqaRiTyTuqy2lo7B63LxfFpRSM4oCXxJjpFjpjalXMmaAzjzIPAHuNUB6VoQc3K
-         UJ3VeBfnV1wOr5BxMSjz0AG5Qn/BvZvKXYPG5rCTSpAPpwU37CO6zlBlU6MG5L6euj
-         9hh6ThP8PoVW1pluWufv+hvhkNAXhqmemf8QIwPU=
+        b=zziimf3J6ZHtsun5hbwb2TWNHVXvgqmhq9Cjx2dNy/bmP6j+2YxYKZbrswmf5k5oK
+         Lq99HByVJu5GyfG+4n5Pg/O7rNqrAuDNbB+RgYogAxX4kc65oVJnO1zQxMeO3Feim5
+         Nax+bWLZc8wdV83RjcGr3889gihuAZEZaIdl3zzQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Linux Kernel Functional Testing <lkft@linaro.org>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0660/1017] pinctrl: renesas: r8a77470: Reduce size for narrow VIN1 channel
+Subject: [PATCH 5.17 0826/1126] selftests: tls: skip cmsg_to_pipe tests with TLS=n
 Date:   Tue,  5 Apr 2022 09:26:13 +0200
-Message-Id: <20220405070413.873755034@linuxfoundation.org>
+Message-Id: <20220405070431.808394645@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,48 +57,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Jakub Kicinski <kuba@kernel.org>
 
-[ Upstream commit 9e04a0eda84fccab0ac22a33825ad53f47c968c7 ]
+[ Upstream commit 5c7e49be96ea24776a5b5a07c732c477294add00 ]
 
-The second video-in channel on RZ/G1C has only 12 data lanes, but the
-pin control driver uses the vin_data union, which is meant for 24 data
-lanes, thus wasting space.
+These are negative tests, testing TLS code rejects certain
+operations. They won't pass without TLS enabled, pure TCP
+accepts those operations.
 
-Fix this by using the vin_data12 union instead.
-
-This reduces kernel size by 96 bytes.
-
-Fixes: 50f3f2d73e3426ba ("pinctrl: sh-pfc: Reduce kernel size for narrow VIN channels")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Link: https://lore.kernel.org/r/52716fa89139f6f92592633edb52804d4c5e18f0.1640269757.git.geert+renesas@glider.be
+Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+Fixes: d87d67fd61ef ("selftests: tls: test splicing cmsgs")
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reviewed-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/renesas/pfc-r8a77470.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ tools/testing/selftests/net/tls.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/pinctrl/renesas/pfc-r8a77470.c b/drivers/pinctrl/renesas/pfc-r8a77470.c
-index e6e5487691c1..cf7153d06a95 100644
---- a/drivers/pinctrl/renesas/pfc-r8a77470.c
-+++ b/drivers/pinctrl/renesas/pfc-r8a77470.c
-@@ -2140,7 +2140,7 @@ static const unsigned int vin0_clk_mux[] = {
- 	VI0_CLK_MARK,
- };
- /* - VIN1 ------------------------------------------------------------------- */
--static const union vin_data vin1_data_pins = {
-+static const union vin_data12 vin1_data_pins = {
- 	.data12 = {
- 		RCAR_GP_PIN(3,  1), RCAR_GP_PIN(3, 2),
- 		RCAR_GP_PIN(3,  3), RCAR_GP_PIN(3, 4),
-@@ -2150,7 +2150,7 @@ static const union vin_data vin1_data_pins = {
- 		RCAR_GP_PIN(3, 15), RCAR_GP_PIN(3, 16),
- 	},
- };
--static const union vin_data vin1_data_mux = {
-+static const union vin_data12 vin1_data_mux = {
- 	.data12 = {
- 		VI1_DATA0_MARK, VI1_DATA1_MARK,
- 		VI1_DATA2_MARK, VI1_DATA3_MARK,
+diff --git a/tools/testing/selftests/net/tls.c b/tools/testing/selftests/net/tls.c
+index 6e468e0f42f7..5d70b04c482c 100644
+--- a/tools/testing/selftests/net/tls.c
++++ b/tools/testing/selftests/net/tls.c
+@@ -683,6 +683,9 @@ TEST_F(tls, splice_cmsg_to_pipe)
+ 	char buf[10];
+ 	int p[2];
+ 
++	if (self->notls)
++		SKIP(return, "no TLS support");
++
+ 	ASSERT_GE(pipe(p), 0);
+ 	EXPECT_EQ(tls_send_cmsg(self->fd, 100, test_str, send_len, 0), 10);
+ 	EXPECT_EQ(splice(self->cfd, NULL, p[1], NULL, send_len, 0), -1);
+@@ -703,6 +706,9 @@ TEST_F(tls, splice_dec_cmsg_to_pipe)
+ 	char buf[10];
+ 	int p[2];
+ 
++	if (self->notls)
++		SKIP(return, "no TLS support");
++
+ 	ASSERT_GE(pipe(p), 0);
+ 	EXPECT_EQ(tls_send_cmsg(self->fd, 100, test_str, send_len, 0), 10);
+ 	EXPECT_EQ(recv(self->cfd, buf, send_len, 0), -1);
 -- 
 2.34.1
 
