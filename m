@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 24E694F2D71
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:42:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3D8E4F2C2B
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:24:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240320AbiDEKHg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:07:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43064 "EHLO
+        id S235772AbiDEJCg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:02:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344286AbiDEJTE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:19:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C278237DE;
-        Tue,  5 Apr 2022 02:07:21 -0700 (PDT)
+        with ESMTP id S238768AbiDEIa5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:30:57 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A9993ED2C;
+        Tue,  5 Apr 2022 01:22:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C5900B80DA1;
-        Tue,  5 Apr 2022 09:07:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34078C385A0;
-        Tue,  5 Apr 2022 09:07:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 739866151F;
+        Tue,  5 Apr 2022 08:22:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C19FC385B0;
+        Tue,  5 Apr 2022 08:22:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149638;
-        bh=xorRcJWLyDePlbEryOuirjB9N5M1QbwwaFb0JW6nk/c=;
+        s=korg; t=1649146968;
+        bh=FwQBUKInjP4jnvxbqXA+7tsKrzdHs2KgsX0dQYJAh1Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fRZqc0EruEqYXXB5NTC5Yd1/wx7Zrkrszgj27h4HLiGPxfUhzjFtKJ3h1NR9jMnB5
-         dPFDjJ7AGgwpg4ar4pNEeQLdeLBa0qHF7WvfVk1h5WXXVhQxhrPt3wuxRKZ8np9639
-         hLe8wUs0N9FJdAN+E8qenM8l+RCBZQcleBZplpwI=
+        b=el2imaymldV+4hjcFpkBb8EFCeEGmMQn/4HFoOM+ODaY6MvdjSCStr7a5DVDaIqXK
+         1Ict76jSRwwqNNwpKoXRFZNQ+LeotuuEgcrVUfiX5xJ1YqBgvWGem5lQE/05asFRTS
+         V3sIBYwAaqTA81ujT3TUuqZk092SIB+pdO33r+sk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ritesh Harjani <riteshh@linux.ibm.com>,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0786/1017] ext4: correct cluster len and clusters changed accounting in ext4_mb_mark_bb
-Date:   Tue,  5 Apr 2022 09:28:19 +0200
-Message-Id: <20220405070417.585711425@linuxfoundation.org>
+        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.17 0953/1126] KVM: x86/mmu: Move "invalid" check out of kvm_tdp_mmu_get_root()
+Date:   Tue,  5 Apr 2022 09:28:20 +0200
+Message-Id: <20220405070435.475532632@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,81 +53,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ritesh Harjani <riteshh@linux.ibm.com>
+From: Sean Christopherson <seanjc@google.com>
 
-[ Upstream commit a5c0e2fdf7cea535ba03259894dc184e5a4c2800 ]
+commit 04dc4e6ce274fa729feda32aa957b27388a3870c upstream.
 
-ext4_mb_mark_bb() currently wrongly calculates cluster len (clen) and
-flex_group->free_clusters. This patch fixes that.
+Move the check for an invalid root out of kvm_tdp_mmu_get_root() and into
+the one place it actually matters, tdp_mmu_next_root(), as the other user
+already has an implicit validity check.  A future bug fix will need to
+get references to invalid roots to honor mmu_notifier requests; there's
+no point in forcing what will be a common path to open code getting a
+reference to a root.
 
-Identified based on code review of ext4_mb_mark_bb() function.
+No functional change intended.
 
-Signed-off-by: Ritesh Harjani <riteshh@linux.ibm.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/a0b035d536bafa88110b74456853774b64c8ac40.1644992609.git.riteshh@linux.ibm.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20211215011557.399940-3-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/mballoc.c | 19 ++++++++++++-------
- 1 file changed, 12 insertions(+), 7 deletions(-)
+ arch/x86/kvm/mmu/tdp_mmu.c |   12 ++++++++++--
+ arch/x86/kvm/mmu/tdp_mmu.h |    3 ---
+ 2 files changed, 10 insertions(+), 5 deletions(-)
 
-diff --git a/fs/ext4/mballoc.c b/fs/ext4/mballoc.c
-index e872ea582555..c0868b82a62f 100644
---- a/fs/ext4/mballoc.c
-+++ b/fs/ext4/mballoc.c
-@@ -3899,10 +3899,11 @@ void ext4_mb_mark_bb(struct super_block *sb, ext4_fsblk_t block,
- 	struct ext4_sb_info *sbi = EXT4_SB(sb);
- 	ext4_group_t group;
- 	ext4_grpblk_t blkoff;
--	int i, clen, err;
-+	int i, err;
- 	int already;
-+	unsigned int clen, clen_changed;
+--- a/arch/x86/kvm/mmu/tdp_mmu.c
++++ b/arch/x86/kvm/mmu/tdp_mmu.c
+@@ -121,9 +121,14 @@ static struct kvm_mmu_page *tdp_mmu_next
+ 		next_root = list_first_or_null_rcu(&kvm->arch.tdp_mmu_roots,
+ 						   typeof(*next_root), link);
  
--	clen = EXT4_B2C(sbi, len);
-+	clen = EXT4_NUM_B2C(sbi, len);
+-	while (next_root && !kvm_tdp_mmu_get_root(kvm, next_root))
++	while (next_root) {
++		if (!next_root->role.invalid &&
++		    kvm_tdp_mmu_get_root(kvm, next_root))
++			break;
++
+ 		next_root = list_next_or_null_rcu(&kvm->arch.tdp_mmu_roots,
+ 				&next_root->link, typeof(*next_root), link);
++	}
  
- 	ext4_get_group_no_and_offset(sb, block, &group, &blkoff);
- 	bitmap_bh = ext4_read_block_bitmap(sb, group);
-@@ -3923,6 +3924,7 @@ void ext4_mb_mark_bb(struct super_block *sb, ext4_fsblk_t block,
- 		if (!mb_test_bit(blkoff + i, bitmap_bh->b_data) == !state)
- 			already++;
+ 	rcu_read_unlock();
  
-+	clen_changed = clen - already;
- 	if (state)
- 		ext4_set_bits(bitmap_bh->b_data, blkoff, clen);
- 	else
-@@ -3935,9 +3937,9 @@ void ext4_mb_mark_bb(struct super_block *sb, ext4_fsblk_t block,
- 						group, gdp));
- 	}
- 	if (state)
--		clen = ext4_free_group_clusters(sb, gdp) - clen + already;
-+		clen = ext4_free_group_clusters(sb, gdp) - clen_changed;
- 	else
--		clen = ext4_free_group_clusters(sb, gdp) + clen - already;
-+		clen = ext4_free_group_clusters(sb, gdp) + clen_changed;
+@@ -200,7 +205,10 @@ hpa_t kvm_tdp_mmu_get_vcpu_root_hpa(stru
  
- 	ext4_free_group_clusters_set(sb, gdp, clen);
- 	ext4_block_bitmap_csum_set(sb, group, gdp, bitmap_bh);
-@@ -3947,10 +3949,13 @@ void ext4_mb_mark_bb(struct super_block *sb, ext4_fsblk_t block,
+ 	role = page_role_for_level(vcpu, vcpu->arch.mmu->shadow_root_level);
  
- 	if (sbi->s_log_groups_per_flex) {
- 		ext4_group_t flex_group = ext4_flex_group(sbi, group);
-+		struct flex_groups *fg = sbi_array_rcu_deref(sbi,
-+					   s_flex_groups, flex_group);
+-	/* Check for an existing root before allocating a new one. */
++	/*
++	 * Check for an existing root before allocating a new one.  Note, the
++	 * role check prevents consuming an invalid root.
++	 */
+ 	for_each_tdp_mmu_root(kvm, root, kvm_mmu_role_as_id(role)) {
+ 		if (root->role.word == role.word &&
+ 		    kvm_tdp_mmu_get_root(kvm, root))
+--- a/arch/x86/kvm/mmu/tdp_mmu.h
++++ b/arch/x86/kvm/mmu/tdp_mmu.h
+@@ -10,9 +10,6 @@ hpa_t kvm_tdp_mmu_get_vcpu_root_hpa(stru
+ __must_check static inline bool kvm_tdp_mmu_get_root(struct kvm *kvm,
+ 						     struct kvm_mmu_page *root)
+ {
+-	if (root->role.invalid)
+-		return false;
+-
+ 	return refcount_inc_not_zero(&root->tdp_mmu_root_count);
+ }
  
--		atomic64_sub(len,
--			     &sbi_array_rcu_deref(sbi, s_flex_groups,
--						  flex_group)->free_clusters);
-+		if (state)
-+			atomic64_sub(clen_changed, &fg->free_clusters);
-+		else
-+			atomic64_add(clen_changed, &fg->free_clusters);
- 	}
- 
- 	err = ext4_handle_dirty_metadata(NULL, NULL, bitmap_bh);
--- 
-2.34.1
-
 
 
