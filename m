@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B2094F30F6
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:36:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F9C74F344F
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:26:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239030AbiDEJfM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:35:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49314 "EHLO
+        id S238401AbiDEJfE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:35:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34732 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235356AbiDEIQG (ORCPT
+        with ESMTP id S235378AbiDEIQG (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:16:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B1C5A5EB5;
-        Tue,  5 Apr 2022 01:03:20 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA565A7777;
+        Tue,  5 Apr 2022 01:03:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0777BB81BA7;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 00A1F6167A;
+        Tue,  5 Apr 2022 08:03:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03905C385A2;
         Tue,  5 Apr 2022 08:03:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5960CC385A0;
-        Tue,  5 Apr 2022 08:03:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145797;
-        bh=1R95iKwLg6uykAlkrYJDXyi0yVHdPcfqRxwyL5W0GOQ=;
+        s=korg; t=1649145800;
+        bh=KcU+EvvaMKoeSHmjbknNqjk35HVV6Awi9HeF5EHSL7E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2MKtSL4wFyaeHtZVO9giCqlTxCblcGMSIptOMoHz0IBpQ1OaqZS/ne4ICLaXtHI3j
-         ZT5a/vJcwUo4yLTCEt+T2BOXqJpMJmmI1ovSMaqhAnIUjeopYZksdBLTJOkb4Qmzht
-         7s/000BNQ/xPpTC7Y5YuK0+0xdoSc4YUuBgPaajU=
+        b=Cl0+KfxBKRDu4z54sQBrLWI2HrNZKEPVWdwDEs7pbJVyIbCFWUO2MnTbiz1IzGncK
+         E2cIDg4m+lixweG7Mj/z6JELgvB9nCXazs8eKLLKfFzn9mJ2CzeafIpMhyDCIZi3r9
+         oOIf30w0EtbKOp9LnnCV85JfEpOpXLewRLywg61c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tianyu Lan <Tianyu.Lan@microsoft.com>,
+        stable@vger.kernel.org, Claudiu Manoil <claudiu.manoil@nxp.com>,
+        Tim Gardner <tim.gardner@canonical.com>,
+        Po Liu <po.liu@nxp.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0533/1126] Netvsc: Call hv_unmap_memory() in the netvsc_device_remove()
-Date:   Tue,  5 Apr 2022 09:21:20 +0200
-Message-Id: <20220405070423.275859303@linuxfoundation.org>
+Subject: [PATCH 5.17 0534/1126] net:enetc: allocate CBD ring data memory using DMA coherent methods
+Date:   Tue,  5 Apr 2022 09:21:21 +0200
+Message-Id: <20220405070423.305247382@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -54,79 +56,281 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tianyu Lan <Tianyu.Lan@microsoft.com>
+From: Po Liu <po.liu@nxp.com>
 
-[ Upstream commit b539324f6fe798bdb186e4e91eafb37dd851db2a ]
+[ Upstream commit b3a723dbc94a6e38f67669d03b521edd766ad895 ]
 
-netvsc_device_remove() calls vunmap() inside which should not be
-called in the interrupt context. Current code calls hv_unmap_memory()
-in the free_netvsc_device() which is rcu callback and maybe called
-in the interrupt context. This will trigger BUG_ON(in_interrupt())
-in the vunmap(). Fix it via moving hv_unmap_memory() to netvsc_device_
-remove().
+To replace the dma_map_single() stream DMA mapping with DMA coherent
+method dma_alloc_coherent() which is more simple.
 
-Fixes: 846da38de0e8 ("net: netvsc: Add Isolation VM support for netvsc driver")
-Signed-off-by: Tianyu Lan <Tianyu.Lan@microsoft.com>
+dma_map_single() found by Tim Gardner not proper. Suggested by Claudiu
+Manoil and Jakub Kicinski to use dma_alloc_coherent(). Discussion at:
+
+https://lore.kernel.org/netdev/AM9PR04MB8397F300DECD3C44D2EBD07796BD9@AM9PR04MB8397.eurprd04.prod.outlook.com/t/
+
+Fixes: 888ae5a3952ba ("net: enetc: add tc flower psfp offload driver")
+cc: Claudiu Manoil <claudiu.manoil@nxp.com>
+Reported-by: Tim Gardner <tim.gardner@canonical.com>
+Signed-off-by: Po Liu <po.liu@nxp.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/hyperv/netvsc.c | 24 ++++++++++++++++--------
- 1 file changed, 16 insertions(+), 8 deletions(-)
+ .../net/ethernet/freescale/enetc/enetc_qos.c  | 128 +++++++++---------
+ 1 file changed, 64 insertions(+), 64 deletions(-)
 
-diff --git a/drivers/net/hyperv/netvsc.c b/drivers/net/hyperv/netvsc.c
-index afa81a9480cc..e675d1016c3c 100644
---- a/drivers/net/hyperv/netvsc.c
-+++ b/drivers/net/hyperv/netvsc.c
-@@ -154,19 +154,15 @@ static void free_netvsc_device(struct rcu_head *head)
- 
- 	kfree(nvdev->extension);
- 
--	if (nvdev->recv_original_buf) {
--		hv_unmap_memory(nvdev->recv_buf);
-+	if (nvdev->recv_original_buf)
- 		vfree(nvdev->recv_original_buf);
--	} else {
-+	else
- 		vfree(nvdev->recv_buf);
--	}
- 
--	if (nvdev->send_original_buf) {
--		hv_unmap_memory(nvdev->send_buf);
-+	if (nvdev->send_original_buf)
- 		vfree(nvdev->send_original_buf);
--	} else {
-+	else
- 		vfree(nvdev->send_buf);
--	}
- 
- 	bitmap_free(nvdev->send_section_map);
- 
-@@ -765,6 +761,12 @@ void netvsc_device_remove(struct hv_device *device)
- 		netvsc_teardown_send_gpadl(device, net_device, ndev);
- 	}
- 
-+	if (net_device->recv_original_buf)
-+		hv_unmap_memory(net_device->recv_buf);
-+
-+	if (net_device->send_original_buf)
-+		hv_unmap_memory(net_device->send_buf);
-+
- 	/* Release all resources */
- 	free_netvsc_device_rcu(net_device);
+diff --git a/drivers/net/ethernet/freescale/enetc/enetc_qos.c b/drivers/net/ethernet/freescale/enetc/enetc_qos.c
+index 3555c12edb45..d3d7172e0fcc 100644
+--- a/drivers/net/ethernet/freescale/enetc/enetc_qos.c
++++ b/drivers/net/ethernet/freescale/enetc/enetc_qos.c
+@@ -45,6 +45,7 @@ void enetc_sched_speed_set(struct enetc_ndev_priv *priv, int speed)
+ 		      | pspeed);
  }
-@@ -1821,6 +1823,12 @@ struct netvsc_device *netvsc_device_add(struct hv_device *device,
- 	netif_napi_del(&net_device->chan_table[0].napi);
  
- cleanup2:
-+	if (net_device->recv_original_buf)
-+		hv_unmap_memory(net_device->recv_buf);
-+
-+	if (net_device->send_original_buf)
-+		hv_unmap_memory(net_device->send_buf);
-+
- 	free_netvsc_device(&net_device->rcu);
++#define ENETC_QOS_ALIGN	64
+ static int enetc_setup_taprio(struct net_device *ndev,
+ 			      struct tc_taprio_qopt_offload *admin_conf)
+ {
+@@ -52,10 +53,11 @@ static int enetc_setup_taprio(struct net_device *ndev,
+ 	struct enetc_cbd cbd = {.cmd = 0};
+ 	struct tgs_gcl_conf *gcl_config;
+ 	struct tgs_gcl_data *gcl_data;
++	dma_addr_t dma, dma_align;
+ 	struct gce *gce;
+-	dma_addr_t dma;
+ 	u16 data_size;
+ 	u16 gcl_len;
++	void *tmp;
+ 	u32 tge;
+ 	int err;
+ 	int i;
+@@ -82,9 +84,16 @@ static int enetc_setup_taprio(struct net_device *ndev,
+ 	gcl_config = &cbd.gcl_conf;
  
- 	return ERR_PTR(ret);
+ 	data_size = struct_size(gcl_data, entry, gcl_len);
+-	gcl_data = kzalloc(data_size, __GFP_DMA | GFP_KERNEL);
+-	if (!gcl_data)
++	tmp = dma_alloc_coherent(&priv->si->pdev->dev,
++				 data_size + ENETC_QOS_ALIGN,
++				 &dma, GFP_KERNEL);
++	if (!tmp) {
++		dev_err(&priv->si->pdev->dev,
++			"DMA mapping of taprio gate list failed!\n");
+ 		return -ENOMEM;
++	}
++	dma_align = ALIGN(dma, ENETC_QOS_ALIGN);
++	gcl_data = (struct tgs_gcl_data *)PTR_ALIGN(tmp, ENETC_QOS_ALIGN);
+ 
+ 	gce = (struct gce *)(gcl_data + 1);
+ 
+@@ -110,16 +119,8 @@ static int enetc_setup_taprio(struct net_device *ndev,
+ 	cbd.length = cpu_to_le16(data_size);
+ 	cbd.status_flags = 0;
+ 
+-	dma = dma_map_single(&priv->si->pdev->dev, gcl_data,
+-			     data_size, DMA_TO_DEVICE);
+-	if (dma_mapping_error(&priv->si->pdev->dev, dma)) {
+-		netdev_err(priv->si->ndev, "DMA mapping failed!\n");
+-		kfree(gcl_data);
+-		return -ENOMEM;
+-	}
+-
+-	cbd.addr[0] = cpu_to_le32(lower_32_bits(dma));
+-	cbd.addr[1] = cpu_to_le32(upper_32_bits(dma));
++	cbd.addr[0] = cpu_to_le32(lower_32_bits(dma_align));
++	cbd.addr[1] = cpu_to_le32(upper_32_bits(dma_align));
+ 	cbd.cls = BDCR_CMD_PORT_GCL;
+ 	cbd.status_flags = 0;
+ 
+@@ -132,8 +133,8 @@ static int enetc_setup_taprio(struct net_device *ndev,
+ 			 ENETC_QBV_PTGCR_OFFSET,
+ 			 tge & (~ENETC_QBV_TGE));
+ 
+-	dma_unmap_single(&priv->si->pdev->dev, dma, data_size, DMA_TO_DEVICE);
+-	kfree(gcl_data);
++	dma_free_coherent(&priv->si->pdev->dev, data_size + ENETC_QOS_ALIGN,
++			  tmp, dma);
+ 
+ 	return err;
+ }
+@@ -463,8 +464,9 @@ static int enetc_streamid_hw_set(struct enetc_ndev_priv *priv,
+ 	struct enetc_cbd cbd = {.cmd = 0};
+ 	struct streamid_data *si_data;
+ 	struct streamid_conf *si_conf;
++	dma_addr_t dma, dma_align;
+ 	u16 data_size;
+-	dma_addr_t dma;
++	void *tmp;
+ 	int port;
+ 	int err;
+ 
+@@ -485,21 +487,20 @@ static int enetc_streamid_hw_set(struct enetc_ndev_priv *priv,
+ 	cbd.status_flags = 0;
+ 
+ 	data_size = sizeof(struct streamid_data);
+-	si_data = kzalloc(data_size, __GFP_DMA | GFP_KERNEL);
+-	if (!si_data)
++	tmp = dma_alloc_coherent(&priv->si->pdev->dev,
++				 data_size + ENETC_QOS_ALIGN,
++				 &dma, GFP_KERNEL);
++	if (!tmp) {
++		dev_err(&priv->si->pdev->dev,
++			"DMA mapping of stream identify failed!\n");
+ 		return -ENOMEM;
+-	cbd.length = cpu_to_le16(data_size);
+-
+-	dma = dma_map_single(&priv->si->pdev->dev, si_data,
+-			     data_size, DMA_FROM_DEVICE);
+-	if (dma_mapping_error(&priv->si->pdev->dev, dma)) {
+-		netdev_err(priv->si->ndev, "DMA mapping failed!\n");
+-		err = -ENOMEM;
+-		goto out;
+ 	}
++	dma_align = ALIGN(dma, ENETC_QOS_ALIGN);
++	si_data = (struct streamid_data *)PTR_ALIGN(tmp, ENETC_QOS_ALIGN);
+ 
+-	cbd.addr[0] = cpu_to_le32(lower_32_bits(dma));
+-	cbd.addr[1] = cpu_to_le32(upper_32_bits(dma));
++	cbd.length = cpu_to_le16(data_size);
++	cbd.addr[0] = cpu_to_le32(lower_32_bits(dma_align));
++	cbd.addr[1] = cpu_to_le32(upper_32_bits(dma_align));
+ 	eth_broadcast_addr(si_data->dmac);
+ 	si_data->vid_vidm_tg = (ENETC_CBDR_SID_VID_MASK
+ 			       + ((0x3 << 14) | ENETC_CBDR_SID_VIDM));
+@@ -539,8 +540,8 @@ static int enetc_streamid_hw_set(struct enetc_ndev_priv *priv,
+ 
+ 	cbd.length = cpu_to_le16(data_size);
+ 
+-	cbd.addr[0] = cpu_to_le32(lower_32_bits(dma));
+-	cbd.addr[1] = cpu_to_le32(upper_32_bits(dma));
++	cbd.addr[0] = cpu_to_le32(lower_32_bits(dma_align));
++	cbd.addr[1] = cpu_to_le32(upper_32_bits(dma_align));
+ 
+ 	/* VIDM default to be 1.
+ 	 * VID Match. If set (b1) then the VID must match, otherwise
+@@ -561,10 +562,8 @@ static int enetc_streamid_hw_set(struct enetc_ndev_priv *priv,
+ 
+ 	err = enetc_send_cmd(priv->si, &cbd);
+ out:
+-	if (!dma_mapping_error(&priv->si->pdev->dev, dma))
+-		dma_unmap_single(&priv->si->pdev->dev, dma, data_size, DMA_FROM_DEVICE);
+-
+-	kfree(si_data);
++	dma_free_coherent(&priv->si->pdev->dev, data_size + ENETC_QOS_ALIGN,
++			  tmp, dma);
+ 
+ 	return err;
+ }
+@@ -633,8 +632,9 @@ static int enetc_streamcounter_hw_get(struct enetc_ndev_priv *priv,
+ {
+ 	struct enetc_cbd cbd = { .cmd = 2 };
+ 	struct sfi_counter_data *data_buf;
+-	dma_addr_t dma;
++	dma_addr_t dma, dma_align;
+ 	u16 data_size;
++	void *tmp;
+ 	int err;
+ 
+ 	cbd.index = cpu_to_le16((u16)index);
+@@ -643,19 +643,19 @@ static int enetc_streamcounter_hw_get(struct enetc_ndev_priv *priv,
+ 	cbd.status_flags = 0;
+ 
+ 	data_size = sizeof(struct sfi_counter_data);
+-	data_buf = kzalloc(data_size, __GFP_DMA | GFP_KERNEL);
+-	if (!data_buf)
++	tmp = dma_alloc_coherent(&priv->si->pdev->dev,
++				 data_size + ENETC_QOS_ALIGN,
++				 &dma, GFP_KERNEL);
++	if (!tmp) {
++		dev_err(&priv->si->pdev->dev,
++			"DMA mapping of stream counter failed!\n");
+ 		return -ENOMEM;
+-
+-	dma = dma_map_single(&priv->si->pdev->dev, data_buf,
+-			     data_size, DMA_FROM_DEVICE);
+-	if (dma_mapping_error(&priv->si->pdev->dev, dma)) {
+-		netdev_err(priv->si->ndev, "DMA mapping failed!\n");
+-		err = -ENOMEM;
+-		goto exit;
+ 	}
+-	cbd.addr[0] = cpu_to_le32(lower_32_bits(dma));
+-	cbd.addr[1] = cpu_to_le32(upper_32_bits(dma));
++	dma_align = ALIGN(dma, ENETC_QOS_ALIGN);
++	data_buf = (struct sfi_counter_data *)PTR_ALIGN(tmp, ENETC_QOS_ALIGN);
++
++	cbd.addr[0] = cpu_to_le32(lower_32_bits(dma_align));
++	cbd.addr[1] = cpu_to_le32(upper_32_bits(dma_align));
+ 
+ 	cbd.length = cpu_to_le16(data_size);
+ 
+@@ -684,7 +684,9 @@ static int enetc_streamcounter_hw_get(struct enetc_ndev_priv *priv,
+ 				data_buf->flow_meter_dropl;
+ 
+ exit:
+-	kfree(data_buf);
++	dma_free_coherent(&priv->si->pdev->dev, data_size + ENETC_QOS_ALIGN,
++			  tmp, dma);
++
+ 	return err;
+ }
+ 
+@@ -723,9 +725,10 @@ static int enetc_streamgate_hw_set(struct enetc_ndev_priv *priv,
+ 	struct sgcl_conf *sgcl_config;
+ 	struct sgcl_data *sgcl_data;
+ 	struct sgce *sgce;
+-	dma_addr_t dma;
++	dma_addr_t dma, dma_align;
+ 	u16 data_size;
+ 	int err, i;
++	void *tmp;
+ 	u64 now;
+ 
+ 	cbd.index = cpu_to_le16(sgi->index);
+@@ -772,24 +775,20 @@ static int enetc_streamgate_hw_set(struct enetc_ndev_priv *priv,
+ 	sgcl_config->acl_len = (sgi->num_entries - 1) & 0x3;
+ 
+ 	data_size = struct_size(sgcl_data, sgcl, sgi->num_entries);
+-
+-	sgcl_data = kzalloc(data_size, __GFP_DMA | GFP_KERNEL);
+-	if (!sgcl_data)
+-		return -ENOMEM;
+-
+-	cbd.length = cpu_to_le16(data_size);
+-
+-	dma = dma_map_single(&priv->si->pdev->dev,
+-			     sgcl_data, data_size,
+-			     DMA_FROM_DEVICE);
+-	if (dma_mapping_error(&priv->si->pdev->dev, dma)) {
+-		netdev_err(priv->si->ndev, "DMA mapping failed!\n");
+-		kfree(sgcl_data);
++	tmp = dma_alloc_coherent(&priv->si->pdev->dev,
++				 data_size + ENETC_QOS_ALIGN,
++				 &dma, GFP_KERNEL);
++	if (!tmp) {
++		dev_err(&priv->si->pdev->dev,
++			"DMA mapping of stream counter failed!\n");
+ 		return -ENOMEM;
+ 	}
++	dma_align = ALIGN(dma, ENETC_QOS_ALIGN);
++	sgcl_data = (struct sgcl_data *)PTR_ALIGN(tmp, ENETC_QOS_ALIGN);
+ 
+-	cbd.addr[0] = cpu_to_le32(lower_32_bits(dma));
+-	cbd.addr[1] = cpu_to_le32(upper_32_bits(dma));
++	cbd.length = cpu_to_le16(data_size);
++	cbd.addr[0] = cpu_to_le32(lower_32_bits(dma_align));
++	cbd.addr[1] = cpu_to_le32(upper_32_bits(dma_align));
+ 
+ 	sgce = &sgcl_data->sgcl[0];
+ 
+@@ -844,7 +843,8 @@ static int enetc_streamgate_hw_set(struct enetc_ndev_priv *priv,
+ 	err = enetc_send_cmd(priv->si, &cbd);
+ 
+ exit:
+-	kfree(sgcl_data);
++	dma_free_coherent(&priv->si->pdev->dev, data_size + ENETC_QOS_ALIGN,
++			  tmp, dma);
+ 
+ 	return err;
+ }
 -- 
 2.34.1
 
