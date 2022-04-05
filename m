@@ -2,49 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D829A4F31EF
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:53:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B2C194F3204
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:53:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350511AbiDEJ6o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:58:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40110 "EHLO
+        id S242245AbiDEIhQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:37:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54930 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344025AbiDEJQw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:16:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C13B2603;
-        Tue,  5 Apr 2022 02:03:47 -0700 (PDT)
+        with ESMTP id S235676AbiDEIVd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:21:33 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 933476152;
+        Tue,  5 Apr 2022 01:19:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BBCDB614E4;
-        Tue,  5 Apr 2022 09:03:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97B08C385A1;
-        Tue,  5 Apr 2022 09:03:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AFA88B81BBC;
+        Tue,  5 Apr 2022 08:19:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 012D0C340EE;
+        Tue,  5 Apr 2022 08:19:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149426;
-        bh=pLIQlGkUzPkW36H+QN7RfbIl6w439D/LXITrrVw3+x8=;
+        s=korg; t=1649146759;
+        bh=sNuO6dQJvF6Vk5Tn8/d8XLokuoseHYyzEeHKBYNpZho=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TmwrsoVh2l2NNPAGjykVdX8sg8wNB9SJhWK7PZL7rs9iqw0G+ASG5kEuPlc9rSlOr
-         t0sjhxIMHOLrXlYCVZuZ+q/NKrCpnIKPrNmwxlgGrHu6DlOfUG02g3yoIplBPqzzs3
-         pN6V+QG6p016pSbqUiJjV6j28u62A8Y/nTj5NTfE=
+        b=k6uZ5n8aJF647GWMHzidiIEuyzwq+sPzGquD9u83C14Ktpk5pJqHGG1KpJFVIKT6Y
+         xhHlHmrtcYiltLKcTUlrk8nFyU5/nOfmATMexaJNWlvxDer9W4LO5lll+V/LaM0Tz7
+         Kc3YUSaal3Q82uW8FyXcSAYIn+36cVWnLTFEzjtk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kgdb-bugreport@lists.sourceforge.net,
-        Jason Wessel <jason.wessel@windriver.com>,
-        Daniel Thompson <daniel.thompson@linaro.org>,
-        Douglas Anderson <dianders@chromium.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Igor Zhbanov <i.zhbanov@omprussia.ru>,
-        Randy Dunlap <rdunlap@infradead.org>,
+        stable@vger.kernel.org,
+        syzbot+d59332e2db681cf18f0318a06e994ebbb529a8db@syzkaller.appspotmail.com,
+        Lee Jones <lee.jones@linaro.org>, Theodore Tso <tytso@mit.edu>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0709/1017] kgdbts: fix return value of __setup handler
-Date:   Tue,  5 Apr 2022 09:27:02 +0200
-Message-Id: <20220405070415.316309603@linuxfoundation.org>
+Subject: [PATCH 5.17 0876/1126] ext4: dont BUG if someone dirty pages without asking ext4 first
+Date:   Tue,  5 Apr 2022 09:27:03 +0200
+Message-Id: <20220405070433.248084159@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,63 +55,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Theodore Ts'o <tytso@mit.edu>
 
-[ Upstream commit 96c9e802c64014a7716865332d732cc9c7f24593 ]
+[ Upstream commit cc5095747edfb054ca2068d01af20be3fcc3634f ]
 
-__setup() handlers should return 1 to indicate that the boot option
-has been handled. A return of 0 causes the boot option/value to be
-listed as an Unknown kernel parameter and added to init's (limited)
-environment strings. So return 1 from kgdbts_option_setup().
+[un]pin_user_pages_remote is dirtying pages without properly warning
+the file system in advance.  A related race was noted by Jan Kara in
+2018[1]; however, more recently instead of it being a very hard-to-hit
+race, it could be reliably triggered by process_vm_writev(2) which was
+discovered by Syzbot[2].
 
-Unknown kernel command line parameters "BOOT_IMAGE=/boot/bzImage-517rc7
-  kgdboc=kbd kgdbts=", will be passed to user space.
+This is technically a bug in mm/gup.c, but arguably ext4 is fragile in
+that if some other kernel subsystem dirty pages without properly
+notifying the file system using page_mkwrite(), ext4 will BUG, while
+other file systems will not BUG (although data will still be lost).
 
- Run /sbin/init as init process
-   with arguments:
-     /sbin/init
-   with environment:
-     HOME=/
-     TERM=linux
-     BOOT_IMAGE=/boot/bzImage-517rc7
-     kgdboc=kbd
-     kgdbts=
+So instead of crashing with a BUG, issue a warning (since there may be
+potential data loss) and just mark the page as clean to avoid
+unprivileged denial of service attacks until the problem can be
+properly fixed.  More discussion and background can be found in the
+thread starting at [2].
 
-Link: lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
-Fixes: e8d31c204e36 ("kgdb: add kgdb internal test suite")
-Cc: kgdb-bugreport@lists.sourceforge.net
-Cc: Jason Wessel <jason.wessel@windriver.com>
-Cc: Daniel Thompson <daniel.thompson@linaro.org>
-Cc: Douglas Anderson <dianders@chromium.org>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Link: https://lore.kernel.org/r/20220308033255.22118-1-rdunlap@infradead.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[1] https://lore.kernel.org/linux-mm/20180103100430.GE4911@quack2.suse.cz
+[2] https://lore.kernel.org/r/Yg0m6IjcNmfaSokM@google.com
+
+Reported-by: syzbot+d59332e2db681cf18f0318a06e994ebbb529a8db@syzkaller.appspotmail.com
+Reported-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Link: https://lore.kernel.org/r/YiDS9wVfq4mM2jGK@mit.edu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/kgdbts.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/ext4/inode.c | 25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
 
-diff --git a/drivers/misc/kgdbts.c b/drivers/misc/kgdbts.c
-index 67c5b452dd35..88b91ad8e541 100644
---- a/drivers/misc/kgdbts.c
-+++ b/drivers/misc/kgdbts.c
-@@ -1070,10 +1070,10 @@ static int kgdbts_option_setup(char *opt)
- {
- 	if (strlen(opt) >= MAX_CONFIG_LEN) {
- 		printk(KERN_ERR "kgdbts: config string too long\n");
--		return -ENOSPC;
-+		return 1;
- 	}
- 	strcpy(config, opt);
--	return 0;
-+	return 1;
- }
+diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
+index 01c9e4f743ba..531a94f48637 100644
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -1993,6 +1993,15 @@ static int ext4_writepage(struct page *page,
+ 	else
+ 		len = PAGE_SIZE;
  
- __setup("kgdbts=", kgdbts_option_setup);
++	/* Should never happen but for bugs in other kernel subsystems */
++	if (!page_has_buffers(page)) {
++		ext4_warning_inode(inode,
++		   "page %lu does not have buffers attached", page->index);
++		ClearPageDirty(page);
++		unlock_page(page);
++		return 0;
++	}
++
+ 	page_bufs = page_buffers(page);
+ 	/*
+ 	 * We cannot do block allocation or other extent handling in this
+@@ -2594,6 +2603,22 @@ static int mpage_prepare_extent_to_map(struct mpage_da_data *mpd)
+ 			wait_on_page_writeback(page);
+ 			BUG_ON(PageWriteback(page));
+ 
++			/*
++			 * Should never happen but for buggy code in
++			 * other subsystems that call
++			 * set_page_dirty() without properly warning
++			 * the file system first.  See [1] for more
++			 * information.
++			 *
++			 * [1] https://lore.kernel.org/linux-mm/20180103100430.GE4911@quack2.suse.cz
++			 */
++			if (!page_has_buffers(page)) {
++				ext4_warning_inode(mpd->inode, "page %lu does not have buffers attached", page->index);
++				ClearPageDirty(page);
++				unlock_page(page);
++				continue;
++			}
++
+ 			if (mpd->map.m_len == 0)
+ 				mpd->first_page = page->index;
+ 			mpd->next_page = page->index + 1;
 -- 
 2.34.1
 
