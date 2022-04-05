@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A005E4F4603
-	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 00:57:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DEA04F4671
+	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 01:12:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382690AbiDEMQb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:16:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33874 "EHLO
+        id S1382768AbiDEMQw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:16:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243776AbiDEKhl (ORCPT
+        with ESMTP id S243758AbiDEKhl (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:37:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2EFB55762;
-        Tue,  5 Apr 2022 03:22:58 -0700 (PDT)
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6E5955BC7;
+        Tue,  5 Apr 2022 03:23:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7027CB81C8A;
-        Tue,  5 Apr 2022 10:22:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6161C385A0;
-        Tue,  5 Apr 2022 10:22:55 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 1744ACE1B5F;
+        Tue,  5 Apr 2022 10:23:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35650C385A0;
+        Tue,  5 Apr 2022 10:23:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649154176;
-        bh=/hJvC2gf0i2zGMllIvwBp0yhdrPxL94SQLzsN5wb/G8=;
+        s=korg; t=1649154181;
+        bh=CNRBQopooIEtsueaUrSSUgiLsrLEPIgLmSdYpJLQ7Ls=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wu67r7vTlQZ9ZakBGAB5g6b/AJK1d/87pIphFvjV23I9M9geKzOxLl2TOyx+GNi7p
-         q9ugbzY2ub5e9jxWSTcdz6Og/0edl/Fa3bBkofnlXQp3E8WnwI1Lj6w15XEPoi5ax+
-         zvom8HK82NB71c3VJHa1XGqzLFU/laiqy+UzOyyo=
+        b=0O71vywxRhb0AkByryTCkpHrngY7PWAPh8vU9pZ6Z4yckZeVd4QZ+/BhQ4lvZ2Z6l
+         lRWiOZnP37vfByhLWQ+B489ipNdk4JjVNS4o09oEqPRkfRzveIyKmvueY/jvCNNAt3
+         uiB2PvxFUph9g0rg4hJZiEVXv2s8I2ZHKhi9Pgdg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Evgeny Novikov <novikov@ispras.ru>,
-        Kirill Shilimanov <kirill.shilimanov@huawei.com>,
+        stable@vger.kernel.org, George Kennedy <george.kennedy@oracle.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
         Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 484/599] video: fbdev: w100fb: Reset global state
-Date:   Tue,  5 Apr 2022 09:32:58 +0200
-Message-Id: <20220405070313.232308607@linuxfoundation.org>
+Subject: [PATCH 5.10 485/599] video: fbdev: cirrusfb: check pixclock to avoid divide by zero
+Date:   Tue,  5 Apr 2022 09:32:59 +0200
+Message-Id: <20220405070313.261277495@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -54,66 +54,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evgeny Novikov <novikov@ispras.ru>
+From: George Kennedy <george.kennedy@oracle.com>
 
-[ Upstream commit 8738ddcac644964ae128ccd3d80d48773c8d528e ]
+[ Upstream commit 5c6f402bdcf9e7239c6bc7087eda71ac99b31379 ]
 
-w100fb_probe() did not reset the global state to its initial state. This
-can result in invocation of iounmap() even when there was not the
-appropriate successful call of ioremap(). For instance, this may be the
-case if first probe fails after two successful ioremap() while second
-probe fails when first ioremap() fails. The similar issue is with
-w100fb_remove(). The patch fixes both bugs.
+Do a sanity check on pixclock value to avoid divide by zero.
 
-Found by Linux Driver Verification project (linuxtesting.org).
+If the pixclock value is zero, the cirrusfb driver will round up
+pixclock to get the derived frequency as close to maxclock as
+possible.
 
-Signed-off-by: Evgeny Novikov <novikov@ispras.ru>
-Co-developed-by: Kirill Shilimanov <kirill.shilimanov@huawei.com>
-Signed-off-by: Kirill Shilimanov <kirill.shilimanov@huawei.com>
+Syzkaller reported a divide error in cirrusfb_check_pixclock.
+
+divide error: 0000 [#1] SMP KASAN PTI
+CPU: 0 PID: 14938 Comm: cirrusfb_test Not tainted 5.15.0-rc6 #1
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.11.0-2
+RIP: 0010:cirrusfb_check_var+0x6f1/0x1260
+
+Call Trace:
+ fb_set_var+0x398/0xf90
+ do_fb_ioctl+0x4b8/0x6f0
+ fb_ioctl+0xeb/0x130
+ __x64_sys_ioctl+0x19d/0x220
+ do_syscall_64+0x3a/0x80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Signed-off-by: George Kennedy <george.kennedy@oracle.com>
+Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
 Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/w100fb.c | 15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ drivers/video/fbdev/cirrusfb.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/video/fbdev/w100fb.c b/drivers/video/fbdev/w100fb.c
-index d96ab28f8ce4..4e641a780726 100644
---- a/drivers/video/fbdev/w100fb.c
-+++ b/drivers/video/fbdev/w100fb.c
-@@ -770,12 +770,18 @@ static int w100fb_probe(struct platform_device *pdev)
- 		fb_dealloc_cmap(&info->cmap);
- 		kfree(info->pseudo_palette);
+diff --git a/drivers/video/fbdev/cirrusfb.c b/drivers/video/fbdev/cirrusfb.c
+index 15a9ee7cd734..b4980bc2985e 100644
+--- a/drivers/video/fbdev/cirrusfb.c
++++ b/drivers/video/fbdev/cirrusfb.c
+@@ -469,7 +469,7 @@ static int cirrusfb_check_mclk(struct fb_info *info, long freq)
+ 	return 0;
+ }
+ 
+-static int cirrusfb_check_pixclock(const struct fb_var_screeninfo *var,
++static int cirrusfb_check_pixclock(struct fb_var_screeninfo *var,
+ 				   struct fb_info *info)
+ {
+ 	long freq;
+@@ -478,9 +478,7 @@ static int cirrusfb_check_pixclock(const struct fb_var_screeninfo *var,
+ 	unsigned maxclockidx = var->bits_per_pixel >> 3;
+ 
+ 	/* convert from ps to kHz */
+-	freq = PICOS2KHZ(var->pixclock);
+-
+-	dev_dbg(info->device, "desired pixclock: %ld kHz\n", freq);
++	freq = PICOS2KHZ(var->pixclock ? : 1);
+ 
+ 	maxclock = cirrusfb_board_info[cinfo->btype].maxclock[maxclockidx];
+ 	cinfo->multiplexing = 0;
+@@ -488,11 +486,13 @@ static int cirrusfb_check_pixclock(const struct fb_var_screeninfo *var,
+ 	/* If the frequency is greater than we can support, we might be able
+ 	 * to use multiplexing for the video mode */
+ 	if (freq > maxclock) {
+-		dev_err(info->device,
+-			"Frequency greater than maxclock (%ld kHz)\n",
+-			maxclock);
+-		return -EINVAL;
++		var->pixclock = KHZ2PICOS(maxclock);
++
++		while ((freq = PICOS2KHZ(var->pixclock)) > maxclock)
++			var->pixclock++;
  	}
--	if (remapped_fbuf != NULL)
-+	if (remapped_fbuf != NULL) {
- 		iounmap(remapped_fbuf);
--	if (remapped_regs != NULL)
-+		remapped_fbuf = NULL;
-+	}
-+	if (remapped_regs != NULL) {
- 		iounmap(remapped_regs);
--	if (remapped_base != NULL)
-+		remapped_regs = NULL;
-+	}
-+	if (remapped_base != NULL) {
- 		iounmap(remapped_base);
-+		remapped_base = NULL;
-+	}
- 	if (info)
- 		framebuffer_release(info);
- 	return err;
-@@ -795,8 +801,11 @@ static int w100fb_remove(struct platform_device *pdev)
- 	fb_dealloc_cmap(&info->cmap);
- 
- 	iounmap(remapped_base);
-+	remapped_base = NULL;
- 	iounmap(remapped_regs);
-+	remapped_regs = NULL;
- 	iounmap(remapped_fbuf);
-+	remapped_fbuf = NULL;
- 
- 	framebuffer_release(info);
- 
++	dev_dbg(info->device, "desired pixclock: %ld kHz\n", freq);
++
+ 	/*
+ 	 * Additional constraint: 8bpp uses DAC clock doubling to allow maximum
+ 	 * pixel clock
 -- 
 2.34.1
 
