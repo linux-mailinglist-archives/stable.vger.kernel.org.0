@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 13A4B4F3C48
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:25:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 04C304F381D
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:27:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344586AbiDEMHH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:07:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59196 "EHLO
+        id S1376333AbiDELVf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:21:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47886 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355885AbiDEKWN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:22:13 -0400
+        with ESMTP id S1349391AbiDEJtr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:47 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DBCCA94E6;
-        Tue,  5 Apr 2022 03:05:19 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09D9A15727;
+        Tue,  5 Apr 2022 02:44:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C05E56179D;
-        Tue,  5 Apr 2022 10:05:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7A16C385A1;
-        Tue,  5 Apr 2022 10:05:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9A1DD6164D;
+        Tue,  5 Apr 2022 09:44:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A89DAC385A2;
+        Tue,  5 Apr 2022 09:44:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153118;
-        bh=uFktpmXq//VwMEg/Xye+cAieCQG7ieCXEqG53n4shp0=;
+        s=korg; t=1649151887;
+        bh=Xo893Q7YwUEI8ouUMcgSCmtm2ovJwxf/S3NIzt95yFY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k1edwaR86fqUkCCb2wYi7sS4HwmwkfkyLqdF8Gemhg2DZE6GuKupMlKJj95AcNZ1W
-         +ussXk/ZKsYr9NOVMV7sPrBy/O7pZ1ZAMr715lgSGp7ITZ8TLBfzEyY3PU+os50qgJ
-         DfcGnQn+UvKUZLGwLvzeYkKhqtkkT8g+Pka9BnGI=
+        b=aleJTEKnNX8rbn90h6Vf4aP8TM4+Sj4G2mO7sjCuOmuP1/5sdWmjzcncu6hFVTa3j
+         vPtGka1saamgBUri+pVLU+/15GZwOTRdez2a/KXxvWS8P1nbyylWoY01bC13Tei/9W
+         DbLNZ0g81bjEWzjn14yRNiEGyYd1X0iu4aLuQeYQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Dirk=20M=C3=BCller?= <dmueller@suse.de>,
-        Paul Menzel <pmenzel@molgen.mpg.de>, Song Liu <song@kernel.org>
-Subject: [PATCH 5.10 107/599] lib/raid6/test: fix multiple definition linking error
+        stable@vger.kernel.org, Yongzhi Liu <lyz_cs@pku.edu.cn>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 539/913] RDMA/mlx5: Fix memory leak in error flow for subscribe event routine
 Date:   Tue,  5 Apr 2022 09:26:41 +0200
-Message-Id: <20220405070302.019502809@linuxfoundation.org>
+Message-Id: <20220405070356.005528742@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
-References: <20220405070258.802373272@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dirk Müller <dmueller@suse.de>
+From: Yongzhi Liu <lyz_cs@pku.edu.cn>
 
-commit a5359ddd052860bacf957e65fe819c63e974b3a6 upstream.
+[ Upstream commit 087f9c3f2309ed183f7e4b85ae57121d8663224d ]
 
-GCC 10+ defaults to -fno-common, which enforces proper declaration of
-external references using "extern". without this change a link would
-fail with:
+In case the second xa_insert() fails, the obj_event is not released.  Fix
+the error unwind flow to free that memory to avoid a memory leak.
 
-  lib/raid6/test/algos.c:28: multiple definition of `raid6_call';
-  lib/raid6/test/test.c:22: first defined here
-
-the pq.h header that is included already includes an extern declaration
-so we can just remove the redundant one here.
-
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Dirk Müller <dmueller@suse.de>
-Reviewed-by: Paul Menzel <pmenzel@molgen.mpg.de>
-Signed-off-by: Song Liu <song@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 759738537142 ("IB/mlx5: Enable subscription for device events over DEVX")
+Link: https://lore.kernel.org/r/1647018361-18266-1-git-send-email-lyz_cs@pku.edu.cn
+Signed-off-by: Yongzhi Liu <lyz_cs@pku.edu.cn>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/raid6/test/test.c |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/infiniband/hw/mlx5/devx.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/lib/raid6/test/test.c
-+++ b/lib/raid6/test/test.c
-@@ -19,7 +19,6 @@
- #define NDISKS		16	/* Including P and Q */
+diff --git a/drivers/infiniband/hw/mlx5/devx.c b/drivers/infiniband/hw/mlx5/devx.c
+index e95967aefe78..21beded40066 100644
+--- a/drivers/infiniband/hw/mlx5/devx.c
++++ b/drivers/infiniband/hw/mlx5/devx.c
+@@ -1891,8 +1891,10 @@ subscribe_event_xa_alloc(struct mlx5_devx_event_table *devx_event_table,
+ 				key_level2,
+ 				obj_event,
+ 				GFP_KERNEL);
+-		if (err)
++		if (err) {
++			kfree(obj_event);
+ 			return err;
++		}
+ 		INIT_LIST_HEAD(&obj_event->obj_sub_list);
+ 	}
  
- const char raid6_empty_zero_page[PAGE_SIZE] __attribute__((aligned(PAGE_SIZE)));
--struct raid6_calls raid6_call;
- 
- char *dataptrs[NDISKS];
- char data[NDISKS][PAGE_SIZE] __attribute__((aligned(PAGE_SIZE)));
+-- 
+2.34.1
+
 
 
