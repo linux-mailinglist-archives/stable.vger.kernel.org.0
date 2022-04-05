@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 184F24F3565
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:50:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 01C3E4F3498
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:38:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355609AbiDEKU5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:20:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37838 "EHLO
+        id S238752AbiDEIoX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:44:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60902 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347261AbiDEJZY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:25:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D947DCAB0;
-        Tue,  5 Apr 2022 02:15:03 -0700 (PDT)
+        with ESMTP id S241251AbiDEIc5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:32:57 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E9126141;
+        Tue,  5 Apr 2022 01:30:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1E3FE61659;
-        Tue,  5 Apr 2022 09:15:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AD13C385A0;
-        Tue,  5 Apr 2022 09:15:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D4024609D0;
+        Tue,  5 Apr 2022 08:30:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6DC6C385A1;
+        Tue,  5 Apr 2022 08:30:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150102;
-        bh=4djunoAxJHOaDgEd2iZ0RMBXmqeYYQMugjYVYuIJyBs=;
+        s=korg; t=1649147429;
+        bh=hkzJKH+9ntGpKLU8MpszvUYKaLGgVtdAemBPeotoG9c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VDYIdw22qhOhK0A9LFH4yO1dWKTBnNBCzXh2qQGiQus/H2dH3cjvubrYRpz4hNG5i
-         C6TuafokJNnmH5fc7o4LnBKa16mLE9lz/1gqMXCdJwDRBG+0A3bjy2vqvxtiD/uAWR
-         qR9/0x9zz3Plh8XQMywhaAPrQ0uOPyb2/Kn/JZKU=
+        b=IYd2Snt7o3/Hbs7XrFSM71pOpC9D40efGC1lAvDpEgVnLEXz+hbTgv1Q8dlzELuCe
+         L/mBJKpti3Jw+stY7KjI5y8N3q+hfG/NVpH9tUYouZzHky1fXjWu+Y6z420QMdDsjX
+         RnglIwXedjy3lVxgH4lLrtOpt5PXl1EleSxVeKy0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        Fangrui Song <maskray@google.com>,
-        Palmer Dabbelt <palmer@rivosinc.com>
-Subject: [PATCH 5.16 0954/1017] riscv module: remove (NOLOAD)
+        stable@vger.kernel.org, "Gabriel L. Somlo" <somlo@cmu.edu>,
+        Borislav Petkov <bp@alien8.de>, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.17 1120/1126] Revert "nbd: fix possible overflow on first_minor in nbd_dev_add()"
 Date:   Tue,  5 Apr 2022 09:31:07 +0200
-Message-Id: <20220405070422.528094436@linuxfoundation.org>
+Message-Id: <20220405070440.302496354@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,49 +53,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fangrui Song <maskray@google.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-commit 60210a3d86dc57ce4a76a366e7841dda746a33f7 upstream.
+commit 7198bfc2017644c6b92d2ecef9b8b8e0363bb5fd upstream.
 
-On ELF, (NOLOAD) sets the section type to SHT_NOBITS[1]. It is conceptually
-inappropriate for .plt, .got, and .got.plt sections which are always
-SHT_PROGBITS.
+This reverts commit 6d35d04a9e18990040e87d2bbf72689252669d54.
 
-In GNU ld, if PLT entries are needed, .plt will be SHT_PROGBITS anyway
-and (NOLOAD) will be essentially ignored. In ld.lld, since
-https://reviews.llvm.org/D118840 ("[ELF] Support (TYPE=<value>) to
-customize the output section type"), ld.lld will report a `section type
-mismatch` error (later changed to a warning). Just remove (NOLOAD) to
-fix the warning.
+Both Gabriel and Borislav report that this commit casues a regression
+with nbd:
 
-[1] https://lld.llvm.org/ELF/linker_script.html As of today, "The
-section should be marked as not loadable" on
-https://sourceware.org/binutils/docs/ld/Output-Section-Type.html is
-outdated for ELF.
+sysfs: cannot create duplicate filename '/dev/block/43:0'
 
-Link: https://github.com/ClangBuiltLinux/linux/issues/1597
-Fixes: ab1ef68e5401 ("RISC-V: Add sections of PLT and GOT for kernel module")
-Reported-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Fangrui Song <maskray@google.com>
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Revert it before 5.18-rc1 and we'll investigage this separately in
+due time.
+
+Link: https://lore.kernel.org/all/YkiJTnFOt9bTv6A2@zn.tnic/
+Reported-by: Gabriel L. Somlo <somlo@cmu.edu>
+Reported-by: Borislav Petkov <bp@alien8.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/riscv/include/asm/module.lds.h |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/block/nbd.c |   24 ++++++++++++------------
+ 1 file changed, 12 insertions(+), 12 deletions(-)
 
---- a/arch/riscv/include/asm/module.lds.h
-+++ b/arch/riscv/include/asm/module.lds.h
-@@ -2,8 +2,8 @@
- /* Copyright (C) 2017 Andes Technology Corporation */
- #ifdef CONFIG_MODULE_SECTIONS
- SECTIONS {
--	.plt (NOLOAD) : { BYTE(0) }
--	.got (NOLOAD) : { BYTE(0) }
--	.got.plt (NOLOAD) : { BYTE(0) }
-+	.plt : { BYTE(0) }
-+	.got : { BYTE(0) }
-+	.got.plt : { BYTE(0) }
- }
- #endif
+--- a/drivers/block/nbd.c
++++ b/drivers/block/nbd.c
+@@ -1800,6 +1800,17 @@ static struct nbd_device *nbd_dev_add(in
+ 	refcount_set(&nbd->refs, 0);
+ 	INIT_LIST_HEAD(&nbd->list);
+ 	disk->major = NBD_MAJOR;
++
++	/* Too big first_minor can cause duplicate creation of
++	 * sysfs files/links, since index << part_shift might overflow, or
++	 * MKDEV() expect that the max bits of first_minor is 20.
++	 */
++	disk->first_minor = index << part_shift;
++	if (disk->first_minor < index || disk->first_minor > MINORMASK) {
++		err = -EINVAL;
++		goto out_free_work;
++	}
++
+ 	disk->minors = 1 << part_shift;
+ 	disk->fops = &nbd_fops;
+ 	disk->private_data = nbd;
+@@ -1904,19 +1915,8 @@ static int nbd_genl_connect(struct sk_bu
+ 	if (!netlink_capable(skb, CAP_SYS_ADMIN))
+ 		return -EPERM;
+ 
+-	if (info->attrs[NBD_ATTR_INDEX]) {
++	if (info->attrs[NBD_ATTR_INDEX])
+ 		index = nla_get_u32(info->attrs[NBD_ATTR_INDEX]);
+-
+-		/*
+-		 * Too big first_minor can cause duplicate creation of
+-		 * sysfs files/links, since index << part_shift might overflow, or
+-		 * MKDEV() expect that the max bits of first_minor is 20.
+-		 */
+-		if (index < 0 || index > MINORMASK >> part_shift) {
+-			printk(KERN_ERR "nbd: illegal input index %d\n", index);
+-			return -EINVAL;
+-		}
+-	}
+ 	if (!info->attrs[NBD_ATTR_SOCKETS]) {
+ 		printk(KERN_ERR "nbd: must specify at least one socket\n");
+ 		return -EINVAL;
 
 
