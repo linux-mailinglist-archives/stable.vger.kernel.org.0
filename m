@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ACF554F3805
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:27:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3C2C4F3809
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:27:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359844AbiDELVE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:21:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39768 "EHLO
+        id S1359863AbiDELVK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:21:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349306AbiDEJtg (ORCPT
+        with ESMTP id S1349307AbiDEJtg (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:36 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45CBFC25;
-        Tue,  5 Apr 2022 02:43:51 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB9AFB99;
+        Tue,  5 Apr 2022 02:43:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 08A52B818F3;
-        Tue,  5 Apr 2022 09:43:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6798DC385A2;
-        Tue,  5 Apr 2022 09:43:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5AC6061368;
+        Tue,  5 Apr 2022 09:43:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61CF4C385A2;
+        Tue,  5 Apr 2022 09:43:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151828;
-        bh=v3JF/BNyYc42Tn3GEZ1YJSBj9rcJ3PoyEg98ZcKHGR4=;
+        s=korg; t=1649151831;
+        bh=uQoHJ3NW9CnApT7MV8GyRFwYt2MTapU0cySGZldJvYo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IIHq2FX/b/djjP/dtpxNbcc25QvZBShXrRKLWz0x6fIrKsN17dgKZoSNSAmTz54WN
-         1o1PpeH7F2aUVJyzKfahX4EpzHPDv7uSDnb3ZYbew6nXBvXYcGOuCPto2KFlpTG6ec
-         BN9Dw1gS/LtHAfrSttbgwJu2hSNZZV7Te4ct/L94=
+        b=ax4sgprKOyNRtQSJ2FMKXrkV0l09CPyv9OShtF78PdE1sxz8azt/3oGl+n17o7iYS
+         1dGsdEdJ7D7PEN2OjiYZS08znanJabm+JAE4IgX9NDbzGQUX2tVqA+UK+m1jZYem3+
+         6rya1Nj1+7KqrbbHgPUr5/Hj1hrC2KLHzyIccLwU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+b9bd12fbed3485a3e51f@syzkaller.appspotmail.com,
-        Pavel Skripkin <paskripkin@gmail.com>,
+        stable@vger.kernel.org, Niels Dossche <dossche.niels@gmail.com>,
         Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 556/913] Bluetooth: hci_uart: add missing NULL check in h5_enqueue
-Date:   Tue,  5 Apr 2022 09:26:58 +0200
-Message-Id: <20220405070356.512876285@linuxfoundation.org>
+Subject: [PATCH 5.15 557/913] Bluetooth: call hci_le_conn_failed with hdev lock in hci_le_conn_failed
+Date:   Tue,  5 Apr 2022 09:26:59 +0200
+Message-Id: <20220405070356.542777819@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -56,44 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Niels Dossche <dossche.niels@gmail.com>
 
-[ Upstream commit 32cb08e958696908a9aad5e49a78d74f7e32fffb ]
+[ Upstream commit 9fa6b4cda3b414e990f008f45f9bcecbcb54d4d1 ]
 
-Syzbot hit general protection fault in __pm_runtime_resume(). The problem
-was in missing NULL check.
+hci_le_conn_failed function's documentation says that the caller must
+hold hdev->lock. The only callsite that does not hold that lock is
+hci_le_conn_failed. The other 3 callsites hold the hdev->lock very
+locally. The solution is to hold the lock during the call to
+hci_le_conn_failed.
 
-hu->serdev can be NULL and we should not blindly pass &serdev->dev
-somewhere, since it will cause GPF.
-
-Reported-by: syzbot+b9bd12fbed3485a3e51f@syzkaller.appspotmail.com
-Fixes: d9dd833cf6d2 ("Bluetooth: hci_h5: Add runtime suspend")
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Fixes: 3c857757ef6e ("Bluetooth: Add directed advertising support through connect()")
+Signed-off-by: Niels Dossche <dossche.niels@gmail.com>
 Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/hci_h5.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ net/bluetooth/hci_conn.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/bluetooth/hci_h5.c b/drivers/bluetooth/hci_h5.c
-index d49a39d17d7d..e0ea9d25bb39 100644
---- a/drivers/bluetooth/hci_h5.c
-+++ b/drivers/bluetooth/hci_h5.c
-@@ -629,9 +629,11 @@ static int h5_enqueue(struct hci_uart *hu, struct sk_buff *skb)
- 		break;
+diff --git a/net/bluetooth/hci_conn.c b/net/bluetooth/hci_conn.c
+index 2b5059a56cda..7a7e92be1652 100644
+--- a/net/bluetooth/hci_conn.c
++++ b/net/bluetooth/hci_conn.c
+@@ -541,7 +541,9 @@ static void le_conn_timeout(struct work_struct *work)
+ 	if (conn->role == HCI_ROLE_SLAVE) {
+ 		/* Disable LE Advertising */
+ 		le_disable_advertising(hdev);
++		hci_dev_lock(hdev);
+ 		hci_le_conn_failed(conn, HCI_ERROR_ADVERTISING_TIMEOUT);
++		hci_dev_unlock(hdev);
+ 		return;
  	}
  
--	pm_runtime_get_sync(&hu->serdev->dev);
--	pm_runtime_mark_last_busy(&hu->serdev->dev);
--	pm_runtime_put_autosuspend(&hu->serdev->dev);
-+	if (hu->serdev) {
-+		pm_runtime_get_sync(&hu->serdev->dev);
-+		pm_runtime_mark_last_busy(&hu->serdev->dev);
-+		pm_runtime_put_autosuspend(&hu->serdev->dev);
-+	}
- 
- 	return 0;
- }
 -- 
 2.34.1
 
