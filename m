@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E74614F2FD6
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:18:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA7DF4F32FC
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:01:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343665AbiDEI5Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:57:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45542 "EHLO
+        id S234019AbiDEI5z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:57:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45546 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234501AbiDEIjT (ORCPT
+        with ESMTP id S234755AbiDEIjT (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:39:19 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6686D21E3F;
-        Tue,  5 Apr 2022 01:33:14 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87718C4;
+        Tue,  5 Apr 2022 01:33:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1BB40B81B92;
-        Tue,  5 Apr 2022 08:33:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AAA4C385A1;
-        Tue,  5 Apr 2022 08:33:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2476B60FFC;
+        Tue,  5 Apr 2022 08:33:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37A33C385A0;
+        Tue,  5 Apr 2022 08:33:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147591;
-        bh=Hxo4l3G3ezXXxyeir2RGiMkhpL4xQTk/wS0+4Y5M1K8=;
+        s=korg; t=1649147594;
+        bh=hiepfgHCUoOr2gSHKgyDZg8utOmO3xMK1AQWFOpqwto=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kQ34fV7LJPq/dVQMYnoTsb8UizHxgrXRPHiFNGsHl/3+VfwT5AK2RBJWkrG+ayWWD
-         BbV/+g3usMlhmugEO7vSSzoBOl95WLQeLgihtB76IWjMyOLjdgShTqyJru7OjiNq+P
-         UOMm4adpzq0lc6AEQQa9EXmb7WFEUhJ3guMSysAI=
+        b=bX/02dTyAmdRkG+uHFOX6x145Gq/FQrEXIpFiFOT3oVJuBsMHl4NPfhcD+fU4GTAJ
+         a332jMOVkPGeNKjfqNG7RU8dI+Q0tH+c5/RgiAwIzSFV5eD9F3saB8/fMYgITsCE3U
+         +tpGDj5PtyGUt3tYM/8zP4bSz5w22tQjiRGKF0UI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.16 0051/1017] greybus: svc: fix an error handling bug in gb_svc_hello()
-Date:   Tue,  5 Apr 2022 09:16:04 +0200
-Message-Id: <20220405070355.699128328@linuxfoundation.org>
+        stable@vger.kernel.org, Quentin Schulz <foss+kernel@0leil.net>,
+        Quentin Schulz <quentin.schulz@theobroma-systems.com>,
+        Heiko Stuebner <heiko@sntech.de>
+Subject: [PATCH 5.16 0052/1017] clk: rockchip: re-add rational best approximation algorithm to the fractional divider
+Date:   Tue,  5 Apr 2022 09:16:05 +0200
+Message-Id: <20220405070355.729518506@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -53,41 +54,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Quentin Schulz <quentin.schulz@theobroma-systems.com>
 
-commit 5f8583a3b7552092582a92e7bbd2153319929ad7 upstream.
+commit 10b74af310735860510a533433b1d3ab2e05a138 upstream.
 
-Cleanup if gb_svc_queue_deferred_request() fails.
+In commit 4e7cf74fa3b2 ("clk: fractional-divider: Export approximation
+algorithm to the CCF users"), the code handling the rational best
+approximation algorithm was replaced by a call to the core
+clk_fractional_divider_general_approximation function which did the same
+thing back then.
 
-Link: https://lore.kernel.org/r/20220202072016.GA6748@kili
-Fixes: ee2f2074fdb2 ("greybus: svc: reconfig APBridgeA-Switch link to handle required load")
-Cc: stable@vger.kernel.org      # 4.9
-[johan: fix commit summary prefix and rename label ]
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20220202113347.1288-2-johan@kernel.org
+However, in commit 82f53f9ee577 ("clk: fractional-divider: Introduce
+POWER_OF_TWO_PS flag"), this common code was made conditional on
+CLK_FRAC_DIVIDER_POWER_OF_TWO_PS flag which was not added back to the
+rockchip clock driver.
+
+This broke the ltk050h3146w-a2 MIPI DSI display present on a PX30-based
+downstream board.
+
+Let's add the flag to the fractional divider flags so that the original
+and intended behavior is brought back to the rockchip clock drivers.
+
+Fixes: 82f53f9ee577 ("clk: fractional-divider: Introduce POWER_OF_TWO_PS flag")
+Cc: stable@vger.kernel.org
+Cc: Quentin Schulz <foss+kernel@0leil.net>
+Signed-off-by: Quentin Schulz <quentin.schulz@theobroma-systems.com>
+Link: https://lore.kernel.org/r/20220131163224.708002-1-quentin.schulz@theobroma-systems.com
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/greybus/svc.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/clk/rockchip/clk.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/greybus/svc.c
-+++ b/drivers/greybus/svc.c
-@@ -866,8 +866,14 @@ static int gb_svc_hello(struct gb_operat
+--- a/drivers/clk/rockchip/clk.c
++++ b/drivers/clk/rockchip/clk.c
+@@ -180,6 +180,7 @@ static void rockchip_fractional_approxim
+ 		unsigned long rate, unsigned long *parent_rate,
+ 		unsigned long *m, unsigned long *n)
+ {
++	struct clk_fractional_divider *fd = to_clk_fd(hw);
+ 	unsigned long p_rate, p_parent_rate;
+ 	struct clk_hw *p_parent;
  
- 	gb_svc_debugfs_init(svc);
+@@ -190,6 +191,8 @@ static void rockchip_fractional_approxim
+ 		*parent_rate = p_parent_rate;
+ 	}
  
--	return gb_svc_queue_deferred_request(op);
-+	ret = gb_svc_queue_deferred_request(op);
-+	if (ret)
-+		goto err_remove_debugfs;
- 
-+	return 0;
++	fd->flags |= CLK_FRAC_DIVIDER_POWER_OF_TWO_PS;
 +
-+err_remove_debugfs:
-+	gb_svc_debugfs_exit(svc);
- err_unregister_device:
- 	gb_svc_watchdog_destroy(svc);
- 	device_del(&svc->dev);
+ 	clk_fractional_divider_general_approximation(hw, rate, parent_rate, m, n);
+ }
+ 
 
 
