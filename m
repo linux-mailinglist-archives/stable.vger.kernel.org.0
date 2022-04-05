@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 03EAC4F3183
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:44:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 61FE74F2F7D
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:16:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347828AbiDEJ2a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:28:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46618 "EHLO
+        id S1349368AbiDEKul (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:50:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50102 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244967AbiDEIww (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 447691CB2B;
-        Tue,  5 Apr 2022 01:48:11 -0700 (PDT)
+        with ESMTP id S1345089AbiDEJnA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:43:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0A0F559B;
+        Tue,  5 Apr 2022 02:28:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D43BC61511;
-        Tue,  5 Apr 2022 08:48:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1589C385A1;
-        Tue,  5 Apr 2022 08:48:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5FCA8B81C9A;
+        Tue,  5 Apr 2022 09:28:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5AA3C385A0;
+        Tue,  5 Apr 2022 09:28:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148490;
-        bh=G96Dh5WtfTKppnov59BIh9FH3+pya1x2zXt3Qam/+VU=;
+        s=korg; t=1649150908;
+        bh=oRLN2IlqOxkWoTJkzS7xdz28eTe0nNxu9oZttJFSR0E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pmvpv8NCc4kCeNcsrxybV1hHUeK88fpxdQrUUDKgSVaJ6DrYXvJ6LEe+nM6GCwWxD
-         3cUFICWB2nkoN/P8Ush2iBIOj7xivZoil/WndQrDtCkfUCEJJ8MRnioWsmw8S+W70g
-         cu2LUb9MofxCoe00xd0+6OfeNZjTx/mvb4ipNh34=
+        b=bQf0bH251KXBnM3lGYAkkkOJBLNfyP+swpgH/Juqn3RD002x4I3P8e8F2uI/ZwXJ7
+         l7fkbPrE0HJtOaodF3da4zqKAv4I+v/4xiSzJtPeNzkQLg8tz75MAiH+mbQGCXaD0K
+         kuPBa10qcRiZvQD0ZbBS4LpvyH4AHQ+ZyqNcv5do=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Corentin Labbe <clabbe@baylibre.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0373/1017] ASoC: wm8350: Handle error for wm8350_register_irq
-Date:   Tue,  5 Apr 2022 09:21:26 +0200
-Message-Id: <20220405070405.357775848@linuxfoundation.org>
+Subject: [PATCH 5.15 225/913] crypto: amlogic - call finalize with bh disabled
+Date:   Tue,  5 Apr 2022 09:21:27 +0200
+Message-Id: <20220405070346.602117142@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,71 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Corentin Labbe <clabbe@baylibre.com>
 
-[ Upstream commit db0350da8084ad549bca16cc0486c11cc70a1f9b ]
+[ Upstream commit dba633342994ce47d347bcf5522ba28301247b79 ]
 
-As the potential failure of the wm8350_register_irq(),
-it should be better to check it and return error if fails.
-Also, use 'free_' in order to avoid the same code.
+Doing ipsec produces a spinlock recursion warning.
+This is due to not disabling BH during crypto completion function.
 
-Fixes: a6ba2b2dabb5 ("ASoC: Implement WM8350 headphone jack detection")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20220304023821.391936-1-jiasheng@iscas.ac.cn
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 48fe583fe541 ("crypto: amlogic - Add crypto accelerator for amlogic GXL")
+Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/wm8350.c | 28 ++++++++++++++++++++++++----
- 1 file changed, 24 insertions(+), 4 deletions(-)
+ drivers/crypto/amlogic/amlogic-gxl-cipher.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/sound/soc/codecs/wm8350.c b/sound/soc/codecs/wm8350.c
-index 15d42ce3b21d..41504ce2a682 100644
---- a/sound/soc/codecs/wm8350.c
-+++ b/sound/soc/codecs/wm8350.c
-@@ -1537,18 +1537,38 @@ static  int wm8350_component_probe(struct snd_soc_component *component)
- 	wm8350_clear_bits(wm8350, WM8350_JACK_DETECT,
- 			  WM8350_JDL_ENA | WM8350_JDR_ENA);
+diff --git a/drivers/crypto/amlogic/amlogic-gxl-cipher.c b/drivers/crypto/amlogic/amlogic-gxl-cipher.c
+index c6865cbd334b..e79514fce731 100644
+--- a/drivers/crypto/amlogic/amlogic-gxl-cipher.c
++++ b/drivers/crypto/amlogic/amlogic-gxl-cipher.c
+@@ -265,7 +265,9 @@ static int meson_handle_cipher_request(struct crypto_engine *engine,
+ 	struct skcipher_request *breq = container_of(areq, struct skcipher_request, base);
  
--	wm8350_register_irq(wm8350, WM8350_IRQ_CODEC_JCK_DET_L,
-+	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CODEC_JCK_DET_L,
- 			    wm8350_hpl_jack_handler, 0, "Left jack detect",
- 			    priv);
--	wm8350_register_irq(wm8350, WM8350_IRQ_CODEC_JCK_DET_R,
-+	if (ret != 0)
-+		goto err;
-+
-+	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CODEC_JCK_DET_R,
- 			    wm8350_hpr_jack_handler, 0, "Right jack detect",
- 			    priv);
--	wm8350_register_irq(wm8350, WM8350_IRQ_CODEC_MICSCD,
-+	if (ret != 0)
-+		goto free_jck_det_l;
-+
-+	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CODEC_MICSCD,
- 			    wm8350_mic_handler, 0, "Microphone short", priv);
--	wm8350_register_irq(wm8350, WM8350_IRQ_CODEC_MICD,
-+	if (ret != 0)
-+		goto free_jck_det_r;
-+
-+	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CODEC_MICD,
- 			    wm8350_mic_handler, 0, "Microphone detect", priv);
-+	if (ret != 0)
-+		goto free_micscd;
+ 	err = meson_cipher(breq);
++	local_bh_disable();
+ 	crypto_finalize_skcipher_request(engine, breq, err);
++	local_bh_enable();
  
  	return 0;
-+
-+free_micscd:
-+	wm8350_free_irq(wm8350, WM8350_IRQ_CODEC_MICSCD, priv);
-+free_jck_det_r:
-+	wm8350_free_irq(wm8350, WM8350_IRQ_CODEC_JCK_DET_R, priv);
-+free_jck_det_l:
-+	wm8350_free_irq(wm8350, WM8350_IRQ_CODEC_JCK_DET_L, priv);
-+err:
-+	return ret;
  }
- 
- static void wm8350_component_remove(struct snd_soc_component *component)
 -- 
 2.34.1
 
