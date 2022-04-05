@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B2C194F3204
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:53:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5F744F34FE
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:42:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242245AbiDEIhQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:37:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54930 "EHLO
+        id S1350741AbiDEJ7h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:59:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45590 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235676AbiDEIVd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:21:33 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 933476152;
-        Tue,  5 Apr 2022 01:19:22 -0700 (PDT)
+        with ESMTP id S1344232AbiDEJSw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:18:52 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B35B45AF7;
+        Tue,  5 Apr 2022 02:06:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AFA88B81BBC;
-        Tue,  5 Apr 2022 08:19:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 012D0C340EE;
-        Tue,  5 Apr 2022 08:19:18 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 70E06CE1BF8;
+        Tue,  5 Apr 2022 09:05:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AA12C385A1;
+        Tue,  5 Apr 2022 09:05:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146759;
-        bh=sNuO6dQJvF6Vk5Tn8/d8XLokuoseHYyzEeHKBYNpZho=;
+        s=korg; t=1649149557;
+        bh=fc6qrim3UwwCoexjObybUivRCYC7le7SVED3R4kDhpI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k6uZ5n8aJF647GWMHzidiIEuyzwq+sPzGquD9u83C14Ktpk5pJqHGG1KpJFVIKT6Y
-         xhHlHmrtcYiltLKcTUlrk8nFyU5/nOfmATMexaJNWlvxDer9W4LO5lll+V/LaM0Tz7
-         Kc3YUSaal3Q82uW8FyXcSAYIn+36cVWnLTFEzjtk=
+        b=O7iuEcjyYGuE/GrW8D+jpN0bZi/VzXxoi5LHlcMza2aovFkVH+jjB//w4lsMfjSdT
+         1mZr7xybt0tdRx75EFpNOEpmbWHNIPTsENn+DMvoALfOvl2gBLQe1Jxlw5esPdsn0Q
+         jt1z5r3YKVRBvozBxPDXZOvRvLI+kTJM1obwgBE8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+d59332e2db681cf18f0318a06e994ebbb529a8db@syzkaller.appspotmail.com,
-        Lee Jones <lee.jones@linaro.org>, Theodore Tso <tytso@mit.edu>,
+        stable@vger.kernel.org, Feng Tang <feng.tang@intel.com>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Igor Zhbanov <i.zhbanov@omprussia.ru>,
+        Randy Dunlap <rdunlap@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0876/1126] ext4: dont BUG if someone dirty pages without asking ext4 first
-Date:   Tue,  5 Apr 2022 09:27:03 +0200
-Message-Id: <20220405070433.248084159@linuxfoundation.org>
+Subject: [PATCH 5.16 0711/1017] driver core: dd: fix return value of __setup handler
+Date:   Tue,  5 Apr 2022 09:27:04 +0200
+Message-Id: <20220405070415.375128241@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,82 +56,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Theodore Ts'o <tytso@mit.edu>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit cc5095747edfb054ca2068d01af20be3fcc3634f ]
+[ Upstream commit f2aad54703dbe630f9d8b235eb58e8c8cc78f37d ]
 
-[un]pin_user_pages_remote is dirtying pages without properly warning
-the file system in advance.  A related race was noted by Jan Kara in
-2018[1]; however, more recently instead of it being a very hard-to-hit
-race, it could be reliably triggered by process_vm_writev(2) which was
-discovered by Syzbot[2].
+When "driver_async_probe=nulltty" is used on the kernel boot command line,
+it causes an Unknown parameter message and the string is added to init's
+environment strings, polluting them.
 
-This is technically a bug in mm/gup.c, but arguably ext4 is fragile in
-that if some other kernel subsystem dirty pages without properly
-notifying the file system using page_mkwrite(), ext4 will BUG, while
-other file systems will not BUG (although data will still be lost).
+  Unknown kernel command line parameters "BOOT_IMAGE=/boot/bzImage-517rc6
+  driver_async_probe=nulltty", will be passed to user space.
 
-So instead of crashing with a BUG, issue a warning (since there may be
-potential data loss) and just mark the page as clean to avoid
-unprivileged denial of service attacks until the problem can be
-properly fixed.  More discussion and background can be found in the
-thread starting at [2].
+ Run /sbin/init as init process
+   with arguments:
+     /sbin/init
+   with environment:
+     HOME=/
+     TERM=linux
+     BOOT_IMAGE=/boot/bzImage-517rc6
+     driver_async_probe=nulltty
 
-[1] https://lore.kernel.org/linux-mm/20180103100430.GE4911@quack2.suse.cz
-[2] https://lore.kernel.org/r/Yg0m6IjcNmfaSokM@google.com
+Change the return value of the __setup function to 1 to indicate
+that the __setup option has been handled.
 
-Reported-by: syzbot+d59332e2db681cf18f0318a06e994ebbb529a8db@syzkaller.appspotmail.com
-Reported-by: Lee Jones <lee.jones@linaro.org>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Link: https://lore.kernel.org/r/YiDS9wVfq4mM2jGK@mit.edu
+Link: lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
+Fixes: 1ea61b68d0f8 ("async: Add cmdline option to specify drivers to be async probed")
+Cc: Feng Tang <feng.tang@intel.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>
+Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
+Reviewed-by: Feng Tang <feng.tang@intel.com>
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Link: https://lore.kernel.org/r/20220301041829.15137-1-rdunlap@infradead.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/inode.c | 25 +++++++++++++++++++++++++
- 1 file changed, 25 insertions(+)
+ drivers/base/dd.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
-index 01c9e4f743ba..531a94f48637 100644
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -1993,6 +1993,15 @@ static int ext4_writepage(struct page *page,
- 	else
- 		len = PAGE_SIZE;
+diff --git a/drivers/base/dd.c b/drivers/base/dd.c
+index 6b6630693201..64ce42b6c6b6 100644
+--- a/drivers/base/dd.c
++++ b/drivers/base/dd.c
+@@ -809,7 +809,7 @@ static int __init save_async_options(char *buf)
+ 		pr_warn("Too long list of driver names for 'driver_async_probe'!\n");
  
-+	/* Should never happen but for bugs in other kernel subsystems */
-+	if (!page_has_buffers(page)) {
-+		ext4_warning_inode(inode,
-+		   "page %lu does not have buffers attached", page->index);
-+		ClearPageDirty(page);
-+		unlock_page(page);
-+		return 0;
-+	}
-+
- 	page_bufs = page_buffers(page);
- 	/*
- 	 * We cannot do block allocation or other extent handling in this
-@@ -2594,6 +2603,22 @@ static int mpage_prepare_extent_to_map(struct mpage_da_data *mpd)
- 			wait_on_page_writeback(page);
- 			BUG_ON(PageWriteback(page));
+ 	strlcpy(async_probe_drv_names, buf, ASYNC_DRV_NAMES_MAX_LEN);
+-	return 0;
++	return 1;
+ }
+ __setup("driver_async_probe=", save_async_options);
  
-+			/*
-+			 * Should never happen but for buggy code in
-+			 * other subsystems that call
-+			 * set_page_dirty() without properly warning
-+			 * the file system first.  See [1] for more
-+			 * information.
-+			 *
-+			 * [1] https://lore.kernel.org/linux-mm/20180103100430.GE4911@quack2.suse.cz
-+			 */
-+			if (!page_has_buffers(page)) {
-+				ext4_warning_inode(mpd->inode, "page %lu does not have buffers attached", page->index);
-+				ClearPageDirty(page);
-+				unlock_page(page);
-+				continue;
-+			}
-+
- 			if (mpd->map.m_len == 0)
- 				mpd->first_page = page->index;
- 			mpd->next_page = page->index + 1;
 -- 
 2.34.1
 
