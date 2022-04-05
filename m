@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 996AC4F361A
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:56:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 83F1E4F348D
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:38:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243568AbiDEK63 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:58:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59314 "EHLO
+        id S235344AbiDEJ3r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:29:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59238 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346790AbiDEJp3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:45:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCD84E03;
-        Tue,  5 Apr 2022 02:31:52 -0700 (PDT)
+        with ESMTP id S245152AbiDEIyM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:54:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9905910F6;
+        Tue,  5 Apr 2022 01:51:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7798A616D5;
-        Tue,  5 Apr 2022 09:31:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87F73C385A2;
-        Tue,  5 Apr 2022 09:31:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1871161509;
+        Tue,  5 Apr 2022 08:51:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A9E8C385A1;
+        Tue,  5 Apr 2022 08:51:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151111;
-        bh=oHlSaLnp0LJAsz2l5y9onfsLYtwCCUUhnIEiuKRvLr4=;
+        s=korg; t=1649148695;
+        bh=D9I+rGgfR4xsdgyZ9tEUcIy10T7OjvR2xyL8W/yW+GE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=woPM8dyasX2AZPoZNUm5S4OuauL2qasJTfXvMCXHVHF4jx8zYTxD9J3MQy+Ppav+U
-         IWz39GbMdL94MzW/B+3arcqthVRNw0xjjLmNjd1ftIsbfMnPeQG1IrcWf+whgjr5yW
-         Z0wjR0GObYqEquFPfmdApX0pEiPPPT6msZ4keXa8=
+        b=NDwJeK4gv3WlYA3uqrwioFBiMGy5vF39UGhaskuILMAR7/y2hxnjC1XWacSMm3Hll
+         YSxpW1SYRFmrrBFRSFzCWv828vuaMt7zphpm0vqq8nkdGB43EGuSlL0Acdl+rI6NFK
+         axpQgo6MdlSY1E1UGrlToLtcM5/QloRh3SlFieZU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Heidelberg <david@ixit.cz>,
-        Steev Klimaszewski <steev@kali.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, Maxim Kiselev <bigunclemax@gmail.com>,
+        Maxim Kochetkov <fido_max@inbox.ru>,
+        Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 299/913] arm64: dts: qcom: sdm845: fix microphone bias properties and values
+Subject: [PATCH 5.16 0448/1017] powerpc: dts: t1040rdb: fix ports names for Seville Ethernet switch
 Date:   Tue,  5 Apr 2022 09:22:41 +0200
-Message-Id: <20220405070348.818575629@linuxfoundation.org>
+Message-Id: <20220405070407.596314773@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,56 +56,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Heidelberg <david@ixit.cz>
+From: Maxim Kiselev <bigunclemax@gmail.com>
 
-[ Upstream commit 625c24460dbbc3b6c9a148c0a30f0830893fc909 ]
+[ Upstream commit 5ebb74749202a25da4b3cc2eb15470225a05527c ]
 
-replace millivolt with correct microvolt and adjust value to
-the minimal value allowed by documentation.
+On board rev A, the network interface labels for the switch ports
+written on the front panel are different than on rev B and later.
 
-Found with `make qcom/sdm845-oneplus-fajita.dtb`.
+This patch fixes network interface names for the switch ports according
+to labels that are written on the front panel of the board rev B.
+They start from ETH3 and end at ETH10.
 
-Fixes:
-arch/arm64/boot/dts/qcom/sdm845-oneplus-fajita.dt.yaml: codec@1: 'qcom,micbias1-microvolt' is a required property
-        From schema: Documentation/devicetree/bindings/sound/qcom,wcd934x.yaml
-arch/arm64/boot/dts/qcom/sdm845-oneplus-fajita.dt.yaml: codec@1: 'qcom,micbias2-microvolt' is a required property
-        From schema: Documentation/devicetree/bindings/sound/qcom,wcd934x.yaml
-arch/arm64/boot/dts/qcom/sdm845-oneplus-fajita.dt.yaml: codec@1: 'qcom,micbias3-microvolt' is a required property
-        From schema: Documentation/devicetree/bindings/sound/qcom,wcd934x.yaml
-arch/arm64/boot/dts/qcom/sdm845-oneplus-fajita.dt.yaml: codec@1: 'qcom,micbias4-microvolt' is a required property
-        From schema: Documentation/devicetree/bindings/sound/qcom,wcd934x.yaml
-arch/arm64/boot/dts/qcom/sdm845-oneplus-fajita.dt.yaml: codec@1: 'qcom,micbias1-millivolt', 'qcom,micbias2-millivolt', 'qcom,micbias3-millivolt', 'qcom,micbias4-millivolt' do not match any of the regexes: '^.*@[0-9a-f]+$', 'pinctrl-[0-9]+'
+This patch also introduces a separate device tree for rev A.
+The main device tree is supposed to cover rev B and later.
 
-Fixes: 27ca1de07dc3 ("arm64: dts: qcom: sdm845: add slimbus nodes")
-
-Signed-off-by: David Heidelberg <david@ixit.cz>
-Tested-by: Steev Klimaszewski <steev@kali.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20211213195105.114596-1-david@ixit.cz
+Fixes: e69eb0824d8c ("powerpc: dts: t1040rdb: add ports for Seville Ethernet switch")
+Signed-off-by: Maxim Kiselev <bigunclemax@gmail.com>
+Reviewed-by: Maxim Kochetkov <fido_max@inbox.ru>
+Reviewed-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220121091447.3412907-1-bigunclemax@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/sdm845.dtsi | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/powerpc/boot/dts/fsl/t1040rdb-rev-a.dts | 30 ++++++++++++++++++++
+ arch/powerpc/boot/dts/fsl/t1040rdb.dts       |  8 +++---
+ 2 files changed, 34 insertions(+), 4 deletions(-)
+ create mode 100644 arch/powerpc/boot/dts/fsl/t1040rdb-rev-a.dts
 
-diff --git a/arch/arm64/boot/dts/qcom/sdm845.dtsi b/arch/arm64/boot/dts/qcom/sdm845.dtsi
-index 519ca9a705b4..d20eacfc1017 100644
---- a/arch/arm64/boot/dts/qcom/sdm845.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sdm845.dtsi
-@@ -3608,10 +3608,10 @@
- 					#clock-cells = <0>;
- 					clock-frequency = <9600000>;
- 					clock-output-names = "mclk";
--					qcom,micbias1-millivolt = <1800>;
--					qcom,micbias2-millivolt = <1800>;
--					qcom,micbias3-millivolt = <1800>;
--					qcom,micbias4-millivolt = <1800>;
-+					qcom,micbias1-microvolt = <1800000>;
-+					qcom,micbias2-microvolt = <1800000>;
-+					qcom,micbias3-microvolt = <1800000>;
-+					qcom,micbias4-microvolt = <1800000>;
+diff --git a/arch/powerpc/boot/dts/fsl/t1040rdb-rev-a.dts b/arch/powerpc/boot/dts/fsl/t1040rdb-rev-a.dts
+new file mode 100644
+index 000000000000..73f8c998c64d
+--- /dev/null
++++ b/arch/powerpc/boot/dts/fsl/t1040rdb-rev-a.dts
+@@ -0,0 +1,30 @@
++// SPDX-License-Identifier: GPL-2.0-or-later
++/*
++ * T1040RDB-REV-A Device Tree Source
++ *
++ * Copyright 2014 - 2015 Freescale Semiconductor Inc.
++ *
++ */
++
++#include "t1040rdb.dts"
++
++/ {
++	model = "fsl,T1040RDB-REV-A";
++	compatible = "fsl,T1040RDB-REV-A";
++};
++
++&seville_port0 {
++	label = "ETH5";
++};
++
++&seville_port2 {
++	label = "ETH7";
++};
++
++&seville_port4 {
++	label = "ETH9";
++};
++
++&seville_port6 {
++	label = "ETH11";
++};
+diff --git a/arch/powerpc/boot/dts/fsl/t1040rdb.dts b/arch/powerpc/boot/dts/fsl/t1040rdb.dts
+index af0c8a6f5613..b6733e7e6580 100644
+--- a/arch/powerpc/boot/dts/fsl/t1040rdb.dts
++++ b/arch/powerpc/boot/dts/fsl/t1040rdb.dts
+@@ -119,7 +119,7 @@
+ 	managed = "in-band-status";
+ 	phy-handle = <&phy_qsgmii_0>;
+ 	phy-mode = "qsgmii";
+-	label = "ETH5";
++	label = "ETH3";
+ 	status = "okay";
+ };
  
- 					#address-cells = <1>;
- 					#size-cells = <1>;
+@@ -135,7 +135,7 @@
+ 	managed = "in-band-status";
+ 	phy-handle = <&phy_qsgmii_2>;
+ 	phy-mode = "qsgmii";
+-	label = "ETH7";
++	label = "ETH5";
+ 	status = "okay";
+ };
+ 
+@@ -151,7 +151,7 @@
+ 	managed = "in-band-status";
+ 	phy-handle = <&phy_qsgmii_4>;
+ 	phy-mode = "qsgmii";
+-	label = "ETH9";
++	label = "ETH7";
+ 	status = "okay";
+ };
+ 
+@@ -167,7 +167,7 @@
+ 	managed = "in-band-status";
+ 	phy-handle = <&phy_qsgmii_6>;
+ 	phy-mode = "qsgmii";
+-	label = "ETH11";
++	label = "ETH9";
+ 	status = "okay";
+ };
+ 
 -- 
 2.34.1
 
