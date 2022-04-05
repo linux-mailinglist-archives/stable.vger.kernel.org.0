@@ -2,44 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E1A24F3277
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:58:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63BF44F3566
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:50:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245324AbiDEJLq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:11:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52164 "EHLO
+        id S243062AbiDEKfX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:35:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53902 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244726AbiDEIwf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 585E11AF23;
-        Tue,  5 Apr 2022 01:42:52 -0700 (PDT)
+        with ESMTP id S240029AbiDEJeA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:34:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DBE37E0A1;
+        Tue,  5 Apr 2022 02:23:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E717961003;
-        Tue,  5 Apr 2022 08:42:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 037C5C385A0;
-        Tue,  5 Apr 2022 08:42:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AE69261654;
+        Tue,  5 Apr 2022 09:23:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC04CC385A2;
+        Tue,  5 Apr 2022 09:23:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148171;
-        bh=M67CU+T4xOG6XH0wlo3yuSohmbR82pONZTeDDfPjaTs=;
+        s=korg; t=1649150594;
+        bh=zJZvZVpLCc0e2RVJNQqJnkd54OH9Ak3/Lu4LUwktJeE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ntu8wnMeo69V0184+m/l7gXWA2GbxPOZ6aUi/j7DCVZvKk6GlH2qTZkXv2FgKvQ/3
-         pDDq7RJp4yizKIVPJbIGJRcErrFUhVhjuj1ebiK2Un63otbzky3ckNN1ikah8JvkaP
-         KVIA8XpGcaUFixTm7AcxAkWYgNV5w+x/BuxhCHjs=
+        b=nuY88ZRK8Zb57NoxoALO1k8KHAyEICVprMnLrWip9evJIbndvBdTdEZVx3WyiBLOu
+         xyoxkx6miBnL+lEDdg++k6iKNHECkwiyQNn6ndyo9Rh8J22CmwsTTVcJrX48jWkBhu
+         eq6+/C6Wu9VsY8KrbVDKPEn9OzFKAcISB+/sUOms=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+6e2de48f06cdb2884bfc@syzkaller.appspotmail.com
-Subject: [PATCH 5.16 0258/1017] watch_queue: Actually free the watch
-Date:   Tue,  5 Apr 2022 09:19:31 +0200
-Message-Id: <20220405070401.921857691@linuxfoundation.org>
+        stable@vger.kernel.org, Rik van Riel <riel@surriel.com>,
+        Miaohe Lin <linmiaohe@huawei.com>,
+        Naoya Horiguchi <naoya.horiguchi@nec.com>,
+        Oscar Salvador <osalvador@suse.de>,
+        Mel Gorman <mgorman@suse.de>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.15 110/913] mm,hwpoison: unmap poisoned page before invalidation
+Date:   Tue,  5 Apr 2022 09:19:32 +0200
+Message-Id: <20220405070343.124150095@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,54 +59,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Rik van Riel <riel@surriel.com>
 
-[ Upstream commit 3d8dcf278b1ee1eff1e90be848fa2237db4c07a7 ]
+commit 3149c79f3cb0e2e3bafb7cfadacec090cbd250d3 upstream.
 
-free_watch() does everything barring actually freeing the watch object.  Fix
-this by adding the missing kfree.
+In some cases it appears the invalidation of a hwpoisoned page fails
+because the page is still mapped in another process.  This can cause a
+program to be continuously restarted and die when it page faults on the
+page that was not invalidated.  Avoid that problem by unmapping the
+hwpoisoned page when we find it.
 
-kmemleak produces a report something like the following.  Note that as an
-address can be seen in the first word, the watch would appear to have gone
-through call_rcu().
+Another issue is that sometimes we end up oopsing in finish_fault, if
+the code tries to do something with the now-NULL vmf->page.  I did not
+hit this error when submitting the previous patch because there are
+several opportunities for alloc_set_pte to bail out before accessing
+vmf->page, and that apparently happened on those systems, and most of
+the time on other systems, too.
 
-BUG: memory leak
-unreferenced object 0xffff88810ce4a200 (size 96):
-  comm "syz-executor352", pid 3605, jiffies 4294947473 (age 13.720s)
-  hex dump (first 32 bytes):
-    e0 82 48 0d 81 88 ff ff 00 00 00 00 00 00 00 00  ..H.............
-    80 a2 e4 0c 81 88 ff ff 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<ffffffff8214e6cc>] kmalloc include/linux/slab.h:581 [inline]
-    [<ffffffff8214e6cc>] kzalloc include/linux/slab.h:714 [inline]
-    [<ffffffff8214e6cc>] keyctl_watch_key+0xec/0x2e0 security/keys/keyctl.c:1800
-    [<ffffffff8214ec84>] __do_sys_keyctl+0x3c4/0x490 security/keys/keyctl.c:2016
-    [<ffffffff84493a25>] do_syscall_x64 arch/x86/entry/common.c:50 [inline]
-    [<ffffffff84493a25>] do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
-    [<ffffffff84600068>] entry_SYSCALL_64_after_hwframe+0x44/0xae
+However, across several million systems that error does occur a handful
+of times a day.  It can be avoided by returning VM_FAULT_NOPAGE which
+will cause do_read_fault to return before calling finish_fault.
 
-Fixes: c73be61cede5 ("pipe: Add general notification queue support")
-Reported-and-tested-by: syzbot+6e2de48f06cdb2884bfc@syzkaller.appspotmail.com
-Signed-off-by: David Howells <dhowells@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lkml.kernel.org/r/20220325161428.5068d97e@imladris.surriel.com
+Fixes: e53ac7374e64 ("mm: invalidate hwpoison page cache page in fault path")
+Signed-off-by: Rik van Riel <riel@surriel.com>
+Reviewed-by: Miaohe Lin <linmiaohe@huawei.com>
+Tested-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Reviewed-by: Oscar Salvador <osalvador@suse.de>
+Cc: Mel Gorman <mgorman@suse.de>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/watch_queue.c | 1 +
- 1 file changed, 1 insertion(+)
+ mm/memory.c |   12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/kernel/watch_queue.c b/kernel/watch_queue.c
-index 12348b41d7ad..38a135d68c05 100644
---- a/kernel/watch_queue.c
-+++ b/kernel/watch_queue.c
-@@ -398,6 +398,7 @@ static void free_watch(struct rcu_head *rcu)
- 	put_watch_queue(rcu_access_pointer(watch->queue));
- 	atomic_dec(&watch->cred->user->nr_watches);
- 	put_cred(watch->cred);
-+	kfree(watch);
- }
+--- a/mm/memory.c
++++ b/mm/memory.c
+@@ -3861,14 +3861,18 @@ static vm_fault_t __do_fault(struct vm_f
+ 		return ret;
  
- static void __put_watch(struct kref *kref)
--- 
-2.34.1
-
+ 	if (unlikely(PageHWPoison(vmf->page))) {
++		struct page *page = vmf->page;
+ 		vm_fault_t poisonret = VM_FAULT_HWPOISON;
+ 		if (ret & VM_FAULT_LOCKED) {
++			if (page_mapped(page))
++				unmap_mapping_pages(page_mapping(page),
++						    page->index, 1, false);
+ 			/* Retry if a clean page was removed from the cache. */
+-			if (invalidate_inode_page(vmf->page))
+-				poisonret = 0;
+-			unlock_page(vmf->page);
++			if (invalidate_inode_page(page))
++				poisonret = VM_FAULT_NOPAGE;
++			unlock_page(page);
+ 		}
+-		put_page(vmf->page);
++		put_page(page);
+ 		vmf->page = NULL;
+ 		return poisonret;
+ 	}
 
 
