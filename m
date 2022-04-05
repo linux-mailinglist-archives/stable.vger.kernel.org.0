@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A64484F44D7
-	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 00:31:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 427454F44CD
+	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 00:31:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380479AbiDEMYS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:24:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44352 "EHLO
+        id S1380230AbiDEMYQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:24:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42286 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356097AbiDEKW4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:22:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD06FB3DC0;
-        Tue,  5 Apr 2022 03:06:09 -0700 (PDT)
+        with ESMTP id S1356111AbiDEKW5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:22:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27A81B6D0C;
+        Tue,  5 Apr 2022 03:06:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 69AAC61500;
-        Tue,  5 Apr 2022 10:06:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79B6EC385A2;
-        Tue,  5 Apr 2022 10:06:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DDBD4B81C83;
+        Tue,  5 Apr 2022 10:06:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49B46C385A2;
+        Tue,  5 Apr 2022 10:06:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153168;
-        bh=p9Up1pKixUzPNTVM3bn7wF1Y6Yvz1yHN+lyh/GIlfco=;
+        s=korg; t=1649153174;
+        bh=viDQ5oPXUO4Bg2RdHflKhjqajjnXbG/LyDSk6gx4X20=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yckrU2yvLiXoDhtH8D3jzVmQp0Ub/IqqJefb32rvNWjHLPzJ3ex7Rbv7Ax7NsRpIp
-         POd62DtBkqpA69DPL+IBwmb3Yroc/KSfO5aV0eVOdOsmza43DTB31yHi0ZxvWuAKua
-         8RVK0WPJEbNjAaKwacnnrUFV4NbOlVM0cgOxcE+M=
+        b=DTeR510pL7pqgmVHNC2PJahYoYIPUOEE6r8rxd7CZmfdQANJGDJIMI+UOHUsCiZ1Z
+         trIy+GW/LqkZlCtAclyIEaOD8OYVOcwBgktgYRJWfGOnabnMzUrCUKVw7qoz7H9ovQ
+         Z+a000mIOnMI0QTvht2WjqVf0z+gg28n6tED4j3s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Rob Herring <robh@kernel.org>,
-        Toan Le <toan@os.amperecomputing.com>,
-        =?UTF-8?q?Krzysztof=20Wilczy=C5=84ski?= <kw@linux.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        =?UTF-8?q?St=C3=A9phane=20Graber?= <stgraber@ubuntu.com>,
-        dann frazier <dann.frazier@canonical.com>
-Subject: [PATCH 5.10 127/599] PCI: xgene: Revert "PCI: xgene: Fix IB window setup"
-Date:   Tue,  5 Apr 2022 09:27:01 +0200
-Message-Id: <20220405070302.620225933@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Paul Moore <paul@paul-moore.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 129/599] selinux: check return value of sel_make_avc_files
+Date:   Tue,  5 Apr 2022 09:27:03 +0200
+Message-Id: <20220405070302.680256821@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -59,46 +56,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Christian Göttsche <cgzones@googlemail.com>
 
-commit 825da4e9cec68713fbb02dc6f71fe1bf65fe8050 upstream.
+[ Upstream commit bcb62828e3e8c813b6613db6eb7fd9657db248fc ]
 
-Commit c7a75d07827a ("PCI: xgene: Fix IB window setup") tried to
-fix the damages that 6dce5aa59e0b ("PCI: xgene: Use inbound resources
-for setup") caused, but actually didn't improve anything for some
-plarforms (at least Mustang and m400 are still broken).
+sel_make_avc_files() might fail and return a negative errno value on
+memory allocation failures. Re-add the check of the return value,
+dropped in 66f8e2f03c02 ("selinux: sidtab reverse lookup hash table").
 
-Given that 6dce5aa59e0b has been reverted, revert this patch as well,
-restoring the PCIe support on XGene to its pre-5.5, working state.
+Reported by clang-analyzer:
 
-Link: https://lore.kernel.org/r/YjN8pT5e6/8cRohQ@xps13.dannf
-Link: https://lore.kernel.org/r/20220321104843.949645-3-maz@kernel.org
-Fixes: c7a75d07827a ("PCI: xgene: Fix IB window setup")
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Cc: stable@vger.kernel.org
-Cc: Rob Herring <robh@kernel.org>
-Cc: Toan Le <toan@os.amperecomputing.com>
-Cc: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Cc: Krzysztof Wilczyński <kw@linux.com>
-Cc: Bjorn Helgaas <bhelgaas@google.com>
-Cc: Stéphane Graber <stgraber@ubuntu.com>
-Cc: dann frazier <dann.frazier@canonical.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    security/selinux/selinuxfs.c:2129:2: warning: Value stored to
+      'ret' is never read [deadcode.DeadStores]
+            ret = sel_make_avc_files(dentry);
+            ^     ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Fixes: 66f8e2f03c02 ("selinux: sidtab reverse lookup hash table")
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+[PM: description line wrapping, added proper commit ref]
+Signed-off-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pci-xgene.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ security/selinux/selinuxfs.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/pci/controller/pci-xgene.c
-+++ b/drivers/pci/controller/pci-xgene.c
-@@ -467,7 +467,7 @@ static int xgene_pcie_select_ib_reg(u8 *
- 		return 1;
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index 2b745ae8cb98..d893c2280f59 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -2124,6 +2124,8 @@ static int sel_fill_super(struct super_block *sb, struct fs_context *fc)
  	}
  
--	if ((size > SZ_1K) && (size < SZ_4G) && !(*ib_reg_mask & (1 << 0))) {
-+	if ((size > SZ_1K) && (size < SZ_1T) && !(*ib_reg_mask & (1 << 0))) {
- 		*ib_reg_mask |= (1 << 0);
- 		return 0;
- 	}
+ 	ret = sel_make_avc_files(dentry);
++	if (ret)
++		goto err;
+ 
+ 	dentry = sel_make_dir(sb->s_root, "ss", &fsi->last_ino);
+ 	if (IS_ERR(dentry)) {
+-- 
+2.34.1
+
 
 
