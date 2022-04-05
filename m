@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D33324F2B68
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:10:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59C314F2AFE
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:07:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244754AbiDEJK4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:10:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46598 "EHLO
+        id S241030AbiDEK3T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:29:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244540AbiDEIwY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:24 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53F97D64F4;
-        Tue,  5 Apr 2022 01:41:18 -0700 (PDT)
+        with ESMTP id S238458AbiDEJci (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:32:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6457BE03;
+        Tue,  5 Apr 2022 02:19:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5037CB81C6A;
-        Tue,  5 Apr 2022 08:41:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0C58C385A0;
-        Tue,  5 Apr 2022 08:41:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E784C6144D;
+        Tue,  5 Apr 2022 09:19:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05C69C385A2;
+        Tue,  5 Apr 2022 09:19:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148075;
-        bh=G/l9aUJULJwmI7YT0KaZ81Zov+Y/RRth+XG3A6aSc6U=;
+        s=korg; t=1649150376;
+        bh=tv6arKi6rzEnPZRRIbINOvlsb8nTYzIr7Tyyr02e010=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KG50vT1f4NFFCHup4nFL157LAtUIxSeWsvxj1YVCciIhAz4YUn7K0ruaP0cFdOQ8+
-         CTYzSBW43WpsBAx6hrnnY2ereV7EJ4hZcv3YeqBoNLHsQI5aCmVxytCEKaGuATfaxw
-         YF7OwY/fvccEdmWd/wTyyru9GtlPGgbCITdsKITQ=
+        b=b8h3X3SLd0DwQXZgE08UY+blwwxUpMIZOrlvsqNhRr90m76TgIv1H9QBzk33VHelh
+         HH06B6RYUgeIaMTq1c/Guow5VC0ARXHpti5Ii1ZbbH+WWA2c+2HrysGRGpUlvNijYg
+         65G5LvdBlpJrY9bLE8DVcwVgFweghed6Pyh5+cLY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christoph Anton Mitterer <calestyo@scientia.org>,
-        David Sterba <dsterba@suse.com>, ree.com@vger.kernel.org
-Subject: [PATCH 5.16 0182/1017] btrfs: verify the tranisd of the to-be-written dirty extent buffer
-Date:   Tue,  5 Apr 2022 09:18:15 +0200
-Message-Id: <20220405070359.640646036@linuxfoundation.org>
+        stable@vger.kernel.org, Henry Lin <henryl@nvidia.com>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 5.15 034/913] xhci: fix runtime PM imbalance in USB2 resume
+Date:   Tue,  5 Apr 2022 09:18:16 +0200
+Message-Id: <20220405070340.839223799@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,96 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: Henry Lin <henryl@nvidia.com>
 
-commit 3777369ff1518b579560611a0d0c33f930154f64 upstream.
+commit 70c05e4cf63054cd755ca66c1819327b22cb085f upstream.
 
-[BUG]
-There is a bug report that a bitflip in the transid part of an extent
-buffer makes btrfs to reject certain tree blocks:
+A race between system resume and device-initiated resume may result in
+runtime PM imbalance on USB2 root hub. If a device-initiated resume
+starts and system resume xhci_bus_resume() directs U0 before hub driver
+sees the resuming device in RESUME state, device-initiated resume will
+not be finished in xhci_handle_usb2_port_link_resume(). In this case,
+usb_hcd_end_port_resume() call is missing.
 
-  BTRFS error (device dm-0): parent transid verify failed on 1382301696 wanted 262166 found 22
+This changes calls usb_hcd_end_port_resume() if resuming device reaches
+U0 to keep runtime PM balance.
 
-[CAUSE]
-Note the failed transid check, hex(262166) = 0x40016, while
-hex(22) = 0x16.
-
-It's an obvious bitflip.
-
-Furthermore, the reporter also confirmed the bitflip is from the
-hardware, so it's a real hardware caused bitflip, and such problem can
-not be detected by the existing tree-checker framework.
-
-As tree-checker can only verify the content inside one tree block, while
-generation of a tree block can only be verified against its parent.
-
-So such problem remain undetected.
-
-[FIX]
-Although tree-checker can not verify it at write-time, we still have a
-quick (but not the most accurate) way to catch such obvious corruption.
-
-Function csum_one_extent_buffer() is called before we submit metadata
-write.
-
-Thus it means, all the extent buffer passed in should be dirty tree
-blocks, and should be newer than last committed transaction.
-
-Using that we can catch the above bitflip.
-
-Although it's not a perfect solution, as if the corrupted generation is
-higher than the correct value, we have no way to catch it at all.
-
-Reported-by: Christoph Anton Mitterer <calestyo@scientia.org>
-Link: https://lore.kernel.org/linux-btrfs/2dfcbc130c55cc6fd067b93752e90bd2b079baca.camel@scientia.org/
-CC: stable@vger.kernel.org # 5.15+
-Signed-off-by: Qu Wenruo <wqu@sus,ree.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: a231ec41e6f6 ("xhci: refactor U0 link state handling in get_port_status")
+Cc: stable@vger.kernel.org
+Signed-off-by: Henry Lin <henryl@nvidia.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20220303110903.1662404-5-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/disk-io.c |   26 ++++++++++++++++++++------
- 1 file changed, 20 insertions(+), 6 deletions(-)
+ drivers/usb/host/xhci-hub.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/fs/btrfs/disk-io.c
-+++ b/fs/btrfs/disk-io.c
-@@ -441,17 +441,31 @@ static int csum_one_extent_buffer(struct
- 	else
- 		ret = btrfs_check_leaf_full(eb);
- 
--	if (ret < 0) {
--		btrfs_print_tree(eb, 0);
-+	if (ret < 0)
-+		goto error;
-+
-+	/*
-+	 * Also check the generation, the eb reached here must be newer than
-+	 * last committed. Or something seriously wrong happened.
-+	 */
-+	if (unlikely(btrfs_header_generation(eb) <= fs_info->last_trans_committed)) {
-+		ret = -EUCLEAN;
- 		btrfs_err(fs_info,
--			"block=%llu write time tree block corruption detected",
--			eb->start);
--		WARN_ON(IS_ENABLED(CONFIG_BTRFS_DEBUG));
--		return ret;
-+			"block=%llu bad generation, have %llu expect > %llu",
-+			  eb->start, btrfs_header_generation(eb),
-+			  fs_info->last_trans_committed);
-+		goto error;
- 	}
- 	write_extent_buffer(eb, result, 0, fs_info->csum_size);
- 
- 	return 0;
-+
-+error:
-+	btrfs_print_tree(eb, 0);
-+	btrfs_err(fs_info, "block=%llu write time tree block corruption detected",
-+		  eb->start);
-+	WARN_ON(IS_ENABLED(CONFIG_BTRFS_DEBUG));
-+	return ret;
- }
- 
- /* Checksum all dirty extent buffers in one bio_vec */
+--- a/drivers/usb/host/xhci-hub.c
++++ b/drivers/usb/host/xhci-hub.c
+@@ -1088,6 +1088,9 @@ static void xhci_get_usb2_port_status(st
+ 		if (link_state == XDEV_U2)
+ 			*status |= USB_PORT_STAT_L1;
+ 		if (link_state == XDEV_U0) {
++			if (bus_state->resume_done[portnum])
++				usb_hcd_end_port_resume(&port->rhub->hcd->self,
++							portnum);
+ 			bus_state->resume_done[portnum] = 0;
+ 			clear_bit(portnum, &bus_state->resuming_ports);
+ 			if (bus_state->suspended_ports & (1 << portnum)) {
 
 
