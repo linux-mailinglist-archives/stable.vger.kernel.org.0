@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D96434F2620
+	by mail.lfdr.de (Postfix) with ESMTP id 5E9A34F261F
 	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 09:52:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231466AbiDEHyl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 03:54:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56218 "EHLO
+        id S232474AbiDEHyj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 03:54:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54458 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232585AbiDEHxZ (ORCPT
+        with ESMTP id S232602AbiDEHxZ (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:53:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07DF21DA51;
-        Tue,  5 Apr 2022 00:49:06 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FB221DA5C;
+        Tue,  5 Apr 2022 00:49:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 49DEF61728;
-        Tue,  5 Apr 2022 07:49:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 561E4C3410F;
-        Tue,  5 Apr 2022 07:49:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F24CB616DE;
+        Tue,  5 Apr 2022 07:49:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F32DC34111;
+        Tue,  5 Apr 2022 07:49:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649144945;
-        bh=L/pyenQmUdfAnp5wcjo1xjpMHrfCLmOU2nZBPABT8/0=;
+        s=korg; t=1649144948;
+        bh=m9IdsWkhwEHDsIk1mPp3Sw2dqcl6n6tF8/nLt+2Yvdk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OKuG54wMAZ5GABS74pYpnqpoyB0XhshNVrVtLR8F5fKjHgvATNYAd9V8fBxKmn6rE
-         BRmCfV2zGba678M71VrKwDTqSQ4NTBhHg71o+2IPBLTuV2w59IG8UX48jek/QJOFZw
-         EDMSyGd7RUqmcaVc+wxGo/K9vkIy44ILWWN8AGEY=
+        b=et5aKI4eY5d9tB+jPylBtP3nugH07hQ/ivzWYHfFAPyLkI1sLjO+bMUEW0mY1QCpn
+         IqU12Y7w6yzlDMcCbkMAMzJjQIuLq25MiOVKEWj1CxyxCdH4CEAGNTs7d3DD1VXR1X
+         vWpuLNtYSaERArgoIQfhnvtMDz+pzqHH6MgRCftE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Igor Zhbanov <i.zhbanov@omprussia.ru>,
-        Mimi Zohar <zohar@linux.ibm.com>,
+        stable@vger.kernel.org, Gilad Ben-Yossef <gilad@benyossef.com>,
+        Corentin Labbe <clabbe.montjoie@gmail.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0229/1126] EVM: fix the evm= __setup handler return value
-Date:   Tue,  5 Apr 2022 09:16:16 +0200
-Message-Id: <20220405070414.330175146@linuxfoundation.org>
+Subject: [PATCH 5.17 0230/1126] crypto: ccree - dont attempt 0 len DMA mappings
+Date:   Tue,  5 Apr 2022 09:16:17 +0200
+Message-Id: <20220405070414.359472455@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -55,56 +55,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Gilad Ben-Yossef <gilad@benyossef.com>
 
-[ Upstream commit f2544f5e6c691679d56bb38637d2f347075b36fa ]
+[ Upstream commit 1fb37b5692c915edcc2448a6b37255738c7c77e0 ]
 
-__setup() handlers should return 1 if the parameter is handled.
-Returning 0 causes the entire string to be added to init's
-environment strings (limited to 32 strings), unnecessarily polluting it.
+Refuse to try mapping zero bytes as this may cause a fault
+on some configurations / platforms and it seems the prev.
+attempt is not enough and we need to be more explicit.
 
-Using the documented string "evm=fix" causes an Unknown parameter message:
-  Unknown kernel command line parameters
-  "BOOT_IMAGE=/boot/bzImage-517rc5 evm=fix", will be passed to user space.
-
-and that string is added to init's environment string space:
-  Run /sbin/init as init process
-    with arguments:
-     /sbin/init
-    with environment:
-     HOME=/
-     TERM=linux
-     BOOT_IMAGE=/boot/bzImage-517rc5
-     evm=fix
-
-With this change, using "evm=fix" acts as expected and an invalid
-option ("evm=evm") causes a warning to be printed:
-  evm: invalid "evm" mode
-but init's environment is not polluted with this string, as expected.
-
-Fixes: 7102ebcd65c1 ("evm: permit only valid security.evm xattrs to be updated")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
-Link: lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Signed-off-by: Gilad Ben-Yossef <gilad@benyossef.com>
+Reported-by: Corentin Labbe <clabbe.montjoie@gmail.com>
+Fixes: ce0fc6db38de ("crypto: ccree - protect against empty or NULL
+scatterlists")
+Tested-by: Corentin Labbe <clabbe.montjoie@gmail.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/integrity/evm/evm_main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/crypto/ccree/cc_buffer_mgr.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/security/integrity/evm/evm_main.c b/security/integrity/evm/evm_main.c
-index 08f907382c61..7d87772f0ce6 100644
---- a/security/integrity/evm/evm_main.c
-+++ b/security/integrity/evm/evm_main.c
-@@ -86,7 +86,7 @@ static int __init evm_set_fixmode(char *str)
- 	else
- 		pr_err("invalid \"%s\" mode", str);
+diff --git a/drivers/crypto/ccree/cc_buffer_mgr.c b/drivers/crypto/ccree/cc_buffer_mgr.c
+index a5e041d9d2cf..11e0278c8631 100644
+--- a/drivers/crypto/ccree/cc_buffer_mgr.c
++++ b/drivers/crypto/ccree/cc_buffer_mgr.c
+@@ -258,6 +258,13 @@ static int cc_map_sg(struct device *dev, struct scatterlist *sg,
+ {
+ 	int ret = 0;
  
--	return 0;
-+	return 1;
- }
- __setup("evm=", evm_set_fixmode);
- 
++	if (!nbytes) {
++		*mapped_nents = 0;
++		*lbytes = 0;
++		*nents = 0;
++		return 0;
++	}
++
+ 	*nents = cc_get_sgl_nents(dev, sg, nbytes, lbytes);
+ 	if (*nents > max_sg_nents) {
+ 		*nents = 0;
 -- 
 2.34.1
 
