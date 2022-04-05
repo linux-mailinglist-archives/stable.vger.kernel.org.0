@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AA76C4F2ECE
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:04:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A3364F317A
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:44:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345121AbiDEKko (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:40:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50288 "EHLO
+        id S1343771AbiDEJMr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:12:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47778 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244306AbiDEJlO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:41:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 754EFBB0B2;
-        Tue,  5 Apr 2022 02:26:07 -0700 (PDT)
+        with ESMTP id S244878AbiDEIwp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:45 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35E5623BEE;
+        Tue,  5 Apr 2022 01:45:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 047E66164E;
-        Tue,  5 Apr 2022 09:26:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19280C385A2;
-        Tue,  5 Apr 2022 09:26:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C27D4B81BC5;
+        Tue,  5 Apr 2022 08:45:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34018C385A1;
+        Tue,  5 Apr 2022 08:45:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150766;
-        bh=nwj9I4hz2LjdI9ekt63/VjDkSUZQm1L///5e87gCFWg=;
+        s=korg; t=1649148320;
+        bh=SeEmVQ+6sOiq6KI47+xvkVim2p4SUR0DdCPXVwb5hVs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HqdJhCdgf8oROgseBk7QGjgMaxGfblohV8kckRfMxiMhT/HpdP9N8ZcHK9U6EzZno
-         B0HDtQ/jExfAkVVbdNKNZ6+2pN0GF36PygrhNC7kJVnatUciEQPJWP6G759e3GgPxr
-         hsvZPnIjz3BiqPN0pyJOdYwkEilesYa5LPudWmts=
+        b=J6PT9+/wHlbrqnlf4GDW1yo3/+7Y7EDQkTdDKqaiydEmKAAjJdVECkSJBnEi6TvG9
+         6ztY4k6NS44dQt6P7Qlr12Z2Jsh1ltfrYPmv5LdhUVyldobQTPINS/0maAtZPP6Ma1
+         y/8OeanLH1qQw3Fp5LOBMDcZzBqUN1V69P2lVc8M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Stanimir Varbanov <stanimir.varbanov@linaro.org>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>
-Subject: [PATCH 5.15 166/913] media: venus: venc: Fix h264 8x8 transform control
+        Daniel Thompson <daniel.thompson@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0315/1017] soc: qcom: aoss: remove spurious IRQF_ONESHOT flags
 Date:   Tue,  5 Apr 2022 09:20:28 +0200
-Message-Id: <20220405070344.823339864@linuxfoundation.org>
+Message-Id: <20220405070403.627715914@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,66 +55,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stanimir Varbanov <stanimir.varbanov@linaro.org>
+From: Daniel Thompson <daniel.thompson@linaro.org>
 
-commit 61b3317dd424a3488b6754d7ff8301944d9d17d7 upstream.
+[ Upstream commit 8030cb9a55688c1339edd284d9d6ce5f9fc75160 ]
 
-During encoder driver open controls are initialized via a call
-to v4l2_ctrl_handler_setup which returns EINVAL error for
-V4L2_CID_MPEG_VIDEO_H264_8X8_TRANSFORM v4l2 control. The control
-default value is disabled and because of firmware limitations
-8x8 transform cannot be disabled for the supported HIGH and
-CONSTRAINED_HIGH profiles.
+Quoting the header comments, IRQF_ONESHOT is "Used by threaded interrupts
+which need to keep the irq line disabled until the threaded handler has
+been run.". When applied to an interrupt that doesn't request a threaded
+irq then IRQF_ONESHOT has a lesser known (undocumented?) side effect,
+which it to disable the forced threading of the irq. For "normal" kernels
+(without forced threading) then, if there is no thread_fn, then
+IRQF_ONESHOT is a nop.
 
-To fix the issue change the control default value to enabled
-(this is fine because the firmware enables 8x8 transform for
-high and constrained_high profiles by default). Also, correct
-the checking of profile ids in s_ctrl from hfi to v4l2 ids.
+In this case disabling forced threading is not appropriate for this driver
+because it calls wake_up_all() and this API cannot be called from
+no-thread interrupt handlers on PREEMPT_RT systems (deadlock risk, triggers
+sleeping-while-atomic warnings).
 
-cc: stable@vger.kernel.org # 5.15+
-Fixes: bfee75f73c37 ("media: venus: venc: add support for V4L2_CID_MPEG_VIDEO_H264_8X8_TRANSFORM control")
-Signed-off-by: Stanimir Varbanov <stanimir.varbanov@linaro.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix this by removing IRQF_ONESHOT.
+
+Fixes: 2209481409b7 ("soc: qcom: Add AOSS QMP driver")
+Signed-off-by: Daniel Thompson <daniel.thompson@linaro.org>
+[bjorn: Added Fixes tag]
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220127173554.158111-1-daniel.thompson@linaro.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/qcom/venus/venc.c       |    4 ++--
- drivers/media/platform/qcom/venus/venc_ctrls.c |    6 +++---
- 2 files changed, 5 insertions(+), 5 deletions(-)
+ drivers/soc/qcom/qcom_aoss.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/media/platform/qcom/venus/venc.c
-+++ b/drivers/media/platform/qcom/venus/venc.c
-@@ -604,8 +604,8 @@ static int venc_set_properties(struct ve
+diff --git a/drivers/soc/qcom/qcom_aoss.c b/drivers/soc/qcom/qcom_aoss.c
+index e234d78b33e7..55c156aaf68a 100644
+--- a/drivers/soc/qcom/qcom_aoss.c
++++ b/drivers/soc/qcom/qcom_aoss.c
+@@ -501,7 +501,7 @@ static int qmp_probe(struct platform_device *pdev)
+ 	}
  
- 		ptype = HFI_PROPERTY_PARAM_VENC_H264_TRANSFORM_8X8;
- 		h264_transform.enable_type = 0;
--		if (ctr->profile.h264 == HFI_H264_PROFILE_HIGH ||
--		    ctr->profile.h264 == HFI_H264_PROFILE_CONSTRAINED_HIGH)
-+		if (ctr->profile.h264 == V4L2_MPEG_VIDEO_H264_PROFILE_HIGH ||
-+		    ctr->profile.h264 == V4L2_MPEG_VIDEO_H264_PROFILE_CONSTRAINED_HIGH)
- 			h264_transform.enable_type = ctr->h264_8x8_transform;
- 
- 		ret = hfi_session_set_property(inst, ptype, &h264_transform);
---- a/drivers/media/platform/qcom/venus/venc_ctrls.c
-+++ b/drivers/media/platform/qcom/venus/venc_ctrls.c
-@@ -320,8 +320,8 @@ static int venc_op_s_ctrl(struct v4l2_ct
- 		ctr->intra_refresh_period = ctrl->val;
- 		break;
- 	case V4L2_CID_MPEG_VIDEO_H264_8X8_TRANSFORM:
--		if (ctr->profile.h264 != HFI_H264_PROFILE_HIGH &&
--		    ctr->profile.h264 != HFI_H264_PROFILE_CONSTRAINED_HIGH)
-+		if (ctr->profile.h264 != V4L2_MPEG_VIDEO_H264_PROFILE_HIGH &&
-+		    ctr->profile.h264 != V4L2_MPEG_VIDEO_H264_PROFILE_CONSTRAINED_HIGH)
- 			return -EINVAL;
- 
- 		/*
-@@ -457,7 +457,7 @@ int venc_ctrl_init(struct venus_inst *in
- 			  V4L2_CID_MPEG_VIDEO_H264_I_FRAME_MIN_QP, 1, 51, 1, 1);
- 
- 	v4l2_ctrl_new_std(&inst->ctrl_handler, &venc_ctrl_ops,
--			  V4L2_CID_MPEG_VIDEO_H264_8X8_TRANSFORM, 0, 1, 1, 0);
-+			  V4L2_CID_MPEG_VIDEO_H264_8X8_TRANSFORM, 0, 1, 1, 1);
- 
- 	v4l2_ctrl_new_std(&inst->ctrl_handler, &venc_ctrl_ops,
- 			  V4L2_CID_MPEG_VIDEO_H264_P_FRAME_MIN_QP, 1, 51, 1, 1);
+ 	irq = platform_get_irq(pdev, 0);
+-	ret = devm_request_irq(&pdev->dev, irq, qmp_intr, IRQF_ONESHOT,
++	ret = devm_request_irq(&pdev->dev, irq, qmp_intr, 0,
+ 			       "aoss-qmp", qmp);
+ 	if (ret < 0) {
+ 		dev_err(&pdev->dev, "failed to request interrupt\n");
+-- 
+2.34.1
+
 
 
