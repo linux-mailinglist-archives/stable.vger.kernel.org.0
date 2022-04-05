@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 495EF4F32B2
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:00:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 386334F2EE2
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:04:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245577AbiDEKj0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:39:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39968 "EHLO
+        id S245122AbiDEKjJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:39:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55266 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238891AbiDEJdC (ORCPT
+        with ESMTP id S238874AbiDEJdC (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:33:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6162ECF4;
-        Tue,  5 Apr 2022 02:20:37 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85D04E35;
+        Tue,  5 Apr 2022 02:20:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 11674B81B75;
-        Tue,  5 Apr 2022 09:20:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7BFC8C385A2;
-        Tue,  5 Apr 2022 09:20:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 228196165C;
+        Tue,  5 Apr 2022 09:20:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 335A4C385A2;
+        Tue,  5 Apr 2022 09:20:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150434;
-        bh=Utz1YvWbSMLmkIEVCdwmAdUPQ3ARE9UXbQLDcRmNtww=;
+        s=korg; t=1649150437;
+        bh=S5JSbPs7QsysBWhnR3G8MjqokpkFfZdd3XOVDP5puGs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=09koD/JTbYXOQXStxL8zs1m9nyHJf7dih1HQWLkrviguHaQ8VKcYjTf8TDAaNJy19
-         uPRDW+o6O/mekfRPf+EtybG1MMiOlYB6O57G5lq9ZCJEPRASLQvxptuJCsyBJws22J
-         UdWLQJ77BGls0CYbkQXN4vC2AFjh/o16kCMOlBeQ=
+        b=vsHvJ0RWpVsq5u0S6uzQnLozMc6FQCossaH3RBYZIYpBrAdz2d7YfS4segeTXX9kX
+         1AYuVmeBvwCK2PFxRkb8ttB+x8bi0NLSP9de5b2jAS7c8L0ECJXK8ZJ9o2a1LeMoa9
+         Q39uFuEqjztWn533lHYXebJroX5fBRfJmmzKf5YQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
+        stable@vger.kernel.org, Stefan Berger <stefanb@linux.ibm.com>,
+        Tianjia Zhang <tianjia.zhang@linux.alibaba.com>,
+        Eric Biggers <ebiggers@google.com>,
+        Vitaly Chikunov <vt@altlinux.org>,
         Jarkko Sakkinen <jarkko@kernel.org>
-Subject: [PATCH 5.15 055/913] KEYS: fix length validation in keyctl_pkey_params_get_2()
-Date:   Tue,  5 Apr 2022 09:18:37 +0200
-Message-Id: <20220405070341.470126690@linuxfoundation.org>
+Subject: [PATCH 5.15 056/913] KEYS: asymmetric: enforce that sig algo matches key algo
+Date:   Tue,  5 Apr 2022 09:18:38 +0200
+Message-Id: <20220405070341.501507379@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -55,64 +58,95 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Eric Biggers <ebiggers@google.com>
 
-commit c51abd96837f600d8fd940b6ab8e2da578575504 upstream.
+commit 2abc9c246e0548e52985b10440c9ea3e9f65f793 upstream.
 
-In many cases, keyctl_pkey_params_get_2() is validating the user buffer
-lengths against the wrong algorithm properties.  Fix it to check against
-the correct properties.
+Most callers of public_key_verify_signature(), including most indirect
+callers via verify_signature() as well as pkcs7_verify_sig_chain(),
+don't check that public_key_signature::pkey_algo matches
+public_key::pkey_algo.  These should always match.  However, a malicious
+signature could intentionally declare an unintended algorithm.  It is
+essential that such signatures be rejected outright, or that the
+algorithm of the *key* be used -- not the algorithm of the signature as
+that would allow attackers to choose the algorithm used.
 
-Probably this wasn't noticed before because for all asymmetric keys of
-the "public_key" subtype, max_data_size == max_sig_size == max_enc_size
-== max_dec_size.  However, this isn't necessarily true for the
-"asym_tpm" subtype (it should be, but it's not strictly validated).  Of
-course, future key types could have different values as well.
+Currently, public_key_verify_signature() correctly uses the key's
+algorithm when deciding which akcipher to allocate.  That's good.
+However, it uses the signature's algorithm when deciding whether to do
+the first step of SM2, which is incorrect.  Also, v4.19 and older
+kernels used the signature's algorithm for the entire process.
 
-Fixes: 00d60fd3b932 ("KEYS: Provide keyctls to drive the new key type ops for asymmetric keys [ver #2]")
-Cc: <stable@vger.kernel.org> # v4.20+
+Prevent such errors by making public_key_verify_signature() enforce that
+the signature's algorithm (if given) matches the key's algorithm.
+
+Also remove two checks of this done by callers, which are now redundant.
+
+Cc: stable@vger.kernel.org
+Tested-by: Stefan Berger <stefanb@linux.ibm.com>
+Tested-by: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
 Signed-off-by: Eric Biggers <ebiggers@google.com>
+Reviewed-by: Vitaly Chikunov <vt@altlinux.org>
 Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
 Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- security/keys/keyctl_pkey.c |   14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ crypto/asymmetric_keys/pkcs7_verify.c    |    6 ------
+ crypto/asymmetric_keys/public_key.c      |   15 +++++++++++++++
+ crypto/asymmetric_keys/x509_public_key.c |    6 ------
+ 3 files changed, 15 insertions(+), 12 deletions(-)
 
---- a/security/keys/keyctl_pkey.c
-+++ b/security/keys/keyctl_pkey.c
-@@ -135,15 +135,23 @@ static int keyctl_pkey_params_get_2(cons
+--- a/crypto/asymmetric_keys/pkcs7_verify.c
++++ b/crypto/asymmetric_keys/pkcs7_verify.c
+@@ -174,12 +174,6 @@ static int pkcs7_find_key(struct pkcs7_m
+ 		pr_devel("Sig %u: Found cert serial match X.509[%u]\n",
+ 			 sinfo->index, certix);
  
- 	switch (op) {
- 	case KEYCTL_PKEY_ENCRYPT:
-+		if (uparams.in_len  > info.max_dec_size ||
-+		    uparams.out_len > info.max_enc_size)
-+			return -EINVAL;
-+		break;
- 	case KEYCTL_PKEY_DECRYPT:
- 		if (uparams.in_len  > info.max_enc_size ||
- 		    uparams.out_len > info.max_dec_size)
- 			return -EINVAL;
- 		break;
- 	case KEYCTL_PKEY_SIGN:
-+		if (uparams.in_len  > info.max_data_size ||
-+		    uparams.out_len > info.max_sig_size)
-+			return -EINVAL;
-+		break;
- 	case KEYCTL_PKEY_VERIFY:
--		if (uparams.in_len  > info.max_sig_size ||
--		    uparams.out_len > info.max_data_size)
-+		if (uparams.in_len  > info.max_data_size ||
-+		    uparams.in2_len > info.max_sig_size)
- 			return -EINVAL;
- 		break;
- 	default:
-@@ -151,7 +159,7 @@ static int keyctl_pkey_params_get_2(cons
+-		if (strcmp(x509->pub->pkey_algo, sinfo->sig->pkey_algo) != 0) {
+-			pr_warn("Sig %u: X.509 algo and PKCS#7 sig algo don't match\n",
+-				sinfo->index);
+-			continue;
+-		}
+-
+ 		sinfo->signer = x509;
+ 		return 0;
+ 	}
+--- a/crypto/asymmetric_keys/public_key.c
++++ b/crypto/asymmetric_keys/public_key.c
+@@ -325,6 +325,21 @@ int public_key_verify_signature(const st
+ 	BUG_ON(!sig);
+ 	BUG_ON(!sig->s);
+ 
++	/*
++	 * If the signature specifies a public key algorithm, it *must* match
++	 * the key's actual public key algorithm.
++	 *
++	 * Small exception: ECDSA signatures don't specify the curve, but ECDSA
++	 * keys do.  So the strings can mismatch slightly in that case:
++	 * "ecdsa-nist-*" for the key, but "ecdsa" for the signature.
++	 */
++	if (sig->pkey_algo) {
++		if (strcmp(pkey->pkey_algo, sig->pkey_algo) != 0 &&
++		    (strncmp(pkey->pkey_algo, "ecdsa-", 6) != 0 ||
++		     strcmp(sig->pkey_algo, "ecdsa") != 0))
++			return -EKEYREJECTED;
++	}
++
+ 	ret = software_key_determine_akcipher(sig->encoding,
+ 					      sig->hash_algo,
+ 					      pkey, alg_name);
+--- a/crypto/asymmetric_keys/x509_public_key.c
++++ b/crypto/asymmetric_keys/x509_public_key.c
+@@ -128,12 +128,6 @@ int x509_check_for_self_signed(struct x5
+ 			goto out;
  	}
  
- 	params->in_len  = uparams.in_len;
--	params->out_len = uparams.out_len;
-+	params->out_len = uparams.out_len; /* Note: same as in2_len */
- 	return 0;
- }
- 
+-	ret = -EKEYREJECTED;
+-	if (strcmp(cert->pub->pkey_algo, cert->sig->pkey_algo) != 0 &&
+-	    (strncmp(cert->pub->pkey_algo, "ecdsa-", 6) != 0 ||
+-	     strcmp(cert->sig->pkey_algo, "ecdsa") != 0))
+-		goto out;
+-
+ 	ret = public_key_verify_signature(cert->pub, cert->sig);
+ 	if (ret < 0) {
+ 		if (ret == -ENOPKG) {
 
 
