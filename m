@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A7784F2BA6
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:16:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F0794F2BBE
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:21:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241896AbiDEIf6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:35:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34690 "EHLO
+        id S242698AbiDEJh5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:37:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51546 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239166AbiDEITx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:19:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76D857891F;
-        Tue,  5 Apr 2022 01:10:20 -0700 (PDT)
+        with ESMTP id S236590AbiDEJDK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:03:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A9ECDBD;
+        Tue,  5 Apr 2022 01:55:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 12E6B609AD;
-        Tue,  5 Apr 2022 08:10:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2100AC385A0;
-        Tue,  5 Apr 2022 08:10:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 25F8EB81BC5;
+        Tue,  5 Apr 2022 08:55:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87B2FC385A1;
+        Tue,  5 Apr 2022 08:54:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146219;
-        bh=ODLmb/qEa/+AEJJLUYZtqVO2J3cyrwlSn6sNYOX+hEU=;
+        s=korg; t=1649148898;
+        bh=Y5iazv/oV7OhWApihC2GFnbA0CL+8cL689bRz3QbMdc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AmU48dx1lt4xhU3CF4m0n73MxYBHCrytZ1RhEszsgGlMiRPDS87j7fbghg0GeCg5v
-         6lHi42/1gDepTMq0+fhx4Lk7XUughomWM3BrPpZqFSLFMF7znpV9Y5cL+TytyijPPO
-         ps7qXjrCd1sWbOb5V2EupL6wqgs1zO9+yAiTfRBU=
+        b=dBAfvjMjG+MPP6lsgqs8PbV1JaoOSNTizz4t9OkDYlxYHhkehntsA39TyaDTBIU2Y
+         keYvVZuOITOFQQs0izRCwP6O+oa3OlnZ7Fbhh4WhA8AD+AEbJC9LLEE4C7087qIIOd
+         oF+HaywX0o8y7IuXvV7hJQnt12DbUBvqISagWNPY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Abhinav Kumar <quic_abhinavk@quicinc.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0686/1126] RDMA/nldev: Prevent underflow in nldev_stat_set_counter_dynamic_doit()
-Date:   Tue,  5 Apr 2022 09:23:53 +0200
-Message-Id: <20220405070427.752366418@linuxfoundation.org>
+Subject: [PATCH 5.16 0522/1017] drm/msm/dpu: fix dp audio condition
+Date:   Tue,  5 Apr 2022 09:23:55 +0200
+Message-Id: <20220405070409.790712484@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,39 +56,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-[ Upstream commit 87e0eacb176f9500c2063d140c0a1d7fa51ab8a5 ]
+[ Upstream commit 1e0505a5a7a2fea243f8e6d7e13fcde65f9e41bc ]
 
-This code checks "index" for an upper bound but it does not check for
-negatives.  Change the type to unsigned to prevent underflows.
+DP audio enablement code which is comparing intf_type,
+DRM_MODE_ENCODER_TMDS (= 2) with DRM_MODE_CONNECTOR_DisplayPort (= 10).
+Which would never succeed. Fix it to check for DRM_MODE_ENCODER_TMDS.
 
-Fixes: 3c3c1f141639 ("RDMA/nldev: Allow optional-counter status configuration through RDMA netlink")
-Link: https://lore.kernel.org/r/20220316083948.GC30941@kili
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: d13e36d7d222 ("drm/msm/dp: add audio support for Display Port on MSM")
+Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Link: https://lore.kernel.org/r/20220217035358.465904-2-dmitry.baryshkov@linaro.org
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/nldev.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/msm/disp/dpu1/dpu_encoder.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/core/nldev.c b/drivers/infiniband/core/nldev.c
-index f5aacaf7fb8e..ca24ce34da76 100644
---- a/drivers/infiniband/core/nldev.c
-+++ b/drivers/infiniband/core/nldev.c
-@@ -1951,9 +1951,10 @@ static int nldev_stat_set_counter_dynamic_doit(struct nlattr *tb[],
- 					       u32 port)
- {
- 	struct rdma_hw_stats *stats;
--	int rem, i, index, ret = 0;
- 	struct nlattr *entry_attr;
- 	unsigned long *target;
-+	int rem, i, ret = 0;
-+	u32 index;
+diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_encoder.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_encoder.c
+index e7ee4cfb8461..ad27a01c22af 100644
+--- a/drivers/gpu/drm/msm/disp/dpu1/dpu_encoder.c
++++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_encoder.c
+@@ -1102,7 +1102,7 @@ static void _dpu_encoder_virt_enable_helper(struct drm_encoder *drm_enc)
+ 	}
  
- 	stats = ib_get_hw_stats_port(device, port);
- 	if (!stats)
+ 
+-	if (dpu_enc->disp_info.intf_type == DRM_MODE_CONNECTOR_DisplayPort &&
++	if (dpu_enc->disp_info.intf_type == DRM_MODE_ENCODER_TMDS &&
+ 		dpu_enc->cur_master->hw_mdptop &&
+ 		dpu_enc->cur_master->hw_mdptop->ops.intf_audio_select)
+ 		dpu_enc->cur_master->hw_mdptop->ops.intf_audio_select(
 -- 
 2.34.1
 
