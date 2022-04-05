@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CC5574F321E
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:54:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 07EB04F358C
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:51:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242032AbiDEIg3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:36:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34710 "EHLO
+        id S237218AbiDEI3M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:29:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34688 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239620AbiDEIUQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:20:16 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 628471F3;
-        Tue,  5 Apr 2022 01:17:43 -0700 (PDT)
+        with ESMTP id S239541AbiDEIUN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:20:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C5F9110B;
+        Tue,  5 Apr 2022 01:15:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F25A260B0E;
-        Tue,  5 Apr 2022 08:17:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CD49C385A0;
-        Tue,  5 Apr 2022 08:17:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1854AB81BAC;
+        Tue,  5 Apr 2022 08:15:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79051C385A0;
+        Tue,  5 Apr 2022 08:15:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146662;
-        bh=NW1d4C9qpbE6MqnA8GXJxt8SpNm96yWz+d1wFQLlwSI=;
+        s=korg; t=1649146544;
+        bh=hVMP6vT6nk2Fvww8pqkV4ggGVroKNxjj41ODBDf1TYg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mKge0sndJMd182wzKzvGhCSsFDMS+UThgyaldChV6J06JXMPyXeA6L8fm1DAdhqKR
-         hhjPDpywY1/ajWcYFV5O78ur3QxgKnbZ4iTwd2bUAVU/lS2HjaPETTtwuVT370sF+v
-         +PtU3ZcK7TCTwMF/j8frscNnYmyMkW1ZuST28Cgs=
+        b=ceK78JKSMe8mMA0wOdku/I1tFp4+2JvUvnqXzahhijXDaXwAU6KfcRz5jcxegP9bv
+         02tQ0Ix24g6c9PUfgB2kDre0j2s+VZ/s2MmMGYh8LvN6WyYlcWtV/ZLOYU3Rxs6npC
+         z2tbg7QV7bEADzCLoG0KrVfnoWcq0D2i746YNN/8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Auhagen <sven.auhagen@voleatech.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Olga Kornievskaia <kolga@netapp.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0794/1126] netfilter: nf_conntrack_tcp: preserve liberal flag in tcp options
-Date:   Tue,  5 Apr 2022 09:25:41 +0200
-Message-Id: <20220405070430.877973815@linuxfoundation.org>
+Subject: [PATCH 5.17 0795/1126] SUNRPC dont resend a task on an offlined transport
+Date:   Tue,  5 Apr 2022 09:25:42 +0200
+Message-Id: <20220405070430.906913788@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -54,69 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Olga Kornievskaia <kolga@netapp.com>
 
-[ Upstream commit f2dd495a8d589371289981d5ed33e6873df94ecc ]
+[ Upstream commit 82ee41b85cef16b4be1f4732650012d9baaedddd ]
 
-Do not reset IP_CT_TCP_FLAG_BE_LIBERAL flag in out-of-sync scenarios
-coming before the TCP window tracking, otherwise such connections will
-fail in the window check.
+When a task is being retried, due to an NFS error, if the assigned
+transport has been put offline and the task is relocatable pick a new
+transport.
 
-Update tcp_options() to leave this flag in place and add a new helper
-function to reset the tcp window state.
-
-Based on patch from Sven Auhagen.
-
-Fixes: c4832c7bbc3f ("netfilter: nf_ct_tcp: improve out-of-sync situation in TCP tracking")
-Tested-by: Sven Auhagen <sven.auhagen@voleatech.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: 6f081693e7b2b ("sunrpc: remove an offlined xprt using sysfs")
+Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_conntrack_proto_tcp.c | 17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
+ net/sunrpc/clnt.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/net/netfilter/nf_conntrack_proto_tcp.c b/net/netfilter/nf_conntrack_proto_tcp.c
-index d1582b888c0d..8ec55cd72572 100644
---- a/net/netfilter/nf_conntrack_proto_tcp.c
-+++ b/net/netfilter/nf_conntrack_proto_tcp.c
-@@ -341,8 +341,8 @@ static void tcp_options(const struct sk_buff *skb,
- 	if (!ptr)
+diff --git a/net/sunrpc/clnt.c b/net/sunrpc/clnt.c
+index 5985b78eddf1..b36d235d2d6d 100644
+--- a/net/sunrpc/clnt.c
++++ b/net/sunrpc/clnt.c
+@@ -1065,7 +1065,9 @@ rpc_task_get_next_xprt(struct rpc_clnt *clnt)
+ static
+ void rpc_task_set_transport(struct rpc_task *task, struct rpc_clnt *clnt)
+ {
+-	if (task->tk_xprt)
++	if (task->tk_xprt &&
++			!(test_bit(XPRT_OFFLINE, &task->tk_xprt->state) &&
++                        (task->tk_flags & RPC_TASK_MOVEABLE)))
  		return;
- 
--	state->td_scale =
--	state->flags = 0;
-+	state->td_scale = 0;
-+	state->flags &= IP_CT_TCP_FLAG_BE_LIBERAL;
- 
- 	while (length > 0) {
- 		int opcode=*ptr++;
-@@ -862,6 +862,16 @@ static bool tcp_can_early_drop(const struct nf_conn *ct)
- 	return false;
- }
- 
-+static void nf_ct_tcp_state_reset(struct ip_ct_tcp_state *state)
-+{
-+	state->td_end		= 0;
-+	state->td_maxend	= 0;
-+	state->td_maxwin	= 0;
-+	state->td_maxack	= 0;
-+	state->td_scale		= 0;
-+	state->flags		&= IP_CT_TCP_FLAG_BE_LIBERAL;
-+}
-+
- /* Returns verdict for packet, or -1 for invalid. */
- int nf_conntrack_tcp_packet(struct nf_conn *ct,
- 			    struct sk_buff *skb,
-@@ -968,8 +978,7 @@ int nf_conntrack_tcp_packet(struct nf_conn *ct,
- 			ct->proto.tcp.last_flags &= ~IP_CT_EXP_CHALLENGE_ACK;
- 			ct->proto.tcp.seen[ct->proto.tcp.last_dir].flags =
- 				ct->proto.tcp.last_flags;
--			memset(&ct->proto.tcp.seen[dir], 0,
--			       sizeof(struct ip_ct_tcp_state));
-+			nf_ct_tcp_state_reset(&ct->proto.tcp.seen[dir]);
- 			break;
- 		}
- 		ct->proto.tcp.last_index = index;
+ 	if (task->tk_flags & RPC_TASK_NO_ROUND_ROBIN)
+ 		task->tk_xprt = rpc_task_get_first_xprt(clnt);
 -- 
 2.34.1
 
