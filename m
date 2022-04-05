@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E42AA4F257D
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 09:48:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 54F7A4F259B
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 09:49:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232208AbiDEHuH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 03:50:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56430 "EHLO
+        id S232173AbiDEHun (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 03:50:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34128 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231944AbiDEHpu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:45:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E749E9859B;
-        Tue,  5 Apr 2022 00:41:38 -0700 (PDT)
+        with ESMTP id S232089AbiDEHpy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:45:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEC99985AA;
+        Tue,  5 Apr 2022 00:41:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 295B3B81B14;
-        Tue,  5 Apr 2022 07:41:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 954F3C3410F;
-        Tue,  5 Apr 2022 07:41:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6CD6D6169A;
+        Tue,  5 Apr 2022 07:41:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77078C340EE;
+        Tue,  5 Apr 2022 07:41:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649144495;
-        bh=La9b5PkZMRTBVUZfxGXy8R1qZAliNvOQdKryZHSfOug=;
+        s=korg; t=1649144498;
+        bh=3TnHiDcoE4UN7piXzw8IEQIziQxDeP2KahwoBf8cuVg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nrERMc+bJuSolWOc7aYYYdRSVXdiDLD9jC6nPS4fcCO3VWi2PApEhbvC6/FZ+HOtV
-         4a3Yi5DEY5S/FE9uxRm/KaO06ZMUBwEjPDh452nGXzG/DzJ9vwqLRfAgdkx4xtEqAd
-         d27k3xlhOPfWo3nFLqg+/tjWnYHqZDECOBadwNFY=
+        b=qeZblR0DjPUFxkzw5YTo0I9qO6VHZVRuj6rHWgsfqLU3H6PSk1PPJXxEF75UmcXFn
+         tZ4zRyfoA1cqEq7isMonI9yQTyJxycY1eZTlfNNHtN940YJ0yDinftsXLO79BK0ONT
+         iiBAEDVQZvJG1BNYFXkv7UfUCkv4WwYahZPG3fek=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        Michael Chan <michael.chan@broadcom.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.17 0066/1126] net: bnxt_ptp: fix compilation error
-Date:   Tue,  5 Apr 2022 09:13:33 +0200
-Message-Id: <20220405070409.507088732@linuxfoundation.org>
+        stable@vger.kernel.org, Mason Yang <masonccyang@mxic.com.tw>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Zhengxun Li <zhengxunli@mxic.com.tw>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.17 0067/1126] spi: mxic: Fix the transmit path
+Date:   Tue,  5 Apr 2022 09:13:34 +0200
+Message-Id: <20220405070409.536027954@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -55,84 +55,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+From: Miquel Raynal <miquel.raynal@bootlin.com>
 
-commit dcf500065fabe27676dfe7b4ba521a4f1e0fc8ac upstream.
+commit 5fd6739e0df7e320bcac103dfb95fe75941fea17 upstream.
 
-The Broadcom bnxt_ptp driver does not compile with GCC 11.2.2 when
-CONFIG_WERROR is enabled. The following error is generated:
+By working with external hardware ECC engines, we figured out that
+Under certain circumstances, it is needed for the SPI controller to
+check INT_TX_EMPTY and INT_RX_NOT_EMPTY in both receive and transmit
+path (not only in the receive path). The delay penalty being
+negligible, move this code in the common path.
 
-drivers/net/ethernet/broadcom/bnxt/bnxt_ptp.c: In function ‘bnxt_ptp_enable’:
-drivers/net/ethernet/broadcom/bnxt/bnxt_ptp.c:400:43: error: array
-subscript 255 is above array bounds of ‘struct pps_pin[4]’
-[-Werror=array-bounds]
-  400 |  ptp->pps_info.pins[pin_id].event = BNXT_PPS_EVENT_EXTERNAL;
-      |  ~~~~~~~~~~~~~~~~~~^~~~~~~~
-In file included from drivers/net/ethernet/broadcom/bnxt/bnxt_ptp.c:20:
-drivers/net/ethernet/broadcom/bnxt/bnxt_ptp.h:75:24: note: while
-referencing ‘pins’
-   75 |         struct pps_pin pins[BNXT_MAX_TSIO_PINS];
-      |                        ^~~~
-cc1: all warnings being treated as errors
-
-This is due to the function ptp_find_pin() returning a pin ID of -1 when
-a valid pin is not found and this error never being checked.
-Change the TSIO_PIN_VALID() function to also check that a pin ID is not
-negative and use this macro in bnxt_ptp_enable() to check the result of
-the calls to ptp_find_pin() to return an error early for invalid pins.
-This fixes the compilation error.
-
-Cc: <stable@vger.kernel.org>
-Fixes: 9e518f25802c ("bnxt_en: 1PPS functions to configure TSIO pins")
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Reviewed-by: Michael Chan <michael.chan@broadcom.com>
-Link: https://lore.kernel.org/r/20220328062708.207079-1-damien.lemoal@opensource.wdc.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: b942d80b0a39 ("spi: Add MXIC controller driver")
+Cc: stable@vger.kernel.org
+Suggested-by: Mason Yang <masonccyang@mxic.com.tw>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Reviewed-by: Zhengxun Li <zhengxunli@mxic.com.tw>
+Reviewed-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/linux-mtd/20220127091808.1043392-10-miquel.raynal@bootlin.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt_ptp.c |    6 +++++-
- drivers/net/ethernet/broadcom/bnxt/bnxt_ptp.h |    2 +-
- 2 files changed, 6 insertions(+), 2 deletions(-)
+ drivers/spi/spi-mxic.c |   26 +++++++++++---------------
+ 1 file changed, 11 insertions(+), 15 deletions(-)
 
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt_ptp.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_ptp.c
-@@ -329,7 +329,7 @@ static int bnxt_ptp_enable(struct ptp_cl
- 	struct bnxt_ptp_cfg *ptp = container_of(ptp_info, struct bnxt_ptp_cfg,
- 						ptp_info);
- 	struct bnxt *bp = ptp->bp;
--	u8 pin_id;
-+	int pin_id;
- 	int rc;
+--- a/drivers/spi/spi-mxic.c
++++ b/drivers/spi/spi-mxic.c
+@@ -304,25 +304,21 @@ static int mxic_spi_data_xfer(struct mxi
  
- 	switch (rq->type) {
-@@ -337,6 +337,8 @@ static int bnxt_ptp_enable(struct ptp_cl
- 		/* Configure an External PPS IN */
- 		pin_id = ptp_find_pin(ptp->ptp_clock, PTP_PF_EXTTS,
- 				      rq->extts.index);
-+		if (!TSIO_PIN_VALID(pin_id))
-+			return -EOPNOTSUPP;
- 		if (!on)
- 			break;
- 		rc = bnxt_ptp_cfg_pin(bp, pin_id, BNXT_PPS_PIN_PPS_IN);
-@@ -350,6 +352,8 @@ static int bnxt_ptp_enable(struct ptp_cl
- 		/* Configure a Periodic PPS OUT */
- 		pin_id = ptp_find_pin(ptp->ptp_clock, PTP_PF_PEROUT,
- 				      rq->perout.index);
-+		if (!TSIO_PIN_VALID(pin_id))
-+			return -EOPNOTSUPP;
- 		if (!on)
- 			break;
+ 		writel(data, mxic->regs + TXD(nbytes % 4));
  
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt_ptp.h
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_ptp.h
-@@ -31,7 +31,7 @@ struct pps_pin {
- 	u8 state;
- };
+-		if (rxbuf) {
+-			ret = readl_poll_timeout(mxic->regs + INT_STS, sts,
+-						 sts & INT_TX_EMPTY, 0,
+-						 USEC_PER_SEC);
+-			if (ret)
+-				return ret;
++		ret = readl_poll_timeout(mxic->regs + INT_STS, sts,
++					 sts & INT_TX_EMPTY, 0, USEC_PER_SEC);
++		if (ret)
++			return ret;
  
--#define TSIO_PIN_VALID(pin) ((pin) < (BNXT_MAX_TSIO_PINS))
-+#define TSIO_PIN_VALID(pin) ((pin) >= 0 && (pin) < (BNXT_MAX_TSIO_PINS))
+-			ret = readl_poll_timeout(mxic->regs + INT_STS, sts,
+-						 sts & INT_RX_NOT_EMPTY, 0,
+-						 USEC_PER_SEC);
+-			if (ret)
+-				return ret;
++		ret = readl_poll_timeout(mxic->regs + INT_STS, sts,
++					 sts & INT_RX_NOT_EMPTY, 0,
++					 USEC_PER_SEC);
++		if (ret)
++			return ret;
  
- #define EVENT_DATA2_PPS_EVENT_TYPE(data2)				\
- 	((data2) & ASYNC_EVENT_CMPL_PPS_TIMESTAMP_EVENT_DATA2_EVENT_TYPE)
+-			data = readl(mxic->regs + RXD);
++		data = readl(mxic->regs + RXD);
++		if (rxbuf) {
+ 			data >>= (8 * (4 - nbytes));
+ 			memcpy(rxbuf + pos, &data, nbytes);
+-			WARN_ON(readl(mxic->regs + INT_STS) & INT_RX_NOT_EMPTY);
+-		} else {
+-			readl(mxic->regs + RXD);
+ 		}
+ 		WARN_ON(readl(mxic->regs + INT_STS) & INT_RX_NOT_EMPTY);
+ 
 
 
