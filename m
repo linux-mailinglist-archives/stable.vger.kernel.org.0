@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C3D8E4F2C2B
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:24:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 221DD4F2C3B
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:24:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235772AbiDEJCg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:02:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53364 "EHLO
+        id S235725AbiDEJCc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:02:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52872 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238768AbiDEIa5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:30:57 -0400
+        with ESMTP id S238811AbiDEIa6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:30:58 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A9993ED2C;
-        Tue,  5 Apr 2022 01:22:50 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D14FE434BD;
+        Tue,  5 Apr 2022 01:22:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 739866151F;
-        Tue,  5 Apr 2022 08:22:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C19FC385B0;
-        Tue,  5 Apr 2022 08:22:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1E66F60FF5;
+        Tue,  5 Apr 2022 08:22:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A584C385A0;
+        Tue,  5 Apr 2022 08:22:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146968;
-        bh=FwQBUKInjP4jnvxbqXA+7tsKrzdHs2KgsX0dQYJAh1Y=;
+        s=korg; t=1649146974;
+        bh=SoTsVxUNgArb3KGJBW6jLzurc7grDCBVMz9x6nnfNFA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=el2imaymldV+4hjcFpkBb8EFCeEGmMQn/4HFoOM+ODaY6MvdjSCStr7a5DVDaIqXK
-         1Ict76jSRwwqNNwpKoXRFZNQ+LeotuuEgcrVUfiX5xJ1YqBgvWGem5lQE/05asFRTS
-         V3sIBYwAaqTA81ujT3TUuqZk092SIB+pdO33r+sk=
+        b=IEipPeR4TKaRa8ju2r2cQi0Z2HzjVRiSI+QpVryHDXgbUhBbOvUQ+qYalSSS9JYf8
+         KhcABXyUOJXgtVW+9w67GcBk7vpngE7iGPFKMio0NGc/IKp1Ymgvfd4rXoeqJJrx3s
+         s41kfO7q/xFS/ylK23ztihgWbGp3IaQuxAkYtuKg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
+        stable@vger.kernel.org, Ben Gardon <bgardon@google.com>,
+        Sean Christopherson <seanjc@google.com>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.17 0953/1126] KVM: x86/mmu: Move "invalid" check out of kvm_tdp_mmu_get_root()
-Date:   Tue,  5 Apr 2022 09:28:20 +0200
-Message-Id: <20220405070435.475532632@linuxfoundation.org>
+Subject: [PATCH 5.17 0955/1126] KVM: x86/mmu: Check for present SPTE when clearing dirty bit in TDP MMU
+Date:   Tue,  5 Apr 2022 09:28:22 +0200
+Message-Id: <20220405070435.535802759@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -55,68 +56,37 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sean Christopherson <seanjc@google.com>
 
-commit 04dc4e6ce274fa729feda32aa957b27388a3870c upstream.
+commit 3354ef5a592d219364cf442c2f784ce7ad7629fd upstream.
 
-Move the check for an invalid root out of kvm_tdp_mmu_get_root() and into
-the one place it actually matters, tdp_mmu_next_root(), as the other user
-already has an implicit validity check.  A future bug fix will need to
-get references to invalid roots to honor mmu_notifier requests; there's
-no point in forcing what will be a common path to open code getting a
-reference to a root.
+Explicitly check for present SPTEs when clearing dirty bits in the TDP
+MMU.  This isn't strictly required for correctness, as setting the dirty
+bit in a defunct SPTE will not change the SPTE from !PRESENT to PRESENT.
+However, the guarded MMU_WARN_ON() in spte_ad_need_write_protect() would
+complain if anyone actually turned on KVM's MMU debugging.
 
-No functional change intended.
-
-Cc: stable@vger.kernel.org
+Fixes: a6a0b05da9f3 ("kvm: x86/mmu: Support dirty logging for the TDP MMU")
+Cc: Ben Gardon <bgardon@google.com>
 Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20211215011557.399940-3-seanjc@google.com>
+Reviewed-by: Ben Gardon <bgardon@google.com>
+Message-Id: <20220226001546.360188-3-seanjc@google.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/mmu/tdp_mmu.c |   12 ++++++++++--
- arch/x86/kvm/mmu/tdp_mmu.h |    3 ---
- 2 files changed, 10 insertions(+), 5 deletions(-)
+ arch/x86/kvm/mmu/tdp_mmu.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
 --- a/arch/x86/kvm/mmu/tdp_mmu.c
 +++ b/arch/x86/kvm/mmu/tdp_mmu.c
-@@ -121,9 +121,14 @@ static struct kvm_mmu_page *tdp_mmu_next
- 		next_root = list_first_or_null_rcu(&kvm->arch.tdp_mmu_roots,
- 						   typeof(*next_root), link);
+@@ -1261,6 +1261,9 @@ retry:
+ 		if (tdp_mmu_iter_cond_resched(kvm, &iter, false, true))
+ 			continue;
  
--	while (next_root && !kvm_tdp_mmu_get_root(kvm, next_root))
-+	while (next_root) {
-+		if (!next_root->role.invalid &&
-+		    kvm_tdp_mmu_get_root(kvm, next_root))
-+			break;
++		if (!is_shadow_present_pte(iter.old_spte))
++			continue;
 +
- 		next_root = list_next_or_null_rcu(&kvm->arch.tdp_mmu_roots,
- 				&next_root->link, typeof(*next_root), link);
-+	}
- 
- 	rcu_read_unlock();
- 
-@@ -200,7 +205,10 @@ hpa_t kvm_tdp_mmu_get_vcpu_root_hpa(stru
- 
- 	role = page_role_for_level(vcpu, vcpu->arch.mmu->shadow_root_level);
- 
--	/* Check for an existing root before allocating a new one. */
-+	/*
-+	 * Check for an existing root before allocating a new one.  Note, the
-+	 * role check prevents consuming an invalid root.
-+	 */
- 	for_each_tdp_mmu_root(kvm, root, kvm_mmu_role_as_id(role)) {
- 		if (root->role.word == role.word &&
- 		    kvm_tdp_mmu_get_root(kvm, root))
---- a/arch/x86/kvm/mmu/tdp_mmu.h
-+++ b/arch/x86/kvm/mmu/tdp_mmu.h
-@@ -10,9 +10,6 @@ hpa_t kvm_tdp_mmu_get_vcpu_root_hpa(stru
- __must_check static inline bool kvm_tdp_mmu_get_root(struct kvm *kvm,
- 						     struct kvm_mmu_page *root)
- {
--	if (root->role.invalid)
--		return false;
--
- 	return refcount_inc_not_zero(&root->tdp_mmu_root_count);
- }
- 
+ 		if (spte_ad_need_write_protect(iter.old_spte)) {
+ 			if (is_writable_pte(iter.old_spte))
+ 				new_spte = iter.old_spte & ~PT_WRITABLE_MASK;
 
 
