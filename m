@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A67674F36E4
+	by mail.lfdr.de (Postfix) with ESMTP id 3640B4F36E3
 	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:09:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238506AbiDELIz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:08:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39324 "EHLO
+        id S237742AbiDELIu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:08:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39344 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348798AbiDEJsh (ORCPT
+        with ESMTP id S1348804AbiDEJsh (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:48:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D6778B6DE;
-        Tue,  5 Apr 2022 02:35:42 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6D7F8C7F6;
+        Tue,  5 Apr 2022 02:35:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0AAB1615E5;
-        Tue,  5 Apr 2022 09:35:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D79AC385A0;
-        Tue,  5 Apr 2022 09:35:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 60E8EB81C86;
+        Tue,  5 Apr 2022 09:35:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3029C385A3;
+        Tue,  5 Apr 2022 09:35:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151341;
-        bh=FM40Sum4E3GKALIV4MiLpgEC9bKb3cKTTuUrE3SrG1U=;
+        s=korg; t=1649151344;
+        bh=m0gxXestR9TuCF6pwebEyOfHf08GivCI31KBId5HBac=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WWRessIS3RDfxmYtnXMu9StB6qu2hVLiI6DdHpqnmhbAhjwCwloPPR6deOmlTwjj/
-         0FFOBA9ht2H4XWVphl0fcZodVSvEpkHSqMUQL+PEQj5FveqgNAQLgo3MuMffosLbXJ
-         oso6iLWx/6OEA7gupmEqG1ASBdEtQxy1fMVWpBfI=
+        b=nMmhHjUhjf3+lbMucdPBbgWQfcMGnVC3wCJSFdWeKTLMD+mZxz/1+cGn5i8UD65mC
+         coLzpPRgBDLatYl/1qsjTt/LbC/KhYukVrmtpc0+UvEXDIFlLj0Uv8kRAWkeIQg22S
+         rk/f06RLdzlZIrcKNoCEA6h4wQF8AFCdwSG6f7bQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jagan Teki <jagan@amarulasolutions.com>,
-        Robert Foss <robert.foss@linaro.org>,
+        stable@vger.kernel.org, Wen Gong <quic_wgong@quicinc.com>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 381/913] drm: bridge: adv7511: Fix ADV7535 HPD enablement
-Date:   Tue,  5 Apr 2022 09:24:03 +0200
-Message-Id: <20220405070351.267715821@linuxfoundation.org>
+Subject: [PATCH 5.15 382/913] ath10k: fix memory overwrite of the WoWLAN wakeup packet pattern
+Date:   Tue,  5 Apr 2022 09:24:04 +0200
+Message-Id: <20220405070351.297907681@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -54,98 +54,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jagan Teki <jagan@amarulasolutions.com>
+From: Wen Gong <quic_wgong@quicinc.com>
 
-[ Upstream commit 3dbc84a595d17f64f14fcea00120d31e33e98880 ]
+[ Upstream commit e3fb3d4418fce5484dfe7995fcd94c18b10a431a ]
 
-Existing HPD enablement logic is not compatible with ADV7535
-bridge, thus any runtime plug-in of HDMI cable is not working
-on these bridge designs.
+In function ath10k_wow_convert_8023_to_80211(), it will do memcpy for
+the new->pattern, and currently the new->pattern and new->mask is same
+with the old, then the memcpy of new->pattern will also overwrite the
+old->pattern, because the header format of new->pattern is 802.11,
+its length is larger than the old->pattern which is 802.3. Then the
+operation of "Copy frame body" will copy a mistake value because the
+body memory has been overwrite when memcpy the new->pattern.
 
-Unlike other ADV7511 family of bridges, the ADV7535 require
-HPD_OVERRIDE bit to set and reset for proper handling of HPD
-functionality.
+Assign another empty value to new_pattern to avoid the overwrite issue.
 
-Fix it.
+Tested-on: QCA6174 hw3.2 SDIO WLAN.RMH.4.4.1-00049
 
-Fixes: 8501fe4b14a3 ("drm: bridge: adv7511: Add support for ADV7535")
-Signed-off-by: Jagan Teki <jagan@amarulasolutions.com>
-Signed-off-by: Robert Foss <robert.foss@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220109172949.168167-1-jagan@amarulasolutions.com
-Reviewed-by: Robert Foss <robert.foss@linaro.org>
+Fixes: fa3440fa2fa1 ("ath10k: convert wow pattern from 802.3 to 802.11")
+Signed-off-by: Wen Gong <quic_wgong@quicinc.com>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/20211222031347.25463-1-quic_wgong@quicinc.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/adv7511/adv7511.h     |  1 +
- drivers/gpu/drm/bridge/adv7511/adv7511_drv.c | 29 +++++++++++++++-----
- 2 files changed, 23 insertions(+), 7 deletions(-)
+ drivers/net/wireless/ath/ath10k/wow.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/bridge/adv7511/adv7511.h b/drivers/gpu/drm/bridge/adv7511/adv7511.h
-index 05e3abb5a0c9..1b00dfda6e0d 100644
---- a/drivers/gpu/drm/bridge/adv7511/adv7511.h
-+++ b/drivers/gpu/drm/bridge/adv7511/adv7511.h
-@@ -169,6 +169,7 @@
- #define ADV7511_PACKET_ENABLE_SPARE2		BIT(1)
- #define ADV7511_PACKET_ENABLE_SPARE1		BIT(0)
+diff --git a/drivers/net/wireless/ath/ath10k/wow.c b/drivers/net/wireless/ath/ath10k/wow.c
+index 7d65c115669f..20b9aa8ddf7d 100644
+--- a/drivers/net/wireless/ath/ath10k/wow.c
++++ b/drivers/net/wireless/ath/ath10k/wow.c
+@@ -337,14 +337,15 @@ static int ath10k_vif_wow_set_wakeups(struct ath10k_vif *arvif,
+ 			if (patterns[i].mask[j / 8] & BIT(j % 8))
+ 				bitmask[j] = 0xff;
+ 		old_pattern.mask = bitmask;
+-		new_pattern = old_pattern;
  
-+#define ADV7535_REG_POWER2_HPD_OVERRIDE		BIT(6)
- #define ADV7511_REG_POWER2_HPD_SRC_MASK		0xc0
- #define ADV7511_REG_POWER2_HPD_SRC_BOTH		0x00
- #define ADV7511_REG_POWER2_HPD_SRC_HPD		0x40
-diff --git a/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c b/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
-index 76555ae64e9c..c02f3ec60b04 100644
---- a/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
-+++ b/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
-@@ -351,11 +351,17 @@ static void __adv7511_power_on(struct adv7511 *adv7511)
- 	 * from standby or are enabled. When the HPD goes low the adv7511 is
- 	 * reset and the outputs are disabled which might cause the monitor to
- 	 * go to standby again. To avoid this we ignore the HPD pin for the
--	 * first few seconds after enabling the output.
-+	 * first few seconds after enabling the output. On the other hand
-+	 * adv7535 require to enable HPD Override bit for proper HPD.
- 	 */
--	regmap_update_bits(adv7511->regmap, ADV7511_REG_POWER2,
--			   ADV7511_REG_POWER2_HPD_SRC_MASK,
--			   ADV7511_REG_POWER2_HPD_SRC_NONE);
-+	if (adv7511->type == ADV7535)
-+		regmap_update_bits(adv7511->regmap, ADV7511_REG_POWER2,
-+				   ADV7535_REG_POWER2_HPD_OVERRIDE,
-+				   ADV7535_REG_POWER2_HPD_OVERRIDE);
-+	else
-+		regmap_update_bits(adv7511->regmap, ADV7511_REG_POWER2,
-+				   ADV7511_REG_POWER2_HPD_SRC_MASK,
-+				   ADV7511_REG_POWER2_HPD_SRC_NONE);
- }
+ 		if (ar->wmi.rx_decap_mode == ATH10K_HW_TXRX_NATIVE_WIFI) {
+-			if (patterns[i].pkt_offset < ETH_HLEN)
++			if (patterns[i].pkt_offset < ETH_HLEN) {
+ 				ath10k_wow_convert_8023_to_80211(&new_pattern,
+ 								 &old_pattern);
+-			else
++			} else {
++				new_pattern = old_pattern;
+ 				new_pattern.pkt_offset += WOW_HDR_LEN - ETH_HLEN;
++			}
+ 		}
  
- static void adv7511_power_on(struct adv7511 *adv7511)
-@@ -375,6 +381,10 @@ static void adv7511_power_on(struct adv7511 *adv7511)
- static void __adv7511_power_off(struct adv7511 *adv7511)
- {
- 	/* TODO: setup additional power down modes */
-+	if (adv7511->type == ADV7535)
-+		regmap_update_bits(adv7511->regmap, ADV7511_REG_POWER2,
-+				   ADV7535_REG_POWER2_HPD_OVERRIDE, 0);
-+
- 	regmap_update_bits(adv7511->regmap, ADV7511_REG_POWER,
- 			   ADV7511_POWER_POWER_DOWN,
- 			   ADV7511_POWER_POWER_DOWN);
-@@ -672,9 +682,14 @@ adv7511_detect(struct adv7511 *adv7511, struct drm_connector *connector)
- 			status = connector_status_disconnected;
- 	} else {
- 		/* Renable HPD sensing */
--		regmap_update_bits(adv7511->regmap, ADV7511_REG_POWER2,
--				   ADV7511_REG_POWER2_HPD_SRC_MASK,
--				   ADV7511_REG_POWER2_HPD_SRC_BOTH);
-+		if (adv7511->type == ADV7535)
-+			regmap_update_bits(adv7511->regmap, ADV7511_REG_POWER2,
-+					   ADV7535_REG_POWER2_HPD_OVERRIDE,
-+					   ADV7535_REG_POWER2_HPD_OVERRIDE);
-+		else
-+			regmap_update_bits(adv7511->regmap, ADV7511_REG_POWER2,
-+					   ADV7511_REG_POWER2_HPD_SRC_MASK,
-+					   ADV7511_REG_POWER2_HPD_SRC_BOTH);
- 	}
- 
- 	adv7511->status = status;
+ 		if (WARN_ON(new_pattern.pattern_len > WOW_MAX_PATTERN_SIZE))
 -- 
 2.34.1
 
