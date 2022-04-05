@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 719664F2FF7
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:19:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E93EE4F3189
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:45:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241068AbiDEKKE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:10:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37836 "EHLO
+        id S237938AbiDEInm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:43:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58576 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346435AbiDEJXt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:23:49 -0400
+        with ESMTP id S241167AbiDEIcw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:32:52 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A51A26CB;
-        Tue,  5 Apr 2022 02:13:29 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE37E167C3;
+        Tue,  5 Apr 2022 01:28:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 54D266165C;
-        Tue,  5 Apr 2022 09:13:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 628A4C385A2;
-        Tue,  5 Apr 2022 09:13:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 49CE1609D0;
+        Tue,  5 Apr 2022 08:28:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B53BC385A1;
+        Tue,  5 Apr 2022 08:28:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150008;
-        bh=ZLTP0CsQzKamaFohUBCVD0Y/Pr2t2IZyPkvu0eeCTco=;
+        s=korg; t=1649147337;
+        bh=pKN6mTEyEarvcHrqx7JWF0SAABVKkggu6a7q9LHV3hA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S6cXKlwfAdRQP2Vb2NSmvqmCpzZVe/uCcNg8dn/r/RCT6Fv3KQE29GpEbiZj0j/kI
-         BqidZbXboRdTztFM1wbmbyRQDN2O//Tx53IOJ7pfcfbeikUs+PUSsph7SSQPMT41lO
-         ANZpdITxQmEptXgMZBs/O+56obowqam79+wHLo7k=
+        b=vKzAIduaMNyqRbWbKps6rxlT3OL6/XdKp//AOiutFxYH9yhw8+9oVVAESn21OKVPQ
+         KKFx+BGdNy+MfCjBwDezctBdp7gy9unThttrDlOhDjMkzZ6EWiPRTlOkpY5Bz0Z98G
+         5DKZE3f1ViVWSUz44cqf0qjGNLEga5mRQe7hXRgs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Arun Easi <aeasi@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.16 0883/1017] scsi: qla2xxx: Fix device reconnect in loop topology
-Date:   Tue,  5 Apr 2022 09:29:56 +0200
-Message-Id: <20220405070420.442997105@linuxfoundation.org>
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Jan Kara <jack@suse.cz>, Jens Axboe <axboe@kernel.dk>,
+        Jiri Slaby <jslaby@suse.cz>
+Subject: [PATCH 5.17 1050/1126] block: restore the old set_task_ioprio() behaviour wrt PF_EXITING
+Date:   Tue,  5 Apr 2022 09:29:57 +0200
+Message-Id: <20220405070438.290129747@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,78 +54,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arun Easi <aeasi@marvell.com>
+From: Jiri Slaby <jslaby@suse.cz>
 
-commit 8ad4be3d15cf144b5834bdb00d5bbe4050938dc7 upstream.
+commit 15583a563cd5a7358e975599b7de7caacd9e9ce9 upstream.
 
-A device logout in loop topology initiates a device connection teardown
-which loses the FW device handle. In loop topo, the device handle is not
-regrabbed leading to device login failures and eventually to loss of the
-device. Fix this by taking the main login path that does it.
+PF_EXITING tasks were silently ignored before the below commits.
+Continue doing so. Otherwise python-psutil tests fail:
+  ERROR: psutil.tests.test_process.TestProcess.test_zombie_process
+  ----------------------------------------------------------------------
+  Traceback (most recent call last):
+    File "/home/abuild/rpmbuild/BUILD/psutil-5.9.0/build/lib.linux-x86_64-3.9/psutil/_pslinux.py", line 1661, in wrapper
+      return fun(self, *args, **kwargs)
+    File "/home/abuild/rpmbuild/BUILD/psutil-5.9.0/build/lib.linux-x86_64-3.9/psutil/_pslinux.py", line 2133, in ionice_set
+      return cext.proc_ioprio_set(self.pid, ioclass, value)
+  ProcessLookupError: [Errno 3] No such process
 
-Link: https://lore.kernel.org/r/20220110050218.3958-11-njavali@marvell.com
-Cc: stable@vger.kernel.org
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Arun Easi <aeasi@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+  During handling of the above exception, another exception occurred:
+
+  Traceback (most recent call last):
+    File "/home/abuild/rpmbuild/BUILD/psutil-5.9.0/psutil/tests/test_process.py", line 1313, in test_zombie_process
+      succeed_or_zombie_p_exc(fun)
+    File "/home/abuild/rpmbuild/BUILD/psutil-5.9.0/psutil/tests/test_process.py", line 1288, in succeed_or_zombie_p_exc
+      return fun()
+    File "/home/abuild/rpmbuild/BUILD/psutil-5.9.0/build/lib.linux-x86_64-3.9/psutil/__init__.py", line 792, in ionice
+      return self._proc.ionice_set(ioclass, value)
+    File "/home/abuild/rpmbuild/BUILD/psutil-5.9.0/build/lib.linux-x86_64-3.9/psutil/_pslinux.py", line 1665, in wrapper
+      raise NoSuchProcess(self.pid, self._name)
+  psutil.NoSuchProcess: process no longer exists (pid=2057)
+
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Jan Kara <jack@suse.cz>
+Cc: Jens Axboe <axboe@kernel.dk>
+Fixes: 5fc11eebb4 (block: open code create_task_io_context in set_task_ioprio)
+Fixes: a957b61254 (block: fix error in handling dead task for ioprio setting)
+Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20220328085928.7899-1-jslaby@suse.cz
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/qla2xxx/qla_init.c |   15 +++++++++++++++
- drivers/scsi/qla2xxx/qla_os.c   |    5 +++++
- 2 files changed, 20 insertions(+)
+ block/blk-ioc.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/scsi/qla2xxx/qla_init.c
-+++ b/drivers/scsi/qla2xxx/qla_init.c
-@@ -974,6 +974,9 @@ static void qla24xx_handle_gnl_done_even
- 				set_bit(RELOGIN_NEEDED, &vha->dpc_flags);
- 			}
- 			break;
-+		case ISP_CFG_NL:
-+			qla24xx_fcport_handle_login(vha, fcport);
-+			break;
- 		default:
- 			break;
- 		}
-@@ -1563,6 +1566,11 @@ static void qla_chk_n2n_b4_login(struct
- 	u8 login = 0;
- 	int rc;
+--- a/block/blk-ioc.c
++++ b/block/blk-ioc.c
+@@ -280,7 +280,6 @@ int set_task_ioprio(struct task_struct *
  
-+	ql_dbg(ql_dbg_disc, vha, 0x307b,
-+	    "%s %8phC DS %d LS %d lid %d retries=%d\n",
-+	    __func__, fcport->port_name, fcport->disc_state,
-+	    fcport->fw_login_state, fcport->loop_id, fcport->login_retry);
-+
- 	if (qla_tgt_mode_enabled(vha))
- 		return;
- 
-@@ -5604,6 +5612,13 @@ qla2x00_configure_local_loop(scsi_qla_ho
- 			memcpy(fcport->node_name, new_fcport->node_name,
- 			    WWN_SIZE);
- 			fcport->scan_state = QLA_FCPORT_FOUND;
-+			if (fcport->login_retry == 0) {
-+				fcport->login_retry = vha->hw->login_retry_count;
-+				ql_dbg(ql_dbg_disc, vha, 0x2135,
-+				    "Port login retry %8phN, lid 0x%04x retry cnt=%d.\n",
-+				    fcport->port_name, fcport->loop_id,
-+				    fcport->login_retry);
-+			}
- 			found++;
- 			break;
+ 		task_lock(task);
+ 		if (task->flags & PF_EXITING) {
+-			err = -ESRCH;
+ 			kmem_cache_free(iocontext_cachep, ioc);
+ 			goto out;
  		}
---- a/drivers/scsi/qla2xxx/qla_os.c
-+++ b/drivers/scsi/qla2xxx/qla_os.c
-@@ -5533,6 +5533,11 @@ void qla2x00_relogin(struct scsi_qla_hos
- 					ea.fcport = fcport;
- 					qla24xx_handle_relogin_event(vha, &ea);
- 				} else if (vha->hw->current_topology ==
-+					 ISP_CFG_NL &&
-+					IS_QLA2XXX_MIDTYPE(vha->hw)) {
-+					(void)qla24xx_fcport_handle_login(vha,
-+									fcport);
-+				} else if (vha->hw->current_topology ==
- 				    ISP_CFG_NL) {
- 					fcport->login_retry--;
- 					status =
+@@ -292,7 +291,7 @@ int set_task_ioprio(struct task_struct *
+ 	task->io_context->ioprio = ioprio;
+ out:
+ 	task_unlock(task);
+-	return err;
++	return 0;
+ }
+ EXPORT_SYMBOL_GPL(set_task_ioprio);
+ 
 
 
