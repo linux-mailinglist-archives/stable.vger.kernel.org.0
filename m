@@ -2,44 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 883D94F323F
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:54:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FA514F3050
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:27:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245326AbiDEKjO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:39:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58708 "EHLO
+        id S1347594AbiDEJ1p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:27:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48678 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238897AbiDEJdC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:33:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E433C25;
-        Tue,  5 Apr 2022 02:20:33 -0700 (PDT)
+        with ESMTP id S244215AbiDEIvu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:51:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7AB1D3AF4;
+        Tue,  5 Apr 2022 01:40:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AF26C6144D;
-        Tue,  5 Apr 2022 09:20:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC3DAC385A2;
-        Tue,  5 Apr 2022 09:20:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6CF2361516;
+        Tue,  5 Apr 2022 08:40:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56C87C385A5;
+        Tue,  5 Apr 2022 08:40:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150432;
-        bh=sbrwT/SUZKgQS5k/o8rRHTPmV5lhx0fWxEXy5URgNCI=;
+        s=korg; t=1649148013;
+        bh=4MlSW4cAS64L9zVTicoHovuyU0G38E9keWqJ6LuGm+s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VLteAsFEGsyLy50FFhnvpnSMPexvACLPPxuhtPfHt7VCJ/nojsZ1GEAuS8qrcYn+H
-         UjO+Llw9mqc0HtvvaaHwgvt8nkcvqpfm7aJn7QxBl7Cgs5CI8OZ7+lg/Oui7HEyl+6
-         fD0yt3gWm769BDE6GQzoDrJlpJ+E0b0XZvgxJIv4=
+        b=y2CjkHF5M9rcop+YVZtlWDkO07Ay4nvcdzIR0WrmGHTrqyyM9Q4MpjQMrnRWDRCYf
+         H8TVZ2vfBkKLrH+rYgXmeB4wiO9VmDmmDgZCWxd6pxsLmlS1B4q3VcnUmXCMq7JCKr
+         ihovbgn4rHMatPNP/aWa8bJnKfejdCkQ+LZKdevk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <oliver.sang@intel.com>,
-        Ronnie Sahlberg <lsahlber@redhat.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.15 054/913] cifs: we do not need a spinlock around the tree access during umount
+        stable@vger.kernel.org, Peter Gonda <pgonda@google.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        Brijesh Singh <brijesh.singh@amd.com>,
+        Marc Orr <marcorr@google.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        John Allen <john.allen@amd.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        linux-crypto@vger.kernel.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0203/1017] crypto: ccp - Ensure psp_ret is always initd in __sev_platform_init_locked()
 Date:   Tue,  5 Apr 2022 09:18:36 +0200
-Message-Id: <20220405070341.440179049@linuxfoundation.org>
+Message-Id: <20220405070400.276279078@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,71 +60,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ronnie Sahlberg <lsahlber@redhat.com>
+From: Peter Gonda <pgonda@google.com>
 
-commit 9a14b65d590105d393b63f5320e1594edda7c672 upstream.
+[ Upstream commit 1e1ec11d3ec3134e05d4710f4dee5f9bd05e828d ]
 
-Remove the spinlock around the tree traversal as we are calling possibly
-sleeping functions.
-We do not need a spinlock here as there will be no modifications to this
-tree at this point.
+Initialize psp_ret inside of __sev_platform_init_locked() because there
+are many failure paths with PSP initialization that do not set
+__sev_do_cmd_locked().
 
-This prevents warnings like this to occur in dmesg:
-[  653.774996] BUG: sleeping function called from invalid context at kernel/loc\
-king/mutex.c:280
-[  653.775088] in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 1827, nam\
-e: umount
-[  653.775152] preempt_count: 1, expected: 0
-[  653.775191] CPU: 0 PID: 1827 Comm: umount Tainted: G        W  OE     5.17.0\
--rc7-00006-g4eb628dd74df #135
-[  653.775195] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.14.0-\
-1.fc33 04/01/2014
-[  653.775197] Call Trace:
-[  653.775199]  <TASK>
-[  653.775202]  dump_stack_lvl+0x34/0x44
-[  653.775209]  __might_resched.cold+0x13f/0x172
-[  653.775213]  mutex_lock+0x75/0xf0
-[  653.775217]  ? __mutex_lock_slowpath+0x10/0x10
-[  653.775220]  ? _raw_write_lock_irq+0xd0/0xd0
-[  653.775224]  ? dput+0x6b/0x360
-[  653.775228]  cifs_kill_sb+0xff/0x1d0 [cifs]
-[  653.775285]  deactivate_locked_super+0x85/0x130
-[  653.775289]  cleanup_mnt+0x32c/0x4d0
-[  653.775292]  ? path_umount+0x228/0x380
-[  653.775296]  task_work_run+0xd8/0x180
-[  653.775301]  exit_to_user_mode_loop+0x152/0x160
-[  653.775306]  exit_to_user_mode_prepare+0x89/0xd0
-[  653.775315]  syscall_exit_to_user_mode+0x12/0x30
-[  653.775322]  do_syscall_64+0x48/0x90
-[  653.775326]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+Fixes: e423b9d75e77: ("crypto: ccp - Move SEV_INIT retry for corrupted data")
 
-Fixes: 187af6e98b44e5d8f25e1d41a92db138eb54416f ("cifs: fix handlecache and multiuser")
-Reported-by: kernel test robot <oliver.sang@intel.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Peter Gonda <pgonda@google.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: Tom Lendacky <thomas.lendacky@amd.com>
+Cc: Brijesh Singh <brijesh.singh@amd.com>
+Cc: Marc Orr <marcorr@google.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: John Allen <john.allen@amd.com>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: linux-crypto@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/cifsfs.c |    2 --
- 1 file changed, 2 deletions(-)
+ drivers/crypto/ccp/sev-dev.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/cifs/cifsfs.c
-+++ b/fs/cifs/cifsfs.c
-@@ -266,7 +266,6 @@ static void cifs_kill_sb(struct super_bl
- 		dput(cifs_sb->root);
- 		cifs_sb->root = NULL;
- 	}
--	spin_lock(&cifs_sb->tlink_tree_lock);
- 	node = rb_first(root);
- 	while (node != NULL) {
- 		tlink = rb_entry(node, struct tcon_link, tl_rbnode);
-@@ -280,7 +279,6 @@ static void cifs_kill_sb(struct super_bl
- 		mutex_unlock(&cfid->fid_mutex);
- 		node = rb_next(node);
- 	}
--	spin_unlock(&cifs_sb->tlink_tree_lock);
+diff --git a/drivers/crypto/ccp/sev-dev.c b/drivers/crypto/ccp/sev-dev.c
+index 581a1b13d5c3..de015995189f 100644
+--- a/drivers/crypto/ccp/sev-dev.c
++++ b/drivers/crypto/ccp/sev-dev.c
+@@ -241,7 +241,7 @@ static int __sev_platform_init_locked(int *error)
+ 	struct psp_device *psp = psp_master;
+ 	struct sev_data_init data;
+ 	struct sev_device *sev;
+-	int psp_ret, rc = 0;
++	int psp_ret = -1, rc = 0;
  
- 	kill_anon_super(sb);
- 	cifs_umount(cifs_sb);
+ 	if (!psp || !psp->sev_data)
+ 		return -ENODEV;
+-- 
+2.34.1
+
 
 
