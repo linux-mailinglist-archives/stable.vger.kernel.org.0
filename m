@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D409F4F30A3
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:32:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15C5F4F31FA
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:53:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241004AbiDEJfx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:35:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35398 "EHLO
+        id S234434AbiDEIZN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:25:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34814 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343607AbiDEI5L (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:57:11 -0400
+        with ESMTP id S238264AbiDEISq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:18:46 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23F4922B17;
-        Tue,  5 Apr 2022 01:53:02 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21D7C107;
+        Tue,  5 Apr 2022 01:08:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7DA4E61003;
-        Tue,  5 Apr 2022 08:53:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 931B2C385A1;
-        Tue,  5 Apr 2022 08:53:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8B51F608C0;
+        Tue,  5 Apr 2022 08:08:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9305CC385A0;
+        Tue,  5 Apr 2022 08:08:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148781;
-        bh=6OQ4XBU3Rd0gro+F3jMJqSQaH/YDj8FH7PqpZ7aqIyk=;
+        s=korg; t=1649146110;
+        bh=coUnbwtMgy4IhV9sRORvYZJQFoFUkg3DcYgYPIf8ovE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gxXdR4EmHcBwgGmV1x9EKM1xwOpXFfs/Sn7ASmECx+ScWSLBvoY3DYrXOybTRtcE3
-         FcEBsvVgeAIFHoFbjpgM01DkHuRTKxFi3+JaPeAxjJt9BLV+sL7ydo6q1OiACJPuC/
-         Bc82qtHsWmusbK7FkHwrUcjB3UPgf734hDMubzn4=
+        b=F5wUXmffXJ9QonZE/9NEM/9INI4IE5W57GRbkiLOCYKo9fIckrBAHcX4pnQx325Lm
+         QPlJ4QAj9+i6aB1Pmke2SH168LtGtc/JfgoEKe1RuZehLvlXsYBqJN8GBvOiowQ+ys
+         i7+7K6XZbJtKG84J7mO1iiYdXp1TV1FaX1ZeweIU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrii Nakryiko <andrii@kernel.org>,
-        Kenta Tada <Kenta.Tada@sony.com>,
+        stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0480/1017] selftests/bpf: Extract syscall wrapper
-Date:   Tue,  5 Apr 2022 09:23:13 +0200
-Message-Id: <20220405070408.546956755@linuxfoundation.org>
+Subject: [PATCH 5.17 0647/1126] powerpc: 8xx: fix a return value error in mpc8xx_pic_init
+Date:   Tue,  5 Apr 2022 09:23:14 +0200
+Message-Id: <20220405070426.622989226@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,75 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kenta Tada <Kenta.Tada@sony.com>
+From: Hangyu Hua <hbh25y@gmail.com>
 
-[ Upstream commit 78a2054156dd6265619b230cc5372b74f9ba5233 ]
+[ Upstream commit 3fd46e551f67f4303c3276a0d6cd20baf2d192c4 ]
 
-Extract the helper to set up SYS_PREFIX for fentry and kprobe selftests
-that use __x86_sys_* attach functions.
+mpc8xx_pic_init() should return -ENOMEM instead of 0 when
+irq_domain_add_linear() return NULL. This cause mpc8xx_pics_init to continue
+executing even if mpc8xx_pic_host is NULL.
 
-Suggested-by: Andrii Nakryiko <andrii@kernel.org>
-Signed-off-by: Kenta Tada <Kenta.Tada@sony.com>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/bpf/20220124141622.4378-2-Kenta.Tada@sony.com
+Fixes: cc76404feaed ("powerpc/8xx: Fix possible device node reference leak")
+Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
+Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220223070223.26845-1-hbh25y@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/progs/bpf_misc.h  | 19 +++++++++++++++++++
- .../selftests/bpf/progs/test_probe_user.c     | 15 +--------------
- 2 files changed, 20 insertions(+), 14 deletions(-)
- create mode 100644 tools/testing/selftests/bpf/progs/bpf_misc.h
+ arch/powerpc/platforms/8xx/pic.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/tools/testing/selftests/bpf/progs/bpf_misc.h b/tools/testing/selftests/bpf/progs/bpf_misc.h
-new file mode 100644
-index 000000000000..0b78bc9b1b4c
---- /dev/null
-+++ b/tools/testing/selftests/bpf/progs/bpf_misc.h
-@@ -0,0 +1,19 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef __BPF_MISC_H__
-+#define __BPF_MISC_H__
-+
-+#if defined(__TARGET_ARCH_x86)
-+#define SYSCALL_WRAPPER 1
-+#define SYS_PREFIX "__x64_"
-+#elif defined(__TARGET_ARCH_s390)
-+#define SYSCALL_WRAPPER 1
-+#define SYS_PREFIX "__s390x_"
-+#elif defined(__TARGET_ARCH_arm64)
-+#define SYSCALL_WRAPPER 1
-+#define SYS_PREFIX "__arm64_"
-+#else
-+#define SYSCALL_WRAPPER 0
-+#define SYS_PREFIX ""
-+#endif
-+
-+#endif
-diff --git a/tools/testing/selftests/bpf/progs/test_probe_user.c b/tools/testing/selftests/bpf/progs/test_probe_user.c
-index 8812a90da4eb..702578a5e496 100644
---- a/tools/testing/selftests/bpf/progs/test_probe_user.c
-+++ b/tools/testing/selftests/bpf/progs/test_probe_user.c
-@@ -7,20 +7,7 @@
+diff --git a/arch/powerpc/platforms/8xx/pic.c b/arch/powerpc/platforms/8xx/pic.c
+index f2ba837249d6..04a6abf14c29 100644
+--- a/arch/powerpc/platforms/8xx/pic.c
++++ b/arch/powerpc/platforms/8xx/pic.c
+@@ -153,6 +153,7 @@ int __init mpc8xx_pic_init(void)
+ 	if (mpc8xx_pic_host == NULL) {
+ 		printk(KERN_ERR "MPC8xx PIC: failed to allocate irq host!\n");
+ 		ret = -ENOMEM;
++		goto out;
+ 	}
  
- #include <bpf/bpf_helpers.h>
- #include <bpf/bpf_tracing.h>
--
--#if defined(__TARGET_ARCH_x86)
--#define SYSCALL_WRAPPER 1
--#define SYS_PREFIX "__x64_"
--#elif defined(__TARGET_ARCH_s390)
--#define SYSCALL_WRAPPER 1
--#define SYS_PREFIX "__s390x_"
--#elif defined(__TARGET_ARCH_arm64)
--#define SYSCALL_WRAPPER 1
--#define SYS_PREFIX "__arm64_"
--#else
--#define SYSCALL_WRAPPER 0
--#define SYS_PREFIX ""
--#endif
-+#include "bpf_misc.h"
- 
- static struct sockaddr_in old;
- 
+ 	ret = 0;
 -- 
 2.34.1
 
