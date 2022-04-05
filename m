@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B76324F33D8
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:23:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 96E2C4F3478
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:37:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237027AbiDEIlb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:41:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51078 "EHLO
+        id S1350698AbiDEJ7a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:59:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44330 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236882AbiDEI2r (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:28:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E01A7183B2;
-        Tue,  5 Apr 2022 01:21:08 -0700 (PDT)
+        with ESMTP id S1344208AbiDEJSi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:18:38 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DC2F46160;
+        Tue,  5 Apr 2022 02:05:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6CA29B81BB1;
-        Tue,  5 Apr 2022 08:21:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8B23C385A0;
-        Tue,  5 Apr 2022 08:21:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 04E8FB80DA1;
+        Tue,  5 Apr 2022 09:05:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 528F8C385A0;
+        Tue,  5 Apr 2022 09:05:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146866;
-        bh=giM/BAivgxJrob6NYPSr1zOqqdEG4sFSemV5nmzN4OM=;
+        s=korg; t=1649149538;
+        bh=3KGFa6EC32xjqdgLhOOEcMv8VXMCN8d2FHi3RO5nQi4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SpEgah5t9XXUemirCRANolQiBqdjFX9DjLKIWMRnwtdZlFFhg1orovDM8y9DL6/Kw
-         JoSuiAGYupsLJlurkr1PHrxxOOh9fD7W255ugyGIDa3dOe0/l14FwETiPBCaQNbM6R
-         10LprArtBXOzZ0CXmZG/dlvbgR0T/XfkQ+gmXwdY=
+        b=dFTnPohZziTFSJSK4RzKjZ+Q4q0RtAiKLHWkfsiDNvXcYzN5WlMzltHmX5y5WN8My
+         BfdmSQzcYt31skI/W4pK4oRn0I42L/WXklgjP9lQvq3tixZJhlCVelQuTO3sjFMzA6
+         X7ONEw6FuImwOf9AL2AuAGc5/wB5j3ulsRlHsHGo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zeal Robot <zealci@zte.com.cn>,
-        Jing Yao <yao.jing2@zte.com.cn>, Helge Deller <deller@gmx.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0916/1126] video: fbdev: omapfb: panel-tpo-td043mtea1: Use sysfs_emit() instead of snprintf()
+        stable@vger.kernel.org, Fedor Pchelkin <aissur0002@gmail.com>,
+        Alexey Khoroshilov <khoroshilov@ispras.ru>,
+        Christian Brauner <brauner@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>,
+        "Jason A . Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 5.16 0750/1017] fs: fix fd table size alignment properly
 Date:   Tue,  5 Apr 2022 09:27:43 +0200
-Message-Id: <20220405070434.408610570@linuxfoundation.org>
+Message-Id: <20220405070416.523221428@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +57,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jing Yao <yao.jing2@zte.com.cn>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit c07a039cbb96748f54c02995bae8131cc9a73b0a ]
+[ Upstream commit d888c83fcec75194a8a48ccd283953bdba7b2550 ]
 
-Use sysfs_emit instead of scnprintf, snprintf or sprintf.
+Jason Donenfeld reports that my commit 1c24a186398f ("fs: fd tables have
+to be multiples of BITS_PER_LONG") doesn't work, and the reason is an
+embarrassing brown-paper-bag bug.
 
-Reported-by: Zeal Robot <zealci@zte.com.cn>
-Signed-off-by: Jing Yao <yao.jing2@zte.com.cn>
-Signed-off-by: Helge Deller <deller@gmx.de>
+Yes, we want to align the number of fds to BITS_PER_LONG, and yes, the
+reason they might not be aligned is because the incoming 'max_fd'
+argument might not be aligned.
+
+But aligining the argument - while simple - will cause a "infinitely
+big" maxfd (eg NR_OPEN_MAX) to just overflow to zero.  Which most
+definitely isn't what we want either.
+
+The obvious fix was always just to do the alignment last, but I had
+moved it earlier just to make the patch smaller and the code look
+simpler.  Duh.  It certainly made _me_ look simple.
+
+Fixes: 1c24a186398f ("fs: fd tables have to be multiples of BITS_PER_LONG")
+Reported-and-tested-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Cc: Fedor Pchelkin <aissur0002@gmail.com>
+Cc: Alexey Khoroshilov <khoroshilov@ispras.ru>
+Cc: Christian Brauner <brauner@kernel.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../video/fbdev/omap2/omapfb/displays/panel-tpo-td043mtea1.c  | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/file.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/video/fbdev/omap2/omapfb/displays/panel-tpo-td043mtea1.c b/drivers/video/fbdev/omap2/omapfb/displays/panel-tpo-td043mtea1.c
-index afac1d9445aa..57b7d1f49096 100644
---- a/drivers/video/fbdev/omap2/omapfb/displays/panel-tpo-td043mtea1.c
-+++ b/drivers/video/fbdev/omap2/omapfb/displays/panel-tpo-td043mtea1.c
-@@ -169,7 +169,7 @@ static ssize_t tpo_td043_vmirror_show(struct device *dev,
- {
- 	struct panel_drv_data *ddata = dev_get_drvdata(dev);
+diff --git a/fs/file.c b/fs/file.c
+index c01c29417ae6..ee9317346702 100644
+--- a/fs/file.c
++++ b/fs/file.c
+@@ -303,10 +303,9 @@ static unsigned int sane_fdtable_size(struct fdtable *fdt, unsigned int max_fds)
+ 	unsigned int count;
  
--	return snprintf(buf, PAGE_SIZE, "%d\n", ddata->vmirror);
-+	return sysfs_emit(buf, "%d\n", ddata->vmirror);
+ 	count = count_open_files(fdt);
+-	max_fds = ALIGN(max_fds, BITS_PER_LONG);
+ 	if (max_fds < NR_OPEN_DEFAULT)
+ 		max_fds = NR_OPEN_DEFAULT;
+-	return min(count, max_fds);
++	return ALIGN(min(count, max_fds), BITS_PER_LONG);
  }
  
- static ssize_t tpo_td043_vmirror_store(struct device *dev,
-@@ -199,7 +199,7 @@ static ssize_t tpo_td043_mode_show(struct device *dev,
- {
- 	struct panel_drv_data *ddata = dev_get_drvdata(dev);
- 
--	return snprintf(buf, PAGE_SIZE, "%d\n", ddata->mode);
-+	return sysfs_emit(buf, "%d\n", ddata->mode);
- }
- 
- static ssize_t tpo_td043_mode_store(struct device *dev,
+ /*
 -- 
 2.34.1
 
