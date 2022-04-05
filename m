@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B017C4F2C7D
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:31:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D1FC74F2B01
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:07:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349339AbiDEKui (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:50:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53874 "EHLO
+        id S236668AbiDEJbY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:31:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34710 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345059AbiDEJm6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:42:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83399BF973;
-        Tue,  5 Apr 2022 02:28:26 -0700 (PDT)
+        with ESMTP id S235847AbiDEIQU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:16:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6AF2857B1B;
+        Tue,  5 Apr 2022 01:03:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 16CAA616B2;
-        Tue,  5 Apr 2022 09:28:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E261C385A0;
-        Tue,  5 Apr 2022 09:28:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 879EF616DF;
+        Tue,  5 Apr 2022 08:03:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93B56C385A1;
+        Tue,  5 Apr 2022 08:03:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150905;
-        bh=a0d4t+sXv4Wr9/cCzVEovrbCFrTvir/oyRFggdahnEg=;
+        s=korg; t=1649145820;
+        bh=TIY/MaJG64dJFYhgSREZ7Io2V0kw+HnjbuZ5wtzkwkI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oywcZXEGrBkJ36K4YqT+HRL50A+GR0gXMcLJjmQycX4oSIBakDUZIlVZloPmc9iVO
-         J1KQbd5b6v91ISnLpy4r7+QVuC55zy1h4yjXhEJs7YDBO26AWPJ2UdTSXWkBS38qCx
-         IgjZLr+NfYmPg+EXFw6ez3YBvoFyueJSunkUJufo=
+        b=FC2X+4BF7GNIoizLoL8VdSTYIWHJg2TYlJ+tASeeW0nBn5JxR7B/22FnFUlIpfNbi
+         PAsbDwa3d7rMpcS1D4bd8NmE/jAnCHQzfxIOjWOwbirtgZMlu57b7NO/JqGUM4TGQ5
+         CALEwA7sBgKh5Hj9Yf91a7WDyh8H26qYU5XobsyI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Corentin Labbe <clabbe@baylibre.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Zhiqian Guan <zhguan@redhat.com>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Kumar Kartikeya Dwivedi <memxor@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 224/913] crypto: sun8i-ce - call finalize with bh disabled
-Date:   Tue,  5 Apr 2022 09:21:26 +0200
-Message-Id: <20220405070346.572336359@linuxfoundation.org>
+Subject: [PATCH 5.17 0540/1126] libbpf: Use dynamically allocated buffer when receiving netlink messages
+Date:   Tue,  5 Apr 2022 09:21:27 +0200
+Message-Id: <20220405070423.482079955@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,65 +56,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corentin Labbe <clabbe@baylibre.com>
+From: Toke Høiland-Jørgensen <toke@redhat.com>
 
-[ Upstream commit f75a749b6d78aeae2ce90e14fcc4b7b3ba46126d ]
+[ Upstream commit 9c3de619e13ee6693ec5ac74f50b7aa89056a70e ]
 
-Doing ipsec produces a spinlock recursion warning.
-This is due to not disabling BH during crypto completion function.
+When receiving netlink messages, libbpf was using a statically allocated
+stack buffer of 4k bytes. This happened to work fine on systems with a 4k
+page size, but on systems with larger page sizes it can lead to truncated
+messages. The user-visible impact of this was that libbpf would insist no
+XDP program was attached to some interfaces because that bit of the netlink
+message got chopped off.
 
-Fixes: 06f751b61329 ("crypto: allwinner - Add sun8i-ce Crypto Engine")
-Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fix this by switching to a dynamically allocated buffer; we borrow the
+approach from iproute2 of using recvmsg() with MSG_PEEK|MSG_TRUNC to get
+the actual size of the pending message before receiving it, adjusting the
+buffer as necessary. While we're at it, also add retries on interrupted
+system calls around the recvmsg() call.
+
+v2:
+  - Move peek logic to libbpf_netlink_recv(), don't double free on ENOMEM.
+
+Fixes: 8bbb77b7c7a2 ("libbpf: Add various netlink helpers")
+Reported-by: Zhiqian Guan <zhguan@redhat.com>
+Signed-off-by: Toke Høiland-Jørgensen <toke@redhat.com>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Acked-by: Kumar Kartikeya Dwivedi <memxor@gmail.com>
+Link: https://lore.kernel.org/bpf/20220211234819.612288-1-toke@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/allwinner/sun8i-ce/sun8i-ce-cipher.c | 3 +++
- drivers/crypto/allwinner/sun8i-ce/sun8i-ce-hash.c   | 3 +++
- 2 files changed, 6 insertions(+)
+ tools/lib/bpf/netlink.c | 55 ++++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 51 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/crypto/allwinner/sun8i-ce/sun8i-ce-cipher.c b/drivers/crypto/allwinner/sun8i-ce/sun8i-ce-cipher.c
-index 54ae8d16e493..35e3cadccac2 100644
---- a/drivers/crypto/allwinner/sun8i-ce/sun8i-ce-cipher.c
-+++ b/drivers/crypto/allwinner/sun8i-ce/sun8i-ce-cipher.c
-@@ -11,6 +11,7 @@
-  * You could find a link for the datasheet in Documentation/arm/sunxi.rst
-  */
+diff --git a/tools/lib/bpf/netlink.c b/tools/lib/bpf/netlink.c
+index 39f25e09b51e..69b353d55dbf 100644
+--- a/tools/lib/bpf/netlink.c
++++ b/tools/lib/bpf/netlink.c
+@@ -87,29 +87,75 @@ enum {
+ 	NL_DONE,
+ };
  
-+#include <linux/bottom_half.h>
- #include <linux/crypto.h>
- #include <linux/dma-mapping.h>
- #include <linux/io.h>
-@@ -283,7 +284,9 @@ static int sun8i_ce_cipher_run(struct crypto_engine *engine, void *areq)
++static int netlink_recvmsg(int sock, struct msghdr *mhdr, int flags)
++{
++	int len;
++
++	do {
++		len = recvmsg(sock, mhdr, flags);
++	} while (len < 0 && (errno == EINTR || errno == EAGAIN));
++
++	if (len < 0)
++		return -errno;
++	return len;
++}
++
++static int alloc_iov(struct iovec *iov, int len)
++{
++	void *nbuf;
++
++	nbuf = realloc(iov->iov_base, len);
++	if (!nbuf)
++		return -ENOMEM;
++
++	iov->iov_base = nbuf;
++	iov->iov_len = len;
++	return 0;
++}
++
+ static int libbpf_netlink_recv(int sock, __u32 nl_pid, int seq,
+ 			       __dump_nlmsg_t _fn, libbpf_dump_nlmsg_t fn,
+ 			       void *cookie)
+ {
++	struct iovec iov = {};
++	struct msghdr mhdr = {
++		.msg_iov = &iov,
++		.msg_iovlen = 1,
++	};
+ 	bool multipart = true;
+ 	struct nlmsgerr *err;
+ 	struct nlmsghdr *nh;
+-	char buf[4096];
+ 	int len, ret;
  
- 	flow = rctx->flow;
- 	err = sun8i_ce_run_task(ce, flow, crypto_tfm_alg_name(breq->base.tfm));
-+	local_bh_disable();
- 	crypto_finalize_skcipher_request(engine, breq, err);
-+	local_bh_enable();
- 	return 0;
++	ret = alloc_iov(&iov, 4096);
++	if (ret)
++		goto done;
++
+ 	while (multipart) {
+ start:
+ 		multipart = false;
+-		len = recv(sock, buf, sizeof(buf), 0);
++		len = netlink_recvmsg(sock, &mhdr, MSG_PEEK | MSG_TRUNC);
++		if (len < 0) {
++			ret = len;
++			goto done;
++		}
++
++		if (len > iov.iov_len) {
++			ret = alloc_iov(&iov, len);
++			if (ret)
++				goto done;
++		}
++
++		len = netlink_recvmsg(sock, &mhdr, 0);
+ 		if (len < 0) {
+-			ret = -errno;
++			ret = len;
+ 			goto done;
+ 		}
+ 
+ 		if (len == 0)
+ 			break;
+ 
+-		for (nh = (struct nlmsghdr *)buf; NLMSG_OK(nh, len);
++		for (nh = (struct nlmsghdr *)iov.iov_base; NLMSG_OK(nh, len);
+ 		     nh = NLMSG_NEXT(nh, len)) {
+ 			if (nh->nlmsg_pid != nl_pid) {
+ 				ret = -LIBBPF_ERRNO__WRNGPID;
+@@ -151,6 +197,7 @@ static int libbpf_netlink_recv(int sock, __u32 nl_pid, int seq,
+ 	}
+ 	ret = 0;
+ done:
++	free(iov.iov_base);
+ 	return ret;
  }
  
-diff --git a/drivers/crypto/allwinner/sun8i-ce/sun8i-ce-hash.c b/drivers/crypto/allwinner/sun8i-ce/sun8i-ce-hash.c
-index 88194718a806..859b7522faaa 100644
---- a/drivers/crypto/allwinner/sun8i-ce/sun8i-ce-hash.c
-+++ b/drivers/crypto/allwinner/sun8i-ce/sun8i-ce-hash.c
-@@ -9,6 +9,7 @@
-  *
-  * You could find the datasheet in Documentation/arm/sunxi.rst
-  */
-+#include <linux/bottom_half.h>
- #include <linux/dma-mapping.h>
- #include <linux/pm_runtime.h>
- #include <linux/scatterlist.h>
-@@ -414,6 +415,8 @@ int sun8i_ce_hash_run(struct crypto_engine *engine, void *breq)
- theend:
- 	kfree(buf);
- 	kfree(result);
-+	local_bh_disable();
- 	crypto_finalize_hash_request(engine, breq, err);
-+	local_bh_enable();
- 	return 0;
- }
 -- 
 2.34.1
 
