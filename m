@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FA864F2F7B
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:16:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B7054F313B
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:40:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241953AbiDEIgM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:36:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34686 "EHLO
+        id S1347467AbiDEJ0n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:26:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56736 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237519AbiDEISG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:18:06 -0400
+        with ESMTP id S245094AbiDEIxO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:53:14 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AEDD6A420;
-        Tue,  5 Apr 2022 01:06:36 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D1A7EA;
+        Tue,  5 Apr 2022 01:51:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ABBDD617EF;
-        Tue,  5 Apr 2022 08:06:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4464C385A1;
-        Tue,  5 Apr 2022 08:06:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AF63D61504;
+        Tue,  5 Apr 2022 08:51:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E7A6C385A1;
+        Tue,  5 Apr 2022 08:51:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145995;
-        bh=7zvBWExM6E7wGUN2CnyFqTl4XInbH/pTOt36VeMid5U=;
+        s=korg; t=1649148676;
+        bh=opiEEy8Zkh9teV55fjvoiiH/gqsoGMYbbK0t9H7hr2E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bCiVPFonjTSvK+vkOhDDOi24c0XQsAyQgNjQ1BSeYUzxG+K8d3BUY0lmoB/xsM7D/
-         ETM5q0rEm0de7BH4j5qvJ45evZtcHv6MW9ZFvh0BcWMDNLZqcJFfuclRKEiVlxFyur
-         LdDsGAe0qZxiYGAhL0iLg01/Kq5YCRe7SAcq0kQM=
+        b=nGQL6fMC5CDD+WrSqraUK+qcoxj01E5NrV2QaRSiSXWyoxlj21b7e+BPHYaS8JJj1
+         cuTAb9zpgqfpWRohw0zixbM6P4RRK+wB0TGQRkdcTCY6F3UvffvgnSpWSaHwWS+K6t
+         HVjh+8o0oTJwWwJFPnaJYsYmFd+hbgcrrA0SXgME=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Yi <yi.zhang@huawei.com>,
-        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0605/1126] ext2: correct max file size computing
-Date:   Tue,  5 Apr 2022 09:22:32 +0200
-Message-Id: <20220405070425.393255998@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Alexander Lobakin <alexandr.lobakin@intel.com>,
+        Michal Swiatkowski <michal.swiatkowski@linux.intel.com>,
+        Nechama Kraus <nechamax.kraus@linux.intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0442/1017] igc: dont reserve excessive XDP_PACKET_HEADROOM on XSK Rx to skb
+Date:   Tue,  5 Apr 2022 09:22:35 +0200
+Message-Id: <20220405070407.415901628@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,56 +57,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Yi <yi.zhang@huawei.com>
+From: Alexander Lobakin <alexandr.lobakin@intel.com>
 
-[ Upstream commit 50b3a818991074177a56c87124c7a7bdf5fa4f67 ]
+[ Upstream commit f9e61d365bafdee40fe2586fc6be490c3e824dad ]
 
-We need to calculate the max file size accurately if the total blocks
-that can address by block tree exceed the upper_limit. But this check is
-not correct now, it only compute the total data blocks but missing
-metadata blocks are needed. So in the case of "data blocks < upper_limit
-&& total blocks > upper_limit", we will get wrong result. Fortunately,
-this case could not happen in reality, but it's confused and better to
-correct the computing.
+{__,}napi_alloc_skb() allocates and reserves additional NET_SKB_PAD
++ NET_IP_ALIGN for any skb.
+OTOH, igc_construct_skb_zc() currently allocates and reserves
+additional `xdp->data_meta - xdp->data_hard_start`, which is about
+XDP_PACKET_HEADROOM for XSK frames.
+There's no need for that at all as the frame is post-XDP and will
+go only to the networking stack core.
+Pass the size of the actual data only (+ meta) to
+__napi_alloc_skb() and don't reserve anything. This will give
+enough headroom for stack processing.
+Also, net_prefetch() xdp->data_meta and align the copy size to
+speed-up memcpy() a little and better match igc_construct_skb().
 
-  bits   data blocks   metadatablocks   upper_limit
-  10        16843020            66051    2147483647
-  11       134480396           263171    1073741823
-  12      1074791436          1050627     536870911 (*)
-  13      8594130956          4198403     268435455 (*)
-  14     68736258060         16785411     134217727 (*)
-  15    549822930956         67125251      67108863 (*)
-  16   4398314962956        268468227      33554431 (*)
-
-  [*] Need to calculate in depth.
-
-Fixes: 1c2d14212b15 ("ext2: Fix underflow in ext2_max_size()")
-Link: https://lore.kernel.org/r/20220212050532.179055-1-yi.zhang@huawei.com
-Signed-off-by: Zhang Yi <yi.zhang@huawei.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
+Fixes: fc9df2a0b520 ("igc: Enable RX via AF_XDP zero-copy")
+Signed-off-by: Alexander Lobakin <alexandr.lobakin@intel.com>
+Reviewed-by: Michal Swiatkowski <michal.swiatkowski@linux.intel.com>
+Tested-by: Nechama Kraus <nechamax.kraus@linux.intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext2/super.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/intel/igc/igc_main.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/fs/ext2/super.c b/fs/ext2/super.c
-index 94f1fbd7d3ac..6d4f5ef74766 100644
---- a/fs/ext2/super.c
-+++ b/fs/ext2/super.c
-@@ -753,8 +753,12 @@ static loff_t ext2_max_size(int bits)
- 	res += 1LL << (bits-2);
- 	res += 1LL << (2*(bits-2));
- 	res += 1LL << (3*(bits-2));
-+	/* Compute how many metadata blocks are needed */
-+	meta_blocks = 1;
-+	meta_blocks += 1 + ppb;
-+	meta_blocks += 1 + ppb + ppb * ppb;
- 	/* Does block tree limit file size? */
--	if (res < upper_limit)
-+	if (res + meta_blocks <= upper_limit)
- 		goto check_lfs;
+diff --git a/drivers/net/ethernet/intel/igc/igc_main.c b/drivers/net/ethernet/intel/igc/igc_main.c
+index d83e665b3a4f..a156738dc9b6 100644
+--- a/drivers/net/ethernet/intel/igc/igc_main.c
++++ b/drivers/net/ethernet/intel/igc/igc_main.c
+@@ -2435,19 +2435,20 @@ static int igc_clean_rx_irq(struct igc_q_vector *q_vector, const int budget)
+ static struct sk_buff *igc_construct_skb_zc(struct igc_ring *ring,
+ 					    struct xdp_buff *xdp)
+ {
++	unsigned int totalsize = xdp->data_end - xdp->data_meta;
+ 	unsigned int metasize = xdp->data - xdp->data_meta;
+-	unsigned int datasize = xdp->data_end - xdp->data;
+-	unsigned int totalsize = metasize + datasize;
+ 	struct sk_buff *skb;
  
- 	res = upper_limit;
+-	skb = __napi_alloc_skb(&ring->q_vector->napi,
+-			       xdp->data_end - xdp->data_hard_start,
++	net_prefetch(xdp->data_meta);
++
++	skb = __napi_alloc_skb(&ring->q_vector->napi, totalsize,
+ 			       GFP_ATOMIC | __GFP_NOWARN);
+ 	if (unlikely(!skb))
+ 		return NULL;
+ 
+-	skb_reserve(skb, xdp->data_meta - xdp->data_hard_start);
+-	memcpy(__skb_put(skb, totalsize), xdp->data_meta, totalsize);
++	memcpy(__skb_put(skb, totalsize), xdp->data_meta,
++	       ALIGN(totalsize, sizeof(long)));
++
+ 	if (metasize) {
+ 		skb_metadata_set(skb, metasize);
+ 		__skb_pull(skb, metasize);
 -- 
 2.34.1
 
