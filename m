@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E35F54F2A60
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 12:55:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E7D74F2BA2
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:16:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345175AbiDEKkq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:40:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41934 "EHLO
+        id S1343799AbiDEJNt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:13:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46798 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244413AbiDEJlR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:41:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15136BB911;
-        Tue,  5 Apr 2022 02:26:24 -0700 (PDT)
+        with ESMTP id S244892AbiDEIwp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:45 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DF2F240B1;
+        Tue,  5 Apr 2022 01:45:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A55C561659;
-        Tue,  5 Apr 2022 09:26:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B76F9C385A2;
-        Tue,  5 Apr 2022 09:26:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B23EAB81B18;
+        Tue,  5 Apr 2022 08:45:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2257EC385A0;
+        Tue,  5 Apr 2022 08:45:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150783;
-        bh=jdhV1ARZqjVBNBTFdsNBzGc69eetyP1wwgKMcVbjsh8=;
+        s=korg; t=1649148339;
+        bh=YS6YXJtkkJlRPJMsD2DAR/8ig+TUFhHwPdrDujFulyU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ziSTaEOeucRBhDnenH2TdfNdJzyNDZntF0okMyisxPyoIjrVQigpTQRdg/Q1mYpFd
-         ZFBrMtV/H0WZ4iLdvLryZleko9peK3KUbdTSFyMeL7HlWmylbVCuFESRbZQ0FrYr40
-         12NwvWaU8/MgeJwSU/wGC00GHvm3ehTrNTPaLcs8=
+        b=CWldJv/hHQf2oXqtizTxC1OUmJfgka83KKbp48HAhLHmjlYWAIp1JapZnBlH/mrfT
+         P0v2SAd0+gb2JcZm3JcIbyUuHD+ZJdzM5OD8u2XcEJ5R57U4beuTWi0Jt3F44Cp+g2
+         jfgOkgZi9uabEdQoqk8ZFKg5WiIbe0e0RxsGA2UQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>
-Subject: [PATCH 5.15 172/913] xtensa: define update_mmu_tlb function
+        stable@vger.kernel.org, Petr Vorel <petr.vorel@gmail.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0321/1017] arm64: dts: qcom: msm8994: Provide missing "xo_board" and "sleep_clk" to GCC
 Date:   Tue,  5 Apr 2022 09:20:34 +0200
-Message-Id: <20220405070345.007358677@linuxfoundation.org>
+Message-Id: <20220405070403.807280554@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,56 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Max Filippov <jcmvbkbc@gmail.com>
+From: Petr Vorel <petr.vorel@gmail.com>
 
-commit 1c4664faa38923330d478f046dc743a00c1e2dec upstream.
+[ Upstream commit 4dd1ad6192748523878463a285346db408b34a02 ]
 
-Before the commit f9ce0be71d1f ("mm: Cleanup faultaround and finish_fault()
-codepaths") there was a call to update_mmu_cache in alloc_set_pte that
-used to invalidate TLB entry caching invalid PTE that caused a page
-fault. That commit removed that call so now invalid TLB entry survives
-causing repetitive page faults on the CPU that took the initial fault
-until that TLB entry is occasionally evicted. This issue is spotted by
-the xtensa TLB sanity checker.
+This is needed due changes in commit 0519d1d0bf33 ("clk: qcom:
+gcc-msm8994: Modernize the driver"), which removed struct
+clk_fixed_factor. Preparation for next commit for enabling SD/eMMC.
+Inspired by 2c2f64ae36d9.
 
-Fix this issue by defining update_mmu_tlb function that flushes TLB entry
-for the faulting address.
+This is required for both msm8994-huawei-angler (sdhc1 will be enabled
+in next commit) and msm8992-lg-bullhead (where actually fixes sdhc1
+- tested on bullhead rev 1.01).
 
-Cc: stable@vger.kernel.org # 5.12+
-Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 0519d1d0bf33 ("clk: qcom: gcc-msm8994: Modernize the driver")
+
+Signed-off-by: Petr Vorel <petr.vorel@gmail.com>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220113233358.17972-4-petr.vorel@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/xtensa/include/asm/pgtable.h |    4 ++++
- arch/xtensa/mm/tlb.c              |    6 ++++++
- 2 files changed, 10 insertions(+)
+ arch/arm64/boot/dts/qcom/msm8994.dtsi | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/arch/xtensa/include/asm/pgtable.h
-+++ b/arch/xtensa/include/asm/pgtable.h
-@@ -411,6 +411,10 @@ extern  void update_mmu_cache(struct vm_
- 
- typedef pte_t *pte_addr_t;
- 
-+void update_mmu_tlb(struct vm_area_struct *vma,
-+		    unsigned long address, pte_t *ptep);
-+#define __HAVE_ARCH_UPDATE_MMU_TLB
+diff --git a/arch/arm64/boot/dts/qcom/msm8994.dtsi b/arch/arm64/boot/dts/qcom/msm8994.dtsi
+index 5a9a5ed0565f..215f56daa26c 100644
+--- a/arch/arm64/boot/dts/qcom/msm8994.dtsi
++++ b/arch/arm64/boot/dts/qcom/msm8994.dtsi
+@@ -713,6 +713,9 @@
+ 			#reset-cells = <1>;
+ 			#power-domain-cells = <1>;
+ 			reg = <0xfc400000 0x2000>;
 +
- #endif /* !defined (__ASSEMBLY__) */
++			clock-names = "xo", "sleep_clk";
++			clocks = <&xo_board>, <&sleep_clk>;
+ 		};
  
- #define __HAVE_ARCH_PTEP_TEST_AND_CLEAR_YOUNG
---- a/arch/xtensa/mm/tlb.c
-+++ b/arch/xtensa/mm/tlb.c
-@@ -162,6 +162,12 @@ void local_flush_tlb_kernel_range(unsign
- 	}
- }
- 
-+void update_mmu_tlb(struct vm_area_struct *vma,
-+		    unsigned long address, pte_t *ptep)
-+{
-+	local_flush_tlb_page(vma, address);
-+}
-+
- #ifdef CONFIG_DEBUG_TLB_SANITY
- 
- static unsigned get_pte_for_vaddr(unsigned vaddr)
+ 		rpm_msg_ram: sram@fc428000 {
+-- 
+2.34.1
+
 
 
