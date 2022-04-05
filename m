@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E58844F359B
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:51:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F6DC4F35CD
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:54:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236451AbiDEKwS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:52:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50092 "EHLO
+        id S240434AbiDEKzL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:55:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50126 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345945AbiDEJoN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:44:13 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 328E4C6822;
-        Tue,  5 Apr 2022 02:29:50 -0700 (PDT)
+        with ESMTP id S1344743AbiDEJmm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:42:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 842C6BF009;
+        Tue,  5 Apr 2022 02:28:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DD60AB81CA4;
-        Tue,  5 Apr 2022 09:29:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 306C7C385A0;
-        Tue,  5 Apr 2022 09:29:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 21DC361659;
+        Tue,  5 Apr 2022 09:28:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CE93C385A2;
+        Tue,  5 Apr 2022 09:28:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150987;
-        bh=Jc+JzbY33FN9h8pyG2ldw03fJ9OJVncRfFwxDY8PMaw=;
+        s=korg; t=1649150880;
+        bh=DaKU9tzGBNC8vhMrAakJ4TImi/mLVIJ8Z1GA0IsQzmQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ihLEp30tgmD/dfdg9rXG/j7hJ+/Hzzq4/fxbxNmF6tJpuP1WwTL/+0KI6DG4VjUmL
-         YoHlOIvyDh08Guc1pCrodu4DLI4Oi3EsJwACg4eu9hehlEQH7k4YKC3IqRwDHGDPyy
-         LG5e5Sw+vsp7WtiGwcgclypUv/TKxt3rKXhCcPt8=
+        b=H4iUu7H2UIZS6hZ76uynBSagWAMmeuBrVLZWcqAtnmy72w4uwGDPqdgkUof01Ads8
+         UoXO9gITXPHBxmumVyTUzaqV1/0foAF+aOSJWxqphISZcMhlbnCDVxwPXH4YgTiAda
+         /JmGkZdYgjryMADHZXnCxFRuYMxwkbkJAfgUclhc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Muhammad Usama Anjum <usama.anjum@collabora.com>,
         Dave Hansen <dave.hansen@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 206/913] selftests/x86: Add validity check and allow field splitting
-Date:   Tue,  5 Apr 2022 09:21:08 +0200
-Message-Id: <20220405070346.033767864@linuxfoundation.org>
+Subject: [PATCH 5.15 207/913] selftests/sgx: Treat CC as one argument
+Date:   Tue,  5 Apr 2022 09:21:09 +0200
+Message-Id: <20220405070346.063840285@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -57,36 +57,35 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Muhammad Usama Anjum <usama.anjum@collabora.com>
 
-[ Upstream commit b06e15ebd5bfb670f93c7f11a29b8299c1178bc6 ]
+[ Upstream commit 6170abb21e2380477080b25145da9747ad467d3d ]
 
-Add check to test if CC has a string. CC can have multiple sub-strings
-like "ccache gcc". Erorr pops up if it is treated as single string and
-double quotes are used around it. This can be fixed by removing the
-quotes and not treating CC as a single string.
+CC can have multiple sub-strings like "ccache gcc". For check_cc.sh,
+CC needs to be treated like one argument. Put double quotes around it to
+make CC one string and hence one argument.
 
-Fixes: e9886ace222e ("selftests, x86: Rework x86 target architecture detection")
+Fixes: 2adcba79e69d ("selftests/x86: Add a selftest for SGX")
 Reported-by: "kernelci.org bot" <bot@kernelci.org>
 Signed-off-by: Muhammad Usama Anjum <usama.anjum@collabora.com>
 Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
-Link: https://lkml.kernel.org/r/20220214184109.3739179-2-usama.anjum@collabora.com
+Link: https://lkml.kernel.org/r/20220214184109.3739179-3-usama.anjum@collabora.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/x86/check_cc.sh | 2 +-
+ tools/testing/selftests/sgx/Makefile | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/x86/check_cc.sh b/tools/testing/selftests/x86/check_cc.sh
-index 3e2089c8cf54..8c669c0d662e 100755
---- a/tools/testing/selftests/x86/check_cc.sh
-+++ b/tools/testing/selftests/x86/check_cc.sh
-@@ -7,7 +7,7 @@ CC="$1"
- TESTPROG="$2"
- shift 2
+diff --git a/tools/testing/selftests/sgx/Makefile b/tools/testing/selftests/sgx/Makefile
+index 7f12d55b97f8..472b27ccd7dc 100644
+--- a/tools/testing/selftests/sgx/Makefile
++++ b/tools/testing/selftests/sgx/Makefile
+@@ -4,7 +4,7 @@ include ../lib.mk
  
--if "$CC" -o /dev/null "$TESTPROG" -O0 "$@" 2>/dev/null; then
-+if [ -n "$CC" ] && $CC -o /dev/null "$TESTPROG" -O0 "$@" 2>/dev/null; then
-     echo 1
- else
-     echo 0
+ .PHONY: all clean
+ 
+-CAN_BUILD_X86_64 := $(shell ../x86/check_cc.sh $(CC) \
++CAN_BUILD_X86_64 := $(shell ../x86/check_cc.sh "$(CC)" \
+ 			    ../x86/trivial_64bit_program.c)
+ 
+ ifndef OBJCOPY
 -- 
 2.34.1
 
