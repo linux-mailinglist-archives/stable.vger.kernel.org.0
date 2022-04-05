@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AE4CB4F28DA
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:22:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CA924F28DB
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:22:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233894AbiDEIXa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:23:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34710 "EHLO
+        id S233905AbiDEIXe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:23:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55022 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236895AbiDEIRH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:17:07 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9311AF1F3;
-        Tue,  5 Apr 2022 01:04:47 -0700 (PDT)
+        with ESMTP id S236952AbiDEIRK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:17:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84B5EAFAD6;
+        Tue,  5 Apr 2022 01:04:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 69FF8B81B7F;
-        Tue,  5 Apr 2022 08:04:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD7D8C385A4;
-        Tue,  5 Apr 2022 08:04:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 03D1FB81BBF;
+        Tue,  5 Apr 2022 08:04:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68A0EC385A0;
+        Tue,  5 Apr 2022 08:04:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145886;
-        bh=fkdpJ2IFU6pZUVP1unK76yRZhKseDm5fi4EyKNybARY=;
+        s=korg; t=1649145891;
+        bh=VuVqk7vpmyOSK/0S07GFXdyZfzputg41fFIzTsR7aR4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oX+2r/Qq31o+gkmd3OW2LKp17jOolbrk1mFCwRXgXyQObyMyBTRP5Sh2rpIW6FY/L
-         kc0SZYUyUlSqj0/qkgCsueNy0yzdZ0OlQNmh+3LRvlbs3HiLBb4cTZbsZ+bJ4p8HN9
-         WMdyywwTxEVw1ypaahOJ6wz0F1npoH/a5bXiWVqM=
+        b=lihjjzTvGu15zz95eP+KN+T4jtTcwtGVs/TAw+I5VAEIXFRmFkbPwdENGfrh6KRU9
+         rzbEK133aNlYDZGKenWOO0+lsB7+CRdNJiHD5934kxZgNXiqPIQiVygr3B6vkfUVY6
+         FopnPdfax09Yn+bz2icJNed+YKoYAczEu+wdtaNo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuogee Hsieh <quic_khsieh@quicinc.com>,
+        stable@vger.kernel.org,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Stephen Boyd <swboyd@chromium.org>,
         Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0566/1126] drm/msm/dp: do not initialize phy until plugin interrupt received
-Date:   Tue,  5 Apr 2022 09:21:53 +0200
-Message-Id: <20220405070424.247063194@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>,
+        Kuogee Hsieh <quic_khsieh@quicinc.com>
+Subject: [PATCH 5.17 0567/1126] drm/msm/dp: populate connector of struct dp_panel
+Date:   Tue,  5 Apr 2022 09:21:54 +0200
+Message-Id: <20220405070424.276269185@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -57,493 +59,78 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Kuogee Hsieh <quic_khsieh@quicinc.com>
 
-[ Upstream commit 989ebe7bc4463002c210db0010c8475797a9098f ]
+[ Upstream commit 5e602f5156910c7b19661699896cb6e3fb94fab9 ]
 
-Current DP drivers have regulators, clocks, irq and phy are grouped
-together within a function and executed not in a symmetric manner.
-This increase difficulty of code maintenance and limited code scalability.
-This patch divides the driver life cycle of operation into four states,
-resume (including booting up), dongle plugin, dongle unplugged and suspend.
-Regulators, core clocks and irq are grouped together and enabled at resume
-(or booting up) so that the DP controller is armed and ready to receive HPD
-plugin interrupts. HPD plugin interrupt is generated when a dongle plugs
-into DUT (device under test). Once HPD plugin interrupt is received, DP
-controller will initialize phy so that dpcd read/write will function and
-following link training can be proceeded successfully. DP phy will be
-disabled after main link is teared down at end of unplugged HPD interrupt
-handle triggered by dongle unplugged out of DUT. Finally regulators, code
-clocks and irq are disabled at corresponding suspension.
+DP CTS test case 4.2.2.6 has valid edid with bad checksum on purpose
+and expect DP source return correct checksum. During drm edid read,
+correct edid checksum is calculated and stored at
+connector::real_edid_checksum.
+
+The problem is struct dp_panel::connector never be assigned, instead the
+connector is stored in struct msm_dp::connector. When we run compliance
+testing test case 4.2.2.6 dp_panel_handle_sink_request() won't have a valid
+edid set in struct dp_panel::edid so we'll try to use the connectors
+real_edid_checksum and hit a NULL pointer dereference error because the
+connector pointer is never assigned.
 
 Changes in V2:
--- removed unnecessary dp_ctrl NULL check
--- removed unnecessary phy init_count and power_count DRM_DEBUG_DP logs
--- remove flip parameter out of dp_ctrl_irq_enable()
--- add fixes tag
+-- populate panel connector at msm_dp_modeset_init() instead of at dp_panel_read_sink_caps()
 
 Changes in V3:
--- call dp_display_host_phy_init() instead of dp_ctrl_phy_init() at
-        dp_display_host_init() for eDP
+-- remove unhelpful kernel crash trace commit text
+-- remove renaming dp_display parameter to dp
 
 Changes in V4:
--- rewording commit text to match this commit changes
-
-Changes in V5:
--- rebase on top of msm-next branch
-
-Changes in V6:
--- delete flip variable
-
-Changes in V7:
--- dp_ctrl_irq_enable/disabe() merged into dp_ctrl_reset_irq_ctrl()
-
-Changes in V8:
--- add more detail comment regrading dp phy at dp_display_host_init()
-
-Changes in V9:
--- remove set phy_initialized to false when -ECONNRESET detected
+-- add more details to commit text
 
 Changes in v10:
 --  group into one series
 
 Changes in v11:
--- drop drm/msm/dp: dp_link_parse_sink_count() return immediately
-	if aux read
+-- drop drm/msm/dp: dp_link_parse_sink_count() return immediately if aux read
 
-Changes in v12:
--- move dp_display_host_phy_exit() after dp_display_host_deinit()
+Fixes: 7948fe12d47 ("drm/msm/dp: return correct edid checksum after corrupted edid checksum read")
+Signee-off-by: Kuogee Hsieh <quic_khsieh@quicinc.com>
 
-Changes in v13:
--- do not execute phy_init until plugged_in interrupt for edp, same as DP.
-
-Changes in v14:
--- remove redundant dp->core_initialized = false form dp_pm_suspend.
-
-Changes in v15:
--- remove core_initialized flag check at both host_init and host_deinit
-
-Changes in v16:
--- remove dp_display_host_phy_exit core_initialized=false at dp_pm_suspend
-
-Changes in v17:
--- remove core_initialized checking before execute attention_cb()
-
-Changes in v18:
--- remove core_initialized checking at dp_pm_suspend
-
-Fixes: 8ede2ecc3e5e ("drm/msm/dp: Add DP compliance tests on Snapdragon Chipsets")
-Signed-off-by: Kuogee Hsieh <quic_khsieh@quicinc.com>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Link: https://lore.kernel.org/r/1642531648-8448-2-git-send-email-quic_khsieh@quicinc.com
+Link: https://lore.kernel.org/r/1642531648-8448-3-git-send-email-quic_khsieh@quicinc.com
 Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/dp/dp_ctrl.c    |  80 ++++++++------------
- drivers/gpu/drm/msm/dp/dp_ctrl.h    |   8 +-
- drivers/gpu/drm/msm/dp/dp_display.c | 111 ++++++++++++++--------------
- 3 files changed, 92 insertions(+), 107 deletions(-)
+ drivers/gpu/drm/msm/dp/dp_display.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/gpu/drm/msm/dp/dp_ctrl.c b/drivers/gpu/drm/msm/dp/dp_ctrl.c
-index c724cb0bde9d..9c80b493f974 100644
---- a/drivers/gpu/drm/msm/dp/dp_ctrl.c
-+++ b/drivers/gpu/drm/msm/dp/dp_ctrl.c
-@@ -1365,60 +1365,44 @@ static int dp_ctrl_enable_stream_clocks(struct dp_ctrl_private *ctrl)
- 	return ret;
- }
- 
--int dp_ctrl_host_init(struct dp_ctrl *dp_ctrl, bool flip, bool reset)
-+void dp_ctrl_reset_irq_ctrl(struct dp_ctrl *dp_ctrl, bool enable)
-+{
-+	struct dp_ctrl_private *ctrl;
-+
-+	ctrl = container_of(dp_ctrl, struct dp_ctrl_private, dp_ctrl);
-+
-+	dp_catalog_ctrl_reset(ctrl->catalog);
-+
-+	if (enable)
-+		dp_catalog_ctrl_enable_irq(ctrl->catalog, enable);
-+}
-+
-+void dp_ctrl_phy_init(struct dp_ctrl *dp_ctrl)
+diff --git a/drivers/gpu/drm/msm/dp/dp_display.c b/drivers/gpu/drm/msm/dp/dp_display.c
+index 30590232d263..1d7f82e6eafe 100644
+--- a/drivers/gpu/drm/msm/dp/dp_display.c
++++ b/drivers/gpu/drm/msm/dp/dp_display.c
+@@ -1463,6 +1463,7 @@ int msm_dp_modeset_init(struct msm_dp *dp_display, struct drm_device *dev,
+ 			struct drm_encoder *encoder)
  {
- 	struct dp_ctrl_private *ctrl;
- 	struct dp_io *dp_io;
- 	struct phy *phy;
+ 	struct msm_drm_private *priv;
++	struct dp_display_private *dp_priv;
+ 	int ret;
  
--	if (!dp_ctrl) {
--		DRM_ERROR("Invalid input data\n");
--		return -EINVAL;
--	}
--
- 	ctrl = container_of(dp_ctrl, struct dp_ctrl_private, dp_ctrl);
- 	dp_io = &ctrl->parser->io;
- 	phy = dp_io->phy;
+ 	if (WARN_ON(!encoder) || WARN_ON(!dp_display) || WARN_ON(!dev))
+@@ -1471,6 +1472,8 @@ int msm_dp_modeset_init(struct msm_dp *dp_display, struct drm_device *dev,
+ 	priv = dev->dev_private;
+ 	dp_display->drm_dev = dev;
  
--	ctrl->dp_ctrl.orientation = flip;
--
--	if (reset)
--		dp_catalog_ctrl_reset(ctrl->catalog);
--
--	DRM_DEBUG_DP("flip=%d\n", flip);
- 	dp_catalog_ctrl_phy_reset(ctrl->catalog);
- 	phy_init(phy);
--	dp_catalog_ctrl_enable_irq(ctrl->catalog, true);
--
--	return 0;
- }
- 
--/**
-- * dp_ctrl_host_deinit() - Uninitialize DP controller
-- * @dp_ctrl: Display Port Driver data
-- *
-- * Perform required steps to uninitialize DP controller
-- * and its resources.
-- */
--void dp_ctrl_host_deinit(struct dp_ctrl *dp_ctrl)
-+void dp_ctrl_phy_exit(struct dp_ctrl *dp_ctrl)
- {
- 	struct dp_ctrl_private *ctrl;
- 	struct dp_io *dp_io;
- 	struct phy *phy;
- 
--	if (!dp_ctrl) {
--		DRM_ERROR("Invalid input data\n");
--		return;
--	}
--
- 	ctrl = container_of(dp_ctrl, struct dp_ctrl_private, dp_ctrl);
- 	dp_io = &ctrl->parser->io;
- 	phy = dp_io->phy;
- 
--	dp_catalog_ctrl_enable_irq(ctrl->catalog, false);
-+	dp_catalog_ctrl_phy_reset(ctrl->catalog);
- 	phy_exit(phy);
--
--	DRM_DEBUG_DP("Host deinitialized successfully\n");
- }
- 
- static bool dp_ctrl_use_fixed_nvid(struct dp_ctrl_private *ctrl)
-@@ -1488,7 +1472,10 @@ static int dp_ctrl_deinitialize_mainlink(struct dp_ctrl_private *ctrl)
- 	}
- 
- 	phy_power_off(phy);
++	dp_priv = container_of(dp_display, struct dp_display_private, dp_display);
 +
-+	/* aux channel down, reinit phy */
- 	phy_exit(phy);
-+	phy_init(phy);
- 
- 	return 0;
- }
-@@ -1893,8 +1880,14 @@ int dp_ctrl_off_link_stream(struct dp_ctrl *dp_ctrl)
+ 	ret = dp_display_request_irq(dp_display);
+ 	if (ret) {
+ 		DRM_ERROR("request_irq failed, ret=%d\n", ret);
+@@ -1488,6 +1491,8 @@ int msm_dp_modeset_init(struct msm_dp *dp_display, struct drm_device *dev,
  		return ret;
  	}
  
-+	DRM_DEBUG_DP("Before, phy=%x init_count=%d power_on=%d\n",
-+		(u32)(uintptr_t)phy, phy->init_count, phy->power_count);
++	dp_priv->panel->connector = dp_display->connector;
 +
- 	phy_power_off(phy);
+ 	priv->connectors[priv->num_connectors++] = dp_display->connector;
  
-+	DRM_DEBUG_DP("After, phy=%x init_count=%d power_on=%d\n",
-+		(u32)(uintptr_t)phy, phy->init_count, phy->power_count);
-+
- 	/* aux channel down, reinit phy */
- 	phy_exit(phy);
- 	phy_init(phy);
-@@ -1903,23 +1896,6 @@ int dp_ctrl_off_link_stream(struct dp_ctrl *dp_ctrl)
- 	return ret;
- }
- 
--void dp_ctrl_off_phy(struct dp_ctrl *dp_ctrl)
--{
--	struct dp_ctrl_private *ctrl;
--	struct dp_io *dp_io;
--	struct phy *phy;
--
--	ctrl = container_of(dp_ctrl, struct dp_ctrl_private, dp_ctrl);
--	dp_io = &ctrl->parser->io;
--	phy = dp_io->phy;
--
--	dp_catalog_ctrl_reset(ctrl->catalog);
--
--	phy_exit(phy);
--
--	DRM_DEBUG_DP("DP off phy done\n");
--}
--
- int dp_ctrl_off(struct dp_ctrl *dp_ctrl)
- {
- 	struct dp_ctrl_private *ctrl;
-@@ -1947,10 +1923,14 @@ int dp_ctrl_off(struct dp_ctrl *dp_ctrl)
- 		DRM_ERROR("Failed to disable link clocks. ret=%d\n", ret);
- 	}
- 
-+	DRM_DEBUG_DP("Before, phy=%x init_count=%d power_on=%d\n",
-+		(u32)(uintptr_t)phy, phy->init_count, phy->power_count);
-+
- 	phy_power_off(phy);
--	phy_exit(phy);
- 
--	DRM_DEBUG_DP("DP off done\n");
-+	DRM_DEBUG_DP("After, phy=%x init_count=%d power_on=%d\n",
-+		(u32)(uintptr_t)phy, phy->init_count, phy->power_count);
-+
- 	return ret;
- }
- 
-diff --git a/drivers/gpu/drm/msm/dp/dp_ctrl.h b/drivers/gpu/drm/msm/dp/dp_ctrl.h
-index 2363a2df9597..2433edbc70a6 100644
---- a/drivers/gpu/drm/msm/dp/dp_ctrl.h
-+++ b/drivers/gpu/drm/msm/dp/dp_ctrl.h
-@@ -19,12 +19,9 @@ struct dp_ctrl {
- 	u32 pixel_rate;
- };
- 
--int dp_ctrl_host_init(struct dp_ctrl *dp_ctrl, bool flip, bool reset);
--void dp_ctrl_host_deinit(struct dp_ctrl *dp_ctrl);
- int dp_ctrl_on_link(struct dp_ctrl *dp_ctrl);
- int dp_ctrl_on_stream(struct dp_ctrl *dp_ctrl);
- int dp_ctrl_off_link_stream(struct dp_ctrl *dp_ctrl);
--void dp_ctrl_off_phy(struct dp_ctrl *dp_ctrl);
- int dp_ctrl_off(struct dp_ctrl *dp_ctrl);
- void dp_ctrl_push_idle(struct dp_ctrl *dp_ctrl);
- void dp_ctrl_isr(struct dp_ctrl *dp_ctrl);
-@@ -34,4 +31,9 @@ struct dp_ctrl *dp_ctrl_get(struct device *dev, struct dp_link *link,
- 			struct dp_power *power, struct dp_catalog *catalog,
- 			struct dp_parser *parser);
- 
-+void dp_ctrl_reset_irq_ctrl(struct dp_ctrl *dp_ctrl, bool enable);
-+void dp_ctrl_phy_init(struct dp_ctrl *dp_ctrl);
-+void dp_ctrl_phy_exit(struct dp_ctrl *dp_ctrl);
-+void dp_ctrl_irq_phy_exit(struct dp_ctrl *dp_ctrl);
-+
- #endif /* _DP_CTRL_H_ */
-diff --git a/drivers/gpu/drm/msm/dp/dp_display.c b/drivers/gpu/drm/msm/dp/dp_display.c
-index 7cc4d21f2091..30590232d263 100644
---- a/drivers/gpu/drm/msm/dp/dp_display.c
-+++ b/drivers/gpu/drm/msm/dp/dp_display.c
-@@ -83,6 +83,7 @@ struct dp_display_private {
- 
- 	/* state variables */
- 	bool core_initialized;
-+	bool phy_initialized;
- 	bool hpd_irq_on;
- 	bool audio_supported;
- 
-@@ -372,36 +373,45 @@ static int dp_display_process_hpd_high(struct dp_display_private *dp)
- 	return rc;
- }
- 
--static void dp_display_host_init(struct dp_display_private *dp, int reset)
-+static void dp_display_host_phy_init(struct dp_display_private *dp)
- {
--	bool flip = false;
-+	DRM_DEBUG_DP("core_init=%d phy_init=%d\n",
-+			dp->core_initialized, dp->phy_initialized);
- 
--	DRM_DEBUG_DP("core_initialized=%d\n", dp->core_initialized);
--	if (dp->core_initialized) {
--		DRM_DEBUG_DP("DP core already initialized\n");
--		return;
-+	if (!dp->phy_initialized) {
-+		dp_ctrl_phy_init(dp->ctrl);
-+		dp->phy_initialized = true;
- 	}
-+}
-+
-+static void dp_display_host_phy_exit(struct dp_display_private *dp)
-+{
-+	DRM_DEBUG_DP("core_init=%d phy_init=%d\n",
-+			dp->core_initialized, dp->phy_initialized);
- 
--	if (dp->usbpd->orientation == ORIENTATION_CC2)
--		flip = true;
-+	if (dp->phy_initialized) {
-+		dp_ctrl_phy_exit(dp->ctrl);
-+		dp->phy_initialized = false;
-+	}
-+}
-+
-+static void dp_display_host_init(struct dp_display_private *dp)
-+{
-+	DRM_DEBUG_DP("core_initialized=%d\n", dp->core_initialized);
- 
--	dp_power_init(dp->power, flip);
--	dp_ctrl_host_init(dp->ctrl, flip, reset);
-+	dp_power_init(dp->power, false);
-+	dp_ctrl_reset_irq_ctrl(dp->ctrl, true);
- 	dp_aux_init(dp->aux);
- 	dp->core_initialized = true;
- }
- 
- static void dp_display_host_deinit(struct dp_display_private *dp)
- {
--	if (!dp->core_initialized) {
--		DRM_DEBUG_DP("DP core not initialized\n");
--		return;
--	}
-+	DRM_DEBUG_DP("core_initialized=%d\n", dp->core_initialized);
- 
--	dp_ctrl_host_deinit(dp->ctrl);
-+	dp_ctrl_reset_irq_ctrl(dp->ctrl, false);
- 	dp_aux_deinit(dp->aux);
- 	dp_power_deinit(dp->power);
--
- 	dp->core_initialized = false;
- }
- 
-@@ -409,7 +419,7 @@ static int dp_display_usbpd_configure_cb(struct device *dev)
- {
- 	struct dp_display_private *dp = dev_get_dp_display_private(dev);
- 
--	dp_display_host_init(dp, false);
-+	dp_display_host_phy_init(dp);
- 
- 	return dp_display_process_hpd_high(dp);
- }
-@@ -530,11 +540,6 @@ static int dp_hpd_plug_handle(struct dp_display_private *dp, u32 data)
- 	ret = dp_display_usbpd_configure_cb(&dp->pdev->dev);
- 	if (ret) {	/* link train failed */
- 		dp->hpd_state = ST_DISCONNECTED;
--
--		if (ret == -ECONNRESET) { /* cable unplugged */
--			dp->core_initialized = false;
--		}
--
- 	} else {
- 		/* start sentinel checking in case of missing uevent */
- 		dp_add_event(dp, EV_CONNECT_PENDING_TIMEOUT, 0, tout);
-@@ -604,8 +609,7 @@ static int dp_hpd_unplug_handle(struct dp_display_private *dp, u32 data)
- 	if (state == ST_DISCONNECTED) {
- 		/* triggered by irq_hdp with sink_count = 0 */
- 		if (dp->link->sink_count == 0) {
--			dp_ctrl_off_phy(dp->ctrl);
--			dp->core_initialized = false;
-+			dp_display_host_phy_exit(dp);
- 		}
- 		mutex_unlock(&dp->event_mutex);
- 		return 0;
-@@ -667,7 +671,6 @@ static int dp_disconnect_pending_timeout(struct dp_display_private *dp, u32 data
- static int dp_irq_hpd_handle(struct dp_display_private *dp, u32 data)
- {
- 	u32 state;
--	int ret;
- 
- 	mutex_lock(&dp->event_mutex);
- 
-@@ -692,16 +695,8 @@ static int dp_irq_hpd_handle(struct dp_display_private *dp, u32 data)
- 		return 0;
- 	}
- 
--	/*
--	 * dp core (ahb/aux clks) must be initialized before
--	 * irq_hpd be handled
--	 */
--	if (dp->core_initialized) {
--		ret = dp_display_usbpd_attention_cb(&dp->pdev->dev);
--		if (ret == -ECONNRESET) { /* cable unplugged */
--			dp->core_initialized = false;
--		}
--	}
-+	dp_display_usbpd_attention_cb(&dp->pdev->dev);
-+
- 	DRM_DEBUG_DP("hpd_state=%d\n", state);
- 
- 	mutex_unlock(&dp->event_mutex);
-@@ -892,12 +887,19 @@ static int dp_display_disable(struct dp_display_private *dp, u32 data)
- 
- 	dp_display->audio_enabled = false;
- 
--	/* triggered by irq_hpd with sink_count = 0 */
- 	if (dp->link->sink_count == 0) {
-+		/*
-+		 * irq_hpd with sink_count = 0
-+		 * hdmi unplugged out of dongle
-+		 */
- 		dp_ctrl_off_link_stream(dp->ctrl);
- 	} else {
-+		/*
-+		 * unplugged interrupt
-+		 * dongle unplugged out of DUT
-+		 */
- 		dp_ctrl_off(dp->ctrl);
--		dp->core_initialized = false;
-+		dp_display_host_phy_exit(dp);
- 	}
- 
- 	dp_display->power_on = false;
-@@ -1027,7 +1029,7 @@ void msm_dp_snapshot(struct msm_disp_state *disp_state, struct msm_dp *dp)
- static void dp_display_config_hpd(struct dp_display_private *dp)
- {
- 
--	dp_display_host_init(dp, true);
-+	dp_display_host_init(dp);
- 	dp_catalog_ctrl_hpd_config(dp->catalog);
- 
- 	/* Enable interrupt first time
-@@ -1306,20 +1308,23 @@ static int dp_pm_resume(struct device *dev)
- 	dp->hpd_state = ST_DISCONNECTED;
- 
- 	/* turn on dp ctrl/phy */
--	dp_display_host_init(dp, true);
-+	dp_display_host_init(dp);
- 
- 	dp_catalog_ctrl_hpd_config(dp->catalog);
- 
--	/*
--	 * set sink to normal operation mode -- D0
--	 * before dpcd read
--	 */
--	dp_link_psm_config(dp->link, &dp->panel->link_info, false);
- 
- 	if (dp_catalog_link_is_connected(dp->catalog)) {
-+		/*
-+		 * set sink to normal operation mode -- D0
-+		 * before dpcd read
-+		 */
-+		dp_display_host_phy_init(dp);
-+		dp_link_psm_config(dp->link, &dp->panel->link_info, false);
- 		sink_count = drm_dp_read_sink_count(dp->aux);
- 		if (sink_count < 0)
- 			sink_count = 0;
-+
-+		dp_display_host_phy_exit(dp);
- 	}
- 
- 	dp->link->sink_count = sink_count;
-@@ -1358,18 +1363,16 @@ static int dp_pm_suspend(struct device *dev)
- 	DRM_DEBUG_DP("Before, core_inited=%d power_on=%d\n",
- 			dp->core_initialized, dp_display->power_on);
- 
--	if (dp->core_initialized == true) {
--		/* mainlink enabled */
--		if (dp_power_clk_status(dp->power, DP_CTRL_PM))
--			dp_ctrl_off_link_stream(dp->ctrl);
-+	/* mainlink enabled */
-+	if (dp_power_clk_status(dp->power, DP_CTRL_PM))
-+		dp_ctrl_off_link_stream(dp->ctrl);
- 
--		dp_display_host_deinit(dp);
--	}
--
--	dp->hpd_state = ST_SUSPENDED;
-+	dp_display_host_phy_exit(dp);
- 
- 	/* host_init will be called at pm_resume */
--	dp->core_initialized = false;
-+	dp_display_host_deinit(dp);
-+
-+	dp->hpd_state = ST_SUSPENDED;
- 
- 	DRM_DEBUG_DP("After, core_inited=%d power_on=%d\n",
- 			dp->core_initialized, dp_display->power_on);
-@@ -1535,7 +1538,7 @@ int msm_dp_display_enable(struct msm_dp *dp, struct drm_encoder *encoder)
- 	state =  dp_display->hpd_state;
- 
- 	if (state == ST_DISPLAY_OFF)
--		dp_display_host_init(dp_display, true);
-+		dp_display_host_phy_init(dp_display);
- 
- 	dp_display_enable(dp_display, 0);
- 
+ 	dp_display->bridge = msm_dp_bridge_init(dp_display, dev, encoder);
 -- 
 2.34.1
 
