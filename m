@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 145DB4F3376
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:16:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62B674F30DC
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:36:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245425AbiDEJLs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:11:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48748 "EHLO
+        id S1347643AbiDEJ16 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:27:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51190 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244723AbiDEIwf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:35 -0400
+        with ESMTP id S244730AbiDEIwg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:36 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3E3319C2B;
-        Tue,  5 Apr 2022 01:42:49 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3ECC1B7BE;
+        Tue,  5 Apr 2022 01:42:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3D582609D0;
-        Tue,  5 Apr 2022 08:42:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B21CC385A0;
-        Tue,  5 Apr 2022 08:42:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 41D0060FFC;
+        Tue,  5 Apr 2022 08:42:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C1E1C385A1;
+        Tue,  5 Apr 2022 08:42:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148168;
-        bh=3Im5ZbTV8VowMePxr5eHh7Cs9Smgl/aP7ej0Z09rs6M=;
+        s=korg; t=1649148176;
+        bh=L/pyenQmUdfAnp5wcjo1xjpMHrfCLmOU2nZBPABT8/0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HoO2P0fEYDFiomJckPHovAmGZ3+Ck5MQa9+6IcbEzO6bp4fBxH3uv/eE5OK8XRoPY
-         mMHnmPnOpYxlEtioPeqduMUiVqEQWMc67gm4xLAfBx/W8YssBoPq9K4i3KfcYsQrI1
-         63gvPNAggHOBv6PVn8xEwxvf3kCQsuVNZEJS5cfQ=
+        b=Jc2xLUUQ8kNg12dAKVr8rAjpmu0cKf1l4Q1Ut937ew943hDBCGSnoGah0+9ru3pSx
+         Y69STawd3D5Ody4D32ebL12iqf3C/HWQX3Nbw2WST0HiPwjzrVLfvmh/HbDZAiEIsN
+         lnJnC4jjrJy3UMnkWAqyKkqXI6oiJPLQi4JlEEEk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Richard Guy Briggs <rgb@redhat.com>,
-        Paul Moore <paul@paul-moore.com>,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Igor Zhbanov <i.zhbanov@omprussia.ru>,
+        Mimi Zohar <zohar@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0222/1017] audit: log AUDIT_TIME_* records only from rules
-Date:   Tue,  5 Apr 2022 09:18:55 +0200
-Message-Id: <20220405070400.841485460@linuxfoundation.org>
+Subject: [PATCH 5.16 0223/1017] EVM: fix the evm= __setup handler return value
+Date:   Tue,  5 Apr 2022 09:18:56 +0200
+Message-Id: <20220405070400.870695370@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -54,165 +55,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Richard Guy Briggs <rgb@redhat.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 272ceeaea355214b301530e262a0df8600bfca95 ]
+[ Upstream commit f2544f5e6c691679d56bb38637d2f347075b36fa ]
 
-AUDIT_TIME_* events are generated when there are syscall rules present
-that are not related to time keeping.  This will produce noisy log
-entries that could flood the logs and hide events we really care about.
+__setup() handlers should return 1 if the parameter is handled.
+Returning 0 causes the entire string to be added to init's
+environment strings (limited to 32 strings), unnecessarily polluting it.
 
-Rather than immediately produce the AUDIT_TIME_* records, store the data
-in the context and log it at syscall exit time respecting the filter
-rules.
+Using the documented string "evm=fix" causes an Unknown parameter message:
+  Unknown kernel command line parameters
+  "BOOT_IMAGE=/boot/bzImage-517rc5 evm=fix", will be passed to user space.
 
-Note: This eats the audit_buffer, unlike any others in show_special().
+and that string is added to init's environment string space:
+  Run /sbin/init as init process
+    with arguments:
+     /sbin/init
+    with environment:
+     HOME=/
+     TERM=linux
+     BOOT_IMAGE=/boot/bzImage-517rc5
+     evm=fix
 
-Please see https://bugzilla.redhat.com/show_bug.cgi?id=1991919
+With this change, using "evm=fix" acts as expected and an invalid
+option ("evm=evm") causes a warning to be printed:
+  evm: invalid "evm" mode
+but init's environment is not polluted with this string, as expected.
 
-Fixes: 7e8eda734d30 ("ntp: Audit NTP parameters adjustment")
-Fixes: 2d87a0674bd6 ("timekeeping: Audit clock adjustments")
-Signed-off-by: Richard Guy Briggs <rgb@redhat.com>
-[PM: fixed style/whitespace issues]
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+Fixes: 7102ebcd65c1 ("evm: permit only valid security.evm xattrs to be updated")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
+Link: lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/audit.h   |  4 +++
- kernel/auditsc.c | 87 +++++++++++++++++++++++++++++++++++++-----------
- 2 files changed, 71 insertions(+), 20 deletions(-)
+ security/integrity/evm/evm_main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/audit.h b/kernel/audit.h
-index c4498090a5bd..58b66543b4d5 100644
---- a/kernel/audit.h
-+++ b/kernel/audit.h
-@@ -201,6 +201,10 @@ struct audit_context {
- 		struct {
- 			char			*name;
- 		} module;
-+		struct {
-+			struct audit_ntp_data	ntp_data;
-+			struct timespec64	tk_injoffset;
-+		} time;
- 	};
- 	int fds[2];
- 	struct audit_proctitle proctitle;
-diff --git a/kernel/auditsc.c b/kernel/auditsc.c
-index 2dc94a0e3447..321904af2311 100644
---- a/kernel/auditsc.c
-+++ b/kernel/auditsc.c
-@@ -1331,6 +1331,53 @@ static void audit_log_fcaps(struct audit_buffer *ab, struct audit_names *name)
- 			 from_kuid(&init_user_ns, name->fcap.rootid));
+diff --git a/security/integrity/evm/evm_main.c b/security/integrity/evm/evm_main.c
+index 08f907382c61..7d87772f0ce6 100644
+--- a/security/integrity/evm/evm_main.c
++++ b/security/integrity/evm/evm_main.c
+@@ -86,7 +86,7 @@ static int __init evm_set_fixmode(char *str)
+ 	else
+ 		pr_err("invalid \"%s\" mode", str);
+ 
+-	return 0;
++	return 1;
  }
+ __setup("evm=", evm_set_fixmode);
  
-+static void audit_log_time(struct audit_context *context, struct audit_buffer **ab)
-+{
-+	const struct audit_ntp_data *ntp = &context->time.ntp_data;
-+	const struct timespec64 *tk = &context->time.tk_injoffset;
-+	static const char * const ntp_name[] = {
-+		"offset",
-+		"freq",
-+		"status",
-+		"tai",
-+		"tick",
-+		"adjust",
-+	};
-+	int type;
-+
-+	if (context->type == AUDIT_TIME_ADJNTPVAL) {
-+		for (type = 0; type < AUDIT_NTP_NVALS; type++) {
-+			if (ntp->vals[type].newval != ntp->vals[type].oldval) {
-+				if (!*ab) {
-+					*ab = audit_log_start(context,
-+							GFP_KERNEL,
-+							AUDIT_TIME_ADJNTPVAL);
-+					if (!*ab)
-+						return;
-+				}
-+				audit_log_format(*ab, "op=%s old=%lli new=%lli",
-+						 ntp_name[type],
-+						 ntp->vals[type].oldval,
-+						 ntp->vals[type].newval);
-+				audit_log_end(*ab);
-+				*ab = NULL;
-+			}
-+		}
-+	}
-+	if (tk->tv_sec != 0 || tk->tv_nsec != 0) {
-+		if (!*ab) {
-+			*ab = audit_log_start(context, GFP_KERNEL,
-+					      AUDIT_TIME_INJOFFSET);
-+			if (!*ab)
-+				return;
-+		}
-+		audit_log_format(*ab, "sec=%lli nsec=%li",
-+				 (long long)tk->tv_sec, tk->tv_nsec);
-+		audit_log_end(*ab);
-+		*ab = NULL;
-+	}
-+}
-+
- static void show_special(struct audit_context *context, int *call_panic)
- {
- 	struct audit_buffer *ab;
-@@ -1445,6 +1492,11 @@ static void show_special(struct audit_context *context, int *call_panic)
- 			audit_log_format(ab, "(null)");
- 
- 		break;
-+	case AUDIT_TIME_ADJNTPVAL:
-+	case AUDIT_TIME_INJOFFSET:
-+		/* this call deviates from the rest, eating the buffer */
-+		audit_log_time(context, &ab);
-+		break;
- 	}
- 	audit_log_end(ab);
- }
-@@ -2840,31 +2892,26 @@ void __audit_fanotify(unsigned int response)
- 
- void __audit_tk_injoffset(struct timespec64 offset)
- {
--	audit_log(audit_context(), GFP_KERNEL, AUDIT_TIME_INJOFFSET,
--		  "sec=%lli nsec=%li",
--		  (long long)offset.tv_sec, offset.tv_nsec);
--}
--
--static void audit_log_ntp_val(const struct audit_ntp_data *ad,
--			      const char *op, enum audit_ntp_type type)
--{
--	const struct audit_ntp_val *val = &ad->vals[type];
--
--	if (val->newval == val->oldval)
--		return;
-+	struct audit_context *context = audit_context();
- 
--	audit_log(audit_context(), GFP_KERNEL, AUDIT_TIME_ADJNTPVAL,
--		  "op=%s old=%lli new=%lli", op, val->oldval, val->newval);
-+	/* only set type if not already set by NTP */
-+	if (!context->type)
-+		context->type = AUDIT_TIME_INJOFFSET;
-+	memcpy(&context->time.tk_injoffset, &offset, sizeof(offset));
- }
- 
- void __audit_ntp_log(const struct audit_ntp_data *ad)
- {
--	audit_log_ntp_val(ad, "offset",	AUDIT_NTP_OFFSET);
--	audit_log_ntp_val(ad, "freq",	AUDIT_NTP_FREQ);
--	audit_log_ntp_val(ad, "status",	AUDIT_NTP_STATUS);
--	audit_log_ntp_val(ad, "tai",	AUDIT_NTP_TAI);
--	audit_log_ntp_val(ad, "tick",	AUDIT_NTP_TICK);
--	audit_log_ntp_val(ad, "adjust",	AUDIT_NTP_ADJUST);
-+	struct audit_context *context = audit_context();
-+	int type;
-+
-+	for (type = 0; type < AUDIT_NTP_NVALS; type++)
-+		if (ad->vals[type].newval != ad->vals[type].oldval) {
-+			/* unconditionally set type, overwriting TK */
-+			context->type = AUDIT_TIME_ADJNTPVAL;
-+			memcpy(&context->time.ntp_data, ad, sizeof(*ad));
-+			break;
-+		}
- }
- 
- void __audit_log_nfcfg(const char *name, u8 af, unsigned int nentries,
 -- 
 2.34.1
 
