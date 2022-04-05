@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D45C14F26AD
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:05:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF8304F2764
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:07:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232964AbiDEIEv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:04:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43990 "EHLO
+        id S233371AbiDEIGW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:06:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54458 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235509AbiDEH7s (ORCPT
+        with ESMTP id S235518AbiDEH7s (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:59:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B59266F9A;
-        Tue,  5 Apr 2022 00:54:58 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6193D37A2C;
+        Tue,  5 Apr 2022 00:54:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AF676B81A32;
-        Tue,  5 Apr 2022 07:54:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1BF8CC340EE;
-        Tue,  5 Apr 2022 07:54:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DF90B615CD;
+        Tue,  5 Apr 2022 07:54:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECBD3C3410F;
+        Tue,  5 Apr 2022 07:54:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145295;
-        bh=FNWouC3CoH6+dXI5kygOzexAVVRXN9qg89YVmFU1Dbg=;
+        s=korg; t=1649145298;
+        bh=OVYuAGTQx5dSN0iF81tVUGvUVEbzaoIJnsYHukZKhrk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Nj/CB5fL/1sxCXzU1DyGvcauNdbJgpM5DJNJhQfva7/YbekeeNF1YRG4yhEl31zE0
-         WA0tJOrGHvbqVoYOKe14vkL8VvCtk/4PfVfmKOWKY09FXfvUaAS0aK8SXnpYAIhCUR
-         brmUk+ssOURpjQF1TcWaKsJX465uUgMSWCaVZH/k=
+        b=sM1JckKTNl2sshuqLZMx8wFH/QqNEQF1eJ1dMU1S7tgapGZYc0LJDGDuBg5G1BE0x
+         CzpEHzaFkmrSA9Q7sXY+HzVP/jvBQgJ1IxvWN0NcXKEuA2Q9lrCh1vovr2jZk49J9X
+         zlpxCXANXfrg2O8d+X0xN+70/sTAxX2xfL5bbtgY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        stable@vger.kernel.org, Keerthy <j-keerthy@ti.com>,
+        Aswath Govindraju <a-govindraju@ti.com>,
+        Nishanth Menon <nm@ti.com>,
+        Kishon Vijay Abraham I <kishon@ti.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0356/1126] media: cedrus: h264: Fix neighbour info buffer size
-Date:   Tue,  5 Apr 2022 09:18:23 +0200
-Message-Id: <20220405070418.078301947@linuxfoundation.org>
+Subject: [PATCH 5.17 0357/1126] arm64: dts: ti: k3-j721s2-mcu-wakeup: Fix the interrupt-parent for wkup_gpioX instances
+Date:   Tue,  5 Apr 2022 09:18:24 +0200
+Message-Id: <20220405070418.107252350@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -54,42 +56,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jernej Skrabec <jernej.skrabec@gmail.com>
+From: Keerthy <j-keerthy@ti.com>
 
-[ Upstream commit fecd363ae2d5042553370b0adf60c47e35c34a83 ]
+[ Upstream commit 223d9ac45efb9311e7b2b0494c3ed25c701c6a5d ]
 
-According to BSP library source, H264 neighbour info buffer size needs
-to be 32 kiB for H6. This is similar to H265 decoding, which also needs
-double buffer size in comparison to older Cedrus core generations.
+The interrupt-parent for wkup_gpioX instances are wrongly assigned as
+main_gpio_intr instead of wkup_gpio_intr. Fix it.
 
-Increase buffer size to cover H6 needs. Since increase is not that big
-in absolute numbers, it doesn't make sense to complicate logic for older
-generations.
-
-Issue was discovered using iommu and cross checked with BSP library
-source.
-
-Fixes: 6eb9b758e307 ("media: cedrus: Add H264 decoding support")
-Signed-off-by: Jernej Skrabec <jernej.skrabec@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Fixes: b8545f9d3a54 ("arm64: dts: ti: Add initial support for J721S2 SoC")
+Signed-off-by: Keerthy <j-keerthy@ti.com>
+Signed-off-by: Aswath Govindraju <a-govindraju@ti.com>
+Signed-off-by: Nishanth Menon <nm@ti.com>
+Reviewed-by: Kishon Vijay Abraham I <kishon@ti.com>
+Link: https://lore.kernel.org/r/20220203132647.11314-1-a-govindraju@ti.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/sunxi/cedrus/cedrus_h264.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/ti/k3-j721s2-mcu-wakeup.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/media/sunxi/cedrus/cedrus_h264.c b/drivers/staging/media/sunxi/cedrus/cedrus_h264.c
-index b4173a8926d6..d8fb93035470 100644
---- a/drivers/staging/media/sunxi/cedrus/cedrus_h264.c
-+++ b/drivers/staging/media/sunxi/cedrus/cedrus_h264.c
-@@ -38,7 +38,7 @@ struct cedrus_h264_sram_ref_pic {
- 
- #define CEDRUS_H264_FRAME_NUM		18
- 
--#define CEDRUS_NEIGHBOR_INFO_BUF_SIZE	(16 * SZ_1K)
-+#define CEDRUS_NEIGHBOR_INFO_BUF_SIZE	(32 * SZ_1K)
- #define CEDRUS_MIN_PIC_INFO_BUF_SIZE       (130 * SZ_1K)
- 
- static void cedrus_h264_write_sram(struct cedrus_dev *dev,
+diff --git a/arch/arm64/boot/dts/ti/k3-j721s2-mcu-wakeup.dtsi b/arch/arm64/boot/dts/ti/k3-j721s2-mcu-wakeup.dtsi
+index 7521963719ff..6c5c02edb375 100644
+--- a/arch/arm64/boot/dts/ti/k3-j721s2-mcu-wakeup.dtsi
++++ b/arch/arm64/boot/dts/ti/k3-j721s2-mcu-wakeup.dtsi
+@@ -108,7 +108,7 @@
+ 		reg = <0x00 0x42110000 0x00 0x100>;
+ 		gpio-controller;
+ 		#gpio-cells = <2>;
+-		interrupt-parent = <&main_gpio_intr>;
++		interrupt-parent = <&wkup_gpio_intr>;
+ 		interrupts = <103>, <104>, <105>, <106>, <107>, <108>;
+ 		interrupt-controller;
+ 		#interrupt-cells = <2>;
+@@ -124,7 +124,7 @@
+ 		reg = <0x00 0x42100000 0x00 0x100>;
+ 		gpio-controller;
+ 		#gpio-cells = <2>;
+-		interrupt-parent = <&main_gpio_intr>;
++		interrupt-parent = <&wkup_gpio_intr>;
+ 		interrupts = <112>, <113>, <114>, <115>, <116>, <117>;
+ 		interrupt-controller;
+ 		#interrupt-cells = <2>;
 -- 
 2.34.1
 
