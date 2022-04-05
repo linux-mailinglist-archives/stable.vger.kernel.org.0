@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E698B4F37D4
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:25:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 702614F3A62
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:01:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359568AbiDELUE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:20:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37666 "EHLO
+        id S1344433AbiDELo7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:44:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43208 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349125AbiDEJtM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F91EABF63;
-        Tue,  5 Apr 2022 02:41:10 -0700 (PDT)
+        with ESMTP id S1354630AbiDEKO5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:14:57 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A88376BDCA;
+        Tue,  5 Apr 2022 03:01:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F0719B818F3;
-        Tue,  5 Apr 2022 09:41:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B2E0C385A3;
-        Tue,  5 Apr 2022 09:41:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 45B3A61676;
+        Tue,  5 Apr 2022 10:01:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 520BDC385A2;
+        Tue,  5 Apr 2022 10:01:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151667;
-        bh=gLkXz8KQ4nS4VC4V52HBqJya/9x7GRrOlH92dFwRMKI=;
+        s=korg; t=1649152899;
+        bh=TOHOU80nAEDJOHOVA9Ggqo7X+R5Neb+VHBK7nnlSFOE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BxUVAXIWoEsX5sz06dP/0JWvsOONIgiHwt8Vi/S+Al4q0YlsQCWd3jzaGOhQwLS2i
-         JDTmYSaM1hFzobvhdBprqd4Pd3Xx7bkWMXgfwmdAss0q6TuP9SrJZDEPALhyEejBnO
-         LR6FQ9Fpd/T2dHPhO3DVhl667K4yWPxs8NQgRCZ4=
+        b=fmzBSymc2f13GiJzw/EQ13ujlJ8Acuz0t2KCDR8Are6ww1yhbS0xrNJLN8h/MplD/
+         lTtiFvXSoMvM/iMPjZWwP6FwgUDg4WsCnSdc0uDAZiTflWZ5gO276XgA8tmVxnYcAE
+         j+5rciAHdzGe0Jb3gPSNLHA9J/yLs0ZGmxtxiqLM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tong Zhang <ztong0001@gmail.com>,
-        Ira Weiny <ira.weiny@intel.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 460/913] dax: make sure inodes are flushed before destroy cache
-Date:   Tue,  5 Apr 2022 09:25:22 +0200
-Message-Id: <20220405070353.637920523@linuxfoundation.org>
+        stable@vger.kernel.org, Anssi Hannula <anssi.hannula@bitwise.fi>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 5.10 029/599] xhci: fix uninitialized string returned by xhci_decode_ctrl_ctx()
+Date:   Tue,  5 Apr 2022 09:25:23 +0200
+Message-Id: <20220405070259.689734553@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070258.802373272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,51 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tong Zhang <ztong0001@gmail.com>
+From: Anssi Hannula <anssi.hannula@bitwise.fi>
 
-[ Upstream commit a7e8de822e0b1979f08767c751f6c8a9c1d4ad86 ]
+commit 05519b8589a679edb8fa781259893d20bece04ad upstream.
 
-A bug can be triggered by following command
+xhci_decode_ctrl_ctx() returns the untouched buffer as-is if both "drop"
+and "add" parameters are zero.
 
-$ modprobe nd_pmem && modprobe -r nd_pmem
+Fix the function to return an empty string in that case.
 
-[   10.060014] BUG dax_cache (Not tainted): Objects remaining in dax_cache on __kmem_cache_shutdown()
-[   10.060938] Slab 0x0000000085b729ac objects=9 used=1 fp=0x000000004f5ae469 flags=0x200000000010200(slab|head|node)
-[   10.062433] Call Trace:
-[   10.062673]  dump_stack_lvl+0x34/0x44
-[   10.062865]  slab_err+0x90/0xd0
-[   10.063619]  __kmem_cache_shutdown+0x13b/0x2f0
-[   10.063848]  kmem_cache_destroy+0x4a/0x110
-[   10.064058]  __x64_sys_delete_module+0x265/0x300
+It was not immediately clear from the possible call chains whether this
+issue is currently actually triggerable or not.
 
-This is caused by dax_fs_exit() not flushing inodes before destroy cache.
-To fix this issue, call rcu_barrier() before destroy cache.
+Note that before commit 4843b4b5ec64 ("xhci: fix even more unsafe memory
+usage in xhci tracing") the result effect in the failure case was different
+as a static buffer was used here, but the code still worked incorrectly.
 
-Signed-off-by: Tong Zhang <ztong0001@gmail.com>
-Reviewed-by: Ira Weiny <ira.weiny@intel.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/20220212071111.148575-1-ztong0001@gmail.com
-Fixes: 7b6be8444e0f ("dax: refactor dax-fs into a generic provider of 'struct dax_device' instances")
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 90d6d5731da7 ("xhci: Add tracing for input control context")
+Cc: stable@vger.kernel.org
+Signed-off-by: Anssi Hannula <anssi.hannula@bitwise.fi>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+commit 4843b4b5ec64 ("xhci: fix even more unsafe memory usage in xhci tracing")
+Link: https://lore.kernel.org/r/20220303110903.1662404-4-mathias.nyman@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/dax/super.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/host/xhci.h |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/dax/super.c b/drivers/dax/super.c
-index fc89e91beea7..7610e4a9ac4e 100644
---- a/drivers/dax/super.c
-+++ b/drivers/dax/super.c
-@@ -678,6 +678,7 @@ static int dax_fs_init(void)
- static void dax_fs_exit(void)
- {
- 	kern_unmount(dax_mnt);
-+	rcu_barrier();
- 	kmem_cache_destroy(dax_cache);
- }
+--- a/drivers/usb/host/xhci.h
++++ b/drivers/usb/host/xhci.h
+@@ -2458,6 +2458,8 @@ static inline const char *xhci_decode_ct
+ 	unsigned int	bit;
+ 	int		ret = 0;
  
--- 
-2.34.1
-
++	str[0] = '\0';
++
+ 	if (drop) {
+ 		ret = sprintf(str, "Drop:");
+ 		for_each_set_bit(bit, &drop, 32)
 
 
