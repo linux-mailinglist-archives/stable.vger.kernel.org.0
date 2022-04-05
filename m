@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E234A4F3AC3
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:04:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B1354F37C7
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:24:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239593AbiDELr4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:47:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58028 "EHLO
+        id S1359518AbiDELTs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:19:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44280 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355400AbiDEKTm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:19:42 -0400
+        with ESMTP id S1349207AbiDEJt0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:26 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89B5D52B02;
-        Tue,  5 Apr 2022 03:04:52 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A98432253D;
+        Tue,  5 Apr 2022 02:42:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 27700B81B7A;
-        Tue,  5 Apr 2022 10:04:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60516C385A3;
-        Tue,  5 Apr 2022 10:04:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 53261B818F3;
+        Tue,  5 Apr 2022 09:42:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A883DC385A1;
+        Tue,  5 Apr 2022 09:42:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153089;
-        bh=WkVJKsAZU6/G2MI9GVZ2hWhJPA+RrSP8pqdwsnsB1Zs=;
+        s=korg; t=1649151761;
+        bh=u8PxMLCYo4rYp2EXONipyGluuU3I5q0QkRQTH2Ha+LM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VCYLGgzGH+tyynZoKaGx4HxuKZjriv9EVAIowOiwIGKMtWXZ/OcsXbwe0q3Vd/Ilp
-         +v14bK9F2RWyP4UZ/sanwM1xy8V9pXAkkMFMyoEWK/KEI0jRdVMmi284Nf4mxVA3Cl
-         uSCpfDnMZ4q3cGkE3uDu1xldSJfR2S/9Eh3iT8rs=
+        b=1lVs05GRpXcBBO+qOUANVF2UhKmBtiCBn2AXDgUhP54FkG3ujQuYiD4dJ92wg93J0
+         b75qqRt3+Q0gO1/AM9lC4UTtIfoZxfd23IkfWFSf+rgBLs7a4kvedkABYRqiCxwKKz
+         OvzwYE4h5yGOdMs+ugNuGr/V6VT/BuL2kJVv/41I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
-        Michael Schmitz <schmitzmic@gmail.com>,
-        Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.10 098/599] video: fbdev: atari: Atari 2 bpp (STe) palette bugfix
-Date:   Tue,  5 Apr 2022 09:26:32 +0200
-Message-Id: <20220405070301.747958724@linuxfoundation.org>
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Jeff Johnson <quic_jjohnson@quicinc.com>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 531/913] ath10k: Fix error handling in ath10k_setup_msa_resources
+Date:   Tue,  5 Apr 2022 09:26:33 +0200
+Message-Id: <20220405070355.766997510@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
-References: <20220405070258.802373272@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,62 +55,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Schmitz <schmitzmic@gmail.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-commit c8be5edbd36ceed2ff3d6b8f8e40643c3f396ea3 upstream.
+[ Upstream commit 9747a78d5f758a5284751a10aee13c30d02bd5f1 ]
 
-The code to set the shifter STe palette registers has a long
-standing operator precedence bug, manifesting as colors set
-on a 2 bits per pixel frame buffer coming up with a distinctive
-blue tint.
+The device_node pointer is returned by of_parse_phandle() with refcount
+incremented. We should use of_node_put() on it when done.
 
-Add parentheses around the calculation of the per-color palette
-data before shifting those into their respective bit field position.
+This function only calls of_node_put() in the regular path.
+And it will cause refcount leak in error path.
 
-This bug goes back a long way (2.4 days at the very least) so there
-won't be a Fixes: tag.
-
-Tested on ARAnyM as well on Falcon030 hardware.
-
-Cc: stable@vger.kernel.org
-Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Link: https://lore.kernel.org/all/CAMuHMdU3ievhXxKR_xi_v3aumnYW7UNUO6qMdhgfyWTyVSsCkQ@mail.gmail.com
-Tested-by: Michael Schmitz <schmitzmic@gmail.com>
-Tested-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Signed-off-by: Michael Schmitz <schmitzmic@gmail.com>
-Signed-off-by: Helge Deller <deller@gmx.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 727fec790ead ("ath10k: Setup the msa resources before qmi init")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Reviewed-by: Jeff Johnson <quic_jjohnson@quicinc.com>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/20220308070238.19295-1-linmq006@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/atafb.c |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/net/wireless/ath/ath10k/snoc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/video/fbdev/atafb.c
-+++ b/drivers/video/fbdev/atafb.c
-@@ -1691,9 +1691,9 @@ static int falcon_setcolreg(unsigned int
- 			   ((blue & 0xfc00) >> 8));
- 	if (regno < 16) {
- 		shifter_tt.color_reg[regno] =
--			(((red & 0xe000) >> 13) | ((red & 0x1000) >> 12) << 8) |
--			(((green & 0xe000) >> 13) | ((green & 0x1000) >> 12) << 4) |
--			((blue & 0xe000) >> 13) | ((blue & 0x1000) >> 12);
-+			((((red & 0xe000) >> 13)   | ((red & 0x1000) >> 12)) << 8)   |
-+			((((green & 0xe000) >> 13) | ((green & 0x1000) >> 12)) << 4) |
-+			   ((blue & 0xe000) >> 13) | ((blue & 0x1000) >> 12);
- 		((u32 *)info->pseudo_palette)[regno] = ((red & 0xf800) |
- 						       ((green & 0xfc00) >> 5) |
- 						       ((blue & 0xf800) >> 11));
-@@ -1979,9 +1979,9 @@ static int stste_setcolreg(unsigned int
- 	green >>= 12;
- 	if (ATARIHW_PRESENT(EXTD_SHIFTER))
- 		shifter_tt.color_reg[regno] =
--			(((red & 0xe) >> 1) | ((red & 1) << 3) << 8) |
--			(((green & 0xe) >> 1) | ((green & 1) << 3) << 4) |
--			((blue & 0xe) >> 1) | ((blue & 1) << 3);
-+			((((red & 0xe)   >> 1) | ((red & 1)   << 3)) << 8) |
-+			((((green & 0xe) >> 1) | ((green & 1) << 3)) << 4) |
-+			  ((blue & 0xe)  >> 1) | ((blue & 1)  << 3);
- 	else
- 		shifter_tt.color_reg[regno] =
- 			((red & 0xe) << 7) |
+diff --git a/drivers/net/wireless/ath/ath10k/snoc.c b/drivers/net/wireless/ath/ath10k/snoc.c
+index 9513ab696fff..f79dd9a71690 100644
+--- a/drivers/net/wireless/ath/ath10k/snoc.c
++++ b/drivers/net/wireless/ath/ath10k/snoc.c
+@@ -1556,11 +1556,11 @@ static int ath10k_setup_msa_resources(struct ath10k *ar, u32 msa_size)
+ 	node = of_parse_phandle(dev->of_node, "memory-region", 0);
+ 	if (node) {
+ 		ret = of_address_to_resource(node, 0, &r);
++		of_node_put(node);
+ 		if (ret) {
+ 			dev_err(dev, "failed to resolve msa fixed region\n");
+ 			return ret;
+ 		}
+-		of_node_put(node);
+ 
+ 		ar->msa.paddr = r.start;
+ 		ar->msa.mem_size = resource_size(&r);
+-- 
+2.34.1
+
 
 
