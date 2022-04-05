@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 921E14F3EEA
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 22:55:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D84B4F3F27
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 22:57:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381188AbiDEMYk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:24:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55972 "EHLO
+        id S1380725AbiDEMY1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:24:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55990 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345137AbiDEKkp (ORCPT
+        with ESMTP id S1345154AbiDEKkp (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:40:45 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DF111AC;
-        Tue,  5 Apr 2022 03:26:11 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 637CBD57;
+        Tue,  5 Apr 2022 03:26:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DD73DB81B18;
-        Tue,  5 Apr 2022 10:26:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FF5EC385A0;
-        Tue,  5 Apr 2022 10:26:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 011E66141D;
+        Tue,  5 Apr 2022 10:26:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 097A2C385A1;
+        Tue,  5 Apr 2022 10:26:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649154368;
-        bh=gnwKpIuO0gxSR0HzxvdK3Lq1DoU5LfgR2w+c65MoDDs=;
+        s=korg; t=1649154374;
+        bh=cFnyWfm/m81Gz9VNERIZUDDiocWZQybTsQ0v67lOfbc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tC1RWV5ksQeppnYk12cZ7LHK1z8fPuHKyb4WX+uANLEdE8kL+TYIrEmH7TUlZEhQt
-         PEKOlr8+tAtv3L/y1nfHUADSHwH7uVAoBM52UgkxgSaXl8K2T5j5VvScggvZpRLYKG
-         d8JlxQmC+8a31xXbXodyA1kEKTCoS5t3Bq7JRvw0=
+        b=PD9rktGdsQ8AIiJS+zqlc6akvwFVBzQHGQxBZ5ehjlPNUBFu3jq1n9+1nX8YG8GIR
+         0aoLWpSUx2MbzQNk8VC4EgH7wRPspeq9+CYjp/0KX2b1zQHyyhoi/FAEFfvSheiw+A
+         ZLCNh1FdbEvKcJyNFAoFh2tV8Y9PzrHlMh8KCWBk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 5.10 553/599] rtc: check if __rtc_read_time was successful
-Date:   Tue,  5 Apr 2022 09:34:07 +0200
-Message-Id: <20220405070315.296153615@linuxfoundation.org>
+        stable@vger.kernel.org, Guangbin Huang <huangguangbin2@huawei.com>,
+        Paolo Abeni <pabeni@redhat.com>
+Subject: [PATCH 5.10 555/599] net: hns3: fix software vlan talbe of vlan 0 inconsistent with hardware
+Date:   Tue,  5 Apr 2022 09:34:09 +0200
+Message-Id: <20220405070315.357038357@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -53,54 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Guangbin Huang <huangguangbin2@huawei.com>
 
-commit 915593a7a663b2ad08b895a5f3ba8b19d89d4ebf upstream.
+commit 7ed258f12ec5ce855f15cdfb5710361dc82fe899 upstream.
 
-Clang static analysis reports this issue
-interface.c:810:8: warning: Passed-by-value struct
-  argument contains uninitialized data
-  now = rtc_tm_to_ktime(tm);
-      ^~~~~~~~~~~~~~~~~~~
+When user delete vlan 0, as driver will not delete vlan 0 for hardware in
+function hclge_set_vlan_filter_hw(), so vlan 0 in software vlan talbe should
+not be deleted.
 
-tm is set by a successful call to __rtc_read_time()
-but its return status is not checked.  Check if
-it was successful before setting the enabled flag.
-Move the decl of err to function scope.
-
-Fixes: 2b2f5ff00f63 ("rtc: interface: ignore expired timers when enqueuing new timers")
-Signed-off-by: Tom Rix <trix@redhat.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/20220326194236.2916310-1-trix@redhat.com
+Fixes: fe4144d47eef ("net: hns3: sync VLAN filter entries when kill VLAN ID failed")
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/rtc/interface.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/rtc/interface.c
-+++ b/drivers/rtc/interface.c
-@@ -807,9 +807,13 @@ static int rtc_timer_enqueue(struct rtc_
- 	struct timerqueue_node *next = timerqueue_getnext(&rtc->timerqueue);
- 	struct rtc_time tm;
- 	ktime_t now;
-+	int err;
-+
-+	err = __rtc_read_time(rtc, &tm);
-+	if (err)
-+		return err;
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -9197,11 +9197,11 @@ int hclge_set_vlan_filter(struct hnae3_h
+ 	}
  
- 	timer->enabled = 1;
--	__rtc_read_time(rtc, &tm);
- 	now = rtc_tm_to_ktime(tm);
- 
- 	/* Skip over expired timers */
-@@ -823,7 +827,6 @@ static int rtc_timer_enqueue(struct rtc_
- 	trace_rtc_timer_enqueue(timer);
- 	if (!next || ktime_before(timer->node.expires, next->expires)) {
- 		struct rtc_wkalrm alarm;
--		int err;
- 
- 		alarm.time = rtc_ktime_to_tm(timer->node.expires);
- 		alarm.enabled = 1;
+ 	if (!ret) {
+-		if (is_kill)
+-			hclge_rm_vport_vlan_table(vport, vlan_id, false);
+-		else
++		if (!is_kill)
+ 			hclge_add_vport_vlan_table(vport, vlan_id,
+ 						   writen_to_tbl);
++		else if (is_kill && vlan_id != 0)
++			hclge_rm_vport_vlan_table(vport, vlan_id, false);
+ 	} else if (is_kill) {
+ 		/* when remove hw vlan filter failed, record the vlan id,
+ 		 * and try to remove it from hw later, to be consistence
 
 
