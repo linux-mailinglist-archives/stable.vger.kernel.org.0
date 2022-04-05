@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CADD4F44E8
-	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 00:32:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A86D4F4562
+	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 00:42:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380992AbiDEMYf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:24:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56632 "EHLO
+        id S1383077AbiDEMYq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:24:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56938 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345280AbiDEKk6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:40:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EBBAD93;
-        Tue,  5 Apr 2022 03:26:25 -0700 (PDT)
+        with ESMTP id S1345329AbiDEKlH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:41:07 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4903A64C7;
+        Tue,  5 Apr 2022 03:26:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0DBDBB81B18;
-        Tue,  5 Apr 2022 10:26:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52090C385A0;
-        Tue,  5 Apr 2022 10:26:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E62DFB81C98;
+        Tue,  5 Apr 2022 10:26:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52C09C385A0;
+        Tue,  5 Apr 2022 10:26:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649154382;
-        bh=/Y0R8KyqaUA4NN0p4BSOO0086I2pd6URMR88meKY2Zs=;
+        s=korg; t=1649154390;
+        bh=/jXyjXnKVL7ginhzj5vU2rBOllvhtBJIJKYKH7J0cos=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uTnR/Y/K6KJmAEn9XcDJ7pfZR28fh1T54NjD8B8T64DngxVC07w5r4vuNYVlfpHmb
-         qLZf8othqMVJtSNac/PsodgDnqP0WY/R9g1gbrABGORCpa2wt/7mVviwOZDc7nZh3l
-         QpHnbTNdFSVXyo6M6ZD1JE1CSM2mOKsZIewqworE=
+        b=jJNrKmzJEqVoruQ9cwDLI+seScKLJZsXG+Yz45rEQA7jH8fzh+c+3b1uHFX8O7CML
+         SQqjTSgp/FU6SzmCTIBoWwkEePMjmyZhns6rLRkCC4smBCsfiffFiB3AQXLjYX+COc
+         zkvLMVwd5FhZEhRPnptiAdY7pLnTL7m1dQyazNSU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jacky Bai <ping.bai@nxp.com>,
-        Peng Fan <peng.fan@nxp.com>, Robin Gong <yibin.gong@nxp.com>,
-        Jassi Brar <jaswinder.singh@linaro.org>
-Subject: [PATCH 5.10 557/599] mailbox: imx: fix wakeup failure from freeze mode
-Date:   Tue,  5 Apr 2022 09:34:11 +0200
-Message-Id: <20220405070315.416940927@linuxfoundation.org>
+        stable@vger.kernel.org, Chen-Yu Tsai <wenst@chromium.org>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 5.10 560/599] pinctrl: pinconf-generic: Print arguments for bias-pull-*
+Date:   Tue,  5 Apr 2022 09:34:14 +0200
+Message-Id: <20220405070315.506333453@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -54,70 +55,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robin Gong <yibin.gong@nxp.com>
+From: Chen-Yu Tsai <wenst@chromium.org>
 
-commit 892cb524ae8a27bf5e42f711318371acd9a9f74a upstream.
+commit 188e5834b930acd03ad3cf7c5e7aa24db9665a29 upstream.
 
-Since IRQF_NO_SUSPEND used for imx mailbox driver, that means this irq
-can't be used for wakeup source so that can't wakeup from freeze mode.
-Add pm_system_wakeup() to wakeup from freeze mode.
+The bias-pull-* properties, or PIN_CONFIG_BIAS_PULL_* pin config
+parameters, accept optional arguments in ohms denoting the strength of
+the pin bias.
 
-Fixes: b7b2796b9b31e("mailbox: imx: ONLY IPC MU needs IRQF_NO_SUSPEND flag")
-Reviewed-by: Jacky Bai <ping.bai@nxp.com>
-Reviewed-by: Peng Fan <peng.fan@nxp.com>
-Signed-off-by: Robin Gong <yibin.gong@nxp.com>
-Signed-off-by: Peng Fan <peng.fan@nxp.com>
-Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
+Print these values out in debugfs as well.
+
+Fixes: eec450713e5c ("pinctrl: pinconf-generic: Add flag to print arguments")
+Signed-off-by: Chen-Yu Tsai <wenst@chromium.org>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Tested-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Link: https://lore.kernel.org/r/20220308100956.2750295-2-wenst@chromium.org
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mailbox/imx-mailbox.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/pinctrl/pinconf-generic.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/mailbox/imx-mailbox.c
-+++ b/drivers/mailbox/imx-mailbox.c
-@@ -13,6 +13,7 @@
- #include <linux/module.h>
- #include <linux/of_device.h>
- #include <linux/pm_runtime.h>
-+#include <linux/suspend.h>
- #include <linux/slab.h>
- 
- #define IMX_MU_xSR_GIPn(x)	BIT(28 + (3 - (x)))
-@@ -66,6 +67,7 @@ struct imx_mu_priv {
- 	const struct imx_mu_dcfg	*dcfg;
- 	struct clk		*clk;
- 	int			irq;
-+	bool			suspend;
- 
- 	u32 xcr;
- 
-@@ -277,6 +279,9 @@ static irqreturn_t imx_mu_isr(int irq, v
- 		return IRQ_NONE;
- 	}
- 
-+	if (priv->suspend)
-+		pm_system_wakeup();
-+
- 	return IRQ_HANDLED;
- }
- 
-@@ -326,6 +331,8 @@ static int imx_mu_startup(struct mbox_ch
- 		break;
- 	}
- 
-+	priv->suspend = true;
-+
- 	return 0;
- }
- 
-@@ -543,6 +550,8 @@ static int imx_mu_probe(struct platform_
- 
- 	clk_disable_unprepare(priv->clk);
- 
-+	priv->suspend = false;
-+
- 	return 0;
- 
- disable_runtime_pm:
+--- a/drivers/pinctrl/pinconf-generic.c
++++ b/drivers/pinctrl/pinconf-generic.c
+@@ -30,10 +30,10 @@ static const struct pin_config_item conf
+ 	PCONFDUMP(PIN_CONFIG_BIAS_BUS_HOLD, "input bias bus hold", NULL, false),
+ 	PCONFDUMP(PIN_CONFIG_BIAS_DISABLE, "input bias disabled", NULL, false),
+ 	PCONFDUMP(PIN_CONFIG_BIAS_HIGH_IMPEDANCE, "input bias high impedance", NULL, false),
+-	PCONFDUMP(PIN_CONFIG_BIAS_PULL_DOWN, "input bias pull down", NULL, false),
++	PCONFDUMP(PIN_CONFIG_BIAS_PULL_DOWN, "input bias pull down", "ohms", true),
+ 	PCONFDUMP(PIN_CONFIG_BIAS_PULL_PIN_DEFAULT,
+-				"input bias pull to pin specific state", NULL, false),
+-	PCONFDUMP(PIN_CONFIG_BIAS_PULL_UP, "input bias pull up", NULL, false),
++				"input bias pull to pin specific state", "ohms", true),
++	PCONFDUMP(PIN_CONFIG_BIAS_PULL_UP, "input bias pull up", "ohms", true),
+ 	PCONFDUMP(PIN_CONFIG_DRIVE_OPEN_DRAIN, "output drive open drain", NULL, false),
+ 	PCONFDUMP(PIN_CONFIG_DRIVE_OPEN_SOURCE, "output drive open source", NULL, false),
+ 	PCONFDUMP(PIN_CONFIG_DRIVE_PUSH_PULL, "output drive push pull", NULL, false),
 
 
