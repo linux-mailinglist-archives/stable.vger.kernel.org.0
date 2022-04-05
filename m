@@ -2,50 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E9A6E4F3A97
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:02:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 10EB34F379F
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:21:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381585AbiDELqY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:46:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45148 "EHLO
+        id S1359398AbiDELSi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:18:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47504 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354936AbiDEKQg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:16:36 -0400
+        with ESMTP id S1349150AbiDEJtO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:14 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3848622C;
-        Tue,  5 Apr 2022 03:04:11 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65B5F100F;
+        Tue,  5 Apr 2022 02:41:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E4087B81C86;
-        Tue,  5 Apr 2022 10:04:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BD30C385A1;
-        Tue,  5 Apr 2022 10:04:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1F26DB818F3;
+        Tue,  5 Apr 2022 09:41:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65D47C385A2;
+        Tue,  5 Apr 2022 09:41:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153048;
-        bh=3z3jzRHy3464weK3HR2VtlPoQjepKQ2VowKCdolR2nc=;
+        s=korg; t=1649151692;
+        bh=O/rUeuX7WDYJ1f7A8mCRWZrYOcynNWYyRpGRWEx81Gk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N1Bn+W02k0eBNlR9xJNshEzU3y4tFwqi3R9IF9hpWsxtXbXRv6eYXzloebkLUAxOh
-         Y6cECJzjcklrkCTv+zD28xd5mHRgBzWNUKHuBsOOL0ZflGt/9I7tK19JTurw0dFXC7
-         OomQ+FRLUjD/vduDBeDS6LgKkm1dcH1fovbHm1O0=
+        b=cg9wTdHZOzFtbnAyP4ung+UHZnkpxiPCvqPipt4XSDoIANPPSfAlYoFWKIT/NKG9q
+         N1O0HZqn7ZrAyTw9H3HHRXOkv7WIyui98eSfKT/LJYpTFKTJj3cO5jUcOlWUBPuxmr
+         xR3p3JVUb/LUJsLkp3cPu+3e0S/LKBUYksAuuhec=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Charan Teja Kalla <quic_charante@quicinc.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        David Rientjes <rientjes@google.com>,
-        Nadav Amit <nadav.amit@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 076/599] Revert "mm: madvise: skip unmapped vma holes passed to process_madvise"
+        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 508/913] powerpc/Makefile: Dont pass -mcpu=powerpc64 when building 32-bit
 Date:   Tue,  5 Apr 2022 09:26:10 +0200
-Message-Id: <20220405070301.087589272@linuxfoundation.org>
+Message-Id: <20220405070355.083572127@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
-References: <20220405070258.802373272@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -60,57 +53,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Charan Teja Kalla <quic_charante@quicinc.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-commit e6b0a7b357659c332231621e4315658d062c23ee upstream.
+[ Upstream commit 2863dd2db23e0407f6c50b8ba5c0e55abef894f1 ]
 
-This reverts commit 08095d6310a7 ("mm: madvise: skip unmapped vma holes
-passed to process_madvise") as process_madvise() fails to return the
-exact processed bytes in other cases too.
+When CONFIG_GENERIC_CPU=y (true for all our defconfigs) we pass
+-mcpu=powerpc64 to the compiler, even when we're building a 32-bit
+kernel.
 
-As an example: if process_madvise() hits mlocked pages after processing
-some initial bytes passed in [start, end), it just returns EINVAL
-although some bytes are processed.  Thus making an exception only for
-ENOMEM is partially fixing the problem of returning the proper advised
-bytes.
+This happens because we have an ifdef CONFIG_PPC_BOOK3S_64/else block in
+the Makefile that was written before 32-bit supported GENERIC_CPU. Prior
+to that the else block only applied to 64-bit Book3E.
 
-Thus revert this patch and return proper bytes advised.
+The GCC man page says -mcpu=powerpc64 "[specifies] a pure ... 64-bit big
+endian PowerPC ... architecture machine [type], with an appropriate,
+generic processor model assumed for scheduling purposes."
 
-Link: https://lkml.kernel.org/r/e73da1304a88b6a8a11907045117cccf4c2b8374.1648046642.git.quic_charante@quicinc.com
-Fixes: 08095d6310a7ce ("mm: madvise: skip unmapped vma holes passed to process_madvise")
-Signed-off-by: Charan Teja Kalla <quic_charante@quicinc.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: Suren Baghdasaryan <surenb@google.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Nadav Amit <nadav.amit@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+It's unclear how that interacts with -m32, which we are also passing,
+although obviously -m32 is taking precedence in some sense, as the
+32-bit kernel only contains 32-bit instructions.
+
+This was noticed by inspection, not via any bug reports, but it does
+affect code generation. Comparing before/after code generation, there
+are some changes to instruction scheduling, and the after case (with
+-mcpu=powerpc64 removed) the compiler seems more keen to use r8.
+
+Fix it by making the else case only apply to Book3E 64, which excludes
+32-bit.
+
+Fixes: 0e00a8c9fd92 ("powerpc: Allow CPU selection also on PPC32")
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220215112858.304779-1-mpe@ellerman.id.au
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/madvise.c |    9 +--------
- 1 file changed, 1 insertion(+), 8 deletions(-)
+ arch/powerpc/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/mm/madvise.c
-+++ b/mm/madvise.c
-@@ -1222,16 +1222,9 @@ SYSCALL_DEFINE5(process_madvise, int, pi
+diff --git a/arch/powerpc/Makefile b/arch/powerpc/Makefile
+index aa6808e70647..72610e2d6176 100644
+--- a/arch/powerpc/Makefile
++++ b/arch/powerpc/Makefile
+@@ -173,7 +173,7 @@ else
+ CFLAGS-$(CONFIG_GENERIC_CPU) += $(call cc-option,-mtune=power7,$(call cc-option,-mtune=power5))
+ CFLAGS-$(CONFIG_GENERIC_CPU) += $(call cc-option,-mcpu=power5,-mcpu=power4)
+ endif
+-else
++else ifdef CONFIG_PPC_BOOK3E_64
+ CFLAGS-$(CONFIG_GENERIC_CPU) += -mcpu=powerpc64
+ endif
  
- 	while (iov_iter_count(&iter)) {
- 		iovec = iov_iter_iovec(&iter);
--		/*
--		 * do_madvise returns ENOMEM if unmapped holes are present
--		 * in the passed VMA. process_madvise() is expected to skip
--		 * unmapped holes passed to it in the 'struct iovec' list
--		 * and not fail because of them. Thus treat -ENOMEM return
--		 * from do_madvise as valid and continue processing.
--		 */
- 		ret = do_madvise(mm, (unsigned long)iovec.iov_base,
- 					iovec.iov_len, behavior);
--		if (ret < 0 && ret != -ENOMEM)
-+		if (ret < 0)
- 			break;
- 		iov_iter_advance(&iter, iovec.iov_len);
- 	}
+-- 
+2.34.1
+
 
 
