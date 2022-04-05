@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 87C2B4F2F58
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:11:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AAC24F2F4F
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:11:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347635AbiDEJ1z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:27:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51136 "EHLO
+        id S241753AbiDEKfu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:35:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39960 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244713AbiDEIwf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EA5D1ADB1;
-        Tue,  5 Apr 2022 01:42:38 -0700 (PDT)
+        with ESMTP id S239610AbiDEJeA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:34:00 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2DF17C165;
+        Tue,  5 Apr 2022 02:23:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1E5306117A;
-        Tue,  5 Apr 2022 08:42:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30685C385A1;
-        Tue,  5 Apr 2022 08:42:37 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 415B8CE1C74;
+        Tue,  5 Apr 2022 09:23:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C86EC385A2;
+        Tue,  5 Apr 2022 09:23:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148157;
-        bh=xMuBtpSMi0tR4uqVjAuMkRQrPn1kVymN+i1l75YiSig=;
+        s=korg; t=1649150582;
+        bh=DfJ3/XGerV9z8uHB5PHG4KlHULnzzbRXaV41X+v+E0s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p6owczWL5EsFm6bVraEq3wf+fKmI95m/Jj7rsPLpDojV9mpUDDzs2lNIAqpmkk0KB
-         /t0PBm/d98z8zdQNtd7jw6Imdq9rI61A1IhCTlMwg75QBQyqRtXla5mtQfxDXpz+s+
-         bGTA7J6+O7o9XyjUy4PxVj/1Gt47+fcNoJXppvxg=
+        b=f8nODmkrSWSDcIHzY0vsX4NaTgfWybRUMiLvcJzbg49U0wSgbHdpZRHW9jgonltHe
+         qj9/h25fmTesuUSkEk8ASBdcL5BoYoslf77XDhtjTsysSHUyNiGjG7/Jw+fG1nK4uv
+         hyRPwEhM1Hb3FayWesPbKTm9LKTRI331ARMYAvzY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Igor Zhbanov <i.zhbanov@omprussia.ru>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0254/1017] clocksource: acpi_pm: fix return value of __setup handler
-Date:   Tue,  5 Apr 2022 09:19:27 +0200
-Message-Id: <20220405070401.802649863@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Javier Martinez Canillas <javierm@redhat.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Thomas Zimmermann <tzimmermann@suse.de>
+Subject: [PATCH 5.15 106/913] drm/simpledrm: Add "panel orientation" property on non-upright mounted LCD panels
+Date:   Tue,  5 Apr 2022 09:19:28 +0200
+Message-Id: <20220405070343.003742732@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,50 +55,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 6a861abceecb68497dd82a324fee45a5332dcece ]
+commit 94fa115f7b28a3f02611499175e134f0a823b686 upstream.
 
-__setup() handlers should return 1 to obsolete_checksetup() in
-init/main.c to indicate that the boot option has been handled.
-A return of 0 causes the boot option/value to be listed as an Unknown
-kernel parameter and added to init's (limited) environment strings.
+Some devices use e.g. a portrait panel in a standard laptop casing made
+for landscape panels. efifb calls drm_get_panel_orientation_quirk() and
+sets fb_info.fbcon_rotate_hint to make fbcon rotate the console so that
+it shows up-right instead of on its side.
 
-The __setup() handler interface isn't meant to handle negative return
-values -- they are non-zero, so they mean "handled" (like a return
-value of 1 does), but that's just a quirk. So return 1 from
-parse_pmtmr(). Also print a warning message if kstrtouint() returns
-an error.
+When switching to simpledrm the fbcon renders on its side. Call the
+drm_connector_set_panel_orientation_with_quirk() helper to add
+a "panel orientation" property on devices listed in the quirk table,
+to make the fbcon (and aware userspace apps) rotate the image to
+display properly.
 
-Fixes: 6b148507d3d0 ("pmtmr: allow command line override of ioport")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
-Link: lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: Javier Martinez Canillas <javierm@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
+Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220221220045.11958-1-hdegoede@redhat.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/clocksource/acpi_pm.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/tiny/simpledrm.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/clocksource/acpi_pm.c b/drivers/clocksource/acpi_pm.c
-index eb596ff9e7bb..279ddff81ab4 100644
---- a/drivers/clocksource/acpi_pm.c
-+++ b/drivers/clocksource/acpi_pm.c
-@@ -229,8 +229,10 @@ static int __init parse_pmtmr(char *arg)
- 	int ret;
+--- a/drivers/gpu/drm/tiny/simpledrm.c
++++ b/drivers/gpu/drm/tiny/simpledrm.c
+@@ -779,6 +779,9 @@ static int simpledrm_device_init_modeset
+ 	if (ret)
+ 		return ret;
+ 	drm_connector_helper_add(connector, &simpledrm_connector_helper_funcs);
++	drm_connector_set_panel_orientation_with_quirk(connector,
++						       DRM_MODE_PANEL_ORIENTATION_UNKNOWN,
++						       mode->hdisplay, mode->vdisplay);
  
- 	ret = kstrtouint(arg, 16, &base);
--	if (ret)
--		return ret;
-+	if (ret) {
-+		pr_warn("PMTMR: invalid 'pmtmr=' value: '%s'\n", arg);
-+		return 1;
-+	}
+ 	formats = simpledrm_device_formats(sdev, &nformats);
  
- 	pr_info("PMTMR IOPort override: 0x%04x -> 0x%04x\n", pmtmr_ioport,
- 		base);
--- 
-2.34.1
-
 
 
