@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2666F4F2625
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 09:54:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86C624F262C
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 09:54:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232634AbiDEHzB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 03:55:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48140 "EHLO
+        id S232778AbiDEHzM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 03:55:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48172 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232315AbiDEHyI (ORCPT
+        with ESMTP id S232705AbiDEHyI (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:54:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01C9B2E68F;
-        Tue,  5 Apr 2022 00:50:08 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FFCA2ED73;
+        Tue,  5 Apr 2022 00:50:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A09A1B81BAD;
-        Tue,  5 Apr 2022 07:50:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1B6BC340EE;
-        Tue,  5 Apr 2022 07:50:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C0B0861727;
+        Tue,  5 Apr 2022 07:50:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6C83C340EE;
+        Tue,  5 Apr 2022 07:50:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145005;
-        bh=cDOHcd6ONfY3Vz+ceAFwv+xN7bIZgszIs24tb7wI428=;
+        s=korg; t=1649145008;
+        bh=DgaIpDFEc+A61h9xhkJGjlT1kiDaci5Wzlmlp8QsmaA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m6zvFnUYmTsRXCJ7U1+BBrQjJ4R5U4lvCQ8rOkgkCuAAvwtbHzYg0U/cbdbCjFJXb
-         qoNixGwy6FOk/36CLo8dMe90nmbDS/08OfFAe2r9u9TGpu0u2tpVi41qVQhPOqnLgu
-         cSClUaWxwQ61e91jJhms3bbAlkz7HBnB2vM0hFS8=
+        b=diytK+s8ObVVxOmbtOR94ITHXMjy6S2+3UNYMwf+4bLEZ9huYsT+8GxC8evldSy8B
+         mO0P26mK6XOsbhEg4hZPMTOJmcKON1pFAjbOj65RwjbxoEPDHj5QZkwpTWnTWqyvUW
+         iXnGka19BFY8DKxF6cirRVDvNu1Ixz39C2AwUXa0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        stable@vger.kernel.org, Guillaume Ranquet <granquet@baylibre.com>,
         Daniel Lezcano <daniel.lezcano@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0249/1126] clocksource/drivers/timer-microchip-pit64b: Use notrace
-Date:   Tue,  5 Apr 2022 09:16:36 +0200
-Message-Id: <20220405070414.918376141@linuxfoundation.org>
+Subject: [PATCH 5.17 0250/1126] clocksource/drivers/timer-of: Check return value of of_iomap in timer_of_base_init()
+Date:   Tue,  5 Apr 2022 09:16:37 +0200
+Message-Id: <20220405070414.948005078@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -47,44 +46,50 @@ Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,TVD_SPACE_RATIO,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claudiu Beznea <claudiu.beznea@microchip.com>
+From: Guillaume Ranquet <granquet@baylibre.com>
 
-[ Upstream commit ff10ee97cb203262e88d9c8bc87369cbd4004a0c ]
+[ Upstream commit 4467b8bad2401794fb89a0268c8c8257180bf60f ]
 
-Use notrace for mchp_pit64b_sched_read_clk() to avoid recursive call of
-prepare_ftrace_return() when issuing:
-echo function_graph > /sys/kernel/debug/tracing/current_tracer
+of_base->base can either be iomapped using of_io_request_and_map() or
+of_iomap() depending whether or not an of_base->name has been set.
 
-Fixes: 625022a5f160 ("clocksource/drivers/timer-microchip-pit64b: Add Microchip PIT64B support")
-Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Link: https://lore.kernel.org/r/20220304133601.2404086-3-claudiu.beznea@microchip.com
+Thus check of_base->base against NULL as of_iomap() does not return a
+PTR_ERR() in case of error.
+
+Fixes: 9aea417afa6b ("clocksource/drivers/timer-of: Don't request the resource by name")
+Signed-off-by: Guillaume Ranquet <granquet@baylibre.com>
+Link: https://lore.kernel.org/r/20220307172656.4836-1-granquet@baylibre.com
 Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clocksource/timer-microchip-pit64b.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/clocksource/timer-of.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/clocksource/timer-microchip-pit64b.c b/drivers/clocksource/timer-microchip-pit64b.c
-index cfa4ec7ef396..790d2c9b42a7 100644
---- a/drivers/clocksource/timer-microchip-pit64b.c
-+++ b/drivers/clocksource/timer-microchip-pit64b.c
-@@ -165,7 +165,7 @@ static u64 mchp_pit64b_clksrc_read(struct clocksource *cs)
- 	return mchp_pit64b_cnt_read(mchp_pit64b_cs_base);
- }
+diff --git a/drivers/clocksource/timer-of.c b/drivers/clocksource/timer-of.c
+index 529cc6a51cdb..c3f54d9912be 100644
+--- a/drivers/clocksource/timer-of.c
++++ b/drivers/clocksource/timer-of.c
+@@ -157,9 +157,9 @@ static __init int timer_of_base_init(struct device_node *np,
+ 	of_base->base = of_base->name ?
+ 		of_io_request_and_map(np, of_base->index, of_base->name) :
+ 		of_iomap(np, of_base->index);
+-	if (IS_ERR(of_base->base)) {
+-		pr_err("Failed to iomap (%s)\n", of_base->name);
+-		return PTR_ERR(of_base->base);
++	if (IS_ERR_OR_NULL(of_base->base)) {
++		pr_err("Failed to iomap (%s:%s)\n", np->name, of_base->name);
++		return of_base->base ? PTR_ERR(of_base->base) : -ENOMEM;
+ 	}
  
--static u64 mchp_pit64b_sched_read_clk(void)
-+static u64 notrace mchp_pit64b_sched_read_clk(void)
- {
- 	return mchp_pit64b_cnt_read(mchp_pit64b_cs_base);
- }
+ 	return 0;
 -- 
 2.34.1
 
