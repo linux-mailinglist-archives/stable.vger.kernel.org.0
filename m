@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D3F54F30C3
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:35:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 651404F2F00
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:05:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350185AbiDEJ4H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:56:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40630 "EHLO
+        id S1350244AbiDEJ4o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:56:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40636 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238451AbiDEJQG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:16:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 081D4972A1;
-        Tue,  5 Apr 2022 02:01:33 -0700 (PDT)
+        with ESMTP id S237181AbiDEJQR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:16:17 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86B3DCFB89;
+        Tue,  5 Apr 2022 02:01:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 984F461562;
-        Tue,  5 Apr 2022 09:01:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6F03C385A3;
-        Tue,  5 Apr 2022 09:01:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2203861562;
+        Tue,  5 Apr 2022 09:01:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CC99C385A1;
+        Tue,  5 Apr 2022 09:01:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149292;
-        bh=hgwv3Bsh45tJ1pWCJ/OiWav3TISg2Dhm7A/oWtm79mM=;
+        s=korg; t=1649149297;
+        bh=9gVJ8hVCaDqgoBzxse+4FYk1575fvUVWdDSL9iRYPdw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S5ujDD/jHHn49JLU88rp16swnLpJo7NESgT9SKYcTk4+mz6aSGk+BbLZS1u34P7zv
-         xYpunkQwd57dT6vzY8+jPfrajaudV9VSIPjRwmKVoWUhVHdrDsHxSkh3CYxyanoew+
-         3rNjRwKRmtCaYpoRhjK8B12nYr2PPdkHBhhBo/s8=
+        b=OpB+Uq+L7cjuMNIC5sz1FvfmxkKiXBFsD2H5Y03giBXL2isQuYh2UAFvAb24ANVGQ
+         +GZtE+V9i6psLKPlt5WT0ad00b/lU588bhrw/09166sJhXBxIpJlhFm/upy2gqGz0Q
+         3hDAbdY4OA0M6sKYKKdiYsRZSZ97vtvC8eG0jCuo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dirk Buchwalder <buchwalder@posteo.de>,
-        Robert Marko <robimarko@gmail.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0662/1017] clk: qcom: ipq8074: Use floor ops for SDCC1 clock
-Date:   Tue,  5 Apr 2022 09:26:15 +0200
-Message-Id: <20220405070413.933080407@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0664/1017] phy: phy-brcm-usb: fixup BCM4908 support
+Date:   Tue,  5 Apr 2022 09:26:17 +0200
+Message-Id: <20220405070413.992387130@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -56,47 +55,156 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dirk Buchwalder <buchwalder@posteo.de>
+From: Rafał Miłecki <rafal@milecki.pl>
 
-[ Upstream commit b77d8306d84f83d1da68028a68c91da9c867b6f6 ]
+[ Upstream commit 32942d33d63d27714ed16a4176e5a99547adb6e0 ]
 
-Use floor ops on SDCC1 APPS clock in order to round down selected clock
-frequency and avoid overclocking SD/eMMC cards.
+Just like every other family BCM4908 should get its own enum value. That
+is required to properly handle it in chipset conditional code.
 
-For example, currently HS200 cards were failling tuning as they were
-actually being clocked at 384MHz instead of 192MHz.
-This caused some boards to disable 1.8V I/O and force the eMMC into the
-standard HS mode (50MHz) and that appeared to work despite the eMMC being
-overclocked to 96Mhz in that case.
+The real change is excluding BCM4908 from the PLL reprogramming code
+(see brcmusb_usb3_pll_54mhz()). I'm not sure what's the BCM4908
+reference clock frequency but:
+1. BCM4908 custom driver from Broadcom's SDK doesn't reprogram PLL
+2. Doing that in Linux driver stopped PHY handling some USB 3.0 devices
 
-There was a previous commit to use floor ops on SDCC clocks, but it looks
-to have only covered SDCC2 clock.
+This change makes USB 3.0 PHY recognize e.g.:
+1. 04e8:6860 - Samsung Electronics Co., Ltd Galaxy series, misc. (MTP mode)
+2. 1058:259f - Western Digital My Passport 259F
 
-Fixes: 9607f6224b39 ("clk: qcom: ipq8074: add PCIE, USB and SDCC clocks")
+Broadcom's STB SoCs come with a set of SUN_TOP_CTRL_* registers that
+allow reading chip family and product ids. Such a block & register is
+missing on BCM4908 so this commit introduces "compatible" string
+specific binding.
 
-Signed-off-by: Dirk Buchwalder <buchwalder@posteo.de>
-Signed-off-by: Robert Marko <robimarko@gmail.com>
-Reviewed-by: Stephen Boyd <sboyd@kernel.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220210173100.505128-1-robimarko@gmail.com
+Fixes: 4b402fa8e0b7 ("phy: phy-brcm-usb: support PHY on the BCM4908")
+Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/20220218172459.10431-1-zajec5@gmail.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/qcom/gcc-ipq8074.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/phy/broadcom/phy-brcm-usb-init.c | 36 ++++++++++++++++++++++++
+ drivers/phy/broadcom/phy-brcm-usb-init.h |  1 +
+ drivers/phy/broadcom/phy-brcm-usb.c      | 11 +++++++-
+ 3 files changed, 47 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/clk/qcom/gcc-ipq8074.c b/drivers/clk/qcom/gcc-ipq8074.c
-index b09d99343e09..541016db3c4b 100644
---- a/drivers/clk/qcom/gcc-ipq8074.c
-+++ b/drivers/clk/qcom/gcc-ipq8074.c
-@@ -1074,7 +1074,7 @@ static struct clk_rcg2 sdcc1_apps_clk_src = {
- 		.name = "sdcc1_apps_clk_src",
- 		.parent_names = gcc_xo_gpll0_gpll2_gpll0_out_main_div2,
- 		.num_parents = 4,
--		.ops = &clk_rcg2_ops,
-+		.ops = &clk_rcg2_floor_ops,
+diff --git a/drivers/phy/broadcom/phy-brcm-usb-init.c b/drivers/phy/broadcom/phy-brcm-usb-init.c
+index 9391ab42a12b..dd0f66288fbd 100644
+--- a/drivers/phy/broadcom/phy-brcm-usb-init.c
++++ b/drivers/phy/broadcom/phy-brcm-usb-init.c
+@@ -79,6 +79,7 @@
+ 
+ enum brcm_family_type {
+ 	BRCM_FAMILY_3390A0,
++	BRCM_FAMILY_4908,
+ 	BRCM_FAMILY_7250B0,
+ 	BRCM_FAMILY_7271A0,
+ 	BRCM_FAMILY_7364A0,
+@@ -96,6 +97,7 @@ enum brcm_family_type {
+ 
+ static const char *family_names[BRCM_FAMILY_COUNT] = {
+ 	USB_BRCM_FAMILY(3390A0),
++	USB_BRCM_FAMILY(4908),
+ 	USB_BRCM_FAMILY(7250B0),
+ 	USB_BRCM_FAMILY(7271A0),
+ 	USB_BRCM_FAMILY(7364A0),
+@@ -203,6 +205,27 @@ usb_reg_bits_map_table[BRCM_FAMILY_COUNT][USB_CTRL_SELECTOR_COUNT] = {
+ 		USB_CTRL_USB_PM_USB20_HC_RESETB_VAR_MASK,
+ 		ENDIAN_SETTINGS, /* USB_CTRL_SETUP ENDIAN bits */
  	},
++	/* 4908 */
++	[BRCM_FAMILY_4908] = {
++		0, /* USB_CTRL_SETUP_SCB1_EN_MASK */
++		0, /* USB_CTRL_SETUP_SCB2_EN_MASK */
++		0, /* USB_CTRL_SETUP_SS_EHCI64BIT_EN_MASK */
++		0, /* USB_CTRL_SETUP_STRAP_IPP_SEL_MASK */
++		0, /* USB_CTRL_SETUP_OC3_DISABLE_MASK */
++		0, /* USB_CTRL_PLL_CTL_PLL_IDDQ_PWRDN_MASK */
++		0, /* USB_CTRL_USB_PM_BDC_SOFT_RESETB_MASK */
++		USB_CTRL_USB_PM_XHC_SOFT_RESETB_MASK,
++		USB_CTRL_USB_PM_USB_PWRDN_MASK,
++		0, /* USB_CTRL_USB30_CTL1_XHC_SOFT_RESETB_MASK */
++		0, /* USB_CTRL_USB30_CTL1_USB3_IOC_MASK */
++		0, /* USB_CTRL_USB30_CTL1_USB3_IPP_MASK */
++		0, /* USB_CTRL_USB_DEVICE_CTL1_PORT_MODE_MASK */
++		0, /* USB_CTRL_USB_PM_SOFT_RESET_MASK */
++		0, /* USB_CTRL_SETUP_CC_DRD_MODE_ENABLE_MASK */
++		0, /* USB_CTRL_SETUP_STRAP_CC_DRD_MODE_ENABLE_SEL_MASK */
++		0, /* USB_CTRL_USB_PM_USB20_HC_RESETB_VAR_MASK */
++		0, /* USB_CTRL_SETUP ENDIAN bits */
++	},
+ 	/* 7250b0 */
+ 	[BRCM_FAMILY_7250B0] = {
+ 		USB_CTRL_SETUP_SCB1_EN_MASK,
+@@ -559,6 +582,7 @@ static void brcmusb_usb3_pll_54mhz(struct brcm_usb_init_params *params)
+ 	 */
+ 	switch (params->selected_family) {
+ 	case BRCM_FAMILY_3390A0:
++	case BRCM_FAMILY_4908:
+ 	case BRCM_FAMILY_7250B0:
+ 	case BRCM_FAMILY_7366C0:
+ 	case BRCM_FAMILY_74371A0:
+@@ -1004,6 +1028,18 @@ static const struct brcm_usb_init_ops bcm7445_ops = {
+ 	.set_dual_select = usb_set_dual_select,
  };
  
++void brcm_usb_dvr_init_4908(struct brcm_usb_init_params *params)
++{
++	int fam;
++
++	fam = BRCM_FAMILY_4908;
++	params->selected_family = fam;
++	params->usb_reg_bits_map =
++		&usb_reg_bits_map_table[fam][0];
++	params->family_name = family_names[fam];
++	params->ops = &bcm7445_ops;
++}
++
+ void brcm_usb_dvr_init_7445(struct brcm_usb_init_params *params)
+ {
+ 	int fam;
+diff --git a/drivers/phy/broadcom/phy-brcm-usb-init.h b/drivers/phy/broadcom/phy-brcm-usb-init.h
+index a39f30fa2e99..1ccb5ddab865 100644
+--- a/drivers/phy/broadcom/phy-brcm-usb-init.h
++++ b/drivers/phy/broadcom/phy-brcm-usb-init.h
+@@ -64,6 +64,7 @@ struct  brcm_usb_init_params {
+ 	bool suspend_with_clocks;
+ };
+ 
++void brcm_usb_dvr_init_4908(struct brcm_usb_init_params *params);
+ void brcm_usb_dvr_init_7445(struct brcm_usb_init_params *params);
+ void brcm_usb_dvr_init_7216(struct brcm_usb_init_params *params);
+ void brcm_usb_dvr_init_7211b0(struct brcm_usb_init_params *params);
+diff --git a/drivers/phy/broadcom/phy-brcm-usb.c b/drivers/phy/broadcom/phy-brcm-usb.c
+index 0f1deb6e0eab..2cb3779fcdf8 100644
+--- a/drivers/phy/broadcom/phy-brcm-usb.c
++++ b/drivers/phy/broadcom/phy-brcm-usb.c
+@@ -283,6 +283,15 @@ static const struct attribute_group brcm_usb_phy_group = {
+ 	.attrs = brcm_usb_phy_attrs,
+ };
+ 
++static const struct match_chip_info chip_info_4908 = {
++	.init_func = &brcm_usb_dvr_init_4908,
++	.required_regs = {
++		BRCM_REGS_CTRL,
++		BRCM_REGS_XHCI_EC,
++		-1,
++	},
++};
++
+ static const struct match_chip_info chip_info_7216 = {
+ 	.init_func = &brcm_usb_dvr_init_7216,
+ 	.required_regs = {
+@@ -318,7 +327,7 @@ static const struct match_chip_info chip_info_7445 = {
+ static const struct of_device_id brcm_usb_dt_ids[] = {
+ 	{
+ 		.compatible = "brcm,bcm4908-usb-phy",
+-		.data = &chip_info_7445,
++		.data = &chip_info_4908,
+ 	},
+ 	{
+ 		.compatible = "brcm,bcm7216-usb-phy",
 -- 
 2.34.1
 
