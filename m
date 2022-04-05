@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DE424F3986
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:49:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D63D14F3934
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:45:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240905AbiDELfJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:35:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58504 "EHLO
+        id S1377714AbiDELaW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:30:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40450 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352775AbiDEKFI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:05:08 -0400
+        with ESMTP id S1352798AbiDEKFJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:05:09 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7AB3EBBE22;
-        Tue,  5 Apr 2022 02:53:49 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29F88BC87C;
+        Tue,  5 Apr 2022 02:53:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 14A7961748;
-        Tue,  5 Apr 2022 09:53:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1AE17C385A7;
-        Tue,  5 Apr 2022 09:53:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BBA12616DC;
+        Tue,  5 Apr 2022 09:53:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3542C385A3;
+        Tue,  5 Apr 2022 09:53:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152428;
-        bh=SKZutM5MYcPInu9uE+l6/j/YSHIv/4wzRWyJA1p9xes=;
+        s=korg; t=1649152431;
+        bh=hrfyozcs/WLlhiA2+tZKYGqLQASHhpJD8gwcdsqB+ks=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mWcQsd720Qxei7LZTGqsWXaKDjXdpUdG1IzUrc0CeKqLM1zD6FRpEKP6FCWeiVTQy
-         RqSToOipqZJKGwjLKZpS2nTuuRwKexKWiWY7x+pmqtrj04ugCgu2tCSl0UCqik8fks
-         ivrKtfGPKE5R0nsBBYFBwe2+yci9hEd9fJ2BGq98=
+        b=HqV3XAvOsAeJtooPtO49nSLP/EMow/S3Iibtg5ClfnSrSuyKJjCQdw9MfLPkM/gc8
+         Im4JLCCw//TNi5aqRDse4PPRFU3UhS6Jwz/3b9uqenNVpy3fb6Tmsl7vNBpKBhreki
+         hPUPVpAf1/FNzFOpCoDR6yEuEWO1YOQJIb8KNMB0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Ben Gardon <bgardon@google.com>,
         Sean Christopherson <seanjc@google.com>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.15 772/913] KVM: x86/mmu: Zap _all_ roots when unmapping gfn range in TDP MMU
-Date:   Tue,  5 Apr 2022 09:30:34 +0200
-Message-Id: <20220405070402.973258152@linuxfoundation.org>
+Subject: [PATCH 5.15 773/913] KVM: x86/mmu: Check for present SPTE when clearing dirty bit in TDP MMU
+Date:   Tue,  5 Apr 2022 09:30:35 +0200
+Message-Id: <20220405070403.002794639@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -56,144 +56,37 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sean Christopherson <seanjc@google.com>
 
-commit d62007edf01f5c11f75d0f4b1e538fc52a5b1982 upstream.
+commit 3354ef5a592d219364cf442c2f784ce7ad7629fd upstream.
 
-Zap both valid and invalid roots when zapping/unmapping a gfn range, as
-KVM must ensure it holds no references to the freed page after returning
-from the unmap operation.  Most notably, the TDP MMU doesn't zap invalid
-roots in mmu_notifier callbacks.  This leads to use-after-free and other
-issues if the mmu_notifier runs to completion while an invalid root
-zapper yields as KVM fails to honor the requirement that there must be
-_no_ references to the page after the mmu_notifier returns.
+Explicitly check for present SPTEs when clearing dirty bits in the TDP
+MMU.  This isn't strictly required for correctness, as setting the dirty
+bit in a defunct SPTE will not change the SPTE from !PRESENT to PRESENT.
+However, the guarded MMU_WARN_ON() in spte_ad_need_write_protect() would
+complain if anyone actually turned on KVM's MMU debugging.
 
-The bug is most easily reproduced by hacking KVM to cause a collision
-between set_nx_huge_pages() and kvm_mmu_notifier_release(), but the bug
-exists between kvm_mmu_notifier_invalidate_range_start() and memslot
-updates as well.  Invalidating a root ensures pages aren't accessible by
-the guest, and KVM won't read or write page data itself, but KVM will
-trigger e.g. kvm_set_pfn_dirty() when zapping SPTEs, and thus completing
-a zap of an invalid root _after_ the mmu_notifier returns is fatal.
-
-  WARNING: CPU: 24 PID: 1496 at arch/x86/kvm/../../../virt/kvm/kvm_main.c:173 [kvm]
-  RIP: 0010:kvm_is_zone_device_pfn+0x96/0xa0 [kvm]
-  Call Trace:
-   <TASK>
-   kvm_set_pfn_dirty+0xa8/0xe0 [kvm]
-   __handle_changed_spte+0x2ab/0x5e0 [kvm]
-   __handle_changed_spte+0x2ab/0x5e0 [kvm]
-   __handle_changed_spte+0x2ab/0x5e0 [kvm]
-   zap_gfn_range+0x1f3/0x310 [kvm]
-   kvm_tdp_mmu_zap_invalidated_roots+0x50/0x90 [kvm]
-   kvm_mmu_zap_all_fast+0x177/0x1a0 [kvm]
-   set_nx_huge_pages+0xb4/0x190 [kvm]
-   param_attr_store+0x70/0x100
-   module_attr_store+0x19/0x30
-   kernfs_fop_write_iter+0x119/0x1b0
-   new_sync_write+0x11c/0x1b0
-   vfs_write+0x1cc/0x270
-   ksys_write+0x5f/0xe0
-   do_syscall_64+0x38/0xc0
-   entry_SYSCALL_64_after_hwframe+0x44/0xae
-   </TASK>
-
-Fixes: b7cccd397f31 ("KVM: x86/mmu: Fast invalidation for TDP MMU")
-Cc: stable@vger.kernel.org
+Fixes: a6a0b05da9f3 ("kvm: x86/mmu: Support dirty logging for the TDP MMU")
 Cc: Ben Gardon <bgardon@google.com>
 Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20211215011557.399940-4-seanjc@google.com>
+Reviewed-by: Ben Gardon <bgardon@google.com>
+Message-Id: <20220226001546.360188-3-seanjc@google.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/mmu/tdp_mmu.c |   39 ++++++++++++++++++++++++---------------
- 1 file changed, 24 insertions(+), 15 deletions(-)
+ arch/x86/kvm/mmu/tdp_mmu.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
 --- a/arch/x86/kvm/mmu/tdp_mmu.c
 +++ b/arch/x86/kvm/mmu/tdp_mmu.c
-@@ -99,15 +99,18 @@ void kvm_tdp_mmu_put_root(struct kvm *kv
- }
+@@ -1316,6 +1316,9 @@ retry:
+ 		if (tdp_mmu_iter_cond_resched(kvm, &iter, false, true))
+ 			continue;
  
- /*
-- * Finds the next valid root after root (or the first valid root if root
-- * is NULL), takes a reference on it, and returns that next root. If root
-- * is not NULL, this thread should have already taken a reference on it, and
-- * that reference will be dropped. If no valid root is found, this
-- * function will return NULL.
-+ * Returns the next root after @prev_root (or the first root if @prev_root is
-+ * NULL).  A reference to the returned root is acquired, and the reference to
-+ * @prev_root is released (the caller obviously must hold a reference to
-+ * @prev_root if it's non-NULL).
-+ *
-+ * If @only_valid is true, invalid roots are skipped.
-+ *
-+ * Returns NULL if the end of tdp_mmu_roots was reached.
-  */
- static struct kvm_mmu_page *tdp_mmu_next_root(struct kvm *kvm,
- 					      struct kvm_mmu_page *prev_root,
--					      bool shared)
-+					      bool shared, bool only_valid)
- {
- 	struct kvm_mmu_page *next_root;
- 
-@@ -122,7 +125,7 @@ static struct kvm_mmu_page *tdp_mmu_next
- 						   typeof(*next_root), link);
- 
- 	while (next_root) {
--		if (!next_root->role.invalid &&
-+		if ((!only_valid || !next_root->role.invalid) &&
- 		    kvm_tdp_mmu_get_root(kvm, next_root))
- 			break;
- 
-@@ -148,13 +151,19 @@ static struct kvm_mmu_page *tdp_mmu_next
-  * mode. In the unlikely event that this thread must free a root, the lock
-  * will be temporarily dropped and reacquired in write mode.
-  */
--#define for_each_tdp_mmu_root_yield_safe(_kvm, _root, _as_id, _shared)	\
--	for (_root = tdp_mmu_next_root(_kvm, NULL, _shared);		\
--	     _root;							\
--	     _root = tdp_mmu_next_root(_kvm, _root, _shared))		\
--		if (kvm_mmu_page_as_id(_root) != _as_id) {		\
-+#define __for_each_tdp_mmu_root_yield_safe(_kvm, _root, _as_id, _shared, _only_valid)\
-+	for (_root = tdp_mmu_next_root(_kvm, NULL, _shared, _only_valid);	\
-+	     _root;								\
-+	     _root = tdp_mmu_next_root(_kvm, _root, _shared, _only_valid))	\
-+		if (kvm_mmu_page_as_id(_root) != _as_id) {			\
- 		} else
- 
-+#define for_each_valid_tdp_mmu_root_yield_safe(_kvm, _root, _as_id, _shared)	\
-+	__for_each_tdp_mmu_root_yield_safe(_kvm, _root, _as_id, _shared, true)
++		if (!is_shadow_present_pte(iter.old_spte))
++			continue;
 +
-+#define for_each_tdp_mmu_root_yield_safe(_kvm, _root, _as_id, _shared)		\
-+	__for_each_tdp_mmu_root_yield_safe(_kvm, _root, _as_id, _shared, false)
-+
- #define for_each_tdp_mmu_root(_kvm, _root, _as_id)				\
- 	list_for_each_entry_rcu(_root, &_kvm->arch.tdp_mmu_roots, link,		\
- 				lockdep_is_held_type(&kvm->mmu_lock, 0) ||	\
-@@ -1279,7 +1288,7 @@ bool kvm_tdp_mmu_wrprot_slot(struct kvm
- 
- 	lockdep_assert_held_read(&kvm->mmu_lock);
- 
--	for_each_tdp_mmu_root_yield_safe(kvm, root, slot->as_id, true)
-+	for_each_valid_tdp_mmu_root_yield_safe(kvm, root, slot->as_id, true)
- 		spte_set |= wrprot_gfn_range(kvm, root, slot->base_gfn,
- 			     slot->base_gfn + slot->npages, min_level);
- 
-@@ -1350,7 +1359,7 @@ bool kvm_tdp_mmu_clear_dirty_slot(struct
- 
- 	lockdep_assert_held_read(&kvm->mmu_lock);
- 
--	for_each_tdp_mmu_root_yield_safe(kvm, root, slot->as_id, true)
-+	for_each_valid_tdp_mmu_root_yield_safe(kvm, root, slot->as_id, true)
- 		spte_set |= clear_dirty_gfn_range(kvm, root, slot->base_gfn,
- 				slot->base_gfn + slot->npages);
- 
-@@ -1475,7 +1484,7 @@ void kvm_tdp_mmu_zap_collapsible_sptes(s
- 
- 	lockdep_assert_held_read(&kvm->mmu_lock);
- 
--	for_each_tdp_mmu_root_yield_safe(kvm, root, slot->as_id, true)
-+	for_each_valid_tdp_mmu_root_yield_safe(kvm, root, slot->as_id, true)
- 		zap_collapsible_spte_range(kvm, root, slot);
- }
- 
+ 		if (spte_ad_need_write_protect(iter.old_spte)) {
+ 			if (is_writable_pte(iter.old_spte))
+ 				new_spte = iter.old_spte & ~PT_WRITABLE_MASK;
 
 
