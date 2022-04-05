@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 08CC84F3C0F
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:24:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCED44F39C9
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:56:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382302AbiDEMEM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:04:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50198 "EHLO
+        id S1378722AbiDELiS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:38:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56208 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358186AbiDEK2F (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:28:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F9639E9E1;
-        Tue,  5 Apr 2022 03:16:34 -0700 (PDT)
+        with ESMTP id S1353991AbiDEKKR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:10:17 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E952DC6240;
+        Tue,  5 Apr 2022 02:56:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E195E617A4;
-        Tue,  5 Apr 2022 10:16:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F168AC385A1;
-        Tue,  5 Apr 2022 10:16:32 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 58E88CE1C9D;
+        Tue,  5 Apr 2022 09:56:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60084C385A3;
+        Tue,  5 Apr 2022 09:56:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153793;
-        bh=BUp89Y48prw3uC7Zsp9NBI6Xgc8DoR1PbAzvthqIWTM=;
+        s=korg; t=1649152586;
+        bh=9FEs9vOrkJJDlurXarSttw8Ls20U/XrgNh9nEfnRwf0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ks33A9w9DcgmLuiQHIykxg7cbCpCV1Qd8VHCs50iiLNWVX9vrRdL0fArKVjUh5kIi
-         prcCiXG8BD+EICoygn6oTirv3p5GFUxVjMFqDwXSR7G2GCXXaMmI7oNUChd4aN6pJX
-         EmhpDGNFN5BGRilxnBSDAryB2oGHeNdDckx60Ihc=
+        b=BuDHlckLyRofg58natySgdu8WkoJXUDwKH6Hh05avmfh9c1qbV4z+p+kgCl5wFLPV
+         Zvg0yE1K2s+yDZEAb4s93yGL3Do06T0vzRepVsCUiBqstMK8oHeZVbu9v4bAuxbcD3
+         ataMm6cfIMVR5FJfTwiopIhbt3GLNbAAY7j7g3t8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Hartkopp <socketcan@hartkopp.net>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 349/599] vxcan: enable local echo for sent CAN frames
-Date:   Tue,  5 Apr 2022 09:30:43 +0200
-Message-Id: <20220405070309.211281348@linuxfoundation.org>
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Anders Roxell <anders.roxell@linaro.org>,
+        Segher Boessenkool <segher@kernel.crashing.org>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.15 782/913] powerpc: Fix build errors with newer binutils
+Date:   Tue,  5 Apr 2022 09:30:44 +0200
+Message-Id: <20220405070403.275747446@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
-References: <20220405070258.802373272@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,46 +55,164 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Hartkopp <socketcan@hartkopp.net>
+From: Anders Roxell <anders.roxell@linaro.org>
 
-[ Upstream commit 259bdba27e32368b4404f69d613b1c1014c07cbf ]
+commit 8667d0d64dd1f84fd41b5897fd87fa9113ae05e3 upstream.
 
-The vxcan driver provides a pair of virtual CAN interfaces to exchange
-CAN traffic between different namespaces - analogue to veth.
+Building tinyconfig with gcc (Debian 11.2.0-16) and assembler (Debian
+2.37.90.20220207) the following build error shows up:
 
-In opposite to the vcan driver the local sent CAN traffic on this interface
-is not echo'ed back but only sent to the remote peer. This is unusual and
-can be easily fixed by removing IFF_ECHO from the netdevice flags that
-are set for vxcan interfaces by default at startup.
+  {standard input}: Assembler messages:
+  {standard input}:1190: Error: unrecognized opcode: `stbcix'
+  {standard input}:1433: Error: unrecognized opcode: `lwzcix'
+  {standard input}:1453: Error: unrecognized opcode: `stbcix'
+  {standard input}:1460: Error: unrecognized opcode: `stwcix'
+  {standard input}:1596: Error: unrecognized opcode: `stbcix'
+  ...
 
-Without IFF_ECHO set on driver level, the local sent CAN frames are echo'ed
-in af_can.c in can_send(). This patch makes vxcan interfaces adopt the
-same local echo behavior and procedures as known from the vcan interfaces.
+Rework to add assembler directives [1] around the instruction. Going
+through them one by one shows that the changes should be safe.  Like
+__get_user_atomic_128_aligned() is only called in p9_hmi_special_emu(),
+which according to the name is specific to power9.  And __raw_rm_read*()
+are only called in things that are powernv or book3s_hv specific.
 
-Fixes: a8f820a380a2 ("can: add Virtual CAN Tunnel driver (vxcan)")
-Link: https://lore.kernel.org/all/20220309120416.83514-5-socketcan@hartkopp.net
-Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+[1] https://sourceware.org/binutils/docs/as/PowerPC_002dPseudo.html#PowerPC_002dPseudo
+
+Cc: stable@vger.kernel.org
+Co-developed-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
+Reviewed-by: Segher Boessenkool <segher@kernel.crashing.org>
+[mpe: Make commit subject more descriptive]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220224162215.3406642-2-anders.roxell@linaro.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/vxcan.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/include/asm/io.h        |   40 ++++++++++++++++++++++++++++-------
+ arch/powerpc/include/asm/uaccess.h   |    3 ++
+ arch/powerpc/platforms/powernv/rng.c |    6 ++++-
+ 3 files changed, 40 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/net/can/vxcan.c b/drivers/net/can/vxcan.c
-index 7000c6cd1e48..282c53ef76d2 100644
---- a/drivers/net/can/vxcan.c
-+++ b/drivers/net/can/vxcan.c
-@@ -148,7 +148,7 @@ static void vxcan_setup(struct net_device *dev)
- 	dev->hard_header_len	= 0;
- 	dev->addr_len		= 0;
- 	dev->tx_queue_len	= 0;
--	dev->flags		= (IFF_NOARP|IFF_ECHO);
-+	dev->flags		= IFF_NOARP;
- 	dev->netdev_ops		= &vxcan_netdev_ops;
- 	dev->needs_free_netdev	= true;
+--- a/arch/powerpc/include/asm/io.h
++++ b/arch/powerpc/include/asm/io.h
+@@ -359,25 +359,37 @@ static inline void __raw_writeq_be(unsig
+  */
+ static inline void __raw_rm_writeb(u8 val, volatile void __iomem *paddr)
+ {
+-	__asm__ __volatile__("stbcix %0,0,%1"
++	__asm__ __volatile__(".machine push;   \
++			      .machine power6; \
++			      stbcix %0,0,%1;  \
++			      .machine pop;"
+ 		: : "r" (val), "r" (paddr) : "memory");
+ }
  
--- 
-2.34.1
-
+ static inline void __raw_rm_writew(u16 val, volatile void __iomem *paddr)
+ {
+-	__asm__ __volatile__("sthcix %0,0,%1"
++	__asm__ __volatile__(".machine push;   \
++			      .machine power6; \
++			      sthcix %0,0,%1;  \
++			      .machine pop;"
+ 		: : "r" (val), "r" (paddr) : "memory");
+ }
+ 
+ static inline void __raw_rm_writel(u32 val, volatile void __iomem *paddr)
+ {
+-	__asm__ __volatile__("stwcix %0,0,%1"
++	__asm__ __volatile__(".machine push;   \
++			      .machine power6; \
++			      stwcix %0,0,%1;  \
++			      .machine pop;"
+ 		: : "r" (val), "r" (paddr) : "memory");
+ }
+ 
+ static inline void __raw_rm_writeq(u64 val, volatile void __iomem *paddr)
+ {
+-	__asm__ __volatile__("stdcix %0,0,%1"
++	__asm__ __volatile__(".machine push;   \
++			      .machine power6; \
++			      stdcix %0,0,%1;  \
++			      .machine pop;"
+ 		: : "r" (val), "r" (paddr) : "memory");
+ }
+ 
+@@ -389,7 +401,10 @@ static inline void __raw_rm_writeq_be(u6
+ static inline u8 __raw_rm_readb(volatile void __iomem *paddr)
+ {
+ 	u8 ret;
+-	__asm__ __volatile__("lbzcix %0,0, %1"
++	__asm__ __volatile__(".machine push;   \
++			      .machine power6; \
++			      lbzcix %0,0, %1; \
++			      .machine pop;"
+ 			     : "=r" (ret) : "r" (paddr) : "memory");
+ 	return ret;
+ }
+@@ -397,7 +412,10 @@ static inline u8 __raw_rm_readb(volatile
+ static inline u16 __raw_rm_readw(volatile void __iomem *paddr)
+ {
+ 	u16 ret;
+-	__asm__ __volatile__("lhzcix %0,0, %1"
++	__asm__ __volatile__(".machine push;   \
++			      .machine power6; \
++			      lhzcix %0,0, %1; \
++			      .machine pop;"
+ 			     : "=r" (ret) : "r" (paddr) : "memory");
+ 	return ret;
+ }
+@@ -405,7 +423,10 @@ static inline u16 __raw_rm_readw(volatil
+ static inline u32 __raw_rm_readl(volatile void __iomem *paddr)
+ {
+ 	u32 ret;
+-	__asm__ __volatile__("lwzcix %0,0, %1"
++	__asm__ __volatile__(".machine push;   \
++			      .machine power6; \
++			      lwzcix %0,0, %1; \
++			      .machine pop;"
+ 			     : "=r" (ret) : "r" (paddr) : "memory");
+ 	return ret;
+ }
+@@ -413,7 +434,10 @@ static inline u32 __raw_rm_readl(volatil
+ static inline u64 __raw_rm_readq(volatile void __iomem *paddr)
+ {
+ 	u64 ret;
+-	__asm__ __volatile__("ldcix %0,0, %1"
++	__asm__ __volatile__(".machine push;   \
++			      .machine power6; \
++			      ldcix %0,0, %1;  \
++			      .machine pop;"
+ 			     : "=r" (ret) : "r" (paddr) : "memory");
+ 	return ret;
+ }
+--- a/arch/powerpc/include/asm/uaccess.h
++++ b/arch/powerpc/include/asm/uaccess.h
+@@ -125,8 +125,11 @@ do {								\
+  */
+ #define __get_user_atomic_128_aligned(kaddr, uaddr, err)		\
+ 	__asm__ __volatile__(				\
++		".machine push\n"			\
++		".machine altivec\n"			\
+ 		"1:	lvx  0,0,%1	# get user\n"	\
+ 		" 	stvx 0,0,%2	# put kernel\n"	\
++		".machine pop\n"			\
+ 		"2:\n"					\
+ 		".section .fixup,\"ax\"\n"		\
+ 		"3:	li %0,%3\n"			\
+--- a/arch/powerpc/platforms/powernv/rng.c
++++ b/arch/powerpc/platforms/powernv/rng.c
+@@ -43,7 +43,11 @@ static unsigned long rng_whiten(struct p
+ 	unsigned long parity;
+ 
+ 	/* Calculate the parity of the value */
+-	asm ("popcntd %0,%1" : "=r" (parity) : "r" (val));
++	asm (".machine push;   \
++	      .machine power7; \
++	      popcntd %0,%1;   \
++	      .machine pop;"
++	     : "=r" (parity) : "r" (val));
+ 
+ 	/* xor our value with the previous mask */
+ 	val ^= rng->mask;
 
 
