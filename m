@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5482A4F27DF
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:09:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B2D8A4F26D8
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:05:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233760AbiDEIJX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:09:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45674 "EHLO
+        id S233025AbiDEIE6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:04:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44114 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235660AbiDEH77 (ORCPT
+        with ESMTP id S235658AbiDEH77 (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:59:59 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 617F0165AD;
-        Tue,  5 Apr 2022 00:57:08 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F0F3193C2;
+        Tue,  5 Apr 2022 00:57:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F198F6167D;
-        Tue,  5 Apr 2022 07:57:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E4BEC3410F;
-        Tue,  5 Apr 2022 07:57:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AFE0C6167D;
+        Tue,  5 Apr 2022 07:57:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDDC0C340EE;
+        Tue,  5 Apr 2022 07:57:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145427;
-        bh=PGNhh9vDo9jGvnljvgoqHxuHIDx8W3OpabSkNU6DKU0=;
+        s=korg; t=1649145430;
+        bh=2lWJmGuyQdN4VsEYsnTq8dNPqie4I+PcjZElguCw8KU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dIbcUki8Nn1RnBk58FZShV5aVYOkEmiJ2AuDZ+TuA3vTd8yU1EXCqfPkMIlELZD1y
-         GsMUcmaPGVXbgmgoeatI2cXzwii3W+i+bC8Xf7iMSYztpD00OhFMbVupJAOkNla7cI
-         Pywi3mkbWC2To01cPtBIwzumFGe/aEtVHhgrl0rI=
+        b=1H2jd/Siyms/tETa1PNbAr0IWOKitQB2yUMgHiYpWNIe7u7zebDE+G9eRfNFzxvjN
+         I9osvzXbp2bwL11cmZ5N97M5LWyqqeIVfz6gVQ9XRcZ426K6ZIdPqnsglC7SEndO2u
+         TILxwN0RoEPxluxAAHOho+17KXt2vJboJcS1V0NQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Codrin Ciubotariu <codrin.ciubotariu@microchip.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0401/1126] ASoC: atmel: Fix error handling in snd_proto_probe
-Date:   Tue,  5 Apr 2022 09:19:08 +0200
-Message-Id: <20220405070419.397025798@linuxfoundation.org>
+Subject: [PATCH 5.17 0402/1126] ASoC: rockchip: i2s: Fix missing clk_disable_unprepare() in rockchip_i2s_probe
+Date:   Tue,  5 Apr 2022 09:19:09 +0200
+Message-Id: <20220405070419.426486566@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -57,73 +56,59 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit b0bfaf0544d08d093d6211d7ef8816fb0b5b6c75 ]
+[ Upstream commit f725d20579807a68afbe5dba69e78b8fa05f5ef0 ]
 
-The device_node pointer is returned by of_parse_phandle()  with refcount
-incremented. We should use of_node_put() on it when done.
+Fix the missing clk_disable_unprepare() before return
+from rockchip_i2s_probe() in the error handling case.
 
-This function only calls of_node_put() in the regular path.
-And it will cause refcount leak in error paths.
-Fix this by calling of_node_put() in error handling too.
-
-Fixes: a45f8853a5f9 ("ASoC: Add driver for PROTO Audio CODEC (with a WM8731)")
+Fixes: 01605ad12875 ("ASoC: rockchip-i2s: enable "hclk" for rockchip I2S controller")
 Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Reviewed-by: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
-Link: https://lore.kernel.org/r/20220308013949.20323-1-linmq006@gmail.com
+Link: https://lore.kernel.org/r/20220307083553.26009-1-linmq006@gmail.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/atmel/mikroe-proto.c | 20 ++++++++++++--------
- 1 file changed, 12 insertions(+), 8 deletions(-)
+ sound/soc/rockchip/rockchip_i2s.c | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
-diff --git a/sound/soc/atmel/mikroe-proto.c b/sound/soc/atmel/mikroe-proto.c
-index 627564c18c27..ce46d8a0b7e4 100644
---- a/sound/soc/atmel/mikroe-proto.c
-+++ b/sound/soc/atmel/mikroe-proto.c
-@@ -115,7 +115,8 @@ static int snd_proto_probe(struct platform_device *pdev)
- 	cpu_np = of_parse_phandle(np, "i2s-controller", 0);
- 	if (!cpu_np) {
- 		dev_err(&pdev->dev, "i2s-controller missing\n");
--		return -EINVAL;
-+		ret = -EINVAL;
-+		goto put_codec_node;
- 	}
- 	dai->cpus->of_node = cpu_np;
- 	dai->platforms->of_node = cpu_np;
-@@ -125,7 +126,8 @@ static int snd_proto_probe(struct platform_device *pdev)
- 						       &bitclkmaster, &framemaster);
- 	if (bitclkmaster != framemaster) {
- 		dev_err(&pdev->dev, "Must be the same bitclock and frame master\n");
--		return -EINVAL;
-+		ret = -EINVAL;
-+		goto put_cpu_node;
- 	}
- 	if (bitclkmaster) {
- 		if (codec_np == bitclkmaster)
-@@ -136,18 +138,20 @@ static int snd_proto_probe(struct platform_device *pdev)
- 		dai_fmt |= snd_soc_daifmt_parse_clock_provider_as_flag(np, NULL);
+diff --git a/sound/soc/rockchip/rockchip_i2s.c b/sound/soc/rockchip/rockchip_i2s.c
+index a6d7656c206e..4ce5d2579387 100644
+--- a/sound/soc/rockchip/rockchip_i2s.c
++++ b/sound/soc/rockchip/rockchip_i2s.c
+@@ -716,19 +716,23 @@ static int rockchip_i2s_probe(struct platform_device *pdev)
+ 	i2s->mclk = devm_clk_get(&pdev->dev, "i2s_clk");
+ 	if (IS_ERR(i2s->mclk)) {
+ 		dev_err(&pdev->dev, "Can't retrieve i2s master clock\n");
+-		return PTR_ERR(i2s->mclk);
++		ret = PTR_ERR(i2s->mclk);
++		goto err_clk;
  	}
  
--	of_node_put(bitclkmaster);
--	of_node_put(framemaster);
--	dai->dai_fmt = dai_fmt;
+ 	regs = devm_platform_get_and_ioremap_resource(pdev, 0, &res);
+-	if (IS_ERR(regs))
+-		return PTR_ERR(regs);
++	if (IS_ERR(regs)) {
++		ret = PTR_ERR(regs);
++		goto err_clk;
++	}
+ 
+ 	i2s->regmap = devm_regmap_init_mmio(&pdev->dev, regs,
+ 					    &rockchip_i2s_regmap_config);
+ 	if (IS_ERR(i2s->regmap)) {
+ 		dev_err(&pdev->dev,
+ 			"Failed to initialise managed register map\n");
+-		return PTR_ERR(i2s->regmap);
++		ret = PTR_ERR(i2s->regmap);
++		goto err_clk;
+ 	}
+ 
+ 	i2s->bclk_ratio = 64;
+@@ -768,7 +772,8 @@ static int rockchip_i2s_probe(struct platform_device *pdev)
+ 		i2s_runtime_suspend(&pdev->dev);
+ err_pm_disable:
+ 	pm_runtime_disable(&pdev->dev);
 -
--	of_node_put(codec_np);
--	of_node_put(cpu_np);
- 
-+	dai->dai_fmt = dai_fmt;
- 	ret = snd_soc_register_card(&snd_proto);
- 	if (ret)
- 		dev_err_probe(&pdev->dev, ret,
- 			"snd_soc_register_card() failed\n");
- 
-+
-+put_cpu_node:
-+	of_node_put(bitclkmaster);
-+	of_node_put(framemaster);
-+	of_node_put(cpu_np);
-+put_codec_node:
-+	of_node_put(codec_np);
++err_clk:
++	clk_disable_unprepare(i2s->hclk);
  	return ret;
  }
  
