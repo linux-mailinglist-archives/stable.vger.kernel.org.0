@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A2B04F39D4
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:56:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 440464F39D0
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:56:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378787AbiDELiv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:38:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52340 "EHLO
+        id S1378768AbiDELik (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:38:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52346 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353968AbiDEKKO (ORCPT
+        with ESMTP id S1353971AbiDEKKO (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:10:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5342EC5588;
-        Tue,  5 Apr 2022 02:56:05 -0700 (PDT)
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9BE9C55A9;
+        Tue,  5 Apr 2022 02:56:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C5534616E7;
-        Tue,  5 Apr 2022 09:56:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D65C1C385A1;
-        Tue,  5 Apr 2022 09:56:03 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 46008CE1BE5;
+        Tue,  5 Apr 2022 09:56:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57333C385A1;
+        Tue,  5 Apr 2022 09:56:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152564;
-        bh=XPMpb65O3CeKvKBW3+kH3pERPeRlgpPUhWQrxjl1KbM=;
+        s=korg; t=1649152569;
+        bh=dXFWPeFlgT6CyzZ310/ga2U0bPPCNAqe3eAdLbGPkzc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hHffpIUMnZo17aLj2W8xxobTWBFAIytQcdiXqeI/nL3D98GvdaOGDge6sNWrxaJBq
-         +giAPicgiPwtENdEMIys3eYbFbok+guariogkw2KmgCwM2UyjFCswU5LG/V9tiYG0y
-         4KDRZgjZJQ0uHy056Yra2+ojZNAGQAmKK/w7XAhM=
+        b=CFpGryrPA620biTZOsTOvrlcYLWCgGnZfTZ/ABmpxpKbOMaJ/WbXLQLoKaNLq0CIR
+         7vr9YgfwYw6SbDlt8kez+PRfupyIAhmL9XCdOSLNdHRHckf6P+7AR9FSVCo+0+mrSu
+         ZwYlnsTBcEdIUbRFquMhfvl+zKjX8iYEoBAofmTY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
         Richard Weinberger <richard@nod.at>
-Subject: [PATCH 5.15 821/913] ubifs: Rectify space amount budget for mkdir/tmpfile operations
-Date:   Tue,  5 Apr 2022 09:31:23 +0200
-Message-Id: <20220405070404.440472442@linuxfoundation.org>
+Subject: [PATCH 5.15 822/913] ubifs: setflags: Make dirtied_ino_d 8 bytes aligned
+Date:   Tue,  5 Apr 2022 09:31:24 +0200
+Message-Id: <20220405070404.470296107@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -55,64 +55,36 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-commit a6dab6607d4681d227905d5198710b575dbdb519 upstream.
+commit 1b83ec057db16b4d0697dc21ef7a9743b6041f72 upstream.
 
-UBIFS should make sure the flash has enough space to store dirty (Data
-that is newer than disk) data (in memory), space budget is exactly
-designed to do that. If space budget calculates less data than we need,
-'make_reservation()' will do more work(return -ENOSPC if no free space
-lelf, sometimes we can see "cannot reserve xxx bytes in jhead xxx, error
--28" in ubifs error messages) with ubifs inodes locked, which may effect
-other syscalls.
+Make 'ui->data_len' aligned with 8 bytes before it is assigned to
+dirtied_ino_d. Since 8871d84c8f8b0c6b("ubifs: convert to fileattr")
+applied, 'setflags()' only affects regular files and directories, only
+xattr inode, symlink inode and special inode(pipe/char_dev/block_dev)
+have none- zero 'ui->data_len' field, so assertion
+'!(req->dirtied_ino_d & 7)' cannot fail in ubifs_budget_space().
+To avoid assertion fails in future evolution(eg. setflags can operate
+special inodes), it's better to make dirtied_ino_d 8 bytes aligned,
+after all aligned size is still zero for regular files.
 
-A simple way to decide how much space do we need when make a budget:
-See how much space is needed by 'make_reservation()' in ubifs_jnl_xxx()
-function according to corresponding operation.
-
-It's better to report ENOSPC in ubifs_budget_space(), as early as we can.
-
-Fixes: 474b93704f32163 ("ubifs: Implement O_TMPFILE")
-Fixes: 1e51764a3c2ac05 ("UBIFS: add new flash file system")
+Fixes: 1e51764a3c2ac05a ("UBIFS: add new flash file system")
 Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
 Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ubifs/dir.c |   12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ fs/ubifs/ioctl.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/ubifs/dir.c
-+++ b/fs/ubifs/dir.c
-@@ -428,15 +428,18 @@ static int ubifs_tmpfile(struct user_nam
- {
- 	struct inode *inode;
- 	struct ubifs_info *c = dir->i_sb->s_fs_info;
--	struct ubifs_budget_req req = { .new_ino = 1, .new_dent = 1};
-+	struct ubifs_budget_req req = { .new_ino = 1, .new_dent = 1,
-+					.dirtied_ino = 1};
- 	struct ubifs_budget_req ino_req = { .dirtied_ino = 1 };
- 	struct ubifs_inode *ui;
- 	int err, instantiated = 0;
- 	struct fscrypt_name nm;
+--- a/fs/ubifs/ioctl.c
++++ b/fs/ubifs/ioctl.c
+@@ -108,7 +108,7 @@ static int setflags(struct inode *inode,
+ 	struct ubifs_inode *ui = ubifs_inode(inode);
+ 	struct ubifs_info *c = inode->i_sb->s_fs_info;
+ 	struct ubifs_budget_req req = { .dirtied_ino = 1,
+-					.dirtied_ino_d = ui->data_len };
++			.dirtied_ino_d = ALIGN(ui->data_len, 8) };
  
- 	/*
--	 * Budget request settings: new dirty inode, new direntry,
--	 * budget for dirtied inode will be released via writeback.
-+	 * Budget request settings: new inode, new direntry, changing the
-+	 * parent directory inode.
-+	 * Allocate budget separately for new dirtied inode, the budget will
-+	 * be released via writeback.
- 	 */
- 
- 	dbg_gen("dent '%pd', mode %#hx in dir ino %lu",
-@@ -979,7 +982,8 @@ static int ubifs_mkdir(struct user_names
- 	struct ubifs_inode *dir_ui = ubifs_inode(dir);
- 	struct ubifs_info *c = dir->i_sb->s_fs_info;
- 	int err, sz_change;
--	struct ubifs_budget_req req = { .new_ino = 1, .new_dent = 1 };
-+	struct ubifs_budget_req req = { .new_ino = 1, .new_dent = 1,
-+					.dirtied_ino = 1};
- 	struct fscrypt_name nm;
- 
- 	/*
+ 	err = ubifs_budget_space(c, &req);
+ 	if (err)
 
 
