@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D0664F34E1
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:41:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 633964F306F
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:27:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347574AbiDEJ1h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:27:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42508 "EHLO
+        id S1347549AbiDEJ13 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:27:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49752 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244147AbiDEIvn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:51:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE6C3D3AC0;
-        Tue,  5 Apr 2022 01:40:26 -0700 (PDT)
+        with ESMTP id S243992AbiDEIvY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:51:24 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04D02D0AB0;
+        Tue,  5 Apr 2022 01:40:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D605F614E5;
-        Tue,  5 Apr 2022 08:39:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3B60C385A1;
-        Tue,  5 Apr 2022 08:39:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 61907B81BC5;
+        Tue,  5 Apr 2022 08:40:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5987C385A1;
+        Tue,  5 Apr 2022 08:40:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147977;
-        bh=jdhV1ARZqjVBNBTFdsNBzGc69eetyP1wwgKMcVbjsh8=;
+        s=korg; t=1649148008;
+        bh=vCNxLByh22qWpvDtzrk7nKcRMnmgzftlBFDb7fx5dWY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uyFVOjnENXWNE4FZBoHN7vpI0NYmN8hc3e8lhgYXABrZPZIWVisFC+CBNG10Hf0pg
-         ZBiaZlgRue0gZeUtQt9HVjAnZ4hNgkpBDAO6/QuH/LclGBS/P/0c8k/33kYOZWjkLa
-         i69WsvaZqOgPxxRVr8CuKmqvgtLqmcX62eFMJJck=
+        b=lYb6K33RswvVn53LeUwYhFtzD//6sKBbO6aIcd18xNj05qjssnm73x8zZcXEpV9O0
+         1uNqukii7QFqzs1UV18EC2iOV8H2KuKK0DzSHxEyklOf9Lzgoajy/LRfSdY5Xz2Tik
+         66UsiiwpPj0D4aTNrfoY3F2INt9C8VX/izAvwKtU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>
-Subject: [PATCH 5.16 0183/1017] xtensa: define update_mmu_tlb function
-Date:   Tue,  5 Apr 2022 09:18:16 +0200
-Message-Id: <20220405070359.671343382@linuxfoundation.org>
+Subject: [PATCH 5.16 0184/1017] xtensa: fix stop_machine_cpuslocked call in patch_text
+Date:   Tue,  5 Apr 2022 09:18:17 +0200
+Message-Id: <20220405070359.702346386@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -54,54 +54,32 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Max Filippov <jcmvbkbc@gmail.com>
 
-commit 1c4664faa38923330d478f046dc743a00c1e2dec upstream.
+commit f406f2d03e07afc199dd8cf501f361dde6be8a69 upstream.
 
-Before the commit f9ce0be71d1f ("mm: Cleanup faultaround and finish_fault()
-codepaths") there was a call to update_mmu_cache in alloc_set_pte that
-used to invalidate TLB entry caching invalid PTE that caused a page
-fault. That commit removed that call so now invalid TLB entry survives
-causing repetitive page faults on the CPU that took the initial fault
-until that TLB entry is occasionally evicted. This issue is spotted by
-the xtensa TLB sanity checker.
+patch_text must invoke patch_text_stop_machine on all online CPUs, but
+it calls stop_machine_cpuslocked with NULL cpumask. As a result only one
+CPU runs patch_text_stop_machine potentially leaving stale icache
+entries on other CPUs. Fix that by calling stop_machine_cpuslocked with
+cpu_online_mask as the last argument.
 
-Fix this issue by defining update_mmu_tlb function that flushes TLB entry
-for the faulting address.
-
-Cc: stable@vger.kernel.org # 5.12+
+Cc: stable@vger.kernel.org
+Fixes: 64711f9a47d4 ("xtensa: implement jump_label support")
 Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/xtensa/include/asm/pgtable.h |    4 ++++
- arch/xtensa/mm/tlb.c              |    6 ++++++
- 2 files changed, 10 insertions(+)
+ arch/xtensa/kernel/jump_label.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/xtensa/include/asm/pgtable.h
-+++ b/arch/xtensa/include/asm/pgtable.h
-@@ -411,6 +411,10 @@ extern  void update_mmu_cache(struct vm_
+--- a/arch/xtensa/kernel/jump_label.c
++++ b/arch/xtensa/kernel/jump_label.c
+@@ -61,7 +61,7 @@ static void patch_text(unsigned long add
+ 			.data = data,
+ 		};
+ 		stop_machine_cpuslocked(patch_text_stop_machine,
+-					&patch, NULL);
++					&patch, cpu_online_mask);
+ 	} else {
+ 		unsigned long flags;
  
- typedef pte_t *pte_addr_t;
- 
-+void update_mmu_tlb(struct vm_area_struct *vma,
-+		    unsigned long address, pte_t *ptep);
-+#define __HAVE_ARCH_UPDATE_MMU_TLB
-+
- #endif /* !defined (__ASSEMBLY__) */
- 
- #define __HAVE_ARCH_PTEP_TEST_AND_CLEAR_YOUNG
---- a/arch/xtensa/mm/tlb.c
-+++ b/arch/xtensa/mm/tlb.c
-@@ -162,6 +162,12 @@ void local_flush_tlb_kernel_range(unsign
- 	}
- }
- 
-+void update_mmu_tlb(struct vm_area_struct *vma,
-+		    unsigned long address, pte_t *ptep)
-+{
-+	local_flush_tlb_page(vma, address);
-+}
-+
- #ifdef CONFIG_DEBUG_TLB_SANITY
- 
- static unsigned get_pte_for_vaddr(unsigned vaddr)
 
 
