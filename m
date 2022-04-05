@@ -2,41 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E15214F277B
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:07:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 22B1A4F2788
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:07:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232589AbiDEIGx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:06:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47556 "EHLO
+        id S233273AbiDEIHR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:07:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47650 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235765AbiDEIAT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:00:19 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 887CB36E3A;
-        Tue,  5 Apr 2022 00:58:21 -0700 (PDT)
+        with ESMTP id S235770AbiDEIAU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:00:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A343637A2C;
+        Tue,  5 Apr 2022 00:58:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 37D01B81B14;
-        Tue,  5 Apr 2022 07:58:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98389C340EE;
-        Tue,  5 Apr 2022 07:58:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4206B61725;
+        Tue,  5 Apr 2022 07:58:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24771C340EE;
+        Tue,  5 Apr 2022 07:58:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145499;
-        bh=AzruJ7kNpSnT6sSFKy/mtIR2Ku9xH4nvBIs2Jd7NW+4=;
+        s=korg; t=1649145501;
+        bh=g/yUqTevTV8GciHyd7YeKtTHAieQUSEzbtaW7BPaBVs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mRqGWghIhfcKTIEC+jn3LbcNjheMJPe03C9vcLIwiY7ZSUsXl9bmjgUBvR8hcwPps
-         B0u5xVI5nyfnxIwKTmC8OIXKl/fUb1rD9GJKE0XpJOp1UKiLLUihCRDMHoORf4xyXK
-         g6Gsf3yiY3luMKUnGdC3mxchX9bM78DrC9YKJ9Hk=
+        b=X8bTP8DnXRe0N8Vd27sC9R+baH/FVuo8KH2j/kEeMFYD4hGz4pGdl77/z7pps89A0
+         0CJnRmQM8fdT1MN8KTofx1AHnjWhzW0zcPDr2AbwJ9le/nzJpyqc6gOrQ9Ry6fOzXB
+         pVqw0SuRJD/mzXKBoRSQ9UFwgjz5gSQ5seiRbuM4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rob Herring <robh@kernel.org>,
-        Heiko Stuebner <heiko@sntech.de>,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        kernel test robot <lkp@intel.com>,
+        Angelo Dureghello <angelo@sysam.it>,
+        Greg Ungerer <gerg@kernel.org>,
+        Greg Ungerer <gerg@linux-m68k.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        linux-m68k@lists.linux-m68k.org, uclinux-dev@uclinux.org,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0389/1126] arm64: dts: rockchip: Fix SDIO regulator supply properties on rk3399-firefly
-Date:   Tue,  5 Apr 2022 09:18:56 +0200
-Message-Id: <20220405070419.045203929@linuxfoundation.org>
+Subject: [PATCH 5.17 0390/1126] m68k: coldfire/device.c: only build for MCF_EDMA when h/w macros are defined
+Date:   Tue,  5 Apr 2022 09:18:57 +0200
+Message-Id: <20220405070419.074480989@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -54,37 +59,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Herring <robh@kernel.org>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 37cbd3c522869247ed4525b5042ff4c6a276c813 ]
+[ Upstream commit e6e1e7b19fa132d23d09c465942aab4c110d3da9 ]
 
-A label reference without brackets is a path string, not a phandle as
-intended. Add the missing brackets.
+When CONFIG_MCF_EDMA is set (due to COMPILE_TEST, not due to
+CONFIG_M5441x), coldfire/device.c has compile errors due to
+missing MCFEDMA_* symbols. In the .config file that was provided,
+CONFIG_M5206=y, not CONFIG_M5441x, so <asm/m5441xsim.h> is not
+included in coldfire/device.c.
 
-Fixes: a5002c41c383 ("arm64: dts: rockchip: add WiFi module support for Firefly-RK3399")
-Signed-off-by: Rob Herring <robh@kernel.org>
-Link: https://lore.kernel.org/r/20220304202559.317749-1-robh@kernel.org
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Only build the MCF_EDMA code in coldfire/device.c if the MCFEDMA_*
+hardware macros are defined.
+
+Fixes these build errors:
+
+../arch/m68k/coldfire/device.c:512:35: error: 'MCFEDMA_BASE' undeclared here (not in a function); did you mean 'MCFDMA_BASE1'?
+  512 |                 .start          = MCFEDMA_BASE,
+../arch/m68k/coldfire/device.c:513:50: error: 'MCFEDMA_SIZE' undeclared here (not in a function)
+  513 |                 .end            = MCFEDMA_BASE + MCFEDMA_SIZE - 1,
+../arch/m68k/coldfire/device.c:517:35: error: 'MCFEDMA_IRQ_INTR0' undeclared here (not in a function)
+  517 |                 .start          = MCFEDMA_IRQ_INTR0,
+../arch/m68k/coldfire/device.c:523:35: error: 'MCFEDMA_IRQ_INTR16' undeclared here (not in a function)
+  523 |                 .start          = MCFEDMA_IRQ_INTR16,
+../arch/m68k/coldfire/device.c:529:35: error: 'MCFEDMA_IRQ_INTR56' undeclared here (not in a function)
+  529 |                 .start          = MCFEDMA_IRQ_INTR56,
+../arch/m68k/coldfire/device.c:535:35: error: 'MCFEDMA_IRQ_ERR' undeclared here (not in a function)
+  535 |                 .start          = MCFEDMA_IRQ_ERR,
+
+Fixes: d7e9d01ac292 ("m68k: add ColdFire mcf5441x eDMA platform support")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Link: lore.kernel.org/r/202203030252.P752DK46-lkp@intel.com
+Cc: Angelo Dureghello <angelo@sysam.it>
+Cc: Greg Ungerer <gerg@kernel.org>
+Cc: Greg Ungerer <gerg@linux-m68k.org>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: linux-m68k@lists.linux-m68k.org
+Cc: uclinux-dev@uclinux.org
+Signed-off-by: Greg Ungerer <gerg@linux-m68k.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/rockchip/rk3399-firefly.dts | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/m68k/coldfire/device.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/rockchip/rk3399-firefly.dts b/arch/arm64/boot/dts/rockchip/rk3399-firefly.dts
-index c4dd2a6b4836..f81ce3240342 100644
---- a/arch/arm64/boot/dts/rockchip/rk3399-firefly.dts
-+++ b/arch/arm64/boot/dts/rockchip/rk3399-firefly.dts
-@@ -770,8 +770,8 @@
- 	sd-uhs-sdr104;
+diff --git a/arch/m68k/coldfire/device.c b/arch/m68k/coldfire/device.c
+index 0386252e9d04..4218750414bb 100644
+--- a/arch/m68k/coldfire/device.c
++++ b/arch/m68k/coldfire/device.c
+@@ -480,7 +480,7 @@ static struct platform_device mcf_i2c5 = {
+ #endif /* MCFI2C_BASE5 */
+ #endif /* IS_ENABLED(CONFIG_I2C_IMX) */
  
- 	/* Power supply */
--	vqmmc-supply = &vcc1v8_s3;	/* IO line */
--	vmmc-supply = &vcc_sdio;	/* card's power */
-+	vqmmc-supply = <&vcc1v8_s3>;	/* IO line */
-+	vmmc-supply = <&vcc_sdio>;	/* card's power */
+-#if IS_ENABLED(CONFIG_MCF_EDMA)
++#ifdef MCFEDMA_BASE
  
- 	#address-cells = <1>;
- 	#size-cells = <0>;
+ static const struct dma_slave_map mcf_edma_map[] = {
+ 	{ "dreq0", "rx-tx", MCF_EDMA_FILTER_PARAM(0) },
+@@ -552,7 +552,7 @@ static struct platform_device mcf_edma = {
+ 		.platform_data = &mcf_edma_data,
+ 	}
+ };
+-#endif /* IS_ENABLED(CONFIG_MCF_EDMA) */
++#endif /* MCFEDMA_BASE */
+ 
+ #ifdef MCFSDHC_BASE
+ static struct mcf_esdhc_platform_data mcf_esdhc_data = {
+@@ -651,7 +651,7 @@ static struct platform_device *mcf_devices[] __initdata = {
+ 	&mcf_i2c5,
+ #endif
+ #endif
+-#if IS_ENABLED(CONFIG_MCF_EDMA)
++#ifdef MCFEDMA_BASE
+ 	&mcf_edma,
+ #endif
+ #ifdef MCFSDHC_BASE
 -- 
 2.34.1
 
