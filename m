@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 332C84F319D
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:45:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F7A84F32A2
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:59:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356027AbiDEKWr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:22:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44562 "EHLO
+        id S1356365AbiDEKXl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:23:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235785AbiDEJ3t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:29:49 -0400
+        with ESMTP id S235977AbiDEJbC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:31:02 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4B55E338C;
-        Tue,  5 Apr 2022 02:17:03 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0C2E22B14;
+        Tue,  5 Apr 2022 02:18:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 69C3BB81B75;
-        Tue,  5 Apr 2022 09:17:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C65C1C385A2;
-        Tue,  5 Apr 2022 09:17:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9BB83B81B14;
+        Tue,  5 Apr 2022 09:18:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 007DBC385A2;
+        Tue,  5 Apr 2022 09:18:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150221;
-        bh=X6T2snebmWEcnXJQljGOMzXWVyReWVIddhiBFGO9dm4=;
+        s=korg; t=1649150298;
+        bh=t5Kjxi8BKChE7cLLOSmUC5fA8BDDzn2f270Eb+wM/pU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i6ouc6xUOfeGS8G0UOELZxRwWQrY72tmI279Ys/3c3DLrgHNDrzpYVi4aKzS8U+NQ
-         UgrJLY3OSEItDdpiZvR00c9Zalml4Cya2cJm7aflfwfnyijIHRbd7ZE3dVKpz0c+tl
-         unQnxbWQRUr53Yuq/n7tjFfir1NZ6SpWF1XQMy60=
+        b=deGVQcpmuujFtiD2ADXLz563zBSturdWhToUcews/lURECBo1eNm/qyxH4R00fm6V
+         DxzZ/QmPyTeUyenTH2l2d+G4YcEeelJRbxIQsqvG3cnhTSRSjuWhHsjwjBdqznak2F
+         efwQzFCiwxBIsXtS6agfoiVuucL1niwct67IHBmo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guodong Liu <guodong.liu@mediatek.com>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 5.16 0996/1017] pinctrl: canonical rsel resistance selection property
-Date:   Tue,  5 Apr 2022 09:31:49 +0200
-Message-Id: <20220405070423.766937642@linuxfoundation.org>
+        stable@vger.kernel.org, Kuldeep Singh <singh.kuldeep87k@gmail.com>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 5.16 0999/1017] ARM: dts: spear13xx: Update SPI dma properties
+Date:   Tue,  5 Apr 2022 09:31:52 +0200
+Message-Id: <20220405070423.854824634@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -53,31 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guodong Liu <guodong.liu@mediatek.com>
+From: Kuldeep Singh <singh.kuldeep87k@gmail.com>
 
-commit 7966c5051fc7d52425155ab30ad568d9d97f3b02 upstream.
+commit 31d3687d6017c7ce6061695361598d9cda70807a upstream.
 
-Change "mediatek,rsel_resistance_in_si_unit" to "mediatek,rsel-resistance-in-si-unit"
+Reorder dmas and dma-names property for spi controller node to make it
+compliant with bindings.
 
-Fixes: fb34a9ae383a ("pinctrl: mediatek: support rsel feature")
-Signed-off-by: Guodong Liu <guodong.liu@mediatek.com>
-Link: https://lore.kernel.org/r/20220216032124.28067-4-guodong.liu@mediatek.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: 6e8887f60f60 ("ARM: SPEAr13xx: Pass generic DW DMAC platform data from DT")
+Signed-off-by: Kuldeep Singh <singh.kuldeep87k@gmail.com>
+Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+Link: https://lore.kernel.org/r/20220326042313.97862-2-singh.kuldeep87k@gmail.com'
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pinctrl/mediatek/pinctrl-paris.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/dts/spear13xx.dtsi |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/pinctrl/mediatek/pinctrl-paris.c
-+++ b/drivers/pinctrl/mediatek/pinctrl-paris.c
-@@ -985,7 +985,7 @@ int mtk_paris_pinctrl_probe(struct platf
- 	hw->nbase = hw->soc->nbase_names;
+--- a/arch/arm/boot/dts/spear13xx.dtsi
++++ b/arch/arm/boot/dts/spear13xx.dtsi
+@@ -284,9 +284,9 @@
+ 				#size-cells = <0>;
+ 				interrupts = <0 31 0x4>;
+ 				status = "disabled";
+-				dmas = <&dwdma0 4 0 0>,
+-					<&dwdma0 5 0 0>;
+-				dma-names = "tx", "rx";
++				dmas = <&dwdma0 5 0 0>,
++					<&dwdma0 4 0 0>;
++				dma-names = "rx", "tx";
+ 			};
  
- 	if (of_find_property(hw->dev->of_node,
--			     "mediatek,rsel_resistance_in_si_unit", NULL))
-+			     "mediatek,rsel-resistance-in-si-unit", NULL))
- 		hw->rsel_si_unit = true;
- 	else
- 		hw->rsel_si_unit = false;
+ 			rtc@e0580000 {
 
 
