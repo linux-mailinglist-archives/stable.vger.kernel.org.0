@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EA934F37AB
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:21:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E88D34F3A9F
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:03:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359431AbiDELTE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:19:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43270 "EHLO
+        id S1381615AbiDELqj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:46:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45586 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349175AbiDEJtY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:24 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50C07A18C;
-        Tue,  5 Apr 2022 02:42:13 -0700 (PDT)
+        with ESMTP id S1354981AbiDEKQu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:16:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8789DE9F;
+        Tue,  5 Apr 2022 03:04:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 097CAB81B7F;
-        Tue,  5 Apr 2022 09:42:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C718C385A2;
-        Tue,  5 Apr 2022 09:42:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1E0546174B;
+        Tue,  5 Apr 2022 10:04:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32017C385A2;
+        Tue,  5 Apr 2022 10:04:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151730;
-        bh=DpV3JuPp454N57ahgOEMS/xXClBVIEP1hRvicjNsFEA=;
+        s=korg; t=1649153062;
+        bh=z3BpInOZg7lcxumibtyoEA2UOYtY6znbUUxMJ1KDSLk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UrJNHhg4Wm9b/tb+CAAYbtRUru2cvMRn1RVVI35ATzT48KfD21R0HV99zp9yBfKk4
-         +5hkLJXVY77ZChj17URyG4+adskvloBNenh1E9EcKlr2ArO+DtWn3yLPI/RsDRn/3k
-         pJh0KPj30mWV8ghz4f+2rCiwbtEGZFK51a2/X3+w=
+        b=qcKRcJdX+ymKjtFLlxmtWtPzKKrsMRvLPwF/zEIk08ieiVfzdXOrcudTzLm7Mtapv
+         vq+AN7IeMQlMDqrMIRGdefkNlow2K+QlIGywoAwIIBUcme0749sXJYfVNBUZwbuyN2
+         z19DOl+ANRsoqkFWGpUtwAhpD00IZlnee6n52TVo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        "Maciej W. Rozycki" <macro@orcam.me.uk>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 521/913] MIPS: Sanitise Cavium switch cases in TLB handler synthesizers
+        stable@vger.kernel.org, Bill Messmer <wmessmer@microsoft.com>,
+        Jann Horn <jannh@google.com>, Kees Cook <keescook@chromium.org>
+Subject: [PATCH 5.10 089/599] coredump: Also dump first pages of non-executable ELF libraries
 Date:   Tue,  5 Apr 2022 09:26:23 +0200
-Message-Id: <20220405070355.470648463@linuxfoundation.org>
+Message-Id: <20220405070301.478765187@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070258.802373272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,73 +53,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej W. Rozycki <macro@orcam.me.uk>
+From: Jann Horn <jannh@google.com>
 
-[ Upstream commit 6ddcba9d480b6bcced4223a729794dfa6becb7eb ]
+commit 84158b7f6a0624b81800b4e7c90f7fb7fdecf66c upstream.
 
-It makes no sense to fall through to `break'.  Therefore reorder the
-switch statements so as to have the Cavium cases first, followed by the
-default case, which improves readability and pacifies code analysis
-tools.  No change in semantics, assembly produced is exactly the same.
+When I rewrote the VMA dumping logic for coredumps, I changed it to
+recognize ELF library mappings based on the file being executable instead
+of the mapping having an ELF header. But turns out, distros ship many ELF
+libraries as non-executable, so the heuristic goes wrong...
 
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
-Fixes: bc431d2153cc ("MIPS: Fix fall-through warnings for Clang")
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Restore the old behavior where FILTER(ELF_HEADERS) dumps the first page of
+any offset-0 readable mapping that starts with the ELF magic.
+
+This fix is technically layer-breaking a bit, because it checks for
+something ELF-specific in fs/coredump.c; but since we probably want to
+share this between standard ELF and FDPIC ELF anyway, I guess it's fine?
+And this also keeps the change small for backporting.
+
+Cc: stable@vger.kernel.org
+Fixes: 429a22e776a2 ("coredump: rework elf/elf_fdpic vma_dump_size() into common helper")
+Reported-by: Bill Messmer <wmessmer@microsoft.com>
+Signed-off-by: Jann Horn <jannh@google.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20220126025739.2014888-1-jannh@google.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/mips/mm/tlbex.c | 23 ++++++++++-------------
- 1 file changed, 10 insertions(+), 13 deletions(-)
+ fs/coredump.c |   39 ++++++++++++++++++++++++++++++++++-----
+ 1 file changed, 34 insertions(+), 5 deletions(-)
 
-diff --git a/arch/mips/mm/tlbex.c b/arch/mips/mm/tlbex.c
-index 9adad24c2e65..046d51a454af 100644
---- a/arch/mips/mm/tlbex.c
-+++ b/arch/mips/mm/tlbex.c
-@@ -2167,16 +2167,14 @@ static void build_r4000_tlb_load_handler(void)
- 		uasm_i_tlbr(&p);
+--- a/fs/coredump.c
++++ b/fs/coredump.c
+@@ -41,6 +41,7 @@
+ #include <linux/fs.h>
+ #include <linux/path.h>
+ #include <linux/timekeeping.h>
++#include <linux/elf.h>
  
- 		switch (current_cpu_type()) {
--		default:
--			if (cpu_has_mips_r2_exec_hazard) {
--				uasm_i_ehb(&p);
--			fallthrough;
+ #include <linux/uaccess.h>
+ #include <asm/mmu_context.h>
+@@ -969,6 +970,8 @@ static bool always_dump_vma(struct vm_ar
+ 	return false;
+ }
+ 
++#define DUMP_SIZE_MAYBE_ELFHDR_PLACEHOLDER 1
++
+ /*
+  * Decide how much of @vma's contents should be included in a core dump.
+  */
+@@ -1028,9 +1031,20 @@ static unsigned long vma_dump_size(struc
+ 	 * dump the first page to aid in determining what was mapped here.
+ 	 */
+ 	if (FILTER(ELF_HEADERS) &&
+-	    vma->vm_pgoff == 0 && (vma->vm_flags & VM_READ) &&
+-	    (READ_ONCE(file_inode(vma->vm_file)->i_mode) & 0111) != 0)
+-		return PAGE_SIZE;
++	    vma->vm_pgoff == 0 && (vma->vm_flags & VM_READ)) {
++		if ((READ_ONCE(file_inode(vma->vm_file)->i_mode) & 0111) != 0)
++			return PAGE_SIZE;
++
++		/*
++		 * ELF libraries aren't always executable.
++		 * We'll want to check whether the mapping starts with the ELF
++		 * magic, but not now - we're holding the mmap lock,
++		 * so copy_from_user() doesn't work here.
++		 * Use a placeholder instead, and fix it up later in
++		 * dump_vma_snapshot().
++		 */
++		return DUMP_SIZE_MAYBE_ELFHDR_PLACEHOLDER;
++	}
+ 
+ #undef	FILTER
+ 
+@@ -1105,8 +1119,6 @@ int dump_vma_snapshot(struct coredump_pa
+ 		m->end = vma->vm_end;
+ 		m->flags = vma->vm_flags;
+ 		m->dump_size = vma_dump_size(vma, cprm->mm_flags);
 -
- 		case CPU_CAVIUM_OCTEON:
- 		case CPU_CAVIUM_OCTEON_PLUS:
- 		case CPU_CAVIUM_OCTEON2:
--				break;
--			}
-+			break;
-+		default:
-+			if (cpu_has_mips_r2_exec_hazard)
-+				uasm_i_ehb(&p);
-+			break;
- 		}
+-		vma_data_size += m->dump_size;
+ 	}
  
- 		/* Examine  entrylo 0 or 1 based on ptr. */
-@@ -2243,15 +2241,14 @@ static void build_r4000_tlb_load_handler(void)
- 		uasm_i_tlbr(&p);
+ 	mmap_write_unlock(mm);
+@@ -1116,6 +1128,23 @@ int dump_vma_snapshot(struct coredump_pa
+ 		return -EFAULT;
+ 	}
  
- 		switch (current_cpu_type()) {
--		default:
--			if (cpu_has_mips_r2_exec_hazard) {
--				uasm_i_ehb(&p);
--
- 		case CPU_CAVIUM_OCTEON:
- 		case CPU_CAVIUM_OCTEON_PLUS:
- 		case CPU_CAVIUM_OCTEON2:
--				break;
--			}
-+			break;
-+		default:
-+			if (cpu_has_mips_r2_exec_hazard)
-+				uasm_i_ehb(&p);
-+			break;
- 		}
- 
- 		/* Examine  entrylo 0 or 1 based on ptr. */
--- 
-2.34.1
-
++	for (i = 0; i < *vma_count; i++) {
++		struct core_vma_metadata *m = (*vma_meta) + i;
++
++		if (m->dump_size == DUMP_SIZE_MAYBE_ELFHDR_PLACEHOLDER) {
++			char elfmag[SELFMAG];
++
++			if (copy_from_user(elfmag, (void __user *)m->start, SELFMAG) ||
++					memcmp(elfmag, ELFMAG, SELFMAG) != 0) {
++				m->dump_size = 0;
++			} else {
++				m->dump_size = PAGE_SIZE;
++			}
++		}
++
++		vma_data_size += m->dump_size;
++	}
++
+ 	*vma_data_size_ptr = vma_data_size;
+ 	return 0;
+ }
 
 
