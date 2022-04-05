@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A3B754F2E83
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:01:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E05F4F2DA1
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:45:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234479AbiDEJae (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:30:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42510 "EHLO
+        id S237196AbiDEJEC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:04:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40846 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241059AbiDEIs0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:48:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D4C328E36;
-        Tue,  5 Apr 2022 01:36:42 -0700 (PDT)
+        with ESMTP id S240908AbiDEIsL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:48:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3ADB9275EF;
+        Tue,  5 Apr 2022 01:36:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 279D861535;
-        Tue,  5 Apr 2022 08:36:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3837BC385A4;
-        Tue,  5 Apr 2022 08:36:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 14CA8614E5;
+        Tue,  5 Apr 2022 08:36:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D059C385A2;
+        Tue,  5 Apr 2022 08:36:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147783;
-        bh=ZxgY+DG0V/m8ix9O/dK77iX00sKsYy35vR68jBeaAoE=;
+        s=korg; t=1649147786;
+        bh=tc1+Yv2GOq+ZKImm9w8ZFfKeGbt6glujw2APy6YB0UQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=01aOA8DxGXnYeC3GqxeFfAJEtjiZkj+5T7rrp1cqXM5gxHGF0pM0in/1FX9FDjg1W
-         GCJwL/68KxwETN+q+rL8KOqiw1UWl2S7KRsAfwvKOk90mrECFLTWclj/hjdILNmknA
-         6Mrq+QULBGJ5allcfTi5uLDagdIp13bm4xm8n7as=
+        b=GjIy16lgOutbgOd5eLbyArYRJ0voxAx+RkDO0aXUq6DuuDeqgakyxI04YG2nXIBOV
+         rfG/BXOY3r0STdBPOup9i1CN9ENsE97Hk+GxJoC+/lCwolkRUD+ALzRPN8B08AWH57
+         2ATHJgDyvKzFjTCjPTg6fty/cRYDLVnmHP3UePHU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 5.16 0121/1017] dm: fix double accounting of flush with data
-Date:   Tue,  5 Apr 2022 09:17:14 +0200
-Message-Id: <20220405070357.790035806@linuxfoundation.org>
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Milan Broz <gmazyland@gmail.com>,
+        Mike Snitzer <snitzer@kernel.org>
+Subject: [PATCH 5.16 0122/1017] dm integrity: set journal entry unused when shrinking device
+Date:   Tue,  5 Apr 2022 09:17:15 +0200
+Message-Id: <20220405070357.819427084@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -52,140 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Snitzer <snitzer@redhat.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-commit 8d394bc4adf588ca4a0650745167cb83f86c18c9 upstream.
+commit cc09e8a9dec4f0e8299e80a7a2a8e6f54164a10b upstream.
 
-DM handles a flush with data by first issuing an empty flush and then
-once it completes the REQ_PREFLUSH flag is removed and the payload is
-issued.  The problem fixed by this commit is that both the empty flush
-bio and the data payload will account the full extent of the data
-payload.
+Commit f6f72f32c22c ("dm integrity: don't replay journal data past the
+end of the device") skips journal replay if the target sector points
+beyond the end of the device. Unfortunatelly, it doesn't set the
+journal entry unused, which resulted in this BUG being triggered:
+BUG_ON(!journal_entry_is_unused(je))
 
-Fix this by factoring out dm_io_acct() and having it wrap all IO
-accounting to set the size of  bio with REQ_PREFLUSH to 0, account the
-IO, and then restore the original size.
+Fix this by calling journal_entry_set_unused() for this case.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Fixes: f6f72f32c22c ("dm integrity: don't replay journal data past the end of the device")
+Cc: stable@vger.kernel.org # v5.7+
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Tested-by: Milan Broz <gmazyland@gmail.com>
+[snitzer: revised header]
+Signed-off-by: Mike Snitzer <snitzer@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/dm-stats.c |    6 ++++--
- drivers/md/dm-stats.h |    2 +-
- drivers/md/dm.c       |   47 +++++++++++++++++++++++++++++++++--------------
- 3 files changed, 38 insertions(+), 17 deletions(-)
+ drivers/md/dm-integrity.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/md/dm-stats.c
-+++ b/drivers/md/dm-stats.c
-@@ -644,13 +644,14 @@ static void __dm_stat_bio(struct dm_stat
- 
- void dm_stats_account_io(struct dm_stats *stats, unsigned long bi_rw,
- 			 sector_t bi_sector, unsigned bi_sectors, bool end,
--			 unsigned long duration_jiffies,
-+			 unsigned long start_time,
- 			 struct dm_stats_aux *stats_aux)
- {
- 	struct dm_stat *s;
- 	sector_t end_sector;
- 	struct dm_stats_last_position *last;
- 	bool got_precise_time;
-+	unsigned long duration_jiffies = 0;
- 
- 	if (unlikely(!bi_sectors))
- 		return;
-@@ -670,7 +671,8 @@ void dm_stats_account_io(struct dm_stats
- 				       ));
- 		WRITE_ONCE(last->last_sector, end_sector);
- 		WRITE_ONCE(last->last_rw, bi_rw);
--	}
-+	} else
-+		duration_jiffies = jiffies - start_time;
- 
- 	rcu_read_lock();
- 
---- a/drivers/md/dm-stats.h
-+++ b/drivers/md/dm-stats.h
-@@ -31,7 +31,7 @@ int dm_stats_message(struct mapped_devic
- 
- void dm_stats_account_io(struct dm_stats *stats, unsigned long bi_rw,
- 			 sector_t bi_sector, unsigned bi_sectors, bool end,
--			 unsigned long duration_jiffies,
-+			 unsigned long start_time,
- 			 struct dm_stats_aux *aux);
- 
- static inline bool dm_stats_used(struct dm_stats *st)
---- a/drivers/md/dm.c
-+++ b/drivers/md/dm.c
-@@ -484,29 +484,48 @@ u64 dm_start_time_ns_from_clone(struct b
- }
- EXPORT_SYMBOL_GPL(dm_start_time_ns_from_clone);
- 
--static void start_io_acct(struct dm_io *io)
-+static bool bio_is_flush_with_data(struct bio *bio)
- {
--	struct mapped_device *md = io->md;
--	struct bio *bio = io->orig_bio;
-+	return ((bio->bi_opf & REQ_PREFLUSH) && bio->bi_iter.bi_size);
-+}
-+
-+static void dm_io_acct(bool end, struct mapped_device *md, struct bio *bio,
-+		       unsigned long start_time, struct dm_stats_aux *stats_aux)
-+{
-+	bool is_flush_with_data;
-+	unsigned int bi_size;
-+
-+	/* If REQ_PREFLUSH set save any payload but do not account it */
-+	is_flush_with_data = bio_is_flush_with_data(bio);
-+	if (is_flush_with_data) {
-+		bi_size = bio->bi_iter.bi_size;
-+		bio->bi_iter.bi_size = 0;
-+	}
-+
-+	if (!end)
-+		bio_start_io_acct_time(bio, start_time);
-+	else
-+		bio_end_io_acct(bio, start_time);
- 
--	bio_start_io_acct_time(bio, io->start_time);
- 	if (unlikely(dm_stats_used(&md->stats)))
- 		dm_stats_account_io(&md->stats, bio_data_dir(bio),
- 				    bio->bi_iter.bi_sector, bio_sectors(bio),
--				    false, 0, &io->stats_aux);
-+				    end, start_time, stats_aux);
-+
-+	/* Restore bio's payload so it does get accounted upon requeue */
-+	if (is_flush_with_data)
-+		bio->bi_iter.bi_size = bi_size;
-+}
-+
-+static void start_io_acct(struct dm_io *io)
-+{
-+	dm_io_acct(false, io->md, io->orig_bio, io->start_time, &io->stats_aux);
- }
- 
- static void end_io_acct(struct mapped_device *md, struct bio *bio,
- 			unsigned long start_time, struct dm_stats_aux *stats_aux)
- {
--	unsigned long duration = jiffies - start_time;
--
--	bio_end_io_acct(bio, start_time);
--
--	if (unlikely(dm_stats_used(&md->stats)))
--		dm_stats_account_io(&md->stats, bio_data_dir(bio),
--				    bio->bi_iter.bi_sector, bio_sectors(bio),
--				    true, duration, stats_aux);
-+	dm_io_acct(true, md, bio, start_time, stats_aux);
- }
- 
- static struct dm_io *alloc_io(struct mapped_device *md, struct bio *bio)
-@@ -835,7 +854,7 @@ void dm_io_dec_pending(struct dm_io *io,
- 		if (io_error == BLK_STS_DM_REQUEUE)
- 			return;
- 
--		if ((bio->bi_opf & REQ_PREFLUSH) && bio->bi_iter.bi_size) {
-+		if (bio_is_flush_with_data(bio)) {
- 			/*
- 			 * Preflush done for flush with data, reissue
- 			 * without REQ_PREFLUSH.
+--- a/drivers/md/dm-integrity.c
++++ b/drivers/md/dm-integrity.c
+@@ -2471,9 +2471,11 @@ static void do_journal_write(struct dm_i
+ 					dm_integrity_io_error(ic, "invalid sector in journal", -EIO);
+ 					sec &= ~(sector_t)(ic->sectors_per_block - 1);
+ 				}
++				if (unlikely(sec >= ic->provided_data_sectors)) {
++					journal_entry_set_unused(je);
++					continue;
++				}
+ 			}
+-			if (unlikely(sec >= ic->provided_data_sectors))
+-				continue;
+ 			get_area_and_offset(ic, sec, &area, &offset);
+ 			restore_last_bytes(ic, access_journal_data(ic, i, j), je);
+ 			for (k = j + 1; k < ic->journal_section_entries; k++) {
 
 
