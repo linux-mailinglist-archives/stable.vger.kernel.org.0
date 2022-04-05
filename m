@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 591084F24E6
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 09:40:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63EA74F24E3
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 09:40:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231828AbiDEHmL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 03:42:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56496 "EHLO
+        id S231841AbiDEHmH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 03:42:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54904 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231893AbiDEHl5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:41:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 649D34C422;
-        Tue,  5 Apr 2022 00:39:56 -0700 (PDT)
+        with ESMTP id S231818AbiDEHmA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:42:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 082A290FDC;
+        Tue,  5 Apr 2022 00:39:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DAD816123C;
-        Tue,  5 Apr 2022 07:39:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9A06C340EE;
-        Tue,  5 Apr 2022 07:39:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9CC2161668;
+        Tue,  5 Apr 2022 07:39:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A86D4C340EE;
+        Tue,  5 Apr 2022 07:39:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649144395;
-        bh=5cicE8wXFGrywxq8t02W8D1aDh83JQelIgtx4cJIqeo=;
+        s=korg; t=1649144398;
+        bh=y4HzoPUx0g/Wg4u5UKwImFP7XoKjSKux0f3xg0dQGf0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H49HIMLWDfo97xsDEWfgT4lwq70Q+outzUeVkFlm25W4yWzIpu7f1mdUOrx31U4a6
-         5Qg7BoUCzPWZ9hK8zd61Hq9yhueCtpKKwwyvsKi6SjXTZiPiusH/c2xk+ILAaeK/Mo
-         ZjVAKryQrJlWTdMsfA1HKZZy71R4Ogt1L2QFMRyg=
+        b=v7XlfogBc6W+7QymHx9o7sPty9VR62+r6I9U2kno1RFlkbXNdlxDnzbk0HvQcSHYF
+         a1lfvColACtCHddoVcXOiKUMQNH5n2bAibGFU2T2OV4lI+IKbJQjQESqjEjYEKTcg1
+         tp/F2cdbjdtf4HoHZz9YGzjaZ5dSkcF6GQh0EWOk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Haibo Chen <haibo.chen@nxp.com>,
-        Martin Kepplinger <martink@posteo.de>, Stable@vger.kernel.org,
+        stable@vger.kernel.org,
+        Konstantin Klubnichkin <kitsok@yandex-team.ru>,
+        Billy Tsai <billy_tsai@aspeedtech.com>,
+        Joel Stanley <joel@jms.id.au>, Stable@vger.kernel.org,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.17 0030/1126] iio: accel: mma8452: use the correct logic to get mma8452_data
-Date:   Tue,  5 Apr 2022 09:12:57 +0200
-Message-Id: <20220405070408.437343816@linuxfoundation.org>
+Subject: [PATCH 5.17 0031/1126] iio: adc: aspeed: Add divider flag to fix incorrect voltage reading.
+Date:   Tue,  5 Apr 2022 09:12:58 +0200
+Message-Id: <20220405070408.467175161@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -54,53 +56,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haibo Chen <haibo.chen@nxp.com>
+From: Billy Tsai <billy_tsai@aspeedtech.com>
 
-commit c87b7b12f48db86ac9909894f4dc0107d7df6375 upstream.
+commit 571426631acf46e2999c7ecd1e9d048172969a43 upstream.
 
-The original logic to get mma8452_data is wrong, the *dev point to
-the device belong to iio_dev. we can't use this dev to find the
-correct i2c_client. The original logic happen to work because it
-finally use dev->driver_data to get iio_dev. Here use the API
-to_i2c_client() is wrong and make reader confuse. To correct the
-logic, it should be like this
+The formula for the ADC sampling period in ast2400/ast2500 is:
+ADC clock period = PCLK * 2 * (ADC0C[31:17] + 1) * (ADC0C[9:0])
+When ADC0C[9:0] is set to 0 the sampling voltage will be lower than
+expected, because the hardware may not have enough time to
+charge/discharge to a stable voltage. This patch use the flag
+CLK_DIVIDER_ONE_BASED which will use the raw value read from the
+register, with the value of zero considered invalid to conform to the
+corrected formula.
 
-  struct mma8452_data *data = iio_priv(dev_get_drvdata(dev));
-
-But after commit 8b7651f25962 ("iio: iio_device_alloc(): Remove
-unnecessary self drvdata"), the upper logic also can't work.
-When try to show the avialable scale in userspace, will meet kernel
-dump, kernel handle NULL pointer dereference.
-
-So use dev_to_iio_dev() to correct the logic.
-
-Dual fixes tags as the second reflects when the bug was exposed, whilst
-the first reflects when the original bug was introduced.
-
-Fixes: c3cdd6e48e35 ("iio: mma8452: refactor for seperating chip specific data")
-Fixes: 8b7651f25962 ("iio: iio_device_alloc(): Remove unnecessary self drvdata")
-Signed-off-by: Haibo Chen <haibo.chen@nxp.com>
-Reviewed-by: Martin Kepplinger <martink@posteo.de>
+Fixes: 573803234e72 ("iio: Aspeed ADC")
+Reported-by: Konstantin Klubnichkin <kitsok@yandex-team.ru>
+Signed-off-by: Billy Tsai <billy_tsai@aspeedtech.com>
+Reviewed-by: Joel Stanley <joel@jms.id.au>
+Link: https://lore.kernel.org/r/20220221012705.22008-1-billy_tsai@aspeedtech.com
 Cc: <Stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/1645497741-5402-1-git-send-email-haibo.chen@nxp.com
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/accel/mma8452.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/iio/adc/aspeed_adc.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/iio/accel/mma8452.c
-+++ b/drivers/iio/accel/mma8452.c
-@@ -379,8 +379,8 @@ static ssize_t mma8452_show_scale_avail(
- 					struct device_attribute *attr,
- 					char *buf)
- {
--	struct mma8452_data *data = iio_priv(i2c_get_clientdata(
--					     to_i2c_client(dev)));
-+	struct iio_dev *indio_dev = dev_to_iio_dev(dev);
-+	struct mma8452_data *data = iio_priv(indio_dev);
+--- a/drivers/iio/adc/aspeed_adc.c
++++ b/drivers/iio/adc/aspeed_adc.c
+@@ -539,7 +539,9 @@ static int aspeed_adc_probe(struct platf
+ 	data->clk_scaler = devm_clk_hw_register_divider(
+ 		&pdev->dev, clk_name, clk_parent_name, scaler_flags,
+ 		data->base + ASPEED_REG_CLOCK_CONTROL, 0,
+-		data->model_data->scaler_bit_width, 0, &data->clk_lock);
++		data->model_data->scaler_bit_width,
++		data->model_data->need_prescaler ? CLK_DIVIDER_ONE_BASED : 0,
++		&data->clk_lock);
+ 	if (IS_ERR(data->clk_scaler))
+ 		return PTR_ERR(data->clk_scaler);
  
- 	return mma8452_show_int_plus_micros(buf, data->chip_info->mma_scales,
- 		ARRAY_SIZE(data->chip_info->mma_scales));
 
 
