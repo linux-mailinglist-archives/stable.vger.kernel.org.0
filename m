@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E66494F3587
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:51:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 350544F35AF
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:52:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238306AbiDEJ3O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:29:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46812 "EHLO
+        id S232917AbiDEKyI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:54:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50228 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245025AbiDEIxC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:53:02 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92D81C03;
-        Tue,  5 Apr 2022 01:49:52 -0700 (PDT)
+        with ESMTP id S1346147AbiDEJob (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:44:31 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF876C748E;
+        Tue,  5 Apr 2022 02:30:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 120EFCE1C6E;
-        Tue,  5 Apr 2022 08:49:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AE4CC385A1;
-        Tue,  5 Apr 2022 08:49:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4057861675;
+        Tue,  5 Apr 2022 09:30:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CE3BC385A2;
+        Tue,  5 Apr 2022 09:30:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148589;
-        bh=1lPVoZwuXAwYHn+7f3974dvxbfLLihtZpAVIV0JZzHs=;
+        s=korg; t=1649151009;
+        bh=6rWeWZOC3ktBYreoC88HJB7ZluW+5NlAEBSobv0dqyQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oiok3McFn2G5DSey61gpGBzNE8LlpXY5BNRlOUKKZm4LubZmfyje30gnLrBIuta1L
-         oUXZMJ11oE35QQW9p2j7jiq782RkVYUd3VFpvD5wBVJQ3rfK+6SB+O0uFqsZU3Am6E
-         jfVibug2F2vcEVSpNaVJ/nBjW2lqnwIzXW0ATpkQ=
+        b=LH/KOVgNA9Zv1eLQ8pxR+esJImevx5PiRSvp4HIB5U4XrK2+Tzc3fyBFfJWSUwuS6
+         uLGHznhzfOw4WhT+8TtEIkPQwJA2gm8rK0Pf/JD14JwJs73WMCoBBQRrnupPmYwbW+
+         C+UTmy0p0rCKqffdw4/BByqnONiqZqYGU6QCpAfA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wei Fu <fuweid89@gmail.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
+        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
+        Oscar Salvador <osalvador@suse.de>,
+        Michal Hocko <mhocko@suse.com>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0410/1017] bpftool: Only set obj->skeleton on complete success
-Date:   Tue,  5 Apr 2022 09:22:03 +0200
-Message-Id: <20220405070406.458335832@linuxfoundation.org>
+Subject: [PATCH 5.15 262/913] drivers/base/memory: add memory block to memory group after registration succeeded
+Date:   Tue,  5 Apr 2022 09:22:04 +0200
+Message-Id: <20220405070347.710149757@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,49 +58,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Fu <fuweid89@gmail.com>
+From: David Hildenbrand <david@redhat.com>
 
-[ Upstream commit 0991f6a38f576aa9a5e34713e23c998a3310d4d0 ]
+[ Upstream commit 7ea0d2d79da09d1f7d71c96a9c9bc1b5229360b5 ]
 
-After `bpftool gen skeleton`, the ${bpf_app}.skel.h will provide that
-${bpf_app_name}__open helper to load bpf. If there is some error
-like ENOMEM, the ${bpf_app_name}__open will rollback(free) the allocated
-object, including `bpf_object_skeleton`.
+If register_memory() fails, we freed the memory block but already added
+the memory block to the group list, not good.  Let's defer adding the
+block to the memory group to after registering the memory block device.
 
-Since the ${bpf_app_name}__create_skeleton set the obj->skeleton first
-and not rollback it when error, it will cause double-free in
-${bpf_app_name}__destory at ${bpf_app_name}__open. Therefore, we should
-set the obj->skeleton before return 0;
+We do handle it properly during unregister_memory(), but that's not
+called when the registration fails.
 
-Fixes: 5dc7a8b21144 ("bpftool, selftests/bpf: Embed object file inside skeleton")
-Signed-off-by: Wei Fu <fuweid89@gmail.com>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/bpf/20220108084008.1053111-1-fuweid89@gmail.com
+Link: https://lkml.kernel.org/r/20220128144540.153902-1-david@redhat.com
+Fixes: 028fc57a1c36 ("drivers/base/memory: introduce "memory groups" to logically group memory blocks")
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Oscar Salvador <osalvador@suse.de>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/bpf/bpftool/gen.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/base/memory.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/tools/bpf/bpftool/gen.c b/tools/bpf/bpftool/gen.c
-index 5c18351290f0..587027050f43 100644
---- a/tools/bpf/bpftool/gen.c
-+++ b/tools/bpf/bpftool/gen.c
-@@ -928,7 +928,6 @@ static int do_skeleton(int argc, char **argv)
- 			s = (struct bpf_object_skeleton *)calloc(1, sizeof(*s));\n\
- 			if (!s)						    \n\
- 				goto err;				    \n\
--			obj->skeleton = s;				    \n\
- 									    \n\
- 			s->sz = sizeof(*s);				    \n\
- 			s->name = \"%1$s\";				    \n\
-@@ -1001,6 +1000,7 @@ static int do_skeleton(int argc, char **argv)
- 									    \n\
- 			s->data = (void *)%2$s__elf_bytes(&s->data_sz);	    \n\
- 									    \n\
-+			obj->skeleton = s;				    \n\
- 			return 0;					    \n\
- 		err:							    \n\
- 			bpf_object__destroy_skeleton(s);		    \n\
+diff --git a/drivers/base/memory.c b/drivers/base/memory.c
+index 365cd4a7f239..60c38f9cf1a7 100644
+--- a/drivers/base/memory.c
++++ b/drivers/base/memory.c
+@@ -663,14 +663,16 @@ static int init_memory_block(unsigned long block_id, unsigned long state,
+ 	mem->nr_vmemmap_pages = nr_vmemmap_pages;
+ 	INIT_LIST_HEAD(&mem->group_next);
+ 
++	ret = register_memory(mem);
++	if (ret)
++		return ret;
++
+ 	if (group) {
+ 		mem->group = group;
+ 		list_add(&mem->group_next, &group->memory_blocks);
+ 	}
+ 
+-	ret = register_memory(mem);
+-
+-	return ret;
++	return 0;
+ }
+ 
+ static int add_memory_block(unsigned long base_section_nr)
 -- 
 2.34.1
 
