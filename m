@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4868A4F25DE
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 09:51:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 65D164F25EB
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 09:51:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232416AbiDEHxA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 03:53:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55640 "EHLO
+        id S232453AbiDEHxN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 03:53:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57244 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233023AbiDEHwD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:52:03 -0400
+        with ESMTP id S233065AbiDEHwF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:52:05 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2A3F99EF2;
-        Tue,  5 Apr 2022 00:48:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B3E79A98F;
+        Tue,  5 Apr 2022 00:48:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 521CDB81BAD;
-        Tue,  5 Apr 2022 07:48:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC649C36AEB;
-        Tue,  5 Apr 2022 07:48:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 02591B81B18;
+        Tue,  5 Apr 2022 07:48:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64611C340EE;
+        Tue,  5 Apr 2022 07:48:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649144888;
-        bh=EIqZGIC3MEY6zK++/3lavNvUv7djR+iZn/Z4aFTomR0=;
+        s=korg; t=1649144893;
+        bh=tvO/3D6CFdPDaHRXYaUegP0jGzL9pB/dr5JAGUtgmak=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f6icmoYM4d2ofkNqaF2HuBQUNNqRFqReGcjUNEhnW2hm32Fk9gaEHoCoW2gtHUy55
-         BbvTr4l2Z7Hv/4krcvadaang9BYQ24d104ncStT/mLn5e8HhauMVCdj8AqDJi6w9Cy
-         M/hTtu47Lgg2Mf4AAbKdjzSoj9+9FrblHeARRKsI=
+        b=0PqQ+2HC16ceEL1kgQL08M/L7V+36Q/Bm/fiH4MY9mTZy72TWYSm+FjwOCiJbcewR
+         R4l8f97txnyyqp5vxcFVPj/CK9aqi5VAGAftJgmO8xMQ9s20EXPa4Kt8dEM8jsPdEg
+         p2277MCj5bjZxEFyZ9xf5NLqOX23T4H6lfduF1UM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Corentin Labbe <clabbe.montjoie@gmail.com>,
+        stable@vger.kernel.org, Shijith Thotton <sthotton@marvell.com>,
         Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0207/1126] crypto: authenc - Fix sleep in atomic context in decrypt_tail
-Date:   Tue,  5 Apr 2022 09:15:54 +0200
-Message-Id: <20220405070413.685069675@linuxfoundation.org>
+Subject: [PATCH 5.17 0208/1126] crypto: octeontx2 - select CONFIG_NET_DEVLINK
+Date:   Tue,  5 Apr 2022 09:15:55 +0200
+Message-Id: <20220405070413.714881700@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -54,40 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
+From: Shijith Thotton <sthotton@marvell.com>
 
-[ Upstream commit 66eae850333d639fc278d6f915c6fc01499ea893 ]
+[ Upstream commit 85872d1a6f38d133133784c8027d25d1c5328f4f ]
 
-The function crypto_authenc_decrypt_tail discards its flags
-argument and always relies on the flags from the original request
-when starting its sub-request.
+OcteonTX2 CPT driver will fail to link without devlink support.
 
-This is clearly wrong as it may cause the SLEEPABLE flag to be
-set when it shouldn't.
+aarch64-linux-gnu-ld: otx2_cpt_devlink.o: in function `otx2_cpt_dl_egrp_delete':
+otx2_cpt_devlink.c:18: undefined reference to `devlink_priv'
+aarch64-linux-gnu-ld: otx2_cpt_devlink.o: in function `otx2_cpt_dl_egrp_create':
+otx2_cpt_devlink.c:9: undefined reference to `devlink_priv'
+aarch64-linux-gnu-ld: otx2_cpt_devlink.o: in function `otx2_cpt_dl_uc_info':
+otx2_cpt_devlink.c:27: undefined reference to `devlink_priv'
 
-Fixes: 92d95ba91772 ("crypto: authenc - Convert to new AEAD interface")
-Reported-by: Corentin Labbe <clabbe.montjoie@gmail.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Tested-by: Corentin Labbe <clabbe.montjoie@gmail.com>
+Fixes: fed8f4d5f946 ("crypto: octeontx2 - parameters for custom engine groups")
+
+Signed-off-by: Shijith Thotton <sthotton@marvell.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/authenc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/crypto/marvell/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/crypto/authenc.c b/crypto/authenc.c
-index 670bf1a01d00..17f674a7cdff 100644
---- a/crypto/authenc.c
-+++ b/crypto/authenc.c
-@@ -253,7 +253,7 @@ static int crypto_authenc_decrypt_tail(struct aead_request *req,
- 		dst = scatterwalk_ffwd(areq_ctx->dst, req->dst, req->assoclen);
- 
- 	skcipher_request_set_tfm(skreq, ctx->enc);
--	skcipher_request_set_callback(skreq, aead_request_flags(req),
-+	skcipher_request_set_callback(skreq, flags,
- 				      req->base.complete, req->base.data);
- 	skcipher_request_set_crypt(skreq, src, dst,
- 				   req->cryptlen - authsize, req->iv);
+diff --git a/drivers/crypto/marvell/Kconfig b/drivers/crypto/marvell/Kconfig
+index 9125199f1702..a48591af12d0 100644
+--- a/drivers/crypto/marvell/Kconfig
++++ b/drivers/crypto/marvell/Kconfig
+@@ -47,6 +47,7 @@ config CRYPTO_DEV_OCTEONTX2_CPT
+ 	select CRYPTO_SKCIPHER
+ 	select CRYPTO_HASH
+ 	select CRYPTO_AEAD
++	select NET_DEVLINK
+ 	help
+ 		This driver allows you to utilize the Marvell Cryptographic
+ 		Accelerator Unit(CPT) found in OcteonTX2 series of processors.
 -- 
 2.34.1
 
