@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 20AAC4F3632
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:57:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 042514F3584
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:51:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245658AbiDEK7c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:59:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59288 "EHLO
+        id S242166AbiDEIhE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:37:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43644 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347210AbiDEJqI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:46:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AA8CDD97B;
-        Tue,  5 Apr 2022 02:32:37 -0700 (PDT)
+        with ESMTP id S239018AbiDEITo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:19:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 615AC75E50;
+        Tue,  5 Apr 2022 01:10:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 27313615E5;
-        Tue,  5 Apr 2022 09:32:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39962C385A2;
-        Tue,  5 Apr 2022 09:32:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B8319608C0;
+        Tue,  5 Apr 2022 08:09:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFCAFC385A0;
+        Tue,  5 Apr 2022 08:09:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151156;
-        bh=TdNHD+ThQdFDNYzUnyywSIQFu/8Rmrh1akcMl4pdADg=;
+        s=korg; t=1649146199;
+        bh=jRuCT5omAFi2LWBQ7waYygaem40XsMiPNfLmN5riCA0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mTqCmeGdGNXyAGp+MeGmYdeQuVVJUFjroorq57uFz8FF00U5mqasa+pzXq/YUlhRK
-         4tCJr+h989D6vfEOHP9BFXKb77T5S4v3SPjF+q0yi9LJzzJ7JbZZhi4ZHe17/cxAGV
-         5sxXMgghaZRZ4PFB+eVZVICX1MueVr1q74WukJ+w=
+        b=vb1jWRP9Ar6kqxoryY+2nWAEUM6fGzLroa4Wt6/8/ubmQUagK41K7Z2pXtC55F4hC
+         bCJe++p8tdJWhtqxAg4tf6BTN/s7qWAPA+DnelQNpjqrQEAQEj0irt9ofqNNa2YFBP
+         di0Q8x0SDD7mlPoQC/iw84+lvmTDWvSc+ALdh5pc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 314/913] media: usb: go7007: s2250-board: fix leak in probe()
+Subject: [PATCH 5.17 0629/1126] Bluetooth: hci_sync: fix undefined return of hci_disconnect_all_sync()
 Date:   Tue,  5 Apr 2022 09:22:56 +0200
-Message-Id: <20220405070349.265093600@linuxfoundation.org>
+Message-Id: <20220405070426.099142773@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,55 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Tom Rix <trix@redhat.com>
 
-[ Upstream commit 67e4550ecd6164bfbdff54c169e5bbf9ccfaf14d ]
+[ Upstream commit 8cd3c55c629efd91e5f2b3e89d850575c5b90d47 ]
 
-Call i2c_unregister_device(audio) on this error path.
+clang static analysis reports this problem
+hci_sync.c:4428:2: warning: Undefined or garbage value
+  returned to caller
+        return err;
+        ^~~~~~~~~~
 
-Fixes: d3b2ccd9e307 ("[media] s2250: convert to the control framework")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+If there are no connections this function is a noop but
+err is never set and a false error could be reported.
+Return 0 as other hci_* functions do.
+
+Fixes: 182ee45da083 ("Bluetooth: hci_sync: Rework hci_suspend_notifier")
+Signed-off-by: Tom Rix <trix@redhat.com>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/go7007/s2250-board.c | 10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ net/bluetooth/hci_sync.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/usb/go7007/s2250-board.c b/drivers/media/usb/go7007/s2250-board.c
-index c742cc88fac5..1fa6f10ee157 100644
---- a/drivers/media/usb/go7007/s2250-board.c
-+++ b/drivers/media/usb/go7007/s2250-board.c
-@@ -504,6 +504,7 @@ static int s2250_probe(struct i2c_client *client,
- 	u8 *data;
- 	struct go7007 *go = i2c_get_adapdata(adapter);
- 	struct go7007_usb *usb = go->hpi_context;
-+	int err = -EIO;
- 
- 	audio = i2c_new_dummy_device(adapter, TLV320_ADDRESS >> 1);
- 	if (IS_ERR(audio))
-@@ -532,11 +533,8 @@ static int s2250_probe(struct i2c_client *client,
- 		V4L2_CID_HUE, -512, 511, 1, 0);
- 	sd->ctrl_handler = &state->hdl;
- 	if (state->hdl.error) {
--		int err = state->hdl.error;
--
--		v4l2_ctrl_handler_free(&state->hdl);
--		kfree(state);
--		return err;
-+		err = state->hdl.error;
-+		goto fail;
+diff --git a/net/bluetooth/hci_sync.c b/net/bluetooth/hci_sync.c
+index 5e93f37c2e04..405d48c3e63e 100644
+--- a/net/bluetooth/hci_sync.c
++++ b/net/bluetooth/hci_sync.c
+@@ -4432,7 +4432,7 @@ static int hci_disconnect_all_sync(struct hci_dev *hdev, u8 reason)
+ 			return err;
  	}
  
- 	state->std = V4L2_STD_NTSC;
-@@ -600,7 +598,7 @@ static int s2250_probe(struct i2c_client *client,
- 	i2c_unregister_device(audio);
- 	v4l2_ctrl_handler_free(&state->hdl);
- 	kfree(state);
--	return -EIO;
-+	return err;
+-	return err;
++	return 0;
  }
  
- static int s2250_remove(struct i2c_client *client)
+ /* This function perform power off HCI command sequence as follows:
 -- 
 2.34.1
 
