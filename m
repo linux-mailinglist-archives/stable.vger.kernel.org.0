@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 11EA44F435F
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:58:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2C234F3FC7
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:05:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352951AbiDEMIn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:08:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53668 "EHLO
+        id S1353163AbiDEMIs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:08:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50492 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358086AbiDEK16 (ORCPT
+        with ESMTP id S1358094AbiDEK16 (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:27:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43C6A63BFD;
-        Tue,  5 Apr 2022 03:15:02 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4719A65D16;
+        Tue,  5 Apr 2022 03:15:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9936261777;
-        Tue,  5 Apr 2022 10:15:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6BE4C385A1;
-        Tue,  5 Apr 2022 10:15:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 02AD5B81BC5;
+        Tue,  5 Apr 2022 10:15:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B19EC385A0;
+        Tue,  5 Apr 2022 10:15:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153701;
-        bh=ZdV6ezsMk3V6sM6lkStGF05ZOy84+4YG0suNH2uUlFw=;
+        s=korg; t=1649153703;
+        bh=KnJdLy0rfC+5TQliByoOokCxSz+HhubnSG7GlFBhA5E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y9h1druI6Fm5w2onkIY1X9RZLIRtWdLjcLwxsmBadbR33R6BGY6NnM1iyTuycAlWj
-         +SUFseSpQa6zPHZO8F61lEHreLB8o+6VazQ+wP9vcHLqLNaJBEfPKD32I6XcYiXUxC
-         wF8xz86nm6C3iARCECM43M0WgsXRcjCMCc9ZAqjI=
+        b=U0XGPKNa3QqMQq+BjqnQgprpmRmR/IFtH7Cp3CaZn8RVhP+ASeCJmGLrQ7fL3lNJ5
+         HfYEhfMfa9mdWliK2Nf4D4hCgc/wfsZugSeFWDcv8LSZXlA25/GkGbJxxjysUOMe7f
+         bMHy6TLcty8YcFGG+G5h8RVyEC3mxTW6KxDZg8T0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Damien Le Moal <damien.lemoal@opensource.wdc.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 315/599] scsi: pm8001: Fix le32 values handling in pm80xx_chip_sata_req()
-Date:   Tue,  5 Apr 2022 09:30:09 +0200
-Message-Id: <20220405070308.206521927@linuxfoundation.org>
+Subject: [PATCH 5.10 316/599] scsi: pm8001: Fix NCQ NON DATA command task initialization
+Date:   Tue,  5 Apr 2022 09:30:10 +0200
+Message-Id: <20220405070308.236102330@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -57,186 +57,97 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 
-[ Upstream commit fd6d0e376211d7ed759db96b0fbd9a1cee67d462 ]
+[ Upstream commit aa028141ab0bc62c44a84d42f09db35d82df82a2 ]
 
-Make sure that the __le32 fields of struct sata_cmd are manipulated after
-applying the correct endian conversion. That is, use cpu_to_le32() for
-assigning values and le32_to_cpu() for consulting a field value.  In
-particular, make sure that the calculations for the 4G boundary check are
-done using CPU endianness and *not* little endian values. With these fixes,
-many sparse warnings are removed.
+In the pm8001_chip_sata_req() and pm80xx_chip_sata_req() functions, all
+tasks with a DMA direction of DMA_NONE (no data transfer) are initialized
+using the ATAP value 0x04. However, NCQ NON DATA commands, while being
+DMA_NONE commands are NCQ commands and need to be initialized using the
+value 0x07 for ATAP, similarly to other NCQ commands.
 
-While at it, fix some code identation and add blank lines after variable
-declarations and in some other places to make this code more readable.
+Make sure that NCQ NON DATA command tasks are initialized similarly to
+other NCQ commands by also testing the task "use_ncq" field in addition to
+the DMA direction. While at it, reorganize the code into a chain of if -
+else if - else to avoid useless affectations and debug messages.
 
-Link: https://lore.kernel.org/r/20220220031810.738362-12-damien.lemoal@opensource.wdc.com
-Fixes: 0ecdf00ba6e5 ("[SCSI] pm80xx: 4G boundary fix.")
+Link: https://lore.kernel.org/r/20220220031810.738362-15-damien.lemoal@opensource.wdc.com
+Fixes: dbf9bfe61571 ("[SCSI] pm8001: add SAS/SATA HBA driver")
 Reviewed-by: Jack Wang <jinpu.wang@ionos.com>
 Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/pm8001/pm80xx_hwi.c | 82 ++++++++++++++++++--------------
- 1 file changed, 45 insertions(+), 37 deletions(-)
+ drivers/scsi/pm8001/pm8001_hwi.c | 14 +++++++-------
+ drivers/scsi/pm8001/pm80xx_hwi.c | 13 ++++++-------
+ 2 files changed, 13 insertions(+), 14 deletions(-)
 
+diff --git a/drivers/scsi/pm8001/pm8001_hwi.c b/drivers/scsi/pm8001/pm8001_hwi.c
+index 0e6a0b50bfb9..7b5ab0ff9bbd 100644
+--- a/drivers/scsi/pm8001/pm8001_hwi.c
++++ b/drivers/scsi/pm8001/pm8001_hwi.c
+@@ -4220,22 +4220,22 @@ static int pm8001_chip_sata_req(struct pm8001_hba_info *pm8001_ha,
+ 	u32  opc = OPC_INB_SATA_HOST_OPSTART;
+ 	memset(&sata_cmd, 0, sizeof(sata_cmd));
+ 	circularQ = &pm8001_ha->inbnd_q_tbl[0];
+-	if (task->data_dir == DMA_NONE) {
++
++	if (task->data_dir == DMA_NONE && !task->ata_task.use_ncq) {
+ 		ATAP = 0x04;  /* no data*/
+ 		pm8001_dbg(pm8001_ha, IO, "no data\n");
+ 	} else if (likely(!task->ata_task.device_control_reg_update)) {
+-		if (task->ata_task.dma_xfer) {
++		if (task->ata_task.use_ncq &&
++		    dev->sata_dev.class != ATA_DEV_ATAPI) {
++			ATAP = 0x07; /* FPDMA */
++			pm8001_dbg(pm8001_ha, IO, "FPDMA\n");
++		} else if (task->ata_task.dma_xfer) {
+ 			ATAP = 0x06; /* DMA */
+ 			pm8001_dbg(pm8001_ha, IO, "DMA\n");
+ 		} else {
+ 			ATAP = 0x05; /* PIO*/
+ 			pm8001_dbg(pm8001_ha, IO, "PIO\n");
+ 		}
+-		if (task->ata_task.use_ncq &&
+-			dev->sata_dev.class != ATA_DEV_ATAPI) {
+-			ATAP = 0x07; /* FPDMA */
+-			pm8001_dbg(pm8001_ha, IO, "FPDMA\n");
+-		}
+ 	}
+ 	if (task->ata_task.use_ncq && pm8001_get_ncq_tag(task, &hdr_tag)) {
+ 		task->ata_task.fis.sector_count |= (u8) (hdr_tag << 3);
 diff --git a/drivers/scsi/pm8001/pm80xx_hwi.c b/drivers/scsi/pm8001/pm80xx_hwi.c
-index 33b5172d55cf..d620bb747a5b 100644
+index d620bb747a5b..7c02db9ba7f8 100644
 --- a/drivers/scsi/pm8001/pm80xx_hwi.c
 +++ b/drivers/scsi/pm8001/pm80xx_hwi.c
-@@ -4467,7 +4467,7 @@ static int pm80xx_chip_sata_req(struct pm8001_hba_info *pm8001_ha,
- 	u32 q_index, cpu_id;
- 	struct sata_start_req sata_cmd;
- 	u32 hdr_tag, ncg_tag = 0;
--	u64 phys_addr, start_addr, end_addr;
-+	u64 phys_addr, end_addr;
- 	u32 end_addr_high, end_addr_low;
- 	u32 ATAP = 0x0;
- 	u32 dir;
-@@ -4528,32 +4528,38 @@ static int pm80xx_chip_sata_req(struct pm8001_hba_info *pm8001_ha,
- 			pm8001_chip_make_sg(task->scatter,
- 						ccb->n_elem, ccb->buf_prd);
- 			phys_addr = ccb->ccb_dma_handle;
--			sata_cmd.enc_addr_low = lower_32_bits(phys_addr);
--			sata_cmd.enc_addr_high = upper_32_bits(phys_addr);
-+			sata_cmd.enc_addr_low =
-+				cpu_to_le32(lower_32_bits(phys_addr));
-+			sata_cmd.enc_addr_high =
-+				cpu_to_le32(upper_32_bits(phys_addr));
- 			sata_cmd.enc_esgl = cpu_to_le32(1 << 31);
- 		} else if (task->num_scatter == 1) {
- 			u64 dma_addr = sg_dma_address(task->scatter);
--			sata_cmd.enc_addr_low = lower_32_bits(dma_addr);
--			sata_cmd.enc_addr_high = upper_32_bits(dma_addr);
-+
-+			sata_cmd.enc_addr_low =
-+				cpu_to_le32(lower_32_bits(dma_addr));
-+			sata_cmd.enc_addr_high =
-+				cpu_to_le32(upper_32_bits(dma_addr));
- 			sata_cmd.enc_len = cpu_to_le32(task->total_xfer_len);
- 			sata_cmd.enc_esgl = 0;
-+
- 			/* Check 4G Boundary */
--			start_addr = cpu_to_le64(dma_addr);
--			end_addr = (start_addr + sata_cmd.enc_len) - 1;
--			end_addr_low = cpu_to_le32(lower_32_bits(end_addr));
--			end_addr_high = cpu_to_le32(upper_32_bits(end_addr));
--			if (end_addr_high != sata_cmd.enc_addr_high) {
-+			end_addr = dma_addr + le32_to_cpu(sata_cmd.enc_len) - 1;
-+			end_addr_low = lower_32_bits(end_addr);
-+			end_addr_high = upper_32_bits(end_addr);
-+			if (end_addr_high != le32_to_cpu(sata_cmd.enc_addr_high)) {
- 				pm8001_dbg(pm8001_ha, FAIL,
- 					   "The sg list address start_addr=0x%016llx data_len=0x%x end_addr_high=0x%08x end_addr_low=0x%08x has crossed 4G boundary\n",
--					   start_addr, sata_cmd.enc_len,
-+					   dma_addr,
-+					   le32_to_cpu(sata_cmd.enc_len),
- 					   end_addr_high, end_addr_low);
- 				pm8001_chip_make_sg(task->scatter, 1,
- 					ccb->buf_prd);
- 				phys_addr = ccb->ccb_dma_handle;
- 				sata_cmd.enc_addr_low =
--					lower_32_bits(phys_addr);
-+					cpu_to_le32(lower_32_bits(phys_addr));
- 				sata_cmd.enc_addr_high =
--					upper_32_bits(phys_addr);
-+					cpu_to_le32(upper_32_bits(phys_addr));
- 				sata_cmd.enc_esgl =
- 					cpu_to_le32(1 << 31);
- 			}
-@@ -4564,7 +4570,8 @@ static int pm80xx_chip_sata_req(struct pm8001_hba_info *pm8001_ha,
- 			sata_cmd.enc_esgl = 0;
- 		}
- 		/* XTS mode. All other fields are 0 */
--		sata_cmd.key_index_mode = 0x6 << 4;
-+		sata_cmd.key_index_mode = cpu_to_le32(0x6 << 4);
-+
- 		/* set tweak values. Should be the start lba */
- 		sata_cmd.twk_val0 =
- 			cpu_to_le32((sata_cmd.sata_fis.lbal_exp << 24) |
-@@ -4590,31 +4597,31 @@ static int pm80xx_chip_sata_req(struct pm8001_hba_info *pm8001_ha,
- 			phys_addr = ccb->ccb_dma_handle;
- 			sata_cmd.addr_low = lower_32_bits(phys_addr);
- 			sata_cmd.addr_high = upper_32_bits(phys_addr);
--			sata_cmd.esgl = cpu_to_le32(1 << 31);
-+			sata_cmd.esgl = cpu_to_le32(1U << 31);
- 		} else if (task->num_scatter == 1) {
- 			u64 dma_addr = sg_dma_address(task->scatter);
-+
- 			sata_cmd.addr_low = lower_32_bits(dma_addr);
- 			sata_cmd.addr_high = upper_32_bits(dma_addr);
- 			sata_cmd.len = cpu_to_le32(task->total_xfer_len);
- 			sata_cmd.esgl = 0;
-+
- 			/* Check 4G Boundary */
--			start_addr = cpu_to_le64(dma_addr);
--			end_addr = (start_addr + sata_cmd.len) - 1;
--			end_addr_low = cpu_to_le32(lower_32_bits(end_addr));
--			end_addr_high = cpu_to_le32(upper_32_bits(end_addr));
-+			end_addr = dma_addr + le32_to_cpu(sata_cmd.len) - 1;
-+			end_addr_low = lower_32_bits(end_addr);
-+			end_addr_high = upper_32_bits(end_addr);
- 			if (end_addr_high != sata_cmd.addr_high) {
- 				pm8001_dbg(pm8001_ha, FAIL,
- 					   "The sg list address start_addr=0x%016llx data_len=0x%xend_addr_high=0x%08x end_addr_low=0x%08x has crossed 4G boundary\n",
--					   start_addr, sata_cmd.len,
-+					   dma_addr,
-+					   le32_to_cpu(sata_cmd.len),
- 					   end_addr_high, end_addr_low);
- 				pm8001_chip_make_sg(task->scatter, 1,
- 					ccb->buf_prd);
- 				phys_addr = ccb->ccb_dma_handle;
--				sata_cmd.addr_low =
--					lower_32_bits(phys_addr);
--				sata_cmd.addr_high =
--					upper_32_bits(phys_addr);
--				sata_cmd.esgl = cpu_to_le32(1 << 31);
-+				sata_cmd.addr_low = lower_32_bits(phys_addr);
-+				sata_cmd.addr_high = upper_32_bits(phys_addr);
-+				sata_cmd.esgl = cpu_to_le32(1U << 31);
- 			}
- 		} else if (task->num_scatter == 0) {
- 			sata_cmd.addr_low = 0;
-@@ -4622,27 +4629,28 @@ static int pm80xx_chip_sata_req(struct pm8001_hba_info *pm8001_ha,
- 			sata_cmd.len = cpu_to_le32(task->total_xfer_len);
- 			sata_cmd.esgl = 0;
- 		}
-+
- 		/* scsi cdb */
- 		sata_cmd.atapi_scsi_cdb[0] =
- 			cpu_to_le32(((task->ata_task.atapi_packet[0]) |
--			(task->ata_task.atapi_packet[1] << 8) |
--			(task->ata_task.atapi_packet[2] << 16) |
--			(task->ata_task.atapi_packet[3] << 24)));
-+				     (task->ata_task.atapi_packet[1] << 8) |
-+				     (task->ata_task.atapi_packet[2] << 16) |
-+				     (task->ata_task.atapi_packet[3] << 24)));
- 		sata_cmd.atapi_scsi_cdb[1] =
- 			cpu_to_le32(((task->ata_task.atapi_packet[4]) |
--			(task->ata_task.atapi_packet[5] << 8) |
--			(task->ata_task.atapi_packet[6] << 16) |
--			(task->ata_task.atapi_packet[7] << 24)));
-+				     (task->ata_task.atapi_packet[5] << 8) |
-+				     (task->ata_task.atapi_packet[6] << 16) |
-+				     (task->ata_task.atapi_packet[7] << 24)));
- 		sata_cmd.atapi_scsi_cdb[2] =
- 			cpu_to_le32(((task->ata_task.atapi_packet[8]) |
--			(task->ata_task.atapi_packet[9] << 8) |
--			(task->ata_task.atapi_packet[10] << 16) |
--			(task->ata_task.atapi_packet[11] << 24)));
-+				     (task->ata_task.atapi_packet[9] << 8) |
-+				     (task->ata_task.atapi_packet[10] << 16) |
-+				     (task->ata_task.atapi_packet[11] << 24)));
- 		sata_cmd.atapi_scsi_cdb[3] =
- 			cpu_to_le32(((task->ata_task.atapi_packet[12]) |
--			(task->ata_task.atapi_packet[13] << 8) |
--			(task->ata_task.atapi_packet[14] << 16) |
--			(task->ata_task.atapi_packet[15] << 24)));
-+				     (task->ata_task.atapi_packet[13] << 8) |
-+				     (task->ata_task.atapi_packet[14] << 16) |
-+				     (task->ata_task.atapi_packet[15] << 24)));
- 	}
+@@ -4479,22 +4479,21 @@ static int pm80xx_chip_sata_req(struct pm8001_hba_info *pm8001_ha,
+ 	q_index = (u32) (cpu_id) % (pm8001_ha->max_q_num);
+ 	circularQ = &pm8001_ha->inbnd_q_tbl[q_index];
  
- 	/* Check for read log for failed drive and return */
+-	if (task->data_dir == DMA_NONE) {
++	if (task->data_dir == DMA_NONE && !task->ata_task.use_ncq) {
+ 		ATAP = 0x04; /* no data*/
+ 		pm8001_dbg(pm8001_ha, IO, "no data\n");
+ 	} else if (likely(!task->ata_task.device_control_reg_update)) {
+-		if (task->ata_task.dma_xfer) {
++		if (task->ata_task.use_ncq &&
++		    dev->sata_dev.class != ATA_DEV_ATAPI) {
++			ATAP = 0x07; /* FPDMA */
++			pm8001_dbg(pm8001_ha, IO, "FPDMA\n");
++		} else if (task->ata_task.dma_xfer) {
+ 			ATAP = 0x06; /* DMA */
+ 			pm8001_dbg(pm8001_ha, IO, "DMA\n");
+ 		} else {
+ 			ATAP = 0x05; /* PIO*/
+ 			pm8001_dbg(pm8001_ha, IO, "PIO\n");
+ 		}
+-		if (task->ata_task.use_ncq &&
+-		    dev->sata_dev.class != ATA_DEV_ATAPI) {
+-			ATAP = 0x07; /* FPDMA */
+-			pm8001_dbg(pm8001_ha, IO, "FPDMA\n");
+-		}
+ 	}
+ 	if (task->ata_task.use_ncq && pm8001_get_ncq_tag(task, &hdr_tag)) {
+ 		task->ata_task.fis.sector_count |= (u8) (hdr_tag << 3);
 -- 
 2.34.1
 
