@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 69F9E4F3493
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:38:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DDC794F3218
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:54:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235671AbiDEIkQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:40:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54930 "EHLO
+        id S1350665AbiDEJ7Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:59:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44276 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234456AbiDEIZS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:25:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E586013D0C;
-        Tue,  5 Apr 2022 01:20:38 -0700 (PDT)
+        with ESMTP id S1344191AbiDEJSh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:18:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBBF29969B;
+        Tue,  5 Apr 2022 02:05:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 97FF6B81B92;
-        Tue,  5 Apr 2022 08:20:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02EF0C385A0;
-        Tue,  5 Apr 2022 08:20:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 69DB761564;
+        Tue,  5 Apr 2022 09:05:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E7CCC385A0;
+        Tue,  5 Apr 2022 09:05:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146836;
-        bh=M5KJInYrlR+ql5Za/wReHZJT/XsYWuv2wTimrFGtLqs=;
+        s=korg; t=1649149513;
+        bh=96OvkCivmFseK7bEObf6KFbVIP+u0ZzPNMVNOVGBOvk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rr2nbaT6aAQ8htwnFEO7Xf64YdqYain35nqeR/ibClEwuhXnW2dUPJQY340gtry12
-         6TTJUhbClsY/7Aj8BDEmvctSsVMz54laFrOPD5MIgFf6kde5MXmq1QJeEg/ZX2ckPk
-         9fbI7wQHTSU1yKgupMS6eCYPFJa4EbyAUb20HQag=
+        b=q3ptPLm+P/wILC7gCxMgHsH/x9ufKSfnh+K4OtEQXQ8mxKsf8JU8SzJHbt3C7E0Ju
+         12FNuvcMRa4bTT0DYaN2s5xwNgeAncI0nfrE+8tba5UrYaGuzwBC3xxbpOLLX0Zwa3
+         8jyK4vunyKb1rdV5sHYqpNCh6sHWWw5ZKP+ynSQo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Heidelberg <david@ixit.cz>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>,
-        LogicalErzor <logicalerzor@gmail.com>
-Subject: [PATCH 5.17 0906/1126] ARM: dts: qcom: fix gic_irq_domain_translate warnings for msm8960
-Date:   Tue,  5 Apr 2022 09:27:33 +0200
-Message-Id: <20220405070434.121147589@linuxfoundation.org>
+        stable@vger.kernel.org, Zheng Yongjun <zhengyongjun3@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0741/1017] net: sparx5: switchdev: fix possible NULL pointer dereference
+Date:   Tue,  5 Apr 2022 09:27:34 +0200
+Message-Id: <20220405070416.259188782@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,58 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Heidelberg <david@ixit.cz>
+From: Zheng Yongjun <zhengyongjun3@huawei.com>
 
-[ Upstream commit 6f7e221e7a5cfc3299616543fce42b36e631497b ]
+[ Upstream commit 0906f3a3df07835e37077d8971aac65347f2ed57 ]
 
-IRQ types blindly copied from very similar APQ8064.
+As the possible failure of the allocation, devm_kzalloc() may return NULL
+pointer.
+Therefore, it should be better to check the 'db' in order to prevent
+the dereference of NULL pointer.
 
-Fixes warnings as:
-WARNING: CPU: 0 PID: 1 at drivers/irqchip/irq-gic.c:1080 gic_irq_domain_translate+0x118/0x120
-...
-
-Tested-by: LogicalErzor <logicalerzor@gmail.com> # boot-tested on Samsung S3
-Signed-off-by: David Heidelberg <david@ixit.cz>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220108174229.60384-1-david@ixit.cz
+Fixes: 10615907e9b51 ("net: sparx5: switchdev: adding frame DMA functionality")
+Signed-off-by: Zheng Yongjun <zhengyongjun3@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/qcom-msm8960.dtsi | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/microchip/sparx5/sparx5_fdma.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/arm/boot/dts/qcom-msm8960.dtsi b/arch/arm/boot/dts/qcom-msm8960.dtsi
-index 2a0ec97a264f..a0f9ab7f08f3 100644
---- a/arch/arm/boot/dts/qcom-msm8960.dtsi
-+++ b/arch/arm/boot/dts/qcom-msm8960.dtsi
-@@ -146,7 +146,9 @@
- 			reg		= <0x108000 0x1000>;
- 			qcom,ipc	= <&l2cc 0x8 2>;
- 
--			interrupts	= <0 19 0>, <0 21 0>, <0 22 0>;
-+			interrupts	= <GIC_SPI 19 IRQ_TYPE_EDGE_RISING>,
-+					  <GIC_SPI 21 IRQ_TYPE_EDGE_RISING>,
-+					  <GIC_SPI 22 IRQ_TYPE_EDGE_RISING>;
- 			interrupt-names	= "ack", "err", "wakeup";
- 
- 			regulators {
-@@ -192,7 +194,7 @@
- 				compatible = "qcom,msm-uartdm-v1.3", "qcom,msm-uartdm";
- 				reg = <0x16440000 0x1000>,
- 				      <0x16400000 0x1000>;
--				interrupts = <0 154 0x0>;
-+				interrupts = <GIC_SPI 154 IRQ_TYPE_LEVEL_HIGH>;
- 				clocks = <&gcc GSBI5_UART_CLK>, <&gcc GSBI5_H_CLK>;
- 				clock-names = "core", "iface";
- 				status = "disabled";
-@@ -318,7 +320,7 @@
- 				#address-cells = <1>;
- 				#size-cells = <0>;
- 				reg = <0x16080000 0x1000>;
--				interrupts = <0 147 0>;
-+				interrupts = <GIC_SPI 147 IRQ_TYPE_LEVEL_HIGH>;
- 				spi-max-frequency = <24000000>;
- 				cs-gpios = <&msmgpio 8 0>;
- 
+diff --git a/drivers/net/ethernet/microchip/sparx5/sparx5_fdma.c b/drivers/net/ethernet/microchip/sparx5/sparx5_fdma.c
+index 7436f62fa152..174ad95e746a 100644
+--- a/drivers/net/ethernet/microchip/sparx5/sparx5_fdma.c
++++ b/drivers/net/ethernet/microchip/sparx5/sparx5_fdma.c
+@@ -420,6 +420,8 @@ static int sparx5_fdma_tx_alloc(struct sparx5 *sparx5)
+ 			db_hw->dataptr = phys;
+ 			db_hw->status = 0;
+ 			db = devm_kzalloc(sparx5->dev, sizeof(*db), GFP_KERNEL);
++			if (!db)
++				return -ENOMEM;
+ 			db->cpu_addr = cpu_addr;
+ 			list_add_tail(&db->list, &tx->db_list);
+ 		}
 -- 
 2.34.1
 
