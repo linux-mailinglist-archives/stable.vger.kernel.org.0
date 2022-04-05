@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C62B24F386A
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:33:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8E614F3B4D
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:16:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376754AbiDELXO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:23:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39826 "EHLO
+        id S1348181AbiDELww (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:52:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50662 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349479AbiDEJtz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:55 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18D5210BA;
-        Tue,  5 Apr 2022 02:47:13 -0700 (PDT)
+        with ESMTP id S1357137AbiDEKZn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:25:43 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96C1F53E0F;
+        Tue,  5 Apr 2022 03:09:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 8BFC9CE1BE5;
-        Tue,  5 Apr 2022 09:47:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5FDDC385A1;
-        Tue,  5 Apr 2022 09:47:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 22A62616E7;
+        Tue,  5 Apr 2022 10:09:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30C01C385A0;
+        Tue,  5 Apr 2022 10:09:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152030;
-        bh=Z6OySrSX32Hkx5sPKsLlBhXghDamj+OXKiODTtxYEdk=;
+        s=korg; t=1649153375;
+        bh=OV47iBJ5fsFk1E4W5Sw81qOODEtHY8MEP71aX2/Lg+A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M0um/HIXRXXFT6JJr7/KhJzlWSfueUvTLTzHo2553Egjkh2BeojZPn/8rj89ehWKd
-         wjjYpXrhs9EtiD0oevHdvkQFIlY4gVw/aSuXDHys5NH7Rzg5AWWSSKNqzmUoslsPPr
-         caI//vfSLkTADBOkxnpShsYIDtFBect3e/KCR9ZU=
+        b=2sLKwxFYGiKfC5ptjrPslQhJ6s5FYO/a77X6rbvmK56df+3uZXBl6lHZVpAs3mVb5
+         sdOTb9JtGMbIyCDXtascdRG2boR/UT2IuPdVngzOwnbOkI1WZwMFAV2i5vvBHPfuoV
+         843sGPQHJbwucFiZOySyjyAuUNypXpj7nudUHMYQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sergio Paracuellos <sergio.paracuellos@gmail.com>,
-        =?UTF-8?q?Ar=C4=B1n=C3=A7=20=C3=9CNAL?= <arinc.unal@arinc9.com>,
+        stable@vger.kernel.org, Sam Ravnborg <sam@ravnborg.org>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 630/913] staging: mt7621-dts: fix GB-PC2 devicetree
+Subject: [PATCH 5.10 198/599] video: fbdev: controlfb: Fix set but not used warnings
 Date:   Tue,  5 Apr 2022 09:28:12 +0200
-Message-Id: <20220405070358.722848056@linuxfoundation.org>
+Message-Id: <20220405070304.732913507@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070258.802373272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,166 +57,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arınç ÜNAL <arinc.unal@arinc9.com>
+From: Sam Ravnborg <sam@ravnborg.org>
 
-[ Upstream commit 5bc148649cf358d0cccf525452a4efbd4bc89a0f ]
+[ Upstream commit 4aca4dbcac9d8eed8a8dc15b6883270a20a84218 ]
 
-Fix the GB-PC2 devicetree. Refer to the schematics of the device for more
-information.
+The controlfb driver has a number of dummy defines for IO operations.
+They were introduced in commit a07a63b0e24d
+("video: fbdev: controlfb: add COMPILE_TEST support").
 
-GB-PC2 devicetree fixes:
-- Include mt7621.dtsi instead of gbpc1.dts. Add the missing definitions.
-- Remove gpio-leds node as the system LED is not wired to anywhere on
-the board and the power LED is directly wired to GND.
-- Remove uart3 pin group from gpio-pinmux node as it's not used as GPIO.
-- Use reg 7 for the external phy to be on par with
-Documentation/devicetree/bindings/net/dsa/mt7530.txt.
-- Use the status value "okay".
+The write variants did not use their value parameter in the
+dummy versions, resulting in set but not used warnings.
+Fix this by adding "(void)val" to silence the compiler.
 
-Link: https://github.com/ngiger/GnuBee_Docs/blob/master/GB-PCx/Documents/GB-PC2_V1.1_schematic.pdf
-Reviewed-by: Sergio Paracuellos <sergio.paracuellos@gmail.com>
-Signed-off-by: Arınç ÜNAL <arinc.unal@arinc9.com>
-Link: https://lore.kernel.org/r/20220311090320.3068-2-arinc.unal@arinc9.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: Sam Ravnborg <sam@ravnborg.org>
+Cc: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Cc: "Gustavo A. R. Silva" <gustavoars@kernel.org>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://patchwork.freedesktop.org/patch/msgid/20201206190247.1861316-13-sam@ravnborg.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/mt7621-dts/gbpc2.dts | 110 +++++++++++++++++++++++++--
- 1 file changed, 102 insertions(+), 8 deletions(-)
+ drivers/video/fbdev/controlfb.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/mt7621-dts/gbpc2.dts b/drivers/staging/mt7621-dts/gbpc2.dts
-index f9b69091bfc0..6f6fed071dda 100644
---- a/drivers/staging/mt7621-dts/gbpc2.dts
-+++ b/drivers/staging/mt7621-dts/gbpc2.dts
-@@ -1,27 +1,121 @@
- /dts-v1/;
- 
--#include "gbpc1.dts"
-+#include "mt7621.dtsi"
-+
-+#include <dt-bindings/gpio/gpio.h>
-+#include <dt-bindings/input/input.h>
- 
- / {
- 	compatible = "gnubee,gb-pc2", "mediatek,mt7621-soc";
- 	model = "GB-PC2";
-+
-+	memory@0 {
-+		device_type = "memory";
-+		reg = <0x00000000 0x1c000000>,
-+		      <0x20000000 0x04000000>;
-+	};
-+
-+	chosen {
-+		bootargs = "console=ttyS0,57600";
-+	};
-+
-+	palmbus: palmbus@1e000000 {
-+		i2c@900 {
-+			status = "okay";
-+		};
-+	};
-+
-+	gpio-keys {
-+		compatible = "gpio-keys";
-+
-+		reset {
-+			label = "reset";
-+			gpios = <&gpio 18 GPIO_ACTIVE_HIGH>;
-+			linux,code = <KEY_RESTART>;
-+		};
-+	};
- };
- 
--&default_gpio {
--	groups = "wdt", "uart3";
--	function = "gpio";
-+&sdhci {
-+	status = "okay";
-+};
-+
-+&spi0 {
-+	status = "okay";
-+
-+	m25p80@0 {
-+		#address-cells = <1>;
-+		#size-cells = <1>;
-+		compatible = "jedec,spi-nor";
-+		reg = <0>;
-+		spi-max-frequency = <50000000>;
-+		broken-flash-reset;
-+
-+		partition@0 {
-+			label = "u-boot";
-+			reg = <0x0 0x30000>;
-+			read-only;
-+		};
-+
-+		partition@30000 {
-+			label = "u-boot-env";
-+			reg = <0x30000 0x10000>;
-+			read-only;
-+		};
-+
-+		factory: partition@40000 {
-+			label = "factory";
-+			reg = <0x40000 0x10000>;
-+			read-only;
-+		};
-+
-+		partition@50000 {
-+			label = "firmware";
-+			reg = <0x50000 0x1fb0000>;
-+		};
-+	};
-+};
-+
-+&pcie {
-+	status = "okay";
-+};
-+
-+&pinctrl {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&state_default>;
-+
-+	state_default: state-default {
-+		gpio-pinmux {
-+			groups = "wdt";
-+			function = "gpio";
-+		};
-+	};
- };
- 
- &ethernet {
- 	gmac1: mac@1 {
--		status = "ok";
--		phy-handle = <&phy_external>;
-+		status = "okay";
-+		phy-handle = <&ethphy7>;
- 	};
- 
- 	mdio-bus {
--		phy_external: ethernet-phy@5 {
--			reg = <5>;
-+		ethphy7: ethernet-phy@7 {
-+			reg = <7>;
- 			phy-mode = "rgmii-rxid";
- 		};
- 	};
- };
-+
-+&switch0 {
-+	ports {
-+		port@0 {
-+			status = "okay";
-+			label = "ethblack";
-+		};
-+
-+		port@4 {
-+			status = "okay";
-+			label = "ethblue";
-+		};
-+	};
-+};
+diff --git a/drivers/video/fbdev/controlfb.c b/drivers/video/fbdev/controlfb.c
+index 2df56bd303d2..509311471d51 100644
+--- a/drivers/video/fbdev/controlfb.c
++++ b/drivers/video/fbdev/controlfb.c
+@@ -64,9 +64,9 @@
+ #undef in_le32
+ #undef out_le32
+ #define in_8(addr)		0
+-#define out_8(addr, val)
++#define out_8(addr, val)	(void)(val)
+ #define in_le32(addr)		0
+-#define out_le32(addr, val)
++#define out_le32(addr, val)	(void)(val)
+ #define pgprot_cached_wthru(prot) (prot)
+ #else
+ static void invalid_vram_cache(void __force *addr)
 -- 
 2.34.1
 
