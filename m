@@ -2,42 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E5DC74F3A54
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:00:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A8CC34F37DB
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:25:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240873AbiDELn6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:43:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34318 "EHLO
+        id S1359589AbiDELUK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:20:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39654 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354578AbiDEKOk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:14:40 -0400
+        with ESMTP id S1349106AbiDEJtI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:08 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA3514992D;
-        Tue,  5 Apr 2022 03:01:29 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14E16AA024;
+        Tue,  5 Apr 2022 02:41:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6635F61673;
-        Tue,  5 Apr 2022 10:01:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7510AC385A1;
-        Tue,  5 Apr 2022 10:01:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E62A8615E5;
+        Tue,  5 Apr 2022 09:40:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2F6FC385A4;
+        Tue,  5 Apr 2022 09:40:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152888;
-        bh=1OSCKvFQFQzzuBKRJqUfVGGEkXXX4lPzgIpFFdda5jo=;
+        s=korg; t=1649151659;
+        bh=S0tN8CdSkaCy2ANkjHijuGJLhnaB2fvJt27wInlegNs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lLzfyorcFGzzrCHHSqUcS4HEK2PMDHeDcuKui/fXA0+7yeXMd1wdgbfMrvhkMKItS
-         IC3Zvl0xqw7xqa0dWEHfS/hOevE8VMg6DXjbp+iM5iBW68RRux3WUrcTPrsxfLffXx
-         FNd/xHpk2tP8eiMzGOyBzPTqrAvT48JwTjLJ1+Ec=
+        b=iIDUQE4lkKFMDmDG4Oeja+DPRhBU1w6S3OKgcBOJqtPgy9wzFmkMMXqIYIR8t2E3/
+         ExAXhRZrDVKJJvpWU3l68RTLsBYSY/0wPQIakVEuc3c7p/c0mvVqLR/SPzMLYIWG8M
+         aagVzCroYmzuQXxXIxMCW3trDQphfI5BbiYkpEs8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>
-Subject: [PATCH 5.10 025/599] USB: usb-storage: Fix use of bitfields for hardware data in ene_ub6250.c
+        stable@vger.kernel.org, Hersen Wu <hersenwu@amd.com>,
+        Jasdeep Dhillon <jdhillon@amd.com>,
+        Roman Li <Roman.Li@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 457/913] drm/amd/display: Add affected crtcs to atomic state for dsc mst unplug
 Date:   Tue,  5 Apr 2022 09:25:19 +0200
-Message-Id: <20220405070259.568382551@linuxfoundation.org>
+Message-Id: <20220405070353.547555261@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
-References: <20220405070258.802373272@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,353 +57,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
+From: Roman Li <Roman.Li@amd.com>
 
-commit 1892bf90677abcad7f06e897e308f5c3e3618dd4 upstream.
+[ Upstream commit 128f8ed5902a287a6bb4afe0ffdae8a80b2a64ec ]
 
-The kernel test robot found a problem with the ene_ub6250 subdriver in
-usb-storage: It uses structures containing bitfields to represent
-hardware bits in its SD_STATUS, MS_STATUS, and SM_STATUS bytes.  This
-is not safe; it presumes a particular bit ordering and it assumes the
-compiler will not insert padding, neither of which is guaranteed.
+[Why]
+When display topology changed on DSC hub we add all crtcs with dsc support to
+atomic state.
+Refer to patch:"drm/amd/display: Trigger modesets on MST DSC connectors"
+However the original implementation may skip crtc if the topology change
+caused by unplug.
+That potentially could lead to no-lightup or corruption on DSC hub after
+unplug event on one of the connectors.
 
-This patch fixes the problem by changing the structures to simple u8
-values, with the bitfields replaced by bitmask constants.
+[How]
+Update add_affected_mst_dsc_crtcs() to use old connector state
+if new connector state has no crtc (undergoes modeset due to unplug)
 
-CC: <stable@vger.kernel.org>
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-Link: https://lore.kernel.org/r/YjOcbuU106UpJ/V8@rowland.harvard.edu
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 44be939ff7ac58 ("drm/amd/display: Trigger modesets on MST DSC connectors")
+
+Reviewed-by: Hersen Wu <hersenwu@amd.com>
+Acked-by: Jasdeep Dhillon <jdhillon@amd.com>
+Signed-off-by: Roman Li <Roman.Li@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/storage/ene_ub6250.c |  153 +++++++++++++++++++--------------------
- 1 file changed, 75 insertions(+), 78 deletions(-)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/storage/ene_ub6250.c
-+++ b/drivers/usb/storage/ene_ub6250.c
-@@ -237,36 +237,33 @@ static struct us_unusual_dev ene_ub6250_
- #define memstick_logaddr(logadr1, logadr0) ((((u16)(logadr1)) << 8) | (logadr0))
- 
- 
--struct SD_STATUS {
--	u8    Insert:1;
--	u8    Ready:1;
--	u8    MediaChange:1;
--	u8    IsMMC:1;
--	u8    HiCapacity:1;
--	u8    HiSpeed:1;
--	u8    WtP:1;
--	u8    Reserved:1;
--};
--
--struct MS_STATUS {
--	u8    Insert:1;
--	u8    Ready:1;
--	u8    MediaChange:1;
--	u8    IsMSPro:1;
--	u8    IsMSPHG:1;
--	u8    Reserved1:1;
--	u8    WtP:1;
--	u8    Reserved2:1;
--};
--
--struct SM_STATUS {
--	u8    Insert:1;
--	u8    Ready:1;
--	u8    MediaChange:1;
--	u8    Reserved:3;
--	u8    WtP:1;
--	u8    IsMS:1;
--};
-+/* SD_STATUS bits */
-+#define SD_Insert	BIT(0)
-+#define SD_Ready	BIT(1)
-+#define SD_MediaChange	BIT(2)
-+#define SD_IsMMC	BIT(3)
-+#define SD_HiCapacity	BIT(4)
-+#define SD_HiSpeed	BIT(5)
-+#define SD_WtP		BIT(6)
-+			/* Bit 7 reserved */
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index 7983c01c007d..b9859e52ad92 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -10226,10 +10226,13 @@ static int dm_check_crtc_cursor(struct drm_atomic_state *state,
+ static int add_affected_mst_dsc_crtcs(struct drm_atomic_state *state, struct drm_crtc *crtc)
+ {
+ 	struct drm_connector *connector;
+-	struct drm_connector_state *conn_state;
++	struct drm_connector_state *conn_state, *old_conn_state;
+ 	struct amdgpu_dm_connector *aconnector = NULL;
+ 	int i;
+-	for_each_new_connector_in_state(state, connector, conn_state, i) {
++	for_each_oldnew_connector_in_state(state, connector, old_conn_state, conn_state, i) {
++		if (!conn_state->crtc)
++			conn_state = old_conn_state;
 +
-+/* MS_STATUS bits */
-+#define MS_Insert	BIT(0)
-+#define MS_Ready	BIT(1)
-+#define MS_MediaChange	BIT(2)
-+#define MS_IsMSPro	BIT(3)
-+#define MS_IsMSPHG	BIT(4)
-+			/* Bit 5 reserved */
-+#define MS_WtP		BIT(6)
-+			/* Bit 7 reserved */
-+
-+/* SM_STATUS bits */
-+#define SM_Insert	BIT(0)
-+#define SM_Ready	BIT(1)
-+#define SM_MediaChange	BIT(2)
-+			/* Bits 3-5 reserved */
-+#define SM_WtP		BIT(6)
-+#define SM_IsMS		BIT(7)
+ 		if (conn_state->crtc != crtc)
+ 			continue;
  
- struct ms_bootblock_cis {
- 	u8 bCistplDEVICE[6];    /* 0 */
-@@ -437,9 +434,9 @@ struct ene_ub6250_info {
- 	u8		*bbuf;
- 
- 	/* for 6250 code */
--	struct SD_STATUS	SD_Status;
--	struct MS_STATUS	MS_Status;
--	struct SM_STATUS	SM_Status;
-+	u8		SD_Status;
-+	u8		MS_Status;
-+	u8		SM_Status;
- 
- 	/* ----- SD Control Data ---------------- */
- 	/*SD_REGISTER SD_Regs; */
-@@ -602,7 +599,7 @@ static int sd_scsi_test_unit_ready(struc
- {
- 	struct ene_ub6250_info *info = (struct ene_ub6250_info *) us->extra;
- 
--	if (info->SD_Status.Insert && info->SD_Status.Ready)
-+	if ((info->SD_Status & SD_Insert) && (info->SD_Status & SD_Ready))
- 		return USB_STOR_TRANSPORT_GOOD;
- 	else {
- 		ene_sd_init(us);
-@@ -622,7 +619,7 @@ static int sd_scsi_mode_sense(struct us_
- 		0x0b, 0x00, 0x80, 0x08, 0x00, 0x00,
- 		0x71, 0xc0, 0x00, 0x00, 0x02, 0x00 };
- 
--	if (info->SD_Status.WtP)
-+	if (info->SD_Status & SD_WtP)
- 		usb_stor_set_xfer_buf(mediaWP, 12, srb);
- 	else
- 		usb_stor_set_xfer_buf(mediaNoWP, 12, srb);
-@@ -641,9 +638,9 @@ static int sd_scsi_read_capacity(struct
- 	struct ene_ub6250_info *info = (struct ene_ub6250_info *) us->extra;
- 
- 	usb_stor_dbg(us, "sd_scsi_read_capacity\n");
--	if (info->SD_Status.HiCapacity) {
-+	if (info->SD_Status & SD_HiCapacity) {
- 		bl_len = 0x200;
--		if (info->SD_Status.IsMMC)
-+		if (info->SD_Status & SD_IsMMC)
- 			bl_num = info->HC_C_SIZE-1;
- 		else
- 			bl_num = (info->HC_C_SIZE + 1) * 1024 - 1;
-@@ -693,7 +690,7 @@ static int sd_scsi_read(struct us_data *
- 		return USB_STOR_TRANSPORT_ERROR;
- 	}
- 
--	if (info->SD_Status.HiCapacity)
-+	if (info->SD_Status & SD_HiCapacity)
- 		bnByte = bn;
- 
- 	/* set up the command wrapper */
-@@ -733,7 +730,7 @@ static int sd_scsi_write(struct us_data
- 		return USB_STOR_TRANSPORT_ERROR;
- 	}
- 
--	if (info->SD_Status.HiCapacity)
-+	if (info->SD_Status & SD_HiCapacity)
- 		bnByte = bn;
- 
- 	/* set up the command wrapper */
-@@ -1455,7 +1452,7 @@ static int ms_scsi_test_unit_ready(struc
- 	struct ene_ub6250_info *info = (struct ene_ub6250_info *)(us->extra);
- 
- 	/* pr_info("MS_SCSI_Test_Unit_Ready\n"); */
--	if (info->MS_Status.Insert && info->MS_Status.Ready) {
-+	if ((info->MS_Status & MS_Insert) && (info->MS_Status & MS_Ready)) {
- 		return USB_STOR_TRANSPORT_GOOD;
- 	} else {
- 		ene_ms_init(us);
-@@ -1475,7 +1472,7 @@ static int ms_scsi_mode_sense(struct us_
- 		0x0b, 0x00, 0x80, 0x08, 0x00, 0x00,
- 		0x71, 0xc0, 0x00, 0x00, 0x02, 0x00 };
- 
--	if (info->MS_Status.WtP)
-+	if (info->MS_Status & MS_WtP)
- 		usb_stor_set_xfer_buf(mediaWP, 12, srb);
- 	else
- 		usb_stor_set_xfer_buf(mediaNoWP, 12, srb);
-@@ -1494,7 +1491,7 @@ static int ms_scsi_read_capacity(struct
- 
- 	usb_stor_dbg(us, "ms_scsi_read_capacity\n");
- 	bl_len = 0x200;
--	if (info->MS_Status.IsMSPro)
-+	if (info->MS_Status & MS_IsMSPro)
- 		bl_num = info->MSP_TotalBlock - 1;
- 	else
- 		bl_num = info->MS_Lib.NumberOfLogBlock * info->MS_Lib.blockSize * 2 - 1;
-@@ -1649,7 +1646,7 @@ static int ms_scsi_read(struct us_data *
- 	if (bn > info->bl_num)
- 		return USB_STOR_TRANSPORT_ERROR;
- 
--	if (info->MS_Status.IsMSPro) {
-+	if (info->MS_Status & MS_IsMSPro) {
- 		result = ene_load_bincode(us, MSP_RW_PATTERN);
- 		if (result != USB_STOR_XFER_GOOD) {
- 			usb_stor_dbg(us, "Load MPS RW pattern Fail !!\n");
-@@ -1750,7 +1747,7 @@ static int ms_scsi_write(struct us_data
- 	if (bn > info->bl_num)
- 		return USB_STOR_TRANSPORT_ERROR;
- 
--	if (info->MS_Status.IsMSPro) {
-+	if (info->MS_Status & MS_IsMSPro) {
- 		result = ene_load_bincode(us, MSP_RW_PATTERN);
- 		if (result != USB_STOR_XFER_GOOD) {
- 			pr_info("Load MSP RW pattern Fail !!\n");
-@@ -1858,12 +1855,12 @@ static int ene_get_card_status(struct us
- 
- 	tmpreg = (u16) reg4b;
- 	reg4b = *(u32 *)(&buf[0x14]);
--	if (info->SD_Status.HiCapacity && !info->SD_Status.IsMMC)
-+	if ((info->SD_Status & SD_HiCapacity) && !(info->SD_Status & SD_IsMMC))
- 		info->HC_C_SIZE = (reg4b >> 8) & 0x3fffff;
- 
- 	info->SD_C_SIZE = ((tmpreg & 0x03) << 10) | (u16)(reg4b >> 22);
- 	info->SD_C_SIZE_MULT = (u8)(reg4b >> 7)  & 0x07;
--	if (info->SD_Status.HiCapacity && info->SD_Status.IsMMC)
-+	if ((info->SD_Status & SD_HiCapacity) && (info->SD_Status & SD_IsMMC))
- 		info->HC_C_SIZE = *(u32 *)(&buf[0x100]);
- 
- 	if (info->SD_READ_BL_LEN > SD_BLOCK_LEN) {
-@@ -2075,6 +2072,7 @@ static int ene_ms_init(struct us_data *u
- 	u16 MSP_BlockSize, MSP_UserAreaBlocks;
- 	struct ene_ub6250_info *info = (struct ene_ub6250_info *) us->extra;
- 	u8 *bbuf = info->bbuf;
-+	unsigned int s;
- 
- 	printk(KERN_INFO "transport --- ENE_MSInit\n");
- 
-@@ -2099,15 +2097,16 @@ static int ene_ms_init(struct us_data *u
- 		return USB_STOR_TRANSPORT_ERROR;
- 	}
- 	/* the same part to test ENE */
--	info->MS_Status = *(struct MS_STATUS *) bbuf;
-+	info->MS_Status = bbuf[0];
- 
--	if (info->MS_Status.Insert && info->MS_Status.Ready) {
--		printk(KERN_INFO "Insert     = %x\n", info->MS_Status.Insert);
--		printk(KERN_INFO "Ready      = %x\n", info->MS_Status.Ready);
--		printk(KERN_INFO "IsMSPro    = %x\n", info->MS_Status.IsMSPro);
--		printk(KERN_INFO "IsMSPHG    = %x\n", info->MS_Status.IsMSPHG);
--		printk(KERN_INFO "WtP= %x\n", info->MS_Status.WtP);
--		if (info->MS_Status.IsMSPro) {
-+	s = info->MS_Status;
-+	if ((s & MS_Insert) && (s & MS_Ready)) {
-+		printk(KERN_INFO "Insert     = %x\n", !!(s & MS_Insert));
-+		printk(KERN_INFO "Ready      = %x\n", !!(s & MS_Ready));
-+		printk(KERN_INFO "IsMSPro    = %x\n", !!(s & MS_IsMSPro));
-+		printk(KERN_INFO "IsMSPHG    = %x\n", !!(s & MS_IsMSPHG));
-+		printk(KERN_INFO "WtP= %x\n", !!(s & MS_WtP));
-+		if (s & MS_IsMSPro) {
- 			MSP_BlockSize      = (bbuf[6] << 8) | bbuf[7];
- 			MSP_UserAreaBlocks = (bbuf[10] << 8) | bbuf[11];
- 			info->MSP_TotalBlock = MSP_BlockSize * MSP_UserAreaBlocks;
-@@ -2168,17 +2167,17 @@ static int ene_sd_init(struct us_data *u
- 		return USB_STOR_TRANSPORT_ERROR;
- 	}
- 
--	info->SD_Status =  *(struct SD_STATUS *) bbuf;
--	if (info->SD_Status.Insert && info->SD_Status.Ready) {
--		struct SD_STATUS *s = &info->SD_Status;
-+	info->SD_Status = bbuf[0];
-+	if ((info->SD_Status & SD_Insert) && (info->SD_Status & SD_Ready)) {
-+		unsigned int s = info->SD_Status;
- 
- 		ene_get_card_status(us, bbuf);
--		usb_stor_dbg(us, "Insert     = %x\n", s->Insert);
--		usb_stor_dbg(us, "Ready      = %x\n", s->Ready);
--		usb_stor_dbg(us, "IsMMC      = %x\n", s->IsMMC);
--		usb_stor_dbg(us, "HiCapacity = %x\n", s->HiCapacity);
--		usb_stor_dbg(us, "HiSpeed    = %x\n", s->HiSpeed);
--		usb_stor_dbg(us, "WtP        = %x\n", s->WtP);
-+		usb_stor_dbg(us, "Insert     = %x\n", !!(s & SD_Insert));
-+		usb_stor_dbg(us, "Ready      = %x\n", !!(s & SD_Ready));
-+		usb_stor_dbg(us, "IsMMC      = %x\n", !!(s & SD_IsMMC));
-+		usb_stor_dbg(us, "HiCapacity = %x\n", !!(s & SD_HiCapacity));
-+		usb_stor_dbg(us, "HiSpeed    = %x\n", !!(s & SD_HiSpeed));
-+		usb_stor_dbg(us, "WtP        = %x\n", !!(s & SD_WtP));
- 	} else {
- 		usb_stor_dbg(us, "SD Card Not Ready --- %x\n", bbuf[0]);
- 		return USB_STOR_TRANSPORT_ERROR;
-@@ -2200,14 +2199,14 @@ static int ene_init(struct us_data *us)
- 
- 	misc_reg03 = bbuf[0];
- 	if (misc_reg03 & 0x01) {
--		if (!info->SD_Status.Ready) {
-+		if (!(info->SD_Status & SD_Ready)) {
- 			result = ene_sd_init(us);
- 			if (result != USB_STOR_XFER_GOOD)
- 				return USB_STOR_TRANSPORT_ERROR;
- 		}
- 	}
- 	if (misc_reg03 & 0x02) {
--		if (!info->MS_Status.Ready) {
-+		if (!(info->MS_Status & MS_Ready)) {
- 			result = ene_ms_init(us);
- 			if (result != USB_STOR_XFER_GOOD)
- 				return USB_STOR_TRANSPORT_ERROR;
-@@ -2306,14 +2305,14 @@ static int ene_transport(struct scsi_cmn
- 
- 	/*US_DEBUG(usb_stor_show_command(us, srb)); */
- 	scsi_set_resid(srb, 0);
--	if (unlikely(!(info->SD_Status.Ready || info->MS_Status.Ready)))
-+	if (unlikely(!(info->SD_Status & SD_Ready) || (info->MS_Status & MS_Ready)))
- 		result = ene_init(us);
- 	if (result == USB_STOR_XFER_GOOD) {
- 		result = USB_STOR_TRANSPORT_ERROR;
--		if (info->SD_Status.Ready)
-+		if (info->SD_Status & SD_Ready)
- 			result = sd_scsi_irp(us, srb);
- 
--		if (info->MS_Status.Ready)
-+		if (info->MS_Status & MS_Ready)
- 			result = ms_scsi_irp(us, srb);
- 	}
- 	return result;
-@@ -2377,7 +2376,6 @@ static int ene_ub6250_probe(struct usb_i
- 
- static int ene_ub6250_resume(struct usb_interface *iface)
- {
--	u8 tmp = 0;
- 	struct us_data *us = usb_get_intfdata(iface);
- 	struct ene_ub6250_info *info = (struct ene_ub6250_info *)(us->extra);
- 
-@@ -2389,17 +2387,16 @@ static int ene_ub6250_resume(struct usb_
- 	mutex_unlock(&us->dev_mutex);
- 
- 	info->Power_IsResum = true;
--	/*info->SD_Status.Ready = 0; */
--	info->SD_Status = *(struct SD_STATUS *)&tmp;
--	info->MS_Status = *(struct MS_STATUS *)&tmp;
--	info->SM_Status = *(struct SM_STATUS *)&tmp;
-+	/* info->SD_Status &= ~SD_Ready; */
-+	info->SD_Status = 0;
-+	info->MS_Status = 0;
-+	info->SM_Status = 0;
- 
- 	return 0;
- }
- 
- static int ene_ub6250_reset_resume(struct usb_interface *iface)
- {
--	u8 tmp = 0;
- 	struct us_data *us = usb_get_intfdata(iface);
- 	struct ene_ub6250_info *info = (struct ene_ub6250_info *)(us->extra);
- 
-@@ -2411,10 +2408,10 @@ static int ene_ub6250_reset_resume(struc
- 	 * the device
- 	 */
- 	info->Power_IsResum = true;
--	/*info->SD_Status.Ready = 0; */
--	info->SD_Status = *(struct SD_STATUS *)&tmp;
--	info->MS_Status = *(struct MS_STATUS *)&tmp;
--	info->SM_Status = *(struct SM_STATUS *)&tmp;
-+	/* info->SD_Status &= ~SD_Ready; */
-+	info->SD_Status = 0;
-+	info->MS_Status = 0;
-+	info->SM_Status = 0;
- 
- 	return 0;
- }
+-- 
+2.34.1
+
 
 
