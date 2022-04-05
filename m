@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C2064F3F91
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:04:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 000CE4F3E1F
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 22:41:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379144AbiDEMYE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:24:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60512 "EHLO
+        id S1379255AbiDEMYG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:24:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356132AbiDEKW7 (ORCPT
+        with ESMTP id S1356140AbiDEKW7 (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:22:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 050D0B7C4C;
-        Tue,  5 Apr 2022 03:06:31 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1988BB8219;
+        Tue,  5 Apr 2022 03:06:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A40A0B81C83;
-        Tue,  5 Apr 2022 10:06:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F27EDC385A2;
-        Tue,  5 Apr 2022 10:06:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AA41D61777;
+        Tue,  5 Apr 2022 10:06:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF061C385A1;
+        Tue,  5 Apr 2022 10:06:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153188;
-        bh=ptSRzUMxPsDpFQvmnSaM+FCNXlPRlJK5ik2D7AfvW6I=;
+        s=korg; t=1649153199;
+        bh=EagtgJoqyPZf7J5pgJP96eRgqDmMIx2ztSMpC7BaJm4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rA9JlnT4nkaxZ26Og3CGjmGLUZUVgHaqh+OL/VaqQk3/KjCMAfvecS/Inpu3rlMhq
-         Bz1Aq7U4OjlpQN26/qVxdeKfqNZa8dl6MHhz3zvPpwdQB6Wgn8i/U2YCyxFFXm1l3X
-         ztVmMBxvTboc6iUkkQ5D1aAOIiMLP2p8QxcJviqI=
+        b=RwynnHPRs5YlwlbXuyqGBU+37FTZTxbNncEyjGNYCsxfunw+g8hW6nemjZ9ZgviW2
+         FXrtnWVowruDDU4oWrgnFErQkiN5CFtOsyKhbbhgdUvjuHpc9y8Yy8uy7qeCVYjDAv
+         VsdG6Gx5HEpXpqS3eoJpd26+lC0ljfuYKzAuKy1U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tomas Paukrt <tomaspaukrt@email.cz>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 134/599] crypto: mxs-dcp - Fix scatterlist processing
-Date:   Tue,  5 Apr 2022 09:27:08 +0200
-Message-Id: <20220405070302.829074106@linuxfoundation.org>
+        stable@vger.kernel.org, Jianyong Wu <jianyong.wu@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 137/599] arm64/mm: avoid fixmap race condition when create pud mapping
+Date:   Tue,  5 Apr 2022 09:27:11 +0200
+Message-Id: <20220405070302.917553358@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -54,33 +54,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tomas Paukrt <tomaspaukrt@email.cz>
+From: Jianyong Wu <jianyong.wu@arm.com>
 
-[ Upstream commit 28e9b6d8199a3f124682b143800c2dacdc3d70dd ]
+[ Upstream commit ee017ee353506fcec58e481673e4331ff198a80e ]
 
-This patch fixes a bug in scatterlist processing that may cause incorrect AES block encryption/decryption.
+The 'fixmap' is a global resource and is used recursively by
+create pud mapping(), leading to a potential race condition in the
+presence of a concurrent call to alloc_init_pud():
 
-Fixes: 2e6d793e1bf0 ("crypto: mxs-dcp - Use sg_mapping_iter to copy data")
-Signed-off-by: Tomas Paukrt <tomaspaukrt@email.cz>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+kernel_init thread                          virtio-mem workqueue thread
+==================                          ===========================
+
+  alloc_init_pud(...)                       alloc_init_pud(...)
+  pudp = pud_set_fixmap_offset(...)         pudp = pud_set_fixmap_offset(...)
+  READ_ONCE(*pudp)
+  pud_clear_fixmap(...)
+                                            READ_ONCE(*pudp) // CRASH!
+
+As kernel may sleep during creating pud mapping, introduce a mutex lock to
+serialise use of the fixmap entries by alloc_init_pud(). However, there is
+no need for locking in early boot stage and it doesn't work well with
+KASLR enabled when early boot. So, enable lock when system_state doesn't
+equal to "SYSTEM_BOOTING".
+
+Signed-off-by: Jianyong Wu <jianyong.wu@arm.com>
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Fixes: f4710445458c ("arm64: mm: use fixmap when creating page tables")
+Link: https://lore.kernel.org/r/20220201114400.56885-1-jianyong.wu@arm.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/mxs-dcp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/mm/mmu.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/crypto/mxs-dcp.c b/drivers/crypto/mxs-dcp.c
-index 5edc91cdb4e6..a9d3e675f7ff 100644
---- a/drivers/crypto/mxs-dcp.c
-+++ b/drivers/crypto/mxs-dcp.c
-@@ -330,7 +330,7 @@ static int mxs_dcp_aes_block_crypt(struct crypto_async_request *arq)
- 		memset(key + AES_KEYSIZE_128, 0, AES_KEYSIZE_128);
- 	}
+diff --git a/arch/arm64/mm/mmu.c b/arch/arm64/mm/mmu.c
+index 991e599f7057..a9ec8c739d37 100644
+--- a/arch/arm64/mm/mmu.c
++++ b/arch/arm64/mm/mmu.c
+@@ -61,6 +61,7 @@ static pmd_t bm_pmd[PTRS_PER_PMD] __page_aligned_bss __maybe_unused;
+ static pud_t bm_pud[PTRS_PER_PUD] __page_aligned_bss __maybe_unused;
  
--	for_each_sg(req->src, src, sg_nents(src), i) {
-+	for_each_sg(req->src, src, sg_nents(req->src), i) {
- 		src_buf = sg_virt(src);
- 		len = sg_dma_len(src);
- 		tlen += len;
+ static DEFINE_SPINLOCK(swapper_pgdir_lock);
++static DEFINE_MUTEX(fixmap_lock);
+ 
+ void set_swapper_pgd(pgd_t *pgdp, pgd_t pgd)
+ {
+@@ -314,6 +315,12 @@ static void alloc_init_pud(pgd_t *pgdp, unsigned long addr, unsigned long end,
+ 	}
+ 	BUG_ON(p4d_bad(p4d));
+ 
++	/*
++	 * No need for locking during early boot. And it doesn't work as
++	 * expected with KASLR enabled.
++	 */
++	if (system_state != SYSTEM_BOOTING)
++		mutex_lock(&fixmap_lock);
+ 	pudp = pud_set_fixmap_offset(p4dp, addr);
+ 	do {
+ 		pud_t old_pud = READ_ONCE(*pudp);
+@@ -344,6 +351,8 @@ static void alloc_init_pud(pgd_t *pgdp, unsigned long addr, unsigned long end,
+ 	} while (pudp++, addr = next, addr != end);
+ 
+ 	pud_clear_fixmap();
++	if (system_state != SYSTEM_BOOTING)
++		mutex_unlock(&fixmap_lock);
+ }
+ 
+ static void __create_pgd_mapping(pgd_t *pgdir, phys_addr_t phys,
 -- 
 2.34.1
 
