@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 728074F2B7D
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:10:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EC254F2B38
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:09:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353825AbiDEKJd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:09:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60118 "EHLO
+        id S1353839AbiDEKJf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:09:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44280 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345715AbiDEJW6 (ORCPT
+        with ESMTP id S1345721AbiDEJW6 (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:22:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70AE06C93E;
-        Tue,  5 Apr 2022 02:11:56 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3769D71A26;
+        Tue,  5 Apr 2022 02:11:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0B0FE61576;
-        Tue,  5 Apr 2022 09:11:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E2FEC385A3;
-        Tue,  5 Apr 2022 09:11:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BA9B8615F1;
+        Tue,  5 Apr 2022 09:11:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6160C385A2;
+        Tue,  5 Apr 2022 09:11:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149915;
-        bh=M2HW2u6mb6qGddNZWFRKlpSxxiVPpbV9atQ2sW9Vccs=;
+        s=korg; t=1649149918;
+        bh=otzYYpWm1DE4l/EFXF5rmcG0L81c9Jdh+PbhGx+ObK8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hcascdrEHAu642vsv0HYl0IwdF6nRT9bA2D4PQ8ckLGslpfYzbKF5/8bncQEG0FsB
-         yRytU6N9gAQKMZwxot5aXx0a4FesL6jS/p0RZDidO2X6a4md3f9LGUC1YADPl2rnjk
-         v4XLsGwMEQp4BdWcPwzYbJnXF1crF2zfDbNkbGqA=
+        b=NBrapJftrBSkE4LyjbNQ0ZLrzoa4RZa1cleiN9bKlKS8oK1NWKFHOTEBdC/YbxQu4
+         +l6X6m1blA0KhEG8BCkzpGlMA4WAWyfWgBTjx5+BbtiSHqpew/3Lk916TDpl7x6D+R
+         4De1Tff5zmTgqlXh4FQb3Yx0C5SoTkzn2sBDYI7A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Saurav Kashyap <skashyap@marvell.com>,
+        Quinn Tran <qutran@marvell.com>,
         Nilesh Javali <njavali@marvell.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.16 0888/1017] scsi: qla2xxx: Suppress a kernel complaint in qla_create_qpair()
-Date:   Tue,  5 Apr 2022 09:30:01 +0200
-Message-Id: <20220405070420.588976189@linuxfoundation.org>
+Subject: [PATCH 5.16 0889/1017] scsi: qla2xxx: Fix disk failure to rediscover
+Date:   Tue,  5 Apr 2022 09:30:02 +0200
+Message-Id: <20220405070420.618127102@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -56,64 +56,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Saurav Kashyap <skashyap@marvell.com>
+From: Quinn Tran <qutran@marvell.com>
 
-commit a60447e7d451df42c7bde43af53b34f10f34f469 upstream.
+commit 6a45c8e137d4e2c72eecf1ac7cf64f2fdfcead99 upstream.
 
-[   12.323788] BUG: using smp_processor_id() in preemptible [00000000] code: systemd-udevd/1020
-[   12.332297] caller is qla2xxx_create_qpair+0x32a/0x5d0 [qla2xxx]
-[   12.338417] CPU: 7 PID: 1020 Comm: systemd-udevd Tainted: G          I      --------- ---  5.14.0-29.el9.x86_64 #1
-[   12.348827] Hardware name: Dell Inc. PowerEdge R610/0F0XJ6, BIOS 6.6.0 05/22/2018
-[   12.356356] Call Trace:
-[   12.358821]  dump_stack_lvl+0x34/0x44
-[   12.362514]  check_preemption_disabled+0xd9/0xe0
-[   12.367164]  qla2xxx_create_qpair+0x32a/0x5d0 [qla2xxx]
-[   12.372481]  qla2x00_probe_one+0xa3a/0x1b80 [qla2xxx]
-[   12.377617]  ? _raw_spin_lock_irqsave+0x19/0x40
-[   12.384284]  local_pci_probe+0x42/0x80
-[   12.390162]  ? pci_match_device+0xd7/0x110
-[   12.396366]  pci_device_probe+0xfd/0x1b0
-[   12.402372]  really_probe+0x1e7/0x3e0
-[   12.408114]  __driver_probe_device+0xfe/0x180
-[   12.414544]  driver_probe_device+0x1e/0x90
-[   12.420685]  __driver_attach+0xc0/0x1c0
-[   12.426536]  ? __device_attach_driver+0xe0/0xe0
-[   12.433061]  ? __device_attach_driver+0xe0/0xe0
-[   12.439538]  bus_for_each_dev+0x78/0xc0
-[   12.445294]  bus_add_driver+0x12b/0x1e0
-[   12.451021]  driver_register+0x8f/0xe0
-[   12.456631]  ? 0xffffffffc07bc000
-[   12.461773]  qla2x00_module_init+0x1be/0x229 [qla2xxx]
-[   12.468776]  do_one_initcall+0x44/0x200
-[   12.474401]  ? load_module+0xad3/0xba0
-[   12.479908]  ? kmem_cache_alloc_trace+0x45/0x410
-[   12.486268]  do_init_module+0x5c/0x280
-[   12.491730]  __do_sys_init_module+0x12e/0x1b0
-[   12.497785]  do_syscall_64+0x3b/0x90
-[   12.503029]  entry_SYSCALL_64_after_hwframe+0x44/0xae
-[   12.509764] RIP: 0033:0x7f554f73ab2e
+User experienced some of the LUN failed to get rediscovered after long
+cable pull test. The issue is triggered by a race condition between driver
+setting session online state vs starting the LUN scan process at the same
+time. Current code set the online state after notifying the session is
+available. In this case, trigger to start the LUN scan process happened
+before driver could set the session in online state.  LUN scan ends up with
+failure due to the session online check was failing.
 
-Link: https://lore.kernel.org/r/20220110050218.3958-15-njavali@marvell.com
+Set the online state before reporting of the availability of the session.
+
+Link: https://lore.kernel.org/r/20220310092604.22950-3-njavali@marvell.com
+Fixes: aecf043443d3 ("scsi: qla2xxx: Fix Remote port registration")
 Cc: stable@vger.kernel.org
 Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Saurav Kashyap <skashyap@marvell.com>
+Signed-off-by: Quinn Tran <qutran@marvell.com>
 Signed-off-by: Nilesh Javali <njavali@marvell.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/qla2xxx/qla_init.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/qla2xxx/qla_init.c |    5 +++--
+ drivers/scsi/qla2xxx/qla_nvme.c |    5 +++++
+ 2 files changed, 8 insertions(+), 2 deletions(-)
 
 --- a/drivers/scsi/qla2xxx/qla_init.c
 +++ b/drivers/scsi/qla2xxx/qla_init.c
-@@ -9417,7 +9417,7 @@ struct qla_qpair *qla2xxx_create_qpair(s
- 		qpair->rsp->req = qpair->req;
- 		qpair->rsp->qpair = qpair;
- 		/* init qpair to this cpu. Will adjust at run time. */
--		qla_cpu_update(qpair, smp_processor_id());
-+		qla_cpu_update(qpair, raw_smp_processor_id());
+@@ -5758,6 +5758,8 @@ qla2x00_reg_remote_port(scsi_qla_host_t
+ 	if (atomic_read(&fcport->state) == FCS_ONLINE)
+ 		return;
  
- 		if (IS_T10_PI_CAPABLE(ha) && ql2xenabledif) {
- 			if (ha->fw_attributes & BIT_4)
++	qla2x00_set_fcport_state(fcport, FCS_ONLINE);
++
+ 	rport_ids.node_name = wwn_to_u64(fcport->node_name);
+ 	rport_ids.port_name = wwn_to_u64(fcport->port_name);
+ 	rport_ids.port_id = fcport->d_id.b.domain << 16 |
+@@ -5865,6 +5867,7 @@ qla2x00_update_fcport(scsi_qla_host_t *v
+ 		qla2x00_reg_remote_port(vha, fcport);
+ 		break;
+ 	case MODE_TARGET:
++		qla2x00_set_fcport_state(fcport, FCS_ONLINE);
+ 		if (!vha->vha_tgt.qla_tgt->tgt_stop &&
+ 			!vha->vha_tgt.qla_tgt->tgt_stopped)
+ 			qlt_fc_port_added(vha, fcport);
+@@ -5879,8 +5882,6 @@ qla2x00_update_fcport(scsi_qla_host_t *v
+ 		break;
+ 	}
+ 
+-	qla2x00_set_fcport_state(fcport, FCS_ONLINE);
+-
+ 	if (IS_IIDMA_CAPABLE(vha->hw) && vha->hw->flags.gpsc_supported) {
+ 		if (fcport->id_changed) {
+ 			fcport->id_changed = 0;
+--- a/drivers/scsi/qla2xxx/qla_nvme.c
++++ b/drivers/scsi/qla2xxx/qla_nvme.c
+@@ -37,6 +37,11 @@ int qla_nvme_register_remote(struct scsi
+ 		(fcport->nvme_flag & NVME_FLAG_REGISTERED))
+ 		return 0;
+ 
++	if (atomic_read(&fcport->state) == FCS_ONLINE)
++		return 0;
++
++	qla2x00_set_fcport_state(fcport, FCS_ONLINE);
++
+ 	fcport->nvme_flag &= ~NVME_FLAG_RESETTING;
+ 
+ 	memset(&req, 0, sizeof(struct nvme_fc_port_info));
 
 
