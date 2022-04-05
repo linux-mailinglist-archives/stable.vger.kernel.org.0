@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E1444F2E54
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:00:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 292384F2B13
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:08:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243620AbiDEKhM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:37:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48460 "EHLO
+        id S245228AbiDEJLp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:11:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51052 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239603AbiDEJd6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:33:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAD485881E;
-        Tue,  5 Apr 2022 02:22:28 -0700 (PDT)
+        with ESMTP id S244701AbiDEIwe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:34 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B1D7D9E86;
+        Tue,  5 Apr 2022 01:42:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7A8396165C;
-        Tue,  5 Apr 2022 09:22:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82E8CC385A2;
-        Tue,  5 Apr 2022 09:22:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B6AD1609D0;
+        Tue,  5 Apr 2022 08:42:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC965C385A0;
+        Tue,  5 Apr 2022 08:42:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150547;
-        bh=Qkn4rQuY4vULlZ9kn3jjxMjdNkDLJ4Z9oqzqzL5TrYc=;
+        s=korg; t=1649148133;
+        bh=YNF+91Oul/8FbqE+JE40TuO4ibnBfixTTRe5SmoLFNg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p1UxiOtnkbJ3QR7pz5ao1aA3GbaK6T3vHSyQ7HMI+GQmdI4781mJV+pm+nh3d+Vza
-         YMVNnsgYOFF8k4g21fMB3NehpqRcnXU7fHzHZXDp9G3NvCqntcWL7CxWbAU2F8l/s0
-         bAJQMEe0JUY8HMui/Bt8v93XDCn2Dv2pKMiw3GSk=
+        b=uoc8lIyyacbLRrC/AbE/GmERpwnFjhuqwsgfv8WhET3Q9k1hI6HAuNGgKvdeUYCxq
+         /2vGWm3zk8hhGej0oy5ozLe9wPrPgwlOeiHzCagT//aYpxB8vNXAzT4mGAGwlriLMK
+         39xtmOwhQCDCQnhwto5mOfHGxeSnn0JiyrBSx3JI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Peter Hutterer <peter.hutterer@who-t.net>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 5.15 096/913] Revert "Input: clear BTN_RIGHT/MIDDLE on buttonpads"
-Date:   Tue,  5 Apr 2022 09:19:18 +0200
-Message-Id: <20220405070342.706069485@linuxfoundation.org>
+        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        James Morse <james.morse@arm.com>,
+        Marc Zyngier <maz@kernel.org>, Mark Brown <broonie@kernel.org>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0246/1017] arm64: prevent instrumentation of bp hardening callbacks
+Date:   Tue,  5 Apr 2022 09:19:19 +0200
+Message-Id: <20220405070401.561431074@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,59 +57,153 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: José Expósito <jose.exposito89@gmail.com>
+From: Mark Rutland <mark.rutland@arm.com>
 
-commit 8b188fba75195745026e11d408e4a7e94e01d701 upstream.
+[ Upstream commit 614c0b9fee711dd89b1dd65c88ba83612a373fdc ]
 
-This reverts commit 37ef4c19b4c659926ce65a7ac709ceaefb211c40.
+We may call arm64_apply_bp_hardening() early during entry (e.g. in
+el0_ia()) before it is safe to run instrumented code. Unfortunately this
+may result in running instrumented code in two cases:
 
-The touchpad present in the Dell Precision 7550 and 7750 laptops
-reports a HID_DG_BUTTONTYPE of type MT_BUTTONTYPE_CLICKPAD. However,
-the device is not a clickpad, it is a touchpad with physical buttons.
+* The hardening callbacks called by arm64_apply_bp_hardening() are not
+  marked as `noinstr`, and have been observed to be instrumented when
+  compiled with either GCC or LLVM.
 
-In order to fix this issue, a quirk for the device was introduced in
-libinput [1] [2] to disable the INPUT_PROP_BUTTONPAD property:
+* Since arm64_apply_bp_hardening() itself is only marked as `inline`
+  rather than `__always_inline`, it is possible that the compiler
+  decides to place it out-of-line, whereupon it may be instrumented.
 
-	[Precision 7x50 Touchpad]
-	MatchBus=i2c
-	MatchUdevType=touchpad
-	MatchDMIModalias=dmi:*svnDellInc.:pnPrecision7?50*
-	AttrInputPropDisable=INPUT_PROP_BUTTONPAD
+For example, with defconfig built with clang 13.0.0,
+call_hvc_arch_workaround_1() is compiled as:
 
-However, because of the change introduced in 37ef4c19b4 ("Input: clear
-BTN_RIGHT/MIDDLE on buttonpads") the BTN_RIGHT key bit is not mapped
-anymore breaking the device right click button and making impossible to
-workaround it in user space.
+| <call_hvc_arch_workaround_1>:
+|        d503233f        paciasp
+|        f81f0ffe        str     x30, [sp, #-16]!
+|        320183e0        mov     w0, #0x80008000
+|        d503201f        nop
+|        d4000002        hvc     #0x0
+|        f84107fe        ldr     x30, [sp], #16
+|        d50323bf        autiasp
+|        d65f03c0        ret
 
-In order to avoid breakage on other present or future devices, revert
-the patch causing the issue.
+... but when CONFIG_FTRACE=y and CONFIG_KCOV=y this is compiled as:
 
-Signed-off-by: José Expósito <jose.exposito89@gmail.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Acked-by: Peter Hutterer <peter.hutterer@who-t.net>
-Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220321184404.20025-1-jose.exposito89@gmail.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+| <call_hvc_arch_workaround_1>:
+|        d503245f        bti     c
+|        d503201f        nop
+|        d503201f        nop
+|        d503233f        paciasp
+|        a9bf7bfd        stp     x29, x30, [sp, #-16]!
+|        910003fd        mov     x29, sp
+|        94000000        bl      0 <__sanitizer_cov_trace_pc>
+|        320183e0        mov     w0, #0x80008000
+|        d503201f        nop
+|        d4000002        hvc     #0x0
+|        a8c17bfd        ldp     x29, x30, [sp], #16
+|        d50323bf        autiasp
+|        d65f03c0        ret
+
+... with a patchable function entry registered with ftrace, and a direct
+call to __sanitizer_cov_trace_pc(). Neither of these are safe early
+during entry sequences.
+
+This patch avoids the unsafe instrumentation by marking
+arm64_apply_bp_hardening() as `__always_inline` and by marking the
+hardening functions as `noinstr`. This avoids the potential for
+instrumentation, and causes clang to consistently generate the function
+as with the defconfig sample.
+
+Note: in the defconfig compilation, when CONFIG_SVE=y, x30 is spilled to
+the stack without being placed in a frame record, which will result in a
+missing entry if call_hvc_arch_workaround_1() is backtraced. Similar is
+true of qcom_link_stack_sanitisation(), where inline asm spills the LR
+to a GPR prior to corrupting it. This is not a significant issue
+presently as we will only backtrace here if an exception is taken, and
+in such cases we may omit entries for other reasons today.
+
+The relevant hardening functions were introduced in commits:
+
+  ec82b567a74fbdff ("arm64: Implement branch predictor hardening for Falkor")
+  b092201e00206141 ("arm64: Add ARM_SMCCC_ARCH_WORKAROUND_1 BP hardening support")
+
+... and these were subsequently moved in commit:
+
+  d4647f0a2ad71110 ("arm64: Rewrite Spectre-v2 mitigation code")
+
+The arm64_apply_bp_hardening() function was introduced in commit:
+
+  0f15adbb2861ce6f ("arm64: Add skeleton to harden the branch predictor against aliasing attacks")
+
+... and was subsequently moved and reworked in commit:
+
+  6279017e807708a0 ("KVM: arm64: Move BP hardening helpers into spectre.h")
+
+Fixes: ec82b567a74fbdff ("arm64: Implement branch predictor hardening for Falkor")
+Fixes: b092201e00206141 ("arm64: Add ARM_SMCCC_ARCH_WORKAROUND_1 BP hardening support")
+Fixes: d4647f0a2ad71110 ("arm64: Rewrite Spectre-v2 mitigation code")
+Fixes: 0f15adbb2861ce6f ("arm64: Add skeleton to harden the branch predictor against aliasing attacks")
+Fixes: 6279017e807708a0 ("KVM: arm64: Move BP hardening helpers into spectre.h")
+Signed-off-by: Mark Rutland <mark.rutland@arm.com>
+Cc: Ard Biesheuvel <ardb@kernel.org>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: James Morse <james.morse@arm.com>
+Cc: Marc Zyngier <maz@kernel.org>
+Cc: Mark Brown <broonie@kernel.org>
+Cc: Will Deacon <will@kernel.org>
+Acked-by: Marc Zyngier <maz@kernel.org>
+Reviewed-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20220224181028.512873-1-mark.rutland@arm.com
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/input.c |    6 ------
- 1 file changed, 6 deletions(-)
+ arch/arm64/include/asm/spectre.h | 3 ++-
+ arch/arm64/kernel/proton-pack.c  | 9 ++++++---
+ 2 files changed, 8 insertions(+), 4 deletions(-)
 
---- a/drivers/input/input.c
-+++ b/drivers/input/input.c
-@@ -2285,12 +2285,6 @@ int input_register_device(struct input_d
- 	/* KEY_RESERVED is not supposed to be transmitted to userspace. */
- 	__clear_bit(KEY_RESERVED, dev->keybit);
+diff --git a/arch/arm64/include/asm/spectre.h b/arch/arm64/include/asm/spectre.h
+index 86e0cc9b9c68..aa3d3607d5c8 100644
+--- a/arch/arm64/include/asm/spectre.h
++++ b/arch/arm64/include/asm/spectre.h
+@@ -67,7 +67,8 @@ struct bp_hardening_data {
  
--	/* Buttonpads should not map BTN_RIGHT and/or BTN_MIDDLE. */
--	if (test_bit(INPUT_PROP_BUTTONPAD, dev->propbit)) {
--		__clear_bit(BTN_RIGHT, dev->keybit);
--		__clear_bit(BTN_MIDDLE, dev->keybit);
--	}
--
- 	/* Make sure that bitmasks not mentioned in dev->evbit are clean. */
- 	input_cleanse_bitmasks(dev);
+ DECLARE_PER_CPU_READ_MOSTLY(struct bp_hardening_data, bp_hardening_data);
  
+-static inline void arm64_apply_bp_hardening(void)
++/* Called during entry so must be __always_inline */
++static __always_inline void arm64_apply_bp_hardening(void)
+ {
+ 	struct bp_hardening_data *d;
+ 
+diff --git a/arch/arm64/kernel/proton-pack.c b/arch/arm64/kernel/proton-pack.c
+index 6d45c63c6454..5777929d35bf 100644
+--- a/arch/arm64/kernel/proton-pack.c
++++ b/arch/arm64/kernel/proton-pack.c
+@@ -233,17 +233,20 @@ static void install_bp_hardening_cb(bp_hardening_cb_t fn)
+ 	__this_cpu_write(bp_hardening_data.slot, HYP_VECTOR_SPECTRE_DIRECT);
+ }
+ 
+-static void call_smc_arch_workaround_1(void)
++/* Called during entry so must be noinstr */
++static noinstr void call_smc_arch_workaround_1(void)
+ {
+ 	arm_smccc_1_1_smc(ARM_SMCCC_ARCH_WORKAROUND_1, NULL);
+ }
+ 
+-static void call_hvc_arch_workaround_1(void)
++/* Called during entry so must be noinstr */
++static noinstr void call_hvc_arch_workaround_1(void)
+ {
+ 	arm_smccc_1_1_hvc(ARM_SMCCC_ARCH_WORKAROUND_1, NULL);
+ }
+ 
+-static void qcom_link_stack_sanitisation(void)
++/* Called during entry so must be noinstr */
++static noinstr void qcom_link_stack_sanitisation(void)
+ {
+ 	u64 tmp;
+ 
+-- 
+2.34.1
+
 
 
