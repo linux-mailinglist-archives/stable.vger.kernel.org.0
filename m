@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 78FB64F325E
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:57:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EFF204F33AD
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:21:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245308AbiDEIyw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:54:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45836 "EHLO
+        id S1353671AbiDEKIx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:08:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51842 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240911AbiDEIci (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:32:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37C408CCD7;
-        Tue,  5 Apr 2022 01:25:11 -0700 (PDT)
+        with ESMTP id S1345221AbiDEJWW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:22:22 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC90233E32;
+        Tue,  5 Apr 2022 02:09:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 134C360FF5;
-        Tue,  5 Apr 2022 08:25:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 216CBC385A1;
-        Tue,  5 Apr 2022 08:25:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 11B0A61577;
+        Tue,  5 Apr 2022 09:09:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20C0BC385A4;
+        Tue,  5 Apr 2022 09:09:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147110;
-        bh=eho7sW1CDBPvxwr8elr2Qn2DJF/zM/g7Jg72tpIQ0mo=;
+        s=korg; t=1649149782;
+        bh=llqJgTYACegqB44NcpbRqBW8VJNdaMoizTw2wttvUcg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D5ZHn6nYsf8GjM2XHx6rAeZEr3Xi0WwOTNYVI7nvST8yFKXIW5AJ6MlD28KFN/RGO
-         eStyDrKivXTOVLmk5ues3/jufUkH6oNw565rNDWdxhtGcJioCRVuZoV2phWkzecH/I
-         Y2KaK3/OMfB5y7IrRYI4xbdbFlPOGQ0tfe8AJT5Y=
+        b=SjumYZUDiKEnN2aFFLtqNcxptVvJtCQ/61SW9SQ1BA+EFS4AguGpoFZuiklcNIMyr
+         Ny/yEZDWlPYXRFBrughVPWlL+f+uM+XNCwb6lLmB8sJ4zUpjYOJLaEnsdlIwpbiTDy
+         8evww/aA+GAg6vUivF3BAkuLav6yzmBb7MkQmxOY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Subject: [PATCH 5.17 0967/1126] drm/i915: Treat SAGV block time 0 as SAGV disabled
+        stable@vger.kernel.org, Rohith Surabattula <rohiths@microsoft.com>,
+        "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
+        Steve French <stfrench@microsoft.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0801/1017] Adjust cifssb maximum read size
 Date:   Tue,  5 Apr 2022 09:28:34 +0200
-Message-Id: <20220405070435.889239064@linuxfoundation.org>
+Message-Id: <20220405070418.026433495@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,64 +55,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+From: Rohith Surabattula <rohiths@microsoft.com>
 
-commit 1937f3feb0e84089ae4065e09c871b8ab4676f01 upstream.
+[ Upstream commit 06a466565d54a1a42168f9033a062a3f5c40e73b ]
 
-For modern platforms the spec explicitly states that a
-SAGV block time of zero means that SAGV is not supported.
-Let's extend that to all platforms. Supposedly there should
-be no systems where this isn't true, and it'll allow us to:
-- use the same code regardless of older vs. newer platform
-- wm latencies already treat 0 as disabled, so this fits well
-  with other related code
-- make it a bit more clear when SAGV is used vs. not
-- avoid overflows from adding U32_MAX with a u16 wm0 latency value
-  which could cause us to miscalculate the SAGV watermarks on tgl+
+When session gets reconnected during mount then read size in super block fs context
+gets set to zero and after negotiate, rsize is not modified which results in
+incorrect read with requested bytes as zero. Fixes intermittent failure
+of xfstest generic/240
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220309164948.10671-2-ville.syrjala@linux.intel.com
-Reviewed-by: Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>
-(cherry picked from commit d8f5855b31c0523ea3b171db8dfb998830e8735d)
-Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Note that stable requires a different version of this patch which will be
+sent to the stable mailing list.
+
+Signed-off-by: Rohith Surabattula <rohiths@microsoft.com>
+Acked-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/intel_pm.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ fs/cifs/cifsfs.c |  3 +++
+ fs/cifs/file.c   | 10 ++++++++++
+ 2 files changed, 13 insertions(+)
 
---- a/drivers/gpu/drm/i915/intel_pm.c
-+++ b/drivers/gpu/drm/i915/intel_pm.c
-@@ -3722,8 +3722,7 @@ skl_setup_sagv_block_time(struct drm_i91
- 		MISSING_CASE(DISPLAY_VER(dev_priv));
- 	}
+diff --git a/fs/cifs/cifsfs.c b/fs/cifs/cifsfs.c
+index 9dd5f89557b7..02b762b7e3fd 100644
+--- a/fs/cifs/cifsfs.c
++++ b/fs/cifs/cifsfs.c
+@@ -209,6 +209,9 @@ cifs_read_super(struct super_block *sb)
+ 	if (rc)
+ 		goto out_no_root;
+ 	/* tune readahead according to rsize if readahead size not set on mount */
++	if (cifs_sb->ctx->rsize == 0)
++		cifs_sb->ctx->rsize =
++			tcon->ses->server->ops->negotiate_rsize(tcon, cifs_sb->ctx);
+ 	if (cifs_sb->ctx->rasize)
+ 		sb->s_bdi->ra_pages = cifs_sb->ctx->rasize / PAGE_SIZE;
+ 	else
+diff --git a/fs/cifs/file.c b/fs/cifs/file.c
+index 9fee3af83a73..abadc2f86dea 100644
+--- a/fs/cifs/file.c
++++ b/fs/cifs/file.c
+@@ -3734,6 +3734,11 @@ cifs_send_async_read(loff_t offset, size_t len, struct cifsFileInfo *open_file,
+ 				break;
+ 		}
  
--	/* Default to an unusable block time */
--	dev_priv->sagv_block_time_us = -1;
-+	dev_priv->sagv_block_time_us = 0;
- }
- 
- /*
-@@ -5652,7 +5651,7 @@ static void skl_compute_plane_wm(const s
- 	result->min_ddb_alloc = max(min_ddb_alloc, blocks) + 1;
- 	result->enable = true;
- 
--	if (DISPLAY_VER(dev_priv) < 12)
-+	if (DISPLAY_VER(dev_priv) < 12 && dev_priv->sagv_block_time_us)
- 		result->can_sagv = latency >= dev_priv->sagv_block_time_us;
- }
- 
-@@ -5683,7 +5682,10 @@ static void tgl_compute_sagv_wm(const st
- 	struct drm_i915_private *dev_priv = to_i915(crtc_state->uapi.crtc->dev);
- 	struct skl_wm_level *sagv_wm = &plane_wm->sagv.wm0;
- 	struct skl_wm_level *levels = plane_wm->wm;
--	unsigned int latency = dev_priv->wm.skl_latency[0] + dev_priv->sagv_block_time_us;
-+	unsigned int latency = 0;
++		if (cifs_sb->ctx->rsize == 0)
++			cifs_sb->ctx->rsize =
++				server->ops->negotiate_rsize(tlink_tcon(open_file->tlink),
++							     cifs_sb->ctx);
 +
-+	if (dev_priv->sagv_block_time_us)
-+		latency = dev_priv->sagv_block_time_us + dev_priv->wm.skl_latency[0];
+ 		rc = server->ops->wait_mtu_credits(server, cifs_sb->ctx->rsize,
+ 						   &rsize, credits);
+ 		if (rc)
+@@ -4512,6 +4517,11 @@ static int cifs_readpages(struct file *file, struct address_space *mapping,
+ 				break;
+ 		}
  
- 	skl_compute_plane_wm(crtc_state, 0, latency,
- 			     wm_params, &levels[0],
++		if (cifs_sb->ctx->rsize == 0)
++			cifs_sb->ctx->rsize =
++				server->ops->negotiate_rsize(tlink_tcon(open_file->tlink),
++							     cifs_sb->ctx);
++
+ 		rc = server->ops->wait_mtu_credits(server, cifs_sb->ctx->rsize,
+ 						   &rsize, credits);
+ 		if (rc)
+-- 
+2.34.1
+
 
 
