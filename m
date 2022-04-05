@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A54A64F30B9
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:34:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B85814F3475
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:37:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350720AbiDEJ7d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:59:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34654 "EHLO
+        id S1350715AbiDEJ7c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:59:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344205AbiDEJSi (ORCPT
+        with ESMTP id S1344207AbiDEJSi (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:18:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F232A0BCD;
-        Tue,  5 Apr 2022 02:05:28 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 331D2A0BD1;
+        Tue,  5 Apr 2022 02:05:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1E6E1614E4;
-        Tue,  5 Apr 2022 09:05:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36FCAC385A1;
-        Tue,  5 Apr 2022 09:05:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B9524B81B75;
+        Tue,  5 Apr 2022 09:05:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1135CC385A0;
+        Tue,  5 Apr 2022 09:05:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149527;
-        bh=WDCh1frB76ZgY5mu6uFLH7Bvag6zbMU6kBLWN9Pw2bs=;
+        s=korg; t=1649149530;
+        bh=gSKk94JlnT76nQt2YzGKXOMGeTex5ODG6i1MtGdF5n0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bxEwErh7EdBONUOR+Sb09sytCwAOMLvQh8gC8m5onD+L6MBL8wHYBFCzh3wTlcbo+
-         sdoISKpX3+IwJLq2jiJDEwmb+YUEJw2cRJvDDV9Uft6mYYDLog91tKWYxnDH2G3EV+
-         VDJMnvhcuy3Wn78Uv5eUjAtD2PNgW5SKb7tblS+A=
+        b=Th4RuacAUGVnfD6aYy3rSSbOVGzzyijVGrrJzTV93VUV1joCiusnNPxQE74PAQkVk
+         dUiiTU+C6xD2G2xbqz8sROtVZDPKK67QEaOlSQUKfqvfs8j+QNfv1zg0XN7cjyk+mq
+         rAPM2QB7h/uIbebO0b+9WuEJN4GTnmu97EotVFqU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaomeng Tong <xiam0nd.tong@gmail.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        stable@vger.kernel.org, Vladimir Oltean <olteanv@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Xiaomeng Tong <xiam0nd.tong@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0746/1017] NFSv4/pNFS: Fix another issue with a list iterator pointing to the head
-Date:   Tue,  5 Apr 2022 09:27:39 +0200
-Message-Id: <20220405070416.405319305@linuxfoundation.org>
+Subject: [PATCH 5.16 0747/1017] net: dsa: bcm_sf2_cfp: fix an incorrect NULL check on list iterator
+Date:   Tue,  5 Apr 2022 09:27:40 +0200
+Message-Id: <20220405070416.434826983@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -54,117 +56,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
 
-[ Upstream commit 7c9d845f0612e5bcd23456a2ec43be8ac43458f1 ]
+[ Upstream commit 6da69b1da130e7d96766042750cd9f902e890eba ]
 
-In nfs4_callback_devicenotify(), if we don't find a matching entry for
-the deviceid, we're left with a pointer to 'struct nfs_server' that
-actually points to the list of super blocks associated with our struct
-nfs_client.
-Furthermore, even if we have a valid pointer, nothing pins the super
-block, and so the struct nfs_server could end up getting freed while
-we're using it.
+The bug is here:
+	return rule;
 
-Since all we want is a pointer to the struct pnfs_layoutdriver_type,
-let's skip all the iteration over super blocks, and just use APIs to
-find the layout driver directly.
+The list iterator value 'rule' will *always* be set and non-NULL
+by list_for_each_entry(), so it is incorrect to assume that the
+iterator value will be NULL if the list is empty or no element
+is found.
 
-Reported-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
-Fixes: 1be5683b03a7 ("pnfs: CB_NOTIFY_DEVICEID")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+To fix the bug, return 'rule' when found, otherwise return NULL.
+
+Fixes: ae7a5aff783c7 ("net: dsa: bcm_sf2: Keep copy of inserted rules")
+Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+Link: https://lore.kernel.org/r/20220328032431.22538-1-xiam0nd.tong@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/callback_proc.c | 27 +++++++++------------------
- fs/nfs/pnfs.c          | 11 +++++++++++
- fs/nfs/pnfs.h          |  2 ++
- 3 files changed, 22 insertions(+), 18 deletions(-)
+ drivers/net/dsa/bcm_sf2_cfp.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/fs/nfs/callback_proc.c b/fs/nfs/callback_proc.c
-index c343666d9a42..6464dde03705 100644
---- a/fs/nfs/callback_proc.c
-+++ b/fs/nfs/callback_proc.c
-@@ -358,12 +358,11 @@ __be32 nfs4_callback_devicenotify(void *argp, void *resp,
- 				  struct cb_process_state *cps)
+diff --git a/drivers/net/dsa/bcm_sf2_cfp.c b/drivers/net/dsa/bcm_sf2_cfp.c
+index a7e2fcf2df2c..edbe5e7f1cb6 100644
+--- a/drivers/net/dsa/bcm_sf2_cfp.c
++++ b/drivers/net/dsa/bcm_sf2_cfp.c
+@@ -567,14 +567,14 @@ static void bcm_sf2_cfp_slice_ipv6(struct bcm_sf2_priv *priv,
+ static struct cfp_rule *bcm_sf2_cfp_rule_find(struct bcm_sf2_priv *priv,
+ 					      int port, u32 location)
  {
- 	struct cb_devicenotifyargs *args = argp;
-+	const struct pnfs_layoutdriver_type *ld = NULL;
- 	uint32_t i;
- 	__be32 res = 0;
--	struct nfs_client *clp = cps->clp;
--	struct nfs_server *server = NULL;
+-	struct cfp_rule *rule = NULL;
++	struct cfp_rule *rule;
  
--	if (!clp) {
-+	if (!cps->clp) {
- 		res = cpu_to_be32(NFS4ERR_OP_NOT_IN_SESSION);
- 		goto out;
+ 	list_for_each_entry(rule, &priv->cfp.rules_list, next) {
+ 		if (rule->port == port && rule->fs.location == location)
+-			break;
++			return rule;
  	}
-@@ -371,23 +370,15 @@ __be32 nfs4_callback_devicenotify(void *argp, void *resp,
- 	for (i = 0; i < args->ndevs; i++) {
- 		struct cb_devicenotifyitem *dev = &args->devs[i];
  
--		if (!server ||
--		    server->pnfs_curr_ld->id != dev->cbd_layout_type) {
--			rcu_read_lock();
--			list_for_each_entry_rcu(server, &clp->cl_superblocks, client_link)
--				if (server->pnfs_curr_ld &&
--				    server->pnfs_curr_ld->id == dev->cbd_layout_type) {
--					rcu_read_unlock();
--					goto found;
--				}
--			rcu_read_unlock();
--			continue;
-+		if (!ld || ld->id != dev->cbd_layout_type) {
-+			pnfs_put_layoutdriver(ld);
-+			ld = pnfs_find_layoutdriver(dev->cbd_layout_type);
-+			if (!ld)
-+				continue;
- 		}
--
--	found:
--		nfs4_delete_deviceid(server->pnfs_curr_ld, clp, &dev->cbd_dev_id);
-+		nfs4_delete_deviceid(ld, cps->clp, &dev->cbd_dev_id);
- 	}
--
-+	pnfs_put_layoutdriver(ld);
- out:
- 	kfree(args->devs);
- 	return res;
-diff --git a/fs/nfs/pnfs.c b/fs/nfs/pnfs.c
-index 7c9090a28e5c..7ddd003ab8b1 100644
---- a/fs/nfs/pnfs.c
-+++ b/fs/nfs/pnfs.c
-@@ -92,6 +92,17 @@ find_pnfs_driver(u32 id)
- 	return local;
+-	return rule;
++	return NULL;
  }
  
-+const struct pnfs_layoutdriver_type *pnfs_find_layoutdriver(u32 id)
-+{
-+	return find_pnfs_driver(id);
-+}
-+
-+void pnfs_put_layoutdriver(const struct pnfs_layoutdriver_type *ld)
-+{
-+	if (ld)
-+		module_put(ld->owner);
-+}
-+
- void
- unset_pnfs_layoutdriver(struct nfs_server *nfss)
- {
-diff --git a/fs/nfs/pnfs.h b/fs/nfs/pnfs.h
-index f4d7548d67b2..07f11489e4e9 100644
---- a/fs/nfs/pnfs.h
-+++ b/fs/nfs/pnfs.h
-@@ -234,6 +234,8 @@ struct pnfs_devicelist {
- 
- extern int pnfs_register_layoutdriver(struct pnfs_layoutdriver_type *);
- extern void pnfs_unregister_layoutdriver(struct pnfs_layoutdriver_type *);
-+extern const struct pnfs_layoutdriver_type *pnfs_find_layoutdriver(u32 id);
-+extern void pnfs_put_layoutdriver(const struct pnfs_layoutdriver_type *ld);
- 
- /* nfs4proc.c */
- extern size_t max_response_pages(struct nfs_server *server);
+ static int bcm_sf2_cfp_rule_cmp(struct bcm_sf2_priv *priv, int port,
 -- 
 2.34.1
 
