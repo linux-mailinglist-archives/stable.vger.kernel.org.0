@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 65DC64F2825
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:19:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 264444F2782
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:07:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233564AbiDEIK4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:10:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57654 "EHLO
+        id S233204AbiDEIHH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:07:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53020 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234543AbiDEH6i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:58:38 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3074A76D6;
-        Tue,  5 Apr 2022 00:52:45 -0700 (PDT)
+        with ESMTP id S234556AbiDEH6j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:58:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BBC3A66F0;
+        Tue,  5 Apr 2022 00:52:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 52E2EB81B90;
-        Tue,  5 Apr 2022 07:52:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A02BEC34110;
-        Tue,  5 Apr 2022 07:52:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3A1F5615C3;
+        Tue,  5 Apr 2022 07:52:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F33DC340EE;
+        Tue,  5 Apr 2022 07:52:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145163;
-        bh=iWedxj7YTagci/gi3EDpl5fIirs9sNJC96Xu5blLHW8=;
+        s=korg; t=1649145165;
+        bh=lkpnbO/D9/xw1e2mWn+XSr5+CgrYmEMa9rXAlTMZFc8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nlMQGiIvJl95DezofkwY5Hn+hPNuduPhzsySkjwNeuoDsjGvMhP0olSMYImpMrCF5
-         RIr3snBAlk+RF+rXv5VHTofNQZuWMak8FDXj0q+rcxg1te4axtOx/n3ORb2DkYhsSi
-         82Zq8VvpkNIzby4p/IuMVZ60HbERscGizrcvdmYE=
+        b=oEW6y47tG85GHK5EEZkz42JWsc2aGSMqp9NrGpUbMtQO4nRqtKYox0L36EzN0RS4T
+         u+YpIKllwY/SXCVc2WmDvejoQ9jV+HkB5pKMZkntiydyb5WMWrV7sxM+ola68IY3yi
+         fpGEDdcVUbfjHigbmcMNvNUOvvQVeEgPbkoxjUs4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0308/1126] memory: tegra20-emc: Correct memory device mask
-Date:   Tue,  5 Apr 2022 09:17:35 +0200
-Message-Id: <20220405070416.654889034@linuxfoundation.org>
+Subject: [PATCH 5.17 0309/1126] media: coda: Fix missing put_device() call in coda_get_vdoa_data
+Date:   Tue,  5 Apr 2022 09:17:36 +0200
+Message-Id: <20220405070416.684184954@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -54,35 +55,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 9ff684342ee7d3ea2755c6e9b60bc43085baa3ad ]
+[ Upstream commit ca85d271531a1e1c86f24b892f57b7d0a3ddb5a6 ]
 
-Memory chip select is swapped when we read mode register, correct it.
-We didn't have devices that use a single LPDDR chip and both chips are
-always identical, hence this change is just a minor improvement.
+The reference taken by 'of_find_device_by_node()' must be released when
+not needed anymore.
+Add the corresponding 'put_device()' in the error handling path.
 
-Fixes: 131dd9a436d8 ("memory: tegra20-emc: Support matching timings by LPDDR2 configuration")
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-Link: https://lore.kernel.org/r/20211222043215.28237-2-digetx@gmail.com
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Fixes: e7f3c5481035 ("[media] coda: use VDOA for un-tiling custom macroblock format")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/memory/tegra/tegra20-emc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/platform/coda/coda-common.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/memory/tegra/tegra20-emc.c b/drivers/memory/tegra/tegra20-emc.c
-index 497b6edbf3ca..25ba3c5e4ad6 100644
---- a/drivers/memory/tegra/tegra20-emc.c
-+++ b/drivers/memory/tegra/tegra20-emc.c
-@@ -540,7 +540,7 @@ static int emc_read_lpddr_mode_register(struct tegra_emc *emc,
- 					unsigned int register_addr,
- 					unsigned int *register_data)
- {
--	u32 memory_dev = emem_dev + 1;
-+	u32 memory_dev = emem_dev ? 1 : 2;
- 	u32 val, mr_mask = 0xff;
- 	int err;
+diff --git a/drivers/media/platform/coda/coda-common.c b/drivers/media/platform/coda/coda-common.c
+index 3cd47ba26357..a57822b05070 100644
+--- a/drivers/media/platform/coda/coda-common.c
++++ b/drivers/media/platform/coda/coda-common.c
+@@ -409,6 +409,7 @@ static struct vdoa_data *coda_get_vdoa_data(void)
+ 	if (!vdoa_data)
+ 		vdoa_data = ERR_PTR(-EPROBE_DEFER);
+ 
++	put_device(&vdoa_pdev->dev);
+ out:
+ 	of_node_put(vdoa_node);
  
 -- 
 2.34.1
