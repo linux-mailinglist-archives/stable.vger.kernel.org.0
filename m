@@ -2,47 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C1694F25FE
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 09:51:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 497034F25E8
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 09:51:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232439AbiDEHxe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 03:53:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55218 "EHLO
+        id S232250AbiDEHwo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 03:52:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57162 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232609AbiDEHve (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:51:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6C0297281;
-        Tue,  5 Apr 2022 00:47:28 -0700 (PDT)
+        with ESMTP id S232653AbiDEHvh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:51:37 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0121B972D2;
+        Tue,  5 Apr 2022 00:47:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ECAA7616C6;
-        Tue,  5 Apr 2022 07:47:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCE9AC34110;
-        Tue,  5 Apr 2022 07:47:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5BE19B81B16;
+        Tue,  5 Apr 2022 07:47:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF8D5C340EE;
+        Tue,  5 Apr 2022 07:47:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649144847;
-        bh=Mw88AYfBlg1OYclDbdlVotv1VTonLK8rILqlVtFOlCw=;
+        s=korg; t=1649144850;
+        bh=hN/rGyzhfDpcvGlyX2idBWqqBph1Ocw036xlbGQBJeY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ppLvhBXsbwK4rr3b9r3J306sT5O+8VdjX2zODRekDhOezUkNdZz9PMtNl71qa+vml
-         ciYnhP6KGxNgx4VP2eAlfJy+e/fqWBaz0wx6fv2FJfOgr70Z0KxWXhGLQ59MuLMxld
-         iHp4fU+5Mtrij85caKrz1e58mRORZciatZ81RKQs=
+        b=co6FGGny31rStHov04SobgCirSuozAVpDduwgfoVsvD1zfdiZxiO8nTxDGzot+Ft8
+         nDAangUs+qU1RgiMimCm710h2eTn9qh8YBnwzXVy7FPE/rzg/W4GN6AKLnfy2g4/JD
+         JRu/37CdqSPHSEp+iqIU191ds/bgVlQuxEkUqmHk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mastan Katragadda <mastanx.katragadda@intel.com>,
-        Adam Zabrocki <adamza@microsoft.com>,
-        Jackson Cody <cody.jackson@intel.com>,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        Jon Bloomfield <jon.bloomfield@intel.com>,
-        Sudeep Dutt <sudeep.dutt@intel.com>,
-        Matthew Auld <matthew.auld@intel.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-Subject: [PATCH 5.17 0193/1126] drm/i915/gem: add missing boundary check in vm_access
-Date:   Tue,  5 Apr 2022 09:15:40 +0200
-Message-Id: <20220405070413.271822846@linuxfoundation.org>
+        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Rob Herring <robh@kernel.org>,
+        Richard Zhu <hongxing.zhu@nxp.com>
+Subject: [PATCH 5.17 0194/1126] PCI: imx6: Allow to probe when dw_pcie_wait_for_link() fails
+Date:   Tue,  5 Apr 2022 09:15:41 +0200
+Message-Id: <20220405070413.301698431@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -60,82 +55,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mastan Katragadda <mastanx.katragadda@intel.com>
+From: Fabio Estevam <festevam@gmail.com>
 
-commit 3886a86e7e6cc6ce2ce93c440fecd8f42aed0ce7 upstream.
+commit f81f095e87715e198471f4653952fe5e3f824874 upstream.
 
-A missing bounds check in vm_access() can lead to an out-of-bounds read
-or write in the adjacent memory area, since the len attribute is not
-validated before the memcpy later in the function, potentially hitting:
+The intention of commit 886a9c134755 ("PCI: dwc: Move link handling into
+common code") was to standardize the behavior of link down as explained
+in its commit log:
 
-[  183.637831] BUG: unable to handle page fault for address: ffffc90000c86000
-[  183.637934] #PF: supervisor read access in kernel mode
-[  183.637997] #PF: error_code(0x0000) - not-present page
-[  183.638059] PGD 100000067 P4D 100000067 PUD 100258067 PMD 106341067 PTE 0
-[  183.638144] Oops: 0000 [#2] PREEMPT SMP NOPTI
-[  183.638201] CPU: 3 PID: 1790 Comm: poc Tainted: G      D           5.17.0-rc6-ci-drm-11296+ #1
-[  183.638298] Hardware name: Intel Corporation CoffeeLake Client Platform/CoffeeLake H DDR4 RVP, BIOS CNLSFWR1.R00.X208.B00.1905301319 05/30/2019
-[  183.638430] RIP: 0010:memcpy_erms+0x6/0x10
-[  183.640213] RSP: 0018:ffffc90001763d48 EFLAGS: 00010246
-[  183.641117] RAX: ffff888109c14000 RBX: ffff888111bece40 RCX: 0000000000000ffc
-[  183.642029] RDX: 0000000000001000 RSI: ffffc90000c86000 RDI: ffff888109c14004
-[  183.642946] RBP: 0000000000000ffc R08: 800000000000016b R09: 0000000000000000
-[  183.643848] R10: ffffc90000c85000 R11: 0000000000000048 R12: 0000000000001000
-[  183.644742] R13: ffff888111bed190 R14: ffff888109c14000 R15: 0000000000001000
-[  183.645653] FS:  00007fe5ef807540(0000) GS:ffff88845b380000(0000) knlGS:0000000000000000
-[  183.646570] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  183.647481] CR2: ffffc90000c86000 CR3: 000000010ff02006 CR4: 00000000003706e0
-[  183.648384] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[  183.649271] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[  183.650142] Call Trace:
-[  183.650988]  <TASK>
-[  183.651793]  vm_access+0x1f0/0x2a0 [i915]
-[  183.652726]  __access_remote_vm+0x224/0x380
-[  183.653561]  mem_rw.isra.0+0xf9/0x190
-[  183.654402]  vfs_read+0x9d/0x1b0
-[  183.655238]  ksys_read+0x63/0xe0
-[  183.656065]  do_syscall_64+0x38/0xc0
-[  183.656882]  entry_SYSCALL_64_after_hwframe+0x44/0xae
-[  183.657663] RIP: 0033:0x7fe5ef725142
-[  183.659351] RSP: 002b:00007ffe1e81c7e8 EFLAGS: 00000246 ORIG_RAX: 0000000000000000
-[  183.660227] RAX: ffffffffffffffda RBX: 0000557055dfb780 RCX: 00007fe5ef725142
-[  183.661104] RDX: 0000000000001000 RSI: 00007ffe1e81d880 RDI: 0000000000000005
-[  183.661972] RBP: 00007ffe1e81e890 R08: 0000000000000030 R09: 0000000000000046
-[  183.662832] R10: 0000557055dfc2e0 R11: 0000000000000246 R12: 0000557055dfb1c0
-[  183.663691] R13: 00007ffe1e81e980 R14: 0000000000000000 R15: 0000000000000000
+"The behavior for a link down was inconsistent as some drivers would fail
+probe in that case while others succeed. Let's standardize this to
+succeed as there are usecases where devices (and the link) appear later
+even without hotplug. For example, a reconfigured FPGA device."
 
-Changes since v1:
-     - Updated if condition with range_overflows_t [Chris Wilson]
+The pci-imx6 still fails to probe when the link is not present, which
+causes the following warning:
 
-Fixes: 9f909e215fea ("drm/i915: Implement vm_ops->access for gdb access into mmaps")
-Signed-off-by: Mastan Katragadda <mastanx.katragadda@intel.com>
-Suggested-by: Adam Zabrocki <adamza@microsoft.com>
-Reported-by: Jackson Cody <cody.jackson@intel.com>
-Cc: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Jon Bloomfield <jon.bloomfield@intel.com>
-Cc: Sudeep Dutt <sudeep.dutt@intel.com>
-Cc: <stable@vger.kernel.org> # v5.8+
-Reviewed-by: Matthew Auld <matthew.auld@intel.com>
-[mauld: tidy up the commit message and add Cc: stable]
-Signed-off-by: Matthew Auld <matthew.auld@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220303060428.1668844-1-mastanx.katragadda@intel.com
-(cherry picked from commit 661412e301e2ca86799aa4f400d1cf0bd38c57c6)
-Signed-off-by: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+imx6q-pcie 8ffc000.pcie: Phy link never came up
+imx6q-pcie: probe of 8ffc000.pcie failed with error -110
+------------[ cut here ]------------
+WARNING: CPU: 0 PID: 30 at drivers/regulator/core.c:2257 _regulator_put.part.0+0x1b8/0x1dc
+Modules linked in:
+CPU: 0 PID: 30 Comm: kworker/u2:2 Not tainted 5.15.0-next-20211103 #1
+Hardware name: Freescale i.MX6 SoloX (Device Tree)
+Workqueue: events_unbound async_run_entry_fn
+[<c0111730>] (unwind_backtrace) from [<c010bb74>] (show_stack+0x10/0x14)
+[<c010bb74>] (show_stack) from [<c0f90290>] (dump_stack_lvl+0x58/0x70)
+[<c0f90290>] (dump_stack_lvl) from [<c012631c>] (__warn+0xd4/0x154)
+[<c012631c>] (__warn) from [<c0f87b00>] (warn_slowpath_fmt+0x74/0xa8)
+[<c0f87b00>] (warn_slowpath_fmt) from [<c076b4bc>] (_regulator_put.part.0+0x1b8/0x1dc)
+[<c076b4bc>] (_regulator_put.part.0) from [<c076b574>] (regulator_put+0x2c/0x3c)
+[<c076b574>] (regulator_put) from [<c08c3740>] (release_nodes+0x50/0x178)
+
+Fix this problem by ignoring the dw_pcie_wait_for_link() error like
+it is done on the other dwc drivers.
+
+Tested on imx6sx-sdb and imx6q-sabresd boards.
+
+Link: https://lore.kernel.org/r/20220106103645.2790803-1-festevam@gmail.com
+Fixes: 886a9c134755 ("PCI: dwc: Move link handling into common code")
+Signed-off-by: Fabio Estevam <festevam@gmail.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Rob Herring <robh@kernel.org>
+Reviewed-by: Richard Zhu <hongxing.zhu@nxp.com>
+Cc: <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/gem/i915_gem_mman.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pci/controller/dwc/pci-imx6.c |   10 ++--------
+ 1 file changed, 2 insertions(+), 8 deletions(-)
 
---- a/drivers/gpu/drm/i915/gem/i915_gem_mman.c
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_mman.c
-@@ -439,7 +439,7 @@ vm_access(struct vm_area_struct *area, u
- 		return -EACCES;
+--- a/drivers/pci/controller/dwc/pci-imx6.c
++++ b/drivers/pci/controller/dwc/pci-imx6.c
+@@ -809,9 +809,7 @@ static int imx6_pcie_start_link(struct d
+ 	/* Start LTSSM. */
+ 	imx6_pcie_ltssm_enable(dev);
  
- 	addr -= area->vm_start;
--	if (addr >= obj->base.size)
-+	if (range_overflows_t(u64, addr, len, obj->base.size))
- 		return -EINVAL;
+-	ret = dw_pcie_wait_for_link(pci);
+-	if (ret)
+-		goto err_reset_phy;
++	dw_pcie_wait_for_link(pci);
  
- 	i915_gem_ww_ctx_init(&ww, true);
+ 	if (pci->link_gen == 2) {
+ 		/* Allow Gen2 mode after the link is up. */
+@@ -847,11 +845,7 @@ static int imx6_pcie_start_link(struct d
+ 		}
+ 
+ 		/* Make sure link training is finished as well! */
+-		ret = dw_pcie_wait_for_link(pci);
+-		if (ret) {
+-			dev_err(dev, "Failed to bring link up!\n");
+-			goto err_reset_phy;
+-		}
++		dw_pcie_wait_for_link(pci);
+ 	} else {
+ 		dev_info(dev, "Link: Gen2 disabled\n");
+ 	}
 
 
