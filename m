@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D11974F24F9
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 09:42:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E6A974F2510
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 09:43:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231995AbiDEHoN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 03:44:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55418 "EHLO
+        id S231167AbiDEHoz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 03:44:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232012AbiDEHnM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:43:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BD489319D;
-        Tue,  5 Apr 2022 00:40:19 -0700 (PDT)
+        with ESMTP id S232033AbiDEHnO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:43:14 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 578A5931B9;
+        Tue,  5 Apr 2022 00:40:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 78287616BD;
-        Tue,  5 Apr 2022 07:40:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82724C3410F;
-        Tue,  5 Apr 2022 07:40:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F25CBB81B92;
+        Tue,  5 Apr 2022 07:40:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42A26C340EE;
+        Tue,  5 Apr 2022 07:40:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649144417;
-        bh=mhiSGor9ixVK1nQxRH8akaxf9Gzwa492ylxvfFErLK4=;
+        s=korg; t=1649144420;
+        bh=h46s61eTOw3K/so5Fb4otBH2wA/GpX9mBE1XqOcPSco=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H6xeHgHTOEFpFz4PEb8vT9JDvD+bfVHLNx1vsFj7mh+8fl3oS/V2yOM+pcZLm1Vh1
-         YVVt9xFrRnbv80cz9p0jS3h+WCA5Y9YHw4W9z7E9DMYlWCHVxhUrMASWjgHZcY1Z3z
-         EHw0ANegnMqfCJMrMVYJEDIDXoGK30wAeYcyyd4Q=
+        b=kZPh9gPnI1LD9qzXOk1C2AYbfRtrE0MtlWqR0FJN0U7x76IqOZUpp97ptESzccuT7
+         zsQbr8Qji3nKlcrTIdyL1jSoCOl1qKvfs6P1yGlRYoPZjSjDUgKoUE3qBygR84vPZW
+         2GbF9JOgYSL4+TkOjz5pawfNeKfgqWg9ttv63mrY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,9 +36,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Andy Shevchenko <andy.shevchenko@gmail.com>,
         Stable@vger.kernel.org,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.17 0037/1126] iio: inkern: apply consumer scale when no channel scale is available
-Date:   Tue,  5 Apr 2022 09:13:04 +0200
-Message-Id: <20220405070408.645709434@linuxfoundation.org>
+Subject: [PATCH 5.17 0038/1126] iio: inkern: make a best effort on offset calculation
+Date:   Tue,  5 Apr 2022 09:13:05 +0200
+Message-Id: <20220405070408.675586397@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -58,45 +58,66 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Liam Beguin <liambeguin@gmail.com>
 
-commit 14b457fdde38de594a4bc4bd9075019319d978da upstream.
+commit ca85123354e1a65a22170286387b4791997fe864 upstream.
 
-When a consumer calls iio_read_channel_processed() and no channel scale
-is available, it's assumed that the scale is one and the raw value is
-returned as expected.
+iio_convert_raw_to_processed_unlocked() assumes the offset is an
+integer. Make a best effort to get a valid offset value for fractional
+cases without breaking implicit truncations.
 
-On the other hand, if the consumer calls iio_convert_raw_to_processed()
-the scaling factor requested by the consumer is not applied.
-
-This for example causes the consumer to process mV when expecting uV.
-Make sure to always apply the scaling factor requested by the consumer.
-
-Fixes: adc8ec5ff183 ("iio: inkern: pass through raw values if no scaling")
+Fixes: 48e44ce0f881 ("iio:inkern: Add function to read the processed value")
 Signed-off-by: Liam Beguin <liambeguin@gmail.com>
 Reviewed-by: Peter Rosin <peda@axentia.se>
 Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20220108205319.2046348-3-liambeguin@gmail.com
+Link: https://lore.kernel.org/r/20220108205319.2046348-4-liambeguin@gmail.com
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/inkern.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/iio/inkern.c |   32 +++++++++++++++++++++++++++-----
+ 1 file changed, 27 insertions(+), 5 deletions(-)
 
 --- a/drivers/iio/inkern.c
 +++ b/drivers/iio/inkern.c
-@@ -607,10 +607,10 @@ static int iio_convert_raw_to_processed_
- 					IIO_CHAN_INFO_SCALE);
- 	if (scale_type < 0) {
- 		/*
--		 * Just pass raw values as processed if no scaling is
--		 * available.
-+		 * If no channel scaling is available apply consumer scale to
-+		 * raw value and return.
- 		 */
--		*processed = raw;
-+		*processed = raw * scale;
- 		return 0;
- 	}
+@@ -595,13 +595,35 @@ EXPORT_SYMBOL_GPL(iio_read_channel_avera
+ static int iio_convert_raw_to_processed_unlocked(struct iio_channel *chan,
+ 	int raw, int *processed, unsigned int scale)
+ {
+-	int scale_type, scale_val, scale_val2, offset;
++	int scale_type, scale_val, scale_val2;
++	int offset_type, offset_val, offset_val2;
+ 	s64 raw64 = raw;
+-	int ret;
  
+-	ret = iio_channel_read(chan, &offset, NULL, IIO_CHAN_INFO_OFFSET);
+-	if (ret >= 0)
+-		raw64 += offset;
++	offset_type = iio_channel_read(chan, &offset_val, &offset_val2,
++				       IIO_CHAN_INFO_OFFSET);
++	if (offset_type >= 0) {
++		switch (offset_type) {
++		case IIO_VAL_INT:
++			break;
++		case IIO_VAL_INT_PLUS_MICRO:
++		case IIO_VAL_INT_PLUS_NANO:
++			/*
++			 * Both IIO_VAL_INT_PLUS_MICRO and IIO_VAL_INT_PLUS_NANO
++			 * implicitely truncate the offset to it's integer form.
++			 */
++			break;
++		case IIO_VAL_FRACTIONAL:
++			offset_val /= offset_val2;
++			break;
++		case IIO_VAL_FRACTIONAL_LOG2:
++			offset_val >>= offset_val2;
++			break;
++		default:
++			return -EINVAL;
++		}
++
++		raw64 += offset_val;
++	}
+ 
+ 	scale_type = iio_channel_read(chan, &scale_val, &scale_val2,
+ 					IIO_CHAN_INFO_SCALE);
 
 
