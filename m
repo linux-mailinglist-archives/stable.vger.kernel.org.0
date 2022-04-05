@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 95E5D4F2FAF
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:17:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 929CF4F32A7
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:59:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237460AbiDEJEO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:04:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38486 "EHLO
+        id S237765AbiDEJET (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:04:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46132 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242667AbiDEItX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:49:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4F7C6A419;
-        Tue,  5 Apr 2022 01:37:32 -0700 (PDT)
+        with ESMTP id S242781AbiDEItc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:49:32 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17EBD7460C;
+        Tue,  5 Apr 2022 01:37:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B00A661539;
-        Tue,  5 Apr 2022 08:37:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD332C385B4;
-        Tue,  5 Apr 2022 08:37:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 29F2DB81C6A;
+        Tue,  5 Apr 2022 08:37:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67FF6C385A1;
+        Tue,  5 Apr 2022 08:37:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147839;
-        bh=zptyK2nimVICzBITahKX+tewufXiE/uNtdoF6Ehqy8I=;
+        s=korg; t=1649147844;
+        bh=lzO+z6AoVIcvFgn8IXdAdIOaIsz6Yqp+xI/H9kDkdZA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ueVFNt/90SVNgDY02efQxBEkPn2xrLC35KHXw9OTmoHNqnkm3GkFQhRQlBHrsCf/k
-         oCn4d1aED7IzPIS0DE7nyri4FEkd9dmXldR6kv1KSnU8RqKHirlMkpRsbeRrxesrFc
-         kyBeMw+xc/lDSxrmEmL7z2EvHekMCpyyGrvTuMEY=
+        b=mVNuNQ2fRbeELBkZihTOHX8dpiMVLe/MMcxf8fcqlEnpzta9bgHt7Xy5TB9KsRmri
+         s0eZGlQlrlAywiKW/Z2yQmPyp1SzPIKHd3PzpMwHmQa6ShFJyt1VfWsxsIieLGfZJ6
+         Lt9DNaWvJkWdIE8MXoFxVREiikZiXUM6xuLZy4hE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ye Bin <yebin10@huawei.com>,
-        stable@kernel.org, Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.16 0140/1017] ext4: fix fs corruption when tring to remove a non-empty directory with IO error
-Date:   Tue,  5 Apr 2022 09:17:33 +0200
-Message-Id: <20220405070358.359271000@linuxfoundation.org>
+        stable@vger.kernel.org, stable@kernel.org,
+        Geetika Moolchandani <Geetika.Moolchandani1@ibm.com>,
+        Nageswara R Sastry <rnsastry@linux.ibm.com>,
+        Ritesh Harjani <riteshh@linux.ibm.com>,
+        Ojaswin Mujoo <ojaswin@linux.ibm.com>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.16 0141/1017] ext4: make mb_optimize_scan performance mount option work with extents
+Date:   Tue,  5 Apr 2022 09:17:34 +0200
+Message-Id: <20220405070358.388849007@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -53,155 +57,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Ojaswin Mujoo <ojaswin@linux.ibm.com>
 
-commit 7aab5c84a0f6ec2290e2ba4a6b245178b1bf949a upstream.
+commit 077d0c2c78df6f7260cdd015a991327efa44d8ad upstream.
 
-We inject IO error when rmdir non empty direcory, then got issue as follows:
-step1: mkfs.ext4 -F /dev/sda
-step2: mount /dev/sda  test
-step3: cd test
-step4: mkdir -p 1/2
-step5: rmdir 1
-	[  110.920551] ext4_empty_dir: inject fault
-	[  110.921926] EXT4-fs warning (device sda): ext4_rmdir:3113: inode #12:
-	comm rmdir: empty directory '1' has too many links (3)
-step6: cd ..
-step7: umount test
-step8: fsck.ext4 -f /dev/sda
-	e2fsck 1.42.9 (28-Dec-2013)
-	Pass 1: Checking inodes, blocks, and sizes
-	Pass 2: Checking directory structure
-	Entry '..' in .../??? (13) has deleted/unused inode 12.  Clear<y>? yes
-	Pass 3: Checking directory connectivity
-	Unconnected directory inode 13 (...)
-	Connect to /lost+found<y>? yes
-	Pass 4: Checking reference counts
-	Inode 13 ref count is 3, should be 2.  Fix<y>? yes
-	Pass 5: Checking group summary information
+Currently mb_optimize_scan scan feature which improves filesystem
+performance heavily (when FS is fragmented), seems to be not working
+with files with extents (ext4 by default has files with extents).
 
-	/dev/sda: ***** FILE SYSTEM WAS MODIFIED *****
-	/dev/sda: 12/131072 files (0.0% non-contiguous), 26157/524288 blocks
+This patch fixes that and makes mb_optimize_scan feature work
+for files with extents.
 
-ext4_rmdir
-	if (!ext4_empty_dir(inode))
-		goto end_rmdir;
-ext4_empty_dir
-	bh = ext4_read_dirblock(inode, 0, DIRENT_HTREE);
-	if (IS_ERR(bh))
-		return true;
-Now if read directory block failed, 'ext4_empty_dir' will return true, assume
-directory is empty. Obviously, it will lead to above issue.
-To solve this issue, if read directory block failed 'ext4_empty_dir' just
-return false. To avoid making things worse when file system is already
-corrupted, 'ext4_empty_dir' also return false.
+Below are some performance numbers obtained when allocating a 10M and 100M
+file with and w/o this patch on a filesytem with no 1M contiguous block.
 
-Signed-off-by: Ye Bin <yebin10@huawei.com>
+<perf numbers>
+===============
+Workload: dd if=/dev/urandom of=test conv=fsync bs=1M count=10/100
+
+Time taken
+=====================================================
+no.     Size   without-patch     with-patch    Diff(%)
+1       10M      0m8.401s         0m5.623s     33.06%
+2       100M     1m40.465s        1m14.737s    25.6%
+
+<debug stats>
+=============
+w/o patch:
+  mballoc:
+    reqs: 17056
+    success: 11407
+    groups_scanned: 13643
+    cr0_stats:
+            hits: 37
+            groups_considered: 9472
+            useless_loops: 36
+            bad_suggestions: 0
+    cr1_stats:
+            hits: 11418
+            groups_considered: 908560
+            useless_loops: 1894
+            bad_suggestions: 0
+    cr2_stats:
+            hits: 1873
+            groups_considered: 6913
+            useless_loops: 21
+    cr3_stats:
+            hits: 21
+            groups_considered: 5040
+            useless_loops: 21
+    extents_scanned: 417364
+            goal_hits: 3707
+            2^n_hits: 37
+            breaks: 1873
+            lost: 0
+    buddies_generated: 239/240
+    buddies_time_used: 651080
+    preallocated: 705
+    discarded: 478
+
+with patch:
+  mballoc:
+    reqs: 12768
+    success: 11305
+    groups_scanned: 12768
+    cr0_stats:
+            hits: 1
+            groups_considered: 18
+            useless_loops: 0
+            bad_suggestions: 0
+    cr1_stats:
+            hits: 5829
+            groups_considered: 50626
+            useless_loops: 0
+            bad_suggestions: 0
+    cr2_stats:
+            hits: 6938
+            groups_considered: 580363
+            useless_loops: 0
+    cr3_stats:
+            hits: 0
+            groups_considered: 0
+            useless_loops: 0
+    extents_scanned: 309059
+            goal_hits: 0
+            2^n_hits: 1
+            breaks: 1463
+            lost: 0
+    buddies_generated: 239/240
+    buddies_time_used: 791392
+    preallocated: 673
+    discarded: 446
+
+Fixes: 196e402 (ext4: improve cr 0 / cr 1 group scanning)
 Cc: stable@kernel.org
-Link: https://lore.kernel.org/r/20220228024815.3952506-1-yebin10@huawei.com
+Reported-by: Geetika Moolchandani <Geetika.Moolchandani1@ibm.com>
+Reported-by: Nageswara R Sastry <rnsastry@linux.ibm.com>
+Suggested-by: Ritesh Harjani <riteshh@linux.ibm.com>
+Signed-off-by: Ojaswin Mujoo <ojaswin@linux.ibm.com>
+Link: https://lore.kernel.org/r/fc9a48f7f8dcfc83891a8b21f6dd8cdf056ed810.1646732698.git.ojaswin@linux.ibm.com
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/inline.c |    9 ++++-----
- fs/ext4/namei.c  |   10 +++++-----
- 2 files changed, 9 insertions(+), 10 deletions(-)
+ fs/ext4/mballoc.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/ext4/inline.c
-+++ b/fs/ext4/inline.c
-@@ -1788,19 +1788,20 @@ bool empty_inline_dir(struct inode *dir,
- 	void *inline_pos;
- 	unsigned int offset;
- 	struct ext4_dir_entry_2 *de;
--	bool ret = true;
-+	bool ret = false;
- 
- 	err = ext4_get_inode_loc(dir, &iloc);
- 	if (err) {
- 		EXT4_ERROR_INODE_ERR(dir, -err,
- 				     "error %d getting inode %lu block",
- 				     err, dir->i_ino);
--		return true;
-+		return false;
- 	}
- 
- 	down_read(&EXT4_I(dir)->xattr_sem);
- 	if (!ext4_has_inline_data(dir)) {
- 		*has_inline_data = 0;
-+		ret = true;
- 		goto out;
- 	}
- 
-@@ -1809,7 +1810,6 @@ bool empty_inline_dir(struct inode *dir,
- 		ext4_warning(dir->i_sb,
- 			     "bad inline directory (dir #%lu) - no `..'",
- 			     dir->i_ino);
--		ret = true;
- 		goto out;
- 	}
- 
-@@ -1828,16 +1828,15 @@ bool empty_inline_dir(struct inode *dir,
- 				     dir->i_ino, le32_to_cpu(de->inode),
- 				     le16_to_cpu(de->rec_len), de->name_len,
- 				     inline_size);
--			ret = true;
- 			goto out;
- 		}
- 		if (le32_to_cpu(de->inode)) {
--			ret = false;
- 			goto out;
- 		}
- 		offset += ext4_rec_len_from_disk(de->rec_len, inline_size);
- 	}
- 
-+	ret = true;
- out:
- 	up_read(&EXT4_I(dir)->xattr_sem);
- 	brelse(iloc.bh);
---- a/fs/ext4/namei.c
-+++ b/fs/ext4/namei.c
-@@ -2997,14 +2997,14 @@ bool ext4_empty_dir(struct inode *inode)
- 	if (inode->i_size < ext4_dir_rec_len(1, NULL) +
- 					ext4_dir_rec_len(2, NULL)) {
- 		EXT4_ERROR_INODE(inode, "invalid size");
--		return true;
-+		return false;
- 	}
- 	/* The first directory block must not be a hole,
- 	 * so treat it as DIRENT_HTREE
- 	 */
- 	bh = ext4_read_dirblock(inode, 0, DIRENT_HTREE);
- 	if (IS_ERR(bh))
--		return true;
-+		return false;
- 
- 	de = (struct ext4_dir_entry_2 *) bh->b_data;
- 	if (ext4_check_dir_entry(inode, NULL, de, bh, bh->b_data, bh->b_size,
-@@ -3012,7 +3012,7 @@ bool ext4_empty_dir(struct inode *inode)
- 	    le32_to_cpu(de->inode) != inode->i_ino || strcmp(".", de->name)) {
- 		ext4_warning_inode(inode, "directory missing '.'");
- 		brelse(bh);
--		return true;
-+		return false;
- 	}
- 	offset = ext4_rec_len_from_disk(de->rec_len, sb->s_blocksize);
- 	de = ext4_next_entry(de, sb->s_blocksize);
-@@ -3021,7 +3021,7 @@ bool ext4_empty_dir(struct inode *inode)
- 	    le32_to_cpu(de->inode) == 0 || strcmp("..", de->name)) {
- 		ext4_warning_inode(inode, "directory missing '..'");
- 		brelse(bh);
--		return true;
-+		return false;
- 	}
- 	offset += ext4_rec_len_from_disk(de->rec_len, sb->s_blocksize);
- 	while (offset < inode->i_size) {
-@@ -3035,7 +3035,7 @@ bool ext4_empty_dir(struct inode *inode)
- 				continue;
- 			}
- 			if (IS_ERR(bh))
--				return true;
-+				return false;
- 		}
- 		de = (struct ext4_dir_entry_2 *) (bh->b_data +
- 					(offset & (sb->s_blocksize - 1)));
+--- a/fs/ext4/mballoc.c
++++ b/fs/ext4/mballoc.c
+@@ -1000,7 +1000,7 @@ static inline int should_optimize_scan(s
+ 		return 0;
+ 	if (ac->ac_criteria >= 2)
+ 		return 0;
+-	if (ext4_test_inode_flag(ac->ac_inode, EXT4_INODE_EXTENTS))
++	if (!ext4_test_inode_flag(ac->ac_inode, EXT4_INODE_EXTENTS))
+ 		return 0;
+ 	return 1;
+ }
 
 
