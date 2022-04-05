@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A37B54F2D85
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:43:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BB134F2CA0
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:31:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241778AbiDEIfY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:35:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52040 "EHLO
+        id S1350483AbiDEJ6k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:58:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43614 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239774AbiDEIUw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:20:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 863A4BFC;
-        Tue,  5 Apr 2022 01:18:52 -0700 (PDT)
+        with ESMTP id S1344012AbiDEJQr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:16:47 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 850491088;
+        Tue,  5 Apr 2022 02:03:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 220E260B10;
-        Tue,  5 Apr 2022 08:18:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05446C385A1;
-        Tue,  5 Apr 2022 08:18:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3F30FB81BAE;
+        Tue,  5 Apr 2022 09:03:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0AF1C385A0;
+        Tue,  5 Apr 2022 09:03:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146731;
-        bh=ZhdGQAmWHHMFrACJpTe69z62VUQvcrG8v0VNxiUGKOw=;
+        s=korg; t=1649149404;
+        bh=H/Bje5hmDtCNNdNb6F1c/bsu09pr84sD2glYE/vcp/I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dO/1oAAHS+fkJcH3gAXbuUkJeTh8p/Ctosnc/JVST0hJ54330LKH6znLnOj2FhIki
-         r+FW+g4mRcNDUrk4ViYamEpd7EnHz2MlCjKd/YHm5GrGg9U4pTkfqeSPdqzNGt23bV
-         KazmQfO5zoVHl/JGM29Q0Zh1GrGBIPweVA/3TCXo=
+        b=lGqSZZ+SrwRlUeCRMJlEEP1q3cEeBYRJIVsMrJB5xbl13lXFXMamDolvVuLMckO8k
+         u6NEcE4cCkXKRRmY48fDz2xqxiqc+QEIP1WSTaCiUUFhZh8VFscDdB7AvvwzJNc6yW
+         lw2NDsAVxxrDiKKI945C/LINjeLtSYfD/G22vLMI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Leech <cleech@redhat.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0867/1126] nvme-tcp: lockdep: annotate in-kernel sockets
+        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0701/1017] pinctrl: microchip-sgpio: lock RMW access
 Date:   Tue,  5 Apr 2022 09:26:54 +0200
-Message-Id: <20220405070432.986230914@linuxfoundation.org>
+Message-Id: <20220405070415.079501816@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,125 +54,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Leech <cleech@redhat.com>
+From: Michael Walle <michael@walle.cc>
 
-[ Upstream commit 841aee4d75f18fdfb53935080b03de0c65e9b92c ]
+[ Upstream commit 7996c5f5ec7a20b3f6b8fae93fcf3cb8f1c01743 ]
 
-Put NVMe/TCP sockets in their own class to avoid some lockdep warnings.
-Sockets created by nvme-tcp are not exposed to user-space, and will not
-trigger certain code paths that the general socket API exposes.
+Protect any RMW access to the registers by a spinlock.
 
-Lockdep complains about a circular dependency between the socket and
-filesystem locks, because setsockopt can trigger a page fault with a
-socket lock held, but nvme-tcp sends requests on the socket while file
-system locks are held.
-
-  ======================================================
-  WARNING: possible circular locking dependency detected
-  5.15.0-rc3 #1 Not tainted
-  ------------------------------------------------------
-  fio/1496 is trying to acquire lock:
-  (sk_lock-AF_INET){+.+.}-{0:0}, at: tcp_sendpage+0x23/0x80
-
-  but task is already holding lock:
-  (&xfs_dir_ilock_class/5){+.+.}-{3:3}, at: xfs_ilock+0xcf/0x290 [xfs]
-
-  which lock already depends on the new lock.
-
-  other info that might help us debug this:
-
-  chain exists of:
-   sk_lock-AF_INET --> sb_internal --> &xfs_dir_ilock_class/5
-
-  Possible unsafe locking scenario:
-
-        CPU0                    CPU1
-        ----                    ----
-   lock(&xfs_dir_ilock_class/5);
-                                lock(sb_internal);
-                                lock(&xfs_dir_ilock_class/5);
-   lock(sk_lock-AF_INET);
-
-  *** DEADLOCK ***
-
-  6 locks held by fio/1496:
-   #0: (sb_writers#13){.+.+}-{0:0}, at: path_openat+0x9fc/0xa20
-   #1: (&inode->i_sb->s_type->i_mutex_dir_key){++++}-{3:3}, at: path_openat+0x296/0xa20
-   #2: (sb_internal){.+.+}-{0:0}, at: xfs_trans_alloc_icreate+0x41/0xd0 [xfs]
-   #3: (&xfs_dir_ilock_class/5){+.+.}-{3:3}, at: xfs_ilock+0xcf/0x290 [xfs]
-   #4: (hctx->srcu){....}-{0:0}, at: hctx_lock+0x51/0xd0
-   #5: (&queue->send_mutex){+.+.}-{3:3}, at: nvme_tcp_queue_rq+0x33e/0x380 [nvme_tcp]
-
-This annotation lets lockdep analyze nvme-tcp controlled sockets
-independently of what the user-space sockets API does.
-
-Link: https://lore.kernel.org/linux-nvme/CAHj4cs9MDYLJ+q+2_GXUK9HxFizv2pxUryUR0toX974M040z7g@mail.gmail.com/
-
-Signed-off-by: Chris Leech <cleech@redhat.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Fixes: 7e5ea974e61c ("pinctrl: pinctrl-microchip-sgpio: Add pinctrl driver for Microsemi Serial GPIO")
+Signed-off-by: Michael Walle <michael@walle.cc>
+Link: https://lore.kernel.org/r/20220226204507.2511633-2-michael@walle.cc
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/tcp.c | 40 ++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 40 insertions(+)
+ drivers/pinctrl/pinctrl-microchip-sgpio.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
-diff --git a/drivers/nvme/host/tcp.c b/drivers/nvme/host/tcp.c
-index 65e00c64a588..d66e2de044e0 100644
---- a/drivers/nvme/host/tcp.c
-+++ b/drivers/nvme/host/tcp.c
-@@ -30,6 +30,44 @@ static int so_priority;
- module_param(so_priority, int, 0644);
- MODULE_PARM_DESC(so_priority, "nvme tcp socket optimize priority");
+diff --git a/drivers/pinctrl/pinctrl-microchip-sgpio.c b/drivers/pinctrl/pinctrl-microchip-sgpio.c
+index 78765faa245a..dfa374195694 100644
+--- a/drivers/pinctrl/pinctrl-microchip-sgpio.c
++++ b/drivers/pinctrl/pinctrl-microchip-sgpio.c
+@@ -18,6 +18,7 @@
+ #include <linux/platform_device.h>
+ #include <linux/property.h>
+ #include <linux/reset.h>
++#include <linux/spinlock.h>
  
-+#ifdef CONFIG_DEBUG_LOCK_ALLOC
-+/* lockdep can detect a circular dependency of the form
-+ *   sk_lock -> mmap_lock (page fault) -> fs locks -> sk_lock
-+ * because dependencies are tracked for both nvme-tcp and user contexts. Using
-+ * a separate class prevents lockdep from conflating nvme-tcp socket use with
-+ * user-space socket API use.
-+ */
-+static struct lock_class_key nvme_tcp_sk_key[2];
-+static struct lock_class_key nvme_tcp_slock_key[2];
-+
-+static void nvme_tcp_reclassify_socket(struct socket *sock)
-+{
-+	struct sock *sk = sock->sk;
-+
-+	if (WARN_ON_ONCE(!sock_allow_reclassification(sk)))
-+		return;
-+
-+	switch (sk->sk_family) {
-+	case AF_INET:
-+		sock_lock_init_class_and_name(sk, "slock-AF_INET-NVME",
-+					      &nvme_tcp_slock_key[0],
-+					      "sk_lock-AF_INET-NVME",
-+					      &nvme_tcp_sk_key[0]);
-+		break;
-+	case AF_INET6:
-+		sock_lock_init_class_and_name(sk, "slock-AF_INET6-NVME",
-+					      &nvme_tcp_slock_key[1],
-+					      "sk_lock-AF_INET6-NVME",
-+					      &nvme_tcp_sk_key[1]);
-+		break;
-+	default:
-+		WARN_ON_ONCE(1);
-+	}
-+}
-+#else
-+static void nvme_tcp_reclassify_socket(struct socket *sock) { }
-+#endif
-+
- enum nvme_tcp_send_state {
- 	NVME_TCP_SEND_CMD_PDU = 0,
- 	NVME_TCP_SEND_H2C_PDU,
-@@ -1469,6 +1507,8 @@ static int nvme_tcp_alloc_queue(struct nvme_ctrl *nctrl,
- 		goto err_destroy_mutex;
+ #include "core.h"
+ #include "pinconf.h"
+@@ -115,6 +116,7 @@ struct sgpio_priv {
+ 	u32 clock;
+ 	u32 __iomem *regs;
+ 	const struct sgpio_properties *properties;
++	spinlock_t lock;
+ };
+ 
+ struct sgpio_port_addr {
+@@ -216,6 +218,7 @@ static void sgpio_output_set(struct sgpio_priv *priv,
+ 			     int value)
+ {
+ 	unsigned int bit = SGPIO_SRC_BITS * addr->bit;
++	unsigned long flags;
+ 	u32 clr, set;
+ 
+ 	switch (priv->properties->arch) {
+@@ -234,7 +237,10 @@ static void sgpio_output_set(struct sgpio_priv *priv,
+ 	default:
+ 		return;
  	}
- 
-+	nvme_tcp_reclassify_socket(queue->sock);
 +
- 	/* Single syn retry */
- 	tcp_sock_set_syncnt(queue->sock->sk, 1);
++	spin_lock_irqsave(&priv->lock, flags);
+ 	sgpio_clrsetbits(priv, REG_PORT_CONFIG, addr->port, clr, set);
++	spin_unlock_irqrestore(&priv->lock, flags);
+ }
  
+ static int sgpio_output_get(struct sgpio_priv *priv,
+@@ -562,10 +568,13 @@ static void microchip_sgpio_irq_settype(struct irq_data *data,
+ 	struct sgpio_bank *bank = gpiochip_get_data(chip);
+ 	unsigned int gpio = irqd_to_hwirq(data);
+ 	struct sgpio_port_addr addr;
++	unsigned long flags;
+ 	u32 ena;
+ 
+ 	sgpio_pin_to_addr(bank->priv, gpio, &addr);
+ 
++	spin_lock_irqsave(&bank->priv->lock, flags);
++
+ 	/* Disable interrupt while changing type */
+ 	ena = sgpio_readl(bank->priv, REG_INT_ENABLE, addr.bit);
+ 	sgpio_writel(bank->priv, ena & ~BIT(addr.port), REG_INT_ENABLE, addr.bit);
+@@ -582,6 +591,8 @@ static void microchip_sgpio_irq_settype(struct irq_data *data,
+ 
+ 	/* Possibly re-enable interrupts */
+ 	sgpio_writel(bank->priv, ena, REG_INT_ENABLE, addr.bit);
++
++	spin_unlock_irqrestore(&bank->priv->lock, flags);
+ }
+ 
+ static void microchip_sgpio_irq_setreg(struct irq_data *data,
+@@ -592,13 +603,16 @@ static void microchip_sgpio_irq_setreg(struct irq_data *data,
+ 	struct sgpio_bank *bank = gpiochip_get_data(chip);
+ 	unsigned int gpio = irqd_to_hwirq(data);
+ 	struct sgpio_port_addr addr;
++	unsigned long flags;
+ 
+ 	sgpio_pin_to_addr(bank->priv, gpio, &addr);
+ 
++	spin_lock_irqsave(&bank->priv->lock, flags);
+ 	if (clear)
+ 		sgpio_clrsetbits(bank->priv, reg, addr.bit, BIT(addr.port), 0);
+ 	else
+ 		sgpio_clrsetbits(bank->priv, reg, addr.bit, 0, BIT(addr.port));
++	spin_unlock_irqrestore(&bank->priv->lock, flags);
+ }
+ 
+ static void microchip_sgpio_irq_mask(struct irq_data *data)
+@@ -814,6 +828,7 @@ static int microchip_sgpio_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
+ 
+ 	priv->dev = dev;
++	spin_lock_init(&priv->lock);
+ 
+ 	reset = devm_reset_control_get_optional_shared(&pdev->dev, "switch");
+ 	if (IS_ERR(reset))
 -- 
 2.34.1
 
