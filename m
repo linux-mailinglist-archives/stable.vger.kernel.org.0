@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 29BA34F278B
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:07:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D48F4F278E
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:08:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233284AbiDEIH0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:07:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48400 "EHLO
+        id S233034AbiDEIH3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:07:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233089AbiDEH4y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:56:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 904C13A5EC;
-        Tue,  5 Apr 2022 00:50:42 -0700 (PDT)
+        with ESMTP id S234509AbiDEH6h (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:58:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AACB5A5E9E;
+        Tue,  5 Apr 2022 00:52:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8C8D961725;
-        Tue,  5 Apr 2022 07:50:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94C49C340EE;
-        Tue,  5 Apr 2022 07:50:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 205136172C;
+        Tue,  5 Apr 2022 07:52:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2764DC340EE;
+        Tue,  5 Apr 2022 07:52:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145041;
-        bh=Jc+JzbY33FN9h8pyG2ldw03fJ9OJVncRfFwxDY8PMaw=;
+        s=korg; t=1649145157;
+        bh=QdZzKpYR0Ak0Jkw0efMXTY/uKg67msQsuJfRVbPyVW4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZIw8S9Y5hsGxKSrGLlZ/bNJku5LnQdtdL07OiKrA/n4nZVIVeqKyQUInXpLCk/dIH
-         7GtZsRgQ2qxXqEFN70KSe7OM9MPIVwYT/dNRtefR5KPd1qGPG9eAQLkiLptMi34kCh
-         iL5RDbIMOLYcLLukEUnv4q/8Dx3BhOyj2XINZvOE=
+        b=0mHJb9yTjgJAwsn3tBEhqlW3XmUNawgFh4/4ygZZxACXXRYYpZUroHG/5z/jzkNtE
+         KJ/r3dwzoyQGBh5FLzvs+Mev3PgA5PbxKBO9l5ONQEvY9eg9ROoU3fYfg4Biz0JlRg
+         lOGVywluG2PmwiDOXXg3EKkh6Zk4cl3Yd2JzHIps=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "kernelci.org bot" <bot@kernelci.org>,
-        Muhammad Usama Anjum <usama.anjum@collabora.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?D=C4=81vis=20Mos=C4=81ns?= <davispuh@gmail.com>,
+        John Allen <john.allen@amd.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0224/1126] selftests/x86: Add validity check and allow field splitting
-Date:   Tue,  5 Apr 2022 09:16:11 +0200
-Message-Id: <20220405070414.184138002@linuxfoundation.org>
+Subject: [PATCH 5.17 0257/1126] crypto: ccp - ccp_dmaengine_unregister release dma channels
+Date:   Tue,  5 Apr 2022 09:16:44 +0200
+Message-Id: <20220405070415.154399786@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -55,38 +56,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Muhammad Usama Anjum <usama.anjum@collabora.com>
+From: Dāvis Mosāns <davispuh@gmail.com>
 
-[ Upstream commit b06e15ebd5bfb670f93c7f11a29b8299c1178bc6 ]
+[ Upstream commit 54cce8ecb9254f971b40a72911c6da403720a2d2 ]
 
-Add check to test if CC has a string. CC can have multiple sub-strings
-like "ccache gcc". Erorr pops up if it is treated as single string and
-double quotes are used around it. This can be fixed by removing the
-quotes and not treating CC as a single string.
+ccp_dmaengine_register adds dma_chan->device_node to dma_dev->channels list
+but ccp_dmaengine_unregister didn't remove them.
+That can cause crashes in various dmaengine methods that tries to use dma_dev->channels
 
-Fixes: e9886ace222e ("selftests, x86: Rework x86 target architecture detection")
-Reported-by: "kernelci.org bot" <bot@kernelci.org>
-Signed-off-by: Muhammad Usama Anjum <usama.anjum@collabora.com>
-Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
-Link: https://lkml.kernel.org/r/20220214184109.3739179-2-usama.anjum@collabora.com
+Fixes: 58ea8abf4904 ("crypto: ccp - Register the CCP as a DMA...")
+Signed-off-by: Dāvis Mosāns <davispuh@gmail.com>
+Acked-by: John Allen <john.allen@amd.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/x86/check_cc.sh | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/crypto/ccp/ccp-dmaengine.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/tools/testing/selftests/x86/check_cc.sh b/tools/testing/selftests/x86/check_cc.sh
-index 3e2089c8cf54..8c669c0d662e 100755
---- a/tools/testing/selftests/x86/check_cc.sh
-+++ b/tools/testing/selftests/x86/check_cc.sh
-@@ -7,7 +7,7 @@ CC="$1"
- TESTPROG="$2"
- shift 2
+diff --git a/drivers/crypto/ccp/ccp-dmaengine.c b/drivers/crypto/ccp/ccp-dmaengine.c
+index d718db224be4..7d4b4ad1db1f 100644
+--- a/drivers/crypto/ccp/ccp-dmaengine.c
++++ b/drivers/crypto/ccp/ccp-dmaengine.c
+@@ -632,6 +632,20 @@ static int ccp_terminate_all(struct dma_chan *dma_chan)
+ 	return 0;
+ }
  
--if "$CC" -o /dev/null "$TESTPROG" -O0 "$@" 2>/dev/null; then
-+if [ -n "$CC" ] && $CC -o /dev/null "$TESTPROG" -O0 "$@" 2>/dev/null; then
-     echo 1
- else
-     echo 0
++static void ccp_dma_release(struct ccp_device *ccp)
++{
++	struct ccp_dma_chan *chan;
++	struct dma_chan *dma_chan;
++	unsigned int i;
++
++	for (i = 0; i < ccp->cmd_q_count; i++) {
++		chan = ccp->ccp_dma_chan + i;
++		dma_chan = &chan->dma_chan;
++		tasklet_kill(&chan->cleanup_tasklet);
++		list_del_rcu(&dma_chan->device_node);
++	}
++}
++
+ int ccp_dmaengine_register(struct ccp_device *ccp)
+ {
+ 	struct ccp_dma_chan *chan;
+@@ -736,6 +750,7 @@ int ccp_dmaengine_register(struct ccp_device *ccp)
+ 	return 0;
+ 
+ err_reg:
++	ccp_dma_release(ccp);
+ 	kmem_cache_destroy(ccp->dma_desc_cache);
+ 
+ err_cache:
+@@ -752,6 +767,7 @@ void ccp_dmaengine_unregister(struct ccp_device *ccp)
+ 		return;
+ 
+ 	dma_async_device_unregister(dma_dev);
++	ccp_dma_release(ccp);
+ 
+ 	kmem_cache_destroy(ccp->dma_desc_cache);
+ 	kmem_cache_destroy(ccp->dma_cmd_cache);
 -- 
 2.34.1
 
