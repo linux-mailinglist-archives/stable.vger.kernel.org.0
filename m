@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 707D54F433A
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:57:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB6414F3E04
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 22:40:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380920AbiDEMOL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:14:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50638 "EHLO
+        id S1380913AbiDEMOJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:14:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42280 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357129AbiDEKZm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:25:42 -0400
+        with ESMTP id S1357188AbiDEKZs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:25:48 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 503D595A18;
-        Tue,  5 Apr 2022 03:09:35 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 632574F45E;
+        Tue,  5 Apr 2022 03:09:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E30ADB81C98;
-        Tue,  5 Apr 2022 10:09:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F844C385A2;
-        Tue,  5 Apr 2022 10:09:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 20D5BB81C99;
+        Tue,  5 Apr 2022 10:09:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85D44C385A1;
+        Tue,  5 Apr 2022 10:09:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153372;
-        bh=Wp0hPJ9IukXcUIGFX8IaXuqKEfhpodXZOqo2dOyyxsg=;
+        s=korg; t=1649153380;
+        bh=iaSwEjjuWRcxTwl+l28MhCYSoH0dBAcZnjsk1fku08Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2G8gDvgpsZnH9KCR9hrfYD7ow3HFT+NQodm7z2EDoTEo4o3SEjIxsw/cUb46ZgKNg
-         5wb2YVbwCS7+sHi+GunXOj85y8kliF8PY7JSlyD5DPrQtW4BgOcgaNRYA+mTDbBJAd
-         q0Tcvd9COxzzvOxffQfRcPOWLD6nwEz7lLrngRnM=
+        b=ZVBURlHeIyV5shavaDYoH90+Gc5qdLdunkopQ9EpRQBnyQLFPH8nj6BZxCFTnVNGg
+         xzKq/LJDp3Xvc8NsHbtDdT7W2xKQ8K82rLVxI9uXjGfBb4WIqQWE8iXWJrpH/oKTxd
+         fGY5BU0FyYhX449mF0duj+eYqXYRWOrw5Pm0X8uE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?D=C4=81vis=20Mos=C4=81ns?= <davispuh@gmail.com>,
-        John Allen <john.allen@amd.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 162/599] crypto: ccp - ccp_dmaengine_unregister release dma channels
-Date:   Tue,  5 Apr 2022 09:27:36 +0200
-Message-Id: <20220405070303.661964995@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Auger <eric.auger@redhat.com>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>, Sasha Levin <sashal@kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 5.10 164/599] vfio: platform: simplify device removal
+Date:   Tue,  5 Apr 2022 09:27:38 +0200
+Message-Id: <20220405070303.721581867@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -56,64 +55,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dāvis Mosāns <davispuh@gmail.com>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit 54cce8ecb9254f971b40a72911c6da403720a2d2 ]
+[ Upstream commit 5b495ac8fe03b9e0d2e775f9064c3e2a340ff440 ]
 
-ccp_dmaengine_register adds dma_chan->device_node to dma_dev->channels list
-but ccp_dmaengine_unregister didn't remove them.
-That can cause crashes in various dmaengine methods that tries to use dma_dev->channels
+vfio_platform_remove_common() cannot return non-NULL in
+vfio_amba_remove() as the latter is only called if vfio_amba_probe()
+returned success.
 
-Fixes: 58ea8abf4904 ("crypto: ccp - Register the CCP as a DMA...")
-Signed-off-by: Dāvis Mosāns <davispuh@gmail.com>
-Acked-by: John Allen <john.allen@amd.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Diagnosed-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Eric Auger <eric.auger@redhat.com>
+Link: https://lore.kernel.org/r/20210126165835.687514-4-u.kleine-koenig@pengutronix.de
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/ccp/ccp-dmaengine.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ drivers/vfio/platform/vfio_amba.c | 14 +++++---------
+ 1 file changed, 5 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/crypto/ccp/ccp-dmaengine.c b/drivers/crypto/ccp/ccp-dmaengine.c
-index 0770a83bf1a5..b3eea329f840 100644
---- a/drivers/crypto/ccp/ccp-dmaengine.c
-+++ b/drivers/crypto/ccp/ccp-dmaengine.c
-@@ -633,6 +633,20 @@ static int ccp_terminate_all(struct dma_chan *dma_chan)
- 	return 0;
+diff --git a/drivers/vfio/platform/vfio_amba.c b/drivers/vfio/platform/vfio_amba.c
+index 9636a2afaecd..7b3ebf1558e1 100644
+--- a/drivers/vfio/platform/vfio_amba.c
++++ b/drivers/vfio/platform/vfio_amba.c
+@@ -73,16 +73,12 @@ static int vfio_amba_probe(struct amba_device *adev, const struct amba_id *id)
+ 
+ static int vfio_amba_remove(struct amba_device *adev)
+ {
+-	struct vfio_platform_device *vdev;
+-
+-	vdev = vfio_platform_remove_common(&adev->dev);
+-	if (vdev) {
+-		kfree(vdev->name);
+-		kfree(vdev);
+-		return 0;
+-	}
++	struct vfio_platform_device *vdev =
++		vfio_platform_remove_common(&adev->dev);
+ 
+-	return -EINVAL;
++	kfree(vdev->name);
++	kfree(vdev);
++	return 0;
  }
  
-+static void ccp_dma_release(struct ccp_device *ccp)
-+{
-+	struct ccp_dma_chan *chan;
-+	struct dma_chan *dma_chan;
-+	unsigned int i;
-+
-+	for (i = 0; i < ccp->cmd_q_count; i++) {
-+		chan = ccp->ccp_dma_chan + i;
-+		dma_chan = &chan->dma_chan;
-+		tasklet_kill(&chan->cleanup_tasklet);
-+		list_del_rcu(&dma_chan->device_node);
-+	}
-+}
-+
- int ccp_dmaengine_register(struct ccp_device *ccp)
- {
- 	struct ccp_dma_chan *chan;
-@@ -737,6 +751,7 @@ int ccp_dmaengine_register(struct ccp_device *ccp)
- 	return 0;
- 
- err_reg:
-+	ccp_dma_release(ccp);
- 	kmem_cache_destroy(ccp->dma_desc_cache);
- 
- err_cache:
-@@ -753,6 +768,7 @@ void ccp_dmaengine_unregister(struct ccp_device *ccp)
- 		return;
- 
- 	dma_async_device_unregister(dma_dev);
-+	ccp_dma_release(ccp);
- 
- 	kmem_cache_destroy(ccp->dma_desc_cache);
- 	kmem_cache_destroy(ccp->dma_cmd_cache);
+ static const struct amba_id pl330_ids[] = {
 -- 
 2.34.1
 
