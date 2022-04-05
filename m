@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 224C44F34CC
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:39:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EDD694F327F
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:58:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353902AbiDEKJr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:09:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60122 "EHLO
+        id S237862AbiDEIna (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:43:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43926 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346025AbiDEJXX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:23:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91D93A94EF;
-        Tue,  5 Apr 2022 02:12:50 -0700 (PDT)
+        with ESMTP id S241127AbiDEIcv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:32:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E4B915FED;
+        Tue,  5 Apr 2022 01:28:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 10FCBB80DA1;
-        Tue,  5 Apr 2022 09:12:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73BBDC385A0;
-        Tue,  5 Apr 2022 09:12:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CA58C60AFB;
+        Tue,  5 Apr 2022 08:28:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C217EC385A1;
+        Tue,  5 Apr 2022 08:28:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149967;
-        bh=uvlY6re4qRA42gcweeLvEonqNIH1YFuQWJrOL96quZg=;
+        s=korg; t=1649147291;
+        bh=+meF9PkKtpTanUbYRtKk8E3df2KpV2NIkMy3Tats4EA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P3XX0+0HhRtkDXdWU/tgVqPYTVaNKnccsJKmUo3Ei6SAXWHw3RvsqS07zEyaN0X+k
-         scM195kCzRk1qNlepxQEYdq1ICr3kWGNJ0+THc0rnEPq/5UcIKT11AOznbPvBlHv6W
-         Zzge30qT2+XbLteaihYhSKQKJAt7QJcvyb1upvdU=
+        b=l8RIlkMyiO469LebPtnXtGKiIcPFrXNrRl+qe2vkZuxIWu9Vjhm+upkk2jiL9+QNg
+         NDCZ0eCa1vHMLTKqi0J4i/mMO5CsfvefEBzsbBPIhKb2FyJQkyZDX+RW+hKHoT1y2T
+         hOnrZ/tSgUmwQh6G+SjeWfEUlLVnyn5ytSyWeM74=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Li RongQing <lirongqing@baidu.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.16 0905/1017] KVM: x86: fix sending PV IPI
+        stable@vger.kernel.org, Will Deacon <will@kernel.org>
+Subject: [PATCH 5.17 1071/1126] arm64: mm: Drop const from conditional arm64_dma_phys_limit definition
 Date:   Tue,  5 Apr 2022 09:30:18 +0200
-Message-Id: <20220405070421.088309561@linuxfoundation.org>
+Message-Id: <20220405070438.891963315@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,38 +52,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li RongQing <lirongqing@baidu.com>
+From: Will Deacon <will@kernel.org>
 
-commit c15e0ae42c8e5a61e9aca8aac920517cf7b3e94e upstream.
+commit 770093459b9b333380aa71f2c31c60b14895c1df upstream.
 
-If apic_id is less than min, and (max - apic_id) is greater than
-KVM_IPI_CLUSTER_SIZE, then the third check condition is satisfied but
-the new apic_id does not fit the bitmask.  In this case __send_ipi_mask
-should send the IPI.
+Commit 031495635b46 ("arm64: Do not defer reserve_crashkernel() for
+platforms with no DMA memory zones") introduced different definitions
+for 'arm64_dma_phys_limit' depending on CONFIG_ZONE_DMA{,32} based on
+a late suggestion from Pasha. Sadly, this results in a build error when
+passing W=1:
 
-This is mostly theoretical, but it can happen if the apic_ids on three
-iterations of the loop are for example 1, KVM_IPI_CLUSTER_SIZE, 0.
+  | arch/arm64/mm/init.c:90:19: error: conflicting type qualifiers for 'arm64_dma_phys_limit'
 
-Fixes: aaffcfd1e82 ("KVM: X86: Implement PV IPIs in linux guest")
-Signed-off-by: Li RongQing <lirongqing@baidu.com>
-Message-Id: <1646814944-51801-1-git-send-email-lirongqing@baidu.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Drop the 'const' for now and use '__ro_after_init' consistently.
+
+Link: https://lore.kernel.org/r/202203090241.aj7paWeX-lkp@intel.com
+Link: https://lore.kernel.org/r/CA+CK2bDbbx=8R=UthkMesWOST8eJMtOGJdfMRTFSwVmo0Vn0EA@mail.gmail.com
+Fixes: 031495635b46 ("arm64: Do not defer reserve_crashkernel() for platforms with no DMA memory zones")
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/kvm.c |    2 +-
+ arch/arm64/mm/init.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/kernel/kvm.c
-+++ b/arch/x86/kernel/kvm.c
-@@ -515,7 +515,7 @@ static void __send_ipi_mask(const struct
- 		} else if (apic_id < min && max - apic_id < KVM_IPI_CLUSTER_SIZE) {
- 			ipi_bitmap <<= min - apic_id;
- 			min = apic_id;
--		} else if (apic_id < min + KVM_IPI_CLUSTER_SIZE) {
-+		} else if (apic_id > min && apic_id < min + KVM_IPI_CLUSTER_SIZE) {
- 			max = apic_id < max ? max : apic_id;
- 		} else {
- 			ret = kvm_hypercall4(KVM_HC_SEND_IPI, (unsigned long)ipi_bitmap,
+--- a/arch/arm64/mm/init.c
++++ b/arch/arm64/mm/init.c
+@@ -87,7 +87,7 @@ EXPORT_SYMBOL(memstart_addr);
+ #if IS_ENABLED(CONFIG_ZONE_DMA) || IS_ENABLED(CONFIG_ZONE_DMA32)
+ phys_addr_t __ro_after_init arm64_dma_phys_limit;
+ #else
+-const phys_addr_t arm64_dma_phys_limit = PHYS_MASK + 1;
++phys_addr_t __ro_after_init arm64_dma_phys_limit = PHYS_MASK + 1;
+ #endif
+ 
+ #ifdef CONFIG_KEXEC_CORE
 
 
