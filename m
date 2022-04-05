@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7AA124F356B
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:50:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 719664F2FF7
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:19:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237921AbiDEInj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:43:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46068 "EHLO
+        id S241068AbiDEKKE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:10:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37836 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241156AbiDEIcw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:32:52 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71A5A165AA;
-        Tue,  5 Apr 2022 01:28:57 -0700 (PDT)
+        with ESMTP id S1346435AbiDEJXt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:23:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A51A26CB;
+        Tue,  5 Apr 2022 02:13:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 36038B81BB1;
-        Tue,  5 Apr 2022 08:28:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DE06C385A2;
-        Tue,  5 Apr 2022 08:28:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 54D266165C;
+        Tue,  5 Apr 2022 09:13:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 628A4C385A2;
+        Tue,  5 Apr 2022 09:13:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147335;
-        bh=twSJ8PlR0JGEelnAB3cj1wJuxmgWcmI8h77gKBe/66Q=;
+        s=korg; t=1649150008;
+        bh=ZLTP0CsQzKamaFohUBCVD0Y/Pr2t2IZyPkvu0eeCTco=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yj+djiEbkNmLqjSbqLyLoh5aNvEqm6KWioqbSphEaBKsf5QCI5foh5wAjUWsPSJj4
-         HVQpg91eIUkPVhYet6ytvlW9KUfCqpCXofx5Mzwmbc7WyWzvhbOhCj2tdHh9iQ4M5i
-         BTxq+NDD8Xa0yjBamw3oqJz7Xh9dDqSGwrrWEndk=
+        b=S6cXKlwfAdRQP2Vb2NSmvqmCpzZVe/uCcNg8dn/r/RCT6Fv3KQE29GpEbiZj0j/kI
+         BqidZbXboRdTztFM1wbmbyRQDN2O//Tx53IOJ7pfcfbeikUs+PUSsph7SSQPMT41lO
+         ANZpdITxQmEptXgMZBs/O+56obowqam79+wHLo7k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Jan Kara <jack@suse.cz>, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.17 1049/1126] block: Fix the maximum minor value is blk_alloc_ext_minor()
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Arun Easi <aeasi@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.16 0883/1017] scsi: qla2xxx: Fix device reconnect in loop topology
 Date:   Tue,  5 Apr 2022 09:29:56 +0200
-Message-Id: <20220405070438.261802306@linuxfoundation.org>
+Message-Id: <20220405070420.442997105@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +56,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Arun Easi <aeasi@marvell.com>
 
-commit d1868328dec5ae2cf210111025fcbc71f78dd5ca upstream.
+commit 8ad4be3d15cf144b5834bdb00d5bbe4050938dc7 upstream.
 
-ida_alloc_range(..., min, max, ...) returns values from min to max,
-inclusive.
+A device logout in loop topology initiates a device connection teardown
+which loses the FW device handle. In loop topo, the device handle is not
+regrabbed leading to device login failures and eventually to loss of the
+device. Fix this by taking the main login path that does it.
 
-So, NR_EXT_DEVT is a valid idx returned by blk_alloc_ext_minor().
-
-This is an issue because in device_add_disk(), this value is used in:
-   ddev->devt = MKDEV(disk->major, disk->first_minor);
-and NR_EXT_DEVT is '(1 << MINORBITS)'.
-
-So, should 'disk->first_minor' be NR_EXT_DEVT, it would overflow.
-
-Fixes: 22ae8ce8b892 ("block: simplify bdev/disk lookup in blkdev_get")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/cc17199798312406b90834e433d2cefe8266823d.1648306232.git.christophe.jaillet@wanadoo.fr
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Link: https://lore.kernel.org/r/20220110050218.3958-11-njavali@marvell.com
+Cc: stable@vger.kernel.org
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Arun Easi <aeasi@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- block/genhd.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/qla2xxx/qla_init.c |   15 +++++++++++++++
+ drivers/scsi/qla2xxx/qla_os.c   |    5 +++++
+ 2 files changed, 20 insertions(+)
 
---- a/block/genhd.c
-+++ b/block/genhd.c
-@@ -330,7 +330,7 @@ int blk_alloc_ext_minor(void)
- {
- 	int idx;
+--- a/drivers/scsi/qla2xxx/qla_init.c
++++ b/drivers/scsi/qla2xxx/qla_init.c
+@@ -974,6 +974,9 @@ static void qla24xx_handle_gnl_done_even
+ 				set_bit(RELOGIN_NEEDED, &vha->dpc_flags);
+ 			}
+ 			break;
++		case ISP_CFG_NL:
++			qla24xx_fcport_handle_login(vha, fcport);
++			break;
+ 		default:
+ 			break;
+ 		}
+@@ -1563,6 +1566,11 @@ static void qla_chk_n2n_b4_login(struct
+ 	u8 login = 0;
+ 	int rc;
  
--	idx = ida_alloc_range(&ext_devt_ida, 0, NR_EXT_DEVT, GFP_KERNEL);
-+	idx = ida_alloc_range(&ext_devt_ida, 0, NR_EXT_DEVT - 1, GFP_KERNEL);
- 	if (idx == -ENOSPC)
- 		return -EBUSY;
- 	return idx;
++	ql_dbg(ql_dbg_disc, vha, 0x307b,
++	    "%s %8phC DS %d LS %d lid %d retries=%d\n",
++	    __func__, fcport->port_name, fcport->disc_state,
++	    fcport->fw_login_state, fcport->loop_id, fcport->login_retry);
++
+ 	if (qla_tgt_mode_enabled(vha))
+ 		return;
+ 
+@@ -5604,6 +5612,13 @@ qla2x00_configure_local_loop(scsi_qla_ho
+ 			memcpy(fcport->node_name, new_fcport->node_name,
+ 			    WWN_SIZE);
+ 			fcport->scan_state = QLA_FCPORT_FOUND;
++			if (fcport->login_retry == 0) {
++				fcport->login_retry = vha->hw->login_retry_count;
++				ql_dbg(ql_dbg_disc, vha, 0x2135,
++				    "Port login retry %8phN, lid 0x%04x retry cnt=%d.\n",
++				    fcport->port_name, fcport->loop_id,
++				    fcport->login_retry);
++			}
+ 			found++;
+ 			break;
+ 		}
+--- a/drivers/scsi/qla2xxx/qla_os.c
++++ b/drivers/scsi/qla2xxx/qla_os.c
+@@ -5533,6 +5533,11 @@ void qla2x00_relogin(struct scsi_qla_hos
+ 					ea.fcport = fcport;
+ 					qla24xx_handle_relogin_event(vha, &ea);
+ 				} else if (vha->hw->current_topology ==
++					 ISP_CFG_NL &&
++					IS_QLA2XXX_MIDTYPE(vha->hw)) {
++					(void)qla24xx_fcport_handle_login(vha,
++									fcport);
++				} else if (vha->hw->current_topology ==
+ 				    ISP_CFG_NL) {
+ 					fcport->login_retry--;
+ 					status =
 
 
