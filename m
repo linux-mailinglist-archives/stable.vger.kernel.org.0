@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D37D34F2C94
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:31:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 658DE4F29FF
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 12:51:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355500AbiDEKUI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:20:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45322 "EHLO
+        id S245367AbiDEIzT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:55:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45264 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345133AbiDEJWS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:22:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65C981AF33;
-        Tue,  5 Apr 2022 02:09:10 -0700 (PDT)
+        with ESMTP id S240675AbiDEIcS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:32:18 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BA3D78053;
+        Tue,  5 Apr 2022 01:24:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CCC6261527;
-        Tue,  5 Apr 2022 09:09:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD0B9C385A0;
-        Tue,  5 Apr 2022 09:09:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3AF93B81BC0;
+        Tue,  5 Apr 2022 08:24:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7836EC385A0;
+        Tue,  5 Apr 2022 08:24:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149749;
-        bh=SXDpUl53LOcvA7vl1vjJ+tv7O0zHMaTxiH6T79oerk8=;
+        s=korg; t=1649147079;
+        bh=oAdNRWc6ezwx/T1ieSO3Pl7lslBK6T8faLtEp4lHgAY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TNzFMWzTggSyFycs2rGopa3fidi+5BDWAzAnJT3ideUkZn+HpswQdl211kHb7CNw2
-         vAqX9+V2fAWKcPDwlSw4zU5GuKw5vLpXO7O5v0QxuieTkfHE3Rf57DqaVZLbBzpFsr
-         WEL7cz2W53TauL89ol/QzzQvGSVsKW/v+tz/PDHs=
+        b=fOBLOHuDvj14yXVwmYh0Wh88stkLlPWBGfS6XpeGPmwXMaCF5gQOhHHdqdpDPJqiN
+         jWhARSbKTVsb92Kbn1L8EoMU2buY6dABxo7ArbyOZXmC0UiPH0fg0PCIbm3/vGQait
+         Gq5QEFNtjRVYBP3E5adbuvYF7BRu7tArH+ZfKtw8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Sergeyev <sergeev917@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0826/1017] ALSA: hda: Fix driver index handling at re-binding
-Date:   Tue,  5 Apr 2022 09:28:59 +0200
-Message-Id: <20220405070418.764497965@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Manish Rangankar <mrangankar@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.17 0993/1126] scsi: qla2xxx: Use correct feature type field during RFF_ID processing
+Date:   Tue,  5 Apr 2022 09:29:00 +0200
+Message-Id: <20220405070436.639829084@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,85 +56,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Manish Rangankar <mrangankar@marvell.com>
 
-[ Upstream commit 69458e2c27800da7697c87ed908b65323ef3f3bd ]
+commit a7e05f7a1bcbe4ee055479242de46c5c16ab03b1 upstream.
 
-HD-audio driver handles the multiple instances and keeps the static
-index that is incremented at each probe.  This becomes a problem when
-user tries to re-bind the device via sysfs multiple times; as the
-device index isn't cleared unlike rmmod case, it points to the next
-element at re-binding, and eventually later you can't probe any more
-when it reaches to SNDRV_CARDS_MAX (usually 32).
+During SNS Register FC-4 Features (RFF_ID) the initiator driver was sending
+incorrect type field for NVMe supported device. Use correct feature type
+field.
 
-This patch is an attempt to improve the handling at rebinding.
-Instead of a static device index, now we keep a bitmap and assigns to
-the first zero bit position.  At the driver remove, in return, the
-bitmap slot is cleared again, so that it'll be available for the next
-probe.
-
-Reported-by: Alexander Sergeyev <sergeev917@gmail.com>
-Link: https://lore.kernel.org/r/20220209081912.20687-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/20220310092604.22950-12-njavali@marvell.com
+Fixes: e374f9f59281 ("scsi: qla2xxx: Migrate switch registration commands away from mailbox interface")
+Cc: stable@vger.kernel.org
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Manish Rangankar <mrangankar@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/hda_intel.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/scsi/qla2xxx/qla_gs.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/sound/pci/hda/hda_intel.c b/sound/pci/hda/hda_intel.c
-index 3b6f2aacda45..1ffd96fbf230 100644
---- a/sound/pci/hda/hda_intel.c
-+++ b/sound/pci/hda/hda_intel.c
-@@ -2061,14 +2061,16 @@ static const struct hda_controller_ops pci_hda_ops = {
- 	.position_check = azx_position_check,
- };
- 
-+static DECLARE_BITMAP(probed_devs, SNDRV_CARDS);
-+
- static int azx_probe(struct pci_dev *pci,
- 		     const struct pci_device_id *pci_id)
- {
--	static int dev;
- 	struct snd_card *card;
- 	struct hda_intel *hda;
- 	struct azx *chip;
- 	bool schedule_probe;
-+	int dev;
- 	int err;
- 
- 	if (pci_match_id(driver_denylist, pci)) {
-@@ -2076,10 +2078,11 @@ static int azx_probe(struct pci_dev *pci,
- 		return -ENODEV;
+--- a/drivers/scsi/qla2xxx/qla_gs.c
++++ b/drivers/scsi/qla2xxx/qla_gs.c
+@@ -676,8 +676,7 @@ qla2x00_rff_id(scsi_qla_host_t *vha, u8
+ 		return (QLA_SUCCESS);
  	}
  
-+	dev = find_first_zero_bit(probed_devs, SNDRV_CARDS);
- 	if (dev >= SNDRV_CARDS)
- 		return -ENODEV;
- 	if (!enable[dev]) {
--		dev++;
-+		set_bit(dev, probed_devs);
- 		return -ENOENT;
- 	}
+-	return qla_async_rffid(vha, &vha->d_id, qlt_rff_id(vha),
+-	    FC4_TYPE_FCP_SCSI);
++	return qla_async_rffid(vha, &vha->d_id, qlt_rff_id(vha), type);
+ }
  
-@@ -2146,7 +2149,7 @@ static int azx_probe(struct pci_dev *pci,
- 	if (schedule_probe)
- 		schedule_delayed_work(&hda->probe_work, 0);
+ static int qla_async_rffid(scsi_qla_host_t *vha, port_id_t *d_id,
+@@ -729,7 +728,7 @@ static int qla_async_rffid(scsi_qla_host
+ 	/* Prepare CT arguments -- port_id, FC-4 feature, FC-4 type */
+ 	ct_req->req.rff_id.port_id = port_id_to_be_id(*d_id);
+ 	ct_req->req.rff_id.fc4_feature = fc4feature;
+-	ct_req->req.rff_id.fc4_type = fc4type;		/* SCSI - FCP */
++	ct_req->req.rff_id.fc4_type = fc4type;		/* SCSI-FCP or FC-NVMe */
  
--	dev++;
-+	set_bit(dev, probed_devs);
- 	if (chip->disabled)
- 		complete_all(&hda->probe_wait);
- 	return 0;
-@@ -2369,6 +2372,7 @@ static void azx_remove(struct pci_dev *pci)
- 		cancel_delayed_work_sync(&hda->probe_work);
- 		device_lock(&pci->dev);
- 
-+		clear_bit(chip->dev_index, probed_devs);
- 		pci_set_drvdata(pci, NULL);
- 		snd_card_free(card);
- 	}
--- 
-2.34.1
-
+ 	sp->u.iocb_cmd.u.ctarg.req_size = RFF_ID_REQ_SIZE;
+ 	sp->u.iocb_cmd.u.ctarg.rsp_size = RFF_ID_RSP_SIZE;
 
 
