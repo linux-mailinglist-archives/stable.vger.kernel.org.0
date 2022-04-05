@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B538E4F3C06
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:23:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D9E8B4F3980
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:49:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382276AbiDEMED (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:04:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58498 "EHLO
+        id S237783AbiDELex (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:34:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59454 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358173AbiDEK2D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:28:03 -0400
+        with ESMTP id S1352309AbiDEKEP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:04:15 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AF2F9E9CF;
-        Tue,  5 Apr 2022 03:16:14 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AACB0B91B1;
+        Tue,  5 Apr 2022 02:53:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 272A2617AA;
-        Tue,  5 Apr 2022 10:16:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30612C385A1;
-        Tue,  5 Apr 2022 10:16:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3937961765;
+        Tue,  5 Apr 2022 09:53:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B83CC385A1;
+        Tue,  5 Apr 2022 09:53:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153773;
-        bh=iQbWa7FkDzKDrqRhKmG28GLMHXByK/y1EroL37HmjqY=;
+        s=korg; t=1649152383;
+        bh=8ZFmnqlSEMxKjuWziuwkhdq48STdoQ3qVnRC30Htjlg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dqOHoq/rIKrETsZGjgHXPsCZE5QXRuBVl2FO2L9MlGmSG44MBSSw2Vx8kDbYO21Z3
-         uSSvbRyAa2yjs9AVlpvjx0IIdCVcl3dQiY6rIpVsDf4cJvXHEn5aynQMdJJDFhiklC
-         5IhELSdVsloa5GtlLryzIhPYPFEMzle0Kl2uB/1w=
+        b=XhJriy6DKE7L36WWr7d3U28yLr6N+4o5I5YRHApQq7n1sl6XL9F9sNWkug7IgxKa7
+         wNB4iB2ZEfji8ayahRWPkjHj1zfZQ0XwPNkwxQkEcpKySDzY/yrn5YSrFB6/VPTZAK
+         o3d/o3/RXuEzLGoCkwwdMm/MvIv1UaoQX/7hoNsk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yihang Li <liyihang6@hisilicon.com>,
-        Xiang Chen <chenxiang66@hisilicon.com>,
-        John Garry <john.garry@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org,
+        Richard Leitner <richard.leitner@skidata.com>,
+        Thierry Reding <treding@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 325/599] scsi: hisi_sas: Change permission of parameter prot_mask
-Date:   Tue,  5 Apr 2022 09:30:19 +0200
-Message-Id: <20220405070308.504847406@linuxfoundation.org>
+Subject: [PATCH 5.15 758/913] ARM: tegra: tamonten: Fix I2C3 pad setting
+Date:   Tue,  5 Apr 2022 09:30:20 +0200
+Message-Id: <20220405070402.553545181@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
-References: <20220405070258.802373272@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,40 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiang Chen <chenxiang66@hisilicon.com>
+From: Richard Leitner <richard.leitner@skidata.com>
 
-[ Upstream commit c4e070457a93705e56ed06b3910d9e5fe56d3be3 ]
+[ Upstream commit 0092c25b541a5422d7e71892a13c55ee91abc34b ]
 
-Currently the permission of parameter prot_mask is 0x0, which means that
-the member does not appear in sysfs. Change it as other module parameters
-to 0444 for world-readable.
+This patch fixes the tristate configuration for i2c3 function assigned
+to the dtf pins on the Tamonten Tegra20 SoM.
 
-[mkp: s/v3/v2/]
-
-Link: https://lore.kernel.org/r/1645703489-87194-2-git-send-email-john.garry@huawei.com
-Fixes: d6a9000b81be ("scsi: hisi_sas: Add support for DIF feature for v2 hw")
-Reported-by: Yihang Li <liyihang6@hisilicon.com>
-Signed-off-by: Xiang Chen <chenxiang66@hisilicon.com>
-Signed-off-by: John Garry <john.garry@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Richard Leitner <richard.leitner@skidata.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/hisi_sas/hisi_sas_v3_hw.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/dts/tegra20-tamonten.dtsi | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
-index 50a1c3478a6e..a8998b016b86 100644
---- a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
-+++ b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
-@@ -514,7 +514,7 @@ MODULE_PARM_DESC(intr_conv, "interrupt converge enable (0-1)");
- 
- /* permit overriding the host protection capabilities mask (EEDP/T10 PI) */
- static int prot_mask;
--module_param(prot_mask, int, 0);
-+module_param(prot_mask, int, 0444);
- MODULE_PARM_DESC(prot_mask, " host protection capabilities mask, def=0x0 ");
- 
- static bool auto_affine_msi_experimental;
+diff --git a/arch/arm/boot/dts/tegra20-tamonten.dtsi b/arch/arm/boot/dts/tegra20-tamonten.dtsi
+index dd4d506683de..7f14f0d005c3 100644
+--- a/arch/arm/boot/dts/tegra20-tamonten.dtsi
++++ b/arch/arm/boot/dts/tegra20-tamonten.dtsi
+@@ -183,8 +183,8 @@
+ 			};
+ 			conf_ata {
+ 				nvidia,pins = "ata", "atb", "atc", "atd", "ate",
+-					"cdev1", "cdev2", "dap1", "dtb", "gma",
+-					"gmb", "gmc", "gmd", "gme", "gpu7",
++					"cdev1", "cdev2", "dap1", "dtb", "dtf",
++					"gma", "gmb", "gmc", "gmd", "gme", "gpu7",
+ 					"gpv", "i2cp", "irrx", "irtx", "pta",
+ 					"rm", "slxa", "slxk", "spia", "spib",
+ 					"uac";
+@@ -203,7 +203,7 @@
+ 			};
+ 			conf_crtp {
+ 				nvidia,pins = "crtp", "dap2", "dap3", "dap4",
+-					"dtc", "dte", "dtf", "gpu", "sdio1",
++					"dtc", "dte", "gpu", "sdio1",
+ 					"slxc", "slxd", "spdi", "spdo", "spig",
+ 					"uda";
+ 				nvidia,pull = <TEGRA_PIN_PULL_NONE>;
 -- 
 2.34.1
 
