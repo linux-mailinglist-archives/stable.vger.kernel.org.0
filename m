@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A82C14F25D0
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 09:50:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3A604F25E3
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 09:51:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231761AbiDEHw1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 03:52:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54542 "EHLO
+        id S231823AbiDEHwk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 03:52:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55630 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232296AbiDEHtl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:49:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DEE99319C;
-        Tue,  5 Apr 2022 00:47:00 -0700 (PDT)
+        with ESMTP id S231531AbiDEHtr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:49:47 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 136A09398F;
+        Tue,  5 Apr 2022 00:47:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0F214616C3;
-        Tue,  5 Apr 2022 07:47:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D2AFC3410F;
-        Tue,  5 Apr 2022 07:46:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A89F6B81B92;
+        Tue,  5 Apr 2022 07:47:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A19AC340EE;
+        Tue,  5 Apr 2022 07:47:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649144819;
-        bh=+cvy/v5TGZXagD6fIYk4pEytVC1K83ILUAf1awavJYs=;
+        s=korg; t=1649144822;
+        bh=ElmofO0t8MaF8IY09Yte0+kOzk2cD6EXAVYxlSObhGA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bmI2svQYGXBdz+23F12OjfLsuN51hlZciJsxflePTcCIVXCjgkQHF6jtFgDrtI7YL
-         By0ao7MR7bM3y1E7sFmiAeArMVHkUHmU4bXaq92CfLHYRxAq/1zD6WtIeG1O0BkadD
-         o63nZ60TnIhRvi0A91ChYCobAQsv5Pfi9aYRlZUs=
+        b=MwgxXu+AnPafZN+wq1NNpJzZWZ7TrYzrARZgBcx6STOVgDUbIGRE9ahWsGMsIUFn2
+         kQ5N/TOVW2lbt4j81byCR74UTIivMfVrurDgHF29cwHeIiN1w7QYWWHtlOpwYKmEqQ
+         JobNUC7+QooobbpC9uv04+1iP6EAhfmp6U3oP5Q0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jani Nikula <jani.nikula@intel.com>,
-        Shawn C Lee <shawn.c.lee@intel.com>,
-        intel-gfx <intel-gfx@lists.freedesktop.org>,
-        Cooper Chiou <cooper.chiou@intel.com>
-Subject: [PATCH 5.17 0144/1126] drm/edid: check basic audio support on CEA extension block
-Date:   Tue,  5 Apr 2022 09:14:51 +0200
-Message-Id: <20220405070411.809134308@linuxfoundation.org>
+        stable@vger.kernel.org, Thomas Zimmermann <tzimmermann@suse.de>,
+        Zack Rusin <zackr@vmware.com>,
+        Javier Martinez Canillas <javierm@redhat.com>,
+        Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH 5.17 0145/1126] fbdev: Hot-unplug firmware fb devices on forced removal
+Date:   Tue,  5 Apr 2022 09:14:52 +0200
+Message-Id: <20220405070411.838460137@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -55,42 +55,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cooper Chiou <cooper.chiou@intel.com>
+From: Thomas Zimmermann <tzimmermann@suse.de>
 
-commit 5662abf6e21338be6d085d6375d3732ac6147fd2 upstream.
+commit 27599aacbaefcbf2af7b06b0029459bbf682000d upstream.
 
-Tag code stored in bit7:5 for CTA block byte[3] is not the same as
-CEA extension block definition. Only check CEA block has
-basic audio support.
+Hot-unplug all firmware-framebuffer devices as part of removing
+them via remove_conflicting_framebuffers() et al. Releases all
+memory regions to be acquired by native drivers.
 
-v3: update commit message.
+Firmware, such as EFI, install a framebuffer while posting the
+computer. After removing the firmware-framebuffer device from fbdev,
+a native driver takes over the hardware and the firmware framebuffer
+becomes invalid.
 
-Cc: stable@vger.kernel.org
-Cc: Jani Nikula <jani.nikula@intel.com>
-Cc: Shawn C Lee <shawn.c.lee@intel.com>
-Cc: intel-gfx <intel-gfx@lists.freedesktop.org>
-Signed-off-by: Cooper Chiou <cooper.chiou@intel.com>
-Signed-off-by: Lee Shawn C <shawn.c.lee@intel.com>
-Fixes: e28ad544f462 ("drm/edid: parse CEA blocks embedded in DisplayID")
-Reviewed-by: Jani Nikula <jani.nikula@intel.com>
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220324061218.32739-1-shawn.c.lee@intel.com
+Firmware-framebuffer drivers, specifically simplefb, don't release
+their device from Linux' device hierarchy. It still owns the firmware
+framebuffer and blocks the native drivers from loading. This has been
+observed in the vmwgfx driver. [1]
+
+Initiating a device removal (i.e., hot unplug) as part of
+remove_conflicting_framebuffers() removes the underlying device and
+returns the memory range to the system.
+
+[1] https://lore.kernel.org/dri-devel/20220117180359.18114-1-zack@kde.org/
+
+v2:
+	* rename variable 'dev' to 'device' (Javier)
+
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Reported-by: Zack Rusin <zackr@vmware.com>
+Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
+Reviewed-by: Zack Rusin <zackr@vmware.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+CC: stable@vger.kernel.org # v5.11+
+Link: https://patchwork.freedesktop.org/patch/msgid/20220125091222.21457-2-tzimmermann@suse.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/drm_edid.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/video/fbdev/core/fbmem.c |   29 ++++++++++++++++++++++++++---
+ include/linux/fb.h               |    1 +
+ 2 files changed, 27 insertions(+), 3 deletions(-)
 
---- a/drivers/gpu/drm/drm_edid.c
-+++ b/drivers/gpu/drm/drm_edid.c
-@@ -4848,7 +4848,8 @@ bool drm_detect_monitor_audio(struct edi
- 	if (!edid_ext)
- 		goto end;
+--- a/drivers/video/fbdev/core/fbmem.c
++++ b/drivers/video/fbdev/core/fbmem.c
+@@ -25,6 +25,7 @@
+ #include <linux/init.h>
+ #include <linux/linux_logo.h>
+ #include <linux/proc_fs.h>
++#include <linux/platform_device.h>
+ #include <linux/seq_file.h>
+ #include <linux/console.h>
+ #include <linux/kmod.h>
+@@ -1559,18 +1560,36 @@ static void do_remove_conflicting_frameb
+ 	/* check all firmware fbs and kick off if the base addr overlaps */
+ 	for_each_registered_fb(i) {
+ 		struct apertures_struct *gen_aper;
++		struct device *device;
  
--	has_audio = ((edid_ext[3] & EDID_BASIC_AUDIO) != 0);
-+	has_audio = (edid_ext[0] == CEA_EXT &&
-+		    (edid_ext[3] & EDID_BASIC_AUDIO) != 0);
+ 		if (!(registered_fb[i]->flags & FBINFO_MISC_FIRMWARE))
+ 			continue;
  
- 	if (has_audio) {
- 		DRM_DEBUG_KMS("Monitor has basic audio support\n");
+ 		gen_aper = registered_fb[i]->apertures;
++		device = registered_fb[i]->device;
+ 		if (fb_do_apertures_overlap(gen_aper, a) ||
+ 			(primary && gen_aper && gen_aper->count &&
+ 			 gen_aper->ranges[0].base == VGA_FB_PHYS)) {
+ 
+ 			printk(KERN_INFO "fb%d: switching to %s from %s\n",
+ 			       i, name, registered_fb[i]->fix.id);
+-			do_unregister_framebuffer(registered_fb[i]);
++
++			/*
++			 * If we kick-out a firmware driver, we also want to remove
++			 * the underlying platform device, such as simple-framebuffer,
++			 * VESA, EFI, etc. A native driver will then be able to
++			 * allocate the memory range.
++			 *
++			 * If it's not a platform device, at least print a warning. A
++			 * fix would add code to remove the device from the system.
++			 */
++			if (dev_is_platform(device)) {
++				registered_fb[i]->forced_out = true;
++				platform_device_unregister(to_platform_device(device));
++			} else {
++				pr_warn("fb%d: cannot remove device\n", i);
++				do_unregister_framebuffer(registered_fb[i]);
++			}
+ 		}
+ 	}
+ }
+@@ -1900,9 +1919,13 @@ EXPORT_SYMBOL(register_framebuffer);
+ void
+ unregister_framebuffer(struct fb_info *fb_info)
+ {
+-	mutex_lock(&registration_lock);
++	bool forced_out = fb_info->forced_out;
++
++	if (!forced_out)
++		mutex_lock(&registration_lock);
+ 	do_unregister_framebuffer(fb_info);
+-	mutex_unlock(&registration_lock);
++	if (!forced_out)
++		mutex_unlock(&registration_lock);
+ }
+ EXPORT_SYMBOL(unregister_framebuffer);
+ 
+--- a/include/linux/fb.h
++++ b/include/linux/fb.h
+@@ -502,6 +502,7 @@ struct fb_info {
+ 	} *apertures;
+ 
+ 	bool skip_vt_switch; /* no VT switch on suspend/resume required */
++	bool forced_out; /* set when being removed by another driver */
+ };
+ 
+ static inline struct apertures_struct *alloc_apertures(unsigned int max_num) {
 
 
