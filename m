@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A5DC4F27EC
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:09:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 85DFC4F2791
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:08:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233293AbiDEIJn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:09:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55872 "EHLO
+        id S233445AbiDEIHc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:07:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42896 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235388AbiDEH7l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:59:41 -0400
+        with ESMTP id S235357AbiDEH7k (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:59:40 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C422257B01;
-        Tue,  5 Apr 2022 00:54:09 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71D5F57B3B;
+        Tue,  5 Apr 2022 00:54:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6B6A9B81BAF;
-        Tue,  5 Apr 2022 07:54:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C931BC340EE;
-        Tue,  5 Apr 2022 07:54:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0876FB81B9C;
+        Tue,  5 Apr 2022 07:54:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A7CAC340EE;
+        Tue,  5 Apr 2022 07:54:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145247;
-        bh=PdTl2gDBiABNcwodj9dveqVoYd5A27vl2BOyA9QCatM=;
+        s=korg; t=1649145252;
+        bh=YS6YXJtkkJlRPJMsD2DAR/8ig+TUFhHwPdrDujFulyU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SFpW4COP+tYwt3rp5cSitkOPYaD36VFj13StkpFMBRvHuZp0Da5tOQ6MrR3Ysi8pT
-         jOdtyB8cr0GOIvV+o6MFHqa4YmKeWQXDeA3RW6r8tbehzL3pZRNbe5i/zZ8r5ms3kk
-         qBcb0FZlQk5pBTDbkDLJrNjUQnAwJsEJrEZboPxw=
+        b=ALrm2gLlo5JtXr9PjasXgO2FIpBCgndVgiHXqC/RkmcrKxY2Vu6b5Ly/xpMx+zjXM
+         26qdmhD73mKchmabwRHm0bDQrQG48svEv88umNoAr3P+WdD6IGfUJUQEckQXghjpEy
+         SVPI9u9y7/k8HF2iXBSZFzuZ3jWSFtT/bgNBVC1k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, devicetree@vger.kernel.org,
-        Maulik Shah <quic_mkshah@quicinc.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        stable@vger.kernel.org, Petr Vorel <petr.vorel@gmail.com>,
         Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0337/1126] arm64: dts: qcom: sm8450: Update cpuidle states parameters
-Date:   Tue,  5 Apr 2022 09:18:04 +0200
-Message-Id: <20220405070417.507344638@linuxfoundation.org>
+Subject: [PATCH 5.17 0338/1126] arm64: dts: qcom: msm8994: Provide missing "xo_board" and "sleep_clk" to GCC
+Date:   Tue,  5 Apr 2022 09:18:05 +0200
+Message-Id: <20220405070417.536640808@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -56,95 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maulik Shah <quic_mkshah@quicinc.com>
+From: Petr Vorel <petr.vorel@gmail.com>
 
-[ Upstream commit 6574702b0d394d2acc9ff808c4a79df8b9999173 ]
+[ Upstream commit 4dd1ad6192748523878463a285346db408b34a02 ]
 
-This change updates/corrects below cpuidle parameters
+This is needed due changes in commit 0519d1d0bf33 ("clk: qcom:
+gcc-msm8994: Modernize the driver"), which removed struct
+clk_fixed_factor. Preparation for next commit for enabling SD/eMMC.
+Inspired by 2c2f64ae36d9.
 
-1. entry-latency, exit-latency and residency for various idle states.
-2. arm,psci-suspend-param which is same for CLUSTER_SLEEP_0/1 states.
-3. Add CLUSTER_SLEEP_1 in CLUSTER_PD.
+This is required for both msm8994-huawei-angler (sdhc1 will be enabled
+in next commit) and msm8992-lg-bullhead (where actually fixes sdhc1
+- tested on bullhead rev 1.01).
 
-Cc: devicetree@vger.kernel.org
-Fixes: 5188049c9b36 ("arm64: dts: qcom: Add base SM8450 DTSI")
-Signed-off-by: Maulik Shah <quic_mkshah@quicinc.com>
-Reviewed-by: Ulf Hansson <ulf.hansson@linaro.org>
-[bjorn: Split domain-idle-states, per Ulf's request]
+Fixes: 0519d1d0bf33 ("clk: qcom: gcc-msm8994: Modernize the driver")
+
+Signed-off-by: Petr Vorel <petr.vorel@gmail.com>
 Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/1641749107-31979-5-git-send-email-quic_mkshah@quicinc.com
+Link: https://lore.kernel.org/r/20220113233358.17972-4-petr.vorel@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/sm8450.dtsi | 28 ++++++++++++++--------------
- 1 file changed, 14 insertions(+), 14 deletions(-)
+ arch/arm64/boot/dts/qcom/msm8994.dtsi | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/qcom/sm8450.dtsi b/arch/arm64/boot/dts/qcom/sm8450.dtsi
-index 02b97e838c47..9ee055143f8a 100644
---- a/arch/arm64/boot/dts/qcom/sm8450.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sm8450.dtsi
-@@ -203,9 +203,9 @@
- 				compatible = "arm,idle-state";
- 				idle-state-name = "silver-rail-power-collapse";
- 				arm,psci-suspend-param = <0x40000004>;
--				entry-latency-us = <274>;
--				exit-latency-us = <480>;
--				min-residency-us = <3934>;
-+				entry-latency-us = <800>;
-+				exit-latency-us = <750>;
-+				min-residency-us = <4090>;
- 				local-timer-stop;
- 			};
- 
-@@ -213,9 +213,9 @@
- 				compatible = "arm,idle-state";
- 				idle-state-name = "gold-rail-power-collapse";
- 				arm,psci-suspend-param = <0x40000004>;
--				entry-latency-us = <327>;
--				exit-latency-us = <1502>;
--				min-residency-us = <4488>;
-+				entry-latency-us = <600>;
-+				exit-latency-us = <1550>;
-+				min-residency-us = <4791>;
- 				local-timer-stop;
- 			};
+diff --git a/arch/arm64/boot/dts/qcom/msm8994.dtsi b/arch/arm64/boot/dts/qcom/msm8994.dtsi
+index 5a9a5ed0565f..215f56daa26c 100644
+--- a/arch/arm64/boot/dts/qcom/msm8994.dtsi
++++ b/arch/arm64/boot/dts/qcom/msm8994.dtsi
+@@ -713,6 +713,9 @@
+ 			#reset-cells = <1>;
+ 			#power-domain-cells = <1>;
+ 			reg = <0xfc400000 0x2000>;
++
++			clock-names = "xo", "sleep_clk";
++			clocks = <&xo_board>, <&sleep_clk>;
  		};
-@@ -224,10 +224,10 @@
- 			CLUSTER_SLEEP_0: cluster-sleep-0 {
- 				compatible = "domain-idle-state";
- 				idle-state-name = "cluster-l3-off";
--				arm,psci-suspend-param = <0x4100c344>;
--				entry-latency-us = <584>;
--				exit-latency-us = <2332>;
--				min-residency-us = <6118>;
-+				arm,psci-suspend-param = <0x41000044>;
-+				entry-latency-us = <1050>;
-+				exit-latency-us = <2500>;
-+				min-residency-us = <5309>;
- 				local-timer-stop;
- 			};
  
-@@ -235,9 +235,9 @@
- 				compatible = "domain-idle-state";
- 				idle-state-name = "cluster-power-collapse";
- 				arm,psci-suspend-param = <0x4100c344>;
--				entry-latency-us = <2893>;
--				exit-latency-us = <4023>;
--				min-residency-us = <9987>;
-+				entry-latency-us = <2700>;
-+				exit-latency-us = <3500>;
-+				min-residency-us = <13959>;
- 				local-timer-stop;
- 			};
- 		};
-@@ -315,7 +315,7 @@
- 
- 		CLUSTER_PD: cpu-cluster0 {
- 			#power-domain-cells = <0>;
--			domain-idle-states = <&CLUSTER_SLEEP_0>;
-+			domain-idle-states = <&CLUSTER_SLEEP_0>, <&CLUSTER_SLEEP_1>;
- 		};
- 	};
- 
+ 		rpm_msg_ram: sram@fc428000 {
 -- 
 2.34.1
 
