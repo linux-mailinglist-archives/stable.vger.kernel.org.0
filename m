@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 034BC4F2EAE
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:03:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C19614F3100
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:36:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355563AbiDEKU3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:20:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37396 "EHLO
+        id S237916AbiDEIni (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:43:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346215AbiDEJXh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:23:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B21E1C8BFC;
-        Tue,  5 Apr 2022 02:13:10 -0700 (PDT)
+        with ESMTP id S241143AbiDEIcw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:32:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59B2B113A;
+        Tue,  5 Apr 2022 01:28:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8B4FEB81C15;
-        Tue,  5 Apr 2022 09:13:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9B57C385D9;
-        Tue,  5 Apr 2022 09:13:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 084B2B81BB1;
+        Tue,  5 Apr 2022 08:28:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56D60C385A2;
+        Tue,  5 Apr 2022 08:28:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149987;
-        bh=XPMpb65O3CeKvKBW3+kH3pERPeRlgpPUhWQrxjl1KbM=;
+        s=korg; t=1649147315;
+        bh=C0Y5IDIvTy6lLUK/ZrhvHh8jc1K51gY84hH552O6mLc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bv0FrDt/VCjSpmZAv/8eqBnC6coPsVddu1wfyzSzZ5oPfLBbax7IJX9vnLWY0yuNH
-         zJZrnBmHmMTiFv/HMhFu2xPjKe8optD/qPJkuycyve3QmpapYF47bbAceVTdO5peW3
-         efkS44qQtDaA/D4ymJbH/aCmn4ynwdCgv6F4fg5I=
+        b=Fm3V1K4ZcgHs5ZTPdYI19NfqciOJeTqlAwjctCv3JzaM9wG4jARCfsZgJ25ZiXqZ0
+         MwahzDCAlTf6HajrAg3+GO3oW4Eo050Ej0DKN/1049+0J7SHNgMgxilQb/0HO8zYIi
+         d2MnRGzmO2sqr/zDbPtTAb+LWlYiziOWI/N727h8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Richard Weinberger <richard@nod.at>
-Subject: [PATCH 5.16 0912/1017] ubifs: Rectify space amount budget for mkdir/tmpfile operations
-Date:   Tue,  5 Apr 2022 09:30:25 +0200
-Message-Id: <20220405070421.293866089@linuxfoundation.org>
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Igor Zhbanov <i.zhbanov@omprussia.ru>,
+        Hugh Dickins <hughd@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.17 1079/1126] mm/mmap: return 1 from stack_guard_gap __setup() handler
+Date:   Tue,  5 Apr 2022 09:30:26 +0200
+Message-Id: <20220405070439.124132324@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,66 +56,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-commit a6dab6607d4681d227905d5198710b575dbdb519 upstream.
+commit e6d094936988910ce6e8197570f2753898830081 upstream.
 
-UBIFS should make sure the flash has enough space to store dirty (Data
-that is newer than disk) data (in memory), space budget is exactly
-designed to do that. If space budget calculates less data than we need,
-'make_reservation()' will do more work(return -ENOSPC if no free space
-lelf, sometimes we can see "cannot reserve xxx bytes in jhead xxx, error
--28" in ubifs error messages) with ubifs inodes locked, which may effect
-other syscalls.
+__setup() handlers should return 1 if the command line option is handled
+and 0 if not (or maybe never return 0; it just pollutes init's
+environment).  This prevents:
 
-A simple way to decide how much space do we need when make a budget:
-See how much space is needed by 'make_reservation()' in ubifs_jnl_xxx()
-function according to corresponding operation.
+  Unknown kernel command line parameters \
+  "BOOT_IMAGE=/boot/bzImage-517rc5 stack_guard_gap=100", will be \
+  passed to user space.
 
-It's better to report ENOSPC in ubifs_budget_space(), as early as we can.
+  Run /sbin/init as init process
+   with arguments:
+     /sbin/init
+   with environment:
+     HOME=/
+     TERM=linux
+     BOOT_IMAGE=/boot/bzImage-517rc5
+     stack_guard_gap=100
 
-Fixes: 474b93704f32163 ("ubifs: Implement O_TMPFILE")
-Fixes: 1e51764a3c2ac05 ("UBIFS: add new flash file system")
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Return 1 to indicate that the boot option has been handled.
+
+Note that there is no warning message if someone enters:
+	stack_guard_gap=anything_invalid
+and 'val' and stack_guard_gap are both set to 0 due to the use of
+simple_strtoul(). This could be improved by using kstrtoxxx() and
+checking for an error.
+
+It appears that having stack_guard_gap == 0 is valid (if unexpected) since
+using "stack_guard_gap=0" on the kernel command line does that.
+
+Link: https://lkml.kernel.org/r/20220222005817.11087-1-rdunlap@infradead.org
+Link: lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
+Fixes: 1be7107fbe18e ("mm: larger stack guard gap, between vmas")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
+Cc: Hugh Dickins <hughd@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ubifs/dir.c |   12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ mm/mmap.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/ubifs/dir.c
-+++ b/fs/ubifs/dir.c
-@@ -428,15 +428,18 @@ static int ubifs_tmpfile(struct user_nam
- {
- 	struct inode *inode;
- 	struct ubifs_info *c = dir->i_sb->s_fs_info;
--	struct ubifs_budget_req req = { .new_ino = 1, .new_dent = 1};
-+	struct ubifs_budget_req req = { .new_ino = 1, .new_dent = 1,
-+					.dirtied_ino = 1};
- 	struct ubifs_budget_req ino_req = { .dirtied_ino = 1 };
- 	struct ubifs_inode *ui;
- 	int err, instantiated = 0;
- 	struct fscrypt_name nm;
+--- a/mm/mmap.c
++++ b/mm/mmap.c
+@@ -2557,7 +2557,7 @@ static int __init cmdline_parse_stack_gu
+ 	if (!*endptr)
+ 		stack_guard_gap = val << PAGE_SHIFT;
  
- 	/*
--	 * Budget request settings: new dirty inode, new direntry,
--	 * budget for dirtied inode will be released via writeback.
-+	 * Budget request settings: new inode, new direntry, changing the
-+	 * parent directory inode.
-+	 * Allocate budget separately for new dirtied inode, the budget will
-+	 * be released via writeback.
- 	 */
+-	return 0;
++	return 1;
+ }
+ __setup("stack_guard_gap=", cmdline_parse_stack_guard_gap);
  
- 	dbg_gen("dent '%pd', mode %#hx in dir ino %lu",
-@@ -979,7 +982,8 @@ static int ubifs_mkdir(struct user_names
- 	struct ubifs_inode *dir_ui = ubifs_inode(dir);
- 	struct ubifs_info *c = dir->i_sb->s_fs_info;
- 	int err, sz_change;
--	struct ubifs_budget_req req = { .new_ino = 1, .new_dent = 1 };
-+	struct ubifs_budget_req req = { .new_ino = 1, .new_dent = 1,
-+					.dirtied_ino = 1};
- 	struct fscrypt_name nm;
- 
- 	/*
 
 
