@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A153B4F3BAE
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:21:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C6CC54F38B7
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:36:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237048AbiDEMBK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:01:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52112 "EHLO
+        id S1377121AbiDEL1e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:27:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54284 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357671AbiDEK0n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:26:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBBD534669;
-        Tue,  5 Apr 2022 03:10:36 -0700 (PDT)
+        with ESMTP id S1349570AbiDEJuX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:50:23 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E76589B;
+        Tue,  5 Apr 2022 02:48:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5FE706172B;
-        Tue,  5 Apr 2022 10:10:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6710AC385A0;
-        Tue,  5 Apr 2022 10:10:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 745F961576;
+        Tue,  5 Apr 2022 09:48:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C3E8C385A2;
+        Tue,  5 Apr 2022 09:48:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153435;
-        bh=zZUpulxjp8MFrormfip6zMCIpYZ6J5kv9bWMRs0bt64=;
+        s=korg; t=1649152103;
+        bh=Z2fRyKtO0unBo5yv4F+hHOmM6Dx9c+nDJFB8oxsdOnA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wkDkRr04hN33TE5DkoCXEHbzkEP2d23SsNhSxwoxJRW4WHj74oeleKQpcEeH9w3cS
-         psb7kDjD2YVjHOPsD1/tCmTeJaoUsNjmwxgObo79up+Eg7g3wu7Eetvfdqmhsx9m0L
-         0RDJFq6UPuzI0sMAJ213RvUUXXnxKHH4rdZoMP8c=
+        b=N0spG58nshJfnsrudYxBalgtAtQwAoVgs2fJbMP6ausnuZC1UlTnI2WVX8emW9MZ0
+         /Jb4lwAbsf9fPo8RcLMnzu8WeD3TGhUAuqAHUVowZigCv0cU95MzZoqK8IfMxMngkX
+         UC1zw3+aWzn0s8ijZKg7A/Uw9mJY9od3r7aL3hWk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
-        Jia-Ju Bai <baijiaju1990@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
+        Stefano Garzarella <sgarzare@redhat.com>,
+        Stefan Hajnoczi <stefanha@redhat.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 222/599] ASoC: rt5663: check the return value of devm_kzalloc() in rt5663_parse_dp()
-Date:   Tue,  5 Apr 2022 09:28:36 +0200
-Message-Id: <20220405070305.448716395@linuxfoundation.org>
+Subject: [PATCH 5.15 655/913] vsock/virtio: initialize vdev->priv before using VQs
+Date:   Tue,  5 Apr 2022 09:28:37 +0200
+Message-Id: <20220405070359.472381602@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
-References: <20220405070258.802373272@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,36 +56,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
+From: Stefano Garzarella <sgarzare@redhat.com>
 
-[ Upstream commit 4d06f92f38b799295ae22c98be7a20cac3e2a1a7 ]
+[ Upstream commit 4b5f1ad5566ada230aaa2ce861b28d1895f1ea68 ]
 
-The function devm_kzalloc() in rt5663_parse_dp() can fail, so its return
-value should be checked.
+When we fill VQs with empty buffers and kick the host, it may send
+an interrupt. `vdev->priv` must be initialized before this since it
+is used in the virtqueue callbacks.
 
-Fixes: 457c25efc592 ("ASoC: rt5663: Add the function of impedance sensing")
-Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
-Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-Link: https://lore.kernel.org/r/20220225131030.27248-1-baijiaju1990@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 0deab087b16a ("vsock/virtio: use RCU to avoid use-after-free on the_virtio_vsock")
+Suggested-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/rt5663.c | 2 ++
- 1 file changed, 2 insertions(+)
+ net/vmw_vsock/virtio_transport.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/rt5663.c b/sound/soc/codecs/rt5663.c
-index db8a41aaa385..4423e61bf1ab 100644
---- a/sound/soc/codecs/rt5663.c
-+++ b/sound/soc/codecs/rt5663.c
-@@ -3478,6 +3478,8 @@ static int rt5663_parse_dp(struct rt5663_priv *rt5663, struct device *dev)
- 		table_size = sizeof(struct impedance_mapping_table) *
- 			rt5663->pdata.impedance_sensing_num;
- 		rt5663->imp_table = devm_kzalloc(dev, table_size, GFP_KERNEL);
-+		if (!rt5663->imp_table)
-+			return -ENOMEM;
- 		ret = device_property_read_u32_array(dev,
- 			"realtek,impedance_sensing_table",
- 			(u32 *)rt5663->imp_table, table_size);
+diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
+index dad9ca65f4f9..fb1b8f99f679 100644
+--- a/net/vmw_vsock/virtio_transport.c
++++ b/net/vmw_vsock/virtio_transport.c
+@@ -622,6 +622,8 @@ static int virtio_vsock_probe(struct virtio_device *vdev)
+ 	INIT_WORK(&vsock->event_work, virtio_transport_event_work);
+ 	INIT_WORK(&vsock->send_pkt_work, virtio_transport_send_pkt_work);
+ 
++	vdev->priv = vsock;
++
+ 	mutex_lock(&vsock->tx_lock);
+ 	vsock->tx_run = true;
+ 	mutex_unlock(&vsock->tx_lock);
+@@ -639,7 +641,6 @@ static int virtio_vsock_probe(struct virtio_device *vdev)
+ 	if (virtio_has_feature(vdev, VIRTIO_VSOCK_F_SEQPACKET))
+ 		vsock->seqpacket_allow = true;
+ 
+-	vdev->priv = vsock;
+ 	rcu_assign_pointer(the_virtio_vsock, vsock);
+ 
+ 	mutex_unlock(&the_virtio_vsock_mutex);
 -- 
 2.34.1
 
