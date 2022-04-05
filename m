@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 038F44F28CF
+	by mail.lfdr.de (Postfix) with ESMTP id 7EF494F28D0
 	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:22:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233635AbiDEIXD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:23:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49314 "EHLO
+        id S233724AbiDEIXG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:23:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56426 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236120AbiDEIQ1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:16:27 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B72B968F9B;
-        Tue,  5 Apr 2022 01:03:46 -0700 (PDT)
+        with ESMTP id S236456AbiDEIQq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:16:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C483270CC2;
+        Tue,  5 Apr 2022 01:04:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D9F45B81A32;
-        Tue,  5 Apr 2022 08:03:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 491E9C385A2;
-        Tue,  5 Apr 2022 08:03:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 85892B81BBD;
+        Tue,  5 Apr 2022 08:03:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFAFCC385A3;
+        Tue,  5 Apr 2022 08:03:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145822;
-        bh=4mPJumMmtx3VU03CPzBW81rk/BS4KDd76SRQyt9ChsU=;
+        s=korg; t=1649145836;
+        bh=6Hsugf3hew1UI09HjRquu7J/Ln94XbVvsslObP2Jc5M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HNwc4aPqoSTTowyT6fkoetdGEJ2INKGelA2WlyOZfuF2FRTJ2X3xrl1OlGhrkRbzf
-         lJQFwrw2rZpXk4+FDXbdRtgpI7Um1ltyCkyynHqqYHNj6szMtHTprzoHvfSNA5YTCi
-         729rP8m5yk72egjh8gAVbFnZy9r5tK9Mx7w/GXe8=
+        b=rtqnrElMmyFSVWKFw04rBSIZ6xkypElc/OtGAsxMNLptj7aaAplHxSiG8GxX9DCZW
+         K2xovKF8NpbA0HDsxPXG+hMPUhtahfnkqJ+N6ShtAB2mME+IBGZJxkbB2BB/ZANJDw
+         Ea2Jjvbte/m8+ExwKfZWXQCO/iQ5n63OGvXnaQ1I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        stable@vger.kernel.org, Wen Gong <quic_wgong@quicinc.com>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0541/1126] power: supply: ab8500: Fix memory leak in ab8500_fg_sysfs_init
-Date:   Tue,  5 Apr 2022 09:21:28 +0200
-Message-Id: <20220405070423.511800511@linuxfoundation.org>
+Subject: [PATCH 5.17 0545/1126] ath11k: fix uninitialized rate_idx in ath11k_dp_tx_update_txcompl()
+Date:   Tue,  5 Apr 2022 09:21:32 +0200
+Message-Id: <20220405070423.630202991@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -54,42 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Wen Gong <quic_wgong@quicinc.com>
 
-[ Upstream commit 6a4760463dbc6b603690938c468839985189ce0a ]
+[ Upstream commit 8c4c567fa291e4805d5116f1333b2ed83877032b ]
 
-kobject_init_and_add() takes reference even when it fails.
-According to the doc of kobject_init_and_add()：
+The rate_idx which passed to ath11k_debugfs_sta_add_tx_stats() by
+ath11k_dp_tx_update_txcompl() is not initialized, add initialization
+for it.
 
-   If this function returns an error, kobject_put() must be called to
-   properly clean up the memory associated with the object.
+Tested-on: WCN6855 hw2.0 PCI WLAN.HSP.1.1-03003-QCAHSPSWPL_V1_V2_SILICONZ_LITE-2
 
-Fix memory leak by calling kobject_put().
-
-Fixes: 8c0984e5a753 ("power: move power supply drivers to power/supply")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Fixes: 1b8bb94c0612 ("ath11k: report tx bitrate for iw wlan station dump")
+Signed-off-by: Wen Gong <quic_wgong@quicinc.com>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/20220209060816.423-1-quic_wgong@quicinc.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/ab8500_fg.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/wireless/ath/ath11k/dp_tx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/power/supply/ab8500_fg.c b/drivers/power/supply/ab8500_fg.c
-index 236fd9f9d6f1..09a4cbd69676 100644
---- a/drivers/power/supply/ab8500_fg.c
-+++ b/drivers/power/supply/ab8500_fg.c
-@@ -2527,8 +2527,10 @@ static int ab8500_fg_sysfs_init(struct ab8500_fg *di)
- 	ret = kobject_init_and_add(&di->fg_kobject,
- 		&ab8500_fg_ktype,
- 		NULL, "battery");
--	if (ret < 0)
-+	if (ret < 0) {
-+		kobject_put(&di->fg_kobject);
- 		dev_err(di->dev, "failed to create sysfs entry\n");
-+	}
+diff --git a/drivers/net/wireless/ath/ath11k/dp_tx.c b/drivers/net/wireless/ath/ath11k/dp_tx.c
+index 91d6244b6543..8402961c6688 100644
+--- a/drivers/net/wireless/ath/ath11k/dp_tx.c
++++ b/drivers/net/wireless/ath/ath11k/dp_tx.c
+@@ -426,7 +426,7 @@ void ath11k_dp_tx_update_txcompl(struct ath11k *ar, struct hal_tx_status *ts)
+ 	struct ath11k_sta *arsta;
+ 	struct ieee80211_sta *sta;
+ 	u16 rate, ru_tones;
+-	u8 mcs, rate_idx, ofdma;
++	u8 mcs, rate_idx = 0, ofdma;
+ 	int ret;
  
- 	return ret;
- }
+ 	spin_lock_bh(&ab->base_lock);
 -- 
 2.34.1
 
