@@ -2,113 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 25CD24F3E48
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 22:43:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B46324F3F4A
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 22:58:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235173AbiDEOgL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 10:36:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50638 "EHLO
+        id S239866AbiDEOfr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 10:35:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36732 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350297AbiDEOOW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 10:14:22 -0400
-Received: from mail-pf1-x436.google.com (mail-pf1-x436.google.com [IPv6:2607:f8b0:4864:20::436])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE74DE7F6C
-        for <stable@vger.kernel.org>; Tue,  5 Apr 2022 05:59:18 -0700 (PDT)
-Received: by mail-pf1-x436.google.com with SMTP id p8so12006008pfh.8
-        for <stable@vger.kernel.org>; Tue, 05 Apr 2022 05:59:18 -0700 (PDT)
+        with ESMTP id S1384976AbiDEOSh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 10:18:37 -0400
+Received: from mail-wm1-x32d.google.com (mail-wm1-x32d.google.com [IPv6:2a00:1450:4864:20::32d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 119DB90CF3;
+        Tue,  5 Apr 2022 06:05:50 -0700 (PDT)
+Received: by mail-wm1-x32d.google.com with SMTP id 123-20020a1c1981000000b0038b3616a71aso1604718wmz.4;
+        Tue, 05 Apr 2022 06:05:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=YnItvGxT8i10DQes1NCRhX/bTChJJvk7adiGCya/CXU=;
-        b=kYd6uPNbAu0E4FGtIi3vUxffLxSDAXLS6yCvqDKpgqCxQOwD87YmeokiiY3ycbDKZg
-         pjEN4vbUeMxf6Ij1eqFLn10jBOB9MQxBojm4/l5U+aABqVLNFH9o5ySL4o+soz2I1k4H
-         6vB/9oxt9imbUJH/j8Vt5ZvDAciujpAr6VNZDqIRojeSK9fijq9WyjDVVM1VeIAb+hfW
-         Yad7IA/e9fM8vkB/rftX2ijFzDYlTZ7EtEaH+3dHonGSZkuxceEenQXjVUfDib758w3f
-         eOIu4oeU4SqFYPljUghYYLBI70epYKwCcO9lc7sIJrN2DOg6UAVjmV7iXBhHGZPQ9d/+
-         dKEA==
+        d=gmail.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=5OoGrDH7nK9oFjsVTIEbOFtr4JmfdoVI2IyJ2wjIRyw=;
+        b=bwrq0C1ajirhKSzPeBMF9M4xumTAECxTEkjAVIr9N/f/e13Ws70HiJje2vSD+LozFa
+         WUKJttLtri9u8/VPFQ2yn2Kkj0BQy1trEq672pajS5zZ/h1OQ6nKRlGo0D03FrtkyN4H
+         Y0bN8C0MwXLOOCzJf+mdEvBEreMuYHq2M+zd0TjqMEAcIwaUmgwUV6GfFt9qt+tzpHxQ
+         9gUZLRS0Fk5mCX7CEFWx7sVga6DYaeYUQxz4S4fcCrhGOy+RdDXIbu6N9B5MQQguGj1m
+         zKgbRV3tdh3m78Oo3Qi0QwtP8oq301EPtUHMoYxmcZ9W7sNBWZSEljuxnga2xR+tUrBU
+         2DAA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=YnItvGxT8i10DQes1NCRhX/bTChJJvk7adiGCya/CXU=;
-        b=Z+ZRCIWh5w1g3mi7kj8GsMp4zVPGBQ5cjPIXclN/65BwnzY5nsZy7Q+hAi8uzTaZmJ
-         utigUUFQVrXMc9wyp7q9fVQ/QnMOFR9ki7yXNQtrGk5B8FEeYwXySBFBDe2dkz6oAyZN
-         TGp8RXnK/GigkKvHwVrwDv01mNKgj1rkpSdqYcIwO15EdWrjsru8ZOgdQhh5Rj9s6Snt
-         Agz0a0ov3S9uFRjTMpcvwjdLRam+3mHlRpV4YX6cUfgU77WCqwpv+scr7qcZ3328D/gE
-         tuuWmOVN84bp/e9P4HhF19lvu7cNHBaXKMOjzHvS/dxW7nFKS06cJeYmatEG3puQDakv
-         7B8g==
-X-Gm-Message-State: AOAM531Wm1718l+qiJ4aK8z7GgY1/6CnN0dMo7CapFJowNEp6n+Nnx5e
-        bnnn+B/OzjlehM58/GzGdWSF
-X-Google-Smtp-Source: ABdhPJwbPWA5TgQQhTcEfxswEhUbXEP0D+yJWQtU0Mfoo7/ZuGdjdohoTgBof9AHBKzvU5/03Sz/6Q==
-X-Received: by 2002:a65:434b:0:b0:382:4fa9:3be6 with SMTP id k11-20020a65434b000000b003824fa93be6mr2739082pgq.459.1649163558282;
-        Tue, 05 Apr 2022 05:59:18 -0700 (PDT)
-Received: from localhost.localdomain ([59.92.98.98])
-        by smtp.gmail.com with ESMTPSA id j8-20020a17090a060800b001c7936791d1sm2384377pjj.7.2022.04.05.05.59.14
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=5OoGrDH7nK9oFjsVTIEbOFtr4JmfdoVI2IyJ2wjIRyw=;
+        b=zf+BPAt4X7IdBIOf+l3NHv+JKYGsFy3H6CEd3lVL2yl0c4JzIoAf3EE+aUkThidlEs
+         BFHkTZzGKNZY2H3J1Bbu22ZrNQBkmtFsOvcre35FcHEnkH3mbBLVWY/fx33gz4xfuJrs
+         zuHOKGZSxPlcUKIpocP5jO3IWO3U+QfjrryTOWHDCTwKvjpbUSAxCzSNvmlFtaXSpWts
+         TCZ7uDIGvzws5NFvV/reV0DV2zDzEEhHwiDG8wdD8kW2puM4Jm7/lSXmkLlJ+QC16qwr
+         MGJGZZ8aSjyXmt5v/eR4dXPIqV+zX/v3+yQNGvaA8eKBM3ex8mJ86jHt/Zc8MuFKUhhj
+         pJ/A==
+X-Gm-Message-State: AOAM533XS/NqRYmr1whMYbaAl7V7+R8Q+Nwmhz3E6eamnWHNDFJ40UPc
+        A9aWrseiFDM8sHrBHmMq83Y=
+X-Google-Smtp-Source: ABdhPJwlDd/JO2QncqV+Qg7YsvFj5rwcuVsPA18gfL0PHrdH/061R20sU1lTWEubutb8Zv6bVjYCWg==
+X-Received: by 2002:a05:600c:4e92:b0:38c:73e8:7dcd with SMTP id f18-20020a05600c4e9200b0038c73e87dcdmr3141891wmq.196.1649163948642;
+        Tue, 05 Apr 2022 06:05:48 -0700 (PDT)
+Received: from debian (host-78-145-97-89.as13285.net. [78.145.97.89])
+        by smtp.gmail.com with ESMTPSA id b8-20020a05600c4e0800b0038c6c37efc3sm2099463wmq.12.2022.04.05.06.05.47
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 05 Apr 2022 05:59:17 -0700 (PDT)
-From:   Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-To:     mhi@lists.linux.dev
-Cc:     quic_hemantk@quicinc.com, quic_bbhatt@quicinc.com,
-        linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        loic.poulain@linaro.org,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        stable@vger.kernel.org
-Subject: [PATCH v2] bus: mhi: host: pci_generic: Add missing poweroff() PM callback
-Date:   Tue,  5 Apr 2022 18:29:07 +0530
-Message-Id: <20220405125907.5644-1-manivannan.sadhasivam@linaro.org>
-X-Mailer: git-send-email 2.25.1
+        Tue, 05 Apr 2022 06:05:48 -0700 (PDT)
+Date:   Tue, 5 Apr 2022 14:05:46 +0100
+From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+To:     Thomas Zimmermann <tzimmermann@suse.de>
+Cc:     daniel@ffwll.ch, deller@gmx.de, sam@ravnborg.org,
+        javierm@redhat.com, zackr@vmware.com, hdegoede@redhat.com,
+        linux-fbdev@vger.kernel.org, Matthew Wilcox <willy@infradead.org>,
+        Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Zheyu Ma <zheyuma97@gmail.com>, stable@vger.kernel.org,
+        dri-devel@lists.freedesktop.org,
+        Zhen Lei <thunder.leizhen@huawei.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: Re: fbdev: Fix unregistering of framebuffers without device
+Message-ID: <Ykw+qlW+bjWcy4BR@debian>
+References: <20220404194402.29974-1-tzimmermann@suse.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220404194402.29974-1-tzimmermann@suse.de>
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-During hibernation process, once thaw() stage completes, the MHI endpoint
-devices will be in M0 state post recovery. After that, the devices will be
-powered down so that the system can enter the target sleep state. During
-this stage, the PCI core will put the devices in D3hot. But this transition
-is allowed by the MHI spec. The devices can only enter D3hot when it is in
-M3 state.
+On Mon, Apr 04, 2022 at 09:44:02PM +0200, Thomas Zimmermann wrote:
+> OF framebuffers do not have an underlying device in the Linux
+> device hierarchy. Do a regular unregister call instead of hot
+> unplugging such a non-existing device. Fixes a NULL dereference.
+> An example error message on ppc64le is shown below.
+> 
 
-So for fixing this issue, let's add the poweroff() callback that will get
-executed before putting the system in target sleep state during
-hibernation. This callback will power down the device properly so that it
-could be restored during restore() or thaw() stage.
+<snip>
 
-Cc: stable@vger.kernel.org
-Fixes: 5f0c2ee1fe8d ("bus: mhi: pci-generic: Fix hibernation")
-Reported-by: Hemant Kumar <quic_hemantk@quicinc.com>
-Suggested-by: Hemant Kumar <quic_hemantk@quicinc.com>
-Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
----
+> 
+> Tested with 5.17 on qemu ppc64le emulation.
+> 
+> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+> Fixes: 27599aacbaef ("fbdev: Hot-unplug firmware fb devices on forced removal")
+> Reported-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+> Cc: Zack Rusin <zackr@vmware.com>
+> Cc: Javier Martinez Canillas <javierm@redhat.com>
+> Cc: Hans de Goede <hdegoede@redhat.com>
+> Cc: stable@vger.kernel.org # v5.11+
+> Cc: Helge Deller <deller@gmx.de>
+> Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+> Cc: Sam Ravnborg <sam@ravnborg.org>
+> Cc: Zheyu Ma <zheyuma97@gmail.com>
+> Cc: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+> Cc: Zhen Lei <thunder.leizhen@huawei.com>
+> Cc: Matthew Wilcox <willy@infradead.org>
+> Cc: Alex Deucher <alexander.deucher@amd.com>
+> Cc: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+> Cc: Guenter Roeck <linux@roeck-us.net>
+> Cc: linux-fbdev@vger.kernel.org
+> Cc: dri-devel@lists.freedesktop.org
+> Link: https://lore.kernel.org/all/YkHXO6LGHAN0p1pq@debian/ # [1]
+> Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+> ---
 
-Changes in v2:
+Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
 
-* Hemant suggested to use restore function for poweroff() callback as we can
-make sure that the device gets powered down properly.
-
- drivers/bus/mhi/host/pci_generic.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/bus/mhi/host/pci_generic.c b/drivers/bus/mhi/host/pci_generic.c
-index 9527b7d63840..ef85dbfb3216 100644
---- a/drivers/bus/mhi/host/pci_generic.c
-+++ b/drivers/bus/mhi/host/pci_generic.c
-@@ -1085,6 +1085,7 @@ static const struct dev_pm_ops mhi_pci_pm_ops = {
- 	.resume = mhi_pci_resume,
- 	.freeze = mhi_pci_freeze,
- 	.thaw = mhi_pci_restore,
-+	.poweroff = mhi_pci_freeze,
- 	.restore = mhi_pci_restore,
- #endif
- };
--- 
-2.25.1
-
+--
+Regards
+Sudip
