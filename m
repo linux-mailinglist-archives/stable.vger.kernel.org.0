@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C4A414F2D4A
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:36:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8E834F2E07
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:48:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245293AbiDEIym (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:54:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33636 "EHLO
+        id S1355466AbiDEKUA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:20:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44286 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240974AbiDEIcl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:32:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 940899E9E0;
-        Tue,  5 Apr 2022 01:25:36 -0700 (PDT)
+        with ESMTP id S1345293AbiDEJWY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:22:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA8EE4160C;
+        Tue,  5 Apr 2022 02:10:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F419C60FFC;
-        Tue,  5 Apr 2022 08:25:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A2E8C385A1;
-        Tue,  5 Apr 2022 08:25:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 25B9A615E4;
+        Tue,  5 Apr 2022 09:10:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34DCCC385A3;
+        Tue,  5 Apr 2022 09:10:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147135;
-        bh=tRO1PGn12jKvQfnysJtLy8P3zLYsaGSIXrfzfDWlxbQ=;
+        s=korg; t=1649149812;
+        bh=udRcMs7kmOyAA+RyJhsEG9iF/vW5/VUQI/1wSi442CM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y42tajtVDqNnaK1E2mDiELwH972laRUbytG50nDeZuQzi6N4drrr0FeGATGgmedPE
-         xqhtlZ77+PuPNCLrkXGfLRL0ZpJza2KlzfbddTNR0wfPrXE0oaANl3amOV2WHURmue
-         7vlo5mewUdLCpmvFhoPBNdguJUbxl0Zd7dVKnKlA=
+        b=cbUixLU6XUvydKLrwtTAHO7FTl00h1ulwdebF5rZgRZUp0GAHDcSdDS1GI2Ld78tJ
+         UE1Gs3jCarH5gTWy3k6ILv9h3+UHoDRS6vU7t9VgUNSK8G7BvZQz6ZcBwX474jM8io
+         t+BhnjxYSf8C0W2UD/6LE0McZ5rnK2iF/K8C0dig=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pankaj Raghav <p.raghav@samsung.com>,
-        Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 5.17 1015/1126] nvme: fix the read-only state for zoned namespaces with unsupposed features
-Date:   Tue,  5 Apr 2022 09:29:22 +0200
-Message-Id: <20220405070437.280317264@linuxfoundation.org>
+        stable@vger.kernel.org, Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        =?UTF-8?q?P=C3=A9ter=20Ujfalusi?= <peter.ujfalusi@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0851/1017] ASoC: Intel: sof_es8336: use NHLT information to set dmic and SSP
+Date:   Tue,  5 Apr 2022 09:29:24 +0200
+Message-Id: <20220405070419.498443154@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,66 +57,126 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pankaj Raghav <p.raghav@samsung.com>
+From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-commit 726be2c72efc0a64c206e854b8996ad3ab9c7507 upstream.
+[ Upstream commit 651c304df7f6e3fbb4779527efa3eb128ef91329 ]
 
-commit 2f4c9ba23b88 ("nvme: export zoned namespaces without Zone Append
-support read-only") marks zoned namespaces without append support
-read-only.  It does iso by setting NVME_NS_FORCE_RO in ns->flags in
-nvme_update_zone_info and checking for that flag later in
-nvme_update_disk_info to mark the disk as read-only.
+Since we see a proliferation of devices with various configurations,
+we want to automatically set the DMIC and SSP information. This patch
+relies on the information extracted from NHLT and partially reverts
+existing DMI quirks added by commit a164137ce91a ("ASoC: Intel: add
+machine driver for SOF+ES8336")
 
-But commit 73d90386b559 ("nvme: cleanup zone information initialization")
-rearranged nvme_update_disk_info to be called before
-nvme_update_zone_info and thus not marking the disk as read-only.
-The call order cannot be just reverted because nvme_update_zone_info sets
-certain queue parameters such as zone_write_granularity that depend on the
-prior call to nvme_update_disk_info.
+Note that NHLT can report multiple SSPs, choosing from the
+ssp_link_mask in an MSB-first manner was found experimentally to work
+fine.
 
-Remove the call to set_disk_ro in nvme_update_disk_info. and call
-set_disk_ro after nvme_update_zone_info and nvme_update_disk_info to set
-the permission for ZNS drives correctly. The same applies to the
-multipath disk path.
+The only thing that cannot be detected is the GPIO type, and users may
+want to use the quirk override parameter if the 'wrong' solution is
+provided.
 
-Fixes: 73d90386b559 ("nvme: cleanup zone information initialization")
-Signed-off-by: Pankaj Raghav <p.raghav@samsung.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Tested-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+Reviewed-by: Péter Ujfalusi <peter.ujfalusi@linux.intel.com>
+Link: https://lore.kernel.org/r/20220308192610.392950-15-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ sound/soc/intel/boards/sof_es8336.c | 56 +++++++++++++++++++++--------
+ 1 file changed, 41 insertions(+), 15 deletions(-)
 
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -1857,9 +1857,6 @@ static void nvme_update_disk_info(struct
- 	nvme_config_discard(disk, ns);
- 	blk_queue_max_write_zeroes_sectors(disk->queue,
- 					   ns->ctrl->max_zeroes_sectors);
--
--	set_disk_ro(disk, (id->nsattr & NVME_NS_ATTR_RO) ||
--		test_bit(NVME_NS_FORCE_RO, &ns->flags));
+diff --git a/sound/soc/intel/boards/sof_es8336.c b/sound/soc/intel/boards/sof_es8336.c
+index 20d577eaab6d..46e453915f82 100644
+--- a/sound/soc/intel/boards/sof_es8336.c
++++ b/sound/soc/intel/boards/sof_es8336.c
+@@ -228,24 +228,25 @@ static int sof_es8336_quirk_cb(const struct dmi_system_id *id)
+ 	return 1;
  }
  
- static inline bool nvme_first_scan(struct gendisk *disk)
-@@ -1918,6 +1915,8 @@ static int nvme_update_ns_info(struct nv
- 			goto out_unfreeze;
++/*
++ * this table should only be used to add GPIO or jack-detection quirks
++ * that cannot be detected from ACPI tables. The SSP and DMIC
++ * information are providing by the platform driver and are aligned
++ * with the topology used.
++ *
++ * If the GPIO support is missing, the quirk parameter can be used to
++ * enable speakers. In that case it's recommended to keep the SSP and DMIC
++ * information consistent, overriding the SSP and DMIC can only be done
++ * if the topology file is modified as well.
++ */
+ static const struct dmi_system_id sof_es8336_quirk_table[] = {
+-	{
+-		.callback = sof_es8336_quirk_cb,
+-		.matches = {
+-			DMI_MATCH(DMI_SYS_VENDOR, "CHUWI Innovation And Technology"),
+-			DMI_MATCH(DMI_BOARD_NAME, "Hi10 X"),
+-		},
+-		.driver_data = (void *)SOF_ES8336_SSP_CODEC(2)
+-	},
+ 	{
+ 		.callback = sof_es8336_quirk_cb,
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "IP3 tech"),
+ 			DMI_MATCH(DMI_BOARD_NAME, "WN1"),
+ 		},
+-		.driver_data = (void *)(SOF_ES8336_SSP_CODEC(0) |
+-					SOF_ES8336_TGL_GPIO_QUIRK |
+-					SOF_ES8336_ENABLE_DMIC)
++		.driver_data = (void *)(SOF_ES8336_TGL_GPIO_QUIRK)
+ 	},
+ 	{}
+ };
+@@ -470,11 +471,33 @@ static int sof_es8336_probe(struct platform_device *pdev)
+ 	card = &sof_es8336_card;
+ 	card->dev = dev;
+ 
+-	if (!dmi_check_system(sof_es8336_quirk_table))
+-		quirk = SOF_ES8336_SSP_CODEC(2);
++	/* check GPIO DMI quirks */
++	dmi_check_system(sof_es8336_quirk_table);
+ 
+-	if (quirk & SOF_ES8336_ENABLE_DMIC)
+-		dmic_be_num = 2;
++	if (!mach->mach_params.i2s_link_mask) {
++		dev_warn(dev, "No I2S link information provided, using SSP0. This may need to be modified with the quirk module parameter\n");
++	} else {
++		/*
++		 * Set configuration based on platform NHLT.
++		 * In this machine driver, we can only support one SSP for the
++		 * ES8336 link, the else-if below are intentional.
++		 * In some cases multiple SSPs can be reported by NHLT, starting MSB-first
++		 * seems to pick the right connection.
++		 */
++		unsigned long ssp = 0;
++
++		if (mach->mach_params.i2s_link_mask & BIT(2))
++			ssp = SOF_ES8336_SSP_CODEC(2);
++		else if (mach->mach_params.i2s_link_mask & BIT(1))
++			ssp = SOF_ES8336_SSP_CODEC(1);
++		else  if (mach->mach_params.i2s_link_mask & BIT(0))
++			ssp = SOF_ES8336_SSP_CODEC(0);
++
++		quirk |= ssp;
++	}
++
++	if (mach->mach_params.dmic_num)
++		quirk |= SOF_ES8336_ENABLE_DMIC;
+ 
+ 	if (quirk_override != -1) {
+ 		dev_info(dev, "Overriding quirk 0x%lx => 0x%x\n",
+@@ -483,6 +506,9 @@ static int sof_es8336_probe(struct platform_device *pdev)
  	}
+ 	log_quirks(dev);
  
-+	set_disk_ro(ns->disk, (id->nsattr & NVME_NS_ATTR_RO) ||
-+		test_bit(NVME_NS_FORCE_RO, &ns->flags));
- 	set_bit(NVME_NS_READY, &ns->flags);
- 	blk_mq_unfreeze_queue(ns->disk->queue);
- 
-@@ -1930,6 +1929,9 @@ static int nvme_update_ns_info(struct nv
- 	if (nvme_ns_head_multipath(ns->head)) {
- 		blk_mq_freeze_queue(ns->head->disk->queue);
- 		nvme_update_disk_info(ns->head->disk, ns, id);
-+		set_disk_ro(ns->head->disk,
-+			    (id->nsattr & NVME_NS_ATTR_RO) ||
-+				    test_bit(NVME_NS_FORCE_RO, &ns->flags));
- 		nvme_mpath_revalidate_paths(ns);
- 		blk_stack_limits(&ns->head->disk->queue->limits,
- 				 &ns->queue->limits, 0);
++	if (quirk & SOF_ES8336_ENABLE_DMIC)
++		dmic_be_num = 2;
++
+ 	sof_es8336_card.num_links += dmic_be_num + hdmi_num;
+ 	dai_links = sof_card_dai_links_create(dev,
+ 					      SOF_ES8336_SSP_CODEC(quirk),
+-- 
+2.34.1
+
 
 
