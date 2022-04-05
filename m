@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CDCC84F32FA
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:01:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DFED04F33A6
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:21:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241650AbiDEIe5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:34:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34720 "EHLO
+        id S242938AbiDEJig (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:38:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49234 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239439AbiDEIUF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:20:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C68AA939A7;
-        Tue,  5 Apr 2022 01:13:19 -0700 (PDT)
+        with ESMTP id S243275AbiDEJIw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:08:52 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4B9F9F6E0;
+        Tue,  5 Apr 2022 01:57:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5E102B81BAC;
-        Tue,  5 Apr 2022 08:13:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2428C385A1;
-        Tue,  5 Apr 2022 08:13:16 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 030D8CE1C6A;
+        Tue,  5 Apr 2022 08:57:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17D58C385A0;
+        Tue,  5 Apr 2022 08:57:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146397;
-        bh=k2E3ZEIeZsl/3Wg7OEWzS+F8ELAOmyjo1IPyJCH3edU=;
+        s=korg; t=1649149070;
+        bh=9+mIZFk4KMQEa6L1emFd16nfR80Y07GQTihFMe8LjcQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h7hhs7L7j3C5RRUf8zwQe3p7TyDnbHXOIHX/a0SJvkgBNC2tnPhfvyNnfYznQ9d56
-         KAPRvBwfuda4bCsIj5HELKh9PI28FjTQYhWGTBZIMmmHUtY6YEXyRMHrBZ1NeMEhia
-         w59Jt76bVAcFKgGMXNxe5GtOi37dB8u45HKz4c5Q=
+        b=DuRPKiXj9wx+fvta9mi0vMW34T5Utbl//vYxw2TN/lgyTYBHsie5vNpSorMWSmoJI
+         YFvXN2YLvermi5+mQN6QQNypsPbLxasvbeDtrvWnSpRyspLgkEk4cnOLWQn4tcymvz
+         6DFqIGJrK8lzTuLekPc5b77UDq1C9aR5fJAFvHNs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Emil Renner Berthing <kernel@esmil.dk>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Cheng Li <lic121@chinatelecom.cn>,
+        Andrii Nakryiko <andrii@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0748/1126] clk: starfive: jh7100: Dont round divisor up twice
+Subject: [PATCH 5.16 0582/1017] libbpf: Unmap rings when umem deleted
 Date:   Tue,  5 Apr 2022 09:24:55 +0200
-Message-Id: <20220405070429.538925033@linuxfoundation.org>
+Message-Id: <20220405070411.555633168@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,77 +54,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Emil Renner Berthing <kernel@esmil.dk>
+From: lic121 <lic121@chinatelecom.cn>
 
-[ Upstream commit 40dda3532f903107a063cd6ec1f15e10dd0eccc5 ]
+[ Upstream commit 9c6e6a80ee741adf6cb3cfd8eef7d1554f91fceb ]
 
-The problem is best illustrated by an example. Suppose a consumer wants
-a 4MHz clock rate from a divider with a 10MHz parent. It would then
-call
+xsk_umem__create() does mmap for fill/comp rings, but xsk_umem__delete()
+doesn't do the unmap. This works fine for regular cases, because
+xsk_socket__delete() does unmap for the rings. But for the case that
+xsk_socket__create_shared() fails, umem rings are not unmapped.
 
-  clk_round_rate(clk, 4000000)
+fill_save/comp_save are checked to determine if rings have already be
+unmapped by xsk. If fill_save and comp_save are NULL, it means that the
+rings have already been used by xsk. Then they are supposed to be
+unmapped by xsk_socket__delete(). Otherwise, xsk_umem__delete() does the
+unmap.
 
-which would call into our determine_rate() callback that correctly
-rounds up and finds that a divisor of 3 gives the highest possible
-frequency below the requested 4MHz and returns 10000000 / 3 = 3333333Hz.
-
-However the consumer would then call
-
-  clk_set_rate(clk, 3333333)
-
-but since 3333333 doesn't divide 10000000 evenly our set_rate() callback
-would again round the divisor up and set it to 4 which results in an
-unnecessarily low rate of 2.5MHz.
-
-Fix it by using DIV_ROUND_CLOSEST in the set_rate() callback.
-
-Fixes: 4210be668a09 ("clk: starfive: Add JH7100 clock generator driver")
-Signed-off-by: Emil Renner Berthing <kernel@esmil.dk>
-Link: https://lore.kernel.org/r/20220126173953.1016706-2-kernel@esmil.dk
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fixes: 2f6324a3937f ("libbpf: Support shared umems between queues and devices")
+Signed-off-by: Cheng Li <lic121@chinatelecom.cn>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/bpf/20220301132623.GA19995@vscode.7~
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/starfive/clk-starfive-jh7100.c | 14 +++-----------
- 1 file changed, 3 insertions(+), 11 deletions(-)
+ tools/lib/bpf/xsk.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/clk/starfive/clk-starfive-jh7100.c b/drivers/clk/starfive/clk-starfive-jh7100.c
-index 25d31afa0f87..db6a4dc203af 100644
---- a/drivers/clk/starfive/clk-starfive-jh7100.c
-+++ b/drivers/clk/starfive/clk-starfive-jh7100.c
-@@ -399,22 +399,13 @@ static unsigned long jh7100_clk_recalc_rate(struct clk_hw *hw,
- 	return div ? parent_rate / div : 0;
- }
+diff --git a/tools/lib/bpf/xsk.c b/tools/lib/bpf/xsk.c
+index 81f8fbc85e70..c43b4d94346d 100644
+--- a/tools/lib/bpf/xsk.c
++++ b/tools/lib/bpf/xsk.c
+@@ -1210,12 +1210,23 @@ int xsk_socket__create(struct xsk_socket **xsk_ptr, const char *ifname,
  
--static unsigned long jh7100_clk_bestdiv(struct jh7100_clk *clk,
--					unsigned long rate, unsigned long parent)
--{
--	unsigned long max = clk->max_div;
--	unsigned long div = DIV_ROUND_UP(parent, rate);
--
--	return min(div, max);
--}
--
- static int jh7100_clk_determine_rate(struct clk_hw *hw,
- 				     struct clk_rate_request *req)
+ int xsk_umem__delete(struct xsk_umem *umem)
  {
- 	struct jh7100_clk *clk = jh7100_clk_from(hw);
- 	unsigned long parent = req->best_parent_rate;
- 	unsigned long rate = clamp(req->rate, req->min_rate, req->max_rate);
--	unsigned long div = jh7100_clk_bestdiv(clk, rate, parent);
-+	unsigned long div = min_t(unsigned long, DIV_ROUND_UP(parent, rate), clk->max_div);
- 	unsigned long result = parent / div;
++	struct xdp_mmap_offsets off;
++	int err;
++
+ 	if (!umem)
+ 		return 0;
  
- 	/*
-@@ -442,7 +433,8 @@ static int jh7100_clk_set_rate(struct clk_hw *hw,
- 			       unsigned long parent_rate)
- {
- 	struct jh7100_clk *clk = jh7100_clk_from(hw);
--	unsigned long div = jh7100_clk_bestdiv(clk, rate, parent_rate);
-+	unsigned long div = clamp(DIV_ROUND_CLOSEST(parent_rate, rate),
-+				  1UL, (unsigned long)clk->max_div);
+ 	if (umem->refcount)
+ 		return -EBUSY;
  
- 	jh7100_clk_reg_rmw(clk, JH7100_CLK_DIV_MASK, div);
- 	return 0;
++	err = xsk_get_mmap_offsets(umem->fd, &off);
++	if (!err && umem->fill_save && umem->comp_save) {
++		munmap(umem->fill_save->ring - off.fr.desc,
++		       off.fr.desc + umem->config.fill_size * sizeof(__u64));
++		munmap(umem->comp_save->ring - off.cr.desc,
++		       off.cr.desc + umem->config.comp_size * sizeof(__u64));
++	}
++
+ 	close(umem->fd);
+ 	free(umem);
+ 
 -- 
 2.34.1
 
