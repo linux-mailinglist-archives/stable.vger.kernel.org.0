@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F0B34F2D73
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:42:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE2C64F2C07
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:22:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241073AbiDEKsb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:48:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50096 "EHLO
+        id S243972AbiDEJPJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:15:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46826 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244522AbiDEJl1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:41:27 -0400
+        with ESMTP id S244918AbiDEIwr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:47 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1AEDBB937;
-        Tue,  5 Apr 2022 02:26:43 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A89C24593;
+        Tue,  5 Apr 2022 01:46:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3E5106144D;
-        Tue,  5 Apr 2022 09:26:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A686C385A0;
-        Tue,  5 Apr 2022 09:26:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 37DA86117A;
+        Tue,  5 Apr 2022 08:46:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4ACFDC385A0;
+        Tue,  5 Apr 2022 08:46:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150802;
-        bh=x/BbDqLS16fO//8ZLAlr4JSJFLAy2lcDbX54ZoBLp9w=;
+        s=korg; t=1649148383;
+        bh=K3TAybxi+nsvSrrQJTUFlqvaiEsAWoqPvFcXFTD1X88=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HiMzOj8APaba8HY4NENe3dHw838oOhzhGfUZYAA3ZObTFfjdZarOdhbo7+XeIf8Ri
-         uXByylLInGAXvOfMz8xXrRhA0iGeBc4hZ6r5NQW0/ssiFaN3hSq6CF1VQR++kjboSj
-         nwZydrpW5NqmFEsvw9lNNCs/fJqQ6RdcRBQCQfe8=
+        b=pU258fIfQDhA+RUJUhxHZbOJzF6ad4P8iXR7OBiJqqn7PR22S0e9Bax/aeJTtBhI9
+         GWIIWEZHZlMPtSj/wxWDqk4OUlkkqbcS4wheKyTRqdNt7CzOo552sLf2neExR0ahHg
+         qP+6mudkCUcFtK11tMAYlPxpPq8VTjhWPwhIPJIs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Liguang Zhang <zhangliguang@linux.alibaba.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Lukas Wunner <lukas@wunner.de>
-Subject: [PATCH 5.15 187/913] PCI: pciehp: Clear cmd_busy bit in polling mode
+        stable@vger.kernel.org, Jernej Skrabec <jernej.skrabec@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0336/1017] media: cedrus: H265: Fix neighbour info buffer size
 Date:   Tue,  5 Apr 2022 09:20:49 +0200
-Message-Id: <20220405070345.461700722@linuxfoundation.org>
+Message-Id: <20220405070404.256229245@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,53 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liguang Zhang <zhangliguang@linux.alibaba.com>
+From: Jernej Skrabec <jernej.skrabec@gmail.com>
 
-commit 92912b175178c7e895f5e5e9f1e30ac30319162b upstream.
+[ Upstream commit ee8b887329c78971967506f3ac79b9302c9f83c1 ]
 
-Writes to a Downstream Port's Slot Control register are PCIe hotplug
-"commands."  If the Port supports Command Completed events, software must
-wait for a command to complete before writing to Slot Control again.
+Neighbour info buffer size needs to be 794 kiB in H6. This is actually
+already indirectly mentioned in the comment, but smaller size is used
+nevertheless.
 
-pcie_do_write_cmd() sets ctrl->cmd_busy when it writes to Slot Control.  If
-software notification is enabled, i.e., PCI_EXP_SLTCTL_HPIE and
-PCI_EXP_SLTCTL_CCIE are set, ctrl->cmd_busy is cleared by pciehp_isr().
+Increase buffer size to cover H6 needs. Since increase is not that big
+in absolute numbers, it doesn't make sense to complicate logic for older
+generations.
 
-But when software notification is disabled, as it is when pcie_init()
-powers off an empty slot, pcie_wait_cmd() uses pcie_poll_cmd() to poll for
-command completion, and it neglects to clear ctrl->cmd_busy, which leads to
-spurious timeouts:
+Bug was discovered using iommu, which reported access error when trying
+to play H265 video.
 
-  pcieport 0000:00:03.0: pciehp: Timeout on hotplug command 0x01c0 (issued 2264 msec ago)
-  pcieport 0000:00:03.0: pciehp: Timeout on hotplug command 0x05c0 (issued 2288 msec ago)
-
-Clear ctrl->cmd_busy in pcie_poll_cmd() when it detects a Command Completed
-event (PCI_EXP_SLTSTA_CC).
-
-[bhelgaas: commit log]
-Fixes: a5dd4b4b0570 ("PCI: pciehp: Wait for hotplug command completion where necessary")
-Link: https://lore.kernel.org/r/20211111054258.7309-1-zhangliguang@linux.alibaba.com
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=215143
-Link: https://lore.kernel.org/r/20211126173309.GA12255@wunner.de
-Signed-off-by: Liguang Zhang <zhangliguang@linux.alibaba.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Lukas Wunner <lukas@wunner.de>
-Cc: stable@vger.kernel.org	# v4.19+
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 86caab29da78 ("media: cedrus: Add HEVC/H.265 decoding support")
+Signed-off-by: Jernej Skrabec <jernej.skrabec@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/hotplug/pciehp_hpc.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/staging/media/sunxi/cedrus/cedrus_h265.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/pci/hotplug/pciehp_hpc.c
-+++ b/drivers/pci/hotplug/pciehp_hpc.c
-@@ -98,6 +98,8 @@ static int pcie_poll_cmd(struct controll
- 		if (slot_status & PCI_EXP_SLTSTA_CC) {
- 			pcie_capability_write_word(pdev, PCI_EXP_SLTSTA,
- 						   PCI_EXP_SLTSTA_CC);
-+			ctrl->cmd_busy = 0;
-+			smp_mb();
- 			return 1;
- 		}
- 		msleep(10);
+diff --git a/drivers/staging/media/sunxi/cedrus/cedrus_h265.c b/drivers/staging/media/sunxi/cedrus/cedrus_h265.c
+index 8829a7bab07e..ffade5cbd2e4 100644
+--- a/drivers/staging/media/sunxi/cedrus/cedrus_h265.c
++++ b/drivers/staging/media/sunxi/cedrus/cedrus_h265.c
+@@ -23,7 +23,7 @@
+  * Subsequent BSP implementations seem to double the neighbor info buffer size
+  * for the H6 SoC, which may be related to 10 bit H265 support.
+  */
+-#define CEDRUS_H265_NEIGHBOR_INFO_BUF_SIZE	(397 * SZ_1K)
++#define CEDRUS_H265_NEIGHBOR_INFO_BUF_SIZE	(794 * SZ_1K)
+ #define CEDRUS_H265_ENTRY_POINTS_BUF_SIZE	(4 * SZ_1K)
+ #define CEDRUS_H265_MV_COL_BUF_UNIT_CTB_SIZE	160
+ 
+-- 
+2.34.1
+
 
 
