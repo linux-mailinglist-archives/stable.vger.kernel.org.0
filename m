@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FB534F3B3F
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:16:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 85E454F38B8
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:36:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346570AbiDELwS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:52:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50646 "EHLO
+        id S1377125AbiDEL1h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:27:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54324 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356769AbiDEKYz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:24:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6858DBF53B;
-        Tue,  5 Apr 2022 03:08:59 -0700 (PDT)
+        with ESMTP id S1349584AbiDEJu1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:50:27 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14A859B;
+        Tue,  5 Apr 2022 02:48:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8B3F76179D;
-        Tue,  5 Apr 2022 10:08:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A12E4C385A0;
-        Tue,  5 Apr 2022 10:08:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B8FDDB817D3;
+        Tue,  5 Apr 2022 09:48:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35856C385A2;
+        Tue,  5 Apr 2022 09:48:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153338;
-        bh=xakmxZtCSnxgVfsDrqj19Nm5hkpjREj2jKL0vzK4tiU=;
+        s=korg; t=1649152106;
+        bh=GJWTx2va9kVPJ+UsHarwUFYycQHMaT1jG3zkI1xGkhM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hkt64Huk4Ixs6G5K2WsQjI6gyPvqmvwXOVqCUx2AnewCiMDNILBKaR/2I1Q09KHIz
-         sdM2Ct60hkcgH1xT+O+EU/0wMWG73J34/HifddCt6pNRXgfhVCDLBAjYPJn1ofE3h+
-         S4Srh7+wEGqCDiPlzJDN8qZ9JZgdAYXX9NPcy6Q4=
+        b=T6W8Cs4BB1gdE6cJqy2ROGdxvhPagUTCuclfzyV5lHE2zCtIZFy7+QgPAY3NA7ojs
+         3hXEWD2/ANK5oIL+SMh3UzaHYeQePdJ9cY8pUB5b8Sj20DpiBPY2FOExo0zEDQQNkP
+         SRraaANVHnY1veg5NsmqVg8jz6J2usaCu+MnsC4Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Corentin Labbe <clabbe@baylibre.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Jonathan=20Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>,
+        =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <f4bug@amsat.org>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 187/599] media: staging: media: zoran: fix usage of vb2_dma_contig_set_max_seg_size
-Date:   Tue,  5 Apr 2022 09:28:01 +0200
-Message-Id: <20220405070304.406826520@linuxfoundation.org>
+Subject: [PATCH 5.15 620/913] clk: loongson1: Terminate clk_div_table with sentinel element
+Date:   Tue,  5 Apr 2022 09:28:02 +0200
+Message-Id: <20220405070358.424889663@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
-References: <20220405070258.802373272@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,42 +56,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corentin Labbe <clabbe@baylibre.com>
+From: Jonathan Neuschäfer <j.neuschaefer@gmx.net>
 
-[ Upstream commit 241f5b67fb48def58643f279dfb8468bdd54b443 ]
+[ Upstream commit 3eb00f89162e80083dfcaa842468b510462cfeaa ]
 
-vb2_dma_contig_set_max_seg_size need to have a size in parameter and not
-a DMA_BIT_MASK().
-While fixing this issue, also fix error handling of all DMA size
-setting.
+In order that the end of a clk_div_table can be detected, it must be
+terminated with a sentinel element (.div = 0).
 
-Reported-by: kernel test robot <lkp@intel.com>
-Fixes: d4ae3689226e5 ("media: zoran: device support only 32bit DMA address")
-Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Fixes: b4626a7f4892 ("CLK: Add Loongson1C clock support")
+Signed-off-by: Jonathan Neuschäfer <j.neuschaefer@gmx.net>
+Reviewed-by: Philippe Mathieu-Daudé <f4bug@amsat.org>
+Link: https://lore.kernel.org/r/20220218000922.134857-3-j.neuschaefer@gmx.net
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/zoran/zoran_card.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/clk/loongson1/clk-loongson1c.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/staging/media/zoran/zoran_card.c b/drivers/staging/media/zoran/zoran_card.c
-index dfc60e2e9dd7..721f1decb0a7 100644
---- a/drivers/staging/media/zoran/zoran_card.c
-+++ b/drivers/staging/media/zoran/zoran_card.c
-@@ -1068,8 +1068,10 @@ static int zoran_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+diff --git a/drivers/clk/loongson1/clk-loongson1c.c b/drivers/clk/loongson1/clk-loongson1c.c
+index 703f87622cf5..1ebf740380ef 100644
+--- a/drivers/clk/loongson1/clk-loongson1c.c
++++ b/drivers/clk/loongson1/clk-loongson1c.c
+@@ -37,6 +37,7 @@ static const struct clk_div_table ahb_div_table[] = {
+ 	[1] = { .val = 1, .div = 4 },
+ 	[2] = { .val = 2, .div = 3 },
+ 	[3] = { .val = 3, .div = 3 },
++	[4] = { /* sentinel */ }
+ };
  
- 	err = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(32));
- 	if (err)
--		return -ENODEV;
--	vb2_dma_contig_set_max_seg_size(&pdev->dev, DMA_BIT_MASK(32));
-+		return err;
-+	err = vb2_dma_contig_set_max_seg_size(&pdev->dev, U32_MAX);
-+	if (err)
-+		return err;
- 
- 	nr = zoran_num++;
- 	if (nr >= BUZ_MAX) {
+ void __init ls1x_clk_init(void)
 -- 
 2.34.1
 
