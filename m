@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CE9B4F3AD0
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:05:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB1554F3812
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:27:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237777AbiDELsm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:48:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59198 "EHLO
+        id S1376281AbiDELVS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:21:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355855AbiDEKWK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:22:10 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0905A5E99;
-        Tue,  5 Apr 2022 03:05:09 -0700 (PDT)
+        with ESMTP id S1349342AbiDEJtl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AB1C6334;
+        Tue,  5 Apr 2022 02:44:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 029EDB81BC0;
-        Tue,  5 Apr 2022 10:05:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47514C385A1;
-        Tue,  5 Apr 2022 10:05:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CBCE061675;
+        Tue,  5 Apr 2022 09:44:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1E79C385A2;
+        Tue,  5 Apr 2022 09:44:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153106;
-        bh=WIur+IZSr4WUw7s7h6O+Yd9AzCOgKPc5ajD44zcjWiQ=;
+        s=korg; t=1649151851;
+        bh=yZ+WimmexbVpDWgdZiQrjWS7LEoQpVE2+xeHGJ7M12k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wOYXBUt6/TgcyMpG/9m0FsB6UWaj57sIeySZ1nmVN1AVnZec87qOKMERNfGdSSPQf
-         hcyGfmzOGtPdjHz1M3h4taTpYZX9TvaffFiOWzsGw/HBi6kBPRs1jJjf+hElhTg7FI
-         +CK2Y+cMJqW/jK4HQpFqKIASF8ui3wFN72TWqJnM=
+        b=b/56oO+u1GkTTDTNjzrBsFhyEqFuGsSy84UErdjGCERJiconwuSwp0yvjo9OgFBe4
+         VtBc9FCS2yHfAMJET5KhphkRCcNXmYKPW9Is9HkbNEqx8cFW2MAAPL+ZoaUkh3vO7B
+         o+08V4wFHWH5rrWbvfm8yX4j3vsnQvynAyZxUSks=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.i.king@gmail.com>,
-        Stable@vger.kernel.org, Christian Lamparter <chunkeey@gmail.com>,
-        Kalle Valo <quic_kvalo@quicinc.com>
-Subject: [PATCH 5.10 104/599] carl9170: fix missing bit-wise or operator for tx_params
-Date:   Tue,  5 Apr 2022 09:26:38 +0200
-Message-Id: <20220405070301.928654551@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Shiraz Saleem <shiraz.saleem@intel.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 537/913] RDMA/irdma: Prevent some integer underflows
+Date:   Tue,  5 Apr 2022 09:26:39 +0200
+Message-Id: <20220405070355.945964593@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
-References: <20220405070258.802373272@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +55,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.i.king@gmail.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 02a95374b5eebdbd3b6413fd7ddec151d2ea75a1 upstream.
+[ Upstream commit 6f6dbb819dfc1a35bcb8b709b5c83a3ea8beff75 ]
 
-Currently tx_params is being re-assigned with a new value and the
-previous setting IEEE80211_HT_MCS_TX_RX_DIFF is being overwritten.
-The assignment operator is incorrect, the original intent was to
-bit-wise or the value in. Fix this by replacing the = operator
-with |= instead.
+My static checker complains that:
 
-Kudos to Christian Lamparter for suggesting the correct fix.
+    drivers/infiniband/hw/irdma/ctrl.c:3605 irdma_sc_ceq_init()
+    warn: can subtract underflow 'info->dev->hmc_fpm_misc.max_ceqs'?
 
-Fixes: fe8ee9ad80b2 ("carl9170: mac80211 glue and command interface")
-Signed-off-by: Colin Ian King <colin.i.king@gmail.com>
-Cc: <Stable@vger.kernel.org>
-Acked-by: Christian Lamparter <chunkeey@gmail.com>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/20220125004406.344422-1-colin.i.king@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+It appears that "info->dev->hmc_fpm_misc.max_ceqs" comes from the firmware
+in irdma_sc_parse_fpm_query_buf() so, yes, there is a chance that it could
+be zero.  Even if we trust the firmware, it's easy enough to change the
+condition just as a hardenning measure.
+
+Fixes: 3f49d6842569 ("RDMA/irdma: Implement HW Admin Queue OPs")
+Link: https://lore.kernel.org/r/20220307125928.GE16710@kili
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Acked-by: Shiraz Saleem <shiraz.saleem@intel.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/carl9170/main.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/hw/irdma/ctrl.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/drivers/net/wireless/ath/carl9170/main.c
-+++ b/drivers/net/wireless/ath/carl9170/main.c
-@@ -1916,7 +1916,7 @@ static int carl9170_parse_eeprom(struct
- 		WARN_ON(!(tx_streams >= 1 && tx_streams <=
- 			IEEE80211_HT_MCS_TX_MAX_STREAMS));
+diff --git a/drivers/infiniband/hw/irdma/ctrl.c b/drivers/infiniband/hw/irdma/ctrl.c
+index f1e5515256e0..1ac7067e21be 100644
+--- a/drivers/infiniband/hw/irdma/ctrl.c
++++ b/drivers/infiniband/hw/irdma/ctrl.c
+@@ -431,7 +431,7 @@ enum irdma_status_code irdma_sc_qp_create(struct irdma_sc_qp *qp, struct irdma_c
  
--		tx_params = (tx_streams - 1) <<
-+		tx_params |= (tx_streams - 1) <<
- 			    IEEE80211_HT_MCS_TX_MAX_STREAMS_SHIFT;
+ 	cqp = qp->dev->cqp;
+ 	if (qp->qp_uk.qp_id < cqp->dev->hw_attrs.min_hw_qp_id ||
+-	    qp->qp_uk.qp_id > (cqp->dev->hmc_info->hmc_obj[IRDMA_HMC_IW_QP].max_cnt - 1))
++	    qp->qp_uk.qp_id >= (cqp->dev->hmc_info->hmc_obj[IRDMA_HMC_IW_QP].max_cnt))
+ 		return IRDMA_ERR_INVALID_QP_ID;
  
- 		carl9170_band_2GHz.ht_cap.mcs.tx_params |= tx_params;
+ 	wqe = irdma_sc_cqp_get_next_send_wqe(cqp, scratch);
+@@ -2551,10 +2551,10 @@ static enum irdma_status_code irdma_sc_cq_create(struct irdma_sc_cq *cq,
+ 	enum irdma_status_code ret_code = 0;
+ 
+ 	cqp = cq->dev->cqp;
+-	if (cq->cq_uk.cq_id > (cqp->dev->hmc_info->hmc_obj[IRDMA_HMC_IW_CQ].max_cnt - 1))
++	if (cq->cq_uk.cq_id >= (cqp->dev->hmc_info->hmc_obj[IRDMA_HMC_IW_CQ].max_cnt))
+ 		return IRDMA_ERR_INVALID_CQ_ID;
+ 
+-	if (cq->ceq_id > (cq->dev->hmc_fpm_misc.max_ceqs - 1))
++	if (cq->ceq_id >= (cq->dev->hmc_fpm_misc.max_ceqs))
+ 		return IRDMA_ERR_INVALID_CEQ_ID;
+ 
+ 	ceq = cq->dev->ceq[cq->ceq_id];
+@@ -3656,7 +3656,7 @@ enum irdma_status_code irdma_sc_ceq_init(struct irdma_sc_ceq *ceq,
+ 	    info->elem_cnt > info->dev->hw_attrs.max_hw_ceq_size)
+ 		return IRDMA_ERR_INVALID_SIZE;
+ 
+-	if (info->ceq_id > (info->dev->hmc_fpm_misc.max_ceqs - 1))
++	if (info->ceq_id >= (info->dev->hmc_fpm_misc.max_ceqs))
+ 		return IRDMA_ERR_INVALID_CEQ_ID;
+ 	pble_obj_cnt = info->dev->hmc_info->hmc_obj[IRDMA_HMC_IW_PBLE].cnt;
+ 
+@@ -4205,7 +4205,7 @@ enum irdma_status_code irdma_sc_ccq_init(struct irdma_sc_cq *cq,
+ 	    info->num_elem > info->dev->hw_attrs.uk_attrs.max_hw_cq_size)
+ 		return IRDMA_ERR_INVALID_SIZE;
+ 
+-	if (info->ceq_id > (info->dev->hmc_fpm_misc.max_ceqs - 1))
++	if (info->ceq_id >= (info->dev->hmc_fpm_misc.max_ceqs ))
+ 		return IRDMA_ERR_INVALID_CEQ_ID;
+ 
+ 	pble_obj_cnt = info->dev->hmc_info->hmc_obj[IRDMA_HMC_IW_PBLE].cnt;
+-- 
+2.34.1
+
 
 
