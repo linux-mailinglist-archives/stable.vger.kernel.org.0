@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E31D4F2EC8
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:04:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E03744F2ED8
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:04:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232882AbiDEIi2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:38:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58008 "EHLO
+        id S1350600AbiDEJ7D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:59:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60620 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240024AbiDEIWM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:22:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42089BE13;
-        Tue,  5 Apr 2022 01:19:41 -0700 (PDT)
+        with ESMTP id S1344127AbiDEJSS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:18:18 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93D9D37A3D;
+        Tue,  5 Apr 2022 02:04:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D797DB81B92;
-        Tue,  5 Apr 2022 08:19:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A30DC385A0;
-        Tue,  5 Apr 2022 08:19:38 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 6756BCE1C6A;
+        Tue,  5 Apr 2022 09:04:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80212C385A0;
+        Tue,  5 Apr 2022 09:04:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146778;
-        bh=Blv0c6ejg6rD0X1SOHhY8mR5VPAywL+8Nw0gmhTNI00=;
+        s=korg; t=1649149450;
+        bh=+ZIW8t4x0ThwpjfSahCA2lfR+DiLR6YdOj+9nIWr+Hs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0TcJPC5OHRe1Yo/YR4yBk7yZDewwmTaiqDIHpt8aSSiba3XxdFc/KgZIywpDWUloO
-         P4hHOJ8X7Hlg/gI8l4Zk0EZAVggQCbv4zaUcJbvPtJlLQyF8xUlxJn/ve2WoouWfZl
-         ddGcuwRDDLvnD73uUu0qhK/1TCUgQDhPb3y90zTo=
+        b=ngFvj4SVZePFo2voBnLWpEtmjrJ66OYxoTxVrAfvcjcR+3grYcLnE1XYMUxfhOwtp
+         u6Wjp26LNt9Tdp6Ia9RhGhXPJKvcI3iynkciRF9CPoHBO2j2kPuCbHx7r6zax+63bf
+         KNsQlj3eZruacPm5lsPCZphTRcAjE34N3LE2iWto=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dai Ngo <dai.ngo@oracle.com>,
-        Chuck Lever <chuck.lever@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0878/1126] NFSD: Fix nfsd_breaker_owns_lease() return values
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        Dave Kleikamp <dave.kleikamp@oracle.com>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+46f5c25af73eb8330eb6@syzkaller.appspotmail.com
+Subject: [PATCH 5.16 0712/1017] jfs: fix divide error in dbNextAG
 Date:   Tue,  5 Apr 2022 09:27:05 +0200
-Message-Id: <20220405070433.304575820@linuxfoundation.org>
+Message-Id: <20220405070415.404810808@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,55 +55,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuck Lever <chuck.lever@oracle.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit 50719bf3442dd6cd05159e9c98d020b3919ce978 ]
+[ Upstream commit 2cc7cc01c15f57d056318c33705647f87dcd4aab ]
 
-These have been incorrect since the function was introduced.
+Syzbot reported divide error in dbNextAG(). The problem was in missing
+validation check for malicious image.
 
-A proper kerneldoc comment is added since this function, though
-static, is part of an external interface.
+Syzbot crafted an image with bmp->db_numag equal to 0. There wasn't any
+validation checks, but dbNextAG() blindly use bmp->db_numag in divide
+expression
 
-Reported-by: Dai Ngo <dai.ngo@oracle.com>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Fix it by validating bmp->db_numag in dbMount() and return an error if
+image is malicious
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Reported-and-tested-by: syzbot+46f5c25af73eb8330eb6@syzkaller.appspotmail.com
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: Dave Kleikamp <dave.kleikamp@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/nfs4state.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ fs/jfs/jfs_dmap.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/fs/nfsd/nfs4state.c b/fs/nfsd/nfs4state.c
-index 32063733443d..f3b71fd1d134 100644
---- a/fs/nfsd/nfs4state.c
-+++ b/fs/nfsd/nfs4state.c
-@@ -4711,6 +4711,14 @@ nfsd_break_deleg_cb(struct file_lock *fl)
- 	return ret;
- }
- 
-+/**
-+ * nfsd_breaker_owns_lease - Check if lease conflict was resolved
-+ * @fl: Lock state to check
-+ *
-+ * Return values:
-+ *   %true: Lease conflict was resolved
-+ *   %false: Lease conflict was not resolved.
-+ */
- static bool nfsd_breaker_owns_lease(struct file_lock *fl)
+diff --git a/fs/jfs/jfs_dmap.c b/fs/jfs/jfs_dmap.c
+index 91f4ec93dab1..d8502f4989d9 100644
+--- a/fs/jfs/jfs_dmap.c
++++ b/fs/jfs/jfs_dmap.c
+@@ -148,6 +148,7 @@ static const s8 budtab[256] = {
+  *	0	- success
+  *	-ENOMEM	- insufficient memory
+  *	-EIO	- i/o error
++ *	-EINVAL - wrong bmap data
+  */
+ int dbMount(struct inode *ipbmap)
  {
- 	struct nfs4_delegation *dl = fl->fl_owner;
-@@ -4718,11 +4726,11 @@ static bool nfsd_breaker_owns_lease(struct file_lock *fl)
- 	struct nfs4_client *clp;
- 
- 	if (!i_am_nfsd())
--		return NULL;
-+		return false;
- 	rqst = kthread_data(current);
- 	/* Note rq_prog == NFS_ACL_PROGRAM is also possible: */
- 	if (rqst->rq_prog != NFS_PROGRAM || rqst->rq_vers < 4)
--		return NULL;
-+		return false;
- 	clp = *(rqst->rq_lease_breaker);
- 	return dl->dl_stid.sc_client == clp;
- }
+@@ -179,6 +180,12 @@ int dbMount(struct inode *ipbmap)
+ 	bmp->db_nfree = le64_to_cpu(dbmp_le->dn_nfree);
+ 	bmp->db_l2nbperpage = le32_to_cpu(dbmp_le->dn_l2nbperpage);
+ 	bmp->db_numag = le32_to_cpu(dbmp_le->dn_numag);
++	if (!bmp->db_numag) {
++		release_metapage(mp);
++		kfree(bmp);
++		return -EINVAL;
++	}
++
+ 	bmp->db_maxlevel = le32_to_cpu(dbmp_le->dn_maxlevel);
+ 	bmp->db_maxag = le32_to_cpu(dbmp_le->dn_maxag);
+ 	bmp->db_agpref = le32_to_cpu(dbmp_le->dn_agpref);
 -- 
 2.34.1
 
