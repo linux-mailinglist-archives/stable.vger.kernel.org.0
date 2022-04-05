@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7632F4F32CF
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:00:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30FBC4F3234
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:54:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244795AbiDEJLB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:11:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50832 "EHLO
+        id S242257AbiDEKcm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:32:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41366 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244567AbiDEIw0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:26 -0400
+        with ESMTP id S239073AbiDEJdZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:33:25 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FE2ED7615;
-        Tue,  5 Apr 2022 01:41:21 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E35D28997;
+        Tue,  5 Apr 2022 02:21:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0F37F614FD;
-        Tue,  5 Apr 2022 08:41:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 201DEC385A0;
-        Tue,  5 Apr 2022 08:41:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D08B961574;
+        Tue,  5 Apr 2022 09:21:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E16BBC385A0;
+        Tue,  5 Apr 2022 09:21:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148080;
-        bh=SjknEhECGb1fUja6ZVAmAJQKcOM/RZ1nOx6+Lr4wAFE=;
+        s=korg; t=1649150512;
+        bh=svZuOa8pDq3zAWgG/cti6ctsXMEigFytM+QrFm9Cwm8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TnCtzD69knu5NS1w0sI1+YQo0zpRSi8gjYjUDgmVen0SW+10+grQ6tg4CKBxPonik
-         PxyNsH+sa37+slSO5z/9QfITZsNNOKJhNMcyR/NqNAf7Hl6vbl1HLBbiResekk7Eub
-         FwI3yJg5vKnZITup894UxQzReu5+kgAh/3RIwzTA=
+        b=u4tAk9CjQEEoSZaVf7shy4FIFnV6Uj6YFRVb5KmQEmpQuo4diYS9yLMdQACsbZ84j
+         rgdNwTbmURX406CKNKjtDVRbe89D57gaBXwu4Wn1gIs9mxvxrDGiIaADaxEqa8ZCXz
+         gatmK0wYCqQ0UWqTzRQ70Q9YoXM7xxEEDR3kf0Yk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
-        Armin Wolf <W_Armin@gmx.de>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0228/1017] hwmon: (sch56xx-common) Replace WDOG_ACTIVE with WDOG_HW_RUNNING
-Date:   Tue,  5 Apr 2022 09:19:01 +0200
-Message-Id: <20220405070401.022835973@linuxfoundation.org>
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Baokun Li <libaokun1@huawei.com>,
+        Richard Weinberger <richard@nod.at>
+Subject: [PATCH 5.15 080/913] jffs2: fix use-after-free in jffs2_clear_xattr_subsystem
+Date:   Tue,  5 Apr 2022 09:19:02 +0200
+Message-Id: <20220405070342.221765381@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,45 +54,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Armin Wolf <W_Armin@gmx.de>
+From: Baokun Li <libaokun1@huawei.com>
 
-[ Upstream commit 647d6f09bea7dacf4cdb6d4ea7e3051883955297 ]
+commit 4c7c44ee1650677fbe89d86edbad9497b7679b5c upstream.
 
-If the watchdog was already enabled by the BIOS after booting, the
-watchdog infrastructure needs to regularly send keepalives to
-prevent a unexpected reset.
-WDOG_ACTIVE only serves as an status indicator for userspace,
-we want to use WDOG_HW_RUNNING instead.
+When we mount a jffs2 image, assume that the first few blocks of
+the image are normal and contain at least one xattr-related inode,
+but the next block is abnormal. As a result, an error is returned
+in jffs2_scan_eraseblock(). jffs2_clear_xattr_subsystem() is then
+called in jffs2_build_filesystem() and then again in
+jffs2_do_fill_super().
 
-Since my Fujitsu Esprimo P720 does not support the watchdog,
-this change is compile-tested only.
+Finally we can observe the following report:
+ ==================================================================
+ BUG: KASAN: use-after-free in jffs2_clear_xattr_subsystem+0x95/0x6ac
+ Read of size 8 at addr ffff8881243384e0 by task mount/719
 
-Suggested-by: Guenter Roeck <linux@roeck-us.net>
-Fixes: fb551405c0f8 (watchdog: sch56xx: Use watchdog core)
-Signed-off-by: Armin Wolf <W_Armin@gmx.de>
-Link: https://lore.kernel.org/r/20220131211935.3656-5-W_Armin@gmx.de
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+ Call Trace:
+  dump_stack+0x115/0x16b
+  jffs2_clear_xattr_subsystem+0x95/0x6ac
+  jffs2_do_fill_super+0x84f/0xc30
+  jffs2_fill_super+0x2ea/0x4c0
+  mtd_get_sb+0x254/0x400
+  mtd_get_sb_by_nr+0x4f/0xd0
+  get_tree_mtd+0x498/0x840
+  jffs2_get_tree+0x25/0x30
+  vfs_get_tree+0x8d/0x2e0
+  path_mount+0x50f/0x1e50
+  do_mount+0x107/0x130
+  __se_sys_mount+0x1c5/0x2f0
+  __x64_sys_mount+0xc7/0x160
+  do_syscall_64+0x45/0x70
+  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+ Allocated by task 719:
+  kasan_save_stack+0x23/0x60
+  __kasan_kmalloc.constprop.0+0x10b/0x120
+  kasan_slab_alloc+0x12/0x20
+  kmem_cache_alloc+0x1c0/0x870
+  jffs2_alloc_xattr_ref+0x2f/0xa0
+  jffs2_scan_medium.cold+0x3713/0x4794
+  jffs2_do_mount_fs.cold+0xa7/0x2253
+  jffs2_do_fill_super+0x383/0xc30
+  jffs2_fill_super+0x2ea/0x4c0
+ [...]
+
+ Freed by task 719:
+  kmem_cache_free+0xcc/0x7b0
+  jffs2_free_xattr_ref+0x78/0x98
+  jffs2_clear_xattr_subsystem+0xa1/0x6ac
+  jffs2_do_mount_fs.cold+0x5e6/0x2253
+  jffs2_do_fill_super+0x383/0xc30
+  jffs2_fill_super+0x2ea/0x4c0
+ [...]
+
+ The buggy address belongs to the object at ffff8881243384b8
+  which belongs to the cache jffs2_xattr_ref of size 48
+ The buggy address is located 40 bytes inside of
+  48-byte region [ffff8881243384b8, ffff8881243384e8)
+ [...]
+ ==================================================================
+
+The triggering of the BUG is shown in the following stack:
+-----------------------------------------------------------
+jffs2_fill_super
+  jffs2_do_fill_super
+    jffs2_do_mount_fs
+      jffs2_build_filesystem
+        jffs2_scan_medium
+          jffs2_scan_eraseblock        <--- ERROR
+        jffs2_clear_xattr_subsystem    <--- free
+    jffs2_clear_xattr_subsystem        <--- free again
+-----------------------------------------------------------
+
+An error is returned in jffs2_do_mount_fs(). If the error is returned
+by jffs2_sum_init(), the jffs2_clear_xattr_subsystem() does not need to
+be executed. If the error is returned by jffs2_build_filesystem(), the
+jffs2_clear_xattr_subsystem() also does not need to be executed again.
+So move jffs2_clear_xattr_subsystem() from 'out_inohash' to 'out_root'
+to fix this UAF problem.
+
+Fixes: aa98d7cf59b5 ("[JFFS2][XATTR] XATTR support on JFFS2 (version. 5)")
+Cc: stable@vger.kernel.org
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Baokun Li <libaokun1@huawei.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hwmon/sch56xx-common.c | 2 +-
+ fs/jffs2/fs.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hwmon/sch56xx-common.c b/drivers/hwmon/sch56xx-common.c
-index 40cdadad35e5..f85eede6d766 100644
---- a/drivers/hwmon/sch56xx-common.c
-+++ b/drivers/hwmon/sch56xx-common.c
-@@ -422,7 +422,7 @@ void sch56xx_watchdog_register(struct device *parent, u16 addr, u32 revision,
- 	data->wddev.max_timeout = 255 * 60;
- 	watchdog_set_nowayout(&data->wddev, nowayout);
- 	if (output_enable & SCH56XX_WDOG_OUTPUT_ENABLE)
--		set_bit(WDOG_ACTIVE, &data->wddev.status);
-+		set_bit(WDOG_HW_RUNNING, &data->wddev.status);
- 
- 	/* Since the watchdog uses a downcounter there is no register to read
- 	   the BIOS set timeout from (if any was set at all) ->
--- 
-2.34.1
-
+--- a/fs/jffs2/fs.c
++++ b/fs/jffs2/fs.c
+@@ -603,8 +603,8 @@ out_root:
+ 	jffs2_free_ino_caches(c);
+ 	jffs2_free_raw_node_refs(c);
+ 	kvfree(c->blocks);
+- out_inohash:
+ 	jffs2_clear_xattr_subsystem(c);
++ out_inohash:
+ 	kfree(c->inocache_list);
+  out_wbuf:
+ 	jffs2_flash_cleanup(c);
 
 
