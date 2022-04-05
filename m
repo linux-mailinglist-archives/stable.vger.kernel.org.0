@@ -2,134 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D9B524F47EA
-	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 01:44:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D90694F47E3
+	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 01:44:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347580AbiDEVXA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 17:23:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60222 "EHLO
+        id S1346882AbiDEVWl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 17:22:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48540 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1443810AbiDEPkT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 11:40:19 -0400
-Received: from mail-pf1-x435.google.com (mail-pf1-x435.google.com [IPv6:2607:f8b0:4864:20::435])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E90D733E96
-        for <stable@vger.kernel.org>; Tue,  5 Apr 2022 06:59:55 -0700 (PDT)
-Received: by mail-pf1-x435.google.com with SMTP id x31so12148674pfh.9
-        for <stable@vger.kernel.org>; Tue, 05 Apr 2022 06:59:55 -0700 (PDT)
+        with ESMTP id S1443841AbiDEPkW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 11:40:22 -0400
+Received: from mail-oi1-x22c.google.com (mail-oi1-x22c.google.com [IPv6:2607:f8b0:4864:20::22c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32DDF10E549;
+        Tue,  5 Apr 2022 07:00:39 -0700 (PDT)
+Received: by mail-oi1-x22c.google.com with SMTP id t21so13460182oie.11;
+        Tue, 05 Apr 2022 07:00:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=QuaS+gKiUCS73GqNCV6Jog2wIQT/XvwhsSoTzwAs+Ww=;
-        b=4APYu5wXv1zqHn0Li2AKWfzTNRt2oxgFSKrZaTXaFi7V/Jg9LnOAFYt66RMO0co4f1
-         Hsu0GHetr0j0rSWiO8RdOaR+puFB9kt1eVE+S7KG5qAX6/l6tIyks7JW8FCUJjJJDlT4
-         8Hogmgaw4cDKaTVXb7uVS2KUNc35FcAFtyYUErYSZ6AkZQDAWZbreSmA87jovV2sVadG
-         MqfZkga2PwcjQUlBxn3ycoUQ5MuaBPbMN3kPEE+pnErhpB3Q/8OSfJmfHz5AbC1k0y+A
-         T75dSGZW//inCYhRH5cHErYg3tbeLcVLMWzk7EYzv1GycDZkd7/NeRawy1gvcghszjL8
-         guvg==
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=HFMQgSR3Z2986CsvnsaxYCQAxCwwsfFViVfXTurYbuM=;
+        b=c1d6GMnUCpuBiRYFYUMeSmkzMXbgvzFsmhNTEx5ALxlYDIIgEnDIC3KEYkk6w/FhpB
+         TqVO5CZYMwkItnXKm6jAm5gJKI+LlTivA+RxswnPYXL/iqNzg6845SVJ73UQ688A8jcs
+         oSrVMzCdB4Nn2/yrnVEoi3VY8cA3XL6SuQ81cLQRPYsQJBBqBjdVW+w5MGnrlaR75kCV
+         1IdwIAJxCk/DkKh/Hhse2iBWJmL6f3VX2hw2m1so0+gyIuPgNsdSsoGKWgwDithk/bCU
+         yQPKhif0qham54k/tTgXOhPtbKbz9MSqGWkUqmBHfi3GkMM3kMBPSPEPoURcYK/qg7Lv
+         +dDQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=QuaS+gKiUCS73GqNCV6Jog2wIQT/XvwhsSoTzwAs+Ww=;
-        b=m2A0qjL6QSDkXzUjjyr8YmgyBAgX75CYiAE3OJhaB5Ru2u1ziTHVFDX0JqZC3JVbz9
-         h46ZHBjOzYwMNctNAd+fyXTYhKNsc9PGdeDGskON2QWeyWgEmg+owYthfBQgt5zsASg5
-         EL58AZiRtN2FrCRBDKa2/z8WWkXpuF5PpWi7eN4w6C7whwrNNF89sph6BLgBdPvPqp+P
-         l2vYQVIVPz6iV8RjkrCijXQr9Nom8oMTZzcmMw5UTpezQRhPYNYQ6Qh5L/cKW35hL4L2
-         Z8Ntmwt3tx7XSyCU3S2rp5n+aCXJGjtThSG2Yj+NcKFQ7hImT1ubPVSh3A1siA5N9mST
-         u7Uw==
-X-Gm-Message-State: AOAM530ZX9M/okoMjaCCERGIuEVUSo7oyUZpdDn7kJNPcXEVyblQ8m1w
-        5Du1OTxKpM0/8TRr+BSlmVSip+pUEi2IRetl1mI=
-X-Google-Smtp-Source: ABdhPJwCSb+FEY/DUryPXI/o0GEtrv4SVfKv98xSz+MacXfJRVil2ow40iXhF13qkdG5B5vvx+2Qzw==
-X-Received: by 2002:a05:6a00:f93:b0:4fa:dab4:6e2a with SMTP id ct19-20020a056a000f9300b004fadab46e2amr3971550pfb.15.1649167195308;
-        Tue, 05 Apr 2022 06:59:55 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id u15-20020a056a00098f00b004faa58d44eesm17358493pfg.145.2022.04.05.06.59.54
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=HFMQgSR3Z2986CsvnsaxYCQAxCwwsfFViVfXTurYbuM=;
+        b=iGEAU/bcSb8f4htHiqicAPlAF4GziMejaZpi9/QWfId/jnv+Dt0IqvQgcIg6rjxN45
+         LvoF2tvRbnKEw2/Rm71gkq2R0sXn5TvtuZt/HxKR7zgUpT+60Ww5FEoE+MAmnASOIYGH
+         p/vv24o/X5BYLH6Xp56IlJzwhTwlq/b3yvwcn3gTWdCSkVKvhOnfYPgpVlenD1DFwGck
+         KOlJ+rCmchHmg3ZPQQZNMHqMS6WSxfA3hw0+AWoCJA7zJKWbYsX+oZfvG0fyRhYD227K
+         lAZ3RniQkcFxD75F9MHAu+zrOm0q6GbofoyaIxoFPlv1LmlJDvy3caem2f5O9LKGlPgG
+         Vq5g==
+X-Gm-Message-State: AOAM532ZmYoX1NwpPYMDmR3DTrRsyMCz+mgUwURqfm28C9dTLqA3Gtmr
+        n8XuJg0Y8SfCCKiiJKA3wlc=
+X-Google-Smtp-Source: ABdhPJyx+UrnCCCC/dq6VupZvYiQblLTfNZtdfBOgNWTKrCgoNVnGNSrcKZIjfn8KOCE1dlioTnWEw==
+X-Received: by 2002:a05:6808:c:b0:2ef:8913:354 with SMTP id u12-20020a056808000c00b002ef89130354mr1429138oic.201.1649167238532;
+        Tue, 05 Apr 2022 07:00:38 -0700 (PDT)
+Received: from localhost.localdomain ([2804:14c:485:4b69:99d5:2af:ddde:2ce0])
+        by smtp.gmail.com with ESMTPSA id c3-20020a056808138300b002f76b9a9ef6sm5537029oiw.10.2022.04.05.07.00.34
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 05 Apr 2022 06:59:54 -0700 (PDT)
-Message-ID: <624c4b5a.1c69fb81.bd9c5.c208@mx.google.com>
-Date:   Tue, 05 Apr 2022 06:59:54 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        Tue, 05 Apr 2022 07:00:37 -0700 (PDT)
+From:   Fabio Estevam <festevam@gmail.com>
+To:     hverkuil-cisco@xs4all.nl
+Cc:     nicolas.dufresne@collabora.com, kernel@iktek.de,
+        p.zabel@pengutronix.de, linux-media@vger.kernel.org,
+        stable@vger.kernel.org, Ezequiel Garcia <ezequiel@collabora.com>,
+        Fabio Estevam <festevam@denx.de>
+Subject: [PATCH v4 1/2] media: coda: Fix reported H264 profile
+Date:   Tue,  5 Apr 2022 10:59:56 -0300
+Message-Id: <20220405135957.3580343-1-festevam@gmail.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.14
-X-Kernelci-Kernel: v4.14.275-207-g825eaff5c065
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/4.14 baseline: 40 runs,
- 1 regressions (v4.14.275-207-g825eaff5c065)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.14 baseline: 40 runs, 1 regressions (v4.14.275-207-g825ea=
-ff5c065)
+From: Nicolas Dufresne <nicolas.dufresne@collabora.com>
 
-Regressions Summary
--------------------
+The CODA960 manual states that ASO/FMO features of baseline are not
+supported, so for this reason this driver should only report
+constrained baseline support.
 
-platform         | arch | lab          | compiler | defconfig          | re=
-gressions
------------------+------+--------------+----------+--------------------+---=
----------
-meson8b-odroidc1 | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig | 1 =
-         =
+This fixes negotiation issue with constrained baseline content
+on GStreamer 1.17.1.
 
+ASO/FMO features are unsupported for the encoder and untested for the
+decoder because there is currently no userspace support. Neither GStreamer
+parsers nor FFMPEG parsers support ASO/FMO.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
-nel/v4.14.275-207-g825eaff5c065/plan/baseline/
+Cc: stable@vger.kernel.org
+Fixes: 42a68012e67c2 ("media: coda: add read-only h.264 decoder profile/level controls")
+Signed-off-by: Nicolas Dufresne <nicolas.dufresne@collabora.com>
+Signed-off-by: Ezequiel Garcia <ezequiel@collabora.com>
+Tested-by: Pascal Speck <kernel@iktek.de>
+Signed-off-by: Fabio Estevam <festevam@denx.de>
+Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
+---
+Changes since v3:
+- Rebased against linux-next and took the coda->chips-media rename
+in consideration.
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.14
-  Describe: v4.14.275-207-g825eaff5c065
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      825eaff5c0654e7b933266e964dd0b3efade75d1 =
+ drivers/media/platform/chips-media/coda-common.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
+diff --git a/drivers/media/platform/chips-media/coda-common.c b/drivers/media/platform/chips-media/coda-common.c
+index a57822b05070..53b2dd1b268c 100644
+--- a/drivers/media/platform/chips-media/coda-common.c
++++ b/drivers/media/platform/chips-media/coda-common.c
+@@ -2344,8 +2344,8 @@ static void coda_encode_ctrls(struct coda_ctx *ctx)
+ 		V4L2_CID_MPEG_VIDEO_H264_CHROMA_QP_INDEX_OFFSET, -12, 12, 1, 0);
+ 	v4l2_ctrl_new_std_menu(&ctx->ctrls, &coda_ctrl_ops,
+ 		V4L2_CID_MPEG_VIDEO_H264_PROFILE,
+-		V4L2_MPEG_VIDEO_H264_PROFILE_BASELINE, 0x0,
+-		V4L2_MPEG_VIDEO_H264_PROFILE_BASELINE);
++		V4L2_MPEG_VIDEO_H264_PROFILE_CONSTRAINED_BASELINE, 0x0,
++		V4L2_MPEG_VIDEO_H264_PROFILE_CONSTRAINED_BASELINE);
+ 	if (ctx->dev->devtype->product == CODA_HX4 ||
+ 	    ctx->dev->devtype->product == CODA_7541) {
+ 		v4l2_ctrl_new_std_menu(&ctx->ctrls, &coda_ctrl_ops,
+@@ -2426,7 +2426,7 @@ static void coda_decode_ctrls(struct coda_ctx *ctx)
+ 	ctx->h264_profile_ctrl = v4l2_ctrl_new_std_menu(&ctx->ctrls,
+ 		&coda_ctrl_ops, V4L2_CID_MPEG_VIDEO_H264_PROFILE,
+ 		V4L2_MPEG_VIDEO_H264_PROFILE_HIGH,
+-		~((1 << V4L2_MPEG_VIDEO_H264_PROFILE_BASELINE) |
++		~((1 << V4L2_MPEG_VIDEO_H264_PROFILE_CONSTRAINED_BASELINE) |
+ 		  (1 << V4L2_MPEG_VIDEO_H264_PROFILE_MAIN) |
+ 		  (1 << V4L2_MPEG_VIDEO_H264_PROFILE_HIGH)),
+ 		V4L2_MPEG_VIDEO_H264_PROFILE_HIGH);
+-- 
+2.25.1
 
-
-Test Regressions
----------------- =
-
-
-
-platform         | arch | lab          | compiler | defconfig          | re=
-gressions
------------------+------+--------------+----------+--------------------+---=
----------
-meson8b-odroidc1 | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig | 1 =
-         =
-
-
-  Details:     https://kernelci.org/test/plan/id/624c48952973df25bfae0680
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.275=
--207-g825eaff5c065/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-meso=
-n8b-odroidc1.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.275=
--207-g825eaff5c065/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-meso=
-n8b-odroidc1.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220401.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/624c48952973df25bfae0=
-681
-        failing since 51 days (last pass: v4.14.266-18-g18b83990eba9, first=
- fail: v4.14.266-28-g7d44cfe0255d) =
-
- =20
