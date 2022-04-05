@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E10464F383E
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:31:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5FCE4F3B3C
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:15:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376468AbiDELWJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:22:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47556 "EHLO
+        id S1345935AbiDELwG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:52:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42166 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349458AbiDEJtx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3913A2642;
-        Tue,  5 Apr 2022 02:46:34 -0700 (PDT)
+        with ESMTP id S1356675AbiDEKYq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:24:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72604BF024;
+        Tue,  5 Apr 2022 03:08:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DF820B817D3;
-        Tue,  5 Apr 2022 09:46:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58EB4C385A2;
-        Tue,  5 Apr 2022 09:46:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 25A25B81C88;
+        Tue,  5 Apr 2022 10:08:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85AF0C385A1;
+        Tue,  5 Apr 2022 10:08:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151991;
-        bh=585hVg3CEE7N+BxEqBeKlvcBfupAkqQVG7K/pktiGe0=;
+        s=korg; t=1649153326;
+        bh=n3jyOXKYxe6u5mjO/HkPB5eTqSSy5dyknXVWnH6VdXU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZzyxVV1WuXp/rZWc4VZv6L1dmnrjJ9KmWWCHlXji0ZZ1jWv4/rK+ZK2/LRbCJzFCr
-         6G15WtSfj9UD0j4EoZZ1xR5urBP6M7dCQBjWriILlZ0NHfmsbHRRiI4u/S4K0tMVKM
-         jX5wXPJU7nytA0qfGjJvMa8Z7tDAs/oVSX6AMa2Y=
+        b=Eq2aZJor10n/KTYECP5bi8N52CL0uCz7kf11Qz3g5h6POmdhyzn80WeVpmcEoQ5ZD
+         H4ksBUWwbrD14w6TFMppKWM9QxmeDTDZSX2ITX06Lu0/ngP3KR0200nab3RLIe82YA
+         /asQ46WZIuNknsN0l94KUmd5ep2BsP3yk/cGaKN0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jie Hai <haijie1@huawei.com>,
-        Zhou Wang <wangzhou1@hisilicon.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 614/913] dmaengine: hisi_dma: fix MSI allocate fail when reload hisi_dma
-Date:   Tue,  5 Apr 2022 09:27:56 +0200
-Message-Id: <20220405070358.246404084@linuxfoundation.org>
+        stable@vger.kernel.org, Fengnan Chang <changfengnan@vivo.com>,
+        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 183/599] f2fs: compress: remove unneeded read when rewrite whole cluster
+Date:   Tue,  5 Apr 2022 09:27:57 +0200
+Message-Id: <20220405070304.287127761@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070258.802373272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,51 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jie Hai <haijie1@huawei.com>
+From: Fengnan Chang <changfengnan@vivo.com>
 
-[ Upstream commit b95044b38425f563404234d96bbb20cc6360c7e1 ]
+[ Upstream commit 7eab7a6968278c735b1ca6387056a408f7960265 ]
 
-Remove the loaded hisi_dma driver and reload it, the driver fails
-to work properly. The following error is reported in the kernel log:
+when we overwrite the whole page in cluster, we don't need read original
+data before write, because after write_end(), writepages() can help to
+load left data in that cluster.
 
-[ 1475.597609] hisi_dma 0000:7b:00.0: Failed to allocate MSI vectors!
-[ 1475.604915] hisi_dma: probe of 0000:7b:00.0 failed with error -28
-
-As noted in "The MSI Driver Guide HOWTO"[1], the number of MSI
-interrupt must be a power of two. The Kunpeng DMA driver allocates 30
-MSI interrupts. As a result, no space left on device is reported
-when the driver is reloaded and allocates interrupt vectors from the
-interrupt domain.
-
-This patch changes the number of interrupt vectors allocated by
-hisi_dma driver to 32 to avoid this problem.
-
-[1] https://www.kernel.org/doc/html/latest/PCI/msi-howto.html
-
-Fixes: e9f08b65250d ("dmaengine: hisilicon: Add Kunpeng DMA engine support")
-
-Signed-off-by: Jie Hai <haijie1@huawei.com>
-Acked-by: Zhou Wang <wangzhou1@hisilicon.com>
-Link: https://lore.kernel.org/r/20220216072101.34473-1-haijie1@huawei.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Fengnan Chang <changfengnan@vivo.com>
+Signed-off-by: Chao Yu <yuchao0@huawei.com>
+Acked-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/hisi_dma.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/f2fs/data.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/dma/hisi_dma.c b/drivers/dma/hisi_dma.c
-index c855a0e4f9ff..f680e9b40bf7 100644
---- a/drivers/dma/hisi_dma.c
-+++ b/drivers/dma/hisi_dma.c
-@@ -30,7 +30,7 @@
- #define HISI_DMA_MODE			0x217c
- #define HISI_DMA_OFFSET			0x100
+diff --git a/fs/f2fs/data.c b/fs/f2fs/data.c
+index d27a92a54447..04e980c58319 100644
+--- a/fs/f2fs/data.c
++++ b/fs/f2fs/data.c
+@@ -3461,6 +3461,9 @@ static int f2fs_write_begin(struct file *file, struct address_space *mapping,
  
--#define HISI_DMA_MSI_NUM		30
-+#define HISI_DMA_MSI_NUM		32
- #define HISI_DMA_CHAN_NUM		30
- #define HISI_DMA_Q_DEPTH_VAL		1024
+ 		*fsdata = NULL;
  
++		if (len == PAGE_SIZE)
++			goto repeat;
++
+ 		ret = f2fs_prepare_compress_overwrite(inode, pagep,
+ 							index, fsdata);
+ 		if (ret < 0) {
 -- 
 2.34.1
 
