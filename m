@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0686E4F3936
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:45:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 40F214F3C0A
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:24:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377721AbiDELaX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:30:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40838 "EHLO
+        id S1382287AbiDEMEI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:04:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47340 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352881AbiDEKFQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:05:16 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7B782181F;
-        Tue,  5 Apr 2022 02:54:00 -0700 (PDT)
+        with ESMTP id S1358177AbiDEK2E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:28:04 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E07F89E9D1;
+        Tue,  5 Apr 2022 03:16:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1E9D461741;
-        Tue,  5 Apr 2022 09:54:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F8BBC385A1;
-        Tue,  5 Apr 2022 09:53:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 970CFB81C8B;
+        Tue,  5 Apr 2022 10:16:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E398DC385A1;
+        Tue,  5 Apr 2022 10:16:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152439;
-        bh=8dWur2snVcJS4cdQqUfYAVt/38NBteIludl2uuzhNGE=;
+        s=korg; t=1649153779;
+        bh=OujLyIAuJDB01DrksZ7hONiDI8cX9frFQiwTX/GwhKY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B8QIdCk+GsiST7KW6OsyhnDbP38Mo0dgUpeHFv543t4K2eT49fiMEJ6/tid41VnNl
-         AcgE7LUeXPqD2wjTcxNIHHn9FwesUl9ziyECINhyB7npqA705UkfzH6/G2lTBPhfAA
-         qei78IwGNZwJbY5PqnJJXZyuFt8g30XCa0U8iCuE=
+        b=Bp8ANPfUvU/O7R+z8c3LxaEeDpW+dCtgNbUYTwnWox71LBTh+teXWPgf+yv6YxiSp
+         zIGxrXY7/1uJ2227/OiYhov5+jLGP+ORYcMrMwuPPapiJ03psMmOjuR4Z3nT7xh7vv
+         durhiCNxILoOJ4X2S9mPfG6t3cPyLWee6x8DF1dI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.15 776/913] KVM: x86: hyper-v: Fix the maximum number of sparse banks for XMM fast TLB flush hypercalls
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Lee Jones <lee.jones@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 344/599] mfd: mc13xxx: Add check for mc13xxx_irq_request
 Date:   Tue,  5 Apr 2022 09:30:38 +0200
-Message-Id: <20220405070403.093357702@linuxfoundation.org>
+Message-Id: <20220405070309.068088477@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070258.802373272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-commit 7321f47eada53a395fb3086d49297eebb19e8e58 upstream.
+[ Upstream commit e477e51a41cb5d6034f3c5ea85a71ad4613996b9 ]
 
-When TLB flush hypercalls (HVCALL_FLUSH_VIRTUAL_ADDRESS_{LIST,SPACE}_EX are
-issued in 'XMM fast' mode, the maximum number of allowed sparse_banks is
-not 'HV_HYPERCALL_MAX_XMM_REGISTERS - 1' (5) but twice as many (10) as each
-XMM register is 128 bit long and can hold two 64 bit long banks.
+As the potential failure of the devm_request_threaded_irq(),
+it should be better to check the return value of the
+mc13xxx_irq_request() and return error if fails.
 
-Cc: stable@vger.kernel.org # 5.14.x
-Fixes: 5974565bc26d ("KVM: x86: kvm_hv_flush_tlb use inputs from XMM registers")
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Message-Id: <20220222154642.684285-4-vkuznets@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 8e00593557c3 ("mfd: Add mc13892 support to mc13xxx")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Link: https://lore.kernel.org/r/20220224022331.3208275-1-jiasheng@iscas.ac.cn
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/hyperv.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/mfd/mc13xxx-core.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/arch/x86/kvm/hyperv.c
-+++ b/arch/x86/kvm/hyperv.c
-@@ -1820,7 +1820,8 @@ static u64 kvm_hv_flush_tlb(struct kvm_v
+diff --git a/drivers/mfd/mc13xxx-core.c b/drivers/mfd/mc13xxx-core.c
+index 1abe7432aad8..e281a9202f11 100644
+--- a/drivers/mfd/mc13xxx-core.c
++++ b/drivers/mfd/mc13xxx-core.c
+@@ -323,8 +323,10 @@ int mc13xxx_adc_do_conversion(struct mc13xxx *mc13xxx, unsigned int mode,
+ 		adc1 |= MC13783_ADC1_ATOX;
  
- 		if (!all_cpus) {
- 			if (hc->fast) {
--				if (sparse_banks_len > HV_HYPERCALL_MAX_XMM_REGISTERS - 1)
-+				/* XMM0 is already consumed, each XMM holds two sparse banks. */
-+				if (sparse_banks_len > 2 * (HV_HYPERCALL_MAX_XMM_REGISTERS - 1))
- 					return HV_STATUS_INVALID_HYPERCALL_INPUT;
- 				for (i = 0; i < sparse_banks_len; i += 2) {
- 					sparse_banks[i] = sse128_lo(hc->xmm[i / 2 + 1]);
+ 	dev_dbg(mc13xxx->dev, "%s: request irq\n", __func__);
+-	mc13xxx_irq_request(mc13xxx, MC13XXX_IRQ_ADCDONE,
++	ret = mc13xxx_irq_request(mc13xxx, MC13XXX_IRQ_ADCDONE,
+ 			mc13xxx_handler_adcdone, __func__, &adcdone_data);
++	if (ret)
++		goto out;
+ 
+ 	mc13xxx_reg_write(mc13xxx, MC13XXX_ADC0, adc0);
+ 	mc13xxx_reg_write(mc13xxx, MC13XXX_ADC1, adc1);
+-- 
+2.34.1
+
 
 
