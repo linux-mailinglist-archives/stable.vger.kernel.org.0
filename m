@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D7DC04F3087
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:31:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 897C34F32D4
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:00:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237771AbiDEInV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:43:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45840 "EHLO
+        id S1353847AbiDEKJi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:09:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60048 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241109AbiDEIct (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:32:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A59415739;
-        Tue,  5 Apr 2022 01:27:39 -0700 (PDT)
+        with ESMTP id S1345794AbiDEJXC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:23:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E12D99D0E8;
+        Tue,  5 Apr 2022 02:12:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 25348609D0;
-        Tue,  5 Apr 2022 08:27:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37D87C385A2;
-        Tue,  5 Apr 2022 08:27:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 85C82B80DA1;
+        Tue,  5 Apr 2022 09:12:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA3B2C385A0;
+        Tue,  5 Apr 2022 09:12:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147258;
-        bh=MOk/RdGK+fojtYaaJuzFPNg01OhU29vMlA4QzjbvP3Q=;
+        s=korg; t=1649149932;
+        bh=Y1PEmIAZMnzpISyH6SBsQsjo9DqagN4V+23i6TnvIKo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NrYgc+wLkOdUWQs7eIDZv8LfH3CCXavpVeW0pvOB0FTMvEGCouJ5pMxzE6PIFia+w
-         HIPEmhLlK+CRfuahipArLMQctWbOIeUGNYj87/CcjjxX7Xt3OTegk4pypnpW4JmGYj
-         lcD8Gxl4tMznCyX7sBLzzS/ZIDwFe5ZlLVl/OKTU=
+        b=Pn+YF36P/YHALl7dIVHsuby+A8dAOxIXXFc8pGo8Aw7G67CQhQtDrfG8SbuRd9JxC
+         ggYK+9gKuULOfn0XTpuRljGwaYoz6aq0tiMThY56Em+1pVcFte7yOpddAOVrEVCwhX
+         JKJbVAd27fAL4PXHeHG7kryh8HJuQOgwFizA2Tv0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Hunter <jonathanh@nvidia.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.17 1060/1126] spi: Fix Tegra QSPI example
+        stable@vger.kernel.org, Marco Patalano <mpatalan@redhat.com>,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Arun Easi <aeasi@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.16 0894/1017] scsi: qla2xxx: Fix crash during module load unload test
 Date:   Tue,  5 Apr 2022 09:30:07 +0200
-Message-Id: <20220405070438.575943824@linuxfoundation.org>
+Message-Id: <20220405070420.764804490@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,37 +56,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jon Hunter <jonathanh@nvidia.com>
+From: Arun Easi <aeasi@marvell.com>
 
-commit 320689a1b543ca1396b3ed43bb18045e4a7ffd79 upstream.
+commit 0972252450f90db56dd5415a20e2aec21a08d036 upstream.
 
-When running dt_binding_check on the nvidia,tegra210-quad.yaml binding
-document the following error is reported ...
+During purex packet handling the driver was incorrectly freeing a
+pre-allocated structure. Fix this by skipping that entry.
 
- nvidia,tegra210-quad.example.dt.yaml:0:0: /example-0/spi@70410000/flash@0:
- 	failed to match any schema with compatible: ['spi-nor']
+System crashed with the following stack during a module unload test.
 
-Update the example in the binding document to fix the above error.
+Call Trace:
+	sbitmap_init_node+0x7f/0x1e0
+	sbitmap_queue_init_node+0x24/0x150
+	blk_mq_init_bitmaps+0x3d/0xa0
+	blk_mq_init_tags+0x68/0x90
+	blk_mq_alloc_map_and_rqs+0x44/0x120
+	blk_mq_alloc_set_map_and_rqs+0x63/0x150
+	blk_mq_alloc_tag_set+0x11b/0x230
+	scsi_add_host_with_dma.cold+0x3f/0x245
+	qla2x00_probe_one+0xd5a/0x1b80 [qla2xxx]
 
-Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
-Fixes: 9684752e5fe3 ("dt-bindings: spi: Add Tegra Quad SPI device tree  binding")
-Link: https://lore.kernel.org/r/20220307113529.315685-1-jonathanh@nvidia.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Call Trace with slub_debug and debug kernel:
+	kasan_report_invalid_free+0x50/0x80
+	__kasan_slab_free+0x137/0x150
+	slab_free_freelist_hook+0xc6/0x190
+	kfree+0xe8/0x2e0
+	qla2x00_free_device+0x3bb/0x5d0 [qla2xxx]
+	qla2x00_remove_one+0x668/0xcf0 [qla2xxx]
+
+Link: https://lore.kernel.org/r/20220310092604.22950-6-njavali@marvell.com
+Fixes: 62e9dd177732 ("scsi: qla2xxx: Change in PUREX to handle FPIN ELS requests")
+Cc: stable@vger.kernel.org
+Reported-by: Marco Patalano <mpatalan@redhat.com>
+Tested-by: Marco Patalano <mpatalan@redhat.com>
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Arun Easi <aeasi@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/devicetree/bindings/spi/nvidia,tegra210-quad.yaml |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/qla2xxx/qla_os.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/Documentation/devicetree/bindings/spi/nvidia,tegra210-quad.yaml
-+++ b/Documentation/devicetree/bindings/spi/nvidia,tegra210-quad.yaml
-@@ -106,7 +106,7 @@ examples:
-             dma-names = "rx", "tx";
- 
-             flash@0 {
--                    compatible = "spi-nor";
-+                    compatible = "jedec,spi-nor";
-                     reg = <0>;
-                     spi-max-frequency = <104000000>;
-                     spi-tx-bus-width = <2>;
+--- a/drivers/scsi/qla2xxx/qla_os.c
++++ b/drivers/scsi/qla2xxx/qla_os.c
+@@ -3896,6 +3896,8 @@ qla24xx_free_purex_list(struct purex_lis
+ 	spin_lock_irqsave(&list->lock, flags);
+ 	list_for_each_entry_safe(item, next, &list->head, list) {
+ 		list_del(&item->list);
++		if (item == &item->vha->default_item)
++			continue;
+ 		kfree(item);
+ 	}
+ 	spin_unlock_irqrestore(&list->lock, flags);
 
 
