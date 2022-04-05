@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 64E2C4F3F1F
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 22:56:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 946444F4207
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:39:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243137AbiDEM2h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:28:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47204 "EHLO
+        id S1353234AbiDEMIu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:08:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50642 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358754AbiDELRZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 07:17:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EE5ADF4AA;
-        Tue,  5 Apr 2022 03:19:27 -0700 (PDT)
+        with ESMTP id S1358384AbiDEK2U (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:28:20 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4AF729E9EA;
+        Tue,  5 Apr 2022 03:17:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9FF7A61562;
-        Tue,  5 Apr 2022 10:19:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7714C385A0;
-        Tue,  5 Apr 2022 10:19:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 02E7BB81C8A;
+        Tue,  5 Apr 2022 10:17:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 711D3C385A0;
+        Tue,  5 Apr 2022 10:17:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153966;
-        bh=nhQNJv/jUBJ0SsyJ4cela/5qXzYMudqB/wZC8vWrDeU=;
+        s=korg; t=1649153874;
+        bh=sWy0e/18JWbVs46Eodi28jgo6Ubg6qIZHedHHPj0BUE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OnVPDD9Qo656gM84TBbCgofoWILM5DEHoTfE9L4NT9QskpTD1cgOEtzXJ8oYxEmL1
-         GlY2jZv6scFbzGU3rRLwucghxkYa9IZWJAv3vTyAzH7qaWRy11HrqK4RuoUBi35myz
-         c07mC65QITPDMsEIgHriM+zaIIbvrMj2JuUkKmtA=
+        b=zHNS/18xhfVIeI3D21lddQ8/bC7Lob0Oz0VXmMukXIMod2e/d6hFfjSwuzV6yTK9N
+         tT9WyBHtmurxIbYa32ly9izZTKRiNxutEyMatb33DS5zJMNjR7NnOh7z5KYNLAyul6
+         pCuzCzGQDxXlFDO8qNQnpXM0zvMija04BV2WLUU4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Robinson <pbrobinson@gmail.com>,
-        Jeremy Linton <jeremy.linton@arm.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Thierry Reding <thierry.reding@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 373/599] net: bcmgenet: Use stronger register read/writes to assure ordering
-Date:   Tue,  5 Apr 2022 09:31:07 +0200
-Message-Id: <20220405070309.930137754@linuxfoundation.org>
+Subject: [PATCH 5.10 379/599] pwm: lpc18xx-sct: Initialize driver data and hardware before pwmchip_add()
+Date:   Tue,  5 Apr 2022 09:31:13 +0200
+Message-Id: <20220405070310.109727005@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -56,113 +56,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeremy Linton <jeremy.linton@arm.com>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit 8d3ea3d402db94b61075617e71b67459a714a502 ]
+[ Upstream commit 0401f24cd238ae200a23a13925f98de3d2c883b8 ]
 
-GCC12 appears to be much smarter about its dependency tracking and is
-aware that the relaxed variants are just normal loads and stores and
-this is causing problems like:
+When a driver calls pwmchip_add() it has to be prepared to immediately
+get its callbacks called. So move allocation of driver data and hardware
+initialization before the call to pwmchip_add().
 
-[  210.074549] ------------[ cut here ]------------
-[  210.079223] NETDEV WATCHDOG: enabcm6e4ei0 (bcmgenet): transmit queue 1 timed out
-[  210.086717] WARNING: CPU: 1 PID: 0 at net/sched/sch_generic.c:529 dev_watchdog+0x234/0x240
-[  210.095044] Modules linked in: genet(E) nft_fib_inet nft_fib_ipv4 nft_fib_ipv6 nft_fib nft_reject_inet nf_reject_ipv4 nf_reject_ipv6 nft_reject nft_ct nft_chain_nat]
-[  210.146561] ACPI CPPC: PCC check channel failed for ss: 0. ret=-110
-[  210.146927] CPU: 1 PID: 0 Comm: swapper/1 Tainted: G            E     5.17.0-rc7G12+ #58
-[  210.153226] CPPC Cpufreq:cppc_scale_freq_workfn: failed to read perf counters
-[  210.161349] Hardware name: Raspberry Pi Foundation Raspberry Pi 4 Model B/Raspberry Pi 4 Model B, BIOS EDK2-DEV 02/08/2022
-[  210.161353] pstate: 80400005 (Nzcv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-[  210.161358] pc : dev_watchdog+0x234/0x240
-[  210.161364] lr : dev_watchdog+0x234/0x240
-[  210.161368] sp : ffff8000080a3a40
-[  210.161370] x29: ffff8000080a3a40 x28: ffffcd425af87000 x27: ffff8000080a3b20
-[  210.205150] x26: ffffcd425aa00000 x25: 0000000000000001 x24: ffffcd425af8ec08
-[  210.212321] x23: 0000000000000100 x22: ffffcd425af87000 x21: ffff55b142688000
-[  210.219491] x20: 0000000000000001 x19: ffff55b1426884c8 x18: ffffffffffffffff
-[  210.226661] x17: 64656d6974203120 x16: 0000000000000001 x15: 6d736e617274203a
-[  210.233831] x14: 2974656e65676d63 x13: ffffcd4259c300d8 x12: ffffcd425b07d5f0
-[  210.241001] x11: 00000000ffffffff x10: ffffcd425b07d5f0 x9 : ffffcd4258bdad9c
-[  210.248171] x8 : 00000000ffffdfff x7 : 000000000000003f x6 : 0000000000000000
-[  210.255341] x5 : 0000000000000000 x4 : 0000000000000000 x3 : 0000000000001000
-[  210.262511] x2 : 0000000000001000 x1 : 0000000000000005 x0 : 0000000000000044
-[  210.269682] Call trace:
-[  210.272133]  dev_watchdog+0x234/0x240
-[  210.275811]  call_timer_fn+0x3c/0x15c
-[  210.279489]  __run_timers.part.0+0x288/0x310
-[  210.283777]  run_timer_softirq+0x48/0x80
-[  210.287716]  __do_softirq+0x128/0x360
-[  210.291392]  __irq_exit_rcu+0x138/0x140
-[  210.295243]  irq_exit_rcu+0x1c/0x30
-[  210.298745]  el1_interrupt+0x38/0x54
-[  210.302334]  el1h_64_irq_handler+0x18/0x24
-[  210.306445]  el1h_64_irq+0x7c/0x80
-[  210.309857]  arch_cpu_idle+0x18/0x2c
-[  210.313445]  default_idle_call+0x4c/0x140
-[  210.317470]  cpuidle_idle_call+0x14c/0x1a0
-[  210.321584]  do_idle+0xb0/0x100
-[  210.324737]  cpu_startup_entry+0x30/0x8c
-[  210.328675]  secondary_start_kernel+0xe4/0x110
-[  210.333138]  __secondary_switched+0x94/0x98
+This fixes a potential NULL pointer exception and a race condition on
+register writes.
 
-The assumption when these were relaxed seems to be that device memory
-would be mapped non reordering, and that other constructs
-(spinlocks/etc) would provide the barriers to assure that packet data
-and in memory rings/queues were ordered with respect to device
-register reads/writes. This itself seems a bit sketchy, but the real
-problem with GCC12 is that it is moving the actual reads/writes around
-at will as though they were independent operations when in truth they
-are not, but the compiler can't know that. When looking at the
-assembly dumps for many of these routines its possible to see very
-clean, but not strictly in program order operations occurring as the
-compiler would be free to do if these weren't actually register
-reads/write operations.
-
-Its possible to suppress the timeout with a liberal bit of dma_mb()'s
-sprinkled around but the device still seems unable to reliably
-send/receive data. A better plan is to use the safer readl/writel
-everywhere.
-
-Since this partially reverts an older commit, which notes the use of
-the relaxed variants for performance reasons. I would suggest that
-any performance problems with this commit are targeted at relaxing only
-the performance critical code paths after assuring proper barriers.
-
-Fixes: 69d2ea9c79898 ("net: bcmgenet: Use correct I/O accessors")
-Reported-by: Peter Robinson <pbrobinson@gmail.com>
-Signed-off-by: Jeremy Linton <jeremy.linton@arm.com>
-Acked-by: Peter Robinson <pbrobinson@gmail.com>
-Tested-by: Peter Robinson <pbrobinson@gmail.com>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/20220310045358.224350-1-jeremy.linton@arm.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 841e6f90bb78 ("pwm: NXP LPC18xx PWM/SCT driver")
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/genet/bcmgenet.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/pwm/pwm-lpc18xx-sct.c | 20 +++++++++-----------
+ 1 file changed, 9 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/genet/bcmgenet.c b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-index a2062144d7ca..7dcd5613ee56 100644
---- a/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-+++ b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-@@ -76,7 +76,7 @@ static inline void bcmgenet_writel(u32 value, void __iomem *offset)
- 	if (IS_ENABLED(CONFIG_MIPS) && IS_ENABLED(CONFIG_CPU_BIG_ENDIAN))
- 		__raw_writel(value, offset);
- 	else
--		writel_relaxed(value, offset);
-+		writel(value, offset);
- }
+diff --git a/drivers/pwm/pwm-lpc18xx-sct.c b/drivers/pwm/pwm-lpc18xx-sct.c
+index 5ff11145c1a3..9b15b6a79082 100644
+--- a/drivers/pwm/pwm-lpc18xx-sct.c
++++ b/drivers/pwm/pwm-lpc18xx-sct.c
+@@ -400,12 +400,6 @@ static int lpc18xx_pwm_probe(struct platform_device *pdev)
+ 	lpc18xx_pwm_writel(lpc18xx_pwm, LPC18XX_PWM_LIMIT,
+ 			   BIT(lpc18xx_pwm->period_event));
  
- static inline u32 bcmgenet_readl(void __iomem *offset)
-@@ -84,7 +84,7 @@ static inline u32 bcmgenet_readl(void __iomem *offset)
- 	if (IS_ENABLED(CONFIG_MIPS) && IS_ENABLED(CONFIG_CPU_BIG_ENDIAN))
- 		return __raw_readl(offset);
- 	else
--		return readl_relaxed(offset);
-+		return readl(offset);
- }
+-	ret = pwmchip_add(&lpc18xx_pwm->chip);
+-	if (ret < 0) {
+-		dev_err(&pdev->dev, "pwmchip_add failed: %d\n", ret);
+-		goto disable_pwmclk;
+-	}
+-
+ 	for (i = 0; i < lpc18xx_pwm->chip.npwm; i++) {
+ 		struct lpc18xx_pwm_data *data;
  
- static inline void dmadesc_set_length_status(struct bcmgenet_priv *priv,
+@@ -415,14 +409,12 @@ static int lpc18xx_pwm_probe(struct platform_device *pdev)
+ 				    GFP_KERNEL);
+ 		if (!data) {
+ 			ret = -ENOMEM;
+-			goto remove_pwmchip;
++			goto disable_pwmclk;
+ 		}
+ 
+ 		pwm_set_chip_data(pwm, data);
+ 	}
+ 
+-	platform_set_drvdata(pdev, lpc18xx_pwm);
+-
+ 	val = lpc18xx_pwm_readl(lpc18xx_pwm, LPC18XX_PWM_CTRL);
+ 	val &= ~LPC18XX_PWM_BIDIR;
+ 	val &= ~LPC18XX_PWM_CTRL_HALT;
+@@ -430,10 +422,16 @@ static int lpc18xx_pwm_probe(struct platform_device *pdev)
+ 	val |= LPC18XX_PWM_PRE(0);
+ 	lpc18xx_pwm_writel(lpc18xx_pwm, LPC18XX_PWM_CTRL, val);
+ 
++	ret = pwmchip_add(&lpc18xx_pwm->chip);
++	if (ret < 0) {
++		dev_err(&pdev->dev, "pwmchip_add failed: %d\n", ret);
++		goto disable_pwmclk;
++	}
++
++	platform_set_drvdata(pdev, lpc18xx_pwm);
++
+ 	return 0;
+ 
+-remove_pwmchip:
+-	pwmchip_remove(&lpc18xx_pwm->chip);
+ disable_pwmclk:
+ 	clk_disable_unprepare(lpc18xx_pwm->pwm_clk);
+ 	return ret;
 -- 
 2.34.1
 
