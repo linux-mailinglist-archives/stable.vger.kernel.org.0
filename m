@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8AED34F3155
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:42:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 844784F2E9B
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:02:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236678AbiDEJD1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:03:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51096 "EHLO
+        id S233904AbiDEIjP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:39:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237944AbiDEI3w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:29:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E94431CFEA;
-        Tue,  5 Apr 2022 01:21:29 -0700 (PDT)
+        with ESMTP id S240070AbiDEIWf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:22:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFBD5DEC2;
+        Tue,  5 Apr 2022 01:19:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F204260FF5;
-        Tue,  5 Apr 2022 08:21:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AE3BC385A0;
-        Tue,  5 Apr 2022 08:21:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AFB7EB81B92;
+        Tue,  5 Apr 2022 08:19:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17FC2C385A1;
+        Tue,  5 Apr 2022 08:19:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146888;
-        bh=Tep2vIuVDQsBDq9li1VXsakPXRUUageVRqxJj3lG7YE=;
+        s=korg; t=1649146781;
+        bh=YtG+6EI3+FgkaM6u4nXFTkoCNBD5iXHVpVD+KDag51A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uDeuFo4tHpbNSTViSiwtGD5sgddOKMIJmfGzWB7T0QnK2sLgh/yEUQ5mEa3q/kS9A
-         nyh+APLaddHbF5zHvLJtFsdQ5LSkWu25doVlfcKFeQ5XMNKnK4JMyy3OHVDyLYarbH
-         cxcEJ9LCv1WYnO/j3o5eCxVGosCSgC7f4XgNpo0U=
+        b=zP91NtjvYnsyZjgOjno+6xe0nAT/S3kJqAS4m+GWoyFbeXq/9jTqBf3vcoQ4RgfHf
+         +EBlOkLvxV+3cgFVHwCVSlIBM7Lhz17F0OA6Qf+xsOCz/eUhr6KbTq/xKuff/0m/H0
+         qGeNssODTuaet0Mv3+i1a7Tazvni0YoyJYKRjZ/w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <chao.yu@oppo.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org, Rohith Surabattula <rohiths@microsoft.com>,
+        "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
+        Steve French <stfrench@microsoft.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0886/1126] f2fs: compress: fix to print raw data size in error path of lz4 decompression
-Date:   Tue,  5 Apr 2022 09:27:13 +0200
-Message-Id: <20220405070433.536005033@linuxfoundation.org>
+Subject: [PATCH 5.17 0887/1126] Adjust cifssb maximum read size
+Date:   Tue,  5 Apr 2022 09:27:14 +0200
+Message-Id: <20220405070433.564945778@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -54,38 +55,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <chao@kernel.org>
+From: Rohith Surabattula <rohiths@microsoft.com>
 
-[ Upstream commit d284af43f703760e261b1601378a0c13a19d5f1f ]
+[ Upstream commit 06a466565d54a1a42168f9033a062a3f5c40e73b ]
 
-In lz4_decompress_pages(), if size of decompressed data is not equal to
-expected one, we should print the size rather than size of target buffer
-for decompressed data, fix it.
+When session gets reconnected during mount then read size in super block fs context
+gets set to zero and after negotiate, rsize is not modified which results in
+incorrect read with requested bytes as zero. Fixes intermittent failure
+of xfstest generic/240
 
-Signed-off-by: Chao Yu <chao.yu@oppo.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Note that stable requires a different version of this patch which will be
+sent to the stable mailing list.
+
+Signed-off-by: Rohith Surabattula <rohiths@microsoft.com>
+Acked-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/compress.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ fs/cifs/cifsfs.c |  3 +++
+ fs/cifs/file.c   | 10 ++++++++++
+ 2 files changed, 13 insertions(+)
 
-diff --git a/fs/f2fs/compress.c b/fs/f2fs/compress.c
-index d0c3aeba5945..3b162506b269 100644
---- a/fs/f2fs/compress.c
-+++ b/fs/f2fs/compress.c
-@@ -314,10 +314,9 @@ static int lz4_decompress_pages(struct decompress_io_ctx *dic)
- 	}
+diff --git a/fs/cifs/cifsfs.c b/fs/cifs/cifsfs.c
+index 4691b2706ddf..6e5246122ee2 100644
+--- a/fs/cifs/cifsfs.c
++++ b/fs/cifs/cifsfs.c
+@@ -210,6 +210,9 @@ cifs_read_super(struct super_block *sb)
+ 	if (rc)
+ 		goto out_no_root;
+ 	/* tune readahead according to rsize if readahead size not set on mount */
++	if (cifs_sb->ctx->rsize == 0)
++		cifs_sb->ctx->rsize =
++			tcon->ses->server->ops->negotiate_rsize(tcon, cifs_sb->ctx);
+ 	if (cifs_sb->ctx->rasize)
+ 		sb->s_bdi->ra_pages = cifs_sb->ctx->rasize / PAGE_SIZE;
+ 	else
+diff --git a/fs/cifs/file.c b/fs/cifs/file.c
+index e7af802dcfa6..a2723f7cb5e9 100644
+--- a/fs/cifs/file.c
++++ b/fs/cifs/file.c
+@@ -3740,6 +3740,11 @@ cifs_send_async_read(loff_t offset, size_t len, struct cifsFileInfo *open_file,
+ 				break;
+ 		}
  
- 	if (ret != PAGE_SIZE << dic->log_cluster_size) {
--		printk_ratelimited("%sF2FS-fs (%s): lz4 invalid rlen:%zu, "
-+		printk_ratelimited("%sF2FS-fs (%s): lz4 invalid ret:%d, "
- 					"expected:%lu\n", KERN_ERR,
--					F2FS_I_SB(dic->inode)->sb->s_id,
--					dic->rlen,
-+					F2FS_I_SB(dic->inode)->sb->s_id, ret,
- 					PAGE_SIZE << dic->log_cluster_size);
- 		return -EIO;
- 	}
++		if (cifs_sb->ctx->rsize == 0)
++			cifs_sb->ctx->rsize =
++				server->ops->negotiate_rsize(tlink_tcon(open_file->tlink),
++							     cifs_sb->ctx);
++
+ 		rc = server->ops->wait_mtu_credits(server, cifs_sb->ctx->rsize,
+ 						   &rsize, credits);
+ 		if (rc)
+@@ -4474,6 +4479,11 @@ static void cifs_readahead(struct readahead_control *ractl)
+ 			}
+ 		}
+ 
++		if (cifs_sb->ctx->rsize == 0)
++			cifs_sb->ctx->rsize =
++				server->ops->negotiate_rsize(tlink_tcon(open_file->tlink),
++							     cifs_sb->ctx);
++
+ 		rc = server->ops->wait_mtu_credits(server, cifs_sb->ctx->rsize,
+ 						   &rsize, credits);
+ 		if (rc)
 -- 
 2.34.1
 
