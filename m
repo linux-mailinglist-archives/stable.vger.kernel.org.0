@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D4B74F3E6E
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 22:44:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FB1C4F3EA1
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 22:48:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238201AbiDEMUy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:20:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45288 "EHLO
+        id S1381100AbiDEMO1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:14:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58500 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233525AbiDEKag (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:30:36 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EA5DDCE3C;
-        Tue,  5 Apr 2022 03:18:22 -0700 (PDT)
+        with ESMTP id S233976AbiDEKbW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:31:22 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CA95DE090;
+        Tue,  5 Apr 2022 03:18:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id DD3B2CE0B18;
-        Tue,  5 Apr 2022 10:18:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E55C5C385A0;
-        Tue,  5 Apr 2022 10:18:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 02D316176C;
+        Tue,  5 Apr 2022 10:18:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08FD9C385A0;
+        Tue,  5 Apr 2022 10:18:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153899;
-        bh=MMP6k/LNUR1jVifTaiPGoAePLM2M7XdwQlkDS3TOkuU=;
+        s=korg; t=1649153907;
+        bh=hgwv3Bsh45tJ1pWCJ/OiWav3TISg2Dhm7A/oWtm79mM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nsOyAo16jkCFwii30y7gy7k8NY297pyT8x3/YbTYnAqUV69Zj3m5Ho/OtDuG6dF/6
-         yfLB29QbbO0YvduveYMw+ziAFnQ1DuoNeA4yzUwPN22ZG/IoOMatX+yVzng92+5nzh
-         fa5NrfL8wpbnFrq/rTGSfedohyniQZtxD4tNf33M=
+        b=nQv3/5nThoJqB2ymu01/7IV+WkDh6Jhahpn+JMYOKGnk3IKNu5Mv/5CYOKlvXej6a
+         nr5K7DnYozC6YRlFbvUwMm3FPkU3Smul6TWwjAlXwnuwYPfldDhA3exZtRadLp2rrp
+         V22RKyapNpX/VE/ljc3iTV4GwBVGtuVs6Zw1YFkQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Marcelo Schmitt <marcelo.schmitt1@gmail.com>,
+        stable@vger.kernel.org, Dirk Buchwalder <buchwalder@posteo.de>,
+        Robert Marko <robimarko@gmail.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 387/599] staging:iio:adc:ad7280a: Fix handing of device address bit reversing.
-Date:   Tue,  5 Apr 2022 09:31:21 +0200
-Message-Id: <20220405070310.347287044@linuxfoundation.org>
+Subject: [PATCH 5.10 390/599] clk: qcom: ipq8074: Use floor ops for SDCC1 clock
+Date:   Tue,  5 Apr 2022 09:31:24 +0200
+Message-Id: <20220405070310.437299903@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -55,41 +56,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Dirk Buchwalder <buchwalder@posteo.de>
 
-[ Upstream commit f281e4ddbbc0b60f061bc18a2834e9363ba85f9f ]
+[ Upstream commit b77d8306d84f83d1da68028a68c91da9c867b6f6 ]
 
-The bit reversal was wrong for bits 1 and 3 of the 5 bits.
-Result is driver failure to probe if you have more than 2 daisy-chained
-devices.  Discovered via QEMU based device emulation.
+Use floor ops on SDCC1 APPS clock in order to round down selected clock
+frequency and avoid overclocking SD/eMMC cards.
 
-Fixes tag is for when this moved from a macro to a function, but it
-was broken before that.
+For example, currently HS200 cards were failling tuning as they were
+actually being clocked at 384MHz instead of 192MHz.
+This caused some boards to disable 1.8V I/O and force the eMMC into the
+standard HS mode (50MHz) and that appeared to work despite the eMMC being
+overclocked to 96Mhz in that case.
 
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Fixes: 065a7c0b1fec ("Staging: iio: adc: ad7280a.c: Fixed Macro argument reuse")
-Reviewed-by: Marcelo Schmitt <marcelo.schmitt1@gmail.com>
-Link: https://lore.kernel.org/r/20220206190328.333093-2-jic23@kernel.org
+There was a previous commit to use floor ops on SDCC clocks, but it looks
+to have only covered SDCC2 clock.
+
+Fixes: 9607f6224b39 ("clk: qcom: ipq8074: add PCIE, USB and SDCC clocks")
+
+Signed-off-by: Dirk Buchwalder <buchwalder@posteo.de>
+Signed-off-by: Robert Marko <robimarko@gmail.com>
+Reviewed-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220210173100.505128-1-robimarko@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/iio/adc/ad7280a.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/clk/qcom/gcc-ipq8074.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/staging/iio/adc/ad7280a.c b/drivers/staging/iio/adc/ad7280a.c
-index fef0055b8990..20183b2ea127 100644
---- a/drivers/staging/iio/adc/ad7280a.c
-+++ b/drivers/staging/iio/adc/ad7280a.c
-@@ -107,9 +107,9 @@
- static unsigned int ad7280a_devaddr(unsigned int addr)
- {
- 	return ((addr & 0x1) << 4) |
--	       ((addr & 0x2) << 3) |
-+	       ((addr & 0x2) << 2) |
- 	       (addr & 0x4) |
--	       ((addr & 0x8) >> 3) |
-+	       ((addr & 0x8) >> 2) |
- 	       ((addr & 0x10) >> 4);
- }
+diff --git a/drivers/clk/qcom/gcc-ipq8074.c b/drivers/clk/qcom/gcc-ipq8074.c
+index b09d99343e09..541016db3c4b 100644
+--- a/drivers/clk/qcom/gcc-ipq8074.c
++++ b/drivers/clk/qcom/gcc-ipq8074.c
+@@ -1074,7 +1074,7 @@ static struct clk_rcg2 sdcc1_apps_clk_src = {
+ 		.name = "sdcc1_apps_clk_src",
+ 		.parent_names = gcc_xo_gpll0_gpll2_gpll0_out_main_div2,
+ 		.num_parents = 4,
+-		.ops = &clk_rcg2_ops,
++		.ops = &clk_rcg2_floor_ops,
+ 	},
+ };
  
 -- 
 2.34.1
