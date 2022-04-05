@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 744074F2C36
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:24:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 771B04F2DF3
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:48:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245099AbiDEIyC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:54:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33774 "EHLO
+        id S1353945AbiDEKJw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:09:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60100 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241112AbiDEIct (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:32:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BD3015A03;
-        Tue,  5 Apr 2022 01:27:47 -0700 (PDT)
+        with ESMTP id S1346329AbiDEJXo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:23:44 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15445D95FF;
+        Tue,  5 Apr 2022 02:13:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 38AA6609D0;
-        Tue,  5 Apr 2022 08:27:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BABEC385A1;
-        Tue,  5 Apr 2022 08:27:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 98E7AB81C6F;
+        Tue,  5 Apr 2022 09:13:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1AE6C385A0;
+        Tue,  5 Apr 2022 09:13:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147266;
-        bh=EnA4E1E6YC+Ts/nEjs3dxfm5+HpqhwGpXCsmYHQ1Iew=;
+        s=korg; t=1649149995;
+        bh=fkdUwpUrG/jDE4fqN8T3sCJjs6KYzmzagCalEt+f5gQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YKV1F5fsYRU6H1/K6SZdhwv1GxZBiBSjaDfMfyOClbOOgJfm6lbEXOypuqEx0YO4n
-         P9z/6ma/GP5Ba9kywAOkF1FFVnnNip/GEW7crJLB4v8HzLGeoaxtMQGbjtD3K2gioN
-         EiUiostJJZZO+qHC5is1gbbsMcz+BAEoCiMYp90c=
+        b=GNtNH8BdvNsmWvY+2NU3G8yy6tvO5Wr5Y0iBW7vrg6/LFYbGd4QiO5FUaZTluZxyn
+         Wjzr1GavbO8D4I/K/hYRsAzLU8reDmtCxYzKYLWmUr0tEUb6mAazgCxqIE37crJmzE
+         Z+XTBzIGAU9L7KgUXyE66Wv40xkQOuietAJo99Bc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Meng Tang <tangmeng@uniontech.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.17 1045/1126] ASoC: rockchip: i2s_tdm: Fixup config for SND_SOC_DAIFMT_DSP_A/B
+        stable@vger.kernel.org,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Quinn Tran <qutran@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.16 0879/1017] scsi: qla2xxx: Fix scheduling while atomic
 Date:   Tue,  5 Apr 2022 09:29:52 +0200
-Message-Id: <20220405070438.145487194@linuxfoundation.org>
+Message-Id: <20220405070420.326520567@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,44 +56,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Meng Tang <tangmeng@uniontech.com>
+From: Quinn Tran <qutran@marvell.com>
 
-commit 2f45a4e2897793cc6ae25f5fe78b485ce7fd01d0 upstream.
+commit afd438ff874ca40b74321b3fa19bd61adfd7ca0c upstream.
 
-SND_SOC_DAIFMT_DSP_A: PCM delay 1 bit mode, L data MSB after FRM LRC
-SND_SOC_DAIFMT_DSP_B: PCM no delay mode, L data MSB during FRM LRC
+The driver makes a call into midlayer (fc_remote_port_delete) which can put
+the thread to sleep. The thread that originates the call is in interrupt
+context. The combination of the two trigger a crash. Schedule the call in
+non-interrupt context where it is more safe.
 
-Fixes: 081068fd64140 (ASoC: rockchip: add support for i2s-tdm controller)
+kernel: BUG: scheduling while atomic: swapper/7/0/0x00010000
+kernel: Call Trace:
+kernel:  <IRQ>
+kernel:  dump_stack+0x66/0x81
+kernel:  __schedule_bug.cold.90+0x5/0x1d
+kernel:  __schedule+0x7af/0x960
+kernel:  schedule+0x28/0x80
+kernel:  schedule_timeout+0x26d/0x3b0
+kernel:  wait_for_completion+0xb4/0x140
+kernel:  ? wake_up_q+0x70/0x70
+kernel:  __wait_rcu_gp+0x12c/0x160
+kernel:  ? sdev_evt_alloc+0xc0/0x180 [scsi_mod]
+kernel:  synchronize_sched+0x6c/0x80
+kernel:  ? call_rcu_bh+0x20/0x20
+kernel:  ? __bpf_trace_rcu_invoke_callback+0x10/0x10
+kernel:  sdev_evt_alloc+0xfd/0x180 [scsi_mod]
+kernel:  starget_for_each_device+0x85/0xb0 [scsi_mod]
+kernel:  ? scsi_init_io+0x360/0x3d0 [scsi_mod]
+kernel:  scsi_init_io+0x388/0x3d0 [scsi_mod]
+kernel:  device_for_each_child+0x54/0x90
+kernel:  fc_remote_port_delete+0x70/0xe0 [scsi_transport_fc]
+kernel:  qla2x00_schedule_rport_del+0x62/0xf0 [qla2xxx]
+kernel:  qla2x00_mark_device_lost+0x9c/0xd0 [qla2xxx]
+kernel:  qla24xx_handle_plogi_done_event+0x55f/0x570 [qla2xxx]
+kernel:  qla2x00_async_login_sp_done+0xd2/0x100 [qla2xxx]
+kernel:  qla24xx_logio_entry+0x13a/0x3c0 [qla2xxx]
+kernel:  qla24xx_process_response_queue+0x306/0x400 [qla2xxx]
+kernel:  qla24xx_msix_rsp_q+0x3f/0xb0 [qla2xxx]
+kernel:  __handle_irq_event_percpu+0x40/0x180
+kernel:  handle_irq_event_percpu+0x30/0x80
+kernel:  handle_irq_event+0x36/0x60
 
-Signed-off-by: Meng Tang <tangmeng@uniontech.com>
-Link: https://lore.kernel.org/r/20220318100146.23991-1-tangmeng@uniontech.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20220110050218.3958-7-njavali@marvell.com
+Cc: stable@vger.kernel.org
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Quinn Tran <qutran@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/rockchip/rockchip_i2s_tdm.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/scsi/qla2xxx/qla_init.c |    7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
 
---- a/sound/soc/rockchip/rockchip_i2s_tdm.c
-+++ b/sound/soc/rockchip/rockchip_i2s_tdm.c
-@@ -469,14 +469,14 @@ static int rockchip_i2s_tdm_set_fmt(stru
- 		txcr_val = I2S_TXCR_IBM_NORMAL;
- 		rxcr_val = I2S_RXCR_IBM_NORMAL;
+--- a/drivers/scsi/qla2xxx/qla_init.c
++++ b/drivers/scsi/qla2xxx/qla_init.c
+@@ -2231,12 +2231,7 @@ qla24xx_handle_plogi_done_event(struct s
+ 		ql_dbg(ql_dbg_disc, vha, 0x20eb, "%s %d %8phC cmd error %x\n",
+ 		    __func__, __LINE__, ea->fcport->port_name, ea->data[1]);
+ 
+-		ea->fcport->flags &= ~FCF_ASYNC_SENT;
+-		qla2x00_set_fcport_disc_state(ea->fcport, DSC_LOGIN_FAILED);
+-		if (ea->data[1] & QLA_LOGIO_LOGIN_RETRIED)
+-			set_bit(RELOGIN_NEEDED, &vha->dpc_flags);
+-		else
+-			qla2x00_mark_device_lost(vha, ea->fcport, 1);
++		qlt_schedule_sess_for_deletion(ea->fcport);
  		break;
--	case SND_SOC_DAIFMT_DSP_A: /* PCM no delay mode */
--		txcr_val = I2S_TXCR_TFS_PCM;
--		rxcr_val = I2S_RXCR_TFS_PCM;
--		break;
--	case SND_SOC_DAIFMT_DSP_B: /* PCM delay 1 mode */
-+	case SND_SOC_DAIFMT_DSP_A: /* PCM delay 1 mode */
- 		txcr_val = I2S_TXCR_TFS_PCM | I2S_TXCR_PBM_MODE(1);
- 		rxcr_val = I2S_RXCR_TFS_PCM | I2S_RXCR_PBM_MODE(1);
- 		break;
-+	case SND_SOC_DAIFMT_DSP_B: /* PCM no delay mode */
-+		txcr_val = I2S_TXCR_TFS_PCM;
-+		rxcr_val = I2S_RXCR_TFS_PCM;
-+		break;
- 	default:
- 		ret = -EINVAL;
- 		goto err_pm_put;
+ 	case MBS_LOOP_ID_USED:
+ 		/* data[1] = IO PARAM 1 = nport ID  */
 
 
