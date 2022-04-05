@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 95C5C4F2E37
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:59:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF6144F2D29
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:35:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353736AbiDEKJF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:09:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60884 "EHLO
+        id S1353758AbiDEKJP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:09:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44250 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345350AbiDEJW3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:22:29 -0400
+        with ESMTP id S1345428AbiDEJWd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:22:33 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F6A72BB3D;
-        Tue,  5 Apr 2022 02:10:44 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CE124A91A;
+        Tue,  5 Apr 2022 02:10:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CEEFC61527;
-        Tue,  5 Apr 2022 09:10:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3553C385A4;
-        Tue,  5 Apr 2022 09:10:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C617661527;
+        Tue,  5 Apr 2022 09:10:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3642C385A0;
+        Tue,  5 Apr 2022 09:10:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149843;
-        bh=SoTsVxUNgArb3KGJBW6jLzurc7grDCBVMz9x6nnfNFA=;
+        s=korg; t=1649149855;
+        bh=8VTJKxnFGmJl+q+s6XaRFXc08iUt6ahkmVP/NwzLsz4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zN1ke6gwoyNM8LLVnMuMgWkmV3eVeBRfh+o/hYmDv7fIw7KctqKKk9LAuzEklUL91
-         oRMZu8UmN0Fuob9O4rF3kxn8AVN4FhLGX9CF2Gytk/SpGQAwzxjQerFZ5bzBrm5bS2
-         216varebq9VdWQn8XOnPIpjysp/UMfCBKK/1fSzU=
+        b=xqjil2mu7Wxd+r7uitqcaBGx7BS5gNWwy+XQ+oeS/1g6otGQTv0Ax9av9QVfxD11Z
+         4JDfuzcdsZtPb7cL4cokdPasUOi493gKwKBpS+x7xGo+8S+krKL/nSOOLsoNTWkuhM
+         8VsxG1A9eITg+lcYjfzvZvcNfEikhCAqbsuonM7U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Gardon <bgardon@google.com>,
-        Sean Christopherson <seanjc@google.com>,
+        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.16 0861/1017] KVM: x86/mmu: Check for present SPTE when clearing dirty bit in TDP MMU
-Date:   Tue,  5 Apr 2022 09:29:34 +0200
-Message-Id: <20220405070419.791276787@linuxfoundation.org>
+Subject: [PATCH 5.16 0864/1017] KVM: x86: hyper-v: Fix the maximum number of sparse banks for XMM fast TLB flush hypercalls
+Date:   Tue,  5 Apr 2022 09:29:37 +0200
+Message-Id: <20220405070419.881405296@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -54,39 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
 
-commit 3354ef5a592d219364cf442c2f784ce7ad7629fd upstream.
+commit 7321f47eada53a395fb3086d49297eebb19e8e58 upstream.
 
-Explicitly check for present SPTEs when clearing dirty bits in the TDP
-MMU.  This isn't strictly required for correctness, as setting the dirty
-bit in a defunct SPTE will not change the SPTE from !PRESENT to PRESENT.
-However, the guarded MMU_WARN_ON() in spte_ad_need_write_protect() would
-complain if anyone actually turned on KVM's MMU debugging.
+When TLB flush hypercalls (HVCALL_FLUSH_VIRTUAL_ADDRESS_{LIST,SPACE}_EX are
+issued in 'XMM fast' mode, the maximum number of allowed sparse_banks is
+not 'HV_HYPERCALL_MAX_XMM_REGISTERS - 1' (5) but twice as many (10) as each
+XMM register is 128 bit long and can hold two 64 bit long banks.
 
-Fixes: a6a0b05da9f3 ("kvm: x86/mmu: Support dirty logging for the TDP MMU")
-Cc: Ben Gardon <bgardon@google.com>
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Reviewed-by: Ben Gardon <bgardon@google.com>
-Message-Id: <20220226001546.360188-3-seanjc@google.com>
-Cc: stable@vger.kernel.org
+Cc: stable@vger.kernel.org # 5.14.x
+Fixes: 5974565bc26d ("KVM: x86: kvm_hv_flush_tlb use inputs from XMM registers")
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Message-Id: <20220222154642.684285-4-vkuznets@redhat.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/mmu/tdp_mmu.c |    3 +++
- 1 file changed, 3 insertions(+)
+ arch/x86/kvm/hyperv.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/arch/x86/kvm/mmu/tdp_mmu.c
-+++ b/arch/x86/kvm/mmu/tdp_mmu.c
-@@ -1261,6 +1261,9 @@ retry:
- 		if (tdp_mmu_iter_cond_resched(kvm, &iter, false, true))
- 			continue;
+--- a/arch/x86/kvm/hyperv.c
++++ b/arch/x86/kvm/hyperv.c
+@@ -1819,7 +1819,8 @@ static u64 kvm_hv_flush_tlb(struct kvm_v
  
-+		if (!is_shadow_present_pte(iter.old_spte))
-+			continue;
-+
- 		if (spte_ad_need_write_protect(iter.old_spte)) {
- 			if (is_writable_pte(iter.old_spte))
- 				new_spte = iter.old_spte & ~PT_WRITABLE_MASK;
+ 		if (!all_cpus) {
+ 			if (hc->fast) {
+-				if (sparse_banks_len > HV_HYPERCALL_MAX_XMM_REGISTERS - 1)
++				/* XMM0 is already consumed, each XMM holds two sparse banks. */
++				if (sparse_banks_len > 2 * (HV_HYPERCALL_MAX_XMM_REGISTERS - 1))
+ 					return HV_STATUS_INVALID_HYPERCALL_INPUT;
+ 				for (i = 0; i < sparse_banks_len; i += 2) {
+ 					sparse_banks[i] = sse128_lo(hc->xmm[i / 2 + 1]);
 
 
