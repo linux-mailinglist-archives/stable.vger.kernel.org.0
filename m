@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 68A204F36CC
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:09:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2C5F4F36CB
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:09:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352318AbiDELH5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:07:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47350 "EHLO
+        id S1352306AbiDELHz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:07:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39330 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348757AbiDEJsb (ORCPT
+        with ESMTP id S1348760AbiDEJsb (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:48:31 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C1364BFE6;
-        Tue,  5 Apr 2022 02:34:53 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37CC85C855;
+        Tue,  5 Apr 2022 02:34:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 04362B81B75;
+        by ams.source.kernel.org (Postfix) with ESMTPS id BE764B81C98;
+        Tue,  5 Apr 2022 09:34:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1AD3CC385A3;
         Tue,  5 Apr 2022 09:34:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D823C385A4;
-        Tue,  5 Apr 2022 09:34:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151290;
-        bh=rrq5DQ4s3Epa8STH7GdSx073QvvtZEtfAAz8FBiN6QM=;
+        s=korg; t=1649151293;
+        bh=LeY3wKEwutDULuXR8eL2wPBlS4V4lm2KrlpDBv17W8M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i1atCNA2C3N/2zoFBNds1hPeBQXcu42y6/L5xNK5M5ggZmNwgGRsomGQQw9bLFzXI
-         P0CTiYZAb14pZCekT8PX1fg4SY3+x2v2Bk5tMa1oWDlbBUrzE+W10sBXHoKuURJnsV
-         86xnMEML+Pg2rVbXC9N8zlobuDDKK2JNruixew4c=
+        b=qB6H0NNsyHV4XY7Ewzg/UP15V8ZUB2M5a+B0zOdP5eXHJh2TnX5XdoJODYxY5yEnp
+         8uH6PAL+wCv3PLGdJX0uACgAA1z8I9hCM5h40VaVD0Ztp7jRFxWGVJ8NhPTkt3TSIK
+         KoTzyEy6S3lTDlaOGEizEf8UwOMbO46xzsbuKU1M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Codrin Ciubotariu <codrin.ciubotariu@microchip.com>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 361/913] ASoC: dmaengine: do not use a NULL prepare_slave_config() callback
-Date:   Tue,  5 Apr 2022 09:23:43 +0200
-Message-Id: <20220405070350.666729129@linuxfoundation.org>
+Subject: [PATCH 5.15 362/913] ASoC: mxs: Fix error handling in mxs_sgtl5000_probe
+Date:   Tue,  5 Apr 2022 09:23:44 +0200
+Message-Id: <20220405070350.696344335@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -55,40 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 9a1e13440a4f2e7566fd4c5eae6a53e6400e08a4 ]
+[ Upstream commit 6ae0a4d8fec551ec581d620f0eb1fe31f755551c ]
 
-Even if struct snd_dmaengine_pcm_config is used, prepare_slave_config()
-callback might not be set. Check if this callback is set before using it.
+This function only calls of_node_put() in the regular path.
+And it will cause refcount leak in error paths.
+For example, when codec_np is NULL, saif_np[0] and saif_np[1]
+are not NULL, it will cause leaks.
 
-Fixes: fa654e085300 ("ASoC: dmaengine-pcm: Provide default config")
-Signed-off-by: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
-Link: https://lore.kernel.org/r/20220307122202.2251639-2-codrin.ciubotariu@microchip.com
+of_node_put() will check if the node pointer is NULL, so we can
+call it directly to release the refcount of regular pointers.
+
+Fixes: e968194b45c4 ("ASoC: mxs: add device tree support for mxs-sgtl5000")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220308020146.26496-1-linmq006@gmail.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-generic-dmaengine-pcm.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ sound/soc/mxs/mxs-sgtl5000.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/sound/soc/soc-generic-dmaengine-pcm.c b/sound/soc/soc-generic-dmaengine-pcm.c
-index 4aa48c74f21a..38f3f36c1d72 100644
---- a/sound/soc/soc-generic-dmaengine-pcm.c
-+++ b/sound/soc/soc-generic-dmaengine-pcm.c
-@@ -82,10 +82,10 @@ static int dmaengine_pcm_hw_params(struct snd_soc_component *component,
+diff --git a/sound/soc/mxs/mxs-sgtl5000.c b/sound/soc/mxs/mxs-sgtl5000.c
+index a6407f4388de..fb721bc49949 100644
+--- a/sound/soc/mxs/mxs-sgtl5000.c
++++ b/sound/soc/mxs/mxs-sgtl5000.c
+@@ -118,6 +118,9 @@ static int mxs_sgtl5000_probe(struct platform_device *pdev)
+ 	codec_np = of_parse_phandle(np, "audio-codec", 0);
+ 	if (!saif_np[0] || !saif_np[1] || !codec_np) {
+ 		dev_err(&pdev->dev, "phandle missing or invalid\n");
++		of_node_put(codec_np);
++		of_node_put(saif_np[0]);
++		of_node_put(saif_np[1]);
+ 		return -EINVAL;
+ 	}
  
- 	memset(&slave_config, 0, sizeof(slave_config));
- 
--	if (!pcm->config)
--		prepare_slave_config = snd_dmaengine_pcm_prepare_slave_config;
--	else
-+	if (pcm->config && pcm->config->prepare_slave_config)
- 		prepare_slave_config = pcm->config->prepare_slave_config;
-+	else
-+		prepare_slave_config = snd_dmaengine_pcm_prepare_slave_config;
- 
- 	if (prepare_slave_config) {
- 		int ret = prepare_slave_config(substream, params, &slave_config);
 -- 
 2.34.1
 
