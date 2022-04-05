@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 869DB4F380E
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:27:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C62614F380D
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:27:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376273AbiDELVP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:21:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39108 "EHLO
+        id S1376269AbiDELVO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:21:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47504 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349347AbiDEJtl (ORCPT
+        with ESMTP id S1349348AbiDEJtl (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47FACDBC;
-        Tue,  5 Apr 2022 02:44:19 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C2A7645F;
+        Tue,  5 Apr 2022 02:44:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 08CA5B817D3;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 14A396164D;
+        Tue,  5 Apr 2022 09:44:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CE36C385A2;
         Tue,  5 Apr 2022 09:44:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DBD5C385A2;
-        Tue,  5 Apr 2022 09:44:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151856;
-        bh=98aCFofgFx1i2qmaGNmZ2Ir40iIRhlyna9C5ZXP/Y2o=;
+        s=korg; t=1649151859;
+        bh=IUboqo4iJ3n7otCQXs7prFXc0z51J73FM0eOCExijfM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1zxKVXEiH0Nj3a108bCEZ6cymdOupquHXyny9iUU3ZuBgK1Md4ZSyu398PNtRZ5ho
-         5Ao3mC2GoEAvs5NRazgQNhTULPr4pZqCqKmQCQHCeI3j8ENFyPcDOL1MR9RuX1pZe9
-         HSOdDBb+9/TL9KXh/l7jAuCIjbruQEnzz0NQRKoQ=
+        b=d3qnT3qQZCZishpst/TqlzrOvkXA63bi2d79PnAvM2qMQ3y10ImW+vuv8p2fGaDPi
+         YsNskDCSM0TfnN60aLv4ro3unhBSvWdAfGPFF2/++W7AvZTww+qtKvLon3yMRgW2hY
+         k0ICwtwhjxTLeNQ4Og2nhpUyl5q0rQRPgzpHVsCI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hangbin Liu <liuhangbin@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+        stable@vger.kernel.org, Mick Lorain <micklorain@protonmail.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 565/913] selftests/bpf/test_lirc_mode2.sh: Exit with proper code
-Date:   Tue,  5 Apr 2022 09:27:07 +0200
-Message-Id: <20220405070356.780493269@linuxfoundation.org>
+Subject: [PATCH 5.15 566/913] PCI: Avoid broken MSI on SB600 USB devices
+Date:   Tue,  5 Apr 2022 09:27:08 +0200
+Message-Id: <20220405070356.810084675@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -54,53 +54,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangbin Liu <liuhangbin@gmail.com>
+From: Bjorn Helgaas <bhelgaas@google.com>
 
-[ Upstream commit ec80906b0fbd7be11e3e960813b977b1ffe5f8fe ]
+[ Upstream commit 63cd736f449445edcd7f0bcc7d84453e9beec0aa ]
 
-When test_lirc_mode2_user exec failed, the test report failed but still
-exit with 0. Fix it by exiting with an error code.
+Some ATI SB600 USB adapters advertise MSI, but if INTx is disabled by
+setting PCI_COMMAND_INTX_DISABLE, MSI doesn't work either.  The PCI/PCIe
+specs do not require software to set PCI_COMMAND_INTX_DISABLE when enabling
+MSI, but Linux has done that for many years.
 
-Another issue is for the LIRCDEV checking. With bash -n, we need to quote
-the variable, or it will always be true. So if test_lirc_mode2_user was
-not run, just exit with skip code.
+Mick reported that 306c54d0edb6 ("usb: hcd: Try MSI interrupts on PCI
+devices") broke these devices.  Prior to 306c54d0edb6, they used INTx.
+Starting with 306c54d0edb6, they use MSI, and and the fact that Linux sets
+PCI_COMMAND_INTX_DISABLE means both INTx and MSI are disabled on these
+devices.
 
-Fixes: 6bdd533cee9a ("bpf: add selftest for lirc_mode2 type program")
-Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20220321024149.157861-1-liuhangbin@gmail.com
+Avoid this SB600 defect by disabling MSI so we use INTx as before.
+
+Fixes: 306c54d0edb6 ("usb: hcd: Try MSI interrupts on PCI devices")
+Link: https://lore.kernel.org/r/20220321183446.1108325-1-helgaas@kernel.org
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=215690
+Link: https://lore.kernel.org/all/PxIByDyBRcsbpcmVhGSNDFAoUcMmb78ctXCkw6fbpx25TGlCHvA6SJjjFkNr1FfQZMntYPTNyvEnblxzAZ8a6jP9ddLpKeCN6Chi_2FuexU=@protonmail.com/
+Link: https://lore.kernel.org/r/20220314101448.90074-1-andriy.shevchenko@linux.intel.com
+BugLink: https://lore.kernel.org/all/20200702143045.23429-1-andriy.shevchenko@linux.intel.com/
+Reported-by: Mick Lorain <micklorain@protonmail.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/test_lirc_mode2.sh | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/pci/quirks.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/tools/testing/selftests/bpf/test_lirc_mode2.sh b/tools/testing/selftests/bpf/test_lirc_mode2.sh
-index ec4e15948e40..5252b91f48a1 100755
---- a/tools/testing/selftests/bpf/test_lirc_mode2.sh
-+++ b/tools/testing/selftests/bpf/test_lirc_mode2.sh
-@@ -3,6 +3,7 @@
+diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
+index e7cd8b504535..4893b1e82403 100644
+--- a/drivers/pci/quirks.c
++++ b/drivers/pci/quirks.c
+@@ -1811,6 +1811,18 @@ static void quirk_alder_ioapic(struct pci_dev *pdev)
+ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_EESSC,	quirk_alder_ioapic);
+ #endif
  
- # Kselftest framework requirement - SKIP code is 4.
- ksft_skip=4
-+ret=$ksft_skip
- 
- msg="skip all tests:"
- if [ $UID != 0 ]; then
-@@ -25,7 +26,7 @@ do
- 	fi
- done
- 
--if [ -n $LIRCDEV ];
-+if [ -n "$LIRCDEV" ];
- then
- 	TYPE=lirc_mode2
- 	./test_lirc_mode2_user $LIRCDEV $INPUTDEV
-@@ -36,3 +37,5 @@ then
- 		echo -e ${GREEN}"PASS: $TYPE"${NC}
- 	fi
- fi
++static void quirk_no_msi(struct pci_dev *dev)
++{
++	pci_info(dev, "avoiding MSI to work around a hardware defect\n");
++	dev->no_msi = 1;
++}
++DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_ATI, 0x4386, quirk_no_msi);
++DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_ATI, 0x4387, quirk_no_msi);
++DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_ATI, 0x4388, quirk_no_msi);
++DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_ATI, 0x4389, quirk_no_msi);
++DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_ATI, 0x438a, quirk_no_msi);
++DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_ATI, 0x438b, quirk_no_msi);
 +
-+exit $ret
+ static void quirk_pcie_mch(struct pci_dev *pdev)
+ {
+ 	pdev->no_msi = 1;
 -- 
 2.34.1
 
