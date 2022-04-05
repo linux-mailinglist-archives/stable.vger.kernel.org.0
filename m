@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A3364F317A
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:44:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 21FFD4F3268
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:57:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343771AbiDEJMr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:12:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47778 "EHLO
+        id S1343774AbiDEJMt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:12:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52324 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244878AbiDEIwp (ORCPT
+        with ESMTP id S244880AbiDEIwp (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:45 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35E5623BEE;
-        Tue,  5 Apr 2022 01:45:23 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C14223BF1;
+        Tue,  5 Apr 2022 01:45:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C27D4B81BC5;
-        Tue,  5 Apr 2022 08:45:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34018C385A1;
-        Tue,  5 Apr 2022 08:45:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BE922609D0;
+        Tue,  5 Apr 2022 08:45:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2CD3C385A0;
+        Tue,  5 Apr 2022 08:45:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148320;
-        bh=SeEmVQ+6sOiq6KI47+xvkVim2p4SUR0DdCPXVwb5hVs=;
+        s=korg; t=1649148323;
+        bh=zU7u/yHCVJFvTPDvmJ3yVd81YrXpQ+cTytG0N2dOO4k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J6PT9+/wHlbrqnlf4GDW1yo3/+7Y7EDQkTdDKqaiydEmKAAjJdVECkSJBnEi6TvG9
-         6ztY4k6NS44dQt6P7Qlr12Z2Jsh1ltfrYPmv5LdhUVyldobQTPINS/0maAtZPP6Ma1
-         y/8OeanLH1qQw3Fp5LOBMDcZzBqUN1V69P2lVc8M=
+        b=KBAhrB6/2XtgBtqg+QTRzJsU2va2dx6peoF3u2afZli06KM3GJ4mD6AKfhmOcoykh
+         FMIMgt3X5BB5rbt+HuEENFHz4oatZmH+KL1pcygkhei4zniBbXPf81FzwLp5Ake9aQ
+         TdY0ohKKtmD/iy2+riNmxbKf4PJV2S3Qa/HyQhxw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Daniel Thompson <daniel.thompson@linaro.org>,
+        stable@vger.kernel.org, David Heidelberg <david@ixit.cz>,
+        Steev Klimaszewski <steev@kali.org>,
         Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0315/1017] soc: qcom: aoss: remove spurious IRQF_ONESHOT flags
-Date:   Tue,  5 Apr 2022 09:20:28 +0200
-Message-Id: <20220405070403.627715914@linuxfoundation.org>
+Subject: [PATCH 5.16 0316/1017] arm64: dts: qcom: sdm845: fix microphone bias properties and values
+Date:   Tue,  5 Apr 2022 09:20:29 +0200
+Message-Id: <20220405070403.657709246@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -55,48 +55,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Thompson <daniel.thompson@linaro.org>
+From: David Heidelberg <david@ixit.cz>
 
-[ Upstream commit 8030cb9a55688c1339edd284d9d6ce5f9fc75160 ]
+[ Upstream commit 625c24460dbbc3b6c9a148c0a30f0830893fc909 ]
 
-Quoting the header comments, IRQF_ONESHOT is "Used by threaded interrupts
-which need to keep the irq line disabled until the threaded handler has
-been run.". When applied to an interrupt that doesn't request a threaded
-irq then IRQF_ONESHOT has a lesser known (undocumented?) side effect,
-which it to disable the forced threading of the irq. For "normal" kernels
-(without forced threading) then, if there is no thread_fn, then
-IRQF_ONESHOT is a nop.
+replace millivolt with correct microvolt and adjust value to
+the minimal value allowed by documentation.
 
-In this case disabling forced threading is not appropriate for this driver
-because it calls wake_up_all() and this API cannot be called from
-no-thread interrupt handlers on PREEMPT_RT systems (deadlock risk, triggers
-sleeping-while-atomic warnings).
+Found with `make qcom/sdm845-oneplus-fajita.dtb`.
 
-Fix this by removing IRQF_ONESHOT.
+Fixes:
+arch/arm64/boot/dts/qcom/sdm845-oneplus-fajita.dt.yaml: codec@1: 'qcom,micbias1-microvolt' is a required property
+        From schema: Documentation/devicetree/bindings/sound/qcom,wcd934x.yaml
+arch/arm64/boot/dts/qcom/sdm845-oneplus-fajita.dt.yaml: codec@1: 'qcom,micbias2-microvolt' is a required property
+        From schema: Documentation/devicetree/bindings/sound/qcom,wcd934x.yaml
+arch/arm64/boot/dts/qcom/sdm845-oneplus-fajita.dt.yaml: codec@1: 'qcom,micbias3-microvolt' is a required property
+        From schema: Documentation/devicetree/bindings/sound/qcom,wcd934x.yaml
+arch/arm64/boot/dts/qcom/sdm845-oneplus-fajita.dt.yaml: codec@1: 'qcom,micbias4-microvolt' is a required property
+        From schema: Documentation/devicetree/bindings/sound/qcom,wcd934x.yaml
+arch/arm64/boot/dts/qcom/sdm845-oneplus-fajita.dt.yaml: codec@1: 'qcom,micbias1-millivolt', 'qcom,micbias2-millivolt', 'qcom,micbias3-millivolt', 'qcom,micbias4-millivolt' do not match any of the regexes: '^.*@[0-9a-f]+$', 'pinctrl-[0-9]+'
 
-Fixes: 2209481409b7 ("soc: qcom: Add AOSS QMP driver")
-Signed-off-by: Daniel Thompson <daniel.thompson@linaro.org>
-[bjorn: Added Fixes tag]
+Fixes: 27ca1de07dc3 ("arm64: dts: qcom: sdm845: add slimbus nodes")
+
+Signed-off-by: David Heidelberg <david@ixit.cz>
+Tested-by: Steev Klimaszewski <steev@kali.org>
 Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220127173554.158111-1-daniel.thompson@linaro.org
+Link: https://lore.kernel.org/r/20211213195105.114596-1-david@ixit.cz
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/qcom/qcom_aoss.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/qcom/sdm845.dtsi | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/soc/qcom/qcom_aoss.c b/drivers/soc/qcom/qcom_aoss.c
-index e234d78b33e7..55c156aaf68a 100644
---- a/drivers/soc/qcom/qcom_aoss.c
-+++ b/drivers/soc/qcom/qcom_aoss.c
-@@ -501,7 +501,7 @@ static int qmp_probe(struct platform_device *pdev)
- 	}
+diff --git a/arch/arm64/boot/dts/qcom/sdm845.dtsi b/arch/arm64/boot/dts/qcom/sdm845.dtsi
+index 526087586ba4..0dda3a378158 100644
+--- a/arch/arm64/boot/dts/qcom/sdm845.dtsi
++++ b/arch/arm64/boot/dts/qcom/sdm845.dtsi
+@@ -3613,10 +3613,10 @@
+ 					#clock-cells = <0>;
+ 					clock-frequency = <9600000>;
+ 					clock-output-names = "mclk";
+-					qcom,micbias1-millivolt = <1800>;
+-					qcom,micbias2-millivolt = <1800>;
+-					qcom,micbias3-millivolt = <1800>;
+-					qcom,micbias4-millivolt = <1800>;
++					qcom,micbias1-microvolt = <1800000>;
++					qcom,micbias2-microvolt = <1800000>;
++					qcom,micbias3-microvolt = <1800000>;
++					qcom,micbias4-microvolt = <1800000>;
  
- 	irq = platform_get_irq(pdev, 0);
--	ret = devm_request_irq(&pdev->dev, irq, qmp_intr, IRQF_ONESHOT,
-+	ret = devm_request_irq(&pdev->dev, irq, qmp_intr, 0,
- 			       "aoss-qmp", qmp);
- 	if (ret < 0) {
- 		dev_err(&pdev->dev, "failed to request interrupt\n");
+ 					#address-cells = <1>;
+ 					#size-cells = <1>;
 -- 
 2.34.1
 
