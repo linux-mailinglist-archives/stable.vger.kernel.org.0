@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D3AA04F2A87
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:04:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B16DB4F2A00
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 12:51:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244206AbiDEKiQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:38:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48860 "EHLO
+        id S1347653AbiDEJ2C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:28:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46614 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240404AbiDEJeW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:34:22 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7E8737A3E;
-        Tue,  5 Apr 2022 02:23:55 -0700 (PDT)
+        with ESMTP id S244759AbiDEIwh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:37 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF3731D323;
+        Tue,  5 Apr 2022 01:43:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id A89E8CE1C79;
-        Tue,  5 Apr 2022 09:23:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C36DDC385A4;
-        Tue,  5 Apr 2022 09:23:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 91312B81A32;
+        Tue,  5 Apr 2022 08:43:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B649C385A0;
+        Tue,  5 Apr 2022 08:43:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150632;
-        bh=ttySWdYImKlbZtql6brYev+bErISruNvZ8DhblDoto8=;
+        s=korg; t=1649148202;
+        bh=f2TE95cmaLwf4mI8zvdr2vVpjO4xQUs/2IcFqLWNt1g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CTTpJ6Ngg/WPoZrpq6hj//vvo4USYCUukwGOS7I/BTKSwzxKLuTY8RwMm3SsBT/wN
-         DRHJab4lHpi3EGKeygygJ63AuvlihHykqRArHx+ZP4MzkSZL7nAHClk2H36TYbRNuW
-         sK1CPbxTDEb4XhqPhNZdtXnNRBUq+dXX/kFB+vBU=
+        b=fjvTOgB3dtAX1SBpK9YAkBMLhfu3JeUgTPVSoHuQQMEexme3QoQAo9Jese9norKQQ
+         MN1OyQ10oV9cCt3awkvkbf1GlSi3lWXiZpuWqMP8Rqf1iTSWVdKL5FbGRgaEAIpVzT
+         Z9ZEeEjuNzGAfc62ShOpGn06zJRB3TQdWMUq++m4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vijay Balakrishna <vijayb@linux.microsoft.com>,
-        Pasha Tatashin <pasha.tatashin@soleen.com>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 5.15 122/913] arm64: Do not defer reserve_crashkernel() for platforms with no DMA memory zones
-Date:   Tue,  5 Apr 2022 09:19:44 +0200
-Message-Id: <20220405070343.485147783@linuxfoundation.org>
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0272/1017] btrfs: fix unexpected error path when reflinking an inline extent
+Date:   Tue,  5 Apr 2022 09:19:45 +0200
+Message-Id: <20220405070402.340137634@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,164 +54,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vijay Balakrishna <vijayb@linux.microsoft.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit 031495635b4668f94e964e037ca93d0d38bfde58 upstream.
+[ Upstream commit 1f4613cdbe7739ce291554b316bff8e551383389 ]
 
-The following patches resulted in deferring crash kernel reservation to
-mem_init(), mainly aimed at platforms with DMA memory zones (no IOMMU),
-in particular Raspberry Pi 4.
+When reflinking an inline extent, we assert that its file offset is 0 and
+that its uncompressed length is not greater than the sector size. We then
+return an error if one of those conditions is not satisfied. However we
+use a return statement, which results in returning from btrfs_clone()
+without freeing the path and buffer that were allocated before, as well as
+not clearing the flag BTRFS_INODE_NO_DELALLOC_FLUSH for the destination
+inode.
 
-commit 1a8e1cef7603 ("arm64: use both ZONE_DMA and ZONE_DMA32")
-commit 8424ecdde7df ("arm64: mm: Set ZONE_DMA size based on devicetree's dma-ranges")
-commit 0a30c53573b0 ("arm64: mm: Move reserve_crashkernel() into mem_init()")
-commit 2687275a5843 ("arm64: Force NO_BLOCK_MAPPINGS if crashkernel reservation is required")
+Fix that by jumping to the 'out' label instead, and also add a WARN_ON()
+for each condition so that in case assertions are disabled, we get to
+known which of the unexpected conditions triggered the error.
 
-Above changes introduced boot slowdown due to linear map creation for
-all the memory banks with NO_BLOCK_MAPPINGS, see discussion[1].  The proposed
-changes restore crash kernel reservation to earlier behavior thus avoids
-slow boot, particularly for platforms with IOMMU (no DMA memory zones).
-
-Tested changes to confirm no ~150ms boot slowdown on our SoC with IOMMU
-and 8GB memory.  Also tested with ZONE_DMA and/or ZONE_DMA32 configs to confirm
-no regression to deferring scheme of crash kernel memory reservation.
-In both cases successfully collected kernel crash dump.
-
-[1] https://lore.kernel.org/all/9436d033-579b-55fa-9b00-6f4b661c2dd7@linux.microsoft.com/
-
-Signed-off-by: Vijay Balakrishna <vijayb@linux.microsoft.com>
-Cc: stable@vger.kernel.org
-Reviewed-by: Pasha Tatashin <pasha.tatashin@soleen.com>
-Link: https://lore.kernel.org/r/1646242689-20744-1-git-send-email-vijayb@linux.microsoft.com
-[will: Add #ifdef CONFIG_KEXEC_CORE guards to fix 'crashk_res' references in allnoconfig build]
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: a61e1e0df9f321 ("Btrfs: simplify inline extent handling when doing reflinks")
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/mm/init.c |   36 ++++++++++++++++++++++++++++++++----
- arch/arm64/mm/mmu.c  |   32 +++++++++++++++++++++++++++++++-
- 2 files changed, 63 insertions(+), 5 deletions(-)
+ fs/btrfs/reflink.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/arch/arm64/mm/init.c
-+++ b/arch/arm64/mm/init.c
-@@ -61,8 +61,34 @@ EXPORT_SYMBOL(memstart_addr);
-  * unless restricted on specific platforms (e.g. 30-bit on Raspberry Pi 4).
-  * In such case, ZONE_DMA32 covers the rest of the 32-bit addressable memory,
-  * otherwise it is empty.
-+ *
-+ * Memory reservation for crash kernel either done early or deferred
-+ * depending on DMA memory zones configs (ZONE_DMA) --
-+ *
-+ * In absence of ZONE_DMA configs arm64_dma_phys_limit initialized
-+ * here instead of max_zone_phys().  This lets early reservation of
-+ * crash kernel memory which has a dependency on arm64_dma_phys_limit.
-+ * Reserving memory early for crash kernel allows linear creation of block
-+ * mappings (greater than page-granularity) for all the memory bank rangs.
-+ * In this scheme a comparatively quicker boot is observed.
-+ *
-+ * If ZONE_DMA configs are defined, crash kernel memory reservation
-+ * is delayed until DMA zone memory range size initilazation performed in
-+ * zone_sizes_init().  The defer is necessary to steer clear of DMA zone
-+ * memory range to avoid overlap allocation.  So crash kernel memory boundaries
-+ * are not known when mapping all bank memory ranges, which otherwise means
-+ * not possible to exclude crash kernel range from creating block mappings
-+ * so page-granularity mappings are created for the entire memory range.
-+ * Hence a slightly slower boot is observed.
-+ *
-+ * Note: Page-granularity mapppings are necessary for crash kernel memory
-+ * range for shrinking its size via /sys/kernel/kexec_crash_size interface.
-  */
--phys_addr_t arm64_dma_phys_limit __ro_after_init;
-+#if IS_ENABLED(CONFIG_ZONE_DMA) || IS_ENABLED(CONFIG_ZONE_DMA32)
-+phys_addr_t __ro_after_init arm64_dma_phys_limit;
-+#else
-+const phys_addr_t arm64_dma_phys_limit = PHYS_MASK + 1;
-+#endif
+diff --git a/fs/btrfs/reflink.c b/fs/btrfs/reflink.c
+index e0f93b357548..157d72e330d6 100644
+--- a/fs/btrfs/reflink.c
++++ b/fs/btrfs/reflink.c
+@@ -505,8 +505,11 @@ static int btrfs_clone(struct inode *src, struct inode *inode,
+ 			 */
+ 			ASSERT(key.offset == 0);
+ 			ASSERT(datal <= fs_info->sectorsize);
+-			if (key.offset != 0 || datal > fs_info->sectorsize)
+-				return -EUCLEAN;
++			if (WARN_ON(key.offset != 0) ||
++			    WARN_ON(datal > fs_info->sectorsize)) {
++				ret = -EUCLEAN;
++				goto out;
++			}
  
- #ifdef CONFIG_KEXEC_CORE
- /*
-@@ -153,8 +179,6 @@ static void __init zone_sizes_init(unsig
- 	if (!arm64_dma_phys_limit)
- 		arm64_dma_phys_limit = dma32_phys_limit;
- #endif
--	if (!arm64_dma_phys_limit)
--		arm64_dma_phys_limit = PHYS_MASK + 1;
- 	max_zone_pfns[ZONE_NORMAL] = max;
- 
- 	free_area_init(max_zone_pfns);
-@@ -352,6 +376,9 @@ void __init arm64_memblock_init(void)
- 
- 	early_init_fdt_scan_reserved_mem();
- 
-+	if (!IS_ENABLED(CONFIG_ZONE_DMA) && !IS_ENABLED(CONFIG_ZONE_DMA32))
-+		reserve_crashkernel();
-+
- 	high_memory = __va(memblock_end_of_DRAM() - 1) + 1;
- }
- 
-@@ -398,7 +425,8 @@ void __init bootmem_init(void)
- 	 * request_standard_resources() depends on crashkernel's memory being
- 	 * reserved, so do it here.
- 	 */
--	reserve_crashkernel();
-+	if (IS_ENABLED(CONFIG_ZONE_DMA) || IS_ENABLED(CONFIG_ZONE_DMA32))
-+		reserve_crashkernel();
- 
- 	memblock_dump_all();
- }
---- a/arch/arm64/mm/mmu.c
-+++ b/arch/arm64/mm/mmu.c
-@@ -516,7 +516,7 @@ static void __init map_mem(pgd_t *pgdp)
- 	 */
- 	BUILD_BUG_ON(pgd_index(direct_map_end - 1) == pgd_index(direct_map_end));
- 
--	if (can_set_direct_map() || crash_mem_map || IS_ENABLED(CONFIG_KFENCE))
-+	if (can_set_direct_map() || IS_ENABLED(CONFIG_KFENCE))
- 		flags |= NO_BLOCK_MAPPINGS | NO_CONT_MAPPINGS;
- 
- 	/*
-@@ -527,6 +527,17 @@ static void __init map_mem(pgd_t *pgdp)
- 	 */
- 	memblock_mark_nomap(kernel_start, kernel_end - kernel_start);
- 
-+#ifdef CONFIG_KEXEC_CORE
-+	if (crash_mem_map) {
-+		if (IS_ENABLED(CONFIG_ZONE_DMA) ||
-+		    IS_ENABLED(CONFIG_ZONE_DMA32))
-+			flags |= NO_BLOCK_MAPPINGS | NO_CONT_MAPPINGS;
-+		else if (crashk_res.end)
-+			memblock_mark_nomap(crashk_res.start,
-+			    resource_size(&crashk_res));
-+	}
-+#endif
-+
- 	/* map all the memory banks */
- 	for_each_mem_range(i, &start, &end) {
- 		if (start >= end)
-@@ -553,6 +564,25 @@ static void __init map_mem(pgd_t *pgdp)
- 	__map_memblock(pgdp, kernel_start, kernel_end,
- 		       PAGE_KERNEL, NO_CONT_MAPPINGS);
- 	memblock_clear_nomap(kernel_start, kernel_end - kernel_start);
-+
-+	/*
-+	 * Use page-level mappings here so that we can shrink the region
-+	 * in page granularity and put back unused memory to buddy system
-+	 * through /sys/kernel/kexec_crash_size interface.
-+	 */
-+#ifdef CONFIG_KEXEC_CORE
-+	if (crash_mem_map &&
-+	    !IS_ENABLED(CONFIG_ZONE_DMA) && !IS_ENABLED(CONFIG_ZONE_DMA32)) {
-+		if (crashk_res.end) {
-+			__map_memblock(pgdp, crashk_res.start,
-+				       crashk_res.end + 1,
-+				       PAGE_KERNEL,
-+				       NO_BLOCK_MAPPINGS | NO_CONT_MAPPINGS);
-+			memblock_clear_nomap(crashk_res.start,
-+					     resource_size(&crashk_res));
-+		}
-+	}
-+#endif
- }
- 
- void mark_rodata_ro(void)
+ 			ret = clone_copy_inline_extent(inode, path, &new_key,
+ 						       drop_start, datal, size,
+-- 
+2.34.1
+
 
 
