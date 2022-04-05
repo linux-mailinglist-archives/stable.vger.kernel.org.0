@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E5C724F2FDB
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:18:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD7464F3153
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:42:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245706AbiDEI4w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:56:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53150 "EHLO
+        id S1353633AbiDEKIm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:08:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54460 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240415AbiDEIb4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:31:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0E1770F55;
-        Tue,  5 Apr 2022 01:24:24 -0700 (PDT)
+        with ESMTP id S1344999AbiDEJWH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:22:07 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C4DBE45;
+        Tue,  5 Apr 2022 02:08:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DD26761001;
-        Tue,  5 Apr 2022 08:24:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E806DC385A0;
-        Tue,  5 Apr 2022 08:24:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C7F6BB80DA1;
+        Tue,  5 Apr 2022 09:08:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27140C385A0;
+        Tue,  5 Apr 2022 09:08:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147059;
-        bh=CtNUPttv43ymyB/SUDL/IvZBJI2TaBEMgGHG76F1Mz0=;
+        s=korg; t=1649149735;
+        bh=FeVBirWUDsSNdHRMTaN1D2cMhlAoxiuriyc5vJocNC0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mMq4delP+YKJaxHwBgXf4SJTGNtbrqETPe5hvYOmEe6kN77tR0DYEZLIdDkYVyhHr
-         arCDnRzhK/AQahiscIaQdDGNqNDteunR+s7liZkXrxovnEJBAt+fq7kH6FWtMPG528
-         4V9YNNdzZeIWiLOeAuKHLyrDUWkpcSW+2wDw1OHk=
+        b=O5cJD3KGXaOMmrLoVqBVS/FoqZAqQ9QPL05tKyMFQvXONqWR+aMlPG/Avwz3w1ySh
+         YDZYNpFnCIkSEena8hZG+O3pautJlSWSD/HGKsnbn2qhGAwcYMIHYUVDu4nDfkjR7P
+         C1ls6oHpA3IcjgoV8ZJEDiOn4UwlA1d1D7yBfY4A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Quinn Tran <qutran@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.17 0987/1126] scsi: qla2xxx: Fix laggy FC remote port session recovery
-Date:   Tue,  5 Apr 2022 09:28:54 +0200
-Message-Id: <20220405070436.466283696@linuxfoundation.org>
+        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0822/1017] ASoC: madera: Add dependencies on MFD
+Date:   Tue,  5 Apr 2022 09:28:55 +0200
+Message-Id: <20220405070418.646923318@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,92 +54,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quinn Tran <qutran@marvell.com>
+From: Charles Keepax <ckeepax@opensource.cirrus.com>
 
-commit 713b415726f100f6644971e75ebfe1edbef1a390 upstream.
+[ Upstream commit ec29170c724ca30305fc3a19ba2ee73ecac65509 ]
 
-For session recovery, driver relies on the dpc thread to initiate certain
-operations. The dpc thread runs exclusively without the Mailbox interface
-being occupied. A recent code change for heartbeat check via mailbox cmd 0
-is preventing the dpc thread from carrying out its operation. This patch
-allows the higher priority error recovery to run first before running the
-lower priority heartbeat check.
+The Madera CODECs use regmap_irq functions but nothing ensures that
+regmap_irq is built into the kernel. Add dependencies on the ASoC
+symbols for the relevant MFD component. There is no point in building
+the ASoC driver if the MFD doesn't support it and the MFD part contains
+the necessary dependencies to ensure everything is built into the
+kernel.
 
-Link: https://lore.kernel.org/r/20220310092604.22950-9-njavali@marvell.com
-Fixes: d94d8158e184 ("scsi: qla2xxx: Add heartbeat check")
-Cc: stable@vger.kernel.org
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Quinn Tran <qutran@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20220203115025.16464-1-ckeepax@opensource.cirrus.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_def.h |    1 +
- drivers/scsi/qla2xxx/qla_os.c  |   20 +++++++++++++++++---
- 2 files changed, 18 insertions(+), 3 deletions(-)
+ sound/soc/codecs/Kconfig | 5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/scsi/qla2xxx/qla_def.h
-+++ b/drivers/scsi/qla2xxx/qla_def.h
-@@ -4621,6 +4621,7 @@ struct qla_hw_data {
- 	struct workqueue_struct *wq;
- 	struct work_struct heartbeat_work;
- 	struct qlfc_fw fw_buf;
-+	unsigned long last_heartbeat_run_jiffies;
+diff --git a/sound/soc/codecs/Kconfig b/sound/soc/codecs/Kconfig
+index 3a610ba183ff..0d4e1fb9befc 100644
+--- a/sound/soc/codecs/Kconfig
++++ b/sound/soc/codecs/Kconfig
+@@ -707,6 +707,7 @@ config SND_SOC_CS4349
  
- 	/* FCP_CMND priority support */
- 	struct qla_fcp_prio_cfg *fcp_prio_cfg;
---- a/drivers/scsi/qla2xxx/qla_os.c
-+++ b/drivers/scsi/qla2xxx/qla_os.c
-@@ -7209,7 +7209,7 @@ skip:
- 	return do_heartbeat;
- }
+ config SND_SOC_CS47L15
+ 	tristate
++	depends on MFD_CS47L15
  
--static void qla_heart_beat(struct scsi_qla_host *vha)
-+static void qla_heart_beat(struct scsi_qla_host *vha, u16 dpc_started)
- {
- 	struct qla_hw_data *ha = vha->hw;
+ config SND_SOC_CS47L24
+ 	tristate
+@@ -714,15 +715,19 @@ config SND_SOC_CS47L24
  
-@@ -7219,8 +7219,19 @@ static void qla_heart_beat(struct scsi_q
- 	if (vha->hw->flags.eeh_busy || qla2x00_chip_is_down(vha))
- 		return;
+ config SND_SOC_CS47L35
+ 	tristate
++	depends on MFD_CS47L35
  
--	if (qla_do_heartbeat(vha))
-+	/*
-+	 * dpc thread cannot run if heartbeat is running at the same time.
-+	 * We also do not want to starve heartbeat task. Therefore, do
-+	 * heartbeat task at least once every 5 seconds.
-+	 */
-+	if (dpc_started &&
-+	    time_before(jiffies, ha->last_heartbeat_run_jiffies + 5 * HZ))
-+		return;
-+
-+	if (qla_do_heartbeat(vha)) {
-+		ha->last_heartbeat_run_jiffies = jiffies;
- 		queue_work(ha->wq, &ha->heartbeat_work);
-+	}
- }
+ config SND_SOC_CS47L85
+ 	tristate
++	depends on MFD_CS47L85
  
- /**************************************************************************
-@@ -7411,6 +7422,8 @@ qla2x00_timer(struct timer_list *t)
- 		start_dpc++;
- 	}
+ config SND_SOC_CS47L90
+ 	tristate
++	depends on MFD_CS47L90
  
-+	/* borrowing w to signify dpc will run */
-+	w = 0;
- 	/* Schedule the DPC routine if needed */
- 	if ((test_bit(ISP_ABORT_NEEDED, &vha->dpc_flags) ||
- 	    test_bit(LOOP_RESYNC_NEEDED, &vha->dpc_flags) ||
-@@ -7443,9 +7456,10 @@ qla2x00_timer(struct timer_list *t)
- 		    test_bit(RELOGIN_NEEDED, &vha->dpc_flags),
- 		    test_bit(PROCESS_PUREX_IOCB, &vha->dpc_flags));
- 		qla2xxx_wake_dpc(vha);
-+		w = 1;
- 	}
+ config SND_SOC_CS47L92
+ 	tristate
++	depends on MFD_CS47L92
  
--	qla_heart_beat(vha);
-+	qla_heart_beat(vha, w);
- 
- 	qla2x00_restart_timer(vha, WATCH_INTERVAL);
- }
+ # Cirrus Logic Quad-Channel ADC
+ config SND_SOC_CS53L30
+-- 
+2.34.1
+
 
 
