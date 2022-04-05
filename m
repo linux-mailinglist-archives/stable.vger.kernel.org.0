@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 391394F3A68
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:01:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 389B54F3A5E
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:01:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357095AbiDELpH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:45:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47990 "EHLO
+        id S244826AbiDELow (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:44:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47988 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354641AbiDEKO5 (ORCPT
+        with ESMTP id S1354640AbiDEKO5 (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:14:57 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3D5F6B0BE;
-        Tue,  5 Apr 2022 03:02:01 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40F696B505;
+        Tue,  5 Apr 2022 03:02:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5E6BFB818F6;
-        Tue,  5 Apr 2022 10:02:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A596BC385A1;
-        Tue,  5 Apr 2022 10:01:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EC7EBB81C83;
+        Tue,  5 Apr 2022 10:02:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C446C385A2;
+        Tue,  5 Apr 2022 10:02:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152919;
-        bh=1rGSpeBSpvqcj8+jDNvyQPYJVe85AOM5TdBODRr442U=;
+        s=korg; t=1649152921;
+        bh=BQG/RH5+pJWh1aMXf0Q5+t1IqUoha19GhFHJmPF5m5c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wQKSLGqsO8+nkE8pcebCAYYyGdSwFte02GPuyCGwaAdM7KiFICGq/wN/3zcJoUk94
-         5J1Lg+/c1goZLytefAwaBQxu5daXaGyr5iz6fldIc5EKWVL4gKRY7vh3NFC5NNBoAh
-         CMGWGtP0lkJI3GaOq5WVZgT8LOZmjRek6rB56tNg=
+        b=1JLJe3+RUE2FJPH/iUuwLpqGvfei4lnsziKOhkEGNg3SkHV4a9ruxNTSLrkQEUCa1
+         pLH1UG3ChZvxsNOoENduJtx0g0h+ur8jtVsm2diwyUM8t7UGLvcidPbj5Tz0BLuNnc
+         VtGTZ0BwgolK2O1JcvyxzNdIgrtJYZ8dlG/qTDvk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yajun Deng <yajun.deng@linux.dev>,
-        "David S. Miller" <davem@davemloft.net>,
-        Pavel Machek <pavel@denx.de>
-Subject: [PATCH 5.10 005/599] netdevice: add the case if dev is NULL
-Date:   Tue,  5 Apr 2022 09:24:59 +0200
-Message-Id: <20220405070258.973215990@linuxfoundation.org>
+        stable@vger.kernel.org, Lucas Zampieri <lzampier@redhat.com>,
+        Nestor Lopez Casado <nlopezcasad@logitech.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 006/599] HID: logitech-dj: add new lightspeed receiver id
+Date:   Tue,  5 Apr 2022 09:25:00 +0200
+Message-Id: <20220405070259.002081260@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -54,42 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yajun Deng <yajun.deng@linux.dev>
+From: Lucas Zampieri <lzampier@redhat.com>
 
-commit b37a466837393af72fe8bcb8f1436410f3f173f3 upstream.
+[ Upstream commit 25666e8ccd952627899b09b68f7c9b68cfeaf028 ]
 
-Add the case if dev is NULL in dev_{put, hold}, so the caller doesn't
-need to care whether dev is NULL or not.
+As of logitech lightspeed receiver fw version 04.02.B0009,
+HIDPP_PARAM_DEVICE_INFO is being reported as 0x11.
 
-Signed-off-by: Yajun Deng <yajun.deng@linux.dev>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Cc: Pavel Machek <pavel@denx.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+With patch "HID: logitech-dj: add support for the new lightspeed receiver
+iteration", the mouse starts to error out with:
+  logitech-djreceiver: unusable device of type UNKNOWN (0x011) connected on
+  slot 1
+and becomes unusable.
+
+This has been noticed on a Logitech G Pro X Superlight fw MPM 25.01.B0018.
+
+Signed-off-by: Lucas Zampieri <lzampier@redhat.com>
+Acked-by: Nestor Lopez Casado <nlopezcasad@logitech.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/netdevice.h |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/hid/hid-logitech-dj.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/include/linux/netdevice.h
-+++ b/include/linux/netdevice.h
-@@ -3980,7 +3980,8 @@ void netdev_run_todo(void);
-  */
- static inline void dev_put(struct net_device *dev)
- {
--	this_cpu_dec(*dev->pcpu_refcnt);
-+	if (dev)
-+		this_cpu_dec(*dev->pcpu_refcnt);
- }
- 
- /**
-@@ -3991,7 +3992,8 @@ static inline void dev_put(struct net_de
-  */
- static inline void dev_hold(struct net_device *dev)
- {
--	this_cpu_inc(*dev->pcpu_refcnt);
-+	if (dev)
-+		this_cpu_inc(*dev->pcpu_refcnt);
- }
- 
- /* Carrier loss detection, dial on demand. The functions netif_carrier_on
+diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
+index a311b0a33eba..587259b3db97 100644
+--- a/drivers/hid/hid-logitech-dj.c
++++ b/drivers/hid/hid-logitech-dj.c
+@@ -1000,6 +1000,7 @@ static void logi_hidpp_recv_queue_notif(struct hid_device *hdev,
+ 		workitem.reports_supported |= STD_KEYBOARD;
+ 		break;
+ 	case 0x0f:
++	case 0x11:
+ 		device_type = "eQUAD Lightspeed 1.2";
+ 		logi_hidpp_dev_conn_notif_equad(hdev, hidpp_report, &workitem);
+ 		workitem.reports_supported |= STD_KEYBOARD;
+-- 
+2.34.1
+
 
 
