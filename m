@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 25CA64F2B14
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:08:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5ABEF4F2CC9
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:33:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237519AbiDEKbX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:31:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40738 "EHLO
+        id S244869AbiDEJLS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:11:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47636 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238977AbiDEJdP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:33:15 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEFC2A18D;
-        Tue,  5 Apr 2022 02:21:24 -0700 (PDT)
+        with ESMTP id S244666AbiDEIwb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:31 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E400262B;
+        Tue,  5 Apr 2022 01:41:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 58047B81C6F;
-        Tue,  5 Apr 2022 09:21:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84661C385A0;
-        Tue,  5 Apr 2022 09:21:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BEC4B60FFB;
+        Tue,  5 Apr 2022 08:41:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8359C385A0;
+        Tue,  5 Apr 2022 08:41:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150482;
-        bh=k04tRHaCCcaSw16B5b4zqxD/SIoqsMzrPWW5b4SpaUY=;
+        s=korg; t=1649148108;
+        bh=DaKU9tzGBNC8vhMrAakJ4TImi/mLVIJ8Z1GA0IsQzmQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IP4bCE9FnGR3XmotdqsNUhA9O5AVLjTdJXYUF2LeubYjr2BzCH0UocCxNjBY3RAKR
-         rOhxtjQvs6a7ZZtTaGJZOWFa0qWDmSFK+KWGoXvlk3KfHPbCIS4fQfWRjbU+AM33GO
-         0sesI49MJsNkUdbOTsURO2skeods9o4fKZdqymzk=
+        b=MYP55RF47NXaevtVfFjQpv9OXSQsyDPfXcjLy3VAVU2uaZLv5ND33/oYkhlcYjMPb
+         wcLGv6nCMkjZHhX4+37Iik6suzv+BY8sXh9+2W9hc7vHsZAZqMcDO9TNUB8WwxGoH7
+         hk2gYInFBGuxg1Er+COgmSVySx5n3JFy/yLDHkMo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alistair Delva <adelva@google.com>,
-        Rishabh Bhatnagar <rishabhb@codeaurora.org>,
-        Ohad Ben-Cohen <ohad@wizery.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Sibi Sankar <sibis@codeaurora.org>,
-        linux-remoteproc@vger.kernel.org, kernel-team@android.com
-Subject: [PATCH 5.15 070/913] remoteproc: Fix count check in rproc_coredump_write()
-Date:   Tue,  5 Apr 2022 09:18:52 +0200
-Message-Id: <20220405070341.922619068@linuxfoundation.org>
+        stable@vger.kernel.org, "kernelci.org bot" <bot@kernelci.org>,
+        Muhammad Usama Anjum <usama.anjum@collabora.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0220/1017] selftests/sgx: Treat CC as one argument
+Date:   Tue,  5 Apr 2022 09:18:53 +0200
+Message-Id: <20220405070400.781660623@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,41 +55,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alistair Delva <adelva@google.com>
+From: Muhammad Usama Anjum <usama.anjum@collabora.com>
 
-commit f89672cc3681952f2d06314981a6b45f8b0045d1 upstream.
+[ Upstream commit 6170abb21e2380477080b25145da9747ad467d3d ]
 
-Check count for 0, to avoid a potential underflow. Make the check the
-same as the one in rproc_recovery_write().
+CC can have multiple sub-strings like "ccache gcc". For check_cc.sh,
+CC needs to be treated like one argument. Put double quotes around it to
+make CC one string and hence one argument.
 
-Fixes: 3afdc59e4390 ("remoteproc: Add coredump debugfs entry")
-Signed-off-by: Alistair Delva <adelva@google.com>
-Cc: Rishabh Bhatnagar <rishabhb@codeaurora.org>
-Cc: stable@vger.kernel.org
-Cc: Ohad Ben-Cohen <ohad@wizery.com>
-Cc: Bjorn Andersson <bjorn.andersson@linaro.org>
-Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
-Cc: Sibi Sankar <sibis@codeaurora.org>
-Cc: linux-remoteproc@vger.kernel.org
-Cc: kernel-team@android.com
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220119232139.1125908-1-adelva@google.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 2adcba79e69d ("selftests/x86: Add a selftest for SGX")
+Reported-by: "kernelci.org bot" <bot@kernelci.org>
+Signed-off-by: Muhammad Usama Anjum <usama.anjum@collabora.com>
+Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
+Link: https://lkml.kernel.org/r/20220214184109.3739179-3-usama.anjum@collabora.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/remoteproc/remoteproc_debugfs.c |    2 +-
+ tools/testing/selftests/sgx/Makefile | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/remoteproc/remoteproc_debugfs.c
-+++ b/drivers/remoteproc/remoteproc_debugfs.c
-@@ -76,7 +76,7 @@ static ssize_t rproc_coredump_write(stru
- 	int ret, err = 0;
- 	char buf[20];
+diff --git a/tools/testing/selftests/sgx/Makefile b/tools/testing/selftests/sgx/Makefile
+index 7f12d55b97f8..472b27ccd7dc 100644
+--- a/tools/testing/selftests/sgx/Makefile
++++ b/tools/testing/selftests/sgx/Makefile
+@@ -4,7 +4,7 @@ include ../lib.mk
  
--	if (count > sizeof(buf))
-+	if (count < 1 || count > sizeof(buf))
- 		return -EINVAL;
+ .PHONY: all clean
  
- 	ret = copy_from_user(buf, user_buf, count);
+-CAN_BUILD_X86_64 := $(shell ../x86/check_cc.sh $(CC) \
++CAN_BUILD_X86_64 := $(shell ../x86/check_cc.sh "$(CC)" \
+ 			    ../x86/trivial_64bit_program.c)
+ 
+ ifndef OBJCOPY
+-- 
+2.34.1
+
 
 
