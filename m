@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 74E834F2E46
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:59:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 589434F2DEC
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:47:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237625AbiDEIm4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:42:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45670 "EHLO
+        id S1355481AbiDEKUD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:20:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42830 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240970AbiDEIcl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:32:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C2CB9A981;
-        Tue,  5 Apr 2022 01:25:35 -0700 (PDT)
+        with ESMTP id S1345264AbiDEJWX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:22:23 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DED2D3FBFC;
+        Tue,  5 Apr 2022 02:10:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CABF0B81BC0;
-        Tue,  5 Apr 2022 08:25:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A560C385A1;
-        Tue,  5 Apr 2022 08:25:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DB0FB61576;
+        Tue,  5 Apr 2022 09:10:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB561C385A2;
+        Tue,  5 Apr 2022 09:10:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147132;
-        bh=2r5ojZwKKWYQOBrXAvpc88jr07JuwRnOd/BHu0cvCEI=;
+        s=korg; t=1649149804;
+        bh=zDnDnqnkUnkvRiU0Bpg3UFg6AFN8i60eOTOfhbTGywk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H5uVwBzEFcZVJH3xUwKavGG3sZEgvPcnnfdnkcgDOu4ywgFL9SG+yLGFYa/6hWk1Z
-         +JoLsiUStUGFJkSWhllgb95TfRZ92h9P8+vmKvRoQ4UTc7LBXe2VvEObX6N2qWQSAj
-         46vi4RPFO31KXNk9ltFmCi9rnfULMYeHRv0/eihs=
+        b=gNWlgUft0Pfa0IYpiY3nbrX0zcWgfc4nx0pqX/uqsUnBc8xvAqoE5VSDJ4PdIpw2M
+         BZkpdEs+iBIGEl+vnepW1cNAi3CPZwLUNx+UuloGe13sFkur30Db4ew2x8hJZgAMCJ
+         o2xLRM4EzyufMDh6D+TvYE3lBF1lyiHKfZAljPJA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sungup Moon <sungup.moon@samsung.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Sagi Grimberg <sagi@grimberg.me>
-Subject: [PATCH 5.17 1014/1126] nvme: allow duplicate NSIDs for private namespaces
+        stable@vger.kernel.org, Rander Wang <rander.wang@intel.com>,
+        Anthony I Gilea <i@cpp.in>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0848/1017] ASoC: Intel: sof_sdw: fix quirks for 2022 HP Spectre x360 13"
 Date:   Tue,  5 Apr 2022 09:29:21 +0200
-Message-Id: <20220405070437.251100482@linuxfoundation.org>
+Message-Id: <20220405070419.410977809@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,127 +56,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sungup Moon <sungup.moon@samsung.com>
+From: Anthony I Gilea <i@cpp.in>
 
-commit 5974ea7ce0f9a5987fc8cf5e08ad6e3e70bb542e upstream.
+[ Upstream commit ce73ef6ec67104d1fcc4c5911d77ce83288a0998 ]
 
-A NVMe subsystem with multiple controller can have private namespaces
-that use the same NSID under some conditions:
+HP changed the DMI identification for 2022 devices:
+Product Name: HP Spectre x360 Conv 13-ap0001na
+Product Name: 8709
+This patch relaxes the DMI_MATCH criterion to work with all versions of this product.
 
- "If Namespace Management, ANA Reporting, or NVM Sets are supported, the
-  NSIDs shall be unique within the NVM subsystem. If the Namespace
-  Management, ANA Reporting, and NVM Sets are not supported, then NSIDs:
-   a) for shared namespace shall be unique; and
-   b) for private namespace are not required to be unique."
-
-Reference: Section 6.1.6 NSID and Namespace Usage; NVM Express 1.4c spec.
-
-Make sure this specific setup is supported in Linux.
-
-Fixes: 9ad1927a3bc2 ("nvme: always search for namespace head")
-Signed-off-by: Sungup Moon <sungup.moon@samsung.com>
-[hch: refactored and fixed the controller vs subsystem based naming
-      conflict]
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Rander Wang <rander.wang@intel.com>
+Signed-off-by: Anthony I Gilea <i@cpp.in>
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20220304204532.54675-4-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c      |   15 ++++++++++-----
- drivers/nvme/host/multipath.c |    7 ++++---
- drivers/nvme/host/nvme.h      |   19 +++++++++++++++++++
- include/linux/nvme.h          |    1 +
- 4 files changed, 34 insertions(+), 8 deletions(-)
+ drivers/soundwire/dmi-quirks.c   | 2 +-
+ sound/soc/intel/boards/sof_sdw.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -3574,15 +3574,20 @@ static const struct attribute_group *nvm
- 	NULL,
- };
- 
--static struct nvme_ns_head *nvme_find_ns_head(struct nvme_subsystem *subsys,
-+static struct nvme_ns_head *nvme_find_ns_head(struct nvme_ctrl *ctrl,
- 		unsigned nsid)
- {
- 	struct nvme_ns_head *h;
- 
--	lockdep_assert_held(&subsys->lock);
-+	lockdep_assert_held(&ctrl->subsys->lock);
- 
--	list_for_each_entry(h, &subsys->nsheads, entry) {
--		if (h->ns_id != nsid)
-+	list_for_each_entry(h, &ctrl->subsys->nsheads, entry) {
-+		/*
-+		 * Private namespaces can share NSIDs under some conditions.
-+		 * In that case we can't use the same ns_head for namespaces
-+		 * with the same NSID.
-+		 */
-+		if (h->ns_id != nsid || !nvme_is_unique_nsid(ctrl, h))
- 			continue;
- 		if (!list_empty(&h->list) && nvme_tryget_ns_head(h))
- 			return h;
-@@ -3750,7 +3755,7 @@ static int nvme_init_ns_head(struct nvme
- 	int ret = 0;
- 
- 	mutex_lock(&ctrl->subsys->lock);
--	head = nvme_find_ns_head(ctrl->subsys, nsid);
-+	head = nvme_find_ns_head(ctrl, nsid);
- 	if (!head) {
- 		head = nvme_alloc_ns_head(ctrl, nsid, ids);
- 		if (IS_ERR(head)) {
---- a/drivers/nvme/host/multipath.c
-+++ b/drivers/nvme/host/multipath.c
-@@ -504,10 +504,11 @@ int nvme_mpath_alloc_disk(struct nvme_ct
- 
- 	/*
- 	 * Add a multipath node if the subsystems supports multiple controllers.
--	 * We also do this for private namespaces as the namespace sharing data could
--	 * change after a rescan.
-+	 * We also do this for private namespaces as the namespace sharing flag
-+	 * could change after a rescan.
- 	 */
--	if (!(ctrl->subsys->cmic & NVME_CTRL_CMIC_MULTI_CTRL) || !multipath)
-+	if (!(ctrl->subsys->cmic & NVME_CTRL_CMIC_MULTI_CTRL) ||
-+	    !nvme_is_unique_nsid(ctrl, head) || !multipath)
- 		return 0;
- 
- 	head->disk = blk_alloc_disk(ctrl->numa_node);
---- a/drivers/nvme/host/nvme.h
-+++ b/drivers/nvme/host/nvme.h
-@@ -716,6 +716,25 @@ static inline bool nvme_check_ready(stru
- 		return queue_live;
- 	return __nvme_check_ready(ctrl, rq, queue_live);
- }
-+
-+/*
-+ * NSID shall be unique for all shared namespaces, or if at least one of the
-+ * following conditions is met:
-+ *   1. Namespace Management is supported by the controller
-+ *   2. ANA is supported by the controller
-+ *   3. NVM Set are supported by the controller
-+ *
-+ * In other case, private namespace are not required to report a unique NSID.
-+ */
-+static inline bool nvme_is_unique_nsid(struct nvme_ctrl *ctrl,
-+		struct nvme_ns_head *head)
-+{
-+	return head->shared ||
-+		(ctrl->oacs & NVME_CTRL_OACS_NS_MNGT_SUPP) ||
-+		(ctrl->subsys->cmic & NVME_CTRL_CMIC_ANA) ||
-+		(ctrl->ctratt & NVME_CTRL_CTRATT_NVM_SETS);
-+}
-+
- int nvme_submit_sync_cmd(struct request_queue *q, struct nvme_command *cmd,
- 		void *buf, unsigned bufflen);
- int __nvme_submit_sync_cmd(struct request_queue *q, struct nvme_command *cmd,
---- a/include/linux/nvme.h
-+++ b/include/linux/nvme.h
-@@ -337,6 +337,7 @@ enum {
- 	NVME_CTRL_ONCS_TIMESTAMP		= 1 << 6,
- 	NVME_CTRL_VWC_PRESENT			= 1 << 0,
- 	NVME_CTRL_OACS_SEC_SUPP                 = 1 << 0,
-+	NVME_CTRL_OACS_NS_MNGT_SUPP		= 1 << 3,
- 	NVME_CTRL_OACS_DIRECTIVES		= 1 << 5,
- 	NVME_CTRL_OACS_DBBUF_SUPP		= 1 << 8,
- 	NVME_CTRL_LPA_CMD_EFFECTS_LOG		= 1 << 1,
+diff --git a/drivers/soundwire/dmi-quirks.c b/drivers/soundwire/dmi-quirks.c
+index 0ca2a3e3a02e..747983743a14 100644
+--- a/drivers/soundwire/dmi-quirks.c
++++ b/drivers/soundwire/dmi-quirks.c
+@@ -59,7 +59,7 @@ static const struct dmi_system_id adr_remap_quirk_table[] = {
+ 	{
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "HP"),
+-			DMI_MATCH(DMI_PRODUCT_NAME, "HP Spectre x360 Convertible"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "HP Spectre x360 Conv"),
+ 		},
+ 		.driver_data = (void *)intel_tgl_bios,
+ 	},
+diff --git a/sound/soc/intel/boards/sof_sdw.c b/sound/soc/intel/boards/sof_sdw.c
+index 54eefaff62a7..182e23bc2f34 100644
+--- a/sound/soc/intel/boards/sof_sdw.c
++++ b/sound/soc/intel/boards/sof_sdw.c
+@@ -184,7 +184,7 @@ static const struct dmi_system_id sof_sdw_quirk_table[] = {
+ 		.callback = sof_sdw_quirk_cb,
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "HP"),
+-			DMI_MATCH(DMI_PRODUCT_NAME, "HP Spectre x360 Convertible"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "HP Spectre x360 Conv"),
+ 		},
+ 		.driver_data = (void *)(SOF_SDW_TGL_HDMI |
+ 					SOF_SDW_PCH_DMIC |
+-- 
+2.34.1
+
 
 
