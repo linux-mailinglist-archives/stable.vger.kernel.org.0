@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 815BD4F3937
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:45:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B00D44F3935
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:45:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377724AbiDELaY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:30:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33950 "EHLO
+        id S1377711AbiDELaV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:30:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40872 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352745AbiDEKFC (ORCPT
+        with ESMTP id S1352739AbiDEKFC (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:05:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45974BBE31;
-        Tue,  5 Apr 2022 02:53:45 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF47A49FA4;
+        Tue,  5 Apr 2022 02:53:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2854AB81B13;
-        Tue,  5 Apr 2022 09:53:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BEBAC385A2;
-        Tue,  5 Apr 2022 09:53:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2D868616DC;
+        Tue,  5 Apr 2022 09:53:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B3CCC385A3;
+        Tue,  5 Apr 2022 09:53:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152422;
-        bh=tTRgRGkVhs4MQfo1x1AjnjCGjBN5nYhl1z3dsRALaTk=;
+        s=korg; t=1649152425;
+        bh=LHcQxs7YDYUfU/67ZI4UyYI/EQF43ch4sKzahqrifew=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O2e9IrvfhCdQqaowO+qnU2S1/3Y5vu4AHaE3CGYMjwTS8Y08wVs/cscrkJikURyvQ
-         Vq18RikC6kKRFwOZqfCEy7pmr9yumz/CH1yfoixR/t2gbETbiQ8K2pK/XFpyt7doB9
-         /awonEX42JmwSLLNv97p2rCKle9W6Xk85id4AoUQ=
+        b=aAvkQP7UZuLM0fKuERgYwqUPtWFv1Bwa5uaq/uPxRbF+eO1p/xrLOrQR4SJA6wVXS
+         eb5W7DKcpSVmoQHVMDnydZUAtjyD3WpQGUMiGswauQMeDqR/FfY+ztuXfDL1GWBs/p
+         HJjixok4DfQtXfBY267/TcmL8XEswL1rlzst9JzU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.15 770/913] KVM: x86: Reinitialize context if host userspace toggles EFER.LME
-Date:   Tue,  5 Apr 2022 09:30:32 +0200
-Message-Id: <20220405070402.913373835@linuxfoundation.org>
+Subject: [PATCH 5.15 771/913] KVM: x86/mmu: Move "invalid" check out of kvm_tdp_mmu_get_root()
+Date:   Tue,  5 Apr 2022 09:30:33 +0200
+Message-Id: <20220405070402.943010262@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -53,46 +53,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Sean Christopherson <seanjc@google.com>
 
-commit d6174299365ddbbf491620c0b8c5ca1a6ef2eea5 upstream.
+commit 04dc4e6ce274fa729feda32aa957b27388a3870c upstream.
 
-While the guest runs, EFER.LME cannot change unless CR0.PG is clear, and
-therefore EFER.NX is the only bit that can affect the MMU role.  However,
-set_efer accepts a host-initiated change to EFER.LME even with CR0.PG=1.
-In that case, the MMU has to be reset.
+Move the check for an invalid root out of kvm_tdp_mmu_get_root() and into
+the one place it actually matters, tdp_mmu_next_root(), as the other user
+already has an implicit validity check.  A future bug fix will need to
+get references to invalid roots to honor mmu_notifier requests; there's
+no point in forcing what will be a common path to open code getting a
+reference to a root.
 
-Fixes: 11988499e62b ("KVM: x86: Skip EFER vs. guest CPUID checks for host-initiated writes")
+No functional change intended.
+
 Cc: stable@vger.kernel.org
-Reviewed-by: Sean Christopherson <seanjc@google.com>
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20211215011557.399940-3-seanjc@google.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/mmu.h |    1 +
- arch/x86/kvm/x86.c |    3 +--
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/kvm/mmu/tdp_mmu.c |   12 ++++++++++--
+ arch/x86/kvm/mmu/tdp_mmu.h |    3 ---
+ 2 files changed, 10 insertions(+), 5 deletions(-)
 
---- a/arch/x86/kvm/mmu.h
-+++ b/arch/x86/kvm/mmu.h
-@@ -49,6 +49,7 @@
- 			       X86_CR4_LA57)
+--- a/arch/x86/kvm/mmu/tdp_mmu.c
++++ b/arch/x86/kvm/mmu/tdp_mmu.c
+@@ -121,9 +121,14 @@ static struct kvm_mmu_page *tdp_mmu_next
+ 		next_root = list_first_or_null_rcu(&kvm->arch.tdp_mmu_roots,
+ 						   typeof(*next_root), link);
  
- #define KVM_MMU_CR0_ROLE_BITS (X86_CR0_PG | X86_CR0_WP)
-+#define KVM_MMU_EFER_ROLE_BITS (EFER_LME | EFER_NX)
+-	while (next_root && !kvm_tdp_mmu_get_root(kvm, next_root))
++	while (next_root) {
++		if (!next_root->role.invalid &&
++		    kvm_tdp_mmu_get_root(kvm, next_root))
++			break;
++
+ 		next_root = list_next_or_null_rcu(&kvm->arch.tdp_mmu_roots,
+ 				&next_root->link, typeof(*next_root), link);
++	}
  
- static __always_inline u64 rsvd_bits(int s, int e)
+ 	rcu_read_unlock();
+ 
+@@ -199,7 +204,10 @@ hpa_t kvm_tdp_mmu_get_vcpu_root_hpa(stru
+ 
+ 	role = page_role_for_level(vcpu, vcpu->arch.mmu->shadow_root_level);
+ 
+-	/* Check for an existing root before allocating a new one. */
++	/*
++	 * Check for an existing root before allocating a new one.  Note, the
++	 * role check prevents consuming an invalid root.
++	 */
+ 	for_each_tdp_mmu_root(kvm, root, kvm_mmu_role_as_id(role)) {
+ 		if (root->role.word == role.word &&
+ 		    kvm_tdp_mmu_get_root(kvm, root))
+--- a/arch/x86/kvm/mmu/tdp_mmu.h
++++ b/arch/x86/kvm/mmu/tdp_mmu.h
+@@ -10,9 +10,6 @@ hpa_t kvm_tdp_mmu_get_vcpu_root_hpa(stru
+ __must_check static inline bool kvm_tdp_mmu_get_root(struct kvm *kvm,
+ 						     struct kvm_mmu_page *root)
  {
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -1605,8 +1605,7 @@ static int set_efer(struct kvm_vcpu *vcp
- 		return r;
- 	}
+-	if (root->role.invalid)
+-		return false;
+-
+ 	return refcount_inc_not_zero(&root->tdp_mmu_root_count);
+ }
  
--	/* Update reserved bits */
--	if ((efer ^ old_efer) & EFER_NX)
-+	if ((efer ^ old_efer) & KVM_MMU_EFER_ROLE_BITS)
- 		kvm_mmu_reset_context(vcpu);
- 
- 	return 0;
 
 
