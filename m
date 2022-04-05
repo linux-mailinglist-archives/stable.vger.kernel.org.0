@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 577DF4F2FCD
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:18:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 934D64F3325
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:13:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244683AbiDEJPk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:15:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46812 "EHLO
+        id S1345069AbiDEKki (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:40:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47490 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244932AbiDEIws (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:48 -0400
+        with ESMTP id S244222AbiDEJlK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:41:10 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A44B324974;
-        Tue,  5 Apr 2022 01:46:54 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43005BB08B;
+        Tue,  5 Apr 2022 02:25:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 40B9A614FD;
-        Tue,  5 Apr 2022 08:46:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5145FC385A0;
-        Tue,  5 Apr 2022 08:46:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D24CD6165C;
+        Tue,  5 Apr 2022 09:25:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E43CCC385A2;
+        Tue,  5 Apr 2022 09:25:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148413;
-        bh=gzrI5m1mpGo1ZohUL07d1Mg3ie4Wh1dm3KyQxDJYnbE=;
+        s=korg; t=1649150744;
+        bh=CRkojIeG8hfsFSBTHg4oYYawOOdZgescy1u4wNygcPs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xVxeAaneyb2hMwOvzZ4XDRRcjbcqkEEhhUDcCRzhtahSgFaS73C5omONBxxB15s7v
-         TNQrLvFU9CH6c+tPla9PlZvjrOsGVZ1YkaLuBjJ28XxOV/XHRlCENS1yvtimO0Uha7
-         xmz0u7JaRJB8HjiOtmIdPdMWGFFHsmJtTLp2bsAY=
+        b=ZFYRkzt3EKn2b5kC4UZmdNi8fHMtPNTTF9o9vfvwlpnMzKQyzpTUczV4F3q3OFnD8
+         P3DSx8VK5npKnu8nE4CiU8zM7urQHJ3tfNS3enP7RfXfa8tfJxKtKv3tE9sstAYDp5
+         6pp8iDkIpGOvxxh4oOSNzcMFS8s5OReBsX/GFXu4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Matthias Kaehlcke <mka@chromium.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0309/1017] arm64: dts: qcom: sc7280: Fix gmu unit address
-Date:   Tue,  5 Apr 2022 09:20:22 +0200
-Message-Id: <20220405070403.448629479@linuxfoundation.org>
+        stable@vger.kernel.org, Jan-Benedict Glaw <jbglaw@lug-owl.de>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
+        "Maciej W. Rozycki" <macro@orcam.me.uk>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Subject: [PATCH 5.15 163/913] DEC: Limit PMAX memory probing to R3k systems
+Date:   Tue,  5 Apr 2022 09:20:25 +0200
+Message-Id: <20220405070344.731019792@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,43 +55,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas Anderson <dianders@chromium.org>
+From: Maciej W. Rozycki <macro@orcam.me.uk>
 
-[ Upstream commit 142a4d995c6adb6bf5b22166f51b525e83c96661 ]
+commit 244eae91a94c6dab82b3232967d10eeb9dfa21c6 upstream.
 
-When processing sc7280 device trees, I can see:
+Recent tightening of the opcode table in binutils so as to consistently
+disallow the assembly or disassembly of CP0 instructions not supported
+by the processor architecture chosen has caused a regression like below:
 
-  Warning (simple_bus_reg): /soc@0/gmu@3d69000:
-    simple-bus unit address format error, expected "3d6a000"
+arch/mips/dec/prom/locore.S: Assembler messages:
+arch/mips/dec/prom/locore.S:29: Error: opcode not supported on this processor: r4600 (mips3) `rfe'
 
-There's a clear typo in the node name. Fix it.
+in a piece of code used to probe for memory with PMAX DECstation models,
+which have non-REX firmware.  Those computers always have an R2000 CPU
+and consequently the exception handler used in memory probing uses the
+RFE instruction, which those processors use.
 
-Fixes: 96c471970b7b ("arm64: dts: qcom: sc7280: Add gpu support")
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220125144316.v2.1.I19f60014e9be4b9dda4d66b5d56ef3d9600b6e10@changeid
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+While adding 64-bit support this code was correctly excluded for 64-bit
+configurations, however it should have also been excluded for irrelevant
+32-bit configurations.  Do this now then, and only enable PMAX memory
+probing for R3k systems.
+
+Reported-by: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+Reported-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Cc: stable@vger.kernel.org # v2.6.12+
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/boot/dts/qcom/sc7280.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/mips/dec/prom/Makefile      |    2 +-
+ arch/mips/include/asm/dec/prom.h |   15 +++++----------
+ 2 files changed, 6 insertions(+), 11 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/sc7280.dtsi b/arch/arm64/boot/dts/qcom/sc7280.dtsi
-index 6e27a1beaa33..68a5740bc360 100644
---- a/arch/arm64/boot/dts/qcom/sc7280.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sc7280.dtsi
-@@ -1785,7 +1785,7 @@
- 			};
- 		};
+--- a/arch/mips/dec/prom/Makefile
++++ b/arch/mips/dec/prom/Makefile
+@@ -6,4 +6,4 @@
  
--		gmu: gmu@3d69000 {
-+		gmu: gmu@3d6a000 {
- 			compatible="qcom,adreno-gmu-635.0", "qcom,adreno-gmu";
- 			reg = <0 0x03d6a000 0 0x34000>,
- 				<0 0x3de0000 0 0x10000>,
--- 
-2.34.1
-
+ lib-y			+= init.o memory.o cmdline.o identify.o console.o
+ 
+-lib-$(CONFIG_32BIT)	+= locore.o
++lib-$(CONFIG_CPU_R3000)	+= locore.o
+--- a/arch/mips/include/asm/dec/prom.h
++++ b/arch/mips/include/asm/dec/prom.h
+@@ -43,16 +43,11 @@
+  */
+ #define REX_PROM_MAGIC		0x30464354
+ 
+-#ifdef CONFIG_64BIT
+-
+-#define prom_is_rex(magic)	1	/* KN04 and KN05 are REX PROMs.  */
+-
+-#else /* !CONFIG_64BIT */
+-
+-#define prom_is_rex(magic)	((magic) == REX_PROM_MAGIC)
+-
+-#endif /* !CONFIG_64BIT */
+-
++/* KN04 and KN05 are REX PROMs, so only do the check for R3k systems.  */
++static inline bool prom_is_rex(u32 magic)
++{
++	return !IS_ENABLED(CONFIG_CPU_R3000) || magic == REX_PROM_MAGIC;
++}
+ 
+ /*
+  * 3MIN/MAXINE PROM entry points for DS5000/1xx's, DS5000/xx's and
 
 
