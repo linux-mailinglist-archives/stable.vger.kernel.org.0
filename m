@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 465254F3142
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:40:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 980984F34EF
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:42:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354088AbiDEKLd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:11:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34468 "EHLO
+        id S242041AbiDEIga (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:36:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39568 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343974AbiDEJQn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:16:43 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF8E3D64F7;
-        Tue,  5 Apr 2022 02:02:15 -0700 (PDT)
+        with ESMTP id S239616AbiDEIUQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:20:16 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B730206;
+        Tue,  5 Apr 2022 01:17:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 58928B81C19;
-        Tue,  5 Apr 2022 09:02:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B817EC385A0;
-        Tue,  5 Apr 2022 09:02:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 40B53B81A32;
+        Tue,  5 Apr 2022 08:17:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC861C385A1;
+        Tue,  5 Apr 2022 08:17:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149333;
-        bh=nFAlM8SC4bGfTFPK+QEVwKUwAblEGofTTZTQdXpBBfo=;
+        s=korg; t=1649146665;
+        bh=hOasPOHGeymPIR9CFGjXih8tpW9A6b/MeZtf9fDUetE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bXYL0xScU5LhLRrvw5AtpRn3UnCViqIIgnsT62sZJH37ib5fv3BwpnuUcquh4bmzQ
-         N1pT0nSwWNGbGfc51bYDGtZnByNiWt4zRuiXcBRt8TPo8VTF30VU2lGCR2uBbhmuQZ
-         Y1sND9oGV15Yz5VwJ/UxIcmfykpd9unvMUuE+aw8=
+        b=KIPgJo39hNDl5k/MQ2uJcYBnPXZl8culwnG/eCyueGWw4uQ1OchW5IFQnoDunCSXE
+         3gCVVUMCCOxCXvcwwaAMBdkBIQXdW4tbGFTQa3mIc05Iv22ytwSBU13OsPOac/b5AV
+         VhuRvFriGeqDdydEjdj5mm6iRXKUcKtGTnkt2J2M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        stable@vger.kernel.org, Alexander Popov <alex.popov@linux.com>,
+        Kees Cook <keescook@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0671/1017] NFS: Return valid errors from nfs2/3_decode_dirent()
+Subject: [PATCH 5.17 0837/1126] gcc-plugins/stackleak: Exactly match strings instead of prefixes
 Date:   Tue,  5 Apr 2022 09:26:24 +0200
-Message-Id: <20220405070414.198433601@linuxfoundation.org>
+Message-Id: <20220405070432.124437321@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,104 +54,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 64cfca85bacde54caa64e0ab855c48734894fa37 ]
+[ Upstream commit 27e9faf415dbf94af19b9c827842435edbc1fbbc ]
 
-Valid return values for decode_dirent() callback functions are:
- 0: Success
- -EBADCOOKIE: End of directory
- -EAGAIN: End of xdr_stream
+Since STRING_CST may not be NUL terminated, strncmp() was used for check
+for equality. However, this may lead to mismatches for longer section
+names where the start matches the tested-for string. Test for exact
+equality by checking for the presences of NUL termination.
 
-All errors need to map into one of those three values.
-
-Fixes: 573c4e1ef53a ("NFS: Simplify ->decode_dirent() calling sequence")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Cc: Alexander Popov <alex.popov@linux.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs2xdr.c |  2 +-
- fs/nfs/nfs3xdr.c | 21 ++++++---------------
- 2 files changed, 7 insertions(+), 16 deletions(-)
+ scripts/gcc-plugins/stackleak_plugin.c | 25 +++++++++++++++++++++----
+ 1 file changed, 21 insertions(+), 4 deletions(-)
 
-diff --git a/fs/nfs/nfs2xdr.c b/fs/nfs/nfs2xdr.c
-index 7fba7711e6b3..3d5ba43f44bb 100644
---- a/fs/nfs/nfs2xdr.c
-+++ b/fs/nfs/nfs2xdr.c
-@@ -949,7 +949,7 @@ int nfs2_decode_dirent(struct xdr_stream *xdr, struct nfs_entry *entry,
- 
- 	error = decode_filename_inline(xdr, &entry->name, &entry->len);
- 	if (unlikely(error))
--		return error;
-+		return -EAGAIN;
- 
- 	/*
- 	 * The type (size and byte order) of nfscookie isn't defined in
-diff --git a/fs/nfs/nfs3xdr.c b/fs/nfs/nfs3xdr.c
-index 54a1d21cbcc6..7ab60ad98776 100644
---- a/fs/nfs/nfs3xdr.c
-+++ b/fs/nfs/nfs3xdr.c
-@@ -1967,7 +1967,6 @@ int nfs3_decode_dirent(struct xdr_stream *xdr, struct nfs_entry *entry,
- 		       bool plus)
- {
- 	struct user_namespace *userns = rpc_userns(entry->server->client);
--	struct nfs_entry old = *entry;
- 	__be32 *p;
- 	int error;
- 	u64 new_cookie;
-@@ -1987,15 +1986,15 @@ int nfs3_decode_dirent(struct xdr_stream *xdr, struct nfs_entry *entry,
- 
- 	error = decode_fileid3(xdr, &entry->ino);
- 	if (unlikely(error))
--		return error;
-+		return -EAGAIN;
- 
- 	error = decode_inline_filename3(xdr, &entry->name, &entry->len);
- 	if (unlikely(error))
--		return error;
-+		return -EAGAIN;
- 
- 	error = decode_cookie3(xdr, &new_cookie);
- 	if (unlikely(error))
--		return error;
-+		return -EAGAIN;
- 
- 	entry->d_type = DT_UNKNOWN;
- 
-@@ -2003,7 +2002,7 @@ int nfs3_decode_dirent(struct xdr_stream *xdr, struct nfs_entry *entry,
- 		entry->fattr->valid = 0;
- 		error = decode_post_op_attr(xdr, entry->fattr, userns);
- 		if (unlikely(error))
--			return error;
-+			return -EAGAIN;
- 		if (entry->fattr->valid & NFS_ATTR_FATTR_V3)
- 			entry->d_type = nfs_umode_to_dtype(entry->fattr->mode);
- 
-@@ -2018,11 +2017,8 @@ int nfs3_decode_dirent(struct xdr_stream *xdr, struct nfs_entry *entry,
- 			return -EAGAIN;
- 		if (*p != xdr_zero) {
- 			error = decode_nfs_fh3(xdr, entry->fh);
--			if (unlikely(error)) {
--				if (error == -E2BIG)
--					goto out_truncated;
--				return error;
--			}
-+			if (unlikely(error))
-+				return -EAGAIN;
- 		} else
- 			zero_nfs_fh3(entry->fh);
- 	}
-@@ -2031,11 +2027,6 @@ int nfs3_decode_dirent(struct xdr_stream *xdr, struct nfs_entry *entry,
- 	entry->cookie = new_cookie;
- 
+diff --git a/scripts/gcc-plugins/stackleak_plugin.c b/scripts/gcc-plugins/stackleak_plugin.c
+index e9db7dcb3e5f..b04aa8e91a41 100644
+--- a/scripts/gcc-plugins/stackleak_plugin.c
++++ b/scripts/gcc-plugins/stackleak_plugin.c
+@@ -429,6 +429,23 @@ static unsigned int stackleak_cleanup_execute(void)
  	return 0;
--
--out_truncated:
--	dprintk("NFS: directory entry contains invalid file handle\n");
--	*entry = old;
--	return -EAGAIN;
  }
  
- /*
++/*
++ * STRING_CST may or may not be NUL terminated:
++ * https://gcc.gnu.org/onlinedocs/gccint/Constant-expressions.html
++ */
++static inline bool string_equal(tree node, const char *string, int length)
++{
++	if (TREE_STRING_LENGTH(node) < length)
++		return false;
++	if (TREE_STRING_LENGTH(node) > length + 1)
++		return false;
++	if (TREE_STRING_LENGTH(node) == length + 1 &&
++	    TREE_STRING_POINTER(node)[length] != '\0')
++		return false;
++	return !memcmp(TREE_STRING_POINTER(node), string, length);
++}
++#define STRING_EQUAL(node, str)	string_equal(node, str, strlen(str))
++
+ static bool stackleak_gate(void)
+ {
+ 	tree section;
+@@ -438,13 +455,13 @@ static bool stackleak_gate(void)
+ 	if (section && TREE_VALUE(section)) {
+ 		section = TREE_VALUE(TREE_VALUE(section));
+ 
+-		if (!strncmp(TREE_STRING_POINTER(section), ".init.text", 10))
++		if (STRING_EQUAL(section, ".init.text"))
+ 			return false;
+-		if (!strncmp(TREE_STRING_POINTER(section), ".devinit.text", 13))
++		if (STRING_EQUAL(section, ".devinit.text"))
+ 			return false;
+-		if (!strncmp(TREE_STRING_POINTER(section), ".cpuinit.text", 13))
++		if (STRING_EQUAL(section, ".cpuinit.text"))
+ 			return false;
+-		if (!strncmp(TREE_STRING_POINTER(section), ".meminit.text", 13))
++		if (STRING_EQUAL(section, ".meminit.text"))
+ 			return false;
+ 	}
+ 
 -- 
 2.34.1
 
