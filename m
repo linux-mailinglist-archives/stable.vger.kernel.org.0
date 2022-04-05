@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 328AF4F337C
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:16:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 852264F33DF
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:24:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344665AbiDEKkG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:40:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50092 "EHLO
+        id S235014AbiDEJOM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:14:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46120 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243622AbiDEJkN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:40:13 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3769BAC900;
-        Tue,  5 Apr 2022 02:24:48 -0700 (PDT)
+        with ESMTP id S244835AbiDEIwm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B9F822515;
+        Tue,  5 Apr 2022 01:44:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 94C5A61659;
-        Tue,  5 Apr 2022 09:24:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5D89C385A2;
-        Tue,  5 Apr 2022 09:24:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 05FC360FFC;
+        Tue,  5 Apr 2022 08:44:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18895C385A1;
+        Tue,  5 Apr 2022 08:44:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150687;
-        bh=T2hstRTN2DoQMvevAT+LYxm/af106Jsj9SpEV7aDvFA=;
+        s=korg; t=1649148271;
+        bh=9sSnzbb/dMgrhrea6qtEXkp2a8QMuyd/2mldhGyCdqw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SkQJ+u0G0K52H9yar62RE+4Su6im/xbPE0wWg3biitqwKwBIDJ78Ue0J+fHXg7rLd
-         NwPSNePJB6fvh+8JJw2xtGJ+pbFU5J/iQbrDTvxhGj+7gVYce9n18WWDe7qHDPspiP
-         2n3/K3QOnJq5KhH/GV6eBtKxpawqKQqcDFsSy01k=
+        b=VzK1y+Jh229rqSmHj7JPAlg+qYm4x0BEb2+u6oxQQLX7GZR4vsRqt4BKX5rx60ZKk
+         97fqUcjgzYPDPGyKOCDAeufusMkTyNrWowtXlYHYW4P76lWy4zlqYKtAWA8Q8i8bdh
+         Y4BwaPCykaytbh+7d0jLTZXlvwpCnuDKOIH7VRHY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
-        Michael Schmitz <schmitzmic@gmail.com>,
-        Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.15 144/913] video: fbdev: atari: Atari 2 bpp (STe) palette bugfix
-Date:   Tue,  5 Apr 2022 09:20:06 +0200
-Message-Id: <20220405070344.150928974@linuxfoundation.org>
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0295/1017] media: coda: Fix missing put_device() call in coda_get_vdoa_data
+Date:   Tue,  5 Apr 2022 09:20:08 +0200
+Message-Id: <20220405070403.030896549@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,62 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Schmitz <schmitzmic@gmail.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-commit c8be5edbd36ceed2ff3d6b8f8e40643c3f396ea3 upstream.
+[ Upstream commit ca85d271531a1e1c86f24b892f57b7d0a3ddb5a6 ]
 
-The code to set the shifter STe palette registers has a long
-standing operator precedence bug, manifesting as colors set
-on a 2 bits per pixel frame buffer coming up with a distinctive
-blue tint.
+The reference taken by 'of_find_device_by_node()' must be released when
+not needed anymore.
+Add the corresponding 'put_device()' in the error handling path.
 
-Add parentheses around the calculation of the per-color palette
-data before shifting those into their respective bit field position.
-
-This bug goes back a long way (2.4 days at the very least) so there
-won't be a Fixes: tag.
-
-Tested on ARAnyM as well on Falcon030 hardware.
-
-Cc: stable@vger.kernel.org
-Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Link: https://lore.kernel.org/all/CAMuHMdU3ievhXxKR_xi_v3aumnYW7UNUO6qMdhgfyWTyVSsCkQ@mail.gmail.com
-Tested-by: Michael Schmitz <schmitzmic@gmail.com>
-Tested-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Signed-off-by: Michael Schmitz <schmitzmic@gmail.com>
-Signed-off-by: Helge Deller <deller@gmx.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: e7f3c5481035 ("[media] coda: use VDOA for un-tiling custom macroblock format")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/atafb.c |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/media/platform/coda/coda-common.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/video/fbdev/atafb.c
-+++ b/drivers/video/fbdev/atafb.c
-@@ -1683,9 +1683,9 @@ static int falcon_setcolreg(unsigned int
- 			   ((blue & 0xfc00) >> 8));
- 	if (regno < 16) {
- 		shifter_tt.color_reg[regno] =
--			(((red & 0xe000) >> 13) | ((red & 0x1000) >> 12) << 8) |
--			(((green & 0xe000) >> 13) | ((green & 0x1000) >> 12) << 4) |
--			((blue & 0xe000) >> 13) | ((blue & 0x1000) >> 12);
-+			((((red & 0xe000) >> 13)   | ((red & 0x1000) >> 12)) << 8)   |
-+			((((green & 0xe000) >> 13) | ((green & 0x1000) >> 12)) << 4) |
-+			   ((blue & 0xe000) >> 13) | ((blue & 0x1000) >> 12);
- 		((u32 *)info->pseudo_palette)[regno] = ((red & 0xf800) |
- 						       ((green & 0xfc00) >> 5) |
- 						       ((blue & 0xf800) >> 11));
-@@ -1971,9 +1971,9 @@ static int stste_setcolreg(unsigned int
- 	green >>= 12;
- 	if (ATARIHW_PRESENT(EXTD_SHIFTER))
- 		shifter_tt.color_reg[regno] =
--			(((red & 0xe) >> 1) | ((red & 1) << 3) << 8) |
--			(((green & 0xe) >> 1) | ((green & 1) << 3) << 4) |
--			((blue & 0xe) >> 1) | ((blue & 1) << 3);
-+			((((red & 0xe)   >> 1) | ((red & 1)   << 3)) << 8) |
-+			((((green & 0xe) >> 1) | ((green & 1) << 3)) << 4) |
-+			  ((blue & 0xe)  >> 1) | ((blue & 1)  << 3);
- 	else
- 		shifter_tt.color_reg[regno] =
- 			((red & 0xe) << 7) |
+diff --git a/drivers/media/platform/coda/coda-common.c b/drivers/media/platform/coda/coda-common.c
+index 9a2640a9c75c..4a553f42ff0a 100644
+--- a/drivers/media/platform/coda/coda-common.c
++++ b/drivers/media/platform/coda/coda-common.c
+@@ -408,6 +408,7 @@ static struct vdoa_data *coda_get_vdoa_data(void)
+ 	if (!vdoa_data)
+ 		vdoa_data = ERR_PTR(-EPROBE_DEFER);
+ 
++	put_device(&vdoa_pdev->dev);
+ out:
+ 	of_node_put(vdoa_node);
+ 
+-- 
+2.34.1
+
 
 
