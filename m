@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1791C4F2D1E
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:35:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 360704F2A0D
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 12:52:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232539AbiDEJjS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:39:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41956 "EHLO
+        id S236355AbiDEI1o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:27:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34730 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244617AbiDEJKG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:10:06 -0400
+        with ESMTP id S239522AbiDEIUM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:20:12 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F49528E15;
-        Tue,  5 Apr 2022 01:59:41 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7197DEBC;
+        Tue,  5 Apr 2022 01:15:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4DAF561511;
-        Tue,  5 Apr 2022 08:59:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61F49C385A1;
-        Tue,  5 Apr 2022 08:59:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0F568609D0;
+        Tue,  5 Apr 2022 08:15:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CB51C385A1;
+        Tue,  5 Apr 2022 08:15:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149179;
-        bh=esgjwmrZ5kBd4/B0Bw3DPlQwcEwy3TAWV6aAgv1vpXo=;
+        s=korg; t=1649146510;
+        bh=fUELxiGKn9yMltYwLmzgS4G3Cg5zoeW2IXsri3WLId0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rs3syQeFw/LdlbzRblKuchNQejfkJfLnEiCvYExE0QYkYMsvFje0aqWN02JdF4Qjk
-         Kw9B+fLe3UrMYSoWoKYz2ZFILMpidkjgtWKTVmtsdpQ/0D2V6XJbMyOdA7LAFiSQy0
-         eG12YOYa6eUaLGM/esZu2WLkTVL7+a4W7dx+WmyY=
+        b=NTPgMvElEh8QvSAY8P5hUQGVY3cThh7dv6JTsvlMTXMe/t+fo/KnFa5Tx468Ty+HI
+         Iy6DDFyjAqwttM+XZIT0XegY/zMWr1bvGBSwPJgtQe5QP6H/GKQ15Y9c5Lf7VigXuz
+         fVoShSOGQdj4H9+TpmC0XHp+1iiu43GDXT85j4TI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
-        Yonglong Li <liyonglong@chinatelecom.cn>,
-        Mat Martineau <mathew.j.martineau@linux.intel.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, NeilBrown <neilb@suse.de>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0622/1017] mptcp: Fix crash due to tcp_tsorted_anchor was initialized before release skb
-Date:   Tue,  5 Apr 2022 09:25:35 +0200
-Message-Id: <20220405070412.745832297@linuxfoundation.org>
+Subject: [PATCH 5.17 0789/1126] SUNRPC/call_alloc: async tasks mustnt block waiting for memory
+Date:   Tue,  5 Apr 2022 09:25:36 +0200
+Message-Id: <20220405070430.732283454@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,65 +54,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yonglong Li <liyonglong@chinatelecom.cn>
+From: NeilBrown <neilb@suse.de>
 
-[ Upstream commit 3ef3905aa3b5b3e222ee6eb0210bfd999417a8cc ]
+[ Upstream commit c487216bec83b0c5a8803e5c61433d33ad7b104d ]
 
-Got crash when doing pressure test of mptcp:
+When memory is short, new worker threads cannot be created and we depend
+on the minimum one rpciod thread to be able to handle everything.
+So it must not block waiting for memory.
 
-===========================================================================
-dst_release: dst:ffffa06ce6e5c058 refcnt:-1
-kernel tried to execute NX-protected page - exploit attempt? (uid: 0)
-BUG: unable to handle kernel paging request at ffffa06ce6e5c058
-PGD 190a01067 P4D 190a01067 PUD 43fffb067 PMD 22e403063 PTE 8000000226e5c063
-Oops: 0011 [#1] SMP PTI
-CPU: 7 PID: 7823 Comm: kworker/7:0 Kdump: loaded Tainted: G            E
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.2.1 04/01/2014
-Call Trace:
- ? skb_release_head_state+0x68/0x100
- ? skb_release_all+0xe/0x30
- ? kfree_skb+0x32/0xa0
- ? mptcp_sendmsg_frag+0x57e/0x750
- ? __mptcp_retrans+0x21b/0x3c0
- ? __switch_to_asm+0x35/0x70
- ? mptcp_worker+0x25e/0x320
- ? process_one_work+0x1a7/0x360
- ? worker_thread+0x30/0x390
- ? create_worker+0x1a0/0x1a0
- ? kthread+0x112/0x130
- ? kthread_flush_work_fn+0x10/0x10
- ? ret_from_fork+0x35/0x40
-===========================================================================
+mempools are particularly a problem as memory can only be released back
+to the mempool by an async rpc task running.  If all available
+workqueue threads are waiting on the mempool, no thread is available to
+return anything.
 
-In __mptcp_alloc_tx_skb skb was allocated and skb->tcp_tsorted_anchor will
-be initialized, in under memory pressure situation sk_wmem_schedule will
-return false and then kfree_skb. In this case skb->_skb_refdst is not null
-because_skb_refdst and tcp_tsorted_anchor are stored in the same mem, and
-kfree_skb will try to release dst and cause crash.
+rpc_malloc() can block, and this might cause deadlocks.
+So check RPC_IS_ASYNC(), rather than RPC_IS_SWAPPER() to determine if
+blocking is acceptable.
 
-Fixes: f70cad1085d1 ("mptcp: stop relying on tcp_tx_skb_cache")
-Reviewed-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Yonglong Li <liyonglong@chinatelecom.cn>
-Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
-Link: https://lore.kernel.org/r/20220317220953.426024-1-mathew.j.martineau@linux.intel.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: NeilBrown <neilb@suse.de>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mptcp/protocol.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/sunrpc/sched.c              | 4 +++-
+ net/sunrpc/xprtrdma/transport.c | 4 +++-
+ 2 files changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/net/mptcp/protocol.c b/net/mptcp/protocol.c
-index 7566c9dc6681..1784e528704a 100644
---- a/net/mptcp/protocol.c
-+++ b/net/mptcp/protocol.c
-@@ -1202,6 +1202,7 @@ static struct sk_buff *__mptcp_alloc_tx_skb(struct sock *sk, struct sock *ssk, g
- 		tcp_skb_entail(ssk, skb);
- 		return skb;
- 	}
-+	tcp_skb_tsorted_anchor_cleanup(skb);
- 	kfree_skb(skb);
- 	return NULL;
- }
+diff --git a/net/sunrpc/sched.c b/net/sunrpc/sched.c
+index e2c835482791..d5b6e897f5a5 100644
+--- a/net/sunrpc/sched.c
++++ b/net/sunrpc/sched.c
+@@ -1023,8 +1023,10 @@ int rpc_malloc(struct rpc_task *task)
+ 	struct rpc_buffer *buf;
+ 	gfp_t gfp = GFP_NOFS;
+ 
++	if (RPC_IS_ASYNC(task))
++		gfp = GFP_NOWAIT | __GFP_NOWARN;
+ 	if (RPC_IS_SWAPPER(task))
+-		gfp = __GFP_MEMALLOC | GFP_NOWAIT | __GFP_NOWARN;
++		gfp |= __GFP_MEMALLOC;
+ 
+ 	size += sizeof(struct rpc_buffer);
+ 	if (size <= RPC_BUFFER_MAXSIZE)
+diff --git a/net/sunrpc/xprtrdma/transport.c b/net/sunrpc/xprtrdma/transport.c
+index 42e375dbdadb..5714bf880e95 100644
+--- a/net/sunrpc/xprtrdma/transport.c
++++ b/net/sunrpc/xprtrdma/transport.c
+@@ -570,8 +570,10 @@ xprt_rdma_allocate(struct rpc_task *task)
+ 	gfp_t flags;
+ 
+ 	flags = RPCRDMA_DEF_GFP;
++	if (RPC_IS_ASYNC(task))
++		flags = GFP_NOWAIT | __GFP_NOWARN;
+ 	if (RPC_IS_SWAPPER(task))
+-		flags = __GFP_MEMALLOC | GFP_NOWAIT | __GFP_NOWARN;
++		flags |= __GFP_MEMALLOC;
+ 
+ 	if (!rpcrdma_check_regbuf(r_xprt, req->rl_sendbuf, rqst->rq_callsize,
+ 				  flags))
 -- 
 2.34.1
 
