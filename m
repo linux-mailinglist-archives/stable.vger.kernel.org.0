@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 380DC4F2D76
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:42:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 000CB4F29ED
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 12:51:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242708AbiDEJh6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:37:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51574 "EHLO
+        id S234737AbiDEI0N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:26:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34702 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236725AbiDEJDd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:03:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2023DF0E;
-        Tue,  5 Apr 2022 01:55:08 -0700 (PDT)
+        with ESMTP id S239254AbiDEIT4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:19:56 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1CF37DE34;
+        Tue,  5 Apr 2022 01:10:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B0FCA61476;
-        Tue,  5 Apr 2022 08:55:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1B65C385A1;
-        Tue,  5 Apr 2022 08:55:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 78A95B81B90;
+        Tue,  5 Apr 2022 08:10:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCE78C385A0;
+        Tue,  5 Apr 2022 08:10:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148907;
-        bh=rM7SbSLyLVnrAjKa0pNE2SFOvNMGPO72+qCGoPzUMxo=;
+        s=korg; t=1649146239;
+        bh=mNrzE2y4jaCJIXuG3CMdKKY1QnNmRPTne+P4BnMs2vQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H9fLrNftlKncMf6xo5MTRpIKjuQhtILbCsmsbdKfoxhS/zBBgNjc5laSV61hbRzea
-         JCnCgob8eUCbxQNGamwGbaMIT3XjK5Obrrjrs7XUTnjQI5YGCS5gGfQjdjtp9zf9/B
-         yajF47+tQzkXY01XUeVKkJqQLiSsrepMDAi1P1b4=
+        b=c8lW2pUaD/WY2bry+XgCTw6uCRQLO8BIOSLE4BCIL/Ty4XTS6RkWtc3CZzbm7xAX7
+         E25yp0+IcE/ik8FUUccrOVfRV9ZrDLcQfT6hyXaxucGeSRjxYDtuvEcWyU1Vysrduu
+         7an6LyRnaEttP9w+T2OY8M8SVVqbdjB6+razSzF8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Rameshkumar Sundaram <quic_ramess@quicinc.com>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0525/1017] ath11k: Invalidate cached reo ring entry before accessing it
-Date:   Tue,  5 Apr 2022 09:23:58 +0200
-Message-Id: <20220405070409.880163978@linuxfoundation.org>
+        stable@vger.kernel.org, Peter Rosin <peda@axentia.se>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 0692/1126] i2c: mux: demux-pinctrl: do not deactivate a master that is not active
+Date:   Tue,  5 Apr 2022 09:23:59 +0200
+Message-Id: <20220405070427.924835122@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,52 +53,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rameshkumar Sundaram <quic_ramess@quicinc.com>
+From: Peter Rosin <peda@axentia.se>
 
-[ Upstream commit f2180ccb52b5fd0876291ad2df37e2898cac18cf ]
+[ Upstream commit 1a22aabf20adf89cb216f566913196128766f25b ]
 
-REO2SW ring descriptor is currently allocated in cacheable memory.
-While reaping reo ring entries on second trial after updating head
-pointer, first entry is not invalidated before accessing it.
+Attempting to rollback the activation of the current master when
+the current master has not been activated is bad. priv->cur_chan
+and priv->cur_adap are both still zeroed out and the rollback
+may result in attempts to revert an of changeset that has not been
+applied and do result in calls to both del and put the zeroed out
+i2c_adapter. Maybe it crashes, or whatever, but it's bad in any
+case.
 
-This results in host reaping and using cached descriptor which is
-already overwritten in memory by DMA device (HW).
-Since the contents of descriptor(buffer id, peer info and other information
-bits) are outdated host throws errors like below while parsing corresponding
-MSDU's and drops them.
-
-[347712.048904] ath11k_pci 0004:01:00.0: msdu_done bit in attention is not set
-[349173.355503] ath11k_pci 0004:01:00.0: frame rx with invalid buf_id 962
-
-Move the try_again: label above  ath11k_hal_srng_access_begin()
-so that first entry will be invalidated and prefetched.
-
-Tested-on: QCN9074 hw1.0 PCI WLAN.HK.2.5.0.1-01100-QCAHKSWPL_SILICONZ-1
-
-Fixes: 6452f0a3d565 ("ath11k: allocate dst ring descriptors from cacheable memory")
-Signed-off-by: Rameshkumar Sundaram <quic_ramess@quicinc.com>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/1645000354-32558-1-git-send-email-quic_ramess@quicinc.com
+Fixes: e9d1a0a41d44 ("i2c: mux: demux-pinctrl: Fix an error handling path in 'i2c_demux_pinctrl_probe()'")
+Signed-off-by: Peter Rosin <peda@axentia.se>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath11k/dp_rx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/i2c/muxes/i2c-demux-pinctrl.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath11k/dp_rx.c b/drivers/net/wireless/ath/ath11k/dp_rx.c
-index 0bc3baf4af5c..38102617c342 100644
---- a/drivers/net/wireless/ath/ath11k/dp_rx.c
-+++ b/drivers/net/wireless/ath/ath11k/dp_rx.c
-@@ -2664,9 +2664,9 @@ int ath11k_dp_process_rx(struct ath11k_base *ab, int ring_id,
+diff --git a/drivers/i2c/muxes/i2c-demux-pinctrl.c b/drivers/i2c/muxes/i2c-demux-pinctrl.c
+index 5365199a31f4..f7a7405d4350 100644
+--- a/drivers/i2c/muxes/i2c-demux-pinctrl.c
++++ b/drivers/i2c/muxes/i2c-demux-pinctrl.c
+@@ -261,7 +261,7 @@ static int i2c_demux_pinctrl_probe(struct platform_device *pdev)
  
- 	spin_lock_bh(&srng->lock);
+ 	err = device_create_file(&pdev->dev, &dev_attr_available_masters);
+ 	if (err)
+-		goto err_rollback;
++		goto err_rollback_activation;
  
-+try_again:
- 	ath11k_hal_srng_access_begin(ab, srng);
+ 	err = device_create_file(&pdev->dev, &dev_attr_current_master);
+ 	if (err)
+@@ -271,8 +271,9 @@ static int i2c_demux_pinctrl_probe(struct platform_device *pdev)
  
--try_again:
- 	while (likely(desc =
- 	      (struct hal_reo_dest_ring *)ath11k_hal_srng_dst_get_next_entry(ab,
- 									     srng))) {
+ err_rollback_available:
+ 	device_remove_file(&pdev->dev, &dev_attr_available_masters);
+-err_rollback:
++err_rollback_activation:
+ 	i2c_demux_deactivate_master(priv);
++err_rollback:
+ 	for (j = 0; j < i; j++) {
+ 		of_node_put(priv->chan[j].parent_np);
+ 		of_changeset_destroy(&priv->chan[j].chgset);
 -- 
 2.34.1
 
