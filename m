@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A390E4F319E
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:45:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF87C4F3513
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:48:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241705AbiDEIfL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:35:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33820 "EHLO
+        id S242926AbiDEJib (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:38:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41898 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239389AbiDEIUC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:20:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E890FC558D;
-        Tue,  5 Apr 2022 01:12:19 -0700 (PDT)
+        with ESMTP id S242694AbiDEJIS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:08:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F39A96C975;
+        Tue,  5 Apr 2022 01:56:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 868CB60AFB;
-        Tue,  5 Apr 2022 08:12:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91FDAC385A0;
-        Tue,  5 Apr 2022 08:12:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0695161573;
+        Tue,  5 Apr 2022 08:56:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12F88C385A0;
+        Tue,  5 Apr 2022 08:56:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146339;
-        bh=B4ZcG0QXqpeghTBVKDIRTsP/36gZD9K13i5RowxWSZc=;
+        s=korg; t=1649149015;
+        bh=gv4ukajgun+ahxgtodnf+ysa9hRaoF0gRFwqX/nDtkM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oDc+nN2S1BwVCUlUzbgfGPDAN7SDXtM+qtSQN3EtzcOTlFheKFM7J0jKcWyNES0sK
-         gDx49rCaYoqwlki6wv8jq3CDFNgKirz9kHu21l73IYxSS5e24vu1rov+YIB6wCwVlK
-         1Ju8/Kig3H9rgP8oLBGjOIwqzzXzpaRRHaD+eG3s=
+        b=HcBVmucWShF328CdQitZ/0gBAVRMIWpIrmwOiDuFy6QRPVNrSyYZNWVS8vTUi50ap
+         21xcoHaglJ6milUmktmzcn9tDdzVBRWLe7JOUb0jCh5waplMt8hdWmqYV1GoRTw0YO
+         83HBnI6adZm/oGw2HATx1mBxcGBvUu2K2FqpKVEw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
+        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
+        Hou Wenlong <houwenlong.hwl@antgroup.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0729/1126] pinctrl: renesas: r8a77470: Reduce size for narrow VIN1 channel
-Date:   Tue,  5 Apr 2022 09:24:36 +0200
-Message-Id: <20220405070428.988558813@linuxfoundation.org>
+Subject: [PATCH 5.16 0564/1017] KVM: x86/emulator: Defer not-present segment check in __load_segment_descriptor()
+Date:   Tue,  5 Apr 2022 09:24:37 +0200
+Message-Id: <20220405070411.021331167@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,48 +55,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Hou Wenlong <houwenlong.hwl@antgroup.com>
 
-[ Upstream commit 9e04a0eda84fccab0ac22a33825ad53f47c968c7 ]
+[ Upstream commit ca85f002258fdac3762c57d12d5e6e401b6a41af ]
 
-The second video-in channel on RZ/G1C has only 12 data lanes, but the
-pin control driver uses the vin_data union, which is meant for 24 data
-lanes, thus wasting space.
+Per Intel's SDM on the "Instruction Set Reference", when
+loading segment descriptor, not-present segment check should
+be after all type and privilege checks. But the emulator checks
+it first, then #NP is triggered instead of #GP if privilege fails
+and segment is not present. Put not-present segment check after
+type and privilege checks in __load_segment_descriptor().
 
-Fix this by using the vin_data12 union instead.
-
-This reduces kernel size by 96 bytes.
-
-Fixes: 50f3f2d73e3426ba ("pinctrl: sh-pfc: Reduce kernel size for narrow VIN channels")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Link: https://lore.kernel.org/r/52716fa89139f6f92592633edb52804d4c5e18f0.1640269757.git.geert+renesas@glider.be
+Fixes: 38ba30ba51a00 (KVM: x86 emulator: Emulate task switch in emulator.c)
+Reviewed-by: Sean Christopherson <seanjc@google.com>
+Signed-off-by: Hou Wenlong <houwenlong.hwl@antgroup.com>
+Message-Id: <52573c01d369f506cadcf7233812427cf7db81a7.1644292363.git.houwenlong.hwl@antgroup.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/renesas/pfc-r8a77470.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/kvm/emulate.c | 14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/pinctrl/renesas/pfc-r8a77470.c b/drivers/pinctrl/renesas/pfc-r8a77470.c
-index e6e5487691c1..cf7153d06a95 100644
---- a/drivers/pinctrl/renesas/pfc-r8a77470.c
-+++ b/drivers/pinctrl/renesas/pfc-r8a77470.c
-@@ -2140,7 +2140,7 @@ static const unsigned int vin0_clk_mux[] = {
- 	VI0_CLK_MARK,
- };
- /* - VIN1 ------------------------------------------------------------------- */
--static const union vin_data vin1_data_pins = {
-+static const union vin_data12 vin1_data_pins = {
- 	.data12 = {
- 		RCAR_GP_PIN(3,  1), RCAR_GP_PIN(3, 2),
- 		RCAR_GP_PIN(3,  3), RCAR_GP_PIN(3, 4),
-@@ -2150,7 +2150,7 @@ static const union vin_data vin1_data_pins = {
- 		RCAR_GP_PIN(3, 15), RCAR_GP_PIN(3, 16),
- 	},
- };
--static const union vin_data vin1_data_mux = {
-+static const union vin_data12 vin1_data_mux = {
- 	.data12 = {
- 		VI1_DATA0_MARK, VI1_DATA1_MARK,
- 		VI1_DATA2_MARK, VI1_DATA3_MARK,
+diff --git a/arch/x86/kvm/emulate.c b/arch/x86/kvm/emulate.c
+index 28b1a4e57827..5705446c1213 100644
+--- a/arch/x86/kvm/emulate.c
++++ b/arch/x86/kvm/emulate.c
+@@ -1614,11 +1614,6 @@ static int __load_segment_descriptor(struct x86_emulate_ctxt *ctxt,
+ 		goto exception;
+ 	}
+ 
+-	if (!seg_desc.p) {
+-		err_vec = (seg == VCPU_SREG_SS) ? SS_VECTOR : NP_VECTOR;
+-		goto exception;
+-	}
+-
+ 	dpl = seg_desc.dpl;
+ 
+ 	switch (seg) {
+@@ -1658,6 +1653,10 @@ static int __load_segment_descriptor(struct x86_emulate_ctxt *ctxt,
+ 	case VCPU_SREG_TR:
+ 		if (seg_desc.s || (seg_desc.type != 1 && seg_desc.type != 9))
+ 			goto exception;
++		if (!seg_desc.p) {
++			err_vec = NP_VECTOR;
++			goto exception;
++		}
+ 		old_desc = seg_desc;
+ 		seg_desc.type |= 2; /* busy */
+ 		ret = ctxt->ops->cmpxchg_emulated(ctxt, desc_addr, &old_desc, &seg_desc,
+@@ -1682,6 +1681,11 @@ static int __load_segment_descriptor(struct x86_emulate_ctxt *ctxt,
+ 		break;
+ 	}
+ 
++	if (!seg_desc.p) {
++		err_vec = (seg == VCPU_SREG_SS) ? SS_VECTOR : NP_VECTOR;
++		goto exception;
++	}
++
+ 	if (seg_desc.s) {
+ 		/* mark segment as accessed */
+ 		if (!(seg_desc.type & 1)) {
 -- 
 2.34.1
 
