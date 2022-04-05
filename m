@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D5E44F2F2D
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:06:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D60124F34B3
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:39:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239556AbiDEJ3I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:29:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52206 "EHLO
+        id S236730AbiDEJDe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:03:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34730 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245042AbiDEIxD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:53:03 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FCFEE57;
-        Tue,  5 Apr 2022 01:50:26 -0700 (PDT)
+        with ESMTP id S237266AbiDEIRw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:17:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 352BE69CC3;
+        Tue,  5 Apr 2022 01:05:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3D873B81BAE;
-        Tue,  5 Apr 2022 08:50:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69423C385A0;
-        Tue,  5 Apr 2022 08:50:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A4E0A617E9;
+        Tue,  5 Apr 2022 08:05:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6978C385A2;
+        Tue,  5 Apr 2022 08:05:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148623;
-        bh=0fZ23jhhHtYlMzFGJ7EdoSUf86xCFX+t86OnoihLWEw=;
+        s=korg; t=1649145953;
+        bh=JWSpzLHpWqKGkFwCTk0nOHoD9KufYRoCj9fLiLPPjJg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=de1w5t9nED8fEpUBfTDgm6pufQHMfDMQt1lcxvxspmmhpjjfO96kIBkUWIm2kIq+y
-         IgtuykxOQDmKPuekCFpV1R1qOSZ6S+0jLixt0i7wkOWulkb2wAZrYVfjvtv+kXA8NL
-         yNTJCAlRXIFwyOoxnp5v6AOsAB2D4lr9IsjePGWA=
+        b=RZVOVgjNdxEozwO9JKorxs7KgBc0GgvT/LGNwKZ/VBgllZUBG4+HDAT66msKVQ8jX
+         QuilBZ48Ibh1Z3MZp2m1nHlOeahqGdvc60z1UfvxHhpYTxCabhLPRW39MEZG2osNlw
+         eBSEaKV7YZoO7X8Mja3yG/DkEo/xAC+P7QMV/TYI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxime Ripard <maxime@cerno.tech>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0421/1017] drm/edid: Dont clear formats if using deep color
+        stable@vger.kernel.org, Jack Wang <jinpu.wang@ionos.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 0587/1126] scsi: pm8001: Fix payload initialization in pm80xx_encrypt_update()
 Date:   Tue,  5 Apr 2022 09:22:14 +0200
-Message-Id: <20220405070406.786040105@linuxfoundation.org>
+Message-Id: <20220405070424.863273674@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,68 +55,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxime Ripard <maxime@cerno.tech>
+From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 
-[ Upstream commit 75478b3b393bcbdca4e6da76fe3a9f1a4133ec5d ]
+[ Upstream commit f8b12dfb476dad38ce755aaf5e2df46f06f1822e ]
 
-The current code, when parsing the EDID Deep Color depths, that the
-YUV422 cannot be used, referring to the HDMI 1.3 Specification.
+All fields of the kek_mgmt_req structure have the type __le32. So make sure
+to use cpu_to_le32() to initialize them. This suppresses the sparse
+warning:
 
-This specification, in its section 6.2.4, indeed states:
+warning: incorrect type in assignment (different base types)
+   expected restricted __le32 [addressable] [assigned] [usertype] new_curidx_ksop
+   got int
 
-  For each supported Deep Color mode, RGB 4:4:4 shall be supported and
-  optionally YCBCR 4:4:4 may be supported.
-
-  YCBCR 4:2:2 is not permitted for any Deep Color mode.
-
-This indeed can be interpreted like the code does, but the HDMI 1.4
-specification further clarifies that statement in its section 6.2.4:
-
-  For each supported Deep Color mode, RGB 4:4:4 shall be supported and
-  optionally YCBCR 4:4:4 may be supported.
-
-  YCBCR 4:2:2 is also 36-bit mode but does not require the further use
-  of the Deep Color modes described in section 6.5.2 and 6.5.3.
-
-This means that, even though YUV422 can be used with 12 bit per color,
-it shouldn't be treated as a deep color mode.
-
-This is also broken with YUV444 if it's supported by the display, but
-DRM_EDID_HDMI_DC_Y444 isn't set. In such a case, the code will clear
-color_formats of the YUV444 support set previously in
-drm_parse_cea_ext(), but will not set it back.
-
-Since the formats supported are already setup properly in
-drm_parse_cea_ext(), let's just remove the code modifying the formats in
-drm_parse_hdmi_deep_color_info()
-
-Fixes: d0c94692e0a3 ("drm/edid: Parse and handle HDMI deep color modes.")
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220120151625.594595-3-maxime@cerno.tech
+Link: https://lore.kernel.org/r/20220220031810.738362-10-damien.lemoal@opensource.wdc.com
+Fixes: f5860992db55 ("[SCSI] pm80xx: Added SPCv/ve specific hardware functionalities and relevant changes in common files")
+Reviewed-by: Jack Wang <jinpu.wang@ionos.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_edid.c |    8 --------
- 1 file changed, 8 deletions(-)
+ drivers/scsi/pm8001/pm80xx_hwi.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/drivers/gpu/drm/drm_edid.c
-+++ b/drivers/gpu/drm/drm_edid.c
-@@ -5105,16 +5105,8 @@ static void drm_parse_hdmi_deep_color_in
- 		  connector->name, dc_bpc);
- 	info->bpc = dc_bpc;
+diff --git a/drivers/scsi/pm8001/pm80xx_hwi.c b/drivers/scsi/pm8001/pm80xx_hwi.c
+index 19f9fb4da9c1..cbb0cd2e71c1 100644
+--- a/drivers/scsi/pm8001/pm80xx_hwi.c
++++ b/drivers/scsi/pm8001/pm80xx_hwi.c
+@@ -1407,12 +1407,13 @@ static int pm80xx_encrypt_update(struct pm8001_hba_info *pm8001_ha)
+ 	/* Currently only one key is used. New KEK index is 1.
+ 	 * Current KEK index is 1. Store KEK to NVRAM is 1.
+ 	 */
+-	payload.new_curidx_ksop = ((1 << 24) | (1 << 16) | (1 << 8) |
+-					KEK_MGMT_SUBOP_KEYCARDUPDATE);
++	payload.new_curidx_ksop =
++		cpu_to_le32(((1 << 24) | (1 << 16) | (1 << 8) |
++			     KEK_MGMT_SUBOP_KEYCARDUPDATE));
  
--	/*
--	 * Deep color support mandates RGB444 support for all video
--	 * modes and forbids YCRCB422 support for all video modes per
--	 * HDMI 1.3 spec.
--	 */
--	info->color_formats = DRM_COLOR_FORMAT_RGB444;
--
- 	/* YCRCB444 is optional according to spec. */
- 	if (hdmi[6] & DRM_EDID_HDMI_DC_Y444) {
--		info->color_formats |= DRM_COLOR_FORMAT_YCRCB444;
- 		DRM_DEBUG("%s: HDMI sink does YCRCB444 in deep color.\n",
- 			  connector->name);
- 	}
+ 	pm8001_dbg(pm8001_ha, DEV,
+ 		   "Saving Encryption info to flash. payload 0x%x\n",
+-		   payload.new_curidx_ksop);
++		   le32_to_cpu(payload.new_curidx_ksop));
+ 
+ 	rc = pm8001_mpi_build_cmd(pm8001_ha, circularQ, opc, &payload,
+ 			sizeof(payload), 0);
+-- 
+2.34.1
+
 
 
