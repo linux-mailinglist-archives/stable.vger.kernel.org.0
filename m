@@ -2,44 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DE604F302C
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:26:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92A834F2EE8
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:04:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241848AbiDEIfh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:35:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52136 "EHLO
+        id S1350447AbiDEJ6T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:58:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53732 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239788AbiDEIU4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:20:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14F37384;
-        Tue,  5 Apr 2022 01:18:58 -0700 (PDT)
+        with ESMTP id S1344010AbiDEJQr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:16:47 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA3D2C29;
+        Tue,  5 Apr 2022 02:03:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A47D460B0E;
-        Tue,  5 Apr 2022 08:18:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB5E9C385A0;
-        Tue,  5 Apr 2022 08:18:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 85BD2B80DA1;
+        Tue,  5 Apr 2022 09:03:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C009BC385A0;
+        Tue,  5 Apr 2022 09:03:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146737;
-        bh=3FDGENo31HR4d2ixNLW5MS9/VHe0brDMr3Xy9M1Mn4o=;
+        s=korg; t=1649149412;
+        bh=gf6hFb0IBIczvzNtHPPSa+xIRoepqNHHLtYzglD/wDk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XognXUYyys/zZyTtrDNje6WMxvxllNNcnlLZhRAnqss8FtGcHMhygpw8XmlyLJxxn
-         VeQGCm81mJSrhTa2HRYDbcDqEbCyardfV6iBG/YAqJXBiwk2h9eMuywCu3iYgGWCV3
-         PlBEzj/h3qEqVczxOrCzj9a+2Ym4REU8qPqz7ylM=
+        b=09RTSb1b8qAt4jdivnLdhDpZ/Hn3NQXEjTCoCCAlCYv+vKp9OIlgAGeIcXsLxTl7i
+         /evOK54tRIw/F4t38jLyP5LBC8wUUFqjUVkBBHgplPdjvZUBTtvQuLwjQmtQWFlmTp
+         rHdoKA0Ta4wrBRq721uayYxc3r1cClWhmgpMITII=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eddie James <eajames@linux.ibm.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Jingoo Han <jg1.han@samsung.com>,
+        Jiri Slaby <jirislaby@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Julian Wiedmann <jwi@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        linuxppc-dev@lists.ozlabs.org,
+        Igor Zhbanov <i.zhbanov@omprussia.ru>,
+        Randy Dunlap <rdunlap@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0869/1126] spi: fsi: Implement a timeout for polling status
-Date:   Tue,  5 Apr 2022 09:26:56 +0200
-Message-Id: <20220405070433.047277673@linuxfoundation.org>
+Subject: [PATCH 5.16 0704/1017] tty: hvc: fix return value of __setup handler
+Date:   Tue,  5 Apr 2022 09:26:57 +0200
+Message-Id: <20220405070415.167064419@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,73 +60,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eddie James <eajames@linux.ibm.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 89b35e3f28514087d3f1e28e8f5634fbfd07c554 ]
+[ Upstream commit 53819a0d97aace1425bb042829e3446952a9e8a9 ]
 
-The data transfer routines must poll the status register to
-determine when more data can be shifted in or out. If the hardware
-gets into a bad state, these polling loops may never exit. Prevent
-this by returning an error if a timeout is exceeded.
+__setup() handlers should return 1 to indicate that the boot option
+has been handled or 0 to indicate that it was not handled.
+Add a pr_warn() message if the option value is invalid and then
+always return 1.
 
-Signed-off-by: Eddie James <eajames@linux.ibm.com>
-Link: https://lore.kernel.org/r/20220317211426.38940-1-eajames@linux.ibm.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
+Fixes: 86b40567b917 ("tty: replace strict_strtoul() with kstrtoul()")
+Cc: Jingoo Han <jg1.han@samsung.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Jiri Slaby <jirislaby@kernel.org>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Julian Wiedmann <jwi@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: linuxppc-dev@lists.ozlabs.org
+Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Link: https://lore.kernel.org/r/20220308024228.20477-1-rdunlap@infradead.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-fsi.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/tty/hvc/hvc_iucv.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-fsi.c b/drivers/spi/spi-fsi.c
-index b6c7467f0b59..d403a7a3021d 100644
---- a/drivers/spi/spi-fsi.c
-+++ b/drivers/spi/spi-fsi.c
-@@ -25,6 +25,7 @@
- 
- #define SPI_FSI_BASE			0x70000
- #define SPI_FSI_INIT_TIMEOUT_MS		1000
-+#define SPI_FSI_STATUS_TIMEOUT_MS	100
- #define SPI_FSI_MAX_RX_SIZE		8
- #define SPI_FSI_MAX_TX_SIZE		40
- 
-@@ -299,6 +300,7 @@ static int fsi_spi_transfer_data(struct fsi_spi *ctx,
- 				 struct spi_transfer *transfer)
+diff --git a/drivers/tty/hvc/hvc_iucv.c b/drivers/tty/hvc/hvc_iucv.c
+index 82a76cac94de..32366caca662 100644
+--- a/drivers/tty/hvc/hvc_iucv.c
++++ b/drivers/tty/hvc/hvc_iucv.c
+@@ -1417,7 +1417,9 @@ static int __init hvc_iucv_init(void)
+  */
+ static	int __init hvc_iucv_config(char *val)
  {
- 	int rc = 0;
-+	unsigned long end;
- 	u64 status = 0ULL;
+-	 return kstrtoul(val, 10, &hvc_iucv_devices);
++	if (kstrtoul(val, 10, &hvc_iucv_devices))
++		pr_warn("hvc_iucv= invalid parameter value '%s'\n", val);
++	return 1;
+ }
  
- 	if (transfer->tx_buf) {
-@@ -315,10 +317,14 @@ static int fsi_spi_transfer_data(struct fsi_spi *ctx,
- 			if (rc)
- 				return rc;
  
-+			end = jiffies + msecs_to_jiffies(SPI_FSI_STATUS_TIMEOUT_MS);
- 			do {
- 				rc = fsi_spi_status(ctx, &status, "TX");
- 				if (rc)
- 					return rc;
-+
-+				if (time_after(jiffies, end))
-+					return -ETIMEDOUT;
- 			} while (status & SPI_FSI_STATUS_TDR_FULL);
- 
- 			sent += nb;
-@@ -329,10 +335,14 @@ static int fsi_spi_transfer_data(struct fsi_spi *ctx,
- 		u8 *rx = transfer->rx_buf;
- 
- 		while (transfer->len > recv) {
-+			end = jiffies + msecs_to_jiffies(SPI_FSI_STATUS_TIMEOUT_MS);
- 			do {
- 				rc = fsi_spi_status(ctx, &status, "RX");
- 				if (rc)
- 					return rc;
-+
-+				if (time_after(jiffies, end))
-+					return -ETIMEDOUT;
- 			} while (!(status & SPI_FSI_STATUS_RDR_FULL));
- 
- 			rc = fsi_spi_read_reg(ctx, SPI_FSI_DATA_RX, &in);
 -- 
 2.34.1
 
