@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A582D4F346B
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:37:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74F384F351A
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:48:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236944AbiDEJDs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:03:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34846 "EHLO
+        id S1347938AbiDEJ2r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:28:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46798 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237008AbiDEIRg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:17:36 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5DD9AF1CF;
-        Tue,  5 Apr 2022 01:04:59 -0700 (PDT)
+        with ESMTP id S244990AbiDEIxA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:53:00 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D15E132;
+        Tue,  5 Apr 2022 01:48:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 972C9617EA;
-        Tue,  5 Apr 2022 08:04:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F2D5C385A2;
-        Tue,  5 Apr 2022 08:04:48 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 7FC3DCE1B55;
+        Tue,  5 Apr 2022 08:48:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8EDCDC385A0;
+        Tue,  5 Apr 2022 08:48:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145889;
-        bh=LzU+oI0FFacSct4eVCvTz2D0LQ8alLCVVfpb2Ekg4lo=;
+        s=korg; t=1649148521;
+        bh=3WCk8sBpIkZCS0IofelWfKv101rypvwobF2dXzA2GKA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BkiAgSpB/A3s5fjflrkz1KjtbG7P6lDKLqMTdvTfX+/54j0rV7gzmDwt5M7Bw16T8
-         ruGAjs7jlQvYNUrXxquAQNQYY7gEBSLfNA+HVC9dsdYj04scAYiAZYCckkYlFqWUJ+
-         LdMmbp/nK7VmwNoXSc/xDfAXTsymq7y7/Br19fgY=
+        b=r1nPA8E5pvIZOVPYOn75JNMosINPYpxyyeSb32/MX1HD4qR+8mTZUfk/Fyqhgdyz2
+         EwGQ1SiG74vJ5IodUhaJKbwLsk81f96ZW7MdqTV11jCo1EH+aAOq9eNLDTX26LL7WQ
+         HZ7vmBxfU9TKv5TgmFWpG1WkZZ4EQc9k9lVTKHCE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hersen Wu <hersenwu@amd.com>,
-        Jasdeep Dhillon <jdhillon@amd.com>,
-        Roman Li <Roman.Li@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Chris Morgan <macromorgan@hotmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0549/1126] drm/amd/display: Add affected crtcs to atomic state for dsc mst unplug
+Subject: [PATCH 5.16 0383/1017] ASoC: rk817: Fix missing clk_disable_unprepare() in rk817_platform_probe
 Date:   Tue,  5 Apr 2022 09:21:36 +0200
-Message-Id: <20220405070423.747140025@linuxfoundation.org>
+Message-Id: <20220405070405.655068781@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,54 +55,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roman Li <Roman.Li@amd.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 128f8ed5902a287a6bb4afe0ffdae8a80b2a64ec ]
+[ Upstream commit a6b44a2518a08348bd0f0401e4d2b99233bbabc2 ]
 
-[Why]
-When display topology changed on DSC hub we add all crtcs with dsc support to
-atomic state.
-Refer to patch:"drm/amd/display: Trigger modesets on MST DSC connectors"
-However the original implementation may skip crtc if the topology change
-caused by unplug.
-That potentially could lead to no-lightup or corruption on DSC hub after
-unplug event on one of the connectors.
+Fix the missing clk_disable_unprepare() before return
+from rk817_platform_probe() in the error handling case.
 
-[How]
-Update add_affected_mst_dsc_crtcs() to use old connector state
-if new connector state has no crtc (undergoes modeset due to unplug)
-
-Fixes: 44be939ff7ac58 ("drm/amd/display: Trigger modesets on MST DSC connectors")
-
-Reviewed-by: Hersen Wu <hersenwu@amd.com>
-Acked-by: Jasdeep Dhillon <jdhillon@amd.com>
-Signed-off-by: Roman Li <Roman.Li@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: 0d6a04da9b25 ("ASoC: Add Rockchip rk817 audio CODEC support")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Tested-by: Chris Morgan <macromorgan@hotmail.com>
+Link: https://lore.kernel.org/r/20220307090146.4104-1-linmq006@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ sound/soc/codecs/rk817_codec.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-index 5f4a346c9c2a..eae9f9e26f0e 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -10861,10 +10861,13 @@ static int dm_check_crtc_cursor(struct drm_atomic_state *state,
- static int add_affected_mst_dsc_crtcs(struct drm_atomic_state *state, struct drm_crtc *crtc)
- {
- 	struct drm_connector *connector;
--	struct drm_connector_state *conn_state;
-+	struct drm_connector_state *conn_state, *old_conn_state;
- 	struct amdgpu_dm_connector *aconnector = NULL;
- 	int i;
--	for_each_new_connector_in_state(state, connector, conn_state, i) {
-+	for_each_oldnew_connector_in_state(state, connector, old_conn_state, conn_state, i) {
-+		if (!conn_state->crtc)
-+			conn_state = old_conn_state;
-+
- 		if (conn_state->crtc != crtc)
- 			continue;
+diff --git a/sound/soc/codecs/rk817_codec.c b/sound/soc/codecs/rk817_codec.c
+index 03f24edfe4f6..8fffe378618d 100644
+--- a/sound/soc/codecs/rk817_codec.c
++++ b/sound/soc/codecs/rk817_codec.c
+@@ -508,12 +508,14 @@ static int rk817_platform_probe(struct platform_device *pdev)
+ 	if (ret < 0) {
+ 		dev_err(&pdev->dev, "%s() register codec error %d\n",
+ 			__func__, ret);
+-		goto err_;
++		goto err_clk;
+ 	}
+ 
+ 	return 0;
+-err_:
+ 
++err_clk:
++	clk_disable_unprepare(rk817_codec_data->mclk);
++err_:
+ 	return ret;
+ }
  
 -- 
 2.34.1
