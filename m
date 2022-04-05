@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EC7A4F3389
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:16:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 56CC14F359E
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:52:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236947AbiDEJDs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:03:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34816 "EHLO
+        id S231844AbiDEKwc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:52:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50096 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236894AbiDEIRH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:17:07 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3C72ADD45;
-        Tue,  5 Apr 2022 01:04:47 -0700 (PDT)
+        with ESMTP id S1345966AbiDEJoP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:44:15 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E31BBC6836;
+        Tue,  5 Apr 2022 02:29:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6CE4461725;
-        Tue,  5 Apr 2022 08:04:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73E1BC385A3;
-        Tue,  5 Apr 2022 08:04:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9754AB81C9D;
+        Tue,  5 Apr 2022 09:29:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7691C385A2;
+        Tue,  5 Apr 2022 09:29:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145874;
-        bh=sL3PQOe5HXGSewZPa7HCepSF994qk/AklDFvpvB1oiw=;
+        s=korg; t=1649150990;
+        bh=y3JRIDyNcXhjsYAoasVGsao3VSvvAlI2N3kDMISnD/c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dqkgMZd16+OJq1xp4UZipKTqNUIFqQRuIskanS+mvu5m1QLEhp6WKPZNkuACfPVjC
-         DShzLQMsnNBYhKAal/7vny8ONRq1O2Ybbm6dQ6Lc0I5RU+uvDYsjv7hqGcIZIM1+LJ
-         0yzhyNbIaN/9ELn0k5xDnxmf7VEhwewNupbhLaDU=
+        b=Z47xLnI3KRyCMCoYjJQPkJMYMKAFeR2AGYgoIGXbXr4w+lcH+aPZSERX+v2xd7RHi
+         Zb5FNUscoKkiundrIKzisxTyIm0O1Z0pLj+6WBj5lefvJrKhxb4DmPJ0u70M46u+tH
+         vw08YUOzZhA8YlR7+nbVApCpuE+hiuKHRdqsVmFY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0562/1126] iwlwifi: mvm: fix off by one in iwl_mvm_stat_iterator_all_macs()
+        stable@vger.kernel.org, Bharata B Rao <bharata@amd.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
+        Mel Gorman <mgorman@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 247/913] sched/debug: Remove mpol_get/put and task_lock/unlock from sched_show_numa
 Date:   Tue,  5 Apr 2022 09:21:49 +0200
-Message-Id: <20220405070424.129277698@linuxfoundation.org>
+Message-Id: <20220405070347.260662195@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,35 +55,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Bharata B Rao <bharata@amd.com>
 
-[ Upstream commit f1cbb0a8ca9db80c086009c88c71464ac50f50a2 ]
+[ Upstream commit 28c988c3ec29db74a1dda631b18785958d57df4f ]
 
-Change the comparison from ">" to ">=" to avoid accessing one element
-beyond the end of the ->per_mac_stats[] array.
+The older format of /proc/pid/sched printed home node info which
+required the mempolicy and task lock around mpol_get(). However
+the format has changed since then and there is no need for
+sched_show_numa() any more to have mempolicy argument,
+asssociated mpol_get/put and task_lock/unlock. Remove them.
 
-Fixes: 6324c173ff4a ("iwlwifi: mvm: add support for statistics update version 15")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/20220106071825.GA5836@kili
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Fixes: 397f2378f1361 ("sched/numa: Fix numa balancing stats in /proc/pid/sched")
+Signed-off-by: Bharata B Rao <bharata@amd.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+Acked-by: Mel Gorman <mgorman@suse.de>
+Link: https://lore.kernel.org/r/20220118050515.2973-1-bharata@amd.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/mvm/rx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/sched/debug.c | 10 ----------
+ 1 file changed, 10 deletions(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/rx.c b/drivers/net/wireless/intel/iwlwifi/mvm/rx.c
-index 64446a11ef98..9a46468bd434 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/rx.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/rx.c
-@@ -640,7 +640,7 @@ static void iwl_mvm_stat_iterator_all_macs(void *_data, u8 *mac,
- 	struct iwl_mvm_vif *mvmvif = iwl_mvm_vif_from_mac80211(vif);
- 	u16 vif_id = mvmvif->id;
+diff --git a/kernel/sched/debug.c b/kernel/sched/debug.c
+index 17a653b67006..7a2d32d2025f 100644
+--- a/kernel/sched/debug.c
++++ b/kernel/sched/debug.c
+@@ -921,25 +921,15 @@ void print_numa_stats(struct seq_file *m, int node, unsigned long tsf,
+ static void sched_show_numa(struct task_struct *p, struct seq_file *m)
+ {
+ #ifdef CONFIG_NUMA_BALANCING
+-	struct mempolicy *pol;
+-
+ 	if (p->mm)
+ 		P(mm->numa_scan_seq);
  
--	if (WARN_ONCE(vif_id > MAC_INDEX_AUX, "invalid vif id: %d", vif_id))
-+	if (WARN_ONCE(vif_id >= MAC_INDEX_AUX, "invalid vif id: %d", vif_id))
- 		return;
+-	task_lock(p);
+-	pol = p->mempolicy;
+-	if (pol && !(pol->flags & MPOL_F_MORON))
+-		pol = NULL;
+-	mpol_get(pol);
+-	task_unlock(p);
+-
+ 	P(numa_pages_migrated);
+ 	P(numa_preferred_nid);
+ 	P(total_numa_faults);
+ 	SEQ_printf(m, "current_node=%d, numa_group_id=%d\n",
+ 			task_node(p), task_numa_group_id(p));
+ 	show_numa_stats(p, m);
+-	mpol_put(pol);
+ #endif
+ }
  
- 	if (vif->type != NL80211_IFTYPE_STATION)
 -- 
 2.34.1
 
