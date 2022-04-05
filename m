@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1121F4F37FE
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:26:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DBCF4F3AEA
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:06:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359816AbiDELU5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:20:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43270 "EHLO
+        id S244873AbiDELt7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:49:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59108 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349264AbiDEJtb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:31 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 974591FA5C;
-        Tue,  5 Apr 2022 02:43:23 -0700 (PDT)
+        with ESMTP id S1356057AbiDEKWu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:22:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C99DAF1E9;
+        Tue,  5 Apr 2022 03:05:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 47A8FB818F3;
-        Tue,  5 Apr 2022 09:43:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE5B9C385A1;
-        Tue,  5 Apr 2022 09:43:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9C14E6167E;
+        Tue,  5 Apr 2022 10:05:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB82CC385A2;
+        Tue,  5 Apr 2022 10:05:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151801;
-        bh=ef63SUoVK6J5b3AlqYjE7V+Dbi7YliJ+HCPpNgIERHw=;
+        s=korg; t=1649153143;
+        bh=68aLZg2k8y7k/NuHYgwWso1X6n6Cr9BCaz8zPh9HeQ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S9KH4zy3y/eZ2AHsmGB3sfOvD9QSwhlO88Sj2ZF/fNfKctX83sTYcLLc0+Jtmbr/8
-         TUzCaCvY8olgWd3HAZbf6XeZPwXOfzMc6zlpE3Y05ZuIP0RdJjFmcyI3QXv9fOikfb
-         Y0+8ga1XFxIVXjxp+y/0FwXsZXhpQpLncy80Bqps=
+        b=d/ApYtfnojLm0fPOSp6NvHaprXjioGcuSxcTM78kLxX3hKcZ+tT5uRDwR4I7hbsHn
+         8jEYcgiL2C3Tp1J8y+Xs/taAHK8XnrZVnUQCf0VCV1zKuog5j6Dj3nZsgt8Kce1FVF
+         G2kErwxHR9KlFTb3nCGTFFjtjr4UcpN4Q5xRv3UI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 547/913] netfilter: flowtable: Fix QinQ and pppoe support for inet table
+        stable@vger.kernel.org,
+        =?UTF-8?q?=D0=9C=D0=B8=D1=85=D0=B0=D0=B8=D0=BB?= 
+        <vrserver1@gmail.com>, Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>
+Subject: [PATCH 5.10 115/599] media: gpio-ir-tx: fix transmit with long spaces on Orange Pi PC
 Date:   Tue,  5 Apr 2022 09:26:49 +0200
-Message-Id: <20220405070356.244976195@linuxfoundation.org>
+Message-Id: <20220405070302.261443204@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070258.802373272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,129 +55,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Sean Young <sean@mess.org>
 
-[ Upstream commit 0492d857636e1c52cd71594a723c4b26a7b31978 ]
+commit 5ad05ecad4326ddaa26a83ba2233a67be24c1aaa upstream.
 
-nf_flow_offload_inet_hook() does not check for 802.1q and PPPoE.
-Fetch inner ethertype from these encapsulation protocols.
+Calling udelay for than 1000us does not always yield the correct
+results.
 
-Fixes: 72efd585f714 ("netfilter: flowtable: add pppoe support")
-Fixes: 4cd91f7c290f ("netfilter: flowtable: add vlan support")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Reported-by: Михаил <vrserver1@gmail.com>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/netfilter/nf_flow_table.h | 18 ++++++++++++++++++
- net/netfilter/nf_flow_table_inet.c    | 17 +++++++++++++++++
- net/netfilter/nf_flow_table_ip.c      | 18 ------------------
- 3 files changed, 35 insertions(+), 18 deletions(-)
+ drivers/media/rc/gpio-ir-tx.c |   28 +++++++++++++++++++++-------
+ 1 file changed, 21 insertions(+), 7 deletions(-)
 
-diff --git a/include/net/netfilter/nf_flow_table.h b/include/net/netfilter/nf_flow_table.h
-index a3647fadf1cc..9f927c44087d 100644
---- a/include/net/netfilter/nf_flow_table.h
-+++ b/include/net/netfilter/nf_flow_table.h
-@@ -10,6 +10,8 @@
- #include <linux/netfilter/nf_conntrack_tuple_common.h>
- #include <net/flow_offload.h>
- #include <net/dst.h>
-+#include <linux/if_pppox.h>
-+#include <linux/ppp_defs.h>
- 
- struct nf_flowtable;
- struct nf_flow_rule;
-@@ -313,4 +315,20 @@ int nf_flow_rule_route_ipv6(struct net *net, const struct flow_offload *flow,
- int nf_flow_table_offload_init(void);
- void nf_flow_table_offload_exit(void);
- 
-+static inline __be16 nf_flow_pppoe_proto(const struct sk_buff *skb)
-+{
-+	__be16 proto;
-+
-+	proto = *((__be16 *)(skb_mac_header(skb) + ETH_HLEN +
-+			     sizeof(struct pppoe_hdr)));
-+	switch (proto) {
-+	case htons(PPP_IP):
-+		return htons(ETH_P_IP);
-+	case htons(PPP_IPV6):
-+		return htons(ETH_P_IPV6);
-+	}
-+
-+	return 0;
-+}
-+
- #endif /* _NF_FLOW_TABLE_H */
-diff --git a/net/netfilter/nf_flow_table_inet.c b/net/netfilter/nf_flow_table_inet.c
-index bc4126d8ef65..280fdd32965f 100644
---- a/net/netfilter/nf_flow_table_inet.c
-+++ b/net/netfilter/nf_flow_table_inet.c
-@@ -6,12 +6,29 @@
- #include <linux/rhashtable.h>
- #include <net/netfilter/nf_flow_table.h>
- #include <net/netfilter/nf_tables.h>
-+#include <linux/if_vlan.h>
- 
- static unsigned int
- nf_flow_offload_inet_hook(void *priv, struct sk_buff *skb,
- 			  const struct nf_hook_state *state)
- {
-+	struct vlan_ethhdr *veth;
-+	__be16 proto;
-+
- 	switch (skb->protocol) {
-+	case htons(ETH_P_8021Q):
-+		veth = (struct vlan_ethhdr *)skb_mac_header(skb);
-+		proto = veth->h_vlan_encapsulated_proto;
-+		break;
-+	case htons(ETH_P_PPP_SES):
-+		proto = nf_flow_pppoe_proto(skb);
-+		break;
-+	default:
-+		proto = skb->protocol;
-+		break;
-+	}
-+
-+	switch (proto) {
- 	case htons(ETH_P_IP):
- 		return nf_flow_offload_ip_hook(priv, skb, state);
- 	case htons(ETH_P_IPV6):
-diff --git a/net/netfilter/nf_flow_table_ip.c b/net/netfilter/nf_flow_table_ip.c
-index 889cf88d3dba..6257d87c3a56 100644
---- a/net/netfilter/nf_flow_table_ip.c
-+++ b/net/netfilter/nf_flow_table_ip.c
-@@ -8,8 +8,6 @@
- #include <linux/ipv6.h>
- #include <linux/netdevice.h>
- #include <linux/if_ether.h>
--#include <linux/if_pppox.h>
--#include <linux/ppp_defs.h>
- #include <net/ip.h>
- #include <net/ipv6.h>
- #include <net/ip6_route.h>
-@@ -239,22 +237,6 @@ static unsigned int nf_flow_xmit_xfrm(struct sk_buff *skb,
- 	return NF_STOLEN;
+--- a/drivers/media/rc/gpio-ir-tx.c
++++ b/drivers/media/rc/gpio-ir-tx.c
+@@ -48,11 +48,29 @@ static int gpio_ir_tx_set_carrier(struct
+ 	return 0;
  }
  
--static inline __be16 nf_flow_pppoe_proto(const struct sk_buff *skb)
--{
--	__be16 proto;
--
--	proto = *((__be16 *)(skb_mac_header(skb) + ETH_HLEN +
--			     sizeof(struct pppoe_hdr)));
--	switch (proto) {
--	case htons(PPP_IP):
--		return htons(ETH_P_IP);
--	case htons(PPP_IPV6):
--		return htons(ETH_P_IPV6);
--	}
--
--	return 0;
--}
--
- static bool nf_flow_skb_encap_protocol(const struct sk_buff *skb, __be16 proto,
- 				       u32 *offset)
++static void delay_until(ktime_t until)
++{
++	/*
++	 * delta should never exceed 0.5 seconds (IR_MAX_DURATION) and on
++	 * m68k ndelay(s64) does not compile; so use s32 rather than s64.
++	 */
++	s32 delta;
++
++	while (true) {
++		delta = ktime_us_delta(until, ktime_get());
++		if (delta <= 0)
++			return;
++
++		/* udelay more than 1ms may not work */
++		delta = min(delta, 1000);
++		udelay(delta);
++	}
++}
++
+ static void gpio_ir_tx_unmodulated(struct gpio_ir *gpio_ir, uint *txbuf,
+ 				   uint count)
  {
--- 
-2.34.1
-
+ 	ktime_t edge;
+-	s32 delta;
+ 	int i;
+ 
+ 	local_irq_disable();
+@@ -63,9 +81,7 @@ static void gpio_ir_tx_unmodulated(struc
+ 		gpiod_set_value(gpio_ir->gpio, !(i % 2));
+ 
+ 		edge = ktime_add_us(edge, txbuf[i]);
+-		delta = ktime_us_delta(edge, ktime_get());
+-		if (delta > 0)
+-			udelay(delta);
++		delay_until(edge);
+ 	}
+ 
+ 	gpiod_set_value(gpio_ir->gpio, 0);
+@@ -97,9 +113,7 @@ static void gpio_ir_tx_modulated(struct
+ 		if (i % 2) {
+ 			// space
+ 			edge = ktime_add_us(edge, txbuf[i]);
+-			delta = ktime_us_delta(edge, ktime_get());
+-			if (delta > 0)
+-				udelay(delta);
++			delay_until(edge);
+ 		} else {
+ 			// pulse
+ 			ktime_t last = ktime_add_us(edge, txbuf[i]);
 
 
