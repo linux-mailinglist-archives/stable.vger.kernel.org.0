@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 207914F2DD5
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:47:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 968F64F2A21
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 12:52:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236504AbiDEI1y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:27:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45378 "EHLO
+        id S241582AbiDEIe1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:34:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43644 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239534AbiDEIUN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:20:13 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B244CF6D;
-        Tue,  5 Apr 2022 01:15:36 -0700 (PDT)
+        with ESMTP id S239466AbiDEIUG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:20:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A08AAC93A;
+        Tue,  5 Apr 2022 01:13:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 549E2B81BAC;
-        Tue,  5 Apr 2022 08:15:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1642C385A0;
-        Tue,  5 Apr 2022 08:15:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DAAC960B0A;
+        Tue,  5 Apr 2022 08:13:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0155C385A0;
+        Tue,  5 Apr 2022 08:13:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146534;
-        bh=yOnrRwd70HwVw1bIn+rMWuD5SkqY4anC+MBl/7166lE=;
+        s=korg; t=1649146432;
+        bh=6tQ1SmCuXGWeuod34frKtsQaqkmflRErCJOG0nxktR4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AHekQ7gk1r/aA+KwJQdv2PVH2I+wLpEJPIxx9bxK2kNCiHr/NNcWC8m5AVnImj4WS
-         NFAAOKL/N/uwwr+5kK+jucfGAjoWUKR2BqgvhiB32EbudtNs2+2kc9O3QxBvF3P+/R
-         OR8/STPbQYqysw0/omhh+izjLPbT8YFD+fcUnvPQ=
+        b=pMfDM2+9AhgObbrFZlj4rNVRbWUDpAscwetchkkgHqMcimQ6A7x7byoy+vL+UwALc
+         ahbKQy+Bpj65POiU/jGTC1UdeNCDFd/PHMx1+qEPwykZe3W3XsJhf2YnWBr0ONu99y
+         pdcbMH9iF/r4efM9FnaPpMG68pJBykVhXYFafm0o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org,
+        Sergio Paracuellos <sergio.paracuellos@gmail.com>,
+        =?UTF-8?q?Ar=C4=B1n=C3=A7=20=C3=9CNAL?= <arinc.unal@arinc9.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0760/1126] clk: tegra: tegra124-emc: Fix missing put_device() call in emc_ensure_emc_driver
-Date:   Tue,  5 Apr 2022 09:25:07 +0200
-Message-Id: <20220405070429.890114874@linuxfoundation.org>
+Subject: [PATCH 5.17 0763/1126] staging: mt7621-dts: fix LEDs and pinctrl on GB-PC1 devicetree
+Date:   Tue,  5 Apr 2022 09:25:10 +0200
+Message-Id: <20220405070429.979017287@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -55,36 +55,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Arınç ÜNAL <arinc.unal@arinc9.com>
 
-[ Upstream commit 6d6ef58c2470da85a99119f74d34216c8074b9f0 ]
+[ Upstream commit 6256e18686158fa49e019297f990f1c1817aabf1 ]
 
-The reference taken by 'of_find_device_by_node()' must be released when
-not needed anymore.
-Add the corresponding 'put_device()' in the error handling path.
+Fix LED and pinctrl definitions on the GB-PC1 devicetree. Refer to the
+schematics of the device for more information.
 
-Fixes: 2db04f16b589 ("clk: tegra: Add EMC clock driver")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Acked-by: Thierry Reding <treding@nvidia.com>
-Link: https://lore.kernel.org/r/20220112104501.30655-1-linmq006@gmail.com
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+LED fixes:
+- Change GPIO6 LED label from system to power as GPIO6 is connected to
+PLED.
+- Add default-on default-trigger to power LED.
+- Change GPIO8 LED label from status to system as GPIO8 is connected to
+SYS_LED.
+- Add disk-activity default-trigger to system LED.
+- Switch to the color:function naming scheme.
+- Remove lan1 and lan2 LEDs as they don't exist.
+
+Pinctrl fixes:
+- Claim state_default node under pinctrl node.
+- Change pinctrl0 node name to state-default.
+- Change gpio node name to gpio-pinmux to respect
+Documentation/devicetree/bindings/pinctrl/ralink,rt2880-pinmux.yaml.
+- Sort pin groups alphabetically.
+
+Misc fixes:
+- Fix formatting.
+- Use the status value "okay".
+- Define hexadecimal addresses in lower case.
+- Make hexadecimal addresses for memory easier to read.
+
+Link: https://github.com/ngiger/GnuBee_Docs/blob/master/GB-PCx/Documents/GB-PC1_V1.0_Schematic.pdf
+Tested-by: Sergio Paracuellos <sergio.paracuellos@gmail.com>
+Signed-off-by: Arınç ÜNAL <arinc.unal@arinc9.com>
+Link: https://lore.kernel.org/r/20220311090320.3068-1-arinc.unal@arinc9.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/tegra/clk-tegra124-emc.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/staging/mt7621-dts/gbpc1.dts | 40 +++++++++++++---------------
+ 1 file changed, 18 insertions(+), 22 deletions(-)
 
-diff --git a/drivers/clk/tegra/clk-tegra124-emc.c b/drivers/clk/tegra/clk-tegra124-emc.c
-index 74c1d894cca8..219c80653dbd 100644
---- a/drivers/clk/tegra/clk-tegra124-emc.c
-+++ b/drivers/clk/tegra/clk-tegra124-emc.c
-@@ -198,6 +198,7 @@ static struct tegra_emc *emc_ensure_emc_driver(struct tegra_clk_emc *tegra)
+diff --git a/drivers/staging/mt7621-dts/gbpc1.dts b/drivers/staging/mt7621-dts/gbpc1.dts
+index e38a083811e5..5ae94b1ad599 100644
+--- a/drivers/staging/mt7621-dts/gbpc1.dts
++++ b/drivers/staging/mt7621-dts/gbpc1.dts
+@@ -12,7 +12,8 @@
  
- 	tegra->emc = platform_get_drvdata(pdev);
- 	if (!tegra->emc) {
-+		put_device(&pdev->dev);
- 		pr_err("%s: cannot find EMC driver\n", __func__);
- 		return NULL;
- 	}
+ 	memory@0 {
+ 		device_type = "memory";
+-		reg = <0x0 0x1c000000>, <0x20000000 0x4000000>;
++		reg = <0x00000000 0x1c000000>,
++		      <0x20000000 0x04000000>;
+ 	};
+ 
+ 	chosen {
+@@ -38,24 +39,16 @@
+ 	gpio-leds {
+ 		compatible = "gpio-leds";
+ 
+-		system {
+-			label = "gb-pc1:green:system";
++		power {
++			label = "green:power";
+ 			gpios = <&gpio 6 GPIO_ACTIVE_LOW>;
++			linux,default-trigger = "default-on";
+ 		};
+ 
+-		status {
+-			label = "gb-pc1:green:status";
++		system {
++			label = "green:system";
+ 			gpios = <&gpio 8 GPIO_ACTIVE_LOW>;
+-		};
+-
+-		lan1 {
+-			label = "gb-pc1:green:lan1";
+-			gpios = <&gpio 24 GPIO_ACTIVE_LOW>;
+-		};
+-
+-		lan2 {
+-			label = "gb-pc1:green:lan2";
+-			gpios = <&gpio 25 GPIO_ACTIVE_LOW>;
++			linux,default-trigger = "disk-activity";
+ 		};
+ 	};
+ };
+@@ -95,9 +88,8 @@
+ 
+ 		partition@50000 {
+ 			label = "firmware";
+-			reg = <0x50000 0x1FB0000>;
++			reg = <0x50000 0x1fb0000>;
+ 		};
+-
+ 	};
+ };
+ 
+@@ -106,9 +98,12 @@
+ };
+ 
+ &pinctrl {
+-	state_default: pinctrl0 {
+-		default_gpio: gpio {
+-			groups = "wdt", "rgmii2", "uart3";
++	pinctrl-names = "default";
++	pinctrl-0 = <&state_default>;
++
++	state_default: state-default {
++		gpio-pinmux {
++			groups = "rgmii2", "uart3", "wdt";
+ 			function = "gpio";
+ 		};
+ 	};
+@@ -117,12 +112,13 @@
+ &switch0 {
+ 	ports {
+ 		port@0 {
++			status = "okay";
+ 			label = "ethblack";
+-			status = "ok";
+ 		};
++
+ 		port@4 {
++			status = "okay";
+ 			label = "ethblue";
+-			status = "ok";
+ 		};
+ 	};
+ };
 -- 
 2.34.1
 
