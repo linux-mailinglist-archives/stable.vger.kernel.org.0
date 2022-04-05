@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 319FE4F31E7
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:53:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CE954F2EED
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:05:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245179AbiDEIyN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:54:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46072 "EHLO
+        id S1353794AbiDEKJX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:09:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42508 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241083AbiDEIcs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:32:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 843BA13E0E;
-        Tue,  5 Apr 2022 01:27:03 -0700 (PDT)
+        with ESMTP id S1345660AbiDEJWz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:22:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B1C0506CA;
+        Tue,  5 Apr 2022 02:11:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3B80BB81BAF;
-        Tue,  5 Apr 2022 08:27:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84378C385A1;
-        Tue,  5 Apr 2022 08:27:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D09CF615E4;
+        Tue,  5 Apr 2022 09:11:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E74F1C385A2;
+        Tue,  5 Apr 2022 09:11:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147220;
-        bh=a+MHGXrE9l2xWYFXD1289kkTt6Go+YOma3QrXK/HrhQ=;
+        s=korg; t=1649149893;
+        bh=cmQjIDOiyu6i0WOxV+vP3qJn8wa2woRKYCESBKH7hvg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LvWz8lhIzwWDibMB/5UZGram6pDjs9ty1dEGKbQPrpCGK/2Z7ud+kVkJC6BiLQTdE
-         AKZntRAsY+4x5468KydUAEEiJlNz6llisr/PM+uxW9ntXbitSVbsi6HrksYVQnJEZ1
-         0KoWZl9EDTiaejxCu11rak7DRUER7Ko3HQtRvgsI=
+        b=FE5HcRJslkZg+oi3VoErQLv7pWfbxjbKn+EKaTymJKnMiKhtQJn/ajNNfAnzHFqDe
+         qVX7srfTob7oE88LZxnSOL52Fpuwe5hCKdfBAFZsLSSWYrBEOdWBavdlT6KhKtmLzH
+         970fII7aZp22xmDTJ/9wdDdE4bMWrl5yxMok7M78=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Richard Weinberger <richard@nod.at>
-Subject: [PATCH 5.17 1006/1126] ubifs: Add missing iput if do_tmpfile() failed in rename whiteout
-Date:   Tue,  5 Apr 2022 09:29:13 +0200
-Message-Id: <20220405070437.019195110@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>, Arnd Bergmann <arnd@arndb.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0841/1017] ARM: mmp: Fix failure to remove sram device
+Date:   Tue,  5 Apr 2022 09:29:14 +0200
+Message-Id: <20220405070419.204610040@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,35 +55,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-commit 716b4573026bcbfa7b58ed19fe15554bac66b082 upstream.
+[ Upstream commit 4036b29a146b2749af3bb213b003eb69f3e5ecc4 ]
 
-whiteout inode should be put when do_tmpfile() failed if inode has been
-initialized. Otherwise we will get following warning during umount:
-  UBIFS error (ubi0:0 pid 1494): ubifs_assert_failed [ubifs]: UBIFS
-  assert failed: c->bi.dd_growth == 0, in fs/ubifs/super.c:1930
-  VFS: Busy inodes after unmount of ubifs. Self-destruct in 5 seconds.
+Make sure in .probe() to set driver data before the function is left to
+make it possible in .remove() to undo the actions done.
 
-Fixes: 9e0a1fff8db56ea ("ubifs: Implement RENAME_WHITEOUT")
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Suggested-by: Sascha Hauer <s.hauer@pengutronix.de>
-Signed-off-by: Richard Weinberger <richard@nod.at>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This fixes a potential memory leak and stops returning an error code in
+.remove() that is ignored by the driver core anyhow.
+
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ubifs/dir.c |    2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm/mach-mmp/sram.c | 22 ++++++++++++----------
+ 1 file changed, 12 insertions(+), 10 deletions(-)
 
---- a/fs/ubifs/dir.c
-+++ b/fs/ubifs/dir.c
-@@ -432,6 +432,8 @@ out_inode:
- 	make_bad_inode(inode);
- 	if (!instantiated)
- 		iput(inode);
-+	else if (whiteout)
-+		iput(*whiteout);
- out_budg:
- 	ubifs_release_budget(c, &req);
- 	if (!instantiated)
+diff --git a/arch/arm/mach-mmp/sram.c b/arch/arm/mach-mmp/sram.c
+index 6794e2db1ad5..ecc46c31004f 100644
+--- a/arch/arm/mach-mmp/sram.c
++++ b/arch/arm/mach-mmp/sram.c
+@@ -72,6 +72,8 @@ static int sram_probe(struct platform_device *pdev)
+ 	if (!info)
+ 		return -ENOMEM;
+ 
++	platform_set_drvdata(pdev, info);
++
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	if (res == NULL) {
+ 		dev_err(&pdev->dev, "no memory resource defined\n");
+@@ -107,8 +109,6 @@ static int sram_probe(struct platform_device *pdev)
+ 	list_add(&info->node, &sram_bank_list);
+ 	mutex_unlock(&sram_lock);
+ 
+-	platform_set_drvdata(pdev, info);
+-
+ 	dev_info(&pdev->dev, "initialized\n");
+ 	return 0;
+ 
+@@ -127,17 +127,19 @@ static int sram_remove(struct platform_device *pdev)
+ 	struct sram_bank_info *info;
+ 
+ 	info = platform_get_drvdata(pdev);
+-	if (info == NULL)
+-		return -ENODEV;
+ 
+-	mutex_lock(&sram_lock);
+-	list_del(&info->node);
+-	mutex_unlock(&sram_lock);
++	if (info->sram_size) {
++		mutex_lock(&sram_lock);
++		list_del(&info->node);
++		mutex_unlock(&sram_lock);
++
++		gen_pool_destroy(info->gpool);
++		iounmap(info->sram_virt);
++		kfree(info->pool_name);
++	}
+ 
+-	gen_pool_destroy(info->gpool);
+-	iounmap(info->sram_virt);
+-	kfree(info->pool_name);
+ 	kfree(info);
++
+ 	return 0;
+ }
+ 
+-- 
+2.34.1
+
 
 
