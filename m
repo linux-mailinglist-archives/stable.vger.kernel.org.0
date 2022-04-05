@@ -2,48 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A16D4F2D05
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:35:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF13E4F2C1C
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:22:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347455AbiDEJ0k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:26:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52326 "EHLO
+        id S245403AbiDEIze (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:55:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56776 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245091AbiDEIxM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:53:12 -0400
+        with ESMTP id S237548AbiDEISG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:18:06 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 309BC188;
-        Tue,  5 Apr 2022 01:51:14 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4AA46A421;
+        Tue,  5 Apr 2022 01:06:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AE7A6614FD;
-        Tue,  5 Apr 2022 08:51:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B877BC385A1;
-        Tue,  5 Apr 2022 08:51:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 81012617F0;
+        Tue,  5 Apr 2022 08:06:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D7F1C385A0;
+        Tue,  5 Apr 2022 08:06:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148673;
-        bh=HxPvGO4i6YQI4tsd97xYSdxadOmMIE2y4ja5TyeJoRo=;
+        s=korg; t=1649146005;
+        bh=xSXEUYgzxQ6dCPr/F/TUohTuCLEdahAXG9X8b46p8Eg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XhtfI8x39WFEd7LQfuJAMeQl6Yiy8iAnZRC3MOG8twJ+M7E0fXYGGq0lfuS7HtZhC
-         Psx17R0mZ6jSFuh9H7Vyk+DR797UuNhI10+fCSDFVFTWvHCCons8YpCHX1Xk0rdBT8
-         7POfFJdw1JnYjKjOu0xl2W9Kzko4J/zv0pzT0B3w=
+        b=fGPFWY0h4jX62uMFqkuabsAV5HpkGU9bHqSPLND9331VUWbVLSEwNZwgWJSfYisSP
+         1S/3KOoVxQYU31/hG0mtXcJXA3x47pPyFs4TywVo/jtNshEXlI1Ma3hSBtzKuP+foN
+         50eMaXyAAvLdwMNrCbjWcrbidp/72lG+AGa9f+Vg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jesper Dangaard Brouer <brouer@redhat.com>,
-        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
-        Alexander Lobakin <alexandr.lobakin@intel.com>,
-        Michal Swiatkowski <michal.swiatkowski@linux.intel.com>,
-        Kiran Bhandare <kiranx.bhandare@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Yihang Li <liyihang6@hisilicon.com>,
+        Xiang Chen <chenxiang66@hisilicon.com>,
+        John Garry <john.garry@huawei.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0441/1017] ice: respect metadata on XSK Rx to skb
-Date:   Tue,  5 Apr 2022 09:22:34 +0200
-Message-Id: <20220405070407.385524288@linuxfoundation.org>
+Subject: [PATCH 5.17 0608/1126] scsi: hisi_sas: Change permission of parameter prot_mask
+Date:   Tue,  5 Apr 2022 09:22:35 +0200
+Message-Id: <20220405070425.480902281@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,65 +56,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Lobakin <alexandr.lobakin@intel.com>
+From: Xiang Chen <chenxiang66@hisilicon.com>
 
-[ Upstream commit 45a34ca68070e34e09d5bf4309f7f1f286a27fc7 ]
+[ Upstream commit c4e070457a93705e56ed06b3910d9e5fe56d3be3 ]
 
-For now, if the XDP prog returns XDP_PASS on XSK, the metadata will
-be lost as it doesn't get copied to the skb.
+Currently the permission of parameter prot_mask is 0x0, which means that
+the member does not appear in sysfs. Change it as other module parameters
+to 0444 for world-readable.
 
-Copy it along with the frame headers. Account its size on skb
-allocation, and when copying just treat it as a part of the frame
-and do a pull after to "move" it to the "reserved" zone.
+[mkp: s/v3/v2/]
 
-net_prefetch() xdp->data_meta and align the copy size to speed-up
-memcpy() a little and better match ice_construct_skb().
-
-Fixes: 2d4238f55697 ("ice: Add support for AF_XDP")
-Suggested-by: Jesper Dangaard Brouer <brouer@redhat.com>
-Suggested-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
-Signed-off-by: Alexander Lobakin <alexandr.lobakin@intel.com>
-Reviewed-by: Michal Swiatkowski <michal.swiatkowski@linux.intel.com>
-Tested-by: Kiran Bhandare <kiranx.bhandare@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Link: https://lore.kernel.org/r/1645703489-87194-2-git-send-email-john.garry@huawei.com
+Fixes: d6a9000b81be ("scsi: hisi_sas: Add support for DIF feature for v2 hw")
+Reported-by: Yihang Li <liyihang6@hisilicon.com>
+Signed-off-by: Xiang Chen <chenxiang66@hisilicon.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_xsk.c | 14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ drivers/scsi/hisi_sas/hisi_sas_v3_hw.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_xsk.c b/drivers/net/ethernet/intel/ice/ice_xsk.c
-index a2c79431afd8..ac97cf3c5804 100644
---- a/drivers/net/ethernet/intel/ice/ice_xsk.c
-+++ b/drivers/net/ethernet/intel/ice/ice_xsk.c
-@@ -428,18 +428,24 @@ static void ice_bump_ntc(struct ice_rx_ring *rx_ring)
- static struct sk_buff *
- ice_construct_skb_zc(struct ice_rx_ring *rx_ring, struct xdp_buff *xdp)
- {
-+	unsigned int totalsize = xdp->data_end - xdp->data_meta;
- 	unsigned int metasize = xdp->data - xdp->data_meta;
--	unsigned int datasize = xdp->data_end - xdp->data;
- 	struct sk_buff *skb;
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+index a01a3a7b706b..70173389f6eb 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+@@ -530,7 +530,7 @@ MODULE_PARM_DESC(intr_conv, "interrupt converge enable (0-1)");
  
--	skb = __napi_alloc_skb(&rx_ring->q_vector->napi, datasize,
-+	net_prefetch(xdp->data_meta);
-+
-+	skb = __napi_alloc_skb(&rx_ring->q_vector->napi, totalsize,
- 			       GFP_ATOMIC | __GFP_NOWARN);
- 	if (unlikely(!skb))
- 		return NULL;
+ /* permit overriding the host protection capabilities mask (EEDP/T10 PI) */
+ static int prot_mask;
+-module_param(prot_mask, int, 0);
++module_param(prot_mask, int, 0444);
+ MODULE_PARM_DESC(prot_mask, " host protection capabilities mask, def=0x0 ");
  
--	memcpy(__skb_put(skb, datasize), xdp->data, datasize);
--	if (metasize)
-+	memcpy(__skb_put(skb, totalsize), xdp->data_meta,
-+	       ALIGN(totalsize, sizeof(long)));
-+
-+	if (metasize) {
- 		skb_metadata_set(skb, metasize);
-+		__skb_pull(skb, metasize);
-+	}
- 
- 	xsk_buff_free(xdp);
- 	return skb;
+ static void debugfs_work_handler_v3_hw(struct work_struct *work);
 -- 
 2.34.1
 
