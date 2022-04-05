@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B8484F36D4
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:09:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF1174F36D3
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:09:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352385AbiDELIJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:08:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47462 "EHLO
+        id S1352377AbiDELIH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:08:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39398 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348781AbiDEJsf (ORCPT
+        with ESMTP id S1348782AbiDEJsf (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:48:35 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CC7370073;
-        Tue,  5 Apr 2022 02:35:11 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3256473058;
+        Tue,  5 Apr 2022 02:35:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E6814B81B93;
-        Tue,  5 Apr 2022 09:35:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52BFDC385A3;
-        Tue,  5 Apr 2022 09:35:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B7E2361675;
+        Tue,  5 Apr 2022 09:35:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C709CC385A2;
+        Tue,  5 Apr 2022 09:35:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151308;
-        bh=5xwjSXGcSyCL53TkO5UFu25SunMdXeXVvL0B5LJR5IY=;
+        s=korg; t=1649151314;
+        bh=xn5XjbNCQIGn7W+2fCIddx6tTuzdQS5XIwMYVgOCU0w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IbiE9Rjd4YmMVqDbLIf8KSl+9Ifyu9aKdgFzgbd4h9buydjqG+T6BHxBDm2tkPox6
-         rLc7DfwXMA/ROs4yQaPdXjM184lq4Tm7EnmVrk8ACduKyAH3vIFUWlFwj0LkRTqSYv
-         p637+by1cuWTj/5cBSJxQBjFL8P2wdJ231cv8oTI=
+        b=0IuXw6qZSsdnSt6iEWypFIfgh4DLwnFserwqf3NgZBHDTIAdWvDHYmTw7EetC0zSr
+         DrJj2295IN8xS3QwqJtg4fZyxoToYsgZi2B9wMd86Hhxwezs3rI2/LMkrgZY+6WojN
+         hR7OJKlVx/v/P9dDa5lc4WZMQvqwnIHx1Fh/Iqyo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chun-Jie Chen <chun-jie.chen@mediatek.com>,
-        Chen-Yu Tsai <wenst@chromium.org>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
+        stable@vger.kernel.org, Aswath Govindraju <a-govindraju@ti.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 331/913] soc: mediatek: pm-domains: Add wakeup capacity support in power domain
-Date:   Tue,  5 Apr 2022 09:23:13 +0200
-Message-Id: <20220405070349.770943782@linuxfoundation.org>
+Subject: [PATCH 5.15 332/913] mmc: sdhci_am654: Fix the driver data of AM64 SoC
+Date:   Tue,  5 Apr 2022 09:23:14 +0200
+Message-Id: <20220405070349.800417908@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -57,38 +54,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chun-Jie Chen <chun-jie.chen@mediatek.com>
+From: Aswath Govindraju <a-govindraju@ti.com>
 
-[ Upstream commit ac0ca395543af061f7ad77afcda0afb323d82468 ]
+[ Upstream commit 3b7340f1c89cc488e4df0b033bf7ae502ebbf5b2 ]
 
-Due to some power domain needs to keep on for wakeup in system suspend,
-so add GENPD_FLAG_ACTIVE_WAKEUP support in Mediatek power domain driver.
+The MMCSD IPs used in AM64 are the same as the ones used in J721E.
+Therefore, fix this by using the driver data from J721E for AM64 too, for
+both 8 and 4 bit instances.
 
-Fixes: 59b644b01cf4 ("soc: mediatek: Add MediaTek SCPSYS power domains")
-Signed-off-by: Chun-Jie Chen <chun-jie.chen@mediatek.com>
-Reviewed-by: Chen-Yu Tsai <wenst@chromium.org>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Link: https://lore.kernel.org/r/20220130012104.5292-3-chun-jie.chen@mediatek.com
-Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
+Fixes: 754b7f2f7d2a ("mmc: sdhci_am654: Add Support for TI's AM64 SoC")
+Signed-off-by: Aswath Govindraju <a-govindraju@ti.com>
+Link: https://lore.kernel.org/r/20220211075056.26179-1-a-govindraju@ti.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/mediatek/mtk-pm-domains.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/mmc/host/sdhci_am654.c | 24 ++----------------------
+ 1 file changed, 2 insertions(+), 22 deletions(-)
 
-diff --git a/drivers/soc/mediatek/mtk-pm-domains.c b/drivers/soc/mediatek/mtk-pm-domains.c
-index b762bc40f56b..afd2fd74802d 100644
---- a/drivers/soc/mediatek/mtk-pm-domains.c
-+++ b/drivers/soc/mediatek/mtk-pm-domains.c
-@@ -443,6 +443,9 @@ generic_pm_domain *scpsys_add_one_domain(struct scpsys *scpsys, struct device_no
- 	pd->genpd.power_off = scpsys_power_off;
- 	pd->genpd.power_on = scpsys_power_on;
+diff --git a/drivers/mmc/host/sdhci_am654.c b/drivers/mmc/host/sdhci_am654.c
+index f654afbe8e83..b4891bb26648 100644
+--- a/drivers/mmc/host/sdhci_am654.c
++++ b/drivers/mmc/host/sdhci_am654.c
+@@ -514,26 +514,6 @@ static const struct sdhci_am654_driver_data sdhci_j721e_4bit_drvdata = {
+ 	.flags = IOMUX_PRESENT,
+ };
  
-+	if (MTK_SCPD_CAPS(pd, MTK_SCPD_ACTIVE_WAKEUP))
-+		pd->genpd.flags |= GENPD_FLAG_ACTIVE_WAKEUP;
-+
- 	if (MTK_SCPD_CAPS(pd, MTK_SCPD_KEEP_DEFAULT_OFF))
- 		pm_genpd_init(&pd->genpd, NULL, true);
- 	else
+-static const struct sdhci_pltfm_data sdhci_am64_8bit_pdata = {
+-	.ops = &sdhci_j721e_8bit_ops,
+-	.quirks2 = SDHCI_QUIRK2_PRESET_VALUE_BROKEN,
+-};
+-
+-static const struct sdhci_am654_driver_data sdhci_am64_8bit_drvdata = {
+-	.pdata = &sdhci_am64_8bit_pdata,
+-	.flags = DLL_PRESENT | DLL_CALIB,
+-};
+-
+-static const struct sdhci_pltfm_data sdhci_am64_4bit_pdata = {
+-	.ops = &sdhci_j721e_4bit_ops,
+-	.quirks2 = SDHCI_QUIRK2_PRESET_VALUE_BROKEN,
+-};
+-
+-static const struct sdhci_am654_driver_data sdhci_am64_4bit_drvdata = {
+-	.pdata = &sdhci_am64_4bit_pdata,
+-	.flags = IOMUX_PRESENT,
+-};
+-
+ static const struct soc_device_attribute sdhci_am654_devices[] = {
+ 	{ .family = "AM65X",
+ 	  .revision = "SR1.0",
+@@ -759,11 +739,11 @@ static const struct of_device_id sdhci_am654_of_match[] = {
+ 	},
+ 	{
+ 		.compatible = "ti,am64-sdhci-8bit",
+-		.data = &sdhci_am64_8bit_drvdata,
++		.data = &sdhci_j721e_8bit_drvdata,
+ 	},
+ 	{
+ 		.compatible = "ti,am64-sdhci-4bit",
+-		.data = &sdhci_am64_4bit_drvdata,
++		.data = &sdhci_j721e_4bit_drvdata,
+ 	},
+ 	{ /* sentinel */ }
+ };
 -- 
 2.34.1
 
