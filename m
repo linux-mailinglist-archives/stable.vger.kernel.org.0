@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E9C94F3932
+	by mail.lfdr.de (Postfix) with ESMTP id 8A6914F3933
 	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:45:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377699AbiDELaS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:30:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60978 "EHLO
+        id S1377707AbiDELaU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:30:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352608AbiDEKEr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:04:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCE5FBB905;
-        Tue,  5 Apr 2022 02:53:31 -0700 (PDT)
+        with ESMTP id S1352622AbiDEKEs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:04:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F728BB90C;
+        Tue,  5 Apr 2022 02:53:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 72B18B81B75;
-        Tue,  5 Apr 2022 09:53:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4ECFC385A2;
-        Tue,  5 Apr 2022 09:53:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7AEA161753;
+        Tue,  5 Apr 2022 09:53:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A63FC385A7;
+        Tue,  5 Apr 2022 09:53:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152409;
-        bh=w2Xf9GEivdqIvsKCrbOSWWIVqMoFrXkYI9J7Vz0cuCA=;
+        s=korg; t=1649152411;
+        bh=jpH1FFqHwA9Rcvx435BbU8+Ijry2x5lxT/g9E4on9Sg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gzEF4JQsYxfcEhzaUIGfrKFuK9vsBgb2W8Zb3GiUhV5imEbH32sZmHtAaUM9h3NCI
-         JGKxMximPalTDvf+OOfLUrtv/BbuWrk5W1PvOdrcCDB4Kf0LWEp/TC7SHWc9r4NTsG
-         J1LNUQB0HsxNbeuOnS6jrxr83dFdQlBsw9HmEFuU=
+        b=cJHXco2KhevIGCYiGI678m2ahclYGaRLGohEF9q+zhFekWNU//6WVn8ATkDpCJjo0
+         DEniOQOu9Va7+cUOy5516yL0viLhrVIqMU3KulwSUYsSSb0fdKMTYc2faboGOWpyVE
+         hRkeZw3peyCePw0XiS0kpKp7bH1qcPTi6+uCpSrA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ritesh Harjani <riteshh@linux.ibm.com>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        stable@vger.kernel.org, Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 766/913] tracing: Have TRACE_DEFINE_ENUM affect trace event types as well
-Date:   Tue,  5 Apr 2022 09:30:28 +0200
-Message-Id: <20220405070402.793652822@linuxfoundation.org>
+Subject: [PATCH 5.15 767/913] mmc: host: Return an error when ->enable_sdio_irq() ops is missing
+Date:   Tue,  5 Apr 2022 09:30:29 +0200
+Message-Id: <20220405070402.823510866@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -54,81 +53,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (Google) <rostedt@goodmis.org>
+From: Ulf Hansson <ulf.hansson@linaro.org>
 
-[ Upstream commit b3bc8547d3be60898818885f5bf22d0a62e2eb48 ]
+[ Upstream commit d6c9219ca1139b74541b2a98cee47a3426d754a9 ]
 
-The macro TRACE_DEFINE_ENUM is used to convert enums in the kernel to
-their actual value when they are exported to user space via the trace
-event format file.
+Even if the current WARN() notifies the user that something is severely
+wrong, we can still end up in a PANIC() when trying to invoke the missing
+->enable_sdio_irq() ops. Therefore, let's also return an error code and
+prevent the host from being added.
 
-Currently only the enums in the "print fmt" (TP_printk in the TRACE_EVENT
-macro) have the enums converted. But the enums can be used to denote array
-size:
+While at it, move the code into a separate function to prepare for
+subsequent changes and for further host caps validations.
 
-        field:unsigned int fc_ineligible_rc[EXT4_FC_REASON_MAX]; offset:12;      size:36;        signed:0;
-
-The EXT4_FC_REASON_MAX has no meaning to userspace but it needs to know
-that information to know how to parse the array.
-
-Have the array indexes also be parsed as well.
-
-Link: https://lore.kernel.org/all/cover.1646922487.git.riteshh@linux.ibm.com/
-
-Reported-by: Ritesh Harjani <riteshh@linux.ibm.com>
-Tested-by: Ritesh Harjani <riteshh@linux.ibm.com>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Link: https://lore.kernel.org/r/20220303165142.129745-1-ulf.hansson@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace_events.c | 28 ++++++++++++++++++++++++++++
- 1 file changed, 28 insertions(+)
+ drivers/mmc/core/host.c | 15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/trace/trace_events.c b/kernel/trace/trace_events.c
-index dd17171829d6..b35a66a8e7ce 100644
---- a/kernel/trace/trace_events.c
-+++ b/kernel/trace/trace_events.c
-@@ -2637,6 +2637,33 @@ static void update_event_printk(struct trace_event_call *call,
- 	}
- }
+diff --git a/drivers/mmc/core/host.c b/drivers/mmc/core/host.c
+index cf140f4ec864..d739e2b631fe 100644
+--- a/drivers/mmc/core/host.c
++++ b/drivers/mmc/core/host.c
+@@ -588,6 +588,16 @@ struct mmc_host *mmc_alloc_host(int extra, struct device *dev)
  
-+static void update_event_fields(struct trace_event_call *call,
-+				struct trace_eval_map *map)
+ EXPORT_SYMBOL(mmc_alloc_host);
+ 
++static int mmc_validate_host_caps(struct mmc_host *host)
 +{
-+	struct ftrace_event_field *field;
-+	struct list_head *head;
-+	char *ptr;
-+	int len = strlen(map->eval_string);
-+
-+	head = trace_get_fields(call);
-+	list_for_each_entry(field, head, link) {
-+		ptr = strchr(field->type, '[');
-+		if (!ptr)
-+			continue;
-+		ptr++;
-+
-+		if (!isalpha(*ptr) && *ptr != '_')
-+			continue;
-+
-+		if (strncmp(map->eval_string, ptr, len) != 0)
-+			continue;
-+
-+		ptr = eval_replace(ptr, map, len);
-+		/* enum/sizeof string smaller than value */
-+		WARN_ON_ONCE(!ptr);
++	if (host->caps & MMC_CAP_SDIO_IRQ && !host->ops->enable_sdio_irq) {
++		dev_warn(host->parent, "missing ->enable_sdio_irq() ops\n");
++		return -EINVAL;
 +	}
++
++	return 0;
 +}
 +
- void trace_event_eval_update(struct trace_eval_map **map, int len)
+ /**
+  *	mmc_add_host - initialise host hardware
+  *	@host: mmc host
+@@ -600,8 +610,9 @@ int mmc_add_host(struct mmc_host *host)
  {
- 	struct trace_event_call *call, *p;
-@@ -2672,6 +2699,7 @@ void trace_event_eval_update(struct trace_eval_map **map, int len)
- 					first = false;
- 				}
- 				update_event_printk(call, map[i]);
-+				update_event_fields(call, map[i]);
- 			}
- 		}
- 	}
+ 	int err;
+ 
+-	WARN_ON((host->caps & MMC_CAP_SDIO_IRQ) &&
+-		!host->ops->enable_sdio_irq);
++	err = mmc_validate_host_caps(host);
++	if (err)
++		return err;
+ 
+ 	err = device_add(&host->class_dev);
+ 	if (err)
 -- 
 2.34.1
 
