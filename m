@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AA0D4F2C66
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:30:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 29F234F2A95
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:04:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350218AbiDEJ43 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:56:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41500 "EHLO
+        id S235815AbiDEI1F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:27:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43750 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242968AbiDEJId (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:08:33 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F05B6237D1;
-        Tue,  5 Apr 2022 01:57:25 -0700 (PDT)
+        with ESMTP id S239413AbiDEIUD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:20:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2495A6E376;
+        Tue,  5 Apr 2022 01:12:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 526C4B81C6A;
-        Tue,  5 Apr 2022 08:57:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AA0AC385D2;
-        Tue,  5 Apr 2022 08:57:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B3DCE609D0;
+        Tue,  5 Apr 2022 08:12:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6A5CC385A1;
+        Tue,  5 Apr 2022 08:12:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149043;
-        bh=4Z7OG637obt/kTnxZAjMu/EsUqkHgVZXwfQFr9p7fyE=;
+        s=korg; t=1649146369;
+        bh=LJJehfXe2pxzDjwyzAOhqxPzhzKLcJEjYz+g1v9YVeQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vnWMqpeTbMSYmL23bKeKYyfV4CWPw1DZsw0KvBZdmYBYaCYPYfQsPaMYQkt3/f+hS
-         y5RgE3/XVCMSNE6OC5MOEniHXJ0P1hKfB6flL2xgGQSCDgUROLcLU6SYCegxzb+p5p
-         etPjclf/8k3nEcUKKp28eknC9ZwHu2QBWW6AFp04=
+        b=IFin/vo9uwu+WTKIxeav1bEbfXJjS+GFiHjB0AXItubJSt/KX2ooaZenYGYfO+UPE
+         CnW8dLRK+9+/LHMttzOHH4KnzfHdZ9NLZGGjOPkdBc0BENGdM3jVjpEJOAW1xEwjFd
+         V887ybRtkS26mjM5ojloLON2bBYgxUbCQdGdrb0A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yajun Deng <yajun.deng@linux.dev>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Oded Gabbay <ogabbay@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0573/1017] RDMA/core: Fix ib_qp_usecnt_dec() called when error
+Subject: [PATCH 5.17 0739/1126] habanalabs: Add check for pci_enable_device
 Date:   Tue,  5 Apr 2022 09:24:46 +0200
-Message-Id: <20220405070411.288282114@linuxfoundation.org>
+Message-Id: <20220405070429.278835914@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,72 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yajun Deng <yajun.deng@linux.dev>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit 7c4a539ec38f4ce400a0f3fcb5ff6c940fcd67bb ]
+[ Upstream commit 9c27896ac1bb83ea5c461ce6f7089d02102a2b21 ]
 
-ib_destroy_qp() would called by ib_create_qp_user() if error, the former
-contains ib_qp_usecnt_dec(), but ib_qp_usecnt_inc() was not called before.
+As the potential failure of the pci_enable_device(),
+it should be better to check the return value and return
+error if fails.
 
-So move ib_qp_usecnt_inc() into create_qp().
-
-Fixes: d2b10794fc13 ("RDMA/core: Create clean QP creations interface for uverbs")
-Link: https://lore.kernel.org/r/20220303024232.2847388-1-yajun.deng@linux.dev
-Signed-off-by: Yajun Deng <yajun.deng@linux.dev>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: 70b2f993ea4a ("habanalabs: create common folder")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Reviewed-by: Oded Gabbay <ogabbay@kernel.org>
+Signed-off-by: Oded Gabbay <ogabbay@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/uverbs_cmd.c          | 1 -
- drivers/infiniband/core/uverbs_std_types_qp.c | 1 -
- drivers/infiniband/core/verbs.c               | 3 +--
- 3 files changed, 1 insertion(+), 4 deletions(-)
+ drivers/misc/habanalabs/common/debugfs.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/infiniband/core/uverbs_cmd.c b/drivers/infiniband/core/uverbs_cmd.c
-index d1345d76d9b1..5a99e31df5f5 100644
---- a/drivers/infiniband/core/uverbs_cmd.c
-+++ b/drivers/infiniband/core/uverbs_cmd.c
-@@ -1438,7 +1438,6 @@ static int create_qp(struct uverbs_attr_bundle *attrs,
- 		ret = PTR_ERR(qp);
- 		goto err_put;
- 	}
--	ib_qp_usecnt_inc(qp);
- 
- 	obj->uevent.uobject.object = qp;
- 	obj->uevent.event_file = READ_ONCE(attrs->ufile->default_async_file);
-diff --git a/drivers/infiniband/core/uverbs_std_types_qp.c b/drivers/infiniband/core/uverbs_std_types_qp.c
-index dd1075466f61..75353e09c6fe 100644
---- a/drivers/infiniband/core/uverbs_std_types_qp.c
-+++ b/drivers/infiniband/core/uverbs_std_types_qp.c
-@@ -254,7 +254,6 @@ static int UVERBS_HANDLER(UVERBS_METHOD_QP_CREATE)(
- 		ret = PTR_ERR(qp);
- 		goto err_put;
- 	}
--	ib_qp_usecnt_inc(qp);
- 
- 	if (attr.qp_type == IB_QPT_XRC_TGT) {
- 		obj->uxrcd = container_of(xrcd_uobj, struct ib_uxrcd_object,
-diff --git a/drivers/infiniband/core/verbs.c b/drivers/infiniband/core/verbs.c
-index e821dc94a43e..961055eb330d 100644
---- a/drivers/infiniband/core/verbs.c
-+++ b/drivers/infiniband/core/verbs.c
-@@ -1253,6 +1253,7 @@ static struct ib_qp *create_qp(struct ib_device *dev, struct ib_pd *pd,
- 	if (ret)
- 		goto err_security;
- 
-+	ib_qp_usecnt_inc(qp);
- 	rdma_restrack_add(&qp->res);
- 	return qp;
- 
-@@ -1353,8 +1354,6 @@ struct ib_qp *ib_create_qp_kernel(struct ib_pd *pd,
- 	if (IS_ERR(qp))
- 		return qp;
- 
--	ib_qp_usecnt_inc(qp);
--
- 	if (qp_init_attr->cap.max_rdma_ctxs) {
- 		ret = rdma_rw_init_mrs(qp, qp_init_attr);
- 		if (ret)
+diff --git a/drivers/misc/habanalabs/common/debugfs.c b/drivers/misc/habanalabs/common/debugfs.c
+index fc084ee5106e..09001fd9db85 100644
+--- a/drivers/misc/habanalabs/common/debugfs.c
++++ b/drivers/misc/habanalabs/common/debugfs.c
+@@ -890,6 +890,8 @@ static ssize_t hl_set_power_state(struct file *f, const char __user *buf,
+ 		pci_set_power_state(hdev->pdev, PCI_D0);
+ 		pci_restore_state(hdev->pdev);
+ 		rc = pci_enable_device(hdev->pdev);
++		if (rc < 0)
++			return rc;
+ 	} else if (value == 2) {
+ 		pci_save_state(hdev->pdev);
+ 		pci_disable_device(hdev->pdev);
 -- 
 2.34.1
 
