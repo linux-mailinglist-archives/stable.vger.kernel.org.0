@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 62B674F30DC
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:36:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BD654F3338
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:14:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347643AbiDEJ16 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:27:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51190 "EHLO
+        id S233511AbiDEKbV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:31:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244730AbiDEIwg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:36 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3ECC1B7BE;
-        Tue,  5 Apr 2022 01:42:57 -0700 (PDT)
+        with ESMTP id S239010AbiDEJdP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:33:15 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3324205F7;
+        Tue,  5 Apr 2022 02:21:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 41D0060FFC;
-        Tue,  5 Apr 2022 08:42:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C1E1C385A1;
-        Tue,  5 Apr 2022 08:42:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B4835B81C6F;
+        Tue,  5 Apr 2022 09:21:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1BDA5C385A0;
+        Tue,  5 Apr 2022 09:21:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148176;
-        bh=L/pyenQmUdfAnp5wcjo1xjpMHrfCLmOU2nZBPABT8/0=;
+        s=korg; t=1649150498;
+        bh=MsixzbXzVCtdBce0+fcPjzQeiT8fYr0Q5qCNbdj9sXE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jc2xLUUQ8kNg12dAKVr8rAjpmu0cKf1l4Q1Ut937ew943hDBCGSnoGah0+9ru3pSx
-         Y69STawd3D5Ody4D32ebL12iqf3C/HWQX3Nbw2WST0HiPwjzrVLfvmh/HbDZAiEIsN
-         lnJnC4jjrJy3UMnkWAqyKkqXI6oiJPLQi4JlEEEk=
+        b=A7mseYFxKz5zYKJmsG4HrNefu6pAvLcYg+WuEZlQmqbVmm6K7w+sJ6Ff6dM2azAiI
+         9F3NAKwRsL/SgL4sw+AjLNT/uOoP3YfY1eg05uf0nH8OyOryNJrbKJGgoTu1bUdcMI
+         BLF0o1390B2Kq3h03YlZGSrbXjV/X262GCx1NNt8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Igor Zhbanov <i.zhbanov@omprussia.ru>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0223/1017] EVM: fix the evm= __setup handler return value
-Date:   Tue,  5 Apr 2022 09:18:56 +0200
-Message-Id: <20220405070400.870695370@linuxfoundation.org>
+        stable@vger.kernel.org, Sean Nyekjaer <sean@geanix.com>,
+        Boris Brezillon <boris.brezillon@collabora.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>
+Subject: [PATCH 5.15 076/913] mtd: rawnand: protect access to rawnand devices while in suspend
+Date:   Tue,  5 Apr 2022 09:18:58 +0200
+Message-Id: <20220405070342.101984883@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,58 +54,161 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Sean Nyekjaer <sean@geanix.com>
 
-[ Upstream commit f2544f5e6c691679d56bb38637d2f347075b36fa ]
+commit 8cba323437a49a45756d661f500b324fc2d486fe upstream.
 
-__setup() handlers should return 1 if the parameter is handled.
-Returning 0 causes the entire string to be added to init's
-environment strings (limited to 32 strings), unnecessarily polluting it.
+Prevent rawnand access while in a suspended state.
 
-Using the documented string "evm=fix" causes an Unknown parameter message:
-  Unknown kernel command line parameters
-  "BOOT_IMAGE=/boot/bzImage-517rc5 evm=fix", will be passed to user space.
+Commit 013e6292aaf5 ("mtd: rawnand: Simplify the locking") allows the
+rawnand layer to return errors rather than waiting in a blocking wait.
 
-and that string is added to init's environment string space:
-  Run /sbin/init as init process
-    with arguments:
-     /sbin/init
-    with environment:
-     HOME=/
-     TERM=linux
-     BOOT_IMAGE=/boot/bzImage-517rc5
-     evm=fix
+Tested on a iMX6ULL.
 
-With this change, using "evm=fix" acts as expected and an invalid
-option ("evm=evm") causes a warning to be printed:
-  evm: invalid "evm" mode
-but init's environment is not polluted with this string, as expected.
-
-Fixes: 7102ebcd65c1 ("evm: permit only valid security.evm xattrs to be updated")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
-Link: lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 013e6292aaf5 ("mtd: rawnand: Simplify the locking")
+Signed-off-by: Sean Nyekjaer <sean@geanix.com>
+Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20220208085213.1838273-1-sean@geanix.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- security/integrity/evm/evm_main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mtd/nand/raw/nand_base.c |   44 +++++++++++++++++----------------------
+ include/linux/mtd/rawnand.h      |    2 +
+ 2 files changed, 22 insertions(+), 24 deletions(-)
 
-diff --git a/security/integrity/evm/evm_main.c b/security/integrity/evm/evm_main.c
-index 08f907382c61..7d87772f0ce6 100644
---- a/security/integrity/evm/evm_main.c
-+++ b/security/integrity/evm/evm_main.c
-@@ -86,7 +86,7 @@ static int __init evm_set_fixmode(char *str)
- 	else
- 		pr_err("invalid \"%s\" mode", str);
+--- a/drivers/mtd/nand/raw/nand_base.c
++++ b/drivers/mtd/nand/raw/nand_base.c
+@@ -335,16 +335,19 @@ static int nand_isbad_bbm(struct nand_ch
+  *
+  * Return: -EBUSY if the chip has been suspended, 0 otherwise
+  */
+-static int nand_get_device(struct nand_chip *chip)
++static void nand_get_device(struct nand_chip *chip)
+ {
+-	mutex_lock(&chip->lock);
+-	if (chip->suspended) {
++	/* Wait until the device is resumed. */
++	while (1) {
++		mutex_lock(&chip->lock);
++		if (!chip->suspended) {
++			mutex_lock(&chip->controller->lock);
++			return;
++		}
+ 		mutex_unlock(&chip->lock);
+-		return -EBUSY;
+-	}
+-	mutex_lock(&chip->controller->lock);
  
 -	return 0;
-+	return 1;
++		wait_event(chip->resume_wq, !chip->suspended);
++	}
  }
- __setup("evm=", evm_set_fixmode);
  
--- 
-2.34.1
-
+ /**
+@@ -573,9 +576,7 @@ static int nand_block_markbad_lowlevel(s
+ 		nand_erase_nand(chip, &einfo, 0);
+ 
+ 		/* Write bad block marker to OOB */
+-		ret = nand_get_device(chip);
+-		if (ret)
+-			return ret;
++		nand_get_device(chip);
+ 
+ 		ret = nand_markbad_bbm(chip, ofs);
+ 		nand_release_device(chip);
+@@ -3823,9 +3824,7 @@ static int nand_read_oob(struct mtd_info
+ 	    ops->mode != MTD_OPS_RAW)
+ 		return -ENOTSUPP;
+ 
+-	ret = nand_get_device(chip);
+-	if (ret)
+-		return ret;
++	nand_get_device(chip);
+ 
+ 	if (!ops->datbuf)
+ 		ret = nand_do_read_oob(chip, from, ops);
+@@ -4412,13 +4411,11 @@ static int nand_write_oob(struct mtd_inf
+ 			  struct mtd_oob_ops *ops)
+ {
+ 	struct nand_chip *chip = mtd_to_nand(mtd);
+-	int ret;
++	int ret = 0;
+ 
+ 	ops->retlen = 0;
+ 
+-	ret = nand_get_device(chip);
+-	if (ret)
+-		return ret;
++	nand_get_device(chip);
+ 
+ 	switch (ops->mode) {
+ 	case MTD_OPS_PLACE_OOB:
+@@ -4478,9 +4475,7 @@ int nand_erase_nand(struct nand_chip *ch
+ 		return -EIO;
+ 
+ 	/* Grab the lock and see if the device is available */
+-	ret = nand_get_device(chip);
+-	if (ret)
+-		return ret;
++	nand_get_device(chip);
+ 
+ 	/* Shift to get first page */
+ 	page = (int)(instr->addr >> chip->page_shift);
+@@ -4567,7 +4562,7 @@ static void nand_sync(struct mtd_info *m
+ 	pr_debug("%s: called\n", __func__);
+ 
+ 	/* Grab the lock and see if the device is available */
+-	WARN_ON(nand_get_device(chip));
++	nand_get_device(chip);
+ 	/* Release it and go back */
+ 	nand_release_device(chip);
+ }
+@@ -4584,9 +4579,7 @@ static int nand_block_isbad(struct mtd_i
+ 	int ret;
+ 
+ 	/* Select the NAND device */
+-	ret = nand_get_device(chip);
+-	if (ret)
+-		return ret;
++	nand_get_device(chip);
+ 
+ 	nand_select_target(chip, chipnr);
+ 
+@@ -4657,6 +4650,8 @@ static void nand_resume(struct mtd_info
+ 			__func__);
+ 	}
+ 	mutex_unlock(&chip->lock);
++
++	wake_up_all(&chip->resume_wq);
+ }
+ 
+ /**
+@@ -5434,6 +5429,7 @@ static int nand_scan_ident(struct nand_c
+ 	chip->cur_cs = -1;
+ 
+ 	mutex_init(&chip->lock);
++	init_waitqueue_head(&chip->resume_wq);
+ 
+ 	/* Enforce the right timings for reset/detection */
+ 	chip->current_interface_config = nand_get_reset_interface_config();
+--- a/include/linux/mtd/rawnand.h
++++ b/include/linux/mtd/rawnand.h
+@@ -1240,6 +1240,7 @@ struct nand_secure_region {
+  * @lock: Lock protecting the suspended field. Also used to serialize accesses
+  *        to the NAND device
+  * @suspended: Set to 1 when the device is suspended, 0 when it's not
++ * @resume_wq: wait queue to sleep if rawnand is in suspended state.
+  * @cur_cs: Currently selected target. -1 means no target selected, otherwise we
+  *          should always have cur_cs >= 0 && cur_cs < nanddev_ntargets().
+  *          NAND Controller drivers should not modify this value, but they're
+@@ -1294,6 +1295,7 @@ struct nand_chip {
+ 	/* Internals */
+ 	struct mutex lock;
+ 	unsigned int suspended : 1;
++	wait_queue_head_t resume_wq;
+ 	int cur_cs;
+ 	int read_retries;
+ 	struct nand_secure_region *secure_regions;
 
 
