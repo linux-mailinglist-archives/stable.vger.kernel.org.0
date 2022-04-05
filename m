@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E74DE4F2E2F
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:59:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D70004F2E7D
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:00:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350569AbiDEJ6z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:58:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60614 "EHLO
+        id S233672AbiDEIiI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:38:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54926 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344107AbiDEJSN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:18:13 -0400
+        with ESMTP id S239992AbiDEIWJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:22:09 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43E2433EB2;
-        Tue,  5 Apr 2022 02:04:06 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E213A1035;
+        Tue,  5 Apr 2022 01:19:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D39E661573;
-        Tue,  5 Apr 2022 09:04:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9989C385A1;
-        Tue,  5 Apr 2022 09:04:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7A624609AD;
+        Tue,  5 Apr 2022 08:19:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E9C2C385A0;
+        Tue,  5 Apr 2022 08:19:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149445;
-        bh=Zn6H0fiRR7Pz3PyeF3Xc4WniB/RzWJxtbHai6a0pBdg=;
+        s=korg; t=1649146772;
+        bh=KL2U+DdtwFetDLdywa1BvKB0ub14yiL29O6JG2SZpkM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LG0OfRS4NFNRLFdZLzZDxj5Oee7D0pN2lxH1Xsiw+ktNJEGWaBJK/e4tBv1VhWkSd
-         TU8xUR+06sncm8ZLGMFtddSrikePU8GLJaghNJfmOBpB6tb8IEWgT6++g57HiKVu70
-         pSuDNMJknXliywS37tr98h1Ap282KmY7UvJHJzwM=
+        b=x/37nQwq60mxVYUfB+WklXeNKt4u1JVgaMznoT7NoYdWI61B2aw/ehjS8iK4SZHIX
+         X8ZzTscGfQNFelJPQIDD3LFgyds85TuBlNOYr758VDKHAWGBkHQVksdxmWMfBClFdS
+         EtADm2pR+K4NpgeWevmGBbYypPzAdxYkh2JmK+zU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jie Hai <haijie1@huawei.com>,
-        Zhou Wang <wangzhou1@hisilicon.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0679/1017] dmaengine: hisi_dma: fix MSI allocate fail when reload hisi_dma
+        stable@vger.kernel.org, Kai Ye <yekai13@huawei.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 0845/1126] crypto: hisilicon/sec - not need to enable sm4 extra mode at HW V3
 Date:   Tue,  5 Apr 2022 09:26:32 +0200
-Message-Id: <20220405070414.433500823@linuxfoundation.org>
+Message-Id: <20220405070432.353566176@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,51 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jie Hai <haijie1@huawei.com>
+From: Kai Ye <yekai13@huawei.com>
 
-[ Upstream commit b95044b38425f563404234d96bbb20cc6360c7e1 ]
+[ Upstream commit f8a2652826444d13181061840b96a5d975d5b6c6 ]
 
-Remove the loaded hisi_dma driver and reload it, the driver fails
-to work properly. The following error is reported in the kernel log:
+It is not need to enable sm4 extra mode in at HW V3. Here is fix it.
 
-[ 1475.597609] hisi_dma 0000:7b:00.0: Failed to allocate MSI vectors!
-[ 1475.604915] hisi_dma: probe of 0000:7b:00.0 failed with error -28
-
-As noted in "The MSI Driver Guide HOWTO"[1], the number of MSI
-interrupt must be a power of two. The Kunpeng DMA driver allocates 30
-MSI interrupts. As a result, no space left on device is reported
-when the driver is reloaded and allocates interrupt vectors from the
-interrupt domain.
-
-This patch changes the number of interrupt vectors allocated by
-hisi_dma driver to 32 to avoid this problem.
-
-[1] https://www.kernel.org/doc/html/latest/PCI/msi-howto.html
-
-Fixes: e9f08b65250d ("dmaengine: hisilicon: Add Kunpeng DMA engine support")
-
-Signed-off-by: Jie Hai <haijie1@huawei.com>
-Acked-by: Zhou Wang <wangzhou1@hisilicon.com>
-Link: https://lore.kernel.org/r/20220216072101.34473-1-haijie1@huawei.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Kai Ye <yekai13@huawei.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/hisi_dma.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/crypto/hisilicon/sec2/sec_main.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/dma/hisi_dma.c b/drivers/dma/hisi_dma.c
-index 97c87a7cba87..43817ced3a3e 100644
---- a/drivers/dma/hisi_dma.c
-+++ b/drivers/dma/hisi_dma.c
-@@ -30,7 +30,7 @@
- #define HISI_DMA_MODE			0x217c
- #define HISI_DMA_OFFSET			0x100
+diff --git a/drivers/crypto/hisilicon/sec2/sec_main.c b/drivers/crypto/hisilicon/sec2/sec_main.c
+index 26d3ab1d308b..89d4cc767d36 100644
+--- a/drivers/crypto/hisilicon/sec2/sec_main.c
++++ b/drivers/crypto/hisilicon/sec2/sec_main.c
+@@ -443,9 +443,11 @@ static int sec_engine_init(struct hisi_qm *qm)
  
--#define HISI_DMA_MSI_NUM		30
-+#define HISI_DMA_MSI_NUM		32
- #define HISI_DMA_CHAN_NUM		30
- #define HISI_DMA_Q_DEPTH_VAL		1024
+ 	writel(SEC_SAA_ENABLE, qm->io_base + SEC_SAA_EN_REG);
  
+-	/* Enable sm4 extra mode, as ctr/ecb */
+-	writel_relaxed(SEC_BD_ERR_CHK_EN0,
+-		       qm->io_base + SEC_BD_ERR_CHK_EN_REG0);
++	/* HW V2 enable sm4 extra mode, as ctr/ecb */
++	if (qm->ver < QM_HW_V3)
++		writel_relaxed(SEC_BD_ERR_CHK_EN0,
++			       qm->io_base + SEC_BD_ERR_CHK_EN_REG0);
++
+ 	/* Enable sm4 xts mode multiple iv */
+ 	writel_relaxed(SEC_BD_ERR_CHK_EN1,
+ 		       qm->io_base + SEC_BD_ERR_CHK_EN_REG1);
 -- 
 2.34.1
 
