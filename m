@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B59234F3494
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:38:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2913C4F3230
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:54:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235404AbiDEJBv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:01:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45550 "EHLO
+        id S235477AbiDEJCK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:02:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45568 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237569AbiDEImt (ORCPT
+        with ESMTP id S237571AbiDEImt (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:42:49 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DEC2140CB;
-        Tue,  5 Apr 2022 01:35:21 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8735F15718;
+        Tue,  5 Apr 2022 01:35:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 009F8B81B92;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F133F614E4;
+        Tue,  5 Apr 2022 08:35:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BC2CC385A1;
         Tue,  5 Apr 2022 08:35:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60D93C385A1;
-        Tue,  5 Apr 2022 08:35:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147718;
-        bh=8QYO2AMThjA538+hdzVx+um+o/IV7h3ewMsPaWlZaLg=;
+        s=korg; t=1649147721;
+        bh=XB2ZAnqs10KWvSqh5mAX4FfDP5UtSANZ3tDNnXYKoYA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zx5a8AOdIqytBjCCxmeyhL8QRSVd9Htf5rwRQQThW4QMHUQLK9CUcGczdTO297EXA
-         F+tNEA+Rkpks5C4rgFBpDsxxAa3IuJXVnP8IYX+KVNr656W2gEwq7frcwIbGT6kf3o
-         t4NGMLibIdAXxtvKXxhXMFE7bWK2irpyq3W3d9LI=
+        b=dKr7jA30pfOYXFmsos9mEy2tdb85+oTBIOQV9C7AUfZqyAcj+uqSyrOz4GwejjSDb
+         vpsxHSL3Cf2bqR6iqf1bBhml2pqle4yml1lhl6aLSDHei5tK4hKm5Hle7824v/X0Zr
+         q1Q9UzK0mwYwu/1AQzXYpmYm6QkKmInuTo6FeftQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Niklas Cassel <niklas.cassel@wdc.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        stable@vger.kernel.org, Nikita Shubin <n.shubin@yadro.com>,
         Palmer Dabbelt <palmer@rivosinc.com>
-Subject: [PATCH 5.16 0097/1017] riscv: dts: canaan: Fix SPI3 bus width
-Date:   Tue,  5 Apr 2022 09:16:50 +0200
-Message-Id: <20220405070357.075910805@linuxfoundation.org>
+Subject: [PATCH 5.16 0098/1017] riscv: Fix fill_callchain return value
+Date:   Tue,  5 Apr 2022 09:16:51 +0200
+Message-Id: <20220405070357.105802778@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -54,85 +53,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niklas Cassel <niklas.cassel@wdc.com>
+From: Nikita Shubin <n.shubin@yadro.com>
 
-commit 6846d656106add3aeefcd6eda0dc885787deaa6e upstream.
+commit 2b2b574ac587ec5bd7716a356492a85ab8b0ce9f upstream.
 
-According to the K210 Standalone SDK Programming guide:
-https://canaan-creative.com/wp-content/uploads/2020/03/kendryte_standalone_programming_guide_20190311144158_en.pdf
+perf_callchain_store return 0 on success, -1 otherwise,
+fix fill_callchain to return correct bool value.
 
-Section 15.4.3.3:
-SPI0 and SPI1 supports: standard, dual, quad and octal transfers.
-SPI3 supports: standard, dual and quad transfers (octal is not supported).
-
-In order to support quad transfers (Quad SPI), SPI3 must have four IO wires
-connected to the SPI flash.
-
-Update the device tree to specify the correct bus width.
-
-Tested on maix bit, maix dock and maixduino, which all have the same
-SPI flash (gd25lq128d) connected to SPI3. maix go is untested, but it
-would not make sense for this k210 board to be designed differently.
-
-Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
-Reviewed-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Fixes: 8f5b0e79f3e5 ("riscv: Add SiPeed MAIXDUINO board device tree")
-Fixes: 8194f08bda18 ("riscv: Add SiPeed MAIX GO board device tree")
-Fixes: a40f920964c4 ("riscv: Add SiPeed MAIX DOCK board device tree")
-Fixes: 97c279bcf813 ("riscv: Add SiPeed MAIX BiT board device tree")
+Fixes: dbeb90b0c1eb ("riscv: Add perf callchain support")
+Signed-off-by: Nikita Shubin <n.shubin@yadro.com>
 Cc: stable@vger.kernel.org
 Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/riscv/boot/dts/canaan/sipeed_maix_bit.dts  |    2 ++
- arch/riscv/boot/dts/canaan/sipeed_maix_dock.dts |    2 ++
- arch/riscv/boot/dts/canaan/sipeed_maix_go.dts   |    2 ++
- arch/riscv/boot/dts/canaan/sipeed_maixduino.dts |    2 ++
- 4 files changed, 8 insertions(+)
+ arch/riscv/kernel/perf_callchain.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/riscv/boot/dts/canaan/sipeed_maix_bit.dts
-+++ b/arch/riscv/boot/dts/canaan/sipeed_maix_bit.dts
-@@ -203,6 +203,8 @@
- 		compatible = "jedec,spi-nor";
- 		reg = <0>;
- 		spi-max-frequency = <50000000>;
-+		spi-tx-bus-width = <4>;
-+		spi-rx-bus-width = <4>;
- 		m25p,fast-read;
- 		broken-flash-reset;
- 	};
---- a/arch/riscv/boot/dts/canaan/sipeed_maix_dock.dts
-+++ b/arch/riscv/boot/dts/canaan/sipeed_maix_dock.dts
-@@ -205,6 +205,8 @@
- 		compatible = "jedec,spi-nor";
- 		reg = <0>;
- 		spi-max-frequency = <50000000>;
-+		spi-tx-bus-width = <4>;
-+		spi-rx-bus-width = <4>;
- 		m25p,fast-read;
- 		broken-flash-reset;
- 	};
---- a/arch/riscv/boot/dts/canaan/sipeed_maix_go.dts
-+++ b/arch/riscv/boot/dts/canaan/sipeed_maix_go.dts
-@@ -213,6 +213,8 @@
- 		compatible = "jedec,spi-nor";
- 		reg = <0>;
- 		spi-max-frequency = <50000000>;
-+		spi-tx-bus-width = <4>;
-+		spi-rx-bus-width = <4>;
- 		m25p,fast-read;
- 		broken-flash-reset;
- 	};
---- a/arch/riscv/boot/dts/canaan/sipeed_maixduino.dts
-+++ b/arch/riscv/boot/dts/canaan/sipeed_maixduino.dts
-@@ -178,6 +178,8 @@
- 		compatible = "jedec,spi-nor";
- 		reg = <0>;
- 		spi-max-frequency = <50000000>;
-+		spi-tx-bus-width = <4>;
-+		spi-rx-bus-width = <4>;
- 		m25p,fast-read;
- 		broken-flash-reset;
- 	};
+--- a/arch/riscv/kernel/perf_callchain.c
++++ b/arch/riscv/kernel/perf_callchain.c
+@@ -73,7 +73,7 @@ void perf_callchain_user(struct perf_cal
+ 
+ static bool fill_callchain(void *entry, unsigned long pc)
+ {
+-	return perf_callchain_store(entry, pc);
++	return perf_callchain_store(entry, pc) == 0;
+ }
+ 
+ void perf_callchain_kernel(struct perf_callchain_entry_ctx *entry,
 
 
