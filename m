@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DC7204F35B4
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:53:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 11E8F4F2F15
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:05:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232679AbiDEKx7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:53:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55204 "EHLO
+        id S237062AbiDEJDy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:03:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345697AbiDEJnr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:43:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FF4AC5586;
-        Tue,  5 Apr 2022 02:29:36 -0700 (PDT)
+        with ESMTP id S236709AbiDEIQ5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:16:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7081DAD123;
+        Tue,  5 Apr 2022 01:04:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 349986165E;
-        Tue,  5 Apr 2022 09:29:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4298AC385A2;
-        Tue,  5 Apr 2022 09:29:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B8A66B81B90;
+        Tue,  5 Apr 2022 08:04:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08B62C385A2;
+        Tue,  5 Apr 2022 08:04:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150965;
-        bh=o27kHmOtOvotRFc51Tl3DglrijIVdbuDH53J86XD31o=;
+        s=korg; t=1649145869;
+        bh=sc9pWM0Et+OG2UDsJfEDeDUGc1KeOVmKtHvxnrWQ5Ag=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zonLh71yI4hIjwMEfXWO/wNY3PAKzRqQOzl1zBeMBNDLgv4JLdjUL0iC0js8hwKc3
-         AoWmcSu9IB8vZSlh95/BQC85467b9/XRN4R2bPBUxYJhxj75QvSHHqPjXoSMaiYuf+
-         idya2L/zuKR8UVwy8/Ka0SmL5hwSNyx3DKjPfgyA=
+        b=VB3prBfeirjDxhttXUI65+LukTqupTVQYNP0W7TSbI43yYGeqGMmnYA3gqsw9oXMa
+         Sc590s7Mn9dRD/L6cehaLzEnuaJj5wXZLcnpkvJWL58VCxXI6Bs70fNNr7OtOHAIaI
+         4VD9aHV+dd8YGduYNzAgBs2SB6WRRxQakzS/61RU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        "Fabio M. De Francesco" <fmdefrancesco@gmail.com>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+d55757faa9b80590767b@syzkaller.appspotmail.com
-Subject: [PATCH 5.15 244/913] watch_queue: Fix NULL dereference in error cleanup
-Date:   Tue,  5 Apr 2022 09:21:46 +0200
-Message-Id: <20220405070347.171054946@linuxfoundation.org>
+        stable@vger.kernel.org, Rotem Saado <rotem.saado@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 0560/1126] iwlwifi: yoyo: remove DBGI_SRAM address reset writing
+Date:   Tue,  5 Apr 2022 09:21:47 +0200
+Message-Id: <20220405070424.070708637@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,66 +54,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Rotem Saado <rotem.saado@intel.com>
 
-[ Upstream commit a635415a064e77bcfbf43da413fd9dfe0bbed9cb ]
+[ Upstream commit ce014c9861544bb4e789323d0d8956a5ad262e25 ]
 
-In watch_queue_set_size(), the error cleanup code doesn't take account of
-the fact that __free_page() can't handle a NULL pointer when trying to free
-up buffer pages that did get allocated.
+Due to preg protection we cannot write to this register
+while FW is running (when FW in Halt it is ok).
+since we have some cases that we need to dump this
+region while FW is running remove this writing from DRV.
+FW will do this writing.
 
-Fix this by only calling __free_page() on the pages actually allocated.
-
-Without the fix, this can lead to something like the following:
-
-BUG: KASAN: null-ptr-deref in __free_pages+0x1f/0x1b0 mm/page_alloc.c:5473
-Read of size 4 at addr 0000000000000034 by task syz-executor168/3599
-...
-Call Trace:
- <TASK>
- __dump_stack lib/dump_stack.c:88 [inline]
- dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
- __kasan_report mm/kasan/report.c:446 [inline]
- kasan_report.cold+0x66/0xdf mm/kasan/report.c:459
- check_region_inline mm/kasan/generic.c:183 [inline]
- kasan_check_range+0x13d/0x180 mm/kasan/generic.c:189
- instrument_atomic_read include/linux/instrumented.h:71 [inline]
- atomic_read include/linux/atomic/atomic-instrumented.h:27 [inline]
- page_ref_count include/linux/page_ref.h:67 [inline]
- put_page_testzero include/linux/mm.h:717 [inline]
- __free_pages+0x1f/0x1b0 mm/page_alloc.c:5473
- watch_queue_set_size+0x499/0x630 kernel/watch_queue.c:275
- pipe_ioctl+0xac/0x2b0 fs/pipe.c:632
- vfs_ioctl fs/ioctl.c:51 [inline]
- __do_sys_ioctl fs/ioctl.c:874 [inline]
- __se_sys_ioctl fs/ioctl.c:860 [inline]
- __x64_sys_ioctl+0x193/0x200 fs/ioctl.c:860
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-Fixes: c73be61cede5 ("pipe: Add general notification queue support")
-Reported-and-tested-by: syzbot+d55757faa9b80590767b@syzkaller.appspotmail.com
-Signed-off-by: David Howells <dhowells@redhat.com>
-Reviewed-by: Fabio M. De Francesco <fmdefrancesco@gmail.com>
+Signed-off-by: Rotem Saado <rotem.saado@intel.com>
+Fixes: 89639e06d0f3 ("iwlwifi: yoyo: support for new DBGI_SRAM region")
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20220129105618.209f3078bc74.I463530bd2f40daedb39f6d9df987bb7cee209033@changeid
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/watch_queue.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/intel/iwlwifi/fw/dbg.c   | 2 --
+ drivers/net/wireless/intel/iwlwifi/iwl-prph.h | 2 --
+ 2 files changed, 4 deletions(-)
 
-diff --git a/kernel/watch_queue.c b/kernel/watch_queue.c
-index 055bc20ecdda..12348b41d7ad 100644
---- a/kernel/watch_queue.c
-+++ b/kernel/watch_queue.c
-@@ -274,7 +274,7 @@ long watch_queue_set_size(struct pipe_inode_info *pipe, unsigned int nr_notes)
- 	return 0;
+diff --git a/drivers/net/wireless/intel/iwlwifi/fw/dbg.c b/drivers/net/wireless/intel/iwlwifi/fw/dbg.c
+index 7ad9cee925da..372cc950cc88 100644
+--- a/drivers/net/wireless/intel/iwlwifi/fw/dbg.c
++++ b/drivers/net/wireless/intel/iwlwifi/fw/dbg.c
+@@ -1561,8 +1561,6 @@ iwl_dump_ini_dbgi_sram_iter(struct iwl_fw_runtime *fwrt,
+ 		return -EBUSY;
  
- error_p:
--	for (i = 0; i < nr_pages; i++)
-+	while (--i >= 0)
- 		__free_page(pages[i]);
- 	kfree(pages);
- error:
+ 	range->range_data_size = reg->dev_addr.size;
+-	iwl_write_prph_no_grab(fwrt->trans, DBGI_SRAM_TARGET_ACCESS_CFG,
+-			       DBGI_SRAM_TARGET_ACCESS_CFG_RESET_ADDRESS_MSK);
+ 	for (i = 0; i < (le32_to_cpu(reg->dev_addr.size) / 4); i++) {
+ 		prph_data = iwl_read_prph_no_grab(fwrt->trans, (i % 2) ?
+ 					  DBGI_SRAM_TARGET_ACCESS_RDATA_MSB :
+diff --git a/drivers/net/wireless/intel/iwlwifi/iwl-prph.h b/drivers/net/wireless/intel/iwlwifi/iwl-prph.h
+index 95b3dae7b504..9331a6b6bf36 100644
+--- a/drivers/net/wireless/intel/iwlwifi/iwl-prph.h
++++ b/drivers/net/wireless/intel/iwlwifi/iwl-prph.h
+@@ -354,8 +354,6 @@
+ #define WFPM_GP2			0xA030B4
+ 
+ /* DBGI SRAM Register details */
+-#define DBGI_SRAM_TARGET_ACCESS_CFG			0x00A2E14C
+-#define DBGI_SRAM_TARGET_ACCESS_CFG_RESET_ADDRESS_MSK	0x10000
+ #define DBGI_SRAM_TARGET_ACCESS_RDATA_LSB		0x00A2E154
+ #define DBGI_SRAM_TARGET_ACCESS_RDATA_MSB		0x00A2E158
+ 
 -- 
 2.34.1
 
