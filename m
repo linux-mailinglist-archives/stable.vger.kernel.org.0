@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 20EF44F36A6
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:07:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EC0F4F36A4
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:07:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235746AbiDELGa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:06:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39808 "EHLO
+        id S234758AbiDELGR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:06:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37666 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348213AbiDEJrO (ORCPT
+        with ESMTP id S1348219AbiDEJrO (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:47:14 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62106EAC81;
-        Tue,  5 Apr 2022 02:33:27 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FD5027B34;
+        Tue,  5 Apr 2022 02:33:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0E916B81B75;
+        by ams.source.kernel.org (Postfix) with ESMTPS id AB4A1B81C6F;
+        Tue,  5 Apr 2022 09:33:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AE45C385A3;
         Tue,  5 Apr 2022 09:33:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5EFE5C385A0;
-        Tue,  5 Apr 2022 09:33:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151204;
-        bh=fzc4q4gZLney9QwrOtP6lm/QNQXxrEaZFH5DeGM5/BQ=;
+        s=korg; t=1649151207;
+        bh=IdHOfcdyxjUCR1Gm4psyeMpj7chrQvNYmO+IVfQQmTI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WXzEgS0AxQblUxGgInoJH0m+4mBx+5TlJOJa1Tj9R05gPg4M68Q2fn9J26/MWTyIm
-         ZsvUQ/eAlB+AvNZy2tnw/iVC5qylIz+mba6MrKCe6mvJ1dj3ntEYg8c8zpgW/Ca//i
-         WkVMmJhVC/SeGlCMesXx8cRyCp0QOSz07a7j1DyE=
+        b=jzpfeqo58XgBLddBsSpPtoHTxFnbEIGN4LNWsZTqoDAcsmrUdGH1m1BtY5Op52iYA
+         ecJKStabs/JAd8EBlQiwVLEbYlgtJV36lAw4bftu30orOzGrr2p4HuaRCn9+K+64xU
+         /aJ+ca7kxXZuwvgGamF1P4hIqBunP4RYX3iVZUzk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Marijn Suijten <marijn.suijten@somainline.org>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@somainline.org>,
-        Alex Elder <elder@linaro.org>,
+        stable@vger.kernel.org, Pavel Kubelun <be.dissent@gmail.com>,
         Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 294/913] firmware: qcom: scm: Remove reassignment to desc following initializer
-Date:   Tue,  5 Apr 2022 09:22:36 +0200
-Message-Id: <20220405070348.669236024@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>,
+        Christian Lamparter <chunkeey@gmail.com>
+Subject: [PATCH 5.15 295/913] ARM: dts: qcom: ipq4019: fix sleep clock
+Date:   Tue,  5 Apr 2022 09:22:37 +0200
+Message-Id: <20220405070348.699498353@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -58,44 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marijn Suijten <marijn.suijten@somainline.org>
+From: Pavel Kubelun <be.dissent@gmail.com>
 
-[ Upstream commit 7823e5aa5d1dd9ed5849923c165eb8f29ad23c54 ]
+[ Upstream commit 3d7e7980993d2c1ae42d3d314040fc2de6a9c45f ]
 
-Member assignments to qcom_scm_desc were moved into struct initializers
-in 57d3b816718c ("firmware: qcom_scm: Remove thin wrappers") including
-the case in qcom_scm_iommu_secure_ptbl_init, except that the - now
-duplicate - assignment to desc was left in place. While not harmful,
-remove this unnecessary extra reassignment.
+It seems like sleep_clk was copied from ipq806x.
+Fix ipq40xx sleep_clk to the value QSDK defines.
 
-Fixes: 57d3b816718c ("firmware: qcom_scm: Remove thin wrappers")
-Signed-off-by: Marijn Suijten <marijn.suijten@somainline.org>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@somainline.org>
-Reviewed-by: Alex Elder <elder@linaro.org>
+Link: https://source.codeaurora.org/quic/qsdk/oss/kernel/linux-msm/commit/?id=d92ec59973484acc86dd24b67f10f8911b4b4b7d
+Link: https://patchwork.kernel.org/comment/22721613/
+Fixes: bec6ba4cdf2a ("qcom: ipq4019: Add basic board/dts support for IPQ4019 SoC")
+Suggested-by: Bjorn Andersson <bjorn.andersson@linaro.org> (clock-output-names)
+Signed-off-by: Pavel Kubelun <be.dissent@gmail.com>
+Signed-off-by: Christian Lamparter <chunkeey@gmail.com> (removed clock rename)
 Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20211208083423.22037-2-marijn.suijten@somainline.org
+Link: https://lore.kernel.org/r/20211220170352.34591-1-chunkeey@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/qcom_scm.c | 6 ------
- 1 file changed, 6 deletions(-)
+ arch/arm/boot/dts/qcom-ipq4019.dtsi | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/firmware/qcom_scm.c b/drivers/firmware/qcom_scm.c
-index 27a64de91981..2b5214d5c0da 100644
---- a/drivers/firmware/qcom_scm.c
-+++ b/drivers/firmware/qcom_scm.c
-@@ -749,12 +749,6 @@ int qcom_scm_iommu_secure_ptbl_init(u64 addr, u32 size, u32 spare)
- 	};
- 	int ret;
+diff --git a/arch/arm/boot/dts/qcom-ipq4019.dtsi b/arch/arm/boot/dts/qcom-ipq4019.dtsi
+index ff1bdb10ad19..08bc5f46649d 100644
+--- a/arch/arm/boot/dts/qcom-ipq4019.dtsi
++++ b/arch/arm/boot/dts/qcom-ipq4019.dtsi
+@@ -142,7 +142,8 @@
+ 	clocks {
+ 		sleep_clk: sleep_clk {
+ 			compatible = "fixed-clock";
+-			clock-frequency = <32768>;
++			clock-frequency = <32000>;
++			clock-output-names = "gcc_sleep_clk_src";
+ 			#clock-cells = <0>;
+ 		};
  
--	desc.args[0] = addr;
--	desc.args[1] = size;
--	desc.args[2] = spare;
--	desc.arginfo = QCOM_SCM_ARGS(3, QCOM_SCM_RW, QCOM_SCM_VAL,
--				     QCOM_SCM_VAL);
--
- 	ret = qcom_scm_call(__scm->dev, &desc, NULL);
- 
- 	/* the pg table has been initialized already, ignore the error */
 -- 
 2.34.1
 
