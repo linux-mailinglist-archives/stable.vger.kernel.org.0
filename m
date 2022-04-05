@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0426A4F2F3D
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:11:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF2A64F329E
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:59:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347448AbiDEJ0i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:26:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38468 "EHLO
+        id S1356459AbiDEKXy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:23:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40740 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243323AbiDEIuV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:50:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BFB913D35;
-        Tue,  5 Apr 2022 01:38:38 -0700 (PDT)
+        with ESMTP id S236279AbiDEJbO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:31:14 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E3922B26A;
+        Tue,  5 Apr 2022 02:18:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4FD54B81BBF;
-        Tue,  5 Apr 2022 08:38:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1E43C385A2;
-        Tue,  5 Apr 2022 08:38:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B9C861574;
+        Tue,  5 Apr 2022 09:18:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A686EC385A3;
+        Tue,  5 Apr 2022 09:18:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147917;
-        bh=FUcnqxzjXH5u3vbw4nDqrygn9TouK/7YERh2EEo0v3w=;
+        s=korg; t=1649150337;
+        bh=Y1v8fu2Y1p+s/RFwt//XCiGvgEoAtY+3ZUcAltp7kvE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hZ9KVrrS8pTFxDNNc5Q65OIpjrwYAB8d18F3eEpK+sHKicqm5LY0EihkZzJ1UDiar
-         7XViUCsZKb7TCbysWjdAaEaglZftF4nJHldTCDT1mIU1RG8qorxKvX6BVlPj2+kYt4
-         8wKwc/STja53WA7WF3ZpkZgH9SV9ywjmigvYV0H8=
+        b=UaxSuVIa91BgHoQPO5l4oQrLn8CHCLtq81S3Vafw1G1gaAfnG8nAFx1FTFUzkP6i7
+         Ypr9pPHYe7yl6Xs50ATtkZamY90D93eTNIvc1cT3JGLIOO6GIenTQhNjSVukDWZJrp
+         MEvxYH97inKBC7y66UDvZP2rQUF4f/2ev4NXN5hs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mingzhe Zou <mingzhe.zou@easystack.cn>,
-        Coly Li <colyli@suse.de>
-Subject: [PATCH 5.16 0169/1017] bcache: fixup multiple threads crash
-Date:   Tue,  5 Apr 2022 09:18:02 +0200
-Message-Id: <20220405070359.242350780@linuxfoundation.org>
+        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 021/913] Input: zinitix - do not report shadow fingers
+Date:   Tue,  5 Apr 2022 09:18:03 +0200
+Message-Id: <20220405070340.449900984@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,67 +54,150 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mingzhe Zou <mingzhe.zou@easystack.cn>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-commit 887554ab96588de2917b6c8c73e552da082e5368 upstream.
+[ Upstream commit e941dc13fd3717122207d74539ab95da07ef797f ]
 
-When multiple threads to check btree nodes in parallel, the main
-thread wait for all threads to stop or CACHE_SET_IO_DISABLE flag:
+I observed the following problem with the BT404 touch pad
+running the Phosh UI:
 
-wait_event_interruptible(check_state->wait,
-                         atomic_read(&check_state->started) == 0 ||
-                         test_bit(CACHE_SET_IO_DISABLE, &c->flags));
+When e.g. typing on the virtual keyboard pressing "g" would
+produce "ggg".
 
-However, the bch_btree_node_read and bch_btree_node_read_done
-maybe call bch_cache_set_error, then the CACHE_SET_IO_DISABLE
-will be set. If the flag already set, the main thread return
-error. At the same time, maybe some threads still running and
-read NULL pointer, the kernel will crash.
+After some analysis it turns out the firmware reports that three
+fingers hit that coordinate at the same time, finger 0, 2 and
+4 (of the five available 0,1,2,3,4).
 
-This patch change the event wait condition, the main thread must
-wait for all threads to stop.
+DOWN
+  Zinitix-TS 3-0020: finger 0 down (246, 395)
+  Zinitix-TS 3-0020: finger 1 up (0, 0)
+  Zinitix-TS 3-0020: finger 2 down (246, 395)
+  Zinitix-TS 3-0020: finger 3 up (0, 0)
+  Zinitix-TS 3-0020: finger 4 down (246, 395)
+UP
+  Zinitix-TS 3-0020: finger 0 up (246, 395)
+  Zinitix-TS 3-0020: finger 2 up (246, 395)
+  Zinitix-TS 3-0020: finger 4 up (246, 395)
 
-Fixes: 8e7102273f597 ("bcache: make bch_btree_check() to be multithreaded")
-Signed-off-by: Mingzhe Zou <mingzhe.zou@easystack.cn>
-Cc: stable@vger.kernel.org # v5.7+
-Signed-off-by: Coly Li <colyli@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This is one touch and release: i.e. this is all reported on
+touch (down) and release.
+
+There is a field in the struct touch_event called finger_cnt
+which is actually a bitmask of the fingers active in the
+event.
+
+Rename this field finger_mask as this matches the use contents
+better, then use for_each_set_bit() to iterate over just the
+fingers that are actally active.
+
+Factor out a finger reporting function zinitix_report_fingers()
+to handle all fingers.
+
+Also be more careful in reporting finger down/up: we were
+reporting every event with input_mt_report_slot_state(..., true);
+but this should only be reported on finger down or move,
+not on finger up, so also add code to check p->sub_status
+to see what is happening and report correctly.
+
+After this my Zinitix BT404 touchscreen report fingers
+flawlessly.
+
+The vendor drive I have notably does not use the "finger_cnt"
+and contains obviously incorrect code like this:
+
+  if (touch_dev->touch_info.finger_cnt > MAX_SUPPORTED_FINGER_NUM)
+      touch_dev->touch_info.finger_cnt = MAX_SUPPORTED_FINGER_NUM;
+
+As MAX_SUPPORTED_FINGER_NUM is an ordinal and the field is
+a bitmask this seems quite confused.
+
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/20220228233017.2270599-1-linus.walleij@linaro.org
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/bcache/btree.c     |    6 ++++--
- drivers/md/bcache/writeback.c |    6 ++++--
- 2 files changed, 8 insertions(+), 4 deletions(-)
+ drivers/input/touchscreen/zinitix.c | 44 +++++++++++++++++++++++------
+ 1 file changed, 35 insertions(+), 9 deletions(-)
 
---- a/drivers/md/bcache/btree.c
-+++ b/drivers/md/bcache/btree.c
-@@ -2060,9 +2060,11 @@ int bch_btree_check(struct cache_set *c)
- 		}
+diff --git a/drivers/input/touchscreen/zinitix.c b/drivers/input/touchscreen/zinitix.c
+index 1e70b8d2a8d7..400957f4c8c9 100644
+--- a/drivers/input/touchscreen/zinitix.c
++++ b/drivers/input/touchscreen/zinitix.c
+@@ -135,7 +135,7 @@ struct point_coord {
+ 
+ struct touch_event {
+ 	__le16	status;
+-	u8	finger_cnt;
++	u8	finger_mask;
+ 	u8	time_stamp;
+ 	struct point_coord point_coord[MAX_SUPPORTED_FINGER_NUM];
+ };
+@@ -311,11 +311,32 @@ static int zinitix_send_power_on_sequence(struct bt541_ts_data *bt541)
+ static void zinitix_report_finger(struct bt541_ts_data *bt541, int slot,
+ 				  const struct point_coord *p)
+ {
++	u16 x, y;
++
++	if (unlikely(!(p->sub_status &
++		       (SUB_BIT_UP | SUB_BIT_DOWN | SUB_BIT_MOVE)))) {
++		dev_dbg(&bt541->client->dev, "unknown finger event %#02x\n",
++			p->sub_status);
++		return;
++	}
++
++	x = le16_to_cpu(p->x);
++	y = le16_to_cpu(p->y);
++
+ 	input_mt_slot(bt541->input_dev, slot);
+-	input_mt_report_slot_state(bt541->input_dev, MT_TOOL_FINGER, true);
+-	touchscreen_report_pos(bt541->input_dev, &bt541->prop,
+-			       le16_to_cpu(p->x), le16_to_cpu(p->y), true);
+-	input_report_abs(bt541->input_dev, ABS_MT_TOUCH_MAJOR, p->width);
++	if (input_mt_report_slot_state(bt541->input_dev, MT_TOOL_FINGER,
++				       !(p->sub_status & SUB_BIT_UP))) {
++		touchscreen_report_pos(bt541->input_dev,
++				       &bt541->prop, x, y, true);
++		input_report_abs(bt541->input_dev,
++				 ABS_MT_TOUCH_MAJOR, p->width);
++		dev_dbg(&bt541->client->dev, "finger %d %s (%u, %u)\n",
++			slot, p->sub_status & SUB_BIT_DOWN ? "down" : "move",
++			x, y);
++	} else {
++		dev_dbg(&bt541->client->dev, "finger %d up (%u, %u)\n",
++			slot, x, y);
++	}
+ }
+ 
+ static irqreturn_t zinitix_ts_irq_handler(int irq, void *bt541_handler)
+@@ -323,6 +344,7 @@ static irqreturn_t zinitix_ts_irq_handler(int irq, void *bt541_handler)
+ 	struct bt541_ts_data *bt541 = bt541_handler;
+ 	struct i2c_client *client = bt541->client;
+ 	struct touch_event touch_event;
++	unsigned long finger_mask;
+ 	int error;
+ 	int i;
+ 
+@@ -335,10 +357,14 @@ static irqreturn_t zinitix_ts_irq_handler(int irq, void *bt541_handler)
+ 		goto out;
  	}
  
-+	/*
-+	 * Must wait for all threads to stop.
-+	 */
- 	wait_event_interruptible(check_state->wait,
--				 atomic_read(&check_state->started) == 0 ||
--				  test_bit(CACHE_SET_IO_DISABLE, &c->flags));
-+				 atomic_read(&check_state->started) == 0);
+-	for (i = 0; i < MAX_SUPPORTED_FINGER_NUM; i++)
+-		if (touch_event.point_coord[i].sub_status & SUB_BIT_EXIST)
+-			zinitix_report_finger(bt541, i,
+-					      &touch_event.point_coord[i]);
++	finger_mask = touch_event.finger_mask;
++	for_each_set_bit(i, &finger_mask, MAX_SUPPORTED_FINGER_NUM) {
++		const struct point_coord *p = &touch_event.point_coord[i];
++
++		/* Only process contacts that are actually reported */
++		if (p->sub_status & SUB_BIT_EXIST)
++			zinitix_report_finger(bt541, i, p);
++	}
  
- 	for (i = 0; i < check_state->total_threads; i++) {
- 		if (check_state->infos[i].result) {
---- a/drivers/md/bcache/writeback.c
-+++ b/drivers/md/bcache/writeback.c
-@@ -998,9 +998,11 @@ void bch_sectors_dirty_init(struct bcach
- 		}
- 	}
- 
-+	/*
-+	 * Must wait for all threads to stop.
-+	 */
- 	wait_event_interruptible(state->wait,
--		 atomic_read(&state->started) == 0 ||
--		 test_bit(CACHE_SET_IO_DISABLE, &c->flags));
-+		 atomic_read(&state->started) == 0);
- 
- out:
- 	kfree(state);
+ 	input_mt_sync_frame(bt541->input_dev);
+ 	input_sync(bt541->input_dev);
+-- 
+2.34.1
+
 
 
