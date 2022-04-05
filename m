@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 809D54F307B
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:27:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 04DCB4F3396
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:21:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242124AbiDEIgt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:36:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45644 "EHLO
+        id S242528AbiDEJh0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:37:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35176 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239225AbiDEITz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:19:55 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18BDA7CB20;
-        Tue,  5 Apr 2022 01:10:36 -0700 (PDT)
+        with ESMTP id S235839AbiDEJCo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:02:44 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A82382D1C6;
+        Tue,  5 Apr 2022 01:54:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ADE24B81B18;
-        Tue,  5 Apr 2022 08:10:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A077C385A1;
-        Tue,  5 Apr 2022 08:10:32 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 199EECE1C71;
+        Tue,  5 Apr 2022 08:54:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27F72C385A1;
+        Tue,  5 Apr 2022 08:54:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146233;
-        bh=ada5tzx97r3YKFk4SPojZhTvMWtXHqK1h8S4CuvuLIk=;
+        s=korg; t=1649148865;
+        bh=b9CmBkPoTzeTLTQ03P0MF8/xi7jAsA2piHfG702kMsQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GxaRXxCQrsREAjfJhuLUO5ylf/rroo1jezIC0aBm2Zp1OgHEqg34ZQD/3ZqAJsvAc
-         VQdx2VTgQDg21lR/jVACbk5IRiCT4gx33hWZhI6wtyPj4CJ8tdEsVD/+qmOB4NNOfC
-         yQJOBoQLCHbUEBUcaver1O9vwUw1MDD+U34WNhAk=
+        b=PxepK3VUIEXKD51A8Xh2lMK10Q6ZJRoLe3AoPZqRbnSEBwFg8etZMCkGvQFbJ8a3T
+         mjyTb7bUBbpVPeIH3q2lbhrxKMqXTjEubq4WlZHblQSZv0iEfamjiT1oYN1o443KRB
+         aGa6GN+FrzESGy57zBpKgM33rrvqE1gTAndq+BDE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Geliang Tang <geliang.tang@suse.com>,
+        Mat Martineau <mathew.j.martineau@linux.intel.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0673/1126] netfilter: flowtable: Fix QinQ and pppoe support for inet table
+Subject: [PATCH 5.16 0507/1017] selftests: mptcp: add csum mib check for mptcp_connect
 Date:   Tue,  5 Apr 2022 09:23:40 +0200
-Message-Id: <20220405070427.380082672@linuxfoundation.org>
+Message-Id: <20220405070409.349902133@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,127 +55,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Geliang Tang <geliang.tang@suse.com>
 
-[ Upstream commit 0492d857636e1c52cd71594a723c4b26a7b31978 ]
+[ Upstream commit 24720d7452df2dff2e539d9dff28904e25bb1c6d ]
 
-nf_flow_offload_inet_hook() does not check for 802.1q and PPPoE.
-Fetch inner ethertype from these encapsulation protocols.
+This patch added the data checksum error mib counters check for the
+script mptcp_connect.sh when the data checksum is enabled.
 
-Fixes: 72efd585f714 ("netfilter: flowtable: add pppoe support")
-Fixes: 4cd91f7c290f ("netfilter: flowtable: add vlan support")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+In do_transfer(), got the mib counters twice, before and after running
+the mptcp_connect commands. The latter minus the former is the actual
+number of the data checksum mib counter.
+
+The output looks like this:
+
+ns1 MPTCP -> ns2 (dead:beef:1::2:10007) MPTCP   (duration    86ms) [ OK ]
+ns1 MPTCP -> ns2 (10.0.2.1:10008      ) MPTCP   (duration    66ms) [ FAIL ]
+server got 1 data checksum error[s]
+
+Fixes: 94d66ba1d8e48 ("selftests: mptcp: enable checksum in mptcp_connect.sh")
+Closes: https://github.com/multipath-tcp/mptcp_net-next/issues/255
+Signed-off-by: Geliang Tang <geliang.tang@suse.com>
+Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/netfilter/nf_flow_table.h | 18 ++++++++++++++++++
- net/netfilter/nf_flow_table_inet.c    | 17 +++++++++++++++++
- net/netfilter/nf_flow_table_ip.c      | 18 ------------------
- 3 files changed, 35 insertions(+), 18 deletions(-)
+ .../selftests/net/mptcp/mptcp_connect.sh      | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
 
-diff --git a/include/net/netfilter/nf_flow_table.h b/include/net/netfilter/nf_flow_table.h
-index bd59e950f4d6..64daafd1fc41 100644
---- a/include/net/netfilter/nf_flow_table.h
-+++ b/include/net/netfilter/nf_flow_table.h
-@@ -10,6 +10,8 @@
- #include <linux/netfilter/nf_conntrack_tuple_common.h>
- #include <net/flow_offload.h>
- #include <net/dst.h>
-+#include <linux/if_pppox.h>
-+#include <linux/ppp_defs.h>
+diff --git a/tools/testing/selftests/net/mptcp/mptcp_connect.sh b/tools/testing/selftests/net/mptcp/mptcp_connect.sh
+index 559173a8e387..d75fa97609c1 100755
+--- a/tools/testing/selftests/net/mptcp/mptcp_connect.sh
++++ b/tools/testing/selftests/net/mptcp/mptcp_connect.sh
+@@ -445,6 +445,8 @@ do_transfer()
+ 	local stat_ackrx_last_l=$(get_mib_counter "${listener_ns}" "MPTcpExtMPCapableACKRX")
+ 	local stat_cookietx_last=$(get_mib_counter "${listener_ns}" "TcpExtSyncookiesSent")
+ 	local stat_cookierx_last=$(get_mib_counter "${listener_ns}" "TcpExtSyncookiesRecv")
++	local stat_csum_err_s=$(get_mib_counter "${listener_ns}" "MPTcpExtDataCsumErr")
++	local stat_csum_err_c=$(get_mib_counter "${connector_ns}" "MPTcpExtDataCsumErr")
  
- struct nf_flowtable;
- struct nf_flow_rule;
-@@ -317,4 +319,20 @@ int nf_flow_rule_route_ipv6(struct net *net, const struct flow_offload *flow,
- int nf_flow_table_offload_init(void);
- void nf_flow_table_offload_exit(void);
+ 	timeout ${timeout_test} \
+ 		ip netns exec ${listener_ns} \
+@@ -537,6 +539,23 @@ do_transfer()
+ 		fi
+ 	fi
  
-+static inline __be16 nf_flow_pppoe_proto(const struct sk_buff *skb)
-+{
-+	__be16 proto;
++	if $checksum; then
++		local csum_err_s=$(get_mib_counter "${listener_ns}" "MPTcpExtDataCsumErr")
++		local csum_err_c=$(get_mib_counter "${connector_ns}" "MPTcpExtDataCsumErr")
 +
-+	proto = *((__be16 *)(skb_mac_header(skb) + ETH_HLEN +
-+			     sizeof(struct pppoe_hdr)));
-+	switch (proto) {
-+	case htons(PPP_IP):
-+		return htons(ETH_P_IP);
-+	case htons(PPP_IPV6):
-+		return htons(ETH_P_IPV6);
-+	}
++		local csum_err_s_nr=$((csum_err_s - stat_csum_err_s))
++		if [ $csum_err_s_nr -gt 0 ]; then
++			printf "[ FAIL ]\nserver got $csum_err_s_nr data checksum error[s]"
++			rets=1
++		fi
 +
-+	return 0;
-+}
++		local csum_err_c_nr=$((csum_err_c - stat_csum_err_c))
++		if [ $csum_err_c_nr -gt 0 ]; then
++			printf "[ FAIL ]\nclient got $csum_err_c_nr data checksum error[s]"
++			retc=1
++		fi
++	fi
 +
- #endif /* _NF_FLOW_TABLE_H */
-diff --git a/net/netfilter/nf_flow_table_inet.c b/net/netfilter/nf_flow_table_inet.c
-index 5c57ade6bd05..0ccabf3fa6aa 100644
---- a/net/netfilter/nf_flow_table_inet.c
-+++ b/net/netfilter/nf_flow_table_inet.c
-@@ -6,12 +6,29 @@
- #include <linux/rhashtable.h>
- #include <net/netfilter/nf_flow_table.h>
- #include <net/netfilter/nf_tables.h>
-+#include <linux/if_vlan.h>
- 
- static unsigned int
- nf_flow_offload_inet_hook(void *priv, struct sk_buff *skb,
- 			  const struct nf_hook_state *state)
- {
-+	struct vlan_ethhdr *veth;
-+	__be16 proto;
-+
- 	switch (skb->protocol) {
-+	case htons(ETH_P_8021Q):
-+		veth = (struct vlan_ethhdr *)skb_mac_header(skb);
-+		proto = veth->h_vlan_encapsulated_proto;
-+		break;
-+	case htons(ETH_P_PPP_SES):
-+		proto = nf_flow_pppoe_proto(skb);
-+		break;
-+	default:
-+		proto = skb->protocol;
-+		break;
-+	}
-+
-+	switch (proto) {
- 	case htons(ETH_P_IP):
- 		return nf_flow_offload_ip_hook(priv, skb, state);
- 	case htons(ETH_P_IPV6):
-diff --git a/net/netfilter/nf_flow_table_ip.c b/net/netfilter/nf_flow_table_ip.c
-index 889cf88d3dba..6257d87c3a56 100644
---- a/net/netfilter/nf_flow_table_ip.c
-+++ b/net/netfilter/nf_flow_table_ip.c
-@@ -8,8 +8,6 @@
- #include <linux/ipv6.h>
- #include <linux/netdevice.h>
- #include <linux/if_ether.h>
--#include <linux/if_pppox.h>
--#include <linux/ppp_defs.h>
- #include <net/ip.h>
- #include <net/ipv6.h>
- #include <net/ip6_route.h>
-@@ -239,22 +237,6 @@ static unsigned int nf_flow_xmit_xfrm(struct sk_buff *skb,
- 	return NF_STOLEN;
- }
- 
--static inline __be16 nf_flow_pppoe_proto(const struct sk_buff *skb)
--{
--	__be16 proto;
--
--	proto = *((__be16 *)(skb_mac_header(skb) + ETH_HLEN +
--			     sizeof(struct pppoe_hdr)));
--	switch (proto) {
--	case htons(PPP_IP):
--		return htons(ETH_P_IP);
--	case htons(PPP_IPV6):
--		return htons(ETH_P_IPV6);
--	}
--
--	return 0;
--}
--
- static bool nf_flow_skb_encap_protocol(const struct sk_buff *skb, __be16 proto,
- 				       u32 *offset)
- {
+ 	if [ $retc -eq 0 ] && [ $rets -eq 0 ]; then
+ 		printf "[ OK ]"
+ 	fi
 -- 
 2.34.1
 
