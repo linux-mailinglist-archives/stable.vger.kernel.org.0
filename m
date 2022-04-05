@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8435C4F2DBB
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:46:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C73AE4F2AA2
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:05:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347532AbiDEJ1U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:27:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41310 "EHLO
+        id S1356394AbiDEKXr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:23:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55694 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243274AbiDEIuT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:50:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A4C212A82;
-        Tue,  5 Apr 2022 01:38:31 -0700 (PDT)
+        with ESMTP id S236244AbiDEJbO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:31:14 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F4C249266;
+        Tue,  5 Apr 2022 02:18:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 85DE9614E5;
-        Tue,  5 Apr 2022 08:37:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91DB0C385A0;
-        Tue,  5 Apr 2022 08:37:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E29C86144D;
+        Tue,  5 Apr 2022 09:18:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFFD1C385A7;
+        Tue,  5 Apr 2022 09:18:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147874;
-        bh=Cw2NlYAm/sub3uTEA3b2qIyrR3JDeMkKrC26amsoKtQ=;
+        s=korg; t=1649150331;
+        bh=mofzU+Ioylql3jwYOzUHQ6X/mwJ6eaP22Z7z4ZDyVcA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=giPofauEkR82o5KTt4SaFEzge6imnZO4bbsJRwgNuNnOfsuPAoPigN23SwVcwxJcJ
-         Ujr857Hjh8ZE1fwiczus0IfLVq5IHLhKv3yq6cLMoSGEcV2cMejhFV6tK4AymRxugC
-         NWlinx1jQerjsqpYWcwCWlQzUkxyJF2Z0aTnvMJc=
+        b=SaxUWlxLzRYJzi1OMFxw4EMKoiDB1jDa6UqPF95xP4sYOGuqHZdexP7Aqv1uIJuDQ
+         pDxvdel7J6rCHjwSEphaPhtqSnCebE1AwSzf9zJaRAQYht695xiXm940chTM+3Ki9d
+         wn6LtRMQtn2oV0Nl6XdU/DPzkwt0eg9kQDKEBWhA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
-        Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.16 0151/1017] video: fbdev: sm712fb: Fix crash in smtcfb_read()
+        stable@vger.kernel.org, Eddie James <eajames@linux.ibm.com>,
+        Joel Stanley <joel@jms.id.au>, Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.15 002/913] USB: serial: pl2303: add IBM device IDs
 Date:   Tue,  5 Apr 2022 09:17:44 +0200
-Message-Id: <20220405070358.691303918@linuxfoundation.org>
+Message-Id: <20220405070339.882998171@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,76 +53,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Eddie James <eajames@linux.ibm.com>
 
-commit bd771cf5c4254511cc4abb88f3dab3bd58bdf8e8 upstream.
+commit e1d15646565b284e9ef2433234d6cfdaf66695f1 upstream.
 
-Zheyu Ma reported this crash in the sm712fb driver when reading
-three bytes from the framebuffer:
+IBM manufactures a PL2303 device for UPS communications. Add the vendor
+and product IDs so that the PL2303 driver binds to the device.
 
- BUG: unable to handle page fault for address: ffffc90001ffffff
- RIP: 0010:smtcfb_read+0x230/0x3e0
- Call Trace:
-  vfs_read+0x198/0xa00
-  ? do_sys_openat2+0x27d/0x350
-  ? __fget_light+0x54/0x340
-  ksys_read+0xce/0x190
-  do_syscall_64+0x43/0x90
-
-Fix it by removing the open-coded endianess fixup-code and
-by moving the pointer post decrement out the fb_readl() function.
-
-Reported-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Helge Deller <deller@gmx.de>
-Tested-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Eddie James <eajames@linux.ibm.com>
+Signed-off-by: Joel Stanley <joel@jms.id.au>
+Signed-off-by: Eddie James <eajames@linux.ibm.com>
+Link: https://lore.kernel.org/r/20220301224446.21236-1-eajames@linux.ibm.com
 Cc: stable@vger.kernel.org
+[ johan: amend the SoB chain ]
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/video/fbdev/sm712fb.c |   25 +++++++------------------
- 1 file changed, 7 insertions(+), 18 deletions(-)
+ drivers/usb/serial/pl2303.c |    1 +
+ drivers/usb/serial/pl2303.h |    3 +++
+ 2 files changed, 4 insertions(+)
 
---- a/drivers/video/fbdev/sm712fb.c
-+++ b/drivers/video/fbdev/sm712fb.c
-@@ -1047,7 +1047,7 @@ static ssize_t smtcfb_read(struct fb_inf
- 	if (count + p > total_size)
- 		count = total_size - p;
+--- a/drivers/usb/serial/pl2303.c
++++ b/drivers/usb/serial/pl2303.c
+@@ -116,6 +116,7 @@ static const struct usb_device_id id_tab
+ 	{ USB_DEVICE(ADLINK_VENDOR_ID, ADLINK_ND6530GC_PRODUCT_ID) },
+ 	{ USB_DEVICE(SMART_VENDOR_ID, SMART_PRODUCT_ID) },
+ 	{ USB_DEVICE(AT_VENDOR_ID, AT_VTKIT3_PRODUCT_ID) },
++	{ USB_DEVICE(IBM_VENDOR_ID, IBM_PRODUCT_ID) },
+ 	{ }					/* Terminating entry */
+ };
  
--	buffer = kmalloc((count > PAGE_SIZE) ? PAGE_SIZE : count, GFP_KERNEL);
-+	buffer = kmalloc(PAGE_SIZE, GFP_KERNEL);
- 	if (!buffer)
- 		return -ENOMEM;
+--- a/drivers/usb/serial/pl2303.h
++++ b/drivers/usb/serial/pl2303.h
+@@ -35,6 +35,9 @@
+ #define ATEN_PRODUCT_UC232B	0x2022
+ #define ATEN_PRODUCT_ID2	0x2118
  
-@@ -1059,25 +1059,14 @@ static ssize_t smtcfb_read(struct fb_inf
- 	while (count) {
- 		c = (count > PAGE_SIZE) ? PAGE_SIZE : count;
- 		dst = buffer;
--		for (i = c >> 2; i--;) {
--			*dst = fb_readl(src++);
--			*dst = big_swap(*dst);
-+		for (i = (c + 3) >> 2; i--;) {
-+			u32 val;
++#define IBM_VENDOR_ID		0x04b3
++#define IBM_PRODUCT_ID		0x4016
 +
-+			val = fb_readl(src);
-+			*dst = big_swap(val);
-+			src++;
- 			dst++;
- 		}
--		if (c & 3) {
--			u8 *dst8 = (u8 *)dst;
--			u8 __iomem *src8 = (u8 __iomem *)src;
--
--			for (i = c & 3; i--;) {
--				if (i & 1) {
--					*dst8++ = fb_readb(++src8);
--				} else {
--					*dst8++ = fb_readb(--src8);
--					src8 += 2;
--				}
--			}
--			src = (u32 __iomem *)src8;
--		}
- 
- 		if (copy_to_user(buf, buffer, c)) {
- 			err = -EFAULT;
+ #define IODATA_VENDOR_ID	0x04bb
+ #define IODATA_PRODUCT_ID	0x0a03
+ #define IODATA_PRODUCT_ID_RSAQ5	0x0a0e
 
 
