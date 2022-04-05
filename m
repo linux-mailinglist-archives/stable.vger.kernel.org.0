@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D58E74F2771
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:07:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3475B4F2722
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:07:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231276AbiDEIGl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:06:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55916 "EHLO
+        id S233117AbiDEIFN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:05:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48220 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233223AbiDEH47 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:56:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A064427DE;
-        Tue,  5 Apr 2022 00:50:51 -0700 (PDT)
+        with ESMTP id S233337AbiDEH5E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:57:04 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A36184504C;
+        Tue,  5 Apr 2022 00:50:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A047961740;
-        Tue,  5 Apr 2022 07:50:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF58EC340EE;
-        Tue,  5 Apr 2022 07:50:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0BBECB81BAF;
+        Tue,  5 Apr 2022 07:50:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CFFEC340EE;
+        Tue,  5 Apr 2022 07:50:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145050;
-        bh=0m1s9fY8emgpod7a0c86QGW3B5W4ZS13ZfoY2qqIbTQ=;
+        s=korg; t=1649145052;
+        bh=S9cmyvSafNm0XeTi5sEgSrscdGdc2H02qmOF7tU8Kz4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=obkCqheVI4W2j3Crud5Xn6Ni3j9YkHIJIAfkBU6dfPCmnoLGeAKl+gMRaVkIaJlO7
-         5rXZYjKprR79YI1dh4EFSc9DBbIKeUP0yVjn3L3WQcV4xxtmY382clLz2re87AfRJc
-         DWXdbEYRYN/G3jh5yAgT+CVPOdzTOoyGOThguncU=
+        b=w1DTVntSHDMojccmFFdqNBm5oLaIiI/AzVIg2MAeuWPPjoRG7GdytWnmHD4HCFIb7
+         pYx32UfdQNbKQMJphHXp8EHDqkLsWnjNUbjRQB3W3HK7hZT9/CwrVbZIEInRMkqIgi
+         iVj0q/zd3KL52gYINaDINFVPI4I1gZ95LAIXDhYU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+6e2de48f06cdb2884bfc@syzkaller.appspotmail.com
-Subject: [PATCH 5.17 0267/1126] watch_queue: Actually free the watch
-Date:   Tue,  5 Apr 2022 09:16:54 +0200
-Message-Id: <20220405070415.447858221@linuxfoundation.org>
+        stable@vger.kernel.org, Zhipeng Tan <tanzhipeng@hust.edu.cn>,
+        Jicheng Shao <shaojicheng@hust.edu.cn>,
+        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 0268/1126] f2fs: fix to enable ATGC correctly via gc_idle sysfs interface
+Date:   Tue,  5 Apr 2022 09:16:55 +0200
+Message-Id: <20220405070415.477113051@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -54,52 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Chao Yu <chao@kernel.org>
 
-[ Upstream commit 3d8dcf278b1ee1eff1e90be848fa2237db4c07a7 ]
+[ Upstream commit 7d19e3dab0002e527052b0aaf986e8c32e5537bf ]
 
-free_watch() does everything barring actually freeing the watch object.  Fix
-this by adding the missing kfree.
+It needs to assign sbi->gc_mode with GC_IDLE_AT rather than GC_AT when
+user tries to enable ATGC via gc_idle sysfs interface, fix it.
 
-kmemleak produces a report something like the following.  Note that as an
-address can be seen in the first word, the watch would appear to have gone
-through call_rcu().
-
-BUG: memory leak
-unreferenced object 0xffff88810ce4a200 (size 96):
-  comm "syz-executor352", pid 3605, jiffies 4294947473 (age 13.720s)
-  hex dump (first 32 bytes):
-    e0 82 48 0d 81 88 ff ff 00 00 00 00 00 00 00 00  ..H.............
-    80 a2 e4 0c 81 88 ff ff 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<ffffffff8214e6cc>] kmalloc include/linux/slab.h:581 [inline]
-    [<ffffffff8214e6cc>] kzalloc include/linux/slab.h:714 [inline]
-    [<ffffffff8214e6cc>] keyctl_watch_key+0xec/0x2e0 security/keys/keyctl.c:1800
-    [<ffffffff8214ec84>] __do_sys_keyctl+0x3c4/0x490 security/keys/keyctl.c:2016
-    [<ffffffff84493a25>] do_syscall_x64 arch/x86/entry/common.c:50 [inline]
-    [<ffffffff84493a25>] do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
-    [<ffffffff84600068>] entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-Fixes: c73be61cede5 ("pipe: Add general notification queue support")
-Reported-and-tested-by: syzbot+6e2de48f06cdb2884bfc@syzkaller.appspotmail.com
-Signed-off-by: David Howells <dhowells@redhat.com>
+Fixes: 093749e296e2 ("f2fs: support age threshold based garbage collection")
+Cc: Zhipeng Tan <tanzhipeng@hust.edu.cn>
+Signed-off-by: Jicheng Shao <shaojicheng@hust.edu.cn>
+Signed-off-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/watch_queue.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/f2fs/sysfs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/watch_queue.c b/kernel/watch_queue.c
-index 5848d4795816..3990e4df3d7b 100644
---- a/kernel/watch_queue.c
-+++ b/kernel/watch_queue.c
-@@ -395,6 +395,7 @@ static void free_watch(struct rcu_head *rcu)
- 	put_watch_queue(rcu_access_pointer(watch->queue));
- 	atomic_dec(&watch->cred->user->nr_watches);
- 	put_cred(watch->cred);
-+	kfree(watch);
- }
- 
- static void __put_watch(struct kref *kref)
+diff --git a/fs/f2fs/sysfs.c b/fs/f2fs/sysfs.c
+index 8ac506671245..bdb1b5c05be2 100644
+--- a/fs/f2fs/sysfs.c
++++ b/fs/f2fs/sysfs.c
+@@ -481,7 +481,7 @@ static ssize_t __sbi_store(struct f2fs_attr *a,
+ 		} else if (t == GC_IDLE_AT) {
+ 			if (!sbi->am.atgc_enabled)
+ 				return -EINVAL;
+-			sbi->gc_mode = GC_AT;
++			sbi->gc_mode = GC_IDLE_AT;
+ 		} else {
+ 			sbi->gc_mode = GC_NORMAL;
+ 		}
 -- 
 2.34.1
 
