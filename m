@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B60FF4F3225
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:54:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FAC64F3089
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:31:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245471AbiDEI4A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:56:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33636 "EHLO
+        id S245465AbiDEIz6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:55:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46066 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241189AbiDEIcy (ORCPT
+        with ESMTP id S241194AbiDEIcy (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:32:54 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5633217073;
-        Tue,  5 Apr 2022 01:29:14 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B404011A07;
+        Tue,  5 Apr 2022 01:29:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E95F1B81B18;
-        Tue,  5 Apr 2022 08:29:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40D64C385A5;
-        Tue,  5 Apr 2022 08:29:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7291CB81BC6;
+        Tue,  5 Apr 2022 08:29:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1A0FC385A4;
+        Tue,  5 Apr 2022 08:29:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147351;
-        bh=b9u20PZhQs/jTWosZgSYdjk7kUpAxmrC0Cj9hgZHClU=;
+        s=korg; t=1649147357;
+        bh=anzIg/BZjHKQ8DYTcO61nN8CXBqlOwewmajuONW2WQ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qOTrOTY1G+5KrCk/M4sLqxl7T6C1YdOF9cW/Pl/5KBJb5nkBbqdW2In/Cf53xVLL1
-         JQJAhTPjQXxjiWyQT6KgPGmz7t5X7S4a7pUXcJQsvOFxPvkEzCv/Lan1L/bDQlGCa3
-         5raWlItIB7mujAjxEggklQDuzJM82xGXivv7lBMg=
+        b=W0rFuUEcd64v1AbVRoMShQX7uALrYXTIqfark5Ka4+Nc2mbXE2lcKecf6OI9wTS3+
+         tuUX61/dyFHyftrvRU5FuNjsOeY1sIwkU8qqfY3xF49uvzuIbf91D8zc/AyUU86uKn
+         zQgCZdX27ONr26N81iDz/nbrQggskwVQ38YBUhQg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         AngeloGioacchino Del Regno 
         <angelogioacchino.delregno@collabora.com>,
         Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Subject: [PATCH 5.17 1094/1126] dt-bindings: memory: mtk-smi: Rename clock to clocks
-Date:   Tue,  5 Apr 2022 09:30:41 +0200
-Message-Id: <20220405070439.556591526@linuxfoundation.org>
+Subject: [PATCH 5.17 1096/1126] dt-bindings: memory: mtk-smi: Correct minItems to 2 for the gals clocks
+Date:   Tue,  5 Apr 2022 09:30:43 +0200
+Message-Id: <20220405070439.613206237@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -57,109 +57,50 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Yong Wu <yong.wu@mediatek.com>
 
-commit 5bf7fa48374eafe29dbb30448a0b0c083853583f upstream.
+commit 996ebc0e332bfb3091395f9bd286d8349a57be62 upstream.
 
-The property "clock" should be rename to "clocks", and delete the "items",
-the minItems/maxItems should not be put under "items".
+Mute the warning from "make dtbs_check":
+
+larb@14017000: clock-names: ['apb', 'smi'] is too short
+	arch/arm64/boot/dts/mediatek/mt8183-evb.dt.yaml
+	arch/arm64/boot/dts/mediatek/mt8183-kukui-jacuzzi-burnet.dt.yaml
+	...
+
+larb@16010000: clock-names: ['apb', 'smi'] is too short
+	arch/arm64/boot/dts/mediatek/mt8183-evb.dt.yaml
+	arch/arm64/boot/dts/mediatek/mt8183-kukui-jacuzzi-burnet.dt.yaml
+
+larb@17010000: clock-names: ['apb', 'smi'] is too short
+	arch/arm64/boot/dts/mediatek/mt8183-evb.dt.yaml
+	arch/arm64/boot/dts/mediatek/mt8183-kukui-jacuzzi-burnet.dt.yaml
+
+If a platform's larb supports gals, there will be some larbs have one
+more "gals" clock while the others still only need "apb"/"smi" clocks,
+then the minItems for clocks and clock-names are 2.
 
 Fixes: 27bb0e42855a ("dt-bindings: memory: mediatek: Convert SMI to DT schema")
 Signed-off-by: Yong Wu <yong.wu@mediatek.com>
-Acked-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Link: https://lore.kernel.org/r/20220113111057.29918-2-yong.wu@mediatek.com
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Link: https://lore.kernel.org/r/20220113111057.29918-4-yong.wu@mediatek.com
 Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/devicetree/bindings/memory-controllers/mediatek,smi-common.yaml |   28 ++++------
- Documentation/devicetree/bindings/memory-controllers/mediatek,smi-larb.yaml   |   14 ++---
- 2 files changed, 18 insertions(+), 24 deletions(-)
+ Documentation/devicetree/bindings/memory-controllers/mediatek,smi-larb.yaml |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/Documentation/devicetree/bindings/memory-controllers/mediatek,smi-common.yaml
-+++ b/Documentation/devicetree/bindings/memory-controllers/mediatek,smi-common.yaml
-@@ -88,10 +88,9 @@ allOf:
-               - mediatek,mt2701-smi-common
-     then:
-       properties:
--        clock:
--          items:
--            minItems: 3
--            maxItems: 3
-+        clocks:
-+          minItems: 3
-+          maxItems: 3
-         clock-names:
-           items:
-             - const: apb
-@@ -108,10 +107,9 @@ allOf:
-       required:
-         - mediatek,smi
-       properties:
--        clock:
--          items:
--            minItems: 3
--            maxItems: 3
-+        clocks:
-+          minItems: 3
-+          maxItems: 3
-         clock-names:
-           items:
-             - const: apb
-@@ -133,10 +131,9 @@ allOf:
- 
-     then:
-       properties:
--        clock:
--          items:
--            minItems: 4
--            maxItems: 4
-+        clocks:
-+          minItems: 4
-+          maxItems: 4
-         clock-names:
-           items:
-             - const: apb
-@@ -146,10 +143,9 @@ allOf:
- 
-     else:  # for gen2 HW that don't have gals
-       properties:
--        clock:
--          items:
--            minItems: 2
--            maxItems: 2
-+        clocks:
-+          minItems: 2
-+          maxItems: 2
-         clock-names:
-           items:
-             - const: apb
 --- a/Documentation/devicetree/bindings/memory-controllers/mediatek,smi-larb.yaml
 +++ b/Documentation/devicetree/bindings/memory-controllers/mediatek,smi-larb.yaml
-@@ -79,10 +79,9 @@ allOf:
- 
+@@ -80,9 +80,10 @@ allOf:
      then:
        properties:
--        clock:
--          items:
--            minItems: 3
--            maxItems: 3
-+        clocks:
-+          minItems: 3
-+          maxItems: 3
-         clock-names:
-           items:
-             - const: apb
-@@ -91,10 +90,9 @@ allOf:
- 
-     else:
-       properties:
--        clock:
--          items:
--            minItems: 2
--            maxItems: 2
-+        clocks:
+         clocks:
+-          minItems: 3
 +          minItems: 2
-+          maxItems: 2
+           maxItems: 3
          clock-names:
++          minItems: 2
            items:
              - const: apb
+             - const: smi
 
 
