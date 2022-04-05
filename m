@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CC2AA4F3C05
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:23:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 815BD4F3937
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:45:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382273AbiDEMEB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:04:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58576 "EHLO
+        id S1377724AbiDELaY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:30:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33950 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358152AbiDEK2C (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:28:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9789A9D4F7;
-        Tue,  5 Apr 2022 03:16:00 -0700 (PDT)
+        with ESMTP id S1352745AbiDEKFC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:05:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45974BBE31;
+        Tue,  5 Apr 2022 02:53:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2B93A61777;
-        Tue,  5 Apr 2022 10:16:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36A6AC385A0;
-        Tue,  5 Apr 2022 10:15:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2854AB81B13;
+        Tue,  5 Apr 2022 09:53:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BEBAC385A2;
+        Tue,  5 Apr 2022 09:53:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153759;
-        bh=TkRjkbHf35GwvaY8YoQCXT3xu4BK4ElnagkTLzoI8O8=;
+        s=korg; t=1649152422;
+        bh=tTRgRGkVhs4MQfo1x1AjnjCGjBN5nYhl1z3dsRALaTk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ldvo7AUv1ER97pdJt3liNMClUqE+3qdzDbvZYVEFC7eEwR80wCPztysd+/fjpyAtE
-         579mRRjGC5KRrQjd7PsUlzsLmohT4yFk+GiX/KNPqmXxAp+vLrJDJjDcLYudjZIWUn
-         AkoWq6RKme/UOG7UZUF7KFVqZeRl//ncGU4vw0kc=
+        b=O2e9IrvfhCdQqaowO+qnU2S1/3Y5vu4AHaE3CGYMjwTS8Y08wVs/cscrkJikURyvQ
+         Vq18RikC6kKRFwOZqfCEy7pmr9yumz/CH1yfoixR/t2gbETbiQ8K2pK/XFpyt7doB9
+         /awonEX42JmwSLLNv97p2rCKle9W6Xk85id4AoUQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 338/599] power: supply: wm8350-power: Add missing free in free_charger_irq
+        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.15 770/913] KVM: x86: Reinitialize context if host userspace toggles EFER.LME
 Date:   Tue,  5 Apr 2022 09:30:32 +0200
-Message-Id: <20220405070308.890690877@linuxfoundation.org>
+Message-Id: <20220405070402.913373835@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
-References: <20220405070258.802373272@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,36 +53,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Paolo Bonzini <pbonzini@redhat.com>
 
-[ Upstream commit 6dee930f6f6776d1e5a7edf542c6863b47d9f078 ]
+commit d6174299365ddbbf491620c0b8c5ca1a6ef2eea5 upstream.
 
-In free_charger_irq(), there is no free for 'WM8350_IRQ_CHG_FAST_RDY'.
-Therefore, it should be better to add it in order to avoid the memory leak.
+While the guest runs, EFER.LME cannot change unless CR0.PG is clear, and
+therefore EFER.NX is the only bit that can affect the MMU role.  However,
+set_efer accepts a host-initiated change to EFER.LME even with CR0.PG=1.
+In that case, the MMU has to be reset.
 
-Fixes: 14431aa0c5a4 ("power_supply: Add support for WM8350 PMU")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 11988499e62b ("KVM: x86: Skip EFER vs. guest CPUID checks for host-initiated writes")
+Cc: stable@vger.kernel.org
+Reviewed-by: Sean Christopherson <seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/power/supply/wm8350_power.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/kvm/mmu.h |    1 +
+ arch/x86/kvm/x86.c |    3 +--
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/power/supply/wm8350_power.c b/drivers/power/supply/wm8350_power.c
-index 9c46c48dccb1..908cfd45d262 100644
---- a/drivers/power/supply/wm8350_power.c
-+++ b/drivers/power/supply/wm8350_power.c
-@@ -524,6 +524,7 @@ static void free_charger_irq(struct wm8350 *wm8350)
- 	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_TO, wm8350);
- 	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_END, wm8350);
- 	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_START, wm8350);
-+	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_FAST_RDY, wm8350);
- 	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_VBATT_LT_3P9, wm8350);
- 	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_VBATT_LT_3P1, wm8350);
- 	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_VBATT_LT_2P85, wm8350);
--- 
-2.34.1
-
+--- a/arch/x86/kvm/mmu.h
++++ b/arch/x86/kvm/mmu.h
+@@ -49,6 +49,7 @@
+ 			       X86_CR4_LA57)
+ 
+ #define KVM_MMU_CR0_ROLE_BITS (X86_CR0_PG | X86_CR0_WP)
++#define KVM_MMU_EFER_ROLE_BITS (EFER_LME | EFER_NX)
+ 
+ static __always_inline u64 rsvd_bits(int s, int e)
+ {
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -1605,8 +1605,7 @@ static int set_efer(struct kvm_vcpu *vcp
+ 		return r;
+ 	}
+ 
+-	/* Update reserved bits */
+-	if ((efer ^ old_efer) & EFER_NX)
++	if ((efer ^ old_efer) & KVM_MMU_EFER_ROLE_BITS)
+ 		kvm_mmu_reset_context(vcpu);
+ 
+ 	return 0;
 
 
