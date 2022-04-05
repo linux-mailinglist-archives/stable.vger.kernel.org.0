@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 81D464F3523
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:48:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FD2A4F2EDD
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:04:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355513AbiDEKUL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:20:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43644 "EHLO
+        id S245580AbiDEI4X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:56:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33912 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345585AbiDEJWv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:22:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 448AA4EA24;
-        Tue,  5 Apr 2022 02:11:21 -0700 (PDT)
+        with ESMTP id S241075AbiDEIcr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:32:47 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A815B91B4;
+        Tue,  5 Apr 2022 01:26:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BB0D7B80DA1;
-        Tue,  5 Apr 2022 09:11:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D16BC385A0;
-        Tue,  5 Apr 2022 09:11:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4B4EBB81BC0;
+        Tue,  5 Apr 2022 08:26:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC1ADC385A1;
+        Tue,  5 Apr 2022 08:26:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149879;
-        bh=v0e+GbbN1cfqPskZ/ICNmADN7c4vz8YjGJCkhl99+Wk=;
+        s=korg; t=1649147207;
+        bh=u23NH34kl7PznmgSrVXT+VDoZ9cUyuQwamW4iHXKBfc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TTngsG5fufdald9LSJSmJroP4Wc+utoZ8MsCgl5/UDDAeuMMAMGDle7pHILGcVkFU
-         yRVtwKObzlYQU4oVLtQ69twfIfwORlfMGEonYX6lQiF5/RDSVEBL5aKwZfRBDW0Wkz
-         xVUbcKKKmFk7UpZMMiZGVPFq4e9ES779SrIVqJa4=
+        b=S/ylaw7v9wCvo4xUBQ942OI9JxS7MB6l6zAZmZwyAbS9N0h3U4Qlah8BSbJHKc6oU
+         y7t8nUkFlN648Tb9BjHb0Lvyf4qN4o1rebGN11X+irXLACPNoOV9U10iibn8Gc7G/i
+         9rXrStflr5VUWrtgOEFAlTC5kPXZwW+xKRHma3/g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Subject: [PATCH 5.16 0873/1017] drm/i915: Fix PSF GV point mask when SAGV is not possible
+        syzbot+25ea042ae28f3888727a@syzkaller.appspotmail.com,
+        Eric Dumazet <edumazet@google.com>,
+        David Howells <dhowells@redhat.com>,
+        Jann Horn <jannh@google.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.17 1039/1126] watch_queue: Free the page array when watch_queue is dismantled
 Date:   Tue,  5 Apr 2022 09:29:46 +0200
-Message-Id: <20220405070420.149613416@linuxfoundation.org>
+Message-Id: <20220405070437.971764279@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,38 +57,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 3ef8b5e19ead5a79600ea55f9549658281415893 upstream.
+commit b490207017ba237d97b735b2aa66dc241ccd18f5 upstream.
 
-Don't just mask off all the PSF GV points when SAGV gets disabled.
-This should in fact cause the Pcode to reject the request since
-at least one PSF point must remain enabled at all times.
+Commit 7ea1a0124b6d ("watch_queue: Free the alloc bitmap when the
+watch_queue is torn down") took care of the bitmap, but not the page
+array.
 
-Cc: stable@vger.kernel.org
-Cc: Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>
-Fixes: 192fbfb76744 ("drm/i915: Implement PSF GV point support")
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220309164948.10671-7-ville.syrjala@linux.intel.com
-Reviewed-by: Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>
-(cherry picked from commit 0fed4ddd18f064d2359b430c6e83ee60dd1f49b1)
-Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+  BUG: memory leak
+  unreferenced object 0xffff88810d9bc140 (size 32):
+  comm "syz-executor335", pid 3603, jiffies 4294946994 (age 12.840s)
+  hex dump (first 32 bytes):
+    40 a7 40 04 00 ea ff ff 00 00 00 00 00 00 00 00  @.@.............
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+     kmalloc_array include/linux/slab.h:621 [inline]
+     kcalloc include/linux/slab.h:652 [inline]
+     watch_queue_set_size+0x12f/0x2e0 kernel/watch_queue.c:251
+     pipe_ioctl+0x82/0x140 fs/pipe.c:632
+     vfs_ioctl fs/ioctl.c:51 [inline]
+     __do_sys_ioctl fs/ioctl.c:874 [inline]
+     __se_sys_ioctl fs/ioctl.c:860 [inline]
+     __x64_sys_ioctl+0xfc/0x140 fs/ioctl.c:860
+     do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+
+Reported-by: syzbot+25ea042ae28f3888727a@syzkaller.appspotmail.com
+Fixes: c73be61cede5 ("pipe: Add general notification queue support")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David Howells <dhowells@redhat.com>
+Cc: Jann Horn <jannh@google.com>
+Link: https://lore.kernel.org/r/20220322004654.618274-1-eric.dumazet@gmail.com/
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/display/intel_bw.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ kernel/watch_queue.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/gpu/drm/i915/display/intel_bw.c
-+++ b/drivers/gpu/drm/i915/display/intel_bw.c
-@@ -819,7 +819,8 @@ int intel_bw_atomic_check(struct intel_a
- 	 * cause.
- 	 */
- 	if (!intel_can_enable_sagv(dev_priv, new_bw_state)) {
--		allowed_points = BIT(max_bw_point);
-+		allowed_points &= ADLS_PSF_PT_MASK;
-+		allowed_points |= BIT(max_bw_point);
- 		drm_dbg_kms(&dev_priv->drm, "No SAGV, using single QGV point %d\n",
- 			    max_bw_point);
- 	}
+--- a/kernel/watch_queue.c
++++ b/kernel/watch_queue.c
+@@ -370,6 +370,7 @@ static void __put_watch_queue(struct kre
+ 
+ 	for (i = 0; i < wqueue->nr_pages; i++)
+ 		__free_page(wqueue->notes[i]);
++	kfree(wqueue->notes);
+ 	bitmap_free(wqueue->notes_bitmap);
+ 
+ 	wfilter = rcu_access_pointer(wqueue->filter);
 
 
