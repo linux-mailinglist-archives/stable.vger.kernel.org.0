@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B9ED4F2B4A
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:09:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CFD854F2D0E
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:35:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245574AbiDEI4W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:56:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33636 "EHLO
+        id S237694AbiDEInN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:43:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46260 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241078AbiDEIcr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:32:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 892B6F0E;
-        Tue,  5 Apr 2022 01:26:56 -0700 (PDT)
+        with ESMTP id S241085AbiDEIcs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:32:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 323BE13F42;
+        Tue,  5 Apr 2022 01:26:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 266FC60FF5;
-        Tue,  5 Apr 2022 08:26:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3259EC385A1;
-        Tue,  5 Apr 2022 08:26:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C216C61001;
+        Tue,  5 Apr 2022 08:26:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5C2CC385A1;
+        Tue,  5 Apr 2022 08:26:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147215;
-        bh=yqm4qNRot0W+kBh+mRQCRatH0OJBgYorbLjzeBfhe3Q=;
+        s=korg; t=1649147218;
+        bh=oPodn0ztNol+LNm49PEtGqL8jXdiQr3R6lw3KsHDegQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aehPC1N5fPw2PSCA0jqlv1u9FN1pMkn9L/fiFAGKhFEBwyigLyNENJ7X1UEWKFClM
-         zFuyk8fylhlcX22Xbora4fRQFnBuRuez5OWIUXL06vKRAEhYvrkqzbyD36mMYSYOY0
-         JcyEFh0ujXLMOel63dRbIEwetdRE3r8Rp+MWBUOg=
+        b=pPHWKLxRAwg4vQMzIP8xZDqrK9v1nXL7A8Vu15H+Vv2UwRTANww4zfH52imGk2mD3
+         pyrV4WSIoR526IqcmnV2hv+y2LtdqFOZENFKsfVCvsvRqmxbMFS+2Yl0KKEyOcf7lY
+         6aFwJ6RdsVKu/KD1Z5Cs/Wp/sX7rZoGj/4Nz9/nY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>
-Subject: [PATCH 5.17 1041/1126] watchdog: rti-wdt: Add missing pm_runtime_disable() in probe function
-Date:   Tue,  5 Apr 2022 09:29:48 +0200
-Message-Id: <20220405070438.029869375@linuxfoundation.org>
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        kernel test robot <lkp@intel.com>,
+        Horatiu Vultur <horatiu.vultur@microchip.com>,
+        Lars Povlsen <lars.povlsen@microchip.com>,
+        Steen Hegelund <Steen.Hegelund@microchip.com>,
+        UNGLinuxDriver@microchip.com, Paolo Abeni <pabeni@redhat.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.17 1042/1126] net: sparx5: uses, depends on BRIDGE or !BRIDGE
+Date:   Tue,  5 Apr 2022 09:29:49 +0200
+Message-Id: <20220405070438.059036828@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -54,33 +58,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-commit d055ef3a2c6919cff504ae3b710c96318d545fd2 upstream.
+commit f9512d654f62604664251dedd437a22fe484974a upstream.
 
-If the probe fails, we should use pm_runtime_disable() to balance
-pm_runtime_enable().
+Fix build errors when BRIDGE=m and SPARX5_SWITCH=y:
 
-Fixes: 2d63908bdbfb ("watchdog: Add K3 RTI watchdog support")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20220105092114.23932-1-linmq006@gmail.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
+riscv64-linux-ld: drivers/net/ethernet/microchip/sparx5/sparx5_switchdev.o: in function `.L305':
+sparx5_switchdev.c:(.text+0xdb0): undefined reference to `br_vlan_enabled'
+riscv64-linux-ld: drivers/net/ethernet/microchip/sparx5/sparx5_switchdev.o: in function `.L283':
+sparx5_switchdev.c:(.text+0xee0): undefined reference to `br_vlan_enabled'
+
+Fixes: 3cfa11bac9bb ("net: sparx5: add the basic sparx5 driver")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Cc: Horatiu Vultur <horatiu.vultur@microchip.com>
+Cc: Lars Povlsen <lars.povlsen@microchip.com>
+Cc: Steen Hegelund <Steen.Hegelund@microchip.com>
+Cc: UNGLinuxDriver@microchip.com
+Cc: Paolo Abeni <pabeni@redhat.com>
+Link: https://lore.kernel.org/r/20220330012025.29560-1-rdunlap@infradead.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/watchdog/rti_wdt.c |    1 +
+ drivers/net/ethernet/microchip/sparx5/Kconfig |    1 +
  1 file changed, 1 insertion(+)
 
---- a/drivers/watchdog/rti_wdt.c
-+++ b/drivers/watchdog/rti_wdt.c
-@@ -228,6 +228,7 @@ static int rti_wdt_probe(struct platform
- 	ret = pm_runtime_get_sync(dev);
- 	if (ret) {
- 		pm_runtime_put_noidle(dev);
-+		pm_runtime_disable(&pdev->dev);
- 		return dev_err_probe(dev, ret, "runtime pm failed\n");
- 	}
- 
+--- a/drivers/net/ethernet/microchip/sparx5/Kconfig
++++ b/drivers/net/ethernet/microchip/sparx5/Kconfig
+@@ -5,6 +5,7 @@ config SPARX5_SWITCH
+ 	depends on OF
+ 	depends on ARCH_SPARX5 || COMPILE_TEST
+ 	depends on PTP_1588_CLOCK_OPTIONAL
++	depends on BRIDGE || BRIDGE=n
+ 	select PHYLINK
+ 	select PHY_SPARX5_SERDES
+ 	select RESET_CONTROLLER
 
 
