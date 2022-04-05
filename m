@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F6E54F41BB
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:34:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A8734F403D
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:15:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381213AbiDEMOj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:14:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57674 "EHLO
+        id S1381276AbiDEMOl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:14:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49700 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242159AbiDEKfQ (ORCPT
+        with ESMTP id S234591AbiDEKfQ (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:35:16 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C894B36B49;
-        Tue,  5 Apr 2022 03:20:41 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1305E3B2B7;
+        Tue,  5 Apr 2022 03:20:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 652E2616D7;
-        Tue,  5 Apr 2022 10:20:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 745DAC385A1;
-        Tue,  5 Apr 2022 10:20:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C1933B81BC5;
+        Tue,  5 Apr 2022 10:20:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F1CBC385A1;
+        Tue,  5 Apr 2022 10:20:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649154040;
-        bh=HQpRMrAehDtWeCK0JY9A9/XHa20QiNq1aSYK6C2zu8A=;
+        s=korg; t=1649154043;
+        bh=iGOaU2i15VbzWQLnZXbCeWm1YGT/GMhnFIK35uqmUXc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rkOnGlKWBwSJKrjDCSefmzxS8FQWRIi2nKo0p5GZb4twQriwTPBJptxG0ms9714uq
-         DBfibbxkbhYBLGpffn45NDe9ZJBv9PFwAN/FP3OXqDHo2P9jthA2Li03ER0ZANsTfC
-         ryIwb/sqyajIglb0agmjlonB6yASmJPUuBPD4B/k=
+        b=ChlkDajjTLZ9qClQdbZ1XsvVy2qGGZ/wg7+7W9ZR2cHIQnnn3hK1DUMxhOdYpD1Jg
+         EwUZQSr2ukc1/1iE4hRJwYRSvgxA8GjaK3+bp7Vmlzvy6tDs32eq2jVQQKVoiNz/vr
+         29VyxtnEC5Y1yRJd/5G+vH6njEl7BFAy/c2HTaZc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Konrad Dybcio <konrad.dybcio@somainline.org>,
-        Petr Vorel <petr.vorel@gmail.com>,
+        Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+        Maxime Ripard <maxime@cerno.tech>,
         Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 435/599] clk: qcom: gcc-msm8994: Fix gpll4 width
-Date:   Tue,  5 Apr 2022 09:32:09 +0200
-Message-Id: <20220405070311.777210676@linuxfoundation.org>
+Subject: [PATCH 5.10 436/599] clk: Initialize orphan req_rate
+Date:   Tue,  5 Apr 2022 09:32:10 +0200
+Message-Id: <20220405070311.806309623@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -56,41 +56,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Konrad Dybcio <konrad.dybcio@somainline.org>
+From: Maxime Ripard <maxime@cerno.tech>
 
-[ Upstream commit 71021db1c532c2545ae53b9ee85b37b7154f51d4 ]
+[ Upstream commit 5f7e2af00807f2117650e711a58b7f0e986ce1df ]
 
-The gpll4 postdiv is actually a div4, so make sure that Linux is aware of
-this.
+When registering a clock that doesn't have a recalc_rate implementation,
+and doesn't have its parent registered yet, we initialize the clk_core
+rate and 'req_rate' fields to 0.
 
-This fixes the following error messages:
+The rate field is later updated when the parent is registered in
+clk_core_reparent_orphans_nolock() using __clk_recalc_rates(), but the
+'req_rate' field is never updated.
 
- mmc1: Card appears overclocked; req 200000000 Hz, actual 343999999 Hz
- mmc1: Card appears overclocked; req 400000000 Hz, actual 687999999 Hz
+This leads to an issue in clk_set_rate_range() and clk_put(), since
+those functions will call clk_set_rate() with the content of 'req_rate'
+to provide drivers with the opportunity to change the rate based on the
+new boundaries. In this case, we would call clk_set_rate() with a rate
+of 0, effectively enforcing the minimum allowed for this clock whenever
+we would call one of those two functions, even though the actual rate
+might be within range.
 
-Fixes: aec89f78cf01 ("clk: qcom: Add support for msm8994 global clock controller")
-Signed-off-by: Konrad Dybcio <konrad.dybcio@somainline.org>
-Link: https://lore.kernel.org/r/20220319174940.341137-1-konrad.dybcio@somainline.org
-Tested-by: Petr Vorel <petr.vorel@gmail.com>
-Reviewed-by: Petr Vorel <petr.vorel@gmail.com>
+Let's fix this by setting 'req_rate' in
+clk_core_reparent_orphans_nolock() with the rate field content just
+updated by the call to __clk_recalc_rates().
+
+Fixes: 1c8e600440c7 ("clk: Add rate constraints to clocks")
+Reported-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Tested-by: Dmitry Osipenko <dmitry.osipenko@collabora.com> # T30 Nexus7
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://lore.kernel.org/r/20220325161144.1901695-2-maxime@cerno.tech
+[sboyd@kernel.org: Reword comment]
 Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/qcom/gcc-msm8994.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/clk/clk.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/drivers/clk/qcom/gcc-msm8994.c b/drivers/clk/qcom/gcc-msm8994.c
-index 144d2ba7a9be..463a444c8a7e 100644
---- a/drivers/clk/qcom/gcc-msm8994.c
-+++ b/drivers/clk/qcom/gcc-msm8994.c
-@@ -108,6 +108,7 @@ static struct clk_alpha_pll gpll4_early = {
- 
- static struct clk_alpha_pll_postdiv gpll4 = {
- 	.offset = 0x1dc0,
-+	.width = 4,
- 	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
- 	.clkr.hw.init = &(struct clk_init_data)
- 	{
+diff --git a/drivers/clk/clk.c b/drivers/clk/clk.c
+index b8a0e3d23698..92fc084203b7 100644
+--- a/drivers/clk/clk.c
++++ b/drivers/clk/clk.c
+@@ -3384,6 +3384,19 @@ static void clk_core_reparent_orphans_nolock(void)
+ 			__clk_set_parent_after(orphan, parent, NULL);
+ 			__clk_recalc_accuracies(orphan);
+ 			__clk_recalc_rates(orphan, 0);
++
++			/*
++			 * __clk_init_parent() will set the initial req_rate to
++			 * 0 if the clock doesn't have clk_ops::recalc_rate and
++			 * is an orphan when it's registered.
++			 *
++			 * 'req_rate' is used by clk_set_rate_range() and
++			 * clk_put() to trigger a clk_set_rate() call whenever
++			 * the boundaries are modified. Let's make sure
++			 * 'req_rate' is set to something non-zero so that
++			 * clk_set_rate_range() doesn't drop the frequency.
++			 */
++			orphan->req_rate = orphan->rate;
+ 		}
+ 	}
+ }
 -- 
 2.34.1
 
