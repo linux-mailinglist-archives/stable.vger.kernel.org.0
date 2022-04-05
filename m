@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CE1134F2D6F
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:42:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C981C4F29D9
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 12:50:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239439AbiDEJxx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:53:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41988 "EHLO
+        id S235966AbiDEI1J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:27:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34814 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243306AbiDEJIx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:08:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F06EF9F6F6;
-        Tue,  5 Apr 2022 01:57:56 -0700 (PDT)
+        with ESMTP id S239445AbiDEIUF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:20:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0006695A00;
+        Tue,  5 Apr 2022 01:13:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 66F62615BB;
-        Tue,  5 Apr 2022 08:57:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 784E2C385A5;
-        Tue,  5 Apr 2022 08:57:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9B9F6B81BA7;
+        Tue,  5 Apr 2022 08:13:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA59EC385A1;
+        Tue,  5 Apr 2022 08:13:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149075;
-        bh=qQkG5DprhOohE/vv7FqAicjZ5OSnoUow72LwglFkNNY=;
+        s=korg; t=1649146405;
+        bh=PSrBa409QKcUs2W/8ZzSou2iYvI9BebDvX7O4pcvzgo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A8d+imwd02nQSix9ptaml37ORnduFW2HwAIGjyiAPidEgaMxZQssu+KU2EBykAJt7
-         XGcPTFxXmNEmV3wPDZ4zPIT2rMz/itrmYpk1CsZtuuBWbZUa2E/KBayTAzTzIivmFf
-         PipxGL2vVIDkKi949wE11t3pxUo/oG2+RPrKux4A=
+        b=GcQV0VnDR1s0QNp/Vxeg7UaaioEzPojdjk6xl6SBf2g5fV69OJDP9y9UYO1gBDi9g
+         5MwaFfQK3W+KXpIWWZyNcvxmZ14lEpM+tqjacNpJvEbjd3acavOXhAl1vmbpjt0VEz
+         wpR1pHyQaBU84rFOilqu3CUEsblWO3Tq4rkn8zSo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
-        Jia-Ju Bai <baijiaju1990@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0584/1017] platform/x86: huawei-wmi: check the return value of device_create_file()
-Date:   Tue,  5 Apr 2022 09:24:57 +0200
-Message-Id: <20220405070411.615032299@linuxfoundation.org>
+Subject: [PATCH 5.17 0751/1126] remoteproc: qcom: Fix missing of_node_put in adsp_alloc_memory_region
+Date:   Tue,  5 Apr 2022 09:24:58 +0200
+Message-Id: <20220405070429.628341670@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,49 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit c91a5b1c221a58d008485cf7d02ccce73108b119 ]
+[ Upstream commit 505b5b1616e200042999de715dbe7c1e2735cd65 ]
 
-The function device_create_file() in huawei_wmi_battery_add() can fail,
-so its return value should be checked.
+The device_node pointer is returned by of_parse_phandle()  with refcount
+incremented. We should use of_node_put() on it when done.
 
-Fixes: 355a070b09ab ("platform/x86: huawei-wmi: Add battery charging thresholds")
-Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
-Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-Link: https://lore.kernel.org/r/20220303022421.313-1-baijiaju1990@gmail.com
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Fixes: dc160e449122 ("remoteproc: qcom: Introduce Non-PAS ADSP PIL driver")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220308031219.4718-1-linmq006@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/huawei-wmi.c | 13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ drivers/remoteproc/qcom_q6v5_adsp.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/platform/x86/huawei-wmi.c b/drivers/platform/x86/huawei-wmi.c
-index a2d846c4a7ee..eac3e6b4ea11 100644
---- a/drivers/platform/x86/huawei-wmi.c
-+++ b/drivers/platform/x86/huawei-wmi.c
-@@ -470,10 +470,17 @@ static DEVICE_ATTR_RW(charge_control_thresholds);
+diff --git a/drivers/remoteproc/qcom_q6v5_adsp.c b/drivers/remoteproc/qcom_q6v5_adsp.c
+index 098362e6e233..7c02bc132247 100644
+--- a/drivers/remoteproc/qcom_q6v5_adsp.c
++++ b/drivers/remoteproc/qcom_q6v5_adsp.c
+@@ -408,6 +408,7 @@ static int adsp_alloc_memory_region(struct qcom_adsp *adsp)
+ 	}
  
- static int huawei_wmi_battery_add(struct power_supply *battery)
- {
--	device_create_file(&battery->dev, &dev_attr_charge_control_start_threshold);
--	device_create_file(&battery->dev, &dev_attr_charge_control_end_threshold);
-+	int err = 0;
+ 	ret = of_address_to_resource(node, 0, &r);
++	of_node_put(node);
+ 	if (ret)
+ 		return ret;
  
--	return 0;
-+	err = device_create_file(&battery->dev, &dev_attr_charge_control_start_threshold);
-+	if (err)
-+		return err;
-+
-+	err = device_create_file(&battery->dev, &dev_attr_charge_control_end_threshold);
-+	if (err)
-+		device_remove_file(&battery->dev, &dev_attr_charge_control_start_threshold);
-+
-+	return err;
- }
- 
- static int huawei_wmi_battery_remove(struct power_supply *battery)
 -- 
 2.34.1
 
