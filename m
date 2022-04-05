@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 622064F26A7
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:05:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 11DAF4F2672
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:04:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233105AbiDEIFL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:05:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44146 "EHLO
+        id S233358AbiDEIGV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:06:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53046 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235548AbiDEH7u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:59:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13A2F3FBF4;
-        Tue,  5 Apr 2022 00:55:28 -0700 (PDT)
+        with ESMTP id S235552AbiDEH7v (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:59:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E9D63FBF7;
+        Tue,  5 Apr 2022 00:55:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BA94FB81B14;
-        Tue,  5 Apr 2022 07:55:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30404C340EE;
-        Tue,  5 Apr 2022 07:55:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CF68E615CD;
+        Tue,  5 Apr 2022 07:55:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4220C340EE;
+        Tue,  5 Apr 2022 07:55:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145325;
-        bh=E3FaJ/nx3bEWvzszHpgsmAG0aBDSEcXEdDjrXKJkq8M=;
+        s=korg; t=1649145328;
+        bh=zU+CWYBYU/8pJUNeNTS9RmWcQvumA7Jb/SBfIxAI/3I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ghLt0HNO5+Wwg8gXm5940yqUpJzcSZ50P49Ra5dK408WU+iwuCBdeXABpmwTVH0Rc
-         GlvxbBhkDnSXOkMaS7jXJpIgA1R46CGT/zAeqH4aUWcHDyFjYFhmum/JY5nSZ549Dy
-         RNNglgaEF335FP5Fbe/mBUbiQH/Vc6d+hBXZfY7g=
+        b=l7bI+vEMcXxCu5wuspnoxZgFUsUPtndkDMSqrzvVoljeR4bxQP82LQsK7jjc0vdXS
+         As3mnTSxBSBxAtuRexe3nbXwj7ZLVwuwTPuMOXea0YMWQiZlzdxzDDn4PnrdF02Sf1
+         1N1/WSXxR9iJFjRw8WW+gX6jUoSBd0V2BdaT22uk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Mark Brown <broonie@kernel.org>,
+        Nicolas Dufresne <nicolas.dufresne@collabora.com>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0364/1126] ASoC: codecs: wcd934x: fix return value of wcd934x_rx_hph_mode_put
-Date:   Tue,  5 Apr 2022 09:18:31 +0200
-Message-Id: <20220405070418.311853075@linuxfoundation.org>
+Subject: [PATCH 5.17 0365/1126] media: v4l2-core: Initialize h264 scaling matrix
+Date:   Tue,  5 Apr 2022 09:18:32 +0200
+Message-Id: <20220405070418.341509882@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -55,44 +57,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+From: Nicolas Dufresne <nicolas.dufresne@collabora.com>
 
-[ Upstream commit 4b0bec6088588a120d33db85b1f0d9f096d1df71 ]
+[ Upstream commit 0f6146d476fc99862899e70f2554ee77b444b7b9 ]
 
-wcd934x_rx_hph_mode_put currently returns zero eventhough it changes the value.
-Fix this, so that change notifications are sent correctly.
+In the final H264 API, it is not required to set scaling matrix if
+they are not present in the bitstream. A flag was added in order to let
+the driver know. The downside is that it leaves the default control
+value to 0, which isn't valid. As per the spec (see formulas 7-8/7-9),
+when the scaling matrix are absent from the bitstream, flat values
+of 16 should be used. This improves this control semantic in a way
+that the control value are always valid. Drivers can then use
+the scaling_matrix control values without having to check its presence.
+Same method was employed for MPEG2_QUANTISATION.
 
-Fixes: 1cde8b822332 ("ASoC: wcd934x: add basic controls")
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20220222183212.11580-10-srinivas.kandagatla@linaro.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+This fixes issues with MTK VCODEC H264 decoder when using GStreamer.
+GStreamer does not set this control if its not present in the bitstream.
+As MTK VDCODEC was using the initialized to 0 values, the frames ended
+up completely gray.
+
+Fixes: 54889c51b833d236 ("media: uapi: h264: Rename and clarify PPS_FLAG_SCALING_MATRIX_PRESENT")
+Signed-off-by: Nicolas Dufresne <nicolas.dufresne@collabora.com>
+Tested-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/wcd934x.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/media/v4l2-core/v4l2-ctrls-core.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/sound/soc/codecs/wcd934x.c b/sound/soc/codecs/wcd934x.c
-index f2674905a4a7..40b414867872 100644
---- a/sound/soc/codecs/wcd934x.c
-+++ b/sound/soc/codecs/wcd934x.c
-@@ -3308,13 +3308,16 @@ static int wcd934x_rx_hph_mode_put(struct snd_kcontrol *kc,
+diff --git a/drivers/media/v4l2-core/v4l2-ctrls-core.c b/drivers/media/v4l2-core/v4l2-ctrls-core.c
+index b25c77b8a445..df8cff47a7fb 100644
+--- a/drivers/media/v4l2-core/v4l2-ctrls-core.c
++++ b/drivers/media/v4l2-core/v4l2-ctrls-core.c
+@@ -114,6 +114,7 @@ static void std_init_compound(const struct v4l2_ctrl *ctrl, u32 idx,
+ 	struct v4l2_ctrl_vp8_frame *p_vp8_frame;
+ 	struct v4l2_ctrl_vp9_frame *p_vp9_frame;
+ 	struct v4l2_ctrl_fwht_params *p_fwht_params;
++	struct v4l2_ctrl_h264_scaling_matrix *p_h264_scaling_matrix;
+ 	void *p = ptr.p + idx * ctrl->elem_size;
  
- 	mode_val = ucontrol->value.enumerated.item[0];
- 
-+	if (mode_val == wcd->hph_mode)
-+		return 0;
-+
- 	if (mode_val == 0) {
- 		dev_err(wcd->dev, "Invalid HPH Mode, default to ClSH HiFi\n");
- 		mode_val = CLS_H_LOHIFI;
+ 	if (ctrl->p_def.p_const)
+@@ -168,6 +169,15 @@ static void std_init_compound(const struct v4l2_ctrl *ctrl, u32 idx,
+ 		p_fwht_params->flags = V4L2_FWHT_FL_PIXENC_YUV |
+ 			(2 << V4L2_FWHT_FL_COMPONENTS_NUM_OFFSET);
+ 		break;
++	case V4L2_CTRL_TYPE_H264_SCALING_MATRIX:
++		p_h264_scaling_matrix = p;
++		/*
++		 * The default (flat) H.264 scaling matrix when none are
++		 * specified in the bitstream, this is according to formulas
++		 *  (7-8) and (7-9) of the specification.
++		 */
++		memset(p_h264_scaling_matrix, 16, sizeof(*p_h264_scaling_matrix));
++		break;
  	}
- 	wcd->hph_mode = mode_val;
- 
--	return 0;
-+	return 1;
  }
  
- static int slim_rx_mux_get(struct snd_kcontrol *kc,
 -- 
 2.34.1
 
