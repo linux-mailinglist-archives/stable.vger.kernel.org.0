@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CBEB4F3737
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:19:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B89774F36ED
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:10:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352530AbiDELLa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:11:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43648 "EHLO
+        id S240036AbiDELJF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:09:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47556 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348913AbiDEJsq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:48:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F05EEE4E3;
-        Tue,  5 Apr 2022 02:37:22 -0700 (PDT)
+        with ESMTP id S1348794AbiDEJsg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:48:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B568A85640;
+        Tue,  5 Apr 2022 02:35:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2BC7E61368;
-        Tue,  5 Apr 2022 09:37:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A529C385A2;
-        Tue,  5 Apr 2022 09:37:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6D4DBB81C82;
+        Tue,  5 Apr 2022 09:35:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2BCAC385A2;
+        Tue,  5 Apr 2022 09:35:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151441;
-        bh=LVVgoah1FFD2uGXo9sEwOMtgTBJf1uME5I17THO9hX4=;
+        s=korg; t=1649151333;
+        bh=F2QB7kb0dawbt9xWarnKA2zPFQV/q0hPhE2v5d7TAd4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C7fo7jGYUwGs3SCaon5/FsZ2tP6JJksma3POivtkP/XtweblnTEcOlFN0l+cuc7k7
-         lAuxuXCTRagJqKt6PLsg3epk8xclev0FXbtYH7wq1F9RISbAFpHYEGhJmi+mEUHj8e
-         vsP4QA1YAv/aGmd863dv8vBzRd5+LilyGVlJu/FM=
+        b=LxICI2ER2S79EG9/7/I5iddF8uHhvKbP7F6iJ4A6Mv+NlVOmZybwf8BF3g21t5EPS
+         0kGb/XkisSWnqengkBqnl7MPZ+SBo9je2J9k2hBLkGC4d+qomK7yl825jRKRnoADkW
+         zmYZyZcxGd1X6qmRAkGHKcd/wfb7fhzySrObk5g0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Robert Foss <robert.foss@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 377/913] drm/meson: Fix error handling when afbcd.ops->init fails
-Date:   Tue,  5 Apr 2022 09:23:59 +0200
-Message-Id: <20220405070351.148815841@linuxfoundation.org>
+Subject: [PATCH 5.15 378/913] drm/bridge: Fix free wrong object in sii8620_init_rcp_input_dev
+Date:   Tue,  5 Apr 2022 09:24:00 +0200
+Message-Id: <20220405070351.179334830@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -55,89 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit fa747d75f65d1b1cbc3f4691fa67b695e8a399c8 ]
+[ Upstream commit 7c442e76c06cb1bef16a6c523487438175584eea ]
 
-When afbcd.ops->init fails we need to free the struct drm_device. Also
-all errors which come after afbcd.ops->init was successful need to exit
-the AFBCD, just like meson_drv_unbind() does.
+rc_dev is allocated by rc_allocate_device(), and doesn't assigned to
+ctx->rc_dev before calling  rc_free_device(ctx->rc_dev).
+So it should call rc_free_device(rc_dev);
 
-Fixes: d1b5e41e13a7e9 ("drm/meson: Add AFBCD module driver")
-Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Acked-by: Neil Armstrong <narmstrong@baylibre.com>
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20211230235515.1627522-3-martin.blumenstingl@googlemail.com
+Fixes: e25f1f7c94e1 ("drm/bridge/sii8620: add remote control support")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Reviewed-by: Robert Foss <robert.foss@linaro.org>
+Signed-off-by: Robert Foss <robert.foss@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20211227092522.21755-1-linmq006@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/meson/meson_drv.c | 19 +++++++++++--------
- 1 file changed, 11 insertions(+), 8 deletions(-)
+ drivers/gpu/drm/bridge/sil-sii8620.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/meson/meson_drv.c b/drivers/gpu/drm/meson/meson_drv.c
-index 45bfe9451db8..c98525d60df5 100644
---- a/drivers/gpu/drm/meson/meson_drv.c
-+++ b/drivers/gpu/drm/meson/meson_drv.c
-@@ -302,42 +302,42 @@ static int meson_drv_bind_master(struct device *dev, bool has_components)
- 	if (priv->afbcd.ops) {
- 		ret = priv->afbcd.ops->init(priv);
- 		if (ret)
--			return ret;
-+			goto free_drm;
+diff --git a/drivers/gpu/drm/bridge/sil-sii8620.c b/drivers/gpu/drm/bridge/sil-sii8620.c
+index 843265d7f1b1..ec7745c31da0 100644
+--- a/drivers/gpu/drm/bridge/sil-sii8620.c
++++ b/drivers/gpu/drm/bridge/sil-sii8620.c
+@@ -2120,7 +2120,7 @@ static void sii8620_init_rcp_input_dev(struct sii8620 *ctx)
+ 	if (ret) {
+ 		dev_err(ctx->dev, "Failed to register RC device\n");
+ 		ctx->error = ret;
+-		rc_free_device(ctx->rc_dev);
++		rc_free_device(rc_dev);
+ 		return;
  	}
- 
- 	/* Encoder Initialization */
- 
- 	ret = meson_venc_cvbs_create(priv);
- 	if (ret)
--		goto free_drm;
-+		goto exit_afbcd;
- 
- 	if (has_components) {
- 		ret = component_bind_all(drm->dev, drm);
- 		if (ret) {
- 			dev_err(drm->dev, "Couldn't bind all components\n");
--			goto free_drm;
-+			goto exit_afbcd;
- 		}
- 	}
- 
- 	ret = meson_encoder_hdmi_init(priv);
- 	if (ret)
--		goto free_drm;
-+		goto exit_afbcd;
- 
- 	ret = meson_plane_create(priv);
- 	if (ret)
--		goto free_drm;
-+		goto exit_afbcd;
- 
- 	ret = meson_overlay_create(priv);
- 	if (ret)
--		goto free_drm;
-+		goto exit_afbcd;
- 
- 	ret = meson_crtc_create(priv);
- 	if (ret)
--		goto free_drm;
-+		goto exit_afbcd;
- 
- 	ret = request_irq(priv->vsync_irq, meson_irq, 0, drm->driver->name, drm);
- 	if (ret)
--		goto free_drm;
-+		goto exit_afbcd;
- 
- 	drm_mode_config_reset(drm);
- 
-@@ -355,6 +355,9 @@ static int meson_drv_bind_master(struct device *dev, bool has_components)
- 
- uninstall_irq:
- 	free_irq(priv->vsync_irq, drm);
-+exit_afbcd:
-+	if (priv->afbcd.ops)
-+		priv->afbcd.ops->exit(priv);
- free_drm:
- 	drm_dev_put(drm);
- 
+ 	ctx->rc_dev = rc_dev;
 -- 
 2.34.1
 
