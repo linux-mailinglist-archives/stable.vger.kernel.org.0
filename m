@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A6564F2FCB
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:18:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C926A4F3323
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:13:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242901AbiDEJiU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:38:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41902 "EHLO
+        id S242737AbiDEJiD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:38:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51018 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241897AbiDEJHW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:07:22 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18C1852E7D;
-        Tue,  5 Apr 2022 01:56:41 -0700 (PDT)
+        with ESMTP id S236516AbiDEJDF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:03:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7F352D1E6;
+        Tue,  5 Apr 2022 01:54:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A9F6BB81C19;
-        Tue,  5 Apr 2022 08:56:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 043FFC385A0;
-        Tue,  5 Apr 2022 08:56:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 75AE0614E4;
+        Tue,  5 Apr 2022 08:54:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EBCDC385A3;
+        Tue,  5 Apr 2022 08:54:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148990;
-        bh=D9X4N7CjniGGLjHiUlduDQRYx7n6Zjs8euUw2wDCyR0=;
+        s=korg; t=1649148887;
+        bh=jl+4nCqhoplCL8BSTrcvMb6idHEZMgoKG46ObsEUPOU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uGrufnHeXkiOm6q6IcoPee3lH5hI6wrNTtUzEVw33gtMOt3Ze2oXP/TCQU6A2CalQ
-         xYWFBkD6pqDKE/Nbvn5MGHKW14emKuvuEtuZhT159T+JuPzCA7k2re6IdBp2YHTTvw
-         dMl2HZ4e8c5rHFKZGHDTF594K39vYPl+8Z7mksgE=
+        b=LxEWqkyC9WctGaGz2QeHyil2/aZB5VVFwfINnlRatPIQEErB/uGaUiW1X4o9MUOLx
+         Ol2N2aaumzYg6ELqMRQS7Q3qM9s3IcnOQXNTUjYft96XsvPfsaWjYld8DVffPGYoUH
+         nIL2GSFHf7jm4eX3UEqVVvJS2Z7ln0KgqbnC4qDk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Stephen Boyd <swboyd@chromium.org>,
         Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0517/1017] drm/msm/dp: stop link training after link training 2 failed
-Date:   Tue,  5 Apr 2022 09:23:50 +0200
-Message-Id: <20220405070409.643315294@linuxfoundation.org>
+Subject: [PATCH 5.16 0518/1017] drm/msm/dp: always add fail-safe mode into connector mode list
+Date:   Tue,  5 Apr 2022 09:23:51 +0200
+Message-Id: <20220405070409.672459336@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -57,45 +57,43 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Kuogee Hsieh <quic_khsieh@quicinc.com>
 
-[ Upstream commit 9051d629dbf7a998a40f7eac65a9512b01bc3bb8 ]
+[ Upstream commit d4aca422539c441a7f3fec749287b36de37d9b6b ]
 
-Each DP link training contains link training 1 followed by link
-training 2.  There is maximum of 5 retries of DP link training
-before declared link training failed. It is required to stop link
-training at end of link training 2 if it is failed so that next
-link training 1 can start freshly. This patch fixes link compliance
-test  case 4.3.1.13 (Source Device Link Training EQ Fallback Test).
+Some of DP link compliant test expects to return fail-safe mode
+if prefer detailed timing mode can not be supported by mainlink's
+lane and rate after link training. Therefore add fail-safe mode
+into connector mode list as backup mode. This patch fixes test
+case 4.2.2.1.
 
-Changes in v10:
---  group into one series
+Changes in v2:
+-- add Fixes text string
 
-Changes in v11:
--- drop drm/msm/dp: dp_link_parse_sink_count() return immediately if aux read
-
-Fixes: 2e0adc765d88 ("drm/msm/dp: do not end dp link training until video is ready")
+Fixes: 4b85d405cfe9 ( "drm/msm/dp: reduce link rate if failed at link training 1")
 Signed-off-by: Kuogee Hsieh <quic_khsieh@quicinc.com>
 Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Link: https://lore.kernel.org/r/1642531648-8448-5-git-send-email-quic_khsieh@quicinc.com
+Link: https://lore.kernel.org/r/1643066274-25814-1-git-send-email-quic_khsieh@quicinc.com
 Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/dp/dp_ctrl.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpu/drm/msm/dp/dp_panel.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/gpu/drm/msm/dp/dp_ctrl.c b/drivers/gpu/drm/msm/dp/dp_ctrl.c
-index 62e75dc8afc6..4af281d97493 100644
---- a/drivers/gpu/drm/msm/dp/dp_ctrl.c
-+++ b/drivers/gpu/drm/msm/dp/dp_ctrl.c
-@@ -1744,6 +1744,9 @@ int dp_ctrl_on_link(struct dp_ctrl *dp_ctrl)
- 				/* end with failure */
- 				break; /* lane == 1 already */
- 			}
-+
-+			/* stop link training before start re training  */
-+			dp_ctrl_clear_training_pattern(ctrl);
- 		}
+diff --git a/drivers/gpu/drm/msm/dp/dp_panel.c b/drivers/gpu/drm/msm/dp/dp_panel.c
+index 71db10c0f262..f1418722c549 100644
+--- a/drivers/gpu/drm/msm/dp/dp_panel.c
++++ b/drivers/gpu/drm/msm/dp/dp_panel.c
+@@ -212,6 +212,11 @@ int dp_panel_read_sink_caps(struct dp_panel *dp_panel,
+ 		if (drm_add_modes_noedid(connector, 640, 480))
+ 			drm_set_preferred_mode(connector, 640, 480);
+ 		mutex_unlock(&connector->dev->mode_config.mutex);
++	} else {
++		/* always add fail-safe mode as backup mode */
++		mutex_lock(&connector->dev->mode_config.mutex);
++		drm_add_modes_noedid(connector, 640, 480);
++		mutex_unlock(&connector->dev->mode_config.mutex);
  	}
  
+ 	if (panel->aux_cfg_update_done) {
 -- 
 2.34.1
 
