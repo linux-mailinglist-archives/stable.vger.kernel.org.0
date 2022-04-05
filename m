@@ -2,52 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AE824F3A90
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:02:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BE8E4F37C3
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:24:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381553AbiDELqU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:46:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51344 "EHLO
+        id S234036AbiDELSJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:18:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47428 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354909AbiDEKQe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:16:34 -0400
+        with ESMTP id S1349146AbiDEJtO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:14 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00EF51A3AA;
-        Tue,  5 Apr 2022 03:03:51 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D64B7B6C;
+        Tue,  5 Apr 2022 02:41:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A04BFB81BC0;
-        Tue,  5 Apr 2022 10:03:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6B14C385A1;
-        Tue,  5 Apr 2022 10:03:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 87163B818F3;
+        Tue,  5 Apr 2022 09:41:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D65B6C385A4;
+        Tue,  5 Apr 2022 09:41:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153029;
-        bh=l+NxciS2SavS2cTgrzI35NkhgFF0jOkZeeASdvT/Inc=;
+        s=korg; t=1649151687;
+        bh=JvznGMqy9yBRzBasrr1B9K2SVFNqRhWE7YuqdTM5RvI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l+DlTtWqsNyIlDQ9gHkjeg15cDTr0I/12xuFXQYlDE7vYx7pyCrUCYcUp3r10Ql4O
-         b0L+O+wh6vUYCdpS5p4XyWCunCvlGIOcp3HGM+AsNqYx8amrB20MqNQ2iQ1Ky2sku8
-         aVwJfD5rDeLqaUl+5JhlzFXunUlJMADrFVp4ZE1k=
+        b=UBpweW7t5J2e18vnwyERhoKFIYhH+OtP16gYb219zbyV5xzb3c+5IHoV7rISxcfJM
+         jwq62zqMefA0gv3+b1iRWfrMUmIfj0KBalx3aaJBbCGsMyFv4jTZ6tLrz7ehZjYXGx
+         gWjVBa/qCsSdFbTzX4J+69CLCdFjNk/W/ZdJQbOs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Charan Teja Kalla <quic_charante@quicinc.com>,
-        David Rientjes <rientjes@google.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Minchan Kim <minchan@kernel.org>,
-        Nadav Amit <nadav.amit@gmail.com>,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 074/599] mm: madvise: skip unmapped vma holes passed to process_madvise
+        stable@vger.kernel.org, Xu Kuohai <xukuohai@huawei.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Song Liu <songliubraving@fb.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 506/913] libbpf: Skip forward declaration when counting duplicated type names
 Date:   Tue,  5 Apr 2022 09:26:08 +0200
-Message-Id: <20220405070301.028073179@linuxfoundation.org>
+Message-Id: <20220405070355.024455714@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
-References: <20220405070258.802373272@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -62,57 +55,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Charan Teja Kalla <quic_charante@quicinc.com>
+From: Xu Kuohai <xukuohai@huawei.com>
 
-commit 08095d6310a7ce43256b4251577bc66a25c6e1a6 upstream.
+[ Upstream commit 4226961b0019b2e1612029e8950a9e911affc995 ]
 
-The process_madvise() system call is expected to skip holes in vma passed
-through 'struct iovec' vector list.  But do_madvise, which
-process_madvise() calls for each vma, returns ENOMEM in case of unmapped
-holes, despite the VMA is processed.
+Currently if a declaration appears in the BTF before the definition, the
+definition is dumped as a conflicting name, e.g.:
 
-Thus process_madvise() should treat ENOMEM as expected and consider the
-VMA passed to as processed and continue processing other vma's in the
-vector list.  Returning -ENOMEM to user, despite the VMA is processed,
-will be unable to figure out where to start the next madvise.
+    $ bpftool btf dump file vmlinux format raw | grep "'unix_sock'"
+    [81287] FWD 'unix_sock' fwd_kind=struct
+    [89336] STRUCT 'unix_sock' size=1024 vlen=14
 
-Link: https://lkml.kernel.org/r/4f091776142f2ebf7b94018146de72318474e686.1647008754.git.quic_charante@quicinc.com
-Fixes: ecb8ac8b1f14("mm/madvise: introduce process_madvise() syscall: an external memory hinting API")
-Signed-off-by: Charan Teja Kalla <quic_charante@quicinc.com>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Minchan Kim <minchan@kernel.org>
-Cc: Nadav Amit <nadav.amit@gmail.com>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: Suren Baghdasaryan <surenb@google.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    $ bpftool btf dump file vmlinux format c | grep "struct unix_sock"
+    struct unix_sock;
+    struct unix_sock___2 {	<--- conflict, the "___2" is unexpected
+		    struct unix_sock___2 *unix_sk;
+
+This causes a compilation error if the dump output is used as a header file.
+
+Fix it by skipping declaration when counting duplicated type names.
+
+Fixes: 351131b51c7a ("libbpf: add btf_dump API for BTF-to-C conversion")
+Signed-off-by: Xu Kuohai <xukuohai@huawei.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Song Liu <songliubraving@fb.com>
+Link: https://lore.kernel.org/bpf/20220301053250.1464204-2-xukuohai@huawei.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/madvise.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ tools/lib/bpf/btf_dump.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/mm/madvise.c
-+++ b/mm/madvise.c
-@@ -1222,9 +1222,16 @@ SYSCALL_DEFINE5(process_madvise, int, pi
+diff --git a/tools/lib/bpf/btf_dump.c b/tools/lib/bpf/btf_dump.c
+index 463447a071d6..841cc68e3f42 100644
+--- a/tools/lib/bpf/btf_dump.c
++++ b/tools/lib/bpf/btf_dump.c
+@@ -1481,6 +1481,11 @@ static const char *btf_dump_resolve_name(struct btf_dump *d, __u32 id,
+ 	if (s->name_resolved)
+ 		return *cached_name ? *cached_name : orig_name;
  
- 	while (iov_iter_count(&iter)) {
- 		iovec = iov_iter_iovec(&iter);
-+		/*
-+		 * do_madvise returns ENOMEM if unmapped holes are present
-+		 * in the passed VMA. process_madvise() is expected to skip
-+		 * unmapped holes passed to it in the 'struct iovec' list
-+		 * and not fail because of them. Thus treat -ENOMEM return
-+		 * from do_madvise as valid and continue processing.
-+		 */
- 		ret = do_madvise(mm, (unsigned long)iovec.iov_base,
- 					iovec.iov_len, behavior);
--		if (ret < 0)
-+		if (ret < 0 && ret != -ENOMEM)
- 			break;
- 		iov_iter_advance(&iter, iovec.iov_len);
- 	}
++	if (btf_is_fwd(t) || (btf_is_enum(t) && btf_vlen(t) == 0)) {
++		s->name_resolved = 1;
++		return orig_name;
++	}
++
+ 	dup_cnt = btf_dump_name_dups(d, name_map, orig_name);
+ 	if (dup_cnt > 1) {
+ 		const size_t max_len = 256;
+-- 
+2.34.1
+
 
 
