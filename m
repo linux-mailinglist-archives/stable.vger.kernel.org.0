@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F9414F2FE7
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:18:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 570CD4F3455
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:26:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345049AbiDEKki (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:40:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36328 "EHLO
+        id S1345091AbiDEKkm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:40:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36330 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244252AbiDEJlM (ORCPT
+        with ESMTP id S232709AbiDEJlM (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:41:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2133EBB094;
-        Tue,  5 Apr 2022 02:25:55 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 457C0BB096;
+        Tue,  5 Apr 2022 02:25:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CE0F8B81C9E;
-        Tue,  5 Apr 2022 09:25:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26A1EC385A3;
-        Tue,  5 Apr 2022 09:25:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D44766165C;
+        Tue,  5 Apr 2022 09:25:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEE9CC385A0;
+        Tue,  5 Apr 2022 09:25:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150752;
-        bh=r4l+owIcrNQ3efGn/1bGA3KGQMB6wEfh4CiEt6UHA3Q=;
+        s=korg; t=1649150755;
+        bh=xKN4tdAmdWfMVW0Q4IbJ3qKBQwoepPNQp7UqwNDTv4g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IJ/g06IZmvpOeGH94mXRHmPHm744U+j+C6ubmNbY+Ab7FNCuaoPsB7axj9EaLnbRM
-         67BxySPJ60F5xbKZ4SPShgN9RcFATSAHdFjZJ/nW2u/8Vj4vF7evgVXF68MQh7j23U
-         2jIIHSSYQ50T5hQ5VbIEl4wuRMOfKU3n2QdZKBDs=
+        b=J0bkmRrZ5XTEdSIhqH7SPSIHNCETKx66t8OxJcoaq1IFtlYvwgBoygI3pYzzn9NPs
+         8Yu0gMk8WwMrq8TzIH4UegsLlgp6XldwHkGxkqMUvbHoeXgddloQkK6o+BZAIJi6Z3
+         y7xVUbEeMDWbunbh8Ry/L2Vx1WsOSADCp4MwPWuI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.15 130/913] ACPI: properties: Consistently return -ENOENT if there are no more references
-Date:   Tue,  5 Apr 2022 09:19:52 +0200
-Message-Id: <20220405070343.727510204@linuxfoundation.org>
+        stable@vger.kernel.org, Bill Messmer <wmessmer@microsoft.com>,
+        Jann Horn <jannh@google.com>, Kees Cook <keescook@chromium.org>
+Subject: [PATCH 5.15 131/913] coredump: Also dump first pages of non-executable ELF libraries
+Date:   Tue,  5 Apr 2022 09:19:53 +0200
+Message-Id: <20220405070343.758405377@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -54,36 +53,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sakari Ailus <sakari.ailus@linux.intel.com>
+From: Jann Horn <jannh@google.com>
 
-commit babc92da5928f81af951663fc436997352e02d3a upstream.
+commit 84158b7f6a0624b81800b4e7c90f7fb7fdecf66c upstream.
 
-__acpi_node_get_property_reference() is documented to return -ENOENT if
-the caller requests a property reference at an index that does not exist,
-not -EINVAL which it actually does.
+When I rewrote the VMA dumping logic for coredumps, I changed it to
+recognize ELF library mappings based on the file being executable instead
+of the mapping having an ELF header. But turns out, distros ship many ELF
+libraries as non-executable, so the heuristic goes wrong...
 
-Fix this by returning -ENOENT consistenly, independently of whether the
-property value is a plain reference or a package.
+Restore the old behavior where FILTER(ELF_HEADERS) dumps the first page of
+any offset-0 readable mapping that starts with the ELF magic.
 
-Fixes: c343bc2ce2c6 ("ACPI: properties: Align return codes of __acpi_node_get_property_reference()")
-Cc: 4.14+ <stable@vger.kernel.org> # 4.14+
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+This fix is technically layer-breaking a bit, because it checks for
+something ELF-specific in fs/coredump.c; but since we probably want to
+share this between standard ELF and FDPIC ELF anyway, I guess it's fine?
+And this also keeps the change small for backporting.
+
+Cc: stable@vger.kernel.org
+Fixes: 429a22e776a2 ("coredump: rework elf/elf_fdpic vma_dump_size() into common helper")
+Reported-by: Bill Messmer <wmessmer@microsoft.com>
+Signed-off-by: Jann Horn <jannh@google.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20220126025739.2014888-1-jannh@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/acpi/property.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/coredump.c |   39 ++++++++++++++++++++++++++++++++++-----
+ 1 file changed, 34 insertions(+), 5 deletions(-)
 
---- a/drivers/acpi/property.c
-+++ b/drivers/acpi/property.c
-@@ -685,7 +685,7 @@ int __acpi_node_get_property_reference(c
- 	 */
- 	if (obj->type == ACPI_TYPE_LOCAL_REFERENCE) {
- 		if (index)
--			return -EINVAL;
-+			return -ENOENT;
+--- a/fs/coredump.c
++++ b/fs/coredump.c
+@@ -41,6 +41,7 @@
+ #include <linux/fs.h>
+ #include <linux/path.h>
+ #include <linux/timekeeping.h>
++#include <linux/elf.h>
  
- 		ret = acpi_bus_get_device(obj->reference.handle, &device);
- 		if (ret)
+ #include <linux/uaccess.h>
+ #include <asm/mmu_context.h>
+@@ -992,6 +993,8 @@ static bool always_dump_vma(struct vm_ar
+ 	return false;
+ }
+ 
++#define DUMP_SIZE_MAYBE_ELFHDR_PLACEHOLDER 1
++
+ /*
+  * Decide how much of @vma's contents should be included in a core dump.
+  */
+@@ -1051,9 +1054,20 @@ static unsigned long vma_dump_size(struc
+ 	 * dump the first page to aid in determining what was mapped here.
+ 	 */
+ 	if (FILTER(ELF_HEADERS) &&
+-	    vma->vm_pgoff == 0 && (vma->vm_flags & VM_READ) &&
+-	    (READ_ONCE(file_inode(vma->vm_file)->i_mode) & 0111) != 0)
+-		return PAGE_SIZE;
++	    vma->vm_pgoff == 0 && (vma->vm_flags & VM_READ)) {
++		if ((READ_ONCE(file_inode(vma->vm_file)->i_mode) & 0111) != 0)
++			return PAGE_SIZE;
++
++		/*
++		 * ELF libraries aren't always executable.
++		 * We'll want to check whether the mapping starts with the ELF
++		 * magic, but not now - we're holding the mmap lock,
++		 * so copy_from_user() doesn't work here.
++		 * Use a placeholder instead, and fix it up later in
++		 * dump_vma_snapshot().
++		 */
++		return DUMP_SIZE_MAYBE_ELFHDR_PLACEHOLDER;
++	}
+ 
+ #undef	FILTER
+ 
+@@ -1128,8 +1142,6 @@ int dump_vma_snapshot(struct coredump_pa
+ 		m->end = vma->vm_end;
+ 		m->flags = vma->vm_flags;
+ 		m->dump_size = vma_dump_size(vma, cprm->mm_flags);
+-
+-		vma_data_size += m->dump_size;
+ 	}
+ 
+ 	mmap_write_unlock(mm);
+@@ -1139,6 +1151,23 @@ int dump_vma_snapshot(struct coredump_pa
+ 		return -EFAULT;
+ 	}
+ 
++	for (i = 0; i < *vma_count; i++) {
++		struct core_vma_metadata *m = (*vma_meta) + i;
++
++		if (m->dump_size == DUMP_SIZE_MAYBE_ELFHDR_PLACEHOLDER) {
++			char elfmag[SELFMAG];
++
++			if (copy_from_user(elfmag, (void __user *)m->start, SELFMAG) ||
++					memcmp(elfmag, ELFMAG, SELFMAG) != 0) {
++				m->dump_size = 0;
++			} else {
++				m->dump_size = PAGE_SIZE;
++			}
++		}
++
++		vma_data_size += m->dump_size;
++	}
++
+ 	*vma_data_size_ptr = vma_data_size;
+ 	return 0;
+ }
 
 
