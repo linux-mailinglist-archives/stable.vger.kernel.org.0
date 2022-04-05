@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DD4084F340B
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:24:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DDAE4F2F29
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:06:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241843AbiDEIfe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:35:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39696 "EHLO
+        id S241781AbiDEIf1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:35:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46206 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239337AbiDEIT7 (ORCPT
+        with ESMTP id S239342AbiDEIT7 (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:19:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32852BAB84;
-        Tue,  5 Apr 2022 01:11:24 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DE84BB90D;
+        Tue,  5 Apr 2022 01:11:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C294360B0A;
-        Tue,  5 Apr 2022 08:11:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1ED0C385A0;
-        Tue,  5 Apr 2022 08:11:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1EF22B81A37;
+        Tue,  5 Apr 2022 08:11:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 839E9C385A4;
+        Tue,  5 Apr 2022 08:11:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146283;
-        bh=wQDU/g1MrjPqghBiUJJ5hgithCYmLMpPOGFwr/GiKyI=;
+        s=korg; t=1649146288;
+        bh=bz1y2BMhzRgU6QOc4hsMgy4aO7O/Ui4cg5DeTP931ak=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cuHnlwFDAYNtgPxRfImZv++Cz5zShz+owfkQDLn700lKylXhZgfo9fYU2ueR/s5co
-         m1pqa7AYSKwaDYip4ewZCyQsO6xRiN6ENB8t08nhdkNz3GlcRoX7VpJdmjyFP/45YB
-         Ux5zd/iabIjBUxBbSl7YhQcc8rgmC0PdN8a/7mGw=
+        b=uVU13jSMHRpYaRCmXfy9uHELcgI8y5XluFVD2r22MLNbaeVQ33VBAARZHpFOfiZ0q
+         zURLhb4awzz0Cxs+ZGQFXI74MtmsBsvfcwbZGU3BL72wIxM+i3LskOxCIcvAvhwosU
+         OARnUzRvaUboC9oiT/lAe0gyuy8Iulag1auQWOw8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Lobakin <alexandr.lobakin@intel.com>,
-        Michal Kubiak <michal.kubiak@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Jan Sondhauss <jan.sondhauss@wago.com>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0707/1126] ice: fix scheduling while atomic on aux critical err interrupt
-Date:   Tue,  5 Apr 2022 09:24:14 +0200
-Message-Id: <20220405070428.354375762@linuxfoundation.org>
+Subject: [PATCH 5.17 0709/1126] drivers: ethernet: cpsw: fix panic when interrupt coaleceing is set via ethtool
+Date:   Tue,  5 Apr 2022 09:24:16 +0200
+Message-Id: <20220405070428.411100222@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -57,130 +55,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Lobakin <alexandr.lobakin@intel.com>
+From: Sondhauß, Jan <Jan.Sondhauss@wago.com>
 
-[ Upstream commit 32d53c0aa3a7b727243473949bad2a830b908edc ]
+[ Upstream commit 2844e2434385819f674d1fb4130c308c50ba681e ]
 
-There's a kernel BUG splat on processing aux critical error
-interrupts in ice_misc_intr():
+cpsw_ethtool_begin directly returns the result of pm_runtime_get_sync
+when successful.
+pm_runtime_get_sync returns -error code on failure and 0 on successful
+resume but also 1 when the device is already active. So the common case
+for cpsw_ethtool_begin is to return 1. That leads to inconsistent calls
+to pm_runtime_put in the call-chain so that pm_runtime_put is called
+one too many times and as result leaving the cpsw dev behind suspended.
 
-[ 2100.917085] BUG: scheduling while atomic: swapper/15/0/0x00010000
-...
-[ 2101.060770] Call Trace:
-[ 2101.063229]  <IRQ>
-[ 2101.065252]  dump_stack+0x41/0x60
-[ 2101.068587]  __schedule_bug.cold.100+0x4c/0x58
-[ 2101.073060]  __schedule+0x6a4/0x830
-[ 2101.076570]  schedule+0x35/0xa0
-[ 2101.079727]  schedule_preempt_disabled+0xa/0x10
-[ 2101.084284]  __mutex_lock.isra.7+0x310/0x420
-[ 2101.088580]  ? ice_misc_intr+0x201/0x2e0 [ice]
-[ 2101.093078]  ice_send_event_to_aux+0x25/0x70 [ice]
-[ 2101.097921]  ice_misc_intr+0x220/0x2e0 [ice]
-[ 2101.102232]  __handle_irq_event_percpu+0x40/0x180
-[ 2101.106965]  handle_irq_event_percpu+0x30/0x80
-[ 2101.111434]  handle_irq_event+0x36/0x53
-[ 2101.115292]  handle_edge_irq+0x82/0x190
-[ 2101.119148]  handle_irq+0x1c/0x30
-[ 2101.122480]  do_IRQ+0x49/0xd0
-[ 2101.125465]  common_interrupt+0xf/0xf
-[ 2101.129146]  </IRQ>
-...
+The suspended cpsw dev leads to an access violation later on by
+different parts of the cpsw driver.
 
-As Andrew correctly mentioned previously[0], the following call
-ladder happens:
+Fix this by calling the return-friendly pm_runtime_resume_and_get
+function.
 
-ice_misc_intr() <- hardirq
-  ice_send_event_to_aux()
-    device_lock()
-      mutex_lock()
-        might_sleep()
-          might_resched() <- oops
-
-Add a new PF state bit which indicates that an aux critical error
-occurred and serve it in ice_service_task() in process context.
-The new ice_pf::oicr_err_reg is read-write in both hardirq and
-process contexts, but only 3 bits of non-critical data probably
-aren't worth explicit synchronizing (and they're even in the same
-byte [31:24]).
-
-[0] https://lore.kernel.org/all/YeSRUVmrdmlUXHDn@lunn.ch
-
-Fixes: 348048e724a0e ("ice: Implement iidc operations")
-Signed-off-by: Alexander Lobakin <alexandr.lobakin@intel.com>
-Tested-by: Michal Kubiak <michal.kubiak@intel.com>
-Acked-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: d43c65b05b84 ("ethtool: runtime-resume netdev parent in ethnl_ops_begin")
+Signed-off-by: Jan Sondhauss <jan.sondhauss@wago.com>
+Reviewed-by: Vignesh Raghavendra <vigneshr@ti.com>
+Link: https://lore.kernel.org/r/20220323084725.65864-1-jan.sondhauss@wago.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice.h      |  2 ++
- drivers/net/ethernet/intel/ice/ice_main.c | 25 ++++++++++++++---------
- 2 files changed, 17 insertions(+), 10 deletions(-)
+ drivers/net/ethernet/ti/cpsw_ethtool.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice.h b/drivers/net/ethernet/intel/ice/ice.h
-index bea1d1e39fa2..2ca887076dd4 100644
---- a/drivers/net/ethernet/intel/ice/ice.h
-+++ b/drivers/net/ethernet/intel/ice/ice.h
-@@ -290,6 +290,7 @@ enum ice_pf_state {
- 	ICE_LINK_DEFAULT_OVERRIDE_PENDING,
- 	ICE_PHY_INIT_COMPLETE,
- 	ICE_FD_VF_FLUSH_CTX,		/* set at FD Rx IRQ or timeout */
-+	ICE_AUX_ERR_PENDING,
- 	ICE_STATE_NBITS		/* must be last */
- };
+diff --git a/drivers/net/ethernet/ti/cpsw_ethtool.c b/drivers/net/ethernet/ti/cpsw_ethtool.c
+index aa42141be3c0..a557a477d039 100644
+--- a/drivers/net/ethernet/ti/cpsw_ethtool.c
++++ b/drivers/net/ethernet/ti/cpsw_ethtool.c
+@@ -364,11 +364,9 @@ int cpsw_ethtool_op_begin(struct net_device *ndev)
+ 	struct cpsw_common *cpsw = priv->cpsw;
+ 	int ret;
  
-@@ -559,6 +560,7 @@ struct ice_pf {
- 	wait_queue_head_t reset_wait_queue;
+-	ret = pm_runtime_get_sync(cpsw->dev);
+-	if (ret < 0) {
++	ret = pm_runtime_resume_and_get(cpsw->dev);
++	if (ret < 0)
+ 		cpsw_err(priv, drv, "ethtool begin failed %d\n", ret);
+-		pm_runtime_put_noidle(cpsw->dev);
+-	}
  
- 	u32 hw_csum_rx_error;
-+	u32 oicr_err_reg;
- 	u16 oicr_idx;		/* Other interrupt cause MSIX vector index */
- 	u16 num_avail_sw_msix;	/* remaining MSIX SW vectors left unclaimed */
- 	u16 max_pf_txqs;	/* Total Tx queues PF wide */
-diff --git a/drivers/net/ethernet/intel/ice/ice_main.c b/drivers/net/ethernet/intel/ice/ice_main.c
-index b7e8744b0c0a..296f9d5f7408 100644
---- a/drivers/net/ethernet/intel/ice/ice_main.c
-+++ b/drivers/net/ethernet/intel/ice/ice_main.c
-@@ -2255,6 +2255,19 @@ static void ice_service_task(struct work_struct *work)
- 		return;
- 	}
- 
-+	if (test_and_clear_bit(ICE_AUX_ERR_PENDING, pf->state)) {
-+		struct iidc_event *event;
-+
-+		event = kzalloc(sizeof(*event), GFP_KERNEL);
-+		if (event) {
-+			set_bit(IIDC_EVENT_CRIT_ERR, event->type);
-+			/* report the entire OICR value to AUX driver */
-+			swap(event->reg, pf->oicr_err_reg);
-+			ice_send_event_to_aux(pf, event);
-+			kfree(event);
-+		}
-+	}
-+
- 	if (test_bit(ICE_FLAG_PLUG_AUX_DEV, pf->flags)) {
- 		/* Plug aux device per request */
- 		ice_plug_aux_dev(pf);
-@@ -3041,17 +3054,9 @@ static irqreturn_t ice_misc_intr(int __always_unused irq, void *data)
- 
- #define ICE_AUX_CRIT_ERR (PFINT_OICR_PE_CRITERR_M | PFINT_OICR_HMC_ERR_M | PFINT_OICR_PE_PUSH_M)
- 	if (oicr & ICE_AUX_CRIT_ERR) {
--		struct iidc_event *event;
--
-+		pf->oicr_err_reg |= oicr;
-+		set_bit(ICE_AUX_ERR_PENDING, pf->state);
- 		ena_mask &= ~ICE_AUX_CRIT_ERR;
--		event = kzalloc(sizeof(*event), GFP_ATOMIC);
--		if (event) {
--			set_bit(IIDC_EVENT_CRIT_ERR, event->type);
--			/* report the entire OICR value to AUX driver */
--			event->reg = oicr;
--			ice_send_event_to_aux(pf, event);
--			kfree(event);
--		}
- 	}
- 
- 	/* Report any remaining unexpected interrupts */
+ 	return ret;
+ }
 -- 
 2.34.1
 
