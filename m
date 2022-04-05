@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 589434F2DEC
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:47:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C4A414F2D4A
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:36:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355481AbiDEKUD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:20:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42830 "EHLO
+        id S245293AbiDEIym (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:54:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33636 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345264AbiDEJWX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:22:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DED2D3FBFC;
-        Tue,  5 Apr 2022 02:10:05 -0700 (PDT)
+        with ESMTP id S240974AbiDEIcl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:32:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 940899E9E0;
+        Tue,  5 Apr 2022 01:25:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DB0FB61576;
-        Tue,  5 Apr 2022 09:10:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB561C385A2;
-        Tue,  5 Apr 2022 09:10:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F419C60FFC;
+        Tue,  5 Apr 2022 08:25:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A2E8C385A1;
+        Tue,  5 Apr 2022 08:25:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149804;
-        bh=zDnDnqnkUnkvRiU0Bpg3UFg6AFN8i60eOTOfhbTGywk=;
+        s=korg; t=1649147135;
+        bh=tRO1PGn12jKvQfnysJtLy8P3zLYsaGSIXrfzfDWlxbQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gNWlgUft0Pfa0IYpiY3nbrX0zcWgfc4nx0pqX/uqsUnBc8xvAqoE5VSDJ4PdIpw2M
-         BZkpdEs+iBIGEl+vnepW1cNAi3CPZwLUNx+UuloGe13sFkur30Db4ew2x8hJZgAMCJ
-         o2xLRM4EzyufMDh6D+TvYE3lBF1lyiHKfZAljPJA=
+        b=y42tajtVDqNnaK1E2mDiELwH972laRUbytG50nDeZuQzi6N4drrr0FeGATGgmedPE
+         xqhtlZ77+PuPNCLrkXGfLRL0ZpJza2KlzfbddTNR0wfPrXE0oaANl3amOV2WHURmue
+         7vlo5mewUdLCpmvFhoPBNdguJUbxl0Zd7dVKnKlA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rander Wang <rander.wang@intel.com>,
-        Anthony I Gilea <i@cpp.in>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0848/1017] ASoC: Intel: sof_sdw: fix quirks for 2022 HP Spectre x360 13"
-Date:   Tue,  5 Apr 2022 09:29:21 +0200
-Message-Id: <20220405070419.410977809@linuxfoundation.org>
+        stable@vger.kernel.org, Pankaj Raghav <p.raghav@samsung.com>,
+        Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 5.17 1015/1126] nvme: fix the read-only state for zoned namespaces with unsupposed features
+Date:   Tue,  5 Apr 2022 09:29:22 +0200
+Message-Id: <20220405070437.280317264@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,54 +53,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anthony I Gilea <i@cpp.in>
+From: Pankaj Raghav <p.raghav@samsung.com>
 
-[ Upstream commit ce73ef6ec67104d1fcc4c5911d77ce83288a0998 ]
+commit 726be2c72efc0a64c206e854b8996ad3ab9c7507 upstream.
 
-HP changed the DMI identification for 2022 devices:
-Product Name: HP Spectre x360 Conv 13-ap0001na
-Product Name: 8709
-This patch relaxes the DMI_MATCH criterion to work with all versions of this product.
+commit 2f4c9ba23b88 ("nvme: export zoned namespaces without Zone Append
+support read-only") marks zoned namespaces without append support
+read-only.  It does iso by setting NVME_NS_FORCE_RO in ns->flags in
+nvme_update_zone_info and checking for that flag later in
+nvme_update_disk_info to mark the disk as read-only.
 
-Reviewed-by: Rander Wang <rander.wang@intel.com>
-Signed-off-by: Anthony I Gilea <i@cpp.in>
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20220304204532.54675-4-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+But commit 73d90386b559 ("nvme: cleanup zone information initialization")
+rearranged nvme_update_disk_info to be called before
+nvme_update_zone_info and thus not marking the disk as read-only.
+The call order cannot be just reverted because nvme_update_zone_info sets
+certain queue parameters such as zone_write_granularity that depend on the
+prior call to nvme_update_disk_info.
+
+Remove the call to set_disk_ro in nvme_update_disk_info. and call
+set_disk_ro after nvme_update_zone_info and nvme_update_disk_info to set
+the permission for ZNS drives correctly. The same applies to the
+multipath disk path.
+
+Fixes: 73d90386b559 ("nvme: cleanup zone information initialization")
+Signed-off-by: Pankaj Raghav <p.raghav@samsung.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/soundwire/dmi-quirks.c   | 2 +-
- sound/soc/intel/boards/sof_sdw.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/nvme/host/core.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/soundwire/dmi-quirks.c b/drivers/soundwire/dmi-quirks.c
-index 0ca2a3e3a02e..747983743a14 100644
---- a/drivers/soundwire/dmi-quirks.c
-+++ b/drivers/soundwire/dmi-quirks.c
-@@ -59,7 +59,7 @@ static const struct dmi_system_id adr_remap_quirk_table[] = {
- 	{
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "HP"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "HP Spectre x360 Convertible"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "HP Spectre x360 Conv"),
- 		},
- 		.driver_data = (void *)intel_tgl_bios,
- 	},
-diff --git a/sound/soc/intel/boards/sof_sdw.c b/sound/soc/intel/boards/sof_sdw.c
-index 54eefaff62a7..182e23bc2f34 100644
---- a/sound/soc/intel/boards/sof_sdw.c
-+++ b/sound/soc/intel/boards/sof_sdw.c
-@@ -184,7 +184,7 @@ static const struct dmi_system_id sof_sdw_quirk_table[] = {
- 		.callback = sof_sdw_quirk_cb,
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "HP"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "HP Spectre x360 Convertible"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "HP Spectre x360 Conv"),
- 		},
- 		.driver_data = (void *)(SOF_SDW_TGL_HDMI |
- 					SOF_SDW_PCH_DMIC |
--- 
-2.34.1
-
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -1857,9 +1857,6 @@ static void nvme_update_disk_info(struct
+ 	nvme_config_discard(disk, ns);
+ 	blk_queue_max_write_zeroes_sectors(disk->queue,
+ 					   ns->ctrl->max_zeroes_sectors);
+-
+-	set_disk_ro(disk, (id->nsattr & NVME_NS_ATTR_RO) ||
+-		test_bit(NVME_NS_FORCE_RO, &ns->flags));
+ }
+ 
+ static inline bool nvme_first_scan(struct gendisk *disk)
+@@ -1918,6 +1915,8 @@ static int nvme_update_ns_info(struct nv
+ 			goto out_unfreeze;
+ 	}
+ 
++	set_disk_ro(ns->disk, (id->nsattr & NVME_NS_ATTR_RO) ||
++		test_bit(NVME_NS_FORCE_RO, &ns->flags));
+ 	set_bit(NVME_NS_READY, &ns->flags);
+ 	blk_mq_unfreeze_queue(ns->disk->queue);
+ 
+@@ -1930,6 +1929,9 @@ static int nvme_update_ns_info(struct nv
+ 	if (nvme_ns_head_multipath(ns->head)) {
+ 		blk_mq_freeze_queue(ns->head->disk->queue);
+ 		nvme_update_disk_info(ns->head->disk, ns, id);
++		set_disk_ro(ns->head->disk,
++			    (id->nsattr & NVME_NS_ATTR_RO) ||
++				    test_bit(NVME_NS_FORCE_RO, &ns->flags));
+ 		nvme_mpath_revalidate_paths(ns);
+ 		blk_stack_limits(&ns->head->disk->queue->limits,
+ 				 &ns->queue->limits, 0);
 
 
