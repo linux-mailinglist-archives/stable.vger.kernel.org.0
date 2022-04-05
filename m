@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 78EA94F3953
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:46:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A1B74F3BC1
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:21:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377323AbiDEL2o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:28:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58822 "EHLO
+        id S244911AbiDEMBi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:01:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349871AbiDEJvu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:51:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFF8029818;
-        Tue,  5 Apr 2022 02:49:52 -0700 (PDT)
+        with ESMTP id S1357879AbiDEK1W (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:27:22 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 561E549F19;
+        Tue,  5 Apr 2022 03:11:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5776761673;
-        Tue,  5 Apr 2022 09:49:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63889C385A1;
-        Tue,  5 Apr 2022 09:49:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E6B70B81C89;
+        Tue,  5 Apr 2022 10:10:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 492A2C385A0;
+        Tue,  5 Apr 2022 10:10:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152191;
-        bh=MUa2LqDpzla2SRdH+L/Qkg29At5/s5tMgWJM3bkEicQ=;
+        s=korg; t=1649153457;
+        bh=l24cq07F/uZePHJYQDOzOWHxywiUK86wqxjzTcVLCJM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rGg9v10myw7rjIFiBoaB873Fkv/ub0jvdp6Tsps03kPYLJ1OQJQ9q/2H6aR/7hWLK
-         mpsUcmeXfrMAl67pKRIf6Z1kO/zc+IXu3LwfTSUit5+PhkXTD6gU6Zy9oV/uV/uXzN
-         C048nhV2t9QSYr90lg7AUy3DZBgBq5Xomi71lwL4=
+        b=VbnjlNG0gT30WNvBMddcRjFNRvL5ZZpncfUF3DlZ5Bq5t13ZlOLHvuIqex+wkfUBC
+         LjpWH7xbqpW49pOTcS2QJ7s3+tqEffqnUKLaMRGiNiylCYlLZV6dObGGR9GisHfj6y
+         3wFksBTIOsvUKVjR4a05cOple7y5oiIvgYrqqofg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jian Shen <shenjian15@huawei.com>,
-        Guangbin Huang <huangguangbin2@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 661/913] net: hns3: fix bug when PF set the duplicate MAC address for VFs
+Subject: [PATCH 5.10 229/599] ASoC: atmel_ssc_dai: Handle errors for clk_enable
 Date:   Tue,  5 Apr 2022 09:28:43 +0200
-Message-Id: <20220405070359.651514045@linuxfoundation.org>
+Message-Id: <20220405070305.655381441@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070258.802373272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,49 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jian Shen <shenjian15@huawei.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit ccb18f05535c96d26e2d559d402acb87700fc5a7 ]
+[ Upstream commit f9e2ca0640e59d19af0ff285ee5591ed39069b09 ]
 
-If the MAC address A is configured to vport A and then vport B. The MAC
-address of vport A in the hardware becomes invalid. If the address of
-vport A is changed to MAC address B, the driver needs to delete the MAC
-address A of vport A. Due to the MAC address A of vport A has become
-invalid in the hardware entry, so "-ENOENT" is returned. In this case, the
-"used_umv_size" value recorded in driver is not updated. As a result, the
-MAC entry status of the software is inconsistent with that of the hardware.
+As the potential failure of the clk_enable(),
+it should be better to check it and return error if fals.
 
-Therefore, the driver updates the umv size even if the MAC entry cannot be
-found. Ensure that the software and hardware status is consistent.
-
-Fixes: ee4bcd3b7ae4 ("net: hns3: refactor the MAC address configure")
-Signed-off-by: Jian Shen <shenjian15@huawei.com>
-Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: cbaadf0f90d6 ("ASoC: atmel_ssc_dai: refactor the startup and shutdown")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Link: https://lore.kernel.org/r/20220301090637.3776558-1-jiasheng@iscas.ac.cn
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ sound/soc/atmel/atmel_ssc_dai.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-index 66c407d0d507..b78de80d6c05 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-@@ -8714,12 +8714,11 @@ int hclge_rm_uc_addr_common(struct hclge_vport *vport,
- 	hnae3_set_bit(req.entry_type, HCLGE_MAC_VLAN_BIT0_EN_B, 0);
- 	hclge_prepare_mac_addr(&req, addr, false);
- 	ret = hclge_remove_mac_vlan_tbl(vport, &req);
--	if (!ret) {
-+	if (!ret || ret == -ENOENT) {
- 		mutex_lock(&hdev->vport_lock);
- 		hclge_update_umv_space(vport, true);
- 		mutex_unlock(&hdev->vport_lock);
--	} else if (ret == -ENOENT) {
--		ret = 0;
-+		return 0;
- 	}
+diff --git a/sound/soc/atmel/atmel_ssc_dai.c b/sound/soc/atmel/atmel_ssc_dai.c
+index 6a63e8797a0b..97533412ce11 100644
+--- a/sound/soc/atmel/atmel_ssc_dai.c
++++ b/sound/soc/atmel/atmel_ssc_dai.c
+@@ -280,7 +280,10 @@ static int atmel_ssc_startup(struct snd_pcm_substream *substream,
  
- 	return ret;
+ 	/* Enable PMC peripheral clock for this SSC */
+ 	pr_debug("atmel_ssc_dai: Starting clock\n");
+-	clk_enable(ssc_p->ssc->clk);
++	ret = clk_enable(ssc_p->ssc->clk);
++	if (ret)
++		return ret;
++
+ 	ssc_p->mck_rate = clk_get_rate(ssc_p->ssc->clk);
+ 
+ 	/* Reset the SSC unless initialized to keep it in a clean state */
 -- 
 2.34.1
 
