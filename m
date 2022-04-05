@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 25A494F42AB
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:50:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ABB9E4F4380
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:59:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382361AbiDEMPB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:15:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46816 "EHLO
+        id S1382557AbiDEMPw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:15:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46442 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242775AbiDEKfS (ORCPT
+        with ESMTP id S242773AbiDEKfS (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:35:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6EFA4A920;
-        Tue,  5 Apr 2022 03:20:59 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D81CB51306;
+        Tue,  5 Apr 2022 03:21:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 568BBB81BC5;
-        Tue,  5 Apr 2022 10:20:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD4A0C385A1;
-        Tue,  5 Apr 2022 10:20:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 735A7617CE;
+        Tue,  5 Apr 2022 10:21:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F967C385A1;
+        Tue,  5 Apr 2022 10:20:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649154057;
-        bh=WTTgE0jq1ET24nxFgkUnERXPbOwuOz6l4qpBGMY5MV0=;
+        s=korg; t=1649154059;
+        bh=eI/tG81nC1saJgPatTgG7icD/lGlD5gWAo+K+jBtukE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DJf1RUzKmTIBoSPMbVGl97qAEdIxzwa1SO318SypLmwvz5j3741W8LWExNBF3A+zC
-         I5WDTdpPAQtC7uouk2CWZjI6iWzcAeBidoMZYgiIRKm2XFKQ/J6Cy0S/eF8wk9+epy
-         F11irdxnb+Kd65jWoooxSTctAnISCB7ZsnfjVaig=
+        b=MOEgYBclB7JmTivePSsBROi/2JgL0iDwJ+ky9wgYnfuKSI+LQpSnqRcbSM58D79RI
+         BjjXVHYJUakJgVZXXyTrOfGG1W18szop3cGOTCwCgFjzUe8+WpjI20BHraLEDdN2e9
+         gWv+4PFnDPDUGtwf7qaIGZ+oRtYb8xZErW/LqDt0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>,
-        David Ahern <dsahern@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 441/599] selftests: test_vxlan_under_vrf: Fix broken test case
-Date:   Tue,  5 Apr 2022 09:32:15 +0200
-Message-Id: <20220405070311.955504838@linuxfoundation.org>
+Subject: [PATCH 5.10 442/599] qlcnic: dcb: default to returning -EOPNOTSUPP
+Date:   Tue,  5 Apr 2022 09:32:16 +0200
+Message-Id: <20220405070311.985087713@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -55,67 +54,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ido Schimmel <idosch@nvidia.com>
+From: Tom Rix <trix@redhat.com>
 
-[ Upstream commit b50d3b46f84282d795ae3076111acb75ae1031f3 ]
+[ Upstream commit 1521db37f0d42334a88e8ff28198a27d1ed5cd7b ]
 
-The purpose of the last test case is to test VXLAN encapsulation and
-decapsulation when the underlay lookup takes place in a non-default VRF.
-This is achieved by enslaving the physical device of the tunnel to a
-VRF.
+Clang static analysis reports this issue
+qlcnic_dcb.c:382:10: warning: Assigned value is
+  garbage or undefined
+  mbx_out = *val;
+          ^ ~~~~
 
-The binding of the VXLAN UDP socket to the VRF happens when the VXLAN
-device itself is opened, not when its physical device is opened. This
-was also mentioned in the cited commit ("tests that moving the underlay
-from a VRF to another works when down/up the VXLAN interface"), but the
-test did something else.
+val is set in the qlcnic_dcb_query_hw_capability() wrapper.
+If there is no query_hw_capability op in dcp, success is
+returned without setting the val.
 
-Fix it by reopening the VXLAN device instead of its physical device.
+For this and similar wrappers, return -EOPNOTSUPP.
 
-Before:
-
- # ./test_vxlan_under_vrf.sh
- Checking HV connectivity                                           [ OK ]
- Check VM connectivity through VXLAN (underlay in the default VRF)  [ OK ]
- Check VM connectivity through VXLAN (underlay in a VRF)            [FAIL]
-
-After:
-
- # ./test_vxlan_under_vrf.sh
- Checking HV connectivity                                           [ OK ]
- Check VM connectivity through VXLAN (underlay in the default VRF)  [ OK ]
- Check VM connectivity through VXLAN (underlay in a VRF)            [ OK ]
-
-Fixes: 03f1c26b1c56 ("test/net: Add script for VXLAN underlay in a VRF")
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Link: https://lore.kernel.org/r/20220324200514.1638326-1-idosch@nvidia.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 14d385b99059 ("qlcnic: dcb: Query adapter DCB capabilities.")
+Signed-off-by: Tom Rix <trix@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/net/test_vxlan_under_vrf.sh | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/qlogic/qlcnic/qlcnic_dcb.h | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/tools/testing/selftests/net/test_vxlan_under_vrf.sh b/tools/testing/selftests/net/test_vxlan_under_vrf.sh
-index 09f9ed92cbe4..a44b9aca7427 100755
---- a/tools/testing/selftests/net/test_vxlan_under_vrf.sh
-+++ b/tools/testing/selftests/net/test_vxlan_under_vrf.sh
-@@ -118,11 +118,11 @@ echo "[ OK ]"
+diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_dcb.h b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_dcb.h
+index 5d79ee4370bc..7519773eaca6 100644
+--- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_dcb.h
++++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_dcb.h
+@@ -51,7 +51,7 @@ static inline int qlcnic_dcb_get_hw_capability(struct qlcnic_dcb *dcb)
+ 	if (dcb && dcb->ops->get_hw_capability)
+ 		return dcb->ops->get_hw_capability(dcb);
  
- # Move the underlay to a non-default VRF
- ip -netns hv-1 link set veth0 vrf vrf-underlay
--ip -netns hv-1 link set veth0 down
--ip -netns hv-1 link set veth0 up
-+ip -netns hv-1 link set vxlan0 down
-+ip -netns hv-1 link set vxlan0 up
- ip -netns hv-2 link set veth0 vrf vrf-underlay
--ip -netns hv-2 link set veth0 down
--ip -netns hv-2 link set veth0 up
-+ip -netns hv-2 link set vxlan0 down
-+ip -netns hv-2 link set vxlan0 up
+-	return 0;
++	return -EOPNOTSUPP;
+ }
  
- echo -n "Check VM connectivity through VXLAN (underlay in a VRF)            "
- ip netns exec vm-1 ping -c 1 -W 1 10.0.0.2 &> /dev/null || (echo "[FAIL]"; false)
+ static inline void qlcnic_dcb_free(struct qlcnic_dcb *dcb)
+@@ -65,7 +65,7 @@ static inline int qlcnic_dcb_attach(struct qlcnic_dcb *dcb)
+ 	if (dcb && dcb->ops->attach)
+ 		return dcb->ops->attach(dcb);
+ 
+-	return 0;
++	return -EOPNOTSUPP;
+ }
+ 
+ static inline int
+@@ -74,7 +74,7 @@ qlcnic_dcb_query_hw_capability(struct qlcnic_dcb *dcb, char *buf)
+ 	if (dcb && dcb->ops->query_hw_capability)
+ 		return dcb->ops->query_hw_capability(dcb, buf);
+ 
+-	return 0;
++	return -EOPNOTSUPP;
+ }
+ 
+ static inline void qlcnic_dcb_get_info(struct qlcnic_dcb *dcb)
+@@ -89,7 +89,7 @@ qlcnic_dcb_query_cee_param(struct qlcnic_dcb *dcb, char *buf, u8 type)
+ 	if (dcb && dcb->ops->query_cee_param)
+ 		return dcb->ops->query_cee_param(dcb, buf, type);
+ 
+-	return 0;
++	return -EOPNOTSUPP;
+ }
+ 
+ static inline int qlcnic_dcb_get_cee_cfg(struct qlcnic_dcb *dcb)
+@@ -97,7 +97,7 @@ static inline int qlcnic_dcb_get_cee_cfg(struct qlcnic_dcb *dcb)
+ 	if (dcb && dcb->ops->get_cee_cfg)
+ 		return dcb->ops->get_cee_cfg(dcb);
+ 
+-	return 0;
++	return -EOPNOTSUPP;
+ }
+ 
+ static inline void qlcnic_dcb_aen_handler(struct qlcnic_dcb *dcb, void *msg)
 -- 
 2.34.1
 
