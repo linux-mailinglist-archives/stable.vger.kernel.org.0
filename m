@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BEE54F34C2
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:39:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C48D4F357E
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:50:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242423AbiDEJhB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:37:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52798 "EHLO
+        id S242442AbiDEJhE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:37:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52772 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235558AbiDEJCP (ORCPT
+        with ESMTP id S235554AbiDEJCP (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:02:15 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0482610D2;
-        Tue,  5 Apr 2022 01:53:59 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CED25F6F;
+        Tue,  5 Apr 2022 01:54:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8ED26614E4;
-        Tue,  5 Apr 2022 08:53:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D04EC385A0;
-        Tue,  5 Apr 2022 08:53:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 25E97B81BC5;
+        Tue,  5 Apr 2022 08:54:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83A9FC385A0;
+        Tue,  5 Apr 2022 08:54:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148838;
-        bh=sEUchKfDYORn7K/j5O1EnCAJAMVtyD6pYVimoakaOrI=;
+        s=korg; t=1649148840;
+        bh=xFrfaAw0W6wPzfErlhGrafzRHMRpYYTkjh++zOYTdoY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1wTQm8S0KVJmMPCmQCABANqH6yDSZClFMgmWS4GD6QBWKqmfyuuZhWyUdUryS5jDX
-         ZueUu9IUgD6y6e38q9hMG7k8ddp8oUY5HYvZ/oDV5HmkUfifOs++Wm4tab8gVCgyYZ
-         dfsCajpdEgRrNe89aYhB8mmCkrk9+koPERxWA6hI=
+        b=lzhZhN8AMzt7p2GRZ4l4RpBpfiaJI9mEQpQK36bHcnjXqb+wGn7HMZkpPleDIHtT4
+         YkI0bcfKVr2iYnP7DkKuljsan53VCptwyzqTEfK9ehsHB5lb1P1LYQ35MYg8jv2y+/
+         0QCC5fk/Fgl3Frgfi12LDgevR46xFCIo8Tm/6uko=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pin-Yen Lin <treapking@chromium.org>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Robert Foss <robert.foss@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0498/1017] drm/bridge: anx7625: Fix overflow issue on reading EDID
-Date:   Tue,  5 Apr 2022 09:23:31 +0200
-Message-Id: <20220405070409.081464001@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Martin=20Povi=C5=A1er?= <povik+lin@cutebit.org>,
+        Sven Peter <sven@svenpeter.dev>,
+        Hector Martin <marcan@marcan.st>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0499/1017] i2c: pasemi: Drop I2C classes from platform driver variant
+Date:   Tue,  5 Apr 2022 09:23:32 +0200
+Message-Id: <20220405070409.111104987@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -55,37 +56,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pin-Yen Lin <treapking@chromium.org>
+From: Martin Povišer <povik+lin@cutebit.org>
 
-[ Upstream commit d5c6f647aec9ed524aedd04a3aec5ebc21d39007 ]
+[ Upstream commit 19e138e43a0820bb4dbf8fb5c7691f82e9221f2b ]
 
-The length of EDID block can be longer than 256 bytes, so we should use
-`int` instead of `u8` for the `edid_pos` variable.
+Drop I2C device-probing classes from platform variant of the PASemi
+controller as it is only used on platforms where I2C devices should
+be instantiated in devicetree. (The I2C_CLASS_DEPRECATED flag is not
+raised as up to this point no devices relied on the old behavior.)
 
-Fixes: 8bdfc5dae4e3 ("drm/bridge: anx7625: Add anx7625 MIPI DSI/DPI to DP")
-Signed-off-by: Pin-Yen Lin <treapking@chromium.org>
-Reviewed-by: Jernej Skrabec <jernej.skrabec@gmail.com>
-Signed-off-by: Robert Foss <robert.foss@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220210103827.402436-1-treapking@chromium.org
+Fixes: d88ae2932df0 ("i2c: pasemi: Add Apple platform driver")
+Signed-off-by: Martin Povišer <povik+lin@cutebit.org>
+Reviewed-by: Sven Peter <sven@svenpeter.dev>
+Acked-by: Hector Martin <marcan@marcan.st>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/analogix/anx7625.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-pasemi-core.c | 1 -
+ drivers/i2c/busses/i2c-pasemi-pci.c  | 1 +
+ 2 files changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/bridge/analogix/anx7625.c b/drivers/gpu/drm/bridge/analogix/anx7625.c
-index 1a871f6b6822..9b2421040926 100644
---- a/drivers/gpu/drm/bridge/analogix/anx7625.c
-+++ b/drivers/gpu/drm/bridge/analogix/anx7625.c
-@@ -791,7 +791,8 @@ static int segments_edid_read(struct anx7625_data *ctx,
- static int sp_tx_edid_read(struct anx7625_data *ctx,
- 			   u8 *pedid_blocks_buf)
- {
--	u8 offset, edid_pos;
-+	u8 offset;
-+	int edid_pos;
- 	int count, blocks_num;
- 	u8 pblock_buf[MAX_DPCD_BUFFER_SIZE];
- 	u8 i, j;
+diff --git a/drivers/i2c/busses/i2c-pasemi-core.c b/drivers/i2c/busses/i2c-pasemi-core.c
+index 4e161a4089d8..7728c8460dc0 100644
+--- a/drivers/i2c/busses/i2c-pasemi-core.c
++++ b/drivers/i2c/busses/i2c-pasemi-core.c
+@@ -333,7 +333,6 @@ int pasemi_i2c_common_probe(struct pasemi_smbus *smbus)
+ 	smbus->adapter.owner = THIS_MODULE;
+ 	snprintf(smbus->adapter.name, sizeof(smbus->adapter.name),
+ 		 "PA Semi SMBus adapter (%s)", dev_name(smbus->dev));
+-	smbus->adapter.class = I2C_CLASS_HWMON | I2C_CLASS_SPD;
+ 	smbus->adapter.algo = &smbus_algorithm;
+ 	smbus->adapter.algo_data = smbus;
+ 
+diff --git a/drivers/i2c/busses/i2c-pasemi-pci.c b/drivers/i2c/busses/i2c-pasemi-pci.c
+index 1ab1f28744fb..cfc89e04eb94 100644
+--- a/drivers/i2c/busses/i2c-pasemi-pci.c
++++ b/drivers/i2c/busses/i2c-pasemi-pci.c
+@@ -56,6 +56,7 @@ static int pasemi_smb_pci_probe(struct pci_dev *dev,
+ 	if (!smbus->ioaddr)
+ 		return -EBUSY;
+ 
++	smbus->adapter.class = I2C_CLASS_HWMON | I2C_CLASS_SPD;
+ 	error = pasemi_i2c_common_probe(smbus);
+ 	if (error)
+ 		return error;
 -- 
 2.34.1
 
