@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C6D344F2E7E
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:01:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 724994F2E56
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:00:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347545AbiDEJ12 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:27:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41304 "EHLO
+        id S229804AbiDEKaK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:30:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38508 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243883AbiDEIvP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:51:15 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7D09D0818;
-        Tue,  5 Apr 2022 01:40:00 -0700 (PDT)
+        with ESMTP id S238422AbiDEJce (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:32:34 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 499E4C63;
+        Tue,  5 Apr 2022 02:19:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6C5FEB81BC0;
-        Tue,  5 Apr 2022 08:39:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3771C385A0;
-        Tue,  5 Apr 2022 08:39:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D9DC761654;
+        Tue,  5 Apr 2022 09:19:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8D1CC385A2;
+        Tue,  5 Apr 2022 09:19:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147947;
-        bh=4ZYE+YnlX6ZXr0Mpn8C8QagEhJ13qfYl0HC5aYEyi4k=;
+        s=korg; t=1649150365;
+        bh=c+FG7iJzWa+YhFtQZcmp9ygilmOryfiOe9Td4wmRm6U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cV3WpXyJtCWMArE2Nx7daYJWylZLeWa5vf5tAthDu4EjnCvO/s5FgYtV4vpqXyEYi
-         wR/gk5BKapW9phzULytI1CN9nQLLDYDnFrNE6x8ijjr9ZhvxMTUiEjKr2n6XgDtO3j
-         EFy3YTY16NDPE54RRBh7qPfzuLqf2tuONsa0tDG4=
+        b=mRWM1NGqEY83OR5ysqwKNHiwByqJR73ncAm4W1trrgsuO+6AiBNgq1m22jliX9q3P
+         q8uXzJoyvygAL5+wnIvvwaocLeiWUrICidnMKAt467GtweRP5zuBIguFYD7mgDSAxR
+         jwph+GvGSNFNTBumjAkysuEtxq/PZ6b/rZaCRQ4k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kevin Hilman <khilman@baylibre.com>,
-        Johan Hovold <johan@kernel.org>,
-        Lad Prabhakar <prabhakar.csengg@gmail.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>
-Subject: [PATCH 5.16 0179/1017] media: davinci: vpif: fix use-after-free on driver unbind
+        stable@vger.kernel.org, Jason Gunthorpe <jgg@ziepe.ca>,
+        Lino Sanfilippo <LinoSanfilippo@gmx.de>,
+        Stefan Berger <stefanb@linux.ibm.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Jarkko Sakkinen <jarkko@kernel.org>
+Subject: [PATCH 5.15 030/913] tpm: fix reference counting for struct tpm_chip
 Date:   Tue,  5 Apr 2022 09:18:12 +0200
-Message-Id: <20220405070359.548826855@linuxfoundation.org>
+Message-Id: <20220405070340.719991256@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,183 +56,273 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Lino Sanfilippo <LinoSanfilippo@gmx.de>
 
-commit 43acb728bbc40169d2e2425e84a80068270974be upstream.
+commit 7e0438f83dc769465ee663bb5dcf8cc154940712 upstream.
 
-The driver allocates and registers two platform device structures during
-probe, but the devices were never deregistered on driver unbind.
+The following sequence of operations results in a refcount warning:
 
-This results in a use-after-free on driver unbind as the device
-structures were allocated using devres and would be freed by driver
-core when remove() returns.
+1. Open device /dev/tpmrm.
+2. Remove module tpm_tis_spi.
+3. Write a TPM command to the file descriptor opened at step 1.
 
-Fix this by adding the missing deregistration calls to the remove()
-callback and failing probe on registration errors.
+------------[ cut here ]------------
+WARNING: CPU: 3 PID: 1161 at lib/refcount.c:25 kobject_get+0xa0/0xa4
+refcount_t: addition on 0; use-after-free.
+Modules linked in: tpm_tis_spi tpm_tis_core tpm mdio_bcm_unimac brcmfmac
+sha256_generic libsha256 sha256_arm hci_uart btbcm bluetooth cfg80211 vc4
+brcmutil ecdh_generic ecc snd_soc_core crc32_arm_ce libaes
+raspberrypi_hwmon ac97_bus snd_pcm_dmaengine bcm2711_thermal snd_pcm
+snd_timer genet snd phy_generic soundcore [last unloaded: spi_bcm2835]
+CPU: 3 PID: 1161 Comm: hold_open Not tainted 5.10.0ls-main-dirty #2
+Hardware name: BCM2711
+[<c0410c3c>] (unwind_backtrace) from [<c040b580>] (show_stack+0x10/0x14)
+[<c040b580>] (show_stack) from [<c1092174>] (dump_stack+0xc4/0xd8)
+[<c1092174>] (dump_stack) from [<c0445a30>] (__warn+0x104/0x108)
+[<c0445a30>] (__warn) from [<c0445aa8>] (warn_slowpath_fmt+0x74/0xb8)
+[<c0445aa8>] (warn_slowpath_fmt) from [<c08435d0>] (kobject_get+0xa0/0xa4)
+[<c08435d0>] (kobject_get) from [<bf0a715c>] (tpm_try_get_ops+0x14/0x54 [tpm])
+[<bf0a715c>] (tpm_try_get_ops [tpm]) from [<bf0a7d6c>] (tpm_common_write+0x38/0x60 [tpm])
+[<bf0a7d6c>] (tpm_common_write [tpm]) from [<c05a7ac0>] (vfs_write+0xc4/0x3c0)
+[<c05a7ac0>] (vfs_write) from [<c05a7ee4>] (ksys_write+0x58/0xcc)
+[<c05a7ee4>] (ksys_write) from [<c04001a0>] (ret_fast_syscall+0x0/0x4c)
+Exception stack(0xc226bfa8 to 0xc226bff0)
+bfa0:                   00000000 000105b4 00000003 beafe664 00000014 00000000
+bfc0: 00000000 000105b4 000103f8 00000004 00000000 00000000 b6f9c000 beafe684
+bfe0: 0000006c beafe648 0001056c b6eb6944
+---[ end trace d4b8409def9b8b1f ]---
 
-Note that the platform device structures must be freed using a proper
-release callback to avoid leaking associated resources like device
-names.
+The reason for this warning is the attempt to get the chip->dev reference
+in tpm_common_write() although the reference counter is already zero.
 
-Fixes: 479f7a118105 ("[media] davinci: vpif: adaptions for DT support")
-Cc: stable@vger.kernel.org      # 4.12
-Cc: Kevin Hilman <khilman@baylibre.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Reviewed-by: Lad Prabhakar <prabhakar.csengg@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Since commit 8979b02aaf1d ("tpm: Fix reference count to main device") the
+extra reference used to prevent a premature zero counter is never taken,
+because the required TPM_CHIP_FLAG_TPM2 flag is never set.
+
+Fix this by moving the TPM 2 character device handling from
+tpm_chip_alloc() to tpm_add_char_device() which is called at a later point
+in time when the flag has been set in case of TPM2.
+
+Commit fdc915f7f719 ("tpm: expose spaces via a device link /dev/tpmrm<n>")
+already introduced function tpm_devs_release() to release the extra
+reference but did not implement the required put on chip->devs that results
+in the call of this function.
+
+Fix this by putting chip->devs in tpm_chip_unregister().
+
+Finally move the new implementation for the TPM 2 handling into a new
+function to avoid multiple checks for the TPM_CHIP_FLAG_TPM2 flag in the
+good case and error cases.
+
+Cc: stable@vger.kernel.org
+Fixes: fdc915f7f719 ("tpm: expose spaces via a device link /dev/tpmrm<n>")
+Fixes: 8979b02aaf1d ("tpm: Fix reference count to main device")
+Co-developed-by: Jason Gunthorpe <jgg@ziepe.ca>
+Signed-off-by: Jason Gunthorpe <jgg@ziepe.ca>
+Signed-off-by: Lino Sanfilippo <LinoSanfilippo@gmx.de>
+Tested-by: Stefan Berger <stefanb@linux.ibm.com>
+Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
+Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
+Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/platform/davinci/vpif.c |   97 ++++++++++++++++++++++++----------
- 1 file changed, 71 insertions(+), 26 deletions(-)
+ drivers/char/tpm/tpm-chip.c   |   46 +++++------------------------
+ drivers/char/tpm/tpm.h        |    2 +
+ drivers/char/tpm/tpm2-space.c |   65 ++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 75 insertions(+), 38 deletions(-)
 
---- a/drivers/media/platform/davinci/vpif.c
-+++ b/drivers/media/platform/davinci/vpif.c
-@@ -41,6 +41,11 @@ MODULE_ALIAS("platform:" VPIF_DRIVER_NAM
- #define VPIF_CH2_MAX_MODES	15
- #define VPIF_CH3_MAX_MODES	2
- 
-+struct vpif_data {
-+	struct platform_device *capture;
-+	struct platform_device *display;
-+};
-+
- DEFINE_SPINLOCK(vpif_lock);
- EXPORT_SYMBOL_GPL(vpif_lock);
- 
-@@ -423,17 +428,31 @@ int vpif_channel_getfid(u8 channel_id)
+--- a/drivers/char/tpm/tpm-chip.c
++++ b/drivers/char/tpm/tpm-chip.c
+@@ -274,14 +274,6 @@ static void tpm_dev_release(struct devic
+ 	kfree(chip);
  }
- EXPORT_SYMBOL(vpif_channel_getfid);
  
-+static void vpif_pdev_release(struct device *dev)
-+{
-+	struct platform_device *pdev = to_platform_device(dev);
+-static void tpm_devs_release(struct device *dev)
+-{
+-	struct tpm_chip *chip = container_of(dev, struct tpm_chip, devs);
+-
+-	/* release the master device reference */
+-	put_device(&chip->dev);
+-}
+-
+ /**
+  * tpm_class_shutdown() - prepare the TPM device for loss of power.
+  * @dev: device to which the chip is associated.
+@@ -344,7 +336,6 @@ struct tpm_chip *tpm_chip_alloc(struct d
+ 	chip->dev_num = rc;
+ 
+ 	device_initialize(&chip->dev);
+-	device_initialize(&chip->devs);
+ 
+ 	chip->dev.class = tpm_class;
+ 	chip->dev.class->shutdown_pre = tpm_class_shutdown;
+@@ -352,39 +343,20 @@ struct tpm_chip *tpm_chip_alloc(struct d
+ 	chip->dev.parent = pdev;
+ 	chip->dev.groups = chip->groups;
+ 
+-	chip->devs.parent = pdev;
+-	chip->devs.class = tpmrm_class;
+-	chip->devs.release = tpm_devs_release;
+-	/* get extra reference on main device to hold on
+-	 * behalf of devs.  This holds the chip structure
+-	 * while cdevs is in use.  The corresponding put
+-	 * is in the tpm_devs_release (TPM2 only)
+-	 */
+-	if (chip->flags & TPM_CHIP_FLAG_TPM2)
+-		get_device(&chip->dev);
+-
+ 	if (chip->dev_num == 0)
+ 		chip->dev.devt = MKDEV(MISC_MAJOR, TPM_MINOR);
+ 	else
+ 		chip->dev.devt = MKDEV(MAJOR(tpm_devt), chip->dev_num);
+ 
+-	chip->devs.devt =
+-		MKDEV(MAJOR(tpm_devt), chip->dev_num + TPM_NUM_DEVICES);
+-
+ 	rc = dev_set_name(&chip->dev, "tpm%d", chip->dev_num);
+ 	if (rc)
+ 		goto out;
+-	rc = dev_set_name(&chip->devs, "tpmrm%d", chip->dev_num);
+-	if (rc)
+-		goto out;
+ 
+ 	if (!pdev)
+ 		chip->flags |= TPM_CHIP_FLAG_VIRTUAL;
+ 
+ 	cdev_init(&chip->cdev, &tpm_fops);
+-	cdev_init(&chip->cdevs, &tpmrm_fops);
+ 	chip->cdev.owner = THIS_MODULE;
+-	chip->cdevs.owner = THIS_MODULE;
+ 
+ 	rc = tpm2_init_space(&chip->work_space, TPM2_SPACE_BUFFER_SIZE);
+ 	if (rc) {
+@@ -396,7 +368,6 @@ struct tpm_chip *tpm_chip_alloc(struct d
+ 	return chip;
+ 
+ out:
+-	put_device(&chip->devs);
+ 	put_device(&chip->dev);
+ 	return ERR_PTR(rc);
+ }
+@@ -445,14 +416,9 @@ static int tpm_add_char_device(struct tp
+ 	}
+ 
+ 	if (chip->flags & TPM_CHIP_FLAG_TPM2) {
+-		rc = cdev_device_add(&chip->cdevs, &chip->devs);
+-		if (rc) {
+-			dev_err(&chip->devs,
+-				"unable to cdev_device_add() %s, major %d, minor %d, err=%d\n",
+-				dev_name(&chip->devs), MAJOR(chip->devs.devt),
+-				MINOR(chip->devs.devt), rc);
+-			return rc;
+-		}
++		rc = tpm_devs_add(chip);
++		if (rc)
++			goto err_del_cdev;
+ 	}
+ 
+ 	/* Make the chip available. */
+@@ -460,6 +426,10 @@ static int tpm_add_char_device(struct tp
+ 	idr_replace(&dev_nums_idr, chip, chip->dev_num);
+ 	mutex_unlock(&idr_lock);
+ 
++	return 0;
 +
-+	kfree(pdev);
++err_del_cdev:
++	cdev_device_del(&chip->cdev, &chip->dev);
+ 	return rc;
+ }
+ 
+@@ -649,7 +619,7 @@ void tpm_chip_unregister(struct tpm_chip
+ 		hwrng_unregister(&chip->hwrng);
+ 	tpm_bios_log_teardown(chip);
+ 	if (chip->flags & TPM_CHIP_FLAG_TPM2)
+-		cdev_device_del(&chip->cdevs, &chip->devs);
++		tpm_devs_remove(chip);
+ 	tpm_del_char_device(chip);
+ }
+ EXPORT_SYMBOL_GPL(tpm_chip_unregister);
+--- a/drivers/char/tpm/tpm.h
++++ b/drivers/char/tpm/tpm.h
+@@ -234,6 +234,8 @@ int tpm2_prepare_space(struct tpm_chip *
+ 		       size_t cmdsiz);
+ int tpm2_commit_space(struct tpm_chip *chip, struct tpm_space *space, void *buf,
+ 		      size_t *bufsiz);
++int tpm_devs_add(struct tpm_chip *chip);
++void tpm_devs_remove(struct tpm_chip *chip);
+ 
+ void tpm_bios_log_setup(struct tpm_chip *chip);
+ void tpm_bios_log_teardown(struct tpm_chip *chip);
+--- a/drivers/char/tpm/tpm2-space.c
++++ b/drivers/char/tpm/tpm2-space.c
+@@ -574,3 +574,68 @@ out:
+ 	dev_err(&chip->dev, "%s: error %d\n", __func__, rc);
+ 	return rc;
+ }
++
++/*
++ * Put the reference to the main device.
++ */
++static void tpm_devs_release(struct device *dev)
++{
++	struct tpm_chip *chip = container_of(dev, struct tpm_chip, devs);
++
++	/* release the master device reference */
++	put_device(&chip->dev);
 +}
 +
- static int vpif_probe(struct platform_device *pdev)
- {
- 	static struct resource *res_irq;
- 	struct platform_device *pdev_capture, *pdev_display;
- 	struct device_node *endpoint = NULL;
-+	struct vpif_data *data;
- 	int ret;
- 
- 	vpif_base = devm_platform_ioremap_resource(pdev, 0);
- 	if (IS_ERR(vpif_base))
- 		return PTR_ERR(vpif_base);
- 
-+	data = kzalloc(sizeof(*data), GFP_KERNEL);
-+	if (!data)
-+		return -ENOMEM;
++/*
++ * Remove the device file for exposed TPM spaces and release the device
++ * reference. This may also release the reference to the master device.
++ */
++void tpm_devs_remove(struct tpm_chip *chip)
++{
++	cdev_device_del(&chip->cdevs, &chip->devs);
++	put_device(&chip->devs);
++}
 +
-+	platform_set_drvdata(pdev, data);
++/*
++ * Add a device file to expose TPM spaces. Also take a reference to the
++ * main device.
++ */
++int tpm_devs_add(struct tpm_chip *chip)
++{
++	int rc;
 +
- 	pm_runtime_enable(&pdev->dev);
- 	pm_runtime_get(&pdev->dev);
- 
-@@ -461,49 +480,75 @@ static int vpif_probe(struct platform_de
- 		goto err_put_rpm;
- 	}
- 
--	pdev_capture = devm_kzalloc(&pdev->dev, sizeof(*pdev_capture),
--				    GFP_KERNEL);
--	if (pdev_capture) {
--		pdev_capture->name = "vpif_capture";
--		pdev_capture->id = -1;
--		pdev_capture->resource = res_irq;
--		pdev_capture->num_resources = 1;
--		pdev_capture->dev.dma_mask = pdev->dev.dma_mask;
--		pdev_capture->dev.coherent_dma_mask = pdev->dev.coherent_dma_mask;
--		pdev_capture->dev.parent = &pdev->dev;
--		platform_device_register(pdev_capture);
--	} else {
--		dev_warn(&pdev->dev, "Unable to allocate memory for pdev_capture.\n");
-+	pdev_capture = kzalloc(sizeof(*pdev_capture), GFP_KERNEL);
-+	if (!pdev_capture) {
-+		ret = -ENOMEM;
-+		goto err_put_rpm;
- 	}
- 
--	pdev_display = devm_kzalloc(&pdev->dev, sizeof(*pdev_display),
--				    GFP_KERNEL);
--	if (pdev_display) {
--		pdev_display->name = "vpif_display";
--		pdev_display->id = -1;
--		pdev_display->resource = res_irq;
--		pdev_display->num_resources = 1;
--		pdev_display->dev.dma_mask = pdev->dev.dma_mask;
--		pdev_display->dev.coherent_dma_mask = pdev->dev.coherent_dma_mask;
--		pdev_display->dev.parent = &pdev->dev;
--		platform_device_register(pdev_display);
--	} else {
--		dev_warn(&pdev->dev, "Unable to allocate memory for pdev_display.\n");
-+	pdev_capture->name = "vpif_capture";
-+	pdev_capture->id = -1;
-+	pdev_capture->resource = res_irq;
-+	pdev_capture->num_resources = 1;
-+	pdev_capture->dev.dma_mask = pdev->dev.dma_mask;
-+	pdev_capture->dev.coherent_dma_mask = pdev->dev.coherent_dma_mask;
-+	pdev_capture->dev.parent = &pdev->dev;
-+	pdev_capture->dev.release = vpif_pdev_release;
++	device_initialize(&chip->devs);
++	chip->devs.parent = chip->dev.parent;
++	chip->devs.class = tpmrm_class;
 +
-+	ret = platform_device_register(pdev_capture);
-+	if (ret)
-+		goto err_put_pdev_capture;
++	/*
++	 * Get extra reference on main device to hold on behalf of devs.
++	 * This holds the chip structure while cdevs is in use. The
++	 * corresponding put is in the tpm_devs_release.
++	 */
++	get_device(&chip->dev);
++	chip->devs.release = tpm_devs_release;
++	chip->devs.devt = MKDEV(MAJOR(tpm_devt), chip->dev_num + TPM_NUM_DEVICES);
++	cdev_init(&chip->cdevs, &tpmrm_fops);
++	chip->cdevs.owner = THIS_MODULE;
 +
-+	pdev_display = kzalloc(sizeof(*pdev_display), GFP_KERNEL);
-+	if (!pdev_display) {
-+		ret = -ENOMEM;
-+		goto err_put_pdev_capture;
- 	}
- 
-+	pdev_display->name = "vpif_display";
-+	pdev_display->id = -1;
-+	pdev_display->resource = res_irq;
-+	pdev_display->num_resources = 1;
-+	pdev_display->dev.dma_mask = pdev->dev.dma_mask;
-+	pdev_display->dev.coherent_dma_mask = pdev->dev.coherent_dma_mask;
-+	pdev_display->dev.parent = &pdev->dev;
-+	pdev_display->dev.release = vpif_pdev_release;
++	rc = dev_set_name(&chip->devs, "tpmrm%d", chip->dev_num);
++	if (rc)
++		goto err_put_devs;
 +
-+	ret = platform_device_register(pdev_display);
-+	if (ret)
-+		goto err_put_pdev_display;
++	rc = cdev_device_add(&chip->cdevs, &chip->devs);
++	if (rc) {
++		dev_err(&chip->devs,
++			"unable to cdev_device_add() %s, major %d, minor %d, err=%d\n",
++			dev_name(&chip->devs), MAJOR(chip->devs.devt),
++			MINOR(chip->devs.devt), rc);
++		goto err_put_devs;
++	}
 +
-+	data->capture = pdev_capture;
-+	data->display = pdev_display;
++	return 0;
 +
- 	return 0;
- 
-+err_put_pdev_display:
-+	platform_device_put(pdev_display);
-+err_put_pdev_capture:
-+	platform_device_put(pdev_capture);
- err_put_rpm:
- 	pm_runtime_put(&pdev->dev);
- 	pm_runtime_disable(&pdev->dev);
-+	kfree(data);
- 
- 	return ret;
- }
- 
- static int vpif_remove(struct platform_device *pdev)
- {
-+	struct vpif_data *data = platform_get_drvdata(pdev);
++err_put_devs:
++	put_device(&chip->devs);
 +
-+	if (data->capture)
-+		platform_device_unregister(data->capture);
-+	if (data->display)
-+		platform_device_unregister(data->display);
-+
- 	pm_runtime_put(&pdev->dev);
- 	pm_runtime_disable(&pdev->dev);
-+
-+	kfree(data);
-+
- 	return 0;
- }
- 
++	return rc;
++}
 
 
