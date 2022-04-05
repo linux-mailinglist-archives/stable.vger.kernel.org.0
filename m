@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 183EF4F2AE4
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:06:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 08AD14F2DE2
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:47:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245119AbiDEIyK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:54:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45442 "EHLO
+        id S1353870AbiDEKJl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:09:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59666 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241115AbiDEIcu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:32:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FE3015A0C;
-        Tue,  5 Apr 2022 01:27:50 -0700 (PDT)
+        with ESMTP id S1345872AbiDEJXH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:23:07 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34744A5E8D;
+        Tue,  5 Apr 2022 02:12:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D221560B0E;
-        Tue,  5 Apr 2022 08:27:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E07BBC385A2;
-        Tue,  5 Apr 2022 08:27:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C647561527;
+        Tue,  5 Apr 2022 09:12:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBF47C385A2;
+        Tue,  5 Apr 2022 09:12:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147269;
-        bh=8amx3lYhPdvxlPyXrtkPsQvIG3FbeBS5jWOreTSZbyk=;
+        s=korg; t=1649149943;
+        bh=m7G20AubjvcX73uuvdxB1UoNXmtJuvwEgYN+98yPEXM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZhB9D8QzRl4uEQctqbS7KMhbyRLkxdS3ZKQ1T9NelBbTofYNhr+WFXhKt3JTKTHL0
-         U4A0DMJ2tIzNtnbSa6XnhYBvMcdKVf79mz0uk9l3nDmAx2x7H/hB7BkdecYZDQ0j+b
-         EB59KbTEVIRwTfAIAOEc/eefug+4vWthQUWXQjTI=
+        b=JbmDxpelTCX1Ok1gIedzMdHZM6VIHrP1gnNEGXyysLQmouGs1RS4wqgxewtKRedio
+         3oWm9jxuou6r+jCdEKKjLwl6VkPpgSM8ZRPInLunhBel28XMLXCBu/U5HdAyqbhUBt
+         KXRTmPYyU9uDe5K5L48Tuk6p0TGK0Pc1suxRaKpk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Derek Will <derekrobertwill@gmail.com>,
-        Oliver Hartkopp <socketcan@hartkopp.net>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 1063/1126] can: isotp: restore accidentally removed MSG_PEEK feature
+        stable@vger.kernel.org,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Quinn Tran <qutran@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.16 0897/1017] scsi: qla2xxx: Reduce false trigger to login
 Date:   Tue,  5 Apr 2022 09:30:10 +0200
-Message-Id: <20220405070438.661468390@linuxfoundation.org>
+Message-Id: <20220405070420.852885310@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,48 +56,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Hartkopp <socketcan@hartkopp.net>
+From: Quinn Tran <qutran@marvell.com>
 
-[ Upstream commit e382fea8ae54f5bb62869c6b69b33993d43adeca ]
+commit d2646eed7b19a206912f49101178cbbaa507256c upstream.
 
-In commit 42bf50a1795a ("can: isotp: support MSG_TRUNC flag when
-reading from socket") a new check for recvmsg flags has been
-introduced that only checked for the flags that are handled in
-isotp_recvmsg() itself.
+While a session is in the middle of a relogin, a late RSCN can be delivered
+from switch. RSCN trigger fabric scan where the scan logic can trigger
+another session login while a login is in progress.  Reduce the extra
+trigger to prevent multiple logins to the same session.
 
-This accidentally removed the MSG_PEEK feature flag which is processed
-later in the call chain in __skb_try_recv_from_queue().
-
-Add MSG_PEEK to the set of valid flags to restore the feature.
-
-Fixes: 42bf50a1795a ("can: isotp: support MSG_TRUNC flag when reading from socket")
-Link: https://github.com/linux-can/can-utils/issues/347#issuecomment-1079554254
-Link: https://lore.kernel.org/all/20220328113611.3691-1-socketcan@hartkopp.net
-Reported-by: Derek Will <derekrobertwill@gmail.com>
-Suggested-by: Derek Will <derekrobertwill@gmail.com>
-Tested-by: Derek Will <derekrobertwill@gmail.com>
-Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/20220310092604.22950-10-njavali@marvell.com
+Fixes: bee8b84686c4 ("scsi: qla2xxx: Reduce redundant ADISC command for RSCNs")
+Cc: stable@vger.kernel.org
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Quinn Tran <qutran@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/can/isotp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/qla2xxx/qla_init.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/net/can/isotp.c b/net/can/isotp.c
-index ad61342d2e16..a95d171b3a64 100644
---- a/net/can/isotp.c
-+++ b/net/can/isotp.c
-@@ -1009,7 +1009,7 @@ static int isotp_recvmsg(struct socket *sock, struct msghdr *msg, size_t size,
- 	int noblock = flags & MSG_DONTWAIT;
- 	int ret = 0;
+--- a/drivers/scsi/qla2xxx/qla_init.c
++++ b/drivers/scsi/qla2xxx/qla_init.c
+@@ -1644,7 +1644,8 @@ int qla24xx_fcport_handle_login(struct s
+ 	    fcport->login_gen, fcport->loop_id, fcport->scan_state,
+ 	    fcport->fc4_type);
  
--	if (flags & ~(MSG_DONTWAIT | MSG_TRUNC))
-+	if (flags & ~(MSG_DONTWAIT | MSG_TRUNC | MSG_PEEK))
- 		return -EINVAL;
+-	if (fcport->scan_state != QLA_FCPORT_FOUND)
++	if (fcport->scan_state != QLA_FCPORT_FOUND ||
++	    fcport->disc_state == DSC_DELETE_PEND)
+ 		return 0;
  
- 	if (!so->bound)
--- 
-2.34.1
-
+ 	if ((fcport->loop_id != FC_NO_LOOP_ID) &&
+@@ -1665,7 +1666,7 @@ int qla24xx_fcport_handle_login(struct s
+ 	if (vha->host->active_mode == MODE_TARGET && !N2N_TOPO(vha->hw))
+ 		return 0;
+ 
+-	if (fcport->flags & FCF_ASYNC_SENT) {
++	if (fcport->flags & (FCF_ASYNC_SENT | FCF_ASYNC_ACTIVE)) {
+ 		set_bit(RELOGIN_NEEDED, &vha->dpc_flags);
+ 		return 0;
+ 	}
 
 
