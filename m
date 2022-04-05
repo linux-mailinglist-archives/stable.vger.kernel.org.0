@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E34034F3755
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:19:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA66B4F3754
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:19:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352764AbiDELMl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:12:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48136 "EHLO
+        id S1352754AbiDELMj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:12:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39398 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348970AbiDEJsu (ORCPT
+        with ESMTP id S1348974AbiDEJsu (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:48:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1615B5FE3;
-        Tue,  5 Apr 2022 02:38:31 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 836DE21AC;
+        Tue,  5 Apr 2022 02:38:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A60AE61577;
-        Tue,  5 Apr 2022 09:38:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B813AC385A0;
-        Tue,  5 Apr 2022 09:38:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1DE2CB818F3;
+        Tue,  5 Apr 2022 09:38:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FBE1C385A3;
+        Tue,  5 Apr 2022 09:38:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151510;
-        bh=z4YLGi9YbeaUcr0qIT52vIz3HIzSVT4EtDUKm8XN6nM=;
+        s=korg; t=1649151512;
+        bh=a4PdAOU8SZBWxNOgvOfdb9z+k5GvR5/1CHmDF+qaoz4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o903U/RFZf3sw7YA63YgII7AP+nBNW2xbTza+YNA7EQohMRtJI+tbiPGiqFvm7CRo
-         lMuvGVArvjQUf2ugyTkig38EEe/pfCwHJjT2c6yRozDLvjCQwAfCzTJ0qodOSVyqiW
-         hHQTVVXo2ob6lmvmC39lWgAZvBi+TiJvx/glQar4=
+        b=cTKOOQw5cLJCvAD2zfj6cUTMPOPmC/qQsJgsJ+Vme/jHqFJ38PSeSoXJH0JdvMNgN
+         LaKHjG/Qj9vmwAx6sCVbHvlhhKcPI5m9fiO87+8Ij9CRf0dOBGnOHD/VAFT39gVE3Z
+         beEPyIxQ3EibC+1XHVjilCxevFOVkWEgcOSetH34=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Corinna Vinschen <vinschen@redhat.com>,
-        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
-        Sandeep Penigalapati <sandeep.penigalapati@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 440/913] igb: refactor XDP registration
-Date:   Tue,  5 Apr 2022 09:25:02 +0200
-Message-Id: <20220405070353.035110076@linuxfoundation.org>
+Subject: [PATCH 5.15 441/913] PCI: aardvark: Fix reading MSI interrupt number
+Date:   Tue,  5 Apr 2022 09:25:03 +0200
+Message-Id: <20220405070353.064998569@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -56,83 +56,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corinna Vinschen <vinschen@redhat.com>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit e62ad74aa534404b3ee7e250b114a3536ac56987 ]
+[ Upstream commit 805dfc18dd3d4dd97a987d4406593b5a225b1253 ]
 
-On changing the RX ring parameters igb uses a hack to avoid a warning
-when calling xdp_rxq_info_reg via igb_setup_rx_resources.  It just
-clears the struct xdp_rxq_info content.
+In advk_pcie_handle_msi() it is expected that when bit i in the W1C
+register PCIE_MSI_STATUS_REG is cleared, the PCIE_MSI_PAYLOAD_REG is
+updated to contain the MSI number corresponding to index i.
 
-Instead, change this to unregister if we're already registered.  Align
-code to the igc code.
+Experiments show that this is not so, and instead PCIE_MSI_PAYLOAD_REG
+always contains the number of the last received MSI, overall.
 
-Fixes: 9cbc948b5a20c ("igb: add XDP support")
-Signed-off-by: Corinna Vinschen <vinschen@redhat.com>
-Acked-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
-Tested-by: Sandeep Penigalapati <sandeep.penigalapati@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Do not read PCIE_MSI_PAYLOAD_REG register for determining MSI interrupt
+number. Since Aardvark already forbids more than 32 interrupts and uses
+own allocated hwirq numbers, the msi_idx already corresponds to the
+received MSI number.
+
+Link: https://lore.kernel.org/r/20220110015018.26359-3-kabel@kernel.org
+Fixes: 8c39d710363c ("PCI: aardvark: Add Aardvark PCI host controller driver")
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/igb/igb_ethtool.c |  4 ----
- drivers/net/ethernet/intel/igb/igb_main.c    | 19 +++++++++++++------
- 2 files changed, 13 insertions(+), 10 deletions(-)
+ drivers/pci/controller/pci-aardvark.c | 9 ++-------
+ 1 file changed, 2 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/igb/igb_ethtool.c b/drivers/net/ethernet/intel/igb/igb_ethtool.c
-index fb1029352c3e..3cbb5a89b336 100644
---- a/drivers/net/ethernet/intel/igb/igb_ethtool.c
-+++ b/drivers/net/ethernet/intel/igb/igb_ethtool.c
-@@ -961,10 +961,6 @@ static int igb_set_ringparam(struct net_device *netdev,
- 			memcpy(&temp_ring[i], adapter->rx_ring[i],
- 			       sizeof(struct igb_ring));
- 
--			/* Clear copied XDP RX-queue info */
--			memset(&temp_ring[i].xdp_rxq, 0,
--			       sizeof(temp_ring[i].xdp_rxq));
--
- 			temp_ring[i].count = new_rx_count;
- 			err = igb_setup_rx_resources(&temp_ring[i]);
- 			if (err) {
-diff --git a/drivers/net/ethernet/intel/igb/igb_main.c b/drivers/net/ethernet/intel/igb/igb_main.c
-index 82a712f77cb3..bf8ef81f6c0e 100644
---- a/drivers/net/ethernet/intel/igb/igb_main.c
-+++ b/drivers/net/ethernet/intel/igb/igb_main.c
-@@ -4345,7 +4345,18 @@ int igb_setup_rx_resources(struct igb_ring *rx_ring)
+diff --git a/drivers/pci/controller/pci-aardvark.c b/drivers/pci/controller/pci-aardvark.c
+index b2217e2b3efd..7aa6d6336223 100644
+--- a/drivers/pci/controller/pci-aardvark.c
++++ b/drivers/pci/controller/pci-aardvark.c
+@@ -1381,7 +1381,6 @@ static void advk_pcie_remove_irq_domain(struct advk_pcie *pcie)
+ static void advk_pcie_handle_msi(struct advk_pcie *pcie)
  {
- 	struct igb_adapter *adapter = netdev_priv(rx_ring->netdev);
- 	struct device *dev = rx_ring->dev;
--	int size;
-+	int size, res;
-+
-+	/* XDP RX-queue info */
-+	if (xdp_rxq_info_is_reg(&rx_ring->xdp_rxq))
-+		xdp_rxq_info_unreg(&rx_ring->xdp_rxq);
-+	res = xdp_rxq_info_reg(&rx_ring->xdp_rxq, rx_ring->netdev,
-+			       rx_ring->queue_index, 0);
-+	if (res < 0) {
-+		dev_err(dev, "Failed to register xdp_rxq index %u\n",
-+			rx_ring->queue_index);
-+		return res;
-+	}
+ 	u32 msi_val, msi_mask, msi_status, msi_idx;
+-	u16 msi_data;
  
- 	size = sizeof(struct igb_rx_buffer) * rx_ring->count;
+ 	msi_mask = advk_readl(pcie, PCIE_MSI_MASK_REG);
+ 	msi_val = advk_readl(pcie, PCIE_MSI_STATUS_REG);
+@@ -1391,13 +1390,9 @@ static void advk_pcie_handle_msi(struct advk_pcie *pcie)
+ 		if (!(BIT(msi_idx) & msi_status))
+ 			continue;
  
-@@ -4368,14 +4379,10 @@ int igb_setup_rx_resources(struct igb_ring *rx_ring)
+-		/*
+-		 * msi_idx contains bits [4:0] of the msi_data and msi_data
+-		 * contains 16bit MSI interrupt number
+-		 */
+ 		advk_writel(pcie, BIT(msi_idx), PCIE_MSI_STATUS_REG);
+-		msi_data = advk_readl(pcie, PCIE_MSI_PAYLOAD_REG) & PCIE_MSI_DATA_MASK;
+-		generic_handle_irq(msi_data);
++		if (generic_handle_domain_irq(pcie->msi_inner_domain, msi_idx) == -EINVAL)
++			dev_err_ratelimited(&pcie->pdev->dev, "unexpected MSI 0x%02x\n", msi_idx);
+ 	}
  
- 	rx_ring->xdp_prog = adapter->xdp_prog;
- 
--	/* XDP RX-queue info */
--	if (xdp_rxq_info_reg(&rx_ring->xdp_rxq, rx_ring->netdev,
--			     rx_ring->queue_index, 0) < 0)
--		goto err;
--
- 	return 0;
- 
- err:
-+	xdp_rxq_info_unreg(&rx_ring->xdp_rxq);
- 	vfree(rx_ring->rx_buffer_info);
- 	rx_ring->rx_buffer_info = NULL;
- 	dev_err(dev, "Unable to allocate memory for the Rx descriptor ring\n");
+ 	advk_writel(pcie, PCIE_ISR0_MSI_INT_PENDING,
 -- 
 2.34.1
 
