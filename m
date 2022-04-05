@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B63234F3360
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:15:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 397254F33DE
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:24:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355484AbiDEKUF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:20:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59826 "EHLO
+        id S237437AbiDEImT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:42:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52752 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345236AbiDEJWW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:22:22 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A2572A724;
-        Tue,  5 Apr 2022 02:09:50 -0700 (PDT)
+        with ESMTP id S239125AbiDEIbL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:31:11 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19740496B3;
+        Tue,  5 Apr 2022 01:23:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 435A5B81B75;
-        Tue,  5 Apr 2022 09:09:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95962C385A2;
-        Tue,  5 Apr 2022 09:09:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5828CB81BD6;
+        Tue,  5 Apr 2022 08:23:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C48E5C385B4;
+        Tue,  5 Apr 2022 08:23:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149787;
-        bh=0K+8KsR+j4aH3e4AuxoIRtkQ3/ATfCNbxCPkVALNxBM=;
+        s=korg; t=1649146988;
+        bh=Iq2ZvXe9ADabMGnOc1m2KwnYvzAf0dQnMn6C1TUJ2QA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bLYHWJI7RU0AYRU0qCkDp93v3CTEOg78Dh09jEa5dNg9U4ISYgyv/HanL1dDbIkbf
-         RV02dqRXvYI+UdM1kfLTN+Wzy8nXPiHzFOylesLZy7xjEJKDjtmHPkPTTu0o1A9kIf
-         Ij78sHOkQeCTrR6+6rY1O4qHZmpkWLochw2Hx22Q=
+        b=jEY5HTEuUy52xcqnIf3YhC79PsF4NV9Ez311b1I8w7cw54TDTQpx4V2LMLcM7NTSW
+         djcUOZXEdhPSFzlrPnS5xcuq/JL5SNG7DDm/tb8Hlr4+W5/eeUAqb7LDXqp0aKIGcs
+         TVpkDAB+9/iAfYW15JKFCoAjZvL3p+MXHc/58NbM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <chao@kernel.org>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0793/1017] f2fs: dont get FREEZE lock in f2fs_evict_inode in frozen fs
+        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.17 0959/1126] KVM: x86: hyper-v: HVCALL_SEND_IPI_EX is an XMM fast hypercall
 Date:   Tue,  5 Apr 2022 09:28:26 +0200
-Message-Id: <20220405070417.790776026@linuxfoundation.org>
+Message-Id: <20220405070435.653745066@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,118 +53,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jaegeuk Kim <jaegeuk@kernel.org>
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
 
-[ Upstream commit ba900534f807f0b327c92d5141c85d2313e2d55c ]
+commit 47d3e5cdfe607ec6883eb0faa7acf05b8cb3f92a upstream.
 
-Let's purge inode cache in order to avoid the below deadlock.
+It has been proven on practice that at least Windows Server 2019 tries
+using HVCALL_SEND_IPI_EX in 'XMM fast' mode when it has more than 64 vCPUs
+and it needs to send an IPI to a vCPU > 63. Similarly to other XMM Fast
+hypercalls (HVCALL_FLUSH_VIRTUAL_ADDRESS_{LIST,SPACE}{,_EX}), this
+information is missing in TLFS as of 6.0b. Currently, KVM returns an error
+(HV_STATUS_INVALID_HYPERCALL_INPUT) and Windows crashes.
 
-[freeze test]                         shrinkder
-freeze_super
- - pwercpu_down_write(SB_FREEZE_FS)
-                                       - super_cache_scan
-                                         - down_read(&sb->s_umount)
-                                           - prune_icache_sb
-                                            - dispose_list
-                                             - evict
-                                              - f2fs_evict_inode
-thaw_super
- - down_write(&sb->s_umount);
-                                              - __percpu_down_read(SB_FREEZE_FS)
+Note, HVCALL_SEND_IPI is a 'standard' fast hypercall (not 'XMM fast') as
+all its parameters fit into RDX:R8 and this is handled by KVM correctly.
 
-Reviewed-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org # 5.14.x: 3244867af8c0: KVM: x86: Ignore sparse banks size for an "all CPUs", non-sparse IPI req
+Cc: stable@vger.kernel.org # 5.14.x
+Fixes: d8f5537a8816 ("KVM: hyper-v: Advertise support for fast XMM hypercalls")
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Message-Id: <20220222154642.684285-5-vkuznets@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/ABI/testing/sysfs-fs-f2fs | 1 +
- fs/f2fs/debug.c                         | 1 +
- fs/f2fs/f2fs.h                          | 1 +
- fs/f2fs/inode.c                         | 6 ++++--
- fs/f2fs/super.c                         | 4 ++++
- 5 files changed, 11 insertions(+), 2 deletions(-)
+ arch/x86/kvm/hyperv.c |   52 ++++++++++++++++++++++++++++++++------------------
+ 1 file changed, 34 insertions(+), 18 deletions(-)
 
-diff --git a/Documentation/ABI/testing/sysfs-fs-f2fs b/Documentation/ABI/testing/sysfs-fs-f2fs
-index b268e3e18b4a..91e2b549f817 100644
---- a/Documentation/ABI/testing/sysfs-fs-f2fs
-+++ b/Documentation/ABI/testing/sysfs-fs-f2fs
-@@ -425,6 +425,7 @@ Description:	Show status of f2fs superblock in real time.
- 		0x800  SBI_QUOTA_SKIP_FLUSH  skip flushing quota in current CP
- 		0x1000 SBI_QUOTA_NEED_REPAIR quota file may be corrupted
- 		0x2000 SBI_IS_RESIZEFS       resizefs is in process
-+		0x4000 SBI_IS_FREEZING       freefs is in process
- 		====== ===================== =================================
+--- a/arch/x86/kvm/hyperv.c
++++ b/arch/x86/kvm/hyperv.c
+@@ -1890,6 +1890,7 @@ static u64 kvm_hv_send_ipi(struct kvm_vc
+ 	int sparse_banks_len;
+ 	u32 vector;
+ 	bool all_cpus;
++	int i;
  
- What:		/sys/fs/f2fs/<disk>/ckpt_thread_ioprio
-diff --git a/fs/f2fs/debug.c b/fs/f2fs/debug.c
-index 8c50518475a9..07ad0d81f0c5 100644
---- a/fs/f2fs/debug.c
-+++ b/fs/f2fs/debug.c
-@@ -338,6 +338,7 @@ static char *s_flag[] = {
- 	[SBI_QUOTA_SKIP_FLUSH]	= " quota_skip_flush",
- 	[SBI_QUOTA_NEED_REPAIR]	= " quota_need_repair",
- 	[SBI_IS_RESIZEFS]	= " resizefs",
-+	[SBI_IS_FREEZING]	= " freezefs",
- };
+ 	if (hc->code == HVCALL_SEND_IPI) {
+ 		if (!hc->fast) {
+@@ -1910,9 +1911,15 @@ static u64 kvm_hv_send_ipi(struct kvm_vc
  
- static int stat_show(struct seq_file *s, void *v)
-diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
-index d753094a4919..980c0c2b6350 100644
---- a/fs/f2fs/f2fs.h
-+++ b/fs/f2fs/f2fs.h
-@@ -1259,6 +1259,7 @@ enum {
- 	SBI_QUOTA_SKIP_FLUSH,			/* skip flushing quota in current CP */
- 	SBI_QUOTA_NEED_REPAIR,			/* quota file may be corrupted */
- 	SBI_IS_RESIZEFS,			/* resizefs is in process */
-+	SBI_IS_FREEZING,			/* freezefs is in process */
- };
+ 		trace_kvm_hv_send_ipi(vector, sparse_banks[0]);
+ 	} else {
+-		if (unlikely(kvm_read_guest(kvm, hc->ingpa, &send_ipi_ex,
+-					    sizeof(send_ipi_ex))))
+-			return HV_STATUS_INVALID_HYPERCALL_INPUT;
++		if (!hc->fast) {
++			if (unlikely(kvm_read_guest(kvm, hc->ingpa, &send_ipi_ex,
++						    sizeof(send_ipi_ex))))
++				return HV_STATUS_INVALID_HYPERCALL_INPUT;
++		} else {
++			send_ipi_ex.vector = (u32)hc->ingpa;
++			send_ipi_ex.vp_set.format = hc->outgpa;
++			send_ipi_ex.vp_set.valid_bank_mask = sse128_lo(hc->xmm[0]);
++		}
  
- enum {
-diff --git a/fs/f2fs/inode.c b/fs/f2fs/inode.c
-index 5a10f98dbbc3..a40e52ba5ec8 100644
---- a/fs/f2fs/inode.c
-+++ b/fs/f2fs/inode.c
-@@ -769,7 +769,8 @@ void f2fs_evict_inode(struct inode *inode)
- 	f2fs_remove_ino_entry(sbi, inode->i_ino, UPDATE_INO);
- 	f2fs_remove_ino_entry(sbi, inode->i_ino, FLUSH_INO);
+ 		trace_kvm_hv_send_ipi_ex(send_ipi_ex.vector,
+ 					 send_ipi_ex.vp_set.format,
+@@ -1920,8 +1927,7 @@ static u64 kvm_hv_send_ipi(struct kvm_vc
  
--	sb_start_intwrite(inode->i_sb);
-+	if (!is_sbi_flag_set(sbi, SBI_IS_FREEZING))
-+		sb_start_intwrite(inode->i_sb);
- 	set_inode_flag(inode, FI_NO_ALLOC);
- 	i_size_write(inode, 0);
- retry:
-@@ -800,7 +801,8 @@ void f2fs_evict_inode(struct inode *inode)
- 		if (dquot_initialize_needed(inode))
- 			set_sbi_flag(sbi, SBI_QUOTA_NEED_REPAIR);
+ 		vector = send_ipi_ex.vector;
+ 		valid_bank_mask = send_ipi_ex.vp_set.valid_bank_mask;
+-		sparse_banks_len = bitmap_weight(&valid_bank_mask, 64) *
+-			sizeof(sparse_banks[0]);
++		sparse_banks_len = bitmap_weight(&valid_bank_mask, 64);
+ 
+ 		all_cpus = send_ipi_ex.vp_set.format == HV_GENERIC_SET_ALL;
+ 
+@@ -1931,12 +1937,27 @@ static u64 kvm_hv_send_ipi(struct kvm_vc
+ 		if (!sparse_banks_len)
+ 			goto ret_success;
+ 
+-		if (kvm_read_guest(kvm,
+-				   hc->ingpa + offsetof(struct hv_send_ipi_ex,
+-							vp_set.bank_contents),
+-				   sparse_banks,
+-				   sparse_banks_len))
+-			return HV_STATUS_INVALID_HYPERCALL_INPUT;
++		if (!hc->fast) {
++			if (kvm_read_guest(kvm,
++					   hc->ingpa + offsetof(struct hv_send_ipi_ex,
++								vp_set.bank_contents),
++					   sparse_banks,
++					   sparse_banks_len * sizeof(sparse_banks[0])))
++				return HV_STATUS_INVALID_HYPERCALL_INPUT;
++		} else {
++			/*
++			 * The lower half of XMM0 is already consumed, each XMM holds
++			 * two sparse banks.
++			 */
++			if (sparse_banks_len > (2 * HV_HYPERCALL_MAX_XMM_REGISTERS - 1))
++				return HV_STATUS_INVALID_HYPERCALL_INPUT;
++			for (i = 0; i < sparse_banks_len; i++) {
++				if (i % 2)
++					sparse_banks[i] = sse128_lo(hc->xmm[(i + 1) / 2]);
++				else
++					sparse_banks[i] = sse128_hi(hc->xmm[i / 2]);
++			}
++		}
  	}
--	sb_end_intwrite(inode->i_sb);
-+	if (!is_sbi_flag_set(sbi, SBI_IS_FREEZING))
-+		sb_end_intwrite(inode->i_sb);
- no_delete:
- 	dquot_drop(inode);
  
-diff --git a/fs/f2fs/super.c b/fs/f2fs/super.c
-index 45106b426e8d..9402d5b2c7fd 100644
---- a/fs/f2fs/super.c
-+++ b/fs/f2fs/super.c
-@@ -1668,11 +1668,15 @@ static int f2fs_freeze(struct super_block *sb)
- 	/* ensure no checkpoint required */
- 	if (!llist_empty(&F2FS_SB(sb)->cprc_info.issue_list))
- 		return -EINVAL;
-+
-+	/* to avoid deadlock on f2fs_evict_inode->SB_FREEZE_FS */
-+	set_sbi_flag(F2FS_SB(sb), SBI_IS_FREEZING);
- 	return 0;
- }
+ check_and_send_ipi:
+@@ -2098,6 +2119,7 @@ static bool is_xmm_fast_hypercall(struct
+ 	case HVCALL_FLUSH_VIRTUAL_ADDRESS_SPACE:
+ 	case HVCALL_FLUSH_VIRTUAL_ADDRESS_LIST_EX:
+ 	case HVCALL_FLUSH_VIRTUAL_ADDRESS_SPACE_EX:
++	case HVCALL_SEND_IPI_EX:
+ 		return true;
+ 	}
  
- static int f2fs_unfreeze(struct super_block *sb)
- {
-+	clear_sbi_flag(F2FS_SB(sb), SBI_IS_FREEZING);
- 	return 0;
- }
- 
--- 
-2.34.1
-
+@@ -2265,14 +2287,8 @@ int kvm_hv_hypercall(struct kvm_vcpu *vc
+ 		ret = kvm_hv_flush_tlb(vcpu, &hc);
+ 		break;
+ 	case HVCALL_SEND_IPI:
+-		if (unlikely(hc.rep)) {
+-			ret = HV_STATUS_INVALID_HYPERCALL_INPUT;
+-			break;
+-		}
+-		ret = kvm_hv_send_ipi(vcpu, &hc);
+-		break;
+ 	case HVCALL_SEND_IPI_EX:
+-		if (unlikely(hc.fast || hc.rep)) {
++		if (unlikely(hc.rep)) {
+ 			ret = HV_STATUS_INVALID_HYPERCALL_INPUT;
+ 			break;
+ 		}
 
 
