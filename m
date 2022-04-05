@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 749FC4F318B
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:45:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC71A4F309C
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:32:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237669AbiDEInH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:43:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45766 "EHLO
+        id S1353725AbiDEKJD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:09:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59582 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241007AbiDEIcn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:32:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9FCFB0A45;
-        Tue,  5 Apr 2022 01:25:55 -0700 (PDT)
+        with ESMTP id S1345318AbiDEJWZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:22:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84D1E45500;
+        Tue,  5 Apr 2022 02:10:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 85A4160FF5;
-        Tue,  5 Apr 2022 08:25:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96250C385A2;
-        Tue,  5 Apr 2022 08:25:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 174E061527;
+        Tue,  5 Apr 2022 09:10:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 258CAC385A0;
+        Tue,  5 Apr 2022 09:10:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147155;
-        bh=wTCVf89yU1culX7sGN8nfwgp/XwcXhuf2q5/mFM9f5c=;
+        s=korg; t=1649149829;
+        bh=f5kwN4S2vdesuUj/xzMZWQjyIOdPLVM7/VR9lrPVkig=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AOpKs9L4h51BJcO6TyNP2Ud17j4553aPAie7up2005JVfPvUgMmzUEHYBPbWch7lW
-         u6F4JuZzSYKLxUmNdM1ppN9cm9E8IBTPe+kgyRiZ1eJD3LEbCBNUs4XHB2tYNG44SO
-         L4tybFkJXOdv8ptNK0rHhj3tyevGI7LY+mFdaUGk=
+        b=O91BFhSOZ28Kkoq9NQKX5yOE19ePrF9p84GOltuF7fveXSVBdpUe58VkS7IBqgZIy
+         7UyQoTMatJrXZTrYXLTpq5Qw/FRf2/X3+wKBZXJAHUUzFMGK0Wmg1NlL2jOvioi5fl
+         vp7w/b0JcYBnz5K1w6hQBBEMPKQ3YGdhx0GzsQMM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        Vincent Mailhol <mailhol.vincent@wanadoo.fr>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        syzbot+3bc1dce0cc0052d60fde@syzkaller.appspotmail.com
-Subject: [PATCH 5.17 1021/1126] can: mcba_usb: properly check endpoint type
-Date:   Tue,  5 Apr 2022 09:29:28 +0200
-Message-Id: <20220405070437.453867372@linuxfoundation.org>
+        stable@vger.kernel.org, Matt Kramer <mccleetus@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0856/1017] ALSA: hda/realtek: Add alc256-samsung-headphone fixup
+Date:   Tue,  5 Apr 2022 09:29:29 +0200
+Message-Id: <20220405070419.645232951@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,121 +53,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Matt Kramer <mccleetus@gmail.com>
 
-commit 136bed0bfd3bc9c95c88aafff2d22ecb3a919f23 upstream.
+[ Upstream commit ef248d9bd616b04df8be25539a4dc5db4b6c56f4 ]
 
-Syzbot reported warning in usb_submit_urb() which is caused by wrong
-endpoint type. We should check that in endpoint is actually present to
-prevent this warning.
+This fixes the near-silence of the headphone jack on the ALC256-based
+Samsung Galaxy Book Flex Alpha (NP730QCJ). The magic verbs were found
+through trial and error, using known ALC298 hacks as inspiration. The
+fixup is auto-enabled only when the NP730QCJ is detected. It can be
+manually enabled using model=alc256-samsung-headphone.
 
-Found pipes are now saved to struct mcba_priv and code uses them
-directly instead of making pipes in place.
-
-Fail log:
-
-| usb 5-1: BOGUS urb xfer, pipe 3 != type 1
-| WARNING: CPU: 1 PID: 49 at drivers/usb/core/urb.c:502 usb_submit_urb+0xed2/0x18a0 drivers/usb/core/urb.c:502
-| Modules linked in:
-| CPU: 1 PID: 49 Comm: kworker/1:2 Not tainted 5.17.0-rc6-syzkaller-00184-g38f80f42147f #0
-| Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.14.0-2 04/01/2014
-| Workqueue: usb_hub_wq hub_event
-| RIP: 0010:usb_submit_urb+0xed2/0x18a0 drivers/usb/core/urb.c:502
-| ...
-| Call Trace:
-|  <TASK>
-|  mcba_usb_start drivers/net/can/usb/mcba_usb.c:662 [inline]
-|  mcba_usb_probe+0x8a3/0xc50 drivers/net/can/usb/mcba_usb.c:858
-|  usb_probe_interface+0x315/0x7f0 drivers/usb/core/driver.c:396
-|  call_driver_probe drivers/base/dd.c:517 [inline]
-
-Fixes: 51f3baad7de9 ("can: mcba_usb: Add support for Microchip CAN BUS Analyzer")
-Link: https://lore.kernel.org/all/20220313100903.10868-1-paskripkin@gmail.com
-Reported-and-tested-by: syzbot+3bc1dce0cc0052d60fde@syzkaller.appspotmail.com
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Reviewed-by: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Matt Kramer <mccleetus@gmail.com>
+Link: https://lore.kernel.org/r/3168355.aeNJFYEL58@linus
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/usb/mcba_usb.c |   26 ++++++++++++++++----------
- 1 file changed, 16 insertions(+), 10 deletions(-)
+ Documentation/sound/hd-audio/models.rst |  4 ++++
+ sound/pci/hda/patch_realtek.c           | 11 +++++++++++
+ 2 files changed, 15 insertions(+)
 
---- a/drivers/net/can/usb/mcba_usb.c
-+++ b/drivers/net/can/usb/mcba_usb.c
-@@ -33,10 +33,6 @@
- #define MCBA_USB_RX_BUFF_SIZE 64
- #define MCBA_USB_TX_BUFF_SIZE (sizeof(struct mcba_usb_msg))
+diff --git a/Documentation/sound/hd-audio/models.rst b/Documentation/sound/hd-audio/models.rst
+index d25335993e55..9b52f50a6854 100644
+--- a/Documentation/sound/hd-audio/models.rst
++++ b/Documentation/sound/hd-audio/models.rst
+@@ -261,6 +261,10 @@ alc-sense-combo
+ huawei-mbx-stereo
+     Enable initialization verbs for Huawei MBX stereo speakers;
+     might be risky, try this at your own risk
++alc298-samsung-headphone
++    Samsung laptops with ALC298
++alc256-samsung-headphone
++    Samsung laptops with ALC256
  
--/* MCBA endpoint numbers */
--#define MCBA_USB_EP_IN 1
--#define MCBA_USB_EP_OUT 1
--
- /* Microchip command id */
- #define MBCA_CMD_RECEIVE_MESSAGE 0xE3
- #define MBCA_CMD_I_AM_ALIVE_FROM_CAN 0xF5
-@@ -83,6 +79,8 @@ struct mcba_priv {
- 	atomic_t free_ctx_cnt;
- 	void *rxbuf[MCBA_MAX_RX_URBS];
- 	dma_addr_t rxbuf_dma[MCBA_MAX_RX_URBS];
-+	int rx_pipe;
-+	int tx_pipe;
- };
- 
- /* CAN frame */
-@@ -268,10 +266,8 @@ static netdev_tx_t mcba_usb_xmit(struct
- 
- 	memcpy(buf, usb_msg, MCBA_USB_TX_BUFF_SIZE);
- 
--	usb_fill_bulk_urb(urb, priv->udev,
--			  usb_sndbulkpipe(priv->udev, MCBA_USB_EP_OUT), buf,
--			  MCBA_USB_TX_BUFF_SIZE, mcba_usb_write_bulk_callback,
--			  ctx);
-+	usb_fill_bulk_urb(urb, priv->udev, priv->tx_pipe, buf, MCBA_USB_TX_BUFF_SIZE,
-+			  mcba_usb_write_bulk_callback, ctx);
- 
- 	urb->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
- 	usb_anchor_urb(urb, &priv->tx_submitted);
-@@ -607,7 +603,7 @@ static void mcba_usb_read_bulk_callback(
- resubmit_urb:
- 
- 	usb_fill_bulk_urb(urb, priv->udev,
--			  usb_rcvbulkpipe(priv->udev, MCBA_USB_EP_OUT),
-+			  priv->rx_pipe,
- 			  urb->transfer_buffer, MCBA_USB_RX_BUFF_SIZE,
- 			  mcba_usb_read_bulk_callback, priv);
- 
-@@ -652,7 +648,7 @@ static int mcba_usb_start(struct mcba_pr
- 		urb->transfer_dma = buf_dma;
- 
- 		usb_fill_bulk_urb(urb, priv->udev,
--				  usb_rcvbulkpipe(priv->udev, MCBA_USB_EP_IN),
-+				  priv->rx_pipe,
- 				  buf, MCBA_USB_RX_BUFF_SIZE,
- 				  mcba_usb_read_bulk_callback, priv);
- 		urb->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
-@@ -806,6 +802,13 @@ static int mcba_usb_probe(struct usb_int
- 	struct mcba_priv *priv;
- 	int err;
- 	struct usb_device *usbdev = interface_to_usbdev(intf);
-+	struct usb_endpoint_descriptor *in, *out;
-+
-+	err = usb_find_common_endpoints(intf->cur_altsetting, &in, &out, NULL, NULL);
-+	if (err) {
-+		dev_err(&intf->dev, "Can't find endpoints\n");
-+		return err;
-+	}
- 
- 	netdev = alloc_candev(sizeof(struct mcba_priv), MCBA_MAX_TX_URBS);
- 	if (!netdev) {
-@@ -851,6 +854,9 @@ static int mcba_usb_probe(struct usb_int
- 		goto cleanup_free_candev;
- 	}
- 
-+	priv->rx_pipe = usb_rcvbulkpipe(priv->udev, in->bEndpointAddress);
-+	priv->tx_pipe = usb_sndbulkpipe(priv->udev, out->bEndpointAddress);
-+
- 	devm_can_led_init(netdev);
- 
- 	/* Start USB dev only if we have successfully registered CAN device */
+ ALC66x/67x/892
+ ==============
+diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
+index 888d049d5304..f6e5ed34dd09 100644
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -6816,6 +6816,7 @@ enum {
+ 	ALC236_FIXUP_HP_MUTE_LED,
+ 	ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF,
+ 	ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET,
++	ALC256_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET,
+ 	ALC295_FIXUP_ASUS_MIC_NO_PRESENCE,
+ 	ALC269VC_FIXUP_ACER_VCOPPERBOX_PINS,
+ 	ALC269VC_FIXUP_ACER_HEADSET_MIC,
+@@ -8138,6 +8139,14 @@ static const struct hda_fixup alc269_fixups[] = {
+ 			{ }
+ 		},
+ 	},
++	[ALC256_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET] = {
++		.type = HDA_FIXUP_VERBS,
++		.v.verbs = (const struct hda_verb[]) {
++			{ 0x20, AC_VERB_SET_COEF_INDEX, 0x08},
++			{ 0x20, AC_VERB_SET_PROC_COEF, 0x2fcf},
++			{ }
++		},
++	},
+ 	[ALC295_FIXUP_ASUS_MIC_NO_PRESENCE] = {
+ 		.type = HDA_FIXUP_PINS,
+ 		.v.pins = (const struct hda_pintbl[]) {
+@@ -8900,6 +8909,7 @@ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
+ 	SND_PCI_QUIRK(0x144d, 0xc740, "Samsung Ativ book 8 (NP870Z5G)", ALC269_FIXUP_ATIV_BOOK_8),
+ 	SND_PCI_QUIRK(0x144d, 0xc812, "Samsung Notebook Pen S (NT950SBE-X58)", ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
+ 	SND_PCI_QUIRK(0x144d, 0xc830, "Samsung Galaxy Book Ion (NT950XCJ-X716A)", ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
++	SND_PCI_QUIRK(0x144d, 0xc832, "Samsung Galaxy Book Flex Alpha (NP730QCJ)", ALC256_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
+ 	SND_PCI_QUIRK(0x1458, 0xfa53, "Gigabyte BXBT-2807", ALC283_FIXUP_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x1462, 0xb120, "MSI Cubi MS-B120", ALC283_FIXUP_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x1462, 0xb171, "Cubi N 8GL (MS-B171)", ALC283_FIXUP_HEADSET_MIC),
+@@ -9242,6 +9252,7 @@ static const struct hda_model_fixup alc269_fixup_models[] = {
+ 	{.id = ALC298_FIXUP_HUAWEI_MBX_STEREO, .name = "huawei-mbx-stereo"},
+ 	{.id = ALC256_FIXUP_MEDION_HEADSET_NO_PRESENCE, .name = "alc256-medion-headset"},
+ 	{.id = ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET, .name = "alc298-samsung-headphone"},
++	{.id = ALC256_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET, .name = "alc256-samsung-headphone"},
+ 	{.id = ALC255_FIXUP_XIAOMI_HEADSET_MIC, .name = "alc255-xiaomi-headset"},
+ 	{.id = ALC274_FIXUP_HP_MIC, .name = "alc274-hp-mic-detect"},
+ 	{.id = ALC245_FIXUP_HP_X360_AMP, .name = "alc245-hp-x360-amp"},
+-- 
+2.34.1
+
 
 
