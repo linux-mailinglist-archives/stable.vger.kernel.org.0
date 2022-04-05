@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BB7C4F38B6
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:36:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A153B4F3BAE
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:21:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377118AbiDEL1a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:27:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54264 "EHLO
+        id S237048AbiDEMBK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:01:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52112 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349565AbiDEJuT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:50:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02DC09B;
-        Tue,  5 Apr 2022 02:48:22 -0700 (PDT)
+        with ESMTP id S1357671AbiDEK0n (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:26:43 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBBD534669;
+        Tue,  5 Apr 2022 03:10:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9257F614FB;
-        Tue,  5 Apr 2022 09:48:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71E18C385A2;
-        Tue,  5 Apr 2022 09:48:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5FE706172B;
+        Tue,  5 Apr 2022 10:10:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6710AC385A0;
+        Tue,  5 Apr 2022 10:10:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152101;
-        bh=HQpRMrAehDtWeCK0JY9A9/XHa20QiNq1aSYK6C2zu8A=;
+        s=korg; t=1649153435;
+        bh=zZUpulxjp8MFrormfip6zMCIpYZ6J5kv9bWMRs0bt64=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JH1ymJCiDnyR0Jn0V43TCiPWOnYj0G9gIRDQBTmq0c3O8ae3IMY7rvUj0/7O3tzUp
-         T2eChDJTM0oN+qS4FSzS+2Z/XUKzsNcbZxF3v8llC9g3DtLLuX1f62Mt3r10YK6Zjt
-         uq8FOnQqMDFHNh80wN2a2i6dWaAQZEcYqbxXzilU=
+        b=wkDkRr04hN33TE5DkoCXEHbzkEP2d23SsNhSxwoxJRW4WHj74oeleKQpcEeH9w3cS
+         psb7kDjD2YVjHOPsD1/tCmTeJaoUsNjmwxgObo79up+Eg7g3wu7Eetvfdqmhsx9m0L
+         0RDJFq6UPuzI0sMAJ213RvUUXXnxKHH4rdZoMP8c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Konrad Dybcio <konrad.dybcio@somainline.org>,
-        Petr Vorel <petr.vorel@gmail.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
+        Jia-Ju Bai <baijiaju1990@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 654/913] clk: qcom: gcc-msm8994: Fix gpll4 width
+Subject: [PATCH 5.10 222/599] ASoC: rt5663: check the return value of devm_kzalloc() in rt5663_parse_dp()
 Date:   Tue,  5 Apr 2022 09:28:36 +0200
-Message-Id: <20220405070359.442659167@linuxfoundation.org>
+Message-Id: <20220405070305.448716395@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070258.802373272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,41 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Konrad Dybcio <konrad.dybcio@somainline.org>
+From: Jia-Ju Bai <baijiaju1990@gmail.com>
 
-[ Upstream commit 71021db1c532c2545ae53b9ee85b37b7154f51d4 ]
+[ Upstream commit 4d06f92f38b799295ae22c98be7a20cac3e2a1a7 ]
 
-The gpll4 postdiv is actually a div4, so make sure that Linux is aware of
-this.
+The function devm_kzalloc() in rt5663_parse_dp() can fail, so its return
+value should be checked.
 
-This fixes the following error messages:
-
- mmc1: Card appears overclocked; req 200000000 Hz, actual 343999999 Hz
- mmc1: Card appears overclocked; req 400000000 Hz, actual 687999999 Hz
-
-Fixes: aec89f78cf01 ("clk: qcom: Add support for msm8994 global clock controller")
-Signed-off-by: Konrad Dybcio <konrad.dybcio@somainline.org>
-Link: https://lore.kernel.org/r/20220319174940.341137-1-konrad.dybcio@somainline.org
-Tested-by: Petr Vorel <petr.vorel@gmail.com>
-Reviewed-by: Petr Vorel <petr.vorel@gmail.com>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fixes: 457c25efc592 ("ASoC: rt5663: Add the function of impedance sensing")
+Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
+Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+Link: https://lore.kernel.org/r/20220225131030.27248-1-baijiaju1990@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/qcom/gcc-msm8994.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/soc/codecs/rt5663.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/clk/qcom/gcc-msm8994.c b/drivers/clk/qcom/gcc-msm8994.c
-index 144d2ba7a9be..463a444c8a7e 100644
---- a/drivers/clk/qcom/gcc-msm8994.c
-+++ b/drivers/clk/qcom/gcc-msm8994.c
-@@ -108,6 +108,7 @@ static struct clk_alpha_pll gpll4_early = {
- 
- static struct clk_alpha_pll_postdiv gpll4 = {
- 	.offset = 0x1dc0,
-+	.width = 4,
- 	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
- 	.clkr.hw.init = &(struct clk_init_data)
- 	{
+diff --git a/sound/soc/codecs/rt5663.c b/sound/soc/codecs/rt5663.c
+index db8a41aaa385..4423e61bf1ab 100644
+--- a/sound/soc/codecs/rt5663.c
++++ b/sound/soc/codecs/rt5663.c
+@@ -3478,6 +3478,8 @@ static int rt5663_parse_dp(struct rt5663_priv *rt5663, struct device *dev)
+ 		table_size = sizeof(struct impedance_mapping_table) *
+ 			rt5663->pdata.impedance_sensing_num;
+ 		rt5663->imp_table = devm_kzalloc(dev, table_size, GFP_KERNEL);
++		if (!rt5663->imp_table)
++			return -ENOMEM;
+ 		ret = device_property_read_u32_array(dev,
+ 			"realtek,impedance_sensing_table",
+ 			(u32 *)rt5663->imp_table, table_size);
 -- 
 2.34.1
 
