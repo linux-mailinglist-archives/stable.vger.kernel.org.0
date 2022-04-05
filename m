@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C6CC54F38B7
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:36:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 84E1C4F3BB8
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:21:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377121AbiDEL1e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:27:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54284 "EHLO
+        id S239077AbiDEMBV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:01:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50540 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349570AbiDEJuX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:50:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E76589B;
-        Tue,  5 Apr 2022 02:48:24 -0700 (PDT)
+        with ESMTP id S1357736AbiDEK1I (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:27:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACDB635269;
+        Tue,  5 Apr 2022 03:10:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 745F961576;
-        Tue,  5 Apr 2022 09:48:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C3E8C385A2;
-        Tue,  5 Apr 2022 09:48:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 104046167E;
+        Tue,  5 Apr 2022 10:10:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25ECFC385A1;
+        Tue,  5 Apr 2022 10:10:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152103;
-        bh=Z2fRyKtO0unBo5yv4F+hHOmM6Dx9c+nDJFB8oxsdOnA=;
+        s=korg; t=1649153438;
+        bh=TQEoHm3T90D3TYiPQ5EtdZqnIDcfq9Y8P3cxHI0wauA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N0spG58nshJfnsrudYxBalgtAtQwAoVgs2fJbMP6ausnuZC1UlTnI2WVX8emW9MZ0
-         /Jb4lwAbsf9fPo8RcLMnzu8WeD3TGhUAuqAHUVowZigCv0cU95MzZoqK8IfMxMngkX
-         UC1zw3+aWzn0s8ijZKg7A/Uw9mJY9od3r7aL3hWk=
+        b=i+yE7g8QZPYWe4wqmVkuve7Hvr8Z9z6SIr2aUiVAEjgPZWWNEDO7hwF+vcOlrvwxq
+         ijAmEjtevyTnOxBgzwiR7HK9YNJ9b4NZ18wU3OHKCnKdtim3kUSwL1Vmdojhtd7AId
+         Xc5nyLVC7D89L59ZwTSnDgxEzR+e/nvXaTC2ZVTo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
-        Stefano Garzarella <sgarzare@redhat.com>,
-        Stefan Hajnoczi <stefanha@redhat.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Peter Ujfalusi <peter.ujfalusi@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 655/913] vsock/virtio: initialize vdev->priv before using VQs
+Subject: [PATCH 5.10 223/599] ASoC: ti: davinci-i2s: Add check for clk_enable()
 Date:   Tue,  5 Apr 2022 09:28:37 +0200
-Message-Id: <20220405070359.472381602@linuxfoundation.org>
+Message-Id: <20220405070305.477879352@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070258.802373272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,46 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefano Garzarella <sgarzare@redhat.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit 4b5f1ad5566ada230aaa2ce861b28d1895f1ea68 ]
+[ Upstream commit ed7c9fef11931fc5d32a83d68017ff390bf5c280 ]
 
-When we fill VQs with empty buffers and kick the host, it may send
-an interrupt. `vdev->priv` must be initialized before this since it
-is used in the virtqueue callbacks.
+As the potential failure of the clk_enable(),
+it should be better to check it and return error
+if fails.
 
-Fixes: 0deab087b16a ("vsock/virtio: use RCU to avoid use-after-free on the_virtio_vsock")
-Suggested-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 5f9a50c3e55e ("ASoC: Davinci: McBSP: add device tree support for McBSP")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Acked-by: Peter Ujfalusi <peter.ujfalusi@gmail.com>
+Link: https://lore.kernel.org/r/20220228031540.3571959-1-jiasheng@iscas.ac.cn
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/vmw_vsock/virtio_transport.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ sound/soc/ti/davinci-i2s.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
-index dad9ca65f4f9..fb1b8f99f679 100644
---- a/net/vmw_vsock/virtio_transport.c
-+++ b/net/vmw_vsock/virtio_transport.c
-@@ -622,6 +622,8 @@ static int virtio_vsock_probe(struct virtio_device *vdev)
- 	INIT_WORK(&vsock->event_work, virtio_transport_event_work);
- 	INIT_WORK(&vsock->send_pkt_work, virtio_transport_send_pkt_work);
+diff --git a/sound/soc/ti/davinci-i2s.c b/sound/soc/ti/davinci-i2s.c
+index dd34504c09ba..4895bcee1f55 100644
+--- a/sound/soc/ti/davinci-i2s.c
++++ b/sound/soc/ti/davinci-i2s.c
+@@ -708,7 +708,9 @@ static int davinci_i2s_probe(struct platform_device *pdev)
+ 	dev->clk = clk_get(&pdev->dev, NULL);
+ 	if (IS_ERR(dev->clk))
+ 		return -ENODEV;
+-	clk_enable(dev->clk);
++	ret = clk_enable(dev->clk);
++	if (ret)
++		goto err_put_clk;
  
-+	vdev->priv = vsock;
-+
- 	mutex_lock(&vsock->tx_lock);
- 	vsock->tx_run = true;
- 	mutex_unlock(&vsock->tx_lock);
-@@ -639,7 +641,6 @@ static int virtio_vsock_probe(struct virtio_device *vdev)
- 	if (virtio_has_feature(vdev, VIRTIO_VSOCK_F_SEQPACKET))
- 		vsock->seqpacket_allow = true;
- 
--	vdev->priv = vsock;
- 	rcu_assign_pointer(the_virtio_vsock, vsock);
- 
- 	mutex_unlock(&the_virtio_vsock_mutex);
+ 	dev->dev = &pdev->dev;
+ 	dev_set_drvdata(&pdev->dev, dev);
+@@ -730,6 +732,7 @@ static int davinci_i2s_probe(struct platform_device *pdev)
+ 	snd_soc_unregister_component(&pdev->dev);
+ err_release_clk:
+ 	clk_disable(dev->clk);
++err_put_clk:
+ 	clk_put(dev->clk);
+ 	return ret;
+ }
 -- 
 2.34.1
 
