@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EECA4F38E3
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:37:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 01BA64F3BCB
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:22:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377367AbiDEL2v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:28:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59840 "EHLO
+        id S245034AbiDEMCO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:02:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46728 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349953AbiDEJwJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:52:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F0AD33EB4;
-        Tue,  5 Apr 2022 02:50:10 -0700 (PDT)
+        with ESMTP id S1357995AbiDEK1j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:27:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EA56D5554;
+        Tue,  5 Apr 2022 03:12:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 459AAB817D3;
-        Tue,  5 Apr 2022 09:50:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82DB9C385A2;
-        Tue,  5 Apr 2022 09:50:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1C80061777;
+        Tue,  5 Apr 2022 10:12:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DFD6C385A1;
+        Tue,  5 Apr 2022 10:12:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152207;
-        bh=YCzwUFyhUEJ/GM5eR1opJD1pGTH09ZAKXiiX9wurdYo=;
+        s=korg; t=1649153548;
+        bh=F2QB7kb0dawbt9xWarnKA2zPFQV/q0hPhE2v5d7TAd4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Da1j+vhgOxpoe1fNCzlrNoNt6xhk4wZHFq0Z9CA/p7zlxNsFGDspWw9bZ8rEVVRKz
-         rLZdKImP6dU7uuqC6TGvxvV2ozVwEE1Ul/zKNXpLJtCzl8CDqiht8IZRPVk8PHA8G1
-         pCLnqtPB79Gzd/FlYKcM1ZFg3qjnfZn6/ysFaBD0=
+        b=Q4b1H1dPaw6Y6MmJSmRZXUTn5Y/P460uPE8LSePfHb5nAARZVQ3mYQvi09CUE/bbM
+         8THe8K829zoUrW5HhelnhaNAKxrbrw/7mxQhMcGlj5P3GX6A0MTRQJbtej+RBW25bR
+         tLYiSYptvbFr5VwnzjMjdOJwYCarMSIh+AMPwtOg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        Fangrui Song <maskray@google.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 693/913] arm64: module: remove (NOLOAD) from linker script
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Robert Foss <robert.foss@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 261/599] drm/bridge: Fix free wrong object in sii8620_init_rcp_input_dev
 Date:   Tue,  5 Apr 2022 09:29:15 +0200
-Message-Id: <20220405070400.608071989@linuxfoundation.org>
+Message-Id: <20220405070306.605611656@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070258.802373272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,52 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fangrui Song <maskray@google.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 4013e26670c590944abdab56c4fa797527b74325 ]
+[ Upstream commit 7c442e76c06cb1bef16a6c523487438175584eea ]
 
-On ELF, (NOLOAD) sets the section type to SHT_NOBITS[1]. It is conceptually
-inappropriate for .plt and .text.* sections which are always
-SHT_PROGBITS.
+rc_dev is allocated by rc_allocate_device(), and doesn't assigned to
+ctx->rc_dev before calling  rc_free_device(ctx->rc_dev).
+So it should call rc_free_device(rc_dev);
 
-In GNU ld, if PLT entries are needed, .plt will be SHT_PROGBITS anyway
-and (NOLOAD) will be essentially ignored. In ld.lld, since
-https://reviews.llvm.org/D118840 ("[ELF] Support (TYPE=<value>) to
-customize the output section type"), ld.lld will report a `section type
-mismatch` error. Just remove (NOLOAD) to fix the error.
-
-[1] https://lld.llvm.org/ELF/linker_script.html As of today, "The
-section should be marked as not loadable" on
-https://sourceware.org/binutils/docs/ld/Output-Section-Type.html is
-outdated for ELF.
-
-Tested-by: Nathan Chancellor <nathan@kernel.org>
-Reported-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Fangrui Song <maskray@google.com>
-Acked-by: Ard Biesheuvel <ardb@kernel.org>
-Link: https://lore.kernel.org/r/20220218081209.354383-1-maskray@google.com
-Signed-off-by: Will Deacon <will@kernel.org>
+Fixes: e25f1f7c94e1 ("drm/bridge/sii8620: add remote control support")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Reviewed-by: Robert Foss <robert.foss@linaro.org>
+Signed-off-by: Robert Foss <robert.foss@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20211227092522.21755-1-linmq006@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/module.lds.h | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/bridge/sil-sii8620.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/include/asm/module.lds.h b/arch/arm64/include/asm/module.lds.h
-index a11ccadd47d2..094701ec5500 100644
---- a/arch/arm64/include/asm/module.lds.h
-+++ b/arch/arm64/include/asm/module.lds.h
-@@ -1,8 +1,8 @@
- SECTIONS {
- #ifdef CONFIG_ARM64_MODULE_PLTS
--	.plt 0 (NOLOAD) : { BYTE(0) }
--	.init.plt 0 (NOLOAD) : { BYTE(0) }
--	.text.ftrace_trampoline 0 (NOLOAD) : { BYTE(0) }
-+	.plt 0 : { BYTE(0) }
-+	.init.plt 0 : { BYTE(0) }
-+	.text.ftrace_trampoline 0 : { BYTE(0) }
- #endif
- 
- #ifdef CONFIG_KASAN_SW_TAGS
+diff --git a/drivers/gpu/drm/bridge/sil-sii8620.c b/drivers/gpu/drm/bridge/sil-sii8620.c
+index 843265d7f1b1..ec7745c31da0 100644
+--- a/drivers/gpu/drm/bridge/sil-sii8620.c
++++ b/drivers/gpu/drm/bridge/sil-sii8620.c
+@@ -2120,7 +2120,7 @@ static void sii8620_init_rcp_input_dev(struct sii8620 *ctx)
+ 	if (ret) {
+ 		dev_err(ctx->dev, "Failed to register RC device\n");
+ 		ctx->error = ret;
+-		rc_free_device(ctx->rc_dev);
++		rc_free_device(rc_dev);
+ 		return;
+ 	}
+ 	ctx->rc_dev = rc_dev;
 -- 
 2.34.1
 
