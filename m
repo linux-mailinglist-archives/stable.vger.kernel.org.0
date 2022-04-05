@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 043794F30F0
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:36:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 663F34F330A
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:08:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244827AbiDEJLJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:11:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46120 "EHLO
+        id S237885AbiDEKcv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:32:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38670 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244625AbiDEIw2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:28 -0400
+        with ESMTP id S239511AbiDEJdj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:33:39 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 323ECD763C;
-        Tue,  5 Apr 2022 01:41:33 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B06A04DF4C;
+        Tue,  5 Apr 2022 02:22:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CBFD9B81A32;
-        Tue,  5 Apr 2022 08:41:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 359C3C385A1;
-        Tue,  5 Apr 2022 08:41:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6D5BBB81C6F;
+        Tue,  5 Apr 2022 09:22:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7C17C385A3;
+        Tue,  5 Apr 2022 09:22:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148091;
-        bh=71jH69m/OVCh7KFUK9MfkwZ2+Xg0lD2a0a291BdIGak=;
+        s=korg; t=1649150534;
+        bh=fKGsAcnGkdDH2Ic2fcQgnLFdX1e9rvKJlOCEFRK4Q3g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GIlMa/hpw9blsbSNTpxfWx++KSlqC2OJCROrxswi86CSQ4aOYsG6v/Czb1oyYVc7e
-         onPV1ZgqW832r0lptlwfcKW9Foo5cL50MC9K/TBUCuPjs+OP5ls0W8wRut0fKuR1gW
-         2n9sd1CwjT+rzYjNCaBuC3mH9z3+o02RWWBPV8q4=
+        b=ngqbBJb23/ghLvG7i1S8bvwsHZvtgQMvEtp+6NLuQoz1aPJfs6X0+930lF/JfrjF/
+         KbomUkBfsjYQ9Sv5nDfbQ0rPKpMTkUhbotqdvJ2ZBYsWDwovZ2y72NE0fS3OygMrl8
+         HtapKGEM8gCAhh1sFhr2u9V2Fruca0tF+2B9Q1cM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Igor Zhbanov <i.zhbanov@omprussia.ru>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0232/1017] PM: hibernate: fix __setup handler error handling
+        stable@vger.kernel.org, Minchan Kim <minchan@kernel.org>,
+        Chris Goldsworthy <cgoldswo@codeaurora.org>,
+        Marcelo Tosatti <mtosatti@redhat.com>,
+        John Dias <joaodias@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.15 083/913] mm: fs: fix lru_cache_disabled race in bh_lru
 Date:   Tue,  5 Apr 2022 09:19:05 +0200
-Message-Id: <20220405070401.140965981@linuxfoundation.org>
+Message-Id: <20220405070342.311010162@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,40 +57,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Minchan Kim <minchan@kernel.org>
 
-[ Upstream commit ba7ffcd4c4da374b0f64666354eeeda7d3827131 ]
+commit c0226eb8bde854e016a594a16f5c0d98aca426fa upstream.
 
-If an invalid value is used in "resumedelay=<seconds>", it is
-silently ignored. Add a warning message and then let the __setup
-handler return 1 to indicate that the kernel command line option
-has been handled.
+Check lru_cache_disabled under bh_lru_lock.  Otherwise, it could introduce
+race below and it fails to migrate pages containing buffer_head.
 
-Fixes: 317cf7e5e85e3 ("PM / hibernate: convert simple_strtoul to kstrtoul")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
-Link: lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+   CPU 0					CPU 1
+
+bh_lru_install
+                                       lru_cache_disable
+  lru_cache_disabled = false
+                                       atomic_inc(&lru_disable_count);
+				       invalidate_bh_lrus_cpu of CPU 0
+				       bh_lru_lock
+				       __invalidate_bh_lrus
+				       bh_lru_unlock
+  bh_lru_lock
+  install the bh
+  bh_lru_unlock
+
+WHen this race happens a CMA allocation fails, which is critical for
+the workload which depends on CMA.
+
+Link: https://lkml.kernel.org/r/20220308180709.2017638-1-minchan@kernel.org
+Fixes: 8cc621d2f45d ("mm: fs: invalidate BH LRU during page migration")
+Signed-off-by: Minchan Kim <minchan@kernel.org>
+Cc: Chris Goldsworthy <cgoldswo@codeaurora.org>
+Cc: Marcelo Tosatti <mtosatti@redhat.com>
+Cc: John Dias <joaodias@google.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/power/hibernate.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/buffer.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/power/hibernate.c b/kernel/power/hibernate.c
-index e6af502c2fd7..08780a466fdf 100644
---- a/kernel/power/hibernate.c
-+++ b/kernel/power/hibernate.c
-@@ -1328,7 +1328,7 @@ static int __init resumedelay_setup(char *str)
- 	int rc = kstrtouint(str, 0, &resume_delay);
+--- a/fs/buffer.c
++++ b/fs/buffer.c
+@@ -1235,16 +1235,18 @@ static void bh_lru_install(struct buffer
+ 	int i;
  
- 	if (rc)
--		return rc;
-+		pr_warn("resumedelay: bad option string '%s'\n", str);
- 	return 1;
- }
+ 	check_irqs_on();
++	bh_lru_lock();
++
+ 	/*
+ 	 * the refcount of buffer_head in bh_lru prevents dropping the
+ 	 * attached page(i.e., try_to_free_buffers) so it could cause
+ 	 * failing page migration.
+ 	 * Skip putting upcoming bh into bh_lru until migration is done.
+ 	 */
+-	if (lru_cache_disabled())
++	if (lru_cache_disabled()) {
++		bh_lru_unlock();
+ 		return;
+-
+-	bh_lru_lock();
++	}
  
--- 
-2.34.1
-
+ 	b = this_cpu_ptr(&bh_lrus);
+ 	for (i = 0; i < BH_LRU_SIZE; i++) {
 
 
