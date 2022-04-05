@@ -2,44 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C685A4F38C0
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:36:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 905E94F3B3E
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:15:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377161AbiDEL2C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:28:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55612 "EHLO
+        id S1345956AbiDELwL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:52:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42294 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349661AbiDEJuv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:50:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78C82112F;
-        Tue,  5 Apr 2022 02:48:49 -0700 (PDT)
+        with ESMTP id S1356732AbiDEKYw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:24:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55592BF516;
+        Tue,  5 Apr 2022 03:08:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 14692615E3;
-        Tue,  5 Apr 2022 09:48:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DF0CC385A1;
-        Tue,  5 Apr 2022 09:48:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D51BCB81C89;
+        Tue,  5 Apr 2022 10:08:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CACDC385A6;
+        Tue,  5 Apr 2022 10:08:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152128;
-        bh=EN/h9MuQ8YPinwPxDQ9qw4apglfU/7kLJJV2EWiYFP0=;
+        s=korg; t=1649153332;
+        bh=s9JZTHU4ISnxMDiWXbfQdfcWMtbuXYw/drMU+c7jGpQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SQlsoJAfoWXsDXHhs0pjsIplHTdEH/W3tswdOgHElJhDR/Fq2DGPY1meJ7Nw4cJ8N
-         C9gKkFNuMNCSmhoW2uBAhR1EpVvZiQUft3UFEbhrZTqvlr69Saz3UMplEAk36Kxage
-         85738zYvITC+VqkaKdVAs9ecmO1HRb3uK+lSsgT8=
+        b=Z+smV24ZXXGg6NQHDSCicgF2s41V5TA6S2CKe3ZNmlWRAavfXwgjwWPYJDS3kU35d
+         4Qd3W/BttlaxPjs9MNt61/7+tAPM1e+1W1tEix8AO4lxpHS+5gGgXvUHauT5/zCk8t
+         uOErlje415YkKqgnc+FTFHlUmRKTicaov0MvQdPM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org,
+        Guillaume Tucker <guillaume.tucker@collabora.com>,
+        "kernelci.org bot" <bot@kernelci.org>,
+        Guenter Roeck <groeck@google.com>,
+        Shuah Khan <shuah@kernel.org>, Borislav Petkov <bp@suse.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 616/913] remoteproc: qcom_wcnss: Add missing of_node_put() in wcnss_alloc_memory_region
-Date:   Tue,  5 Apr 2022 09:27:58 +0200
-Message-Id: <20220405070358.305769205@linuxfoundation.org>
+Subject: [PATCH 5.10 185/599] selftests, x86: fix how check_cc.sh is being invoked
+Date:   Tue,  5 Apr 2022 09:27:59 +0200
+Message-Id: <20220405070304.347142989@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070258.802373272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,34 +60,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Guillaume Tucker <guillaume.tucker@collabora.com>
 
-[ Upstream commit 8f90161a66bc3d6b9fe8dde4d9028d20eae1b62a ]
+[ Upstream commit ef696f93ed9778d570bd5ac58414421cdd4f1aab ]
 
-The device_node pointer is returned by of_parse_phandle()  with refcount
-incremented. We should use of_node_put() on it when done.
+The $(CC) variable used in Makefiles could contain several arguments
+such as "ccache gcc".  These need to be passed as a single string to
+check_cc.sh, otherwise only the first argument will be used as the
+compiler command.  Without quotes, the $(CC) variable is passed as
+distinct arguments which causes the script to fail to build trivial
+programs.
 
-Fixes: aed361adca9f ("remoteproc: qcom: Introduce WCNSS peripheral image loader")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220308063102.10049-1-linmq006@gmail.com
+Fix this by adding quotes around $(CC) when calling check_cc.sh to pass
+the whole string as a single argument to the script even if it has
+several words such as "ccache gcc".
+
+Link: https://lkml.kernel.org/r/d0d460d7be0107a69e3c52477761a6fe694c1840.1646991629.git.guillaume.tucker@collabora.com
+Fixes: e9886ace222e ("selftests, x86: Rework x86 target architecture detection")
+Signed-off-by: Guillaume Tucker <guillaume.tucker@collabora.com>
+Tested-by: "kernelci.org bot" <bot@kernelci.org>
+Reviewed-by: Guenter Roeck <groeck@google.com>
+Cc: Shuah Khan <shuah@kernel.org>
+Cc: Borislav Petkov <bp@suse.de>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/remoteproc/qcom_wcnss.c | 1 +
- 1 file changed, 1 insertion(+)
+ tools/testing/selftests/vm/Makefile  | 6 +++---
+ tools/testing/selftests/x86/Makefile | 6 +++---
+ 2 files changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/remoteproc/qcom_wcnss.c b/drivers/remoteproc/qcom_wcnss.c
-index ebadc6c08e11..b17742eac9ff 100644
---- a/drivers/remoteproc/qcom_wcnss.c
-+++ b/drivers/remoteproc/qcom_wcnss.c
-@@ -501,6 +501,7 @@ static int wcnss_alloc_memory_region(struct qcom_wcnss *wcnss)
- 	}
+diff --git a/tools/testing/selftests/vm/Makefile b/tools/testing/selftests/vm/Makefile
+index 2cf32e6b376e..01ec6876e8f5 100644
+--- a/tools/testing/selftests/vm/Makefile
++++ b/tools/testing/selftests/vm/Makefile
+@@ -40,9 +40,9 @@ TEST_GEN_FILES += userfaultfd
+ TEST_GEN_FILES += khugepaged
  
- 	ret = of_address_to_resource(node, 0, &r);
-+	of_node_put(node);
- 	if (ret)
- 		return ret;
+ ifeq ($(MACHINE),x86_64)
+-CAN_BUILD_I386 := $(shell ./../x86/check_cc.sh $(CC) ../x86/trivial_32bit_program.c -m32)
+-CAN_BUILD_X86_64 := $(shell ./../x86/check_cc.sh $(CC) ../x86/trivial_64bit_program.c)
+-CAN_BUILD_WITH_NOPIE := $(shell ./../x86/check_cc.sh $(CC) ../x86/trivial_program.c -no-pie)
++CAN_BUILD_I386 := $(shell ./../x86/check_cc.sh "$(CC)" ../x86/trivial_32bit_program.c -m32)
++CAN_BUILD_X86_64 := $(shell ./../x86/check_cc.sh "$(CC)" ../x86/trivial_64bit_program.c)
++CAN_BUILD_WITH_NOPIE := $(shell ./../x86/check_cc.sh "$(CC)" ../x86/trivial_program.c -no-pie)
  
+ TARGETS := protection_keys
+ BINARIES_32 := $(TARGETS:%=%_32)
+diff --git a/tools/testing/selftests/x86/Makefile b/tools/testing/selftests/x86/Makefile
+index 6703c7906b71..f1b675a4040b 100644
+--- a/tools/testing/selftests/x86/Makefile
++++ b/tools/testing/selftests/x86/Makefile
+@@ -6,9 +6,9 @@ include ../lib.mk
+ .PHONY: all all_32 all_64 warn_32bit_failure clean
+ 
+ UNAME_M := $(shell uname -m)
+-CAN_BUILD_I386 := $(shell ./check_cc.sh $(CC) trivial_32bit_program.c -m32)
+-CAN_BUILD_X86_64 := $(shell ./check_cc.sh $(CC) trivial_64bit_program.c)
+-CAN_BUILD_WITH_NOPIE := $(shell ./check_cc.sh $(CC) trivial_program.c -no-pie)
++CAN_BUILD_I386 := $(shell ./check_cc.sh "$(CC)" trivial_32bit_program.c -m32)
++CAN_BUILD_X86_64 := $(shell ./check_cc.sh "$(CC)" trivial_64bit_program.c)
++CAN_BUILD_WITH_NOPIE := $(shell ./check_cc.sh "$(CC)" trivial_program.c -no-pie)
+ 
+ TARGETS_C_BOTHBITS := single_step_syscall sysret_ss_attrs syscall_nt test_mremap_vdso \
+ 			check_initial_reg_state sigreturn iopl ioperm \
 -- 
 2.34.1
 
