@@ -2,44 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 60E384F3BF0
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:23:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F5CC4F3976
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:48:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382196AbiDEMDe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:03:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50832 "EHLO
+        id S234007AbiDELeu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:34:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33928 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358059AbiDEK15 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:27:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4342622BE8;
-        Tue,  5 Apr 2022 03:14:11 -0700 (PDT)
+        with ESMTP id S1351542AbiDEKCi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:02:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 530E5710D2;
+        Tue,  5 Apr 2022 02:51:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F40DEB81C6C;
-        Tue,  5 Apr 2022 10:14:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 711C6C385A0;
-        Tue,  5 Apr 2022 10:14:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C8F2461368;
+        Tue,  5 Apr 2022 09:51:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D299DC385A1;
+        Tue,  5 Apr 2022 09:51:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153648;
-        bh=g03DA6j497XDAp1gqWKMiJ+yaZMwL6lkbxkH2RXpgaA=;
+        s=korg; t=1649152315;
+        bh=73n2kpjKjVfcEIGK9ACsjcNs/FDx2rkxpRD6WZBYkQM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RnysUpRlsqNIMJEvrZ2R7zo/rjYg3ixyfv4ewh5DNiYToHkJ0IWbzocEpEXXbRDDP
-         /L6O0g3T9zIwUwySDQRU4uOgOjB7Z+EAS0ncrt8UWUA1ac5fkuMwcS41/cx85MtO+k
-         CLFEvAMNpOg7mbr7ZYTZ8KrbyD38NbAvwPs3Qb4s=
+        b=sNRDXYTTx2P7A4IUrN5kT/5yEXyzkfJNRyyvkIlbqIYCeB7iXNzhqpZAgj5GjdfjP
+         oi4KztCFtrgZElEj5kN1gxJAsFABYWqZa2gskPxJs2fH9E7rftXCI9gb+CxcentpZs
+         6VG17NSBcsV4R3Q1l00wKQKOpj6J+FyzbM3bhA0k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Nikita Yushchenko <nikita.yoush@cogentembedded.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 298/599] iommu/ipmmu-vmsa: Check for error num after setting mask
-Date:   Tue,  5 Apr 2022 09:29:52 +0200
-Message-Id: <20220405070307.701627991@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Reddy Muralidhar <muralidhar.reddy@intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Rander Wang <rander.wang@intel.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 731/913] ASoC: SOF: Intel: match sdw version on link_slaves_found
+Date:   Tue,  5 Apr 2022 09:29:53 +0200
+Message-Id: <20220405070401.743093014@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
-References: <20220405070258.802373272@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +59,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Bard Liao <yung-chuan.liao@linux.intel.com>
 
-[ Upstream commit 1fdbbfd5099f797a4dac05e7ef0192ba4a9c39b4 ]
+[ Upstream commit f67c0c0d3b9048d86ea6ae52e36a2b78c48f265d ]
 
-Because of the possible failure of the dma_supported(), the
-dma_set_mask_and_coherent() may return error num.
-Therefore, it should be better to check it and return the error if
-fails.
+Codecs with the same part id, manufacturer id and part id, but different
+sdw version should be treated as different codecs. For example, rt711 and
+rt711-sdca are different. So, we should match sdw version as well.
 
-Fixes: 1c894225bf5b ("iommu/ipmmu-vmsa: IPMMU device is 40-bit bus master")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Reviewed-by: Nikita Yushchenko <nikita.yoush@cogentembedded.com>
-Link: https://lore.kernel.org/r/20220106024302.2574180-1-jiasheng@iscas.ac.cn
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Reported-by: Reddy Muralidhar <muralidhar.reddy@intel.com>
+Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Reviewed-by: Rander Wang <rander.wang@intel.com>
+Signed-off-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20220120232157.199919-2-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/ipmmu-vmsa.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ sound/soc/sof/intel/hda.c | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/iommu/ipmmu-vmsa.c b/drivers/iommu/ipmmu-vmsa.c
-index 0f18abda0e20..bae6c7078ec9 100644
---- a/drivers/iommu/ipmmu-vmsa.c
-+++ b/drivers/iommu/ipmmu-vmsa.c
-@@ -1013,7 +1013,9 @@ static int ipmmu_probe(struct platform_device *pdev)
- 	bitmap_zero(mmu->ctx, IPMMU_CTX_MAX);
- 	mmu->features = of_device_get_match_data(&pdev->dev);
- 	memset(mmu->utlb_ctx, IPMMU_CTX_INVALID, mmu->features->num_utlbs);
--	dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(40));
-+	ret = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(40));
-+	if (ret)
-+		return ret;
+diff --git a/sound/soc/sof/intel/hda.c b/sound/soc/sof/intel/hda.c
+index ef92cca7ae01..ddf70902e53c 100644
+--- a/sound/soc/sof/intel/hda.c
++++ b/sound/soc/sof/intel/hda.c
+@@ -1072,7 +1072,7 @@ static bool link_slaves_found(struct snd_sof_dev *sdev,
+ 	struct hdac_bus *bus = sof_to_bus(sdev);
+ 	struct sdw_intel_slave_id *ids = sdw->ids;
+ 	int num_slaves = sdw->num_slaves;
+-	unsigned int part_id, link_id, unique_id, mfg_id;
++	unsigned int part_id, link_id, unique_id, mfg_id, version;
+ 	int i, j, k;
  
- 	/* Map I/O memory and request IRQ. */
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	for (i = 0; i < link->num_adr; i++) {
+@@ -1082,12 +1082,14 @@ static bool link_slaves_found(struct snd_sof_dev *sdev,
+ 		mfg_id = SDW_MFG_ID(adr);
+ 		part_id = SDW_PART_ID(adr);
+ 		link_id = SDW_DISCO_LINK_ID(adr);
++		version = SDW_VERSION(adr);
+ 
+ 		for (j = 0; j < num_slaves; j++) {
+ 			/* find out how many identical parts were reported on that link */
+ 			if (ids[j].link_id == link_id &&
+ 			    ids[j].id.part_id == part_id &&
+-			    ids[j].id.mfg_id == mfg_id)
++			    ids[j].id.mfg_id == mfg_id &&
++			    ids[j].id.sdw_version == version)
+ 				reported_part_count++;
+ 		}
+ 
+@@ -1096,21 +1098,24 @@ static bool link_slaves_found(struct snd_sof_dev *sdev,
+ 
+ 			if (ids[j].link_id != link_id ||
+ 			    ids[j].id.part_id != part_id ||
+-			    ids[j].id.mfg_id != mfg_id)
++			    ids[j].id.mfg_id != mfg_id ||
++			    ids[j].id.sdw_version != version)
+ 				continue;
+ 
+ 			/* find out how many identical parts are expected */
+ 			for (k = 0; k < link->num_adr; k++) {
+ 				u64 adr2 = link->adr_d[k].adr;
+-				unsigned int part_id2, link_id2, mfg_id2;
++				unsigned int part_id2, link_id2, mfg_id2, version2;
+ 
+ 				mfg_id2 = SDW_MFG_ID(adr2);
+ 				part_id2 = SDW_PART_ID(adr2);
+ 				link_id2 = SDW_DISCO_LINK_ID(adr2);
++				version2 = SDW_VERSION(adr2);
+ 
+ 				if (link_id2 == link_id &&
+ 				    part_id2 == part_id &&
+-				    mfg_id2 == mfg_id)
++				    mfg_id2 == mfg_id &&
++				    version2 == version)
+ 					expected_part_count++;
+ 			}
+ 
 -- 
 2.34.1
 
