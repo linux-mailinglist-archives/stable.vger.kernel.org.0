@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 43A7D4F3059
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:27:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A5F14F349F
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:38:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242314AbiDEIhV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:37:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56418 "EHLO
+        id S241732AbiDEJgF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:36:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49448 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238411AbiDEITE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:19:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B2109FE2;
-        Tue,  5 Apr 2022 01:08:49 -0700 (PDT)
+        with ESMTP id S236080AbiDEI7P (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:59:15 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D61FE255A7;
+        Tue,  5 Apr 2022 01:53:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B7730B81B18;
-        Tue,  5 Apr 2022 08:08:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27416C385A1;
-        Tue,  5 Apr 2022 08:08:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6EE63B81BD9;
+        Tue,  5 Apr 2022 08:53:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3150C385A1;
+        Tue,  5 Apr 2022 08:53:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146126;
-        bh=OtMJiNTcTHUQcPH4dSGJwZZlh+3lpDszUo2IbFnk9JM=;
+        s=korg; t=1649148799;
+        bh=uZbSp/e8RnRyXsLlnieqg+hbOw+fz3mD3VWlhSBXOG4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oXzYRE8gUJ+4M0Bs+a1bBvEARlpNXFmn6JgVvZJfAKNn5RIniAPSM3bm9wA/DKzvg
-         AoAhSA7syDpsEKVZmAUbD/1cMqG7FlqLryIr6SehUkDa+YR7QPnNS7a5s0GF/8nMl5
-         eTU7BqwfMFxZztmUPfYlFe4GTwjXXgpP0qbNqXIY=
+        b=lNNm1ne8S+MAp43Uxxn05bZp8IlYRK12KbekCQ6zM/eVm/Q9ATSFq9qxlz0DWJhLE
+         EbghY0HXbekkSKkyhube6gE4EXt9IvI2FEI38+H/zLfbbmfS9TqP2Begeiu/V6TMZQ
+         iQO0DSQpYoX6T5+Pe7mjcSoj5X4swZSdtLVSUeO8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Serge Semin <fancer.lancer@gmail.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        stable@vger.kernel.org, Xiao Yang <yangx.jy@fujitsu.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0652/1126] mips: cdmm: Fix refcount leak in mips_cdmm_phys_base
+Subject: [PATCH 5.16 0486/1017] RDMA/rxe: Check the last packet by RXE_END_MASK
 Date:   Tue,  5 Apr 2022 09:23:19 +0200
-Message-Id: <20220405070426.767935771@linuxfoundation.org>
+Message-Id: <20220405070408.724845173@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,35 +54,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Xiao Yang <yangx.jy@fujitsu.com>
 
-[ Upstream commit 4528668ca331f7ce5999b7746657b46db5b3b785 ]
+[ Upstream commit b1377cc37f6bebd57ce8747b7e16163a475af295 ]
 
-The of_find_compatible_node() function returns a node pointer with
-refcount incremented, We should use of_node_put() on it when done
-Add the missing of_node_put() to release the refcount.
+It's wrong to check the last packet by RXE_COMP_MASK because the flag is
+to indicate if responder needs to generate a completion.
 
-Fixes: 2121aa3e2312 ("mips: cdmm: Add mti,mips-cdmm dtb node support")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Acked-by: Serge Semin <fancer.lancer@gmail.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Fixes: 9fcd67d1772c ("IB/rxe: increment msn only when completing a request")
+Fixes: 8700e3e7c485 ("Soft RoCE driver")
+Link: https://lore.kernel.org/r/20211229034438.1854908-1-yangx.jy@fujitsu.com
+Signed-off-by: Xiao Yang <yangx.jy@fujitsu.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bus/mips_cdmm.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/infiniband/sw/rxe/rxe_resp.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/bus/mips_cdmm.c b/drivers/bus/mips_cdmm.c
-index 626dedd110cb..fca0d0669aa9 100644
---- a/drivers/bus/mips_cdmm.c
-+++ b/drivers/bus/mips_cdmm.c
-@@ -351,6 +351,7 @@ phys_addr_t __weak mips_cdmm_phys_base(void)
- 	np = of_find_compatible_node(NULL, NULL, "mti,mips-cdmm");
- 	if (np) {
- 		err = of_address_to_resource(np, 0, &res);
-+		of_node_put(np);
- 		if (!err)
- 			return res.start;
+diff --git a/drivers/infiniband/sw/rxe/rxe_resp.c b/drivers/infiniband/sw/rxe/rxe_resp.c
+index e8f435fa6e4d..380934e38923 100644
+--- a/drivers/infiniband/sw/rxe/rxe_resp.c
++++ b/drivers/infiniband/sw/rxe/rxe_resp.c
+@@ -814,6 +814,10 @@ static enum resp_states execute(struct rxe_qp *qp, struct rxe_pkt_info *pkt)
+ 			return RESPST_ERR_INVALIDATE_RKEY;
  	}
+ 
++	if (pkt->mask & RXE_END_MASK)
++		/* We successfully processed this new request. */
++		qp->resp.msn++;
++
+ 	/* next expected psn, read handles this separately */
+ 	qp->resp.psn = (pkt->psn + 1) & BTH_PSN_MASK;
+ 	qp->resp.ack_psn = qp->resp.psn;
+@@ -821,11 +825,9 @@ static enum resp_states execute(struct rxe_qp *qp, struct rxe_pkt_info *pkt)
+ 	qp->resp.opcode = pkt->opcode;
+ 	qp->resp.status = IB_WC_SUCCESS;
+ 
+-	if (pkt->mask & RXE_COMP_MASK) {
+-		/* We successfully processed this new request. */
+-		qp->resp.msn++;
++	if (pkt->mask & RXE_COMP_MASK)
+ 		return RESPST_COMPLETE;
+-	} else if (qp_type(qp) == IB_QPT_RC)
++	else if (qp_type(qp) == IB_QPT_RC)
+ 		return RESPST_ACKNOWLEDGE;
+ 	else
+ 		return RESPST_CLEANUP;
 -- 
 2.34.1
 
