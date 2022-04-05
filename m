@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A30E4F342A
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:25:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A002D4F31ED
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:53:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350351AbiDEJ5h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:57:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38310 "EHLO
+        id S236844AbiDEI2n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:28:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45578 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343979AbiDEJQo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:16:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 205DFB87F;
-        Tue,  5 Apr 2022 02:02:37 -0700 (PDT)
+        with ESMTP id S239642AbiDEIUX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:20:23 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F209244;
+        Tue,  5 Apr 2022 01:18:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CCD57B818F3;
-        Tue,  5 Apr 2022 09:02:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33507C385A0;
-        Tue,  5 Apr 2022 09:02:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3C9E760B0B;
+        Tue,  5 Apr 2022 08:18:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D645C385A1;
+        Tue,  5 Apr 2022 08:18:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149354;
-        bh=GJWTx2va9kVPJ+UsHarwUFYycQHMaT1jG3zkI1xGkhM=;
+        s=korg; t=1649146681;
+        bh=3hDtQEHfWIJkLh3b5M0cJNcopCDOOF5++nmwce1+xTQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I18KW4rYUvw23p5lvi6PGujXZvDUWQAEQnj9nTLZVf/04ZQHCM3xvXqXJtWwl6e5d
-         Y8nYC4tg6n6N7us48OK+R+KOUZSRwCd53muRVsLdByAyyRy6II5aQBKZQQV7O4KwDc
-         HIc4ulpyQJ1lM+u6m3kQAjPNn843PjuKXJ4SFvlM=
+        b=TLIRBNwhctFkHCraT3/rkrh4cb+17g+o5qnDpB304vnn4iXGrV8NF9CEFTaJ1bpLQ
+         YEcKp3gJ+HN9LWvw3ilbw/U3kSHKx6UGl7MMxcc4uf8tIdItmK72fnvsKgDxDP2/sN
+         MtfvNPiVw7nCxim2IpJzPXxm4Qjj14ZDv97SQ/mU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Jonathan=20Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>,
-        =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <f4bug@amsat.org>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0685/1017] clk: loongson1: Terminate clk_div_table with sentinel element
+        stable@vger.kernel.org, Chaitanya Kulkarni <kch@nvidia.com>,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 0851/1126] loop: use sysfs_emit() in the sysfs xxx show()
 Date:   Tue,  5 Apr 2022 09:26:38 +0200
-Message-Id: <20220405070414.610190784@linuxfoundation.org>
+Message-Id: <20220405070432.525807253@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,35 +54,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Neuschäfer <j.neuschaefer@gmx.net>
+From: Chaitanya Kulkarni <kch@nvidia.com>
 
-[ Upstream commit 3eb00f89162e80083dfcaa842468b510462cfeaa ]
+[ Upstream commit b27824d31f09ea7b4a6ba2c1b18bd328df3e8bed ]
 
-In order that the end of a clk_div_table can be detected, it must be
-terminated with a sentinel element (.div = 0).
+sprintf does not know the PAGE_SIZE maximum of the temporary buffer
+used for outputting sysfs content and it's possible to overrun the
+PAGE_SIZE buffer length.
 
-Fixes: b4626a7f4892 ("CLK: Add Loongson1C clock support")
-Signed-off-by: Jonathan Neuschäfer <j.neuschaefer@gmx.net>
-Reviewed-by: Philippe Mathieu-Daudé <f4bug@amsat.org>
-Link: https://lore.kernel.org/r/20220218000922.134857-3-j.neuschaefer@gmx.net
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Use a generic sysfs_emit function that knows the size of the
+temporary buffer and ensures that no overrun is done for offset
+attribute in
+loop_attr_[offset|sizelimit|autoclear|partscan|dio]_show() callbacks.
+
+Signed-off-by: Chaitanya Kulkarni <kch@nvidia.com>
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Link: https://lore.kernel.org/r/20220215213310.7264-2-kch@nvidia.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/loongson1/clk-loongson1c.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/block/loop.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/clk/loongson1/clk-loongson1c.c b/drivers/clk/loongson1/clk-loongson1c.c
-index 703f87622cf5..1ebf740380ef 100644
---- a/drivers/clk/loongson1/clk-loongson1c.c
-+++ b/drivers/clk/loongson1/clk-loongson1c.c
-@@ -37,6 +37,7 @@ static const struct clk_div_table ahb_div_table[] = {
- 	[1] = { .val = 1, .div = 4 },
- 	[2] = { .val = 2, .div = 3 },
- 	[3] = { .val = 3, .div = 3 },
-+	[4] = { /* sentinel */ }
- };
+diff --git a/drivers/block/loop.c b/drivers/block/loop.c
+index 19fe19eaa50e..e65d1e24cab3 100644
+--- a/drivers/block/loop.c
++++ b/drivers/block/loop.c
+@@ -681,33 +681,33 @@ static ssize_t loop_attr_backing_file_show(struct loop_device *lo, char *buf)
  
- void __init ls1x_clk_init(void)
+ static ssize_t loop_attr_offset_show(struct loop_device *lo, char *buf)
+ {
+-	return sprintf(buf, "%llu\n", (unsigned long long)lo->lo_offset);
++	return sysfs_emit(buf, "%llu\n", (unsigned long long)lo->lo_offset);
+ }
+ 
+ static ssize_t loop_attr_sizelimit_show(struct loop_device *lo, char *buf)
+ {
+-	return sprintf(buf, "%llu\n", (unsigned long long)lo->lo_sizelimit);
++	return sysfs_emit(buf, "%llu\n", (unsigned long long)lo->lo_sizelimit);
+ }
+ 
+ static ssize_t loop_attr_autoclear_show(struct loop_device *lo, char *buf)
+ {
+ 	int autoclear = (lo->lo_flags & LO_FLAGS_AUTOCLEAR);
+ 
+-	return sprintf(buf, "%s\n", autoclear ? "1" : "0");
++	return sysfs_emit(buf, "%s\n", autoclear ? "1" : "0");
+ }
+ 
+ static ssize_t loop_attr_partscan_show(struct loop_device *lo, char *buf)
+ {
+ 	int partscan = (lo->lo_flags & LO_FLAGS_PARTSCAN);
+ 
+-	return sprintf(buf, "%s\n", partscan ? "1" : "0");
++	return sysfs_emit(buf, "%s\n", partscan ? "1" : "0");
+ }
+ 
+ static ssize_t loop_attr_dio_show(struct loop_device *lo, char *buf)
+ {
+ 	int dio = (lo->lo_flags & LO_FLAGS_DIRECT_IO);
+ 
+-	return sprintf(buf, "%s\n", dio ? "1" : "0");
++	return sysfs_emit(buf, "%s\n", dio ? "1" : "0");
+ }
+ 
+ LOOP_ATTR_RO(backing_file);
 -- 
 2.34.1
 
