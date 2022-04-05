@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 256654F27C8
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:08:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A42B44F281F
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:19:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233648AbiDEII6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:08:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57602 "EHLO
+        id S233562AbiDEIKu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:10:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57656 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235434AbiDEH7n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:59:43 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E36F580E0;
-        Tue,  5 Apr 2022 00:54:26 -0700 (PDT)
+        with ESMTP id S235449AbiDEH7o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:59:44 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF28F5A156;
+        Tue,  5 Apr 2022 00:54:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5537DB81BB3;
-        Tue,  5 Apr 2022 07:54:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE487C340EE;
-        Tue,  5 Apr 2022 07:54:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 395E3B81B18;
+        Tue,  5 Apr 2022 07:54:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83E36C340EE;
+        Tue,  5 Apr 2022 07:54:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145265;
-        bh=5R3cOyVOje9ogKOuX1pQMS8618OF7hLTfVlwYPX72VY=;
+        s=korg; t=1649145267;
+        bh=IsYGMWcOLC2kDDO8OFJfhbKJ+skf8w8cVCluqFXU9Jw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xVSyxAIQAeLN7zu7IXBwTH64BGlOAAKHUtU3idWWTccX41cPOp/3pmw7NHRxxLEqZ
-         UFZZodPNQPKZzw/bcuTZo7HauaBkH/CyRdojaDUz9c+BGT6AGxkrB6dH7joreFql/v
-         7KN/Wl1GRhkwuG/S7cNLnN/g9NbcmOaM+bxY6Zug=
+        b=Ujv09Viq89SpK2Xe542aS4UoP4bXqOj9ZOR63ketVMRAHouZckWOv7deBgoBsCN0v
+         JWyIc05I1di1X4PJkirVVmmDVQohDGDvwxWv6m4X4/PacNLH23AvFyJqCE3rg+fEiu
+         qlC4ByBAYKF0U1W8M4Sgxr8lss+MQIoy3y+yT/Ps=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        stable@vger.kernel.org, Robert Hancock <robert.hancock@calian.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0305/1126] ASoC: codecs: Check for error pointer after calling devm_regmap_init_mmio
-Date:   Tue,  5 Apr 2022 09:17:32 +0200
-Message-Id: <20220405070416.567287772@linuxfoundation.org>
+Subject: [PATCH 5.17 0306/1126] ASoC: xilinx: xlnx_formatter_pcm: Handle sysclk setting
+Date:   Tue,  5 Apr 2022 09:17:33 +0200
+Message-Id: <20220405070416.596209885@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -54,68 +54,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Robert Hancock <robert.hancock@calian.com>
 
-[ Upstream commit aa505ecccf2ae7546e0e262d574e18a9241f3005 ]
+[ Upstream commit 1c5091fbe7e0d0804158200b7feac5123f7b4fbd ]
 
-Since the potential failure of the devm_regmap_init_mmio(), it will
-return error pointer and be assigned to the regmap.
-Then the error pointer will be dereferenced.
-For example rx->regmap will be used in rx_macro_mclk_enable().
-Therefore, it should be better to check it.
+This driver did not set the MM2S Fs Multiplier Register to the proper
+value for playback streams. This needs to be set to the sample rate to
+MCLK multiplier, or random stream underflows can occur on the downstream
+I2S transmitter.
 
-Fixes: af3d54b99764 ("ASoC: codecs: lpass-rx-macro: add support for lpass rx macro")
-Fixes: c39667ddcfc5 ("ASoC: codecs: lpass-tx-macro: add support for lpass tx macro")
-Fixes: 809bcbcecebf ("ASoC: codecs: lpass-wsa-macro: Add support to WSA Macro")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Link: https://lore.kernel.org/r/20220121171031.2826198-1-jiasheng@iscas.ac.cn
+Store the sysclk value provided via the set_sysclk callback and use that
+in conjunction with the sample rate in the hw_params callback to calculate
+the proper value to set for this register.
+
+Fixes: 6f6c3c36f091 ("ASoC: xlnx: add pcm formatter platform driver")
+Signed-off-by: Robert Hancock <robert.hancock@calian.com>
+Link: https://lore.kernel.org/r/20220120195832.1742271-2-robert.hancock@calian.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/lpass-rx-macro.c  | 2 ++
- sound/soc/codecs/lpass-tx-macro.c  | 2 ++
- sound/soc/codecs/lpass-wsa-macro.c | 2 ++
- 3 files changed, 6 insertions(+)
+ sound/soc/xilinx/xlnx_formatter_pcm.c | 25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
 
-diff --git a/sound/soc/codecs/lpass-rx-macro.c b/sound/soc/codecs/lpass-rx-macro.c
-index 6ffe88345de5..2b272a82eabf 100644
---- a/sound/soc/codecs/lpass-rx-macro.c
-+++ b/sound/soc/codecs/lpass-rx-macro.c
-@@ -3542,6 +3542,8 @@ static int rx_macro_probe(struct platform_device *pdev)
- 		return PTR_ERR(base);
+diff --git a/sound/soc/xilinx/xlnx_formatter_pcm.c b/sound/soc/xilinx/xlnx_formatter_pcm.c
+index ce19a6058b27..5c4158069a5a 100644
+--- a/sound/soc/xilinx/xlnx_formatter_pcm.c
++++ b/sound/soc/xilinx/xlnx_formatter_pcm.c
+@@ -84,6 +84,7 @@ struct xlnx_pcm_drv_data {
+ 	struct snd_pcm_substream *play_stream;
+ 	struct snd_pcm_substream *capture_stream;
+ 	struct clk *axi_clk;
++	unsigned int sysclk;
+ };
  
- 	rx->regmap = devm_regmap_init_mmio(dev, base, &rx_regmap_config);
-+	if (IS_ERR(rx->regmap))
-+		return PTR_ERR(rx->regmap);
+ /*
+@@ -314,6 +315,15 @@ static irqreturn_t xlnx_s2mm_irq_handler(int irq, void *arg)
+ 	return IRQ_NONE;
+ }
  
- 	dev_set_drvdata(dev, rx);
++static int xlnx_formatter_set_sysclk(struct snd_soc_component *component,
++				     int clk_id, int source, unsigned int freq, int dir)
++{
++	struct xlnx_pcm_drv_data *adata = dev_get_drvdata(component->dev);
++
++	adata->sysclk = freq;
++	return 0;
++}
++
+ static int xlnx_formatter_pcm_open(struct snd_soc_component *component,
+ 				   struct snd_pcm_substream *substream)
+ {
+@@ -450,11 +460,25 @@ static int xlnx_formatter_pcm_hw_params(struct snd_soc_component *component,
+ 	u64 size;
+ 	struct snd_pcm_runtime *runtime = substream->runtime;
+ 	struct xlnx_pcm_stream_param *stream_data = runtime->private_data;
++	struct xlnx_pcm_drv_data *adata = dev_get_drvdata(component->dev);
  
-diff --git a/sound/soc/codecs/lpass-tx-macro.c b/sound/soc/codecs/lpass-tx-macro.c
-index a4c0a155af56..9c96ab1bf84f 100644
---- a/sound/soc/codecs/lpass-tx-macro.c
-+++ b/sound/soc/codecs/lpass-tx-macro.c
-@@ -1821,6 +1821,8 @@ static int tx_macro_probe(struct platform_device *pdev)
- 	}
+ 	active_ch = params_channels(params);
+ 	if (active_ch > stream_data->ch_limit)
+ 		return -EINVAL;
  
- 	tx->regmap = devm_regmap_init_mmio(dev, base, &tx_regmap_config);
-+	if (IS_ERR(tx->regmap))
-+		return PTR_ERR(tx->regmap);
++	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK &&
++	    adata->sysclk) {
++		unsigned int mclk_fs = adata->sysclk / params_rate(params);
++
++		if (adata->sysclk % params_rate(params) != 0) {
++			dev_warn(component->dev, "sysclk %u not divisible by rate %u\n",
++				 adata->sysclk, params_rate(params));
++			return -EINVAL;
++		}
++
++		writel(mclk_fs, stream_data->mmio + XLNX_AUD_FS_MULTIPLIER);
++	}
++
+ 	if (substream->stream == SNDRV_PCM_STREAM_CAPTURE &&
+ 	    stream_data->xfer_mode == AES_TO_PCM) {
+ 		val = readl(stream_data->mmio + XLNX_AUD_STS);
+@@ -552,6 +576,7 @@ static int xlnx_formatter_pcm_new(struct snd_soc_component *component,
  
- 	dev_set_drvdata(dev, tx);
- 
-diff --git a/sound/soc/codecs/lpass-wsa-macro.c b/sound/soc/codecs/lpass-wsa-macro.c
-index 75baf8eb7029..69d2915f40d8 100644
---- a/sound/soc/codecs/lpass-wsa-macro.c
-+++ b/sound/soc/codecs/lpass-wsa-macro.c
-@@ -2405,6 +2405,8 @@ static int wsa_macro_probe(struct platform_device *pdev)
- 		return PTR_ERR(base);
- 
- 	wsa->regmap = devm_regmap_init_mmio(dev, base, &wsa_regmap_config);
-+	if (IS_ERR(wsa->regmap))
-+		return PTR_ERR(wsa->regmap);
- 
- 	dev_set_drvdata(dev, wsa);
- 
+ static const struct snd_soc_component_driver xlnx_asoc_component = {
+ 	.name		= DRV_NAME,
++	.set_sysclk	= xlnx_formatter_set_sysclk,
+ 	.open		= xlnx_formatter_pcm_open,
+ 	.close		= xlnx_formatter_pcm_close,
+ 	.hw_params	= xlnx_formatter_pcm_hw_params,
 -- 
 2.34.1
 
