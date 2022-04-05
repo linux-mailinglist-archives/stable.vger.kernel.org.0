@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 524104F4078
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:16:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BFED4F422C
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:40:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348356AbiDEMHi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:07:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50660 "EHLO
+        id S1349396AbiDEMHt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:07:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50650 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358007AbiDEK1m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:27:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1491D9EB6;
-        Tue,  5 Apr 2022 03:12:48 -0700 (PDT)
+        with ESMTP id S1358037AbiDEK14 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:27:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CB46694B2;
+        Tue,  5 Apr 2022 03:13:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6D29A61777;
-        Tue,  5 Apr 2022 10:12:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81423C385A1;
-        Tue,  5 Apr 2022 10:12:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BF81C6179E;
+        Tue,  5 Apr 2022 10:13:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF92BC385A2;
+        Tue,  5 Apr 2022 10:13:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153567;
-        bh=ZgLDfPyvIdJTTM2KlzuPc6Q78su2GBwEKJtd6o6xQEM=;
+        s=korg; t=1649153598;
+        bh=mufnHjU+LVM9806wOFty/HMgBsTpq4Q9kF7GSPh16ak=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mf1/7sim1cdx8b/kPQU8kGsxmBykq4OD2cu/vA67LF4eXAUk/7pvwVZZFRa0U2kHe
-         yKxQXorjADZJsWc0vribhDaKTG4jIBNZtMVAKf4Edp5Pd/UeYTW/FtY00JbJ3k2Nn1
-         Y3BLmyfhU2eevhfEaaPkO2n0f1JhiiziCsQV5R/0=
+        b=04Zo9z9pYBvUGkziZVNtmDEEjGHwvkLENXxsgpnOk3NRCxp4mn2u8Gau08W2R9Htj
+         6pfm6Rjz+BLm1IH8GEImZPGtHykzyTF5k2+zzbWiFkutUJuwtNbNlP2GJerbTbPvcY
+         onLlsTdm/FnxZozL+uMfZDTpm/D78AMUuR6D2bNw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        Gerd Hoffmann <kraxel@redhat.com>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+2c56b725ec547fa9cb29@syzkaller.appspotmail.com
-Subject: [PATCH 5.10 268/599] udmabuf: validate ubuf->pagecount
-Date:   Tue,  5 Apr 2022 09:29:22 +0200
-Message-Id: <20220405070306.811711198@linuxfoundation.org>
+        stable@vger.kernel.org, Maor Gottlieb <maorg@nvidia.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 278/599] RDMA/core: Set MR type in ib_reg_user_mr
+Date:   Tue,  5 Apr 2022 09:29:32 +0200
+Message-Id: <20220405070307.108951717@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -55,45 +55,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Maor Gottlieb <maorg@nvidia.com>
 
-[ Upstream commit 2b6dd600dd72573c23ea180b5b0b2f1813405882 ]
+[ Upstream commit 32a88d16615c2be295571c29273c4ac94cb75309 ]
 
-Syzbot has reported GPF in sg_alloc_append_table_from_pages(). The
-problem was in ubuf->pages == ZERO_PTR.
+Add missing assignment of MR type to IB_MR_TYPE_USER.
 
-ubuf->pagecount is calculated from arguments passed from user-space. If
-user creates udmabuf with list.size == 0 then ubuf->pagecount will be
-also equal to zero; it causes kmalloc_array() to return ZERO_PTR.
-
-Fix it by validating ubuf->pagecount before passing it to
-kmalloc_array().
-
-Fixes: fbb0de795078 ("Add udmabuf misc device")
-Reported-and-tested-by: syzbot+2c56b725ec547fa9cb29@syzkaller.appspotmail.com
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Link: http://patchwork.freedesktop.org/patch/msgid/20211230142649.23022-1-paskripkin@gmail.com
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Fixes: 33006bd4f37f ("IB/core: Introduce ib_reg_user_mr")
+Link: https://lore.kernel.org/r/be2e91bcd6e52dc36be289ae92f30d3a5cc6dcb1.1642491047.git.leonro@nvidia.com
+Signed-off-by: Maor Gottlieb <maorg@nvidia.com>
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma-buf/udmabuf.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/infiniband/core/verbs.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/dma-buf/udmabuf.c b/drivers/dma-buf/udmabuf.c
-index db732f71e59a..cfbf10128aae 100644
---- a/drivers/dma-buf/udmabuf.c
-+++ b/drivers/dma-buf/udmabuf.c
-@@ -181,6 +181,10 @@ static long udmabuf_create(struct miscdevice *device,
- 		if (ubuf->pagecount > pglimit)
- 			goto err;
- 	}
-+
-+	if (!ubuf->pagecount)
-+		goto err;
-+
- 	ubuf->pages = kmalloc_array(ubuf->pagecount, sizeof(*ubuf->pages),
- 				    GFP_KERNEL);
- 	if (!ubuf->pages) {
+diff --git a/drivers/infiniband/core/verbs.c b/drivers/infiniband/core/verbs.c
+index 3d895cc41c3a..597e889ba831 100644
+--- a/drivers/infiniband/core/verbs.c
++++ b/drivers/infiniband/core/verbs.c
+@@ -2078,6 +2078,7 @@ struct ib_mr *ib_reg_user_mr(struct ib_pd *pd, u64 start, u64 length,
+ 		return mr;
+ 
+ 	mr->device = pd->device;
++	mr->type = IB_MR_TYPE_USER;
+ 	mr->pd = pd;
+ 	mr->dm = NULL;
+ 	atomic_inc(&pd->usecnt);
 -- 
 2.34.1
 
