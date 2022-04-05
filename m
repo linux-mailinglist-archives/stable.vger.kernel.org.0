@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E0544F2B0E
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:08:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FE124F2CBD
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:32:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238285AbiDEJzb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:55:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58192 "EHLO
+        id S242020AbiDEIgZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:36:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43644 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343853AbiDEJOo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:14:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D09184C436;
-        Tue,  5 Apr 2022 02:01:00 -0700 (PDT)
+        with ESMTP id S239566AbiDEIUO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:20:14 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B8E36376;
+        Tue,  5 Apr 2022 01:16:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8BF9EB81A22;
-        Tue,  5 Apr 2022 09:00:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB067C385A3;
-        Tue,  5 Apr 2022 09:00:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1A00A60AFB;
+        Tue,  5 Apr 2022 08:16:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B323C385A0;
+        Tue,  5 Apr 2022 08:16:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149258;
-        bh=suba1xzXWvaIbJzsfonGz0DLngK0q0zBAS7BYPJhF/A=;
+        s=korg; t=1649146591;
+        bh=R8BSE0mKHCk/KFQuqrQfNXP7Z6hcnqedSgjDwk4Zock=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ohgeqwbv+GwVrCPgEMW44K+gwoPPqkkyG4pccR+x29l4y+ryXi0d8s2ibyI+m7+Cx
-         YfvqSL5qJhDDlgC3PTWVPo0TcAT4SX5QG75ulx2aF+bQ5hAhDzgjJMHyCXjZh+ktK3
-         9ZfFUA7GvfLeEcjk3GsPzgkzz+TH9YvqbuzW2gqw=
+        b=Kj/fFUFyhXzQO2OhFbVpu6RmMNi9kNUPnOTUFXXkYEYWAcoWZy3O55O83Q7atjL5Z
+         887Deh7sY+2/51MVzc+pZz5Xlh9XWPD3fbj4EzCo7Vjg7dg9b5vR7dqoMc9yC1sZYx
+         FCFfOnAaq5d5j48hBr7OEQLA4FYbcM1Zaa9SYGs0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luca Weiss <luca@z3ntu.xyz>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
+        stable@vger.kernel.org, Hao Chen <chenhao288@hisilicon.com>,
+        Guangbin Huang <huangguangbin2@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0651/1017] cpufreq: qcom-cpufreq-nvmem: fix reading of PVS Valid fuse
-Date:   Tue,  5 Apr 2022 09:26:04 +0200
-Message-Id: <20220405070413.607090574@linuxfoundation.org>
+Subject: [PATCH 5.17 0819/1126] net: hns3: add NULL pointer check for hns3_set/get_ringparam()
+Date:   Tue,  5 Apr 2022 09:26:06 +0200
+Message-Id: <20220405070431.602796664@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +55,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luca Weiss <luca@z3ntu.xyz>
+From: Hao Chen <chenhao288@hisilicon.com>
 
-[ Upstream commit 4a8a77abf0e2b6468ba0281e33384cbec5fb476a ]
+[ Upstream commit 4d07c5936c2508ddd1cfd49b0a91d94cb4d1f0e8 ]
 
-The fuse consists of 64 bits, with this statement we're supposed to get
-the upper 32 bits but it actually read out of bounds and got 0 instead
-of the desired value which lead to the "PVS bin not set." codepath being
-run resetting our pvs value.
+When pci devices init failed and haven't reinit, priv->ring is
+NULL and hns3_set/get_ringparam() will access priv->ring. it
+causes call trace.
 
-Fixes: a8811ec764f9 ("cpufreq: qcom: Add support for krait based socs")
-Signed-off-by: Luca Weiss <luca@z3ntu.xyz>
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+So, add NULL pointer check for hns3_set/get_ringparam() to
+avoid this situation.
+
+Fixes: 5668abda0931 ("net: hns3: add support for set_ringparam")
+Signed-off-by: Hao Chen <chenhao288@hisilicon.com>
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpufreq/qcom-cpufreq-nvmem.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/cpufreq/qcom-cpufreq-nvmem.c b/drivers/cpufreq/qcom-cpufreq-nvmem.c
-index d1744b5d9619..6dfa86971a75 100644
---- a/drivers/cpufreq/qcom-cpufreq-nvmem.c
-+++ b/drivers/cpufreq/qcom-cpufreq-nvmem.c
-@@ -130,7 +130,7 @@ static void get_krait_bin_format_b(struct device *cpu_dev,
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c b/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
+index 1f6d6faeec24..cbf36cc86803 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
+@@ -651,8 +651,8 @@ static void hns3_get_ringparam(struct net_device *netdev,
+ 	struct hnae3_handle *h = priv->ae_handle;
+ 	int rx_queue_index = h->kinfo.num_tqps;
+ 
+-	if (hns3_nic_resetting(netdev)) {
+-		netdev_err(netdev, "dev resetting!");
++	if (hns3_nic_resetting(netdev) || !priv->ring) {
++		netdev_err(netdev, "failed to get ringparam value, due to dev resetting or uninited\n");
+ 		return;
  	}
  
- 	/* Check PVS_BLOW_STATUS */
--	pte_efuse = *(((u32 *)buf) + 4);
-+	pte_efuse = *(((u32 *)buf) + 1);
- 	pte_efuse &= BIT(21);
- 	if (pte_efuse) {
- 		dev_dbg(cpu_dev, "PVS bin: %d\n", *pvs);
+@@ -1072,8 +1072,14 @@ static int hns3_check_ringparam(struct net_device *ndev,
+ {
+ #define RX_BUF_LEN_2K 2048
+ #define RX_BUF_LEN_4K 4096
+-	if (hns3_nic_resetting(ndev))
++
++	struct hns3_nic_priv *priv = netdev_priv(ndev);
++
++	if (hns3_nic_resetting(ndev) || !priv->ring) {
++		netdev_err(ndev, "failed to set ringparam value, due to dev resetting or uninited\n");
+ 		return -EBUSY;
++	}
++
+ 
+ 	if (param->rx_mini_pending || param->rx_jumbo_pending)
+ 		return -EINVAL;
 -- 
 2.34.1
 
