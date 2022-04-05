@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E19B04F3C19
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:24:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 10D9A4F39D2
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:56:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237504AbiDEMEY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:04:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50354 "EHLO
+        id S1378776AbiDELio (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:38:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358197AbiDEK2F (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:28:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31951205EB;
-        Tue,  5 Apr 2022 03:16:51 -0700 (PDT)
+        with ESMTP id S1353977AbiDEKKO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:10:14 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E06DDC5599;
+        Tue,  5 Apr 2022 02:56:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C5AAA61562;
-        Tue,  5 Apr 2022 10:16:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D947AC385A1;
-        Tue,  5 Apr 2022 10:16:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7648061676;
+        Tue,  5 Apr 2022 09:56:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A096C385A2;
+        Tue,  5 Apr 2022 09:56:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153810;
-        bh=bJ4pzWP873/SXGNUTzG7+GAv1s1i+Ck5sZq98p1Sp4Y=;
+        s=korg; t=1649152566;
+        bh=r0yx3Istyx8LKKzY2BhVP/B45E7YnwmAFuCpV/DMYCw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JTAo2zjLdZq2MeyGtTJWBIffou7Dv/SssarTYPmK4KmmDR7we1/klMzxrYslUU2xJ
-         GYosoagRm7MZSahOihnfMeRP1bgABJvLZg1lF/vJfTDklr/TCaBLYyCGUhPsDPBL6+
-         vFXM+JFTgZWGncHOzWGAq7ZFMID1UXZtEamazQo0=
+        b=b3tPPUFKoYGEDA8XRewFVrzBwRqS1oVyeXwMaQImRQg5936eLSjmN1wZ2VFb5SWmI
+         6pKAup9JPdJ/K+LFmvojwssO9LsS7EL58HgqylxkyjJg5OsqpQDVa7IkKAsNnAiAh8
+         sCeHpQ94WNnJTWByF3PvJMdJ6q734vLoXVsLE1F0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
-        Xin Tan <tanxin.ctf@gmail.com>,
-        Xin Xiong <xiongx18@fudan.edu.cn>,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 354/599] mtd: rawnand: atmel: fix refcount issue in atmel_nand_controller_init
+        stable@vger.kernel.org,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Mika Kahola <mika.kahola@intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Subject: [PATCH 5.15 786/913] drm/i915: Reject unsupported TMDS rates on ICL+
 Date:   Tue,  5 Apr 2022 09:30:48 +0200
-Message-Id: <20220405070309.360589501@linuxfoundation.org>
+Message-Id: <20220405070403.394798356@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
-References: <20220405070258.802373272@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,75 +56,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Xiong <xiongx18@fudan.edu.cn>
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-[ Upstream commit fecbd4a317c95d73c849648c406bcf1b6a0ec1cf ]
+commit 9cddf03b2af07443bebdc73cba21acb360c079e8 upstream.
 
-The reference counting issue happens in several error handling paths
-on a refcounted object "nc->dmac". In these paths, the function simply
-returns the error code, forgetting to balance the reference count of
-"nc->dmac", increased earlier by dma_request_channel(), which may
-cause refcount leaks.
+ICL+ PLLs can't genenerate certain frequencies. Running the PLL
+algorithms through for all frequencies 25-594MHz we see a gap just
+above 500 MHz. Specifically 500-522.8MHZ for TC PLLs, and 500-533.2
+MHz for combo PHY PLLs. Reject those frequencies hdmi_port_clock_valid()
+so that we properly filter out unsupported modes and/or color depths
+for HDMI.
 
-Fix it by decrementing the refcount of specific object in those error
-paths.
-
-Fixes: f88fc122cc34 ("mtd: nand: Cleanup/rework the atmel_nand driver")
-Co-developed-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-Co-developed-by: Xin Tan <tanxin.ctf@gmail.com>
-Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
-Signed-off-by: Xin Xiong <xiongx18@fudan.edu.cn>
-Reviewed-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20220304085330.3610-1-xiongx18@fudan.edu.cn
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/5247
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220311212845.32358-1-ville.syrjala@linux.intel.com
+Reviewed-by: Mika Kahola <mika.kahola@intel.com>
+(cherry picked from commit e5086cb3f3d3f94091be29eec38cf13f8a75a778)
+Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mtd/nand/raw/atmel/nand-controller.c | 14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/i915/display/intel_hdmi.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/mtd/nand/raw/atmel/nand-controller.c b/drivers/mtd/nand/raw/atmel/nand-controller.c
-index 8aab1017b460..c048e826746a 100644
---- a/drivers/mtd/nand/raw/atmel/nand-controller.c
-+++ b/drivers/mtd/nand/raw/atmel/nand-controller.c
-@@ -2057,13 +2057,15 @@ static int atmel_nand_controller_init(struct atmel_nand_controller *nc,
- 	nc->mck = of_clk_get(dev->parent->of_node, 0);
- 	if (IS_ERR(nc->mck)) {
- 		dev_err(dev, "Failed to retrieve MCK clk\n");
--		return PTR_ERR(nc->mck);
-+		ret = PTR_ERR(nc->mck);
-+		goto out_release_dma;
- 	}
+--- a/drivers/gpu/drm/i915/display/intel_hdmi.c
++++ b/drivers/gpu/drm/i915/display/intel_hdmi.c
+@@ -1831,6 +1831,7 @@ hdmi_port_clock_valid(struct intel_hdmi
+ 		      bool has_hdmi_sink)
+ {
+ 	struct drm_i915_private *dev_priv = intel_hdmi_to_i915(hdmi);
++	enum phy phy = intel_port_to_phy(dev_priv, hdmi_to_dig_port(hdmi)->base.port);
  
- 	np = of_parse_phandle(dev->parent->of_node, "atmel,smc", 0);
- 	if (!np) {
- 		dev_err(dev, "Missing or invalid atmel,smc property\n");
--		return -EINVAL;
-+		ret = -EINVAL;
-+		goto out_release_dma;
- 	}
+ 	if (clock < 25000)
+ 		return MODE_CLOCK_LOW;
+@@ -1851,6 +1852,14 @@ hdmi_port_clock_valid(struct intel_hdmi
+ 	if (IS_CHERRYVIEW(dev_priv) && clock > 216000 && clock < 240000)
+ 		return MODE_CLOCK_RANGE;
  
- 	nc->smc = syscon_node_to_regmap(np);
-@@ -2071,10 +2073,16 @@ static int atmel_nand_controller_init(struct atmel_nand_controller *nc,
- 	if (IS_ERR(nc->smc)) {
- 		ret = PTR_ERR(nc->smc);
- 		dev_err(dev, "Could not get SMC regmap (err = %d)\n", ret);
--		return ret;
-+		goto out_release_dma;
- 	}
- 
- 	return 0;
++	/* ICL+ combo PHY PLL can't generate 500-533.2 MHz */
++	if (intel_phy_is_combo(dev_priv, phy) && clock > 500000 && clock < 533200)
++		return MODE_CLOCK_RANGE;
 +
-+out_release_dma:
-+	if (nc->dmac)
-+		dma_release_channel(nc->dmac);
++	/* ICL+ TC PHY PLL can't generate 500-532.8 MHz */
++	if (intel_phy_is_tc(dev_priv, phy) && clock > 500000 && clock < 532800)
++		return MODE_CLOCK_RANGE;
 +
-+	return ret;
- }
- 
- static int
--- 
-2.34.1
-
+ 	/*
+ 	 * SNPS PHYs' MPLLB table-based programming can only handle a fixed
+ 	 * set of link rates.
 
 
