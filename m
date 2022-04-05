@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E7114F3A50
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:00:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCEEB4F3A2E
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:59:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379308AbiDELkm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:40:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46876 "EHLO
+        id S1379297AbiDELkl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:40:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39644 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354560AbiDEKOj (ORCPT
+        with ESMTP id S1354554AbiDEKOj (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:14:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B81486B0BA;
-        Tue,  5 Apr 2022 03:00:53 -0700 (PDT)
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EB046B507;
+        Tue,  5 Apr 2022 03:00:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4DB7261676;
-        Tue,  5 Apr 2022 10:00:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B710C385A1;
-        Tue,  5 Apr 2022 10:00:52 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 17AC7CE0B18;
+        Tue,  5 Apr 2022 10:00:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D5FCC385A1;
+        Tue,  5 Apr 2022 10:00:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152852;
-        bh=YcAXeTWc0J/20QqSUfzXau2aqRTILZulL3uxemPHlIs=;
+        s=korg; t=1649152855;
+        bh=lQb4Mu6T8MYtQv868Z1oDD5YOQPMit2xWh8TfuuwmA4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ai+UefR7GpFoBcZ+zfqAyXg4RAM7myWFGyMRQ4JmcOQJNmyTG5xJDE6Jm1d3Q6Xvf
-         y/nkioSKiZNZx9UaoXY07yMam40Fkl3Rsbil+Umbs0kOOIGyRxT1lh9zsCyntZwv15
-         VB57d9G59QsaB+sR9fDJSrfLlDrik0rYDq6iIQ1Y=
+        b=z3zRUX8MhsyzG3jmOdGOWOV0QComcqc+zLxyDPGPymySah72VfR+6FCLyQiW3tKCs
+         DnixRgGqMGjDvdTLdPIXs91gDjWKk2LlTWv0gP0hToRzNL1RjYfmpWBUzEXcBN4msS
+         5BjcUUgioN8Gs3vvg49/SCLg2hrT2LLUG1grF1KM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Marcelo Roberto Jimenez <marcelo.jimenez@gmail.com>,
-        Bartosz Golaszewski <brgl@bgdev.pl>,
+        stable@vger.kernel.org, Biju Das <biju.das.jz@bp.renesas.com>,
+        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 013/599] gpio: Revert regression in sysfs-gpio (gpiolib.c)
-Date:   Tue,  5 Apr 2022 09:25:07 +0200
-Message-Id: <20220405070259.211158709@linuxfoundation.org>
+Subject: [PATCH 5.10 014/599] spi: Fix invalid sgs value
+Date:   Tue,  5 Apr 2022 09:25:08 +0200
+Message-Id: <20220405070259.241084579@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -55,58 +56,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marcelo Roberto Jimenez <marcelo.jimenez@gmail.com>
+From: Biju Das <biju.das.jz@bp.renesas.com>
 
-[ Upstream commit fc328a7d1fcce263db0b046917a66f3aa6e68719 ]
+[ Upstream commit 1a4e53d2fc4f68aa654ad96d13ad042e1a8e8a7d ]
 
-Some GPIO lines have stopped working after the patch
-commit 2ab73c6d8323f ("gpio: Support GPIO controllers without pin-ranges")
+max_seg_size is unsigned int and it can have a value up to 2^32
+(for eg:-RZ_DMAC driver sets dma_set_max_seg_size as U32_MAX)
+When this value is used in min_t() as an integer type, it becomes
+-1 and the value of sgs becomes 0.
 
-And this has supposedly been fixed in the following patches
-commit 89ad556b7f96a ("gpio: Avoid using pin ranges with !PINCTRL")
-commit 6dbbf84603961 ("gpiolib: Don't free if pin ranges are not defined")
+Fix this issue by replacing the 'int' data type with 'unsigned int'
+in min_t().
 
-But an erratic behavior where some GPIO lines work while others do not work
-has been introduced.
-
-This patch reverts those changes so that the sysfs-gpio interface works
-properly again.
-
-Signed-off-by: Marcelo Roberto Jimenez <marcelo.jimenez@gmail.com>
-Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
+Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
+Reviewed-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Link: https://lore.kernel.org/r/20220307184843.9994-1-biju.das.jz@bp.renesas.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpiolib.c | 10 ----------
- 1 file changed, 10 deletions(-)
+ drivers/spi/spi.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
-index 00526fdd7691..bbf34d84636d 100644
---- a/drivers/gpio/gpiolib.c
-+++ b/drivers/gpio/gpiolib.c
-@@ -1804,11 +1804,6 @@ static inline void gpiochip_irqchip_free_valid_mask(struct gpio_chip *gc)
-  */
- int gpiochip_generic_request(struct gpio_chip *gc, unsigned offset)
- {
--#ifdef CONFIG_PINCTRL
--	if (list_empty(&gc->gpiodev->pin_ranges))
--		return 0;
--#endif
--
- 	return pinctrl_gpio_request(gc->gpiodev->base + offset);
- }
- EXPORT_SYMBOL_GPL(gpiochip_generic_request);
-@@ -1820,11 +1815,6 @@ EXPORT_SYMBOL_GPL(gpiochip_generic_request);
-  */
- void gpiochip_generic_free(struct gpio_chip *gc, unsigned offset)
- {
--#ifdef CONFIG_PINCTRL
--	if (list_empty(&gc->gpiodev->pin_ranges))
--		return;
--#endif
--
- 	pinctrl_gpio_free(gc->gpiodev->base + offset);
- }
- EXPORT_SYMBOL_GPL(gpiochip_generic_free);
+diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
+index 8c261eac2cee..2396565fc91b 100644
+--- a/drivers/spi/spi.c
++++ b/drivers/spi/spi.c
+@@ -881,10 +881,10 @@ int spi_map_buf(struct spi_controller *ctlr, struct device *dev,
+ 	int i, ret;
+ 
+ 	if (vmalloced_buf || kmap_buf) {
+-		desc_len = min_t(int, max_seg_size, PAGE_SIZE);
++		desc_len = min_t(unsigned int, max_seg_size, PAGE_SIZE);
+ 		sgs = DIV_ROUND_UP(len + offset_in_page(buf), desc_len);
+ 	} else if (virt_addr_valid(buf)) {
+-		desc_len = min_t(int, max_seg_size, ctlr->max_dma_len);
++		desc_len = min_t(unsigned int, max_seg_size, ctlr->max_dma_len);
+ 		sgs = DIV_ROUND_UP(len, desc_len);
+ 	} else {
+ 		return -EINVAL;
 -- 
 2.34.1
 
