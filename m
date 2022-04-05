@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A17C4F265A
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:04:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57C114F27B6
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:08:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233125AbiDEIFx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:05:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50252 "EHLO
+        id S233545AbiDEIIK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:08:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50276 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236009AbiDEIBE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:01:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9A204AE27;
-        Tue,  5 Apr 2022 00:59:05 -0700 (PDT)
+        with ESMTP id S236011AbiDEIBG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:01:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F328D4B1F7;
+        Tue,  5 Apr 2022 00:59:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7758FB81B16;
-        Tue,  5 Apr 2022 07:59:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4E16C340EE;
-        Tue,  5 Apr 2022 07:59:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8F2D761748;
+        Tue,  5 Apr 2022 07:59:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B936C340EE;
+        Tue,  5 Apr 2022 07:59:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145543;
-        bh=K6geJeEW5QaOD+aLW/HKf6IJ3et2Chj97ahJ/fcGf9U=;
+        s=korg; t=1649145546;
+        bh=zazOJ9lM/Dvj6CJxUo215DlrE669HBaoTJDJ7TEdNHA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pE6tQRRcU7zzmZzHlDhn6BWqX/nkQhx9KGKGzTWCdiovscIS4qENUID6bZhv+dRjq
-         9lvGCo9oDRfWjeu6vbS4/fO9k3hCfpBKnXgMBGWJBm0T5yuPvj9+RbNZ7CwBSOY301
-         7UQTnicJlqBQKkISKxkHQF2KwTXUHBiW1g+naAkg=
+        b=v6E0Jad1vNBhCJ6/iIic+iQHFAsLbUJqF8u/C+lhptHbhZaOxNx6InoXEf4SF35IB
+         eyEe1ZlbnjRAxGoN9bhvHuP3KEkgrPYn8L2C0aushSV/gE1PL5fu0XxaAofbFF4wN+
+         +xdW5L/WKL/byli6jfff9/OF5UV2WBiTQ07BALGY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felix Maurer <fmaurer@redhat.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Jakub Sitnicki <jakub@cloudflare.com>,
+        stable@vger.kernel.org, Tedd Ho-Jeong An <tedd.an@intel.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0443/1126] selftests: bpf: Fix bind on used port
-Date:   Tue,  5 Apr 2022 09:19:50 +0200
-Message-Id: <20220405070420.627110689@linuxfoundation.org>
+Subject: [PATCH 5.17 0444/1126] Bluetooth: btintel: Fix WBS setting for Intel legacy ROM products
+Date:   Tue,  5 Apr 2022 09:19:51 +0200
+Message-Id: <20220405070420.656476328@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -55,71 +54,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Maurer <fmaurer@redhat.com>
+From: Tedd Ho-Jeong An <tedd.an@intel.com>
 
-[ Upstream commit 8c0be0631d81e48f77d0ebf0534c86e32bef5f89 ]
+[ Upstream commit 55235304c2560d4a94ccfff2a47ea927b4114064 ]
 
-The bind_perm BPF selftest failed when port 111/tcp was already in use
-during the test. To fix this, the test now runs in its own network name
-space.
+This patch adds the flag to identify the Intel legacy ROM products that
+don't support WBS like WP and StP.
 
-To use unshare, it is necessary to reorder the includes. The style of
-the includes is adapted to be consistent with the other prog_tests.
-
-v2: Replace deprecated CHECK macro with ASSERT_OK
-
-Fixes: 8259fdeb30326 ("selftests/bpf: Verify that rebinding to port < 1024 from BPF works")
-Signed-off-by: Felix Maurer <fmaurer@redhat.com>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Reviewed-by: Jakub Sitnicki <jakub@cloudflare.com>
-Link: https://lore.kernel.org/bpf/551ee65533bb987a43f93d88eaf2368b416ccd32.1642518457.git.fmaurer@redhat.com
+Fixes: 3df4dfbec0f29 ("Bluetooth: btintel: Move hci quirks to setup routine")
+Signed-off-by: Tedd Ho-Jeong An <tedd.an@intel.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../selftests/bpf/prog_tests/bind_perm.c      | 20 ++++++++++++++++---
- 1 file changed, 17 insertions(+), 3 deletions(-)
+ drivers/bluetooth/btintel.c | 11 ++++++++---
+ drivers/bluetooth/btintel.h |  1 +
+ drivers/bluetooth/btusb.c   |  6 ++++++
+ 3 files changed, 15 insertions(+), 3 deletions(-)
 
-diff --git a/tools/testing/selftests/bpf/prog_tests/bind_perm.c b/tools/testing/selftests/bpf/prog_tests/bind_perm.c
-index d0f06e40c16d..eac71fbb24ce 100644
---- a/tools/testing/selftests/bpf/prog_tests/bind_perm.c
-+++ b/tools/testing/selftests/bpf/prog_tests/bind_perm.c
-@@ -1,13 +1,24 @@
- // SPDX-License-Identifier: GPL-2.0
--#include <test_progs.h>
--#include "bind_perm.skel.h"
--
-+#define _GNU_SOURCE
-+#include <sched.h>
-+#include <stdlib.h>
- #include <sys/types.h>
- #include <sys/socket.h>
- #include <sys/capability.h>
+diff --git a/drivers/bluetooth/btintel.c b/drivers/bluetooth/btintel.c
+index 1a4f8b227eac..06514ed66022 100644
+--- a/drivers/bluetooth/btintel.c
++++ b/drivers/bluetooth/btintel.c
+@@ -2428,10 +2428,15 @@ static int btintel_setup_combined(struct hci_dev *hdev)
  
-+#include "test_progs.h"
-+#include "bind_perm.skel.h"
-+
- static int duration;
+ 			/* Apply the device specific HCI quirks
+ 			 *
+-			 * WBS for SdP - SdP and Stp have a same hw_varaint but
+-			 * different fw_variant
++			 * WBS for SdP - For the Legacy ROM products, only SdP
++			 * supports the WBS. But the version information is not
++			 * enough to use here because the StP2 and SdP have same
++			 * hw_variant and fw_variant. So, this flag is set by
++			 * the transport driver (btusb) based on the HW info
++			 * (idProduct)
+ 			 */
+-			if (ver.hw_variant == 0x08 && ver.fw_variant == 0x22)
++			if (!btintel_test_flag(hdev,
++					       INTEL_ROM_LEGACY_NO_WBS_SUPPORT))
+ 				set_bit(HCI_QUIRK_WIDEBAND_SPEECH_SUPPORTED,
+ 					&hdev->quirks);
  
-+static int create_netns(void)
-+{
-+	if (!ASSERT_OK(unshare(CLONE_NEWNET), "create netns"))
-+		return -1;
-+
-+	return 0;
-+}
-+
- void try_bind(int family, int port, int expected_errno)
- {
- 	struct sockaddr_storage addr = {};
-@@ -75,6 +86,9 @@ void test_bind_perm(void)
- 	struct bind_perm *skel;
- 	int cgroup_fd;
+diff --git a/drivers/bluetooth/btintel.h b/drivers/bluetooth/btintel.h
+index c9b24e9299e2..e0060e58573c 100644
+--- a/drivers/bluetooth/btintel.h
++++ b/drivers/bluetooth/btintel.h
+@@ -152,6 +152,7 @@ enum {
+ 	INTEL_BROKEN_INITIAL_NCMD,
+ 	INTEL_BROKEN_SHUTDOWN_LED,
+ 	INTEL_ROM_LEGACY,
++	INTEL_ROM_LEGACY_NO_WBS_SUPPORT,
  
-+	if (create_netns())
-+		return;
+ 	__INTEL_NUM_FLAGS,
+ };
+diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
+index 19d5686f8a2a..2afbd87d77c9 100644
+--- a/drivers/bluetooth/btusb.c
++++ b/drivers/bluetooth/btusb.c
+@@ -62,6 +62,7 @@ static struct usb_driver btusb_driver;
+ #define BTUSB_QCA_WCN6855	0x1000000
+ #define BTUSB_INTEL_BROKEN_SHUTDOWN_LED	0x2000000
+ #define BTUSB_INTEL_BROKEN_INITIAL_NCMD 0x4000000
++#define BTUSB_INTEL_NO_WBS_SUPPORT	0x8000000
+ 
+ static const struct usb_device_id btusb_table[] = {
+ 	/* Generic Bluetooth USB device */
+@@ -385,9 +386,11 @@ static const struct usb_device_id blacklist_table[] = {
+ 	{ USB_DEVICE(0x8087, 0x0033), .driver_info = BTUSB_INTEL_COMBINED },
+ 	{ USB_DEVICE(0x8087, 0x07da), .driver_info = BTUSB_CSR },
+ 	{ USB_DEVICE(0x8087, 0x07dc), .driver_info = BTUSB_INTEL_COMBINED |
++						     BTUSB_INTEL_NO_WBS_SUPPORT |
+ 						     BTUSB_INTEL_BROKEN_INITIAL_NCMD |
+ 						     BTUSB_INTEL_BROKEN_SHUTDOWN_LED },
+ 	{ USB_DEVICE(0x8087, 0x0a2a), .driver_info = BTUSB_INTEL_COMBINED |
++						     BTUSB_INTEL_NO_WBS_SUPPORT |
+ 						     BTUSB_INTEL_BROKEN_SHUTDOWN_LED },
+ 	{ USB_DEVICE(0x8087, 0x0a2b), .driver_info = BTUSB_INTEL_COMBINED },
+ 	{ USB_DEVICE(0x8087, 0x0aa7), .driver_info = BTUSB_INTEL_COMBINED |
+@@ -3743,6 +3746,9 @@ static int btusb_probe(struct usb_interface *intf,
+ 		hdev->send = btusb_send_frame_intel;
+ 		hdev->cmd_timeout = btusb_intel_cmd_timeout;
+ 
++		if (id->driver_info & BTUSB_INTEL_NO_WBS_SUPPORT)
++			btintel_set_flag(hdev, INTEL_ROM_LEGACY_NO_WBS_SUPPORT);
 +
- 	cgroup_fd = test__join_cgroup("/bind_perm");
- 	if (CHECK(cgroup_fd < 0, "cg-join", "errno %d", errno))
- 		return;
+ 		if (id->driver_info & BTUSB_INTEL_BROKEN_INITIAL_NCMD)
+ 			btintel_set_flag(hdev, INTEL_BROKEN_INITIAL_NCMD);
+ 
 -- 
 2.34.1
 
