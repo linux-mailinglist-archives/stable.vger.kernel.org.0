@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 032754F2CD6
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:33:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DB144F2B0A
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:08:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241856AbiDEIfl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:35:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34688 "EHLO
+        id S242711AbiDEJh7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:37:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52548 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239329AbiDEIT6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:19:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E534385667;
-        Tue,  5 Apr 2022 01:11:11 -0700 (PDT)
+        with ESMTP id S237085AbiDEJDz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:03:55 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC1E8101F5;
+        Tue,  5 Apr 2022 01:55:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 95BB1B81A32;
-        Tue,  5 Apr 2022 08:11:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 006AAC385A0;
-        Tue,  5 Apr 2022 08:11:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 560E5B81C6A;
+        Tue,  5 Apr 2022 08:55:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC68CC385A1;
+        Tue,  5 Apr 2022 08:55:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146269;
-        bh=GU1XY9KUJjSHNKL22wupzYr+gURBsjjE7uhe+FwWKWo=;
+        s=korg; t=1649148941;
+        bh=wZvM/q2rcsoDN1WgD9LvG3dsOfYY/kcfVHNRAeHhn9w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P7qtJKPk6NfS/tzynAC54TeFN1VH0iQi9fmVloz/3DVVoq4SyMon/ZnfTySj8w2OY
-         pt5vq3g7BO5w+ikhPYYFjy5BPENqmEcZnEFA6bMQJI2FgIhuVRXAHpYBEWokVql/Or
-         TSlul2aaIrWpEOfj1Ndc4tK8IL2MJICa4ooUVYzY=
+        b=LQAwrc+XgrhGYpFbUdZ58Xfy8Mr5OyEh1TS06DsCnCDVKgw3/ktAM6m8Gbg/LNCxm
+         ADyVFNLnj6A4wt6crS6u8WW+pfFX/NU8ntcAR5D8OW8Mv6N3NsBp5GUNmVc88mTo5H
+         +lcYVKyQzRn2rijb86RS/ccOhqGeAkA9jCz+SIDI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dumitru Ceara <dceara@redhat.com>,
-        Numan Siddique <nusiddiq@redhat.com>,
-        Aaron Conole <aconole@redhat.com>,
-        Eelco Chaudron <echaudro@redhat.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Jack Wang <jinpu.wang@ionos.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0702/1126] openvswitch: always update flow key after nat
+Subject: [PATCH 5.16 0536/1017] scsi: pm8001: Fix le32 values handling in pm80xx_chip_sata_req()
 Date:   Tue,  5 Apr 2022 09:24:09 +0200
-Message-Id: <20220405070428.211087551@linuxfoundation.org>
+Message-Id: <20220405070410.201763191@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,198 +55,188 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aaron Conole <aconole@redhat.com>
+From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 
-[ Upstream commit 60b44ca6bd7518dd38fa2719bc9240378b6172c3 ]
+[ Upstream commit fd6d0e376211d7ed759db96b0fbd9a1cee67d462 ]
 
-During NAT, a tuple collision may occur.  When this happens, openvswitch
-will make a second pass through NAT which will perform additional packet
-modification.  This will update the skb data, but not the flow key that
-OVS uses.  This means that future flow lookups, and packet matches will
-have incorrect data.  This has been supported since
-5d50aa83e2c8 ("openvswitch: support asymmetric conntrack").
+Make sure that the __le32 fields of struct sata_cmd are manipulated after
+applying the correct endian conversion. That is, use cpu_to_le32() for
+assigning values and le32_to_cpu() for consulting a field value.  In
+particular, make sure that the calculations for the 4G boundary check are
+done using CPU endianness and *not* little endian values. With these fixes,
+many sparse warnings are removed.
 
-That commit failed to properly update the sw_flow_key attributes, since
-it only called the ovs_ct_nat_update_key once, rather than each time
-ovs_ct_nat_execute was called.  As these two operations are linked, the
-ovs_ct_nat_execute() function should always make sure that the
-sw_flow_key is updated after a successful call through NAT infrastructure.
+While at it, fix some code identation and add blank lines after variable
+declarations and in some other places to make this code more readable.
 
-Fixes: 5d50aa83e2c8 ("openvswitch: support asymmetric conntrack")
-Cc: Dumitru Ceara <dceara@redhat.com>
-Cc: Numan Siddique <nusiddiq@redhat.com>
-Signed-off-by: Aaron Conole <aconole@redhat.com>
-Acked-by: Eelco Chaudron <echaudro@redhat.com>
-Link: https://lore.kernel.org/r/20220318124319.3056455-1-aconole@redhat.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Link: https://lore.kernel.org/r/20220220031810.738362-12-damien.lemoal@opensource.wdc.com
+Fixes: 0ecdf00ba6e5 ("[SCSI] pm80xx: 4G boundary fix.")
+Reviewed-by: Jack Wang <jinpu.wang@ionos.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/openvswitch/conntrack.c | 118 ++++++++++++++++++------------------
- 1 file changed, 59 insertions(+), 59 deletions(-)
+ drivers/scsi/pm8001/pm80xx_hwi.c | 82 ++++++++++++++++++--------------
+ 1 file changed, 45 insertions(+), 37 deletions(-)
 
-diff --git a/net/openvswitch/conntrack.c b/net/openvswitch/conntrack.c
-index c07afff57dd3..4a947c13c813 100644
---- a/net/openvswitch/conntrack.c
-+++ b/net/openvswitch/conntrack.c
-@@ -734,6 +734,57 @@ static bool skb_nfct_cached(struct net *net,
- }
- 
- #if IS_ENABLED(CONFIG_NF_NAT)
-+static void ovs_nat_update_key(struct sw_flow_key *key,
-+			       const struct sk_buff *skb,
-+			       enum nf_nat_manip_type maniptype)
-+{
-+	if (maniptype == NF_NAT_MANIP_SRC) {
-+		__be16 src;
+diff --git a/drivers/scsi/pm8001/pm80xx_hwi.c b/drivers/scsi/pm8001/pm80xx_hwi.c
+index e2459bd817a5..93a5af907856 100644
+--- a/drivers/scsi/pm8001/pm80xx_hwi.c
++++ b/drivers/scsi/pm8001/pm80xx_hwi.c
+@@ -4548,7 +4548,7 @@ static int pm80xx_chip_sata_req(struct pm8001_hba_info *pm8001_ha,
+ 	u32 q_index, cpu_id;
+ 	struct sata_start_req sata_cmd;
+ 	u32 hdr_tag, ncg_tag = 0;
+-	u64 phys_addr, start_addr, end_addr;
++	u64 phys_addr, end_addr;
+ 	u32 end_addr_high, end_addr_low;
+ 	u32 ATAP = 0x0;
+ 	u32 dir;
+@@ -4609,32 +4609,38 @@ static int pm80xx_chip_sata_req(struct pm8001_hba_info *pm8001_ha,
+ 			pm8001_chip_make_sg(task->scatter,
+ 						ccb->n_elem, ccb->buf_prd);
+ 			phys_addr = ccb->ccb_dma_handle;
+-			sata_cmd.enc_addr_low = lower_32_bits(phys_addr);
+-			sata_cmd.enc_addr_high = upper_32_bits(phys_addr);
++			sata_cmd.enc_addr_low =
++				cpu_to_le32(lower_32_bits(phys_addr));
++			sata_cmd.enc_addr_high =
++				cpu_to_le32(upper_32_bits(phys_addr));
+ 			sata_cmd.enc_esgl = cpu_to_le32(1 << 31);
+ 		} else if (task->num_scatter == 1) {
+ 			u64 dma_addr = sg_dma_address(task->scatter);
+-			sata_cmd.enc_addr_low = lower_32_bits(dma_addr);
+-			sata_cmd.enc_addr_high = upper_32_bits(dma_addr);
 +
-+		key->ct_state |= OVS_CS_F_SRC_NAT;
-+		if (key->eth.type == htons(ETH_P_IP))
-+			key->ipv4.addr.src = ip_hdr(skb)->saddr;
-+		else if (key->eth.type == htons(ETH_P_IPV6))
-+			memcpy(&key->ipv6.addr.src, &ipv6_hdr(skb)->saddr,
-+			       sizeof(key->ipv6.addr.src));
-+		else
-+			return;
++			sata_cmd.enc_addr_low =
++				cpu_to_le32(lower_32_bits(dma_addr));
++			sata_cmd.enc_addr_high =
++				cpu_to_le32(upper_32_bits(dma_addr));
+ 			sata_cmd.enc_len = cpu_to_le32(task->total_xfer_len);
+ 			sata_cmd.enc_esgl = 0;
 +
-+		if (key->ip.proto == IPPROTO_UDP)
-+			src = udp_hdr(skb)->source;
-+		else if (key->ip.proto == IPPROTO_TCP)
-+			src = tcp_hdr(skb)->source;
-+		else if (key->ip.proto == IPPROTO_SCTP)
-+			src = sctp_hdr(skb)->source;
-+		else
-+			return;
-+
-+		key->tp.src = src;
-+	} else {
-+		__be16 dst;
-+
-+		key->ct_state |= OVS_CS_F_DST_NAT;
-+		if (key->eth.type == htons(ETH_P_IP))
-+			key->ipv4.addr.dst = ip_hdr(skb)->daddr;
-+		else if (key->eth.type == htons(ETH_P_IPV6))
-+			memcpy(&key->ipv6.addr.dst, &ipv6_hdr(skb)->daddr,
-+			       sizeof(key->ipv6.addr.dst));
-+		else
-+			return;
-+
-+		if (key->ip.proto == IPPROTO_UDP)
-+			dst = udp_hdr(skb)->dest;
-+		else if (key->ip.proto == IPPROTO_TCP)
-+			dst = tcp_hdr(skb)->dest;
-+		else if (key->ip.proto == IPPROTO_SCTP)
-+			dst = sctp_hdr(skb)->dest;
-+		else
-+			return;
-+
-+		key->tp.dst = dst;
-+	}
-+}
-+
- /* Modelled after nf_nat_ipv[46]_fn().
-  * range is only used for new, uninitialized NAT state.
-  * Returns either NF_ACCEPT or NF_DROP.
-@@ -741,7 +792,7 @@ static bool skb_nfct_cached(struct net *net,
- static int ovs_ct_nat_execute(struct sk_buff *skb, struct nf_conn *ct,
- 			      enum ip_conntrack_info ctinfo,
- 			      const struct nf_nat_range2 *range,
--			      enum nf_nat_manip_type maniptype)
-+			      enum nf_nat_manip_type maniptype, struct sw_flow_key *key)
- {
- 	int hooknum, nh_off, err = NF_ACCEPT;
- 
-@@ -813,58 +864,11 @@ static int ovs_ct_nat_execute(struct sk_buff *skb, struct nf_conn *ct,
- push:
- 	skb_push_rcsum(skb, nh_off);
- 
--	return err;
--}
--
--static void ovs_nat_update_key(struct sw_flow_key *key,
--			       const struct sk_buff *skb,
--			       enum nf_nat_manip_type maniptype)
--{
--	if (maniptype == NF_NAT_MANIP_SRC) {
--		__be16 src;
--
--		key->ct_state |= OVS_CS_F_SRC_NAT;
--		if (key->eth.type == htons(ETH_P_IP))
--			key->ipv4.addr.src = ip_hdr(skb)->saddr;
--		else if (key->eth.type == htons(ETH_P_IPV6))
--			memcpy(&key->ipv6.addr.src, &ipv6_hdr(skb)->saddr,
--			       sizeof(key->ipv6.addr.src));
--		else
--			return;
--
--		if (key->ip.proto == IPPROTO_UDP)
--			src = udp_hdr(skb)->source;
--		else if (key->ip.proto == IPPROTO_TCP)
--			src = tcp_hdr(skb)->source;
--		else if (key->ip.proto == IPPROTO_SCTP)
--			src = sctp_hdr(skb)->source;
--		else
--			return;
--
--		key->tp.src = src;
--	} else {
--		__be16 dst;
--
--		key->ct_state |= OVS_CS_F_DST_NAT;
--		if (key->eth.type == htons(ETH_P_IP))
--			key->ipv4.addr.dst = ip_hdr(skb)->daddr;
--		else if (key->eth.type == htons(ETH_P_IPV6))
--			memcpy(&key->ipv6.addr.dst, &ipv6_hdr(skb)->daddr,
--			       sizeof(key->ipv6.addr.dst));
--		else
--			return;
--
--		if (key->ip.proto == IPPROTO_UDP)
--			dst = udp_hdr(skb)->dest;
--		else if (key->ip.proto == IPPROTO_TCP)
--			dst = tcp_hdr(skb)->dest;
--		else if (key->ip.proto == IPPROTO_SCTP)
--			dst = sctp_hdr(skb)->dest;
--		else
--			return;
-+	/* Update the flow key if NAT successful. */
-+	if (err == NF_ACCEPT)
-+		ovs_nat_update_key(key, skb, maniptype);
- 
--		key->tp.dst = dst;
--	}
-+	return err;
- }
- 
- /* Returns NF_DROP if the packet should be dropped, NF_ACCEPT otherwise. */
-@@ -906,7 +910,7 @@ static int ovs_ct_nat(struct net *net, struct sw_flow_key *key,
- 	} else {
- 		return NF_ACCEPT; /* Connection is not NATed. */
- 	}
--	err = ovs_ct_nat_execute(skb, ct, ctinfo, &info->range, maniptype);
-+	err = ovs_ct_nat_execute(skb, ct, ctinfo, &info->range, maniptype, key);
- 
- 	if (err == NF_ACCEPT && ct->status & IPS_DST_NAT) {
- 		if (ct->status & IPS_SRC_NAT) {
-@@ -916,17 +920,13 @@ static int ovs_ct_nat(struct net *net, struct sw_flow_key *key,
- 				maniptype = NF_NAT_MANIP_SRC;
- 
- 			err = ovs_ct_nat_execute(skb, ct, ctinfo, &info->range,
--						 maniptype);
-+						 maniptype, key);
- 		} else if (CTINFO2DIR(ctinfo) == IP_CT_DIR_ORIGINAL) {
- 			err = ovs_ct_nat_execute(skb, ct, ctinfo, NULL,
--						 NF_NAT_MANIP_SRC);
-+						 NF_NAT_MANIP_SRC, key);
+ 			/* Check 4G Boundary */
+-			start_addr = cpu_to_le64(dma_addr);
+-			end_addr = (start_addr + sata_cmd.enc_len) - 1;
+-			end_addr_low = cpu_to_le32(lower_32_bits(end_addr));
+-			end_addr_high = cpu_to_le32(upper_32_bits(end_addr));
+-			if (end_addr_high != sata_cmd.enc_addr_high) {
++			end_addr = dma_addr + le32_to_cpu(sata_cmd.enc_len) - 1;
++			end_addr_low = lower_32_bits(end_addr);
++			end_addr_high = upper_32_bits(end_addr);
++			if (end_addr_high != le32_to_cpu(sata_cmd.enc_addr_high)) {
+ 				pm8001_dbg(pm8001_ha, FAIL,
+ 					   "The sg list address start_addr=0x%016llx data_len=0x%x end_addr_high=0x%08x end_addr_low=0x%08x has crossed 4G boundary\n",
+-					   start_addr, sata_cmd.enc_len,
++					   dma_addr,
++					   le32_to_cpu(sata_cmd.enc_len),
+ 					   end_addr_high, end_addr_low);
+ 				pm8001_chip_make_sg(task->scatter, 1,
+ 					ccb->buf_prd);
+ 				phys_addr = ccb->ccb_dma_handle;
+ 				sata_cmd.enc_addr_low =
+-					lower_32_bits(phys_addr);
++					cpu_to_le32(lower_32_bits(phys_addr));
+ 				sata_cmd.enc_addr_high =
+-					upper_32_bits(phys_addr);
++					cpu_to_le32(upper_32_bits(phys_addr));
+ 				sata_cmd.enc_esgl =
+ 					cpu_to_le32(1 << 31);
+ 			}
+@@ -4645,7 +4651,8 @@ static int pm80xx_chip_sata_req(struct pm8001_hba_info *pm8001_ha,
+ 			sata_cmd.enc_esgl = 0;
  		}
+ 		/* XTS mode. All other fields are 0 */
+-		sata_cmd.key_index_mode = 0x6 << 4;
++		sata_cmd.key_index_mode = cpu_to_le32(0x6 << 4);
++
+ 		/* set tweak values. Should be the start lba */
+ 		sata_cmd.twk_val0 =
+ 			cpu_to_le32((sata_cmd.sata_fis.lbal_exp << 24) |
+@@ -4671,31 +4678,31 @@ static int pm80xx_chip_sata_req(struct pm8001_hba_info *pm8001_ha,
+ 			phys_addr = ccb->ccb_dma_handle;
+ 			sata_cmd.addr_low = lower_32_bits(phys_addr);
+ 			sata_cmd.addr_high = upper_32_bits(phys_addr);
+-			sata_cmd.esgl = cpu_to_le32(1 << 31);
++			sata_cmd.esgl = cpu_to_le32(1U << 31);
+ 		} else if (task->num_scatter == 1) {
+ 			u64 dma_addr = sg_dma_address(task->scatter);
++
+ 			sata_cmd.addr_low = lower_32_bits(dma_addr);
+ 			sata_cmd.addr_high = upper_32_bits(dma_addr);
+ 			sata_cmd.len = cpu_to_le32(task->total_xfer_len);
+ 			sata_cmd.esgl = 0;
++
+ 			/* Check 4G Boundary */
+-			start_addr = cpu_to_le64(dma_addr);
+-			end_addr = (start_addr + sata_cmd.len) - 1;
+-			end_addr_low = cpu_to_le32(lower_32_bits(end_addr));
+-			end_addr_high = cpu_to_le32(upper_32_bits(end_addr));
++			end_addr = dma_addr + le32_to_cpu(sata_cmd.len) - 1;
++			end_addr_low = lower_32_bits(end_addr);
++			end_addr_high = upper_32_bits(end_addr);
+ 			if (end_addr_high != sata_cmd.addr_high) {
+ 				pm8001_dbg(pm8001_ha, FAIL,
+ 					   "The sg list address start_addr=0x%016llx data_len=0x%xend_addr_high=0x%08x end_addr_low=0x%08x has crossed 4G boundary\n",
+-					   start_addr, sata_cmd.len,
++					   dma_addr,
++					   le32_to_cpu(sata_cmd.len),
+ 					   end_addr_high, end_addr_low);
+ 				pm8001_chip_make_sg(task->scatter, 1,
+ 					ccb->buf_prd);
+ 				phys_addr = ccb->ccb_dma_handle;
+-				sata_cmd.addr_low =
+-					lower_32_bits(phys_addr);
+-				sata_cmd.addr_high =
+-					upper_32_bits(phys_addr);
+-				sata_cmd.esgl = cpu_to_le32(1 << 31);
++				sata_cmd.addr_low = lower_32_bits(phys_addr);
++				sata_cmd.addr_high = upper_32_bits(phys_addr);
++				sata_cmd.esgl = cpu_to_le32(1U << 31);
+ 			}
+ 		} else if (task->num_scatter == 0) {
+ 			sata_cmd.addr_low = 0;
+@@ -4703,27 +4710,28 @@ static int pm80xx_chip_sata_req(struct pm8001_hba_info *pm8001_ha,
+ 			sata_cmd.len = cpu_to_le32(task->total_xfer_len);
+ 			sata_cmd.esgl = 0;
+ 		}
++
+ 		/* scsi cdb */
+ 		sata_cmd.atapi_scsi_cdb[0] =
+ 			cpu_to_le32(((task->ata_task.atapi_packet[0]) |
+-			(task->ata_task.atapi_packet[1] << 8) |
+-			(task->ata_task.atapi_packet[2] << 16) |
+-			(task->ata_task.atapi_packet[3] << 24)));
++				     (task->ata_task.atapi_packet[1] << 8) |
++				     (task->ata_task.atapi_packet[2] << 16) |
++				     (task->ata_task.atapi_packet[3] << 24)));
+ 		sata_cmd.atapi_scsi_cdb[1] =
+ 			cpu_to_le32(((task->ata_task.atapi_packet[4]) |
+-			(task->ata_task.atapi_packet[5] << 8) |
+-			(task->ata_task.atapi_packet[6] << 16) |
+-			(task->ata_task.atapi_packet[7] << 24)));
++				     (task->ata_task.atapi_packet[5] << 8) |
++				     (task->ata_task.atapi_packet[6] << 16) |
++				     (task->ata_task.atapi_packet[7] << 24)));
+ 		sata_cmd.atapi_scsi_cdb[2] =
+ 			cpu_to_le32(((task->ata_task.atapi_packet[8]) |
+-			(task->ata_task.atapi_packet[9] << 8) |
+-			(task->ata_task.atapi_packet[10] << 16) |
+-			(task->ata_task.atapi_packet[11] << 24)));
++				     (task->ata_task.atapi_packet[9] << 8) |
++				     (task->ata_task.atapi_packet[10] << 16) |
++				     (task->ata_task.atapi_packet[11] << 24)));
+ 		sata_cmd.atapi_scsi_cdb[3] =
+ 			cpu_to_le32(((task->ata_task.atapi_packet[12]) |
+-			(task->ata_task.atapi_packet[13] << 8) |
+-			(task->ata_task.atapi_packet[14] << 16) |
+-			(task->ata_task.atapi_packet[15] << 24)));
++				     (task->ata_task.atapi_packet[13] << 8) |
++				     (task->ata_task.atapi_packet[14] << 16) |
++				     (task->ata_task.atapi_packet[15] << 24)));
  	}
  
--	/* Mark NAT done if successful and update the flow key. */
--	if (err == NF_ACCEPT)
--		ovs_nat_update_key(key, skb, maniptype);
--
- 	return err;
- }
- #else /* !CONFIG_NF_NAT */
+ 	/* Check for read log for failed drive and return */
 -- 
 2.34.1
 
