@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D11654F2DCE
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:47:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D1AA24F2D51
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:36:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343781AbiDEJMx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:12:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50832 "EHLO
+        id S1345122AbiDEKkp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:40:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50320 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244882AbiDEIwp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:45 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A300623BF5;
-        Tue,  5 Apr 2022 01:45:28 -0700 (PDT)
+        with ESMTP id S244363AbiDEJlP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:41:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB6E79682D;
+        Tue,  5 Apr 2022 02:26:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 47C08B81BAE;
-        Tue,  5 Apr 2022 08:45:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8284CC385A0;
-        Tue,  5 Apr 2022 08:45:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8701361659;
+        Tue,  5 Apr 2022 09:26:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8CE6BC385A2;
+        Tue,  5 Apr 2022 09:26:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148325;
-        bh=G+dpt/CHyJptW+Y2sRkZveVurfZhzw2Rf/ij93P3riA=;
+        s=korg; t=1649150774;
+        bh=LhUdYwK+yijx9j6jaivm7tHTIZ57ZeqRqUb+Y3YUgMg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B6p6ClOrU+W9k0sQIFAu2N4dlmNkotAXvmnPrYJ47RRmyM9wR7jNSo41mVHzAbC4B
-         a6ytlMYQGinTadipM8MmcvU8Fl9mJUC+XQgJ630HczVme6FhaHS0QBterqwANgKp41
-         uwBxKw6wqavHGMAZVTF2CKtOI/kJcxZNypUUeYRI=
+        b=zyNZM+597kgtBJgDXDmT+ZOmxysETN3Hp/6OtcVJydSgkOVxm1ctIpiq02kpFlR0F
+         ipwoyOhbiZ6mlb2EKUJSb4GxjXWRvinKDkwfNZntkZYfyZCO9y/mrNJ6b2VTPzVq4I
+         Keb70An6By722OnBrVxKLw7MIr/oMSAZMMhpvxcg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Konrad Dybcio <konrad.dybcio@somainline.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0317/1017] arm64: dts: qcom: sm8250: fix PCIe bindings to follow schema
-Date:   Tue,  5 Apr 2022 09:20:30 +0200
-Message-Id: <20220405070403.687973357@linuxfoundation.org>
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Naohiro Aota <naohiro.aota@wdc.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.15 169/913] btrfs: zoned: mark relocation as writing
+Date:   Tue,  5 Apr 2022 09:20:31 +0200
+Message-Id: <20220405070344.914093002@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,65 +55,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+From: Naohiro Aota <naohiro.aota@wdc.com>
 
-[ Upstream commit d60507200485bc778bf6a5556271d784ab09d913 ]
+commit ca5e4ea0beaec8bc674121838bf8614c089effb9 upstream.
 
-Replace (unused) enable-gpio binding with schema-defined wake-gpios. The
-GPIO line is still unused, but at least we'd follow the defined schema.
+There is a hung_task issue with running generic/068 on an SMR
+device. The hang occurs while a process is trying to thaw the
+filesystem. The process is trying to take sb->s_umount to thaw the
+FS. The lock is held by fsstress, which calls btrfs_sync_fs() and is
+waiting for an ordered extent to finish. However, as the FS is frozen,
+the ordered extents never finish.
 
-While we are at it, change perst-gpio property to follow the preferred
-naming schema (perst-gpios).
+Having an ordered extent while the FS is frozen is the root cause of
+the hang. The ordered extent is initiated from btrfs_relocate_chunk()
+which is called from btrfs_reclaim_bgs_work().
 
-Fixes: 13e948a36db7 ("arm64: dts: qcom: sm8250: Commonize PCIe pins")
-Cc: Konrad Dybcio <konrad.dybcio@somainline.org>
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20211214231448.2044987-1-dmitry.baryshkov@linaro.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This commit adds sb_*_write() around btrfs_relocate_chunk() call
+site. For the usual "btrfs balance" command, we already call it with
+mnt_want_file() in btrfs_ioctl_balance().
+
+Fixes: 18bb8bbf13c1 ("btrfs: zoned: automatically reclaim zones")
+CC: stable@vger.kernel.org # 5.13+
+Link: https://github.com/naota/linux/issues/56
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Signed-off-by: Naohiro Aota <naohiro.aota@wdc.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/boot/dts/qcom/sm8250.dtsi | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ fs/btrfs/block-group.c |    8 +++++++-
+ fs/btrfs/volumes.c     |    3 +++
+ 2 files changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/sm8250.dtsi b/arch/arm64/boot/dts/qcom/sm8250.dtsi
-index 8a3373c110fc..7d1ec0432020 100644
---- a/arch/arm64/boot/dts/qcom/sm8250.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sm8250.dtsi
-@@ -1426,8 +1426,8 @@
- 			phys = <&pcie0_lane>;
- 			phy-names = "pciephy";
+--- a/fs/btrfs/block-group.c
++++ b/fs/btrfs/block-group.c
+@@ -1504,8 +1504,12 @@ void btrfs_reclaim_bgs_work(struct work_
+ 	if (!test_bit(BTRFS_FS_OPEN, &fs_info->flags))
+ 		return;
  
--			perst-gpio = <&tlmm 79 GPIO_ACTIVE_LOW>;
--			enable-gpio = <&tlmm 81 GPIO_ACTIVE_HIGH>;
-+			perst-gpios = <&tlmm 79 GPIO_ACTIVE_LOW>;
-+			wake-gpios = <&tlmm 81 GPIO_ACTIVE_HIGH>;
+-	if (!btrfs_exclop_start(fs_info, BTRFS_EXCLOP_BALANCE))
++	sb_start_write(fs_info->sb);
++
++	if (!btrfs_exclop_start(fs_info, BTRFS_EXCLOP_BALANCE)) {
++		sb_end_write(fs_info->sb);
+ 		return;
++	}
  
- 			pinctrl-names = "default";
- 			pinctrl-0 = <&pcie0_default_state>;
-@@ -1530,8 +1530,8 @@
- 			phys = <&pcie1_lane>;
- 			phy-names = "pciephy";
+ 	/*
+ 	 * Long running balances can keep us blocked here for eternity, so
+@@ -1513,6 +1517,7 @@ void btrfs_reclaim_bgs_work(struct work_
+ 	 */
+ 	if (!mutex_trylock(&fs_info->reclaim_bgs_lock)) {
+ 		btrfs_exclop_finish(fs_info);
++		sb_end_write(fs_info->sb);
+ 		return;
+ 	}
  
--			perst-gpio = <&tlmm 82 GPIO_ACTIVE_LOW>;
--			enable-gpio = <&tlmm 84 GPIO_ACTIVE_HIGH>;
-+			perst-gpios = <&tlmm 82 GPIO_ACTIVE_LOW>;
-+			wake-gpios = <&tlmm 84 GPIO_ACTIVE_HIGH>;
+@@ -1581,6 +1586,7 @@ next:
+ 	spin_unlock(&fs_info->unused_bgs_lock);
+ 	mutex_unlock(&fs_info->reclaim_bgs_lock);
+ 	btrfs_exclop_finish(fs_info);
++	sb_end_write(fs_info->sb);
+ }
  
- 			pinctrl-names = "default";
- 			pinctrl-0 = <&pcie1_default_state>;
-@@ -1636,8 +1636,8 @@
- 			phys = <&pcie2_lane>;
- 			phy-names = "pciephy";
+ void btrfs_reclaim_bgs(struct btrfs_fs_info *fs_info)
+--- a/fs/btrfs/volumes.c
++++ b/fs/btrfs/volumes.c
+@@ -8185,10 +8185,12 @@ static int relocating_repair_kthread(voi
+ 	target = cache->start;
+ 	btrfs_put_block_group(cache);
  
--			perst-gpio = <&tlmm 85 GPIO_ACTIVE_LOW>;
--			enable-gpio = <&tlmm 87 GPIO_ACTIVE_HIGH>;
-+			perst-gpios = <&tlmm 85 GPIO_ACTIVE_LOW>;
-+			wake-gpios = <&tlmm 87 GPIO_ACTIVE_HIGH>;
++	sb_start_write(fs_info->sb);
+ 	if (!btrfs_exclop_start(fs_info, BTRFS_EXCLOP_BALANCE)) {
+ 		btrfs_info(fs_info,
+ 			   "zoned: skip relocating block group %llu to repair: EBUSY",
+ 			   target);
++		sb_end_write(fs_info->sb);
+ 		return -EBUSY;
+ 	}
  
- 			pinctrl-names = "default";
- 			pinctrl-0 = <&pcie2_default_state>;
--- 
-2.34.1
-
+@@ -8216,6 +8218,7 @@ out:
+ 		btrfs_put_block_group(cache);
+ 	mutex_unlock(&fs_info->reclaim_bgs_lock);
+ 	btrfs_exclop_finish(fs_info);
++	sb_end_write(fs_info->sb);
+ 
+ 	return ret;
+ }
 
 
