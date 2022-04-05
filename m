@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 277754F3069
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:27:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4671E4F3324
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:13:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237665AbiDEInE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:43:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45840 "EHLO
+        id S1353722AbiDEKJC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:09:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44282 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241003AbiDEIcn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:32:43 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA719AF1FF;
-        Tue,  5 Apr 2022 01:25:52 -0700 (PDT)
+        with ESMTP id S1345314AbiDEJWZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:22:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A43C43389;
+        Tue,  5 Apr 2022 02:10:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E5F20B81BC1;
-        Tue,  5 Apr 2022 08:25:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45E61C385A2;
-        Tue,  5 Apr 2022 08:25:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9070C614FC;
+        Tue,  5 Apr 2022 09:10:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9930AC385A0;
+        Tue,  5 Apr 2022 09:10:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147149;
-        bh=iq8AqRU800SkK5yV2TAoTB1ZOPRUbNaL+4tPg++3X4Y=;
+        s=korg; t=1649149824;
+        bh=jpH1FFqHwA9Rcvx435BbU8+Ijry2x5lxT/g9E4on9Sg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q1LxRMsd7z8j0F4S83IcPTmq3TZW1Um8fql7FzzqpIxogP7jYDkoeBvhhV14XkxQY
-         tanGcWWIdah7V4XlZdpwgsJeEDYhZTjYyvVqRjEOePT3UW2/7p3u5Rn5FmFsGgG/km
-         SdNjcyUnkXrRxaIcelNXesysDoznWktlLx8Lm6cw=
+        b=jxOtjWoivyK8oriC7ruazGHIU1QBCQCm7ioTEnR6Oarh9vt5UhRp90055mJLIriWk
+         oj9ofKr2fbaZWHXU4s0JvNHWcAauNt+S4ToefpoEq5dSK4VcLop82LbPXYv/Rc63Fo
+         I9tc5exSNNl2JUl/xENIWoMS7IHOkF8Kls4cUEIg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.17 1020/1126] can: mcba_usb: mcba_usb_start_xmit(): fix double dev_kfree_skb in error path
+        stable@vger.kernel.org, Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0854/1017] mmc: host: Return an error when ->enable_sdio_irq() ops is missing
 Date:   Tue,  5 Apr 2022 09:29:27 +0200
-Message-Id: <20220405070437.424550501@linuxfoundation.org>
+Message-Id: <20220405070419.586137766@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,32 +53,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangyu Hua <hbh25y@gmail.com>
+From: Ulf Hansson <ulf.hansson@linaro.org>
 
-commit 04c9b00ba83594a29813d6b1fb8fdc93a3915174 upstream.
+[ Upstream commit d6c9219ca1139b74541b2a98cee47a3426d754a9 ]
 
-There is no need to call dev_kfree_skb() when usb_submit_urb() fails
-because can_put_echo_skb() deletes original skb and
-can_free_echo_skb() deletes the cloned skb.
+Even if the current WARN() notifies the user that something is severely
+wrong, we can still end up in a PANIC() when trying to invoke the missing
+->enable_sdio_irq() ops. Therefore, let's also return an error code and
+prevent the host from being added.
 
-Fixes: 51f3baad7de9 ("can: mcba_usb: Add support for Microchip CAN BUS Analyzer")
-Link: https://lore.kernel.org/all/20220311080208.45047-1-hbh25y@gmail.com
-Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+While at it, move the code into a separate function to prepare for
+subsequent changes and for further host caps validations.
+
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Link: https://lore.kernel.org/r/20220303165142.129745-1-ulf.hansson@linaro.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/usb/mcba_usb.c |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/mmc/core/host.c | 15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
 
---- a/drivers/net/can/usb/mcba_usb.c
-+++ b/drivers/net/can/usb/mcba_usb.c
-@@ -364,7 +364,6 @@ static netdev_tx_t mcba_usb_start_xmit(s
- xmit_failed:
- 	can_free_echo_skb(priv->netdev, ctx->ndx, NULL);
- 	mcba_usb_free_ctx(ctx);
--	dev_kfree_skb(skb);
- 	stats->tx_dropped++;
+diff --git a/drivers/mmc/core/host.c b/drivers/mmc/core/host.c
+index cf140f4ec864..d739e2b631fe 100644
+--- a/drivers/mmc/core/host.c
++++ b/drivers/mmc/core/host.c
+@@ -588,6 +588,16 @@ struct mmc_host *mmc_alloc_host(int extra, struct device *dev)
  
- 	return NETDEV_TX_OK;
+ EXPORT_SYMBOL(mmc_alloc_host);
+ 
++static int mmc_validate_host_caps(struct mmc_host *host)
++{
++	if (host->caps & MMC_CAP_SDIO_IRQ && !host->ops->enable_sdio_irq) {
++		dev_warn(host->parent, "missing ->enable_sdio_irq() ops\n");
++		return -EINVAL;
++	}
++
++	return 0;
++}
++
+ /**
+  *	mmc_add_host - initialise host hardware
+  *	@host: mmc host
+@@ -600,8 +610,9 @@ int mmc_add_host(struct mmc_host *host)
+ {
+ 	int err;
+ 
+-	WARN_ON((host->caps & MMC_CAP_SDIO_IRQ) &&
+-		!host->ops->enable_sdio_irq);
++	err = mmc_validate_host_caps(host);
++	if (err)
++		return err;
+ 
+ 	err = device_add(&host->class_dev);
+ 	if (err)
+-- 
+2.34.1
+
 
 
