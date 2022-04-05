@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC76A4F4246
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:42:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED5EE4F419D
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:33:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349232AbiDEMHp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:07:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50656 "EHLO
+        id S1380423AbiDEMND (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:13:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50042 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358041AbiDEK15 (ORCPT
+        with ESMTP id S1358068AbiDEK15 (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:27:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 310D818B04;
-        Tue,  5 Apr 2022 03:13:32 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 603C13BBEC;
+        Tue,  5 Apr 2022 03:14:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D6B01B81C88;
-        Tue,  5 Apr 2022 10:13:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F2D9C385A0;
-        Tue,  5 Apr 2022 10:13:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0C4DCB81C6C;
+        Tue,  5 Apr 2022 10:14:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5ADE2C385A0;
+        Tue,  5 Apr 2022 10:14:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153609;
-        bh=WyeADXdrlcdcxuQs7Rbvfpn+khMbsrZAVeSDN+p9oSc=;
+        s=korg; t=1649153659;
+        bh=D9I+rGgfR4xsdgyZ9tEUcIy10T7OjvR2xyL8W/yW+GE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Znc3WUF3UbjAk7DTFvRM1IwjadMuH9P2ps5B/B+08AVwPxg08LC74xTdYk/LiZY/o
-         bO60xhqZM2zdC8PHqndI5Ul7ocjQRPiGp85iuyK98esc0okoYBrl/P6lF5WW/hw8fU
-         pHa/3xOvCL3lWPdGIoeRfN2tGlm94ITo+EkALWLE=
+        b=POtDXnvmlg3r2a7Oq1Z4h9Z8l5rsi14UKuh35Sd4A46YMMM/RIft13OV69t6RHXPg
+         C9VykEwgbmA1ONHJoDAuXnclt4POJj9XkW+M0JUImFAl8YHPGTUsAgSA1iwRwf75Jx
+         4H8HYvqLMxKqQReqWp8Uclm4c6eRukW9QskDClRM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jesper Dangaard Brouer <brouer@redhat.com>,
-        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
-        Alexander Lobakin <alexandr.lobakin@intel.com>,
-        Michal Swiatkowski <michal.swiatkowski@linux.intel.com>,
-        Kiran Bhandare <kiranx.bhandare@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Maxim Kiselev <bigunclemax@gmail.com>,
+        Maxim Kochetkov <fido_max@inbox.ru>,
+        Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 281/599] i40e: respect metadata on XSK Rx to skb
-Date:   Tue,  5 Apr 2022 09:29:35 +0200
-Message-Id: <20220405070307.197428318@linuxfoundation.org>
+Subject: [PATCH 5.10 284/599] powerpc: dts: t1040rdb: fix ports names for Seville Ethernet switch
+Date:   Tue,  5 Apr 2022 09:29:38 +0200
+Message-Id: <20220405070307.287328947@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -58,66 +56,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Lobakin <alexandr.lobakin@intel.com>
+From: Maxim Kiselev <bigunclemax@gmail.com>
 
-[ Upstream commit 6dba29537c0f639b482bd8f8bbd50ab4ae74b48d ]
+[ Upstream commit 5ebb74749202a25da4b3cc2eb15470225a05527c ]
 
-For now, if the XDP prog returns XDP_PASS on XSK, the metadata will
-be lost as it doesn't get copied to the skb.
+On board rev A, the network interface labels for the switch ports
+written on the front panel are different than on rev B and later.
 
-Copy it along with the frame headers. Account its size on skb
-allocation, and when copying just treat it as a part of the frame
-and do a pull after to "move" it to the "reserved" zone.
+This patch fixes network interface names for the switch ports according
+to labels that are written on the front panel of the board rev B.
+They start from ETH3 and end at ETH10.
 
-net_prefetch() xdp->data_meta and align the copy size to speed-up
-memcpy() a little and better match i40e_construct_skb().
+This patch also introduces a separate device tree for rev A.
+The main device tree is supposed to cover rev B and later.
 
-Fixes: 0a714186d3c0 ("i40e: add AF_XDP zero-copy Rx support")
-Suggested-by: Jesper Dangaard Brouer <brouer@redhat.com>
-Suggested-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
-Signed-off-by: Alexander Lobakin <alexandr.lobakin@intel.com>
-Reviewed-by: Michal Swiatkowski <michal.swiatkowski@linux.intel.com>
-Tested-by: Kiran Bhandare <kiranx.bhandare@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: e69eb0824d8c ("powerpc: dts: t1040rdb: add ports for Seville Ethernet switch")
+Signed-off-by: Maxim Kiselev <bigunclemax@gmail.com>
+Reviewed-by: Maxim Kochetkov <fido_max@inbox.ru>
+Reviewed-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220121091447.3412907-1-bigunclemax@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_xsk.c | 14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ arch/powerpc/boot/dts/fsl/t1040rdb-rev-a.dts | 30 ++++++++++++++++++++
+ arch/powerpc/boot/dts/fsl/t1040rdb.dts       |  8 +++---
+ 2 files changed, 34 insertions(+), 4 deletions(-)
+ create mode 100644 arch/powerpc/boot/dts/fsl/t1040rdb-rev-a.dts
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_xsk.c b/drivers/net/ethernet/intel/i40e/i40e_xsk.c
-index d444e38360c1..75e4a698c3db 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_xsk.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_xsk.c
-@@ -247,19 +247,25 @@ bool i40e_alloc_rx_buffers_zc(struct i40e_ring *rx_ring, u16 count)
- static struct sk_buff *i40e_construct_skb_zc(struct i40e_ring *rx_ring,
- 					     struct xdp_buff *xdp)
- {
-+	unsigned int totalsize = xdp->data_end - xdp->data_meta;
- 	unsigned int metasize = xdp->data - xdp->data_meta;
--	unsigned int datasize = xdp->data_end - xdp->data;
- 	struct sk_buff *skb;
- 
-+	net_prefetch(xdp->data_meta);
+diff --git a/arch/powerpc/boot/dts/fsl/t1040rdb-rev-a.dts b/arch/powerpc/boot/dts/fsl/t1040rdb-rev-a.dts
+new file mode 100644
+index 000000000000..73f8c998c64d
+--- /dev/null
++++ b/arch/powerpc/boot/dts/fsl/t1040rdb-rev-a.dts
+@@ -0,0 +1,30 @@
++// SPDX-License-Identifier: GPL-2.0-or-later
++/*
++ * T1040RDB-REV-A Device Tree Source
++ *
++ * Copyright 2014 - 2015 Freescale Semiconductor Inc.
++ *
++ */
 +
- 	/* allocate a skb to store the frags */
--	skb = __napi_alloc_skb(&rx_ring->q_vector->napi, datasize,
-+	skb = __napi_alloc_skb(&rx_ring->q_vector->napi, totalsize,
- 			       GFP_ATOMIC | __GFP_NOWARN);
- 	if (unlikely(!skb))
- 		return NULL;
- 
--	memcpy(__skb_put(skb, datasize), xdp->data, datasize);
--	if (metasize)
-+	memcpy(__skb_put(skb, totalsize), xdp->data_meta,
-+	       ALIGN(totalsize, sizeof(long)));
++#include "t1040rdb.dts"
 +
-+	if (metasize) {
- 		skb_metadata_set(skb, metasize);
-+		__skb_pull(skb, metasize);
-+	}
++/ {
++	model = "fsl,T1040RDB-REV-A";
++	compatible = "fsl,T1040RDB-REV-A";
++};
++
++&seville_port0 {
++	label = "ETH5";
++};
++
++&seville_port2 {
++	label = "ETH7";
++};
++
++&seville_port4 {
++	label = "ETH9";
++};
++
++&seville_port6 {
++	label = "ETH11";
++};
+diff --git a/arch/powerpc/boot/dts/fsl/t1040rdb.dts b/arch/powerpc/boot/dts/fsl/t1040rdb.dts
+index af0c8a6f5613..b6733e7e6580 100644
+--- a/arch/powerpc/boot/dts/fsl/t1040rdb.dts
++++ b/arch/powerpc/boot/dts/fsl/t1040rdb.dts
+@@ -119,7 +119,7 @@
+ 	managed = "in-band-status";
+ 	phy-handle = <&phy_qsgmii_0>;
+ 	phy-mode = "qsgmii";
+-	label = "ETH5";
++	label = "ETH3";
+ 	status = "okay";
+ };
  
- 	xsk_buff_free(xdp);
- 	return skb;
+@@ -135,7 +135,7 @@
+ 	managed = "in-band-status";
+ 	phy-handle = <&phy_qsgmii_2>;
+ 	phy-mode = "qsgmii";
+-	label = "ETH7";
++	label = "ETH5";
+ 	status = "okay";
+ };
+ 
+@@ -151,7 +151,7 @@
+ 	managed = "in-band-status";
+ 	phy-handle = <&phy_qsgmii_4>;
+ 	phy-mode = "qsgmii";
+-	label = "ETH9";
++	label = "ETH7";
+ 	status = "okay";
+ };
+ 
+@@ -167,7 +167,7 @@
+ 	managed = "in-band-status";
+ 	phy-handle = <&phy_qsgmii_6>;
+ 	phy-mode = "qsgmii";
+-	label = "ETH11";
++	label = "ETH9";
+ 	status = "okay";
+ };
+ 
 -- 
 2.34.1
 
