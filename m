@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B61C4F37BD
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:24:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 344BE4F3AEE
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:06:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359486AbiDELT3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:19:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39344 "EHLO
+        id S244885AbiDELuI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:50:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42166 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349165AbiDEJtQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:16 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DEFB64CC;
-        Tue,  5 Apr 2022 02:41:57 -0700 (PDT)
+        with ESMTP id S1356081AbiDEKWw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:22:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83749B0A4E;
+        Tue,  5 Apr 2022 03:05:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id CD357CE1C99;
-        Tue,  5 Apr 2022 09:41:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9E36C385A2;
-        Tue,  5 Apr 2022 09:41:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1EA886167E;
+        Tue,  5 Apr 2022 10:05:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 212E7C385A1;
+        Tue,  5 Apr 2022 10:05:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151714;
-        bh=68lRu9Iwrr+Nxnuvq2RnpXFUx1MpHDRgecROVpoboCI=;
+        s=korg; t=1649153157;
+        bh=o4/uCDFOiPoentGHBOsBJhXAVLVr9+YO14P1/ZT+Y2g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SGKP+lB5w5n7cmz1ZKYelxqhXLre0bPjv3onlIanLfBeMZc/wkCulMZX4W5/KLN7s
-         9sXqRZM49osGctuSYIXvrDqLTQPsFVoOe5yk9orKOG6o6CB+1ppjFDydFFHPpyhv6/
-         DGQSNaChgEdVkCyMJMDelHx/ntfjckuaPGnsdCXM=
+        b=iDpu8xY0oxL6tNyYLyICQ1Y93UiBl2b6St+vxL+wMvBrzmOInP7zrePTYD9w0OswK
+         N2FHLg0MOMwdDp7O6vhF58XpFji5fya+Zl9A7tSXEJa6SzWalXNidPSUVaVrtuM9VG
+         Q71CYUaBjntUeIu7ARhfh6Li8DLSm6yiWDiI0olE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
-        Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 515/913] IB/hfi1: Allow larger MTU without AIP
+        stable@vger.kernel.org, Willem de Bruijn <willemb@google.com>,
+        Xin Long <lucien.xin@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Antonio Quartulli <antonio@openvpn.net>
+Subject: [PATCH 5.10 083/599] udp: call udp_encap_enable for v6 sockets when enabling encap
 Date:   Tue,  5 Apr 2022 09:26:17 +0200
-Message-Id: <20220405070355.290973807@linuxfoundation.org>
+Message-Id: <20220405070301.296870531@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070258.802373272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,46 +55,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-[ Upstream commit b135e324d7a2e7fa0a7ef925076136e799b79f44 ]
+commit a4a600dd301ccde6ea239804ec1f19364a39d643 upstream.
 
-The AIP code signals the phys_mtu in the following query_port()
-fragment:
+When enabling encap for a ipv6 socket without udp_encap_needed_key
+increased, UDP GRO won't work for v4 mapped v6 address packets as
+sk will be NULL in udp4_gro_receive().
 
-	props->phys_mtu = HFI1_CAP_IS_KSET(AIP) ? hfi1_max_mtu :
-				ib_mtu_enum_to_int(props->max_mtu);
+This patch is to enable it by increasing udp_encap_needed_key for
+v6 sockets in udp_tunnel_encap_enable(), and correspondingly
+decrease udp_encap_needed_key in udpv6_destroy_sock().
 
-Using the largest MTU possible should not depend on AIP.
+v1->v2:
+  - add udp_encap_disable() and export it.
+v2->v3:
+  - add the change for rxrpc and bareudp into one patch, as Alex
+    suggested.
+v3->v4:
+  - move rxrpc part to another patch.
 
-Fix by unconditionally using the hfi1_max_mtu value.
-
-Fixes: 6d72344cf6c4 ("IB/ipoib: Increase ipoib Datagram mode MTU's upper limit")
-Link: https://lore.kernel.org/r/1644348309-174874-1-git-send-email-mike.marciniszyn@cornelisnetworks.com
-Reviewed-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
-Signed-off-by: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Acked-by: Willem de Bruijn <willemb@google.com>
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Tested-by: Antonio Quartulli <antonio@openvpn.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/hw/hfi1/verbs.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/net/bareudp.c    |    6 ------
+ include/net/udp.h        |    1 +
+ include/net/udp_tunnel.h |    3 +--
+ net/ipv4/udp.c           |    6 ++++++
+ net/ipv6/udp.c           |    4 +++-
+ 5 files changed, 11 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/infiniband/hw/hfi1/verbs.c b/drivers/infiniband/hw/hfi1/verbs.c
-index 26bea51869bf..ef8e0bdacb51 100644
---- a/drivers/infiniband/hw/hfi1/verbs.c
-+++ b/drivers/infiniband/hw/hfi1/verbs.c
-@@ -1397,8 +1397,7 @@ static int query_port(struct rvt_dev_info *rdi, u32 port_num,
- 				      4096 : hfi1_max_mtu), IB_MTU_4096);
- 	props->active_mtu = !valid_ib_mtu(ppd->ibmtu) ? props->max_mtu :
- 		mtu_to_enum(ppd->ibmtu, IB_MTU_4096);
--	props->phys_mtu = HFI1_CAP_IS_KSET(AIP) ? hfi1_max_mtu :
--				ib_mtu_enum_to_int(props->max_mtu);
-+	props->phys_mtu = hfi1_max_mtu;
+--- a/drivers/net/bareudp.c
++++ b/drivers/net/bareudp.c
+@@ -246,12 +246,6 @@ static int bareudp_socket_create(struct
+ 	tunnel_cfg.encap_destroy = NULL;
+ 	setup_udp_tunnel_sock(bareudp->net, sock, &tunnel_cfg);
  
+-	/* As the setup_udp_tunnel_sock does not call udp_encap_enable if the
+-	 * socket type is v6 an explicit call to udp_encap_enable is needed.
+-	 */
+-	if (sock->sk->sk_family == AF_INET6)
+-		udp_encap_enable();
+-
+ 	rcu_assign_pointer(bareudp->sock, sock);
  	return 0;
  }
--- 
-2.34.1
-
+--- a/include/net/udp.h
++++ b/include/net/udp.h
+@@ -467,6 +467,7 @@ void udp_init(void);
+ 
+ DECLARE_STATIC_KEY_FALSE(udp_encap_needed_key);
+ void udp_encap_enable(void);
++void udp_encap_disable(void);
+ #if IS_ENABLED(CONFIG_IPV6)
+ DECLARE_STATIC_KEY_FALSE(udpv6_encap_needed_key);
+ void udpv6_encap_enable(void);
+--- a/include/net/udp_tunnel.h
++++ b/include/net/udp_tunnel.h
+@@ -177,9 +177,8 @@ static inline void udp_tunnel_encap_enab
+ #if IS_ENABLED(CONFIG_IPV6)
+ 	if (sock->sk->sk_family == PF_INET6)
+ 		ipv6_stub->udpv6_encap_enable();
+-	else
+ #endif
+-		udp_encap_enable();
++	udp_encap_enable();
+ }
+ 
+ #define UDP_TUNNEL_NIC_MAX_TABLES	4
+--- a/net/ipv4/udp.c
++++ b/net/ipv4/udp.c
+@@ -598,6 +598,12 @@ void udp_encap_enable(void)
+ }
+ EXPORT_SYMBOL(udp_encap_enable);
+ 
++void udp_encap_disable(void)
++{
++	static_branch_dec(&udp_encap_needed_key);
++}
++EXPORT_SYMBOL(udp_encap_disable);
++
+ /* Handler for tunnels with arbitrary destination ports: no socket lookup, go
+  * through error handlers in encapsulations looking for a match.
+  */
+--- a/net/ipv6/udp.c
++++ b/net/ipv6/udp.c
+@@ -1610,8 +1610,10 @@ void udpv6_destroy_sock(struct sock *sk)
+ 			if (encap_destroy)
+ 				encap_destroy(sk);
+ 		}
+-		if (up->encap_enabled)
++		if (up->encap_enabled) {
+ 			static_branch_dec(&udpv6_encap_needed_key);
++			udp_encap_disable();
++		}
+ 	}
+ 
+ 	inet6_destroy_sock(sk);
 
 
