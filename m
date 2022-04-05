@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 83F1E4F348D
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:38:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C76A4F361C
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:56:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235344AbiDEJ3r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:29:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59238 "EHLO
+        id S243728AbiDEK6g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:58:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39988 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245152AbiDEIyM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:54:12 -0400
+        with ESMTP id S1346806AbiDEJpe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:45:34 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9905910F6;
-        Tue,  5 Apr 2022 01:51:36 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A83CEDB4B2;
+        Tue,  5 Apr 2022 02:31:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1871161509;
-        Tue,  5 Apr 2022 08:51:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A9E8C385A1;
-        Tue,  5 Apr 2022 08:51:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 423DC616D0;
+        Tue,  5 Apr 2022 09:31:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F8D0C385A2;
+        Tue,  5 Apr 2022 09:31:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148695;
-        bh=D9I+rGgfR4xsdgyZ9tEUcIy10T7OjvR2xyL8W/yW+GE=;
+        s=korg; t=1649151114;
+        bh=eIB39AuYfMv7/dOoRYbpwMOskBu3O3oBQZzQtqt0XPA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NDwJeK4gv3WlYA3uqrwioFBiMGy5vF39UGhaskuILMAR7/y2hxnjC1XWacSMm3Hll
-         YSxpW1SYRFmrrBFRSFzCWv828vuaMt7zphpm0vqq8nkdGB43EGuSlL0Acdl+rI6NFK
-         axpQgo6MdlSY1E1UGrlToLtcM5/QloRh3SlFieZU=
+        b=MYVCFVMHB/VQ9mOePD8+WnxM4f4vdGEjnDdRayuaBd0nEFoRAQxR+25fONCAxwlYk
+         7KST5ukAiYIkI8q/PxnYQ6lxxYO1lA9IwwpHgEaPRNVYjscP99GHJUito9L6rRinfy
+         MabyIuWtezJa/p1GnSV0RBc9ZLtjkq8I8UtgACCo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Kiselev <bigunclemax@gmail.com>,
-        Maxim Kochetkov <fido_max@inbox.ru>,
-        Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0448/1017] powerpc: dts: t1040rdb: fix ports names for Seville Ethernet switch
-Date:   Tue,  5 Apr 2022 09:22:41 +0200
-Message-Id: <20220405070407.596314773@linuxfoundation.org>
+Subject: [PATCH 5.15 300/913] arm64: dts: qcom: sm8250: fix PCIe bindings to follow schema
+Date:   Tue,  5 Apr 2022 09:22:42 +0200
+Message-Id: <20220405070348.848895198@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,109 +56,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Kiselev <bigunclemax@gmail.com>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-[ Upstream commit 5ebb74749202a25da4b3cc2eb15470225a05527c ]
+[ Upstream commit d60507200485bc778bf6a5556271d784ab09d913 ]
 
-On board rev A, the network interface labels for the switch ports
-written on the front panel are different than on rev B and later.
+Replace (unused) enable-gpio binding with schema-defined wake-gpios. The
+GPIO line is still unused, but at least we'd follow the defined schema.
 
-This patch fixes network interface names for the switch ports according
-to labels that are written on the front panel of the board rev B.
-They start from ETH3 and end at ETH10.
+While we are at it, change perst-gpio property to follow the preferred
+naming schema (perst-gpios).
 
-This patch also introduces a separate device tree for rev A.
-The main device tree is supposed to cover rev B and later.
-
-Fixes: e69eb0824d8c ("powerpc: dts: t1040rdb: add ports for Seville Ethernet switch")
-Signed-off-by: Maxim Kiselev <bigunclemax@gmail.com>
-Reviewed-by: Maxim Kochetkov <fido_max@inbox.ru>
-Reviewed-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220121091447.3412907-1-bigunclemax@gmail.com
+Fixes: 13e948a36db7 ("arm64: dts: qcom: sm8250: Commonize PCIe pins")
+Cc: Konrad Dybcio <konrad.dybcio@somainline.org>
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20211214231448.2044987-1-dmitry.baryshkov@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/boot/dts/fsl/t1040rdb-rev-a.dts | 30 ++++++++++++++++++++
- arch/powerpc/boot/dts/fsl/t1040rdb.dts       |  8 +++---
- 2 files changed, 34 insertions(+), 4 deletions(-)
- create mode 100644 arch/powerpc/boot/dts/fsl/t1040rdb-rev-a.dts
+ arch/arm64/boot/dts/qcom/sm8250.dtsi | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/arch/powerpc/boot/dts/fsl/t1040rdb-rev-a.dts b/arch/powerpc/boot/dts/fsl/t1040rdb-rev-a.dts
-new file mode 100644
-index 000000000000..73f8c998c64d
---- /dev/null
-+++ b/arch/powerpc/boot/dts/fsl/t1040rdb-rev-a.dts
-@@ -0,0 +1,30 @@
-+// SPDX-License-Identifier: GPL-2.0-or-later
-+/*
-+ * T1040RDB-REV-A Device Tree Source
-+ *
-+ * Copyright 2014 - 2015 Freescale Semiconductor Inc.
-+ *
-+ */
-+
-+#include "t1040rdb.dts"
-+
-+/ {
-+	model = "fsl,T1040RDB-REV-A";
-+	compatible = "fsl,T1040RDB-REV-A";
-+};
-+
-+&seville_port0 {
-+	label = "ETH5";
-+};
-+
-+&seville_port2 {
-+	label = "ETH7";
-+};
-+
-+&seville_port4 {
-+	label = "ETH9";
-+};
-+
-+&seville_port6 {
-+	label = "ETH11";
-+};
-diff --git a/arch/powerpc/boot/dts/fsl/t1040rdb.dts b/arch/powerpc/boot/dts/fsl/t1040rdb.dts
-index af0c8a6f5613..b6733e7e6580 100644
---- a/arch/powerpc/boot/dts/fsl/t1040rdb.dts
-+++ b/arch/powerpc/boot/dts/fsl/t1040rdb.dts
-@@ -119,7 +119,7 @@
- 	managed = "in-band-status";
- 	phy-handle = <&phy_qsgmii_0>;
- 	phy-mode = "qsgmii";
--	label = "ETH5";
-+	label = "ETH3";
- 	status = "okay";
- };
+diff --git a/arch/arm64/boot/dts/qcom/sm8250.dtsi b/arch/arm64/boot/dts/qcom/sm8250.dtsi
+index d12e4cbfc852..249df91ff384 100644
+--- a/arch/arm64/boot/dts/qcom/sm8250.dtsi
++++ b/arch/arm64/boot/dts/qcom/sm8250.dtsi
+@@ -1434,8 +1434,8 @@
+ 			phys = <&pcie0_lane>;
+ 			phy-names = "pciephy";
  
-@@ -135,7 +135,7 @@
- 	managed = "in-band-status";
- 	phy-handle = <&phy_qsgmii_2>;
- 	phy-mode = "qsgmii";
--	label = "ETH7";
-+	label = "ETH5";
- 	status = "okay";
- };
+-			perst-gpio = <&tlmm 79 GPIO_ACTIVE_LOW>;
+-			enable-gpio = <&tlmm 81 GPIO_ACTIVE_HIGH>;
++			perst-gpios = <&tlmm 79 GPIO_ACTIVE_LOW>;
++			wake-gpios = <&tlmm 81 GPIO_ACTIVE_HIGH>;
  
-@@ -151,7 +151,7 @@
- 	managed = "in-band-status";
- 	phy-handle = <&phy_qsgmii_4>;
- 	phy-mode = "qsgmii";
--	label = "ETH9";
-+	label = "ETH7";
- 	status = "okay";
- };
+ 			pinctrl-names = "default";
+ 			pinctrl-0 = <&pcie0_default_state>;
+@@ -1538,8 +1538,8 @@
+ 			phys = <&pcie1_lane>;
+ 			phy-names = "pciephy";
  
-@@ -167,7 +167,7 @@
- 	managed = "in-band-status";
- 	phy-handle = <&phy_qsgmii_6>;
- 	phy-mode = "qsgmii";
--	label = "ETH11";
-+	label = "ETH9";
- 	status = "okay";
- };
+-			perst-gpio = <&tlmm 82 GPIO_ACTIVE_LOW>;
+-			enable-gpio = <&tlmm 84 GPIO_ACTIVE_HIGH>;
++			perst-gpios = <&tlmm 82 GPIO_ACTIVE_LOW>;
++			wake-gpios = <&tlmm 84 GPIO_ACTIVE_HIGH>;
  
+ 			pinctrl-names = "default";
+ 			pinctrl-0 = <&pcie1_default_state>;
+@@ -1644,8 +1644,8 @@
+ 			phys = <&pcie2_lane>;
+ 			phy-names = "pciephy";
+ 
+-			perst-gpio = <&tlmm 85 GPIO_ACTIVE_LOW>;
+-			enable-gpio = <&tlmm 87 GPIO_ACTIVE_HIGH>;
++			perst-gpios = <&tlmm 85 GPIO_ACTIVE_LOW>;
++			wake-gpios = <&tlmm 87 GPIO_ACTIVE_HIGH>;
+ 
+ 			pinctrl-names = "default";
+ 			pinctrl-0 = <&pcie2_default_state>;
 -- 
 2.34.1
 
