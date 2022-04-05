@@ -2,47 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FAB84F42CE
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:51:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 859884F4178
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:32:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381091AbiDEMO0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:14:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33008 "EHLO
+        id S238843AbiDEMSS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:18:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44586 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240264AbiDEKbi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:31:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 146C23BE;
-        Tue,  5 Apr 2022 03:18:31 -0700 (PDT)
+        with ESMTP id S240392AbiDEKcj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:32:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA7A9DE906;
+        Tue,  5 Apr 2022 03:18:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A3F5861777;
-        Tue,  5 Apr 2022 10:18:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B50EC385A2;
-        Tue,  5 Apr 2022 10:18:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 59CDE61777;
+        Tue,  5 Apr 2022 10:18:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4228CC385A1;
+        Tue,  5 Apr 2022 10:18:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153910;
-        bh=jdRZxhGVBh24b1pO4PjXneg0iSK34WICAWHCxcRCZRY=;
+        s=korg; t=1649153915;
+        bh=9PEFQguw30U1gpsVR7cU8RY0vR6P0NTVaLm1k7N31mQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ls9qXCY8u3E6s1z6AbJhKOcYTxGGyA8Lm5V4JflnJVGxcD4sUa5Ce13eOk/SawvmX
-         DJn6ZYcYR/J1XVNeR65zVDEsFmfBnIRgecL0vl42/o2LHVD11JN0KfNjnuIjImQxQx
-         F2Sbbb8D4ELKgt+0IRSCtWONR6tU1G8MW/TxcZCA=
+        b=SEPSUYsy+gRZzA7LJ/UWk6NdGeOPsfpe5HAViPJDRgMT47p5vJJeXGtsGnBr7070v
+         aVZXYPGWjC6r0rIhOpb3lhEk59BGAzo4s5S2UTy7sdayFrDss5YvYoq9Ah3HneGZuT
+         6UPNd0N+1C5aTYc70h/Io5hkdBKpUR8Fn8e+JEoM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrzej Hajda <andrzej.hajda@intel.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Laurent Pinchart <Laurent.pinchart@ideasonboard.com>,
-        Kishon Vijay Abraham I <kishon@ti.com>,
-        Vinod Koul <vkoul@kernel.org>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Maxime Ripard <mripard@kernel.org>,
-        =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>,
-        Liu Ying <victor.liu@nxp.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 391/599] phy: dphy: Correct lpx parameter and its derivatives(ta_{get,go,sure})
-Date:   Tue,  5 Apr 2022 09:31:25 +0200
-Message-Id: <20220405070310.466368441@linuxfoundation.org>
+        stable@vger.kernel.org, Qing Wang <wangqing@vivo.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 393/599] serial: 8250_lpss: Balance reference count for PCI DMA device
+Date:   Tue,  5 Apr 2022 09:31:27 +0200
+Message-Id: <20220405070310.526505829@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -60,64 +54,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liu Ying <victor.liu@nxp.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit 3153fa38e38af566cf6454a03b1dbadaf6f323c0 ]
+[ Upstream commit 5318f70da7e82649d794fc27d8a127c22aa3566e ]
 
-According to the comment of the function phy_mipi_dphy_get_default_config(),
-it uses minimum D-PHY timings based on MIPI D-PHY specification.  They are
-derived from the valid ranges specified in Section 6.9, Table 14, Page 41
-of the D-PHY specification (v1.2).  The table 14 explicitly mentions that
-the minimum T-LPX parameter is 50 nanoseconds and the minimum TA-SURE
-parameter is T-LPX nanoseconds.  Likewise, the kernel doc of the 'lpx' and
-'ta_sure' members of struct phy_configure_opts_mipi_dphy mentions that
-the minimum values are 50000 picoseconds and @lpx picoseconds respectively.
-Also, the function phy_mipi_dphy_config_validate() checks if cfg->lpx is
-less than 50000 picoseconds and if cfg->ta_sure is less than cfg->lpx,
-which hints the same minimum values.
+The pci_get_slot() increases its reference count, the caller
+must decrement the reference count by calling pci_dev_put().
 
-Without this patch, the function phy_mipi_dphy_get_default_config()
-wrongly sets cfg->lpx to 60000 picoseconds and cfg->ta_sure to 2 * cfg->lpx.
-So, let's correct them to 50000 picoseconds and cfg->lpx respectively.
-
-Note that I've only tested the patch with RM67191 DSI panel on i.MX8mq EVK.
-Help is needed to test with other i.MX8mq, Meson and Rockchip platforms,
-as I don't have the hardwares.
-
-Fixes: dddc97e82303 ("phy: dphy: Add configuration helpers")
-Cc: Andrzej Hajda <andrzej.hajda@intel.com>
-Cc: Neil Armstrong <narmstrong@baylibre.com>
-Cc: Laurent Pinchart <Laurent.pinchart@ideasonboard.com>
-Cc: Kishon Vijay Abraham I <kishon@ti.com>
-Cc: Vinod Koul <vkoul@kernel.org>
-Cc: Heiko Stuebner <heiko@sntech.de>
-Cc: Maxime Ripard <mripard@kernel.org>
-Cc: Guido Günther <agx@sigxcpu.org>
-Signed-off-by: Liu Ying <victor.liu@nxp.com>
-Link: https://lore.kernel.org/r/20220216071257.1647703-1-victor.liu@nxp.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: 9a1870ce812e ("serial: 8250: don't use slave_id of dma_slave_config")
+Depends-on: a13e19cf3dc1 ("serial: 8250_lpss: split LPSS driver to separate module")
+Reported-by: Qing Wang <wangqing@vivo.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20220223151240.70248-1-andriy.shevchenko@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/phy-core-mipi-dphy.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/tty/serial/8250/8250_lpss.c | 28 ++++++++++++++++++++++------
+ 1 file changed, 22 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/phy/phy-core-mipi-dphy.c b/drivers/phy/phy-core-mipi-dphy.c
-index 14e0551cd319..0aa740b73d0d 100644
---- a/drivers/phy/phy-core-mipi-dphy.c
-+++ b/drivers/phy/phy-core-mipi-dphy.c
-@@ -66,10 +66,10 @@ int phy_mipi_dphy_get_default_config(unsigned long pixel_clock,
- 	cfg->hs_trail = max(4 * 8 * ui, 60000 + 4 * 4 * ui);
+diff --git a/drivers/tty/serial/8250/8250_lpss.c b/drivers/tty/serial/8250/8250_lpss.c
+index 4dee8a9e0c95..dfb730b7ea2a 100644
+--- a/drivers/tty/serial/8250/8250_lpss.c
++++ b/drivers/tty/serial/8250/8250_lpss.c
+@@ -121,8 +121,7 @@ static int byt_serial_setup(struct lpss8250 *lpss, struct uart_port *port)
+ {
+ 	struct dw_dma_slave *param = &lpss->dma_param;
+ 	struct pci_dev *pdev = to_pci_dev(port->dev);
+-	unsigned int dma_devfn = PCI_DEVFN(PCI_SLOT(pdev->devfn), 0);
+-	struct pci_dev *dma_dev = pci_get_slot(pdev->bus, dma_devfn);
++	struct pci_dev *dma_dev;
  
- 	cfg->init = 100;
--	cfg->lpx = 60000;
-+	cfg->lpx = 50000;
- 	cfg->ta_get = 5 * cfg->lpx;
- 	cfg->ta_go = 4 * cfg->lpx;
--	cfg->ta_sure = 2 * cfg->lpx;
-+	cfg->ta_sure = cfg->lpx;
- 	cfg->wakeup = 1000;
+ 	switch (pdev->device) {
+ 	case PCI_DEVICE_ID_INTEL_BYT_UART1:
+@@ -141,6 +140,8 @@ static int byt_serial_setup(struct lpss8250 *lpss, struct uart_port *port)
+ 		return -EINVAL;
+ 	}
  
- 	cfg->hs_clk_rate = hs_clk_rate;
++	dma_dev = pci_get_slot(pdev->bus, PCI_DEVFN(PCI_SLOT(pdev->devfn), 0));
++
+ 	param->dma_dev = &dma_dev->dev;
+ 	param->m_master = 0;
+ 	param->p_master = 1;
+@@ -156,11 +157,26 @@ static int byt_serial_setup(struct lpss8250 *lpss, struct uart_port *port)
+ 	return 0;
+ }
+ 
++static void byt_serial_exit(struct lpss8250 *lpss)
++{
++	struct dw_dma_slave *param = &lpss->dma_param;
++
++	/* Paired with pci_get_slot() in the byt_serial_setup() above */
++	put_device(param->dma_dev);
++}
++
+ static int ehl_serial_setup(struct lpss8250 *lpss, struct uart_port *port)
+ {
+ 	return 0;
+ }
+ 
++static void ehl_serial_exit(struct lpss8250 *lpss)
++{
++	struct uart_8250_port *up = serial8250_get_port(lpss->data.line);
++
++	up->dma = NULL;
++}
++
+ #ifdef CONFIG_SERIAL_8250_DMA
+ static const struct dw_dma_platform_data qrk_serial_dma_pdata = {
+ 	.nr_channels = 2,
+@@ -335,8 +351,7 @@ static int lpss8250_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ 	return 0;
+ 
+ err_exit:
+-	if (lpss->board->exit)
+-		lpss->board->exit(lpss);
++	lpss->board->exit(lpss);
+ 	pci_free_irq_vectors(pdev);
+ 	return ret;
+ }
+@@ -347,8 +362,7 @@ static void lpss8250_remove(struct pci_dev *pdev)
+ 
+ 	serial8250_unregister_port(lpss->data.line);
+ 
+-	if (lpss->board->exit)
+-		lpss->board->exit(lpss);
++	lpss->board->exit(lpss);
+ 	pci_free_irq_vectors(pdev);
+ }
+ 
+@@ -356,12 +370,14 @@ static const struct lpss8250_board byt_board = {
+ 	.freq = 100000000,
+ 	.base_baud = 2764800,
+ 	.setup = byt_serial_setup,
++	.exit = byt_serial_exit,
+ };
+ 
+ static const struct lpss8250_board ehl_board = {
+ 	.freq = 200000000,
+ 	.base_baud = 12500000,
+ 	.setup = ehl_serial_setup,
++	.exit = ehl_serial_exit,
+ };
+ 
+ static const struct lpss8250_board qrk_board = {
 -- 
 2.34.1
 
