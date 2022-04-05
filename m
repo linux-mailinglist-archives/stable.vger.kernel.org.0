@@ -2,48 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 166424F2B33
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:09:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 17F994F2CE6
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:34:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347697AbiDEJ2K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:28:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46802 "EHLO
+        id S1344261AbiDEKjq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:39:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244780AbiDEIwi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00D36193FD;
-        Tue,  5 Apr 2022 01:43:50 -0700 (PDT)
+        with ESMTP id S241523AbiDEJgD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:36:03 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0CCD88B1F;
+        Tue,  5 Apr 2022 02:24:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8EEA3609D0;
-        Tue,  5 Apr 2022 08:43:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9EDC7C385A0;
-        Tue,  5 Apr 2022 08:43:49 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id CF0CDCE1C79;
+        Tue,  5 Apr 2022 09:24:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E57F4C385A2;
+        Tue,  5 Apr 2022 09:24:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148230;
-        bh=YJMAzVKAIvDjpbqE796gnbT2lDaRLxlz3gVlK0XQ2WI=;
+        s=korg; t=1649150654;
+        bh=zptyK2nimVICzBITahKX+tewufXiE/uNtdoF6Ehqy8I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RNc1vD10nphUMV9fYzRaftEATjyX6wNexwdtc9q/zc7ABcnANQ7FjZEJBCC2a0a+3
-         3vrrfJwoKIhAZgba+guqOkWpV6fTstu9hyIfpZav4Zfn4Rw1I2RANP7GEMyUS0W4kO
-         ILwlbCbLAqyvQYoaaL3pOAvDMk0UlhOkb8IFXfSE=
+        b=gfZBWHGvGCW4hooXkHaRRIF8Dca+DMF0fQb3VqiS8OYZhIW6xINZbNJ34nXC53c2Z
+         MRL9t7kcrOTb7EqA0DMXFgzmP/RNR4Su+WlCECkycIb7Ywr0psfOockqaKos1LMQxK
+         MVxl3vnFLp+I7qjINg39ALhsPWiXLGdWc/IYb2sc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonathan Marek <jonathan@marek.ca>,
-        Robert Foss <robert.foss@linaro.org>,
-        Julian Grahsl <jgrahsl@snap.com>,
-        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0281/1017] media: camss: csid-170: set the right HALT_CMD when disabled
-Date:   Tue,  5 Apr 2022 09:19:54 +0200
-Message-Id: <20220405070402.609281506@linuxfoundation.org>
+        stable@vger.kernel.org, Ye Bin <yebin10@huawei.com>,
+        stable@kernel.org, Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.15 133/913] ext4: fix fs corruption when tring to remove a non-empty directory with IO error
+Date:   Tue,  5 Apr 2022 09:19:55 +0200
+Message-Id: <20220405070343.817970285@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,55 +53,155 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Marek <jonathan@marek.ca>
+From: Ye Bin <yebin10@huawei.com>
 
-[ Upstream commit ee780cd7be3b5608550bafe7d5f113db2140e99b ]
+commit 7aab5c84a0f6ec2290e2ba4a6b245178b1bf949a upstream.
 
-Use the "HALT_CMD_RESUME_AT_FRAME_BOUNDARY" define instead of a "1" which
-is otherwise confusing, and add a "HALT_CMD_HALT_AT_FRAME_BOUNDARY" which
-is set when disabling.
+We inject IO error when rmdir non empty direcory, then got issue as follows:
+step1: mkfs.ext4 -F /dev/sda
+step2: mount /dev/sda  test
+step3: cd test
+step4: mkdir -p 1/2
+step5: rmdir 1
+	[  110.920551] ext4_empty_dir: inject fault
+	[  110.921926] EXT4-fs warning (device sda): ext4_rmdir:3113: inode #12:
+	comm rmdir: empty directory '1' has too many links (3)
+step6: cd ..
+step7: umount test
+step8: fsck.ext4 -f /dev/sda
+	e2fsck 1.42.9 (28-Dec-2013)
+	Pass 1: Checking inodes, blocks, and sizes
+	Pass 2: Checking directory structure
+	Entry '..' in .../??? (13) has deleted/unused inode 12.  Clear<y>? yes
+	Pass 3: Checking directory connectivity
+	Unconnected directory inode 13 (...)
+	Connect to /lost+found<y>? yes
+	Pass 4: Checking reference counts
+	Inode 13 ref count is 3, should be 2.  Fix<y>? yes
+	Pass 5: Checking group summary information
 
-Fixes: eebe6d00e9bf ("media: camss: Add support for CSID hardware version Titan 170")
-Signed-off-by: Jonathan Marek <jonathan@marek.ca>
-Reviewed-by: Robert Foss <robert.foss@linaro.org>
-Tested-by: Julian Grahsl <jgrahsl@snap.com>
-Tested-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+	/dev/sda: ***** FILE SYSTEM WAS MODIFIED *****
+	/dev/sda: 12/131072 files (0.0% non-contiguous), 26157/524288 blocks
+
+ext4_rmdir
+	if (!ext4_empty_dir(inode))
+		goto end_rmdir;
+ext4_empty_dir
+	bh = ext4_read_dirblock(inode, 0, DIRENT_HTREE);
+	if (IS_ERR(bh))
+		return true;
+Now if read directory block failed, 'ext4_empty_dir' will return true, assume
+directory is empty. Obviously, it will lead to above issue.
+To solve this issue, if read directory block failed 'ext4_empty_dir' just
+return false. To avoid making things worse when file system is already
+corrupted, 'ext4_empty_dir' also return false.
+
+Signed-off-by: Ye Bin <yebin10@huawei.com>
+Cc: stable@kernel.org
+Link: https://lore.kernel.org/r/20220228024815.3952506-1-yebin10@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/platform/qcom/camss/camss-csid-170.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ fs/ext4/inline.c |    9 ++++-----
+ fs/ext4/namei.c  |   10 +++++-----
+ 2 files changed, 9 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/media/platform/qcom/camss/camss-csid-170.c b/drivers/media/platform/qcom/camss/camss-csid-170.c
-index a006c8dbceb1..82f59933ad7b 100644
---- a/drivers/media/platform/qcom/camss/camss-csid-170.c
-+++ b/drivers/media/platform/qcom/camss/camss-csid-170.c
-@@ -105,7 +105,8 @@
- #define CSID_RDI_CTRL(rdi)			((IS_LITE ? 0x208 : 0x308)\
- 						+ 0x100 * (rdi))
- #define		RDI_CTRL_HALT_CMD		0
--#define			ALT_CMD_RESUME_AT_FRAME_BOUNDARY	1
-+#define			HALT_CMD_HALT_AT_FRAME_BOUNDARY		0
-+#define			HALT_CMD_RESUME_AT_FRAME_BOUNDARY	1
- #define		RDI_CTRL_HALT_MODE		2
+--- a/fs/ext4/inline.c
++++ b/fs/ext4/inline.c
+@@ -1788,19 +1788,20 @@ bool empty_inline_dir(struct inode *dir,
+ 	void *inline_pos;
+ 	unsigned int offset;
+ 	struct ext4_dir_entry_2 *de;
+-	bool ret = true;
++	bool ret = false;
  
- #define CSID_RDI_FRM_DROP_PATTERN(rdi)			((IS_LITE ? 0x20C : 0x30C)\
-@@ -444,7 +445,10 @@ static void csid_configure_stream(struct csid_device *csid, u8 enable)
- 	val |= 1 << CSI2_RX_CFG1_MISR_EN;
- 	writel_relaxed(val, csid->base + CSID_CSI2_RX_CFG1); // csi2_vc_mode_shift_val ?
+ 	err = ext4_get_inode_loc(dir, &iloc);
+ 	if (err) {
+ 		EXT4_ERROR_INODE_ERR(dir, -err,
+ 				     "error %d getting inode %lu block",
+ 				     err, dir->i_ino);
+-		return true;
++		return false;
+ 	}
  
--	val = 1 << RDI_CTRL_HALT_CMD;
-+	if (enable)
-+		val = HALT_CMD_RESUME_AT_FRAME_BOUNDARY << RDI_CTRL_HALT_CMD;
-+	else
-+		val = HALT_CMD_HALT_AT_FRAME_BOUNDARY << RDI_CTRL_HALT_CMD;
- 	writel_relaxed(val, csid->base + CSID_RDI_CTRL(0));
- }
+ 	down_read(&EXT4_I(dir)->xattr_sem);
+ 	if (!ext4_has_inline_data(dir)) {
+ 		*has_inline_data = 0;
++		ret = true;
+ 		goto out;
+ 	}
  
--- 
-2.34.1
-
+@@ -1809,7 +1810,6 @@ bool empty_inline_dir(struct inode *dir,
+ 		ext4_warning(dir->i_sb,
+ 			     "bad inline directory (dir #%lu) - no `..'",
+ 			     dir->i_ino);
+-		ret = true;
+ 		goto out;
+ 	}
+ 
+@@ -1828,16 +1828,15 @@ bool empty_inline_dir(struct inode *dir,
+ 				     dir->i_ino, le32_to_cpu(de->inode),
+ 				     le16_to_cpu(de->rec_len), de->name_len,
+ 				     inline_size);
+-			ret = true;
+ 			goto out;
+ 		}
+ 		if (le32_to_cpu(de->inode)) {
+-			ret = false;
+ 			goto out;
+ 		}
+ 		offset += ext4_rec_len_from_disk(de->rec_len, inline_size);
+ 	}
+ 
++	ret = true;
+ out:
+ 	up_read(&EXT4_I(dir)->xattr_sem);
+ 	brelse(iloc.bh);
+--- a/fs/ext4/namei.c
++++ b/fs/ext4/namei.c
+@@ -2997,14 +2997,14 @@ bool ext4_empty_dir(struct inode *inode)
+ 	if (inode->i_size < ext4_dir_rec_len(1, NULL) +
+ 					ext4_dir_rec_len(2, NULL)) {
+ 		EXT4_ERROR_INODE(inode, "invalid size");
+-		return true;
++		return false;
+ 	}
+ 	/* The first directory block must not be a hole,
+ 	 * so treat it as DIRENT_HTREE
+ 	 */
+ 	bh = ext4_read_dirblock(inode, 0, DIRENT_HTREE);
+ 	if (IS_ERR(bh))
+-		return true;
++		return false;
+ 
+ 	de = (struct ext4_dir_entry_2 *) bh->b_data;
+ 	if (ext4_check_dir_entry(inode, NULL, de, bh, bh->b_data, bh->b_size,
+@@ -3012,7 +3012,7 @@ bool ext4_empty_dir(struct inode *inode)
+ 	    le32_to_cpu(de->inode) != inode->i_ino || strcmp(".", de->name)) {
+ 		ext4_warning_inode(inode, "directory missing '.'");
+ 		brelse(bh);
+-		return true;
++		return false;
+ 	}
+ 	offset = ext4_rec_len_from_disk(de->rec_len, sb->s_blocksize);
+ 	de = ext4_next_entry(de, sb->s_blocksize);
+@@ -3021,7 +3021,7 @@ bool ext4_empty_dir(struct inode *inode)
+ 	    le32_to_cpu(de->inode) == 0 || strcmp("..", de->name)) {
+ 		ext4_warning_inode(inode, "directory missing '..'");
+ 		brelse(bh);
+-		return true;
++		return false;
+ 	}
+ 	offset += ext4_rec_len_from_disk(de->rec_len, sb->s_blocksize);
+ 	while (offset < inode->i_size) {
+@@ -3035,7 +3035,7 @@ bool ext4_empty_dir(struct inode *inode)
+ 				continue;
+ 			}
+ 			if (IS_ERR(bh))
+-				return true;
++				return false;
+ 		}
+ 		de = (struct ext4_dir_entry_2 *) (bh->b_data +
+ 					(offset & (sb->s_blocksize - 1)));
 
 
