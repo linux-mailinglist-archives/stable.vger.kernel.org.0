@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EB2564F28BB
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:21:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C61754F28BD
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:21:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235686AbiDEIVe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:21:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41944 "EHLO
+        id S239873AbiDEIVi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:21:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43308 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233769AbiDEIJ2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:09:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90B936CA4C;
-        Tue,  5 Apr 2022 01:02:37 -0700 (PDT)
+        with ESMTP id S233435AbiDEIKJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:10:09 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F21696D1AA;
+        Tue,  5 Apr 2022 01:02:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 628BDB81B14;
-        Tue,  5 Apr 2022 08:02:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C40A2C385A0;
-        Tue,  5 Apr 2022 08:02:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4143DB81B9C;
+        Tue,  5 Apr 2022 08:02:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85293C385A0;
+        Tue,  5 Apr 2022 08:02:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145756;
-        bh=PCOovBywQjdfs89+FJpIp3nsalzk5qELoJAhclxvLXw=;
+        s=korg; t=1649145758;
+        bh=6OQ4XBU3Rd0gro+F3jMJqSQaH/YDj8FH7PqpZ7aqIyk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JtTz+MvjoBwJ722tyK8kyJINkzq61/+J47MNfP3yBjtgVnFyEBkU+JwKZkzABa3vm
-         Z3shctA66laNdJv7wwXA5hM8wJiLWBYyvFax4z03ZP0BFNTeSBFHPixe97hnSJ3ap5
-         vGoKLasd8lZLbbOSV8zWUiDiYn5YgYmYCsKO9vME=
+        b=xKmjFJs4Dt5z3naMHQjk/s4kI0mjd9yvPatSG/fuxdlldUbTufLjrfSa5HYkxI/Vc
+         +W8SbEc0IDumWs1dMlYi9Dece6nfrj5TQpkw6DJjo8ohv7r+ishevOkQ1HTX5tIxh0
+         9NozU1t7KkwG3lNsQ7ptSvqDLcFRVvLzAt12cHxc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
-        Michael Walle <michael@walle.cc>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
+        stable@vger.kernel.org, Andrii Nakryiko <andrii@kernel.org>,
+        Kenta Tada <Kenta.Tada@sony.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0519/1126] mtd: mchp48l640: Add SPI ID table
-Date:   Tue,  5 Apr 2022 09:21:06 +0200
-Message-Id: <20220405070422.863091512@linuxfoundation.org>
+Subject: [PATCH 5.17 0520/1126] selftests/bpf: Extract syscall wrapper
+Date:   Tue,  5 Apr 2022 09:21:07 +0200
+Message-Id: <20220405070422.892707329@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -55,54 +54,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Kenta Tada <Kenta.Tada@sony.com>
 
-[ Upstream commit 69a6d06878f05d63673b0dcdc3c3ef1af2996d46 ]
+[ Upstream commit 78a2054156dd6265619b230cc5372b74f9ba5233 ]
 
-Currently autoloading for SPI devices does not use the DT ID table, it uses
-SPI modalises. Supporting OF modalises is going to be difficult if not
-impractical, an attempt was made but has been reverted, so ensure that
-module autoloading works for this driver by adding an id_table listing the
-SPI IDs for everything.
+Extract the helper to set up SYS_PREFIX for fentry and kprobe selftests
+that use __x86_sys_* attach functions.
 
-Fixes: 96c8395e2166 ("spi: Revert modalias changes")
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Reviewed-by: Michael Walle <michael@walle.cc>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20220202143404.16070-4-broonie@kernel.org
+Suggested-by: Andrii Nakryiko <andrii@kernel.org>
+Signed-off-by: Kenta Tada <Kenta.Tada@sony.com>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/bpf/20220124141622.4378-2-Kenta.Tada@sony.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/devices/mchp48l640.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ tools/testing/selftests/bpf/progs/bpf_misc.h  | 19 +++++++++++++++++++
+ .../selftests/bpf/progs/test_probe_user.c     | 15 +--------------
+ 2 files changed, 20 insertions(+), 14 deletions(-)
+ create mode 100644 tools/testing/selftests/bpf/progs/bpf_misc.h
 
-diff --git a/drivers/mtd/devices/mchp48l640.c b/drivers/mtd/devices/mchp48l640.c
-index 231a10790196..b9cf2b4415a5 100644
---- a/drivers/mtd/devices/mchp48l640.c
-+++ b/drivers/mtd/devices/mchp48l640.c
-@@ -359,6 +359,15 @@ static const struct of_device_id mchp48l640_of_table[] = {
- };
- MODULE_DEVICE_TABLE(of, mchp48l640_of_table);
- 
-+static const struct spi_device_id mchp48l640_spi_ids[] = {
-+	{
-+		.name = "48l640",
-+		.driver_data = (kernel_ulong_t)&mchp48l640_caps,
-+	},
-+	{}
-+};
-+MODULE_DEVICE_TABLE(spi, mchp48l640_spi_ids);
+diff --git a/tools/testing/selftests/bpf/progs/bpf_misc.h b/tools/testing/selftests/bpf/progs/bpf_misc.h
+new file mode 100644
+index 000000000000..0b78bc9b1b4c
+--- /dev/null
++++ b/tools/testing/selftests/bpf/progs/bpf_misc.h
+@@ -0,0 +1,19 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef __BPF_MISC_H__
++#define __BPF_MISC_H__
 +
- static struct spi_driver mchp48l640_driver = {
- 	.driver = {
- 		.name	= "mchp48l640",
-@@ -366,6 +375,7 @@ static struct spi_driver mchp48l640_driver = {
- 	},
- 	.probe		= mchp48l640_probe,
- 	.remove		= mchp48l640_remove,
-+	.id_table	= mchp48l640_spi_ids,
- };
++#if defined(__TARGET_ARCH_x86)
++#define SYSCALL_WRAPPER 1
++#define SYS_PREFIX "__x64_"
++#elif defined(__TARGET_ARCH_s390)
++#define SYSCALL_WRAPPER 1
++#define SYS_PREFIX "__s390x_"
++#elif defined(__TARGET_ARCH_arm64)
++#define SYSCALL_WRAPPER 1
++#define SYS_PREFIX "__arm64_"
++#else
++#define SYSCALL_WRAPPER 0
++#define SYS_PREFIX ""
++#endif
++
++#endif
+diff --git a/tools/testing/selftests/bpf/progs/test_probe_user.c b/tools/testing/selftests/bpf/progs/test_probe_user.c
+index 8812a90da4eb..702578a5e496 100644
+--- a/tools/testing/selftests/bpf/progs/test_probe_user.c
++++ b/tools/testing/selftests/bpf/progs/test_probe_user.c
+@@ -7,20 +7,7 @@
  
- module_spi_driver(mchp48l640_driver);
+ #include <bpf/bpf_helpers.h>
+ #include <bpf/bpf_tracing.h>
+-
+-#if defined(__TARGET_ARCH_x86)
+-#define SYSCALL_WRAPPER 1
+-#define SYS_PREFIX "__x64_"
+-#elif defined(__TARGET_ARCH_s390)
+-#define SYSCALL_WRAPPER 1
+-#define SYS_PREFIX "__s390x_"
+-#elif defined(__TARGET_ARCH_arm64)
+-#define SYSCALL_WRAPPER 1
+-#define SYS_PREFIX "__arm64_"
+-#else
+-#define SYSCALL_WRAPPER 0
+-#define SYS_PREFIX ""
+-#endif
++#include "bpf_misc.h"
+ 
+ static struct sockaddr_in old;
+ 
 -- 
 2.34.1
 
