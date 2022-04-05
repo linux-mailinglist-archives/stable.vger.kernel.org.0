@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CF034F3BD0
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:22:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74DC64F38E7
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:37:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344213AbiDEMCV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:02:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50618 "EHLO
+        id S1377386AbiDEL26 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:28:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60308 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358006AbiDEK1m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:27:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A188D76D6;
-        Tue,  5 Apr 2022 03:12:40 -0700 (PDT)
+        with ESMTP id S1350015AbiDEJwU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:52:20 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65CB036E21;
+        Tue,  5 Apr 2022 02:50:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 367BC6179E;
-        Tue,  5 Apr 2022 10:12:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45707C385A1;
-        Tue,  5 Apr 2022 10:12:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 169C1B817D3;
+        Tue,  5 Apr 2022 09:50:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CA8EC385A3;
+        Tue,  5 Apr 2022 09:50:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153559;
-        bh=m0gxXestR9TuCF6pwebEyOfHf08GivCI31KBId5HBac=;
+        s=korg; t=1649152218;
+        bh=5KA/8ySZ2n1/KKSMcoJazR7rOJ6n1FuR1d09mg0Xu70=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MTOgMYGlg4YHnT7qcNHz1wuSi6Lft4yrQHOEtZZxsPGgLauptd4mjPbnutwEIz1RA
-         ZIU4Din+7r+kr8bjG548O7F1KgVUuVMhNYFM6GISmxcgWL/9frYB2KIvW7HkZ2eheJ
-         hUVVLmm13JI9/5K+51s6PQhG+6rnMen/jIGbv63Q=
+        b=S95rJj6TCs/BckiW1ouUzQeV0pV8zKIP9DQe1bTeuC5QUfFTK9mus06iXI48r/uiD
+         M0qrHjDA3Ra1RB0r0lJkMjuq6DFR9YqAus/zDVgBRghYB/01JFcuNRHUO19cVT3w45
+         h5nw7d2sXwKn0pdIN7qSIK0Hw7QL1pYzPIrn1quA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wen Gong <quic_wgong@quicinc.com>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
+        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+        Maulik Shah <quic_mkshah@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 265/599] ath10k: fix memory overwrite of the WoWLAN wakeup packet pattern
+Subject: [PATCH 5.15 697/913] irqchip/qcom-pdc: Fix broken locking
 Date:   Tue,  5 Apr 2022 09:29:19 +0200
-Message-Id: <20220405070306.724494034@linuxfoundation.org>
+Message-Id: <20220405070400.727193727@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
-References: <20220405070258.802373272@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,54 +54,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wen Gong <quic_wgong@quicinc.com>
+From: Marc Zyngier <maz@kernel.org>
 
-[ Upstream commit e3fb3d4418fce5484dfe7995fcd94c18b10a431a ]
+[ Upstream commit a6aca2f460e203781dc41391913cc5b54f4bc0ce ]
 
-In function ath10k_wow_convert_8023_to_80211(), it will do memcpy for
-the new->pattern, and currently the new->pattern and new->mask is same
-with the old, then the memcpy of new->pattern will also overwrite the
-old->pattern, because the header format of new->pattern is 802.11,
-its length is larger than the old->pattern which is 802.3. Then the
-operation of "Copy frame body" will copy a mistake value because the
-body memory has been overwrite when memcpy the new->pattern.
+pdc_enable_intr() serves as a primitive to qcom_pdc_gic_{en,dis}able,
+and has a raw spinlock for mutual exclusion, which is uses with
+interruptible primitives.
 
-Assign another empty value to new_pattern to avoid the overwrite issue.
+This means that this critical section can itself be interrupted.
+Should the interrupt also be a PDC interrupt, and the endpoint driver
+perform an irq_disable() on that interrupt, we end-up in a deadlock.
 
-Tested-on: QCA6174 hw3.2 SDIO WLAN.RMH.4.4.1-00049
+Fix this by using the irqsave/irqrestore variants of the locking
+primitives.
 
-Fixes: fa3440fa2fa1 ("ath10k: convert wow pattern from 802.3 to 802.11")
-Signed-off-by: Wen Gong <quic_wgong@quicinc.com>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/20211222031347.25463-1-quic_wgong@quicinc.com
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Reviewed-by: Maulik Shah <quic_mkshah@quicinc.com>
+Link: https://lore.kernel.org/r/20220224101226.88373-5-maz@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath10k/wow.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/irqchip/qcom-pdc.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath10k/wow.c b/drivers/net/wireless/ath/ath10k/wow.c
-index 7d65c115669f..20b9aa8ddf7d 100644
---- a/drivers/net/wireless/ath/ath10k/wow.c
-+++ b/drivers/net/wireless/ath/ath10k/wow.c
-@@ -337,14 +337,15 @@ static int ath10k_vif_wow_set_wakeups(struct ath10k_vif *arvif,
- 			if (patterns[i].mask[j / 8] & BIT(j % 8))
- 				bitmask[j] = 0xff;
- 		old_pattern.mask = bitmask;
--		new_pattern = old_pattern;
+diff --git a/drivers/irqchip/qcom-pdc.c b/drivers/irqchip/qcom-pdc.c
+index 173e6520e06e..c0b457f26ec4 100644
+--- a/drivers/irqchip/qcom-pdc.c
++++ b/drivers/irqchip/qcom-pdc.c
+@@ -56,17 +56,18 @@ static u32 pdc_reg_read(int reg, u32 i)
+ static void pdc_enable_intr(struct irq_data *d, bool on)
+ {
+ 	int pin_out = d->hwirq;
++	unsigned long flags;
+ 	u32 index, mask;
+ 	u32 enable;
  
- 		if (ar->wmi.rx_decap_mode == ATH10K_HW_TXRX_NATIVE_WIFI) {
--			if (patterns[i].pkt_offset < ETH_HLEN)
-+			if (patterns[i].pkt_offset < ETH_HLEN) {
- 				ath10k_wow_convert_8023_to_80211(&new_pattern,
- 								 &old_pattern);
--			else
-+			} else {
-+				new_pattern = old_pattern;
- 				new_pattern.pkt_offset += WOW_HDR_LEN - ETH_HLEN;
-+			}
- 		}
+ 	index = pin_out / 32;
+ 	mask = pin_out % 32;
  
- 		if (WARN_ON(new_pattern.pattern_len > WOW_MAX_PATTERN_SIZE))
+-	raw_spin_lock(&pdc_lock);
++	raw_spin_lock_irqsave(&pdc_lock, flags);
+ 	enable = pdc_reg_read(IRQ_ENABLE_BANK, index);
+ 	enable = on ? ENABLE_INTR(enable, mask) : CLEAR_INTR(enable, mask);
+ 	pdc_reg_write(IRQ_ENABLE_BANK, index, enable);
+-	raw_spin_unlock(&pdc_lock);
++	raw_spin_unlock_irqrestore(&pdc_lock, flags);
+ }
+ 
+ static void qcom_pdc_gic_disable(struct irq_data *d)
 -- 
 2.34.1
 
