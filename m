@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CC5D74F277C
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:07:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E15214F277B
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:07:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232600AbiDEIGx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S232589AbiDEIGx (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 5 Apr 2022 04:06:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47204 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47556 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235738AbiDEIAP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:00:15 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EFE82ED73;
-        Tue,  5 Apr 2022 00:58:17 -0700 (PDT)
+        with ESMTP id S235765AbiDEIAT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:00:19 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 887CB36E3A;
+        Tue,  5 Apr 2022 00:58:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C203E615CD;
-        Tue,  5 Apr 2022 07:58:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2017C340EE;
-        Tue,  5 Apr 2022 07:58:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 37D01B81B14;
+        Tue,  5 Apr 2022 07:58:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98389C340EE;
+        Tue,  5 Apr 2022 07:58:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145496;
-        bh=2oZ6o3YYR84xrbyRZvsWvVcONdqA2nZyWHB3WsSIGY8=;
+        s=korg; t=1649145499;
+        bh=AzruJ7kNpSnT6sSFKy/mtIR2Ku9xH4nvBIs2Jd7NW+4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QUFi1WuCmNV3bCMiwKRiOUB9lMJpY1xVbK3fNzirCvD8Ap6vkPStzeVWZ0WsXToue
-         z4a0g1csa5twODMS/lb8fb3fypXgkRnNTbhq+WGpsAerlvDilxnY7wYYFC4pj7Btfw
-         Z6rBaCeNNOndh+nr1LVUrpqjuSOlEl/zOfWz+SGE=
+        b=mRqGWghIhfcKTIEC+jn3LbcNjheMJPe03C9vcLIwiY7ZSUsXl9bmjgUBvR8hcwPps
+         B0u5xVI5nyfnxIwKTmC8OIXKl/fUb1rD9GJKE0XpJOp1UKiLLUihCRDMHoORf4xyXK
+         g6Gsf3yiY3luMKUnGdC3mxchX9bM78DrC9YKJ9Hk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0388/1126] ALSA: firewire-lib: fix uninitialized flag for AV/C deferred transaction
-Date:   Tue,  5 Apr 2022 09:18:55 +0200
-Message-Id: <20220405070419.016041587@linuxfoundation.org>
+        stable@vger.kernel.org, Rob Herring <robh@kernel.org>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 0389/1126] arm64: dts: rockchip: Fix SDIO regulator supply properties on rk3399-firefly
+Date:   Tue,  5 Apr 2022 09:18:56 +0200
+Message-Id: <20220405070419.045203929@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -53,81 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+From: Rob Herring <robh@kernel.org>
 
-[ Upstream commit bf0cd60b7e33cf221fbe1114e4acb2c828b0af0d ]
+[ Upstream commit 37cbd3c522869247ed4525b5042ff4c6a276c813 ]
 
-AV/C deferred transaction was supported at a commit 00a7bb81c20f ("ALSA:
-firewire-lib: Add support for deferred transaction") while 'deferrable'
-flag can be uninitialized for non-control/notify AV/C transactions.
-UBSAN reports it:
+A label reference without brackets is a path string, not a phandle as
+intended. Add the missing brackets.
 
-kernel: ================================================================================
-kernel: UBSAN: invalid-load in /build/linux-aa0B4d/linux-5.15.0/sound/firewire/fcp.c:363:9
-kernel: load of value 158 is not a valid value for type '_Bool'
-kernel: CPU: 3 PID: 182227 Comm: irq/35-firewire Tainted: P           OE     5.15.0-18-generic #18-Ubuntu
-kernel: Hardware name: Gigabyte Technology Co., Ltd. AX370-Gaming 5/AX370-Gaming 5, BIOS F42b 08/01/2019
-kernel: Call Trace:
-kernel:  <IRQ>
-kernel:  show_stack+0x52/0x58
-kernel:  dump_stack_lvl+0x4a/0x5f
-kernel:  dump_stack+0x10/0x12
-kernel:  ubsan_epilogue+0x9/0x45
-kernel:  __ubsan_handle_load_invalid_value.cold+0x44/0x49
-kernel:  fcp_response.part.0.cold+0x1a/0x2b [snd_firewire_lib]
-kernel:  fcp_response+0x28/0x30 [snd_firewire_lib]
-kernel:  fw_core_handle_request+0x230/0x3d0 [firewire_core]
-kernel:  handle_ar_packet+0x1d9/0x200 [firewire_ohci]
-kernel:  ? handle_ar_packet+0x1d9/0x200 [firewire_ohci]
-kernel:  ? transmit_complete_callback+0x9f/0x120 [firewire_core]
-kernel:  ar_context_tasklet+0xa8/0x2e0 [firewire_ohci]
-kernel:  tasklet_action_common.constprop.0+0xea/0xf0
-kernel:  tasklet_action+0x22/0x30
-kernel:  __do_softirq+0xd9/0x2e3
-kernel:  ? irq_finalize_oneshot.part.0+0xf0/0xf0
-kernel:  do_softirq+0x75/0xa0
-kernel:  </IRQ>
-kernel:  <TASK>
-kernel:  __local_bh_enable_ip+0x50/0x60
-kernel:  irq_forced_thread_fn+0x7e/0x90
-kernel:  irq_thread+0xba/0x190
-kernel:  ? irq_thread_fn+0x60/0x60
-kernel:  kthread+0x11e/0x140
-kernel:  ? irq_thread_check_affinity+0xf0/0xf0
-kernel:  ? set_kthread_struct+0x50/0x50
-kernel:  ret_from_fork+0x22/0x30
-kernel:  </TASK>
-kernel: ================================================================================
-
-This commit fixes the bug. The bug has no disadvantage for the non-
-control/notify AV/C transactions since the flag has an effect for AV/C
-response with INTERIM (0x0f) status which is not used for the transactions
-in AV/C general specification.
-
-Fixes: 00a7bb81c20f ("ALSA: firewire-lib: Add support for deferred transaction")
-Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
-Link: https://lore.kernel.org/r/20220304125647.78430-1-o-takashi@sakamocchi.jp
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: a5002c41c383 ("arm64: dts: rockchip: add WiFi module support for Firefly-RK3399")
+Signed-off-by: Rob Herring <robh@kernel.org>
+Link: https://lore.kernel.org/r/20220304202559.317749-1-robh@kernel.org
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/firewire/fcp.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ arch/arm64/boot/dts/rockchip/rk3399-firefly.dts | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/firewire/fcp.c b/sound/firewire/fcp.c
-index bbfbebf4affb..df44dd5dc4b2 100644
---- a/sound/firewire/fcp.c
-+++ b/sound/firewire/fcp.c
-@@ -240,9 +240,7 @@ int fcp_avc_transaction(struct fw_unit *unit,
- 	t.response_match_bytes = response_match_bytes;
- 	t.state = STATE_PENDING;
- 	init_waitqueue_head(&t.wait);
--
--	if (*(const u8 *)command == 0x00 || *(const u8 *)command == 0x03)
--		t.deferrable = true;
-+	t.deferrable = (*(const u8 *)command == 0x00 || *(const u8 *)command == 0x03);
+diff --git a/arch/arm64/boot/dts/rockchip/rk3399-firefly.dts b/arch/arm64/boot/dts/rockchip/rk3399-firefly.dts
+index c4dd2a6b4836..f81ce3240342 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3399-firefly.dts
++++ b/arch/arm64/boot/dts/rockchip/rk3399-firefly.dts
+@@ -770,8 +770,8 @@
+ 	sd-uhs-sdr104;
  
- 	spin_lock_irq(&transactions_lock);
- 	list_add_tail(&t.list, &transactions);
+ 	/* Power supply */
+-	vqmmc-supply = &vcc1v8_s3;	/* IO line */
+-	vmmc-supply = &vcc_sdio;	/* card's power */
++	vqmmc-supply = <&vcc1v8_s3>;	/* IO line */
++	vmmc-supply = <&vcc_sdio>;	/* card's power */
+ 
+ 	#address-cells = <1>;
+ 	#size-cells = <0>;
 -- 
 2.34.1
 
