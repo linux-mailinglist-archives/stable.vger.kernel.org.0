@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C3D34F3C0E
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:24:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C2334F393E
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:45:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382299AbiDEMEL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:04:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46470 "EHLO
+        id S1377743AbiDELa2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:30:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57994 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358187AbiDEK2F (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:28:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8482F9E9D8;
-        Tue,  5 Apr 2022 03:16:31 -0700 (PDT)
+        with ESMTP id S1353076AbiDEKFf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:05:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CD88BD89E;
+        Tue,  5 Apr 2022 02:54:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 15A5461777;
-        Tue,  5 Apr 2022 10:16:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D849C385A0;
-        Tue,  5 Apr 2022 10:16:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E7D5AB818F3;
+        Tue,  5 Apr 2022 09:54:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 402E5C385A1;
+        Tue,  5 Apr 2022 09:54:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153790;
-        bh=coUnbwtMgy4IhV9sRORvYZJQFoFUkg3DcYgYPIf8ovE=;
+        s=korg; t=1649152453;
+        bh=mR1tmeofvXZvXFXTNTGqMDDZruOzLE65YB5ceqrb8QY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e6MCvLfYM7HDXY4dc7x0hkioow6X8UB/GdKpX0ClT89mVdzyKN8qx3hQ++CUyvkdZ
-         mAs5E/Y5CpAEluU8nDvnM4qwquGao9hB5oT7q/hcJo75qLBaq5z8yhokKLZke0Tn7f
-         I/UXehrKjf6v3gIxWJiVibIxhH9rggckTDixg5js=
+        b=Oex92d4GgOPgFWv6ig1pKd026+8Eq/x42QduE5WL4ox0U1A2FoavhID1ZZewllM7w
+         YiaFfA6pZw9ST/+WmzSJum2M2dtqUWUdpp8duDj6WWJX8rjxgkjjvDORsl8fx33/gu
+         VU6SwUCREaKbmLK32JVC4EhgazEYY/qhK0VsWFic=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 348/599] powerpc: 8xx: fix a return value error in mpc8xx_pic_init
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Anders Roxell <anders.roxell@linaro.org>,
+        Segher Boessenkool <segher@kernel.crashing.org>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.15 780/913] powerpc/lib/sstep: Fix build errors with newer binutils
 Date:   Tue,  5 Apr 2022 09:30:42 +0200
-Message-Id: <20220405070309.181876033@linuxfoundation.org>
+Message-Id: <20220405070403.215146406@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
-References: <20220405070258.802373272@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,38 +55,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangyu Hua <hbh25y@gmail.com>
+From: Anders Roxell <anders.roxell@linaro.org>
 
-[ Upstream commit 3fd46e551f67f4303c3276a0d6cd20baf2d192c4 ]
+commit 8219d31effa7be5dbc7ff915d7970672e028c701 upstream.
 
-mpc8xx_pic_init() should return -ENOMEM instead of 0 when
-irq_domain_add_linear() return NULL. This cause mpc8xx_pics_init to continue
-executing even if mpc8xx_pic_host is NULL.
+Building tinyconfig with gcc (Debian 11.2.0-16) and assembler (Debian
+2.37.90.20220207) the following build error shows up:
 
-Fixes: cc76404feaed ("powerpc/8xx: Fix possible device node reference leak")
-Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
-Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+  {standard input}: Assembler messages:
+  {standard input}:10576: Error: unrecognized opcode: `stbcx.'
+  {standard input}:10680: Error: unrecognized opcode: `lharx'
+  {standard input}:10694: Error: unrecognized opcode: `lbarx'
+
+Rework to add assembler directives [1] around the instruction.  The
+problem with this might be that we can trick a power6 into
+single-stepping through an stbcx. for instance, and it will execute that
+in kernel mode.
+
+[1] https://sourceware.org/binutils/docs/as/PowerPC_002dPseudo.html#PowerPC_002dPseudo
+
+Fixes: 350779a29f11 ("powerpc: Handle most loads and stores in instruction emulation code")
+Cc: stable@vger.kernel.org # v4.14+
+Co-developed-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
+Reviewed-by: Segher Boessenkool <segher@kernel.crashing.org>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220223070223.26845-1-hbh25y@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/20220224162215.3406642-3-anders.roxell@linaro.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/platforms/8xx/pic.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/powerpc/lib/sstep.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/arch/powerpc/platforms/8xx/pic.c b/arch/powerpc/platforms/8xx/pic.c
-index f2ba837249d6..04a6abf14c29 100644
---- a/arch/powerpc/platforms/8xx/pic.c
-+++ b/arch/powerpc/platforms/8xx/pic.c
-@@ -153,6 +153,7 @@ int __init mpc8xx_pic_init(void)
- 	if (mpc8xx_pic_host == NULL) {
- 		printk(KERN_ERR "MPC8xx PIC: failed to allocate irq host!\n");
- 		ret = -ENOMEM;
-+		goto out;
- 	}
+--- a/arch/powerpc/lib/sstep.c
++++ b/arch/powerpc/lib/sstep.c
+@@ -1014,7 +1014,10 @@ NOKPROBE_SYMBOL(emulate_dcbz);
  
- 	ret = 0;
--- 
-2.34.1
-
+ #define __put_user_asmx(x, addr, err, op, cr)		\
+ 	__asm__ __volatile__(				\
++		".machine push\n"			\
++		".machine power8\n"			\
+ 		"1:	" op " %2,0,%3\n"		\
++		".machine pop\n"			\
+ 		"	mfcr	%1\n"			\
+ 		"2:\n"					\
+ 		".section .fixup,\"ax\"\n"		\
+@@ -1027,7 +1030,10 @@ NOKPROBE_SYMBOL(emulate_dcbz);
+ 
+ #define __get_user_asmx(x, addr, err, op)		\
+ 	__asm__ __volatile__(				\
++		".machine push\n"			\
++		".machine power8\n"			\
+ 		"1:	"op" %1,0,%2\n"			\
++		".machine pop\n"			\
+ 		"2:\n"					\
+ 		".section .fixup,\"ax\"\n"		\
+ 		"3:	li	%0,%3\n"		\
 
 
