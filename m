@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 194614F2CDF
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:33:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AA554F2BF3
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:21:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244745AbiDEJKy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:10:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46858 "EHLO
+        id S243657AbiDEKh0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:37:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55706 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244552AbiDEIwZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F220D64FB;
-        Tue,  5 Apr 2022 01:41:19 -0700 (PDT)
+        with ESMTP id S238976AbiDEJdP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:33:15 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65DAF6464;
+        Tue,  5 Apr 2022 02:21:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 50D76609D0;
-        Tue,  5 Apr 2022 08:41:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6582DC385A1;
-        Tue,  5 Apr 2022 08:41:09 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id D7418CE1C6A;
+        Tue,  5 Apr 2022 09:21:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EEA9CC385A2;
+        Tue,  5 Apr 2022 09:21:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148069;
-        bh=o65J34RLJto+GKz4V0046wtNQI+MbpXjeDjAO3L02e8=;
+        s=korg; t=1649150479;
+        bh=z03uRE2H7zmi68R1Q0lvr3LCmd3ruYnHuWykD/0EvBo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RCnKJbEmtbC/8tcKvm4U5yTqhyCj8KuwxRQeUKGdBgX9vsJaaChYxYgbHD84T5tPs
-         9AMomQALIfF3+HtG8HKjF0Aff6xYGkQLrAHJE6e9fngCyeuxVQeFSmyxWmAswkY+gD
-         TSvWEzJyzK3vI5E5MtfD6lkFAkbkIwuaxd+nxE+M=
+        b=E5zeVMupNafqz2+c+ynklQr8xIOZJpwP1Ts7UWd5fnMwr/3m9/aoNXNv6lMqYVn68
+         OTYNmgueebrGvkkSX/99v342b7Eignk1Am9FPF+5TND4NaT4J8yr25uLiyF4ogRa95
+         C5NOfQ/Xv7UGCmeOgtx1XYLBUXI+RJNu+ezF8i00=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Arend van Spriel <arend.vanspriel@broadcom.com>,
-        Hector Martin <marcan@marcan.st>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Kalle Valo <kvalo@kernel.org>
-Subject: [PATCH 5.16 0190/1017] brcmfmac: firmware: Allocate space for default boardrev in nvram
-Date:   Tue,  5 Apr 2022 09:18:23 +0200
-Message-Id: <20220405070359.882050893@linuxfoundation.org>
+        stable@vger.kernel.org, James Clark <james.clark@arm.com>,
+        Mike Leach <mike.leach@linaro.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>
+Subject: [PATCH 5.15 043/913] coresight: Fix TRCCONFIGR.QE sysfs interface
+Date:   Tue,  5 Apr 2022 09:18:25 +0200
+Message-Id: <20220405070341.109583188@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,36 +55,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hector Martin <marcan@marcan.st>
+From: James Clark <james.clark@arm.com>
 
-commit d19d8e3ba256f81ea4a27209dbbd1f0a00ef1903 upstream.
+commit ea75a342aed5ed72c87f38fbe0df2f5df7eae374 upstream.
 
-If boardrev is missing from the NVRAM we add a default one, but this
-might need more space in the output buffer than was allocated. Ensure
-we have enough padding for this in the buffer.
+It's impossible to program a valid value for TRCCONFIGR.QE
+when TRCIDR0.QSUPP==0b10. In that case the following is true:
 
-Fixes: 46f2b38a91b0 ("brcmfmac: insert default boardrev in nvram data if missing")
-Reviewed-by: Arend van Spriel <arend.vanspriel@broadcom.com>
+  Q element support is implemented, and only supports Q elements without
+  instruction counts. TRCCONFIGR.QE can only take the values 0b00 or 0b11.
+
+Currently the low bit of QSUPP is checked to see if the low bit of QE can
+be written to, but as you can see when QSUPP==0b10 the low bit is cleared
+making it impossible to ever write the only valid value of 0b11 to QE.
+0b10 would be written instead, which is a reserved QE value even for all
+values of QSUPP.
+
+The fix is to allow writing the low bit of QE for any non zero value of
+QSUPP.
+
+This change also ensures that the low bit is always set, even when the
+user attempts to only set the high bit.
+
+Signed-off-by: James Clark <james.clark@arm.com>
+Reviewed-by: Mike Leach <mike.leach@linaro.org>
+Fixes: d8c66962084f ("coresight-etm4x: Controls pertaining to the reset, mode, pe and events")
 Cc: stable@vger.kernel.org
-Signed-off-by: Hector Martin <marcan@marcan.st>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20220131160713.245637-3-marcan@marcan.st
+Link: https://lore.kernel.org/r/20220120113047.2839622-2-james.clark@arm.com
+Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/broadcom/brcm80211/brcmfmac/firmware.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/hwtracing/coresight/coresight-etm4x-sysfs.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/firmware.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/firmware.c
-@@ -207,6 +207,8 @@ static int brcmf_init_nvram_parser(struc
- 		size = BRCMF_FW_MAX_NVRAM_SIZE;
- 	else
- 		size = data_len;
-+	/* Add space for properties we may add */
-+	size += strlen(BRCMF_FW_DEFAULT_BOARDREV) + 1;
- 	/* Alloc for extra 0 byte + roundup by 4 + length field */
- 	size += 1 + 3 + sizeof(u32);
- 	nvp->nvram = kzalloc(size, GFP_KERNEL);
+--- a/drivers/hwtracing/coresight/coresight-etm4x-sysfs.c
++++ b/drivers/hwtracing/coresight/coresight-etm4x-sysfs.c
+@@ -367,8 +367,12 @@ static ssize_t mode_store(struct device
+ 	mode = ETM_MODE_QELEM(config->mode);
+ 	/* start by clearing QE bits */
+ 	config->cfg &= ~(BIT(13) | BIT(14));
+-	/* if supported, Q elements with instruction counts are enabled */
+-	if ((mode & BIT(0)) && (drvdata->q_support & BIT(0)))
++	/*
++	 * if supported, Q elements with instruction counts are enabled.
++	 * Always set the low bit for any requested mode. Valid combos are
++	 * 0b00, 0b01 and 0b11.
++	 */
++	if (mode && drvdata->q_support)
+ 		config->cfg |= BIT(13);
+ 	/*
+ 	 * if supported, Q elements with and without instruction
 
 
