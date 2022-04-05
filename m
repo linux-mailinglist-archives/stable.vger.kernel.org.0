@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E99C4F35FE
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:56:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 46D054F35EF
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:55:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242300AbiDEK4u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:56:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53166 "EHLO
+        id S241167AbiDEK4F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:56:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39192 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346579AbiDEJpM (ORCPT
+        with ESMTP id S1346580AbiDEJpM (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:45:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DE06DAFC3;
-        Tue,  5 Apr 2022 02:30:59 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17FD4DA6FD;
+        Tue,  5 Apr 2022 02:31:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D1CCAB81CB3;
-        Tue,  5 Apr 2022 09:30:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 287A1C385A2;
-        Tue,  5 Apr 2022 09:30:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A7D426165C;
+        Tue,  5 Apr 2022 09:30:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C160CC385A3;
+        Tue,  5 Apr 2022 09:30:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151056;
-        bh=gG8eDeiLHdbGmjfnhHzEjTSMOBgG5ThmJ0w75W4cvCA=;
+        s=korg; t=1649151059;
+        bh=D6m+o0u+CA+SvDho6afPxHeHyW7tn/a0c/86ypjkG+8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j7tNo2LUrWD0zijxmysuIQVMcowz6s0XfVxDBsb7F3VEyg8Cuz16cB27aNWXOZTPE
-         c6nJfkAUYYrnQzuygxMEUchyGisn+rNvjm0XGpH32Oa+wPLgvkM1nPzkFmnDtNFGvD
-         nFlNYzK9WKKa9m9IPLGhPNYbZ8RcXXiukuo/9nbc=
+        b=MbyN5SdgqACx0nfL+S1OJDR2/uQ9I4fXFKBUqOCesQ2SSZxRRHB8ufU/imKDFc7Mc
+         bA45j1JjxvRBswe45BBI+czvlpSFzaJeoifwf8RcmGNdNJV9gwlUuFf7sjGVEshJFY
+         AmiPacJ3jMAryrv/k34RXpJ/VNJqTkGZIlIhLEPY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Machek <pavel@denx.de>,
-        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
-        Biju Das <biju.das.jz@bp.renesas.com>,
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 277/913] ASoC: sh: rz-ssi: Drop calling rz_ssi_pio_recv() recursively
-Date:   Tue,  5 Apr 2022 09:22:19 +0200
-Message-Id: <20220405070348.161042666@linuxfoundation.org>
+Subject: [PATCH 5.15 278/913] ASoC: codecs: Check for error pointer after calling devm_regmap_init_mmio
+Date:   Tue,  5 Apr 2022 09:22:20 +0200
+Message-Id: <20220405070348.190484643@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -56,121 +54,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit 6570f991582e32b7992601d0497c61962a2c5dcc ]
+[ Upstream commit aa505ecccf2ae7546e0e262d574e18a9241f3005 ]
 
-Instead of recursively calling rz_ssi_pio_recv() use a while loop
-to read the samples from RX fifo.
+Since the potential failure of the devm_regmap_init_mmio(), it will
+return error pointer and be assigned to the regmap.
+Then the error pointer will be dereferenced.
+For example rx->regmap will be used in rx_macro_mclk_enable().
+Therefore, it should be better to check it.
 
-This also fixes an issue where the return value of rz_ssi_pio_recv()
-was ignored when called recursively.
-
-Fixes: 03e786bd4341 ("ASoC: sh: Add RZ/G2L SSIF-2 driver")
-Reported-by: Pavel Machek <pavel@denx.de>
-Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Reviewed-by: Biju Das <biju.das.jz@bp.renesas.com>
-Link: https://lore.kernel.org/r/20220110094711.8574-2-prabhakar.mahadev-lad.rj@bp.renesas.com
+Fixes: af3d54b99764 ("ASoC: codecs: lpass-rx-macro: add support for lpass rx macro")
+Fixes: c39667ddcfc5 ("ASoC: codecs: lpass-tx-macro: add support for lpass tx macro")
+Fixes: 809bcbcecebf ("ASoC: codecs: lpass-wsa-macro: Add support to WSA Macro")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Link: https://lore.kernel.org/r/20220121171031.2826198-1-jiasheng@iscas.ac.cn
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sh/rz-ssi.c | 68 ++++++++++++++++++++++---------------------
- 1 file changed, 35 insertions(+), 33 deletions(-)
+ sound/soc/codecs/lpass-rx-macro.c  | 2 ++
+ sound/soc/codecs/lpass-tx-macro.c  | 2 ++
+ sound/soc/codecs/lpass-wsa-macro.c | 2 ++
+ 3 files changed, 6 insertions(+)
 
-diff --git a/sound/soc/sh/rz-ssi.c b/sound/soc/sh/rz-ssi.c
-index fa0cc08f70ec..37466f65c2b0 100644
---- a/sound/soc/sh/rz-ssi.c
-+++ b/sound/soc/sh/rz-ssi.c
-@@ -411,54 +411,56 @@ static int rz_ssi_pio_recv(struct rz_ssi_priv *ssi, struct rz_ssi_stream *strm)
- {
- 	struct snd_pcm_substream *substream = strm->substream;
- 	struct snd_pcm_runtime *runtime;
-+	bool done = false;
- 	u16 *buf;
- 	int fifo_samples;
- 	int frames_left;
--	int samples = 0;
-+	int samples;
- 	int i;
+diff --git a/sound/soc/codecs/lpass-rx-macro.c b/sound/soc/codecs/lpass-rx-macro.c
+index 1c0409350e86..0f932ca61c81 100644
+--- a/sound/soc/codecs/lpass-rx-macro.c
++++ b/sound/soc/codecs/lpass-rx-macro.c
+@@ -3542,6 +3542,8 @@ static int rx_macro_probe(struct platform_device *pdev)
+ 		return PTR_ERR(base);
  
- 	if (!rz_ssi_stream_is_valid(ssi, strm))
- 		return -EINVAL;
+ 	rx->regmap = devm_regmap_init_mmio(dev, base, &rx_regmap_config);
++	if (IS_ERR(rx->regmap))
++		return PTR_ERR(rx->regmap);
  
- 	runtime = substream->runtime;
--	/* frames left in this period */
--	frames_left = runtime->period_size - (strm->buffer_pos %
--					      runtime->period_size);
--	if (frames_left == 0)
--		frames_left = runtime->period_size;
+ 	dev_set_drvdata(dev, rx);
  
--	/* Samples in RX FIFO */
--	fifo_samples = (rz_ssi_reg_readl(ssi, SSIFSR) >>
--			SSIFSR_RDC_SHIFT) & SSIFSR_RDC_MASK;
--
--	/* Only read full frames at a time */
--	while (frames_left && (fifo_samples >= runtime->channels)) {
--		samples += runtime->channels;
--		fifo_samples -= runtime->channels;
--		frames_left--;
--	}
-+	while (!done) {
-+		/* frames left in this period */
-+		frames_left = runtime->period_size -
-+			      (strm->buffer_pos % runtime->period_size);
-+		if (!frames_left)
-+			frames_left = runtime->period_size;
-+
-+		/* Samples in RX FIFO */
-+		fifo_samples = (rz_ssi_reg_readl(ssi, SSIFSR) >>
-+				SSIFSR_RDC_SHIFT) & SSIFSR_RDC_MASK;
-+
-+		/* Only read full frames at a time */
-+		samples = 0;
-+		while (frames_left && (fifo_samples >= runtime->channels)) {
-+			samples += runtime->channels;
-+			fifo_samples -= runtime->channels;
-+			frames_left--;
-+		}
+diff --git a/sound/soc/codecs/lpass-tx-macro.c b/sound/soc/codecs/lpass-tx-macro.c
+index 27a0d5defd27..e4bbc6bd4925 100644
+--- a/sound/soc/codecs/lpass-tx-macro.c
++++ b/sound/soc/codecs/lpass-tx-macro.c
+@@ -1803,6 +1803,8 @@ static int tx_macro_probe(struct platform_device *pdev)
+ 		return PTR_ERR(base);
  
--	/* not enough samples yet */
--	if (samples == 0)
--		return 0;
-+		/* not enough samples yet */
-+		if (!samples)
-+			break;
+ 	tx->regmap = devm_regmap_init_mmio(dev, base, &tx_regmap_config);
++	if (IS_ERR(tx->regmap))
++		return PTR_ERR(tx->regmap);
  
--	/* calculate new buffer index */
--	buf = (u16 *)(runtime->dma_area);
--	buf += strm->buffer_pos * runtime->channels;
-+		/* calculate new buffer index */
-+		buf = (u16 *)(runtime->dma_area);
-+		buf += strm->buffer_pos * runtime->channels;
+ 	dev_set_drvdata(dev, tx);
  
--	/* Note, only supports 16-bit samples */
--	for (i = 0; i < samples; i++)
--		*buf++ = (u16)(rz_ssi_reg_readl(ssi, SSIFRDR) >> 16);
-+		/* Note, only supports 16-bit samples */
-+		for (i = 0; i < samples; i++)
-+			*buf++ = (u16)(rz_ssi_reg_readl(ssi, SSIFRDR) >> 16);
+diff --git a/sound/soc/codecs/lpass-wsa-macro.c b/sound/soc/codecs/lpass-wsa-macro.c
+index d3ac318fd6b6..dd1a8b7bc794 100644
+--- a/sound/soc/codecs/lpass-wsa-macro.c
++++ b/sound/soc/codecs/lpass-wsa-macro.c
+@@ -2405,6 +2405,8 @@ static int wsa_macro_probe(struct platform_device *pdev)
+ 		return PTR_ERR(base);
  
--	rz_ssi_reg_mask_setl(ssi, SSIFSR, SSIFSR_RDF, 0);
--	rz_ssi_pointer_update(strm, samples / runtime->channels);
-+		rz_ssi_reg_mask_setl(ssi, SSIFSR, SSIFSR_RDF, 0);
-+		rz_ssi_pointer_update(strm, samples / runtime->channels);
+ 	wsa->regmap = devm_regmap_init_mmio(dev, base, &wsa_regmap_config);
++	if (IS_ERR(wsa->regmap))
++		return PTR_ERR(wsa->regmap);
  
--	/*
--	 * If we finished this period, but there are more samples in
--	 * the RX FIFO, call this function again
--	 */
--	if (frames_left == 0 && fifo_samples >= runtime->channels)
--		rz_ssi_pio_recv(ssi, strm);
-+		/* check if there are no more samples in the RX FIFO */
-+		if (!(!frames_left && fifo_samples >= runtime->channels))
-+			done = true;
-+	}
+ 	dev_set_drvdata(dev, wsa);
  
- 	return 0;
- }
 -- 
 2.34.1
 
