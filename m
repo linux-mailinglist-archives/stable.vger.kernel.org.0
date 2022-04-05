@@ -2,96 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 475B84F3046
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:27:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C9EF4F2F82
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:16:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243613AbiDEKhH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:37:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39350 "EHLO
+        id S245206AbiDEJLo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:11:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47862 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239604AbiDEJd6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:33:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF4785714B;
-        Tue,  5 Apr 2022 02:22:27 -0700 (PDT)
+        with ESMTP id S244700AbiDEIwe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:34 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC139D95EA;
+        Tue,  5 Apr 2022 01:42:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 620E9B81C6F;
-        Tue,  5 Apr 2022 09:22:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1C66C385A2;
-        Tue,  5 Apr 2022 09:22:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5085560FFC;
+        Tue,  5 Apr 2022 08:42:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58D05C385A0;
+        Tue,  5 Apr 2022 08:42:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150545;
-        bh=U6NPccItde/lV+Aupb+80yWZKd2ruP1llhPD9xnH5U8=;
+        s=korg; t=1649148127;
+        bh=cDOHcd6ONfY3Vz+ceAFwv+xN7bIZgszIs24tb7wI428=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tOKbBuQv1CjsJb2q0ZDUeXdNrWCn7UV7h2w4YJpWzKIpn6Gs1sEoD9GcrgYa70XHX
-         GxD4H4kAY00JKBTyjnj0bPM4GOtAVNU1Pw8hhZ4Dmfgb5DKI0fvaDSV0OPYwf1/54n
-         F2vuQuxkLbCPP2LnuS2qWmz147uPcve+PFC8hNMo=
+        b=av4whejuoZmDCNjz0geHwWumsi94xNyYXoP1inWP5n1XsofLQkrvxyFBKbrnBLFNN
+         fekUSytx0xKEe/QwAoUsypl1DbtOZX/RQoDLPH+ZK3L5qaSYGW+KdvD6axhrJNuxT7
+         rXxdIzGtpcaLrBQIbd69UhMoycEbgEfjNaaWbNAo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Vyukov <dvyukov@google.com>,
-        syzbot+0600986d88e2d4d7ebb8@syzkaller.appspotmail.com,
-        Palmer Dabbelt <palmer@rivosinc.com>
-Subject: [PATCH 5.15 095/913] riscv: Increase stack size under KASAN
+        stable@vger.kernel.org,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0244/1017] clocksource/drivers/timer-microchip-pit64b: Use notrace
 Date:   Tue,  5 Apr 2022 09:19:17 +0200
-Message-Id: <20220405070342.676238143@linuxfoundation.org>
+Message-Id: <20220405070401.501707186@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS,TVD_SPACE_RATIO,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Vyukov <dvyukov@google.com>
+From: Claudiu Beznea <claudiu.beznea@microchip.com>
 
-commit b81d591386c3a50b96dddcf663628ea0df0bf2b3 upstream.
+[ Upstream commit ff10ee97cb203262e88d9c8bc87369cbd4004a0c ]
 
-KASAN requires more stack space because of compiler instrumentation.
-Increase stack size as other arches do.
+Use notrace for mchp_pit64b_sched_read_clk() to avoid recursive call of
+prepare_ftrace_return() when issuing:
+echo function_graph > /sys/kernel/debug/tracing/current_tracer
 
-Signed-off-by: Dmitry Vyukov <dvyukov@google.com>
-Reported-by: syzbot+0600986d88e2d4d7ebb8@syzkaller.appspotmail.com
-Fixes: 8ad8b72721d0 ("riscv: Add KASAN support")
-Cc: stable@vger.kernel.org
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 625022a5f160 ("clocksource/drivers/timer-microchip-pit64b: Add Microchip PIT64B support")
+Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Link: https://lore.kernel.org/r/20220304133601.2404086-3-claudiu.beznea@microchip.com
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/include/asm/thread_info.h |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/clocksource/timer-microchip-pit64b.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/riscv/include/asm/thread_info.h
-+++ b/arch/riscv/include/asm/thread_info.h
-@@ -11,11 +11,17 @@
- #include <asm/page.h>
- #include <linux/const.h>
+diff --git a/drivers/clocksource/timer-microchip-pit64b.c b/drivers/clocksource/timer-microchip-pit64b.c
+index cfa4ec7ef396..790d2c9b42a7 100644
+--- a/drivers/clocksource/timer-microchip-pit64b.c
++++ b/drivers/clocksource/timer-microchip-pit64b.c
+@@ -165,7 +165,7 @@ static u64 mchp_pit64b_clksrc_read(struct clocksource *cs)
+ 	return mchp_pit64b_cnt_read(mchp_pit64b_cs_base);
+ }
  
-+#ifdef CONFIG_KASAN
-+#define KASAN_STACK_ORDER 1
-+#else
-+#define KASAN_STACK_ORDER 0
-+#endif
-+
- /* thread information allocation */
- #ifdef CONFIG_64BIT
--#define THREAD_SIZE_ORDER	(2)
-+#define THREAD_SIZE_ORDER	(2 + KASAN_STACK_ORDER)
- #else
--#define THREAD_SIZE_ORDER	(1)
-+#define THREAD_SIZE_ORDER	(1 + KASAN_STACK_ORDER)
- #endif
- #define THREAD_SIZE		(PAGE_SIZE << THREAD_SIZE_ORDER)
- 
+-static u64 mchp_pit64b_sched_read_clk(void)
++static u64 notrace mchp_pit64b_sched_read_clk(void)
+ {
+ 	return mchp_pit64b_cnt_read(mchp_pit64b_cs_base);
+ }
+-- 
+2.34.1
+
 
 
