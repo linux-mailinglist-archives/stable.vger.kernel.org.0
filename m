@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A386E4F24DD
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 09:40:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 463B34F24DF
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 09:40:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231823AbiDEHlw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 03:41:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54904 "EHLO
+        id S231849AbiDEHl5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 03:41:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56086 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231826AbiDEHlo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:41:44 -0400
+        with ESMTP id S231852AbiDEHlw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:41:52 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B5D34B40B;
-        Tue,  5 Apr 2022 00:39:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4985F4B859;
+        Tue,  5 Apr 2022 00:39:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B7DED61693;
-        Tue,  5 Apr 2022 07:39:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8B0FC340EE;
-        Tue,  5 Apr 2022 07:39:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7B2E06164B;
+        Tue,  5 Apr 2022 07:39:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 871B9C340EE;
+        Tue,  5 Apr 2022 07:39:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649144384;
-        bh=z03uRE2H7zmi68R1Q0lvr3LCmd3ruYnHuWykD/0EvBo=;
+        s=korg; t=1649144386;
+        bh=TiyLQ3K6thQvViES3Dvp4/W4jR7z6kpaRENWn8GKzJc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vw1YN8sSUMrgUEvyU7MmOgaP3FJR/SQdAtmFfqmxA4AY2ZO1OC9Ydikq/TbnxLOV9
-         cwDFIgQS4fBM6WyP8/QaxVyFIqGpyImcC+pBavHF7eAsv2JSGUyezAwogzzjJHVwnB
-         sLEw6tK8U1wGtyz8OPBETO03opmzi4wO+BRY3474=
+        b=BkgXK/ymQn9M+cnP8ErigFvoS772JP/RJn6/hPLMmgdyM1WWu8F2+gi7I+tuvrV+J
+         8pXQ+LUFqTn0+xFMfA3u+yasQmLRwWKSAU7Cb/S6xvtoCXwQAMjHvxdNC1XlfQzFhC
+         pFlsfSKb3/6Jn3peWe4q/QlGz/nPEaEGIlq+w7Jk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Clark <james.clark@arm.com>,
-        Mike Leach <mike.leach@linaro.org>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
         Mathieu Poirier <mathieu.poirier@linaro.org>,
         Suzuki K Poulose <suzuki.poulose@arm.com>
-Subject: [PATCH 5.17 0026/1126] coresight: Fix TRCCONFIGR.QE sysfs interface
-Date:   Tue,  5 Apr 2022 09:12:53 +0200
-Message-Id: <20220405070408.318377465@linuxfoundation.org>
+Subject: [PATCH 5.17 0027/1126] coresight: syscfg: Fix memleak on registration failure in cscfg_create_device
+Date:   Tue,  5 Apr 2022 09:12:54 +0200
+Message-Id: <20220405070408.348567576@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -55,56 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Clark <james.clark@arm.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-commit ea75a342aed5ed72c87f38fbe0df2f5df7eae374 upstream.
+commit cfa5dbcdd7aece76f3415284569f2f384aff0253 upstream.
 
-It's impossible to program a valid value for TRCCONFIGR.QE
-when TRCIDR0.QSUPP==0b10. In that case the following is true:
+device_register() calls device_initialize(),
+according to doc of device_initialize:
 
-  Q element support is implemented, and only supports Q elements without
-  instruction counts. TRCCONFIGR.QE can only take the values 0b00 or 0b11.
+    Use put_device() to give up your reference instead of freeing
+    * @dev directly once you have called this function.
 
-Currently the low bit of QSUPP is checked to see if the low bit of QE can
-be written to, but as you can see when QSUPP==0b10 the low bit is cleared
-making it impossible to ever write the only valid value of 0b11 to QE.
-0b10 would be written instead, which is a reserved QE value even for all
-values of QSUPP.
+To prevent potential memleak, use put_device() for error handling.
 
-The fix is to allow writing the low bit of QE for any non zero value of
-QSUPP.
-
-This change also ensures that the low bit is always set, even when the
-user attempts to only set the high bit.
-
-Signed-off-by: James Clark <james.clark@arm.com>
-Reviewed-by: Mike Leach <mike.leach@linaro.org>
-Fixes: d8c66962084f ("coresight-etm4x: Controls pertaining to the reset, mode, pe and events")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Fixes: 85e2414c518a ("coresight: syscfg: Initial coresight system configuration")
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220120113047.2839622-2-james.clark@arm.com
+Link: https://lore.kernel.org/r/20220124124121.8888-1-linmq006@gmail.com
 Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
 Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hwtracing/coresight/coresight-etm4x-sysfs.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/hwtracing/coresight/coresight-syscfg.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/hwtracing/coresight/coresight-etm4x-sysfs.c
-+++ b/drivers/hwtracing/coresight/coresight-etm4x-sysfs.c
-@@ -367,8 +367,12 @@ static ssize_t mode_store(struct device
- 	mode = ETM_MODE_QELEM(config->mode);
- 	/* start by clearing QE bits */
- 	config->cfg &= ~(BIT(13) | BIT(14));
--	/* if supported, Q elements with instruction counts are enabled */
--	if ((mode & BIT(0)) && (drvdata->q_support & BIT(0)))
-+	/*
-+	 * if supported, Q elements with instruction counts are enabled.
-+	 * Always set the low bit for any requested mode. Valid combos are
-+	 * 0b00, 0b01 and 0b11.
-+	 */
-+	if (mode && drvdata->q_support)
- 		config->cfg |= BIT(13);
- 	/*
- 	 * if supported, Q elements with and without instruction
+--- a/drivers/hwtracing/coresight/coresight-syscfg.c
++++ b/drivers/hwtracing/coresight/coresight-syscfg.c
+@@ -1049,7 +1049,7 @@ static int cscfg_create_device(void)
+ 
+ 	err = device_register(dev);
+ 	if (err)
+-		cscfg_dev_release(dev);
++		put_device(dev);
+ 
+ create_dev_exit_unlock:
+ 	mutex_unlock(&cscfg_mutex);
 
 
