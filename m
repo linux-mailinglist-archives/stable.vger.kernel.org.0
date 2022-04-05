@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E9E14F28B9
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:21:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D78F4F28BE
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:21:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235679AbiDEIVe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:21:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43306 "EHLO
+        id S239875AbiDEIVm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:21:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58414 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233839AbiDEIIx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:08:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 687966C946;
-        Tue,  5 Apr 2022 01:02:33 -0700 (PDT)
+        with ESMTP id S233679AbiDEIJW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:09:22 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5917C6C978;
+        Tue,  5 Apr 2022 01:02:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0D9BCB81B7F;
+        by ams.source.kernel.org (Postfix) with ESMTPS id B52A3B81B16;
+        Tue,  5 Apr 2022 08:02:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 119A0C385A0;
         Tue,  5 Apr 2022 08:02:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72867C385A2;
-        Tue,  5 Apr 2022 08:02:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145750;
-        bh=QwLQUT2Jw7vwffeh6OOnj7GZe0N18ZdeXGnosRVYSSY=;
+        s=korg; t=1649145753;
+        bh=UjJLc0HP9py4xCM5JPQjlI5Xwf3NoCf93kB8Yyy5PnA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dR6iWxD6wMZGofk3Jvhs5/ZSSwkaKuU0iFK1qkLABNQvB7lbnFOKbhZuPGXtRsRqD
-         gIXvVVwqmIo9SvXxfL4IfRR+1pwxBtbRqHECLK241w4f+m3QDDbJBfqVQispdJpgGa
-         RYL/XKLZSshKx496DAuFwUvmjMIAUg23t10AqD6k=
+        b=Shs838LtOXNnemxUboMA15DBHPpJ+dgEHtPFasRkTDDhrJzQIonemMTEkSmeFONcs
+         3qEQQcPdvs+8KG60uDE9xJDDYnI65jSHe8GKayAzUNE0oCZlkIJvJCB9ZBF9bZmzI3
+         YWcd/5zm+Q+eH7H4yrVNUs0gqGea+hJFN2h8MJzw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0517/1126] i2c: bcm2835: Fix the error handling in bcm2835_i2c_probe()
-Date:   Tue,  5 Apr 2022 09:21:04 +0200
-Message-Id: <20220405070422.804649760@linuxfoundation.org>
+        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
+        Michael Walle <michael@walle.cc>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 0518/1126] mtd: mchp23k256: Add SPI ID table
+Date:   Tue,  5 Apr 2022 09:21:05 +0200
+Message-Id: <20220405070422.833998709@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -54,75 +55,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Mark Brown <broonie@kernel.org>
 
-[ Upstream commit b205f5850263632b6897d8f0bfaeeea4955f8663 ]
+[ Upstream commit bc7ee2e34b219da6813c17a1680dd20766648883 ]
 
-Some resource should be released if an error occurs in
-'bcm2835_i2c_probe()'.
-Add an error handling path and the needed 'clk_disable_unprepare()' and
-'clk_rate_exclusive_put()' calls.
+Currently autoloading for SPI devices does not use the DT ID table, it uses
+SPI modalises. Supporting OF modalises is going to be difficult if not
+impractical, an attempt was made but has been reverted, so ensure that
+module autoloading works for this driver by adding an id_table listing the
+SPI IDs for everything.
 
-While at it, rework the bottom of the function to use this newly added
-error handling path and have an explicit and more standard "return 0;" at
-the end of the normal path.
-
-Fixes: bebff81fb8b9 ("i2c: bcm2835: Model Divider in CCF")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-[wsa: rebased]
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Fixes: 96c8395e2166 ("spi: Revert modalias changes")
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Reviewed-by: Michael Walle <michael@walle.cc>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20220202143404.16070-3-broonie@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-bcm2835.c | 21 ++++++++++++++++-----
- 1 file changed, 16 insertions(+), 5 deletions(-)
+ drivers/mtd/devices/mchp23k256.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-bcm2835.c b/drivers/i2c/busses/i2c-bcm2835.c
-index 5149454eef4a..f72c6576d8a3 100644
---- a/drivers/i2c/busses/i2c-bcm2835.c
-+++ b/drivers/i2c/busses/i2c-bcm2835.c
-@@ -454,18 +454,20 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
- 	ret = clk_prepare_enable(i2c_dev->bus_clk);
- 	if (ret) {
- 		dev_err(&pdev->dev, "Couldn't prepare clock");
--		return ret;
-+		goto err_put_exclusive_rate;
- 	}
+diff --git a/drivers/mtd/devices/mchp23k256.c b/drivers/mtd/devices/mchp23k256.c
+index a8b31bddf14b..1a840db207b5 100644
+--- a/drivers/mtd/devices/mchp23k256.c
++++ b/drivers/mtd/devices/mchp23k256.c
+@@ -231,6 +231,19 @@ static const struct of_device_id mchp23k256_of_table[] = {
+ };
+ MODULE_DEVICE_TABLE(of, mchp23k256_of_table);
  
- 	i2c_dev->irq = platform_get_irq(pdev, 0);
--	if (i2c_dev->irq < 0)
--		return i2c_dev->irq;
-+	if (i2c_dev->irq < 0) {
-+		ret = i2c_dev->irq;
-+		goto err_disable_unprepare_clk;
-+	}
- 
- 	ret = request_irq(i2c_dev->irq, bcm2835_i2c_isr, IRQF_SHARED,
- 			  dev_name(&pdev->dev), i2c_dev);
- 	if (ret) {
- 		dev_err(&pdev->dev, "Could not request IRQ\n");
--		return -ENODEV;
-+		goto err_disable_unprepare_clk;
- 	}
- 
- 	adap = &i2c_dev->adapter;
-@@ -489,7 +491,16 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
- 
- 	ret = i2c_add_adapter(adap);
- 	if (ret)
--		free_irq(i2c_dev->irq, i2c_dev);
-+		goto err_free_irq;
++static const struct spi_device_id mchp23k256_spi_ids[] = {
++	{
++		.name = "mchp23k256",
++		.driver_data = (kernel_ulong_t)&mchp23k256_caps,
++	},
++	{
++		.name = "mchp23lcv1024",
++		.driver_data = (kernel_ulong_t)&mchp23lcv1024_caps,
++	},
++	{}
++};
++MODULE_DEVICE_TABLE(spi, mchp23k256_spi_ids);
 +
-+	return 0;
-+
-+err_free_irq:
-+	free_irq(i2c_dev->irq, i2c_dev);
-+err_disable_unprepare_clk:
-+	clk_disable_unprepare(i2c_dev->bus_clk);
-+err_put_exclusive_rate:
-+	clk_rate_exclusive_put(i2c_dev->bus_clk);
+ static struct spi_driver mchp23k256_driver = {
+ 	.driver = {
+ 		.name	= "mchp23k256",
+@@ -238,6 +251,7 @@ static struct spi_driver mchp23k256_driver = {
+ 	},
+ 	.probe		= mchp23k256_probe,
+ 	.remove		= mchp23k256_remove,
++	.id_table	= mchp23k256_spi_ids,
+ };
  
- 	return ret;
- }
+ module_spi_driver(mchp23k256_driver);
 -- 
 2.34.1
 
