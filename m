@@ -2,49 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 98A034F3914
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:43:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE9B34F3BED
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:23:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377571AbiDEL3t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:29:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33930 "EHLO
+        id S1382185AbiDEMD3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:03:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351740AbiDEKDO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:03:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1EDF47561F;
-        Tue,  5 Apr 2022 02:52:10 -0700 (PDT)
+        with ESMTP id S1358067AbiDEK15 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:27:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 704BD583BD;
+        Tue,  5 Apr 2022 03:14:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 93F3B61750;
-        Tue,  5 Apr 2022 09:52:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1901C385A1;
-        Tue,  5 Apr 2022 09:52:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 32364B81BC5;
+        Tue,  5 Apr 2022 10:14:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E822C385A1;
+        Tue,  5 Apr 2022 10:14:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152329;
-        bh=l+m77C9idI4jM2I/cxdJVqKxviVUkNS+iBU28/SrWOs=;
+        s=korg; t=1649153668;
+        bh=K3MNOoTQsy6x8DnN1TuwVMbArMhx3yyqyz7JNKrPkE4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nrxUOpJ5btxwc5GUxemxUxUBG3LoYNAjJD7xcWUtDi2oZj/mXt9vNRJm26CBkpKpf
-         EGUERJShbpzWSE9xhRBaRiC+Da86t8Dq5MFFA1PuEmeR4k0TGZRuDdXPzVz77JpiUl
-         pTINqcuaIlaJ7TZlqeXWAeU+3+Iyr2JkiSbHzjDo=
+        b=uXSLXmDNsO5Err6CFCbLNKQMca6zKThqJx1nuXEq4b8k4pdgnungQlg9LFoM9Zfl0
+         Hzd+Dzv/buzelKqNwZFGqldiX7hS0mlPOub1bgbeK4xvARyxk2KdvuHnDIa2zpwez/
+         OZ8mU0dos5bHlOlegmQf11sva/CTRjzLzIBzYZo4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tomasz Figa <tfiga@chromium.org>,
-        Yong Wu <yong.wu@mediatek.com>, Joerg Roedel <jroedel@suse.de>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Frank Wunderlich <frank-w@public-files.de>
-Subject: [PATCH 5.15 736/913] media: iommu/mediatek: Add device_link between the consumer and the larb devices
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 304/599] iwlwifi: mvm: Fix an error code in iwl_mvm_up()
 Date:   Tue,  5 Apr 2022 09:29:58 +0200
-Message-Id: <20220405070401.895534074@linuxfoundation.org>
+Message-Id: <20220405070307.880463597@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070258.802373272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,181 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yong Wu <yong.wu@mediatek.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 635319a4a7444ca97124d781cd96deb277ff4d40 ]
+[ Upstream commit 583d18336abdfb1b355270289ff8f6a2608ba905 ]
 
-MediaTek IOMMU-SMI diagram is like below. all the consumer connect with
-smi-larb, then connect with smi-common.
+Return -ENODEV instead of success on this error path.
 
-        M4U
-         |
-    smi-common
-         |
-  -------------
-  |         |    ...
-  |         |
-larb1     larb2
-  |         |
-vdec       venc
-
-When the consumer works, it should enable the smi-larb's power which
-also need enable the smi-common's power firstly.
-
-Thus, First of all, use the device link connect the consumer and the
-smi-larbs. then add device link between the smi-larb and smi-common.
-
-This patch adds device_link between the consumer and the larbs.
-
-When device_link_add, I add the flag DL_FLAG_STATELESS to avoid calling
-pm_runtime_xx to keep the original status of clocks. It can avoid two
-issues:
-1) Display HW show fastlogo abnormally reported in [1]. At the beggining,
-all the clocks are enabled before entering kernel, but the clocks for
-display HW(always in larb0) will be gated after clk_enable and clk_disable
-called from device_link_add(->pm_runtime_resume) and rpm_idle. The clock
-operation happened before display driver probe. At that time, the display
-HW will be abnormal.
-
-2) A deadlock issue reported in [2]. Use DL_FLAG_STATELESS to skip
-pm_runtime_xx to avoid the deadlock.
-
-Corresponding, DL_FLAG_AUTOREMOVE_CONSUMER can't be added, then
-device_link_removed should be added explicitly.
-
-Meanwhile, Currently we don't have a device connect with 2 larbs at the
-same time. Disallow this case, print the error log.
-
-[1] https://lore.kernel.org/linux-mediatek/1564213888.22908.4.camel@mhfsdcap03/
-[2] https://lore.kernel.org/patchwork/patch/1086569/
-
-Suggested-by: Tomasz Figa <tfiga@chromium.org>
-Signed-off-by: Yong Wu <yong.wu@mediatek.com>
-Tested-by: Frank Wunderlich <frank-w@public-files.de> # BPI-R2/MT7623
-Acked-by: Joerg Roedel <jroedel@suse.de>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Fixes: dd36a507c806 ("iwlwifi: mvm: look for the first supported channel when add/remove phy ctxt")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/20210816183930.GA2068@kili
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/mtk_iommu.c    | 30 ++++++++++++++++++++++++++++++
- drivers/iommu/mtk_iommu_v1.c | 29 ++++++++++++++++++++++++++++-
- 2 files changed, 58 insertions(+), 1 deletion(-)
+ drivers/net/wireless/intel/iwlwifi/mvm/fw.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/iommu/mtk_iommu.c b/drivers/iommu/mtk_iommu.c
-index 77ae20ff9b35..5971a1168666 100644
---- a/drivers/iommu/mtk_iommu.c
-+++ b/drivers/iommu/mtk_iommu.c
-@@ -562,22 +562,52 @@ static struct iommu_device *mtk_iommu_probe_device(struct device *dev)
- {
- 	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
- 	struct mtk_iommu_data *data;
-+	struct device_link *link;
-+	struct device *larbdev;
-+	unsigned int larbid, larbidx, i;
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/fw.c b/drivers/net/wireless/intel/iwlwifi/mvm/fw.c
+index 6348dfa61724..54b28f0932e2 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/fw.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/fw.c
+@@ -1495,8 +1495,10 @@ int iwl_mvm_up(struct iwl_mvm *mvm)
+ 	while (!sband && i < NUM_NL80211_BANDS)
+ 		sband = mvm->hw->wiphy->bands[i++];
  
- 	if (!fwspec || fwspec->ops != &mtk_iommu_ops)
- 		return ERR_PTR(-ENODEV); /* Not a iommu client device */
- 
- 	data = dev_iommu_priv_get(dev);
- 
-+	/*
-+	 * Link the consumer device with the smi-larb device(supplier).
-+	 * The device that connects with each a larb is a independent HW.
-+	 * All the ports in each a device should be in the same larbs.
-+	 */
-+	larbid = MTK_M4U_TO_LARB(fwspec->ids[0]);
-+	for (i = 1; i < fwspec->num_ids; i++) {
-+		larbidx = MTK_M4U_TO_LARB(fwspec->ids[i]);
-+		if (larbid != larbidx) {
-+			dev_err(dev, "Can only use one larb. Fail@larb%d-%d.\n",
-+				larbid, larbidx);
-+			return ERR_PTR(-EINVAL);
-+		}
+-	if (WARN_ON_ONCE(!sband))
++	if (WARN_ON_ONCE(!sband)) {
++		ret = -ENODEV;
+ 		goto error;
 +	}
-+	larbdev = data->larb_imu[larbid].dev;
-+	link = device_link_add(dev, larbdev,
-+			       DL_FLAG_PM_RUNTIME | DL_FLAG_STATELESS);
-+	if (!link)
-+		dev_err(dev, "Unable to link %s\n", dev_name(larbdev));
- 	return &data->iommu;
- }
  
- static void mtk_iommu_release_device(struct device *dev)
- {
- 	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
-+	struct mtk_iommu_data *data;
-+	struct device *larbdev;
-+	unsigned int larbid;
- 
- 	if (!fwspec || fwspec->ops != &mtk_iommu_ops)
- 		return;
- 
-+	data = dev_iommu_priv_get(dev);
-+	larbid = MTK_M4U_TO_LARB(fwspec->ids[0]);
-+	larbdev = data->larb_imu[larbid].dev;
-+	device_link_remove(dev, larbdev);
-+
- 	iommu_fwspec_free(dev);
- }
- 
-diff --git a/drivers/iommu/mtk_iommu_v1.c b/drivers/iommu/mtk_iommu_v1.c
-index 68bf02f87cfd..bc7ee90b9373 100644
---- a/drivers/iommu/mtk_iommu_v1.c
-+++ b/drivers/iommu/mtk_iommu_v1.c
-@@ -423,7 +423,9 @@ static struct iommu_device *mtk_iommu_probe_device(struct device *dev)
- 	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
- 	struct of_phandle_args iommu_spec;
- 	struct mtk_iommu_data *data;
--	int err, idx = 0;
-+	int err, idx = 0, larbid, larbidx;
-+	struct device_link *link;
-+	struct device *larbdev;
- 
- 	/*
- 	 * In the deferred case, free the existed fwspec.
-@@ -453,6 +455,23 @@ static struct iommu_device *mtk_iommu_probe_device(struct device *dev)
- 
- 	data = dev_iommu_priv_get(dev);
- 
-+	/* Link the consumer device with the smi-larb device(supplier) */
-+	larbid = mt2701_m4u_to_larb(fwspec->ids[0]);
-+	for (idx = 1; idx < fwspec->num_ids; idx++) {
-+		larbidx = mt2701_m4u_to_larb(fwspec->ids[idx]);
-+		if (larbid != larbidx) {
-+			dev_err(dev, "Can only use one larb. Fail@larb%d-%d.\n",
-+				larbid, larbidx);
-+			return ERR_PTR(-EINVAL);
-+		}
-+	}
-+
-+	larbdev = data->larb_imu[larbid].dev;
-+	link = device_link_add(dev, larbdev,
-+			       DL_FLAG_PM_RUNTIME | DL_FLAG_STATELESS);
-+	if (!link)
-+		dev_err(dev, "Unable to link %s\n", dev_name(larbdev));
-+
- 	return &data->iommu;
- }
- 
-@@ -473,10 +492,18 @@ static void mtk_iommu_probe_finalize(struct device *dev)
- static void mtk_iommu_release_device(struct device *dev)
- {
- 	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
-+	struct mtk_iommu_data *data;
-+	struct device *larbdev;
-+	unsigned int larbid;
- 
- 	if (!fwspec || fwspec->ops != &mtk_iommu_ops)
- 		return;
- 
-+	data = dev_iommu_priv_get(dev);
-+	larbid = mt2701_m4u_to_larb(fwspec->ids[0]);
-+	larbdev = data->larb_imu[larbid].dev;
-+	device_link_remove(dev, larbdev);
-+
- 	iommu_fwspec_free(dev);
- }
+ 	chan = &sband->channels[0];
  
 -- 
 2.34.1
