@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DBD8C4F2E85
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:01:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E0074F2E6B
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:00:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238330AbiDEJKd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:10:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47636 "EHLO
+        id S1347613AbiDEJ1t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:27:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52156 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244358AbiDEIv7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:51:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B0C6D4451;
-        Tue,  5 Apr 2022 01:40:48 -0700 (PDT)
+        with ESMTP id S244489AbiDEIwL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:11 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BB1DD64CE;
+        Tue,  5 Apr 2022 01:41:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6CF4AB81C69;
-        Tue,  5 Apr 2022 08:40:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D181DC385A4;
-        Tue,  5 Apr 2022 08:40:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DC388B81BBF;
+        Tue,  5 Apr 2022 08:40:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36181C385A1;
+        Tue,  5 Apr 2022 08:40:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148047;
-        bh=xMTWoOG1DuSsSOJTpFqmJoGyzRzHLywWkD5GWPh5E4I=;
+        s=korg; t=1649148052;
+        bh=G6f2/sQgiag0j9wye3uhzQKuFL3LXJowljAyAcD9C9w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AK4yUI5OBuT2YeExfw4jDmAbq2uNIBx+0RsCfwxvzRr2XF6LaoLhPYVe0t7AWrh1j
-         r8MvETcvvEKGLlWei5GN+E8eGJXKgqkkodjAu6Wm8Gx1IeDZeAxz2eoZ4r/w1V3JBs
-         yg1+oZzAXxGxJN9y1/dv55eV/ZoBUOcS17NDIqFA=
+        b=wgQJT7thBc4uxdvC+jmTaFz1wcUWVHCDNE89kAJoL8kbWMmnyeIpJy4rii7HN1rW8
+         zbeaLqZ3RdMibxVNddD1aB1zXbhj3Jp3RDN6F2FGf9p2AGYaMz+imsD6l1VI0KtYuM
+         rJc0EPXFKQtb2U6k0tPmj4I7tlGuZ8wO/1QGgYv0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marco Elver <elver@google.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
+        stable@vger.kernel.org, Prashanth Prahlad <pprahlad@redhat.com>,
+        Xin Long <lucien.xin@gmail.com>,
+        Richard Haines <richard_c_haines@btinternet.com>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        Paul Moore <paul@paul-moore.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0214/1017] stack: Constrain and fix stack offset randomization with Clang builds
-Date:   Tue,  5 Apr 2022 09:18:47 +0200
-Message-Id: <20220405070400.603149784@linuxfoundation.org>
+Subject: [PATCH 5.16 0216/1017] security: add sctp_assoc_established hook
+Date:   Tue,  5 Apr 2022 09:18:49 +0200
+Message-Id: <20220405070400.663105580@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -55,104 +57,205 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marco Elver <elver@google.com>
+From: Ondrej Mosnacek <omosnace@redhat.com>
 
-[ Upstream commit efa90c11f62e6b7252fb75efe2787056872a627c ]
+[ Upstream commit 5e50f5d4ff31e95599d695df1f0a4e7d2d6fef99 ]
 
-All supported versions of Clang perform auto-init of __builtin_alloca()
-when stack auto-init is on (CONFIG_INIT_STACK_ALL_{ZERO,PATTERN}).
+security_sctp_assoc_established() is added to replace
+security_inet_conn_established() called in
+sctp_sf_do_5_1E_ca(), so that asoc can be accessed in security
+subsystem and save the peer secid to asoc->peer_secid.
 
-add_random_kstack_offset() uses __builtin_alloca() to add a stack
-offset. This means, when CONFIG_INIT_STACK_ALL_{ZERO,PATTERN} is
-enabled, add_random_kstack_offset() will auto-init that unused portion
-of the stack used to add an offset.
-
-There are several problems with this:
-
-	1. These offsets can be as large as 1023 bytes. Performing
-	   memset() on them isn't exactly cheap, and this is done on
-	   every syscall entry.
-
-	2. Architectures adding add_random_kstack_offset() to syscall
-	   entry implemented in C require them to be 'noinstr' (e.g. see
-	   x86 and s390). The potential problem here is that a call to
-	   memset may occur, which is not noinstr.
-
-A x86_64 defconfig kernel with Clang 11 and CONFIG_VMLINUX_VALIDATION shows:
-
- | vmlinux.o: warning: objtool: do_syscall_64()+0x9d: call to memset() leaves .noinstr.text section
- | vmlinux.o: warning: objtool: do_int80_syscall_32()+0xab: call to memset() leaves .noinstr.text section
- | vmlinux.o: warning: objtool: __do_fast_syscall_32()+0xe2: call to memset() leaves .noinstr.text section
- | vmlinux.o: warning: objtool: fixup_bad_iret()+0x2f: call to memset() leaves .noinstr.text section
-
-Clang 14 (unreleased) will introduce a way to skip alloca initialization
-via __builtin_alloca_uninitialized() (https://reviews.llvm.org/D115440).
-
-Constrain RANDOMIZE_KSTACK_OFFSET to only be enabled if no stack
-auto-init is enabled, the compiler is GCC, or Clang is version 14+. Use
-__builtin_alloca_uninitialized() if the compiler provides it, as is done
-by Clang 14.
-
-Link: https://lkml.kernel.org/r/YbHTKUjEejZCLyhX@elver.google.com
-Fixes: 39218ff4c625 ("stack: Optionally randomize kernel stack offset each syscall")
-Signed-off-by: Marco Elver <elver@google.com>
-Reviewed-by: Nathan Chancellor <nathan@kernel.org>
-Acked-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20220131090521.1947110-2-elver@google.com
+Fixes: 72e89f50084c ("security: Add support for SCTP security hooks")
+Reported-by: Prashanth Prahlad <pprahlad@redhat.com>
+Based-on-patch-by: Xin Long <lucien.xin@gmail.com>
+Reviewed-by: Xin Long <lucien.xin@gmail.com>
+Tested-by: Richard Haines <richard_c_haines@btinternet.com>
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/Kconfig                     |  1 +
- include/linux/randomize_kstack.h | 16 ++++++++++++++--
- 2 files changed, 15 insertions(+), 2 deletions(-)
+ Documentation/security/SCTP.rst | 22 ++++++++++------------
+ include/linux/lsm_hook_defs.h   |  2 ++
+ include/linux/lsm_hooks.h       |  5 +++++
+ include/linux/security.h        |  8 ++++++++
+ net/sctp/sm_statefuns.c         |  8 +++++---
+ security/security.c             |  7 +++++++
+ 6 files changed, 37 insertions(+), 15 deletions(-)
 
-diff --git a/arch/Kconfig b/arch/Kconfig
-index d3c4ab249e9c..a825f8251f3d 100644
---- a/arch/Kconfig
-+++ b/arch/Kconfig
-@@ -1159,6 +1159,7 @@ config HAVE_ARCH_RANDOMIZE_KSTACK_OFFSET
- config RANDOMIZE_KSTACK_OFFSET_DEFAULT
- 	bool "Randomize kernel stack offset on syscall entry"
- 	depends on HAVE_ARCH_RANDOMIZE_KSTACK_OFFSET
-+	depends on INIT_STACK_NONE || !CC_IS_CLANG || CLANG_VERSION >= 140000
- 	help
- 	  The kernel stack offset can be randomized (after pt_regs) by
- 	  roughly 5 bits of entropy, frustrating memory corruption
-diff --git a/include/linux/randomize_kstack.h b/include/linux/randomize_kstack.h
-index bebc911161b6..d373f1bcbf7c 100644
---- a/include/linux/randomize_kstack.h
-+++ b/include/linux/randomize_kstack.h
-@@ -16,8 +16,20 @@ DECLARE_PER_CPU(u32, kstack_offset);
-  * alignment. Also, since this use is being explicitly masked to a max of
-  * 10 bits, stack-clash style attacks are unlikely. For more details see
-  * "VLAs" in Documentation/process/deprecated.rst
-+ *
-+ * The normal __builtin_alloca() is initialized with INIT_STACK_ALL (currently
-+ * only with Clang and not GCC). Initializing the unused area on each syscall
-+ * entry is expensive, and generating an implicit call to memset() may also be
-+ * problematic (such as in noinstr functions). Therefore, if the compiler
-+ * supports it (which it should if it initializes allocas), always use the
-+ * "uninitialized" variant of the builtin.
-  */
--void *__builtin_alloca(size_t size);
-+#if __has_builtin(__builtin_alloca_uninitialized)
-+#define __kstack_alloca __builtin_alloca_uninitialized
-+#else
-+#define __kstack_alloca __builtin_alloca
-+#endif
+diff --git a/Documentation/security/SCTP.rst b/Documentation/security/SCTP.rst
+index d5fd6ccc3dcb..406cc68b8808 100644
+--- a/Documentation/security/SCTP.rst
++++ b/Documentation/security/SCTP.rst
+@@ -15,10 +15,7 @@ For security module support, three SCTP specific hooks have been implemented::
+     security_sctp_assoc_request()
+     security_sctp_bind_connect()
+     security_sctp_sk_clone()
+-
+-Also the following security hook has been utilised::
+-
+-    security_inet_conn_established()
++    security_sctp_assoc_established()
+ 
+ The usage of these hooks are described below with the SELinux implementation
+ described in the `SCTP SELinux Support`_ chapter.
+@@ -122,11 +119,12 @@ calls **sctp_peeloff**\(3).
+     @newsk - pointer to new sock structure.
+ 
+ 
+-security_inet_conn_established()
++security_sctp_assoc_established()
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-Called when a COOKIE ACK is received::
++Called when a COOKIE ACK is received, and the peer secid will be
++saved into ``@asoc->peer_secid`` for client::
+ 
+-    @sk  - pointer to sock structure.
++    @asoc - pointer to sctp association structure.
+     @skb - pointer to skbuff of the COOKIE ACK packet.
+ 
+ 
+@@ -134,7 +132,7 @@ Security Hooks used for Association Establishment
+ -------------------------------------------------
+ 
+ The following diagram shows the use of ``security_sctp_bind_connect()``,
+-``security_sctp_assoc_request()``, ``security_inet_conn_established()`` when
++``security_sctp_assoc_request()``, ``security_sctp_assoc_established()`` when
+ establishing an association.
+ ::
+ 
+@@ -172,7 +170,7 @@ establishing an association.
+           <------------------------------------------- COOKIE ACK
+           |                                               |
+     sctp_sf_do_5_1E_ca                                    |
+- Call security_inet_conn_established()                    |
++ Call security_sctp_assoc_established()                   |
+  to set the peer label.                                   |
+           |                                               |
+           |                               If SCTP_SOCKET_TCP or peeled off
+@@ -198,7 +196,7 @@ hooks with the SELinux specifics expanded below::
+     security_sctp_assoc_request()
+     security_sctp_bind_connect()
+     security_sctp_sk_clone()
+-    security_inet_conn_established()
++    security_sctp_assoc_established()
+ 
+ 
+ security_sctp_assoc_request()
+@@ -271,12 +269,12 @@ sockets sid and peer sid to that contained in the ``@asoc sid`` and
+     @newsk - pointer to new sock structure.
+ 
+ 
+-security_inet_conn_established()
++security_sctp_assoc_established()
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ Called when a COOKIE ACK is received where it sets the connection's peer sid
+ to that in ``@skb``::
+ 
+-    @sk  - pointer to sock structure.
++    @asoc - pointer to sctp association structure.
+     @skb - pointer to skbuff of the COOKIE ACK packet.
+ 
+ 
+diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
+index f0c7b352340a..2e078f40195d 100644
+--- a/include/linux/lsm_hook_defs.h
++++ b/include/linux/lsm_hook_defs.h
+@@ -335,6 +335,8 @@ LSM_HOOK(int, 0, sctp_bind_connect, struct sock *sk, int optname,
+ 	 struct sockaddr *address, int addrlen)
+ LSM_HOOK(void, LSM_RET_VOID, sctp_sk_clone, struct sctp_association *asoc,
+ 	 struct sock *sk, struct sock *newsk)
++LSM_HOOK(int, 0, sctp_assoc_established, struct sctp_association *asoc,
++	 struct sk_buff *skb)
+ #endif /* CONFIG_SECURITY_NETWORK */
+ 
+ #ifdef CONFIG_SECURITY_INFINIBAND
+diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+index d45b6f6e27fd..d6823214d5c1 100644
+--- a/include/linux/lsm_hooks.h
++++ b/include/linux/lsm_hooks.h
+@@ -1050,6 +1050,11 @@
+  *	@asoc pointer to current sctp association structure.
+  *	@sk pointer to current sock structure.
+  *	@newsk pointer to new sock structure.
++ * @sctp_assoc_established:
++ *	Passes the @asoc and @chunk->skb of the association COOKIE_ACK packet
++ *	to the security module.
++ *	@asoc pointer to sctp association structure.
++ *	@skb pointer to skbuff of association packet.
+  *
+  * Security hooks for Infiniband
+  *
+diff --git a/include/linux/security.h b/include/linux/security.h
+index bbf44a466832..bd059e7b4766 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -1430,6 +1430,8 @@ int security_sctp_bind_connect(struct sock *sk, int optname,
+ 			       struct sockaddr *address, int addrlen);
+ void security_sctp_sk_clone(struct sctp_association *asoc, struct sock *sk,
+ 			    struct sock *newsk);
++int security_sctp_assoc_established(struct sctp_association *asoc,
++				    struct sk_buff *skb);
+ 
+ #else	/* CONFIG_SECURITY_NETWORK */
+ static inline int security_unix_stream_connect(struct sock *sock,
+@@ -1649,6 +1651,12 @@ static inline void security_sctp_sk_clone(struct sctp_association *asoc,
+ 					  struct sock *newsk)
+ {
+ }
 +
- /*
-  * Use, at most, 10 bits of entropy. We explicitly cap this to keep the
-  * "VLA" from being unbounded (see above). 10 bits leaves enough room for
-@@ -36,7 +48,7 @@ void *__builtin_alloca(size_t size);
- 	if (static_branch_maybe(CONFIG_RANDOMIZE_KSTACK_OFFSET_DEFAULT,	\
- 				&randomize_kstack_offset)) {		\
- 		u32 offset = raw_cpu_read(kstack_offset);		\
--		u8 *ptr = __builtin_alloca(KSTACK_OFFSET_MAX(offset));	\
-+		u8 *ptr = __kstack_alloca(KSTACK_OFFSET_MAX(offset));	\
- 		/* Keep allocation even after "ptr" loses scope. */	\
- 		asm volatile("" :: "r"(ptr) : "memory");		\
- 	}								\
++static inline int security_sctp_assoc_established(struct sctp_association *asoc,
++						  struct sk_buff *skb)
++{
++	return 0;
++}
+ #endif	/* CONFIG_SECURITY_NETWORK */
+ 
+ #ifdef CONFIG_SECURITY_INFINIBAND
+diff --git a/net/sctp/sm_statefuns.c b/net/sctp/sm_statefuns.c
+index 354c1c4de19b..5633fbb1ba3c 100644
+--- a/net/sctp/sm_statefuns.c
++++ b/net/sctp/sm_statefuns.c
+@@ -930,6 +930,11 @@ enum sctp_disposition sctp_sf_do_5_1E_ca(struct net *net,
+ 	if (!sctp_vtag_verify(chunk, asoc))
+ 		return sctp_sf_pdiscard(net, ep, asoc, type, arg, commands);
+ 
++	/* Set peer label for connection. */
++	if (security_sctp_assoc_established((struct sctp_association *)asoc,
++					    chunk->skb))
++		return sctp_sf_pdiscard(net, ep, asoc, type, arg, commands);
++
+ 	/* Verify that the chunk length for the COOKIE-ACK is OK.
+ 	 * If we don't do this, any bundled chunks may be junked.
+ 	 */
+@@ -945,9 +950,6 @@ enum sctp_disposition sctp_sf_do_5_1E_ca(struct net *net,
+ 	 */
+ 	sctp_add_cmd_sf(commands, SCTP_CMD_INIT_COUNTER_RESET, SCTP_NULL());
+ 
+-	/* Set peer label for connection. */
+-	security_inet_conn_established(ep->base.sk, chunk->skb);
+-
+ 	/* RFC 2960 5.1 Normal Establishment of an Association
+ 	 *
+ 	 * E) Upon reception of the COOKIE ACK, endpoint "A" will move
+diff --git a/security/security.c b/security/security.c
+index 64abdfb20bc2..cf6615b5e820 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -2399,6 +2399,13 @@ void security_sctp_sk_clone(struct sctp_association *asoc, struct sock *sk,
+ }
+ EXPORT_SYMBOL(security_sctp_sk_clone);
+ 
++int security_sctp_assoc_established(struct sctp_association *asoc,
++				    struct sk_buff *skb)
++{
++	return call_int_hook(sctp_assoc_established, 0, asoc, skb);
++}
++EXPORT_SYMBOL(security_sctp_assoc_established);
++
+ #endif	/* CONFIG_SECURITY_NETWORK */
+ 
+ #ifdef CONFIG_SECURITY_INFINIBAND
 -- 
 2.34.1
 
