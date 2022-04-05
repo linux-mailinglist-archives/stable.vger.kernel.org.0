@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AFF34F4519
-	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 00:40:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 077624F44EC
+	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 00:32:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244982AbiDEMV1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:21:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33040 "EHLO
+        id S1381068AbiDEMOY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:14:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238902AbiDEKaZ (ORCPT
+        with ESMTP id S238925AbiDEKaZ (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:30:25 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E291CDCAB2;
-        Tue,  5 Apr 2022 03:18:14 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 198ECDCE07;
+        Tue,  5 Apr 2022 03:18:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7BB1361777;
-        Tue,  5 Apr 2022 10:18:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D294C385A2;
-        Tue,  5 Apr 2022 10:18:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2CCC66176C;
+        Tue,  5 Apr 2022 10:18:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3EE6DC385A1;
+        Tue,  5 Apr 2022 10:18:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153893;
-        bh=LlfPEpuO2RmOjuU3Q2iGNRyCQCE6XCPmkT3/gfEHe7M=;
+        s=korg; t=1649153896;
+        bh=3rzkx/yreIVc/blvWlOqW8WfIueqgzdq7d0YI+QKGUI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I4aYYPEwSy9cWH5wEsLnCC5Py8oHpZUENa/OiG+vYl6QolnyJOoF+CmZAjV68yL/g
-         EP9eJhbBdKYsPuxjWsaxHVFGl1/v5ymOKruOJAOJauXM3IgrEAEgfcf3afqEZEU6RC
-         wlOaPHhCLIUNUeQC4h7Tkkeq8vDo455eD3d+9umg=
+        b=N7CxODvyApN+pZHL/YcpaJTLM9BazUCVYq5d45C3MAx7PJsxphsO/oU5osr7H4CGX
+         Bj0lcWtJ2einw7mDVP8+J87W8Db0KICchvNoBG0e3+qrxqNNQ1wknVrrpiP3v4LpAx
+         SiRxgasWSEQZZamfUSf/E9fBsSoyqxFbx7RBcu9o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert Marko <robimarko@gmail.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 385/599] clk: qcom: ipq8074: fix PCI-E clock oops
-Date:   Tue,  5 Apr 2022 09:31:19 +0200
-Message-Id: <20220405070310.287326675@linuxfoundation.org>
+Subject: [PATCH 5.10 386/599] iio: mma8452: Fix probe failing when an i2c_device_id is used
+Date:   Tue,  5 Apr 2022 09:31:20 +0200
+Message-Id: <20220405070310.317174826@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -54,161 +54,141 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Marko <robimarko@gmail.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit bf8f5182b8f59309809b41c1d1730ed9ca6134b1 ]
+[ Upstream commit a47ac019e7e8129b93a0b991e04b2a59872e053d ]
 
-Fix PCI-E clock related kernel oops that are caused by a missing clock
-parent.
+The mma8452_driver declares both of_match_table and i2c_driver.id_table
+match-tables, but its probe() function only checked for of matches.
 
-pcie0_rchng_clk_src has num_parents set to 2 but only one parent is
-actually set via parent_hws, it should also have "XO" defined.
-This will cause the kernel to panic on a NULL pointer in
-clk_core_get_parent_by_index().
+Add support for i2c_device_id matches. This fixes the driver not loading
+on some x86 tablets (e.g. the Nextbook Ares 8) where the i2c_client is
+instantiated by platform code using an i2c_device_id.
 
-So, to fix this utilize clk_parent_data to provide gcc_xo_gpll0 parent
-data.
-Since there is already an existing static const char * const gcc_xo_gpll0[]
-used to provide the same parents via parent_names convert those users to
-clk_parent_data as well.
+Drop of_match_ptr() protection to avoid unused warning.
 
-Without this earlycon is needed to even catch the OOPS as it will reset
-the board before serial is initialized with the following:
-
-[    0.232279] Unable to handle kernel paging request at virtual address 0000a00000000000
-[    0.232322] Mem abort info:
-[    0.239094]   ESR = 0x96000004
-[    0.241778]   EC = 0x25: DABT (current EL), IL = 32 bits
-[    0.244908]   SET = 0, FnV = 0
-[    0.250377]   EA = 0, S1PTW = 0
-[    0.253236]   FSC = 0x04: level 0 translation fault
-[    0.256277] Data abort info:
-[    0.261141]   ISV = 0, ISS = 0x00000004
-[    0.264262]   CM = 0, WnR = 0
-[    0.267820] [0000a00000000000] address between user and kernel address ranges
-[    0.270954] Internal error: Oops: 96000004 [#1] SMP
-[    0.278067] Modules linked in:
-[    0.282751] CPU: 1 PID: 1 Comm: swapper/0 Not tainted 5.15.10 #0
-[    0.285882] Hardware name: Xiaomi AX3600 (DT)
-[    0.292043] pstate: 20400005 (nzCv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-[    0.296299] pc : clk_core_get_parent_by_index+0x68/0xec
-[    0.303067] lr : __clk_register+0x1d8/0x820
-[    0.308273] sp : ffffffc01111b7d0
-[    0.312438] x29: ffffffc01111b7d0 x28: 0000000000000000 x27: 0000000000000040
-[    0.315919] x26: 0000000000000002 x25: 0000000000000000 x24: ffffff8000308800
-[    0.323037] x23: ffffff8000308850 x22: ffffff8000308880 x21: ffffff8000308828
-[    0.330155] x20: 0000000000000028 x19: ffffff8000309700 x18: 0000000000000020
-[    0.337272] x17: 000000005cc86990 x16: 0000000000000004 x15: ffffff80001d9d0a
-[    0.344391] x14: 0000000000000000 x13: 0000000000000000 x12: 0000000000000006
-[    0.351508] x11: 0000000000000003 x10: 0101010101010101 x9 : 0000000000000000
-[    0.358626] x8 : 7f7f7f7f7f7f7f7f x7 : 6468626f5e626266 x6 : 17000a3a403c1b06
-[    0.365744] x5 : 061b3c403a0a0017 x4 : 0000000000000000 x3 : 0000000000000001
-[    0.372863] x2 : 0000a00000000000 x1 : 0000000000000001 x0 : ffffff8000309700
-[    0.379982] Call trace:
-[    0.387091]  clk_core_get_parent_by_index+0x68/0xec
-[    0.389351]  __clk_register+0x1d8/0x820
-[    0.394210]  devm_clk_hw_register+0x5c/0xe0
-[    0.398030]  devm_clk_register_regmap+0x44/0x8c
-[    0.402198]  qcom_cc_really_probe+0x17c/0x1d0
-[    0.406711]  qcom_cc_probe+0x34/0x44
-[    0.411224]  gcc_ipq8074_probe+0x18/0x30
-[    0.414869]  platform_probe+0x68/0xe0
-[    0.418776]  really_probe.part.0+0x9c/0x30c
-[    0.422336]  __driver_probe_device+0x98/0x144
-[    0.426329]  driver_probe_device+0x44/0x11c
-[    0.430842]  __device_attach_driver+0xb4/0x120
-[    0.434836]  bus_for_each_drv+0x68/0xb0
-[    0.439349]  __device_attach+0xb0/0x170
-[    0.443081]  device_initial_probe+0x14/0x20
-[    0.446901]  bus_probe_device+0x9c/0xa4
-[    0.451067]  device_add+0x35c/0x834
-[    0.454886]  of_device_add+0x54/0x64
-[    0.458360]  of_platform_device_create_pdata+0xc0/0x100
-[    0.462181]  of_platform_bus_create+0x114/0x370
-[    0.467128]  of_platform_bus_create+0x15c/0x370
-[    0.471641]  of_platform_populate+0x50/0xcc
-[    0.476155]  of_platform_default_populate_init+0xa8/0xc8
-[    0.480324]  do_one_initcall+0x50/0x1b0
-[    0.485877]  kernel_init_freeable+0x234/0x29c
-[    0.489436]  kernel_init+0x24/0x120
-[    0.493948]  ret_from_fork+0x10/0x20
-[    0.497253] Code: d50323bf d65f03c0 f94002a2 b4000302 (f9400042)
-[    0.501079] ---[ end trace 4ca7e1129da2abce ]---
-
-Fixes: f0cfcf1a ("clk: qcom: ipq8074: Add missing clocks for pcie")
-Signed-off-by: Robert Marko <robimarko@gmail.com>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20211220114119.465247-1-robimarko@gmail.com
+Fixes: c3cdd6e48e35 ("iio: mma8452: refactor for seperating chip specific data")
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20220208124336.511884-1-hdegoede@redhat.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/qcom/gcc-ipq8074.c | 19 +++++++++----------
- 1 file changed, 9 insertions(+), 10 deletions(-)
+ drivers/iio/accel/mma8452.c | 29 ++++++++++++++++++-----------
+ 1 file changed, 18 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/clk/qcom/gcc-ipq8074.c b/drivers/clk/qcom/gcc-ipq8074.c
-index 108fe27bee10..b09d99343e09 100644
---- a/drivers/clk/qcom/gcc-ipq8074.c
-+++ b/drivers/clk/qcom/gcc-ipq8074.c
-@@ -60,11 +60,6 @@ static const struct parent_map gcc_xo_gpll0_gpll0_out_main_div2_map[] = {
- 	{ P_GPLL0_DIV2, 4 },
- };
+diff --git a/drivers/iio/accel/mma8452.c b/drivers/iio/accel/mma8452.c
+index a7208704d31c..e7e280282774 100644
+--- a/drivers/iio/accel/mma8452.c
++++ b/drivers/iio/accel/mma8452.c
+@@ -176,6 +176,7 @@ static const struct mma8452_event_regs trans_ev_regs = {
+  * @enabled_events:		event flags enabled and handled by this driver
+  */
+ struct mma_chip_info {
++	const char *name;
+ 	u8 chip_id;
+ 	const struct iio_chan_spec *channels;
+ 	int num_channels;
+@@ -1303,6 +1304,7 @@ enum {
  
--static const char * const gcc_xo_gpll0[] = {
--	"xo",
--	"gpll0",
--};
+ static const struct mma_chip_info mma_chip_info_table[] = {
+ 	[mma8451] = {
++		.name = "mma8451",
+ 		.chip_id = MMA8451_DEVICE_ID,
+ 		.channels = mma8451_channels,
+ 		.num_channels = ARRAY_SIZE(mma8451_channels),
+@@ -1327,6 +1329,7 @@ static const struct mma_chip_info mma_chip_info_table[] = {
+ 					MMA8452_INT_FF_MT,
+ 	},
+ 	[mma8452] = {
++		.name = "mma8452",
+ 		.chip_id = MMA8452_DEVICE_ID,
+ 		.channels = mma8452_channels,
+ 		.num_channels = ARRAY_SIZE(mma8452_channels),
+@@ -1343,6 +1346,7 @@ static const struct mma_chip_info mma_chip_info_table[] = {
+ 					MMA8452_INT_FF_MT,
+ 	},
+ 	[mma8453] = {
++		.name = "mma8453",
+ 		.chip_id = MMA8453_DEVICE_ID,
+ 		.channels = mma8453_channels,
+ 		.num_channels = ARRAY_SIZE(mma8453_channels),
+@@ -1359,6 +1363,7 @@ static const struct mma_chip_info mma_chip_info_table[] = {
+ 					MMA8452_INT_FF_MT,
+ 	},
+ 	[mma8652] = {
++		.name = "mma8652",
+ 		.chip_id = MMA8652_DEVICE_ID,
+ 		.channels = mma8652_channels,
+ 		.num_channels = ARRAY_SIZE(mma8652_channels),
+@@ -1368,6 +1373,7 @@ static const struct mma_chip_info mma_chip_info_table[] = {
+ 		.enabled_events = MMA8452_INT_FF_MT,
+ 	},
+ 	[mma8653] = {
++		.name = "mma8653",
+ 		.chip_id = MMA8653_DEVICE_ID,
+ 		.channels = mma8653_channels,
+ 		.num_channels = ARRAY_SIZE(mma8653_channels),
+@@ -1382,6 +1388,7 @@ static const struct mma_chip_info mma_chip_info_table[] = {
+ 		.enabled_events = MMA8452_INT_FF_MT,
+ 	},
+ 	[fxls8471] = {
++		.name = "fxls8471",
+ 		.chip_id = FXLS8471_DEVICE_ID,
+ 		.channels = mma8451_channels,
+ 		.num_channels = ARRAY_SIZE(mma8451_channels),
+@@ -1525,13 +1532,6 @@ static int mma8452_probe(struct i2c_client *client,
+ 	struct mma8452_data *data;
+ 	struct iio_dev *indio_dev;
+ 	int ret;
+-	const struct of_device_id *match;
 -
- static const struct parent_map gcc_xo_gpll0_map[] = {
- 	{ P_XO, 0 },
- 	{ P_GPLL0, 1 },
-@@ -956,6 +951,11 @@ static struct clk_rcg2 blsp1_uart6_apps_clk_src = {
- 	},
- };
+-	match = of_match_device(mma8452_dt_ids, &client->dev);
+-	if (!match) {
+-		dev_err(&client->dev, "unknown device model\n");
+-		return -ENODEV;
+-	}
  
-+static const struct clk_parent_data gcc_xo_gpll0[] = {
-+	{ .fw_name = "xo" },
-+	{ .hw = &gpll0.clkr.hw },
-+};
+ 	indio_dev = devm_iio_device_alloc(&client->dev, sizeof(*data));
+ 	if (!indio_dev)
+@@ -1540,7 +1540,14 @@ static int mma8452_probe(struct i2c_client *client,
+ 	data = iio_priv(indio_dev);
+ 	data->client = client;
+ 	mutex_init(&data->lock);
+-	data->chip_info = match->data;
 +
- static const struct freq_tbl ftbl_pcie_axi_clk_src[] = {
- 	F(19200000, P_XO, 1, 0, 0),
- 	F(200000000, P_GPLL0, 4, 0, 0),
-@@ -969,7 +969,7 @@ static struct clk_rcg2 pcie0_axi_clk_src = {
- 	.parent_map = gcc_xo_gpll0_map,
- 	.clkr.hw.init = &(struct clk_init_data){
- 		.name = "pcie0_axi_clk_src",
--		.parent_names = gcc_xo_gpll0,
-+		.parent_data = gcc_xo_gpll0,
- 		.num_parents = 2,
- 		.ops = &clk_rcg2_ops,
++	data->chip_info = device_get_match_data(&client->dev);
++	if (!data->chip_info && id) {
++		data->chip_info = &mma_chip_info_table[id->driver_data];
++	} else {
++		dev_err(&client->dev, "unknown device model\n");
++		return -ENODEV;
++	}
+ 
+ 	data->vdd_reg = devm_regulator_get(&client->dev, "vdd");
+ 	if (IS_ERR(data->vdd_reg))
+@@ -1584,11 +1591,11 @@ static int mma8452_probe(struct i2c_client *client,
+ 	}
+ 
+ 	dev_info(&client->dev, "registering %s accelerometer; ID 0x%x\n",
+-		 match->compatible, data->chip_info->chip_id);
++		 data->chip_info->name, data->chip_info->chip_id);
+ 
+ 	i2c_set_clientdata(client, indio_dev);
+ 	indio_dev->info = &mma8452_info;
+-	indio_dev->name = id->name;
++	indio_dev->name = data->chip_info->name;
+ 	indio_dev->modes = INDIO_DIRECT_MODE;
+ 	indio_dev->channels = data->chip_info->channels;
+ 	indio_dev->num_channels = data->chip_info->num_channels;
+@@ -1814,7 +1821,7 @@ MODULE_DEVICE_TABLE(i2c, mma8452_id);
+ static struct i2c_driver mma8452_driver = {
+ 	.driver = {
+ 		.name	= "mma8452",
+-		.of_match_table = of_match_ptr(mma8452_dt_ids),
++		.of_match_table = mma8452_dt_ids,
+ 		.pm	= &mma8452_pm_ops,
  	},
-@@ -1016,7 +1016,7 @@ static struct clk_rcg2 pcie1_axi_clk_src = {
- 	.parent_map = gcc_xo_gpll0_map,
- 	.clkr.hw.init = &(struct clk_init_data){
- 		.name = "pcie1_axi_clk_src",
--		.parent_names = gcc_xo_gpll0,
-+		.parent_data = gcc_xo_gpll0,
- 		.num_parents = 2,
- 		.ops = &clk_rcg2_ops,
- 	},
-@@ -1330,7 +1330,7 @@ static struct clk_rcg2 nss_ce_clk_src = {
- 	.parent_map = gcc_xo_gpll0_map,
- 	.clkr.hw.init = &(struct clk_init_data){
- 		.name = "nss_ce_clk_src",
--		.parent_names = gcc_xo_gpll0,
-+		.parent_data = gcc_xo_gpll0,
- 		.num_parents = 2,
- 		.ops = &clk_rcg2_ops,
- 	},
-@@ -4329,8 +4329,7 @@ static struct clk_rcg2 pcie0_rchng_clk_src = {
- 	.parent_map = gcc_xo_gpll0_map,
- 	.clkr.hw.init = &(struct clk_init_data){
- 		.name = "pcie0_rchng_clk_src",
--		.parent_hws = (const struct clk_hw *[]) {
--				&gpll0.clkr.hw },
-+		.parent_data = gcc_xo_gpll0,
- 		.num_parents = 2,
- 		.ops = &clk_rcg2_ops,
- 	},
+ 	.probe = mma8452_probe,
 -- 
 2.34.1
 
