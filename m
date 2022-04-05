@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7425A4F2A9D
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:05:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A2D34F2A42
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 12:53:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236692AbiDEI2T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:28:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46264 "EHLO
+        id S236764AbiDEI2W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:28:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34812 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239604AbiDEIUP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:20:15 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29A72EE;
-        Tue,  5 Apr 2022 01:17:16 -0700 (PDT)
+        with ESMTP id S239613AbiDEIUQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:20:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90DCD113;
+        Tue,  5 Apr 2022 01:17:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BADB260B0A;
-        Tue,  5 Apr 2022 08:17:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99CE5C385A2;
-        Tue,  5 Apr 2022 08:17:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2F71760AFB;
+        Tue,  5 Apr 2022 08:17:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37C4CC385A0;
+        Tue,  5 Apr 2022 08:17:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146635;
-        bh=jtVxs2/hq/y5QxVuTF5k0i9kpJhhrLCB8KzwTJnND0Y=;
+        s=korg; t=1649146648;
+        bh=MSqhLQSb/9SfAZGvAv8ZuYkH9K9StA+EANxqTLmH0Xk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dL+2vHMU+sfc2jClK98oQhTHehfLFC9ad9kuNzdBX4zNvMy3xEzu0T5UW1IBowMV9
-         64oS71VBVPTa+Bu2t2yisAi/bNBmFyLQ9/9sNP9SdnfzjbP6atlrJOWmbOZFCakf1H
-         MtCMO64NK2A0cM7zBNB5Ki9XFLtvhK9j8FuzLUIY=
+        b=WBn7ZOjF9o1wPY1iJ/w2idxox56ZTKUT8dGfzg5pOfG/j+7wD2u7fw0UPTVyk1d0w
+         a4WrENv1dP1Xa/xco2e1HS8H0vgK594VWcyYBW3dsbN6fYkXdNSX5N8Q7gwVcr7Un4
+         1363WlgsO6E9cacRYrZXCTTATSJNvdVriSR6om64=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Richter <tmricht@linux.ibm.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Sumanth Korikkar <sumanthk@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0798/1126] perf stat: Fix forked applications enablement of counters
-Date:   Tue,  5 Apr 2022 09:25:45 +0200
-Message-Id: <20220405070430.995275597@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Bhupesh Sharma <bhupesh.sharma@linaro.org>
+Subject: [PATCH 5.17 0799/1126] net: stmmac: dwmac-qcom-ethqos: Enable RGMII functional clock on resume
+Date:   Tue,  5 Apr 2022 09:25:46 +0200
+Message-Id: <20220405070431.024317620@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -60,97 +56,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Richter <tmricht@linux.ibm.com>
+From: Bjorn Andersson <bjorn.andersson@linaro.org>
 
-[ Upstream commit d0a0a511493d269514fcbd852481cdca32c95350 ]
+[ Upstream commit ffba2123e1714a27e9362fda57c42155dda37efc ]
 
-I have run into the following issue:
+When the Qualcomm ethqos driver is properly described in its associated
+GDSC power-domain, the hardware will be powered down and loose its state
+between qcom_ethqos_probe() and stmmac_init_dma_engine().
 
- # perf stat -a -e new_pmu/INSTRUCTION_7/ --  mytest -c1 7
+The result of this is that the functional clock from the RGMII IO macro
+is no longer provides and the DMA software reset in dwmac4_dma_reset()
+will time out, due to lacking clock signal.
 
- Performance counter stats for 'system wide':
+Re-enable the functional clock, as part of the Qualcomm specific clock
+enablement sequence to avoid this problem.
 
-                 0      new_pmu/INSTRUCTION_7/
+The final clock configuration will be adjusted by ethqos_fix_mac_speed()
+once the link is being brought up.
 
-       0.000366428 seconds time elapsed
- #
-
-The new PMU for s390 counts the execution of certain CPU instructions.
-The root cause is the extremely small run time of the mytest program. It
-just executes some assembly instructions and then exits.
-
-In above invocation the instruction is executed exactly one time (-c1
-option). The PMU is expected to report this one time execution by a
-counter value of one, but fails to do so in some cases, not all.
-
-Debugging reveals the invocation of the child process is done
-*before* the counter events are installed and enabled.
-
-Tracing reveals that sometimes the child process starts and exits before
-the event is installed on all CPUs. The more CPUs the machine has, the
-more often this miscount happens.
-
-Fix this by reversing the start of the work load after the events have
-been installed on the specified CPUs. Now the comment also matches the
-code.
-
-Output after:
-
- # perf stat -a -e new_pmu/INSTRUCTION_7/ --  mytest -c1 7
-
- Performance counter stats for 'system wide':
-
-                 1      new_pmu/INSTRUCTION_7/
-
-       0.000366428 seconds time elapsed
- #
-
-Now the correct result is reported rock solid all the time regardless
-how many CPUs are online.
-
-Reviewers notes:
-
-Jiri:
-
-Right, without -a the event has enable_on_exec so the race does not
-matter, but it's a problem for system wide with fork.
-
-Namhyung:
-
-Agreed. Also we may move the enable_counters() and the clock code out of
-the if block to be shared with the else block.
-
-Fixes: acf2892270dcc428 ("perf stat: Use perf_evlist__prepare/start_workload()")
-Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-Acked-by: Jiri Olsa <jolsa@kernel.org>
-Acked-by: Namhyung Kim <namhyung@kernel.org>
-Acked-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Sven Schnelle <svens@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Link: https://lore.kernel.org/r/20220317155346.577384-1-tmricht@linux.ibm.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: a7c30e62d4b8 ("net: stmmac: Add driver for Qualcomm ethqos")
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Tested-and-reviewed-by: Bhupesh Sharma <bhupesh.sharma@linaro.org>
+Link: https://lore.kernel.org/r/20220323033255.2282930-1-bjorn.andersson@linaro.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/builtin-stat.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/stmicro/stmmac/dwmac-qcom-ethqos.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/tools/perf/builtin-stat.c b/tools/perf/builtin-stat.c
-index 3f98689dd687..60baa3dadc4b 100644
---- a/tools/perf/builtin-stat.c
-+++ b/tools/perf/builtin-stat.c
-@@ -955,10 +955,10 @@ static int __run_perf_stat(int argc, const char **argv, int run_idx)
- 	 * Enable counters and exec the command:
- 	 */
- 	if (forks) {
--		evlist__start_workload(evsel_list);
- 		err = enable_counters();
- 		if (err)
- 			return -1;
-+		evlist__start_workload(evsel_list);
- 
- 		t0 = rdclock();
- 		clock_gettime(CLOCK_MONOTONIC, &ref_time);
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-qcom-ethqos.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-qcom-ethqos.c
+index 2ffa0a11eea5..569683f33804 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac-qcom-ethqos.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-qcom-ethqos.c
+@@ -460,6 +460,13 @@ static int ethqos_clks_config(void *priv, bool enabled)
+ 			dev_err(&ethqos->pdev->dev, "rgmii_clk enable failed\n");
+ 			return ret;
+ 		}
++
++		/* Enable functional clock to prevent DMA reset to timeout due
++		 * to lacking PHY clock after the hardware block has been power
++		 * cycled. The actual configuration will be adjusted once
++		 * ethqos_fix_mac_speed() is invoked.
++		 */
++		ethqos_set_func_clk_en(ethqos);
+ 	} else {
+ 		clk_disable_unprepare(ethqos->rgmii_clk);
+ 	}
 -- 
 2.34.1
 
