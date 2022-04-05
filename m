@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7936A4F3BD8
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:22:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F417F4F3BE5
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:22:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357383AbiDEMCj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:02:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50654 "EHLO
+        id S1381236AbiDEMDL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:03:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50642 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358028AbiDEK1z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:27:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63029689A6;
-        Tue,  5 Apr 2022 03:13:08 -0700 (PDT)
+        with ESMTP id S1358032AbiDEK14 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:27:56 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EBC36949D;
+        Tue,  5 Apr 2022 03:13:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F2CF461777;
-        Tue,  5 Apr 2022 10:13:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10D1FC385A0;
-        Tue,  5 Apr 2022 10:13:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 51742B81C6C;
+        Tue,  5 Apr 2022 10:13:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5E3EC385A1;
+        Tue,  5 Apr 2022 10:13:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153587;
-        bh=0C40SgLp/lwFglandYY9iJGkhMxzFWz9IyNwKsYpjig=;
+        s=korg; t=1649153590;
+        bh=kFIlUHMIxufTpo1vGa4kaOdlhqgRSAbv8rvJ7WzP51M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=quUteL8t85uHezbky+H8CeGFlvc2KLpeBN3XuaVkVEmPxv5kGdNO7XOYNmbwS217l
-         0XawKcyT/JafqUPyuYMmRxgAN7aGr+o87kdrktYsh5aCY7WvKR6L8q2LX1fC15SegU
-         fj4U8QeyPoyuNwLhhJupUk2yD/MPvT78Lm2vjz2A=
+        b=XP2hMFS8lPICAQ25VjBM/rOPG3HAqBi1oSfoiLuZg5Sy+gdoMSMOJrd2G8fQmWjsO
+         cHLjdbLC0JUg45ig07h7LnK/pDnHIse+B4NGO3Puqwde+pFrwIcFLXH0a/u6JPhhf4
+         QA8cFZWDbbkvM79ebhHDUDOTFtH+ZkKGwn3nr7a4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Zhou Qingyang <zhou1615@umn.edu>,
-        Lyude Paul <lyude@redhat.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 274/599] drm/nouveau/acr: Fix undefined behavior in nvkm_acr_hsfw_load_bl()
-Date:   Tue,  5 Apr 2022 09:29:28 +0200
-Message-Id: <20220405070306.992187729@linuxfoundation.org>
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 275/599] drm/amd/display: Fix a NULL pointer dereference in amdgpu_dm_connector_add_common_modes()
+Date:   Tue,  5 Apr 2022 09:29:29 +0200
+Message-Id: <20220405070307.020979750@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -55,50 +56,44 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Zhou Qingyang <zhou1615@umn.edu>
 
-[ Upstream commit 2343bcdb4747d4f418a4daf2e898b94f86c24a59 ]
+[ Upstream commit 588a70177df3b1777484267584ef38ab2ca899a2 ]
 
-In nvkm_acr_hsfw_load_bl(), the return value of kmalloc() is directly
-passed to memcpy(), which could lead to undefined behavior on failure
-of kmalloc().
+In amdgpu_dm_connector_add_common_modes(), amdgpu_dm_create_common_mode()
+is assigned to mode and is passed to drm_mode_probed_add() directly after
+that. drm_mode_probed_add() passes &mode->head to list_add_tail(), and
+there is a dereference of it in list_add_tail() without recoveries, which
+could lead to NULL pointer dereference on failure of
+amdgpu_dm_create_common_mode().
 
-Fix this bug by using kmemdup() instead of kmalloc()+memcpy().
+Fix this by adding a NULL check of mode.
 
 This bug was found by a static analyzer.
 
 Builds with 'make allyesconfig' show no new warnings,
 and our static analyzer no longer warns about this code.
 
-Fixes: 22dcda45a3d1 ("drm/nouveau/acr: implement new subdev to replace "secure boot"")
+Fixes: e7b07ceef2a6 ("drm/amd/display: Merge amdgpu_dm_types and amdgpu_dm")
 Signed-off-by: Zhou Qingyang <zhou1615@umn.edu>
-Reviewed-by: Lyude Paul <lyude@redhat.com>
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220124165856.57022-1-zhou1615@umn.edu
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/nouveau/nvkm/subdev/acr/hsfw.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/acr/hsfw.c b/drivers/gpu/drm/nouveau/nvkm/subdev/acr/hsfw.c
-index 667fa016496e..a6ea89a5d51a 100644
---- a/drivers/gpu/drm/nouveau/nvkm/subdev/acr/hsfw.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/subdev/acr/hsfw.c
-@@ -142,11 +142,12 @@ nvkm_acr_hsfw_load_bl(struct nvkm_acr *acr, const char *name, int ver,
- 
- 	hsfw->imem_size = desc->code_size;
- 	hsfw->imem_tag = desc->start_tag;
--	hsfw->imem = kmalloc(desc->code_size, GFP_KERNEL);
--	memcpy(hsfw->imem, data + desc->code_off, desc->code_size);
--
-+	hsfw->imem = kmemdup(data + desc->code_off, desc->code_size, GFP_KERNEL);
- 	nvkm_firmware_put(fw);
--	return 0;
-+	if (!hsfw->imem)
-+		return -ENOMEM;
-+	else
-+		return 0;
- }
- 
- int
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index 6c8f141103da..b65364695219 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -6396,6 +6396,9 @@ static void amdgpu_dm_connector_add_common_modes(struct drm_encoder *encoder,
+ 		mode = amdgpu_dm_create_common_mode(encoder,
+ 				common_modes[i].name, common_modes[i].w,
+ 				common_modes[i].h);
++		if (!mode)
++			continue;
++
+ 		drm_mode_probed_add(connector, mode);
+ 		amdgpu_dm_connector->num_modes++;
+ 	}
 -- 
 2.34.1
 
