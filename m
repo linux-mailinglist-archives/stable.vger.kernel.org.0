@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 631C74F3915
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:44:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 25B0C4F3918
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:44:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377567AbiDEL3s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:29:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38010 "EHLO
+        id S1377604AbiDEL3v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:29:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57072 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351687AbiDEKDL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:03:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3136973060;
-        Tue,  5 Apr 2022 02:52:12 -0700 (PDT)
+        with ESMTP id S1351851AbiDEKDZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:03:25 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4808975C18;
+        Tue,  5 Apr 2022 02:52:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 81237616D7;
-        Tue,  5 Apr 2022 09:52:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BFB5C385A2;
-        Tue,  5 Apr 2022 09:52:11 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 3525BCE1C9E;
+        Tue,  5 Apr 2022 09:52:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B4D7C385A1;
+        Tue,  5 Apr 2022 09:52:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152331;
-        bh=qW1x31HnZxqlWv9yLK7leVGiHSRFHxjgpFRqN+3ePM4=;
+        s=korg; t=1649152334;
+        bh=/hJvC2gf0i2zGMllIvwBp0yhdrPxL94SQLzsN5wb/G8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qWz10RDKOyKNugTych2AqL1vRausJfYBSRUYZ7Bq5NDgsi8yNgQbA5wTyOj04hM/U
-         ymkdTxPnTD5fQHsoXt81rge6I7uNnlSgfKnq8kN7wkgILsUcuWU4OTSx4yohwcdkul
-         QnVLfc7pt1jbz6K0v2r907ZMYsHbfKm2K1SJBp+8=
+        b=Tq+LJKJZ9+Pxw9HHy3F3oZTxdMHRK2OTecyuB9f2Csxh4YL+83vVnLyva+iQCwtmI
+         cb0l84qdOVPFBNuKvqEW8iTq/0cVxsOahuOAlMJ2kZjQ/oEGcVl2cDMiiXcnJ29/mW
+         YTajjNRuNRkQ2TtIhbpcF1zlKuQM6XqzYtQvrBUQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Antonino Daplas <adaplas@gmail.com>,
-        linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        Tim Gardner <tim.gardner@canonical.com>,
+        stable@vger.kernel.org, Evgeny Novikov <novikov@ispras.ru>,
+        Kirill Shilimanov <kirill.shilimanov@huawei.com>,
         Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 737/913] video: fbdev: nvidiafb: Use strscpy() to prevent buffer overflow
-Date:   Tue,  5 Apr 2022 09:29:59 +0200
-Message-Id: <20220405070401.926691966@linuxfoundation.org>
+Subject: [PATCH 5.15 738/913] video: fbdev: w100fb: Reset global state
+Date:   Tue,  5 Apr 2022 09:30:00 +0200
+Message-Id: <20220405070401.956283853@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -55,49 +54,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tim Gardner <tim.gardner@canonical.com>
+From: Evgeny Novikov <novikov@ispras.ru>
 
-[ Upstream commit 37a1a2e6eeeb101285cd34e12e48a881524701aa ]
+[ Upstream commit 8738ddcac644964ae128ccd3d80d48773c8d528e ]
 
-Coverity complains of a possible buffer overflow. However,
-given the 'static' scope of nvidia_setup_i2c_bus() it looks
-like that can't happen after examiniing the call sites.
+w100fb_probe() did not reset the global state to its initial state. This
+can result in invocation of iounmap() even when there was not the
+appropriate successful call of ioremap(). For instance, this may be the
+case if first probe fails after two successful ioremap() while second
+probe fails when first ioremap() fails. The similar issue is with
+w100fb_remove(). The patch fixes both bugs.
 
-CID 19036 (#1 of 1): Copy into fixed size buffer (STRING_OVERFLOW)
-1. fixed_size_dest: You might overrun the 48-character fixed-size string
-  chan->adapter.name by copying name without checking the length.
-2. parameter_as_source: Note: This defect has an elevated risk because the
-  source argument is a parameter of the current function.
- 89        strcpy(chan->adapter.name, name);
+Found by Linux Driver Verification project (linuxtesting.org).
 
-Fix this warning by using strscpy() which will silence the warning and
-prevent any future buffer overflows should the names used to identify the
-channel become much longer.
-
-Cc: Antonino Daplas <adaplas@gmail.com>
-Cc: linux-fbdev@vger.kernel.org
-Cc: dri-devel@lists.freedesktop.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Tim Gardner <tim.gardner@canonical.com>
+Signed-off-by: Evgeny Novikov <novikov@ispras.ru>
+Co-developed-by: Kirill Shilimanov <kirill.shilimanov@huawei.com>
+Signed-off-by: Kirill Shilimanov <kirill.shilimanov@huawei.com>
 Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/nvidia/nv_i2c.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/video/fbdev/w100fb.c | 15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/video/fbdev/nvidia/nv_i2c.c b/drivers/video/fbdev/nvidia/nv_i2c.c
-index d7994a173245..0b48965a6420 100644
---- a/drivers/video/fbdev/nvidia/nv_i2c.c
-+++ b/drivers/video/fbdev/nvidia/nv_i2c.c
-@@ -86,7 +86,7 @@ static int nvidia_setup_i2c_bus(struct nvidia_i2c_chan *chan, const char *name,
- {
- 	int rc;
+diff --git a/drivers/video/fbdev/w100fb.c b/drivers/video/fbdev/w100fb.c
+index d96ab28f8ce4..4e641a780726 100644
+--- a/drivers/video/fbdev/w100fb.c
++++ b/drivers/video/fbdev/w100fb.c
+@@ -770,12 +770,18 @@ static int w100fb_probe(struct platform_device *pdev)
+ 		fb_dealloc_cmap(&info->cmap);
+ 		kfree(info->pseudo_palette);
+ 	}
+-	if (remapped_fbuf != NULL)
++	if (remapped_fbuf != NULL) {
+ 		iounmap(remapped_fbuf);
+-	if (remapped_regs != NULL)
++		remapped_fbuf = NULL;
++	}
++	if (remapped_regs != NULL) {
+ 		iounmap(remapped_regs);
+-	if (remapped_base != NULL)
++		remapped_regs = NULL;
++	}
++	if (remapped_base != NULL) {
+ 		iounmap(remapped_base);
++		remapped_base = NULL;
++	}
+ 	if (info)
+ 		framebuffer_release(info);
+ 	return err;
+@@ -795,8 +801,11 @@ static int w100fb_remove(struct platform_device *pdev)
+ 	fb_dealloc_cmap(&info->cmap);
  
--	strcpy(chan->adapter.name, name);
-+	strscpy(chan->adapter.name, name, sizeof(chan->adapter.name));
- 	chan->adapter.owner = THIS_MODULE;
- 	chan->adapter.class = i2c_class;
- 	chan->adapter.algo_data = &chan->algo;
+ 	iounmap(remapped_base);
++	remapped_base = NULL;
+ 	iounmap(remapped_regs);
++	remapped_regs = NULL;
+ 	iounmap(remapped_fbuf);
++	remapped_fbuf = NULL;
+ 
+ 	framebuffer_release(info);
+ 
 -- 
 2.34.1
 
