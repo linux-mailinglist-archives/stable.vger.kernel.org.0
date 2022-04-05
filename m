@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F189F4F326F
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:57:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BBBF84F328D
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:58:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350459AbiDEJ61 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:58:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53430 "EHLO
+        id S1350443AbiDEJ6S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:58:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344005AbiDEJQo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:16:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBFDA103A;
-        Tue,  5 Apr 2022 02:03:23 -0700 (PDT)
+        with ESMTP id S1344009AbiDEJQr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:16:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA66E108F;
+        Tue,  5 Apr 2022 02:03:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 87582B81B75;
-        Tue,  5 Apr 2022 09:03:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4957C385A0;
-        Tue,  5 Apr 2022 09:03:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 45FA5614E4;
+        Tue,  5 Apr 2022 09:03:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55F36C385A1;
+        Tue,  5 Apr 2022 09:03:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149401;
-        bh=qvusbBPuYdsN3sqfRvkht8fOdx3soLx1h8Yr8dGBKSs=;
+        s=korg; t=1649149406;
+        bh=JmaNtigfUnMcwsF3xKmTQqdXp5ARBWiDqFS0XyEvciQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JncPV428CrXCmeDR8UvYT6+0/PlnKL0OYHvvmdDImP7YucuItyIUdq+aAiouZ3jBV
-         rWGRrw6OrCH8FQ0rM4eWfic4zMA0fAEwExBZmHQsRAV7iTL0H8t4p+4XFXsmH/Ow84
-         V2PqasxtMJMy0eCUVvEdlS7OHGe0A4PIq4K983L4=
+        b=rM6FFG9C56O7kka7GuqoNN/RSd5+u/JdiYGmKgM/SffsD9iOd6wb8sW+wi2H+GZ+0
+         zrN6lgJgyJpPuSEGL8yBe2+Sh9vBwWYoVJJOpkLdKSKJye3DkBZHSaw3oXJWpPILdc
+         cas4W+fvJHyL506v9NmZgCOKtPQ552KLr5f+5dgg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen-Yu Tsai <wenst@chromium.org>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
         Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0700/1017] pinctrl: mediatek: paris: Skip custom extra pin config dump for virtual GPIOs
-Date:   Tue,  5 Apr 2022 09:26:53 +0200
-Message-Id: <20220405070415.050113867@linuxfoundation.org>
+Subject: [PATCH 5.16 0702/1017] pinctrl: nomadik: Add missing of_node_put() in nmk_pinctrl_probe
+Date:   Tue,  5 Apr 2022 09:26:55 +0200
+Message-Id: <20220405070415.108610678@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -56,40 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen-Yu Tsai <wenst@chromium.org>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 1763933d377ecb05454f8d20e3c8922480db2ac0 ]
+[ Upstream commit c09ac191b1f97cfa06f394dbfd7a5db07986cefc ]
 
-Virtual GPIOs do not have any hardware state associated with them. Any
-attempt to read back hardware state for these pins result in error
-codes.
+This node pointer is returned by of_parse_phandle() with refcount
+incremented in this function. Calling of_node_put() to avoid
+the refcount leak.
 
-Skip dumping extra pin config information for these virtual GPIOs.
-
-Fixes: 184d8e13f9b1 ("pinctrl: mediatek: Add support for pin configuration dump via debugfs.")
-Signed-off-by: Chen-Yu Tsai <wenst@chromium.org>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Link: https://lore.kernel.org/r/20220308100956.2750295-7-wenst@chromium.org
+Fixes: 32e67eee670e ("pinctrl: nomadik: Allow prcm_base to be extracted from Device Tree")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220307115116.25316-1-linmq006@gmail.com
 Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/mediatek/pinctrl-paris.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/pinctrl/nomadik/pinctrl-nomadik.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/pinctrl/mediatek/pinctrl-paris.c b/drivers/pinctrl/mediatek/pinctrl-paris.c
-index faf11c9e1db3..154d55a239e8 100644
---- a/drivers/pinctrl/mediatek/pinctrl-paris.c
-+++ b/drivers/pinctrl/mediatek/pinctrl-paris.c
-@@ -581,6 +581,9 @@ ssize_t mtk_pctrl_show_one_pin(struct mtk_pinctrl *hw,
- 	if (gpio >= hw->soc->npins)
- 		return -EINVAL;
+diff --git a/drivers/pinctrl/nomadik/pinctrl-nomadik.c b/drivers/pinctrl/nomadik/pinctrl-nomadik.c
+index 39828e9c3120..4757bf964d3c 100644
+--- a/drivers/pinctrl/nomadik/pinctrl-nomadik.c
++++ b/drivers/pinctrl/nomadik/pinctrl-nomadik.c
+@@ -1883,8 +1883,10 @@ static int nmk_pinctrl_probe(struct platform_device *pdev)
+ 	}
  
-+	if (mtk_is_virt_gpio(hw, gpio))
-+		return -EINVAL;
-+
- 	desc = (const struct mtk_pin_desc *)&hw->soc->pins[gpio];
- 	pinmux = mtk_pctrl_get_pinmux(hw, gpio);
- 	if (pinmux >= hw->soc->nfuncs)
+ 	prcm_np = of_parse_phandle(np, "prcm", 0);
+-	if (prcm_np)
++	if (prcm_np) {
+ 		npct->prcm_base = of_iomap(prcm_np, 0);
++		of_node_put(prcm_np);
++	}
+ 	if (!npct->prcm_base) {
+ 		if (version == PINCTRL_NMK_STN8815) {
+ 			dev_info(&pdev->dev,
 -- 
 2.34.1
 
