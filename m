@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 744634F2795
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:08:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 176304F2805
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:19:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233454AbiDEIHg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:07:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51482 "EHLO
+        id S233804AbiDEIJ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:09:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51572 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236113AbiDEIB1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:01:27 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B44C449FB3;
-        Tue,  5 Apr 2022 00:59:29 -0700 (PDT)
+        with ESMTP id S236117AbiDEIB2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:01:28 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5C944B431;
+        Tue,  5 Apr 2022 00:59:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 61CB0B81B14;
-        Tue,  5 Apr 2022 07:59:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C767DC340EE;
-        Tue,  5 Apr 2022 07:59:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 721F361545;
+        Tue,  5 Apr 2022 07:59:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81FACC340EE;
+        Tue,  5 Apr 2022 07:59:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145567;
-        bh=k/Nu6HhUs1n1eK9fQ7ZoaxUfQreYqehxzCU7JsCIUBU=;
+        s=korg; t=1649145569;
+        bh=xZFlO/Ssj0ilwMz4LbbFsHCf7q/ubFY/jXMHM64j43U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vmxYCJbAMT19yLHVlhapoVd59spJo/7ke5E8/L18yryWaq9eynTpJq+cj+/CRoZMI
-         PtRF2g8+25nSCOJN/w1S2H7yfnO55Ax91gjF519sRxk76G0zGnu184FOgKCA8RUXd4
-         sl8dAg8vGvzW/s8LWB4Mp5l5cYxJfec2JZEKJJ5c=
+        b=qxUHoE8x1ZN9P99ela5TV5vT4E+Gz0M6Z4UdHWEA1N0uN6qgs2oStq8EcvEj2Hgd7
+         72NICVQes5i+5wcdkbI4ZWpQGVhQRbnmdJEuopWg4Mmv1HimLfFJ9OB5lyOf0U3GOS
+         CdRgQFSmkzq/00KDATmIQIeZvfZLrH7ZtUwRfF1o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Wang <sean.wang@mediatek.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0450/1126] Bluetooth: btmtksdio: mask out interrupt status
-Date:   Tue,  5 Apr 2022 09:19:57 +0200
-Message-Id: <20220405070420.833130061@linuxfoundation.org>
+Subject: [PATCH 5.17 0451/1126] mtd: onenand: Check for error irq
+Date:   Tue,  5 Apr 2022 09:19:58 +0200
+Message-Id: <20220405070420.862240003@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -54,47 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Wang <sean.wang@mediatek.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit db3f1f9b5d88d8d7f9eaa486f71784dd319285ff ]
+[ Upstream commit 3e68f331c8c759c0daa31cc92c3449b23119a215 ]
 
-Currently, there is a loop in btmtksdio_txrx_work() which iteratively
-executes until the variable int_status is zero.
+For the possible failure of the platform_get_irq(), the returned irq
+could be error number and will finally cause the failure of the
+request_irq().
+Consider that platform_get_irq() can now in certain cases return
+-EPROBE_DEFER, and the consequences of letting request_irq() effectively
+convert that into -EINVAL, even at probe time rather than later on.
+So it might be better to check just now.
 
-But the variable int_status should be masked out with the actual interrupt
-sources (MTK_REG_CHISR bit 0-15) before we check the loop condition.
-Otherwise, RX_PKT_LEN (MTK_REG_CHISR bit 16-31) which is read-only and
-unclearable would cause the loop to get stuck on some chipsets like
-MT7663s.
-
-Fixes: 26270bc189ea ("Bluetooth: btmtksdio: move interrupt service to work")
-Signed-off-by: Sean Wang <sean.wang@mediatek.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Fixes: 2c22120fbd01 ("MTD: OneNAND: interrupt based wait support")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20220104162658.1988142-1-jiasheng@iscas.ac.cn
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/btmtksdio.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/mtd/nand/onenand/generic.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/bluetooth/btmtksdio.c b/drivers/bluetooth/btmtksdio.c
-index 72e00264d9f1..86a52eb77e01 100644
---- a/drivers/bluetooth/btmtksdio.c
-+++ b/drivers/bluetooth/btmtksdio.c
-@@ -92,6 +92,7 @@ MODULE_DEVICE_TABLE(sdio, btmtksdio_table);
- #define TX_EMPTY		BIT(2)
- #define TX_FIFO_OVERFLOW	BIT(8)
- #define FW_MAILBOX_INT		BIT(15)
-+#define INT_MASK		GENMASK(15, 0)
- #define RX_PKT_LEN		GENMASK(31, 16)
+diff --git a/drivers/mtd/nand/onenand/generic.c b/drivers/mtd/nand/onenand/generic.c
+index 8b6f4da5d720..a4b8b65fe15f 100644
+--- a/drivers/mtd/nand/onenand/generic.c
++++ b/drivers/mtd/nand/onenand/generic.c
+@@ -53,7 +53,12 @@ static int generic_onenand_probe(struct platform_device *pdev)
+ 	}
  
- #define MTK_REG_CSICR		0xc0
-@@ -565,6 +566,7 @@ static void btmtksdio_txrx_work(struct work_struct *work)
- 		 * FIFO.
- 		 */
- 		sdio_writel(bdev->func, int_status, MTK_REG_CHISR, NULL);
-+		int_status &= INT_MASK;
+ 	info->onenand.mmcontrol = pdata ? pdata->mmcontrol : NULL;
+-	info->onenand.irq = platform_get_irq(pdev, 0);
++
++	err = platform_get_irq(pdev, 0);
++	if (err < 0)
++		goto out_iounmap;
++
++	info->onenand.irq = err;
  
- 		if ((int_status & FW_MAILBOX_INT) &&
- 		    bdev->data->chipid == 0x7921) {
+ 	info->mtd.dev.parent = &pdev->dev;
+ 	info->mtd.priv = &info->onenand;
 -- 
 2.34.1
 
