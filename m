@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BFD24F3C27
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:24:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E9C94F3932
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:45:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238240AbiDEMFI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:05:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50652 "EHLO
+        id S1377699AbiDELaS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:30:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60978 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358135AbiDEK2B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:28:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E68E29AE6E;
-        Tue,  5 Apr 2022 03:15:50 -0700 (PDT)
+        with ESMTP id S1352608AbiDEKEr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:04:47 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCE5FBB905;
+        Tue,  5 Apr 2022 02:53:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9AAC1B81C88;
-        Tue,  5 Apr 2022 10:15:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 134FAC385A1;
-        Tue,  5 Apr 2022 10:15:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 72B18B81B75;
+        Tue,  5 Apr 2022 09:53:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4ECFC385A2;
+        Tue,  5 Apr 2022 09:53:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153748;
-        bh=4imunOY0aHzERC4UsQvyYo5x70zlw1ErYihHvlIFqGQ=;
+        s=korg; t=1649152409;
+        bh=w2Xf9GEivdqIvsKCrbOSWWIVqMoFrXkYI9J7Vz0cuCA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wl2/m7m6FOqp3H82MnCyJk59f0C7O6Ez3kS4IWFXPBqCMCln11aIvErfs2Ay3KDtL
-         0x0XBIJ6Xt1pUJbvWIZQ+bwdhXpNS7N0T1dmmnyU6G2YJFOtCVLSjGebPLzm8tK2PR
-         y0MOjE9dyqRUplSU2kW/RiVIwkqVl8H6+3YdCI5g=
+        b=gzEF4JQsYxfcEhzaUIGfrKFuK9vsBgb2W8Zb3GiUhV5imEbH32sZmHtAaUM9h3NCI
+         JGKxMximPalTDvf+OOfLUrtv/BbuWrk5W1PvOdrcCDB4Kf0LWEp/TC7SHWc9r4NTsG
+         J1LNUQB0HsxNbeuOnS6jrxr83dFdQlBsw9HmEFuU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
-        Hou Wenlong <houwenlong.hwl@antgroup.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        stable@vger.kernel.org, Ritesh Harjani <riteshh@linux.ibm.com>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 334/599] KVM: x86/emulator: Defer not-present segment check in __load_segment_descriptor()
+Subject: [PATCH 5.15 766/913] tracing: Have TRACE_DEFINE_ENUM affect trace event types as well
 Date:   Tue,  5 Apr 2022 09:30:28 +0200
-Message-Id: <20220405070308.772326353@linuxfoundation.org>
+Message-Id: <20220405070402.793652822@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
-References: <20220405070258.802373272@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,66 +54,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hou Wenlong <houwenlong.hwl@antgroup.com>
+From: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-[ Upstream commit ca85f002258fdac3762c57d12d5e6e401b6a41af ]
+[ Upstream commit b3bc8547d3be60898818885f5bf22d0a62e2eb48 ]
 
-Per Intel's SDM on the "Instruction Set Reference", when
-loading segment descriptor, not-present segment check should
-be after all type and privilege checks. But the emulator checks
-it first, then #NP is triggered instead of #GP if privilege fails
-and segment is not present. Put not-present segment check after
-type and privilege checks in __load_segment_descriptor().
+The macro TRACE_DEFINE_ENUM is used to convert enums in the kernel to
+their actual value when they are exported to user space via the trace
+event format file.
 
-Fixes: 38ba30ba51a00 (KVM: x86 emulator: Emulate task switch in emulator.c)
-Reviewed-by: Sean Christopherson <seanjc@google.com>
-Signed-off-by: Hou Wenlong <houwenlong.hwl@antgroup.com>
-Message-Id: <52573c01d369f506cadcf7233812427cf7db81a7.1644292363.git.houwenlong.hwl@antgroup.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Currently only the enums in the "print fmt" (TP_printk in the TRACE_EVENT
+macro) have the enums converted. But the enums can be used to denote array
+size:
+
+        field:unsigned int fc_ineligible_rc[EXT4_FC_REASON_MAX]; offset:12;      size:36;        signed:0;
+
+The EXT4_FC_REASON_MAX has no meaning to userspace but it needs to know
+that information to know how to parse the array.
+
+Have the array indexes also be parsed as well.
+
+Link: https://lore.kernel.org/all/cover.1646922487.git.riteshh@linux.ibm.com/
+
+Reported-by: Ritesh Harjani <riteshh@linux.ibm.com>
+Tested-by: Ritesh Harjani <riteshh@linux.ibm.com>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/emulate.c | 14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+ kernel/trace/trace_events.c | 28 ++++++++++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
 
-diff --git a/arch/x86/kvm/emulate.c b/arch/x86/kvm/emulate.c
-index e82151ba95c0..a63df19ef4da 100644
---- a/arch/x86/kvm/emulate.c
-+++ b/arch/x86/kvm/emulate.c
-@@ -1718,11 +1718,6 @@ static int __load_segment_descriptor(struct x86_emulate_ctxt *ctxt,
- 		goto exception;
+diff --git a/kernel/trace/trace_events.c b/kernel/trace/trace_events.c
+index dd17171829d6..b35a66a8e7ce 100644
+--- a/kernel/trace/trace_events.c
++++ b/kernel/trace/trace_events.c
+@@ -2637,6 +2637,33 @@ static void update_event_printk(struct trace_event_call *call,
  	}
+ }
  
--	if (!seg_desc.p) {
--		err_vec = (seg == VCPU_SREG_SS) ? SS_VECTOR : NP_VECTOR;
--		goto exception;
--	}
--
- 	dpl = seg_desc.dpl;
- 
- 	switch (seg) {
-@@ -1762,6 +1757,10 @@ static int __load_segment_descriptor(struct x86_emulate_ctxt *ctxt,
- 	case VCPU_SREG_TR:
- 		if (seg_desc.s || (seg_desc.type != 1 && seg_desc.type != 9))
- 			goto exception;
-+		if (!seg_desc.p) {
-+			err_vec = NP_VECTOR;
-+			goto exception;
-+		}
- 		old_desc = seg_desc;
- 		seg_desc.type |= 2; /* busy */
- 		ret = ctxt->ops->cmpxchg_emulated(ctxt, desc_addr, &old_desc, &seg_desc,
-@@ -1786,6 +1785,11 @@ static int __load_segment_descriptor(struct x86_emulate_ctxt *ctxt,
- 		break;
- 	}
- 
-+	if (!seg_desc.p) {
-+		err_vec = (seg == VCPU_SREG_SS) ? SS_VECTOR : NP_VECTOR;
-+		goto exception;
-+	}
++static void update_event_fields(struct trace_event_call *call,
++				struct trace_eval_map *map)
++{
++	struct ftrace_event_field *field;
++	struct list_head *head;
++	char *ptr;
++	int len = strlen(map->eval_string);
 +
- 	if (seg_desc.s) {
- 		/* mark segment as accessed */
- 		if (!(seg_desc.type & 1)) {
++	head = trace_get_fields(call);
++	list_for_each_entry(field, head, link) {
++		ptr = strchr(field->type, '[');
++		if (!ptr)
++			continue;
++		ptr++;
++
++		if (!isalpha(*ptr) && *ptr != '_')
++			continue;
++
++		if (strncmp(map->eval_string, ptr, len) != 0)
++			continue;
++
++		ptr = eval_replace(ptr, map, len);
++		/* enum/sizeof string smaller than value */
++		WARN_ON_ONCE(!ptr);
++	}
++}
++
+ void trace_event_eval_update(struct trace_eval_map **map, int len)
+ {
+ 	struct trace_event_call *call, *p;
+@@ -2672,6 +2699,7 @@ void trace_event_eval_update(struct trace_eval_map **map, int len)
+ 					first = false;
+ 				}
+ 				update_event_printk(call, map[i]);
++				update_event_fields(call, map[i]);
+ 			}
+ 		}
+ 	}
 -- 
 2.34.1
 
