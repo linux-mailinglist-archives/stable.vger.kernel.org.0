@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FF934F347C
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:37:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B5DA4F3134
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:39:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343562AbiDEI5C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:57:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52856 "EHLO
+        id S1355401AbiDEKTl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:19:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38908 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240177AbiDEIbq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:31:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EB3CE017;
-        Tue,  5 Apr 2022 01:23:48 -0700 (PDT)
+        with ESMTP id S1344457AbiDEJT7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:19:59 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B717912778;
+        Tue,  5 Apr 2022 02:08:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D7AC161003;
-        Tue,  5 Apr 2022 08:23:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC10EC385A0;
-        Tue,  5 Apr 2022 08:23:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2BE3AB81B75;
+        Tue,  5 Apr 2022 09:08:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 776FDC385A3;
+        Tue,  5 Apr 2022 09:08:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147026;
-        bh=TEt6u2v2p7dI5no1Pgbez4k7Gzktp4YSlW5alzX4JkU=;
+        s=korg; t=1649149701;
+        bh=ADEi5SU0fkm1OasEUzfXS5XLxdWFJrLpnS+LEgj9ZRA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EdW+nK6Sf7m164Ji3Gdz8BefWRlnzVGcA4V5aZv0cd4XQPs4VEO8r7XxwFr/mL3IS
-         EAwUejYJgFsfl2UHoMm7WoQf10+K5aPWXOZAuTyvmKWk2V8tjcKtRHV2xw/KASoLas
-         KNpi2dXQRtI9aHaGSCTDvMURhjL3CoPFL1kwBmWM=
+        b=Fcx4D34r2CRsYHaeUuJsXjl/qeSsEvK6hBKO/uA9A2TIwSDY2pv/QZ4pTfJICeOKU
+         ciUOoa8U9pnMVKUi6KhwpvSxMH+leTVJChBpcHNy66GpO8O1kMDAQwLAsjcJCxRYj5
+         sMr2epJVZZtIIqbXYxUk0OllEexwFEYbcbR0Ez18=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Bikash Hazarika <bhazarika@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.17 0976/1126] scsi: qla2xxx: Fix wrong FDMI data for 64G adapter
-Date:   Tue,  5 Apr 2022 09:28:43 +0200
-Message-Id: <20220405070436.150727713@linuxfoundation.org>
+        Mirela Rabulea <mirela.rabulea@oss.nxp.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0811/1017] media: imx-jpeg: Prevent decoding NV12M jpegs into single-planar buffers
+Date:   Tue,  5 Apr 2022 09:28:44 +0200
+Message-Id: <20220405070418.320684033@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,40 +56,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bikash Hazarika <bhazarika@marvell.com>
+From: Mirela Rabulea <mirela.rabulea@oss.nxp.com>
 
-commit 1cfbbacbee2d6ea3816386a483e3c7a96e5bd657 upstream.
+[ Upstream commit 417591a766b3c040c346044541ff949c0b2bb7b2 ]
 
-Corrected transmission speed mask values for FC.
+If the application queues an NV12M jpeg as output buffer, but then
+queues a single planar capture buffer, the kernel will crash with
+"Unable to handle kernel NULL pointer dereference" in mxc_jpeg_addrs,
+prevent this by finishing the job with error.
 
-Supported Speed: 16 32 20 Gb/s ===> Should be 64 instead of 20
-Supported Speed: 16G 32G 48G   ===> Should be 64G instead of 48G
-
-Link: https://lore.kernel.org/r/20220110050218.3958-9-njavali@marvell.com
-Cc: stable@vger.kernel.org
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Bikash Hazarika <bhazarika@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Mirela Rabulea <mirela.rabulea@oss.nxp.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_def.h |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/media/platform/imx-jpeg/mxc-jpeg.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/scsi/qla2xxx/qla_def.h
-+++ b/drivers/scsi/qla2xxx/qla_def.h
-@@ -2891,7 +2891,11 @@ struct ct_fdmi2_hba_attributes {
- #define FDMI_PORT_SPEED_8GB		0x10
- #define FDMI_PORT_SPEED_16GB		0x20
- #define FDMI_PORT_SPEED_32GB		0x40
--#define FDMI_PORT_SPEED_64GB		0x80
-+#define FDMI_PORT_SPEED_20GB		0x80
-+#define FDMI_PORT_SPEED_40GB		0x100
-+#define FDMI_PORT_SPEED_128GB		0x200
-+#define FDMI_PORT_SPEED_64GB		0x400
-+#define FDMI_PORT_SPEED_256GB		0x800
- #define FDMI_PORT_SPEED_UNKNOWN		0x8000
+diff --git a/drivers/media/platform/imx-jpeg/mxc-jpeg.c b/drivers/media/platform/imx-jpeg/mxc-jpeg.c
+index 4ca96cf9def7..b249c1bbfac8 100644
+--- a/drivers/media/platform/imx-jpeg/mxc-jpeg.c
++++ b/drivers/media/platform/imx-jpeg/mxc-jpeg.c
+@@ -947,6 +947,12 @@ static void mxc_jpeg_device_run(void *priv)
+ 	v4l2_m2m_buf_copy_metadata(src_buf, dst_buf, true);
  
- #define FC_CLASS_2	0x04
+ 	jpeg_src_buf = vb2_to_mxc_buf(&src_buf->vb2_buf);
++	if (q_data_cap->fmt->colplanes != dst_buf->vb2_buf.num_planes) {
++		dev_err(dev, "Capture format %s has %d planes, but capture buffer has %d planes\n",
++			q_data_cap->fmt->name, q_data_cap->fmt->colplanes,
++			dst_buf->vb2_buf.num_planes);
++		jpeg_src_buf->jpeg_parse_error = true;
++	}
+ 	if (jpeg_src_buf->jpeg_parse_error) {
+ 		jpeg->slot_data[ctx->slot].used = false;
+ 		v4l2_m2m_src_buf_remove(ctx->fh.m2m_ctx);
+-- 
+2.34.1
+
 
 
