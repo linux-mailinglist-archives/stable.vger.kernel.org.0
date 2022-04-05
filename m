@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E07C14F348B
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:38:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 263FD4F2F10
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:05:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350374AbiDEJ5s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:57:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38220 "EHLO
+        id S241552AbiDEIeH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:34:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51456 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343985AbiDEJQo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:16:44 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93D02E4F;
-        Tue,  5 Apr 2022 02:03:10 -0700 (PDT)
+        with ESMTP id S239718AbiDEIUf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:20:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7290E1C6;
+        Tue,  5 Apr 2022 01:18:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 0067CCE1BF8;
-        Tue,  5 Apr 2022 09:03:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C560C385A0;
-        Tue,  5 Apr 2022 09:03:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 225A0B81A32;
+        Tue,  5 Apr 2022 08:18:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89A98C385A0;
+        Tue,  5 Apr 2022 08:18:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149387;
-        bh=HF9ZRoT/tkCsXNkCLwa2Fgwjnyr+EaDHb18MxA69YD0=;
+        s=korg; t=1649146714;
+        bh=tY0kWrVK2ImjRBv09UVGDLJkPT0jzUKnZ6CYAiVMoiE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lSu+eHRkl9Tw2lwefu8O0d/O8H1of0GkUhVkhj48vCyJIbQAUGm7Qd09VvVMei4F5
-         o03QQ3qLV5339mn5xPw6tdc0A3Zq+QXpMx8i7EUutDnbsJ8Xhqakwf17fbPIlIoIpC
-         n6E/mgePkjxc24+6RIfFBBh1m1/wVCgLKlM2Y6Og=
+        b=jYELWuXmlpQ3nED/QNXjr90f/XR+BF52vkFkkAehTuUU+4EiP/VWvxcDGVfQ8Qqch
+         R9ksdJbhlr0K2ZuPcistqI/mCfMqL+cBSDzshqyzBoa2SA2o94PUttyQ2DzmvgHG1s
+         RInjIB4nLK9kGUMW470x1Y4XU7/Nl+4u712C4S0o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0696/1017] pinctrl: mediatek: Fix missing of_node_put() in mtk_pctrl_init
+        stable@vger.kernel.org,
+        =?UTF-8?q?Holger=20Hoffst=C3=A4tte?= 
+        <holger@applied-asynchrony.com>,
+        Paolo Valente <paolo.valente@linaro.org>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 0862/1126] Revert "Revert "block, bfq: honor already-setup queue merges""
 Date:   Tue,  5 Apr 2022 09:26:49 +0200
-Message-Id: <20220405070414.932271484@linuxfoundation.org>
+Message-Id: <20220405070432.841496884@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,43 +56,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Paolo Valente <paolo.valente@linaro.org>
 
-[ Upstream commit dab4df9ca919f59e5b9dd84385eaf34d4f20dbb0 ]
+[ Upstream commit 15729ff8143f8135b03988a100a19e66d7cb7ecd ]
 
-The device_node pointer is returned by of_parse_phandle()  with refcount
-incremented. We should use of_node_put() on it when done.
+A crash [1] happened to be triggered in conjunction with commit
+2d52c58b9c9b ("block, bfq: honor already-setup queue merges"). The
+latter was then reverted by commit ebc69e897e17 ("Revert "block, bfq:
+honor already-setup queue merges""). Yet, the reverted commit was not
+the one introducing the bug. In fact, it actually triggered a UAF
+introduced by a different commit, and now fixed by commit d29bd41428cf
+("block, bfq: reset last_bfqq_created on group change").
 
-Fixes: a6df410d420a ("pinctrl: mediatek: Add Pinctrl/GPIO driver for mt8135.")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Link: https://lore.kernel.org/r/20220308071155.21114-1-linmq006@gmail.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+So, there is no point in keeping commit 2d52c58b9c9b ("block, bfq:
+honor already-setup queue merges") out. This commit restores it.
+
+[1] https://bugzilla.kernel.org/show_bug.cgi?id=214503
+
+Reported-by: Holger Hoffstätte <holger@applied-asynchrony.com>
+Signed-off-by: Paolo Valente <paolo.valente@linaro.org>
+Link: https://lore.kernel.org/r/20211125181510.15004-1-paolo.valente@linaro.org
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/mediatek/pinctrl-mtk-common.c | 2 ++
- 1 file changed, 2 insertions(+)
+ block/bfq-iosched.c | 16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/pinctrl/mediatek/pinctrl-mtk-common.c b/drivers/pinctrl/mediatek/pinctrl-mtk-common.c
-index 5f7c421ab6e7..334cb85855a9 100644
---- a/drivers/pinctrl/mediatek/pinctrl-mtk-common.c
-+++ b/drivers/pinctrl/mediatek/pinctrl-mtk-common.c
-@@ -1038,6 +1038,7 @@ int mtk_pctrl_init(struct platform_device *pdev,
- 	node = of_parse_phandle(np, "mediatek,pctl-regmap", 0);
- 	if (node) {
- 		pctl->regmap1 = syscon_node_to_regmap(node);
-+		of_node_put(node);
- 		if (IS_ERR(pctl->regmap1))
- 			return PTR_ERR(pctl->regmap1);
- 	} else if (regmap) {
-@@ -1051,6 +1052,7 @@ int mtk_pctrl_init(struct platform_device *pdev,
- 	node = of_parse_phandle(np, "mediatek,pctl-regmap", 1);
- 	if (node) {
- 		pctl->regmap2 = syscon_node_to_regmap(node);
-+		of_node_put(node);
- 		if (IS_ERR(pctl->regmap2))
- 			return PTR_ERR(pctl->regmap2);
- 	}
+diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
+index 8735f075230f..1dff82d34b44 100644
+--- a/block/bfq-iosched.c
++++ b/block/bfq-iosched.c
+@@ -2782,6 +2782,15 @@ bfq_setup_merge(struct bfq_queue *bfqq, struct bfq_queue *new_bfqq)
+ 	 * are likely to increase the throughput.
+ 	 */
+ 	bfqq->new_bfqq = new_bfqq;
++	/*
++	 * The above assignment schedules the following redirections:
++	 * each time some I/O for bfqq arrives, the process that
++	 * generated that I/O is disassociated from bfqq and
++	 * associated with new_bfqq. Here we increases new_bfqq->ref
++	 * in advance, adding the number of processes that are
++	 * expected to be associated with new_bfqq as they happen to
++	 * issue I/O.
++	 */
+ 	new_bfqq->ref += process_refs;
+ 	return new_bfqq;
+ }
+@@ -2844,6 +2853,10 @@ bfq_setup_cooperator(struct bfq_data *bfqd, struct bfq_queue *bfqq,
+ {
+ 	struct bfq_queue *in_service_bfqq, *new_bfqq;
+ 
++	/* if a merge has already been setup, then proceed with that first */
++	if (bfqq->new_bfqq)
++		return bfqq->new_bfqq;
++
+ 	/*
+ 	 * Check delayed stable merge for rotational or non-queueing
+ 	 * devs. For this branch to be executed, bfqq must not be
+@@ -2945,9 +2958,6 @@ bfq_setup_cooperator(struct bfq_data *bfqd, struct bfq_queue *bfqq,
+ 	if (bfq_too_late_for_merging(bfqq))
+ 		return NULL;
+ 
+-	if (bfqq->new_bfqq)
+-		return bfqq->new_bfqq;
+-
+ 	if (!io_struct || unlikely(bfqq == &bfqd->oom_bfqq))
+ 		return NULL;
+ 
 -- 
 2.34.1
 
