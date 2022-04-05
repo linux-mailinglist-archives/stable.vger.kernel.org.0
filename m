@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AA95F4F3A1B
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:58:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 727894F3A28
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:58:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379135AbiDELk0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:40:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43786 "EHLO
+        id S1379213AbiDELkf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:40:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56052 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354391AbiDEKOA (ORCPT
+        with ESMTP id S1354396AbiDEKOA (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:14:00 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F14246A00E;
-        Tue,  5 Apr 2022 02:59:49 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A28B168FB6;
+        Tue,  5 Apr 2022 02:59:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 75DA061745;
-        Tue,  5 Apr 2022 09:59:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81D82C385A2;
-        Tue,  5 Apr 2022 09:59:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3DF756172B;
+        Tue,  5 Apr 2022 09:59:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 489DEC385A2;
+        Tue,  5 Apr 2022 09:59:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152788;
-        bh=WzivcXSmnyAyLc6VtEfU3zcYJ5LcHw/WrmshFZPnr7s=;
+        s=korg; t=1649152791;
+        bh=6bkja0LTQHSZqPVobeIryLZm/EoL6/GJ5Tl85AYkTlQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WbI2/cZGeQl8EEMYF6ZG71ZuIgmPy6sQztmIWwuE4Zu/vuOBLvBb35XT+raJfeFFS
-         vnFAa2uXDm+/lqmczHDtRa6Eg9Ea8Pw07VEpSAsJujxIGqYqyFvwaY4sCazS917dTs
-         zFG/WdbSctcXLO3+57CgoAnOx4c+nk/yo9/us12A=
+        b=2sddKG4f34oIp0QGnODJIR9EnUWpjDIMUITWKy658zEGiwHcbXJ4zuSJowiDt5Y+M
+         ExD1bogCAI3hrsIjv19kkmNEefiKwZ6wBQWp6xiBH7+ozjI9ZZ2s66U0fCY5Uz6vhH
+         qzD/os2aT0vRWm+sSwHqMJGrjeDTl5MSrV9oZsUw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ulf Hansson <ulf.hansson@linaro.org>,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>
-Subject: [PATCH 5.15 902/913] mmc: rtsx: Let MMC core handle runtime PM
-Date:   Tue,  5 Apr 2022 09:32:44 +0200
-Message-Id: <20220405070406.856556924@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        kernel test robot <lkp@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.15 903/913] mmc: rtsx: Fix build errors/warnings for unused variable
+Date:   Tue,  5 Apr 2022 09:32:45 +0200
+Message-Id: <20220405070406.886006401@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -53,128 +55,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Ulf Hansson <ulf.hansson@linaro.org>
 
-commit 7570fb41e450ba37bf9335fe3751fa9f502c30fa upstream.
+commit 3dd9a926ec2308e49445f22abef149fc64e9332e upstream.
 
-Since MMC core handles runtime PM reference counting, we can avoid doing
-redundant runtime PM work in the driver. That means the only thing
-commit 5b4258f6721f ("misc: rtsx: rts5249 support runtime PM") misses is
-to always enable runtime PM, to let its parent driver enable ASPM in the
-runtime idle routine.
+The struct device *dev, is no longer needed at various functions, let's
+therefore drop it to fix the build errors/warnings.
 
-Fixes: 7499b529d97f ("mmc: rtsx: Use pm_runtime_{get,put}() to handle runtime PM")
-Reviewed-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Link: https://lore.kernel.org/r/20220216055435.2335297-1-kai.heng.feng@canonical.com
+Fixes: 7570fb41e450 ("mmc: rtsx: Let MMC core handle runtime PM")
+Cc: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Link: https://lore.kernel.org/r/20220301115300.64332-1-ulf.hansson@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/rtsx_pci_sdmmc.c |   18 ------------------
- 1 file changed, 18 deletions(-)
+ drivers/mmc/host/rtsx_pci_sdmmc.c |    6 ------
+ 1 file changed, 6 deletions(-)
 
 --- a/drivers/mmc/host/rtsx_pci_sdmmc.c
 +++ b/drivers/mmc/host/rtsx_pci_sdmmc.c
-@@ -823,7 +823,6 @@ static void sd_request(struct work_struc
- 	}
+@@ -806,7 +806,6 @@ static void sd_request(struct work_struc
+ 	struct mmc_request *mrq = host->mrq;
+ 	struct mmc_command *cmd = mrq->cmd;
+ 	struct mmc_data *data = mrq->data;
+-	struct device *dev = &host->pdev->dev;
  
- 	mutex_lock(&pcr->pcr_mutex);
--	pm_runtime_get_sync(dev);
+ 	unsigned int data_size = 0;
+ 	int err;
+@@ -1081,7 +1080,6 @@ static void sdmmc_set_ios(struct mmc_hos
+ {
+ 	struct realtek_pci_sdmmc *host = mmc_priv(mmc);
+ 	struct rtsx_pcr *pcr = host->pcr;
+-	struct device *dev = &host->pdev->dev;
  
- 	rtsx_pci_start_run(pcr);
- 
-@@ -860,8 +859,6 @@ static void sd_request(struct work_struc
- 			data->bytes_xfered = data->blocks * data->blksz;
- 	}
- 
--	pm_runtime_mark_last_busy(dev);
--	pm_runtime_put_autosuspend(dev);
- 	mutex_unlock(&pcr->pcr_mutex);
- 
- finish:
-@@ -1093,7 +1090,6 @@ static void sdmmc_set_ios(struct mmc_hos
+ 	if (host->eject)
  		return;
+@@ -1130,7 +1128,6 @@ static int sdmmc_get_ro(struct mmc_host
+ {
+ 	struct realtek_pci_sdmmc *host = mmc_priv(mmc);
+ 	struct rtsx_pcr *pcr = host->pcr;
+-	struct device *dev = &host->pdev->dev;
+ 	int ro = 0;
+ 	u32 val;
  
- 	mutex_lock(&pcr->pcr_mutex);
--	pm_runtime_get_sync(dev);
+@@ -1156,7 +1153,6 @@ static int sdmmc_get_cd(struct mmc_host
+ {
+ 	struct realtek_pci_sdmmc *host = mmc_priv(mmc);
+ 	struct rtsx_pcr *pcr = host->pcr;
+-	struct device *dev = &host->pdev->dev;
+ 	int cd = 0;
+ 	u32 val;
  
- 	rtsx_pci_start_run(pcr);
+@@ -1255,7 +1251,6 @@ static int sdmmc_switch_voltage(struct m
+ {
+ 	struct realtek_pci_sdmmc *host = mmc_priv(mmc);
+ 	struct rtsx_pcr *pcr = host->pcr;
+-	struct device *dev = &host->pdev->dev;
+ 	int err = 0;
+ 	u8 voltage;
  
-@@ -1127,8 +1123,6 @@ static void sdmmc_set_ios(struct mmc_hos
- 	rtsx_pci_switch_clock(pcr, ios->clock, host->ssc_depth,
- 			host->initial_mode, host->double_clk, host->vpclk);
+@@ -1308,7 +1303,6 @@ static int sdmmc_execute_tuning(struct m
+ {
+ 	struct realtek_pci_sdmmc *host = mmc_priv(mmc);
+ 	struct rtsx_pcr *pcr = host->pcr;
+-	struct device *dev = &host->pdev->dev;
+ 	int err = 0;
  
--	pm_runtime_mark_last_busy(dev);
--	pm_runtime_put_autosuspend(dev);
- 	mutex_unlock(&pcr->pcr_mutex);
- }
- 
-@@ -1144,7 +1138,6 @@ static int sdmmc_get_ro(struct mmc_host
- 		return -ENOMEDIUM;
- 
- 	mutex_lock(&pcr->pcr_mutex);
--	pm_runtime_get_sync(dev);
- 
- 	rtsx_pci_start_run(pcr);
- 
-@@ -1154,8 +1147,6 @@ static int sdmmc_get_ro(struct mmc_host
- 	if (val & SD_WRITE_PROTECT)
- 		ro = 1;
- 
--	pm_runtime_mark_last_busy(dev);
--	pm_runtime_put_autosuspend(dev);
- 	mutex_unlock(&pcr->pcr_mutex);
- 
- 	return ro;
-@@ -1173,7 +1164,6 @@ static int sdmmc_get_cd(struct mmc_host
- 		return cd;
- 
- 	mutex_lock(&pcr->pcr_mutex);
--	pm_runtime_get_sync(dev);
- 
- 	rtsx_pci_start_run(pcr);
- 
-@@ -1183,8 +1173,6 @@ static int sdmmc_get_cd(struct mmc_host
- 	if (val & SD_EXIST)
- 		cd = 1;
- 
--	pm_runtime_mark_last_busy(dev);
--	pm_runtime_put_autosuspend(dev);
- 	mutex_unlock(&pcr->pcr_mutex);
- 
- 	return cd;
-@@ -1282,7 +1270,6 @@ static int sdmmc_switch_voltage(struct m
- 		return err;
- 
- 	mutex_lock(&pcr->pcr_mutex);
--	pm_runtime_get_sync(dev);
- 
- 	rtsx_pci_start_run(pcr);
- 
-@@ -1312,8 +1299,6 @@ out:
- 	err = rtsx_pci_write_register(pcr, SD_BUS_STAT,
- 			SD_CLK_TOGGLE_EN | SD_CLK_FORCE_STOP, 0);
- 
--	pm_runtime_mark_last_busy(dev);
--	pm_runtime_put_autosuspend(dev);
- 	mutex_unlock(&pcr->pcr_mutex);
- 
- 	return err;
-@@ -1334,7 +1319,6 @@ static int sdmmc_execute_tuning(struct m
- 		return err;
- 
- 	mutex_lock(&pcr->pcr_mutex);
--	pm_runtime_get_sync(dev);
- 
- 	rtsx_pci_start_run(pcr);
- 
-@@ -1367,8 +1351,6 @@ static int sdmmc_execute_tuning(struct m
- 		err = sd_change_phase(host, DDR50_RX_PHASE(pcr), true);
- 
- out:
--	pm_runtime_mark_last_busy(dev);
--	pm_runtime_put_autosuspend(dev);
- 	mutex_unlock(&pcr->pcr_mutex);
- 
- 	return err;
+ 	if (host->eject)
 
 
