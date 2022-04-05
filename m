@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E824F4F2E26
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:58:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A1014F2C92
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:31:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240214AbiDEJfc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:35:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58134 "EHLO
+        id S1347405AbiDEJ0N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:26:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46856 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245756AbiDEI4z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:56:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80E6619C2B;
-        Tue,  5 Apr 2022 01:52:46 -0700 (PDT)
+        with ESMTP id S245063AbiDEIxE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:53:04 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EB281088;
+        Tue,  5 Apr 2022 01:51:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D4409609D0;
-        Tue,  5 Apr 2022 08:52:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5472C385A0;
-        Tue,  5 Apr 2022 08:52:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B55EBB81BC0;
+        Tue,  5 Apr 2022 08:51:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F569C385A1;
+        Tue,  5 Apr 2022 08:50:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148765;
-        bh=G+tlzkSO4tf9ZQVjfwUjPYMxK5+NilPHHkn+It7OI2I=;
+        s=korg; t=1649148659;
+        bh=vFkFSIOQAYRV18Jutd1lvERU8M7ilOc4MsxMU5vsFXw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZQWL6/s5R3TdT1Oya95zqBKDaCaASNTkv/C4v2TpcAO5XuIlPXlceiYg2PTkR0S/E
-         ru2Yjqf6Gki8jEDk05fNL2ClcUqsC+CKETfr+84rZor9HTCWdKsIAB1nvTZVbMaxJl
-         RAFQAouh3mFmIll/9eCRlVg3NEg+p3lxAurhG/aQ=
+        b=NuCq3qwY9nivPX5mCuYahlDOSqk5D6n41LiF3boVbVEdCpNs8vCZhngS1Y2Z/Hk7r
+         DsDT2/ocQ7NKbT9nE1/RuUjkqeIDjfDxooaXqS7DOHXRiXr3B8Eu88nRxJCahl4iMC
+         IjJCalUuca2XQbV+LGYeZGXDbn6nWR939LdVWRsU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maor Gottlieb <maorg@nvidia.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Fabiano Rosas <farosas@linux.ibm.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0435/1017] RDMA/core: Set MR type in ib_reg_user_mr
-Date:   Tue,  5 Apr 2022 09:22:28 +0200
-Message-Id: <20220405070407.206922578@linuxfoundation.org>
+Subject: [PATCH 5.16 0436/1017] KVM: PPC: Fix vmx/vsx mixup in mmio emulation
+Date:   Tue,  5 Apr 2022 09:22:29 +0200
+Message-Id: <20220405070407.236156318@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -55,34 +55,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maor Gottlieb <maorg@nvidia.com>
+From: Fabiano Rosas <farosas@linux.ibm.com>
 
-[ Upstream commit 32a88d16615c2be295571c29273c4ac94cb75309 ]
+[ Upstream commit b99234b918c6e36b9aa0a5b2981e86b6bd11f8e2 ]
 
-Add missing assignment of MR type to IB_MR_TYPE_USER.
+The MMIO emulation code for vector instructions is duplicated between
+VSX and VMX. When emulating VMX we should check the VMX copy size
+instead of the VSX one.
 
-Fixes: 33006bd4f37f ("IB/core: Introduce ib_reg_user_mr")
-Link: https://lore.kernel.org/r/be2e91bcd6e52dc36be289ae92f30d3a5cc6dcb1.1642491047.git.leonro@nvidia.com
-Signed-off-by: Maor Gottlieb <maorg@nvidia.com>
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: acc9eb9305fe ("KVM: PPC: Reimplement LOAD_VMX/STORE_VMX instruction ...")
+Signed-off-by: Fabiano Rosas <farosas@linux.ibm.com>
+Reviewed-by: Nicholas Piggin <npiggin@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220125215655.1026224-3-farosas@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/verbs.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/powerpc/kvm/powerpc.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/infiniband/core/verbs.c b/drivers/infiniband/core/verbs.c
-index c18634bec212..e821dc94a43e 100644
---- a/drivers/infiniband/core/verbs.c
-+++ b/drivers/infiniband/core/verbs.c
-@@ -2153,6 +2153,7 @@ struct ib_mr *ib_reg_user_mr(struct ib_pd *pd, u64 start, u64 length,
- 		return mr;
+diff --git a/arch/powerpc/kvm/powerpc.c b/arch/powerpc/kvm/powerpc.c
+index a72920f4f221..8d91a50a84a8 100644
+--- a/arch/powerpc/kvm/powerpc.c
++++ b/arch/powerpc/kvm/powerpc.c
+@@ -1507,7 +1507,7 @@ int kvmppc_handle_vmx_load(struct kvm_vcpu *vcpu,
+ {
+ 	enum emulation_result emulated = EMULATE_DONE;
  
- 	mr->device = pd->device;
-+	mr->type = IB_MR_TYPE_USER;
- 	mr->pd = pd;
- 	mr->dm = NULL;
- 	atomic_inc(&pd->usecnt);
+-	if (vcpu->arch.mmio_vsx_copy_nums > 2)
++	if (vcpu->arch.mmio_vmx_copy_nums > 2)
+ 		return EMULATE_FAIL;
+ 
+ 	while (vcpu->arch.mmio_vmx_copy_nums) {
+@@ -1604,7 +1604,7 @@ int kvmppc_handle_vmx_store(struct kvm_vcpu *vcpu,
+ 	unsigned int index = rs & KVM_MMIO_REG_MASK;
+ 	enum emulation_result emulated = EMULATE_DONE;
+ 
+-	if (vcpu->arch.mmio_vsx_copy_nums > 2)
++	if (vcpu->arch.mmio_vmx_copy_nums > 2)
+ 		return EMULATE_FAIL;
+ 
+ 	vcpu->arch.io_gpr = rs;
 -- 
 2.34.1
 
