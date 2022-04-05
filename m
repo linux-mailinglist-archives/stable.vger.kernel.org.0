@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 724D94F327B
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:58:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 750724F3075
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:27:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232003AbiDEIhq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:37:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37238 "EHLO
+        id S242264AbiDEJgh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:36:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36258 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238508AbiDEITJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:19:09 -0400
+        with ESMTP id S234876AbiDEJA4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:00:56 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 376ADE033;
-        Tue,  5 Apr 2022 01:09:03 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8844227B2E;
+        Tue,  5 Apr 2022 01:53:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B8810B81A32;
-        Tue,  5 Apr 2022 08:09:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1FD3EC385A9;
-        Tue,  5 Apr 2022 08:08:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 40982B81A0C;
+        Tue,  5 Apr 2022 08:53:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83307C385A0;
+        Tue,  5 Apr 2022 08:53:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146140;
-        bh=RqH+qzWa/r4CLdWRtLFgQGlxDOZvKu8+nk+j1Be6Jgg=;
+        s=korg; t=1649148818;
+        bh=JaKivd1E8T/qQbTOsMZOvw28xfh/ei1qq7W2qiEEdDc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JlWLmpsIX1NJol2QA1l6my4+PxxqLmPGqZCbtumDBJ/NW8qMliDVhevLzSaxXfoCx
-         ka1wgGZWYuyGemxUGIju/RxVeToksfL6USld31pFI5L8E3lEtOhaoljyRPBYdHNRZ5
-         bpj6NoPf12lb7klxEAz4tG0QwgypNQqv6G9NlzFE=
+        b=A1ur3vvaHksw6/NP02t9ZqxrU/9fZOi42M8P9DPnkLuEuCPCwPNHgvl6CSj3+EosX
+         P4LTGtWP50+kZpriTvjHDeg+b+yiOKOGivua4opfzgG2X/QZZs011qq9XpXBMUVe0J
+         35DDWSQO/tV5Re62b1Bpct1a93hAnC9apmMFJ9jc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Shiraz Saleem <shiraz.saleem@intel.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Andrii Nakryiko <andrii@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0657/1126] RDMA/irdma: Prevent some integer underflows
-Date:   Tue,  5 Apr 2022 09:23:24 +0200
-Message-Id: <20220405070426.914833420@linuxfoundation.org>
+Subject: [PATCH 5.16 0492/1017] libbpf: Fix compilation warning due to mismatched printf format
+Date:   Tue,  5 Apr 2022 09:23:25 +0200
+Message-Id: <20220405070408.903681151@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,74 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Andrii Nakryiko <andrii@kernel.org>
 
-[ Upstream commit 6f6dbb819dfc1a35bcb8b709b5c83a3ea8beff75 ]
+[ Upstream commit dc37dc617fabfb1c3a16d49f5d8cc20e9e3608ca ]
 
-My static checker complains that:
+On ppc64le architecture __s64 is long int and requires %ld. Cast to
+ssize_t and use %zd to avoid architecture-specific specifiers.
 
-    drivers/infiniband/hw/irdma/ctrl.c:3605 irdma_sc_ceq_init()
-    warn: can subtract underflow 'info->dev->hmc_fpm_misc.max_ceqs'?
-
-It appears that "info->dev->hmc_fpm_misc.max_ceqs" comes from the firmware
-in irdma_sc_parse_fpm_query_buf() so, yes, there is a chance that it could
-be zero.  Even if we trust the firmware, it's easy enough to change the
-condition just as a hardenning measure.
-
-Fixes: 3f49d6842569 ("RDMA/irdma: Implement HW Admin Queue OPs")
-Link: https://lore.kernel.org/r/20220307125928.GE16710@kili
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Acked-by: Shiraz Saleem <shiraz.saleem@intel.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: 4172843ed4a3 ("libbpf: Fix signedness bug in btf_dump_array_data()")
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20220209063909.1268319-1-andrii@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/irdma/ctrl.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ tools/lib/bpf/btf_dump.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/hw/irdma/ctrl.c b/drivers/infiniband/hw/irdma/ctrl.c
-index 3141a9c85de5..e7554b6043e4 100644
---- a/drivers/infiniband/hw/irdma/ctrl.c
-+++ b/drivers/infiniband/hw/irdma/ctrl.c
-@@ -433,7 +433,7 @@ enum irdma_status_code irdma_sc_qp_create(struct irdma_sc_qp *qp, struct irdma_c
+diff --git a/tools/lib/bpf/btf_dump.c b/tools/lib/bpf/btf_dump.c
+index 700dfd362c4a..f2ab392a0e34 100644
+--- a/tools/lib/bpf/btf_dump.c
++++ b/tools/lib/bpf/btf_dump.c
+@@ -1847,7 +1847,8 @@ static int btf_dump_array_data(struct btf_dump *d,
+ 	elem_type = skip_mods_and_typedefs(d->btf, elem_type_id, NULL);
+ 	elem_size = btf__resolve_size(d->btf, elem_type_id);
+ 	if (elem_size <= 0) {
+-		pr_warn("unexpected elem size %lld for array type [%u]\n", elem_size, id);
++		pr_warn("unexpected elem size %zd for array type [%u]\n",
++			(ssize_t)elem_size, id);
+ 		return -EINVAL;
+ 	}
  
- 	cqp = qp->dev->cqp;
- 	if (qp->qp_uk.qp_id < cqp->dev->hw_attrs.min_hw_qp_id ||
--	    qp->qp_uk.qp_id > (cqp->dev->hmc_info->hmc_obj[IRDMA_HMC_IW_QP].max_cnt - 1))
-+	    qp->qp_uk.qp_id >= (cqp->dev->hmc_info->hmc_obj[IRDMA_HMC_IW_QP].max_cnt))
- 		return IRDMA_ERR_INVALID_QP_ID;
- 
- 	wqe = irdma_sc_cqp_get_next_send_wqe(cqp, scratch);
-@@ -2512,10 +2512,10 @@ static enum irdma_status_code irdma_sc_cq_create(struct irdma_sc_cq *cq,
- 	enum irdma_status_code ret_code = 0;
- 
- 	cqp = cq->dev->cqp;
--	if (cq->cq_uk.cq_id > (cqp->dev->hmc_info->hmc_obj[IRDMA_HMC_IW_CQ].max_cnt - 1))
-+	if (cq->cq_uk.cq_id >= (cqp->dev->hmc_info->hmc_obj[IRDMA_HMC_IW_CQ].max_cnt))
- 		return IRDMA_ERR_INVALID_CQ_ID;
- 
--	if (cq->ceq_id > (cq->dev->hmc_fpm_misc.max_ceqs - 1))
-+	if (cq->ceq_id >= (cq->dev->hmc_fpm_misc.max_ceqs))
- 		return IRDMA_ERR_INVALID_CEQ_ID;
- 
- 	ceq = cq->dev->ceq[cq->ceq_id];
-@@ -3617,7 +3617,7 @@ enum irdma_status_code irdma_sc_ceq_init(struct irdma_sc_ceq *ceq,
- 	    info->elem_cnt > info->dev->hw_attrs.max_hw_ceq_size)
- 		return IRDMA_ERR_INVALID_SIZE;
- 
--	if (info->ceq_id > (info->dev->hmc_fpm_misc.max_ceqs - 1))
-+	if (info->ceq_id >= (info->dev->hmc_fpm_misc.max_ceqs))
- 		return IRDMA_ERR_INVALID_CEQ_ID;
- 	pble_obj_cnt = info->dev->hmc_info->hmc_obj[IRDMA_HMC_IW_PBLE].cnt;
- 
-@@ -4166,7 +4166,7 @@ enum irdma_status_code irdma_sc_ccq_init(struct irdma_sc_cq *cq,
- 	    info->num_elem > info->dev->hw_attrs.uk_attrs.max_hw_cq_size)
- 		return IRDMA_ERR_INVALID_SIZE;
- 
--	if (info->ceq_id > (info->dev->hmc_fpm_misc.max_ceqs - 1))
-+	if (info->ceq_id >= (info->dev->hmc_fpm_misc.max_ceqs ))
- 		return IRDMA_ERR_INVALID_CEQ_ID;
- 
- 	pble_obj_cnt = info->dev->hmc_info->hmc_obj[IRDMA_HMC_IW_PBLE].cnt;
 -- 
 2.34.1
 
