@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A75424F3AA9
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:03:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2650D4F377B
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:20:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346871AbiDELpD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:45:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43228 "EHLO
+        id S1353036AbiDELNl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:13:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354638AbiDEKO5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:14:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D4E66A42A;
-        Tue,  5 Apr 2022 03:01:56 -0700 (PDT)
+        with ESMTP id S1349064AbiDEJtD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9C1B9682D;
+        Tue,  5 Apr 2022 02:39:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C062EB818F6;
-        Tue,  5 Apr 2022 10:01:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E3C2C385A1;
-        Tue,  5 Apr 2022 10:01:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6B0AC615E5;
+        Tue,  5 Apr 2022 09:39:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79E2AC385A3;
+        Tue,  5 Apr 2022 09:39:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152913;
-        bh=fJfAxLgU5ZYT0blaKUPM/lFIty97wmdikPk91H852pY=;
+        s=korg; t=1649151572;
+        bh=2w7bBj4tgoZF311c8KSGA9qi0/m+8Nb4Ri8/8MzK1rU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lR/79T85yWdRp7NDPgbW2+1cHdE4aPPgDtHIvKlcEddR99AerTPhNKyROp+2upLhk
-         tSSfi366q5AyO93kk2iTU5ZJDoDCs8ww6Nh/JRxuK+erF6cSAq1xc853+aQoEwHpat
-         psmVh8+9OAbxrvLGn+EVluetKvcz9/Orl4Z3fdbY=
+        b=qkAFsk7kFXOJbpxooP/SZ1roRzwge+l/DzAvTSRIfjXDn0mpEAELKHLcqFzsx/1+C
+         dq63SbzNELU/JEEVX2LQrbXkb//CUZKHNqT4HQhhBuAkWTWnF4xhrBMuUWQTQJe0b9
+         pXVtk4SciZs/mQkgqBFKC5lZzCd+bZ+SjqmM6M3I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liam Beguin <liambeguin@gmail.com>,
-        Peter Rosin <peda@axentia.se>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.10 033/599] iio: afe: rescale: use s64 for temporary scale calculations
+        stable@vger.kernel.org, Rotem Saado <rotem.saado@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 465/913] iwlwifi: yoyo: remove DBGI_SRAM address reset writing
 Date:   Tue,  5 Apr 2022 09:25:27 +0200
-Message-Id: <20220405070259.808043455@linuxfoundation.org>
+Message-Id: <20220405070353.786762755@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
-References: <20220405070258.802373272@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,50 +54,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liam Beguin <liambeguin@gmail.com>
+From: Rotem Saado <rotem.saado@intel.com>
 
-commit 51593106b608ae4247cc8da928813347da16d025 upstream.
+[ Upstream commit ce014c9861544bb4e789323d0d8956a5ad262e25 ]
 
-All four scaling coefficients can take signed values.
-Make tmp a signed 64-bit integer and switch to div_s64() to preserve
-signs during 64-bit divisions.
+Due to preg protection we cannot write to this register
+while FW is running (when FW in Halt it is ok).
+since we have some cases that we need to dump this
+region while FW is running remove this writing from DRV.
+FW will do this writing.
 
-Fixes: 8b74816b5a9a ("iio: afe: rescale: new driver")
-Signed-off-by: Liam Beguin <liambeguin@gmail.com>
-Reviewed-by: Peter Rosin <peda@axentia.se>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20220108205319.2046348-5-liambeguin@gmail.com
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Rotem Saado <rotem.saado@intel.com>
+Fixes: 89639e06d0f3 ("iwlwifi: yoyo: support for new DBGI_SRAM region")
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20220129105618.209f3078bc74.I463530bd2f40daedb39f6d9df987bb7cee209033@changeid
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/afe/iio-rescale.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/net/wireless/intel/iwlwifi/fw/dbg.c   | 2 --
+ drivers/net/wireless/intel/iwlwifi/iwl-prph.h | 2 --
+ 2 files changed, 4 deletions(-)
 
---- a/drivers/iio/afe/iio-rescale.c
-+++ b/drivers/iio/afe/iio-rescale.c
-@@ -38,7 +38,7 @@ static int rescale_read_raw(struct iio_d
- 			    int *val, int *val2, long mask)
- {
- 	struct rescale *rescale = iio_priv(indio_dev);
--	unsigned long long tmp;
-+	s64 tmp;
- 	int ret;
+diff --git a/drivers/net/wireless/intel/iwlwifi/fw/dbg.c b/drivers/net/wireless/intel/iwlwifi/fw/dbg.c
+index 6dcafd0a3d4b..b00cf92c8965 100644
+--- a/drivers/net/wireless/intel/iwlwifi/fw/dbg.c
++++ b/drivers/net/wireless/intel/iwlwifi/fw/dbg.c
+@@ -1532,8 +1532,6 @@ iwl_dump_ini_dbgi_sram_iter(struct iwl_fw_runtime *fwrt,
+ 		return -EBUSY;
  
- 	switch (mask) {
-@@ -59,10 +59,10 @@ static int rescale_read_raw(struct iio_d
- 			*val2 = rescale->denominator;
- 			return IIO_VAL_FRACTIONAL;
- 		case IIO_VAL_FRACTIONAL_LOG2:
--			tmp = *val * 1000000000LL;
--			do_div(tmp, rescale->denominator);
-+			tmp = (s64)*val * 1000000000LL;
-+			tmp = div_s64(tmp, rescale->denominator);
- 			tmp *= rescale->numerator;
--			do_div(tmp, 1000000000LL);
-+			tmp = div_s64(tmp, 1000000000LL);
- 			*val = tmp;
- 			return ret;
- 		default:
+ 	range->range_data_size = reg->dev_addr.size;
+-	iwl_write_prph_no_grab(fwrt->trans, DBGI_SRAM_TARGET_ACCESS_CFG,
+-			       DBGI_SRAM_TARGET_ACCESS_CFG_RESET_ADDRESS_MSK);
+ 	for (i = 0; i < (le32_to_cpu(reg->dev_addr.size) / 4); i++) {
+ 		prph_data = iwl_read_prph(fwrt->trans, (i % 2) ?
+ 					  DBGI_SRAM_TARGET_ACCESS_RDATA_MSB :
+diff --git a/drivers/net/wireless/intel/iwlwifi/iwl-prph.h b/drivers/net/wireless/intel/iwlwifi/iwl-prph.h
+index d0a7d58336a9..6c4f1c949541 100644
+--- a/drivers/net/wireless/intel/iwlwifi/iwl-prph.h
++++ b/drivers/net/wireless/intel/iwlwifi/iwl-prph.h
+@@ -350,8 +350,6 @@
+ #define WFPM_GP2			0xA030B4
+ 
+ /* DBGI SRAM Register details */
+-#define DBGI_SRAM_TARGET_ACCESS_CFG			0x00A2E14C
+-#define DBGI_SRAM_TARGET_ACCESS_CFG_RESET_ADDRESS_MSK	0x10000
+ #define DBGI_SRAM_TARGET_ACCESS_RDATA_LSB		0x00A2E154
+ #define DBGI_SRAM_TARGET_ACCESS_RDATA_MSB		0x00A2E158
+ 
+-- 
+2.34.1
+
 
 
