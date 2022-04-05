@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BFF214F3997
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:50:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A24DF4F3BFA
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:23:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244415AbiDELgB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:36:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58720 "EHLO
+        id S1382225AbiDEMDp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:03:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55074 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353144AbiDEKFp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:05:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E09CBE9C7;
-        Tue,  5 Apr 2022 02:54:23 -0700 (PDT)
+        with ESMTP id S1358085AbiDEK16 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:27:58 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9198633B2;
+        Tue,  5 Apr 2022 03:15:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D0DE0616DC;
-        Tue,  5 Apr 2022 09:54:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D34EDC385A2;
-        Tue,  5 Apr 2022 09:54:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 69843B81BC5;
+        Tue,  5 Apr 2022 10:14:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEFC3C385A0;
+        Tue,  5 Apr 2022 10:14:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152462;
-        bh=IrqnNTvRac6zDFBz8lPZ519erod6BwbMDCIQfnHanu8=;
+        s=korg; t=1649153698;
+        bh=eCK67HPXcIMQShDnr3324Md+05yigSA/ah6lWVYVzso=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1+8gRSYAboUzG+B/dhJr+k6PWWQhgHLl2fqtL1S6DiNjp0rf+te65+29aS7W8SKEA
-         IGrA0UursmMh8AIh7r61UYwoMytQQh1Boyy+gdNK+r9gmoGLdRLDp150WsobzHzhGN
-         y+ho/tKkBRXGaijWxy/Lx8AGK/HVqPub0wYZ7PzY=
+        b=v/oGp2556mesh594soj08fZsq2pjbu+P6hlkm2ezqaduOoVi7WVSpOuHFL6PuLrRD
+         0LBlKK8wdyMQAeqosPk4cbtROA++urJhFUph0DdPr9JW2Hp8PZZjys0tSlz5zRgrEd
+         xZb/Dx93psqauSycui7mJOmz3e2lDRlRX///4kAA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        stable@vger.kernel.org, Jack Wang <jinpu.wang@ionos.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 746/913] ARM: ftrace: avoid redundant loads or clobbering IP
+Subject: [PATCH 5.10 314/599] scsi: pm8001: Fix le32 values handling in pm80xx_chip_ssp_io_req()
 Date:   Tue,  5 Apr 2022 09:30:08 +0200
-Message-Id: <20220405070402.195698649@linuxfoundation.org>
+Message-Id: <20220405070308.176316690@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070258.802373272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,133 +55,141 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 
-[ Upstream commit d11967870815b5ab89843980e35aab616c97c463 ]
+[ Upstream commit 970404cc5744b1033b6ee601be4ef0e2d1fbcf72 ]
 
-Tweak the ftrace return paths to avoid redundant loads of SP, as well as
-unnecessary clobbering of IP.
+Make sure that the __le32 fields of struct ssp_ini_io_start_req are
+manipulated after applying the correct endian conversion. That is, use
+cpu_to_le32() for assigning values and le32_to_cpu() for consulting a field
+value. In particular, make sure that the calculations for the 4G boundary
+check are done using CPU endianness and *not* little endian values. With
+these fixes, many sparse warnings are removed.
 
-This also fixes the inconsistency of using MOV to perform a function
-return, which is sub-optimal on recent micro-architectures but more
-importantly, does not perform an interworking return, unlike compiler
-generated function returns in Thumb2 builds.
+While at it, add blank lines after variable declarations and in some other
+places to make this code more readable.
 
-Let's fix this by popping PC from the stack like most ordinary code
-does.
-
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Reviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Link: https://lore.kernel.org/r/20220220031810.738362-11-damien.lemoal@opensource.wdc.com
+Fixes: 0ecdf00ba6e5 ("[SCSI] pm80xx: 4G boundary fix.")
+Reviewed-by: Jack Wang <jinpu.wang@ionos.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/kernel/entry-ftrace.S | 51 +++++++++++++++-------------------
- 1 file changed, 22 insertions(+), 29 deletions(-)
+ drivers/scsi/pm8001/pm80xx_hwi.c | 41 +++++++++++++++++++-------------
+ 1 file changed, 25 insertions(+), 16 deletions(-)
 
-diff --git a/arch/arm/kernel/entry-ftrace.S b/arch/arm/kernel/entry-ftrace.S
-index f4886fb6e9ba..f33c171e3090 100644
---- a/arch/arm/kernel/entry-ftrace.S
-+++ b/arch/arm/kernel/entry-ftrace.S
-@@ -22,10 +22,7 @@
-  * mcount can be thought of as a function called in the middle of a subroutine
-  * call.  As such, it needs to be transparent for both the caller and the
-  * callee: the original lr needs to be restored when leaving mcount, and no
-- * registers should be clobbered.  (In the __gnu_mcount_nc implementation, we
-- * clobber the ip register.  This is OK because the ARM calling convention
-- * allows it to be clobbered in subroutines and doesn't use it to hold
-- * parameters.)
-+ * registers should be clobbered.
-  *
-  * When using dynamic ftrace, we patch out the mcount call by a "pop {lr}"
-  * instead of the __gnu_mcount_nc call (see arch/arm/kernel/ftrace.c).
-@@ -70,26 +67,25 @@
- 
- .macro __ftrace_regs_caller
- 
--	sub	sp, sp, #8	@ space for PC and CPSR OLD_R0,
-+	str	lr, [sp, #-8]!	@ store LR as PC and make space for CPSR/OLD_R0,
- 				@ OLD_R0 will overwrite previous LR
- 
--	add 	ip, sp, #12	@ move in IP the value of SP as it was
--				@ before the push {lr} of the mcount mechanism
-+	ldr	lr, [sp, #8]    @ get previous LR
- 
--	str     lr, [sp, #0]    @ store LR instead of PC
-+	str	r0, [sp, #8]	@ write r0 as OLD_R0 over previous LR
- 
--	ldr     lr, [sp, #8]    @ get previous LR
-+	str	lr, [sp, #-4]!	@ store previous LR as LR
- 
--	str	r0, [sp, #8]	@ write r0 as OLD_R0 over previous LR
-+	add 	lr, sp, #16	@ move in LR the value of SP as it was
-+				@ before the push {lr} of the mcount mechanism
- 
--	stmdb   sp!, {ip, lr}
--	stmdb   sp!, {r0-r11, lr}
-+	push	{r0-r11, ip, lr}
- 
- 	@ stack content at this point:
- 	@ 0  4          48   52       56            60   64    68       72
--	@ R0 | R1 | ... | LR | SP + 4 | previous LR | LR | PSR | OLD_R0 |
-+	@ R0 | R1 | ... | IP | SP + 4 | previous LR | LR | PSR | OLD_R0 |
- 
--	mov r3, sp				@ struct pt_regs*
-+	mov	r3, sp				@ struct pt_regs*
- 
- 	ldr r2, =function_trace_op
- 	ldr r2, [r2]				@ pointer to the current
-@@ -112,11 +108,9 @@ ftrace_graph_regs_call:
- #endif
- 
- 	@ pop saved regs
--	ldmia   sp!, {r0-r12}			@ restore r0 through r12
--	ldr	ip, [sp, #8]			@ restore PC
--	ldr	lr, [sp, #4]			@ restore LR
--	ldr	sp, [sp, #0]			@ restore SP
--	mov	pc, ip				@ return
-+	pop	{r0-r11, ip, lr}		@ restore r0 through r12
-+	ldr	lr, [sp], #4			@ restore LR
-+	ldr	pc, [sp], #12
- .endm
- 
- #ifdef CONFIG_FUNCTION_GRAPH_TRACER
-@@ -132,11 +126,9 @@ ftrace_graph_regs_call:
- 	bl	prepare_ftrace_return
- 
- 	@ pop registers saved in ftrace_regs_caller
--	ldmia   sp!, {r0-r12}			@ restore r0 through r12
--	ldr	ip, [sp, #8]			@ restore PC
--	ldr	lr, [sp, #4]			@ restore LR
--	ldr	sp, [sp, #0]			@ restore SP
--	mov	pc, ip				@ return
-+	pop	{r0-r11, ip, lr}		@ restore r0 through r12
-+	ldr	lr, [sp], #4			@ restore LR
-+	ldr	pc, [sp], #12
- 
- .endm
- #endif
-@@ -202,16 +194,17 @@ ftrace_graph_call\suffix:
- .endm
- 
- .macro mcount_exit
--	ldmia	sp!, {r0-r3, ip, lr}
--	ret	ip
-+	ldmia	sp!, {r0-r3}
-+	ldr	lr, [sp, #4]
-+	ldr	pc, [sp], #8
- .endm
- 
- ENTRY(__gnu_mcount_nc)
- UNWIND(.fnstart)
- #ifdef CONFIG_DYNAMIC_FTRACE
--	mov	ip, lr
--	ldmia	sp!, {lr}
--	ret	ip
-+	push	{lr}
-+	ldr	lr, [sp, #4]
-+	ldr	pc, [sp], #8
- #else
- 	__mcount
- #endif
+diff --git a/drivers/scsi/pm8001/pm80xx_hwi.c b/drivers/scsi/pm8001/pm80xx_hwi.c
+index ac6334f8d791..33b5172d55cf 100644
+--- a/drivers/scsi/pm8001/pm80xx_hwi.c
++++ b/drivers/scsi/pm8001/pm80xx_hwi.c
+@@ -4308,13 +4308,15 @@ static int pm80xx_chip_ssp_io_req(struct pm8001_hba_info *pm8001_ha,
+ 	struct ssp_ini_io_start_req ssp_cmd;
+ 	u32 tag = ccb->ccb_tag;
+ 	int ret;
+-	u64 phys_addr, start_addr, end_addr;
++	u64 phys_addr, end_addr;
+ 	u32 end_addr_high, end_addr_low;
+ 	struct inbound_queue_table *circularQ;
+ 	u32 q_index, cpu_id;
+ 	u32 opc = OPC_INB_SSPINIIOSTART;
++
+ 	memset(&ssp_cmd, 0, sizeof(ssp_cmd));
+ 	memcpy(ssp_cmd.ssp_iu.lun, task->ssp_task.LUN, 8);
++
+ 	/* data address domain added for spcv; set to 0 by host,
+ 	 * used internally by controller
+ 	 * 0 for SAS 1.1 and SAS 2.0 compatible TLR
+@@ -4325,7 +4327,7 @@ static int pm80xx_chip_ssp_io_req(struct pm8001_hba_info *pm8001_ha,
+ 	ssp_cmd.device_id = cpu_to_le32(pm8001_dev->device_id);
+ 	ssp_cmd.tag = cpu_to_le32(tag);
+ 	if (task->ssp_task.enable_first_burst)
+-		ssp_cmd.ssp_iu.efb_prio_attr |= 0x80;
++		ssp_cmd.ssp_iu.efb_prio_attr = 0x80;
+ 	ssp_cmd.ssp_iu.efb_prio_attr |= (task->ssp_task.task_prio << 3);
+ 	ssp_cmd.ssp_iu.efb_prio_attr |= (task->ssp_task.task_attr & 7);
+ 	memcpy(ssp_cmd.ssp_iu.cdb, task->ssp_task.cmd->cmnd,
+@@ -4357,21 +4359,24 @@ static int pm80xx_chip_ssp_io_req(struct pm8001_hba_info *pm8001_ha,
+ 			ssp_cmd.enc_esgl = cpu_to_le32(1<<31);
+ 		} else if (task->num_scatter == 1) {
+ 			u64 dma_addr = sg_dma_address(task->scatter);
++
+ 			ssp_cmd.enc_addr_low =
+ 				cpu_to_le32(lower_32_bits(dma_addr));
+ 			ssp_cmd.enc_addr_high =
+ 				cpu_to_le32(upper_32_bits(dma_addr));
+ 			ssp_cmd.enc_len = cpu_to_le32(task->total_xfer_len);
+ 			ssp_cmd.enc_esgl = 0;
++
+ 			/* Check 4G Boundary */
+-			start_addr = cpu_to_le64(dma_addr);
+-			end_addr = (start_addr + ssp_cmd.enc_len) - 1;
+-			end_addr_low = cpu_to_le32(lower_32_bits(end_addr));
+-			end_addr_high = cpu_to_le32(upper_32_bits(end_addr));
+-			if (end_addr_high != ssp_cmd.enc_addr_high) {
++			end_addr = dma_addr + le32_to_cpu(ssp_cmd.enc_len) - 1;
++			end_addr_low = lower_32_bits(end_addr);
++			end_addr_high = upper_32_bits(end_addr);
++
++			if (end_addr_high != le32_to_cpu(ssp_cmd.enc_addr_high)) {
+ 				pm8001_dbg(pm8001_ha, FAIL,
+ 					   "The sg list address start_addr=0x%016llx data_len=0x%x end_addr_high=0x%08x end_addr_low=0x%08x has crossed 4G boundary\n",
+-					   start_addr, ssp_cmd.enc_len,
++					   dma_addr,
++					   le32_to_cpu(ssp_cmd.enc_len),
+ 					   end_addr_high, end_addr_low);
+ 				pm8001_chip_make_sg(task->scatter, 1,
+ 					ccb->buf_prd);
+@@ -4380,7 +4385,7 @@ static int pm80xx_chip_ssp_io_req(struct pm8001_hba_info *pm8001_ha,
+ 					cpu_to_le32(lower_32_bits(phys_addr));
+ 				ssp_cmd.enc_addr_high =
+ 					cpu_to_le32(upper_32_bits(phys_addr));
+-				ssp_cmd.enc_esgl = cpu_to_le32(1<<31);
++				ssp_cmd.enc_esgl = cpu_to_le32(1U<<31);
+ 			}
+ 		} else if (task->num_scatter == 0) {
+ 			ssp_cmd.enc_addr_low = 0;
+@@ -4388,8 +4393,10 @@ static int pm80xx_chip_ssp_io_req(struct pm8001_hba_info *pm8001_ha,
+ 			ssp_cmd.enc_len = cpu_to_le32(task->total_xfer_len);
+ 			ssp_cmd.enc_esgl = 0;
+ 		}
++
+ 		/* XTS mode. All other fields are 0 */
+-		ssp_cmd.key_cmode = 0x6 << 4;
++		ssp_cmd.key_cmode = cpu_to_le32(0x6 << 4);
++
+ 		/* set tweak values. Should be the start lba */
+ 		ssp_cmd.twk_val0 = cpu_to_le32((task->ssp_task.cmd->cmnd[2] << 24) |
+ 						(task->ssp_task.cmd->cmnd[3] << 16) |
+@@ -4411,20 +4418,22 @@ static int pm80xx_chip_ssp_io_req(struct pm8001_hba_info *pm8001_ha,
+ 			ssp_cmd.esgl = cpu_to_le32(1<<31);
+ 		} else if (task->num_scatter == 1) {
+ 			u64 dma_addr = sg_dma_address(task->scatter);
++
+ 			ssp_cmd.addr_low = cpu_to_le32(lower_32_bits(dma_addr));
+ 			ssp_cmd.addr_high =
+ 				cpu_to_le32(upper_32_bits(dma_addr));
+ 			ssp_cmd.len = cpu_to_le32(task->total_xfer_len);
+ 			ssp_cmd.esgl = 0;
++
+ 			/* Check 4G Boundary */
+-			start_addr = cpu_to_le64(dma_addr);
+-			end_addr = (start_addr + ssp_cmd.len) - 1;
+-			end_addr_low = cpu_to_le32(lower_32_bits(end_addr));
+-			end_addr_high = cpu_to_le32(upper_32_bits(end_addr));
+-			if (end_addr_high != ssp_cmd.addr_high) {
++			end_addr = dma_addr + le32_to_cpu(ssp_cmd.len) - 1;
++			end_addr_low = lower_32_bits(end_addr);
++			end_addr_high = upper_32_bits(end_addr);
++			if (end_addr_high != le32_to_cpu(ssp_cmd.addr_high)) {
+ 				pm8001_dbg(pm8001_ha, FAIL,
+ 					   "The sg list address start_addr=0x%016llx data_len=0x%x end_addr_high=0x%08x end_addr_low=0x%08x has crossed 4G boundary\n",
+-					   start_addr, ssp_cmd.len,
++					   dma_addr,
++					   le32_to_cpu(ssp_cmd.len),
+ 					   end_addr_high, end_addr_low);
+ 				pm8001_chip_make_sg(task->scatter, 1,
+ 					ccb->buf_prd);
 -- 
 2.34.1
 
