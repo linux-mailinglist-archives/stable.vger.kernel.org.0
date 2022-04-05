@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E0C0D4F360C
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:56:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB6E74F3612
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:56:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243064AbiDEK5w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:57:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39130 "EHLO
+        id S243441AbiDEK6M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:58:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39416 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346708AbiDEJpV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:45:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7451ADAFFE;
-        Tue,  5 Apr 2022 02:31:27 -0700 (PDT)
+        with ESMTP id S1346729AbiDEJpX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:45:23 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49ACADB493;
+        Tue,  5 Apr 2022 02:31:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 11EFC616AE;
-        Tue,  5 Apr 2022 09:31:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 212DDC385A4;
-        Tue,  5 Apr 2022 09:31:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D29E5616D0;
+        Tue,  5 Apr 2022 09:31:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF03DC385A2;
+        Tue,  5 Apr 2022 09:31:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151086;
-        bh=V1UOHCySsxvOsjmVNhtwQgiiy4jbORYVeLbhecPA394=;
+        s=korg; t=1649151089;
+        bh=NvH7Cwwc01Bg0PNrrgFX0NR/Yp4IwfHNtTfRuL0jc18=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=evB5eWLYNWDJSHelO4fyYmZ4bMb9PcSMWBNP5b3FlWt6hzYkF2vRti5qVt28CAd1N
-         cI+Jtm/wuoKNmaV+sXxwHferVHMCUiK405Hp4jTaOe/5jzDYbakl+yG6vtSrduYplw
-         Wf4fDd0pXYfPoB8KULnJGtKcB4jOwu5//hfmew88=
+        b=ZWik0zca3HpVD5sRDXCrElz4O0rVyuHsWNIdd3D6E2XVNUe2HZnnJy2kiw16a4j2k
+         t1CMWynNueX4FjnDSI8Cad/0/B9BtMr6M6zEKJLUcHRWBpBMTnL4QSuKrMI2emI+Dg
+         syrhxHL6MIRV7zUJOsR+ur5HK87pP/q59CVU1Oxo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 251/913] perf/core: Fix address filter parser for multiple filters
-Date:   Tue,  5 Apr 2022 09:21:53 +0200
-Message-Id: <20220405070347.380488944@linuxfoundation.org>
+Subject: [PATCH 5.15 252/913] perf/x86/intel/pt: Fix address filter config for 32-bit kernel
+Date:   Tue,  5 Apr 2022 09:21:54 +0200
+Message-Id: <20220405070347.409913141@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -56,36 +56,33 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Adrian Hunter <adrian.hunter@intel.com>
 
-[ Upstream commit d680ff24e9e14444c63945b43a37ede7cd6958f9 ]
+[ Upstream commit e5524bf1047eb3b3f3f33b5f59897ba67b3ade87 ]
 
-Reset appropriate variables in the parser loop between parsing separate
-filters, so that they do not interfere with parsing the next filter.
+Change from shifting 'unsigned long' to 'u64' to prevent the config bits
+being lost on a 32-bit kernel.
 
-Fixes: 375637bc524952 ("perf/core: Introduce address range filtering")
+Fixes: eadf48cab4b6b0 ("perf/x86/intel/pt: Add support for address range filtering in PT")
 Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lore.kernel.org/r/20220131072453.2839535-4-adrian.hunter@intel.com
+Link: https://lore.kernel.org/r/20220131072453.2839535-5-adrian.hunter@intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/events/core.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/x86/events/intel/pt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/events/core.c b/kernel/events/core.c
-index b81652fc2cdd..62022380ad8d 100644
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -10530,8 +10530,11 @@ perf_event_parse_addr_filter(struct perf_event *event, char *fstr,
- 			}
- 
- 			/* ready to consume more filters */
-+			kfree(filename);
-+			filename = NULL;
- 			state = IF_STATE_ACTION;
- 			filter = NULL;
-+			kernel = 0;
+diff --git a/arch/x86/events/intel/pt.c b/arch/x86/events/intel/pt.c
+index 2d33bba9a144..215aed65e978 100644
+--- a/arch/x86/events/intel/pt.c
++++ b/arch/x86/events/intel/pt.c
+@@ -472,7 +472,7 @@ static u64 pt_config_filters(struct perf_event *event)
+ 			pt->filters.filter[range].msr_b = filter->msr_b;
  		}
+ 
+-		rtit_ctl |= filter->config << pt_address_ranges[range].reg_off;
++		rtit_ctl |= (u64)filter->config << pt_address_ranges[range].reg_off;
  	}
  
+ 	return rtit_ctl;
 -- 
 2.34.1
 
