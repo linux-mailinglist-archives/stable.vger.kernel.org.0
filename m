@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 423264F377C
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:20:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AAF084F3A98
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:02:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353041AbiDELNm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:13:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39108 "EHLO
+        id S1381592AbiDELq0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:46:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43772 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349063AbiDEJtD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97C40972EC;
-        Tue,  5 Apr 2022 02:39:36 -0700 (PDT)
+        with ESMTP id S1354933AbiDEKQg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:16:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CEF321818;
+        Tue,  5 Apr 2022 03:04:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 36BF2615E5;
-        Tue,  5 Apr 2022 09:39:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46794C385A1;
-        Tue,  5 Apr 2022 09:39:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 46684B81C8B;
+        Tue,  5 Apr 2022 10:04:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B70F0C385A2;
+        Tue,  5 Apr 2022 10:04:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151575;
-        bh=7gTKzdAjIhJ4TyghWQTU70eQQNjzp0fVaBux+pHJOAM=;
+        s=korg; t=1649153046;
+        bh=kSdGlvD8ZiXBvi/chcD7vZ/P+j4sw/QMAyDaUs8nof0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wUmVpzPp+8G/Q0BbaFqrlkOsazKM2H+GF1KEiWU4dilLktOM8efYfYofoISl6dd2u
-         7VJU/2L/QxEQYrkLeoNLDF3ZCYoWWkpYdsa7NWaIbt9eEbBNcwHycYsKhrMMAzRroq
-         laK3WeJRzcBZTw/zXvUULkBCR4J89gpq4FuMWdCg=
+        b=aGY7p+eBgZ7lMZjQjMgxyG1HC7bj/y7amrRs8X6VsChmazMBegYiyShzWqaFOmu2g
+         43azgj8Vs8qdHhEz+k74CXEOypfldziT7puyzVexVJ83LKYnaUT604/qai+GqOTw7T
+         qTEiqlXmG86dvcrb4pHJEomAYuW22lq/q8vDCtC4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 466/913] iwlwifi: Fix -EIO error code that is never returned
+        stable@vger.kernel.org, Liam Beguin <liambeguin@gmail.com>,
+        Peter Rosin <peda@axentia.se>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.10 034/599] iio: inkern: apply consumer scale on IIO_VAL_INT cases
 Date:   Tue,  5 Apr 2022 09:25:28 +0200
-Message-Id: <20220405070353.816391980@linuxfoundation.org>
+Message-Id: <20220405070259.838133693@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070258.802373272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +56,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Liam Beguin <liambeguin@gmail.com>
 
-[ Upstream commit c305c94bdc18e45b5ad1db54da4269f8cbfdff6b ]
+commit 1bca97ff95c732a516ebb68da72814194980e0a5 upstream.
 
-Currently the error -EIO is being assinged to variable ret when
-the READY_BIT is not set but the function iwlagn_mac_start returns
-0 rather than ret. Fix this by returning ret instead of 0.
+When a consumer calls iio_read_channel_processed() and the channel has
+an integer scale, the scale channel scale is applied and the processed
+value is returned as expected.
 
-Addresses-Coverity: ("Unused value")
-Fixes: 7335613ae27a ("iwlwifi: move all mac80211 related functions to one place")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Link: https://lore.kernel.org/r/20210907104658.14706-1-colin.king@canonical.com
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+On the other hand, if the consumer calls iio_convert_raw_to_processed()
+the scaling factor requested by the consumer is not applied.
+
+This for example causes the consumer to process mV when expecting uV.
+Make sure to always apply the scaling factor requested by the consumer.
+
+Fixes: 48e44ce0f881 ("iio:inkern: Add function to read the processed value")
+Signed-off-by: Liam Beguin <liambeguin@gmail.com>
+Reviewed-by: Peter Rosin <peda@axentia.se>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/20220108205319.2046348-2-liambeguin@gmail.com
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/intel/iwlwifi/dvm/mac80211.c | 2 +-
+ drivers/iio/inkern.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/dvm/mac80211.c b/drivers/net/wireless/intel/iwlwifi/dvm/mac80211.c
-index 75e7665773c5..90fe4adca492 100644
---- a/drivers/net/wireless/intel/iwlwifi/dvm/mac80211.c
-+++ b/drivers/net/wireless/intel/iwlwifi/dvm/mac80211.c
-@@ -304,7 +304,7 @@ static int iwlagn_mac_start(struct ieee80211_hw *hw)
+--- a/drivers/iio/inkern.c
++++ b/drivers/iio/inkern.c
+@@ -582,7 +582,7 @@ static int iio_convert_raw_to_processed_
  
- 	priv->is_open = 1;
- 	IWL_DEBUG_MAC80211(priv, "leave\n");
--	return 0;
-+	return ret;
- }
- 
- static void iwlagn_mac_stop(struct ieee80211_hw *hw)
--- 
-2.34.1
-
+ 	switch (scale_type) {
+ 	case IIO_VAL_INT:
+-		*processed = raw64 * scale_val;
++		*processed = raw64 * scale_val * scale;
+ 		break;
+ 	case IIO_VAL_INT_PLUS_MICRO:
+ 		if (scale_val2 < 0)
 
 
