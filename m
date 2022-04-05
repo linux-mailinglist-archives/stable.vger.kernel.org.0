@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BC6B34F3825
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:27:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DDEA64F3B35
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:15:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376371AbiDELVo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:21:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43040 "EHLO
+        id S1345332AbiDELvp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:51:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60424 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349424AbiDEJtu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13D4321252;
-        Tue,  5 Apr 2022 02:45:27 -0700 (PDT)
+        with ESMTP id S1356554AbiDEKYA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:24:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC5CFBD8AA;
+        Tue,  5 Apr 2022 03:08:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A22C861673;
-        Tue,  5 Apr 2022 09:45:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2BBEC385A2;
-        Tue,  5 Apr 2022 09:45:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 658D6B81CB5;
+        Tue,  5 Apr 2022 10:08:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE464C385A7;
+        Tue,  5 Apr 2022 10:08:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151926;
-        bh=3AAfmV1E7ZyolsYIXp/JwPHq9XUWn1MBMJ+mufJjPQw=;
+        s=korg; t=1649153310;
+        bh=VQ5yBIa2FGaD+JwPV3eQXTVT9noiawHMQkRa0hXOq1A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lFVUGV96q5KX3+4hHvBNPGPJ4nZZ5XLDLvcY9ZnyRRzFm2ePkjTosuo1zDTQRkxaP
-         5Ja7ETxlx9y32zzQM5wrWaniUGvaTh4Zqe7kVSvWyP4Z2vpg2+NnLErZukPG8dxNMc
-         xRApdaKOKuPKs4u1pqzTsgpP9FUObJE/vtkJA+kk=
+        b=jZSThBpQzo1Tn/paB+F7LyTUtxhOfy6tS5vWcQDM3ZRaC3GLrdbXbjHuqCHigMlHW
+         pcZrLEQ2RNdZcr03dAXgkqRVaQjpxz36i/BnH5IttR8QnsgwGJzbE6rDBXUFgGQ7Vo
+         vvEMb9iTXCw26m7aXcvfGiPpsfV7z7+Poo+1vKwk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        stable@vger.kernel.org, Guillaume Ranquet <granquet@baylibre.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 592/913] iio: mma8452: Fix probe failing when an i2c_device_id is used
+Subject: [PATCH 5.10 160/599] clocksource/drivers/timer-of: Check return value of of_iomap in timer_of_base_init()
 Date:   Tue,  5 Apr 2022 09:27:34 +0200
-Message-Id: <20220405070357.588190614@linuxfoundation.org>
+Message-Id: <20220405070303.603379474@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070258.802373272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,141 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Guillaume Ranquet <granquet@baylibre.com>
 
-[ Upstream commit a47ac019e7e8129b93a0b991e04b2a59872e053d ]
+[ Upstream commit 4467b8bad2401794fb89a0268c8c8257180bf60f ]
 
-The mma8452_driver declares both of_match_table and i2c_driver.id_table
-match-tables, but its probe() function only checked for of matches.
+of_base->base can either be iomapped using of_io_request_and_map() or
+of_iomap() depending whether or not an of_base->name has been set.
 
-Add support for i2c_device_id matches. This fixes the driver not loading
-on some x86 tablets (e.g. the Nextbook Ares 8) where the i2c_client is
-instantiated by platform code using an i2c_device_id.
+Thus check of_base->base against NULL as of_iomap() does not return a
+PTR_ERR() in case of error.
 
-Drop of_match_ptr() protection to avoid unused warning.
-
-Fixes: c3cdd6e48e35 ("iio: mma8452: refactor for seperating chip specific data")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20220208124336.511884-1-hdegoede@redhat.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: 9aea417afa6b ("clocksource/drivers/timer-of: Don't request the resource by name")
+Signed-off-by: Guillaume Ranquet <granquet@baylibre.com>
+Link: https://lore.kernel.org/r/20220307172656.4836-1-granquet@baylibre.com
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/accel/mma8452.c | 29 ++++++++++++++++++-----------
- 1 file changed, 18 insertions(+), 11 deletions(-)
+ drivers/clocksource/timer-of.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/iio/accel/mma8452.c b/drivers/iio/accel/mma8452.c
-index 09c7f10fefb6..21a99467f364 100644
---- a/drivers/iio/accel/mma8452.c
-+++ b/drivers/iio/accel/mma8452.c
-@@ -176,6 +176,7 @@ static const struct mma8452_event_regs trans_ev_regs = {
-  * @enabled_events:		event flags enabled and handled by this driver
-  */
- struct mma_chip_info {
-+	const char *name;
- 	u8 chip_id;
- 	const struct iio_chan_spec *channels;
- 	int num_channels;
-@@ -1301,6 +1302,7 @@ enum {
- 
- static const struct mma_chip_info mma_chip_info_table[] = {
- 	[mma8451] = {
-+		.name = "mma8451",
- 		.chip_id = MMA8451_DEVICE_ID,
- 		.channels = mma8451_channels,
- 		.num_channels = ARRAY_SIZE(mma8451_channels),
-@@ -1325,6 +1327,7 @@ static const struct mma_chip_info mma_chip_info_table[] = {
- 					MMA8452_INT_FF_MT,
- 	},
- 	[mma8452] = {
-+		.name = "mma8452",
- 		.chip_id = MMA8452_DEVICE_ID,
- 		.channels = mma8452_channels,
- 		.num_channels = ARRAY_SIZE(mma8452_channels),
-@@ -1341,6 +1344,7 @@ static const struct mma_chip_info mma_chip_info_table[] = {
- 					MMA8452_INT_FF_MT,
- 	},
- 	[mma8453] = {
-+		.name = "mma8453",
- 		.chip_id = MMA8453_DEVICE_ID,
- 		.channels = mma8453_channels,
- 		.num_channels = ARRAY_SIZE(mma8453_channels),
-@@ -1357,6 +1361,7 @@ static const struct mma_chip_info mma_chip_info_table[] = {
- 					MMA8452_INT_FF_MT,
- 	},
- 	[mma8652] = {
-+		.name = "mma8652",
- 		.chip_id = MMA8652_DEVICE_ID,
- 		.channels = mma8652_channels,
- 		.num_channels = ARRAY_SIZE(mma8652_channels),
-@@ -1366,6 +1371,7 @@ static const struct mma_chip_info mma_chip_info_table[] = {
- 		.enabled_events = MMA8452_INT_FF_MT,
- 	},
- 	[mma8653] = {
-+		.name = "mma8653",
- 		.chip_id = MMA8653_DEVICE_ID,
- 		.channels = mma8653_channels,
- 		.num_channels = ARRAY_SIZE(mma8653_channels),
-@@ -1380,6 +1386,7 @@ static const struct mma_chip_info mma_chip_info_table[] = {
- 		.enabled_events = MMA8452_INT_FF_MT,
- 	},
- 	[fxls8471] = {
-+		.name = "fxls8471",
- 		.chip_id = FXLS8471_DEVICE_ID,
- 		.channels = mma8451_channels,
- 		.num_channels = ARRAY_SIZE(mma8451_channels),
-@@ -1522,13 +1529,6 @@ static int mma8452_probe(struct i2c_client *client,
- 	struct mma8452_data *data;
- 	struct iio_dev *indio_dev;
- 	int ret;
--	const struct of_device_id *match;
--
--	match = of_match_device(mma8452_dt_ids, &client->dev);
--	if (!match) {
--		dev_err(&client->dev, "unknown device model\n");
--		return -ENODEV;
--	}
- 
- 	indio_dev = devm_iio_device_alloc(&client->dev, sizeof(*data));
- 	if (!indio_dev)
-@@ -1537,7 +1537,14 @@ static int mma8452_probe(struct i2c_client *client,
- 	data = iio_priv(indio_dev);
- 	data->client = client;
- 	mutex_init(&data->lock);
--	data->chip_info = match->data;
-+
-+	data->chip_info = device_get_match_data(&client->dev);
-+	if (!data->chip_info && id) {
-+		data->chip_info = &mma_chip_info_table[id->driver_data];
-+	} else {
-+		dev_err(&client->dev, "unknown device model\n");
-+		return -ENODEV;
-+	}
- 
- 	data->vdd_reg = devm_regulator_get(&client->dev, "vdd");
- 	if (IS_ERR(data->vdd_reg))
-@@ -1581,11 +1588,11 @@ static int mma8452_probe(struct i2c_client *client,
+diff --git a/drivers/clocksource/timer-of.c b/drivers/clocksource/timer-of.c
+index 572da477c6d3..b965f20174e3 100644
+--- a/drivers/clocksource/timer-of.c
++++ b/drivers/clocksource/timer-of.c
+@@ -157,9 +157,9 @@ static __init int timer_of_base_init(struct device_node *np,
+ 	of_base->base = of_base->name ?
+ 		of_io_request_and_map(np, of_base->index, of_base->name) :
+ 		of_iomap(np, of_base->index);
+-	if (IS_ERR(of_base->base)) {
+-		pr_err("Failed to iomap (%s)\n", of_base->name);
+-		return PTR_ERR(of_base->base);
++	if (IS_ERR_OR_NULL(of_base->base)) {
++		pr_err("Failed to iomap (%s:%s)\n", np->name, of_base->name);
++		return of_base->base ? PTR_ERR(of_base->base) : -ENOMEM;
  	}
  
- 	dev_info(&client->dev, "registering %s accelerometer; ID 0x%x\n",
--		 match->compatible, data->chip_info->chip_id);
-+		 data->chip_info->name, data->chip_info->chip_id);
- 
- 	i2c_set_clientdata(client, indio_dev);
- 	indio_dev->info = &mma8452_info;
--	indio_dev->name = id->name;
-+	indio_dev->name = data->chip_info->name;
- 	indio_dev->modes = INDIO_DIRECT_MODE;
- 	indio_dev->channels = data->chip_info->channels;
- 	indio_dev->num_channels = data->chip_info->num_channels;
-@@ -1810,7 +1817,7 @@ MODULE_DEVICE_TABLE(i2c, mma8452_id);
- static struct i2c_driver mma8452_driver = {
- 	.driver = {
- 		.name	= "mma8452",
--		.of_match_table = of_match_ptr(mma8452_dt_ids),
-+		.of_match_table = mma8452_dt_ids,
- 		.pm	= &mma8452_pm_ops,
- 	},
- 	.probe = mma8452_probe,
+ 	return 0;
 -- 
 2.34.1
 
