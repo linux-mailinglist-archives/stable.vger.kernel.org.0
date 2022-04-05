@@ -2,48 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E1774F3A48
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:00:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 919384F3766
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:20:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239681AbiDELnt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:43:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46880 "EHLO
+        id S1352900AbiDELNE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:13:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47888 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354562AbiDEKOj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:14:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A27176B51E;
-        Tue,  5 Apr 2022 03:01:04 -0700 (PDT)
+        with ESMTP id S1349006AbiDEJsz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:48:55 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66459DF41;
+        Tue,  5 Apr 2022 02:39:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3FFCD6172B;
-        Tue,  5 Apr 2022 10:01:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50B48C385A1;
-        Tue,  5 Apr 2022 10:01:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 80DC3B81B7F;
+        Tue,  5 Apr 2022 09:39:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0254C385A2;
+        Tue,  5 Apr 2022 09:38:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152863;
-        bh=4RJxg9sFpf0XnO3T0Y7aRhplR65wf1OiryRNWgxLIpg=;
+        s=korg; t=1649151540;
+        bh=TIY/MaJG64dJFYhgSREZ7Io2V0kw+HnjbuZ5wtzkwkI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B7gEK5UKBcfXoYhJULITgftjJOHct5/sg1a67uC3FwgIzgzVhc0ha93JnkM+cunqQ
-         YujLMOYVTvJ8BtV2ul9g+kP37ublEk6iFcGjZWMMaC4jW2XuN6l48/EO/2nhnL/j92
-         MKUo2IUz3DxcM66SpVuWz5xMnW6HRD3nRahM9Qo8=
+        b=pmTpJlyYHfuOmgFW0VwPlHzwrVNL3zz7ir75eGGDTkrivWiWpdRpzt3K3Ias36kCQ
+         7aF3RwA2v2bu/LcW20kChCaWORhQe7F1gJodXo6pzc8IER51hNTFKgl5/go10kMDos
+         5ec0RiaLNlMSR2mGUgtI5DKAd935lepAJ6Jg1QoM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Biju Das <biju.das.jz@bp.renesas.com>,
-        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Zhiqian Guan <zhguan@redhat.com>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Kumar Kartikeya Dwivedi <memxor@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 017/599] spi: Fix erroneous sgs value with min_t()
-Date:   Tue,  5 Apr 2022 09:25:11 +0200
-Message-Id: <20220405070259.329330392@linuxfoundation.org>
+Subject: [PATCH 5.15 450/913] libbpf: Use dynamically allocated buffer when receiving netlink messages
+Date:   Tue,  5 Apr 2022 09:25:12 +0200
+Message-Id: <20220405070353.337403206@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
-References: <20220405070258.802373272@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,57 +56,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Biju Das <biju.das.jz@bp.renesas.com>
+From: Toke Høiland-Jørgensen <toke@redhat.com>
 
-[ Upstream commit ebc4cb43ea5ada3db46c80156fca58a54b9bbca8 ]
+[ Upstream commit 9c3de619e13ee6693ec5ac74f50b7aa89056a70e ]
 
-While computing sgs in spi_map_buf(), the data type
-used in min_t() for max_seg_size is 'unsigned int' where
-as that of ctlr->max_dma_len is 'size_t'.
+When receiving netlink messages, libbpf was using a statically allocated
+stack buffer of 4k bytes. This happened to work fine on systems with a 4k
+page size, but on systems with larger page sizes it can lead to truncated
+messages. The user-visible impact of this was that libbpf would insist no
+XDP program was attached to some interfaces because that bit of the netlink
+message got chopped off.
 
-min_t(unsigned int,x,y) gives wrong results if one of x/y is
-'size_t'
+Fix this by switching to a dynamically allocated buffer; we borrow the
+approach from iproute2 of using recvmsg() with MSG_PEEK|MSG_TRUNC to get
+the actual size of the pending message before receiving it, adjusting the
+buffer as necessary. While we're at it, also add retries on interrupted
+system calls around the recvmsg() call.
 
-Consider the below examples on a 64-bit machine (ie size_t is
-64-bits, and unsigned int is 32-bit).
-    case 1) min_t(unsigned int, 5, 0x100000001);
-    case 2) min_t(size_t, 5, 0x100000001);
+v2:
+  - Move peek logic to libbpf_netlink_recv(), don't double free on ENOMEM.
 
-Case 1 returns '1', where as case 2 returns '5'. As you can see
-the result from case 1 is wrong.
-
-This patch fixes the above issue by using the data type of the
-parameters that are used in min_t with maximum data length.
-
-Fixes: commit 1a4e53d2fc4f68aa ("spi: Fix invalid sgs value")
-Reported-by: Linus Torvalds <torvalds@linux-foundation.org>
-Suggested-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
-Reviewed-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Link: https://lore.kernel.org/r/20220316175317.465-1-biju.das.jz@bp.renesas.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 8bbb77b7c7a2 ("libbpf: Add various netlink helpers")
+Reported-by: Zhiqian Guan <zhguan@redhat.com>
+Signed-off-by: Toke Høiland-Jørgensen <toke@redhat.com>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Acked-by: Kumar Kartikeya Dwivedi <memxor@gmail.com>
+Link: https://lore.kernel.org/bpf/20220211234819.612288-1-toke@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ tools/lib/bpf/netlink.c | 55 ++++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 51 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
-index 2396565fc91b..6ea7b286c80c 100644
---- a/drivers/spi/spi.c
-+++ b/drivers/spi/spi.c
-@@ -881,10 +881,10 @@ int spi_map_buf(struct spi_controller *ctlr, struct device *dev,
- 	int i, ret;
+diff --git a/tools/lib/bpf/netlink.c b/tools/lib/bpf/netlink.c
+index 39f25e09b51e..69b353d55dbf 100644
+--- a/tools/lib/bpf/netlink.c
++++ b/tools/lib/bpf/netlink.c
+@@ -87,29 +87,75 @@ enum {
+ 	NL_DONE,
+ };
  
- 	if (vmalloced_buf || kmap_buf) {
--		desc_len = min_t(unsigned int, max_seg_size, PAGE_SIZE);
-+		desc_len = min_t(unsigned long, max_seg_size, PAGE_SIZE);
- 		sgs = DIV_ROUND_UP(len + offset_in_page(buf), desc_len);
- 	} else if (virt_addr_valid(buf)) {
--		desc_len = min_t(unsigned int, max_seg_size, ctlr->max_dma_len);
-+		desc_len = min_t(size_t, max_seg_size, ctlr->max_dma_len);
- 		sgs = DIV_ROUND_UP(len, desc_len);
- 	} else {
- 		return -EINVAL;
++static int netlink_recvmsg(int sock, struct msghdr *mhdr, int flags)
++{
++	int len;
++
++	do {
++		len = recvmsg(sock, mhdr, flags);
++	} while (len < 0 && (errno == EINTR || errno == EAGAIN));
++
++	if (len < 0)
++		return -errno;
++	return len;
++}
++
++static int alloc_iov(struct iovec *iov, int len)
++{
++	void *nbuf;
++
++	nbuf = realloc(iov->iov_base, len);
++	if (!nbuf)
++		return -ENOMEM;
++
++	iov->iov_base = nbuf;
++	iov->iov_len = len;
++	return 0;
++}
++
+ static int libbpf_netlink_recv(int sock, __u32 nl_pid, int seq,
+ 			       __dump_nlmsg_t _fn, libbpf_dump_nlmsg_t fn,
+ 			       void *cookie)
+ {
++	struct iovec iov = {};
++	struct msghdr mhdr = {
++		.msg_iov = &iov,
++		.msg_iovlen = 1,
++	};
+ 	bool multipart = true;
+ 	struct nlmsgerr *err;
+ 	struct nlmsghdr *nh;
+-	char buf[4096];
+ 	int len, ret;
+ 
++	ret = alloc_iov(&iov, 4096);
++	if (ret)
++		goto done;
++
+ 	while (multipart) {
+ start:
+ 		multipart = false;
+-		len = recv(sock, buf, sizeof(buf), 0);
++		len = netlink_recvmsg(sock, &mhdr, MSG_PEEK | MSG_TRUNC);
++		if (len < 0) {
++			ret = len;
++			goto done;
++		}
++
++		if (len > iov.iov_len) {
++			ret = alloc_iov(&iov, len);
++			if (ret)
++				goto done;
++		}
++
++		len = netlink_recvmsg(sock, &mhdr, 0);
+ 		if (len < 0) {
+-			ret = -errno;
++			ret = len;
+ 			goto done;
+ 		}
+ 
+ 		if (len == 0)
+ 			break;
+ 
+-		for (nh = (struct nlmsghdr *)buf; NLMSG_OK(nh, len);
++		for (nh = (struct nlmsghdr *)iov.iov_base; NLMSG_OK(nh, len);
+ 		     nh = NLMSG_NEXT(nh, len)) {
+ 			if (nh->nlmsg_pid != nl_pid) {
+ 				ret = -LIBBPF_ERRNO__WRNGPID;
+@@ -151,6 +197,7 @@ static int libbpf_netlink_recv(int sock, __u32 nl_pid, int seq,
+ 	}
+ 	ret = 0;
+ done:
++	free(iov.iov_base);
+ 	return ret;
+ }
+ 
 -- 
 2.34.1
 
