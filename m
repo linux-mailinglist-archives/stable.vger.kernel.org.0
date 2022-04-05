@@ -2,50 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 093A64F35AB
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:52:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E66494F3587
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:51:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232408AbiDEKx4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:53:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59526 "EHLO
+        id S238306AbiDEJ3O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:29:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46812 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346121AbiDEJo3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:44:29 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D090C6271;
-        Tue,  5 Apr 2022 02:30:09 -0700 (PDT)
+        with ESMTP id S245025AbiDEIxC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:53:02 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92D81C03;
+        Tue,  5 Apr 2022 01:49:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 28FE0B81C9A;
-        Tue,  5 Apr 2022 09:30:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 661F3C385A2;
-        Tue,  5 Apr 2022 09:30:06 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 120EFCE1C6E;
+        Tue,  5 Apr 2022 08:49:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AE4CC385A1;
+        Tue,  5 Apr 2022 08:49:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151006;
-        bh=iOJnjeUVU/EsFOXQqOOf9bdL0qJ8z0IlD/iETWPdlfE=;
+        s=korg; t=1649148589;
+        bh=1lPVoZwuXAwYHn+7f3974dvxbfLLihtZpAVIV0JZzHs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R4dyMSNpxPP/oygwXsvHikD50yPJvdPf2KfDnWcBWnBVPSSjoUAY7xQUahCtE6Rld
-         FVUEBIA4LcJqBDDpLPqhuQwLn61ClNErrU4CDvIUFPW8dX8kNOilQCW5kTln152E+V
-         uO7rXkmP4rN1x7IAT/vZAb/2xF2H7KS5i8NFDNx0=
+        b=oiok3McFn2G5DSey61gpGBzNE8LlpXY5BNRlOUKKZm4LubZmfyje30gnLrBIuta1L
+         oUXZMJ11oE35QQW9p2j7jiq782RkVYUd3VFpvD5wBVJQ3rfK+6SB+O0uFqsZU3Am6E
+         jfVibug2F2vcEVSpNaVJ/nBjW2lqnwIzXW0ATpkQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Guillaume Tucker <guillaume.tucker@collabora.com>,
-        "kernelci.org bot" <bot@kernelci.org>,
-        Guenter Roeck <groeck@google.com>,
-        Shuah Khan <shuah@kernel.org>, Borislav Petkov <bp@suse.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Wei Fu <fuweid89@gmail.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 261/913] selftests, x86: fix how check_cc.sh is being invoked
+Subject: [PATCH 5.16 0410/1017] bpftool: Only set obj->skeleton on complete success
 Date:   Tue,  5 Apr 2022 09:22:03 +0200
-Message-Id: <20220405070347.679866937@linuxfoundation.org>
+Message-Id: <20220405070406.458335832@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -60,71 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guillaume Tucker <guillaume.tucker@collabora.com>
+From: Wei Fu <fuweid89@gmail.com>
 
-[ Upstream commit ef696f93ed9778d570bd5ac58414421cdd4f1aab ]
+[ Upstream commit 0991f6a38f576aa9a5e34713e23c998a3310d4d0 ]
 
-The $(CC) variable used in Makefiles could contain several arguments
-such as "ccache gcc".  These need to be passed as a single string to
-check_cc.sh, otherwise only the first argument will be used as the
-compiler command.  Without quotes, the $(CC) variable is passed as
-distinct arguments which causes the script to fail to build trivial
-programs.
+After `bpftool gen skeleton`, the ${bpf_app}.skel.h will provide that
+${bpf_app_name}__open helper to load bpf. If there is some error
+like ENOMEM, the ${bpf_app_name}__open will rollback(free) the allocated
+object, including `bpf_object_skeleton`.
 
-Fix this by adding quotes around $(CC) when calling check_cc.sh to pass
-the whole string as a single argument to the script even if it has
-several words such as "ccache gcc".
+Since the ${bpf_app_name}__create_skeleton set the obj->skeleton first
+and not rollback it when error, it will cause double-free in
+${bpf_app_name}__destory at ${bpf_app_name}__open. Therefore, we should
+set the obj->skeleton before return 0;
 
-Link: https://lkml.kernel.org/r/d0d460d7be0107a69e3c52477761a6fe694c1840.1646991629.git.guillaume.tucker@collabora.com
-Fixes: e9886ace222e ("selftests, x86: Rework x86 target architecture detection")
-Signed-off-by: Guillaume Tucker <guillaume.tucker@collabora.com>
-Tested-by: "kernelci.org bot" <bot@kernelci.org>
-Reviewed-by: Guenter Roeck <groeck@google.com>
-Cc: Shuah Khan <shuah@kernel.org>
-Cc: Borislav Petkov <bp@suse.de>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 5dc7a8b21144 ("bpftool, selftests/bpf: Embed object file inside skeleton")
+Signed-off-by: Wei Fu <fuweid89@gmail.com>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/bpf/20220108084008.1053111-1-fuweid89@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/vm/Makefile  | 6 +++---
- tools/testing/selftests/x86/Makefile | 6 +++---
- 2 files changed, 6 insertions(+), 6 deletions(-)
+ tools/bpf/bpftool/gen.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/vm/Makefile b/tools/testing/selftests/vm/Makefile
-index acf5eaeef9ff..a7fde142e814 100644
---- a/tools/testing/selftests/vm/Makefile
-+++ b/tools/testing/selftests/vm/Makefile
-@@ -50,9 +50,9 @@ TEST_GEN_FILES += split_huge_page_test
- TEST_GEN_FILES += ksm_tests
- 
- ifeq ($(MACHINE),x86_64)
--CAN_BUILD_I386 := $(shell ./../x86/check_cc.sh $(CC) ../x86/trivial_32bit_program.c -m32)
--CAN_BUILD_X86_64 := $(shell ./../x86/check_cc.sh $(CC) ../x86/trivial_64bit_program.c)
--CAN_BUILD_WITH_NOPIE := $(shell ./../x86/check_cc.sh $(CC) ../x86/trivial_program.c -no-pie)
-+CAN_BUILD_I386 := $(shell ./../x86/check_cc.sh "$(CC)" ../x86/trivial_32bit_program.c -m32)
-+CAN_BUILD_X86_64 := $(shell ./../x86/check_cc.sh "$(CC)" ../x86/trivial_64bit_program.c)
-+CAN_BUILD_WITH_NOPIE := $(shell ./../x86/check_cc.sh "$(CC)" ../x86/trivial_program.c -no-pie)
- 
- TARGETS := protection_keys
- BINARIES_32 := $(TARGETS:%=%_32)
-diff --git a/tools/testing/selftests/x86/Makefile b/tools/testing/selftests/x86/Makefile
-index b4142cd1c5c2..02a77056bca3 100644
---- a/tools/testing/selftests/x86/Makefile
-+++ b/tools/testing/selftests/x86/Makefile
-@@ -6,9 +6,9 @@ include ../lib.mk
- .PHONY: all all_32 all_64 warn_32bit_failure clean
- 
- UNAME_M := $(shell uname -m)
--CAN_BUILD_I386 := $(shell ./check_cc.sh $(CC) trivial_32bit_program.c -m32)
--CAN_BUILD_X86_64 := $(shell ./check_cc.sh $(CC) trivial_64bit_program.c)
--CAN_BUILD_WITH_NOPIE := $(shell ./check_cc.sh $(CC) trivial_program.c -no-pie)
-+CAN_BUILD_I386 := $(shell ./check_cc.sh "$(CC)" trivial_32bit_program.c -m32)
-+CAN_BUILD_X86_64 := $(shell ./check_cc.sh "$(CC)" trivial_64bit_program.c)
-+CAN_BUILD_WITH_NOPIE := $(shell ./check_cc.sh "$(CC)" trivial_program.c -no-pie)
- 
- TARGETS_C_BOTHBITS := single_step_syscall sysret_ss_attrs syscall_nt test_mremap_vdso \
- 			check_initial_reg_state sigreturn iopl ioperm \
+diff --git a/tools/bpf/bpftool/gen.c b/tools/bpf/bpftool/gen.c
+index 5c18351290f0..587027050f43 100644
+--- a/tools/bpf/bpftool/gen.c
++++ b/tools/bpf/bpftool/gen.c
+@@ -928,7 +928,6 @@ static int do_skeleton(int argc, char **argv)
+ 			s = (struct bpf_object_skeleton *)calloc(1, sizeof(*s));\n\
+ 			if (!s)						    \n\
+ 				goto err;				    \n\
+-			obj->skeleton = s;				    \n\
+ 									    \n\
+ 			s->sz = sizeof(*s);				    \n\
+ 			s->name = \"%1$s\";				    \n\
+@@ -1001,6 +1000,7 @@ static int do_skeleton(int argc, char **argv)
+ 									    \n\
+ 			s->data = (void *)%2$s__elf_bytes(&s->data_sz);	    \n\
+ 									    \n\
++			obj->skeleton = s;				    \n\
+ 			return 0;					    \n\
+ 		err:							    \n\
+ 			bpf_object__destroy_skeleton(s);		    \n\
 -- 
 2.34.1
 
