@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D1AA24F2D51
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:36:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D6A124F2A2F
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 12:53:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345122AbiDEKkp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:40:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50320 "EHLO
+        id S1349052AbiDEKuL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:50:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50094 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244363AbiDEJlP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:41:15 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB6E79682D;
-        Tue,  5 Apr 2022 02:26:15 -0700 (PDT)
+        with ESMTP id S1344722AbiDEJmi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:42:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3BE7BF019;
+        Tue,  5 Apr 2022 02:27:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8701361659;
-        Tue,  5 Apr 2022 09:26:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8CE6BC385A2;
-        Tue,  5 Apr 2022 09:26:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 535A561698;
+        Tue,  5 Apr 2022 09:27:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60113C385A0;
+        Tue,  5 Apr 2022 09:27:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150774;
-        bh=LhUdYwK+yijx9j6jaivm7tHTIZ57ZeqRqUb+Y3YUgMg=;
+        s=korg; t=1649150877;
+        bh=G/l9aUJULJwmI7YT0KaZ81Zov+Y/RRth+XG3A6aSc6U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zyNZM+597kgtBJgDXDmT+ZOmxysETN3Hp/6OtcVJydSgkOVxm1ctIpiq02kpFlR0F
-         ipwoyOhbiZ6mlb2EKUJSb4GxjXWRvinKDkwfNZntkZYfyZCO9y/mrNJ6b2VTPzVq4I
-         Keb70An6By722OnBrVxKLw7MIr/oMSAZMMhpvxcg=
+        b=bqxvNd+YSePTtSvIo9Ou8egV3llgNgVyQaCJAZsroJq4MqBpBXxC+0TQzlObYo0wP
+         W9NWUApAGS2Jhy+5shUMBcfB6uP0wyOYSj6ADxFGrNHg3NdKabMi0cnuIKgrsK9TA5
+         pKbx4iLJ4iqetqFrFk+cISuy2uf91AfvGhfLNli4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        Naohiro Aota <naohiro.aota@wdc.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.15 169/913] btrfs: zoned: mark relocation as writing
-Date:   Tue,  5 Apr 2022 09:20:31 +0200
-Message-Id: <20220405070344.914093002@linuxfoundation.org>
+        Christoph Anton Mitterer <calestyo@scientia.org>,
+        David Sterba <dsterba@suse.com>, ree.com@vger.kernel.org
+Subject: [PATCH 5.15 171/913] btrfs: verify the tranisd of the to-be-written dirty extent buffer
+Date:   Tue,  5 Apr 2022 09:20:33 +0200
+Message-Id: <20220405070344.976550703@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -55,92 +54,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Naohiro Aota <naohiro.aota@wdc.com>
+From: Qu Wenruo <wqu@suse.com>
 
-commit ca5e4ea0beaec8bc674121838bf8614c089effb9 upstream.
+commit 3777369ff1518b579560611a0d0c33f930154f64 upstream.
 
-There is a hung_task issue with running generic/068 on an SMR
-device. The hang occurs while a process is trying to thaw the
-filesystem. The process is trying to take sb->s_umount to thaw the
-FS. The lock is held by fsstress, which calls btrfs_sync_fs() and is
-waiting for an ordered extent to finish. However, as the FS is frozen,
-the ordered extents never finish.
+[BUG]
+There is a bug report that a bitflip in the transid part of an extent
+buffer makes btrfs to reject certain tree blocks:
 
-Having an ordered extent while the FS is frozen is the root cause of
-the hang. The ordered extent is initiated from btrfs_relocate_chunk()
-which is called from btrfs_reclaim_bgs_work().
+  BTRFS error (device dm-0): parent transid verify failed on 1382301696 wanted 262166 found 22
 
-This commit adds sb_*_write() around btrfs_relocate_chunk() call
-site. For the usual "btrfs balance" command, we already call it with
-mnt_want_file() in btrfs_ioctl_balance().
+[CAUSE]
+Note the failed transid check, hex(262166) = 0x40016, while
+hex(22) = 0x16.
 
-Fixes: 18bb8bbf13c1 ("btrfs: zoned: automatically reclaim zones")
-CC: stable@vger.kernel.org # 5.13+
-Link: https://github.com/naota/linux/issues/56
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Signed-off-by: Naohiro Aota <naohiro.aota@wdc.com>
+It's an obvious bitflip.
+
+Furthermore, the reporter also confirmed the bitflip is from the
+hardware, so it's a real hardware caused bitflip, and such problem can
+not be detected by the existing tree-checker framework.
+
+As tree-checker can only verify the content inside one tree block, while
+generation of a tree block can only be verified against its parent.
+
+So such problem remain undetected.
+
+[FIX]
+Although tree-checker can not verify it at write-time, we still have a
+quick (but not the most accurate) way to catch such obvious corruption.
+
+Function csum_one_extent_buffer() is called before we submit metadata
+write.
+
+Thus it means, all the extent buffer passed in should be dirty tree
+blocks, and should be newer than last committed transaction.
+
+Using that we can catch the above bitflip.
+
+Although it's not a perfect solution, as if the corrupted generation is
+higher than the correct value, we have no way to catch it at all.
+
+Reported-by: Christoph Anton Mitterer <calestyo@scientia.org>
+Link: https://lore.kernel.org/linux-btrfs/2dfcbc130c55cc6fd067b93752e90bd2b079baca.camel@scientia.org/
+CC: stable@vger.kernel.org # 5.15+
+Signed-off-by: Qu Wenruo <wqu@sus,ree.com>
 Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/block-group.c |    8 +++++++-
- fs/btrfs/volumes.c     |    3 +++
- 2 files changed, 10 insertions(+), 1 deletion(-)
+ fs/btrfs/disk-io.c |   26 ++++++++++++++++++++------
+ 1 file changed, 20 insertions(+), 6 deletions(-)
 
---- a/fs/btrfs/block-group.c
-+++ b/fs/btrfs/block-group.c
-@@ -1504,8 +1504,12 @@ void btrfs_reclaim_bgs_work(struct work_
- 	if (!test_bit(BTRFS_FS_OPEN, &fs_info->flags))
- 		return;
+--- a/fs/btrfs/disk-io.c
++++ b/fs/btrfs/disk-io.c
+@@ -441,17 +441,31 @@ static int csum_one_extent_buffer(struct
+ 	else
+ 		ret = btrfs_check_leaf_full(eb);
  
--	if (!btrfs_exclop_start(fs_info, BTRFS_EXCLOP_BALANCE))
-+	sb_start_write(fs_info->sb);
+-	if (ret < 0) {
+-		btrfs_print_tree(eb, 0);
++	if (ret < 0)
++		goto error;
 +
-+	if (!btrfs_exclop_start(fs_info, BTRFS_EXCLOP_BALANCE)) {
-+		sb_end_write(fs_info->sb);
- 		return;
-+	}
- 
- 	/*
- 	 * Long running balances can keep us blocked here for eternity, so
-@@ -1513,6 +1517,7 @@ void btrfs_reclaim_bgs_work(struct work_
- 	 */
- 	if (!mutex_trylock(&fs_info->reclaim_bgs_lock)) {
- 		btrfs_exclop_finish(fs_info);
-+		sb_end_write(fs_info->sb);
- 		return;
++	/*
++	 * Also check the generation, the eb reached here must be newer than
++	 * last committed. Or something seriously wrong happened.
++	 */
++	if (unlikely(btrfs_header_generation(eb) <= fs_info->last_trans_committed)) {
++		ret = -EUCLEAN;
+ 		btrfs_err(fs_info,
+-			"block=%llu write time tree block corruption detected",
+-			eb->start);
+-		WARN_ON(IS_ENABLED(CONFIG_BTRFS_DEBUG));
+-		return ret;
++			"block=%llu bad generation, have %llu expect > %llu",
++			  eb->start, btrfs_header_generation(eb),
++			  fs_info->last_trans_committed);
++		goto error;
  	}
+ 	write_extent_buffer(eb, result, 0, fs_info->csum_size);
  
-@@ -1581,6 +1586,7 @@ next:
- 	spin_unlock(&fs_info->unused_bgs_lock);
- 	mutex_unlock(&fs_info->reclaim_bgs_lock);
- 	btrfs_exclop_finish(fs_info);
-+	sb_end_write(fs_info->sb);
+ 	return 0;
++
++error:
++	btrfs_print_tree(eb, 0);
++	btrfs_err(fs_info, "block=%llu write time tree block corruption detected",
++		  eb->start);
++	WARN_ON(IS_ENABLED(CONFIG_BTRFS_DEBUG));
++	return ret;
  }
  
- void btrfs_reclaim_bgs(struct btrfs_fs_info *fs_info)
---- a/fs/btrfs/volumes.c
-+++ b/fs/btrfs/volumes.c
-@@ -8185,10 +8185,12 @@ static int relocating_repair_kthread(voi
- 	target = cache->start;
- 	btrfs_put_block_group(cache);
- 
-+	sb_start_write(fs_info->sb);
- 	if (!btrfs_exclop_start(fs_info, BTRFS_EXCLOP_BALANCE)) {
- 		btrfs_info(fs_info,
- 			   "zoned: skip relocating block group %llu to repair: EBUSY",
- 			   target);
-+		sb_end_write(fs_info->sb);
- 		return -EBUSY;
- 	}
- 
-@@ -8216,6 +8218,7 @@ out:
- 		btrfs_put_block_group(cache);
- 	mutex_unlock(&fs_info->reclaim_bgs_lock);
- 	btrfs_exclop_finish(fs_info);
-+	sb_end_write(fs_info->sb);
- 
- 	return ret;
- }
+ /* Checksum all dirty extent buffers in one bio_vec */
 
 
