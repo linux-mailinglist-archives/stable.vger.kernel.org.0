@@ -2,45 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 844784F2E9B
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:02:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C6CBC4F32CB
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:00:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233904AbiDEIjP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:39:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56808 "EHLO
+        id S1350575AbiDEJ65 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:58:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60606 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240070AbiDEIWf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:22:35 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFBD5DEC2;
-        Tue,  5 Apr 2022 01:19:43 -0700 (PDT)
+        with ESMTP id S1344119AbiDEJSS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:18:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7A4137A3E;
+        Tue,  5 Apr 2022 02:04:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AFB7EB81B92;
-        Tue,  5 Apr 2022 08:19:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17FC2C385A1;
-        Tue,  5 Apr 2022 08:19:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 692A961564;
+        Tue,  5 Apr 2022 09:04:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42FDDC385A0;
+        Tue,  5 Apr 2022 09:04:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146781;
-        bh=YtG+6EI3+FgkaM6u4nXFTkoCNBD5iXHVpVD+KDag51A=;
+        s=korg; t=1649149453;
+        bh=Kez2sL3RMdmqfeeAkd8I0EFnzgYorCR1t5sLLVWdCdc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zP91NtjvYnsyZjgOjno+6xe0nAT/S3kJqAS4m+GWoyFbeXq/9jTqBf3vcoQ4RgfHf
-         +EBlOkLvxV+3cgFVHwCVSlIBM7Lhz17F0OA6Qf+xsOCz/eUhr6KbTq/xKuff/0m/H0
-         qGeNssODTuaet0Mv3+i1a7Tazvni0YoyJYKRjZ/w=
+        b=JcXB/rHgU7sSNrJUWvozvhZqQWwVpfeiHW5DgtCiDXVpN12SvwnI2/aIwKbehUV0B
+         M+m5DO4rpuB/jiLJ3OXSYPjnQnZYYoNaq3EyB9wERrOPo7CGpCP5A2gG8rSNJyvx97
+         RRzSJuyF/GTfZhOXBdjBTQrqYyH7QCgXTksyWGa0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rohith Surabattula <rohiths@microsoft.com>,
-        "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
-        Steve French <stfrench@microsoft.com>,
+        stable@vger.kernel.org, Thomas Richter <tmricht@linux.ibm.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Sumanth Korikkar <sumanthk@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0887/1126] Adjust cifssb maximum read size
+Subject: [PATCH 5.16 0721/1017] perf stat: Fix forked applications enablement of counters
 Date:   Tue,  5 Apr 2022 09:27:14 +0200
-Message-Id: <20220405070433.564945778@linuxfoundation.org>
+Message-Id: <20220405070415.668585336@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,69 +60,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rohith Surabattula <rohiths@microsoft.com>
+From: Thomas Richter <tmricht@linux.ibm.com>
 
-[ Upstream commit 06a466565d54a1a42168f9033a062a3f5c40e73b ]
+[ Upstream commit d0a0a511493d269514fcbd852481cdca32c95350 ]
 
-When session gets reconnected during mount then read size in super block fs context
-gets set to zero and after negotiate, rsize is not modified which results in
-incorrect read with requested bytes as zero. Fixes intermittent failure
-of xfstest generic/240
+I have run into the following issue:
 
-Note that stable requires a different version of this patch which will be
-sent to the stable mailing list.
+ # perf stat -a -e new_pmu/INSTRUCTION_7/ --  mytest -c1 7
 
-Signed-off-by: Rohith Surabattula <rohiths@microsoft.com>
-Acked-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+ Performance counter stats for 'system wide':
+
+                 0      new_pmu/INSTRUCTION_7/
+
+       0.000366428 seconds time elapsed
+ #
+
+The new PMU for s390 counts the execution of certain CPU instructions.
+The root cause is the extremely small run time of the mytest program. It
+just executes some assembly instructions and then exits.
+
+In above invocation the instruction is executed exactly one time (-c1
+option). The PMU is expected to report this one time execution by a
+counter value of one, but fails to do so in some cases, not all.
+
+Debugging reveals the invocation of the child process is done
+*before* the counter events are installed and enabled.
+
+Tracing reveals that sometimes the child process starts and exits before
+the event is installed on all CPUs. The more CPUs the machine has, the
+more often this miscount happens.
+
+Fix this by reversing the start of the work load after the events have
+been installed on the specified CPUs. Now the comment also matches the
+code.
+
+Output after:
+
+ # perf stat -a -e new_pmu/INSTRUCTION_7/ --  mytest -c1 7
+
+ Performance counter stats for 'system wide':
+
+                 1      new_pmu/INSTRUCTION_7/
+
+       0.000366428 seconds time elapsed
+ #
+
+Now the correct result is reported rock solid all the time regardless
+how many CPUs are online.
+
+Reviewers notes:
+
+Jiri:
+
+Right, without -a the event has enable_on_exec so the race does not
+matter, but it's a problem for system wide with fork.
+
+Namhyung:
+
+Agreed. Also we may move the enable_counters() and the clock code out of
+the if block to be shared with the else block.
+
+Fixes: acf2892270dcc428 ("perf stat: Use perf_evlist__prepare/start_workload()")
+Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+Acked-by: Jiri Olsa <jolsa@kernel.org>
+Acked-by: Namhyung Kim <namhyung@kernel.org>
+Acked-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Sven Schnelle <svens@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Link: https://lore.kernel.org/r/20220317155346.577384-1-tmricht@linux.ibm.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/cifsfs.c |  3 +++
- fs/cifs/file.c   | 10 ++++++++++
- 2 files changed, 13 insertions(+)
+ tools/perf/builtin-stat.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/cifs/cifsfs.c b/fs/cifs/cifsfs.c
-index 4691b2706ddf..6e5246122ee2 100644
---- a/fs/cifs/cifsfs.c
-+++ b/fs/cifs/cifsfs.c
-@@ -210,6 +210,9 @@ cifs_read_super(struct super_block *sb)
- 	if (rc)
- 		goto out_no_root;
- 	/* tune readahead according to rsize if readahead size not set on mount */
-+	if (cifs_sb->ctx->rsize == 0)
-+		cifs_sb->ctx->rsize =
-+			tcon->ses->server->ops->negotiate_rsize(tcon, cifs_sb->ctx);
- 	if (cifs_sb->ctx->rasize)
- 		sb->s_bdi->ra_pages = cifs_sb->ctx->rasize / PAGE_SIZE;
- 	else
-diff --git a/fs/cifs/file.c b/fs/cifs/file.c
-index e7af802dcfa6..a2723f7cb5e9 100644
---- a/fs/cifs/file.c
-+++ b/fs/cifs/file.c
-@@ -3740,6 +3740,11 @@ cifs_send_async_read(loff_t offset, size_t len, struct cifsFileInfo *open_file,
- 				break;
- 		}
+diff --git a/tools/perf/builtin-stat.c b/tools/perf/builtin-stat.c
+index 7974933dbc77..08c024038ca7 100644
+--- a/tools/perf/builtin-stat.c
++++ b/tools/perf/builtin-stat.c
+@@ -956,10 +956,10 @@ static int __run_perf_stat(int argc, const char **argv, int run_idx)
+ 	 * Enable counters and exec the command:
+ 	 */
+ 	if (forks) {
+-		evlist__start_workload(evsel_list);
+ 		err = enable_counters();
+ 		if (err)
+ 			return -1;
++		evlist__start_workload(evsel_list);
  
-+		if (cifs_sb->ctx->rsize == 0)
-+			cifs_sb->ctx->rsize =
-+				server->ops->negotiate_rsize(tlink_tcon(open_file->tlink),
-+							     cifs_sb->ctx);
-+
- 		rc = server->ops->wait_mtu_credits(server, cifs_sb->ctx->rsize,
- 						   &rsize, credits);
- 		if (rc)
-@@ -4474,6 +4479,11 @@ static void cifs_readahead(struct readahead_control *ractl)
- 			}
- 		}
- 
-+		if (cifs_sb->ctx->rsize == 0)
-+			cifs_sb->ctx->rsize =
-+				server->ops->negotiate_rsize(tlink_tcon(open_file->tlink),
-+							     cifs_sb->ctx);
-+
- 		rc = server->ops->wait_mtu_credits(server, cifs_sb->ctx->rsize,
- 						   &rsize, credits);
- 		if (rc)
+ 		t0 = rdclock();
+ 		clock_gettime(CLOCK_MONOTONIC, &ref_time);
 -- 
 2.34.1
 
