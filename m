@@ -2,47 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 274A94F2D82
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:43:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DEDB4F2BA8
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:17:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242509AbiDEJhT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:37:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53108 "EHLO
+        id S235253AbiDEI0p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:26:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34736 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235645AbiDEJCY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:02:24 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AA2613D1D;
-        Tue,  5 Apr 2022 01:54:17 -0700 (PDT)
+        with ESMTP id S239364AbiDEIUA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:20:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1BADBE9EB;
+        Tue,  5 Apr 2022 01:11:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B971CB81B92;
-        Tue,  5 Apr 2022 08:54:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CED3C385A0;
-        Tue,  5 Apr 2022 08:54:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3F9D960B0B;
+        Tue,  5 Apr 2022 08:11:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C9F9C385A0;
+        Tue,  5 Apr 2022 08:11:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148854;
-        bh=ABlTf+N6DH9ccUXpUU8Fl2Nw2NUrzJf1hK0bocX+03s=;
+        s=korg; t=1649146313;
+        bh=aTqnT2hnmZ63NvztSKRQ9i4po/9pPjtNqmDf8qAzhBk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Assyde6JZhc49T7GdI8ZtDE7cAt0fJcfGf/VMhWbDx4MXtI06nbvOwcRsFaWDyMtg
-         VS9MthIIj2BuK3GonxEXadZvSYYgNgE3Yskf+SSwVTe7dLBZVcHOnfqfJcPvksvDLX
-         0f8CdxhignlFmtnRfjP/vobSdhnBrhhVoqMvdlwg=
+        b=yE6fYtk1a8Xrrhx2njg4BCckaV++WTfNYQDhA8ekIB80aaIA/31p0XtPw8q+mjhtF
+         BaQ5kk9Qwx9y1n+m9gFSs9Up1Ts9DBmfKESn7SRu/hBWV3iKy8DUsG3wnnmwnzSmNy
+         fWlFosdulwuypjixVziag3XeZJVu6ii7oGAlNfA4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?H=C3=A5kon=20Bugge?= <haakon.bugge@oracle.com>,
-        Avneesh Pant <avneesh.pant@oracle.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Anshuman Gupta <anshuman.gupta@intel.com>,
+        Jani Nikula <jani.nikula@intel.com>,
+        Uma Shankar <uma.shankar@intel.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        =?UTF-8?q?Jos=C3=A9=20Roberto=20de=20Souza?= <jose.souza@intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0504/1017] IB/cma: Allow XRC INI QPs to set their local ACK timeout
-Date:   Tue,  5 Apr 2022 09:23:37 +0200
-Message-Id: <20220405070409.259809614@linuxfoundation.org>
+Subject: [PATCH 5.17 0671/1126] drm/i915/display: Fix HPD short pulse handling for eDP
+Date:   Tue,  5 Apr 2022 09:23:38 +0200
+Message-Id: <20220405070427.321935376@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,36 +59,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Håkon Bugge <haakon.bugge@oracle.com>
+From: José Roberto de Souza <jose.souza@intel.com>
 
-[ Upstream commit 748663c8ccf6b2e5a800de19127c2cc1c4423fd2 ]
+[ Upstream commit 3a84fd1ed53582b31e843a152ee3219e9e4ccb8c ]
 
-XRC INI QPs should be able to adjust their local ACK timeout.
+Commit 13ea6db2cf24 ("drm/i915/edp: Ignore short pulse when panel
+powered off") completely broke short pulse handling for eDP as it is
+usually generated by sink when it is displaying image and there is
+some error or status that source needs to handle.
 
-Fixes: 2c1619edef61 ("IB/cma: Define option to set ack timeout and pack tos_set")
-Link: https://lore.kernel.org/r/1644421175-31943-1-git-send-email-haakon.bugge@oracle.com
-Signed-off-by: Håkon Bugge <haakon.bugge@oracle.com>
-Suggested-by: Avneesh Pant <avneesh.pant@oracle.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+When power panel is enabled, this state is enough to power aux
+transactions and VDD override is disabled, so intel_pps_have_power()
+is always returning false causing short pulses to be ignored.
+
+So here better naming this function that intends to check if aux
+lines are powered to avoid the endless cycle mentioned in the commit
+being fixed and fixing the check for what it is intended.
+
+v2:
+- renamed to intel_pps_have_panel_power_or_vdd()
+- fixed indentation
+
+Fixes: 13ea6db2cf24 ("drm/i915/edp: Ignore short pulse when panel powered off")
+Cc: Anshuman Gupta <anshuman.gupta@intel.com>
+Cc: Jani Nikula <jani.nikula@intel.com>
+Cc: Uma Shankar <uma.shankar@intel.com>
+Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Signed-off-by: José Roberto de Souza <jose.souza@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220311185149.110527-1-jose.souza@intel.com
+(cherry picked from commit 8f0c1c0949b609acfad62b8d5f742a3b5e7b05ab)
+Signed-off-by: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/cma.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/i915/display/intel_dp.c  | 2 +-
+ drivers/gpu/drm/i915/display/intel_pps.c | 6 +++---
+ drivers/gpu/drm/i915/display/intel_pps.h | 2 +-
+ 3 files changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/infiniband/core/cma.c b/drivers/infiniband/core/cma.c
-index 41ec05c4b0d0..80a8e31e5b38 100644
---- a/drivers/infiniband/core/cma.c
-+++ b/drivers/infiniband/core/cma.c
-@@ -2642,7 +2642,7 @@ int rdma_set_ack_timeout(struct rdma_cm_id *id, u8 timeout)
+diff --git a/drivers/gpu/drm/i915/display/intel_dp.c b/drivers/gpu/drm/i915/display/intel_dp.c
+index b5e2508db1cf..62e763faf0aa 100644
+--- a/drivers/gpu/drm/i915/display/intel_dp.c
++++ b/drivers/gpu/drm/i915/display/intel_dp.c
+@@ -4831,7 +4831,7 @@ intel_dp_hpd_pulse(struct intel_digital_port *dig_port, bool long_hpd)
+ 	struct intel_dp *intel_dp = &dig_port->dp;
+ 
+ 	if (dig_port->base.type == INTEL_OUTPUT_EDP &&
+-	    (long_hpd || !intel_pps_have_power(intel_dp))) {
++	    (long_hpd || !intel_pps_have_panel_power_or_vdd(intel_dp))) {
+ 		/*
+ 		 * vdd off can generate a long/short pulse on eDP which
+ 		 * would require vdd on to handle it, and thus we
+diff --git a/drivers/gpu/drm/i915/display/intel_pps.c b/drivers/gpu/drm/i915/display/intel_pps.c
+index e9c679bb1b2e..5edd188d9747 100644
+--- a/drivers/gpu/drm/i915/display/intel_pps.c
++++ b/drivers/gpu/drm/i915/display/intel_pps.c
+@@ -1075,14 +1075,14 @@ static void intel_pps_vdd_sanitize(struct intel_dp *intel_dp)
+ 	edp_panel_vdd_schedule_off(intel_dp);
+ }
+ 
+-bool intel_pps_have_power(struct intel_dp *intel_dp)
++bool intel_pps_have_panel_power_or_vdd(struct intel_dp *intel_dp)
  {
- 	struct rdma_id_private *id_priv;
+ 	intel_wakeref_t wakeref;
+ 	bool have_power = false;
  
--	if (id->qp_type != IB_QPT_RC)
-+	if (id->qp_type != IB_QPT_RC && id->qp_type != IB_QPT_XRC_INI)
- 		return -EINVAL;
+ 	with_intel_pps_lock(intel_dp, wakeref) {
+-		have_power = edp_have_panel_power(intel_dp) &&
+-						  edp_have_panel_vdd(intel_dp);
++		have_power = edp_have_panel_power(intel_dp) ||
++			     edp_have_panel_vdd(intel_dp);
+ 	}
  
- 	id_priv = container_of(id, struct rdma_id_private, id);
+ 	return have_power;
+diff --git a/drivers/gpu/drm/i915/display/intel_pps.h b/drivers/gpu/drm/i915/display/intel_pps.h
+index fbb47f6f453e..e64144659d31 100644
+--- a/drivers/gpu/drm/i915/display/intel_pps.h
++++ b/drivers/gpu/drm/i915/display/intel_pps.h
+@@ -37,7 +37,7 @@ void intel_pps_vdd_on(struct intel_dp *intel_dp);
+ void intel_pps_on(struct intel_dp *intel_dp);
+ void intel_pps_off(struct intel_dp *intel_dp);
+ void intel_pps_vdd_off_sync(struct intel_dp *intel_dp);
+-bool intel_pps_have_power(struct intel_dp *intel_dp);
++bool intel_pps_have_panel_power_or_vdd(struct intel_dp *intel_dp);
+ void intel_pps_wait_power_cycle(struct intel_dp *intel_dp);
+ 
+ void intel_pps_init(struct intel_dp *intel_dp);
 -- 
 2.34.1
 
