@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CF8A4F2C65
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:30:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2803C4F2AE1
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:06:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236821AbiDEI60 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:58:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34326 "EHLO
+        id S236085AbiDEI7P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:59:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53418 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236205AbiDEIlX (ORCPT
+        with ESMTP id S236917AbiDEIlX (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:41:23 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3846B1031;
-        Tue,  5 Apr 2022 01:33:50 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 703CC108F;
+        Tue,  5 Apr 2022 01:33:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DD837B81B13;
-        Tue,  5 Apr 2022 08:33:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D820C385A2;
-        Tue,  5 Apr 2022 08:33:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 96861B81A32;
+        Tue,  5 Apr 2022 08:33:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 082F2C385A1;
+        Tue,  5 Apr 2022 08:33:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147627;
-        bh=lerBgQkdf9cnh0z/qLfVS+BV9J0u5dRvXHPnTlbTwuA=;
+        s=korg; t=1649147630;
+        bh=Sh0QQE6Im+ltsXniwn3yKBMEg1ii9KCtVpujyjDWYJQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AakYe7Ya+PquM95BUd17N6UFs0zkQblqm0HhpxxsRXxjX0HPKJaLrP/PnNaJscEAb
-         q7F9g/KgC8y8TkjYXYyLqcNOXyD2mh9Q4TndHvqkoBq+xV1MgdGeh0Z2pma6CeIOle
-         0J2kFyyUj+23boVtJxH9p8R2hG32ZPeeY0uRfV1s=
+        b=iQ1n1G4vTDfp2Nb+o+QH2tW+iODlkR32Xy10Z66UhYsc9LzMsfvHt1EtKCSgAbAkm
+         jH2WOn1FG7OQy/v36ljJwenpV8etVa/Glr8o8iIWCAJjiv7qQ4gNBbWiTobDb9uVcu
+         UfiOunI+mdAO79NwMym1a2g3DCBs++jdzdKrxI0s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Javier Martinez Canillas <javierm@redhat.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.16 0063/1017] firmware: sysfb: fix platform-device leak in error path
-Date:   Tue,  5 Apr 2022 09:16:16 +0200
-Message-Id: <20220405070356.056498410@linuxfoundation.org>
+        stable@vger.kernel.org, Gwendal Grignou <gwendal@chromium.org>,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 5.16 0064/1017] HID: intel-ish-hid: Use dma_alloc_coherent for firmware update
+Date:   Tue,  5 Apr 2022 09:16:17 +0200
+Message-Id: <20220405070356.086938898@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -54,57 +54,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Gwendal Grignou <gwendal@chromium.org>
 
-commit 202c08914ba50dd324e42d5ad99535a89f242560 upstream.
+commit f97ec5d75e9261a5da78dc28a8955b7cc0c4468b upstream.
 
-Make sure to free the platform device also in the unlikely event that
-registration fails.
+Allocating memory with kmalloc and GPF_DMA32 is not allowed, the
+allocator will ignore the attribute.
 
-Fixes: 0589e8889dce ("drivers/firmware: Add missing platform_device_put() in sysfb_create_simplefb")
-Fixes: 8633ef82f101 ("drivers/firmware: consolidate EFI framebuffer setup for all arches")
-Cc: stable@vger.kernel.org      # 5.14
-Cc: Miaoqian Lin <linmq006@gmail.com>
-Cc: Javier Martinez Canillas <javierm@redhat.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20220303180519.3117-1-johan@kernel.org
+Instead, use dma_alloc_coherent() API as we allocate a small amount of
+memory to transfer firmware fragment to the ISH.
+
+On Arcada chromebook, after the patch the warning:
+"Unexpected gfp: 0x4 (GFP_DMA32). Fixing up to gfp: 0xcc0 (GFP_KERNEL).  Fix your code!"
+is gone. The ISH firmware is loaded properly and we can interact with
+the ISH:
+> ectool  --name cros_ish version
+...
+Build info:    arcada_ish_v2.0.3661+3c1a1c1ae0 2022-02-08 05:37:47 @localhost
+Tool version:  v2.0.12300-900b03ec7f 2022-02-08 10:01:48 @localhost
+
+Fixes: commit 91b228107da3 ("HID: intel-ish-hid: ISH firmware loader client driver")
+Signed-off-by: Gwendal Grignou <gwendal@chromium.org>
+Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/firmware/sysfb_simplefb.c |   23 ++++++++++++++---------
- 1 file changed, 14 insertions(+), 9 deletions(-)
+ drivers/hid/intel-ish-hid/ishtp-fw-loader.c |   29 ++--------------------------
+ 1 file changed, 3 insertions(+), 26 deletions(-)
 
---- a/drivers/firmware/sysfb_simplefb.c
-+++ b/drivers/firmware/sysfb_simplefb.c
-@@ -113,16 +113,21 @@ __init int sysfb_create_simplefb(const s
- 	sysfb_apply_efi_quirks(pd);
+--- a/drivers/hid/intel-ish-hid/ishtp-fw-loader.c
++++ b/drivers/hid/intel-ish-hid/ishtp-fw-loader.c
+@@ -660,21 +660,12 @@ static int ish_fw_xfer_direct_dma(struct
+ 	 */
+ 	payload_max_size &= ~(L1_CACHE_BYTES - 1);
  
- 	ret = platform_device_add_resources(pd, &res, 1);
--	if (ret) {
--		platform_device_put(pd);
--		return ret;
+-	dma_buf = kmalloc(payload_max_size, GFP_KERNEL | GFP_DMA32);
++	dma_buf = dma_alloc_coherent(devc, payload_max_size, &dma_buf_phy, GFP_KERNEL);
+ 	if (!dma_buf) {
+ 		client_data->flag_retry = true;
+ 		return -ENOMEM;
+ 	}
+ 
+-	dma_buf_phy = dma_map_single(devc, dma_buf, payload_max_size,
+-				     DMA_TO_DEVICE);
+-	if (dma_mapping_error(devc, dma_buf_phy)) {
+-		dev_err(cl_data_to_dev(client_data), "DMA map failed\n");
+-		client_data->flag_retry = true;
+-		rv = -ENOMEM;
+-		goto end_err_dma_buf_release;
 -	}
-+	if (ret)
-+		goto err_put_device;
+-
+ 	ldr_xfer_dma_frag.fragment.hdr.command = LOADER_CMD_XFER_FRAGMENT;
+ 	ldr_xfer_dma_frag.fragment.xfer_mode = LOADER_XFER_MODE_DIRECT_DMA;
+ 	ldr_xfer_dma_frag.ddr_phys_addr = (u64)dma_buf_phy;
+@@ -694,14 +685,7 @@ static int ish_fw_xfer_direct_dma(struct
+ 		ldr_xfer_dma_frag.fragment.size = fragment_size;
+ 		memcpy(dma_buf, &fw->data[fragment_offset], fragment_size);
  
- 	ret = platform_device_add_data(pd, mode, sizeof(*mode));
--	if (ret) {
--		platform_device_put(pd);
--		return ret;
--	}
-+	if (ret)
-+		goto err_put_device;
+-		dma_sync_single_for_device(devc, dma_buf_phy,
+-					   payload_max_size,
+-					   DMA_TO_DEVICE);
+-
+-		/*
+-		 * Flush cache here because the dma_sync_single_for_device()
+-		 * does not do for x86.
+-		 */
++		/* Flush cache to be sure the data is in main memory. */
+ 		clflush_cache_range(dma_buf, payload_max_size);
  
--	return platform_device_add(pd);
-+	ret = platform_device_add(pd);
-+	if (ret)
-+		goto err_put_device;
-+
-+	return 0;
-+
-+err_put_device:
-+	platform_device_put(pd);
-+
-+	return ret;
+ 		dev_dbg(cl_data_to_dev(client_data),
+@@ -724,15 +708,8 @@ static int ish_fw_xfer_direct_dma(struct
+ 		fragment_offset += fragment_size;
+ 	}
+ 
+-	dma_unmap_single(devc, dma_buf_phy, payload_max_size, DMA_TO_DEVICE);
+-	kfree(dma_buf);
+-	return 0;
+-
+ end_err_resp_buf_release:
+-	/* Free ISH buffer if not done already, in error case */
+-	dma_unmap_single(devc, dma_buf_phy, payload_max_size, DMA_TO_DEVICE);
+-end_err_dma_buf_release:
+-	kfree(dma_buf);
++	dma_free_coherent(devc, payload_max_size, dma_buf, dma_buf_phy);
+ 	return rv;
  }
+ 
 
 
