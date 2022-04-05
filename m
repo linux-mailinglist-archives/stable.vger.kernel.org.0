@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 83A174F25B0
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 09:50:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9525D4F2591
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 09:48:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232396AbiDEHvE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 03:51:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46750 "EHLO
+        id S232349AbiDEHud (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 03:50:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47748 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233539AbiDEHr4 (ORCPT
+        with ESMTP id S233541AbiDEHr4 (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:47:56 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53CDE91AEE;
-        Tue,  5 Apr 2022 00:45:09 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8B5A9231A;
+        Tue,  5 Apr 2022 00:45:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DA91C616C3;
-        Tue,  5 Apr 2022 07:45:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6BDCC340EE;
-        Tue,  5 Apr 2022 07:45:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 88702616C6;
+        Tue,  5 Apr 2022 07:45:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93D50C340EE;
+        Tue,  5 Apr 2022 07:45:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649144708;
-        bh=r14M1DWPwRyo4+jvdjnECycfq43gChG0BjIE5UEYJjs=;
+        s=korg; t=1649144711;
+        bh=/WCYyhiwKb7MyTHWUY4idC3q5eGds2twTG7P8apsP4g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VbtE5C6tPzYBrcQs+ljUTrJMFaSNILYNPWk08vfIOwaMPswwB8Gke7T6LBkNw4QdB
-         pc/Vrs3HvdaT2LM39QkARFOSozMP+pBbaZj824vKigvo6Geaz85oyWQ8ccP1NUegQC
-         5+jNEcXbpkMIhtCesYU0rnZhUT9mXDGQu32Lcdng=
+        b=licuQt5hKLt/R4S1V0MWDyWQJVjdI6xCKbSqlorNWYfgzISl+muA4oDXd4QywtE2K
+         ikmYY0RdhfevNzYyOohAgix8n18mOYZbjdNmp+BFQcFtYXhKVgzsmypl4ExyTh03Nn
+         F2QKXXaGRrzCDvXVGSslpIiJ4fkD76rYWSzy50xg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Dayvison <sathlerds@gmail.com>,
-        Valentin Vidic <vvidic@valentin-vidic.from.hr>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.17 0103/1126] ocfs2: fix crash when mount with quota enabled
-Date:   Tue,  5 Apr 2022 09:14:10 +0200
-Message-Id: <20220405070410.592049559@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Javier Martinez Canillas <javierm@redhat.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Thomas Zimmermann <tzimmermann@suse.de>
+Subject: [PATCH 5.17 0104/1126] drm/simpledrm: Add "panel orientation" property on non-upright mounted LCD panels
+Date:   Tue,  5 Apr 2022 09:14:11 +0200
+Message-Id: <20220405070410.621692235@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -56,109 +55,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joseph Qi <joseph.qi@linux.alibaba.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit de19433423c7bedabbd4f9a25f7dbc62c5e78921 upstream.
+commit 94fa115f7b28a3f02611499175e134f0a823b686 upstream.
 
-There is a reported crash when mounting ocfs2 with quota enabled.
+Some devices use e.g. a portrait panel in a standard laptop casing made
+for landscape panels. efifb calls drm_get_panel_orientation_quirk() and
+sets fb_info.fbcon_rotate_hint to make fbcon rotate the console so that
+it shows up-right instead of on its side.
 
-  RIP: 0010:ocfs2_qinfo_lock_res_init+0x44/0x50 [ocfs2]
-  Call Trace:
-    ocfs2_local_read_info+0xb9/0x6f0 [ocfs2]
-    dquot_load_quota_sb+0x216/0x470
-    dquot_load_quota_inode+0x85/0x100
-    ocfs2_enable_quotas+0xa0/0x1c0 [ocfs2]
-    ocfs2_fill_super.cold+0xc8/0x1bf [ocfs2]
-    mount_bdev+0x185/0x1b0
-    legacy_get_tree+0x27/0x40
-    vfs_get_tree+0x25/0xb0
-    path_mount+0x465/0xac0
-    __x64_sys_mount+0x103/0x140
+When switching to simpledrm the fbcon renders on its side. Call the
+drm_connector_set_panel_orientation_with_quirk() helper to add
+a "panel orientation" property on devices listed in the quirk table,
+to make the fbcon (and aware userspace apps) rotate the image to
+display properly.
 
-It is caused by when initializing dqi_gqlock, the corresponding dqi_type
-and dqi_sb are not properly initialized.
-
-This issue is introduced by commit 6c85c2c72819, which wants to avoid
-accessing uninitialized variables in error cases.  So make global quota
-info properly initialized.
-
-Link: https://lkml.kernel.org/r/20220323023644.40084-1-joseph.qi@linux.alibaba.com
-Link: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1007141
-Fixes: 6c85c2c72819 ("ocfs2: quota_local: fix possible uninitialized-variable access in ocfs2_local_read_info()")
-Signed-off-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Reported-by: Dayvison <sathlerds@gmail.com>
-Tested-by: Valentin Vidic <vvidic@valentin-vidic.from.hr>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Javier Martinez Canillas <javierm@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
+Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220221220045.11958-1-hdegoede@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ocfs2/quota_global.c |   23 ++++++++++++-----------
- fs/ocfs2/quota_local.c  |    2 --
- 2 files changed, 12 insertions(+), 13 deletions(-)
+ drivers/gpu/drm/tiny/simpledrm.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/fs/ocfs2/quota_global.c
-+++ b/fs/ocfs2/quota_global.c
-@@ -337,7 +337,6 @@ void ocfs2_unlock_global_qf(struct ocfs2
- /* Read information header from global quota file */
- int ocfs2_global_read_info(struct super_block *sb, int type)
- {
--	struct inode *gqinode = NULL;
- 	unsigned int ino[OCFS2_MAXQUOTAS] = { USER_QUOTA_SYSTEM_INODE,
- 					      GROUP_QUOTA_SYSTEM_INODE };
- 	struct ocfs2_global_disk_dqinfo dinfo;
-@@ -346,29 +345,31 @@ int ocfs2_global_read_info(struct super_
- 	u64 pcount;
- 	int status;
+--- a/drivers/gpu/drm/tiny/simpledrm.c
++++ b/drivers/gpu/drm/tiny/simpledrm.c
+@@ -798,6 +798,9 @@ static int simpledrm_device_init_modeset
+ 	if (ret)
+ 		return ret;
+ 	drm_connector_helper_add(connector, &simpledrm_connector_helper_funcs);
++	drm_connector_set_panel_orientation_with_quirk(connector,
++						       DRM_MODE_PANEL_ORIENTATION_UNKNOWN,
++						       mode->hdisplay, mode->vdisplay);
  
-+	oinfo->dqi_gi.dqi_sb = sb;
-+	oinfo->dqi_gi.dqi_type = type;
-+	ocfs2_qinfo_lock_res_init(&oinfo->dqi_gqlock, oinfo);
-+	oinfo->dqi_gi.dqi_entry_size = sizeof(struct ocfs2_global_disk_dqblk);
-+	oinfo->dqi_gi.dqi_ops = &ocfs2_global_ops;
-+	oinfo->dqi_gqi_bh = NULL;
-+	oinfo->dqi_gqi_count = 0;
-+
- 	/* Read global header */
--	gqinode = ocfs2_get_system_file_inode(OCFS2_SB(sb), ino[type],
-+	oinfo->dqi_gqinode = ocfs2_get_system_file_inode(OCFS2_SB(sb), ino[type],
- 			OCFS2_INVALID_SLOT);
--	if (!gqinode) {
-+	if (!oinfo->dqi_gqinode) {
- 		mlog(ML_ERROR, "failed to get global quota inode (type=%d)\n",
- 			type);
- 		status = -EINVAL;
- 		goto out_err;
- 	}
--	oinfo->dqi_gi.dqi_sb = sb;
--	oinfo->dqi_gi.dqi_type = type;
--	oinfo->dqi_gi.dqi_entry_size = sizeof(struct ocfs2_global_disk_dqblk);
--	oinfo->dqi_gi.dqi_ops = &ocfs2_global_ops;
--	oinfo->dqi_gqi_bh = NULL;
--	oinfo->dqi_gqi_count = 0;
--	oinfo->dqi_gqinode = gqinode;
-+
- 	status = ocfs2_lock_global_qf(oinfo, 0);
- 	if (status < 0) {
- 		mlog_errno(status);
- 		goto out_err;
- 	}
+ 	formats = simpledrm_device_formats(sdev, &nformats);
  
--	status = ocfs2_extent_map_get_blocks(gqinode, 0, &oinfo->dqi_giblk,
-+	status = ocfs2_extent_map_get_blocks(oinfo->dqi_gqinode, 0, &oinfo->dqi_giblk,
- 					     &pcount, NULL);
- 	if (status < 0)
- 		goto out_unlock;
---- a/fs/ocfs2/quota_local.c
-+++ b/fs/ocfs2/quota_local.c
-@@ -702,8 +702,6 @@ static int ocfs2_local_read_info(struct
- 	info->dqi_priv = oinfo;
- 	oinfo->dqi_type = type;
- 	INIT_LIST_HEAD(&oinfo->dqi_chunk);
--	oinfo->dqi_gqinode = NULL;
--	ocfs2_qinfo_lock_res_init(&oinfo->dqi_gqlock, oinfo);
- 	oinfo->dqi_rec = NULL;
- 	oinfo->dqi_lqi_bh = NULL;
- 	oinfo->dqi_libh = NULL;
 
 
