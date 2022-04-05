@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 704EC4F3111
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:36:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A85FF4F2EC0
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:03:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238886AbiDEKb1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:31:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46358 "EHLO
+        id S233203AbiDEKax (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:30:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48860 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239473AbiDEJdj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:33:39 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DED344CD4B;
-        Tue,  5 Apr 2022 02:22:13 -0700 (PDT)
+        with ESMTP id S238816AbiDEJcw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:32:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C36A9631F;
+        Tue,  5 Apr 2022 02:20:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 99ABEB81B14;
-        Tue,  5 Apr 2022 09:22:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0DDAEC385A2;
-        Tue,  5 Apr 2022 09:22:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 53D7DB81B75;
+        Tue,  5 Apr 2022 09:20:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8DF0C385A3;
+        Tue,  5 Apr 2022 09:20:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150531;
-        bh=B8Q+cSPIOi/M5XObkjw1M58uMGbxfVaxxo5QHsotE6w=;
+        s=korg; t=1649150413;
+        bh=5w1nlD7V1t/f0t0INa6BuXgE9ePiia+j7wuJhl20Y7c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1eP8LCuz1ROxHspGMYnq3Sh9WD11QLFaZwia+dr1NjXtmrOWolNb7hH2/qSoec2D/
-         um3IoZZ/SIXgIPikUokdo33VASGWAc3MmMXhgU4ymayVzGXu/cLQjGPbXx3Uthb/lD
-         IpQDlm+7y6Zru0H23QycCbT35uBvBpCqYbTNuoZM=
+        b=zTmOnLH7y009+UCGIn/3IidyidXtluNuSnN27n8k5CunoLAwDUfwNW8UuDyDPk8yG
+         aVCq5zfXBIaxuKKZpd4q842hBdffGIPHt7uW0BVxhDR9cstzYZRPqZXH7ST8uLHm7g
+         xFwxg9kPy3/iPB+x4aNiOftrvky0i5ciuvgq7ppw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Manivannan Sadhasivam <mani@kernel.org>,
-        Yonglin Tan <yonglin.tan@outlook.com>,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Subject: [PATCH 5.15 040/913] bus: mhi: pci_generic: Add mru_default for Quectel EM1xx series
-Date:   Tue,  5 Apr 2022 09:18:22 +0200
-Message-Id: <20220405070341.019068389@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Alex Elder <elder@linaro.org>,
+        Paul Davey <paul.davey@alliedtelesis.co.nz>
+Subject: [PATCH 5.15 041/913] bus: mhi: Fix MHI DMA structure endianness
+Date:   Tue,  5 Apr 2022 09:18:23 +0200
+Message-Id: <20220405070341.048911172@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -54,35 +55,484 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yonglin Tan <yonglin.tan@outlook.com>
+From: Paul Davey <paul.davey@alliedtelesis.co.nz>
 
-commit 2413ffbf19a95cfcd7adf63135c5a9343a66d0a2 upstream.
+commit ed2d980503235829aa3e0c7ae3b82374c30a081c upstream.
 
-For default mechanism, the driver uses default MRU 3500 if mru_default
-is not initialized. The Qualcomm configured the MRU size to 32768 in the
-WWAN device FW. So, we align the driver setting with Qualcomm FW setting.
+The MHI driver does not work on big endian architectures.  The
+controller never transitions into mission mode.  This appears to be due
+to the modem device expecting the various contexts and transfer rings to
+have fields in little endian order in memory, but the driver constructs
+them in native endianness.
 
-Link: https://lore.kernel.org/r/MEYP282MB2374EE345DADDB591AFDA6AFFD2E9@MEYP282MB2374.AUSP282.PROD.OUTLOOK.COM
-Fixes: ac4bf60bbaa0 ("bus: mhi: pci_generic: Introduce quectel EM1XXGR-L support")
+Fix MHI event, channel and command contexts and TRE handling macros to
+use explicit conversion to little endian.  Mark fields in relevant
+structures as little endian to document this requirement.
+
+Fixes: a6e2e3522f29 ("bus: mhi: core: Add support for PM state transitions")
+Fixes: 6cd330ae76ff ("bus: mhi: core: Add support for ringing channel/event ring doorbells")
 Cc: stable@vger.kernel.org
-Reviewed-by: Manivannan Sadhasivam <mani@kernel.org>
-Signed-off-by: Yonglin Tan <yonglin.tan@outlook.com>
+Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Reviewed-by: Alex Elder <elder@linaro.org>
+Signed-off-by: Paul Davey <paul.davey@alliedtelesis.co.nz>
 Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Link: https://lore.kernel.org/r/20220301160308.107452-2-manivannan.sadhasivam@linaro.org
+Link: https://lore.kernel.org/r/20220301160308.107452-4-manivannan.sadhasivam@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/bus/mhi/pci_generic.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/bus/mhi/core/debugfs.c  |   26 ++++----
+ drivers/bus/mhi/core/init.c     |   36 ++++++------
+ drivers/bus/mhi/core/internal.h |  119 ++++++++++++++++++++--------------------
+ drivers/bus/mhi/core/main.c     |   22 +++----
+ drivers/bus/mhi/core/pm.c       |    4 -
+ 5 files changed, 104 insertions(+), 103 deletions(-)
 
---- a/drivers/bus/mhi/pci_generic.c
-+++ b/drivers/bus/mhi/pci_generic.c
-@@ -327,6 +327,7 @@ static const struct mhi_pci_dev_info mhi
- 	.config = &modem_quectel_em1xx_config,
- 	.bar_num = MHI_PCI_DEFAULT_BAR_NUM,
- 	.dma_data_width = 32,
-+	.mru_default = 32768,
- 	.sideband_wake = true,
+--- a/drivers/bus/mhi/core/debugfs.c
++++ b/drivers/bus/mhi/core/debugfs.c
+@@ -60,16 +60,16 @@ static int mhi_debugfs_events_show(struc
+ 		}
+ 
+ 		seq_printf(m, "Index: %d intmod count: %lu time: %lu",
+-			   i, (er_ctxt->intmod & EV_CTX_INTMODC_MASK) >>
++			   i, (le32_to_cpu(er_ctxt->intmod) & EV_CTX_INTMODC_MASK) >>
+ 			   EV_CTX_INTMODC_SHIFT,
+-			   (er_ctxt->intmod & EV_CTX_INTMODT_MASK) >>
++			   (le32_to_cpu(er_ctxt->intmod) & EV_CTX_INTMODT_MASK) >>
+ 			   EV_CTX_INTMODT_SHIFT);
+ 
+-		seq_printf(m, " base: 0x%0llx len: 0x%llx", er_ctxt->rbase,
+-			   er_ctxt->rlen);
++		seq_printf(m, " base: 0x%0llx len: 0x%llx", le64_to_cpu(er_ctxt->rbase),
++			   le64_to_cpu(er_ctxt->rlen));
+ 
+-		seq_printf(m, " rp: 0x%llx wp: 0x%llx", er_ctxt->rp,
+-			   er_ctxt->wp);
++		seq_printf(m, " rp: 0x%llx wp: 0x%llx", le64_to_cpu(er_ctxt->rp),
++			   le64_to_cpu(er_ctxt->wp));
+ 
+ 		seq_printf(m, " local rp: 0x%pK db: 0x%pad\n", ring->rp,
+ 			   &mhi_event->db_cfg.db_val);
+@@ -106,18 +106,18 @@ static int mhi_debugfs_channels_show(str
+ 
+ 		seq_printf(m,
+ 			   "%s(%u) state: 0x%lx brstmode: 0x%lx pollcfg: 0x%lx",
+-			   mhi_chan->name, mhi_chan->chan, (chan_ctxt->chcfg &
++			   mhi_chan->name, mhi_chan->chan, (le32_to_cpu(chan_ctxt->chcfg) &
+ 			   CHAN_CTX_CHSTATE_MASK) >> CHAN_CTX_CHSTATE_SHIFT,
+-			   (chan_ctxt->chcfg & CHAN_CTX_BRSTMODE_MASK) >>
+-			   CHAN_CTX_BRSTMODE_SHIFT, (chan_ctxt->chcfg &
++			   (le32_to_cpu(chan_ctxt->chcfg) & CHAN_CTX_BRSTMODE_MASK) >>
++			   CHAN_CTX_BRSTMODE_SHIFT, (le32_to_cpu(chan_ctxt->chcfg) &
+ 			   CHAN_CTX_POLLCFG_MASK) >> CHAN_CTX_POLLCFG_SHIFT);
+ 
+-		seq_printf(m, " type: 0x%x event ring: %u", chan_ctxt->chtype,
+-			   chan_ctxt->erindex);
++		seq_printf(m, " type: 0x%x event ring: %u", le32_to_cpu(chan_ctxt->chtype),
++			   le32_to_cpu(chan_ctxt->erindex));
+ 
+ 		seq_printf(m, " base: 0x%llx len: 0x%llx rp: 0x%llx wp: 0x%llx",
+-			   chan_ctxt->rbase, chan_ctxt->rlen, chan_ctxt->rp,
+-			   chan_ctxt->wp);
++			   le64_to_cpu(chan_ctxt->rbase), le64_to_cpu(chan_ctxt->rlen),
++			   le64_to_cpu(chan_ctxt->rp), le64_to_cpu(chan_ctxt->wp));
+ 
+ 		seq_printf(m, " local rp: 0x%pK local wp: 0x%pK db: 0x%pad\n",
+ 			   ring->rp, ring->wp,
+--- a/drivers/bus/mhi/core/init.c
++++ b/drivers/bus/mhi/core/init.c
+@@ -290,17 +290,17 @@ int mhi_init_dev_ctxt(struct mhi_control
+ 		if (mhi_chan->offload_ch)
+ 			continue;
+ 
+-		tmp = chan_ctxt->chcfg;
++		tmp = le32_to_cpu(chan_ctxt->chcfg);
+ 		tmp &= ~CHAN_CTX_CHSTATE_MASK;
+ 		tmp |= (MHI_CH_STATE_DISABLED << CHAN_CTX_CHSTATE_SHIFT);
+ 		tmp &= ~CHAN_CTX_BRSTMODE_MASK;
+ 		tmp |= (mhi_chan->db_cfg.brstmode << CHAN_CTX_BRSTMODE_SHIFT);
+ 		tmp &= ~CHAN_CTX_POLLCFG_MASK;
+ 		tmp |= (mhi_chan->db_cfg.pollcfg << CHAN_CTX_POLLCFG_SHIFT);
+-		chan_ctxt->chcfg = tmp;
++		chan_ctxt->chcfg = cpu_to_le32(tmp);
+ 
+-		chan_ctxt->chtype = mhi_chan->type;
+-		chan_ctxt->erindex = mhi_chan->er_index;
++		chan_ctxt->chtype = cpu_to_le32(mhi_chan->type);
++		chan_ctxt->erindex = cpu_to_le32(mhi_chan->er_index);
+ 
+ 		mhi_chan->ch_state = MHI_CH_STATE_DISABLED;
+ 		mhi_chan->tre_ring.db_addr = (void __iomem *)&chan_ctxt->wp;
+@@ -325,14 +325,14 @@ int mhi_init_dev_ctxt(struct mhi_control
+ 		if (mhi_event->offload_ev)
+ 			continue;
+ 
+-		tmp = er_ctxt->intmod;
++		tmp = le32_to_cpu(er_ctxt->intmod);
+ 		tmp &= ~EV_CTX_INTMODC_MASK;
+ 		tmp &= ~EV_CTX_INTMODT_MASK;
+ 		tmp |= (mhi_event->intmod << EV_CTX_INTMODT_SHIFT);
+-		er_ctxt->intmod = tmp;
++		er_ctxt->intmod = cpu_to_le32(tmp);
+ 
+-		er_ctxt->ertype = MHI_ER_TYPE_VALID;
+-		er_ctxt->msivec = mhi_event->irq;
++		er_ctxt->ertype = cpu_to_le32(MHI_ER_TYPE_VALID);
++		er_ctxt->msivec = cpu_to_le32(mhi_event->irq);
+ 		mhi_event->db_cfg.db_mode = true;
+ 
+ 		ring->el_size = sizeof(struct mhi_tre);
+@@ -346,9 +346,9 @@ int mhi_init_dev_ctxt(struct mhi_control
+ 		 * ring is empty
+ 		 */
+ 		ring->rp = ring->wp = ring->base;
+-		er_ctxt->rbase = ring->iommu_base;
++		er_ctxt->rbase = cpu_to_le64(ring->iommu_base);
+ 		er_ctxt->rp = er_ctxt->wp = er_ctxt->rbase;
+-		er_ctxt->rlen = ring->len;
++		er_ctxt->rlen = cpu_to_le64(ring->len);
+ 		ring->ctxt_wp = &er_ctxt->wp;
+ 	}
+ 
+@@ -375,9 +375,9 @@ int mhi_init_dev_ctxt(struct mhi_control
+ 			goto error_alloc_cmd;
+ 
+ 		ring->rp = ring->wp = ring->base;
+-		cmd_ctxt->rbase = ring->iommu_base;
++		cmd_ctxt->rbase = cpu_to_le64(ring->iommu_base);
+ 		cmd_ctxt->rp = cmd_ctxt->wp = cmd_ctxt->rbase;
+-		cmd_ctxt->rlen = ring->len;
++		cmd_ctxt->rlen = cpu_to_le64(ring->len);
+ 		ring->ctxt_wp = &cmd_ctxt->wp;
+ 	}
+ 
+@@ -578,10 +578,10 @@ void mhi_deinit_chan_ctxt(struct mhi_con
+ 	chan_ctxt->rp = 0;
+ 	chan_ctxt->wp = 0;
+ 
+-	tmp = chan_ctxt->chcfg;
++	tmp = le32_to_cpu(chan_ctxt->chcfg);
+ 	tmp &= ~CHAN_CTX_CHSTATE_MASK;
+ 	tmp |= (MHI_CH_STATE_DISABLED << CHAN_CTX_CHSTATE_SHIFT);
+-	chan_ctxt->chcfg = tmp;
++	chan_ctxt->chcfg = cpu_to_le32(tmp);
+ 
+ 	/* Update to all cores */
+ 	smp_wmb();
+@@ -615,14 +615,14 @@ int mhi_init_chan_ctxt(struct mhi_contro
+ 		return -ENOMEM;
+ 	}
+ 
+-	tmp = chan_ctxt->chcfg;
++	tmp = le32_to_cpu(chan_ctxt->chcfg);
+ 	tmp &= ~CHAN_CTX_CHSTATE_MASK;
+ 	tmp |= (MHI_CH_STATE_ENABLED << CHAN_CTX_CHSTATE_SHIFT);
+-	chan_ctxt->chcfg = tmp;
++	chan_ctxt->chcfg = cpu_to_le32(tmp);
+ 
+-	chan_ctxt->rbase = tre_ring->iommu_base;
++	chan_ctxt->rbase = cpu_to_le64(tre_ring->iommu_base);
+ 	chan_ctxt->rp = chan_ctxt->wp = chan_ctxt->rbase;
+-	chan_ctxt->rlen = tre_ring->len;
++	chan_ctxt->rlen = cpu_to_le64(tre_ring->len);
+ 	tre_ring->ctxt_wp = &chan_ctxt->wp;
+ 
+ 	tre_ring->rp = tre_ring->wp = tre_ring->base;
+--- a/drivers/bus/mhi/core/internal.h
++++ b/drivers/bus/mhi/core/internal.h
+@@ -209,14 +209,14 @@ extern struct bus_type mhi_bus_type;
+ #define EV_CTX_INTMODT_MASK GENMASK(31, 16)
+ #define EV_CTX_INTMODT_SHIFT 16
+ struct mhi_event_ctxt {
+-	__u32 intmod;
+-	__u32 ertype;
+-	__u32 msivec;
+-
+-	__u64 rbase __packed __aligned(4);
+-	__u64 rlen __packed __aligned(4);
+-	__u64 rp __packed __aligned(4);
+-	__u64 wp __packed __aligned(4);
++	__le32 intmod;
++	__le32 ertype;
++	__le32 msivec;
++
++	__le64 rbase __packed __aligned(4);
++	__le64 rlen __packed __aligned(4);
++	__le64 rp __packed __aligned(4);
++	__le64 wp __packed __aligned(4);
  };
+ 
+ #define CHAN_CTX_CHSTATE_MASK GENMASK(7, 0)
+@@ -227,25 +227,25 @@ struct mhi_event_ctxt {
+ #define CHAN_CTX_POLLCFG_SHIFT 10
+ #define CHAN_CTX_RESERVED_MASK GENMASK(31, 16)
+ struct mhi_chan_ctxt {
+-	__u32 chcfg;
+-	__u32 chtype;
+-	__u32 erindex;
+-
+-	__u64 rbase __packed __aligned(4);
+-	__u64 rlen __packed __aligned(4);
+-	__u64 rp __packed __aligned(4);
+-	__u64 wp __packed __aligned(4);
++	__le32 chcfg;
++	__le32 chtype;
++	__le32 erindex;
++
++	__le64 rbase __packed __aligned(4);
++	__le64 rlen __packed __aligned(4);
++	__le64 rp __packed __aligned(4);
++	__le64 wp __packed __aligned(4);
+ };
+ 
+ struct mhi_cmd_ctxt {
+-	__u32 reserved0;
+-	__u32 reserved1;
+-	__u32 reserved2;
+-
+-	__u64 rbase __packed __aligned(4);
+-	__u64 rlen __packed __aligned(4);
+-	__u64 rp __packed __aligned(4);
+-	__u64 wp __packed __aligned(4);
++	__le32 reserved0;
++	__le32 reserved1;
++	__le32 reserved2;
++
++	__le64 rbase __packed __aligned(4);
++	__le64 rlen __packed __aligned(4);
++	__le64 rp __packed __aligned(4);
++	__le64 wp __packed __aligned(4);
+ };
+ 
+ struct mhi_ctxt {
+@@ -258,8 +258,8 @@ struct mhi_ctxt {
+ };
+ 
+ struct mhi_tre {
+-	u64 ptr;
+-	u32 dword[2];
++	__le64 ptr;
++	__le32 dword[2];
+ };
+ 
+ struct bhi_vec_entry {
+@@ -277,57 +277,58 @@ enum mhi_cmd_type {
+ /* No operation command */
+ #define MHI_TRE_CMD_NOOP_PTR (0)
+ #define MHI_TRE_CMD_NOOP_DWORD0 (0)
+-#define MHI_TRE_CMD_NOOP_DWORD1 (MHI_CMD_NOP << 16)
++#define MHI_TRE_CMD_NOOP_DWORD1 (cpu_to_le32(MHI_CMD_NOP << 16))
+ 
+ /* Channel reset command */
+ #define MHI_TRE_CMD_RESET_PTR (0)
+ #define MHI_TRE_CMD_RESET_DWORD0 (0)
+-#define MHI_TRE_CMD_RESET_DWORD1(chid) ((chid << 24) | \
+-					(MHI_CMD_RESET_CHAN << 16))
++#define MHI_TRE_CMD_RESET_DWORD1(chid) (cpu_to_le32((chid << 24) | \
++					(MHI_CMD_RESET_CHAN << 16)))
+ 
+ /* Channel stop command */
+ #define MHI_TRE_CMD_STOP_PTR (0)
+ #define MHI_TRE_CMD_STOP_DWORD0 (0)
+-#define MHI_TRE_CMD_STOP_DWORD1(chid) ((chid << 24) | \
+-				       (MHI_CMD_STOP_CHAN << 16))
++#define MHI_TRE_CMD_STOP_DWORD1(chid) (cpu_to_le32((chid << 24) | \
++				       (MHI_CMD_STOP_CHAN << 16)))
+ 
+ /* Channel start command */
+ #define MHI_TRE_CMD_START_PTR (0)
+ #define MHI_TRE_CMD_START_DWORD0 (0)
+-#define MHI_TRE_CMD_START_DWORD1(chid) ((chid << 24) | \
+-					(MHI_CMD_START_CHAN << 16))
++#define MHI_TRE_CMD_START_DWORD1(chid) (cpu_to_le32((chid << 24) | \
++					(MHI_CMD_START_CHAN << 16)))
+ 
+-#define MHI_TRE_GET_CMD_CHID(tre) (((tre)->dword[1] >> 24) & 0xFF)
+-#define MHI_TRE_GET_CMD_TYPE(tre) (((tre)->dword[1] >> 16) & 0xFF)
++#define MHI_TRE_GET_DWORD(tre, word) (le32_to_cpu((tre)->dword[(word)]))
++#define MHI_TRE_GET_CMD_CHID(tre) ((MHI_TRE_GET_DWORD(tre, 1) >> 24) & 0xFF)
++#define MHI_TRE_GET_CMD_TYPE(tre) ((MHI_TRE_GET_DWORD(tre, 1) >> 16) & 0xFF)
+ 
+ /* Event descriptor macros */
+-#define MHI_TRE_EV_PTR(ptr) (ptr)
+-#define MHI_TRE_EV_DWORD0(code, len) ((code << 24) | len)
+-#define MHI_TRE_EV_DWORD1(chid, type) ((chid << 24) | (type << 16))
+-#define MHI_TRE_GET_EV_PTR(tre) ((tre)->ptr)
+-#define MHI_TRE_GET_EV_CODE(tre) (((tre)->dword[0] >> 24) & 0xFF)
+-#define MHI_TRE_GET_EV_LEN(tre) ((tre)->dword[0] & 0xFFFF)
+-#define MHI_TRE_GET_EV_CHID(tre) (((tre)->dword[1] >> 24) & 0xFF)
+-#define MHI_TRE_GET_EV_TYPE(tre) (((tre)->dword[1] >> 16) & 0xFF)
+-#define MHI_TRE_GET_EV_STATE(tre) (((tre)->dword[0] >> 24) & 0xFF)
+-#define MHI_TRE_GET_EV_EXECENV(tre) (((tre)->dword[0] >> 24) & 0xFF)
+-#define MHI_TRE_GET_EV_SEQ(tre) ((tre)->dword[0])
+-#define MHI_TRE_GET_EV_TIME(tre) ((tre)->ptr)
+-#define MHI_TRE_GET_EV_COOKIE(tre) lower_32_bits((tre)->ptr)
+-#define MHI_TRE_GET_EV_VEID(tre) (((tre)->dword[0] >> 16) & 0xFF)
+-#define MHI_TRE_GET_EV_LINKSPEED(tre) (((tre)->dword[1] >> 24) & 0xFF)
+-#define MHI_TRE_GET_EV_LINKWIDTH(tre) ((tre)->dword[0] & 0xFF)
++#define MHI_TRE_EV_PTR(ptr) (cpu_to_le64(ptr))
++#define MHI_TRE_EV_DWORD0(code, len) (cpu_to_le32((code << 24) | len))
++#define MHI_TRE_EV_DWORD1(chid, type) (cpu_to_le32((chid << 24) | (type << 16)))
++#define MHI_TRE_GET_EV_PTR(tre) (le64_to_cpu((tre)->ptr))
++#define MHI_TRE_GET_EV_CODE(tre) ((MHI_TRE_GET_DWORD(tre, 0) >> 24) & 0xFF)
++#define MHI_TRE_GET_EV_LEN(tre) (MHI_TRE_GET_DWORD(tre, 0) & 0xFFFF)
++#define MHI_TRE_GET_EV_CHID(tre) ((MHI_TRE_GET_DWORD(tre, 1) >> 24) & 0xFF)
++#define MHI_TRE_GET_EV_TYPE(tre) ((MHI_TRE_GET_DWORD(tre, 1) >> 16) & 0xFF)
++#define MHI_TRE_GET_EV_STATE(tre) ((MHI_TRE_GET_DWORD(tre, 0) >> 24) & 0xFF)
++#define MHI_TRE_GET_EV_EXECENV(tre) ((MHI_TRE_GET_DWORD(tre, 0) >> 24) & 0xFF)
++#define MHI_TRE_GET_EV_SEQ(tre) MHI_TRE_GET_DWORD(tre, 0)
++#define MHI_TRE_GET_EV_TIME(tre) (MHI_TRE_GET_EV_PTR(tre))
++#define MHI_TRE_GET_EV_COOKIE(tre) lower_32_bits(MHI_TRE_GET_EV_PTR(tre))
++#define MHI_TRE_GET_EV_VEID(tre) ((MHI_TRE_GET_DWORD(tre, 0) >> 16) & 0xFF)
++#define MHI_TRE_GET_EV_LINKSPEED(tre) ((MHI_TRE_GET_DWORD(tre, 1) >> 24) & 0xFF)
++#define MHI_TRE_GET_EV_LINKWIDTH(tre) (MHI_TRE_GET_DWORD(tre, 0) & 0xFF)
+ 
+ /* Transfer descriptor macros */
+-#define MHI_TRE_DATA_PTR(ptr) (ptr)
+-#define MHI_TRE_DATA_DWORD0(len) (len & MHI_MAX_MTU)
+-#define MHI_TRE_DATA_DWORD1(bei, ieot, ieob, chain) ((2 << 16) | (bei << 10) \
+-	| (ieot << 9) | (ieob << 8) | chain)
++#define MHI_TRE_DATA_PTR(ptr) (cpu_to_le64(ptr))
++#define MHI_TRE_DATA_DWORD0(len) (cpu_to_le32(len & MHI_MAX_MTU))
++#define MHI_TRE_DATA_DWORD1(bei, ieot, ieob, chain) (cpu_to_le32((2 << 16) | (bei << 10) \
++	| (ieot << 9) | (ieob << 8) | chain))
+ 
+ /* RSC transfer descriptor macros */
+-#define MHI_RSCTRE_DATA_PTR(ptr, len) (((u64)len << 48) | ptr)
+-#define MHI_RSCTRE_DATA_DWORD0(cookie) (cookie)
+-#define MHI_RSCTRE_DATA_DWORD1 (MHI_PKT_TYPE_COALESCING << 16)
++#define MHI_RSCTRE_DATA_PTR(ptr, len) (cpu_to_le64(((u64)len << 48) | ptr))
++#define MHI_RSCTRE_DATA_DWORD0(cookie) (cpu_to_le32(cookie))
++#define MHI_RSCTRE_DATA_DWORD1 (cpu_to_le32(MHI_PKT_TYPE_COALESCING << 16))
+ 
+ enum mhi_pkt_type {
+ 	MHI_PKT_TYPE_INVALID = 0x0,
+@@ -499,7 +500,7 @@ struct state_transition {
+ struct mhi_ring {
+ 	dma_addr_t dma_handle;
+ 	dma_addr_t iommu_base;
+-	u64 *ctxt_wp; /* point to ctxt wp */
++	__le64 *ctxt_wp; /* point to ctxt wp */
+ 	void *pre_aligned;
+ 	void *base;
+ 	void *rp;
+--- a/drivers/bus/mhi/core/main.c
++++ b/drivers/bus/mhi/core/main.c
+@@ -114,7 +114,7 @@ void mhi_ring_er_db(struct mhi_event *mh
+ 	struct mhi_ring *ring = &mhi_event->ring;
+ 
+ 	mhi_event->db_cfg.process_db(mhi_event->mhi_cntrl, &mhi_event->db_cfg,
+-				     ring->db_addr, *ring->ctxt_wp);
++				     ring->db_addr, le64_to_cpu(*ring->ctxt_wp));
+ }
+ 
+ void mhi_ring_cmd_db(struct mhi_controller *mhi_cntrl, struct mhi_cmd *mhi_cmd)
+@@ -123,7 +123,7 @@ void mhi_ring_cmd_db(struct mhi_controll
+ 	struct mhi_ring *ring = &mhi_cmd->ring;
+ 
+ 	db = ring->iommu_base + (ring->wp - ring->base);
+-	*ring->ctxt_wp = db;
++	*ring->ctxt_wp = cpu_to_le64(db);
+ 	mhi_write_db(mhi_cntrl, ring->db_addr, db);
+ }
+ 
+@@ -140,7 +140,7 @@ void mhi_ring_chan_db(struct mhi_control
+ 	 * before letting h/w know there is new element to fetch.
+ 	 */
+ 	dma_wmb();
+-	*ring->ctxt_wp = db;
++	*ring->ctxt_wp = cpu_to_le64(db);
+ 
+ 	mhi_chan->db_cfg.process_db(mhi_cntrl, &mhi_chan->db_cfg,
+ 				    ring->db_addr, db);
+@@ -432,7 +432,7 @@ irqreturn_t mhi_irq_handler(int irq_numb
+ 	struct mhi_event_ctxt *er_ctxt =
+ 		&mhi_cntrl->mhi_ctxt->er_ctxt[mhi_event->er_index];
+ 	struct mhi_ring *ev_ring = &mhi_event->ring;
+-	dma_addr_t ptr = er_ctxt->rp;
++	dma_addr_t ptr = le64_to_cpu(er_ctxt->rp);
+ 	void *dev_rp;
+ 
+ 	if (!is_valid_ring_ptr(ev_ring, ptr)) {
+@@ -537,14 +537,14 @@ static void mhi_recycle_ev_ring_element(
+ 
+ 	/* Update the WP */
+ 	ring->wp += ring->el_size;
+-	ctxt_wp = *ring->ctxt_wp + ring->el_size;
++	ctxt_wp = le64_to_cpu(*ring->ctxt_wp) + ring->el_size;
+ 
+ 	if (ring->wp >= (ring->base + ring->len)) {
+ 		ring->wp = ring->base;
+ 		ctxt_wp = ring->iommu_base;
+ 	}
+ 
+-	*ring->ctxt_wp = ctxt_wp;
++	*ring->ctxt_wp = cpu_to_le64(ctxt_wp);
+ 
+ 	/* Update the RP */
+ 	ring->rp += ring->el_size;
+@@ -801,7 +801,7 @@ int mhi_process_ctrl_ev_ring(struct mhi_
+ 	struct device *dev = &mhi_cntrl->mhi_dev->dev;
+ 	u32 chan;
+ 	int count = 0;
+-	dma_addr_t ptr = er_ctxt->rp;
++	dma_addr_t ptr = le64_to_cpu(er_ctxt->rp);
+ 
+ 	/*
+ 	 * This is a quick check to avoid unnecessary event processing
+@@ -940,7 +940,7 @@ int mhi_process_ctrl_ev_ring(struct mhi_
+ 		mhi_recycle_ev_ring_element(mhi_cntrl, ev_ring);
+ 		local_rp = ev_ring->rp;
+ 
+-		ptr = er_ctxt->rp;
++		ptr = le64_to_cpu(er_ctxt->rp);
+ 		if (!is_valid_ring_ptr(ev_ring, ptr)) {
+ 			dev_err(&mhi_cntrl->mhi_dev->dev,
+ 				"Event ring rp points outside of the event ring\n");
+@@ -970,7 +970,7 @@ int mhi_process_data_event_ring(struct m
+ 	int count = 0;
+ 	u32 chan;
+ 	struct mhi_chan *mhi_chan;
+-	dma_addr_t ptr = er_ctxt->rp;
++	dma_addr_t ptr = le64_to_cpu(er_ctxt->rp);
+ 
+ 	if (unlikely(MHI_EVENT_ACCESS_INVALID(mhi_cntrl->pm_state)))
+ 		return -EIO;
+@@ -1011,7 +1011,7 @@ int mhi_process_data_event_ring(struct m
+ 		mhi_recycle_ev_ring_element(mhi_cntrl, ev_ring);
+ 		local_rp = ev_ring->rp;
+ 
+-		ptr = er_ctxt->rp;
++		ptr = le64_to_cpu(er_ctxt->rp);
+ 		if (!is_valid_ring_ptr(ev_ring, ptr)) {
+ 			dev_err(&mhi_cntrl->mhi_dev->dev,
+ 				"Event ring rp points outside of the event ring\n");
+@@ -1529,7 +1529,7 @@ static void mhi_mark_stale_events(struct
+ 	/* mark all stale events related to channel as STALE event */
+ 	spin_lock_irqsave(&mhi_event->lock, flags);
+ 
+-	ptr = er_ctxt->rp;
++	ptr = le64_to_cpu(er_ctxt->rp);
+ 	if (!is_valid_ring_ptr(ev_ring, ptr)) {
+ 		dev_err(&mhi_cntrl->mhi_dev->dev,
+ 			"Event ring rp points outside of the event ring\n");
+--- a/drivers/bus/mhi/core/pm.c
++++ b/drivers/bus/mhi/core/pm.c
+@@ -218,7 +218,7 @@ int mhi_ready_state_transition(struct mh
+ 			continue;
+ 
+ 		ring->wp = ring->base + ring->len - ring->el_size;
+-		*ring->ctxt_wp = ring->iommu_base + ring->len - ring->el_size;
++		*ring->ctxt_wp = cpu_to_le64(ring->iommu_base + ring->len - ring->el_size);
+ 		/* Update all cores */
+ 		smp_wmb();
+ 
+@@ -420,7 +420,7 @@ static int mhi_pm_mission_mode_transitio
+ 			continue;
+ 
+ 		ring->wp = ring->base + ring->len - ring->el_size;
+-		*ring->ctxt_wp = ring->iommu_base + ring->len - ring->el_size;
++		*ring->ctxt_wp = cpu_to_le64(ring->iommu_base + ring->len - ring->el_size);
+ 		/* Update to all cores */
+ 		smp_wmb();
  
 
 
