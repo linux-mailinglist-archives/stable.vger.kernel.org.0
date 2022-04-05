@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 62BAA4F2E74
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:00:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41D454F2AF9
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:07:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354093AbiDEKLf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:11:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34472 "EHLO
+        id S1350456AbiDEJ6Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:58:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34654 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343973AbiDEJQn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:16:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD0ACD7603;
-        Tue,  5 Apr 2022 02:02:16 -0700 (PDT)
+        with ESMTP id S1344001AbiDEJQo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:16:44 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D3DDDF61;
+        Tue,  5 Apr 2022 02:02:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5BE6061571;
-        Tue,  5 Apr 2022 09:02:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E8B3C385A1;
-        Tue,  5 Apr 2022 09:02:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F0B43B80DA1;
+        Tue,  5 Apr 2022 09:02:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65137C385A1;
+        Tue,  5 Apr 2022 09:02:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149335;
-        bh=PSrBa409QKcUs2W/8ZzSou2iYvI9BebDvX7O4pcvzgo=;
+        s=korg; t=1649149346;
+        bh=oAyDcBuvjmsJalWEXosrvxoNCoCAuiWwe1NdEN4k2bk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=feLJkBX+TIvRwJGapUKuvEvLE4RCYMM0JtJ/IsBAtxNFaW94ZaEL1BxKpp9tS61Xq
-         0zhJi3C0fwfjp1LoMbXKqLPkQf1392dVqGo/3AIHn7shTVdJeHEwLcQcU6UM1/eu2f
-         HCWRm4wU+o/FTSjhFdaGpu5FneSa4RGxA850nNPM=
+        b=gzxDeXAD7/y1HF+zIImc3SayceNoUJwCuld6xHkllXH96w7jRtkg4xHWB4RUQhdBG
+         BxQssGr3zL3LDm0Qd79y46LXOhlO1GzAzB8c5aG9qHXkGR05dYCMwgtB0mDBQ94a27
+         ahYGVrJL/45kGnWfVwClWBGUB3y81mCwUgdj28Dk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Jonathan=20Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>,
+        Manivannan Sadhasivam <mani@kernel.org>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0680/1017] remoteproc: qcom: Fix missing of_node_put in adsp_alloc_memory_region
-Date:   Tue,  5 Apr 2022 09:26:33 +0200
-Message-Id: <20220405070414.462789503@linuxfoundation.org>
+Subject: [PATCH 5.16 0684/1017] clk: actions: Terminate clk_div_table with sentinel element
+Date:   Tue,  5 Apr 2022 09:26:37 +0200
+Message-Id: <20220405070414.580442518@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -54,34 +56,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Jonathan Neuschäfer <j.neuschaefer@gmx.net>
 
-[ Upstream commit 505b5b1616e200042999de715dbe7c1e2735cd65 ]
+[ Upstream commit d8a441e53e2434b1401e52dfd66b05263e442edc ]
 
-The device_node pointer is returned by of_parse_phandle()  with refcount
-incremented. We should use of_node_put() on it when done.
+In order that the end of a clk_div_table can be detected, it must be
+terminated with a sentinel element (.div = 0).
 
-Fixes: dc160e449122 ("remoteproc: qcom: Introduce Non-PAS ADSP PIL driver")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220308031219.4718-1-linmq006@gmail.com
+In owl-s900.s, the { 0, 8 } element was probably meant to be just that,
+so this patch changes { 0, 8 } to { 0, 0 }.
+
+Fixes: d47317ca4ade1 ("clk: actions: Add S700 SoC clock support")
+Fixes: d85d20053e195 ("clk: actions: Add S900 SoC clock support")
+Signed-off-by: Jonathan Neuschäfer <j.neuschaefer@gmx.net>
+Reviewed-by: Manivannan Sadhasivam <mani@kernel.org>
+Link: https://lore.kernel.org/r/20220218000922.134857-2-j.neuschaefer@gmx.net
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/remoteproc/qcom_q6v5_adsp.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/clk/actions/owl-s700.c | 1 +
+ drivers/clk/actions/owl-s900.c | 2 +-
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/remoteproc/qcom_q6v5_adsp.c b/drivers/remoteproc/qcom_q6v5_adsp.c
-index 098362e6e233..7c02bc132247 100644
---- a/drivers/remoteproc/qcom_q6v5_adsp.c
-+++ b/drivers/remoteproc/qcom_q6v5_adsp.c
-@@ -408,6 +408,7 @@ static int adsp_alloc_memory_region(struct qcom_adsp *adsp)
- 	}
+diff --git a/drivers/clk/actions/owl-s700.c b/drivers/clk/actions/owl-s700.c
+index a2f34d13fb54..6ea7da1d6d75 100644
+--- a/drivers/clk/actions/owl-s700.c
++++ b/drivers/clk/actions/owl-s700.c
+@@ -162,6 +162,7 @@ static struct clk_div_table hdmia_div_table[] = {
  
- 	ret = of_address_to_resource(node, 0, &r);
-+	of_node_put(node);
- 	if (ret)
- 		return ret;
+ static struct clk_div_table rmii_div_table[] = {
+ 	{0, 4},   {1, 10},
++	{0, 0}
+ };
  
+ /* divider clocks */
+diff --git a/drivers/clk/actions/owl-s900.c b/drivers/clk/actions/owl-s900.c
+index 790890978424..5144ada2c7e1 100644
+--- a/drivers/clk/actions/owl-s900.c
++++ b/drivers/clk/actions/owl-s900.c
+@@ -140,7 +140,7 @@ static struct clk_div_table rmii_ref_div_table[] = {
+ 
+ static struct clk_div_table usb3_mac_div_table[] = {
+ 	{ 1, 2 }, { 2, 3 }, { 3, 4 },
+-	{ 0, 8 },
++	{ 0, 0 }
+ };
+ 
+ static struct clk_div_table i2s_div_table[] = {
 -- 
 2.34.1
 
