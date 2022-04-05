@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D3A074F2D08
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:35:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3C514F2A5D
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 12:55:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241160AbiDEKbp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:31:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52448 "EHLO
+        id S245141AbiDEJLe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:11:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49668 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239523AbiDEJdj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:33:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 903C24E39B;
-        Tue,  5 Apr 2022 02:22:20 -0700 (PDT)
+        with ESMTP id S244698AbiDEIwe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:34 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CC9FD95C9;
+        Tue,  5 Apr 2022 01:42:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2FAEA61574;
-        Tue,  5 Apr 2022 09:22:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38CA9C385A0;
-        Tue,  5 Apr 2022 09:22:19 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 731B2CE1C6B;
+        Tue,  5 Apr 2022 08:42:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C43FC385A1;
+        Tue,  5 Apr 2022 08:42:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150539;
-        bh=8QYO2AMThjA538+hdzVx+um+o/IV7h3ewMsPaWlZaLg=;
+        s=korg; t=1649148124;
+        bh=VAF5i6aKP1e/tf2Wm8Jq42UU+785ciOTpaHVQGl6Dug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jSXFWi9jmFSa00VaoRBJjKpTMmidWsZGJqZQuB3DxJq4HiWji1UbLS8GfhqE2odXE
-         vcdruSfBMXxMrQPds/hmjWRkGIElp5LzLKTwBE/ivzOaz/rXNBIcPqkV4uHA+tnnXW
-         f1u5jLel2pUTbWIYyrFQPQxuR9dvX5v4Y0FWz5bA=
+        b=qsA+2ZDBBesq+GoigwpnvQbKNkVgDRcIKi3SF/OIHg8Qj2OZ6Ol1YFhaHU+zYMVx0
+         ieSVcmZfVYWuZY7V6bQD0MdnleigdnyAro7d4X2WELFp+q53+hcri3Bjh86CWM4NDr
+         sUQKH3bKd4wOq48SJ+osYs2cgbcA5B1AYRXj++10=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Niklas Cassel <niklas.cassel@wdc.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        Palmer Dabbelt <palmer@rivosinc.com>
-Subject: [PATCH 5.15 093/913] riscv: dts: canaan: Fix SPI3 bus width
-Date:   Tue,  5 Apr 2022 09:19:15 +0200
-Message-Id: <20220405070342.616711474@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Alim Akhtar <alim.akhtar@samsung.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0243/1017] clocksource/drivers/exynos_mct: Handle DTS with higher number of interrupts
+Date:   Tue,  5 Apr 2022 09:19:16 +0200
+Message-Id: <20220405070401.471413745@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,85 +56,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niklas Cassel <niklas.cassel@wdc.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 
-commit 6846d656106add3aeefcd6eda0dc885787deaa6e upstream.
+[ Upstream commit ab8da93dc06d82f464c47ab30e6c75190702f369 ]
 
-According to the K210 Standalone SDK Programming guide:
-https://canaan-creative.com/wp-content/uploads/2020/03/kendryte_standalone_programming_guide_20190311144158_en.pdf
+The driver statically defines maximum number of interrupts it can
+handle, however it does not respect that limit when configuring them.
+When provided with a DTS with more interrupts than assumed, the driver
+will overwrite static array mct_irqs leading to silent memory
+corruption.
 
-Section 15.4.3.3:
-SPI0 and SPI1 supports: standard, dual, quad and octal transfers.
-SPI3 supports: standard, dual and quad transfers (octal is not supported).
+Validate the interrupts coming from DTS to avoid this.  This does not
+change the fact that such DTS might not boot at all, because it is
+simply incompatible, however at least some warning will be printed.
 
-In order to support quad transfers (Quad SPI), SPI3 must have four IO wires
-connected to the SPI flash.
-
-Update the device tree to specify the correct bus width.
-
-Tested on maix bit, maix dock and maixduino, which all have the same
-SPI flash (gd25lq128d) connected to SPI3. maix go is untested, but it
-would not make sense for this k210 board to be designed differently.
-
-Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
-Reviewed-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Fixes: 8f5b0e79f3e5 ("riscv: Add SiPeed MAIXDUINO board device tree")
-Fixes: 8194f08bda18 ("riscv: Add SiPeed MAIX GO board device tree")
-Fixes: a40f920964c4 ("riscv: Add SiPeed MAIX DOCK board device tree")
-Fixes: 97c279bcf813 ("riscv: Add SiPeed MAIX BiT board device tree")
-Cc: stable@vger.kernel.org
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 36ba5d527e95 ("ARM: EXYNOS: add device tree support for MCT controller driver")
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Reviewed-by: Alim Akhtar <alim.akhtar@samsung.com>
+Link: https://lore.kernel.org/r/20220220103815.135380-1-krzysztof.kozlowski@canonical.com
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/boot/dts/canaan/sipeed_maix_bit.dts  |    2 ++
- arch/riscv/boot/dts/canaan/sipeed_maix_dock.dts |    2 ++
- arch/riscv/boot/dts/canaan/sipeed_maix_go.dts   |    2 ++
- arch/riscv/boot/dts/canaan/sipeed_maixduino.dts |    2 ++
- 4 files changed, 8 insertions(+)
+ drivers/clocksource/exynos_mct.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/arch/riscv/boot/dts/canaan/sipeed_maix_bit.dts
-+++ b/arch/riscv/boot/dts/canaan/sipeed_maix_bit.dts
-@@ -203,6 +203,8 @@
- 		compatible = "jedec,spi-nor";
- 		reg = <0>;
- 		spi-max-frequency = <50000000>;
-+		spi-tx-bus-width = <4>;
-+		spi-rx-bus-width = <4>;
- 		m25p,fast-read;
- 		broken-flash-reset;
- 	};
---- a/arch/riscv/boot/dts/canaan/sipeed_maix_dock.dts
-+++ b/arch/riscv/boot/dts/canaan/sipeed_maix_dock.dts
-@@ -205,6 +205,8 @@
- 		compatible = "jedec,spi-nor";
- 		reg = <0>;
- 		spi-max-frequency = <50000000>;
-+		spi-tx-bus-width = <4>;
-+		spi-rx-bus-width = <4>;
- 		m25p,fast-read;
- 		broken-flash-reset;
- 	};
---- a/arch/riscv/boot/dts/canaan/sipeed_maix_go.dts
-+++ b/arch/riscv/boot/dts/canaan/sipeed_maix_go.dts
-@@ -213,6 +213,8 @@
- 		compatible = "jedec,spi-nor";
- 		reg = <0>;
- 		spi-max-frequency = <50000000>;
-+		spi-tx-bus-width = <4>;
-+		spi-rx-bus-width = <4>;
- 		m25p,fast-read;
- 		broken-flash-reset;
- 	};
---- a/arch/riscv/boot/dts/canaan/sipeed_maixduino.dts
-+++ b/arch/riscv/boot/dts/canaan/sipeed_maixduino.dts
-@@ -178,6 +178,8 @@
- 		compatible = "jedec,spi-nor";
- 		reg = <0>;
- 		spi-max-frequency = <50000000>;
-+		spi-tx-bus-width = <4>;
-+		spi-rx-bus-width = <4>;
- 		m25p,fast-read;
- 		broken-flash-reset;
- 	};
+diff --git a/drivers/clocksource/exynos_mct.c b/drivers/clocksource/exynos_mct.c
+index 857cf12ebe57..cc2a961ddd3b 100644
+--- a/drivers/clocksource/exynos_mct.c
++++ b/drivers/clocksource/exynos_mct.c
+@@ -541,6 +541,11 @@ static int __init exynos4_timer_interrupts(struct device_node *np,
+ 	 * irqs are specified.
+ 	 */
+ 	nr_irqs = of_irq_count(np);
++	if (nr_irqs > ARRAY_SIZE(mct_irqs)) {
++		pr_err("exynos-mct: too many (%d) interrupts configured in DT\n",
++			nr_irqs);
++		nr_irqs = ARRAY_SIZE(mct_irqs);
++	}
+ 	for (i = MCT_L0_IRQ; i < nr_irqs; i++)
+ 		mct_irqs[i] = irq_of_parse_and_map(np, i);
+ 
+@@ -553,11 +558,14 @@ static int __init exynos4_timer_interrupts(struct device_node *np,
+ 		     mct_irqs[MCT_L0_IRQ], err);
+ 	} else {
+ 		for_each_possible_cpu(cpu) {
+-			int mct_irq = mct_irqs[MCT_L0_IRQ + cpu];
++			int mct_irq;
+ 			struct mct_clock_event_device *pcpu_mevt =
+ 				per_cpu_ptr(&percpu_mct_tick, cpu);
+ 
+ 			pcpu_mevt->evt.irq = -1;
++			if (MCT_L0_IRQ + cpu >= ARRAY_SIZE(mct_irqs))
++				break;
++			mct_irq = mct_irqs[MCT_L0_IRQ + cpu];
+ 
+ 			irq_set_status_flags(mct_irq, IRQ_NOAUTOEN);
+ 			if (request_irq(mct_irq,
+-- 
+2.34.1
+
 
 
