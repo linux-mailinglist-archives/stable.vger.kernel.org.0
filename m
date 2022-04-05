@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E2CBF4F2F74
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:16:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ABE1B4F2F9C
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:17:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230216AbiDEJjF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:39:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58230 "EHLO
+        id S236297AbiDEI1i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:27:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46454 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244506AbiDEJKB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:10:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4067F29CBD;
-        Tue,  5 Apr 2022 01:59:42 -0700 (PDT)
+        with ESMTP id S239523AbiDEIUM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:20:12 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68152EB9;
+        Tue,  5 Apr 2022 01:15:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4F60EB81A12;
-        Tue,  5 Apr 2022 08:59:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA050C385A1;
-        Tue,  5 Apr 2022 08:59:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 278DDB81B92;
+        Tue,  5 Apr 2022 08:15:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67C3BC385A0;
+        Tue,  5 Apr 2022 08:15:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149177;
-        bh=60e7xbI6l1AgworDfHKiS/uO80AU3QEf7uiVgTT5KeY=;
+        s=korg; t=1649146507;
+        bh=+ZIW8t4x0ThwpjfSahCA2lfR+DiLR6YdOj+9nIWr+Hs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YAVCYcgXfu3JC0nTpW+d83UKmp8GFSPLPqbeiK2m2xhkJePRCk44Ya8XBBB3wuXtT
-         9VWhJjBBEFUjK3GQabxKqKHaMTRuisMliQtQpi4M7zNubmcMwnFVnPsS1KqALtF6dK
-         gHLVaQDy7/NLiYrX3GfW5JmVwB8gyLGwiA457Vnk=
+        b=01IrfS9HBh6obgO7d3C+95ltjPVtF/RZ36g2I8PMLAxCuCAn1n7mNecZHfokygMBE
+         HELzv9LWjEDnaE7NuwpG0ejNhwkVNq+Aaxp7/eTKs6obxPAGPQ6yVARHW+gwFg87eG
+         n6ujp7vEf3aRpiW0HHyICHdMNh1iSgfu3BSW2Wlc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
-        David Ahern <dsahern@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0621/1017] ipv4: Fix route lookups when handling ICMP redirects and PMTU updates
-Date:   Tue,  5 Apr 2022 09:25:34 +0200
-Message-Id: <20220405070412.716397649@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        Dave Kleikamp <dave.kleikamp@oracle.com>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+46f5c25af73eb8330eb6@syzkaller.appspotmail.com
+Subject: [PATCH 5.17 0788/1126] jfs: fix divide error in dbNextAG
+Date:   Tue,  5 Apr 2022 09:25:35 +0200
+Message-Id: <20220405070430.703717287@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,113 +55,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guillaume Nault <gnault@redhat.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit 544b4dd568e3b09c1ab38a759d3187e7abda11a0 ]
+[ Upstream commit 2cc7cc01c15f57d056318c33705647f87dcd4aab ]
 
-The PMTU update and ICMP redirect helper functions initialise their fl4
-variable with either __build_flow_key() or build_sk_flow_key(). These
-initialisation functions always set ->flowi4_scope with
-RT_SCOPE_UNIVERSE and might set the ECN bits of ->flowi4_tos. This is
-not a problem when the route lookup is later done via
-ip_route_output_key_hash(), which properly clears the ECN bits from
-->flowi4_tos and initialises ->flowi4_scope based on the RTO_ONLINK
-flag. However, some helpers call fib_lookup() directly, without
-sanitising the tos and scope fields, so the route lookup can fail and,
-as a result, the ICMP redirect or PMTU update aren't taken into
-account.
+Syzbot reported divide error in dbNextAG(). The problem was in missing
+validation check for malicious image.
 
-Fix this by extracting the ->flowi4_tos and ->flowi4_scope sanitisation
-code into ip_rt_fix_tos(), then use this function in handlers that call
-fib_lookup() directly.
+Syzbot crafted an image with bmp->db_numag equal to 0. There wasn't any
+validation checks, but dbNextAG() blindly use bmp->db_numag in divide
+expression
 
-Note 1: We can't sanitise ->flowi4_tos and ->flowi4_scope in a central
-place (like __build_flow_key() or flowi4_init_output()), because
-ip_route_output_key_hash() expects non-sanitised values. When called
-with sanitised values, it can erroneously overwrite RT_SCOPE_LINK with
-RT_SCOPE_UNIVERSE in ->flowi4_scope. Therefore we have to be careful to
-sanitise the values only for those paths that don't call
-ip_route_output_key_hash().
+Fix it by validating bmp->db_numag in dbMount() and return an error if
+image is malicious
 
-Note 2: The problem is mostly about sanitising ->flowi4_tos. Having
-->flowi4_scope initialised with RT_SCOPE_UNIVERSE instead of
-RT_SCOPE_LINK probably wasn't really a problem: sockets with the
-SOCK_LOCALROUTE flag set (those that'd result in RTO_ONLINK being set)
-normally shouldn't receive ICMP redirects or PMTU updates.
-
-Fixes: 4895c771c7f0 ("ipv4: Add FIB nexthop exceptions.")
-Signed-off-by: Guillaume Nault <gnault@redhat.com>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Reported-and-tested-by: syzbot+46f5c25af73eb8330eb6@syzkaller.appspotmail.com
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: Dave Kleikamp <dave.kleikamp@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/route.c | 18 ++++++++++++++----
- 1 file changed, 14 insertions(+), 4 deletions(-)
+ fs/jfs/jfs_dmap.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/net/ipv4/route.c b/net/ipv4/route.c
-index 2c30c599cc16..750e229b7c49 100644
---- a/net/ipv4/route.c
-+++ b/net/ipv4/route.c
-@@ -498,6 +498,15 @@ void __ip_select_ident(struct net *net, struct iphdr *iph, int segs)
- }
- EXPORT_SYMBOL(__ip_select_ident);
- 
-+static void ip_rt_fix_tos(struct flowi4 *fl4)
-+{
-+	__u8 tos = RT_FL_TOS(fl4);
-+
-+	fl4->flowi4_tos = tos & IPTOS_RT_MASK;
-+	fl4->flowi4_scope = tos & RTO_ONLINK ?
-+			    RT_SCOPE_LINK : RT_SCOPE_UNIVERSE;
-+}
-+
- static void __build_flow_key(const struct net *net, struct flowi4 *fl4,
- 			     const struct sock *sk,
- 			     const struct iphdr *iph,
-@@ -823,6 +832,7 @@ static void ip_do_redirect(struct dst_entry *dst, struct sock *sk, struct sk_buf
- 	rt = (struct rtable *) dst;
- 
- 	__build_flow_key(net, &fl4, sk, iph, oif, tos, prot, mark, 0);
-+	ip_rt_fix_tos(&fl4);
- 	__ip_do_redirect(rt, skb, &fl4, true);
- }
- 
-@@ -1047,6 +1057,7 @@ static void ip_rt_update_pmtu(struct dst_entry *dst, struct sock *sk,
- 	struct flowi4 fl4;
- 
- 	ip_rt_build_flow_key(&fl4, sk, skb);
-+	ip_rt_fix_tos(&fl4);
- 
- 	/* Don't make lookup fail for bridged encapsulations */
- 	if (skb && netif_is_any_bridge_port(skb->dev))
-@@ -1121,6 +1132,8 @@ void ipv4_sk_update_pmtu(struct sk_buff *skb, struct sock *sk, u32 mtu)
- 			goto out;
- 
- 		new = true;
-+	} else {
-+		ip_rt_fix_tos(&fl4);
- 	}
- 
- 	__ip_rt_update_pmtu((struct rtable *)xfrm_dst_path(&rt->dst), &fl4, mtu);
-@@ -2601,7 +2614,6 @@ static struct rtable *__mkroute_output(const struct fib_result *res,
- struct rtable *ip_route_output_key_hash(struct net *net, struct flowi4 *fl4,
- 					const struct sk_buff *skb)
+diff --git a/fs/jfs/jfs_dmap.c b/fs/jfs/jfs_dmap.c
+index 91f4ec93dab1..d8502f4989d9 100644
+--- a/fs/jfs/jfs_dmap.c
++++ b/fs/jfs/jfs_dmap.c
+@@ -148,6 +148,7 @@ static const s8 budtab[256] = {
+  *	0	- success
+  *	-ENOMEM	- insufficient memory
+  *	-EIO	- i/o error
++ *	-EINVAL - wrong bmap data
+  */
+ int dbMount(struct inode *ipbmap)
  {
--	__u8 tos = RT_FL_TOS(fl4);
- 	struct fib_result res = {
- 		.type		= RTN_UNSPEC,
- 		.fi		= NULL,
-@@ -2611,9 +2623,7 @@ struct rtable *ip_route_output_key_hash(struct net *net, struct flowi4 *fl4,
- 	struct rtable *rth;
- 
- 	fl4->flowi4_iif = LOOPBACK_IFINDEX;
--	fl4->flowi4_tos = tos & IPTOS_RT_MASK;
--	fl4->flowi4_scope = ((tos & RTO_ONLINK) ?
--			 RT_SCOPE_LINK : RT_SCOPE_UNIVERSE);
-+	ip_rt_fix_tos(fl4);
- 
- 	rcu_read_lock();
- 	rth = ip_route_output_key_hash_rcu(net, fl4, &res, skb);
+@@ -179,6 +180,12 @@ int dbMount(struct inode *ipbmap)
+ 	bmp->db_nfree = le64_to_cpu(dbmp_le->dn_nfree);
+ 	bmp->db_l2nbperpage = le32_to_cpu(dbmp_le->dn_l2nbperpage);
+ 	bmp->db_numag = le32_to_cpu(dbmp_le->dn_numag);
++	if (!bmp->db_numag) {
++		release_metapage(mp);
++		kfree(bmp);
++		return -EINVAL;
++	}
++
+ 	bmp->db_maxlevel = le32_to_cpu(dbmp_le->dn_maxlevel);
+ 	bmp->db_maxag = le32_to_cpu(dbmp_le->dn_maxag);
+ 	bmp->db_agpref = le32_to_cpu(dbmp_le->dn_agpref);
 -- 
 2.34.1
 
