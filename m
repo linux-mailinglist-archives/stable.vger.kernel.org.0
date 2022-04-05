@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 73C924F27B9
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:08:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 17C084F2762
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:07:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233559AbiDEIIN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:08:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42646 "EHLO
+        id S232838AbiDEIED (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:04:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42676 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235538AbiDEH7u (ORCPT
+        with ESMTP id S235539AbiDEH7u (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:59:50 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75A9E3EBAC;
-        Tue,  5 Apr 2022 00:55:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C7A73F33C;
+        Tue,  5 Apr 2022 00:55:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 16DB161668;
-        Tue,  5 Apr 2022 07:55:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24816C34110;
-        Tue,  5 Apr 2022 07:55:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E104C615CD;
+        Tue,  5 Apr 2022 07:55:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED31CC340EE;
+        Tue,  5 Apr 2022 07:55:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145309;
-        bh=HNcaj8pxkaHvVNgXI8qUhk/xiw6pJnSiFyMlMkidhQw=;
+        s=korg; t=1649145312;
+        bh=/lTgJhfMgUknakrtdkYLpkrDctVwfh45IIK+dT4dNuo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ByMjxZMqIn6emWuKrSEmNnrs5L+yeiRkRb81aB/O8UKpHzCpE7gRfcHVNswF/tMnB
-         r6JMJJLoV4Bd4gRUipNl5NT+6pC9uPrl1RD8KzLst07yazf3PLUPn6dtcoYowadPjo
-         99I479fZcLHdCXN6BJSewsnfkKxGaUT7UJAqcJIU=
+        b=D9SAbzx7XASKZ4ugr6VFrtYMIeLPJJN6sktPRKK5/fLjMOiP3bL5Sj8y4eEeS8XyV
+         lIH4XRSSt8rTQpd6li653pmKNM2sqat3d6Yh7wRLUA9bhyUvJOLOhO9sEVbwD99DEW
+         495ToXJOC6MAwKcswsHhx53rrhWUUnYpMyjFk6sw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0360/1126] ASoC: codecs: va-macro: fix accessing array out of bounds for enum type
-Date:   Tue,  5 Apr 2022 09:18:27 +0200
-Message-Id: <20220405070418.195055601@linuxfoundation.org>
+Subject: [PATCH 5.17 0361/1126] ASoC: codecs: wc938x: fix accessing array out of bounds for enum type
+Date:   Tue,  5 Apr 2022 09:18:28 +0200
+Message-Id: <20220405070418.223863455@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -57,43 +57,45 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 
-[ Upstream commit 0ea5eff7c6063a8f124188424f8e4c6727f35051 ]
+[ Upstream commit cc587b7c8fbbe128f6bd0dad025a0caea5e6d164 ]
 
 Accessing enums using integer would result in array out of bounds access
 on platforms like aarch64 where sizeof(long) is 8 compared to enum size
 which is 4 bytes.
 
-Fixes: 908e6b1df26e ("ASoC: codecs: lpass-va-macro: Add support to VA Macro")
+Fix this by using enumerated items instead of integers.
+
+Fixes: e8ba1e05bdc0 ("ASoC: codecs: wcd938x: add basic controls")
 Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20220222183212.11580-5-srinivas.kandagatla@linaro.org
+Link: https://lore.kernel.org/r/20220222183212.11580-7-srinivas.kandagatla@linaro.org
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/lpass-va-macro.c | 4 ++--
+ sound/soc/codecs/wcd938x.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/codecs/lpass-va-macro.c b/sound/soc/codecs/lpass-va-macro.c
-index 11147e35689b..e14c277e6a8b 100644
---- a/sound/soc/codecs/lpass-va-macro.c
-+++ b/sound/soc/codecs/lpass-va-macro.c
-@@ -780,7 +780,7 @@ static int va_macro_dec_mode_get(struct snd_kcontrol *kcontrol,
+diff --git a/sound/soc/codecs/wcd938x.c b/sound/soc/codecs/wcd938x.c
+index 36cbc66914f9..33d5403d4e62 100644
+--- a/sound/soc/codecs/wcd938x.c
++++ b/sound/soc/codecs/wcd938x.c
+@@ -2504,7 +2504,7 @@ static int wcd938x_tx_mode_get(struct snd_kcontrol *kcontrol,
  	struct soc_enum *e = (struct soc_enum *)kcontrol->private_value;
  	int path = e->shift_l;
  
--	ucontrol->value.integer.value[0] = va->dec_mode[path];
-+	ucontrol->value.enumerated.item[0] = va->dec_mode[path];
+-	ucontrol->value.integer.value[0] = wcd938x->tx_mode[path];
++	ucontrol->value.enumerated.item[0] = wcd938x->tx_mode[path];
  
  	return 0;
  }
-@@ -789,7 +789,7 @@ static int va_macro_dec_mode_put(struct snd_kcontrol *kcontrol,
- 				 struct snd_ctl_elem_value *ucontrol)
- {
- 	struct snd_soc_component *comp = snd_soc_kcontrol_component(kcontrol);
--	int value = ucontrol->value.integer.value[0];
-+	int value = ucontrol->value.enumerated.item[0];
- 	struct soc_enum *e = (struct soc_enum *)kcontrol->private_value;
- 	int path = e->shift_l;
- 	struct va_macro *va = snd_soc_component_get_drvdata(comp);
+@@ -2528,7 +2528,7 @@ static int wcd938x_rx_hph_mode_get(struct snd_kcontrol *kcontrol,
+ 	struct snd_soc_component *component = snd_soc_kcontrol_component(kcontrol);
+ 	struct wcd938x_priv *wcd938x = snd_soc_component_get_drvdata(component);
+ 
+-	ucontrol->value.integer.value[0] = wcd938x->hph_mode;
++	ucontrol->value.enumerated.item[0] = wcd938x->hph_mode;
+ 
+ 	return 0;
+ }
 -- 
 2.34.1
 
