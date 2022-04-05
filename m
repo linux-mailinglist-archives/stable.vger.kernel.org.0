@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D2BD94F3A22
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:58:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6104C4F3A1F
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:58:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379178AbiDELk3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:40:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45148 "EHLO
+        id S1379175AbiDELk2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:40:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36196 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354451AbiDEKOQ (ORCPT
+        with ESMTP id S1354448AbiDEKOQ (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:14:16 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD4BA69CFE;
-        Tue,  5 Apr 2022 03:00:05 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F7906A00F;
+        Tue,  5 Apr 2022 03:00:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 854FBB81C98;
-        Tue,  5 Apr 2022 10:00:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D30C1C385A2;
-        Tue,  5 Apr 2022 10:00:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AFA8861673;
+        Tue,  5 Apr 2022 10:00:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7F42C385A2;
+        Tue,  5 Apr 2022 10:00:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152803;
-        bh=csoXg8xfP54KyRaAROKfOyTrSMX5tlMmyn9Qsmva0YE=;
+        s=korg; t=1649152806;
+        bh=fDZBkgfQJbLSlDY1z2xrIeM592mx6ZfxBOfycW6/WwU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X84JRmiEiSGR+s+s9QW/aU+fsP89brgJJh7xSk8AUq5YDEndiCU288tyIuFNXjqRJ
-         8r52WAyiu5cXxSchjTAo2O47srO4J25exFOONChXQJGePzt55mXe5PNoFOQM0pp9G9
-         08OS2VxyYu0CDUUA/ZZVoA7qnWvV6kS17cDb/6Ks=
+        b=DOz1cXl2/4EmmL5b9ykMcCgBTedlE65/UwZnyDBpZJLBcMzZxOy9BfVinN6LTHowm
+         XBet6zPyCHP8y56758+c9j4KIWyha8avwN4QdDfKBU+3ZMiBM1guQQjDVOhXWichgQ
+         5XE91sjEPvs/fZ4C+X0eOWvCxvpSIW1iDM6e2p8o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>,
-        Oleksandr Natalenko <oleksandr@natalenko.name>,
-        Christoph Hellwig <hch@lst.de>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.15 869/913] Reinstate some of "swiotlb: rework "fix info leak with DMA_FROM_DEVICE""
-Date:   Tue,  5 Apr 2022 09:32:11 +0200
-Message-Id: <20220405070405.872766400@linuxfoundation.org>
+        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 5.15 870/913] tracing: Have type enum modifications copy the strings
+Date:   Tue,  5 Apr 2022 09:32:12 +0200
+Message-Id: <20220405070405.902546505@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -55,88 +54,156 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-commit 901c7280ca0d5e2b4a8929fbe0bfb007ac2a6544 upstream.
+commit 795301d3c28996219d555023ac6863401b6076bc upstream.
 
-Halil Pasic points out [1] that the full revert of that commit (revert
-in bddac7c1e02b), and that a partial revert that only reverts the
-problematic case, but still keeps some of the cleanups is probably
-better.  ￼
+When an enum is used in the visible parts of a trace event that is
+exported to user space, the user space applications like perf and
+trace-cmd do not have a way to know what the value of the enum is. To
+solve this, at boot up (or module load) the printk formats are modified to
+replace the enum with their numeric value in the string output.
 
-And that partial revert [2] had already been verified by Oleksandr
-Natalenko to also fix the issue, I had just missed that in the long
-discussion.
+Array fields of the event are defined by [<nr-elements>] in the type
+portion of the format file so that the user space parsers can correctly
+parse the array into the appropriate size chunks. But in some trace
+events, an enum is used in defining the size of the array, which once
+again breaks the parsing of user space tooling.
 
-So let's reinstate the cleanups from commit aa6f8dcbab47 ("swiotlb:
-rework "fix info leak with DMA_FROM_DEVICE""), and effectively only
-revert the part that caused problems.
+This was solved the same way as the print formats were, but it modified
+the type strings of the trace event. This caused crashes in some
+architectures because, as supposed to the print string, is a const string
+value. This was not detected on x86, as it appears that const strings are
+still writable (at least in boot up), but other architectures this is not
+the case, and writing to a const string will cause a kernel fault.
 
-Link: https://lore.kernel.org/all/20220328013731.017ae3e3.pasic@linux.ibm.com/ [1]
-Link: https://lore.kernel.org/all/20220324055732.GB12078@lst.de/ [2]
-Link: https://lore.kernel.org/all/4386660.LvFx2qVVIh@natalenko.name/ [3]
-Suggested-by: Halil Pasic <pasic@linux.ibm.com>
-Tested-by: Oleksandr Natalenko <oleksandr@natalenko.name>
-Cc: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+To fix this, use kstrdup() to copy the type before modifying it. If the
+trace event is for the core kernel there's no need to free it because the
+string will be in use for the life of the machine being on line. For
+modules, create a link list to store all the strings being allocated for
+modules and when the module is removed, free them.
+
+Link: https://lore.kernel.org/all/yt9dr1706b4i.fsf@linux.ibm.com/
+Link: https://lkml.kernel.org/r/20220318153432.3984b871@gandalf.local.home
+
+Tested-by: Marc Zyngier <maz@kernel.org>
+Tested-by: Sven Schnelle <svens@linux.ibm.com>
+Reported-by: Sven Schnelle <svens@linux.ibm.com>
+Fixes: b3bc8547d3be ("tracing: Have TRACE_DEFINE_ENUM affect trace event types as well")
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/core-api/dma-attributes.rst |    8 --------
- include/linux/dma-mapping.h               |    8 --------
- kernel/dma/swiotlb.c                      |   12 ++++++++----
- 3 files changed, 8 insertions(+), 20 deletions(-)
+ kernel/trace/trace_events.c |   62 +++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 61 insertions(+), 1 deletion(-)
 
---- a/Documentation/core-api/dma-attributes.rst
-+++ b/Documentation/core-api/dma-attributes.rst
-@@ -130,11 +130,3 @@ accesses to DMA buffers in both privileg
- subsystem that the buffer is fully accessible at the elevated privilege
- level (and ideally inaccessible or at least read-only at the
- lesser-privileged levels).
--
--DMA_ATTR_OVERWRITE
--------------------
--
--This is a hint to the DMA-mapping subsystem that the device is expected to
--overwrite the entire mapped size, thus the caller does not require any of the
--previous buffer contents to be preserved. This allows bounce-buffering
--implementations to optimise DMA_FROM_DEVICE transfers.
---- a/include/linux/dma-mapping.h
-+++ b/include/linux/dma-mapping.h
-@@ -62,14 +62,6 @@
- #define DMA_ATTR_PRIVILEGED		(1UL << 9)
+--- a/kernel/trace/trace_events.c
++++ b/kernel/trace/trace_events.c
+@@ -40,6 +40,14 @@ static LIST_HEAD(ftrace_generic_fields);
+ static LIST_HEAD(ftrace_common_fields);
+ static bool eventdir_initialized;
  
- /*
-- * This is a hint to the DMA-mapping subsystem that the device is expected
-- * to overwrite the entire mapped size, thus the caller does not require any
-- * of the previous buffer contents to be preserved. This allows
-- * bounce-buffering implementations to optimise DMA_FROM_DEVICE transfers.
-- */
--#define DMA_ATTR_OVERWRITE		(1UL << 10)
--
--/*
-  * A dma_addr_t can hold any valid DMA or bus address for the platform.  It can
-  * be given to a device to use as a DMA source or target.  It is specific to a
-  * given device and there may be a translation between the CPU physical address
---- a/kernel/dma/swiotlb.c
-+++ b/kernel/dma/swiotlb.c
-@@ -578,10 +578,14 @@ phys_addr_t swiotlb_tbl_map_single(struc
- 	for (i = 0; i < nr_slots(alloc_size + offset); i++)
- 		mem->slots[index + i].orig_addr = slot_addr(orig_addr, i);
- 	tlb_addr = slot_addr(mem->start, index) + offset;
--	if (!(attrs & DMA_ATTR_SKIP_CPU_SYNC) &&
--	    (!(attrs & DMA_ATTR_OVERWRITE) || dir == DMA_TO_DEVICE ||
--	    dir == DMA_BIDIRECTIONAL))
--		swiotlb_bounce(dev, tlb_addr, mapping_size, DMA_TO_DEVICE);
-+	/*
-+	 * When dir == DMA_FROM_DEVICE we could omit the copy from the orig
-+	 * to the tlb buffer, if we knew for sure the device will
-+	 * overwirte the entire current content. But we don't. Thus
-+	 * unconditional bounce may prevent leaking swiotlb content (i.e.
-+	 * kernel memory) to user-space.
-+	 */
-+	swiotlb_bounce(dev, tlb_addr, mapping_size, DMA_TO_DEVICE);
- 	return tlb_addr;
++static LIST_HEAD(module_strings);
++
++struct module_string {
++	struct list_head	next;
++	struct module		*module;
++	char			*str;
++};
++
+ #define GFP_TRACE (GFP_KERNEL | __GFP_ZERO)
+ 
+ static struct kmem_cache *field_cachep;
+@@ -2637,14 +2645,40 @@ static void update_event_printk(struct t
+ 	}
  }
  
++static void add_str_to_module(struct module *module, char *str)
++{
++	struct module_string *modstr;
++
++	modstr = kmalloc(sizeof(*modstr), GFP_KERNEL);
++
++	/*
++	 * If we failed to allocate memory here, then we'll just
++	 * let the str memory leak when the module is removed.
++	 * If this fails to allocate, there's worse problems than
++	 * a leaked string on module removal.
++	 */
++	if (WARN_ON_ONCE(!modstr))
++		return;
++
++	modstr->module = module;
++	modstr->str = str;
++
++	list_add(&modstr->next, &module_strings);
++}
++
+ static void update_event_fields(struct trace_event_call *call,
+ 				struct trace_eval_map *map)
+ {
+ 	struct ftrace_event_field *field;
+ 	struct list_head *head;
+ 	char *ptr;
++	char *str;
+ 	int len = strlen(map->eval_string);
+ 
++	/* Dynamic events should never have field maps */
++	if (WARN_ON_ONCE(call->flags & TRACE_EVENT_FL_DYNAMIC))
++		return;
++
+ 	head = trace_get_fields(call);
+ 	list_for_each_entry(field, head, link) {
+ 		ptr = strchr(field->type, '[');
+@@ -2658,9 +2692,26 @@ static void update_event_fields(struct t
+ 		if (strncmp(map->eval_string, ptr, len) != 0)
+ 			continue;
+ 
++		str = kstrdup(field->type, GFP_KERNEL);
++		if (WARN_ON_ONCE(!str))
++			return;
++		ptr = str + (ptr - field->type);
+ 		ptr = eval_replace(ptr, map, len);
+ 		/* enum/sizeof string smaller than value */
+-		WARN_ON_ONCE(!ptr);
++		if (WARN_ON_ONCE(!ptr)) {
++			kfree(str);
++			continue;
++		}
++
++		/*
++		 * If the event is part of a module, then we need to free the string
++		 * when the module is removed. Otherwise, it will stay allocated
++		 * until a reboot.
++		 */
++		if (call->module)
++			add_str_to_module(call->module, str);
++
++		field->type = str;
+ 	}
+ }
+ 
+@@ -2883,6 +2934,7 @@ static void trace_module_add_events(stru
+ static void trace_module_remove_events(struct module *mod)
+ {
+ 	struct trace_event_call *call, *p;
++	struct module_string *modstr, *m;
+ 
+ 	down_write(&trace_event_sem);
+ 	list_for_each_entry_safe(call, p, &ftrace_events, list) {
+@@ -2891,6 +2943,14 @@ static void trace_module_remove_events(s
+ 		if (call->module == mod)
+ 			__trace_remove_event_call(call);
+ 	}
++	/* Check for any strings allocade for this module */
++	list_for_each_entry_safe(modstr, m, &module_strings, next) {
++		if (modstr->module != mod)
++			continue;
++		list_del(&modstr->next);
++		kfree(modstr->str);
++		kfree(modstr);
++	}
+ 	up_write(&trace_event_sem);
+ 
+ 	/*
 
 
