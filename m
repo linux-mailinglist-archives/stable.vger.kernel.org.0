@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 627EB4F3A8E
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:02:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE8F04F37D7
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:25:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381544AbiDELqS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:46:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43210 "EHLO
+        id S1359585AbiDELUJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:20:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39194 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354895AbiDEKQa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:16:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB7801EC6C;
-        Tue,  5 Apr 2022 03:03:35 -0700 (PDT)
+        with ESMTP id S1349234AbiDEJt2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:28 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DE5C2315A;
+        Tue,  5 Apr 2022 02:43:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 67D0BB81C83;
-        Tue,  5 Apr 2022 10:03:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A795BC385A1;
-        Tue,  5 Apr 2022 10:03:32 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id E7703CE1C9A;
+        Tue,  5 Apr 2022 09:43:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EBFA7C385A1;
+        Tue,  5 Apr 2022 09:43:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153013;
-        bh=aCbbdPixcwIho1+I8XR8vWB+qjI/awM6brOxeWszHtQ=;
+        s=korg; t=1649151784;
+        bh=LABUxwGsSf8f16KtAggIODD2UvfCYR9smfcdlXAbjvY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=udHx2SwARwzAuJwIrdp0pWrU+5y94U3d3mNf4429dXB5BjgpVTt0rofLsnoA9JbhB
-         9AMs8/LjvoZU6QM4dUxs5etOamLs7yo5H/zTOOJveXLfqZO9t3IQHivV6t9rLEyf/h
-         lDWuwp/hpF2vssk56AZitxlBPnwF23AGfldd4I6Y=
+        b=TA2ERNzJ+T/7HqHeHHQ/uzRcW5ixg2wd5i05gXpnpY2nnReGl1avpxtegcRqIle0t
+         86kcpJWVoqaHvMFskV1Rac6U7k91ZlxpPbfoTfpL3ji/7/7dz7nK/U/kkhIIhsHoYV
+         Bf61m/YBBAu7IMNOa8muWlimDGUbKN3554spPC+A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.10 069/599] cifs: fix NULL ptr dereference in smb2_ioctl_query_info()
+        stable@vger.kernel.org, Elza Mathew <elza.mathew@intel.com>,
+        Magnus Karlsson <magnus.karlsson@intel.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 501/913] xsk: Fix race at socket teardown
 Date:   Tue,  5 Apr 2022 09:26:03 +0200
-Message-Id: <20220405070300.879921948@linuxfoundation.org>
+Message-Id: <20220405070354.872303182@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
-References: <20220405070258.802373272@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,329 +56,243 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paulo Alcantara <pc@cjr.nz>
+From: Magnus Karlsson <magnus.karlsson@intel.com>
 
-commit d6f5e358452479fa8a773b5c6ccc9e4ec5a20880 upstream.
+[ Upstream commit 18b1ab7aa76bde181bdb1ab19a87fa9523c32f21 ]
 
-When calling smb2_ioctl_query_info() with invalid
-smb_query_info::flags, a NULL ptr dereference is triggered when trying
-to kfree() uninitialised rqst[n].rq_iov array.
+Fix a race in the xsk socket teardown code that can lead to a NULL pointer
+dereference splat. The current xsk unbind code in xsk_unbind_dev() starts by
+setting xs->state to XSK_UNBOUND, sets xs->dev to NULL and then waits for any
+NAPI processing to terminate using synchronize_net(). After that, the release
+code starts to tear down the socket state and free allocated memory.
 
-This also fixes leaked paths that are created in SMB2_open_init()
-which required SMB2_open_free() to properly free them.
+  BUG: kernel NULL pointer dereference, address: 00000000000000c0
+  PGD 8000000932469067 P4D 8000000932469067 PUD 0
+  Oops: 0000 [#1] PREEMPT SMP PTI
+  CPU: 25 PID: 69132 Comm: grpcpp_sync_ser Tainted: G          I       5.16.0+ #2
+  Hardware name: Dell Inc. PowerEdge R730/0599V5, BIOS 1.2.10 03/09/2015
+  RIP: 0010:__xsk_sendmsg+0x2c/0x690
+  [...]
+  RSP: 0018:ffffa2348bd13d50 EFLAGS: 00010246
+  RAX: 0000000000000000 RBX: 0000000000000040 RCX: ffff8d5fc632d258
+  RDX: 0000000000400000 RSI: ffffa2348bd13e10 RDI: ffff8d5fc5489800
+  RBP: ffffa2348bd13db0 R08: 0000000000000000 R09: 00007ffffffff000
+  R10: 0000000000000000 R11: 0000000000000000 R12: ffff8d5fc5489800
+  R13: ffff8d5fcb0f5140 R14: ffff8d5fcb0f5140 R15: 0000000000000000
+  FS:  00007f991cff9400(0000) GS:ffff8d6f1f700000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 00000000000000c0 CR3: 0000000114888005 CR4: 00000000001706e0
+  Call Trace:
+  <TASK>
+  ? aa_sk_perm+0x43/0x1b0
+  xsk_sendmsg+0xf0/0x110
+  sock_sendmsg+0x65/0x70
+  __sys_sendto+0x113/0x190
+  ? debug_smp_processor_id+0x17/0x20
+  ? fpregs_assert_state_consistent+0x23/0x50
+  ? exit_to_user_mode_prepare+0xa5/0x1d0
+  __x64_sys_sendto+0x29/0x30
+  do_syscall_64+0x3b/0xc0
+  entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-Here is a small C reproducer that triggers it
+There are two problems with the current code. First, setting xs->dev to NULL
+before waiting for all users to stop using the socket is not correct. The
+entry to the data plane functions xsk_poll(), xsk_sendmsg(), and xsk_recvmsg()
+are all guarded by a test that xs->state is in the state XSK_BOUND and if not,
+it returns right away. But one process might have passed this test but still
+have not gotten to the point in which it uses xs->dev in the code. In this
+interim, a second process executing xsk_unbind_dev() might have set xs->dev to
+NULL which will lead to a crash for the first process. The solution here is
+just to get rid of this NULL assignment since it is not used anymore. Before
+commit 42fddcc7c64b ("xsk: use state member for socket synchronization"),
+xs->dev was the gatekeeper to admit processes into the data plane functions,
+but it was replaced with the state variable xs->state in the aforementioned
+commit.
 
-	#include <stdio.h>
-	#include <stdlib.h>
-	#include <stdint.h>
-	#include <unistd.h>
-	#include <fcntl.h>
-	#include <sys/ioctl.h>
+The second problem is that synchronize_net() does not wait for any process in
+xsk_poll(), xsk_sendmsg(), or xsk_recvmsg() to complete, which means that the
+state they rely on might be cleaned up prematurely. This can happen when the
+notifier gets called (at driver unload for example) as it uses xsk_unbind_dev().
+Solve this by extending the RCU critical region from just the ndo_xsk_wakeup
+to the whole functions mentioned above, so that both the test of xs->state ==
+XSK_BOUND and the last use of any member of xs is covered by the RCU critical
+section. This will guarantee that when synchronize_net() completes, there will
+be no processes left executing xsk_poll(), xsk_sendmsg(), or xsk_recvmsg() and
+state can be cleaned up safely. Note that we need to drop the RCU lock for the
+skb xmit path as it uses functions that might sleep. Due to this, we have to
+retest the xs->state after we grab the mutex that protects the skb xmit code
+from, among a number of things, an xsk_unbind_dev() being executed from the
+notifier at the same time.
 
-	#define die(s) perror(s), exit(1)
-	#define QUERY_INFO 0xc018cf07
-
-	int main(int argc, char *argv[])
-	{
-		int fd;
-
-		if (argc < 2)
-			exit(1);
-		fd = open(argv[1], O_RDONLY);
-		if (fd == -1)
-			die("open");
-		if (ioctl(fd, QUERY_INFO, (uint32_t[]) { 0, 0, 0, 4, 0, 0}) == -1)
-			die("ioctl");
-		close(fd);
-		return 0;
-	}
-
-	mount.cifs //srv/share /mnt -o ...
-	gcc repro.c && ./a.out /mnt/f0
-
-	[ 1832.124468] CIFS: VFS: \\w22-dc.zelda.test\test Invalid passthru query flags: 0x4
-	[ 1832.125043] general protection fault, probably for non-canonical address 0xdffffc0000000000: 0000 [#1] PREEMPT SMP KASAN NOPTI
-	[ 1832.125764] KASAN: null-ptr-deref in range [0x0000000000000000-0x0000000000000007]
-	[ 1832.126241] CPU: 3 PID: 1133 Comm: a.out Not tainted 5.17.0-rc8 #2
-	[ 1832.126630] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.15.0-0-g2dd4b9b-rebuilt.opensuse.org 04/01/2014
-	[ 1832.127322] RIP: 0010:smb2_ioctl_query_info+0x7a3/0xe30 [cifs]
-	[ 1832.127749] Code: 00 00 00 fc ff df 48 c1 ea 03 80 3c 02 00 0f 85 6c 05 00 00 48 b8 00 00 00 00 00 fc ff df 4d 8b 74 24 28 4c 89 f2 48 c1 ea 03 <80> 3c 02 00 0f 85 cb 04 00 00 49 8b 3e e8 bb fc fa ff 48 89 da 48
-	[ 1832.128911] RSP: 0018:ffffc90000957b08 EFLAGS: 00010256
-	[ 1832.129243] RAX: dffffc0000000000 RBX: ffff888117e9b850 RCX: ffffffffa020580d
-	[ 1832.129691] RDX: 0000000000000000 RSI: 0000000000000004 RDI: ffffffffa043a2c0
-	[ 1832.130137] RBP: ffff888117e9b878 R08: 0000000000000001 R09: 0000000000000003
-	[ 1832.130585] R10: fffffbfff4087458 R11: 0000000000000001 R12: ffff888117e9b800
-	[ 1832.131037] R13: 00000000ffffffea R14: 0000000000000000 R15: ffff888117e9b8a8
-	[ 1832.131485] FS:  00007fcee9900740(0000) GS:ffff888151a00000(0000) knlGS:0000000000000000
-	[ 1832.131993] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-	[ 1832.132354] CR2: 00007fcee9a1ef5e CR3: 0000000114cd2000 CR4: 0000000000350ee0
-	[ 1832.132801] Call Trace:
-	[ 1832.132962]  <TASK>
-	[ 1832.133104]  ? smb2_query_reparse_tag+0x890/0x890 [cifs]
-	[ 1832.133489]  ? cifs_mapchar+0x460/0x460 [cifs]
-	[ 1832.133822]  ? rcu_read_lock_sched_held+0x3f/0x70
-	[ 1832.134125]  ? cifs_strndup_to_utf16+0x15b/0x250 [cifs]
-	[ 1832.134502]  ? lock_downgrade+0x6f0/0x6f0
-	[ 1832.134760]  ? cifs_convert_path_to_utf16+0x198/0x220 [cifs]
-	[ 1832.135170]  ? smb2_check_message+0x1080/0x1080 [cifs]
-	[ 1832.135545]  cifs_ioctl+0x1577/0x3320 [cifs]
-	[ 1832.135864]  ? lock_downgrade+0x6f0/0x6f0
-	[ 1832.136125]  ? cifs_readdir+0x2e60/0x2e60 [cifs]
-	[ 1832.136468]  ? rcu_read_lock_sched_held+0x3f/0x70
-	[ 1832.136769]  ? __rseq_handle_notify_resume+0x80b/0xbe0
-	[ 1832.137096]  ? __up_read+0x192/0x710
-	[ 1832.137327]  ? __ia32_sys_rseq+0xf0/0xf0
-	[ 1832.137578]  ? __x64_sys_openat+0x11f/0x1d0
-	[ 1832.137850]  __x64_sys_ioctl+0x127/0x190
-	[ 1832.138103]  do_syscall_64+0x3b/0x90
-	[ 1832.138378]  entry_SYSCALL_64_after_hwframe+0x44/0xae
-	[ 1832.138702] RIP: 0033:0x7fcee9a253df
-	[ 1832.138937] Code: 00 48 89 44 24 18 31 c0 48 8d 44 24 60 c7 04 24 10 00 00 00 48 89 44 24 08 48 8d 44 24 20 48 89 44 24 10 b8 10 00 00 00 0f 05 <41> 89 c0 3d 00 f0 ff ff 77 1f 48 8b 44 24 18 64 48 2b 04 25 28 00
-	[ 1832.140107] RSP: 002b:00007ffeba94a8a0 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
-	[ 1832.140606] RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007fcee9a253df
-	[ 1832.141058] RDX: 00007ffeba94a910 RSI: 00000000c018cf07 RDI: 0000000000000003
-	[ 1832.141503] RBP: 00007ffeba94a930 R08: 00007fcee9b24db0 R09: 00007fcee9b45c4e
-	[ 1832.141948] R10: 00007fcee9918d40 R11: 0000000000000246 R12: 00007ffeba94aa48
-	[ 1832.142396] R13: 0000000000401176 R14: 0000000000403df8 R15: 00007fcee9b78000
-	[ 1832.142851]  </TASK>
-	[ 1832.142994] Modules linked in: cifs cifs_arc4 cifs_md4 bpf_preload [last unloaded: cifs]
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 42fddcc7c64b ("xsk: use state member for socket synchronization")
+Reported-by: Elza Mathew <elza.mathew@intel.com>
+Signed-off-by: Magnus Karlsson <magnus.karlsson@intel.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Björn Töpel <bjorn@kernel.org>
+Link: https://lore.kernel.org/bpf/20220228094552.10134-1-magnus.karlsson@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/smb2ops.c |  124 ++++++++++++++++++++++++++++--------------------------
- 1 file changed, 65 insertions(+), 59 deletions(-)
+ net/xdp/xsk.c | 69 +++++++++++++++++++++++++++++++++++++--------------
+ 1 file changed, 50 insertions(+), 19 deletions(-)
 
---- a/fs/cifs/smb2ops.c
-+++ b/fs/cifs/smb2ops.c
-@@ -1526,6 +1526,7 @@ smb2_ioctl_query_info(const unsigned int
- 	unsigned int size[2];
- 	void *data[2];
- 	int create_options = is_dir ? CREATE_NOT_FILE : CREATE_NOT_DIR;
-+	void (*free_req1_func)(struct smb_rqst *r);
- 
- 	vars = kzalloc(sizeof(*vars), GFP_ATOMIC);
- 	if (vars == NULL)
-@@ -1535,17 +1536,18 @@ smb2_ioctl_query_info(const unsigned int
- 
- 	resp_buftype[0] = resp_buftype[1] = resp_buftype[2] = CIFS_NO_BUFFER;
- 
--	if (copy_from_user(&qi, arg, sizeof(struct smb_query_info)))
--		goto e_fault;
+diff --git a/net/xdp/xsk.c b/net/xdp/xsk.c
+index d6b500dc4208..426e287431d2 100644
+--- a/net/xdp/xsk.c
++++ b/net/xdp/xsk.c
+@@ -418,18 +418,8 @@ EXPORT_SYMBOL(xsk_tx_peek_release_desc_batch);
+ static int xsk_wakeup(struct xdp_sock *xs, u8 flags)
+ {
+ 	struct net_device *dev = xs->dev;
+-	int err;
 -
-+	if (copy_from_user(&qi, arg, sizeof(struct smb_query_info))) {
-+		rc = -EFAULT;
-+		goto free_vars;
-+	}
- 	if (qi.output_buffer_length > 1024) {
--		kfree(vars);
--		return -EINVAL;
-+		rc = -EINVAL;
-+		goto free_vars;
- 	}
- 
- 	if (!ses || !server) {
--		kfree(vars);
--		return -EIO;
-+		rc = -EIO;
-+		goto free_vars;
- 	}
- 
- 	if (smb3_encryption_required(tcon))
-@@ -1554,8 +1556,8 @@ smb2_ioctl_query_info(const unsigned int
- 	if (qi.output_buffer_length) {
- 		buffer = memdup_user(arg + sizeof(struct smb_query_info), qi.output_buffer_length);
- 		if (IS_ERR(buffer)) {
--			kfree(vars);
--			return PTR_ERR(buffer);
-+			rc = PTR_ERR(buffer);
-+			goto free_vars;
- 		}
- 	}
- 
-@@ -1594,48 +1596,45 @@ smb2_ioctl_query_info(const unsigned int
- 	rc = SMB2_open_init(tcon, server,
- 			    &rqst[0], &oplock, &oparms, path);
- 	if (rc)
--		goto iqinf_exit;
-+		goto free_output_buffer;
- 	smb2_set_next_command(tcon, &rqst[0]);
- 
- 	/* Query */
- 	if (qi.flags & PASSTHRU_FSCTL) {
- 		/* Can eventually relax perm check since server enforces too */
--		if (!capable(CAP_SYS_ADMIN))
-+		if (!capable(CAP_SYS_ADMIN)) {
- 			rc = -EPERM;
--		else  {
--			rqst[1].rq_iov = &vars->io_iov[0];
--			rqst[1].rq_nvec = SMB2_IOCTL_IOV_SIZE;
+-	rcu_read_lock();
+-	err = dev->netdev_ops->ndo_xsk_wakeup(dev, xs->queue_id, flags);
+-	rcu_read_unlock();
 -
--			rc = SMB2_ioctl_init(tcon, server,
--					     &rqst[1],
--					     COMPOUND_FID, COMPOUND_FID,
--					     qi.info_type, true, buffer,
--					     qi.output_buffer_length,
--					     CIFSMaxBufSize -
--					     MAX_SMB2_CREATE_RESPONSE_SIZE -
--					     MAX_SMB2_CLOSE_RESPONSE_SIZE);
-+			goto free_open_req;
- 		}
-+		rqst[1].rq_iov = &vars->io_iov[0];
-+		rqst[1].rq_nvec = SMB2_IOCTL_IOV_SIZE;
-+
-+		rc = SMB2_ioctl_init(tcon, server, &rqst[1], COMPOUND_FID, COMPOUND_FID,
-+				     qi.info_type, true, buffer, qi.output_buffer_length,
-+				     CIFSMaxBufSize - MAX_SMB2_CREATE_RESPONSE_SIZE -
-+				     MAX_SMB2_CLOSE_RESPONSE_SIZE);
-+		free_req1_func = SMB2_ioctl_free;
- 	} else if (qi.flags == PASSTHRU_SET_INFO) {
- 		/* Can eventually relax perm check since server enforces too */
--		if (!capable(CAP_SYS_ADMIN))
-+		if (!capable(CAP_SYS_ADMIN)) {
- 			rc = -EPERM;
--		else if (qi.output_buffer_length < 8)
-+			goto free_open_req;
-+		}
-+		if (qi.output_buffer_length < 8) {
- 			rc = -EINVAL;
--		else {
--			rqst[1].rq_iov = &vars->si_iov[0];
--			rqst[1].rq_nvec = 1;
--
--			/* MS-FSCC 2.4.13 FileEndOfFileInformation */
--			size[0] = 8;
--			data[0] = buffer;
--
--			rc = SMB2_set_info_init(tcon, server,
--					&rqst[1],
--					COMPOUND_FID, COMPOUND_FID,
--					current->tgid,
--					FILE_END_OF_FILE_INFORMATION,
--					SMB2_O_INFO_FILE, 0, data, size);
-+			goto free_open_req;
- 		}
-+		rqst[1].rq_iov = &vars->si_iov[0];
-+		rqst[1].rq_nvec = 1;
-+
-+		/* MS-FSCC 2.4.13 FileEndOfFileInformation */
-+		size[0] = 8;
-+		data[0] = buffer;
-+
-+		rc = SMB2_set_info_init(tcon, server, &rqst[1], COMPOUND_FID, COMPOUND_FID,
-+					current->tgid, FILE_END_OF_FILE_INFORMATION,
-+					SMB2_O_INFO_FILE, 0, data, size);
-+		free_req1_func = SMB2_set_info_free;
- 	} else if (qi.flags == PASSTHRU_QUERY_INFO) {
- 		rqst[1].rq_iov = &vars->qi_iov[0];
- 		rqst[1].rq_nvec = 1;
-@@ -1646,6 +1645,7 @@ smb2_ioctl_query_info(const unsigned int
- 				  qi.info_type, qi.additional_information,
- 				  qi.input_buffer_length,
- 				  qi.output_buffer_length, buffer);
-+		free_req1_func = SMB2_query_info_free;
- 	} else { /* unknown flags */
- 		cifs_tcon_dbg(VFS, "Invalid passthru query flags: 0x%x\n",
- 			      qi.flags);
-@@ -1653,7 +1653,7 @@ smb2_ioctl_query_info(const unsigned int
- 	}
+-	return err;
+-}
  
- 	if (rc)
--		goto iqinf_exit;
-+		goto free_open_req;
- 	smb2_set_next_command(tcon, &rqst[1]);
- 	smb2_set_related(&rqst[1]);
- 
-@@ -1664,14 +1664,14 @@ smb2_ioctl_query_info(const unsigned int
- 	rc = SMB2_close_init(tcon, server,
- 			     &rqst[2], COMPOUND_FID, COMPOUND_FID, false);
- 	if (rc)
--		goto iqinf_exit;
-+		goto free_req_1;
- 	smb2_set_related(&rqst[2]);
- 
- 	rc = compound_send_recv(xid, ses, server,
- 				flags, 3, rqst,
- 				resp_buftype, rsp_iov);
- 	if (rc)
--		goto iqinf_exit;
-+		goto out;
- 
- 	/* No need to bump num_remote_opens since handle immediately closed */
- 	if (qi.flags & PASSTHRU_FSCTL) {
-@@ -1681,18 +1681,22 @@ smb2_ioctl_query_info(const unsigned int
- 			qi.input_buffer_length = le32_to_cpu(io_rsp->OutputCount);
- 		if (qi.input_buffer_length > 0 &&
- 		    le32_to_cpu(io_rsp->OutputOffset) + qi.input_buffer_length
--		    > rsp_iov[1].iov_len)
--			goto e_fault;
-+		    > rsp_iov[1].iov_len) {
-+			rc = -EFAULT;
-+			goto out;
-+		}
- 
- 		if (copy_to_user(&pqi->input_buffer_length,
- 				 &qi.input_buffer_length,
--				 sizeof(qi.input_buffer_length)))
--			goto e_fault;
-+				 sizeof(qi.input_buffer_length))) {
-+			rc = -EFAULT;
-+			goto out;
-+		}
- 
- 		if (copy_to_user((void __user *)pqi + sizeof(struct smb_query_info),
- 				 (const void *)io_rsp + le32_to_cpu(io_rsp->OutputOffset),
- 				 qi.input_buffer_length))
--			goto e_fault;
-+			rc = -EFAULT;
- 	} else {
- 		pqi = (struct smb_query_info __user *)arg;
- 		qi_rsp = (struct smb2_query_info_rsp *)rsp_iov[1].iov_base;
-@@ -1700,28 +1704,30 @@ smb2_ioctl_query_info(const unsigned int
- 			qi.input_buffer_length = le32_to_cpu(qi_rsp->OutputBufferLength);
- 		if (copy_to_user(&pqi->input_buffer_length,
- 				 &qi.input_buffer_length,
--				 sizeof(qi.input_buffer_length)))
--			goto e_fault;
-+				 sizeof(qi.input_buffer_length))) {
-+			rc = -EFAULT;
-+			goto out;
-+		}
- 
- 		if (copy_to_user(pqi + 1, qi_rsp->Buffer,
- 				 qi.input_buffer_length))
--			goto e_fault;
-+			rc = -EFAULT;
- 	}
- 
-- iqinf_exit:
--	cifs_small_buf_release(rqst[0].rq_iov[0].iov_base);
--	cifs_small_buf_release(rqst[1].rq_iov[0].iov_base);
--	cifs_small_buf_release(rqst[2].rq_iov[0].iov_base);
-+out:
- 	free_rsp_buf(resp_buftype[0], rsp_iov[0].iov_base);
- 	free_rsp_buf(resp_buftype[1], rsp_iov[1].iov_base);
- 	free_rsp_buf(resp_buftype[2], rsp_iov[2].iov_base);
--	kfree(vars);
-+	SMB2_close_free(&rqst[2]);
-+free_req_1:
-+	free_req1_func(&rqst[1]);
-+free_open_req:
-+	SMB2_open_free(&rqst[0]);
-+free_output_buffer:
- 	kfree(buffer);
-+free_vars:
-+	kfree(vars);
- 	return rc;
--
--e_fault:
--	rc = -EFAULT;
--	goto iqinf_exit;
+-static int xsk_zc_xmit(struct xdp_sock *xs)
+-{
+-	return xsk_wakeup(xs, XDP_WAKEUP_TX);
++	return dev->netdev_ops->ndo_xsk_wakeup(dev, xs->queue_id, flags);
  }
  
- static ssize_t
+ static void xsk_destruct_skb(struct sk_buff *skb)
+@@ -548,6 +538,12 @@ static int xsk_generic_xmit(struct sock *sk)
+ 
+ 	mutex_lock(&xs->mutex);
+ 
++	/* Since we dropped the RCU read lock, the socket state might have changed. */
++	if (unlikely(!xsk_is_bound(xs))) {
++		err = -ENXIO;
++		goto out;
++	}
++
+ 	if (xs->queue_id >= xs->dev->real_num_tx_queues)
+ 		goto out;
+ 
+@@ -611,16 +607,26 @@ static int xsk_generic_xmit(struct sock *sk)
+ 	return err;
+ }
+ 
+-static int __xsk_sendmsg(struct sock *sk)
++static int xsk_xmit(struct sock *sk)
+ {
+ 	struct xdp_sock *xs = xdp_sk(sk);
++	int ret;
+ 
+ 	if (unlikely(!(xs->dev->flags & IFF_UP)))
+ 		return -ENETDOWN;
+ 	if (unlikely(!xs->tx))
+ 		return -ENOBUFS;
+ 
+-	return xs->zc ? xsk_zc_xmit(xs) : xsk_generic_xmit(sk);
++	if (xs->zc)
++		return xsk_wakeup(xs, XDP_WAKEUP_TX);
++
++	/* Drop the RCU lock since the SKB path might sleep. */
++	rcu_read_unlock();
++	ret = xsk_generic_xmit(sk);
++	/* Reaquire RCU lock before going into common code. */
++	rcu_read_lock();
++
++	return ret;
+ }
+ 
+ static bool xsk_no_wakeup(struct sock *sk)
+@@ -634,7 +640,7 @@ static bool xsk_no_wakeup(struct sock *sk)
+ #endif
+ }
+ 
+-static int xsk_sendmsg(struct socket *sock, struct msghdr *m, size_t total_len)
++static int __xsk_sendmsg(struct socket *sock, struct msghdr *m, size_t total_len)
+ {
+ 	bool need_wait = !(m->msg_flags & MSG_DONTWAIT);
+ 	struct sock *sk = sock->sk;
+@@ -654,11 +660,22 @@ static int xsk_sendmsg(struct socket *sock, struct msghdr *m, size_t total_len)
+ 
+ 	pool = xs->pool;
+ 	if (pool->cached_need_wakeup & XDP_WAKEUP_TX)
+-		return __xsk_sendmsg(sk);
++		return xsk_xmit(sk);
+ 	return 0;
+ }
+ 
+-static int xsk_recvmsg(struct socket *sock, struct msghdr *m, size_t len, int flags)
++static int xsk_sendmsg(struct socket *sock, struct msghdr *m, size_t total_len)
++{
++	int ret;
++
++	rcu_read_lock();
++	ret = __xsk_sendmsg(sock, m, total_len);
++	rcu_read_unlock();
++
++	return ret;
++}
++
++static int __xsk_recvmsg(struct socket *sock, struct msghdr *m, size_t len, int flags)
+ {
+ 	bool need_wait = !(flags & MSG_DONTWAIT);
+ 	struct sock *sk = sock->sk;
+@@ -684,6 +701,17 @@ static int xsk_recvmsg(struct socket *sock, struct msghdr *m, size_t len, int fl
+ 	return 0;
+ }
+ 
++static int xsk_recvmsg(struct socket *sock, struct msghdr *m, size_t len, int flags)
++{
++	int ret;
++
++	rcu_read_lock();
++	ret = __xsk_recvmsg(sock, m, len, flags);
++	rcu_read_unlock();
++
++	return ret;
++}
++
+ static __poll_t xsk_poll(struct file *file, struct socket *sock,
+ 			     struct poll_table_struct *wait)
+ {
+@@ -694,8 +722,11 @@ static __poll_t xsk_poll(struct file *file, struct socket *sock,
+ 
+ 	sock_poll_wait(file, sock, wait);
+ 
+-	if (unlikely(!xsk_is_bound(xs)))
++	rcu_read_lock();
++	if (unlikely(!xsk_is_bound(xs))) {
++		rcu_read_unlock();
+ 		return mask;
++	}
+ 
+ 	pool = xs->pool;
+ 
+@@ -704,7 +735,7 @@ static __poll_t xsk_poll(struct file *file, struct socket *sock,
+ 			xsk_wakeup(xs, pool->cached_need_wakeup);
+ 		else
+ 			/* Poll needs to drive Tx also in copy mode */
+-			__xsk_sendmsg(sk);
++			xsk_xmit(sk);
+ 	}
+ 
+ 	if (xs->rx && !xskq_prod_is_empty(xs->rx))
+@@ -712,6 +743,7 @@ static __poll_t xsk_poll(struct file *file, struct socket *sock,
+ 	if (xs->tx && xsk_tx_writeable(xs))
+ 		mask |= EPOLLOUT | EPOLLWRNORM;
+ 
++	rcu_read_unlock();
+ 	return mask;
+ }
+ 
+@@ -743,7 +775,6 @@ static void xsk_unbind_dev(struct xdp_sock *xs)
+ 
+ 	/* Wait for driver to stop using the xdp socket. */
+ 	xp_del_xsk(xs->pool, xs);
+-	xs->dev = NULL;
+ 	synchronize_net();
+ 	dev_put(dev);
+ }
+-- 
+2.34.1
+
 
 
