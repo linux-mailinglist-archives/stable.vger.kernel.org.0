@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B1D74F3236
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:54:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BD964F33FD
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:24:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347767AbiDEJ2R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:28:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46806 "EHLO
+        id S1348380AbiDEKtU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:49:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50228 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244894AbiDEIwp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34734240B7;
-        Tue,  5 Apr 2022 01:45:46 -0700 (PDT)
+        with ESMTP id S1343839AbiDEJlx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:41:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68F64BD7D6;
+        Tue,  5 Apr 2022 02:27:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C5D8B614E5;
-        Tue,  5 Apr 2022 08:45:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9E19C385A1;
-        Tue,  5 Apr 2022 08:45:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 04A136165C;
+        Tue,  5 Apr 2022 09:27:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15047C385A0;
+        Tue,  5 Apr 2022 09:27:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148345;
-        bh=arK/Jdx6Jya54jloe0rN7JBuzPaeDIP9HfZ2GK9PVNg=;
+        s=korg; t=1649150844;
+        bh=2eXIeeRexCOuSEo8b3vylFyzhx8jNayZAmwbHZPfjpM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sGxqkDitK8yGv+vvJyqL5GrcRJnNnORHRbAfv9wFNR9AevomRmVuYdZ7l6TZgOAEk
-         mQpbaFdUi5yk/4wlRWLGwf0TWnbTvGd5AlkF5l9On+c73XeTiXXS1lwX9Od5glqRlQ
-         PblPT7zGZgE3bxx5N7l0m4gvqM3nMc4iRoHEKrmo=
+        b=0FjeUtzBgOr/HSd925N9YUSOj0B1CGfZiX/je+a5WzP7qEal76PDc+WW3ZK6O8GvM
+         ah6SkqtDoxvGMgdNEDz2NJrJTTuuA6jJKgXvZ04T2s3unbL49M3KMO9GOXukb2jk/D
+         fdY4C92NbXmNR1g5Bvdd2k58XqVph7yLy3/Wl83M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Nishanth Menon <nm@ti.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0323/1017] firmware: ti_sci: Fix compilation failure when CONFIG_TI_SCI_PROTOCOL is not defined
+        stable@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>
+Subject: [PATCH 5.15 174/913] xtensa: fix xtensa_wsr always writing 0
 Date:   Tue,  5 Apr 2022 09:20:36 +0200
-Message-Id: <20220405070403.867331379@linuxfoundation.org>
+Message-Id: <20220405070345.068131993@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +52,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Max Filippov <jcmvbkbc@gmail.com>
 
-[ Upstream commit 043cfff99a18933fda2fb2e163daee73cc07910b ]
+commit a3d0245c58f962ee99d4440ea0eaf45fb7f5a5cc upstream.
 
-Remove an extra ";" which breaks compilation.
+The commit cad6fade6e78 ("xtensa: clean up WSR*/RSR*/get_sr/set_sr")
+replaced 'WSR' macro in the function xtensa_wsr with 'xtensa_set_sr',
+but variable 'v' in the xtensa_set_sr body shadowed the argument 'v'
+passed to it, resulting in wrong value written to debug registers.
 
-Fixes: 53bf2b0e4e4c ("firmware: ti_sci: Add support for getting resource with subtype")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Nishanth Menon <nm@ti.com>
-Link: https://lore.kernel.org/r/e6c3cb793e1a6a2a0ae2528d5a5650dfe6a4b6ff.1640276505.git.christophe.jaillet@wanadoo.fr
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix that by removing intermediate variable from the xtensa_set_sr
+macro body.
+
+Cc: stable@vger.kernel.org
+Fixes: cad6fade6e78 ("xtensa: clean up WSR*/RSR*/get_sr/set_sr")
+Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/soc/ti/ti_sci_protocol.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/xtensa/include/asm/processor.h |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/include/linux/soc/ti/ti_sci_protocol.h b/include/linux/soc/ti/ti_sci_protocol.h
-index 0aad7009b50e..bd0d11af76c5 100644
---- a/include/linux/soc/ti/ti_sci_protocol.h
-+++ b/include/linux/soc/ti/ti_sci_protocol.h
-@@ -645,7 +645,7 @@ devm_ti_sci_get_of_resource(const struct ti_sci_handle *handle,
+--- a/arch/xtensa/include/asm/processor.h
++++ b/arch/xtensa/include/asm/processor.h
+@@ -226,8 +226,8 @@ extern unsigned long get_wchan(struct ta
  
- static inline struct ti_sci_resource *
- devm_ti_sci_get_resource(const struct ti_sci_handle *handle, struct device *dev,
--			 u32 dev_id, u32 sub_type);
-+			 u32 dev_id, u32 sub_type)
- {
- 	return ERR_PTR(-EINVAL);
- }
--- 
-2.34.1
-
+ #define xtensa_set_sr(x, sr) \
+ 	({ \
+-	 unsigned int v = (unsigned int)(x); \
+-	 __asm__ __volatile__ ("wsr %0, "__stringify(sr) :: "a"(v)); \
++	 __asm__ __volatile__ ("wsr %0, "__stringify(sr) :: \
++			       "a"((unsigned int)(x))); \
+ 	 })
+ 
+ #define xtensa_get_sr(sr) \
 
 
