@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 343614F24C4
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 09:39:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E7AE4F24C5
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 09:39:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231193AbiDEHlB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 03:41:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51210 "EHLO
+        id S231707AbiDEHlC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 03:41:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231398AbiDEHk6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:40:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AE3315811;
-        Tue,  5 Apr 2022 00:39:01 -0700 (PDT)
+        with ESMTP id S231708AbiDEHlA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:41:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBA492DD78;
+        Tue,  5 Apr 2022 00:39:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C4C46B81B16;
-        Tue,  5 Apr 2022 07:38:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C8D2C340EE;
-        Tue,  5 Apr 2022 07:38:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 85FAA61690;
+        Tue,  5 Apr 2022 07:39:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5EF7CC340EE;
+        Tue,  5 Apr 2022 07:39:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649144338;
-        bh=/wvZ5ttyt/Itqm3u0TEWzjsazWNXuAryuErqxEh3zXE=;
+        s=korg; t=1649144341;
+        bh=6xkDEweOfEzoGoiNJXTy88t2266cuaPp/Iftm3Wjg30=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eVhNGOQoToK9ceABS6CkBID6xDDEmS0K9r7TMhH9n/fFS5DIDDCFbaTb1N4CbwosO
-         q6DM5G7fLI+uPEPb8w0ssliYuHb880Lge1pcAfiBNPDdEqbwlFfyh26hi1u37lT/4b
-         QO1vmCB8pzZrPMa1xhbeVh5jYp9jonu9EwK5e0eo=
+        b=Ock9BViuE6FFGCUR4qQjh0iTQ4vhrC1CMVCNHv9ZdKM14+npQ9pCdiR62b/G7Vcn1
+         gpSFIstf1IiKTqxl7dkmvAZFQldW3P9a3C9TiSO1/he634FH78to0rdCt2QiFDz5PA
+         kwTyiECU7vMlFydwtOqcnfpbQMk6+hNe9PDOEmZc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yunfei Wang <yf.wang@mediatek.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Miles Chen <miles.chen@mediatek.com>,
-        Joerg Roedel <jroedel@suse.de>
-Subject: [PATCH 5.17 0010/1126] iommu/iova: Improve 32-bit free space estimate
-Date:   Tue,  5 Apr 2022 09:12:37 +0200
-Message-Id: <20220405070407.840025181@linuxfoundation.org>
+        stable@vger.kernel.org, Song Liu <songliubraving@fb.com>,
+        Jens Axboe <axboe@kernel.dk>, Song Liu <song@kernel.org>
+Subject: [PATCH 5.17 0011/1126] block: flush plug based on hardware and software queue order
+Date:   Tue,  5 Apr 2022 09:12:38 +0200
+Message-Id: <20220405070407.870039665@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -55,52 +53,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robin Murphy <robin.murphy@arm.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-commit 5b61343b50590fb04a3f6be2cdc4868091757262 upstream.
+commit 26fed4ac4eab09c27fbae1859696cc38f0536407 upstream.
 
-For various reasons based on the allocator behaviour and typical
-use-cases at the time, when the max32_alloc_size optimisation was
-introduced it seemed reasonable to couple the reset of the tracked
-size to the update of cached32_node upon freeing a relevant IOVA.
-However, since subsequent optimisations focused on helping genuine
-32-bit devices make best use of even more limited address spaces, it
-is now a lot more likely for cached32_node to be anywhere in a "full"
-32-bit address space, and as such more likely for space to become
-available from IOVAs below that node being freed.
+We used to sort the plug list if we had multiple queues before dispatching
+requests to the IO scheduler. This usually isn't needed, but for certain
+workloads that interleave requests to disks, it's a less efficient to
+process the plug list one-by-one if everything is interleaved.
 
-At this point, the short-cut in __cached_rbnode_delete_update() really
-doesn't hold up any more, and we need to fix the logic to reliably
-provide the expected behaviour. We still want cached32_node to only move
-upwards, but we should reset the allocation size if *any* 32-bit space
-has become available.
+Don't sort the list, but skip through it and flush out entries that have
+the same target at the same time.
 
-Reported-by: Yunfei Wang <yf.wang@mediatek.com>
-Signed-off-by: Robin Murphy <robin.murphy@arm.com>
-Reviewed-by: Miles Chen <miles.chen@mediatek.com>
-Link: https://lore.kernel.org/r/033815732d83ca73b13c11485ac39336f15c3b40.1646318408.git.robin.murphy@arm.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Cc: Miles Chen <miles.chen@mediatek.com>
+Fixes: df87eb0fce8f ("block: get rid of plug list sorting")
+Reported-and-tested-by: Song Liu <song@kernel.org>
+Reviewed-by: Song Liu <songliubraving@fb.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iommu/iova.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ block/blk-mq.c |   59 +++++++++++++++++++++++++++------------------------------
+ 1 file changed, 28 insertions(+), 31 deletions(-)
 
---- a/drivers/iommu/iova.c
-+++ b/drivers/iommu/iova.c
-@@ -95,10 +95,11 @@ __cached_rbnode_delete_update(struct iov
- 	cached_iova = to_iova(iovad->cached32_node);
- 	if (free == cached_iova ||
- 	    (free->pfn_hi < iovad->dma_32bit_pfn &&
--	     free->pfn_lo >= cached_iova->pfn_lo)) {
-+	     free->pfn_lo >= cached_iova->pfn_lo))
- 		iovad->cached32_node = rb_next(&free->node);
-+
-+	if (free->pfn_lo < iovad->dma_32bit_pfn)
- 		iovad->max32_alloc_size = iovad->dma_32bit_pfn;
--	}
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -2561,13 +2561,36 @@ static void __blk_mq_flush_plug_list(str
+ 	q->mq_ops->queue_rqs(&plug->mq_list);
+ }
  
- 	cached_iova = to_iova(iovad->cached_node);
- 	if (free->pfn_lo >= cached_iova->pfn_lo)
++static void blk_mq_dispatch_plug_list(struct blk_plug *plug, bool from_sched)
++{
++	struct blk_mq_hw_ctx *this_hctx = NULL;
++	struct blk_mq_ctx *this_ctx = NULL;
++	struct request *requeue_list = NULL;
++	unsigned int depth = 0;
++	LIST_HEAD(list);
++
++	do {
++		struct request *rq = rq_list_pop(&plug->mq_list);
++
++		if (!this_hctx) {
++			this_hctx = rq->mq_hctx;
++			this_ctx = rq->mq_ctx;
++		} else if (this_hctx != rq->mq_hctx || this_ctx != rq->mq_ctx) {
++			rq_list_add(&requeue_list, rq);
++			continue;
++		}
++		list_add_tail(&rq->queuelist, &list);
++		depth++;
++	} while (!rq_list_empty(plug->mq_list));
++
++	plug->mq_list = requeue_list;
++	trace_block_unplug(this_hctx->queue, depth, !from_sched);
++	blk_mq_sched_insert_requests(this_hctx, this_ctx, &list, from_sched);
++}
++
+ void blk_mq_flush_plug_list(struct blk_plug *plug, bool from_schedule)
+ {
+-	struct blk_mq_hw_ctx *this_hctx;
+-	struct blk_mq_ctx *this_ctx;
+ 	struct request *rq;
+-	unsigned int depth;
+-	LIST_HEAD(list);
+ 
+ 	if (rq_list_empty(plug->mq_list))
+ 		return;
+@@ -2603,35 +2626,9 @@ void blk_mq_flush_plug_list(struct blk_p
+ 			return;
+ 	}
+ 
+-	this_hctx = NULL;
+-	this_ctx = NULL;
+-	depth = 0;
+ 	do {
+-		rq = rq_list_pop(&plug->mq_list);
+-
+-		if (!this_hctx) {
+-			this_hctx = rq->mq_hctx;
+-			this_ctx = rq->mq_ctx;
+-		} else if (this_hctx != rq->mq_hctx || this_ctx != rq->mq_ctx) {
+-			trace_block_unplug(this_hctx->queue, depth,
+-						!from_schedule);
+-			blk_mq_sched_insert_requests(this_hctx, this_ctx,
+-						&list, from_schedule);
+-			depth = 0;
+-			this_hctx = rq->mq_hctx;
+-			this_ctx = rq->mq_ctx;
+-
+-		}
+-
+-		list_add(&rq->queuelist, &list);
+-		depth++;
++		blk_mq_dispatch_plug_list(plug, from_schedule);
+ 	} while (!rq_list_empty(plug->mq_list));
+-
+-	if (!list_empty(&list)) {
+-		trace_block_unplug(this_hctx->queue, depth, !from_schedule);
+-		blk_mq_sched_insert_requests(this_hctx, this_ctx, &list,
+-						from_schedule);
+-	}
+ }
+ 
+ void blk_mq_try_issue_list_directly(struct blk_mq_hw_ctx *hctx,
 
 
