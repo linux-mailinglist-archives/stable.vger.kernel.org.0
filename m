@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6462A4F2A84
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:04:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A32AC4F2C1E
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:22:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235515AbiDEJ3K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:29:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46120 "EHLO
+        id S1347479AbiDEJ0t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:26:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37814 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245032AbiDEIxC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:53:02 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EDDEC7B;
-        Tue,  5 Apr 2022 01:50:09 -0700 (PDT)
+        with ESMTP id S237194AbiDEIRr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:17:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC9ACB18A6;
+        Tue,  5 Apr 2022 01:05:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id E1CE1CE1C6B;
-        Tue,  5 Apr 2022 08:50:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2ECCC385A1;
-        Tue,  5 Apr 2022 08:50:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1B4BE617E9;
+        Tue,  5 Apr 2022 08:05:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27F5EC385A0;
+        Tue,  5 Apr 2022 08:05:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148606;
-        bh=K6geJeEW5QaOD+aLW/HKf6IJ3et2Chj97ahJ/fcGf9U=;
+        s=korg; t=1649145936;
+        bh=L6eP2xInAx8Yc/Dtn99mdaT/6HwILm+CN2lMGkmDi9o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UOsDdubPSESNbpJST1vNH8qe1LiYVQ0344dbse6Tz/vwzWaFF0N7BSV3CK4Q1AoR/
-         CYddz58WgQAVYmdJxHpGNk5oHyolwfTxk453z+uQBiuEMh0yymYy3ihnyL1ZtIUHMj
-         BvVTnSRW28cx1wOsAo1H8iSyNiCnmtPkox0hqcuQ=
+        b=k1A9hB/MQb8BUW7GXHhsmogFUQLao9eSf2TukvrbCUtMRk4MBGA5/ZBJyrR+32IKa
+         nB6puQri4DtDahG+BLGbV9epIurMiuo/r4J5p/tN9UbFPsU/3ckILHTbibLuncvsbn
+         7IahrBI57dE+3CbbJqftjaSEPlodhTg4euQW4Mvk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felix Maurer <fmaurer@redhat.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Jakub Sitnicki <jakub@cloudflare.com>,
+        stable@vger.kernel.org, Hiral Patel <hiralpat@cisco.com>,
+        Hannes Reinecke <hare@suse.de>,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0415/1017] selftests: bpf: Fix bind on used port
-Date:   Tue,  5 Apr 2022 09:22:08 +0200
-Message-Id: <20220405070406.607807821@linuxfoundation.org>
+Subject: [PATCH 5.17 0582/1126] scsi: fnic: Fix a tracing statement
+Date:   Tue,  5 Apr 2022 09:22:09 +0200
+Message-Id: <20220405070424.715918800@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,71 +57,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Maurer <fmaurer@redhat.com>
+From: Bart Van Assche <bvanassche@acm.org>
 
-[ Upstream commit 8c0be0631d81e48f77d0ebf0534c86e32bef5f89 ]
+[ Upstream commit 3032ed77a28913203a4fe0ab8f05752331af79b3 ]
 
-The bind_perm BPF selftest failed when port 111/tcp was already in use
-during the test. To fix this, the test now runs in its own network name
-space.
+Report both the command flags and command state instead of only the
+command state.
 
-To use unshare, it is necessary to reorder the includes. The style of
-the includes is adapted to be consistent with the other prog_tests.
-
-v2: Replace deprecated CHECK macro with ASSERT_OK
-
-Fixes: 8259fdeb30326 ("selftests/bpf: Verify that rebinding to port < 1024 from BPF works")
-Signed-off-by: Felix Maurer <fmaurer@redhat.com>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Reviewed-by: Jakub Sitnicki <jakub@cloudflare.com>
-Link: https://lore.kernel.org/bpf/551ee65533bb987a43f93d88eaf2368b416ccd32.1642518457.git.fmaurer@redhat.com
+Link: https://lore.kernel.org/r/20220218195117.25689-22-bvanassche@acm.org
+Fixes: 4d7007b49d52 ("[SCSI] fnic: Fnic Trace Utility")
+Cc: Hiral Patel <hiralpat@cisco.com>
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../selftests/bpf/prog_tests/bind_perm.c      | 20 ++++++++++++++++---
- 1 file changed, 17 insertions(+), 3 deletions(-)
+ drivers/scsi/fnic/fnic_scsi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/bpf/prog_tests/bind_perm.c b/tools/testing/selftests/bpf/prog_tests/bind_perm.c
-index d0f06e40c16d..eac71fbb24ce 100644
---- a/tools/testing/selftests/bpf/prog_tests/bind_perm.c
-+++ b/tools/testing/selftests/bpf/prog_tests/bind_perm.c
-@@ -1,13 +1,24 @@
- // SPDX-License-Identifier: GPL-2.0
--#include <test_progs.h>
--#include "bind_perm.skel.h"
--
-+#define _GNU_SOURCE
-+#include <sched.h>
-+#include <stdlib.h>
- #include <sys/types.h>
- #include <sys/socket.h>
- #include <sys/capability.h>
+diff --git a/drivers/scsi/fnic/fnic_scsi.c b/drivers/scsi/fnic/fnic_scsi.c
+index 40a52feb315d..65047806a541 100644
+--- a/drivers/scsi/fnic/fnic_scsi.c
++++ b/drivers/scsi/fnic/fnic_scsi.c
+@@ -604,7 +604,7 @@ static int fnic_queuecommand_lck(struct scsi_cmnd *sc)
  
-+#include "test_progs.h"
-+#include "bind_perm.skel.h"
-+
- static int duration;
+ 	FNIC_TRACE(fnic_queuecommand, sc->device->host->host_no,
+ 		  tag, sc, io_req, sg_count, cmd_trace,
+-		  (((u64)CMD_FLAGS(sc) >> 32) | CMD_STATE(sc)));
++		  (((u64)CMD_FLAGS(sc) << 32) | CMD_STATE(sc)));
  
-+static int create_netns(void)
-+{
-+	if (!ASSERT_OK(unshare(CLONE_NEWNET), "create netns"))
-+		return -1;
-+
-+	return 0;
-+}
-+
- void try_bind(int family, int port, int expected_errno)
- {
- 	struct sockaddr_storage addr = {};
-@@ -75,6 +86,9 @@ void test_bind_perm(void)
- 	struct bind_perm *skel;
- 	int cgroup_fd;
- 
-+	if (create_netns())
-+		return;
-+
- 	cgroup_fd = test__join_cgroup("/bind_perm");
- 	if (CHECK(cgroup_fd < 0, "cg-join", "errno %d", errno))
- 		return;
+ 	/* if only we issued IO, will we have the io lock */
+ 	if (io_lock_acquired)
 -- 
 2.34.1
 
