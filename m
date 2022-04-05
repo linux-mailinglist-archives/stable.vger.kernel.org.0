@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 427454F44CD
-	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 00:31:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 458EF4F442F
+	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 00:13:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380230AbiDEMYQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:24:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42286 "EHLO
+        id S1377252AbiDEMXu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:23:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59382 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356111AbiDEKW5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:22:57 -0400
+        with ESMTP id S1356144AbiDEKW7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:22:59 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27A81B6D0C;
-        Tue,  5 Apr 2022 03:06:17 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A5D1BA304;
+        Tue,  5 Apr 2022 03:06:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DDBD4B81C83;
-        Tue,  5 Apr 2022 10:06:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49B46C385A2;
-        Tue,  5 Apr 2022 10:06:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 03434B81C86;
+        Tue,  5 Apr 2022 10:06:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42538C385A2;
+        Tue,  5 Apr 2022 10:06:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153174;
-        bh=viDQ5oPXUO4Bg2RdHflKhjqajjnXbG/LyDSk6gx4X20=;
+        s=korg; t=1649153215;
+        bh=pgtTMJ3lOChN0sZhtkEWGnw/cn/E2bkd2HKG/XVMGcY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DTeR510pL7pqgmVHNC2PJahYoYIPUOEE6r8rxd7CZmfdQANJGDJIMI+UOHUsCiZ1Z
-         trIy+GW/LqkZlCtAclyIEaOD8OYVOcwBgktgYRJWfGOnabnMzUrCUKVw7qoz7H9ovQ
-         Z+a000mIOnMI0QTvht2WjqVf0z+gg28n6tED4j3s=
+        b=Io+E+qvbUfo87R0h9hCWQpD8RT7LopNftIzdErXeEBf6PZ1xO8BO+FzQGXR/R+Ugt
+         j340dKuqz7pJ2Q138V8+OOSzQVwoLgUMA0vp6TsTIEr9UiHCgSdyS/aeZXPHSRKIkp
+         PZkS44pRav44bZ9jmBp1LH8KAuVIaYEtKgUglm9o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Paul Moore <paul@paul-moore.com>,
+        stable@vger.kernel.org, Wang Qing <wangqing@vivo.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 129/599] selinux: check return value of sel_make_avc_files
-Date:   Tue,  5 Apr 2022 09:27:03 +0200
-Message-Id: <20220405070302.680256821@linuxfoundation.org>
+Subject: [PATCH 5.10 143/599] spi: pxa2xx-pci: Balance reference count for PCI DMA device
+Date:   Tue,  5 Apr 2022 09:27:17 +0200
+Message-Id: <20220405070303.098160106@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -56,44 +55,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Göttsche <cgzones@googlemail.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit bcb62828e3e8c813b6613db6eb7fd9657db248fc ]
+[ Upstream commit 609d7ffdc42199a0ec949db057e3b4be6745d6c5 ]
 
-sel_make_avc_files() might fail and return a negative errno value on
-memory allocation failures. Re-add the check of the return value,
-dropped in 66f8e2f03c02 ("selinux: sidtab reverse lookup hash table").
+The pci_get_slot() increases its reference count, the caller
+must decrement the reference count by calling pci_dev_put().
 
-Reported by clang-analyzer:
-
-    security/selinux/selinuxfs.c:2129:2: warning: Value stored to
-      'ret' is never read [deadcode.DeadStores]
-            ret = sel_make_avc_files(dentry);
-            ^     ~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Fixes: 66f8e2f03c02 ("selinux: sidtab reverse lookup hash table")
-Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-[PM: description line wrapping, added proper commit ref]
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+Fixes: 743485ea3bee ("spi: pxa2xx-pci: Do a specific setup in a separate function")
+Fixes: 25014521603f ("spi: pxa2xx-pci: Enable DMA for Intel Merrifield")
+Reported-by: Wang Qing <wangqing@vivo.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20220223191637.31147-1-andriy.shevchenko@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/selinux/selinuxfs.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/spi/spi-pxa2xx-pci.c | 17 ++++++++++++++++-
+ 1 file changed, 16 insertions(+), 1 deletion(-)
 
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index 2b745ae8cb98..d893c2280f59 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -2124,6 +2124,8 @@ static int sel_fill_super(struct super_block *sb, struct fs_context *fc)
+diff --git a/drivers/spi/spi-pxa2xx-pci.c b/drivers/spi/spi-pxa2xx-pci.c
+index aafac128bb5f..4eb979a096c7 100644
+--- a/drivers/spi/spi-pxa2xx-pci.c
++++ b/drivers/spi/spi-pxa2xx-pci.c
+@@ -74,14 +74,23 @@ static bool lpss_dma_filter(struct dma_chan *chan, void *param)
+ 	return true;
+ }
+ 
++static void lpss_dma_put_device(void *dma_dev)
++{
++	pci_dev_put(dma_dev);
++}
++
+ static int lpss_spi_setup(struct pci_dev *dev, struct pxa_spi_info *c)
+ {
+ 	struct pci_dev *dma_dev;
++	int ret;
+ 
+ 	c->num_chipselect = 1;
+ 	c->max_clk_rate = 50000000;
+ 
+ 	dma_dev = pci_get_slot(dev->bus, PCI_DEVFN(PCI_SLOT(dev->devfn), 0));
++	ret = devm_add_action_or_reset(&dev->dev, lpss_dma_put_device, dma_dev);
++	if (ret)
++		return ret;
+ 
+ 	if (c->tx_param) {
+ 		struct dw_dma_slave *slave = c->tx_param;
+@@ -105,8 +114,9 @@ static int lpss_spi_setup(struct pci_dev *dev, struct pxa_spi_info *c)
+ 
+ static int mrfld_spi_setup(struct pci_dev *dev, struct pxa_spi_info *c)
+ {
+-	struct pci_dev *dma_dev = pci_get_slot(dev->bus, PCI_DEVFN(21, 0));
+ 	struct dw_dma_slave *tx, *rx;
++	struct pci_dev *dma_dev;
++	int ret;
+ 
+ 	switch (PCI_FUNC(dev->devfn)) {
+ 	case 0:
+@@ -131,6 +141,11 @@ static int mrfld_spi_setup(struct pci_dev *dev, struct pxa_spi_info *c)
+ 		return -ENODEV;
  	}
  
- 	ret = sel_make_avc_files(dentry);
++	dma_dev = pci_get_slot(dev->bus, PCI_DEVFN(21, 0));
++	ret = devm_add_action_or_reset(&dev->dev, lpss_dma_put_device, dma_dev);
 +	if (ret)
-+		goto err;
++		return ret;
++
+ 	tx = c->tx_param;
+ 	tx->dma_dev = &dma_dev->dev;
  
- 	dentry = sel_make_dir(sb->s_root, "ss", &fsi->last_ino);
- 	if (IS_ERR(dentry)) {
 -- 
 2.34.1
 
