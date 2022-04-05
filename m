@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EA9B64F3626
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:57:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 793EE4F3628
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:57:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244514AbiDEK7H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:59:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59294 "EHLO
+        id S244563AbiDEK7M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:59:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39192 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347105AbiDEJqB (ORCPT
+        with ESMTP id S1347124AbiDEJqB (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:46:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D24A7484B;
-        Tue,  5 Apr 2022 02:32:25 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 365227B12C;
+        Tue,  5 Apr 2022 02:32:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 00C13B81CC1;
+        by ams.source.kernel.org (Postfix) with ESMTPS id D3297B81CC1;
+        Tue,  5 Apr 2022 09:32:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AC30C385A0;
         Tue,  5 Apr 2022 09:32:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56F31C385A2;
-        Tue,  5 Apr 2022 09:32:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151142;
-        bh=dzWhcPIWdsa4A39sNEcEVgjZ6v05Z816/SN2s+i6y/Y=;
+        s=korg; t=1649151145;
+        bh=zSXBeACCOZxTOck0fxbCJC2b7fv0Xz8PKX42CxmY2SQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gNx7KQnOSR6WvFaV1umoYXGDkWlhTS36jexLwyWfOxKXLuub9B7xnxwBErFj3rJtn
-         F0YMkkOT+URrXjPhGPtX092L1A45fZVZA9D2AW6ZUpk6C9QyDkM+vFCQdDAdWkmSQC
-         apCK59F2g19XCzCWCbhdJOIgfr2bJ6S9xJfmJPpg=
+        b=W/I8Tg3+dZPC3rpgswjbh0liTinis/GV8Fa0JKovr+1K5QII1FmTndsJFvy8mlPGE
+         nFZJnE1PqUl8U13QTzehs0utmpYhVFz+PcfkjihrWMdrMLeqahviXdFvxm57uFtK6P
+         SG0yK0v2xV0L+9IGbA+DzvcT4mO5wlYNo7RE0+7U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Fabio Estevam <festevam@gmail.com>,
-        NXP Linux Team <linux-imx@nxp.com>,
+        stable@vger.kernel.org, Neil Armstrong <narmstrong@baylibre.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 309/913] ARM: dts: imx: Add missing LVDS decoder on M53Menlo
-Date:   Tue,  5 Apr 2022 09:22:51 +0200
-Message-Id: <20220405070349.117037153@linuxfoundation.org>
+Subject: [PATCH 5.15 310/913] media: mexon-ge2d: fixup frames size in registers
+Date:   Tue,  5 Apr 2022 09:22:52 +0200
+Message-Id: <20220405070349.146965875@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -46,89 +45,87 @@ User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-5.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,PDS_OTHER_BAD_TLD,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Neil Armstrong <narmstrong@baylibre.com>
 
-[ Upstream commit 0c6f71176ea43d6f4003a4d57f7bb518c5ad6145 ]
+[ Upstream commit 79e8c421a099bfbcebe59740153e55aa0442ced6 ]
 
-The M53Menlo display unit uses an LVDS-to-DPI bridge, TI DS90CF364A.
-Describe this bridge in DT, otherwise the DT incorrectly describes
-DPI panel attached directly to LVDS source.
+The CLIP, SRC & DST registers are coded to take the pixel/line start & end,
+starting from 0. Thus the end should be the width/height minus 1.
 
-Fixes: 716be61d1869 ("ARM: dts: imx53: Add Menlosystems M53 board")
-Signed-off-by: Marek Vasut <marex@denx.de>
-Cc: Shawn Guo <shawnguo@kernel.org>
-Cc: Fabio Estevam <festevam@gmail.com>
-Cc: NXP Linux Team <linux-imx@nxp.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+It can be an issue with clipping and rotation, where it will add spurious
+lines from uninitialized or unwanted data with a shift in the result.
+
+Fixes: 59a635327ca7 ("media: meson: Add M2M driver for the Amlogic GE2D Accelerator Unit")
+Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx53-m53menlo.dts | 29 ++++++++++++++++++++++++++--
- 1 file changed, 27 insertions(+), 2 deletions(-)
+ drivers/media/platform/meson/ge2d/ge2d.c | 24 ++++++++++++------------
+ 1 file changed, 12 insertions(+), 12 deletions(-)
 
-diff --git a/arch/arm/boot/dts/imx53-m53menlo.dts b/arch/arm/boot/dts/imx53-m53menlo.dts
-index 4f88e96d81dd..d5c68d1ea707 100644
---- a/arch/arm/boot/dts/imx53-m53menlo.dts
-+++ b/arch/arm/boot/dts/imx53-m53menlo.dts
-@@ -53,6 +53,31 @@
- 		};
- 	};
+diff --git a/drivers/media/platform/meson/ge2d/ge2d.c b/drivers/media/platform/meson/ge2d/ge2d.c
+index 9b1e973e78da..a373dea9866b 100644
+--- a/drivers/media/platform/meson/ge2d/ge2d.c
++++ b/drivers/media/platform/meson/ge2d/ge2d.c
+@@ -215,35 +215,35 @@ static void ge2d_hw_start(struct meson_ge2d *ge2d)
  
-+	lvds-decoder {
-+		compatible = "ti,ds90cf364a", "lvds-decoder";
-+
-+		ports {
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+
-+			port@0 {
-+				reg = <0>;
-+
-+				lvds_decoder_in: endpoint {
-+					remote-endpoint = <&lvds0_out>;
-+				};
-+			};
-+
-+			port@1 {
-+				reg = <1>;
-+
-+				lvds_decoder_out: endpoint {
-+					remote-endpoint = <&panel_in>;
-+				};
-+			};
-+		};
-+	};
-+
- 	panel {
- 		compatible = "edt,etm0700g0dh6";
- 		pinctrl-0 = <&pinctrl_display_gpio>;
-@@ -61,7 +86,7 @@
+ 	regmap_write(ge2d->map, GE2D_SRC1_CLIPY_START_END,
+ 		     FIELD_PREP(GE2D_START, ctx->in.crop.top) |
+-		     FIELD_PREP(GE2D_END, ctx->in.crop.top + ctx->in.crop.height));
++		     FIELD_PREP(GE2D_END, ctx->in.crop.top + ctx->in.crop.height - 1));
+ 	regmap_write(ge2d->map, GE2D_SRC1_CLIPX_START_END,
+ 		     FIELD_PREP(GE2D_START, ctx->in.crop.left) |
+-		     FIELD_PREP(GE2D_END, ctx->in.crop.left + ctx->in.crop.width));
++		     FIELD_PREP(GE2D_END, ctx->in.crop.left + ctx->in.crop.width - 1));
+ 	regmap_write(ge2d->map, GE2D_SRC2_CLIPY_START_END,
+ 		     FIELD_PREP(GE2D_START, ctx->out.crop.top) |
+-		     FIELD_PREP(GE2D_END, ctx->out.crop.top + ctx->out.crop.height));
++		     FIELD_PREP(GE2D_END, ctx->out.crop.top + ctx->out.crop.height - 1));
+ 	regmap_write(ge2d->map, GE2D_SRC2_CLIPX_START_END,
+ 		     FIELD_PREP(GE2D_START, ctx->out.crop.left) |
+-		     FIELD_PREP(GE2D_END, ctx->out.crop.left + ctx->out.crop.width));
++		     FIELD_PREP(GE2D_END, ctx->out.crop.left + ctx->out.crop.width - 1));
+ 	regmap_write(ge2d->map, GE2D_DST_CLIPY_START_END,
+ 		     FIELD_PREP(GE2D_START, ctx->out.crop.top) |
+-		     FIELD_PREP(GE2D_END, ctx->out.crop.top + ctx->out.crop.height));
++		     FIELD_PREP(GE2D_END, ctx->out.crop.top + ctx->out.crop.height - 1));
+ 	regmap_write(ge2d->map, GE2D_DST_CLIPX_START_END,
+ 		     FIELD_PREP(GE2D_START, ctx->out.crop.left) |
+-		     FIELD_PREP(GE2D_END, ctx->out.crop.left + ctx->out.crop.width));
++		     FIELD_PREP(GE2D_END, ctx->out.crop.left + ctx->out.crop.width - 1));
  
- 		port {
- 			panel_in: endpoint {
--				remote-endpoint = <&lvds0_out>;
-+				remote-endpoint = <&lvds_decoder_out>;
- 			};
- 		};
- 	};
-@@ -450,7 +475,7 @@
- 			reg = <2>;
+ 	regmap_write(ge2d->map, GE2D_SRC1_Y_START_END,
+-		     FIELD_PREP(GE2D_END, ctx->in.pix_fmt.height));
++		     FIELD_PREP(GE2D_END, ctx->in.pix_fmt.height - 1));
+ 	regmap_write(ge2d->map, GE2D_SRC1_X_START_END,
+-		     FIELD_PREP(GE2D_END, ctx->in.pix_fmt.width));
++		     FIELD_PREP(GE2D_END, ctx->in.pix_fmt.width - 1));
+ 	regmap_write(ge2d->map, GE2D_SRC2_Y_START_END,
+-		     FIELD_PREP(GE2D_END, ctx->out.pix_fmt.height));
++		     FIELD_PREP(GE2D_END, ctx->out.pix_fmt.height - 1));
+ 	regmap_write(ge2d->map, GE2D_SRC2_X_START_END,
+-		     FIELD_PREP(GE2D_END, ctx->out.pix_fmt.width));
++		     FIELD_PREP(GE2D_END, ctx->out.pix_fmt.width - 1));
+ 	regmap_write(ge2d->map, GE2D_DST_Y_START_END,
+-		     FIELD_PREP(GE2D_END, ctx->out.pix_fmt.height));
++		     FIELD_PREP(GE2D_END, ctx->out.pix_fmt.height - 1));
+ 	regmap_write(ge2d->map, GE2D_DST_X_START_END,
+-		     FIELD_PREP(GE2D_END, ctx->out.pix_fmt.width));
++		     FIELD_PREP(GE2D_END, ctx->out.pix_fmt.width - 1));
  
- 			lvds0_out: endpoint {
--				remote-endpoint = <&panel_in>;
-+				remote-endpoint = <&lvds_decoder_in>;
- 			};
- 		};
- 	};
+ 	/* Color, no blend, use source color */
+ 	reg = GE2D_ALU_DO_COLOR_OPERATION_LOGIC(LOGIC_OPERATION_COPY,
 -- 
 2.34.1
 
