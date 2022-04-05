@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E95134F3B52
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:16:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EA264F389D
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:35:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348286AbiDELw6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:52:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44352 "EHLO
+        id S241543AbiDEL0V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:26:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48558 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357431AbiDEK0V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:26:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D5476249;
-        Tue,  5 Apr 2022 03:10:09 -0700 (PDT)
+        with ESMTP id S1349511AbiDEJuA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:50:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 979A31B6;
+        Tue,  5 Apr 2022 02:48:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1C0F9617A4;
-        Tue,  5 Apr 2022 10:10:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26FA8C385A0;
-        Tue,  5 Apr 2022 10:10:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 52C20B818F3;
+        Tue,  5 Apr 2022 09:48:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD348C385A2;
+        Tue,  5 Apr 2022 09:47:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153408;
-        bh=7PbildU4fVy2AP3yvxFY7nRP8gtRqmn3F61F8jyqIRQ=;
+        s=korg; t=1649152079;
+        bh=ryI4nmnWCITwgMxyxAhVGbPtmN7Hf4iB4cJjnuFKMfs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FYHqIhEXeNkeVNt1gNha4JRnQqVZgYuM+Un4cc72NqGkcEN6zQe40nYRKiwWxfP7O
-         JlZhibqeS+p2J6GWtl8Hy00aTjyWPV63Kaqq8xTgzkpHs9pskG4VVEYP0gpL675eeW
-         nTHX7ETLXJX69u5OyUlbcEKO75CtqNAT/2nMwG2g=
+        b=CsJr897De82IAoZIGx9hb0XukUDwGOoql/OqpSwoAlCWVDJOHSqxKZzgMVAklcXP0
+         Ok6nnsA/jeqUY24cjnEYKlbtlkndXq3ELwVNZ9wqYVdNBv9IdD+uc8CI6xDgoaM+ts
+         OcsM37c5t1+8932y5bd9OqGqvRuhsUL4YtcqBGAU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org,
+        anton ivanov <anton.ivanov@cambridgegreys.com>,
+        Julius Werner <jwerner@chromium.org>,
+        David Gow <davidgow@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 213/599] ARM: ftrace: ensure that ADR takes the Thumb bit into account
-Date:   Tue,  5 Apr 2022 09:28:27 +0200
-Message-Id: <20220405070305.181038401@linuxfoundation.org>
+Subject: [PATCH 5.15 646/913] firmware: google: Properly state IOMEM dependency
+Date:   Tue,  5 Apr 2022 09:28:28 +0200
+Message-Id: <20220405070359.203583469@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
-References: <20220405070258.802373272@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,38 +56,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: David Gow <davidgow@google.com>
 
-[ Upstream commit dd88b03ff0c84f4bcbe1419b93a4bed429fed3be ]
+[ Upstream commit 37fd83916da2e4cae03d350015c82a67b1b334c4 ]
 
-Using ADR to take the address of 'ftrace_stub' via a local label
-produces an address that has the Thumb bit cleared, which means the
-subsequent comparison is guaranteed to fail. Instead, use the badr
-macro, which forces the Thumb bit to be set.
+The Google Coreboot implementation requires IOMEM functions
+(memmremap, memunmap, devm_memremap), but does not specify this is its
+Kconfig. This results in build errors when HAS_IOMEM is not set, such as
+on some UML configurations:
 
-Fixes: a3ba87a61499 ("ARM: 6316/1: ftrace: add Thumb-2 support")
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+/usr/bin/ld: drivers/firmware/google/coreboot_table.o: in function `coreboot_table_probe':
+coreboot_table.c:(.text+0x311): undefined reference to `memremap'
+/usr/bin/ld: coreboot_table.c:(.text+0x34e): undefined reference to `memunmap'
+/usr/bin/ld: drivers/firmware/google/memconsole-coreboot.o: in function `memconsole_probe':
+memconsole-coreboot.c:(.text+0x12d): undefined reference to `memremap'
+/usr/bin/ld: memconsole-coreboot.c:(.text+0x17e): undefined reference to `devm_memremap'
+/usr/bin/ld: memconsole-coreboot.c:(.text+0x191): undefined reference to `memunmap'
+/usr/bin/ld: drivers/firmware/google/vpd.o: in function `vpd_section_destroy.isra.0':
+vpd.c:(.text+0x300): undefined reference to `memunmap'
+/usr/bin/ld: drivers/firmware/google/vpd.o: in function `vpd_section_init':
+vpd.c:(.text+0x382): undefined reference to `memremap'
+/usr/bin/ld: vpd.c:(.text+0x459): undefined reference to `memunmap'
+/usr/bin/ld: drivers/firmware/google/vpd.o: in function `vpd_probe':
+vpd.c:(.text+0x59d): undefined reference to `memremap'
+/usr/bin/ld: vpd.c:(.text+0x5d3): undefined reference to `memunmap'
+collect2: error: ld returned 1 exit status
+
+Fixes: a28aad66da8b ("firmware: coreboot: Collapse platform drivers into bus core")
+Acked-By: anton ivanov <anton.ivanov@cambridgegreys.com>
+Acked-By: Julius Werner <jwerner@chromium.org>
+Signed-off-by: David Gow <davidgow@google.com>
+Link: https://lore.kernel.org/r/20220225041502.1901806-1-davidgow@google.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/kernel/entry-ftrace.S | 2 +-
+ drivers/firmware/google/Kconfig | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/kernel/entry-ftrace.S b/arch/arm/kernel/entry-ftrace.S
-index a74289ebc803..f4886fb6e9ba 100644
---- a/arch/arm/kernel/entry-ftrace.S
-+++ b/arch/arm/kernel/entry-ftrace.S
-@@ -40,7 +40,7 @@
- 	mcount_enter
- 	ldr	r0, =ftrace_trace_function
- 	ldr	r2, [r0]
--	adr	r0, .Lftrace_stub
-+	badr	r0, .Lftrace_stub
- 	cmp	r0, r2
- 	bne	1f
+diff --git a/drivers/firmware/google/Kconfig b/drivers/firmware/google/Kconfig
+index 931544c9f63d..983e07dc022e 100644
+--- a/drivers/firmware/google/Kconfig
++++ b/drivers/firmware/google/Kconfig
+@@ -21,7 +21,7 @@ config GOOGLE_SMI
  
+ config GOOGLE_COREBOOT_TABLE
+ 	tristate "Coreboot Table Access"
+-	depends on ACPI || OF
++	depends on HAS_IOMEM && (ACPI || OF)
+ 	help
+ 	  This option enables the coreboot_table module, which provides other
+ 	  firmware modules access to the coreboot table. The coreboot table
 -- 
 2.34.1
 
