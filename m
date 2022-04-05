@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D4BF14F3B1B
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:14:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E058C4F3810
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:27:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238165AbiDELuh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:50:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57676 "EHLO
+        id S1376285AbiDELVU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:21:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39730 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356141AbiDEKW7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:22:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85F2AB91B0;
-        Tue,  5 Apr 2022 03:06:52 -0700 (PDT)
+        with ESMTP id S1349380AbiDEJtq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:46 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 496ED1C9;
+        Tue,  5 Apr 2022 02:44:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 296B0B81BC0;
-        Tue,  5 Apr 2022 10:06:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97DA0C385A2;
-        Tue,  5 Apr 2022 10:06:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D9D516164D;
+        Tue,  5 Apr 2022 09:44:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC098C385A3;
+        Tue,  5 Apr 2022 09:44:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153210;
-        bh=l8H9mNVX3/c3Zvv4QunPOJ64g8VnA9sVr/ivBIz7tgA=;
+        s=korg; t=1649151884;
+        bh=PbU3Zy+C03rpWGayUy2MlpDNrRuZYXE7DvqU86BFgbo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BioVvXU6zzXmAE7uRF6V5B7Vsq8GSp5vvsNYsYhfGCsyeWW+a3kVxeLa0wypahbbz
-         kmwXy8mXwex2BZRZ8ApJ8wu+2JvhGzKbWvGSNEcsuXqaLurR34w2ovFGO5H0/Jt7P/
-         1/HiMiqZYN2XsFU4U4iofwnVEVuB4xEAJ6KbeVow=
+        b=z0aS7p6vTfHe8R3EC5I7OgbdaPL5M1d9WM1d7Z2R+xikud8bdrQU/ZpGy3bDsw386
+         WDJsqvtK7JQR43GNDqySkN44Cp142VzzgmcNu8jdSgw5OSxAOPeXiGXyJHICYLir7z
+         Idwdd2O8RwPBEuIa+2ySFxEVMezJAZnBrTv7tTOs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Igor Zhbanov <i.zhbanov@omprussia.ru>,
-        Mimi Zohar <zohar@linux.ibm.com>,
+        stable@vger.kernel.org,
+        Alexander Lobakin <alexandr.lobakin@intel.com>,
+        Michal Kubiak <michal.kubiak@intel.com>,
+        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 141/599] EVM: fix the evm= __setup handler return value
-Date:   Tue,  5 Apr 2022 09:27:15 +0200
-Message-Id: <20220405070303.038894331@linuxfoundation.org>
+Subject: [PATCH 5.15 574/913] ice: dont allow to run ice_send_event_to_aux() in atomic ctx
+Date:   Tue,  5 Apr 2022 09:27:16 +0200
+Message-Id: <20220405070357.051712419@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
-References: <20220405070258.802373272@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,55 +58,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Alexander Lobakin <alexandr.lobakin@intel.com>
 
-[ Upstream commit f2544f5e6c691679d56bb38637d2f347075b36fa ]
+[ Upstream commit 5a3156932da06f09953764de113419f254086faf ]
 
-__setup() handlers should return 1 if the parameter is handled.
-Returning 0 causes the entire string to be added to init's
-environment strings (limited to 32 strings), unnecessarily polluting it.
+ice_send_event_to_aux() eventually descends to mutex_lock()
+(-> might_sched()), so it must not be called under non-task
+context. However, at least two fixes have happened already for the
+bug splats occurred due to this function being called from atomic
+context.
+To make the emergency landings softer, bail out early when executed
+in non-task context emitting a warn splat only once. This way we
+trade some events being potentially lost for system stability and
+avoid any related hangs and crashes.
 
-Using the documented string "evm=fix" causes an Unknown parameter message:
-  Unknown kernel command line parameters
-  "BOOT_IMAGE=/boot/bzImage-517rc5 evm=fix", will be passed to user space.
-
-and that string is added to init's environment string space:
-  Run /sbin/init as init process
-    with arguments:
-     /sbin/init
-    with environment:
-     HOME=/
-     TERM=linux
-     BOOT_IMAGE=/boot/bzImage-517rc5
-     evm=fix
-
-With this change, using "evm=fix" acts as expected and an invalid
-option ("evm=evm") causes a warning to be printed:
-  evm: invalid "evm" mode
-but init's environment is not polluted with this string, as expected.
-
-Fixes: 7102ebcd65c1 ("evm: permit only valid security.evm xattrs to be updated")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
-Link: lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Fixes: 348048e724a0e ("ice: Implement iidc operations")
+Signed-off-by: Alexander Lobakin <alexandr.lobakin@intel.com>
+Tested-by: Michal Kubiak <michal.kubiak@intel.com>
+Reviewed-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
+Acked-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/integrity/evm/evm_main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/intel/ice/ice_idc.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/security/integrity/evm/evm_main.c b/security/integrity/evm/evm_main.c
-index b929c683aba1..0033364ac404 100644
---- a/security/integrity/evm/evm_main.c
-+++ b/security/integrity/evm/evm_main.c
-@@ -62,7 +62,7 @@ static int __init evm_set_fixmode(char *str)
- 	else
- 		pr_err("invalid \"%s\" mode", str);
+diff --git a/drivers/net/ethernet/intel/ice/ice_idc.c b/drivers/net/ethernet/intel/ice/ice_idc.c
+index adcc9a251595..a2714988dd96 100644
+--- a/drivers/net/ethernet/intel/ice/ice_idc.c
++++ b/drivers/net/ethernet/intel/ice/ice_idc.c
+@@ -34,6 +34,9 @@ void ice_send_event_to_aux(struct ice_pf *pf, struct iidc_event *event)
+ {
+ 	struct iidc_auxiliary_drv *iadrv;
  
--	return 0;
-+	return 1;
- }
- __setup("evm=", evm_set_fixmode);
++	if (WARN_ON_ONCE(!in_task()))
++		return;
++
+ 	if (!pf->adev)
+ 		return;
  
 -- 
 2.34.1
