@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DB7E4F29F7
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 12:51:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B82B4F2AD1
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:06:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242849AbiDEJiP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:38:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58396 "EHLO
+        id S242883AbiDEJiS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:38:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43798 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240407AbiDEJGG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:06:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97DE94838C;
-        Tue,  5 Apr 2022 01:56:27 -0700 (PDT)
+        with ESMTP id S241488AbiDEJHF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:07:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28B7149F20;
+        Tue,  5 Apr 2022 01:56:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4933FB81C6F;
-        Tue,  5 Apr 2022 08:56:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A830CC385A0;
-        Tue,  5 Apr 2022 08:56:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BB649B81C6A;
+        Tue,  5 Apr 2022 08:56:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28B96C385A0;
+        Tue,  5 Apr 2022 08:56:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148982;
-        bh=MhbfE+TlUu5XyErtSUHPH19ufIBaaUhqTicyOzfIEE0=;
+        s=korg; t=1649148987;
+        bh=yXxVvwi2IdxhsKoXXW4pXyyO6If7GnOYz/iMP9QDhXE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TWl+aoDquoXRZE4AYUGsCrnVRCTIFy3GCJ+zceEdeLgVfyaSzaCtPSmBg3xon7A3N
-         E/JqTv4VQzomx4Fh5JNVgE1NjFcbfb0P/o/M5v3wfp5/qm369W6RhD8kB1IVtz+Nhu
-         pRh6grLOYJRf4FFwQtWTOgGsesvZpqWewa0jX4jE=
+        b=wrolk3I2BbMPa/AocRmHgHSVIxdxdvfYWDhDCiRzmBPHZRQqiqcKLD7k7pexEyzBq
+         6iL1YEfOC5sFHZecu1QqjeNEjQosi2HH8pqZ1vQYUQH8kWpEkLNQLwZVp/mXO9H5Ho
+         8vxCqB+MWbtfgrRkuCA8Wr7PZWUQoY6u8Uc5vhNM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0514/1017] iwlwifi: mvm: Fix an error code in iwl_mvm_up()
-Date:   Tue,  5 Apr 2022 09:23:47 +0200
-Message-Id: <20220405070409.555267247@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Kuogee Hsieh <quic_khsieh@quicinc.com>
+Subject: [PATCH 5.16 0516/1017] drm/msm/dp: populate connector of struct dp_panel
+Date:   Tue,  5 Apr 2022 09:23:49 +0200
+Message-Id: <20220405070409.613833187@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -54,37 +57,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Kuogee Hsieh <quic_khsieh@quicinc.com>
 
-[ Upstream commit 583d18336abdfb1b355270289ff8f6a2608ba905 ]
+[ Upstream commit 5e602f5156910c7b19661699896cb6e3fb94fab9 ]
 
-Return -ENODEV instead of success on this error path.
+DP CTS test case 4.2.2.6 has valid edid with bad checksum on purpose
+and expect DP source return correct checksum. During drm edid read,
+correct edid checksum is calculated and stored at
+connector::real_edid_checksum.
 
-Fixes: dd36a507c806 ("iwlwifi: mvm: look for the first supported channel when add/remove phy ctxt")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/20210816183930.GA2068@kili
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+The problem is struct dp_panel::connector never be assigned, instead the
+connector is stored in struct msm_dp::connector. When we run compliance
+testing test case 4.2.2.6 dp_panel_handle_sink_request() won't have a valid
+edid set in struct dp_panel::edid so we'll try to use the connectors
+real_edid_checksum and hit a NULL pointer dereference error because the
+connector pointer is never assigned.
+
+Changes in V2:
+-- populate panel connector at msm_dp_modeset_init() instead of at dp_panel_read_sink_caps()
+
+Changes in V3:
+-- remove unhelpful kernel crash trace commit text
+-- remove renaming dp_display parameter to dp
+
+Changes in V4:
+-- add more details to commit text
+
+Changes in v10:
+--  group into one series
+
+Changes in v11:
+-- drop drm/msm/dp: dp_link_parse_sink_count() return immediately if aux read
+
+Fixes: 7948fe12d47 ("drm/msm/dp: return correct edid checksum after corrupted edid checksum read")
+Signee-off-by: Kuogee Hsieh <quic_khsieh@quicinc.com>
+
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Link: https://lore.kernel.org/r/1642531648-8448-3-git-send-email-quic_khsieh@quicinc.com
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/mvm/fw.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/msm/dp/dp_display.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/fw.c b/drivers/net/wireless/intel/iwlwifi/mvm/fw.c
-index 58d5395acf73..6d17d7a71182 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/fw.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/fw.c
-@@ -1553,8 +1553,10 @@ int iwl_mvm_up(struct iwl_mvm *mvm)
- 	while (!sband && i < NUM_NL80211_BANDS)
- 		sband = mvm->hw->wiphy->bands[i++];
+diff --git a/drivers/gpu/drm/msm/dp/dp_display.c b/drivers/gpu/drm/msm/dp/dp_display.c
+index aba8aa47ed76..98a546a65091 100644
+--- a/drivers/gpu/drm/msm/dp/dp_display.c
++++ b/drivers/gpu/drm/msm/dp/dp_display.c
+@@ -1455,6 +1455,7 @@ int msm_dp_modeset_init(struct msm_dp *dp_display, struct drm_device *dev,
+ 			struct drm_encoder *encoder)
+ {
+ 	struct msm_drm_private *priv;
++	struct dp_display_private *dp_priv;
+ 	int ret;
  
--	if (WARN_ON_ONCE(!sband))
-+	if (WARN_ON_ONCE(!sband)) {
-+		ret = -ENODEV;
- 		goto error;
-+	}
+ 	if (WARN_ON(!encoder) || WARN_ON(!dp_display) || WARN_ON(!dev))
+@@ -1463,6 +1464,8 @@ int msm_dp_modeset_init(struct msm_dp *dp_display, struct drm_device *dev,
+ 	priv = dev->dev_private;
+ 	dp_display->drm_dev = dev;
  
- 	chan = &sband->channels[0];
++	dp_priv = container_of(dp_display, struct dp_display_private, dp_display);
++
+ 	ret = dp_display_request_irq(dp_display);
+ 	if (ret) {
+ 		DRM_ERROR("request_irq failed, ret=%d\n", ret);
+@@ -1480,6 +1483,8 @@ int msm_dp_modeset_init(struct msm_dp *dp_display, struct drm_device *dev,
+ 		return ret;
+ 	}
  
++	dp_priv->panel->connector = dp_display->connector;
++
+ 	priv->connectors[priv->num_connectors++] = dp_display->connector;
+ 	return 0;
+ }
 -- 
 2.34.1
 
