@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C5374F2546
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 09:47:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CB824F2566
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 09:47:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232026AbiDEHsy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 03:48:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47534 "EHLO
+        id S232323AbiDEHtl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 03:49:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47536 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232725AbiDEHrG (ORCPT
+        with ESMTP id S232726AbiDEHrG (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:47:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14BF0972B2;
-        Tue,  5 Apr 2022 00:42:53 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFC6B9AE42;
+        Tue,  5 Apr 2022 00:42:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 42613B81B18;
-        Tue,  5 Apr 2022 07:42:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D49FC340EE;
-        Tue,  5 Apr 2022 07:42:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2FF99616D9;
+        Tue,  5 Apr 2022 07:42:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43660C340EE;
+        Tue,  5 Apr 2022 07:42:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649144570;
-        bh=Qkn4rQuY4vULlZ9kn3jjxMjdNkDLJ4Z9oqzqzL5TrYc=;
+        s=korg; t=1649144573;
+        bh=tWANHQHbcE1gOVX+QGv3inRTJJbYxPoiShgmtCsrN2k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yFFvoeq5r6WBFv37M5OAbo2FhETicq7lv+Hoy5gxh2acCY9XWPdhI+MMwVq8KaoUq
-         48uEFV2R6ZYrGsf4RRNG9cXusR2xZ/ScOGytJYFiohFdxdu8V7NaDblll5dXOufh2d
-         IryQf7O7ohtJ7/LZGLA5B2lcKJEmdWUDZdinD4WM=
+        b=kNu6dePrrUzsfg8wbgtw6nc9P+Wab3aBGWVOPi3qMxAw10HL21sB//fUhDGbpGN7u
+         XJqZcA1glA2LhoGBd8mFu0tWStQht6Wn0uVRC3zlDbSZraoaeiF3yK2CnJ9b1UMVwU
+         UI1+8OIeUJllwU+lykkvsClOmKRbU1nCnFNAPdAE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Peter Hutterer <peter.hutterer@who-t.net>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 5.17 0091/1126] Revert "Input: clear BTN_RIGHT/MIDDLE on buttonpads"
-Date:   Tue,  5 Apr 2022 09:13:58 +0200
-Message-Id: <20220405070410.239619320@linuxfoundation.org>
+        stable@vger.kernel.org, "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.17 0092/1126] cifs: do not skip link targets when an I/O fails
+Date:   Tue,  5 Apr 2022 09:13:59 +0200
+Message-Id: <20220405070410.268808231@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -57,59 +53,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: José Expósito <jose.exposito89@gmail.com>
+From: Paulo Alcantara <pc@cjr.nz>
 
-commit 8b188fba75195745026e11d408e4a7e94e01d701 upstream.
+commit 5d7e282541fc91b831a5c4477c5d72881c623df9 upstream.
 
-This reverts commit 37ef4c19b4c659926ce65a7ac709ceaefb211c40.
+When I/O fails in one of the currently connected DFS targets, retry it
+from other targets as specified in MS-DFSC "3.1.5.2 I/O Operation to
++Target Fails with an Error Other Than STATUS_PATH_NOT_COVERED."
 
-The touchpad present in the Dell Precision 7550 and 7750 laptops
-reports a HID_DG_BUTTONTYPE of type MT_BUTTONTYPE_CLICKPAD. However,
-the device is not a clickpad, it is a touchpad with physical buttons.
-
-In order to fix this issue, a quirk for the device was introduced in
-libinput [1] [2] to disable the INPUT_PROP_BUTTONPAD property:
-
-	[Precision 7x50 Touchpad]
-	MatchBus=i2c
-	MatchUdevType=touchpad
-	MatchDMIModalias=dmi:*svnDellInc.:pnPrecision7?50*
-	AttrInputPropDisable=INPUT_PROP_BUTTONPAD
-
-However, because of the change introduced in 37ef4c19b4 ("Input: clear
-BTN_RIGHT/MIDDLE on buttonpads") the BTN_RIGHT key bit is not mapped
-anymore breaking the device right click button and making impossible to
-workaround it in user space.
-
-In order to avoid breakage on other present or future devices, revert
-the patch causing the issue.
-
-Signed-off-by: José Expósito <jose.exposito89@gmail.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Acked-by: Peter Hutterer <peter.hutterer@who-t.net>
-Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220321184404.20025-1-jose.exposito89@gmail.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/input/input.c |    6 ------
- 1 file changed, 6 deletions(-)
+ fs/cifs/connect.c |   14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
---- a/drivers/input/input.c
-+++ b/drivers/input/input.c
-@@ -2285,12 +2285,6 @@ int input_register_device(struct input_d
- 	/* KEY_RESERVED is not supposed to be transmitted to userspace. */
- 	__clear_bit(KEY_RESERVED, dev->keybit);
+--- a/fs/cifs/connect.c
++++ b/fs/cifs/connect.c
+@@ -3473,6 +3473,9 @@ static int connect_dfs_target(struct mou
+ 	struct cifs_sb_info *cifs_sb = mnt_ctx->cifs_sb;
+ 	char *oldmnt = cifs_sb->ctx->mount_options;
  
--	/* Buttonpads should not map BTN_RIGHT and/or BTN_MIDDLE. */
--	if (test_bit(INPUT_PROP_BUTTONPAD, dev->propbit)) {
--		__clear_bit(BTN_RIGHT, dev->keybit);
--		__clear_bit(BTN_MIDDLE, dev->keybit);
--	}
--
- 	/* Make sure that bitmasks not mentioned in dev->evbit are clean. */
- 	input_cleanse_bitmasks(dev);
++	cifs_dbg(FYI, "%s: full_path=%s ref_path=%s target=%s\n", __func__, full_path, ref_path,
++		 dfs_cache_get_tgt_name(tit));
++
+ 	rc = dfs_cache_get_tgt_referral(ref_path, tit, &ref);
+ 	if (rc)
+ 		goto out;
+@@ -3571,13 +3574,18 @@ static int __follow_dfs_link(struct moun
+ 	if (rc)
+ 		goto out;
  
+-	/* Try all dfs link targets */
++	/* Try all dfs link targets.  If an I/O fails from currently connected DFS target with an
++	 * error other than STATUS_PATH_NOT_COVERED (-EREMOTE), then retry it from other targets as
++	 * specified in MS-DFSC "3.1.5.2 I/O Operation to Target Fails with an Error Other Than
++	 * STATUS_PATH_NOT_COVERED."
++	 */
+ 	for (rc = -ENOENT, tit = dfs_cache_get_tgt_iterator(&tl);
+ 	     tit; tit = dfs_cache_get_next_tgt(&tl, tit)) {
+ 		rc = connect_dfs_target(mnt_ctx, full_path, mnt_ctx->leaf_fullpath + 1, tit);
+ 		if (!rc) {
+ 			rc = is_path_remote(mnt_ctx);
+-			break;
++			if (!rc || rc == -EREMOTE)
++				break;
+ 		}
+ 	}
+ 
+@@ -3651,7 +3659,7 @@ int cifs_mount(struct cifs_sb_info *cifs
+ 		goto error;
+ 
+ 	rc = is_path_remote(&mnt_ctx);
+-	if (rc == -EREMOTE)
++	if (rc)
+ 		rc = follow_dfs_link(&mnt_ctx);
+ 	if (rc)
+ 		goto error;
 
 
