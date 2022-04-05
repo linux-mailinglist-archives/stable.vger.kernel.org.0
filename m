@@ -2,51 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 263454F2B87
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:10:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1251D4F2E38
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:59:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234502AbiDEIZb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:25:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34712 "EHLO
+        id S233489AbiDEJgR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:36:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36638 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238418AbiDEITF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:19:05 -0400
+        with ESMTP id S236039AbiDEI7o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:59:44 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3A19AE47;
-        Tue,  5 Apr 2022 01:08:50 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C9BD255AD;
+        Tue,  5 Apr 2022 01:53:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F1C5060919;
-        Tue,  5 Apr 2022 08:08:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA073C385A3;
-        Tue,  5 Apr 2022 08:08:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 686A961003;
+        Tue,  5 Apr 2022 08:53:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F464C385A1;
+        Tue,  5 Apr 2022 08:53:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146129;
-        bh=KYXEhnswZ9GlBv57VQWGUAbK4dX9BNkHI4d1xHGhTd8=;
+        s=korg; t=1649148804;
+        bh=H9YrjQMoX5Tf6SSBBMB7UlmEDAvSUYEDqi5RKX3WyUU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cvrjZRdXtN0/DPLyPj6DFe14/nNS+FGHNrW3UndPDO+9ILva1LxQf6qfcnAdCT2wv
-         0dfYKc2SjCCS2Fnq48ozG/nYsGdEJAhn98NFkcH8FFljq+cWr339yQXHpf4NxSge3o
-         yNTGFIKWI8nXX5XSvtsoKaKDzx8mICIyAHXJ5Ahk=
+        b=drkf5XnCtuu/i0gsjDOculEyi+1o2DbOlrtuiYLSxRZ1BVo+R34bRnkMSLTJXG2Pz
+         lQAm91b3xnda71JxELX7yekbhxCQCQ7lS1q3twzGtpmA0ApL6PqTCwhEa0Mvr3ku7h
+         tDJxg6lJ+4Oxfn1HNrznByckURrggCQUlthQYNr0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        linux-mips@vger.kernel.org,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Phil Sutter <n0-1@freewrt.org>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        Daniel Walter <dwalter@google.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0653/1126] MIPS: RB532: fix return value of __setup handler
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Yonghong Song <yhs@fb.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0487/1017] libbpf: Fix signedness bug in btf_dump_array_data()
 Date:   Tue,  5 Apr 2022 09:23:20 +0200
-Message-Id: <20220405070426.797315131@linuxfoundation.org>
+Message-Id: <20220405070408.754584448@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -61,55 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 8755d57ba1ff910666572fab9e32890e8cc6ed3b ]
+[ Upstream commit 4172843ed4a38f97084032f74f07b2037b5da3a6 ]
 
-__setup() handlers should return 1 to obsolete_checksetup() in
-init/main.c to indicate that the boot option has been handled.
-A return of 0 causes the boot option/value to be listed as an Unknown
-kernel parameter and added to init's (limited) argument or environment
-strings. Also, error return codes don't mean anything to
-obsolete_checksetup() -- only non-zero (usually 1) or zero.
-So return 1 from setup_kmac().
+The btf__resolve_size() function returns negative error codes so
+"elem_size" must be signed for the error handling to work.
 
-Fixes: 9e21c7e40b7e ("MIPS: RB532: Replace parse_mac_addr() with mac_pton().")
-Fixes: 73b4390fb234 ("[MIPS] Routerboard 532: Support for base system")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-From: Igor Zhbanov <i.zhbanov@omprussia.ru>
-Link: lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc: linux-mips@vger.kernel.org
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: Phil Sutter <n0-1@freewrt.org>
-Cc: Florian Fainelli <f.fainelli@gmail.com>
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: Daniel Walter <dwalter@google.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Fixes: 920d16af9b42 ("libbpf: BTF dumper support for typed data")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Yonghong Song <yhs@fb.com>
+Link: https://lore.kernel.org/bpf/20220208071552.GB10495@kili
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/rb532/devices.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ tools/lib/bpf/btf_dump.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/arch/mips/rb532/devices.c b/arch/mips/rb532/devices.c
-index 04684990e28e..b7f6f782d9a1 100644
---- a/arch/mips/rb532/devices.c
-+++ b/arch/mips/rb532/devices.c
-@@ -301,11 +301,9 @@ static int __init plat_setup_devices(void)
- static int __init setup_kmac(char *s)
+diff --git a/tools/lib/bpf/btf_dump.c b/tools/lib/bpf/btf_dump.c
+index 5cae71600631..700dfd362c4a 100644
+--- a/tools/lib/bpf/btf_dump.c
++++ b/tools/lib/bpf/btf_dump.c
+@@ -1839,14 +1839,15 @@ static int btf_dump_array_data(struct btf_dump *d,
  {
- 	printk(KERN_INFO "korina mac = %s\n", s);
--	if (!mac_pton(s, korina_dev0_data.mac)) {
-+	if (!mac_pton(s, korina_dev0_data.mac))
- 		printk(KERN_ERR "Invalid mac\n");
--		return -EINVAL;
--	}
--	return 0;
-+	return 1;
- }
+ 	const struct btf_array *array = btf_array(t);
+ 	const struct btf_type *elem_type;
+-	__u32 i, elem_size = 0, elem_type_id;
++	__u32 i, elem_type_id;
++	__s64 elem_size;
+ 	bool is_array_member;
  
- __setup("kmac=", setup_kmac);
+ 	elem_type_id = array->type;
+ 	elem_type = skip_mods_and_typedefs(d->btf, elem_type_id, NULL);
+ 	elem_size = btf__resolve_size(d->btf, elem_type_id);
+ 	if (elem_size <= 0) {
+-		pr_warn("unexpected elem size %d for array type [%u]\n", elem_size, id);
++		pr_warn("unexpected elem size %lld for array type [%u]\n", elem_size, id);
+ 		return -EINVAL;
+ 	}
+ 
 -- 
 2.34.1
 
