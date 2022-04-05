@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FD2A4F2EDD
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:04:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DCB64F3407
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:24:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245580AbiDEI4X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:56:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33912 "EHLO
+        id S1353791AbiDEKJX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:09:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59572 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241075AbiDEIcr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:32:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A815B91B4;
-        Tue,  5 Apr 2022 01:26:49 -0700 (PDT)
+        with ESMTP id S1345631AbiDEJWx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:22:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EE3A4ECE1;
+        Tue,  5 Apr 2022 02:11:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4B4EBB81BC0;
-        Tue,  5 Apr 2022 08:26:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC1ADC385A1;
-        Tue,  5 Apr 2022 08:26:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D63C261003;
+        Tue,  5 Apr 2022 09:11:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAC63C385A0;
+        Tue,  5 Apr 2022 09:11:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147207;
-        bh=u23NH34kl7PznmgSrVXT+VDoZ9cUyuQwamW4iHXKBfc=;
+        s=korg; t=1649149885;
+        bh=r0yx3Istyx8LKKzY2BhVP/B45E7YnwmAFuCpV/DMYCw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S/ylaw7v9wCvo4xUBQ942OI9JxS7MB6l6zAZmZwyAbS9N0h3U4Qlah8BSbJHKc6oU
-         y7t8nUkFlN648Tb9BjHb0Lvyf4qN4o1rebGN11X+irXLACPNoOV9U10iibn8Gc7G/i
-         9rXrStflr5VUWrtgOEFAlTC5kPXZwW+xKRHma3/g=
+        b=sVXj6aIdhilV3waEMUTMoj/YwlGjDuy8Jlzlz4qhNz7qqIXJBjc3+X2EV2G30Ffcx
+         ZIalv9vrur40ZuQ8thsOOip0UCR3p47D3Gw7joIkq+DypS90mDFO783eB7xs2JaUMJ
+         GVKcDJQIi0IPxsC47ip5WhmRchLyM3u1FKF+y59g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+25ea042ae28f3888727a@syzkaller.appspotmail.com,
-        Eric Dumazet <edumazet@google.com>,
-        David Howells <dhowells@redhat.com>,
-        Jann Horn <jannh@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.17 1039/1126] watch_queue: Free the page array when watch_queue is dismantled
-Date:   Tue,  5 Apr 2022 09:29:46 +0200
-Message-Id: <20220405070437.971764279@linuxfoundation.org>
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Mika Kahola <mika.kahola@intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Subject: [PATCH 5.16 0874/1017] drm/i915: Reject unsupported TMDS rates on ICL+
+Date:   Tue,  5 Apr 2022 09:29:47 +0200
+Message-Id: <20220405070420.178728428@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,52 +56,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-commit b490207017ba237d97b735b2aa66dc241ccd18f5 upstream.
+commit 9cddf03b2af07443bebdc73cba21acb360c079e8 upstream.
 
-Commit 7ea1a0124b6d ("watch_queue: Free the alloc bitmap when the
-watch_queue is torn down") took care of the bitmap, but not the page
-array.
+ICL+ PLLs can't genenerate certain frequencies. Running the PLL
+algorithms through for all frequencies 25-594MHz we see a gap just
+above 500 MHz. Specifically 500-522.8MHZ for TC PLLs, and 500-533.2
+MHz for combo PHY PLLs. Reject those frequencies hdmi_port_clock_valid()
+so that we properly filter out unsupported modes and/or color depths
+for HDMI.
 
-  BUG: memory leak
-  unreferenced object 0xffff88810d9bc140 (size 32):
-  comm "syz-executor335", pid 3603, jiffies 4294946994 (age 12.840s)
-  hex dump (first 32 bytes):
-    40 a7 40 04 00 ea ff ff 00 00 00 00 00 00 00 00  @.@.............
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-     kmalloc_array include/linux/slab.h:621 [inline]
-     kcalloc include/linux/slab.h:652 [inline]
-     watch_queue_set_size+0x12f/0x2e0 kernel/watch_queue.c:251
-     pipe_ioctl+0x82/0x140 fs/pipe.c:632
-     vfs_ioctl fs/ioctl.c:51 [inline]
-     __do_sys_ioctl fs/ioctl.c:874 [inline]
-     __se_sys_ioctl fs/ioctl.c:860 [inline]
-     __x64_sys_ioctl+0xfc/0x140 fs/ioctl.c:860
-     do_syscall_x64 arch/x86/entry/common.c:50 [inline]
-
-Reported-by: syzbot+25ea042ae28f3888727a@syzkaller.appspotmail.com
-Fixes: c73be61cede5 ("pipe: Add general notification queue support")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-Cc: Jann Horn <jannh@google.com>
-Link: https://lore.kernel.org/r/20220322004654.618274-1-eric.dumazet@gmail.com/
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: stable@vger.kernel.org
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/5247
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220311212845.32358-1-ville.syrjala@linux.intel.com
+Reviewed-by: Mika Kahola <mika.kahola@intel.com>
+(cherry picked from commit e5086cb3f3d3f94091be29eec38cf13f8a75a778)
+Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/watch_queue.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/i915/display/intel_hdmi.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/kernel/watch_queue.c
-+++ b/kernel/watch_queue.c
-@@ -370,6 +370,7 @@ static void __put_watch_queue(struct kre
+--- a/drivers/gpu/drm/i915/display/intel_hdmi.c
++++ b/drivers/gpu/drm/i915/display/intel_hdmi.c
+@@ -1831,6 +1831,7 @@ hdmi_port_clock_valid(struct intel_hdmi
+ 		      bool has_hdmi_sink)
+ {
+ 	struct drm_i915_private *dev_priv = intel_hdmi_to_i915(hdmi);
++	enum phy phy = intel_port_to_phy(dev_priv, hdmi_to_dig_port(hdmi)->base.port);
  
- 	for (i = 0; i < wqueue->nr_pages; i++)
- 		__free_page(wqueue->notes[i]);
-+	kfree(wqueue->notes);
- 	bitmap_free(wqueue->notes_bitmap);
+ 	if (clock < 25000)
+ 		return MODE_CLOCK_LOW;
+@@ -1851,6 +1852,14 @@ hdmi_port_clock_valid(struct intel_hdmi
+ 	if (IS_CHERRYVIEW(dev_priv) && clock > 216000 && clock < 240000)
+ 		return MODE_CLOCK_RANGE;
  
- 	wfilter = rcu_access_pointer(wqueue->filter);
++	/* ICL+ combo PHY PLL can't generate 500-533.2 MHz */
++	if (intel_phy_is_combo(dev_priv, phy) && clock > 500000 && clock < 533200)
++		return MODE_CLOCK_RANGE;
++
++	/* ICL+ TC PHY PLL can't generate 500-532.8 MHz */
++	if (intel_phy_is_tc(dev_priv, phy) && clock > 500000 && clock < 532800)
++		return MODE_CLOCK_RANGE;
++
+ 	/*
+ 	 * SNPS PHYs' MPLLB table-based programming can only handle a fixed
+ 	 * set of link rates.
 
 
