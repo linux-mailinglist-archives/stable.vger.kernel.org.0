@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8282C4F27AE
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:08:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B23F4F27F9
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:09:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233399AbiDEIIC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:08:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43556 "EHLO
+        id S233803AbiDEIJ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:09:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235564AbiDEH7v (ORCPT
+        with ESMTP id S235571AbiDEH7v (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:59:51 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A049740A03;
-        Tue,  5 Apr 2022 00:55:34 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 784F040A19;
+        Tue,  5 Apr 2022 00:55:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3E22D615CD;
-        Tue,  5 Apr 2022 07:55:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FE98C340EE;
-        Tue,  5 Apr 2022 07:55:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1541D615CD;
+        Tue,  5 Apr 2022 07:55:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1AA03C340EE;
+        Tue,  5 Apr 2022 07:55:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145333;
-        bh=ffree4QTNFS/AnCZEfxj8SDurCR5FE0zgUbDPN8iszM=;
+        s=korg; t=1649145336;
+        bh=nIPnSGOQ2e/NQ2OK6jruFrUnda7HrbHSyCuSBx/dLX0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uG2yKJfqX3KtzJReF/SU0PzAO1g3wHoFo18B03LbXl/elEqwaCJQh3IMiE31esZ18
-         ysxsgr8YT2iQM2KT2651wHSsylGLgr+9WIipRAuHD0lOZekznzpgOca8ngoqBkYcie
-         bf7YAJf9EJvPsw5i0kKV3ZZXUVA8Il+ae4xR83xM=
+        b=bCoDM4U7gYWMXGnO0Bbme+ou1XxRwi13FLWHhgmV9ljU2ijaX3TkcXpQqp2zWiPSe
+         29bNcIhkhtsfk6zUQyBMiCCo80+8svCFG1jjECqzamT3QpPL3xioleRd6kibclS8SB
+         qdxuNzpxyPLVHuAqHuy5XAvPvLFxnHZTMUt7QrFc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mirela Rabulea <mirela.rabulea@nxp.com>,
-        Jacopo Mondi <jacopo+renesas@jmondi.org>,
-        Hugues Fruchet <hugues.fruchet@st.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        stable@vger.kernel.org,
+        Muhammad Usama Anjum <usama.anjum@collabora.com>,
+        Alistair Popple <apopple@nvidia.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0367/1126] media: ov5640: Fix set format, v4l2_mbus_pixelcode not updated
-Date:   Tue,  5 Apr 2022 09:18:34 +0200
-Message-Id: <20220405070418.399598456@linuxfoundation.org>
+Subject: [PATCH 5.17 0368/1126] selftests: vm: remove dependecy from internal kernel macros
+Date:   Tue,  5 Apr 2022 09:18:35 +0200
+Message-Id: <20220405070418.428636199@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -56,78 +56,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mirela Rabulea <mirela.rabulea@nxp.com>
+From: Muhammad Usama Anjum <usama.anjum@collabora.com>
 
-[ Upstream commit e738f5dd67eb8098d75345908a5e73782d0569a5 ]
+[ Upstream commit 681696862bc1823595c05960a83766d1aa965c17 ]
 
-In ov5640_set_fmt, pending_fmt_change will always be false, because the
-sensor format is saved before comparing it with the previous format:
-	fmt = &sensor->fmt;...
-	*fmt = *mbus_fmt;...
-	if (mbus_fmt->code != sensor->fmt.code)
-		sensor->pending_fmt_change = true;
-This causes the sensor to capture with the previous pixelcode.
+The defination of swap() is used from kernel's internal header when this
+test is built in source tree. The build fails when this test is built
+out of source tree as defination of swap() isn't found. Selftests
+shouldn't depend on kernel's internal header files. They can only depend
+on uapi header files. Add the defination of swap() to fix the build
+error:
 
-Also, changes might happen even for V4L2_SUBDEV_FORMAT_TRY, so fix that.
+	gcc -Wall  -I/linux_mainline2/build/usr/include -no-pie    userfaultfd.c -lrt -lpthread -o /linux_mainline2/build/kselftest/vm/userfaultfd
+	userfaultfd.c: In function ‘userfaultfd_stress’:
+	userfaultfd.c:1530:3: warning: implicit declaration of function ‘swap’; did you mean ‘swab’? [-Wimplicit-function-declaration]
+	 1530 |   swap(area_src, area_dst);
+	      |   ^~~~
+	      |   swab
+	/usr/bin/ld: /tmp/cclUUH7V.o: in function `userfaultfd_stress':
+	userfaultfd.c:(.text+0x4d64): undefined reference to `swap'
+	/usr/bin/ld: userfaultfd.c:(.text+0x4d82): undefined reference to `swap'
+	collect2: error: ld returned 1 exit status
 
-Basically, revert back to the state before
-commit 071154499193 ("media: ov5640: Fix set format regression")
-as it was more clear, and then update format even when pixelcode does
-not change, as resolution might change.
-
-Fixes: 071154499193 ("media: ov5640: Fix set format regression")
-Fixes: 6949d864776e ("media: ov5640: do not change mode if format or frame interval is unchanged")
-Fixes: fb98e29ff1ea5 ("media: ov5640: fix mode change regression")
-
-Signed-off-by: Mirela Rabulea <mirela.rabulea@nxp.com>
-Reviewed-by: Jacopo Mondi <jacopo+renesas@jmondi.org>
-Acked-by: Hugues Fruchet <hugues.fruchet@st.com>
-Tested-by: Hugues Fruchet <hugues.fruchet@st.com>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Fixes: 2c769ed7137a ("tools/testing/selftests/vm/userfaultfd.c: use swap() to make code cleaner")
+Signed-off-by: Muhammad Usama Anjum <usama.anjum@collabora.com>
+Reviewed-by: Alistair Popple <apopple@nvidia.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/ov5640.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ tools/testing/selftests/vm/userfaultfd.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/media/i2c/ov5640.c b/drivers/media/i2c/ov5640.c
-index ddbd71394db3..db5a19babe67 100644
---- a/drivers/media/i2c/ov5640.c
-+++ b/drivers/media/i2c/ov5640.c
-@@ -2293,7 +2293,6 @@ static int ov5640_set_fmt(struct v4l2_subdev *sd,
- 	struct ov5640_dev *sensor = to_ov5640_dev(sd);
- 	const struct ov5640_mode_info *new_mode;
- 	struct v4l2_mbus_framefmt *mbus_fmt = &format->format;
--	struct v4l2_mbus_framefmt *fmt;
- 	int ret;
+diff --git a/tools/testing/selftests/vm/userfaultfd.c b/tools/testing/selftests/vm/userfaultfd.c
+index 3fc1d2ee2948..c964bfe9fbcd 100644
+--- a/tools/testing/selftests/vm/userfaultfd.c
++++ b/tools/testing/selftests/vm/userfaultfd.c
+@@ -120,6 +120,9 @@ struct uffd_stats {
+ 				 ~(unsigned long)(sizeof(unsigned long long) \
+ 						  -  1)))
  
- 	if (format->pad != 0)
-@@ -2311,12 +2310,10 @@ static int ov5640_set_fmt(struct v4l2_subdev *sd,
- 	if (ret)
- 		goto out;
- 
--	if (format->which == V4L2_SUBDEV_FORMAT_TRY)
--		fmt = v4l2_subdev_get_try_format(sd, sd_state, 0);
--	else
--		fmt = &sensor->fmt;
--
--	*fmt = *mbus_fmt;
-+	if (format->which == V4L2_SUBDEV_FORMAT_TRY) {
-+		*v4l2_subdev_get_try_format(sd, sd_state, 0) = *mbus_fmt;
-+		goto out;
-+	}
- 
- 	if (new_mode != sensor->current_mode) {
- 		sensor->current_mode = new_mode;
-@@ -2325,6 +2322,9 @@ static int ov5640_set_fmt(struct v4l2_subdev *sd,
- 	if (mbus_fmt->code != sensor->fmt.code)
- 		sensor->pending_fmt_change = true;
- 
-+	/* update format even if code is unchanged, resolution might change */
-+	sensor->fmt = *mbus_fmt;
++#define swap(a, b) \
++	do { typeof(a) __tmp = (a); (a) = (b); (b) = __tmp; } while (0)
 +
- 	__v4l2_ctrl_s_ctrl_int64(sensor->ctrls.pixel_rate,
- 				 ov5640_calc_pixel_rate(sensor));
- out:
+ const char *examples =
+     "# Run anonymous memory test on 100MiB region with 99999 bounces:\n"
+     "./userfaultfd anon 100 99999\n\n"
 -- 
 2.34.1
 
