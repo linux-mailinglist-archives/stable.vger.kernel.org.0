@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EF9A4F2A12
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 12:52:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A72504F2A2D
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 12:53:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355601AbiDEKUw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:20:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51866 "EHLO
+        id S237928AbiDEInk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:43:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45242 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346604AbiDEJYa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:24:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B146AC900;
-        Tue,  5 Apr 2022 02:13:34 -0700 (PDT)
+        with ESMTP id S241168AbiDEIcw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:32:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D2A5DF9C;
+        Tue,  5 Apr 2022 01:29:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D3591B81C85;
-        Tue,  5 Apr 2022 09:13:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22C12C385A0;
-        Tue,  5 Apr 2022 09:13:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CD241B81BC5;
+        Tue,  5 Apr 2022 08:29:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1EBCEC385A6;
+        Tue,  5 Apr 2022 08:28:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150011;
-        bh=Wn3JxQQnYj5scrd2H9Ydr3wFpxUS1p1tfgW+6PBkh4A=;
+        s=korg; t=1649147340;
+        bh=yMDw+3Dl6/Eb0dGKBwer0nh7Fx6ro0c+hSAlN+Glybo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xG6FiMK3Si4UWDlKg4aGkqf0QDiOekyVR49ZzFfBjeAmuP1aCh6HWz8cfRdZS3IYf
-         VdeWN8AXcXAKNtaddDKDW2oRloV4W8+p+FKGQiwcZswOzjWAu2hPf6c9V3LWvneknx
-         akYvyhUALagq8S7oVPOviw/hPSU9/wVU5MqpNAFU=
+        b=jewYagGsL9SPkrwWQ4a3tqopzGbiJ7ctHRylp+aXsKsls7vRDEKZQcBZBz7wHW3Xu
+         CTMvN+HlIJC0M0dQCBEaaOnX8EqekyFd+Zz4m/gs+QQokMwnwsUslR43dSaUNfUJo2
+         9mn5ICsFc579Jx9qyXmQtUlyZGAT55oiuVz08lh4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Quinn Tran <qutran@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.16 0884/1017] scsi: qla2xxx: edif: Fix clang warning
-Date:   Tue,  5 Apr 2022 09:29:57 +0200
-Message-Id: <20220405070420.471904088@linuxfoundation.org>
+        stable@vger.kernel.org, Jason Wang <jasowang@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH 5.17 1051/1126] Revert "virtio-pci: harden INTX interrupts"
+Date:   Tue,  5 Apr 2022 09:29:58 +0200
+Message-Id: <20220405070438.318149200@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,94 +53,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quinn Tran <qutran@marvell.com>
+From: Jason Wang <jasowang@redhat.com>
 
-commit 73825fd7a37c1a685e9e9e27c9dc91ef1f3e2971 upstream.
+commit 7b79edfb862d6b1ecc66479419ae67a7db2d02e3 upstream.
 
-Silence compile warning due to unaligned memory access.
+This reverts commit 080cd7c3ac8701081d143a15ba17dd9475313188. Since
+the MSI-X interrupts hardening will be reverted in the next patch. We
+will rework the interrupt hardening in the future.
 
-qla_edif.c:713:45: warning: taking address of packed member 'u' of class or
-   structure 'auth_complete_cmd' may result in an unaligned pointer value
-   [-Waddress-of-packed-member]
-    fcport = qla2x00_find_fcport_by_pid(vha, &appplogiok.u.d_id);
-
-Link: https://lore.kernel.org/r/20220110050218.3958-13-njavali@marvell.com
-Cc: stable@vger.kernel.org
-Reported-by: kernel test robot <lkp@intel.com>
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Quinn Tran <qutran@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 080cd7c3ac87 ("virtio-pci: harden INTX interrupts")
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+Link: https://lore.kernel.org/r/20220323031524.6555-1-jasowang@redhat.com
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/qla2xxx/qla_edif.c |   22 +++++++++++++++++++---
- 1 file changed, 19 insertions(+), 3 deletions(-)
+ drivers/virtio/virtio_pci_common.c |   23 ++---------------------
+ drivers/virtio/virtio_pci_common.h |    1 -
+ 2 files changed, 2 insertions(+), 22 deletions(-)
 
---- a/drivers/scsi/qla2xxx/qla_edif.c
-+++ b/drivers/scsi/qla2xxx/qla_edif.c
-@@ -668,6 +668,11 @@ qla_edif_app_authok(scsi_qla_host_t *vha
- 	    bsg_job->request_payload.sg_cnt, &appplogiok,
- 	    sizeof(struct auth_complete_cmd));
+--- a/drivers/virtio/virtio_pci_common.c
++++ b/drivers/virtio/virtio_pci_common.c
+@@ -30,16 +30,8 @@ void vp_disable_cbs(struct virtio_device
+ 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+ 	int i;
  
-+	/* silent unaligned access warning */
-+	portid.b.domain = appplogiok.u.d_id.b.domain;
-+	portid.b.area   = appplogiok.u.d_id.b.area;
-+	portid.b.al_pa  = appplogiok.u.d_id.b.al_pa;
-+
- 	switch (appplogiok.type) {
- 	case PL_TYPE_WWPN:
- 		fcport = qla2x00_find_fcport_by_wwpn(vha,
-@@ -678,7 +683,7 @@ qla_edif_app_authok(scsi_qla_host_t *vha
- 			    __func__, appplogiok.u.wwpn);
- 		break;
- 	case PL_TYPE_DID:
--		fcport = qla2x00_find_fcport_by_pid(vha, &appplogiok.u.d_id);
-+		fcport = qla2x00_find_fcport_by_pid(vha, &portid);
- 		if (!fcport)
- 			ql_dbg(ql_dbg_edif, vha, 0x911d,
- 			    "%s d_id lookup failed: %x\n", __func__,
-@@ -777,6 +782,11 @@ qla_edif_app_authfail(scsi_qla_host_t *v
- 	    bsg_job->request_payload.sg_cnt, &appplogifail,
- 	    sizeof(struct auth_complete_cmd));
+-	if (vp_dev->intx_enabled) {
+-		/*
+-		 * The below synchronize() guarantees that any
+-		 * interrupt for this line arriving after
+-		 * synchronize_irq() has completed is guaranteed to see
+-		 * intx_soft_enabled == false.
+-		 */
+-		WRITE_ONCE(vp_dev->intx_soft_enabled, false);
++	if (vp_dev->intx_enabled)
+ 		synchronize_irq(vp_dev->pci_dev->irq);
+-	}
  
-+	/* silent unaligned access warning */
-+	portid.b.domain = appplogifail.u.d_id.b.domain;
-+	portid.b.area   = appplogifail.u.d_id.b.area;
-+	portid.b.al_pa  = appplogifail.u.d_id.b.al_pa;
-+
- 	/*
- 	 * TODO: edif: app has failed this plogi. Inform driver to
- 	 * take any action (if any).
-@@ -788,7 +798,7 @@ qla_edif_app_authfail(scsi_qla_host_t *v
- 		SET_DID_STATUS(bsg_reply->result, DID_OK);
- 		break;
- 	case PL_TYPE_DID:
--		fcport = qla2x00_find_fcport_by_pid(vha, &appplogifail.u.d_id);
-+		fcport = qla2x00_find_fcport_by_pid(vha, &portid);
- 		if (!fcport)
- 			ql_dbg(ql_dbg_edif, vha, 0x911d,
- 			    "%s d_id lookup failed: %x\n", __func__,
-@@ -1253,6 +1263,7 @@ qla24xx_sadb_update(struct bsg_job *bsg_
- 	int result = 0;
- 	struct qla_sa_update_frame sa_frame;
- 	struct srb_iocb *iocb_cmd;
-+	port_id_t portid;
+ 	for (i = 0; i < vp_dev->msix_vectors; ++i)
+ 		disable_irq(pci_irq_vector(vp_dev->pci_dev, i));
+@@ -51,16 +43,8 @@ void vp_enable_cbs(struct virtio_device
+ 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+ 	int i;
  
- 	ql_dbg(ql_dbg_edif + ql_dbg_verbose, vha, 0x911d,
- 	    "%s entered, vha: 0x%p\n", __func__, vha);
-@@ -1276,7 +1287,12 @@ qla24xx_sadb_update(struct bsg_job *bsg_
- 		goto done;
- 	}
+-	if (vp_dev->intx_enabled) {
+-		disable_irq(vp_dev->pci_dev->irq);
+-		/*
+-		 * The above disable_irq() provides TSO ordering and
+-		 * as such promotes the below store to store-release.
+-		 */
+-		WRITE_ONCE(vp_dev->intx_soft_enabled, true);
+-		enable_irq(vp_dev->pci_dev->irq);
++	if (vp_dev->intx_enabled)
+ 		return;
+-	}
  
--	fcport = qla2x00_find_fcport_by_pid(vha, &sa_frame.port_id);
-+	/* silent unaligned access warning */
-+	portid.b.domain = sa_frame.port_id.b.domain;
-+	portid.b.area   = sa_frame.port_id.b.area;
-+	portid.b.al_pa  = sa_frame.port_id.b.al_pa;
-+
-+	fcport = qla2x00_find_fcport_by_pid(vha, &portid);
- 	if (fcport) {
- 		found = 1;
- 		if (sa_frame.flags == QLA_SA_UPDATE_FLAGS_TX_KEY)
+ 	for (i = 0; i < vp_dev->msix_vectors; ++i)
+ 		enable_irq(pci_irq_vector(vp_dev->pci_dev, i));
+@@ -113,9 +97,6 @@ static irqreturn_t vp_interrupt(int irq,
+ 	struct virtio_pci_device *vp_dev = opaque;
+ 	u8 isr;
+ 
+-	if (!READ_ONCE(vp_dev->intx_soft_enabled))
+-		return IRQ_NONE;
+-
+ 	/* reading the ISR has the effect of also clearing it so it's very
+ 	 * important to save off the value. */
+ 	isr = ioread8(vp_dev->isr);
+--- a/drivers/virtio/virtio_pci_common.h
++++ b/drivers/virtio/virtio_pci_common.h
+@@ -63,7 +63,6 @@ struct virtio_pci_device {
+ 	/* MSI-X support */
+ 	int msix_enabled;
+ 	int intx_enabled;
+-	bool intx_soft_enabled;
+ 	cpumask_var_t *msix_affinity_masks;
+ 	/* Name strings for interrupts. This size should be enough,
+ 	 * and I'm too lazy to allocate each name separately. */
 
 
