@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 28BD94F338D
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:16:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 241EA4F303A
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:27:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344653AbiDEKkF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:40:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36680 "EHLO
+        id S1343526AbiDEJMc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:12:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46824 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243468AbiDEJjz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:39:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E589A94FE;
-        Tue,  5 Apr 2022 02:24:40 -0700 (PDT)
+        with ESMTP id S244826AbiDEIwl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DF4F22528;
+        Tue,  5 Apr 2022 01:44:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AF65861548;
-        Tue,  5 Apr 2022 09:24:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC746C385A0;
-        Tue,  5 Apr 2022 09:24:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8739760FFC;
+        Tue,  5 Apr 2022 08:44:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9987CC385A1;
+        Tue,  5 Apr 2022 08:44:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150679;
-        bh=Oz7kjiqQ9LAMJyU+ReyjeGZIzfRUeRrMLpi5UDQ8hN8=;
+        s=korg; t=1649148263;
+        bh=IsYGMWcOLC2kDDO8OFJfhbKJ+skf8w8cVCluqFXU9Jw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uB7hjj4EBNbqzAMlGjvL3QXDvekmeSqoTXaQR25ACGjii7jzNl87ASQ9HKjJjGR0w
-         ACCTt08eZyGiPL0DiFDachgHnTUG5srRmEdAXZtPoC1RoRfa0qGzyyMmXBOdz0DbNt
-         yKZ1qcWHQXSNcZQhmw8TaGWee3g95sPV0jYp3gyg=
+        b=N2gJBzn9z2qPR21dMBgniY17Egk0Ib4iIrNse67xfP1jYigjUNmANOm3Cyk4D874w
+         sarwzSu3a5v/zuOg4T+8Fx4v7Hfw9XGoOCZCBNqXikKUXZc9oXLFVf61P+/YrkOaNy
+         UyfJ2x2Eiz+PXmD+fvoidS2wSunfu7HBLBTQIROI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Zimmermann <tzimmermann@suse.de>,
-        Zack Rusin <zackr@vmware.com>,
-        Javier Martinez Canillas <javierm@redhat.com>,
-        Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 5.15 142/913] fbdev: Hot-unplug firmware fb devices on forced removal
-Date:   Tue,  5 Apr 2022 09:20:04 +0200
-Message-Id: <20220405070344.089478544@linuxfoundation.org>
+        stable@vger.kernel.org, Robert Hancock <robert.hancock@calian.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0292/1017] ASoC: xilinx: xlnx_formatter_pcm: Handle sysclk setting
+Date:   Tue,  5 Apr 2022 09:20:05 +0200
+Message-Id: <20220405070402.941268358@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,119 +54,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Zimmermann <tzimmermann@suse.de>
+From: Robert Hancock <robert.hancock@calian.com>
 
-commit 27599aacbaefcbf2af7b06b0029459bbf682000d upstream.
+[ Upstream commit 1c5091fbe7e0d0804158200b7feac5123f7b4fbd ]
 
-Hot-unplug all firmware-framebuffer devices as part of removing
-them via remove_conflicting_framebuffers() et al. Releases all
-memory regions to be acquired by native drivers.
+This driver did not set the MM2S Fs Multiplier Register to the proper
+value for playback streams. This needs to be set to the sample rate to
+MCLK multiplier, or random stream underflows can occur on the downstream
+I2S transmitter.
 
-Firmware, such as EFI, install a framebuffer while posting the
-computer. After removing the firmware-framebuffer device from fbdev,
-a native driver takes over the hardware and the firmware framebuffer
-becomes invalid.
+Store the sysclk value provided via the set_sysclk callback and use that
+in conjunction with the sample rate in the hw_params callback to calculate
+the proper value to set for this register.
 
-Firmware-framebuffer drivers, specifically simplefb, don't release
-their device from Linux' device hierarchy. It still owns the firmware
-framebuffer and blocks the native drivers from loading. This has been
-observed in the vmwgfx driver. [1]
-
-Initiating a device removal (i.e., hot unplug) as part of
-remove_conflicting_framebuffers() removes the underlying device and
-returns the memory range to the system.
-
-[1] https://lore.kernel.org/dri-devel/20220117180359.18114-1-zack@kde.org/
-
-v2:
-	* rename variable 'dev' to 'device' (Javier)
-
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Reported-by: Zack Rusin <zackr@vmware.com>
-Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
-Reviewed-by: Zack Rusin <zackr@vmware.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-CC: stable@vger.kernel.org # v5.11+
-Link: https://patchwork.freedesktop.org/patch/msgid/20220125091222.21457-2-tzimmermann@suse.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 6f6c3c36f091 ("ASoC: xlnx: add pcm formatter platform driver")
+Signed-off-by: Robert Hancock <robert.hancock@calian.com>
+Link: https://lore.kernel.org/r/20220120195832.1742271-2-robert.hancock@calian.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/core/fbmem.c |   29 ++++++++++++++++++++++++++---
- include/linux/fb.h               |    1 +
- 2 files changed, 27 insertions(+), 3 deletions(-)
+ sound/soc/xilinx/xlnx_formatter_pcm.c | 25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
 
---- a/drivers/video/fbdev/core/fbmem.c
-+++ b/drivers/video/fbdev/core/fbmem.c
-@@ -25,6 +25,7 @@
- #include <linux/init.h>
- #include <linux/linux_logo.h>
- #include <linux/proc_fs.h>
-+#include <linux/platform_device.h>
- #include <linux/seq_file.h>
- #include <linux/console.h>
- #include <linux/kmod.h>
-@@ -1557,18 +1558,36 @@ static void do_remove_conflicting_frameb
- 	/* check all firmware fbs and kick off if the base addr overlaps */
- 	for_each_registered_fb(i) {
- 		struct apertures_struct *gen_aper;
-+		struct device *device;
- 
- 		if (!(registered_fb[i]->flags & FBINFO_MISC_FIRMWARE))
- 			continue;
- 
- 		gen_aper = registered_fb[i]->apertures;
-+		device = registered_fb[i]->device;
- 		if (fb_do_apertures_overlap(gen_aper, a) ||
- 			(primary && gen_aper && gen_aper->count &&
- 			 gen_aper->ranges[0].base == VGA_FB_PHYS)) {
- 
- 			printk(KERN_INFO "fb%d: switching to %s from %s\n",
- 			       i, name, registered_fb[i]->fix.id);
--			do_unregister_framebuffer(registered_fb[i]);
-+
-+			/*
-+			 * If we kick-out a firmware driver, we also want to remove
-+			 * the underlying platform device, such as simple-framebuffer,
-+			 * VESA, EFI, etc. A native driver will then be able to
-+			 * allocate the memory range.
-+			 *
-+			 * If it's not a platform device, at least print a warning. A
-+			 * fix would add code to remove the device from the system.
-+			 */
-+			if (dev_is_platform(device)) {
-+				registered_fb[i]->forced_out = true;
-+				platform_device_unregister(to_platform_device(device));
-+			} else {
-+				pr_warn("fb%d: cannot remove device\n", i);
-+				do_unregister_framebuffer(registered_fb[i]);
-+			}
- 		}
- 	}
- }
-@@ -1895,9 +1914,13 @@ EXPORT_SYMBOL(register_framebuffer);
- void
- unregister_framebuffer(struct fb_info *fb_info)
- {
--	mutex_lock(&registration_lock);
-+	bool forced_out = fb_info->forced_out;
-+
-+	if (!forced_out)
-+		mutex_lock(&registration_lock);
- 	do_unregister_framebuffer(fb_info);
--	mutex_unlock(&registration_lock);
-+	if (!forced_out)
-+		mutex_unlock(&registration_lock);
- }
- EXPORT_SYMBOL(unregister_framebuffer);
- 
---- a/include/linux/fb.h
-+++ b/include/linux/fb.h
-@@ -502,6 +502,7 @@ struct fb_info {
- 	} *apertures;
- 
- 	bool skip_vt_switch; /* no VT switch on suspend/resume required */
-+	bool forced_out; /* set when being removed by another driver */
+diff --git a/sound/soc/xilinx/xlnx_formatter_pcm.c b/sound/soc/xilinx/xlnx_formatter_pcm.c
+index ce19a6058b27..5c4158069a5a 100644
+--- a/sound/soc/xilinx/xlnx_formatter_pcm.c
++++ b/sound/soc/xilinx/xlnx_formatter_pcm.c
+@@ -84,6 +84,7 @@ struct xlnx_pcm_drv_data {
+ 	struct snd_pcm_substream *play_stream;
+ 	struct snd_pcm_substream *capture_stream;
+ 	struct clk *axi_clk;
++	unsigned int sysclk;
  };
  
- static inline struct apertures_struct *alloc_apertures(unsigned int max_num) {
+ /*
+@@ -314,6 +315,15 @@ static irqreturn_t xlnx_s2mm_irq_handler(int irq, void *arg)
+ 	return IRQ_NONE;
+ }
+ 
++static int xlnx_formatter_set_sysclk(struct snd_soc_component *component,
++				     int clk_id, int source, unsigned int freq, int dir)
++{
++	struct xlnx_pcm_drv_data *adata = dev_get_drvdata(component->dev);
++
++	adata->sysclk = freq;
++	return 0;
++}
++
+ static int xlnx_formatter_pcm_open(struct snd_soc_component *component,
+ 				   struct snd_pcm_substream *substream)
+ {
+@@ -450,11 +460,25 @@ static int xlnx_formatter_pcm_hw_params(struct snd_soc_component *component,
+ 	u64 size;
+ 	struct snd_pcm_runtime *runtime = substream->runtime;
+ 	struct xlnx_pcm_stream_param *stream_data = runtime->private_data;
++	struct xlnx_pcm_drv_data *adata = dev_get_drvdata(component->dev);
+ 
+ 	active_ch = params_channels(params);
+ 	if (active_ch > stream_data->ch_limit)
+ 		return -EINVAL;
+ 
++	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK &&
++	    adata->sysclk) {
++		unsigned int mclk_fs = adata->sysclk / params_rate(params);
++
++		if (adata->sysclk % params_rate(params) != 0) {
++			dev_warn(component->dev, "sysclk %u not divisible by rate %u\n",
++				 adata->sysclk, params_rate(params));
++			return -EINVAL;
++		}
++
++		writel(mclk_fs, stream_data->mmio + XLNX_AUD_FS_MULTIPLIER);
++	}
++
+ 	if (substream->stream == SNDRV_PCM_STREAM_CAPTURE &&
+ 	    stream_data->xfer_mode == AES_TO_PCM) {
+ 		val = readl(stream_data->mmio + XLNX_AUD_STS);
+@@ -552,6 +576,7 @@ static int xlnx_formatter_pcm_new(struct snd_soc_component *component,
+ 
+ static const struct snd_soc_component_driver xlnx_asoc_component = {
+ 	.name		= DRV_NAME,
++	.set_sysclk	= xlnx_formatter_set_sysclk,
+ 	.open		= xlnx_formatter_pcm_open,
+ 	.close		= xlnx_formatter_pcm_close,
+ 	.hw_params	= xlnx_formatter_pcm_hw_params,
+-- 
+2.34.1
+
 
 
