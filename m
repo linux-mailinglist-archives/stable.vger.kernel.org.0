@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CC1564F3021
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:26:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD45C4F3039
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:27:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237047AbiDEI3B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:29:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34810 "EHLO
+        id S1350128AbiDEJzU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:55:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38306 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239562AbiDEIUO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:20:14 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D912C2649;
-        Tue,  5 Apr 2022 01:16:25 -0700 (PDT)
+        with ESMTP id S1343865AbiDEJOo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:14:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 830CA4BFE1;
+        Tue,  5 Apr 2022 02:00:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8A210B81BAC;
-        Tue,  5 Apr 2022 08:16:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E847DC385A0;
-        Tue,  5 Apr 2022 08:16:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1F57861003;
+        Tue,  5 Apr 2022 09:00:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27CD0C385A1;
+        Tue,  5 Apr 2022 09:00:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146583;
-        bh=RLzp6IHuID3mzhqEJtLY+w8ussU7Yh0sM1fOo8fLpbg=;
+        s=korg; t=1649149255;
+        bh=3SyFg1Ox2BVv77hwr5Q+brbLvYJwdOjO6I/B8CTdJ5k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dnn4CYK8DxP0hTlvRIbXn5AQC1oWcpsZWD1ZO25+7T3ruQu+BQXUtHxeYKA/cEFPd
-         WRNWH0sMkvZgVV/6iOmj4Ok9bu3/Jhjwl/JeT4LlvhAzzqUOADiOazz90QUBy9gqDH
-         1sdvP9S50lyKHPBERX/df80ZkQU5AFOa63pOmfM8=
+        b=KfaQQ3/pyR6gEzpjw4yrUnodvAlLevTKuq7YhLRQnO/DNboaoFQItY8cVAjqN6VZM
+         n+f66kF468REWs7Cn4D6JGPnDlKT+rJOUA8E2Zlr+3Iw0HmvwxTZrLDex/jITyeCwQ
+         1ZnDwx+TynetU5Dc6YoTnpJk2aEP6AsLfR00uPZA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hao Chen <chenhao288@hisilicon.com>,
-        Guangbin Huang <huangguangbin2@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Oleksij Rempel <o.rempel@pengutronix.de>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0816/1126] net: hns3: add max order judgement for tx spare buffer
+Subject: [PATCH 5.16 0650/1017] misc: alcor_pci: Fix an error handling path
 Date:   Tue,  5 Apr 2022 09:26:03 +0200
-Message-Id: <20220405070431.514219688@linuxfoundation.org>
+Message-Id: <20220405070413.577901133@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,41 +54,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hao Chen <chenhao288@hisilicon.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit a89cbb16995bf15582e0d1bdb922ad1a54a2fa8c ]
+[ Upstream commit 5b3dc949f554379edcb8ef6111aa5ecb78feb798 ]
 
-Add max order judgement for tx spare buffer to avoid triggering
-call trace, print related fail information instead, when user
-set tx spare buf size to a large value which causes order
-exceeding 10.
+A successful ida_simple_get() should be balanced by a corresponding
+ida_simple_remove().
 
-Fixes: e445f08af2b1 ("net: hns3: add support to set/get tx copybreak buf size via ethtool for hns3 driver")
-Signed-off-by: Hao Chen <chenhao288@hisilicon.com>
-Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Add the missing call in the error handling path of the probe.
+
+While at it, switch to ida_alloc()/ida_free() instead to
+ida_simple_get()/ida_simple_remove().
+The latter is deprecated and more verbose.
+
+Fixes: 4f556bc04e3c ("misc: cardreader: add new Alcor Micro Cardreader PCI driver")
+Reviewed-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/918a9875b7f67b7f8f123c4446452603422e8c5e.1644136776.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3_enet.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/misc/cardreader/alcor_pci.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-index 49943775713f..214d88cd8dbb 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-@@ -1038,6 +1038,12 @@ static void hns3_init_tx_spare_buffer(struct hns3_enet_ring *ring)
- 		return;
+diff --git a/drivers/misc/cardreader/alcor_pci.c b/drivers/misc/cardreader/alcor_pci.c
+index de6d44a158bb..3f514d77a843 100644
+--- a/drivers/misc/cardreader/alcor_pci.c
++++ b/drivers/misc/cardreader/alcor_pci.c
+@@ -266,7 +266,7 @@ static int alcor_pci_probe(struct pci_dev *pdev,
+ 	if (!priv)
+ 		return -ENOMEM;
  
- 	order = get_order(alloc_size);
-+	if (order >= MAX_ORDER) {
-+		if (net_ratelimit())
-+			dev_warn(ring_to_dev(ring), "failed to allocate tx spare buffer, exceed to max order\n");
-+		return;
-+	}
-+
- 	tx_spare = devm_kzalloc(ring_to_dev(ring), sizeof(*tx_spare),
- 				GFP_KERNEL);
- 	if (!tx_spare) {
+-	ret = ida_simple_get(&alcor_pci_idr, 0, 0, GFP_KERNEL);
++	ret = ida_alloc(&alcor_pci_idr, GFP_KERNEL);
+ 	if (ret < 0)
+ 		return ret;
+ 	priv->id = ret;
+@@ -280,7 +280,8 @@ static int alcor_pci_probe(struct pci_dev *pdev,
+ 	ret = pci_request_regions(pdev, DRV_NAME_ALCOR_PCI);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "Cannot request region\n");
+-		return -ENOMEM;
++		ret = -ENOMEM;
++		goto error_free_ida;
+ 	}
+ 
+ 	if (!(pci_resource_flags(pdev, bar) & IORESOURCE_MEM)) {
+@@ -324,6 +325,8 @@ static int alcor_pci_probe(struct pci_dev *pdev,
+ 
+ error_release_regions:
+ 	pci_release_regions(pdev);
++error_free_ida:
++	ida_free(&alcor_pci_idr, priv->id);
+ 	return ret;
+ }
+ 
+@@ -337,7 +340,7 @@ static void alcor_pci_remove(struct pci_dev *pdev)
+ 
+ 	mfd_remove_devices(&pdev->dev);
+ 
+-	ida_simple_remove(&alcor_pci_idr, priv->id);
++	ida_free(&alcor_pci_idr, priv->id);
+ 
+ 	pci_release_regions(pdev);
+ 	pci_set_drvdata(pdev, NULL);
 -- 
 2.34.1
 
