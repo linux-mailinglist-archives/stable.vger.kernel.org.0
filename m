@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D491D4F3EAC
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 22:49:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA0834F3E26
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 22:42:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243357AbiDEMVS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:21:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33876 "EHLO
+        id S232099AbiDEMUj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:20:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35276 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343769AbiDEKjl (ORCPT
+        with ESMTP id S1343763AbiDEKjl (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:39:41 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1B22C78;
-        Tue,  5 Apr 2022 03:24:32 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F26C5FC5;
+        Tue,  5 Apr 2022 03:24:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6D138B81C8A;
-        Tue,  5 Apr 2022 10:24:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC436C385A0;
-        Tue,  5 Apr 2022 10:24:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 02075B81B18;
+        Tue,  5 Apr 2022 10:24:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C123C385A1;
+        Tue,  5 Apr 2022 10:24:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649154270;
-        bh=c21vQ3R+8GL+5QHmo2cBGWmdKu6Rc/xJc0zSQJrrqF0=;
+        s=korg; t=1649154272;
+        bh=Ew4sFXFJL9/Fob+RXWFLC70dMuNHv4n2jRil1FCn0DY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PCDoW+YtmyStHEjAZJDVhzjcnD/hn+UswDik8B2YNRYZbQ41RJKApFKvJdpWDAH9v
-         p2ZTTdjRi5v4fIJVlu66rkjgM5lEiKmmusAC67j6VMDlSXyPn7dZBEyaj4NPEGHXje
-         8bSxaRjjna5FCMSH6jDkE+gwPwXoQesMRcrMlRDg=
+        b=lFDKT16G0/Y7VMl9VYM7py5hphKz5Ur/drh/gqk3PBortRwo5ey8XiB5eIJwNamJl
+         o8qZA131Av402/bnC/C7tDVn3yOVTpbLbJWiXyFTDrtxOEYGkvsnXWlw5T6Nb2PbcO
+         HSuqzXaLV1EobQddGg4hjoWzhwJrisWxQ26c08eY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Quinn Tran <qutran@marvell.com>,
+        Bikash Hazarika <bhazarika@marvell.com>,
         Nilesh Javali <njavali@marvell.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.10 518/599] scsi: qla2xxx: Fix scheduling while atomic
-Date:   Tue,  5 Apr 2022 09:33:32 +0200
-Message-Id: <20220405070314.253954520@linuxfoundation.org>
+Subject: [PATCH 5.10 519/599] scsi: qla2xxx: Fix wrong FDMI data for 64G adapter
+Date:   Tue,  5 Apr 2022 09:33:33 +0200
+Message-Id: <20220405070314.283919431@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -56,73 +56,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quinn Tran <qutran@marvell.com>
+From: Bikash Hazarika <bhazarika@marvell.com>
 
-commit afd438ff874ca40b74321b3fa19bd61adfd7ca0c upstream.
+commit 1cfbbacbee2d6ea3816386a483e3c7a96e5bd657 upstream.
 
-The driver makes a call into midlayer (fc_remote_port_delete) which can put
-the thread to sleep. The thread that originates the call is in interrupt
-context. The combination of the two trigger a crash. Schedule the call in
-non-interrupt context where it is more safe.
+Corrected transmission speed mask values for FC.
 
-kernel: BUG: scheduling while atomic: swapper/7/0/0x00010000
-kernel: Call Trace:
-kernel:  <IRQ>
-kernel:  dump_stack+0x66/0x81
-kernel:  __schedule_bug.cold.90+0x5/0x1d
-kernel:  __schedule+0x7af/0x960
-kernel:  schedule+0x28/0x80
-kernel:  schedule_timeout+0x26d/0x3b0
-kernel:  wait_for_completion+0xb4/0x140
-kernel:  ? wake_up_q+0x70/0x70
-kernel:  __wait_rcu_gp+0x12c/0x160
-kernel:  ? sdev_evt_alloc+0xc0/0x180 [scsi_mod]
-kernel:  synchronize_sched+0x6c/0x80
-kernel:  ? call_rcu_bh+0x20/0x20
-kernel:  ? __bpf_trace_rcu_invoke_callback+0x10/0x10
-kernel:  sdev_evt_alloc+0xfd/0x180 [scsi_mod]
-kernel:  starget_for_each_device+0x85/0xb0 [scsi_mod]
-kernel:  ? scsi_init_io+0x360/0x3d0 [scsi_mod]
-kernel:  scsi_init_io+0x388/0x3d0 [scsi_mod]
-kernel:  device_for_each_child+0x54/0x90
-kernel:  fc_remote_port_delete+0x70/0xe0 [scsi_transport_fc]
-kernel:  qla2x00_schedule_rport_del+0x62/0xf0 [qla2xxx]
-kernel:  qla2x00_mark_device_lost+0x9c/0xd0 [qla2xxx]
-kernel:  qla24xx_handle_plogi_done_event+0x55f/0x570 [qla2xxx]
-kernel:  qla2x00_async_login_sp_done+0xd2/0x100 [qla2xxx]
-kernel:  qla24xx_logio_entry+0x13a/0x3c0 [qla2xxx]
-kernel:  qla24xx_process_response_queue+0x306/0x400 [qla2xxx]
-kernel:  qla24xx_msix_rsp_q+0x3f/0xb0 [qla2xxx]
-kernel:  __handle_irq_event_percpu+0x40/0x180
-kernel:  handle_irq_event_percpu+0x30/0x80
-kernel:  handle_irq_event+0x36/0x60
+Supported Speed: 16 32 20 Gb/s ===> Should be 64 instead of 20
+Supported Speed: 16G 32G 48G   ===> Should be 64G instead of 48G
 
-Link: https://lore.kernel.org/r/20220110050218.3958-7-njavali@marvell.com
+Link: https://lore.kernel.org/r/20220110050218.3958-9-njavali@marvell.com
 Cc: stable@vger.kernel.org
 Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Quinn Tran <qutran@marvell.com>
+Signed-off-by: Bikash Hazarika <bhazarika@marvell.com>
 Signed-off-by: Nilesh Javali <njavali@marvell.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/qla2xxx/qla_init.c |    7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+ drivers/scsi/qla2xxx/qla_def.h |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/scsi/qla2xxx/qla_init.c
-+++ b/drivers/scsi/qla2xxx/qla_init.c
-@@ -2114,12 +2114,7 @@ qla24xx_handle_plogi_done_event(struct s
- 		ql_dbg(ql_dbg_disc, vha, 0x20eb, "%s %d %8phC cmd error %x\n",
- 		    __func__, __LINE__, ea->fcport->port_name, ea->data[1]);
+--- a/drivers/scsi/qla2xxx/qla_def.h
++++ b/drivers/scsi/qla2xxx/qla_def.h
+@@ -2796,7 +2796,11 @@ struct ct_fdmi2_hba_attributes {
+ #define FDMI_PORT_SPEED_8GB		0x10
+ #define FDMI_PORT_SPEED_16GB		0x20
+ #define FDMI_PORT_SPEED_32GB		0x40
+-#define FDMI_PORT_SPEED_64GB		0x80
++#define FDMI_PORT_SPEED_20GB		0x80
++#define FDMI_PORT_SPEED_40GB		0x100
++#define FDMI_PORT_SPEED_128GB		0x200
++#define FDMI_PORT_SPEED_64GB		0x400
++#define FDMI_PORT_SPEED_256GB		0x800
+ #define FDMI_PORT_SPEED_UNKNOWN		0x8000
  
--		ea->fcport->flags &= ~FCF_ASYNC_SENT;
--		qla2x00_set_fcport_disc_state(ea->fcport, DSC_LOGIN_FAILED);
--		if (ea->data[1] & QLA_LOGIO_LOGIN_RETRIED)
--			set_bit(RELOGIN_NEEDED, &vha->dpc_flags);
--		else
--			qla2x00_mark_device_lost(vha, ea->fcport, 1);
-+		qlt_schedule_sess_for_deletion(ea->fcport);
- 		break;
- 	case MBS_LOOP_ID_USED:
- 		/* data[1] = IO PARAM 1 = nport ID  */
+ #define FC_CLASS_2	0x04
 
 
