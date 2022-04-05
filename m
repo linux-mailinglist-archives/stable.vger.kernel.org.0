@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 543CF4F2C96
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:31:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 24E694F2D71
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:42:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235781AbiDEJCk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:02:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33832 "EHLO
+        id S240320AbiDEKHg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:07:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43064 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238744AbiDEIa4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:30:56 -0400
+        with ESMTP id S1344286AbiDEJTE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:19:04 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A461E3BA52;
-        Tue,  5 Apr 2022 01:22:48 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C278237DE;
+        Tue,  5 Apr 2022 02:07:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 44F71B81BC2;
-        Tue,  5 Apr 2022 08:22:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AAA99C385A0;
-        Tue,  5 Apr 2022 08:22:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C5900B80DA1;
+        Tue,  5 Apr 2022 09:07:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34078C385A0;
+        Tue,  5 Apr 2022 09:07:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146966;
-        bh=KBBEiaudzNuttpozFnSTnTmfgA9wXGUFOKNx4lDwuv0=;
+        s=korg; t=1649149638;
+        bh=xorRcJWLyDePlbEryOuirjB9N5M1QbwwaFb0JW6nk/c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z8zfv5IUEG++xVXrUEI2uEwnS3POE+JC45EylOPvZiq+g9dMjHfV2s/NGw6ECdGk3
-         yJylXe7FURDwNQBhnfdH+hvRQfYbOhQTeDbA4c7mTFcHDRgGtScz8Rwa8GVkOtKzc5
-         o4YvEQIk6X4/3v4xVv7vzjQaeQvEXnnRYSSplr40=
+        b=fRZqc0EruEqYXXB5NTC5Yd1/wx7Zrkrszgj27h4HLiGPxfUhzjFtKJ3h1NR9jMnB5
+         dPFDjJ7AGgwpg4ar4pNEeQLdeLBa0qHF7WvfVk1h5WXXVhQxhrPt3wuxRKZ8np9639
+         hLe8wUs0N9FJdAN+E8qenM8l+RCBZQcleBZplpwI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.17 0952/1126] KVM: x86/mmu: Use common TDP MMU zap helper for MMU notifier unmap hook
+        stable@vger.kernel.org, Ritesh Harjani <riteshh@linux.ibm.com>,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0786/1017] ext4: correct cluster len and clusters changed accounting in ext4_mb_mark_bb
 Date:   Tue,  5 Apr 2022 09:28:19 +0200
-Message-Id: <20220405070435.447273842@linuxfoundation.org>
+Message-Id: <20220405070417.585711425@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,44 +54,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Ritesh Harjani <riteshh@linux.ibm.com>
 
-commit 83b83a02073ec8d18c77a9bbe0881d710f7a9d32 upstream.
+[ Upstream commit a5c0e2fdf7cea535ba03259894dc184e5a4c2800 ]
 
-Use the common TDP MMU zap helper when handling an MMU notifier unmap
-event, the two flows are semantically identical.  Consolidate the code in
-preparation for a future bug fix, as both kvm_tdp_mmu_unmap_gfn_range()
-and __kvm_tdp_mmu_zap_gfn_range() are guilty of not zapping SPTEs in
-invalid roots.
+ext4_mb_mark_bb() currently wrongly calculates cluster len (clen) and
+flex_group->free_clusters. This patch fixes that.
 
-No functional change intended.
+Identified based on code review of ext4_mb_mark_bb() function.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20211215011557.399940-2-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Ritesh Harjani <riteshh@linux.ibm.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/a0b035d536bafa88110b74456853774b64c8ac40.1644992609.git.riteshh@linux.ibm.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/mmu/tdp_mmu.c |    9 ++-------
- 1 file changed, 2 insertions(+), 7 deletions(-)
+ fs/ext4/mballoc.c | 19 ++++++++++++-------
+ 1 file changed, 12 insertions(+), 7 deletions(-)
 
---- a/arch/x86/kvm/mmu/tdp_mmu.c
-+++ b/arch/x86/kvm/mmu/tdp_mmu.c
-@@ -1032,13 +1032,8 @@ int kvm_tdp_mmu_map(struct kvm_vcpu *vcp
- bool kvm_tdp_mmu_unmap_gfn_range(struct kvm *kvm, struct kvm_gfn_range *range,
- 				 bool flush)
- {
--	struct kvm_mmu_page *root;
--
--	for_each_tdp_mmu_root_yield_safe(kvm, root, range->slot->as_id, false)
--		flush = zap_gfn_range(kvm, root, range->start, range->end,
--				      range->may_block, flush, false);
--
--	return flush;
-+	return __kvm_tdp_mmu_zap_gfn_range(kvm, range->slot->as_id, range->start,
-+					   range->end, range->may_block, flush);
- }
+diff --git a/fs/ext4/mballoc.c b/fs/ext4/mballoc.c
+index e872ea582555..c0868b82a62f 100644
+--- a/fs/ext4/mballoc.c
++++ b/fs/ext4/mballoc.c
+@@ -3899,10 +3899,11 @@ void ext4_mb_mark_bb(struct super_block *sb, ext4_fsblk_t block,
+ 	struct ext4_sb_info *sbi = EXT4_SB(sb);
+ 	ext4_group_t group;
+ 	ext4_grpblk_t blkoff;
+-	int i, clen, err;
++	int i, err;
+ 	int already;
++	unsigned int clen, clen_changed;
  
- typedef bool (*tdp_handler_t)(struct kvm *kvm, struct tdp_iter *iter,
+-	clen = EXT4_B2C(sbi, len);
++	clen = EXT4_NUM_B2C(sbi, len);
+ 
+ 	ext4_get_group_no_and_offset(sb, block, &group, &blkoff);
+ 	bitmap_bh = ext4_read_block_bitmap(sb, group);
+@@ -3923,6 +3924,7 @@ void ext4_mb_mark_bb(struct super_block *sb, ext4_fsblk_t block,
+ 		if (!mb_test_bit(blkoff + i, bitmap_bh->b_data) == !state)
+ 			already++;
+ 
++	clen_changed = clen - already;
+ 	if (state)
+ 		ext4_set_bits(bitmap_bh->b_data, blkoff, clen);
+ 	else
+@@ -3935,9 +3937,9 @@ void ext4_mb_mark_bb(struct super_block *sb, ext4_fsblk_t block,
+ 						group, gdp));
+ 	}
+ 	if (state)
+-		clen = ext4_free_group_clusters(sb, gdp) - clen + already;
++		clen = ext4_free_group_clusters(sb, gdp) - clen_changed;
+ 	else
+-		clen = ext4_free_group_clusters(sb, gdp) + clen - already;
++		clen = ext4_free_group_clusters(sb, gdp) + clen_changed;
+ 
+ 	ext4_free_group_clusters_set(sb, gdp, clen);
+ 	ext4_block_bitmap_csum_set(sb, group, gdp, bitmap_bh);
+@@ -3947,10 +3949,13 @@ void ext4_mb_mark_bb(struct super_block *sb, ext4_fsblk_t block,
+ 
+ 	if (sbi->s_log_groups_per_flex) {
+ 		ext4_group_t flex_group = ext4_flex_group(sbi, group);
++		struct flex_groups *fg = sbi_array_rcu_deref(sbi,
++					   s_flex_groups, flex_group);
+ 
+-		atomic64_sub(len,
+-			     &sbi_array_rcu_deref(sbi, s_flex_groups,
+-						  flex_group)->free_clusters);
++		if (state)
++			atomic64_sub(clen_changed, &fg->free_clusters);
++		else
++			atomic64_add(clen_changed, &fg->free_clusters);
+ 	}
+ 
+ 	err = ext4_handle_dirty_metadata(NULL, NULL, bitmap_bh);
+-- 
+2.34.1
+
 
 
