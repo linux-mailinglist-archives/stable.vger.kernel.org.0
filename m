@@ -2,47 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 71F944F3A4E
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:00:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 73BC64F3A1D
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:58:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379163AbiDELk1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:40:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43772 "EHLO
+        id S1379158AbiDELk0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:40:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43776 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354390AbiDEKOA (ORCPT
+        with ESMTP id S1354387AbiDEKOA (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:14:00 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0C6A6A00A;
-        Tue,  5 Apr 2022 02:59:40 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 443856C91A;
+        Tue,  5 Apr 2022 02:59:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 62F70B818F6;
-        Tue,  5 Apr 2022 09:59:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B095EC385A2;
-        Tue,  5 Apr 2022 09:59:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E3CF7B81C86;
+        Tue,  5 Apr 2022 09:59:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5907CC385A1;
+        Tue,  5 Apr 2022 09:59:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152778;
-        bh=UW7sADSpeZ8uaQdmEsxtEglXjUGyuz+vRPdBIfA1Nvw=;
+        s=korg; t=1649152780;
+        bh=1Y2tJszXJ8mM7Vg/4Mf9uvXQFr8vz3unAZ/gygB5MPE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A9kNk8AaJDnYXyYx03R0P1kW/0yFqroD5kK9hqaGGKsFrInEOi0WIqoJmIe2F0xgN
-         jL4B0LsxT0lf+8FW/1zkj0y3Tr2tVyJ9VvYFi7+VAISrmkkogNL2rQZW03IYDN1zds
-         k4COxSTzRwuNTt9vj2vtDuYD4WaaZmZsHBHy5mc8=
+        b=FQ0X5md+nJs0B8cqsnJW0l13TpKPlZOl2RtKGejqDHvF3Eqjtru/j/PBgW1/nCLtK
+         t2/H5Lpk7CR00iO6i8NxM2pitUh2hvxJlUyuVuumgSPuRtCfKh8WMTPyv6r3zFby5c
+         7B08kapqxH+mCEUSMW0A+QV8JSQ7KoGNs9+qOXPg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Guilherme G. Piccoli" <gpiccoli@igalia.com>,
-        Feng Tang <feng.tang@intel.com>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        Iurii Zaikin <yzaikin@google.com>,
-        Samuel Iglesias Gonsalvez <siglesias@igalia.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.15 898/913] docs: sysctl/kernel: add missing bit to panic_print
-Date:   Tue,  5 Apr 2022 09:32:40 +0200
-Message-Id: <20220405070406.737762271@linuxfoundation.org>
+        Martin Varghese <martin.varghese@nokia.com>,
+        Paolo Abeni <pabeni@redhat.com>
+Subject: [PATCH 5.15 899/913] openvswitch: Fixed nd target mask field in the flow dump.
+Date:   Tue,  5 Apr 2022 09:32:41 +0200
+Message-Id: <20220405070406.767887542@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -60,55 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guilherme G. Piccoli <gpiccoli@igalia.com>
+From: Martin Varghese <martin.varghese@nokia.com>
 
-commit a1ff1de00db21ecb956213f046b79741b64c6b65 upstream.
+commit f19c44452b58a84d95e209b847f5495d91c9983a upstream.
 
-Patch series "Some improvements on panic_print".
+IPv6 nd target mask was not getting populated in flow dump.
 
-This is a mix of a documentation fix with some additions to the
-"panic_print" syscall / parameter.  The goal here is being able to collect
-all CPUs backtraces during a panic event and also to enable "panic_print"
-in a kdump event - details of the reasoning and design choices in the
-patches.
+In the function __ovs_nla_put_key the icmp code mask field was checked
+instead of icmp code key field to classify the flow as neighbour discovery.
 
-This patch (of 3):
+ufid:bdfbe3e5-60c2-43b0-a5ff-dfcac1c37328, recirc_id(0),dp_hash(0/0),
+skb_priority(0/0),in_port(ovs-nm1),skb_mark(0/0),ct_state(0/0),
+ct_zone(0/0),ct_mark(0/0),ct_label(0/0),
+eth(src=00:00:00:00:00:00/00:00:00:00:00:00,
+dst=00:00:00:00:00:00/00:00:00:00:00:00),
+eth_type(0x86dd),
+ipv6(src=::/::,dst=::/::,label=0/0,proto=58,tclass=0/0,hlimit=0/0,frag=no),
+icmpv6(type=135,code=0),
+nd(target=2001::2/::,
+sll=00:00:00:00:00:00/00:00:00:00:00:00,
+tll=00:00:00:00:00:00/00:00:00:00:00:00),
+packets:10, bytes:860, used:0.504s, dp:ovs, actions:ovs-nm2
 
-Commit de6da1e8bcf0 ("panic: add an option to replay all the printk
-message in buffer") added a new bit to the sysctl/kernel parameter
-"panic_print", but the documentation was added only in
-kernel-parameters.txt, not in the sysctl guide.
-
-Fix it here by adding bit 5 to sysctl admin-guide documentation.
-
-[rdunlap@infradead.org: fix table format warning]
-  Link: https://lkml.kernel.org/r/20220109055635.6999-1-rdunlap@infradead.org
-
-Link: https://lkml.kernel.org/r/20211109202848.610874-1-gpiccoli@igalia.com
-Link: https://lkml.kernel.org/r/20211109202848.610874-2-gpiccoli@igalia.com
-Fixes: de6da1e8bcf0 ("panic: add an option to replay all the printk message in buffer")
-Signed-off-by: Guilherme G. Piccoli <gpiccoli@igalia.com>
-Reviewed-by: Feng Tang <feng.tang@intel.com>
-Cc: Luis Chamberlain <mcgrof@kernel.org>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Iurii Zaikin <yzaikin@google.com>
-Cc: Samuel Iglesias Gonsalvez <siglesias@igalia.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: e64457191a25 (openvswitch: Restructure datapath.c and flow.c)
+Signed-off-by: Martin Varghese <martin.varghese@nokia.com>
+Link: https://lore.kernel.org/r/20220328054148.3057-1-martinvarghesenokia@gmail.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/admin-guide/sysctl/kernel.rst |    1 +
- 1 file changed, 1 insertion(+)
+ net/openvswitch/flow_netlink.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/Documentation/admin-guide/sysctl/kernel.rst
-+++ b/Documentation/admin-guide/sysctl/kernel.rst
-@@ -795,6 +795,7 @@ bit 1  print system memory info
- bit 2  print timer info
- bit 3  print locks info if ``CONFIG_LOCKDEP`` is on
- bit 4  print ftrace buffer
-+bit 5  print all printk messages in buffer
- =====  ============================================
+--- a/net/openvswitch/flow_netlink.c
++++ b/net/openvswitch/flow_netlink.c
+@@ -2201,8 +2201,8 @@ static int __ovs_nla_put_key(const struc
+ 			icmpv6_key->icmpv6_type = ntohs(output->tp.src);
+ 			icmpv6_key->icmpv6_code = ntohs(output->tp.dst);
  
- So for example to print tasks and memory info on panic, user can::
+-			if (icmpv6_key->icmpv6_type == NDISC_NEIGHBOUR_SOLICITATION ||
+-			    icmpv6_key->icmpv6_type == NDISC_NEIGHBOUR_ADVERTISEMENT) {
++			if (swkey->tp.src == htons(NDISC_NEIGHBOUR_SOLICITATION) ||
++			    swkey->tp.src == htons(NDISC_NEIGHBOUR_ADVERTISEMENT)) {
+ 				struct ovs_key_nd *nd_key;
+ 
+ 				nla = nla_reserve(skb, OVS_KEY_ATTR_ND, sizeof(*nd_key));
 
 
