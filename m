@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 56F1A4F414D
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:28:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CB6E4F3E1A
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 22:41:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1383410AbiDEMZr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:25:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39282 "EHLO
+        id S1383373AbiDEMZo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:25:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48592 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238789AbiDEKyg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:54:36 -0400
+        with ESMTP id S239746AbiDEKyt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:54:49 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94CCFABF6F;
-        Tue,  5 Apr 2022 03:28:24 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57271ABF66;
+        Tue,  5 Apr 2022 03:28:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4654FB81C9B;
-        Tue,  5 Apr 2022 10:28:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DA52C385A2;
-        Tue,  5 Apr 2022 10:28:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 02CBEB81C99;
+        Tue,  5 Apr 2022 10:28:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46C9AC385A1;
+        Tue,  5 Apr 2022 10:28:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649154501;
-        bh=QY2EuOoLgTBXeW3ZsKJqoSutHxty6jHKXa2LviOib3I=;
+        s=korg; t=1649154504;
+        bh=957SGL9KQznzdENY4XdnryY6MFqclkMVRwcwl8CH+qQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wQy5Q9lTsmoQWxfkk406Hmbf25tS9pLiUZtSqwre/Ujr9l1+XDNaYf+dsGsC0yz3/
-         tHTZmTpwq6M2t0vKIc3E8JEfLsmQ8dtY9Cgcds/Pvs2ItoBl8uO9BYP0R9PJFVF4X3
-         siW2gMVCQDykSpFqbkWsjnufCrqmmI1ZCaKgXP3s=
+        b=kOkvME/7wPjQ5Jru5ds/OerYBQfB/kgFeXBsTBu+twXPqny2zVUe8YSLleNQUwBVE
+         nPs8bE72F2Ly74IeAq5K67rRX8eLz/zWzoLglkj+uUWlP49hAnK7GUWry7zD7ft+QS
+         gbwVAlD8eEGDZZmnlJa2fZnZEMe1FUm9iSobKb7U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Derek Will <derekrobertwill@gmail.com>,
-        Oliver Hartkopp <socketcan@hartkopp.net>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 571/599] can: isotp: restore accidentally removed MSG_PEEK feature
-Date:   Tue,  5 Apr 2022 09:34:25 +0200
-Message-Id: <20220405070315.834665766@linuxfoundation.org>
+        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
+        Zeal Robot <zealci@zte.com.cn>, Lv Ruyi <lv.ruyi@zte.com.cn>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 5.10 572/599] proc: bootconfig: Add null pointer check
+Date:   Tue,  5 Apr 2022 09:34:26 +0200
+Message-Id: <20220405070315.865017293@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -55,48 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Hartkopp <socketcan@hartkopp.net>
+From: Lv Ruyi <lv.ruyi@zte.com.cn>
 
-[ Upstream commit e382fea8ae54f5bb62869c6b69b33993d43adeca ]
+commit bed5b60bf67ccd8957b8c0558fead30c4a3f5d3f upstream.
 
-In commit 42bf50a1795a ("can: isotp: support MSG_TRUNC flag when
-reading from socket") a new check for recvmsg flags has been
-introduced that only checked for the flags that are handled in
-isotp_recvmsg() itself.
+kzalloc is a memory allocation function which can return NULL when some
+internal memory errors happen. It is safer to add null pointer check.
 
-This accidentally removed the MSG_PEEK feature flag which is processed
-later in the call chain in __skb_try_recv_from_queue().
+Link: https://lkml.kernel.org/r/20220329104004.2376879-1-lv.ruyi@zte.com.cn
 
-Add MSG_PEEK to the set of valid flags to restore the feature.
-
-Fixes: 42bf50a1795a ("can: isotp: support MSG_TRUNC flag when reading from socket")
-Link: https://github.com/linux-can/can-utils/issues/347#issuecomment-1079554254
-Link: https://lore.kernel.org/all/20220328113611.3691-1-socketcan@hartkopp.net
-Reported-by: Derek Will <derekrobertwill@gmail.com>
-Suggested-by: Derek Will <derekrobertwill@gmail.com>
-Tested-by: Derek Will <derekrobertwill@gmail.com>
-Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: c1a3c36017d4 ("proc: bootconfig: Add /proc/bootconfig to show boot config list")
+Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
+Reported-by: Zeal Robot <zealci@zte.com.cn>
+Signed-off-by: Lv Ruyi <lv.ruyi@zte.com.cn>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/can/isotp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/proc/bootconfig.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/net/can/isotp.c b/net/can/isotp.c
-index 671c3673b7ea..63e6e8923200 100644
---- a/net/can/isotp.c
-+++ b/net/can/isotp.c
-@@ -1007,7 +1007,7 @@ static int isotp_recvmsg(struct socket *sock, struct msghdr *msg, size_t size,
- 	int noblock = flags & MSG_DONTWAIT;
+--- a/fs/proc/bootconfig.c
++++ b/fs/proc/bootconfig.c
+@@ -32,6 +32,8 @@ static int __init copy_xbc_key_value_lis
  	int ret = 0;
  
--	if (flags & ~(MSG_DONTWAIT | MSG_TRUNC))
-+	if (flags & ~(MSG_DONTWAIT | MSG_TRUNC | MSG_PEEK))
- 		return -EINVAL;
+ 	key = kzalloc(XBC_KEYLEN_MAX, GFP_KERNEL);
++	if (!key)
++		return -ENOMEM;
  
- 	if (!so->bound)
--- 
-2.34.1
-
+ 	xbc_for_each_key_value(leaf, val) {
+ 		ret = xbc_node_compose_key(leaf, key, XBC_KEYLEN_MAX);
 
 
