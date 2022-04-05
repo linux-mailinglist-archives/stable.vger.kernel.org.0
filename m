@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B5C904F3ABC
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:04:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 06C7B4F3ABA
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:03:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237371AbiDELrR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:47:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57676 "EHLO
+        id S241775AbiDELrM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:47:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51960 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355248AbiDEKSn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:18:43 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48D8FFD3A;
-        Tue,  5 Apr 2022 03:04:36 -0700 (PDT)
+        with ESMTP id S1355268AbiDEKSu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:18:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4363C10FE1;
+        Tue,  5 Apr 2022 03:04:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E633FB81C8B;
-        Tue,  5 Apr 2022 10:04:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 425AEC385A2;
-        Tue,  5 Apr 2022 10:04:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CDB5F61673;
+        Tue,  5 Apr 2022 10:04:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE4FEC385A2;
+        Tue,  5 Apr 2022 10:04:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153073;
-        bh=CLWf3OMHKzeZvde0sUqk3oNEVx0H7Xs+0c0PJsByIdQ=;
+        s=korg; t=1649153076;
+        bh=uos+dZQFyuLbUjPtiaSV8Nc9hZwgOh9eP9pCprv8FZs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YSm5xkFUkayn6nZEAuWe5/Uqv1Ga1MBxQSR+bKv1Reqj56WS6jYqVbPtBV25L81R3
-         92n/WnjMs3nuATnm8o/FKBlsCkKQ8Mxo/PhFHBmRhO8R64IZqxtI0BpHMeFqw66pu/
-         n7NKasoh0mO4zFUNfeLHfyVclaZsNuiA5Smj3rqk=
+        b=EMOpZ/6zfwaZ/KCCdwYhL17zUXNW2udDxGs2Zq+CTaC2r/tOsEG41czJSWiiSUD1s
+         DF9oOqmmW0fc9iQV7MbH28XJKuRiX9luX7mx9gKZzk5UNtUjHBXq/fVik3eSUspq2W
+         dF6xPXmOgGwIEneCrH8xpG++dT6t8oChCIGfONPI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pekka Pessi <ppessi@nvidia.com>,
-        Jon Hunter <jonathanh@nvidia.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Jassi Brar <jaswinder.singh@linaro.org>
-Subject: [PATCH 5.10 093/599] mailbox: tegra-hsp: Flush whole channel
-Date:   Tue,  5 Apr 2022 09:26:27 +0200
-Message-Id: <20220405070301.595991009@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.10 094/599] block: limit request dispatch loop duration
+Date:   Tue,  5 Apr 2022 09:26:28 +0200
+Message-Id: <20220405070301.627744791@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -55,41 +54,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pekka Pessi <ppessi@nvidia.com>
+From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 
-commit 60de2d2dc284e0dd1c2c897d08625bde24ef3454 upstream.
+commit 572299f03afd676dd4e20669cdaf5ed0fe1379d4 upstream.
 
-The txdone can re-fill the mailbox. Keep polling the mailbox during the
-flush until all the messages have been delivered.
+When IO requests are made continuously and the target block device
+handles requests faster than request arrival, the request dispatch loop
+keeps on repeating to dispatch the arriving requests very long time,
+more than a minute. Since the loop runs as a workqueue worker task, the
+very long loop duration triggers workqueue watchdog timeout and BUG [1].
 
-This fixes an issue with the Tegra Combined UART (TCU) where output can
-get truncated under high traffic load.
+To avoid the very long loop duration, break the loop periodically. When
+opportunity to dispatch requests still exists, check need_resched(). If
+need_resched() returns true, the dispatch loop already consumed its time
+slice, then reschedule the dispatch work and break the loop. With heavy
+IO load, need_resched() does not return true for 20~30 seconds. To cover
+such case, check time spent in the dispatch loop with jiffies. If more
+than 1 second is spent, reschedule the dispatch work and break the loop.
 
-Signed-off-by: Pekka Pessi <ppessi@nvidia.com>
-Tested-by: Jon Hunter <jonathanh@nvidia.com>
-Fixes: 91b1b1c3da8a ("mailbox: tegra-hsp: Add support for shared mailboxes")
-Cc: stable@vger.kernel.org
-Signed-off-by: Thierry Reding <treding@nvidia.com>
-Reviewed-by: Jon Hunter <jonathanh@nvidia.com>
-Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
+[1]
+
+[  609.691437] BUG: workqueue lockup - pool cpus=10 node=1 flags=0x0 nice=-20 stuck for 35s!
+[  609.701820] Showing busy workqueues and worker pools:
+[  609.707915] workqueue events: flags=0x0
+[  609.712615]   pwq 0: cpus=0 node=0 flags=0x0 nice=0 active=1/256 refcnt=2
+[  609.712626]     pending: drm_fb_helper_damage_work [drm_kms_helper]
+[  609.712687] workqueue events_freezable: flags=0x4
+[  609.732943]   pwq 0: cpus=0 node=0 flags=0x0 nice=0 active=1/256 refcnt=2
+[  609.732952]     pending: pci_pme_list_scan
+[  609.732968] workqueue events_power_efficient: flags=0x80
+[  609.751947]   pwq 0: cpus=0 node=0 flags=0x0 nice=0 active=1/256 refcnt=2
+[  609.751955]     pending: neigh_managed_work
+[  609.752018] workqueue kblockd: flags=0x18
+[  609.769480]   pwq 21: cpus=10 node=1 flags=0x0 nice=-20 active=3/256 refcnt=4
+[  609.769488]     in-flight: 1020:blk_mq_run_work_fn
+[  609.769498]     pending: blk_mq_timeout_work, blk_mq_run_work_fn
+[  609.769744] pool 21: cpus=10 node=1 flags=0x0 nice=-20 hung=35s workers=2 idle: 67
+[  639.899730] BUG: workqueue lockup - pool cpus=10 node=1 flags=0x0 nice=-20 stuck for 66s!
+[  639.909513] Showing busy workqueues and worker pools:
+[  639.915404] workqueue events: flags=0x0
+[  639.920197]   pwq 0: cpus=0 node=0 flags=0x0 nice=0 active=1/256 refcnt=2
+[  639.920215]     pending: drm_fb_helper_damage_work [drm_kms_helper]
+[  639.920365] workqueue kblockd: flags=0x18
+[  639.939932]   pwq 21: cpus=10 node=1 flags=0x0 nice=-20 active=3/256 refcnt=4
+[  639.939942]     in-flight: 1020:blk_mq_run_work_fn
+[  639.939955]     pending: blk_mq_timeout_work, blk_mq_run_work_fn
+[  639.940212] pool 21: cpus=10 node=1 flags=0x0 nice=-20 hung=66s workers=2 idle: 67
+
+Fixes: 6e6fcbc27e778 ("blk-mq: support batching dispatch in case of io")
+Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Cc: stable@vger.kernel.org # v5.10+
+Link: https://lore.kernel.org/linux-block/20220310091649.zypaem5lkyfadymg@shindev/
+Link: https://lore.kernel.org/r/20220318022641.133484-1-shinichiro.kawasaki@wdc.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mailbox/tegra-hsp.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ block/blk-mq-sched.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/drivers/mailbox/tegra-hsp.c
-+++ b/drivers/mailbox/tegra-hsp.c
-@@ -410,6 +410,11 @@ static int tegra_hsp_mailbox_flush(struc
- 		value = tegra_hsp_channel_readl(ch, HSP_SM_SHRD_MBOX);
- 		if ((value & HSP_SM_SHRD_MBOX_FULL) == 0) {
- 			mbox_chan_txdone(chan, 0);
-+
-+			/* Wait until channel is empty */
-+			if (chan->active_req != NULL)
-+				continue;
-+
- 			return 0;
- 		}
+--- a/block/blk-mq-sched.c
++++ b/block/blk-mq-sched.c
+@@ -194,11 +194,18 @@ static int __blk_mq_do_dispatch_sched(st
  
+ static int blk_mq_do_dispatch_sched(struct blk_mq_hw_ctx *hctx)
+ {
++	unsigned long end = jiffies + HZ;
+ 	int ret;
+ 
+ 	do {
+ 		ret = __blk_mq_do_dispatch_sched(hctx);
+-	} while (ret == 1);
++		if (ret != 1)
++			break;
++		if (need_resched() || time_is_before_jiffies(end)) {
++			blk_mq_delay_run_hw_queue(hctx, 0);
++			break;
++		}
++	} while (1);
+ 
+ 	return ret;
+ }
 
 
