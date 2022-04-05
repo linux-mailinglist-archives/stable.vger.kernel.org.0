@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 43A844F2BDF
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:21:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A34D84F2B8C
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:10:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350765AbiDEJ7l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:59:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51034 "EHLO
+        id S236645AbiDEJDT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:03:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59556 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344266AbiDEJTD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:19:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BAD549F29;
-        Tue,  5 Apr 2022 02:06:32 -0700 (PDT)
+        with ESMTP id S238142AbiDEIaX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:30:23 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1A2D205F3;
+        Tue,  5 Apr 2022 01:21:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AEB4561003;
-        Tue,  5 Apr 2022 09:06:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA1EFC385A0;
-        Tue,  5 Apr 2022 09:06:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 643D5B81BBC;
+        Tue,  5 Apr 2022 08:21:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE44DC385A0;
+        Tue,  5 Apr 2022 08:21:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149591;
-        bh=jMXBVNqKNtY5SwQApfQIem+dk90jTHentgzLuqf7CW0=;
+        s=korg; t=1649146894;
+        bh=BIereeSl8OOvQHyMUSmTZlEVrUWpAJuLOWV5juCjHcQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nCmgb+eCnIwG/gObTTju0eZyNY+ONsVEnrJT3V5rjbZW5vmYWtfAzc5ou5ZWJsW/5
-         l8tB/3tYZkbet+4aF+m4V8rnZdSduvI2a/J5JpekWccd1yA6HR2cgLQjgF/cG32Dag
-         EhcSLZWEaYfofrZhsPQKqfx1KRMERTomgzYH1VE0=
+        b=1+a5JJN80XUFTcXsXv5J8FQQxYfffKe6zQ+yLiCFSoGw9yO349oKIH9Dr6Pi+Ck7V
+         utjm+RdzzrDUbG1YK4++Rfa7TdSyEIuWNnjMVVbWCzoyqieZeSZRO3+BzINqkMhFVH
+         LSZTdLM2NWumlJz0IokQD2ms3ENEpoUI4Bs3KQrI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kai Ye <yekai13@huawei.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0753/1017] crypto: hisilicon/qm - cleanup warning in qm_vf_read_qos
-Date:   Tue,  5 Apr 2022 09:27:46 +0200
-Message-Id: <20220405070416.611585873@linuxfoundation.org>
+Subject: [PATCH 5.17 0920/1126] ASoC: Intel: sof_es8336: add quirk for Huawei D15 2021
+Date:   Tue,  5 Apr 2022 09:27:47 +0200
+Message-Id: <20220405070434.525564246@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,34 +56,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai Ye <yekai13@huawei.com>
+From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 
-[ Upstream commit 05b3bade290d6c940701f97f3233c07cfe27205d ]
+[ Upstream commit ce6a70bfce21bb4edb7c0f29ecfb0522fa34ab71 ]
 
-The kernel test rebot report this warning: Uninitialized variable: ret.
-The code flow may return value of ret directly. This value is an
-uninitialized variable, here is fix it.
+Huawei D15 uses SSP_CODEC(0).
 
-Signed-off-by: Kai Ye <yekai13@huawei.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Link: https://lore.kernel.org/r/d560a1c76edb633c37acf04a9a82518b6233a719.1640351150.git.mchehab@kernel.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/hisilicon/qm.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/intel/boards/sof_es8336.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/crypto/hisilicon/qm.c b/drivers/crypto/hisilicon/qm.c
-index 1dc6a27ba0e0..82d2b117e162 100644
---- a/drivers/crypto/hisilicon/qm.c
-+++ b/drivers/crypto/hisilicon/qm.c
-@@ -4145,7 +4145,7 @@ static void qm_vf_get_qos(struct hisi_qm *qm, u32 fun_num)
- static int qm_vf_read_qos(struct hisi_qm *qm)
- {
- 	int cnt = 0;
--	int ret;
-+	int ret = -EINVAL;
+diff --git a/sound/soc/intel/boards/sof_es8336.c b/sound/soc/intel/boards/sof_es8336.c
+index 20d577eaab6d..e6d599f0cd26 100644
+--- a/sound/soc/intel/boards/sof_es8336.c
++++ b/sound/soc/intel/boards/sof_es8336.c
+@@ -247,6 +247,14 @@ static const struct dmi_system_id sof_es8336_quirk_table[] = {
+ 					SOF_ES8336_TGL_GPIO_QUIRK |
+ 					SOF_ES8336_ENABLE_DMIC)
+ 	},
++	{
++		.callback = sof_es8336_quirk_cb,
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "HUAWEI"),
++			DMI_MATCH(DMI_BOARD_NAME, "BOHB-WAX9-PCB-B2"),
++		},
++		.driver_data = (void *)SOF_ES8336_SSP_CODEC(0)
++	},
+ 	{}
+ };
  
- 	/* reset mailbox qos val */
- 	qm->mb_qos = 0;
 -- 
 2.34.1
 
