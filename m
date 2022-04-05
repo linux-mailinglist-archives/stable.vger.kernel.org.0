@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A211C4F316D
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:43:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91EB34F318E
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:45:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350134AbiDEJz1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:55:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40110 "EHLO
+        id S1346796AbiDEJzN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:55:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40108 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343895AbiDEJOv (ORCPT
+        with ESMTP id S1343893AbiDEJOv (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:14:51 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19C46532FB;
-        Tue,  5 Apr 2022 02:01:15 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC7DA546BD;
+        Tue,  5 Apr 2022 02:01:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C82E2B818F3;
-        Tue,  5 Apr 2022 09:01:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EE11C385A0;
-        Tue,  5 Apr 2022 09:01:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7683EB818F3;
+        Tue,  5 Apr 2022 09:01:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE6C2C385A1;
+        Tue,  5 Apr 2022 09:01:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149272;
-        bh=3AAfmV1E7ZyolsYIXp/JwPHq9XUWn1MBMJ+mufJjPQw=;
+        s=korg; t=1649149275;
+        bh=W7azgFtB3eoyPbKVCXYneVHCBwwIMZA4peV6ACtcEis=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YSrE6CEGW1Y83FVjG3ONkRb94fVRrU2NEtOWJylDN1jcFIPupMOsMWKQ7wA9XCSQq
-         MmRS6v+oPMYbNzMblDFSoFImoqnnbRkX3bqTcWrYP6up4FvfiEloDfQz5IclQ+Oscw
-         d5hT0MzrJ744Vs2hwBaRsbcSOpLO97O42KhUWM+M=
+        b=oG1CeNHnLVcmuCoFRG8uAEpvcFGkmegC5AYOtDp30ogPRj+o6QLVTR6RpHTCzehcr
+         bt44RoC8SemlfQa2DHDvr8hCurgT6r4xbl0JEzQfF6R7xIBrTL2YK9SJVeyAr1KbnA
+         fENP1K0KgjRnnKhpxxdbncoz/qOHy6kNbXa/Kmos=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0656/1017] iio: mma8452: Fix probe failing when an i2c_device_id is used
-Date:   Tue,  5 Apr 2022 09:26:09 +0200
-Message-Id: <20220405070413.755996961@linuxfoundation.org>
+Subject: [PATCH 5.16 0657/1017] staging: qlge: add unregister_netdev in qlge_probe
+Date:   Tue,  5 Apr 2022 09:26:10 +0200
+Message-Id: <20220405070413.785253661@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -54,141 +53,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Hangyu Hua <hbh25y@gmail.com>
 
-[ Upstream commit a47ac019e7e8129b93a0b991e04b2a59872e053d ]
+[ Upstream commit 4fcc0c275e3f59cd68f977c57953783f8014ed15 ]
 
-The mma8452_driver declares both of_match_table and i2c_driver.id_table
-match-tables, but its probe() function only checked for of matches.
+unregister_netdev need to be called when register_netdev succeeds
+qlge_health_create_reporters fails.
 
-Add support for i2c_device_id matches. This fixes the driver not loading
-on some x86 tablets (e.g. the Nextbook Ares 8) where the i2c_client is
-instantiated by platform code using an i2c_device_id.
-
-Drop of_match_ptr() protection to avoid unused warning.
-
-Fixes: c3cdd6e48e35 ("iio: mma8452: refactor for seperating chip specific data")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20220208124336.511884-1-hdegoede@redhat.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: d8827ae8e22b ("staging: qlge: deal with the case that devlink_health_reporter_create fails")
+Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
+Link: https://lore.kernel.org/r/20220221085552.93561-1-hbh25y@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/accel/mma8452.c | 29 ++++++++++++++++++-----------
- 1 file changed, 18 insertions(+), 11 deletions(-)
+ drivers/staging/qlge/qlge_main.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/iio/accel/mma8452.c b/drivers/iio/accel/mma8452.c
-index 09c7f10fefb6..21a99467f364 100644
---- a/drivers/iio/accel/mma8452.c
-+++ b/drivers/iio/accel/mma8452.c
-@@ -176,6 +176,7 @@ static const struct mma8452_event_regs trans_ev_regs = {
-  * @enabled_events:		event flags enabled and handled by this driver
-  */
- struct mma_chip_info {
-+	const char *name;
- 	u8 chip_id;
- 	const struct iio_chan_spec *channels;
- 	int num_channels;
-@@ -1301,6 +1302,7 @@ enum {
- 
- static const struct mma_chip_info mma_chip_info_table[] = {
- 	[mma8451] = {
-+		.name = "mma8451",
- 		.chip_id = MMA8451_DEVICE_ID,
- 		.channels = mma8451_channels,
- 		.num_channels = ARRAY_SIZE(mma8451_channels),
-@@ -1325,6 +1327,7 @@ static const struct mma_chip_info mma_chip_info_table[] = {
- 					MMA8452_INT_FF_MT,
- 	},
- 	[mma8452] = {
-+		.name = "mma8452",
- 		.chip_id = MMA8452_DEVICE_ID,
- 		.channels = mma8452_channels,
- 		.num_channels = ARRAY_SIZE(mma8452_channels),
-@@ -1341,6 +1344,7 @@ static const struct mma_chip_info mma_chip_info_table[] = {
- 					MMA8452_INT_FF_MT,
- 	},
- 	[mma8453] = {
-+		.name = "mma8453",
- 		.chip_id = MMA8453_DEVICE_ID,
- 		.channels = mma8453_channels,
- 		.num_channels = ARRAY_SIZE(mma8453_channels),
-@@ -1357,6 +1361,7 @@ static const struct mma_chip_info mma_chip_info_table[] = {
- 					MMA8452_INT_FF_MT,
- 	},
- 	[mma8652] = {
-+		.name = "mma8652",
- 		.chip_id = MMA8652_DEVICE_ID,
- 		.channels = mma8652_channels,
- 		.num_channels = ARRAY_SIZE(mma8652_channels),
-@@ -1366,6 +1371,7 @@ static const struct mma_chip_info mma_chip_info_table[] = {
- 		.enabled_events = MMA8452_INT_FF_MT,
- 	},
- 	[mma8653] = {
-+		.name = "mma8653",
- 		.chip_id = MMA8653_DEVICE_ID,
- 		.channels = mma8653_channels,
- 		.num_channels = ARRAY_SIZE(mma8653_channels),
-@@ -1380,6 +1386,7 @@ static const struct mma_chip_info mma_chip_info_table[] = {
- 		.enabled_events = MMA8452_INT_FF_MT,
- 	},
- 	[fxls8471] = {
-+		.name = "fxls8471",
- 		.chip_id = FXLS8471_DEVICE_ID,
- 		.channels = mma8451_channels,
- 		.num_channels = ARRAY_SIZE(mma8451_channels),
-@@ -1522,13 +1529,6 @@ static int mma8452_probe(struct i2c_client *client,
- 	struct mma8452_data *data;
- 	struct iio_dev *indio_dev;
- 	int ret;
--	const struct of_device_id *match;
--
--	match = of_match_device(mma8452_dt_ids, &client->dev);
--	if (!match) {
--		dev_err(&client->dev, "unknown device model\n");
--		return -ENODEV;
--	}
- 
- 	indio_dev = devm_iio_device_alloc(&client->dev, sizeof(*data));
- 	if (!indio_dev)
-@@ -1537,7 +1537,14 @@ static int mma8452_probe(struct i2c_client *client,
- 	data = iio_priv(indio_dev);
- 	data->client = client;
- 	mutex_init(&data->lock);
--	data->chip_info = match->data;
-+
-+	data->chip_info = device_get_match_data(&client->dev);
-+	if (!data->chip_info && id) {
-+		data->chip_info = &mma_chip_info_table[id->driver_data];
-+	} else {
-+		dev_err(&client->dev, "unknown device model\n");
-+		return -ENODEV;
-+	}
- 
- 	data->vdd_reg = devm_regulator_get(&client->dev, "vdd");
- 	if (IS_ERR(data->vdd_reg))
-@@ -1581,11 +1588,11 @@ static int mma8452_probe(struct i2c_client *client,
+diff --git a/drivers/staging/qlge/qlge_main.c b/drivers/staging/qlge/qlge_main.c
+index 9873bb2a9ee4..113a3efd12e9 100644
+--- a/drivers/staging/qlge/qlge_main.c
++++ b/drivers/staging/qlge/qlge_main.c
+@@ -4605,14 +4605,12 @@ static int qlge_probe(struct pci_dev *pdev,
+ 	err = register_netdev(ndev);
+ 	if (err) {
+ 		dev_err(&pdev->dev, "net device registration failed.\n");
+-		qlge_release_all(pdev);
+-		pci_disable_device(pdev);
+-		goto netdev_free;
++		goto cleanup_pdev;
  	}
  
- 	dev_info(&client->dev, "registering %s accelerometer; ID 0x%x\n",
--		 match->compatible, data->chip_info->chip_id);
-+		 data->chip_info->name, data->chip_info->chip_id);
+ 	err = qlge_health_create_reporters(qdev);
+ 	if (err)
+-		goto netdev_free;
++		goto unregister_netdev;
  
- 	i2c_set_clientdata(client, indio_dev);
- 	indio_dev->info = &mma8452_info;
--	indio_dev->name = id->name;
-+	indio_dev->name = data->chip_info->name;
- 	indio_dev->modes = INDIO_DIRECT_MODE;
- 	indio_dev->channels = data->chip_info->channels;
- 	indio_dev->num_channels = data->chip_info->num_channels;
-@@ -1810,7 +1817,7 @@ MODULE_DEVICE_TABLE(i2c, mma8452_id);
- static struct i2c_driver mma8452_driver = {
- 	.driver = {
- 		.name	= "mma8452",
--		.of_match_table = of_match_ptr(mma8452_dt_ids),
-+		.of_match_table = mma8452_dt_ids,
- 		.pm	= &mma8452_pm_ops,
- 	},
- 	.probe = mma8452_probe,
+ 	/* Start up the timer to trigger EEH if
+ 	 * the bus goes dead
+@@ -4626,6 +4624,11 @@ static int qlge_probe(struct pci_dev *pdev,
+ 	devlink_register(devlink);
+ 	return 0;
+ 
++unregister_netdev:
++	unregister_netdev(ndev);
++cleanup_pdev:
++	qlge_release_all(pdev);
++	pci_disable_device(pdev);
+ netdev_free:
+ 	free_netdev(ndev);
+ devlink_free:
 -- 
 2.34.1
 
