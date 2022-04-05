@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C81F4F45D9
-	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 00:56:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 906AF4F4445
+	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 00:14:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382848AbiDEMRE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:17:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45306 "EHLO
+        id S237748AbiDEMSH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:18:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45286 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242193AbiDEKcm (ORCPT
+        with ESMTP id S242359AbiDEKcm (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:32:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1EF8DE919;
-        Tue,  5 Apr 2022 03:18:44 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 491D9DE92E;
+        Tue,  5 Apr 2022 03:18:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7E2D96176C;
-        Tue,  5 Apr 2022 10:18:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88835C385A1;
-        Tue,  5 Apr 2022 10:18:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E7BBDB81C98;
+        Tue,  5 Apr 2022 10:18:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40616C385A0;
+        Tue,  5 Apr 2022 10:18:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153923;
-        bh=SHgMIsg7sWxKjDxzCiPkM4eU2XEZLf2akJirYWO4Tm4=;
+        s=korg; t=1649153926;
+        bh=LyU0UCjIMK28Y/+3dy2ewi5N3bhvr2nkJBhF+Msbu9w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gy7Tuc8vJl7RXwkXtiuc5Lo6csfFW1SHYXcy/4OybqOJyTNDnajoKPfevFwArtrKK
-         iyRr5Pe39X9icOLGMIyVAoUEaUOjeDjEyeNKyHKH/vq722JkE9MGyR+sfSRCqLBLUS
-         5SQqzQy56RYIO1p4XoGj8onT/jBgaPtseyNkSfRI=
+        b=zHFsjodAqc5T/rW7IHW7DlzEd/KWkwNHWxSvveE/sEqRKffP9WTavSHLi4pMxPetE
+         x/F0xhC1yeN6AZo+H9FpPCh7UKicuHrXxMCypqbfO/0k5diDyVsD15BRAMjI/4+7JU
+         u9CJiDo+cZW/guCD2LSfITTBKhq3lbATOUUrfon8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 395/599] serial: 8250: Fix race condition in RTS-after-send handling
-Date:   Tue,  5 Apr 2022 09:31:29 +0200
-Message-Id: <20220405070310.585238979@linuxfoundation.org>
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 396/599] iio: adc: Add check for devm_request_threaded_irq
+Date:   Tue,  5 Apr 2022 09:31:30 +0200
+Message-Id: <20220405070310.615265669@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -54,58 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit dedab69fd650ea74710b2e626e63fd35584ef773 ]
+[ Upstream commit b30537a4cedcacf0ade2f33ebb7610178ed1e7d7 ]
 
-Set em485->active_timer = NULL isn't always enough to take out the stop
-timer. While there is a check that it acts in the right state (i.e.
-waiting for RTS-after-send to pass after sending some chars) but the
-following might happen:
+As the potential failure of the devm_request_threaded_irq(),
+it should be better to check the return value and return
+error if fails.
 
- - CPU1: some chars send, shifter becomes empty, stop tx timer armed
- - CPU0: more chars send before RTS-after-send expired
- - CPU0: shifter empty irq, port lock taken
- - CPU1: tx timer triggers, waits for port lock
- - CPU0: em485->active_timer = &em485->stop_tx_timer, hrtimer_start(),
-   releases lock()
- - CPU1: get lock, see em485->active_timer == &em485->stop_tx_timer,
-   tear down RTS too early
-
-This fix bases on research done by Steffen Trumtrar.
-
-Fixes: b86f86e8e7c5 ("serial: 8250: fix potential deadlock in rs485-mode")
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Link: https://lore.kernel.org/r/20220215160236.344236-1-u.kleine-koenig@pengutronix.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: fa659a40b80b ("iio: adc: twl6030-gpadc: Use devm_* API family")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Link: https://lore.kernel.org/r/20220224062849.3280966-1-jiasheng@iscas.ac.cn
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_port.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/iio/adc/twl6030-gpadc.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/tty/serial/8250/8250_port.c b/drivers/tty/serial/8250/8250_port.c
-index 7c07ebb37b1b..1733f03a7da7 100644
---- a/drivers/tty/serial/8250/8250_port.c
-+++ b/drivers/tty/serial/8250/8250_port.c
-@@ -1620,6 +1620,18 @@ static inline void start_tx_rs485(struct uart_port *port)
- 	struct uart_8250_port *up = up_to_u8250p(port);
- 	struct uart_8250_em485 *em485 = up->em485;
+diff --git a/drivers/iio/adc/twl6030-gpadc.c b/drivers/iio/adc/twl6030-gpadc.c
+index c6416ad795ca..256177b15c51 100644
+--- a/drivers/iio/adc/twl6030-gpadc.c
++++ b/drivers/iio/adc/twl6030-gpadc.c
+@@ -911,6 +911,8 @@ static int twl6030_gpadc_probe(struct platform_device *pdev)
+ 	ret = devm_request_threaded_irq(dev, irq, NULL,
+ 				twl6030_gpadc_irq_handler,
+ 				IRQF_ONESHOT, "twl6030_gpadc", indio_dev);
++	if (ret)
++		return ret;
  
-+	/*
-+	 * While serial8250_em485_handle_stop_tx() is a noop if
-+	 * em485->active_timer != &em485->stop_tx_timer, it might happen that
-+	 * the timer is still armed and triggers only after the current bunch of
-+	 * chars is send and em485->active_timer == &em485->stop_tx_timer again.
-+	 * So cancel the timer. There is still a theoretical race condition if
-+	 * the timer is already running and only comes around to check for
-+	 * em485->active_timer when &em485->stop_tx_timer is armed again.
-+	 */
-+	if (em485->active_timer == &em485->stop_tx_timer)
-+		hrtimer_try_to_cancel(&em485->stop_tx_timer);
-+
- 	em485->active_timer = NULL;
- 
- 	if (em485->tx_stopped) {
+ 	ret = twl6030_gpadc_enable_irq(TWL6030_GPADC_RT_SW1_EOC_MASK);
+ 	if (ret < 0) {
 -- 
 2.34.1
 
