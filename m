@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AB77B4F3910
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:43:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 131E64F3BF6
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:23:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377550AbiDEL3q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:29:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34194 "EHLO
+        id S1382217AbiDEMDm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:03:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50354 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351455AbiDEKCy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:02:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3155F73063;
-        Tue,  5 Apr 2022 02:52:07 -0700 (PDT)
+        with ESMTP id S1358071AbiDEK15 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:27:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA96946654;
+        Tue,  5 Apr 2022 03:14:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CB76661743;
-        Tue,  5 Apr 2022 09:52:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3FE9C385A2;
-        Tue,  5 Apr 2022 09:52:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7F8CFB81C88;
+        Tue,  5 Apr 2022 10:14:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC9E8C385A0;
+        Tue,  5 Apr 2022 10:14:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152326;
-        bh=Yw9KpInkgsNYhh+OCNup/aC8fKxzxvvo6UbYxOjbCnQ=;
+        s=korg; t=1649153665;
+        bh=itq4pk8FAdxy92cH1h7fiSh2F6sNhVLjhlu07L9RDyk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FAujfifh5yOVQqwUC1X9dwRkS3eNvF0/JqLRGPL7xYVczqfWLNs0hBAr8WA6rifyl
-         Oru0E4ySXsV3+gl65kkPD4oqiB7+FdEJs32WGWKgx0Rb9PImyl0r98d1y7vJaXK0Df
-         X5U2ebg07sj4zDwLrf0QrX3TzlvSrS53+q1m+qE0=
+        b=lt5M4mKWkbZuG2stHem0sk5eZdZ6yEGcVajwHt018mJah+wgCE2pNzwMe0W0TdKfh
+         6fGTTi1tciHvzokBDUYwyzoA0/wwpk2eUv9aQ3+vhILzR/MYx3dRrnfCUbTGs7yyxc
+         R3smlWJWuL8M47Kb1Ec+UDZ7pKV/kTMnldhlEEd0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yong Wu <yong.wu@mediatek.com>,
-        Joerg Roedel <jroedel@suse.de>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 735/913] media: iommu/mediatek: Return ENODEV if the device is NULL
+Subject: [PATCH 5.10 303/599] iwlwifi: Fix -EIO error code that is never returned
 Date:   Tue,  5 Apr 2022 09:29:57 +0200
-Message-Id: <20220405070401.864562970@linuxfoundation.org>
+Message-Id: <20220405070307.850369109@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070258.802373272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,56 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yong Wu <yong.wu@mediatek.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 2fb0feed51085db77606de9b9477c96894328809 ]
+[ Upstream commit c305c94bdc18e45b5ad1db54da4269f8cbfdff6b ]
 
-The platform device is created at:
-of_platform_default_populate_init:  arch_initcall_sync
-  ->of_platform_populate
-        ->of_platform_device_create_pdata
+Currently the error -EIO is being assinged to variable ret when
+the READY_BIT is not set but the function iwlagn_mac_start returns
+0 rather than ret. Fix this by returning ret instead of 0.
 
-When entering our probe, all the devices should be already created.
-if it is null, means NODEV. Currently we don't get the fail case.
-It's a minor fix, no need add fixes tags.
-
-Signed-off-by: Yong Wu <yong.wu@mediatek.com>
-Acked-by: Joerg Roedel <jroedel@suse.de>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Addresses-Coverity: ("Unused value")
+Fixes: 7335613ae27a ("iwlwifi: move all mac80211 related functions to one place")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Link: https://lore.kernel.org/r/20210907104658.14706-1-colin.king@canonical.com
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/mtk_iommu.c    | 2 +-
- drivers/iommu/mtk_iommu_v1.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/wireless/intel/iwlwifi/dvm/mac80211.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/iommu/mtk_iommu.c b/drivers/iommu/mtk_iommu.c
-index 25b834104790..77ae20ff9b35 100644
---- a/drivers/iommu/mtk_iommu.c
-+++ b/drivers/iommu/mtk_iommu.c
-@@ -848,7 +848,7 @@ static int mtk_iommu_probe(struct platform_device *pdev)
- 		plarbdev = of_find_device_by_node(larbnode);
- 		if (!plarbdev) {
- 			of_node_put(larbnode);
--			return -EPROBE_DEFER;
-+			return -ENODEV;
- 		}
- 		data->larb_imu[id].dev = &plarbdev->dev;
+diff --git a/drivers/net/wireless/intel/iwlwifi/dvm/mac80211.c b/drivers/net/wireless/intel/iwlwifi/dvm/mac80211.c
+index 423d3c396b2d..1e21cdbb7313 100644
+--- a/drivers/net/wireless/intel/iwlwifi/dvm/mac80211.c
++++ b/drivers/net/wireless/intel/iwlwifi/dvm/mac80211.c
+@@ -304,7 +304,7 @@ static int iwlagn_mac_start(struct ieee80211_hw *hw)
  
-diff --git a/drivers/iommu/mtk_iommu_v1.c b/drivers/iommu/mtk_iommu_v1.c
-index 1467ba1e4417..68bf02f87cfd 100644
---- a/drivers/iommu/mtk_iommu_v1.c
-+++ b/drivers/iommu/mtk_iommu_v1.c
-@@ -604,7 +604,7 @@ static int mtk_iommu_probe(struct platform_device *pdev)
- 		plarbdev = of_find_device_by_node(larbnode);
- 		if (!plarbdev) {
- 			of_node_put(larbnode);
--			return -EPROBE_DEFER;
-+			return -ENODEV;
- 		}
- 		data->larb_imu[i].dev = &plarbdev->dev;
+ 	priv->is_open = 1;
+ 	IWL_DEBUG_MAC80211(priv, "leave\n");
+-	return 0;
++	return ret;
+ }
  
+ static void iwlagn_mac_stop(struct ieee80211_hw *hw)
 -- 
 2.34.1
 
