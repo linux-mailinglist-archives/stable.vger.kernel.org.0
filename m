@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 475024F3520
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:48:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0324B4F3361
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:15:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236872AbiDEI2p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:28:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44332 "EHLO
+        id S234008AbiDEJ4C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:56:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40624 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239591AbiDEIUP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:20:15 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0AB96119;
-        Tue,  5 Apr 2022 01:16:57 -0700 (PDT)
+        with ESMTP id S1343908AbiDEJP2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:15:28 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51E40972EC;
+        Tue,  5 Apr 2022 02:01:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9C3EF60AFB;
-        Tue,  5 Apr 2022 08:16:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADB54C385A2;
-        Tue,  5 Apr 2022 08:16:55 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id B7104CE1C6A;
+        Tue,  5 Apr 2022 09:01:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D308FC385A1;
+        Tue,  5 Apr 2022 09:01:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146616;
-        bh=dEfiMNHodUedoAdVSKWatF8SIhfkcB5hJTSU9UfBY0Y=;
+        s=korg; t=1649149289;
+        bh=FXIASGTXlwyPFhZKczifYvKVHhbnTeDqSdZKl1fpCmc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HbBlLNcqvG4hc9P+m5C5nx31yS30NnjhhUPlwLq2mP2P7Ct3FRaUK/NMwkKYYCC9C
-         HZRYqo6FO4CWOWRVSA03MIMMLNZ4sBKsrPyhmkbAnxA5y6Q+8w5GdThR0qKMbtwm6v
-         dGSk2OIPQKox9WRCvwE+rRlX2iLZtWGQMx69c8dU=
+        b=VZjf5NHAM09fk5dIFv4z3KXWQUfH7AQVbr/SIVaTYj5Bnqvj61zdaY7X/ytbnT8ir
+         EI+9dpSLKFbuI5MgIfy5A1oMM3PVtvytFQcMKmND8wcXHiF6z5eFGG9AURAk7Mjpii
+         eQ5s460lbOxXGKrvXDlSRsZVjT7nAH0b5iEDLTXs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0827/1126] net/sched: act_ct: fix ref leak when switching zones
+Subject: [PATCH 5.16 0661/1017] pinctrl: renesas: checker: Fix miscalculation of number of states
 Date:   Tue,  5 Apr 2022 09:26:14 +0200
-Message-Id: <20220405070431.836758864@linuxfoundation.org>
+Message-Id: <20220405070413.903578909@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,63 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit bcb74e132a76ce0502bb33d5b65533a4ed72d159 ]
+[ Upstream commit de9b861018d46af27a5edff8b6baef35c0c0ad4f ]
 
-When switching zones or network namespaces without doing a ct clear in
-between, it is now leaking a reference to the old ct entry. That's
-because tcf_ct_skb_nfct_cached() returns false and
-tcf_ct_flow_table_lookup() may simply overwrite it.
+The checker failed to validate all enum IDs in the description of a
+register with fixed-width register fields, due to a miscalculation of
+the number of described states: each register field of n bits can have
+"1 << n" possible states, not "1".
 
-The fix is to, as the ct entry is not reusable, free it already at
-tcf_ct_skb_nfct_cached().
+Increase SH_PFC_MAX_ENUMS accordingly, now more enum IDs are checked
+(SH-Mobile AG5 has more than 4000 enum IDs defined).
 
-Reported-by: Florian Westphal <fw@strlen.de>
-Fixes: 2f131de361f6 ("net/sched: act_ct: Fix flow table lookup after ct clear or switching zones")
-Signed-off-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 12d057bad683b1c6 ("pinctrl: sh-pfc: checker: Add check for enum ID conflicts")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Link: https://lore.kernel.org/r/6d8a6a05564f38f9d20464c1c17f96e52740cf6a.1645460429.git.geert+renesas@glider.be
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/act_ct.c | 15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ drivers/pinctrl/renesas/core.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/net/sched/act_ct.c b/net/sched/act_ct.c
-index ec19f625863a..25718acc0ff0 100644
---- a/net/sched/act_ct.c
-+++ b/net/sched/act_ct.c
-@@ -605,22 +605,25 @@ static bool tcf_ct_skb_nfct_cached(struct net *net, struct sk_buff *skb,
- 	if (!ct)
- 		return false;
- 	if (!net_eq(net, read_pnet(&ct->ct_net)))
--		return false;
-+		goto drop_ct;
- 	if (nf_ct_zone(ct)->id != zone_id)
--		return false;
-+		goto drop_ct;
+diff --git a/drivers/pinctrl/renesas/core.c b/drivers/pinctrl/renesas/core.c
+index 0d4ea2e22a53..12d41ac017b5 100644
+--- a/drivers/pinctrl/renesas/core.c
++++ b/drivers/pinctrl/renesas/core.c
+@@ -741,7 +741,7 @@ static int sh_pfc_suspend_init(struct sh_pfc *pfc) { return 0; }
  
- 	/* Force conntrack entry direction. */
- 	if (force && CTINFO2DIR(ctinfo) != IP_CT_DIR_ORIGINAL) {
- 		if (nf_ct_is_confirmed(ct))
- 			nf_ct_kill(ct);
+ #ifdef DEBUG
+ #define SH_PFC_MAX_REGS		300
+-#define SH_PFC_MAX_ENUMS	3000
++#define SH_PFC_MAX_ENUMS	5000
  
--		nf_ct_put(ct);
--		nf_ct_set(skb, NULL, IP_CT_UNTRACKED);
--
--		return false;
-+		goto drop_ct;
+ static unsigned int sh_pfc_errors __initdata;
+ static unsigned int sh_pfc_warnings __initdata;
+@@ -865,7 +865,8 @@ static void __init sh_pfc_check_cfg_reg(const char *drvname,
+ 			 GENMASK(cfg_reg->reg_width - 1, 0));
+ 
+ 	if (cfg_reg->field_width) {
+-		n = cfg_reg->reg_width / cfg_reg->field_width;
++		fw = cfg_reg->field_width;
++		n = (cfg_reg->reg_width / fw) << fw;
+ 		/* Skip field checks (done at build time) */
+ 		goto check_enum_ids;
  	}
- 
- 	return true;
-+
-+drop_ct:
-+	nf_ct_put(ct);
-+	nf_ct_set(skb, NULL, IP_CT_UNTRACKED);
-+
-+	return false;
- }
- 
- /* Trim the skb to the length specified by the IP/IPv6 header,
 -- 
 2.34.1
 
