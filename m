@@ -2,61 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D90694F47E3
-	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 01:44:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4659F4F47D7
+	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 01:44:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346882AbiDEVWl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 17:22:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48540 "EHLO
+        id S1345533AbiDEVWA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 17:22:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56078 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1443841AbiDEPkW (ORCPT
+        with ESMTP id S1443844AbiDEPkW (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 11:40:22 -0400
-Received: from mail-oi1-x22c.google.com (mail-oi1-x22c.google.com [IPv6:2607:f8b0:4864:20::22c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32DDF10E549;
-        Tue,  5 Apr 2022 07:00:39 -0700 (PDT)
-Received: by mail-oi1-x22c.google.com with SMTP id t21so13460182oie.11;
-        Tue, 05 Apr 2022 07:00:39 -0700 (PDT)
+Received: from mail-ot1-x32a.google.com (mail-ot1-x32a.google.com [IPv6:2607:f8b0:4864:20::32a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFDB110E551;
+        Tue,  5 Apr 2022 07:00:42 -0700 (PDT)
+Received: by mail-ot1-x32a.google.com with SMTP id k25-20020a056830151900b005b25d8588dbso9435680otp.4;
+        Tue, 05 Apr 2022 07:00:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=HFMQgSR3Z2986CsvnsaxYCQAxCwwsfFViVfXTurYbuM=;
-        b=c1d6GMnUCpuBiRYFYUMeSmkzMXbgvzFsmhNTEx5ALxlYDIIgEnDIC3KEYkk6w/FhpB
-         TqVO5CZYMwkItnXKm6jAm5gJKI+LlTivA+RxswnPYXL/iqNzg6845SVJ73UQ688A8jcs
-         oSrVMzCdB4Nn2/yrnVEoi3VY8cA3XL6SuQ81cLQRPYsQJBBqBjdVW+w5MGnrlaR75kCV
-         1IdwIAJxCk/DkKh/Hhse2iBWJmL6f3VX2hw2m1so0+gyIuPgNsdSsoGKWgwDithk/bCU
-         yQPKhif0qham54k/tTgXOhPtbKbz9MSqGWkUqmBHfi3GkMM3kMBPSPEPoURcYK/qg7Lv
-         +dDQ==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=p9jy8faFTuQ229CsUYYE/yESsUOhyH54H367lXKP/jc=;
+        b=cDGcXEj1ACMb9MBwy68J37LOy1ggap2IqVvA81jCA27h0z5w0r7mKXbCpBs4idhu/1
+         ZtTD40OG8GcoH12DJGbCzWKY9ElTxQg7riArkSmqg9O5swlKUkj+U1EbOHQ8XDBK4pHd
+         O1I0UjxHg+CLBaPcWlW7ZuXz7M2GZerFJfO0Puk3JvGGZkf47a1yEE0Uq3r/NMiwn1sc
+         fXmr4+tNAOdFRYwjkNPv07928PVaIslfPLscMeJvl1o2tcwPIPJpITcMElbaKAURm9qI
+         5sB4UQRnqlbfcxljVJZCvADtsJp9D6VPiM2n4Z9AOrumD/t0ydLv4wxrNpoI9uQ6R9WM
+         osdg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=HFMQgSR3Z2986CsvnsaxYCQAxCwwsfFViVfXTurYbuM=;
-        b=iGEAU/bcSb8f4htHiqicAPlAF4GziMejaZpi9/QWfId/jnv+Dt0IqvQgcIg6rjxN45
-         LvoF2tvRbnKEw2/Rm71gkq2R0sXn5TvtuZt/HxKR7zgUpT+60Ww5FEoE+MAmnASOIYGH
-         p/vv24o/X5BYLH6Xp56IlJzwhTwlq/b3yvwcn3gTWdCSkVKvhOnfYPgpVlenD1DFwGck
-         KOlJ+rCmchHmg3ZPQQZNMHqMS6WSxfA3hw0+AWoCJA7zJKWbYsX+oZfvG0fyRhYD227K
-         lAZ3RniQkcFxD75F9MHAu+zrOm0q6GbofoyaIxoFPlv1LmlJDvy3caem2f5O9LKGlPgG
-         Vq5g==
-X-Gm-Message-State: AOAM532ZmYoX1NwpPYMDmR3DTrRsyMCz+mgUwURqfm28C9dTLqA3Gtmr
-        n8XuJg0Y8SfCCKiiJKA3wlc=
-X-Google-Smtp-Source: ABdhPJyx+UrnCCCC/dq6VupZvYiQblLTfNZtdfBOgNWTKrCgoNVnGNSrcKZIjfn8KOCE1dlioTnWEw==
-X-Received: by 2002:a05:6808:c:b0:2ef:8913:354 with SMTP id u12-20020a056808000c00b002ef89130354mr1429138oic.201.1649167238532;
-        Tue, 05 Apr 2022 07:00:38 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=p9jy8faFTuQ229CsUYYE/yESsUOhyH54H367lXKP/jc=;
+        b=diAm0dmZ/y5AlgCWe1TtbQvzQlMFyniwmG8nBCasWc6squjbY+pdDXtIHjaEEb8+/F
+         GEuCHmqdAwxlH5BTnWgVQjxqlgVQUQrUps3DuO7yYl3M6lEaOgFiaOapLdy0nZI5Epo/
+         ORp10tLPTXMVm3YuhYwxI6VvdSMPfTHG9Lz6eNcrzpa8vL5VADkSL2Jau13SQAMPsZuI
+         6+tqOopzLEjMPXljgIlIeYfgeLuKHVN+m2nEzclB3jlj5qn0poVahuYlT+Jr+bvuDQ9Z
+         /1AySVVT7UY0Xg6++C1nu3yNgtf1DyKL3VFbVF1CquVOUDbnLeKfHExsUPjhtDU3JhtY
+         0Dng==
+X-Gm-Message-State: AOAM533RCNokkga0gh0jCaQ4p68gTDS9hZIj5EQ2aXOudJeMiP5hCjf+
+        c7s/lR3BDhuc3Lj30i3bt6g=
+X-Google-Smtp-Source: ABdhPJy4GWCxgS5aTFC3lDqJc2TgeYOu9TUTpAVBGoGpTKfqMvF+94mvIJHGnijoX7dEq63BRbeTJA==
+X-Received: by 2002:a9d:2927:0:b0:5b2:62f9:894c with SMTP id d36-20020a9d2927000000b005b262f9894cmr1223119otb.56.1649167241974;
+        Tue, 05 Apr 2022 07:00:41 -0700 (PDT)
 Received: from localhost.localdomain ([2804:14c:485:4b69:99d5:2af:ddde:2ce0])
-        by smtp.gmail.com with ESMTPSA id c3-20020a056808138300b002f76b9a9ef6sm5537029oiw.10.2022.04.05.07.00.34
+        by smtp.gmail.com with ESMTPSA id c3-20020a056808138300b002f76b9a9ef6sm5537029oiw.10.2022.04.05.07.00.38
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 05 Apr 2022 07:00:37 -0700 (PDT)
+        Tue, 05 Apr 2022 07:00:41 -0700 (PDT)
 From:   Fabio Estevam <festevam@gmail.com>
 To:     hverkuil-cisco@xs4all.nl
 Cc:     nicolas.dufresne@collabora.com, kernel@iktek.de,
         p.zabel@pengutronix.de, linux-media@vger.kernel.org,
         stable@vger.kernel.org, Ezequiel Garcia <ezequiel@collabora.com>,
         Fabio Estevam <festevam@denx.de>
-Subject: [PATCH v4 1/2] media: coda: Fix reported H264 profile
-Date:   Tue,  5 Apr 2022 10:59:56 -0300
-Message-Id: <20220405135957.3580343-1-festevam@gmail.com>
+Subject: [PATCH v4 2/2] media: coda: Add more H264 levels for CODA960
+Date:   Tue,  5 Apr 2022 10:59:57 -0300
+Message-Id: <20220405135957.3580343-2-festevam@gmail.com>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20220405135957.3580343-1-festevam@gmail.com>
+References: <20220405135957.3580343-1-festevam@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
@@ -71,16 +73,12 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Nicolas Dufresne <nicolas.dufresne@collabora.com>
 
-The CODA960 manual states that ASO/FMO features of baseline are not
-supported, so for this reason this driver should only report
-constrained baseline support.
+This add H264 level 4.1, 4.2 and 5.0 to the list of supported formats.
+While the hardware does not fully support these levels, it do support
+most of them. The constraints on frame size and pixel formats already
+cover the limitation.
 
-This fixes negotiation issue with constrained baseline content
-on GStreamer 1.17.1.
-
-ASO/FMO features are unsupported for the encoder and untested for the
-decoder because there is currently no userspace support. Neither GStreamer
-parsers nor FFMPEG parsers support ASO/FMO.
+This fixes negotiation of level on GStreamer 1.17.1.
 
 Cc: stable@vger.kernel.org
 Fixes: 42a68012e67c2 ("media: coda: add read-only h.264 decoder profile/level controls")
@@ -93,34 +91,36 @@ Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
 Changes since v3:
 - Rebased against linux-next and took the coda->chips-media rename
 in consideration.
+- Added Philipp's Reviewed-by tag.
 
- drivers/media/platform/chips-media/coda-common.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/media/platform/chips-media/coda-common.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/media/platform/chips-media/coda-common.c b/drivers/media/platform/chips-media/coda-common.c
-index a57822b05070..53b2dd1b268c 100644
+index 53b2dd1b268c..f1234ad24f65 100644
 --- a/drivers/media/platform/chips-media/coda-common.c
 +++ b/drivers/media/platform/chips-media/coda-common.c
-@@ -2344,8 +2344,8 @@ static void coda_encode_ctrls(struct coda_ctx *ctx)
- 		V4L2_CID_MPEG_VIDEO_H264_CHROMA_QP_INDEX_OFFSET, -12, 12, 1, 0);
- 	v4l2_ctrl_new_std_menu(&ctx->ctrls, &coda_ctrl_ops,
- 		V4L2_CID_MPEG_VIDEO_H264_PROFILE,
--		V4L2_MPEG_VIDEO_H264_PROFILE_BASELINE, 0x0,
--		V4L2_MPEG_VIDEO_H264_PROFILE_BASELINE);
-+		V4L2_MPEG_VIDEO_H264_PROFILE_CONSTRAINED_BASELINE, 0x0,
-+		V4L2_MPEG_VIDEO_H264_PROFILE_CONSTRAINED_BASELINE);
- 	if (ctx->dev->devtype->product == CODA_HX4 ||
- 	    ctx->dev->devtype->product == CODA_7541) {
- 		v4l2_ctrl_new_std_menu(&ctx->ctrls, &coda_ctrl_ops,
-@@ -2426,7 +2426,7 @@ static void coda_decode_ctrls(struct coda_ctx *ctx)
- 	ctx->h264_profile_ctrl = v4l2_ctrl_new_std_menu(&ctx->ctrls,
- 		&coda_ctrl_ops, V4L2_CID_MPEG_VIDEO_H264_PROFILE,
- 		V4L2_MPEG_VIDEO_H264_PROFILE_HIGH,
--		~((1 << V4L2_MPEG_VIDEO_H264_PROFILE_BASELINE) |
-+		~((1 << V4L2_MPEG_VIDEO_H264_PROFILE_CONSTRAINED_BASELINE) |
- 		  (1 << V4L2_MPEG_VIDEO_H264_PROFILE_MAIN) |
- 		  (1 << V4L2_MPEG_VIDEO_H264_PROFILE_HIGH)),
- 		V4L2_MPEG_VIDEO_H264_PROFILE_HIGH);
+@@ -2364,7 +2364,10 @@ static void coda_encode_ctrls(struct coda_ctx *ctx)
+ 			  (1 << V4L2_MPEG_VIDEO_H264_LEVEL_3_0) |
+ 			  (1 << V4L2_MPEG_VIDEO_H264_LEVEL_3_1) |
+ 			  (1 << V4L2_MPEG_VIDEO_H264_LEVEL_3_2) |
+-			  (1 << V4L2_MPEG_VIDEO_H264_LEVEL_4_0)),
++			  (1 << V4L2_MPEG_VIDEO_H264_LEVEL_4_0) |
++			  (1 << V4L2_MPEG_VIDEO_H264_LEVEL_4_1) |
++			  (1 << V4L2_MPEG_VIDEO_H264_LEVEL_4_2) |
++			  (1 << V4L2_MPEG_VIDEO_H264_LEVEL_5_0)),
+ 			V4L2_MPEG_VIDEO_H264_LEVEL_4_0);
+ 	}
+ 	v4l2_ctrl_new_std(&ctx->ctrls, &coda_ctrl_ops,
+@@ -2437,7 +2440,7 @@ static void coda_decode_ctrls(struct coda_ctx *ctx)
+ 	    ctx->dev->devtype->product == CODA_7541)
+ 		max = V4L2_MPEG_VIDEO_H264_LEVEL_4_0;
+ 	else if (ctx->dev->devtype->product == CODA_960)
+-		max = V4L2_MPEG_VIDEO_H264_LEVEL_4_1;
++		max = V4L2_MPEG_VIDEO_H264_LEVEL_5_0;
+ 	else
+ 		return;
+ 	ctx->h264_level_ctrl = v4l2_ctrl_new_std_menu(&ctx->ctrls,
 -- 
 2.25.1
 
