@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 859884F4178
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:32:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 624C74F4146
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:28:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238843AbiDEMSS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:18:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44586 "EHLO
+        id S1382854AbiDEMRF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:17:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53978 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240392AbiDEKcj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:32:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA7A9DE906;
-        Tue,  5 Apr 2022 03:18:36 -0700 (PDT)
+        with ESMTP id S242638AbiDEKcm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:32:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBC8F167F6;
+        Tue,  5 Apr 2022 03:18:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 59CDE61777;
-        Tue,  5 Apr 2022 10:18:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4228CC385A1;
-        Tue,  5 Apr 2022 10:18:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5789461676;
+        Tue,  5 Apr 2022 10:18:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DF1CC385A0;
+        Tue,  5 Apr 2022 10:18:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153915;
-        bh=9PEFQguw30U1gpsVR7cU8RY0vR6P0NTVaLm1k7N31mQ=;
+        s=korg; t=1649153934;
+        bh=r88hWIB6vNyoCMJJysi09WXaUEqZwlMCiIF3eh30XLA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SEPSUYsy+gRZzA7LJ/UWk6NdGeOPsfpe5HAViPJDRgMT47p5vJJeXGtsGnBr7070v
-         aVZXYPGWjC6r0rIhOpb3lhEk59BGAzo4s5S2UTy7sdayFrDss5YvYoq9Ah3HneGZuT
-         6UPNd0N+1C5aTYc70h/Io5hkdBKpUR8Fn8e+JEoM=
+        b=s+MOrU2jXB4nhkf8jfKzzfx/Vz8dzFNGEXigg4XHuqHXX9cTAZSRMsLT53+4jHPyR
+         RHLdV2y1Jbu+flutO0lefhnfGAqkN8gZ4qQS/U1u2bEm71PFbrikHp7nv5WaVgcEAF
+         rgV0LcWT2Y0MxSitlEzWhCL5o0x0wJ7OHJtjCtzg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qing Wang <wangqing@vivo.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Igor Zhbanov <i.zhbanov@omprussia.ru>,
+        Joerg Roedel <joro@8bytes.org>, Christoph Hellwig <hch@lst.de>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        iommu@lists.linux-foundation.org,
+        Robin Murphy <robin.murphy@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 393/599] serial: 8250_lpss: Balance reference count for PCI DMA device
-Date:   Tue,  5 Apr 2022 09:31:27 +0200
-Message-Id: <20220405070310.526505829@linuxfoundation.org>
+Subject: [PATCH 5.10 399/599] dma-debug: fix return value of __setup handlers
+Date:   Tue,  5 Apr 2022 09:31:33 +0200
+Message-Id: <20220405070310.704342906@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -54,109 +58,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 5318f70da7e82649d794fc27d8a127c22aa3566e ]
+[ Upstream commit 80e4390981618e290616dbd06ea190d4576f219d ]
 
-The pci_get_slot() increases its reference count, the caller
-must decrement the reference count by calling pci_dev_put().
+When valid kernel command line parameters
+  dma_debug=off dma_debug_entries=100
+are used, they are reported as Unknown parameters and added to init's
+environment strings, polluting it.
 
-Fixes: 9a1870ce812e ("serial: 8250: don't use slave_id of dma_slave_config")
-Depends-on: a13e19cf3dc1 ("serial: 8250_lpss: split LPSS driver to separate module")
-Reported-by: Qing Wang <wangqing@vivo.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20220223151240.70248-1-andriy.shevchenko@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  Unknown kernel command line parameters "BOOT_IMAGE=/boot/bzImage-517rc5
+    dma_debug=off dma_debug_entries=100", will be passed to user space.
+
+and
+
+ Run /sbin/init as init process
+   with arguments:
+     /sbin/init
+   with environment:
+     HOME=/
+     TERM=linux
+     BOOT_IMAGE=/boot/bzImage-517rc5
+     dma_debug=off
+     dma_debug_entries=100
+
+Return 1 from these __setup handlers to indicate that the command line
+option has been handled.
+
+Fixes: 59d3daafa1726 ("dma-debug: add kernel command line parameters")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
+Link: lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
+Cc: Joerg Roedel <joro@8bytes.org>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Marek Szyprowski <m.szyprowski@samsung.com>
+Cc: iommu@lists.linux-foundation.org
+Cc: Robin Murphy <robin.murphy@arm.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_lpss.c | 28 ++++++++++++++++++++++------
- 1 file changed, 22 insertions(+), 6 deletions(-)
+ kernel/dma/debug.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/tty/serial/8250/8250_lpss.c b/drivers/tty/serial/8250/8250_lpss.c
-index 4dee8a9e0c95..dfb730b7ea2a 100644
---- a/drivers/tty/serial/8250/8250_lpss.c
-+++ b/drivers/tty/serial/8250/8250_lpss.c
-@@ -121,8 +121,7 @@ static int byt_serial_setup(struct lpss8250 *lpss, struct uart_port *port)
- {
- 	struct dw_dma_slave *param = &lpss->dma_param;
- 	struct pci_dev *pdev = to_pci_dev(port->dev);
--	unsigned int dma_devfn = PCI_DEVFN(PCI_SLOT(pdev->devfn), 0);
--	struct pci_dev *dma_dev = pci_get_slot(pdev->bus, dma_devfn);
-+	struct pci_dev *dma_dev;
- 
- 	switch (pdev->device) {
- 	case PCI_DEVICE_ID_INTEL_BYT_UART1:
-@@ -141,6 +140,8 @@ static int byt_serial_setup(struct lpss8250 *lpss, struct uart_port *port)
- 		return -EINVAL;
+diff --git a/kernel/dma/debug.c b/kernel/dma/debug.c
+index 10d07ace46c1..f8ae54679865 100644
+--- a/kernel/dma/debug.c
++++ b/kernel/dma/debug.c
+@@ -928,7 +928,7 @@ static __init int dma_debug_cmdline(char *str)
+ 		global_disable = true;
  	}
  
-+	dma_dev = pci_get_slot(pdev->bus, PCI_DEVFN(PCI_SLOT(pdev->devfn), 0));
-+
- 	param->dma_dev = &dma_dev->dev;
- 	param->m_master = 0;
- 	param->p_master = 1;
-@@ -156,11 +157,26 @@ static int byt_serial_setup(struct lpss8250 *lpss, struct uart_port *port)
- 	return 0;
+-	return 0;
++	return 1;
  }
  
-+static void byt_serial_exit(struct lpss8250 *lpss)
-+{
-+	struct dw_dma_slave *param = &lpss->dma_param;
-+
-+	/* Paired with pci_get_slot() in the byt_serial_setup() above */
-+	put_device(param->dma_dev);
-+}
-+
- static int ehl_serial_setup(struct lpss8250 *lpss, struct uart_port *port)
- {
- 	return 0;
+ static __init int dma_debug_entries_cmdline(char *str)
+@@ -937,7 +937,7 @@ static __init int dma_debug_entries_cmdline(char *str)
+ 		return -EINVAL;
+ 	if (!get_option(&str, &nr_prealloc_entries))
+ 		nr_prealloc_entries = PREALLOC_DMA_DEBUG_ENTRIES;
+-	return 0;
++	return 1;
  }
  
-+static void ehl_serial_exit(struct lpss8250 *lpss)
-+{
-+	struct uart_8250_port *up = serial8250_get_port(lpss->data.line);
-+
-+	up->dma = NULL;
-+}
-+
- #ifdef CONFIG_SERIAL_8250_DMA
- static const struct dw_dma_platform_data qrk_serial_dma_pdata = {
- 	.nr_channels = 2,
-@@ -335,8 +351,7 @@ static int lpss8250_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- 	return 0;
- 
- err_exit:
--	if (lpss->board->exit)
--		lpss->board->exit(lpss);
-+	lpss->board->exit(lpss);
- 	pci_free_irq_vectors(pdev);
- 	return ret;
- }
-@@ -347,8 +362,7 @@ static void lpss8250_remove(struct pci_dev *pdev)
- 
- 	serial8250_unregister_port(lpss->data.line);
- 
--	if (lpss->board->exit)
--		lpss->board->exit(lpss);
-+	lpss->board->exit(lpss);
- 	pci_free_irq_vectors(pdev);
- }
- 
-@@ -356,12 +370,14 @@ static const struct lpss8250_board byt_board = {
- 	.freq = 100000000,
- 	.base_baud = 2764800,
- 	.setup = byt_serial_setup,
-+	.exit = byt_serial_exit,
- };
- 
- static const struct lpss8250_board ehl_board = {
- 	.freq = 200000000,
- 	.base_baud = 12500000,
- 	.setup = ehl_serial_setup,
-+	.exit = ehl_serial_exit,
- };
- 
- static const struct lpss8250_board qrk_board = {
+ __setup("dma_debug=", dma_debug_cmdline);
 -- 
 2.34.1
 
