@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0169C4F2EE6
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:04:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F8F14F3331
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:14:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238206AbiDEJKa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:10:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46802 "EHLO
+        id S245374AbiDEKjT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:39:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39958 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244188AbiDEIvs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:51:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8A4AD3AD5;
-        Tue,  5 Apr 2022 01:40:28 -0700 (PDT)
+        with ESMTP id S238890AbiDEJdC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:33:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4397E22;
+        Tue,  5 Apr 2022 02:20:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A466E60FFC;
-        Tue,  5 Apr 2022 08:40:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA690C385A0;
-        Tue,  5 Apr 2022 08:40:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8FD88B81B75;
+        Tue,  5 Apr 2022 09:20:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC10BC385A0;
+        Tue,  5 Apr 2022 09:20:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148011;
-        bh=FD6A8Q2VodmlK/aTr23PGmh0+5iHx7dgmOFrv2Xh6ew=;
+        s=korg; t=1649150429;
+        bh=1VBBbhxbPqgOccqe/3AVFKFROwjjGJwCABhf+k4mAfs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cpe8pw7QDVkL9epidr4MzQDn8oovMSNLGQbi3yKw42nkoMtpAEB2wy+Ti1UzHXcmN
-         cs0T1e96dzy3FjI4krW2YhhT5upGMAWU5ZI/kjcUPqenYYMOm80geyR0qOYimUwRgw
-         B7gLllbR4uyyCK/JaoGj6ZBwUXbOiXD6XtDN8ZCE=
+        b=nU5NKpLG4r+NYXksfdmBRjHmUzzHpO7CuiEgCiXU/4AxpWqQJzY9MI4U2qBK/mG/e
+         SEwebO80/+i+9JY21+YcVSdjvVJW3ogBB7W5lDdGZHA76GCUuNLonTrrpQM+kfrNfI
+         N1RJ8a1urtQ+6iK66JV8AO+iW72BU6dT/6cuXnJA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Paul Moore <paul@paul-moore.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0202/1017] selinux: check return value of sel_make_avc_files
+        stable@vger.kernel.org, Ronnie Sahlberg <lsahlber@redhat.com>,
+        "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.15 053/913] cifs: fix handlecache and multiuser
 Date:   Tue,  5 Apr 2022 09:18:35 +0200
-Message-Id: <20220405070400.245926398@linuxfoundation.org>
+Message-Id: <20220405070341.410072988@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,46 +54,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Göttsche <cgzones@googlemail.com>
+From: Ronnie Sahlberg <lsahlber@redhat.com>
 
-[ Upstream commit bcb62828e3e8c813b6613db6eb7fd9657db248fc ]
+commit 47178c7722ac528ea08aa82c3ef9ffa178962d7a upstream.
 
-sel_make_avc_files() might fail and return a negative errno value on
-memory allocation failures. Re-add the check of the return value,
-dropped in 66f8e2f03c02 ("selinux: sidtab reverse lookup hash table").
+In multiuser each individual user has their own tcon structure for the
+share and thus their own handle for a cached directory.
+When we umount such a share we much make sure to release the pinned down dentry
+for each such tcon and not just the master tcon.
 
-Reported by clang-analyzer:
+Otherwise we will get nasty warnings on umount that dentries are still in use:
+[ 3459.590047] BUG: Dentry 00000000115c6f41{i=12000000019d95,n=/}  still in use\
+ (2) [unmount of cifs cifs]
+...
+[ 3459.590492] Call Trace:
+[ 3459.590500]  d_walk+0x61/0x2a0
+[ 3459.590518]  ? shrink_lock_dentry.part.0+0xe0/0xe0
+[ 3459.590526]  shrink_dcache_for_umount+0x49/0x110
+[ 3459.590535]  generic_shutdown_super+0x1a/0x110
+[ 3459.590542]  kill_anon_super+0x14/0x30
+[ 3459.590549]  cifs_kill_sb+0xf5/0x104 [cifs]
+[ 3459.590773]  deactivate_locked_super+0x36/0xa0
+[ 3459.590782]  cleanup_mnt+0x131/0x190
+[ 3459.590789]  task_work_run+0x5c/0x90
+[ 3459.590798]  exit_to_user_mode_loop+0x151/0x160
+[ 3459.590809]  exit_to_user_mode_prepare+0x83/0xd0
+[ 3459.590818]  syscall_exit_to_user_mode+0x12/0x30
+[ 3459.590828]  do_syscall_64+0x48/0x90
+[ 3459.590833]  entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-    security/selinux/selinuxfs.c:2129:2: warning: Value stored to
-      'ret' is never read [deadcode.DeadStores]
-            ret = sel_make_avc_files(dentry);
-            ^     ~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Fixes: 66f8e2f03c02 ("selinux: sidtab reverse lookup hash table")
-Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-[PM: description line wrapping, added proper commit ref]
-Signed-off-by: Paul Moore <paul@paul-moore.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Acked-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Cc: stable@vger.kernel.org
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- security/selinux/selinuxfs.c | 2 ++
- 1 file changed, 2 insertions(+)
+ fs/cifs/cifsfs.c |   13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index e4cd7cb856f3..f2f6203e0fff 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -2127,6 +2127,8 @@ static int sel_fill_super(struct super_block *sb, struct fs_context *fc)
+--- a/fs/cifs/cifsfs.c
++++ b/fs/cifs/cifsfs.c
+@@ -254,6 +254,9 @@ static void cifs_kill_sb(struct super_bl
+ 	struct cifs_sb_info *cifs_sb = CIFS_SB(sb);
+ 	struct cifs_tcon *tcon;
+ 	struct cached_fid *cfid;
++	struct rb_root *root = &cifs_sb->tlink_tree;
++	struct rb_node *node;
++	struct tcon_link *tlink;
+ 
+ 	/*
+ 	 * We ned to release all dentries for the cached directories
+@@ -263,17 +266,21 @@ static void cifs_kill_sb(struct super_bl
+ 		dput(cifs_sb->root);
+ 		cifs_sb->root = NULL;
  	}
+-	tcon = cifs_sb_master_tcon(cifs_sb);
+-	if (tcon) {
++	spin_lock(&cifs_sb->tlink_tree_lock);
++	node = rb_first(root);
++	while (node != NULL) {
++		tlink = rb_entry(node, struct tcon_link, tl_rbnode);
++		tcon = tlink_tcon(tlink);
+ 		cfid = &tcon->crfid;
+ 		mutex_lock(&cfid->fid_mutex);
+ 		if (cfid->dentry) {
+-
+ 			dput(cfid->dentry);
+ 			cfid->dentry = NULL;
+ 		}
+ 		mutex_unlock(&cfid->fid_mutex);
++		node = rb_next(node);
+ 	}
++	spin_unlock(&cifs_sb->tlink_tree_lock);
  
- 	ret = sel_make_avc_files(dentry);
-+	if (ret)
-+		goto err;
- 
- 	dentry = sel_make_dir(sb->s_root, "ss", &fsi->last_ino);
- 	if (IS_ERR(dentry)) {
--- 
-2.34.1
-
+ 	kill_anon_super(sb);
+ 	cifs_umount(cifs_sb);
 
 
