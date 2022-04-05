@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 04FC24F3A81
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:02:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74C144F3A80
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:01:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381488AbiDELqH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:46:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46876 "EHLO
+        id S1381490AbiDELqI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:46:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32984 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354833AbiDEKQJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:16:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AEB96C967;
-        Tue,  5 Apr 2022 03:03:12 -0700 (PDT)
+        with ESMTP id S1354874AbiDEKQ1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:16:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C87DE4A3EE;
+        Tue,  5 Apr 2022 03:03:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9964D616E7;
-        Tue,  5 Apr 2022 10:03:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3746C385A1;
-        Tue,  5 Apr 2022 10:03:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 60F1861676;
+        Tue,  5 Apr 2022 10:03:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76059C385A2;
+        Tue,  5 Apr 2022 10:03:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152991;
-        bh=oEwV9TdDwQb2akMVnS/or1jUizn35IGFlLvBM0ImMXQ=;
+        s=korg; t=1649152993;
+        bh=K3N7Oz55lZ1mMlDZ1VzLCz7sH8jxLRpQrtkNfrand/Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kxABCOXy4zmFJ13/vkJsRQQEVVcG+j7aMTUy5QQFOSt+vyZHE5P1qXNTNB68Q2EGY
-         T4B1WVhxFMHEQRCTAHslq8SxHDzl1z/AcgkAWRdnY9f147jKnTelsVAusrL3oo9xi6
-         829OG80HTl93+vhPmtn7rQSnUOobJRq/NIh82bmQ=
+        b=2WE0ta/mSc3gNh8/3XkTa6gHzjSGsnAbGI1XMrwnlB1jQPFlE4f2BKygugf3xkOgh
+         shh0z8Kj0gn8OlRIy0dZ/d+96szMB+ZyCMsGjyAkIvjbVJFlMWk8Gv/t8BpmOyTejY
+         lThPWARBrNJyd0f561qhIuLGE1C9XIVugLgEOO3Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Garry <john.garry@huawei.com>,
-        Jack Wang <jinpu.wang@ionos.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.10 062/599] scsi: libsas: Fix sas_ata_qc_issue() handling of NCQ NON DATA commands
-Date:   Tue,  5 Apr 2022 09:25:56 +0200
-Message-Id: <20220405070300.674194206@linuxfoundation.org>
+        stable@vger.kernel.org, Manish Chopra <manishc@marvell.com>,
+        Ariel Elior <aelior@marvell.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 063/599] qed: display VF trust config
+Date:   Tue,  5 Apr 2022 09:25:57 +0200
+Message-Id: <20220405070300.702961936@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -55,41 +54,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+From: Manish Chopra <manishc@marvell.com>
 
-commit 8454563e4c2aafbfb81a383ab423ea8b9b430a25 upstream.
+commit 4e6e6bec7440b9b76f312f28b1f4e944eebb3abc upstream.
 
-To detect for the DMA_NONE (no data transfer) DMA direction,
-sas_ata_qc_issue() tests if the command protocol is ATA_PROT_NODATA.  This
-test does not include the ATA_CMD_NCQ_NON_DATA command as this command
-protocol is defined as ATA_PROT_NCQ_NODATA (equal to ATA_PROT_FLAG_NCQ) and
-not as ATA_PROT_NODATA.
+Driver does support SR-IOV VFs trust configuration but
+it does not display it when queried via ip link utility.
 
-To include both NCQ and non-NCQ commands when testing for the DMA_NONE DMA
-direction, use "!ata_is_data()".
-
-Link: https://lore.kernel.org/r/20220220031810.738362-2-damien.lemoal@opensource.wdc.com
-Fixes: 176ddd89171d ("scsi: libsas: Reset num_scatter if libata marks qc as NODATA")
 Cc: stable@vger.kernel.org
-Reviewed-by: John Garry <john.garry@huawei.com>
-Reviewed-by: Jack Wang <jinpu.wang@ionos.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: f990c82c385b ("qed*: Add support for ndo_set_vf_trust")
+Signed-off-by: Manish Chopra <manishc@marvell.com>
+Signed-off-by: Ariel Elior <aelior@marvell.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/libsas/sas_ata.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/qlogic/qed/qed_sriov.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/scsi/libsas/sas_ata.c
-+++ b/drivers/scsi/libsas/sas_ata.c
-@@ -202,7 +202,7 @@ static unsigned int sas_ata_qc_issue(str
- 		task->total_xfer_len = qc->nbytes;
- 		task->num_scatter = qc->n_elem;
- 		task->data_dir = qc->dma_dir;
--	} else if (qc->tf.protocol == ATA_PROT_NODATA) {
-+	} else if (!ata_is_data(qc->tf.protocol)) {
- 		task->data_dir = DMA_NONE;
- 	} else {
- 		for_each_sg(qc->sg, sg, qc->n_elem, si)
+--- a/drivers/net/ethernet/qlogic/qed/qed_sriov.c
++++ b/drivers/net/ethernet/qlogic/qed/qed_sriov.c
+@@ -4691,6 +4691,7 @@ static int qed_get_vf_config(struct qed_
+ 	tx_rate = vf_info->tx_rate;
+ 	ivi->max_tx_rate = tx_rate ? tx_rate : link.speed;
+ 	ivi->min_tx_rate = qed_iov_get_vf_min_rate(hwfn, vf_id);
++	ivi->trusted = vf_info->is_trusted_request;
+ 
+ 	return 0;
+ }
 
 
