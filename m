@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D42504F38EC
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:37:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B76A4F3BC5
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:21:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377401AbiDEL3E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:29:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60686 "EHLO
+        id S244924AbiDEMBv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:01:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58412 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350042AbiDEJw2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:52:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 885473D4B9;
-        Tue,  5 Apr 2022 02:50:30 -0700 (PDT)
+        with ESMTP id S1357900AbiDEK1Y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:27:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9532515BC;
+        Tue,  5 Apr 2022 03:11:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 45D44B818F3;
-        Tue,  5 Apr 2022 09:50:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A764BC385A1;
-        Tue,  5 Apr 2022 09:50:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1BDD46172B;
+        Tue,  5 Apr 2022 10:11:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22983C385A1;
+        Tue,  5 Apr 2022 10:11:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152228;
-        bh=CSFgzneWzetHHE0l8wItQgzA1USHHq7Fhwl/rMkc5I4=;
+        s=korg; t=1649153468;
+        bh=AhpTxZ7Xbf8FRRKK2R0+ENp23MVF1F4aTDQkIWZarUc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kNmAlgmhS+3UO7wVEbfLLjMLHaS8y4Y1ZWmlWNxUdSiieroT5WIuLV+UO77hry1kq
-         uyAWzD53DGMowa9s9yKOWdtYjr2s5o+SxumVdV/NL1axT/phwLJ3E/JBVYjNjAJGmv
-         whGNXukUdFTHkujiz387/6hzH/Z+q8l3HGQYEtDo=
+        b=unv9jZNdUsHRrPN9klg2gmCMAPT4cMwtZi28wUsryuA9QtUSpiHQxWG5PWkC4Tjoe
+         QleZsLsGZ0OvcqSJASXuQ1kSfR3FtesyxVXO0CRVybt/6eb6GuG7ba6N8EJjD3CPu8
+         kK4p9Va55lBKt2bbaLrYHpfan5qOhwaiFGw0y3VY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jian Shen <shenjian15@huawei.com>,
-        Guangbin Huang <huangguangbin2@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        kernel test robot <lkp@intel.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 663/913] net: hns3: add vlan list lock to protect vlan list
+Subject: [PATCH 5.10 231/599] ASoC: soc-compress: prevent the potentially use of null pointer
 Date:   Tue,  5 Apr 2022 09:28:45 +0200
-Message-Id: <20220405070359.710704908@linuxfoundation.org>
+Message-Id: <20220405070305.715516367@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070258.802373272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,180 +56,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jian Shen <shenjian15@huawei.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit 1932a624ab88ff407d1a1d567fe581faa15dc725 ]
+[ Upstream commit de2c6f98817fa5decb9b7d3b3a8a3ab864c10588 ]
 
-When adding port base VLAN, vf VLAN need to remove from HW and modify
-the vlan state in vf VLAN list as false. If the periodicity task is
-freeing the same node, it may cause "use after free" error.
-This patch adds a vlan list lock to protect the vlan list.
+There is one call trace that snd_soc_register_card()
+->snd_soc_bind_card()->soc_init_pcm_runtime()
+->snd_soc_dai_compress_new()->snd_soc_new_compress().
+In the trace the 'codec_dai' transfers from card->dai_link,
+and we can see from the snd_soc_add_pcm_runtime() in
+snd_soc_bind_card() that, if value of card->dai_link->num_codecs
+is 0, then 'codec_dai' could be null pointer caused
+by index out of bound in 'asoc_rtd_to_codec(rtd, 0)'.
+And snd_soc_register_card() is called by various platforms.
+Therefore, it is better to add the check in the case of misusing.
+And because 'cpu_dai' has already checked in soc_init_pcm_runtime(),
+there is no need to check again.
+Adding the check as follow, then if 'codec_dai' is null,
+snd_soc_new_compress() will not pass through the check
+'if (playback + capture != 1)', avoiding the leftover use of
+'codec_dai'.
 
-Fixes: c6075b193462 ("net: hns3: Record VF vlan tables")
-Signed-off-by: Jian Shen <shenjian15@huawei.com>
-Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 467fece ("ASoC: soc-dai: move snd_soc_dai_stream_valid() to soc-dai.c")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Reported-by: kernel test robot <lkp@intel.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/1634285633-529368-1-git-send-email-jiasheng@iscas.ac.cn
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../hisilicon/hns3/hns3pf/hclge_main.c        | 38 +++++++++++++++++--
- .../hisilicon/hns3/hns3pf/hclge_main.h        |  1 +
- 2 files changed, 35 insertions(+), 4 deletions(-)
+ sound/soc/soc-compress.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-index 4be90d0f2b91..af6c4a5cb0a2 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-@@ -10078,19 +10078,28 @@ static void hclge_add_vport_vlan_table(struct hclge_vport *vport, u16 vlan_id,
- 				       bool writen_to_tbl)
- {
- 	struct hclge_vport_vlan_cfg *vlan, *tmp;
-+	struct hclge_dev *hdev = vport->back;
+diff --git a/sound/soc/soc-compress.c b/sound/soc/soc-compress.c
+index 3a6a60215e81..5a1702d926ae 100644
+--- a/sound/soc/soc-compress.c
++++ b/sound/soc/soc-compress.c
+@@ -767,12 +767,14 @@ int snd_soc_new_compress(struct snd_soc_pcm_runtime *rtd, int num)
+ 	}
  
--	list_for_each_entry_safe(vlan, tmp, &vport->vlan_list, node)
--		if (vlan->vlan_id == vlan_id)
-+	mutex_lock(&hdev->vport_lock);
-+
-+	list_for_each_entry_safe(vlan, tmp, &vport->vlan_list, node) {
-+		if (vlan->vlan_id == vlan_id) {
-+			mutex_unlock(&hdev->vport_lock);
- 			return;
-+		}
+ 	/* check client and interface hw capabilities */
+-	if (snd_soc_dai_stream_valid(codec_dai, SNDRV_PCM_STREAM_PLAYBACK) &&
+-	    snd_soc_dai_stream_valid(cpu_dai,   SNDRV_PCM_STREAM_PLAYBACK))
+-		playback = 1;
+-	if (snd_soc_dai_stream_valid(codec_dai, SNDRV_PCM_STREAM_CAPTURE) &&
+-	    snd_soc_dai_stream_valid(cpu_dai,   SNDRV_PCM_STREAM_CAPTURE))
+-		capture = 1;
++	if (codec_dai) {
++		if (snd_soc_dai_stream_valid(codec_dai, SNDRV_PCM_STREAM_PLAYBACK) &&
++		    snd_soc_dai_stream_valid(cpu_dai,   SNDRV_PCM_STREAM_PLAYBACK))
++			playback = 1;
++		if (snd_soc_dai_stream_valid(codec_dai, SNDRV_PCM_STREAM_CAPTURE) &&
++		    snd_soc_dai_stream_valid(cpu_dai,   SNDRV_PCM_STREAM_CAPTURE))
++			capture = 1;
 +	}
  
- 	vlan = kzalloc(sizeof(*vlan), GFP_KERNEL);
--	if (!vlan)
-+	if (!vlan) {
-+		mutex_unlock(&hdev->vport_lock);
- 		return;
-+	}
- 
- 	vlan->hd_tbl_status = writen_to_tbl;
- 	vlan->vlan_id = vlan_id;
- 
- 	list_add_tail(&vlan->node, &vport->vlan_list);
-+	mutex_unlock(&hdev->vport_lock);
- }
- 
- static int hclge_add_vport_all_vlan_table(struct hclge_vport *vport)
-@@ -10099,6 +10108,8 @@ static int hclge_add_vport_all_vlan_table(struct hclge_vport *vport)
- 	struct hclge_dev *hdev = vport->back;
- 	int ret;
- 
-+	mutex_lock(&hdev->vport_lock);
-+
- 	list_for_each_entry_safe(vlan, tmp, &vport->vlan_list, node) {
- 		if (!vlan->hd_tbl_status) {
- 			ret = hclge_set_vlan_filter_hw(hdev, htons(ETH_P_8021Q),
-@@ -10108,12 +10119,16 @@ static int hclge_add_vport_all_vlan_table(struct hclge_vport *vport)
- 				dev_err(&hdev->pdev->dev,
- 					"restore vport vlan list failed, ret=%d\n",
- 					ret);
-+
-+				mutex_unlock(&hdev->vport_lock);
- 				return ret;
- 			}
- 		}
- 		vlan->hd_tbl_status = true;
- 	}
- 
-+	mutex_unlock(&hdev->vport_lock);
-+
- 	return 0;
- }
- 
-@@ -10123,6 +10138,8 @@ static void hclge_rm_vport_vlan_table(struct hclge_vport *vport, u16 vlan_id,
- 	struct hclge_vport_vlan_cfg *vlan, *tmp;
- 	struct hclge_dev *hdev = vport->back;
- 
-+	mutex_lock(&hdev->vport_lock);
-+
- 	list_for_each_entry_safe(vlan, tmp, &vport->vlan_list, node) {
- 		if (vlan->vlan_id == vlan_id) {
- 			if (is_write_tbl && vlan->hd_tbl_status)
-@@ -10137,6 +10154,8 @@ static void hclge_rm_vport_vlan_table(struct hclge_vport *vport, u16 vlan_id,
- 			break;
- 		}
- 	}
-+
-+	mutex_unlock(&hdev->vport_lock);
- }
- 
- void hclge_rm_vport_all_vlan_table(struct hclge_vport *vport, bool is_del_list)
-@@ -10144,6 +10163,8 @@ void hclge_rm_vport_all_vlan_table(struct hclge_vport *vport, bool is_del_list)
- 	struct hclge_vport_vlan_cfg *vlan, *tmp;
- 	struct hclge_dev *hdev = vport->back;
- 
-+	mutex_lock(&hdev->vport_lock);
-+
- 	list_for_each_entry_safe(vlan, tmp, &vport->vlan_list, node) {
- 		if (vlan->hd_tbl_status)
- 			hclge_set_vlan_filter_hw(hdev,
-@@ -10159,6 +10180,7 @@ void hclge_rm_vport_all_vlan_table(struct hclge_vport *vport, bool is_del_list)
- 		}
- 	}
- 	clear_bit(vport->vport_id, hdev->vf_vlan_full);
-+	mutex_unlock(&hdev->vport_lock);
- }
- 
- void hclge_uninit_vport_vlan_table(struct hclge_dev *hdev)
-@@ -10167,6 +10189,8 @@ void hclge_uninit_vport_vlan_table(struct hclge_dev *hdev)
- 	struct hclge_vport *vport;
- 	int i;
- 
-+	mutex_lock(&hdev->vport_lock);
-+
- 	for (i = 0; i < hdev->num_alloc_vport; i++) {
- 		vport = &hdev->vport[i];
- 		list_for_each_entry_safe(vlan, tmp, &vport->vlan_list, node) {
-@@ -10174,6 +10198,8 @@ void hclge_uninit_vport_vlan_table(struct hclge_dev *hdev)
- 			kfree(vlan);
- 		}
- 	}
-+
-+	mutex_unlock(&hdev->vport_lock);
- }
- 
- void hclge_restore_vport_port_base_vlan_config(struct hclge_dev *hdev)
-@@ -10213,6 +10239,8 @@ void hclge_restore_vport_vlan_table(struct hclge_vport *vport)
- 	struct hclge_dev *hdev = vport->back;
- 	int ret;
- 
-+	mutex_lock(&hdev->vport_lock);
-+
- 	if (vport->port_base_vlan_cfg.state == HNAE3_PORT_BASE_VLAN_DISABLE) {
- 		list_for_each_entry_safe(vlan, tmp, &vport->vlan_list, node) {
- 			ret = hclge_set_vlan_filter_hw(hdev, htons(ETH_P_8021Q),
-@@ -10223,6 +10251,8 @@ void hclge_restore_vport_vlan_table(struct hclge_vport *vport)
- 			vlan->hd_tbl_status = true;
- 		}
- 	}
-+
-+	mutex_unlock(&hdev->vport_lock);
- }
- 
- /* For global reset and imp reset, hardware will clear the mac table,
-@@ -12120,8 +12150,8 @@ static void hclge_uninit_ae_dev(struct hnae3_ae_dev *ae_dev)
- 	hclge_misc_irq_uninit(hdev);
- 	hclge_devlink_uninit(hdev);
- 	hclge_pci_uninit(hdev);
--	mutex_destroy(&hdev->vport_lock);
- 	hclge_uninit_vport_vlan_table(hdev);
-+	mutex_destroy(&hdev->vport_lock);
- 	ae_dev->priv = NULL;
- }
- 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
-index ae8c26c194ec..4d6dbfe0be7a 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
-@@ -1057,6 +1057,7 @@ struct hclge_vport {
- 	spinlock_t mac_list_lock; /* protect mac address need to add/detele */
- 	struct list_head uc_mac_list;   /* Store VF unicast table */
- 	struct list_head mc_mac_list;   /* Store VF multicast table */
-+
- 	struct list_head vlan_list;     /* Store VF vlan table */
- };
- 
+ 	/*
+ 	 * Compress devices are unidirectional so only one of the directions
 -- 
 2.34.1
 
