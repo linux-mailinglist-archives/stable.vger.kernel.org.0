@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D1064F2786
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:07:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8282C4F27AE
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:08:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233345AbiDEIHQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:07:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43860 "EHLO
+        id S233399AbiDEIIC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:08:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43556 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235556AbiDEH7v (ORCPT
+        with ESMTP id S235564AbiDEH7v (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:59:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F38C94092D;
-        Tue,  5 Apr 2022 00:55:31 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A049740A03;
+        Tue,  5 Apr 2022 00:55:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8E8C36167D;
-        Tue,  5 Apr 2022 07:55:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B008C340EE;
-        Tue,  5 Apr 2022 07:55:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3E22D615CD;
+        Tue,  5 Apr 2022 07:55:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FE98C340EE;
+        Tue,  5 Apr 2022 07:55:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145331;
-        bh=VQHR5ZlF7JanqFu+p1ZNTUk2Qwci10zOfKht+9wZfoc=;
+        s=korg; t=1649145333;
+        bh=ffree4QTNFS/AnCZEfxj8SDurCR5FE0zgUbDPN8iszM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uaTymCO0phczVcLa1S1cvjoDa77v61+nfWCFgHFJD+8cyvtp7aNGtjDYWhtPNFlX7
-         dkSU7xJzLbcFOwadrHhcWH80AMW7PM/QALoQyaMD+jvW7nFtsDy8mAU5urCmGu6Sew
-         ktfsqrka287YbjxX/BI17etUUUpHehksydEfvMYI=
+        b=uG2yKJfqX3KtzJReF/SU0PzAO1g3wHoFo18B03LbXl/elEqwaCJQh3IMiE31esZ18
+         ysxsgr8YT2iQM2KT2651wHSsylGLgr+9WIipRAuHD0lOZekznzpgOca8ngoqBkYcie
+         bf7YAJf9EJvPsw5i0kKV3ZZXUVA8Il+ae4xR83xM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        stable@vger.kernel.org, Mirela Rabulea <mirela.rabulea@nxp.com>,
+        Jacopo Mondi <jacopo+renesas@jmondi.org>,
+        Hugues Fruchet <hugues.fruchet@st.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0366/1126] media: hantro: sunxi: Fix VP9 steps
-Date:   Tue,  5 Apr 2022 09:18:33 +0200
-Message-Id: <20220405070418.370365366@linuxfoundation.org>
+Subject: [PATCH 5.17 0367/1126] media: ov5640: Fix set format, v4l2_mbus_pixelcode not updated
+Date:   Tue,  5 Apr 2022 09:18:34 +0200
+Message-Id: <20220405070418.399598456@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -54,38 +56,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jernej Skrabec <jernej.skrabec@gmail.com>
+From: Mirela Rabulea <mirela.rabulea@nxp.com>
 
-[ Upstream commit 17e83a0a1e134401616120b6976f65234e7ccc45 ]
+[ Upstream commit e738f5dd67eb8098d75345908a5e73782d0569a5 ]
 
-It turns out that postproc on Allwinner H6 needs width and height to be
-multiple of 32.
+In ov5640_set_fmt, pending_fmt_change will always be false, because the
+sensor format is saved before comparing it with the previous format:
+	fmt = &sensor->fmt;...
+	*fmt = *mbus_fmt;...
+	if (mbus_fmt->code != sensor->fmt.code)
+		sensor->pending_fmt_change = true;
+This causes the sensor to capture with the previous pixelcode.
 
-Fixes: 86790a4fdf4b ("media: hantro: Add support for Allwinner H6")
-Signed-off-by: Jernej Skrabec <jernej.skrabec@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Also, changes might happen even for V4L2_SUBDEV_FORMAT_TRY, so fix that.
+
+Basically, revert back to the state before
+commit 071154499193 ("media: ov5640: Fix set format regression")
+as it was more clear, and then update format even when pixelcode does
+not change, as resolution might change.
+
+Fixes: 071154499193 ("media: ov5640: Fix set format regression")
+Fixes: 6949d864776e ("media: ov5640: do not change mode if format or frame interval is unchanged")
+Fixes: fb98e29ff1ea5 ("media: ov5640: fix mode change regression")
+
+Signed-off-by: Mirela Rabulea <mirela.rabulea@nxp.com>
+Reviewed-by: Jacopo Mondi <jacopo+renesas@jmondi.org>
+Acked-by: Hugues Fruchet <hugues.fruchet@st.com>
+Tested-by: Hugues Fruchet <hugues.fruchet@st.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/hantro/sunxi_vpu_hw.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/media/i2c/ov5640.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/staging/media/hantro/sunxi_vpu_hw.c b/drivers/staging/media/hantro/sunxi_vpu_hw.c
-index 90633406c4eb..c0edd5856a0c 100644
---- a/drivers/staging/media/hantro/sunxi_vpu_hw.c
-+++ b/drivers/staging/media/hantro/sunxi_vpu_hw.c
-@@ -29,10 +29,10 @@ static const struct hantro_fmt sunxi_vpu_dec_fmts[] = {
- 		.frmsize = {
- 			.min_width = 48,
- 			.max_width = 3840,
--			.step_width = MB_DIM,
-+			.step_width = 32,
- 			.min_height = 48,
- 			.max_height = 2160,
--			.step_height = MB_DIM,
-+			.step_height = 32,
- 		},
- 	},
- };
+diff --git a/drivers/media/i2c/ov5640.c b/drivers/media/i2c/ov5640.c
+index ddbd71394db3..db5a19babe67 100644
+--- a/drivers/media/i2c/ov5640.c
++++ b/drivers/media/i2c/ov5640.c
+@@ -2293,7 +2293,6 @@ static int ov5640_set_fmt(struct v4l2_subdev *sd,
+ 	struct ov5640_dev *sensor = to_ov5640_dev(sd);
+ 	const struct ov5640_mode_info *new_mode;
+ 	struct v4l2_mbus_framefmt *mbus_fmt = &format->format;
+-	struct v4l2_mbus_framefmt *fmt;
+ 	int ret;
+ 
+ 	if (format->pad != 0)
+@@ -2311,12 +2310,10 @@ static int ov5640_set_fmt(struct v4l2_subdev *sd,
+ 	if (ret)
+ 		goto out;
+ 
+-	if (format->which == V4L2_SUBDEV_FORMAT_TRY)
+-		fmt = v4l2_subdev_get_try_format(sd, sd_state, 0);
+-	else
+-		fmt = &sensor->fmt;
+-
+-	*fmt = *mbus_fmt;
++	if (format->which == V4L2_SUBDEV_FORMAT_TRY) {
++		*v4l2_subdev_get_try_format(sd, sd_state, 0) = *mbus_fmt;
++		goto out;
++	}
+ 
+ 	if (new_mode != sensor->current_mode) {
+ 		sensor->current_mode = new_mode;
+@@ -2325,6 +2322,9 @@ static int ov5640_set_fmt(struct v4l2_subdev *sd,
+ 	if (mbus_fmt->code != sensor->fmt.code)
+ 		sensor->pending_fmt_change = true;
+ 
++	/* update format even if code is unchanged, resolution might change */
++	sensor->fmt = *mbus_fmt;
++
+ 	__v4l2_ctrl_s_ctrl_int64(sensor->ctrls.pixel_rate,
+ 				 ov5640_calc_pixel_rate(sensor));
+ out:
 -- 
 2.34.1
 
