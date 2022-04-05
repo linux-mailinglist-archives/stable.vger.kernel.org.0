@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F7CE4F3197
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:45:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BEB6E4F2EA8
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:02:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355919AbiDEKWO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:22:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59028 "EHLO
+        id S1355989AbiDEKWh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:22:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348019AbiDEJ3E (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:29:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B508E0991;
-        Tue,  5 Apr 2022 02:16:12 -0700 (PDT)
+        with ESMTP id S237915AbiDEJ3O (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:29:14 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBFDDE0AE5;
+        Tue,  5 Apr 2022 02:16:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 72536B818F3;
-        Tue,  5 Apr 2022 09:16:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF1A3C385A2;
-        Tue,  5 Apr 2022 09:16:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6E341615E4;
+        Tue,  5 Apr 2022 09:16:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E4ACC385A4;
+        Tue,  5 Apr 2022 09:16:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150170;
-        bh=89+pR9PH12ki5m/MYnRkohyxE/wShs8jdpgwEW/JbyQ=;
+        s=korg; t=1649150178;
+        bh=wYBk6rN2/OlxhSRKIP2CH/M6OSQISZIo3MuzDWbA440=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ge4VldXZcq9MKvTh7LDhxINkuEONsuIRqUu9IREeehi/wKGOQ/chn/vTPLxKE43Cp
-         XdsLJ+tk2m8L+/JNmCLbrl1HksmVwtSiVOHAYdHwbXbeTSH4k5wIziLjy9V9LFxfu+
-         /o6pGXCCafqdqL/T2o0MmsDoGbydsSIGv3qTik6Q=
+        b=h18OSoniMswnEPn7Jxjbk2yyGQkTyajiqC5V5v8b80qnd5N2igIMAGEvmIE0xSiAI
+         06JJEKVvaN3iQdRzWlPaWj7OqynsJdnBs8m9FDuALj+f1qWqspMy+BKP1qlVEzjBbT
+         7RNPEUsJxCfcdvIemKhouTtrxqsu6YnDSF2P201U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Wensheng <zhangwensheng5@huawei.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.16 0979/1017] nbd: fix possible overflow on first_minor in nbd_dev_add()
-Date:   Tue,  5 Apr 2022 09:31:32 +0200
-Message-Id: <20220405070423.263803833@linuxfoundation.org>
+        stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>,
+        Rob Herring <robh@kernel.org>
+Subject: [PATCH 5.16 0982/1017] dt-bindings: mtd: nand-controller: Fix a comment in the examples
+Date:   Tue,  5 Apr 2022 09:31:35 +0200
+Message-Id: <20220405070423.352898253@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -54,67 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Wensheng <zhangwensheng5@huawei.com>
+From: Miquel Raynal <miquel.raynal@bootlin.com>
 
-commit 6d35d04a9e18990040e87d2bbf72689252669d54 upstream.
+commit 0e7f1b557974ce297e5e4c9d4245720fbb489886 upstream.
 
-When 'index' is a big numbers, it may become negative which forced
-to 'int'. then 'index << part_shift' might overflow to a positive
-value that is not greater than '0xfffff', then sysfs might complains
-about duplicate creation. Because of this, move the 'index' judgment
-to the front will fix it and be better.
+The controller properties should be in the controller 'parent' node,
+while properties in the children nodes are specific to the NAND
+*chip*. This error was already present during the yaml conversion.
 
-Fixes: b0d9111a2d53 ("nbd: use an idr to keep track of nbd devices")
-Fixes: 940c264984fd ("nbd: fix possible overflow for 'first_minor' in nbd_dev_add()")
-Signed-off-by: Zhang Wensheng <zhangwensheng5@huawei.com>
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Link: https://lore.kernel.org/r/20220310093224.4002895-1-zhangwensheng5@huawei.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 2d472aba15ff ("mtd: nand: document the NAND controller/NAND chip DT representation")
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Acked-by: Rob Herring <robh@kernel.org>
+Link: https://lore.kernel.org/linux-mtd/20211216111654.238086-3-miquel.raynal@bootlin.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/block/nbd.c |   24 ++++++++++++------------
- 1 file changed, 12 insertions(+), 12 deletions(-)
+ Documentation/devicetree/bindings/mtd/nand-controller.yaml |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/block/nbd.c
-+++ b/drivers/block/nbd.c
-@@ -1800,17 +1800,6 @@ static struct nbd_device *nbd_dev_add(in
- 	refcount_set(&nbd->refs, 0);
- 	INIT_LIST_HEAD(&nbd->list);
- 	disk->major = NBD_MAJOR;
--
--	/* Too big first_minor can cause duplicate creation of
--	 * sysfs files/links, since index << part_shift might overflow, or
--	 * MKDEV() expect that the max bits of first_minor is 20.
--	 */
--	disk->first_minor = index << part_shift;
--	if (disk->first_minor < index || disk->first_minor > MINORMASK) {
--		err = -EINVAL;
--		goto out_free_work;
--	}
--
- 	disk->minors = 1 << part_shift;
- 	disk->fops = &nbd_fops;
- 	disk->private_data = nbd;
-@@ -1915,8 +1904,19 @@ static int nbd_genl_connect(struct sk_bu
- 	if (!netlink_capable(skb, CAP_SYS_ADMIN))
- 		return -EPERM;
+--- a/Documentation/devicetree/bindings/mtd/nand-controller.yaml
++++ b/Documentation/devicetree/bindings/mtd/nand-controller.yaml
+@@ -184,7 +184,7 @@ examples:
+         nand-use-soft-ecc-engine;
+         nand-ecc-algo = "bch";
  
--	if (info->attrs[NBD_ATTR_INDEX])
-+	if (info->attrs[NBD_ATTR_INDEX]) {
- 		index = nla_get_u32(info->attrs[NBD_ATTR_INDEX]);
-+
-+		/*
-+		 * Too big first_minor can cause duplicate creation of
-+		 * sysfs files/links, since index << part_shift might overflow, or
-+		 * MKDEV() expect that the max bits of first_minor is 20.
-+		 */
-+		if (index < 0 || index > MINORMASK >> part_shift) {
-+			printk(KERN_ERR "nbd: illegal input index %d\n", index);
-+			return -EINVAL;
-+		}
-+	}
- 	if (!info->attrs[NBD_ATTR_SOCKETS]) {
- 		printk(KERN_ERR "nbd: must specify at least one socket\n");
- 		return -EINVAL;
+-        /* controller specific properties */
++        /* NAND chip specific properties */
+       };
+ 
+       nand@1 {
 
 
