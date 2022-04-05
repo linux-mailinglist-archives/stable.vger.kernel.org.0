@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 87B394F39D3
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:56:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B03754F39D6
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:56:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378779AbiDELir (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:38:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53874 "EHLO
+        id S1378790AbiDELiw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:38:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54572 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354007AbiDEKKg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:10:36 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F7D0C624A;
-        Tue,  5 Apr 2022 02:56:36 -0700 (PDT)
+        with ESMTP id S1354018AbiDEKKs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:10:48 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F21E04F443;
+        Tue,  5 Apr 2022 02:56:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B6C096157A;
-        Tue,  5 Apr 2022 09:56:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BAF7CC385A1;
-        Tue,  5 Apr 2022 09:56:34 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 49E49CE1C6C;
+        Tue,  5 Apr 2022 09:56:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 616F6C385A3;
+        Tue,  5 Apr 2022 09:56:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152595;
-        bh=fyksP8iHCy9RFz7uy483NgCx3ENE00nut1rH8XRHy80=;
+        s=korg; t=1649152597;
+        bh=ddMf/Q2OYNRAJxNBRf3ZcvSR2v8ceJNOuWDRf7eIQjU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZLzONp8ko362pXWtScoS5XQo38TItglRAl3LPvHesG/hJc60OMOupKsMjrA3YGPDY
-         yFEtdyS9s8gfehhxu988OmNX78Mpht/PUlZdAESMokr+FjZmE1TU75y0jxrw6zk+kz
-         a1k2HLmBRcq37sY2Ls/7QBLrUwZc991n5YmkV71w=
+        b=iTnc6SzYNdai+QAmdWC4u8lN2ex6qLtx++U/nZKkXgtor9+jWe2uTJDqlzO+x5FcL
+         GidiEL90btim7thYXKxTz6ZireQFK2MMMbYVJDk2ahbrEdeFKWwd0BpV9jYh3ScnHh
+         +39PB56n3pyBAEnu9yX3nxNfTQxROLCgDt11/GPo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.15 834/913] can: mcp251xfd: mcp251xfd_register_get_dev_id(): fix return of error value
-Date:   Tue,  5 Apr 2022 09:31:36 +0200
-Message-Id: <20220405070404.829894294@linuxfoundation.org>
+        stable@vger.kernel.org, Hugh Dickins <hughd@google.com>,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>
+Subject: [PATCH 5.15 835/913] XArray: Update the LRU list in xas_split()
+Date:   Tue,  5 Apr 2022 09:31:37 +0200
+Message-Id: <20220405070404.859282803@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -53,40 +53,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Matthew Wilcox (Oracle) <willy@infradead.org>
 
-commit fa7b514d2b2894e052b8e94c7a29feb98e90093f upstream.
+commit 3ed4bb77156da0bc732847c8c9df92454c1fbeea upstream.
 
-Clang static analysis reports this issue:
+When splitting a value entry, we may need to add the new nodes to the LRU
+list and remove the parent node from the LRU list.  The WARN_ON checks
+in shadow_lru_isolate() catch this oversight.  This bug was latent
+until we stopped splitting folios in shrink_page_list() with commit
+820c4e2e6f51 ("mm/vmscan: Free non-shmem folios without splitting them").
+That allows the creation of large shadow entries, and subsequently when
+trying to page in a small page, we will split the large shadow entry
+in __filemap_add_folio().
 
-| mcp251xfd-core.c:1813:7: warning: The left operand
-|   of '&' is a garbage value
-|   FIELD_GET(MCP251XFD_REG_DEVID_ID_MASK, dev_id),
-|   ^                                      ~~~~~~
-
-dev_id is set in a successful call to mcp251xfd_register_get_dev_id().
-Though the status of calls made by mcp251xfd_register_get_dev_id() are
-checked and handled, their status' are not returned. So return err.
-
-Fixes: 55e5b97f003e ("can: mcp25xxfd: add driver for Microchip MCP25xxFD SPI CAN")
-Link: https://lore.kernel.org/all/20220319153128.2164120-1-trix@redhat.com
-Signed-off-by: Tom Rix <trix@redhat.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fixes: 8fc75643c5e1 ("XArray: add xas_split")
+Reported-by: Hugh Dickins <hughd@google.com>
+Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/spi/mcp251xfd/mcp251xfd-core.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ lib/xarray.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/net/can/spi/mcp251xfd/mcp251xfd-core.c
-+++ b/drivers/net/can/spi/mcp251xfd/mcp251xfd-core.c
-@@ -2706,7 +2706,7 @@ mcp251xfd_register_get_dev_id(const stru
-  out_kfree_buf_rx:
- 	kfree(buf_rx);
+--- a/lib/xarray.c
++++ b/lib/xarray.c
+@@ -1081,6 +1081,7 @@ void xas_split(struct xa_state *xas, voi
+ 					xa_mk_node(child));
+ 			if (xa_is_value(curr))
+ 				values--;
++			xas_update(xas, child);
+ 		} else {
+ 			unsigned int canon = offset - xas->xa_sibs;
  
--	return 0;
-+	return err;
+@@ -1095,6 +1096,7 @@ void xas_split(struct xa_state *xas, voi
+ 	} while (offset-- > xas->xa_offset);
+ 
+ 	node->nr_values += values;
++	xas_update(xas, node);
  }
- 
- #define MCP251XFD_QUIRK_ACTIVE(quirk) \
+ EXPORT_SYMBOL_GPL(xas_split);
+ #endif
 
 
