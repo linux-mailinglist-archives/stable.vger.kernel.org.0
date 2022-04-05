@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E2B54F2F32
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:06:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DDF6C4F3422
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:25:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354080AbiDEKL3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:11:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60604 "EHLO
+        id S234129AbiDEIid (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:38:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53312 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242457AbiDEJQR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:16:17 -0400
+        with ESMTP id S240012AbiDEIWM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:22:12 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3B2ED3720;
-        Tue,  5 Apr 2022 02:01:54 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 029522BDA;
+        Tue,  5 Apr 2022 01:19:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 88A32614E4;
-        Tue,  5 Apr 2022 09:01:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 924A3C385A1;
-        Tue,  5 Apr 2022 09:01:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 587D9609D0;
+        Tue,  5 Apr 2022 08:19:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60106C385A1;
+        Tue,  5 Apr 2022 08:19:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149314;
-        bh=RpHeGB/4TCr70vwntNOFuyfpQZbXqLVJP5A5Q9NI2ds=;
+        s=korg; t=1649146775;
+        bh=gLx6LyEARQOPG7EoCVpdTIUT4WgJnC0gWdY0sjo1HKo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F0Ok6rA2FbaKbmxr87GJNURAHLK4u2z6P6nT5XXlblbciklnt8n6pCuNmE6DUqGiC
-         SBzk8uMHcElsGEi4WhdUzZluB9lHgOR/Rn7TX2ntw6Mj+AJ/6M6PagYioPzYXHR36u
-         FvMftACtCEHl4lSMA/JW8cq0hc06+uoBu87op940=
+        b=xt478UPJIelN95JpjNch9NVNNL7OvIVuVZLQhl56mB7nLdMV0Zj8PPpZri6n0pUTC
+         /88ZQlkFT0VPLvgJLbocr4rVjOcOWgyR3WB5SFcUL/tqwIupZN58+EYtFzi/DC087P
+         7r6teU6pXOTGZ2skWfOoJf99SPe8ozEz49lBihAU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        stable@vger.kernel.org, Srujana Challa <schalla@marvell.com>,
+        Shijith Thotton <sthotton@marvell.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0669/1017] iio: adc: Add check for devm_request_threaded_irq
-Date:   Tue,  5 Apr 2022 09:26:22 +0200
-Message-Id: <20220405070414.139507094@linuxfoundation.org>
+Subject: [PATCH 5.17 0836/1126] crypto: octeontx2 - CN10K CPT to RNM workaround
+Date:   Tue,  5 Apr 2022 09:26:23 +0200
+Message-Id: <20220405070432.095684505@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +55,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Srujana Challa <schalla@marvell.com>
 
-[ Upstream commit b30537a4cedcacf0ade2f33ebb7610178ed1e7d7 ]
+[ Upstream commit bd9305b0cb69bfe98885a63a9e6231ae92e822e2 ]
 
-As the potential failure of the devm_request_threaded_irq(),
-it should be better to check the return value and return
-error if fails.
+When software sets CPT_AF_CTL[RNM_REQ_EN]=1 and RNM in not producing
+entropy(i.e., RNM_ENTROPY_STATUS[NORMAL_CNT] < 0x40), the first cycle of
+the response may be lost due to a conditional clocking issue. Due to
+this, the subsequent random number stream will be corrupted. So, this
+patch adds support to ensure RNM_ENTROPY_STATUS[NORMAL_CNT] = 0x40
+before writing CPT_AF_CTL[RNM_REQ_EN] = 1, as a workaround.
 
-Fixes: fa659a40b80b ("iio: adc: twl6030-gpadc: Use devm_* API family")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Link: https://lore.kernel.org/r/20220224062849.3280966-1-jiasheng@iscas.ac.cn
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Srujana Challa <schalla@marvell.com>
+Signed-off-by: Shijith Thotton <sthotton@marvell.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/adc/twl6030-gpadc.c | 2 ++
- 1 file changed, 2 insertions(+)
+ .../marvell/octeontx2/otx2_cptpf_ucode.c      | 43 ++++++++++++++++++-
+ 1 file changed, 42 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/iio/adc/twl6030-gpadc.c b/drivers/iio/adc/twl6030-gpadc.c
-index afdb59e0b526..d0223e39d59a 100644
---- a/drivers/iio/adc/twl6030-gpadc.c
-+++ b/drivers/iio/adc/twl6030-gpadc.c
-@@ -911,6 +911,8 @@ static int twl6030_gpadc_probe(struct platform_device *pdev)
- 	ret = devm_request_threaded_irq(dev, irq, NULL,
- 				twl6030_gpadc_irq_handler,
- 				IRQF_ONESHOT, "twl6030_gpadc", indio_dev);
-+	if (ret)
-+		return ret;
+diff --git a/drivers/crypto/marvell/octeontx2/otx2_cptpf_ucode.c b/drivers/crypto/marvell/octeontx2/otx2_cptpf_ucode.c
+index 1b4d425bbf0e..7fd4503d9cfc 100644
+--- a/drivers/crypto/marvell/octeontx2/otx2_cptpf_ucode.c
++++ b/drivers/crypto/marvell/octeontx2/otx2_cptpf_ucode.c
+@@ -1076,6 +1076,39 @@ static void delete_engine_grps(struct pci_dev *pdev,
+ 		delete_engine_group(&pdev->dev, &eng_grps->grp[i]);
+ }
  
- 	ret = twl6030_gpadc_enable_irq(TWL6030_GPADC_RT_SW1_EOC_MASK);
- 	if (ret < 0) {
++#define PCI_DEVID_CN10K_RNM 0xA098
++#define RNM_ENTROPY_STATUS  0x8
++
++static void rnm_to_cpt_errata_fixup(struct device *dev)
++{
++	struct pci_dev *pdev;
++	void __iomem *base;
++	int timeout = 5000;
++
++	pdev = pci_get_device(PCI_VENDOR_ID_CAVIUM, PCI_DEVID_CN10K_RNM, NULL);
++	if (!pdev)
++		return;
++
++	base = pci_ioremap_bar(pdev, 0);
++	if (!base)
++		goto put_pdev;
++
++	while ((readq(base + RNM_ENTROPY_STATUS) & 0x7F) != 0x40) {
++		cpu_relax();
++		udelay(1);
++		timeout--;
++		if (!timeout) {
++			dev_warn(dev, "RNM is not producing entropy\n");
++			break;
++		}
++	}
++
++	iounmap(base);
++
++put_pdev:
++	pci_dev_put(pdev);
++}
++
+ int otx2_cpt_get_eng_grp(struct otx2_cpt_eng_grps *eng_grps, int eng_type)
+ {
+ 
+@@ -1189,9 +1222,17 @@ int otx2_cpt_create_eng_grps(struct otx2_cptpf_dev *cptpf,
+ 
+ 	if (is_dev_otx2(pdev))
+ 		goto unlock;
++
++	/*
++	 * Ensure RNM_ENTROPY_STATUS[NORMAL_CNT] = 0x40 before writing
++	 * CPT_AF_CTL[RNM_REQ_EN] = 1 as a workaround for HW errata.
++	 */
++	rnm_to_cpt_errata_fixup(&pdev->dev);
++
+ 	/*
+ 	 * Configure engine group mask to allow context prefetching
+-	 * for the groups.
++	 * for the groups and enable random number request, to enable
++	 * CPT to request random numbers from RNM.
+ 	 */
+ 	otx2_cpt_write_af_reg(&cptpf->afpf_mbox, pdev, CPT_AF_CTL,
+ 			      OTX2_CPT_ALL_ENG_GRPS_MASK << 3 | BIT_ULL(16),
 -- 
 2.34.1
 
