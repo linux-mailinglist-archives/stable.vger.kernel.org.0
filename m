@@ -2,50 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 349284F31D7
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:46:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E1A24F3277
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:58:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239504AbiDEKfn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:35:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53904 "EHLO
+        id S245324AbiDEJLq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:11:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52164 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240011AbiDEJeA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:34:00 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61A2B7DE3B;
-        Tue,  5 Apr 2022 02:23:14 -0700 (PDT)
+        with ESMTP id S244726AbiDEIwf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 585E11AF23;
+        Tue,  5 Apr 2022 01:42:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id D4153CE1C77;
-        Tue,  5 Apr 2022 09:23:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3A82C385A0;
-        Tue,  5 Apr 2022 09:23:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E717961003;
+        Tue,  5 Apr 2022 08:42:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 037C5C385A0;
+        Tue,  5 Apr 2022 08:42:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150591;
-        bh=odjEBd93PReyGhAg8bd0F+x9rMuWnwtR8XTzfDHioAk=;
+        s=korg; t=1649148171;
+        bh=M67CU+T4xOG6XH0wlo3yuSohmbR82pONZTeDDfPjaTs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1tZC9tiMHsC+jWyDqiShOMOQh466NuVXEjJGMgSK3nTWX9BGQOANEn4DPSShiyNwP
-         ++GvryP/hore94ozqvgE5LYCPnjYFlMF8jWmwZSbjmv5mcevAhOhVvoRnp553ORJzV
-         I3j1hrE8/1ylSP3UdZF+/sTb/hmQNdz1fsC/EmkU=
+        b=ntu8wnMeo69V0184+m/l7gXWA2GbxPOZ6aUi/j7DCVZvKk6GlH2qTZkXv2FgKvQ/3
+         pDDq7RJp4yizKIVPJbIGJRcErrFUhVhjuj1ebiK2Un63otbzky3ckNN1ikah8JvkaP
+         KVIA8XpGcaUFixTm7AcxAkWYgNV5w+x/BuxhCHjs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Charan Teja Kalla <quic_charante@quicinc.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        David Rientjes <rientjes@google.com>,
-        Nadav Amit <nadav.amit@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.15 109/913] Revert "mm: madvise: skip unmapped vma holes passed to process_madvise"
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+6e2de48f06cdb2884bfc@syzkaller.appspotmail.com
+Subject: [PATCH 5.16 0258/1017] watch_queue: Actually free the watch
 Date:   Tue,  5 Apr 2022 09:19:31 +0200
-Message-Id: <20220405070343.094253192@linuxfoundation.org>
+Message-Id: <20220405070401.921857691@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -60,57 +54,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Charan Teja Kalla <quic_charante@quicinc.com>
+From: David Howells <dhowells@redhat.com>
 
-commit e6b0a7b357659c332231621e4315658d062c23ee upstream.
+[ Upstream commit 3d8dcf278b1ee1eff1e90be848fa2237db4c07a7 ]
 
-This reverts commit 08095d6310a7 ("mm: madvise: skip unmapped vma holes
-passed to process_madvise") as process_madvise() fails to return the
-exact processed bytes in other cases too.
+free_watch() does everything barring actually freeing the watch object.  Fix
+this by adding the missing kfree.
 
-As an example: if process_madvise() hits mlocked pages after processing
-some initial bytes passed in [start, end), it just returns EINVAL
-although some bytes are processed.  Thus making an exception only for
-ENOMEM is partially fixing the problem of returning the proper advised
-bytes.
+kmemleak produces a report something like the following.  Note that as an
+address can be seen in the first word, the watch would appear to have gone
+through call_rcu().
 
-Thus revert this patch and return proper bytes advised.
+BUG: memory leak
+unreferenced object 0xffff88810ce4a200 (size 96):
+  comm "syz-executor352", pid 3605, jiffies 4294947473 (age 13.720s)
+  hex dump (first 32 bytes):
+    e0 82 48 0d 81 88 ff ff 00 00 00 00 00 00 00 00  ..H.............
+    80 a2 e4 0c 81 88 ff ff 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<ffffffff8214e6cc>] kmalloc include/linux/slab.h:581 [inline]
+    [<ffffffff8214e6cc>] kzalloc include/linux/slab.h:714 [inline]
+    [<ffffffff8214e6cc>] keyctl_watch_key+0xec/0x2e0 security/keys/keyctl.c:1800
+    [<ffffffff8214ec84>] __do_sys_keyctl+0x3c4/0x490 security/keys/keyctl.c:2016
+    [<ffffffff84493a25>] do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+    [<ffffffff84493a25>] do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+    [<ffffffff84600068>] entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-Link: https://lkml.kernel.org/r/e73da1304a88b6a8a11907045117cccf4c2b8374.1648046642.git.quic_charante@quicinc.com
-Fixes: 08095d6310a7ce ("mm: madvise: skip unmapped vma holes passed to process_madvise")
-Signed-off-by: Charan Teja Kalla <quic_charante@quicinc.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: Suren Baghdasaryan <surenb@google.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Nadav Amit <nadav.amit@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: c73be61cede5 ("pipe: Add general notification queue support")
+Reported-and-tested-by: syzbot+6e2de48f06cdb2884bfc@syzkaller.appspotmail.com
+Signed-off-by: David Howells <dhowells@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/madvise.c |    9 +--------
- 1 file changed, 1 insertion(+), 8 deletions(-)
+ kernel/watch_queue.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/mm/madvise.c
-+++ b/mm/madvise.c
-@@ -1287,16 +1287,9 @@ SYSCALL_DEFINE5(process_madvise, int, pi
+diff --git a/kernel/watch_queue.c b/kernel/watch_queue.c
+index 12348b41d7ad..38a135d68c05 100644
+--- a/kernel/watch_queue.c
++++ b/kernel/watch_queue.c
+@@ -398,6 +398,7 @@ static void free_watch(struct rcu_head *rcu)
+ 	put_watch_queue(rcu_access_pointer(watch->queue));
+ 	atomic_dec(&watch->cred->user->nr_watches);
+ 	put_cred(watch->cred);
++	kfree(watch);
+ }
  
- 	while (iov_iter_count(&iter)) {
- 		iovec = iov_iter_iovec(&iter);
--		/*
--		 * do_madvise returns ENOMEM if unmapped holes are present
--		 * in the passed VMA. process_madvise() is expected to skip
--		 * unmapped holes passed to it in the 'struct iovec' list
--		 * and not fail because of them. Thus treat -ENOMEM return
--		 * from do_madvise as valid and continue processing.
--		 */
- 		ret = do_madvise(mm, (unsigned long)iovec.iov_base,
- 					iovec.iov_len, behavior);
--		if (ret < 0 && ret != -ENOMEM)
-+		if (ret < 0)
- 			break;
- 		iov_iter_advance(&iter, iovec.iov_len);
- 	}
+ static void __put_watch(struct kref *kref)
+-- 
+2.34.1
+
 
 
