@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB3434F330F
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:08:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 58F194F3292
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:59:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347500AbiDEJ1B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:27:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46132 "EHLO
+        id S237245AbiDEJEF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:04:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42524 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241972AbiDEIsh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:48:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24ACC2E0BC;
-        Tue,  5 Apr 2022 01:36:57 -0700 (PDT)
+        with ESMTP id S242259AbiDEIsl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:48:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACC1838D91;
+        Tue,  5 Apr 2022 01:37:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9A5C8B81C6C;
-        Tue,  5 Apr 2022 08:36:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B1DBC385C4;
-        Tue,  5 Apr 2022 08:36:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C73B4614EF;
+        Tue,  5 Apr 2022 08:37:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCFECC385A1;
+        Tue,  5 Apr 2022 08:37:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147814;
-        bh=r/DXFQELdQq/ZadbKmQmE3MJc3KaS7IqcZw6aXOg4t8=;
+        s=korg; t=1649147825;
+        bh=B2Gvg2dMSeDybRBkutfI6uE2QcVJM3mGlmrR9iRhpZw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZhnnYD+yM5/cgCRkwR4gPFP9D0qviTYgPqxp9w1qa/9c4ofTo28zllmumJa0Cg6hg
-         SsZ+6IyqtM5sfQifqAUYYu4I9BJomOf8lNGIhpIfNO6T48t4MGL8RSmRC+typ+wv32
-         b+h90tiCZRnsnC5ndkIV9R2b6zMjer6huwF/6k9I=
+        b=WEEvWxWRq6KO5rZUEHRs64OfRq3xQ3HFqG3WKfigTdvS21viYvZ7muwrsTDQxjk+2
+         vaIPeDSsPBcW5fyOtIjyGxTVPaopJ1YG9Vh1lBvv6nrHHJLEAkWbKfUjcc+qphFlih
+         VvYXjdMg+u/CZQyi9XKHKLyW2kBsUzK+RbfbAVhI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
-        Nishanth Menon <nm@ti.com>
-Subject: [PATCH 5.16 0131/1017] arm64: dts: ti: k3-j721e: Fix gic-v3 compatible regs
-Date:   Tue,  5 Apr 2022 09:17:24 +0200
-Message-Id: <20220405070358.090201579@linuxfoundation.org>
+        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omp.ru>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.16 0135/1017] mmc: core: use sysfs_emit() instead of sprintf()
+Date:   Tue,  5 Apr 2022 09:17:28 +0200
+Message-Id: <20220405070358.210521626@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -53,59 +53,221 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nishanth Menon <nm@ti.com>
+From: Sergey Shtylyov <s.shtylyov@omp.ru>
 
-commit a06ed27f3bc63ab9e10007dc0118d910908eb045 upstream.
+commit f5d8a5fe77ce933f53eb8f2e22bb7a1a2019ea11 upstream.
 
-Though GIC ARE option is disabled for no GIC-v2 compatibility,
-Cortex-A72 is free to implement the CPU interface as long as it
-communicates with the GIC using the stream protocol. This requires
-that the SoC integration mark out the PERIPHBASE[1] as reserved area
-within the SoC. See longer discussion in [2] for further information.
+sprintf() (still used in the MMC core for the sysfs output) is vulnerable
+to the buffer overflow.  Use the new-fangled sysfs_emit() instead.
 
-Update the GIC register map to indicate offsets from PERIPHBASE based
-on [3]. Without doing this, systems like kvm will not function with
-gic-v2 emulation.
+Found by Linux Verification Center (linuxtesting.org) with the SVACE static
+analysis tool.
 
-[1] https://developer.arm.com/documentation/100095/0002/system-control/aarch64-register-descriptions/configuration-base-address-register--el1
-[2] https://lore.kernel.org/all/87k0e0tirw.wl-maz@kernel.org/
-[3] https://developer.arm.com/documentation/100095/0002/way1382452674438
-
-Cc: stable@vger.kernel.org # 5.10+
-Fixes: 2d87061e70de ("arm64: dts: ti: Add Support for J721E SoC")
-Reported-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Nishanth Menon <nm@ti.com>
-Acked-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20220215201008.15235-3-nm@ti.com
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/717729b2-d65b-c72e-9fac-471d28d00b5a@omp.ru
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/boot/dts/ti/k3-j721e-main.dtsi |    5 ++++-
- arch/arm64/boot/dts/ti/k3-j721e.dtsi      |    1 +
- 2 files changed, 5 insertions(+), 1 deletion(-)
+ drivers/mmc/core/bus.c      |    9 +++++----
+ drivers/mmc/core/bus.h      |    3 ++-
+ drivers/mmc/core/mmc.c      |   16 ++++++++--------
+ drivers/mmc/core/sd.c       |   27 +++++++++++++--------------
+ drivers/mmc/core/sdio.c     |    5 +++--
+ drivers/mmc/core/sdio_bus.c |    7 ++++---
+ 6 files changed, 35 insertions(+), 32 deletions(-)
 
---- a/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
-+++ b/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
-@@ -76,7 +76,10 @@
- 		#interrupt-cells = <3>;
- 		interrupt-controller;
- 		reg = <0x00 0x01800000 0x00 0x10000>,	/* GICD */
--		      <0x00 0x01900000 0x00 0x100000>;	/* GICR */
-+		      <0x00 0x01900000 0x00 0x100000>,	/* GICR */
-+		      <0x00 0x6f000000 0x00 0x2000>,	/* GICC */
-+		      <0x00 0x6f010000 0x00 0x1000>,	/* GICH */
-+		      <0x00 0x6f020000 0x00 0x2000>;	/* GICV */
+--- a/drivers/mmc/core/bus.c
++++ b/drivers/mmc/core/bus.c
+@@ -15,6 +15,7 @@
+ #include <linux/stat.h>
+ #include <linux/of.h>
+ #include <linux/pm_runtime.h>
++#include <linux/sysfs.h>
  
- 		/* vcpumntirq: virtual CPU interface maintenance interrupt */
- 		interrupts = <GIC_PPI 9 IRQ_TYPE_LEVEL_HIGH>;
---- a/arch/arm64/boot/dts/ti/k3-j721e.dtsi
-+++ b/arch/arm64/boot/dts/ti/k3-j721e.dtsi
-@@ -139,6 +139,7 @@
- 			 <0x00 0x0e000000 0x00 0x0e000000 0x00 0x01800000>, /* PCIe Core*/
- 			 <0x00 0x10000000 0x00 0x10000000 0x00 0x10000000>, /* PCIe DAT */
- 			 <0x00 0x64800000 0x00 0x64800000 0x00 0x00800000>, /* C71 */
-+			 <0x00 0x6f000000 0x00 0x6f000000 0x00 0x00310000>, /* A72 PERIPHBASE */
- 			 <0x44 0x00000000 0x44 0x00000000 0x00 0x08000000>, /* PCIe2 DAT */
- 			 <0x44 0x10000000 0x44 0x10000000 0x00 0x08000000>, /* PCIe3 DAT */
- 			 <0x4d 0x80800000 0x4d 0x80800000 0x00 0x00800000>, /* C66_0 */
+ #include <linux/mmc/card.h>
+ #include <linux/mmc/host.h>
+@@ -34,13 +35,13 @@ static ssize_t type_show(struct device *
+ 
+ 	switch (card->type) {
+ 	case MMC_TYPE_MMC:
+-		return sprintf(buf, "MMC\n");
++		return sysfs_emit(buf, "MMC\n");
+ 	case MMC_TYPE_SD:
+-		return sprintf(buf, "SD\n");
++		return sysfs_emit(buf, "SD\n");
+ 	case MMC_TYPE_SDIO:
+-		return sprintf(buf, "SDIO\n");
++		return sysfs_emit(buf, "SDIO\n");
+ 	case MMC_TYPE_SD_COMBO:
+-		return sprintf(buf, "SDcombo\n");
++		return sysfs_emit(buf, "SDcombo\n");
+ 	default:
+ 		return -EFAULT;
+ 	}
+--- a/drivers/mmc/core/bus.h
++++ b/drivers/mmc/core/bus.h
+@@ -9,6 +9,7 @@
+ #define _MMC_CORE_BUS_H
+ 
+ #include <linux/device.h>
++#include <linux/sysfs.h>
+ 
+ struct mmc_host;
+ struct mmc_card;
+@@ -17,7 +18,7 @@ struct mmc_card;
+ static ssize_t mmc_##name##_show (struct device *dev, struct device_attribute *attr, char *buf)	\
+ {										\
+ 	struct mmc_card *card = mmc_dev_to_card(dev);				\
+-	return sprintf(buf, fmt, args);						\
++	return sysfs_emit(buf, fmt, args);					\
+ }										\
+ static DEVICE_ATTR(name, S_IRUGO, mmc_##name##_show, NULL)
+ 
+--- a/drivers/mmc/core/mmc.c
++++ b/drivers/mmc/core/mmc.c
+@@ -12,6 +12,7 @@
+ #include <linux/slab.h>
+ #include <linux/stat.h>
+ #include <linux/pm_runtime.h>
++#include <linux/sysfs.h>
+ 
+ #include <linux/mmc/host.h>
+ #include <linux/mmc/card.h>
+@@ -812,12 +813,11 @@ static ssize_t mmc_fwrev_show(struct dev
+ {
+ 	struct mmc_card *card = mmc_dev_to_card(dev);
+ 
+-	if (card->ext_csd.rev < 7) {
+-		return sprintf(buf, "0x%x\n", card->cid.fwrev);
+-	} else {
+-		return sprintf(buf, "0x%*phN\n", MMC_FIRMWARE_LEN,
+-			       card->ext_csd.fwrev);
+-	}
++	if (card->ext_csd.rev < 7)
++		return sysfs_emit(buf, "0x%x\n", card->cid.fwrev);
++	else
++		return sysfs_emit(buf, "0x%*phN\n", MMC_FIRMWARE_LEN,
++				  card->ext_csd.fwrev);
+ }
+ 
+ static DEVICE_ATTR(fwrev, S_IRUGO, mmc_fwrev_show, NULL);
+@@ -830,10 +830,10 @@ static ssize_t mmc_dsr_show(struct devic
+ 	struct mmc_host *host = card->host;
+ 
+ 	if (card->csd.dsr_imp && host->dsr_req)
+-		return sprintf(buf, "0x%x\n", host->dsr);
++		return sysfs_emit(buf, "0x%x\n", host->dsr);
+ 	else
+ 		/* return default DSR value */
+-		return sprintf(buf, "0x%x\n", 0x404);
++		return sysfs_emit(buf, "0x%x\n", 0x404);
+ }
+ 
+ static DEVICE_ATTR(dsr, S_IRUGO, mmc_dsr_show, NULL);
+--- a/drivers/mmc/core/sd.c
++++ b/drivers/mmc/core/sd.c
+@@ -13,6 +13,7 @@
+ #include <linux/stat.h>
+ #include <linux/pm_runtime.h>
+ #include <linux/scatterlist.h>
++#include <linux/sysfs.h>
+ 
+ #include <linux/mmc/host.h>
+ #include <linux/mmc/card.h>
+@@ -708,18 +709,16 @@ MMC_DEV_ATTR(ocr, "0x%08x\n", card->ocr)
+ MMC_DEV_ATTR(rca, "0x%04x\n", card->rca);
+ 
+ 
+-static ssize_t mmc_dsr_show(struct device *dev,
+-                           struct device_attribute *attr,
+-                           char *buf)
+-{
+-       struct mmc_card *card = mmc_dev_to_card(dev);
+-       struct mmc_host *host = card->host;
+-
+-       if (card->csd.dsr_imp && host->dsr_req)
+-               return sprintf(buf, "0x%x\n", host->dsr);
+-       else
+-               /* return default DSR value */
+-               return sprintf(buf, "0x%x\n", 0x404);
++static ssize_t mmc_dsr_show(struct device *dev, struct device_attribute *attr,
++			    char *buf)
++{
++	struct mmc_card *card = mmc_dev_to_card(dev);
++	struct mmc_host *host = card->host;
++
++	if (card->csd.dsr_imp && host->dsr_req)
++		return sysfs_emit(buf, "0x%x\n", host->dsr);
++	/* return default DSR value */
++	return sysfs_emit(buf, "0x%x\n", 0x404);
+ }
+ 
+ static DEVICE_ATTR(dsr, S_IRUGO, mmc_dsr_show, NULL);
+@@ -735,9 +734,9 @@ static ssize_t info##num##_show(struct d
+ 												\
+ 	if (num > card->num_info)								\
+ 		return -ENODATA;								\
+-	if (!card->info[num-1][0])								\
++	if (!card->info[num - 1][0])								\
+ 		return 0;									\
+-	return sprintf(buf, "%s\n", card->info[num-1]);						\
++	return sysfs_emit(buf, "%s\n", card->info[num - 1]);					\
+ }												\
+ static DEVICE_ATTR_RO(info##num)
+ 
+--- a/drivers/mmc/core/sdio.c
++++ b/drivers/mmc/core/sdio.c
+@@ -7,6 +7,7 @@
+ 
+ #include <linux/err.h>
+ #include <linux/pm_runtime.h>
++#include <linux/sysfs.h>
+ 
+ #include <linux/mmc/host.h>
+ #include <linux/mmc/card.h>
+@@ -40,9 +41,9 @@ static ssize_t info##num##_show(struct d
+ 												\
+ 	if (num > card->num_info)								\
+ 		return -ENODATA;								\
+-	if (!card->info[num-1][0])								\
++	if (!card->info[num - 1][0])								\
+ 		return 0;									\
+-	return sprintf(buf, "%s\n", card->info[num-1]);						\
++	return sysfs_emit(buf, "%s\n", card->info[num - 1]);					\
+ }												\
+ static DEVICE_ATTR_RO(info##num)
+ 
+--- a/drivers/mmc/core/sdio_bus.c
++++ b/drivers/mmc/core/sdio_bus.c
+@@ -14,6 +14,7 @@
+ #include <linux/pm_runtime.h>
+ #include <linux/pm_domain.h>
+ #include <linux/acpi.h>
++#include <linux/sysfs.h>
+ 
+ #include <linux/mmc/card.h>
+ #include <linux/mmc/host.h>
+@@ -35,7 +36,7 @@ field##_show(struct device *dev, struct
+ 	struct sdio_func *func;						\
+ 									\
+ 	func = dev_to_sdio_func (dev);					\
+-	return sprintf(buf, format_string, args);			\
++	return sysfs_emit(buf, format_string, args);			\
+ }									\
+ static DEVICE_ATTR_RO(field)
+ 
+@@ -52,9 +53,9 @@ static ssize_t info##num##_show(struct d
+ 												\
+ 	if (num > func->num_info)								\
+ 		return -ENODATA;								\
+-	if (!func->info[num-1][0])								\
++	if (!func->info[num - 1][0])								\
+ 		return 0;									\
+-	return sprintf(buf, "%s\n", func->info[num-1]);						\
++	return sysfs_emit(buf, "%s\n", func->info[num - 1]);					\
+ }												\
+ static DEVICE_ATTR_RO(info##num)
+ 
 
 
