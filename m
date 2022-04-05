@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D24544F262D
+	by mail.lfdr.de (Postfix) with ESMTP id 3B5FF4F262B
 	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 09:54:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232646AbiDEHzF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 03:55:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57248 "EHLO
+        id S232636AbiDEHzD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 03:55:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48164 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232471AbiDEHyI (ORCPT
+        with ESMTP id S232494AbiDEHyI (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:54:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E7B32CCA8;
-        Tue,  5 Apr 2022 00:50:02 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DFF02CE13;
+        Tue,  5 Apr 2022 00:50:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 19CACB81B90;
-        Tue,  5 Apr 2022 07:50:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76955C340EE;
-        Tue,  5 Apr 2022 07:49:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1A7D7615C3;
+        Tue,  5 Apr 2022 07:50:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D15EC340EE;
+        Tue,  5 Apr 2022 07:50:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649144999;
-        bh=r71yoyPPdjGJm3uEdxFN2NGU3+SQqoPf/m0ErMKhtYI=;
+        s=korg; t=1649145002;
+        bh=umkmdBlfTWshQho2Vb9zDY0qa/OCfh5E/hfZWFIKeyM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l9CLi6DxQwOMEcTxyEtM57Zr1Oo1zekzo24K03HZ5mWJ14E6HzegGoX72GBj6UvkI
-         tpRferY4d+xCmCGgJ3uBOPWHFQm12iGlNoYe+oSkQVAfJu6GAfaiTkx+tHa1YuZM5g
-         Xfi6VwHetuyeBPNT58lgMz6FTsiSJjtoPGDrHRBg=
+        b=oMd7hQ77mtmU444sWeY0PYLdrv42KzGoEtYpHJpjje27ArSqtHDhaGYRbSJltQrl+
+         AmPAP/hyBqgdlX7iDdDwxDzmCv3HLwUD/mEYSKDzXXsh6mzNg0YfNBlhQ1/+7+Hyse
+         CTHucQ6Joky27Clj8OGwcLdfkMySiSGlQzMPxusc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Suman Anna <s-anna@ti.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Drew Fustini <dfustini@baylibre.com>,
+        stable@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Alim Akhtar <alim.akhtar@samsung.com>,
         Daniel Lezcano <daniel.lezcano@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0247/1126] clocksource/drivers/timer-ti-dm: Fix regression from errata i940 fix
-Date:   Tue,  5 Apr 2022 09:16:34 +0200
-Message-Id: <20220405070414.858271346@linuxfoundation.org>
+Subject: [PATCH 5.17 0248/1126] clocksource/drivers/exynos_mct: Handle DTS with higher number of interrupts
+Date:   Tue,  5 Apr 2022 09:16:35 +0200
+Message-Id: <20220405070414.889051662@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -56,131 +56,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Drew Fustini <dfustini@baylibre.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 
-[ Upstream commit bceaae3bac0ce27c549bb050336d8d08abc2ee54 ]
+[ Upstream commit ab8da93dc06d82f464c47ab30e6c75190702f369 ]
 
-The existing fix for errata i940 causes a conflict for IPU2 which is
-using timer 3 and 4. From arch/arm/boot/dts/dra7-ipu-dsp-common.dtsi:
+The driver statically defines maximum number of interrupts it can
+handle, however it does not respect that limit when configuring them.
+When provided with a DTS with more interrupts than assumed, the driver
+will overwrite static array mct_irqs leading to silent memory
+corruption.
 
-  &ipu2 {
-          mboxes = <&mailbox6 &mbox_ipu2_ipc3x>;
-          ti,timers = <&timer3>;
-          ti,watchdog-timers = <&timer4>, <&timer9>;
-  };
+Validate the interrupts coming from DTS to avoid this.  This does not
+change the fact that such DTS might not boot at all, because it is
+simply incompatible, however at least some warning will be printed.
 
-The conflict was noticed when booting mainline on the BeagleBoard X15
-which has a TI AM5728 SoC:
-
-  remoteproc remoteproc1: 55020000.ipu is available
-  remoteproc remoteproc1: powering up 55020000.ipu
-  remoteproc remoteproc1: Booting fw image dra7-ipu2-fw.xem4
-  omap-rproc 55020000.ipu: could not get timer platform device
-  omap-rproc 55020000.ipu: omap_rproc_enable_timers failed: -19
-  remoteproc remoteproc1: can't start rproc 55020000.ipu: -19
-
-This change modifies the errata fix to instead use timer 15 and 16 which
-resolves the timer conflict.
-
-It does not appear to introduce any latency regression. Results from
-cyclictest with original errata fix using dmtimer 3 and 4:
-
-  # cyclictest --mlockall --smp --priority=80 --interval=200 --distance=0
-  policy: fifo: loadavg: 0.02 0.03 0.05
-
-  T: 0 ( 1449) P:80 I:200 C: 800368 Min:   0 Act:   32 Avg:   22 Max:  128
-  T: 1 ( 1450) P:80 I:200 C: 800301 Min:   0 Act:   12 Avg:   23 Max:   70
-
-The results after the change to dmtimer 15 and 16:
-
-  # cyclictest --mlockall --smp --priority=80 --interval=200 --distance=0
-  policy: fifo: loadavg: 0.36 0.19 0.07
-
-  T: 0 ( 1711) P:80 I:200 C: 759599 Min:   0 Act:    6 Avg:   22 Max:  108
-  T: 1 ( 1712) P:80 I:200 C: 759539 Min:   0 Act:   19 Avg:   23 Max:   79
-
-Fixes: 25de4ce5ed02 ("clocksource/drivers/timer-ti-dm: Handle dra7 timer wrap errata i940")
-Link: https://lore.kernel.org/linux-omap/YfWsG0p6to3IJuvE@x1/
-Suggested-by: Suman Anna <s-anna@ti.com>
-Reviewed-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Drew Fustini <dfustini@baylibre.com>
-Link: https://lore.kernel.org/r/20220204053503.1409162-1-dfustini@baylibre.com
+Fixes: 36ba5d527e95 ("ARM: EXYNOS: add device tree support for MCT controller driver")
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Reviewed-by: Alim Akhtar <alim.akhtar@samsung.com>
+Link: https://lore.kernel.org/r/20220220103815.135380-1-krzysztof.kozlowski@canonical.com
 Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/dra7-l4.dtsi             | 5 ++---
- arch/arm/boot/dts/dra7.dtsi                | 8 ++++----
- drivers/clocksource/timer-ti-dm-systimer.c | 4 ++--
- 3 files changed, 8 insertions(+), 9 deletions(-)
+ drivers/clocksource/exynos_mct.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/dra7-l4.dtsi b/arch/arm/boot/dts/dra7-l4.dtsi
-index 956a26d52a4c..0a11bacffc1f 100644
---- a/arch/arm/boot/dts/dra7-l4.dtsi
-+++ b/arch/arm/boot/dts/dra7-l4.dtsi
-@@ -3482,8 +3482,7 @@
- 				ti,timer-pwm;
- 			};
- 		};
--
--		target-module@2c000 {			/* 0x4882c000, ap 17 02.0 */
-+		timer15_target: target-module@2c000 {	/* 0x4882c000, ap 17 02.0 */
- 			compatible = "ti,sysc-omap4-timer", "ti,sysc";
- 			reg = <0x2c000 0x4>,
- 			      <0x2c010 0x4>;
-@@ -3511,7 +3510,7 @@
- 			};
- 		};
+diff --git a/drivers/clocksource/exynos_mct.c b/drivers/clocksource/exynos_mct.c
+index 6db3d5511b0f..03782b399ea1 100644
+--- a/drivers/clocksource/exynos_mct.c
++++ b/drivers/clocksource/exynos_mct.c
+@@ -541,6 +541,11 @@ static int __init exynos4_timer_interrupts(struct device_node *np,
+ 	 * irqs are specified.
+ 	 */
+ 	nr_irqs = of_irq_count(np);
++	if (nr_irqs > ARRAY_SIZE(mct_irqs)) {
++		pr_err("exynos-mct: too many (%d) interrupts configured in DT\n",
++			nr_irqs);
++		nr_irqs = ARRAY_SIZE(mct_irqs);
++	}
+ 	for (i = MCT_L0_IRQ; i < nr_irqs; i++)
+ 		mct_irqs[i] = irq_of_parse_and_map(np, i);
  
--		target-module@2e000 {			/* 0x4882e000, ap 19 14.0 */
-+		timer16_target: target-module@2e000 {	/* 0x4882e000, ap 19 14.0 */
- 			compatible = "ti,sysc-omap4-timer", "ti,sysc";
- 			reg = <0x2e000 0x4>,
- 			      <0x2e010 0x4>;
-diff --git a/arch/arm/boot/dts/dra7.dtsi b/arch/arm/boot/dts/dra7.dtsi
-index 42bff117656c..97ce0c4f1df7 100644
---- a/arch/arm/boot/dts/dra7.dtsi
-+++ b/arch/arm/boot/dts/dra7.dtsi
-@@ -1339,20 +1339,20 @@
- };
+@@ -553,11 +558,14 @@ static int __init exynos4_timer_interrupts(struct device_node *np,
+ 		     mct_irqs[MCT_L0_IRQ], err);
+ 	} else {
+ 		for_each_possible_cpu(cpu) {
+-			int mct_irq = mct_irqs[MCT_L0_IRQ + cpu];
++			int mct_irq;
+ 			struct mct_clock_event_device *pcpu_mevt =
+ 				per_cpu_ptr(&percpu_mct_tick, cpu);
  
- /* Local timers, see ARM architected timer wrap erratum i940 */
--&timer3_target {
-+&timer15_target {
- 	ti,no-reset-on-init;
- 	ti,no-idle;
- 	timer@0 {
--		assigned-clocks = <&l4per_clkctrl DRA7_L4PER_TIMER3_CLKCTRL 24>;
-+		assigned-clocks = <&l4per3_clkctrl DRA7_L4PER3_TIMER15_CLKCTRL 24>;
- 		assigned-clock-parents = <&timer_sys_clk_div>;
- 	};
- };
+ 			pcpu_mevt->evt.irq = -1;
++			if (MCT_L0_IRQ + cpu >= ARRAY_SIZE(mct_irqs))
++				break;
++			mct_irq = mct_irqs[MCT_L0_IRQ + cpu];
  
--&timer4_target {
-+&timer16_target {
- 	ti,no-reset-on-init;
- 	ti,no-idle;
- 	timer@0 {
--		assigned-clocks = <&l4per_clkctrl DRA7_L4PER_TIMER4_CLKCTRL 24>;
-+		assigned-clocks = <&l4per3_clkctrl DRA7_L4PER3_TIMER16_CLKCTRL 24>;
- 		assigned-clock-parents = <&timer_sys_clk_div>;
- 	};
- };
-diff --git a/drivers/clocksource/timer-ti-dm-systimer.c b/drivers/clocksource/timer-ti-dm-systimer.c
-index 1fccb457fcc5..2737407ff069 100644
---- a/drivers/clocksource/timer-ti-dm-systimer.c
-+++ b/drivers/clocksource/timer-ti-dm-systimer.c
-@@ -694,9 +694,9 @@ static int __init dmtimer_percpu_quirk_init(struct device_node *np, u32 pa)
- 		return 0;
- 	}
- 
--	if (pa == 0x48034000)		/* dra7 dmtimer3 */
-+	if (pa == 0x4882c000)           /* dra7 dmtimer15 */
- 		return dmtimer_percpu_timer_init(np, 0);
--	else if (pa == 0x48036000)	/* dra7 dmtimer4 */
-+	else if (pa == 0x4882e000)      /* dra7 dmtimer16 */
- 		return dmtimer_percpu_timer_init(np, 1);
- 
- 	return 0;
+ 			irq_set_status_flags(mct_irq, IRQ_NOAUTOEN);
+ 			if (request_irq(mct_irq,
 -- 
 2.34.1
 
