@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F6B64F437B
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:59:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A2A34F3DBD
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 22:35:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380775AbiDEMNy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:13:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51882 "EHLO
+        id S1380718AbiDEMNq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:13:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49120 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357914AbiDEK10 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:27:26 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9426522DE;
-        Tue,  5 Apr 2022 03:11:16 -0700 (PDT)
+        with ESMTP id S1357931AbiDEK12 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:27:28 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B08F17E583;
+        Tue,  5 Apr 2022 03:11:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 34BC1B81C88;
-        Tue,  5 Apr 2022 10:11:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A498BC385A1;
-        Tue,  5 Apr 2022 10:11:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EF148B81C8A;
+        Tue,  5 Apr 2022 10:11:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63C03C385A0;
+        Tue,  5 Apr 2022 10:11:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153474;
-        bh=+vNkrn4fO5sUcF7UdHE0tr717ptuDd7aFb+5A8RKrkE=;
+        s=korg; t=1649153476;
+        bh=2oZ6o3YYR84xrbyRZvsWvVcONdqA2nZyWHB3WsSIGY8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1pfB0kNJy8qm2XTNKjSSq50DSaCo6cGBeXtvj2LhZ2zz6IbRmBF1+cTwR8lc/bh/B
-         +vF4TpGXGx7vIG8xUPJhzrOVtkh4olU91UQX2Cr37gaH5Ufz6YTYtCpfMP4ahZ4UUa
-         2HDjR0AkIn6eOZoSE3o07Giru4kh7jpswC7n9/l0=
+        b=P+AsENyt31V1Lp6BR5ATFf6dFLpIVfvE3IgBN7iK5iQOnAJSiQhz6FAVlX1IZ3T2h
+         fo9zs3WMQE2O1plV9738EM99B5GmAz5eYnXRF0GbR9sMmhDM7eP5Z+ru/pKAlz9nvk
+         GydyYMM2Eo2vxVkBIPdCtuxD61PgODBf6E+n5XL4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jia-Ju Bai <baijiaju1990@gmail.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 233/599] memory: emif: check the pointer temp in get_device_details()
-Date:   Tue,  5 Apr 2022 09:28:47 +0200
-Message-Id: <20220405070305.774722704@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 234/599] ALSA: firewire-lib: fix uninitialized flag for AV/C deferred transaction
+Date:   Tue,  5 Apr 2022 09:28:48 +0200
+Message-Id: <20220405070305.804021520@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -54,35 +53,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
+From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
 
-[ Upstream commit 5b5ab1bfa1898c6d52936a57c25c5ceba2cb2f87 ]
+[ Upstream commit bf0cd60b7e33cf221fbe1114e4acb2c828b0af0d ]
 
-The pointer temp is allocated by devm_kzalloc(), so it should be
-checked for error handling.
+AV/C deferred transaction was supported at a commit 00a7bb81c20f ("ALSA:
+firewire-lib: Add support for deferred transaction") while 'deferrable'
+flag can be uninitialized for non-control/notify AV/C transactions.
+UBSAN reports it:
 
-Fixes: 7ec944538dde ("memory: emif: add basic infrastructure for EMIF driver")
-Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-Link: https://lore.kernel.org/r/20220225132552.27894-1-baijiaju1990@gmail.com
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+kernel: ================================================================================
+kernel: UBSAN: invalid-load in /build/linux-aa0B4d/linux-5.15.0/sound/firewire/fcp.c:363:9
+kernel: load of value 158 is not a valid value for type '_Bool'
+kernel: CPU: 3 PID: 182227 Comm: irq/35-firewire Tainted: P           OE     5.15.0-18-generic #18-Ubuntu
+kernel: Hardware name: Gigabyte Technology Co., Ltd. AX370-Gaming 5/AX370-Gaming 5, BIOS F42b 08/01/2019
+kernel: Call Trace:
+kernel:  <IRQ>
+kernel:  show_stack+0x52/0x58
+kernel:  dump_stack_lvl+0x4a/0x5f
+kernel:  dump_stack+0x10/0x12
+kernel:  ubsan_epilogue+0x9/0x45
+kernel:  __ubsan_handle_load_invalid_value.cold+0x44/0x49
+kernel:  fcp_response.part.0.cold+0x1a/0x2b [snd_firewire_lib]
+kernel:  fcp_response+0x28/0x30 [snd_firewire_lib]
+kernel:  fw_core_handle_request+0x230/0x3d0 [firewire_core]
+kernel:  handle_ar_packet+0x1d9/0x200 [firewire_ohci]
+kernel:  ? handle_ar_packet+0x1d9/0x200 [firewire_ohci]
+kernel:  ? transmit_complete_callback+0x9f/0x120 [firewire_core]
+kernel:  ar_context_tasklet+0xa8/0x2e0 [firewire_ohci]
+kernel:  tasklet_action_common.constprop.0+0xea/0xf0
+kernel:  tasklet_action+0x22/0x30
+kernel:  __do_softirq+0xd9/0x2e3
+kernel:  ? irq_finalize_oneshot.part.0+0xf0/0xf0
+kernel:  do_softirq+0x75/0xa0
+kernel:  </IRQ>
+kernel:  <TASK>
+kernel:  __local_bh_enable_ip+0x50/0x60
+kernel:  irq_forced_thread_fn+0x7e/0x90
+kernel:  irq_thread+0xba/0x190
+kernel:  ? irq_thread_fn+0x60/0x60
+kernel:  kthread+0x11e/0x140
+kernel:  ? irq_thread_check_affinity+0xf0/0xf0
+kernel:  ? set_kthread_struct+0x50/0x50
+kernel:  ret_from_fork+0x22/0x30
+kernel:  </TASK>
+kernel: ================================================================================
+
+This commit fixes the bug. The bug has no disadvantage for the non-
+control/notify AV/C transactions since the flag has an effect for AV/C
+response with INTERIM (0x0f) status which is not used for the transactions
+in AV/C general specification.
+
+Fixes: 00a7bb81c20f ("ALSA: firewire-lib: Add support for deferred transaction")
+Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Link: https://lore.kernel.org/r/20220304125647.78430-1-o-takashi@sakamocchi.jp
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/memory/emif.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/firewire/fcp.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/memory/emif.c b/drivers/memory/emif.c
-index 55d4c842fcd9..5a059be3516c 100644
---- a/drivers/memory/emif.c
-+++ b/drivers/memory/emif.c
-@@ -1403,7 +1403,7 @@ static struct emif_data *__init_or_module get_device_details(
- 	temp	= devm_kzalloc(dev, sizeof(*pd), GFP_KERNEL);
- 	dev_info = devm_kzalloc(dev, sizeof(*dev_info), GFP_KERNEL);
+diff --git a/sound/firewire/fcp.c b/sound/firewire/fcp.c
+index bbfbebf4affb..df44dd5dc4b2 100644
+--- a/sound/firewire/fcp.c
++++ b/sound/firewire/fcp.c
+@@ -240,9 +240,7 @@ int fcp_avc_transaction(struct fw_unit *unit,
+ 	t.response_match_bytes = response_match_bytes;
+ 	t.state = STATE_PENDING;
+ 	init_waitqueue_head(&t.wait);
+-
+-	if (*(const u8 *)command == 0x00 || *(const u8 *)command == 0x03)
+-		t.deferrable = true;
++	t.deferrable = (*(const u8 *)command == 0x00 || *(const u8 *)command == 0x03);
  
--	if (!emif || !pd || !dev_info) {
-+	if (!emif || !temp || !dev_info) {
- 		dev_err(dev, "%s:%d: allocation error\n", __func__, __LINE__);
- 		goto error;
- 	}
+ 	spin_lock_irq(&transactions_lock);
+ 	list_add_tail(&t.list, &transactions);
 -- 
 2.34.1
 
