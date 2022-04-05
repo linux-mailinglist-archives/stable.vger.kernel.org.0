@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 137E64F3040
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:27:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF8264F3191
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:45:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244292AbiDEJQY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:16:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50902 "EHLO
+        id S1348860AbiDEKt1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:49:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244994AbiDEIxA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:53:00 -0400
+        with ESMTP id S1344105AbiDEJmA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:42:00 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68C64DFE9;
-        Tue,  5 Apr 2022 01:48:57 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AF66BD2FC;
+        Tue,  5 Apr 2022 02:27:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 22302B81A32;
-        Tue,  5 Apr 2022 08:48:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73450C385A1;
-        Tue,  5 Apr 2022 08:48:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0C8D4B81CAF;
+        Tue,  5 Apr 2022 09:27:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57B9BC385A2;
+        Tue,  5 Apr 2022 09:27:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148534;
-        bh=5xwjSXGcSyCL53TkO5UFu25SunMdXeXVvL0B5LJR5IY=;
+        s=korg; t=1649150852;
+        bh=HA4HSF/J+nRdjbcp1S15eTKIy9yKc9WCMNOb4KCX3L0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BF7jSxRQjvwGpSSSSPpR9GENGmxPTIEP3rQZd54DoD/LYQ+xlKrg6iPTQ+QOWxttq
-         7lFScANJ3TeMNaWnI5eAcvXG87eSV+qwx+VoP6mzHihtsCwuMdujhYc90XZMPXQGw7
-         kgJCnN8COtclUjuvKAaWeZUgFU57hEr8RN4BycWk=
+        b=pLI/yZ/nTbSQGixRnXzUnAbTl21oAEhRGPz/4jNQgytBrdXvYb7CJ176Bea0HcaJK
+         eWKTsFuMMwdmqDCxvzi+I2R+T761homJPAjZVIn7rnzZE9aPl2XO6MscaKw2ogR/sq
+         nGdlononPDAe/w2H04fwtHUk/Uvg14hl78x+uDm8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chun-Jie Chen <chun-jie.chen@mediatek.com>,
-        Chen-Yu Tsai <wenst@chromium.org>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
+        stable@vger.kernel.org, Marco Elver <elver@google.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0352/1017] soc: mediatek: pm-domains: Add wakeup capacity support in power domain
+Subject: [PATCH 5.15 203/913] stack: Constrain and fix stack offset randomization with Clang builds
 Date:   Tue,  5 Apr 2022 09:21:05 +0200
-Message-Id: <20220405070404.733057449@linuxfoundation.org>
+Message-Id: <20220405070345.944099127@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,38 +55,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chun-Jie Chen <chun-jie.chen@mediatek.com>
+From: Marco Elver <elver@google.com>
 
-[ Upstream commit ac0ca395543af061f7ad77afcda0afb323d82468 ]
+[ Upstream commit efa90c11f62e6b7252fb75efe2787056872a627c ]
 
-Due to some power domain needs to keep on for wakeup in system suspend,
-so add GENPD_FLAG_ACTIVE_WAKEUP support in Mediatek power domain driver.
+All supported versions of Clang perform auto-init of __builtin_alloca()
+when stack auto-init is on (CONFIG_INIT_STACK_ALL_{ZERO,PATTERN}).
 
-Fixes: 59b644b01cf4 ("soc: mediatek: Add MediaTek SCPSYS power domains")
-Signed-off-by: Chun-Jie Chen <chun-jie.chen@mediatek.com>
-Reviewed-by: Chen-Yu Tsai <wenst@chromium.org>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Link: https://lore.kernel.org/r/20220130012104.5292-3-chun-jie.chen@mediatek.com
-Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
+add_random_kstack_offset() uses __builtin_alloca() to add a stack
+offset. This means, when CONFIG_INIT_STACK_ALL_{ZERO,PATTERN} is
+enabled, add_random_kstack_offset() will auto-init that unused portion
+of the stack used to add an offset.
+
+There are several problems with this:
+
+	1. These offsets can be as large as 1023 bytes. Performing
+	   memset() on them isn't exactly cheap, and this is done on
+	   every syscall entry.
+
+	2. Architectures adding add_random_kstack_offset() to syscall
+	   entry implemented in C require them to be 'noinstr' (e.g. see
+	   x86 and s390). The potential problem here is that a call to
+	   memset may occur, which is not noinstr.
+
+A x86_64 defconfig kernel with Clang 11 and CONFIG_VMLINUX_VALIDATION shows:
+
+ | vmlinux.o: warning: objtool: do_syscall_64()+0x9d: call to memset() leaves .noinstr.text section
+ | vmlinux.o: warning: objtool: do_int80_syscall_32()+0xab: call to memset() leaves .noinstr.text section
+ | vmlinux.o: warning: objtool: __do_fast_syscall_32()+0xe2: call to memset() leaves .noinstr.text section
+ | vmlinux.o: warning: objtool: fixup_bad_iret()+0x2f: call to memset() leaves .noinstr.text section
+
+Clang 14 (unreleased) will introduce a way to skip alloca initialization
+via __builtin_alloca_uninitialized() (https://reviews.llvm.org/D115440).
+
+Constrain RANDOMIZE_KSTACK_OFFSET to only be enabled if no stack
+auto-init is enabled, the compiler is GCC, or Clang is version 14+. Use
+__builtin_alloca_uninitialized() if the compiler provides it, as is done
+by Clang 14.
+
+Link: https://lkml.kernel.org/r/YbHTKUjEejZCLyhX@elver.google.com
+Fixes: 39218ff4c625 ("stack: Optionally randomize kernel stack offset each syscall")
+Signed-off-by: Marco Elver <elver@google.com>
+Reviewed-by: Nathan Chancellor <nathan@kernel.org>
+Acked-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20220131090521.1947110-2-elver@google.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/mediatek/mtk-pm-domains.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/Kconfig                     |  1 +
+ include/linux/randomize_kstack.h | 16 ++++++++++++++--
+ 2 files changed, 15 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/soc/mediatek/mtk-pm-domains.c b/drivers/soc/mediatek/mtk-pm-domains.c
-index b762bc40f56b..afd2fd74802d 100644
---- a/drivers/soc/mediatek/mtk-pm-domains.c
-+++ b/drivers/soc/mediatek/mtk-pm-domains.c
-@@ -443,6 +443,9 @@ generic_pm_domain *scpsys_add_one_domain(struct scpsys *scpsys, struct device_no
- 	pd->genpd.power_off = scpsys_power_off;
- 	pd->genpd.power_on = scpsys_power_on;
- 
-+	if (MTK_SCPD_CAPS(pd, MTK_SCPD_ACTIVE_WAKEUP))
-+		pd->genpd.flags |= GENPD_FLAG_ACTIVE_WAKEUP;
+diff --git a/arch/Kconfig b/arch/Kconfig
+index d1e69d6e8498..191589f26b1a 100644
+--- a/arch/Kconfig
++++ b/arch/Kconfig
+@@ -1141,6 +1141,7 @@ config HAVE_ARCH_RANDOMIZE_KSTACK_OFFSET
+ config RANDOMIZE_KSTACK_OFFSET_DEFAULT
+ 	bool "Randomize kernel stack offset on syscall entry"
+ 	depends on HAVE_ARCH_RANDOMIZE_KSTACK_OFFSET
++	depends on INIT_STACK_NONE || !CC_IS_CLANG || CLANG_VERSION >= 140000
+ 	help
+ 	  The kernel stack offset can be randomized (after pt_regs) by
+ 	  roughly 5 bits of entropy, frustrating memory corruption
+diff --git a/include/linux/randomize_kstack.h b/include/linux/randomize_kstack.h
+index bebc911161b6..d373f1bcbf7c 100644
+--- a/include/linux/randomize_kstack.h
++++ b/include/linux/randomize_kstack.h
+@@ -16,8 +16,20 @@ DECLARE_PER_CPU(u32, kstack_offset);
+  * alignment. Also, since this use is being explicitly masked to a max of
+  * 10 bits, stack-clash style attacks are unlikely. For more details see
+  * "VLAs" in Documentation/process/deprecated.rst
++ *
++ * The normal __builtin_alloca() is initialized with INIT_STACK_ALL (currently
++ * only with Clang and not GCC). Initializing the unused area on each syscall
++ * entry is expensive, and generating an implicit call to memset() may also be
++ * problematic (such as in noinstr functions). Therefore, if the compiler
++ * supports it (which it should if it initializes allocas), always use the
++ * "uninitialized" variant of the builtin.
+  */
+-void *__builtin_alloca(size_t size);
++#if __has_builtin(__builtin_alloca_uninitialized)
++#define __kstack_alloca __builtin_alloca_uninitialized
++#else
++#define __kstack_alloca __builtin_alloca
++#endif
 +
- 	if (MTK_SCPD_CAPS(pd, MTK_SCPD_KEEP_DEFAULT_OFF))
- 		pm_genpd_init(&pd->genpd, NULL, true);
- 	else
+ /*
+  * Use, at most, 10 bits of entropy. We explicitly cap this to keep the
+  * "VLA" from being unbounded (see above). 10 bits leaves enough room for
+@@ -36,7 +48,7 @@ void *__builtin_alloca(size_t size);
+ 	if (static_branch_maybe(CONFIG_RANDOMIZE_KSTACK_OFFSET_DEFAULT,	\
+ 				&randomize_kstack_offset)) {		\
+ 		u32 offset = raw_cpu_read(kstack_offset);		\
+-		u8 *ptr = __builtin_alloca(KSTACK_OFFSET_MAX(offset));	\
++		u8 *ptr = __kstack_alloca(KSTACK_OFFSET_MAX(offset));	\
+ 		/* Keep allocation even after "ptr" loses scope. */	\
+ 		asm volatile("" :: "r"(ptr) : "memory");		\
+ 	}								\
 -- 
 2.34.1
 
