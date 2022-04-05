@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D10D34F373C
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:19:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E80CA4F373E
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:19:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352558AbiDELLi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:11:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44248 "EHLO
+        id S1352573AbiDELLr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:11:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39810 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348919AbiDEJsq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:48:46 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B3A7EE4EB;
-        Tue,  5 Apr 2022 02:37:29 -0700 (PDT)
+        with ESMTP id S1348932AbiDEJst (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:48:49 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE89798F76;
+        Tue,  5 Apr 2022 02:37:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3BAA6B81C82;
-        Tue,  5 Apr 2022 09:37:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91F5FC385A4;
-        Tue,  5 Apr 2022 09:37:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 90006B818F3;
+        Tue,  5 Apr 2022 09:37:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D441FC385A2;
+        Tue,  5 Apr 2022 09:37:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151446;
-        bh=jMa5vKX+IK/TdveRuGnDnVQhQTMh4DJUkiqPggtNSi8=;
+        s=korg; t=1649151477;
+        bh=jqWhiNEuxzqJJdkO6Zr2C7vC3Glh0GLN0fChM3HRWgQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Oi4OYppbXDxcbTtDUSD4c37ZrrAk+ZIWX5a2BLmBevitYnv4mhaZSqv4FxtE6ZL6M
-         RaMjaKLi3UR9enPEpXlzOlZrivAkv7Py8fv/o9E7x9rdB2kFfCMf4HMjZLWa+WmrQH
-         u1+o/rHhMrGseuAX0xmwNIC9brukb0qYwAGV2a+c=
+        b=JZf3aA9/OljTrt1OQRe5gQ7aAVF+juJUuenxLn/IZFEW+nXmCOAXtk0g6HDx6lfV4
+         iSTPqXIdteZcrmU8sn23FW4w5lIaw/9gCGYP4dLjeLj49idlZYpPRbl/E3G/EEFhku
+         Y7QzYjp2HZhbL5sisjkqQPstBzAPTrGd1WLI2n00=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jesper Dangaard Brouer <brouer@redhat.com>,
-        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
+        stable@vger.kernel.org,
         Alexander Lobakin <alexandr.lobakin@intel.com>,
         Michal Swiatkowski <michal.swiatkowski@linux.intel.com>,
-        Kiran Bhandare <kiranx.bhandare@intel.com>,
+        Nechama Kraus <nechamax.kraus@linux.intel.com>,
         Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 411/913] i40e: respect metadata on XSK Rx to skb
-Date:   Tue,  5 Apr 2022 09:24:33 +0200
-Message-Id: <20220405070352.165820389@linuxfoundation.org>
+Subject: [PATCH 5.15 412/913] igc: dont reserve excessive XDP_PACKET_HEADROOM on XSK Rx to skb
+Date:   Tue,  5 Apr 2022 09:24:34 +0200
+Message-Id: <20220405070352.195960180@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -60,64 +59,62 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Alexander Lobakin <alexandr.lobakin@intel.com>
 
-[ Upstream commit 6dba29537c0f639b482bd8f8bbd50ab4ae74b48d ]
+[ Upstream commit f9e61d365bafdee40fe2586fc6be490c3e824dad ]
 
-For now, if the XDP prog returns XDP_PASS on XSK, the metadata will
-be lost as it doesn't get copied to the skb.
+{__,}napi_alloc_skb() allocates and reserves additional NET_SKB_PAD
++ NET_IP_ALIGN for any skb.
+OTOH, igc_construct_skb_zc() currently allocates and reserves
+additional `xdp->data_meta - xdp->data_hard_start`, which is about
+XDP_PACKET_HEADROOM for XSK frames.
+There's no need for that at all as the frame is post-XDP and will
+go only to the networking stack core.
+Pass the size of the actual data only (+ meta) to
+__napi_alloc_skb() and don't reserve anything. This will give
+enough headroom for stack processing.
+Also, net_prefetch() xdp->data_meta and align the copy size to
+speed-up memcpy() a little and better match igc_construct_skb().
 
-Copy it along with the frame headers. Account its size on skb
-allocation, and when copying just treat it as a part of the frame
-and do a pull after to "move" it to the "reserved" zone.
-
-net_prefetch() xdp->data_meta and align the copy size to speed-up
-memcpy() a little and better match i40e_construct_skb().
-
-Fixes: 0a714186d3c0 ("i40e: add AF_XDP zero-copy Rx support")
-Suggested-by: Jesper Dangaard Brouer <brouer@redhat.com>
-Suggested-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
+Fixes: fc9df2a0b520 ("igc: Enable RX via AF_XDP zero-copy")
 Signed-off-by: Alexander Lobakin <alexandr.lobakin@intel.com>
 Reviewed-by: Michal Swiatkowski <michal.swiatkowski@linux.intel.com>
-Tested-by: Kiran Bhandare <kiranx.bhandare@intel.com>
+Tested-by: Nechama Kraus <nechamax.kraus@linux.intel.com>
 Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_xsk.c | 14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/intel/igc/igc_main.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_xsk.c b/drivers/net/ethernet/intel/i40e/i40e_xsk.c
-index 48f5319a3d41..3f27a8ebe2ec 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_xsk.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_xsk.c
-@@ -243,19 +243,25 @@ bool i40e_alloc_rx_buffers_zc(struct i40e_ring *rx_ring, u16 count)
- static struct sk_buff *i40e_construct_skb_zc(struct i40e_ring *rx_ring,
- 					     struct xdp_buff *xdp)
+diff --git a/drivers/net/ethernet/intel/igc/igc_main.c b/drivers/net/ethernet/intel/igc/igc_main.c
+index c7fa978cdf02..a514cfc6c8a0 100644
+--- a/drivers/net/ethernet/intel/igc/igc_main.c
++++ b/drivers/net/ethernet/intel/igc/igc_main.c
+@@ -2434,19 +2434,20 @@ static int igc_clean_rx_irq(struct igc_q_vector *q_vector, const int budget)
+ static struct sk_buff *igc_construct_skb_zc(struct igc_ring *ring,
+ 					    struct xdp_buff *xdp)
  {
 +	unsigned int totalsize = xdp->data_end - xdp->data_meta;
  	unsigned int metasize = xdp->data - xdp->data_meta;
 -	unsigned int datasize = xdp->data_end - xdp->data;
+-	unsigned int totalsize = metasize + datasize;
  	struct sk_buff *skb;
  
+-	skb = __napi_alloc_skb(&ring->q_vector->napi,
+-			       xdp->data_end - xdp->data_hard_start,
 +	net_prefetch(xdp->data_meta);
 +
- 	/* allocate a skb to store the frags */
--	skb = __napi_alloc_skb(&rx_ring->q_vector->napi, datasize,
-+	skb = __napi_alloc_skb(&rx_ring->q_vector->napi, totalsize,
++	skb = __napi_alloc_skb(&ring->q_vector->napi, totalsize,
  			       GFP_ATOMIC | __GFP_NOWARN);
  	if (unlikely(!skb))
- 		goto out;
+ 		return NULL;
  
--	memcpy(__skb_put(skb, datasize), xdp->data, datasize);
--	if (metasize)
+-	skb_reserve(skb, xdp->data_meta - xdp->data_hard_start);
+-	memcpy(__skb_put(skb, totalsize), xdp->data_meta, totalsize);
 +	memcpy(__skb_put(skb, totalsize), xdp->data_meta,
 +	       ALIGN(totalsize, sizeof(long)));
 +
-+	if (metasize) {
+ 	if (metasize) {
  		skb_metadata_set(skb, metasize);
-+		__skb_pull(skb, metasize);
-+	}
- 
- out:
- 	xsk_buff_free(xdp);
+ 		__skb_pull(skb, metasize);
 -- 
 2.34.1
 
