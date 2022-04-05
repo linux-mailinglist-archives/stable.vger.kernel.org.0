@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E9C204F410F
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:25:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1263F4F3D9D
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 22:35:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350248AbiDEMIF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:08:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58496 "EHLO
+        id S1380562AbiDEMN1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:13:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50198 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358049AbiDEK15 (ORCPT
+        with ESMTP id S1358060AbiDEK15 (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:27:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 856BD43ED4;
-        Tue,  5 Apr 2022 03:13:56 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F59937AA1;
+        Tue,  5 Apr 2022 03:14:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9A9BF61562;
-        Tue,  5 Apr 2022 10:13:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD0AEC385A1;
-        Tue,  5 Apr 2022 10:13:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 53F5CB81BC5;
+        Tue,  5 Apr 2022 10:14:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1F3EC385A1;
+        Tue,  5 Apr 2022 10:14:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153635;
-        bh=vJX+VpH3VUk8KamOnmQF5yxlHAPiLnqdEl08cT2P28U=;
+        s=korg; t=1649153646;
+        bh=c3I5LkA6//bl+gmvL+GzcqiMgLSDC/t1HXvj51hvlzY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KIZufHkOP0nho5LKwzJjPRTg+WquDem13acCm59MmSDMPE7L4zXf1MccdF7ATS+1S
-         3e9V9Xot1SrkXjKu0nTK/yIjSc3+sYOQQsdTY6nHn+7zkJdfqb2sUyqSHJL/fplZ56
-         MYbrAik/cjkPaj/UuAEuIq4T765FOfMdDRmE8oUA=
+        b=c7kidxs348hvCYXG/Mo6jkuPMaEnHBc0QuLF6fMizhWjEh+S7z/7gR4HL48XlifF0
+         CFk9jk85+UlBc/2b/FO3U9yn0QA/R/Fyyd4CdvSJFrLKj9Aru62gssp8Yrh9pr/5Ef
+         B+RdmYT2wq1+cbYhXa7etM7TWJAM6usbPJ1sZz0E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Petr Mladek <pmladek@suse.com>,
-        Joe Lawrence <joe.lawrence@redhat.com>,
-        Miroslav Benes <mbenes@suse.cz>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 293/599] livepatch: Fix build failure on 32 bits processors
-Date:   Tue,  5 Apr 2022 09:29:47 +0200
-Message-Id: <20220405070307.552803423@linuxfoundation.org>
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 297/599] HID: i2c-hid: fix GET/SET_REPORT for unnumbered reports
+Date:   Tue,  5 Apr 2022 09:29:51 +0200
+Message-Id: <20220405070307.672513533@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -58,65 +55,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-[ Upstream commit 2f293651eca3eacaeb56747dede31edace7329d2 ]
+[ Upstream commit a5e5e03e94764148a01757b2fa4737d3445c13a6 ]
 
-Trying to build livepatch on powerpc/32 results in:
+Internally kernel prepends all report buffers, for both numbered and
+unnumbered reports, with report ID, therefore to properly handle unnumbered
+reports we should prepend it ourselves.
 
-	kernel/livepatch/core.c: In function 'klp_resolve_symbols':
-	kernel/livepatch/core.c:221:23: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
-	  221 |                 sym = (Elf64_Sym *)sechdrs[symndx].sh_addr + ELF_R_SYM(relas[i].r_info);
-	      |                       ^
-	kernel/livepatch/core.c:221:21: error: assignment to 'Elf32_Sym *' {aka 'struct elf32_sym *'} from incompatible pointer type 'Elf64_Sym *' {aka 'struct elf64_sym *'} [-Werror=incompatible-pointer-types]
-	  221 |                 sym = (Elf64_Sym *)sechdrs[symndx].sh_addr + ELF_R_SYM(relas[i].r_info);
-	      |                     ^
-	kernel/livepatch/core.c: In function 'klp_apply_section_relocs':
-	kernel/livepatch/core.c:312:35: error: passing argument 1 of 'klp_resolve_symbols' from incompatible pointer type [-Werror=incompatible-pointer-types]
-	  312 |         ret = klp_resolve_symbols(sechdrs, strtab, symndx, sec, sec_objname);
-	      |                                   ^~~~~~~
-	      |                                   |
-	      |                                   Elf32_Shdr * {aka struct elf32_shdr *}
-	kernel/livepatch/core.c:193:44: note: expected 'Elf64_Shdr *' {aka 'struct elf64_shdr *'} but argument is of type 'Elf32_Shdr *' {aka 'struct elf32_shdr *'}
-	  193 | static int klp_resolve_symbols(Elf64_Shdr *sechdrs, const char *strtab,
-	      |                                ~~~~~~~~~~~~^~~~~~~
+For the same reason we should skip the first byte of the buffer when
+calling i2c_hid_set_or_send_report() which then will take care of properly
+formatting the transfer buffer based on its separate report ID argument
+along with report payload.
 
-Fix it by using the right types instead of forcing 64 bits types.
-
-Fixes: 7c8e2bdd5f0d ("livepatch: Apply vmlinux-specific KLP relocations early")
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Acked-by: Petr Mladek <pmladek@suse.com>
-Acked-by: Joe Lawrence <joe.lawrence@redhat.com>
-Acked-by: Miroslav Benes <mbenes@suse.cz>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/5288e11b018a762ea3351cc8fb2d4f15093a4457.1640017960.git.christophe.leroy@csgroup.eu
+[jkosina@suse.cz: finalize trimmed sentence in changelog as spotted by Benjamin]
+Fixes: 9b5a9ae88573 ("HID: i2c-hid: implement ll_driver transport-layer callbacks")
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Tested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/livepatch/core.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/hid/i2c-hid/i2c-hid-core.c | 32 ++++++++++++++++++++++--------
+ 1 file changed, 24 insertions(+), 8 deletions(-)
 
-diff --git a/kernel/livepatch/core.c b/kernel/livepatch/core.c
-index f76fdb925532..e8bdce6fdd64 100644
---- a/kernel/livepatch/core.c
-+++ b/kernel/livepatch/core.c
-@@ -191,7 +191,7 @@ static int klp_find_object_symbol(const char *objname, const char *name,
- 	return -EINVAL;
+diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
+index 998aad8a9e60..14811d42a5a9 100644
+--- a/drivers/hid/i2c-hid/i2c-hid-core.c
++++ b/drivers/hid/i2c-hid/i2c-hid-core.c
+@@ -620,6 +620,17 @@ static int i2c_hid_get_raw_report(struct hid_device *hid,
+ 	if (report_type == HID_OUTPUT_REPORT)
+ 		return -EINVAL;
+ 
++	/*
++	 * In case of unnumbered reports the response from the device will
++	 * not have the report ID that the upper layers expect, so we need
++	 * to stash it the buffer ourselves and adjust the data size.
++	 */
++	if (!report_number) {
++		buf[0] = 0;
++		buf++;
++		count--;
++	}
++
+ 	/* +2 bytes to include the size of the reply in the query buffer */
+ 	ask_count = min(count + 2, (size_t)ihid->bufsize);
+ 
+@@ -641,6 +652,9 @@ static int i2c_hid_get_raw_report(struct hid_device *hid,
+ 	count = min(count, ret_count - 2);
+ 	memcpy(buf, ihid->rawbuf + 2, count);
+ 
++	if (!report_number)
++		count++;
++
+ 	return count;
  }
  
--static int klp_resolve_symbols(Elf64_Shdr *sechdrs, const char *strtab,
-+static int klp_resolve_symbols(Elf_Shdr *sechdrs, const char *strtab,
- 			       unsigned int symndx, Elf_Shdr *relasec,
- 			       const char *sec_objname)
- {
-@@ -219,7 +219,7 @@ static int klp_resolve_symbols(Elf64_Shdr *sechdrs, const char *strtab,
- 	relas = (Elf_Rela *) relasec->sh_addr;
- 	/* For each rela in this klp relocation section */
- 	for (i = 0; i < relasec->sh_size / sizeof(Elf_Rela); i++) {
--		sym = (Elf64_Sym *)sechdrs[symndx].sh_addr + ELF_R_SYM(relas[i].r_info);
-+		sym = (Elf_Sym *)sechdrs[symndx].sh_addr + ELF_R_SYM(relas[i].r_info);
- 		if (sym->st_shndx != SHN_LIVEPATCH) {
- 			pr_err("symbol %s is not marked as a livepatch symbol\n",
- 			       strtab + sym->st_name);
+@@ -657,17 +671,19 @@ static int i2c_hid_output_raw_report(struct hid_device *hid, __u8 *buf,
+ 
+ 	mutex_lock(&ihid->reset_lock);
+ 
+-	if (report_id) {
+-		buf++;
+-		count--;
+-	}
+-
++	/*
++	 * Note that both numbered and unnumbered reports passed here
++	 * are supposed to have report ID stored in the 1st byte of the
++	 * buffer, so we strip it off unconditionally before passing payload
++	 * to i2c_hid_set_or_send_report which takes care of encoding
++	 * everything properly.
++	 */
+ 	ret = i2c_hid_set_or_send_report(client,
+ 				report_type == HID_FEATURE_REPORT ? 0x03 : 0x02,
+-				report_id, buf, count, use_data);
++				report_id, buf + 1, count - 1, use_data);
+ 
+-	if (report_id && ret >= 0)
+-		ret++; /* add report_id to the number of transfered bytes */
++	if (ret >= 0)
++		ret++; /* add report_id to the number of transferred bytes */
+ 
+ 	mutex_unlock(&ihid->reset_lock);
+ 
 -- 
 2.34.1
 
