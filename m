@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 591034F281E
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:19:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 622064F26A7
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:05:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233426AbiDEIKr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:10:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42768 "EHLO
+        id S233105AbiDEIFL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:05:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44146 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235544AbiDEH7u (ORCPT
+        with ESMTP id S235548AbiDEH7u (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:59:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D19A23FBD8;
-        Tue,  5 Apr 2022 00:55:23 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13A2F3FBF4;
+        Tue,  5 Apr 2022 00:55:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6FE1A61748;
-        Tue,  5 Apr 2022 07:55:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FBCBC340EE;
-        Tue,  5 Apr 2022 07:55:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BA94FB81B14;
+        Tue,  5 Apr 2022 07:55:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30404C340EE;
+        Tue,  5 Apr 2022 07:55:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145322;
-        bh=VaIBzpGhnu+uHQ70qJiNQarluFXMh5+V/TQ9YCs8l+0=;
+        s=korg; t=1649145325;
+        bh=E3FaJ/nx3bEWvzszHpgsmAG0aBDSEcXEdDjrXKJkq8M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H/yvot7J5pbmdelZX86c1h8eg+q32sopzrZZN9m00dw7Q6K2PwdatZG3SkGHnVTtG
-         TdkNPrVroMqsBtRlf9MDnxSvSPA89ZtqFe7bh4Dt7UVB0+vDPu8/lTCVhZP9xtK6gN
-         ak7b7U7Fsp9fj9EjSt/LBuSYWYLKNaIRkfH9YGXk=
+        b=ghLt0HNO5+Wwg8gXm5940yqUpJzcSZ50P49Ra5dK408WU+iwuCBdeXABpmwTVH0Rc
+         GlvxbBhkDnSXOkMaS7jXJpIgA1R46CGT/zAeqH4aUWcHDyFjYFhmum/JY5nSZ549Dy
+         RNNglgaEF335FP5Fbe/mBUbiQH/Vc6d+hBXZfY7g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0363/1126] ASoC: codecs: wcd934x: fix kcontrol max values
-Date:   Tue,  5 Apr 2022 09:18:30 +0200
-Message-Id: <20220405070418.282682584@linuxfoundation.org>
+Subject: [PATCH 5.17 0364/1126] ASoC: codecs: wcd934x: fix return value of wcd934x_rx_hph_mode_put
+Date:   Tue,  5 Apr 2022 09:18:31 +0200
+Message-Id: <20220405070418.311853075@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -57,45 +57,42 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 
-[ Upstream commit 61163c3e7480106804269182e24db05244866493 ]
+[ Upstream commit 4b0bec6088588a120d33db85b1f0d9f096d1df71 ]
 
-set "HPH Type" Kcontrol max value of WCD_MBHC_HPH_STEREO instead of UINT_MAX.
-set "HPHL/R Impedance" Kcontrols max value to INT_MAX instead of UINT_MAX as
-max field is integer type.
+wcd934x_rx_hph_mode_put currently returns zero eventhough it changes the value.
+Fix this, so that change notifications are sent correctly.
 
-Without this patch amixer for these controls will show -1 as max value to userspace.
-
-Fixes: 9fb9b1690f0b ("ASoC: codecs: wcd934x: add mbhc support")
+Fixes: 1cde8b822332 ("ASoC: wcd934x: add basic controls")
 Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20220222183212.11580-9-srinivas.kandagatla@linaro.org
+Link: https://lore.kernel.org/r/20220222183212.11580-10-srinivas.kandagatla@linaro.org
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/wcd934x.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ sound/soc/codecs/wcd934x.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
 diff --git a/sound/soc/codecs/wcd934x.c b/sound/soc/codecs/wcd934x.c
-index 6c468527fec6..f2674905a4a7 100644
+index f2674905a4a7..40b414867872 100644
 --- a/sound/soc/codecs/wcd934x.c
 +++ b/sound/soc/codecs/wcd934x.c
-@@ -3023,14 +3023,14 @@ static int wcd934x_hph_impedance_get(struct snd_kcontrol *kcontrol,
- 	return 0;
+@@ -3308,13 +3308,16 @@ static int wcd934x_rx_hph_mode_put(struct snd_kcontrol *kc,
+ 
+ 	mode_val = ucontrol->value.enumerated.item[0];
+ 
++	if (mode_val == wcd->hph_mode)
++		return 0;
++
+ 	if (mode_val == 0) {
+ 		dev_err(wcd->dev, "Invalid HPH Mode, default to ClSH HiFi\n");
+ 		mode_val = CLS_H_LOHIFI;
+ 	}
+ 	wcd->hph_mode = mode_val;
+ 
+-	return 0;
++	return 1;
  }
- static const struct snd_kcontrol_new hph_type_detect_controls[] = {
--	SOC_SINGLE_EXT("HPH Type", 0, 0, UINT_MAX, 0,
-+	SOC_SINGLE_EXT("HPH Type", 0, 0, WCD_MBHC_HPH_STEREO, 0,
- 		       wcd934x_get_hph_type, NULL),
- };
  
- static const struct snd_kcontrol_new impedance_detect_controls[] = {
--	SOC_SINGLE_EXT("HPHL Impedance", 0, 0, UINT_MAX, 0,
-+	SOC_SINGLE_EXT("HPHL Impedance", 0, 0, INT_MAX, 0,
- 		       wcd934x_hph_impedance_get, NULL),
--	SOC_SINGLE_EXT("HPHR Impedance", 0, 1, UINT_MAX, 0,
-+	SOC_SINGLE_EXT("HPHR Impedance", 0, 1, INT_MAX, 0,
- 		       wcd934x_hph_impedance_get, NULL),
- };
- 
+ static int slim_rx_mux_get(struct snd_kcontrol *kc,
 -- 
 2.34.1
 
