@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2913C4F3230
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:54:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 434EC4F33A3
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:21:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235477AbiDEJCK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:02:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45568 "EHLO
+        id S235373AbiDEJBm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:01:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45578 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237571AbiDEImt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:42:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8735F15718;
-        Tue,  5 Apr 2022 01:35:22 -0700 (PDT)
+        with ESMTP id S237664AbiDEInE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:43:04 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48BFA17E3E;
+        Tue,  5 Apr 2022 01:35:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F133F614E4;
-        Tue,  5 Apr 2022 08:35:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BC2CC385A1;
-        Tue,  5 Apr 2022 08:35:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 08F08B81A32;
+        Tue,  5 Apr 2022 08:35:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 633A9C385A0;
+        Tue,  5 Apr 2022 08:35:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147721;
-        bh=XB2ZAnqs10KWvSqh5mAX4FfDP5UtSANZ3tDNnXYKoYA=;
+        s=korg; t=1649147732;
+        bh=MCow+EIfs9h55hYNTV4RqMgF0B+/1q8tBPB3QDPDfrY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dKr7jA30pfOYXFmsos9mEy2tdb85+oTBIOQV9C7AUfZqyAcj+uqSyrOz4GwejjSDb
-         vpsxHSL3Cf2bqR6iqf1bBhml2pqle4yml1lhl6aLSDHei5tK4hKm5Hle7824v/X0Zr
-         q1Q9UzK0mwYwu/1AQzXYpmYm6QkKmInuTo6FeftQ=
+        b=j2RtNzokccjlzS/JYEGVf7jePVnvthzTrI0/I64rpkn1tTKVa4NQFDbHLHTHYlDtA
+         ddv5SReSF+nW3CuwzaWuzhqxTN/TU+mtbp0hKLoM37SxGIyyHS5RldiUb3ru2FCUlh
+         RZi3acsaGhndGhTWiI4WnwFcoRuUT4NW/lbGHAFw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikita Shubin <n.shubin@yadro.com>,
-        Palmer Dabbelt <palmer@rivosinc.com>
-Subject: [PATCH 5.16 0098/1017] riscv: Fix fill_callchain return value
-Date:   Tue,  5 Apr 2022 09:16:51 +0200
-Message-Id: <20220405070357.105802778@linuxfoundation.org>
+        stable@vger.kernel.org, "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.16 0101/1017] cifs: do not skip link targets when an I/O fails
+Date:   Tue,  5 Apr 2022 09:16:54 +0200
+Message-Id: <20220405070357.194710436@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -53,32 +53,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikita Shubin <n.shubin@yadro.com>
+From: Paulo Alcantara <pc@cjr.nz>
 
-commit 2b2b574ac587ec5bd7716a356492a85ab8b0ce9f upstream.
+commit 5d7e282541fc91b831a5c4477c5d72881c623df9 upstream.
 
-perf_callchain_store return 0 on success, -1 otherwise,
-fix fill_callchain to return correct bool value.
+When I/O fails in one of the currently connected DFS targets, retry it
+from other targets as specified in MS-DFSC "3.1.5.2 I/O Operation to
++Target Fails with an Error Other Than STATUS_PATH_NOT_COVERED."
 
-Fixes: dbeb90b0c1eb ("riscv: Add perf callchain support")
-Signed-off-by: Nikita Shubin <n.shubin@yadro.com>
+Signed-off-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
 Cc: stable@vger.kernel.org
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/riscv/kernel/perf_callchain.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/cifs/connect.c |   14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
---- a/arch/riscv/kernel/perf_callchain.c
-+++ b/arch/riscv/kernel/perf_callchain.c
-@@ -73,7 +73,7 @@ void perf_callchain_user(struct perf_cal
+--- a/fs/cifs/connect.c
++++ b/fs/cifs/connect.c
+@@ -3401,6 +3401,9 @@ static int connect_dfs_target(struct mou
+ 	struct cifs_sb_info *cifs_sb = mnt_ctx->cifs_sb;
+ 	char *oldmnt = cifs_sb->ctx->mount_options;
  
- static bool fill_callchain(void *entry, unsigned long pc)
- {
--	return perf_callchain_store(entry, pc);
-+	return perf_callchain_store(entry, pc) == 0;
- }
++	cifs_dbg(FYI, "%s: full_path=%s ref_path=%s target=%s\n", __func__, full_path, ref_path,
++		 dfs_cache_get_tgt_name(tit));
++
+ 	rc = dfs_cache_get_tgt_referral(ref_path, tit, &ref);
+ 	if (rc)
+ 		goto out;
+@@ -3499,13 +3502,18 @@ static int __follow_dfs_link(struct moun
+ 	if (rc)
+ 		goto out;
  
- void perf_callchain_kernel(struct perf_callchain_entry_ctx *entry,
+-	/* Try all dfs link targets */
++	/* Try all dfs link targets.  If an I/O fails from currently connected DFS target with an
++	 * error other than STATUS_PATH_NOT_COVERED (-EREMOTE), then retry it from other targets as
++	 * specified in MS-DFSC "3.1.5.2 I/O Operation to Target Fails with an Error Other Than
++	 * STATUS_PATH_NOT_COVERED."
++	 */
+ 	for (rc = -ENOENT, tit = dfs_cache_get_tgt_iterator(&tl);
+ 	     tit; tit = dfs_cache_get_next_tgt(&tl, tit)) {
+ 		rc = connect_dfs_target(mnt_ctx, full_path, mnt_ctx->leaf_fullpath + 1, tit);
+ 		if (!rc) {
+ 			rc = is_path_remote(mnt_ctx);
+-			break;
++			if (!rc || rc == -EREMOTE)
++				break;
+ 		}
+ 	}
+ 
+@@ -3579,7 +3587,7 @@ int cifs_mount(struct cifs_sb_info *cifs
+ 		goto error;
+ 
+ 	rc = is_path_remote(&mnt_ctx);
+-	if (rc == -EREMOTE)
++	if (rc)
+ 		rc = follow_dfs_link(&mnt_ctx);
+ 	if (rc)
+ 		goto error;
 
 
