@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2515F4F40C2
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:23:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 317D44F3F3A
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 22:57:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1383230AbiDEMZI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:25:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43976 "EHLO
+        id S1383232AbiDEMZJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:25:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44760 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348102AbiDEKpr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:45:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0BA134673;
-        Tue,  5 Apr 2022 03:26:53 -0700 (PDT)
+        with ESMTP id S1348182AbiDEKqB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:46:01 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C40EB35264;
+        Tue,  5 Apr 2022 03:26:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6FFA261743;
-        Tue,  5 Apr 2022 10:26:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F309C385A0;
-        Tue,  5 Apr 2022 10:26:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3526861425;
+        Tue,  5 Apr 2022 10:26:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47C46C385A1;
+        Tue,  5 Apr 2022 10:26:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649154412;
-        bh=4Om7rs0x2EQFU2v84dM08SeVJ3v5+NTV2V76upqeUas=;
+        s=korg; t=1649154415;
+        bh=baRRfmdaoZGbu2PPrt5s5Gx/3K/7lVG2bGsxzYUwojA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ARzr2iJjqVofm3J+vi6rewBNa3RmwssvzkGE1QeaZYXD5tFVLqtdmpSS03yZt6rPG
-         a20HKQkrWf9EABpE3wA4TiZR759j4+Djz6s7NArn9ddx5BCoNC3qvGSPyYdnTZbgag
-         FQ2eEpN25iLVEk4XASWmTzpAAh/yECzelLwJiOuM=
+        b=XoWfxcMZhaYFLOIEjSHC77PEZlT38saozgr6m3WXvRO+vFiYTM8qqNYeTFsSdh4IH
+         X2NODFAupThE0DOf9zDrUGjbmcyyzdae4mXjHM8DYnIvOXSLqDYoGVoErO5wT9y3kB
+         aA3jCyBJj5tWaxkvj50l4dVCYt3tbpGNdDGTbltY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Manish Rangankar <mrangankar@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.10 531/599] scsi: qla2xxx: Use correct feature type field during RFF_ID processing
-Date:   Tue,  5 Apr 2022 09:33:45 +0200
-Message-Id: <20220405070314.642305752@linuxfoundation.org>
+        stable@vger.kernel.org, Gwendal Grignou <gwendal@chromium.org>,
+        Benson Leung <bleung@chromium.org>
+Subject: [PATCH 5.10 532/599] platform: chrome: Split trace include file
+Date:   Tue,  5 Apr 2022 09:33:46 +0200
+Message-Id: <20220405070314.672106544@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -56,46 +53,303 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manish Rangankar <mrangankar@marvell.com>
+From: Gwendal Grignou <gwendal@chromium.org>
 
-commit a7e05f7a1bcbe4ee055479242de46c5c16ab03b1 upstream.
+commit eabd9a3807e17e211690e6c40f1405b427b64c48 upstream.
 
-During SNS Register FC-4 Features (RFF_ID) the initiator driver was sending
-incorrect type field for NVMe supported device. Use correct feature type
-field.
+cros_ec_trace.h defined 5 tracing events, 2 for cros_ec_proto and
+3 for cros_ec_sensorhub_ring.
+These 2 files are in different kernel modules, the traces are defined
+twice in the kernel which leads to problem enabling only some traces.
 
-Link: https://lore.kernel.org/r/20220310092604.22950-12-njavali@marvell.com
-Fixes: e374f9f59281 ("scsi: qla2xxx: Migrate switch registration commands away from mailbox interface")
+Move sensorhub traces from cros_ec_trace.h to cros_ec_sensorhub_trace.h
+and enable them only in cros_ec_sensorhub kernel module.
+
+Check we can now enable any single traces: without this patch,
+we can only enable all sensorhub traces or none.
+
+Fixes: d453ceb6549a ("platform/chrome: sensorhub: Add trace events for sample")
+
+Signed-off-by: Gwendal Grignou <gwendal@chromium.org>
 Cc: stable@vger.kernel.org
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Manish Rangankar <mrangankar@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Link: https://lore.kernel.org/r/20220122001301.640337-1-gwendal@chromium.org
+Signed-off-by: Benson Leung <bleung@chromium.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/qla2xxx/qla_gs.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/platform/chrome/Makefile                  |    3 
+ drivers/platform/chrome/cros_ec_sensorhub_ring.c  |    3 
+ drivers/platform/chrome/cros_ec_sensorhub_trace.h |  123 ++++++++++++++++++++++
+ drivers/platform/chrome/cros_ec_trace.h           |   95 ----------------
+ 4 files changed, 127 insertions(+), 97 deletions(-)
+ create mode 100644 drivers/platform/chrome/cros_ec_sensorhub_trace.h
 
---- a/drivers/scsi/qla2xxx/qla_gs.c
-+++ b/drivers/scsi/qla2xxx/qla_gs.c
-@@ -676,8 +676,7 @@ qla2x00_rff_id(scsi_qla_host_t *vha, u8
- 		return (QLA_SUCCESS);
- 	}
+--- a/drivers/platform/chrome/Makefile
++++ b/drivers/platform/chrome/Makefile
+@@ -2,6 +2,7 @@
  
--	return qla_async_rffid(vha, &vha->d_id, qlt_rff_id(vha),
--	    FC4_TYPE_FCP_SCSI);
-+	return qla_async_rffid(vha, &vha->d_id, qlt_rff_id(vha), type);
- }
+ # tell define_trace.h where to find the cros ec trace header
+ CFLAGS_cros_ec_trace.o:=		-I$(src)
++CFLAGS_cros_ec_sensorhub_ring.o:=	-I$(src)
  
- static int qla_async_rffid(scsi_qla_host_t *vha, port_id_t *d_id,
-@@ -727,7 +726,7 @@ static int qla_async_rffid(scsi_qla_host
- 	/* Prepare CT arguments -- port_id, FC-4 feature, FC-4 type */
- 	ct_req->req.rff_id.port_id = port_id_to_be_id(*d_id);
- 	ct_req->req.rff_id.fc4_feature = fc4feature;
--	ct_req->req.rff_id.fc4_type = fc4type;		/* SCSI - FCP */
-+	ct_req->req.rff_id.fc4_type = fc4type;		/* SCSI-FCP or FC-NVMe */
+ obj-$(CONFIG_CHROMEOS_LAPTOP)		+= chromeos_laptop.o
+ obj-$(CONFIG_CHROMEOS_PSTORE)		+= chromeos_pstore.o
+@@ -20,7 +21,7 @@ obj-$(CONFIG_CROS_EC_CHARDEV)		+= cros_e
+ obj-$(CONFIG_CROS_EC_LIGHTBAR)		+= cros_ec_lightbar.o
+ obj-$(CONFIG_CROS_EC_VBC)		+= cros_ec_vbc.o
+ obj-$(CONFIG_CROS_EC_DEBUGFS)		+= cros_ec_debugfs.o
+-cros-ec-sensorhub-objs			:= cros_ec_sensorhub.o cros_ec_sensorhub_ring.o cros_ec_trace.o
++cros-ec-sensorhub-objs			:= cros_ec_sensorhub.o cros_ec_sensorhub_ring.o
+ obj-$(CONFIG_CROS_EC_SENSORHUB)		+= cros-ec-sensorhub.o
+ obj-$(CONFIG_CROS_EC_SYSFS)		+= cros_ec_sysfs.o
+ obj-$(CONFIG_CROS_USBPD_LOGGER)		+= cros_usbpd_logger.o
+--- a/drivers/platform/chrome/cros_ec_sensorhub_ring.c
++++ b/drivers/platform/chrome/cros_ec_sensorhub_ring.c
+@@ -17,7 +17,8 @@
+ #include <linux/sort.h>
+ #include <linux/slab.h>
  
- 	sp->u.iocb_cmd.u.ctarg.req_size = RFF_ID_REQ_SIZE;
- 	sp->u.iocb_cmd.u.ctarg.rsp_size = RFF_ID_RSP_SIZE;
+-#include "cros_ec_trace.h"
++#define CREATE_TRACE_POINTS
++#include "cros_ec_sensorhub_trace.h"
+ 
+ /* Precision of fixed point for the m values from the filter */
+ #define M_PRECISION BIT(23)
+--- /dev/null
++++ b/drivers/platform/chrome/cros_ec_sensorhub_trace.h
+@@ -0,0 +1,123 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/*
++ * Trace events for the ChromeOS Sensorhub kernel module
++ *
++ * Copyright 2021 Google LLC.
++ */
++
++#undef TRACE_SYSTEM
++#define TRACE_SYSTEM cros_ec
++
++#if !defined(_CROS_EC_SENSORHUB_TRACE_H_) || defined(TRACE_HEADER_MULTI_READ)
++#define _CROS_EC_SENSORHUB_TRACE_H_
++
++#include <linux/types.h>
++#include <linux/platform_data/cros_ec_sensorhub.h>
++
++#include <linux/tracepoint.h>
++
++TRACE_EVENT(cros_ec_sensorhub_timestamp,
++	    TP_PROTO(u32 ec_sample_timestamp, u32 ec_fifo_timestamp, s64 fifo_timestamp,
++		     s64 current_timestamp, s64 current_time),
++	TP_ARGS(ec_sample_timestamp, ec_fifo_timestamp, fifo_timestamp, current_timestamp,
++		current_time),
++	TP_STRUCT__entry(
++		__field(u32, ec_sample_timestamp)
++		__field(u32, ec_fifo_timestamp)
++		__field(s64, fifo_timestamp)
++		__field(s64, current_timestamp)
++		__field(s64, current_time)
++		__field(s64, delta)
++	),
++	TP_fast_assign(
++		__entry->ec_sample_timestamp = ec_sample_timestamp;
++		__entry->ec_fifo_timestamp = ec_fifo_timestamp;
++		__entry->fifo_timestamp = fifo_timestamp;
++		__entry->current_timestamp = current_timestamp;
++		__entry->current_time = current_time;
++		__entry->delta = current_timestamp - current_time;
++	),
++	TP_printk("ec_ts: %9u, ec_fifo_ts: %9u, fifo_ts: %12lld, curr_ts: %12lld, curr_time: %12lld, delta %12lld",
++		  __entry->ec_sample_timestamp,
++		__entry->ec_fifo_timestamp,
++		__entry->fifo_timestamp,
++		__entry->current_timestamp,
++		__entry->current_time,
++		__entry->delta
++	)
++);
++
++TRACE_EVENT(cros_ec_sensorhub_data,
++	    TP_PROTO(u32 ec_sensor_num, u32 ec_fifo_timestamp, s64 fifo_timestamp,
++		     s64 current_timestamp, s64 current_time),
++	TP_ARGS(ec_sensor_num, ec_fifo_timestamp, fifo_timestamp, current_timestamp, current_time),
++	TP_STRUCT__entry(
++		__field(u32, ec_sensor_num)
++		__field(u32, ec_fifo_timestamp)
++		__field(s64, fifo_timestamp)
++		__field(s64, current_timestamp)
++		__field(s64, current_time)
++		__field(s64, delta)
++	),
++	TP_fast_assign(
++		__entry->ec_sensor_num = ec_sensor_num;
++		__entry->ec_fifo_timestamp = ec_fifo_timestamp;
++		__entry->fifo_timestamp = fifo_timestamp;
++		__entry->current_timestamp = current_timestamp;
++		__entry->current_time = current_time;
++		__entry->delta = current_timestamp - current_time;
++	),
++	TP_printk("ec_num: %4u, ec_fifo_ts: %9u, fifo_ts: %12lld, curr_ts: %12lld, curr_time: %12lld, delta %12lld",
++		  __entry->ec_sensor_num,
++		__entry->ec_fifo_timestamp,
++		__entry->fifo_timestamp,
++		__entry->current_timestamp,
++		__entry->current_time,
++		__entry->delta
++	)
++);
++
++TRACE_EVENT(cros_ec_sensorhub_filter,
++	    TP_PROTO(struct cros_ec_sensors_ts_filter_state *state, s64 dx, s64 dy),
++	TP_ARGS(state, dx, dy),
++	TP_STRUCT__entry(
++		__field(s64, dx)
++		__field(s64, dy)
++		__field(s64, median_m)
++		__field(s64, median_error)
++		__field(s64, history_len)
++		__field(s64, x)
++		__field(s64, y)
++	),
++	TP_fast_assign(
++		__entry->dx = dx;
++		__entry->dy = dy;
++		__entry->median_m = state->median_m;
++		__entry->median_error = state->median_error;
++		__entry->history_len = state->history_len;
++		__entry->x = state->x_offset;
++		__entry->y = state->y_offset;
++	),
++	TP_printk("dx: %12lld. dy: %12lld median_m: %12lld median_error: %12lld len: %lld x: %12lld y: %12lld",
++		  __entry->dx,
++		__entry->dy,
++		__entry->median_m,
++		__entry->median_error,
++		__entry->history_len,
++		__entry->x,
++		__entry->y
++	)
++);
++
++
++#endif /* _CROS_EC_SENSORHUB_TRACE_H_ */
++
++/* this part must be outside header guard */
++
++#undef TRACE_INCLUDE_PATH
++#define TRACE_INCLUDE_PATH .
++
++#undef TRACE_INCLUDE_FILE
++#define TRACE_INCLUDE_FILE cros_ec_sensorhub_trace
++
++#include <trace/define_trace.h>
+--- a/drivers/platform/chrome/cros_ec_trace.h
++++ b/drivers/platform/chrome/cros_ec_trace.h
+@@ -15,7 +15,6 @@
+ #include <linux/types.h>
+ #include <linux/platform_data/cros_ec_commands.h>
+ #include <linux/platform_data/cros_ec_proto.h>
+-#include <linux/platform_data/cros_ec_sensorhub.h>
+ 
+ #include <linux/tracepoint.h>
+ 
+@@ -71,100 +70,6 @@ TRACE_EVENT(cros_ec_request_done,
+ 		  __entry->retval)
+ );
+ 
+-TRACE_EVENT(cros_ec_sensorhub_timestamp,
+-	    TP_PROTO(u32 ec_sample_timestamp, u32 ec_fifo_timestamp, s64 fifo_timestamp,
+-		     s64 current_timestamp, s64 current_time),
+-	TP_ARGS(ec_sample_timestamp, ec_fifo_timestamp, fifo_timestamp, current_timestamp,
+-		current_time),
+-	TP_STRUCT__entry(
+-		__field(u32, ec_sample_timestamp)
+-		__field(u32, ec_fifo_timestamp)
+-		__field(s64, fifo_timestamp)
+-		__field(s64, current_timestamp)
+-		__field(s64, current_time)
+-		__field(s64, delta)
+-	),
+-	TP_fast_assign(
+-		__entry->ec_sample_timestamp = ec_sample_timestamp;
+-		__entry->ec_fifo_timestamp = ec_fifo_timestamp;
+-		__entry->fifo_timestamp = fifo_timestamp;
+-		__entry->current_timestamp = current_timestamp;
+-		__entry->current_time = current_time;
+-		__entry->delta = current_timestamp - current_time;
+-	),
+-	TP_printk("ec_ts: %9u, ec_fifo_ts: %9u, fifo_ts: %12lld, curr_ts: %12lld, curr_time: %12lld, delta %12lld",
+-		  __entry->ec_sample_timestamp,
+-		__entry->ec_fifo_timestamp,
+-		__entry->fifo_timestamp,
+-		__entry->current_timestamp,
+-		__entry->current_time,
+-		__entry->delta
+-	)
+-);
+-
+-TRACE_EVENT(cros_ec_sensorhub_data,
+-	    TP_PROTO(u32 ec_sensor_num, u32 ec_fifo_timestamp, s64 fifo_timestamp,
+-		     s64 current_timestamp, s64 current_time),
+-	TP_ARGS(ec_sensor_num, ec_fifo_timestamp, fifo_timestamp, current_timestamp, current_time),
+-	TP_STRUCT__entry(
+-		__field(u32, ec_sensor_num)
+-		__field(u32, ec_fifo_timestamp)
+-		__field(s64, fifo_timestamp)
+-		__field(s64, current_timestamp)
+-		__field(s64, current_time)
+-		__field(s64, delta)
+-	),
+-	TP_fast_assign(
+-		__entry->ec_sensor_num = ec_sensor_num;
+-		__entry->ec_fifo_timestamp = ec_fifo_timestamp;
+-		__entry->fifo_timestamp = fifo_timestamp;
+-		__entry->current_timestamp = current_timestamp;
+-		__entry->current_time = current_time;
+-		__entry->delta = current_timestamp - current_time;
+-	),
+-	TP_printk("ec_num: %4u, ec_fifo_ts: %9u, fifo_ts: %12lld, curr_ts: %12lld, curr_time: %12lld, delta %12lld",
+-		  __entry->ec_sensor_num,
+-		__entry->ec_fifo_timestamp,
+-		__entry->fifo_timestamp,
+-		__entry->current_timestamp,
+-		__entry->current_time,
+-		__entry->delta
+-	)
+-);
+-
+-TRACE_EVENT(cros_ec_sensorhub_filter,
+-	    TP_PROTO(struct cros_ec_sensors_ts_filter_state *state, s64 dx, s64 dy),
+-	TP_ARGS(state, dx, dy),
+-	TP_STRUCT__entry(
+-		__field(s64, dx)
+-		__field(s64, dy)
+-		__field(s64, median_m)
+-		__field(s64, median_error)
+-		__field(s64, history_len)
+-		__field(s64, x)
+-		__field(s64, y)
+-	),
+-	TP_fast_assign(
+-		__entry->dx = dx;
+-		__entry->dy = dy;
+-		__entry->median_m = state->median_m;
+-		__entry->median_error = state->median_error;
+-		__entry->history_len = state->history_len;
+-		__entry->x = state->x_offset;
+-		__entry->y = state->y_offset;
+-	),
+-	TP_printk("dx: %12lld. dy: %12lld median_m: %12lld median_error: %12lld len: %lld x: %12lld y: %12lld",
+-		  __entry->dx,
+-		__entry->dy,
+-		__entry->median_m,
+-		__entry->median_error,
+-		__entry->history_len,
+-		__entry->x,
+-		__entry->y
+-	)
+-);
+-
+-
+ #endif /* _CROS_EC_TRACE_H_ */
+ 
+ /* this part must be outside header guard */
 
 
