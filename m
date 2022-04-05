@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 38F5B4F3FB3
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:04:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D4B74F3E6E
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 22:44:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380991AbiDEMOT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:14:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50688 "EHLO
+        id S238201AbiDEMUy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:20:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45288 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241245AbiDEK25 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:28:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D022DCA87;
-        Tue,  5 Apr 2022 03:18:12 -0700 (PDT)
+        with ESMTP id S233525AbiDEKag (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:30:36 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EA5DDCE3C;
+        Tue,  5 Apr 2022 03:18:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8B867617CE;
-        Tue,  5 Apr 2022 10:18:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98975C385A1;
-        Tue,  5 Apr 2022 10:18:10 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id DD3B2CE0B18;
+        Tue,  5 Apr 2022 10:18:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E55C5C385A0;
+        Tue,  5 Apr 2022 10:18:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153891;
-        bh=faqY+AXvpbMhVT1szSwVM98pjikIjwm3hnilT/iR77Y=;
+        s=korg; t=1649153899;
+        bh=MMP6k/LNUR1jVifTaiPGoAePLM2M7XdwQlkDS3TOkuU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hf6SIC8lCAL/jpmkMpaA1E/PhFUfOKIC06CNOqX4HxI3p3xcJL//3o7BXSU6SLluH
-         4Se5AB0aiV00pjtPGCro0v6TZRDiqr2rGUxrqBm6F/4t8PMoDIJ7YfVEY/W3etIhzE
-         GOn2Fjd4v2TDr+2ha+e+1B7uMgfAgcNk5FEoPzRg=
+        b=nsOyAo16jkCFwii30y7gy7k8NY297pyT8x3/YbTYnAqUV69Zj3m5Ho/OtDuG6dF/6
+         yfLB29QbbO0YvduveYMw+ziAFnQ1DuoNeA4yzUwPN22ZG/IoOMatX+yVzng92+5nzh
+         fa5NrfL8wpbnFrq/rTGSfedohyniQZtxD4tNf33M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Libin Yang <libin.yang@intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Rander Wang <rander.wang@intel.com>,
-        Bard Liao <yung-chuan.liao@linux.intel.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 384/599] soundwire: intel: fix wrong register name in intel_shim_wake
-Date:   Tue,  5 Apr 2022 09:31:18 +0200
-Message-Id: <20220405070310.257483324@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Marcelo Schmitt <marcelo.schmitt1@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 387/599] staging:iio:adc:ad7280a: Fix handing of device address bit reversing.
+Date:   Tue,  5 Apr 2022 09:31:21 +0200
+Message-Id: <20220405070310.347287044@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -56,39 +55,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Libin Yang <libin.yang@intel.com>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit 3957db3ae3dae6f8b8168791f154567fe49e1fd7 ]
+[ Upstream commit f281e4ddbbc0b60f061bc18a2834e9363ba85f9f ]
 
-When clearing the sdw wakests status, we should use SDW_SHIM_WAKESTS.
+The bit reversal was wrong for bits 1 and 3 of the 5 bits.
+Result is driver failure to probe if you have more than 2 daisy-chained
+devices.  Discovered via QEMU based device emulation.
 
-Fixes: 4a17c441c7cb ("soundwire: intel: revisit SHIM programming sequences.")
-Signed-off-by: Libin Yang <libin.yang@intel.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Rander Wang <rander.wang@intel.com>
-Signed-off-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Link: https://lore.kernel.org/r/20220126011451.27853-1-yung-chuan.liao@linux.intel.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes tag is for when this moved from a macro to a function, but it
+was broken before that.
+
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: 065a7c0b1fec ("Staging: iio: adc: ad7280a.c: Fixed Macro argument reuse")
+Reviewed-by: Marcelo Schmitt <marcelo.schmitt1@gmail.com>
+Link: https://lore.kernel.org/r/20220206190328.333093-2-jic23@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soundwire/intel.c | 4 ++--
+ drivers/staging/iio/adc/ad7280a.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/soundwire/intel.c b/drivers/soundwire/intel.c
-index dad4326a2a71..824d9f900aca 100644
---- a/drivers/soundwire/intel.c
-+++ b/drivers/soundwire/intel.c
-@@ -521,8 +521,8 @@ static void intel_shim_wake(struct sdw_intel *sdw, bool wake_enable)
- 
- 		/* Clear wake status */
- 		wake_sts = intel_readw(shim, SDW_SHIM_WAKESTS);
--		wake_sts |= (SDW_SHIM_WAKEEN_ENABLE << link_id);
--		intel_writew(shim, SDW_SHIM_WAKESTS_STATUS, wake_sts);
-+		wake_sts |= (SDW_SHIM_WAKESTS_STATUS << link_id);
-+		intel_writew(shim, SDW_SHIM_WAKESTS, wake_sts);
- 	}
- 	mutex_unlock(sdw->link_res->shim_lock);
+diff --git a/drivers/staging/iio/adc/ad7280a.c b/drivers/staging/iio/adc/ad7280a.c
+index fef0055b8990..20183b2ea127 100644
+--- a/drivers/staging/iio/adc/ad7280a.c
++++ b/drivers/staging/iio/adc/ad7280a.c
+@@ -107,9 +107,9 @@
+ static unsigned int ad7280a_devaddr(unsigned int addr)
+ {
+ 	return ((addr & 0x1) << 4) |
+-	       ((addr & 0x2) << 3) |
++	       ((addr & 0x2) << 2) |
+ 	       (addr & 0x4) |
+-	       ((addr & 0x8) >> 3) |
++	       ((addr & 0x8) >> 2) |
+ 	       ((addr & 0x10) >> 4);
  }
+ 
 -- 
 2.34.1
 
