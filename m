@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 72C474F2527
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 09:44:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E6564F24D7
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 09:39:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229905AbiDEHp4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 03:45:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56104 "EHLO
+        id S231796AbiDEHli (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 03:41:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54404 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231985AbiDEHpf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:45:35 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7FBE92D2C;
-        Tue,  5 Apr 2022 00:41:24 -0700 (PDT)
+        with ESMTP id S231733AbiDEHld (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:41:33 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 870164B43F;
+        Tue,  5 Apr 2022 00:39:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7E46BB81B75;
-        Tue,  5 Apr 2022 07:41:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C77B9C340EE;
-        Tue,  5 Apr 2022 07:41:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2BEDAB81B16;
+        Tue,  5 Apr 2022 07:39:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A1C1C340EE;
+        Tue,  5 Apr 2022 07:39:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649144482;
-        bh=u8cclAT3USm2ckXvRzJKzZhIhuNCejG+lU+PnBp3YA8=;
+        s=korg; t=1649144373;
+        bh=B8Q+cSPIOi/M5XObkjw1M58uMGbxfVaxxo5QHsotE6w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ev6EWY1UZyhYdqeVt2j+Fy/JGjZ4OnhsJ88Fzzvag7RbmLuD0KngHmbVmrouebECq
-         0za+Ia1KTc8UBzholJ8cfiIkYcCFlBjOnu74xbda60i6qZOMvxR+1xGNQt9FdBbAv5
-         y1jfUNqiJitb00Jdf9hSY+8NuLH3fuVyKf97aOD8=
+        b=Lsmd6fewgbrgBllthUQAjmK+iCIHTIXj7+S5OXKPwo0l1fKkXqwf3fFKWsF4W5l4w
+         eNq+eDU0nQmAZk03NIzQWvvgT+6dmHf69DBZYo1mkksVEflt1KeKqRVkitLqLfOdMq
+         MQvWtYfxhWWaDls6TiSqsJziv3aLd7NMwgcapEl8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Usyskin <alexander.usyskin@intel.com>,
-        Tomas Winkler <tomas.winkler@intel.com>
-Subject: [PATCH 5.17 0021/1126] mei: avoid iterator usage outside of list_for_each_entry
-Date:   Tue,  5 Apr 2022 09:12:48 +0200
-Message-Id: <20220405070408.167043842@linuxfoundation.org>
+        stable@vger.kernel.org, Manivannan Sadhasivam <mani@kernel.org>,
+        Yonglin Tan <yonglin.tan@outlook.com>,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Subject: [PATCH 5.17 0022/1126] bus: mhi: pci_generic: Add mru_default for Quectel EM1xx series
+Date:   Tue,  5 Apr 2022 09:12:49 +0200
+Message-Id: <20220405070408.196497441@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -54,78 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Usyskin <alexander.usyskin@intel.com>
+From: Yonglin Tan <yonglin.tan@outlook.com>
 
-commit c10187b1c5ebb8681ca467ab7b0ded5ea415d258 upstream.
+commit 2413ffbf19a95cfcd7adf63135c5a9343a66d0a2 upstream.
 
-Usage of the iterator outside of the list_for_each_entry
-is considered harmful. https://lkml.org/lkml/2022/2/17/1032
+For default mechanism, the driver uses default MRU 3500 if mru_default
+is not initialized. The Qualcomm configured the MRU size to 32768 in the
+WWAN device FW. So, we align the driver setting with Qualcomm FW setting.
 
-Do not reference the loop variable outside of the loop,
-by rearranging the orders of execution.
-Instead of performing search loop and checking outside the loop
-if the end of the list was hit and no matching element was found,
-the execution is performed inside the loop upon a successful match
-followed by a goto statement to the next step,
-therefore no condition has to be performed after the loop has ended.
-
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
-Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
-Link: https://lore.kernel.org/r/20220308095926.300412-1-tomas.winkler@intel.com
+Link: https://lore.kernel.org/r/MEYP282MB2374EE345DADDB591AFDA6AFFD2E9@MEYP282MB2374.AUSP282.PROD.OUTLOOK.COM
+Fixes: ac4bf60bbaa0 ("bus: mhi: pci_generic: Introduce quectel EM1XXGR-L support")
+Cc: stable@vger.kernel.org
+Reviewed-by: Manivannan Sadhasivam <mani@kernel.org>
+Signed-off-by: Yonglin Tan <yonglin.tan@outlook.com>
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Link: https://lore.kernel.org/r/20220301160308.107452-2-manivannan.sadhasivam@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/misc/mei/interrupt.c |   35 +++++++++++++++--------------------
- 1 file changed, 15 insertions(+), 20 deletions(-)
+ drivers/bus/mhi/pci_generic.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/misc/mei/interrupt.c
-+++ b/drivers/misc/mei/interrupt.c
-@@ -424,31 +424,26 @@ int mei_irq_read_handler(struct mei_devi
- 	list_for_each_entry(cl, &dev->file_list, link) {
- 		if (mei_cl_hbm_equal(cl, mei_hdr)) {
- 			cl_dbg(dev, cl, "got a message\n");
--			break;
-+			ret = mei_cl_irq_read_msg(cl, mei_hdr, meta_hdr, cmpl_list);
-+			goto reset_slots;
- 		}
- 	}
+--- a/drivers/bus/mhi/pci_generic.c
++++ b/drivers/bus/mhi/pci_generic.c
+@@ -327,6 +327,7 @@ static const struct mhi_pci_dev_info mhi
+ 	.config = &modem_quectel_em1xx_config,
+ 	.bar_num = MHI_PCI_DEFAULT_BAR_NUM,
+ 	.dma_data_width = 32,
++	.mru_default = 32768,
+ 	.sideband_wake = true,
+ };
  
- 	/* if no recipient cl was found we assume corrupted header */
--	if (&cl->link == &dev->file_list) {
--		/* A message for not connected fixed address clients
--		 * should be silently discarded
--		 * On power down client may be force cleaned,
--		 * silently discard such messages
--		 */
--		if (hdr_is_fixed(mei_hdr) ||
--		    dev->dev_state == MEI_DEV_POWER_DOWN) {
--			mei_irq_discard_msg(dev, mei_hdr, mei_hdr->length);
--			ret = 0;
--			goto reset_slots;
--		}
--		dev_err(dev->dev, "no destination client found 0x%08X\n",
--				dev->rd_msg_hdr[0]);
--		ret = -EBADMSG;
--		goto end;
-+	/* A message for not connected fixed address clients
-+	 * should be silently discarded
-+	 * On power down client may be force cleaned,
-+	 * silently discard such messages
-+	 */
-+	if (hdr_is_fixed(mei_hdr) ||
-+	    dev->dev_state == MEI_DEV_POWER_DOWN) {
-+		mei_irq_discard_msg(dev, mei_hdr, mei_hdr->length);
-+		ret = 0;
-+		goto reset_slots;
- 	}
--
--	ret = mei_cl_irq_read_msg(cl, mei_hdr, meta_hdr, cmpl_list);
--
-+	dev_err(dev->dev, "no destination client found 0x%08X\n", dev->rd_msg_hdr[0]);
-+	ret = -EBADMSG;
-+	goto end;
- 
- reset_slots:
- 	/* reset the number of slots and header */
 
 
