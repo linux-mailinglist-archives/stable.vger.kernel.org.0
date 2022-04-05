@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 381E24F38DD
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:37:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B27A4F3BDC
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:22:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377344AbiDEL2p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:28:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59206 "EHLO
+        id S1379888AbiDEMC4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:02:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50352 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349899AbiDEJv6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:51:58 -0400
+        with ESMTP id S1357988AbiDEK1j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:27:39 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB7F22DAA8;
-        Tue,  5 Apr 2022 02:49:59 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2991D3704;
+        Tue,  5 Apr 2022 03:12:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 82128B81B76;
-        Tue,  5 Apr 2022 09:49:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE823C385A2;
-        Tue,  5 Apr 2022 09:49:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 79EE2B81C8B;
+        Tue,  5 Apr 2022 10:12:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC8CFC385A0;
+        Tue,  5 Apr 2022 10:12:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152197;
-        bh=p4qOkgGo1/eyoeVeoSnjF3H2g47JG7CGB9P5oxsXQkc=;
+        s=korg; t=1649153534;
+        bh=RuudkV80NbnUWQJ3ZBBUJ5p0VXcyoR2tIBAnss2jxn8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SxdP/ZPEtgv/iqCT2HMpGi9NbjdhGvR7LH+T1AEPC0Qhe4qX1goSUFZZWIYDOt0Jv
-         iXsYidtQsmbJEESefVf4dCeKhyV8Iwo+TWEj01QlkzigzjMFIESgcd5LuLfhieGxwI
-         TvF82pqJpBLDhbem6GRb7GVHCo+YC5vWg1p5DvOw=
+        b=nk9vUFWs4Lqm1JQ6RpA7oBuuDlz3NgkxI3tArGwRthsfFDqQpdh0NCiQMsCt7j/sB
+         86d6irJDnfDY6b8D2sFGR8/91+nN7z0ScET2RxDP5xw+ukbw8xocFjPkPZ8aSAi3lI
+         VzUOOhMWNKgHjNPtOaCojf1OkduoPyfjW90awZVg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, rftc <rftc@gmx.de>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 689/913] crypto: xts - Add softdep on ecb
+Subject: [PATCH 5.10 257/599] ASoC: msm8916-wcd-analog: Fix error handling in pm8916_wcd_analog_spmi_probe
 Date:   Tue,  5 Apr 2022 09:29:11 +0200
-Message-Id: <20220405070400.487601863@linuxfoundation.org>
+Message-Id: <20220405070306.486840619@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070258.802373272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,30 +54,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit dfe085d8dcd0bb1fe20cc2327e81c8064cead441 ]
+[ Upstream commit 9ebd62d60edcd4d9c75485e5ccd0b79581ad3c49 ]
 
-The xts module needs ecb to be present as it's meant to work
-on top of ecb.  This patch adds a softdep so ecb can be included
-automatically into the initramfs.
+In the error handling path, the clk_prepare_enable() function
+call should be balanced by a corresponding 'clk_disable_unprepare()'
+call , as already done in the remove function.
 
-Reported-by: rftc <rftc@gmx.de>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: de66b3455023 ("ASoC: codecs: msm8916-wcd-analog: add MBHC support")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220316041924.17560-1-linmq006@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/xts.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/soc/codecs/msm8916-wcd-analog.c | 22 ++++++++++++++++------
+ 1 file changed, 16 insertions(+), 6 deletions(-)
 
-diff --git a/crypto/xts.c b/crypto/xts.c
-index 6c12f30dbdd6..63c85b9e64e0 100644
---- a/crypto/xts.c
-+++ b/crypto/xts.c
-@@ -466,3 +466,4 @@ MODULE_LICENSE("GPL");
- MODULE_DESCRIPTION("XTS block cipher mode");
- MODULE_ALIAS_CRYPTO("xts");
- MODULE_IMPORT_NS(CRYPTO_INTERNAL);
-+MODULE_SOFTDEP("pre: ecb");
+diff --git a/sound/soc/codecs/msm8916-wcd-analog.c b/sound/soc/codecs/msm8916-wcd-analog.c
+index 3ddd822240e3..971b8360b5b1 100644
+--- a/sound/soc/codecs/msm8916-wcd-analog.c
++++ b/sound/soc/codecs/msm8916-wcd-analog.c
+@@ -1221,8 +1221,10 @@ static int pm8916_wcd_analog_spmi_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	irq = platform_get_irq_byname(pdev, "mbhc_switch_int");
+-	if (irq < 0)
+-		return irq;
++	if (irq < 0) {
++		ret = irq;
++		goto err_disable_clk;
++	}
+ 
+ 	ret = devm_request_threaded_irq(dev, irq, NULL,
+ 			       pm8916_mbhc_switch_irq_handler,
+@@ -1234,8 +1236,10 @@ static int pm8916_wcd_analog_spmi_probe(struct platform_device *pdev)
+ 
+ 	if (priv->mbhc_btn_enabled) {
+ 		irq = platform_get_irq_byname(pdev, "mbhc_but_press_det");
+-		if (irq < 0)
+-			return irq;
++		if (irq < 0) {
++			ret = irq;
++			goto err_disable_clk;
++		}
+ 
+ 		ret = devm_request_threaded_irq(dev, irq, NULL,
+ 				       mbhc_btn_press_irq_handler,
+@@ -1246,8 +1250,10 @@ static int pm8916_wcd_analog_spmi_probe(struct platform_device *pdev)
+ 			dev_err(dev, "cannot request mbhc button press irq\n");
+ 
+ 		irq = platform_get_irq_byname(pdev, "mbhc_but_rel_det");
+-		if (irq < 0)
+-			return irq;
++		if (irq < 0) {
++			ret = irq;
++			goto err_disable_clk;
++		}
+ 
+ 		ret = devm_request_threaded_irq(dev, irq, NULL,
+ 				       mbhc_btn_release_irq_handler,
+@@ -1264,6 +1270,10 @@ static int pm8916_wcd_analog_spmi_probe(struct platform_device *pdev)
+ 	return devm_snd_soc_register_component(dev, &pm8916_wcd_analog,
+ 				      pm8916_wcd_analog_dai,
+ 				      ARRAY_SIZE(pm8916_wcd_analog_dai));
++
++err_disable_clk:
++	clk_disable_unprepare(priv->mclk);
++	return ret;
+ }
+ 
+ static int pm8916_wcd_analog_spmi_remove(struct platform_device *pdev)
 -- 
 2.34.1
 
