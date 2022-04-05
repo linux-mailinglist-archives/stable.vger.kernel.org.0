@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A33944F3820
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:27:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EE544F3ADD
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:06:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376344AbiDELVi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:21:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47296 "EHLO
+        id S242526AbiDELtg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:49:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349402AbiDEJts (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E66917A81;
-        Tue,  5 Apr 2022 02:44:58 -0700 (PDT)
+        with ESMTP id S1355939AbiDEKWP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:22:15 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14A0FAA028;
+        Tue,  5 Apr 2022 03:05:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 577F261675;
-        Tue,  5 Apr 2022 09:44:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6584FC385A2;
-        Tue,  5 Apr 2022 09:44:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7AEBEB81C83;
+        Tue,  5 Apr 2022 10:05:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCFB8C385A1;
+        Tue,  5 Apr 2022 10:05:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151897;
-        bh=vZCYosMR3xAeEcqaIxxhaQzuSAuF9vWSVdw/VukUcbY=;
+        s=korg; t=1649153129;
+        bh=wxo5Qgm4ML6MQghSIyIPjrQXgvNxgJgLaqb67pNgPhk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LY4huCouIcDyL0SQCuaCjHVfRUfuWm6MdnKHGvjOB6vYpBwNv2WNaF5LmJxzOvQ52
-         ZFRgvxKB9WB20n9HuiN69exyZw/i0u9Ge2dC8H+m1JWHXOkUf+GSiwdRI+LbGFipI+
-         AZl8ndbmL6tDmJFi6lAlZyZqIO7mywWJ8YkKoYEI=
+        b=l29fCfWEI3Rz6M2cYx1+nX7bH2z+G4kXgRtREj59wJa4ybjVwgjhOamYVJV5tXG9n
+         mCLTOPuu6g7Qy8iKiub14v86VevCMqUfoO9dl3AaMZOMvoQkyH3l/uCHsoEF6n2nwO
+         AIXZyhl/5WML11iIjMeWZoTbYEfJX/nCEUCMTH3U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wang Yufen <wangyufen@huawei.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 543/913] bpf, sockmap: Fix double uncharge the mem of sk_msg
+        stable@vger.kernel.org, Tadeusz Struk <tadeusz.struk@linaro.org>,
+        Vitaly Chikunov <vt@altlinux.org>,
+        Eric Biggers <ebiggers@google.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 5.10 111/599] crypto: rsa-pkcs1pad - restore signature length check
 Date:   Tue,  5 Apr 2022 09:26:45 +0200
-Message-Id: <20220405070356.125960097@linuxfoundation.org>
+Message-Id: <20220405070302.140155099@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070258.802373272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,72 +55,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Yufen <wangyufen@huawei.com>
+From: Eric Biggers <ebiggers@google.com>
 
-[ Upstream commit 2486ab434b2c2a14e9237296db00b1e1b7ae3273 ]
+commit d3481accd974541e6a5d6a1fb588924a3519c36e upstream.
 
-If tcp_bpf_sendmsg is running during a tear down operation, psock may be
-freed.
+RSA PKCS#1 v1.5 signatures are required to be the same length as the RSA
+key size.  RFC8017 specifically requires the verifier to check this
+(https://datatracker.ietf.org/doc/html/rfc8017#section-8.2.2).
 
-tcp_bpf_sendmsg()
- tcp_bpf_send_verdict()
-  sk_msg_return()
-  tcp_bpf_sendmsg_redir()
-   unlikely(!psock))
-     sk_msg_free()
+Commit a49de377e051 ("crypto: Add hash param to pkcs1pad") changed the
+kernel to allow longer signatures, but didn't explain this part of the
+change; it seems to be unrelated to the rest of the commit.
 
-The mem of msg has been uncharged in tcp_bpf_send_verdict() by
-sk_msg_return(), and would be uncharged by sk_msg_free() again. When psock
-is null, we can simply returning an error code, this would then trigger
-the sk_msg_free_nocharge in the error path of __SK_REDIRECT and would have
-the side effect of throwing an error up to user space. This would be a
-slight change in behavior from user side but would look the same as an
-error if the redirect on the socket threw an error.
+Revert this change, since it doesn't appear to be correct.
 
-This issue can cause the following info:
-WARNING: CPU: 0 PID: 2136 at net/ipv4/af_inet.c:155 inet_sock_destruct+0x13c/0x260
-Call Trace:
- <TASK>
- __sk_destruct+0x24/0x1f0
- sk_psock_destroy+0x19b/0x1c0
- process_one_work+0x1b3/0x3c0
- worker_thread+0x30/0x350
- ? process_one_work+0x3c0/0x3c0
- kthread+0xe6/0x110
- ? kthread_complete_and_exit+0x20/0x20
- ret_from_fork+0x22/0x30
- </TASK>
+We can be pretty sure that no one is relying on overly-long signatures
+(which would have to be front-padded with zeroes) being supported, given
+that they would have been broken since commit c7381b012872
+("crypto: akcipher - new verify API for public key algorithms").
 
-Fixes: 604326b41a6f ("bpf, sockmap: convert to generic sk_msg interface")
-Signed-off-by: Wang Yufen <wangyufen@huawei.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: John Fastabend <john.fastabend@gmail.com>
-Link: https://lore.kernel.org/bpf/20220304081145.2037182-5-wangyufen@huawei.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: a49de377e051 ("crypto: Add hash param to pkcs1pad")
+Cc: <stable@vger.kernel.org> # v4.6+
+Cc: Tadeusz Struk <tadeusz.struk@linaro.org>
+Suggested-by: Vitaly Chikunov <vt@altlinux.org>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/tcp_bpf.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ crypto/rsa-pkcs1pad.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/ipv4/tcp_bpf.c b/net/ipv4/tcp_bpf.c
-index 304800c60427..1cdcb4df0eb7 100644
---- a/net/ipv4/tcp_bpf.c
-+++ b/net/ipv4/tcp_bpf.c
-@@ -138,10 +138,9 @@ int tcp_bpf_sendmsg_redir(struct sock *sk, struct sk_msg *msg,
- 	struct sk_psock *psock = sk_psock_get(sk);
- 	int ret;
+--- a/crypto/rsa-pkcs1pad.c
++++ b/crypto/rsa-pkcs1pad.c
+@@ -538,7 +538,7 @@ static int pkcs1pad_verify(struct akciph
  
--	if (unlikely(!psock)) {
--		sk_msg_free(sk, msg);
--		return 0;
--	}
-+	if (unlikely(!psock))
-+		return -EPIPE;
-+
- 	ret = ingress ? bpf_tcp_ingress(sk, psock, msg, bytes, flags) :
- 			tcp_bpf_push_locked(sk, msg, bytes, flags, false);
- 	sk_psock_put(sk, psock);
--- 
-2.34.1
-
+ 	if (WARN_ON(req->dst) ||
+ 	    WARN_ON(!req->dst_len) ||
+-	    !ctx->key_size || req->src_len < ctx->key_size)
++	    !ctx->key_size || req->src_len != ctx->key_size)
+ 		return -EINVAL;
+ 
+ 	req_ctx->out_buf = kmalloc(ctx->key_size + req->dst_len, GFP_KERNEL);
 
 
