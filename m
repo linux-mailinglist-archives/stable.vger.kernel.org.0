@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B72854F5434
-	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 06:53:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AFC7E4F5436
+	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 06:53:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233932AbiDFEp3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Apr 2022 00:45:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58208 "EHLO
+        id S242034AbiDFEpa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Apr 2022 00:45:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1841119AbiDFBRq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 21:17:46 -0400
-Received: from mail-io1-xd2f.google.com (mail-io1-xd2f.google.com [IPv6:2607:f8b0:4864:20::d2f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 748C965803
-        for <stable@vger.kernel.org>; Tue,  5 Apr 2022 16:10:23 -0700 (PDT)
-Received: by mail-io1-xd2f.google.com with SMTP id h63so974646iof.12
-        for <stable@vger.kernel.org>; Tue, 05 Apr 2022 16:10:23 -0700 (PDT)
+        with ESMTP id S1450027AbiDFBsr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 21:48:47 -0400
+Received: from mail-oa1-x30.google.com (mail-oa1-x30.google.com [IPv6:2001:4860:4864:20::30])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3380392D0A
+        for <stable@vger.kernel.org>; Tue,  5 Apr 2022 16:24:54 -0700 (PDT)
+Received: by mail-oa1-x30.google.com with SMTP id 586e51a60fabf-d6ca46da48so1071315fac.12
+        for <stable@vger.kernel.org>; Tue, 05 Apr 2022 16:24:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linuxfoundation.org; s=google;
         h=subject:to:cc:references:from:message-id:date:user-agent
          :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=D+Ivtg5pKoltKvJ46d3+6yYAIRcj64rTYJYvVX/xCjE=;
-        b=VBTLYQiwwEWtJaKWyH8SrAw2gJR2T2uiY2GBIbaJi75SCHq7sUutGpEG+98gPaUa6R
-         GXCVPsZXMsk6uOFgh3wAmU2vqsZ3ETCsQ+j3eixiln3NLdTMkf2gHX/qvazYCtTxCCEt
-         FKT3BwRXTImn6DFqire06gKsB9LPklQ0lSdkw=
+        bh=M4vjmuTVMZbiU5JaTjwYqkybLPm+olNJlkQxM2BEaQ4=;
+        b=BCt0TQXHHcguzELQkTvAp7vF07JTLuIYJu14EOX3Qaypmy1a7fR85APJOG8FTztfsD
+         EQXtS3OgtYxVup3AW67Goky09sKYtTm7asc73gs9FBGMokfF1EqhOZt/5riATtAmBfnZ
+         KIEx7mlVoWmnrW4QiWDcjVqqavZSbmxeMBwcs=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:subject:to:cc:references:from:message-id:date
          :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=D+Ivtg5pKoltKvJ46d3+6yYAIRcj64rTYJYvVX/xCjE=;
-        b=CwHtRs7opv/iYz+v8B3Dzz9CXz79nCkpk6fecY367KHAa08R8HxCvruGb187nc1jM/
-         9Q96FPWD0YbKuRuwwpSbHJBRQ3MhB7a3tKWQ6it9h+RAZ2AquR8l3qFRFaHrpIR6j/HJ
-         leEmb7O1QAxkWtseMfwKbRXYYvnVIKUx6PNCgoa5BRMj+D7SlgEtZlYQRk+6kT10Aec8
-         xtQenOiaaIGxPHcsJjFLwUAhOefqd9O+PN5hw2MYZF+7BRKgzxgRPtLV2+vs6l+/FOGQ
-         zDpu+yXM2bTk+dn2Wl1qxry/kcQ3lKvkHrRrmwocoVj+Xj8eZbANzv9hq8JmwjS3tyrE
-         XTTA==
-X-Gm-Message-State: AOAM531tv2tJK5bJ/mkg/A2n5fZaVArhuCaOVSssqMWsdLk4ll6aLxGJ
-        6vz3HqJt59wpq+yb7K+d9YfGjA==
-X-Google-Smtp-Source: ABdhPJzXe7Inoe5P30IZe++e3ZdQhUIC0BQKbn5qFsf+P5D0pL3zrierzfYF7+JpL3Owz0WPwKJpJQ==
-X-Received: by 2002:a5e:a717:0:b0:649:6328:792b with SMTP id b23-20020a5ea717000000b006496328792bmr2801638iod.54.1649200222863;
-        Tue, 05 Apr 2022 16:10:22 -0700 (PDT)
+        bh=M4vjmuTVMZbiU5JaTjwYqkybLPm+olNJlkQxM2BEaQ4=;
+        b=CwjAY3W22CCI6PsbV7jkuwyjhbR78Fqpz0Nv7AMX++03qDtmI+T4an2IInwz3s7MYc
+         czI5K2dKbLZxCcV3FEvRg1L2DUX3zT7L1/Tu5GzQYDqCWBRYo6LyybmyMM5uesn6AK3p
+         RsyF03Npl9gX0s2kmhL8DifP7aJU05Pf3freCYods2roYFxiRKIPNPdJOUW4cuNhqEg6
+         +ty0a1tP9Y/rldqfaK2XqgUSLse4R8ZBjS1C+LEk8Xjh7L35d/97SBd5assuWSDwYe1P
+         xFWN8En9kjb80Zk1B3iGpk75j39OVb7kBYTtVddiWZmTwbe20nuEnhfRPLJ6L4WqYFmY
+         6NdQ==
+X-Gm-Message-State: AOAM533jBcSQjQsgr3sHkxshH25X8FxnYIV6u+9UsjCEKeR6YfguKGic
+        PDPXiKJHXI6UBGn+5SqH6AEYYA==
+X-Google-Smtp-Source: ABdhPJwCTsOtVIqO72PONxtuPaktUOnExZMU65w/Izv6H+WLDA5L2/4QseoHac1k987sArhvWq9RpA==
+X-Received: by 2002:a05:6870:9121:b0:e2:1d27:bd1d with SMTP id o33-20020a056870912100b000e21d27bd1dmr2625674oae.293.1649201093087;
+        Tue, 05 Apr 2022 16:24:53 -0700 (PDT)
 Received: from [192.168.1.128] ([71.205.29.0])
-        by smtp.gmail.com with ESMTPSA id l10-20020a056e02066a00b002ca405211c7sm4252491ilt.12.2022.04.05.16.10.21
+        by smtp.gmail.com with ESMTPSA id f8-20020a4ace88000000b00321598cd45dsm5514709oos.33.2022.04.05.16.24.52
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 05 Apr 2022 16:10:22 -0700 (PDT)
-Subject: Re: [PATCH 5.10 000/599] 5.10.110-rc1 review
+        Tue, 05 Apr 2022 16:24:52 -0700 (PDT)
+Subject: Re: [PATCH 5.17 0000/1126] 5.17.2-rc1 review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         linux-kernel@vger.kernel.org
 Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
@@ -54,17 +54,17 @@ Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
         jonathanh@nvidia.com, f.fainelli@gmail.com,
         sudipm.mukherjee@gmail.com, slade@sladewatkins.com,
         Shuah Khan <skhan@linuxfoundation.org>
-References: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 From:   Shuah Khan <skhan@linuxfoundation.org>
-Message-ID: <09201c80-bc6e-36ad-a4dc-82f54486b434@linuxfoundation.org>
-Date:   Tue, 5 Apr 2022 17:10:21 -0600
+Message-ID: <4ea24e30-bed4-a513-5efb-f450df5b8ec6@linuxfoundation.org>
+Date:   Tue, 5 Apr 2022 17:24:51 -0600
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
  Thunderbird/78.8.1
 MIME-Version: 1.0
-In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 X-Spam-Status: No, score=-2.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
         RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
@@ -75,9 +75,9 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 4/5/22 1:24 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.110 release.
-> There are 599 patches in this series, all will be posted as a response
+On 4/5/22 1:12 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.17.2 release.
+> There are 1126 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 > 
@@ -85,9 +85,9 @@ On 4/5/22 1:24 AM, Greg Kroah-Hartman wrote:
 > Anything received after that time might be too late.
 > 
 > The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.110-rc1.gz
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.17.2-rc1.gz
 > or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.17.y
 > and the diffstat can be found below.
 > 
 > thanks,
@@ -95,28 +95,9 @@ On 4/5/22 1:24 AM, Greg Kroah-Hartman wrote:
 > greg k-h
 > 
 
-Build failed on my system. The following is the problem commit. There
-are no changes to the config between 5.15.32 and this build.
+Compiled and booted on my test system. No dmesg regressions.
 
-Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-     ASoC: SOF: Intel: hda: Remove link assignment limitation
-
-sound/soc/sof/intel/hda-dai.c: In function ‘hda_link_stream_assign’:
-sound/soc/sof/intel/hda-dai.c:82:24: error: implicit declaration of function ‘get_chip_info’; did you mean ‘get_group_info’? [-Werror=implicit-function-declaration]
-    82 |                 chip = get_chip_info(sdev->pdata);
-       |                        ^~~~~~~~~~~~~
-       |                        get_group_info
-sound/soc/sof/intel/hda-dai.c:82:22: warning: assignment to ‘const struct sof_intel_dsp_desc *’ from ‘int’ makes pointer from integer without a cast [-Wint-conversion]
-    82 |                 chip = get_chip_info(sdev->pdata);
-       |                      ^
-sound/soc/sof/intel/hda-dai.c:90:35: error: ‘const struct sof_intel_dsp_desc’ has no member named ‘quirks’
-    90 |                         if (!(chip->quirks & SOF_INTEL_PROCEN_FMT_QUIRK)) {
-       |                                   ^~
-sound/soc/sof/intel/hda-dai.c:90:46: error: ‘SOF_INTEL_PROCEN_FMT_QUIRK’ undeclared (first use in this function)
-    90 |                         if (!(chip->quirks & SOF_INTEL_PROCEN_FMT_QUIRK)) {
-       |                                              ^~~~~~~~~~~~~~~~~~~~~~~~~~
-sound/soc/sof/intel/hda-dai.c:90:46: note: each undeclared identifier is reported only once for each function it appears in
-cc1: some warnings being treated as errors
+Tested-by: Shuah Khan <skhan@linuxfoundation.org>
 
 thanks,
 -- Shuah
