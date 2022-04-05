@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EC0F4F36A4
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:07:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63CA64F36A8
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:07:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234758AbiDELGR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:06:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37666 "EHLO
+        id S236727AbiDELGg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:06:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39370 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348219AbiDEJrO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:47:14 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FD5027B34;
-        Tue,  5 Apr 2022 02:33:30 -0700 (PDT)
+        with ESMTP id S1348240AbiDEJrR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:47:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2018AEACA2;
+        Tue,  5 Apr 2022 02:33:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AB4A1B81C6F;
-        Tue,  5 Apr 2022 09:33:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AE45C385A3;
-        Tue,  5 Apr 2022 09:33:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7FAFCB81C85;
+        Tue,  5 Apr 2022 09:33:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2E08C385A2;
+        Tue,  5 Apr 2022 09:33:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151207;
-        bh=IdHOfcdyxjUCR1Gm4psyeMpj7chrQvNYmO+IVfQQmTI=;
+        s=korg; t=1649151210;
+        bh=u1M5fWZoiYvm3eL5IGiUHURHVQOxWM5G0v5FSAtPShY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jzpfeqo58XgBLddBsSpPtoHTxFnbEIGN4LNWsZTqoDAcsmrUdGH1m1BtY5Op52iYA
-         ecJKStabs/JAd8EBlQiwVLEbYlgtJV36lAw4bftu30orOzGrr2p4HuaRCn9+K+64xU
-         /aJ+ca7kxXZuwvgGamF1P4hIqBunP4RYX3iVZUzk=
+        b=cJgwJOkyRmZXyyEq1DB3PjbeiSpyq2Zjzfvr32dkzbeJmwRH35UK6Saj7lwp/2i2w
+         LzvEE+dNgAvOq19BrIOebU7IFjKAcPpzGFSD9QndpH+efIsbteQhSLx68cjQCJhtm6
+         Y+HXL3wCvyXrb/quha6EtMpDAVo+Y9F9Q4F2Tc80=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Kubelun <be.dissent@gmail.com>,
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
         Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Christian Lamparter <chunkeey@gmail.com>
-Subject: [PATCH 5.15 295/913] ARM: dts: qcom: ipq4019: fix sleep clock
-Date:   Tue,  5 Apr 2022 09:22:37 +0200
-Message-Id: <20220405070348.699498353@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 296/913] soc: qcom: rpmpd: Check for null return of devm_kcalloc
+Date:   Tue,  5 Apr 2022 09:22:38 +0200
+Message-Id: <20220405070348.729943511@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -55,40 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Kubelun <be.dissent@gmail.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit 3d7e7980993d2c1ae42d3d314040fc2de6a9c45f ]
+[ Upstream commit 5a811126d38f9767a20cc271b34db7c8efc5a46c ]
 
-It seems like sleep_clk was copied from ipq806x.
-Fix ipq40xx sleep_clk to the value QSDK defines.
+Because of the possible failure of the allocation, data->domains might
+be NULL pointer and will cause the dereference of the NULL pointer
+later.
+Therefore, it might be better to check it and directly return -ENOMEM
+without releasing data manually if fails, because the comment of the
+devm_kmalloc() says "Memory allocated with this function is
+automatically freed on driver detach.".
 
-Link: https://source.codeaurora.org/quic/qsdk/oss/kernel/linux-msm/commit/?id=d92ec59973484acc86dd24b67f10f8911b4b4b7d
-Link: https://patchwork.kernel.org/comment/22721613/
-Fixes: bec6ba4cdf2a ("qcom: ipq4019: Add basic board/dts support for IPQ4019 SoC")
-Suggested-by: Bjorn Andersson <bjorn.andersson@linaro.org> (clock-output-names)
-Signed-off-by: Pavel Kubelun <be.dissent@gmail.com>
-Signed-off-by: Christian Lamparter <chunkeey@gmail.com> (removed clock rename)
+Fixes: bbe3a66c3f5a ("soc: qcom: rpmpd: Add a Power domain driver to model corners")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20211220170352.34591-1-chunkeey@gmail.com
+Link: https://lore.kernel.org/r/20211231094419.1941054-1-jiasheng@iscas.ac.cn
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/qcom-ipq4019.dtsi | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/soc/qcom/rpmpd.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/arm/boot/dts/qcom-ipq4019.dtsi b/arch/arm/boot/dts/qcom-ipq4019.dtsi
-index ff1bdb10ad19..08bc5f46649d 100644
---- a/arch/arm/boot/dts/qcom-ipq4019.dtsi
-+++ b/arch/arm/boot/dts/qcom-ipq4019.dtsi
-@@ -142,7 +142,8 @@
- 	clocks {
- 		sleep_clk: sleep_clk {
- 			compatible = "fixed-clock";
--			clock-frequency = <32768>;
-+			clock-frequency = <32000>;
-+			clock-output-names = "gcc_sleep_clk_src";
- 			#clock-cells = <0>;
- 		};
+diff --git a/drivers/soc/qcom/rpmpd.c b/drivers/soc/qcom/rpmpd.c
+index dbf494e92574..9f07274b0d28 100644
+--- a/drivers/soc/qcom/rpmpd.c
++++ b/drivers/soc/qcom/rpmpd.c
+@@ -546,6 +546,9 @@ static int rpmpd_probe(struct platform_device *pdev)
  
+ 	data->domains = devm_kcalloc(&pdev->dev, num, sizeof(*data->domains),
+ 				     GFP_KERNEL);
++	if (!data->domains)
++		return -ENOMEM;
++
+ 	data->num_domains = num;
+ 
+ 	for (i = 0; i < num; i++) {
 -- 
 2.34.1
 
