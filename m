@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BCBCC4F2AD8
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:06:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B2DC4F2B00
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:07:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241010AbiDEJfz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:35:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59228 "EHLO
+        id S242317AbiDEIhW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:37:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236741AbiDEI5n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:57:43 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C453322BCE;
-        Tue,  5 Apr 2022 01:53:07 -0700 (PDT)
+        with ESMTP id S238341AbiDEISw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:18:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CE24D68;
+        Tue,  5 Apr 2022 01:08:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 37416B81BC5;
-        Tue,  5 Apr 2022 08:53:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7778EC385A1;
-        Tue,  5 Apr 2022 08:53:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B0EA6B81B90;
+        Tue,  5 Apr 2022 08:08:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03935C385A1;
+        Tue,  5 Apr 2022 08:08:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148784;
-        bh=otEFXiGvC1E/tcTu5TxydBsjeGhkNXXcQ5nD1iAGmUM=;
+        s=korg; t=1649146118;
+        bh=sQjWN0L8ZliOSDC5PB74ERNUxAish/045NCKzjPfV5M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RVqF4MA81Vk7ttfytVWTgqImgjwkeXOU6D/FZRvo6eW1jN6I+HkpyhrqwcXkgZv3n
-         AUbnCfvxLpkrGc3jr+URlKk3Xg2R4xHfIiH9KqPYxrA3rW9ClMDk/ySYqnUqwou3YH
-         KkyrMB9kikRRFrv3hpg+CEFaorFbDQr7U8JrAApI=
+        b=a0vGTsEfNKY7X0MHk13+dZnAZsxm297gl0/rKoneVZy5jg7szPLfJpMJZCXQTkKF/
+         d2bJ5lVPXAU3UThSnVYuDPlfNgh741xBLnEj6J4VZHmA7ZPNzQiXkIAs54q1KTj3/r
+         N5fYyDn3jMjnOAUt1ych1evfBQqJOhgUsi3HG7h8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0481/1017] selftests/bpf: Use "__se_" prefix on architectures without syscall wrapper
-Date:   Tue,  5 Apr 2022 09:23:14 +0200
-Message-Id: <20220405070408.576924998@linuxfoundation.org>
+Subject: [PATCH 5.17 0649/1126] iwlwifi: pcie: fix SW error MSI-X mapping
+Date:   Tue,  5 Apr 2022 09:23:16 +0200
+Message-Id: <20220405070426.680343058@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,38 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 046b841ea7c528931e7d2e74d5e668aa6c94c1fc ]
+[ Upstream commit 7b9f485091a5755f6e0a7dd3725f3b312768ecd0 ]
 
-On architectures that don't use a syscall wrapper, sys_* function names
-are set as an alias of __se_sys_* functions. Due to this, there is no
-BTF associated with sys_* function names. This results in some of the
-test progs failing to load. Set the SYS_PREFIX to "__se_" to fix this
-issue.
+We need to also update the IVAR location, since we've shifted
+the bit.
 
-Fixes: 38261f369fb905 ("selftests/bpf: Fix probe_user test failure with clang build kernel")
-Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/bpf/013d632aacd3e41290445c0025db6a7055ec6e18.1643973917.git.naveen.n.rao@linux.vnet.ibm.com
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: 571836a02c7b ("iwlwifi: pcie: update sw error interrupt for BZ family")
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20220304131517.bcfb28484e50.I921df6b5134785d7eeb0c934e4a43157c582fa79@changeid
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/progs/bpf_misc.h | 2 +-
+ drivers/net/wireless/intel/iwlwifi/pcie/trans.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/bpf/progs/bpf_misc.h b/tools/testing/selftests/bpf/progs/bpf_misc.h
-index 0b78bc9b1b4c..5bb11fe595a4 100644
---- a/tools/testing/selftests/bpf/progs/bpf_misc.h
-+++ b/tools/testing/selftests/bpf/progs/bpf_misc.h
-@@ -13,7 +13,7 @@
- #define SYS_PREFIX "__arm64_"
- #else
- #define SYSCALL_WRAPPER 0
--#define SYS_PREFIX ""
-+#define SYS_PREFIX "__se_"
- #endif
+diff --git a/drivers/net/wireless/intel/iwlwifi/pcie/trans.c b/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
+index ef14584fc0a1..4b08eb46617c 100644
+--- a/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
++++ b/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
+@@ -1112,7 +1112,7 @@ static const struct iwl_causes_list causes_list_pre_bz[] = {
+ };
  
- #endif
+ static const struct iwl_causes_list causes_list_bz[] = {
+-	{MSIX_HW_INT_CAUSES_REG_SW_ERR_BZ,	CSR_MSIX_HW_INT_MASK_AD, 0x29},
++	{MSIX_HW_INT_CAUSES_REG_SW_ERR_BZ,	CSR_MSIX_HW_INT_MASK_AD, 0x15},
+ };
+ 
+ static void iwl_pcie_map_list(struct iwl_trans *trans,
 -- 
 2.34.1
 
