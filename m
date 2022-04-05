@@ -2,49 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C51774F3ACB
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:05:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C1994F37A0
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:21:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236772AbiDELsX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:48:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59282 "EHLO
+        id S1359403AbiDELSm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:18:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39194 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355833AbiDEKWI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:22:08 -0400
+        with ESMTP id S1349152AbiDEJtP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:15 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E51DB9F6C7;
-        Tue,  5 Apr 2022 03:05:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4110B21BA;
+        Tue,  5 Apr 2022 02:41:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 29C956172B;
-        Tue,  5 Apr 2022 10:05:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A2C6C385A2;
-        Tue,  5 Apr 2022 10:05:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D4C5061368;
+        Tue,  5 Apr 2022 09:41:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4CBDC385A2;
+        Tue,  5 Apr 2022 09:41:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153109;
-        bh=MSTbhPiz+0gIdLuJbCp8xgfsyCNe3dcUzSOKZ3PzUac=;
+        s=korg; t=1649151698;
+        bh=CeZr6ICdh2BiYtwNF0fyFtjLR6iV2iC7gHrnHqzEX1Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lnKPSqQ1PP6ZLhBthUQjLUPe+oa9LUZ600hkdiFrBtwtmuHUuZWZyS1fiJMqV6pUT
-         WzEMlaqElnSA/65kRilAWWZJmKRXrNXpIzqOLTBODXniAalUiDaPOpWlReUj9g+gMQ
-         QF/ZWF2nSsUysyCx1dOtyBq2/Isrcbig+b3doFtk=
+        b=s+GODKJiw3DtzGamskswd6GepnB8PozlrmwaS400116v3HMD5f7dWvVmo7C3Ia02t
+         19TLldsiLbC8/yxpBc/3sDrE+4PR8BjXreRa3WSeGfuq7RgI7jkoYmv97uC/LTkEBD
+         3asVXg9MnRAnXI9b52tcAuOilfrdDsKMUo/AOEu0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuan-Ying Lee <Kuan-Ying.Lee@mediatek.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Chinwen Chang <chinwen.chang@mediatek.com>,
-        Nicholas Tang <nicholas.tang@mediatek.com>,
-        Yee Lee <yee.lee@mediatek.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 078/599] mm/kmemleak: reset tag when compare object pointer
+        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
+        Hou Wenlong <houwenlong.hwl@antgroup.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 510/913] KVM: x86/emulator: Defer not-present segment check in __load_segment_descriptor()
 Date:   Tue,  5 Apr 2022 09:26:12 +0200
-Message-Id: <20220405070301.147117364@linuxfoundation.org>
+Message-Id: <20220405070355.142132025@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
-References: <20220405070258.802373272@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,99 +55,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuan-Ying Lee <Kuan-Ying.Lee@mediatek.com>
+From: Hou Wenlong <houwenlong.hwl@antgroup.com>
 
-commit bfc8089f00fa526dea983844c880fa8106c33ac4 upstream.
+[ Upstream commit ca85f002258fdac3762c57d12d5e6e401b6a41af ]
 
-When we use HW-tag based kasan and enable vmalloc support, we hit the
-following bug.  It is due to comparison between tagged object and
-non-tagged pointer.
+Per Intel's SDM on the "Instruction Set Reference", when
+loading segment descriptor, not-present segment check should
+be after all type and privilege checks. But the emulator checks
+it first, then #NP is triggered instead of #GP if privilege fails
+and segment is not present. Put not-present segment check after
+type and privilege checks in __load_segment_descriptor().
 
-We need to reset the kasan tag when we need to compare tagged object and
-non-tagged pointer.
-
-  kmemleak: [name:kmemleak&]Scan area larger than object 0xffffffe77076f440
-  CPU: 4 PID: 1 Comm: init Tainted: G S      W         5.15.25-android13-0-g5cacf919c2bc #1
-  Hardware name: MT6983(ENG) (DT)
-  Call trace:
-   add_scan_area+0xc4/0x244
-   kmemleak_scan_area+0x40/0x9c
-   layout_and_allocate+0x1e8/0x288
-   load_module+0x2c8/0xf00
-   __se_sys_finit_module+0x190/0x1d0
-   __arm64_sys_finit_module+0x20/0x30
-   invoke_syscall+0x60/0x170
-   el0_svc_common+0xc8/0x114
-   do_el0_svc+0x28/0xa0
-   el0_svc+0x60/0xf8
-   el0t_64_sync_handler+0x88/0xec
-   el0t_64_sync+0x1b4/0x1b8
-  kmemleak: [name:kmemleak&]Object 0xf5ffffe77076b000 (size 32768):
-  kmemleak: [name:kmemleak&]  comm "init", pid 1, jiffies 4294894197
-  kmemleak: [name:kmemleak&]  min_count = 0
-  kmemleak: [name:kmemleak&]  count = 0
-  kmemleak: [name:kmemleak&]  flags = 0x1
-  kmemleak: [name:kmemleak&]  checksum = 0
-  kmemleak: [name:kmemleak&]  backtrace:
-       module_alloc+0x9c/0x120
-       move_module+0x34/0x19c
-       layout_and_allocate+0x1c4/0x288
-       load_module+0x2c8/0xf00
-       __se_sys_finit_module+0x190/0x1d0
-       __arm64_sys_finit_module+0x20/0x30
-       invoke_syscall+0x60/0x170
-       el0_svc_common+0xc8/0x114
-       do_el0_svc+0x28/0xa0
-       el0_svc+0x60/0xf8
-       el0t_64_sync_handler+0x88/0xec
-       el0t_64_sync+0x1b4/0x1b8
-
-Link: https://lkml.kernel.org/r/20220318034051.30687-1-Kuan-Ying.Lee@mediatek.com
-Signed-off-by: Kuan-Ying Lee <Kuan-Ying.Lee@mediatek.com>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Matthias Brugger <matthias.bgg@gmail.com>
-Cc: Chinwen Chang <chinwen.chang@mediatek.com>
-Cc: Nicholas Tang <nicholas.tang@mediatek.com>
-Cc: Yee Lee <yee.lee@mediatek.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 38ba30ba51a00 (KVM: x86 emulator: Emulate task switch in emulator.c)
+Reviewed-by: Sean Christopherson <seanjc@google.com>
+Signed-off-by: Hou Wenlong <houwenlong.hwl@antgroup.com>
+Message-Id: <52573c01d369f506cadcf7233812427cf7db81a7.1644292363.git.houwenlong.hwl@antgroup.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/kmemleak.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ arch/x86/kvm/emulate.c | 14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
 
---- a/mm/kmemleak.c
-+++ b/mm/kmemleak.c
-@@ -787,6 +787,8 @@ static void add_scan_area(unsigned long
- 	unsigned long flags;
- 	struct kmemleak_object *object;
- 	struct kmemleak_scan_area *area = NULL;
-+	unsigned long untagged_ptr;
-+	unsigned long untagged_objp;
- 
- 	object = find_and_get_object(ptr, 1);
- 	if (!object) {
-@@ -795,6 +797,9 @@ static void add_scan_area(unsigned long
- 		return;
+diff --git a/arch/x86/kvm/emulate.c b/arch/x86/kvm/emulate.c
+index 9a144ca8e146..4cf0938a876b 100644
+--- a/arch/x86/kvm/emulate.c
++++ b/arch/x86/kvm/emulate.c
+@@ -1614,11 +1614,6 @@ static int __load_segment_descriptor(struct x86_emulate_ctxt *ctxt,
+ 		goto exception;
  	}
  
-+	untagged_ptr = (unsigned long)kasan_reset_tag((void *)ptr);
-+	untagged_objp = (unsigned long)kasan_reset_tag((void *)object->pointer);
+-	if (!seg_desc.p) {
+-		err_vec = (seg == VCPU_SREG_SS) ? SS_VECTOR : NP_VECTOR;
+-		goto exception;
+-	}
+-
+ 	dpl = seg_desc.dpl;
+ 
+ 	switch (seg) {
+@@ -1658,6 +1653,10 @@ static int __load_segment_descriptor(struct x86_emulate_ctxt *ctxt,
+ 	case VCPU_SREG_TR:
+ 		if (seg_desc.s || (seg_desc.type != 1 && seg_desc.type != 9))
+ 			goto exception;
++		if (!seg_desc.p) {
++			err_vec = NP_VECTOR;
++			goto exception;
++		}
+ 		old_desc = seg_desc;
+ 		seg_desc.type |= 2; /* busy */
+ 		ret = ctxt->ops->cmpxchg_emulated(ctxt, desc_addr, &old_desc, &seg_desc,
+@@ -1682,6 +1681,11 @@ static int __load_segment_descriptor(struct x86_emulate_ctxt *ctxt,
+ 		break;
+ 	}
+ 
++	if (!seg_desc.p) {
++		err_vec = (seg == VCPU_SREG_SS) ? SS_VECTOR : NP_VECTOR;
++		goto exception;
++	}
 +
- 	if (scan_area_cache)
- 		area = kmem_cache_alloc(scan_area_cache, gfp_kmemleak_mask(gfp));
- 
-@@ -806,8 +811,8 @@ static void add_scan_area(unsigned long
- 		goto out_unlock;
- 	}
- 	if (size == SIZE_MAX) {
--		size = object->pointer + object->size - ptr;
--	} else if (ptr + size > object->pointer + object->size) {
-+		size = untagged_objp + object->size - untagged_ptr;
-+	} else if (untagged_ptr + size > untagged_objp + object->size) {
- 		kmemleak_warn("Scan area larger than object 0x%08lx\n", ptr);
- 		dump_object_info(object);
- 		kmem_cache_free(scan_area_cache, area);
+ 	if (seg_desc.s) {
+ 		/* mark segment as accessed */
+ 		if (!(seg_desc.type & 1)) {
+-- 
+2.34.1
+
 
 
