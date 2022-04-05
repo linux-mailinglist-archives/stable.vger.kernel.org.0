@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DAF664F434E
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:58:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FADB4F422B
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:40:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382545AbiDEMPr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:15:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55378 "EHLO
+        id S1382455AbiDEMPR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:15:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34746 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242802AbiDEKfT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:35:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49E955132A;
-        Tue,  5 Apr 2022 03:21:09 -0700 (PDT)
+        with ESMTP id S242983AbiDEKfX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:35:23 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 552015159C;
+        Tue,  5 Apr 2022 03:21:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C97CA617CC;
-        Tue,  5 Apr 2022 10:21:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7CB8C385A0;
-        Tue,  5 Apr 2022 10:21:07 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id C1D0DCE1C9D;
+        Tue,  5 Apr 2022 10:21:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE301C385A1;
+        Tue,  5 Apr 2022 10:21:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649154068;
-        bh=oAyDcBuvjmsJalWEXosrvxoNCoCAuiWwe1NdEN4k2bk=;
+        s=korg; t=1649154071;
+        bh=GJWTx2va9kVPJ+UsHarwUFYycQHMaT1jG3zkI1xGkhM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HKMUlwBatuZuOHGfkvYNm6gFX/fY0kQ+1/eWakL5yZvfEenjyO40GfkNcFiFkAJ8u
-         yfNbljGs/qPFRZ89YBZafMYzITUWI+IYVnCDyE491r1iKaHvqEHVk4o28CtV1ZTNi/
-         JyezH8K3cBvzaptX7ZZSCx0MEZS5nuuGO+DzytWM=
+        b=q55aI/fAz+Fx406NumGvvgsXOg9L4mTrGSdLnUHK5xs9/8pFzFR6HH8g8b7+PEb5z
+         Sgle4GO3KJBTknA3/FOCg2WO1RWgZuQGbbmR2sl5DbZswBhQfW7b5bK13ZAWUaGEN0
+         PBz0DJobBFjeAFgFX0/e7kE8ymE3FDfEufo5Br6w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         =?UTF-8?q?Jonathan=20Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>,
-        Manivannan Sadhasivam <mani@kernel.org>,
+        =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <f4bug@amsat.org>,
         Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 409/599] clk: actions: Terminate clk_div_table with sentinel element
-Date:   Tue,  5 Apr 2022 09:31:43 +0200
-Message-Id: <20220405070311.003974733@linuxfoundation.org>
+Subject: [PATCH 5.10 410/599] clk: loongson1: Terminate clk_div_table with sentinel element
+Date:   Tue,  5 Apr 2022 09:31:44 +0200
+Message-Id: <20220405070311.033626747@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -58,51 +58,33 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jonathan Neuschäfer <j.neuschaefer@gmx.net>
 
-[ Upstream commit d8a441e53e2434b1401e52dfd66b05263e442edc ]
+[ Upstream commit 3eb00f89162e80083dfcaa842468b510462cfeaa ]
 
 In order that the end of a clk_div_table can be detected, it must be
 terminated with a sentinel element (.div = 0).
 
-In owl-s900.s, the { 0, 8 } element was probably meant to be just that,
-so this patch changes { 0, 8 } to { 0, 0 }.
-
-Fixes: d47317ca4ade1 ("clk: actions: Add S700 SoC clock support")
-Fixes: d85d20053e195 ("clk: actions: Add S900 SoC clock support")
+Fixes: b4626a7f4892 ("CLK: Add Loongson1C clock support")
 Signed-off-by: Jonathan Neuschäfer <j.neuschaefer@gmx.net>
-Reviewed-by: Manivannan Sadhasivam <mani@kernel.org>
-Link: https://lore.kernel.org/r/20220218000922.134857-2-j.neuschaefer@gmx.net
+Reviewed-by: Philippe Mathieu-Daudé <f4bug@amsat.org>
+Link: https://lore.kernel.org/r/20220218000922.134857-3-j.neuschaefer@gmx.net
 Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/actions/owl-s700.c | 1 +
- drivers/clk/actions/owl-s900.c | 2 +-
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ drivers/clk/loongson1/clk-loongson1c.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/clk/actions/owl-s700.c b/drivers/clk/actions/owl-s700.c
-index a2f34d13fb54..6ea7da1d6d75 100644
---- a/drivers/clk/actions/owl-s700.c
-+++ b/drivers/clk/actions/owl-s700.c
-@@ -162,6 +162,7 @@ static struct clk_div_table hdmia_div_table[] = {
- 
- static struct clk_div_table rmii_div_table[] = {
- 	{0, 4},   {1, 10},
-+	{0, 0}
+diff --git a/drivers/clk/loongson1/clk-loongson1c.c b/drivers/clk/loongson1/clk-loongson1c.c
+index 703f87622cf5..1ebf740380ef 100644
+--- a/drivers/clk/loongson1/clk-loongson1c.c
++++ b/drivers/clk/loongson1/clk-loongson1c.c
+@@ -37,6 +37,7 @@ static const struct clk_div_table ahb_div_table[] = {
+ 	[1] = { .val = 1, .div = 4 },
+ 	[2] = { .val = 2, .div = 3 },
+ 	[3] = { .val = 3, .div = 3 },
++	[4] = { /* sentinel */ }
  };
  
- /* divider clocks */
-diff --git a/drivers/clk/actions/owl-s900.c b/drivers/clk/actions/owl-s900.c
-index 790890978424..5144ada2c7e1 100644
---- a/drivers/clk/actions/owl-s900.c
-+++ b/drivers/clk/actions/owl-s900.c
-@@ -140,7 +140,7 @@ static struct clk_div_table rmii_ref_div_table[] = {
- 
- static struct clk_div_table usb3_mac_div_table[] = {
- 	{ 1, 2 }, { 2, 3 }, { 3, 4 },
--	{ 0, 8 },
-+	{ 0, 0 }
- };
- 
- static struct clk_div_table i2s_div_table[] = {
+ void __init ls1x_clk_init(void)
 -- 
 2.34.1
 
