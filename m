@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 084624F2EF5
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:05:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D3B34F3226
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:54:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238182AbiDEJEp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:04:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46600 "EHLO
+        id S245732AbiDEKjg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:39:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57276 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243925AbiDEIvT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:51:19 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA04ECFB8C;
-        Tue,  5 Apr 2022 01:40:03 -0700 (PDT)
+        with ESMTP id S238733AbiDEJcl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:32:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B0D2FCF;
+        Tue,  5 Apr 2022 02:19:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E3231B81C77;
-        Tue,  5 Apr 2022 08:39:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3360CC385A3;
-        Tue,  5 Apr 2022 08:39:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AA3976144D;
+        Tue,  5 Apr 2022 09:19:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5345C385A0;
+        Tue,  5 Apr 2022 09:19:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147974;
-        bh=T2hstRTN2DoQMvevAT+LYxm/af106Jsj9SpEV7aDvFA=;
+        s=korg; t=1649150393;
+        bh=up/dd1x1ze4xIvI4L8PDVed9sHZe0DHRytKUsawlFDw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ul29jkozTSHGzKSyGsUkDYi4uE1IvuvQGJfdUhVZ5aGK2Aahptl5EHI3KtvcyJrub
-         RKzmii2P5BODquQ84EQPxdKxoS314zbELHd5z8Uni/fxnq9oObl4BP5GeeCKH5RkNG
-         hWKujFXm6MLSwN+P9MkKwKStSohzwM7K9/0d4AbU=
+        b=L+eNTXiXIcmNUFGagg8cDxcNiFfG2RO5AJzR5bOJ1tunBhdDhW+Pmvt0tWFPiz8ga
+         /sY+YGsjlOg1SJyqziiqKdWb8Eaowe28aK4FrBi/YzJRFEMdg1jogwD+EwVSUJ0n3i
+         1WoVGlccQwfKVAdfSMIJhOZODUjvcCWFh3yd6xgg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
-        Michael Schmitz <schmitzmic@gmail.com>,
-        Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.16 0152/1017] video: fbdev: atari: Atari 2 bpp (STe) palette bugfix
-Date:   Tue,  5 Apr 2022 09:17:45 +0200
-Message-Id: <20220405070358.721540908@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Maty=C3=A1=C5=A1=20Kroupa?= <kroupa.matyas@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.15 004/913] USB: serial: pl2303: fix GS type detection
+Date:   Tue,  5 Apr 2022 09:17:46 +0200
+Message-Id: <20220405070339.942570267@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,62 +54,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Schmitz <schmitzmic@gmail.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit c8be5edbd36ceed2ff3d6b8f8e40643c3f396ea3 upstream.
+commit 5b6ab28d06780c87320ceade61698bb6719c85db upstream.
 
-The code to set the shifter STe palette registers has a long
-standing operator precedence bug, manifesting as colors set
-on a 2 bits per pixel frame buffer coming up with a distinctive
-blue tint.
+At least some PL2303GS have a bcdDevice of 0x605 instead of 0x100 as the
+datasheet claims. Add it to the list of known release numbers for the
+HXN (G) type.
 
-Add parentheses around the calculation of the per-color palette
-data before shifting those into their respective bit field position.
-
-This bug goes back a long way (2.4 days at the very least) so there
-won't be a Fixes: tag.
-
-Tested on ARAnyM as well on Falcon030 hardware.
-
-Cc: stable@vger.kernel.org
-Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Link: https://lore.kernel.org/all/CAMuHMdU3ievhXxKR_xi_v3aumnYW7UNUO6qMdhgfyWTyVSsCkQ@mail.gmail.com
-Tested-by: Michael Schmitz <schmitzmic@gmail.com>
-Tested-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Signed-off-by: Michael Schmitz <schmitzmic@gmail.com>
-Signed-off-by: Helge Deller <deller@gmx.de>
+Fixes: 894758d0571d ("USB: serial: pl2303: tighten type HXN (G) detection")
+Reported-by: Matyáš Kroupa <kroupa.matyas@gmail.com>
+Link: https://lore.kernel.org/r/165de6a0-43e9-092c-2916-66b115c7fbf4@gmail.com
+Cc: stable@vger.kernel.org	# 5.13
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/video/fbdev/atafb.c |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/usb/serial/pl2303.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/video/fbdev/atafb.c
-+++ b/drivers/video/fbdev/atafb.c
-@@ -1683,9 +1683,9 @@ static int falcon_setcolreg(unsigned int
- 			   ((blue & 0xfc00) >> 8));
- 	if (regno < 16) {
- 		shifter_tt.color_reg[regno] =
--			(((red & 0xe000) >> 13) | ((red & 0x1000) >> 12) << 8) |
--			(((green & 0xe000) >> 13) | ((green & 0x1000) >> 12) << 4) |
--			((blue & 0xe000) >> 13) | ((blue & 0x1000) >> 12);
-+			((((red & 0xe000) >> 13)   | ((red & 0x1000) >> 12)) << 8)   |
-+			((((green & 0xe000) >> 13) | ((green & 0x1000) >> 12)) << 4) |
-+			   ((blue & 0xe000) >> 13) | ((blue & 0x1000) >> 12);
- 		((u32 *)info->pseudo_palette)[regno] = ((red & 0xf800) |
- 						       ((green & 0xfc00) >> 5) |
- 						       ((blue & 0xf800) >> 11));
-@@ -1971,9 +1971,9 @@ static int stste_setcolreg(unsigned int
- 	green >>= 12;
- 	if (ATARIHW_PRESENT(EXTD_SHIFTER))
- 		shifter_tt.color_reg[regno] =
--			(((red & 0xe) >> 1) | ((red & 1) << 3) << 8) |
--			(((green & 0xe) >> 1) | ((green & 1) << 3) << 4) |
--			((blue & 0xe) >> 1) | ((blue & 1) << 3);
-+			((((red & 0xe)   >> 1) | ((red & 1)   << 3)) << 8) |
-+			((((green & 0xe) >> 1) | ((green & 1) << 3)) << 4) |
-+			  ((blue & 0xe)  >> 1) | ((blue & 1)  << 3);
- 	else
- 		shifter_tt.color_reg[regno] =
- 			((red & 0xe) << 7) |
+--- a/drivers/usb/serial/pl2303.c
++++ b/drivers/usb/serial/pl2303.c
+@@ -436,6 +436,7 @@ static int pl2303_detect_type(struct usb
+ 		case 0x105:
+ 		case 0x305:
+ 		case 0x405:
++		case 0x605:
+ 			/*
+ 			 * Assume it's an HXN-type if the device doesn't
+ 			 * support the old read request value.
 
 
