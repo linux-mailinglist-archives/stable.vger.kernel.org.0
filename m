@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 043D94F33F1
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:24:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A22834F362E
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:57:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237304AbiDEJey (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:34:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59258 "EHLO
+        id S245399AbiDEK7a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:59:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39548 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245340AbiDEIzH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:55:07 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BFE1101F5;
-        Tue,  5 Apr 2022 01:52:15 -0700 (PDT)
+        with ESMTP id S1347167AbiDEJqE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:46:04 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF3B0DD943;
+        Tue,  5 Apr 2022 02:32:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1840E61003;
-        Tue,  5 Apr 2022 08:52:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27D8AC385A1;
-        Tue,  5 Apr 2022 08:52:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4235BB81CC6;
+        Tue,  5 Apr 2022 09:32:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA4A0C385A6;
+        Tue,  5 Apr 2022 09:32:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148734;
-        bh=WvuNd515yfCemETt0J5SFAOnaL3gooZmvJup2s+DEBo=;
+        s=korg; t=1649151151;
+        bh=ej8YD3xB5V9woQICwarpd25mwtsSDI1jBorcXHF2D0g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o/8vg2PnHBTdcbSVHJRp4ZynE9NJDklS420L536EJf02jJ+b0F+wuJgfKPiOkJBd8
-         F66+0FfFNq2Dfp28HaPYxGb+bKr8LgP2bRduaz10VDiBcUwNxomW3cJxNvWL5LXMqf
-         bIz+JXZU7U+11C+n4uxsPE06j+IeIq7ozW6nqCgk=
+        b=snxLf7VAcq0TIv+cGX4I+1B2cQb1ue2jRfbZB2BJ3d/eksZGtaryOoAeIvUmcICpp
+         bfCyvA64fGARhOj7B7Qgo4mIc1YMfTBBYcT3GN1pVVWJHhm2WdBI2Csb0pvaso+5ZJ
+         9MY9bnI/VwOYSaVzvRt6MYpxhoJ/0JB4nQxzDrt4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Wang <sean.wang@mediatek.com>,
-        Leon Yen <leon.yen@mediatek.com>, Felix Fietkau <nbd@nbd.name>,
+        stable@vger.kernel.org, Zhou Qingyang <zhou1615@umn.edu>,
+        Pratyush Yadav <p.yadav@ti.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0461/1017] mt76: mt7921s: fix mt7921s_mcu_[fw|drv]_pmctrl
+Subject: [PATCH 5.15 312/913] media: ti-vpe: cal: Fix a NULL pointer dereference in cal_ctx_v4l2_init_formats()
 Date:   Tue,  5 Apr 2022 09:22:54 +0200
-Message-Id: <20220405070407.983142060@linuxfoundation.org>
+Message-Id: <20220405070349.206230566@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,119 +56,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Yen <leon.yen@mediatek.com>
+From: Zhou Qingyang <zhou1615@umn.edu>
 
-[ Upstream commit b12deb5e86fa36dc6f3aa3321f5da27addec4f1f ]
+[ Upstream commit abd77889851d2ead0d0c9c4d29f1808801477b00 ]
 
-According to the firmware behavior (even the oldest one in linux-firmware)
-If the firmware is downloaded, MT7921S must rely on the additional mailbox
-mechanism that resides in firmware to check if the device is the right
-state for mt7921s_mcu_[fw|drv]_pmctrl. Otherwise, we still apply the old
-way for that.
+In cal_ctx_v4l2_init_formats(), devm_kzalloc() is assigned to
+ctx->active_fmt and there is a dereference of it after that, which could
+lead to NULL pointer dereference on failure of devm_kzalloc().
 
-That is a necessary patch before we enable runtime pm for mt7921s as
-default.
+Fix this bug by adding a NULL check of ctx->active_fmt.
 
-Fixes: 48fab5bbef40 ("mt76: mt7921: introduce mt7921s support")
-Co-developed-by: Sean Wang <sean.wang@mediatek.com>
-Signed-off-by: Sean Wang <sean.wang@mediatek.com>
-Signed-off-by: Leon Yen <leon.yen@mediatek.com>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
+This bug was found by a static analyzer.
+
+Builds with 'make allyesconfig' show no new warnings, and our static
+analyzer no longer warns about this code.
+
+Fixes: 7168155002cf ("media: ti-vpe: cal: Move format handling to cal.c and expose helpers")
+Signed-off-by: Zhou Qingyang <zhou1615@umn.edu>
+Reviewed-by: Pratyush Yadav <p.yadav@ti.com>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../wireless/mediatek/mt76/mt7921/sdio_mcu.c  | 38 +++++++++++++++++++
- drivers/net/wireless/mediatek/mt76/sdio.h     |  2 +
- 2 files changed, 40 insertions(+)
+ drivers/media/platform/ti-vpe/cal-video.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/sdio_mcu.c b/drivers/net/wireless/mediatek/mt76/mt7921/sdio_mcu.c
-index 437cddad9a90..353d99fef065 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7921/sdio_mcu.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7921/sdio_mcu.c
-@@ -49,6 +49,26 @@ mt7921s_mcu_send_message(struct mt76_dev *mdev, struct sk_buff *skb,
- 	return ret;
- }
- 
-+static u32 mt7921s_read_rm3r(struct mt7921_dev *dev)
-+{
-+	struct mt76_sdio *sdio = &dev->mt76.sdio;
+diff --git a/drivers/media/platform/ti-vpe/cal-video.c b/drivers/media/platform/ti-vpe/cal-video.c
+index 7799da1cc261..3e936a2ca36c 100644
+--- a/drivers/media/platform/ti-vpe/cal-video.c
++++ b/drivers/media/platform/ti-vpe/cal-video.c
+@@ -823,6 +823,9 @@ static int cal_ctx_v4l2_init_formats(struct cal_ctx *ctx)
+ 	/* Enumerate sub device formats and enable all matching local formats */
+ 	ctx->active_fmt = devm_kcalloc(ctx->cal->dev, cal_num_formats,
+ 				       sizeof(*ctx->active_fmt), GFP_KERNEL);
++	if (!ctx->active_fmt)
++		return -ENOMEM;
 +
-+	return sdio_readl(sdio->func, MCR_D2HRM3R, NULL);
-+}
-+
-+static u32 mt7921s_clear_rm3r_drv_own(struct mt7921_dev *dev)
-+{
-+	struct mt76_sdio *sdio = &dev->mt76.sdio;
-+	u32 val;
-+
-+	val = sdio_readl(sdio->func, MCR_D2HRM3R, NULL);
-+	if (val)
-+		sdio_writel(sdio->func, H2D_SW_INT_CLEAR_MAILBOX_ACK,
-+			    MCR_WSICR, NULL);
-+
-+	return val;
-+}
-+
- int mt7921s_mcu_init(struct mt7921_dev *dev)
- {
- 	static const struct mt76_mcu_ops mt7921s_mcu_ops = {
-@@ -88,6 +108,12 @@ int mt7921s_mcu_drv_pmctrl(struct mt7921_dev *dev)
+ 	ctx->num_active_fmt = 0;
  
- 	err = readx_poll_timeout(mt76s_read_pcr, &dev->mt76, status,
- 				 status & WHLPCR_IS_DRIVER_OWN, 2000, 1000000);
-+
-+	if (!err && test_bit(MT76_STATE_MCU_RUNNING, &dev->mphy.state))
-+		err = readx_poll_timeout(mt7921s_read_rm3r, dev, status,
-+					 status & D2HRM3R_IS_DRIVER_OWN,
-+					 2000, 1000000);
-+
- 	sdio_release_host(func);
- 
- 	if (err < 0) {
-@@ -115,12 +141,24 @@ int mt7921s_mcu_fw_pmctrl(struct mt7921_dev *dev)
- 
- 	sdio_claim_host(func);
- 
-+	if (test_bit(MT76_STATE_MCU_RUNNING, &dev->mphy.state)) {
-+		err = readx_poll_timeout(mt7921s_clear_rm3r_drv_own,
-+					 dev, status,
-+					 !(status & D2HRM3R_IS_DRIVER_OWN),
-+					 2000, 1000000);
-+		if (err < 0) {
-+			dev_err(dev->mt76.dev, "mailbox ACK not cleared\n");
-+			goto err;
-+		}
-+	}
-+
- 	sdio_writel(func, WHLPCR_FW_OWN_REQ_SET, MCR_WHLPCR, NULL);
- 
- 	err = readx_poll_timeout(mt76s_read_pcr, &dev->mt76, status,
- 				 !(status & WHLPCR_IS_DRIVER_OWN), 2000, 1000000);
- 	sdio_release_host(func);
- 
-+err:
- 	if (err < 0) {
- 		dev_err(dev->mt76.dev, "firmware own failed\n");
- 		clear_bit(MT76_STATE_PM, &mphy->state);
-diff --git a/drivers/net/wireless/mediatek/mt76/sdio.h b/drivers/net/wireless/mediatek/mt76/sdio.h
-index 99db4ad93b7c..27d5d2077eba 100644
---- a/drivers/net/wireless/mediatek/mt76/sdio.h
-+++ b/drivers/net/wireless/mediatek/mt76/sdio.h
-@@ -65,6 +65,7 @@
- #define MCR_H2DSM0R			0x0070
- #define H2D_SW_INT_READ			BIT(16)
- #define H2D_SW_INT_WRITE		BIT(17)
-+#define H2D_SW_INT_CLEAR_MAILBOX_ACK	BIT(22)
- 
- #define MCR_H2DSM1R			0x0074
- #define MCR_D2HRM0R			0x0078
-@@ -109,6 +110,7 @@
- #define MCR_H2DSM2R			0x0160 /* supported in CONNAC2 */
- #define MCR_H2DSM3R			0x0164 /* supported in CONNAC2 */
- #define MCR_D2HRM3R			0x0174 /* supported in CONNAC2 */
-+#define D2HRM3R_IS_DRIVER_OWN		BIT(0)
- #define MCR_WTQCR8			0x0190 /* supported in CONNAC2 */
- #define MCR_WTQCR9			0x0194 /* supported in CONNAC2 */
- #define MCR_WTQCR10			0x0198 /* supported in CONNAC2 */
+ 	for (j = 0, i = 0; ; ++j) {
 -- 
 2.34.1
 
