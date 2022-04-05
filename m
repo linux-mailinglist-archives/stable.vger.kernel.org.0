@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CA9C4F4140
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:28:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 305BA4F3FED
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:06:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1383369AbiDEMZn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:25:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34942 "EHLO
+        id S1383431AbiDEMZs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:25:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47032 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231926AbiDEKx2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:53:28 -0400
+        with ESMTP id S235821AbiDEKy2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:54:28 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2EAFAA024;
-        Tue,  5 Apr 2022 03:28:17 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 246BFAA03F;
+        Tue,  5 Apr 2022 03:28:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 01BCE617F2;
-        Tue,  5 Apr 2022 10:28:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17765C385A0;
-        Tue,  5 Apr 2022 10:28:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ABC536141D;
+        Tue,  5 Apr 2022 10:28:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD6B3C385A1;
+        Tue,  5 Apr 2022 10:28:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649154496;
-        bh=TsfQp/7X+3iKvuFdGqSGi4rv7cpIaKJQNzVQuYkNsGk=;
+        s=korg; t=1649154499;
+        bh=6lXdB4F7ajIpIWXEskNb8htx+7+Kuya9o2cEDiIKpvg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xVRxeOKW/ElHWrvgTELJ2eIlaNzB/vqfL5/Ftn/TXD/9udhf+byNtZrNTGAVX52vU
-         M+JtXDNhoHb3D84vTdBtX5ANrI5II683UTqeUTshpvsAQGLXkddRCyimJKQdlxakld
-         fR1jCP1LA9lRiuTnOWtMR9kAmIugCN4DxyfTR9qc=
+        b=o5zM2Y6jfYNN7mTY4vhQb9wiIoEtGt7aQTrSUxKyw+kr7gBJUAAYefNV+9LH6ktK0
+         fw4+1cOdS2MAuSA0CZuQD5mvqnmrqfOv+HHonI9yS9lqA8l0bVDL3fmj4ItQIdHDJF
+         DhcY05sWfkJywMwWiIaMMYrqhF2IfvbXpK1ktfWA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthew Wilcox <willy@infradead.org>,
-        Kees Cook <keescook@chromium.org>,
-        "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 5.10 598/599] coredump: Use the vma snapshot in fill_files_note
-Date:   Tue,  5 Apr 2022 09:34:52 +0200
-Message-Id: <20220405070316.634888893@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Vijay Balakrishna <vijayb@linux.microsoft.com>,
+        Pasha Tatashin <pasha.tatashin@soleen.com>,
+        Will Deacon <will@kernel.org>
+Subject: [PATCH 5.10 599/599] arm64: Do not defer reserve_crashkernel() for platforms with no DMA memory zones
+Date:   Tue,  5 Apr 2022 09:34:53 +0200
+Message-Id: <20220405070316.664535016@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -54,176 +55,164 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric W. Biederman <ebiederm@xmission.com>
+From: Vijay Balakrishna <vijayb@linux.microsoft.com>
 
-commit 390031c942116d4733310f0684beb8db19885fe6 upstream.
+commit 031495635b4668f94e964e037ca93d0d38bfde58 upstream.
 
-Matthew Wilcox reported that there is a missing mmap_lock in
-file_files_note that could possibly lead to a user after free.
+The following patches resulted in deferring crash kernel reservation to
+mem_init(), mainly aimed at platforms with DMA memory zones (no IOMMU),
+in particular Raspberry Pi 4.
 
-Solve this by using the existing vma snapshot for consistency
-and to avoid the need to take the mmap_lock anywhere in the
-coredump code except for dump_vma_snapshot.
+commit 1a8e1cef7603 ("arm64: use both ZONE_DMA and ZONE_DMA32")
+commit 8424ecdde7df ("arm64: mm: Set ZONE_DMA size based on devicetree's dma-ranges")
+commit 0a30c53573b0 ("arm64: mm: Move reserve_crashkernel() into mem_init()")
+commit 2687275a5843 ("arm64: Force NO_BLOCK_MAPPINGS if crashkernel reservation is required")
 
-Update the dump_vma_snapshot to capture vm_pgoff and vm_file
-that are neeeded by fill_files_note.
+Above changes introduced boot slowdown due to linear map creation for
+all the memory banks with NO_BLOCK_MAPPINGS, see discussion[1].  The proposed
+changes restore crash kernel reservation to earlier behavior thus avoids
+slow boot, particularly for platforms with IOMMU (no DMA memory zones).
 
-Add free_vma_snapshot to free the captured values of vm_file.
+Tested changes to confirm no ~150ms boot slowdown on our SoC with IOMMU
+and 8GB memory.  Also tested with ZONE_DMA and/or ZONE_DMA32 configs to confirm
+no regression to deferring scheme of crash kernel memory reservation.
+In both cases successfully collected kernel crash dump.
 
-Reported-by: Matthew Wilcox <willy@infradead.org>
-Link: https://lkml.kernel.org/r/20220131153740.2396974-1-willy@infradead.org
+[1] https://lore.kernel.org/all/9436d033-579b-55fa-9b00-6f4b661c2dd7@linux.microsoft.com/
+
+Signed-off-by: Vijay Balakrishna <vijayb@linux.microsoft.com>
 Cc: stable@vger.kernel.org
-Fixes: a07279c9a8cd ("binfmt_elf, binfmt_elf_fdpic: use a VMA list snapshot")
-Fixes: 2aa362c49c31 ("coredump: extend core dump note section to contain file names of mapped files")
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Reviewed-by: Pasha Tatashin <pasha.tatashin@soleen.com>
+Link: https://lore.kernel.org/r/1646242689-20744-1-git-send-email-vijayb@linux.microsoft.com
+[will: Add #ifdef CONFIG_KEXEC_CORE guards to fix 'crashk_res' references in allnoconfig build]
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/binfmt_elf.c          |   24 ++++++++++++------------
- fs/coredump.c            |   22 +++++++++++++++++++++-
- include/linux/coredump.h |    2 ++
- 3 files changed, 35 insertions(+), 13 deletions(-)
+ arch/arm64/mm/init.c |   36 ++++++++++++++++++++++++++++++++----
+ arch/arm64/mm/mmu.c  |   32 +++++++++++++++++++++++++++++++-
+ 2 files changed, 63 insertions(+), 5 deletions(-)
 
---- a/fs/binfmt_elf.c
-+++ b/fs/binfmt_elf.c
-@@ -1613,17 +1613,16 @@ static void fill_siginfo_note(struct mem
-  *   long file_ofs
-  * followed by COUNT filenames in ASCII: "FILE1" NUL "FILE2" NUL...
+--- a/arch/arm64/mm/init.c
++++ b/arch/arm64/mm/init.c
+@@ -58,8 +58,34 @@ EXPORT_SYMBOL(memstart_addr);
+  * unless restricted on specific platforms (e.g. 30-bit on Raspberry Pi 4).
+  * In such case, ZONE_DMA32 covers the rest of the 32-bit addressable memory,
+  * otherwise it is empty.
++ *
++ * Memory reservation for crash kernel either done early or deferred
++ * depending on DMA memory zones configs (ZONE_DMA) --
++ *
++ * In absence of ZONE_DMA configs arm64_dma_phys_limit initialized
++ * here instead of max_zone_phys().  This lets early reservation of
++ * crash kernel memory which has a dependency on arm64_dma_phys_limit.
++ * Reserving memory early for crash kernel allows linear creation of block
++ * mappings (greater than page-granularity) for all the memory bank rangs.
++ * In this scheme a comparatively quicker boot is observed.
++ *
++ * If ZONE_DMA configs are defined, crash kernel memory reservation
++ * is delayed until DMA zone memory range size initilazation performed in
++ * zone_sizes_init().  The defer is necessary to steer clear of DMA zone
++ * memory range to avoid overlap allocation.  So crash kernel memory boundaries
++ * are not known when mapping all bank memory ranges, which otherwise means
++ * not possible to exclude crash kernel range from creating block mappings
++ * so page-granularity mappings are created for the entire memory range.
++ * Hence a slightly slower boot is observed.
++ *
++ * Note: Page-granularity mapppings are necessary for crash kernel memory
++ * range for shrinking its size via /sys/kernel/kexec_crash_size interface.
   */
--static int fill_files_note(struct memelfnote *note)
-+static int fill_files_note(struct memelfnote *note, struct coredump_params *cprm)
- {
--	struct mm_struct *mm = current->mm;
--	struct vm_area_struct *vma;
- 	unsigned count, size, names_ofs, remaining, n;
- 	user_long_t *data;
- 	user_long_t *start_end_ofs;
- 	char *name_base, *name_curpos;
-+	int i;
+-phys_addr_t arm64_dma_phys_limit __ro_after_init;
++#if IS_ENABLED(CONFIG_ZONE_DMA) || IS_ENABLED(CONFIG_ZONE_DMA32)
++phys_addr_t __ro_after_init arm64_dma_phys_limit;
++#else
++phys_addr_t __ro_after_init arm64_dma_phys_limit = PHYS_MASK + 1;
++#endif
  
- 	/* *Estimated* file count and total data size needed */
--	count = mm->map_count;
-+	count = cprm->vma_count;
- 	if (count > UINT_MAX / 64)
- 		return -EINVAL;
- 	size = count * 64;
-@@ -1645,11 +1644,12 @@ static int fill_files_note(struct memelf
- 	name_base = name_curpos = ((char *)data) + names_ofs;
- 	remaining = size - names_ofs;
- 	count = 0;
--	for (vma = mm->mmap; vma != NULL; vma = vma->vm_next) {
-+	for (i = 0; i < cprm->vma_count; i++) {
-+		struct core_vma_metadata *m = &cprm->vma_meta[i];
- 		struct file *file;
- 		const char *filename;
+ #ifdef CONFIG_KEXEC_CORE
+ /*
+@@ -210,8 +236,6 @@ static void __init zone_sizes_init(unsig
+ 	if (!arm64_dma_phys_limit)
+ 		arm64_dma_phys_limit = dma32_phys_limit;
+ #endif
+-	if (!arm64_dma_phys_limit)
+-		arm64_dma_phys_limit = PHYS_MASK + 1;
+ 	max_zone_pfns[ZONE_NORMAL] = max;
  
--		file = vma->vm_file;
-+		file = m->file;
- 		if (!file)
- 			continue;
- 		filename = file_path(file, name_curpos, remaining);
-@@ -1669,9 +1669,9 @@ static int fill_files_note(struct memelf
- 		memmove(name_curpos, filename, n);
- 		name_curpos += n;
+ 	free_area_init(max_zone_pfns);
+@@ -407,6 +431,9 @@ void __init arm64_memblock_init(void)
  
--		*start_end_ofs++ = vma->vm_start;
--		*start_end_ofs++ = vma->vm_end;
--		*start_end_ofs++ = vma->vm_pgoff;
-+		*start_end_ofs++ = m->start;
-+		*start_end_ofs++ = m->end;
-+		*start_end_ofs++ = m->pgoff;
- 		count++;
- 	}
+ 	reserve_elfcorehdr();
  
-@@ -1682,7 +1682,7 @@ static int fill_files_note(struct memelf
- 	 * Count usually is less than mm->map_count,
- 	 * we need to move filenames down.
- 	 */
--	n = mm->map_count - count;
-+	n = cprm->vma_count - count;
- 	if (n != 0) {
- 		unsigned shift_bytes = n * 3 * sizeof(data[0]);
- 		memmove(name_base - shift_bytes, name_base,
-@@ -1884,7 +1884,7 @@ static int fill_note_info(struct elfhdr
- 	fill_auxv_note(&info->auxv, current->mm);
- 	info->size += notesize(&info->auxv);
- 
--	if (fill_files_note(&info->files) == 0)
-+	if (fill_files_note(&info->files, cprm) == 0)
- 		info->size += notesize(&info->files);
- 
- 	return 1;
-@@ -2073,7 +2073,7 @@ static int fill_note_info(struct elfhdr
- 	fill_auxv_note(info->notes + 3, current->mm);
- 	info->numnote = 4;
- 
--	if (fill_files_note(info->notes + info->numnote) == 0) {
-+	if (fill_files_note(info->notes + info->numnote, cprm) == 0) {
- 		info->notes_files = info->notes + info->numnote;
- 		info->numnote++;
- 	}
---- a/fs/coredump.c
-+++ b/fs/coredump.c
-@@ -54,6 +54,7 @@
- #include <trace/events/sched.h>
- 
- static bool dump_vma_snapshot(struct coredump_params *cprm);
-+static void free_vma_snapshot(struct coredump_params *cprm);
- 
- int core_uses_pid;
- unsigned int core_pipe_limit;
-@@ -816,7 +817,7 @@ void do_coredump(const kernel_siginfo_t
- 		file_start_write(cprm.file);
- 		core_dumped = binfmt->core_dump(&cprm);
- 		file_end_write(cprm.file);
--		kvfree(cprm.vma_meta);
-+		free_vma_snapshot(&cprm);
- 	}
- 	if (ispipe && core_pipe_limit)
- 		wait_for_dump_helpers(cprm.file);
-@@ -1088,6 +1089,20 @@ static struct vm_area_struct *next_vma(s
- 	return gate_vma;
++	if (!IS_ENABLED(CONFIG_ZONE_DMA) && !IS_ENABLED(CONFIG_ZONE_DMA32))
++		reserve_crashkernel();
++
+ 	high_memory = __va(memblock_end_of_DRAM() - 1) + 1;
  }
  
-+static void free_vma_snapshot(struct coredump_params *cprm)
-+{
-+	if (cprm->vma_meta) {
-+		int i;
-+		for (i = 0; i < cprm->vma_count; i++) {
-+			struct file *file = cprm->vma_meta[i].file;
-+			if (file)
-+				fput(file);
-+		}
-+		kvfree(cprm->vma_meta);
-+		cprm->vma_meta = NULL;
+@@ -451,7 +478,8 @@ void __init bootmem_init(void)
+ 	 * request_standard_resources() depends on crashkernel's memory being
+ 	 * reserved, so do it here.
+ 	 */
+-	reserve_crashkernel();
++	if (IS_ENABLED(CONFIG_ZONE_DMA) || IS_ENABLED(CONFIG_ZONE_DMA32))
++		reserve_crashkernel();
+ 
+ 	memblock_dump_all();
+ }
+--- a/arch/arm64/mm/mmu.c
++++ b/arch/arm64/mm/mmu.c
+@@ -501,7 +501,7 @@ static void __init map_mem(pgd_t *pgdp)
+ 	int flags = 0;
+ 	u64 i;
+ 
+-	if (rodata_full || crash_mem_map || debug_pagealloc_enabled())
++	if (rodata_full || debug_pagealloc_enabled())
+ 		flags = NO_BLOCK_MAPPINGS | NO_CONT_MAPPINGS;
+ 
+ 	/*
+@@ -512,6 +512,17 @@ static void __init map_mem(pgd_t *pgdp)
+ 	 */
+ 	memblock_mark_nomap(kernel_start, kernel_end - kernel_start);
+ 
++#ifdef CONFIG_KEXEC_CORE
++	if (crash_mem_map) {
++		if (IS_ENABLED(CONFIG_ZONE_DMA) ||
++		    IS_ENABLED(CONFIG_ZONE_DMA32))
++			flags |= NO_BLOCK_MAPPINGS | NO_CONT_MAPPINGS;
++		else if (crashk_res.end)
++			memblock_mark_nomap(crashk_res.start,
++					    resource_size(&crashk_res));
 +	}
-+}
++#endif
 +
- /*
-  * Under the mmap_lock, take a snapshot of relevant information about the task's
-  * VMAs.
-@@ -1124,6 +1139,11 @@ static bool dump_vma_snapshot(struct cor
- 		m->end = vma->vm_end;
- 		m->flags = vma->vm_flags;
- 		m->dump_size = vma_dump_size(vma, cprm->mm_flags);
-+		m->pgoff = vma->vm_pgoff;
+ 	/* map all the memory banks */
+ 	for_each_mem_range(i, &start, &end) {
+ 		if (start >= end)
+@@ -538,6 +549,25 @@ static void __init map_mem(pgd_t *pgdp)
+ 	__map_memblock(pgdp, kernel_start, kernel_end,
+ 		       PAGE_KERNEL, NO_CONT_MAPPINGS);
+ 	memblock_clear_nomap(kernel_start, kernel_end - kernel_start);
 +
-+		m->file = vma->vm_file;
-+		if (m->file)
-+			get_file(m->file);
- 	}
++	/*
++	 * Use page-level mappings here so that we can shrink the region
++	 * in page granularity and put back unused memory to buddy system
++	 * through /sys/kernel/kexec_crash_size interface.
++	 */
++#ifdef CONFIG_KEXEC_CORE
++	if (crash_mem_map &&
++	    !IS_ENABLED(CONFIG_ZONE_DMA) && !IS_ENABLED(CONFIG_ZONE_DMA32)) {
++		if (crashk_res.end) {
++			__map_memblock(pgdp, crashk_res.start,
++				       crashk_res.end + 1,
++				       PAGE_KERNEL,
++				       NO_BLOCK_MAPPINGS | NO_CONT_MAPPINGS);
++			memblock_clear_nomap(crashk_res.start,
++					     resource_size(&crashk_res));
++		}
++	}
++#endif
+ }
  
- 	mmap_write_unlock(mm);
---- a/include/linux/coredump.h
-+++ b/include/linux/coredump.h
-@@ -11,6 +11,8 @@ struct core_vma_metadata {
- 	unsigned long start, end;
- 	unsigned long flags;
- 	unsigned long dump_size;
-+	unsigned long pgoff;
-+	struct file   *file;
- };
- 
- /*
+ void mark_rodata_ro(void)
 
 
