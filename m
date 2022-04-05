@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 814BC4F3450
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:26:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 474A94F2EE9
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:05:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343743AbiDEJMm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:12:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46600 "EHLO
+        id S1344957AbiDEKkT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:40:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50104 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244845AbiDEIwn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B49422B18;
-        Tue,  5 Apr 2022 01:44:43 -0700 (PDT)
+        with ESMTP id S244037AbiDEJlE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:41:04 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1162CBAB85;
+        Tue,  5 Apr 2022 02:25:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CC33A609D0;
-        Tue,  5 Apr 2022 08:44:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1FBEC385A0;
-        Tue,  5 Apr 2022 08:44:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B2218B81CA1;
+        Tue,  5 Apr 2022 09:25:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1BA28C385A4;
+        Tue,  5 Apr 2022 09:25:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148282;
-        bh=ANnWnXAWNmsF5BifAwyhc0RFu55PfW6rBe5GXpCYMlk=;
+        s=korg; t=1649150706;
+        bh=0IXNH02d04Pp3qo3nL8AHAf9mxn0yRHztLc0LEJHT3U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zb/KhT8mBVIBxd2jSGyWzLBnGnUWjHXybUZ8xtoEkMuCcL9/l0P9ugQdVm0SbJPE/
-         vZORj7tOYv+Y8FWgSMxSUETsGC8QOUYFjxt/QmzsqlPto9+6jiFvgwQWR3pnxbbNEw
-         CJ3iE9hrBTxJyz8j7CCxxC8tqmYWrCwUaiDuf8mI=
+        b=bsbO9boT9rs1b+MFc9Ldp5XmeWDtHQri5ClAQUjMMy7vULC66XDZL3zAALq11DPIO
+         eQYBwqeZRnIfjYBOpcU2YPlBsMHVw/VpeYM2Ensrdx2RSaExvMz8ZBUEhy6kgVkNy9
+         RdGCTELOAoZ3dod0rzAJ/KZffKq/TmEnYOfACvEo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0299/1017] media: v4l: Avoid unaligned access warnings when printing 4cc modifiers
-Date:   Tue,  5 Apr 2022 09:20:12 +0200
-Message-Id: <20220405070403.150447315@linuxfoundation.org>
+        stable@vger.kernel.org, Jocelyn Falempe <jfalempe@redhat.com>,
+        Javier Martinez Canillas <javierm@redhat.com>,
+        Lyude Paul <lyude@redhat.com>,
+        Thomas Zimmermann <tzimmermann@suse.de>
+Subject: [PATCH 5.15 151/913] mgag200 fix memmapsl configuration in GCTL6 register
+Date:   Tue,  5 Apr 2022 09:20:13 +0200
+Message-Id: <20220405070344.363816649@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,73 +55,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sakari Ailus <sakari.ailus@linux.intel.com>
+From: Jocelyn Falempe <jfalempe@redhat.com>
 
-[ Upstream commit 24bb30c8c894ec7213ad810b46e2a6a4c12136c1 ]
+commit 028a73e10705af1ffd51f2537460f616dc58680e upstream.
 
-Pointers V4L2 pixelformat and dataformat fields in a few packed structs
-are directly passed to printk family of functions. This could result in an
-unaligned access albeit no such possibility appears to exist at the
-moment i.e. this clang warning appears to be a false positive.
+On some servers with MGA G200_SE_A (rev 42), booting with Legacy BIOS,
+the hardware hangs when using kdump and kexec into the kdump kernel.
+This happens when the uncompress code tries to write "Decompressing Linux"
+to the VGA Console.
 
-Address the warning by copying the pixelformat or dataformat value to a
-local variable first.
+It can be reproduced by writing to the VGA console (0xB8000) after
+booting to graphic mode, it generates the following error:
 
-Reported-by: kernel test robot <lkp@intel.com>
-Fixes: e927e1e0f0dd ("v4l: ioctl: Use %p4cc printk modifier to print FourCC codes")
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+kernel:NMI: PCI system error (SERR) for reason a0 on CPU 0.
+kernel:Dazed and confused, but trying to continue
+
+The root cause is the configuration of the MGA GCTL6 register
+
+According to the GCTL6 register documentation:
+
+bit 0 is gcgrmode:
+    0: Enables alpha mode, and the character generator addressing system is
+     activated.
+    1: Enables graphics mode, and the character addressing system is not
+     used.
+
+bit 1 is chainodd even:
+    0: The A0 signal of the memory address bus is used during system memory
+     addressing.
+    1: Allows A0 to be replaced by either the A16 signal of the system
+     address (ifmemmapsl is ‘00’), or by the hpgoddev (MISC<5>, odd/even
+     page select) field, described on page 3-294).
+
+bit 3-2 are memmapsl:
+    Memory map select bits 1 and 0. VGA.
+    These bits select where the video memory is mapped, as shown below:
+        00 => A0000h - BFFFFh
+        01 => A0000h - AFFFFh
+        10 => B0000h - B7FFFh
+        11 => B8000h - BFFFFh
+
+bit 7-4 are reserved.
+
+Current code set it to 0x05 => memmapsl to b01 => 0xa0000 (graphic mode)
+But on x86, the VGA console is at 0xb8000 (text mode)
+In arch/x86/boot/compressed/misc.c debug strings are written to 0xb8000
+As the driver doesn't use this mapping at 0xa0000, it is safe to set it to
+0xb8000 instead, to avoid kernel hang on G200_SE_A rev42, with kexec/kdump.
+
+Thus changing the value 0x05 to 0x0d
+
+Signed-off-by: Jocelyn Falempe <jfalempe@redhat.com>
+Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
+Acked-by: Lyude Paul <lyude@redhat.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220119102905.1194787-1-jfalempe@redhat.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/v4l2-core/v4l2-ioctl.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/mgag200/mgag200_mode.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/v4l2-core/v4l2-ioctl.c b/drivers/media/v4l2-core/v4l2-ioctl.c
-index 69b74d0e8a90..059d6debb25d 100644
---- a/drivers/media/v4l2-core/v4l2-ioctl.c
-+++ b/drivers/media/v4l2-core/v4l2-ioctl.c
-@@ -279,8 +279,8 @@ static void v4l_print_format(const void *arg, bool write_only)
- 	const struct v4l2_vbi_format *vbi;
- 	const struct v4l2_sliced_vbi_format *sliced;
- 	const struct v4l2_window *win;
--	const struct v4l2_sdr_format *sdr;
- 	const struct v4l2_meta_format *meta;
-+	u32 pixelformat;
- 	u32 planes;
- 	unsigned i;
+--- a/drivers/gpu/drm/mgag200/mgag200_mode.c
++++ b/drivers/gpu/drm/mgag200/mgag200_mode.c
+@@ -529,7 +529,10 @@ static void mgag200_set_format_regs(stru
+ 	WREG_GFX(3, 0x00);
+ 	WREG_GFX(4, 0x00);
+ 	WREG_GFX(5, 0x40);
+-	WREG_GFX(6, 0x05);
++	/* GCTL6 should be 0x05, but we configure memmapsl to 0xb8000 (text mode),
++	 * so that it doesn't hang when running kexec/kdump on G200_SE rev42.
++	 */
++	WREG_GFX(6, 0x0d);
+ 	WREG_GFX(7, 0x0f);
+ 	WREG_GFX(8, 0x0f);
  
-@@ -299,8 +299,9 @@ static void v4l_print_format(const void *arg, bool write_only)
- 	case V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE:
- 	case V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE:
- 		mp = &p->fmt.pix_mp;
-+		pixelformat = mp->pixelformat;
- 		pr_cont(", width=%u, height=%u, format=%p4cc, field=%s, colorspace=%d, num_planes=%u, flags=0x%x, ycbcr_enc=%u, quantization=%u, xfer_func=%u\n",
--			mp->width, mp->height, &mp->pixelformat,
-+			mp->width, mp->height, &pixelformat,
- 			prt_names(mp->field, v4l2_field_names),
- 			mp->colorspace, mp->num_planes, mp->flags,
- 			mp->ycbcr_enc, mp->quantization, mp->xfer_func);
-@@ -343,14 +344,15 @@ static void v4l_print_format(const void *arg, bool write_only)
- 		break;
- 	case V4L2_BUF_TYPE_SDR_CAPTURE:
- 	case V4L2_BUF_TYPE_SDR_OUTPUT:
--		sdr = &p->fmt.sdr;
--		pr_cont(", pixelformat=%p4cc\n", &sdr->pixelformat);
-+		pixelformat = p->fmt.sdr.pixelformat;
-+		pr_cont(", pixelformat=%p4cc\n", &pixelformat);
- 		break;
- 	case V4L2_BUF_TYPE_META_CAPTURE:
- 	case V4L2_BUF_TYPE_META_OUTPUT:
- 		meta = &p->fmt.meta;
-+		pixelformat = meta->dataformat;
- 		pr_cont(", dataformat=%p4cc, buffersize=%u\n",
--			&meta->dataformat, meta->buffersize);
-+			&pixelformat, meta->buffersize);
- 		break;
- 	}
- }
--- 
-2.34.1
-
 
 
