@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B6EED4F3170
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:43:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 78FB64F325E
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:57:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353666AbiDEKIu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:08:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59912 "EHLO
+        id S245308AbiDEIyw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:54:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45836 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345222AbiDEJWW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:22:22 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6982C33A33;
-        Tue,  5 Apr 2022 02:09:42 -0700 (PDT)
+        with ESMTP id S240911AbiDEIci (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:32:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37C408CCD7;
+        Tue,  5 Apr 2022 01:25:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ED386B80DA1;
-        Tue,  5 Apr 2022 09:09:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64CB9C385A2;
-        Tue,  5 Apr 2022 09:09:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 134C360FF5;
+        Tue,  5 Apr 2022 08:25:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 216CBC385A1;
+        Tue,  5 Apr 2022 08:25:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149779;
-        bh=8OMFyOaAk1BzOs8bd9OEu8SQHWkFyA3dMkqxRl+sTPI=;
+        s=korg; t=1649147110;
+        bh=eho7sW1CDBPvxwr8elr2Qn2DJF/zM/g7Jg72tpIQ0mo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V7q50ER06Jj2HvX+J8kh1lzlOUfTdWQa6sNSMuvAfrgk0RwXoRq0AcM/kPPObm/rI
-         9Gco0wvwsKjafCaU95Bkvz3OtewVL7deBWYEugESQF7U8PuaFTLj0mryA5hn/dhGvT
-         Wo9CrmOUEtuDzIU8D1dAw1dJ3whqG5m0JD3t/pdo=
+        b=D5ZHn6nYsf8GjM2XHx6rAeZEr3Xi0WwOTNYVI7nvST8yFKXIW5AJ6MlD28KFN/RGO
+         eStyDrKivXTOVLmk5ues3/jufUkH6oNw565rNDWdxhtGcJioCRVuZoV2phWkzecH/I
+         Y2KaK3/OMfB5y7IrRYI4xbdbFlPOGQ0tfe8AJT5Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <chao.yu@oppo.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0800/1017] f2fs: compress: fix to print raw data size in error path of lz4 decompression
-Date:   Tue,  5 Apr 2022 09:28:33 +0200
-Message-Id: <20220405070417.997536220@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Subject: [PATCH 5.17 0967/1126] drm/i915: Treat SAGV block time 0 as SAGV disabled
+Date:   Tue,  5 Apr 2022 09:28:34 +0200
+Message-Id: <20220405070435.889239064@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +56,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <chao@kernel.org>
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-[ Upstream commit d284af43f703760e261b1601378a0c13a19d5f1f ]
+commit 1937f3feb0e84089ae4065e09c871b8ab4676f01 upstream.
 
-In lz4_decompress_pages(), if size of decompressed data is not equal to
-expected one, we should print the size rather than size of target buffer
-for decompressed data, fix it.
+For modern platforms the spec explicitly states that a
+SAGV block time of zero means that SAGV is not supported.
+Let's extend that to all platforms. Supposedly there should
+be no systems where this isn't true, and it'll allow us to:
+- use the same code regardless of older vs. newer platform
+- wm latencies already treat 0 as disabled, so this fits well
+  with other related code
+- make it a bit more clear when SAGV is used vs. not
+- avoid overflows from adding U32_MAX with a u16 wm0 latency value
+  which could cause us to miscalculate the SAGV watermarks on tgl+
 
-Signed-off-by: Chao Yu <chao.yu@oppo.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220309164948.10671-2-ville.syrjala@linux.intel.com
+Reviewed-by: Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>
+(cherry picked from commit d8f5855b31c0523ea3b171db8dfb998830e8735d)
+Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/f2fs/compress.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/i915/intel_pm.c |   10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/fs/f2fs/compress.c b/fs/f2fs/compress.c
-index 190a3c4d4c91..ced0fd54658c 100644
---- a/fs/f2fs/compress.c
-+++ b/fs/f2fs/compress.c
-@@ -313,10 +313,9 @@ static int lz4_decompress_pages(struct decompress_io_ctx *dic)
+--- a/drivers/gpu/drm/i915/intel_pm.c
++++ b/drivers/gpu/drm/i915/intel_pm.c
+@@ -3722,8 +3722,7 @@ skl_setup_sagv_block_time(struct drm_i91
+ 		MISSING_CASE(DISPLAY_VER(dev_priv));
  	}
  
- 	if (ret != PAGE_SIZE << dic->log_cluster_size) {
--		printk_ratelimited("%sF2FS-fs (%s): lz4 invalid rlen:%zu, "
-+		printk_ratelimited("%sF2FS-fs (%s): lz4 invalid ret:%d, "
- 					"expected:%lu\n", KERN_ERR,
--					F2FS_I_SB(dic->inode)->sb->s_id,
--					dic->rlen,
-+					F2FS_I_SB(dic->inode)->sb->s_id, ret,
- 					PAGE_SIZE << dic->log_cluster_size);
- 		return -EIO;
- 	}
--- 
-2.34.1
-
+-	/* Default to an unusable block time */
+-	dev_priv->sagv_block_time_us = -1;
++	dev_priv->sagv_block_time_us = 0;
+ }
+ 
+ /*
+@@ -5652,7 +5651,7 @@ static void skl_compute_plane_wm(const s
+ 	result->min_ddb_alloc = max(min_ddb_alloc, blocks) + 1;
+ 	result->enable = true;
+ 
+-	if (DISPLAY_VER(dev_priv) < 12)
++	if (DISPLAY_VER(dev_priv) < 12 && dev_priv->sagv_block_time_us)
+ 		result->can_sagv = latency >= dev_priv->sagv_block_time_us;
+ }
+ 
+@@ -5683,7 +5682,10 @@ static void tgl_compute_sagv_wm(const st
+ 	struct drm_i915_private *dev_priv = to_i915(crtc_state->uapi.crtc->dev);
+ 	struct skl_wm_level *sagv_wm = &plane_wm->sagv.wm0;
+ 	struct skl_wm_level *levels = plane_wm->wm;
+-	unsigned int latency = dev_priv->wm.skl_latency[0] + dev_priv->sagv_block_time_us;
++	unsigned int latency = 0;
++
++	if (dev_priv->sagv_block_time_us)
++		latency = dev_priv->sagv_block_time_us + dev_priv->wm.skl_latency[0];
+ 
+ 	skl_compute_plane_wm(crtc_state, 0, latency,
+ 			     wm_params, &levels[0],
 
 
