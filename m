@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DAEF4F2BC3
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:21:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A41564F2B15
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:08:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237865AbiDEKHC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:07:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60614 "EHLO
+        id S236450AbiDEJC7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:02:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53140 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344269AbiDEJTD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:19:03 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4AF842229F;
-        Tue,  5 Apr 2022 02:06:39 -0700 (PDT)
+        with ESMTP id S238368AbiDEIab (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:30:31 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5E2325EAA;
+        Tue,  5 Apr 2022 01:22:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 00C16B80DA1;
-        Tue,  5 Apr 2022 09:06:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6123DC385A0;
-        Tue,  5 Apr 2022 09:06:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BC9E160FF7;
+        Tue,  5 Apr 2022 08:22:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8083C385A0;
+        Tue,  5 Apr 2022 08:22:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149596;
-        bh=Y0U/1oukvFPpkPm6qQ6VpXiB5QKiZkyncQiMEoo+SMs=;
+        s=korg; t=1649146930;
+        bh=kKgbNHwddUiwkQ0fNo9UvyNztXfEeCzHFDRq0uA6vRs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SY5+jGcNscn3rG3eLieJJo5wE048Vju71j5fWipWO1oZqtrH2caDjBtgug1+oPa7s
-         ECvVO97uap6ygiE6avmMzFJ/DenE3k0RaM8jjmKikfFrXTj2Wbzt67HTLzsJNArET2
-         V+VF3/RkIlU1wrqHajylTWHJuECb6lkGH1IfPTX4=
+        b=YW63rmkaEZUpjJKtCTNKnZ7ime9wA4k74FRsqIRhnbd1j2TaZiw21stOcYXc+1Zuq
+         lCbOguZb4HLLgmdcdkOHebE1RgujeyhXFrV1VGeh+YusfQh10VsZ9JxjXpuY442MZT
+         5R8hLPP+F87ad68rvWME8qC49Y8bHxPJERoFWf/8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Akira Kawata <akirakawata1@gmail.com>,
-        kernel test robot <lkp@intel.com>,
-        Kees Cook <keescook@chromium.org>,
+        stable@vger.kernel.org, anthony tonitch <d.tonitch@gmail.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        =?UTF-8?q?P=C3=A9ter=20Ujfalusi?= <peter.ujfalusi@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0772/1017] fs/binfmt_elf: Fix AT_PHDR for unusual ELF files
-Date:   Tue,  5 Apr 2022 09:28:05 +0200
-Message-Id: <20220405070417.175617375@linuxfoundation.org>
+Subject: [PATCH 5.17 0940/1126] ASoC: Intel: soc-acpi: add more ACPI HIDs for ES83x6 devices
+Date:   Tue,  5 Apr 2022 09:28:07 +0200
+Message-Id: <20220405070435.102516338@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,117 +57,157 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Akira Kawata <akirakawata1@gmail.com>
+From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-[ Upstream commit 0da1d5002745cdc721bc018b582a8a9704d56c42 ]
+[ Upstream commit 1cedb6eabf0f2dd8285d3bb0ce1abd2369529084 ]
 
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=197921
+We only saw ESSX8336 so far, but now with reports of 'ESSX8326' we
+need to expand to a full list. Let's reuse the 'snd_soc_acpi_codecs'
+structure to store the information.
 
-As pointed out in the discussion of buglink, we cannot calculate AT_PHDR
-as the sum of load_addr and exec->e_phoff.
+Note that ES8326 will need a dedicated codec driver, but the plan is
+to use the same machine driver for all Everest Audio devices.
 
-: The AT_PHDR of ELF auxiliary vectors should point to the memory address
-: of program header. But binfmt_elf.c calculates this address as follows:
-:
-: NEW_AUX_ENT(AT_PHDR, load_addr + exec->e_phoff);
-:
-: which is wrong since e_phoff is the file offset of program header and
-: load_addr is the memory base address from PT_LOAD entry.
-:
-: The ld.so uses AT_PHDR as the memory address of program header. In normal
-: case, since the e_phoff is usually 64 and in the first PT_LOAD region, it
-: is the correct program header address.
-:
-: But if the address of program header isn't equal to the first PT_LOAD
-: address + e_phoff (e.g.  Put the program header in other non-consecutive
-: PT_LOAD region), ld.so will try to read program header from wrong address
-: then crash or use incorrect program header.
-
-This is because exec->e_phoff
-is the offset of PHDRs in the file and the address of PHDRs in the
-memory may differ from it. This patch fixes the bug by calculating the
-address of program headers from PT_LOADs directly.
-
-Signed-off-by: Akira Kawata <akirakawata1@gmail.com>
-Reported-by: kernel test robot <lkp@intel.com>
-Acked-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20220127124014.338760-2-akirakawata1@gmail.com
+Reported-by: anthony tonitch <d.tonitch@gmail.com>
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+Reviewed-by: Péter Ujfalusi <peter.ujfalusi@linux.intel.com>
+Link: https://lore.kernel.org/r/20220308192610.392950-9-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/binfmt_elf.c | 24 ++++++++++++++++++------
- 1 file changed, 18 insertions(+), 6 deletions(-)
+ sound/soc/intel/common/soc-acpi-intel-bxt-match.c | 7 ++++++-
+ sound/soc/intel/common/soc-acpi-intel-cml-match.c | 7 ++++++-
+ sound/soc/intel/common/soc-acpi-intel-glk-match.c | 7 ++++++-
+ sound/soc/intel/common/soc-acpi-intel-jsl-match.c | 7 ++++++-
+ sound/soc/intel/common/soc-acpi-intel-tgl-match.c | 7 ++++++-
+ 5 files changed, 30 insertions(+), 5 deletions(-)
 
-diff --git a/fs/binfmt_elf.c b/fs/binfmt_elf.c
-index d19762dc90fe..c4de845f86c8 100644
---- a/fs/binfmt_elf.c
-+++ b/fs/binfmt_elf.c
-@@ -170,8 +170,8 @@ static int padzero(unsigned long elf_bss)
+diff --git a/sound/soc/intel/common/soc-acpi-intel-bxt-match.c b/sound/soc/intel/common/soc-acpi-intel-bxt-match.c
+index 342d34052204..04a92e74d99b 100644
+--- a/sound/soc/intel/common/soc-acpi-intel-bxt-match.c
++++ b/sound/soc/intel/common/soc-acpi-intel-bxt-match.c
+@@ -41,6 +41,11 @@ static struct snd_soc_acpi_mach *apl_quirk(void *arg)
+ 	return mach;
+ }
  
- static int
- create_elf_tables(struct linux_binprm *bprm, const struct elfhdr *exec,
--		unsigned long load_addr, unsigned long interp_load_addr,
--		unsigned long e_entry)
-+		unsigned long interp_load_addr,
-+		unsigned long e_entry, unsigned long phdr_addr)
- {
- 	struct mm_struct *mm = current->mm;
- 	unsigned long p = bprm->p;
-@@ -257,7 +257,7 @@ create_elf_tables(struct linux_binprm *bprm, const struct elfhdr *exec,
- 	NEW_AUX_ENT(AT_HWCAP, ELF_HWCAP);
- 	NEW_AUX_ENT(AT_PAGESZ, ELF_EXEC_PAGESIZE);
- 	NEW_AUX_ENT(AT_CLKTCK, CLOCKS_PER_SEC);
--	NEW_AUX_ENT(AT_PHDR, load_addr + exec->e_phoff);
-+	NEW_AUX_ENT(AT_PHDR, phdr_addr);
- 	NEW_AUX_ENT(AT_PHENT, sizeof(struct elf_phdr));
- 	NEW_AUX_ENT(AT_PHNUM, exec->e_phnum);
- 	NEW_AUX_ENT(AT_BASE, interp_load_addr);
-@@ -823,7 +823,7 @@ static int parse_elf_properties(struct file *f, const struct elf_phdr *phdr,
- static int load_elf_binary(struct linux_binprm *bprm)
- {
- 	struct file *interpreter = NULL; /* to shut gcc up */
-- 	unsigned long load_addr = 0, load_bias = 0;
-+	unsigned long load_addr, load_bias = 0, phdr_addr = 0;
- 	int load_addr_set = 0;
- 	unsigned long error;
- 	struct elf_phdr *elf_ppnt, *elf_phdata, *interp_elf_phdata = NULL;
-@@ -1180,6 +1180,17 @@ static int load_elf_binary(struct linux_binprm *bprm)
- 				reloc_func_desc = load_bias;
- 			}
- 		}
++static const struct snd_soc_acpi_codecs essx_83x6 = {
++	.num_codecs = 3,
++	.codecs = { "ESSX8316", "ESSX8326", "ESSX8336"},
++};
 +
-+		/*
-+		 * Figure out which segment in the file contains the Program
-+		 * Header table, and map to the associated memory address.
-+		 */
-+		if (elf_ppnt->p_offset <= elf_ex->e_phoff &&
-+		    elf_ex->e_phoff < elf_ppnt->p_offset + elf_ppnt->p_filesz) {
-+			phdr_addr = elf_ex->e_phoff - elf_ppnt->p_offset +
-+				    elf_ppnt->p_vaddr;
-+		}
+ static const struct snd_soc_acpi_codecs bxt_codecs = {
+ 	.num_codecs = 1,
+ 	.codecs = {"MX98357A"}
+@@ -83,7 +88,7 @@ struct snd_soc_acpi_mach snd_soc_acpi_intel_bxt_machines[] = {
+ 		.sof_tplg_filename = "sof-apl-tdf8532.tplg",
+ 	},
+ 	{
+-		.id = "ESSX8336",
++		.comp_ids = &essx_83x6,
+ 		.drv_name = "sof-essx8336",
+ 		.sof_fw_filename = "sof-apl.ri",
+ 		.sof_tplg_filename = "sof-apl-es8336.tplg",
+diff --git a/sound/soc/intel/common/soc-acpi-intel-cml-match.c b/sound/soc/intel/common/soc-acpi-intel-cml-match.c
+index 4eebc79d4b48..14395833d89e 100644
+--- a/sound/soc/intel/common/soc-acpi-intel-cml-match.c
++++ b/sound/soc/intel/common/soc-acpi-intel-cml-match.c
+@@ -9,6 +9,11 @@
+ #include <sound/soc-acpi.h>
+ #include <sound/soc-acpi-intel-match.h>
+ 
++static const struct snd_soc_acpi_codecs essx_83x6 = {
++	.num_codecs = 3,
++	.codecs = { "ESSX8316", "ESSX8326", "ESSX8336"},
++};
 +
- 		k = elf_ppnt->p_vaddr;
- 		if ((elf_ppnt->p_flags & PF_X) && k < start_code)
- 			start_code = k;
-@@ -1215,6 +1226,7 @@ static int load_elf_binary(struct linux_binprm *bprm)
- 	}
+ static const struct snd_soc_acpi_codecs rt1011_spk_codecs = {
+ 	.num_codecs = 1,
+ 	.codecs = {"10EC1011"}
+@@ -82,7 +87,7 @@ struct snd_soc_acpi_mach snd_soc_acpi_intel_cml_machines[] = {
+ 		.sof_tplg_filename = "sof-cml-da7219-max98390.tplg",
+ 	},
+ 	{
+-		.id = "ESSX8336",
++		.comp_ids = &essx_83x6,
+ 		.drv_name = "sof-essx8336",
+ 		.sof_fw_filename = "sof-cml.ri",
+ 		.sof_tplg_filename = "sof-cml-es8336.tplg",
+diff --git a/sound/soc/intel/common/soc-acpi-intel-glk-match.c b/sound/soc/intel/common/soc-acpi-intel-glk-match.c
+index 8492b7e2a945..7aa6a870d5a5 100644
+--- a/sound/soc/intel/common/soc-acpi-intel-glk-match.c
++++ b/sound/soc/intel/common/soc-acpi-intel-glk-match.c
+@@ -9,6 +9,11 @@
+ #include <sound/soc-acpi.h>
+ #include <sound/soc-acpi-intel-match.h>
  
- 	e_entry = elf_ex->e_entry + load_bias;
-+	phdr_addr += load_bias;
- 	elf_bss += load_bias;
- 	elf_brk += load_bias;
- 	start_code += load_bias;
-@@ -1278,8 +1290,8 @@ static int load_elf_binary(struct linux_binprm *bprm)
- 		goto out;
- #endif /* ARCH_HAS_SETUP_ADDITIONAL_PAGES */
++static const struct snd_soc_acpi_codecs essx_83x6 = {
++	.num_codecs = 3,
++	.codecs = { "ESSX8316", "ESSX8326", "ESSX8336"},
++};
++
+ static const struct snd_soc_acpi_codecs glk_codecs = {
+ 	.num_codecs = 1,
+ 	.codecs = {"MX98357A"}
+@@ -58,7 +63,7 @@ struct snd_soc_acpi_mach snd_soc_acpi_intel_glk_machines[] = {
+ 		.sof_tplg_filename = "sof-glk-cs42l42.tplg",
+ 	},
+ 	{
+-		.id = "ESSX8336",
++		.comp_ids = &essx_83x6,
+ 		.drv_name = "sof-essx8336",
+ 		.sof_fw_filename = "sof-glk.ri",
+ 		.sof_tplg_filename = "sof-glk-es8336.tplg",
+diff --git a/sound/soc/intel/common/soc-acpi-intel-jsl-match.c b/sound/soc/intel/common/soc-acpi-intel-jsl-match.c
+index 278ec196da7b..9d0d0e1437a4 100644
+--- a/sound/soc/intel/common/soc-acpi-intel-jsl-match.c
++++ b/sound/soc/intel/common/soc-acpi-intel-jsl-match.c
+@@ -9,6 +9,11 @@
+ #include <sound/soc-acpi.h>
+ #include <sound/soc-acpi-intel-match.h>
  
--	retval = create_elf_tables(bprm, elf_ex,
--			  load_addr, interp_load_addr, e_entry);
-+	retval = create_elf_tables(bprm, elf_ex, interp_load_addr,
-+				   e_entry, phdr_addr);
- 	if (retval < 0)
- 		goto out;
++static const struct snd_soc_acpi_codecs essx_83x6 = {
++	.num_codecs = 3,
++	.codecs = { "ESSX8316", "ESSX8326", "ESSX8336"},
++};
++
+ static const struct snd_soc_acpi_codecs jsl_7219_98373_codecs = {
+ 	.num_codecs = 1,
+ 	.codecs = {"MX98373"}
+@@ -87,7 +92,7 @@ struct snd_soc_acpi_mach snd_soc_acpi_intel_jsl_machines[] = {
+ 		.sof_tplg_filename = "sof-jsl-cs42l42-mx98360a.tplg",
+ 	},
+ 	{
+-		.id = "ESSX8336",
++		.comp_ids = &essx_83x6,
+ 		.drv_name = "sof-essx8336",
+ 		.sof_fw_filename = "sof-jsl.ri",
+ 		.sof_tplg_filename = "sof-jsl-es8336.tplg",
+diff --git a/sound/soc/intel/common/soc-acpi-intel-tgl-match.c b/sound/soc/intel/common/soc-acpi-intel-tgl-match.c
+index da31bb3cca17..e2658bca6931 100644
+--- a/sound/soc/intel/common/soc-acpi-intel-tgl-match.c
++++ b/sound/soc/intel/common/soc-acpi-intel-tgl-match.c
+@@ -10,6 +10,11 @@
+ #include <sound/soc-acpi-intel-match.h>
+ #include "soc-acpi-intel-sdw-mockup-match.h"
  
++static const struct snd_soc_acpi_codecs essx_83x6 = {
++	.num_codecs = 3,
++	.codecs = { "ESSX8316", "ESSX8326", "ESSX8336"},
++};
++
+ static const struct snd_soc_acpi_codecs tgl_codecs = {
+ 	.num_codecs = 1,
+ 	.codecs = {"MX98357A"}
+@@ -389,7 +394,7 @@ struct snd_soc_acpi_mach snd_soc_acpi_intel_tgl_machines[] = {
+ 		.sof_tplg_filename = "sof-tgl-rt1011-rt5682.tplg",
+ 	},
+ 	{
+-		.id = "ESSX8336",
++		.comp_ids = &essx_83x6,
+ 		.drv_name = "sof-essx8336",
+ 		.sof_fw_filename = "sof-tgl.ri",
+ 		.sof_tplg_filename = "sof-tgl-es8336.tplg",
 -- 
 2.34.1
 
