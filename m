@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 88F1F4F2DCB
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:47:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B3CD04F2C5C
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:30:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243000AbiDEJin (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:38:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46838 "EHLO
+        id S243101AbiDEJi7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:38:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243624AbiDEJJI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:09:08 -0400
+        with ESMTP id S242416AbiDEJHy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:07:54 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77590C74B1;
-        Tue,  5 Apr 2022 01:58:21 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E90A68FBF;
+        Tue,  5 Apr 2022 01:56:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1297C61562;
-        Tue,  5 Apr 2022 08:58:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C0D7C385A0;
-        Tue,  5 Apr 2022 08:58:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5B77A61562;
+        Tue,  5 Apr 2022 08:56:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69E14C385A0;
+        Tue,  5 Apr 2022 08:56:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149100;
-        bh=r91jElRvQN2IYdOEUX6cggvgiowglxtTlKd9Phaicio=;
+        s=korg; t=1649148998;
+        bh=1+Mngr6KGkheShOg7khTz8KoT3VtqXQ7du3xbknMR0E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x+m13pDkAcVEPDrX2lG0x3lQhMADVnKsoF3W0sEv2o4Ea71ouwVNzmn3AytQpmLcC
-         YsNi+0Cq0SlpmcDPXvwrA1vSAzD3ygusmfmVXoxLn2DNIIYMp3ja+3jHXFD8+D4sUm
-         zNr9bZowKUNSDV3DBjZcEjMv5YOgGCFQ8AonKG+E=
+        b=ihTi9/7BWMSJh3WJ4qym9odvvx+hjYqnGCiLi55h3uCt1X8CIhtbVyGEZfi2pjJlG
+         0o9DBPY7hgq0kDIccDzUVHlz6lbYq21IUqPQQscPZz26QGnYmT+58OXlB6LdB07c2h
+         PCkP6NksZzSsT+TGKgOYEVLWUvJzLgoTqVGJDNec=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Mustafa Ismail <mustafa.ismail@intel.com>,
         Shiraz Saleem <shiraz.saleem@intel.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
         Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0556/1017] RDMA/irdma: Fix netdev notifications for vlans
-Date:   Tue,  5 Apr 2022 09:24:29 +0200
-Message-Id: <20220405070410.786442335@linuxfoundation.org>
+Subject: [PATCH 5.16 0558/1017] RDMA/irdma: Remove incorrect masking of PD
+Date:   Tue,  5 Apr 2022 09:24:31 +0200
+Message-Id: <20220405070410.844796945@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -58,136 +57,44 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mustafa Ismail <mustafa.ismail@intel.com>
 
-[ Upstream commit 6702bc14744847842a87fed21a795b6e8bab6965 ]
+[ Upstream commit 17850f2b0b4b806e47cc44df94186bfc2cdd490b ]
 
-Currently, events on vlan netdevs are being ignored. Fix this by finding
-the real netdev and processing the notifications for vlan netdevs.
+The PD id is masked with 0x7fff, while PD can be 18 bits for GEN2 HW.
+Remove the masking as it should not be needed and can cause incorrect PD
+id to be used.
 
-Fixes: 915cc7ac0f8e ("RDMA/irdma: Add miscellaneous utility definitions")
-Link: https://lore.kernel.org/r/20220225163211.127-2-shiraz.saleem@intel.com
+Fixes: b48c24c2d710 ("RDMA/irdma: Implement device supported verb APIs")
+Link: https://lore.kernel.org/r/20220225163211.127-4-shiraz.saleem@intel.com
 Signed-off-by: Mustafa Ismail <mustafa.ismail@intel.com>
 Signed-off-by: Shiraz Saleem <shiraz.saleem@intel.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
 Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/irdma/utils.c | 48 ++++++++++++++++++-----------
- 1 file changed, 30 insertions(+), 18 deletions(-)
+ drivers/infiniband/hw/irdma/verbs.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/infiniband/hw/irdma/utils.c b/drivers/infiniband/hw/irdma/utils.c
-index 398736d8c78a..e81b74a518dd 100644
---- a/drivers/infiniband/hw/irdma/utils.c
-+++ b/drivers/infiniband/hw/irdma/utils.c
-@@ -150,31 +150,35 @@ int irdma_inetaddr_event(struct notifier_block *notifier, unsigned long event,
- 			 void *ptr)
- {
- 	struct in_ifaddr *ifa = ptr;
--	struct net_device *netdev = ifa->ifa_dev->dev;
-+	struct net_device *real_dev, *netdev = ifa->ifa_dev->dev;
- 	struct irdma_device *iwdev;
- 	struct ib_device *ibdev;
- 	u32 local_ipaddr;
- 
--	ibdev = ib_device_get_by_netdev(netdev, RDMA_DRIVER_IRDMA);
-+	real_dev = rdma_vlan_dev_real_dev(netdev);
-+	if (!real_dev)
-+		real_dev = netdev;
-+
-+	ibdev = ib_device_get_by_netdev(real_dev, RDMA_DRIVER_IRDMA);
- 	if (!ibdev)
- 		return NOTIFY_DONE;
- 
- 	iwdev = to_iwdev(ibdev);
- 	local_ipaddr = ntohl(ifa->ifa_address);
- 	ibdev_dbg(&iwdev->ibdev,
--		  "DEV: netdev %p event %lu local_ip=%pI4 MAC=%pM\n", netdev,
--		  event, &local_ipaddr, netdev->dev_addr);
-+		  "DEV: netdev %p event %lu local_ip=%pI4 MAC=%pM\n", real_dev,
-+		  event, &local_ipaddr, real_dev->dev_addr);
- 	switch (event) {
- 	case NETDEV_DOWN:
--		irdma_manage_arp_cache(iwdev->rf, netdev->dev_addr,
-+		irdma_manage_arp_cache(iwdev->rf, real_dev->dev_addr,
- 				       &local_ipaddr, true, IRDMA_ARP_DELETE);
--		irdma_if_notify(iwdev, netdev, &local_ipaddr, true, false);
-+		irdma_if_notify(iwdev, real_dev, &local_ipaddr, true, false);
- 		irdma_gid_change_event(&iwdev->ibdev);
- 		break;
- 	case NETDEV_UP:
- 	case NETDEV_CHANGEADDR:
--		irdma_add_arp(iwdev->rf, &local_ipaddr, true, netdev->dev_addr);
--		irdma_if_notify(iwdev, netdev, &local_ipaddr, true, true);
-+		irdma_add_arp(iwdev->rf, &local_ipaddr, true, real_dev->dev_addr);
-+		irdma_if_notify(iwdev, real_dev, &local_ipaddr, true, true);
- 		irdma_gid_change_event(&iwdev->ibdev);
- 		break;
- 	default:
-@@ -196,32 +200,36 @@ int irdma_inet6addr_event(struct notifier_block *notifier, unsigned long event,
- 			  void *ptr)
- {
- 	struct inet6_ifaddr *ifa = ptr;
--	struct net_device *netdev = ifa->idev->dev;
-+	struct net_device *real_dev, *netdev = ifa->idev->dev;
- 	struct irdma_device *iwdev;
- 	struct ib_device *ibdev;
- 	u32 local_ipaddr6[4];
- 
--	ibdev = ib_device_get_by_netdev(netdev, RDMA_DRIVER_IRDMA);
-+	real_dev = rdma_vlan_dev_real_dev(netdev);
-+	if (!real_dev)
-+		real_dev = netdev;
-+
-+	ibdev = ib_device_get_by_netdev(real_dev, RDMA_DRIVER_IRDMA);
- 	if (!ibdev)
- 		return NOTIFY_DONE;
- 
- 	iwdev = to_iwdev(ibdev);
- 	irdma_copy_ip_ntohl(local_ipaddr6, ifa->addr.in6_u.u6_addr32);
- 	ibdev_dbg(&iwdev->ibdev,
--		  "DEV: netdev %p event %lu local_ip=%pI6 MAC=%pM\n", netdev,
--		  event, local_ipaddr6, netdev->dev_addr);
-+		  "DEV: netdev %p event %lu local_ip=%pI6 MAC=%pM\n", real_dev,
-+		  event, local_ipaddr6, real_dev->dev_addr);
- 	switch (event) {
- 	case NETDEV_DOWN:
--		irdma_manage_arp_cache(iwdev->rf, netdev->dev_addr,
-+		irdma_manage_arp_cache(iwdev->rf, real_dev->dev_addr,
- 				       local_ipaddr6, false, IRDMA_ARP_DELETE);
--		irdma_if_notify(iwdev, netdev, local_ipaddr6, false, false);
-+		irdma_if_notify(iwdev, real_dev, local_ipaddr6, false, false);
- 		irdma_gid_change_event(&iwdev->ibdev);
- 		break;
- 	case NETDEV_UP:
- 	case NETDEV_CHANGEADDR:
- 		irdma_add_arp(iwdev->rf, local_ipaddr6, false,
--			      netdev->dev_addr);
--		irdma_if_notify(iwdev, netdev, local_ipaddr6, false, true);
-+			      real_dev->dev_addr);
-+		irdma_if_notify(iwdev, real_dev, local_ipaddr6, false, true);
- 		irdma_gid_change_event(&iwdev->ibdev);
- 		break;
- 	default:
-@@ -243,14 +251,18 @@ int irdma_net_event(struct notifier_block *notifier, unsigned long event,
- 		    void *ptr)
- {
- 	struct neighbour *neigh = ptr;
-+	struct net_device *real_dev, *netdev = (struct net_device *)neigh->dev;
- 	struct irdma_device *iwdev;
- 	struct ib_device *ibdev;
- 	__be32 *p;
- 	u32 local_ipaddr[4] = {};
- 	bool ipv4 = true;
- 
--	ibdev = ib_device_get_by_netdev((struct net_device *)neigh->dev,
--					RDMA_DRIVER_IRDMA);
-+	real_dev = rdma_vlan_dev_real_dev(netdev);
-+	if (!real_dev)
-+		real_dev = netdev;
-+
-+	ibdev = ib_device_get_by_netdev(real_dev, RDMA_DRIVER_IRDMA);
- 	if (!ibdev)
- 		return NOTIFY_DONE;
- 
+diff --git a/drivers/infiniband/hw/irdma/verbs.c b/drivers/infiniband/hw/irdma/verbs.c
+index 8cd5f9261692..03d4da16604d 100644
+--- a/drivers/infiniband/hw/irdma/verbs.c
++++ b/drivers/infiniband/hw/irdma/verbs.c
+@@ -2504,7 +2504,7 @@ static int irdma_dealloc_mw(struct ib_mw *ibmw)
+ 	cqp_info = &cqp_request->info;
+ 	info = &cqp_info->in.u.dealloc_stag.info;
+ 	memset(info, 0, sizeof(*info));
+-	info->pd_id = iwpd->sc_pd.pd_id & 0x00007fff;
++	info->pd_id = iwpd->sc_pd.pd_id;
+ 	info->stag_idx = ibmw->rkey >> IRDMA_CQPSQ_STAG_IDX_S;
+ 	info->mr = false;
+ 	cqp_info->cqp_cmd = IRDMA_OP_DEALLOC_STAG;
+@@ -3016,7 +3016,7 @@ static int irdma_dereg_mr(struct ib_mr *ib_mr, struct ib_udata *udata)
+ 	cqp_info = &cqp_request->info;
+ 	info = &cqp_info->in.u.dealloc_stag.info;
+ 	memset(info, 0, sizeof(*info));
+-	info->pd_id = iwpd->sc_pd.pd_id & 0x00007fff;
++	info->pd_id = iwpd->sc_pd.pd_id;
+ 	info->stag_idx = ib_mr->rkey >> IRDMA_CQPSQ_STAG_IDX_S;
+ 	info->mr = true;
+ 	if (iwpbl->pbl_allocated)
 -- 
 2.34.1
 
