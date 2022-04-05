@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 614484F3638
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:57:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FA864F2F7B
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:16:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343833AbiDEK7i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:59:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56990 "EHLO
+        id S241953AbiDEIgM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:36:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34686 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347322AbiDEJqX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:46:23 -0400
+        with ESMTP id S237519AbiDEISG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:18:06 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58C81DE938;
-        Tue,  5 Apr 2022 02:32:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AEDD6A420;
+        Tue,  5 Apr 2022 01:06:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 804FA6165C;
-        Tue,  5 Apr 2022 09:32:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8490BC385A0;
-        Tue,  5 Apr 2022 09:32:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ABBDD617EF;
+        Tue,  5 Apr 2022 08:06:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4464C385A1;
+        Tue,  5 Apr 2022 08:06:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151164;
-        bh=lfMoL5Nyc8RJg1qdgYmPYov80y4msIbqIDeHePByH+4=;
+        s=korg; t=1649145995;
+        bh=7zvBWExM6E7wGUN2CnyFqTl4XInbH/pTOt36VeMid5U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c6Ez65xHtIkl37RiB/jEfIOVwS7hZvoobcIjwogcSt0imNe2UOI3Wvu1DNrIQ6yd0
-         mOnbCfYHC7OQ7SLoG98DsVnyw9r4Mp4CrAZ9ZD+Gsbnx228MRFj2BELDAWg1JNyTzD
-         A8rovJcuESZXqSYddzqcpv6Y5hYeibiAVEehkVK4=
+        b=bCiVPFonjTSvK+vkOhDDOi24c0XQsAyQgNjQ1BSeYUzxG+K8d3BUY0lmoB/xsM7D/
+         ETM5q0rEm0de7BH4j5qvJ45evZtcHv6MW9ZFvh0BcWMDNLZqcJFfuclRKEiVlxFyur
+         LdDsGAe0qZxiYGAhL0iLg01/Kq5YCRe7SAcq0kQM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wang Hai <wanghai38@huawei.com>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 290/913] video: fbdev: smscufx: Fix null-ptr-deref in ufx_usb_probe()
+        stable@vger.kernel.org, Zhang Yi <yi.zhang@huawei.com>,
+        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 0605/1126] ext2: correct max file size computing
 Date:   Tue,  5 Apr 2022 09:22:32 +0200
-Message-Id: <20220405070348.550368416@linuxfoundation.org>
+Message-Id: <20220405070425.393255998@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,60 +53,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Hai <wanghai38@huawei.com>
+From: Zhang Yi <yi.zhang@huawei.com>
 
-[ Upstream commit 1791f487f877a9e83d81c8677bd3e7b259e7cb27 ]
+[ Upstream commit 50b3a818991074177a56c87124c7a7bdf5fa4f67 ]
 
-I got a null-ptr-deref report:
+We need to calculate the max file size accurately if the total blocks
+that can address by block tree exceed the upper_limit. But this check is
+not correct now, it only compute the total data blocks but missing
+metadata blocks are needed. So in the case of "data blocks < upper_limit
+&& total blocks > upper_limit", we will get wrong result. Fortunately,
+this case could not happen in reality, but it's confused and better to
+correct the computing.
 
-BUG: kernel NULL pointer dereference, address: 0000000000000000
-...
-RIP: 0010:fb_destroy_modelist+0x38/0x100
-...
-Call Trace:
- ufx_usb_probe.cold+0x2b5/0xac1 [smscufx]
- usb_probe_interface+0x1aa/0x3c0 [usbcore]
- really_probe+0x167/0x460
-...
- ret_from_fork+0x1f/0x30
+  bits   data blocks   metadatablocks   upper_limit
+  10        16843020            66051    2147483647
+  11       134480396           263171    1073741823
+  12      1074791436          1050627     536870911 (*)
+  13      8594130956          4198403     268435455 (*)
+  14     68736258060         16785411     134217727 (*)
+  15    549822930956         67125251      67108863 (*)
+  16   4398314962956        268468227      33554431 (*)
 
-If fb_alloc_cmap() fails in ufx_usb_probe(), fb_destroy_modelist() will
-be called to destroy modelist in the error handling path. But modelist
-has not been initialized yet, so it will result in null-ptr-deref.
+  [*] Need to calculate in depth.
 
-Initialize modelist before calling fb_alloc_cmap() to fix this bug.
-
-Fixes: 3c8a63e22a08 ("Add support for SMSC UFX6000/7000 USB display adapters")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wang Hai <wanghai38@huawei.com>
-Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
-Signed-off-by: Helge Deller <deller@gmx.de>
+Fixes: 1c2d14212b15 ("ext2: Fix underflow in ext2_max_size()")
+Link: https://lore.kernel.org/r/20220212050532.179055-1-yi.zhang@huawei.com
+Signed-off-by: Zhang Yi <yi.zhang@huawei.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/smscufx.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ fs/ext2/super.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/video/fbdev/smscufx.c b/drivers/video/fbdev/smscufx.c
-index bfac3ee4a642..28768c272b73 100644
---- a/drivers/video/fbdev/smscufx.c
-+++ b/drivers/video/fbdev/smscufx.c
-@@ -1656,6 +1656,7 @@ static int ufx_usb_probe(struct usb_interface *interface,
- 	info->par = dev;
- 	info->pseudo_palette = dev->pseudo_palette;
- 	info->fbops = &ufx_ops;
-+	INIT_LIST_HEAD(&info->modelist);
+diff --git a/fs/ext2/super.c b/fs/ext2/super.c
+index 94f1fbd7d3ac..6d4f5ef74766 100644
+--- a/fs/ext2/super.c
++++ b/fs/ext2/super.c
+@@ -753,8 +753,12 @@ static loff_t ext2_max_size(int bits)
+ 	res += 1LL << (bits-2);
+ 	res += 1LL << (2*(bits-2));
+ 	res += 1LL << (3*(bits-2));
++	/* Compute how many metadata blocks are needed */
++	meta_blocks = 1;
++	meta_blocks += 1 + ppb;
++	meta_blocks += 1 + ppb + ppb * ppb;
+ 	/* Does block tree limit file size? */
+-	if (res < upper_limit)
++	if (res + meta_blocks <= upper_limit)
+ 		goto check_lfs;
  
- 	retval = fb_alloc_cmap(&info->cmap, 256, 0);
- 	if (retval < 0) {
-@@ -1666,8 +1667,6 @@ static int ufx_usb_probe(struct usb_interface *interface,
- 	INIT_DELAYED_WORK(&dev->free_framebuffer_work,
- 			  ufx_free_framebuffer_work);
- 
--	INIT_LIST_HEAD(&info->modelist);
--
- 	retval = ufx_reg_read(dev, 0x3000, &id_rev);
- 	check_warn_goto_error(retval, "error %d reading 0x3000 register from device", retval);
- 	dev_dbg(dev->gdev, "ID_REV register value 0x%08x", id_rev);
+ 	res = upper_limit;
 -- 
 2.34.1
 
