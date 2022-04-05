@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A54294F41BD
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:34:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A7D784F41DB
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:37:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348702AbiDEMHk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:07:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50692 "EHLO
+        id S1349608AbiDEMHy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:07:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50434 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358046AbiDEK15 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:27:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C18091EEC6;
-        Tue,  5 Apr 2022 03:13:44 -0700 (PDT)
+        with ESMTP id S1357991AbiDEK1j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:27:39 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CAB6D4456;
+        Tue,  5 Apr 2022 03:12:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5FC9961562;
-        Tue,  5 Apr 2022 10:13:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70706C385A1;
-        Tue,  5 Apr 2022 10:13:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0C0F0B81C89;
+        Tue,  5 Apr 2022 10:12:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74510C385A1;
+        Tue,  5 Apr 2022 10:12:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153623;
-        bh=LeY3wKEwutDULuXR8eL2wPBlS4V4lm2KrlpDBv17W8M=;
+        s=korg; t=1649153539;
+        bh=Df5cw4uZOewNOibhwguds9r4nlmhDAJTRW1n8V1PLUM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c6PaARNI1SAfAURk22Vpe5WPpUA/LJc50YkyjUcG0Nfu3JzTj2psU/OEn7oOKVMkc
-         bY20sSO1+lIdkD7iPmzo0L8lBqp7zEMhdsUgNNeYMBEsACrUdhR5jMvtJ8k5NOxucS
-         D/Vrage8NWHmxOitwgVwkeOqOiWmP4p2F1WzfDQ0=
+        b=ar+7zCg3OZzSuz0OsBk1/cY0RtXZsu7BSIOHvOC6PPG6tSgUbhDPZd/60DkDpvF5X
+         B2Pl/BRd+ID72bMvhLXTbzMfWodPGsx6MRX5X/AfPzGnDXgKSVVtgaaiCTNHKJHu7M
+         KWvARFrPBHxW1Yq5IZfOrX/mG3AI8mm6+vJx0F+c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 250/599] ASoC: mxs: Fix error handling in mxs_sgtl5000_probe
-Date:   Tue,  5 Apr 2022 09:29:04 +0200
-Message-Id: <20220405070306.279287250@linuxfoundation.org>
+        stable@vger.kernel.org, Andre Przywara <andre.przywara@arm.com>,
+        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 259/599] ARM: configs: multi_v5_defconfig: re-enable CONFIG_V4L_PLATFORM_DRIVERS
+Date:   Tue,  5 Apr 2022 09:29:13 +0200
+Message-Id: <20220405070306.545970135@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -54,41 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Andre Przywara <andre.przywara@arm.com>
 
-[ Upstream commit 6ae0a4d8fec551ec581d620f0eb1fe31f755551c ]
+[ Upstream commit f5eb04d7a0e419d61f784de3ced708259ddb71d7 ]
 
-This function only calls of_node_put() in the regular path.
-And it will cause refcount leak in error paths.
-For example, when codec_np is NULL, saif_np[0] and saif_np[1]
-are not NULL, it will cause leaks.
+Commit 06b93644f4d1 ("media: Kconfig: add an option to filter in/out
+platform drivers") introduced CONFIG_MEDIA_PLATFORM_SUPPORT, to allow
+more fine grained control over the inclusion of certain Kconfig files.
+multi_v5_defconfig was selecting some drivers described in
+drivers/media/platform/Kconfig, which now wasn't included anymore.
 
-of_node_put() will check if the node pointer is NULL, so we can
-call it directly to release the refcount of regular pointers.
+Explicitly set the new symbol in multi_v5_defconfig to bring those
+drivers back.
+This enables some new V4L2 and VIDEOBUF2 features, but as modules only.
 
-Fixes: e968194b45c4 ("ASoC: mxs: add device tree support for mxs-sgtl5000")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220308020146.26496-1-linmq006@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 06b93644f4d1 ("media: Kconfig: add an option to filter in/out platform drivers")
+Signed-off-by: Andre Przywara <andre.przywara@arm.com>
+Link: https://lore.kernel.org/r/20220317183043.948432-3-andre.przywara@arm.com'
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/mxs/mxs-sgtl5000.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/arm/configs/multi_v5_defconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/soc/mxs/mxs-sgtl5000.c b/sound/soc/mxs/mxs-sgtl5000.c
-index a6407f4388de..fb721bc49949 100644
---- a/sound/soc/mxs/mxs-sgtl5000.c
-+++ b/sound/soc/mxs/mxs-sgtl5000.c
-@@ -118,6 +118,9 @@ static int mxs_sgtl5000_probe(struct platform_device *pdev)
- 	codec_np = of_parse_phandle(np, "audio-codec", 0);
- 	if (!saif_np[0] || !saif_np[1] || !codec_np) {
- 		dev_err(&pdev->dev, "phandle missing or invalid\n");
-+		of_node_put(codec_np);
-+		of_node_put(saif_np[0]);
-+		of_node_put(saif_np[1]);
- 		return -EINVAL;
- 	}
- 
+diff --git a/arch/arm/configs/multi_v5_defconfig b/arch/arm/configs/multi_v5_defconfig
+index e00be9faa23b..4393e689f235 100644
+--- a/arch/arm/configs/multi_v5_defconfig
++++ b/arch/arm/configs/multi_v5_defconfig
+@@ -187,6 +187,7 @@ CONFIG_REGULATOR=y
+ CONFIG_REGULATOR_FIXED_VOLTAGE=y
+ CONFIG_MEDIA_SUPPORT=y
+ CONFIG_MEDIA_CAMERA_SUPPORT=y
++CONFIG_MEDIA_PLATFORM_SUPPORT=y
+ CONFIG_V4L_PLATFORM_DRIVERS=y
+ CONFIG_VIDEO_ASPEED=m
+ CONFIG_VIDEO_ATMEL_ISI=m
 -- 
 2.34.1
 
