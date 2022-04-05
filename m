@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 17F724F30B8
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:34:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74E494F2F5C
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:11:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235572AbiDEI0y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:26:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45236 "EHLO
+        id S1350260AbiDEJ4w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:56:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46842 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239404AbiDEIUD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:20:03 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30189C7494;
-        Tue,  5 Apr 2022 01:12:38 -0700 (PDT)
+        with ESMTP id S242665AbiDEJIQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:08:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60B6A7463A;
+        Tue,  5 Apr 2022 01:57:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D1219B81BB1;
-        Tue,  5 Apr 2022 08:12:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 285F9C385A2;
-        Tue,  5 Apr 2022 08:12:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B987661562;
+        Tue,  5 Apr 2022 08:57:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD010C385A0;
+        Tue,  5 Apr 2022 08:57:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146355;
-        bh=KoGQ+0vWP49KzgTOCU/ifdDn7F7KOjvEzSHR2vQTS+U=;
+        s=korg; t=1649149029;
+        bh=x8e3y/VMMWTKGFja9YZi+iTh0PRvryetCxFkEUBsjgI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w2lZZ+a0TlvrTbgRzJlP/FULyuXHqnPy++ctFe4vLY9WlYp9BcDB+Lv4k7oVFxu/O
-         +ycmMn2S1NQulIHSKU587TuiwAF6myQjVwNxoaOe6sYET4k0UX9KQgCBJTmxoyfHqR
-         GRP0c0Pr/2dyLmv3fW8iA4VHN5P5xhqbLaZzuKbI=
+        b=DcFaZAPCKpVEHoHaMKm/HQ1k2mbcvKSQzC2CICnTjjLwqE0+UAbLqByNqMhil1D0h
+         DkvntJ0VZzb2czOGE8BCWqk4V6cihf179n5FOFUjon9MNOepHjp3KmcMgj9CqqshRR
+         cnAsm0ewoQCMBCq8rrBDJfguARYfn1hf9w15F8Tw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qing Wang <wangqing@vivo.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0734/1126] serial: 8250_mid: Balance reference count for PCI DMA device
+        stable@vger.kernel.org, Robert Hancock <robert.hancock@calian.com>,
+        Michal Simek <michal.simek@xilinx.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0568/1017] i2c: xiic: Make bus names unique
 Date:   Tue,  5 Apr 2022 09:24:41 +0200
-Message-Id: <20220405070429.134442401@linuxfoundation.org>
+Message-Id: <20220405070411.139968942@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,91 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Robert Hancock <robert.hancock@calian.com>
 
-[ Upstream commit 67ec6dd0b257bd81b4e9fcac89b29da72f6265e5 ]
+[ Upstream commit 1d366c2f9df8279df2adbb60471f86fc40a1c39e ]
 
-The pci_get_slot() increases its reference count, the caller
-must decrement the reference count by calling pci_dev_put().
+This driver is for an FPGA logic core, so there can be arbitrarily many
+instances of the bus on a given system. Previously all of the I2C bus
+names were "xiic-i2c" which caused issues with lm_sensors when trying to
+map human-readable names to sensor inputs because it could not properly
+distinguish the busses, for example. Append the platform device name to
+the I2C bus name so it is unique between different instances.
 
-Fixes: 90b9aacf912a ("serial: 8250_pci: add Intel Tangier support")
-Fixes: f549e94effa1 ("serial: 8250_pci: add Intel Penwell ports")
-Reported-by: Qing Wang <wangqing@vivo.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Depends-on: d9eda9bab237 ("serial: 8250_pci: Intel MID UART support to its own driver")
-Link: https://lore.kernel.org/r/20220215100920.41984-1-andriy.shevchenko@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: e1d5b6598cdc ("i2c: Add support for Xilinx XPS IIC Bus Interface")
+Signed-off-by: Robert Hancock <robert.hancock@calian.com>
+Tested-by: Michal Simek <michal.simek@xilinx.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_mid.c | 19 +++++++++++++++----
- 1 file changed, 15 insertions(+), 4 deletions(-)
+ drivers/i2c/busses/i2c-xiic.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/tty/serial/8250/8250_mid.c b/drivers/tty/serial/8250/8250_mid.c
-index efa0515139f8..e6c1791609dd 100644
---- a/drivers/tty/serial/8250/8250_mid.c
-+++ b/drivers/tty/serial/8250/8250_mid.c
-@@ -73,6 +73,11 @@ static int pnw_setup(struct mid8250 *mid, struct uart_port *p)
- 	return 0;
- }
+diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
+index eb789cfb9973..ffefe3c482e9 100644
+--- a/drivers/i2c/busses/i2c-xiic.c
++++ b/drivers/i2c/busses/i2c-xiic.c
+@@ -734,7 +734,6 @@ static const struct i2c_adapter_quirks xiic_quirks = {
  
-+static void pnw_exit(struct mid8250 *mid)
-+{
-+	pci_dev_put(mid->dma_dev);
-+}
-+
- static int tng_handle_irq(struct uart_port *p)
- {
- 	struct mid8250 *mid = p->private_data;
-@@ -124,6 +129,11 @@ static int tng_setup(struct mid8250 *mid, struct uart_port *p)
- 	return 0;
- }
+ static const struct i2c_adapter xiic_adapter = {
+ 	.owner = THIS_MODULE,
+-	.name = DRIVER_NAME,
+ 	.class = I2C_CLASS_DEPRECATED,
+ 	.algo = &xiic_algorithm,
+ 	.quirks = &xiic_quirks,
+@@ -771,6 +770,8 @@ static int xiic_i2c_probe(struct platform_device *pdev)
+ 	i2c_set_adapdata(&i2c->adap, i2c);
+ 	i2c->adap.dev.parent = &pdev->dev;
+ 	i2c->adap.dev.of_node = pdev->dev.of_node;
++	snprintf(i2c->adap.name, sizeof(i2c->adap.name),
++		 DRIVER_NAME " %s", pdev->name);
  
-+static void tng_exit(struct mid8250 *mid)
-+{
-+	pci_dev_put(mid->dma_dev);
-+}
-+
- static int dnv_handle_irq(struct uart_port *p)
- {
- 	struct mid8250 *mid = p->private_data;
-@@ -330,9 +340,9 @@ static int mid8250_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ 	mutex_init(&i2c->lock);
  
- 	pci_set_drvdata(pdev, mid);
- 	return 0;
-+
- err:
--	if (mid->board->exit)
--		mid->board->exit(mid);
-+	mid->board->exit(mid);
- 	return ret;
- }
- 
-@@ -342,8 +352,7 @@ static void mid8250_remove(struct pci_dev *pdev)
- 
- 	serial8250_unregister_port(mid->line);
- 
--	if (mid->board->exit)
--		mid->board->exit(mid);
-+	mid->board->exit(mid);
- }
- 
- static const struct mid8250_board pnw_board = {
-@@ -351,6 +360,7 @@ static const struct mid8250_board pnw_board = {
- 	.freq = 50000000,
- 	.base_baud = 115200,
- 	.setup = pnw_setup,
-+	.exit = pnw_exit,
- };
- 
- static const struct mid8250_board tng_board = {
-@@ -358,6 +368,7 @@ static const struct mid8250_board tng_board = {
- 	.freq = 38400000,
- 	.base_baud = 1843200,
- 	.setup = tng_setup,
-+	.exit = tng_exit,
- };
- 
- static const struct mid8250_board dnv_board = {
 -- 
 2.34.1
 
