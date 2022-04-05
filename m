@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 396604F382E
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:31:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 503E64F3830
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:31:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376401AbiDELVt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:21:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43462 "EHLO
+        id S1376405AbiDELVv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:21:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39548 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349417AbiDEJtt (ORCPT
+        with ESMTP id S1349415AbiDEJtt (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18C271AD83;
-        Tue,  5 Apr 2022 02:45:10 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88D631C920;
+        Tue,  5 Apr 2022 02:45:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A7D1561368;
-        Tue,  5 Apr 2022 09:45:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5F89C385A3;
-        Tue,  5 Apr 2022 09:45:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4790DB817D3;
+        Tue,  5 Apr 2022 09:45:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 942C4C385A4;
+        Tue,  5 Apr 2022 09:45:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151909;
-        bh=suba1xzXWvaIbJzsfonGz0DLngK0q0zBAS7BYPJhF/A=;
+        s=korg; t=1649151912;
+        bh=07VNWO8H9YlwU0pqnXEKrNMaQkGMU5st7eEL9fMQ2pM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xs7KCJ6Z4PbkUoDaFyXQSq8NP08tv7eyxJq3HFgQRI9QgNIa0IVvYSpmpTBB5JZAW
-         UjT9byWL4MbIAE0L7B3AOhYWnd3hjWxfb8V/eeVb4byyA3GuYx9RvagT8oFl+YeVlI
-         h4B5NakJrnVaCHRQomAb6hgPbVX97hYyqqAFKuTw=
+        b=icC7z32n4BrQfpi11GhCW8qAl8W7maThS6N/XqW1X9JDJgt7QSkMAMXssg8MpHr+j
+         FdyhnALdUwW4sPzX0ovLXGy6I+/u/EhjtIOgv6VWZwQTKQjDLAOqA/9h/mUxv/vg/+
+         1F/XPXCyhLaxMOUTMORl5q+N8wuAWX5mUeseVuOo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luca Weiss <luca@z3ntu.xyz>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 586/913] cpufreq: qcom-cpufreq-nvmem: fix reading of PVS Valid fuse
-Date:   Tue,  5 Apr 2022 09:27:28 +0200
-Message-Id: <20220405070357.409452929@linuxfoundation.org>
+        stable@vger.kernel.org, Libin Yang <libin.yang@intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Rander Wang <rander.wang@intel.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 587/913] soundwire: intel: fix wrong register name in intel_shim_wake
+Date:   Tue,  5 Apr 2022 09:27:29 +0200
+Message-Id: <20220405070357.439541450@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -54,36 +56,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luca Weiss <luca@z3ntu.xyz>
+From: Libin Yang <libin.yang@intel.com>
 
-[ Upstream commit 4a8a77abf0e2b6468ba0281e33384cbec5fb476a ]
+[ Upstream commit 3957db3ae3dae6f8b8168791f154567fe49e1fd7 ]
 
-The fuse consists of 64 bits, with this statement we're supposed to get
-the upper 32 bits but it actually read out of bounds and got 0 instead
-of the desired value which lead to the "PVS bin not set." codepath being
-run resetting our pvs value.
+When clearing the sdw wakests status, we should use SDW_SHIM_WAKESTS.
 
-Fixes: a8811ec764f9 ("cpufreq: qcom: Add support for krait based socs")
-Signed-off-by: Luca Weiss <luca@z3ntu.xyz>
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Fixes: 4a17c441c7cb ("soundwire: intel: revisit SHIM programming sequences.")
+Signed-off-by: Libin Yang <libin.yang@intel.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Rander Wang <rander.wang@intel.com>
+Signed-off-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+Link: https://lore.kernel.org/r/20220126011451.27853-1-yung-chuan.liao@linux.intel.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpufreq/qcom-cpufreq-nvmem.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/soundwire/intel.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/cpufreq/qcom-cpufreq-nvmem.c b/drivers/cpufreq/qcom-cpufreq-nvmem.c
-index d1744b5d9619..6dfa86971a75 100644
---- a/drivers/cpufreq/qcom-cpufreq-nvmem.c
-+++ b/drivers/cpufreq/qcom-cpufreq-nvmem.c
-@@ -130,7 +130,7 @@ static void get_krait_bin_format_b(struct device *cpu_dev,
- 	}
+diff --git a/drivers/soundwire/intel.c b/drivers/soundwire/intel.c
+index 78037ffdb09b..f72d36654ac2 100644
+--- a/drivers/soundwire/intel.c
++++ b/drivers/soundwire/intel.c
+@@ -448,8 +448,8 @@ static void intel_shim_wake(struct sdw_intel *sdw, bool wake_enable)
  
- 	/* Check PVS_BLOW_STATUS */
--	pte_efuse = *(((u32 *)buf) + 4);
-+	pte_efuse = *(((u32 *)buf) + 1);
- 	pte_efuse &= BIT(21);
- 	if (pte_efuse) {
- 		dev_dbg(cpu_dev, "PVS bin: %d\n", *pvs);
+ 		/* Clear wake status */
+ 		wake_sts = intel_readw(shim, SDW_SHIM_WAKESTS);
+-		wake_sts |= (SDW_SHIM_WAKEEN_ENABLE << link_id);
+-		intel_writew(shim, SDW_SHIM_WAKESTS_STATUS, wake_sts);
++		wake_sts |= (SDW_SHIM_WAKESTS_STATUS << link_id);
++		intel_writew(shim, SDW_SHIM_WAKESTS, wake_sts);
+ 	}
+ 	mutex_unlock(sdw->link_res->shim_lock);
+ }
 -- 
 2.34.1
 
