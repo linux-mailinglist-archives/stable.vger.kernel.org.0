@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EAC9B4F3405
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:24:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0169C4F2EE6
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:04:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244575AbiDEKjB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:39:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55270 "EHLO
+        id S238206AbiDEJKa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:10:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238856AbiDEJdC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:33:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73C48B48;
-        Tue,  5 Apr 2022 02:20:27 -0700 (PDT)
+        with ESMTP id S244188AbiDEIvs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:51:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8A4AD3AD5;
+        Tue,  5 Apr 2022 01:40:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0EE3E6144D;
-        Tue,  5 Apr 2022 09:20:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D505C385A0;
-        Tue,  5 Apr 2022 09:20:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A466E60FFC;
+        Tue,  5 Apr 2022 08:40:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA690C385A0;
+        Tue,  5 Apr 2022 08:40:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150426;
-        bh=Os+qxn1DhxDjshDTdAdlcK8Fy8Mz/bgvQq9b255khpM=;
+        s=korg; t=1649148011;
+        bh=FD6A8Q2VodmlK/aTr23PGmh0+5iHx7dgmOFrv2Xh6ew=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E1TzdodME7QPIUeOwJwneS9vpA7DBrLZ1K4Dg//Nvm4PDYXCLMk89GluQ9ML8Ayvj
-         lQdaimOGirySgQ0C2nd6oJJcFoD+0knkdqr1zntLCARHd+ZAA5ud6Nak8sbS9QzjU0
-         e+FVCslZM80hTAEIoebSTMB1eEkf1pMtElDKOBGA=
+        b=Cpe8pw7QDVkL9epidr4MzQDn8oovMSNLGQbi3yKw42nkoMtpAEB2wy+Ti1UzHXcmN
+         cs0T1e96dzy3FjI4krW2YhhT5upGMAWU5ZI/kjcUPqenYYMOm80geyR0qOYimUwRgw
+         B7gLllbR4uyyCK/JaoGj6ZBwUXbOiXD6XtDN8ZCE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Jann Horn <jannh@google.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 5.15 052/913] ptrace: Check PTRACE_O_SUSPEND_SECCOMP permission on PTRACE_SEIZE
-Date:   Tue,  5 Apr 2022 09:18:34 +0200
-Message-Id: <20220405070341.379725350@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Paul Moore <paul@paul-moore.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0202/1017] selinux: check return value of sel_make_avc_files
+Date:   Tue,  5 Apr 2022 09:18:35 +0200
+Message-Id: <20220405070400.245926398@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,105 +56,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jann Horn <jannh@google.com>
+From: Christian Göttsche <cgzones@googlemail.com>
 
-commit ee1fee900537b5d9560e9f937402de5ddc8412f3 upstream.
+[ Upstream commit bcb62828e3e8c813b6613db6eb7fd9657db248fc ]
 
-Setting PTRACE_O_SUSPEND_SECCOMP is supposed to be a highly privileged
-operation because it allows the tracee to completely bypass all seccomp
-filters on kernels with CONFIG_CHECKPOINT_RESTORE=y. It is only supposed to
-be settable by a process with global CAP_SYS_ADMIN, and only if that
-process is not subject to any seccomp filters at all.
+sel_make_avc_files() might fail and return a negative errno value on
+memory allocation failures. Re-add the check of the return value,
+dropped in 66f8e2f03c02 ("selinux: sidtab reverse lookup hash table").
 
-However, while these permission checks were done on the PTRACE_SETOPTIONS
-path, they were missing on the PTRACE_SEIZE path, which also sets
-user-specified ptrace flags.
+Reported by clang-analyzer:
 
-Move the permissions checks out into a helper function and let both
-ptrace_attach() and ptrace_setoptions() call it.
+    security/selinux/selinuxfs.c:2129:2: warning: Value stored to
+      'ret' is never read [deadcode.DeadStores]
+            ret = sel_make_avc_files(dentry);
+            ^     ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Cc: stable@kernel.org
-Fixes: 13c4a90119d2 ("seccomp: add ptrace options for suspend/resume")
-Signed-off-by: Jann Horn <jannh@google.com>
-Link: https://lkml.kernel.org/r/20220319010838.1386861-1-jannh@google.com
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 66f8e2f03c02 ("selinux: sidtab reverse lookup hash table")
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+[PM: description line wrapping, added proper commit ref]
+Signed-off-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/ptrace.c |   47 ++++++++++++++++++++++++++++++++---------------
- 1 file changed, 32 insertions(+), 15 deletions(-)
+ security/selinux/selinuxfs.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/kernel/ptrace.c
-+++ b/kernel/ptrace.c
-@@ -371,6 +371,26 @@ bool ptrace_may_access(struct task_struc
- 	return !err;
- }
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index e4cd7cb856f3..f2f6203e0fff 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -2127,6 +2127,8 @@ static int sel_fill_super(struct super_block *sb, struct fs_context *fc)
+ 	}
  
-+static int check_ptrace_options(unsigned long data)
-+{
-+	if (data & ~(unsigned long)PTRACE_O_MASK)
-+		return -EINVAL;
-+
-+	if (unlikely(data & PTRACE_O_SUSPEND_SECCOMP)) {
-+		if (!IS_ENABLED(CONFIG_CHECKPOINT_RESTORE) ||
-+		    !IS_ENABLED(CONFIG_SECCOMP))
-+			return -EINVAL;
-+
-+		if (!capable(CAP_SYS_ADMIN))
-+			return -EPERM;
-+
-+		if (seccomp_mode(&current->seccomp) != SECCOMP_MODE_DISABLED ||
-+		    current->ptrace & PT_SUSPEND_SECCOMP)
-+			return -EPERM;
-+	}
-+	return 0;
-+}
-+
- static int ptrace_attach(struct task_struct *task, long request,
- 			 unsigned long addr,
- 			 unsigned long flags)
-@@ -382,8 +402,16 @@ static int ptrace_attach(struct task_str
- 	if (seize) {
- 		if (addr != 0)
- 			goto out;
-+		/*
-+		 * This duplicates the check in check_ptrace_options() because
-+		 * ptrace_attach() and ptrace_setoptions() have historically
-+		 * used different error codes for unknown ptrace options.
-+		 */
- 		if (flags & ~(unsigned long)PTRACE_O_MASK)
- 			goto out;
-+		retval = check_ptrace_options(flags);
-+		if (retval)
-+			return retval;
- 		flags = PT_PTRACED | PT_SEIZED | (flags << PT_OPT_FLAG_SHIFT);
- 	} else {
- 		flags = PT_PTRACED;
-@@ -656,22 +684,11 @@ int ptrace_writedata(struct task_struct
- static int ptrace_setoptions(struct task_struct *child, unsigned long data)
- {
- 	unsigned flags;
-+	int ret;
- 
--	if (data & ~(unsigned long)PTRACE_O_MASK)
--		return -EINVAL;
--
--	if (unlikely(data & PTRACE_O_SUSPEND_SECCOMP)) {
--		if (!IS_ENABLED(CONFIG_CHECKPOINT_RESTORE) ||
--		    !IS_ENABLED(CONFIG_SECCOMP))
--			return -EINVAL;
--
--		if (!capable(CAP_SYS_ADMIN))
--			return -EPERM;
--
--		if (seccomp_mode(&current->seccomp) != SECCOMP_MODE_DISABLED ||
--		    current->ptrace & PT_SUSPEND_SECCOMP)
--			return -EPERM;
--	}
-+	ret = check_ptrace_options(data);
+ 	ret = sel_make_avc_files(dentry);
 +	if (ret)
-+		return ret;
++		goto err;
  
- 	/* Avoid intermediate state when all opts are cleared */
- 	flags = child->ptrace;
+ 	dentry = sel_make_dir(sb->s_root, "ss", &fsi->last_ino);
+ 	if (IS_ERR(dentry)) {
+-- 
+2.34.1
+
 
 
