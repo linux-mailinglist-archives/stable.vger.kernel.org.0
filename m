@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C21A4F27E3
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:09:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2ECA74F27D4
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:08:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233759AbiDEIJ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:09:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50346 "EHLO
+        id S233585AbiDEIJM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:09:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50514 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236021AbiDEIBI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:01:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4A5C49FB3;
-        Tue,  5 Apr 2022 00:59:09 -0700 (PDT)
+        with ESMTP id S236042AbiDEIBL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:01:11 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D534D49FB3;
+        Tue,  5 Apr 2022 00:59:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4221361668;
-        Tue,  5 Apr 2022 07:59:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55A16C340EE;
-        Tue,  5 Apr 2022 07:59:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 97CBDB81B14;
+        Tue,  5 Apr 2022 07:59:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07AD2C340EE;
+        Tue,  5 Apr 2022 07:59:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145548;
-        bh=cHh6Am89UvKmAAC6DhpJgKI9IPbPSd8DeXy2OH/l794=;
+        s=korg; t=1649145551;
+        bh=qSRtZs8fsrIr02MXwnR3kLZ0JfjKLDShlPPya3X3rpc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xvmbXZ4Fo2QugKLgEytW6K9ucyOrhEoHihc0t/Cfr869iZx+89OTwhSa/p3XyeAW4
-         m+BTF3lJbFPSkiQDW8YnAdFeav+lXq2D47eQav3FqqpVPqGsARL85L/CSSoEIzPdD9
-         wT+ILDXvh6iXBnyl93nk5JfPPsckx8RpaWOcB1oQ=
+        b=lahQKRQwDol25M2vYwKcB3BHukvAdbvN7t1A7Jy4T5Xo/RQ1w16lWRQVm9Ya2q2If
+         hfGPwFrd+KWC3CeQ8iTpMYRBz0GBBW3tNQRMdXmWXdA0oOtlisAGCN0s6qTOpFoEPB
+         jK8KymI+nWx61rCUu+v5xI/dWTOSPSf6eUBz75Ps=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yiru Xu <xyru1999@gmail.com>,
-        Pavel Skripkin <paskripkin@gmail.com>,
+        stable@vger.kernel.org, Sean Wang <sean.wang@mediatek.com>,
+        Mark Chen <mark-yw.chen@mediatek.com>,
         Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0445/1126] Bluetooth: hci_serdev: call init_rwsem() before p->open()
-Date:   Tue,  5 Apr 2022 09:19:52 +0200
-Message-Id: <20220405070420.686154785@linuxfoundation.org>
+Subject: [PATCH 5.17 0446/1126] Bluetooth: mt7921s: fix firmware coredump retrieve
+Date:   Tue,  5 Apr 2022 09:19:53 +0200
+Message-Id: <20220405070420.715508964@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -55,69 +55,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Mark Chen <mark-yw.chen@mediatek.com>
 
-[ Upstream commit 9d7cbe2b9cf5f650067df4f402fdd799d4bbb4e1 ]
+[ Upstream commit 2fc967cc0dadad6735448cfbcbc77fe0ea30203d ]
 
-kvartet reported, that hci_uart_tx_wakeup() uses uninitialized rwsem.
-The problem was in wrong place for percpu_init_rwsem() call.
+According to the MCU firmware behavior, as the driver is aware of the
+notification of the interrupt source FW_MAILBOX_INT that shows the MCU
+completed delivered a core dump piece to the host, the driver must
+acknowledge the MCU with the register PH2DSM0R bit PH2DSM0R_DRIVER_OWN
+to notify the MCU to handle the next core dump piece.
 
-hci_uart_proto::open() may register a timer whose callback may call
-hci_uart_tx_wakeup(). There is a chance, that hci_uart_register_device()
-thread won't be fast enough to call percpu_init_rwsem().
-
-Fix it my moving percpu_init_rwsem() call before p->open().
-
-INFO: trying to register non-static key.
-The code is fine but needs lockdep annotation, or maybe
-you didn't initialize this object before use?
-turning off the locking correctness validator.
-CPU: 2 PID: 18524 Comm: syz-executor.5 Not tainted 5.16.0-rc6 #9
-...
-Call Trace:
- <IRQ>
- __dump_stack lib/dump_stack.c:88 [inline]
- dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
- assign_lock_key kernel/locking/lockdep.c:951 [inline]
- register_lock_class+0x148d/0x1950 kernel/locking/lockdep.c:1263
- __lock_acquire+0x106/0x57e0 kernel/locking/lockdep.c:4906
- lock_acquire kernel/locking/lockdep.c:5637 [inline]
- lock_acquire+0x1ab/0x520 kernel/locking/lockdep.c:5602
- percpu_down_read_trylock include/linux/percpu-rwsem.h:92 [inline]
- hci_uart_tx_wakeup+0x12e/0x490 drivers/bluetooth/hci_ldisc.c:124
- h5_timed_event+0x32f/0x6a0 drivers/bluetooth/hci_h5.c:188
- call_timer_fn+0x1a5/0x6b0 kernel/time/timer.c:1421
-
-Fixes: d73e17281665 ("Bluetooth: hci_serdev: Init hci_uart proto_lock to avoid oops")
-Reported-by: Yiru Xu <xyru1999@gmail.com>
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Fixes: db57b625912a ("Bluetooth: btmtksdio: add support of processing firmware coredump and log")
+Co-developed-by: Sean Wang <sean.wang@mediatek.com>
+Signed-off-by: Sean Wang <sean.wang@mediatek.com>
+Signed-off-by: Mark Chen <mark-yw.chen@mediatek.com>
 Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/hci_serdev.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/bluetooth/btmtksdio.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/bluetooth/hci_serdev.c b/drivers/bluetooth/hci_serdev.c
-index 3b00d82d36cf..4cda890ce647 100644
---- a/drivers/bluetooth/hci_serdev.c
-+++ b/drivers/bluetooth/hci_serdev.c
-@@ -305,6 +305,8 @@ int hci_uart_register_device(struct hci_uart *hu,
- 	if (err)
- 		return err;
+diff --git a/drivers/bluetooth/btmtksdio.c b/drivers/bluetooth/btmtksdio.c
+index b5ea8d3bffaa..d4e2541a4873 100644
+--- a/drivers/bluetooth/btmtksdio.c
++++ b/drivers/bluetooth/btmtksdio.c
+@@ -87,8 +87,12 @@ MODULE_DEVICE_TABLE(sdio, btmtksdio_table);
+ #define RX_DONE_INT		BIT(1)
+ #define TX_EMPTY		BIT(2)
+ #define TX_FIFO_OVERFLOW	BIT(8)
++#define FW_MAILBOX_INT		BIT(15)
+ #define RX_PKT_LEN		GENMASK(31, 16)
  
-+	percpu_init_rwsem(&hu->proto_lock);
++#define MTK_REG_PH2DSM0R	0xc4
++#define PH2DSM0R_DRIVER_OWN	BIT(0)
 +
- 	err = p->open(hu);
- 	if (err)
- 		goto err_open;
-@@ -327,7 +329,6 @@ int hci_uart_register_device(struct hci_uart *hu,
+ #define MTK_REG_CTDR		0x18
  
- 	INIT_WORK(&hu->init_ready, hci_uart_init_work);
- 	INIT_WORK(&hu->write_work, hci_uart_write_work);
--	percpu_init_rwsem(&hu->proto_lock);
+ #define MTK_REG_CRDR		0x1c
+@@ -481,6 +485,12 @@ static void btmtksdio_txrx_work(struct work_struct *work)
+ 		 */
+ 		sdio_writel(bdev->func, int_status, MTK_REG_CHISR, NULL);
  
- 	/* Only when vendor specific setup callback is provided, consider
- 	 * the manufacturer information valid. This avoids filling in the
++		if ((int_status & FW_MAILBOX_INT) &&
++		    bdev->data->chipid == 0x7921) {
++			sdio_writel(bdev->func, PH2DSM0R_DRIVER_OWN,
++				    MTK_REG_PH2DSM0R, 0);
++		}
++
+ 		if (int_status & FW_OWN_BACK_INT)
+ 			bt_dev_dbg(bdev->hdev, "Get fw own back");
+ 
 -- 
 2.34.1
 
