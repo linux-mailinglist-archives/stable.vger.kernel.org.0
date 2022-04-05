@@ -2,46 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 907D94F4270
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:44:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 695DD4F42A5
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:50:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380748AbiDEMNu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:13:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50042 "EHLO
+        id S1380635AbiDEMNk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:13:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47290 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357934AbiDEK13 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:27:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80EDB8F9A0;
-        Tue,  5 Apr 2022 03:11:23 -0700 (PDT)
+        with ESMTP id S1357952AbiDEK1c (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:27:32 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E433972D5;
+        Tue,  5 Apr 2022 03:11:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AA5D06179E;
-        Tue,  5 Apr 2022 10:11:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90121C385A0;
-        Tue,  5 Apr 2022 10:11:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E9B66B81C89;
+        Tue,  5 Apr 2022 10:11:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A7D7C385A1;
+        Tue,  5 Apr 2022 10:11:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153482;
-        bh=MV1itl6rqfL9cQ+0uC0MpvC4tCW7XXeVrtbCRx+bwZE=;
+        s=korg; t=1649153495;
+        bh=41oa2V21gkwHryt3xAkM08QuvZpZF2TW4fviTnLf6Ww=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dV7bXOc155cHJiJ3gqHIXjHFhGI2R6pvwxxDYFf9/K6gnOcxtYlortLB5kQplUkZm
-         mN1DIE06hiTtj6hRa97W8BeKfEOv/PnFUEIAqatPlCzIn1ZvjSMGpCIAUVW0hEPCrC
-         ptIeFesUzovf2HEqTU+B21GrX2MTqwF0V3WPcO3c=
+        b=LUh1aoqeT1n+ibFy3JI1fuiO/L+vh2eP4txV/oo0xrGcFE9G9U6ZGQuMO2Po5KtAY
+         ZXcerYlmLlgd6FCd/M7QESktoU/KamXflYZmVhpJWN6Va1i7Ie2M/b+1IRGXJikVrD
+         KC8eO8zrk+p4SVvq2fdJRwNFNNfY298nqN3MFGNU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        kernel test robot <lkp@intel.com>,
-        Angelo Dureghello <angelo@sysam.it>,
-        Greg Ungerer <gerg@kernel.org>,
-        Greg Ungerer <gerg@linux-m68k.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        linux-m68k@lists.linux-m68k.org, uclinux-dev@uclinux.org,
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 236/599] m68k: coldfire/device.c: only build for MCF_EDMA when h/w macros are defined
-Date:   Tue,  5 Apr 2022 09:28:50 +0200
-Message-Id: <20220405070305.863022487@linuxfoundation.org>
+Subject: [PATCH 5.10 240/599] ASoC: wm8350: Handle error for wm8350_register_irq
+Date:   Tue,  5 Apr 2022 09:28:54 +0200
+Message-Id: <20220405070305.983746868@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -51,7 +47,7 @@ Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -59,81 +55,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit e6e1e7b19fa132d23d09c465942aab4c110d3da9 ]
+[ Upstream commit db0350da8084ad549bca16cc0486c11cc70a1f9b ]
 
-When CONFIG_MCF_EDMA is set (due to COMPILE_TEST, not due to
-CONFIG_M5441x), coldfire/device.c has compile errors due to
-missing MCFEDMA_* symbols. In the .config file that was provided,
-CONFIG_M5206=y, not CONFIG_M5441x, so <asm/m5441xsim.h> is not
-included in coldfire/device.c.
+As the potential failure of the wm8350_register_irq(),
+it should be better to check it and return error if fails.
+Also, use 'free_' in order to avoid the same code.
 
-Only build the MCF_EDMA code in coldfire/device.c if the MCFEDMA_*
-hardware macros are defined.
-
-Fixes these build errors:
-
-../arch/m68k/coldfire/device.c:512:35: error: 'MCFEDMA_BASE' undeclared here (not in a function); did you mean 'MCFDMA_BASE1'?
-  512 |                 .start          = MCFEDMA_BASE,
-../arch/m68k/coldfire/device.c:513:50: error: 'MCFEDMA_SIZE' undeclared here (not in a function)
-  513 |                 .end            = MCFEDMA_BASE + MCFEDMA_SIZE - 1,
-../arch/m68k/coldfire/device.c:517:35: error: 'MCFEDMA_IRQ_INTR0' undeclared here (not in a function)
-  517 |                 .start          = MCFEDMA_IRQ_INTR0,
-../arch/m68k/coldfire/device.c:523:35: error: 'MCFEDMA_IRQ_INTR16' undeclared here (not in a function)
-  523 |                 .start          = MCFEDMA_IRQ_INTR16,
-../arch/m68k/coldfire/device.c:529:35: error: 'MCFEDMA_IRQ_INTR56' undeclared here (not in a function)
-  529 |                 .start          = MCFEDMA_IRQ_INTR56,
-../arch/m68k/coldfire/device.c:535:35: error: 'MCFEDMA_IRQ_ERR' undeclared here (not in a function)
-  535 |                 .start          = MCFEDMA_IRQ_ERR,
-
-Fixes: d7e9d01ac292 ("m68k: add ColdFire mcf5441x eDMA platform support")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: kernel test robot <lkp@intel.com>
-Link: lore.kernel.org/r/202203030252.P752DK46-lkp@intel.com
-Cc: Angelo Dureghello <angelo@sysam.it>
-Cc: Greg Ungerer <gerg@kernel.org>
-Cc: Greg Ungerer <gerg@linux-m68k.org>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: linux-m68k@lists.linux-m68k.org
-Cc: uclinux-dev@uclinux.org
-Signed-off-by: Greg Ungerer <gerg@linux-m68k.org>
+Fixes: a6ba2b2dabb5 ("ASoC: Implement WM8350 headphone jack detection")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20220304023821.391936-1-jiasheng@iscas.ac.cn
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/m68k/coldfire/device.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ sound/soc/codecs/wm8350.c | 28 ++++++++++++++++++++++++----
+ 1 file changed, 24 insertions(+), 4 deletions(-)
 
-diff --git a/arch/m68k/coldfire/device.c b/arch/m68k/coldfire/device.c
-index 59f7dfe50a4d..a055616942a1 100644
---- a/arch/m68k/coldfire/device.c
-+++ b/arch/m68k/coldfire/device.c
-@@ -480,7 +480,7 @@ static struct platform_device mcf_i2c5 = {
- #endif /* MCFI2C_BASE5 */
- #endif /* IS_ENABLED(CONFIG_I2C_IMX) */
+diff --git a/sound/soc/codecs/wm8350.c b/sound/soc/codecs/wm8350.c
+index a6aa212fa0c8..ec5d997725b9 100644
+--- a/sound/soc/codecs/wm8350.c
++++ b/sound/soc/codecs/wm8350.c
+@@ -1536,18 +1536,38 @@ static  int wm8350_component_probe(struct snd_soc_component *component)
+ 	wm8350_clear_bits(wm8350, WM8350_JACK_DETECT,
+ 			  WM8350_JDL_ENA | WM8350_JDR_ENA);
  
--#if IS_ENABLED(CONFIG_MCF_EDMA)
-+#ifdef MCFEDMA_BASE
+-	wm8350_register_irq(wm8350, WM8350_IRQ_CODEC_JCK_DET_L,
++	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CODEC_JCK_DET_L,
+ 			    wm8350_hpl_jack_handler, 0, "Left jack detect",
+ 			    priv);
+-	wm8350_register_irq(wm8350, WM8350_IRQ_CODEC_JCK_DET_R,
++	if (ret != 0)
++		goto err;
++
++	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CODEC_JCK_DET_R,
+ 			    wm8350_hpr_jack_handler, 0, "Right jack detect",
+ 			    priv);
+-	wm8350_register_irq(wm8350, WM8350_IRQ_CODEC_MICSCD,
++	if (ret != 0)
++		goto free_jck_det_l;
++
++	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CODEC_MICSCD,
+ 			    wm8350_mic_handler, 0, "Microphone short", priv);
+-	wm8350_register_irq(wm8350, WM8350_IRQ_CODEC_MICD,
++	if (ret != 0)
++		goto free_jck_det_r;
++
++	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CODEC_MICD,
+ 			    wm8350_mic_handler, 0, "Microphone detect", priv);
++	if (ret != 0)
++		goto free_micscd;
  
- static const struct dma_slave_map mcf_edma_map[] = {
- 	{ "dreq0", "rx-tx", MCF_EDMA_FILTER_PARAM(0) },
-@@ -552,7 +552,7 @@ static struct platform_device mcf_edma = {
- 		.platform_data = &mcf_edma_data,
- 	}
- };
--#endif /* IS_ENABLED(CONFIG_MCF_EDMA) */
-+#endif /* MCFEDMA_BASE */
+ 	return 0;
++
++free_micscd:
++	wm8350_free_irq(wm8350, WM8350_IRQ_CODEC_MICSCD, priv);
++free_jck_det_r:
++	wm8350_free_irq(wm8350, WM8350_IRQ_CODEC_JCK_DET_R, priv);
++free_jck_det_l:
++	wm8350_free_irq(wm8350, WM8350_IRQ_CODEC_JCK_DET_L, priv);
++err:
++	return ret;
+ }
  
- #ifdef MCFSDHC_BASE
- static struct mcf_esdhc_platform_data mcf_esdhc_data = {
-@@ -610,7 +610,7 @@ static struct platform_device *mcf_devices[] __initdata = {
- 	&mcf_i2c5,
- #endif
- #endif
--#if IS_ENABLED(CONFIG_MCF_EDMA)
-+#ifdef MCFEDMA_BASE
- 	&mcf_edma,
- #endif
- #ifdef MCFSDHC_BASE
+ static void wm8350_component_remove(struct snd_soc_component *component)
 -- 
 2.34.1
 
