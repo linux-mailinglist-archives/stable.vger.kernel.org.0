@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 16C8E4F2BE1
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:21:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 701F24F2BA4
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:16:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237954AbiDEJE2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:04:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46802 "EHLO
+        id S1356419AbiDEKXx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:23:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41004 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243393AbiDEIuZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:50:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A58113D50;
-        Tue,  5 Apr 2022 01:38:45 -0700 (PDT)
+        with ESMTP id S236373AbiDEJbT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:31:19 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0DA0BF7;
+        Tue,  5 Apr 2022 02:19:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 19A3E61516;
-        Tue,  5 Apr 2022 08:38:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25878C385A6;
-        Tue,  5 Apr 2022 08:38:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 97E08B81C69;
+        Tue,  5 Apr 2022 09:19:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAB9BC385A3;
+        Tue,  5 Apr 2022 09:19:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147922;
-        bh=CRkojIeG8hfsFSBTHg4oYYawOOdZgescy1u4wNygcPs=;
+        s=korg; t=1649150345;
+        bh=qYe/uBk0ndVaKY+4X1OhfMJEXd3Z6e/VbB81NnZOuOc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U6HRLw34WZ8TbqUredPVYnhc/23xw9V6sG6hHfvdYLAGzQUPgK8v6KoomxP+1hymx
-         nDonJpMo3Nu4gBLfSaf3JRnYAzKbFk5HTdq3/oLNbV13sVUGuNGqBhj6LYU/XOMFvy
-         wtlk5jPjtBVb17XlyjdFXQl93E/ixKQuWJReAyRI=
+        b=IMH8nnoewWUeKqhhIUM5cCCDEe+2cNpdSZ577z/cC1CW8VTLPCw5ayed1CRFFlQ9F
+         GVkU7rGXB/3LgqeSfTlVDv2T5ZjKTaQhhwpIfw1NIoRlSq2LDnOw1GZH7LxlYulCnC
+         GvXpFs+hQDtBiVW1YY66hgYnffyDSL1AtOKI5w8Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan-Benedict Glaw <jbglaw@lug-owl.de>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
-        "Maciej W. Rozycki" <macro@orcam.me.uk>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Subject: [PATCH 5.16 0171/1017] DEC: Limit PMAX memory probing to R3k systems
-Date:   Tue,  5 Apr 2022 09:18:04 +0200
-Message-Id: <20220405070359.303106218@linuxfoundation.org>
+        stable@vger.kernel.org, Yosry Ahmed <yosryahmed@google.com>,
+        Shuah Khan <shuah@kernel.org>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 024/913] selftests: vm: fix clang build error multiple output files
+Date:   Tue,  5 Apr 2022 09:18:06 +0200
+Message-Id: <20220405070340.539745810@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,70 +58,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej W. Rozycki <macro@orcam.me.uk>
+From: Yosry Ahmed <yosryahmed@google.com>
 
-commit 244eae91a94c6dab82b3232967d10eeb9dfa21c6 upstream.
+[ Upstream commit 1c4debc443ef7037dcb7c4f08c33b9caebd21d2e ]
 
-Recent tightening of the opcode table in binutils so as to consistently
-disallow the assembly or disassembly of CP0 instructions not supported
-by the processor architecture chosen has caused a regression like below:
+When building the vm selftests using clang, some errors are seen due to
+having headers in the compilation command:
 
-arch/mips/dec/prom/locore.S: Assembler messages:
-arch/mips/dec/prom/locore.S:29: Error: opcode not supported on this processor: r4600 (mips3) `rfe'
+  clang -Wall -I ../../../../usr/include  -no-pie    gup_test.c ../../../../mm/gup_test.h -lrt -lpthread -o .../tools/testing/selftests/vm/gup_test
+  clang: error: cannot specify -o when generating multiple output files
+  make[1]: *** [../lib.mk:146: .../tools/testing/selftests/vm/gup_test] Error 1
 
-in a piece of code used to probe for memory with PMAX DECstation models,
-which have non-REX firmware.  Those computers always have an R2000 CPU
-and consequently the exception handler used in memory probing uses the
-RFE instruction, which those processors use.
+Rework to add the header files to LOCAL_HDRS before including ../lib.mk,
+since the dependency is evaluated in '$(OUTPUT)/%:%.c $(LOCAL_HDRS)' in
+file lib.mk.
 
-While adding 64-bit support this code was correctly excluded for 64-bit
-configurations, however it should have also been excluded for irrelevant
-32-bit configurations.  Do this now then, and only enable PMAX memory
-probing for R3k systems.
-
-Reported-by: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-Reported-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Cc: stable@vger.kernel.org # v2.6.12+
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lkml.kernel.org/r/20220304000645.1888133-1-yosryahmed@google.com
+Signed-off-by: Yosry Ahmed <yosryahmed@google.com>
+Cc: Shuah Khan <shuah@kernel.org>
+Cc: Nathan Chancellor <nathan@kernel.org>
+Cc: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/dec/prom/Makefile      |    2 +-
- arch/mips/include/asm/dec/prom.h |   15 +++++----------
- 2 files changed, 6 insertions(+), 11 deletions(-)
+ tools/testing/selftests/vm/Makefile | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
---- a/arch/mips/dec/prom/Makefile
-+++ b/arch/mips/dec/prom/Makefile
-@@ -6,4 +6,4 @@
+diff --git a/tools/testing/selftests/vm/Makefile b/tools/testing/selftests/vm/Makefile
+index d9605bd10f2d..acf5eaeef9ff 100644
+--- a/tools/testing/selftests/vm/Makefile
++++ b/tools/testing/selftests/vm/Makefile
+@@ -1,6 +1,8 @@
+ # SPDX-License-Identifier: GPL-2.0
+ # Makefile for vm selftests
  
- lib-y			+= init.o memory.o cmdline.o identify.o console.o
++LOCAL_HDRS += $(selfdir)/vm/local_config.h $(top_srcdir)/mm/gup_test.h
++
+ include local_config.mk
  
--lib-$(CONFIG_32BIT)	+= locore.o
-+lib-$(CONFIG_CPU_R3000)	+= locore.o
---- a/arch/mips/include/asm/dec/prom.h
-+++ b/arch/mips/include/asm/dec/prom.h
-@@ -43,16 +43,11 @@
-  */
- #define REX_PROM_MAGIC		0x30464354
+ uname_M := $(shell uname -m 2>/dev/null || echo not)
+@@ -139,10 +141,6 @@ endif
  
--#ifdef CONFIG_64BIT
--
--#define prom_is_rex(magic)	1	/* KN04 and KN05 are REX PROMs.  */
--
--#else /* !CONFIG_64BIT */
--
--#define prom_is_rex(magic)	((magic) == REX_PROM_MAGIC)
--
--#endif /* !CONFIG_64BIT */
--
-+/* KN04 and KN05 are REX PROMs, so only do the check for R3k systems.  */
-+static inline bool prom_is_rex(u32 magic)
-+{
-+	return !IS_ENABLED(CONFIG_CPU_R3000) || magic == REX_PROM_MAGIC;
-+}
+ $(OUTPUT)/mlock-random-test $(OUTPUT)/memfd_secret: LDLIBS += -lcap
  
- /*
-  * 3MIN/MAXINE PROM entry points for DS5000/1xx's, DS5000/xx's and
+-$(OUTPUT)/gup_test: ../../../../mm/gup_test.h
+-
+-$(OUTPUT)/hmm-tests: local_config.h
+-
+ # HMM_EXTRA_LIBS may get set in local_config.mk, or it may be left empty.
+ $(OUTPUT)/hmm-tests: LDLIBS += $(HMM_EXTRA_LIBS)
+ 
+-- 
+2.34.1
+
 
 
