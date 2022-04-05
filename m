@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FC1C4F27E0
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:09:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E7C34F27A2
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:08:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233755AbiDEIJZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:09:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44086 "EHLO
+        id S232460AbiDEIHs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:07:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44078 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235669AbiDEH77 (ORCPT
+        with ESMTP id S235672AbiDEH77 (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:59:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 016A1388B;
-        Tue,  5 Apr 2022 00:57:25 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BD3DBBB;
+        Tue,  5 Apr 2022 00:57:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 928B26167D;
-        Tue,  5 Apr 2022 07:57:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96B1AC340EE;
-        Tue,  5 Apr 2022 07:57:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 03029B81B16;
+        Tue,  5 Apr 2022 07:57:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 645F9C340EE;
+        Tue,  5 Apr 2022 07:57:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145444;
-        bh=f7/O1TsfZJjElBzDzZA88UduJ+DN69USLv6+AqBK0a4=;
+        s=korg; t=1649145446;
+        bh=Liju10TvGCS1yQDNFGGcvBTeSq06ruBprmwSCYMZRYQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iFa0lyc78KCf6gI6ByAsaSE5boLoAqa4g9ZdGo1S8LuETQ0O20CjPvCAyEXKsDqgG
-         uZxjK5ctr3Z5Nv7ZdHsJUwDtc9MZoCmtezilfU6T9yhxpHng6oJL7/Sk+WgIr2pgd0
-         uMJGDQYyIUgYqHcD21cxh+u6HfxEYZpyYk+Z8KUw=
+        b=od4rZ8OTCKHcswH2e0FwXSHVdt6rrGYCM5Lv4Qgp0W1xCGuXJSG+2fbofk6I0h857
+         18pEtW+u4pBynCx9y+S0PgxwSUcdtt+J1+dnPBmmpVfCORyK0h6j6H+9Rdz/WWBi75
+         l1z2Ho1E283sGWxR3GroC8WvY8X7TRYZVuyoZ3RA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        stable@vger.kernel.org, Shengjiu Wang <shengjiu.wang@nxp.com>,
+        Fabio Estevam <festevam@gmail.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0407/1126] ASoC: mxs: Fix error handling in mxs_sgtl5000_probe
-Date:   Tue,  5 Apr 2022 09:19:14 +0200
-Message-Id: <20220405070419.572099325@linuxfoundation.org>
+Subject: [PATCH 5.17 0408/1126] ASoC: fsl_spdif: Disable TX clock when stop
+Date:   Tue,  5 Apr 2022 09:19:15 +0200
+Message-Id: <20220405070419.601632543@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -54,41 +55,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Shengjiu Wang <shengjiu.wang@nxp.com>
 
-[ Upstream commit 6ae0a4d8fec551ec581d620f0eb1fe31f755551c ]
+[ Upstream commit 6ddf611219ba8f7c8fa0d26b39710a641e7d37a5 ]
 
-This function only calls of_node_put() in the regular path.
-And it will cause refcount leak in error paths.
-For example, when codec_np is NULL, saif_np[0] and saif_np[1]
-are not NULL, it will cause leaks.
+The TX clock source may be changed in next case, need to
+disable it when stop, otherwise the TX may not work after
+changing the clock source, error log is:
 
-of_node_put() will check if the node pointer is NULL, so we can
-call it directly to release the refcount of regular pointers.
+aplay: pcm_write:2058: write error: Input/output error
 
-Fixes: e968194b45c4 ("ASoC: mxs: add device tree support for mxs-sgtl5000")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220308020146.26496-1-linmq006@gmail.com
+Fixes: a2388a498ad2 ("ASoC: fsl: Add S/PDIF CPU DAI driver")
+Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
+Reviewed-by: Fabio Estevam <festevam@gmail.com>
+Link: https://lore.kernel.org/r/1646879863-27711-1-git-send-email-shengjiu.wang@nxp.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/mxs/mxs-sgtl5000.c | 3 +++
- 1 file changed, 3 insertions(+)
+ sound/soc/fsl/fsl_spdif.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/sound/soc/mxs/mxs-sgtl5000.c b/sound/soc/mxs/mxs-sgtl5000.c
-index 2412dc7e65d4..746f40938675 100644
---- a/sound/soc/mxs/mxs-sgtl5000.c
-+++ b/sound/soc/mxs/mxs-sgtl5000.c
-@@ -118,6 +118,9 @@ static int mxs_sgtl5000_probe(struct platform_device *pdev)
- 	codec_np = of_parse_phandle(np, "audio-codec", 0);
- 	if (!saif_np[0] || !saif_np[1] || !codec_np) {
- 		dev_err(&pdev->dev, "phandle missing or invalid\n");
-+		of_node_put(codec_np);
-+		of_node_put(saif_np[0]);
-+		of_node_put(saif_np[1]);
- 		return -EINVAL;
- 	}
- 
+diff --git a/sound/soc/fsl/fsl_spdif.c b/sound/soc/fsl/fsl_spdif.c
+index d178b479c8bd..06d4a014f296 100644
+--- a/sound/soc/fsl/fsl_spdif.c
++++ b/sound/soc/fsl/fsl_spdif.c
+@@ -610,6 +610,8 @@ static void fsl_spdif_shutdown(struct snd_pcm_substream *substream,
+ 		mask = SCR_TXFIFO_AUTOSYNC_MASK | SCR_TXFIFO_CTRL_MASK |
+ 			SCR_TXSEL_MASK | SCR_USRC_SEL_MASK |
+ 			SCR_TXFIFO_FSEL_MASK;
++		/* Disable TX clock */
++		regmap_update_bits(regmap, REG_SPDIF_STC, STC_TXCLK_ALL_EN_MASK, 0);
+ 	} else {
+ 		scr = SCR_RXFIFO_OFF | SCR_RXFIFO_CTL_ZERO;
+ 		mask = SCR_RXFIFO_FSEL_MASK | SCR_RXFIFO_AUTOSYNC_MASK|
 -- 
 2.34.1
 
