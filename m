@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B3AF34F3B18
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:14:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D3E14F3814
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:27:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345092AbiDELuf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:50:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59314 "EHLO
+        id S1376294AbiDELVW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:21:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43270 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356143AbiDEKW7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:22:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D122B82F0;
-        Tue,  5 Apr 2022 03:06:45 -0700 (PDT)
+        with ESMTP id S1349374AbiDEJtp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:45 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A690F13FBF;
+        Tue,  5 Apr 2022 02:44:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3A2F86176C;
-        Tue,  5 Apr 2022 10:06:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50D42C385A2;
-        Tue,  5 Apr 2022 10:06:44 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 157E0CE1C90;
+        Tue,  5 Apr 2022 09:44:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1FF51C385A3;
+        Tue,  5 Apr 2022 09:44:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153204;
-        bh=dXBza7TD+YoPMa9zfIkCunjP9xDZ6gtzlNfgpEIYRcc=;
+        s=korg; t=1649151873;
+        bh=pfUa9LayJvonNRTRyNr0npSc/ylo332Q3BdAw9/BZgY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X1zS2iT3k/YNOMxNiIdAWK6u1+QsOcMBlj6O7nOff08GtzA4VeIVlpeKLxsXs5JOz
-         FzgWlDWHITpYGsgg+9UwunvAdyKoJZU1I3DFCdNIsBRMHwyT2A+8HjmXWPGNT3eqqk
-         pZez0I7NIGyOObeOQ6NRo3sym5JmTvv3DlLi8rYw=
+        b=QnjkRZdXKlV6cIVJ8aq52Ra+uu3a2eFN62g5bsznocGKjo6qMwjWu8lrUC5HOcQ+H
+         mUFYsP/dCcwSkXOM22N7RG5Xw5l2O866MLyIX6W6XMNTEjLIRhT3KYAeGVxcQg8BwB
+         XvCNgunEgtur2WZUqHa7oCi5PI7NwRwoVknCsfYE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Corentin Labbe <clabbe@baylibre.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Ying Xue <ying.xue@windriver.com>,
+        Hoang Le <hoang.h.le@dektech.com.au>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 139/599] crypto: rockchip - ECB does not need IV
+Subject: [PATCH 5.15 571/913] tipc: fix the timer expires after interval 100ms
 Date:   Tue,  5 Apr 2022 09:27:13 +0200
-Message-Id: <20220405070302.978452967@linuxfoundation.org>
+Message-Id: <20220405070356.959803260@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
-References: <20220405070258.802373272@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,34 +55,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corentin Labbe <clabbe@baylibre.com>
+From: Hoang Le <hoang.h.le@dektech.com.au>
 
-[ Upstream commit 973d74e93820d99d8ea203882631c76edab699c9 ]
+[ Upstream commit 6a7d8cff4a3301087dd139293e9bddcf63827282 ]
 
-When loading rockchip crypto module, testmgr complains that ivsize of ecb-des3-ede-rk
-is not the same than generic implementation.
-In fact ECB does not use an IV.
+In the timer callback function tipc_sk_timeout(), we're trying to
+reschedule another timeout to retransmit a setup request if destination
+link is congested. But we use the incorrect timeout value
+(msecs_to_jiffies(100)) instead of (jiffies + msecs_to_jiffies(100)),
+so that the timer expires immediately, it's irrelevant for original
+description.
 
-Fixes: ce0183cb6464b ("crypto: rockchip - switch to skcipher API")
-Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+In this commit we correct the timeout value in sk_reset_timer()
+
+Fixes: 6787927475e5 ("tipc: buffer overflow handling in listener socket")
+Acked-by: Ying Xue <ying.xue@windriver.com>
+Signed-off-by: Hoang Le <hoang.h.le@dektech.com.au>
+Link: https://lore.kernel.org/r/20220321042229.314288-1-hoang.h.le@dektech.com.au
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/rockchip/rk3288_crypto_skcipher.c | 1 -
- 1 file changed, 1 deletion(-)
+ net/tipc/socket.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/crypto/rockchip/rk3288_crypto_skcipher.c b/drivers/crypto/rockchip/rk3288_crypto_skcipher.c
-index 1cece1a7d3f0..5bbf0d2722e1 100644
---- a/drivers/crypto/rockchip/rk3288_crypto_skcipher.c
-+++ b/drivers/crypto/rockchip/rk3288_crypto_skcipher.c
-@@ -506,7 +506,6 @@ struct rk_crypto_tmp rk_ecb_des3_ede_alg = {
- 		.exit			= rk_ablk_exit_tfm,
- 		.min_keysize		= DES3_EDE_KEY_SIZE,
- 		.max_keysize		= DES3_EDE_KEY_SIZE,
--		.ivsize			= DES_BLOCK_SIZE,
- 		.setkey			= rk_tdes_setkey,
- 		.encrypt		= rk_des3_ede_ecb_encrypt,
- 		.decrypt		= rk_des3_ede_ecb_decrypt,
+diff --git a/net/tipc/socket.c b/net/tipc/socket.c
+index 7545321c3440..17f8c523e33b 100644
+--- a/net/tipc/socket.c
++++ b/net/tipc/socket.c
+@@ -2852,7 +2852,8 @@ static void tipc_sk_retry_connect(struct sock *sk, struct sk_buff_head *list)
+ 
+ 	/* Try again later if dest link is congested */
+ 	if (tsk->cong_link_cnt) {
+-		sk_reset_timer(sk, &sk->sk_timer, msecs_to_jiffies(100));
++		sk_reset_timer(sk, &sk->sk_timer,
++			       jiffies + msecs_to_jiffies(100));
+ 		return;
+ 	}
+ 	/* Prepare SYN for retransmit */
 -- 
 2.34.1
 
