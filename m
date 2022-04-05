@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B908B4F3840
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:32:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E3A44F3B37
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:15:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376477AbiDELWM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:22:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39314 "EHLO
+        id S1345434AbiDELvw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:51:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44254 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349451AbiDEJtx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D87D27CEE;
-        Tue,  5 Apr 2022 02:46:23 -0700 (PDT)
+        with ESMTP id S1356558AbiDEKYF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:24:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1471BD8B6;
+        Tue,  5 Apr 2022 03:08:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0C337B818F3;
-        Tue,  5 Apr 2022 09:46:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70157C385A3;
-        Tue,  5 Apr 2022 09:46:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 57FDD6167E;
+        Tue,  5 Apr 2022 10:08:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C14EC385A1;
+        Tue,  5 Apr 2022 10:08:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151980;
-        bh=4xVP+rc9dkDWqE/NBcuMen4mqzFB0WGjI6QqAFNahww=;
+        s=korg; t=1649153312;
+        bh=tZvM3CY4dLxgH94wtkiyadE3sY646r4yLbEKcCADgo4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=09dUuGRUkwqJN53nR0S/OtmqltVwfHPi7SNQz7aqnhmYGwOM5+aNBPQtIdQPs+GYP
-         Z4yTw2/OYnaE+aktU1ARF9F8sFALlAg9QfeiSuosCckECQRnMziro4iakf8gyCSvHw
-         DjdoiSxpVFbsOLsIVfSyGN8qur65ta7r+fTR0DNg=
+        b=h3JBFbobZJaogTT9j9X+Y/r9Kxd5mWFkoOLP+PeqroDBbmjeu9g3GG0pkay8safe9
+         w/2yeHdiekQ2oP51j6znlxL98M21RSBB5vW0khaCu/5QAnQswkhc8hP8h4t+REGRJN
+         nvQWAewdPUgMYk8Wd5KQEKrHIXoMjkfZ44vVX5Qk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Abel Vesa <abel.vesa@nxp.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 610/913] clk: imx: off by one in imx_lpcg_parse_clks_from_dt()
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 178/599] perf/x86/intel/pt: Fix address filter config for 32-bit kernel
 Date:   Tue,  5 Apr 2022 09:27:52 +0200
-Message-Id: <20220405070358.126483113@linuxfoundation.org>
+Message-Id: <20220405070304.138931518@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070258.802373272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-[ Upstream commit 135efc3a76d127691afaf1864e4ab627bf09d53d ]
+[ Upstream commit e5524bf1047eb3b3f3f33b5f59897ba67b3ade87 ]
 
-The > needs to be >= to prevent an off by one access.
+Change from shifting 'unsigned long' to 'u64' to prevent the config bits
+being lost on a 32-bit kernel.
 
-Fixes: d5f1e6a2bb61 ("clk: imx: imx8qxp-lpcg: add parsing clocks from device tree")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Abel Vesa <abel.vesa@nxp.com>
-Link: https://lore.kernel.org/r/20220228075014.GD13685@kili
-Signed-off-by: Abel Vesa <abel.vesa@nxp.com>
+Fixes: eadf48cab4b6b0 ("perf/x86/intel/pt: Add support for address range filtering in PT")
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lore.kernel.org/r/20220131072453.2839535-5-adrian.hunter@intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/imx/clk-imx8qxp-lpcg.c | 2 +-
+ arch/x86/events/intel/pt.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/clk/imx/clk-imx8qxp-lpcg.c b/drivers/clk/imx/clk-imx8qxp-lpcg.c
-index b23758083ce5..5e31a6a24b3a 100644
---- a/drivers/clk/imx/clk-imx8qxp-lpcg.c
-+++ b/drivers/clk/imx/clk-imx8qxp-lpcg.c
-@@ -248,7 +248,7 @@ static int imx_lpcg_parse_clks_from_dt(struct platform_device *pdev,
+diff --git a/arch/x86/events/intel/pt.c b/arch/x86/events/intel/pt.c
+index c084899e9582..cc3b79c06685 100644
+--- a/arch/x86/events/intel/pt.c
++++ b/arch/x86/events/intel/pt.c
+@@ -472,7 +472,7 @@ static u64 pt_config_filters(struct perf_event *event)
+ 			pt->filters.filter[range].msr_b = filter->msr_b;
+ 		}
  
- 	for (i = 0; i < count; i++) {
- 		idx = bit_offset[i] / 4;
--		if (idx > IMX_LPCG_MAX_CLKS) {
-+		if (idx >= IMX_LPCG_MAX_CLKS) {
- 			dev_warn(&pdev->dev, "invalid bit offset of clock %d\n",
- 				 i);
- 			ret = -EINVAL;
+-		rtit_ctl |= filter->config << pt_address_ranges[range].reg_off;
++		rtit_ctl |= (u64)filter->config << pt_address_ranges[range].reg_off;
+ 	}
+ 
+ 	return rtit_ctl;
 -- 
 2.34.1
 
