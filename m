@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 017C84F30EB
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:36:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD3464F342B
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:25:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245500AbiDEJLz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:11:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47622 "EHLO
+        id S1348943AbiDEKtm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:49:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36684 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244758AbiDEIwh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D1831CFFA;
-        Tue,  5 Apr 2022 01:43:22 -0700 (PDT)
+        with ESMTP id S244295AbiDEJlO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:41:14 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA127BB0A3;
+        Tue,  5 Apr 2022 02:26:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C3B98B81C19;
-        Tue,  5 Apr 2022 08:43:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32D15C385A0;
-        Tue,  5 Apr 2022 08:43:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6819F6165C;
+        Tue,  5 Apr 2022 09:26:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75385C385A0;
+        Tue,  5 Apr 2022 09:26:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148199;
-        bh=WUARvHMnxR/HMiG3z7KbysMJPPbOUMTkSbauZ+e6w5w=;
+        s=korg; t=1649150760;
+        bh=9XcM0C1skRBFfRnxRk7Z+cajpzXiJDVLI1QQNgGD96I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VOFDraaLumiumTUcm+9dSaMY0xz/dwkfoyNeAVgk8focOs+2VGMlf6lHFC7HHwhAR
-         QIA2/AswCjm6vfVhwYt08eFp+ffdwYfsUWC5DeLd/UrY8YKjOud7FcT1rIRT1zH7zQ
-         KrwEk0HVe21F4B2AWQ44VpldpccFxOBOevOCwKX8=
+        b=rh2wxqx60W3vDl1xR1AAkZ5CIauICiDFN1h1apq5U20dQQY6q4ZSazuKFQzZNUVqb
+         naqTThBmqeck4lqCy2RPcs5wwu4VW6s/UqsK1UNWnHGwbpyRD56Q/77TIjhgVqofHt
+         Z7wA/kT2gwtkHr8biFeijyDWKySlm2G7jXHfi1C8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhiguo Niu <zhiguo.niu@unisoc.com>,
-        Jing Xia <jing.xia@unisoc.com>, Chao Yu <chao@kernel.org>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0271/1017] f2fs: fix to avoid potential deadlock
-Date:   Tue,  5 Apr 2022 09:19:44 +0200
-Message-Id: <20220405070402.310055433@linuxfoundation.org>
+        stable@vger.kernel.org, Jordan Crouse <jordan@cosmicpenguin.net>,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>
+Subject: [PATCH 5.15 123/913] arm64: dts: qcom: sm8250: Fix MSI IRQ for PCIe1 and PCIe2
+Date:   Tue,  5 Apr 2022 09:19:45 +0200
+Message-Id: <20220405070343.514843428@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,88 +55,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <chao@kernel.org>
+From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 
-[ Upstream commit 344150999b7fc88502a65bbb147a47503eca2033 ]
+commit 1b7101e8124b450f2d6a35591e9cbb478c143ace upstream.
 
-Quoted from Jing Xia's report, there is a potential deadlock may happen
-between kworker and checkpoint as below:
+Fix the MSI IRQ used for PCIe instances 1 and 2.
 
-[T:writeback]				[T:checkpoint]
-- wb_writeback
- - blk_start_plug
-bio contains NodeA was plugged in writeback threads
-					- do_writepages  -- sync write inodeB, inc wb_sync_req[DATA]
-					 - f2fs_write_data_pages
-					  - f2fs_write_single_data_page -- write last dirty page
-					   - f2fs_do_write_data_page
-					    - set_page_writeback  -- clear page dirty flag and
-					    PAGECACHE_TAG_DIRTY tag in radix tree
-					    - f2fs_outplace_write_data
-					     - f2fs_update_data_blkaddr
-					      - f2fs_wait_on_page_writeback -- wait NodeA to writeback here
-					   - inode_dec_dirty_pages
- - writeback_sb_inodes
-  - writeback_single_inode
-   - do_writepages
-    - f2fs_write_data_pages -- skip writepages due to wb_sync_req[DATA]
-     - wbc->pages_skipped += get_dirty_pages() -- PAGECACHE_TAG_DIRTY is not set but get_dirty_pages() returns one
-  - requeue_inode -- requeue inode to wb->b_dirty queue due to non-zero.pages_skipped
- - blk_finish_plug
-
-Let's try to avoid deadlock condition by forcing unplugging previous bio via
-blk_finish_plug(current->plug) once we'v skipped writeback in writepages()
-due to valid sbi->wb_sync_req[DATA/NODE].
-
-Fixes: 687de7f1010c ("f2fs: avoid IO split due to mixed WB_SYNC_ALL and WB_SYNC_NONE")
-Signed-off-by: Zhiguo Niu <zhiguo.niu@unisoc.com>
-Signed-off-by: Jing Xia <jing.xia@unisoc.com>
-Signed-off-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: e53bdfc00977 ("arm64: dts: qcom: sm8250: Add PCIe support")
+Reported-by: Jordan Crouse <jordan@cosmicpenguin.net>
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220112035556.5108-1-manivannan.sadhasivam@linaro.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/f2fs/data.c | 6 +++++-
- fs/f2fs/node.c | 6 +++++-
- 2 files changed, 10 insertions(+), 2 deletions(-)
+ arch/arm64/boot/dts/qcom/sm8250.dtsi |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/f2fs/data.c b/fs/f2fs/data.c
-index 3ba75587a2cd..04e82dedb4df 100644
---- a/fs/f2fs/data.c
-+++ b/fs/f2fs/data.c
-@@ -3267,8 +3267,12 @@ static int __f2fs_write_data_pages(struct address_space *mapping,
- 	/* to avoid spliting IOs due to mixed WB_SYNC_ALL and WB_SYNC_NONE */
- 	if (wbc->sync_mode == WB_SYNC_ALL)
- 		atomic_inc(&sbi->wb_sync_req[DATA]);
--	else if (atomic_read(&sbi->wb_sync_req[DATA]))
-+	else if (atomic_read(&sbi->wb_sync_req[DATA])) {
-+		/* to avoid potential deadlock */
-+		if (current->plug)
-+			blk_finish_plug(current->plug);
- 		goto skip_write;
-+	}
+--- a/arch/arm64/boot/dts/qcom/sm8250.dtsi
++++ b/arch/arm64/boot/dts/qcom/sm8250.dtsi
+@@ -1495,7 +1495,7 @@
+ 			ranges = <0x01000000 0x0 0x40200000 0x0 0x40200000 0x0 0x100000>,
+ 				 <0x02000000 0x0 0x40300000 0x0 0x40300000 0x0 0x1fd00000>;
  
- 	if (__should_serialize_io(inode, wbc)) {
- 		mutex_lock(&sbi->writepages);
-diff --git a/fs/f2fs/node.c b/fs/f2fs/node.c
-index 556fcd8457f3..69c6bcaf5aae 100644
---- a/fs/f2fs/node.c
-+++ b/fs/f2fs/node.c
-@@ -2106,8 +2106,12 @@ static int f2fs_write_node_pages(struct address_space *mapping,
+-			interrupts = <GIC_SPI 306 IRQ_TYPE_EDGE_RISING>;
++			interrupts = <GIC_SPI 307 IRQ_TYPE_LEVEL_HIGH>;
+ 			interrupt-names = "msi";
+ 			#interrupt-cells = <1>;
+ 			interrupt-map-mask = <0 0 0 0x7>;
+@@ -1601,7 +1601,7 @@
+ 			ranges = <0x01000000 0x0 0x64200000 0x0 0x64200000 0x0 0x100000>,
+ 				 <0x02000000 0x0 0x64300000 0x0 0x64300000 0x0 0x3d00000>;
  
- 	if (wbc->sync_mode == WB_SYNC_ALL)
- 		atomic_inc(&sbi->wb_sync_req[NODE]);
--	else if (atomic_read(&sbi->wb_sync_req[NODE]))
-+	else if (atomic_read(&sbi->wb_sync_req[NODE])) {
-+		/* to avoid potential deadlock */
-+		if (current->plug)
-+			blk_finish_plug(current->plug);
- 		goto skip_write;
-+	}
- 
- 	trace_f2fs_writepages(mapping->host, wbc, NODE);
- 
--- 
-2.34.1
-
+-			interrupts = <GIC_SPI 236 IRQ_TYPE_EDGE_RISING>;
++			interrupts = <GIC_SPI 243 IRQ_TYPE_LEVEL_HIGH>;
+ 			interrupt-names = "msi";
+ 			#interrupt-cells = <1>;
+ 			interrupt-map-mask = <0 0 0 0x7>;
 
 
