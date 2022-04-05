@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E49A24F417C
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:32:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B3AB64F4028
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:14:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1383261AbiDEMZP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1383258AbiDEMZP (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 5 Apr 2022 08:25:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34898 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35276 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243764AbiDEKhl (ORCPT
+        with ESMTP id S243766AbiDEKhl (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:37:41 -0400
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43C86574B3;
-        Tue,  5 Apr 2022 03:23:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F1C969297;
+        Tue,  5 Apr 2022 03:23:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id B5F67CE0B18;
-        Tue,  5 Apr 2022 10:23:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7023C385A3;
-        Tue,  5 Apr 2022 10:23:06 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 20197CE0B18;
+        Tue,  5 Apr 2022 10:23:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CF96C385A0;
+        Tue,  5 Apr 2022 10:23:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649154187;
-        bh=jyHeGkeBUgv0uibiiSn4ARBIL2VuEVNmQ8Khl1BNBug=;
+        s=korg; t=1649154192;
+        bh=D7zehDB5ZT+cPJglemgyT0v37ZSf+QM4AK+whiwO7mQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vp2Kvc3AQwHpjdXqek+x720GpPCH4PM4LoQgZ/OkTtOaqKlHHSQDeOOFIPmpICVkw
-         dk7HvbEiSzhuGTVprgyo/Hz5+39C2JhhCUTZvcbtACjS6UJGV7V7cAl2dzUtb09NTG
-         BgHSWvCZXIB0rdYY4A4N2YnMJsjnfmIBW/kc0ze0=
+        b=LhyLA+aow1xmsMpBTvuXbYkDOBttHEaH5kdfzklBipXUJ1nlkSBNrtsP5AdBIyLVI
+         NjD1L8frfY2ptH8WFBsbtGqr1nFT0hMjhlnZhrUp7GuiB8Nn3IPHVlp9HBuJLoVuQB
+         hwyhkG0HwvVUATxywIo/WrK0LZ8xozEBiEBKX57U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Popov <alex.popov@linux.com>,
-        Kees Cook <keescook@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 451/599] gcc-plugins/stackleak: Exactly match strings instead of prefixes
-Date:   Tue,  5 Apr 2022 09:32:25 +0200
-Message-Id: <20220405070312.250922248@linuxfoundation.org>
+        stable@vger.kernel.org, Yu Kuai <yukuai3@huawei.com>,
+        Jan Kara <jack@suse.cz>,
+        Paolo Valente <paolo.valente@linaro.org>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 453/599] block, bfq: dont move oom_bfqq
+Date:   Tue,  5 Apr 2022 09:32:27 +0200
+Message-Id: <20220405070312.310995287@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -54,68 +55,140 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Yu Kuai <yukuai3@huawei.com>
 
-[ Upstream commit 27e9faf415dbf94af19b9c827842435edbc1fbbc ]
+[ Upstream commit 8410f70977734f21b8ed45c37e925d311dfda2e7 ]
 
-Since STRING_CST may not be NUL terminated, strncmp() was used for check
-for equality. However, this may lead to mismatches for longer section
-names where the start matches the tested-for string. Test for exact
-equality by checking for the presences of NUL termination.
+Our test report a UAF:
 
-Cc: Alexander Popov <alex.popov@linux.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
+[ 2073.019181] ==================================================================
+[ 2073.019188] BUG: KASAN: use-after-free in __bfq_put_async_bfqq+0xa0/0x168
+[ 2073.019191] Write of size 8 at addr ffff8000ccf64128 by task rmmod/72584
+[ 2073.019192]
+[ 2073.019196] CPU: 0 PID: 72584 Comm: rmmod Kdump: loaded Not tainted 4.19.90-yk #5
+[ 2073.019198] Hardware name: QEMU KVM Virtual Machine, BIOS 0.0.0 02/06/2015
+[ 2073.019200] Call trace:
+[ 2073.019203]  dump_backtrace+0x0/0x310
+[ 2073.019206]  show_stack+0x28/0x38
+[ 2073.019210]  dump_stack+0xec/0x15c
+[ 2073.019216]  print_address_description+0x68/0x2d0
+[ 2073.019220]  kasan_report+0x238/0x2f0
+[ 2073.019224]  __asan_store8+0x88/0xb0
+[ 2073.019229]  __bfq_put_async_bfqq+0xa0/0x168
+[ 2073.019233]  bfq_put_async_queues+0xbc/0x208
+[ 2073.019236]  bfq_pd_offline+0x178/0x238
+[ 2073.019240]  blkcg_deactivate_policy+0x1f0/0x420
+[ 2073.019244]  bfq_exit_queue+0x128/0x178
+[ 2073.019249]  blk_mq_exit_sched+0x12c/0x160
+[ 2073.019252]  elevator_exit+0xc8/0xd0
+[ 2073.019256]  blk_exit_queue+0x50/0x88
+[ 2073.019259]  blk_cleanup_queue+0x228/0x3d8
+[ 2073.019267]  null_del_dev+0xfc/0x1e0 [null_blk]
+[ 2073.019274]  null_exit+0x90/0x114 [null_blk]
+[ 2073.019278]  __arm64_sys_delete_module+0x358/0x5a0
+[ 2073.019282]  el0_svc_common+0xc8/0x320
+[ 2073.019287]  el0_svc_handler+0xf8/0x160
+[ 2073.019290]  el0_svc+0x10/0x218
+[ 2073.019291]
+[ 2073.019294] Allocated by task 14163:
+[ 2073.019301]  kasan_kmalloc+0xe0/0x190
+[ 2073.019305]  kmem_cache_alloc_node_trace+0x1cc/0x418
+[ 2073.019308]  bfq_pd_alloc+0x54/0x118
+[ 2073.019313]  blkcg_activate_policy+0x250/0x460
+[ 2073.019317]  bfq_create_group_hierarchy+0x38/0x110
+[ 2073.019321]  bfq_init_queue+0x6d0/0x948
+[ 2073.019325]  blk_mq_init_sched+0x1d8/0x390
+[ 2073.019330]  elevator_switch_mq+0x88/0x170
+[ 2073.019334]  elevator_switch+0x140/0x270
+[ 2073.019338]  elv_iosched_store+0x1a4/0x2a0
+[ 2073.019342]  queue_attr_store+0x90/0xe0
+[ 2073.019348]  sysfs_kf_write+0xa8/0xe8
+[ 2073.019351]  kernfs_fop_write+0x1f8/0x378
+[ 2073.019359]  __vfs_write+0xe0/0x360
+[ 2073.019363]  vfs_write+0xf0/0x270
+[ 2073.019367]  ksys_write+0xdc/0x1b8
+[ 2073.019371]  __arm64_sys_write+0x50/0x60
+[ 2073.019375]  el0_svc_common+0xc8/0x320
+[ 2073.019380]  el0_svc_handler+0xf8/0x160
+[ 2073.019383]  el0_svc+0x10/0x218
+[ 2073.019385]
+[ 2073.019387] Freed by task 72584:
+[ 2073.019391]  __kasan_slab_free+0x120/0x228
+[ 2073.019394]  kasan_slab_free+0x10/0x18
+[ 2073.019397]  kfree+0x94/0x368
+[ 2073.019400]  bfqg_put+0x64/0xb0
+[ 2073.019404]  bfqg_and_blkg_put+0x90/0xb0
+[ 2073.019408]  bfq_put_queue+0x220/0x228
+[ 2073.019413]  __bfq_put_async_bfqq+0x98/0x168
+[ 2073.019416]  bfq_put_async_queues+0xbc/0x208
+[ 2073.019420]  bfq_pd_offline+0x178/0x238
+[ 2073.019424]  blkcg_deactivate_policy+0x1f0/0x420
+[ 2073.019429]  bfq_exit_queue+0x128/0x178
+[ 2073.019433]  blk_mq_exit_sched+0x12c/0x160
+[ 2073.019437]  elevator_exit+0xc8/0xd0
+[ 2073.019440]  blk_exit_queue+0x50/0x88
+[ 2073.019443]  blk_cleanup_queue+0x228/0x3d8
+[ 2073.019451]  null_del_dev+0xfc/0x1e0 [null_blk]
+[ 2073.019459]  null_exit+0x90/0x114 [null_blk]
+[ 2073.019462]  __arm64_sys_delete_module+0x358/0x5a0
+[ 2073.019467]  el0_svc_common+0xc8/0x320
+[ 2073.019471]  el0_svc_handler+0xf8/0x160
+[ 2073.019474]  el0_svc+0x10/0x218
+[ 2073.019475]
+[ 2073.019479] The buggy address belongs to the object at ffff8000ccf63f00
+ which belongs to the cache kmalloc-1024 of size 1024
+[ 2073.019484] The buggy address is located 552 bytes inside of
+ 1024-byte region [ffff8000ccf63f00, ffff8000ccf64300)
+[ 2073.019486] The buggy address belongs to the page:
+[ 2073.019492] page:ffff7e000333d800 count:1 mapcount:0 mapping:ffff8000c0003a00 index:0x0 compound_mapcount: 0
+[ 2073.020123] flags: 0x7ffff0000008100(slab|head)
+[ 2073.020403] raw: 07ffff0000008100 ffff7e0003334c08 ffff7e00001f5a08 ffff8000c0003a00
+[ 2073.020409] raw: 0000000000000000 00000000001c001c 00000001ffffffff 0000000000000000
+[ 2073.020411] page dumped because: kasan: bad access detected
+[ 2073.020412]
+[ 2073.020414] Memory state around the buggy address:
+[ 2073.020420]  ffff8000ccf64000: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[ 2073.020424]  ffff8000ccf64080: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[ 2073.020428] >ffff8000ccf64100: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[ 2073.020430]                                   ^
+[ 2073.020434]  ffff8000ccf64180: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[ 2073.020438]  ffff8000ccf64200: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[ 2073.020439] ==================================================================
+
+The same problem exist in mainline as well.
+
+This is because oom_bfqq is moved to a non-root group, thus root_group
+is freed earlier.
+
+Thus fix the problem by don't move oom_bfqq.
+
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Acked-by: Paolo Valente <paolo.valente@linaro.org>
+Link: https://lore.kernel.org/r/20220129015924.3958918-4-yukuai3@huawei.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/gcc-plugins/stackleak_plugin.c | 25 +++++++++++++++++++++----
- 1 file changed, 21 insertions(+), 4 deletions(-)
+ block/bfq-cgroup.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/scripts/gcc-plugins/stackleak_plugin.c b/scripts/gcc-plugins/stackleak_plugin.c
-index 48e141e07956..dacd697ffd38 100644
---- a/scripts/gcc-plugins/stackleak_plugin.c
-+++ b/scripts/gcc-plugins/stackleak_plugin.c
-@@ -431,6 +431,23 @@ static unsigned int stackleak_cleanup_execute(void)
- 	return 0;
- }
- 
-+/*
-+ * STRING_CST may or may not be NUL terminated:
-+ * https://gcc.gnu.org/onlinedocs/gccint/Constant-expressions.html
-+ */
-+static inline bool string_equal(tree node, const char *string, int length)
-+{
-+	if (TREE_STRING_LENGTH(node) < length)
-+		return false;
-+	if (TREE_STRING_LENGTH(node) > length + 1)
-+		return false;
-+	if (TREE_STRING_LENGTH(node) == length + 1 &&
-+	    TREE_STRING_POINTER(node)[length] != '\0')
-+		return false;
-+	return !memcmp(TREE_STRING_POINTER(node), string, length);
-+}
-+#define STRING_EQUAL(node, str)	string_equal(node, str, strlen(str))
-+
- static bool stackleak_gate(void)
+diff --git a/block/bfq-cgroup.c b/block/bfq-cgroup.c
+index b791e2041e49..c2fdd6fcdaee 100644
+--- a/block/bfq-cgroup.c
++++ b/block/bfq-cgroup.c
+@@ -642,6 +642,12 @@ void bfq_bfqq_move(struct bfq_data *bfqd, struct bfq_queue *bfqq,
  {
- 	tree section;
-@@ -440,13 +457,13 @@ static bool stackleak_gate(void)
- 	if (section && TREE_VALUE(section)) {
- 		section = TREE_VALUE(TREE_VALUE(section));
+ 	struct bfq_entity *entity = &bfqq->entity;
  
--		if (!strncmp(TREE_STRING_POINTER(section), ".init.text", 10))
-+		if (STRING_EQUAL(section, ".init.text"))
- 			return false;
--		if (!strncmp(TREE_STRING_POINTER(section), ".devinit.text", 13))
-+		if (STRING_EQUAL(section, ".devinit.text"))
- 			return false;
--		if (!strncmp(TREE_STRING_POINTER(section), ".cpuinit.text", 13))
-+		if (STRING_EQUAL(section, ".cpuinit.text"))
- 			return false;
--		if (!strncmp(TREE_STRING_POINTER(section), ".meminit.text", 13))
-+		if (STRING_EQUAL(section, ".meminit.text"))
- 			return false;
- 	}
- 
++	/*
++	 * oom_bfqq is not allowed to move, oom_bfqq will hold ref to root_group
++	 * until elevator exit.
++	 */
++	if (bfqq == &bfqd->oom_bfqq)
++		return;
+ 	/*
+ 	 * Get extra reference to prevent bfqq from being freed in
+ 	 * next possible expire or deactivate.
 -- 
 2.34.1
 
