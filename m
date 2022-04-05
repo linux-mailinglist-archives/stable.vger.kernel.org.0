@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 88BF84F42B5
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:50:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69FFC4F3E55
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 22:43:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244992AbiDEMVb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:21:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46718 "EHLO
+        id S1381042AbiDEMOV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:14:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50650 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358461AbiDEK2Z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:28:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2EB0BA325;
-        Tue,  5 Apr 2022 03:18:03 -0700 (PDT)
+        with ESMTP id S241150AbiDEK2w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:28:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAAE7DCA82;
+        Tue,  5 Apr 2022 03:18:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5CBB461777;
-        Tue,  5 Apr 2022 10:18:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FBF4C385A0;
-        Tue,  5 Apr 2022 10:18:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CB5C9B81C98;
+        Tue,  5 Apr 2022 10:18:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21C10C385A0;
+        Tue,  5 Apr 2022 10:18:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153882;
-        bh=3SyFg1Ox2BVv77hwr5Q+brbLvYJwdOjO6I/B8CTdJ5k=;
+        s=korg; t=1649153885;
+        bh=wqbPfyi7RvYZHdPCYAxM7ej+NA3443hfkZmvaukFEtU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TFRb0JRtSmUneYTMtm+T523bX1K3ipI78fWC3Yth0iUMDWYK3gEFwCowNmdfehZ75
-         YfAgVlD5ijA/P2BSUoq6h2d2HCbNKjScUBbwt5Xd7kMloEp+R7JmQHlUQNKD1QdvfM
-         tyH/L3bOpUWO9Qz1pnV+/3DyJBWy/5AcsF1S2cjg=
+        b=INMEHX22umhbA4IiDs9tl7U+bkmRNRibZrGtizajnbarPxWqx7gmx6QsKp7AleWXj
+         RPXcATnRpU8KP/TPPbHH65+mqZS7LdrNr58da3XnQNx0ZkuIf0LHkHNNVluV9TxzkO
+         tvmJwHAUB/+SvpK8T0I4ViJLRSapLMa4GvvD1a20=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oleksij Rempel <o.rempel@pengutronix.de>,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        stable@vger.kernel.org, Luca Weiss <luca@z3ntu.xyz>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 382/599] misc: alcor_pci: Fix an error handling path
-Date:   Tue,  5 Apr 2022 09:31:16 +0200
-Message-Id: <20220405070310.198300048@linuxfoundation.org>
+Subject: [PATCH 5.10 383/599] cpufreq: qcom-cpufreq-nvmem: fix reading of PVS Valid fuse
+Date:   Tue,  5 Apr 2022 09:31:17 +0200
+Message-Id: <20220405070310.227908021@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -54,70 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Luca Weiss <luca@z3ntu.xyz>
 
-[ Upstream commit 5b3dc949f554379edcb8ef6111aa5ecb78feb798 ]
+[ Upstream commit 4a8a77abf0e2b6468ba0281e33384cbec5fb476a ]
 
-A successful ida_simple_get() should be balanced by a corresponding
-ida_simple_remove().
+The fuse consists of 64 bits, with this statement we're supposed to get
+the upper 32 bits but it actually read out of bounds and got 0 instead
+of the desired value which lead to the "PVS bin not set." codepath being
+run resetting our pvs value.
 
-Add the missing call in the error handling path of the probe.
-
-While at it, switch to ida_alloc()/ida_free() instead to
-ida_simple_get()/ida_simple_remove().
-The latter is deprecated and more verbose.
-
-Fixes: 4f556bc04e3c ("misc: cardreader: add new Alcor Micro Cardreader PCI driver")
-Reviewed-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/918a9875b7f67b7f8f123c4446452603422e8c5e.1644136776.git.christophe.jaillet@wanadoo.fr
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: a8811ec764f9 ("cpufreq: qcom: Add support for krait based socs")
+Signed-off-by: Luca Weiss <luca@z3ntu.xyz>
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/cardreader/alcor_pci.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/cpufreq/qcom-cpufreq-nvmem.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/misc/cardreader/alcor_pci.c b/drivers/misc/cardreader/alcor_pci.c
-index de6d44a158bb..3f514d77a843 100644
---- a/drivers/misc/cardreader/alcor_pci.c
-+++ b/drivers/misc/cardreader/alcor_pci.c
-@@ -266,7 +266,7 @@ static int alcor_pci_probe(struct pci_dev *pdev,
- 	if (!priv)
- 		return -ENOMEM;
- 
--	ret = ida_simple_get(&alcor_pci_idr, 0, 0, GFP_KERNEL);
-+	ret = ida_alloc(&alcor_pci_idr, GFP_KERNEL);
- 	if (ret < 0)
- 		return ret;
- 	priv->id = ret;
-@@ -280,7 +280,8 @@ static int alcor_pci_probe(struct pci_dev *pdev,
- 	ret = pci_request_regions(pdev, DRV_NAME_ALCOR_PCI);
- 	if (ret) {
- 		dev_err(&pdev->dev, "Cannot request region\n");
--		return -ENOMEM;
-+		ret = -ENOMEM;
-+		goto error_free_ida;
+diff --git a/drivers/cpufreq/qcom-cpufreq-nvmem.c b/drivers/cpufreq/qcom-cpufreq-nvmem.c
+index fba9937a406b..7fdd30e92e42 100644
+--- a/drivers/cpufreq/qcom-cpufreq-nvmem.c
++++ b/drivers/cpufreq/qcom-cpufreq-nvmem.c
+@@ -130,7 +130,7 @@ static void get_krait_bin_format_b(struct device *cpu_dev,
  	}
  
- 	if (!(pci_resource_flags(pdev, bar) & IORESOURCE_MEM)) {
-@@ -324,6 +325,8 @@ static int alcor_pci_probe(struct pci_dev *pdev,
- 
- error_release_regions:
- 	pci_release_regions(pdev);
-+error_free_ida:
-+	ida_free(&alcor_pci_idr, priv->id);
- 	return ret;
- }
- 
-@@ -337,7 +340,7 @@ static void alcor_pci_remove(struct pci_dev *pdev)
- 
- 	mfd_remove_devices(&pdev->dev);
- 
--	ida_simple_remove(&alcor_pci_idr, priv->id);
-+	ida_free(&alcor_pci_idr, priv->id);
- 
- 	pci_release_regions(pdev);
- 	pci_set_drvdata(pdev, NULL);
+ 	/* Check PVS_BLOW_STATUS */
+-	pte_efuse = *(((u32 *)buf) + 4);
++	pte_efuse = *(((u32 *)buf) + 1);
+ 	pte_efuse &= BIT(21);
+ 	if (pte_efuse) {
+ 		dev_dbg(cpu_dev, "PVS bin: %d\n", *pvs);
 -- 
 2.34.1
 
