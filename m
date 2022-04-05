@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B899A4F362C
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:57:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 043D94F33F1
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:24:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244736AbiDEK70 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:59:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39194 "EHLO
+        id S237304AbiDEJey (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:34:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59258 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347134AbiDEJqC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:46:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A7477C17A;
-        Tue,  5 Apr 2022 02:32:29 -0700 (PDT)
+        with ESMTP id S245340AbiDEIzH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:55:07 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BFE1101F5;
+        Tue,  5 Apr 2022 01:52:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C7F3261654;
-        Tue,  5 Apr 2022 09:32:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7F05C385A6;
-        Tue,  5 Apr 2022 09:32:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1840E61003;
+        Tue,  5 Apr 2022 08:52:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27D8AC385A1;
+        Tue,  5 Apr 2022 08:52:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151148;
-        bh=M2jeZD84b1fXWTSwEOBj+dahxynZt8zXMhkQqbDCQfg=;
+        s=korg; t=1649148734;
+        bh=WvuNd515yfCemETt0J5SFAOnaL3gooZmvJup2s+DEBo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h/6Jh1SYARLQcuUt6MKbAQtMJfDKbVpmJKJRy9/n1ezrkangDGktyOyZ3hPjbt0rX
-         Fndc8hMamaf1z7Nr+BGQFPwQaLYiRsrXpVksy9FuA7vKE0TE6lu/RJ5hpgjJyf+IYa
-         BTDialA+FjQOViIqeS7ay8LKO7sIjJy4oI/jsFJ8=
+        b=o/8vg2PnHBTdcbSVHJRp4ZynE9NJDklS420L536EJf02jJ+b0F+wuJgfKPiOkJBd8
+         F66+0FfFNq2Dfp28HaPYxGb+bKr8LgP2bRduaz10VDiBcUwNxomW3cJxNvWL5LXMqf
+         bIz+JXZU7U+11C+n4uxsPE06j+IeIq7ozW6nqCgk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        stable@vger.kernel.org, Sean Wang <sean.wang@mediatek.com>,
+        Leon Yen <leon.yen@mediatek.com>, Felix Fietkau <nbd@nbd.name>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 311/913] media: video/hdmi: handle short reads of hdmi info frame.
-Date:   Tue,  5 Apr 2022 09:22:53 +0200
-Message-Id: <20220405070349.176245684@linuxfoundation.org>
+Subject: [PATCH 5.16 0461/1017] mt76: mt7921s: fix mt7921s_mcu_[fw|drv]_pmctrl
+Date:   Tue,  5 Apr 2022 09:22:54 +0200
+Message-Id: <20220405070407.983142060@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,64 +54,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Leon Yen <leon.yen@mediatek.com>
 
-[ Upstream commit 4a92fc6e55da5b87cecb572275deaff6ac9dd27e ]
+[ Upstream commit b12deb5e86fa36dc6f3aa3321f5da27addec4f1f ]
 
-Calling hdmi_infoframe_unpack() with static sizeof(buffer) skips all
-the size checking done later in hdmi_infoframe_unpack().  A better
-value is the amount of data read into buffer.
+According to the firmware behavior (even the oldest one in linux-firmware)
+If the firmware is downloaded, MT7921S must rely on the additional mailbox
+mechanism that resides in firmware to check if the device is the right
+state for mt7921s_mcu_[fw|drv]_pmctrl. Otherwise, we still apply the old
+way for that.
 
-Fixes: 480b8b3e42c3 ("video/hdmi: Pass buffer size to infoframe unpack functions")
-Signed-off-by: Tom Rix <trix@redhat.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+That is a necessary patch before we enable runtime pm for mt7921s as
+default.
+
+Fixes: 48fab5bbef40 ("mt76: mt7921: introduce mt7921s support")
+Co-developed-by: Sean Wang <sean.wang@mediatek.com>
+Signed-off-by: Sean Wang <sean.wang@mediatek.com>
+Signed-off-by: Leon Yen <leon.yen@mediatek.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/adv7511-v4l2.c | 2 +-
- drivers/media/i2c/adv7604.c      | 2 +-
- drivers/media/i2c/adv7842.c      | 2 +-
- 3 files changed, 3 insertions(+), 3 deletions(-)
+ .../wireless/mediatek/mt76/mt7921/sdio_mcu.c  | 38 +++++++++++++++++++
+ drivers/net/wireless/mediatek/mt76/sdio.h     |  2 +
+ 2 files changed, 40 insertions(+)
 
-diff --git a/drivers/media/i2c/adv7511-v4l2.c b/drivers/media/i2c/adv7511-v4l2.c
-index 41f4e749a859..2217004264e4 100644
---- a/drivers/media/i2c/adv7511-v4l2.c
-+++ b/drivers/media/i2c/adv7511-v4l2.c
-@@ -544,7 +544,7 @@ static void log_infoframe(struct v4l2_subdev *sd, const struct adv7511_cfg_read_
- 	buffer[3] = 0;
- 	buffer[3] = hdmi_infoframe_checksum(buffer, len + 4);
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/sdio_mcu.c b/drivers/net/wireless/mediatek/mt76/mt7921/sdio_mcu.c
+index 437cddad9a90..353d99fef065 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7921/sdio_mcu.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7921/sdio_mcu.c
+@@ -49,6 +49,26 @@ mt7921s_mcu_send_message(struct mt76_dev *mdev, struct sk_buff *skb,
+ 	return ret;
+ }
  
--	if (hdmi_infoframe_unpack(&frame, buffer, sizeof(buffer)) < 0) {
-+	if (hdmi_infoframe_unpack(&frame, buffer, len + 4) < 0) {
- 		v4l2_err(sd, "%s: unpack of %s infoframe failed\n", __func__, cri->desc);
- 		return;
- 	}
-diff --git a/drivers/media/i2c/adv7604.c b/drivers/media/i2c/adv7604.c
-index 122e1fdccd96..d688ffff7a07 100644
---- a/drivers/media/i2c/adv7604.c
-+++ b/drivers/media/i2c/adv7604.c
-@@ -2484,7 +2484,7 @@ static int adv76xx_read_infoframe(struct v4l2_subdev *sd, int index,
- 		buffer[i + 3] = infoframe_read(sd,
- 				       adv76xx_cri[index].payload_addr + i);
++static u32 mt7921s_read_rm3r(struct mt7921_dev *dev)
++{
++	struct mt76_sdio *sdio = &dev->mt76.sdio;
++
++	return sdio_readl(sdio->func, MCR_D2HRM3R, NULL);
++}
++
++static u32 mt7921s_clear_rm3r_drv_own(struct mt7921_dev *dev)
++{
++	struct mt76_sdio *sdio = &dev->mt76.sdio;
++	u32 val;
++
++	val = sdio_readl(sdio->func, MCR_D2HRM3R, NULL);
++	if (val)
++		sdio_writel(sdio->func, H2D_SW_INT_CLEAR_MAILBOX_ACK,
++			    MCR_WSICR, NULL);
++
++	return val;
++}
++
+ int mt7921s_mcu_init(struct mt7921_dev *dev)
+ {
+ 	static const struct mt76_mcu_ops mt7921s_mcu_ops = {
+@@ -88,6 +108,12 @@ int mt7921s_mcu_drv_pmctrl(struct mt7921_dev *dev)
  
--	if (hdmi_infoframe_unpack(frame, buffer, sizeof(buffer)) < 0) {
-+	if (hdmi_infoframe_unpack(frame, buffer, len + 3) < 0) {
- 		v4l2_err(sd, "%s: unpack of %s infoframe failed\n", __func__,
- 			 adv76xx_cri[index].desc);
- 		return -ENOENT;
-diff --git a/drivers/media/i2c/adv7842.c b/drivers/media/i2c/adv7842.c
-index 7f8acbdf0db4..8ab4c63839b4 100644
---- a/drivers/media/i2c/adv7842.c
-+++ b/drivers/media/i2c/adv7842.c
-@@ -2593,7 +2593,7 @@ static void log_infoframe(struct v4l2_subdev *sd, const struct adv7842_cfg_read_
- 	for (i = 0; i < len; i++)
- 		buffer[i + 3] = infoframe_read(sd, cri->payload_addr + i);
+ 	err = readx_poll_timeout(mt76s_read_pcr, &dev->mt76, status,
+ 				 status & WHLPCR_IS_DRIVER_OWN, 2000, 1000000);
++
++	if (!err && test_bit(MT76_STATE_MCU_RUNNING, &dev->mphy.state))
++		err = readx_poll_timeout(mt7921s_read_rm3r, dev, status,
++					 status & D2HRM3R_IS_DRIVER_OWN,
++					 2000, 1000000);
++
+ 	sdio_release_host(func);
  
--	if (hdmi_infoframe_unpack(&frame, buffer, sizeof(buffer)) < 0) {
-+	if (hdmi_infoframe_unpack(&frame, buffer, len + 3) < 0) {
- 		v4l2_err(sd, "%s: unpack of %s infoframe failed\n", __func__, cri->desc);
- 		return;
- 	}
+ 	if (err < 0) {
+@@ -115,12 +141,24 @@ int mt7921s_mcu_fw_pmctrl(struct mt7921_dev *dev)
+ 
+ 	sdio_claim_host(func);
+ 
++	if (test_bit(MT76_STATE_MCU_RUNNING, &dev->mphy.state)) {
++		err = readx_poll_timeout(mt7921s_clear_rm3r_drv_own,
++					 dev, status,
++					 !(status & D2HRM3R_IS_DRIVER_OWN),
++					 2000, 1000000);
++		if (err < 0) {
++			dev_err(dev->mt76.dev, "mailbox ACK not cleared\n");
++			goto err;
++		}
++	}
++
+ 	sdio_writel(func, WHLPCR_FW_OWN_REQ_SET, MCR_WHLPCR, NULL);
+ 
+ 	err = readx_poll_timeout(mt76s_read_pcr, &dev->mt76, status,
+ 				 !(status & WHLPCR_IS_DRIVER_OWN), 2000, 1000000);
+ 	sdio_release_host(func);
+ 
++err:
+ 	if (err < 0) {
+ 		dev_err(dev->mt76.dev, "firmware own failed\n");
+ 		clear_bit(MT76_STATE_PM, &mphy->state);
+diff --git a/drivers/net/wireless/mediatek/mt76/sdio.h b/drivers/net/wireless/mediatek/mt76/sdio.h
+index 99db4ad93b7c..27d5d2077eba 100644
+--- a/drivers/net/wireless/mediatek/mt76/sdio.h
++++ b/drivers/net/wireless/mediatek/mt76/sdio.h
+@@ -65,6 +65,7 @@
+ #define MCR_H2DSM0R			0x0070
+ #define H2D_SW_INT_READ			BIT(16)
+ #define H2D_SW_INT_WRITE		BIT(17)
++#define H2D_SW_INT_CLEAR_MAILBOX_ACK	BIT(22)
+ 
+ #define MCR_H2DSM1R			0x0074
+ #define MCR_D2HRM0R			0x0078
+@@ -109,6 +110,7 @@
+ #define MCR_H2DSM2R			0x0160 /* supported in CONNAC2 */
+ #define MCR_H2DSM3R			0x0164 /* supported in CONNAC2 */
+ #define MCR_D2HRM3R			0x0174 /* supported in CONNAC2 */
++#define D2HRM3R_IS_DRIVER_OWN		BIT(0)
+ #define MCR_WTQCR8			0x0190 /* supported in CONNAC2 */
+ #define MCR_WTQCR9			0x0194 /* supported in CONNAC2 */
+ #define MCR_WTQCR10			0x0198 /* supported in CONNAC2 */
 -- 
 2.34.1
 
