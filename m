@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1251D4F2E38
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:59:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA9824F2ABB
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:05:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233489AbiDEJgR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:36:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36638 "EHLO
+        id S234042AbiDEIhs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:37:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34720 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236039AbiDEI7o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:59:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C9BD255AD;
-        Tue,  5 Apr 2022 01:53:26 -0700 (PDT)
+        with ESMTP id S238456AbiDEITH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:19:07 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F30F9DEA3;
+        Tue,  5 Apr 2022 01:08:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 686A961003;
-        Tue,  5 Apr 2022 08:53:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F464C385A1;
-        Tue,  5 Apr 2022 08:53:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 37462B81A32;
+        Tue,  5 Apr 2022 08:08:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 979C5C385A0;
+        Tue,  5 Apr 2022 08:08:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148804;
-        bh=H9YrjQMoX5Tf6SSBBMB7UlmEDAvSUYEDqi5RKX3WyUU=;
+        s=korg; t=1649146135;
+        bh=X0rTzsBGeb+2G6pQhnVePEmfjAUos6BVgAr1tfd3tDY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=drkf5XnCtuu/i0gsjDOculEyi+1o2DbOlrtuiYLSxRZ1BVo+R34bRnkMSLTJXG2Pz
-         lQAm91b3xnda71JxELX7yekbhxCQCQ7lS1q3twzGtpmA0ApL6PqTCwhEa0Mvr3ku7h
-         tDJxg6lJ+4Oxfn1HNrznByckURrggCQUlthQYNr0=
+        b=gKi9mJ6MywLpRltIlBdzoezf/Xg0P4ElweLlExvhqGpkHGy6Yd5fKkJ2sTdDzTnFo
+         iFGAABC3GIo0jEtGPCm+9muz3LDYXV/56IdvcAMpZJuRI9GjugyiXYmD8fBBZyRPK3
+         se4dHW4CKPUyOYVlrHDxcXf6NfzXmO1JDYLoOe9M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Yonghong Song <yhs@fb.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0487/1017] libbpf: Fix signedness bug in btf_dump_array_data()
-Date:   Tue,  5 Apr 2022 09:23:20 +0200
-Message-Id: <20220405070408.754584448@linuxfoundation.org>
+        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>,
+        Xin Xiong <xiongx18@fudan.edu.cn>,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 0655/1126] mtd: rawnand: atmel: fix refcount issue in atmel_nand_controller_init
+Date:   Tue,  5 Apr 2022 09:23:22 +0200
+Message-Id: <20220405070426.856215230@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +57,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Xin Xiong <xiongx18@fudan.edu.cn>
 
-[ Upstream commit 4172843ed4a38f97084032f74f07b2037b5da3a6 ]
+[ Upstream commit fecbd4a317c95d73c849648c406bcf1b6a0ec1cf ]
 
-The btf__resolve_size() function returns negative error codes so
-"elem_size" must be signed for the error handling to work.
+The reference counting issue happens in several error handling paths
+on a refcounted object "nc->dmac". In these paths, the function simply
+returns the error code, forgetting to balance the reference count of
+"nc->dmac", increased earlier by dma_request_channel(), which may
+cause refcount leaks.
 
-Fixes: 920d16af9b42 ("libbpf: BTF dumper support for typed data")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Yonghong Song <yhs@fb.com>
-Link: https://lore.kernel.org/bpf/20220208071552.GB10495@kili
+Fix it by decrementing the refcount of specific object in those error
+paths.
+
+Fixes: f88fc122cc34 ("mtd: nand: Cleanup/rework the atmel_nand driver")
+Co-developed-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Co-developed-by: Xin Tan <tanxin.ctf@gmail.com>
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
+Signed-off-by: Xin Xiong <xiongx18@fudan.edu.cn>
+Reviewed-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20220304085330.3610-1-xiongx18@fudan.edu.cn
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/btf_dump.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/mtd/nand/raw/atmel/nand-controller.c | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
-diff --git a/tools/lib/bpf/btf_dump.c b/tools/lib/bpf/btf_dump.c
-index 5cae71600631..700dfd362c4a 100644
---- a/tools/lib/bpf/btf_dump.c
-+++ b/tools/lib/bpf/btf_dump.c
-@@ -1839,14 +1839,15 @@ static int btf_dump_array_data(struct btf_dump *d,
- {
- 	const struct btf_array *array = btf_array(t);
- 	const struct btf_type *elem_type;
--	__u32 i, elem_size = 0, elem_type_id;
-+	__u32 i, elem_type_id;
-+	__s64 elem_size;
- 	bool is_array_member;
- 
- 	elem_type_id = array->type;
- 	elem_type = skip_mods_and_typedefs(d->btf, elem_type_id, NULL);
- 	elem_size = btf__resolve_size(d->btf, elem_type_id);
- 	if (elem_size <= 0) {
--		pr_warn("unexpected elem size %d for array type [%u]\n", elem_size, id);
-+		pr_warn("unexpected elem size %lld for array type [%u]\n", elem_size, id);
- 		return -EINVAL;
+diff --git a/drivers/mtd/nand/raw/atmel/nand-controller.c b/drivers/mtd/nand/raw/atmel/nand-controller.c
+index f3276ee9e4fe..ddd93bc38ea6 100644
+--- a/drivers/mtd/nand/raw/atmel/nand-controller.c
++++ b/drivers/mtd/nand/raw/atmel/nand-controller.c
+@@ -2060,13 +2060,15 @@ static int atmel_nand_controller_init(struct atmel_nand_controller *nc,
+ 	nc->mck = of_clk_get(dev->parent->of_node, 0);
+ 	if (IS_ERR(nc->mck)) {
+ 		dev_err(dev, "Failed to retrieve MCK clk\n");
+-		return PTR_ERR(nc->mck);
++		ret = PTR_ERR(nc->mck);
++		goto out_release_dma;
  	}
  
+ 	np = of_parse_phandle(dev->parent->of_node, "atmel,smc", 0);
+ 	if (!np) {
+ 		dev_err(dev, "Missing or invalid atmel,smc property\n");
+-		return -EINVAL;
++		ret = -EINVAL;
++		goto out_release_dma;
+ 	}
+ 
+ 	nc->smc = syscon_node_to_regmap(np);
+@@ -2074,10 +2076,16 @@ static int atmel_nand_controller_init(struct atmel_nand_controller *nc,
+ 	if (IS_ERR(nc->smc)) {
+ 		ret = PTR_ERR(nc->smc);
+ 		dev_err(dev, "Could not get SMC regmap (err = %d)\n", ret);
+-		return ret;
++		goto out_release_dma;
+ 	}
+ 
+ 	return 0;
++
++out_release_dma:
++	if (nc->dmac)
++		dma_release_channel(nc->dmac);
++
++	return ret;
+ }
+ 
+ static int
 -- 
 2.34.1
 
