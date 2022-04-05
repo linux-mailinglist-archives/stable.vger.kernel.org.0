@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 23B4A4F2C0F
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:22:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D2A44F2AA0
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:05:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347471AbiDEJ0o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:26:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41420 "EHLO
+        id S1347508AbiDEJ1G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:27:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40848 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242522AbiDEIsy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:48:54 -0400
+        with ESMTP id S242570AbiDEIs6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:48:58 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06C944B1C8;
-        Tue,  5 Apr 2022 01:37:20 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8291253A5A;
+        Tue,  5 Apr 2022 01:37:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 36C506153A;
-        Tue,  5 Apr 2022 08:37:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47C99C385B3;
-        Tue,  5 Apr 2022 08:37:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 027B761574;
+        Tue,  5 Apr 2022 08:37:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E741C385CA;
+        Tue,  5 Apr 2022 08:37:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147833;
-        bh=95vMahAfUKw1PtQifHx+UoIMYCOQAJPVxnMWai3wuWw=;
+        s=korg; t=1649147836;
+        bh=yLqCQ/yDofoNM+R1v/S2XzyU18h6zpV4FD22rA3bSP0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1KTvwdP0z76Kes71nCpB83Z+E/0IoR4FSc6aTUFYYunAaLL5TLFnYajJVR+LYUz9D
-         cJ6E6NtLA2uiKCcgGtnrhSuqt9yDhq4/KHhC7Karcsfv1ToPojsxSwuP9RTFDN2uRV
-         RqVj6TgL0joqgShqhlwMRCpZel7pPnfvNY3Hjuh8=
+        b=Crv+x8om2IYhpWjf8zMbs5CNrFUuTfaJeFcJ1FfSUfgxnUZ0oSRX3fc7PQYnkFVhR
+         HNJVlR95bjIDztAdgfXhIWOO2CM8R/BHogYdP9ok3KsjM+Ctinxke1nAmcTrNs5Vp3
+         YnBrE6ulIgHJAovIErSSO8KSrtS7mZ3Ked5rDzNk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bill Messmer <wmessmer@microsoft.com>,
-        Jann Horn <jannh@google.com>, Kees Cook <keescook@chromium.org>
-Subject: [PATCH 5.16 0138/1017] coredump: Also dump first pages of non-executable ELF libraries
-Date:   Tue,  5 Apr 2022 09:17:31 +0200
-Message-Id: <20220405070358.299984448@linuxfoundation.org>
+        stable@vger.kernel.org, stable@kernel.org,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Ritesh Harjani <riteshh@linux.ibm.com>,
+        Jan Kara <jack@suse.cz>,
+        Harshad Shirwadkar <harshadshirwadkar@gmail.com>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.16 0139/1017] ext4: fix ext4_fc_stats trace point
+Date:   Tue,  5 Apr 2022 09:17:32 +0200
+Message-Id: <20220405070358.329136489@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -53,109 +57,136 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jann Horn <jannh@google.com>
+From: Ritesh Harjani <riteshh@linux.ibm.com>
 
-commit 84158b7f6a0624b81800b4e7c90f7fb7fdecf66c upstream.
+commit 7af1974af0a9ba8a8ed2e3e947d87dd4d9a78d27 upstream.
 
-When I rewrote the VMA dumping logic for coredumps, I changed it to
-recognize ELF library mappings based on the file being executable instead
-of the mapping having an ELF header. But turns out, distros ship many ELF
-libraries as non-executable, so the heuristic goes wrong...
+ftrace's __print_symbolic() requires that any enum values used in the
+symbol to string translation table be wrapped in a TRACE_DEFINE_ENUM
+so that the enum value can be decoded from the ftrace ring buffer by
+user space tooling.
 
-Restore the old behavior where FILTER(ELF_HEADERS) dumps the first page of
-any offset-0 readable mapping that starts with the ELF magic.
+This patch also fixes few other problems found in this trace point.
+e.g. dereferencing structures in TP_printk which should not be done
+at any cost.
 
-This fix is technically layer-breaking a bit, because it checks for
-something ELF-specific in fs/coredump.c; but since we probably want to
-share this between standard ELF and FDPIC ELF anyway, I guess it's fine?
-And this also keeps the change small for backporting.
+Also to avoid checkpatch warnings, this patch removes those
+whitespaces/tab stops issues.
 
-Cc: stable@vger.kernel.org
-Fixes: 429a22e776a2 ("coredump: rework elf/elf_fdpic vma_dump_size() into common helper")
-Reported-by: Bill Messmer <wmessmer@microsoft.com>
-Signed-off-by: Jann Horn <jannh@google.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20220126025739.2014888-1-jannh@google.com
+Cc: stable@kernel.org
+Fixes: aa75f4d3daae ("ext4: main fast-commit commit path")
+Reported-by: Steven Rostedt <rostedt@goodmis.org>
+Signed-off-by: Ritesh Harjani <riteshh@linux.ibm.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Reviewed-by: Harshad Shirwadkar <harshadshirwadkar@gmail.com>
+Link: https://lore.kernel.org/r/b4b9691414c35c62e570b723e661c80674169f9a.1647057583.git.riteshh@linux.ibm.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/coredump.c |   39 ++++++++++++++++++++++++++++++++++-----
- 1 file changed, 34 insertions(+), 5 deletions(-)
+ include/trace/events/ext4.h |   80 +++++++++++++++++++++++++++-----------------
+ 1 file changed, 50 insertions(+), 30 deletions(-)
 
---- a/fs/coredump.c
-+++ b/fs/coredump.c
-@@ -41,6 +41,7 @@
- #include <linux/fs.h>
- #include <linux/path.h>
- #include <linux/timekeeping.h>
-+#include <linux/elf.h>
+--- a/include/trace/events/ext4.h
++++ b/include/trace/events/ext4.h
+@@ -95,6 +95,17 @@ TRACE_DEFINE_ENUM(ES_REFERENCED_B);
+ 	{ FALLOC_FL_COLLAPSE_RANGE,	"COLLAPSE_RANGE"},	\
+ 	{ FALLOC_FL_ZERO_RANGE,		"ZERO_RANGE"})
  
- #include <linux/uaccess.h>
- #include <asm/mmu_context.h>
-@@ -926,6 +927,8 @@ static bool always_dump_vma(struct vm_ar
- 	return false;
- }
- 
-+#define DUMP_SIZE_MAYBE_ELFHDR_PLACEHOLDER 1
++TRACE_DEFINE_ENUM(EXT4_FC_REASON_XATTR);
++TRACE_DEFINE_ENUM(EXT4_FC_REASON_CROSS_RENAME);
++TRACE_DEFINE_ENUM(EXT4_FC_REASON_JOURNAL_FLAG_CHANGE);
++TRACE_DEFINE_ENUM(EXT4_FC_REASON_NOMEM);
++TRACE_DEFINE_ENUM(EXT4_FC_REASON_SWAP_BOOT);
++TRACE_DEFINE_ENUM(EXT4_FC_REASON_RESIZE);
++TRACE_DEFINE_ENUM(EXT4_FC_REASON_RENAME_DIR);
++TRACE_DEFINE_ENUM(EXT4_FC_REASON_FALLOC_RANGE);
++TRACE_DEFINE_ENUM(EXT4_FC_REASON_INODE_JOURNAL_DATA);
++TRACE_DEFINE_ENUM(EXT4_FC_REASON_MAX);
 +
- /*
-  * Decide how much of @vma's contents should be included in a core dump.
-  */
-@@ -985,9 +988,20 @@ static unsigned long vma_dump_size(struc
- 	 * dump the first page to aid in determining what was mapped here.
- 	 */
- 	if (FILTER(ELF_HEADERS) &&
--	    vma->vm_pgoff == 0 && (vma->vm_flags & VM_READ) &&
--	    (READ_ONCE(file_inode(vma->vm_file)->i_mode) & 0111) != 0)
--		return PAGE_SIZE;
-+	    vma->vm_pgoff == 0 && (vma->vm_flags & VM_READ)) {
-+		if ((READ_ONCE(file_inode(vma->vm_file)->i_mode) & 0111) != 0)
-+			return PAGE_SIZE;
+ #define show_fc_reason(reason)						\
+ 	__print_symbolic(reason,					\
+ 		{ EXT4_FC_REASON_XATTR,		"XATTR"},		\
+@@ -2723,41 +2734,50 @@ TRACE_EVENT(ext4_fc_commit_stop,
+ 
+ #define FC_REASON_NAME_STAT(reason)					\
+ 	show_fc_reason(reason),						\
+-	__entry->sbi->s_fc_stats.fc_ineligible_reason_count[reason]
++	__entry->fc_ineligible_rc[reason]
+ 
+ TRACE_EVENT(ext4_fc_stats,
+-	    TP_PROTO(struct super_block *sb),
++	TP_PROTO(struct super_block *sb),
 +
-+		/*
-+		 * ELF libraries aren't always executable.
-+		 * We'll want to check whether the mapping starts with the ELF
-+		 * magic, but not now - we're holding the mmap lock,
-+		 * so copy_from_user() doesn't work here.
-+		 * Use a placeholder instead, and fix it up later in
-+		 * dump_vma_snapshot().
-+		 */
-+		return DUMP_SIZE_MAYBE_ELFHDR_PLACEHOLDER;
-+	}
++	TP_ARGS(sb),
++
++	TP_STRUCT__entry(
++		__field(dev_t, dev)
++		__array(unsigned int, fc_ineligible_rc, EXT4_FC_REASON_MAX)
++		__field(unsigned long, fc_commits)
++		__field(unsigned long, fc_ineligible_commits)
++		__field(unsigned long, fc_numblks)
++	),
  
- #undef	FILTER
+-	    TP_ARGS(sb),
++	TP_fast_assign(
++		int i;
  
-@@ -1062,8 +1076,6 @@ int dump_vma_snapshot(struct coredump_pa
- 		m->end = vma->vm_end;
- 		m->flags = vma->vm_flags;
- 		m->dump_size = vma_dump_size(vma, cprm->mm_flags);
+-	    TP_STRUCT__entry(
+-		    __field(dev_t, dev)
+-		    __field(struct ext4_sb_info *, sbi)
+-		    __field(int, count)
+-		    ),
 -
--		vma_data_size += m->dump_size;
- 	}
- 
- 	mmap_write_unlock(mm);
-@@ -1073,6 +1085,23 @@ int dump_vma_snapshot(struct coredump_pa
- 		return -EFAULT;
- 	}
- 
-+	for (i = 0; i < *vma_count; i++) {
-+		struct core_vma_metadata *m = (*vma_meta) + i;
-+
-+		if (m->dump_size == DUMP_SIZE_MAYBE_ELFHDR_PLACEHOLDER) {
-+			char elfmag[SELFMAG];
-+
-+			if (copy_from_user(elfmag, (void __user *)m->start, SELFMAG) ||
-+					memcmp(elfmag, ELFMAG, SELFMAG) != 0) {
-+				m->dump_size = 0;
-+			} else {
-+				m->dump_size = PAGE_SIZE;
-+			}
+-	    TP_fast_assign(
+-		    __entry->dev = sb->s_dev;
+-		    __entry->sbi = EXT4_SB(sb);
+-		    ),
+-
+-	    TP_printk("dev %d:%d fc ineligible reasons:\n"
+-		      "%s:%d, %s:%d, %s:%d, %s:%d, %s:%d, %s:%d, %s:%d, %s:%d, %s:%d; "
+-		      "num_commits:%ld, ineligible: %ld, numblks: %ld",
+-		      MAJOR(__entry->dev), MINOR(__entry->dev),
+-		      FC_REASON_NAME_STAT(EXT4_FC_REASON_XATTR),
+-		      FC_REASON_NAME_STAT(EXT4_FC_REASON_CROSS_RENAME),
+-		      FC_REASON_NAME_STAT(EXT4_FC_REASON_JOURNAL_FLAG_CHANGE),
+-		      FC_REASON_NAME_STAT(EXT4_FC_REASON_NOMEM),
+-		      FC_REASON_NAME_STAT(EXT4_FC_REASON_SWAP_BOOT),
+-		      FC_REASON_NAME_STAT(EXT4_FC_REASON_RESIZE),
+-		      FC_REASON_NAME_STAT(EXT4_FC_REASON_RENAME_DIR),
+-		      FC_REASON_NAME_STAT(EXT4_FC_REASON_FALLOC_RANGE),
+-		      FC_REASON_NAME_STAT(EXT4_FC_REASON_INODE_JOURNAL_DATA),
+-		      __entry->sbi->s_fc_stats.fc_num_commits,
+-		      __entry->sbi->s_fc_stats.fc_ineligible_commits,
+-		      __entry->sbi->s_fc_stats.fc_numblks)
++		__entry->dev = sb->s_dev;
++		for (i = 0; i < EXT4_FC_REASON_MAX; i++) {
++			__entry->fc_ineligible_rc[i] =
++				EXT4_SB(sb)->s_fc_stats.fc_ineligible_reason_count[i];
 +		}
-+
-+		vma_data_size += m->dump_size;
-+	}
-+
- 	*vma_data_size_ptr = vma_data_size;
- 	return 0;
- }
++		__entry->fc_commits = EXT4_SB(sb)->s_fc_stats.fc_num_commits;
++		__entry->fc_ineligible_commits =
++			EXT4_SB(sb)->s_fc_stats.fc_ineligible_commits;
++		__entry->fc_numblks = EXT4_SB(sb)->s_fc_stats.fc_numblks;
++	),
+ 
++	TP_printk("dev %d,%d fc ineligible reasons:\n"
++		  "%s:%u, %s:%u, %s:%u, %s:%u, %s:%u, %s:%u, %s:%u, %s:%u, %s:%u "
++		  "num_commits:%lu, ineligible: %lu, numblks: %lu",
++		  MAJOR(__entry->dev), MINOR(__entry->dev),
++		  FC_REASON_NAME_STAT(EXT4_FC_REASON_XATTR),
++		  FC_REASON_NAME_STAT(EXT4_FC_REASON_CROSS_RENAME),
++		  FC_REASON_NAME_STAT(EXT4_FC_REASON_JOURNAL_FLAG_CHANGE),
++		  FC_REASON_NAME_STAT(EXT4_FC_REASON_NOMEM),
++		  FC_REASON_NAME_STAT(EXT4_FC_REASON_SWAP_BOOT),
++		  FC_REASON_NAME_STAT(EXT4_FC_REASON_RESIZE),
++		  FC_REASON_NAME_STAT(EXT4_FC_REASON_RENAME_DIR),
++		  FC_REASON_NAME_STAT(EXT4_FC_REASON_FALLOC_RANGE),
++		  FC_REASON_NAME_STAT(EXT4_FC_REASON_INODE_JOURNAL_DATA),
++		  __entry->fc_commits, __entry->fc_ineligible_commits,
++		  __entry->fc_numblks)
+ );
+ 
+ #define DEFINE_TRACE_DENTRY_EVENT(__type)				\
 
 
