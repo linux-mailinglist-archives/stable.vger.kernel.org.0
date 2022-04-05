@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2ED544F3911
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:43:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CED454F395F
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:47:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377544AbiDEL3o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:29:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58510 "EHLO
+        id S1378222AbiDELcO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:32:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53558 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351490AbiDEKCe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:02:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B47196EB38;
-        Tue,  5 Apr 2022 02:51:50 -0700 (PDT)
+        with ESMTP id S1351543AbiDEKCi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:02:38 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F94D6EC64;
+        Tue,  5 Apr 2022 02:51:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 514EE61675;
-        Tue,  5 Apr 2022 09:51:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5DFF8C385A1;
-        Tue,  5 Apr 2022 09:51:49 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id F22DBCE1CA0;
+        Tue,  5 Apr 2022 09:51:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1611EC385C1;
+        Tue,  5 Apr 2022 09:51:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152309;
-        bh=AI9DrVufi3MdEFjnhzkWMRlWnmYNO4xCFAbfcOkWUqQ=;
+        s=korg; t=1649152312;
+        bh=IarqHDYKJbHBln3CcZKc26LuO7T/MvquBPPP1r30uhU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OU6Q6DgS4FhP3AYSRcV67QxHNodt0WLBBfNshVXh2N47CIer+7iegsQv2k/RXuXaC
-         MlRTD0B2wTxtzxTPj3qMG0cI4dVZSPNNlwlRO0uSJSwpSgEBVPqnV3Nc7OdV2LHgbQ
-         MguWwQibIbXlCTHdVXHBpQk6yegac0OBv55bwCF0=
+        b=RlYRI95rrs85MTWekBOPL1aGRy5KjHig+z2vFAm5EWVbLtmnXDfq3cCYZ+sIgfSue
+         2J/XjnXKbRAFfp7tXU/Je0Cw2rFbiDBEvV8YjEF0zhd8yN6RPT9tYM4Hd0M2aG+8tH
+         OWuzVhXzI9DyfolPRrodw2QybC/8evv7V64vGvOk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peiwei Hu <jlu.hpw@foxmail.com>,
-        Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        stable@vger.kernel.org, Pavel Machek <pavel@denx.de>,
+        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
+        Biju Das <biju.das.jz@bp.renesas.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 729/913] media: ir_toy: free before error exiting
-Date:   Tue,  5 Apr 2022 09:29:51 +0200
-Message-Id: <20220405070401.683021619@linuxfoundation.org>
+Subject: [PATCH 5.15 730/913] ASoC: sh: rz-ssi: Make the data structures available before registering the handlers
+Date:   Tue,  5 Apr 2022 09:29:52 +0200
+Message-Id: <20220405070401.713076262@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -55,33 +56,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peiwei Hu <jlu.hpw@foxmail.com>
+From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 
-[ Upstream commit 52cdb013036391d9d87aba5b4fc49cdfc6ea4b23 ]
+[ Upstream commit 0788785c78342d422f93b1c9831c2b2b7f137937 ]
 
-Fix leak in error path.
+Initialize the spinlock and make the data structures available before
+registering the interrupt handlers.
 
-Signed-off-by: Peiwei Hu <jlu.hpw@foxmail.com>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Reported-by: Pavel Machek <pavel@denx.de>
+Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Reviewed-by: Biju Das <biju.das.jz@bp.renesas.com>
+Link: https://lore.kernel.org/r/20220110094711.8574-3-prabhakar.mahadev-lad.rj@bp.renesas.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/rc/ir_toy.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/sh/rz-ssi.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/rc/ir_toy.c b/drivers/media/rc/ir_toy.c
-index 1aa7989e756c..7f394277478b 100644
---- a/drivers/media/rc/ir_toy.c
-+++ b/drivers/media/rc/ir_toy.c
-@@ -429,7 +429,7 @@ static int irtoy_probe(struct usb_interface *intf,
- 	err = usb_submit_urb(irtoy->urb_in, GFP_KERNEL);
- 	if (err != 0) {
- 		dev_err(irtoy->dev, "fail to submit in urb: %d\n", err);
--		return err;
-+		goto free_rcdev;
- 	}
+diff --git a/sound/soc/sh/rz-ssi.c b/sound/soc/sh/rz-ssi.c
+index 37466f65c2b0..16de2633a873 100644
+--- a/sound/soc/sh/rz-ssi.c
++++ b/sound/soc/sh/rz-ssi.c
+@@ -977,6 +977,9 @@ static int rz_ssi_probe(struct platform_device *pdev)
+ 	ssi->playback.priv = ssi;
+ 	ssi->capture.priv = ssi;
  
- 	err = irtoy_setup(irtoy);
++	spin_lock_init(&ssi->lock);
++	dev_set_drvdata(&pdev->dev, ssi);
++
+ 	/* Error Interrupt */
+ 	ssi->irq_int = platform_get_irq_byname(pdev, "int_req");
+ 	if (ssi->irq_int < 0)
+@@ -1024,8 +1027,6 @@ static int rz_ssi_probe(struct platform_device *pdev)
+ 	pm_runtime_enable(&pdev->dev);
+ 	pm_runtime_resume_and_get(&pdev->dev);
+ 
+-	spin_lock_init(&ssi->lock);
+-	dev_set_drvdata(&pdev->dev, ssi);
+ 	ret = devm_snd_soc_register_component(&pdev->dev, &rz_ssi_soc_component,
+ 					      rz_ssi_soc_dai,
+ 					      ARRAY_SIZE(rz_ssi_soc_dai));
 -- 
 2.34.1
 
