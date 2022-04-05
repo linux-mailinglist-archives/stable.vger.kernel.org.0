@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 608C24F2A98
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:05:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE1134F2D6F
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:42:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345110AbiDEJyd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:54:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41472 "EHLO
+        id S239439AbiDEJxx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:53:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41988 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243237AbiDEJIv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:08:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 853849F6C0;
-        Tue,  5 Apr 2022 01:57:49 -0700 (PDT)
+        with ESMTP id S243306AbiDEJIx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:08:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F06EF9F6F6;
+        Tue,  5 Apr 2022 01:57:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 067AEB80DA1;
-        Tue,  5 Apr 2022 08:57:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5453DC385AA;
-        Tue,  5 Apr 2022 08:57:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 66F62615BB;
+        Tue,  5 Apr 2022 08:57:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 784E2C385A5;
+        Tue,  5 Apr 2022 08:57:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149067;
-        bh=fTO4FNgiYK0sHRgMdAu5LNK4LHTq4UV5MSEOC31Srdw=;
+        s=korg; t=1649149075;
+        bh=qQkG5DprhOohE/vv7FqAicjZ5OSnoUow72LwglFkNNY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W9hmgdLLx0gcajiLykU/J1bpJrQWkx2Zk+f9OXFKDxjOdsT4cX0pHJJn4Szwvr98f
-         25i0kIH42+VSbLlmpQ8UWkN5XH6n+kJH3rX9e8ouhIuswQwFThF9old/Juwg0s9yST
-         X2uxZ8kxp5z7NUDeqMvxCrhclrGSvca9TR1YtFl0=
+        b=A8d+imwd02nQSix9ptaml37ORnduFW2HwAIGjyiAPidEgaMxZQssu+KU2EBykAJt7
+         XGcPTFxXmNEmV3wPDZ4zPIT2rMz/itrmYpk1CsZtuuBWbZUa2E/KBayTAzTzIivmFf
+         PipxGL2vVIDkKi949wE11t3pxUo/oG2+RPrKux4A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Lee Jones <lee.jones@linaro.org>,
+        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
+        Jia-Ju Bai <baijiaju1990@gmail.com>,
+        Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0581/1017] mfd: mc13xxx: Add check for mc13xxx_irq_request
-Date:   Tue,  5 Apr 2022 09:24:54 +0200
-Message-Id: <20220405070411.525227578@linuxfoundation.org>
+Subject: [PATCH 5.16 0584/1017] platform/x86: huawei-wmi: check the return value of device_create_file()
+Date:   Tue,  5 Apr 2022 09:24:57 +0200
+Message-Id: <20220405070411.615032299@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -54,39 +55,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Jia-Ju Bai <baijiaju1990@gmail.com>
 
-[ Upstream commit e477e51a41cb5d6034f3c5ea85a71ad4613996b9 ]
+[ Upstream commit c91a5b1c221a58d008485cf7d02ccce73108b119 ]
 
-As the potential failure of the devm_request_threaded_irq(),
-it should be better to check the return value of the
-mc13xxx_irq_request() and return error if fails.
+The function device_create_file() in huawei_wmi_battery_add() can fail,
+so its return value should be checked.
 
-Fixes: 8e00593557c3 ("mfd: Add mc13892 support to mc13xxx")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
-Link: https://lore.kernel.org/r/20220224022331.3208275-1-jiasheng@iscas.ac.cn
+Fixes: 355a070b09ab ("platform/x86: huawei-wmi: Add battery charging thresholds")
+Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
+Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+Link: https://lore.kernel.org/r/20220303022421.313-1-baijiaju1990@gmail.com
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/mc13xxx-core.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/platform/x86/huawei-wmi.c | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/mfd/mc13xxx-core.c b/drivers/mfd/mc13xxx-core.c
-index 8a4f1d90dcfd..1000572761a8 100644
---- a/drivers/mfd/mc13xxx-core.c
-+++ b/drivers/mfd/mc13xxx-core.c
-@@ -323,8 +323,10 @@ int mc13xxx_adc_do_conversion(struct mc13xxx *mc13xxx, unsigned int mode,
- 		adc1 |= MC13783_ADC1_ATOX;
+diff --git a/drivers/platform/x86/huawei-wmi.c b/drivers/platform/x86/huawei-wmi.c
+index a2d846c4a7ee..eac3e6b4ea11 100644
+--- a/drivers/platform/x86/huawei-wmi.c
++++ b/drivers/platform/x86/huawei-wmi.c
+@@ -470,10 +470,17 @@ static DEVICE_ATTR_RW(charge_control_thresholds);
  
- 	dev_dbg(mc13xxx->dev, "%s: request irq\n", __func__);
--	mc13xxx_irq_request(mc13xxx, MC13XXX_IRQ_ADCDONE,
-+	ret = mc13xxx_irq_request(mc13xxx, MC13XXX_IRQ_ADCDONE,
- 			mc13xxx_handler_adcdone, __func__, &adcdone_data);
-+	if (ret)
-+		goto out;
+ static int huawei_wmi_battery_add(struct power_supply *battery)
+ {
+-	device_create_file(&battery->dev, &dev_attr_charge_control_start_threshold);
+-	device_create_file(&battery->dev, &dev_attr_charge_control_end_threshold);
++	int err = 0;
  
- 	mc13xxx_reg_write(mc13xxx, MC13XXX_ADC0, adc0);
- 	mc13xxx_reg_write(mc13xxx, MC13XXX_ADC1, adc1);
+-	return 0;
++	err = device_create_file(&battery->dev, &dev_attr_charge_control_start_threshold);
++	if (err)
++		return err;
++
++	err = device_create_file(&battery->dev, &dev_attr_charge_control_end_threshold);
++	if (err)
++		device_remove_file(&battery->dev, &dev_attr_charge_control_start_threshold);
++
++	return err;
+ }
+ 
+ static int huawei_wmi_battery_remove(struct power_supply *battery)
 -- 
 2.34.1
 
