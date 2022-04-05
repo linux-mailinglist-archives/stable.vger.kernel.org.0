@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D55A4F259A
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 09:49:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 088FE4F25A6
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 09:49:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232277AbiDEHum (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 03:50:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47250 "EHLO
+        id S232410AbiDEHuy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 03:50:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47088 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233254AbiDEHrl (ORCPT
+        with ESMTP id S233271AbiDEHrl (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:47:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 786736355;
-        Tue,  5 Apr 2022 00:43:46 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E698BB7C4;
+        Tue,  5 Apr 2022 00:43:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CB925B81B92;
-        Tue,  5 Apr 2022 07:43:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19FA9C340EE;
-        Tue,  5 Apr 2022 07:43:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D1735616BF;
+        Tue,  5 Apr 2022 07:43:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9725C340EE;
+        Tue,  5 Apr 2022 07:43:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649144623;
-        bh=E+kINYDa4vjmR2/Ac/d85f684pQx7sVqJoLby8JcQdo=;
+        s=korg; t=1649144626;
+        bh=PwoYvdv/B8jGc1fJpLaxWKJ5aWs33AsXDs0Dcffi23s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LKdx5n6hjvgFGPecud8wFgjoYVbourRREl0yT6Scfm0G20nBXUZ9/tVlhNKMDyN7e
-         SpYe+/3JK9lgTrYaeOKEdt8Pj7yAZ0lCpuzWMsjW0jV8jfcXatcl49Aei5VbHW9Kp6
-         fEcKkWGh0i9ibJW2vt5E9VK6VtnHPQpnhfIEYfMU=
+        b=Qk5YAqJpDu78BULHfc7PtXUqhZITz+cU1uKCwrTsJzswhio/nPrj6Lzfh9GvwjxjO
+         4ygTaKIGRXPn3uthXDaQcQG9n+hEW8LKL0kpdO5R2NO9AJKe6mQ3i/LQDsuhKqRxku
+         rC9xTSuXfQSQ9UUI+90FDZPHO6UT569usRCcIn78=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kirill Tkhai <ktkhai@virtuozzo.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
         Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 5.17 0112/1126] dm: fix use-after-free in dm_cleanup_zoned_dev()
-Date:   Tue,  5 Apr 2022 09:14:19 +0200
-Message-Id: <20220405070410.858214332@linuxfoundation.org>
+Subject: [PATCH 5.17 0113/1126] dm: interlock pending dm_io and dm_wait_for_bios_completion
+Date:   Tue,  5 Apr 2022 09:14:20 +0200
+Message-Id: <20220405070410.887516282@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -54,76 +53,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kirill Tkhai <ktkhai@virtuozzo.com>
+From: Mike Snitzer <snitzer@redhat.com>
 
-commit 588b7f5df0cb64f281290c7672470c006abe7160 upstream.
+commit 9f6dc633761006f974701d4c88da71ab68670749 upstream.
 
-dm_cleanup_zoned_dev() uses queue, so it must be called
-before blk_cleanup_disk() starts its killing:
+Commit d208b89401e0 ("dm: fix mempool NULL pointer race when
+completing IO") didn't go far enough.
 
-blk_cleanup_disk->blk_cleanup_queue()->kobject_put()->blk_release_queue()->
-->...RCU...->blk_free_queue_rcu()->kmem_cache_free()
+When bio_end_io_acct ends the count of in-flight I/Os may reach zero
+and the DM device may be suspended. There is a possibility that the
+suspend races with dm_stats_account_io.
 
-Otherwise, RCU callback may be executed first and
-dm_cleanup_zoned_dev() will touch free'd memory:
+Fix this by adding percpu "pending_io" counters to track outstanding
+dm_io. Move kicking of suspend queue to dm_io_dec_pending(). Also,
+rename md_in_flight_bios() to dm_in_flight_bios() and update it to
+iterate all pending_io counters.
 
- BUG: KASAN: use-after-free in dm_cleanup_zoned_dev+0x33/0xd0
- Read of size 8 at addr ffff88805ac6e430 by task dmsetup/681
-
- CPU: 4 PID: 681 Comm: dmsetup Not tainted 5.17.0-rc2+ #6
- Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-2 04/01/2014
- Call Trace:
-  <TASK>
-  dump_stack_lvl+0x57/0x7d
-  print_address_description.constprop.0+0x1f/0x150
-  ? dm_cleanup_zoned_dev+0x33/0xd0
-  kasan_report.cold+0x7f/0x11b
-  ? dm_cleanup_zoned_dev+0x33/0xd0
-  dm_cleanup_zoned_dev+0x33/0xd0
-  __dm_destroy+0x26a/0x400
-  ? dm_blk_ioctl+0x230/0x230
-  ? up_write+0xd8/0x270
-  dev_remove+0x156/0x1d0
-  ctl_ioctl+0x269/0x530
-  ? table_clear+0x140/0x140
-  ? lock_release+0xb2/0x750
-  ? remove_all+0x40/0x40
-  ? rcu_read_lock_sched_held+0x12/0x70
-  ? lock_downgrade+0x3c0/0x3c0
-  ? rcu_read_lock_sched_held+0x12/0x70
-  dm_ctl_ioctl+0xa/0x10
-  __x64_sys_ioctl+0xb9/0xf0
-  do_syscall_64+0x3b/0x90
-  entry_SYSCALL_64_after_hwframe+0x44/0xae
- RIP: 0033:0x7fb6dfa95c27
-
-Fixes: bb37d77239af ("dm: introduce zone append emulation")
+Fixes: d208b89401e0 ("dm: fix mempool NULL pointer race when completing IO")
 Cc: stable@vger.kernel.org
-Signed-off-by: Kirill Tkhai <ktkhai@virtuozzo.com>
-Reviewed-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Co-developed-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
 Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/dm.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/md/dm-core.h |    2 ++
+ drivers/md/dm.c      |   35 +++++++++++++++++++++++------------
+ 2 files changed, 25 insertions(+), 12 deletions(-)
 
+--- a/drivers/md/dm-core.h
++++ b/drivers/md/dm-core.h
+@@ -65,6 +65,8 @@ struct mapped_device {
+ 	struct gendisk *disk;
+ 	struct dax_device *dax_dev;
+ 
++	unsigned long __percpu *pending_io;
++
+ 	/*
+ 	 * A list of ios that arrived while we were suspended.
+ 	 */
 --- a/drivers/md/dm.c
 +++ b/drivers/md/dm.c
-@@ -1609,6 +1609,7 @@ static void cleanup_mapped_device(struct
- 		md->dax_dev = NULL;
- 	}
- 
-+	dm_cleanup_zoned_dev(md);
- 	if (md->disk) {
- 		spin_lock(&_minor_lock);
- 		md->disk->private_data = NULL;
-@@ -1629,7 +1630,6 @@ static void cleanup_mapped_device(struct
- 	mutex_destroy(&md->swap_bios_lock);
- 
- 	dm_mq_cleanup_mapped_device(md);
--	dm_cleanup_zoned_dev(md);
+@@ -507,10 +507,6 @@ static void end_io_acct(struct mapped_de
+ 		dm_stats_account_io(&md->stats, bio_data_dir(bio),
+ 				    bio->bi_iter.bi_sector, bio_sectors(bio),
+ 				    true, duration, stats_aux);
+-
+-	/* nudge anyone waiting on suspend queue */
+-	if (unlikely(wq_has_sleeper(&md->wait)))
+-		wake_up(&md->wait);
  }
  
- /*
+ static struct dm_io *alloc_io(struct mapped_device *md, struct bio *bio)
+@@ -531,6 +527,7 @@ static struct dm_io *alloc_io(struct map
+ 	io->magic = DM_IO_MAGIC;
+ 	io->status = 0;
+ 	atomic_set(&io->io_count, 1);
++	this_cpu_inc(*md->pending_io);
+ 	io->orig_bio = bio;
+ 	io->md = md;
+ 	spin_lock_init(&io->endio_lock);
+@@ -828,6 +825,12 @@ void dm_io_dec_pending(struct dm_io *io,
+ 		stats_aux = io->stats_aux;
+ 		free_io(md, io);
+ 		end_io_acct(md, bio, start_time, &stats_aux);
++		smp_wmb();
++		this_cpu_dec(*md->pending_io);
++
++		/* nudge anyone waiting on suspend queue */
++		if (unlikely(wq_has_sleeper(&md->wait)))
++			wake_up(&md->wait);
+ 
+ 		if (io_error == BLK_STS_DM_REQUEUE)
+ 			return;
+@@ -1622,6 +1625,11 @@ static void cleanup_mapped_device(struct
+ 		blk_cleanup_disk(md->disk);
+ 	}
+ 
++	if (md->pending_io) {
++		free_percpu(md->pending_io);
++		md->pending_io = NULL;
++	}
++
+ 	cleanup_srcu_struct(&md->io_barrier);
+ 
+ 	mutex_destroy(&md->suspend_lock);
+@@ -1723,6 +1731,10 @@ static struct mapped_device *alloc_dev(i
+ 	if (!md->wq)
+ 		goto bad;
+ 
++	md->pending_io = alloc_percpu(unsigned long);
++	if (!md->pending_io)
++		goto bad;
++
+ 	dm_stats_init(&md->stats);
+ 
+ 	/* Populate the mapping, nobody knows we exist yet */
+@@ -2130,16 +2142,13 @@ void dm_put(struct mapped_device *md)
+ }
+ EXPORT_SYMBOL_GPL(dm_put);
+ 
+-static bool md_in_flight_bios(struct mapped_device *md)
++static bool dm_in_flight_bios(struct mapped_device *md)
+ {
+ 	int cpu;
+-	struct block_device *part = dm_disk(md)->part0;
+-	long sum = 0;
++	unsigned long sum = 0;
+ 
+-	for_each_possible_cpu(cpu) {
+-		sum += part_stat_local_read_cpu(part, in_flight[0], cpu);
+-		sum += part_stat_local_read_cpu(part, in_flight[1], cpu);
+-	}
++	for_each_possible_cpu(cpu)
++		sum += *per_cpu_ptr(md->pending_io, cpu);
+ 
+ 	return sum != 0;
+ }
+@@ -2152,7 +2161,7 @@ static int dm_wait_for_bios_completion(s
+ 	while (true) {
+ 		prepare_to_wait(&md->wait, &wait, task_state);
+ 
+-		if (!md_in_flight_bios(md))
++		if (!dm_in_flight_bios(md))
+ 			break;
+ 
+ 		if (signal_pending_state(task_state, current)) {
+@@ -2164,6 +2173,8 @@ static int dm_wait_for_bios_completion(s
+ 	}
+ 	finish_wait(&md->wait, &wait);
+ 
++	smp_rmb();
++
+ 	return r;
+ }
+ 
 
 
