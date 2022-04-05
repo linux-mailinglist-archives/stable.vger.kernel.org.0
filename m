@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DA77F4F3800
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:27:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3ABC84F37FF
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:27:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359831AbiDELU6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:20:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39584 "EHLO
+        id S1359825AbiDELU5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:20:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44178 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349263AbiDEJtb (ORCPT
+        with ESMTP id S1349260AbiDEJtb (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:31 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E67F196;
-        Tue,  5 Apr 2022 02:43:26 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86A63AB;
+        Tue,  5 Apr 2022 02:43:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E743DB81B7A;
-        Tue,  5 Apr 2022 09:43:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A5CBC385A2;
-        Tue,  5 Apr 2022 09:43:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2657F6164D;
+        Tue,  5 Apr 2022 09:43:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32838C385A1;
+        Tue,  5 Apr 2022 09:43:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151803;
-        bh=ilqLsuz/Ma+wTb22AXwt8jOnSVqdW4vrad/y6wPbT/c=;
+        s=korg; t=1649151806;
+        bh=SFZhGojlTJsFtEcOoR6TsDZqCuHRKYKgaXsoBWxvPMc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pLtBKR3kcFL+YD7d/rHm/LcSfzeGbkSUdnRJt6/mL4OfL8fZsFHkqQ9Jwf46D6j6A
-         G9wbdWPwbABlQ7TYxPG7AkCgnt/e3A1koi3zdiaIhdYpkCaUSp2+DKkoiM68QcXi1a
-         ymnPj7OWYr5tv5aOY767FdrPcDkIYVHDAp1X7HZo=
+        b=wsAaXplorpXAHaQGyH1G7Y0yl10x3YT6jInzObjwGDzf5w1hHxsrlGI6hC6UnzTFH
+         imryDRU1uXYiAiIeB9+GNNfJ+myvZwqxv4DxMnwdbRkxJuAzUjmZuxXnJHu3MpqzMS
+         aFdSz6jnsSDjhcZhGDtq5vf6LsYu4sQVGuCKMolA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 548/913] mt76: mt7921: fix mt7921_queues_acq implementation
-Date:   Tue,  5 Apr 2022 09:26:50 +0200
-Message-Id: <20220405070356.274488132@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+2339c27f5c66c652843e@syzkaller.appspotmail.com,
+        Oliver Hartkopp <socketcan@hartkopp.net>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.15 549/913] can: isotp: sanitize CAN ID checks in isotp_bind()
+Date:   Tue,  5 Apr 2022 09:26:51 +0200
+Message-Id: <20220405070356.303888570@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -53,80 +55,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Bianconi <lorenzo@kernel.org>
+From: Oliver Hartkopp <socketcan@hartkopp.net>
 
-[ Upstream commit 849ee6ac9dd3efd0a57cbc98b9a9d6ae87374aff ]
+commit 3ea566422cbde9610c2734980d1286ab681bb40e upstream.
 
-Fix mt7921_queues_acq implementation according to the vendor sdk.
+Syzbot created an environment that lead to a state machine status that
+can not be reached with a compliant CAN ID address configuration.
+The provided address information consisted of CAN ID 0x6000001 and 0xC28001
+which both boil down to 11 bit CAN IDs 0x001 in sending and receiving.
 
-Fixes: 474a9f21e2e20 ("mt76: mt7921: add debugfs support")
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Sanitize the SFF/EFF CAN ID values before performing the address checks.
+
+Fixes: e057dd3fc20f ("can: add ISO 15765-2:2016 transport protocol")
+Link: https://lore.kernel.org/all/20220316164258.54155-1-socketcan@hartkopp.net
+Reported-by: syzbot+2339c27f5c66c652843e@syzkaller.appspotmail.com
+Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt7921/debugfs.c | 13 ++++++-------
- drivers/net/wireless/mediatek/mt76/mt7921/regs.h    | 11 +++++------
- 2 files changed, 11 insertions(+), 13 deletions(-)
+ net/can/isotp.c |   38 ++++++++++++++++++++------------------
+ 1 file changed, 20 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/debugfs.c b/drivers/net/wireless/mediatek/mt76/mt7921/debugfs.c
-index 30f3b3085c78..8d5e261cd10f 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7921/debugfs.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7921/debugfs.c
-@@ -130,23 +130,22 @@ mt7921_queues_acq(struct seq_file *s, void *data)
+--- a/net/can/isotp.c
++++ b/net/can/isotp.c
+@@ -1104,6 +1104,7 @@ static int isotp_bind(struct socket *soc
+ 	struct net *net = sock_net(sk);
+ 	int ifindex;
+ 	struct net_device *dev;
++	canid_t tx_id, rx_id;
+ 	int err = 0;
+ 	int notify_enetdown = 0;
+ 	int do_rx_reg = 1;
+@@ -1111,8 +1112,18 @@ static int isotp_bind(struct socket *soc
+ 	if (len < ISOTP_MIN_NAMELEN)
+ 		return -EINVAL;
  
- 	mt7921_mutex_acquire(dev);
+-	if (addr->can_addr.tp.tx_id & (CAN_ERR_FLAG | CAN_RTR_FLAG))
+-		return -EADDRNOTAVAIL;
++	/* sanitize tx/rx CAN identifiers */
++	tx_id = addr->can_addr.tp.tx_id;
++	if (tx_id & CAN_EFF_FLAG)
++		tx_id &= (CAN_EFF_FLAG | CAN_EFF_MASK);
++	else
++		tx_id &= CAN_SFF_MASK;
++
++	rx_id = addr->can_addr.tp.rx_id;
++	if (rx_id & CAN_EFF_FLAG)
++		rx_id &= (CAN_EFF_FLAG | CAN_EFF_MASK);
++	else
++		rx_id &= CAN_SFF_MASK;
  
--	for (i = 0; i < 16; i++) {
--		int j, acs = i / 4, index = i % 4;
-+	for (i = 0; i < 4; i++) {
- 		u32 ctrl, val, qlen = 0;
-+		int j;
+ 	if (!addr->can_ifindex)
+ 		return -ENODEV;
+@@ -1124,21 +1135,13 @@ static int isotp_bind(struct socket *soc
+ 		do_rx_reg = 0;
  
--		val = mt76_rr(dev, MT_PLE_AC_QEMPTY(acs, index));
--		ctrl = BIT(31) | BIT(15) | (acs << 8);
-+		val = mt76_rr(dev, MT_PLE_AC_QEMPTY(i));
-+		ctrl = BIT(31) | BIT(11) | (i << 24);
- 
- 		for (j = 0; j < 32; j++) {
- 			if (val & BIT(j))
- 				continue;
- 
--			mt76_wr(dev, MT_PLE_FL_Q0_CTRL,
--				ctrl | (j + (index << 5)));
-+			mt76_wr(dev, MT_PLE_FL_Q0_CTRL, ctrl | j);
- 			qlen += mt76_get_field(dev, MT_PLE_FL_Q3_CTRL,
- 					       GENMASK(11, 0));
- 		}
--		seq_printf(s, "AC%d%d: queued=%d\n", acs, index, qlen);
-+		seq_printf(s, "AC%d: queued=%d\n", i, qlen);
+ 	/* do not validate rx address for functional addressing */
+-	if (do_rx_reg) {
+-		if (addr->can_addr.tp.rx_id == addr->can_addr.tp.tx_id) {
+-			err = -EADDRNOTAVAIL;
+-			goto out;
+-		}
+-
+-		if (addr->can_addr.tp.rx_id & (CAN_ERR_FLAG | CAN_RTR_FLAG)) {
+-			err = -EADDRNOTAVAIL;
+-			goto out;
+-		}
++	if (do_rx_reg && rx_id == tx_id) {
++		err = -EADDRNOTAVAIL;
++		goto out;
  	}
  
- 	mt7921_mutex_release(dev);
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/regs.h b/drivers/net/wireless/mediatek/mt76/mt7921/regs.h
-index 26fb11823762..41c2855e7a3d 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7921/regs.h
-+++ b/drivers/net/wireless/mediatek/mt76/mt7921/regs.h
-@@ -17,13 +17,12 @@
- #define MT_PLE_BASE			0x8000
- #define MT_PLE(ofs)			(MT_PLE_BASE + (ofs))
+ 	if (so->bound && addr->can_ifindex == so->ifindex &&
+-	    addr->can_addr.tp.rx_id == so->rxid &&
+-	    addr->can_addr.tp.tx_id == so->txid)
++	    rx_id == so->rxid && tx_id == so->txid)
+ 		goto out;
  
--#define MT_PLE_FL_Q0_CTRL		MT_PLE(0x1b0)
--#define MT_PLE_FL_Q1_CTRL		MT_PLE(0x1b4)
--#define MT_PLE_FL_Q2_CTRL		MT_PLE(0x1b8)
--#define MT_PLE_FL_Q3_CTRL		MT_PLE(0x1bc)
-+#define MT_PLE_FL_Q0_CTRL		MT_PLE(0x3e0)
-+#define MT_PLE_FL_Q1_CTRL		MT_PLE(0x3e4)
-+#define MT_PLE_FL_Q2_CTRL		MT_PLE(0x3e8)
-+#define MT_PLE_FL_Q3_CTRL		MT_PLE(0x3ec)
+ 	dev = dev_get_by_index(net, addr->can_ifindex);
+@@ -1162,8 +1165,7 @@ static int isotp_bind(struct socket *soc
+ 	ifindex = dev->ifindex;
  
--#define MT_PLE_AC_QEMPTY(ac, n)		MT_PLE(0x300 + 0x10 * (ac) + \
--					       ((n) << 2))
-+#define MT_PLE_AC_QEMPTY(_n)		MT_PLE(0x500 + 0x40 * (_n))
- #define MT_PLE_AMSDU_PACK_MSDU_CNT(n)	MT_PLE(0x10e0 + ((n) << 2))
+ 	if (do_rx_reg)
+-		can_rx_register(net, dev, addr->can_addr.tp.rx_id,
+-				SINGLE_MASK(addr->can_addr.tp.rx_id),
++		can_rx_register(net, dev, rx_id, SINGLE_MASK(rx_id),
+ 				isotp_rcv, sk, "isotp", sk);
  
- #define MT_MDP_BASE			0xf000
--- 
-2.34.1
-
+ 	dev_put(dev);
+@@ -1183,8 +1185,8 @@ static int isotp_bind(struct socket *soc
+ 
+ 	/* switch to new settings */
+ 	so->ifindex = ifindex;
+-	so->rxid = addr->can_addr.tp.rx_id;
+-	so->txid = addr->can_addr.tp.tx_id;
++	so->rxid = rx_id;
++	so->txid = tx_id;
+ 	so->bound = 1;
+ 
+ out:
 
 
