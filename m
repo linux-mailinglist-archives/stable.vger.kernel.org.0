@@ -2,43 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A9BE34F3860
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:33:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E28A4F3B1F
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:14:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376387AbiDELVr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:21:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39768 "EHLO
+        id S237678AbiDELuv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:50:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59280 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349420AbiDEJtu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F1581EAE0;
-        Tue,  5 Apr 2022 02:45:18 -0700 (PDT)
+        with ESMTP id S1356208AbiDEKX1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:23:27 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D695BBAB84;
+        Tue,  5 Apr 2022 03:07:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3CB6861368;
-        Tue,  5 Apr 2022 09:45:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49882C385A2;
-        Tue,  5 Apr 2022 09:45:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 59D0EB81C89;
+        Tue,  5 Apr 2022 10:07:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6A16C385A2;
+        Tue,  5 Apr 2022 10:07:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151917;
-        bh=qSaTGiySKFFr1e9/bvAwdPYGh0SluH4gytxj95+oIgQ=;
+        s=korg; t=1649153260;
+        bh=0Tr5vOLRPJ/SE0hDaGh6c0HtSmlY5THsAYsXxyJDXXs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nSh0bQ6NThfBZKRfitK4wpGPJeRtfe4vkmjCaftcYM2y/KL7is/AoP2QhnEGgRb9R
-         EQBvE+yKi3yIu8A4nxeCnflA8kRcJX6N1wz0rh/QKAJPfMWQbCKUx36gmaEDefC9rl
-         NYpRca7tG7yIY32TGa+eZca0CKn9zpxzDac0+srk=
+        b=pj/U4hU69KKrMPoWCBBReeeHi2xpKNKUtgzRZMebMRXJoreFG0jRg8Y3tp5VnMcKO
+         5s67ysKXgtdhoRkT4/nckuRF4UQcLIE0fy8Y3LJNbTPnfufzOtDAqob6PHzTRKlD4j
+         aiu2GerRDAyK3OjQyYQr0H59UBmD7MwyndZ8Xy0M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Jiang <dave.jiang@intel.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 589/913] dmaengine: idxd: check GENCAP config support for gencfg register
+        stable@vger.kernel.org,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Sam Protsenko <semen.protsenko@linaro.org>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 157/599] clocksource/drivers/exynos_mct: Refactor resources allocation
 Date:   Tue,  5 Apr 2022 09:27:31 +0200
-Message-Id: <20220405070357.499184808@linuxfoundation.org>
+Message-Id: <20220405070303.514240049@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070258.802373272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +58,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Jiang <dave.jiang@intel.com>
+From: Marek Szyprowski <m.szyprowski@samsung.com>
 
-[ Upstream commit 79c4c3db7d86b9bec94562275efc82e58f3d0132 ]
+[ Upstream commit 7cd925a8823d16de5614d3f0aabea9948747accd ]
 
-DSA spec 1.2 has moved the GENCFG register under the GENCAP configuration
-support with respect to writability. Add check in driver before writing to
-GENCFG register.
+Move interrupts allocation from exynos4_timer_resources() into separate
+function together with the interrupt number parsing code from
+mct_init_dt(), so the code for managing interrupts is kept together.
+While touching exynos4_timer_resources() function, move of_iomap() to it.
+No functional changes.
 
-Signed-off-by: Dave Jiang <dave.jiang@intel.com>
-Link: https://lore.kernel.org/r/163406171896.1303830.11217958011385656998.stgit@djiang5-desk3.ch.intel.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Reviewed-by: Chanwoo Choi <cw00.choi@samsung.com>
+Tested-by: Chanwoo Choi <cw00.choi@samsung.com>
+Reviewed-by: Krzysztof Kozlowski <krzk@kernel.org>
+Signed-off-by: Sam Protsenko <semen.protsenko@linaro.org>
+Link: https://lore.kernel.org/r/20211101193531.15078-2-semen.protsenko@linaro.org
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/idxd/device.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/clocksource/exynos_mct.c | 50 +++++++++++++++++++-------------
+ 1 file changed, 30 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/dma/idxd/device.c b/drivers/dma/idxd/device.c
-index b468ca36d3a0..3cda1c5faf3c 100644
---- a/drivers/dma/idxd/device.c
-+++ b/drivers/dma/idxd/device.c
-@@ -801,7 +801,7 @@ static int idxd_groups_config_write(struct idxd_device *idxd)
- 	struct device *dev = &idxd->pdev->dev;
+diff --git a/drivers/clocksource/exynos_mct.c b/drivers/clocksource/exynos_mct.c
+index fabad79baafc..5533c9afc088 100644
+--- a/drivers/clocksource/exynos_mct.c
++++ b/drivers/clocksource/exynos_mct.c
+@@ -494,11 +494,14 @@ static int exynos4_mct_dying_cpu(unsigned int cpu)
+ 	return 0;
+ }
  
- 	/* Setup bandwidth token limit */
--	if (idxd->token_limit) {
-+	if (idxd->hw.gen_cap.config_en && idxd->token_limit) {
- 		reg.bits = ioread32(idxd->reg_base + IDXD_GENCFG_OFFSET);
- 		reg.token_limit = idxd->token_limit;
- 		iowrite32(reg.bits, idxd->reg_base + IDXD_GENCFG_OFFSET);
+-static int __init exynos4_timer_resources(struct device_node *np, void __iomem *base)
++static int __init exynos4_timer_resources(struct device_node *np)
+ {
+-	int err, cpu;
+ 	struct clk *mct_clk, *tick_clk;
+ 
++	reg_base = of_iomap(np, 0);
++	if (!reg_base)
++		panic("%s: unable to ioremap mct address space\n", __func__);
++
+ 	tick_clk = of_clk_get_by_name(np, "fin_pll");
+ 	if (IS_ERR(tick_clk))
+ 		panic("%s: unable to determine tick clock rate\n", __func__);
+@@ -509,9 +512,27 @@ static int __init exynos4_timer_resources(struct device_node *np, void __iomem *
+ 		panic("%s: unable to retrieve mct clock instance\n", __func__);
+ 	clk_prepare_enable(mct_clk);
+ 
+-	reg_base = base;
+-	if (!reg_base)
+-		panic("%s: unable to ioremap mct address space\n", __func__);
++	return 0;
++}
++
++static int __init exynos4_timer_interrupts(struct device_node *np,
++					   unsigned int int_type)
++{
++	int nr_irqs, i, err, cpu;
++
++	mct_int_type = int_type;
++
++	/* This driver uses only one global timer interrupt */
++	mct_irqs[MCT_G0_IRQ] = irq_of_parse_and_map(np, MCT_G0_IRQ);
++
++	/*
++	 * Find out the number of local irqs specified. The local
++	 * timer irqs are specified after the four global timer
++	 * irqs are specified.
++	 */
++	nr_irqs = of_irq_count(np);
++	for (i = MCT_L0_IRQ; i < nr_irqs; i++)
++		mct_irqs[i] = irq_of_parse_and_map(np, i);
+ 
+ 	if (mct_int_type == MCT_INT_PPI) {
+ 
+@@ -571,24 +592,13 @@ static int __init exynos4_timer_resources(struct device_node *np, void __iomem *
+ 
+ static int __init mct_init_dt(struct device_node *np, unsigned int int_type)
+ {
+-	u32 nr_irqs, i;
+ 	int ret;
+ 
+-	mct_int_type = int_type;
+-
+-	/* This driver uses only one global timer interrupt */
+-	mct_irqs[MCT_G0_IRQ] = irq_of_parse_and_map(np, MCT_G0_IRQ);
+-
+-	/*
+-	 * Find out the number of local irqs specified. The local
+-	 * timer irqs are specified after the four global timer
+-	 * irqs are specified.
+-	 */
+-	nr_irqs = of_irq_count(np);
+-	for (i = MCT_L0_IRQ; i < nr_irqs; i++)
+-		mct_irqs[i] = irq_of_parse_and_map(np, i);
++	ret = exynos4_timer_resources(np);
++	if (ret)
++		return ret;
+ 
+-	ret = exynos4_timer_resources(np, of_iomap(np, 0));
++	ret = exynos4_timer_interrupts(np, int_type);
+ 	if (ret)
+ 		return ret;
+ 
 -- 
 2.34.1
 
