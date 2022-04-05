@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CA50A4F2EB5
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:03:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 602514F35C1
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:53:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347954AbiDEJ2x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:28:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48748 "EHLO
+        id S237013AbiDEKyg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:54:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50322 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245030AbiDEIxC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:53:02 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FAEFC01;
-        Tue,  5 Apr 2022 01:50:01 -0700 (PDT)
+        with ESMTP id S1346290AbiDEJoq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:44:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE14BD95C2;
+        Tue,  5 Apr 2022 02:30:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id B10E0CE1C6A;
-        Tue,  5 Apr 2022 08:49:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF75FC385A0;
-        Tue,  5 Apr 2022 08:49:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6A6E0B81C9A;
+        Tue,  5 Apr 2022 09:30:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC29DC385A2;
+        Tue,  5 Apr 2022 09:30:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148598;
-        bh=mMs8cEwxxXca6Fv/Ju+e15x+v/0X/GOCyC5VUwCK5YA=;
+        s=korg; t=1649151018;
+        bh=Ts1OsI3ZLCMyHQ1eqGV7NkwX+jLelzLpcnalARBhejs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a+CXb2YjRhFbX/FoaDJpXt+y/xxodGPL6weqDAMIcUB8iVUUG1WRQtm04piSLahSK
-         /62G9WKviGD4C54eGj/Lbwki8zAUuOCXfZA0j3WQKISW3/J1Djw5VpL5GMHUKOZyD6
-         Q1H+lfz3byRoXmwD07y+wIiFar1lyd2fQLUVZehg=
+        b=m7mGqPBx2zwMgxffWBwtxPP8BweY32laHwcRXQ+1DTQxo5RMopG6761DBjZvCpWsk
+         DGqiWj2Kfhu2PiSYkx55MFgGylTFTbIoQ2WV/KnurlrYq7c/5ueBdwA3md7gX0mmMG
+         R7+k8qagiJ9SWTZDBBuJ/fgaJC+xokE7GD6eoDt8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Corentin Labbe <clabbe@baylibre.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0413/1017] drm/selftests/test-drm_dp_mst_helper: Fix memory leak in sideband_msg_req_encode_decode
-Date:   Tue,  5 Apr 2022 09:22:06 +0200
-Message-Id: <20220405070406.547611167@linuxfoundation.org>
+Subject: [PATCH 5.15 265/913] media: staging: media: zoran: fix usage of vb2_dma_contig_set_max_seg_size
+Date:   Tue,  5 Apr 2022 09:22:07 +0200
+Message-Id: <20220405070347.799767305@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,39 +56,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: José Expósito <jose.exposito89@gmail.com>
+From: Corentin Labbe <clabbe@baylibre.com>
 
-[ Upstream commit ba3a5ddcf1e5df31f2291006d5297ca62035584f ]
+[ Upstream commit 241f5b67fb48def58643f279dfb8468bdd54b443 ]
 
-Avoid leaking the "out" variable if it is not possible to allocate
-the "txmsg" variable.
+vb2_dma_contig_set_max_seg_size need to have a size in parameter and not
+a DMA_BIT_MASK().
+While fixing this issue, also fix error handling of all DMA size
+setting.
 
-Fixes: 09234b88ef55 ("drm/selftests/test-drm_dp_mst_helper: Move 'sideband_msg_req_encode_decode' onto the heap")
-Addresses-Coverity-ID: 1475685 ("Resource leak")
-Signed-off-by: José Expósito <jose.exposito89@gmail.com>
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220108165812.46797-1-jose.exposito89@gmail.com
+Reported-by: kernel test robot <lkp@intel.com>
+Fixes: d4ae3689226e5 ("media: zoran: device support only 32bit DMA address")
+Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/selftests/test-drm_dp_mst_helper.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/staging/media/zoran/zoran_card.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/selftests/test-drm_dp_mst_helper.c b/drivers/gpu/drm/selftests/test-drm_dp_mst_helper.c
-index 6b4759ed6bfd..c491429f1a02 100644
---- a/drivers/gpu/drm/selftests/test-drm_dp_mst_helper.c
-+++ b/drivers/gpu/drm/selftests/test-drm_dp_mst_helper.c
-@@ -131,8 +131,10 @@ sideband_msg_req_encode_decode(struct drm_dp_sideband_msg_req_body *in)
- 		return false;
+diff --git a/drivers/staging/media/zoran/zoran_card.c b/drivers/staging/media/zoran/zoran_card.c
+index f259585b0689..c578ef3c32f5 100644
+--- a/drivers/staging/media/zoran/zoran_card.c
++++ b/drivers/staging/media/zoran/zoran_card.c
+@@ -1069,8 +1069,10 @@ static int zoran_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
  
- 	txmsg = kzalloc(sizeof(*txmsg), GFP_KERNEL);
--	if (!txmsg)
-+	if (!txmsg) {
-+		kfree(out);
- 		return false;
-+	}
+ 	err = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(32));
+ 	if (err)
+-		return -ENODEV;
+-	vb2_dma_contig_set_max_seg_size(&pdev->dev, DMA_BIT_MASK(32));
++		return err;
++	err = vb2_dma_contig_set_max_seg_size(&pdev->dev, U32_MAX);
++	if (err)
++		return err;
  
- 	drm_dp_encode_sideband_req(in, txmsg);
- 	ret = drm_dp_decode_sideband_req(txmsg, out);
+ 	nr = zoran_num++;
+ 	if (nr >= BUZ_MAX) {
 -- 
 2.34.1
 
