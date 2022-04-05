@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 073EC4F34FB
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:42:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 20AAC4F3632
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:57:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233812AbiDEIiE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:38:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56794 "EHLO
+        id S245658AbiDEK7c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:59:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59288 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237960AbiDEISe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:18:34 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A967EB7C6F;
-        Tue,  5 Apr 2022 01:07:48 -0700 (PDT)
+        with ESMTP id S1347210AbiDEJqI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:46:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AA8CDD97B;
+        Tue,  5 Apr 2022 02:32:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 74AD1B81BAF;
-        Tue,  5 Apr 2022 08:07:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0256C385A1;
-        Tue,  5 Apr 2022 08:07:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 27313615E5;
+        Tue,  5 Apr 2022 09:32:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39962C385A2;
+        Tue,  5 Apr 2022 09:32:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146066;
-        bh=67yb1/B6Sg6i3jl64lZRn2eNJU5+LSPF5bkVgEih44E=;
+        s=korg; t=1649151156;
+        bh=TdNHD+ThQdFDNYzUnyywSIQFu/8Rmrh1akcMl4pdADg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E9I8VZO4FXzBrl7e8PLaDPoNzH+1YoIImL6erO8geMW+HNcjyFq4lA3lbSMwUXI1b
-         v/6bbY3nij1oAh2JLSLznAhDaE3iASZMz/ChzODf6SbydsO334XbMtVi0CWv43YZ6+
-         ojigBYoNSoWa9eou63a6Vs/Pq0tA0FH7fgSAER4s=
+        b=mTqCmeGdGNXyAGp+MeGmYdeQuVVJUFjroorq57uFz8FF00U5mqasa+pzXq/YUlhRK
+         4tCJr+h989D6vfEOHP9BFXKb77T5S4v3SPjF+q0yi9LJzzJ7JbZZhi4ZHe17/cxAGV
+         5sxXMgghaZRZ4PFB+eVZVICX1MueVr1q74WukJ+w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Divya Koppera <Divya.Koppera@microchip.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0628/1126] net: phy: micrel: Fix concurrent register access
-Date:   Tue,  5 Apr 2022 09:22:55 +0200
-Message-Id: <20220405070426.069996732@linuxfoundation.org>
+Subject: [PATCH 5.15 314/913] media: usb: go7007: s2250-board: fix leak in probe()
+Date:   Tue,  5 Apr 2022 09:22:56 +0200
+Message-Id: <20220405070349.265093600@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,73 +54,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Divya Koppera <Divya.Koppera@microchip.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 4488f6b6148045424459ef1d5b153c6895ee1dbb ]
+[ Upstream commit 67e4550ecd6164bfbdff54c169e5bbf9ccfaf14d ]
 
-Make Extended page register accessing atomic,
-to overcome unexpected output from register
-reads/writes.
+Call i2c_unregister_device(audio) on this error path.
 
-Fixes: 7c2dcfa295b1 ("net: phy: micrel: Add support for LAN8804 PHY")
-Signed-off-by: Divya Koppera<Divya.Koppera@microchip.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: d3b2ccd9e307 ("[media] s2250: convert to the control framework")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/micrel.c | 30 ++++++++++++++++--------------
- 1 file changed, 16 insertions(+), 14 deletions(-)
+ drivers/media/usb/go7007/s2250-board.c | 10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/phy/micrel.c b/drivers/net/phy/micrel.c
-index a7ebcdab415b..281cebc3d00c 100644
---- a/drivers/net/phy/micrel.c
-+++ b/drivers/net/phy/micrel.c
-@@ -1596,11 +1596,13 @@ static int lanphy_read_page_reg(struct phy_device *phydev, int page, u32 addr)
- {
- 	u32 data;
+diff --git a/drivers/media/usb/go7007/s2250-board.c b/drivers/media/usb/go7007/s2250-board.c
+index c742cc88fac5..1fa6f10ee157 100644
+--- a/drivers/media/usb/go7007/s2250-board.c
++++ b/drivers/media/usb/go7007/s2250-board.c
+@@ -504,6 +504,7 @@ static int s2250_probe(struct i2c_client *client,
+ 	u8 *data;
+ 	struct go7007 *go = i2c_get_adapdata(adapter);
+ 	struct go7007_usb *usb = go->hpi_context;
++	int err = -EIO;
  
--	phy_write(phydev, LAN_EXT_PAGE_ACCESS_CONTROL, page);
--	phy_write(phydev, LAN_EXT_PAGE_ACCESS_ADDRESS_DATA, addr);
--	phy_write(phydev, LAN_EXT_PAGE_ACCESS_CONTROL,
--		  (page | LAN_EXT_PAGE_ACCESS_CTRL_EP_FUNC));
--	data = phy_read(phydev, LAN_EXT_PAGE_ACCESS_ADDRESS_DATA);
-+	phy_lock_mdio_bus(phydev);
-+	__phy_write(phydev, LAN_EXT_PAGE_ACCESS_CONTROL, page);
-+	__phy_write(phydev, LAN_EXT_PAGE_ACCESS_ADDRESS_DATA, addr);
-+	__phy_write(phydev, LAN_EXT_PAGE_ACCESS_CONTROL,
-+		    (page | LAN_EXT_PAGE_ACCESS_CTRL_EP_FUNC));
-+	data = __phy_read(phydev, LAN_EXT_PAGE_ACCESS_ADDRESS_DATA);
-+	phy_unlock_mdio_bus(phydev);
+ 	audio = i2c_new_dummy_device(adapter, TLV320_ADDRESS >> 1);
+ 	if (IS_ERR(audio))
+@@ -532,11 +533,8 @@ static int s2250_probe(struct i2c_client *client,
+ 		V4L2_CID_HUE, -512, 511, 1, 0);
+ 	sd->ctrl_handler = &state->hdl;
+ 	if (state->hdl.error) {
+-		int err = state->hdl.error;
+-
+-		v4l2_ctrl_handler_free(&state->hdl);
+-		kfree(state);
+-		return err;
++		err = state->hdl.error;
++		goto fail;
+ 	}
  
- 	return data;
- }
-@@ -1608,18 +1610,18 @@ static int lanphy_read_page_reg(struct phy_device *phydev, int page, u32 addr)
- static int lanphy_write_page_reg(struct phy_device *phydev, int page, u16 addr,
- 				 u16 val)
- {
--	phy_write(phydev, LAN_EXT_PAGE_ACCESS_CONTROL, page);
--	phy_write(phydev, LAN_EXT_PAGE_ACCESS_ADDRESS_DATA, addr);
--	phy_write(phydev, LAN_EXT_PAGE_ACCESS_CONTROL,
--		  (page | LAN_EXT_PAGE_ACCESS_CTRL_EP_FUNC));
-+	phy_lock_mdio_bus(phydev);
-+	__phy_write(phydev, LAN_EXT_PAGE_ACCESS_CONTROL, page);
-+	__phy_write(phydev, LAN_EXT_PAGE_ACCESS_ADDRESS_DATA, addr);
-+	__phy_write(phydev, LAN_EXT_PAGE_ACCESS_CONTROL,
-+		    page | LAN_EXT_PAGE_ACCESS_CTRL_EP_FUNC);
- 
--	val = phy_write(phydev, LAN_EXT_PAGE_ACCESS_ADDRESS_DATA, val);
--	if (val) {
-+	val = __phy_write(phydev, LAN_EXT_PAGE_ACCESS_ADDRESS_DATA, val);
-+	if (val != 0)
- 		phydev_err(phydev, "Error: phy_write has returned error %d\n",
- 			   val);
--		return val;
--	}
--	return 0;
-+	phy_unlock_mdio_bus(phydev);
-+	return val;
+ 	state->std = V4L2_STD_NTSC;
+@@ -600,7 +598,7 @@ static int s2250_probe(struct i2c_client *client,
+ 	i2c_unregister_device(audio);
+ 	v4l2_ctrl_handler_free(&state->hdl);
+ 	kfree(state);
+-	return -EIO;
++	return err;
  }
  
- static int lan8814_config_init(struct phy_device *phydev)
+ static int s2250_remove(struct i2c_client *client)
 -- 
 2.34.1
 
