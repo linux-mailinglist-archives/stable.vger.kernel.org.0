@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 434EC4F33A3
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:21:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 697F24F302F
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:26:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235373AbiDEJBm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:01:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45578 "EHLO
+        id S235355AbiDEJBg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:01:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45582 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237664AbiDEInE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:43:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48BFA17E3E;
-        Tue,  5 Apr 2022 01:35:35 -0700 (PDT)
+        with ESMTP id S237668AbiDEInH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:43:07 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A230218B1B;
+        Tue,  5 Apr 2022 01:35:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 08F08B81A32;
-        Tue,  5 Apr 2022 08:35:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 633A9C385A0;
-        Tue,  5 Apr 2022 08:35:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 326EF60B0A;
+        Tue,  5 Apr 2022 08:35:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E0A8C385A1;
+        Tue,  5 Apr 2022 08:35:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147732;
-        bh=MCow+EIfs9h55hYNTV4RqMgF0B+/1q8tBPB3QDPDfrY=;
+        s=korg; t=1649147736;
+        bh=f8Nbkg88zueJuwLWz1zJ/E68h4KmyL+Gr1HyuSJbO6s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j2RtNzokccjlzS/JYEGVf7jePVnvthzTrI0/I64rpkn1tTKVa4NQFDbHLHTHYlDtA
-         ddv5SReSF+nW3CuwzaWuzhqxTN/TU+mtbp0hKLoM37SxGIyyHS5RldiUb3ru2FCUlh
-         RZi3acsaGhndGhTWiI4WnwFcoRuUT4NW/lbGHAFw=
+        b=WugRqMmtIpS65NiMuC4l9hBR+Nr7lis1rmSXSc6Gw0+eiMULQDq50hwSE6HlLsSn3
+         2LhH1wCe3U8Thi/C2E1rphEuMk684ShrJNBgD4t7vMg50xWZmRg1Az0xcI2f4rmZSd
+         Mc+SRHS6yI9a1BvK8nXQamvzVeEUagIoXWcmW1lk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
         Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.16 0101/1017] cifs: do not skip link targets when an I/O fails
-Date:   Tue,  5 Apr 2022 09:16:54 +0200
-Message-Id: <20220405070357.194710436@linuxfoundation.org>
+Subject: [PATCH 5.16 0102/1017] cifs: prevent bad output lengths in smb2_ioctl_query_info()
+Date:   Tue,  5 Apr 2022 09:16:55 +0200
+Message-Id: <20220405070357.224328891@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -55,61 +55,173 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Paulo Alcantara <pc@cjr.nz>
 
-commit 5d7e282541fc91b831a5c4477c5d72881c623df9 upstream.
+commit b92e358757b91c2827af112cae9af513f26a3f34 upstream.
 
-When I/O fails in one of the currently connected DFS targets, retry it
-from other targets as specified in MS-DFSC "3.1.5.2 I/O Operation to
-+Target Fails with an Error Other Than STATUS_PATH_NOT_COVERED."
+When calling smb2_ioctl_query_info() with
+smb_query_info::flags=PASSTHRU_FSCTL and
+smb_query_info::output_buffer_length=0, the following would return
+0x10
 
-Signed-off-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+	buffer = memdup_user(arg + sizeof(struct smb_query_info),
+			     qi.output_buffer_length);
+	if (IS_ERR(buffer)) {
+		kfree(vars);
+		return PTR_ERR(buffer);
+	}
+
+rather than a valid pointer thus making IS_ERR() check fail.  This
+would then cause a NULL ptr deference in @buffer when accessing it
+later in smb2_ioctl_query_ioctl().  While at it, prevent having a
+@buffer smaller than 8 bytes to correctly handle SMB2_SET_INFO
+FileEndOfFileInformation requests when
+smb_query_info::flags=PASSTHRU_SET_INFO.
+
+Here is a small C reproducer which triggers a NULL ptr in @buffer when
+passing an invalid smb_query_info::flags
+
+	#include <stdio.h>
+	#include <stdlib.h>
+	#include <stdint.h>
+	#include <unistd.h>
+	#include <fcntl.h>
+	#include <sys/ioctl.h>
+
+	#define die(s) perror(s), exit(1)
+	#define QUERY_INFO 0xc018cf07
+
+	int main(int argc, char *argv[])
+	{
+		int fd;
+
+		if (argc < 2)
+			exit(1);
+		fd = open(argv[1], O_RDONLY);
+		if (fd == -1)
+			die("open");
+		if (ioctl(fd, QUERY_INFO, (uint32_t[]) { 0, 0, 0, 4, 0, 0}) == -1)
+			die("ioctl");
+		close(fd);
+		return 0;
+	}
+
+	mount.cifs //srv/share /mnt -o ...
+	gcc repro.c && ./a.out /mnt/f0
+
+	[  114.138620] general protection fault, probably for non-canonical address 0xdffffc0000000000: 0000 [#1] PREEMPT SMP KASAN NOPTI
+	[  114.139310] KASAN: null-ptr-deref in range [0x0000000000000000-0x0000000000000007]
+	[  114.139775] CPU: 2 PID: 995 Comm: a.out Not tainted 5.17.0-rc8 #1
+	[  114.140148] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.15.0-0-g2dd4b9b-rebuilt.opensuse.org 04/01/2014
+	[  114.140818] RIP: 0010:smb2_ioctl_query_info+0x206/0x410 [cifs]
+	[  114.141221] Code: 00 00 00 00 fc ff df 48 c1 ea 03 80 3c 02 00 0f 85 c8 01 00 00 48 b8 00 00 00 00 00 fc ff df 4c 8b 7b 28 4c 89 fa 48 c1 ea 03 <80> 3c 02 00 0f 85 9c 01 00 00 49 8b 3f e8 58 02 fb ff 48 8b 14 24
+	[  114.142348] RSP: 0018:ffffc90000b47b00 EFLAGS: 00010256
+	[  114.142692] RAX: dffffc0000000000 RBX: ffff888115503200 RCX: ffffffffa020580d
+	[  114.143119] RDX: 0000000000000000 RSI: 0000000000000004 RDI: ffffffffa043a380
+	[  114.143544] RBP: ffff888115503278 R08: 0000000000000001 R09: 0000000000000003
+	[  114.143983] R10: fffffbfff4087470 R11: 0000000000000001 R12: ffff888115503288
+	[  114.144424] R13: 00000000ffffffea R14: ffff888115503228 R15: 0000000000000000
+	[  114.144852] FS:  00007f7aeabdf740(0000) GS:ffff888151600000(0000) knlGS:0000000000000000
+	[  114.145338] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+	[  114.145692] CR2: 00007f7aeacfdf5e CR3: 000000012000e000 CR4: 0000000000350ee0
+	[  114.146131] Call Trace:
+	[  114.146291]  <TASK>
+	[  114.146432]  ? smb2_query_reparse_tag+0x890/0x890 [cifs]
+	[  114.146800]  ? cifs_mapchar+0x460/0x460 [cifs]
+	[  114.147121]  ? rcu_read_lock_sched_held+0x3f/0x70
+	[  114.147412]  ? cifs_strndup_to_utf16+0x15b/0x250 [cifs]
+	[  114.147775]  ? dentry_path_raw+0xa6/0xf0
+	[  114.148024]  ? cifs_convert_path_to_utf16+0x198/0x220 [cifs]
+	[  114.148413]  ? smb2_check_message+0x1080/0x1080 [cifs]
+	[  114.148766]  ? rcu_read_lock_sched_held+0x3f/0x70
+	[  114.149065]  cifs_ioctl+0x1577/0x3320 [cifs]
+	[  114.149371]  ? lock_downgrade+0x6f0/0x6f0
+	[  114.149631]  ? cifs_readdir+0x2e60/0x2e60 [cifs]
+	[  114.149956]  ? rcu_read_lock_sched_held+0x3f/0x70
+	[  114.150250]  ? __rseq_handle_notify_resume+0x80b/0xbe0
+	[  114.150562]  ? __up_read+0x192/0x710
+	[  114.150791]  ? __ia32_sys_rseq+0xf0/0xf0
+	[  114.151025]  ? __x64_sys_openat+0x11f/0x1d0
+	[  114.151296]  __x64_sys_ioctl+0x127/0x190
+	[  114.151549]  do_syscall_64+0x3b/0x90
+	[  114.151768]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+	[  114.152079] RIP: 0033:0x7f7aead043df
+	[  114.152306] Code: 00 48 89 44 24 18 31 c0 48 8d 44 24 60 c7 04 24 10 00 00 00 48 89 44 24 08 48 8d 44 24 20 48 89 44 24 10 b8 10 00 00 00 0f 05 <41> 89 c0 3d 00 f0 ff ff 77 1f 48 8b 44 24 18 64 48 2b 04 25 28 00
+	[  114.153431] RSP: 002b:00007ffc2e0c1f80 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+	[  114.153890] RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f7aead043df
+	[  114.154315] RDX: 00007ffc2e0c1ff0 RSI: 00000000c018cf07 RDI: 0000000000000003
+	[  114.154747] RBP: 00007ffc2e0c2010 R08: 00007f7aeae03db0 R09: 00007f7aeae24c4e
+	[  114.155192] R10: 00007f7aeabf7d40 R11: 0000000000000246 R12: 00007ffc2e0c2128
+	[  114.155642] R13: 0000000000401176 R14: 0000000000403df8 R15: 00007f7aeae57000
+	[  114.156071]  </TASK>
+	[  114.156218] Modules linked in: cifs cifs_arc4 cifs_md4 bpf_preload
+	[  114.156608] ---[ end trace 0000000000000000 ]---
+	[  114.156898] RIP: 0010:smb2_ioctl_query_info+0x206/0x410 [cifs]
+	[  114.157792] Code: 00 00 00 00 fc ff df 48 c1 ea 03 80 3c 02 00 0f 85 c8 01 00 00 48 b8 00 00 00 00 00 fc ff df 4c 8b 7b 28 4c 89 fa 48 c1 ea 03 <80> 3c 02 00 0f 85 9c 01 00 00 49 8b 3f e8 58 02 fb ff 48 8b 14 24
+	[  114.159293] RSP: 0018:ffffc90000b47b00 EFLAGS: 00010256
+	[  114.159641] RAX: dffffc0000000000 RBX: ffff888115503200 RCX: ffffffffa020580d
+	[  114.160093] RDX: 0000000000000000 RSI: 0000000000000004 RDI: ffffffffa043a380
+	[  114.160699] RBP: ffff888115503278 R08: 0000000000000001 R09: 0000000000000003
+	[  114.161196] R10: fffffbfff4087470 R11: 0000000000000001 R12: ffff888115503288
+	[  114.155642] R13: 0000000000401176 R14: 0000000000403df8 R15: 00007f7aeae57000
+	[  114.156071]  </TASK>
+	[  114.156218] Modules linked in: cifs cifs_arc4 cifs_md4 bpf_preload
+	[  114.156608] ---[ end trace 0000000000000000 ]---
+	[  114.156898] RIP: 0010:smb2_ioctl_query_info+0x206/0x410 [cifs]
+	[  114.157792] Code: 00 00 00 00 fc ff df 48 c1 ea 03 80 3c 02 00 0f 85 c8 01 00 00 48 b8 00 00 00 00 00 fc ff df 4c 8b 7b 28 4c 89 fa 48 c1 ea 03 <80> 3c 02 00 0f 85 9c 01 00 00 49 8b 3f e8 58 02 fb ff 48 8b 14 24
+	[  114.159293] RSP: 0018:ffffc90000b47b00 EFLAGS: 00010256
+	[  114.159641] RAX: dffffc0000000000 RBX: ffff888115503200 RCX: ffffffffa020580d
+	[  114.160093] RDX: 0000000000000000 RSI: 0000000000000004 RDI: ffffffffa043a380
+	[  114.160699] RBP: ffff888115503278 R08: 0000000000000001 R09: 0000000000000003
+	[  114.161196] R10: fffffbfff4087470 R11: 0000000000000001 R12: ffff888115503288
+	[  114.161823] R13: 00000000ffffffea R14: ffff888115503228 R15: 0000000000000000
+	[  114.162274] FS:  00007f7aeabdf740(0000) GS:ffff888151600000(0000) knlGS:0000000000000000
+	[  114.162853] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+	[  114.163218] CR2: 00007f7aeacfdf5e CR3: 000000012000e000 CR4: 0000000000350ee0
+	[  114.163691] Kernel panic - not syncing: Fatal exception
+	[  114.164087] Kernel Offset: disabled
+	[  114.164316] ---[ end Kernel panic - not syncing: Fatal exception ]---
+
 Cc: stable@vger.kernel.org
+Signed-off-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
 Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/cifs/connect.c |   14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ fs/cifs/smb2ops.c |   16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
---- a/fs/cifs/connect.c
-+++ b/fs/cifs/connect.c
-@@ -3401,6 +3401,9 @@ static int connect_dfs_target(struct mou
- 	struct cifs_sb_info *cifs_sb = mnt_ctx->cifs_sb;
- 	char *oldmnt = cifs_sb->ctx->mount_options;
+--- a/fs/cifs/smb2ops.c
++++ b/fs/cifs/smb2ops.c
+@@ -1656,11 +1656,12 @@ smb2_ioctl_query_info(const unsigned int
+ 	if (smb3_encryption_required(tcon))
+ 		flags |= CIFS_TRANSFORM_REQ;
  
-+	cifs_dbg(FYI, "%s: full_path=%s ref_path=%s target=%s\n", __func__, full_path, ref_path,
-+		 dfs_cache_get_tgt_name(tit));
-+
- 	rc = dfs_cache_get_tgt_referral(ref_path, tit, &ref);
- 	if (rc)
- 		goto out;
-@@ -3499,13 +3502,18 @@ static int __follow_dfs_link(struct moun
- 	if (rc)
- 		goto out;
- 
--	/* Try all dfs link targets */
-+	/* Try all dfs link targets.  If an I/O fails from currently connected DFS target with an
-+	 * error other than STATUS_PATH_NOT_COVERED (-EREMOTE), then retry it from other targets as
-+	 * specified in MS-DFSC "3.1.5.2 I/O Operation to Target Fails with an Error Other Than
-+	 * STATUS_PATH_NOT_COVERED."
-+	 */
- 	for (rc = -ENOENT, tit = dfs_cache_get_tgt_iterator(&tl);
- 	     tit; tit = dfs_cache_get_next_tgt(&tl, tit)) {
- 		rc = connect_dfs_target(mnt_ctx, full_path, mnt_ctx->leaf_fullpath + 1, tit);
- 		if (!rc) {
- 			rc = is_path_remote(mnt_ctx);
--			break;
-+			if (!rc || rc == -EREMOTE)
-+				break;
- 		}
+-	buffer = memdup_user(arg + sizeof(struct smb_query_info),
+-			     qi.output_buffer_length);
+-	if (IS_ERR(buffer)) {
+-		kfree(vars);
+-		return PTR_ERR(buffer);
++	if (qi.output_buffer_length) {
++		buffer = memdup_user(arg + sizeof(struct smb_query_info), qi.output_buffer_length);
++		if (IS_ERR(buffer)) {
++			kfree(vars);
++			return PTR_ERR(buffer);
++		}
  	}
  
-@@ -3579,7 +3587,7 @@ int cifs_mount(struct cifs_sb_info *cifs
- 		goto error;
+ 	/* Open */
+@@ -1723,10 +1724,13 @@ smb2_ioctl_query_info(const unsigned int
+ 		/* Can eventually relax perm check since server enforces too */
+ 		if (!capable(CAP_SYS_ADMIN))
+ 			rc = -EPERM;
+-		else  {
++		else if (qi.output_buffer_length < 8)
++			rc = -EINVAL;
++		else {
+ 			rqst[1].rq_iov = &vars->si_iov[0];
+ 			rqst[1].rq_nvec = 1;
  
- 	rc = is_path_remote(&mnt_ctx);
--	if (rc == -EREMOTE)
-+	if (rc)
- 		rc = follow_dfs_link(&mnt_ctx);
- 	if (rc)
- 		goto error;
++			/* MS-FSCC 2.4.13 FileEndOfFileInformation */
+ 			size[0] = 8;
+ 			data[0] = buffer;
+ 
 
 
