@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 157CF4F2E6C
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:00:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D56254F2E21
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:49:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237799AbiDEJEV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:04:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46598 "EHLO
+        id S1347519AbiDEJ1M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:27:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46614 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242936AbiDEItm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:49:42 -0400
+        with ESMTP id S243056AbiDEItt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:49:49 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2B238BE34;
-        Tue,  5 Apr 2022 01:37:59 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D7981D0DD;
+        Tue,  5 Apr 2022 01:38:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5EF18B81C69;
-        Tue,  5 Apr 2022 08:37:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0509C385A0;
-        Tue,  5 Apr 2022 08:37:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 06D1AB81B18;
+        Tue,  5 Apr 2022 08:37:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 692BFC385A1;
+        Tue,  5 Apr 2022 08:37:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147861;
-        bh=1SEV+0+k6YRHwzV5O41lcxbDLNWYL1ygIQhLSS3pFZs=;
+        s=korg; t=1649147866;
+        bh=+cvy/v5TGZXagD6fIYk4pEytVC1K83ILUAf1awavJYs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=09wyhEl0iSf0FCU/javc3ZryaEjQPcALPoHbo6ewIj6Us78RcfrO1ksoIZVFfXpt1
-         5iRSr2xtk9xdd1IZz92dbe3yGfOd3/zzEUb9v9FGZy5ktIWA1FD1qrOpkAJXUkZBs+
-         89P2NslL+E8saS+rfDC0Ioklp9KE1lqSpkX9OoJU=
+        b=PSGZrzyBO5vhLMgFcgWU7Zk2GIkTQHaXIL3ioYzRC6Jv7N67AXeSLFzWadrLOaT1a
+         V25oc34QF5gr8Oo7L2xBe03CVgae9UPB1BfDfKACscmjIumZeLjmVM7sDm0gVRQm4i
+         +wGgN6Z34R0K2lIAyjeBBE9WzNr2PvmjNR3goj5I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.16 0147/1017] block: limit request dispatch loop duration
-Date:   Tue,  5 Apr 2022 09:17:40 +0200
-Message-Id: <20220405070358.569266137@linuxfoundation.org>
+        stable@vger.kernel.org, Jani Nikula <jani.nikula@intel.com>,
+        Shawn C Lee <shawn.c.lee@intel.com>,
+        intel-gfx <intel-gfx@lists.freedesktop.org>,
+        Cooper Chiou <cooper.chiou@intel.com>
+Subject: [PATCH 5.16 0149/1017] drm/edid: check basic audio support on CEA extension block
+Date:   Tue,  5 Apr 2022 09:17:42 +0200
+Message-Id: <20220405070358.630157664@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -54,85 +55,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+From: Cooper Chiou <cooper.chiou@intel.com>
 
-commit 572299f03afd676dd4e20669cdaf5ed0fe1379d4 upstream.
+commit 5662abf6e21338be6d085d6375d3732ac6147fd2 upstream.
 
-When IO requests are made continuously and the target block device
-handles requests faster than request arrival, the request dispatch loop
-keeps on repeating to dispatch the arriving requests very long time,
-more than a minute. Since the loop runs as a workqueue worker task, the
-very long loop duration triggers workqueue watchdog timeout and BUG [1].
+Tag code stored in bit7:5 for CTA block byte[3] is not the same as
+CEA extension block definition. Only check CEA block has
+basic audio support.
 
-To avoid the very long loop duration, break the loop periodically. When
-opportunity to dispatch requests still exists, check need_resched(). If
-need_resched() returns true, the dispatch loop already consumed its time
-slice, then reschedule the dispatch work and break the loop. With heavy
-IO load, need_resched() does not return true for 20~30 seconds. To cover
-such case, check time spent in the dispatch loop with jiffies. If more
-than 1 second is spent, reschedule the dispatch work and break the loop.
+v3: update commit message.
 
-[1]
-
-[  609.691437] BUG: workqueue lockup - pool cpus=10 node=1 flags=0x0 nice=-20 stuck for 35s!
-[  609.701820] Showing busy workqueues and worker pools:
-[  609.707915] workqueue events: flags=0x0
-[  609.712615]   pwq 0: cpus=0 node=0 flags=0x0 nice=0 active=1/256 refcnt=2
-[  609.712626]     pending: drm_fb_helper_damage_work [drm_kms_helper]
-[  609.712687] workqueue events_freezable: flags=0x4
-[  609.732943]   pwq 0: cpus=0 node=0 flags=0x0 nice=0 active=1/256 refcnt=2
-[  609.732952]     pending: pci_pme_list_scan
-[  609.732968] workqueue events_power_efficient: flags=0x80
-[  609.751947]   pwq 0: cpus=0 node=0 flags=0x0 nice=0 active=1/256 refcnt=2
-[  609.751955]     pending: neigh_managed_work
-[  609.752018] workqueue kblockd: flags=0x18
-[  609.769480]   pwq 21: cpus=10 node=1 flags=0x0 nice=-20 active=3/256 refcnt=4
-[  609.769488]     in-flight: 1020:blk_mq_run_work_fn
-[  609.769498]     pending: blk_mq_timeout_work, blk_mq_run_work_fn
-[  609.769744] pool 21: cpus=10 node=1 flags=0x0 nice=-20 hung=35s workers=2 idle: 67
-[  639.899730] BUG: workqueue lockup - pool cpus=10 node=1 flags=0x0 nice=-20 stuck for 66s!
-[  639.909513] Showing busy workqueues and worker pools:
-[  639.915404] workqueue events: flags=0x0
-[  639.920197]   pwq 0: cpus=0 node=0 flags=0x0 nice=0 active=1/256 refcnt=2
-[  639.920215]     pending: drm_fb_helper_damage_work [drm_kms_helper]
-[  639.920365] workqueue kblockd: flags=0x18
-[  639.939932]   pwq 21: cpus=10 node=1 flags=0x0 nice=-20 active=3/256 refcnt=4
-[  639.939942]     in-flight: 1020:blk_mq_run_work_fn
-[  639.939955]     pending: blk_mq_timeout_work, blk_mq_run_work_fn
-[  639.940212] pool 21: cpus=10 node=1 flags=0x0 nice=-20 hung=66s workers=2 idle: 67
-
-Fixes: 6e6fcbc27e778 ("blk-mq: support batching dispatch in case of io")
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Cc: stable@vger.kernel.org # v5.10+
-Link: https://lore.kernel.org/linux-block/20220310091649.zypaem5lkyfadymg@shindev/
-Link: https://lore.kernel.org/r/20220318022641.133484-1-shinichiro.kawasaki@wdc.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Cc: stable@vger.kernel.org
+Cc: Jani Nikula <jani.nikula@intel.com>
+Cc: Shawn C Lee <shawn.c.lee@intel.com>
+Cc: intel-gfx <intel-gfx@lists.freedesktop.org>
+Signed-off-by: Cooper Chiou <cooper.chiou@intel.com>
+Signed-off-by: Lee Shawn C <shawn.c.lee@intel.com>
+Fixes: e28ad544f462 ("drm/edid: parse CEA blocks embedded in DisplayID")
+Reviewed-by: Jani Nikula <jani.nikula@intel.com>
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220324061218.32739-1-shawn.c.lee@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- block/blk-mq-sched.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/drm_edid.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/block/blk-mq-sched.c
-+++ b/block/blk-mq-sched.c
-@@ -206,11 +206,18 @@ static int __blk_mq_do_dispatch_sched(st
+--- a/drivers/gpu/drm/drm_edid.c
++++ b/drivers/gpu/drm/drm_edid.c
+@@ -4848,7 +4848,8 @@ bool drm_detect_monitor_audio(struct edi
+ 	if (!edid_ext)
+ 		goto end;
  
- static int blk_mq_do_dispatch_sched(struct blk_mq_hw_ctx *hctx)
- {
-+	unsigned long end = jiffies + HZ;
- 	int ret;
+-	has_audio = ((edid_ext[3] & EDID_BASIC_AUDIO) != 0);
++	has_audio = (edid_ext[0] == CEA_EXT &&
++		    (edid_ext[3] & EDID_BASIC_AUDIO) != 0);
  
- 	do {
- 		ret = __blk_mq_do_dispatch_sched(hctx);
--	} while (ret == 1);
-+		if (ret != 1)
-+			break;
-+		if (need_resched() || time_is_before_jiffies(end)) {
-+			blk_mq_delay_run_hw_queue(hctx, 0);
-+			break;
-+		}
-+	} while (1);
- 
- 	return ret;
- }
+ 	if (has_audio) {
+ 		DRM_DEBUG_KMS("Monitor has basic audio support\n");
 
 
