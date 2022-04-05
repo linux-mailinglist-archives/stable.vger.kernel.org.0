@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CE3894F376F
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:20:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 09A804F3773
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:20:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352959AbiDELNU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:13:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48136 "EHLO
+        id S1352975AbiDELN0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:13:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39194 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349055AbiDEJtC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1D5EA94E6;
-        Tue,  5 Apr 2022 02:39:22 -0700 (PDT)
+        with ESMTP id S1349057AbiDEJtD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20050A94EC;
+        Tue,  5 Apr 2022 02:39:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 41C51615E5;
-        Tue,  5 Apr 2022 09:39:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53CC4C385A2;
-        Tue,  5 Apr 2022 09:39:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C721AB818F3;
+        Tue,  5 Apr 2022 09:39:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12FF6C385A2;
+        Tue,  5 Apr 2022 09:39:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151561;
-        bh=b9CmBkPoTzeTLTQ03P0MF8/xi7jAsA2piHfG702kMsQ=;
+        s=korg; t=1649151564;
+        bh=WuRlOwtrRvuEhnjGzamlA5fZhPSxTgvN2dXTvL/ROmk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1scPs9izTJkIW6jFdO22FVoV2DrdK/dNVeL4ISpH4cxK2ziQ6V6BeH6dNHBYysx70
-         ujZ5Ws4SAPGQlOO+vTa7sxeT/VAqXp+uCVE4kNio2SF6l2lw4rulFTt0uPZQpQl19C
-         i+EfYn6XLpfl0ZSvCv+0ilfWqczhmY3Pa51ZU5xI=
+        b=CIH4+l+QUQbQFXC8Ud9+pKBnKzIYvfPrEKuVxbd9cEsgrMHUghT6k0rZ15WCTvk+I
+         Yr2tph9yxgNBOI0gF7Nz+8HPonbFaBMaAjqnC4H/jFWPmIreN4PkqagREc64WHbCYK
+         xgrlMb33oQ4jB1opz7a+4wDuqx6BlXWeRBtJn61g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Geliang Tang <geliang.tang@suse.com>,
-        Mat Martineau <mathew.j.martineau@linux.intel.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        Luca Coelho <luciano.coelho@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 461/913] selftests: mptcp: add csum mib check for mptcp_connect
-Date:   Tue,  5 Apr 2022 09:25:23 +0200
-Message-Id: <20220405070353.667445310@linuxfoundation.org>
+Subject: [PATCH 5.15 462/913] iwlwifi: mvm: Dont call iwl_mvm_sta_from_mac80211() with NULL sta
+Date:   Tue,  5 Apr 2022 09:25:24 +0200
+Message-Id: <20220405070353.697190655@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -55,70 +54,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geliang Tang <geliang.tang@suse.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 24720d7452df2dff2e539d9dff28904e25bb1c6d ]
+[ Upstream commit 30d17c12b0895e15ce22ebc1f52a4ff02df6dbc6 ]
 
-This patch added the data checksum error mib counters check for the
-script mptcp_connect.sh when the data checksum is enabled.
+The recent fix for NULL sta in iwl_mvm_get_tx_rate() still has a call
+of iwl_mvm_sta_from_mac80211() that may be called with NULL sta.
+Although this practically only points to the address and the actual
+access doesn't happen due to the conditional evaluation at a later
+point, it looks a bit flaky.
 
-In do_transfer(), got the mib counters twice, before and after running
-the mptcp_connect commands. The latter minus the former is the actual
-number of the data checksum mib counter.
+This patch drops the temporary variable above and evaluates
+iwm_mvm_sta_from_mac80211() directly for avoiding confusions.
 
-The output looks like this:
-
-ns1 MPTCP -> ns2 (dead:beef:1::2:10007) MPTCP   (duration    86ms) [ OK ]
-ns1 MPTCP -> ns2 (10.0.2.1:10008      ) MPTCP   (duration    66ms) [ FAIL ]
-server got 1 data checksum error[s]
-
-Fixes: 94d66ba1d8e48 ("selftests: mptcp: enable checksum in mptcp_connect.sh")
-Closes: https://github.com/multipath-tcp/mptcp_net-next/issues/255
-Signed-off-by: Geliang Tang <geliang.tang@suse.com>
-Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: d599f714b73e ("iwlwifi: mvm: don't crash on invalid rate w/o STA")
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Link: https://lore.kernel.org/r/20220121114024.10454-1-tiwai@suse.de
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../selftests/net/mptcp/mptcp_connect.sh      | 19 +++++++++++++++++++
- 1 file changed, 19 insertions(+)
+ drivers/net/wireless/intel/iwlwifi/mvm/tx.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/tools/testing/selftests/net/mptcp/mptcp_connect.sh b/tools/testing/selftests/net/mptcp/mptcp_connect.sh
-index 559173a8e387..d75fa97609c1 100755
---- a/tools/testing/selftests/net/mptcp/mptcp_connect.sh
-+++ b/tools/testing/selftests/net/mptcp/mptcp_connect.sh
-@@ -445,6 +445,8 @@ do_transfer()
- 	local stat_ackrx_last_l=$(get_mib_counter "${listener_ns}" "MPTcpExtMPCapableACKRX")
- 	local stat_cookietx_last=$(get_mib_counter "${listener_ns}" "TcpExtSyncookiesSent")
- 	local stat_cookierx_last=$(get_mib_counter "${listener_ns}" "TcpExtSyncookiesRecv")
-+	local stat_csum_err_s=$(get_mib_counter "${listener_ns}" "MPTcpExtDataCsumErr")
-+	local stat_csum_err_c=$(get_mib_counter "${connector_ns}" "MPTcpExtDataCsumErr")
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/tx.c b/drivers/net/wireless/intel/iwlwifi/mvm/tx.c
+index 06fbd9ab37df..b5368cb57ca8 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/tx.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/tx.c
+@@ -271,15 +271,14 @@ static u32 iwl_mvm_get_tx_rate(struct iwl_mvm *mvm,
  
- 	timeout ${timeout_test} \
- 		ip netns exec ${listener_ns} \
-@@ -537,6 +539,23 @@ do_transfer()
- 		fi
- 	fi
+ 	/* info->control is only relevant for non HW rate control */
+ 	if (!ieee80211_hw_check(mvm->hw, HAS_RATE_CONTROL)) {
+-		struct iwl_mvm_sta *mvmsta = iwl_mvm_sta_from_mac80211(sta);
+-
+ 		/* HT rate doesn't make sense for a non data frame */
+ 		WARN_ONCE(info->control.rates[0].flags & IEEE80211_TX_RC_MCS &&
+ 			  !ieee80211_is_data(fc),
+ 			  "Got a HT rate (flags:0x%x/mcs:%d/fc:0x%x/state:%d) for a non data frame\n",
+ 			  info->control.rates[0].flags,
+ 			  info->control.rates[0].idx,
+-			  le16_to_cpu(fc), sta ? mvmsta->sta_state : -1);
++			  le16_to_cpu(fc),
++			  sta ? iwl_mvm_sta_from_mac80211(sta)->sta_state : -1);
  
-+	if $checksum; then
-+		local csum_err_s=$(get_mib_counter "${listener_ns}" "MPTcpExtDataCsumErr")
-+		local csum_err_c=$(get_mib_counter "${connector_ns}" "MPTcpExtDataCsumErr")
-+
-+		local csum_err_s_nr=$((csum_err_s - stat_csum_err_s))
-+		if [ $csum_err_s_nr -gt 0 ]; then
-+			printf "[ FAIL ]\nserver got $csum_err_s_nr data checksum error[s]"
-+			rets=1
-+		fi
-+
-+		local csum_err_c_nr=$((csum_err_c - stat_csum_err_c))
-+		if [ $csum_err_c_nr -gt 0 ]; then
-+			printf "[ FAIL ]\nclient got $csum_err_c_nr data checksum error[s]"
-+			retc=1
-+		fi
-+	fi
-+
- 	if [ $retc -eq 0 ] && [ $rets -eq 0 ]; then
- 		printf "[ OK ]"
- 	fi
+ 		rate_idx = info->control.rates[0].idx;
+ 	}
 -- 
 2.34.1
 
