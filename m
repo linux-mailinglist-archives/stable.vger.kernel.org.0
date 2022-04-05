@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D07EC4F445C
-	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 00:15:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D07D4F43B1
+	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 00:04:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380483AbiDEMNE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:13:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53670 "EHLO
+        id S1353848AbiDEMI6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:08:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53682 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358066AbiDEK15 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:27:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFB9B37BC7;
-        Tue,  5 Apr 2022 03:14:17 -0700 (PDT)
+        with ESMTP id S1358073AbiDEK16 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:27:58 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90C3D5B3F3;
+        Tue,  5 Apr 2022 03:14:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7671661562;
-        Tue,  5 Apr 2022 10:14:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87449C385A1;
-        Tue,  5 Apr 2022 10:14:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 50FC4B81B7A;
+        Tue,  5 Apr 2022 10:14:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF6B4C385A0;
+        Tue,  5 Apr 2022 10:14:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153656;
-        bh=4+SY162WN04MNbANkR6cbdC7zaRPcARggpU/2SxLkDA=;
+        s=korg; t=1649153676;
+        bh=gcxRcMIWuy/WcYJVeWiXBtdqDfARAfyZtJzAbaM2jHw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sN0KHLa154BCvQkSXFIbhMKk0Gxl3fdJfm7L0t6MazaRHF8s8cdkl4KjAzBwheKvp
-         qk371v0EY+4cY87Zqn2wueSnCwbZW68aZvgMrkc5bn2A+tMtdwnSnxXZCL7C/fP/B1
-         NMMDlDU8uv59w7mfP/ssrkvOyMSVw451UAbQz+n0=
+        b=SSR1NxH3HN4vULtxSDYZCOceATWPbovbL2wwgtApiX7eGnjHsBvD0Uwf62krnriEb
+         kVPH+qTbLutVtY+WxRT7b7rpMaEooHav9+uGGQUnSenYMGfgS2o62TjmA93eyO5Dkj
+         qBtDg4ihLSRLJW9WFMJsqq+tguVaGjBx3YmpFAuA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?H=C3=A5kon=20Bugge?= <haakon.bugge@oracle.com>,
-        Avneesh Pant <avneesh.pant@oracle.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Abhinav Kumar <quic_abhinavk@quicinc.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 301/599] IB/cma: Allow XRC INI QPs to set their local ACK timeout
-Date:   Tue,  5 Apr 2022 09:29:55 +0200
-Message-Id: <20220405070307.791000825@linuxfoundation.org>
+Subject: [PATCH 5.10 307/599] drm/msm/dpu: fix dp audio condition
+Date:   Tue,  5 Apr 2022 09:30:01 +0200
+Message-Id: <20220405070307.970466395@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -57,36 +56,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Håkon Bugge <haakon.bugge@oracle.com>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-[ Upstream commit 748663c8ccf6b2e5a800de19127c2cc1c4423fd2 ]
+[ Upstream commit 1e0505a5a7a2fea243f8e6d7e13fcde65f9e41bc ]
 
-XRC INI QPs should be able to adjust their local ACK timeout.
+DP audio enablement code which is comparing intf_type,
+DRM_MODE_ENCODER_TMDS (= 2) with DRM_MODE_CONNECTOR_DisplayPort (= 10).
+Which would never succeed. Fix it to check for DRM_MODE_ENCODER_TMDS.
 
-Fixes: 2c1619edef61 ("IB/cma: Define option to set ack timeout and pack tos_set")
-Link: https://lore.kernel.org/r/1644421175-31943-1-git-send-email-haakon.bugge@oracle.com
-Signed-off-by: Håkon Bugge <haakon.bugge@oracle.com>
-Suggested-by: Avneesh Pant <avneesh.pant@oracle.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: d13e36d7d222 ("drm/msm/dp: add audio support for Display Port on MSM")
+Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Link: https://lore.kernel.org/r/20220217035358.465904-2-dmitry.baryshkov@linaro.org
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/cma.c | 2 +-
+ drivers/gpu/drm/msm/disp/dpu1/dpu_encoder.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/core/cma.c b/drivers/infiniband/core/cma.c
-index fbb0efbe25f8..3c40aa50cd60 100644
---- a/drivers/infiniband/core/cma.c
-+++ b/drivers/infiniband/core/cma.c
-@@ -2635,7 +2635,7 @@ int rdma_set_ack_timeout(struct rdma_cm_id *id, u8 timeout)
- {
- 	struct rdma_id_private *id_priv;
+diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_encoder.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_encoder.c
+index f7f5c258b553..a0274fcfe9c9 100644
+--- a/drivers/gpu/drm/msm/disp/dpu1/dpu_encoder.c
++++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_encoder.c
+@@ -1113,7 +1113,7 @@ static void _dpu_encoder_virt_enable_helper(struct drm_encoder *drm_enc)
+ 	}
  
--	if (id->qp_type != IB_QPT_RC)
-+	if (id->qp_type != IB_QPT_RC && id->qp_type != IB_QPT_XRC_INI)
- 		return -EINVAL;
  
- 	id_priv = container_of(id, struct rdma_id_private, id);
+-	if (dpu_enc->disp_info.intf_type == DRM_MODE_CONNECTOR_DisplayPort &&
++	if (dpu_enc->disp_info.intf_type == DRM_MODE_ENCODER_TMDS &&
+ 		dpu_enc->cur_master->hw_mdptop &&
+ 		dpu_enc->cur_master->hw_mdptop->ops.intf_audio_select)
+ 		dpu_enc->cur_master->hw_mdptop->ops.intf_audio_select(
 -- 
 2.34.1
 
