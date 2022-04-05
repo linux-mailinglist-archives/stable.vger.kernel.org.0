@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 65D054F317B
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:44:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 03E6D4F3328
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:13:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355676AbiDEKVb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:21:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60118 "EHLO
+        id S241085AbiDEKKG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:10:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59714 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345522AbiDEJWr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:22:47 -0400
+        with ESMTP id S1345547AbiDEJWt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:22:49 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51EAC4C7B8;
-        Tue,  5 Apr 2022 02:11:11 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F9994D62E;
+        Tue,  5 Apr 2022 02:11:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E62F8B81A12;
-        Tue,  5 Apr 2022 09:11:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C54AC385A2;
-        Tue,  5 Apr 2022 09:11:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AFC18B80DA1;
+        Tue,  5 Apr 2022 09:11:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F650C385A3;
+        Tue,  5 Apr 2022 09:11:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149868;
-        bh=/l/iLNcIVgBl6tLCGjPlH9RZNhMIyV8EQX/3Y4TFIDo=;
+        s=korg; t=1649149871;
+        bh=9FEs9vOrkJJDlurXarSttw8Ls20U/XrgNh9nEfnRwf0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ud390YaoTGTVy/NtgXt3n5IksjXeINsMV5l98jgv6cqILSwVyYuQYo9Y53D0ZBz8M
-         4p4OhlK2o/9alfhJLLEtTvt/rB0oBeugzq+WPxwqYfiOlWyWQAgPbVUbyri7d+LUWC
-         2eV+hpgZUBsmTP4/N/b8QUvbnm5OiWlnhCxpRnnc=
+        b=wy3/2etz1Fah/k1yuTGWKAqWMQhzCPbBRf1WPoJ1tjPkuhdODIQEPS8VJIJBHSwY0
+         92Dth+hsefMdpwOqOMmT0y41b/It0ibXijz9SigVyKoL7aS1awe8wJLjDLtzEVs1+y
+         2kwC5gD+lX80D0tmOaKxuoB1SDFf+RvJzXbTuYQo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxime Bizon <mbizon@freebox.fr>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Russell Currey <ruscur@russell.cc>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Anders Roxell <anders.roxell@linaro.org>,
+        Segher Boessenkool <segher@kernel.crashing.org>,
         Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.16 0869/1017] powerpc: Add set_memory_{p/np}() and remove set_memory_attr()
-Date:   Tue,  5 Apr 2022 09:29:42 +0200
-Message-Id: <20220405070420.031451125@linuxfoundation.org>
+Subject: [PATCH 5.16 0870/1017] powerpc: Fix build errors with newer binutils
+Date:   Tue,  5 Apr 2022 09:29:43 +0200
+Message-Id: <20220405070420.060548386@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -55,178 +55,164 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Anders Roxell <anders.roxell@linaro.org>
 
-commit f222ab83df92acf72691a2021e1f0d99880dcdf1 upstream.
+commit 8667d0d64dd1f84fd41b5897fd87fa9113ae05e3 upstream.
 
-set_memory_attr() was implemented by commit 4d1755b6a762 ("powerpc/mm:
-implement set_memory_attr()") because the set_memory_xx() couldn't
-be used at that time to modify memory "on the fly" as explained it
-the commit.
+Building tinyconfig with gcc (Debian 11.2.0-16) and assembler (Debian
+2.37.90.20220207) the following build error shows up:
 
-But set_memory_attr() uses set_pte_at() which leads to warnings when
-CONFIG_DEBUG_VM is selected, because set_pte_at() is unexpected for
-updating existing page table entries.
+  {standard input}: Assembler messages:
+  {standard input}:1190: Error: unrecognized opcode: `stbcix'
+  {standard input}:1433: Error: unrecognized opcode: `lwzcix'
+  {standard input}:1453: Error: unrecognized opcode: `stbcix'
+  {standard input}:1460: Error: unrecognized opcode: `stwcix'
+  {standard input}:1596: Error: unrecognized opcode: `stbcix'
+  ...
 
-The check could be bypassed by using __set_pte_at() instead,
-as it was the case before commit c988cfd38e48 ("powerpc/32:
-use set_memory_attr()") but since commit 9f7853d7609d ("powerpc/mm:
-Fix set_memory_*() against concurrent accesses") it is now possible
-to use set_memory_xx() functions to update page table entries
-"on the fly" because the update is now atomic.
+Rework to add assembler directives [1] around the instruction. Going
+through them one by one shows that the changes should be safe.  Like
+__get_user_atomic_128_aligned() is only called in p9_hmi_special_emu(),
+which according to the name is specific to power9.  And __raw_rm_read*()
+are only called in things that are powernv or book3s_hv specific.
 
-For DEBUG_PAGEALLOC we need to clear and set back _PAGE_PRESENT.
-Add set_memory_np() and set_memory_p() for that.
+[1] https://sourceware.org/binutils/docs/as/PowerPC_002dPseudo.html#PowerPC_002dPseudo
 
-Replace all uses of set_memory_attr() by the relevant set_memory_xx()
-and remove set_memory_attr().
-
-Fixes: c988cfd38e48 ("powerpc/32: use set_memory_attr()")
 Cc: stable@vger.kernel.org
-Reported-by: Maxime Bizon <mbizon@freebox.fr>
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Tested-by: Maxime Bizon <mbizon@freebox.fr>
-Reviewed-by: Russell Currey <ruscur@russell.cc>
-Depends-on: 9f7853d7609d ("powerpc/mm: Fix set_memory_*() against concurrent accesses")
+Co-developed-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
+Reviewed-by: Segher Boessenkool <segher@kernel.crashing.org>
+[mpe: Make commit subject more descriptive]
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/cda2b44b55c96f9ac69fa92e68c01084ec9495c5.1640344012.git.christophe.leroy@csgroup.eu
+Link: https://lore.kernel.org/r/20220224162215.3406642-2-anders.roxell@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/include/asm/set_memory.h |   12 +++++++++-
- arch/powerpc/mm/pageattr.c            |   39 +++++-----------------------------
- arch/powerpc/mm/pgtable_32.c          |   24 +++++++++-----------
- 3 files changed, 28 insertions(+), 47 deletions(-)
+ arch/powerpc/include/asm/io.h        |   40 ++++++++++++++++++++++++++++-------
+ arch/powerpc/include/asm/uaccess.h   |    3 ++
+ arch/powerpc/platforms/powernv/rng.c |    6 ++++-
+ 3 files changed, 40 insertions(+), 9 deletions(-)
 
---- a/arch/powerpc/include/asm/set_memory.h
-+++ b/arch/powerpc/include/asm/set_memory.h
-@@ -6,6 +6,8 @@
- #define SET_MEMORY_RW	1
- #define SET_MEMORY_NX	2
- #define SET_MEMORY_X	3
-+#define SET_MEMORY_NP	4	/* Set memory non present */
-+#define SET_MEMORY_P	5	/* Set memory present */
- 
- int change_memory_attr(unsigned long addr, int numpages, long action);
- 
-@@ -29,6 +31,14 @@ static inline int set_memory_x(unsigned
- 	return change_memory_attr(addr, numpages, SET_MEMORY_X);
+--- a/arch/powerpc/include/asm/io.h
++++ b/arch/powerpc/include/asm/io.h
+@@ -359,25 +359,37 @@ static inline void __raw_writeq_be(unsig
+  */
+ static inline void __raw_rm_writeb(u8 val, volatile void __iomem *paddr)
+ {
+-	__asm__ __volatile__("stbcix %0,0,%1"
++	__asm__ __volatile__(".machine push;   \
++			      .machine power6; \
++			      stbcix %0,0,%1;  \
++			      .machine pop;"
+ 		: : "r" (val), "r" (paddr) : "memory");
  }
  
--int set_memory_attr(unsigned long addr, int numpages, pgprot_t prot);
-+static inline int set_memory_np(unsigned long addr, int numpages)
-+{
-+	return change_memory_attr(addr, numpages, SET_MEMORY_NP);
-+}
-+
-+static inline int set_memory_p(unsigned long addr, int numpages)
-+{
-+	return change_memory_attr(addr, numpages, SET_MEMORY_P);
-+}
- 
- #endif
---- a/arch/powerpc/mm/pageattr.c
-+++ b/arch/powerpc/mm/pageattr.c
-@@ -48,6 +48,12 @@ static int change_page_attr(pte_t *ptep,
- 	case SET_MEMORY_X:
- 		pte = pte_mkexec(pte);
- 		break;
-+	case SET_MEMORY_NP:
-+		pte_update(&init_mm, addr, ptep, _PAGE_PRESENT, 0, 0);
-+		break;
-+	case SET_MEMORY_P:
-+		pte_update(&init_mm, addr, ptep, 0, _PAGE_PRESENT, 0);
-+		break;
- 	default:
- 		WARN_ON_ONCE(1);
- 		break;
-@@ -96,36 +102,3 @@ int change_memory_attr(unsigned long add
- 	return apply_to_existing_page_range(&init_mm, start, size,
- 					    change_page_attr, (void *)action);
- }
--
--/*
-- * Set the attributes of a page:
-- *
-- * This function is used by PPC32 at the end of init to set final kernel memory
-- * protection. It includes changing the maping of the page it is executing from
-- * and data pages it is using.
-- */
--static int set_page_attr(pte_t *ptep, unsigned long addr, void *data)
--{
--	pgprot_t prot = __pgprot((unsigned long)data);
--
--	spin_lock(&init_mm.page_table_lock);
--
--	set_pte_at(&init_mm, addr, ptep, pte_modify(*ptep, prot));
--	flush_tlb_kernel_range(addr, addr + PAGE_SIZE);
--
--	spin_unlock(&init_mm.page_table_lock);
--
--	return 0;
--}
--
--int set_memory_attr(unsigned long addr, int numpages, pgprot_t prot)
--{
--	unsigned long start = ALIGN_DOWN(addr, PAGE_SIZE);
--	unsigned long sz = numpages * PAGE_SIZE;
--
--	if (numpages <= 0)
--		return 0;
--
--	return apply_to_existing_page_range(&init_mm, start, sz, set_page_attr,
--					    (void *)pgprot_val(prot));
--}
---- a/arch/powerpc/mm/pgtable_32.c
-+++ b/arch/powerpc/mm/pgtable_32.c
-@@ -135,10 +135,12 @@ void mark_initmem_nx(void)
- 	unsigned long numpages = PFN_UP((unsigned long)_einittext) -
- 				 PFN_DOWN((unsigned long)_sinittext);
- 
--	if (v_block_mapped((unsigned long)_sinittext))
-+	if (v_block_mapped((unsigned long)_sinittext)) {
- 		mmu_mark_initmem_nx();
--	else
--		set_memory_attr((unsigned long)_sinittext, numpages, PAGE_KERNEL);
-+	} else {
-+		set_memory_nx((unsigned long)_sinittext, numpages);
-+		set_memory_rw((unsigned long)_sinittext, numpages);
-+	}
+ static inline void __raw_rm_writew(u16 val, volatile void __iomem *paddr)
+ {
+-	__asm__ __volatile__("sthcix %0,0,%1"
++	__asm__ __volatile__(".machine push;   \
++			      .machine power6; \
++			      sthcix %0,0,%1;  \
++			      .machine pop;"
+ 		: : "r" (val), "r" (paddr) : "memory");
  }
  
- #ifdef CONFIG_STRICT_KERNEL_RWX
-@@ -152,18 +154,14 @@ void mark_rodata_ro(void)
- 		return;
- 	}
- 
--	numpages = PFN_UP((unsigned long)_etext) -
--		   PFN_DOWN((unsigned long)_stext);
--
--	set_memory_attr((unsigned long)_stext, numpages, PAGE_KERNEL_ROX);
- 	/*
--	 * mark .rodata as read only. Use __init_begin rather than __end_rodata
--	 * to cover NOTES and EXCEPTION_TABLE.
-+	 * mark .text and .rodata as read only. Use __init_begin rather than
-+	 * __end_rodata to cover NOTES and EXCEPTION_TABLE.
- 	 */
- 	numpages = PFN_UP((unsigned long)__init_begin) -
--		   PFN_DOWN((unsigned long)__start_rodata);
-+		   PFN_DOWN((unsigned long)_stext);
- 
--	set_memory_attr((unsigned long)__start_rodata, numpages, PAGE_KERNEL_RO);
-+	set_memory_ro((unsigned long)_stext, numpages);
- 
- 	// mark_initmem_nx() should have already run by now
- 	ptdump_check_wx();
-@@ -179,8 +177,8 @@ void __kernel_map_pages(struct page *pag
- 		return;
- 
- 	if (enable)
--		set_memory_attr(addr, numpages, PAGE_KERNEL);
-+		set_memory_p(addr, numpages);
- 	else
--		set_memory_attr(addr, numpages, __pgprot(0));
-+		set_memory_np(addr, numpages);
+ static inline void __raw_rm_writel(u32 val, volatile void __iomem *paddr)
+ {
+-	__asm__ __volatile__("stwcix %0,0,%1"
++	__asm__ __volatile__(".machine push;   \
++			      .machine power6; \
++			      stwcix %0,0,%1;  \
++			      .machine pop;"
+ 		: : "r" (val), "r" (paddr) : "memory");
  }
- #endif /* CONFIG_DEBUG_PAGEALLOC */
+ 
+ static inline void __raw_rm_writeq(u64 val, volatile void __iomem *paddr)
+ {
+-	__asm__ __volatile__("stdcix %0,0,%1"
++	__asm__ __volatile__(".machine push;   \
++			      .machine power6; \
++			      stdcix %0,0,%1;  \
++			      .machine pop;"
+ 		: : "r" (val), "r" (paddr) : "memory");
+ }
+ 
+@@ -389,7 +401,10 @@ static inline void __raw_rm_writeq_be(u6
+ static inline u8 __raw_rm_readb(volatile void __iomem *paddr)
+ {
+ 	u8 ret;
+-	__asm__ __volatile__("lbzcix %0,0, %1"
++	__asm__ __volatile__(".machine push;   \
++			      .machine power6; \
++			      lbzcix %0,0, %1; \
++			      .machine pop;"
+ 			     : "=r" (ret) : "r" (paddr) : "memory");
+ 	return ret;
+ }
+@@ -397,7 +412,10 @@ static inline u8 __raw_rm_readb(volatile
+ static inline u16 __raw_rm_readw(volatile void __iomem *paddr)
+ {
+ 	u16 ret;
+-	__asm__ __volatile__("lhzcix %0,0, %1"
++	__asm__ __volatile__(".machine push;   \
++			      .machine power6; \
++			      lhzcix %0,0, %1; \
++			      .machine pop;"
+ 			     : "=r" (ret) : "r" (paddr) : "memory");
+ 	return ret;
+ }
+@@ -405,7 +423,10 @@ static inline u16 __raw_rm_readw(volatil
+ static inline u32 __raw_rm_readl(volatile void __iomem *paddr)
+ {
+ 	u32 ret;
+-	__asm__ __volatile__("lwzcix %0,0, %1"
++	__asm__ __volatile__(".machine push;   \
++			      .machine power6; \
++			      lwzcix %0,0, %1; \
++			      .machine pop;"
+ 			     : "=r" (ret) : "r" (paddr) : "memory");
+ 	return ret;
+ }
+@@ -413,7 +434,10 @@ static inline u32 __raw_rm_readl(volatil
+ static inline u64 __raw_rm_readq(volatile void __iomem *paddr)
+ {
+ 	u64 ret;
+-	__asm__ __volatile__("ldcix %0,0, %1"
++	__asm__ __volatile__(".machine push;   \
++			      .machine power6; \
++			      ldcix %0,0, %1;  \
++			      .machine pop;"
+ 			     : "=r" (ret) : "r" (paddr) : "memory");
+ 	return ret;
+ }
+--- a/arch/powerpc/include/asm/uaccess.h
++++ b/arch/powerpc/include/asm/uaccess.h
+@@ -125,8 +125,11 @@ do {								\
+  */
+ #define __get_user_atomic_128_aligned(kaddr, uaddr, err)		\
+ 	__asm__ __volatile__(				\
++		".machine push\n"			\
++		".machine altivec\n"			\
+ 		"1:	lvx  0,0,%1	# get user\n"	\
+ 		" 	stvx 0,0,%2	# put kernel\n"	\
++		".machine pop\n"			\
+ 		"2:\n"					\
+ 		".section .fixup,\"ax\"\n"		\
+ 		"3:	li %0,%3\n"			\
+--- a/arch/powerpc/platforms/powernv/rng.c
++++ b/arch/powerpc/platforms/powernv/rng.c
+@@ -43,7 +43,11 @@ static unsigned long rng_whiten(struct p
+ 	unsigned long parity;
+ 
+ 	/* Calculate the parity of the value */
+-	asm ("popcntd %0,%1" : "=r" (parity) : "r" (val));
++	asm (".machine push;   \
++	      .machine power7; \
++	      popcntd %0,%1;   \
++	      .machine pop;"
++	     : "=r" (parity) : "r" (val));
+ 
+ 	/* xor our value with the previous mask */
+ 	val ^= rng->mask;
 
 
