@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 299734F2AE7
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:06:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F0B34F2D73
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:42:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235818AbiDEJPA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:15:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51136 "EHLO
+        id S241073AbiDEKsb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:48:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50096 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244919AbiDEIwr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E84B824586;
-        Tue,  5 Apr 2022 01:46:21 -0700 (PDT)
+        with ESMTP id S244522AbiDEJl1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:41:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1AEDBB937;
+        Tue,  5 Apr 2022 02:26:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8807B614EB;
-        Tue,  5 Apr 2022 08:46:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96E55C385A0;
-        Tue,  5 Apr 2022 08:46:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3E5106144D;
+        Tue,  5 Apr 2022 09:26:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A686C385A0;
+        Tue,  5 Apr 2022 09:26:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148381;
-        bh=TdNHD+ThQdFDNYzUnyywSIQFu/8Rmrh1akcMl4pdADg=;
+        s=korg; t=1649150802;
+        bh=x/BbDqLS16fO//8ZLAlr4JSJFLAy2lcDbX54ZoBLp9w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sZQxVep+7F04FN8B945OGAihhN191NAqaqjgqIc7pPqZAJbhMqgEmxvFkBahvzBQ5
-         X99rT5PmhbCWrPiIQ+d5ArAj0nXMXMZwzfIl7/dUnlA3A5U6+IIQUSOEGIk6sJcO7M
-         VujKgTWVo3ZpIFWExSQtqqTe3vbiapKGRJX1orvM=
+        b=HiMzOj8APaba8HY4NENe3dHw838oOhzhGfUZYAA3ZObTFfjdZarOdhbo7+XeIf8Ri
+         uXByylLInGAXvOfMz8xXrRhA0iGeBc4hZ6r5NQW0/ssiFaN3hSq6CF1VQR++kjboSj
+         nwZydrpW5NqmFEsvw9lNNCs/fJqQ6RdcRBQCQfe8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0335/1017] media: usb: go7007: s2250-board: fix leak in probe()
-Date:   Tue,  5 Apr 2022 09:20:48 +0200
-Message-Id: <20220405070404.226332231@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Liguang Zhang <zhangliguang@linux.alibaba.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Lukas Wunner <lukas@wunner.de>
+Subject: [PATCH 5.15 187/913] PCI: pciehp: Clear cmd_busy bit in polling mode
+Date:   Tue,  5 Apr 2022 09:20:49 +0200
+Message-Id: <20220405070345.461700722@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,57 +55,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Liguang Zhang <zhangliguang@linux.alibaba.com>
 
-[ Upstream commit 67e4550ecd6164bfbdff54c169e5bbf9ccfaf14d ]
+commit 92912b175178c7e895f5e5e9f1e30ac30319162b upstream.
 
-Call i2c_unregister_device(audio) on this error path.
+Writes to a Downstream Port's Slot Control register are PCIe hotplug
+"commands."  If the Port supports Command Completed events, software must
+wait for a command to complete before writing to Slot Control again.
 
-Fixes: d3b2ccd9e307 ("[media] s2250: convert to the control framework")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+pcie_do_write_cmd() sets ctrl->cmd_busy when it writes to Slot Control.  If
+software notification is enabled, i.e., PCI_EXP_SLTCTL_HPIE and
+PCI_EXP_SLTCTL_CCIE are set, ctrl->cmd_busy is cleared by pciehp_isr().
+
+But when software notification is disabled, as it is when pcie_init()
+powers off an empty slot, pcie_wait_cmd() uses pcie_poll_cmd() to poll for
+command completion, and it neglects to clear ctrl->cmd_busy, which leads to
+spurious timeouts:
+
+  pcieport 0000:00:03.0: pciehp: Timeout on hotplug command 0x01c0 (issued 2264 msec ago)
+  pcieport 0000:00:03.0: pciehp: Timeout on hotplug command 0x05c0 (issued 2288 msec ago)
+
+Clear ctrl->cmd_busy in pcie_poll_cmd() when it detects a Command Completed
+event (PCI_EXP_SLTSTA_CC).
+
+[bhelgaas: commit log]
+Fixes: a5dd4b4b0570 ("PCI: pciehp: Wait for hotplug command completion where necessary")
+Link: https://lore.kernel.org/r/20211111054258.7309-1-zhangliguang@linux.alibaba.com
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=215143
+Link: https://lore.kernel.org/r/20211126173309.GA12255@wunner.de
+Signed-off-by: Liguang Zhang <zhangliguang@linux.alibaba.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Lukas Wunner <lukas@wunner.de>
+Cc: stable@vger.kernel.org	# v4.19+
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/usb/go7007/s2250-board.c | 10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ drivers/pci/hotplug/pciehp_hpc.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/media/usb/go7007/s2250-board.c b/drivers/media/usb/go7007/s2250-board.c
-index c742cc88fac5..1fa6f10ee157 100644
---- a/drivers/media/usb/go7007/s2250-board.c
-+++ b/drivers/media/usb/go7007/s2250-board.c
-@@ -504,6 +504,7 @@ static int s2250_probe(struct i2c_client *client,
- 	u8 *data;
- 	struct go7007 *go = i2c_get_adapdata(adapter);
- 	struct go7007_usb *usb = go->hpi_context;
-+	int err = -EIO;
- 
- 	audio = i2c_new_dummy_device(adapter, TLV320_ADDRESS >> 1);
- 	if (IS_ERR(audio))
-@@ -532,11 +533,8 @@ static int s2250_probe(struct i2c_client *client,
- 		V4L2_CID_HUE, -512, 511, 1, 0);
- 	sd->ctrl_handler = &state->hdl;
- 	if (state->hdl.error) {
--		int err = state->hdl.error;
--
--		v4l2_ctrl_handler_free(&state->hdl);
--		kfree(state);
--		return err;
-+		err = state->hdl.error;
-+		goto fail;
- 	}
- 
- 	state->std = V4L2_STD_NTSC;
-@@ -600,7 +598,7 @@ static int s2250_probe(struct i2c_client *client,
- 	i2c_unregister_device(audio);
- 	v4l2_ctrl_handler_free(&state->hdl);
- 	kfree(state);
--	return -EIO;
-+	return err;
- }
- 
- static int s2250_remove(struct i2c_client *client)
--- 
-2.34.1
-
+--- a/drivers/pci/hotplug/pciehp_hpc.c
++++ b/drivers/pci/hotplug/pciehp_hpc.c
+@@ -98,6 +98,8 @@ static int pcie_poll_cmd(struct controll
+ 		if (slot_status & PCI_EXP_SLTSTA_CC) {
+ 			pcie_capability_write_word(pdev, PCI_EXP_SLTSTA,
+ 						   PCI_EXP_SLTSTA_CC);
++			ctrl->cmd_busy = 0;
++			smp_mb();
+ 			return 1;
+ 		}
+ 		msleep(10);
 
 
