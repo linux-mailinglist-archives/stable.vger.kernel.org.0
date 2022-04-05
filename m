@@ -2,52 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 15D4B4F2BA1
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:16:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D629F4F2D23
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:35:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239675AbiDEKfq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:35:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53906 "EHLO
+        id S1347646AbiDEJ17 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:27:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46120 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239725AbiDEJeA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:34:00 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0574A7DA8C;
-        Tue,  5 Apr 2022 02:23:12 -0700 (PDT)
+        with ESMTP id S244728AbiDEIwf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 187C81B7BA;
+        Tue,  5 Apr 2022 01:42:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id F3B93CE1C78;
-        Tue,  5 Apr 2022 09:23:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D068DC385A0;
-        Tue,  5 Apr 2022 09:23:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A8C7E6117A;
+        Tue,  5 Apr 2022 08:42:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4A13C385A1;
+        Tue,  5 Apr 2022 08:42:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150588;
-        bh=Cx5L+u3zeAs8deNWRcmU5/WrIwgYWoTaZ/7o2gEtJ7Q=;
+        s=korg; t=1649148174;
+        bh=kvRwxX1fsm4vbiE6yY9Es3GHrv9VeOjjjPwmJ2nrnFM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U+U+CMcxQN5NTDoHd10LhqhUYdx6BlKFD04nSjU1bkXP+rWvxuJHgDCKDaGT6N1R3
-         UUHqG5RprphpiP0i+AlfqtZf6h3ry5vCWL2/24w4xJ+BLN6nw54ru/F2yLBKwLoLfW
-         fTg9SU7SXEwFfhoTB7Mavz2QZEppiYaSrRaA5gvo=
+        b=nyMjK+HF1wHdQzu6F8o4yjlEb1nN6H2/0TWBvynqXy5bodLHvmY4Z3jhQKDRA8BEB
+         P7aaASsM6U5lhkO1KD24GxTe/opqk71JTxDGkDmhFzlDnbdQGssPViA5QfkbId74xn
+         WiT5wWCVrouXauRbgJqdsUVnF8gbVvK8T8CeG9x4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Charan Teja Kalla <quic_charante@quicinc.com>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        David Rientjes <rientjes@google.com>,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        Minchan Kim <minchan@kernel.org>,
-        Nadav Amit <nadav.amit@gmail.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.15 108/913] mm: madvise: return correct bytes advised with process_madvise
-Date:   Tue,  5 Apr 2022 09:19:30 +0200
-Message-Id: <20220405070343.064309939@linuxfoundation.org>
+        stable@vger.kernel.org, Zhipeng Tan <tanzhipeng@hust.edu.cn>,
+        Jicheng Shao <shaojicheng@hust.edu.cn>,
+        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0259/1017] f2fs: fix to enable ATGC correctly via gc_idle sysfs interface
+Date:   Tue,  5 Apr 2022 09:19:32 +0200
+Message-Id: <20220405070401.951544587@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -62,64 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Charan Teja Kalla <quic_charante@quicinc.com>
+From: Chao Yu <chao@kernel.org>
 
-commit 5bd009c7c9a9e888077c07535dc0c70aeab242c3 upstream.
+[ Upstream commit 7d19e3dab0002e527052b0aaf986e8c32e5537bf ]
 
-Patch series "mm: madvise: return correct bytes processed with
-process_madvise", v2.  With the process_madvise(), always choose to return
-non zero processed bytes over an error.  This can help the user to know on
-which VMA, passed in the 'struct iovec' vector list, is failed to advise
-thus can take the decission of retrying/skipping on that VMA.
+It needs to assign sbi->gc_mode with GC_IDLE_AT rather than GC_AT when
+user tries to enable ATGC via gc_idle sysfs interface, fix it.
 
-This patch (of 2):
-
-The process_madvise() system call returns error even after processing some
-VMA's passed in the 'struct iovec' vector list which leaves the user
-confused to know where to restart the advise next.  It is also against
-this syscall man page[1] documentation where it mentions that "return
-value may be less than the total number of requested bytes, if an error
-occurred after some iovec elements were already processed.".
-
-Consider a user passed 10 VMA's in the 'struct iovec' vector list of which
-9 are processed but one.  Then it just returns the error caused on that
-failed VMA despite the first 9 VMA's processed, leaving the user confused
-about on which VMA it is failed.  Returning the number of bytes processed
-here can help the user to know which VMA it is failed on and thus can
-retry/skip the advise on that VMA.
-
-[1]https://man7.org/linux/man-pages/man2/process_madvise.2.html.
-
-Link: https://lkml.kernel.org/r/cover.1647008754.git.quic_charante@quicinc.com
-Link: https://lkml.kernel.org/r/125b61a0edcee5c2db8658aed9d06a43a19ccafc.1647008754.git.quic_charante@quicinc.com
-Fixes: ecb8ac8b1f14("mm/madvise: introduce process_madvise() syscall: an external memory hinting API")
-Signed-off-by: Charan Teja Kalla <quic_charante@quicinc.com>
-Cc: Suren Baghdasaryan <surenb@google.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: Minchan Kim <minchan@kernel.org>
-Cc: Nadav Amit <nadav.amit@gmail.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 093749e296e2 ("f2fs: support age threshold based garbage collection")
+Cc: Zhipeng Tan <tanzhipeng@hust.edu.cn>
+Signed-off-by: Jicheng Shao <shaojicheng@hust.edu.cn>
+Signed-off-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/madvise.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ fs/f2fs/sysfs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/mm/madvise.c
-+++ b/mm/madvise.c
-@@ -1301,8 +1301,7 @@ SYSCALL_DEFINE5(process_madvise, int, pi
- 		iov_iter_advance(&iter, iovec.iov_len);
- 	}
- 
--	if (ret == 0)
--		ret = total_len - iov_iter_count(&iter);
-+	ret = (total_len - iov_iter_count(&iter)) ? : ret;
- 
- release_mm:
- 	mmput(mm);
+diff --git a/fs/f2fs/sysfs.c b/fs/f2fs/sysfs.c
+index 8cdeac090f81..8885c7383472 100644
+--- a/fs/f2fs/sysfs.c
++++ b/fs/f2fs/sysfs.c
+@@ -473,7 +473,7 @@ static ssize_t __sbi_store(struct f2fs_attr *a,
+ 		} else if (t == GC_IDLE_AT) {
+ 			if (!sbi->am.atgc_enabled)
+ 				return -EINVAL;
+-			sbi->gc_mode = GC_AT;
++			sbi->gc_mode = GC_IDLE_AT;
+ 		} else {
+ 			sbi->gc_mode = GC_NORMAL;
+ 		}
+-- 
+2.34.1
+
 
 
