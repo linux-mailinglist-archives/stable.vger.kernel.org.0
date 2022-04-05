@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 80D7F4F256C
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 09:47:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D55A4F259A
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 09:49:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232327AbiDEHtr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 03:49:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47176 "EHLO
+        id S232277AbiDEHum (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 03:50:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47250 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233168AbiDEHrb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:47:31 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB184BB0;
-        Tue,  5 Apr 2022 00:43:43 -0700 (PDT)
+        with ESMTP id S233254AbiDEHrl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:47:41 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 786736355;
+        Tue,  5 Apr 2022 00:43:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 05211B81B14;
+        by ams.source.kernel.org (Postfix) with ESMTPS id CB925B81B92;
+        Tue,  5 Apr 2022 07:43:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19FA9C340EE;
         Tue,  5 Apr 2022 07:43:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B665C340EE;
-        Tue,  5 Apr 2022 07:43:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649144620;
-        bh=F2sXadztW3MARwarwpZlIp38N5A1LAVO17ur1+LgINs=;
+        s=korg; t=1649144623;
+        bh=E+kINYDa4vjmR2/Ac/d85f684pQx7sVqJoLby8JcQdo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uMyi0ODQEm/CQPZhNoq6sBJJI/v4rS6nxfbLNuG5uN0lPXCOXVEmvm90aDhHLmshD
-         yOJh4xDgDE+9/l4Ed2PPYy+Ck+95cBZTTcHLE+MDL+tZEqTbPSxaXQNdQHxVT+rTOx
-         GKUXKNYItLdg1ow4XTCGb1paGSzMC13xkj4hI1WM=
+        b=LKdx5n6hjvgFGPecud8wFgjoYVbourRREl0yT6Scfm0G20nBXUZ9/tVlhNKMDyN7e
+         SpYe+/3JK9lgTrYaeOKEdt8Pj7yAZ0lCpuzWMsjW0jV8jfcXatcl49Aei5VbHW9Kp6
+         fEcKkWGh0i9ibJW2vt5E9VK6VtnHPQpnhfIEYfMU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        stable@vger.kernel.org, Kirill Tkhai <ktkhai@virtuozzo.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
         Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 5.17 0111/1126] dm stats: fix too short end duration_ns when using precise_timestamps
-Date:   Tue,  5 Apr 2022 09:14:18 +0200
-Message-Id: <20220405070410.829580346@linuxfoundation.org>
+Subject: [PATCH 5.17 0112/1126] dm: fix use-after-free in dm_cleanup_zoned_dev()
+Date:   Tue,  5 Apr 2022 09:14:19 +0200
+Message-Id: <20220405070410.858214332@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -53,134 +54,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Snitzer <snitzer@redhat.com>
+From: Kirill Tkhai <ktkhai@virtuozzo.com>
 
-commit 0cdb90f0f306384ecbc60dfd6dc48cdbc1f2d0d8 upstream.
+commit 588b7f5df0cb64f281290c7672470c006abe7160 upstream.
 
-dm_stats_account_io()'s STAT_PRECISE_TIMESTAMPS support doesn't handle
-the fact that with commit b879f915bc48 ("dm: properly fix redundant
-bio-based IO accounting") io->start_time _may_ be in the past (meaning
-the start_io_acct() was deferred until later).
+dm_cleanup_zoned_dev() uses queue, so it must be called
+before blk_cleanup_disk() starts its killing:
 
-Add a new dm_stats_recalc_precise_timestamps() helper that will
-set/clear a new 'precise_timestamps' flag in the dm_stats struct based
-on whether any configured stats enable STAT_PRECISE_TIMESTAMPS.
-And update DM core's alloc_io() to use dm_stats_record_start() to set
-stats_aux.duration_ns if stats->precise_timestamps is true.
+blk_cleanup_disk->blk_cleanup_queue()->kobject_put()->blk_release_queue()->
+->...RCU...->blk_free_queue_rcu()->kmem_cache_free()
 
-Also, remove unused 'last_sector' and 'last_rw' members from the
-dm_stats struct.
+Otherwise, RCU callback may be executed first and
+dm_cleanup_zoned_dev() will touch free'd memory:
 
-Fixes: b879f915bc48 ("dm: properly fix redundant bio-based IO accounting")
+ BUG: KASAN: use-after-free in dm_cleanup_zoned_dev+0x33/0xd0
+ Read of size 8 at addr ffff88805ac6e430 by task dmsetup/681
+
+ CPU: 4 PID: 681 Comm: dmsetup Not tainted 5.17.0-rc2+ #6
+ Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-2 04/01/2014
+ Call Trace:
+  <TASK>
+  dump_stack_lvl+0x57/0x7d
+  print_address_description.constprop.0+0x1f/0x150
+  ? dm_cleanup_zoned_dev+0x33/0xd0
+  kasan_report.cold+0x7f/0x11b
+  ? dm_cleanup_zoned_dev+0x33/0xd0
+  dm_cleanup_zoned_dev+0x33/0xd0
+  __dm_destroy+0x26a/0x400
+  ? dm_blk_ioctl+0x230/0x230
+  ? up_write+0xd8/0x270
+  dev_remove+0x156/0x1d0
+  ctl_ioctl+0x269/0x530
+  ? table_clear+0x140/0x140
+  ? lock_release+0xb2/0x750
+  ? remove_all+0x40/0x40
+  ? rcu_read_lock_sched_held+0x12/0x70
+  ? lock_downgrade+0x3c0/0x3c0
+  ? rcu_read_lock_sched_held+0x12/0x70
+  dm_ctl_ioctl+0xa/0x10
+  __x64_sys_ioctl+0xb9/0xf0
+  do_syscall_64+0x3b/0x90
+  entry_SYSCALL_64_after_hwframe+0x44/0xae
+ RIP: 0033:0x7fb6dfa95c27
+
+Fixes: bb37d77239af ("dm: introduce zone append emulation")
 Cc: stable@vger.kernel.org
-Co-developed-by: Mikulas Patocka <mpatocka@redhat.com>
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Kirill Tkhai <ktkhai@virtuozzo.com>
+Reviewed-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/dm-stats.c |   28 +++++++++++++++++++++++++---
- drivers/md/dm-stats.h |    9 +++++++--
- drivers/md/dm.c       |    2 ++
- 3 files changed, 34 insertions(+), 5 deletions(-)
+ drivers/md/dm.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/md/dm-stats.c
-+++ b/drivers/md/dm-stats.c
-@@ -195,6 +195,7 @@ void dm_stats_init(struct dm_stats *stat
- 
- 	mutex_init(&stats->mutex);
- 	INIT_LIST_HEAD(&stats->list);
-+	stats->precise_timestamps = false;
- 	stats->last = alloc_percpu(struct dm_stats_last_position);
- 	for_each_possible_cpu(cpu) {
- 		last = per_cpu_ptr(stats->last, cpu);
-@@ -231,6 +232,22 @@ void dm_stats_cleanup(struct dm_stats *s
- 	mutex_destroy(&stats->mutex);
- }
- 
-+static void dm_stats_recalc_precise_timestamps(struct dm_stats *stats)
-+{
-+	struct list_head *l;
-+	struct dm_stat *tmp_s;
-+	bool precise_timestamps = false;
-+
-+	list_for_each(l, &stats->list) {
-+		tmp_s = container_of(l, struct dm_stat, list_entry);
-+		if (tmp_s->stat_flags & STAT_PRECISE_TIMESTAMPS) {
-+			precise_timestamps = true;
-+			break;
-+		}
-+	}
-+	stats->precise_timestamps = precise_timestamps;
-+}
-+
- static int dm_stats_create(struct dm_stats *stats, sector_t start, sector_t end,
- 			   sector_t step, unsigned stat_flags,
- 			   unsigned n_histogram_entries,
-@@ -376,6 +393,9 @@ static int dm_stats_create(struct dm_sta
- 	}
- 	ret_id = s->id;
- 	list_add_tail_rcu(&s->list_entry, l);
-+
-+	dm_stats_recalc_precise_timestamps(stats);
-+
- 	mutex_unlock(&stats->mutex);
- 
- 	resume_callback(md);
-@@ -418,6 +438,9 @@ static int dm_stats_delete(struct dm_sta
- 	}
- 
- 	list_del_rcu(&s->list_entry);
-+
-+	dm_stats_recalc_precise_timestamps(stats);
-+
- 	mutex_unlock(&stats->mutex);
- 
- 	/*
-@@ -654,9 +677,8 @@ void dm_stats_account_io(struct dm_stats
- 	got_precise_time = false;
- 	list_for_each_entry_rcu(s, &stats->list, list_entry) {
- 		if (s->stat_flags & STAT_PRECISE_TIMESTAMPS && !got_precise_time) {
--			if (!end)
--				stats_aux->duration_ns = ktime_to_ns(ktime_get());
--			else
-+			/* start (!end) duration_ns is set by DM core's alloc_io() */
-+			if (end)
- 				stats_aux->duration_ns = ktime_to_ns(ktime_get()) - stats_aux->duration_ns;
- 			got_precise_time = true;
- 		}
---- a/drivers/md/dm-stats.h
-+++ b/drivers/md/dm-stats.h
-@@ -13,8 +13,7 @@ struct dm_stats {
- 	struct mutex mutex;
- 	struct list_head list;	/* list of struct dm_stat */
- 	struct dm_stats_last_position __percpu *last;
--	sector_t last_sector;
--	unsigned last_rw;
-+	bool precise_timestamps;
- };
- 
- struct dm_stats_aux {
-@@ -40,4 +39,10 @@ static inline bool dm_stats_used(struct
- 	return !list_empty(&st->list);
- }
- 
-+static inline void dm_stats_record_start(struct dm_stats *stats, struct dm_stats_aux *aux)
-+{
-+	if (unlikely(stats->precise_timestamps))
-+		aux->duration_ns = ktime_to_ns(ktime_get());
-+}
-+
- #endif
 --- a/drivers/md/dm.c
 +++ b/drivers/md/dm.c
-@@ -537,6 +537,8 @@ static struct dm_io *alloc_io(struct map
+@@ -1609,6 +1609,7 @@ static void cleanup_mapped_device(struct
+ 		md->dax_dev = NULL;
+ 	}
  
- 	io->start_time = jiffies;
++	dm_cleanup_zoned_dev(md);
+ 	if (md->disk) {
+ 		spin_lock(&_minor_lock);
+ 		md->disk->private_data = NULL;
+@@ -1629,7 +1630,6 @@ static void cleanup_mapped_device(struct
+ 	mutex_destroy(&md->swap_bios_lock);
  
-+	dm_stats_record_start(&md->stats, &io->stats_aux);
-+
- 	return io;
+ 	dm_mq_cleanup_mapped_device(md);
+-	dm_cleanup_zoned_dev(md);
  }
  
+ /*
 
 
