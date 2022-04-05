@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C76FF4F4592
-	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 00:49:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 11B394F44D8
+	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 00:31:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352781AbiDEMIm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:08:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52134 "EHLO
+        id S1353516AbiDEMIw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:08:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53684 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358089AbiDEK16 (ORCPT
+        with ESMTP id S1358090AbiDEK16 (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:27:58 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 827E166AE8;
-        Tue,  5 Apr 2022 03:15:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C31CA66FB6;
+        Tue,  5 Apr 2022 03:15:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1ED8661777;
-        Tue,  5 Apr 2022 10:15:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33B86C385A1;
-        Tue,  5 Apr 2022 10:15:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5CE036179E;
+        Tue,  5 Apr 2022 10:15:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F78FC385A0;
+        Tue,  5 Apr 2022 10:15:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153709;
-        bh=zndXVY1i7/4mhQzFZrynw77uyLGW1/2JsNscdnFEupM=;
+        s=korg; t=1649153717;
+        bh=7Vx2WvST/3UetrRUM4JsvOUg6Uksvk+kePktchHbQIc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q+64uACbvaVPAQB8+Nq8+PfElrfAHQJY1JfkQRlj4rLRbakkZ1npZfY4C26+pf0nN
-         kJO3uMa801hEBrz0THgbUjr2cwAOD/zEjhWWtG5N+dJ+SOHpC4Mcpiq+7diGkseppp
-         2BP2CPh7tHBnp9uIMKX+3cYCK5BsXGsGNRiZtF3Y=
+        b=hvFgmS9Q/wbc/nEA0ZbcDBMTCuLpm6SJa92St1uyQMj/jpOxmJ7SYuRoWsqQZPZeb
+         BS/UvrIMlQ9kKeyRLxVNie7MccJDHr+DJ+VemAPZXCC+W+V73foGePp4RU6+fn8sNA
+         hS1HjLfHi3KCOUlKXh047NmgL25OAutkae55PQfM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jack Wang <jinpu.wang@ionos.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Igor Zhbanov <i.zhbanov@omprussia.ru>,
+        James Morris <jmorris@namei.org>,
+        Kentaro Takeda <takedakn@nttdata.co.jp>,
+        tomoyo-dev-en@lists.osdn.me, "Serge E. Hallyn" <serge@hallyn.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 318/599] scsi: pm8001: Fix abort all task initialization
-Date:   Tue,  5 Apr 2022 09:30:12 +0200
-Message-Id: <20220405070308.295959160@linuxfoundation.org>
+Subject: [PATCH 5.10 321/599] TOMOYO: fix __setup handlers return values
+Date:   Tue,  5 Apr 2022 09:30:15 +0200
+Message-Id: <20220405070308.385669891@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -55,95 +58,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 7f12845c8389855dbcc67baa068b6832dc4a396e ]
+[ Upstream commit 39844b7e3084baecef52d1498b5fa81afa2cefa9 ]
 
-In pm80xx_send_abort_all(), the n_elem field of the ccb used is not
-initialized to 0. This missing initialization sometimes lead to the task
-completion path seeing the ccb with a non-zero n_elem resulting in the
-execution of invalid dma_unmap_sg() calls in pm8001_ccb_task_free(),
-causing a crash such as:
+__setup() handlers should return 1 if the parameter is handled.
+Returning 0 causes the entire string to be added to init's
+environment strings (limited to 32 strings), unnecessarily polluting it.
 
-[  197.676341] RIP: 0010:iommu_dma_unmap_sg+0x6d/0x280
-[  197.700204] RSP: 0018:ffff889bbcf89c88 EFLAGS: 00010012
-[  197.705485] RAX: dffffc0000000000 RBX: 0000000000000000 RCX: ffffffff83d0bda0
-[  197.712687] RDX: 0000000000000002 RSI: 0000000000000000 RDI: ffff88810dffc0d0
-[  197.719887] RBP: 0000000000000000 R08: 0000000000000000 R09: ffff8881c790098b
-[  197.727089] R10: ffffed1038f20131 R11: 0000000000000001 R12: 0000000000000000
-[  197.734296] R13: ffff88810dffc0d0 R14: 0000000000000010 R15: 0000000000000000
-[  197.741493] FS:  0000000000000000(0000) GS:ffff889bbcf80000(0000) knlGS:0000000000000000
-[  197.749659] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  197.755459] CR2: 00007f16c1b42734 CR3: 0000000004814000 CR4: 0000000000350ee0
-[  197.762656] Call Trace:
-[  197.765127]  <IRQ>
-[  197.767162]  pm8001_ccb_task_free+0x5f1/0x820 [pm80xx]
-[  197.772364]  ? do_raw_spin_unlock+0x54/0x220
-[  197.776680]  pm8001_mpi_task_abort_resp+0x2ce/0x4f0 [pm80xx]
-[  197.782406]  process_oq+0xe85/0x7890 [pm80xx]
-[  197.786817]  ? lock_acquire+0x194/0x490
-[  197.790697]  ? handle_irq_event+0x10e/0x1b0
-[  197.794920]  ? mpi_sata_completion+0x2d70/0x2d70 [pm80xx]
-[  197.800378]  ? __wake_up_bit+0x100/0x100
-[  197.804340]  ? lock_is_held_type+0x98/0x110
-[  197.808565]  pm80xx_chip_isr+0x94/0x130 [pm80xx]
-[  197.813243]  tasklet_action_common.constprop.0+0x24b/0x2f0
-[  197.818785]  __do_softirq+0x1b5/0x82d
-[  197.822485]  ? do_raw_spin_unlock+0x54/0x220
-[  197.826799]  __irq_exit_rcu+0x17e/0x1e0
-[  197.830678]  irq_exit_rcu+0xa/0x20
-[  197.834114]  common_interrupt+0x78/0x90
-[  197.840051]  </IRQ>
-[  197.844236]  <TASK>
-[  197.848397]  asm_common_interrupt+0x1e/0x40
+Using the documented strings "TOMOYO_loader=string1" and
+"TOMOYO_trigger=string2" causes an Unknown parameter message:
+  Unknown kernel command line parameters
+    "BOOT_IMAGE=/boot/bzImage-517rc5 TOMOYO_loader=string1 \
+     TOMOYO_trigger=string2", will be passed to user space.
 
-Avoid this issue by always initializing the ccb n_elem field to 0 in
-pm8001_send_abort_all(), pm8001_send_read_log() and
-pm80xx_send_abort_all().
+and these strings are added to init's environment string space:
+  Run /sbin/init as init process
+    with arguments:
+     /sbin/init
+    with environment:
+     HOME=/
+     TERM=linux
+     BOOT_IMAGE=/boot/bzImage-517rc5
+     TOMOYO_loader=string1
+     TOMOYO_trigger=string2
 
-Link: https://lore.kernel.org/r/20220220031810.738362-17-damien.lemoal@opensource.wdc.com
-Fixes: c6b9ef5779c3 ("[SCSI] pm80xx: NCQ error handling changes")
-Reviewed-by: Jack Wang <jinpu.wang@ionos.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+With this change, these __setup handlers act as expected,
+and init's environment is not polluted with these strings.
+
+Fixes: 0e4ae0e0dec63 ("TOMOYO: Make several options configurable.")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
+Link: https://lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
+Cc: James Morris <jmorris@namei.org>
+Cc: Kentaro Takeda <takedakn@nttdata.co.jp>
+Cc: tomoyo-dev-en@lists.osdn.me
+Cc: "Serge E. Hallyn" <serge@hallyn.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/pm8001/pm8001_hwi.c | 2 ++
- drivers/scsi/pm8001/pm80xx_hwi.c | 1 +
- 2 files changed, 3 insertions(+)
+ security/tomoyo/load_policy.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/pm8001/pm8001_hwi.c b/drivers/scsi/pm8001/pm8001_hwi.c
-index a9f317a4be70..cd0e1d31db70 100644
---- a/drivers/scsi/pm8001/pm8001_hwi.c
-+++ b/drivers/scsi/pm8001/pm8001_hwi.c
-@@ -1727,6 +1727,7 @@ static void pm8001_send_abort_all(struct pm8001_hba_info *pm8001_ha,
- 	ccb->device = pm8001_ha_dev;
- 	ccb->ccb_tag = ccb_tag;
- 	ccb->task = task;
-+	ccb->n_elem = 0;
+diff --git a/security/tomoyo/load_policy.c b/security/tomoyo/load_policy.c
+index 3445ae6fd479..363b65be87ab 100644
+--- a/security/tomoyo/load_policy.c
++++ b/security/tomoyo/load_policy.c
+@@ -24,7 +24,7 @@ static const char *tomoyo_loader;
+ static int __init tomoyo_loader_setup(char *str)
+ {
+ 	tomoyo_loader = str;
+-	return 0;
++	return 1;
+ }
  
- 	circularQ = &pm8001_ha->inbnd_q_tbl[0];
+ __setup("TOMOYO_loader=", tomoyo_loader_setup);
+@@ -64,7 +64,7 @@ static const char *tomoyo_trigger;
+ static int __init tomoyo_trigger_setup(char *str)
+ {
+ 	tomoyo_trigger = str;
+-	return 0;
++	return 1;
+ }
  
-@@ -1788,6 +1789,7 @@ static void pm8001_send_read_log(struct pm8001_hba_info *pm8001_ha,
- 	ccb->device = pm8001_ha_dev;
- 	ccb->ccb_tag = ccb_tag;
- 	ccb->task = task;
-+	ccb->n_elem = 0;
- 	pm8001_ha_dev->id |= NCQ_READ_LOG_FLAG;
- 	pm8001_ha_dev->id |= NCQ_2ND_RLE_FLAG;
- 
-diff --git a/drivers/scsi/pm8001/pm80xx_hwi.c b/drivers/scsi/pm8001/pm80xx_hwi.c
-index 4427b4c232da..b5e60553acdc 100644
---- a/drivers/scsi/pm8001/pm80xx_hwi.c
-+++ b/drivers/scsi/pm8001/pm80xx_hwi.c
-@@ -1750,6 +1750,7 @@ static void pm80xx_send_abort_all(struct pm8001_hba_info *pm8001_ha,
- 	ccb->device = pm8001_ha_dev;
- 	ccb->ccb_tag = ccb_tag;
- 	ccb->task = task;
-+	ccb->n_elem = 0;
- 
- 	circularQ = &pm8001_ha->inbnd_q_tbl[0];
- 
+ __setup("TOMOYO_trigger=", tomoyo_trigger_setup);
 -- 
 2.34.1
 
