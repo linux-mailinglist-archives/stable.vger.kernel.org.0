@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DB6B4F261A
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 09:52:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED21C4F260F
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 09:52:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232637AbiDEHyX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 03:54:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48402 "EHLO
+        id S232597AbiDEHy3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 03:54:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48424 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232641AbiDEHyF (ORCPT
+        with ESMTP id S232674AbiDEHyF (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:54:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C44CC22297;
-        Tue,  5 Apr 2022 00:49:40 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1D55237E4;
+        Tue,  5 Apr 2022 00:49:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7607EB81B14;
-        Tue,  5 Apr 2022 07:49:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8047C340EE;
-        Tue,  5 Apr 2022 07:49:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4B500B81B90;
+        Tue,  5 Apr 2022 07:49:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97923C340EE;
+        Tue,  5 Apr 2022 07:49:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649144978;
-        bh=Kz1byvTD0NJ9nT3np/9/Igd+t/G2GR+z4MqYHVKyA7s=;
+        s=korg; t=1649144981;
+        bh=aR1A0SezXpkQGZdReRE0MJZ9Tozm4kPC8Waf9Ta+wng=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bqUve0E9Plfz5SChKMSsctE/Pd/sur5Za0hfAdSHIgG1+QtN9wyEy4frImaBEyNWx
-         VI9cbehSWk/GKzkmPtc6Mf5P6qd1mFboLhnCC3l6FL/gtEW/I50ePO6e49r4Ks/EU+
-         wwRSimpcYt6TBNm1k48fh40lMKWHut7vP43drE/o=
+        b=MX7BjxE3qmDcISVQKKIcQbWKlMX1mgoTRaE/bF/TZiEPTrLsLUosMYnH8Xk9qWUpZ
+         GpPhhAlRm6hkYsM1MwGTwW/y81LZIAsMgbQPVDLC7nq/R6uSrZKG6iD63wh75dfll5
+         rNFlrQph5HEly9rM3icAKtJ0H693QaPvcd5aUYuQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0240/1126] spi: spi-zynqmp-gqspi: Handle error for dma_set_mask
-Date:   Tue,  5 Apr 2022 09:16:27 +0200
-Message-Id: <20220405070414.652250126@linuxfoundation.org>
+Subject: [PATCH 5.17 0241/1126] hwrng: atmel - disable trng on failure path
+Date:   Tue,  5 Apr 2022 09:16:28 +0200
+Message-Id: <20220405070414.681424377@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -54,39 +55,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Claudiu Beznea <claudiu.beznea@microchip.com>
 
-[ Upstream commit 13262fc26c1837c51a5131dbbdd67a2387f8bfc7 ]
+[ Upstream commit a223ea9f89ab960eb254ba78429efd42eaf845eb ]
 
-As the potential failure of the dma_set_mask(),
-it should be better to check it and return error
-if fails.
+Call atmel_trng_disable() on failure path of probe.
 
-Fixes: 126bdb606fd2 ("spi: spi-zynqmp-gqspi: return -ENOMEM if dma_map_single fails")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Link: https://lore.kernel.org/r/20220302092051.121343-1-jiasheng@iscas.ac.cn
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: a1fa98d8116f ("hwrng: atmel - disable TRNG during suspend")
+Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-zynqmp-gqspi.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/char/hw_random/atmel-rng.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/spi/spi-zynqmp-gqspi.c b/drivers/spi/spi-zynqmp-gqspi.c
-index 328b6559bb19..2b5afae8ff7f 100644
---- a/drivers/spi/spi-zynqmp-gqspi.c
-+++ b/drivers/spi/spi-zynqmp-gqspi.c
-@@ -1172,7 +1172,10 @@ static int zynqmp_qspi_probe(struct platform_device *pdev)
- 		goto clk_dis_all;
- 	}
+diff --git a/drivers/char/hw_random/atmel-rng.c b/drivers/char/hw_random/atmel-rng.c
+index ecb71c4317a5..8cf0ef501341 100644
+--- a/drivers/char/hw_random/atmel-rng.c
++++ b/drivers/char/hw_random/atmel-rng.c
+@@ -114,6 +114,7 @@ static int atmel_trng_probe(struct platform_device *pdev)
  
--	dma_set_mask(&pdev->dev, DMA_BIT_MASK(44));
-+	ret = dma_set_mask(&pdev->dev, DMA_BIT_MASK(44));
-+	if (ret)
-+		goto clk_dis_all;
-+
- 	ctlr->bits_per_word_mask = SPI_BPW_MASK(8);
- 	ctlr->num_chipselect = GQSPI_DEFAULT_NUM_CS;
- 	ctlr->mem_ops = &zynqmp_qspi_mem_ops;
+ err_register:
+ 	clk_disable_unprepare(trng->clk);
++	atmel_trng_disable(trng);
+ 	return ret;
+ }
+ 
 -- 
 2.34.1
 
