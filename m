@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D81874F2528
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 09:44:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E17BD4F24CC
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 09:39:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231500AbiDEHqA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 03:46:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54904 "EHLO
+        id S231728AbiDEHld (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 03:41:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53946 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232142AbiDEHpf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:45:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39F4897B8F;
-        Tue,  5 Apr 2022 00:41:26 -0700 (PDT)
+        with ESMTP id S231894AbiDEHl3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:41:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C84E2E9D0;
+        Tue,  5 Apr 2022 00:39:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A8B2E616C4;
-        Tue,  5 Apr 2022 07:41:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AECB9C340EE;
-        Tue,  5 Apr 2022 07:41:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D653D6150D;
+        Tue,  5 Apr 2022 07:39:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8A85C340EE;
+        Tue,  5 Apr 2022 07:39:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649144485;
-        bh=G+YiT66kRz8BTTb98UipvbU30K5XF4BkKoHnpGnAnow=;
+        s=korg; t=1649144370;
+        bh=iNiqVVs3RFLMStxPJaJA1NO2p1BzNFd9jBlWtITpKTY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1uRV3RRo4O5qyqa+SUW0pzMuSuybCSUtHDRIuereHJTvhODRwzt90UBzT9eY/z8pX
-         d/kAkfCzMphjHgS8SP4KBAsJDYVQ3H2yiEgvf1vqH9gWTgNndNp/e0kKb7vuggPIr6
-         RfgKCt9IcQhW1V4h+hKrYGr98ioAxPaIdSai2yDQ=
+        b=fVIdhMKZiIlRTtHi0xfZ5TtvU11YJIvgECZzbBJeuIEm0MyZeDszka3Xl8ZJYEM0i
+         9rSq9f6mPe2OdtJpbXQiK1Fva7152PWRpzjM+FSnJZKRISvy7CMM7918KOksyPzHaw
+         LjjxGMoaBudvLNfRf22t5uxYV4KMhF/lNZXfGGgI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Song Liu <songliubraving@fb.com>,
-        Jens Axboe <axboe@kernel.dk>, Song Liu <song@kernel.org>
-Subject: [PATCH 5.17 0012/1126] block: ensure plug merging checks the correct queue at least once
-Date:   Tue,  5 Apr 2022 09:12:39 +0200
-Message-Id: <20220405070407.899704431@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Sven Peter <sven@svenpeter.dev>
+Subject: [PATCH 5.17 0013/1126] usb: typec: tipd: Forward plug orientation to typec subsystem
+Date:   Tue,  5 Apr 2022 09:12:40 +0200
+Message-Id: <20220405070407.929240198@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -53,57 +54,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Sven Peter <sven@svenpeter.dev>
 
-commit 5b2050718d095cd3242d1f42aaaea3a2fec8e6f0 upstream.
+commit 676748389f5db74e7d28f9d630eebd75cb8a11b4 upstream.
 
-Song reports that a RAID rebuild workload runs much slower recently,
-and it is seeing a lot less merging than it did previously. The reason
-is that a previous commit reduced the amount of work we do for plug
-merging. RAID rebuild interleaves requests between disks, so a last-entry
-check in plug merging always misses a merge opportunity since we always
-find a different disk than what we are looking for.
+In order to bring up the USB3 PHY on the Apple M1 we need to know the
+orientation of the Type-C cable. Extract it from the status register and
+forward it to the typec subsystem.
 
-Modify the logic such that it's still a one-hit cache, but ensure that
-we check enough to find the right target before giving up.
-
-Fixes: d38a9c04c0d5 ("block: only check previous entry for plug merge attempt")
-Reported-and-tested-by: Song Liu <song@kernel.org>
-Reviewed-by: Song Liu <songliubraving@fb.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Sven Peter <sven@svenpeter.dev>
+Link: https://lore.kernel.org/r/20220226125912.59828-1-sven@svenpeter.dev
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- block/blk-merge.c |   20 ++++++++++++++------
- 1 file changed, 14 insertions(+), 6 deletions(-)
+ drivers/usb/typec/tipd/core.c     |    5 +++++
+ drivers/usb/typec/tipd/tps6598x.h |    1 +
+ 2 files changed, 6 insertions(+)
 
---- a/block/blk-merge.c
-+++ b/block/blk-merge.c
-@@ -1089,12 +1089,20 @@ bool blk_attempt_plug_merge(struct reque
- 	if (!plug || rq_list_empty(plug->mq_list))
- 		return false;
+--- a/drivers/usb/typec/tipd/core.c
++++ b/drivers/usb/typec/tipd/core.c
+@@ -256,6 +256,10 @@ static int tps6598x_connect(struct tps65
+ 	typec_set_pwr_opmode(tps->port, mode);
+ 	typec_set_pwr_role(tps->port, TPS_STATUS_TO_TYPEC_PORTROLE(status));
+ 	typec_set_vconn_role(tps->port, TPS_STATUS_TO_TYPEC_VCONN(status));
++	if (TPS_STATUS_TO_UPSIDE_DOWN(status))
++		typec_set_orientation(tps->port, TYPEC_ORIENTATION_REVERSE);
++	else
++		typec_set_orientation(tps->port, TYPEC_ORIENTATION_NORMAL);
+ 	tps6598x_set_data_role(tps, TPS_STATUS_TO_TYPEC_DATAROLE(status), true);
  
--	/* check the previously added entry for a quick merge attempt */
--	rq = rq_list_peek(&plug->mq_list);
--	if (rq->q == q) {
--		if (blk_attempt_bio_merge(q, rq, bio, nr_segs, false) ==
--				BIO_MERGE_OK)
--			return true;
-+	rq_list_for_each(&plug->mq_list, rq) {
-+		if (rq->q == q) {
-+			if (blk_attempt_bio_merge(q, rq, bio, nr_segs, false) ==
-+			    BIO_MERGE_OK)
-+				return true;
-+			break;
-+		}
-+
-+		/*
-+		 * Only keep iterating plug list for merges if we have multiple
-+		 * queues
-+		 */
-+		if (!plug->multiple_queues)
-+			break;
- 	}
- 	return false;
- }
+ 	tps->partner = typec_register_partner(tps->port, &desc);
+@@ -278,6 +282,7 @@ static void tps6598x_disconnect(struct t
+ 	typec_set_pwr_opmode(tps->port, TYPEC_PWR_MODE_USB);
+ 	typec_set_pwr_role(tps->port, TPS_STATUS_TO_TYPEC_PORTROLE(status));
+ 	typec_set_vconn_role(tps->port, TPS_STATUS_TO_TYPEC_VCONN(status));
++	typec_set_orientation(tps->port, TYPEC_ORIENTATION_NONE);
+ 	tps6598x_set_data_role(tps, TPS_STATUS_TO_TYPEC_DATAROLE(status), false);
+ 
+ 	power_supply_changed(tps->psy);
+--- a/drivers/usb/typec/tipd/tps6598x.h
++++ b/drivers/usb/typec/tipd/tps6598x.h
+@@ -17,6 +17,7 @@
+ /* TPS_REG_STATUS bits */
+ #define TPS_STATUS_PLUG_PRESENT		BIT(0)
+ #define TPS_STATUS_PLUG_UPSIDE_DOWN	BIT(4)
++#define TPS_STATUS_TO_UPSIDE_DOWN(s)	(!!((s) & TPS_STATUS_PLUG_UPSIDE_DOWN))
+ #define TPS_STATUS_PORTROLE		BIT(5)
+ #define TPS_STATUS_TO_TYPEC_PORTROLE(s) (!!((s) & TPS_STATUS_PORTROLE))
+ #define TPS_STATUS_DATAROLE		BIT(6)
 
 
