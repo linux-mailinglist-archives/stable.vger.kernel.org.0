@@ -2,48 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 15E244F3165
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:43:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E20204F3622
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:56:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347412AbiDEJ0X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:26:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52326 "EHLO
+        id S244394AbiDEK66 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:58:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245064AbiDEIxE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:53:04 -0400
+        with ESMTP id S1347021AbiDEJpy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:45:54 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD0581093;
-        Tue,  5 Apr 2022 01:51:05 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94861DCAB2;
+        Tue,  5 Apr 2022 02:32:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7A05B614FD;
-        Tue,  5 Apr 2022 08:51:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E3A3C385A0;
-        Tue,  5 Apr 2022 08:51:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 18A6B61368;
+        Tue,  5 Apr 2022 09:32:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A6EEC385A2;
+        Tue,  5 Apr 2022 09:32:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148664;
-        bh=yR9b2a4XtMSCgifIgDMKtP9KaQnp24nf5TN5oKHAEWA=;
+        s=korg; t=1649151134;
+        bh=Znaktkp0TlhhTmv22siN8VXYQMsR80xwUmAM0j+apdc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GR+rRUunuDpUwG62sly9moHTMaprPegAdVgDU2Gm4Sm6kh5u5jjr/6oEGLhqK14hN
-         7x6FzqsY1G7ufHDyUtuyrTc1FVKJoBuChEIKBRunKDSgRYkNiBZI9XBHXoSWvSG3NU
-         L2XmymWsnseYcMOIJSIvdf52YXngOk0inl/Ixjhg=
+        b=Q18bL4XuhWxLox5jJOsAy1UahBegivjT/t0MG+fx8vpq4Jjkh1ClI5B/RJDgz+feO
+         cLt6LVo8NOZBk5RbyJvM28IiSS7k8Qhi09rMzBIHh1x2FlcqLeuubnJwJOYHfrd5sI
+         h49EDUalbGbLRGKr3VJzxcxfCdSC0ssEV9Rce3Ng=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Lobakin <alexandr.lobakin@intel.com>,
-        Michal Swiatkowski <michal.swiatkowski@linux.intel.com>,
-        Jesper Dangaard Brouer <brouer@redhat.com>,
-        Kiran Bhandare <kiranx.bhandare@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0438/1017] i40e: dont reserve excessive XDP_PACKET_HEADROOM on XSK Rx to skb
+        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 289/913] video: fbdev: controlfb: Fix COMPILE_TEST build
 Date:   Tue,  5 Apr 2022 09:22:31 +0200
-Message-Id: <20220405070407.295653838@linuxfoundation.org>
+Message-Id: <20220405070348.520689482@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,51 +53,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Lobakin <alexandr.lobakin@intel.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit bc97f9c6f988b31b728eb47a94ca825401dbeffe ]
+[ Upstream commit 567e44fb51b4f909ae58038a7301352eecea8426 ]
 
-{__,}napi_alloc_skb() allocates and reserves additional NET_SKB_PAD
-+ NET_IP_ALIGN for any skb.
-OTOH, i40e_construct_skb_zc() currently allocates and reserves
-additional `xdp->data - xdp->data_hard_start`, which is
-XDP_PACKET_HEADROOM for XSK frames.
-There's no need for that at all as the frame is post-XDP and will
-go only to the networking stack core.
-Pass the size of the actual data only to __napi_alloc_skb() and
-don't reserve anything. This will give enough headroom for stack
-processing.
+If PPC_BOOK3S, PPC_PMAC and PPC32 is n, COMPILE_TEST build fails:
 
-Fixes: 0a714186d3c0 ("i40e: add AF_XDP zero-copy Rx support")
-Signed-off-by: Alexander Lobakin <alexandr.lobakin@intel.com>
-Reviewed-by: Michal Swiatkowski <michal.swiatkowski@linux.intel.com>
-Acked-by: Jesper Dangaard Brouer <brouer@redhat.com>
-Tested-by: Kiran Bhandare <kiranx.bhandare@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+drivers/video/fbdev/controlfb.c:70:0: error: "pgprot_cached_wthru" redefined [-Werror]
+ #define pgprot_cached_wthru(prot) (prot)
+
+In file included from ./arch/powerpc/include/asm/pgtable.h:20:0,
+                 from ./include/linux/pgtable.h:6,
+                 from ./include/linux/mm.h:33,
+                 from drivers/video/fbdev/controlfb.c:37:
+./arch/powerpc/include/asm/nohash/pgtable.h:243:0: note: this is the location of the previous definition
+ #define pgprot_cached_wthru(prot) (__pgprot((pgprot_val(prot) & ~_PAGE_CACHE_CTL) | \
+
+Fixes: a07a63b0e24d ("video: fbdev: controlfb: add COMPILE_TEST support")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_xsk.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/video/fbdev/controlfb.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_xsk.c b/drivers/net/ethernet/intel/i40e/i40e_xsk.c
-index ea06e957393e..dff7c7fcc329 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_xsk.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_xsk.c
-@@ -246,13 +246,11 @@ static struct sk_buff *i40e_construct_skb_zc(struct i40e_ring *rx_ring,
- 	struct sk_buff *skb;
- 
- 	/* allocate a skb to store the frags */
--	skb = __napi_alloc_skb(&rx_ring->q_vector->napi,
--			       xdp->data_end - xdp->data_hard_start,
-+	skb = __napi_alloc_skb(&rx_ring->q_vector->napi, datasize,
- 			       GFP_ATOMIC | __GFP_NOWARN);
- 	if (unlikely(!skb))
- 		goto out;
- 
--	skb_reserve(skb, xdp->data - xdp->data_hard_start);
- 	memcpy(__skb_put(skb, datasize), xdp->data, datasize);
- 	if (metasize)
- 		skb_metadata_set(skb, metasize);
+diff --git a/drivers/video/fbdev/controlfb.c b/drivers/video/fbdev/controlfb.c
+index 509311471d51..bd59e7b11ed5 100644
+--- a/drivers/video/fbdev/controlfb.c
++++ b/drivers/video/fbdev/controlfb.c
+@@ -67,7 +67,9 @@
+ #define out_8(addr, val)	(void)(val)
+ #define in_le32(addr)		0
+ #define out_le32(addr, val)	(void)(val)
++#ifndef pgprot_cached_wthru
+ #define pgprot_cached_wthru(prot) (prot)
++#endif
+ #else
+ static void invalid_vram_cache(void __force *addr)
+ {
 -- 
 2.34.1
 
