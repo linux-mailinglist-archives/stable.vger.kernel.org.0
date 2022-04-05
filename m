@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E874D4F38C4
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:36:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CDC44F3B49
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:16:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377172AbiDEL2J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:28:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55610 "EHLO
+        id S1347853AbiDELwp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:52:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50650 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349663AbiDEJuv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:50:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B3C210B8;
-        Tue,  5 Apr 2022 02:48:48 -0700 (PDT)
+        with ESMTP id S1357001AbiDEKZY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:25:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB6AA1F603;
+        Tue,  5 Apr 2022 03:09:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E2BD5B81B14;
-        Tue,  5 Apr 2022 09:48:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41EBDC385A1;
-        Tue,  5 Apr 2022 09:48:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2E02E61500;
+        Tue,  5 Apr 2022 10:09:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38E85C385A1;
+        Tue,  5 Apr 2022 10:09:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152125;
-        bh=WyneDw8EiTQ8kcnLdd8jTEu7cgWcE+hkD7olp5YUOjU=;
+        s=korg; t=1649153361;
+        bh=LUTYwhcnmybB6Lou8IoelB42nJG5tdqzX84/Z0p+xeY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qjmDGcr7r/eDsSUJKyBv4D+uCHbXRbjJzrI8clPheR/XxbF6SQ7Pg0TA1hwMQdWMW
-         KBYVpQHUH1AOv3sStqp1GO4zHcjLgcch4YO87iK/03aNtl33W/0Di8BICYAZKvslnh
-         KMiUpW47skNy1kWiWIA18PVQF+TO7HBQ33WYt42A=
+        b=PxTvuVB4Y4tNgonqZ/R/oQA9sG6zlCz7IGLTkEL1J4n522bagqh1Fi0rqx4gUoRJJ
+         N9RLELdoU0CwTnmvNSAnpOsQYbKtG5Jin70k6v+MbxV1Oas/61J1H0RtcREn9Q5YH3
+         3OQaCtgQiew2c3hSQniCmDLLb3w+ystVLr2RRSw8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jacky Bai <ping.bai@nxp.com>,
-        Robin Gong <yibin.gong@nxp.com>, Peng Fan <peng.fan@nxp.com>,
-        Jassi Brar <jaswinder.singh@linaro.org>,
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 625/913] mailbox: imx: fix crash in resume on i.mx8ulp
-Date:   Tue,  5 Apr 2022 09:28:07 +0200
-Message-Id: <20220405070358.573540367@linuxfoundation.org>
+Subject: [PATCH 5.10 194/599] media: meson: vdec: potential dereference of null pointer
+Date:   Tue,  5 Apr 2022 09:28:08 +0200
+Message-Id: <20220405070304.615044171@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070258.802373272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,36 +56,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robin Gong <yibin.gong@nxp.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit 8219efd08a0aa1d7944bdb66d84ba57549258968 ]
+[ Upstream commit c8c80c996182239ff9b05eda4db50184cf3b2e99 ]
 
-check 'priv->clk' before 'imx_mu_read()' otherwise crash happens on
-i.mx8ulp, since clock not enabled.
+As the possible failure of the kzalloc(), the 'new_ts' could be NULL
+pointer.
+Therefore, it should be better to check it in order to avoid the
+dereference of the NULL pointer.
+Also, the caller esparser_queue() needs to deal with the return value of
+the amvdec_add_ts().
 
-Fixes: 4f0b776ef5831 ("mailbox: imx-mailbox: support i.MX8ULP MU")
-Reviewed-by: Jacky Bai <ping.bai@nxp.com>
-Signed-off-by: Robin Gong <yibin.gong@nxp.com>
-Signed-off-by: Peng Fan <peng.fan@nxp.com>
-Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
+Fixes: 876f123b8956 ("media: meson: vdec: bring up to compliance")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Suggested-by: Neil Armstrong <narmstrong@baylibre.com>
+Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mailbox/imx-mailbox.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/staging/media/meson/vdec/esparser.c     | 7 ++++++-
+ drivers/staging/media/meson/vdec/vdec_helpers.c | 8 ++++++--
+ drivers/staging/media/meson/vdec/vdec_helpers.h | 4 ++--
+ 3 files changed, 14 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/mailbox/imx-mailbox.c b/drivers/mailbox/imx-mailbox.c
-index 0ce75c6b36b6..2aeef0bc6930 100644
---- a/drivers/mailbox/imx-mailbox.c
-+++ b/drivers/mailbox/imx-mailbox.c
-@@ -668,7 +668,7 @@ static int __maybe_unused imx_mu_resume_noirq(struct device *dev)
- 	 * send failed, may lead to system freeze. This issue
- 	 * is observed by testing freeze mode suspend.
- 	 */
--	if (!imx_mu_read(priv, priv->dcfg->xCR[0]) && !priv->clk) {
-+	if (!priv->clk && !imx_mu_read(priv, priv->dcfg->xCR[0])) {
- 		for (i = 0; i < IMX_MU_xCR_MAX; i++)
- 			imx_mu_write(priv, priv->xcr[i], priv->dcfg->xCR[i]);
- 	}
+diff --git a/drivers/staging/media/meson/vdec/esparser.c b/drivers/staging/media/meson/vdec/esparser.c
+index db7022707ff8..86ccc8937afc 100644
+--- a/drivers/staging/media/meson/vdec/esparser.c
++++ b/drivers/staging/media/meson/vdec/esparser.c
+@@ -328,7 +328,12 @@ esparser_queue(struct amvdec_session *sess, struct vb2_v4l2_buffer *vbuf)
+ 
+ 	offset = esparser_get_offset(sess);
+ 
+-	amvdec_add_ts(sess, vb->timestamp, vbuf->timecode, offset, vbuf->flags);
++	ret = amvdec_add_ts(sess, vb->timestamp, vbuf->timecode, offset, vbuf->flags);
++	if (ret) {
++		v4l2_m2m_buf_done(vbuf, VB2_BUF_STATE_ERROR);
++		return ret;
++	}
++
+ 	dev_dbg(core->dev, "esparser: ts = %llu pld_size = %u offset = %08X flags = %08X\n",
+ 		vb->timestamp, payload_size, offset, vbuf->flags);
+ 
+diff --git a/drivers/staging/media/meson/vdec/vdec_helpers.c b/drivers/staging/media/meson/vdec/vdec_helpers.c
+index 7f07a9175815..db4a854e59a3 100644
+--- a/drivers/staging/media/meson/vdec/vdec_helpers.c
++++ b/drivers/staging/media/meson/vdec/vdec_helpers.c
+@@ -227,13 +227,16 @@ int amvdec_set_canvases(struct amvdec_session *sess,
+ }
+ EXPORT_SYMBOL_GPL(amvdec_set_canvases);
+ 
+-void amvdec_add_ts(struct amvdec_session *sess, u64 ts,
+-		   struct v4l2_timecode tc, u32 offset, u32 vbuf_flags)
++int amvdec_add_ts(struct amvdec_session *sess, u64 ts,
++		  struct v4l2_timecode tc, u32 offset, u32 vbuf_flags)
+ {
+ 	struct amvdec_timestamp *new_ts;
+ 	unsigned long flags;
+ 
+ 	new_ts = kzalloc(sizeof(*new_ts), GFP_KERNEL);
++	if (!new_ts)
++		return -ENOMEM;
++
+ 	new_ts->ts = ts;
+ 	new_ts->tc = tc;
+ 	new_ts->offset = offset;
+@@ -242,6 +245,7 @@ void amvdec_add_ts(struct amvdec_session *sess, u64 ts,
+ 	spin_lock_irqsave(&sess->ts_spinlock, flags);
+ 	list_add_tail(&new_ts->list, &sess->timestamps);
+ 	spin_unlock_irqrestore(&sess->ts_spinlock, flags);
++	return 0;
+ }
+ EXPORT_SYMBOL_GPL(amvdec_add_ts);
+ 
+diff --git a/drivers/staging/media/meson/vdec/vdec_helpers.h b/drivers/staging/media/meson/vdec/vdec_helpers.h
+index cfaed52ab526..798e5a8a9b3f 100644
+--- a/drivers/staging/media/meson/vdec/vdec_helpers.h
++++ b/drivers/staging/media/meson/vdec/vdec_helpers.h
+@@ -55,8 +55,8 @@ void amvdec_dst_buf_done_offset(struct amvdec_session *sess,
+  * @offset: offset in the VIFIFO where the associated packet was written
+  * @flags the vb2_v4l2_buffer flags
+  */
+-void amvdec_add_ts(struct amvdec_session *sess, u64 ts,
+-		   struct v4l2_timecode tc, u32 offset, u32 flags);
++int amvdec_add_ts(struct amvdec_session *sess, u64 ts,
++		  struct v4l2_timecode tc, u32 offset, u32 flags);
+ void amvdec_remove_ts(struct amvdec_session *sess, u64 ts);
+ 
+ /**
 -- 
 2.34.1
 
