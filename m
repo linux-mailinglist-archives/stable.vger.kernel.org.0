@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DCFC4F2D11
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:35:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F3314F29DF
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 12:50:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242931AbiDEJid (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:38:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41494 "EHLO
+        id S1350252AbiDEJ4s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:56:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49244 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242704AbiDEJIS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:08:18 -0400
+        with ESMTP id S242756AbiDEJIV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:08:21 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84DB275E60;
-        Tue,  5 Apr 2022 01:57:13 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1F3678051;
+        Tue,  5 Apr 2022 01:57:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6CD8461577;
-        Tue,  5 Apr 2022 08:57:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C8D6C385A0;
-        Tue,  5 Apr 2022 08:57:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 295DD61572;
+        Tue,  5 Apr 2022 08:57:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 376F6C385A1;
+        Tue,  5 Apr 2022 08:57:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149031;
-        bh=bLgjVcnUj4tcrOszUiESG7XYIWk+hFyD1xAOR+/+N1A=;
+        s=korg; t=1649149034;
+        bh=/5m4K9ozsZZSGdZVBC2IAddKC+Vx7f/VTOYfoh6haRo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pn+WPR+B1GoAyk0PwMbIIZMl6iy59aJ1SXxBsNtIre7/504rdehEvRbUoKa3hfcCA
-         kBkr4jYGz0GbPhMu7leItBi6xUrFb/6GTWz8Wt4mawwaNp7A9vzoCN4NJk8eMiH4Yi
-         FN4ZnE5FjOr+81QBI9W3i0Pj7vmSgE/v4/ZRVTHg=
+        b=pg+2ewW8NFju4d6QpRqf1nqZXBalZlJ29xXCgaeAjKYyiK9T5cyrjnpkjB5BUgtJ/
+         Yt1jupKdo4PfihJIYA2f+PYb1V1nXW08Z1kxQ9cSdC/GYTI2RxjWxGHT+H/8lNjvbf
+         mf6EL8f5l4ez7TK5urYgVPHxXND5vVVrLSoXYwGA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Divya Koppera <Divya.Koppera@microchip.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0569/1017] net: phy: micrel: Fix concurrent register access
-Date:   Tue,  5 Apr 2022 09:24:42 +0200
-Message-Id: <20220405070411.169298291@linuxfoundation.org>
+Subject: [PATCH 5.16 0570/1017] power: supply: wm8350-power: Handle error for wm8350_register_irq
+Date:   Tue,  5 Apr 2022 09:24:43 +0200
+Message-Id: <20220405070411.199043897@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -55,74 +55,154 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Divya Koppera <Divya.Koppera@microchip.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit 4488f6b6148045424459ef1d5b153c6895ee1dbb ]
+[ Upstream commit b0b14b5ba11bec56fad344a4a0b2e16449cc8b94 ]
 
-Make Extended page register accessing atomic,
-to overcome unexpected output from register
-reads/writes.
+As the potential failure of the wm8350_register_irq(),
+it should be better to check it and return error if fails.
+Also, use 'free_' in order to avoid same code.
 
-Fixes: 7c2dcfa295b1 ("net: phy: micrel: Add support for LAN8804 PHY")
-Signed-off-by: Divya Koppera<Divya.Koppera@microchip.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 14431aa0c5a4 ("power_supply: Add support for WM8350 PMU")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/micrel.c | 32 +++++++++++++++++---------------
- 1 file changed, 17 insertions(+), 15 deletions(-)
+ drivers/power/supply/wm8350_power.c | 96 ++++++++++++++++++++++++-----
+ 1 file changed, 82 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/net/phy/micrel.c b/drivers/net/phy/micrel.c
-index 76ef4e019ca9..15fe0fa78092 100644
---- a/drivers/net/phy/micrel.c
-+++ b/drivers/net/phy/micrel.c
-@@ -1575,11 +1575,13 @@ static int lanphy_read_page_reg(struct phy_device *phydev, int page, u32 addr)
- {
- 	u32 data;
+diff --git a/drivers/power/supply/wm8350_power.c b/drivers/power/supply/wm8350_power.c
+index e05cee457471..9c46c48dccb1 100644
+--- a/drivers/power/supply/wm8350_power.c
++++ b/drivers/power/supply/wm8350_power.c
+@@ -408,44 +408,112 @@ static const struct power_supply_desc wm8350_usb_desc = {
+  *		Initialisation
+  *********************************************************************/
  
--	phy_write(phydev, LAN_EXT_PAGE_ACCESS_CONTROL, page);
--	phy_write(phydev, LAN_EXT_PAGE_ACCESS_ADDRESS_DATA, addr);
--	phy_write(phydev, LAN_EXT_PAGE_ACCESS_CONTROL,
--		  (page | LAN_EXT_PAGE_ACCESS_CTRL_EP_FUNC));
--	data = phy_read(phydev, LAN_EXT_PAGE_ACCESS_ADDRESS_DATA);
-+	phy_lock_mdio_bus(phydev);
-+	__phy_write(phydev, LAN_EXT_PAGE_ACCESS_CONTROL, page);
-+	__phy_write(phydev, LAN_EXT_PAGE_ACCESS_ADDRESS_DATA, addr);
-+	__phy_write(phydev, LAN_EXT_PAGE_ACCESS_CONTROL,
-+		    (page | LAN_EXT_PAGE_ACCESS_CTRL_EP_FUNC));
-+	data = __phy_read(phydev, LAN_EXT_PAGE_ACCESS_ADDRESS_DATA);
-+	phy_unlock_mdio_bus(phydev);
- 
- 	return data;
- }
-@@ -1587,18 +1589,18 @@ static int lanphy_read_page_reg(struct phy_device *phydev, int page, u32 addr)
- static int lanphy_write_page_reg(struct phy_device *phydev, int page, u16 addr,
- 				 u16 val)
+-static void wm8350_init_charger(struct wm8350 *wm8350)
++static int wm8350_init_charger(struct wm8350 *wm8350)
  {
--	phy_write(phydev, LAN_EXT_PAGE_ACCESS_CONTROL, page);
--	phy_write(phydev, LAN_EXT_PAGE_ACCESS_ADDRESS_DATA, addr);
--	phy_write(phydev, LAN_EXT_PAGE_ACCESS_CONTROL,
--		  (page | LAN_EXT_PAGE_ACCESS_CTRL_EP_FUNC));
--
--	val = phy_write(phydev, LAN_EXT_PAGE_ACCESS_ADDRESS_DATA, val);
--	if (val) {
-+	phy_lock_mdio_bus(phydev);
-+	__phy_write(phydev, LAN_EXT_PAGE_ACCESS_CONTROL, page);
-+	__phy_write(phydev, LAN_EXT_PAGE_ACCESS_ADDRESS_DATA, addr);
-+	__phy_write(phydev, LAN_EXT_PAGE_ACCESS_CONTROL,
-+		    page | LAN_EXT_PAGE_ACCESS_CTRL_EP_FUNC);
++	int ret;
 +
-+	val = __phy_write(phydev, LAN_EXT_PAGE_ACCESS_ADDRESS_DATA, val);
-+	if (val != 0)
- 		phydev_err(phydev, "Error: phy_write has returned error %d\n",
- 			   val);
--		return val;
--	}
--	return 0;
-+	phy_unlock_mdio_bus(phydev);
-+	return val;
+ 	/* register our interest in charger events */
+-	wm8350_register_irq(wm8350, WM8350_IRQ_CHG_BAT_HOT,
++	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CHG_BAT_HOT,
+ 			    wm8350_charger_handler, 0, "Battery hot", wm8350);
+-	wm8350_register_irq(wm8350, WM8350_IRQ_CHG_BAT_COLD,
++	if (ret)
++		goto err;
++
++	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CHG_BAT_COLD,
+ 			    wm8350_charger_handler, 0, "Battery cold", wm8350);
+-	wm8350_register_irq(wm8350, WM8350_IRQ_CHG_BAT_FAIL,
++	if (ret)
++		goto free_chg_bat_hot;
++
++	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CHG_BAT_FAIL,
+ 			    wm8350_charger_handler, 0, "Battery fail", wm8350);
+-	wm8350_register_irq(wm8350, WM8350_IRQ_CHG_TO,
++	if (ret)
++		goto free_chg_bat_cold;
++
++	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CHG_TO,
+ 			    wm8350_charger_handler, 0,
+ 			    "Charger timeout", wm8350);
+-	wm8350_register_irq(wm8350, WM8350_IRQ_CHG_END,
++	if (ret)
++		goto free_chg_bat_fail;
++
++	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CHG_END,
+ 			    wm8350_charger_handler, 0,
+ 			    "Charge end", wm8350);
+-	wm8350_register_irq(wm8350, WM8350_IRQ_CHG_START,
++	if (ret)
++		goto free_chg_to;
++
++	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CHG_START,
+ 			    wm8350_charger_handler, 0,
+ 			    "Charge start", wm8350);
+-	wm8350_register_irq(wm8350, WM8350_IRQ_CHG_FAST_RDY,
++	if (ret)
++		goto free_chg_end;
++
++	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CHG_FAST_RDY,
+ 			    wm8350_charger_handler, 0,
+ 			    "Fast charge ready", wm8350);
+-	wm8350_register_irq(wm8350, WM8350_IRQ_CHG_VBATT_LT_3P9,
++	if (ret)
++		goto free_chg_start;
++
++	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CHG_VBATT_LT_3P9,
+ 			    wm8350_charger_handler, 0,
+ 			    "Battery <3.9V", wm8350);
+-	wm8350_register_irq(wm8350, WM8350_IRQ_CHG_VBATT_LT_3P1,
++	if (ret)
++		goto free_chg_fast_rdy;
++
++	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CHG_VBATT_LT_3P1,
+ 			    wm8350_charger_handler, 0,
+ 			    "Battery <3.1V", wm8350);
+-	wm8350_register_irq(wm8350, WM8350_IRQ_CHG_VBATT_LT_2P85,
++	if (ret)
++		goto free_chg_vbatt_lt_3p9;
++
++	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CHG_VBATT_LT_2P85,
+ 			    wm8350_charger_handler, 0,
+ 			    "Battery <2.85V", wm8350);
++	if (ret)
++		goto free_chg_vbatt_lt_3p1;
+ 
+ 	/* and supply change events */
+-	wm8350_register_irq(wm8350, WM8350_IRQ_EXT_USB_FB,
++	ret = wm8350_register_irq(wm8350, WM8350_IRQ_EXT_USB_FB,
+ 			    wm8350_charger_handler, 0, "USB", wm8350);
+-	wm8350_register_irq(wm8350, WM8350_IRQ_EXT_WALL_FB,
++	if (ret)
++		goto free_chg_vbatt_lt_2p85;
++
++	ret = wm8350_register_irq(wm8350, WM8350_IRQ_EXT_WALL_FB,
+ 			    wm8350_charger_handler, 0, "Wall", wm8350);
+-	wm8350_register_irq(wm8350, WM8350_IRQ_EXT_BAT_FB,
++	if (ret)
++		goto free_ext_usb_fb;
++
++	ret = wm8350_register_irq(wm8350, WM8350_IRQ_EXT_BAT_FB,
+ 			    wm8350_charger_handler, 0, "Battery", wm8350);
++	if (ret)
++		goto free_ext_wall_fb;
++
++	return 0;
++
++free_ext_wall_fb:
++	wm8350_free_irq(wm8350, WM8350_IRQ_EXT_WALL_FB, wm8350);
++free_ext_usb_fb:
++	wm8350_free_irq(wm8350, WM8350_IRQ_EXT_USB_FB, wm8350);
++free_chg_vbatt_lt_2p85:
++	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_VBATT_LT_2P85, wm8350);
++free_chg_vbatt_lt_3p1:
++	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_VBATT_LT_3P1, wm8350);
++free_chg_vbatt_lt_3p9:
++	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_VBATT_LT_3P9, wm8350);
++free_chg_fast_rdy:
++	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_FAST_RDY, wm8350);
++free_chg_start:
++	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_START, wm8350);
++free_chg_end:
++	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_END, wm8350);
++free_chg_to:
++	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_TO, wm8350);
++free_chg_bat_fail:
++	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_BAT_FAIL, wm8350);
++free_chg_bat_cold:
++	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_BAT_COLD, wm8350);
++free_chg_bat_hot:
++	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_BAT_HOT, wm8350);
++err:
++	return ret;
  }
  
- static int lan8804_config_init(struct phy_device *phydev)
+ static void free_charger_irq(struct wm8350 *wm8350)
 -- 
 2.34.1
 
