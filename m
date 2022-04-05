@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EBFB84F42DE
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:51:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 46F054F4318
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:54:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382433AbiDEMPH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:15:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50238 "EHLO
+        id S1382491AbiDEMPe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:15:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33856 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242993AbiDEKfX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:35:23 -0400
+        with ESMTP id S236782AbiDEKfq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:35:46 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2C614A90D;
-        Tue,  5 Apr 2022 03:21:35 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 661F14AE19;
+        Tue,  5 Apr 2022 03:21:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AABFEB81B18;
-        Tue,  5 Apr 2022 10:21:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17C8CC385A2;
-        Tue,  5 Apr 2022 10:21:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 91556B81BC5;
+        Tue,  5 Apr 2022 10:21:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E72CDC385A1;
+        Tue,  5 Apr 2022 10:21:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649154093;
-        bh=pNGC9iaIzki56+oLL+F2pcsDvere2XFtbUd5KkGa3fg=;
+        s=korg; t=1649154099;
+        bh=vYsMLDYVMr0DTK/i9DNXbMo0fVtarin0N+Axfv9aNdA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F0kV+ljTQo0plebwB6mwvg9jaVAGYEEFyQqgeXozxOseeBnad/CMU9e0CJp/olMfF
-         YzuCHEGlVnq7ARFdq4MZEfU6WLUgyAx/FV9AXes6e2l2CwHThf8vke0JwYv61R0b/E
-         wKj8tfUAdFpP1qSGscmKlifSZig5dxtMmmpqLyA8=
+        b=NhUJXBcpKhaZf/ljG4jgsnezmajVcY5ohtatF2bWTGXPj+hSAet6sI+S0r5htoVVM
+         WrvXAYqa13gBqV8sYKG4NuwhCcM9Pb1veOaO6kOpHB3c93ek/nGL1SP8z7xnfit73s
+         cN8xhjoKKxNJzaskAKsmFDYSRe5GCRM75gZ8n6lA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chaitanya Kulkarni <kch@nvidia.com>,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 456/599] loop: use sysfs_emit() in the sysfs xxx show()
-Date:   Tue,  5 Apr 2022 09:32:30 +0200
-Message-Id: <20220405070312.399091793@linuxfoundation.org>
+        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+        Maulik Shah <quic_mkshah@quicinc.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 458/599] irqchip/qcom-pdc: Fix broken locking
+Date:   Tue,  5 Apr 2022 09:32:32 +0200
+Message-Id: <20220405070312.458810745@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -54,71 +54,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chaitanya Kulkarni <kch@nvidia.com>
+From: Marc Zyngier <maz@kernel.org>
 
-[ Upstream commit b27824d31f09ea7b4a6ba2c1b18bd328df3e8bed ]
+[ Upstream commit a6aca2f460e203781dc41391913cc5b54f4bc0ce ]
 
-sprintf does not know the PAGE_SIZE maximum of the temporary buffer
-used for outputting sysfs content and it's possible to overrun the
-PAGE_SIZE buffer length.
+pdc_enable_intr() serves as a primitive to qcom_pdc_gic_{en,dis}able,
+and has a raw spinlock for mutual exclusion, which is uses with
+interruptible primitives.
 
-Use a generic sysfs_emit function that knows the size of the
-temporary buffer and ensures that no overrun is done for offset
-attribute in
-loop_attr_[offset|sizelimit|autoclear|partscan|dio]_show() callbacks.
+This means that this critical section can itself be interrupted.
+Should the interrupt also be a PDC interrupt, and the endpoint driver
+perform an irq_disable() on that interrupt, we end-up in a deadlock.
 
-Signed-off-by: Chaitanya Kulkarni <kch@nvidia.com>
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Link: https://lore.kernel.org/r/20220215213310.7264-2-kch@nvidia.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fix this by using the irqsave/irqrestore variants of the locking
+primitives.
+
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Reviewed-by: Maulik Shah <quic_mkshah@quicinc.com>
+Link: https://lore.kernel.org/r/20220224101226.88373-5-maz@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/loop.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/irqchip/qcom-pdc.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/block/loop.c b/drivers/block/loop.c
-index ee537a9f1d1a..e4517d483bdc 100644
---- a/drivers/block/loop.c
-+++ b/drivers/block/loop.c
-@@ -797,33 +797,33 @@ static ssize_t loop_attr_backing_file_show(struct loop_device *lo, char *buf)
- 
- static ssize_t loop_attr_offset_show(struct loop_device *lo, char *buf)
+diff --git a/drivers/irqchip/qcom-pdc.c b/drivers/irqchip/qcom-pdc.c
+index 5dc63c20b67e..fc747b7f4983 100644
+--- a/drivers/irqchip/qcom-pdc.c
++++ b/drivers/irqchip/qcom-pdc.c
+@@ -74,17 +74,18 @@ static int qcom_pdc_gic_set_irqchip_state(struct irq_data *d,
+ static void pdc_enable_intr(struct irq_data *d, bool on)
  {
--	return sprintf(buf, "%llu\n", (unsigned long long)lo->lo_offset);
-+	return sysfs_emit(buf, "%llu\n", (unsigned long long)lo->lo_offset);
+ 	int pin_out = d->hwirq;
++	unsigned long flags;
+ 	u32 index, mask;
+ 	u32 enable;
+ 
+ 	index = pin_out / 32;
+ 	mask = pin_out % 32;
+ 
+-	raw_spin_lock(&pdc_lock);
++	raw_spin_lock_irqsave(&pdc_lock, flags);
+ 	enable = pdc_reg_read(IRQ_ENABLE_BANK, index);
+ 	enable = on ? ENABLE_INTR(enable, mask) : CLEAR_INTR(enable, mask);
+ 	pdc_reg_write(IRQ_ENABLE_BANK, index, enable);
+-	raw_spin_unlock(&pdc_lock);
++	raw_spin_unlock_irqrestore(&pdc_lock, flags);
  }
  
- static ssize_t loop_attr_sizelimit_show(struct loop_device *lo, char *buf)
- {
--	return sprintf(buf, "%llu\n", (unsigned long long)lo->lo_sizelimit);
-+	return sysfs_emit(buf, "%llu\n", (unsigned long long)lo->lo_sizelimit);
- }
- 
- static ssize_t loop_attr_autoclear_show(struct loop_device *lo, char *buf)
- {
- 	int autoclear = (lo->lo_flags & LO_FLAGS_AUTOCLEAR);
- 
--	return sprintf(buf, "%s\n", autoclear ? "1" : "0");
-+	return sysfs_emit(buf, "%s\n", autoclear ? "1" : "0");
- }
- 
- static ssize_t loop_attr_partscan_show(struct loop_device *lo, char *buf)
- {
- 	int partscan = (lo->lo_flags & LO_FLAGS_PARTSCAN);
- 
--	return sprintf(buf, "%s\n", partscan ? "1" : "0");
-+	return sysfs_emit(buf, "%s\n", partscan ? "1" : "0");
- }
- 
- static ssize_t loop_attr_dio_show(struct loop_device *lo, char *buf)
- {
- 	int dio = (lo->lo_flags & LO_FLAGS_DIRECT_IO);
- 
--	return sprintf(buf, "%s\n", dio ? "1" : "0");
-+	return sysfs_emit(buf, "%s\n", dio ? "1" : "0");
- }
- 
- LOOP_ATTR_RO(backing_file);
+ static void qcom_pdc_gic_disable(struct irq_data *d)
 -- 
 2.34.1
 
