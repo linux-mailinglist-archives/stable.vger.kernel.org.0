@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 41E434F39F3
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:57:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 542024F39F0
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:57:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378901AbiDELjm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:39:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56012 "EHLO
+        id S1378897AbiDELjl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:39:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52168 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354199AbiDEKMP (ORCPT
+        with ESMTP id S1354200AbiDEKMP (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:12:15 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76AA053A40;
-        Tue,  5 Apr 2022 02:58:33 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0DFE54182;
+        Tue,  5 Apr 2022 02:58:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 2B007CE1BF8;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 79944B817D3;
+        Tue,  5 Apr 2022 09:58:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E39A2C385A1;
         Tue,  5 Apr 2022 09:58:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CE18C385A2;
-        Tue,  5 Apr 2022 09:58:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152710;
-        bh=izMv/LMDq16sbMxK8dWa52dHpvXUUl3PEqt/CPB1xl4=;
+        s=korg; t=1649152713;
+        bh=+I1kIkWfWuQyDHUH07N7TM2+SinRMRMesn+il5ED1Oo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RRiWXXKLZM7LQp2NV/ekzsBTwdkn7MBDG7WaBz/PjoiCgX4996Fimmwoox6vwjPcu
-         YzvJ9SLk0vYgCqAXee/XtUMSWCs1oME9q7S64LmHHgHQyaM2QwghAzkKWw6LPH//+v
-         /9X+d8HiQsqF4yubR30NBtB/Co1G3UgnVZLJ5A0A=
+        b=1O1tsJTAogyfBZ1rbX7Q9SBJU0k6b+2r4o4l1IqYK3bOGcThvxdyT4Xa0F9EuUbw7
+         P9wPha+fadGwaSqdF48/4rzEabQsRoOvMkXhP4lOTcQMqDKkVKBuaGiKFFvgtW3WHA
+         q5Ik+sZTOOqBHQheTyM8zJWjMGHlXQq4kdM4AdWE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Igor Zhbanov <i.zhbanov@omprussia.ru>,
-        Chris von Recklinghausen <crecklin@redhat.com>,
-        Kees Cook <keescook@chromium.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.15 876/913] mm/usercopy: return 1 from hardened_usercopy __setup() handler
-Date:   Tue,  5 Apr 2022 09:32:18 +0200
-Message-Id: <20220405070406.081233495@linuxfoundation.org>
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.co.jp>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.15 877/913] af_unix: Support POLLPRI for OOB.
+Date:   Tue,  5 Apr 2022 09:32:19 +0200
+Message-Id: <20220405070406.111282097@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -57,63 +53,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Kuniyuki Iwashima <kuniyu@amazon.co.jp>
 
-commit 05fe3c103f7e6b8b4fca8a7001dfc9ed4628085b upstream.
+commit d9a232d435dcc966738b0f414a86f7edf4f4c8c4 upstream.
 
-__setup() handlers should return 1 if the command line option is handled
-and 0 if not (or maybe never return 0; it just pollutes init's
-environment).  This prevents:
+The commit 314001f0bf92 ("af_unix: Add OOB support") introduced OOB for
+AF_UNIX, but it lacks some changes for POLLPRI.  Let's add the missing
+piece.
 
-  Unknown kernel command line parameters \
-  "BOOT_IMAGE=/boot/bzImage-517rc5 hardened_usercopy=off", will be \
-  passed to user space.
+In the selftest, normal datagrams are sent followed by OOB data, so this
+commit replaces `POLLIN | POLLPRI` with just `POLLPRI` in the first test
+case.
 
-  Run /sbin/init as init process
-   with arguments:
-     /sbin/init
-   with environment:
-     HOME=/
-     TERM=linux
-     BOOT_IMAGE=/boot/bzImage-517rc5
-     hardened_usercopy=off
-or
-     hardened_usercopy=on
-but when "hardened_usercopy=foo" is used, there is no Unknown kernel
-command line parameter.
-
-Return 1 to indicate that the boot option has been handled.
-Print a warning if strtobool() returns an error on the option string,
-but do not mark this as in unknown command line option and do not cause
-init's environment to be polluted with this string.
-
-Link: https://lkml.kernel.org/r/20220222034249.14795-1-rdunlap@infradead.org
-Link: lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
-Fixes: b5cb15d9372ab ("usercopy: Allow boot cmdline disabling of hardening")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
-Acked-by: Chris von Recklinghausen <crecklin@redhat.com>
-Cc: Kees Cook <keescook@chromium.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 314001f0bf92 ("af_unix: Add OOB support")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.co.jp>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/usercopy.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ net/unix/af_unix.c                                  |    4 ++++
+ tools/testing/selftests/net/af_unix/test_unix_oob.c |    6 +++---
+ 2 files changed, 7 insertions(+), 3 deletions(-)
 
---- a/mm/usercopy.c
-+++ b/mm/usercopy.c
-@@ -294,7 +294,10 @@ static bool enable_checks __initdata = t
+--- a/net/unix/af_unix.c
++++ b/net/unix/af_unix.c
+@@ -3049,6 +3049,10 @@ static __poll_t unix_poll(struct file *f
+ 		mask |= EPOLLIN | EPOLLRDNORM;
+ 	if (sk_is_readable(sk))
+ 		mask |= EPOLLIN | EPOLLRDNORM;
++#if IS_ENABLED(CONFIG_AF_UNIX_OOB)
++	if (READ_ONCE(unix_sk(sk)->oob_skb))
++		mask |= EPOLLPRI;
++#endif
  
- static int __init parse_hardened_usercopy(char *str)
- {
--	return strtobool(str, &enable_checks);
-+	if (strtobool(str, &enable_checks))
-+		pr_warn("Invalid option string for hardened_usercopy: '%s'\n",
-+			str);
-+	return 1;
- }
+ 	/* Connection-based need to check for termination and startup */
+ 	if ((sk->sk_type == SOCK_STREAM || sk->sk_type == SOCK_SEQPACKET) &&
+--- a/tools/testing/selftests/net/af_unix/test_unix_oob.c
++++ b/tools/testing/selftests/net/af_unix/test_unix_oob.c
+@@ -218,10 +218,10 @@ main(int argc, char **argv)
  
- __setup("hardened_usercopy=", parse_hardened_usercopy);
+ 	/* Test 1:
+ 	 * veriyf that SIGURG is
+-	 * delivered and 63 bytes are
+-	 * read and oob is '@'
++	 * delivered, 63 bytes are
++	 * read, oob is '@', and POLLPRI works.
+ 	 */
+-	wait_for_data(pfd, POLLIN | POLLPRI);
++	wait_for_data(pfd, POLLPRI);
+ 	read_oob(pfd, &oob);
+ 	len = read_data(pfd, buf, 1024);
+ 	if (!signal_recvd || len != 63 || oob != '@') {
 
 
