@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 34F494F3385
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:16:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A95724F2EC1
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:03:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353659AbiDEKIu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:08:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45834 "EHLO
+        id S245359AbiDEIzO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:55:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54636 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345163AbiDEJWT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:22:19 -0400
+        with ESMTP id S240728AbiDEIc2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:32:28 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5EA02459F;
-        Tue,  5 Apr 2022 02:09:22 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C0BF7C15B;
+        Tue,  5 Apr 2022 01:24:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9039CB81B75;
-        Tue,  5 Apr 2022 09:09:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3DACC385A0;
-        Tue,  5 Apr 2022 09:09:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1EDB3B81BBF;
+        Tue,  5 Apr 2022 08:24:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 875EDC385A1;
+        Tue,  5 Apr 2022 08:24:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149760;
-        bh=giM/BAivgxJrob6NYPSr1zOqqdEG4sFSemV5nmzN4OM=;
+        s=korg; t=1649147087;
+        bh=cznyEpNzsTlaaxDVh7pqUaJlIdL/rp+lo6bpM9NMiN0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kr25cVmrb+YgGFUeR/h6vgfd9Bd2xrT0U2+jYcHPRERQsuMWv6ShuH6fTd7brub89
-         cer21trH8/QU6/f8dop0nlLFZGKoT/JTqTB1ph433M9EKRQynxkVXmDJE8WJ1TYPQr
-         HzOV56Zt7Fe6QMzRv1bR4G+ldi9AjZjmxJubCvOY=
+        b=J3qe3X4Y1hWaRUREnv2BI+o6u9BJ8duycyPnKFXV8kai+9ktjI0jghEL0WWCsyeBJ
+         ZSC3guTIf8LToUbUGK++nVAxOB2nek2x9yzrk3KLrw2XQQpBlCgrCCoXcXkViisgZh
+         3PRnKm/b/5LQwf5NxWyNDOQ+WaIrpzQzM+05M8E4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zeal Robot <zealci@zte.com.cn>,
-        Jing Yao <yao.jing2@zte.com.cn>, Helge Deller <deller@gmx.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0830/1017] video: fbdev: omapfb: panel-tpo-td043mtea1: Use sysfs_emit() instead of snprintf()
+        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.17 0996/1126] KVM: x86: Check lapic_in_kernel() before attempting to set a SynIC irq
 Date:   Tue,  5 Apr 2022 09:29:03 +0200
-Message-Id: <20220405070418.881931432@linuxfoundation.org>
+Message-Id: <20220405070436.728445501@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,44 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jing Yao <yao.jing2@zte.com.cn>
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
 
-[ Upstream commit c07a039cbb96748f54c02995bae8131cc9a73b0a ]
+commit 7ec37d1cbe17d8189d9562178d8b29167fe1c31a upstream.
 
-Use sysfs_emit instead of scnprintf, snprintf or sprintf.
+When KVM_CAP_HYPERV_SYNIC{,2} is activated, KVM already checks for
+irqchip_in_kernel() so normally SynIC irqs should never be set. It is,
+however,  possible for a misbehaving VMM to write to SYNIC/STIMER MSRs
+causing erroneous behavior.
 
-Reported-by: Zeal Robot <zealci@zte.com.cn>
-Signed-off-by: Jing Yao <yao.jing2@zte.com.cn>
-Signed-off-by: Helge Deller <deller@gmx.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The immediate issue being fixed is that kvm_irq_delivery_to_apic()
+(kvm_irq_delivery_to_apic_fast()) crashes when called with
+'irq.shorthand = APIC_DEST_SELF' and 'src == NULL'.
+
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Message-Id: <20220325132140.25650-2-vkuznets@redhat.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../video/fbdev/omap2/omapfb/displays/panel-tpo-td043mtea1.c  | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/kvm/hyperv.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/video/fbdev/omap2/omapfb/displays/panel-tpo-td043mtea1.c b/drivers/video/fbdev/omap2/omapfb/displays/panel-tpo-td043mtea1.c
-index afac1d9445aa..57b7d1f49096 100644
---- a/drivers/video/fbdev/omap2/omapfb/displays/panel-tpo-td043mtea1.c
-+++ b/drivers/video/fbdev/omap2/omapfb/displays/panel-tpo-td043mtea1.c
-@@ -169,7 +169,7 @@ static ssize_t tpo_td043_vmirror_show(struct device *dev,
- {
- 	struct panel_drv_data *ddata = dev_get_drvdata(dev);
+--- a/arch/x86/kvm/hyperv.c
++++ b/arch/x86/kvm/hyperv.c
+@@ -446,6 +446,9 @@ static int synic_set_irq(struct kvm_vcpu
+ 	struct kvm_lapic_irq irq;
+ 	int ret, vector;
  
--	return snprintf(buf, PAGE_SIZE, "%d\n", ddata->vmirror);
-+	return sysfs_emit(buf, "%d\n", ddata->vmirror);
- }
++	if (KVM_BUG_ON(!lapic_in_kernel(vcpu), vcpu->kvm))
++		return -EINVAL;
++
+ 	if (sint >= ARRAY_SIZE(synic->sint))
+ 		return -EINVAL;
  
- static ssize_t tpo_td043_vmirror_store(struct device *dev,
-@@ -199,7 +199,7 @@ static ssize_t tpo_td043_mode_show(struct device *dev,
- {
- 	struct panel_drv_data *ddata = dev_get_drvdata(dev);
- 
--	return snprintf(buf, PAGE_SIZE, "%d\n", ddata->mode);
-+	return sysfs_emit(buf, "%d\n", ddata->mode);
- }
- 
- static ssize_t tpo_td043_mode_store(struct device *dev,
--- 
-2.34.1
-
 
 
