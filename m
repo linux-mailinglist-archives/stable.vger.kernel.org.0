@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 07DE24F39C5
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:56:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 614A54F39C0
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:56:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378671AbiDELiN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:38:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56134 "EHLO
+        id S1378657AbiDELiB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:38:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43482 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353989AbiDEKKR (ORCPT
+        with ESMTP id S1353990AbiDEKKR (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:10:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08650C55B1;
-        Tue,  5 Apr 2022 02:56:22 -0700 (PDT)
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10933C55B4;
+        Tue,  5 Apr 2022 02:56:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8AB81616D7;
-        Tue,  5 Apr 2022 09:56:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94D7FC385A2;
-        Tue,  5 Apr 2022 09:56:20 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 75377CE1C9C;
+        Tue,  5 Apr 2022 09:56:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86206C385A2;
+        Tue,  5 Apr 2022 09:56:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152581;
-        bh=5tdNro4II/wrfglmzV0p3T7ojcbQueE/a/9FwOwLUUE=;
+        s=korg; t=1649152583;
+        bh=jik5O51dlzmyMQiJJ1AKYzRdpKHgYtECSWSAGjm/Xyc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1Lau261GiuWD7K5xoqM0m19VeqIhFmVEU2SjL9llPMZYErrS+Btjikzb52QwgQszG
-         vCxqTXVkjJqwI/SxEiRudqrqwygIVKV4NaTHKIMh3Fdqvp/NIWbDPDdIjx/n515QHd
-         NfAowGxFkmlTVbckiKVRSX3BPGRM2PoC5UQ1syp0=
+        b=XM1Ot7yNHo0RyBrev4MfiM0qeOTXIMgy5jmXhEnApxAGfYQqSXKTc3vkRAY060BeV
+         zxG8kvUinKSGLT0snkvqYJO6XCZaGCp95sXI0fjGpZfyxYTtT2RgSuP0hApZP2QcvT
+         jUYkDHlyNW1jLifGXM4kznZB70HncLg8m4JRzcDw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Abdul Haleem <abdhalee@linux.vnet.ibm.com>,
+        stable@vger.kernel.org,
         Himanshu Madhani <himanshu.madhani@oracle.com>,
         Quinn Tran <qutran@marvell.com>,
         Nilesh Javali <njavali@marvell.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.15 790/913] scsi: qla2xxx: Fix warning message due to adisc being flushed
-Date:   Tue,  5 Apr 2022 09:30:52 +0200
-Message-Id: <20220405070403.514693618@linuxfoundation.org>
+Subject: [PATCH 5.15 791/913] scsi: qla2xxx: Fix scheduling while atomic
+Date:   Tue,  5 Apr 2022 09:30:53 +0200
+Message-Id: <20220405070403.544056727@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -58,82 +58,71 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Quinn Tran <qutran@marvell.com>
 
-commit 64f24af75b79cba3b86b0760e27e0fa904db570f upstream.
+commit afd438ff874ca40b74321b3fa19bd61adfd7ca0c upstream.
 
-Fix warning message due to adisc being flushed.  Linux kernel triggered a
-warning message where a different error code type is not matching up with
-the expected type. Add additional translation of one error code type to
-another.
+The driver makes a call into midlayer (fc_remote_port_delete) which can put
+the thread to sleep. The thread that originates the call is in interrupt
+context. The combination of the two trigger a crash. Schedule the call in
+non-interrupt context where it is more safe.
 
-WARNING: CPU: 2 PID: 1131623 at drivers/scsi/qla2xxx/qla_init.c:498
-qla2x00_async_adisc_sp_done+0x294/0x2b0 [qla2xxx]
-CPU: 2 PID: 1131623 Comm: drmgr Not tainted 5.13.0-rc1-autotest #1
-..
-GPR28: c000000aaa9c8890 c0080000079ab678 c00000140a104800 c00000002bd19000
-NIP [c00800000790857c] qla2x00_async_adisc_sp_done+0x294/0x2b0 [qla2xxx]
-LR [c008000007908578] qla2x00_async_adisc_sp_done+0x290/0x2b0 [qla2xxx]
-Call Trace:
-[c00000001cdc3620] [c008000007908578] qla2x00_async_adisc_sp_done+0x290/0x2b0 [qla2xxx] (unreliable)
-[c00000001cdc3710] [c0080000078f3080] __qla2x00_abort_all_cmds+0x1b8/0x580 [qla2xxx]
-[c00000001cdc3840] [c0080000078f589c] qla2x00_abort_all_cmds+0x34/0xd0 [qla2xxx]
-[c00000001cdc3880] [c0080000079153d8] qla2x00_abort_isp_cleanup+0x3f0/0x570 [qla2xxx]
-[c00000001cdc3920] [c0080000078fb7e8] qla2x00_remove_one+0x3d0/0x480 [qla2xxx]
-[c00000001cdc39b0] [c00000000071c274] pci_device_remove+0x64/0x120
-[c00000001cdc39f0] [c0000000007fb818] device_release_driver_internal+0x168/0x2a0
-[c00000001cdc3a30] [c00000000070e304] pci_stop_bus_device+0xb4/0x100
-[c00000001cdc3a70] [c00000000070e4f0] pci_stop_and_remove_bus_device+0x20/0x40
-[c00000001cdc3aa0] [c000000000073940] pci_hp_remove_devices+0x90/0x130
-[c00000001cdc3b30] [c0080000070704d0] disable_slot+0x38/0x90 [rpaphp] [
-c00000001cdc3b60] [c00000000073eb4c] power_write_file+0xcc/0x180
-[c00000001cdc3be0] [c0000000007354bc] pci_slot_attr_store+0x3c/0x60
-[c00000001cdc3c00] [c00000000055f820] sysfs_kf_write+0x60/0x80 [c00000001cdc3c20]
-[c00000000055df10] kernfs_fop_write_iter+0x1a0/0x290
-[c00000001cdc3c70] [c000000000447c4c] new_sync_write+0x14c/0x1d0
-[c00000001cdc3d10] [c00000000044b134] vfs_write+0x224/0x330
-[c00000001cdc3d60] [c00000000044b3f4] ksys_write+0x74/0x130
-[c00000001cdc3db0] [c00000000002df70] system_call_exception+0x150/0x2d0
-[c00000001cdc3e10] [c00000000000d45c] system_call_common+0xec/0x278
+kernel: BUG: scheduling while atomic: swapper/7/0/0x00010000
+kernel: Call Trace:
+kernel:  <IRQ>
+kernel:  dump_stack+0x66/0x81
+kernel:  __schedule_bug.cold.90+0x5/0x1d
+kernel:  __schedule+0x7af/0x960
+kernel:  schedule+0x28/0x80
+kernel:  schedule_timeout+0x26d/0x3b0
+kernel:  wait_for_completion+0xb4/0x140
+kernel:  ? wake_up_q+0x70/0x70
+kernel:  __wait_rcu_gp+0x12c/0x160
+kernel:  ? sdev_evt_alloc+0xc0/0x180 [scsi_mod]
+kernel:  synchronize_sched+0x6c/0x80
+kernel:  ? call_rcu_bh+0x20/0x20
+kernel:  ? __bpf_trace_rcu_invoke_callback+0x10/0x10
+kernel:  sdev_evt_alloc+0xfd/0x180 [scsi_mod]
+kernel:  starget_for_each_device+0x85/0xb0 [scsi_mod]
+kernel:  ? scsi_init_io+0x360/0x3d0 [scsi_mod]
+kernel:  scsi_init_io+0x388/0x3d0 [scsi_mod]
+kernel:  device_for_each_child+0x54/0x90
+kernel:  fc_remote_port_delete+0x70/0xe0 [scsi_transport_fc]
+kernel:  qla2x00_schedule_rport_del+0x62/0xf0 [qla2xxx]
+kernel:  qla2x00_mark_device_lost+0x9c/0xd0 [qla2xxx]
+kernel:  qla24xx_handle_plogi_done_event+0x55f/0x570 [qla2xxx]
+kernel:  qla2x00_async_login_sp_done+0xd2/0x100 [qla2xxx]
+kernel:  qla24xx_logio_entry+0x13a/0x3c0 [qla2xxx]
+kernel:  qla24xx_process_response_queue+0x306/0x400 [qla2xxx]
+kernel:  qla24xx_msix_rsp_q+0x3f/0xb0 [qla2xxx]
+kernel:  __handle_irq_event_percpu+0x40/0x180
+kernel:  handle_irq_event_percpu+0x30/0x80
+kernel:  handle_irq_event+0x36/0x60
 
-Link: https://lore.kernel.org/r/20220110050218.3958-5-njavali@marvell.com
+Link: https://lore.kernel.org/r/20220110050218.3958-7-njavali@marvell.com
 Cc: stable@vger.kernel.org
-Reported-by: Abdul Haleem <abdhalee@linux.vnet.ibm.com>
 Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
 Signed-off-by: Quinn Tran <qutran@marvell.com>
 Signed-off-by: Nilesh Javali <njavali@marvell.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/qla2xxx/qla_init.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/scsi/qla2xxx/qla_init.c |    7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
 
 --- a/drivers/scsi/qla2xxx/qla_init.c
 +++ b/drivers/scsi/qla2xxx/qla_init.c
-@@ -295,6 +295,8 @@ static void qla2x00_async_login_sp_done(
- 		ea.iop[0] = lio->u.logio.iop[0];
- 		ea.iop[1] = lio->u.logio.iop[1];
- 		ea.sp = sp;
-+		if (res)
-+			ea.data[0] = MBS_COMMAND_ERROR;
- 		qla24xx_handle_plogi_done_event(vha, &ea);
- 	}
+@@ -2212,12 +2212,7 @@ qla24xx_handle_plogi_done_event(struct s
+ 		ql_dbg(ql_dbg_disc, vha, 0x20eb, "%s %d %8phC cmd error %x\n",
+ 		    __func__, __LINE__, ea->fcport->port_name, ea->data[1]);
  
-@@ -558,6 +560,8 @@ static void qla2x00_async_adisc_sp_done(
- 	ea.iop[1] = lio->u.logio.iop[1];
- 	ea.fcport = sp->fcport;
- 	ea.sp = sp;
-+	if (res)
-+		ea.data[0] = MBS_COMMAND_ERROR;
- 
- 	qla24xx_handle_adisc_event(vha, &ea);
- 	/* ref: INIT */
-@@ -1238,6 +1242,8 @@ static void qla2x00_async_prli_sp_done(s
- 		ea.sp = sp;
- 		if (res == QLA_OS_TIMER_EXPIRED)
- 			ea.data[0] = QLA_OS_TIMER_EXPIRED;
-+		else if (res)
-+			ea.data[0] = MBS_COMMAND_ERROR;
- 
- 		qla24xx_handle_prli_done_event(vha, &ea);
- 	}
+-		ea->fcport->flags &= ~FCF_ASYNC_SENT;
+-		qla2x00_set_fcport_disc_state(ea->fcport, DSC_LOGIN_FAILED);
+-		if (ea->data[1] & QLA_LOGIO_LOGIN_RETRIED)
+-			set_bit(RELOGIN_NEEDED, &vha->dpc_flags);
+-		else
+-			qla2x00_mark_device_lost(vha, ea->fcport, 1);
++		qlt_schedule_sess_for_deletion(ea->fcport);
+ 		break;
+ 	case MBS_LOOP_ID_USED:
+ 		/* data[1] = IO PARAM 1 = nport ID  */
 
 
