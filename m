@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E20074F2E14
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:49:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D0CD4F2C43
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:25:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236717AbiDEJDd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:03:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34698 "EHLO
+        id S1348033AbiDEJ3G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:29:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52178 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237308AbiDEIRx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:17:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9912A6948F;
-        Tue,  5 Apr 2022 01:06:01 -0700 (PDT)
+        with ESMTP id S245046AbiDEIxD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:53:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF2BDEA;
+        Tue,  5 Apr 2022 01:50:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CB42AB81B18;
-        Tue,  5 Apr 2022 08:05:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20A45C385A0;
-        Tue,  5 Apr 2022 08:05:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A191FB81BBF;
+        Tue,  5 Apr 2022 08:50:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD54CC385A1;
+        Tue,  5 Apr 2022 08:50:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145958;
-        bh=iv1kBfVa6k9z7IeqmAd0Oj3LUlWaENspS4p26LDfOl4=;
+        s=korg; t=1649148632;
+        bh=w1w5STSoU+1OvcgmNGv4Uzg0F4cQg98rLnw4UUo6UjQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UGyQjFTHA+ccAF2LKbCM7pnfgOARICGDx4nksW4nnh6pwLR49+xjKRG6Cl7Wk9nP0
-         BgMfmVeX+7xOP4W483gp7kDOsfbjzFaha6T4X3Fghw29rwU1VCLPMpywBZL3fIr2pW
-         /x/Biho0p/omHnLxTdglQA7JDhRToSgdCeBKANtA=
+        b=AoQccAlLptqIpI6dpmb5ALB6QT7Z7ikY5QBbaK+gtQh+saDNifZylxAmJ+3LLHHw5
+         N2hccXu8P1WjorCkg4agsz9oUBqh4hNPzo+Cyyn8ta4Nbb7llaUn6wNtrzv2Mhcw2m
+         QO/VDQ905FzGlKOYs5ux8yApfY3NmGzb0SvTDEb4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Widawsky <ben.widawsky@intel.com>,
-        Dan Williams <dan.j.williams@intel.com>,
+        stable@vger.kernel.org,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        =?UTF-8?q?P=C3=A9ter=20Ujfalusi?= <peter.ujfalusi@linux.intel.com>,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0553/1126] cxl/core/port: Rename bus.c to port.c
-Date:   Tue,  5 Apr 2022 09:21:40 +0200
-Message-Id: <20220405070423.865113800@linuxfoundation.org>
+Subject: [PATCH 5.16 0388/1017] ASoC: SOF: Intel: enable DMI L1 for playback streams
+Date:   Tue,  5 Apr 2022 09:21:41 +0200
+Message-Id: <20220405070405.802480370@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,72 +58,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Williams <dan.j.williams@intel.com>
+From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
 
-[ Upstream commit 0ff0af18216436d0151af4e410400c7a19ca9437 ]
+[ Upstream commit a174e72e2355b9025205b4b6727bf43047eac6c6 ]
 
-Given it is dominated by port infrastructure, and will only acquire
-more, rename bus.c to port.c.
+Add back logic to mark all playback streams as L1 compatible.
 
-Reviewed-by: Ben Widawsky <ben.widawsky@intel.com>
-Link: https://lore.kernel.org/r/164298416136.3018233.15442880970000855425.stgit@dwillia2-desk3.amr.corp.intel.com
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Fixes: 246dd4287dfb ("ASoC: SOF: Intel: make DMI L1 selection more robust")
+Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Reviewed-by: Péter Ujfalusi <peter.ujfalusi@linux.intel.com>
+Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20220310171651.249385-2-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/driver-api/cxl/memory-devices.rst | 4 ++--
- drivers/cxl/core/Makefile                       | 2 +-
- drivers/cxl/core/{bus.c => port.c}              | 0
- tools/testing/cxl/Kbuild                        | 2 +-
- 4 files changed, 4 insertions(+), 4 deletions(-)
- rename drivers/cxl/core/{bus.c => port.c} (100%)
+ sound/soc/sof/intel/hda-pcm.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/Documentation/driver-api/cxl/memory-devices.rst b/Documentation/driver-api/cxl/memory-devices.rst
-index 3b8f41395f6b..c8f7a16cd0e3 100644
---- a/Documentation/driver-api/cxl/memory-devices.rst
-+++ b/Documentation/driver-api/cxl/memory-devices.rst
-@@ -36,10 +36,10 @@ CXL Core
- .. kernel-doc:: drivers/cxl/cxl.h
-    :internal:
+diff --git a/sound/soc/sof/intel/hda-pcm.c b/sound/soc/sof/intel/hda-pcm.c
+index 41cb60955f5c..68834325d8fb 100644
+--- a/sound/soc/sof/intel/hda-pcm.c
++++ b/sound/soc/sof/intel/hda-pcm.c
+@@ -278,6 +278,7 @@ int hda_dsp_pcm_open(struct snd_sof_dev *sdev,
+ 		runtime->hw.info &= ~SNDRV_PCM_INFO_PAUSE;
  
--.. kernel-doc:: drivers/cxl/core/bus.c
-+.. kernel-doc:: drivers/cxl/core/port.c
-    :doc: cxl core
+ 	if (hda_always_enable_dmi_l1 ||
++	    direction == SNDRV_PCM_STREAM_PLAYBACK ||
+ 	    spcm->stream[substream->stream].d0i3_compatible)
+ 		flags |= SOF_HDA_STREAM_DMI_L1_COMPATIBLE;
  
--.. kernel-doc:: drivers/cxl/core/bus.c
-+.. kernel-doc:: drivers/cxl/core/port.c
-    :identifiers:
- 
- .. kernel-doc:: drivers/cxl/core/pmem.c
-diff --git a/drivers/cxl/core/Makefile b/drivers/cxl/core/Makefile
-index 40ab50318daf..a90202ac88d2 100644
---- a/drivers/cxl/core/Makefile
-+++ b/drivers/cxl/core/Makefile
-@@ -2,7 +2,7 @@
- obj-$(CONFIG_CXL_BUS) += cxl_core.o
- 
- ccflags-y += -I$(srctree)/drivers/cxl
--cxl_core-y := bus.o
-+cxl_core-y := port.o
- cxl_core-y += pmem.o
- cxl_core-y += regs.o
- cxl_core-y += memdev.o
-diff --git a/drivers/cxl/core/bus.c b/drivers/cxl/core/port.c
-similarity index 100%
-rename from drivers/cxl/core/bus.c
-rename to drivers/cxl/core/port.c
-diff --git a/tools/testing/cxl/Kbuild b/tools/testing/cxl/Kbuild
-index 1acdf2fc31c5..3299fb0977b2 100644
---- a/tools/testing/cxl/Kbuild
-+++ b/tools/testing/cxl/Kbuild
-@@ -25,7 +25,7 @@ cxl_pmem-y += config_check.o
- 
- obj-m += cxl_core.o
- 
--cxl_core-y := $(CXL_CORE_SRC)/bus.o
-+cxl_core-y := $(CXL_CORE_SRC)/port.o
- cxl_core-y += $(CXL_CORE_SRC)/pmem.o
- cxl_core-y += $(CXL_CORE_SRC)/regs.o
- cxl_core-y += $(CXL_CORE_SRC)/memdev.o
 -- 
 2.34.1
 
