@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E8824F253E
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 09:47:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C2224F25D2
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 09:50:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232097AbiDEHso (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 03:48:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48216 "EHLO
+        id S232195AbiDEHw3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 03:52:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54820 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233534AbiDEHr4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:47:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51F1192310;
-        Tue,  5 Apr 2022 00:44:58 -0700 (PDT)
+        with ESMTP id S232394AbiDEHuj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:50:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38C5C939B6;
+        Tue,  5 Apr 2022 00:47:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E63EC61607;
-        Tue,  5 Apr 2022 07:44:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05AF9C340EE;
-        Tue,  5 Apr 2022 07:44:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 64204616D7;
+        Tue,  5 Apr 2022 07:47:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7412EC3410F;
+        Tue,  5 Apr 2022 07:47:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649144697;
-        bh=lzO+z6AoVIcvFgn8IXdAdIOaIsz6Yqp+xI/H9kDkdZA=;
+        s=korg; t=1649144827;
+        bh=4JilkGpXUFStr7DuFbAb05Cf5KlVYYVNVPbAujUtgkU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=grgdj/SMV46zjrmYUDuYVVKcZpeI/+jKj7g+FuV1oKVef+KY4wicyEDazd2IPehH8
-         NBsEySDhxpOPHPJLBxukqaZpvVOu+EHjRXRyV619wZyE1p7j9kVAjph3dk58iHreSX
-         IbEp0OjHhnF4EBFXF3Lj1GZ2e9aTqcThnY1SqZj0=
+        b=1h1qLZdS8uttyK6PiR9wJpC1KWpTMucOg72iqvbbO+fciGvmsUKRnLr/bgWKtRj3f
+         rtWPtQ54M1aHW7W+misb6JPrR5hpT3YxP2BBfmVFYt8tnSJ8eaP7EFYnxGj5oIp5RQ
+         NKbXxhzQ7OEticl4d5AiQ8903i0dPRi1fI0BqMnQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Geetika Moolchandani <Geetika.Moolchandani1@ibm.com>,
-        Nageswara R Sastry <rnsastry@linux.ibm.com>,
-        Ritesh Harjani <riteshh@linux.ibm.com>,
-        Ojaswin Mujoo <ojaswin@linux.ibm.com>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.17 0136/1126] ext4: make mb_optimize_scan performance mount option work with extents
-Date:   Tue,  5 Apr 2022 09:14:43 +0200
-Message-Id: <20220405070411.570352261@linuxfoundation.org>
+        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
+        =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@linux.microsoft.com>
+Subject: [PATCH 5.17 0137/1126] samples/landlock: Fix path_list memory leak
+Date:   Tue,  5 Apr 2022 09:14:44 +0200
+Message-Id: <20220405070411.599909869@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -57,121 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ojaswin Mujoo <ojaswin@linux.ibm.com>
+From: Tom Rix <trix@redhat.com>
 
-commit 077d0c2c78df6f7260cdd015a991327efa44d8ad upstream.
+commit 66b513b7c64a7290c1fbb88e657f7cece992e131 upstream.
 
-Currently mb_optimize_scan scan feature which improves filesystem
-performance heavily (when FS is fragmented), seems to be not working
-with files with extents (ext4 by default has files with extents).
+Clang static analysis reports this error
 
-This patch fixes that and makes mb_optimize_scan feature work
-for files with extents.
+sandboxer.c:134:8: warning: Potential leak of memory
+  pointed to by 'path_list'
+        ret = 0;
+              ^
+path_list is allocated in parse_path() but never freed.
 
-Below are some performance numbers obtained when allocating a 10M and 100M
-file with and w/o this patch on a filesytem with no 1M contiguous block.
-
-<perf numbers>
-===============
-Workload: dd if=/dev/urandom of=test conv=fsync bs=1M count=10/100
-
-Time taken
-=====================================================
-no.     Size   without-patch     with-patch    Diff(%)
-1       10M      0m8.401s         0m5.623s     33.06%
-2       100M     1m40.465s        1m14.737s    25.6%
-
-<debug stats>
-=============
-w/o patch:
-  mballoc:
-    reqs: 17056
-    success: 11407
-    groups_scanned: 13643
-    cr0_stats:
-            hits: 37
-            groups_considered: 9472
-            useless_loops: 36
-            bad_suggestions: 0
-    cr1_stats:
-            hits: 11418
-            groups_considered: 908560
-            useless_loops: 1894
-            bad_suggestions: 0
-    cr2_stats:
-            hits: 1873
-            groups_considered: 6913
-            useless_loops: 21
-    cr3_stats:
-            hits: 21
-            groups_considered: 5040
-            useless_loops: 21
-    extents_scanned: 417364
-            goal_hits: 3707
-            2^n_hits: 37
-            breaks: 1873
-            lost: 0
-    buddies_generated: 239/240
-    buddies_time_used: 651080
-    preallocated: 705
-    discarded: 478
-
-with patch:
-  mballoc:
-    reqs: 12768
-    success: 11305
-    groups_scanned: 12768
-    cr0_stats:
-            hits: 1
-            groups_considered: 18
-            useless_loops: 0
-            bad_suggestions: 0
-    cr1_stats:
-            hits: 5829
-            groups_considered: 50626
-            useless_loops: 0
-            bad_suggestions: 0
-    cr2_stats:
-            hits: 6938
-            groups_considered: 580363
-            useless_loops: 0
-    cr3_stats:
-            hits: 0
-            groups_considered: 0
-            useless_loops: 0
-    extents_scanned: 309059
-            goal_hits: 0
-            2^n_hits: 1
-            breaks: 1463
-            lost: 0
-    buddies_generated: 239/240
-    buddies_time_used: 791392
-    preallocated: 673
-    discarded: 446
-
-Fixes: 196e402 (ext4: improve cr 0 / cr 1 group scanning)
-Cc: stable@kernel.org
-Reported-by: Geetika Moolchandani <Geetika.Moolchandani1@ibm.com>
-Reported-by: Nageswara R Sastry <rnsastry@linux.ibm.com>
-Suggested-by: Ritesh Harjani <riteshh@linux.ibm.com>
-Signed-off-by: Ojaswin Mujoo <ojaswin@linux.ibm.com>
-Link: https://lore.kernel.org/r/fc9a48f7f8dcfc83891a8b21f6dd8cdf056ed810.1646732698.git.ojaswin@linux.ibm.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Tom Rix <trix@redhat.com>
+Link: https://lore.kernel.org/r/20210428213852.2874324-1-trix@redhat.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Mickaël Salaün <mic@linux.microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/mballoc.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ samples/landlock/sandboxer.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/ext4/mballoc.c
-+++ b/fs/ext4/mballoc.c
-@@ -1000,7 +1000,7 @@ static inline int should_optimize_scan(s
- 		return 0;
- 	if (ac->ac_criteria >= 2)
- 		return 0;
--	if (ext4_test_inode_flag(ac->ac_inode, EXT4_INODE_EXTENTS))
-+	if (!ext4_test_inode_flag(ac->ac_inode, EXT4_INODE_EXTENTS))
- 		return 0;
- 	return 1;
+--- a/samples/landlock/sandboxer.c
++++ b/samples/landlock/sandboxer.c
+@@ -134,6 +134,7 @@ static int populate_ruleset(
+ 	ret = 0;
+ 
+ out_free_name:
++	free(path_list);
+ 	free(env_path_name);
+ 	return ret;
  }
 
 
