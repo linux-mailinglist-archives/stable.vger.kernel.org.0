@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 13FAA4F3838
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:31:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 070964F3B26
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:15:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376439AbiDELWC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:22:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39192 "EHLO
+        id S238368AbiDELvH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:51:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44282 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349441AbiDEJtw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:52 -0400
+        with ESMTP id S1356350AbiDEKXi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:23:38 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2AC926AC7;
-        Tue,  5 Apr 2022 02:46:01 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58E97BB92B;
+        Tue,  5 Apr 2022 03:08:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 80520B817D3;
-        Tue,  5 Apr 2022 09:46:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C135AC385A2;
-        Tue,  5 Apr 2022 09:45:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D3F01B81C89;
+        Tue,  5 Apr 2022 10:08:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46632C385A1;
+        Tue,  5 Apr 2022 10:08:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151959;
-        bh=R7OELOo+Oi/SyfgfAsS9oeLiXh3ryotLhL8VqMLThOs=;
+        s=korg; t=1649153290;
+        bh=MrLe2UYgNO94N6ATEUfHk2MCCetEx4kGlyIszj4eOj4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wqQ0YLQQXpHO/BYFQdARcdQWrRegefTQKOioszjzZ9WuekiiQq6B5fPZXCd96KgY8
-         5JIBnQ+GfpiH2gKHaeTLa1ACdIH0r9RgYQwWw3CgQdRyhfx9wGpfDwHWpdsk1sU5Nh
-         a8w75SxwHlwC07UIiHG0XapY7SvoPsHBzHvY1xoI=
+        b=Koq6UJ5kI9Y81XHFydiX3AZMUD9OhaWpybvah3B55SgQgsHUe/AVzjl5Zo6OgcOXu
+         hU1r3mmeoPrTf82ZEcnIWVG99R7KVsirIMbctmYpKggPW9kuhAks5r7OpGBAR16rZo
+         /LTLtworcOZH+CZQcuPPgxX1UwAKZvIWD+tWnFVU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 603/913] serial: 8250: Fix race condition in RTS-after-send handling
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+6e2de48f06cdb2884bfc@syzkaller.appspotmail.com
+Subject: [PATCH 5.10 171/599] watch_queue: Actually free the watch
 Date:   Tue,  5 Apr 2022 09:27:45 +0200
-Message-Id: <20220405070357.915942151@linuxfoundation.org>
+Message-Id: <20220405070303.930876837@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070258.802373272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,58 +54,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit dedab69fd650ea74710b2e626e63fd35584ef773 ]
+[ Upstream commit 3d8dcf278b1ee1eff1e90be848fa2237db4c07a7 ]
 
-Set em485->active_timer = NULL isn't always enough to take out the stop
-timer. While there is a check that it acts in the right state (i.e.
-waiting for RTS-after-send to pass after sending some chars) but the
-following might happen:
+free_watch() does everything barring actually freeing the watch object.  Fix
+this by adding the missing kfree.
 
- - CPU1: some chars send, shifter becomes empty, stop tx timer armed
- - CPU0: more chars send before RTS-after-send expired
- - CPU0: shifter empty irq, port lock taken
- - CPU1: tx timer triggers, waits for port lock
- - CPU0: em485->active_timer = &em485->stop_tx_timer, hrtimer_start(),
-   releases lock()
- - CPU1: get lock, see em485->active_timer == &em485->stop_tx_timer,
-   tear down RTS too early
+kmemleak produces a report something like the following.  Note that as an
+address can be seen in the first word, the watch would appear to have gone
+through call_rcu().
 
-This fix bases on research done by Steffen Trumtrar.
+BUG: memory leak
+unreferenced object 0xffff88810ce4a200 (size 96):
+  comm "syz-executor352", pid 3605, jiffies 4294947473 (age 13.720s)
+  hex dump (first 32 bytes):
+    e0 82 48 0d 81 88 ff ff 00 00 00 00 00 00 00 00  ..H.............
+    80 a2 e4 0c 81 88 ff ff 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<ffffffff8214e6cc>] kmalloc include/linux/slab.h:581 [inline]
+    [<ffffffff8214e6cc>] kzalloc include/linux/slab.h:714 [inline]
+    [<ffffffff8214e6cc>] keyctl_watch_key+0xec/0x2e0 security/keys/keyctl.c:1800
+    [<ffffffff8214ec84>] __do_sys_keyctl+0x3c4/0x490 security/keys/keyctl.c:2016
+    [<ffffffff84493a25>] do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+    [<ffffffff84493a25>] do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+    [<ffffffff84600068>] entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-Fixes: b86f86e8e7c5 ("serial: 8250: fix potential deadlock in rs485-mode")
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Link: https://lore.kernel.org/r/20220215160236.344236-1-u.kleine-koenig@pengutronix.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: c73be61cede5 ("pipe: Add general notification queue support")
+Reported-and-tested-by: syzbot+6e2de48f06cdb2884bfc@syzkaller.appspotmail.com
+Signed-off-by: David Howells <dhowells@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_port.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ kernel/watch_queue.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/tty/serial/8250/8250_port.c b/drivers/tty/serial/8250/8250_port.c
-index b470bc747b99..868ccb3e16cf 100644
---- a/drivers/tty/serial/8250/8250_port.c
-+++ b/drivers/tty/serial/8250/8250_port.c
-@@ -1623,6 +1623,18 @@ static inline void start_tx_rs485(struct uart_port *port)
- 	struct uart_8250_port *up = up_to_u8250p(port);
- 	struct uart_8250_em485 *em485 = up->em485;
+diff --git a/kernel/watch_queue.c b/kernel/watch_queue.c
+index 45a8eb90e5fc..a662abccf52c 100644
+--- a/kernel/watch_queue.c
++++ b/kernel/watch_queue.c
+@@ -398,6 +398,7 @@ static void free_watch(struct rcu_head *rcu)
+ 	put_watch_queue(rcu_access_pointer(watch->queue));
+ 	atomic_dec(&watch->cred->user->nr_watches);
+ 	put_cred(watch->cred);
++	kfree(watch);
+ }
  
-+	/*
-+	 * While serial8250_em485_handle_stop_tx() is a noop if
-+	 * em485->active_timer != &em485->stop_tx_timer, it might happen that
-+	 * the timer is still armed and triggers only after the current bunch of
-+	 * chars is send and em485->active_timer == &em485->stop_tx_timer again.
-+	 * So cancel the timer. There is still a theoretical race condition if
-+	 * the timer is already running and only comes around to check for
-+	 * em485->active_timer when &em485->stop_tx_timer is armed again.
-+	 */
-+	if (em485->active_timer == &em485->stop_tx_timer)
-+		hrtimer_try_to_cancel(&em485->stop_tx_timer);
-+
- 	em485->active_timer = NULL;
- 
- 	if (em485->tx_stopped) {
+ static void __put_watch(struct kref *kref)
 -- 
 2.34.1
 
