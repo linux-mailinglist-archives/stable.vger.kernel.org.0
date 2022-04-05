@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 540BC4F2DE3
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:47:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AC064F2AF2
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:07:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233859AbiDEI5x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:57:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55420 "EHLO
+        id S1343669AbiDEI50 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:57:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234207AbiDEIjT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:39:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B75F21E2C;
-        Tue,  5 Apr 2022 01:33:10 -0700 (PDT)
+        with ESMTP id S235352AbiDEIjr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:39:47 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABA5C6427;
+        Tue,  5 Apr 2022 01:33:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9E87B614E4;
-        Tue,  5 Apr 2022 08:33:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4842C385A1;
-        Tue,  5 Apr 2022 08:33:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 64DE3B81B92;
+        Tue,  5 Apr 2022 08:33:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7F2BC385A1;
+        Tue,  5 Apr 2022 08:33:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147589;
-        bh=h46s61eTOw3K/so5Fb4otBH2wA/GpX9mBE1XqOcPSco=;
+        s=korg; t=1649147600;
+        bh=Os+qxn1DhxDjshDTdAdlcK8Fy8Mz/bgvQq9b255khpM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W2Y1U3put5EwhKpgVDuGaX++abAjYRk3OJWXPMd7MegFuEQChieFpA7Ol1VVq6AJQ
-         Krx/fQtSeLuF3NuUV6DC+Hrs9FWP2VU7a7vtIWmsjlRMYtpP0Qq4ZEMfca+X34MFmv
-         5ihoxJHFtDvImdF4hmpzSt3fdUGcuxtObbBLMVXA=
+        b=FzJgSXjyX/D868649XSu8Xhi1tU6WAQwIKa+yzVTL5DTCp28FFhv40Ohco1JqXs9R
+         LYGokm4VSmf1ETIWlLREJHG/7SiwJ7IjO62EoY/rTOwhoOdpVT9FDJFUBI4JsyTqrG
+         F0+8wbJQtljUFfcRlTTvPVS7PI8YUZuMup8OSRZ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liam Beguin <liambeguin@gmail.com>,
-        Peter Rosin <peda@axentia.se>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.16 0050/1017] iio: inkern: make a best effort on offset calculation
-Date:   Tue,  5 Apr 2022 09:16:03 +0200
-Message-Id: <20220405070355.668909478@linuxfoundation.org>
+        stable@vger.kernel.org, stable@kernel.org,
+        Jann Horn <jannh@google.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: [PATCH 5.16 0054/1017] ptrace: Check PTRACE_O_SUSPEND_SECCOMP permission on PTRACE_SEIZE
+Date:   Tue,  5 Apr 2022 09:16:07 +0200
+Message-Id: <20220405070355.788117394@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -56,68 +54,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liam Beguin <liambeguin@gmail.com>
+From: Jann Horn <jannh@google.com>
 
-commit ca85123354e1a65a22170286387b4791997fe864 upstream.
+commit ee1fee900537b5d9560e9f937402de5ddc8412f3 upstream.
 
-iio_convert_raw_to_processed_unlocked() assumes the offset is an
-integer. Make a best effort to get a valid offset value for fractional
-cases without breaking implicit truncations.
+Setting PTRACE_O_SUSPEND_SECCOMP is supposed to be a highly privileged
+operation because it allows the tracee to completely bypass all seccomp
+filters on kernels with CONFIG_CHECKPOINT_RESTORE=y. It is only supposed to
+be settable by a process with global CAP_SYS_ADMIN, and only if that
+process is not subject to any seccomp filters at all.
 
-Fixes: 48e44ce0f881 ("iio:inkern: Add function to read the processed value")
-Signed-off-by: Liam Beguin <liambeguin@gmail.com>
-Reviewed-by: Peter Rosin <peda@axentia.se>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20220108205319.2046348-4-liambeguin@gmail.com
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+However, while these permission checks were done on the PTRACE_SETOPTIONS
+path, they were missing on the PTRACE_SEIZE path, which also sets
+user-specified ptrace flags.
+
+Move the permissions checks out into a helper function and let both
+ptrace_attach() and ptrace_setoptions() call it.
+
+Cc: stable@kernel.org
+Fixes: 13c4a90119d2 ("seccomp: add ptrace options for suspend/resume")
+Signed-off-by: Jann Horn <jannh@google.com>
+Link: https://lkml.kernel.org/r/20220319010838.1386861-1-jannh@google.com
+Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/inkern.c |   32 +++++++++++++++++++++++++++-----
- 1 file changed, 27 insertions(+), 5 deletions(-)
+ kernel/ptrace.c |   47 ++++++++++++++++++++++++++++++++---------------
+ 1 file changed, 32 insertions(+), 15 deletions(-)
 
---- a/drivers/iio/inkern.c
-+++ b/drivers/iio/inkern.c
-@@ -595,13 +595,35 @@ EXPORT_SYMBOL_GPL(iio_read_channel_avera
- static int iio_convert_raw_to_processed_unlocked(struct iio_channel *chan,
- 	int raw, int *processed, unsigned int scale)
- {
--	int scale_type, scale_val, scale_val2, offset;
-+	int scale_type, scale_val, scale_val2;
-+	int offset_type, offset_val, offset_val2;
- 	s64 raw64 = raw;
--	int ret;
+--- a/kernel/ptrace.c
++++ b/kernel/ptrace.c
+@@ -371,6 +371,26 @@ bool ptrace_may_access(struct task_struc
+ 	return !err;
+ }
  
--	ret = iio_channel_read(chan, &offset, NULL, IIO_CHAN_INFO_OFFSET);
--	if (ret >= 0)
--		raw64 += offset;
-+	offset_type = iio_channel_read(chan, &offset_val, &offset_val2,
-+				       IIO_CHAN_INFO_OFFSET);
-+	if (offset_type >= 0) {
-+		switch (offset_type) {
-+		case IIO_VAL_INT:
-+			break;
-+		case IIO_VAL_INT_PLUS_MICRO:
-+		case IIO_VAL_INT_PLUS_NANO:
-+			/*
-+			 * Both IIO_VAL_INT_PLUS_MICRO and IIO_VAL_INT_PLUS_NANO
-+			 * implicitely truncate the offset to it's integer form.
-+			 */
-+			break;
-+		case IIO_VAL_FRACTIONAL:
-+			offset_val /= offset_val2;
-+			break;
-+		case IIO_VAL_FRACTIONAL_LOG2:
-+			offset_val >>= offset_val2;
-+			break;
-+		default:
-+			return -EINVAL;
-+		}
++static int check_ptrace_options(unsigned long data)
++{
++	if (data & ~(unsigned long)PTRACE_O_MASK)
++		return -EINVAL;
 +
-+		raw64 += offset_val;
++	if (unlikely(data & PTRACE_O_SUSPEND_SECCOMP)) {
++		if (!IS_ENABLED(CONFIG_CHECKPOINT_RESTORE) ||
++		    !IS_ENABLED(CONFIG_SECCOMP))
++			return -EINVAL;
++
++		if (!capable(CAP_SYS_ADMIN))
++			return -EPERM;
++
++		if (seccomp_mode(&current->seccomp) != SECCOMP_MODE_DISABLED ||
++		    current->ptrace & PT_SUSPEND_SECCOMP)
++			return -EPERM;
 +	}
++	return 0;
++}
++
+ static int ptrace_attach(struct task_struct *task, long request,
+ 			 unsigned long addr,
+ 			 unsigned long flags)
+@@ -382,8 +402,16 @@ static int ptrace_attach(struct task_str
+ 	if (seize) {
+ 		if (addr != 0)
+ 			goto out;
++		/*
++		 * This duplicates the check in check_ptrace_options() because
++		 * ptrace_attach() and ptrace_setoptions() have historically
++		 * used different error codes for unknown ptrace options.
++		 */
+ 		if (flags & ~(unsigned long)PTRACE_O_MASK)
+ 			goto out;
++		retval = check_ptrace_options(flags);
++		if (retval)
++			return retval;
+ 		flags = PT_PTRACED | PT_SEIZED | (flags << PT_OPT_FLAG_SHIFT);
+ 	} else {
+ 		flags = PT_PTRACED;
+@@ -656,22 +684,11 @@ int ptrace_writedata(struct task_struct
+ static int ptrace_setoptions(struct task_struct *child, unsigned long data)
+ {
+ 	unsigned flags;
++	int ret;
  
- 	scale_type = iio_channel_read(chan, &scale_val, &scale_val2,
- 					IIO_CHAN_INFO_SCALE);
+-	if (data & ~(unsigned long)PTRACE_O_MASK)
+-		return -EINVAL;
+-
+-	if (unlikely(data & PTRACE_O_SUSPEND_SECCOMP)) {
+-		if (!IS_ENABLED(CONFIG_CHECKPOINT_RESTORE) ||
+-		    !IS_ENABLED(CONFIG_SECCOMP))
+-			return -EINVAL;
+-
+-		if (!capable(CAP_SYS_ADMIN))
+-			return -EPERM;
+-
+-		if (seccomp_mode(&current->seccomp) != SECCOMP_MODE_DISABLED ||
+-		    current->ptrace & PT_SUSPEND_SECCOMP)
+-			return -EPERM;
+-	}
++	ret = check_ptrace_options(data);
++	if (ret)
++		return ret;
+ 
+ 	/* Avoid intermediate state when all opts are cleared */
+ 	flags = child->ptrace;
 
 
