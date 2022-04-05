@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B93354F2D47
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:36:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0938C4F2ACF
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:06:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353807AbiDEKJ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:09:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42832 "EHLO
+        id S245558AbiDEI4P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:56:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44562 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345672AbiDEJWz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:22:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D65DE50E3B;
-        Tue,  5 Apr 2022 02:11:39 -0700 (PDT)
+        with ESMTP id S241088AbiDEIcs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:32:48 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9866140D5;
+        Tue,  5 Apr 2022 01:27:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 730F261564;
-        Tue,  5 Apr 2022 09:11:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 810AFC385A0;
-        Tue,  5 Apr 2022 09:11:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 52FD1B81BCE;
+        Tue,  5 Apr 2022 08:27:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AAB1DC385A2;
+        Tue,  5 Apr 2022 08:27:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149898;
-        bh=v1luuvpj5UTKQupxrRu/rhsBPsNSE/Jx1YwX0tOiZ3g=;
+        s=korg; t=1649147229;
+        bh=XPMpb65O3CeKvKBW3+kH3pERPeRlgpPUhWQrxjl1KbM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eN5/483ss73iMulDZANbPC39S4pTINezxuiXmTcOMYoVmeii4aCPkUBuaAFOFS/b3
-         Nt5T4wya2ACv1RRNz7HX1KSp+E1B2mUepQei8x9769/WwYLPW8PBjqARCbuUk/o2zK
-         Dhhf8GXPiV24csOgbp0y2Fx0+ytUTksTg/RSMN08=
+        b=C3P+YO+O0BGDaiThRh+TN+JPbimnpvcujG2HQlWsI7a4uGmZhfUR60mKa3f2CTYbc
+         44ou99sYajiZbjpa+Tkg8R+2wOEl1tAXEyZN2OpUuil7mPFxMvNVLentgSN1OXkt8Y
+         gYmufqdz4+dTfqxBSx/CcgAZA0lxlQ3DKFGqNjBs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Vijendar Mukunda <Vijendar.Mukunda@amd.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0843/1017] ASoC: amd: vangogh: fix uninitialized symbol warning in machine driver
+        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
+        Richard Weinberger <richard@nod.at>
+Subject: [PATCH 5.17 1009/1126] ubifs: Rectify space amount budget for mkdir/tmpfile operations
 Date:   Tue,  5 Apr 2022 09:29:16 +0200
-Message-Id: <20220405070419.264098432@linuxfoundation.org>
+Message-Id: <20220405070437.105514999@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,37 +53,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vijendar Mukunda <Vijendar.Mukunda@amd.com>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-[ Upstream commit 6f989800639a7a29ab9a02e165b04dc144dd4f2b ]
+commit a6dab6607d4681d227905d5198710b575dbdb519 upstream.
 
-Fixed below smatch static checker warning.
-sound/soc/amd/vangogh/acp5x-mach.c:190 acp5x_cs35l41_hw_params()
-error: uninitialized symbol 'ret'.
+UBIFS should make sure the flash has enough space to store dirty (Data
+that is newer than disk) data (in memory), space budget is exactly
+designed to do that. If space budget calculates less data than we need,
+'make_reservation()' will do more work(return -ENOSPC if no free space
+lelf, sometimes we can see "cannot reserve xxx bytes in jhead xxx, error
+-28" in ubifs error messages) with ubifs inodes locked, which may effect
+other syscalls.
 
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Vijendar Mukunda <Vijendar.Mukunda@amd.com>
-Link: https://lore.kernel.org/r/20220225193054.24916-4-Vijendar.Mukunda@amd.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+A simple way to decide how much space do we need when make a budget:
+See how much space is needed by 'make_reservation()' in ubifs_jnl_xxx()
+function according to corresponding operation.
+
+It's better to report ENOSPC in ubifs_budget_space(), as early as we can.
+
+Fixes: 474b93704f32163 ("ubifs: Implement O_TMPFILE")
+Fixes: 1e51764a3c2ac05 ("UBIFS: add new flash file system")
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/amd/vangogh/acp5x-mach.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/ubifs/dir.c |   12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/sound/soc/amd/vangogh/acp5x-mach.c b/sound/soc/amd/vangogh/acp5x-mach.c
-index 14cf325e4b23..5d7a17755fa7 100644
---- a/sound/soc/amd/vangogh/acp5x-mach.c
-+++ b/sound/soc/amd/vangogh/acp5x-mach.c
-@@ -165,6 +165,7 @@ static int acp5x_cs35l41_hw_params(struct snd_pcm_substream *substream,
- 	unsigned int num_codecs = rtd->num_codecs;
- 	unsigned int bclk_val;
+--- a/fs/ubifs/dir.c
++++ b/fs/ubifs/dir.c
+@@ -428,15 +428,18 @@ static int ubifs_tmpfile(struct user_nam
+ {
+ 	struct inode *inode;
+ 	struct ubifs_info *c = dir->i_sb->s_fs_info;
+-	struct ubifs_budget_req req = { .new_ino = 1, .new_dent = 1};
++	struct ubifs_budget_req req = { .new_ino = 1, .new_dent = 1,
++					.dirtied_ino = 1};
+ 	struct ubifs_budget_req ino_req = { .dirtied_ino = 1 };
+ 	struct ubifs_inode *ui;
+ 	int err, instantiated = 0;
+ 	struct fscrypt_name nm;
  
-+	ret = 0;
- 	for (i = 0; i < num_codecs; i++) {
- 		codec_dai = asoc_rtd_to_codec(rtd, i);
- 		if ((strcmp(codec_dai->name, "spi-VLV1776:00") == 0) ||
--- 
-2.34.1
-
+ 	/*
+-	 * Budget request settings: new dirty inode, new direntry,
+-	 * budget for dirtied inode will be released via writeback.
++	 * Budget request settings: new inode, new direntry, changing the
++	 * parent directory inode.
++	 * Allocate budget separately for new dirtied inode, the budget will
++	 * be released via writeback.
+ 	 */
+ 
+ 	dbg_gen("dent '%pd', mode %#hx in dir ino %lu",
+@@ -979,7 +982,8 @@ static int ubifs_mkdir(struct user_names
+ 	struct ubifs_inode *dir_ui = ubifs_inode(dir);
+ 	struct ubifs_info *c = dir->i_sb->s_fs_info;
+ 	int err, sz_change;
+-	struct ubifs_budget_req req = { .new_ino = 1, .new_dent = 1 };
++	struct ubifs_budget_req req = { .new_ino = 1, .new_dent = 1,
++					.dirtied_ino = 1};
+ 	struct fscrypt_name nm;
+ 
+ 	/*
 
 
