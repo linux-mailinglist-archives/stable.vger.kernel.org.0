@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BAB84F3FF3
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:06:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 761794F3F82
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:04:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377891AbiDEMXx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:23:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42468 "EHLO
+        id S1358995AbiDEMXd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:23:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60252 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356146AbiDEKW7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:22:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48A2DB91B9;
-        Tue,  5 Apr 2022 03:06:55 -0700 (PDT)
+        with ESMTP id S1356149AbiDEKXA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:23:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0105EBA30E;
+        Tue,  5 Apr 2022 03:07:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F0448B81C86;
-        Tue,  5 Apr 2022 10:06:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6598EC385A2;
-        Tue,  5 Apr 2022 10:06:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ABB87B81C98;
+        Tue,  5 Apr 2022 10:07:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2968C385A2;
+        Tue,  5 Apr 2022 10:07:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153212;
-        bh=m9IdsWkhwEHDsIk1mPp3Sw2dqcl6n6tF8/nLt+2Yvdk=;
+        s=korg; t=1649153221;
+        bh=twS32qAeCTY/7ABgIeeyA6EBH7JxCA+yeGiHVh5MOYc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Nd6nxQv+19zHv8YcO1A4c6PQEcbdWePO8R6uH1ipLcyO37loPUHSQoP77H0OcESFl
-         INloMuJTPrx1iNgGlfbKel8Sh8uxHyQ+wN3NOgd6ppb/7/dzhBfDA4daYthg+MQtdc
-         j+3jOEKAlVTlV9VIIpNkUHXYsivCm4jMq7+81OYU=
+        b=uaNMzYDgnuf28LSll95TeeNj95U2saQFV/hfSDEKJLXvZ/XfXbJMCWpJlXoiw2OIw
+         7MyQXIbPk6vYXt9Pfn/Wpva1TnnRQ0+bNRL6tZtmhZKYM1GgSHldfek1hhtEH28u0B
+         KL7p10L7b3RiulQTvwW+UrLX29t7lWKXfxx9PIbY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gilad Ben-Yossef <gilad@benyossef.com>,
-        Corentin Labbe <clabbe.montjoie@gmail.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        Armin Wolf <W_Armin@gmx.de>,
+        Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 142/599] crypto: ccree - dont attempt 0 len DMA mappings
-Date:   Tue,  5 Apr 2022 09:27:16 +0200
-Message-Id: <20220405070303.067867519@linuxfoundation.org>
+Subject: [PATCH 5.10 145/599] hwmon: (sch56xx-common) Replace WDOG_ACTIVE with WDOG_HW_RUNNING
+Date:   Tue,  5 Apr 2022 09:27:19 +0200
+Message-Id: <20220405070303.157959665@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -55,43 +55,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gilad Ben-Yossef <gilad@benyossef.com>
+From: Armin Wolf <W_Armin@gmx.de>
 
-[ Upstream commit 1fb37b5692c915edcc2448a6b37255738c7c77e0 ]
+[ Upstream commit 647d6f09bea7dacf4cdb6d4ea7e3051883955297 ]
 
-Refuse to try mapping zero bytes as this may cause a fault
-on some configurations / platforms and it seems the prev.
-attempt is not enough and we need to be more explicit.
+If the watchdog was already enabled by the BIOS after booting, the
+watchdog infrastructure needs to regularly send keepalives to
+prevent a unexpected reset.
+WDOG_ACTIVE only serves as an status indicator for userspace,
+we want to use WDOG_HW_RUNNING instead.
 
-Signed-off-by: Gilad Ben-Yossef <gilad@benyossef.com>
-Reported-by: Corentin Labbe <clabbe.montjoie@gmail.com>
-Fixes: ce0fc6db38de ("crypto: ccree - protect against empty or NULL
-scatterlists")
-Tested-by: Corentin Labbe <clabbe.montjoie@gmail.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Since my Fujitsu Esprimo P720 does not support the watchdog,
+this change is compile-tested only.
+
+Suggested-by: Guenter Roeck <linux@roeck-us.net>
+Fixes: fb551405c0f8 (watchdog: sch56xx: Use watchdog core)
+Signed-off-by: Armin Wolf <W_Armin@gmx.de>
+Link: https://lore.kernel.org/r/20220131211935.3656-5-W_Armin@gmx.de
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/ccree/cc_buffer_mgr.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/hwmon/sch56xx-common.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/crypto/ccree/cc_buffer_mgr.c b/drivers/crypto/ccree/cc_buffer_mgr.c
-index a5e041d9d2cf..11e0278c8631 100644
---- a/drivers/crypto/ccree/cc_buffer_mgr.c
-+++ b/drivers/crypto/ccree/cc_buffer_mgr.c
-@@ -258,6 +258,13 @@ static int cc_map_sg(struct device *dev, struct scatterlist *sg,
- {
- 	int ret = 0;
+diff --git a/drivers/hwmon/sch56xx-common.c b/drivers/hwmon/sch56xx-common.c
+index 6c84780e358e..066b12990fbf 100644
+--- a/drivers/hwmon/sch56xx-common.c
++++ b/drivers/hwmon/sch56xx-common.c
+@@ -424,7 +424,7 @@ struct sch56xx_watchdog_data *sch56xx_watchdog_register(struct device *parent,
+ 	if (nowayout)
+ 		set_bit(WDOG_NO_WAY_OUT, &data->wddev.status);
+ 	if (output_enable & SCH56XX_WDOG_OUTPUT_ENABLE)
+-		set_bit(WDOG_ACTIVE, &data->wddev.status);
++		set_bit(WDOG_HW_RUNNING, &data->wddev.status);
  
-+	if (!nbytes) {
-+		*mapped_nents = 0;
-+		*lbytes = 0;
-+		*nents = 0;
-+		return 0;
-+	}
-+
- 	*nents = cc_get_sgl_nents(dev, sg, nbytes, lbytes);
- 	if (*nents > max_sg_nents) {
- 		*nents = 0;
+ 	/* Since the watchdog uses a downcounter there is no register to read
+ 	   the BIOS set timeout from (if any was set at all) ->
 -- 
 2.34.1
 
