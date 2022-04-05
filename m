@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DE9B34F3BED
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:23:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 631C74F3915
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:44:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382185AbiDEMD3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:03:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58698 "EHLO
+        id S1377567AbiDEL3s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:29:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38010 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358067AbiDEK15 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:27:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 704BD583BD;
-        Tue,  5 Apr 2022 03:14:30 -0700 (PDT)
+        with ESMTP id S1351687AbiDEKDL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:03:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3136973060;
+        Tue,  5 Apr 2022 02:52:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 32364B81BC5;
-        Tue,  5 Apr 2022 10:14:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E822C385A1;
-        Tue,  5 Apr 2022 10:14:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 81237616D7;
+        Tue,  5 Apr 2022 09:52:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BFB5C385A2;
+        Tue,  5 Apr 2022 09:52:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153668;
-        bh=K3MNOoTQsy6x8DnN1TuwVMbArMhx3yyqyz7JNKrPkE4=;
+        s=korg; t=1649152331;
+        bh=qW1x31HnZxqlWv9yLK7leVGiHSRFHxjgpFRqN+3ePM4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uXSLXmDNsO5Err6CFCbLNKQMca6zKThqJx1nuXEq4b8k4pdgnungQlg9LFoM9Zfl0
-         Hzd+Dzv/buzelKqNwZFGqldiX7hS0mlPOub1bgbeK4xvARyxk2KdvuHnDIa2zpwez/
-         OZ8mU0dos5bHlOlegmQf11sva/CTRjzLzIBzYZo4=
+        b=qWz10RDKOyKNugTych2AqL1vRausJfYBSRUYZ7Bq5NDgsi8yNgQbA5wTyOj04hM/U
+         ymkdTxPnTD5fQHsoXt81rge6I7uNnlSgfKnq8kN7wkgILsUcuWU4OTSx4yohwcdkul
+         QnVLfc7pt1jbz6K0v2r907ZMYsHbfKm2K1SJBp+8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 304/599] iwlwifi: mvm: Fix an error code in iwl_mvm_up()
-Date:   Tue,  5 Apr 2022 09:29:58 +0200
-Message-Id: <20220405070307.880463597@linuxfoundation.org>
+        stable@vger.kernel.org, Antonino Daplas <adaplas@gmail.com>,
+        linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        Tim Gardner <tim.gardner@canonical.com>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 737/913] video: fbdev: nvidiafb: Use strscpy() to prevent buffer overflow
+Date:   Tue,  5 Apr 2022 09:29:59 +0200
+Message-Id: <20220405070401.926691966@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
-References: <20220405070258.802373272@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +55,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Tim Gardner <tim.gardner@canonical.com>
 
-[ Upstream commit 583d18336abdfb1b355270289ff8f6a2608ba905 ]
+[ Upstream commit 37a1a2e6eeeb101285cd34e12e48a881524701aa ]
 
-Return -ENODEV instead of success on this error path.
+Coverity complains of a possible buffer overflow. However,
+given the 'static' scope of nvidia_setup_i2c_bus() it looks
+like that can't happen after examiniing the call sites.
 
-Fixes: dd36a507c806 ("iwlwifi: mvm: look for the first supported channel when add/remove phy ctxt")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/20210816183930.GA2068@kili
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+CID 19036 (#1 of 1): Copy into fixed size buffer (STRING_OVERFLOW)
+1. fixed_size_dest: You might overrun the 48-character fixed-size string
+  chan->adapter.name by copying name without checking the length.
+2. parameter_as_source: Note: This defect has an elevated risk because the
+  source argument is a parameter of the current function.
+ 89        strcpy(chan->adapter.name, name);
+
+Fix this warning by using strscpy() which will silence the warning and
+prevent any future buffer overflows should the names used to identify the
+channel become much longer.
+
+Cc: Antonino Daplas <adaplas@gmail.com>
+Cc: linux-fbdev@vger.kernel.org
+Cc: dri-devel@lists.freedesktop.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Tim Gardner <tim.gardner@canonical.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/mvm/fw.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/video/fbdev/nvidia/nv_i2c.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/fw.c b/drivers/net/wireless/intel/iwlwifi/mvm/fw.c
-index 6348dfa61724..54b28f0932e2 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/fw.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/fw.c
-@@ -1495,8 +1495,10 @@ int iwl_mvm_up(struct iwl_mvm *mvm)
- 	while (!sband && i < NUM_NL80211_BANDS)
- 		sband = mvm->hw->wiphy->bands[i++];
+diff --git a/drivers/video/fbdev/nvidia/nv_i2c.c b/drivers/video/fbdev/nvidia/nv_i2c.c
+index d7994a173245..0b48965a6420 100644
+--- a/drivers/video/fbdev/nvidia/nv_i2c.c
++++ b/drivers/video/fbdev/nvidia/nv_i2c.c
+@@ -86,7 +86,7 @@ static int nvidia_setup_i2c_bus(struct nvidia_i2c_chan *chan, const char *name,
+ {
+ 	int rc;
  
--	if (WARN_ON_ONCE(!sband))
-+	if (WARN_ON_ONCE(!sband)) {
-+		ret = -ENODEV;
- 		goto error;
-+	}
- 
- 	chan = &sband->channels[0];
- 
+-	strcpy(chan->adapter.name, name);
++	strscpy(chan->adapter.name, name, sizeof(chan->adapter.name));
+ 	chan->adapter.owner = THIS_MODULE;
+ 	chan->adapter.class = i2c_class;
+ 	chan->adapter.algo_data = &chan->algo;
 -- 
 2.34.1
 
