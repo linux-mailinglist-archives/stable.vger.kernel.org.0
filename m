@@ -2,41 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 143ED4F3E9C
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 22:48:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 54F854F41B9
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:34:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354750AbiDEMWj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:22:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34642 "EHLO
+        id S1354418AbiDEMWh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:22:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54354 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344436AbiDEKjs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:39:48 -0400
+        with ESMTP id S1344760AbiDEKkM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:40:12 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D15C2C134;
-        Tue,  5 Apr 2022 03:25:15 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 247102C656;
+        Tue,  5 Apr 2022 03:25:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DD2CD61425;
-        Tue,  5 Apr 2022 10:25:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F11E7C385A0;
-        Tue,  5 Apr 2022 10:25:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B57CF61514;
+        Tue,  5 Apr 2022 10:25:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93349C385A0;
+        Tue,  5 Apr 2022 10:25:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649154314;
-        bh=gRnMlmx6r/8NZsAVZSL3Ria0o4HVNfD/JXBbKnT2T6Y=;
+        s=korg; t=1649154317;
+        bh=NRI08BMC2mQMJAMCwOYu968Ay1sZqWVmKmribbWVRmc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vNP9VRhqMuRs77LStA47LV2fuIjVr4fWBvSlPBgs17Uc49JYw9Y0iXYC8r6nJGXEH
-         JgDSfAbMoxoC6elQaquWdWi1c2NWyspZm5GQsMKAJsocbpjegRtNACJQS5/a8q+sEy
-         eUhohR4/pTZ2pWkRpAmiERd03o4c5f1IxgnXemK4=
+        b=J2R8z3JuWE8qgfRPOc9kmQfd5gb4AtE9kkhe+zdMfBWSROTnCFi1WgKn9LZAprkix
+         EZ4wi6X77/ww9EiZAgM9Aj3q8SoEEyz0S1t5+0IqJj1gCBoxpO1lulolPMsVWgpyja
+         OxBUcDeUaYdzQ8CJytBes6l3T6PMkmhXnzAHmYgg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yi Liu <liu.yi24@zte.com.cn>,
-        Yi Wang <wang.yi59@zte.com.cn>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.10 536/599] KVM: SVM: fix panic on out-of-bounds guest IRQ
-Date:   Tue,  5 Apr 2022 09:33:50 +0200
-Message-Id: <20220405070314.791292621@linuxfoundation.org>
+        stable@vger.kernel.org, Daniel Baluta <daniel.baluta@nxp.com>,
+        Jaroslav Kysela <perex@perex.cz>,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Keyon Jie <yang.jie@linux.intel.com>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Rander Wang <rander.wang@intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Takashi Iwai <tiwai@suse.com>,
+        sound-open-firmware@alsa-project.org, alsa-devel@alsa-project.org,
+        Peter Ujfalusi <peter.ujfalusi@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Ammar Faizi <ammarfaizi2@gnuweeb.org>
+Subject: [PATCH 5.10 537/599] ASoC: SOF: Intel: Fix NULL ptr dereference when ENOMEM
+Date:   Tue,  5 Apr 2022 09:33:51 +0200
+Message-Id: <20220405070314.821469619@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -54,81 +64,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yi Wang <wang.yi59@zte.com.cn>
+From: Ammar Faizi <ammarfaizi2@gnuweeb.org>
 
-commit a80ced6ea514000d34bf1239d47553de0d1ee89e upstream.
+commit b7fb0ae09009d076964afe4c1a2bde1ee2bd88a9 upstream.
 
-As guest_irq is coming from KVM_IRQFD API call, it may trigger
-crash in svm_update_pi_irte() due to out-of-bounds:
+Do not call snd_dma_free_pages() when snd_dma_alloc_pages() returns
+-ENOMEM because it leads to a NULL pointer dereference bug.
 
-crash> bt
-PID: 22218  TASK: ffff951a6ad74980  CPU: 73  COMMAND: "vcpu8"
- #0 [ffffb1ba6707fa40] machine_kexec at ffffffff8565b397
- #1 [ffffb1ba6707fa90] __crash_kexec at ffffffff85788a6d
- #2 [ffffb1ba6707fb58] crash_kexec at ffffffff8578995d
- #3 [ffffb1ba6707fb70] oops_end at ffffffff85623c0d
- #4 [ffffb1ba6707fb90] no_context at ffffffff856692c9
- #5 [ffffb1ba6707fbf8] exc_page_fault at ffffffff85f95b51
- #6 [ffffb1ba6707fc50] asm_exc_page_fault at ffffffff86000ace
-    [exception RIP: svm_update_pi_irte+227]
-    RIP: ffffffffc0761b53  RSP: ffffb1ba6707fd08  RFLAGS: 00010086
-    RAX: ffffb1ba6707fd78  RBX: ffffb1ba66d91000  RCX: 0000000000000001
-    RDX: 00003c803f63f1c0  RSI: 000000000000019a  RDI: ffffb1ba66db2ab8
-    RBP: 000000000000019a   R8: 0000000000000040   R9: ffff94ca41b82200
-    R10: ffffffffffffffcf  R11: 0000000000000001  R12: 0000000000000001
-    R13: 0000000000000001  R14: ffffffffffffffcf  R15: 000000000000005f
-    ORIG_RAX: ffffffffffffffff  CS: 0010  SS: 0018
- #7 [ffffb1ba6707fdb8] kvm_irq_routing_update at ffffffffc09f19a1 [kvm]
- #8 [ffffb1ba6707fde0] kvm_set_irq_routing at ffffffffc09f2133 [kvm]
- #9 [ffffb1ba6707fe18] kvm_vm_ioctl at ffffffffc09ef544 [kvm]
-    RIP: 00007f143c36488b  RSP: 00007f143a4e04b8  RFLAGS: 00000246
-    RAX: ffffffffffffffda  RBX: 00007f05780041d0  RCX: 00007f143c36488b
-    RDX: 00007f05780041d0  RSI: 000000004008ae6a  RDI: 0000000000000020
-    RBP: 00000000000004e8   R8: 0000000000000008   R9: 00007f05780041e0
-    R10: 00007f0578004560  R11: 0000000000000246  R12: 00000000000004e0
-    R13: 000000000000001a  R14: 00007f1424001c60  R15: 00007f0578003bc0
-    ORIG_RAX: 0000000000000010  CS: 0033  SS: 002b
+The dmesg says:
 
-Vmx have been fix this in commit 3a8b0677fc61 (KVM: VMX: Do not BUG() on
-out-of-bounds guest IRQ), so we can just copy source from that to fix
-this.
+  [ T1387] sof-audio-pci-intel-tgl 0000:00:1f.3: error: memory alloc failed: -12
+  [ T1387] BUG: kernel NULL pointer dereference, address: 0000000000000000
+  [ T1387] #PF: supervisor read access in kernel mode
+  [ T1387] #PF: error_code(0x0000) - not-present page
+  [ T1387] PGD 0 P4D 0
+  [ T1387] Oops: 0000 [#1] PREEMPT SMP NOPTI
+  [ T1387] CPU: 6 PID: 1387 Comm: alsa-sink-HDA A Tainted: G        W         5.17.0-rc4-superb-owl-00055-g80d47f5de5e3
+  [ T1387] Hardware name: HP HP Laptop 14s-dq2xxx/87FD, BIOS F.15 09/15/2021
+  [ T1387] RIP: 0010:dma_free_noncontiguous+0x37/0x80
+  [ T1387] Code: [... snip ...]
+  [ T1387] RSP: 0000:ffffc90002b87770 EFLAGS: 00010246
+  [ T1387] RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
+  [ T1387] RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffff888101db30d0
+  [ T1387] RBP: 00000000fffffff4 R08: 0000000000000000 R09: 0000000000000000
+  [ T1387] R10: 0000000000000000 R11: ffffc90002b874d0 R12: 0000000000000001
+  [ T1387] R13: 0000000000058000 R14: ffff888105260c68 R15: ffff888105260828
+  [ T1387] FS:  00007f42e2ffd640(0000) GS:ffff888466b80000(0000) knlGS:0000000000000000
+  [ T1387] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  [ T1387] CR2: 0000000000000000 CR3: 000000014acf0003 CR4: 0000000000770ee0
+  [ T1387] PKRU: 55555554
+  [ T1387] Call Trace:
+  [ T1387]  <TASK>
+  [ T1387]  cl_stream_prepare+0x10a/0x120 [snd_sof_intel_hda_common 146addf995b9279ae7f509621078cccbe4f875e1]
+  [... snip ...]
+  [ T1387]  </TASK>
 
-Co-developed-by: Yi Liu <liu.yi24@zte.com.cn>
-Signed-off-by: Yi Liu <liu.yi24@zte.com.cn>
-Signed-off-by: Yi Wang <wang.yi59@zte.com.cn>
-Message-Id: <20220309113025.44469-1-wang.yi59@zte.com.cn>
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Daniel Baluta <daniel.baluta@nxp.com>
+Cc: Jaroslav Kysela <perex@perex.cz>
+Cc: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Cc: Keyon Jie <yang.jie@linux.intel.com>
+Cc: Liam Girdwood <lgirdwood@gmail.com>
+Cc: Mark Brown <broonie@kernel.org>
+Cc: Rander Wang <rander.wang@intel.com>
+Cc: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Cc: Takashi Iwai <tiwai@suse.com>
+Cc: sound-open-firmware@alsa-project.org
+Cc: alsa-devel@alsa-project.org
+Cc: linux-kernel@vger.kernel.org
+Cc: stable@vger.kernel.org # v5.2+
+Fixes: d16046ffa6de040bf580a64d5f4d0aa18258a854 ("ASoC: SOF: Intel: Add Intel specific HDA firmware loader")
+Link: https://lore.kernel.org/lkml/20220224145124.15985-1-ammarfaizi2@gnuweeb.org/ # v1
+Link: https://lore.kernel.org/lkml/20220224180850.34592-1-ammarfaizi2@gnuweeb.org/ # v2
+Link: https://lore.kernel.org/lkml/20220224182818.40301-1-ammarfaizi2@gnuweeb.org/ # v3
+Reviewed-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Signed-off-by: Ammar Faizi <ammarfaizi2@gnuweeb.org>
+Link: https://lore.kernel.org/r/20220224185836.44907-1-ammarfaizi2@gnuweeb.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
+[ammarfaizi2: Backport to Linux 5.10 LTS]
+Signed-off-by: Ammar Faizi <ammarfaizi2@gnuweeb.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/svm/avic.c |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ sound/soc/sof/intel/hda-loader.c |   11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
---- a/arch/x86/kvm/svm/avic.c
-+++ b/arch/x86/kvm/svm/avic.c
-@@ -806,7 +806,7 @@ int svm_update_pi_irte(struct kvm *kvm,
- {
- 	struct kvm_kernel_irq_routing_entry *e;
- 	struct kvm_irq_routing_table *irq_rt;
--	int idx, ret = -EINVAL;
-+	int idx, ret = 0;
+--- a/sound/soc/sof/intel/hda-loader.c
++++ b/sound/soc/sof/intel/hda-loader.c
+@@ -47,7 +47,7 @@ static struct hdac_ext_stream *cl_stream
+ 	ret = snd_dma_alloc_pages(SNDRV_DMA_TYPE_DEV_SG, &pci->dev, size, dmab);
+ 	if (ret < 0) {
+ 		dev_err(sdev->dev, "error: memory alloc failed: %x\n", ret);
+-		goto error;
++		goto out_put;
+ 	}
  
- 	if (!kvm_arch_has_assigned_device(kvm) ||
- 	    !irq_remapping_cap(IRQ_POSTING_CAP))
-@@ -817,7 +817,13 @@ int svm_update_pi_irte(struct kvm *kvm,
+ 	hstream->period_bytes = 0;/* initialize period_bytes */
+@@ -58,22 +58,23 @@ static struct hdac_ext_stream *cl_stream
+ 		ret = hda_dsp_iccmax_stream_hw_params(sdev, dsp_stream, dmab, NULL);
+ 		if (ret < 0) {
+ 			dev_err(sdev->dev, "error: iccmax stream prepare failed: %x\n", ret);
+-			goto error;
++			goto out_free;
+ 		}
+ 	} else {
+ 		ret = hda_dsp_stream_hw_params(sdev, dsp_stream, dmab, NULL);
+ 		if (ret < 0) {
+ 			dev_err(sdev->dev, "error: hdac prepare failed: %x\n", ret);
+-			goto error;
++			goto out_free;
+ 		}
+ 		hda_dsp_stream_spib_config(sdev, dsp_stream, HDA_DSP_SPIB_ENABLE, size);
+ 	}
  
- 	idx = srcu_read_lock(&kvm->irq_srcu);
- 	irq_rt = srcu_dereference(kvm->irq_routing, &kvm->irq_srcu);
--	WARN_ON(guest_irq >= irq_rt->nr_rt_entries);
-+
-+	if (guest_irq >= irq_rt->nr_rt_entries ||
-+		hlist_empty(&irq_rt->map[guest_irq])) {
-+		pr_warn_once("no route for guest_irq %u/%u (broken user space?)\n",
-+			     guest_irq, irq_rt->nr_rt_entries);
-+		goto out;
-+	}
+ 	return dsp_stream;
  
- 	hlist_for_each_entry(e, &irq_rt->map[guest_irq], link) {
- 		struct vcpu_data vcpu_info;
+-error:
+-	hda_dsp_stream_put(sdev, direction, hstream->stream_tag);
++out_free:
+ 	snd_dma_free_pages(dmab);
++out_put:
++	hda_dsp_stream_put(sdev, direction, hstream->stream_tag);
+ 	return ERR_PTR(ret);
+ }
+ 
 
 
