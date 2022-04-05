@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8522A4F34E3
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:41:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D264B4F30B3
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:34:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236428AbiDEJCz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:02:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33912 "EHLO
+        id S237401AbiDEImD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:42:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52676 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238393AbiDEIad (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:30:33 -0400
+        with ESMTP id S238432AbiDEIag (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:30:36 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95AD826AD8;
-        Tue,  5 Apr 2022 01:22:14 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F8432717A;
+        Tue,  5 Apr 2022 01:22:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8C1196147A;
-        Tue,  5 Apr 2022 08:22:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99FF0C385A0;
-        Tue,  5 Apr 2022 08:22:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5FC9361470;
+        Tue,  5 Apr 2022 08:22:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68630C385A0;
+        Tue,  5 Apr 2022 08:22:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146933;
-        bh=ESR58k0+i9Fcq2CL1NwXMkUZoliC3eLirvD6WS7Nz4E=;
+        s=korg; t=1649146935;
+        bh=o7G5zI7MNaBY1ywbLUsSUnTGxhdeWJI4/+wNTDy21Fc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ft1Cw6gSUjcbwiwigUvbl+bWS85c/KZj2e1mXgR8AB60I+KdGPfXNOp0X8bhTvFzu
-         2tAMnz2QRmlTYrFTm8jgZEKGxOFyskk2WMjPwqOlPEj7FlT3IPsHoZyxBd91PxS1S/
-         Zm1qtTT1Ovt6m9uI3GWqw9sJRud66KGI86na/++4=
+        b=z4I3SwUZNphUMwGllnEwponyVgh61N8VRidVwzJQugXxUBNUlFIDZC9BMJeq5SvW3
+         tz9Sgt4sg+R2VaWWHWvw+u3iUfne2upLpJ8pGzS4mhUcL+veOFmO3waU4y6QawnI+P
+         uj/REzo15aT5/A3fe8XzlbLV++WPKxRh7kD1pWT8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikolai Kostrigin <nickel@altlinux.org>,
+        stable@vger.kernel.org, Mauro Carvalho Chehab <mchehab@kernel.org>,
         Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
         Bard Liao <yung-chuan.liao@linux.intel.com>,
         =?UTF-8?q?P=C3=A9ter=20Ujfalusi?= <peter.ujfalusi@linux.intel.com>,
-        Takashi Iwai <tiwai@suse.de>, Mark Brown <broonie@kernel.org>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0941/1126] ALSA: intel-dspconfig: add ES8336 support for CNL
-Date:   Tue,  5 Apr 2022 09:28:08 +0200
-Message-Id: <20220405070435.130867577@linuxfoundation.org>
+Subject: [PATCH 5.17 0942/1126] ASoC: Intel: Revert "ASoC: Intel: sof_es8336: add quirk for Huawei D15 2021"
+Date:   Tue,  5 Apr 2022 09:28:09 +0200
+Message-Id: <20220405070435.159703963@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -59,38 +59,43 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-[ Upstream commit cded07a2dccd5493696a3adce175f01e413423c6 ]
+[ Upstream commit 1b5283483a782f6560999d8d5965b1874d104812 ]
 
-We're missing this check for the CNL PCI id
+This reverts commit ce6a70bfce21bb4edb7c0f29ecfb0522fa34ab71.
 
-Reported-by: Nikolai Kostrigin <nickel@altlinux.org>
+The next patch will add run-time detection of the required SSP and
+this hard-coded quirk is not needed.
+
+Acked-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
 Reviewed-by: Péter Ujfalusi <peter.ujfalusi@linux.intel.com>
-Acked-by: Takashi Iwai <tiwai@suse.de>
-Link: https://lore.kernel.org/r/20220308192610.392950-10-pierre-louis.bossart@linux.intel.com
+Link: https://lore.kernel.org/r/20220308192610.392950-14-pierre-louis.bossart@linux.intel.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/hda/intel-dsp-config.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ sound/soc/intel/boards/sof_es8336.c | 8 --------
+ 1 file changed, 8 deletions(-)
 
-diff --git a/sound/hda/intel-dsp-config.c b/sound/hda/intel-dsp-config.c
-index b9b7bf5a5553..70fd8b13938e 100644
---- a/sound/hda/intel-dsp-config.c
-+++ b/sound/hda/intel-dsp-config.c
-@@ -199,6 +199,11 @@ static const struct config_entry config_table[] = {
- 			{}
- 		}
+diff --git a/sound/soc/intel/boards/sof_es8336.c b/sound/soc/intel/boards/sof_es8336.c
+index e6d599f0cd26..20d577eaab6d 100644
+--- a/sound/soc/intel/boards/sof_es8336.c
++++ b/sound/soc/intel/boards/sof_es8336.c
+@@ -247,14 +247,6 @@ static const struct dmi_system_id sof_es8336_quirk_table[] = {
+ 					SOF_ES8336_TGL_GPIO_QUIRK |
+ 					SOF_ES8336_ENABLE_DMIC)
  	},
-+	{
-+		.flags = FLAG_SOF,
-+		.device = 0x09dc8,
-+		.codec_hid =  &essx_83x6,
-+	},
- 	{
- 		.flags = FLAG_SOF | FLAG_SOF_ONLY_IF_DMIC_OR_SOUNDWIRE,
- 		.device = 0x9dc8,
+-	{
+-		.callback = sof_es8336_quirk_cb,
+-		.matches = {
+-			DMI_MATCH(DMI_SYS_VENDOR, "HUAWEI"),
+-			DMI_MATCH(DMI_BOARD_NAME, "BOHB-WAX9-PCB-B2"),
+-		},
+-		.driver_data = (void *)SOF_ES8336_SSP_CODEC(0)
+-	},
+ 	{}
+ };
+ 
 -- 
 2.34.1
 
