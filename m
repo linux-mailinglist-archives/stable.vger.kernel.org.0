@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 757694F2FA8
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:17:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DE604F302C
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:26:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350480AbiDEJ6g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:58:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34878 "EHLO
+        id S241848AbiDEIfh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:35:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52136 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344015AbiDEJQr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:16:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 716F7E01A;
-        Tue,  5 Apr 2022 02:03:30 -0700 (PDT)
+        with ESMTP id S239788AbiDEIU4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:20:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14F37384;
+        Tue,  5 Apr 2022 01:18:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0D0ED61003;
-        Tue,  5 Apr 2022 09:03:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D151C385A1;
-        Tue,  5 Apr 2022 09:03:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A47D460B0E;
+        Tue,  5 Apr 2022 08:18:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB5E9C385A0;
+        Tue,  5 Apr 2022 08:18:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149409;
-        bh=51sy4X4YTqI8Sb8nHAkRrY2YedwTbhlXXttqjSn2IrM=;
+        s=korg; t=1649146737;
+        bh=3FDGENo31HR4d2ixNLW5MS9/VHe0brDMr3Xy9M1Mn4o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zgLK+PEm2lqCQJIZPtXjPu+m25/er706oiqalfm5UEeo0cmxNalxZospZ6laxYhHn
-         GiOP0B/+QiBrXHId0LEpQR3hye8wdxK8YUxkEjwkCKTFy2a+Jfmeu5bWXWe80fcH2c
-         t2Kn1rPmMTFsQHL3xQxNLQ4npgEyiyBMoNG0DGhI=
+        b=XognXUYyys/zZyTtrDNje6WMxvxllNNcnlLZhRAnqss8FtGcHMhygpw8XmlyLJxxn
+         VeQGCm81mJSrhTa2HRYDbcDqEbCyardfV6iBG/YAqJXBiwk2h9eMuywCu3iYgGWCV3
+         PlBEzj/h3qEqVczxOrCzj9a+2Ym4REU8qPqz7ylM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org, Eddie James <eajames@linux.ibm.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0703/1017] pinctrl/rockchip: Add missing of_node_put() in rockchip_pinctrl_probe
+Subject: [PATCH 5.17 0869/1126] spi: fsi: Implement a timeout for polling status
 Date:   Tue,  5 Apr 2022 09:26:56 +0200
-Message-Id: <20220405070415.138123076@linuxfoundation.org>
+Message-Id: <20220405070433.047277673@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,43 +54,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Eddie James <eajames@linux.ibm.com>
 
-[ Upstream commit 89388f8730699c259f8090ec435fb43569efe4ac ]
+[ Upstream commit 89b35e3f28514087d3f1e28e8f5634fbfd07c554 ]
 
-The device_node pointer is returned by of_parse_phandle()  with refcount
-incremented. We should use of_node_put() on it when done.
+The data transfer routines must poll the status register to
+determine when more data can be shifted in or out. If the hardware
+gets into a bad state, these polling loops may never exit. Prevent
+this by returning an error if a timeout is exceeded.
 
-Fixes: 1e747e59cc4d ("pinctrl: rockchip: base regmap supplied by a syscon")
-Fixes: 14dee8677e19 ("pinctrl: rockchip: let pmu registers be supplied by a syscon")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220307120234.28657-1-linmq006@gmail.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Eddie James <eajames@linux.ibm.com>
+Link: https://lore.kernel.org/r/20220317211426.38940-1-eajames@linux.ibm.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/pinctrl-rockchip.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/spi/spi-fsi.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/pinctrl/pinctrl-rockchip.c b/drivers/pinctrl/pinctrl-rockchip.c
-index dc52da94af0b..923ff21a44c0 100644
---- a/drivers/pinctrl/pinctrl-rockchip.c
-+++ b/drivers/pinctrl/pinctrl-rockchip.c
-@@ -2702,6 +2702,7 @@ static int rockchip_pinctrl_probe(struct platform_device *pdev)
- 	node = of_parse_phandle(np, "rockchip,grf", 0);
- 	if (node) {
- 		info->regmap_base = syscon_node_to_regmap(node);
-+		of_node_put(node);
- 		if (IS_ERR(info->regmap_base))
- 			return PTR_ERR(info->regmap_base);
- 	} else {
-@@ -2738,6 +2739,7 @@ static int rockchip_pinctrl_probe(struct platform_device *pdev)
- 	node = of_parse_phandle(np, "rockchip,pmu", 0);
- 	if (node) {
- 		info->regmap_pmu = syscon_node_to_regmap(node);
-+		of_node_put(node);
- 		if (IS_ERR(info->regmap_pmu))
- 			return PTR_ERR(info->regmap_pmu);
- 	}
+diff --git a/drivers/spi/spi-fsi.c b/drivers/spi/spi-fsi.c
+index b6c7467f0b59..d403a7a3021d 100644
+--- a/drivers/spi/spi-fsi.c
++++ b/drivers/spi/spi-fsi.c
+@@ -25,6 +25,7 @@
+ 
+ #define SPI_FSI_BASE			0x70000
+ #define SPI_FSI_INIT_TIMEOUT_MS		1000
++#define SPI_FSI_STATUS_TIMEOUT_MS	100
+ #define SPI_FSI_MAX_RX_SIZE		8
+ #define SPI_FSI_MAX_TX_SIZE		40
+ 
+@@ -299,6 +300,7 @@ static int fsi_spi_transfer_data(struct fsi_spi *ctx,
+ 				 struct spi_transfer *transfer)
+ {
+ 	int rc = 0;
++	unsigned long end;
+ 	u64 status = 0ULL;
+ 
+ 	if (transfer->tx_buf) {
+@@ -315,10 +317,14 @@ static int fsi_spi_transfer_data(struct fsi_spi *ctx,
+ 			if (rc)
+ 				return rc;
+ 
++			end = jiffies + msecs_to_jiffies(SPI_FSI_STATUS_TIMEOUT_MS);
+ 			do {
+ 				rc = fsi_spi_status(ctx, &status, "TX");
+ 				if (rc)
+ 					return rc;
++
++				if (time_after(jiffies, end))
++					return -ETIMEDOUT;
+ 			} while (status & SPI_FSI_STATUS_TDR_FULL);
+ 
+ 			sent += nb;
+@@ -329,10 +335,14 @@ static int fsi_spi_transfer_data(struct fsi_spi *ctx,
+ 		u8 *rx = transfer->rx_buf;
+ 
+ 		while (transfer->len > recv) {
++			end = jiffies + msecs_to_jiffies(SPI_FSI_STATUS_TIMEOUT_MS);
+ 			do {
+ 				rc = fsi_spi_status(ctx, &status, "RX");
+ 				if (rc)
+ 					return rc;
++
++				if (time_after(jiffies, end))
++					return -ETIMEDOUT;
+ 			} while (!(status & SPI_FSI_STATUS_RDR_FULL));
+ 
+ 			rc = fsi_spi_read_reg(ctx, SPI_FSI_DATA_RX, &in);
 -- 
 2.34.1
 
