@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E01F74F346D
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:37:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E3A74F3235
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:54:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245273AbiDEIyd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:54:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45878 "EHLO
+        id S245260AbiDEIy0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:54:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46000 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241031AbiDEIco (ORCPT
+        with ESMTP id S241040AbiDEIco (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:32:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D406B6E4A;
-        Tue,  5 Apr 2022 01:26:09 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EEB8B7155;
+        Tue,  5 Apr 2022 01:26:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 09AB260FFC;
-        Tue,  5 Apr 2022 08:26:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C282C385A2;
-        Tue,  5 Apr 2022 08:26:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F023960FF5;
+        Tue,  5 Apr 2022 08:26:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 075F0C385A2;
+        Tue,  5 Apr 2022 08:26:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147168;
-        bh=qJwoahL5TaaVMJ3/kjEW4fYmVnK41gYPiiwNhITEXjk=;
+        s=korg; t=1649147171;
+        bh=1P7dqhC2TaTndTPDyXwVbqmJovUDvfg+vmyr+QM2+nU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q8bIPT3FEeNXNEscrJNEiHOeVRNw+TmL0NW4/MU80i5JVgfqVFmGI9LIRTG6zAfKp
-         a7QyVR2WNCWY2Z1RsjK/gtxw95lcqbjjQQGjMtTXkMmH4DvmNkb2wM5z10O2vzUws8
-         CQRVzhQ7zH/m3USnmlEjV8tvjA3Fuz1olwSKjxj8=
+        b=oG+YwcodAkuvv+SoOtZOtr8/Ftqfr9qdFXzq6F/oym7EFlg/6EWZluSjYAUyD2OfK
+         anwh01Z2VElSJYzI3xW049oZ8Ob3jiy+gApFHbU+HfzywzPd8lloQYjSunVHnIc3GY
+         e30lhDKBV/8NXz68XIQ8pi3qXOLcCu6qQr8r7q1k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 5.17 1026/1126] rtc: gamecube: Fix refcount leak in gamecube_rtc_read_offset_from_sram
-Date:   Tue,  5 Apr 2022 09:29:33 +0200
-Message-Id: <20220405070437.596566652@linuxfoundation.org>
+Subject: [PATCH 5.17 1027/1126] rtc: check if __rtc_read_time was successful
+Date:   Tue,  5 Apr 2022 09:29:34 +0200
+Message-Id: <20220405070437.624806662@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -53,32 +53,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Tom Rix <trix@redhat.com>
 
-commit 4b2dc39ca024990abe36ad5d145c4fe0c06afd34 upstream.
+commit 915593a7a663b2ad08b895a5f3ba8b19d89d4ebf upstream.
 
-The of_find_compatible_node() function returns a node pointer with
-refcount incremented, We should use of_node_put() on it when done
-Add the missing of_node_put() to release the refcount.
+Clang static analysis reports this issue
+interface.c:810:8: warning: Passed-by-value struct
+  argument contains uninitialized data
+  now = rtc_tm_to_ktime(tm);
+      ^~~~~~~~~~~~~~~~~~~
 
-Fixes: 86559400b3ef ("rtc: gamecube: Add a RTC driver for the GameCube, Wii and Wii U")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+tm is set by a successful call to __rtc_read_time()
+but its return status is not checked.  Check if
+it was successful before setting the enabled flag.
+Move the decl of err to function scope.
+
+Fixes: 2b2f5ff00f63 ("rtc: interface: ignore expired timers when enqueuing new timers")
+Signed-off-by: Tom Rix <trix@redhat.com>
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/20220309092225.6930-1-linmq006@gmail.com
+Link: https://lore.kernel.org/r/20220326194236.2916310-1-trix@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/rtc/rtc-gamecube.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/rtc/interface.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/drivers/rtc/rtc-gamecube.c
-+++ b/drivers/rtc/rtc-gamecube.c
-@@ -235,6 +235,7 @@ static int gamecube_rtc_read_offset_from
- 	}
+--- a/drivers/rtc/interface.c
++++ b/drivers/rtc/interface.c
+@@ -804,9 +804,13 @@ static int rtc_timer_enqueue(struct rtc_
+ 	struct timerqueue_node *next = timerqueue_getnext(&rtc->timerqueue);
+ 	struct rtc_time tm;
+ 	ktime_t now;
++	int err;
++
++	err = __rtc_read_time(rtc, &tm);
++	if (err)
++		return err;
  
- 	ret = of_address_to_resource(np, 0, &res);
-+	of_node_put(np);
- 	if (ret) {
- 		pr_err("no io memory range found\n");
- 		return -1;
+ 	timer->enabled = 1;
+-	__rtc_read_time(rtc, &tm);
+ 	now = rtc_tm_to_ktime(tm);
+ 
+ 	/* Skip over expired timers */
+@@ -820,7 +824,6 @@ static int rtc_timer_enqueue(struct rtc_
+ 	trace_rtc_timer_enqueue(timer);
+ 	if (!next || ktime_before(timer->node.expires, next->expires)) {
+ 		struct rtc_wkalrm alarm;
+-		int err;
+ 
+ 		alarm.time = rtc_ktime_to_tm(timer->node.expires);
+ 		alarm.enabled = 1;
 
 
