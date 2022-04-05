@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B2E74F26B2
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:05:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A911D4F27A3
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:08:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233346AbiDEIGS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:06:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43932 "EHLO
+        id S233395AbiDEIHs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:07:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43928 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235633AbiDEH74 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:59:56 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF6841AF1B;
-        Tue,  5 Apr 2022 00:56:33 -0700 (PDT)
+        with ESMTP id S235480AbiDEH7q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:59:46 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C6245E775;
+        Tue,  5 Apr 2022 00:54:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9B517B81B18;
-        Tue,  5 Apr 2022 07:56:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF1AEC340EE;
-        Tue,  5 Apr 2022 07:56:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C6977615CD;
+        Tue,  5 Apr 2022 07:54:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D161EC340EE;
+        Tue,  5 Apr 2022 07:54:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145391;
-        bh=arK/Jdx6Jya54jloe0rN7JBuzPaeDIP9HfZ2GK9PVNg=;
+        s=korg; t=1649145276;
+        bh=HWxjACHl9Ir8KVcVfW8mCP3H8HhaV08T+cFUkUDcZTQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qx/E1JVrZ42YgazBO1J7fKevAowx5vgudt8gH3MP1M1VxMpEEpGlyFrjJD/AF1OGy
-         ACVXEL+sho1T+/BhZeYHGlpTIHqyl6VseothFnUf0o1+bp/DTXlr7Gtq+CuOd3tmXA
-         TdTd2YBpjVx66/MaCSIR0OLIGf3ndg7DWVZlTv/8=
+        b=KdlQDIRSdwqWOOS1PLODbnQcX2d8UanFWZuVvcHYbzhYjCSgkJ13p15o17s3GriB0
+         vAAPN/0a2KJQ21K6l9yIAADrPzDhmKfAKCCUvf5eoz2tdAUuVnJSxSTiTEurcjHM54
+         M9teIK2JN42Xk8cnfjgBS+mW6uL0kD1kyWvxN9Vk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Nishanth Menon <nm@ti.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0340/1126] firmware: ti_sci: Fix compilation failure when CONFIG_TI_SCI_PROTOCOL is not defined
-Date:   Tue,  5 Apr 2022 09:18:07 +0200
-Message-Id: <20220405070417.595774113@linuxfoundation.org>
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Nishanth Menon <nm@ti.com>, Dave Gerlach <d-gerlach@ti.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 0341/1126] soc: ti: wkup_m3_ipc: Fix IRQ check in wkup_m3_ipc_probe
+Date:   Tue,  5 Apr 2022 09:18:08 +0200
+Message-Id: <20220405070417.625297451@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -54,34 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 043cfff99a18933fda2fb2e163daee73cc07910b ]
+[ Upstream commit c3d66a164c726cc3b072232d3b6d87575d194084 ]
 
-Remove an extra ";" which breaks compilation.
+platform_get_irq() returns negative error number instead 0 on failure.
+And the doc of platform_get_irq() provides a usage example:
 
-Fixes: 53bf2b0e4e4c ("firmware: ti_sci: Add support for getting resource with subtype")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+    int irq = platform_get_irq(pdev, 0);
+    if (irq < 0)
+        return irq;
+
+Fix the check of return value to catch errors correctly.
+
+Fixes: cdd5de500b2c ("soc: ti: Add wkup_m3_ipc driver")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
 Signed-off-by: Nishanth Menon <nm@ti.com>
-Link: https://lore.kernel.org/r/e6c3cb793e1a6a2a0ae2528d5a5650dfe6a4b6ff.1640276505.git.christophe.jaillet@wanadoo.fr
+Acked-by: Dave Gerlach <d-gerlach@ti.com>
+Link: https://lore.kernel.org/r/20220114062840.16620-1-linmq006@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/soc/ti/ti_sci_protocol.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/soc/ti/wkup_m3_ipc.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/include/linux/soc/ti/ti_sci_protocol.h b/include/linux/soc/ti/ti_sci_protocol.h
-index 0aad7009b50e..bd0d11af76c5 100644
---- a/include/linux/soc/ti/ti_sci_protocol.h
-+++ b/include/linux/soc/ti/ti_sci_protocol.h
-@@ -645,7 +645,7 @@ devm_ti_sci_get_of_resource(const struct ti_sci_handle *handle,
+diff --git a/drivers/soc/ti/wkup_m3_ipc.c b/drivers/soc/ti/wkup_m3_ipc.c
+index 72386bd393fe..2f03ced0f411 100644
+--- a/drivers/soc/ti/wkup_m3_ipc.c
++++ b/drivers/soc/ti/wkup_m3_ipc.c
+@@ -450,9 +450,9 @@ static int wkup_m3_ipc_probe(struct platform_device *pdev)
+ 		return PTR_ERR(m3_ipc->ipc_mem_base);
  
- static inline struct ti_sci_resource *
- devm_ti_sci_get_resource(const struct ti_sci_handle *handle, struct device *dev,
--			 u32 dev_id, u32 sub_type);
-+			 u32 dev_id, u32 sub_type)
- {
- 	return ERR_PTR(-EINVAL);
- }
+ 	irq = platform_get_irq(pdev, 0);
+-	if (!irq) {
++	if (irq < 0) {
+ 		dev_err(&pdev->dev, "no irq resource\n");
+-		return -ENXIO;
++		return irq;
+ 	}
+ 
+ 	ret = devm_request_irq(dev, irq, wkup_m3_txev_handler,
 -- 
 2.34.1
 
