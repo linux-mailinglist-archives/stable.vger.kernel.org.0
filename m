@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 01B764F2719
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:06:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41C864F2781
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:07:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232820AbiDEID6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:03:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47904 "EHLO
+        id S232951AbiDEIHE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:07:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53024 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234409AbiDEH6N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:58:13 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D322A1442;
-        Tue,  5 Apr 2022 00:52:23 -0700 (PDT)
+        with ESMTP id S235474AbiDEH7q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:59:46 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A1615DA7B;
+        Tue,  5 Apr 2022 00:54:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1EE7AB81BA7;
-        Tue,  5 Apr 2022 07:52:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86913C3410F;
-        Tue,  5 Apr 2022 07:52:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 05981615CD;
+        Tue,  5 Apr 2022 07:54:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B3FAC340EE;
+        Tue,  5 Apr 2022 07:54:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145140;
-        bh=DxHVQy1Fc+e0le2fwHX1vbuTw7y/q9K+F6271ZOTKMA=;
+        s=korg; t=1649145273;
+        bh=mo6Ryisjqv8RMJnAUrwjvmu2uJTL0zkGAd9+/HKSk7w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ls2aLnB3g1brMSbfMI49SxI/lzqwJ69B863LDocWpvx2UFI/e4cCZeZOcQ2QGBIMW
-         B1RH1iYl8aDhahQIsP4TDhxug3EJ9Uefi0qCTVR3sMhkUHgkxTFJu7cVc/DVeOS5xu
-         3xY+x1KEpi7xitTNxnr6OwzQsuzs6i8DNxhC0ERc=
+        b=FHcBonj6NrgApFe6PUyL93vWR1SrYf+lRTWKzHzr4jRPz8L+rZbql+QyiBeP59u/2
+         NigXL3kQBvFT/3C348OFuZRMTJWEmEsVPlBts858H+J/IMQRoALS/Rqd8b4VCBaxkP
+         80F5mqQc+nGO/T+3EPN0ZTdjX350kemy/LGly0qc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Rui Miguel Silva <rmfrfs@gmail.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Jerome Brunet <jbrunet@baylibre.com>,
+        stable@vger.kernel.org, Chen-Yu Tsai <wenst@chromium.org>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0297/1126] media: staging: media: imx: imx7-mipi-csis: Make subdev name unique
-Date:   Tue,  5 Apr 2022 09:17:24 +0200
-Message-Id: <20220405070416.332785193@linuxfoundation.org>
+Subject: [PATCH 5.17 0298/1126] media: v4l2-mem2mem: Apply DST_QUEUE_OFF_BASE on MMAP buffers across ioctls
+Date:   Tue,  5 Apr 2022 09:17:25 +0200
+Message-Id: <20220405070416.362586319@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -58,58 +55,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+From: Chen-Yu Tsai <wenst@chromium.org>
 
-[ Upstream commit 5be7f8c91d25089be847a71b336c13b5bb0db772 ]
+[ Upstream commit 8310ca94075e784bbb06593cd6c068ee6b6e4ca6 ]
 
-When multiple CSIS instances are present in a single graph, they are
-currently all named "imx7-mipi-csis.0", which breaks the entity name
-uniqueness requirement. Fix it by using the device name to create the
-subdev name.
+DST_QUEUE_OFF_BASE is applied to offset/mem_offset on MMAP capture buffers
+only for the VIDIOC_QUERYBUF ioctl, while the userspace fields (including
+offset/mem_offset) are filled in for VIDIOC_{QUERY,PREPARE,Q,DQ}BUF
+ioctls. This leads to differences in the values presented to userspace.
+If userspace attempts to mmap the capture buffer directly using values
+from DQBUF, it will fail.
 
-Fixes: 7807063b862b ("media: staging/imx7: add MIPI CSI-2 receiver subdev for i.MX7")
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Reviewed-by: Rui Miguel Silva <rmfrfs@gmail.com>
-Reviewed-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Reviewed-by: Jerome Brunet <jbrunet@baylibre.com>
-Tested-by: Jerome Brunet <jbrunet@baylibre.com> # On i.MX8MP
+Move the code that applies the magic offset into a helper, and call
+that helper from all four ioctl entry points.
+
+[hverkuil: drop unnecessary '= 0' in v4l2_m2m_querybuf() for ret]
+
+Fixes: 7f98639def42 ("V4L/DVB: add memory-to-memory device helper framework for videobuf")
+Fixes: 908a0d7c588e ("[media] v4l: mem2mem: port to videobuf2")
+Signed-off-by: Chen-Yu Tsai <wenst@chromium.org>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/imx/imx7-mipi-csis.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/media/v4l2-core/v4l2-mem2mem.c | 53 ++++++++++++++++++++------
+ 1 file changed, 41 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/staging/media/imx/imx7-mipi-csis.c b/drivers/staging/media/imx/imx7-mipi-csis.c
-index 2b73fa55c938..9ea723bb5f20 100644
---- a/drivers/staging/media/imx/imx7-mipi-csis.c
-+++ b/drivers/staging/media/imx/imx7-mipi-csis.c
-@@ -32,7 +32,6 @@
- #include <media/v4l2-subdev.h>
+diff --git a/drivers/media/v4l2-core/v4l2-mem2mem.c b/drivers/media/v4l2-core/v4l2-mem2mem.c
+index e2654b422334..675e22895ebe 100644
+--- a/drivers/media/v4l2-core/v4l2-mem2mem.c
++++ b/drivers/media/v4l2-core/v4l2-mem2mem.c
+@@ -585,19 +585,14 @@ int v4l2_m2m_reqbufs(struct file *file, struct v4l2_m2m_ctx *m2m_ctx,
+ }
+ EXPORT_SYMBOL_GPL(v4l2_m2m_reqbufs);
  
- #define CSIS_DRIVER_NAME			"imx7-mipi-csis"
--#define CSIS_SUBDEV_NAME			CSIS_DRIVER_NAME
+-int v4l2_m2m_querybuf(struct file *file, struct v4l2_m2m_ctx *m2m_ctx,
+-		      struct v4l2_buffer *buf)
++static void v4l2_m2m_adjust_mem_offset(struct vb2_queue *vq,
++				       struct v4l2_buffer *buf)
+ {
+-	struct vb2_queue *vq;
+-	int ret = 0;
+-	unsigned int i;
+-
+-	vq = v4l2_m2m_get_vq(m2m_ctx, buf->type);
+-	ret = vb2_querybuf(vq, buf);
+-
+ 	/* Adjust MMAP memory offsets for the CAPTURE queue */
+ 	if (buf->memory == V4L2_MEMORY_MMAP && V4L2_TYPE_IS_CAPTURE(vq->type)) {
+ 		if (V4L2_TYPE_IS_MULTIPLANAR(vq->type)) {
++			unsigned int i;
++
+ 			for (i = 0; i < buf->length; ++i)
+ 				buf->m.planes[i].m.mem_offset
+ 					+= DST_QUEUE_OFF_BASE;
+@@ -605,8 +600,23 @@ int v4l2_m2m_querybuf(struct file *file, struct v4l2_m2m_ctx *m2m_ctx,
+ 			buf->m.offset += DST_QUEUE_OFF_BASE;
+ 		}
+ 	}
++}
  
- #define CSIS_PAD_SINK				0
- #define CSIS_PAD_SOURCE				1
-@@ -311,7 +310,6 @@ struct csi_state {
- 	struct reset_control *mrst;
- 	struct regulator *mipi_phy_regulator;
- 	const struct mipi_csis_info *info;
--	u8 index;
+-	return ret;
++int v4l2_m2m_querybuf(struct file *file, struct v4l2_m2m_ctx *m2m_ctx,
++		      struct v4l2_buffer *buf)
++{
++	struct vb2_queue *vq;
++	int ret;
++
++	vq = v4l2_m2m_get_vq(m2m_ctx, buf->type);
++	ret = vb2_querybuf(vq, buf);
++	if (ret)
++		return ret;
++
++	/* Adjust MMAP memory offsets for the CAPTURE queue */
++	v4l2_m2m_adjust_mem_offset(vq, buf);
++
++	return 0;
+ }
+ EXPORT_SYMBOL_GPL(v4l2_m2m_querybuf);
  
- 	struct v4l2_subdev sd;
- 	struct media_pad pads[CSIS_PADS_NUM];
-@@ -1303,8 +1301,8 @@ static int mipi_csis_subdev_init(struct csi_state *state)
+@@ -763,6 +773,9 @@ int v4l2_m2m_qbuf(struct file *file, struct v4l2_m2m_ctx *m2m_ctx,
+ 	if (ret)
+ 		return ret;
  
- 	v4l2_subdev_init(sd, &mipi_csis_subdev_ops);
- 	sd->owner = THIS_MODULE;
--	snprintf(sd->name, sizeof(sd->name), "%s.%d",
--		 CSIS_SUBDEV_NAME, state->index);
-+	snprintf(sd->name, sizeof(sd->name), "csis-%s",
-+		 dev_name(state->dev));
++	/* Adjust MMAP memory offsets for the CAPTURE queue */
++	v4l2_m2m_adjust_mem_offset(vq, buf);
++
+ 	/*
+ 	 * If the capture queue is streaming, but streaming hasn't started
+ 	 * on the device, but was asked to stop, mark the previously queued
+@@ -784,9 +797,17 @@ int v4l2_m2m_dqbuf(struct file *file, struct v4l2_m2m_ctx *m2m_ctx,
+ 		   struct v4l2_buffer *buf)
+ {
+ 	struct vb2_queue *vq;
++	int ret;
  
- 	sd->flags |= V4L2_SUBDEV_FL_HAS_DEVNODE;
- 	sd->ctrl_handler = NULL;
+ 	vq = v4l2_m2m_get_vq(m2m_ctx, buf->type);
+-	return vb2_dqbuf(vq, buf, file->f_flags & O_NONBLOCK);
++	ret = vb2_dqbuf(vq, buf, file->f_flags & O_NONBLOCK);
++	if (ret)
++		return ret;
++
++	/* Adjust MMAP memory offsets for the CAPTURE queue */
++	v4l2_m2m_adjust_mem_offset(vq, buf);
++
++	return 0;
+ }
+ EXPORT_SYMBOL_GPL(v4l2_m2m_dqbuf);
+ 
+@@ -795,9 +816,17 @@ int v4l2_m2m_prepare_buf(struct file *file, struct v4l2_m2m_ctx *m2m_ctx,
+ {
+ 	struct video_device *vdev = video_devdata(file);
+ 	struct vb2_queue *vq;
++	int ret;
+ 
+ 	vq = v4l2_m2m_get_vq(m2m_ctx, buf->type);
+-	return vb2_prepare_buf(vq, vdev->v4l2_dev->mdev, buf);
++	ret = vb2_prepare_buf(vq, vdev->v4l2_dev->mdev, buf);
++	if (ret)
++		return ret;
++
++	/* Adjust MMAP memory offsets for the CAPTURE queue */
++	v4l2_m2m_adjust_mem_offset(vq, buf);
++
++	return 0;
+ }
+ EXPORT_SYMBOL_GPL(v4l2_m2m_prepare_buf);
+ 
 -- 
 2.34.1
 
