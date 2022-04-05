@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F5054F3262
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:57:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 19BFC4F342F
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:25:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343538AbiDEJMf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:12:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46808 "EHLO
+        id S242604AbiDEKgA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:36:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244807AbiDEIwk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:40 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A97AF33EB4;
-        Tue,  5 Apr 2022 01:44:16 -0700 (PDT)
+        with ESMTP id S240078AbiDEJeB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:34:01 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2E2527B32;
+        Tue,  5 Apr 2022 02:23:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C0EABB81A32;
-        Tue,  5 Apr 2022 08:44:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3817DC385A1;
-        Tue,  5 Apr 2022 08:44:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6BD9C61645;
+        Tue,  5 Apr 2022 09:23:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D990C385A0;
+        Tue,  5 Apr 2022 09:23:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148254;
-        bh=lsQCMO2UAmOUxU32IZI7RqfmRogOdDAJkU+iTVAqMEs=;
+        s=korg; t=1649150607;
+        bh=GSyj3xxP9PHs0hr0AIMx9kLbS7m90QYmAvEN2o1MDIM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TX0gTiYGVacpvg5hgPh+gQxVE7kSbqEYodRQPA88IC8AepOGQNGsStpS05G0L6JKq
-         +0Bun94O6ZzFhVdM1S/esq6Nq/L+cYMiEb38X+yZDIB4V/tWHbuSELBS+b4nfNqTU7
-         EoizfBRKLf2DSwY3wI4LHVveWD0zaoQIDmVBnS+4=
+        b=vdCwa4WHVuOMBeYFve15Gp7ScmGD5RVSgppnAcHv9lHa2HJei0hINYBQIu6Go6DjX
+         cxLMLjYQf1VsnWSHXjJJfH3kHJZYNaMHopVuLU+ZF6ivcmmOX03mbHC6DaOcMfmPfA
+         ssosXMzWN9HRlhAQQ1XpOVKlBtV60YyMdgeu28JM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0263/1017] rseq: Remove broken uapi field layout on 32-bit little endian
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 5.15 114/913] dm: interlock pending dm_io and dm_wait_for_bios_completion
 Date:   Tue,  5 Apr 2022 09:19:36 +0200
-Message-Id: <20220405070402.070042621@linuxfoundation.org>
+Message-Id: <20220405070343.243951982@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,95 +53,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+From: Mike Snitzer <snitzer@redhat.com>
 
-[ Upstream commit bfdf4e6208051ed7165b2e92035b4bf11f43eb63 ]
+commit 9f6dc633761006f974701d4c88da71ab68670749 upstream.
 
-The rseq rseq_cs.ptr.{ptr32,padding} uapi endianness handling is
-entirely wrong on 32-bit little endian: a preprocessor logic mistake
-wrongly uses the big endian field layout on 32-bit little endian
-architectures.
+Commit d208b89401e0 ("dm: fix mempool NULL pointer race when
+completing IO") didn't go far enough.
 
-Fortunately, those ptr32 accessors were never used within the kernel,
-and only meant as a convenience for user-space.
+When bio_end_io_acct ends the count of in-flight I/Os may reach zero
+and the DM device may be suspended. There is a possibility that the
+suspend races with dm_stats_account_io.
 
-Remove those and replace the whole rseq_cs union by a __u64 type, as
-this is the only thing really needed to express the ABI. Document how
-32-bit architectures are meant to interact with this field.
+Fix this by adding percpu "pending_io" counters to track outstanding
+dm_io. Move kicking of suspend queue to dm_io_dec_pending(). Also,
+rename md_in_flight_bios() to dm_in_flight_bios() and update it to
+iterate all pending_io counters.
 
-Fixes: ec9c82e03a74 ("rseq: uapi: Declare rseq_cs field as union, update includes")
-Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20220127152720.25898-1-mathieu.desnoyers@efficios.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: d208b89401e0 ("dm: fix mempool NULL pointer race when completing IO")
+Cc: stable@vger.kernel.org
+Co-developed-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/uapi/linux/rseq.h | 20 ++++----------------
- kernel/rseq.c             |  8 ++++----
- 2 files changed, 8 insertions(+), 20 deletions(-)
+ drivers/md/dm-core.h |    2 ++
+ drivers/md/dm.c      |   35 +++++++++++++++++++++++------------
+ 2 files changed, 25 insertions(+), 12 deletions(-)
 
-diff --git a/include/uapi/linux/rseq.h b/include/uapi/linux/rseq.h
-index 9a402fdb60e9..77ee207623a9 100644
---- a/include/uapi/linux/rseq.h
-+++ b/include/uapi/linux/rseq.h
-@@ -105,23 +105,11 @@ struct rseq {
- 	 * Read and set by the kernel. Set by user-space with single-copy
- 	 * atomicity semantics. This field should only be updated by the
- 	 * thread which registered this data structure. Aligned on 64-bit.
-+	 *
-+	 * 32-bit architectures should update the low order bits of the
-+	 * rseq_cs field, leaving the high order bits initialized to 0.
- 	 */
--	union {
--		__u64 ptr64;
--#ifdef __LP64__
--		__u64 ptr;
--#else
--		struct {
--#if (defined(__BYTE_ORDER) && (__BYTE_ORDER == __BIG_ENDIAN)) || defined(__BIG_ENDIAN)
--			__u32 padding;		/* Initialized to zero. */
--			__u32 ptr32;
--#else /* LITTLE */
--			__u32 ptr32;
--			__u32 padding;		/* Initialized to zero. */
--#endif /* ENDIAN */
--		} ptr;
--#endif
--	} rseq_cs;
-+	__u64 rseq_cs;
+--- a/drivers/md/dm-core.h
++++ b/drivers/md/dm-core.h
+@@ -65,6 +65,8 @@ struct mapped_device {
+ 	struct gendisk *disk;
+ 	struct dax_device *dax_dev;
  
++	unsigned long __percpu *pending_io;
++
  	/*
- 	 * Restartable sequences flags field.
-diff --git a/kernel/rseq.c b/kernel/rseq.c
-index 6d45ac3dae7f..97ac20b4f738 100644
---- a/kernel/rseq.c
-+++ b/kernel/rseq.c
-@@ -128,10 +128,10 @@ static int rseq_get_rseq_cs(struct task_struct *t, struct rseq_cs *rseq_cs)
- 	int ret;
- 
- #ifdef CONFIG_64BIT
--	if (get_user(ptr, &t->rseq->rseq_cs.ptr64))
-+	if (get_user(ptr, &t->rseq->rseq_cs))
- 		return -EFAULT;
- #else
--	if (copy_from_user(&ptr, &t->rseq->rseq_cs.ptr64, sizeof(ptr)))
-+	if (copy_from_user(&ptr, &t->rseq->rseq_cs, sizeof(ptr)))
- 		return -EFAULT;
- #endif
- 	if (!ptr) {
-@@ -217,9 +217,9 @@ static int clear_rseq_cs(struct task_struct *t)
- 	 * Set rseq_cs to NULL.
+ 	 * A list of ios that arrived while we were suspended.
  	 */
- #ifdef CONFIG_64BIT
--	return put_user(0UL, &t->rseq->rseq_cs.ptr64);
-+	return put_user(0UL, &t->rseq->rseq_cs);
- #else
--	if (clear_user(&t->rseq->rseq_cs.ptr64, sizeof(t->rseq->rseq_cs.ptr64)))
-+	if (clear_user(&t->rseq->rseq_cs, sizeof(t->rseq->rseq_cs)))
- 		return -EFAULT;
- 	return 0;
- #endif
--- 
-2.34.1
-
+--- a/drivers/md/dm.c
++++ b/drivers/md/dm.c
+@@ -507,10 +507,6 @@ static void end_io_acct(struct mapped_de
+ 		dm_stats_account_io(&md->stats, bio_data_dir(bio),
+ 				    bio->bi_iter.bi_sector, bio_sectors(bio),
+ 				    true, duration, stats_aux);
+-
+-	/* nudge anyone waiting on suspend queue */
+-	if (unlikely(wq_has_sleeper(&md->wait)))
+-		wake_up(&md->wait);
+ }
+ 
+ static struct dm_io *alloc_io(struct mapped_device *md, struct bio *bio)
+@@ -531,6 +527,7 @@ static struct dm_io *alloc_io(struct map
+ 	io->magic = DM_IO_MAGIC;
+ 	io->status = 0;
+ 	atomic_set(&io->io_count, 1);
++	this_cpu_inc(*md->pending_io);
+ 	io->orig_bio = bio;
+ 	io->md = md;
+ 	spin_lock_init(&io->endio_lock);
+@@ -828,6 +825,12 @@ void dm_io_dec_pending(struct dm_io *io,
+ 		stats_aux = io->stats_aux;
+ 		free_io(md, io);
+ 		end_io_acct(md, bio, start_time, &stats_aux);
++		smp_wmb();
++		this_cpu_dec(*md->pending_io);
++
++		/* nudge anyone waiting on suspend queue */
++		if (unlikely(wq_has_sleeper(&md->wait)))
++			wake_up(&md->wait);
+ 
+ 		if (io_error == BLK_STS_DM_REQUEUE)
+ 			return;
+@@ -1697,6 +1700,11 @@ static void cleanup_mapped_device(struct
+ 		blk_cleanup_disk(md->disk);
+ 	}
+ 
++	if (md->pending_io) {
++		free_percpu(md->pending_io);
++		md->pending_io = NULL;
++	}
++
+ 	cleanup_srcu_struct(&md->io_barrier);
+ 
+ 	mutex_destroy(&md->suspend_lock);
+@@ -1794,6 +1802,10 @@ static struct mapped_device *alloc_dev(i
+ 	if (!md->wq)
+ 		goto bad;
+ 
++	md->pending_io = alloc_percpu(unsigned long);
++	if (!md->pending_io)
++		goto bad;
++
+ 	dm_stats_init(&md->stats);
+ 
+ 	/* Populate the mapping, nobody knows we exist yet */
+@@ -2209,16 +2221,13 @@ void dm_put(struct mapped_device *md)
+ }
+ EXPORT_SYMBOL_GPL(dm_put);
+ 
+-static bool md_in_flight_bios(struct mapped_device *md)
++static bool dm_in_flight_bios(struct mapped_device *md)
+ {
+ 	int cpu;
+-	struct block_device *part = dm_disk(md)->part0;
+-	long sum = 0;
++	unsigned long sum = 0;
+ 
+-	for_each_possible_cpu(cpu) {
+-		sum += part_stat_local_read_cpu(part, in_flight[0], cpu);
+-		sum += part_stat_local_read_cpu(part, in_flight[1], cpu);
+-	}
++	for_each_possible_cpu(cpu)
++		sum += *per_cpu_ptr(md->pending_io, cpu);
+ 
+ 	return sum != 0;
+ }
+@@ -2231,7 +2240,7 @@ static int dm_wait_for_bios_completion(s
+ 	while (true) {
+ 		prepare_to_wait(&md->wait, &wait, task_state);
+ 
+-		if (!md_in_flight_bios(md))
++		if (!dm_in_flight_bios(md))
+ 			break;
+ 
+ 		if (signal_pending_state(task_state, current)) {
+@@ -2243,6 +2252,8 @@ static int dm_wait_for_bios_completion(s
+ 	}
+ 	finish_wait(&md->wait, &wait);
+ 
++	smp_rmb();
++
+ 	return r;
+ }
+ 
 
 
