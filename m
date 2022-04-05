@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CB6E4F3E1A
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 22:41:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5C7C4F4077
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:16:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1383373AbiDEMZo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:25:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48592 "EHLO
+        id S1383389AbiDEMZq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:25:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239746AbiDEKyt (ORCPT
+        with ESMTP id S239460AbiDEKyt (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:54:49 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57271ABF66;
-        Tue,  5 Apr 2022 03:28:27 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75DFD167C6;
+        Tue,  5 Apr 2022 03:28:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 02CBEB81C99;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DAF956142E;
+        Tue,  5 Apr 2022 10:28:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB769C385A1;
         Tue,  5 Apr 2022 10:28:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46C9AC385A1;
-        Tue,  5 Apr 2022 10:28:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649154504;
-        bh=957SGL9KQznzdENY4XdnryY6MFqclkMVRwcwl8CH+qQ=;
+        s=korg; t=1649154507;
+        bh=aKh0tHKvR74V6nM79eP3it47vBl/S2hzvwvQLmnZUAk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kOkvME/7wPjQ5Jru5ds/OerYBQfB/kgFeXBsTBu+twXPqny2zVUe8YSLleNQUwBVE
-         nPs8bE72F2Ly74IeAq5K67rRX8eLz/zWzoLglkj+uUWlP49hAnK7GUWry7zD7ft+QS
-         gbwVAlD8eEGDZZmnlJa2fZnZEMe1FUm9iSobKb7U=
+        b=TnTRrmtcWD/8neouT1PzSbmPmh9oBZOE2Kf4wa5PtteFlhCbQEIN0noXa5QqWf3SM
+         QNAQ9EXDd17TYiwBLYT9CD4Stcr+IE2i9aSoltth5HD76zhIZLLkU8O0YYSWbue9S+
+         rjefjyEprsJZLa43qBesnGVrN3k7Z/wh7bFVNneQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
-        Zeal Robot <zealci@zte.com.cn>, Lv Ruyi <lv.ruyi@zte.com.cn>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 5.10 572/599] proc: bootconfig: Add null pointer check
-Date:   Tue,  5 Apr 2022 09:34:26 +0200
-Message-Id: <20220405070315.865017293@linuxfoundation.org>
+        stable@vger.kernel.org, Sander Vanheule <sander@svanheule.net>,
+        =?UTF-8?q?Ar=C4=B1n=C3=A7=20=C3=9CNAL?= <arinc.unal@arinc9.com>
+Subject: [PATCH 5.10 573/599] staging: mt7621-dts: fix pinctrl-0 items to be size-1 items on ethernet
+Date:   Tue,  5 Apr 2022 09:34:27 +0200
+Message-Id: <20220405070315.894886253@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -54,36 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lv Ruyi <lv.ruyi@zte.com.cn>
+From: Arınç ÜNAL <arinc.unal@arinc9.com>
 
-commit bed5b60bf67ccd8957b8c0558fead30c4a3f5d3f upstream.
+commit 25e4f5220efead592c83200241e098e757d37e1f upstream.
 
-kzalloc is a memory allocation function which can return NULL when some
-internal memory errors happen. It is safer to add null pointer check.
+Fix pinctrl-0 items under the ethernet node to be size-1 items.
+Current notation would be used on specifications with non-zero cells.
 
-Link: https://lkml.kernel.org/r/20220329104004.2376879-1-lv.ruyi@zte.com.cn
-
-Cc: stable@vger.kernel.org
-Fixes: c1a3c36017d4 ("proc: bootconfig: Add /proc/bootconfig to show boot config list")
-Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
-Reported-by: Zeal Robot <zealci@zte.com.cn>
-Signed-off-by: Lv Ruyi <lv.ruyi@zte.com.cn>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Fixes: 0a93c0d75809 ("staging: mt7621-dts: fix pinctrl properties for ethernet")
+Reported-by: Sander Vanheule <sander@svanheule.net>
+Signed-off-by: Arınç ÜNAL <arinc.unal@arinc9.com>
+Link: https://lore.kernel.org/r/20220215081725.3463-1-arinc.unal@arinc9.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/proc/bootconfig.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/staging/mt7621-dts/mt7621.dtsi |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/proc/bootconfig.c
-+++ b/fs/proc/bootconfig.c
-@@ -32,6 +32,8 @@ static int __init copy_xbc_key_value_lis
- 	int ret = 0;
+--- a/drivers/staging/mt7621-dts/mt7621.dtsi
++++ b/drivers/staging/mt7621-dts/mt7621.dtsi
+@@ -413,7 +413,7 @@
+ 		mediatek,ethsys = <&ethsys>;
  
- 	key = kzalloc(XBC_KEYLEN_MAX, GFP_KERNEL);
-+	if (!key)
-+		return -ENOMEM;
+ 		pinctrl-names = "default";
+-		pinctrl-0 = <&rgmii1_pins &rgmii2_pins &mdio_pins>;
++		pinctrl-0 = <&mdio_pins>, <&rgmii1_pins>, <&rgmii2_pins>;
  
- 	xbc_for_each_key_value(leaf, val) {
- 		ret = xbc_node_compose_key(leaf, key, XBC_KEYLEN_MAX);
+ 		gmac0: mac@0 {
+ 			compatible = "mediatek,eth-mac";
 
 
