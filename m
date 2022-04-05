@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 187D44F282E
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:19:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A56D4F2835
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:19:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233439AbiDEILJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:11:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39458 "EHLO
+        id S233939AbiDEILX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:11:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40310 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232990AbiDEIEx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:04:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56C2762C94;
-        Tue,  5 Apr 2022 01:01:08 -0700 (PDT)
+        with ESMTP id S232921AbiDEIFA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:05:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DF8566639;
+        Tue,  5 Apr 2022 01:01:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E729061668;
-        Tue,  5 Apr 2022 08:01:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EEF6CC3410F;
-        Tue,  5 Apr 2022 08:01:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B99CB617B6;
+        Tue,  5 Apr 2022 08:01:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6BDDC340EE;
+        Tue,  5 Apr 2022 08:01:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145667;
-        bh=bVEPAGwn5Sk1aFoFushqrnLjvlDtDg7rK9rf5Q4UiIE=;
+        s=korg; t=1649145670;
+        bh=GRVYjGN0oVU3bLQLZkS30dh2b8ueNqwEcosPDjmYZFA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L3dlVKB1h/yQZEoWn7su3Ozth5ZuaPUV0dI8dCAYGdWy0iboJwvGr42nd7uet3O31
-         DZ15btWgJ8PSrkZufgNfCOwol6iSQreRLFDhhnBjhfrd1zXXnWfOoDUsGn+hYdRaFu
-         cZeA6WncWhiRFmT3O1JlvFutuR99KU7teyuonj64=
+        b=KqmLt2QwBVhn9UHSnb82Mi//KotUWqm6XZBxMrZATiIPRvGE/j34mfS74bS9SyZg+
+         ORx3tBT/FJJHfP5ZCFWc065YqSWAHMGPCBqFz2N5H3h7s5ePrVr/Ha5fYkTL30Vu0p
+         IvwyQXXyo8rQdkHFeaoSXJSF8nbZ9wvlhrC7wi6E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jesper Dangaard Brouer <brouer@redhat.com>,
-        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
-        Alexander Lobakin <alexandr.lobakin@intel.com>,
-        Michal Swiatkowski <michal.swiatkowski@linux.intel.com>,
-        Sandeep Penigalapati <sandeep.penigalapati@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0486/1126] ixgbe: respect metadata on XSK Rx to skb
-Date:   Tue,  5 Apr 2022 09:20:33 +0200
-Message-Id: <20220405070421.892272259@linuxfoundation.org>
+Subject: [PATCH 5.17 0487/1126] power: reset: gemini-poweroff: Fix IRQ check in gemini_poweroff_probe
+Date:   Tue,  5 Apr 2022 09:20:34 +0200
+Message-Id: <20220405070421.922364381@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -58,66 +55,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Lobakin <alexandr.lobakin@intel.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit f322a620be69e95594eda89502b478aa7dbf6ec2 ]
+[ Upstream commit ba18dad0fb880cd29aa97b6b75560ef14d1061ba ]
 
-For now, if the XDP prog returns XDP_PASS on XSK, the metadata
-will be lost as it doesn't get copied to the skb.
+platform_get_irq() returns negative error number instead 0 on failure.
+And the doc of platform_get_irq() provides a usage example:
 
-Copy it along with the frame headers. Account its size on skb
-allocation, and when copying just treat it as a part of the frame
-and do a pull after to "move" it to the "reserved" zone.
+    int irq = platform_get_irq(pdev, 0);
+    if (irq < 0)
+        return irq;
 
-net_prefetch() xdp->data_meta and align the copy size to speed-up
-memcpy() a little and better match ixgbe_construct_skb().
+Fix the check of return value to catch errors correctly.
 
-Fixes: d0bcacd0a130 ("ixgbe: add AF_XDP zero-copy Rx support")
-Suggested-by: Jesper Dangaard Brouer <brouer@redhat.com>
-Suggested-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
-Signed-off-by: Alexander Lobakin <alexandr.lobakin@intel.com>
-Reviewed-by: Michal Swiatkowski <michal.swiatkowski@linux.intel.com>
-Tested-by: Sandeep Penigalapati <sandeep.penigalapati@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: f7a388d6cd1c ("power: reset: Add a driver for the Gemini poweroff")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ixgbe/ixgbe_xsk.c | 14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ drivers/power/reset/gemini-poweroff.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_xsk.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_xsk.c
-index eec42c907d57..dd7ff66d422f 100644
---- a/drivers/net/ethernet/intel/ixgbe/ixgbe_xsk.c
-+++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_xsk.c
-@@ -209,19 +209,25 @@ bool ixgbe_alloc_rx_buffers_zc(struct ixgbe_ring *rx_ring, u16 count)
- static struct sk_buff *ixgbe_construct_skb_zc(struct ixgbe_ring *rx_ring,
- 					      const struct xdp_buff *xdp)
- {
-+	unsigned int totalsize = xdp->data_end - xdp->data_meta;
- 	unsigned int metasize = xdp->data - xdp->data_meta;
--	unsigned int datasize = xdp->data_end - xdp->data;
- 	struct sk_buff *skb;
+diff --git a/drivers/power/reset/gemini-poweroff.c b/drivers/power/reset/gemini-poweroff.c
+index 90e35c07240a..b7f7a8225f22 100644
+--- a/drivers/power/reset/gemini-poweroff.c
++++ b/drivers/power/reset/gemini-poweroff.c
+@@ -107,8 +107,8 @@ static int gemini_poweroff_probe(struct platform_device *pdev)
+ 		return PTR_ERR(gpw->base);
  
-+	net_prefetch(xdp->data_meta);
-+
- 	/* allocate a skb to store the frags */
--	skb = __napi_alloc_skb(&rx_ring->q_vector->napi, datasize,
-+	skb = __napi_alloc_skb(&rx_ring->q_vector->napi, totalsize,
- 			       GFP_ATOMIC | __GFP_NOWARN);
- 	if (unlikely(!skb))
- 		return NULL;
+ 	irq = platform_get_irq(pdev, 0);
+-	if (!irq)
+-		return -EINVAL;
++	if (irq < 0)
++		return irq;
  
--	memcpy(__skb_put(skb, datasize), xdp->data, datasize);
--	if (metasize)
-+	memcpy(__skb_put(skb, totalsize), xdp->data_meta,
-+	       ALIGN(totalsize, sizeof(long)));
-+
-+	if (metasize) {
- 		skb_metadata_set(skb, metasize);
-+		__skb_pull(skb, metasize);
-+	}
+ 	gpw->dev = dev;
  
- 	return skb;
- }
 -- 
 2.34.1
 
