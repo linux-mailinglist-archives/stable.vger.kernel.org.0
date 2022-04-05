@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F02284F2FAE
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:17:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 034BC4F2EAE
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:03:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245504AbiDEI4F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:56:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45554 "EHLO
+        id S1355563AbiDEKU3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:20:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37396 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241139AbiDEIcw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:32:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04D3FB93;
-        Tue,  5 Apr 2022 01:28:34 -0700 (PDT)
+        with ESMTP id S1346215AbiDEJXh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:23:37 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B21E1C8BFC;
+        Tue,  5 Apr 2022 02:13:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 94FF860B0A;
-        Tue,  5 Apr 2022 08:28:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D183C385A2;
-        Tue,  5 Apr 2022 08:28:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8B4FEB81C15;
+        Tue,  5 Apr 2022 09:13:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9B57C385D9;
+        Tue,  5 Apr 2022 09:13:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147313;
-        bh=R7z4dNtHDM1ZIK27/IYmVTd0GpqG9Hlim6aALNN1RCk=;
+        s=korg; t=1649149987;
+        bh=XPMpb65O3CeKvKBW3+kH3pERPeRlgpPUhWQrxjl1KbM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hd6KwoXijtSMyV7NlezPxEWxCg23i0gMEYM9JtLDCkaghYnkLFRoI8Q9NglyjxbUJ
-         oXr5XyATwmOInKE9Ad6S7w3esqdFOuHEoUybM0Jn3uqk+cG6m+f87JzYmOsPfn9y9w
-         G28xZKMVjYIGHcUDy451i/v/932Z1jWZ8nb8y+d8=
+        b=bv0FrDt/VCjSpmZAv/8eqBnC6coPsVddu1wfyzSzZ5oPfLBbax7IJX9vnLWY0yuNH
+         zJZrnBmHmMTiFv/HMhFu2xPjKe8optD/qPJkuycyve3QmpapYF47bbAceVTdO5peW3
+         efkS44qQtDaA/D4ymJbH/aCmn4ynwdCgv6F4fg5I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.17 1078/1126] net: add skb_set_end_offset() helper
+        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
+        Richard Weinberger <richard@nod.at>
+Subject: [PATCH 5.16 0912/1017] ubifs: Rectify space amount budget for mkdir/tmpfile operations
 Date:   Tue,  5 Apr 2022 09:30:25 +0200
-Message-Id: <20220405070439.095212079@linuxfoundation.org>
+Message-Id: <20220405070421.293866089@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,97 +53,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-commit 763087dab97547230a6807c865a6a5ae53a59247 upstream.
+commit a6dab6607d4681d227905d5198710b575dbdb519 upstream.
 
-We have multiple places where this helper is convenient,
-and plan using it in the following patch.
+UBIFS should make sure the flash has enough space to store dirty (Data
+that is newer than disk) data (in memory), space budget is exactly
+designed to do that. If space budget calculates less data than we need,
+'make_reservation()' will do more work(return -ENOSPC if no free space
+lelf, sometimes we can see "cannot reserve xxx bytes in jhead xxx, error
+-28" in ubifs error messages) with ubifs inodes locked, which may effect
+other syscalls.
 
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+A simple way to decide how much space do we need when make a budget:
+See how much space is needed by 'make_reservation()' in ubifs_jnl_xxx()
+function according to corresponding operation.
+
+It's better to report ENOSPC in ubifs_budget_space(), as early as we can.
+
+Fixes: 474b93704f32163 ("ubifs: Implement O_TMPFILE")
+Fixes: 1e51764a3c2ac05 ("UBIFS: add new flash file system")
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/skbuff.h |   10 ++++++++++
- net/core/skbuff.c      |   19 +++++--------------
- 2 files changed, 15 insertions(+), 14 deletions(-)
+ fs/ubifs/dir.c |   12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
---- a/include/linux/skbuff.h
-+++ b/include/linux/skbuff.h
-@@ -1475,6 +1475,11 @@ static inline unsigned int skb_end_offse
+--- a/fs/ubifs/dir.c
++++ b/fs/ubifs/dir.c
+@@ -428,15 +428,18 @@ static int ubifs_tmpfile(struct user_nam
  {
- 	return skb->end;
- }
-+
-+static inline void skb_set_end_offset(struct sk_buff *skb, unsigned int offset)
-+{
-+	skb->end = offset;
-+}
- #else
- static inline unsigned char *skb_end_pointer(const struct sk_buff *skb)
- {
-@@ -1485,6 +1490,11 @@ static inline unsigned int skb_end_offse
- {
- 	return skb->end - skb->head;
- }
-+
-+static inline void skb_set_end_offset(struct sk_buff *skb, unsigned int offset)
-+{
-+	skb->end = skb->head + offset;
-+}
- #endif
+ 	struct inode *inode;
+ 	struct ubifs_info *c = dir->i_sb->s_fs_info;
+-	struct ubifs_budget_req req = { .new_ino = 1, .new_dent = 1};
++	struct ubifs_budget_req req = { .new_ino = 1, .new_dent = 1,
++					.dirtied_ino = 1};
+ 	struct ubifs_budget_req ino_req = { .dirtied_ino = 1 };
+ 	struct ubifs_inode *ui;
+ 	int err, instantiated = 0;
+ 	struct fscrypt_name nm;
  
- /* Internal */
---- a/net/core/skbuff.c
-+++ b/net/core/skbuff.c
-@@ -201,7 +201,7 @@ static void __build_skb_around(struct sk
- 	skb->head = data;
- 	skb->data = data;
- 	skb_reset_tail_pointer(skb);
--	skb->end = skb->tail + size;
-+	skb_set_end_offset(skb, size);
- 	skb->mac_header = (typeof(skb->mac_header))~0U;
- 	skb->transport_header = (typeof(skb->transport_header))~0U;
+ 	/*
+-	 * Budget request settings: new dirty inode, new direntry,
+-	 * budget for dirtied inode will be released via writeback.
++	 * Budget request settings: new inode, new direntry, changing the
++	 * parent directory inode.
++	 * Allocate budget separately for new dirtied inode, the budget will
++	 * be released via writeback.
+ 	 */
  
-@@ -1736,11 +1736,10 @@ int pskb_expand_head(struct sk_buff *skb
- 	skb->head     = data;
- 	skb->head_frag = 0;
- 	skb->data    += off;
-+
-+	skb_set_end_offset(skb, size);
- #ifdef NET_SKBUFF_DATA_USES_OFFSET
--	skb->end      = size;
- 	off           = nhead;
--#else
--	skb->end      = skb->head + size;
- #endif
- 	skb->tail	      += off;
- 	skb_headers_offset_update(skb, nhead);
-@@ -6044,11 +6043,7 @@ static int pskb_carve_inside_header(stru
- 	skb->head = data;
- 	skb->data = data;
- 	skb->head_frag = 0;
--#ifdef NET_SKBUFF_DATA_USES_OFFSET
--	skb->end = size;
--#else
--	skb->end = skb->head + size;
--#endif
-+	skb_set_end_offset(skb, size);
- 	skb_set_tail_pointer(skb, skb_headlen(skb));
- 	skb_headers_offset_update(skb, 0);
- 	skb->cloned = 0;
-@@ -6186,11 +6181,7 @@ static int pskb_carve_inside_nonlinear(s
- 	skb->head = data;
- 	skb->head_frag = 0;
- 	skb->data = data;
--#ifdef NET_SKBUFF_DATA_USES_OFFSET
--	skb->end = size;
--#else
--	skb->end = skb->head + size;
--#endif
-+	skb_set_end_offset(skb, size);
- 	skb_reset_tail_pointer(skb);
- 	skb_headers_offset_update(skb, 0);
- 	skb->cloned   = 0;
+ 	dbg_gen("dent '%pd', mode %#hx in dir ino %lu",
+@@ -979,7 +982,8 @@ static int ubifs_mkdir(struct user_names
+ 	struct ubifs_inode *dir_ui = ubifs_inode(dir);
+ 	struct ubifs_info *c = dir->i_sb->s_fs_info;
+ 	int err, sz_change;
+-	struct ubifs_budget_req req = { .new_ino = 1, .new_dent = 1 };
++	struct ubifs_budget_req req = { .new_ino = 1, .new_dent = 1,
++					.dirtied_ino = 1};
+ 	struct fscrypt_name nm;
+ 
+ 	/*
 
 
