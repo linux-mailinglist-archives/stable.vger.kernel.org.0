@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C1B074F33C9
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:23:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CC0F4F3369
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:16:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237505AbiDEKGz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:06:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51030 "EHLO
+        id S236520AbiDEJDF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:03:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344267AbiDEJTD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:19:03 -0400
+        with ESMTP id S238281AbiDEIa1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:30:27 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0A1E220DE;
-        Tue,  5 Apr 2022 02:06:34 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 035C424F21;
+        Tue,  5 Apr 2022 01:22:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7FFD461571;
-        Tue,  5 Apr 2022 09:06:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C039C385A1;
-        Tue,  5 Apr 2022 09:06:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7226C6115B;
+        Tue,  5 Apr 2022 08:22:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7BA0DC385A0;
+        Tue,  5 Apr 2022 08:22:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149593;
-        bh=hUw5GvYClpR87kollzuNvmjc3unATiZOHiuZijPqx/s=;
+        s=korg; t=1649146921;
+        bh=yPQlBLQGEvHpOmVboz3fBeiBvatZ09xFfJx8JBLUUOI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KaFJ2kWx1a7RhTHQy1JrDDFcTuIIzkbQlDmEjKCRvJAfaG4R4FBqWjtsAr5y67KKB
-         3Xp8mIkWfyapmUYMzg4k1/DsPS9roWt42ssgWcPyfWQ8GGr7md05RHE/Rlm5mBQiQ7
-         njr2dOFa5k0cmmNWu9dTmd8c0DiFCf5g/mjXmQr0=
+        b=JBzeDUSjT48MYWS+SHj92cnSUXkjsozpPke5zLIz54Q3RMIJww1ObvIA9Pb0RjaOq
+         wIIwYDReiUURGL+754VV+WjRTLKa5S64abqRcOz8izMgsvlfTdJx/LtioKfp8q8Rw6
+         fjODDSOiuAR04y5yXE0tKD8EDwzeOqzagXMvIG2M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        "Souptick Joarder (HPE)" <jrdr.linux@gmail.com>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0771/1017] irqchip/nvic: Release nvic_base upon failure
-Date:   Tue,  5 Apr 2022 09:28:04 +0200
-Message-Id: <20220405070417.145962088@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        =?UTF-8?q?P=C3=A9ter=20Ujfalusi?= <peter.ujfalusi@linux.intel.com>,
+        Takashi Iwai <tiwai@suse.de>, Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 0938/1126] ALSA: intel-nhlt: add helper to detect SSP link mask
+Date:   Tue,  5 Apr 2022 09:28:05 +0200
+Message-Id: <20220405070435.044517759@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,48 +57,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Souptick Joarder (HPE) <jrdr.linux@gmail.com>
+From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-[ Upstream commit e414c25e3399b2b3d7337dc47abccab5c71b7c8f ]
+[ Upstream commit 0c470db0399e17310ed2ba54dd1c25cfa16ce0d3 ]
 
-smatch warning was reported as below ->
+The NHLT information can be used to figure out which SSPs are enabled
+in a platform.
 
-smatch warnings:
-drivers/irqchip/irq-nvic.c:131 nvic_of_init()
-warn: 'nvic_base' not released on lines: 97.
+The 'SSP' link type is too broad for machine drivers, since it can
+cover the Bluetooth sideband and the analog audio codec connections,
+so this helper exposes a parameter to filter with the device
+type (DEVICE_I2S refers to analog audio codec in NHLT parlance).
 
-Release nvic_base upon failure.
+The helper returns a mask, since more than one SSP may be used for
+analog audio, e.g. the NHLT spec describes the use of SSP0 for
+amplifiers and SSP1 for headset codec. Note that if more than one bit
+is set, it's impossible to determine which SSP is connected to what
+external component. Additional platform-specific information based on
+e.g. DMI quirks would still be required in the machine driver to
+configure the relevant dailinks.
 
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Souptick Joarder (HPE) <jrdr.linux@gmail.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20220218163303.33344-1-jrdr.linux@gmail.com
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+Reviewed-by: Péter Ujfalusi <peter.ujfalusi@linux.intel.com>
+Acked-by: Takashi Iwai <tiwai@suse.de>
+Link: https://lore.kernel.org/r/20220308192610.392950-5-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/irq-nvic.c | 2 ++
- 1 file changed, 2 insertions(+)
+ include/sound/intel-nhlt.h | 22 +++++++++++++++-------
+ sound/hda/intel-nhlt.c     | 22 ++++++++++++++++++++++
+ 2 files changed, 37 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/irqchip/irq-nvic.c b/drivers/irqchip/irq-nvic.c
-index ba4759b3e269..94230306e0ee 100644
---- a/drivers/irqchip/irq-nvic.c
-+++ b/drivers/irqchip/irq-nvic.c
-@@ -107,6 +107,7 @@ static int __init nvic_of_init(struct device_node *node,
+diff --git a/include/sound/intel-nhlt.h b/include/sound/intel-nhlt.h
+index 089a760d36eb..6fb2d5e378fd 100644
+--- a/include/sound/intel-nhlt.h
++++ b/include/sound/intel-nhlt.h
+@@ -18,6 +18,13 @@ enum nhlt_link_type {
+ 	NHLT_LINK_INVALID
+ };
  
- 	if (!nvic_irq_domain) {
- 		pr_warn("Failed to allocate irq domain\n");
-+		iounmap(nvic_base);
- 		return -ENOMEM;
- 	}
++enum nhlt_device_type {
++	NHLT_DEVICE_BT = 0,
++	NHLT_DEVICE_DMIC = 1,
++	NHLT_DEVICE_I2S = 4,
++	NHLT_DEVICE_INVALID
++};
++
+ #if IS_ENABLED(CONFIG_ACPI) && IS_ENABLED(CONFIG_SND_INTEL_NHLT)
  
-@@ -116,6 +117,7 @@ static int __init nvic_of_init(struct device_node *node,
- 	if (ret) {
- 		pr_warn("Failed to allocate irq chips\n");
- 		irq_domain_remove(nvic_irq_domain);
-+		iounmap(nvic_base);
- 		return ret;
- 	}
+ struct wav_fmt {
+@@ -41,13 +48,6 @@ struct wav_fmt_ext {
+ 	u8 sub_fmt[16];
+ } __packed;
  
+-enum nhlt_device_type {
+-	NHLT_DEVICE_BT = 0,
+-	NHLT_DEVICE_DMIC = 1,
+-	NHLT_DEVICE_I2S = 4,
+-	NHLT_DEVICE_INVALID
+-};
+-
+ struct nhlt_specific_cfg {
+ 	u32 size;
+ 	u8 caps[];
+@@ -133,6 +133,9 @@ void intel_nhlt_free(struct nhlt_acpi_table *addr);
+ int intel_nhlt_get_dmic_geo(struct device *dev, struct nhlt_acpi_table *nhlt);
+ 
+ bool intel_nhlt_has_endpoint_type(struct nhlt_acpi_table *nhlt, u8 link_type);
++
++int intel_nhlt_ssp_endpoint_mask(struct nhlt_acpi_table *nhlt, u8 device_type);
++
+ struct nhlt_specific_cfg *
+ intel_nhlt_get_endpoint_blob(struct device *dev, struct nhlt_acpi_table *nhlt,
+ 			     u32 bus_id, u8 link_type, u8 vbps, u8 bps,
+@@ -163,6 +166,11 @@ static inline bool intel_nhlt_has_endpoint_type(struct nhlt_acpi_table *nhlt,
+ 	return false;
+ }
+ 
++static inline int intel_nhlt_ssp_endpoint_mask(struct nhlt_acpi_table *nhlt, u8 device_type)
++{
++	return 0;
++}
++
+ static inline struct nhlt_specific_cfg *
+ intel_nhlt_get_endpoint_blob(struct device *dev, struct nhlt_acpi_table *nhlt,
+ 			     u32 bus_id, u8 link_type, u8 vbps, u8 bps,
+diff --git a/sound/hda/intel-nhlt.c b/sound/hda/intel-nhlt.c
+index 128476aa7c61..4063da378283 100644
+--- a/sound/hda/intel-nhlt.c
++++ b/sound/hda/intel-nhlt.c
+@@ -130,6 +130,28 @@ bool intel_nhlt_has_endpoint_type(struct nhlt_acpi_table *nhlt, u8 link_type)
+ }
+ EXPORT_SYMBOL(intel_nhlt_has_endpoint_type);
+ 
++int intel_nhlt_ssp_endpoint_mask(struct nhlt_acpi_table *nhlt, u8 device_type)
++{
++	struct nhlt_endpoint *epnt;
++	int ssp_mask = 0;
++	int i;
++
++	if (!nhlt || (device_type != NHLT_DEVICE_BT && device_type != NHLT_DEVICE_I2S))
++		return 0;
++
++	epnt = (struct nhlt_endpoint *)nhlt->desc;
++	for (i = 0; i < nhlt->endpoint_count; i++) {
++		if (epnt->linktype == NHLT_LINK_SSP && epnt->device_type == device_type) {
++			/* for SSP the virtual bus id is the SSP port */
++			ssp_mask |= BIT(epnt->virtual_bus_id);
++		}
++		epnt = (struct nhlt_endpoint *)((u8 *)epnt + epnt->length);
++	}
++
++	return ssp_mask;
++}
++EXPORT_SYMBOL(intel_nhlt_ssp_endpoint_mask);
++
+ static struct nhlt_specific_cfg *
+ nhlt_get_specific_cfg(struct device *dev, struct nhlt_fmt *fmt, u8 num_ch,
+ 		      u32 rate, u8 vbps, u8 bps)
 -- 
 2.34.1
 
