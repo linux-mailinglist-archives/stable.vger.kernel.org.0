@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F1EB4F362D
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:57:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 073EC4F34FB
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:42:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245248AbiDEK71 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:59:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55206 "EHLO
+        id S233812AbiDEIiE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:38:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56794 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347190AbiDEJqI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:46:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E39ECDD95A;
-        Tue,  5 Apr 2022 02:32:34 -0700 (PDT)
+        with ESMTP id S237960AbiDEISe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:18:34 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A967EB7C6F;
+        Tue,  5 Apr 2022 01:07:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5BDFA616C1;
-        Tue,  5 Apr 2022 09:32:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67B84C385A0;
-        Tue,  5 Apr 2022 09:32:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 74AD1B81BAF;
+        Tue,  5 Apr 2022 08:07:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0256C385A1;
+        Tue,  5 Apr 2022 08:07:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151153;
-        bh=+sX6eT4etelquzx7SDWaJwJw7R7+rWeSw+xS7cKPHDI=;
+        s=korg; t=1649146066;
+        bh=67yb1/B6Sg6i3jl64lZRn2eNJU5+LSPF5bkVgEih44E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kj8sRnDRvMrIbie7VNBhBviXQM74RGLgPqAzsHPLF9E99cKdSRShoy9tIwCwwkHn/
-         d+ggeRXX8iFh98Ov4//SFFwr5leUN4GXog0mYJqdJaTNd1JioriL5Jenef6tFeq4AV
-         FWkzlXZ4RSOis402KEwwKg/ykzBQq6XgqoWHZngY=
+        b=E9I8VZO4FXzBrl7e8PLaDPoNzH+1YoIImL6erO8geMW+HNcjyFq4lA3lbSMwUXI1b
+         v/6bbY3nij1oAh2JLSLznAhDaE3iASZMz/ChzODf6SbydsO334XbMtVi0CWv43YZ6+
+         ojigBYoNSoWa9eou63a6Vs/Pq0tA0FH7fgSAER4s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, syzkaller <syzkaller@googlegroups.com>,
-        Dongliang Mu <mudongliangabcd@gmail.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        stable@vger.kernel.org,
+        Divya Koppera <Divya.Koppera@microchip.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 313/913] media: em28xx: initialize refcount before kref_get
+Subject: [PATCH 5.17 0628/1126] net: phy: micrel: Fix concurrent register access
 Date:   Tue,  5 Apr 2022 09:22:55 +0200
-Message-Id: <20220405070349.235758782@linuxfoundation.org>
+Message-Id: <20220405070426.069996732@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,64 +55,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongliang Mu <mudongliangabcd@gmail.com>
+From: Divya Koppera <Divya.Koppera@microchip.com>
 
-[ Upstream commit c08eadca1bdfa099e20a32f8fa4b52b2f672236d ]
+[ Upstream commit 4488f6b6148045424459ef1d5b153c6895ee1dbb ]
 
-The commit 47677e51e2a4("[media] em28xx: Only deallocate struct
-em28xx after finishing all extensions") adds kref_get to many init
-functions (e.g., em28xx_audio_init). However, kref_init is called too
-late in em28xx_usb_probe, since em28xx_init_dev before will invoke
-those init functions and call kref_get function. Then refcount bug
-occurs in my local syzkaller instance.
+Make Extended page register accessing atomic,
+to overcome unexpected output from register
+reads/writes.
 
-Fix it by moving kref_init before em28xx_init_dev. This issue occurs
-not only in dev but also dev->dev_next.
-
-Fixes: 47677e51e2a4 ("[media] em28xx: Only deallocate struct em28xx after finishing all extensions")
-Reported-by: syzkaller <syzkaller@googlegroups.com>
-Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Fixes: 7c2dcfa295b1 ("net: phy: micrel: Add support for LAN8804 PHY")
+Signed-off-by: Divya Koppera<Divya.Koppera@microchip.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/em28xx/em28xx-cards.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/net/phy/micrel.c | 30 ++++++++++++++++--------------
+ 1 file changed, 16 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/media/usb/em28xx/em28xx-cards.c b/drivers/media/usb/em28xx/em28xx-cards.c
-index ebc430b05f21..c415b1d195c4 100644
---- a/drivers/media/usb/em28xx/em28xx-cards.c
-+++ b/drivers/media/usb/em28xx/em28xx-cards.c
-@@ -3931,6 +3931,8 @@ static int em28xx_usb_probe(struct usb_interface *intf,
- 		goto err_free;
- 	}
+diff --git a/drivers/net/phy/micrel.c b/drivers/net/phy/micrel.c
+index a7ebcdab415b..281cebc3d00c 100644
+--- a/drivers/net/phy/micrel.c
++++ b/drivers/net/phy/micrel.c
+@@ -1596,11 +1596,13 @@ static int lanphy_read_page_reg(struct phy_device *phydev, int page, u32 addr)
+ {
+ 	u32 data;
  
-+	kref_init(&dev->ref);
-+
- 	dev->devno = nr;
- 	dev->model = id->driver_info;
- 	dev->alt   = -1;
-@@ -4031,6 +4033,8 @@ static int em28xx_usb_probe(struct usb_interface *intf,
- 	}
+-	phy_write(phydev, LAN_EXT_PAGE_ACCESS_CONTROL, page);
+-	phy_write(phydev, LAN_EXT_PAGE_ACCESS_ADDRESS_DATA, addr);
+-	phy_write(phydev, LAN_EXT_PAGE_ACCESS_CONTROL,
+-		  (page | LAN_EXT_PAGE_ACCESS_CTRL_EP_FUNC));
+-	data = phy_read(phydev, LAN_EXT_PAGE_ACCESS_ADDRESS_DATA);
++	phy_lock_mdio_bus(phydev);
++	__phy_write(phydev, LAN_EXT_PAGE_ACCESS_CONTROL, page);
++	__phy_write(phydev, LAN_EXT_PAGE_ACCESS_ADDRESS_DATA, addr);
++	__phy_write(phydev, LAN_EXT_PAGE_ACCESS_CONTROL,
++		    (page | LAN_EXT_PAGE_ACCESS_CTRL_EP_FUNC));
++	data = __phy_read(phydev, LAN_EXT_PAGE_ACCESS_ADDRESS_DATA);
++	phy_unlock_mdio_bus(phydev);
  
- 	if (dev->board.has_dual_ts && em28xx_duplicate_dev(dev) == 0) {
-+		kref_init(&dev->dev_next->ref);
-+
- 		dev->dev_next->ts = SECONDARY_TS;
- 		dev->dev_next->alt   = -1;
- 		dev->dev_next->is_audio_only = has_vendor_audio &&
-@@ -4085,12 +4089,8 @@ static int em28xx_usb_probe(struct usb_interface *intf,
- 			em28xx_write_reg(dev, 0x0b, 0x82);
- 			mdelay(100);
- 		}
--
--		kref_init(&dev->dev_next->ref);
- 	}
+ 	return data;
+ }
+@@ -1608,18 +1610,18 @@ static int lanphy_read_page_reg(struct phy_device *phydev, int page, u32 addr)
+ static int lanphy_write_page_reg(struct phy_device *phydev, int page, u16 addr,
+ 				 u16 val)
+ {
+-	phy_write(phydev, LAN_EXT_PAGE_ACCESS_CONTROL, page);
+-	phy_write(phydev, LAN_EXT_PAGE_ACCESS_ADDRESS_DATA, addr);
+-	phy_write(phydev, LAN_EXT_PAGE_ACCESS_CONTROL,
+-		  (page | LAN_EXT_PAGE_ACCESS_CTRL_EP_FUNC));
++	phy_lock_mdio_bus(phydev);
++	__phy_write(phydev, LAN_EXT_PAGE_ACCESS_CONTROL, page);
++	__phy_write(phydev, LAN_EXT_PAGE_ACCESS_ADDRESS_DATA, addr);
++	__phy_write(phydev, LAN_EXT_PAGE_ACCESS_CONTROL,
++		    page | LAN_EXT_PAGE_ACCESS_CTRL_EP_FUNC);
  
--	kref_init(&dev->ref);
--
- 	request_modules(dev);
+-	val = phy_write(phydev, LAN_EXT_PAGE_ACCESS_ADDRESS_DATA, val);
+-	if (val) {
++	val = __phy_write(phydev, LAN_EXT_PAGE_ACCESS_ADDRESS_DATA, val);
++	if (val != 0)
+ 		phydev_err(phydev, "Error: phy_write has returned error %d\n",
+ 			   val);
+-		return val;
+-	}
+-	return 0;
++	phy_unlock_mdio_bus(phydev);
++	return val;
+ }
  
- 	/*
+ static int lan8814_config_init(struct phy_device *phydev)
 -- 
 2.34.1
 
