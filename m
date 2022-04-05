@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 228614F37B4
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:22:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B5C904F3ABC
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:04:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359469AbiDELTT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:19:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39718 "EHLO
+        id S237371AbiDELrR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:47:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57676 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349184AbiDEJtZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3C31205D8;
-        Tue,  5 Apr 2022 02:42:25 -0700 (PDT)
+        with ESMTP id S1355248AbiDEKSn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:18:43 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48D8FFD3A;
+        Tue,  5 Apr 2022 03:04:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 61090615E5;
-        Tue,  5 Apr 2022 09:42:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 682FDC385A3;
-        Tue,  5 Apr 2022 09:42:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E633FB81C8B;
+        Tue,  5 Apr 2022 10:04:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 425AEC385A2;
+        Tue,  5 Apr 2022 10:04:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151744;
-        bh=WrBVVqM10/J6lxBsgTkDsZRT45DDOW82ezoBdJUPxIM=;
+        s=korg; t=1649153073;
+        bh=CLWf3OMHKzeZvde0sUqk3oNEVx0H7Xs+0c0PJsByIdQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O0I/PHvAC7/4dIWHQCHsWx3Dz8KiYKuHxsQTrAK6OtZkvfkDlDZYJC9JblBlzgQLt
-         NF1ICxm6uivZ5Uub9nTgsE5QhjWn4POOyFvqD2CaoLaGdr9Mzt+0tg+Ziw8Nr1e1XY
-         3biVHR+aR1JFLdEzyTosZ3oIRJsBx1yFNmvlsXpA=
+        b=YSm5xkFUkayn6nZEAuWe5/Uqv1Ga1MBxQSR+bKv1Reqj56WS6jYqVbPtBV25L81R3
+         92n/WnjMs3nuATnm8o/FKBlsCkKQ8Mxo/PhFHBmRhO8R64IZqxtI0BpHMeFqw66pu/
+         n7NKasoh0mO4zFUNfeLHfyVclaZsNuiA5Smj3rqk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cheng Li <lic121@chinatelecom.cn>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 525/913] libbpf: Unmap rings when umem deleted
+        stable@vger.kernel.org, Pekka Pessi <ppessi@nvidia.com>,
+        Jon Hunter <jonathanh@nvidia.com>,
+        Thierry Reding <treding@nvidia.com>,
+        Jassi Brar <jaswinder.singh@linaro.org>
+Subject: [PATCH 5.10 093/599] mailbox: tegra-hsp: Flush whole channel
 Date:   Tue,  5 Apr 2022 09:26:27 +0200
-Message-Id: <20220405070355.588417863@linuxfoundation.org>
+Message-Id: <20220405070301.595991009@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070258.802373272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,60 +55,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: lic121 <lic121@chinatelecom.cn>
+From: Pekka Pessi <ppessi@nvidia.com>
 
-[ Upstream commit 9c6e6a80ee741adf6cb3cfd8eef7d1554f91fceb ]
+commit 60de2d2dc284e0dd1c2c897d08625bde24ef3454 upstream.
 
-xsk_umem__create() does mmap for fill/comp rings, but xsk_umem__delete()
-doesn't do the unmap. This works fine for regular cases, because
-xsk_socket__delete() does unmap for the rings. But for the case that
-xsk_socket__create_shared() fails, umem rings are not unmapped.
+The txdone can re-fill the mailbox. Keep polling the mailbox during the
+flush until all the messages have been delivered.
 
-fill_save/comp_save are checked to determine if rings have already be
-unmapped by xsk. If fill_save and comp_save are NULL, it means that the
-rings have already been used by xsk. Then they are supposed to be
-unmapped by xsk_socket__delete(). Otherwise, xsk_umem__delete() does the
-unmap.
+This fixes an issue with the Tegra Combined UART (TCU) where output can
+get truncated under high traffic load.
 
-Fixes: 2f6324a3937f ("libbpf: Support shared umems between queues and devices")
-Signed-off-by: Cheng Li <lic121@chinatelecom.cn>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/bpf/20220301132623.GA19995@vscode.7~
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Pekka Pessi <ppessi@nvidia.com>
+Tested-by: Jon Hunter <jonathanh@nvidia.com>
+Fixes: 91b1b1c3da8a ("mailbox: tegra-hsp: Add support for shared mailboxes")
+Cc: stable@vger.kernel.org
+Signed-off-by: Thierry Reding <treding@nvidia.com>
+Reviewed-by: Jon Hunter <jonathanh@nvidia.com>
+Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/lib/bpf/xsk.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/mailbox/tegra-hsp.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/tools/lib/bpf/xsk.c b/tools/lib/bpf/xsk.c
-index e9b619aa0cdf..a27b3141463a 100644
---- a/tools/lib/bpf/xsk.c
-+++ b/tools/lib/bpf/xsk.c
-@@ -1210,12 +1210,23 @@ int xsk_socket__create(struct xsk_socket **xsk_ptr, const char *ifname,
- 
- int xsk_umem__delete(struct xsk_umem *umem)
- {
-+	struct xdp_mmap_offsets off;
-+	int err;
+--- a/drivers/mailbox/tegra-hsp.c
++++ b/drivers/mailbox/tegra-hsp.c
+@@ -410,6 +410,11 @@ static int tegra_hsp_mailbox_flush(struc
+ 		value = tegra_hsp_channel_readl(ch, HSP_SM_SHRD_MBOX);
+ 		if ((value & HSP_SM_SHRD_MBOX_FULL) == 0) {
+ 			mbox_chan_txdone(chan, 0);
 +
- 	if (!umem)
- 		return 0;
- 
- 	if (umem->refcount)
- 		return -EBUSY;
- 
-+	err = xsk_get_mmap_offsets(umem->fd, &off);
-+	if (!err && umem->fill_save && umem->comp_save) {
-+		munmap(umem->fill_save->ring - off.fr.desc,
-+		       off.fr.desc + umem->config.fill_size * sizeof(__u64));
-+		munmap(umem->comp_save->ring - off.cr.desc,
-+		       off.cr.desc + umem->config.comp_size * sizeof(__u64));
-+	}
++			/* Wait until channel is empty */
++			if (chan->active_req != NULL)
++				continue;
 +
- 	close(umem->fd);
- 	free(umem);
+ 			return 0;
+ 		}
  
--- 
-2.34.1
-
 
 
