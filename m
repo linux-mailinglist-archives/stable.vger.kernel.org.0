@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 397254F33DE
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:24:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1478C4F3002
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:19:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237437AbiDEImT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:42:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52752 "EHLO
+        id S237457AbiDEImZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:42:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34436 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239125AbiDEIbL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:31:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19740496B3;
-        Tue,  5 Apr 2022 01:23:10 -0700 (PDT)
+        with ESMTP id S239488AbiDEIbV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:31:21 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 511BF69CD1;
+        Tue,  5 Apr 2022 01:23:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5828CB81BD6;
-        Tue,  5 Apr 2022 08:23:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C48E5C385B4;
-        Tue,  5 Apr 2022 08:23:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 52E2FB81BC3;
+        Tue,  5 Apr 2022 08:23:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98EBEC385A0;
+        Tue,  5 Apr 2022 08:23:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146988;
-        bh=Iq2ZvXe9ADabMGnOc1m2KwnYvzAf0dQnMn6C1TUJ2QA=;
+        s=korg; t=1649147007;
+        bh=Isa5lLGUypQQZmnkX08Z4fxZNNXOrlB9B2FkkAfrJds=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jEY5HTEuUy52xcqnIf3YhC79PsF4NV9Ez311b1I8w7cw54TDTQpx4V2LMLcM7NTSW
-         djcUOZXEdhPSFzlrPnS5xcuq/JL5SNG7DDm/tb8Hlr4+W5/eeUAqb7LDXqp0aKIGcs
-         TVpkDAB+9/iAfYW15JKFCoAjZvL3p+MXHc/58NbM=
+        b=MC/J1vMoKqcepF/fz97+nq2fmfuHkSlG5J7vDBCA3FjG4zBOrk7W7j0v8K+XZpM9L
+         srPjDON5t+SD27Zri5JyUOcOldm8/aaN5117ftb7M6qth8c9uSLeWP4+dRCw9l6Ne5
+         oklQjunnh98F9bVWkrMDQFc6waWE5svmCgWZpdV0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.17 0959/1126] KVM: x86: hyper-v: HVCALL_SEND_IPI_EX is an XMM fast hypercall
-Date:   Tue,  5 Apr 2022 09:28:26 +0200
-Message-Id: <20220405070435.653745066@linuxfoundation.org>
+        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
+        Michael Neuling <mikey@neuling.org>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.17 0961/1126] powerpc/tm: Fix more userspace r13 corruption
+Date:   Tue,  5 Apr 2022 09:28:28 +0200
+Message-Id: <20220405070435.713928313@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -53,127 +54,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-commit 47d3e5cdfe607ec6883eb0faa7acf05b8cb3f92a upstream.
+commit 9d71165d3934e607070c4e48458c0cf161b1baea upstream.
 
-It has been proven on practice that at least Windows Server 2019 tries
-using HVCALL_SEND_IPI_EX in 'XMM fast' mode when it has more than 64 vCPUs
-and it needs to send an IPI to a vCPU > 63. Similarly to other XMM Fast
-hypercalls (HVCALL_FLUSH_VIRTUAL_ADDRESS_{LIST,SPACE}{,_EX}), this
-information is missing in TLFS as of 6.0b. Currently, KVM returns an error
-(HV_STATUS_INVALID_HYPERCALL_INPUT) and Windows crashes.
+Commit cf13435b730a ("powerpc/tm: Fix userspace r13 corruption") fixes a
+problem in treclaim where a SLB miss can occur on the
+thread_struct->ckpt_regs while SCRATCH0 is live with the saved user r13
+value, clobbering it with the kernel r13 and ultimately resulting in
+kernel r13 being stored in ckpt_regs.
 
-Note, HVCALL_SEND_IPI is a 'standard' fast hypercall (not 'XMM fast') as
-all its parameters fit into RDX:R8 and this is handled by KVM correctly.
+There is an equivalent problem in trechkpt where the user r13 value is
+loaded into r13 from chkpt_regs to be recheckpointed, but a SLB miss
+could occur on ckpt_regs accesses after that, which will result in r13
+being clobbered with a kernel value and that will get recheckpointed and
+then restored to user registers.
 
-Cc: stable@vger.kernel.org # 5.14.x: 3244867af8c0: KVM: x86: Ignore sparse banks size for an "all CPUs", non-sparse IPI req
-Cc: stable@vger.kernel.org # 5.14.x
-Fixes: d8f5537a8816 ("KVM: hyper-v: Advertise support for fast XMM hypercalls")
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Message-Id: <20220222154642.684285-5-vkuznets@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+The same memory page is accessed right before this critical window where
+a SLB miss could cause corruption, so hitting the bug requires the SLB
+entry be removed within a small window of instructions, which is
+possible if a SLB related MCE hits there. PAPR also permits the
+hypervisor to discard this SLB entry (because slb_shadow->persistent is
+only set to SLB_NUM_BOLTED) although it's not known whether any
+implementations would do this (KVM does not). So this is an extremely
+unlikely bug, only found by inspection.
+
+Fix this by also storing user r13 in a temporary location on the kernel
+stack and don't change the r13 register from kernel r13 until the RI=0
+critical section that does not fault.
+
+The SCRATCH0 change is not strictly part of the fix, it's only used in
+the RI=0 section so it does not have the same problem as the previous
+SCRATCH0 bug.
+
+Fixes: 98ae22e15b43 ("powerpc: Add helper functions for transactional memory context switching")
+Cc: stable@vger.kernel.org # v3.9+
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Acked-by: Michael Neuling <mikey@neuling.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220311024733.48926-1-npiggin@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/hyperv.c |   52 ++++++++++++++++++++++++++++++++------------------
- 1 file changed, 34 insertions(+), 18 deletions(-)
+ arch/powerpc/kernel/tm.S |   25 ++++++++++++++++---------
+ 1 file changed, 16 insertions(+), 9 deletions(-)
 
---- a/arch/x86/kvm/hyperv.c
-+++ b/arch/x86/kvm/hyperv.c
-@@ -1890,6 +1890,7 @@ static u64 kvm_hv_send_ipi(struct kvm_vc
- 	int sparse_banks_len;
- 	u32 vector;
- 	bool all_cpus;
-+	int i;
+--- a/arch/powerpc/kernel/tm.S
++++ b/arch/powerpc/kernel/tm.S
+@@ -443,7 +443,8 @@ restore_gprs:
  
- 	if (hc->code == HVCALL_SEND_IPI) {
- 		if (!hc->fast) {
-@@ -1910,9 +1911,15 @@ static u64 kvm_hv_send_ipi(struct kvm_vc
+ 	REST_GPR(0, r7)				/* GPR0 */
+ 	REST_GPRS(2, 4, r7)			/* GPR2-4 */
+-	REST_GPRS(8, 31, r7)			/* GPR8-31 */
++	REST_GPRS(8, 12, r7)			/* GPR8-12 */
++	REST_GPRS(14, 31, r7)			/* GPR14-31 */
  
- 		trace_kvm_hv_send_ipi(vector, sparse_banks[0]);
- 	} else {
--		if (unlikely(kvm_read_guest(kvm, hc->ingpa, &send_ipi_ex,
--					    sizeof(send_ipi_ex))))
--			return HV_STATUS_INVALID_HYPERCALL_INPUT;
-+		if (!hc->fast) {
-+			if (unlikely(kvm_read_guest(kvm, hc->ingpa, &send_ipi_ex,
-+						    sizeof(send_ipi_ex))))
-+				return HV_STATUS_INVALID_HYPERCALL_INPUT;
-+		} else {
-+			send_ipi_ex.vector = (u32)hc->ingpa;
-+			send_ipi_ex.vp_set.format = hc->outgpa;
-+			send_ipi_ex.vp_set.valid_bank_mask = sse128_lo(hc->xmm[0]);
-+		}
+ 	/* Load up PPR and DSCR here so we don't run with user values for long */
+ 	mtspr	SPRN_DSCR, r5
+@@ -479,18 +480,24 @@ restore_gprs:
+ 	REST_GPR(6, r7)
  
- 		trace_kvm_hv_send_ipi_ex(send_ipi_ex.vector,
- 					 send_ipi_ex.vp_set.format,
-@@ -1920,8 +1927,7 @@ static u64 kvm_hv_send_ipi(struct kvm_vc
+ 	/*
+-	 * Store r1 and r5 on the stack so that we can access them after we
+-	 * clear MSR RI.
++	 * Store user r1 and r5 and r13 on the stack (in the unused save
++	 * areas / compiler reserved areas), so that we can access them after
++	 * we clear MSR RI.
+ 	 */
  
- 		vector = send_ipi_ex.vector;
- 		valid_bank_mask = send_ipi_ex.vp_set.valid_bank_mask;
--		sparse_banks_len = bitmap_weight(&valid_bank_mask, 64) *
--			sizeof(sparse_banks[0]);
-+		sparse_banks_len = bitmap_weight(&valid_bank_mask, 64);
+ 	REST_GPR(5, r7)
+ 	std	r5, -8(r1)
+-	ld	r5, GPR1(r7)
++	ld	r5, GPR13(r7)
+ 	std	r5, -16(r1)
++	ld	r5, GPR1(r7)
++	std	r5, -24(r1)
  
- 		all_cpus = send_ipi_ex.vp_set.format == HV_GENERIC_SET_ALL;
+ 	REST_GPR(7, r7)
  
-@@ -1931,12 +1937,27 @@ static u64 kvm_hv_send_ipi(struct kvm_vc
- 		if (!sparse_banks_len)
- 			goto ret_success;
+-	/* Clear MSR RI since we are about to use SCRATCH0. EE is already off */
++	/* Stash the stack pointer away for use after recheckpoint */
++	std	r1, PACAR1(r13)
++
++	/* Clear MSR RI since we are about to clobber r13. EE is already off */
+ 	li	r5, 0
+ 	mtmsrd	r5, 1
  
--		if (kvm_read_guest(kvm,
--				   hc->ingpa + offsetof(struct hv_send_ipi_ex,
--							vp_set.bank_contents),
--				   sparse_banks,
--				   sparse_banks_len))
--			return HV_STATUS_INVALID_HYPERCALL_INPUT;
-+		if (!hc->fast) {
-+			if (kvm_read_guest(kvm,
-+					   hc->ingpa + offsetof(struct hv_send_ipi_ex,
-+								vp_set.bank_contents),
-+					   sparse_banks,
-+					   sparse_banks_len * sizeof(sparse_banks[0])))
-+				return HV_STATUS_INVALID_HYPERCALL_INPUT;
-+		} else {
-+			/*
-+			 * The lower half of XMM0 is already consumed, each XMM holds
-+			 * two sparse banks.
-+			 */
-+			if (sparse_banks_len > (2 * HV_HYPERCALL_MAX_XMM_REGISTERS - 1))
-+				return HV_STATUS_INVALID_HYPERCALL_INPUT;
-+			for (i = 0; i < sparse_banks_len; i++) {
-+				if (i % 2)
-+					sparse_banks[i] = sse128_lo(hc->xmm[(i + 1) / 2]);
-+				else
-+					sparse_banks[i] = sse128_hi(hc->xmm[i / 2]);
-+			}
-+		}
- 	}
+@@ -501,9 +508,9 @@ restore_gprs:
+ 	 * until we turn MSR RI back on.
+ 	 */
  
- check_and_send_ipi:
-@@ -2098,6 +2119,7 @@ static bool is_xmm_fast_hypercall(struct
- 	case HVCALL_FLUSH_VIRTUAL_ADDRESS_SPACE:
- 	case HVCALL_FLUSH_VIRTUAL_ADDRESS_LIST_EX:
- 	case HVCALL_FLUSH_VIRTUAL_ADDRESS_SPACE_EX:
-+	case HVCALL_SEND_IPI_EX:
- 		return true;
- 	}
+-	SET_SCRATCH0(r1)
+ 	ld	r5, -8(r1)
+-	ld	r1, -16(r1)
++	ld	r13, -16(r1)
++	ld	r1, -24(r1)
  
-@@ -2265,14 +2287,8 @@ int kvm_hv_hypercall(struct kvm_vcpu *vc
- 		ret = kvm_hv_flush_tlb(vcpu, &hc);
- 		break;
- 	case HVCALL_SEND_IPI:
--		if (unlikely(hc.rep)) {
--			ret = HV_STATUS_INVALID_HYPERCALL_INPUT;
--			break;
--		}
--		ret = kvm_hv_send_ipi(vcpu, &hc);
--		break;
- 	case HVCALL_SEND_IPI_EX:
--		if (unlikely(hc.fast || hc.rep)) {
-+		if (unlikely(hc.rep)) {
- 			ret = HV_STATUS_INVALID_HYPERCALL_INPUT;
- 			break;
- 		}
+ 	/* Commit register state as checkpointed state: */
+ 	TRECHKPT
+@@ -519,9 +526,9 @@ restore_gprs:
+ 	 */
+ 
+ 	GET_PACA(r13)
+-	GET_SCRATCH0(r1)
++	ld	r1, PACAR1(r13)
+ 
+-	/* R1 is restored, so we are recoverable again.  EE is still off */
++	/* R13, R1 is restored, so we are recoverable again.  EE is still off */
+ 	li	r4, MSR_RI
+ 	mtmsrd	r4, 1
+ 
 
 
