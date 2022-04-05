@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 46BF84F3928
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:45:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DB894F3C30
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:24:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377661AbiDELaG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:30:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40648 "EHLO
+        id S238208AbiDEMFv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:05:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50638 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352392AbiDEKEc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:04:32 -0400
+        with ESMTP id S1358241AbiDEK2K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:28:10 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D810BBA327;
-        Tue,  5 Apr 2022 02:53:12 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2401BC84;
+        Tue,  5 Apr 2022 03:17:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 765486172B;
-        Tue,  5 Apr 2022 09:53:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80F44C385A1;
-        Tue,  5 Apr 2022 09:53:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7E5386176C;
+        Tue,  5 Apr 2022 10:17:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82624C385A1;
+        Tue,  5 Apr 2022 10:17:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152391;
-        bh=fwLcSYhjpEckNUeRMKC+GvUQzd+OndIHzBsm1iYLhc0=;
+        s=korg; t=1649153841;
+        bh=acjGa2Mds/qC0cT2/655emFjJYDB8+CxawsXEriSDkw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=acYRTLt9iqKhKOT4sc/1//lxNB6R8qGxgorgEO8rUfqwuHqMU37zy9QR7jPtAHk/Q
-         pIedEn5InHQ3qYUYroIqfpERsdtg3N0zLHwAPChoIDQKIZg8NvMN6qnOjUZHB1YAG7
-         hNlwXTzBV+foe1au5JBn/u7mHaRxqFaVaLA2SzhY=
+        b=duH2xNCnvK2x4lAJzTnJvw2Cw+a89VNVMs7gP1B4D/JbjMlDAVIFfW+6T3uzRjZYT
+         W5LXS6V/l4a4uXcnNenGGOoJuOqu695+ADHPMLWX17Gzt8qf2eskxQaWQADZe8o1D9
+         /5d+yzOB9tPrdlyqTgIbNHNxk4qk3XzBgcRzihL4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Vijendar Mukunda <Vijendar.Mukunda@amd.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 760/913] ASoC: amd: vg: fix for pm resume callback sequence
+        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
+        Hou Tao <houtao1@huawei.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 328/599] bpf, arm64: Feed byte-offset into bpf line info
 Date:   Tue,  5 Apr 2022 09:30:22 +0200
-Message-Id: <20220405070402.613986123@linuxfoundation.org>
+Message-Id: <20220405070308.593452798@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070258.802373272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,117 +53,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vijendar Mukunda <Vijendar.Mukunda@amd.com>
+From: Hou Tao <houtao1@huawei.com>
 
-[ Upstream commit 83b713619ee1b15e09eae11a92a7f3305534223d ]
+[ Upstream commit dda7596c109fc382876118627e29db7607cde35d ]
 
-The previous condition is used to cross check only the active
-stream status for I2S HS instance playback and capture use cases.
+insn_to_jit_off passed to bpf_prog_fill_jited_linfo() is calculated in
+instruction granularity instead of bytes granularity, but BPF line info
+requires byte offset.
 
-Modified logic to invoke sequence for two i2s controller instances.
+bpf_prog_fill_jited_linfo() will be the last user of ctx.offset before
+it is freed, so convert the offset into byte-offset before calling into
+bpf_prog_fill_jited_linfo() in order to fix the line info dump on arm64.
 
-This also fixes warnings reported by kernel robot:
-"warning: variable 'frmt_val' set but not used"
-"warning: variable 'reg_val' set but not used"
-
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Vijendar Mukunda <Vijendar.Mukunda@amd.com>
-Link: https://lore.kernel.org/r/20220225193054.24916-1-Vijendar.Mukunda@amd.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 37ab566c178d ("bpf: arm64: Enable arm64 jit to provide bpf_line_info")
+Suggested-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: Hou Tao <houtao1@huawei.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20220226121906.5709-3-houtao1@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/amd/vangogh/acp5x-pcm-dma.c | 66 +++++++++++++--------------
- 1 file changed, 33 insertions(+), 33 deletions(-)
+ arch/arm64/net/bpf_jit_comp.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/sound/soc/amd/vangogh/acp5x-pcm-dma.c b/sound/soc/amd/vangogh/acp5x-pcm-dma.c
-index 6abcc2133a2c..bfca4cf423cf 100644
---- a/sound/soc/amd/vangogh/acp5x-pcm-dma.c
-+++ b/sound/soc/amd/vangogh/acp5x-pcm-dma.c
-@@ -426,51 +426,51 @@ static int acp5x_audio_remove(struct platform_device *pdev)
- static int __maybe_unused acp5x_pcm_resume(struct device *dev)
- {
- 	struct i2s_dev_data *adata;
--	u32 val, reg_val, frmt_val;
-+	struct i2s_stream_instance *rtd;
-+	u32 val;
+diff --git a/arch/arm64/net/bpf_jit_comp.c b/arch/arm64/net/bpf_jit_comp.c
+index 880f50c53086..9c6cab71ba98 100644
+--- a/arch/arm64/net/bpf_jit_comp.c
++++ b/arch/arm64/net/bpf_jit_comp.c
+@@ -1124,6 +1124,11 @@ struct bpf_prog *bpf_int_jit_compile(struct bpf_prog *prog)
+ 	prog->jited_len = prog_size;
  
--	reg_val = 0;
--	frmt_val = 0;
- 	adata = dev_get_drvdata(dev);
- 
- 	if (adata->play_stream && adata->play_stream->runtime) {
--		struct i2s_stream_instance *rtd =
--			adata->play_stream->runtime->private_data;
-+		rtd = adata->play_stream->runtime->private_data;
- 		config_acp5x_dma(rtd, SNDRV_PCM_STREAM_PLAYBACK);
--		switch (rtd->i2s_instance) {
--		case I2S_HS_INSTANCE:
--			reg_val = ACP_HSTDM_ITER;
--			frmt_val = ACP_HSTDM_TXFRMT;
--			break;
--		case I2S_SP_INSTANCE:
--		default:
--			reg_val = ACP_I2STDM_ITER;
--			frmt_val = ACP_I2STDM_TXFRMT;
-+		acp_writel((rtd->xfer_resolution  << 3), rtd->acp5x_base + ACP_HSTDM_ITER);
-+		if (adata->tdm_mode == TDM_ENABLE) {
-+			acp_writel(adata->tdm_fmt, adata->acp5x_base + ACP_HSTDM_TXFRMT);
-+			val = acp_readl(adata->acp5x_base + ACP_HSTDM_ITER);
-+			acp_writel(val | 0x2, adata->acp5x_base + ACP_HSTDM_ITER);
-+		}
-+	}
-+	if (adata->i2ssp_play_stream && adata->i2ssp_play_stream->runtime) {
-+		rtd = adata->i2ssp_play_stream->runtime->private_data;
-+		config_acp5x_dma(rtd, SNDRV_PCM_STREAM_PLAYBACK);
-+		acp_writel((rtd->xfer_resolution  << 3), rtd->acp5x_base + ACP_I2STDM_ITER);
-+		if (adata->tdm_mode == TDM_ENABLE) {
-+			acp_writel(adata->tdm_fmt, adata->acp5x_base + ACP_I2STDM_TXFRMT);
-+			val = acp_readl(adata->acp5x_base + ACP_I2STDM_ITER);
-+			acp_writel(val | 0x2, adata->acp5x_base + ACP_I2STDM_ITER);
- 		}
--		acp_writel((rtd->xfer_resolution  << 3),
--			   rtd->acp5x_base + reg_val);
- 	}
- 
- 	if (adata->capture_stream && adata->capture_stream->runtime) {
--		struct i2s_stream_instance *rtd =
--			adata->capture_stream->runtime->private_data;
-+		rtd = adata->capture_stream->runtime->private_data;
- 		config_acp5x_dma(rtd, SNDRV_PCM_STREAM_CAPTURE);
--		switch (rtd->i2s_instance) {
--		case I2S_HS_INSTANCE:
--			reg_val = ACP_HSTDM_IRER;
--			frmt_val = ACP_HSTDM_RXFRMT;
--			break;
--		case I2S_SP_INSTANCE:
--		default:
--			reg_val = ACP_I2STDM_IRER;
--			frmt_val = ACP_I2STDM_RXFRMT;
-+		acp_writel((rtd->xfer_resolution  << 3), rtd->acp5x_base + ACP_HSTDM_IRER);
-+		if (adata->tdm_mode == TDM_ENABLE) {
-+			acp_writel(adata->tdm_fmt, adata->acp5x_base + ACP_HSTDM_RXFRMT);
-+			val = acp_readl(adata->acp5x_base + ACP_HSTDM_IRER);
-+			acp_writel(val | 0x2, adata->acp5x_base + ACP_HSTDM_IRER);
- 		}
--		acp_writel((rtd->xfer_resolution  << 3),
--			   rtd->acp5x_base + reg_val);
- 	}
--	if (adata->tdm_mode == TDM_ENABLE) {
--		acp_writel(adata->tdm_fmt, adata->acp5x_base + frmt_val);
--		val = acp_readl(adata->acp5x_base + reg_val);
--		acp_writel(val | 0x2, adata->acp5x_base + reg_val);
-+	if (adata->i2ssp_capture_stream && adata->i2ssp_capture_stream->runtime) {
-+		rtd = adata->i2ssp_capture_stream->runtime->private_data;
-+		config_acp5x_dma(rtd, SNDRV_PCM_STREAM_CAPTURE);
-+		acp_writel((rtd->xfer_resolution  << 3), rtd->acp5x_base + ACP_I2STDM_IRER);
-+		if (adata->tdm_mode == TDM_ENABLE) {
-+			acp_writel(adata->tdm_fmt, adata->acp5x_base + ACP_I2STDM_RXFRMT);
-+			val = acp_readl(adata->acp5x_base + ACP_I2STDM_IRER);
-+			acp_writel(val | 0x2, adata->acp5x_base + ACP_I2STDM_IRER);
-+		}
- 	}
- 	acp_writel(1, adata->acp5x_base + ACP_EXTERNAL_INTR_ENB);
- 	return 0;
+ 	if (!prog->is_func || extra_pass) {
++		int i;
++
++		/* offset[prog->len] is the size of program */
++		for (i = 0; i <= prog->len; i++)
++			ctx.offset[i] *= AARCH64_INSN_SIZE;
+ 		bpf_prog_fill_jited_linfo(prog, ctx.offset + 1);
+ out_off:
+ 		kfree(ctx.offset);
 -- 
 2.34.1
 
