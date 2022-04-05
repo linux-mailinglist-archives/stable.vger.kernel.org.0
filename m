@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D72A4F3F8E
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:04:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF2E44F407F
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:16:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357674AbiDEMM7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:12:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53664 "EHLO
+        id S1380505AbiDEMNI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:13:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48780 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358069AbiDEK15 (ORCPT
+        with ESMTP id S1358070AbiDEK15 (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:27:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C0E93DDE8;
-        Tue,  5 Apr 2022 03:14:23 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4201559A79;
+        Tue,  5 Apr 2022 03:14:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0BA5F617A4;
-        Tue,  5 Apr 2022 10:14:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CBCDC385A0;
-        Tue,  5 Apr 2022 10:14:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D32EBB81B7A;
+        Tue,  5 Apr 2022 10:14:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CDAAC385A1;
+        Tue,  5 Apr 2022 10:14:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153662;
-        bh=HdkMtmrEqzTR3W+FQELvxyIHklp9P8FC/+1eaSOJKRw=;
+        s=korg; t=1649153670;
+        bh=ThlCVsXJkFp+URlGyDlaTdGefmxQN9AWHQIK7TJ1LVE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bk1f9s0aBxfuJN1r1PZHALgdTtmGnv8QnXTt23H/fOBG/dANTym75sBv7FgsgXubj
-         gBoZgDnHp69XUCuYG1H5W0bY58y5rL8aJagn3DkUwRwRPpOIZAB6RI6L+OJZfsrPaf
-         nWci4WH6AAlvsTim+XPW/Pa0sS+DM9p+gXJ4EPH8=
+        b=Jzva5FovJpMqoQLIUbrxoBpPlWsGgoSGfVPLs2NgNAkKAAWuukFW5mgQDVcc4+gzX
+         OhycbQPqY6yT54LJNMF3qlZBnyoXUwq7eey4ZPFegcSTwR/THXDAVGWlAeqw50HYar
+         hzxt+W+ejYRbJ/M+ckiFNl9ABDwxDZPyvkForSXw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tong Zhang <ztong0001@gmail.com>,
-        Ira Weiny <ira.weiny@intel.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 302/599] dax: make sure inodes are flushed before destroy cache
-Date:   Tue,  5 Apr 2022 09:29:56 +0200
-Message-Id: <20220405070307.820959484@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Kuogee Hsieh <quic_khsieh@quicinc.com>
+Subject: [PATCH 5.10 305/599] drm/msm/dp: populate connector of struct dp_panel
+Date:   Tue,  5 Apr 2022 09:29:59 +0200
+Message-Id: <20220405070307.909912772@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -56,49 +57,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tong Zhang <ztong0001@gmail.com>
+From: Kuogee Hsieh <quic_khsieh@quicinc.com>
 
-[ Upstream commit a7e8de822e0b1979f08767c751f6c8a9c1d4ad86 ]
+[ Upstream commit 5e602f5156910c7b19661699896cb6e3fb94fab9 ]
 
-A bug can be triggered by following command
+DP CTS test case 4.2.2.6 has valid edid with bad checksum on purpose
+and expect DP source return correct checksum. During drm edid read,
+correct edid checksum is calculated and stored at
+connector::real_edid_checksum.
 
-$ modprobe nd_pmem && modprobe -r nd_pmem
+The problem is struct dp_panel::connector never be assigned, instead the
+connector is stored in struct msm_dp::connector. When we run compliance
+testing test case 4.2.2.6 dp_panel_handle_sink_request() won't have a valid
+edid set in struct dp_panel::edid so we'll try to use the connectors
+real_edid_checksum and hit a NULL pointer dereference error because the
+connector pointer is never assigned.
 
-[   10.060014] BUG dax_cache (Not tainted): Objects remaining in dax_cache on __kmem_cache_shutdown()
-[   10.060938] Slab 0x0000000085b729ac objects=9 used=1 fp=0x000000004f5ae469 flags=0x200000000010200(slab|head|node)
-[   10.062433] Call Trace:
-[   10.062673]  dump_stack_lvl+0x34/0x44
-[   10.062865]  slab_err+0x90/0xd0
-[   10.063619]  __kmem_cache_shutdown+0x13b/0x2f0
-[   10.063848]  kmem_cache_destroy+0x4a/0x110
-[   10.064058]  __x64_sys_delete_module+0x265/0x300
+Changes in V2:
+-- populate panel connector at msm_dp_modeset_init() instead of at dp_panel_read_sink_caps()
 
-This is caused by dax_fs_exit() not flushing inodes before destroy cache.
-To fix this issue, call rcu_barrier() before destroy cache.
+Changes in V3:
+-- remove unhelpful kernel crash trace commit text
+-- remove renaming dp_display parameter to dp
 
-Signed-off-by: Tong Zhang <ztong0001@gmail.com>
-Reviewed-by: Ira Weiny <ira.weiny@intel.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/20220212071111.148575-1-ztong0001@gmail.com
-Fixes: 7b6be8444e0f ("dax: refactor dax-fs into a generic provider of 'struct dax_device' instances")
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Changes in V4:
+-- add more details to commit text
+
+Changes in v10:
+--  group into one series
+
+Changes in v11:
+-- drop drm/msm/dp: dp_link_parse_sink_count() return immediately if aux read
+
+Fixes: 7948fe12d47 ("drm/msm/dp: return correct edid checksum after corrupted edid checksum read")
+Signee-off-by: Kuogee Hsieh <quic_khsieh@quicinc.com>
+
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Link: https://lore.kernel.org/r/1642531648-8448-3-git-send-email-quic_khsieh@quicinc.com
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dax/super.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/msm/dp/dp_display.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/dax/super.c b/drivers/dax/super.c
-index cadbd0a1a1ef..260a247c60d2 100644
---- a/drivers/dax/super.c
-+++ b/drivers/dax/super.c
-@@ -723,6 +723,7 @@ static int dax_fs_init(void)
- static void dax_fs_exit(void)
+diff --git a/drivers/gpu/drm/msm/dp/dp_display.c b/drivers/gpu/drm/msm/dp/dp_display.c
+index 66f2ea3d42fc..6cd6934c8c9f 100644
+--- a/drivers/gpu/drm/msm/dp/dp_display.c
++++ b/drivers/gpu/drm/msm/dp/dp_display.c
+@@ -1336,6 +1336,7 @@ int msm_dp_modeset_init(struct msm_dp *dp_display, struct drm_device *dev,
+ 			struct drm_encoder *encoder)
  {
- 	kern_unmount(dax_mnt);
-+	rcu_barrier();
- 	kmem_cache_destroy(dax_cache);
- }
+ 	struct msm_drm_private *priv;
++	struct dp_display_private *dp_priv;
+ 	int ret;
  
+ 	if (WARN_ON(!encoder) || WARN_ON(!dp_display) || WARN_ON(!dev))
+@@ -1344,6 +1345,8 @@ int msm_dp_modeset_init(struct msm_dp *dp_display, struct drm_device *dev,
+ 	priv = dev->dev_private;
+ 	dp_display->drm_dev = dev;
+ 
++	dp_priv = container_of(dp_display, struct dp_display_private, dp_display);
++
+ 	ret = dp_display_request_irq(dp_display);
+ 	if (ret) {
+ 		DRM_ERROR("request_irq failed, ret=%d\n", ret);
+@@ -1361,6 +1364,8 @@ int msm_dp_modeset_init(struct msm_dp *dp_display, struct drm_device *dev,
+ 		return ret;
+ 	}
+ 
++	dp_priv->panel->connector = dp_display->connector;
++
+ 	priv->connectors[priv->num_connectors++] = dp_display->connector;
+ 	return 0;
+ }
 -- 
 2.34.1
 
