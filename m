@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D32594F32EC
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:01:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EBF44F3536
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:49:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243665AbiDEKh2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:37:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55692 "EHLO
+        id S245535AbiDEJMC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:12:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46656 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239011AbiDEJdP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:33:15 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C44992253C;
-        Tue,  5 Apr 2022 02:21:44 -0700 (PDT)
+        with ESMTP id S244743AbiDEIwh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B3311C92A;
+        Tue,  5 Apr 2022 01:43:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id CD9E3CE1B55;
-        Tue,  5 Apr 2022 09:21:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6863C385A0;
-        Tue,  5 Apr 2022 09:21:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9F141614E4;
+        Tue,  5 Apr 2022 08:43:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 112BAC385A0;
+        Tue,  5 Apr 2022 08:43:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150501;
-        bh=RM0KKzpT8cLsJyrZoDbIHvg0ONgKHvUQdCMuQWGyK5Q=;
+        s=korg; t=1649148186;
+        bh=xIuKecHdhv3b4YQ0aWDboSEoCQ7kseCY+UT5iwlNlBw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YYllX3CCcY12mp+dfZiNgCVJSrVGQ3pH1ufYXbl8hca3DSyq91bn6iagbjym3dyy7
-         vkOZufzv+J0QW4ayPgvumXii+f4LpJhw2ua6UuaqrskmE092lcHXp/L3L8YNMm4FP8
-         T2UiFOITOzAbMvVBRUm5XSyEBDvoeKwMfZae14nk=
+        b=iT/EXzgrHi7la6/eYfYoa7gJBN9H+gG2aPAl7svSsKqMJSZksudx6K9Qoe6isQfvA
+         rZTojtYhRvOm5vquF+VjQlZsHSeDPyNo8xv70QYvQA+kBjUhkqw1ShHMyYSjPC6eQT
+         KJDXebtY7XBUsEDDbb89HRRyOMgSu7jB4dVifzzs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sebastian Haas <haas@ems-wuensche.com>,
-        Hangyu Hua <hbh25y@gmail.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.15 077/913] can: ems_usb: ems_usb_start_xmit(): fix double dev_kfree_skb() in error path
+        stable@vger.kernel.org, Wang Qing <wangqing@vivo.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0226/1017] spi: pxa2xx-pci: Balance reference count for PCI DMA device
 Date:   Tue,  5 Apr 2022 09:18:59 +0200
-Message-Id: <20220405070342.132216232@linuxfoundation.org>
+Message-Id: <20220405070400.963127675@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,34 +55,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangyu Hua <hbh25y@gmail.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-commit c70222752228a62135cee3409dccefd494a24646 upstream.
+[ Upstream commit 609d7ffdc42199a0ec949db057e3b4be6745d6c5 ]
 
-There is no need to call dev_kfree_skb() when usb_submit_urb() fails
-beacause can_put_echo_skb() deletes the original skb and
-can_free_echo_skb() deletes the cloned skb.
+The pci_get_slot() increases its reference count, the caller
+must decrement the reference count by calling pci_dev_put().
 
-Link: https://lore.kernel.org/all/20220228083639.38183-1-hbh25y@gmail.com
-Fixes: 702171adeed3 ("ems_usb: Added support for EMS CPC-USB/ARM7 CAN/USB interface")
-Cc: stable@vger.kernel.org
-Cc: Sebastian Haas <haas@ems-wuensche.com>
-Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 743485ea3bee ("spi: pxa2xx-pci: Do a specific setup in a separate function")
+Fixes: 25014521603f ("spi: pxa2xx-pci: Enable DMA for Intel Merrifield")
+Reported-by: Wang Qing <wangqing@vivo.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20220223191637.31147-1-andriy.shevchenko@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/usb/ems_usb.c |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/spi/spi-pxa2xx-pci.c | 17 ++++++++++++++++-
+ 1 file changed, 16 insertions(+), 1 deletion(-)
 
---- a/drivers/net/can/usb/ems_usb.c
-+++ b/drivers/net/can/usb/ems_usb.c
-@@ -823,7 +823,6 @@ static netdev_tx_t ems_usb_start_xmit(st
+diff --git a/drivers/spi/spi-pxa2xx-pci.c b/drivers/spi/spi-pxa2xx-pci.c
+index 2e134eb4bd2c..6502fda6243e 100644
+--- a/drivers/spi/spi-pxa2xx-pci.c
++++ b/drivers/spi/spi-pxa2xx-pci.c
+@@ -76,14 +76,23 @@ static bool lpss_dma_filter(struct dma_chan *chan, void *param)
+ 	return true;
+ }
  
- 		usb_unanchor_urb(urb);
- 		usb_free_coherent(dev->udev, size, buf, urb->transfer_dma);
--		dev_kfree_skb(skb);
++static void lpss_dma_put_device(void *dma_dev)
++{
++	pci_dev_put(dma_dev);
++}
++
+ static int lpss_spi_setup(struct pci_dev *dev, struct pxa_spi_info *c)
+ {
+ 	struct pci_dev *dma_dev;
++	int ret;
  
- 		atomic_dec(&dev->active_tx_urbs);
+ 	c->num_chipselect = 1;
+ 	c->max_clk_rate = 50000000;
  
+ 	dma_dev = pci_get_slot(dev->bus, PCI_DEVFN(PCI_SLOT(dev->devfn), 0));
++	ret = devm_add_action_or_reset(&dev->dev, lpss_dma_put_device, dma_dev);
++	if (ret)
++		return ret;
+ 
+ 	if (c->tx_param) {
+ 		struct dw_dma_slave *slave = c->tx_param;
+@@ -107,8 +116,9 @@ static int lpss_spi_setup(struct pci_dev *dev, struct pxa_spi_info *c)
+ 
+ static int mrfld_spi_setup(struct pci_dev *dev, struct pxa_spi_info *c)
+ {
+-	struct pci_dev *dma_dev = pci_get_slot(dev->bus, PCI_DEVFN(21, 0));
+ 	struct dw_dma_slave *tx, *rx;
++	struct pci_dev *dma_dev;
++	int ret;
+ 
+ 	switch (PCI_FUNC(dev->devfn)) {
+ 	case 0:
+@@ -133,6 +143,11 @@ static int mrfld_spi_setup(struct pci_dev *dev, struct pxa_spi_info *c)
+ 		return -ENODEV;
+ 	}
+ 
++	dma_dev = pci_get_slot(dev->bus, PCI_DEVFN(21, 0));
++	ret = devm_add_action_or_reset(&dev->dev, lpss_dma_put_device, dma_dev);
++	if (ret)
++		return ret;
++
+ 	tx = c->tx_param;
+ 	tx->dma_dev = &dma_dev->dev;
+ 
+-- 
+2.34.1
+
 
 
