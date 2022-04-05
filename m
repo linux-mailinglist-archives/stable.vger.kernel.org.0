@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 822934F2FFD
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:19:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 36D664F3272
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:57:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345194AbiDEKkr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:40:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53096 "EHLO
+        id S239544AbiDEJNJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:13:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244367AbiDEJlP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:41:15 -0400
+        with ESMTP id S244885AbiDEIwp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:45 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B95F7BB90A;
-        Tue,  5 Apr 2022 02:26:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7645B240A0;
+        Tue,  5 Apr 2022 01:45:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 57F696144D;
-        Tue,  5 Apr 2022 09:26:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F7F6C385A0;
-        Tue,  5 Apr 2022 09:26:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F230F6117A;
+        Tue,  5 Apr 2022 08:45:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09E2FC385A0;
+        Tue,  5 Apr 2022 08:45:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150777;
-        bh=Yb/Qsv5HlnFq2Ze6nGZxoMM9ffO70zuocXfIM8QKSw4=;
+        s=korg; t=1649148331;
+        bh=NQFMtH+kWndgmA+yhsg5RrKKwi97HfRpOI2EkHxbDk0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ppBTMh3fYh9QoixpYuOUj6mzM7QG0pSbZF8Qcksz/+wrjKQCxioStZcaDi8e44h64
-         Xsrq1hj4P5/IPgnLInC6uNb0iAM0inHWsyp5hvAoT3xGjtTJ+Jru2PlctG2GixGd3U
-         SW/EDgiE9QS20rdlXfjmVTeLSMyOr4Y08y42uWwQ=
+        b=EYHrzwwYZnxjqcH1aHHqeaaULRSHpyJNF3nxfvjQKQ+MTfR4Z85S9PKKGToiSH4aa
+         eJwJto9i+OUZ1f9o00C7eXV7KUDzojZv8xucHDF3hXvwbUKOdAoM3Sb8RmnEONN0KF
+         Ug6GWFtSeHf2VMzUNdF4gxt8c8yweTGtWxn/H+mo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        Niels Dossche <niels.dossche@ugent.be>,
-        Niels Dossche <dossche.niels@gmail.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.15 170/913] btrfs: extend locking to all space_info members accesses
+        stable@vger.kernel.org, devicetree@vger.kernel.org,
+        Maulik Shah <quic_mkshah@quicinc.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0319/1017] arm64: dts: qcom: sm8150: Correct TCS configuration for apps rsc
 Date:   Tue,  5 Apr 2022 09:20:32 +0200
-Message-Id: <20220405070344.945810759@linuxfoundation.org>
+Message-Id: <20220405070403.747282298@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,49 +55,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niels Dossche <dossche.niels@gmail.com>
+From: Maulik Shah <quic_mkshah@quicinc.com>
 
-commit 06bae876634ebf837ba70ea3de532b288326103d upstream.
+[ Upstream commit 17ac8af678b6da6a8f1df7da8ebf2c5198741827 ]
 
-bytes_pinned is always accessed under space_info->lock, except in
-btrfs_preempt_reclaim_metadata_space, however the other members are
-accessed under that lock. The reserved member of the rsv's are also
-partially accessed under a lock and partially not. Move all these
-accesses into the same lock to ensure consistency.
+Correct the TCS config by updating the number of TCSes for each type.
 
-This could potentially race and lead to a flush instead of a commit but
-it's not a big problem as it's only for preemptive flush.
-
-CC: stable@vger.kernel.org # 5.15+
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Niels Dossche <niels.dossche@ugent.be>
-Signed-off-by: Niels Dossche <dossche.niels@gmail.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: devicetree@vger.kernel.org
+Fixes: d8cf9372b654 ("arm64: dts: qcom: sm8150: Add apps shared nodes")
+Signed-off-by: Maulik Shah <quic_mkshah@quicinc.com>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/1641749107-31979-2-git-send-email-quic_mkshah@quicinc.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/space-info.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/arm64/boot/dts/qcom/sm8150.dtsi | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/fs/btrfs/space-info.c
-+++ b/fs/btrfs/space-info.c
-@@ -1054,7 +1054,6 @@ static void btrfs_preempt_reclaim_metada
- 			trans_rsv->reserved;
- 		if (block_rsv_size < space_info->bytes_may_use)
- 			delalloc_size = space_info->bytes_may_use - block_rsv_size;
--		spin_unlock(&space_info->lock);
+diff --git a/arch/arm64/boot/dts/qcom/sm8150.dtsi b/arch/arm64/boot/dts/qcom/sm8150.dtsi
+index 81b4ff2cc4cd..37f758cc4cc7 100644
+--- a/arch/arm64/boot/dts/qcom/sm8150.dtsi
++++ b/arch/arm64/boot/dts/qcom/sm8150.dtsi
+@@ -3557,9 +3557,9 @@
+ 			qcom,tcs-offset = <0xd00>;
+ 			qcom,drv-id = <2>;
+ 			qcom,tcs-config = <ACTIVE_TCS  2>,
+-					  <SLEEP_TCS   1>,
+-					  <WAKE_TCS    1>,
+-					  <CONTROL_TCS 0>;
++					  <SLEEP_TCS   3>,
++					  <WAKE_TCS    3>,
++					  <CONTROL_TCS 1>;
  
- 		/*
- 		 * We don't want to include the global_rsv in our calculation,
-@@ -1085,6 +1084,8 @@ static void btrfs_preempt_reclaim_metada
- 			flush = FLUSH_DELAYED_REFS_NR;
- 		}
- 
-+		spin_unlock(&space_info->lock);
-+
- 		/*
- 		 * We don't want to reclaim everything, just a portion, so scale
- 		 * down the to_reclaim by 1/4.  If it takes us down to 0,
+ 			rpmhcc: clock-controller {
+ 				compatible = "qcom,sm8150-rpmh-clk";
+-- 
+2.34.1
+
 
 
