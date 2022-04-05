@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8333B4F3402
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:24:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 76A634F30B7
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:34:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350609AbiDEJ7G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:59:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53072 "EHLO
+        id S234947AbiDEIkY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:40:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57956 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344150AbiDEJSZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:18:25 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B6C4443D8;
-        Tue,  5 Apr 2022 02:04:38 -0700 (PDT)
+        with ESMTP id S234132AbiDEIYQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:24:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 888BC636C;
+        Tue,  5 Apr 2022 01:20:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3FBEBB81BBF;
-        Tue,  5 Apr 2022 09:04:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 906C3C385A1;
-        Tue,  5 Apr 2022 09:04:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EF65260B12;
+        Tue,  5 Apr 2022 08:20:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 047A7C385A0;
+        Tue,  5 Apr 2022 08:20:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149475;
-        bh=dVqkzsew4DEHWhEltK2MJT27ooP0p4RsSCP3QwS6HIo=;
+        s=korg; t=1649146803;
+        bh=l3oxgia/AH524WfPDCJYya+1eJReQrdeKfEHcOOgSqc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xECi6vXAO1LoGWOQ+5KjNzPlYi2CtftvMLnROBm8GpRJK6ZhbRrk/+jvezIN2B+A4
-         E31dx36I28BJDjj8PqRAqE4AWx1FXux1g5CqnTzGtaW5XVkkzA6fRWuvNUVccfZFj/
-         C7iJ3zWfrp3b6go1Gt2i/5J+hjsi08Td3md05994=
+        b=dlzG5vEFQDlGKnshNMsnk9GHqp4ihxwLdDR9Okt9lP5NdL/IT7YI0HOkJMe9NXlgT
+         xX35vtZ8trGpmtE781vPN8iHEWTEsNgTeJGV+sLOMZ1r0ZDqv8+FjYQPScmNqHxKhb
+         /mnEBeAo5HGEa5RFlPBBkKFn7A5o9VcS8NzTnoJE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jian Shen <shenjian15@huawei.com>,
-        Guangbin Huang <huangguangbin2@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org,
+        Richard Fitzgerald <rf@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0729/1017] net: hns3: fix bug when PF set the duplicate MAC address for VFs
+Subject: [PATCH 5.17 0895/1126] ASoC: cs42l42: Report full jack status when plug is detected
 Date:   Tue,  5 Apr 2022 09:27:22 +0200
-Message-Id: <20220405070415.905924838@linuxfoundation.org>
+Message-Id: <20220405070433.794774788@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,49 +55,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jian Shen <shenjian15@huawei.com>
+From: Richard Fitzgerald <rf@opensource.cirrus.com>
 
-[ Upstream commit ccb18f05535c96d26e2d559d402acb87700fc5a7 ]
+[ Upstream commit 8d06f797f844d04a961f201f886f7f9985edc9bf ]
 
-If the MAC address A is configured to vport A and then vport B. The MAC
-address of vport A in the hardware becomes invalid. If the address of
-vport A is changed to MAC address B, the driver needs to delete the MAC
-address A of vport A. Due to the MAC address A of vport A has become
-invalid in the hardware entry, so "-ENOENT" is returned. In this case, the
-"used_umv_size" value recorded in driver is not updated. As a result, the
-MAC entry status of the software is inconsistent with that of the hardware.
+When a plug event is detect report the full state of all status
+bits, don't assume that there will have been a previous unplug
+event to clear all the bits. Report the state of both HEADPHONE
+and MICROPHONE bits according to detected type, and clear all the
+button status bits. The current button status is already checked
+and reported at the end of the function.
 
-Therefore, the driver updates the umv size even if the MAC entry cannot be
-found. Ensure that the software and hardware status is consistent.
+During a system suspend the jack could be unplugged and plugged,
+possibly changing the jack type. On resume the interrupt status will
+indicate a plug event - there will not be an unplug event to clear
+the bits.
 
-Fixes: ee4bcd3b7ae4 ("net: hns3: refactor the MAC address configure")
-Signed-off-by: Jian Shen <shenjian15@huawei.com>
-Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Richard Fitzgerald <rf@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20220121120412.672284-2-rf@opensource.cirrus.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ sound/soc/codecs/cs42l42.c | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-index c2a58101144e..0fc8810671dc 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-@@ -8888,12 +8888,11 @@ int hclge_rm_uc_addr_common(struct hclge_vport *vport,
- 	hnae3_set_bit(req.entry_type, HCLGE_MAC_VLAN_BIT0_EN_B, 0);
- 	hclge_prepare_mac_addr(&req, addr, false);
- 	ret = hclge_remove_mac_vlan_tbl(vport, &req);
--	if (!ret) {
-+	if (!ret || ret == -ENOENT) {
- 		mutex_lock(&hdev->vport_lock);
- 		hclge_update_umv_space(vport, true);
- 		mutex_unlock(&hdev->vport_lock);
--	} else if (ret == -ENOENT) {
--		ret = 0;
-+		return 0;
- 	}
+diff --git a/sound/soc/codecs/cs42l42.c b/sound/soc/codecs/cs42l42.c
+index 43d98bdb5b5b..2c294868008e 100644
+--- a/sound/soc/codecs/cs42l42.c
++++ b/sound/soc/codecs/cs42l42.c
+@@ -1637,7 +1637,11 @@ static irqreturn_t cs42l42_irq_thread(int irq, void *data)
  
- 	return ret;
+ 	mutex_lock(&cs42l42->jack_detect_mutex);
+ 
+-	/* Check auto-detect status */
++	/*
++	 * Check auto-detect status. Don't assume a previous unplug event has
++	 * cleared the flags. If the jack is unplugged and plugged during
++	 * system suspend there won't have been an unplug event.
++	 */
+ 	if ((~masks[5]) & irq_params_table[5].mask) {
+ 		if (stickies[5] & CS42L42_HSDET_AUTO_DONE_MASK) {
+ 			cs42l42_process_hs_type_detect(cs42l42);
+@@ -1645,11 +1649,15 @@ static irqreturn_t cs42l42_irq_thread(int irq, void *data)
+ 			case CS42L42_PLUG_CTIA:
+ 			case CS42L42_PLUG_OMTP:
+ 				snd_soc_jack_report(cs42l42->jack, SND_JACK_HEADSET,
+-						    SND_JACK_HEADSET);
++						    SND_JACK_HEADSET |
++						    SND_JACK_BTN_0 | SND_JACK_BTN_1 |
++						    SND_JACK_BTN_2 | SND_JACK_BTN_3);
+ 				break;
+ 			case CS42L42_PLUG_HEADPHONE:
+ 				snd_soc_jack_report(cs42l42->jack, SND_JACK_HEADPHONE,
+-						    SND_JACK_HEADPHONE);
++						    SND_JACK_HEADSET |
++						    SND_JACK_BTN_0 | SND_JACK_BTN_1 |
++						    SND_JACK_BTN_2 | SND_JACK_BTN_3);
+ 				break;
+ 			default:
+ 				break;
 -- 
 2.34.1
 
