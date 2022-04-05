@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 667074F30E8
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:36:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA50A4F2EB5
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:03:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236758AbiDEJDg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:03:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34812 "EHLO
+        id S1347954AbiDEJ2x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:28:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48748 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237158AbiDEIRo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:17:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E335694B7;
-        Tue,  5 Apr 2022 01:05:30 -0700 (PDT)
+        with ESMTP id S245030AbiDEIxC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:53:02 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FAEFC01;
+        Tue,  5 Apr 2022 01:50:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4B7DAB81B7F;
-        Tue,  5 Apr 2022 08:05:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF44BC385A2;
-        Tue,  5 Apr 2022 08:05:27 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id B10E0CE1C6A;
+        Tue,  5 Apr 2022 08:49:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF75FC385A0;
+        Tue,  5 Apr 2022 08:49:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145928;
-        bh=6+9kOnTAntUOhvfGm7xQGXJ5NZ8bUKFJ/hdZcBWcIkQ=;
+        s=korg; t=1649148598;
+        bh=mMs8cEwxxXca6Fv/Ju+e15x+v/0X/GOCyC5VUwCK5YA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MLM6pyrxOmosHCQd7OzHK38rfZjSWcqZN1V9z/1JipGG8R7UOhErDzfxLmg0MRaa0
-         qRpw8i0yOYLUiyE2kxRh++DnD81JopUbT0afYxbW7TXJrN77tie6PTrSnqGcmLj7Rj
-         jEagGAm1eAX2cXwFlC+Wuf4QnVXB2RZJZLJ/UjoE=
+        b=a+CXb2YjRhFbX/FoaDJpXt+y/xxodGPL6weqDAMIcUB8iVUUG1WRQtm04piSLahSK
+         /62G9WKviGD4C54eGj/Lbwki8zAUuOCXfZA0j3WQKISW3/J1Djw5VpL5GMHUKOZyD6
+         Q1H+lfz3byRoXmwD07y+wIiFar1lyd2fQLUVZehg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aashish Sharma <shraash@google.com>,
-        Mike Snitzer <snitzer@redhat.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0579/1126] dm crypt: fix get_key_size compiler warning if !CONFIG_KEYS
+Subject: [PATCH 5.16 0413/1017] drm/selftests/test-drm_dp_mst_helper: Fix memory leak in sideband_msg_req_encode_decode
 Date:   Tue,  5 Apr 2022 09:22:06 +0200
-Message-Id: <20220405070424.627167206@linuxfoundation.org>
+Message-Id: <20220405070406.547611167@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +55,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aashish Sharma <shraash@google.com>
+From: José Expósito <jose.exposito89@gmail.com>
 
-[ Upstream commit 6fc51504388c1a1a53db8faafe9fff78fccc7c87 ]
+[ Upstream commit ba3a5ddcf1e5df31f2291006d5297ca62035584f ]
 
-Explicitly convert unsigned int in the right of the conditional
-expression to int to match the left side operand and the return type,
-fixing the following compiler warning:
+Avoid leaking the "out" variable if it is not possible to allocate
+the "txmsg" variable.
 
-drivers/md/dm-crypt.c:2593:43: warning: signed and unsigned
-type in conditional expression [-Wsign-compare]
-
-Fixes: c538f6ec9f56 ("dm crypt: add ability to use keys from the kernel key retention service")
-Signed-off-by: Aashish Sharma <shraash@google.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Fixes: 09234b88ef55 ("drm/selftests/test-drm_dp_mst_helper: Move 'sideband_msg_req_encode_decode' onto the heap")
+Addresses-Coverity-ID: 1475685 ("Resource leak")
+Signed-off-by: José Expósito <jose.exposito89@gmail.com>
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220108165812.46797-1-jose.exposito89@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-crypt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/selftests/test-drm_dp_mst_helper.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/md/dm-crypt.c b/drivers/md/dm-crypt.c
-index d4ae31558826..f51aea71cb03 100644
---- a/drivers/md/dm-crypt.c
-+++ b/drivers/md/dm-crypt.c
-@@ -2590,7 +2590,7 @@ static int crypt_set_keyring_key(struct crypt_config *cc, const char *key_string
+diff --git a/drivers/gpu/drm/selftests/test-drm_dp_mst_helper.c b/drivers/gpu/drm/selftests/test-drm_dp_mst_helper.c
+index 6b4759ed6bfd..c491429f1a02 100644
+--- a/drivers/gpu/drm/selftests/test-drm_dp_mst_helper.c
++++ b/drivers/gpu/drm/selftests/test-drm_dp_mst_helper.c
+@@ -131,8 +131,10 @@ sideband_msg_req_encode_decode(struct drm_dp_sideband_msg_req_body *in)
+ 		return false;
  
- static int get_key_size(char **key_string)
- {
--	return (*key_string[0] == ':') ? -EINVAL : strlen(*key_string) >> 1;
-+	return (*key_string[0] == ':') ? -EINVAL : (int)(strlen(*key_string) >> 1);
- }
+ 	txmsg = kzalloc(sizeof(*txmsg), GFP_KERNEL);
+-	if (!txmsg)
++	if (!txmsg) {
++		kfree(out);
+ 		return false;
++	}
  
- #endif /* CONFIG_KEYS */
+ 	drm_dp_encode_sideband_req(in, txmsg);
+ 	ret = drm_dp_decode_sideband_req(txmsg, out);
 -- 
 2.34.1
 
