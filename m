@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BF3054F2A91
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:04:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70C044F2B11
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:08:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241796AbiDEJgJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:36:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58320 "EHLO
+        id S234493AbiDEIZ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:25:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57716 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236232AbiDEI6M (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:58:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AA4C24BFC;
-        Tue,  5 Apr 2022 01:53:14 -0700 (PDT)
+        with ESMTP id S238354AbiDEISx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:18:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 697A8DAA;
+        Tue,  5 Apr 2022 01:08:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EBE6B61511;
-        Tue,  5 Apr 2022 08:53:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3296C385A1;
-        Tue,  5 Apr 2022 08:53:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A069F60A1E;
+        Tue,  5 Apr 2022 08:08:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2AA5C385A1;
+        Tue,  5 Apr 2022 08:08:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148793;
-        bh=a4PdAOU8SZBWxNOgvOfdb9z+k5GvR5/1CHmDF+qaoz4=;
+        s=korg; t=1649146121;
+        bh=iOy1mNW6EnbHS4QhamoV2p28aXccAJlzHWxZ/5jreW0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qOku37nC49DL4Ih3OZbQpmBnRZN2GPK5azOD4+FP58pOOH0IuHhnNFyWr/w1OWQHv
-         5op8ZKD3hiaAVXhExnzqhy99Q9I3wKDb/vFQ0hiQZwvU5i4FHUqIxz3BoagoxxrxQn
-         OcISmLoWeK9sYztlR/x/z3LGl38ZU+YgeIAbu0eo=
+        b=oHc2StOFTy05foe8NJ0Wmiam+MDDBLNd5F2JY1JW1NEdVQxm9NexvG5JzDTkyCFA8
+         eoi7cXF6/FbbtNGsv36p9i10LuaowViVJdSs80ldDREx8rpSOxJ9Pz9zqrPcSRmK3T
+         pUfXKkO7+tpe6tlcQWZPQESbZEX+dHMiWepDNdZ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        stable@vger.kernel.org, Oliver Hartkopp <socketcan@hartkopp.net>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0484/1017] PCI: aardvark: Fix reading MSI interrupt number
+Subject: [PATCH 5.17 0650/1126] vxcan: enable local echo for sent CAN frames
 Date:   Tue,  5 Apr 2022 09:23:17 +0200
-Message-Id: <20220405070408.666006366@linuxfoundation.org>
+Message-Id: <20220405070426.710048885@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,60 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Oliver Hartkopp <socketcan@hartkopp.net>
 
-[ Upstream commit 805dfc18dd3d4dd97a987d4406593b5a225b1253 ]
+[ Upstream commit 259bdba27e32368b4404f69d613b1c1014c07cbf ]
 
-In advk_pcie_handle_msi() it is expected that when bit i in the W1C
-register PCIE_MSI_STATUS_REG is cleared, the PCIE_MSI_PAYLOAD_REG is
-updated to contain the MSI number corresponding to index i.
+The vxcan driver provides a pair of virtual CAN interfaces to exchange
+CAN traffic between different namespaces - analogue to veth.
 
-Experiments show that this is not so, and instead PCIE_MSI_PAYLOAD_REG
-always contains the number of the last received MSI, overall.
+In opposite to the vcan driver the local sent CAN traffic on this interface
+is not echo'ed back but only sent to the remote peer. This is unusual and
+can be easily fixed by removing IFF_ECHO from the netdevice flags that
+are set for vxcan interfaces by default at startup.
 
-Do not read PCIE_MSI_PAYLOAD_REG register for determining MSI interrupt
-number. Since Aardvark already forbids more than 32 interrupts and uses
-own allocated hwirq numbers, the msi_idx already corresponds to the
-received MSI number.
+Without IFF_ECHO set on driver level, the local sent CAN frames are echo'ed
+in af_can.c in can_send(). This patch makes vxcan interfaces adopt the
+same local echo behavior and procedures as known from the vcan interfaces.
 
-Link: https://lore.kernel.org/r/20220110015018.26359-3-kabel@kernel.org
-Fixes: 8c39d710363c ("PCI: aardvark: Add Aardvark PCI host controller driver")
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Marek Behún <kabel@kernel.org>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Fixes: a8f820a380a2 ("can: add Virtual CAN Tunnel driver (vxcan)")
+Link: https://lore.kernel.org/all/20220309120416.83514-5-socketcan@hartkopp.net
+Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pci-aardvark.c | 9 ++-------
- 1 file changed, 2 insertions(+), 7 deletions(-)
+ drivers/net/can/vxcan.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/pci/controller/pci-aardvark.c b/drivers/pci/controller/pci-aardvark.c
-index b2217e2b3efd..7aa6d6336223 100644
---- a/drivers/pci/controller/pci-aardvark.c
-+++ b/drivers/pci/controller/pci-aardvark.c
-@@ -1381,7 +1381,6 @@ static void advk_pcie_remove_irq_domain(struct advk_pcie *pcie)
- static void advk_pcie_handle_msi(struct advk_pcie *pcie)
- {
- 	u32 msi_val, msi_mask, msi_status, msi_idx;
--	u16 msi_data;
+diff --git a/drivers/net/can/vxcan.c b/drivers/net/can/vxcan.c
+index 47ccc15a3486..191ffa7776e8 100644
+--- a/drivers/net/can/vxcan.c
++++ b/drivers/net/can/vxcan.c
+@@ -148,7 +148,7 @@ static void vxcan_setup(struct net_device *dev)
+ 	dev->hard_header_len	= 0;
+ 	dev->addr_len		= 0;
+ 	dev->tx_queue_len	= 0;
+-	dev->flags		= (IFF_NOARP|IFF_ECHO);
++	dev->flags		= IFF_NOARP;
+ 	dev->netdev_ops		= &vxcan_netdev_ops;
+ 	dev->needs_free_netdev	= true;
  
- 	msi_mask = advk_readl(pcie, PCIE_MSI_MASK_REG);
- 	msi_val = advk_readl(pcie, PCIE_MSI_STATUS_REG);
-@@ -1391,13 +1390,9 @@ static void advk_pcie_handle_msi(struct advk_pcie *pcie)
- 		if (!(BIT(msi_idx) & msi_status))
- 			continue;
- 
--		/*
--		 * msi_idx contains bits [4:0] of the msi_data and msi_data
--		 * contains 16bit MSI interrupt number
--		 */
- 		advk_writel(pcie, BIT(msi_idx), PCIE_MSI_STATUS_REG);
--		msi_data = advk_readl(pcie, PCIE_MSI_PAYLOAD_REG) & PCIE_MSI_DATA_MASK;
--		generic_handle_irq(msi_data);
-+		if (generic_handle_domain_irq(pcie->msi_inner_domain, msi_idx) == -EINVAL)
-+			dev_err_ratelimited(&pcie->pdev->dev, "unexpected MSI 0x%02x\n", msi_idx);
- 	}
- 
- 	advk_writel(pcie, PCIE_ISR0_MSI_INT_PENDING,
 -- 
 2.34.1
 
