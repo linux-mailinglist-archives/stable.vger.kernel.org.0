@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 82D274F2B56
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:10:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CF8A4F2C65
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:30:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233435AbiDEI5p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:57:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49668 "EHLO
+        id S236821AbiDEI60 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:58:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34326 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235764AbiDEIkY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:40:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46B76C03;
-        Tue,  5 Apr 2022 01:33:40 -0700 (PDT)
+        with ESMTP id S236205AbiDEIlX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:41:23 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3846B1031;
+        Tue,  5 Apr 2022 01:33:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D773360FFC;
-        Tue,  5 Apr 2022 08:33:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB528C385A0;
-        Tue,  5 Apr 2022 08:33:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DD837B81B13;
+        Tue,  5 Apr 2022 08:33:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D820C385A2;
+        Tue,  5 Apr 2022 08:33:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147619;
-        bh=L+a2SzSVzn4E/4douuC9asR0dAPEwbbhzHSIRnZEM04=;
+        s=korg; t=1649147627;
+        bh=lerBgQkdf9cnh0z/qLfVS+BV9J0u5dRvXHPnTlbTwuA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eqqXQgNcwlm6Ld13fvGGCwWqwrn+Fw6/rUeN3RRoGBpQw1cJDgxy4Wc2jBlVkKnjr
-         qwYvadlm+hYhIUCcHa5hGxWvDCByu4lJQwAEvXZVsgIQkSrPy1aIin/lGfhwn/OeZu
-         6Jg/7swm/iALAkAAlhqvmqV8W4EAQzmoRa0ukQLk=
+        b=AakYe7Ya+PquM95BUd17N6UFs0zkQblqm0HhpxxsRXxjX0HPKJaLrP/PnNaJscEAb
+         q7F9g/KgC8y8TkjYXYyLqcNOXyD2mh9Q4TndHvqkoBq+xV1MgdGeh0Z2pma6CeIOle
+         0J2kFyyUj+23boVtJxH9p8R2hG32ZPeeY0uRfV1s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Bagas Sanjaya <bagasdotme@gmail.com>
-Subject: [PATCH 5.16 0060/1017] Documentation: add link to stable release candidate tree
-Date:   Tue,  5 Apr 2022 09:16:13 +0200
-Message-Id: <20220405070355.967089528@linuxfoundation.org>
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Javier Martinez Canillas <javierm@redhat.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.16 0063/1017] firmware: sysfb: fix platform-device leak in error path
+Date:   Tue,  5 Apr 2022 09:16:16 +0200
+Message-Id: <20220405070356.056498410@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -54,42 +54,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bagas Sanjaya <bagasdotme@gmail.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit 587d39b260c4d090166314d64be70b1f6a26b0b5 upstream.
+commit 202c08914ba50dd324e42d5ad99535a89f242560 upstream.
 
-There is also stable release candidate tree. Mention it, however with a
-warning that the tree is for testing purposes.
+Make sure to free the platform device also in the unlikely event that
+registration fails.
 
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Sasha Levin <sashal@kernel.org>
-Cc: Jonathan Corbet <corbet@lwn.net>
-Cc: stable@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Bagas Sanjaya <bagasdotme@gmail.com>
-Link: https://lore.kernel.org/r/20220314113329.485372-5-bagasdotme@gmail.com
+Fixes: 0589e8889dce ("drivers/firmware: Add missing platform_device_put() in sysfb_create_simplefb")
+Fixes: 8633ef82f101 ("drivers/firmware: consolidate EFI framebuffer setup for all arches")
+Cc: stable@vger.kernel.org      # 5.14
+Cc: Miaoqian Lin <linmq006@gmail.com>
+Cc: Javier Martinez Canillas <javierm@redhat.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20220303180519.3117-1-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/process/stable-kernel-rules.rst |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/firmware/sysfb_simplefb.c |   23 ++++++++++++++---------
+ 1 file changed, 14 insertions(+), 9 deletions(-)
 
---- a/Documentation/process/stable-kernel-rules.rst
-+++ b/Documentation/process/stable-kernel-rules.rst
-@@ -170,6 +170,15 @@ Trees
+--- a/drivers/firmware/sysfb_simplefb.c
++++ b/drivers/firmware/sysfb_simplefb.c
+@@ -113,16 +113,21 @@ __init int sysfb_create_simplefb(const s
+ 	sysfb_apply_efi_quirks(pd);
  
- 	https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git
+ 	ret = platform_device_add_resources(pd, &res, 1);
+-	if (ret) {
+-		platform_device_put(pd);
+-		return ret;
+-	}
++	if (ret)
++		goto err_put_device;
  
-+ - The release candidate of all stable kernel versions can be found at:
-+
-+        https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/
-+
-+   .. warning::
-+      The -stable-rc tree is a snapshot in time of the stable-queue tree and
-+      will change frequently, hence will be rebased often. It should only be
-+      used for testing purposes (e.g. to be consumed by CI systems).
-+
+ 	ret = platform_device_add_data(pd, mode, sizeof(*mode));
+-	if (ret) {
+-		platform_device_put(pd);
+-		return ret;
+-	}
++	if (ret)
++		goto err_put_device;
  
- Review committee
- ----------------
+-	return platform_device_add(pd);
++	ret = platform_device_add(pd);
++	if (ret)
++		goto err_put_device;
++
++	return 0;
++
++err_put_device:
++	platform_device_put(pd);
++
++	return ret;
+ }
 
 
