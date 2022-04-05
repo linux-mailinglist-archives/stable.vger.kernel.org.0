@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D39184F3240
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:54:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62E0F4F3588
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:51:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239944AbiDEKHY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:07:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43996 "EHLO
+        id S237429AbiDEImO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:42:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53142 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344349AbiDEJTe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:19:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D6CBE0E1;
-        Tue,  5 Apr 2022 02:07:41 -0700 (PDT)
+        with ESMTP id S238931AbiDEIbD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:31:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8F8D48E46;
+        Tue,  5 Apr 2022 01:23:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2ADC3614E4;
-        Tue,  5 Apr 2022 09:07:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A600C385A0;
-        Tue,  5 Apr 2022 09:07:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1AA8F61453;
+        Tue,  5 Apr 2022 08:23:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B15FC385A4;
+        Tue,  5 Apr 2022 08:23:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149660;
-        bh=GtXm7TP4FiF7Hh17CXHOhSXHFwXsRaUDFmn/WhLxqg0=;
+        s=korg; t=1649146985;
+        bh=2g2qu5ziKFJP1gI8z39vE2mp2FGrydzsCqGT96KerXg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qnj/L6kBkFMNePglfa0OE7incYxkhabDc+DsG3T6RPtyvrJv02FfftAs2RzWIR2iS
-         WNgDhNgW8p4FafjPSThfDzuCj9toCQfTj9ZbDv5oWngpGxxKhocknIWrtfPcrdxvD/
-         XcAsWC5U9b9LPi+6erPIJE2IjH/s6ikHN79A6A3g=
+        b=hWsGYtibeMBywbWoLWxGsk/p+71lzuooEfr/PolQBfczedbNj5UHxprSjggkgs++2
+         aA/8Tf66PvRjREAaV9ujnk9JJitPmZIlj0BLXPqmIyLFGd1/qAZvHfzifHS6fdGWKS
+         L5+bNQaI8hfPawpuWTVgPkYxbWVNBYOo89C+EjUg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
-        Bartosz Golaszewski <brgl@bgdev.pl>,
+        stable@vger.kernel.org, Derek Fang <derek.fang@realtek.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0756/1017] pinctrl: npcm: Fix broken references to chip->parent_device
-Date:   Tue,  5 Apr 2022 09:27:49 +0200
-Message-Id: <20220405070416.699963209@linuxfoundation.org>
+Subject: [PATCH 5.17 0923/1126] ASoC: rt5682s: Fix the wrong jack type detected
+Date:   Tue,  5 Apr 2022 09:27:50 +0200
+Message-Id: <20220405070434.611106560@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,123 +54,138 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Derek Fang <derek.fang@realtek.com>
 
-[ Upstream commit f7e53e2255808ca3abcc8f38d18ad0823425e771 ]
+[ Upstream commit c07ac3ee76e5e5506bca9c03fbbb15e40ab28430 ]
 
-The npcm driver has a bunch of references to the irq_chip parent_device
-field, but never sets it.
+Some powers were changed during the jack insert detection and clk's
+enable/disable in CCF.
+If in parallel, the influence has a chance to detect the wrong jack
+type.
 
-Fix it by fishing that reference from somewhere else, but it is
-obvious that these debug statements were never used. Also remove
-an unused field in a local data structure.
+We refer to the below commit of the variant codec (rt5682) to fix
+this issue.
+  ASoC: rt5682: Fix deadlock on resume
 
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Acked-by: Bartosz Golaszewski <brgl@bgdev.pl>
-Link: https://lore.kernel.org/r/20220201120310.878267-11-maz@kernel.org
+1. Remove rt5682s_headset_detect in rt5682s_jd_check_handler and
+   use jack_detect_work instead of.
+2. Use dapm mutex used in CCF to protect most of jack_detect_work.
+
+Signed-off-by: Derek Fang <derek.fang@realtek.com>
+Link: https://lore.kernel.org/r/20220223101450.4577-1-derek.fang@realtek.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/nuvoton/pinctrl-npcm7xx.c | 25 +++++++++++------------
- 1 file changed, 12 insertions(+), 13 deletions(-)
+ sound/soc/codecs/rt5682s.c | 26 +++++++++-----------------
+ sound/soc/codecs/rt5682s.h |  1 -
+ 2 files changed, 9 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/pinctrl/nuvoton/pinctrl-npcm7xx.c b/drivers/pinctrl/nuvoton/pinctrl-npcm7xx.c
-index 4d81908d6725..ba536fd4d674 100644
---- a/drivers/pinctrl/nuvoton/pinctrl-npcm7xx.c
-+++ b/drivers/pinctrl/nuvoton/pinctrl-npcm7xx.c
-@@ -78,7 +78,6 @@ struct npcm7xx_gpio {
- 	struct gpio_chip	gc;
- 	int			irqbase;
- 	int			irq;
--	void			*priv;
- 	struct irq_chip		irq_chip;
- 	u32			pinctrl_id;
- 	int (*direction_input)(struct gpio_chip *chip, unsigned offset);
-@@ -226,7 +225,7 @@ static void npcmgpio_irq_handler(struct irq_desc *desc)
- 	chained_irq_enter(chip, desc);
- 	sts = ioread32(bank->base + NPCM7XX_GP_N_EVST);
- 	en  = ioread32(bank->base + NPCM7XX_GP_N_EVEN);
--	dev_dbg(chip->parent_device, "==> got irq sts %.8x %.8x\n", sts,
-+	dev_dbg(bank->gc.parent, "==> got irq sts %.8x %.8x\n", sts,
- 		en);
+diff --git a/sound/soc/codecs/rt5682s.c b/sound/soc/codecs/rt5682s.c
+index 1e662d1be2b3..92b8753f1267 100644
+--- a/sound/soc/codecs/rt5682s.c
++++ b/sound/soc/codecs/rt5682s.c
+@@ -822,6 +822,7 @@ static void rt5682s_jack_detect_handler(struct work_struct *work)
+ {
+ 	struct rt5682s_priv *rt5682s =
+ 		container_of(work, struct rt5682s_priv, jack_detect_work.work);
++	struct snd_soc_dapm_context *dapm;
+ 	int val, btn_type;
  
- 	sts &= en;
-@@ -241,33 +240,33 @@ static int npcmgpio_set_irq_type(struct irq_data *d, unsigned int type)
- 		gpiochip_get_data(irq_data_get_irq_chip_data(d));
- 	unsigned int gpio = BIT(d->hwirq);
- 
--	dev_dbg(d->chip->parent_device, "setirqtype: %u.%u = %u\n", gpio,
-+	dev_dbg(bank->gc.parent, "setirqtype: %u.%u = %u\n", gpio,
- 		d->irq, type);
- 	switch (type) {
- 	case IRQ_TYPE_EDGE_RISING:
--		dev_dbg(d->chip->parent_device, "edge.rising\n");
-+		dev_dbg(bank->gc.parent, "edge.rising\n");
- 		npcm_gpio_clr(&bank->gc, bank->base + NPCM7XX_GP_N_EVBE, gpio);
- 		npcm_gpio_clr(&bank->gc, bank->base + NPCM7XX_GP_N_POL, gpio);
- 		break;
- 	case IRQ_TYPE_EDGE_FALLING:
--		dev_dbg(d->chip->parent_device, "edge.falling\n");
-+		dev_dbg(bank->gc.parent, "edge.falling\n");
- 		npcm_gpio_clr(&bank->gc, bank->base + NPCM7XX_GP_N_EVBE, gpio);
- 		npcm_gpio_set(&bank->gc, bank->base + NPCM7XX_GP_N_POL, gpio);
- 		break;
- 	case IRQ_TYPE_EDGE_BOTH:
--		dev_dbg(d->chip->parent_device, "edge.both\n");
-+		dev_dbg(bank->gc.parent, "edge.both\n");
- 		npcm_gpio_set(&bank->gc, bank->base + NPCM7XX_GP_N_EVBE, gpio);
- 		break;
- 	case IRQ_TYPE_LEVEL_LOW:
--		dev_dbg(d->chip->parent_device, "level.low\n");
-+		dev_dbg(bank->gc.parent, "level.low\n");
- 		npcm_gpio_set(&bank->gc, bank->base + NPCM7XX_GP_N_POL, gpio);
- 		break;
- 	case IRQ_TYPE_LEVEL_HIGH:
--		dev_dbg(d->chip->parent_device, "level.high\n");
-+		dev_dbg(bank->gc.parent, "level.high\n");
- 		npcm_gpio_clr(&bank->gc, bank->base + NPCM7XX_GP_N_POL, gpio);
- 		break;
- 	default:
--		dev_dbg(d->chip->parent_device, "invalid irq type\n");
-+		dev_dbg(bank->gc.parent, "invalid irq type\n");
- 		return -EINVAL;
+ 	if (!rt5682s->component || !rt5682s->component->card ||
+@@ -832,7 +833,9 @@ static void rt5682s_jack_detect_handler(struct work_struct *work)
+ 		return;
  	}
  
-@@ -289,7 +288,7 @@ static void npcmgpio_irq_ack(struct irq_data *d)
- 		gpiochip_get_data(irq_data_get_irq_chip_data(d));
- 	unsigned int gpio = d->hwirq;
+-	mutex_lock(&rt5682s->jdet_mutex);
++	dapm = snd_soc_component_get_dapm(rt5682s->component);
++
++	snd_soc_dapm_mutex_lock(dapm);
+ 	mutex_lock(&rt5682s->calibrate_mutex);
  
--	dev_dbg(d->chip->parent_device, "irq_ack: %u.%u\n", gpio, d->irq);
-+	dev_dbg(bank->gc.parent, "irq_ack: %u.%u\n", gpio, d->irq);
- 	iowrite32(BIT(gpio), bank->base + NPCM7XX_GP_N_EVST);
+ 	val = snd_soc_component_read(rt5682s->component, RT5682S_AJD1_CTRL)
+@@ -889,6 +892,9 @@ static void rt5682s_jack_detect_handler(struct work_struct *work)
+ 		rt5682s->irq_work_delay_time = 50;
+ 	}
+ 
++	mutex_unlock(&rt5682s->calibrate_mutex);
++	snd_soc_dapm_mutex_unlock(dapm);
++
+ 	snd_soc_jack_report(rt5682s->hs_jack, rt5682s->jack_type,
+ 		SND_JACK_HEADSET | SND_JACK_BTN_0 | SND_JACK_BTN_1 |
+ 		SND_JACK_BTN_2 | SND_JACK_BTN_3);
+@@ -898,9 +904,6 @@ static void rt5682s_jack_detect_handler(struct work_struct *work)
+ 		schedule_delayed_work(&rt5682s->jd_check_work, 0);
+ 	else
+ 		cancel_delayed_work_sync(&rt5682s->jd_check_work);
+-
+-	mutex_unlock(&rt5682s->calibrate_mutex);
+-	mutex_unlock(&rt5682s->jdet_mutex);
  }
  
-@@ -301,7 +300,7 @@ static void npcmgpio_irq_mask(struct irq_data *d)
- 	unsigned int gpio = d->hwirq;
+ static void rt5682s_jd_check_handler(struct work_struct *work)
+@@ -908,14 +911,9 @@ static void rt5682s_jd_check_handler(struct work_struct *work)
+ 	struct rt5682s_priv *rt5682s =
+ 		container_of(work, struct rt5682s_priv, jd_check_work.work);
  
- 	/* Clear events */
--	dev_dbg(d->chip->parent_device, "irq_mask: %u.%u\n", gpio, d->irq);
-+	dev_dbg(bank->gc.parent, "irq_mask: %u.%u\n", gpio, d->irq);
- 	iowrite32(BIT(gpio), bank->base + NPCM7XX_GP_N_EVENC);
- }
+-	if (snd_soc_component_read(rt5682s->component, RT5682S_AJD1_CTRL)
+-		& RT5682S_JDH_RS_MASK) {
++	if (snd_soc_component_read(rt5682s->component, RT5682S_AJD1_CTRL) & RT5682S_JDH_RS_MASK) {
+ 		/* jack out */
+-		rt5682s->jack_type = rt5682s_headset_detect(rt5682s->component, 0);
+-
+-		snd_soc_jack_report(rt5682s->hs_jack, rt5682s->jack_type,
+-			SND_JACK_HEADSET | SND_JACK_BTN_0 | SND_JACK_BTN_1 |
+-			SND_JACK_BTN_2 | SND_JACK_BTN_3);
++		schedule_delayed_work(&rt5682s->jack_detect_work, 0);
+ 	} else {
+ 		schedule_delayed_work(&rt5682s->jd_check_work, 500);
+ 	}
+@@ -1323,7 +1321,6 @@ static int rt5682s_hp_amp_event(struct snd_soc_dapm_widget *w,
+ 		struct snd_kcontrol *kcontrol, int event)
+ {
+ 	struct snd_soc_component *component = snd_soc_dapm_to_component(w->dapm);
+-	struct rt5682s_priv *rt5682s = snd_soc_component_get_drvdata(component);
  
-@@ -313,7 +312,7 @@ static void npcmgpio_irq_unmask(struct irq_data *d)
- 	unsigned int gpio = d->hwirq;
+ 	switch (event) {
+ 	case SND_SOC_DAPM_POST_PMU:
+@@ -1339,8 +1336,6 @@ static int rt5682s_hp_amp_event(struct snd_soc_dapm_widget *w,
+ 		snd_soc_component_write(component, RT5682S_BIAS_CUR_CTRL_11, 0x6666);
+ 		snd_soc_component_write(component, RT5682S_BIAS_CUR_CTRL_12, 0xa82a);
  
- 	/* Enable events */
--	dev_dbg(d->chip->parent_device, "irq_unmask: %u.%u\n", gpio, d->irq);
-+	dev_dbg(bank->gc.parent, "irq_unmask: %u.%u\n", gpio, d->irq);
- 	iowrite32(BIT(gpio), bank->base + NPCM7XX_GP_N_EVENS);
- }
+-		mutex_lock(&rt5682s->jdet_mutex);
+-
+ 		snd_soc_component_update_bits(component, RT5682S_HP_CTRL_2,
+ 			RT5682S_HPO_L_PATH_MASK | RT5682S_HPO_R_PATH_MASK |
+ 			RT5682S_HPO_SEL_IP_EN_SW, RT5682S_HPO_L_PATH_EN |
+@@ -1348,8 +1343,6 @@ static int rt5682s_hp_amp_event(struct snd_soc_dapm_widget *w,
+ 		usleep_range(5000, 10000);
+ 		snd_soc_component_update_bits(component, RT5682S_HP_AMP_DET_CTL_1,
+ 			RT5682S_CP_SW_SIZE_MASK, RT5682S_CP_SW_SIZE_L | RT5682S_CP_SW_SIZE_S);
+-
+-		mutex_unlock(&rt5682s->jdet_mutex);
+ 		break;
  
-@@ -323,7 +322,7 @@ static unsigned int npcmgpio_irq_startup(struct irq_data *d)
- 	unsigned int gpio = d->hwirq;
+ 	case SND_SOC_DAPM_POST_PMD:
+@@ -3103,7 +3096,6 @@ static int rt5682s_i2c_probe(struct i2c_client *i2c,
  
- 	/* active-high, input, clear interrupt, enable interrupt */
--	dev_dbg(d->chip->parent_device, "startup: %u.%u\n", gpio, d->irq);
-+	dev_dbg(gc->parent, "startup: %u.%u\n", gpio, d->irq);
- 	npcmgpio_direction_input(gc, gpio);
- 	npcmgpio_irq_ack(d);
- 	npcmgpio_irq_unmask(d);
+ 	mutex_init(&rt5682s->calibrate_mutex);
+ 	mutex_init(&rt5682s->sar_mutex);
+-	mutex_init(&rt5682s->jdet_mutex);
+ 	rt5682s_calibrate(rt5682s);
+ 
+ 	regmap_update_bits(rt5682s->regmap, RT5682S_MICBIAS_2,
+diff --git a/sound/soc/codecs/rt5682s.h b/sound/soc/codecs/rt5682s.h
+index 1bf2ef7ce578..397a2531b6f6 100644
+--- a/sound/soc/codecs/rt5682s.h
++++ b/sound/soc/codecs/rt5682s.h
+@@ -1446,7 +1446,6 @@ struct rt5682s_priv {
+ 	struct delayed_work jd_check_work;
+ 	struct mutex calibrate_mutex;
+ 	struct mutex sar_mutex;
+-	struct mutex jdet_mutex;
+ 
+ #ifdef CONFIG_COMMON_CLK
+ 	struct clk_hw dai_clks_hw[RT5682S_DAI_NUM_CLKS];
 -- 
 2.34.1
 
