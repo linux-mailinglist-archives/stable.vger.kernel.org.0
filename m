@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F3AA4F2DAF
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:46:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CFAC54F2CCC
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:33:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353948AbiDEKJw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:09:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37776 "EHLO
+        id S241109AbiDEKKK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:10:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60096 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346335AbiDEJXo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:23:44 -0400
+        with ESMTP id S1346563AbiDEJY1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:24:27 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69683D9E93;
-        Tue,  5 Apr 2022 02:13:19 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88ECCDA6F7;
+        Tue,  5 Apr 2022 02:13:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 66DCC61365;
-        Tue,  5 Apr 2022 09:13:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78F24C385A0;
-        Tue,  5 Apr 2022 09:13:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A0C6A6164D;
+        Tue,  5 Apr 2022 09:13:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7471C385A0;
+        Tue,  5 Apr 2022 09:13:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149997;
-        bh=bymNXs9RSnkFw+C4LkYHYp5fkQlBVZApsmk8h49t/k0=;
+        s=korg; t=1649150017;
+        bh=L/KLRxBS/6cGYACuSzdQzMUxD28ReaSOYnDVgXhsFBY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ypclParhywSb5YT3WxAOdogaSinC2DpqRKQzhEoi457LOLjSWIDXiR4K+4v+Lax2L
-         PR19CR65gdsOx5xcM9ks3TD3w01sq3xB5UJu9vSUDNNzD67ql4ydnrX0QkfjegAoe7
-         TnU3X5oXXWLRaTnzssROTW8iLBwQs6yd/WnD+o8o=
+        b=UmbGSUBKS/b6G32jozlxuDJdhichdJGumSTVPqfE15Qtf9mK03Q96X942zrV5HXcJ
+         UUvQ7F2YHLfjNqKmSO/Iw63RlP5f1durrNPm8LNBLPhbSJi9obWL4XqOYQaQEXzh27
+         am0U8lRebRIw8h7PMdK/ksDbtTn7OrzYoCorBABY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Richard Weinberger <richard@nod.at>
-Subject: [PATCH 5.16 0915/1017] ubifs: Fix to add refcount once page is set private
-Date:   Tue,  5 Apr 2022 09:30:28 +0200
-Message-Id: <20220405070421.381206375@linuxfoundation.org>
+        stable@vger.kernel.org, Sungup Moon <sungup.moon@samsung.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Sagi Grimberg <sagi@grimberg.me>
+Subject: [PATCH 5.16 0917/1017] nvme: allow duplicate NSIDs for private namespaces
+Date:   Tue,  5 Apr 2022 09:30:30 +0200
+Message-Id: <20220405070421.439945004@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -53,184 +54,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Sungup Moon <sungup.moon@samsung.com>
 
-commit 3b67db8a6ca83e6ff90b756d3da0c966f61cd37b upstream.
+commit 5974ea7ce0f9a5987fc8cf5e08ad6e3e70bb542e upstream.
 
-MM defined the rule [1] very clearly that once page was set with PG_private
-flag, we should increment the refcount in that page, also main flows like
-pageout(), migrate_page() will assume there is one additional page
-reference count if page_has_private() returns true. Otherwise, we may
-get a BUG in page migration:
+A NVMe subsystem with multiple controller can have private namespaces
+that use the same NSID under some conditions:
 
-  page:0000000080d05b9d refcount:-1 mapcount:0 mapping:000000005f4d82a8
-  index:0xe2 pfn:0x14c12
-  aops:ubifs_file_address_operations [ubifs] ino:8f1 dentry name:"f30e"
-  flags: 0x1fffff80002405(locked|uptodate|owner_priv_1|private|node=0|
-  zone=1|lastcpupid=0x1fffff)
-  page dumped because: VM_BUG_ON_PAGE(page_count(page) != 0)
-  ------------[ cut here ]------------
-  kernel BUG at include/linux/page_ref.h:184!
-  invalid opcode: 0000 [#1] SMP
-  CPU: 3 PID: 38 Comm: kcompactd0 Not tainted 5.15.0-rc5
-  RIP: 0010:migrate_page_move_mapping+0xac3/0xe70
-  Call Trace:
-    ubifs_migrate_page+0x22/0xc0 [ubifs]
-    move_to_new_page+0xb4/0x600
-    migrate_pages+0x1523/0x1cc0
-    compact_zone+0x8c5/0x14b0
-    kcompactd+0x2bc/0x560
-    kthread+0x18c/0x1e0
-    ret_from_fork+0x1f/0x30
+ "If Namespace Management, ANA Reporting, or NVM Sets are supported, the
+  NSIDs shall be unique within the NVM subsystem. If the Namespace
+  Management, ANA Reporting, and NVM Sets are not supported, then NSIDs:
+   a) for shared namespace shall be unique; and
+   b) for private namespace are not required to be unique."
 
-Before the time, we should make clean a concept, what does refcount means
-in page gotten from grab_cache_page_write_begin(). There are 2 situations:
-Situation 1: refcount is 3, page is created by __page_cache_alloc.
-  TYPE_A - the write process is using this page
-  TYPE_B - page is assigned to one certain mapping by calling
-	   __add_to_page_cache_locked()
-  TYPE_C - page is added into pagevec list corresponding current cpu by
-	   calling lru_cache_add()
-Situation 2: refcount is 2, page is gotten from the mapping's tree
-  TYPE_B - page has been assigned to one certain mapping
-  TYPE_A - the write process is using this page (by calling
-	   page_cache_get_speculative())
-Filesystem releases one refcount by calling put_page() in xxx_write_end(),
-the released refcount corresponds to TYPE_A (write task is using it). If
-there are any processes using a page, page migration process will skip the
-page by judging whether expected_page_refs() equals to page refcount.
+Reference: Section 6.1.6 NSID and Namespace Usage; NVM Express 1.4c spec.
 
-The BUG is caused by following process:
-    PA(cpu 0)                           kcompactd(cpu 1)
-				compact_zone
-ubifs_write_begin
-  page_a = grab_cache_page_write_begin
-    add_to_page_cache_lru
-      lru_cache_add
-        pagevec_add // put page into cpu 0's pagevec
-  (refcnf = 3, for page creation process)
-ubifs_write_end
-  SetPagePrivate(page_a) // doesn't increase page count !
-  unlock_page(page_a)
-  put_page(page_a)  // refcnt = 2
-				[...]
+Make sure this specific setup is supported in Linux.
 
-    PB(cpu 0)
-filemap_read
-  filemap_get_pages
-    add_to_page_cache_lru
-      lru_cache_add
-        __pagevec_lru_add // traverse all pages in cpu 0's pagevec
-	  __pagevec_lru_add_fn
-	    SetPageLRU(page_a)
-				isolate_migratepages
-                                  isolate_migratepages_block
-				    get_page_unless_zero(page_a)
-				    // refcnt = 3
-                                      list_add(page_a, from_list)
-				migrate_pages(from_list)
-				  __unmap_and_move
-				    move_to_new_page
-				      ubifs_migrate_page(page_a)
-				        migrate_page_move_mapping
-					  expected_page_refs get 3
-                                  (migration[1] + mapping[1] + private[1])
-	 release_pages
-	   put_page_testzero(page_a) // refcnt = 3
-                                          page_ref_freeze  // refcnt = 0
-	     page_ref_dec_and_test(0 - 1 = -1)
-                                          page_ref_unfreeze
-                                            VM_BUG_ON_PAGE(-1 != 0, page)
-
-UBIFS doesn't increase the page refcount after setting private flag, which
-leads to page migration task believes the page is not used by any other
-processes, so the page is migrated. This causes concurrent accessing on
-page refcount between put_page() called by other process(eg. read process
-calls lru_cache_add) and page_ref_unfreeze() called by migration task.
-
-Actually zhangjun has tried to fix this problem [2] by recalculating page
-refcnt in ubifs_migrate_page(). It's better to follow MM rules [1], because
-just like Kirill suggested in [2], we need to check all users of
-page_has_private() helper. Like f2fs does in [3], fix it by adding/deleting
-refcount when setting/clearing private for a page. BTW, according to [4],
-we set 'page->private' as 1 because ubifs just simply SetPagePrivate().
-And, [5] provided a common helper to set/clear page private, ubifs can
-use this helper following the example of iomap, afs, btrfs, etc.
-
-Jump [6] to find a reproducer.
-
-[1] https://lore.kernel.org/lkml/2b19b3c4-2bc4-15fa-15cc-27a13e5c7af1@aol.com
-[2] https://www.spinics.net/lists/linux-mtd/msg04018.html
-[3] http://lkml.iu.edu/hypermail/linux/kernel/1903.0/03313.html
-[4] https://lore.kernel.org/linux-f2fs-devel/20210422154705.GO3596236@casper.infradead.org
-[5] https://lore.kernel.org/all/20200517214718.468-1-guoqing.jiang@cloud.ionos.com
-[6] https://bugzilla.kernel.org/show_bug.cgi?id=214961
-
-Fixes: 1e51764a3c2ac0 ("UBIFS: add new flash file system")
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Fixes: 9ad1927a3bc2 ("nvme: always search for namespace head")
+Signed-off-by: Sungup Moon <sungup.moon@samsung.com>
+[hch: refactored and fixed the controller vs subsystem based naming
+      conflict]
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ubifs/file.c |   14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/nvme/host/core.c      |   15 ++++++++++-----
+ drivers/nvme/host/multipath.c |    7 ++++---
+ drivers/nvme/host/nvme.h      |   19 +++++++++++++++++++
+ include/linux/nvme.h          |    1 +
+ 4 files changed, 34 insertions(+), 8 deletions(-)
 
---- a/fs/ubifs/file.c
-+++ b/fs/ubifs/file.c
-@@ -570,7 +570,7 @@ static int ubifs_write_end(struct file *
- 	}
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -3581,15 +3581,20 @@ static const struct attribute_group *nvm
+ 	NULL,
+ };
  
- 	if (!PagePrivate(page)) {
--		SetPagePrivate(page);
-+		attach_page_private(page, (void *)1);
- 		atomic_long_inc(&c->dirty_pg_cnt);
- 		__set_page_dirty_nobuffers(page);
- 	}
-@@ -947,7 +947,7 @@ static int do_writepage(struct page *pag
- 		release_existing_page_budget(c);
+-static struct nvme_ns_head *nvme_find_ns_head(struct nvme_subsystem *subsys,
++static struct nvme_ns_head *nvme_find_ns_head(struct nvme_ctrl *ctrl,
+ 		unsigned nsid)
+ {
+ 	struct nvme_ns_head *h;
  
- 	atomic_long_dec(&c->dirty_pg_cnt);
--	ClearPagePrivate(page);
-+	detach_page_private(page);
- 	ClearPageChecked(page);
+-	lockdep_assert_held(&subsys->lock);
++	lockdep_assert_held(&ctrl->subsys->lock);
  
- 	kunmap(page);
-@@ -1304,7 +1304,7 @@ static void ubifs_invalidatepage(struct
- 		release_existing_page_budget(c);
+-	list_for_each_entry(h, &subsys->nsheads, entry) {
+-		if (h->ns_id != nsid)
++	list_for_each_entry(h, &ctrl->subsys->nsheads, entry) {
++		/*
++		 * Private namespaces can share NSIDs under some conditions.
++		 * In that case we can't use the same ns_head for namespaces
++		 * with the same NSID.
++		 */
++		if (h->ns_id != nsid || !nvme_is_unique_nsid(ctrl, h))
+ 			continue;
+ 		if (!list_empty(&h->list) && nvme_tryget_ns_head(h))
+ 			return h;
+@@ -3757,7 +3762,7 @@ static int nvme_init_ns_head(struct nvme
+ 	int ret = 0;
  
- 	atomic_long_dec(&c->dirty_pg_cnt);
--	ClearPagePrivate(page);
-+	detach_page_private(page);
- 	ClearPageChecked(page);
- }
+ 	mutex_lock(&ctrl->subsys->lock);
+-	head = nvme_find_ns_head(ctrl->subsys, nsid);
++	head = nvme_find_ns_head(ctrl, nsid);
+ 	if (!head) {
+ 		head = nvme_alloc_ns_head(ctrl, nsid, ids);
+ 		if (IS_ERR(head)) {
+--- a/drivers/nvme/host/multipath.c
++++ b/drivers/nvme/host/multipath.c
+@@ -468,10 +468,11 @@ int nvme_mpath_alloc_disk(struct nvme_ct
  
-@@ -1471,8 +1471,8 @@ static int ubifs_migrate_page(struct add
- 		return rc;
- 
- 	if (PagePrivate(page)) {
--		ClearPagePrivate(page);
--		SetPagePrivate(newpage);
-+		detach_page_private(page);
-+		attach_page_private(newpage, (void *)1);
- 	}
- 
- 	if (mode != MIGRATE_SYNC_NO_COPY)
-@@ -1496,7 +1496,7 @@ static int ubifs_releasepage(struct page
+ 	/*
+ 	 * Add a multipath node if the subsystems supports multiple controllers.
+-	 * We also do this for private namespaces as the namespace sharing data could
+-	 * change after a rescan.
++	 * We also do this for private namespaces as the namespace sharing flag
++	 * could change after a rescan.
+ 	 */
+-	if (!(ctrl->subsys->cmic & NVME_CTRL_CMIC_MULTI_CTRL) || !multipath)
++	if (!(ctrl->subsys->cmic & NVME_CTRL_CMIC_MULTI_CTRL) ||
++	    !nvme_is_unique_nsid(ctrl, head) || !multipath)
  		return 0;
- 	ubifs_assert(c, PagePrivate(page));
- 	ubifs_assert(c, 0);
--	ClearPagePrivate(page);
-+	detach_page_private(page);
- 	ClearPageChecked(page);
- 	return 1;
+ 
+ 	head->disk = blk_alloc_disk(ctrl->numa_node);
+--- a/drivers/nvme/host/nvme.h
++++ b/drivers/nvme/host/nvme.h
+@@ -712,6 +712,25 @@ static inline bool nvme_check_ready(stru
+ 		return queue_live;
+ 	return __nvme_check_ready(ctrl, rq, queue_live);
  }
-@@ -1567,7 +1567,7 @@ static vm_fault_t ubifs_vm_page_mkwrite(
- 	else {
- 		if (!PageChecked(page))
- 			ubifs_convert_page_budget(c);
--		SetPagePrivate(page);
-+		attach_page_private(page, (void *)1);
- 		atomic_long_inc(&c->dirty_pg_cnt);
- 		__set_page_dirty_nobuffers(page);
- 	}
++
++/*
++ * NSID shall be unique for all shared namespaces, or if at least one of the
++ * following conditions is met:
++ *   1. Namespace Management is supported by the controller
++ *   2. ANA is supported by the controller
++ *   3. NVM Set are supported by the controller
++ *
++ * In other case, private namespace are not required to report a unique NSID.
++ */
++static inline bool nvme_is_unique_nsid(struct nvme_ctrl *ctrl,
++		struct nvme_ns_head *head)
++{
++	return head->shared ||
++		(ctrl->oacs & NVME_CTRL_OACS_NS_MNGT_SUPP) ||
++		(ctrl->subsys->cmic & NVME_CTRL_CMIC_ANA) ||
++		(ctrl->ctratt & NVME_CTRL_CTRATT_NVM_SETS);
++}
++
+ int nvme_submit_sync_cmd(struct request_queue *q, struct nvme_command *cmd,
+ 		void *buf, unsigned bufflen);
+ int __nvme_submit_sync_cmd(struct request_queue *q, struct nvme_command *cmd,
+--- a/include/linux/nvme.h
++++ b/include/linux/nvme.h
+@@ -337,6 +337,7 @@ enum {
+ 	NVME_CTRL_ONCS_TIMESTAMP		= 1 << 6,
+ 	NVME_CTRL_VWC_PRESENT			= 1 << 0,
+ 	NVME_CTRL_OACS_SEC_SUPP                 = 1 << 0,
++	NVME_CTRL_OACS_NS_MNGT_SUPP		= 1 << 3,
+ 	NVME_CTRL_OACS_DIRECTIVES		= 1 << 5,
+ 	NVME_CTRL_OACS_DBBUF_SUPP		= 1 << 8,
+ 	NVME_CTRL_LPA_CMD_EFFECTS_LOG		= 1 << 1,
 
 
