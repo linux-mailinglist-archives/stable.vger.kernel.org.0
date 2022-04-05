@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 06DB74F3595
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:51:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C46514F2EDB
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:04:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234790AbiDEKva (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:51:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54750 "EHLO
+        id S244583AbiDEJPt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:15:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52178 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345832AbiDEJoH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:44:07 -0400
+        with ESMTP id S244948AbiDEIwt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:49 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C065C6242;
-        Tue,  5 Apr 2022 02:29:40 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8182D656D;
+        Tue,  5 Apr 2022 01:47:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1AAB5B81C9E;
-        Tue,  5 Apr 2022 09:29:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80D0DC385A0;
-        Tue,  5 Apr 2022 09:29:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 28CD9B81A32;
+        Tue,  5 Apr 2022 08:47:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D82CC385A0;
+        Tue,  5 Apr 2022 08:47:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150973;
-        bh=m9IdsWkhwEHDsIk1mPp3Sw2dqcl6n6tF8/nLt+2Yvdk=;
+        s=korg; t=1649148443;
+        bh=DuYmSyEzedX7U/nY9Gg5hYz0dMAKEediBXzyg56hMdA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c0AYjJ6DtN6k3tFX58MNkvHzE4Ewf/850iadsGpWOGeLVwwZg7wAJhbkTs6CpDyjA
-         0gnBUSDbb7iy9QAY7DjhxgCbX8BxaO433cadL/AEMQMWMbcmpUrHN2AGNd9TcYQV4I
-         PDtjxaSqkCVA/J5Qo13yhgBysSrVBlbWIAG3o27o=
+        b=Q1zsiz0GxNi4CH7E/atxmXWIkshJLIMIN9Xj9kb8ajYKmBxG0EJDmwg63/W0bkole
+         SrUM2Qr5nlDNTdetSEqwHDAYeAv9omqSU3h4S2eGDlKVQxdKOSvQARrQYHYEXAAHwt
+         x1z3F2Zpcz1uUOuybNpOd7vW3TftM18toCv9xKME=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gilad Ben-Yossef <gilad@benyossef.com>,
-        Corentin Labbe <clabbe.montjoie@gmail.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 211/913] crypto: ccree - dont attempt 0 len DMA mappings
+Subject: [PATCH 5.16 0360/1017] ASoC: atmel_ssc_dai: Handle errors for clk_enable
 Date:   Tue,  5 Apr 2022 09:21:13 +0200
-Message-Id: <20220405070346.183125799@linuxfoundation.org>
+Message-Id: <20220405070404.971402857@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,43 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gilad Ben-Yossef <gilad@benyossef.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit 1fb37b5692c915edcc2448a6b37255738c7c77e0 ]
+[ Upstream commit f9e2ca0640e59d19af0ff285ee5591ed39069b09 ]
 
-Refuse to try mapping zero bytes as this may cause a fault
-on some configurations / platforms and it seems the prev.
-attempt is not enough and we need to be more explicit.
+As the potential failure of the clk_enable(),
+it should be better to check it and return error if fals.
 
-Signed-off-by: Gilad Ben-Yossef <gilad@benyossef.com>
-Reported-by: Corentin Labbe <clabbe.montjoie@gmail.com>
-Fixes: ce0fc6db38de ("crypto: ccree - protect against empty or NULL
-scatterlists")
-Tested-by: Corentin Labbe <clabbe.montjoie@gmail.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: cbaadf0f90d6 ("ASoC: atmel_ssc_dai: refactor the startup and shutdown")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Link: https://lore.kernel.org/r/20220301090637.3776558-1-jiasheng@iscas.ac.cn
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/ccree/cc_buffer_mgr.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ sound/soc/atmel/atmel_ssc_dai.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/crypto/ccree/cc_buffer_mgr.c b/drivers/crypto/ccree/cc_buffer_mgr.c
-index a5e041d9d2cf..11e0278c8631 100644
---- a/drivers/crypto/ccree/cc_buffer_mgr.c
-+++ b/drivers/crypto/ccree/cc_buffer_mgr.c
-@@ -258,6 +258,13 @@ static int cc_map_sg(struct device *dev, struct scatterlist *sg,
- {
- 	int ret = 0;
+diff --git a/sound/soc/atmel/atmel_ssc_dai.c b/sound/soc/atmel/atmel_ssc_dai.c
+index 26e2bc690d86..c1dea8d62416 100644
+--- a/sound/soc/atmel/atmel_ssc_dai.c
++++ b/sound/soc/atmel/atmel_ssc_dai.c
+@@ -280,7 +280,10 @@ static int atmel_ssc_startup(struct snd_pcm_substream *substream,
  
-+	if (!nbytes) {
-+		*mapped_nents = 0;
-+		*lbytes = 0;
-+		*nents = 0;
-+		return 0;
-+	}
+ 	/* Enable PMC peripheral clock for this SSC */
+ 	pr_debug("atmel_ssc_dai: Starting clock\n");
+-	clk_enable(ssc_p->ssc->clk);
++	ret = clk_enable(ssc_p->ssc->clk);
++	if (ret)
++		return ret;
 +
- 	*nents = cc_get_sgl_nents(dev, sg, nbytes, lbytes);
- 	if (*nents > max_sg_nents) {
- 		*nents = 0;
+ 	ssc_p->mck_rate = clk_get_rate(ssc_p->ssc->clk);
+ 
+ 	/* Reset the SSC unless initialized to keep it in a clean state */
 -- 
 2.34.1
 
