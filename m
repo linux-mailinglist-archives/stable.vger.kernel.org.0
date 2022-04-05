@@ -2,48 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CCA7B4F2E99
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:02:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D829A4F31EF
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:53:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242194AbiDEIhN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:37:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54492 "EHLO
+        id S1350511AbiDEJ6o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:58:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40110 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235552AbiDEIVa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:21:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7D9321AD;
-        Tue,  5 Apr 2022 01:19:16 -0700 (PDT)
+        with ESMTP id S1344025AbiDEJQw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:16:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C13B2603;
+        Tue,  5 Apr 2022 02:03:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 21DACB81BAC;
-        Tue,  5 Apr 2022 08:19:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B586C385A0;
-        Tue,  5 Apr 2022 08:19:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BBCDB614E4;
+        Tue,  5 Apr 2022 09:03:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97B08C385A1;
+        Tue,  5 Apr 2022 09:03:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146753;
-        bh=bk9cWPr/wjcvI1DpKgD6lGJ0CQY4X1di6UU/QY0bodk=;
+        s=korg; t=1649149426;
+        bh=pLIQlGkUzPkW36H+QN7RfbIl6w439D/LXITrrVw3+x8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ns6nLuv4FC89rNcFAZ5gO9qGBwX5AmS9/jMNA0ZX0ncDiOcjCoiGIuylBIPk7UiTf
-         oypR3M4/hivbw/vRO3LaDU4HATKJ54r5lJ9MSQEjdVoVV41ook+HnidrCM2cgsqtlG
-         dlEiQLMOY+cMYCP2mBWyKOfxPZ8hhEZtxtdcSTFs=
+        b=TmwrsoVh2l2NNPAGjykVdX8sg8wNB9SJhWK7PZL7rs9iqw0G+ASG5kEuPlc9rSlOr
+         t0sjhxIMHOLrXlYCVZuZ+q/NKrCpnIKPrNmwxlgGrHu6DlOfUG02g3yoIplBPqzzs3
+         pN6V+QG6p016pSbqUiJjV6j28u62A8Y/nTj5NTfE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Valentin Schneider <valentin.schneider@arm.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        stable@vger.kernel.org, kgdb-bugreport@lists.sourceforge.net,
+        Jason Wessel <jason.wessel@windriver.com>,
+        Daniel Thompson <daniel.thompson@linaro.org>,
+        Douglas Anderson <dianders@chromium.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Igor Zhbanov <i.zhbanov@omprussia.ru>,
+        Randy Dunlap <rdunlap@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0875/1126] sched/tracing: Report TASK_RTLOCK_WAIT tasks as TASK_UNINTERRUPTIBLE
+Subject: [PATCH 5.16 0709/1017] kgdbts: fix return value of __setup handler
 Date:   Tue,  5 Apr 2022 09:27:02 +0200
-Message-Id: <20220405070433.219535150@linuxfoundation.org>
+Message-Id: <20220405070415.316309603@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,53 +59,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Valentin Schneider <valentin.schneider@arm.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 25795ef6299f07ce3838f3253a9cb34f64efcfae ]
+[ Upstream commit 96c9e802c64014a7716865332d732cc9c7f24593 ]
 
-TASK_RTLOCK_WAIT currently isn't part of TASK_REPORT, thus a task blocking
-on an rtlock will appear as having a task state == 0, IOW TASK_RUNNING.
+__setup() handlers should return 1 to indicate that the boot option
+has been handled. A return of 0 causes the boot option/value to be
+listed as an Unknown kernel parameter and added to init's (limited)
+environment strings. So return 1 from kgdbts_option_setup().
 
-The actual state is saved in p->saved_state, but reading it after reading
-p->__state has a few issues:
-o that could still be TASK_RUNNING in the case of e.g. rt_spin_lock
-o ttwu_state_match() might have changed that to TASK_RUNNING
+Unknown kernel command line parameters "BOOT_IMAGE=/boot/bzImage-517rc7
+  kgdboc=kbd kgdbts=", will be passed to user space.
 
-As pointed out by Eric, adding TASK_RTLOCK_WAIT to TASK_REPORT implies
-exposing a new state to userspace tools which way not know what to do with
-them. The only information that needs to be conveyed here is that a task is
-waiting on an rt_mutex, which matches TASK_UNINTERRUPTIBLE - there's no
-need for a new state.
+ Run /sbin/init as init process
+   with arguments:
+     /sbin/init
+   with environment:
+     HOME=/
+     TERM=linux
+     BOOT_IMAGE=/boot/bzImage-517rc7
+     kgdboc=kbd
+     kgdbts=
 
-Reported-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Valentin Schneider <valentin.schneider@arm.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Link: https://lore.kernel.org/r/20220120162520.570782-3-valentin.schneider@arm.com
+Link: lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
+Fixes: e8d31c204e36 ("kgdb: add kgdb internal test suite")
+Cc: kgdb-bugreport@lists.sourceforge.net
+Cc: Jason Wessel <jason.wessel@windriver.com>
+Cc: Daniel Thompson <daniel.thompson@linaro.org>
+Cc: Douglas Anderson <dianders@chromium.org>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Link: https://lore.kernel.org/r/20220308033255.22118-1-rdunlap@infradead.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/sched.h | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/misc/kgdbts.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/include/linux/sched.h b/include/linux/sched.h
-index a76a178f8eb6..36e38434391c 100644
---- a/include/linux/sched.h
-+++ b/include/linux/sched.h
-@@ -1630,6 +1630,14 @@ static inline unsigned int __task_state_index(unsigned int tsk_state,
- 	if (tsk_state == TASK_IDLE)
- 		state = TASK_REPORT_IDLE;
- 
-+	/*
-+	 * We're lying here, but rather than expose a completely new task state
-+	 * to userspace, we can make this appear as if the task has gone through
-+	 * a regular rt_mutex_lock() call.
-+	 */
-+	if (tsk_state == TASK_RTLOCK_WAIT)
-+		state = TASK_UNINTERRUPTIBLE;
-+
- 	return fls(state);
+diff --git a/drivers/misc/kgdbts.c b/drivers/misc/kgdbts.c
+index 67c5b452dd35..88b91ad8e541 100644
+--- a/drivers/misc/kgdbts.c
++++ b/drivers/misc/kgdbts.c
+@@ -1070,10 +1070,10 @@ static int kgdbts_option_setup(char *opt)
+ {
+ 	if (strlen(opt) >= MAX_CONFIG_LEN) {
+ 		printk(KERN_ERR "kgdbts: config string too long\n");
+-		return -ENOSPC;
++		return 1;
+ 	}
+ 	strcpy(config, opt);
+-	return 0;
++	return 1;
  }
  
+ __setup("kgdbts=", kgdbts_option_setup);
 -- 
 2.34.1
 
