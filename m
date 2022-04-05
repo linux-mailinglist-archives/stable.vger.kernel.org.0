@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D497B4F38A3
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:36:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 257094F3B55
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:16:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242801AbiDEL0j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:26:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39810 "EHLO
+        id S1348343AbiDELxH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:53:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50696 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349502AbiDEJt6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E7C6AB;
-        Tue,  5 Apr 2022 02:47:51 -0700 (PDT)
+        with ESMTP id S1357384AbiDEK0Q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:26:16 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BF4A2C676;
+        Tue,  5 Apr 2022 03:10:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 17BA7615E3;
-        Tue,  5 Apr 2022 09:47:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AD2DC385A1;
-        Tue,  5 Apr 2022 09:47:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E5AB5B81C98;
+        Tue,  5 Apr 2022 10:10:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F8CBC385A3;
+        Tue,  5 Apr 2022 10:10:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152070;
-        bh=fS92WcltWMV/oLDH5M9/c4EeFe8ws+q7Xh7/PGg/Mi4=;
+        s=korg; t=1649153405;
+        bh=gMbvZ05ZpJKtXwRjQP06B4ijX/7d6xDwGRztoLLbyAs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AySvFiob2XZuG8VHQmHUMU8OM0lSnhuh7bO9rINq4IrmMZ7mQXydp+MyWOmDaeXmb
-         hXj/vumwpDhJeXDK5nthl2Y9QaJCoSNij9BlPcOD3fHvDqHTJWX8VVp5jLnKH+w6Z2
-         yJ0JV0q9CFMyAkTF7p1o5T6OKKnOAMCGuWO6dryM=
+        b=JE00Fbm76y2yFMWW+Fd7t0MmS7mDN9jjXTHqfBLWtvCK8IgbNS9zwPJWfS0/YAEMe
+         39e2EEMBN4nFFaE6QGubLxom1Ar4CbW7jwAko2Vr/KM2/UVcv/wevhFtC3tYT3WjLW
+         ZE/+caxFKzQ6LSekzLfW++pT7pfpuMDGOds1RCpU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Xiaolong Huang <butterflyhuangxx@gmail.com>,
-        Fei Li <fei1.li@intel.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 644/913] virt: acrn: fix a memory leak in acrn_dev_ioctl()
+        Paul Kocialkowski <paul.kocialkowski@bootlin.com>,
+        Maxime Ripard <maxime@cerno.tech>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 212/599] ARM: dts: sun8i: v3s: Move the csi1 block to follow address order
 Date:   Tue,  5 Apr 2022 09:28:26 +0200
-Message-Id: <20220405070359.143863831@linuxfoundation.org>
+Message-Id: <20220405070305.150190421@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070258.802373272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,74 +55,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaolong Huang <butterflyhuangxx@gmail.com>
+From: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
 
-[ Upstream commit ecd1735f14d6ac868ae5d8b7a2bf193fa11f388b ]
+[ Upstream commit c4af51698c4fb4fc683f2ac67f482cdf9ba2cd13 ]
 
-The vm_param and cpu_regs need to be freed via kfree()
-before return -EINVAL error.
+The csi1 block node was mistakenly added before the gic node, although
+its address comes after the gic's. Move the node to its correct
+position.
 
-Fixes: 9c5137aedd11 ("virt: acrn: Introduce VM management interfaces")
-Fixes: 2ad2aaee1bc9 ("virt: acrn: Introduce an ioctl to set vCPU registers state")
-Signed-off-by: Xiaolong Huang <butterflyhuangxx@gmail.com>
-Signed-off-by: Fei Li <fei1.li@intel.com>
-Link: https://lore.kernel.org/r/20220308092047.1008409-1-butterflyhuangxx@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 90e048101fa1 ("ARM: dts: sun8i: V3/V3s/S3/S3L: add CSI1 device node")
+Signed-off-by: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://lore.kernel.org/r/20220205185429.2278860-2-paul.kocialkowski@bootlin.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/virt/acrn/hsm.c | 20 +++++++++++++++-----
- 1 file changed, 15 insertions(+), 5 deletions(-)
+ arch/arm/boot/dts/sun8i-v3s.dtsi | 22 +++++++++++-----------
+ 1 file changed, 11 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/virt/acrn/hsm.c b/drivers/virt/acrn/hsm.c
-index 130e12b8652a..af889cee6680 100644
---- a/drivers/virt/acrn/hsm.c
-+++ b/drivers/virt/acrn/hsm.c
-@@ -134,8 +134,10 @@ static long acrn_dev_ioctl(struct file *filp, unsigned int cmd,
- 		if (IS_ERR(vm_param))
- 			return PTR_ERR(vm_param);
+diff --git a/arch/arm/boot/dts/sun8i-v3s.dtsi b/arch/arm/boot/dts/sun8i-v3s.dtsi
+index 89abd4cc7e23..b21ecb820b13 100644
+--- a/arch/arm/boot/dts/sun8i-v3s.dtsi
++++ b/arch/arm/boot/dts/sun8i-v3s.dtsi
+@@ -524,6 +524,17 @@
+ 			#size-cells = <0>;
+ 		};
  
--		if ((vm_param->reserved0 | vm_param->reserved1) != 0)
-+		if ((vm_param->reserved0 | vm_param->reserved1) != 0) {
-+			kfree(vm_param);
- 			return -EINVAL;
-+		}
- 
- 		vm = acrn_vm_create(vm, vm_param);
- 		if (!vm) {
-@@ -180,21 +182,29 @@ static long acrn_dev_ioctl(struct file *filp, unsigned int cmd,
- 			return PTR_ERR(cpu_regs);
- 
- 		for (i = 0; i < ARRAY_SIZE(cpu_regs->reserved); i++)
--			if (cpu_regs->reserved[i])
-+			if (cpu_regs->reserved[i]) {
-+				kfree(cpu_regs);
- 				return -EINVAL;
-+			}
- 
- 		for (i = 0; i < ARRAY_SIZE(cpu_regs->vcpu_regs.reserved_32); i++)
--			if (cpu_regs->vcpu_regs.reserved_32[i])
-+			if (cpu_regs->vcpu_regs.reserved_32[i]) {
-+				kfree(cpu_regs);
- 				return -EINVAL;
-+			}
- 
- 		for (i = 0; i < ARRAY_SIZE(cpu_regs->vcpu_regs.reserved_64); i++)
--			if (cpu_regs->vcpu_regs.reserved_64[i])
-+			if (cpu_regs->vcpu_regs.reserved_64[i]) {
-+				kfree(cpu_regs);
- 				return -EINVAL;
-+			}
- 
- 		for (i = 0; i < ARRAY_SIZE(cpu_regs->vcpu_regs.gdt.reserved); i++)
- 			if (cpu_regs->vcpu_regs.gdt.reserved[i] |
--			    cpu_regs->vcpu_regs.idt.reserved[i])
-+			    cpu_regs->vcpu_regs.idt.reserved[i]) {
-+				kfree(cpu_regs);
- 				return -EINVAL;
-+			}
- 
- 		ret = hcall_set_vcpu_regs(vm->vmid, virt_to_phys(cpu_regs));
- 		if (ret < 0)
++		gic: interrupt-controller@1c81000 {
++			compatible = "arm,gic-400";
++			reg = <0x01c81000 0x1000>,
++			      <0x01c82000 0x2000>,
++			      <0x01c84000 0x2000>,
++			      <0x01c86000 0x2000>;
++			interrupt-controller;
++			#interrupt-cells = <3>;
++			interrupts = <GIC_PPI 9 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_HIGH)>;
++		};
++
+ 		csi1: camera@1cb4000 {
+ 			compatible = "allwinner,sun8i-v3s-csi";
+ 			reg = <0x01cb4000 0x3000>;
+@@ -535,16 +546,5 @@
+ 			resets = <&ccu RST_BUS_CSI>;
+ 			status = "disabled";
+ 		};
+-
+-		gic: interrupt-controller@1c81000 {
+-			compatible = "arm,gic-400";
+-			reg = <0x01c81000 0x1000>,
+-			      <0x01c82000 0x2000>,
+-			      <0x01c84000 0x2000>,
+-			      <0x01c86000 0x2000>;
+-			interrupt-controller;
+-			#interrupt-cells = <3>;
+-			interrupts = <GIC_PPI 9 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_HIGH)>;
+-		};
+ 	};
+ };
 -- 
 2.34.1
 
