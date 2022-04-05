@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 80F794F28C8
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:22:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A2FD14F28CA
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:22:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239970AbiDEIV5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:21:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58514 "EHLO
+        id S232881AbiDEIWu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:22:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55452 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234444AbiDEINN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:13:13 -0400
+        with ESMTP id S234663AbiDEINu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:13:50 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C90316E558;
-        Tue,  5 Apr 2022 01:03:04 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D06D8EB4E;
+        Tue,  5 Apr 2022 01:03:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A13F9B81B92;
-        Tue,  5 Apr 2022 08:03:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD07BC385A2;
-        Tue,  5 Apr 2022 08:03:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5FD33B81BB1;
+        Tue,  5 Apr 2022 08:03:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADA08C385A2;
+        Tue,  5 Apr 2022 08:03:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145781;
-        bh=uZbSp/e8RnRyXsLlnieqg+hbOw+fz3mD3VWlhSBXOG4=;
+        s=korg; t=1649145784;
+        bh=jURNLkHfvs90xixxz7QuJxYbOrABtK6FRPQkbVAFdjQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KG5yS93sA86uc2j9q5jcr1R9Cg+oXEWO1CpsBsTsxrieyRyAXOflvxnbHW6BqiBRr
-         294E+8OT35stfeZeYgPEKB7B37PHnJ1B9q7FbhlFFrYkfMZdobqZdJ6T7OSIP11df7
-         EhxYjqK2lXROY79+tOMT0C1PgBFhNSnLGrx1FI9E=
+        b=wmDSAnY0/JYY6v03G/rXQ3sStA0wB2ZZPNpRbdKhJSB7oqL8aRumT2hcqUmoxxufo
+         oP2CTXDhqOV5sqHd9y3YyQlh5z/CM83o12l5UCfU0wl3LFWrzoE5dfkUkR0DfmVw0k
+         GDPiWeqkWJz221ew3vPLpp8SF/79USsZiAm7SAnk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiao Yang <yangx.jy@fujitsu.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0527/1126] RDMA/rxe: Check the last packet by RXE_END_MASK
-Date:   Tue,  5 Apr 2022 09:21:14 +0200
-Message-Id: <20220405070423.099131899@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Yonghong Song <yhs@fb.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 0528/1126] libbpf: Fix signedness bug in btf_dump_array_data()
+Date:   Tue,  5 Apr 2022 09:21:15 +0200
+Message-Id: <20220405070423.128853815@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -54,52 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiao Yang <yangx.jy@fujitsu.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit b1377cc37f6bebd57ce8747b7e16163a475af295 ]
+[ Upstream commit 4172843ed4a38f97084032f74f07b2037b5da3a6 ]
 
-It's wrong to check the last packet by RXE_COMP_MASK because the flag is
-to indicate if responder needs to generate a completion.
+The btf__resolve_size() function returns negative error codes so
+"elem_size" must be signed for the error handling to work.
 
-Fixes: 9fcd67d1772c ("IB/rxe: increment msn only when completing a request")
-Fixes: 8700e3e7c485 ("Soft RoCE driver")
-Link: https://lore.kernel.org/r/20211229034438.1854908-1-yangx.jy@fujitsu.com
-Signed-off-by: Xiao Yang <yangx.jy@fujitsu.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: 920d16af9b42 ("libbpf: BTF dumper support for typed data")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Yonghong Song <yhs@fb.com>
+Link: https://lore.kernel.org/bpf/20220208071552.GB10495@kili
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/rxe/rxe_resp.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ tools/lib/bpf/btf_dump.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/infiniband/sw/rxe/rxe_resp.c b/drivers/infiniband/sw/rxe/rxe_resp.c
-index e8f435fa6e4d..380934e38923 100644
---- a/drivers/infiniband/sw/rxe/rxe_resp.c
-+++ b/drivers/infiniband/sw/rxe/rxe_resp.c
-@@ -814,6 +814,10 @@ static enum resp_states execute(struct rxe_qp *qp, struct rxe_pkt_info *pkt)
- 			return RESPST_ERR_INVALIDATE_RKEY;
+diff --git a/tools/lib/bpf/btf_dump.c b/tools/lib/bpf/btf_dump.c
+index b9a3260c83cb..55aed9e398c3 100644
+--- a/tools/lib/bpf/btf_dump.c
++++ b/tools/lib/bpf/btf_dump.c
+@@ -1861,14 +1861,15 @@ static int btf_dump_array_data(struct btf_dump *d,
+ {
+ 	const struct btf_array *array = btf_array(t);
+ 	const struct btf_type *elem_type;
+-	__u32 i, elem_size = 0, elem_type_id;
++	__u32 i, elem_type_id;
++	__s64 elem_size;
+ 	bool is_array_member;
+ 
+ 	elem_type_id = array->type;
+ 	elem_type = skip_mods_and_typedefs(d->btf, elem_type_id, NULL);
+ 	elem_size = btf__resolve_size(d->btf, elem_type_id);
+ 	if (elem_size <= 0) {
+-		pr_warn("unexpected elem size %d for array type [%u]\n", elem_size, id);
++		pr_warn("unexpected elem size %lld for array type [%u]\n", elem_size, id);
+ 		return -EINVAL;
  	}
  
-+	if (pkt->mask & RXE_END_MASK)
-+		/* We successfully processed this new request. */
-+		qp->resp.msn++;
-+
- 	/* next expected psn, read handles this separately */
- 	qp->resp.psn = (pkt->psn + 1) & BTH_PSN_MASK;
- 	qp->resp.ack_psn = qp->resp.psn;
-@@ -821,11 +825,9 @@ static enum resp_states execute(struct rxe_qp *qp, struct rxe_pkt_info *pkt)
- 	qp->resp.opcode = pkt->opcode;
- 	qp->resp.status = IB_WC_SUCCESS;
- 
--	if (pkt->mask & RXE_COMP_MASK) {
--		/* We successfully processed this new request. */
--		qp->resp.msn++;
-+	if (pkt->mask & RXE_COMP_MASK)
- 		return RESPST_COMPLETE;
--	} else if (qp_type(qp) == IB_QPT_RC)
-+	else if (qp_type(qp) == IB_QPT_RC)
- 		return RESPST_ACKNOWLEDGE;
- 	else
- 		return RESPST_CLEANUP;
 -- 
 2.34.1
 
