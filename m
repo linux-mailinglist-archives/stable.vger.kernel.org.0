@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 584624F34ED
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:42:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86CA14F307A
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:27:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347597AbiDEJ1q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:27:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51496 "EHLO
+        id S1343734AbiDEKjk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:39:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244444AbiDEIwG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:06 -0400
+        with ESMTP id S238682AbiDEJci (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:32:38 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4582D5EAB;
-        Tue,  5 Apr 2022 01:41:03 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EB81F09;
+        Tue,  5 Apr 2022 02:19:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BBA6361003;
-        Tue,  5 Apr 2022 08:41:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C43CEC385A0;
-        Tue,  5 Apr 2022 08:41:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3D5F861574;
+        Tue,  5 Apr 2022 09:19:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49E53C385A0;
+        Tue,  5 Apr 2022 09:19:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148061;
-        bh=XQzzdibhL0otRHSkdbIMNyKyXU70t8rbk4JAHgEy2QE=;
+        s=korg; t=1649150387;
+        bh=JAcNIEr1LPWrk+L53Ncmi4AbV1sJxXCTFWiNjxRRQuQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BWkArbK+yfYpQKkODEzTd86MzG3Bpl5PPFpAY95G5DokSkiHSZosArYmkL8pMvcnq
-         cLEUsdxbtcyNi51Cz1pjDpqn6e9KrxeTUgJB0iNLt+kTSPemU1HZ+aIAaEK1j9KTJc
-         BuwUoqJoYS3GnT5dduYJG3lX64GeXwnHJ+rJ17Q4=
+        b=pNSLoxYeccAEcskrcbdvJh7UyYgEEGiU3NDH7BVC1dWRru5OU1MuPZYYBxwkW5rYo
+         CtD4vyfsZ8v2uEddaSC6mDB3pdjH+CHWCXruiF+gfuMvmQs+DbIdxJMxFf8sc/JMpN
+         P2395QqortLQciTkQccpQ5vLcF0EI1rYVhDka2Ts=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lyude Paul <lyude@redhat.com>,
-        Karol Herbst <kherbst@redhat.com>
-Subject: [PATCH 5.16 0187/1017] drm/nouveau/backlight: Fix LVDS backlight detection on some laptops
+        stable@vger.kernel.org,
+        Alexander Usyskin <alexander.usyskin@intel.com>,
+        Tomas Winkler <tomas.winkler@intel.com>
+Subject: [PATCH 5.15 038/913] mei: me: add Alder Lake N device id.
 Date:   Tue,  5 Apr 2022 09:18:20 +0200
-Message-Id: <20220405070359.790951126@linuxfoundation.org>
+Message-Id: <20220405070340.959472273@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,41 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lyude Paul <lyude@redhat.com>
+From: Alexander Usyskin <alexander.usyskin@intel.com>
 
-commit 6b0076540faffd47f5a899bf12f3528c4f0e726b upstream.
+commit 7bbbd0845818cffa9fa8ccfe52fa1cad58e7e4f2 upstream.
 
-It seems that some laptops will report having both an eDP and LVDS
-connector, even though only the LVDS connector is actually hooked up. This
-can lead to issues with backlight registration if the eDP connector ends up
-getting registered before the LVDS connector, as the backlight device will
-then be registered to the eDP connector instead of the LVDS connector.
+Add Alder Lake N device ID.
 
-So, fix this by only registering the backlight on connectors that are
-reported as being connected.
-
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Fixes: 6eca310e8924 ("drm/nouveau/kms/nv50-: Add basic DPCD backlight support for nouveau")
-Bugzilla: https://gitlab.freedesktop.org/drm/nouveau/-/issues/137
-Cc: <stable@vger.kernel.org> # v5.15+
-Reviewed-by: Karol Herbst <kherbst@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220204180504.328999-1-lyude@redhat.com
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
+Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
+Link: https://lore.kernel.org/r/20220301071115.96145-1-tomas.winkler@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/nouveau/nouveau_backlight.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/misc/mei/hw-me-regs.h |    1 +
+ drivers/misc/mei/pci-me.c     |    1 +
+ 2 files changed, 2 insertions(+)
 
---- a/drivers/gpu/drm/nouveau/nouveau_backlight.c
-+++ b/drivers/gpu/drm/nouveau/nouveau_backlight.c
-@@ -294,7 +294,8 @@ nv50_backlight_init(struct nouveau_backl
- 	struct nouveau_drm *drm = nouveau_drm(nv_encoder->base.base.dev);
- 	struct nvif_object *device = &drm->client.device.object;
+--- a/drivers/misc/mei/hw-me-regs.h
++++ b/drivers/misc/mei/hw-me-regs.h
+@@ -107,6 +107,7 @@
+ #define MEI_DEV_ID_ADP_S      0x7AE8  /* Alder Lake Point S */
+ #define MEI_DEV_ID_ADP_LP     0x7A60  /* Alder Lake Point LP */
+ #define MEI_DEV_ID_ADP_P      0x51E0  /* Alder Lake Point P */
++#define MEI_DEV_ID_ADP_N      0x54E0  /* Alder Lake Point N */
  
--	if (!nvif_rd32(device, NV50_PDISP_SOR_PWM_CTL(ffs(nv_encoder->dcb->or) - 1)))
-+	if (!nvif_rd32(device, NV50_PDISP_SOR_PWM_CTL(ffs(nv_encoder->dcb->or) - 1)) ||
-+	    nv_conn->base.status != connector_status_connected)
- 		return -ENODEV;
+ /*
+  * MEI HW Section
+--- a/drivers/misc/mei/pci-me.c
++++ b/drivers/misc/mei/pci-me.c
+@@ -113,6 +113,7 @@ static const struct pci_device_id mei_me
+ 	{MEI_PCI_DEVICE(MEI_DEV_ID_ADP_S, MEI_ME_PCH15_CFG)},
+ 	{MEI_PCI_DEVICE(MEI_DEV_ID_ADP_LP, MEI_ME_PCH15_CFG)},
+ 	{MEI_PCI_DEVICE(MEI_DEV_ID_ADP_P, MEI_ME_PCH15_CFG)},
++	{MEI_PCI_DEVICE(MEI_DEV_ID_ADP_N, MEI_ME_PCH15_CFG)},
  
- 	if (nv_conn->type == DCB_CONNECTOR_eDP) {
+ 	/* required last entry */
+ 	{0, }
 
 
