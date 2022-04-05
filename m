@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D5884F3EA7
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 22:49:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F9E14F4311
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:54:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378701AbiDEMYD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:24:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40754 "EHLO
+        id S1378061AbiDEMXz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:23:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54432 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344814AbiDEKkN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:40:13 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B81F2CE06;
-        Tue,  5 Apr 2022 03:25:28 -0700 (PDT)
+        with ESMTP id S1344872AbiDEKkO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:40:14 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C21AD2CE08;
+        Tue,  5 Apr 2022 03:25:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7ABAB6141D;
-        Tue,  5 Apr 2022 10:25:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F1EEC385A1;
-        Tue,  5 Apr 2022 10:25:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5D8176141D;
+        Tue,  5 Apr 2022 10:25:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 641B9C385A0;
+        Tue,  5 Apr 2022 10:25:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649154327;
-        bh=7pTvcOZMU9G8iWZTIbKWfslV5YCBW955lG5F0Bmzyw0=;
+        s=korg; t=1649154330;
+        bh=NzYuvdptzYEU15AeBZX/QMowvTHlIzsvLfoKsENOWLY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Emed81QU9qb18VCFDvreBQ9RJtjaT/PWKF+a8QM5vweK/JQhAzrbvaA4UiGvOVUTc
-         ageMtRjfJm09t2XOre17TsvJab3ltdOGkLDHo6FOPuPQYR1Ih4AAVznuPO4w3mvKJa
-         vApUFIyFkIn2C6DEOM0PzANoiFxgtivhFTKhIkVo=
+        b=p9uwMj9Ptj2hkFj99ond32D9ylDC6ik9mPEX85k57qae1owwh5Sg4ysfGwotgeifs
+         Wgddr476mfYJhcBaiblvg6Q5VclTu8cj0A0mHJKJ/fFyYXdseA/ZFvIrYAF1FHt9za
+         oOZf3TyMjtnx1m9onON5R9v7EU/SMQB+Mqn7KLy0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
+        stable@vger.kernel.org, Chengsong Ke <kechengsong@huawei.com>,
+        Zhihao Cheng <chengzhihao1@huawei.com>,
         Richard Weinberger <richard@nod.at>
-Subject: [PATCH 5.10 541/599] ubifs: setflags: Make dirtied_ino_d 8 bytes aligned
-Date:   Tue,  5 Apr 2022 09:33:55 +0200
-Message-Id: <20220405070314.942399449@linuxfoundation.org>
+Subject: [PATCH 5.10 542/599] ubifs: Fix read out-of-bounds in ubifs_wbuf_write_nolock()
+Date:   Tue,  5 Apr 2022 09:33:56 +0200
+Message-Id: <20220405070314.972283060@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -55,36 +56,107 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-commit 1b83ec057db16b4d0697dc21ef7a9743b6041f72 upstream.
+commit 4f2262a334641e05f645364d5ade1f565c85f20b upstream.
 
-Make 'ui->data_len' aligned with 8 bytes before it is assigned to
-dirtied_ino_d. Since 8871d84c8f8b0c6b("ubifs: convert to fileattr")
-applied, 'setflags()' only affects regular files and directories, only
-xattr inode, symlink inode and special inode(pipe/char_dev/block_dev)
-have none- zero 'ui->data_len' field, so assertion
-'!(req->dirtied_ino_d & 7)' cannot fail in ubifs_budget_space().
-To avoid assertion fails in future evolution(eg. setflags can operate
-special inodes), it's better to make dirtied_ino_d 8 bytes aligned,
-after all aligned size is still zero for regular files.
+Function ubifs_wbuf_write_nolock() may access buf out of bounds in
+following process:
 
-Fixes: 1e51764a3c2ac05a ("UBIFS: add new flash file system")
+ubifs_wbuf_write_nolock():
+  aligned_len = ALIGN(len, 8);   // Assume len = 4089, aligned_len = 4096
+  if (aligned_len <= wbuf->avail) ... // Not satisfy
+  if (wbuf->used) {
+    ubifs_leb_write()  // Fill some data in avail wbuf
+    len -= wbuf->avail;   // len is still not 8-bytes aligned
+    aligned_len -= wbuf->avail;
+  }
+  n = aligned_len >> c->max_write_shift;
+  if (n) {
+    n <<= c->max_write_shift;
+    err = ubifs_leb_write(c, wbuf->lnum, buf + written,
+                          wbuf->offs, n);
+    // n > len, read out of bounds less than 8(n-len) bytes
+  }
+
+, which can be catched by KASAN:
+  =========================================================
+  BUG: KASAN: slab-out-of-bounds in ecc_sw_hamming_calculate+0x1dc/0x7d0
+  Read of size 4 at addr ffff888105594ff8 by task kworker/u8:4/128
+  Workqueue: writeback wb_workfn (flush-ubifs_0_0)
+  Call Trace:
+    kasan_report.cold+0x81/0x165
+    nand_write_page_swecc+0xa9/0x160
+    ubifs_leb_write+0xf2/0x1b0 [ubifs]
+    ubifs_wbuf_write_nolock+0x421/0x12c0 [ubifs]
+    write_head+0xdc/0x1c0 [ubifs]
+    ubifs_jnl_write_inode+0x627/0x960 [ubifs]
+    wb_workfn+0x8af/0xb80
+
+Function ubifs_wbuf_write_nolock() accepts that parameter 'len' is not 8
+bytes aligned, the 'len' represents the true length of buf (which is
+allocated in 'ubifs_jnl_xxx', eg. ubifs_jnl_write_inode), so
+ubifs_wbuf_write_nolock() must handle the length read from 'buf' carefully
+to write leb safely.
+
+Fetch a reproducer in [Link].
+
+Fixes: 1e51764a3c2ac0 ("UBIFS: add new flash file system")
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=214785
+Reported-by: Chengsong Ke <kechengsong@huawei.com>
 Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
 Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ubifs/ioctl.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ubifs/io.c |   34 ++++++++++++++++++++++++++++++----
+ 1 file changed, 30 insertions(+), 4 deletions(-)
 
---- a/fs/ubifs/ioctl.c
-+++ b/fs/ubifs/ioctl.c
-@@ -107,7 +107,7 @@ static int setflags(struct inode *inode,
- 	struct ubifs_inode *ui = ubifs_inode(inode);
- 	struct ubifs_info *c = inode->i_sb->s_fs_info;
- 	struct ubifs_budget_req req = { .dirtied_ino = 1,
--					.dirtied_ino_d = ui->data_len };
-+			.dirtied_ino_d = ALIGN(ui->data_len, 8) };
+--- a/fs/ubifs/io.c
++++ b/fs/ubifs/io.c
+@@ -846,16 +846,42 @@ int ubifs_wbuf_write_nolock(struct ubifs
+ 	 */
+ 	n = aligned_len >> c->max_write_shift;
+ 	if (n) {
+-		n <<= c->max_write_shift;
++		int m = n - 1;
++
+ 		dbg_io("write %d bytes to LEB %d:%d", n, wbuf->lnum,
+ 		       wbuf->offs);
+-		err = ubifs_leb_write(c, wbuf->lnum, buf + written,
+-				      wbuf->offs, n);
++
++		if (m) {
++			/* '(n-1)<<c->max_write_shift < len' is always true. */
++			m <<= c->max_write_shift;
++			err = ubifs_leb_write(c, wbuf->lnum, buf + written,
++					      wbuf->offs, m);
++			if (err)
++				goto out;
++			wbuf->offs += m;
++			aligned_len -= m;
++			len -= m;
++			written += m;
++		}
++
++		/*
++		 * The non-written len of buf may be less than 'n' because
++		 * parameter 'len' is not 8 bytes aligned, so here we read
++		 * min(len, n) bytes from buf.
++		 */
++		n = 1 << c->max_write_shift;
++		memcpy(wbuf->buf, buf + written, min(len, n));
++		if (n > len) {
++			ubifs_assert(c, n - len < 8);
++			ubifs_pad(c, wbuf->buf + len, n - len);
++		}
++
++		err = ubifs_leb_write(c, wbuf->lnum, wbuf->buf, wbuf->offs, n);
+ 		if (err)
+ 			goto out;
+ 		wbuf->offs += n;
+ 		aligned_len -= n;
+-		len -= n;
++		len -= min(len, n);
+ 		written += n;
+ 	}
  
- 	err = ubifs_budget_space(c, &req);
- 	if (err)
 
 
