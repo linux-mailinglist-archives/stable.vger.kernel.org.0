@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DDD494F2A1A
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 12:52:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C51574F2A4D
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 12:54:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245432AbiDEIzo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:55:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53140 "EHLO
+        id S245727AbiDEI4y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:56:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53002 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240354AbiDEIby (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:31:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B8976FA21;
-        Tue,  5 Apr 2022 01:24:21 -0700 (PDT)
+        with ESMTP id S240416AbiDEIb4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:31:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFCDD70F4E;
+        Tue,  5 Apr 2022 01:24:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4B9FC60FFB;
-        Tue,  5 Apr 2022 08:24:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61EF0C385A0;
-        Tue,  5 Apr 2022 08:24:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 589696117D;
+        Tue,  5 Apr 2022 08:24:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A14EC385A1;
+        Tue,  5 Apr 2022 08:24:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147045;
-        bh=gKjV3QLPv6TeU0BZhoxIGrkmjtEcGY8pEsjKlh+Y7xY=;
+        s=korg; t=1649147053;
+        bh=SFn7HXy38WbuXIdV25XiRFO7vWz4qgzjQwSg/20WH1Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fMmmA1kbMLWccjQJkW4E2Ci/gZHkrt96z7JRKv77cbYrlQjIMY6muNThVnFj+Bofp
-         mc4hiROlnChCbe8BcjeMhd7aDIQAVyw4FXjk1MW6RjnT5T73MO9vjXk9n2comORmMc
-         Wnzv6I4Ny7sX7x7OFghtdzsJLyLBiRpwHPAk54EQ=
+        b=h5OJ7OfmesGKfyoW0xj3Oc8nL0ox0D0bFj8fB1M+JWSYdZLoZbIt7mCiGbunGivf4
+         qVN8hhXbbX7U6zslHoKolJ3L6h7ePTlZ/wM9vrdSHaOlhaBZiLqe/m8PcyS+Sc9Y4v
+         At7oKyZQ5tq4Kh9L6nOrpHaMR7/DhjEq9ZA5I4yo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joe Carnuccio <joe.carnuccio@cavium.com>,
+        stable@vger.kernel.org,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Quinn Tran <qutran@marvell.com>,
         Nilesh Javali <njavali@marvell.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.17 0982/1126] scsi: qla2xxx: Check for firmware dump already collected
-Date:   Tue,  5 Apr 2022 09:28:49 +0200
-Message-Id: <20220405070436.323124241@linuxfoundation.org>
+Subject: [PATCH 5.17 0985/1126] scsi: qla2xxx: Fix incorrect reporting of task management failure
+Date:   Tue,  5 Apr 2022 09:28:52 +0200
+Message-Id: <20220405070436.409769975@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -54,39 +56,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joe Carnuccio <joe.carnuccio@cavium.com>
+From: Quinn Tran <qutran@marvell.com>
 
-commit cfbafad7c6032d449a5a07f2d273acd2437bbc6a upstream.
+commit 58ca5999e0367d131de82a75257fbfd5aed0195d upstream.
 
-While allocating firmware dump, check if dump is already collected and do
-not re-allocate the buffer.
+User experienced no task management error while target device is responding
+with error. The RSP_CODE field in the status IOCB is in little endian.
+Driver assumes it's big endian and it picked up erroneous data.
 
-Link: https://lore.kernel.org/r/20220110050218.3958-17-njavali@marvell.com
+Convert the data back to big endian as is on the wire.
+
+Link: https://lore.kernel.org/r/20220310092604.22950-2-njavali@marvell.com
+Fixes: faef62d13463 ("[SCSI] qla2xxx: Fix Task Management command asynchronous handling")
 Cc: stable@vger.kernel.org
-Signed-off-by: Joe Carnuccio <joe.carnuccio@cavium.com>
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Quinn Tran <qutran@marvell.com>
 Signed-off-by: Nilesh Javali <njavali@marvell.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/qla2xxx/qla_init.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/scsi/qla2xxx/qla_isr.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/scsi/qla2xxx/qla_init.c
-+++ b/drivers/scsi/qla2xxx/qla_init.c
-@@ -3482,6 +3482,14 @@ qla2x00_alloc_fw_dump(scsi_qla_host_t *v
- 	struct rsp_que *rsp = ha->rsp_q_map[0];
- 	struct qla2xxx_fw_dump *fw_dump;
- 
-+	if (ha->fw_dump) {
-+		ql_dbg(ql_dbg_init, vha, 0x00bd,
-+		    "Firmware dump already allocated.\n");
-+		return;
-+	}
-+
-+	ha->fw_dumped = 0;
-+	ha->fw_dump_cap_flags = 0;
- 	dump_size = fixed_size = mem_size = eft_size = fce_size = mq_size = 0;
- 	req_q_size = rsp_q_size = 0;
- 
+--- a/drivers/scsi/qla2xxx/qla_isr.c
++++ b/drivers/scsi/qla2xxx/qla_isr.c
+@@ -2498,6 +2498,7 @@ qla24xx_tm_iocb_entry(scsi_qla_host_t *v
+ 		iocb->u.tmf.data = QLA_FUNCTION_FAILED;
+ 	} else if ((le16_to_cpu(sts->scsi_status) &
+ 	    SS_RESPONSE_INFO_LEN_VALID)) {
++		host_to_fcp_swap(sts->data, sizeof(sts->data));
+ 		if (le32_to_cpu(sts->rsp_data_len) < 4) {
+ 			ql_log(ql_log_warn, fcport->vha, 0x503b,
+ 			    "Async-%s error - hdl=%x not enough response(%d).\n",
 
 
