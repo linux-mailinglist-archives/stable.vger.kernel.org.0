@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B4324F332D
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:14:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C1C64F30DA
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:35:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245634AbiDEI4k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:56:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52206 "EHLO
+        id S1343597AbiDEI5J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:57:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52854 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234409AbiDEIdz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:33:55 -0400
+        with ESMTP id S241492AbiDEIeB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:34:01 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFEE3DE7;
-        Tue,  5 Apr 2022 01:31:55 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02BB165AD;
+        Tue,  5 Apr 2022 01:32:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1970F61001;
-        Tue,  5 Apr 2022 08:31:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 264CCC385A1;
-        Tue,  5 Apr 2022 08:31:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8CCDC60AFB;
+        Tue,  5 Apr 2022 08:32:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E413C385A0;
+        Tue,  5 Apr 2022 08:31:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147514;
-        bh=tzu4ubjxmqozK98KomH+7/MS5yAMop4h8j39lIkn8Dk=;
+        s=korg; t=1649147520;
+        bh=x+MfrSWBfQ88jjgjPsoU0dTJnhaZQ+91OiSyJnCtbyQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sp2ayaC7Q0UOMT7+2UrkmAnJayYWkziRqIhhif8wrVoGo9x+8rFqBf66oHiMIX38W
-         OOImkwqV/L5j0nfCTWUpCO/ogdY6+RIX5Jm+pvzLQQLvYKdU9V6QTgqRtWxUpZo5Mm
-         s+nF/OrJ4y59Qlv2wf2bcvzIpM9Za61nHiHXDdFQ=
+        b=ir98MPPbSVBAt74HAJQnfX7lCOHja21LEXzk/X6GI6K3ZKa63/6NhU88kUZAUyPPt
+         mnhtld2e9fMXcydTEZIzHDEfdegqFeOqfNWvXPx61o5wHeAgWDPDsWGVl6o/t7/NiO
+         iEI5ICq4XJoPG4ZmrxmR1hBQH7zJWDKBQz0e1TR0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Laurence Oberman <loberman@redhat.com>,
-        Ming Lei <ming.lei@redhat.com>,
-        David Jeffery <djeffery@redhat.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0023/1017] scsi: fnic: Finish scsi_cmnd before dropping the spinlock
-Date:   Tue,  5 Apr 2022 09:15:36 +0200
-Message-Id: <20220405070354.863867911@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+        Waiman Long <longman@redhat.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Cheng-Jui Wang <cheng-jui.wang@mediatek.com>
+Subject: [PATCH 5.16 0025/1017] locking/lockdep: Avoid potential access of invalid memory in lock_class
+Date:   Tue,  5 Apr 2022 09:15:38 +0200
+Message-Id: <20220405070354.923625558@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -56,84 +57,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Jeffery <djeffery@redhat.com>
+From: Waiman Long <longman@redhat.com>
 
-[ Upstream commit 733ab7e1b5d1041204c4ca7373f6e6f9d08e3283 ]
+commit 61cc4534b6550997c97a03759ab46b29d44c0017 upstream.
 
-When aborting a SCSI command through fnic, there is a race with the fnic
-interrupt handler which can result in the SCSI command and its request
-being completed twice. If the interrupt handler claims the command by
-setting CMD_SP to NULL first, the abort handler assumes the interrupt
-handler has completed the command and returns SUCCESS, causing the request
-for the scsi_cmnd to be re-queued.
+It was found that reading /proc/lockdep after a lockdep splat may
+potentially cause an access to freed memory if lockdep_unregister_key()
+is called after the splat but before access to /proc/lockdep [1]. This
+is due to the fact that graph_lock() call in lockdep_unregister_key()
+fails after the clearing of debug_locks by the splat process.
 
-But the interrupt handler may not have finished the command yet. After it
-drops the spinlock protecting CMD_SP, it does memory cleanup before finally
-calling scsi_done() to complete the scsi_cmnd. If the call to scsi_done
-occurs after the abort handler finishes and re-queues the request, the
-completion of the scsi_cmnd will advance and try to double complete a
-request already queued for retry.
+After lockdep_unregister_key() is called, the lock_name may be freed
+but the corresponding lock_class structure still have a reference to
+it. That invalid memory pointer will then be accessed when /proc/lockdep
+is read by a user and a use-after-free (UAF) error will be reported if
+KASAN is enabled.
 
-This patch fixes the issue by moving scsi_done() and any other use of
-scsi_cmnd to before the spinlock is released by the interrupt handler.
+To fix this problem, lockdep_unregister_key() is now modified to always
+search for a matching key irrespective of the debug_locks state and
+zap the corresponding lock class if a matching one is found.
 
-Link: https://lore.kernel.org/r/20220311184359.2345319-1-djeffery@redhat.com
-Reviewed-by: Laurence Oberman <loberman@redhat.com>
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Signed-off-by: David Jeffery <djeffery@redhat.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+[1] https://lore.kernel.org/lkml/77f05c15-81b6-bddd-9650-80d5f23fe330@i-love.sakura.ne.jp/
+
+Fixes: 8b39adbee805 ("locking/lockdep: Make lockdep_unregister_key() honor 'debug_locks' again")
+Reported-by: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Signed-off-by: Waiman Long <longman@redhat.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Cc: Cheng-Jui Wang <cheng-jui.wang@mediatek.com>
+Link: https://lkml.kernel.org/r/20220103023558.1377055-1-longman@redhat.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/fnic/fnic_scsi.c | 13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ kernel/locking/lockdep.c |   24 +++++++++++++++---------
+ 1 file changed, 15 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/scsi/fnic/fnic_scsi.c b/drivers/scsi/fnic/fnic_scsi.c
-index 88c549f257db..40a52feb315d 100644
---- a/drivers/scsi/fnic/fnic_scsi.c
-+++ b/drivers/scsi/fnic/fnic_scsi.c
-@@ -986,8 +986,6 @@ static void fnic_fcpio_icmnd_cmpl_handler(struct fnic *fnic,
- 	CMD_SP(sc) = NULL;
- 	CMD_FLAGS(sc) |= FNIC_IO_DONE;
- 
--	spin_unlock_irqrestore(io_lock, flags);
--
- 	if (hdr_status != FCPIO_SUCCESS) {
- 		atomic64_inc(&fnic_stats->io_stats.io_failures);
- 		shost_printk(KERN_ERR, fnic->lport->host, "hdr status = %s\n",
-@@ -996,8 +994,6 @@ static void fnic_fcpio_icmnd_cmpl_handler(struct fnic *fnic,
- 
- 	fnic_release_ioreq_buf(fnic, io_req, sc);
- 
--	mempool_free(io_req, fnic->io_req_pool);
--
- 	cmd_trace = ((u64)hdr_status << 56) |
- 		  (u64)icmnd_cmpl->scsi_status << 48 |
- 		  (u64)icmnd_cmpl->flags << 40 | (u64)sc->cmnd[0] << 32 |
-@@ -1021,6 +1017,12 @@ static void fnic_fcpio_icmnd_cmpl_handler(struct fnic *fnic,
- 	} else
- 		fnic->lport->host_stats.fcp_control_requests++;
- 
-+	/* Call SCSI completion function to complete the IO */
-+	scsi_done(sc);
-+	spin_unlock_irqrestore(io_lock, flags);
-+
-+	mempool_free(io_req, fnic->io_req_pool);
-+
- 	atomic64_dec(&fnic_stats->io_stats.active_ios);
- 	if (atomic64_read(&fnic->io_cmpl_skip))
- 		atomic64_dec(&fnic->io_cmpl_skip);
-@@ -1049,9 +1051,6 @@ static void fnic_fcpio_icmnd_cmpl_handler(struct fnic *fnic,
- 		if(io_duration_time > atomic64_read(&fnic_stats->io_stats.current_max_io_time))
- 			atomic64_set(&fnic_stats->io_stats.current_max_io_time, io_duration_time);
- 	}
--
--	/* Call SCSI completion function to complete the IO */
--	scsi_done(sc);
+--- a/kernel/locking/lockdep.c
++++ b/kernel/locking/lockdep.c
+@@ -6288,7 +6288,13 @@ void lockdep_reset_lock(struct lockdep_m
+ 		lockdep_reset_lock_reg(lock);
  }
  
- /* fnic_fcpio_itmf_cmpl_handler
--- 
-2.34.1
-
+-/* Unregister a dynamically allocated key. */
++/*
++ * Unregister a dynamically allocated key.
++ *
++ * Unlike lockdep_register_key(), a search is always done to find a matching
++ * key irrespective of debug_locks to avoid potential invalid access to freed
++ * memory in lock_class entry.
++ */
+ void lockdep_unregister_key(struct lock_class_key *key)
+ {
+ 	struct hlist_head *hash_head = keyhashentry(key);
+@@ -6303,10 +6309,8 @@ void lockdep_unregister_key(struct lock_
+ 		return;
+ 
+ 	raw_local_irq_save(flags);
+-	if (!graph_lock())
+-		goto out_irq;
++	lockdep_lock();
+ 
+-	pf = get_pending_free();
+ 	hlist_for_each_entry_rcu(k, hash_head, hash_entry) {
+ 		if (k == key) {
+ 			hlist_del_rcu(&k->hash_entry);
+@@ -6314,11 +6318,13 @@ void lockdep_unregister_key(struct lock_
+ 			break;
+ 		}
+ 	}
+-	WARN_ON_ONCE(!found);
+-	__lockdep_free_key_range(pf, key, 1);
+-	call_rcu_zapped(pf);
+-	graph_unlock();
+-out_irq:
++	WARN_ON_ONCE(!found && debug_locks);
++	if (found) {
++		pf = get_pending_free();
++		__lockdep_free_key_range(pf, key, 1);
++		call_rcu_zapped(pf);
++	}
++	lockdep_unlock();
+ 	raw_local_irq_restore(flags);
+ 
+ 	/* Wait until is_dynamic_key() has finished accessing k->hash_entry. */
 
 
