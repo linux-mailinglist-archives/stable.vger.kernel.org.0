@@ -2,44 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DAF864F2E6A
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:00:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AAC7E4F2C6F
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:30:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240482AbiDEJe1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:34:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33136 "EHLO
+        id S235565AbiDEIhx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:37:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34706 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245661AbiDEI4q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:56:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C378113D1C;
-        Tue,  5 Apr 2022 01:52:29 -0700 (PDT)
+        with ESMTP id S238081AbiDEISj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:18:39 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 153AAB82CF;
+        Tue,  5 Apr 2022 01:08:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0C2D761511;
-        Tue,  5 Apr 2022 08:52:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D80FC385A0;
-        Tue,  5 Apr 2022 08:52:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2B229B81A32;
+        Tue,  5 Apr 2022 08:08:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90069C385A0;
+        Tue,  5 Apr 2022 08:07:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148748;
-        bh=hK8FHhsYT2+byT0t0KwNPnJY44RdRl84eOg4/ueCyuc=;
+        s=korg; t=1649146079;
+        bh=uwMJn5PYzXABLSp9ORl7yBZwQM2OEnkHyq08SBv7TVk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wzd38Atm775WFOZgkrlwxbpqtP6Hh35V5BAid8x8oBrvBLLnraqJQnACj/FQ+waEB
-         Bvj4+q2ZBL7uxRSKSl2OoxJ9eRTL3V1UjfKCaPJSVIbmVmqK8twWyQC7JaU07kBJzc
-         +ZF2pTlW/V3QV16qzzqUl2uQcf/fvug4tZR8NM+c=
+        b=ICg55WZA5hf/rc9Gh63HtZU8sx/AVEcsDbuaUUQv14MOocE15FWpLOWMmka4A+PDg
+         i+2fSH6/OCwe6TdO61CwJ0Ne4lanXixx1AS1RzzcNMiqsBpeRgs8V1cxlhJvsgxCuW
+         DXZ8JRbIbo/eDlq6fo4cSg7ZPJSi0DQl0/AWfdEY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org,
+        Luiz Angelo Daros de Luca <luizluca@gmail.com>,
+        =?UTF-8?q?Ar=C4=B1n=C3=A7=20=C3=9CNAL?= <arinc.unal@arinc9.com>,
+        =?UTF-8?q?Alvin=20=C5=A0ipraga?= <alsi@bang-olufsen.dk>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Vladimir Oltean <olteanv@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0430/1017] drm/amd/pm: return -ENOTSUPP if there is no get_dpm_ultimate_freq function
-Date:   Tue,  5 Apr 2022 09:22:23 +0200
-Message-Id: <20220405070407.058356730@linuxfoundation.org>
+Subject: [PATCH 5.17 0597/1126] net: dsa: realtek-smi: move to subdirectory
+Date:   Tue,  5 Apr 2022 09:22:24 +0200
+Message-Id: <20220405070425.158109101@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +60,150 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Luiz Angelo Daros de Luca <luizluca@gmail.com>
 
-[ Upstream commit 430e6a0212b2a0eb1de5e9d47a016fa79edf3978 ]
+[ Upstream commit 319a70a5fea9590e9431dd57f56191996c4787f4 ]
 
-clang static analysis reports this represenative problem
-amdgpu_smu.c:144:18: warning: The left operand of '*' is a garbage value
-        return clk_freq * 100;
-               ~~~~~~~~ ^
-
-If there is no get_dpm_ultimate_freq function,
-smu_get_dpm_freq_range returns success without setting the
-output min,max parameters.  So return an -ENOTSUPP error.
-
-Fixes: e5ef784b1e17 ("drm/amd/powerplay: revise calling chain on retrieving frequency range")
-Signed-off-by: Tom Rix <trix@redhat.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Luiz Angelo Daros de Luca <luizluca@gmail.com>
+Tested-by: Arınç ÜNAL <arinc.unal@arinc9.com>
+Reviewed-by: Alvin Šipraga <alsi@bang-olufsen.dk>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/pm/swsmu/amdgpu_smu.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ MAINTAINERS                                   |  3 +--
+ drivers/net/dsa/Kconfig                       | 12 +----------
+ drivers/net/dsa/Makefile                      |  3 +--
+ drivers/net/dsa/realtek/Kconfig               | 20 +++++++++++++++++++
+ drivers/net/dsa/realtek/Makefile              |  3 +++
+ .../net/dsa/{ => realtek}/realtek-smi-core.c  |  0
+ .../net/dsa/{ => realtek}/realtek-smi-core.h  |  0
+ drivers/net/dsa/{ => realtek}/rtl8365mb.c     |  0
+ drivers/net/dsa/{ => realtek}/rtl8366.c       |  0
+ drivers/net/dsa/{ => realtek}/rtl8366rb.c     |  0
+ 10 files changed, 26 insertions(+), 15 deletions(-)
+ create mode 100644 drivers/net/dsa/realtek/Kconfig
+ create mode 100644 drivers/net/dsa/realtek/Makefile
+ rename drivers/net/dsa/{ => realtek}/realtek-smi-core.c (100%)
+ rename drivers/net/dsa/{ => realtek}/realtek-smi-core.h (100%)
+ rename drivers/net/dsa/{ => realtek}/rtl8365mb.c (100%)
+ rename drivers/net/dsa/{ => realtek}/rtl8366.c (100%)
+ rename drivers/net/dsa/{ => realtek}/rtl8366rb.c (100%)
 
-diff --git a/drivers/gpu/drm/amd/pm/swsmu/amdgpu_smu.c b/drivers/gpu/drm/amd/pm/swsmu/amdgpu_smu.c
-index 9d7d64fdf410..9b54c1b89ea4 100644
---- a/drivers/gpu/drm/amd/pm/swsmu/amdgpu_smu.c
-+++ b/drivers/gpu/drm/amd/pm/swsmu/amdgpu_smu.c
-@@ -138,7 +138,7 @@ int smu_get_dpm_freq_range(struct smu_context *smu,
- 			   uint32_t *min,
- 			   uint32_t *max)
- {
--	int ret = 0;
-+	int ret = -ENOTSUPP;
+diff --git a/MAINTAINERS b/MAINTAINERS
+index cd0f68d4a34a..d9b2f1731ee0 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -16373,8 +16373,7 @@ M:	Linus Walleij <linus.walleij@linaro.org>
+ M:	Alvin Šipraga <alsi@bang-olufsen.dk>
+ S:	Maintained
+ F:	Documentation/devicetree/bindings/net/dsa/realtek-smi.txt
+-F:	drivers/net/dsa/realtek-smi*
+-F:	drivers/net/dsa/rtl83*
++F:	drivers/net/dsa/realtek/*
  
- 	if (!min && !max)
- 		return -EINVAL;
+ REALTEK WIRELESS DRIVER (rtlwifi family)
+ M:	Ping-Ke Shih <pkshih@realtek.com>
+diff --git a/drivers/net/dsa/Kconfig b/drivers/net/dsa/Kconfig
+index 0029d279616f..37a3dabdce31 100644
+--- a/drivers/net/dsa/Kconfig
++++ b/drivers/net/dsa/Kconfig
+@@ -68,17 +68,7 @@ config NET_DSA_QCA8K
+ 	  This enables support for the Qualcomm Atheros QCA8K Ethernet
+ 	  switch chips.
+ 
+-config NET_DSA_REALTEK_SMI
+-	tristate "Realtek SMI Ethernet switch family support"
+-	select NET_DSA_TAG_RTL4_A
+-	select NET_DSA_TAG_RTL8_4
+-	select FIXED_PHY
+-	select IRQ_DOMAIN
+-	select REALTEK_PHY
+-	select REGMAP
+-	help
+-	  This enables support for the Realtek SMI-based switch
+-	  chips, currently only RTL8366RB.
++source "drivers/net/dsa/realtek/Kconfig"
+ 
+ config NET_DSA_SMSC_LAN9303
+ 	tristate
+diff --git a/drivers/net/dsa/Makefile b/drivers/net/dsa/Makefile
+index 8da1569a34e6..e73838c12256 100644
+--- a/drivers/net/dsa/Makefile
++++ b/drivers/net/dsa/Makefile
+@@ -9,8 +9,6 @@ obj-$(CONFIG_NET_DSA_LANTIQ_GSWIP) += lantiq_gswip.o
+ obj-$(CONFIG_NET_DSA_MT7530)	+= mt7530.o
+ obj-$(CONFIG_NET_DSA_MV88E6060) += mv88e6060.o
+ obj-$(CONFIG_NET_DSA_QCA8K)	+= qca8k.o
+-obj-$(CONFIG_NET_DSA_REALTEK_SMI) += realtek-smi.o
+-realtek-smi-objs		:= realtek-smi-core.o rtl8366.o rtl8366rb.o rtl8365mb.o
+ obj-$(CONFIG_NET_DSA_SMSC_LAN9303) += lan9303-core.o
+ obj-$(CONFIG_NET_DSA_SMSC_LAN9303_I2C) += lan9303_i2c.o
+ obj-$(CONFIG_NET_DSA_SMSC_LAN9303_MDIO) += lan9303_mdio.o
+@@ -23,5 +21,6 @@ obj-y				+= microchip/
+ obj-y				+= mv88e6xxx/
+ obj-y				+= ocelot/
+ obj-y				+= qca/
++obj-y				+= realtek/
+ obj-y				+= sja1105/
+ obj-y				+= xrs700x/
+diff --git a/drivers/net/dsa/realtek/Kconfig b/drivers/net/dsa/realtek/Kconfig
+new file mode 100644
+index 000000000000..1c62212fb0ec
+--- /dev/null
++++ b/drivers/net/dsa/realtek/Kconfig
+@@ -0,0 +1,20 @@
++# SPDX-License-Identifier: GPL-2.0-only
++menuconfig NET_DSA_REALTEK
++	tristate "Realtek Ethernet switch family support"
++	depends on NET_DSA
++	select NET_DSA_TAG_RTL4_A
++	select NET_DSA_TAG_RTL8_4
++	select FIXED_PHY
++	select IRQ_DOMAIN
++	select REALTEK_PHY
++	select REGMAP
++	help
++	  Select to enable support for Realtek Ethernet switch chips.
++
++config NET_DSA_REALTEK_SMI
++	tristate "Realtek SMI connected switch driver"
++	depends on NET_DSA_REALTEK
++	default y
++	help
++	  Select to enable support for registering switches connected
++	  through SMI.
+diff --git a/drivers/net/dsa/realtek/Makefile b/drivers/net/dsa/realtek/Makefile
+new file mode 100644
+index 000000000000..323b921bfce0
+--- /dev/null
++++ b/drivers/net/dsa/realtek/Makefile
+@@ -0,0 +1,3 @@
++# SPDX-License-Identifier: GPL-2.0
++obj-$(CONFIG_NET_DSA_REALTEK_SMI) 	+= realtek-smi.o
++realtek-smi-objs			:= realtek-smi-core.o rtl8366.o rtl8366rb.o rtl8365mb.o
+diff --git a/drivers/net/dsa/realtek-smi-core.c b/drivers/net/dsa/realtek/realtek-smi-core.c
+similarity index 100%
+rename from drivers/net/dsa/realtek-smi-core.c
+rename to drivers/net/dsa/realtek/realtek-smi-core.c
+diff --git a/drivers/net/dsa/realtek-smi-core.h b/drivers/net/dsa/realtek/realtek-smi-core.h
+similarity index 100%
+rename from drivers/net/dsa/realtek-smi-core.h
+rename to drivers/net/dsa/realtek/realtek-smi-core.h
+diff --git a/drivers/net/dsa/rtl8365mb.c b/drivers/net/dsa/realtek/rtl8365mb.c
+similarity index 100%
+rename from drivers/net/dsa/rtl8365mb.c
+rename to drivers/net/dsa/realtek/rtl8365mb.c
+diff --git a/drivers/net/dsa/rtl8366.c b/drivers/net/dsa/realtek/rtl8366.c
+similarity index 100%
+rename from drivers/net/dsa/rtl8366.c
+rename to drivers/net/dsa/realtek/rtl8366.c
+diff --git a/drivers/net/dsa/rtl8366rb.c b/drivers/net/dsa/realtek/rtl8366rb.c
+similarity index 100%
+rename from drivers/net/dsa/rtl8366rb.c
+rename to drivers/net/dsa/realtek/rtl8366rb.c
 -- 
 2.34.1
 
