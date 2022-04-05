@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 795224F2CDB
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:33:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A1E124F2CC2
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:32:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355992AbiDEKWj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:22:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55690 "EHLO
+        id S1356002AbiDEKWl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:22:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55706 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238257AbiDEJ3O (ORCPT
+        with ESMTP id S237381AbiDEJ3O (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:29:14 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD717E0AC6;
-        Tue,  5 Apr 2022 02:16:25 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6995CD5E98;
+        Tue,  5 Apr 2022 02:16:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2625761645;
-        Tue,  5 Apr 2022 09:16:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33F82C385A0;
-        Tue,  5 Apr 2022 09:16:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 003E161645;
+        Tue,  5 Apr 2022 09:16:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A47AC385A0;
+        Tue,  5 Apr 2022 09:16:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150184;
-        bh=xkf/rrk0Agfy1tGepNsRW+yZt/Bt1vEa7GGHxXk1btg=;
+        s=korg; t=1649150187;
+        bh=xy9Jh7YCPAtsV0LzYube/oUMsOL+d9K7ShDZMd4Eujc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AHoN5fmKDT2Vu3sHMtXdJu9IVi1rPiIbB5m/DziWWhz1pMhshdzZ+VsH1q32U/XKv
-         ffGaeQCA1Hm+wVuytpNLsOhP0iwMvta2t01ldde83M7hqHG/+ybhqGeRC2ZqWWwEQs
-         +DfafPLcHYF8OtHE/a7aLxWEUiTeCVqQxAYJnd2g=
+        b=QzHUaPb3pXnCOiO146e3wKmTrgBy3cLJKGCo+fT/EP7Je9U02qp3PfdW6Sq4PO0O0
+         ciRW6v7kyMIqQqknVMlIYwJDF1m0ROP57jowsOMNjjKOrg+HxqrIoMAA0MvcpEWaUy
+         p67eJR5/xDlcIhU5x/yoltztAM/tOV7r0hZS2Gd0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
+        stable@vger.kernel.org,
         Martin Kepplinger <martin.kepplinger@puri.sm>,
         Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
         Rob Herring <robh@kernel.org>,
         Sakari Ailus <sakari.ailus@linux.intel.com>,
         Mauro Carvalho Chehab <mchehab@kernel.org>
-Subject: [PATCH 5.16 0984/1017] media: dt-binding: media: hynix,hi846: use $defs/port-base port description
-Date:   Tue,  5 Apr 2022 09:31:37 +0200
-Message-Id: <20220405070423.410932720@linuxfoundation.org>
+Subject: [PATCH 5.16 0985/1017] media: dt-bindings: media: hynix,hi846: add link-frequencies description
+Date:   Tue,  5 Apr 2022 09:31:38 +0200
+Message-Id: <20220405070423.440754134@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -59,19 +59,12 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Martin Kepplinger <martin.kepplinger@puri.sm>
 
-commit 6492eba4fafb5a9715ecf78b7155e88f8f88909a upstream.
+commit a44b8e8c9b2615ea7cf2361cbca3c1dff8119c87 upstream.
 
-This fixes "make dt_binding_check":
-
-    Documentation/devicetree/bindings/media/i2c/hynix,hi846.example.dt.yaml:
-camera@20: port:endpoint: Unevaluated properties are not allowed
-('link-frequencies', 'data-lanes' were unexpected)
-    From schema: Documentation/devicetree/bindings/media/i2c/hynix,hi846.yaml
-
-[Sakari Ailus: Reword commit message]
+link-frequencies is required but only mentioned in the example. Add
+it to the description.
 
 Fixes: f3ce7200ca18 ("media: dt-bindings: media: document SK Hynix Hi-846 MIPI CSI-2 8M pixel sensor")
-Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
 Signed-off-by: Martin Kepplinger <martin.kepplinger@puri.sm>
 Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 Reviewed-by: Rob Herring <robh@kernel.org>
@@ -79,23 +72,25 @@ Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/devicetree/bindings/media/i2c/hynix,hi846.yaml | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ Documentation/devicetree/bindings/media/i2c/hynix,hi846.yaml | 3 +++
+ 1 file changed, 3 insertions(+)
 
 diff --git a/Documentation/devicetree/bindings/media/i2c/hynix,hi846.yaml b/Documentation/devicetree/bindings/media/i2c/hynix,hi846.yaml
-index 85a8877c2f38..5d0fc18a2ea2 100644
+index 5d0fc18a2ea2..1e2df8cf2937 100644
 --- a/Documentation/devicetree/bindings/media/i2c/hynix,hi846.yaml
 +++ b/Documentation/devicetree/bindings/media/i2c/hynix,hi846.yaml
-@@ -49,7 +49,8 @@ properties:
-     description: Definition of the regulator used for the VDDD power supply.
+@@ -69,8 +69,11 @@ properties:
+                   - const: 1
+                   - const: 2
  
-   port:
--    $ref: /schemas/graph.yaml#/properties/port
-+    $ref: /schemas/graph.yaml#/$defs/port-base
-+    unevaluatedProperties: false
++          link-frequencies: true
++
+         required:
+           - data-lanes
++          - link-frequencies
  
-     properties:
-       endpoint:
+ required:
+   - compatible
 -- 
 2.35.1
 
