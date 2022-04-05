@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 474A94F2EE9
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:05:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7354A4F2EA4
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:02:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344957AbiDEKkT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:40:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50104 "EHLO
+        id S1347882AbiDEJ2i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:28:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51190 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244037AbiDEJlE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:41:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1162CBAB85;
-        Tue,  5 Apr 2022 02:25:09 -0700 (PDT)
+        with ESMTP id S244936AbiDEIws (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F19FB24977;
+        Tue,  5 Apr 2022 01:46:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B2218B81CA1;
-        Tue,  5 Apr 2022 09:25:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1BA28C385A4;
-        Tue,  5 Apr 2022 09:25:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8DBD8614FD;
+        Tue,  5 Apr 2022 08:46:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9996FC385A1;
+        Tue,  5 Apr 2022 08:46:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150706;
-        bh=0IXNH02d04Pp3qo3nL8AHAf9mxn0yRHztLc0LEJHT3U=;
+        s=korg; t=1649148419;
+        bh=7wnlgHT1RIJpVnS9Yrdz9dgDs8GDXeJxl614hLxTywo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bsbO9boT9rs1b+MFc9Ldp5XmeWDtHQri5ClAQUjMMy7vULC66XDZL3zAALq11DPIO
-         eQYBwqeZRnIfjYBOpcU2YPlBsMHVw/VpeYM2Ensrdx2RSaExvMz8ZBUEhy6kgVkNy9
-         RdGCTELOAoZ3dod0rzAJ/KZffKq/TmEnYOfACvEo=
+        b=2ledxKDBc6kRFDZhRWMaCJ4IIBvCiLSTW5Sd0aUEo2cfVOWOt2jJ7MC5//NdjH4XE
+         gyP1coV6YAGO39VvNQY4ozpkLBWxrcmYsF4Oa4mrDFb4wIQ26gaWW+niiNd2hUFtSD
+         mqbTGr5wJVQMi6Gx6NetLmRAv+syXCGyfoQF0DUg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jocelyn Falempe <jfalempe@redhat.com>,
-        Javier Martinez Canillas <javierm@redhat.com>,
-        Lyude Paul <lyude@redhat.com>,
-        Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH 5.15 151/913] mgag200 fix memmapsl configuration in GCTL6 register
-Date:   Tue,  5 Apr 2022 09:20:13 +0200
-Message-Id: <20220405070344.363816649@linuxfoundation.org>
+        stable@vger.kernel.org, Jammy Huang <jammy_huang@aspeedtech.com>,
+        Joel Stanley <joel@jms.id.au>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0301/1017] media: aspeed: Correct value for h-total-pixels
+Date:   Tue,  5 Apr 2022 09:20:14 +0200
+Message-Id: <20220405070403.210158572@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,80 +56,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jocelyn Falempe <jfalempe@redhat.com>
+From: Jammy Huang <jammy_huang@aspeedtech.com>
 
-commit 028a73e10705af1ffd51f2537460f616dc58680e upstream.
+[ Upstream commit 4b732a0016853eaff35944f900b0db66f3914374 ]
 
-On some servers with MGA G200_SE_A (rev 42), booting with Legacy BIOS,
-the hardware hangs when using kdump and kexec into the kdump kernel.
-This happens when the uncompress code tries to write "Decompressing Linux"
-to the VGA Console.
+Previous reg-field, 0x98[11:0], stands for the period of the detected
+hsync signal.
+Use the correct reg, 0xa0, to get h-total in pixels.
 
-It can be reproduced by writing to the VGA console (0xB8000) after
-booting to graphic mode, it generates the following error:
-
-kernel:NMI: PCI system error (SERR) for reason a0 on CPU 0.
-kernel:Dazed and confused, but trying to continue
-
-The root cause is the configuration of the MGA GCTL6 register
-
-According to the GCTL6 register documentation:
-
-bit 0 is gcgrmode:
-    0: Enables alpha mode, and the character generator addressing system is
-     activated.
-    1: Enables graphics mode, and the character addressing system is not
-     used.
-
-bit 1 is chainodd even:
-    0: The A0 signal of the memory address bus is used during system memory
-     addressing.
-    1: Allows A0 to be replaced by either the A16 signal of the system
-     address (ifmemmapsl is ‘00’), or by the hpgoddev (MISC<5>, odd/even
-     page select) field, described on page 3-294).
-
-bit 3-2 are memmapsl:
-    Memory map select bits 1 and 0. VGA.
-    These bits select where the video memory is mapped, as shown below:
-        00 => A0000h - BFFFFh
-        01 => A0000h - AFFFFh
-        10 => B0000h - B7FFFh
-        11 => B8000h - BFFFFh
-
-bit 7-4 are reserved.
-
-Current code set it to 0x05 => memmapsl to b01 => 0xa0000 (graphic mode)
-But on x86, the VGA console is at 0xb8000 (text mode)
-In arch/x86/boot/compressed/misc.c debug strings are written to 0xb8000
-As the driver doesn't use this mapping at 0xa0000, it is safe to set it to
-0xb8000 instead, to avoid kernel hang on G200_SE_A rev42, with kexec/kdump.
-
-Thus changing the value 0x05 to 0x0d
-
-Signed-off-by: Jocelyn Falempe <jfalempe@redhat.com>
-Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
-Acked-by: Lyude Paul <lyude@redhat.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220119102905.1194787-1-jfalempe@redhat.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: d2b4387f3bdf ("media: platform: Add Aspeed Video Engine driver")
+Signed-off-by: Jammy Huang <jammy_huang@aspeedtech.com>
+Reviewed-by: Joel Stanley <joel@jms.id.au>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/mgag200/mgag200_mode.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/media/platform/aspeed-video.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/drivers/gpu/drm/mgag200/mgag200_mode.c
-+++ b/drivers/gpu/drm/mgag200/mgag200_mode.c
-@@ -529,7 +529,10 @@ static void mgag200_set_format_regs(stru
- 	WREG_GFX(3, 0x00);
- 	WREG_GFX(4, 0x00);
- 	WREG_GFX(5, 0x40);
--	WREG_GFX(6, 0x05);
-+	/* GCTL6 should be 0x05, but we configure memmapsl to 0xb8000 (text mode),
-+	 * so that it doesn't hang when running kexec/kdump on G200_SE rev42.
-+	 */
-+	WREG_GFX(6, 0x0d);
- 	WREG_GFX(7, 0x0f);
- 	WREG_GFX(8, 0x0f);
+diff --git a/drivers/media/platform/aspeed-video.c b/drivers/media/platform/aspeed-video.c
+index 7a24daf7165a..bdeecde0d997 100644
+--- a/drivers/media/platform/aspeed-video.c
++++ b/drivers/media/platform/aspeed-video.c
+@@ -153,7 +153,7 @@
+ #define  VE_SRC_TB_EDGE_DET_BOT		GENMASK(28, VE_SRC_TB_EDGE_DET_BOT_SHF)
  
+ #define VE_MODE_DETECT_STATUS		0x098
+-#define  VE_MODE_DETECT_H_PIXELS	GENMASK(11, 0)
++#define  VE_MODE_DETECT_H_PERIOD	GENMASK(11, 0)
+ #define  VE_MODE_DETECT_V_LINES_SHF	16
+ #define  VE_MODE_DETECT_V_LINES		GENMASK(27, VE_MODE_DETECT_V_LINES_SHF)
+ #define  VE_MODE_DETECT_STATUS_VSYNC	BIT(28)
+@@ -164,6 +164,8 @@
+ #define  VE_SYNC_STATUS_VSYNC_SHF	16
+ #define  VE_SYNC_STATUS_VSYNC		GENMASK(27, VE_SYNC_STATUS_VSYNC_SHF)
+ 
++#define VE_H_TOTAL_PIXELS		0x0A0
++
+ #define VE_INTERRUPT_CTRL		0x304
+ #define VE_INTERRUPT_STATUS		0x308
+ #define  VE_INTERRUPT_MODE_DETECT_WD	BIT(0)
+@@ -802,6 +804,7 @@ static void aspeed_video_get_resolution(struct aspeed_video *video)
+ 	u32 src_lr_edge;
+ 	u32 src_tb_edge;
+ 	u32 sync;
++	u32 htotal;
+ 	struct v4l2_bt_timings *det = &video->detected_timings;
+ 
+ 	det->width = MIN_WIDTH;
+@@ -847,6 +850,7 @@ static void aspeed_video_get_resolution(struct aspeed_video *video)
+ 		src_tb_edge = aspeed_video_read(video, VE_SRC_TB_EDGE_DET);
+ 		mds = aspeed_video_read(video, VE_MODE_DETECT_STATUS);
+ 		sync = aspeed_video_read(video, VE_SYNC_STATUS);
++		htotal = aspeed_video_read(video, VE_H_TOTAL_PIXELS);
+ 
+ 		video->frame_bottom = (src_tb_edge & VE_SRC_TB_EDGE_DET_BOT) >>
+ 			VE_SRC_TB_EDGE_DET_BOT_SHF;
+@@ -863,8 +867,7 @@ static void aspeed_video_get_resolution(struct aspeed_video *video)
+ 			VE_SRC_LR_EDGE_DET_RT_SHF;
+ 		video->frame_left = src_lr_edge & VE_SRC_LR_EDGE_DET_LEFT;
+ 		det->hfrontporch = video->frame_left;
+-		det->hbackporch = (mds & VE_MODE_DETECT_H_PIXELS) -
+-			video->frame_right;
++		det->hbackporch = htotal - video->frame_right;
+ 		det->hsync = sync & VE_SYNC_STATUS_HSYNC;
+ 		if (video->frame_left > video->frame_right)
+ 			continue;
+-- 
+2.34.1
+
 
 
