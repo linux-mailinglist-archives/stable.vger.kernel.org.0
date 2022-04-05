@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E44684F38AF
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:36:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 879C54F3B51
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:16:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354715AbiDEL1H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:27:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47412 "EHLO
+        id S1348322AbiDELxA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:53:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44254 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349515AbiDEJuC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:50:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FBF51E4;
-        Tue,  5 Apr 2022 02:48:04 -0700 (PDT)
+        with ESMTP id S1357509AbiDEK0b (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:26:31 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60DF72D1DE;
+        Tue,  5 Apr 2022 03:10:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0A3B6B817D3;
-        Tue,  5 Apr 2022 09:48:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71748C385A1;
-        Tue,  5 Apr 2022 09:48:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D9425B81C8A;
+        Tue,  5 Apr 2022 10:10:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 457A4C385A1;
+        Tue,  5 Apr 2022 10:10:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152081;
-        bh=fc6qrim3UwwCoexjObybUivRCYC7le7SVED3R4kDhpI=;
+        s=korg; t=1649153416;
+        bh=S69AVRrh+LifKnxVaci3SB4WnkiIBL1RUY7re8Q3YkU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z4uzVuDnNbP9Bh98NTca+00dAM+XkdJgkpJ0VPkCoMYrupFqYFAKFi1kNkrdMzcxM
-         dLSrlAr4h47qv7iIUxnFaPoz22MBjFLdb6rKl1BR5TtwX8du2lyTiw51Za0Y/ddyPC
-         ldIoSkXHDG61BXbfwTzgFOSxCvLtT/rnqkAWmcPg=
+        b=MZ1+zOfQqrRlF8bGaNS9QYDsLtRUvCxKJN1fR+odqySaxVhDZLQeepU27F3s4XkxI
+         qLSE8gPKRH4z3qatUvns0TDNsd/kcgFYhDJ1wfRTJTPpgjLaAhOoyNdj1dgcHKrUFF
+         f44aBDH8qfBkp6WqgS9XymzFj6PMcoDWvTfdDWHU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Feng Tang <feng.tang@intel.com>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Igor Zhbanov <i.zhbanov@omprussia.ru>,
-        Randy Dunlap <rdunlap@infradead.org>,
+        stable@vger.kernel.org, syzkaller <syzkaller@googlegroups.com>,
+        Dongliang Mu <mudongliangabcd@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 647/913] driver core: dd: fix return value of __setup handler
-Date:   Tue,  5 Apr 2022 09:28:29 +0200
-Message-Id: <20220405070359.233405152@linuxfoundation.org>
+Subject: [PATCH 5.10 216/599] media: em28xx: initialize refcount before kref_get
+Date:   Tue,  5 Apr 2022 09:28:30 +0200
+Message-Id: <20220405070305.270991769@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070258.802373272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,57 +55,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-[ Upstream commit f2aad54703dbe630f9d8b235eb58e8c8cc78f37d ]
+[ Upstream commit c08eadca1bdfa099e20a32f8fa4b52b2f672236d ]
 
-When "driver_async_probe=nulltty" is used on the kernel boot command line,
-it causes an Unknown parameter message and the string is added to init's
-environment strings, polluting them.
+The commit 47677e51e2a4("[media] em28xx: Only deallocate struct
+em28xx after finishing all extensions") adds kref_get to many init
+functions (e.g., em28xx_audio_init). However, kref_init is called too
+late in em28xx_usb_probe, since em28xx_init_dev before will invoke
+those init functions and call kref_get function. Then refcount bug
+occurs in my local syzkaller instance.
 
-  Unknown kernel command line parameters "BOOT_IMAGE=/boot/bzImage-517rc6
-  driver_async_probe=nulltty", will be passed to user space.
+Fix it by moving kref_init before em28xx_init_dev. This issue occurs
+not only in dev but also dev->dev_next.
 
- Run /sbin/init as init process
-   with arguments:
-     /sbin/init
-   with environment:
-     HOME=/
-     TERM=linux
-     BOOT_IMAGE=/boot/bzImage-517rc6
-     driver_async_probe=nulltty
-
-Change the return value of the __setup function to 1 to indicate
-that the __setup option has been handled.
-
-Link: lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
-Fixes: 1ea61b68d0f8 ("async: Add cmdline option to specify drivers to be async probed")
-Cc: Feng Tang <feng.tang@intel.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: "Rafael J. Wysocki" <rafael@kernel.org>
-Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
-Reviewed-by: Feng Tang <feng.tang@intel.com>
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Link: https://lore.kernel.org/r/20220301041829.15137-1-rdunlap@infradead.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 47677e51e2a4 ("[media] em28xx: Only deallocate struct em28xx after finishing all extensions")
+Reported-by: syzkaller <syzkaller@googlegroups.com>
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/dd.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/usb/em28xx/em28xx-cards.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/base/dd.c b/drivers/base/dd.c
-index 6b6630693201..64ce42b6c6b6 100644
---- a/drivers/base/dd.c
-+++ b/drivers/base/dd.c
-@@ -809,7 +809,7 @@ static int __init save_async_options(char *buf)
- 		pr_warn("Too long list of driver names for 'driver_async_probe'!\n");
+diff --git a/drivers/media/usb/em28xx/em28xx-cards.c b/drivers/media/usb/em28xx/em28xx-cards.c
+index 87e375562dbb..b6490f611687 100644
+--- a/drivers/media/usb/em28xx/em28xx-cards.c
++++ b/drivers/media/usb/em28xx/em28xx-cards.c
+@@ -3881,6 +3881,8 @@ static int em28xx_usb_probe(struct usb_interface *intf,
+ 		goto err_free;
+ 	}
  
- 	strlcpy(async_probe_drv_names, buf, ASYNC_DRV_NAMES_MAX_LEN);
--	return 0;
-+	return 1;
- }
- __setup("driver_async_probe=", save_async_options);
++	kref_init(&dev->ref);
++
+ 	dev->devno = nr;
+ 	dev->model = id->driver_info;
+ 	dev->alt   = -1;
+@@ -3981,6 +3983,8 @@ static int em28xx_usb_probe(struct usb_interface *intf,
+ 	}
  
+ 	if (dev->board.has_dual_ts && em28xx_duplicate_dev(dev) == 0) {
++		kref_init(&dev->dev_next->ref);
++
+ 		dev->dev_next->ts = SECONDARY_TS;
+ 		dev->dev_next->alt   = -1;
+ 		dev->dev_next->is_audio_only = has_vendor_audio &&
+@@ -4035,12 +4039,8 @@ static int em28xx_usb_probe(struct usb_interface *intf,
+ 			em28xx_write_reg(dev, 0x0b, 0x82);
+ 			mdelay(100);
+ 		}
+-
+-		kref_init(&dev->dev_next->ref);
+ 	}
+ 
+-	kref_init(&dev->ref);
+-
+ 	request_modules(dev);
+ 
+ 	/*
 -- 
 2.34.1
 
