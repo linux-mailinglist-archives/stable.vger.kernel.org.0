@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 189BE4F2FAA
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:17:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BFC04F3511
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:48:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239038AbiDEJwy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:52:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41890 "EHLO
+        id S243012AbiDEJio (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:38:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49234 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243786AbiDEJJQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:09:16 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F7B0CC528;
-        Tue,  5 Apr 2022 01:58:38 -0700 (PDT)
+        with ESMTP id S243853AbiDEJJ1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:09:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A00FE1C104;
+        Tue,  5 Apr 2022 01:58:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A306061574;
-        Tue,  5 Apr 2022 08:58:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A775EC385A0;
-        Tue,  5 Apr 2022 08:58:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3830E61562;
+        Tue,  5 Apr 2022 08:58:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41553C385A0;
+        Tue,  5 Apr 2022 08:58:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149117;
-        bh=bMpDvhUZHs/Rk+rEvjrWU1xOX5yG+D1BVOcQTkPZsC8=;
+        s=korg; t=1649149122;
+        bh=XvGBi4JdV/9rcjiZAmcDAgtrI9eNHKirifLBD5bIVy0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vqAk8VpbyMSw/hJtAAgk3AY9vmBF853r6/22bESykGIp03/VtD+KAsdy7uEyQempQ
-         bCslzJdSFeO/FZPmAMtwyQs+nFytq4vhvNJe8TRApm/UbVBc7Mrzqy0mZBLLx4tAEb
-         jhBGCQc/E+bn0Qkq3vf3PYLOgsFYv9lGGhkmc/cg=
+        b=qcuiWoy7qMdPMGZ2uIh6yrXttYXm2lDuaJenVUADdvH9o71roJRFQq+gwGcQuQuxB
+         RTlt/MVpgSxX1hnpPf3vls9U69Fj8ZkCKIn56A0/KSYQekzvSZEyRKJu/PTH1lnkqV
+         CXddLyijKKfaHQsWvaCyGtgbelKkDLuNnTGR1x+w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wang Yufen <wangyufen@huawei.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Niklas=20S=C3=B6derlund?= <niklas.soderlund@corigine.com>,
+        Simon Horman <simon.horman@corigine.com>,
         Daniel Borkmann <daniel@iogearbox.net>,
-        John Fastabend <john.fastabend@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0601/1017] bpf, sockmap: Fix more uncharged while msg has more_data
-Date:   Tue,  5 Apr 2022 09:25:14 +0200
-Message-Id: <20220405070412.118002939@linuxfoundation.org>
+Subject: [PATCH 5.16 0603/1017] samples/bpf, xdpsock: Fix race when running for fix duration of time
+Date:   Tue,  5 Apr 2022 09:25:16 +0200
+Message-Id: <20220405070412.177079604@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -55,98 +56,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Yufen <wangyufen@huawei.com>
+From: Niklas Söderlund <niklas.soderlund@corigine.com>
 
-[ Upstream commit 84472b436e760ba439e1969a9e3c5ae7c86de39d ]
+[ Upstream commit 8fa42d78f6354bb96ad3a079dcbef528ca9fa9e0 ]
 
-In tcp_bpf_send_verdict(), if msg has more data after
-tcp_bpf_sendmsg_redir():
+When running xdpsock for a fix duration of time before terminating
+using --duration=<n>, there is a race condition that may cause xdpsock
+to terminate immediately.
 
-tcp_bpf_send_verdict()
- tosend = msg->sg.size  //msg->sg.size = 22220
- case __SK_REDIRECT:
-  sk_msg_return()  //uncharged msg->sg.size(22220) sk->sk_forward_alloc
-  tcp_bpf_sendmsg_redir() //after tcp_bpf_sendmsg_redir, msg->sg.size=11000
- goto more_data;
- tosend = msg->sg.size  //msg->sg.size = 11000
- case __SK_REDIRECT:
-  sk_msg_return()  //uncharged msg->sg.size(11000) to sk->sk_forward_alloc
+When running for a fixed duration of time the check to determine when to
+terminate execution is in is_benchmark_done() and is being executed in
+the context of the poller thread,
 
-The msg->sg.size(11000) has been uncharged twice, to fix we can charge the
-remaining msg->sg.size before goto more data.
+    if (opt_duration > 0) {
+            unsigned long dt = (get_nsecs() - start_time);
 
-This issue can cause the following info:
-WARNING: CPU: 0 PID: 9860 at net/core/stream.c:208 sk_stream_kill_queues+0xd4/0x1a0
-Call Trace:
- <TASK>
- inet_csk_destroy_sock+0x55/0x110
- __tcp_close+0x279/0x470
- tcp_close+0x1f/0x60
- inet_release+0x3f/0x80
- __sock_release+0x3d/0xb0
- sock_close+0x11/0x20
- __fput+0x92/0x250
- task_work_run+0x6a/0xa0
- do_exit+0x33b/0xb60
- do_group_exit+0x2f/0xa0
- get_signal+0xb6/0x950
- arch_do_signal_or_restart+0xac/0x2a0
- ? vfs_write+0x237/0x290
- exit_to_user_mode_prepare+0xa9/0x200
- syscall_exit_to_user_mode+0x12/0x30
- do_syscall_64+0x46/0x80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
- </TASK>
+            if (dt >= opt_duration)
+                    benchmark_done = true;
+    }
 
-WARNING: CPU: 0 PID: 2136 at net/ipv4/af_inet.c:155 inet_sock_destruct+0x13c/0x260
-Call Trace:
- <TASK>
- __sk_destruct+0x24/0x1f0
- sk_psock_destroy+0x19b/0x1c0
- process_one_work+0x1b3/0x3c0
- worker_thread+0x30/0x350
- ? process_one_work+0x3c0/0x3c0
- kthread+0xe6/0x110
- ? kthread_complete_and_exit+0x20/0x20
- ret_from_fork+0x22/0x30
- </TASK>
+However start_time is only set after the poller thread have been
+created. This leaves a small window when the poller thread is starting
+and calls is_benchmark_done() for the first time that start_time is not
+yet set. In that case start_time have its initial value of 0 and the
+duration check fails as it do not correlate correctly for the
+applications start time and immediately sets benchmark_done which in
+turn terminates the xdpsock application.
 
-Fixes: 604326b41a6f ("bpf, sockmap: convert to generic sk_msg interface")
-Signed-off-by: Wang Yufen <wangyufen@huawei.com>
+Fix this by setting start_time before creating the poller thread.
+
+Fixes: d3f11b018f6c ("samples/bpf: xdpsock: Add duration option to specify how long to run")
+Signed-off-by: Niklas Söderlund <niklas.soderlund@corigine.com>
+Signed-off-by: Simon Horman <simon.horman@corigine.com>
 Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: John Fastabend <john.fastabend@gmail.com>
-Link: https://lore.kernel.org/bpf/20220304081145.2037182-4-wangyufen@huawei.com
+Link: https://lore.kernel.org/bpf/20220315102948.466436-1-niklas.soderlund@corigine.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_bpf.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ samples/bpf/xdpsock_user.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/net/ipv4/tcp_bpf.c b/net/ipv4/tcp_bpf.c
-index 9b9b02052fd3..304800c60427 100644
---- a/net/ipv4/tcp_bpf.c
-+++ b/net/ipv4/tcp_bpf.c
-@@ -335,7 +335,7 @@ static int tcp_bpf_send_verdict(struct sock *sk, struct sk_psock *psock,
- 			cork = true;
- 			psock->cork = NULL;
- 		}
--		sk_msg_return(sk, msg, tosend);
-+		sk_msg_return(sk, msg, msg->sg.size);
- 		release_sock(sk);
+diff --git a/samples/bpf/xdpsock_user.c b/samples/bpf/xdpsock_user.c
+index 49d7a6ad7e39..1fb79b3ecdd5 100644
+--- a/samples/bpf/xdpsock_user.c
++++ b/samples/bpf/xdpsock_user.c
+@@ -1673,14 +1673,15 @@ int main(int argc, char **argv)
  
- 		ret = tcp_bpf_sendmsg_redir(sk_redir, msg, tosend, flags);
-@@ -375,8 +375,11 @@ static int tcp_bpf_send_verdict(struct sock *sk, struct sk_psock *psock,
- 		}
- 		if (msg &&
- 		    msg->sg.data[msg->sg.start].page_link &&
--		    msg->sg.data[msg->sg.start].length)
-+		    msg->sg.data[msg->sg.start].length) {
-+			if (eval == __SK_REDIRECT)
-+				sk_mem_charge(sk, msg->sg.size);
- 			goto more_data;
-+		}
+ 	setlocale(LC_ALL, "");
+ 
++	prev_time = get_nsecs();
++	start_time = prev_time;
++
+ 	if (!opt_quiet) {
+ 		ret = pthread_create(&pt, NULL, poller, NULL);
+ 		if (ret)
+ 			exit_with_error(ret);
  	}
- 	return ret;
- }
+ 
+-	prev_time = get_nsecs();
+-	start_time = prev_time;
+ 
+ 	if (opt_bench == BENCH_RXDROP)
+ 		rx_drop_all();
 -- 
 2.34.1
 
