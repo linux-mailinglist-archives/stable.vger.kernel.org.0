@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 49A354F2AE6
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:06:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6AA0D4F2C66
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:30:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350234AbiDEJ4h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:56:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41490 "EHLO
+        id S1350218AbiDEJ43 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:56:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41500 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242819AbiDEJIY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:08:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 630CB8931D;
-        Tue,  5 Apr 2022 01:57:21 -0700 (PDT)
+        with ESMTP id S242968AbiDEJId (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:08:33 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F05B6237D1;
+        Tue,  5 Apr 2022 01:57:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A51ED61511;
-        Tue,  5 Apr 2022 08:57:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1A60C385A1;
-        Tue,  5 Apr 2022 08:57:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 526C4B81C6A;
+        Tue,  5 Apr 2022 08:57:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AA0AC385D2;
+        Tue,  5 Apr 2022 08:57:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149040;
-        bh=uUCyCdXvLdpZNjhvD5/H8FcoxNfveFCUJrqmtXQXbZw=;
+        s=korg; t=1649149043;
+        bh=4Z7OG637obt/kTnxZAjMu/EsUqkHgVZXwfQFr9p7fyE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cl34rQjVw4/hlsOBqN2WxReGKSHebRm+t96rU+K82tQIpbKJKJUhset7oXZMi4dk2
-         j2Gthm51TC2QVhRKmoiGAbAPdievBoj+LZWJZ66iAL90Qs9X63kDQ2fdIZ5xoQe7in
-         4fORdTB6YZZ9ct3QgmmSW3jjaZYHbOpTO4fNshuo=
+        b=vnWMqpeTbMSYmL23bKeKYyfV4CWPw1DZsw0KvBZdmYBYaCYPYfQsPaMYQkt3/f+hS
+         y5RgE3/XVCMSNE6OC5MOEniHXJ0P1hKfB6flL2xgGQSCDgUROLcLU6SYCegxzb+p5p
+         etPjclf/8k3nEcUKKp28eknC9ZwHu2QBWW6AFp04=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
-        Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>,
+        stable@vger.kernel.org, Yajun Deng <yajun.deng@linux.dev>,
+        Leon Romanovsky <leonro@nvidia.com>,
         Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0572/1017] IB/hfi1: Allow larger MTU without AIP
-Date:   Tue,  5 Apr 2022 09:24:45 +0200
-Message-Id: <20220405070411.257894204@linuxfoundation.org>
+Subject: [PATCH 5.16 0573/1017] RDMA/core: Fix ib_qp_usecnt_dec() called when error
+Date:   Tue,  5 Apr 2022 09:24:46 +0200
+Message-Id: <20220405070411.288282114@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -56,44 +55,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
+From: Yajun Deng <yajun.deng@linux.dev>
 
-[ Upstream commit b135e324d7a2e7fa0a7ef925076136e799b79f44 ]
+[ Upstream commit 7c4a539ec38f4ce400a0f3fcb5ff6c940fcd67bb ]
 
-The AIP code signals the phys_mtu in the following query_port()
-fragment:
+ib_destroy_qp() would called by ib_create_qp_user() if error, the former
+contains ib_qp_usecnt_dec(), but ib_qp_usecnt_inc() was not called before.
 
-	props->phys_mtu = HFI1_CAP_IS_KSET(AIP) ? hfi1_max_mtu :
-				ib_mtu_enum_to_int(props->max_mtu);
+So move ib_qp_usecnt_inc() into create_qp().
 
-Using the largest MTU possible should not depend on AIP.
-
-Fix by unconditionally using the hfi1_max_mtu value.
-
-Fixes: 6d72344cf6c4 ("IB/ipoib: Increase ipoib Datagram mode MTU's upper limit")
-Link: https://lore.kernel.org/r/1644348309-174874-1-git-send-email-mike.marciniszyn@cornelisnetworks.com
-Reviewed-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
-Signed-off-by: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
+Fixes: d2b10794fc13 ("RDMA/core: Create clean QP creations interface for uverbs")
+Link: https://lore.kernel.org/r/20220303024232.2847388-1-yajun.deng@linux.dev
+Signed-off-by: Yajun Deng <yajun.deng@linux.dev>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
 Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hfi1/verbs.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/infiniband/core/uverbs_cmd.c          | 1 -
+ drivers/infiniband/core/uverbs_std_types_qp.c | 1 -
+ drivers/infiniband/core/verbs.c               | 3 +--
+ 3 files changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/drivers/infiniband/hw/hfi1/verbs.c b/drivers/infiniband/hw/hfi1/verbs.c
-index dc9211f3a009..99d0743133ca 100644
---- a/drivers/infiniband/hw/hfi1/verbs.c
-+++ b/drivers/infiniband/hw/hfi1/verbs.c
-@@ -1397,8 +1397,7 @@ static int query_port(struct rvt_dev_info *rdi, u32 port_num,
- 				      4096 : hfi1_max_mtu), IB_MTU_4096);
- 	props->active_mtu = !valid_ib_mtu(ppd->ibmtu) ? props->max_mtu :
- 		mtu_to_enum(ppd->ibmtu, IB_MTU_4096);
--	props->phys_mtu = HFI1_CAP_IS_KSET(AIP) ? hfi1_max_mtu :
--				ib_mtu_enum_to_int(props->max_mtu);
-+	props->phys_mtu = hfi1_max_mtu;
+diff --git a/drivers/infiniband/core/uverbs_cmd.c b/drivers/infiniband/core/uverbs_cmd.c
+index d1345d76d9b1..5a99e31df5f5 100644
+--- a/drivers/infiniband/core/uverbs_cmd.c
++++ b/drivers/infiniband/core/uverbs_cmd.c
+@@ -1438,7 +1438,6 @@ static int create_qp(struct uverbs_attr_bundle *attrs,
+ 		ret = PTR_ERR(qp);
+ 		goto err_put;
+ 	}
+-	ib_qp_usecnt_inc(qp);
  
- 	return 0;
- }
+ 	obj->uevent.uobject.object = qp;
+ 	obj->uevent.event_file = READ_ONCE(attrs->ufile->default_async_file);
+diff --git a/drivers/infiniband/core/uverbs_std_types_qp.c b/drivers/infiniband/core/uverbs_std_types_qp.c
+index dd1075466f61..75353e09c6fe 100644
+--- a/drivers/infiniband/core/uverbs_std_types_qp.c
++++ b/drivers/infiniband/core/uverbs_std_types_qp.c
+@@ -254,7 +254,6 @@ static int UVERBS_HANDLER(UVERBS_METHOD_QP_CREATE)(
+ 		ret = PTR_ERR(qp);
+ 		goto err_put;
+ 	}
+-	ib_qp_usecnt_inc(qp);
+ 
+ 	if (attr.qp_type == IB_QPT_XRC_TGT) {
+ 		obj->uxrcd = container_of(xrcd_uobj, struct ib_uxrcd_object,
+diff --git a/drivers/infiniband/core/verbs.c b/drivers/infiniband/core/verbs.c
+index e821dc94a43e..961055eb330d 100644
+--- a/drivers/infiniband/core/verbs.c
++++ b/drivers/infiniband/core/verbs.c
+@@ -1253,6 +1253,7 @@ static struct ib_qp *create_qp(struct ib_device *dev, struct ib_pd *pd,
+ 	if (ret)
+ 		goto err_security;
+ 
++	ib_qp_usecnt_inc(qp);
+ 	rdma_restrack_add(&qp->res);
+ 	return qp;
+ 
+@@ -1353,8 +1354,6 @@ struct ib_qp *ib_create_qp_kernel(struct ib_pd *pd,
+ 	if (IS_ERR(qp))
+ 		return qp;
+ 
+-	ib_qp_usecnt_inc(qp);
+-
+ 	if (qp_init_attr->cap.max_rdma_ctxs) {
+ 		ret = rdma_rw_init_mrs(qp, qp_init_attr);
+ 		if (ret)
 -- 
 2.34.1
 
