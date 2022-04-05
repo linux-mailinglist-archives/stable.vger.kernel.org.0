@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ABCF64F3845
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:32:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 910D44F3B2A
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:15:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376512AbiDELWP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:22:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47412 "EHLO
+        id S240489AbiDELvI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:51:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59588 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349444AbiDEJtw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9DFF26AE2;
-        Tue,  5 Apr 2022 02:46:02 -0700 (PDT)
+        with ESMTP id S1356428AbiDEKXx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:23:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F71CBBE30;
+        Tue,  5 Apr 2022 03:08:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 88BF261368;
-        Tue,  5 Apr 2022 09:46:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9535DC385A1;
-        Tue,  5 Apr 2022 09:46:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6E000B81C99;
+        Tue,  5 Apr 2022 10:08:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF58DC385A1;
+        Tue,  5 Apr 2022 10:08:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151962;
-        bh=LyU0UCjIMK28Y/+3dy2ewi5N3bhvr2nkJBhF+Msbu9w=;
+        s=korg; t=1649153296;
+        bh=vgh0HeVqx1RYjNBeKuXJoeHPe9JnT28UwU6MtMY10/U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zW+kGawfPQpxI7jhp5XoM4Ut+8anmAbUWstN3lA42xNcrgJouIYGgoNyuFykwPEMp
-         ybPlcc2UZ/Eygx6MP6epByvJqbNH8zJjA2MI91akGlOgzCe68MyBZB56tuunAn/ctv
-         RZNExar+TX68WRNNTJ1eUFvd6XAwts0Agpbq0oF8=
+        b=n7WUXNgCtuFSJy+05o7IWt+/4+xmBl8ByslJxeKt8vQeaT8AX+Zb7iPQFSjnXg3Jm
+         nd48wV4n71tJ3Qgj9zdSCWMu5ia49agKvgS0bv8TXnEYoTPBXYaMO22ODGTNLgg4p/
+         /JcwFd8dd21GjDCQkYuywQVnICfky1KWaYIp29rg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 604/913] iio: adc: Add check for devm_request_threaded_irq
-Date:   Tue,  5 Apr 2022 09:27:46 +0200
-Message-Id: <20220405070357.945319330@linuxfoundation.org>
+        stable@vger.kernel.org, Bharata B Rao <bharata@amd.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
+        Mel Gorman <mgorman@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 173/599] sched/debug: Remove mpol_get/put and task_lock/unlock from sched_show_numa
+Date:   Tue,  5 Apr 2022 09:27:47 +0200
+Message-Id: <20220405070303.990856766@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070258.802373272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +55,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Bharata B Rao <bharata@amd.com>
 
-[ Upstream commit b30537a4cedcacf0ade2f33ebb7610178ed1e7d7 ]
+[ Upstream commit 28c988c3ec29db74a1dda631b18785958d57df4f ]
 
-As the potential failure of the devm_request_threaded_irq(),
-it should be better to check the return value and return
-error if fails.
+The older format of /proc/pid/sched printed home node info which
+required the mempolicy and task lock around mpol_get(). However
+the format has changed since then and there is no need for
+sched_show_numa() any more to have mempolicy argument,
+asssociated mpol_get/put and task_lock/unlock. Remove them.
 
-Fixes: fa659a40b80b ("iio: adc: twl6030-gpadc: Use devm_* API family")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Link: https://lore.kernel.org/r/20220224062849.3280966-1-jiasheng@iscas.ac.cn
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: 397f2378f1361 ("sched/numa: Fix numa balancing stats in /proc/pid/sched")
+Signed-off-by: Bharata B Rao <bharata@amd.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+Acked-by: Mel Gorman <mgorman@suse.de>
+Link: https://lore.kernel.org/r/20220118050515.2973-1-bharata@amd.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/adc/twl6030-gpadc.c | 2 ++
- 1 file changed, 2 insertions(+)
+ kernel/sched/debug.c | 10 ----------
+ 1 file changed, 10 deletions(-)
 
-diff --git a/drivers/iio/adc/twl6030-gpadc.c b/drivers/iio/adc/twl6030-gpadc.c
-index c6416ad795ca..256177b15c51 100644
---- a/drivers/iio/adc/twl6030-gpadc.c
-+++ b/drivers/iio/adc/twl6030-gpadc.c
-@@ -911,6 +911,8 @@ static int twl6030_gpadc_probe(struct platform_device *pdev)
- 	ret = devm_request_threaded_irq(dev, irq, NULL,
- 				twl6030_gpadc_irq_handler,
- 				IRQF_ONESHOT, "twl6030_gpadc", indio_dev);
-+	if (ret)
-+		return ret;
+diff --git a/kernel/sched/debug.c b/kernel/sched/debug.c
+index 70a578272436..e7df4f293587 100644
+--- a/kernel/sched/debug.c
++++ b/kernel/sched/debug.c
+@@ -908,25 +908,15 @@ void print_numa_stats(struct seq_file *m, int node, unsigned long tsf,
+ static void sched_show_numa(struct task_struct *p, struct seq_file *m)
+ {
+ #ifdef CONFIG_NUMA_BALANCING
+-	struct mempolicy *pol;
+-
+ 	if (p->mm)
+ 		P(mm->numa_scan_seq);
  
- 	ret = twl6030_gpadc_enable_irq(TWL6030_GPADC_RT_SW1_EOC_MASK);
- 	if (ret < 0) {
+-	task_lock(p);
+-	pol = p->mempolicy;
+-	if (pol && !(pol->flags & MPOL_F_MORON))
+-		pol = NULL;
+-	mpol_get(pol);
+-	task_unlock(p);
+-
+ 	P(numa_pages_migrated);
+ 	P(numa_preferred_nid);
+ 	P(total_numa_faults);
+ 	SEQ_printf(m, "current_node=%d, numa_group_id=%d\n",
+ 			task_node(p), task_numa_group_id(p));
+ 	show_numa_stats(p, m);
+-	mpol_put(pol);
+ #endif
+ }
+ 
 -- 
 2.34.1
 
