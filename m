@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BEF54F2E29
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:58:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C0DA4F29D3
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 12:50:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236003AbiDEIlG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:41:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34798 "EHLO
+        id S235532AbiDEJ3e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:29:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58138 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237557AbiDEISH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:18:07 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D8786AA56;
-        Tue,  5 Apr 2022 01:06:54 -0700 (PDT)
+        with ESMTP id S233752AbiDEIyC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:54:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BACE1CFD;
+        Tue,  5 Apr 2022 01:51:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B1FF6B81A32;
-        Tue,  5 Apr 2022 08:06:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0ECB1C385A3;
-        Tue,  5 Apr 2022 08:06:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D0489B81BC5;
+        Tue,  5 Apr 2022 08:51:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4107EC385A3;
+        Tue,  5 Apr 2022 08:51:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146011;
-        bh=ex7hKk6ERyNiFM9dAbMLRazcxPSd0Y4hZjBL9en+sBY=;
+        s=korg; t=1649148681;
+        bh=ybDnbmYcdgZS1Xtv3lvdZwsxzR4LKLwj0Av0c2WAeVA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HFE3g1X7X0pbpO1QRL6f6V9JipYav+nvF7O8LEXAYoXq4j+KgvU6S+Q0m6NCUDdQG
-         dDLcrKcQAnMu/37x3KPBFI7sAErHxvnp/+2z1dp7CLS3S1tyKfaUiDvFD8Fc7PUq0O
-         XDMuzFzMdNHnMa6u0tOtFBd4+nDT+l44ybwtYm8Q=
+        b=imdszCubSuUloIfSUzBOKOSA04nfqB+PJEJ+Fa8xFhlwetzigQVP2QiVoIj1RD6FN
+         CGOfsfnH5I9nWFFW7aSQPFmzMPlwC/kNehDCgrhwR5UsXxLM1HXbf2iKqRZlP/wuJi
+         QrpEYfw5sfzKlTivYnGXEwSQAIxzN2IMTXe9KACg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hou Tao <houtao1@huawei.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+        stable@vger.kernel.org,
+        Alexander Lobakin <alexandr.lobakin@intel.com>,
+        Michal Swiatkowski <michal.swiatkowski@linux.intel.com>,
+        Sandeep Penigalapati <sandeep.penigalapati@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0610/1126] bpf, arm64: Call build_prologue() first in first JIT pass
+Subject: [PATCH 5.16 0444/1017] ixgbe: dont reserve excessive XDP_PACKET_HEADROOM on XSK Rx to skb
 Date:   Tue,  5 Apr 2022 09:22:37 +0200
-Message-Id: <20220405070425.539522872@linuxfoundation.org>
+Message-Id: <20220405070407.476208102@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,51 +57,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hou Tao <houtao1@huawei.com>
+From: Alexander Lobakin <alexandr.lobakin@intel.com>
 
-[ Upstream commit 68e4f238b0e9d3670a1612ad900a6e98b2b3f7dd ]
+[ Upstream commit 8f405221a73a53234486c185d8ef647377a53cc6 ]
 
-BPF line info needs ctx->offset to be the instruction offset in the whole JITed
-image instead of the body itself, so also call build_prologue() first in first
-JIT pass.
+{__,}napi_alloc_skb() allocates and reserves additional NET_SKB_PAD
++ NET_IP_ALIGN for any skb.
+OTOH, ixgbe_construct_skb_zc() currently allocates and reserves
+additional `xdp->data - xdp->data_hard_start`, which is
+XDP_PACKET_HEADROOM for XSK frames.
+There's no need for that at all as the frame is post-XDP and will
+go only to the networking stack core.
+Pass the size of the actual data only to __napi_alloc_skb() and
+don't reserve anything. This will give enough headroom for stack
+processing.
 
-Fixes: 37ab566c178d ("bpf: arm64: Enable arm64 jit to provide bpf_line_info")
-Signed-off-by: Hou Tao <houtao1@huawei.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20220226121906.5709-2-houtao1@huawei.com
+Fixes: d0bcacd0a130 ("ixgbe: add AF_XDP zero-copy Rx support")
+Signed-off-by: Alexander Lobakin <alexandr.lobakin@intel.com>
+Reviewed-by: Michal Swiatkowski <michal.swiatkowski@linux.intel.com>
+Tested-by: Sandeep Penigalapati <sandeep.penigalapati@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/net/bpf_jit_comp.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/intel/ixgbe/ixgbe_xsk.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/arch/arm64/net/bpf_jit_comp.c b/arch/arm64/net/bpf_jit_comp.c
-index e96d4d87291f..6a83f3070985 100644
---- a/arch/arm64/net/bpf_jit_comp.c
-+++ b/arch/arm64/net/bpf_jit_comp.c
-@@ -1049,15 +1049,18 @@ struct bpf_prog *bpf_int_jit_compile(struct bpf_prog *prog)
- 		goto out_off;
- 	}
+diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_xsk.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_xsk.c
+index ab96d7ce1aa0..920c556c75dd 100644
+--- a/drivers/net/ethernet/intel/ixgbe/ixgbe_xsk.c
++++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_xsk.c
+@@ -214,13 +214,11 @@ static struct sk_buff *ixgbe_construct_skb_zc(struct ixgbe_ring *rx_ring,
+ 	struct sk_buff *skb;
  
--	/* 1. Initial fake pass to compute ctx->idx. */
--
--	/* Fake pass to fill in ctx->offset. */
--	if (build_body(&ctx, extra_pass)) {
-+	/*
-+	 * 1. Initial fake pass to compute ctx->idx and ctx->offset.
-+	 *
-+	 * BPF line info needs ctx->offset[i] to be the offset of
-+	 * instruction[i] in jited image, so build prologue first.
-+	 */
-+	if (build_prologue(&ctx, was_classic)) {
- 		prog = orig_prog;
- 		goto out_off;
- 	}
+ 	/* allocate a skb to store the frags */
+-	skb = __napi_alloc_skb(&rx_ring->q_vector->napi,
+-			       xdp->data_end - xdp->data_hard_start,
++	skb = __napi_alloc_skb(&rx_ring->q_vector->napi, datasize,
+ 			       GFP_ATOMIC | __GFP_NOWARN);
+ 	if (unlikely(!skb))
+ 		return NULL;
  
--	if (build_prologue(&ctx, was_classic)) {
-+	if (build_body(&ctx, extra_pass)) {
- 		prog = orig_prog;
- 		goto out_off;
- 	}
+-	skb_reserve(skb, xdp->data - xdp->data_hard_start);
+ 	memcpy(__skb_put(skb, datasize), xdp->data, datasize);
+ 	if (metasize)
+ 		skb_metadata_set(skb, metasize);
 -- 
 2.34.1
 
