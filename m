@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BF9CF4F372B
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:19:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F9C64F3732
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:19:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352470AbiDELKp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:10:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44178 "EHLO
+        id S1351857AbiDELLP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:11:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39584 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348899AbiDEJsp (ORCPT
+        with ESMTP id S1348905AbiDEJsp (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:48:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11363EACB7;
-        Tue,  5 Apr 2022 02:36:57 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63AC8EBAFB;
+        Tue,  5 Apr 2022 02:37:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A4146615E5;
-        Tue,  5 Apr 2022 09:36:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B67B9C385A0;
-        Tue,  5 Apr 2022 09:36:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0F493B81B14;
+        Tue,  5 Apr 2022 09:37:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 744BEC385A2;
+        Tue,  5 Apr 2022 09:36:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151416;
-        bh=6teVxoPhBawGeWELxNYk1AiLJDt6H6dR+P6fL/PEkA8=;
+        s=korg; t=1649151418;
+        bh=3qWkXhv2+bEE/LEDVk1aJsXGXJIZNAa4/cwBCrH755U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C9dB5U/x47ZPaagWDX6tgXCzE6KgCwJ1Vlbp1a/591Sd3v74NTn7rLAwoNq+Gc1ma
-         EvGe+2FwX/OkYIbyqRdlKTbFC/aMaViv3hK/+0HI274mN27qd4UuMFRhKsW32cy/lE
-         EaEu4GiQQffz/il83P73+9fZ3fCkcdp63LaOpZ1I=
+        b=kHR7dFBS5R2DXhreVpnhbKb0B+fwxBpMe9h+lBxpa8WdQdPibcVByLSSnmK4/E1Hl
+         emmJkGS/T3Ao0MCWTEjWVY95hugkfKVYsqLv94KtoHeOJ9ZNHShQO3vF73YwG4nQfC
+         NSxpcJFrheVKpXp4BLH3sGe/LLVLU5Tv75w8+o3Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+f83a1df1ed4f67e8d8ad@syzkaller.appspotmail.com,
-        Pavel Skripkin <paskripkin@gmail.com>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
+        stable@vger.kernel.org, Maor Gottlieb <maorg@nvidia.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 406/913] ath9k_htc: fix uninit value bugs
-Date:   Tue,  5 Apr 2022 09:24:28 +0200
-Message-Id: <20220405070352.017118926@linuxfoundation.org>
+Subject: [PATCH 5.15 407/913] RDMA/core: Set MR type in ib_reg_user_mr
+Date:   Tue,  5 Apr 2022 09:24:29 +0200
+Message-Id: <20220405070352.046593553@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -56,98 +55,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Maor Gottlieb <maorg@nvidia.com>
 
-[ Upstream commit d1e0df1c57bd30871dd1c855742a7c346dbca853 ]
+[ Upstream commit 32a88d16615c2be295571c29273c4ac94cb75309 ]
 
-Syzbot reported 2 KMSAN bugs in ath9k. All of them are caused by missing
-field initialization.
+Add missing assignment of MR type to IB_MR_TYPE_USER.
 
-In htc_connect_service() svc_meta_len and pad are not initialized. Based
-on code it looks like in current skb there is no service data, so simply
-initialize svc_meta_len to 0.
-
-htc_issue_send() does not initialize htc_frame_hdr::control array. Based
-on firmware code, it will initialize it by itself, so simply zero whole
-array to make KMSAN happy
-
-Fail logs:
-
-BUG: KMSAN: kernel-usb-infoleak in usb_submit_urb+0x6c1/0x2aa0 drivers/usb/core/urb.c:430
- usb_submit_urb+0x6c1/0x2aa0 drivers/usb/core/urb.c:430
- hif_usb_send_regout drivers/net/wireless/ath/ath9k/hif_usb.c:127 [inline]
- hif_usb_send+0x5f0/0x16f0 drivers/net/wireless/ath/ath9k/hif_usb.c:479
- htc_issue_send drivers/net/wireless/ath/ath9k/htc_hst.c:34 [inline]
- htc_connect_service+0x143e/0x1960 drivers/net/wireless/ath/ath9k/htc_hst.c:275
-...
-
-Uninit was created at:
- slab_post_alloc_hook mm/slab.h:524 [inline]
- slab_alloc_node mm/slub.c:3251 [inline]
- __kmalloc_node_track_caller+0xe0c/0x1510 mm/slub.c:4974
- kmalloc_reserve net/core/skbuff.c:354 [inline]
- __alloc_skb+0x545/0xf90 net/core/skbuff.c:426
- alloc_skb include/linux/skbuff.h:1126 [inline]
- htc_connect_service+0x1029/0x1960 drivers/net/wireless/ath/ath9k/htc_hst.c:258
-...
-
-Bytes 4-7 of 18 are uninitialized
-Memory access of size 18 starts at ffff888027377e00
-
-BUG: KMSAN: kernel-usb-infoleak in usb_submit_urb+0x6c1/0x2aa0 drivers/usb/core/urb.c:430
- usb_submit_urb+0x6c1/0x2aa0 drivers/usb/core/urb.c:430
- hif_usb_send_regout drivers/net/wireless/ath/ath9k/hif_usb.c:127 [inline]
- hif_usb_send+0x5f0/0x16f0 drivers/net/wireless/ath/ath9k/hif_usb.c:479
- htc_issue_send drivers/net/wireless/ath/ath9k/htc_hst.c:34 [inline]
- htc_connect_service+0x143e/0x1960 drivers/net/wireless/ath/ath9k/htc_hst.c:275
-...
-
-Uninit was created at:
- slab_post_alloc_hook mm/slab.h:524 [inline]
- slab_alloc_node mm/slub.c:3251 [inline]
- __kmalloc_node_track_caller+0xe0c/0x1510 mm/slub.c:4974
- kmalloc_reserve net/core/skbuff.c:354 [inline]
- __alloc_skb+0x545/0xf90 net/core/skbuff.c:426
- alloc_skb include/linux/skbuff.h:1126 [inline]
- htc_connect_service+0x1029/0x1960 drivers/net/wireless/ath/ath9k/htc_hst.c:258
-...
-
-Bytes 16-17 of 18 are uninitialized
-Memory access of size 18 starts at ffff888027377e00
-
-Fixes: fb9987d0f748 ("ath9k_htc: Support for AR9271 chipset.")
-Reported-by: syzbot+f83a1df1ed4f67e8d8ad@syzkaller.appspotmail.com
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/20220115122733.11160-1-paskripkin@gmail.com
+Fixes: 33006bd4f37f ("IB/core: Introduce ib_reg_user_mr")
+Link: https://lore.kernel.org/r/be2e91bcd6e52dc36be289ae92f30d3a5cc6dcb1.1642491047.git.leonro@nvidia.com
+Signed-off-by: Maor Gottlieb <maorg@nvidia.com>
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath9k/htc_hst.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/infiniband/core/verbs.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/wireless/ath/ath9k/htc_hst.c b/drivers/net/wireless/ath/ath9k/htc_hst.c
-index 510e61e97dbc..994ec48b2f66 100644
---- a/drivers/net/wireless/ath/ath9k/htc_hst.c
-+++ b/drivers/net/wireless/ath/ath9k/htc_hst.c
-@@ -30,6 +30,7 @@ static int htc_issue_send(struct htc_target *target, struct sk_buff* skb,
- 	hdr->endpoint_id = epid;
- 	hdr->flags = flags;
- 	hdr->payload_len = cpu_to_be16(len);
-+	memset(hdr->control, 0, sizeof(hdr->control));
+diff --git a/drivers/infiniband/core/verbs.c b/drivers/infiniband/core/verbs.c
+index 20a46d873145..59e20936b800 100644
+--- a/drivers/infiniband/core/verbs.c
++++ b/drivers/infiniband/core/verbs.c
+@@ -2153,6 +2153,7 @@ struct ib_mr *ib_reg_user_mr(struct ib_pd *pd, u64 start, u64 length,
+ 		return mr;
  
- 	status = target->hif->send(target->hif_dev, endpoint->ul_pipeid, skb);
- 
-@@ -272,6 +273,10 @@ int htc_connect_service(struct htc_target *target,
- 	conn_msg->dl_pipeid = endpoint->dl_pipeid;
- 	conn_msg->ul_pipeid = endpoint->ul_pipeid;
- 
-+	/* To prevent infoleak */
-+	conn_msg->svc_meta_len = 0;
-+	conn_msg->pad = 0;
-+
- 	ret = htc_issue_send(target, skb, skb->len, 0, ENDPOINT0);
- 	if (ret)
- 		goto err;
+ 	mr->device = pd->device;
++	mr->type = IB_MR_TYPE_USER;
+ 	mr->pd = pd;
+ 	mr->dm = NULL;
+ 	atomic_inc(&pd->usecnt);
 -- 
 2.34.1
 
