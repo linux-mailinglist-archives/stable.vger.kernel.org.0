@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 56FC24F31CF
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:46:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 515994F3105
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:36:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354141AbiDEKL7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:11:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60618 "EHLO
+        id S237393AbiDEIlz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:41:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34412 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344265AbiDEJTD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:19:03 -0400
+        with ESMTP id S238239AbiDEIa0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:30:26 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 247C949F20;
-        Tue,  5 Apr 2022 02:06:29 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26AD322BF1;
+        Tue,  5 Apr 2022 01:22:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B566861571;
-        Tue,  5 Apr 2022 09:06:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA356C385A0;
-        Tue,  5 Apr 2022 09:06:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A988361477;
+        Tue,  5 Apr 2022 08:21:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8A2BC385A9;
+        Tue,  5 Apr 2022 08:21:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149588;
-        bh=5KA/8ySZ2n1/KKSMcoJazR7rOJ6n1FuR1d09mg0Xu70=;
+        s=korg; t=1649146919;
+        bh=RMc2It4dGYVyP7I6bfOhhGG9ID4xvoJkIC5CZ+LRjz8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B808LNm8XrNKMn80s/Ouu3/uvKrCvzX9GsK6UTcZEeS6iPupS5PTS119mDJ9qoXNe
-         4sH77yMbTEW6P+d7fcI2zFwjUN/Ob+WXd7pk5PFiUbadkNdEGGp61Vnj6AH+STDI5X
-         HVNbwCOQR6qAtH3Uaj67SDVQogXmpoILpNBy3y3s=
+        b=KGLvcWaoom+KLUeUvlsIXnkSNTEDF7EsYUxguIyBvq1Q/rCGcu7KlIKX5i1Nl8rXe
+         1V2WSnIlUIQQxlZJmxx0geRCPpUMMyDcP/ygna3oWEopwqBhlbRo+Krc4ea6TPs/M6
+         UT7xfvT+YAB9HawCEeXod/zPMYjp6JzGBPWXwL80=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
-        Maulik Shah <quic_mkshah@quicinc.com>,
+        stable@vger.kernel.org,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        =?UTF-8?q?P=C3=A9ter=20Ujfalusi?= <peter.ujfalusi@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0770/1017] irqchip/qcom-pdc: Fix broken locking
-Date:   Tue,  5 Apr 2022 09:28:03 +0200
-Message-Id: <20220405070417.115714297@linuxfoundation.org>
+Subject: [PATCH 5.17 0937/1126] ASoC: SOF: Intel: hda: retrieve DMIC number for I2S boards
+Date:   Tue,  5 Apr 2022 09:28:04 +0200
+Message-Id: <20220405070435.015903073@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,54 +57,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-[ Upstream commit a6aca2f460e203781dc41391913cc5b54f4bc0ce ]
+[ Upstream commit 92c1b7c0f780f0084f7b114be316ae4e182676e5 ]
 
-pdc_enable_intr() serves as a primitive to qcom_pdc_gic_{en,dis}able,
-and has a raw spinlock for mutual exclusion, which is uses with
-interruptible primitives.
+We currently extract the DMIC number only for HDaudio or SoundWire
+platforms. For I2S/TDM platforms, this wasn't necessary until now, but
+with devices with ES8336 we need to find a solution to detect dmics
+more reliably than with a DMI quirk.
 
-This means that this critical section can itself be interrupted.
-Should the interrupt also be a PDC interrupt, and the endpoint driver
-perform an irq_disable() on that interrupt, we end-up in a deadlock.
-
-Fix this by using the irqsave/irqrestore variants of the locking
-primitives.
-
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Reviewed-by: Maulik Shah <quic_mkshah@quicinc.com>
-Link: https://lore.kernel.org/r/20220224101226.88373-5-maz@kernel.org
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+Reviewed-by: Péter Ujfalusi <peter.ujfalusi@linux.intel.com>
+Link: https://lore.kernel.org/r/20220308192610.392950-4-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/qcom-pdc.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ sound/soc/sof/intel/hda.c | 46 +++++++++++++++++++++------------------
+ 1 file changed, 25 insertions(+), 21 deletions(-)
 
-diff --git a/drivers/irqchip/qcom-pdc.c b/drivers/irqchip/qcom-pdc.c
-index 173e6520e06e..c0b457f26ec4 100644
---- a/drivers/irqchip/qcom-pdc.c
-+++ b/drivers/irqchip/qcom-pdc.c
-@@ -56,17 +56,18 @@ static u32 pdc_reg_read(int reg, u32 i)
- static void pdc_enable_intr(struct irq_data *d, bool on)
- {
- 	int pin_out = d->hwirq;
-+	unsigned long flags;
- 	u32 index, mask;
- 	u32 enable;
+diff --git a/sound/soc/sof/intel/hda.c b/sound/soc/sof/intel/hda.c
+index 848d1d563170..028751549f6d 100644
+--- a/sound/soc/sof/intel/hda.c
++++ b/sound/soc/sof/intel/hda.c
+@@ -432,11 +432,9 @@ static char *hda_model;
+ module_param(hda_model, charp, 0444);
+ MODULE_PARM_DESC(hda_model, "Use the given HDA board model.");
  
- 	index = pin_out / 32;
- 	mask = pin_out % 32;
+-#if IS_ENABLED(CONFIG_SND_SOC_SOF_HDA) || IS_ENABLED(CONFIG_SND_SOC_SOF_INTEL_SOUNDWIRE)
+-static int hda_dmic_num = -1;
+-module_param_named(dmic_num, hda_dmic_num, int, 0444);
++static int dmic_num_override = -1;
++module_param_named(dmic_num, dmic_num_override, int, 0444);
+ MODULE_PARM_DESC(dmic_num, "SOF HDA DMIC number");
+-#endif
  
--	raw_spin_lock(&pdc_lock);
-+	raw_spin_lock_irqsave(&pdc_lock, flags);
- 	enable = pdc_reg_read(IRQ_ENABLE_BANK, index);
- 	enable = on ? ENABLE_INTR(enable, mask) : CLEAR_INTR(enable, mask);
- 	pdc_reg_write(IRQ_ENABLE_BANK, index, enable);
--	raw_spin_unlock(&pdc_lock);
-+	raw_spin_unlock_irqrestore(&pdc_lock, flags);
+ #if IS_ENABLED(CONFIG_SND_SOC_SOF_HDA)
+ static bool hda_codec_use_common_hdmi = IS_ENABLED(CONFIG_SND_HDA_CODEC_HDMI);
+@@ -644,24 +642,35 @@ static int hda_init(struct snd_sof_dev *sdev)
+ 	return ret;
  }
  
- static void qcom_pdc_gic_disable(struct irq_data *d)
+-#if IS_ENABLED(CONFIG_SND_SOC_SOF_HDA) || IS_ENABLED(CONFIG_SND_SOC_SOF_INTEL_SOUNDWIRE)
+-
+-static int check_nhlt_dmic(struct snd_sof_dev *sdev)
++static int check_dmic_num(struct snd_sof_dev *sdev)
+ {
+ 	struct nhlt_acpi_table *nhlt;
+-	int dmic_num;
++	int dmic_num = 0;
+ 
+ 	nhlt = intel_nhlt_init(sdev->dev);
+ 	if (nhlt) {
+ 		dmic_num = intel_nhlt_get_dmic_geo(sdev->dev, nhlt);
+ 		intel_nhlt_free(nhlt);
+-		if (dmic_num >= 1 && dmic_num <= 4)
+-			return dmic_num;
+ 	}
+ 
+-	return 0;
++	/* allow for module parameter override */
++	if (dmic_num_override != -1) {
++		dev_dbg(sdev->dev,
++			"overriding DMICs detected in NHLT tables %d by kernel param %d\n",
++			dmic_num, dmic_num_override);
++		dmic_num = dmic_num_override;
++	}
++
++	if (dmic_num < 0 || dmic_num > 4) {
++		dev_dbg(sdev->dev, "invalid dmic_number %d\n", dmic_num);
++		dmic_num = 0;
++	}
++
++	return dmic_num;
+ }
+ 
++#if IS_ENABLED(CONFIG_SND_SOC_SOF_HDA) || IS_ENABLED(CONFIG_SND_SOC_SOF_INTEL_SOUNDWIRE)
++
+ static const char *fixup_tplg_name(struct snd_sof_dev *sdev,
+ 				   const char *sof_tplg_filename,
+ 				   const char *idisp_str,
+@@ -697,16 +706,8 @@ static int dmic_topology_fixup(struct snd_sof_dev *sdev,
+ 	const char *dmic_str;
+ 	int dmic_num;
+ 
+-	/* first check NHLT for DMICs */
+-	dmic_num = check_nhlt_dmic(sdev);
+-
+-	/* allow for module parameter override */
+-	if (hda_dmic_num != -1) {
+-		dev_dbg(sdev->dev,
+-			"overriding DMICs detected in NHLT tables %d by kernel param %d\n",
+-			dmic_num, hda_dmic_num);
+-		dmic_num = hda_dmic_num;
+-	}
++	/* first check for DMICs (using NHLT or module parameter) */
++	dmic_num = check_dmic_num(sdev);
+ 
+ 	switch (dmic_num) {
+ 	case 1:
+@@ -1392,6 +1393,9 @@ struct snd_soc_acpi_mach *hda_machine_select(struct snd_sof_dev *sdev)
+ 		if (!sof_pdata->tplg_filename)
+ 			sof_pdata->tplg_filename = mach->sof_tplg_filename;
+ 
++		/* report to machine driver if any DMICs are found */
++		mach->mach_params.dmic_num = check_dmic_num(sdev);
++
+ 		if (mach->link_mask) {
+ 			mach->mach_params.links = mach->links;
+ 			mach->mach_params.link_mask = mach->link_mask;
 -- 
 2.34.1
 
