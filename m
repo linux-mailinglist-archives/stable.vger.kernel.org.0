@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DA9FF4F2BA0
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:16:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EF9A4F2A12
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 12:52:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239214AbiDEIoy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:44:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45932 "EHLO
+        id S1355601AbiDEKUw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:20:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51866 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241123AbiDEIcv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:32:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B358216584;
-        Tue,  5 Apr 2022 01:28:17 -0700 (PDT)
+        with ESMTP id S1346604AbiDEJYa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:24:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B146AC900;
+        Tue,  5 Apr 2022 02:13:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4EF97609D0;
-        Tue,  5 Apr 2022 08:28:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E334C385A1;
-        Tue,  5 Apr 2022 08:28:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D3591B81C85;
+        Tue,  5 Apr 2022 09:13:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22C12C385A0;
+        Tue,  5 Apr 2022 09:13:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147296;
-        bh=FjlwNEak2Y5XHLiuM71zpUltWSfxCrU7knvshYNWE0c=;
+        s=korg; t=1649150011;
+        bh=Wn3JxQQnYj5scrd2H9Ydr3wFpxUS1p1tfgW+6PBkh4A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f+zkipLGwWcfop8jTB2itFaVq6jPS2HukyvxjPIrbhhG6ry0t6UCKjyxm3DZI5MeM
-         I9INxh17hcRPtxftGNZuDMPouaPkOuTy1JbtABa6NEjjECBcI2a2ViWibsvZFlMCkk
-         pdI9lpbDuAphT1pr/qCRz7eFuiAtLdwJ9q3qufh4=
+        b=xG6FiMK3Si4UWDlKg4aGkqf0QDiOekyVR49ZzFfBjeAmuP1aCh6HWz8cfRdZS3IYf
+         VdeWN8AXcXAKNtaddDKDW2oRloV4W8+p+FKGQiwcZswOzjWAu2hPf6c9V3LWvneknx
+         akYvyhUALagq8S7oVPOviw/hPSU9/wVU5MqpNAFU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiaxin Yu <jiaxin.yu@mediatek.com>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.17 1046/1126] ASoC: mediatek: mt6358: add missing EXPORT_SYMBOLs
-Date:   Tue,  5 Apr 2022 09:29:53 +0200
-Message-Id: <20220405070438.174765036@linuxfoundation.org>
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Quinn Tran <qutran@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.16 0884/1017] scsi: qla2xxx: edif: Fix clang warning
+Date:   Tue,  5 Apr 2022 09:29:57 +0200
+Message-Id: <20220405070420.471904088@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,60 +56,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiaxin Yu <jiaxin.yu@mediatek.com>
+From: Quinn Tran <qutran@marvell.com>
 
-commit a7663c89f4193dbf717572e46e5a3251940dbdc8 upstream.
+commit 73825fd7a37c1a685e9e9e27c9dc91ef1f3e2971 upstream.
 
-Fixes the following build errors when mt6358 is configured as module:
+Silence compile warning due to unaligned memory access.
 
->> ERROR: modpost: "mt6358_set_mtkaif_protocol"
->> [sound/soc/mediatek/mt8186/mt8186-mt6366-rt1019-rt5682s.ko] undefined!
->> ERROR: modpost: "mt6358_set_mtkaif_protocol"
->> [sound/soc/mediatek/mt8186/mt8186-mt6366-da7219-max98357.ko] undefined!
+qla_edif.c:713:45: warning: taking address of packed member 'u' of class or
+   structure 'auth_complete_cmd' may result in an unaligned pointer value
+   [-Waddress-of-packed-member]
+    fcport = qla2x00_find_fcport_by_pid(vha, &appplogiok.u.d_id);
 
-Fixes: 6a8d4198ca80 ("ASoC: mediatek: mt6358: add codec driver")
-Signed-off-by: Jiaxin Yu <jiaxin.yu@mediatek.com>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Link: https://lore.kernel.org/r/20220319120325.11882-1-jiaxin.yu@mediatek.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20220110050218.3958-13-njavali@marvell.com
+Cc: stable@vger.kernel.org
+Reported-by: kernel test robot <lkp@intel.com>
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Quinn Tran <qutran@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/codecs/mt6358.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/scsi/qla2xxx/qla_edif.c |   22 +++++++++++++++++++---
+ 1 file changed, 19 insertions(+), 3 deletions(-)
 
---- a/sound/soc/codecs/mt6358.c
-+++ b/sound/soc/codecs/mt6358.c
-@@ -107,6 +107,7 @@ int mt6358_set_mtkaif_protocol(struct sn
- 	priv->mtkaif_protocol = mtkaif_protocol;
- 	return 0;
- }
-+EXPORT_SYMBOL_GPL(mt6358_set_mtkaif_protocol);
+--- a/drivers/scsi/qla2xxx/qla_edif.c
++++ b/drivers/scsi/qla2xxx/qla_edif.c
+@@ -668,6 +668,11 @@ qla_edif_app_authok(scsi_qla_host_t *vha
+ 	    bsg_job->request_payload.sg_cnt, &appplogiok,
+ 	    sizeof(struct auth_complete_cmd));
  
- static void playback_gpio_set(struct mt6358_priv *priv)
- {
-@@ -273,6 +274,7 @@ int mt6358_mtkaif_calibration_enable(str
- 			   1 << RG_AUD_PAD_TOP_DAT_MISO_LOOPBACK_SFT);
- 	return 0;
- }
-+EXPORT_SYMBOL_GPL(mt6358_mtkaif_calibration_enable);
++	/* silent unaligned access warning */
++	portid.b.domain = appplogiok.u.d_id.b.domain;
++	portid.b.area   = appplogiok.u.d_id.b.area;
++	portid.b.al_pa  = appplogiok.u.d_id.b.al_pa;
++
+ 	switch (appplogiok.type) {
+ 	case PL_TYPE_WWPN:
+ 		fcport = qla2x00_find_fcport_by_wwpn(vha,
+@@ -678,7 +683,7 @@ qla_edif_app_authok(scsi_qla_host_t *vha
+ 			    __func__, appplogiok.u.wwpn);
+ 		break;
+ 	case PL_TYPE_DID:
+-		fcport = qla2x00_find_fcport_by_pid(vha, &appplogiok.u.d_id);
++		fcport = qla2x00_find_fcport_by_pid(vha, &portid);
+ 		if (!fcport)
+ 			ql_dbg(ql_dbg_edif, vha, 0x911d,
+ 			    "%s d_id lookup failed: %x\n", __func__,
+@@ -777,6 +782,11 @@ qla_edif_app_authfail(scsi_qla_host_t *v
+ 	    bsg_job->request_payload.sg_cnt, &appplogifail,
+ 	    sizeof(struct auth_complete_cmd));
  
- int mt6358_mtkaif_calibration_disable(struct snd_soc_component *cmpnt)
- {
-@@ -296,6 +298,7 @@ int mt6358_mtkaif_calibration_disable(st
- 	capture_gpio_reset(priv);
- 	return 0;
- }
-+EXPORT_SYMBOL_GPL(mt6358_mtkaif_calibration_disable);
++	/* silent unaligned access warning */
++	portid.b.domain = appplogifail.u.d_id.b.domain;
++	portid.b.area   = appplogifail.u.d_id.b.area;
++	portid.b.al_pa  = appplogifail.u.d_id.b.al_pa;
++
+ 	/*
+ 	 * TODO: edif: app has failed this plogi. Inform driver to
+ 	 * take any action (if any).
+@@ -788,7 +798,7 @@ qla_edif_app_authfail(scsi_qla_host_t *v
+ 		SET_DID_STATUS(bsg_reply->result, DID_OK);
+ 		break;
+ 	case PL_TYPE_DID:
+-		fcport = qla2x00_find_fcport_by_pid(vha, &appplogifail.u.d_id);
++		fcport = qla2x00_find_fcport_by_pid(vha, &portid);
+ 		if (!fcport)
+ 			ql_dbg(ql_dbg_edif, vha, 0x911d,
+ 			    "%s d_id lookup failed: %x\n", __func__,
+@@ -1253,6 +1263,7 @@ qla24xx_sadb_update(struct bsg_job *bsg_
+ 	int result = 0;
+ 	struct qla_sa_update_frame sa_frame;
+ 	struct srb_iocb *iocb_cmd;
++	port_id_t portid;
  
- int mt6358_set_mtkaif_calibration_phase(struct snd_soc_component *cmpnt,
- 					int phase_1, int phase_2)
-@@ -310,6 +313,7 @@ int mt6358_set_mtkaif_calibration_phase(
- 			   phase_2 << RG_AUD_PAD_TOP_PHASE_MODE2_SFT);
- 	return 0;
- }
-+EXPORT_SYMBOL_GPL(mt6358_set_mtkaif_calibration_phase);
+ 	ql_dbg(ql_dbg_edif + ql_dbg_verbose, vha, 0x911d,
+ 	    "%s entered, vha: 0x%p\n", __func__, vha);
+@@ -1276,7 +1287,12 @@ qla24xx_sadb_update(struct bsg_job *bsg_
+ 		goto done;
+ 	}
  
- /* dl pga gain */
- enum {
+-	fcport = qla2x00_find_fcport_by_pid(vha, &sa_frame.port_id);
++	/* silent unaligned access warning */
++	portid.b.domain = sa_frame.port_id.b.domain;
++	portid.b.area   = sa_frame.port_id.b.area;
++	portid.b.al_pa  = sa_frame.port_id.b.al_pa;
++
++	fcport = qla2x00_find_fcport_by_pid(vha, &portid);
+ 	if (fcport) {
+ 		found = 1;
+ 		if (sa_frame.flags == QLA_SA_UPDATE_FLAGS_TX_KEY)
 
 
