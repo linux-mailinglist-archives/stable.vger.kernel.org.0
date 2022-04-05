@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C2F94F34DC
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:41:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74B6D4F3184
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:44:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347832AbiDEJ2b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:28:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50852 "EHLO
+        id S238772AbiDEJd4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:33:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56228 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244966AbiDEIww (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:52 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2C611CB0A;
-        Tue,  5 Apr 2022 01:48:07 -0700 (PDT)
+        with ESMTP id S235573AbiDEIQP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:16:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A3721CFEC;
+        Tue,  5 Apr 2022 01:03:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 68B0DCE1BF8;
-        Tue,  5 Apr 2022 08:48:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EB2AC385A1;
-        Tue,  5 Apr 2022 08:48:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EA2016167A;
+        Tue,  5 Apr 2022 08:03:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1F5EC385A2;
+        Tue,  5 Apr 2022 08:03:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148484;
-        bh=L7t5eCcbxKioBhlB6WdiF/7kW9vwa2XNaTwBhgAO9Cw=;
+        s=korg; t=1649145814;
+        bh=oBueRlGnsA+SB0G09LAGMW5kSeGEyH/mD0Q4eBI8Owk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UAW0TAwNIjPRJ+Tm4dErDaOuiNS9Hijojc3qROmWylrk2tqTCNo881eEnEMtoWqA4
-         0pfQjwN8HdrkpwS0mvZC0Un9nQIKzzRvPjAr01Yja89OcjayT1rmTy6S15FJiGbjL+
-         N5odf+Plvy4E+vqVde7itBrUMZcDTJ5ziZCORllE=
+        b=Tfb33VJYW5O0sHCdK3bPBdJdwadjwIT0rNhnFwXBk9Ye6rzBQZwsJPImI4IJXaULz
+         K1kdQ4fK5+WjN+dqPi/VhzRo1BYRFd2dv1+/9Xhbfy67a/v9IYDhpdEEYrYvv0q0eX
+         TOCdAVjg2aTjei/T7eQX9VQs5RhbIu6gIAmdN6pU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Codrin Ciubotariu <codrin.ciubotariu@microchip.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0372/1017] ASoC: atmel: Add missing of_node_put() in at91sam9g20ek_audio_probe
+Subject: [PATCH 5.17 0538/1126] power: supply: ab8500: Swap max and overvoltage
 Date:   Tue,  5 Apr 2022 09:21:25 +0200
-Message-Id: <20220405070405.328164771@linuxfoundation.org>
+Message-Id: <20220405070423.423986849@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,36 +54,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-[ Upstream commit f590797fa3c1bccdd19e55441592a23b46aef449 ]
+[ Upstream commit d662a7df36e1edc65eaf166ec1c8527ce9d088ea ]
 
-This node pointer is returned by of_parse_phandle() with refcount
-incremented in this function.
-Calling of_node_put() to avoid the refcount leak.
+We should terminate charging when we reach the voltage_max_design_uv
+not overvoltage_limit_uv, this is an abuse of that struct member.
 
-Fixes: 531f67e41dcd ("ASoC: at91sam9g20ek-wm8731: convert to dt support")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Reviewed-by: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
-Link: https://lore.kernel.org/r/20220307124539.1743-1-linmq006@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+The overvoltage limit is actually not configurable on the AB8500,
+it is fixed to 4.75 V so drop a comment about that in the code.
+
+Fixes: 2a5f41830aad ("power: supply: ab8500: Standardize voltages")
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/atmel/sam9g20_wm8731.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/power/supply/ab8500_bmdata.c   | 8 +++-----
+ drivers/power/supply/ab8500_chargalg.c | 2 +-
+ drivers/power/supply/ab8500_fg.c       | 8 +++++++-
+ 3 files changed, 11 insertions(+), 7 deletions(-)
 
-diff --git a/sound/soc/atmel/sam9g20_wm8731.c b/sound/soc/atmel/sam9g20_wm8731.c
-index 915da92e1ec8..33e43013ff77 100644
---- a/sound/soc/atmel/sam9g20_wm8731.c
-+++ b/sound/soc/atmel/sam9g20_wm8731.c
-@@ -214,6 +214,7 @@ static int at91sam9g20ek_audio_probe(struct platform_device *pdev)
- 	cpu_np = of_parse_phandle(np, "atmel,ssc-controller", 0);
- 	if (!cpu_np) {
- 		dev_err(&pdev->dev, "dai and pcm info missing\n");
-+		of_node_put(codec_np);
- 		return -EINVAL;
+diff --git a/drivers/power/supply/ab8500_bmdata.c b/drivers/power/supply/ab8500_bmdata.c
+index 7ae95f537580..9a8334a65de1 100644
+--- a/drivers/power/supply/ab8500_bmdata.c
++++ b/drivers/power/supply/ab8500_bmdata.c
+@@ -188,13 +188,11 @@ int ab8500_bm_of_probe(struct power_supply *psy,
+ 	 * fall back to safe defaults.
+ 	 */
+ 	if ((bi->voltage_min_design_uv < 0) ||
+-	    (bi->voltage_max_design_uv < 0) ||
+-	    (bi->overvoltage_limit_uv < 0)) {
++	    (bi->voltage_max_design_uv < 0)) {
+ 		/* Nominal voltage is 3.7V for unknown batteries */
+ 		bi->voltage_min_design_uv = 3700000;
+-		bi->voltage_max_design_uv = 3700000;
+-		/* Termination voltage (overcharge limit) 4.05V */
+-		bi->overvoltage_limit_uv = 4050000;
++		/* Termination voltage 4.05V */
++		bi->voltage_max_design_uv = 4050000;
  	}
- 	at91sam9g20ek_dai.cpus->of_node = cpu_np;
+ 
+ 	if (bi->constant_charge_current_max_ua < 0)
+diff --git a/drivers/power/supply/ab8500_chargalg.c b/drivers/power/supply/ab8500_chargalg.c
+index c4a2fe07126c..bcf85ae6828e 100644
+--- a/drivers/power/supply/ab8500_chargalg.c
++++ b/drivers/power/supply/ab8500_chargalg.c
+@@ -802,7 +802,7 @@ static void ab8500_chargalg_end_of_charge(struct ab8500_chargalg *di)
+ 	if (di->charge_status == POWER_SUPPLY_STATUS_CHARGING &&
+ 		di->charge_state == STATE_NORMAL &&
+ 		!di->maintenance_chg && (di->batt_data.volt_uv >=
+-		di->bm->bi->overvoltage_limit_uv ||
++		di->bm->bi->voltage_max_design_uv ||
+ 		di->events.usb_cv_active || di->events.ac_cv_active) &&
+ 		di->batt_data.avg_curr_ua <
+ 		di->bm->bi->charge_term_current_ua &&
+diff --git a/drivers/power/supply/ab8500_fg.c b/drivers/power/supply/ab8500_fg.c
+index b0919a6a6587..236fd9f9d6f1 100644
+--- a/drivers/power/supply/ab8500_fg.c
++++ b/drivers/power/supply/ab8500_fg.c
+@@ -2263,7 +2263,13 @@ static int ab8500_fg_init_hw_registers(struct ab8500_fg *di)
+ {
+ 	int ret;
+ 
+-	/* Set VBAT OVV threshold */
++	/*
++	 * Set VBAT OVV (overvoltage) threshold to 4.75V (typ) this is what
++	 * the hardware supports, nothing else can be configured in hardware.
++	 * See this as an "outer limit" where the charger will certainly
++	 * shut down. Other (lower) overvoltage levels need to be implemented
++	 * in software.
++	 */
+ 	ret = abx500_mask_and_set_register_interruptible(di->dev,
+ 		AB8500_CHARGER,
+ 		AB8500_BATT_OVV,
 -- 
 2.34.1
 
