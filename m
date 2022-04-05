@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EE674F3A73
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:01:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B07DD4F37E0
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:26:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381417AbiDELp2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:45:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45470 "EHLO
+        id S1359616AbiDELUP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:20:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39548 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354785AbiDEKPt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:15:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01F744A3F6;
-        Tue,  5 Apr 2022 03:02:49 -0700 (PDT)
+        with ESMTP id S1349091AbiDEJtH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:07 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FE19A9978;
+        Tue,  5 Apr 2022 02:40:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 910F0616E7;
-        Tue,  5 Apr 2022 10:02:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1C15C385A1;
-        Tue,  5 Apr 2022 10:02:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1B1B461576;
+        Tue,  5 Apr 2022 09:40:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27A0EC385A2;
+        Tue,  5 Apr 2022 09:40:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152969;
-        bh=j4snWJe9nUqm/qqeWyVMDCxVVL4IKFAL6keBPT7uBzQ=;
+        s=korg; t=1649151637;
+        bh=4Rz+3GRK1sX4jmFidcAGUE5CXZGNR2PI6ZKRJP9uWIg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PtG+X1ytDp3Hq8oY3J+YWCjtr1RpIq3IngfKKLdt6v6sY7U17SKu4CtrnmTv9LuzF
-         4hr9aMe9SEnoCh0BtNPFt0S2o6ly8b3jgxdDKxemI2CLzIeogfrRJQlBBqVEVSFaxu
-         Vq/cuOqJiQlsK9bVM8Zru9SQr/vUNXa2SlQhNag8=
+        b=kFFEMqflCSUrn5wKqRWFhbc1iVadr2NHGc4Nn3PRP49H3tjZMJyAF435q/w59nduF
+         rxfAwmpgD5GJQGB8Lb3ERPUBPsxblj6wqkU73l7f8qvtnhabIsIK3IM2DghsxgFQVW
+         ecL8dKdGpwXDhw3Bcm3dezujKwz/jyXs4lzBXecU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Nyekjaer <sean@geanix.com>,
-        Boris Brezillon <boris.brezillon@collabora.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 5.10 054/599] mtd: rawnand: protect access to rawnand devices while in suspend
+        stable@vger.kernel.org, Jack Wang <jinpu.wang@ionos.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 486/913] scsi: pm8001: Fix le32 values handling in pm80xx_chip_sata_req()
 Date:   Tue,  5 Apr 2022 09:25:48 +0200
-Message-Id: <20220405070300.435966919@linuxfoundation.org>
+Message-Id: <20220405070354.423366280@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
-References: <20220405070258.802373272@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,161 +55,190 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Nyekjaer <sean@geanix.com>
+From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 
-commit 8cba323437a49a45756d661f500b324fc2d486fe upstream.
+[ Upstream commit fd6d0e376211d7ed759db96b0fbd9a1cee67d462 ]
 
-Prevent rawnand access while in a suspended state.
+Make sure that the __le32 fields of struct sata_cmd are manipulated after
+applying the correct endian conversion. That is, use cpu_to_le32() for
+assigning values and le32_to_cpu() for consulting a field value.  In
+particular, make sure that the calculations for the 4G boundary check are
+done using CPU endianness and *not* little endian values. With these fixes,
+many sparse warnings are removed.
 
-Commit 013e6292aaf5 ("mtd: rawnand: Simplify the locking") allows the
-rawnand layer to return errors rather than waiting in a blocking wait.
+While at it, fix some code identation and add blank lines after variable
+declarations and in some other places to make this code more readable.
 
-Tested on a iMX6ULL.
-
-Fixes: 013e6292aaf5 ("mtd: rawnand: Simplify the locking")
-Signed-off-by: Sean Nyekjaer <sean@geanix.com>
-Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20220208085213.1838273-1-sean@geanix.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20220220031810.738362-12-damien.lemoal@opensource.wdc.com
+Fixes: 0ecdf00ba6e5 ("[SCSI] pm80xx: 4G boundary fix.")
+Reviewed-by: Jack Wang <jinpu.wang@ionos.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/nand/raw/nand_base.c |   44 +++++++++++++++++----------------------
- include/linux/mtd/rawnand.h      |    2 +
- 2 files changed, 22 insertions(+), 24 deletions(-)
+ drivers/scsi/pm8001/pm80xx_hwi.c | 82 ++++++++++++++++++--------------
+ 1 file changed, 45 insertions(+), 37 deletions(-)
 
---- a/drivers/mtd/nand/raw/nand_base.c
-+++ b/drivers/mtd/nand/raw/nand_base.c
-@@ -297,16 +297,19 @@ static int nand_isbad_bbm(struct nand_ch
-  *
-  * Return: -EBUSY if the chip has been suspended, 0 otherwise
-  */
--static int nand_get_device(struct nand_chip *chip)
-+static void nand_get_device(struct nand_chip *chip)
- {
--	mutex_lock(&chip->lock);
--	if (chip->suspended) {
-+	/* Wait until the device is resumed. */
-+	while (1) {
-+		mutex_lock(&chip->lock);
-+		if (!chip->suspended) {
-+			mutex_lock(&chip->controller->lock);
-+			return;
-+		}
- 		mutex_unlock(&chip->lock);
--		return -EBUSY;
--	}
--	mutex_lock(&chip->controller->lock);
- 
--	return 0;
-+		wait_event(chip->resume_wq, !chip->suspended);
-+	}
- }
- 
- /**
-@@ -531,9 +534,7 @@ static int nand_block_markbad_lowlevel(s
- 		nand_erase_nand(chip, &einfo, 0);
- 
- 		/* Write bad block marker to OOB */
--		ret = nand_get_device(chip);
--		if (ret)
--			return ret;
-+		nand_get_device(chip);
- 
- 		ret = nand_markbad_bbm(chip, ofs);
- 		nand_release_device(chip);
-@@ -3534,9 +3535,7 @@ static int nand_read_oob(struct mtd_info
- 	    ops->mode != MTD_OPS_RAW)
- 		return -ENOTSUPP;
- 
--	ret = nand_get_device(chip);
--	if (ret)
--		return ret;
-+	nand_get_device(chip);
- 
- 	if (!ops->datbuf)
- 		ret = nand_do_read_oob(chip, from, ops);
-@@ -4119,13 +4118,11 @@ static int nand_write_oob(struct mtd_inf
- 			  struct mtd_oob_ops *ops)
- {
- 	struct nand_chip *chip = mtd_to_nand(mtd);
--	int ret;
-+	int ret = 0;
- 
- 	ops->retlen = 0;
- 
--	ret = nand_get_device(chip);
--	if (ret)
--		return ret;
-+	nand_get_device(chip);
- 
- 	switch (ops->mode) {
- 	case MTD_OPS_PLACE_OOB:
-@@ -4181,9 +4178,7 @@ int nand_erase_nand(struct nand_chip *ch
- 		return -EINVAL;
- 
- 	/* Grab the lock and see if the device is available */
--	ret = nand_get_device(chip);
--	if (ret)
--		return ret;
-+	nand_get_device(chip);
- 
- 	/* Shift to get first page */
- 	page = (int)(instr->addr >> chip->page_shift);
-@@ -4270,7 +4265,7 @@ static void nand_sync(struct mtd_info *m
- 	pr_debug("%s: called\n", __func__);
- 
- 	/* Grab the lock and see if the device is available */
--	WARN_ON(nand_get_device(chip));
-+	nand_get_device(chip);
- 	/* Release it and go back */
- 	nand_release_device(chip);
- }
-@@ -4287,9 +4282,7 @@ static int nand_block_isbad(struct mtd_i
- 	int ret;
- 
- 	/* Select the NAND device */
--	ret = nand_get_device(chip);
--	if (ret)
--		return ret;
-+	nand_get_device(chip);
- 
- 	nand_select_target(chip, chipnr);
- 
-@@ -4360,6 +4353,8 @@ static void nand_resume(struct mtd_info
- 			__func__);
- 	}
- 	mutex_unlock(&chip->lock);
+diff --git a/drivers/scsi/pm8001/pm80xx_hwi.c b/drivers/scsi/pm8001/pm80xx_hwi.c
+index d7a27627fce0..c6e4812e6591 100644
+--- a/drivers/scsi/pm8001/pm80xx_hwi.c
++++ b/drivers/scsi/pm8001/pm80xx_hwi.c
+@@ -4540,7 +4540,7 @@ static int pm80xx_chip_sata_req(struct pm8001_hba_info *pm8001_ha,
+ 	u32 q_index, cpu_id;
+ 	struct sata_start_req sata_cmd;
+ 	u32 hdr_tag, ncg_tag = 0;
+-	u64 phys_addr, start_addr, end_addr;
++	u64 phys_addr, end_addr;
+ 	u32 end_addr_high, end_addr_low;
+ 	u32 ATAP = 0x0;
+ 	u32 dir;
+@@ -4601,32 +4601,38 @@ static int pm80xx_chip_sata_req(struct pm8001_hba_info *pm8001_ha,
+ 			pm8001_chip_make_sg(task->scatter,
+ 						ccb->n_elem, ccb->buf_prd);
+ 			phys_addr = ccb->ccb_dma_handle;
+-			sata_cmd.enc_addr_low = lower_32_bits(phys_addr);
+-			sata_cmd.enc_addr_high = upper_32_bits(phys_addr);
++			sata_cmd.enc_addr_low =
++				cpu_to_le32(lower_32_bits(phys_addr));
++			sata_cmd.enc_addr_high =
++				cpu_to_le32(upper_32_bits(phys_addr));
+ 			sata_cmd.enc_esgl = cpu_to_le32(1 << 31);
+ 		} else if (task->num_scatter == 1) {
+ 			u64 dma_addr = sg_dma_address(task->scatter);
+-			sata_cmd.enc_addr_low = lower_32_bits(dma_addr);
+-			sata_cmd.enc_addr_high = upper_32_bits(dma_addr);
 +
-+	wake_up_all(&chip->resume_wq);
- }
++			sata_cmd.enc_addr_low =
++				cpu_to_le32(lower_32_bits(dma_addr));
++			sata_cmd.enc_addr_high =
++				cpu_to_le32(upper_32_bits(dma_addr));
+ 			sata_cmd.enc_len = cpu_to_le32(task->total_xfer_len);
+ 			sata_cmd.enc_esgl = 0;
++
+ 			/* Check 4G Boundary */
+-			start_addr = cpu_to_le64(dma_addr);
+-			end_addr = (start_addr + sata_cmd.enc_len) - 1;
+-			end_addr_low = cpu_to_le32(lower_32_bits(end_addr));
+-			end_addr_high = cpu_to_le32(upper_32_bits(end_addr));
+-			if (end_addr_high != sata_cmd.enc_addr_high) {
++			end_addr = dma_addr + le32_to_cpu(sata_cmd.enc_len) - 1;
++			end_addr_low = lower_32_bits(end_addr);
++			end_addr_high = upper_32_bits(end_addr);
++			if (end_addr_high != le32_to_cpu(sata_cmd.enc_addr_high)) {
+ 				pm8001_dbg(pm8001_ha, FAIL,
+ 					   "The sg list address start_addr=0x%016llx data_len=0x%x end_addr_high=0x%08x end_addr_low=0x%08x has crossed 4G boundary\n",
+-					   start_addr, sata_cmd.enc_len,
++					   dma_addr,
++					   le32_to_cpu(sata_cmd.enc_len),
+ 					   end_addr_high, end_addr_low);
+ 				pm8001_chip_make_sg(task->scatter, 1,
+ 					ccb->buf_prd);
+ 				phys_addr = ccb->ccb_dma_handle;
+ 				sata_cmd.enc_addr_low =
+-					lower_32_bits(phys_addr);
++					cpu_to_le32(lower_32_bits(phys_addr));
+ 				sata_cmd.enc_addr_high =
+-					upper_32_bits(phys_addr);
++					cpu_to_le32(upper_32_bits(phys_addr));
+ 				sata_cmd.enc_esgl =
+ 					cpu_to_le32(1 << 31);
+ 			}
+@@ -4637,7 +4643,8 @@ static int pm80xx_chip_sata_req(struct pm8001_hba_info *pm8001_ha,
+ 			sata_cmd.enc_esgl = 0;
+ 		}
+ 		/* XTS mode. All other fields are 0 */
+-		sata_cmd.key_index_mode = 0x6 << 4;
++		sata_cmd.key_index_mode = cpu_to_le32(0x6 << 4);
++
+ 		/* set tweak values. Should be the start lba */
+ 		sata_cmd.twk_val0 =
+ 			cpu_to_le32((sata_cmd.sata_fis.lbal_exp << 24) |
+@@ -4663,31 +4670,31 @@ static int pm80xx_chip_sata_req(struct pm8001_hba_info *pm8001_ha,
+ 			phys_addr = ccb->ccb_dma_handle;
+ 			sata_cmd.addr_low = lower_32_bits(phys_addr);
+ 			sata_cmd.addr_high = upper_32_bits(phys_addr);
+-			sata_cmd.esgl = cpu_to_le32(1 << 31);
++			sata_cmd.esgl = cpu_to_le32(1U << 31);
+ 		} else if (task->num_scatter == 1) {
+ 			u64 dma_addr = sg_dma_address(task->scatter);
++
+ 			sata_cmd.addr_low = lower_32_bits(dma_addr);
+ 			sata_cmd.addr_high = upper_32_bits(dma_addr);
+ 			sata_cmd.len = cpu_to_le32(task->total_xfer_len);
+ 			sata_cmd.esgl = 0;
++
+ 			/* Check 4G Boundary */
+-			start_addr = cpu_to_le64(dma_addr);
+-			end_addr = (start_addr + sata_cmd.len) - 1;
+-			end_addr_low = cpu_to_le32(lower_32_bits(end_addr));
+-			end_addr_high = cpu_to_le32(upper_32_bits(end_addr));
++			end_addr = dma_addr + le32_to_cpu(sata_cmd.len) - 1;
++			end_addr_low = lower_32_bits(end_addr);
++			end_addr_high = upper_32_bits(end_addr);
+ 			if (end_addr_high != sata_cmd.addr_high) {
+ 				pm8001_dbg(pm8001_ha, FAIL,
+ 					   "The sg list address start_addr=0x%016llx data_len=0x%xend_addr_high=0x%08x end_addr_low=0x%08x has crossed 4G boundary\n",
+-					   start_addr, sata_cmd.len,
++					   dma_addr,
++					   le32_to_cpu(sata_cmd.len),
+ 					   end_addr_high, end_addr_low);
+ 				pm8001_chip_make_sg(task->scatter, 1,
+ 					ccb->buf_prd);
+ 				phys_addr = ccb->ccb_dma_handle;
+-				sata_cmd.addr_low =
+-					lower_32_bits(phys_addr);
+-				sata_cmd.addr_high =
+-					upper_32_bits(phys_addr);
+-				sata_cmd.esgl = cpu_to_le32(1 << 31);
++				sata_cmd.addr_low = lower_32_bits(phys_addr);
++				sata_cmd.addr_high = upper_32_bits(phys_addr);
++				sata_cmd.esgl = cpu_to_le32(1U << 31);
+ 			}
+ 		} else if (task->num_scatter == 0) {
+ 			sata_cmd.addr_low = 0;
+@@ -4695,27 +4702,28 @@ static int pm80xx_chip_sata_req(struct pm8001_hba_info *pm8001_ha,
+ 			sata_cmd.len = cpu_to_le32(task->total_xfer_len);
+ 			sata_cmd.esgl = 0;
+ 		}
++
+ 		/* scsi cdb */
+ 		sata_cmd.atapi_scsi_cdb[0] =
+ 			cpu_to_le32(((task->ata_task.atapi_packet[0]) |
+-			(task->ata_task.atapi_packet[1] << 8) |
+-			(task->ata_task.atapi_packet[2] << 16) |
+-			(task->ata_task.atapi_packet[3] << 24)));
++				     (task->ata_task.atapi_packet[1] << 8) |
++				     (task->ata_task.atapi_packet[2] << 16) |
++				     (task->ata_task.atapi_packet[3] << 24)));
+ 		sata_cmd.atapi_scsi_cdb[1] =
+ 			cpu_to_le32(((task->ata_task.atapi_packet[4]) |
+-			(task->ata_task.atapi_packet[5] << 8) |
+-			(task->ata_task.atapi_packet[6] << 16) |
+-			(task->ata_task.atapi_packet[7] << 24)));
++				     (task->ata_task.atapi_packet[5] << 8) |
++				     (task->ata_task.atapi_packet[6] << 16) |
++				     (task->ata_task.atapi_packet[7] << 24)));
+ 		sata_cmd.atapi_scsi_cdb[2] =
+ 			cpu_to_le32(((task->ata_task.atapi_packet[8]) |
+-			(task->ata_task.atapi_packet[9] << 8) |
+-			(task->ata_task.atapi_packet[10] << 16) |
+-			(task->ata_task.atapi_packet[11] << 24)));
++				     (task->ata_task.atapi_packet[9] << 8) |
++				     (task->ata_task.atapi_packet[10] << 16) |
++				     (task->ata_task.atapi_packet[11] << 24)));
+ 		sata_cmd.atapi_scsi_cdb[3] =
+ 			cpu_to_le32(((task->ata_task.atapi_packet[12]) |
+-			(task->ata_task.atapi_packet[13] << 8) |
+-			(task->ata_task.atapi_packet[14] << 16) |
+-			(task->ata_task.atapi_packet[15] << 24)));
++				     (task->ata_task.atapi_packet[13] << 8) |
++				     (task->ata_task.atapi_packet[14] << 16) |
++				     (task->ata_task.atapi_packet[15] << 24)));
+ 	}
  
- /**
-@@ -5068,6 +5063,7 @@ static int nand_scan_ident(struct nand_c
- 	chip->cur_cs = -1;
- 
- 	mutex_init(&chip->lock);
-+	init_waitqueue_head(&chip->resume_wq);
- 
- 	/* Enforce the right timings for reset/detection */
- 	chip->current_interface_config = nand_get_reset_interface_config();
---- a/include/linux/mtd/rawnand.h
-+++ b/include/linux/mtd/rawnand.h
-@@ -1083,6 +1083,7 @@ struct nand_manufacturer {
-  * @lock: Lock protecting the suspended field. Also used to serialize accesses
-  *        to the NAND device
-  * @suspended: Set to 1 when the device is suspended, 0 when it's not
-+ * @resume_wq: wait queue to sleep if rawnand is in suspended state.
-  * @cur_cs: Currently selected target. -1 means no target selected, otherwise we
-  *          should always have cur_cs >= 0 && cur_cs < nanddev_ntargets().
-  *          NAND Controller drivers should not modify this value, but they're
-@@ -1135,6 +1136,7 @@ struct nand_chip {
- 	/* Internals */
- 	struct mutex lock;
- 	unsigned int suspended : 1;
-+	wait_queue_head_t resume_wq;
- 	int cur_cs;
- 	int read_retries;
- 
+ 	/* Check for read log for failed drive and return */
+-- 
+2.34.1
+
 
 
