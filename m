@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 483064F3098
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:32:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A6AD4F3220
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:54:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234304AbiDEKGd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:06:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45874 "EHLO
+        id S234465AbiDEKGk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:06:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38908 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344241AbiDEJSz (ORCPT
+        with ESMTP id S1344238AbiDEJSz (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:18:55 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E47F496AA;
-        Tue,  5 Apr 2022 02:06:14 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EBFA496B3;
+        Tue,  5 Apr 2022 02:06:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D4D3FB81BAE;
-        Tue,  5 Apr 2022 09:06:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44CD8C385A0;
-        Tue,  5 Apr 2022 09:06:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BE95CB818F3;
+        Tue,  5 Apr 2022 09:06:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BD30C385A3;
+        Tue,  5 Apr 2022 09:06:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149571;
-        bh=vb2rgtgo3AKuSL5FE0QmtfS6g/HFe+78n9tRIvZUl7Q=;
+        s=korg; t=1649149574;
+        bh=W/lcVOcoPY+v/WrwziGHG8JE2ki8hpSfLXopMnCP2oA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=foT4cA70KKJs80GrqR7ro2ky7IIgJwYm0xZinRd4E4uJNDkyFJ5hL3jSFm90G2aQU
-         dkFxQuW7HcYHbYKs1R9tcyp1Sr9ozU47C5ZuJxSlzamDXx6mXXwEyFIKwDnImAz8NV
-         3X3vYSzUhzx+OaQgIcKzzk3RIRnXk0Wf8YHO2yeg=
+        b=SyrGP4JsAGrCtmBEenWC/UhPCpGRxmPGVOvsiKhtJQJolT+TWi4Ubh+GqhaHF7tAx
+         ul7Eif+3zwI/4r4/T/XPYPQbjCDZjwkG+vmVNkiw/L03zNHW8bj3ht70A8NfCCJlLA
+         zckJ/5XmB4/uZYoJrxmTKOsVgXWv2iEz81b2OQN8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>,
-        Paul Moore <paul@paul-moore.com>,
+        stable@vger.kernel.org, Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0764/1017] selinux: use correct type for context length
-Date:   Tue,  5 Apr 2022 09:27:57 +0200
-Message-Id: <20220405070416.940249234@linuxfoundation.org>
+Subject: [PATCH 5.16 0765/1017] powercap/dtpm_cpu: Reset per_cpu variable in the release function
+Date:   Tue,  5 Apr 2022 09:27:58 +0200
+Message-Id: <20220405070416.969633584@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -55,42 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Göttsche <cgzones@googlemail.com>
+From: Daniel Lezcano <daniel.lezcano@linaro.org>
 
-[ Upstream commit b97df7c098c531010e445da88d02b7bf7bf59ef6 ]
+[ Upstream commit 0aea2e4ec2a2bfa2d7e8820e37ba5b5ce04f20a5 ]
 
-security_sid_to_context() expects a pointer to an u32 as the address
-where to store the length of the computed context.
+The release function does not reset the per cpu variable when it is
+called. That will prevent creation again as the variable will be
+already from the previous creation.
 
-Reported by sparse:
+Fix it by resetting them.
 
-    security/selinux/xfrm.c:359:39: warning: incorrect type in arg 4
-                                    (different signedness)
-    security/selinux/xfrm.c:359:39:    expected unsigned int
-                                       [usertype] *scontext_len
-    security/selinux/xfrm.c:359:39:    got int *
-
-Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
-[PM: wrapped commit description]
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Reviewed-by: Ulf Hansson <ulf.hansson@linaro.org>
+Link: https://lore.kernel.org/r/20220130210210.549877-2-daniel.lezcano@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/selinux/xfrm.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/powercap/dtpm_cpu.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/security/selinux/xfrm.c b/security/selinux/xfrm.c
-index be83e5ce4469..debe15207d2b 100644
---- a/security/selinux/xfrm.c
-+++ b/security/selinux/xfrm.c
-@@ -347,7 +347,7 @@ int selinux_xfrm_state_alloc_acquire(struct xfrm_state *x,
- 	int rc;
- 	struct xfrm_sec_ctx *ctx;
- 	char *ctx_str = NULL;
--	int str_len;
-+	u32 str_len;
+diff --git a/drivers/powercap/dtpm_cpu.c b/drivers/powercap/dtpm_cpu.c
+index b740866b228d..1e8cac699646 100644
+--- a/drivers/powercap/dtpm_cpu.c
++++ b/drivers/powercap/dtpm_cpu.c
+@@ -150,10 +150,17 @@ static int update_pd_power_uw(struct dtpm *dtpm)
+ static void pd_release(struct dtpm *dtpm)
+ {
+ 	struct dtpm_cpu *dtpm_cpu = to_dtpm_cpu(dtpm);
++	struct cpufreq_policy *policy;
  
- 	if (!polsec)
- 		return 0;
+ 	if (freq_qos_request_active(&dtpm_cpu->qos_req))
+ 		freq_qos_remove_request(&dtpm_cpu->qos_req);
+ 
++	policy = cpufreq_cpu_get(dtpm_cpu->cpu);
++	if (policy) {
++		for_each_cpu(dtpm_cpu->cpu, policy->related_cpus)
++			per_cpu(dtpm_per_cpu, dtpm_cpu->cpu) = NULL;
++	}
++	
+ 	kfree(dtpm_cpu);
+ }
+ 
 -- 
 2.34.1
 
