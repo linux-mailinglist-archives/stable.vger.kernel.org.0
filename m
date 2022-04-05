@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F5CC4F3976
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:48:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7038E4F3956
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:46:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234007AbiDELeu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:34:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33928 "EHLO
+        id S1377555AbiDEL3r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:29:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35096 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351542AbiDEKCi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:02:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 530E5710D2;
-        Tue,  5 Apr 2022 02:51:56 -0700 (PDT)
+        with ESMTP id S1351643AbiDEKDF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:03:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24EC3716E3;
+        Tue,  5 Apr 2022 02:52:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C8F2461368;
-        Tue,  5 Apr 2022 09:51:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D299DC385A1;
-        Tue,  5 Apr 2022 09:51:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 32304B81B14;
+        Tue,  5 Apr 2022 09:51:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97C49C385A2;
+        Tue,  5 Apr 2022 09:51:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152315;
-        bh=73n2kpjKjVfcEIGK9ACsjcNs/FDx2rkxpRD6WZBYkQM=;
+        s=korg; t=1649152318;
+        bh=vJB3hI7pFHLZ4ItKPzu559ozRQX/5iq+YVkCRMlueys=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sNRDXYTTx2P7A4IUrN5kT/5yEXyzkfJNRyyvkIlbqIYCeB7iXNzhqpZAgj5GjdfjP
-         oi4KztCFtrgZElEj5kN1gxJAsFABYWqZa2gskPxJs2fH9E7rftXCI9gb+CxcentpZs
-         6VG17NSBcsV4R3Q1l00wKQKOpj6J+FyzbM3bhA0k=
+        b=G2P9AXtzEiagN9VH1MmtNouE66a4Y8HcO1TfQyjI6merjCFb+gcfDP3tMwa0O88Yo
+         ZveGM1AQV7gLHo0G0fmD1CTLwRheeHzWOK4AixFqA5EeqiBl5efkMFFS2iyLdXGnJR
+         oh2KFxqp3T2UbDMA4mcb9if7oaen2ysrxzs8uUDc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Reddy Muralidhar <muralidhar.reddy@intel.com>,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Rander Wang <rander.wang@intel.com>,
-        Bard Liao <yung-chuan.liao@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        Mirela Rabulea <mirela.rabulea@oss.nxp.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 731/913] ASoC: SOF: Intel: match sdw version on link_slaves_found
-Date:   Tue,  5 Apr 2022 09:29:53 +0200
-Message-Id: <20220405070401.743093014@linuxfoundation.org>
+Subject: [PATCH 5.15 732/913] media: imx-jpeg: Prevent decoding NV12M jpegs into single-planar buffers
+Date:   Tue,  5 Apr 2022 09:29:54 +0200
+Message-Id: <20220405070401.773042917@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -59,83 +56,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bard Liao <yung-chuan.liao@linux.intel.com>
+From: Mirela Rabulea <mirela.rabulea@oss.nxp.com>
 
-[ Upstream commit f67c0c0d3b9048d86ea6ae52e36a2b78c48f265d ]
+[ Upstream commit 417591a766b3c040c346044541ff949c0b2bb7b2 ]
 
-Codecs with the same part id, manufacturer id and part id, but different
-sdw version should be treated as different codecs. For example, rt711 and
-rt711-sdca are different. So, we should match sdw version as well.
+If the application queues an NV12M jpeg as output buffer, but then
+queues a single planar capture buffer, the kernel will crash with
+"Unable to handle kernel NULL pointer dereference" in mxc_jpeg_addrs,
+prevent this by finishing the job with error.
 
-Reported-by: Reddy Muralidhar <muralidhar.reddy@intel.com>
-Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Reviewed-by: Rander Wang <rander.wang@intel.com>
-Signed-off-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20220120232157.199919-2-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Mirela Rabulea <mirela.rabulea@oss.nxp.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sof/intel/hda.c | 15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+ drivers/media/platform/imx-jpeg/mxc-jpeg.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/sound/soc/sof/intel/hda.c b/sound/soc/sof/intel/hda.c
-index ef92cca7ae01..ddf70902e53c 100644
---- a/sound/soc/sof/intel/hda.c
-+++ b/sound/soc/sof/intel/hda.c
-@@ -1072,7 +1072,7 @@ static bool link_slaves_found(struct snd_sof_dev *sdev,
- 	struct hdac_bus *bus = sof_to_bus(sdev);
- 	struct sdw_intel_slave_id *ids = sdw->ids;
- 	int num_slaves = sdw->num_slaves;
--	unsigned int part_id, link_id, unique_id, mfg_id;
-+	unsigned int part_id, link_id, unique_id, mfg_id, version;
- 	int i, j, k;
+diff --git a/drivers/media/platform/imx-jpeg/mxc-jpeg.c b/drivers/media/platform/imx-jpeg/mxc-jpeg.c
+index fc905ea78b17..637d73f5f4a2 100644
+--- a/drivers/media/platform/imx-jpeg/mxc-jpeg.c
++++ b/drivers/media/platform/imx-jpeg/mxc-jpeg.c
+@@ -925,6 +925,12 @@ static void mxc_jpeg_device_run(void *priv)
+ 	v4l2_m2m_buf_copy_metadata(src_buf, dst_buf, true);
  
- 	for (i = 0; i < link->num_adr; i++) {
-@@ -1082,12 +1082,14 @@ static bool link_slaves_found(struct snd_sof_dev *sdev,
- 		mfg_id = SDW_MFG_ID(adr);
- 		part_id = SDW_PART_ID(adr);
- 		link_id = SDW_DISCO_LINK_ID(adr);
-+		version = SDW_VERSION(adr);
- 
- 		for (j = 0; j < num_slaves; j++) {
- 			/* find out how many identical parts were reported on that link */
- 			if (ids[j].link_id == link_id &&
- 			    ids[j].id.part_id == part_id &&
--			    ids[j].id.mfg_id == mfg_id)
-+			    ids[j].id.mfg_id == mfg_id &&
-+			    ids[j].id.sdw_version == version)
- 				reported_part_count++;
- 		}
- 
-@@ -1096,21 +1098,24 @@ static bool link_slaves_found(struct snd_sof_dev *sdev,
- 
- 			if (ids[j].link_id != link_id ||
- 			    ids[j].id.part_id != part_id ||
--			    ids[j].id.mfg_id != mfg_id)
-+			    ids[j].id.mfg_id != mfg_id ||
-+			    ids[j].id.sdw_version != version)
- 				continue;
- 
- 			/* find out how many identical parts are expected */
- 			for (k = 0; k < link->num_adr; k++) {
- 				u64 adr2 = link->adr_d[k].adr;
--				unsigned int part_id2, link_id2, mfg_id2;
-+				unsigned int part_id2, link_id2, mfg_id2, version2;
- 
- 				mfg_id2 = SDW_MFG_ID(adr2);
- 				part_id2 = SDW_PART_ID(adr2);
- 				link_id2 = SDW_DISCO_LINK_ID(adr2);
-+				version2 = SDW_VERSION(adr2);
- 
- 				if (link_id2 == link_id &&
- 				    part_id2 == part_id &&
--				    mfg_id2 == mfg_id)
-+				    mfg_id2 == mfg_id &&
-+				    version2 == version)
- 					expected_part_count++;
- 			}
- 
+ 	jpeg_src_buf = vb2_to_mxc_buf(&src_buf->vb2_buf);
++	if (q_data_cap->fmt->colplanes != dst_buf->vb2_buf.num_planes) {
++		dev_err(dev, "Capture format %s has %d planes, but capture buffer has %d planes\n",
++			q_data_cap->fmt->name, q_data_cap->fmt->colplanes,
++			dst_buf->vb2_buf.num_planes);
++		jpeg_src_buf->jpeg_parse_error = true;
++	}
+ 	if (jpeg_src_buf->jpeg_parse_error) {
+ 		jpeg->slot_data[ctx->slot].used = false;
+ 		v4l2_m2m_src_buf_remove(ctx->fh.m2m_ctx);
 -- 
 2.34.1
 
