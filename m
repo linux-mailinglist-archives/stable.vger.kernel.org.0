@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 81ED24F3A3E
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:59:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE8654F37ED
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:26:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379425AbiDELk5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:40:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42602 "EHLO
+        id S1359728AbiDELUh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:20:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39416 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354574AbiDEKOj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:14:39 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 500E848E55;
-        Tue,  5 Apr 2022 03:01:20 -0700 (PDT)
+        with ESMTP id S1349083AbiDEJtF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6EE0A9954;
+        Tue,  5 Apr 2022 02:40:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 14036B81B96;
-        Tue,  5 Apr 2022 10:01:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74372C385A1;
-        Tue,  5 Apr 2022 10:01:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6131461368;
+        Tue,  5 Apr 2022 09:40:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 739ADC385A1;
+        Tue,  5 Apr 2022 09:40:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152877;
-        bh=zTkIlxHMHoKKV9SZz13H6R9GwmKrGgfVELCZXZEtKxU=;
+        s=korg; t=1649151620;
+        bh=FRqpS+ncOPgVVYOIeYZRCM3+5pFDlgJHad2SKWV8qzI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ajdHqvhKzRh0kbYzIvjKDtoXl7XwunMyB6IEjbLnIm3tiVexgcLb2i/9y9Wgqm0oX
-         0eqehz8h1/oZscDSEqcoI1XsbfKiX7ufGcNHk9hcjUt0A3aoPBFwrgEykimxM9DUHB
-         KbpzdenUyIGiSfloRUmY2s3XAXtzzH6sdNyfJvvA=
+        b=YlQwB8hepa67lIyl9waxsGNAEUK5mVFIxBDaz6QMRu1+Iusp9wHjpJZ+Y32q8CJRD
+         nz9FtGLpMp9j3N5luAH3Z5zUVZEMwoszKmg9R6U2xTIiCnQVyxDeipwekQf38xdL4W
+         pgkgb6+kdgsdt52jUI6cv4XkJPEwHyMkLSuAl0wU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
-        Waiman Long <longman@redhat.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Cheng-Jui Wang <cheng-jui.wang@mediatek.com>
-Subject: [PATCH 5.10 021/599] locking/lockdep: Avoid potential access of invalid memory in lock_class
-Date:   Tue,  5 Apr 2022 09:25:15 +0200
-Message-Id: <20220405070259.447667012@linuxfoundation.org>
+        stable@vger.kernel.org, Pin-Yen Lin <treapking@chromium.org>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        Robert Foss <robert.foss@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 454/913] drm/bridge: anx7625: Fix overflow issue on reading EDID
+Date:   Tue,  5 Apr 2022 09:25:16 +0200
+Message-Id: <20220405070353.457356586@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
-References: <20220405070258.802373272@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,87 +55,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Waiman Long <longman@redhat.com>
+From: Pin-Yen Lin <treapking@chromium.org>
 
-commit 61cc4534b6550997c97a03759ab46b29d44c0017 upstream.
+[ Upstream commit d5c6f647aec9ed524aedd04a3aec5ebc21d39007 ]
 
-It was found that reading /proc/lockdep after a lockdep splat may
-potentially cause an access to freed memory if lockdep_unregister_key()
-is called after the splat but before access to /proc/lockdep [1]. This
-is due to the fact that graph_lock() call in lockdep_unregister_key()
-fails after the clearing of debug_locks by the splat process.
+The length of EDID block can be longer than 256 bytes, so we should use
+`int` instead of `u8` for the `edid_pos` variable.
 
-After lockdep_unregister_key() is called, the lock_name may be freed
-but the corresponding lock_class structure still have a reference to
-it. That invalid memory pointer will then be accessed when /proc/lockdep
-is read by a user and a use-after-free (UAF) error will be reported if
-KASAN is enabled.
-
-To fix this problem, lockdep_unregister_key() is now modified to always
-search for a matching key irrespective of the debug_locks state and
-zap the corresponding lock class if a matching one is found.
-
-[1] https://lore.kernel.org/lkml/77f05c15-81b6-bddd-9650-80d5f23fe330@i-love.sakura.ne.jp/
-
-Fixes: 8b39adbee805 ("locking/lockdep: Make lockdep_unregister_key() honor 'debug_locks' again")
-Reported-by: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-Signed-off-by: Waiman Long <longman@redhat.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Cc: Cheng-Jui Wang <cheng-jui.wang@mediatek.com>
-Link: https://lkml.kernel.org/r/20220103023558.1377055-1-longman@redhat.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 8bdfc5dae4e3 ("drm/bridge: anx7625: Add anx7625 MIPI DSI/DPI to DP")
+Signed-off-by: Pin-Yen Lin <treapking@chromium.org>
+Reviewed-by: Jernej Skrabec <jernej.skrabec@gmail.com>
+Signed-off-by: Robert Foss <robert.foss@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220210103827.402436-1-treapking@chromium.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/locking/lockdep.c |   24 +++++++++++++++---------
- 1 file changed, 15 insertions(+), 9 deletions(-)
+ drivers/gpu/drm/bridge/analogix/anx7625.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/kernel/locking/lockdep.c
-+++ b/kernel/locking/lockdep.c
-@@ -6209,7 +6209,13 @@ void lockdep_reset_lock(struct lockdep_m
- 		lockdep_reset_lock_reg(lock);
- }
- 
--/* Unregister a dynamically allocated key. */
-+/*
-+ * Unregister a dynamically allocated key.
-+ *
-+ * Unlike lockdep_register_key(), a search is always done to find a matching
-+ * key irrespective of debug_locks to avoid potential invalid access to freed
-+ * memory in lock_class entry.
-+ */
- void lockdep_unregister_key(struct lock_class_key *key)
+diff --git a/drivers/gpu/drm/bridge/analogix/anx7625.c b/drivers/gpu/drm/bridge/analogix/anx7625.c
+index ea414cd349b5..392a9c56e9a0 100644
+--- a/drivers/gpu/drm/bridge/analogix/anx7625.c
++++ b/drivers/gpu/drm/bridge/analogix/anx7625.c
+@@ -791,7 +791,8 @@ static int segments_edid_read(struct anx7625_data *ctx,
+ static int sp_tx_edid_read(struct anx7625_data *ctx,
+ 			   u8 *pedid_blocks_buf)
  {
- 	struct hlist_head *hash_head = keyhashentry(key);
-@@ -6224,10 +6230,8 @@ void lockdep_unregister_key(struct lock_
- 		return;
- 
- 	raw_local_irq_save(flags);
--	if (!graph_lock())
--		goto out_irq;
-+	lockdep_lock();
- 
--	pf = get_pending_free();
- 	hlist_for_each_entry_rcu(k, hash_head, hash_entry) {
- 		if (k == key) {
- 			hlist_del_rcu(&k->hash_entry);
-@@ -6235,11 +6239,13 @@ void lockdep_unregister_key(struct lock_
- 			break;
- 		}
- 	}
--	WARN_ON_ONCE(!found);
--	__lockdep_free_key_range(pf, key, 1);
--	call_rcu_zapped(pf);
--	graph_unlock();
--out_irq:
-+	WARN_ON_ONCE(!found && debug_locks);
-+	if (found) {
-+		pf = get_pending_free();
-+		__lockdep_free_key_range(pf, key, 1);
-+		call_rcu_zapped(pf);
-+	}
-+	lockdep_unlock();
- 	raw_local_irq_restore(flags);
- 
- 	/* Wait until is_dynamic_key() has finished accessing k->hash_entry. */
+-	u8 offset, edid_pos;
++	u8 offset;
++	int edid_pos;
+ 	int count, blocks_num;
+ 	u8 pblock_buf[MAX_DPCD_BUFFER_SIZE];
+ 	u8 i, j;
+-- 
+2.34.1
+
 
 
