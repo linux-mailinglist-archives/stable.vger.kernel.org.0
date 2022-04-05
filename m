@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7927F4F3434
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:25:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2340C4F31AF
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:45:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355774AbiDEKWB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:22:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55406 "EHLO
+        id S238604AbiDEIoU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:44:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46070 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347740AbiDEJ2O (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:28:14 -0400
+        with ESMTP id S241258AbiDEIc6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:32:58 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56938DFDC3;
-        Tue,  5 Apr 2022 02:15:42 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4887F0E;
+        Tue,  5 Apr 2022 01:30:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 30F00615E5;
-        Tue,  5 Apr 2022 09:15:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43451C385A0;
-        Tue,  5 Apr 2022 09:15:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4195C60FF5;
+        Tue,  5 Apr 2022 08:30:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52D0FC385A2;
+        Tue,  5 Apr 2022 08:30:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150127;
-        bh=fyksP8iHCy9RFz7uy483NgCx3ENE00nut1rH8XRHy80=;
+        s=korg; t=1649147456;
+        bh=wHYZx+aC3TOMhk8Yv90DSLdpEeTUOTnRrQR0mwZOoRo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T8CDZTLMOll9vHT3rLL7FWvjpJVcH2y0XEpF4QKXOs6RZAkoG6GszVOGW121zH2Kb
-         69Fc4T1b/uK8BI5l2R+pje02BTWq+4OKPT2/b1UxGPLFr6aDOL1V+Xzh8knPJXB/kO
-         6N9Zf71CKiF/wini30aQlOQG4OrQ8viCZULdsmuY=
+        b=mogbORoHNTgHxS9eLyuC01oI/UGy9jyGBW8/dAufpsMhxZ4/FweAZpDoxEdxMXRUQ
+         nmgUkRXZqs6Otn+EeznieWVV5HznbPkHYzNmWU4+Mub0ZC3Q54sTHtowsdbOhPv96D
+         Yot2txJTtQkbAvUQfnvZhc64zy+dIgYDNMo4/SVA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.16 0925/1017] can: mcp251xfd: mcp251xfd_register_get_dev_id(): fix return of error value
-Date:   Tue,  5 Apr 2022 09:30:38 +0200
-Message-Id: <20220405070421.674752162@linuxfoundation.org>
+        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
+        Martin Kepplinger <martin.kepplinger@puri.sm>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Rob Herring <robh@kernel.org>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>
+Subject: [PATCH 5.17 1092/1126] media: dt-binding: media: hynix,hi846: use $defs/port-base port description
+Date:   Tue,  5 Apr 2022 09:30:39 +0200
+Message-Id: <20220405070439.498943456@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,40 +57,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Martin Kepplinger <martin.kepplinger@puri.sm>
 
-commit fa7b514d2b2894e052b8e94c7a29feb98e90093f upstream.
+commit 6492eba4fafb5a9715ecf78b7155e88f8f88909a upstream.
 
-Clang static analysis reports this issue:
+This fixes "make dt_binding_check":
 
-| mcp251xfd-core.c:1813:7: warning: The left operand
-|   of '&' is a garbage value
-|   FIELD_GET(MCP251XFD_REG_DEVID_ID_MASK, dev_id),
-|   ^                                      ~~~~~~
+    Documentation/devicetree/bindings/media/i2c/hynix,hi846.example.dt.yaml:
+camera@20: port:endpoint: Unevaluated properties are not allowed
+('link-frequencies', 'data-lanes' were unexpected)
+    From schema: Documentation/devicetree/bindings/media/i2c/hynix,hi846.yaml
 
-dev_id is set in a successful call to mcp251xfd_register_get_dev_id().
-Though the status of calls made by mcp251xfd_register_get_dev_id() are
-checked and handled, their status' are not returned. So return err.
+[Sakari Ailus: Reword commit message]
 
-Fixes: 55e5b97f003e ("can: mcp25xxfd: add driver for Microchip MCP25xxFD SPI CAN")
-Link: https://lore.kernel.org/all/20220319153128.2164120-1-trix@redhat.com
-Signed-off-by: Tom Rix <trix@redhat.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fixes: f3ce7200ca18 ("media: dt-bindings: media: document SK Hynix Hi-846 MIPI CSI-2 8M pixel sensor")
+Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Martin Kepplinger <martin.kepplinger@puri.sm>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Reviewed-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/spi/mcp251xfd/mcp251xfd-core.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ Documentation/devicetree/bindings/media/i2c/hynix,hi846.yaml |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/net/can/spi/mcp251xfd/mcp251xfd-core.c
-+++ b/drivers/net/can/spi/mcp251xfd/mcp251xfd-core.c
-@@ -2706,7 +2706,7 @@ mcp251xfd_register_get_dev_id(const stru
-  out_kfree_buf_rx:
- 	kfree(buf_rx);
+--- a/Documentation/devicetree/bindings/media/i2c/hynix,hi846.yaml
++++ b/Documentation/devicetree/bindings/media/i2c/hynix,hi846.yaml
+@@ -49,7 +49,8 @@ properties:
+     description: Definition of the regulator used for the VDDD power supply.
  
--	return 0;
-+	return err;
- }
+   port:
+-    $ref: /schemas/graph.yaml#/properties/port
++    $ref: /schemas/graph.yaml#/$defs/port-base
++    unevaluatedProperties: false
  
- #define MCP251XFD_QUIRK_ACTIVE(quirk) \
+     properties:
+       endpoint:
 
 
