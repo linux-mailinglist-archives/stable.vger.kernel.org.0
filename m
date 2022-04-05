@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 15C5F4F31FA
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:53:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB75B4F2FBC
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:17:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234434AbiDEIZN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:25:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34814 "EHLO
+        id S241014AbiDEJf7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:35:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58136 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238264AbiDEISq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:18:46 -0400
+        with ESMTP id S238543AbiDEI5n (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:57:43 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21D7C107;
-        Tue,  5 Apr 2022 01:08:30 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7EE724594;
+        Tue,  5 Apr 2022 01:53:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8B51F608C0;
-        Tue,  5 Apr 2022 08:08:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9305CC385A0;
-        Tue,  5 Apr 2022 08:08:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3FBF46117A;
+        Tue,  5 Apr 2022 08:53:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E84EC385A0;
+        Tue,  5 Apr 2022 08:53:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146110;
-        bh=coUnbwtMgy4IhV9sRORvYZJQFoFUkg3DcYgYPIf8ovE=;
+        s=korg; t=1649148787;
+        bh=RU2UcSzhXOx0PlpkB8nfVRVn7CxbRPcmWHXxp5CSZok=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F5wUXmffXJ9QonZE/9NEM/9INI4IE5W57GRbkiLOCYKo9fIckrBAHcX4pnQx325Lm
-         QPlJ4QAj9+i6aB1Pmke2SH168LtGtc/JfgoEKe1RuZehLvlXsYBqJN8GBvOiowQ+ys
-         i7+7K6XZbJtKG84J7mO1iiYdXp1TV1FaX1ZeweIU=
+        b=Iq88c6D4nZOz9R+vgLpru1YfPKwuuiq6c33XVtQnjaXLYO4eajstI3VpX39y4osPl
+         HuFZmAxGEOhW8x8f9T8xa7Kn7O4efEGMz4crKW+JvusleOcAonL6apnqjLSmahHWA4
+         0yJdYYzgP/2nFiDOK/3IcORwvdNIilXyaTbUxUVY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Lennert Buytenhek <buytenh@arista.com>,
+        Corinna Vinschen <vinschen@redhat.com>,
+        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
+        Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0647/1126] powerpc: 8xx: fix a return value error in mpc8xx_pic_init
-Date:   Tue,  5 Apr 2022 09:23:14 +0200
-Message-Id: <20220405070426.622989226@linuxfoundation.org>
+Subject: [PATCH 5.16 0482/1017] igc: avoid kernel warning when changing RX ring parameters
+Date:   Tue,  5 Apr 2022 09:23:15 +0200
+Message-Id: <20220405070408.606199117@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,36 +57,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangyu Hua <hbh25y@gmail.com>
+From: Corinna Vinschen <vinschen@redhat.com>
 
-[ Upstream commit 3fd46e551f67f4303c3276a0d6cd20baf2d192c4 ]
+[ Upstream commit 453307b569a0d41bddd07f26bf41b784cd82a4c9 ]
 
-mpc8xx_pic_init() should return -ENOMEM instead of 0 when
-irq_domain_add_linear() return NULL. This cause mpc8xx_pics_init to continue
-executing even if mpc8xx_pic_host is NULL.
+Calling ethtool changing the RX ring parameters like this:
 
-Fixes: cc76404feaed ("powerpc/8xx: Fix possible device node reference leak")
-Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
-Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220223070223.26845-1-hbh25y@gmail.com
+  $ ethtool -G eth0 rx 1024
+
+on igc triggers kernel warnings like this:
+
+[  225.198467] ------------[ cut here ]------------
+[  225.198473] Missing unregister, handled but fix driver
+[  225.198485] WARNING: CPU: 7 PID: 959 at net/core/xdp.c:168
+xdp_rxq_info_reg+0x79/0xd0
+[...]
+[  225.198601] Call Trace:
+[  225.198604]  <TASK>
+[  225.198609]  igc_setup_rx_resources+0x3f/0xe0 [igc]
+[  225.198617]  igc_ethtool_set_ringparam+0x30e/0x450 [igc]
+[  225.198626]  ethnl_set_rings+0x18a/0x250
+[  225.198631]  genl_family_rcv_msg_doit+0xca/0x110
+[  225.198637]  genl_rcv_msg+0xce/0x1c0
+[  225.198640]  ? rings_prepare_data+0x60/0x60
+[  225.198644]  ? genl_get_cmd+0xd0/0xd0
+[  225.198647]  netlink_rcv_skb+0x4e/0xf0
+[  225.198652]  genl_rcv+0x24/0x40
+[  225.198655]  netlink_unicast+0x20e/0x330
+[  225.198659]  netlink_sendmsg+0x23f/0x480
+[  225.198663]  sock_sendmsg+0x5b/0x60
+[  225.198667]  __sys_sendto+0xf0/0x160
+[  225.198671]  ? handle_mm_fault+0xb2/0x280
+[  225.198676]  ? do_user_addr_fault+0x1eb/0x690
+[  225.198680]  __x64_sys_sendto+0x20/0x30
+[  225.198683]  do_syscall_64+0x38/0x90
+[  225.198687]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+[  225.198693] RIP: 0033:0x7f7ae38ac3aa
+
+igc_ethtool_set_ringparam() copies the igc_ring structure but neglects to
+reset the xdp_rxq_info member before calling igc_setup_rx_resources().
+This in turn calls xdp_rxq_info_reg() with an already registered xdp_rxq_info.
+
+Make sure to unregister the xdp_rxq_info structure first in
+igc_setup_rx_resources.
+
+Fixes: 73f1071c1d29 ("igc: Add support for XDP_TX action")
+Reported-by: Lennert Buytenhek <buytenh@arista.com>
+Signed-off-by: Corinna Vinschen <vinschen@redhat.com>
+Acked-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
+Tested-by: Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/8xx/pic.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/intel/igc/igc_main.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/powerpc/platforms/8xx/pic.c b/arch/powerpc/platforms/8xx/pic.c
-index f2ba837249d6..04a6abf14c29 100644
---- a/arch/powerpc/platforms/8xx/pic.c
-+++ b/arch/powerpc/platforms/8xx/pic.c
-@@ -153,6 +153,7 @@ int __init mpc8xx_pic_init(void)
- 	if (mpc8xx_pic_host == NULL) {
- 		printk(KERN_ERR "MPC8xx PIC: failed to allocate irq host!\n");
- 		ret = -ENOMEM;
-+		goto out;
- 	}
+diff --git a/drivers/net/ethernet/intel/igc/igc_main.c b/drivers/net/ethernet/intel/igc/igc_main.c
+index a156738dc9b6..0000eae0d729 100644
+--- a/drivers/net/ethernet/intel/igc/igc_main.c
++++ b/drivers/net/ethernet/intel/igc/igc_main.c
+@@ -505,6 +505,9 @@ int igc_setup_rx_resources(struct igc_ring *rx_ring)
+ 	u8 index = rx_ring->queue_index;
+ 	int size, desc_len, res;
  
- 	ret = 0;
++	/* XDP RX-queue info */
++	if (xdp_rxq_info_is_reg(&rx_ring->xdp_rxq))
++		xdp_rxq_info_unreg(&rx_ring->xdp_rxq);
+ 	res = xdp_rxq_info_reg(&rx_ring->xdp_rxq, ndev, index,
+ 			       rx_ring->q_vector->napi.napi_id);
+ 	if (res < 0) {
 -- 
 2.34.1
 
