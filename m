@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B23F4F27F9
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:09:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E76A64F2783
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:07:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233803AbiDEIJ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:09:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55528 "EHLO
+        id S233271AbiDEIHL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:07:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57600 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235571AbiDEH7v (ORCPT
+        with ESMTP id S235569AbiDEH7v (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:59:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 784F040A19;
-        Tue,  5 Apr 2022 00:55:37 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D242D40A3A;
+        Tue,  5 Apr 2022 00:55:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1541D615CD;
-        Tue,  5 Apr 2022 07:55:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1AA03C340EE;
-        Tue,  5 Apr 2022 07:55:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 84E55B81B9C;
+        Tue,  5 Apr 2022 07:55:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D416DC3410F;
+        Tue,  5 Apr 2022 07:55:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145336;
-        bh=nIPnSGOQ2e/NQ2OK6jruFrUnda7HrbHSyCuSBx/dLX0=;
+        s=korg; t=1649145339;
+        bh=TM2CW2otMmrdC61r+VarD9obVtQxh+xCYtRj5/TwWb4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bCoDM4U7gYWMXGnO0Bbme+ou1XxRwi13FLWHhgmV9ljU2ijaX3TkcXpQqp2zWiPSe
-         29bNcIhkhtsfk6zUQyBMiCCo80+8svCFG1jjECqzamT3QpPL3xioleRd6kibclS8SB
-         qdxuNzpxyPLVHuAqHuy5XAvPvLFxnHZTMUt7QrFc=
+        b=lwEsecBt95BCOWFv398ISaC1Mp0TojstwWl7BXF3GGBX/8nJ2Su4lcHAe9GLLq7RO
+         NLaG8l14li+4MEjAq/Dy7wiC22V40hqPpTiS2mFx5N/trYBLWNtA7ml8vNRDk0T7w3
+         44IMHaysLEhFtfelcMGXmXcAq3LDdBELEC1JYFkE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Muhammad Usama Anjum <usama.anjum@collabora.com>,
-        Alistair Popple <apopple@nvidia.com>,
+        Kees Cook <keescook@chromium.org>,
         Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0368/1126] selftests: vm: remove dependecy from internal kernel macros
-Date:   Tue,  5 Apr 2022 09:18:35 +0200
-Message-Id: <20220405070418.428636199@linuxfoundation.org>
+Subject: [PATCH 5.17 0369/1126] selftests/lkdtm: Add UBSAN config
+Date:   Tue,  5 Apr 2022 09:18:36 +0200
+Message-Id: <20220405070418.458074457@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -58,49 +58,44 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Muhammad Usama Anjum <usama.anjum@collabora.com>
 
-[ Upstream commit 681696862bc1823595c05960a83766d1aa965c17 ]
+[ Upstream commit 1900be289b598b2c553b3add13e491c0bb8a8550 ]
 
-The defination of swap() is used from kernel's internal header when this
-test is built in source tree. The build fails when this test is built
-out of source tree as defination of swap() isn't found. Selftests
-shouldn't depend on kernel's internal header files. They can only depend
-on uapi header files. Add the defination of swap() to fix the build
-error:
+UBSAN_BOUNDS and UBSAN_TRAP depend on UBSAN config option.
+merge_config.sh script generates following warnings if parent config
+doesn't have UBSAN config already enabled and UBSAN_BOUNDS/UBSAN_TRAP
+config options don't get added to the parent config.
 
-	gcc -Wall  -I/linux_mainline2/build/usr/include -no-pie    userfaultfd.c -lrt -lpthread -o /linux_mainline2/build/kselftest/vm/userfaultfd
-	userfaultfd.c: In function ‘userfaultfd_stress’:
-	userfaultfd.c:1530:3: warning: implicit declaration of function ‘swap’; did you mean ‘swab’? [-Wimplicit-function-declaration]
-	 1530 |   swap(area_src, area_dst);
-	      |   ^~~~
-	      |   swab
-	/usr/bin/ld: /tmp/cclUUH7V.o: in function `userfaultfd_stress':
-	userfaultfd.c:(.text+0x4d64): undefined reference to `swap'
-	/usr/bin/ld: userfaultfd.c:(.text+0x4d82): undefined reference to `swap'
-	collect2: error: ld returned 1 exit status
+Value requested for CONFIG_UBSAN_BOUNDS not in final .config
+Requested value:  CONFIG_UBSAN_BOUNDS=y
+Actual value:
 
-Fixes: 2c769ed7137a ("tools/testing/selftests/vm/userfaultfd.c: use swap() to make code cleaner")
+Value requested for CONFIG_UBSAN_TRAP not in final .config
+Requested value:  CONFIG_UBSAN_TRAP=y
+Actual value:
+
+Fix this by including UBSAN config.
+
+Fixes: c75be56e35b2 ("lkdtm/bugs: Add ARRAY_BOUNDS to selftests")
 Signed-off-by: Muhammad Usama Anjum <usama.anjum@collabora.com>
-Reviewed-by: Alistair Popple <apopple@nvidia.com>
+Acked-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/vm/userfaultfd.c | 3 +++
- 1 file changed, 3 insertions(+)
+ tools/testing/selftests/lkdtm/config | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/tools/testing/selftests/vm/userfaultfd.c b/tools/testing/selftests/vm/userfaultfd.c
-index 3fc1d2ee2948..c964bfe9fbcd 100644
---- a/tools/testing/selftests/vm/userfaultfd.c
-+++ b/tools/testing/selftests/vm/userfaultfd.c
-@@ -120,6 +120,9 @@ struct uffd_stats {
- 				 ~(unsigned long)(sizeof(unsigned long long) \
- 						  -  1)))
- 
-+#define swap(a, b) \
-+	do { typeof(a) __tmp = (a); (a) = (b); (b) = __tmp; } while (0)
-+
- const char *examples =
-     "# Run anonymous memory test on 100MiB region with 99999 bounces:\n"
-     "./userfaultfd anon 100 99999\n\n"
+diff --git a/tools/testing/selftests/lkdtm/config b/tools/testing/selftests/lkdtm/config
+index a26a3fa9e925..8bd847f0463c 100644
+--- a/tools/testing/selftests/lkdtm/config
++++ b/tools/testing/selftests/lkdtm/config
+@@ -6,6 +6,7 @@ CONFIG_HARDENED_USERCOPY=y
+ # CONFIG_HARDENED_USERCOPY_FALLBACK is not set
+ CONFIG_RANDOMIZE_KSTACK_OFFSET_DEFAULT=y
+ CONFIG_INIT_ON_ALLOC_DEFAULT_ON=y
++CONFIG_UBSAN=y
+ CONFIG_UBSAN_BOUNDS=y
+ CONFIG_UBSAN_TRAP=y
+ CONFIG_STACKPROTECTOR_STRONG=y
 -- 
 2.34.1
 
