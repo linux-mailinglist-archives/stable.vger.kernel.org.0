@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 626CC4F3639
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:57:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E94884F32BC
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:00:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343870AbiDEK7k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:59:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59290 "EHLO
+        id S242732AbiDEJiD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:38:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51012 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347363AbiDEJq0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:46:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE637DEB8E;
-        Tue,  5 Apr 2022 02:32:51 -0700 (PDT)
+        with ESMTP id S236480AbiDEJDA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:03:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C5D711C06;
+        Tue,  5 Apr 2022 01:54:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3BD10616AE;
-        Tue,  5 Apr 2022 09:32:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48275C385A0;
-        Tue,  5 Apr 2022 09:32:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B6902B81C15;
+        Tue,  5 Apr 2022 08:54:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C1F4C385A0;
+        Tue,  5 Apr 2022 08:54:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151170;
-        bh=w6FuNmjk0ktzg+89KqvBnzyKkTm7FYtqo88XXdFIqus=;
+        s=korg; t=1649148882;
+        bh=mPVrZdRJ9e3MIMaNoTtfRmSysmhMmo05jO1t2TBd+Ew=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZgM+R6V/nDd+pA4yxm1jbRpjrgT9qCYwGmnh7ny6wbOCv0elWTyEL/kAhNOZ3dIKe
-         LB6ot+KzC44VgIHeHq7Hj7jvoHwUsIsWqK1DaOw2sz0gF0g/wDvvQOI2oSJAbJMLfR
-         d4HCM7fNA17y/acA4PYt+pw5Rhw4+wHvc3vsI7+o=
+        b=HWapMY3HxprYp+Q/91gZyl/qfS9vOAEDZCXUk3KwXyWiQfFlchso8uv+a7RgZwHSo
+         eLn7NhFJmapHghcT6lezybzrH9ocw3LLFUp8v1lIdP3y2C4T0d6Zb3R9D2pCsTDI96
+         uTzoZBkEVgIlpI2x6uZQU4xABXFziY2dYIytgG/w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 318/913] ASoC: codecs: rx-macro: fix accessing array out of bounds for enum type
+        stable@vger.kernel.org, Ryder Lee <ryder.lee@mediatek.com>,
+        MeiChia Chiu <meichia.chiu@mediatek.com>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0467/1017] mt76: mt7915: fix the nss setting in bitrates
 Date:   Tue,  5 Apr 2022 09:23:00 +0200
-Message-Id: <20220405070349.384127387@linuxfoundation.org>
+Message-Id: <20220405070408.160948329@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,63 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+From: MeiChia Chiu <meichia.chiu@mediatek.com>
 
-[ Upstream commit bcfe5f76cc4051ea3f9eb5d2c8ea621641f290a5 ]
+[ Upstream commit c41d2a075206fcbdc89695b874a6ac06160b4f1a ]
 
-Accessing enums using integer would result in array out of bounds access
-on platforms like aarch64 where sizeof(long) is 8 compared to enum size
-which is 4 bytes.
+without this change, the fixed MCS only supports 1 Nss.
 
-Fixes: 4f692926f562 ("ASoC: codecs: lpass-rx-macro: add dapm widgets and route")
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20220222183212.11580-3-srinivas.kandagatla@linaro.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 70fd1333cd32f ("mt76: mt7915: rework .set_bitrate_mask() to support more options")
+Reviewed-by: Ryder Lee <ryder.lee@mediatek.com>
+Signed-off-by: MeiChia Chiu <meichia.chiu@mediatek.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/lpass-rx-macro.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/net/wireless/mediatek/mt76/mt7915/mcu.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/sound/soc/codecs/lpass-rx-macro.c b/sound/soc/codecs/lpass-rx-macro.c
-index fafb8265dbb3..23452900b9ae 100644
---- a/sound/soc/codecs/lpass-rx-macro.c
-+++ b/sound/soc/codecs/lpass-rx-macro.c
-@@ -2272,7 +2272,7 @@ static int rx_macro_mux_get(struct snd_kcontrol *kcontrol,
- 	struct snd_soc_component *component = snd_soc_dapm_to_component(widget->dapm);
- 	struct rx_macro *rx = snd_soc_component_get_drvdata(component);
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c b/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c
+index ef8b0d0a05ef..21fbe7a6141f 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c
+@@ -2124,9 +2124,12 @@ mt7915_mcu_add_rate_ctrl_fixed(struct mt7915_dev *dev,
+ 			phy.sgi |= gi << (i << (_he));				\
+ 			phy.he_ltf |= mask->control[band].he_ltf << (i << (_he));\
+ 		}								\
+-		for (i = 0; i < ARRAY_SIZE(mask->control[band]._mcs); i++) 	\
+-			nrates += hweight16(mask->control[band]._mcs[i]);  	\
+-		phy.mcs = ffs(mask->control[band]._mcs[0]) - 1;			\
++		for (i = 0; i < ARRAY_SIZE(mask->control[band]._mcs); i++) {	\
++			if (!mask->control[band]._mcs[i])			\
++				continue;					\
++			nrates += hweight16(mask->control[band]._mcs[i]);	\
++			phy.mcs = ffs(mask->control[band]._mcs[i]) - 1;		\
++		}								\
+ 	} while (0)
  
--	ucontrol->value.integer.value[0] =
-+	ucontrol->value.enumerated.item[0] =
- 			rx->rx_port_value[widget->shift];
- 	return 0;
- }
-@@ -2284,7 +2284,7 @@ static int rx_macro_mux_put(struct snd_kcontrol *kcontrol,
- 	struct snd_soc_component *component = snd_soc_dapm_to_component(widget->dapm);
- 	struct soc_enum *e = (struct soc_enum *)kcontrol->private_value;
- 	struct snd_soc_dapm_update *update = NULL;
--	u32 rx_port_value = ucontrol->value.integer.value[0];
-+	u32 rx_port_value = ucontrol->value.enumerated.item[0];
- 	u32 aif_rst;
- 	struct rx_macro *rx = snd_soc_component_get_drvdata(component);
- 
-@@ -2396,7 +2396,7 @@ static int rx_macro_get_hph_pwr_mode(struct snd_kcontrol *kcontrol,
- 	struct snd_soc_component *component = snd_soc_kcontrol_component(kcontrol);
- 	struct rx_macro *rx = snd_soc_component_get_drvdata(component);
- 
--	ucontrol->value.integer.value[0] = rx->hph_pwr_mode;
-+	ucontrol->value.enumerated.item[0] = rx->hph_pwr_mode;
- 	return 0;
- }
- 
-@@ -2406,7 +2406,7 @@ static int rx_macro_put_hph_pwr_mode(struct snd_kcontrol *kcontrol,
- 	struct snd_soc_component *component = snd_soc_kcontrol_component(kcontrol);
- 	struct rx_macro *rx = snd_soc_component_get_drvdata(component);
- 
--	rx->hph_pwr_mode = ucontrol->value.integer.value[0];
-+	rx->hph_pwr_mode = ucontrol->value.enumerated.item[0];
- 	return 0;
- }
- 
+ 	if (sta->he_cap.has_he) {
 -- 
 2.34.1
 
