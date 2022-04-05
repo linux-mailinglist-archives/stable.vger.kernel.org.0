@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 705344F27C9
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:08:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4432D4F27F2
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:09:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233655AbiDEIJB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:09:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48172 "EHLO
+        id S233366AbiDEIJu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:09:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57598 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233723AbiDEH51 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:57:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 763F0506CC;
-        Tue,  5 Apr 2022 00:51:25 -0700 (PDT)
+        with ESMTP id S233829AbiDEH5q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:57:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB92B522FA;
+        Tue,  5 Apr 2022 00:51:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8A71861728;
-        Tue,  5 Apr 2022 07:51:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FE2AC34111;
-        Tue,  5 Apr 2022 07:51:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 16D91B81B9C;
+        Tue,  5 Apr 2022 07:51:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 586E7C340EE;
+        Tue,  5 Apr 2022 07:51:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145083;
-        bh=k107eXAopS3cg/qO3bNvEgkCP2VIeERH0+D1JEhJDRU=;
+        s=korg; t=1649145085;
+        bh=dO3M0HpD6K1VgvkxLUeUlcOZFqCcXETf1sgvAHlNr/M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xnsH4tVNNbdzSIB4YsVs8X/RVUQ+FxqknEF4RwiKAb+F8td5uB0Q61DjBGhVEj6k7
-         x3nSgGGMxW0FyMVXBOGc8Vy6BKs7b6qjjK+PHvVmY7lqbRRbsO+DAeiYOu7G7WY7bH
-         XddtL30wOLRsOqFr/G55FooUqnm/8JDN5669Yf/E=
+        b=kXnv2K+rKzfM33/NofFptZ9Ta2N+aUyT2opZ88aonR5DBsX0bLDfAqfeu6mRBmJXm
+         iOgAsTTceysEkZs2xbIJOpgrLYDdTi7jA5+/trioolRw0ygVO7TL/q8errCf1HzXiz
+         ixCbtUWCsYaMzzTPKBPNZvGIrS2ZitZbpdDR1N+U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Czerner <lczerner@redhat.com>,
-        Ye Bin <yebin10@huawei.com>, Eric Sandeen <sandeen@redhat.com>,
-        Gabriel Krisman Bertazi <krisman@collabora.com>,
-        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0278/1126] ext4: fix remount with abort option
-Date:   Tue,  5 Apr 2022 09:17:05 +0200
-Message-Id: <20220405070415.770327618@linuxfoundation.org>
+        stable@vger.kernel.org, Jeff Layton <jlayton@kernel.org>,
+        Amir Goldstein <amir73il@gmail.com>,
+        Chuck Lever <chuck.lever@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 0279/1126] nfsd: more robust allocation failure handling in nfsd_file_cache_init
+Date:   Tue,  5 Apr 2022 09:17:06 +0200
+Message-Id: <20220405070415.799417870@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -55,101 +55,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Czerner <lczerner@redhat.com>
+From: Amir Goldstein <amir73il@gmail.com>
 
-[ Upstream commit e3952fcce1aad934f1322843b564ff86256444b2 ]
+[ Upstream commit 4d2eeafecd6c83b4444db3dc0ada201c89b1aa44 ]
 
-After commit 6e47a3cc68fc ("ext4: get rid of super block and sbi from
-handle_mount_ops()") the 'abort' options stopped working. This is
-because we're using ctx_set_mount_flags() helper that's expecting an
-argument with the appropriate bit set, but instead got
-EXT4_MF_FS_ABORTED which is a bit position. ext4_set_mount_flag() is
-using set_bit() while ctx_set_mount_flags() was using bitwise OR.
+The nfsd file cache table can be pretty large and its allocation
+may require as many as 80 contigious pages.
 
-Create a separate helper ctx_set_mount_flag() to handle setting the
-mount_flags correctly.
+Employ the same fix that was employed for similar issue that was
+reported for the reply cache hash table allocation several years ago
+by commit 8f97514b423a ("nfsd: more robust allocation failure handling
+in nfsd_reply_cache_init").
 
-While we're at it clean up the EXT4_SET_CTX macros so that we're only
-creating helpers that we actually use to avoid warnings.
-
-Fixes: 6e47a3cc68fc ("ext4: get rid of super block and sbi from handle_mount_ops()")
-Signed-off-by: Lukas Czerner <lczerner@redhat.com>
-Cc: Ye Bin <yebin10@huawei.com>
-Reviewed-by: Eric Sandeen <sandeen@redhat.com>
-Tested-by: Gabriel Krisman Bertazi <krisman@collabora.com>
-Link: https://lore.kernel.org/r/20220201131345.77591-1-lczerner@redhat.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Fixes: 65294c1f2c5e ("nfsd: add a new struct file caching facility to nfsd")
+Link: https://lore.kernel.org/linux-nfs/e3cdaeec85a6cfec980e87fc294327c0381c1778.camel@kernel.org/
+Suggested-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Tested-by: Amir Goldstein <amir73il@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/super.c | 29 +++++++++++++++++++++--------
- 1 file changed, 21 insertions(+), 8 deletions(-)
+ fs/nfsd/filecache.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/fs/ext4/super.c b/fs/ext4/super.c
-index cd0547fabd79..bed29f96ccc7 100644
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -2045,8 +2045,8 @@ struct ext4_fs_context {
- 	unsigned int	mask_s_mount_opt;
- 	unsigned int	vals_s_mount_opt2;
- 	unsigned int	mask_s_mount_opt2;
--	unsigned int	vals_s_mount_flags;
--	unsigned int	mask_s_mount_flags;
-+	unsigned long	vals_s_mount_flags;
-+	unsigned long	mask_s_mount_flags;
- 	unsigned int	opt_flags;	/* MOPT flags */
- 	unsigned int	spec;
- 	u32		s_max_batch_time;
-@@ -2149,23 +2149,36 @@ static inline void ctx_set_##name(struct ext4_fs_context *ctx,		\
- {									\
- 	ctx->mask_s_##name |= flag;					\
- 	ctx->vals_s_##name |= flag;					\
--}									\
-+}
-+
-+#define EXT4_CLEAR_CTX(name)						\
- static inline void ctx_clear_##name(struct ext4_fs_context *ctx,	\
- 				    unsigned long flag)			\
- {									\
- 	ctx->mask_s_##name |= flag;					\
- 	ctx->vals_s_##name &= ~flag;					\
--}									\
-+}
-+
-+#define EXT4_TEST_CTX(name)						\
- static inline unsigned long						\
- ctx_test_##name(struct ext4_fs_context *ctx, unsigned long flag)	\
- {									\
- 	return (ctx->vals_s_##name & flag);				\
--}									\
-+}
+diff --git a/fs/nfsd/filecache.c b/fs/nfsd/filecache.c
+index 8bc807c5fea4..cc2831cec669 100644
+--- a/fs/nfsd/filecache.c
++++ b/fs/nfsd/filecache.c
+@@ -632,7 +632,7 @@ nfsd_file_cache_init(void)
+ 	if (!nfsd_filecache_wq)
+ 		goto out;
  
--EXT4_SET_CTX(flags);
-+EXT4_SET_CTX(flags); /* set only */
- EXT4_SET_CTX(mount_opt);
-+EXT4_CLEAR_CTX(mount_opt);
-+EXT4_TEST_CTX(mount_opt);
- EXT4_SET_CTX(mount_opt2);
--EXT4_SET_CTX(mount_flags);
-+EXT4_CLEAR_CTX(mount_opt2);
-+EXT4_TEST_CTX(mount_opt2);
-+
-+static inline void ctx_set_mount_flag(struct ext4_fs_context *ctx, int bit)
-+{
-+	set_bit(bit, &ctx->mask_s_mount_flags);
-+	set_bit(bit, &ctx->vals_s_mount_flags);
-+}
- 
- static int ext4_parse_param(struct fs_context *fc, struct fs_parameter *param)
- {
-@@ -2235,7 +2248,7 @@ static int ext4_parse_param(struct fs_context *fc, struct fs_parameter *param)
- 			 param->key);
- 		return 0;
- 	case Opt_abort:
--		ctx_set_mount_flags(ctx, EXT4_MF_FS_ABORTED);
-+		ctx_set_mount_flag(ctx, EXT4_MF_FS_ABORTED);
- 		return 0;
- 	case Opt_i_version:
- 		ext4_msg(NULL, KERN_WARNING, deprecated_msg, param->key, "5.20");
+-	nfsd_file_hashtbl = kcalloc(NFSD_FILE_HASH_SIZE,
++	nfsd_file_hashtbl = kvcalloc(NFSD_FILE_HASH_SIZE,
+ 				sizeof(*nfsd_file_hashtbl), GFP_KERNEL);
+ 	if (!nfsd_file_hashtbl) {
+ 		pr_err("nfsd: unable to allocate nfsd_file_hashtbl\n");
+@@ -700,7 +700,7 @@ nfsd_file_cache_init(void)
+ 	nfsd_file_slab = NULL;
+ 	kmem_cache_destroy(nfsd_file_mark_slab);
+ 	nfsd_file_mark_slab = NULL;
+-	kfree(nfsd_file_hashtbl);
++	kvfree(nfsd_file_hashtbl);
+ 	nfsd_file_hashtbl = NULL;
+ 	destroy_workqueue(nfsd_filecache_wq);
+ 	nfsd_filecache_wq = NULL;
+@@ -811,7 +811,7 @@ nfsd_file_cache_shutdown(void)
+ 	fsnotify_wait_marks_destroyed();
+ 	kmem_cache_destroy(nfsd_file_mark_slab);
+ 	nfsd_file_mark_slab = NULL;
+-	kfree(nfsd_file_hashtbl);
++	kvfree(nfsd_file_hashtbl);
+ 	nfsd_file_hashtbl = NULL;
+ 	destroy_workqueue(nfsd_filecache_wq);
+ 	nfsd_filecache_wq = NULL;
 -- 
 2.34.1
 
