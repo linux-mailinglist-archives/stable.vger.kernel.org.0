@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 957B04F2D5C
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:41:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 11D1C4F2A48
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 12:54:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236368AbiDEI1o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:27:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45578 "EHLO
+        id S235568AbiDEJwx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:52:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58064 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239527AbiDEIUM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:20:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CE03F22;
-        Tue,  5 Apr 2022 01:15:17 -0700 (PDT)
+        with ESMTP id S244603AbiDEJKF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:10:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66E9D2AC4E;
+        Tue,  5 Apr 2022 01:59:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B1CBE609AD;
-        Tue,  5 Apr 2022 08:15:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8F61C385A1;
-        Tue,  5 Apr 2022 08:15:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 65652B81BBF;
+        Tue,  5 Apr 2022 08:59:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B26B3C385A0;
+        Tue,  5 Apr 2022 08:59:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146516;
-        bh=GEZrR1AaIsfF8Burel1HSK4o2bOQp7VB+6HmqiyFV2s=;
+        s=korg; t=1649149188;
+        bh=WsW6LYCcpbPQgKzCuxo3ZJJAg7nrkIEDruFN5ptLGag=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iu8ywZT5dKzaMby38F71O9jS/j1cZW5WODJzPSneDgmvuZkGA7jzQ+5UIPOL8z+Pm
-         LU5hRtb8GTvkxuspAYKoPbPDpwGdWPZ9oU3qqhleuWpkMJy9+wjLnO+fGvb5EGNPiL
-         OwAiST1GAFF0Nv6P6hDcX5Eg5gryogI93aqIi/mg=
+        b=J8ADRWG/Z4AxqrDBKuZ43p/Y4GPm+0qcKg16IPM0OD4GrsRPPOzJ2ELVUNMDMDkYZ
+         ps7lBLj57zoCyZ+C/mNMl0p9lPBreA4HfNafUoh2vosq699HN02dyj1RzKWjb8imza
+         r7ncXYQpLcBdlnAnbKuYzyIhgxCp7zdP2QYW4EHM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Enrico Scholz <enrico.scholz@sigma-chemnitz.de>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        stable@vger.kernel.org, Phil Sutter <phil@nwl.cc>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0791/1126] SUNRPC: Dont call connect() more than once on a TCP socket
+Subject: [PATCH 5.16 0625/1017] netfilter: conntrack: Add and use nf_ct_set_auto_assign_helper_warned()
 Date:   Tue,  5 Apr 2022 09:25:38 +0200
-Message-Id: <20220405070430.789950324@linuxfoundation.org>
+Message-Id: <20220405070412.833959655@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,83 +54,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Phil Sutter <phil@nwl.cc>
 
-[ Upstream commit 89f42494f92f448747bd8a7ab1ae8b5d5520577d ]
+[ Upstream commit 31d0bb9763efad30377505f3467f958d1ebe1e3d ]
 
-Avoid socket state races due to repeated calls to ->connect() using the
-same socket. If connect() returns 0 due to the connection having
-completed, but we are in fact in a closing state, then we may leave the
-XPRT_CONNECTING flag set on the transport.
+The function sets the pernet boolean to avoid the spurious warning from
+nf_ct_lookup_helper() when assigning conntrack helpers via nftables.
 
-Reported-by: Enrico Scholz <enrico.scholz@sigma-chemnitz.de>
-Fixes: 3be232f11a3c ("SUNRPC: Prevent immediate close+reconnect")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Fixes: 1a64edf54f55 ("netfilter: nft_ct: add helper set support")
+Signed-off-by: Phil Sutter <phil@nwl.cc>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/sunrpc/xprtsock.h |  1 +
- net/sunrpc/xprtsock.c           | 22 ++++++++++++----------
- 2 files changed, 13 insertions(+), 10 deletions(-)
+ include/net/netfilter/nf_conntrack_helper.h | 1 +
+ net/netfilter/nf_conntrack_helper.c         | 6 ++++++
+ net/netfilter/nft_ct.c                      | 3 +++
+ 3 files changed, 10 insertions(+)
 
-diff --git a/include/linux/sunrpc/xprtsock.h b/include/linux/sunrpc/xprtsock.h
-index 3c1423ee74b4..fed813ffe7db 100644
---- a/include/linux/sunrpc/xprtsock.h
-+++ b/include/linux/sunrpc/xprtsock.h
-@@ -88,5 +88,6 @@ struct sock_xprt {
- #define XPRT_SOCK_WAKE_WRITE	(5)
- #define XPRT_SOCK_WAKE_PENDING	(6)
- #define XPRT_SOCK_WAKE_DISCONNECT	(7)
-+#define XPRT_SOCK_CONNECT_SENT	(8)
+diff --git a/include/net/netfilter/nf_conntrack_helper.h b/include/net/netfilter/nf_conntrack_helper.h
+index 37f0fbefb060..9939c366f720 100644
+--- a/include/net/netfilter/nf_conntrack_helper.h
++++ b/include/net/netfilter/nf_conntrack_helper.h
+@@ -177,4 +177,5 @@ void nf_nat_helper_unregister(struct nf_conntrack_nat_helper *nat);
+ int nf_nat_helper_try_module_get(const char *name, u16 l3num,
+ 				 u8 protonum);
+ void nf_nat_helper_put(struct nf_conntrack_helper *helper);
++void nf_ct_set_auto_assign_helper_warned(struct net *net);
+ #endif /*_NF_CONNTRACK_HELPER_H*/
+diff --git a/net/netfilter/nf_conntrack_helper.c b/net/netfilter/nf_conntrack_helper.c
+index ae4488a13c70..ceb38a7b37cb 100644
+--- a/net/netfilter/nf_conntrack_helper.c
++++ b/net/netfilter/nf_conntrack_helper.c
+@@ -556,6 +556,12 @@ static const struct nf_ct_ext_type helper_extend = {
+ 	.id	= NF_CT_EXT_HELPER,
+ };
  
- #endif /* _LINUX_SUNRPC_XPRTSOCK_H */
-diff --git a/net/sunrpc/xprtsock.c b/net/sunrpc/xprtsock.c
-index 5f22671b8abd..11eab0f0333b 100644
---- a/net/sunrpc/xprtsock.c
-+++ b/net/sunrpc/xprtsock.c
-@@ -2257,10 +2257,15 @@ static void xs_tcp_setup_socket(struct work_struct *work)
- 
- 	if (atomic_read(&xprt->swapper))
- 		current->flags |= PF_MEMALLOC;
--	if (!sock) {
--		sock = xs_create_sock(xprt, transport,
--				xs_addr(xprt)->sa_family, SOCK_STREAM,
--				IPPROTO_TCP, true);
++void nf_ct_set_auto_assign_helper_warned(struct net *net)
++{
++	nf_ct_pernet(net)->auto_assign_helper_warned = true;
++}
++EXPORT_SYMBOL_GPL(nf_ct_set_auto_assign_helper_warned);
 +
-+	if (xprt_connected(xprt))
-+		goto out;
-+	if (test_and_clear_bit(XPRT_SOCK_CONNECT_SENT,
-+			       &transport->sock_state) ||
-+	    !sock) {
-+		xs_reset_transport(transport);
-+		sock = xs_create_sock(xprt, transport, xs_addr(xprt)->sa_family,
-+				      SOCK_STREAM, IPPROTO_TCP, true);
- 		if (IS_ERR(sock)) {
- 			xprt_wake_pending_tasks(xprt, PTR_ERR(sock));
- 			goto out;
-@@ -2284,6 +2289,7 @@ static void xs_tcp_setup_socket(struct work_struct *work)
- 		fallthrough;
- 	case -EINPROGRESS:
- 		/* SYN_SENT! */
-+		set_bit(XPRT_SOCK_CONNECT_SENT, &transport->sock_state);
- 		if (xprt->reestablish_timeout < XS_TCP_INIT_REEST_TO)
- 			xprt->reestablish_timeout = XS_TCP_INIT_REEST_TO;
- 		fallthrough;
-@@ -2345,13 +2351,9 @@ static void xs_connect(struct rpc_xprt *xprt, struct rpc_task *task)
+ void nf_conntrack_helper_pernet_init(struct net *net)
+ {
+ 	struct nf_conntrack_net *cnet = nf_ct_pernet(net);
+diff --git a/net/netfilter/nft_ct.c b/net/netfilter/nft_ct.c
+index 99b1de14ff7e..54ecb9fbf2de 100644
+--- a/net/netfilter/nft_ct.c
++++ b/net/netfilter/nft_ct.c
+@@ -1040,6 +1040,9 @@ static int nft_ct_helper_obj_init(const struct nft_ctx *ctx,
+ 	if (err < 0)
+ 		goto err_put_helper;
  
- 	WARN_ON_ONCE(!xprt_lock_connect(xprt, task, transport));
++	/* Avoid the bogus warning, helper will be assigned after CT init */
++	nf_ct_set_auto_assign_helper_warned(ctx->net);
++
+ 	return 0;
  
--	if (transport->sock != NULL && !xprt_connecting(xprt)) {
-+	if (transport->sock != NULL) {
- 		dprintk("RPC:       xs_connect delayed xprt %p for %lu "
--				"seconds\n",
--				xprt, xprt->reestablish_timeout / HZ);
--
--		/* Start by resetting any existing state */
--		xs_reset_transport(transport);
-+			"seconds\n", xprt, xprt->reestablish_timeout / HZ);
- 
- 		delay = xprt_reconnect_delay(xprt);
- 		xprt_reconnect_backoff(xprt, XS_TCP_INIT_REEST_TO);
+ err_put_helper:
 -- 
 2.34.1
 
