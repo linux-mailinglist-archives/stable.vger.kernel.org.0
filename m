@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 38C8D4F37E8
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:26:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D905E4F3AD8
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:05:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359639AbiDELUc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:20:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47618 "EHLO
+        id S241380AbiDELtT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:49:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59332 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349243AbiDEJt2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:28 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34EE12316D;
-        Tue,  5 Apr 2022 02:43:16 -0700 (PDT)
+        with ESMTP id S1356019AbiDEKWq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:22:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64C13AC049;
+        Tue,  5 Apr 2022 03:05:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 6F9A3CE1C90;
-        Tue,  5 Apr 2022 09:43:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82E65C385A2;
-        Tue,  5 Apr 2022 09:43:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1B7BDB81C83;
+        Tue,  5 Apr 2022 10:05:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EFC2C385A2;
+        Tue,  5 Apr 2022 10:05:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151792;
-        bh=XvGBi4JdV/9rcjiZAmcDAgtrI9eNHKirifLBD5bIVy0=;
+        s=korg; t=1649153134;
+        bh=ZAmbnSi66YJBiK3yZR8/bo7oAsS7FS1Ko/w5oHmOhSE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dUnSRqhei1uBHKmMFbUjkhCwVXPU6uEW8gCrEZiWbA61KAoW6yQUuIMSFyVs5cl2q
-         fglQMWUeXlI1v/NyY9baOOOVzkf5bhfyP6lGhjgDDPz0vK7Z+gYcL/921JR68jPLLz
-         28An1aHAtIe98uKlhi84QyeWT2vKdvmf04sp0dCE=
+        b=NzYbWlbVKWvukKj07INWpbLNuyZcuw4W18FRXQmoBoUX4rux3cJAhhqfbgqPXV/ts
+         Bu5yLlP0s4MpDMxAIZOQcqGE5NgsJHZTUJBvZF+wFB/7S7B0yjPMgCZ5YIB4FX+XAG
+         b01m4GX5eYU7IT5l5DddDpeL2TxE/BnTHovo3oQk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Niklas=20S=C3=B6derlund?= <niklas.soderlund@corigine.com>,
-        Simon Horman <simon.horman@corigine.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 544/913] samples/bpf, xdpsock: Fix race when running for fix duration of time
-Date:   Tue,  5 Apr 2022 09:26:46 +0200
-Message-Id: <20220405070356.155559003@linuxfoundation.org>
+        stable@vger.kernel.org, Mingzhe Zou <mingzhe.zou@easystack.cn>,
+        Coly Li <colyli@suse.de>
+Subject: [PATCH 5.10 113/599] bcache: fixup multiple threads crash
+Date:   Tue,  5 Apr 2022 09:26:47 +0200
+Message-Id: <20220405070302.200363585@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070258.802373272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,69 +53,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niklas Söderlund <niklas.soderlund@corigine.com>
+From: Mingzhe Zou <mingzhe.zou@easystack.cn>
 
-[ Upstream commit 8fa42d78f6354bb96ad3a079dcbef528ca9fa9e0 ]
+commit 887554ab96588de2917b6c8c73e552da082e5368 upstream.
 
-When running xdpsock for a fix duration of time before terminating
-using --duration=<n>, there is a race condition that may cause xdpsock
-to terminate immediately.
+When multiple threads to check btree nodes in parallel, the main
+thread wait for all threads to stop or CACHE_SET_IO_DISABLE flag:
 
-When running for a fixed duration of time the check to determine when to
-terminate execution is in is_benchmark_done() and is being executed in
-the context of the poller thread,
+wait_event_interruptible(check_state->wait,
+                         atomic_read(&check_state->started) == 0 ||
+                         test_bit(CACHE_SET_IO_DISABLE, &c->flags));
 
-    if (opt_duration > 0) {
-            unsigned long dt = (get_nsecs() - start_time);
+However, the bch_btree_node_read and bch_btree_node_read_done
+maybe call bch_cache_set_error, then the CACHE_SET_IO_DISABLE
+will be set. If the flag already set, the main thread return
+error. At the same time, maybe some threads still running and
+read NULL pointer, the kernel will crash.
 
-            if (dt >= opt_duration)
-                    benchmark_done = true;
-    }
+This patch change the event wait condition, the main thread must
+wait for all threads to stop.
 
-However start_time is only set after the poller thread have been
-created. This leaves a small window when the poller thread is starting
-and calls is_benchmark_done() for the first time that start_time is not
-yet set. In that case start_time have its initial value of 0 and the
-duration check fails as it do not correlate correctly for the
-applications start time and immediately sets benchmark_done which in
-turn terminates the xdpsock application.
-
-Fix this by setting start_time before creating the poller thread.
-
-Fixes: d3f11b018f6c ("samples/bpf: xdpsock: Add duration option to specify how long to run")
-Signed-off-by: Niklas Söderlund <niklas.soderlund@corigine.com>
-Signed-off-by: Simon Horman <simon.horman@corigine.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20220315102948.466436-1-niklas.soderlund@corigine.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 8e7102273f597 ("bcache: make bch_btree_check() to be multithreaded")
+Signed-off-by: Mingzhe Zou <mingzhe.zou@easystack.cn>
+Cc: stable@vger.kernel.org # v5.7+
+Signed-off-by: Coly Li <colyli@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- samples/bpf/xdpsock_user.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/md/bcache/btree.c     |    6 ++++--
+ drivers/md/bcache/writeback.c |    6 ++++--
+ 2 files changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/samples/bpf/xdpsock_user.c b/samples/bpf/xdpsock_user.c
-index 49d7a6ad7e39..1fb79b3ecdd5 100644
---- a/samples/bpf/xdpsock_user.c
-+++ b/samples/bpf/xdpsock_user.c
-@@ -1673,14 +1673,15 @@ int main(int argc, char **argv)
- 
- 	setlocale(LC_ALL, "");
- 
-+	prev_time = get_nsecs();
-+	start_time = prev_time;
-+
- 	if (!opt_quiet) {
- 		ret = pthread_create(&pt, NULL, poller, NULL);
- 		if (ret)
- 			exit_with_error(ret);
+--- a/drivers/md/bcache/btree.c
++++ b/drivers/md/bcache/btree.c
+@@ -2060,9 +2060,11 @@ int bch_btree_check(struct cache_set *c)
+ 		}
  	}
  
--	prev_time = get_nsecs();
--	start_time = prev_time;
++	/*
++	 * Must wait for all threads to stop.
++	 */
+ 	wait_event_interruptible(check_state->wait,
+-				 atomic_read(&check_state->started) == 0 ||
+-				  test_bit(CACHE_SET_IO_DISABLE, &c->flags));
++				 atomic_read(&check_state->started) == 0);
  
- 	if (opt_bench == BENCH_RXDROP)
- 		rx_drop_all();
--- 
-2.34.1
-
+ 	for (i = 0; i < check_state->total_threads; i++) {
+ 		if (check_state->infos[i].result) {
+--- a/drivers/md/bcache/writeback.c
++++ b/drivers/md/bcache/writeback.c
+@@ -952,9 +952,11 @@ void bch_sectors_dirty_init(struct bcach
+ 		}
+ 	}
+ 
++	/*
++	 * Must wait for all threads to stop.
++	 */
+ 	wait_event_interruptible(state->wait,
+-		 atomic_read(&state->started) == 0 ||
+-		 test_bit(CACHE_SET_IO_DISABLE, &c->flags));
++		 atomic_read(&state->started) == 0);
+ 
+ out:
+ 	kfree(state);
 
 
