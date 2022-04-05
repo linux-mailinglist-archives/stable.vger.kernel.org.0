@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F0C9C4F3842
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:32:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B908B4F3840
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:32:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376497AbiDELWP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:22:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39398 "EHLO
+        id S1376477AbiDELWM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:22:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349452AbiDEJtx (ORCPT
+        with ESMTP id S1349451AbiDEJtx (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD82827CED;
-        Tue,  5 Apr 2022 02:46:20 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D87D27CEE;
+        Tue,  5 Apr 2022 02:46:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5B9FEB81B14;
-        Tue,  5 Apr 2022 09:46:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF908C385A2;
-        Tue,  5 Apr 2022 09:46:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0C337B818F3;
+        Tue,  5 Apr 2022 09:46:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70157C385A3;
+        Tue,  5 Apr 2022 09:46:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151978;
-        bh=nHOg9kX+MbvlIgN8jRKrk4EKwtzKb7SaZy1WfCamDGo=;
+        s=korg; t=1649151980;
+        bh=4xVP+rc9dkDWqE/NBcuMen4mqzFB0WGjI6QqAFNahww=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cpkUe4qWfbRP147wB1OCPAhILWvFUbsIsVClUY1pM0NeG4jtrRBgKpG++Z4o7JWQs
-         iP72NEllfquNejtVB2rA2auZLLwopUjY06HW6+VuTu+2v6fkpizN2phl8FO0zmsh9F
-         MJVw/iqPSZ3J9fZ0ORFOI777xJATJc1Sd4FsdT+Y=
+        b=09dUuGRUkwqJN53nR0S/OtmqltVwfHPi7SNQz7aqnhmYGwOM5+aNBPQtIdQPs+GYP
+         Z4yTw2/OYnaE+aktU1ARF9F8sFALlAg9QfeiSuosCckECQRnMziro4iakf8gyCSvHw
+         DjdoiSxpVFbsOLsIVfSyGN8qur65ta7r+fTR0DNg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Wolfe <david.wolfe@nxp.com>,
-        Abel Vesa <abel.vesa@nxp.com>, Peng Fan <peng.fan@nxp.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 609/913] clk: imx7d: Remove audio_mclk_root_clk
-Date:   Tue,  5 Apr 2022 09:27:51 +0200
-Message-Id: <20220405070358.096312292@linuxfoundation.org>
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Abel Vesa <abel.vesa@nxp.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 610/913] clk: imx: off by one in imx_lpcg_parse_clks_from_dt()
+Date:   Tue,  5 Apr 2022 09:27:52 +0200
+Message-Id: <20220405070358.126483113@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -54,36 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Abel Vesa <abel.vesa@nxp.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit eccac77ede3946c90143447cdc785dc16aec4b24 ]
+[ Upstream commit 135efc3a76d127691afaf1864e4ab627bf09d53d ]
 
-The audio_mclk_root_clk was added as a gate with the CCGR121 (0x4790),
-but according to the reference manual, there is no such gate. The
-CCGR121 belongs to ECSPI2 and it is not shared.
+The > needs to be >= to prevent an off by one access.
 
-Fixes: 8f6d8094b215b57 ("ARM: imx: add imx7d clk tree support")
-Reported-by: David Wolfe <david.wolfe@nxp.com>
+Fixes: d5f1e6a2bb61 ("clk: imx: imx8qxp-lpcg: add parsing clocks from device tree")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Abel Vesa <abel.vesa@nxp.com>
+Link: https://lore.kernel.org/r/20220228075014.GD13685@kili
 Signed-off-by: Abel Vesa <abel.vesa@nxp.com>
-Reviewed-by: Peng Fan <peng.fan@nxp.com>
-Link: https://lore.kernel.org/r/20220127141052.1900174-2-abel.vesa@nxp.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/imx/clk-imx7d.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/clk/imx/clk-imx8qxp-lpcg.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/clk/imx/clk-imx7d.c b/drivers/clk/imx/clk-imx7d.c
-index c4e0f1c07192..3f6fd7ef2a68 100644
---- a/drivers/clk/imx/clk-imx7d.c
-+++ b/drivers/clk/imx/clk-imx7d.c
-@@ -849,7 +849,6 @@ static void __init imx7d_clocks_init(struct device_node *ccm_node)
- 	hws[IMX7D_WDOG4_ROOT_CLK] = imx_clk_hw_gate4("wdog4_root_clk", "wdog_post_div", base + 0x49f0, 0);
- 	hws[IMX7D_KPP_ROOT_CLK] = imx_clk_hw_gate4("kpp_root_clk", "ipg_root_clk", base + 0x4aa0, 0);
- 	hws[IMX7D_CSI_MCLK_ROOT_CLK] = imx_clk_hw_gate4("csi_mclk_root_clk", "csi_mclk_post_div", base + 0x4490, 0);
--	hws[IMX7D_AUDIO_MCLK_ROOT_CLK] = imx_clk_hw_gate4("audio_mclk_root_clk", "audio_mclk_post_div", base + 0x4790, 0);
- 	hws[IMX7D_WRCLK_ROOT_CLK] = imx_clk_hw_gate4("wrclk_root_clk", "wrclk_post_div", base + 0x47a0, 0);
- 	hws[IMX7D_USB_CTRL_CLK] = imx_clk_hw_gate4("usb_ctrl_clk", "ahb_root_clk", base + 0x4680, 0);
- 	hws[IMX7D_USB_PHY1_CLK] = imx_clk_hw_gate4("usb_phy1_clk", "pll_usb1_main_clk", base + 0x46a0, 0);
+diff --git a/drivers/clk/imx/clk-imx8qxp-lpcg.c b/drivers/clk/imx/clk-imx8qxp-lpcg.c
+index b23758083ce5..5e31a6a24b3a 100644
+--- a/drivers/clk/imx/clk-imx8qxp-lpcg.c
++++ b/drivers/clk/imx/clk-imx8qxp-lpcg.c
+@@ -248,7 +248,7 @@ static int imx_lpcg_parse_clks_from_dt(struct platform_device *pdev,
+ 
+ 	for (i = 0; i < count; i++) {
+ 		idx = bit_offset[i] / 4;
+-		if (idx > IMX_LPCG_MAX_CLKS) {
++		if (idx >= IMX_LPCG_MAX_CLKS) {
+ 			dev_warn(&pdev->dev, "invalid bit offset of clock %d\n",
+ 				 i);
+ 			ret = -EINVAL;
 -- 
 2.34.1
 
