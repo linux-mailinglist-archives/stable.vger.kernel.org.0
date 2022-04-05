@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C7A074F29DB
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 12:50:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 252704F2D00
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:35:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235829AbiDEI1G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:27:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34694 "EHLO
+        id S239491AbiDEJyD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:54:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58014 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239468AbiDEIUG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:20:06 -0400
+        with ESMTP id S1343509AbiDEJM1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:12:27 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91ACF98F6C;
-        Tue,  5 Apr 2022 01:13:52 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A4CE2714B;
+        Tue,  5 Apr 2022 02:00:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CAE37B81A37;
-        Tue,  5 Apr 2022 08:13:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22BFEC385A0;
-        Tue,  5 Apr 2022 08:13:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D0A5DB81A12;
+        Tue,  5 Apr 2022 09:00:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B01DC385A0;
+        Tue,  5 Apr 2022 09:00:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146429;
-        bh=2valnc8op0vBurNY+QIL/EnW2wscb8NHYd9VGwj8E/o=;
+        s=korg; t=1649149216;
+        bh=765nafgncPzYKlYm6M6NLm/ZoKn9hQoPlzRpDgfuRZE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N8KxXoPAjYI0bZ7w4Ihy5TfKg+Ix3fJLx1asa4VDcCi0mw+/2Gm7zi+l22cFlr8km
-         1EiY0vM7rk8yYT00k4410kClEcWl44KUtcb6DcOcvSzPtT5XTab/xeKvE1Vvf0EGna
-         4ZLmIOimp0jamC7St2msDhdYo8On1FoyIvwBSF/E=
+        b=0HeO2xG6wp6DYPLumhY/tCslnJY0wbS/IVUAZyt3uzh5gDSNb74kQSQVSvauaJ1Na
+         RKJ55Qu2JqbjfB8F1OHXVi20UKSceakyKoozRsZjNM4KIGn6AUFCFydHO0egXbR9Rb
+         0Y1euWt5dxfHihN9gqfbnkpqs3oiJ9nVf9Z7NKi8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Dan Williams <dan.j.williams@intel.com>,
+        stable@vger.kernel.org, Oliver Hartkopp <socketcan@hartkopp.net>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0754/1126] nvdimm/region: Fix default alignment for small regions
-Date:   Tue,  5 Apr 2022 09:25:01 +0200
-Message-Id: <20220405070429.716466121@linuxfoundation.org>
+Subject: [PATCH 5.16 0589/1017] vxcan: enable local echo for sent CAN frames
+Date:   Tue,  5 Apr 2022 09:25:02 +0200
+Message-Id: <20220405070411.762861475@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Williams <dan.j.williams@intel.com>
+From: Oliver Hartkopp <socketcan@hartkopp.net>
 
-[ Upstream commit d9d290d7e659e9db3e4518040cc18b97f5535f4a ]
+[ Upstream commit 259bdba27e32368b4404f69d613b1c1014c07cbf ]
 
-In preparation for removing BLK aperture support the NVDIMM unit tests
-discovered that the default alignment can be set higher than the
-capacity of the region. Fall back to PAGE_SIZE in that case.
+The vxcan driver provides a pair of virtual CAN interfaces to exchange
+CAN traffic between different namespaces - analogue to veth.
 
-Given this has not been seen in the wild, elide notifying -stable.
+In opposite to the vcan driver the local sent CAN traffic on this interface
+is not echo'ed back but only sent to the remote peer. This is unusual and
+can be easily fixed by removing IFF_ECHO from the netdevice flags that
+are set for vxcan interfaces by default at startup.
 
-Fixes: 2522afb86a8c ("libnvdimm/region: Introduce an 'align' attribute")
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/164688416128.2879318.17890707310125575258.stgit@dwillia2-desk3.amr.corp.intel.com
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Without IFF_ECHO set on driver level, the local sent CAN frames are echo'ed
+in af_can.c in can_send(). This patch makes vxcan interfaces adopt the
+same local echo behavior and procedures as known from the vcan interfaces.
+
+Fixes: a8f820a380a2 ("can: add Virtual CAN Tunnel driver (vxcan)")
+Link: https://lore.kernel.org/all/20220309120416.83514-5-socketcan@hartkopp.net
+Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvdimm/region_devs.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/can/vxcan.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/nvdimm/region_devs.c b/drivers/nvdimm/region_devs.c
-index 9ccf3d608799..70ad891a76ba 100644
---- a/drivers/nvdimm/region_devs.c
-+++ b/drivers/nvdimm/region_devs.c
-@@ -1025,6 +1025,9 @@ static unsigned long default_align(struct nd_region *nd_region)
- 		}
- 	}
+diff --git a/drivers/net/can/vxcan.c b/drivers/net/can/vxcan.c
+index 8861a7d875e7..be5566168d0f 100644
+--- a/drivers/net/can/vxcan.c
++++ b/drivers/net/can/vxcan.c
+@@ -148,7 +148,7 @@ static void vxcan_setup(struct net_device *dev)
+ 	dev->hard_header_len	= 0;
+ 	dev->addr_len		= 0;
+ 	dev->tx_queue_len	= 0;
+-	dev->flags		= (IFF_NOARP|IFF_ECHO);
++	dev->flags		= IFF_NOARP;
+ 	dev->netdev_ops		= &vxcan_netdev_ops;
+ 	dev->needs_free_netdev	= true;
  
-+	if (nd_region->ndr_size < MEMREMAP_COMPAT_ALIGN_MAX)
-+		align = PAGE_SIZE;
-+
- 	mappings = max_t(u16, 1, nd_region->ndr_mappings);
- 	div_u64_rem(align, mappings, &remainder);
- 	if (remainder)
 -- 
 2.34.1
 
