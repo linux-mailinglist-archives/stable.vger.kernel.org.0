@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DA0164F3629
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:57:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B45B64F3624
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:56:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244587AbiDEK7P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:59:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39330 "EHLO
+        id S244474AbiDEK7F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:59:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39768 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346999AbiDEJpu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:45:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78528DCAAC;
-        Tue,  5 Apr 2022 02:32:14 -0700 (PDT)
+        with ESMTP id S1347056AbiDEJpz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:45:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E12644E394;
+        Tue,  5 Apr 2022 02:32:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1958DB81CB5;
-        Tue,  5 Apr 2022 09:32:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5DCFCC385A0;
-        Tue,  5 Apr 2022 09:32:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BE98561368;
+        Tue,  5 Apr 2022 09:32:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5707C385A0;
+        Tue,  5 Apr 2022 09:32:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151131;
-        bh=3lJ3J/Hn5KmINnLVJmAiRUoqx4L93qq6dyLbb8I1oE8=;
+        s=korg; t=1649151137;
+        bh=7PbildU4fVy2AP3yvxFY7nRP8gtRqmn3F61F8jyqIRQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BQWKtwtLe8nraRmN2wkmkzbTdAzArJrvdsZ6P9k5Mcpzv7bWNAIUn3mI4XuxnidEC
-         ie6HPY8ge7zZocFLxsAAnJw46xb+t4jyARI8HPsnROOb5znNilvtrwVxXgRE7uFAjl
-         J2hRCxzJq50YNX0febUii0Spi+amYZo/HpDBQSnM=
+        b=CsaJw4ldPZuWRQi4QNBoaCf3lcEbcIEuseNaNhkhEkiyfn4T35cJr/KSgULkkn7AB
+         3dNTI2bFKPTsK6vKlt8tv0S1zZhqsuWtU1UDtSRBcsd7GRs+LyLgqRKeEqr/JhW+NT
+         2LGFV4HUqFe6bP74Pc/V+aANyfaGIMX+Htm+KbUw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Paul Kocialkowski <paul.kocialkowski@bootlin.com>,
-        Maxime Ripard <maxime@cerno.tech>,
+        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 306/913] ARM: dts: sun8i: v3s: Move the csi1 block to follow address order
-Date:   Tue,  5 Apr 2022 09:22:48 +0200
-Message-Id: <20220405070349.028812130@linuxfoundation.org>
+Subject: [PATCH 5.15 307/913] ARM: ftrace: ensure that ADR takes the Thumb bit into account
+Date:   Tue,  5 Apr 2022 09:22:49 +0200
+Message-Id: <20220405070349.058006700@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -55,62 +56,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-[ Upstream commit c4af51698c4fb4fc683f2ac67f482cdf9ba2cd13 ]
+[ Upstream commit dd88b03ff0c84f4bcbe1419b93a4bed429fed3be ]
 
-The csi1 block node was mistakenly added before the gic node, although
-its address comes after the gic's. Move the node to its correct
-position.
+Using ADR to take the address of 'ftrace_stub' via a local label
+produces an address that has the Thumb bit cleared, which means the
+subsequent comparison is guaranteed to fail. Instead, use the badr
+macro, which forces the Thumb bit to be set.
 
-Fixes: 90e048101fa1 ("ARM: dts: sun8i: V3/V3s/S3/S3L: add CSI1 device node")
-Signed-off-by: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://lore.kernel.org/r/20220205185429.2278860-2-paul.kocialkowski@bootlin.com
+Fixes: a3ba87a61499 ("ARM: 6316/1: ftrace: add Thumb-2 support")
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/sun8i-v3s.dtsi | 22 +++++++++++-----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+ arch/arm/kernel/entry-ftrace.S | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/sun8i-v3s.dtsi b/arch/arm/boot/dts/sun8i-v3s.dtsi
-index b30bc1a25ebb..084323d5c61c 100644
---- a/arch/arm/boot/dts/sun8i-v3s.dtsi
-+++ b/arch/arm/boot/dts/sun8i-v3s.dtsi
-@@ -593,6 +593,17 @@
- 			#size-cells = <0>;
- 		};
+diff --git a/arch/arm/kernel/entry-ftrace.S b/arch/arm/kernel/entry-ftrace.S
+index a74289ebc803..f4886fb6e9ba 100644
+--- a/arch/arm/kernel/entry-ftrace.S
++++ b/arch/arm/kernel/entry-ftrace.S
+@@ -40,7 +40,7 @@
+ 	mcount_enter
+ 	ldr	r0, =ftrace_trace_function
+ 	ldr	r2, [r0]
+-	adr	r0, .Lftrace_stub
++	badr	r0, .Lftrace_stub
+ 	cmp	r0, r2
+ 	bne	1f
  
-+		gic: interrupt-controller@1c81000 {
-+			compatible = "arm,gic-400";
-+			reg = <0x01c81000 0x1000>,
-+			      <0x01c82000 0x2000>,
-+			      <0x01c84000 0x2000>,
-+			      <0x01c86000 0x2000>;
-+			interrupt-controller;
-+			#interrupt-cells = <3>;
-+			interrupts = <GIC_PPI 9 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_HIGH)>;
-+		};
-+
- 		csi1: camera@1cb4000 {
- 			compatible = "allwinner,sun8i-v3s-csi";
- 			reg = <0x01cb4000 0x3000>;
-@@ -604,16 +615,5 @@
- 			resets = <&ccu RST_BUS_CSI>;
- 			status = "disabled";
- 		};
--
--		gic: interrupt-controller@1c81000 {
--			compatible = "arm,gic-400";
--			reg = <0x01c81000 0x1000>,
--			      <0x01c82000 0x2000>,
--			      <0x01c84000 0x2000>,
--			      <0x01c86000 0x2000>;
--			interrupt-controller;
--			#interrupt-cells = <3>;
--			interrupts = <GIC_PPI 9 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_HIGH)>;
--		};
- 	};
- };
 -- 
 2.34.1
 
