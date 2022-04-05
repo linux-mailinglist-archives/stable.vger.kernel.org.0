@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C47BC4F2CEE
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:34:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ABBAB4F2B12
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:08:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241061AbiDEK2f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:28:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41366 "EHLO
+        id S238125AbiDEJEm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:04:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41306 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237015AbiDEJbZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:31:25 -0400
+        with ESMTP id S243810AbiDEIvF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:51:05 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C250B38;
-        Tue,  5 Apr 2022 02:19:11 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A36E5C9B4E;
+        Tue,  5 Apr 2022 01:39:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8BB9F6144D;
-        Tue,  5 Apr 2022 09:19:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B7B5C385A3;
-        Tue,  5 Apr 2022 09:19:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 188FA61516;
+        Tue,  5 Apr 2022 08:39:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21342C385A4;
+        Tue,  5 Apr 2022 08:39:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150351;
-        bh=ivGEGBbfajtNADKngqXaWRmyvtn3LsQ3ufYD1XB+A78=;
+        s=korg; t=1649147941;
+        bh=5Z78gfGHfHm7csyWYfRHlrzotpJOLnNIrOIF5IitPrY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k29wt/oyYmL3iqbvD7mVEL5KHf3gkjfoljjBGDpmUcoKFsnwkg9tYKXjzNgSN0WjP
-         xQRW02OCmA0/aQ+foTW5nu8KWyha106LEWJvErdhNQkh1HZM6+mWrrqbWWLw212H9D
-         tVP4iMBB6oHG3y6p8lRAcyfjX5edjaw7nZ51jVuA=
+        b=EbEzlGxdXU+PKmONZaUxC+IWCWbekAtmIMhowka+SPmhhyHVBRKWkKsGIxIX0dk7R
+         scLpxat6IM3lga8YQK5mYIY4Q7oQrzq11T9s0yP/AifKR5M/PyC3mcLi9VCxU4Tlcg
+         w/FSotpSHaOWqCI1L1UAdrwoD8xBlFql7TS28eL0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Evan Quan <evan.quan@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Mario Limonciello <mario.limonciello@amd.com>
-Subject: [PATCH 5.15 026/913] drm/amdgpu: move PX checking into amdgpu_device_ip_early_init
-Date:   Tue,  5 Apr 2022 09:18:08 +0200
-Message-Id: <20220405070340.599642124@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Lad, Prabhakar" <prabhakar.csengg@gmail.com>,
+        Johan Hovold <johan@kernel.org>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Lad@vger.kernel.org
+Subject: [PATCH 5.16 0177/1017] media: davinci: vpif: fix unbalanced runtime PM get
+Date:   Tue,  5 Apr 2022 09:18:10 +0200
+Message-Id: <20220405070359.486183704@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,81 +57,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Deucher <alexander.deucher@amd.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit 901e2be20dc55079997ea1885ea77fc72e6826e7 upstream.
+commit 4a321de239213300a714fa0353a5f1272d381a44 upstream.
 
-We need to set the APU flag from IP discovery before
-we evaluate this code.
+Make sure to balance the runtime PM usage counter on driver unbind.
 
-Acked-by: Evan Quan <evan.quan@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Fixes: 407ccc65bfd2 ("[media] davinci: vpif: add pm_runtime support")
+Cc: stable@vger.kernel.org      # 3.9
+Cc: Lad, Prabhakar <prabhakar.csengg@gmail.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Reviewed-by: Lad Prabhakar <prabhakar.csengg@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_device.c |   13 +++++++++++++
- drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c    |   11 -----------
- 2 files changed, 13 insertions(+), 11 deletions(-)
+ drivers/media/platform/davinci/vpif.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-@@ -30,6 +30,7 @@
- #include <linux/module.h>
- #include <linux/console.h>
- #include <linux/slab.h>
-+#include <linux/pci.h>
+--- a/drivers/media/platform/davinci/vpif.c
++++ b/drivers/media/platform/davinci/vpif.c
+@@ -495,6 +495,7 @@ static int vpif_probe(struct platform_de
  
- #include <drm/drm_atomic_helper.h>
- #include <drm/drm_probe_helper.h>
-@@ -2069,6 +2070,8 @@ out:
-  */
- static int amdgpu_device_ip_early_init(struct amdgpu_device *adev)
+ static int vpif_remove(struct platform_device *pdev)
  {
-+	struct drm_device *dev = adev_to_drm(adev);
-+	struct pci_dev *parent;
- 	int i, r;
- 
- 	amdgpu_device_enable_virtual_display(adev);
-@@ -2168,6 +2171,16 @@ static int amdgpu_device_ip_early_init(s
- 		return -EINVAL;
- 	}
- 
-+	if (amdgpu_has_atpx() &&
-+	    (amdgpu_is_atpx_hybrid() ||
-+	     amdgpu_has_atpx_dgpu_power_cntl()) &&
-+	    ((adev->flags & AMD_IS_APU) == 0) &&
-+	    !pci_is_thunderbolt_attached(to_pci_dev(dev->dev)))
-+		adev->flags |= AMD_IS_PX;
-+
-+	parent = pci_upstream_bridge(adev->pdev);
-+	adev->has_pr3 = parent ? pci_pr3_present(parent) : false;
-+
- 	amdgpu_amdkfd_device_probe(adev);
- 
- 	adev->pm.pp_feature = amdgpu_pp_feature_mask;
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
-@@ -152,21 +152,10 @@ static void amdgpu_get_audio_func(struct
- int amdgpu_driver_load_kms(struct amdgpu_device *adev, unsigned long flags)
- {
- 	struct drm_device *dev;
--	struct pci_dev *parent;
- 	int r, acpi_status;
- 
- 	dev = adev_to_drm(adev);
- 
--	if (amdgpu_has_atpx() &&
--	    (amdgpu_is_atpx_hybrid() ||
--	     amdgpu_has_atpx_dgpu_power_cntl()) &&
--	    ((flags & AMD_IS_APU) == 0) &&
--	    !pci_is_thunderbolt_attached(to_pci_dev(dev->dev)))
--		flags |= AMD_IS_PX;
--
--	parent = pci_upstream_bridge(adev->pdev);
--	adev->has_pr3 = parent ? pci_pr3_present(parent) : false;
--
- 	/* amdgpu_device_init should report only fatal error
- 	 * like memory allocation failure or iomapping failure,
- 	 * or memory manager initialization failure, it must
++	pm_runtime_put(&pdev->dev);
+ 	pm_runtime_disable(&pdev->dev);
+ 	return 0;
+ }
 
 
