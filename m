@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2592A4F33A1
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:21:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 822934F2FFD
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:19:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239534AbiDEJND (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:13:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50830 "EHLO
+        id S1345194AbiDEKkr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:40:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53096 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244883AbiDEIwp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:45 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B4E323BF7;
-        Tue,  5 Apr 2022 01:45:31 -0700 (PDT)
+        with ESMTP id S244367AbiDEJlP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:41:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B95F7BB90A;
+        Tue,  5 Apr 2022 02:26:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 091D9B81B18;
-        Tue,  5 Apr 2022 08:45:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4931AC385A1;
-        Tue,  5 Apr 2022 08:45:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 57F696144D;
+        Tue,  5 Apr 2022 09:26:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F7F6C385A0;
+        Tue,  5 Apr 2022 09:26:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148328;
-        bh=ppIPX3URR0acf6wOyfL262wQNE8KPCBIqOOvB243B1U=;
+        s=korg; t=1649150777;
+        bh=Yb/Qsv5HlnFq2Ze6nGZxoMM9ffO70zuocXfIM8QKSw4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TDGGIpb1acRhzIZ9RVto86ToWYDn24O4MV/WMsKGNBkIaU+n/Ll0VnKN2QBGxmnwJ
-         8n6H9mh8BuvVsAiD/Vv3bSfYNBgrvtfhF/UjzVdasFSF/ZMTiZy2XHWrfBNSinNujf
-         N6pK2d3i4iIZK2HsD8UA3mSv1fKlkBY+QTsH+fik=
+        b=ppBTMh3fYh9QoixpYuOUj6mzM7QG0pSbZF8Qcksz/+wrjKQCxioStZcaDi8e44h64
+         Xsrq1hj4P5/IPgnLInC6uNb0iAM0inHWsyp5hvAoT3xGjtTJ+Jru2PlctG2GixGd3U
+         SW/EDgiE9QS20rdlXfjmVTeLSMyOr4Y08y42uWwQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0318/1017] arm64: dts: broadcom: bcm4908: use proper TWD binding
-Date:   Tue,  5 Apr 2022 09:20:31 +0200
-Message-Id: <20220405070403.717394334@linuxfoundation.org>
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        Niels Dossche <niels.dossche@ugent.be>,
+        Niels Dossche <dossche.niels@gmail.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.15 170/913] btrfs: extend locking to all space_info members accesses
+Date:   Tue,  5 Apr 2022 09:20:32 +0200
+Message-Id: <20220405070344.945810759@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,54 +57,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafał Miłecki <rafal@milecki.pl>
+From: Niels Dossche <dossche.niels@gmail.com>
 
-[ Upstream commit 33826e9c6ba76b265d4e26cb95493fa27ed78974 ]
+commit 06bae876634ebf837ba70ea3de532b288326103d upstream.
 
-Block at <ff800400 0x4c> is a TWD that contains timers, watchdog and
-reset. Actual timers happen to be at block beginning but they only span
-across the first 0x28 registers. It means the old block description was
-incorrect (size 0x3c).
+bytes_pinned is always accessed under space_info->lock, except in
+btrfs_preempt_reclaim_metadata_space, however the other members are
+accessed under that lock. The reserved member of the rsv's are also
+partially accessed under a lock and partially not. Move all these
+accesses into the same lock to ensure consistency.
 
-Drop timers binding for now and use documented TWD binding. Timers
-should be properly documented and defined as TWD subnode.
+This could potentially race and lead to a flush instead of a commit but
+it's not a big problem as it's only for preemptive flush.
 
-Fixes: 2961f69f151c ("arm64: dts: broadcom: add BCM4908 and Asus GT-AC5300 early DTS files")
-Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+CC: stable@vger.kernel.org # 5.15+
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Niels Dossche <niels.dossche@ugent.be>
+Signed-off-by: Niels Dossche <dossche.niels@gmail.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/boot/dts/broadcom/bcm4908/bcm4908.dtsi | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ fs/btrfs/space-info.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/broadcom/bcm4908/bcm4908.dtsi b/arch/arm64/boot/dts/broadcom/bcm4908/bcm4908.dtsi
-index 984c737fa627..6e738f2a3701 100644
---- a/arch/arm64/boot/dts/broadcom/bcm4908/bcm4908.dtsi
-+++ b/arch/arm64/boot/dts/broadcom/bcm4908/bcm4908.dtsi
-@@ -273,9 +273,9 @@
- 		#size-cells = <1>;
- 		ranges = <0x00 0x00 0xff800000 0x3000>;
+--- a/fs/btrfs/space-info.c
++++ b/fs/btrfs/space-info.c
+@@ -1054,7 +1054,6 @@ static void btrfs_preempt_reclaim_metada
+ 			trans_rsv->reserved;
+ 		if (block_rsv_size < space_info->bytes_may_use)
+ 			delalloc_size = space_info->bytes_may_use - block_rsv_size;
+-		spin_unlock(&space_info->lock);
  
--		timer: timer@400 {
--			compatible = "brcm,bcm6328-timer", "syscon";
--			reg = <0x400 0x3c>;
-+		twd: timer-mfd@400 {
-+			compatible = "brcm,bcm4908-twd", "simple-mfd", "syscon";
-+			reg = <0x400 0x4c>;
- 		};
+ 		/*
+ 		 * We don't want to include the global_rsv in our calculation,
+@@ -1085,6 +1084,8 @@ static void btrfs_preempt_reclaim_metada
+ 			flush = FLUSH_DELAYED_REFS_NR;
+ 		}
  
- 		gpio0: gpio-controller@500 {
-@@ -330,7 +330,7 @@
- 
- 	reboot {
- 		compatible = "syscon-reboot";
--		regmap = <&timer>;
-+		regmap = <&twd>;
- 		offset = <0x34>;
- 		mask = <1>;
- 	};
--- 
-2.34.1
-
++		spin_unlock(&space_info->lock);
++
+ 		/*
+ 		 * We don't want to reclaim everything, just a portion, so scale
+ 		 * down the to_reclaim by 1/4.  If it takes us down to 0,
 
 
