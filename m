@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 71C204F33E7
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:24:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B59234F3494
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:38:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235446AbiDEJCD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:02:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45580 "EHLO
+        id S235404AbiDEJBv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:01:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45550 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237583AbiDEImt (ORCPT
+        with ESMTP id S237569AbiDEImt (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:42:49 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF15814035;
-        Tue,  5 Apr 2022 01:35:18 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DEC2140CB;
+        Tue,  5 Apr 2022 01:35:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 67D93B81B92;
-        Tue,  5 Apr 2022 08:35:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1550C385A0;
-        Tue,  5 Apr 2022 08:35:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 009F8B81B92;
+        Tue,  5 Apr 2022 08:35:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60D93C385A1;
+        Tue,  5 Apr 2022 08:35:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147716;
-        bh=u2nGEvtwicBX4OYSzCM0UB7N5/sxr44UItVD1FL1gQw=;
+        s=korg; t=1649147718;
+        bh=8QYO2AMThjA538+hdzVx+um+o/IV7h3ewMsPaWlZaLg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FtHPLqdVt54KSZdVXIMmKTKLItEcTAeZw7GqJaid8uEfIhbU/mVB+ascpSLsMVUP3
-         UQJaF03ZvTFDmKkjwQBg1v01iDum1q0hkPAiIQf4MfRqfZrAdGEaBbl1oKY9FMezWw
-         g6ESQktZecmy3yN9EUEXBvCi0WMT5G8XN1L4kDt4=
+        b=zx5a8AOdIqytBjCCxmeyhL8QRSVd9Htf5rwRQQThW4QMHUQLK9CUcGczdTO297EXA
+         F+tNEA+Rkpks5C4rgFBpDsxxAa3IuJXVnP8IYX+KVNr656W2gEwq7frcwIbGT6kf3o
+         t4NGMLibIdAXxtvKXxhXMFE7bWK2irpyq3W3d9LI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Manish Chopra <manishc@marvell.com>,
-        Ariel Elior <aelior@marvell.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.16 0096/1017] qed: validate and restrict untrusted VFs vlan promisc mode
-Date:   Tue,  5 Apr 2022 09:16:49 +0200
-Message-Id: <20220405070357.046215659@linuxfoundation.org>
+        stable@vger.kernel.org, Niklas Cassel <niklas.cassel@wdc.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Palmer Dabbelt <palmer@rivosinc.com>
+Subject: [PATCH 5.16 0097/1017] riscv: dts: canaan: Fix SPI3 bus width
+Date:   Tue,  5 Apr 2022 09:16:50 +0200
+Message-Id: <20220405070357.075910805@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -54,108 +54,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manish Chopra <manishc@marvell.com>
+From: Niklas Cassel <niklas.cassel@wdc.com>
 
-commit cbcc44db2cf7b836896733acc0e5ea966136ed22 upstream.
+commit 6846d656106add3aeefcd6eda0dc885787deaa6e upstream.
 
-Today when VFs are put in promiscuous mode, they can request PF
-to configure device for them to receive all VLANs traffic regardless
-of what vlan is configured by the PF (via ip link) and PF allows this
-config request regardless of whether VF is trusted or not.
+According to the K210 Standalone SDK Programming guide:
+https://canaan-creative.com/wp-content/uploads/2020/03/kendryte_standalone_programming_guide_20190311144158_en.pdf
 
->From security POV, when VLAN is configured for VF through PF (via ip link),
-honour such config requests from VF only when they are configured to be
-trusted, otherwise restrict such VFs vlan promisc mode config.
+Section 15.4.3.3:
+SPI0 and SPI1 supports: standard, dual, quad and octal transfers.
+SPI3 supports: standard, dual and quad transfers (octal is not supported).
 
+In order to support quad transfers (Quad SPI), SPI3 must have four IO wires
+connected to the SPI flash.
+
+Update the device tree to specify the correct bus width.
+
+Tested on maix bit, maix dock and maixduino, which all have the same
+SPI flash (gd25lq128d) connected to SPI3. maix go is untested, but it
+would not make sense for this k210 board to be designed differently.
+
+Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
+Reviewed-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Fixes: 8f5b0e79f3e5 ("riscv: Add SiPeed MAIXDUINO board device tree")
+Fixes: 8194f08bda18 ("riscv: Add SiPeed MAIX GO board device tree")
+Fixes: a40f920964c4 ("riscv: Add SiPeed MAIX DOCK board device tree")
+Fixes: 97c279bcf813 ("riscv: Add SiPeed MAIX BiT board device tree")
 Cc: stable@vger.kernel.org
-Fixes: f990c82c385b ("qed*: Add support for ndo_set_vf_trust")
-Signed-off-by: Manish Chopra <manishc@marvell.com>
-Signed-off-by: Ariel Elior <aelior@marvell.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/qlogic/qed/qed_sriov.c |   28 ++++++++++++++++++++++++++--
- drivers/net/ethernet/qlogic/qed/qed_sriov.h |    1 +
- 2 files changed, 27 insertions(+), 2 deletions(-)
+ arch/riscv/boot/dts/canaan/sipeed_maix_bit.dts  |    2 ++
+ arch/riscv/boot/dts/canaan/sipeed_maix_dock.dts |    2 ++
+ arch/riscv/boot/dts/canaan/sipeed_maix_go.dts   |    2 ++
+ arch/riscv/boot/dts/canaan/sipeed_maixduino.dts |    2 ++
+ 4 files changed, 8 insertions(+)
 
---- a/drivers/net/ethernet/qlogic/qed/qed_sriov.c
-+++ b/drivers/net/ethernet/qlogic/qed/qed_sriov.c
-@@ -2984,12 +2984,16 @@ static int qed_iov_pre_update_vport(stru
- 	u8 mask = QED_ACCEPT_UCAST_UNMATCHED | QED_ACCEPT_MCAST_UNMATCHED;
- 	struct qed_filter_accept_flags *flags = &params->accept_flags;
- 	struct qed_public_vf_info *vf_info;
-+	u16 tlv_mask;
-+
-+	tlv_mask = BIT(QED_IOV_VP_UPDATE_ACCEPT_PARAM) |
-+		   BIT(QED_IOV_VP_UPDATE_ACCEPT_ANY_VLAN);
- 
- 	/* Untrusted VFs can't even be trusted to know that fact.
- 	 * Simply indicate everything is configured fine, and trace
- 	 * configuration 'behind their back'.
- 	 */
--	if (!(*tlvs & BIT(QED_IOV_VP_UPDATE_ACCEPT_PARAM)))
-+	if (!(*tlvs & tlv_mask))
- 		return 0;
- 
- 	vf_info = qed_iov_get_public_vf_info(hwfn, vfid, true);
-@@ -3006,6 +3010,13 @@ static int qed_iov_pre_update_vport(stru
- 			flags->tx_accept_filter &= ~mask;
- 	}
- 
-+	if (params->update_accept_any_vlan_flg) {
-+		vf_info->accept_any_vlan = params->accept_any_vlan;
-+
-+		if (vf_info->forced_vlan && !vf_info->is_trusted_configured)
-+			params->accept_any_vlan = false;
-+	}
-+
- 	return 0;
- }
- 
-@@ -5150,6 +5161,12 @@ static void qed_iov_handle_trust_change(
- 
- 		params.update_ctl_frame_check = 1;
- 		params.mac_chk_en = !vf_info->is_trusted_configured;
-+		params.update_accept_any_vlan_flg = 0;
-+
-+		if (vf_info->accept_any_vlan && vf_info->forced_vlan) {
-+			params.update_accept_any_vlan_flg = 1;
-+			params.accept_any_vlan = vf_info->accept_any_vlan;
-+		}
- 
- 		if (vf_info->rx_accept_mode & mask) {
- 			flags->update_rx_mode_config = 1;
-@@ -5165,13 +5182,20 @@ static void qed_iov_handle_trust_change(
- 		if (!vf_info->is_trusted_configured) {
- 			flags->rx_accept_filter &= ~mask;
- 			flags->tx_accept_filter &= ~mask;
-+			params.accept_any_vlan = false;
- 		}
- 
- 		if (flags->update_rx_mode_config ||
- 		    flags->update_tx_mode_config ||
--		    params.update_ctl_frame_check)
-+		    params.update_ctl_frame_check ||
-+		    params.update_accept_any_vlan_flg) {
-+			DP_VERBOSE(hwfn, QED_MSG_IOV,
-+				   "vport update config for %s VF[abs 0x%x rel 0x%x]\n",
-+				   vf_info->is_trusted_configured ? "trusted" : "untrusted",
-+				   vf->abs_vf_id, vf->relative_vf_id);
- 			qed_sp_vport_update(hwfn, &params,
- 					    QED_SPQ_MODE_EBLOCK, NULL);
-+		}
- 	}
- }
- 
---- a/drivers/net/ethernet/qlogic/qed/qed_sriov.h
-+++ b/drivers/net/ethernet/qlogic/qed/qed_sriov.h
-@@ -62,6 +62,7 @@ struct qed_public_vf_info {
- 	bool is_trusted_request;
- 	u8 rx_accept_mode;
- 	u8 tx_accept_mode;
-+	bool accept_any_vlan;
- };
- 
- struct qed_iov_vf_init_params {
+--- a/arch/riscv/boot/dts/canaan/sipeed_maix_bit.dts
++++ b/arch/riscv/boot/dts/canaan/sipeed_maix_bit.dts
+@@ -203,6 +203,8 @@
+ 		compatible = "jedec,spi-nor";
+ 		reg = <0>;
+ 		spi-max-frequency = <50000000>;
++		spi-tx-bus-width = <4>;
++		spi-rx-bus-width = <4>;
+ 		m25p,fast-read;
+ 		broken-flash-reset;
+ 	};
+--- a/arch/riscv/boot/dts/canaan/sipeed_maix_dock.dts
++++ b/arch/riscv/boot/dts/canaan/sipeed_maix_dock.dts
+@@ -205,6 +205,8 @@
+ 		compatible = "jedec,spi-nor";
+ 		reg = <0>;
+ 		spi-max-frequency = <50000000>;
++		spi-tx-bus-width = <4>;
++		spi-rx-bus-width = <4>;
+ 		m25p,fast-read;
+ 		broken-flash-reset;
+ 	};
+--- a/arch/riscv/boot/dts/canaan/sipeed_maix_go.dts
++++ b/arch/riscv/boot/dts/canaan/sipeed_maix_go.dts
+@@ -213,6 +213,8 @@
+ 		compatible = "jedec,spi-nor";
+ 		reg = <0>;
+ 		spi-max-frequency = <50000000>;
++		spi-tx-bus-width = <4>;
++		spi-rx-bus-width = <4>;
+ 		m25p,fast-read;
+ 		broken-flash-reset;
+ 	};
+--- a/arch/riscv/boot/dts/canaan/sipeed_maixduino.dts
++++ b/arch/riscv/boot/dts/canaan/sipeed_maixduino.dts
+@@ -178,6 +178,8 @@
+ 		compatible = "jedec,spi-nor";
+ 		reg = <0>;
+ 		spi-max-frequency = <50000000>;
++		spi-tx-bus-width = <4>;
++		spi-rx-bus-width = <4>;
+ 		m25p,fast-read;
+ 		broken-flash-reset;
+ 	};
 
 
