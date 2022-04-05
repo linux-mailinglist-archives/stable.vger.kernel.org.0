@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C32464F351F
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:48:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CA2E4F2EBF
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:03:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229973AbiDEJfr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:35:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33454 "EHLO
+        id S234453AbiDEIZQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:25:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34810 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343533AbiDEI45 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:56:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8144C21E09;
-        Tue,  5 Apr 2022 01:53:00 -0700 (PDT)
+        with ESMTP id S238265AbiDEISq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:18:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C67B26C964;
+        Tue,  5 Apr 2022 01:08:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D64066117A;
-        Tue,  5 Apr 2022 08:52:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E35E3C385A0;
-        Tue,  5 Apr 2022 08:52:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 628A9B81A37;
+        Tue,  5 Apr 2022 08:08:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCE64C385A0;
+        Tue,  5 Apr 2022 08:08:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148779;
-        bh=F7l6cRDIskjsaex4YVqyUiGZjsX8weyvVrGPsY41MgU=;
+        s=korg; t=1649146107;
+        bh=3DZlFMKW8AtnIFijjSZArz2JKQNQA0Cg5vX6FoyXY4U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TWIm5NdLqJh3tUPDBi1w6vW68nrxwPA2JcREKDrUY2cJy0f2+SUYgl3wY6Md/Aw20
-         2h2jy/zE7zpwPLKPfWks3E90OOOmcuzm6jB0DIawLC1l1VcuV6scAjc2DnnOHy5LtL
-         XWEEaRJAbJ0/WG4JU1vDWYuxnVVK0j8JMkUfqR9I=
+        b=xMea7LW0Z22DKmnGPSQEXN6PSo8XJ5IVA4jRgoX35BVokGUjgRhTrrF3eYQoOuYbn
+         byIXgy66uddktNIV2wlIUXaLEP5hLuEel6Y2XVLJCK8z8DpmWL6dkwJaxfObgH5iHN
+         rZubE1G2iQ+Iw/L4d8BXO0zVtBYB4t5Pyejct8UI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
-        Michael Walle <michael@walle.cc>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
+        stable@vger.kernel.org,
+        Sreekanth Reddy <sreekanth.reddy@broadcom.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0479/1017] mtd: mchp48l640: Add SPI ID table
-Date:   Tue,  5 Apr 2022 09:23:12 +0200
-Message-Id: <20220405070408.517000412@linuxfoundation.org>
+Subject: [PATCH 5.17 0646/1126] scsi: mpt3sas: Fix incorrect 4GB boundary check
+Date:   Tue,  5 Apr 2022 09:23:13 +0200
+Message-Id: <20220405070426.592429846@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,54 +55,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
 
-[ Upstream commit 69a6d06878f05d63673b0dcdc3c3ef1af2996d46 ]
+[ Upstream commit 208cc9fe6f21112b5cc6cb87065fb8ab66e79316 ]
 
-Currently autoloading for SPI devices does not use the DT ID table, it uses
-SPI modalises. Supporting OF modalises is going to be difficult if not
-impractical, an attempt was made but has been reverted, so ensure that
-module autoloading works for this driver by adding an id_table listing the
-SPI IDs for everything.
+The driver must perform its 4GB boundary check using the pool's DMA address
+instead of using the virtual address.
 
-Fixes: 96c8395e2166 ("spi: Revert modalias changes")
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Reviewed-by: Michael Walle <michael@walle.cc>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20220202143404.16070-4-broonie@kernel.org
+Link: https://lore.kernel.org/r/20220303140230.13098-1-sreekanth.reddy@broadcom.com
+Fixes: d6adc251dd2f ("scsi: mpt3sas: Force PCIe scatterlist allocations to be within same 4 GB region")
+Signed-off-by: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/devices/mchp48l640.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/scsi/mpt3sas/mpt3sas_base.c | 25 ++++++++++++-------------
+ 1 file changed, 12 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/mtd/devices/mchp48l640.c b/drivers/mtd/devices/mchp48l640.c
-index 99400d0fb8c1..fbd6b6bf908e 100644
---- a/drivers/mtd/devices/mchp48l640.c
-+++ b/drivers/mtd/devices/mchp48l640.c
-@@ -357,6 +357,15 @@ static const struct of_device_id mchp48l640_of_table[] = {
- };
- MODULE_DEVICE_TABLE(of, mchp48l640_of_table);
+diff --git a/drivers/scsi/mpt3sas/mpt3sas_base.c b/drivers/scsi/mpt3sas/mpt3sas_base.c
+index 76229b839560..fb5a3a348dbe 100644
+--- a/drivers/scsi/mpt3sas/mpt3sas_base.c
++++ b/drivers/scsi/mpt3sas/mpt3sas_base.c
+@@ -5736,14 +5736,13 @@ _base_release_memory_pools(struct MPT3SAS_ADAPTER *ioc)
+  */
  
-+static const struct spi_device_id mchp48l640_spi_ids[] = {
-+	{
-+		.name = "48l640",
-+		.driver_data = (kernel_ulong_t)&mchp48l640_caps,
-+	},
-+	{}
-+};
-+MODULE_DEVICE_TABLE(spi, mchp48l640_spi_ids);
-+
- static struct spi_driver mchp48l640_driver = {
- 	.driver = {
- 		.name	= "mchp48l640",
-@@ -364,6 +373,7 @@ static struct spi_driver mchp48l640_driver = {
- 	},
- 	.probe		= mchp48l640_probe,
- 	.remove		= mchp48l640_remove,
-+	.id_table	= mchp48l640_spi_ids,
- };
+ static int
+-mpt3sas_check_same_4gb_region(long reply_pool_start_address, u32 pool_sz)
++mpt3sas_check_same_4gb_region(dma_addr_t start_address, u32 pool_sz)
+ {
+-	long reply_pool_end_address;
++	dma_addr_t end_address;
  
- module_spi_driver(mchp48l640_driver);
+-	reply_pool_end_address = reply_pool_start_address + pool_sz;
++	end_address = start_address + pool_sz - 1;
+ 
+-	if (upper_32_bits(reply_pool_start_address) ==
+-		upper_32_bits(reply_pool_end_address))
++	if (upper_32_bits(start_address) == upper_32_bits(end_address))
+ 		return 1;
+ 	else
+ 		return 0;
+@@ -5804,7 +5803,7 @@ _base_allocate_pcie_sgl_pool(struct MPT3SAS_ADAPTER *ioc, u32 sz)
+ 		}
+ 
+ 		if (!mpt3sas_check_same_4gb_region(
+-		    (long)ioc->pcie_sg_lookup[i].pcie_sgl, sz)) {
++		    ioc->pcie_sg_lookup[i].pcie_sgl_dma, sz)) {
+ 			ioc_err(ioc, "PCIE SGLs are not in same 4G !! pcie sgl (0x%p) dma = (0x%llx)\n",
+ 			    ioc->pcie_sg_lookup[i].pcie_sgl,
+ 			    (unsigned long long)
+@@ -5859,8 +5858,8 @@ _base_allocate_chain_dma_pool(struct MPT3SAS_ADAPTER *ioc, u32 sz)
+ 			    GFP_KERNEL, &ctr->chain_buffer_dma);
+ 			if (!ctr->chain_buffer)
+ 				return -EAGAIN;
+-			if (!mpt3sas_check_same_4gb_region((long)
+-			    ctr->chain_buffer, ioc->chain_segment_sz)) {
++			if (!mpt3sas_check_same_4gb_region(
++			    ctr->chain_buffer_dma, ioc->chain_segment_sz)) {
+ 				ioc_err(ioc,
+ 				    "Chain buffers are not in same 4G !!! Chain buff (0x%p) dma = (0x%llx)\n",
+ 				    ctr->chain_buffer,
+@@ -5896,7 +5895,7 @@ _base_allocate_sense_dma_pool(struct MPT3SAS_ADAPTER *ioc, u32 sz)
+ 	    GFP_KERNEL, &ioc->sense_dma);
+ 	if (!ioc->sense)
+ 		return -EAGAIN;
+-	if (!mpt3sas_check_same_4gb_region((long)ioc->sense, sz)) {
++	if (!mpt3sas_check_same_4gb_region(ioc->sense_dma, sz)) {
+ 		dinitprintk(ioc, pr_err(
+ 		    "Bad Sense Pool! sense (0x%p) sense_dma = (0x%llx)\n",
+ 		    ioc->sense, (unsigned long long) ioc->sense_dma));
+@@ -5929,7 +5928,7 @@ _base_allocate_reply_pool(struct MPT3SAS_ADAPTER *ioc, u32 sz)
+ 	    &ioc->reply_dma);
+ 	if (!ioc->reply)
+ 		return -EAGAIN;
+-	if (!mpt3sas_check_same_4gb_region((long)ioc->reply_free, sz)) {
++	if (!mpt3sas_check_same_4gb_region(ioc->reply_dma, sz)) {
+ 		dinitprintk(ioc, pr_err(
+ 		    "Bad Reply Pool! Reply (0x%p) Reply dma = (0x%llx)\n",
+ 		    ioc->reply, (unsigned long long) ioc->reply_dma));
+@@ -5964,7 +5963,7 @@ _base_allocate_reply_free_dma_pool(struct MPT3SAS_ADAPTER *ioc, u32 sz)
+ 	    GFP_KERNEL, &ioc->reply_free_dma);
+ 	if (!ioc->reply_free)
+ 		return -EAGAIN;
+-	if (!mpt3sas_check_same_4gb_region((long)ioc->reply_free, sz)) {
++	if (!mpt3sas_check_same_4gb_region(ioc->reply_free_dma, sz)) {
+ 		dinitprintk(ioc,
+ 		    pr_err("Bad Reply Free Pool! Reply Free (0x%p) Reply Free dma = (0x%llx)\n",
+ 		    ioc->reply_free, (unsigned long long) ioc->reply_free_dma));
+@@ -6003,7 +6002,7 @@ _base_allocate_reply_post_free_array(struct MPT3SAS_ADAPTER *ioc,
+ 	    GFP_KERNEL, &ioc->reply_post_free_array_dma);
+ 	if (!ioc->reply_post_free_array)
+ 		return -EAGAIN;
+-	if (!mpt3sas_check_same_4gb_region((long)ioc->reply_post_free_array,
++	if (!mpt3sas_check_same_4gb_region(ioc->reply_post_free_array_dma,
+ 	    reply_post_free_array_sz)) {
+ 		dinitprintk(ioc, pr_err(
+ 		    "Bad Reply Free Pool! Reply Free (0x%p) Reply Free dma = (0x%llx)\n",
+@@ -6068,7 +6067,7 @@ base_alloc_rdpq_dma_pool(struct MPT3SAS_ADAPTER *ioc, int sz)
+ 			 * resources and set DMA mask to 32 and allocate.
+ 			 */
+ 			if (!mpt3sas_check_same_4gb_region(
+-				(long)ioc->reply_post[i].reply_post_free, sz)) {
++				ioc->reply_post[i].reply_post_free_dma, sz)) {
+ 				dinitprintk(ioc,
+ 				    ioc_err(ioc, "bad Replypost free pool(0x%p)"
+ 				    "reply_post_free_dma = (0x%llx)\n",
 -- 
 2.34.1
 
