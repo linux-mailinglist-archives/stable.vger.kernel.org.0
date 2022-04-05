@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E39A54F28E6
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:22:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D3B54F28EC
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:22:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240144AbiDEIXt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:23:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55022 "EHLO
+        id S234472AbiDEIXw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:23:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34762 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237322AbiDEIRz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:17:55 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D888B3DE4;
-        Tue,  5 Apr 2022 01:06:03 -0700 (PDT)
+        with ESMTP id S237382AbiDEIR6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:17:58 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE88CB53DC;
+        Tue,  5 Apr 2022 01:06:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7ED0DB81BAF;
-        Tue,  5 Apr 2022 08:06:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3AB9C385A0;
-        Tue,  5 Apr 2022 08:06:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3B0C4B81B14;
+        Tue,  5 Apr 2022 08:06:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 906DBC385A1;
+        Tue,  5 Apr 2022 08:06:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145961;
-        bh=Pq3+SVaoZd+Fd197Y5mdzFTMoxlvF+PCrqlvowlz+Cs=;
+        s=korg; t=1649145966;
+        bh=U56hZjD4S/pEnKF2LuvYVCgeLMT6KTmLGPDAPE1EpZU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zwXCSIm4tun+fC/EgZ8slUbx/fOQziaThUshrBfJAVyUsEEa+2Vmr8by4xfxLeQjJ
-         hj8L3GsT+gh1U1+DkxvqaTnEZP6zRcR2j4ksKl+3v5iZnm7IsXv1DNASyLqovTe+wK
-         jZOMRk+1Q2mZnxXC6JM9LX2RwbaNPycQkjRIZc+g=
+        b=iNiySDHWAnFNIzRUTPS1ZqZVREptSqIaBsLOSal6AQa12nDfiZeUHJm23ynaoJcXH
+         X7DeAgB8rGSRuEs8lFqwH8bUNLykrBqp7PVsZt5NKshyy3vmBBEA8AE/dRoGForRq9
+         EBExSQ1HfCFp9TDYhl6QxZ0poWq/XVEHXQ2jUpJM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Widawsky <ben.widawsky@intel.com>,
-        Dan Williams <dan.j.williams@intel.com>,
+        stable@vger.kernel.org, Geliang Tang <geliang.tang@suse.com>,
+        Mat Martineau <mathew.j.martineau@linux.intel.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0554/1126] cxl/port: Hold port reference until decoder release
-Date:   Tue,  5 Apr 2022 09:21:41 +0200
-Message-Id: <20220405070423.894407819@linuxfoundation.org>
+Subject: [PATCH 5.17 0556/1126] selftests: mptcp: add csum mib check for mptcp_connect
+Date:   Tue,  5 Apr 2022 09:21:43 +0200
+Message-Id: <20220405070423.953672524@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -54,71 +55,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Williams <dan.j.williams@intel.com>
+From: Geliang Tang <geliang.tang@suse.com>
 
-[ Upstream commit 74be98774dfbc5b8b795db726bd772e735d2edd4 ]
+[ Upstream commit 24720d7452df2dff2e539d9dff28904e25bb1c6d ]
 
-KASAN + DEBUG_KOBJECT_RELEASE reports a potential use-after-free in
-cxl_decoder_release() where it goes to reference its parent, a cxl_port,
-to free its id back to port->decoder_ida.
+This patch added the data checksum error mib counters check for the
+script mptcp_connect.sh when the data checksum is enabled.
 
- BUG: KASAN: use-after-free in to_cxl_port+0x18/0x90 [cxl_core]
- Read of size 8 at addr ffff888119270908 by task kworker/35:2/379
+In do_transfer(), got the mib counters twice, before and after running
+the mptcp_connect commands. The latter minus the former is the actual
+number of the data checksum mib counter.
 
- CPU: 35 PID: 379 Comm: kworker/35:2 Tainted: G           OE     5.17.0-rc2+ #198
- Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 0.0.0 02/06/2015
- Workqueue: events kobject_delayed_cleanup
- Call Trace:
-  <TASK>
-  dump_stack_lvl+0x59/0x73
-  print_address_description.constprop.0+0x1f/0x150
-  ? to_cxl_port+0x18/0x90 [cxl_core]
-  kasan_report.cold+0x83/0xdf
-  ? to_cxl_port+0x18/0x90 [cxl_core]
-  to_cxl_port+0x18/0x90 [cxl_core]
-  cxl_decoder_release+0x2a/0x60 [cxl_core]
-  device_release+0x5f/0x100
-  kobject_cleanup+0x80/0x1c0
+The output looks like this:
 
-The device core only guarantees parent lifetime until all children are
-unregistered. If a child needs a parent to complete its ->release()
-callback that child needs to hold a reference to extend the lifetime of
-the parent.
+ns1 MPTCP -> ns2 (dead:beef:1::2:10007) MPTCP   (duration    86ms) [ OK ]
+ns1 MPTCP -> ns2 (10.0.2.1:10008      ) MPTCP   (duration    66ms) [ FAIL ]
+server got 1 data checksum error[s]
 
-Fixes: 40ba17afdfab ("cxl/acpi: Introduce cxl_decoder objects")
-Reported-by: Ben Widawsky <ben.widawsky@intel.com>
-Tested-by: Ben Widawsky <ben.widawsky@intel.com>
-Reviewed-by: Ben Widawsky <ben.widawsky@intel.com>
-Link: https://lore.kernel.org/r/164505751190.4175768.13324905271463416712.stgit@dwillia2-desk3.amr.corp.intel.com
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Fixes: 94d66ba1d8e48 ("selftests: mptcp: enable checksum in mptcp_connect.sh")
+Closes: https://github.com/multipath-tcp/mptcp_net-next/issues/255
+Signed-off-by: Geliang Tang <geliang.tang@suse.com>
+Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cxl/core/port.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ .../selftests/net/mptcp/mptcp_connect.sh      | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
 
-diff --git a/drivers/cxl/core/port.c b/drivers/cxl/core/port.c
-index 3f9b98ecd18b..aa5239ac67c6 100644
---- a/drivers/cxl/core/port.c
-+++ b/drivers/cxl/core/port.c
-@@ -182,6 +182,7 @@ static void cxl_decoder_release(struct device *dev)
+diff --git a/tools/testing/selftests/net/mptcp/mptcp_connect.sh b/tools/testing/selftests/net/mptcp/mptcp_connect.sh
+index f0f4ab96b8f3..621af6895f4d 100755
+--- a/tools/testing/selftests/net/mptcp/mptcp_connect.sh
++++ b/tools/testing/selftests/net/mptcp/mptcp_connect.sh
+@@ -432,6 +432,8 @@ do_transfer()
+ 	local stat_ackrx_last_l=$(get_mib_counter "${listener_ns}" "MPTcpExtMPCapableACKRX")
+ 	local stat_cookietx_last=$(get_mib_counter "${listener_ns}" "TcpExtSyncookiesSent")
+ 	local stat_cookierx_last=$(get_mib_counter "${listener_ns}" "TcpExtSyncookiesRecv")
++	local stat_csum_err_s=$(get_mib_counter "${listener_ns}" "MPTcpExtDataCsumErr")
++	local stat_csum_err_c=$(get_mib_counter "${connector_ns}" "MPTcpExtDataCsumErr")
  
- 	ida_free(&port->decoder_ida, cxld->id);
- 	kfree(cxld);
-+	put_device(&port->dev);
- }
+ 	timeout ${timeout_test} \
+ 		ip netns exec ${listener_ns} \
+@@ -524,6 +526,23 @@ do_transfer()
+ 		fi
+ 	fi
  
- static const struct device_type cxl_decoder_switch_type = {
-@@ -500,7 +501,10 @@ struct cxl_decoder *cxl_decoder_alloc(struct cxl_port *port, int nr_targets)
- 	if (rc < 0)
- 		goto err;
- 
-+	/* need parent to stick around to release the id */
-+	get_device(&port->dev);
- 	cxld->id = rc;
++	if $checksum; then
++		local csum_err_s=$(get_mib_counter "${listener_ns}" "MPTcpExtDataCsumErr")
++		local csum_err_c=$(get_mib_counter "${connector_ns}" "MPTcpExtDataCsumErr")
 +
- 	cxld->nr_targets = nr_targets;
- 	dev = &cxld->dev;
- 	device_initialize(dev);
++		local csum_err_s_nr=$((csum_err_s - stat_csum_err_s))
++		if [ $csum_err_s_nr -gt 0 ]; then
++			printf "[ FAIL ]\nserver got $csum_err_s_nr data checksum error[s]"
++			rets=1
++		fi
++
++		local csum_err_c_nr=$((csum_err_c - stat_csum_err_c))
++		if [ $csum_err_c_nr -gt 0 ]; then
++			printf "[ FAIL ]\nclient got $csum_err_c_nr data checksum error[s]"
++			retc=1
++		fi
++	fi
++
+ 	if [ $retc -eq 0 ] && [ $rets -eq 0 ]; then
+ 		printf "[ OK ]"
+ 	fi
 -- 
 2.34.1
 
