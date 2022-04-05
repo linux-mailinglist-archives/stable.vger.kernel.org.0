@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 150884F37CA
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:25:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC5E34F3AC7
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:04:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359533AbiDELTy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:19:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47312 "EHLO
+        id S230384AbiDELsL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:48:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51088 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349211AbiDEJt1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:27 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D1C122B1F;
-        Tue,  5 Apr 2022 02:42:49 -0700 (PDT)
+        with ESMTP id S1355473AbiDEKUB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:20:01 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 921C874DCD;
+        Tue,  5 Apr 2022 03:04:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id EE952CE1C6F;
-        Tue,  5 Apr 2022 09:42:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11453C385A2;
-        Tue,  5 Apr 2022 09:42:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BBE4F616E7;
+        Tue,  5 Apr 2022 10:04:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBE46C385A1;
+        Tue,  5 Apr 2022 10:04:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151766;
-        bh=OtMJiNTcTHUQcPH4dSGJwZZlh+3lpDszUo2IbFnk9JM=;
+        s=korg; t=1649153098;
+        bh=/maTMZpPyHrPXM73DSYyKjXwq5K+XsJdIA6vi+YbTEU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kUZqkYbugCwFPooCbkRwFGPm/qokvEgn2EGt4EPk6tRa8PJ7rkzJter5iIns9Rsdi
-         FZhYNfyXYTVW28nd4075CY0mMw21UJZmSmoD2xiX5HyN2J2w7PWvc8vYCDvkAlYqQ3
-         tNH/Q9Wj+7/hzfYL1ZBmvLw4duQV25Ou+C1nz8cU=
+        b=Gtld/7Q3wSJ+kDjVXTOsiTFnZ8FFPyOJAq4M8NnE2PHnoeMpyOf8O6AeeOb5o4kXF
+         7H229JlYApuJGPeazZx7VuakxpVOkDVEiQAR9xzPNIfk/+yi2ilUJDhSdritAgePE0
+         cqlQ928BbicjQ72985SkKuUSoOuJPICykqJsBcac=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Serge Semin <fancer.lancer@gmail.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 532/913] mips: cdmm: Fix refcount leak in mips_cdmm_phys_base
-Date:   Tue,  5 Apr 2022 09:26:34 +0200
-Message-Id: <20220405070355.796436628@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Alim Akhtar <alim.akhtar@samsung.com>
+Subject: [PATCH 5.10 101/599] ARM: dts: exynos: add missing HDMI supplies on SMDK5250
+Date:   Tue,  5 Apr 2022 09:26:35 +0200
+Message-Id: <20220405070301.837755352@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070258.802373272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,37 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 
-[ Upstream commit 4528668ca331f7ce5999b7746657b46db5b3b785 ]
+commit 60a9914cb2061ba612a3f14f6ad329912b486360 upstream.
 
-The of_find_compatible_node() function returns a node pointer with
-refcount incremented, We should use of_node_put() on it when done
-Add the missing of_node_put() to release the refcount.
+Add required VDD supplies to HDMI block on SMDK5250.  Without them, the
+HDMI driver won't probe.  Because of lack of schematics, use same
+supplies as on Arndale 5250 board (voltage matches).
 
-Fixes: 2121aa3e2312 ("mips: cdmm: Add mti,mips-cdmm dtb node support")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Acked-by: Serge Semin <fancer.lancer@gmail.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: <stable@vger.kernel.org> # v3.15+
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Reviewed-by: Alim Akhtar <alim.akhtar@samsung.com>
+Link: https://lore.kernel.org/r/20220208171823.226211-2-krzysztof.kozlowski@canonical.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/bus/mips_cdmm.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/boot/dts/exynos5250-smdk5250.dts |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/bus/mips_cdmm.c b/drivers/bus/mips_cdmm.c
-index 626dedd110cb..fca0d0669aa9 100644
---- a/drivers/bus/mips_cdmm.c
-+++ b/drivers/bus/mips_cdmm.c
-@@ -351,6 +351,7 @@ phys_addr_t __weak mips_cdmm_phys_base(void)
- 	np = of_find_compatible_node(NULL, NULL, "mti,mips-cdmm");
- 	if (np) {
- 		err = of_address_to_resource(np, 0, &res);
-+		of_node_put(np);
- 		if (!err)
- 			return res.start;
- 	}
--- 
-2.34.1
-
+--- a/arch/arm/boot/dts/exynos5250-smdk5250.dts
++++ b/arch/arm/boot/dts/exynos5250-smdk5250.dts
+@@ -118,6 +118,9 @@
+ 	status = "okay";
+ 	ddc = <&i2c_2>;
+ 	hpd-gpios = <&gpx3 7 GPIO_ACTIVE_HIGH>;
++	vdd-supply = <&ldo8_reg>;
++	vdd_osc-supply = <&ldo10_reg>;
++	vdd_pll-supply = <&ldo8_reg>;
+ };
+ 
+ &i2c_0 {
 
 
