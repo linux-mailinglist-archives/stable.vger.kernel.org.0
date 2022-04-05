@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D1BB4F2C7F
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:31:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CEAF14F2B86
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:10:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242937AbiDEJie (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:38:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41940 "EHLO
+        id S241639AbiDEIew (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:34:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34816 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243168AbiDEJIs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:08:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE1F29F38B;
-        Tue,  5 Apr 2022 01:57:44 -0700 (PDT)
+        with ESMTP id S239436AbiDEIUF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:20:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6735C91572;
+        Tue,  5 Apr 2022 01:13:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 93C69B81C6A;
-        Tue,  5 Apr 2022 08:57:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 053FEC385A6;
-        Tue,  5 Apr 2022 08:57:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 143C5B81B90;
+        Tue,  5 Apr 2022 08:13:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72492C385A2;
+        Tue,  5 Apr 2022 08:13:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149062;
-        bh=1I9ntHJiM21S0qLJy1WF+V3MuZ6FluhhpC6uOraCkoc=;
+        s=korg; t=1649146388;
+        bh=TYK4B6kjg7vfkpzhpVpnNb+aVZu1hz8gIrRdAKmIiQs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZUdsfQGKqUQ1gykIK6+zuIJUp367FXbOkT1gMPr2FLuoQi1v4svl0RfL0bHyyfd7Z
-         FMx2Fop6+MmPBaYhPGc6u6VyirdwZb3ukIiJP5/0b1ep1kksqRHbfr2XWDhGZS18ic
-         l4TWjCvRc1oj7iBkLVbbzkrHjg2QkGTtjehcEruI=
+        b=bCGB/MKleNpOORX8ii2jZrx/Lo+EX3VSG3L8JVO8yPgBwcW1RXM21Ay5MvXpdJqum
+         dwtFQKFnSKJdy4y4TbSviGlm798UYW3ak/zbX+3moFvvLlyzEwpCSw8MXccpM51keP
+         9O850PLTiV8vbnvkEUAKA9W3zZg5Chg2nNeEXr7g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakob Koschel <jakobkoschel@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org,
+        Codrin Ciubotariu <codrin.ciubotariu@microchip.com>,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0579/1017] powerpc/sysdev: fix incorrect use to determine if list is empty
+Subject: [PATCH 5.17 0745/1126] clk: at91: sama7g5: fix parents of PDMCs GCLK
 Date:   Tue,  5 Apr 2022 09:24:52 +0200
-Message-Id: <20220405070411.466855616@linuxfoundation.org>
+Message-Id: <20220405070429.452117570@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,48 +56,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakob Koschel <jakobkoschel@gmail.com>
+From: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
 
-[ Upstream commit fa1321b11bd01752f5be2415e74a0e1a7c378262 ]
+[ Upstream commit 1a944729d8635fa59638f24e8727d5ccaa0c8c19 ]
 
-'gtm' will *always* be set by list_for_each_entry().
-It is incorrect to assume that the iterator value will be NULL if the
-list is empty.
+Audio PLL can be used as parent by the GCLKs of PDMCs.
 
-Instead of checking the pointer it should be checked if
-the list is empty.
-
-Fixes: 83ff9dcf375c ("powerpc/sysdev: implement FSL GTM support")
-Signed-off-by: Jakob Koschel <jakobkoschel@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220228142434.576226-1-jakobkoschel@gmail.com
+Fixes: cb783bbbcf54 ("clk: at91: sama7g5: add clock support for sama7g5")
+Signed-off-by: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
+Reviewed-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Signed-off-by: Nicolas Ferre <nicolas.ferre@microchip.com>
+Link: https://lore.kernel.org/r/20220304182616.1920392-1-codrin.ciubotariu@microchip.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/sysdev/fsl_gtm.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/clk/at91/sama7g5.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/powerpc/sysdev/fsl_gtm.c b/arch/powerpc/sysdev/fsl_gtm.c
-index 8963eaffb1b7..39186ad6b3c3 100644
---- a/arch/powerpc/sysdev/fsl_gtm.c
-+++ b/arch/powerpc/sysdev/fsl_gtm.c
-@@ -86,7 +86,7 @@ static LIST_HEAD(gtms);
-  */
- struct gtm_timer *gtm_get_timer16(void)
- {
--	struct gtm *gtm = NULL;
-+	struct gtm *gtm;
- 	int i;
+diff --git a/drivers/clk/at91/sama7g5.c b/drivers/clk/at91/sama7g5.c
+index 369dfafabbca..060e908086a1 100644
+--- a/drivers/clk/at91/sama7g5.c
++++ b/drivers/clk/at91/sama7g5.c
+@@ -696,16 +696,16 @@ static const struct {
+ 	{ .n  = "pdmc0_gclk",
+ 	  .id = 68,
+ 	  .r = { .max = 50000000  },
+-	  .pp = { "syspll_divpmcck", "baudpll_divpmcck", },
+-	  .pp_mux_table = { 5, 8, },
++	  .pp = { "syspll_divpmcck", "audiopll_divpmcck", },
++	  .pp_mux_table = { 5, 9, },
+ 	  .pp_count = 2,
+ 	  .pp_chg_id = INT_MIN, },
  
- 	list_for_each_entry(gtm, &gtms, list_node) {
-@@ -103,7 +103,7 @@ struct gtm_timer *gtm_get_timer16(void)
- 		spin_unlock_irq(&gtm->lock);
- 	}
+ 	{ .n  = "pdmc1_gclk",
+ 	  .id = 69,
+ 	  .r = { .max = 50000000, },
+-	  .pp = { "syspll_divpmcck", "baudpll_divpmcck", },
+-	  .pp_mux_table = { 5, 8, },
++	  .pp = { "syspll_divpmcck", "audiopll_divpmcck", },
++	  .pp_mux_table = { 5, 9, },
+ 	  .pp_count = 2,
+ 	  .pp_chg_id = INT_MIN, },
  
--	if (gtm)
-+	if (!list_empty(&gtms))
- 		return ERR_PTR(-EBUSY);
- 	return ERR_PTR(-ENODEV);
- }
 -- 
 2.34.1
 
