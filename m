@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CECE4F3139
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:40:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 209A94F310B
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:36:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350419AbiDEJ6H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:58:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38302 "EHLO
+        id S242061AbiDEIge (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:36:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45378 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343988AbiDEJQo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:16:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E7ADBF40;
-        Tue,  5 Apr 2022 02:02:38 -0700 (PDT)
+        with ESMTP id S239644AbiDEIUX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:20:23 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9F47254;
+        Tue,  5 Apr 2022 01:18:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BE604614E4;
-        Tue,  5 Apr 2022 09:02:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2E73C385A0;
-        Tue,  5 Apr 2022 09:02:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 96EB0B81A37;
+        Tue,  5 Apr 2022 08:18:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 072F8C385A1;
+        Tue,  5 Apr 2022 08:18:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149357;
-        bh=fb9efia5mVrZlJD4idK/NLmTQmEyTQOi7uyPx6MOOJs=;
+        s=korg; t=1649146684;
+        bh=GH4tvnJqzHy/GV+ENS19CUUuBijp1Yt8XgYpVSEgxSo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DLM7qxPA5Yxk6Sg9yNZ6wSQIAYE4CIfB271mJGmfBVdX4HE46G9fCF5zpKFKG02DG
-         2fAsCxs4c6q4o9fP4P5fi8gbmVpU0SlQKJ/OnETIMMAXgXfmmSamDYkVE9RDW/Mc9N
-         4E1da/NZa4ZgkqGkfBJk5XKg88bPyiDV6fr/baTI=
+        b=QMQMq7uOEpCuS/KmY7+LSYS0e8hG0OvdUC64o6EVDm8BzwapikvftY/OmPitSmkhT
+         M2roc5VpBiHluFU4yTrF1faQol3pUTebSED1XcxnsMZXQGzQ5cezcTYJHyZAKs9Dpr
+         dFbK+LBB6fZIvXYBdFZO2homaDoMEKKcrY9CCug8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Jonathan=20Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0686/1017] clk: hisilicon: Terminate clk_div_table with sentinel element
+Subject: [PATCH 5.17 0852/1126] Fix incorrect type in assignment of ipv6 port for audit
 Date:   Tue,  5 Apr 2022 09:26:39 +0200
-Message-Id: <20220405070414.639927189@linuxfoundation.org>
+Message-Id: <20220405070432.554730668@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,37 +54,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Neuschäfer <j.neuschaefer@gmx.net>
+From: Casey Schaufler <casey@schaufler-ca.com>
 
-[ Upstream commit 113b261bdf2b4fd34e7769a147a7acd0a4d9137f ]
+[ Upstream commit a5cd1ab7ab679d252a6d2f483eee7d45ebf2040c ]
 
-In order that the end of a clk_div_table can be detected, it must be
-terminated with a sentinel element (.div = 0).
+Remove inappropriate use of ntohs() and assign the
+port value directly.
 
-Fixes: 6c81966107dc0 ("clk: hisilicon: Add clock driver for hi3559A SoC")
-Signed-off-by: Jonathan Neuschäfer <j.neuschaefer@gmx.net>
-Link: https://lore.kernel.org/r/20220218000922.134857-4-j.neuschaefer@gmx.net
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/hisilicon/clk-hi3559a.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ security/smack/smack_lsm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/clk/hisilicon/clk-hi3559a.c b/drivers/clk/hisilicon/clk-hi3559a.c
-index 56012a3d0219..9ea1a80acbe8 100644
---- a/drivers/clk/hisilicon/clk-hi3559a.c
-+++ b/drivers/clk/hisilicon/clk-hi3559a.c
-@@ -611,8 +611,8 @@ static struct hisi_mux_clock hi3559av100_shub_mux_clks[] = {
- 
- 
- /* shub div clk */
--static struct clk_div_table shub_spi_clk_table[] = {{0, 8}, {1, 4}, {2, 2}};
--static struct clk_div_table shub_uart_div_clk_table[] = {{1, 8}, {2, 4}};
-+static struct clk_div_table shub_spi_clk_table[] = {{0, 8}, {1, 4}, {2, 2}, {/*sentinel*/}};
-+static struct clk_div_table shub_uart_div_clk_table[] = {{1, 8}, {2, 4}, {/*sentinel*/}};
- 
- static struct hisi_divider_clock hi3559av100_shub_div_clks[] = {
- 	{ HI3559AV100_SHUB_SPI_SOURCE_CLK, "clk_spi_clk", "shub_clk", 0, 0x20, 24, 2,
+diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+index 14b279cc75c9..6207762dbdb1 100644
+--- a/security/smack/smack_lsm.c
++++ b/security/smack/smack_lsm.c
+@@ -2510,7 +2510,7 @@ static int smk_ipv6_check(struct smack_known *subject,
+ #ifdef CONFIG_AUDIT
+ 	smk_ad_init_net(&ad, __func__, LSM_AUDIT_DATA_NET, &net);
+ 	ad.a.u.net->family = PF_INET6;
+-	ad.a.u.net->dport = ntohs(address->sin6_port);
++	ad.a.u.net->dport = address->sin6_port;
+ 	if (act == SMK_RECEIVING)
+ 		ad.a.u.net->v6info.saddr = address->sin6_addr;
+ 	else
 -- 
 2.34.1
 
