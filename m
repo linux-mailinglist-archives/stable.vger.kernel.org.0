@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EB9FA4F2C8C
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:31:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE54B4F2DD0
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:47:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236869AbiDEI2p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:28:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51188 "EHLO
+        id S237024AbiDEI2v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:28:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51224 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239697AbiDEIUb (ORCPT
+        with ESMTP id S239706AbiDEIUb (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:20:31 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB1E418B;
-        Tue,  5 Apr 2022 01:18:31 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27D5D8D;
+        Tue,  5 Apr 2022 01:18:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AF341B81B90;
-        Tue,  5 Apr 2022 08:18:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CC18C385A0;
-        Tue,  5 Apr 2022 08:18:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B562860B10;
+        Tue,  5 Apr 2022 08:18:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C686EC385A2;
+        Tue,  5 Apr 2022 08:18:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146709;
-        bh=MJvPpz9dYJStREh6QLBJhvjzV7MS/kHzAg9ejIrAUvU=;
+        s=korg; t=1649146712;
+        bh=A/hAMMRh3XJNdD9x1AAtbacK618VtXEYBp3Ix1ZXMfo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H4+8vK+lytizKddRGpagYlK6yPogGDTNrMhr/rz18fh1rl0h5mcm969f9I+T8FF9n
-         y2KE5CGg6LaXd+CE8BhmhiIB2CG/Ad6wxS2Z+NgPs8V8vRMqZQ5XJgygqiwVHeEpER
-         f+LdOaufwdUmJUhhssWfC1soBOA02txhnYEBlpuQ=
+        b=p9OVJmAhtWehGGi6rN1Prm39qaJKoaymnj1SC+tBfetUneEBSBmycee9KnT3Xqrh0
+         TcTkzamU47ClaacKC3PUFz0tMz0lJJ745IROOn4/8MbDfPa8ZrRnYnNqpFCBVlqOHE
+         15fJN34KAuSvsHTSEGqNObKOsbnSzgyF75Bnc8r0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0860/1126] ACPI / x86: Add skip i2c clients quirk for Lenovo Yoga Tablet 1050F/L
-Date:   Tue,  5 Apr 2022 09:26:47 +0200
-Message-Id: <20220405070432.783356698@linuxfoundation.org>
+        stable@vger.kernel.org, Matt Brown <matthew.brown.dev@gmail.com>,
+        Paul Menzel <pmenzel@molgen.mpg.de>,
+        Song Liu <song@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 0861/1126] lib/raid6/test/Makefile: Use $(pound) instead of \# for Make 4.3
+Date:   Tue,  5 Apr 2022 09:26:48 +0200
+Message-Id: <20220405070432.813199053@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -54,48 +54,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Paul Menzel <pmenzel@molgen.mpg.de>
 
-[ Upstream commit 4fecb1e93e4914fc0bc1fb467ca79741f9f94abb ]
+[ Upstream commit 633174a7046ec3b4572bec24ef98e6ee89bce14b ]
 
-The Yoga Tablet 1050F/L is a x86 ACPI tablet which ships with Android x86
-as factory OS. Its DSDT contains a bunch of I2C devices which are not
-actually there, causing various resource conflicts (the Android x86
-kernel fork ignores I2C devices described in the DSDT).
+Buidling raid6test on Ubuntu 21.10 (ppc64le) with GNU Make 4.3 shows the
+errors below:
 
-Add a ACPI_QUIRK_SKIP_I2C_CLIENTS for the Nextbook Ares 8 to the
-acpi_quirk_skip_dmi_ids table to woraround this.
+    $ cd lib/raid6/test/
+    $ make
+    <stdin>:1:1: error: stray ‘\’ in program
+    <stdin>:1:2: error: stray ‘#’ in program
+    <stdin>:1:11: error: expected ‘=’, ‘,’, ‘;’, ‘asm’ or ‘__attribute__’ \
+        before ‘<’ token
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+    [...]
+
+The errors come from the HAS_ALTIVEC test, which fails, and the POWER
+optimized versions are not built. That’s also reason nobody noticed on the
+other architectures.
+
+GNU Make 4.3 does not remove the backslash anymore. From the 4.3 release
+announcment:
+
+> * WARNING: Backward-incompatibility!
+>   Number signs (#) appearing inside a macro reference or function invocation
+>   no longer introduce comments and should not be escaped with backslashes:
+>   thus a call such as:
+>     foo := $(shell echo '#')
+>   is legal.  Previously the number sign needed to be escaped, for example:
+>     foo := $(shell echo '\#')
+>   Now this latter will resolve to "\#".  If you want to write makefiles
+>   portable to both versions, assign the number sign to a variable:
+>     H := \#
+>     foo := $(shell echo '$H')
+>   This was claimed to be fixed in 3.81, but wasn't, for some reason.
+>   To detect this change search for 'nocomment' in the .FEATURES variable.
+
+So, do the same as commit 9564a8cf422d ("Kbuild: fix # escaping in .cmd
+files for future Make") and commit 929bef467771 ("bpf: Use $(pound) instead
+of \# in Makefiles") and define and use a $(pound) variable.
+
+Reference for the change in make:
+https://git.savannah.gnu.org/cgit/make.git/commit/?id=c6966b323811c37acedff05b57
+
+Cc: Matt Brown <matthew.brown.dev@gmail.com>
+Signed-off-by: Paul Menzel <pmenzel@molgen.mpg.de>
+Signed-off-by: Song Liu <song@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/x86/utils.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ lib/raid6/test/Makefile | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/acpi/x86/utils.c b/drivers/acpi/x86/utils.c
-index 9b991294f1e5..664070fc8349 100644
---- a/drivers/acpi/x86/utils.c
-+++ b/drivers/acpi/x86/utils.c
-@@ -284,6 +284,18 @@ static const struct dmi_system_id acpi_quirk_skip_dmi_ids[] = {
- 		.driver_data = (void *)(ACPI_QUIRK_SKIP_I2C_CLIENTS |
- 					ACPI_QUIRK_SKIP_ACPI_AC_AND_BATTERY),
- 	},
-+	{
-+		/* Lenovo Yoga Tablet 1050F/L */
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Intel Corp."),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "VALLEYVIEW C0 PLATFORM"),
-+			DMI_MATCH(DMI_BOARD_NAME, "BYT-T FFD8"),
-+			/* Partial match on beginning of BIOS version */
-+			DMI_MATCH(DMI_BIOS_VERSION, "BLADE_21"),
-+		},
-+		.driver_data = (void *)(ACPI_QUIRK_SKIP_I2C_CLIENTS |
-+					ACPI_QUIRK_SKIP_ACPI_AC_AND_BATTERY),
-+	},
- 	{
- 		/* Nextbook Ares 8 */
- 		.matches = {
+diff --git a/lib/raid6/test/Makefile b/lib/raid6/test/Makefile
+index a4c7cd74cff5..4fb7700a741b 100644
+--- a/lib/raid6/test/Makefile
++++ b/lib/raid6/test/Makefile
+@@ -4,6 +4,8 @@
+ # from userspace.
+ #
+ 
++pound := \#
++
+ CC	 = gcc
+ OPTFLAGS = -O2			# Adjust as desired
+ CFLAGS	 = -I.. -I ../../../include -g $(OPTFLAGS)
+@@ -42,7 +44,7 @@ else ifeq ($(HAS_NEON),yes)
+         OBJS   += neon.o neon1.o neon2.o neon4.o neon8.o recov_neon.o recov_neon_inner.o
+         CFLAGS += -DCONFIG_KERNEL_MODE_NEON=1
+ else
+-        HAS_ALTIVEC := $(shell printf '\#include <altivec.h>\nvector int a;\n' |\
++        HAS_ALTIVEC := $(shell printf '$(pound)include <altivec.h>\nvector int a;\n' |\
+                          gcc -c -x c - >/dev/null && rm ./-.o && echo yes)
+         ifeq ($(HAS_ALTIVEC),yes)
+                 CFLAGS += -I../../../arch/powerpc/include
 -- 
 2.34.1
 
