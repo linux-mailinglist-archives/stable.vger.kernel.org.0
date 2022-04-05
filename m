@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7ADAD4F391A
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:44:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 424134F3BD5
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:22:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377618AbiDEL3z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:29:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35094 "EHLO
+        id S1354782AbiDEMCf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:02:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50762 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351906AbiDEKD3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:03:29 -0400
+        with ESMTP id S1358024AbiDEK1w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:27:52 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BEC07F233;
-        Tue,  5 Apr 2022 02:52:29 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F2D8689A2;
+        Tue,  5 Apr 2022 03:13:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EED6AB81CB3;
-        Tue,  5 Apr 2022 09:52:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43709C385A1;
-        Tue,  5 Apr 2022 09:52:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F0223B81C88;
+        Tue,  5 Apr 2022 10:13:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6AD05C385A1;
+        Tue,  5 Apr 2022 10:13:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152345;
-        bh=Xw/2gJHhbQCdbR9Btc27+q+yXGSLg084DpCItCXfpOA=;
+        s=korg; t=1649153584;
+        bh=ZIOmT5Slk2G++mQSpDt+ZoovSPZ+Y40/5YBoKMtkjkM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=llWUKpsbo1yzWjbadLBgeatXA9QqNr5P5gIwyFJffntjY2ExfknfgheKpnCyDs10B
-         SYyXufV6VKMKPN4YBJ2q8nUo5fdlM/a1PqMGx7AMdypDJSTtGp+B5h8PoYL811qRyt
-         4fqja+21Jn/hEeFEf1FmAMKTVKSnhA+Rckqva9jU=
+        b=HbNbov6nPpmtVU4GakahqqLNM2fa3+AOqQ6icYx7FBl9RMQYm9YIrKaEmoU9gwiwB
+         Aw7a98Qw+Y3WY+L87a0+0xdhkEm8HuP24f5+oQ5+s7HqQA1I4lIqcL6hHKhh6c1kkm
+         0iFFQbAjgQnqx0FaN6QgkgjhqHnDX/gnu/Cjm5I0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Shannon Nelson <snelson@pensando.io>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 705/913] PM: core: keep irq flags in device_pm_check_callbacks()
+Subject: [PATCH 5.10 273/599] ionic: fix type complaint in ionic_dev_cmd_clean()
 Date:   Tue,  5 Apr 2022 09:29:27 +0200
-Message-Id: <20220405070400.967825452@linuxfoundation.org>
+Message-Id: <20220405070306.962301309@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070258.802373272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,105 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+From: Shannon Nelson <snelson@pensando.io>
 
-[ Upstream commit 524bb1da785a7ae43dd413cd392b5071c6c367f8 ]
+[ Upstream commit bc0bf9de6f48268f4ee59e57fb42ac751be3ecda ]
 
-The function device_pm_check_callbacks() can be called under the spin
-lock (in the reported case it happens from genpd_add_device() ->
-dev_pm_domain_set(), when the genpd uses spinlocks rather than mutexes.
+Sparse seems to have gotten a little more picky lately and
+we need to revisit this bit of code to make sparse happy.
 
-However this function uncoditionally uses spin_lock_irq() /
-spin_unlock_irq(), thus not preserving the CPU flags. Use the
-irqsave/irqrestore instead.
+warning: incorrect type in initializer (different address spaces)
+   expected union ionic_dev_cmd_regs *regs
+   got union ionic_dev_cmd_regs [noderef] __iomem *dev_cmd_regs
+warning: incorrect type in argument 2 (different address spaces)
+   expected void [noderef] __iomem *
+   got unsigned int *
+warning: incorrect type in argument 1 (different address spaces)
+   expected void volatile [noderef] __iomem *
+   got union ionic_dev_cmd *
 
-The backtrace for the reference:
-[    2.752010] ------------[ cut here ]------------
-[    2.756769] raw_local_irq_restore() called with IRQs enabled
-[    2.762596] WARNING: CPU: 4 PID: 1 at kernel/locking/irqflag-debug.c:10 warn_bogus_irq_restore+0x34/0x50
-[    2.772338] Modules linked in:
-[    2.775487] CPU: 4 PID: 1 Comm: swapper/0 Tainted: G S                5.17.0-rc6-00384-ge330d0d82eff-dirty #684
-[    2.781384] Freeing initrd memory: 46024K
-[    2.785839] pstate: 60400005 (nZCv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-[    2.785841] pc : warn_bogus_irq_restore+0x34/0x50
-[    2.785844] lr : warn_bogus_irq_restore+0x34/0x50
-[    2.785846] sp : ffff80000805b7d0
-[    2.785847] x29: ffff80000805b7d0 x28: 0000000000000000 x27: 0000000000000002
-[    2.785850] x26: ffffd40e80930b18 x25: ffff7ee2329192b8 x24: ffff7edfc9f60800
-[    2.785853] x23: ffffd40e80930b18 x22: ffffd40e80930d30 x21: ffff7edfc0dffa00
-[    2.785856] x20: ffff7edfc09e3768 x19: 0000000000000000 x18: ffffffffffffffff
-[    2.845775] x17: 6572206f74206465 x16: 6c696166203a3030 x15: ffff80008805b4f7
-[    2.853108] x14: 0000000000000000 x13: ffffd40e809550b0 x12: 00000000000003d8
-[    2.860441] x11: 0000000000000148 x10: ffffd40e809550b0 x9 : ffffd40e809550b0
-[    2.867774] x8 : 00000000ffffefff x7 : ffffd40e809ad0b0 x6 : ffffd40e809ad0b0
-[    2.875107] x5 : 000000000000bff4 x4 : 0000000000000000 x3 : 0000000000000000
-[    2.882440] x2 : 0000000000000000 x1 : 0000000000000000 x0 : ffff7edfc03a8000
-[    2.889774] Call trace:
-[    2.892290]  warn_bogus_irq_restore+0x34/0x50
-[    2.896770]  _raw_spin_unlock_irqrestore+0x94/0xa0
-[    2.901690]  genpd_unlock_spin+0x20/0x30
-[    2.905724]  genpd_add_device+0x100/0x2d0
-[    2.909850]  __genpd_dev_pm_attach+0xa8/0x23c
-[    2.914329]  genpd_dev_pm_attach_by_id+0xc4/0x190
-[    2.919167]  genpd_dev_pm_attach_by_name+0x3c/0xd0
-[    2.924086]  dev_pm_domain_attach_by_name+0x24/0x30
-[    2.929102]  psci_dt_attach_cpu+0x24/0x90
-[    2.933230]  psci_cpuidle_probe+0x2d4/0x46c
-[    2.937534]  platform_probe+0x68/0xe0
-[    2.941304]  really_probe.part.0+0x9c/0x2fc
-[    2.945605]  __driver_probe_device+0x98/0x144
-[    2.950085]  driver_probe_device+0x44/0x15c
-[    2.954385]  __device_attach_driver+0xb8/0x120
-[    2.958950]  bus_for_each_drv+0x78/0xd0
-[    2.962896]  __device_attach+0xd8/0x180
-[    2.966843]  device_initial_probe+0x14/0x20
-[    2.971144]  bus_probe_device+0x9c/0xa4
-[    2.975092]  device_add+0x380/0x88c
-[    2.978679]  platform_device_add+0x114/0x234
-[    2.983067]  platform_device_register_full+0x100/0x190
-[    2.988344]  psci_idle_init+0x6c/0xb0
-[    2.992113]  do_one_initcall+0x74/0x3a0
-[    2.996060]  kernel_init_freeable+0x2fc/0x384
-[    3.000543]  kernel_init+0x28/0x130
-[    3.004132]  ret_from_fork+0x10/0x20
-[    3.007817] irq event stamp: 319826
-[    3.011404] hardirqs last  enabled at (319825): [<ffffd40e7eda0268>] __up_console_sem+0x78/0x84
-[    3.020332] hardirqs last disabled at (319826): [<ffffd40e7fd6d9d8>] el1_dbg+0x24/0x8c
-[    3.028458] softirqs last  enabled at (318312): [<ffffd40e7ec90410>] _stext+0x410/0x588
-[    3.036678] softirqs last disabled at (318299): [<ffffd40e7ed1bf68>] __irq_exit_rcu+0x158/0x174
-[    3.045607] ---[ end trace 0000000000000000 ]---
-
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: d701ec326a31 ("ionic: clean up sparse complaints")
+Signed-off-by: Shannon Nelson <snelson@pensando.io>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/power/main.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/pensando/ionic/ionic_main.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/base/power/main.c b/drivers/base/power/main.c
-index 6bce40e2506e..8c4819fe73d4 100644
---- a/drivers/base/power/main.c
-+++ b/drivers/base/power/main.c
-@@ -2022,7 +2022,9 @@ static bool pm_ops_is_empty(const struct dev_pm_ops *ops)
+diff --git a/drivers/net/ethernet/pensando/ionic/ionic_main.c b/drivers/net/ethernet/pensando/ionic/ionic_main.c
+index d355676f6c16..e14869a2e24a 100644
+--- a/drivers/net/ethernet/pensando/ionic/ionic_main.c
++++ b/drivers/net/ethernet/pensando/ionic/ionic_main.c
+@@ -311,10 +311,10 @@ int ionic_adminq_post_wait(struct ionic_lif *lif, struct ionic_admin_ctx *ctx)
  
- void device_pm_check_callbacks(struct device *dev)
+ static void ionic_dev_cmd_clean(struct ionic *ionic)
  {
--	spin_lock_irq(&dev->power.lock);
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&dev->power.lock, flags);
- 	dev->power.no_pm_callbacks =
- 		(!dev->bus || (pm_ops_is_empty(dev->bus->pm) &&
- 		 !dev->bus->suspend && !dev->bus->resume)) &&
-@@ -2031,7 +2033,7 @@ void device_pm_check_callbacks(struct device *dev)
- 		(!dev->pm_domain || pm_ops_is_empty(&dev->pm_domain->ops)) &&
- 		(!dev->driver || (pm_ops_is_empty(dev->driver->pm) &&
- 		 !dev->driver->suspend && !dev->driver->resume));
--	spin_unlock_irq(&dev->power.lock);
-+	spin_unlock_irqrestore(&dev->power.lock, flags);
+-	union __iomem ionic_dev_cmd_regs *regs = ionic->idev.dev_cmd_regs;
++	struct ionic_dev *idev = &ionic->idev;
+ 
+-	iowrite32(0, &regs->doorbell);
+-	memset_io(&regs->cmd, 0, sizeof(regs->cmd));
++	iowrite32(0, &idev->dev_cmd_regs->doorbell);
++	memset_io(&idev->dev_cmd_regs->cmd, 0, sizeof(idev->dev_cmd_regs->cmd));
  }
  
- bool dev_pm_skip_suspend(struct device *dev)
+ int ionic_dev_cmd_wait(struct ionic *ionic, unsigned long max_seconds)
 -- 
 2.34.1
 
