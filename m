@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 81B0D4F2FE8
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:18:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 730A24F32AF
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:59:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241607AbiDEIei (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:34:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37236 "EHLO
+        id S239385AbiDEJxo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:53:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49234 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239449AbiDEIUF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:20:05 -0400
+        with ESMTP id S243418AbiDEJI4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:08:56 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 000CDCF5;
-        Tue,  5 Apr 2022 01:13:31 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49DE69F6E5;
+        Tue,  5 Apr 2022 01:58:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6DAE2609D0;
-        Tue,  5 Apr 2022 08:13:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EEC6C385A1;
-        Tue,  5 Apr 2022 08:13:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7F78461574;
+        Tue,  5 Apr 2022 08:58:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94805C385A0;
+        Tue,  5 Apr 2022 08:58:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146410;
-        bh=0wYuwAGChqOKzuYEF8sOFnPeHw7YKkRvAICZaEhGM7E=;
+        s=korg; t=1649149083;
+        bh=nTo5q30PPqsFi2+GkQvzuK8vFIkgLEuVQEnryNps5rM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BV486yau5Yd4L7+pyVuYYzqI+7YAE0N23Q+dqr64I3IOgfK7HAV5ZMMYwZMIYjkSc
-         cswE0V2laSS0nbeffhlKWJH9bq5yurec+OvpSJNcKBZzPNMtX3CFnjdbWExoy8deyy
-         6Vl1qeCnZeKnoBN28AJsjBjNhMDzP1zWD0HMtUZo=
+        b=C/V/U6o5xam35r3g8pxq0dbkYh1i1iIT57o1bcc5jFha/ZJCDQwSMfwqZ7XToS+Bh
+         61e2Wj7KN6ZqVhC3MOHvp7jKMMJ1VLGnKvDKP6tal3nawtbDVIdFKTMOPDLBdp5qbA
+         ok+fAm1Oydt4bvYcflpnmGdRBOnPcrVigYokeb9M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0752/1126] remoteproc: qcom_wcnss: Add missing of_node_put() in wcnss_alloc_memory_region
-Date:   Tue,  5 Apr 2022 09:24:59 +0200
-Message-Id: <20220405070429.659193757@linuxfoundation.org>
+Subject: [PATCH 5.16 0587/1017] xtensa: add missing XCHAL_HAVE_WINDOWED check
+Date:   Tue,  5 Apr 2022 09:25:00 +0200
+Message-Id: <20220405070411.703420324@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,34 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Max Filippov <jcmvbkbc@gmail.com>
 
-[ Upstream commit 8f90161a66bc3d6b9fe8dde4d9028d20eae1b62a ]
+[ Upstream commit 8c9ab55c0fbdc76cb876140c2dad75a610bb23ef ]
 
-The device_node pointer is returned by of_parse_phandle()  with refcount
-incremented. We should use of_node_put() on it when done.
+Add missing preprocessor conditions to secondary reset vector code.
 
-Fixes: aed361adca9f ("remoteproc: qcom: Introduce WCNSS peripheral image loader")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220308063102.10049-1-linmq006@gmail.com
+Fixes: 09af39f649da ("xtensa: use register window specific opcodes only when present")
+Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/remoteproc/qcom_wcnss.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/xtensa/kernel/mxhead.S | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/remoteproc/qcom_wcnss.c b/drivers/remoteproc/qcom_wcnss.c
-index 80bbafee9846..9a223d394087 100644
---- a/drivers/remoteproc/qcom_wcnss.c
-+++ b/drivers/remoteproc/qcom_wcnss.c
-@@ -500,6 +500,7 @@ static int wcnss_alloc_memory_region(struct qcom_wcnss *wcnss)
- 	}
+diff --git a/arch/xtensa/kernel/mxhead.S b/arch/xtensa/kernel/mxhead.S
+index 9f3843742726..b702c0908b1f 100644
+--- a/arch/xtensa/kernel/mxhead.S
++++ b/arch/xtensa/kernel/mxhead.S
+@@ -37,11 +37,13 @@ _SetupOCD:
+ 	 * xt-gdb to single step via DEBUG exceptions received directly
+ 	 * by ocd.
+ 	 */
++#if XCHAL_HAVE_WINDOWED
+ 	movi	a1, 1
+ 	movi	a0, 0
+ 	wsr	a1, windowstart
+ 	wsr	a0, windowbase
+ 	rsync
++#endif
  
- 	ret = of_address_to_resource(node, 0, &r);
-+	of_node_put(node);
- 	if (ret)
- 		return ret;
- 
+ 	movi	a1, LOCKLEVEL
+ 	wsr	a1, ps
 -- 
 2.34.1
 
