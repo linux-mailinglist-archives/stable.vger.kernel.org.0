@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DAA894F38C8
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:37:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 227524F38C9
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:37:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377188AbiDEL2S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:28:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56482 "EHLO
+        id S1377193AbiDEL2U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:28:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56620 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349720AbiDEJvF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:51:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65997DF99;
-        Tue,  5 Apr 2022 02:49:07 -0700 (PDT)
+        with ESMTP id S1349728AbiDEJvI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:51:08 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3587E120BB;
+        Tue,  5 Apr 2022 02:49:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0B04FB818F3;
-        Tue,  5 Apr 2022 09:49:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5AA2CC385A2;
-        Tue,  5 Apr 2022 09:49:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DDC32B81B76;
+        Tue,  5 Apr 2022 09:49:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F0E8C385A1;
+        Tue,  5 Apr 2022 09:49:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152144;
-        bh=BKFbN78+A/5yk54tSfiWqE/xHZibpiB0gV7vX3QvTg4=;
+        s=korg; t=1649152147;
+        bh=96OvkCivmFseK7bEObf6KFbVIP+u0ZzPNMVNOVGBOvk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t8Y0B3IxZP2T8uho11gtfbrTbHEZJDOsfAt8QanHiZt4UGoDUhtaNIbL0ThmoL7ao
-         Dw6sTQY9OQkpVv6SSgkD5N3J9bJlGwGTyujXczEm0SFQ7BosfaD9WRSMSdQ06AhccW
-         6qJZqPGYqtds4BMPD187L7gZ75LrPx/eU+OxXBEo=
+        b=mR6S41XNt8kKxjt5e4VUEyWzJLVMvS9pKlP9i9bH2wvcfIgPEV4Ek/jDm4Ek0XiWI
+         aPpFv8royFTK//f2LmzJbT10A3E4Nr5GGFbSMRnRmAzchezLP+vAE4Xt8iBZvsfvQn
+         Xv0QyOgsMBOcuyqbF0Kbu751B02mNYsCRpl4zLwY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
-        Lin Ma <linma@zju.edu.cn>,
+        stable@vger.kernel.org, Zheng Yongjun <zhengyongjun3@huawei.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 672/913] net/x25: Fix null-ptr-deref caused by x25_disconnect
-Date:   Tue,  5 Apr 2022 09:28:54 +0200
-Message-Id: <20220405070359.979429682@linuxfoundation.org>
+Subject: [PATCH 5.15 673/913] net: sparx5: switchdev: fix possible NULL pointer dereference
+Date:   Tue,  5 Apr 2022 09:28:55 +0200
+Message-Id: <20220405070400.009412195@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -55,63 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duoming Zhou <duoming@zju.edu.cn>
+From: Zheng Yongjun <zhengyongjun3@huawei.com>
 
-[ Upstream commit 7781607938c8371d4c2b243527430241c62e39c2 ]
+[ Upstream commit 0906f3a3df07835e37077d8971aac65347f2ed57 ]
 
-When the link layer is terminating, x25->neighbour will be set to NULL
-in x25_disconnect(). As a result, it could cause null-ptr-deref bugs in
-x25_sendmsg(),x25_recvmsg() and x25_connect(). One of the bugs is
-shown below.
+As the possible failure of the allocation, devm_kzalloc() may return NULL
+pointer.
+Therefore, it should be better to check the 'db' in order to prevent
+the dereference of NULL pointer.
 
-    (Thread 1)                 |  (Thread 2)
-x25_link_terminated()          | x25_recvmsg()
- x25_kill_by_neigh()           |  ...
-  x25_disconnect()             |  lock_sock(sk)
-   ...                         |  ...
-   x25->neighbour = NULL //(1) |
-   ...                         |  x25->neighbour->extended //(2)
-
-The code sets NULL to x25->neighbour in position (1) and dereferences
-x25->neighbour in position (2), which could cause null-ptr-deref bug.
-
-This patch adds lock_sock() in x25_kill_by_neigh() in order to synchronize
-with x25_sendmsg(), x25_recvmsg() and x25_connect(). What`s more, the
-sock held by lock_sock() is not NULL, because it is extracted from x25_list
-and uses x25_list_lock to synchronize.
-
-Fixes: 4becb7ee5b3d ("net/x25: Fix x25_neigh refcnt leak when x25 disconnect")
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
-Reviewed-by: Lin Ma <linma@zju.edu.cn>
+Fixes: 10615907e9b51 ("net: sparx5: switchdev: adding frame DMA functionality")
+Signed-off-by: Zheng Yongjun <zhengyongjun3@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/x25/af_x25.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/microchip/sparx5/sparx5_fdma.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/net/x25/af_x25.c b/net/x25/af_x25.c
-index 3583354a7d7f..3a171828638b 100644
---- a/net/x25/af_x25.c
-+++ b/net/x25/af_x25.c
-@@ -1765,10 +1765,15 @@ void x25_kill_by_neigh(struct x25_neigh *nb)
- 
- 	write_lock_bh(&x25_list_lock);
- 
--	sk_for_each(s, &x25_list)
--		if (x25_sk(s)->neighbour == nb)
-+	sk_for_each(s, &x25_list) {
-+		if (x25_sk(s)->neighbour == nb) {
-+			write_unlock_bh(&x25_list_lock);
-+			lock_sock(s);
- 			x25_disconnect(s, ENETUNREACH, 0, 0);
--
-+			release_sock(s);
-+			write_lock_bh(&x25_list_lock);
-+		}
-+	}
- 	write_unlock_bh(&x25_list_lock);
- 
- 	/* Remove any related forwards */
+diff --git a/drivers/net/ethernet/microchip/sparx5/sparx5_fdma.c b/drivers/net/ethernet/microchip/sparx5/sparx5_fdma.c
+index 7436f62fa152..174ad95e746a 100644
+--- a/drivers/net/ethernet/microchip/sparx5/sparx5_fdma.c
++++ b/drivers/net/ethernet/microchip/sparx5/sparx5_fdma.c
+@@ -420,6 +420,8 @@ static int sparx5_fdma_tx_alloc(struct sparx5 *sparx5)
+ 			db_hw->dataptr = phys;
+ 			db_hw->status = 0;
+ 			db = devm_kzalloc(sparx5->dev, sizeof(*db), GFP_KERNEL);
++			if (!db)
++				return -ENOMEM;
+ 			db->cpu_addr = cpu_addr;
+ 			list_add_tail(&db->list, &tx->db_list);
+ 		}
 -- 
 2.34.1
 
