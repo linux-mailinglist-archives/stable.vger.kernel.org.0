@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CBC04F3B2C
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:15:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ABCF64F3845
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:32:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238174AbiDELvM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:51:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44352 "EHLO
+        id S1376512AbiDELWP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:22:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47412 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356372AbiDEKXl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:23:41 -0400
+        with ESMTP id S1349444AbiDEJtw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:52 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C262BB93A;
-        Tue,  5 Apr 2022 03:08:14 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9DFF26AE2;
+        Tue,  5 Apr 2022 02:46:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 017626179D;
-        Tue,  5 Apr 2022 10:08:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F885C385A7;
-        Tue,  5 Apr 2022 10:08:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 88BF261368;
+        Tue,  5 Apr 2022 09:46:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9535DC385A1;
+        Tue,  5 Apr 2022 09:46:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153293;
-        bh=ya1hx1/fE2HUdn3yYRyBbOZsn1H1ZTI+2o0qI65TxsE=;
+        s=korg; t=1649151962;
+        bh=LyU0UCjIMK28Y/+3dy2ewi5N3bhvr2nkJBhF+Msbu9w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xwGA8LUsf+m9um8N0BzHv9qnrrJKDZXGIj1m0cLrhbDv9lioZNb9CNqCdBYxQsz9l
-         6ioBKLq4SvlVBcwodFGYDwroUSsfEs8z2X0AExHBteKgWxiVITy2iSQ5Gcx8lbYCw3
-         DXxKYdKp2080impWxWgrmLVpErqOPy8P/R7PwR9w=
+        b=zW+kGawfPQpxI7jhp5XoM4Ut+8anmAbUWstN3lA42xNcrgJouIYGgoNyuFykwPEMp
+         ybPlcc2UZ/Eygx6MP6epByvJqbNH8zJjA2MI91akGlOgzCe68MyBZB56tuunAn/ctv
+         RZNExar+TX68WRNNTJ1eUFvd6XAwts0Agpbq0oF8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhipeng Tan <tanzhipeng@hust.edu.cn>,
-        Jicheng Shao <shaojicheng@hust.edu.cn>,
-        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 172/599] f2fs: fix to enable ATGC correctly via gc_idle sysfs interface
+Subject: [PATCH 5.15 604/913] iio: adc: Add check for devm_request_threaded_irq
 Date:   Tue,  5 Apr 2022 09:27:46 +0200
-Message-Id: <20220405070303.960392461@linuxfoundation.org>
+Message-Id: <20220405070357.945319330@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
-References: <20220405070258.802373272@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,36 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <chao@kernel.org>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit 7d19e3dab0002e527052b0aaf986e8c32e5537bf ]
+[ Upstream commit b30537a4cedcacf0ade2f33ebb7610178ed1e7d7 ]
 
-It needs to assign sbi->gc_mode with GC_IDLE_AT rather than GC_AT when
-user tries to enable ATGC via gc_idle sysfs interface, fix it.
+As the potential failure of the devm_request_threaded_irq(),
+it should be better to check the return value and return
+error if fails.
 
-Fixes: 093749e296e2 ("f2fs: support age threshold based garbage collection")
-Cc: Zhipeng Tan <tanzhipeng@hust.edu.cn>
-Signed-off-by: Jicheng Shao <shaojicheng@hust.edu.cn>
-Signed-off-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Fixes: fa659a40b80b ("iio: adc: twl6030-gpadc: Use devm_* API family")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Link: https://lore.kernel.org/r/20220224062849.3280966-1-jiasheng@iscas.ac.cn
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/sysfs.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iio/adc/twl6030-gpadc.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/fs/f2fs/sysfs.c b/fs/f2fs/sysfs.c
-index 7ffd4bb398b0..a7e7d68256e0 100644
---- a/fs/f2fs/sysfs.c
-+++ b/fs/f2fs/sysfs.c
-@@ -386,7 +386,7 @@ static ssize_t __sbi_store(struct f2fs_attr *a,
- 		} else if (t == GC_IDLE_AT) {
- 			if (!sbi->am.atgc_enabled)
- 				return -EINVAL;
--			sbi->gc_mode = GC_AT;
-+			sbi->gc_mode = GC_IDLE_AT;
- 		} else {
- 			sbi->gc_mode = GC_NORMAL;
- 		}
+diff --git a/drivers/iio/adc/twl6030-gpadc.c b/drivers/iio/adc/twl6030-gpadc.c
+index c6416ad795ca..256177b15c51 100644
+--- a/drivers/iio/adc/twl6030-gpadc.c
++++ b/drivers/iio/adc/twl6030-gpadc.c
+@@ -911,6 +911,8 @@ static int twl6030_gpadc_probe(struct platform_device *pdev)
+ 	ret = devm_request_threaded_irq(dev, irq, NULL,
+ 				twl6030_gpadc_irq_handler,
+ 				IRQF_ONESHOT, "twl6030_gpadc", indio_dev);
++	if (ret)
++		return ret;
+ 
+ 	ret = twl6030_gpadc_enable_irq(TWL6030_GPADC_RT_SW1_EOC_MASK);
+ 	if (ret < 0) {
 -- 
 2.34.1
 
