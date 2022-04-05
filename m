@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CD45C4F3039
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:27:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 203F54F2F16
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:05:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350128AbiDEJzU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:55:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38306 "EHLO
+        id S236507AbiDEI16 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:27:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343865AbiDEJOo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:14:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 830CA4BFE1;
-        Tue,  5 Apr 2022 02:00:56 -0700 (PDT)
+        with ESMTP id S239564AbiDEIUO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:20:14 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AD4E630A;
+        Tue,  5 Apr 2022 01:16:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1F57861003;
-        Tue,  5 Apr 2022 09:00:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27CD0C385A1;
-        Tue,  5 Apr 2022 09:00:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 457A2B81A37;
+        Tue,  5 Apr 2022 08:16:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5BD9C385A0;
+        Tue,  5 Apr 2022 08:16:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149255;
-        bh=3SyFg1Ox2BVv77hwr5Q+brbLvYJwdOjO6I/B8CTdJ5k=;
+        s=korg; t=1649146586;
+        bh=+lPkEmTh0UrKktg1kbRpn6s/1134Ya/hkpaW+uEH4nA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KfaQQ3/pyR6gEzpjw4yrUnodvAlLevTKuq7YhLRQnO/DNboaoFQItY8cVAjqN6VZM
-         n+f66kF468REWs7Cn4D6JGPnDlKT+rJOUA8E2Zlr+3Iw0HmvwxTZrLDex/jITyeCwQ
-         1ZnDwx+TynetU5Dc6YoTnpJk2aEP6AsLfR00uPZA=
+        b=JUBbrCjrQIINjcd2uhV36Z0Dr8gMx67xQhJcLcsDZBYFNbu60JzXxjo6B8jMAgYwB
+         LdmGIoiyJY1dBE3LGTnijAcr4VFR0hPrIFVMR2hzrPBphVItX6faEQvbSyjn5mNkBj
+         4QoFPcwdbB0xyHPP7jb+u2sAD7R5oSow99O28r0c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oleksij Rempel <o.rempel@pengutronix.de>,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        stable@vger.kernel.org, Peng Li <lipeng321@huawei.com>,
+        Guangbin Huang <huangguangbin2@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0650/1017] misc: alcor_pci: Fix an error handling path
-Date:   Tue,  5 Apr 2022 09:26:03 +0200
-Message-Id: <20220405070413.577901133@linuxfoundation.org>
+Subject: [PATCH 5.17 0817/1126] net: hns3: clean residual vf config after disable sriov
+Date:   Tue,  5 Apr 2022 09:26:04 +0200
+Message-Id: <20220405070431.545481730@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,70 +55,151 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Peng Li <lipeng321@huawei.com>
 
-[ Upstream commit 5b3dc949f554379edcb8ef6111aa5ecb78feb798 ]
+[ Upstream commit 671cb8cbb9c9e24b681d21b1bfae991e2386ac73 ]
 
-A successful ida_simple_get() should be balanced by a corresponding
-ida_simple_remove().
+After disable sriov, VF still has some config and info need to be
+cleaned, which configured by PF. This patch clean the HW config
+and SW struct vport->vf_info.
 
-Add the missing call in the error handling path of the probe.
-
-While at it, switch to ida_alloc()/ida_free() instead to
-ida_simple_get()/ida_simple_remove().
-The latter is deprecated and more verbose.
-
-Fixes: 4f556bc04e3c ("misc: cardreader: add new Alcor Micro Cardreader PCI driver")
-Reviewed-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/918a9875b7f67b7f8f123c4446452603422e8c5e.1644136776.git.christophe.jaillet@wanadoo.fr
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: fa8d82e853e8 ("net: hns3: Add support of .sriov_configure in HNS3 driver")
+Signed-off-by: Peng Li<lipeng321@huawei.com>
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/cardreader/alcor_pci.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/hisilicon/hns3/hnae3.h   |  3 ++
+ .../net/ethernet/hisilicon/hns3/hns3_enet.c   | 18 +++++++
+ .../hisilicon/hns3/hns3pf/hclge_main.c        | 50 +++++++++++++++++++
+ 3 files changed, 71 insertions(+)
 
-diff --git a/drivers/misc/cardreader/alcor_pci.c b/drivers/misc/cardreader/alcor_pci.c
-index de6d44a158bb..3f514d77a843 100644
---- a/drivers/misc/cardreader/alcor_pci.c
-+++ b/drivers/misc/cardreader/alcor_pci.c
-@@ -266,7 +266,7 @@ static int alcor_pci_probe(struct pci_dev *pdev,
- 	if (!priv)
- 		return -ENOMEM;
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hnae3.h b/drivers/net/ethernet/hisilicon/hns3/hnae3.h
+index 9298fbecb31a..adea528d79ad 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hnae3.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hnae3.h
+@@ -536,6 +536,8 @@ struct hnae3_ae_dev {
+  *   Get 1588 rx hwstamp
+  * get_ts_info
+  *   Get phc info
++ * clean_vf_config
++ *   Clean residual vf info after disable sriov
+  */
+ struct hnae3_ae_ops {
+ 	int (*init_ae_dev)(struct hnae3_ae_dev *ae_dev);
+@@ -729,6 +731,7 @@ struct hnae3_ae_ops {
+ 			   struct ethtool_ts_info *info);
+ 	int (*get_link_diagnosis_info)(struct hnae3_handle *handle,
+ 				       u32 *status_code);
++	void (*clean_vf_config)(struct hnae3_ae_dev *ae_dev, int num_vfs);
+ };
  
--	ret = ida_simple_get(&alcor_pci_idr, 0, 0, GFP_KERNEL);
-+	ret = ida_alloc(&alcor_pci_idr, GFP_KERNEL);
- 	if (ret < 0)
- 		return ret;
- 	priv->id = ret;
-@@ -280,7 +280,8 @@ static int alcor_pci_probe(struct pci_dev *pdev,
- 	ret = pci_request_regions(pdev, DRV_NAME_ALCOR_PCI);
- 	if (ret) {
- 		dev_err(&pdev->dev, "Cannot request region\n");
--		return -ENOMEM;
-+		ret = -ENOMEM;
-+		goto error_free_ida;
- 	}
- 
- 	if (!(pci_resource_flags(pdev, bar) & IORESOURCE_MEM)) {
-@@ -324,6 +325,8 @@ static int alcor_pci_probe(struct pci_dev *pdev,
- 
- error_release_regions:
- 	pci_release_regions(pdev);
-+error_free_ida:
-+	ida_free(&alcor_pci_idr, priv->id);
+ struct hnae3_dcb_ops {
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+index 214d88cd8dbb..f6082be7481c 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+@@ -2992,6 +2992,21 @@ static int hns3_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
  	return ret;
  }
  
-@@ -337,7 +340,7 @@ static void alcor_pci_remove(struct pci_dev *pdev)
++/**
++ * hns3_clean_vf_config
++ * @pdev: pointer to a pci_dev structure
++ * @num_vfs: number of VFs allocated
++ *
++ * Clean residual vf config after disable sriov
++ **/
++static void hns3_clean_vf_config(struct pci_dev *pdev, int num_vfs)
++{
++	struct hnae3_ae_dev *ae_dev = pci_get_drvdata(pdev);
++
++	if (ae_dev->ops->clean_vf_config)
++		ae_dev->ops->clean_vf_config(ae_dev, num_vfs);
++}
++
+ /* hns3_remove - Device removal routine
+  * @pdev: PCI device information struct
+  */
+@@ -3030,7 +3045,10 @@ static int hns3_pci_sriov_configure(struct pci_dev *pdev, int num_vfs)
+ 		else
+ 			return num_vfs;
+ 	} else if (!pci_vfs_assigned(pdev)) {
++		int num_vfs_pre = pci_num_vf(pdev);
++
+ 		pci_disable_sriov(pdev);
++		hns3_clean_vf_config(pdev, num_vfs_pre);
+ 	} else {
+ 		dev_warn(&pdev->dev,
+ 			 "Unable to free VFs because some are assigned to VMs.\n");
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+index 1fa13ae8c651..7bc18483a8c3 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -12717,6 +12717,55 @@ static int hclge_get_link_diagnosis_info(struct hnae3_handle *handle,
+ 	return 0;
+ }
  
- 	mfd_remove_devices(&pdev->dev);
++/* After disable sriov, VF still has some config and info need clean,
++ * which configed by PF.
++ */
++static void hclge_clear_vport_vf_info(struct hclge_vport *vport, int vfid)
++{
++	struct hclge_dev *hdev = vport->back;
++	struct hclge_vlan_info vlan_info;
++	int ret;
++
++	/* after disable sriov, clean VF rate configured by PF */
++	ret = hclge_tm_qs_shaper_cfg(vport, 0);
++	if (ret)
++		dev_err(&hdev->pdev->dev,
++			"failed to clean vf%d rate config, ret = %d\n",
++			vfid, ret);
++
++	vlan_info.vlan_tag = 0;
++	vlan_info.qos = 0;
++	vlan_info.vlan_proto = ETH_P_8021Q;
++	ret = hclge_update_port_base_vlan_cfg(vport,
++					      HNAE3_PORT_BASE_VLAN_DISABLE,
++					      &vlan_info);
++	if (ret)
++		dev_err(&hdev->pdev->dev,
++			"failed to clean vf%d port base vlan, ret = %d\n",
++			vfid, ret);
++
++	ret = hclge_set_vf_spoofchk_hw(hdev, vport->vport_id, false);
++	if (ret)
++		dev_err(&hdev->pdev->dev,
++			"failed to clean vf%d spoof config, ret = %d\n",
++			vfid, ret);
++
++	memset(&vport->vf_info, 0, sizeof(vport->vf_info));
++}
++
++static void hclge_clean_vport_config(struct hnae3_ae_dev *ae_dev, int num_vfs)
++{
++	struct hclge_dev *hdev = ae_dev->priv;
++	struct hclge_vport *vport;
++	int i;
++
++	for (i = 0; i < num_vfs; i++) {
++		vport = &hdev->vport[i + HCLGE_VF_VPORT_START_NUM];
++
++		hclge_clear_vport_vf_info(vport, i);
++	}
++}
++
+ static const struct hnae3_ae_ops hclge_ops = {
+ 	.init_ae_dev = hclge_init_ae_dev,
+ 	.uninit_ae_dev = hclge_uninit_ae_dev,
+@@ -12818,6 +12867,7 @@ static const struct hnae3_ae_ops hclge_ops = {
+ 	.get_rx_hwts = hclge_ptp_get_rx_hwts,
+ 	.get_ts_info = hclge_ptp_get_ts_info,
+ 	.get_link_diagnosis_info = hclge_get_link_diagnosis_info,
++	.clean_vf_config = hclge_clean_vport_config,
+ };
  
--	ida_simple_remove(&alcor_pci_idr, priv->id);
-+	ida_free(&alcor_pci_idr, priv->id);
- 
- 	pci_release_regions(pdev);
- 	pci_set_drvdata(pdev, NULL);
+ static struct hnae3_ae_algo ae_algo = {
 -- 
 2.34.1
 
