@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 291224F2AC8
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:05:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C645A4F2E03
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:48:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350097AbiDEKvJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:51:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55206 "EHLO
+        id S234396AbiDEJ3Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:29:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52232 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345568AbiDEJni (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:43:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EB1BC3369;
-        Tue,  5 Apr 2022 02:29:25 -0700 (PDT)
+        with ESMTP id S245051AbiDEIxE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:53:04 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4092DDE7;
+        Tue,  5 Apr 2022 01:50:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 018CC6165C;
-        Tue,  5 Apr 2022 09:29:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 168F2C385A0;
-        Tue,  5 Apr 2022 09:29:13 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id A4672CE1BCE;
+        Tue,  5 Apr 2022 08:50:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDC37C385A1;
+        Tue,  5 Apr 2022 08:50:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150954;
-        bh=fR0LPZAFW7MV+r5mifjCwMPbuQwjL9+Zm/J+XCY09io=;
+        s=korg; t=1649148643;
+        bh=9xEAKMpxGzf2culwYA+lPprUuDTBQpTKmsGMIu0d/v0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VZgtBdLuZE55Hdl8HjUB8H+zquUvtIaEHjZX5JyKQYUOXz2JYjBOYLRk91ofmCD/T
-         oPCmx4Pmk3MbAkURdpS8J3XeSel27DxdY4P66uR6f7PaT5NnRrEVyrk7ccG2/cG72D
-         H1/0rypxKRzZ8Vu0WTb91dQkybop7xRF2QSj+V5A=
+        b=f3bAarNP9VbODL++HYYabkwqGBSnj9JAOfKw9aUkbUR7/HliX5f1G6UcvXzUgcy3r
+         fq6MftnRLTgecWgqK989AOOm9s9QgBap+LNkfAk/sjrGrJ4qrlDyB9PeeLT8YvjsG8
+         3xEyRiYa/ITMPw29mEeFIiMqB3Grc2dCVztnm6NI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brandon Wyman <bjwyman@gmail.com>,
-        Guenter Roeck <linux@roeck-us.net>,
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 240/913] hwmon: (pmbus) Add Vin unit off handling
-Date:   Tue,  5 Apr 2022 09:21:42 +0200
-Message-Id: <20220405070347.050547234@linuxfoundation.org>
+Subject: [PATCH 5.16 0390/1017] mmc: davinci_mmc: Handle error for clk_enable
+Date:   Tue,  5 Apr 2022 09:21:43 +0200
+Message-Id: <20220405070405.862160748@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,59 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brandon Wyman <bjwyman@gmail.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit a5436af598779219b375c1977555c82def1c35d0 ]
+[ Upstream commit 09e7af76db02c74f2a339b3cb2d95460fa2ddbe4 ]
 
-If there is an input undervoltage fault, reported in STATUS_INPUT
-command response, there is quite likely a "Unit Off For Insufficient
-Input Voltage" condition as well.
+As the potential failure of the clk_enable(),
+it should be better to check it and return error
+if fails.
 
-Add a constant for bit 3 of STATUS_INPUT. Update the Vin limit
-attributes to include both bits in the mask for clearing faults.
-
-If an input undervoltage fault occurs, causing a unit off for
-insufficient input voltage, but the unit is off bit is not cleared, the
-STATUS_WORD will not be updated to clear the input fault condition.
-Including the unit is off bit (bit 3) allows for the input fault
-condition to completely clear.
-
-Signed-off-by: Brandon Wyman <bjwyman@gmail.com>
-Link: https://lore.kernel.org/r/20220317232123.2103592-1-bjwyman@gmail.com
-Fixes: b4ce237b7f7d3 ("hwmon: (pmbus) Introduce infrastructure to detect sensors and limit registers")
-[groeck: Dropped unnecessary ()]
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Fixes: bbce5802afc5 ("davinci: mmc: updates to suspend/resume implementation")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Link: https://lore.kernel.org/r/20220308071415.1093393-1-jiasheng@iscas.ac.cn
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/pmbus/pmbus.h      | 1 +
- drivers/hwmon/pmbus/pmbus_core.c | 2 +-
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ drivers/mmc/host/davinci_mmc.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hwmon/pmbus/pmbus.h b/drivers/hwmon/pmbus/pmbus.h
-index e0aa8aa46d8c..ef3a8ecde4df 100644
---- a/drivers/hwmon/pmbus/pmbus.h
-+++ b/drivers/hwmon/pmbus/pmbus.h
-@@ -319,6 +319,7 @@ enum pmbus_fan_mode { percent = 0, rpm };
- /*
-  * STATUS_VOUT, STATUS_INPUT
-  */
-+#define PB_VOLTAGE_VIN_OFF		BIT(3)
- #define PB_VOLTAGE_UV_FAULT		BIT(4)
- #define PB_VOLTAGE_UV_WARNING		BIT(5)
- #define PB_VOLTAGE_OV_WARNING		BIT(6)
-diff --git a/drivers/hwmon/pmbus/pmbus_core.c b/drivers/hwmon/pmbus/pmbus_core.c
-index b1386a4df4cc..ca0bfaf2f691 100644
---- a/drivers/hwmon/pmbus/pmbus_core.c
-+++ b/drivers/hwmon/pmbus/pmbus_core.c
-@@ -1373,7 +1373,7 @@ static const struct pmbus_limit_attr vin_limit_attrs[] = {
- 		.reg = PMBUS_VIN_UV_FAULT_LIMIT,
- 		.attr = "lcrit",
- 		.alarm = "lcrit_alarm",
--		.sbit = PB_VOLTAGE_UV_FAULT,
-+		.sbit = PB_VOLTAGE_UV_FAULT | PB_VOLTAGE_VIN_OFF,
- 	}, {
- 		.reg = PMBUS_VIN_OV_WARN_LIMIT,
- 		.attr = "max",
+diff --git a/drivers/mmc/host/davinci_mmc.c b/drivers/mmc/host/davinci_mmc.c
+index 2a757c88f9d2..80de660027d8 100644
+--- a/drivers/mmc/host/davinci_mmc.c
++++ b/drivers/mmc/host/davinci_mmc.c
+@@ -1375,8 +1375,12 @@ static int davinci_mmcsd_suspend(struct device *dev)
+ static int davinci_mmcsd_resume(struct device *dev)
+ {
+ 	struct mmc_davinci_host *host = dev_get_drvdata(dev);
++	int ret;
++
++	ret = clk_enable(host->clk);
++	if (ret)
++		return ret;
+ 
+-	clk_enable(host->clk);
+ 	mmc_davinci_reset_ctrl(host, 0);
+ 
+ 	return 0;
 -- 
 2.34.1
 
