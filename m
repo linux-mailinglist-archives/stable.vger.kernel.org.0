@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BDEE74F2C08
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:22:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 380DC4F2D76
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:42:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241974AbiDEIgP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:36:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34706 "EHLO
+        id S242708AbiDEJh6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:37:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51574 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239246AbiDEIT4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:19:56 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B6C77DA9E;
-        Tue,  5 Apr 2022 01:10:39 -0700 (PDT)
+        with ESMTP id S236725AbiDEJDd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:03:33 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2023DF0E;
+        Tue,  5 Apr 2022 01:55:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BDF82B81A32;
-        Tue,  5 Apr 2022 08:10:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25ED6C385A0;
-        Tue,  5 Apr 2022 08:10:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B0FCA61476;
+        Tue,  5 Apr 2022 08:55:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1B65C385A1;
+        Tue,  5 Apr 2022 08:55:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146236;
-        bh=aVyO84jkR4sNomDGGRiv3tw8zAr+PFG3E77poxKmHRY=;
+        s=korg; t=1649148907;
+        bh=rM7SbSLyLVnrAjKa0pNE2SFOvNMGPO72+qCGoPzUMxo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n9S99nS1konQEt1cZ38O0ifCUjkGNtMLG8PoenvgglD1dJk9B8Aq/LgGegUGIWuuJ
-         dzSCQI8ebeBakBQ3H2qdJpJlNAdzWFMHSs1cZbhXK8YTYov5M//P2c40h2G43Y1uoD
-         NosuCRkXgVamrTI+0j+NLfzXGsN3WcKnhXUGVkC4=
+        b=H9fLrNftlKncMf6xo5MTRpIKjuQhtILbCsmsbdKfoxhS/zBBgNjc5laSV61hbRzea
+         JCnCgob8eUCbxQNGamwGbaMIT3XjK5Obrrjrs7XUTnjQI5YGCS5gGfQjdjtp9zf9/B
+         yajF47+tQzkXY01XUeVKkJqQLiSsrepMDAi1P1b4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Phil Sutter <phil@nwl.cc>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org,
+        Rameshkumar Sundaram <quic_ramess@quicinc.com>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0691/1126] netfilter: conntrack: Add and use nf_ct_set_auto_assign_helper_warned()
+Subject: [PATCH 5.16 0525/1017] ath11k: Invalidate cached reo ring entry before accessing it
 Date:   Tue,  5 Apr 2022 09:23:58 +0200
-Message-Id: <20220405070427.896229246@linuxfoundation.org>
+Message-Id: <20220405070409.880163978@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,64 +55,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phil Sutter <phil@nwl.cc>
+From: Rameshkumar Sundaram <quic_ramess@quicinc.com>
 
-[ Upstream commit 31d0bb9763efad30377505f3467f958d1ebe1e3d ]
+[ Upstream commit f2180ccb52b5fd0876291ad2df37e2898cac18cf ]
 
-The function sets the pernet boolean to avoid the spurious warning from
-nf_ct_lookup_helper() when assigning conntrack helpers via nftables.
+REO2SW ring descriptor is currently allocated in cacheable memory.
+While reaping reo ring entries on second trial after updating head
+pointer, first entry is not invalidated before accessing it.
 
-Fixes: 1a64edf54f55 ("netfilter: nft_ct: add helper set support")
-Signed-off-by: Phil Sutter <phil@nwl.cc>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+This results in host reaping and using cached descriptor which is
+already overwritten in memory by DMA device (HW).
+Since the contents of descriptor(buffer id, peer info and other information
+bits) are outdated host throws errors like below while parsing corresponding
+MSDU's and drops them.
+
+[347712.048904] ath11k_pci 0004:01:00.0: msdu_done bit in attention is not set
+[349173.355503] ath11k_pci 0004:01:00.0: frame rx with invalid buf_id 962
+
+Move the try_again: label above  ath11k_hal_srng_access_begin()
+so that first entry will be invalidated and prefetched.
+
+Tested-on: QCN9074 hw1.0 PCI WLAN.HK.2.5.0.1-01100-QCAHKSWPL_SILICONZ-1
+
+Fixes: 6452f0a3d565 ("ath11k: allocate dst ring descriptors from cacheable memory")
+Signed-off-by: Rameshkumar Sundaram <quic_ramess@quicinc.com>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/1645000354-32558-1-git-send-email-quic_ramess@quicinc.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/netfilter/nf_conntrack_helper.h | 1 +
- net/netfilter/nf_conntrack_helper.c         | 6 ++++++
- net/netfilter/nft_ct.c                      | 3 +++
- 3 files changed, 10 insertions(+)
+ drivers/net/wireless/ath/ath11k/dp_rx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/net/netfilter/nf_conntrack_helper.h b/include/net/netfilter/nf_conntrack_helper.h
-index 37f0fbefb060..9939c366f720 100644
---- a/include/net/netfilter/nf_conntrack_helper.h
-+++ b/include/net/netfilter/nf_conntrack_helper.h
-@@ -177,4 +177,5 @@ void nf_nat_helper_unregister(struct nf_conntrack_nat_helper *nat);
- int nf_nat_helper_try_module_get(const char *name, u16 l3num,
- 				 u8 protonum);
- void nf_nat_helper_put(struct nf_conntrack_helper *helper);
-+void nf_ct_set_auto_assign_helper_warned(struct net *net);
- #endif /*_NF_CONNTRACK_HELPER_H*/
-diff --git a/net/netfilter/nf_conntrack_helper.c b/net/netfilter/nf_conntrack_helper.c
-index ae4488a13c70..ceb38a7b37cb 100644
---- a/net/netfilter/nf_conntrack_helper.c
-+++ b/net/netfilter/nf_conntrack_helper.c
-@@ -556,6 +556,12 @@ static const struct nf_ct_ext_type helper_extend = {
- 	.id	= NF_CT_EXT_HELPER,
- };
+diff --git a/drivers/net/wireless/ath/ath11k/dp_rx.c b/drivers/net/wireless/ath/ath11k/dp_rx.c
+index 0bc3baf4af5c..38102617c342 100644
+--- a/drivers/net/wireless/ath/ath11k/dp_rx.c
++++ b/drivers/net/wireless/ath/ath11k/dp_rx.c
+@@ -2664,9 +2664,9 @@ int ath11k_dp_process_rx(struct ath11k_base *ab, int ring_id,
  
-+void nf_ct_set_auto_assign_helper_warned(struct net *net)
-+{
-+	nf_ct_pernet(net)->auto_assign_helper_warned = true;
-+}
-+EXPORT_SYMBOL_GPL(nf_ct_set_auto_assign_helper_warned);
-+
- void nf_conntrack_helper_pernet_init(struct net *net)
- {
- 	struct nf_conntrack_net *cnet = nf_ct_pernet(net);
-diff --git a/net/netfilter/nft_ct.c b/net/netfilter/nft_ct.c
-index 5adf8bb628a8..9c7472af9e4a 100644
---- a/net/netfilter/nft_ct.c
-+++ b/net/netfilter/nft_ct.c
-@@ -1041,6 +1041,9 @@ static int nft_ct_helper_obj_init(const struct nft_ctx *ctx,
- 	if (err < 0)
- 		goto err_put_helper;
+ 	spin_lock_bh(&srng->lock);
  
-+	/* Avoid the bogus warning, helper will be assigned after CT init */
-+	nf_ct_set_auto_assign_helper_warned(ctx->net);
-+
- 	return 0;
++try_again:
+ 	ath11k_hal_srng_access_begin(ab, srng);
  
- err_put_helper:
+-try_again:
+ 	while (likely(desc =
+ 	      (struct hal_reo_dest_ring *)ath11k_hal_srng_dst_get_next_entry(ab,
+ 									     srng))) {
 -- 
 2.34.1
 
