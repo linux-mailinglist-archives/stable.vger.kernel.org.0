@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B5F7A4F2BAF
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:17:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 741184F2AE2
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:06:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344550AbiDEKj4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:39:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36674 "EHLO
+        id S1343513AbiDEJM3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:12:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51052 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242788AbiDEJiG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:38:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D7DEA5EA9;
-        Tue,  5 Apr 2022 02:24:30 -0700 (PDT)
+        with ESMTP id S244804AbiDEIwk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:40 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6AF292229F;
+        Tue,  5 Apr 2022 01:44:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1E669B81C99;
-        Tue,  5 Apr 2022 09:24:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8179DC385A4;
-        Tue,  5 Apr 2022 09:24:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2519EB81A0C;
+        Tue,  5 Apr 2022 08:44:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F974C385A0;
+        Tue,  5 Apr 2022 08:44:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150667;
-        bh=7Rkrs3sSrSyd8jDFyNshJ53iysc72CbfSpCQdoARRUk=;
+        s=korg; t=1649148251;
+        bh=4El5mLzPV5FIUFM4OPSsk5ycPZQtCJ+BCLlcToLdjSI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EC8MsUSmfEv1HVnjKef2HEStGV6gmuUcWc7gUeTh/xJtWuMa9bdOY582YKoBQKyz+
-         U19czmT/ZK2IRSJzRw7m6dQhw0vkNQclRBqYm06QPJi9GxWpEeDoHs/EvNVn9Lw/km
-         hbzAIh/62hPiD6ZEEggCEZ96eT4UuyYUGHsWH4Yw=
+        b=EKVkSJMig3Cpd3oVtToQcApbO2VkKBsgZdpbJJAgghnYED4rzYbN3OZ+TWo5yA7PH
+         VQdUTSgKCxk0l4Gn8vsT/USr82axEQ3/z9XR/dY9yiHyFewcilp1KUkx84VcJwoBMH
+         cTxmeZjgC5U4daSRfSuuYiT10MvM3fE012fH6fT4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pekka Pessi <ppessi@nvidia.com>,
-        Jon Hunter <jonathanh@nvidia.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Jassi Brar <jaswinder.singh@linaro.org>
-Subject: [PATCH 5.15 138/913] mailbox: tegra-hsp: Flush whole channel
-Date:   Tue,  5 Apr 2022 09:20:00 +0200
-Message-Id: <20220405070343.968248510@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Eugen Hristev <eugen.hristev@microchip.com>,
+        Jacopo Mondi <jacopo@jmondi.org>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0289/1017] media: atmel: atmel-sama7g5-isc: fix ispck leftover
+Date:   Tue,  5 Apr 2022 09:20:02 +0200
+Message-Id: <20220405070402.850159720@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,41 +57,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pekka Pessi <ppessi@nvidia.com>
+From: Eugen Hristev <eugen.hristev@microchip.com>
 
-commit 60de2d2dc284e0dd1c2c897d08625bde24ef3454 upstream.
+[ Upstream commit 1b52ce99e9f2dcda868a1a7026bfb58d04bd6bc8 ]
 
-The txdone can re-fill the mailbox. Keep polling the mailbox during the
-flush until all the messages have been delivered.
+The ispck is not used for sama7g5 variant of the ISC.
+Calls to ispck have to be removed also from module insert/removal.
 
-This fixes an issue with the Tegra Combined UART (TCU) where output can
-get truncated under high traffic load.
-
-Signed-off-by: Pekka Pessi <ppessi@nvidia.com>
-Tested-by: Jon Hunter <jonathanh@nvidia.com>
-Fixes: 91b1b1c3da8a ("mailbox: tegra-hsp: Add support for shared mailboxes")
-Cc: stable@vger.kernel.org
-Signed-off-by: Thierry Reding <treding@nvidia.com>
-Reviewed-by: Jon Hunter <jonathanh@nvidia.com>
-Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: d7f26849ed7c ("media: atmel: fix the ispck initialization")
+Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
+Reviewed-by: Jacopo Mondi <jacopo@jmondi.org>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mailbox/tegra-hsp.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/media/platform/atmel/atmel-sama7g5-isc.c | 6 ------
+ 1 file changed, 6 deletions(-)
 
---- a/drivers/mailbox/tegra-hsp.c
-+++ b/drivers/mailbox/tegra-hsp.c
-@@ -412,6 +412,11 @@ static int tegra_hsp_mailbox_flush(struc
- 		value = tegra_hsp_channel_readl(ch, HSP_SM_SHRD_MBOX);
- 		if ((value & HSP_SM_SHRD_MBOX_FULL) == 0) {
- 			mbox_chan_txdone(chan, 0);
-+
-+			/* Wait until channel is empty */
-+			if (chan->active_req != NULL)
-+				continue;
-+
- 			return 0;
- 		}
+diff --git a/drivers/media/platform/atmel/atmel-sama7g5-isc.c b/drivers/media/platform/atmel/atmel-sama7g5-isc.c
+index 5d1c76f680f3..2b1082295c13 100644
+--- a/drivers/media/platform/atmel/atmel-sama7g5-isc.c
++++ b/drivers/media/platform/atmel/atmel-sama7g5-isc.c
+@@ -556,7 +556,6 @@ static int microchip_xisc_remove(struct platform_device *pdev)
  
+ 	v4l2_device_unregister(&isc->v4l2_dev);
+ 
+-	clk_disable_unprepare(isc->ispck);
+ 	clk_disable_unprepare(isc->hclock);
+ 
+ 	isc_clk_cleanup(isc);
+@@ -568,7 +567,6 @@ static int __maybe_unused xisc_runtime_suspend(struct device *dev)
+ {
+ 	struct isc_device *isc = dev_get_drvdata(dev);
+ 
+-	clk_disable_unprepare(isc->ispck);
+ 	clk_disable_unprepare(isc->hclock);
+ 
+ 	return 0;
+@@ -583,10 +581,6 @@ static int __maybe_unused xisc_runtime_resume(struct device *dev)
+ 	if (ret)
+ 		return ret;
+ 
+-	ret = clk_prepare_enable(isc->ispck);
+-	if (ret)
+-		clk_disable_unprepare(isc->hclock);
+-
+ 	return ret;
+ }
+ 
+-- 
+2.34.1
+
 
 
