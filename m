@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C2D804F3136
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:39:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B6DD4F32EF
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:01:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242943AbiDEJij (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:38:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41930 "EHLO
+        id S235983AbiDEI1N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:27:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34686 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243293AbiDEJIx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:08:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1D789F6F0;
-        Tue,  5 Apr 2022 01:57:55 -0700 (PDT)
+        with ESMTP id S239437AbiDEIUF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:20:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61FA6939AB;
+        Tue,  5 Apr 2022 01:13:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6AE3DB818F3;
-        Tue,  5 Apr 2022 08:57:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBFC2C385A3;
-        Tue,  5 Apr 2022 08:57:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0905EB81BB1;
+        Tue,  5 Apr 2022 08:13:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C0C8C385A0;
+        Tue,  5 Apr 2022 08:13:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149073;
-        bh=vC3HpaQC66yZXonEgmL5Uq5YOTH5rq+MgVEPdR036Wo=;
+        s=korg; t=1649146399;
+        bh=8cgWBohA+cj8EE+ROj+0XncNUlSbVJD2OmXepjRx8js=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=No6g/l6jQSymK8ElkYpTZLWHUuCMxH/qPwH6xKTe0XNgs0lU29AQ0ff2eqtVcq6Q7
-         YwCgxDJeRn7phxEIeB8IRjhRdWzqU7yOhIjPOBFluCTv29vddKS3AfzGRUyBVQMITY
-         1WC5CPCS3jb73uWwV/FUnhzEHCg1VjmtCweVc4yA=
+        b=1tEAwUxW4ybCYZ7lAGzVq4B+ztx/Q8uYzfZWyO4Ij2OVNAUMe0Cuis3XQSsvwbSD6
+         yeFWfhNmvfGOiwPCszFtuMJz95OURHeHIl0aWZqYwvXlogJYoKtQ+f7B0hExYUvlyt
+         cKJK+zWWn4SEW0VS/19GXtFfo5V2uzoqbrN0oNeg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felix Maurer <fmaurer@redhat.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+        stable@vger.kernel.org, Emil Renner Berthing <kernel@esmil.dk>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0583/1017] selftests/bpf: Make test_lwt_ip_encap more stable and faster
+Subject: [PATCH 5.17 0749/1126] clk: starfive: jh7100: Handle audio_div clock properly
 Date:   Tue,  5 Apr 2022 09:24:56 +0200
-Message-Id: <20220405070411.585091985@linuxfoundation.org>
+Message-Id: <20220405070429.568609689@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,73 +54,141 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Maurer <fmaurer@redhat.com>
+From: Emil Renner Berthing <kernel@esmil.dk>
 
-[ Upstream commit d23a8720327d33616f584d76c80824bfa4699be6 ]
+[ Upstream commit 73bfc8d745a98744088cb30517399222674455b1 ]
 
-In test_lwt_ip_encap, the ingress IPv6 encap test failed from time to
-time. The failure occured when an IPv4 ping through the IPv6 GRE
-encapsulation did not receive a reply within the timeout. The IPv4 ping
-and the IPv6 ping in the test used different timeouts (1 sec for IPv4
-and 6 sec for IPv6), probably taking into account that IPv6 might need
-longer to successfully complete. However, when IPv4 pings (with the
-short timeout) are encapsulated into the IPv6 tunnel, the delays of IPv6
-apply.
+It turns out the audio_div clock is a fractional divider where the
+lowest byte of the ctrl register is the integer part of the divider and
+the 2nd byte is the number of 100th added to the divider.
 
-The actual reason for the long delays with IPv6 was that the IPv6
-neighbor discovery sometimes did not complete in time. This was caused
-by the outgoing interface only having a tentative link local address,
-i.e., not having completed DAD for that lladdr. The ND was successfully
-retried after 1 sec but that was too late for the ping timeout.
+The children of this clock is used by the audio peripherals for their
+sample rate clock, so round to the closest possible rate rather than
+always rounding down like regular dividers.
 
-The IPv6 addresses for the test were already added with nodad. However,
-for the lladdrs, DAD was still performed. We now disable DAD in the test
-netns completely and just assume that the two lladdrs on each veth pair
-do not collide. This removes all the delays for IPv6 traffic in the
-test.
-
-Without the delays, we can now also reduce the delay of the IPv6 ping to
-1 sec. This makes the whole test complete faster because we don't need
-to wait for the excessive timeout for each IPv6 ping that is supposed
-to fail.
-
-Fixes: 0fde56e4385b0 ("selftests: bpf: add test_lwt_ip_encap selftest")
-Signed-off-by: Felix Maurer <fmaurer@redhat.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/4987d549d48b4e316cd5b3936de69c8d4bc75a4f.1646305899.git.fmaurer@redhat.com
+Fixes: 4210be668a09 ("clk: starfive: Add JH7100 clock generator driver")
+Signed-off-by: Emil Renner Berthing <kernel@esmil.dk>
+Link: https://lore.kernel.org/r/20220126173953.1016706-3-kernel@esmil.dk
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/test_lwt_ip_encap.sh | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/clk/starfive/clk-starfive-jh7100.c | 68 +++++++++++++++++++++-
+ 1 file changed, 67 insertions(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/bpf/test_lwt_ip_encap.sh b/tools/testing/selftests/bpf/test_lwt_ip_encap.sh
-index b497bb85b667..6c69c42b1d60 100755
---- a/tools/testing/selftests/bpf/test_lwt_ip_encap.sh
-+++ b/tools/testing/selftests/bpf/test_lwt_ip_encap.sh
-@@ -120,6 +120,14 @@ setup()
- 	ip netns exec ${NS2} sysctl -wq net.ipv4.conf.default.rp_filter=0
- 	ip netns exec ${NS3} sysctl -wq net.ipv4.conf.default.rp_filter=0
- 
-+	# disable IPv6 DAD because it sometimes takes too long and fails tests
-+	ip netns exec ${NS1} sysctl -wq net.ipv6.conf.all.accept_dad=0
-+	ip netns exec ${NS2} sysctl -wq net.ipv6.conf.all.accept_dad=0
-+	ip netns exec ${NS3} sysctl -wq net.ipv6.conf.all.accept_dad=0
-+	ip netns exec ${NS1} sysctl -wq net.ipv6.conf.default.accept_dad=0
-+	ip netns exec ${NS2} sysctl -wq net.ipv6.conf.default.accept_dad=0
-+	ip netns exec ${NS3} sysctl -wq net.ipv6.conf.default.accept_dad=0
+diff --git a/drivers/clk/starfive/clk-starfive-jh7100.c b/drivers/clk/starfive/clk-starfive-jh7100.c
+index db6a4dc203af..4b59338b5d7d 100644
+--- a/drivers/clk/starfive/clk-starfive-jh7100.c
++++ b/drivers/clk/starfive/clk-starfive-jh7100.c
+@@ -32,6 +32,13 @@
+ #define JH7100_CLK_MUX_MASK	GENMASK(27, 24)
+ #define JH7100_CLK_MUX_SHIFT	24
+ #define JH7100_CLK_DIV_MASK	GENMASK(23, 0)
++#define JH7100_CLK_FRAC_MASK	GENMASK(15, 8)
++#define JH7100_CLK_FRAC_SHIFT	8
++#define JH7100_CLK_INT_MASK	GENMASK(7, 0)
 +
- 	ip link add veth1 type veth peer name veth2
- 	ip link add veth3 type veth peer name veth4
- 	ip link add veth5 type veth peer name veth6
-@@ -289,7 +297,7 @@ test_ping()
- 		ip netns exec ${NS1} ping  -c 1 -W 1 -I veth1 ${IPv4_DST} 2>&1 > /dev/null
- 		RET=$?
- 	elif [ "${PROTO}" == "IPv6" ] ; then
--		ip netns exec ${NS1} ping6 -c 1 -W 6 -I veth1 ${IPv6_DST} 2>&1 > /dev/null
-+		ip netns exec ${NS1} ping6 -c 1 -W 1 -I veth1 ${IPv6_DST} 2>&1 > /dev/null
- 		RET=$?
- 	else
- 		echo "    test_ping: unknown PROTO: ${PROTO}"
++/* fractional divider min/max */
++#define JH7100_CLK_FRAC_MIN	100UL
++#define JH7100_CLK_FRAC_MAX	25599UL
+ 
+ /* clock data */
+ #define JH7100_GATE(_idx, _name, _flags, _parent) [_idx] = {		\
+@@ -55,6 +62,13 @@
+ 	.parents = { [0] = _parent },					\
+ }
+ 
++#define JH7100_FDIV(_idx, _name, _parent) [_idx] = {			\
++	.name = _name,							\
++	.flags = 0,							\
++	.max = JH7100_CLK_FRAC_MAX,					\
++	.parents = { [0] = _parent },					\
++}
++
+ #define JH7100__MUX(_idx, _name, _nparents, ...) [_idx] = {		\
+ 	.name = _name,							\
+ 	.flags = 0,							\
+@@ -225,7 +239,7 @@ static const struct {
+ 	JH7100__MUX(JH7100_CLK_USBPHY_25M, "usbphy_25m", 2,
+ 		    JH7100_CLK_OSC_SYS,
+ 		    JH7100_CLK_USBPHY_PLLDIV25M),
+-	JH7100__DIV(JH7100_CLK_AUDIO_DIV, "audio_div", 131072, JH7100_CLK_AUDIO_ROOT),
++	JH7100_FDIV(JH7100_CLK_AUDIO_DIV, "audio_div", JH7100_CLK_AUDIO_ROOT),
+ 	JH7100_GATE(JH7100_CLK_AUDIO_SRC, "audio_src", 0, JH7100_CLK_AUDIO_DIV),
+ 	JH7100_GATE(JH7100_CLK_AUDIO_12288, "audio_12288", 0, JH7100_CLK_OSC_AUD),
+ 	JH7100_GDIV(JH7100_CLK_VIN_SRC, "vin_src", 0, 4, JH7100_CLK_VIN_ROOT),
+@@ -440,6 +454,49 @@ static int jh7100_clk_set_rate(struct clk_hw *hw,
+ 	return 0;
+ }
+ 
++static unsigned long jh7100_clk_frac_recalc_rate(struct clk_hw *hw,
++						 unsigned long parent_rate)
++{
++	struct jh7100_clk *clk = jh7100_clk_from(hw);
++	u32 reg = jh7100_clk_reg_get(clk);
++	unsigned long div100 = 100 * (reg & JH7100_CLK_INT_MASK) +
++			       ((reg & JH7100_CLK_FRAC_MASK) >> JH7100_CLK_FRAC_SHIFT);
++
++	return (div100 >= JH7100_CLK_FRAC_MIN) ? 100 * parent_rate / div100 : 0;
++}
++
++static int jh7100_clk_frac_determine_rate(struct clk_hw *hw,
++					  struct clk_rate_request *req)
++{
++	unsigned long parent100 = 100 * req->best_parent_rate;
++	unsigned long rate = clamp(req->rate, req->min_rate, req->max_rate);
++	unsigned long div100 = clamp(DIV_ROUND_CLOSEST(parent100, rate),
++				     JH7100_CLK_FRAC_MIN, JH7100_CLK_FRAC_MAX);
++	unsigned long result = parent100 / div100;
++
++	/* clamp the result as in jh7100_clk_determine_rate() above */
++	if (result > req->max_rate && div100 < JH7100_CLK_FRAC_MAX)
++		result = parent100 / (div100 + 1);
++	if (result < req->min_rate && div100 > JH7100_CLK_FRAC_MIN)
++		result = parent100 / (div100 - 1);
++
++	req->rate = result;
++	return 0;
++}
++
++static int jh7100_clk_frac_set_rate(struct clk_hw *hw,
++				    unsigned long rate,
++				    unsigned long parent_rate)
++{
++	struct jh7100_clk *clk = jh7100_clk_from(hw);
++	unsigned long div100 = clamp(DIV_ROUND_CLOSEST(100 * parent_rate, rate),
++				     JH7100_CLK_FRAC_MIN, JH7100_CLK_FRAC_MAX);
++	u32 value = ((div100 % 100) << JH7100_CLK_FRAC_SHIFT) | (div100 / 100);
++
++	jh7100_clk_reg_rmw(clk, JH7100_CLK_DIV_MASK, value);
++	return 0;
++}
++
+ static u8 jh7100_clk_get_parent(struct clk_hw *hw)
+ {
+ 	struct jh7100_clk *clk = jh7100_clk_from(hw);
+@@ -526,6 +583,13 @@ static const struct clk_ops jh7100_clk_div_ops = {
+ 	.debug_init = jh7100_clk_debug_init,
+ };
+ 
++static const struct clk_ops jh7100_clk_fdiv_ops = {
++	.recalc_rate = jh7100_clk_frac_recalc_rate,
++	.determine_rate = jh7100_clk_frac_determine_rate,
++	.set_rate = jh7100_clk_frac_set_rate,
++	.debug_init = jh7100_clk_debug_init,
++};
++
+ static const struct clk_ops jh7100_clk_gdiv_ops = {
+ 	.enable = jh7100_clk_enable,
+ 	.disable = jh7100_clk_disable,
+@@ -564,6 +628,8 @@ static const struct clk_ops *__init jh7100_clk_ops(u32 max)
+ 	if (max & JH7100_CLK_DIV_MASK) {
+ 		if (max & JH7100_CLK_ENABLE)
+ 			return &jh7100_clk_gdiv_ops;
++		if (max == JH7100_CLK_FRAC_MAX)
++			return &jh7100_clk_fdiv_ops;
+ 		return &jh7100_clk_div_ops;
+ 	}
+ 
 -- 
 2.34.1
 
