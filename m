@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EBCEB4F2BFC
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:21:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D2544F29FA
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 12:51:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241907AbiDEIgB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:36:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52372 "EHLO
+        id S1350506AbiDEJ6o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:58:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43858 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239827AbiDEIVC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:21:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB570CDD;
-        Tue,  5 Apr 2022 01:19:03 -0700 (PDT)
+        with ESMTP id S1344024AbiDEJQu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:16:50 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 666CB1BEB8;
+        Tue,  5 Apr 2022 02:03:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 699A260B0B;
-        Tue,  5 Apr 2022 08:19:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73AFCC385A1;
-        Tue,  5 Apr 2022 08:19:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 11A4EB81BBF;
+        Tue,  5 Apr 2022 09:03:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 709E8C385A0;
+        Tue,  5 Apr 2022 09:03:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146742;
-        bh=I5YM5bPQmLWfDLh3VlDSWIqwhMtlUv2kx2ZbvuNqEQI=;
+        s=korg; t=1649149417;
+        bh=q9sK/WaOZNRPr2VqWX/aW0cqtIBUU+WYW2Pf4EKTIJs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kkd3lSc0XLtWDlq1V/otBl0VM1LGFy9mamJ9Y28H20JHM2Az2QPlA2azMrJHYvgJT
-         8l/yY0GM2sB6C59t5lXMD3FgOUG7t/JxtDPbVYfv5OQ2LdHNYkdwlDPKYTX3oBETzT
-         6RVIT4tW8CYpCRif5vFoUcB3ltfoN5COKOzDrUDc=
+        b=d+pApIU63HPT1wdaomPt6vhPtUMq0WW89J6NaedsVfRCckBQvscmCJt89/Tt9v1VZ
+         qikqkEs75graT9CsjzlXMlpeefkIbJ5nSq5YapVt2LR8FqHkRYCFpxiAKO4EP0JQ/o
+         3fR9pOso+WDFR2pEkXeiXtRaHd6uu5KVlq/wP6RU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Waiman Long <longman@redhat.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        stable@vger.kernel.org, Gilles Buloz <gilles.buloz@kontron.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0871/1126] locking/lockdep: Iterate lock_classes directly when reading lockdep files
-Date:   Tue,  5 Apr 2022 09:26:58 +0200
-Message-Id: <20220405070433.104106412@linuxfoundation.org>
+Subject: [PATCH 5.16 0706/1017] serial: 8250: fix XOFF/XON sending when DMA is used
+Date:   Tue,  5 Apr 2022 09:26:59 +0200
+Message-Id: <20220405070415.227462552@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,252 +55,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Waiman Long <longman@redhat.com>
+From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
 
-[ Upstream commit fb7275acd6fb988313dddd8d3d19efa70d9015ad ]
+[ Upstream commit f58c252e30cf74f68b0054293adc03b5923b9f0e ]
 
-When dumping lock_classes information via /proc/lockdep, we can't take
-the lockdep lock as the lock hold time is indeterminate. Iterating
-over all_lock_classes without holding lock can be dangerous as there
-is a slight chance that it may branch off to other lists leading to
-infinite loop or even access invalid memory if changes are made to
-all_lock_classes list in parallel.
+When 8250 UART is using DMA, x_char (XON/XOFF) is never sent
+to the wire. After this change, x_char is injected correctly.
 
-To avoid this problem, iteration of lock classes is now done directly
-on the lock_classes array itself. The lock_classes_in_use bitmap is
-checked to see if the lock class is being used. To avoid iterating
-the full array all the times, a new max_lock_class_idx value is added
-to track the maximum lock_class index that is currently being used.
+Create uart_xchar_out() helper for sending the x_char out and
+accounting related to it. It seems that almost every driver
+does these same steps with x_char. Except for 8250, however,
+almost all currently lack .serial_out so they cannot immediately
+take advantage of this new helper.
 
-We can theoretically take the lockdep lock for iterating all_lock_classes
-when other lockdep files (lockdep_stats and lock_stat) are accessed as
-the lock hold time will be shorter for them. For consistency, they are
-also modified to iterate the lock_classes array directly.
+The downside of this patch is that it might reintroduce
+the problems some devices faced with mixed DMA/non-DMA transfer
+which caused revert f967fc8f165f (Revert "serial: 8250_dma:
+don't bother DMA with small transfers"). However, the impact
+should be limited to cases with XON/XOFF (that didn't work
+with DMA capable devices to begin with so this problem is not
+very likely to cause a major issue, if any at all).
 
-Signed-off-by: Waiman Long <longman@redhat.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20220211035526.1329503-2-longman@redhat.com
+Fixes: 9ee4b83e51f74 ("serial: 8250: Add support for dmaengine")
+Reported-by: Gilles Buloz <gilles.buloz@kontron.com>
+Tested-by: Gilles Buloz <gilles.buloz@kontron.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Link: https://lore.kernel.org/r/20220314091432.4288-2-ilpo.jarvinen@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/locking/lockdep.c           | 14 +++++---
- kernel/locking/lockdep_internals.h |  6 ++--
- kernel/locking/lockdep_proc.c      | 51 +++++++++++++++++++++++++-----
- 3 files changed, 56 insertions(+), 15 deletions(-)
+ drivers/tty/serial/8250/8250_dma.c  | 11 ++++++++++-
+ drivers/tty/serial/8250/8250_port.c |  4 +---
+ drivers/tty/serial/serial_core.c    | 14 ++++++++++++++
+ include/linux/serial_core.h         |  2 ++
+ 4 files changed, 27 insertions(+), 4 deletions(-)
 
-diff --git a/kernel/locking/lockdep.c b/kernel/locking/lockdep.c
-index 3c73eefdde63..4675a686f942 100644
---- a/kernel/locking/lockdep.c
-+++ b/kernel/locking/lockdep.c
-@@ -183,11 +183,9 @@ static DECLARE_BITMAP(list_entries_in_use, MAX_LOCKDEP_ENTRIES);
- static struct hlist_head lock_keys_hash[KEYHASH_SIZE];
- unsigned long nr_lock_classes;
- unsigned long nr_zapped_classes;
--#ifndef CONFIG_DEBUG_LOCKDEP
--static
--#endif
-+unsigned long max_lock_class_idx;
- struct lock_class lock_classes[MAX_LOCKDEP_KEYS];
--static DECLARE_BITMAP(lock_classes_in_use, MAX_LOCKDEP_KEYS);
-+DECLARE_BITMAP(lock_classes_in_use, MAX_LOCKDEP_KEYS);
+diff --git a/drivers/tty/serial/8250/8250_dma.c b/drivers/tty/serial/8250/8250_dma.c
+index 890fa7ddaa7f..b3c3f7e5851a 100644
+--- a/drivers/tty/serial/8250/8250_dma.c
++++ b/drivers/tty/serial/8250/8250_dma.c
+@@ -64,10 +64,19 @@ int serial8250_tx_dma(struct uart_8250_port *p)
+ 	struct uart_8250_dma		*dma = p->dma;
+ 	struct circ_buf			*xmit = &p->port.state->xmit;
+ 	struct dma_async_tx_descriptor	*desc;
++	struct uart_port		*up = &p->port;
+ 	int ret;
  
- static inline struct lock_class *hlock_class(struct held_lock *hlock)
- {
-@@ -338,7 +336,7 @@ static inline void lock_release_holdtime(struct held_lock *hlock)
-  * elements. These elements are linked together by the lock_entry member in
-  * struct lock_class.
-  */
--LIST_HEAD(all_lock_classes);
-+static LIST_HEAD(all_lock_classes);
- static LIST_HEAD(free_lock_classes);
+-	if (dma->tx_running)
++	if (dma->tx_running) {
++		if (up->x_char) {
++			dmaengine_pause(dma->txchan);
++			uart_xchar_out(up, UART_TX);
++			dmaengine_resume(dma->txchan);
++		}
+ 		return 0;
++	} else if (up->x_char) {
++		uart_xchar_out(up, UART_TX);
++	}
  
- /**
-@@ -1252,6 +1250,7 @@ register_lock_class(struct lockdep_map *lock, unsigned int subclass, int force)
- 	struct lockdep_subclass_key *key;
- 	struct hlist_head *hash_head;
- 	struct lock_class *class;
-+	int idx;
+ 	if (uart_tx_stopped(&p->port) || uart_circ_empty(xmit)) {
+ 		/* We have been called from __dma_tx_complete() */
+diff --git a/drivers/tty/serial/8250/8250_port.c b/drivers/tty/serial/8250/8250_port.c
+index 344fbe7426f6..1e1750a9614e 100644
+--- a/drivers/tty/serial/8250/8250_port.c
++++ b/drivers/tty/serial/8250/8250_port.c
+@@ -1819,9 +1819,7 @@ void serial8250_tx_chars(struct uart_8250_port *up)
+ 	int count;
  
- 	DEBUG_LOCKS_WARN_ON(!irqs_disabled());
- 
-@@ -1317,6 +1316,9 @@ register_lock_class(struct lockdep_map *lock, unsigned int subclass, int force)
- 	 * of classes.
- 	 */
- 	list_move_tail(&class->lock_entry, &all_lock_classes);
-+	idx = class - lock_classes;
-+	if (idx > max_lock_class_idx)
-+		max_lock_class_idx = idx;
- 
- 	if (verbose(class)) {
- 		graph_unlock();
-@@ -6000,6 +6002,8 @@ static void zap_class(struct pending_free *pf, struct lock_class *class)
- 		WRITE_ONCE(class->name, NULL);
- 		nr_lock_classes--;
- 		__clear_bit(class - lock_classes, lock_classes_in_use);
-+		if (class - lock_classes == max_lock_class_idx)
-+			max_lock_class_idx--;
- 	} else {
- 		WARN_ONCE(true, "%s() failed for class %s\n", __func__,
- 			  class->name);
-diff --git a/kernel/locking/lockdep_internals.h b/kernel/locking/lockdep_internals.h
-index ecb8662e7a4e..bbe9000260d0 100644
---- a/kernel/locking/lockdep_internals.h
-+++ b/kernel/locking/lockdep_internals.h
-@@ -121,7 +121,6 @@ static const unsigned long LOCKF_USED_IN_IRQ_READ =
- 
- #define MAX_LOCKDEP_CHAIN_HLOCKS (MAX_LOCKDEP_CHAINS*5)
- 
--extern struct list_head all_lock_classes;
- extern struct lock_chain lock_chains[];
- 
- #define LOCK_USAGE_CHARS (2*XXX_LOCK_USAGE_STATES + 1)
-@@ -151,6 +150,10 @@ extern unsigned int nr_large_chain_blocks;
- 
- extern unsigned int max_lockdep_depth;
- extern unsigned int max_bfs_queue_depth;
-+extern unsigned long max_lock_class_idx;
-+
-+extern struct lock_class lock_classes[MAX_LOCKDEP_KEYS];
-+extern unsigned long lock_classes_in_use[];
- 
- #ifdef CONFIG_PROVE_LOCKING
- extern unsigned long lockdep_count_forward_deps(struct lock_class *);
-@@ -205,7 +208,6 @@ struct lockdep_stats {
- };
- 
- DECLARE_PER_CPU(struct lockdep_stats, lockdep_stats);
--extern struct lock_class lock_classes[MAX_LOCKDEP_KEYS];
- 
- #define __debug_atomic_inc(ptr)					\
- 	this_cpu_inc(lockdep_stats.ptr);
-diff --git a/kernel/locking/lockdep_proc.c b/kernel/locking/lockdep_proc.c
-index b8d9a050c337..15fdc7fa5c68 100644
---- a/kernel/locking/lockdep_proc.c
-+++ b/kernel/locking/lockdep_proc.c
-@@ -24,14 +24,33 @@
- 
- #include "lockdep_internals.h"
+ 	if (port->x_char) {
+-		serial_out(up, UART_TX, port->x_char);
+-		port->icount.tx++;
+-		port->x_char = 0;
++		uart_xchar_out(port, UART_TX);
+ 		return;
+ 	}
+ 	if (uart_tx_stopped(port)) {
+diff --git a/drivers/tty/serial/serial_core.c b/drivers/tty/serial/serial_core.c
+index dc6129ddef85..eb15423f935a 100644
+--- a/drivers/tty/serial/serial_core.c
++++ b/drivers/tty/serial/serial_core.c
+@@ -652,6 +652,20 @@ static void uart_flush_buffer(struct tty_struct *tty)
+ 	tty_port_tty_wakeup(&state->port);
+ }
  
 +/*
-+ * Since iteration of lock_classes is done without holding the lockdep lock,
-+ * it is not safe to iterate all_lock_classes list directly as the iteration
-+ * may branch off to free_lock_classes or the zapped list. Iteration is done
-+ * directly on the lock_classes array by checking the lock_classes_in_use
-+ * bitmap and max_lock_class_idx.
++ * This function performs low-level write of high-priority XON/XOFF
++ * character and accounting for it.
++ *
++ * Requires uart_port to implement .serial_out().
 + */
-+#define iterate_lock_classes(idx, class)				\
-+	for (idx = 0, class = lock_classes; idx <= max_lock_class_idx;	\
-+	     idx++, class++)
++void uart_xchar_out(struct uart_port *uport, int offset)
++{
++	serial_port_out(uport, offset, uport->x_char);
++	uport->icount.tx++;
++	uport->x_char = 0;
++}
++EXPORT_SYMBOL_GPL(uart_xchar_out);
 +
- static void *l_next(struct seq_file *m, void *v, loff_t *pos)
- {
--	return seq_list_next(v, &all_lock_classes, pos);
-+	struct lock_class *class = v;
+ /*
+  * This function is used to send a high-priority XON/XOFF character to
+  * the device
+diff --git a/include/linux/serial_core.h b/include/linux/serial_core.h
+index c58cc142d23f..8c32935e1059 100644
+--- a/include/linux/serial_core.h
++++ b/include/linux/serial_core.h
+@@ -458,6 +458,8 @@ extern void uart_handle_cts_change(struct uart_port *uport,
+ extern void uart_insert_char(struct uart_port *port, unsigned int status,
+ 		 unsigned int overrun, unsigned int ch, unsigned int flag);
+ 
++void uart_xchar_out(struct uart_port *uport, int offset);
 +
-+	++class;
-+	*pos = class - lock_classes;
-+	return (*pos > max_lock_class_idx) ? NULL : class;
- }
+ #ifdef CONFIG_MAGIC_SYSRQ_SERIAL
+ #define SYSRQ_TIMEOUT	(HZ * 5)
  
- static void *l_start(struct seq_file *m, loff_t *pos)
- {
--	return seq_list_start_head(&all_lock_classes, *pos);
-+	unsigned long idx = *pos;
-+
-+	if (idx > max_lock_class_idx)
-+		return NULL;
-+	return lock_classes + idx;
- }
- 
- static void l_stop(struct seq_file *m, void *v)
-@@ -57,14 +76,16 @@ static void print_name(struct seq_file *m, struct lock_class *class)
- 
- static int l_show(struct seq_file *m, void *v)
- {
--	struct lock_class *class = list_entry(v, struct lock_class, lock_entry);
-+	struct lock_class *class = v;
- 	struct lock_list *entry;
- 	char usage[LOCK_USAGE_CHARS];
-+	int idx = class - lock_classes;
- 
--	if (v == &all_lock_classes) {
-+	if (v == lock_classes)
- 		seq_printf(m, "all lock classes:\n");
-+
-+	if (!test_bit(idx, lock_classes_in_use))
- 		return 0;
--	}
- 
- 	seq_printf(m, "%p", class->key);
- #ifdef CONFIG_DEBUG_LOCKDEP
-@@ -220,8 +241,11 @@ static int lockdep_stats_show(struct seq_file *m, void *v)
- 
- #ifdef CONFIG_PROVE_LOCKING
- 	struct lock_class *class;
-+	unsigned long idx;
- 
--	list_for_each_entry(class, &all_lock_classes, lock_entry) {
-+	iterate_lock_classes(idx, class) {
-+		if (!test_bit(idx, lock_classes_in_use))
-+			continue;
- 
- 		if (class->usage_mask == 0)
- 			nr_unused++;
-@@ -254,6 +278,7 @@ static int lockdep_stats_show(struct seq_file *m, void *v)
- 
- 		sum_forward_deps += lockdep_count_forward_deps(class);
- 	}
-+
- #ifdef CONFIG_DEBUG_LOCKDEP
- 	DEBUG_LOCKS_WARN_ON(debug_atomic_read(nr_unused_locks) != nr_unused);
- #endif
-@@ -345,6 +370,8 @@ static int lockdep_stats_show(struct seq_file *m, void *v)
- 	seq_printf(m, " max bfs queue depth:           %11u\n",
- 			max_bfs_queue_depth);
- #endif
-+	seq_printf(m, " max lock class index:          %11lu\n",
-+			max_lock_class_idx);
- 	lockdep_stats_debug_show(m);
- 	seq_printf(m, " debug_locks:                   %11u\n",
- 			debug_locks);
-@@ -622,12 +649,16 @@ static int lock_stat_open(struct inode *inode, struct file *file)
- 	if (!res) {
- 		struct lock_stat_data *iter = data->stats;
- 		struct seq_file *m = file->private_data;
-+		unsigned long idx;
- 
--		list_for_each_entry(class, &all_lock_classes, lock_entry) {
-+		iterate_lock_classes(idx, class) {
-+			if (!test_bit(idx, lock_classes_in_use))
-+				continue;
- 			iter->class = class;
- 			iter->stats = lock_stats(class);
- 			iter++;
- 		}
-+
- 		data->iter_end = iter;
- 
- 		sort(data->stats, data->iter_end - data->stats,
-@@ -645,6 +676,7 @@ static ssize_t lock_stat_write(struct file *file, const char __user *buf,
- 			       size_t count, loff_t *ppos)
- {
- 	struct lock_class *class;
-+	unsigned long idx;
- 	char c;
- 
- 	if (count) {
-@@ -654,8 +686,11 @@ static ssize_t lock_stat_write(struct file *file, const char __user *buf,
- 		if (c != '0')
- 			return count;
- 
--		list_for_each_entry(class, &all_lock_classes, lock_entry)
-+		iterate_lock_classes(idx, class) {
-+			if (!test_bit(idx, lock_classes_in_use))
-+				continue;
- 			clear_lock_stats(class);
-+		}
- 	}
- 	return count;
- }
 -- 
 2.34.1
 
