@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F3B74F2797
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:08:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA2914F27C2
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:08:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233363AbiDEIHi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:07:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56192 "EHLO
+        id S233712AbiDEIIz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:08:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57586 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232041AbiDEICk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:02:40 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 445CF55772;
-        Tue,  5 Apr 2022 01:00:41 -0700 (PDT)
+        with ESMTP id S233032AbiDEIC5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:02:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BE83580E3;
+        Tue,  5 Apr 2022 01:00:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8DA286177F;
-        Tue,  5 Apr 2022 08:00:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 971A9C340EE;
-        Tue,  5 Apr 2022 08:00:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2B7C3B81B90;
+        Tue,  5 Apr 2022 08:00:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73FDCC340EE;
+        Tue,  5 Apr 2022 08:00:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145640;
-        bh=ruRyJucv70xZ0kihqI7ZSSwyvEYZ2kk+P4V1D6DsGY0=;
+        s=korg; t=1649145642;
+        bh=gEk4RkBXFrR/2z0F7FTlWAGPlXH/JhpdoxTHvJntnts=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pEnUcyO+wfXKnNjp2O0Hie2az61yemGSbj8kbkompdZ8SCx8WXBKt5XYckBhVdV1x
-         gyx9mRIuQYpOtKgxvYNdrdrFzN0R/+3iZPiUGbAWFhBxyDH0KAR30DrYG/23VyhvIN
-         tj8WRSF6tdwQV86kqHHzDAQ4zYF/PewggU0d3kyk=
+        b=vTy9t6kJ40JSyerDn/N630ym3xi/pJDjSrXEYgHju5u2SQREJKH2yk9jEDlVU0qRI
+         RY3ZwZy1Leyhm5viUataDPn7fqZ9jYVFo98YhIqfbGbOpoPm9RjZcebzU3dPU56HSz
+         sTfTB+kqQfUL0qh3HZGOUkEew62MlpB3GddNmZso=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Po-Hao Huang <phhuang@realtek.com>,
-        Ping-Ke Shih <pkshih@realtek.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0477/1126] rtw88: fix memory overrun and memory leak during hw_scan
-Date:   Tue,  5 Apr 2022 09:20:24 +0200
-Message-Id: <20220405070421.628095471@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Robert Foss <robert.foss@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 0478/1126] drm/bridge: lt9611: Fix an error handling path in lt9611_probe()
+Date:   Tue,  5 Apr 2022 09:20:25 +0200
+Message-Id: <20220405070421.657785788@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -54,118 +55,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Po-Hao Huang <phhuang@realtek.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit d95984b5580dcb8b1c0036577c52b609990a1dab ]
+[ Upstream commit 9987151a90567785beebcbd5c8ac58d05f254137 ]
 
-Previously we allocated less memory than actual required, overwrite
-to the buffer causes the mm module to complaint and raise access
-violation faults. Along with potential memory leaks when returned
-early. Fix these by passing the correct size and proper deinit flow.
+If lt9611_audio_init() fails, some resources still need to be released
+before returning an error code.
 
-Fixes: 10d162b2ed39 ("rtw88: 8822c: add ieee80211_ops::hw_scan")
-Signed-off-by: Po-Hao Huang <phhuang@realtek.com>
-Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20220121070813.9656-4-pkshih@realtek.com
+Add the missing goto the error handling path.
+
+Fixes: 23278bf54afe ("drm/bridge: Introduce LT9611 DSI to HDMI bridge")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Robert Foss <robert.foss@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/9c20eb74d42f6d4128e58e3e46aa320482472b77.1643468761.git.christophe.jaillet@wanadoo.fr
+Reviewed-by: Robert Foss <robert.foss@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtw88/fw.c | 34 +++++++++++++++++--------
- 1 file changed, 24 insertions(+), 10 deletions(-)
+ drivers/gpu/drm/bridge/lontium-lt9611.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/realtek/rtw88/fw.c b/drivers/net/wireless/realtek/rtw88/fw.c
-index a631042753ea..ce9535cce723 100644
---- a/drivers/net/wireless/realtek/rtw88/fw.c
-+++ b/drivers/net/wireless/realtek/rtw88/fw.c
-@@ -1784,9 +1784,9 @@ void rtw_fw_scan_notify(struct rtw_dev *rtwdev, bool start)
- 	rtw_fw_send_h2c_command(rtwdev, h2c_pkt);
- }
+diff --git a/drivers/gpu/drm/bridge/lontium-lt9611.c b/drivers/gpu/drm/bridge/lontium-lt9611.c
+index dafb1b47c15f..00597eb54661 100644
+--- a/drivers/gpu/drm/bridge/lontium-lt9611.c
++++ b/drivers/gpu/drm/bridge/lontium-lt9611.c
+@@ -1164,7 +1164,11 @@ static int lt9611_probe(struct i2c_client *client,
  
--static void rtw_append_probe_req_ie(struct rtw_dev *rtwdev, struct sk_buff *skb,
--				    struct sk_buff_head *list,
--				    struct rtw_vif *rtwvif)
-+static int rtw_append_probe_req_ie(struct rtw_dev *rtwdev, struct sk_buff *skb,
-+				   struct sk_buff_head *list, u8 *bands,
-+				   struct rtw_vif *rtwvif)
- {
- 	struct ieee80211_scan_ies *ies = rtwvif->scan_ies;
- 	struct rtw_chip_info *chip = rtwdev->chip;
-@@ -1797,19 +1797,24 @@ static void rtw_append_probe_req_ie(struct rtw_dev *rtwdev, struct sk_buff *skb,
- 		if (!(BIT(idx) & chip->band))
- 			continue;
- 		new = skb_copy(skb, GFP_KERNEL);
-+		if (!new)
-+			return -ENOMEM;
- 		skb_put_data(new, ies->ies[idx], ies->len[idx]);
- 		skb_put_data(new, ies->common_ies, ies->common_ie_len);
- 		skb_queue_tail(list, new);
-+		(*bands)++;
- 	}
+ 	lt9611_enable_hpd_interrupts(lt9611);
+ 
+-	return lt9611_audio_init(dev, lt9611);
++	ret = lt9611_audio_init(dev, lt9611);
++	if (ret)
++		goto err_remove_bridge;
 +
 +	return 0;
- }
  
--static int _rtw_hw_scan_update_probe_req(struct rtw_dev *rtwdev, u8 num_ssids,
-+static int _rtw_hw_scan_update_probe_req(struct rtw_dev *rtwdev, u8 num_probes,
- 					 struct sk_buff_head *probe_req_list)
- {
- 	struct rtw_chip_info *chip = rtwdev->chip;
- 	struct sk_buff *skb, *tmp;
- 	u8 page_offset = 1, *buf, page_size = chip->page_size;
--	u8 pages = page_offset + num_ssids * RTW_PROBE_PG_CNT;
-+	u8 pages = page_offset + num_probes * RTW_PROBE_PG_CNT;
- 	u16 pg_addr = rtwdev->fifo.rsvd_h2c_info_addr, loc;
- 	u16 buf_offset = page_size * page_offset;
- 	u8 tx_desc_sz = chip->tx_pkt_desc_sz;
-@@ -1848,6 +1853,8 @@ static int _rtw_hw_scan_update_probe_req(struct rtw_dev *rtwdev, u8 num_ssids,
- 	rtwdev->scan_info.probe_pg_size = page_offset;
- out:
- 	kfree(buf);
-+	skb_queue_walk(probe_req_list, skb)
-+		kfree_skb(skb);
- 
- 	return ret;
- }
-@@ -1858,7 +1865,8 @@ static int rtw_hw_scan_update_probe_req(struct rtw_dev *rtwdev,
- 	struct cfg80211_scan_request *req = rtwvif->scan_req;
- 	struct sk_buff_head list;
- 	struct sk_buff *skb;
--	u8 num = req->n_ssids, i;
-+	u8 num = req->n_ssids, i, bands = 0;
-+	int ret;
- 
- 	skb_queue_head_init(&list);
- 	for (i = 0; i < num; i++) {
-@@ -1866,19 +1874,25 @@ static int rtw_hw_scan_update_probe_req(struct rtw_dev *rtwdev,
- 					     req->ssids[i].ssid,
- 					     req->ssids[i].ssid_len,
- 					     req->ie_len);
--		if (!skb)
-+		if (!skb) {
-+			ret = -ENOMEM;
- 			goto out;
--		rtw_append_probe_req_ie(rtwdev, skb, &list, rtwvif);
-+		}
-+		ret = rtw_append_probe_req_ie(rtwdev, skb, &list, &bands,
-+					      rtwvif);
-+		if (ret)
-+			goto out;
-+
- 		kfree_skb(skb);
- 	}
- 
--	return _rtw_hw_scan_update_probe_req(rtwdev, num, &list);
-+	return _rtw_hw_scan_update_probe_req(rtwdev, num * bands, &list);
- 
- out:
- 	skb_queue_walk(&list, skb)
- 		kfree_skb(skb);
- 
--	return -ENOMEM;
-+	return ret;
- }
- 
- static int rtw_add_chan_info(struct rtw_dev *rtwdev, struct rtw_chan_info *info,
+ err_remove_bridge:
+ 	drm_bridge_remove(&lt9611->bridge);
 -- 
 2.34.1
 
