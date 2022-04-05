@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B8AE64F278A
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:07:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2BC04F2826
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:19:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233441AbiDEIHW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:07:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48404 "EHLO
+        id S233638AbiDEIKz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:10:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51766 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233403AbiDEH5G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:57:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F127F473A6;
-        Tue,  5 Apr 2022 00:51:00 -0700 (PDT)
+        with ESMTP id S233418AbiDEH5H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:57:07 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF1D747AF4;
+        Tue,  5 Apr 2022 00:51:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 22ED861748;
-        Tue,  5 Apr 2022 07:50:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34A35C340EE;
-        Tue,  5 Apr 2022 07:50:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ECE736172C;
+        Tue,  5 Apr 2022 07:50:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07099C340EE;
+        Tue,  5 Apr 2022 07:50:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145055;
-        bh=gqpW2JKqMwbGk4mI9GrCpPlNMQ51QYRvnZ5/G1MUtX0=;
+        s=korg; t=1649145058;
+        bh=RSj97UFE//PTCX00jDoDuPMtwr11f/zKAjzxUqGW5EE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rrNtyjkZILFcKzaj8+atyIlLieX47lW9DCO8BoxarogGHAOMEYfRu3llQmRiWIP5p
-         ZEgbDPo4USE32V6Vp+IvDdKmuRqZz41QGq4BRnvralij4rBZgI5ZgOO7GrJH8mI82B
-         k5yDAlMxNdh5Pi6w5zgUAp6Tx4KJAn0ecOV7bc7s=
+        b=jjaeAQ1IxBq1bSM91jHdnHY9YZHWsCv7UBAb6ThPu9jjth10GhtonkDCgVw4nS+Wx
+         gpuRR2aTskttV96fErwv1zngs3EYt2KigMzPWr3EvrMplFp50AWXoQefoThjZ8C4Nj
+         GI/1jAfcocEmxA7HP6Kdq5eC6j5QU3y5CbhdNzOI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bharata B Rao <bharata@amd.com>,
+        stable@vger.kernel.org, Qais Yousef <qais.yousef@arm.com>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
-        Mel Gorman <mgorman@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0269/1126] sched/debug: Remove mpol_get/put and task_lock/unlock from sched_show_numa
-Date:   Tue,  5 Apr 2022 09:16:56 +0200
-Message-Id: <20220405070415.506578959@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 0270/1126] sched/core: Export pelt_thermal_tp
+Date:   Tue,  5 Apr 2022 09:16:57 +0200
+Message-Id: <20220405070415.536147077@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -55,57 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bharata B Rao <bharata@amd.com>
+From: Qais Yousef <qais.yousef@arm.com>
 
-[ Upstream commit 28c988c3ec29db74a1dda631b18785958d57df4f ]
+[ Upstream commit 77cf151b7bbdfa3577b3c3f3a5e267a6c60a263b ]
 
-The older format of /proc/pid/sched printed home node info which
-required the mempolicy and task lock around mpol_get(). However
-the format has changed since then and there is no need for
-sched_show_numa() any more to have mempolicy argument,
-asssociated mpol_get/put and task_lock/unlock. Remove them.
+We can't use this tracepoint in modules without having the symbol
+exported first, fix that.
 
-Fixes: 397f2378f1361 ("sched/numa: Fix numa balancing stats in /proc/pid/sched")
-Signed-off-by: Bharata B Rao <bharata@amd.com>
+Fixes: 765047932f15 ("sched/pelt: Add support to track thermal pressure")
+Signed-off-by: Qais Yousef <qais.yousef@arm.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
-Acked-by: Mel Gorman <mgorman@suse.de>
-Link: https://lore.kernel.org/r/20220118050515.2973-1-bharata@amd.com
+Link: https://lkml.kernel.org/r/20211028115005.873539-1-qais.yousef@arm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/debug.c | 10 ----------
- 1 file changed, 10 deletions(-)
+ kernel/sched/core.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/kernel/sched/debug.c b/kernel/sched/debug.c
-index aa29211de1bf..102d6f70e84d 100644
---- a/kernel/sched/debug.c
-+++ b/kernel/sched/debug.c
-@@ -931,25 +931,15 @@ void print_numa_stats(struct seq_file *m, int node, unsigned long tsf,
- static void sched_show_numa(struct task_struct *p, struct seq_file *m)
- {
- #ifdef CONFIG_NUMA_BALANCING
--	struct mempolicy *pol;
--
- 	if (p->mm)
- 		P(mm->numa_scan_seq);
- 
--	task_lock(p);
--	pol = p->mempolicy;
--	if (pol && !(pol->flags & MPOL_F_MORON))
--		pol = NULL;
--	mpol_get(pol);
--	task_unlock(p);
--
- 	P(numa_pages_migrated);
- 	P(numa_preferred_nid);
- 	P(total_numa_faults);
- 	SEQ_printf(m, "current_node=%d, numa_group_id=%d\n",
- 			task_node(p), task_numa_group_id(p));
- 	show_numa_stats(p, m);
--	mpol_put(pol);
- #endif
- }
- 
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index 9745613d531c..1620ae8535dc 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -36,6 +36,7 @@ EXPORT_TRACEPOINT_SYMBOL_GPL(pelt_rt_tp);
+ EXPORT_TRACEPOINT_SYMBOL_GPL(pelt_dl_tp);
+ EXPORT_TRACEPOINT_SYMBOL_GPL(pelt_irq_tp);
+ EXPORT_TRACEPOINT_SYMBOL_GPL(pelt_se_tp);
++EXPORT_TRACEPOINT_SYMBOL_GPL(pelt_thermal_tp);
+ EXPORT_TRACEPOINT_SYMBOL_GPL(sched_cpu_capacity_tp);
+ EXPORT_TRACEPOINT_SYMBOL_GPL(sched_overutilized_tp);
+ EXPORT_TRACEPOINT_SYMBOL_GPL(sched_util_est_cfs_tp);
 -- 
 2.34.1
 
