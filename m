@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 185DE4F3904
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:41:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 464234F3907
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:41:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377490AbiDEL31 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:29:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55242 "EHLO
+        id S1377496AbiDEL3b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:29:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35094 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351231AbiDEKBr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:01:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C79156C955;
-        Tue,  5 Apr 2022 02:51:32 -0700 (PDT)
+        with ESMTP id S1351364AbiDEKCU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:02:20 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39F9F6CA7F;
+        Tue,  5 Apr 2022 02:51:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 626A2B81B14;
-        Tue,  5 Apr 2022 09:51:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7C20C385A1;
-        Tue,  5 Apr 2022 09:51:29 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 92E1CCE1C71;
+        Tue,  5 Apr 2022 09:51:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A014AC385A2;
+        Tue,  5 Apr 2022 09:51:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152290;
-        bh=D7L0OFuGq8ZDjoEuhEiuaTbdXnNi98bio94Ocv4+WzE=;
+        s=korg; t=1649152293;
+        bh=a3X9AFzHlu8+WSu53lKw4fxPUWErvt/B1kO6xdYwI7g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PbZEKi0mgr5KqKeybjCaRIjFeZb6dUDihhUaTVKaAlQBrwzQxOZI2+GccCQBT94yc
-         xYXgYCaihph74zDldmFmuKZHZHpK2GRWYuxLw0DqZ2n8Qi53gUM7Z7ZoOIbAbgpkFe
-         R6yNyLzsFR29DvhVg1ycAuLpUwA7+fAokLft3Uo4=
+        b=dbw5IzyAiowIFAzaQ+IZ0bpUNQDol2rOkkDjD2ijL8JvKWPmfLbcQQA1fSyy80OYo
+         b1epaYdB05/fyzLpYiaW46u9XIIjuFoO6j5ONHag8zsF+6omBc71P4P6NH/srcJ4bV
+         3YG9cvmfRfSswZ6Eqrfjrw8dB3tFDpdlWH3jOgtI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rohith Surabattula <rohiths@microsoft.com>,
-        "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
-        Steve French <stfrench@microsoft.com>,
+        stable@vger.kernel.org,
+        syzbot+3c765c5248797356edaa@syzkaller.appspotmail.com,
+        Dongliang Mu <mudongliangabcd@gmail.com>,
+        Anton Altaparmakov <anton@tuxera.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 723/913] Adjust cifssb maximum read size
-Date:   Tue,  5 Apr 2022 09:29:45 +0200
-Message-Id: <20220405070401.504022314@linuxfoundation.org>
+Subject: [PATCH 5.15 724/913] ntfs: add sanity check on allocation size
+Date:   Tue,  5 Apr 2022 09:29:46 +0200
+Message-Id: <20220405070401.533638720@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -55,69 +58,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rohith Surabattula <rohiths@microsoft.com>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-[ Upstream commit 06a466565d54a1a42168f9033a062a3f5c40e73b ]
+[ Upstream commit 714fbf2647b1a33d914edd695d4da92029c7e7c0 ]
 
-When session gets reconnected during mount then read size in super block fs context
-gets set to zero and after negotiate, rsize is not modified which results in
-incorrect read with requested bytes as zero. Fixes intermittent failure
-of xfstest generic/240
+ntfs_read_inode_mount invokes ntfs_malloc_nofs with zero allocation
+size.  It triggers one BUG in the __ntfs_malloc function.
 
-Note that stable requires a different version of this patch which will be
-sent to the stable mailing list.
+Fix this by adding sanity check on ni->attr_list_size.
 
-Signed-off-by: Rohith Surabattula <rohiths@microsoft.com>
-Acked-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Link: https://lkml.kernel.org/r/20220120094914.47736-1-dzm91@hust.edu.cn
+Reported-by: syzbot+3c765c5248797356edaa@syzkaller.appspotmail.com
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Acked-by: Anton Altaparmakov <anton@tuxera.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/cifsfs.c |  3 +++
- fs/cifs/file.c   | 10 ++++++++++
- 2 files changed, 13 insertions(+)
+ fs/ntfs/inode.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/fs/cifs/cifsfs.c b/fs/cifs/cifsfs.c
-index 22a1d8156220..ed220daca3e1 100644
---- a/fs/cifs/cifsfs.c
-+++ b/fs/cifs/cifsfs.c
-@@ -210,6 +210,9 @@ cifs_read_super(struct super_block *sb)
- 	if (rc)
- 		goto out_no_root;
- 	/* tune readahead according to rsize if readahead size not set on mount */
-+	if (cifs_sb->ctx->rsize == 0)
-+		cifs_sb->ctx->rsize =
-+			tcon->ses->server->ops->negotiate_rsize(tcon, cifs_sb->ctx);
- 	if (cifs_sb->ctx->rasize)
- 		sb->s_bdi->ra_pages = cifs_sb->ctx->rasize / PAGE_SIZE;
- 	else
-diff --git a/fs/cifs/file.c b/fs/cifs/file.c
-index 82bbaf8e92b7..b23f6b489bb9 100644
---- a/fs/cifs/file.c
-+++ b/fs/cifs/file.c
-@@ -3734,6 +3734,11 @@ cifs_send_async_read(loff_t offset, size_t len, struct cifsFileInfo *open_file,
- 				break;
+diff --git a/fs/ntfs/inode.c b/fs/ntfs/inode.c
+index 4474adb393ca..517b71c73aa9 100644
+--- a/fs/ntfs/inode.c
++++ b/fs/ntfs/inode.c
+@@ -1881,6 +1881,10 @@ int ntfs_read_inode_mount(struct inode *vi)
  		}
- 
-+		if (cifs_sb->ctx->rsize == 0)
-+			cifs_sb->ctx->rsize =
-+				server->ops->negotiate_rsize(tlink_tcon(open_file->tlink),
-+							     cifs_sb->ctx);
-+
- 		rc = server->ops->wait_mtu_credits(server, cifs_sb->ctx->rsize,
- 						   &rsize, credits);
- 		if (rc)
-@@ -4512,6 +4517,11 @@ static int cifs_readpages(struct file *file, struct address_space *mapping,
- 				break;
- 		}
- 
-+		if (cifs_sb->ctx->rsize == 0)
-+			cifs_sb->ctx->rsize =
-+				server->ops->negotiate_rsize(tlink_tcon(open_file->tlink),
-+							     cifs_sb->ctx);
-+
- 		rc = server->ops->wait_mtu_credits(server, cifs_sb->ctx->rsize,
- 						   &rsize, credits);
- 		if (rc)
+ 		/* Now allocate memory for the attribute list. */
+ 		ni->attr_list_size = (u32)ntfs_attr_size(a);
++		if (!ni->attr_list_size) {
++			ntfs_error(sb, "Attr_list_size is zero");
++			goto put_err_out;
++		}
+ 		ni->attr_list = ntfs_malloc_nofs(ni->attr_list_size);
+ 		if (!ni->attr_list) {
+ 			ntfs_error(sb, "Not enough memory to allocate buffer "
 -- 
 2.34.1
 
