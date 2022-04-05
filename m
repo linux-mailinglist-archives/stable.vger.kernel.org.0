@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 99B584F28AC
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:21:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EA084F281A
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:19:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233504AbiDEIVP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:21:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42050 "EHLO
+        id S233909AbiDEIKp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:10:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55460 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233593AbiDEIIn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:08:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 175E06C1ED;
-        Tue,  5 Apr 2022 01:02:18 -0700 (PDT)
+        with ESMTP id S230282AbiDEICa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:02:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF12254FA9;
+        Tue,  5 Apr 2022 01:00:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C8515617BB;
-        Tue,  5 Apr 2022 08:02:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB14DC385A0;
-        Tue,  5 Apr 2022 08:02:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 55D446177F;
+        Tue,  5 Apr 2022 08:00:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E087C34110;
+        Tue,  5 Apr 2022 08:00:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145737;
-        bh=7sDJ2RHrC/huW9RezcPNtggKrMYJEdFEyQl7gB+nlfs=;
+        s=korg; t=1649145631;
+        bh=5ViWBbsLPxdn3zqyYlQXpfb56RiI3TzY2TRM9WAalvU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZOUQGhclR34zJlvCwovv6xmLOvkXg4b18ZBGijcs9d890PW58tkLBgfpk5lpWCz6y
-         C6lC6DHDD4t3N//9ywJxAwhfxOBRoMPDByMLT3gMjvA0IoBQ/P4L6OmyUcZAHwROGk
-         ZddkAq0pEecsav44hLhi3B7TuIdNFHwG8FPRzqaI=
+        b=gXMn3DghpYyPV/BB/aGRtvB/iul++SpI/BGgowFWnmHSSEIOmN8qASfHljD6HBNOH
+         4fJM7dIzwhSsD7wG2vKXAxKZ6lXbJ2Gd477K2BZoCeIRzuHc18/SHOnd5ip2WkwQ/I
+         um9eRkRZiw9PQrybWuL1mFCJFs5RxW4a9BpVeydU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabiano Rosas <farosas@linux.ibm.com>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org,
+        Gerhard Engleder <gerhard@engleder-embedded.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0473/1126] KVM: PPC: Fix vmx/vsx mixup in mmio emulation
-Date:   Tue,  5 Apr 2022 09:20:20 +0200
-Message-Id: <20220405070421.510701872@linuxfoundation.org>
+Subject: [PATCH 5.17 0474/1126] selftests/net: timestamping: Fix bind_phc check
+Date:   Tue,  5 Apr 2022 09:20:21 +0200
+Message-Id: <20220405070421.539916834@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -55,46 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabiano Rosas <farosas@linux.ibm.com>
+From: Gerhard Engleder <gerhard@engleder-embedded.com>
 
-[ Upstream commit b99234b918c6e36b9aa0a5b2981e86b6bd11f8e2 ]
+[ Upstream commit 678dfd5280341d877ca646499bfdc82a3d8b4356 ]
 
-The MMIO emulation code for vector instructions is duplicated between
-VSX and VMX. When emulating VMX we should check the VMX copy size
-instead of the VSX one.
+timestamping checks socket options during initialisation. For the field
+bind_phc of the socket option SO_TIMESTAMPING it expects the value -1 if
+PHC is not bound. Actually the value of bind_phc is 0 if PHC is not
+bound. This results in the following output:
 
-Fixes: acc9eb9305fe ("KVM: PPC: Reimplement LOAD_VMX/STORE_VMX instruction ...")
-Signed-off-by: Fabiano Rosas <farosas@linux.ibm.com>
-Reviewed-by: Nicholas Piggin <npiggin@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220125215655.1026224-3-farosas@linux.ibm.com
+SIOCSHWTSTAMP: tx_type 0 requested, got 0; rx_filter 0 requested, got 0
+SO_TIMESTAMP 0
+SO_TIMESTAMPNS 0
+SO_TIMESTAMPING flags 0, bind phc 0
+   not expected, flags 0, bind phc -1
+
+This is fixed by setting default value and expected value of bind_phc to
+0.
+
+Fixes: 2214d7032479 ("selftests/net: timestamping: support binding PHC")
+Signed-off-by: Gerhard Engleder <gerhard@engleder-embedded.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kvm/powerpc.c | 4 ++--
+ tools/testing/selftests/net/timestamping.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/kvm/powerpc.c b/arch/powerpc/kvm/powerpc.c
-index 2ad0ccd202d5..f0c4545dc3ab 100644
---- a/arch/powerpc/kvm/powerpc.c
-+++ b/arch/powerpc/kvm/powerpc.c
-@@ -1499,7 +1499,7 @@ int kvmppc_handle_vmx_load(struct kvm_vcpu *vcpu,
- {
- 	enum emulation_result emulated = EMULATE_DONE;
- 
--	if (vcpu->arch.mmio_vsx_copy_nums > 2)
-+	if (vcpu->arch.mmio_vmx_copy_nums > 2)
- 		return EMULATE_FAIL;
- 
- 	while (vcpu->arch.mmio_vmx_copy_nums) {
-@@ -1596,7 +1596,7 @@ int kvmppc_handle_vmx_store(struct kvm_vcpu *vcpu,
- 	unsigned int index = rs & KVM_MMIO_REG_MASK;
- 	enum emulation_result emulated = EMULATE_DONE;
- 
--	if (vcpu->arch.mmio_vsx_copy_nums > 2)
-+	if (vcpu->arch.mmio_vmx_copy_nums > 2)
- 		return EMULATE_FAIL;
- 
- 	vcpu->arch.io_gpr = rs;
+diff --git a/tools/testing/selftests/net/timestamping.c b/tools/testing/selftests/net/timestamping.c
+index aee631c5284e..044bc0e9ed81 100644
+--- a/tools/testing/selftests/net/timestamping.c
++++ b/tools/testing/selftests/net/timestamping.c
+@@ -325,8 +325,8 @@ int main(int argc, char **argv)
+ 	struct ifreq device;
+ 	struct ifreq hwtstamp;
+ 	struct hwtstamp_config hwconfig, hwconfig_requested;
+-	struct so_timestamping so_timestamping_get = { 0, -1 };
+-	struct so_timestamping so_timestamping = { 0, -1 };
++	struct so_timestamping so_timestamping_get = { 0, 0 };
++	struct so_timestamping so_timestamping = { 0, 0 };
+ 	struct sockaddr_in addr;
+ 	struct ip_mreq imr;
+ 	struct in_addr iaddr;
 -- 
 2.34.1
 
