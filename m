@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E7A34F34D9
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:41:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64B734F313F
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:40:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241834AbiDEIfc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:35:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34810 "EHLO
+        id S242568AbiDEJhk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:37:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51632 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239341AbiDEIT7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:19:59 -0400
+        with ESMTP id S236742AbiDEJDe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:03:34 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04F97BB92B;
-        Tue,  5 Apr 2022 01:11:37 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C12D1088;
+        Tue,  5 Apr 2022 01:55:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ACB96B81B90;
-        Tue,  5 Apr 2022 08:11:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EADF6C385A0;
-        Tue,  5 Apr 2022 08:11:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CB163B81BAE;
+        Tue,  5 Apr 2022 08:55:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40090C385A1;
+        Tue,  5 Apr 2022 08:55:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146294;
-        bh=sFS7G5rZj3C0ZMjUhhbET/vBcgSalnDjkfieF0x48Fg=;
+        s=korg; t=1649148915;
+        bh=H3ecDX8pEltqiGL2hkKufhyYiHFUlZgmKssDWrOOcHw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SXqSNi2bBLUqXoPyhOv96dj9BIZ8zXpl6dL4fnCCinvS8jbeFPTHCla9DZWx1Sllq
-         Clx+kocod2wC7f/FtHS8KOv+/YIHLjBqxcjud3RZuP0vA8uh/QoyOplwDe/esBsnOI
-         NNH380Busddueuv4U7qhQfSA5GyIRK8yuXZAYfKI=
+        b=kTps8JSKf0zlICE5+PXhKUzI9VPAFDycNZ1j3ZIAqORTpWVr6V2rJ+lADolggfV7m
+         /gAs4+Iljr6ULT1MSdbKq662sfSd837ERYrP8PDWQECiU7tACa4Sxo641J2OkxFlf/
+         BytBPRg1xWIigXZX48XF6Lqd/n9RWat8SNtR0EQI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Derek Will <derekrobertwill@gmail.com>,
-        Oliver Hartkopp <socketcan@hartkopp.net>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0675/1126] can: isotp: return -EADDRNOTAVAIL when reading from unbound socket
-Date:   Tue,  5 Apr 2022 09:23:42 +0200
-Message-Id: <20220405070427.437482044@linuxfoundation.org>
+Subject: [PATCH 5.16 0510/1017] iwlwifi: mvm: align locking in D3 test debugfs
+Date:   Tue,  5 Apr 2022 09:23:43 +0200
+Message-Id: <20220405070409.438251687@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,47 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Hartkopp <socketcan@hartkopp.net>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 30ffd5332e06316bd69a654c06aa033872979b7c ]
+[ Upstream commit 59e1221f470c2e5d2f2d4c95153edd577a7071c5 ]
 
-When reading from an unbound can-isotp socket the syscall blocked
-indefinitely. As unbound sockets (without given CAN address information)
-do not make sense anyway we directly return -EADDRNOTAVAIL on read()
-analogue to the known behavior from sendmsg().
+Since commit a05829a7222e ("cfg80211: avoid holding the RTNL when
+calling the driver") we're not only holding the RTNL when going
+in and out of suspend, but also the wiphy->mtx. Add that to the
+D3 test debugfs in iwlwifi since it's required for various calls
+to mac80211.
 
-Fixes: e057dd3fc20f ("can: add ISO 15765-2:2016 transport protocol")
-Link: https://github.com/linux-can/can-utils/issues/349
-Link: https://lore.kernel.org/all/20220316164258.54155-2-socketcan@hartkopp.net
-Suggested-by: Derek Will <derekrobertwill@gmail.com>
-Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fixes: a05829a7222e ("cfg80211: avoid holding the RTNL when calling the driver")
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: a05829a7222e ("cfg80211: avoid holding the RTNL when calling the driver")
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20220129105618.fcec0204e162.Ib73bf787ab4d83581de20eb89b1f8dbfcaaad0e3@changeid
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/can/isotp.c | 4 ++++
+ drivers/net/wireless/intel/iwlwifi/mvm/d3.c | 4 ++++
  1 file changed, 4 insertions(+)
 
-diff --git a/net/can/isotp.c b/net/can/isotp.c
-index f8e3aeb79e3f..8966f06e0660 100644
---- a/net/can/isotp.c
-+++ b/net/can/isotp.c
-@@ -1005,12 +1005,16 @@ static int isotp_recvmsg(struct socket *sock, struct msghdr *msg, size_t size,
- {
- 	struct sock *sk = sock->sk;
- 	struct sk_buff *skb;
-+	struct isotp_sock *so = isotp_sk(sk);
- 	int err = 0;
- 	int noblock;
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/d3.c b/drivers/net/wireless/intel/iwlwifi/mvm/d3.c
+index a19f646a324f..75e9776001b8 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/d3.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/d3.c
+@@ -2566,7 +2566,9 @@ static int iwl_mvm_d3_test_open(struct inode *inode, struct file *file)
  
- 	noblock = flags & MSG_DONTWAIT;
- 	flags &= ~MSG_DONTWAIT;
+ 	/* start pseudo D3 */
+ 	rtnl_lock();
++	wiphy_lock(mvm->hw->wiphy);
+ 	err = __iwl_mvm_suspend(mvm->hw, mvm->hw->wiphy->wowlan_config, true);
++	wiphy_unlock(mvm->hw->wiphy);
+ 	rtnl_unlock();
+ 	if (err > 0)
+ 		err = -EINVAL;
+@@ -2622,7 +2624,9 @@ static int iwl_mvm_d3_test_release(struct inode *inode, struct file *file)
+ 	iwl_fw_dbg_read_d3_debug_data(&mvm->fwrt);
  
-+	if (!so->bound)
-+		return -EADDRNOTAVAIL;
-+
- 	skb = skb_recv_datagram(sk, flags, noblock, &err);
- 	if (!skb)
- 		return err;
+ 	rtnl_lock();
++	wiphy_lock(mvm->hw->wiphy);
+ 	__iwl_mvm_resume(mvm, true);
++	wiphy_unlock(mvm->hw->wiphy);
+ 	rtnl_unlock();
+ 
+ 	iwl_mvm_resume_tcm(mvm);
 -- 
 2.34.1
 
