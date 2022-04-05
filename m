@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A73D4F263A
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 09:54:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ADFA54F2639
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 09:54:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232487AbiDEHz5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 03:55:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48510 "EHLO
+        id S231986AbiDEHz4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 03:55:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48688 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232642AbiDEHyP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:54:15 -0400
+        with ESMTP id S232541AbiDEHy5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:54:57 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5617334652;
-        Tue,  5 Apr 2022 00:50:19 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1197B48;
+        Tue,  5 Apr 2022 00:50:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D5E89B81B9C;
-        Tue,  5 Apr 2022 07:50:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 424C9C340EE;
-        Tue,  5 Apr 2022 07:50:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8430EB81B16;
+        Tue,  5 Apr 2022 07:50:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2491C340EE;
+        Tue,  5 Apr 2022 07:50:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145016;
-        bh=cOvpwQJTw7gWEKGJhWUj4AsASxuLwhZB0JKb1hmt1Wk=;
+        s=korg; t=1649145019;
+        bh=KRNK4njVsHVBRUVwoLTSxSdSTi/Wg8AxT7cHVB6pSlE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xXXEwRP8VxQeQbeDiRj2NPOslLWadMmXbc1bsDiB4xXVvuoNjeDK7VpGYRWF9yECB
-         AEoJ2imXzmiTgMTfNxD54HyOMp9SbJ9ImuUVVYTIKA5qOKSO57WgZ5hB5ldpYKIc3r
-         vtVT5SQvSsf0TX/I61dsay7UWTZ8ClOTjm094kCI=
+        b=TZm6cvzk7yAzLE7cW6Dclc7RUbGBLROQ0QPeP7MHp+28No57LY08buWllID+PKTKK
+         a3BiteG3KEhJucogySgXF54tIMX4/yaEtHEmfBFwyb8YDuwYiBfK+2GpLPMGueLffk
+         hH2CnemOBkvSjUktKHtGpZzM1TqCBmJUs4WcdzC8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robin Murphy <robin.murphy@arm.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0253/1126] perf/arm-cmn: Update watchpoint format
-Date:   Tue,  5 Apr 2022 09:16:40 +0200
-Message-Id: <20220405070415.036583062@linuxfoundation.org>
+        stable@vger.kernel.org, Jarkko Sakkinen <jarkko@kernel.org>,
+        Ahmad Fatoum <a.fatoum@pengutronix.de>,
+        Sumit Garg <sumit.garg@linaro.org>,
+        Andreas Rammhold <andreas@rammhold.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 0254/1126] KEYS: trusted: Fix trusted key backends when building as module
+Date:   Tue,  5 Apr 2022 09:16:41 +0200
+Message-Id: <20220405070415.065697333@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -53,74 +56,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robin Murphy <robin.murphy@arm.com>
+From: Andreas Rammhold <andreas@rammhold.de>
 
-[ Upstream commit 31fac565773981df43f018b2dbfbc7a3164f4b6c ]
+[ Upstream commit 969a26446bcd142faedfe8c6f41cd7668596c1fa ]
 
->From CMN-650 onwards, some of the fields in the watchpoint config
-registers moved subtly enough to easily overlook. Watchpoint events are
-still only partially supported on newer IPs - which in itself deserves
-noting - but were not intended to become any *less* functional than on
-CMN-600.
+Before this commit the kernel could end up with no trusted key sources
+even though both of the currently supported backends (TPM and TEE) were
+compiled as modules. This manifested in the trusted key type not being
+registered at all.
 
-Fixes: 60d1504070c2 ("perf/arm-cmn: Support new IP features")
-Signed-off-by: Robin Murphy <robin.murphy@arm.com>
-Link: https://lore.kernel.org/r/e1ce4c2f1e4f73ab1c60c3a85e4037cd62dd6352.1645727871.git.robin.murphy@arm.com
-Signed-off-by: Will Deacon <will@kernel.org>
+When checking if a CONFIG_… preprocessor variable is defined we only
+test for the builtin (=y) case and not the module (=m) case. By using
+the IS_REACHABLE() macro we do test for both cases.
+
+Fixes: 5d0682be3189 ("KEYS: trusted: Add generic trusted keys framework")
+Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
+Reviewed-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
+Reviewed-by: Sumit Garg <sumit.garg@linaro.org>
+Signed-off-by: Andreas Rammhold <andreas@rammhold.de>
+Tested-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
+Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
+Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/perf/arm-cmn.c | 18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
+ security/keys/trusted-keys/trusted_core.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/perf/arm-cmn.c b/drivers/perf/arm-cmn.c
-index d45e8c17e1f8..71448229bc5e 100644
---- a/drivers/perf/arm-cmn.c
-+++ b/drivers/perf/arm-cmn.c
-@@ -71,9 +71,11 @@
- #define CMN_DTM_WPn(n)			(0x1A0 + (n) * 0x18)
- #define CMN_DTM_WPn_CONFIG(n)		(CMN_DTM_WPn(n) + 0x00)
- #define CMN_DTM_WPn_CONFIG_WP_DEV_SEL2	GENMASK_ULL(18,17)
--#define CMN_DTM_WPn_CONFIG_WP_COMBINE	BIT(6)
--#define CMN_DTM_WPn_CONFIG_WP_EXCLUSIVE	BIT(5)
--#define CMN_DTM_WPn_CONFIG_WP_GRP	BIT(4)
-+#define CMN_DTM_WPn_CONFIG_WP_COMBINE	BIT(9)
-+#define CMN_DTM_WPn_CONFIG_WP_EXCLUSIVE	BIT(8)
-+#define CMN600_WPn_CONFIG_WP_COMBINE	BIT(6)
-+#define CMN600_WPn_CONFIG_WP_EXCLUSIVE	BIT(5)
-+#define CMN_DTM_WPn_CONFIG_WP_GRP	GENMASK_ULL(5, 4)
- #define CMN_DTM_WPn_CONFIG_WP_CHN_SEL	GENMASK_ULL(3, 1)
- #define CMN_DTM_WPn_CONFIG_WP_DEV_SEL	BIT(0)
- #define CMN_DTM_WPn_VAL(n)		(CMN_DTM_WPn(n) + 0x08)
-@@ -155,6 +157,7 @@
- #define CMN_CONFIG_WP_COMBINE		GENMASK_ULL(27, 24)
- #define CMN_CONFIG_WP_DEV_SEL		GENMASK_ULL(50, 48)
- #define CMN_CONFIG_WP_CHN_SEL		GENMASK_ULL(55, 51)
-+/* Note that we don't yet support the tertiary match group on newer IPs */
- #define CMN_CONFIG_WP_GRP		BIT_ULL(56)
- #define CMN_CONFIG_WP_EXCLUSIVE		BIT_ULL(57)
- #define CMN_CONFIG1_WP_VAL		GENMASK_ULL(63, 0)
-@@ -908,15 +911,18 @@ static u32 arm_cmn_wp_config(struct perf_event *event)
- 	u32 grp = CMN_EVENT_WP_GRP(event);
- 	u32 exc = CMN_EVENT_WP_EXCLUSIVE(event);
- 	u32 combine = CMN_EVENT_WP_COMBINE(event);
-+	bool is_cmn600 = to_cmn(event->pmu)->model == CMN600;
+diff --git a/security/keys/trusted-keys/trusted_core.c b/security/keys/trusted-keys/trusted_core.c
+index d5c891d8d353..5b35f1b87644 100644
+--- a/security/keys/trusted-keys/trusted_core.c
++++ b/security/keys/trusted-keys/trusted_core.c
+@@ -27,10 +27,10 @@ module_param_named(source, trusted_key_source, charp, 0);
+ MODULE_PARM_DESC(source, "Select trusted keys source (tpm or tee)");
  
- 	config = FIELD_PREP(CMN_DTM_WPn_CONFIG_WP_DEV_SEL, dev) |
- 		 FIELD_PREP(CMN_DTM_WPn_CONFIG_WP_CHN_SEL, chn) |
- 		 FIELD_PREP(CMN_DTM_WPn_CONFIG_WP_GRP, grp) |
--		 FIELD_PREP(CMN_DTM_WPn_CONFIG_WP_EXCLUSIVE, exc) |
- 		 FIELD_PREP(CMN_DTM_WPn_CONFIG_WP_DEV_SEL2, dev >> 1);
-+	if (exc)
-+		config |= is_cmn600 ? CMN600_WPn_CONFIG_WP_EXCLUSIVE :
-+				      CMN_DTM_WPn_CONFIG_WP_EXCLUSIVE;
- 	if (combine && !grp)
--		config |= CMN_DTM_WPn_CONFIG_WP_COMBINE;
--
-+		config |= is_cmn600 ? CMN600_WPn_CONFIG_WP_COMBINE :
-+				      CMN_DTM_WPn_CONFIG_WP_COMBINE;
- 	return config;
- }
- 
+ static const struct trusted_key_source trusted_key_sources[] = {
+-#if defined(CONFIG_TCG_TPM)
++#if IS_REACHABLE(CONFIG_TCG_TPM)
+ 	{ "tpm", &trusted_key_tpm_ops },
+ #endif
+-#if defined(CONFIG_TEE)
++#if IS_REACHABLE(CONFIG_TEE)
+ 	{ "tee", &trusted_key_tee_ops },
+ #endif
+ };
 -- 
 2.34.1
 
