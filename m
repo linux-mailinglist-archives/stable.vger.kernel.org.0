@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E71DC4F37AA
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:21:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63F544F3A9B
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:03:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359428AbiDELTC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:19:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39510 "EHLO
+        id S1381604AbiDELqa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:46:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45472 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349173AbiDEJtX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:23 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E0137679;
-        Tue,  5 Apr 2022 02:42:08 -0700 (PDT)
+        with ESMTP id S1354941AbiDEKQg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:16:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C79429CA2;
+        Tue,  5 Apr 2022 03:04:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id B0A07CE1C6F;
-        Tue,  5 Apr 2022 09:42:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B76E1C385A1;
-        Tue,  5 Apr 2022 09:42:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5544CB81BC0;
+        Tue,  5 Apr 2022 10:04:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3639C385A2;
+        Tue,  5 Apr 2022 10:04:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151725;
-        bh=TtJ6sFR2YeP4tCJrB/dl20FNpSQJNjqdHrikirjH4Lw=;
+        s=korg; t=1649153057;
+        bh=ODSRxNeQPv3kjyymodGtEnar1cFgVjua8tmYL335+po=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Dd8MFm9Fa3UdRjNvDojTbkBMJBIwvpFS3K8jzqWVF2Zcg1Hclhde/Ff7Sigt3+kfZ
-         mqz+r3ZkIU3u5yMGolSsthC5cdtC/xHSYiH5qOpbFXacy9r6xqMZ8KI43sRJ5bGmBl
-         QIT8nReeqqfweBWuNV3xmpeNx03vPsJIEYmDu+To=
+        b=vV4HKGMLFEO5LuyvElHAgX06z+2oULe8kHvtTdClrDHnTyVRD5Y2E5FvqUfUDTHTx
+         mBsBtfGM6eieoz/w/R5PzlcCrAAuwGZd5sKfdRRo7r1GY0E802/+iaOn3Grc2cCS4Y
+         rbW3l5EGbfTgPDv6nIyeFkX8eyF/cA+EZZF0yvqo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rob Clark <robdclark@chromium.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 519/913] drm/msm/a6xx: Fix missing ARRAY_SIZE() check
+        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+        Nishanth Menon <nm@ti.com>
+Subject: [PATCH 5.10 087/599] arm64: dts: ti: k3-j7200: Fix gic-v3 compatible regs
 Date:   Tue,  5 Apr 2022 09:26:21 +0200
-Message-Id: <20220405070355.411181404@linuxfoundation.org>
+Message-Id: <20220405070301.418580791@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070258.802373272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,53 +53,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Clark <robdclark@chromium.org>
+From: Nishanth Menon <nm@ti.com>
 
-[ Upstream commit cca96584b35765bf9eb5f38ca55a144ea2ba0de4 ]
+commit 1a307cc299430dd7139d351a3b8941f493dfa885 upstream.
 
-Fixes: f6d62d091cfd ("drm/msm/a6xx: add support for Adreno 660 GPU")
-Signed-off-by: Rob Clark <robdclark@chromium.org>
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Link: https://lore.kernel.org/r/20220305173405.914989-1-robdclark@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Though GIC ARE option is disabled for no GIC-v2 compatibility,
+Cortex-A72 is free to implement the CPU interface as long as it
+communicates with the GIC using the stream protocol. This requires
+that the SoC integration mark out the PERIPHBASE[1] as reserved area
+within the SoC. See longer discussion in [2] for further information.
+
+Update the GIC register map to indicate offsets from PERIPHBASE based
+on [3]. Without doing this, systems like kvm will not function with
+gic-v2 emulation.
+
+[1] https://developer.arm.com/documentation/100095/0002/system-control/aarch64-register-descriptions/configuration-base-address-register--el1
+[2] https://lore.kernel.org/all/87k0e0tirw.wl-maz@kernel.org/
+[3] https://developer.arm.com/documentation/100095/0002/way1382452674438
+
+Cc: stable@vger.kernel.org
+Fixes: d361ed88455f ("arm64: dts: ti: Add support for J7200 SoC")
+Reported-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Nishanth Menon <nm@ti.com>
+Acked-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20220215201008.15235-4-nm@ti.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/msm/adreno/a6xx_gpu.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ arch/arm64/boot/dts/ti/k3-j7200-main.dtsi |    5 ++++-
+ arch/arm64/boot/dts/ti/k3-j7200.dtsi      |    1 +
+ 2 files changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
-index b681c45520bb..f54bfdb1ebff 100644
---- a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
-+++ b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
-@@ -658,19 +658,23 @@ static void a6xx_set_cp_protect(struct msm_gpu *gpu)
- {
- 	struct adreno_gpu *adreno_gpu = to_adreno_gpu(gpu);
- 	const u32 *regs = a6xx_protect;
--	unsigned i, count = ARRAY_SIZE(a6xx_protect), count_max = 32;
--
--	BUILD_BUG_ON(ARRAY_SIZE(a6xx_protect) > 32);
--	BUILD_BUG_ON(ARRAY_SIZE(a650_protect) > 48);
-+	unsigned i, count, count_max;
+--- a/arch/arm64/boot/dts/ti/k3-j7200-main.dtsi
++++ b/arch/arm64/boot/dts/ti/k3-j7200-main.dtsi
+@@ -47,7 +47,10 @@
+ 		#interrupt-cells = <3>;
+ 		interrupt-controller;
+ 		reg = <0x00 0x01800000 0x00 0x10000>,	/* GICD */
+-		      <0x00 0x01900000 0x00 0x100000>;	/* GICR */
++		      <0x00 0x01900000 0x00 0x100000>,	/* GICR */
++		      <0x00 0x6f000000 0x00 0x2000>,	/* GICC */
++		      <0x00 0x6f010000 0x00 0x1000>,	/* GICH */
++		      <0x00 0x6f020000 0x00 0x2000>;	/* GICV */
  
- 	if (adreno_is_a650(adreno_gpu)) {
- 		regs = a650_protect;
- 		count = ARRAY_SIZE(a650_protect);
- 		count_max = 48;
-+		BUILD_BUG_ON(ARRAY_SIZE(a650_protect) > 48);
- 	} else if (adreno_is_a660_family(adreno_gpu)) {
- 		regs = a660_protect;
- 		count = ARRAY_SIZE(a660_protect);
- 		count_max = 48;
-+		BUILD_BUG_ON(ARRAY_SIZE(a660_protect) > 48);
-+	} else {
-+		regs = a6xx_protect;
-+		count = ARRAY_SIZE(a6xx_protect);
-+		count_max = 32;
-+		BUILD_BUG_ON(ARRAY_SIZE(a6xx_protect) > 32);
- 	}
- 
- 	/*
--- 
-2.34.1
-
+ 		/* vcpumntirq: virtual CPU interface maintenance interrupt */
+ 		interrupts = <GIC_PPI 9 IRQ_TYPE_LEVEL_HIGH>;
+--- a/arch/arm64/boot/dts/ti/k3-j7200.dtsi
++++ b/arch/arm64/boot/dts/ti/k3-j7200.dtsi
+@@ -127,6 +127,7 @@
+ 			 <0x00 0x00a40000 0x00 0x00a40000 0x00 0x00000800>, /* timesync router */
+ 			 <0x00 0x01000000 0x00 0x01000000 0x00 0x0d000000>, /* Most peripherals */
+ 			 <0x00 0x30000000 0x00 0x30000000 0x00 0x0c400000>, /* MAIN NAVSS */
++			 <0x00 0x6f000000 0x00 0x6f000000 0x00 0x00310000>, /* A72 PERIPHBASE */
+ 			 <0x00 0x70000000 0x00 0x70000000 0x00 0x00800000>, /* MSMC RAM */
+ 			 <0x00 0x18000000 0x00 0x18000000 0x00 0x08000000>, /* PCIe1 DAT0 */
+ 			 <0x41 0x00000000 0x41 0x00000000 0x01 0x00000000>, /* PCIe1 DAT1 */
 
 
