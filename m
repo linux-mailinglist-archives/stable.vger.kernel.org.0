@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC17B4F314C
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:42:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77A184F321C
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:54:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237785AbiDEInX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:43:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34436 "EHLO
+        id S1353878AbiDEKJm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:09:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42830 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241105AbiDEIct (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:32:49 -0400
+        with ESMTP id S1345777AbiDEJXB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:23:01 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F07D15725;
-        Tue,  5 Apr 2022 01:27:38 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1551191557;
+        Tue,  5 Apr 2022 02:12:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 249EAB81BCE;
-        Tue,  5 Apr 2022 08:27:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E7C4C385A1;
-        Tue,  5 Apr 2022 08:27:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A876AB81A22;
+        Tue,  5 Apr 2022 09:12:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13105C385A0;
+        Tue,  5 Apr 2022 09:12:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147255;
-        bh=uJf7pj87pn7mUSWMH3sAg8R4hUfURYzVn3VcFRGN990=;
+        s=korg; t=1649149929;
+        bh=ZQtAJtFT3tYHabqpMHz6Tb1HyIxMzqpBLVOx+C0HNV0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uq9aXLAOJU8VzPgGX8kLwL6x92z0W4f4lkk6ipm4dfoTl2lhHgMJnJSL2yOYih3Dh
-         EnN58g5K4WAbvLtieaydxteapWcz+YxWqvI/MZACdz2/EZTW04JTACcaF7+blL1A1t
-         5bT2wjl/jsYDijRBtaJwEotk6v7yV1CWFAtYqChI=
+        b=nrFRnH3T9tMBswoZbbLtMLJP8WZ4Yhz2LV050HJ6U0IKIXWHIlR/NlkkbPpQT5KKh
+         tO+saFs7okKEP0PoxjVOVlXFKP+P76T6a0VhkubFnyUY9PxDi4xs5pVud41F2fZ3LJ
+         unFXldNi7e7ixK1xEKJ/2M2XxS+9upMlr/z3m/rs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anirudh Rayabharam <mail@anirudhrb.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Stefano Garzarella <sgarzare@redhat.com>
-Subject: [PATCH 5.17 1059/1126] vhost: handle error while adding split ranges to iotlb
+        stable@vger.kernel.org,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Arun Easi <aeasi@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.16 0893/1017] scsi: qla2xxx: Fix missed DMA unmap for NVMe ls requests
 Date:   Tue,  5 Apr 2022 09:30:06 +0200
-Message-Id: <20220405070438.547533965@linuxfoundation.org>
+Message-Id: <20220405070420.735566910@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +56,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anirudh Rayabharam <mail@anirudhrb.com>
+From: Arun Easi <aeasi@marvell.com>
 
-commit 03a91c9af2c42ae14afafb829a4b7e6589ab5892 upstream.
+commit c85ab7d9e27a80e48d5b7d7fb2fe2b0fdb2de523 upstream.
 
-vhost_iotlb_add_range_ctx() handles the range [0, ULONG_MAX] by
-splitting it into two ranges and adding them separately. The return
-value of adding the first range to the iotlb is currently ignored.
-Check the return value and bail out in case of an error.
+At NVMe ELS request time, request structure is DMA mapped and never
+unmapped. Fix this by calling the unmap on ELS completion.
 
-Signed-off-by: Anirudh Rayabharam <mail@anirudhrb.com>
-Link: https://lore.kernel.org/r/20220312141121.4981-1-mail@anirudhrb.com
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Fixes: e2ae38cf3d91 ("vhost: fix hung thread due to erroneous iotlb entries")
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+Link: https://lore.kernel.org/r/20220310092604.22950-5-njavali@marvell.com
+Fixes: e84067d74301 ("scsi: qla2xxx: Add FC-NVMe F/W initialization and transport registration")
+Cc: stable@vger.kernel.org
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Arun Easi <aeasi@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/vhost/iotlb.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/scsi/qla2xxx/qla_nvme.c |   17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
 
---- a/drivers/vhost/iotlb.c
-+++ b/drivers/vhost/iotlb.c
-@@ -62,8 +62,12 @@ int vhost_iotlb_add_range_ctx(struct vho
- 	 */
- 	if (start == 0 && last == ULONG_MAX) {
- 		u64 mid = last / 2;
-+		int err = vhost_iotlb_add_range_ctx(iotlb, start, mid, addr,
-+				perm, opaque);
-+
-+		if (err)
-+			return err;
+--- a/drivers/scsi/qla2xxx/qla_nvme.c
++++ b/drivers/scsi/qla2xxx/qla_nvme.c
+@@ -172,6 +172,18 @@ out:
+ 	qla2xxx_rel_qpair_sp(sp->qpair, sp);
+ }
  
--		vhost_iotlb_add_range_ctx(iotlb, start, mid, addr, perm, opaque);
- 		addr += mid + 1;
- 		start = mid + 1;
++static void qla_nvme_ls_unmap(struct srb *sp, struct nvmefc_ls_req *fd)
++{
++	if (sp->flags & SRB_DMA_VALID) {
++		struct srb_iocb *nvme = &sp->u.iocb_cmd;
++		struct qla_hw_data *ha = sp->fcport->vha->hw;
++
++		dma_unmap_single(&ha->pdev->dev, nvme->u.nvme.cmd_dma,
++				 fd->rqstlen, DMA_TO_DEVICE);
++		sp->flags &= ~SRB_DMA_VALID;
++	}
++}
++
+ static void qla_nvme_release_ls_cmd_kref(struct kref *kref)
+ {
+ 	struct srb *sp = container_of(kref, struct srb, cmd_kref);
+@@ -188,6 +200,8 @@ static void qla_nvme_release_ls_cmd_kref
+ 	spin_unlock_irqrestore(&priv->cmd_lock, flags);
+ 
+ 	fd = priv->fd;
++
++	qla_nvme_ls_unmap(sp, fd);
+ 	fd->done(fd, priv->comp_status);
+ out:
+ 	qla2x00_rel_sp(sp);
+@@ -358,6 +372,8 @@ static int qla_nvme_ls_req(struct nvme_f
+ 	dma_sync_single_for_device(&ha->pdev->dev, nvme->u.nvme.cmd_dma,
+ 	    fd->rqstlen, DMA_TO_DEVICE);
+ 
++	sp->flags |= SRB_DMA_VALID;
++
+ 	rval = qla2x00_start_sp(sp);
+ 	if (rval != QLA_SUCCESS) {
+ 		ql_log(ql_log_warn, vha, 0x700e,
+@@ -365,6 +381,7 @@ static int qla_nvme_ls_req(struct nvme_f
+ 		wake_up(&sp->nvme_ls_waitq);
+ 		sp->priv = NULL;
+ 		priv->sp = NULL;
++		qla_nvme_ls_unmap(sp, fd);
+ 		qla2x00_rel_sp(sp);
+ 		return rval;
  	}
 
 
