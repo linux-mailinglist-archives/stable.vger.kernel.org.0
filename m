@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 419624F26D7
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:05:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EFD2B4F2707
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:06:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232906AbiDEIEo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:04:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43948 "EHLO
+        id S232850AbiDEIGD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:06:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43944 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235489AbiDEH7r (ORCPT
+        with ESMTP id S235491AbiDEH7r (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:59:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62DE360D8F;
-        Tue,  5 Apr 2022 00:54:44 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 867B362A26;
+        Tue,  5 Apr 2022 00:54:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1175FB81A32;
-        Tue,  5 Apr 2022 07:54:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B385C340EE;
-        Tue,  5 Apr 2022 07:54:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 22F3A614F9;
+        Tue,  5 Apr 2022 07:54:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30760C340EE;
+        Tue,  5 Apr 2022 07:54:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145281;
-        bh=ej8YD3xB5V9woQICwarpd25mwtsSDI1jBorcXHF2D0g=;
+        s=korg; t=1649145284;
+        bh=EP+trxRMqCa49C7lsnG5DgO4UCe6fjvRQibVs25nJNM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K5eqNPK89hlDCYjXKlMHjRQV550xE0NEYl33biY+KJ2F+123sBMJRNWw82wdsL5L+
-         CYpuYnlsR3zr3K/jxtk1uc5gJqH4TEBKQh6gqWS4cQnsEvh4Z4v/pI+XxkqgP64mVH
-         URyQb/dqnwyFpUf6/Xoq3BwTag7FqvTI13HlgWbg=
+        b=fBldcABNtLWm1sUbAP9GoCC693oK2EsKetSF9yRTCfOHY/PYba/mCtucJs3UZGQ75
+         OaZTu5qsS7olTuPl52GKay+RIi+5VwQureykgGztVgc7mT2/HQDeYcflHim84W9U+C
+         7t5kUTJYB0r3oV0vlpTrn0bSfLG0I98lTL2o8vjM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhou Qingyang <zhou1615@umn.edu>,
-        Pratyush Yadav <p.yadav@ti.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        stable@vger.kernel.org, syzkaller <syzkaller@googlegroups.com>,
+        Dongliang Mu <mudongliangabcd@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0351/1126] media: ti-vpe: cal: Fix a NULL pointer dereference in cal_ctx_v4l2_init_formats()
-Date:   Tue,  5 Apr 2022 09:18:18 +0200
-Message-Id: <20220405070417.931757327@linuxfoundation.org>
+Subject: [PATCH 5.17 0352/1126] media: em28xx: initialize refcount before kref_get
+Date:   Tue,  5 Apr 2022 09:18:19 +0200
+Message-Id: <20220405070417.961414853@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -56,45 +55,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhou Qingyang <zhou1615@umn.edu>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-[ Upstream commit abd77889851d2ead0d0c9c4d29f1808801477b00 ]
+[ Upstream commit c08eadca1bdfa099e20a32f8fa4b52b2f672236d ]
 
-In cal_ctx_v4l2_init_formats(), devm_kzalloc() is assigned to
-ctx->active_fmt and there is a dereference of it after that, which could
-lead to NULL pointer dereference on failure of devm_kzalloc().
+The commit 47677e51e2a4("[media] em28xx: Only deallocate struct
+em28xx after finishing all extensions") adds kref_get to many init
+functions (e.g., em28xx_audio_init). However, kref_init is called too
+late in em28xx_usb_probe, since em28xx_init_dev before will invoke
+those init functions and call kref_get function. Then refcount bug
+occurs in my local syzkaller instance.
 
-Fix this bug by adding a NULL check of ctx->active_fmt.
+Fix it by moving kref_init before em28xx_init_dev. This issue occurs
+not only in dev but also dev->dev_next.
 
-This bug was found by a static analyzer.
-
-Builds with 'make allyesconfig' show no new warnings, and our static
-analyzer no longer warns about this code.
-
-Fixes: 7168155002cf ("media: ti-vpe: cal: Move format handling to cal.c and expose helpers")
-Signed-off-by: Zhou Qingyang <zhou1615@umn.edu>
-Reviewed-by: Pratyush Yadav <p.yadav@ti.com>
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Fixes: 47677e51e2a4 ("[media] em28xx: Only deallocate struct em28xx after finishing all extensions")
+Reported-by: syzkaller <syzkaller@googlegroups.com>
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/ti-vpe/cal-video.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/media/usb/em28xx/em28xx-cards.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/media/platform/ti-vpe/cal-video.c b/drivers/media/platform/ti-vpe/cal-video.c
-index 7799da1cc261..3e936a2ca36c 100644
---- a/drivers/media/platform/ti-vpe/cal-video.c
-+++ b/drivers/media/platform/ti-vpe/cal-video.c
-@@ -823,6 +823,9 @@ static int cal_ctx_v4l2_init_formats(struct cal_ctx *ctx)
- 	/* Enumerate sub device formats and enable all matching local formats */
- 	ctx->active_fmt = devm_kcalloc(ctx->cal->dev, cal_num_formats,
- 				       sizeof(*ctx->active_fmt), GFP_KERNEL);
-+	if (!ctx->active_fmt)
-+		return -ENOMEM;
-+
- 	ctx->num_active_fmt = 0;
+diff --git a/drivers/media/usb/em28xx/em28xx-cards.c b/drivers/media/usb/em28xx/em28xx-cards.c
+index b451ce3cb169..f3b56c065ee1 100644
+--- a/drivers/media/usb/em28xx/em28xx-cards.c
++++ b/drivers/media/usb/em28xx/em28xx-cards.c
+@@ -3936,6 +3936,8 @@ static int em28xx_usb_probe(struct usb_interface *intf,
+ 		goto err_free;
+ 	}
  
- 	for (j = 0, i = 0; ; ++j) {
++	kref_init(&dev->ref);
++
+ 	dev->devno = nr;
+ 	dev->model = id->driver_info;
+ 	dev->alt   = -1;
+@@ -4036,6 +4038,8 @@ static int em28xx_usb_probe(struct usb_interface *intf,
+ 	}
+ 
+ 	if (dev->board.has_dual_ts && em28xx_duplicate_dev(dev) == 0) {
++		kref_init(&dev->dev_next->ref);
++
+ 		dev->dev_next->ts = SECONDARY_TS;
+ 		dev->dev_next->alt   = -1;
+ 		dev->dev_next->is_audio_only = has_vendor_audio &&
+@@ -4090,12 +4094,8 @@ static int em28xx_usb_probe(struct usb_interface *intf,
+ 			em28xx_write_reg(dev, 0x0b, 0x82);
+ 			mdelay(100);
+ 		}
+-
+-		kref_init(&dev->dev_next->ref);
+ 	}
+ 
+-	kref_init(&dev->ref);
+-
+ 	request_modules(dev);
+ 
+ 	/*
 -- 
 2.34.1
 
