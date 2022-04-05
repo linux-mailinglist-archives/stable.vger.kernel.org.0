@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DFC0A4F3A2A
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:58:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 875624F3A21
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:58:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379245AbiDELkh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:40:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43808 "EHLO
+        id S1379183AbiDELka (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:40:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45146 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354395AbiDEKOA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:14:00 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27124692BA;
-        Tue,  5 Apr 2022 03:00:00 -0700 (PDT)
+        with ESMTP id S1354452AbiDEKOQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:14:16 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38C2269CF7;
+        Tue,  5 Apr 2022 03:00:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DB6D8B81C83;
-        Tue,  5 Apr 2022 09:59:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33ABEC385A1;
-        Tue,  5 Apr 2022 09:59:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C76E6B81C8B;
+        Tue,  5 Apr 2022 10:00:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16E9CC385A2;
+        Tue,  5 Apr 2022 09:59:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152797;
-        bh=/UGrkgR647QQXM3GQRZYQjVcQ6Z9E8jtvWs6yNBcuDQ=;
+        s=korg; t=1649152800;
+        bh=/MJv/HabMeOOpo77f3rdPIfuw68ubruu6J3fo5Cw0l8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BX1m9XbmmB419nYHNUW4m5KTWdjex61iBKouzFiCuK7NaGBZgG6oKOSKN1denDwcs
-         Gluv6MhqYPP1NpLGOsLH1X6+SAVxuZ+Ix/395/bvYjmWK0RlmKbs5BvgJHwXxpGm/T
-         u3j3IwUb1OxV20eIMw5de9ZG5nA8toDxhTYEnneI=
+        b=voA7g3ChMYy3zZ5auKW6pp10bxNptr7lt68VpgA/86hxiz0uZ7pyJY4fp/hDDOVdk
+         fV5cbJhwqi/Xu8fh9kAMtdnU9adh6cCPpP7ol3Zae1PnLDH77LrD9v5TN8UoMGBCny
+         jdnEgz+x4gbTn41WT+c3rc7m4+l9dsllzEnOMm2I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qiuhao Li <qiuhao@sysec.org>,
-        Gaoning Pan <pgn@zju.edu.cn>, Yongkang Jia <kangel@zju.edu.cn>,
-        syzbot+6cde2282daa792c49ab8@syzkaller.appspotmail.com,
-        Maxim Levitsky <mlevitsk@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Tadeusz Struk <tadeusz.struk@linaro.org>
-Subject: [PATCH 5.15 904/913] KVM: x86/mmu: do compare-and-exchange of gPTE via the user address
-Date:   Tue,  5 Apr 2022 09:32:46 +0200
-Message-Id: <20220405070406.915680217@linuxfoundation.org>
+        stable@vger.kernel.org, David Stevens <stevensd@chromium.org>,
+        Christoph Hellwig <hch@lst.de>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Joerg Roedel <jroedel@suse.de>,
+        Mario Limonciello <Mario.Limonciello@amd.com>
+Subject: [PATCH 5.15 905/913] iommu/dma: Skip extra sync during unmap w/swiotlb
+Date:   Tue,  5 Apr 2022 09:32:47 +0200
+Message-Id: <20220405070406.946278545@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -57,152 +56,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: David Stevens <stevensd@chromium.org>
 
-commit 2a8859f373b0a86f0ece8ec8312607eacf12485d upstream.
+commit ee9d4097cc145dcaebedf6b113d17c91c21333a0 upstream.
 
-FNAME(cmpxchg_gpte) is an inefficient mess.  It is at least decent if it
-can go through get_user_pages_fast(), but if it cannot then it tries to
-use memremap(); that is not just terribly slow, it is also wrong because
-it assumes that the VM_PFNMAP VMA is contiguous.
+Calling the iommu_dma_sync_*_for_cpu functions during unmap can cause
+two copies out of the swiotlb buffer. Do the arch sync directly in
+__iommu_dma_unmap_swiotlb instead to avoid this. This makes the call to
+iommu_dma_sync_sg_for_cpu for untrusted devices in iommu_dma_unmap_sg no
+longer necessary, so move that invocation later in the function.
 
-The right way to do it would be to do the same thing as
-hva_to_pfn_remapped() does since commit add6a0cd1c5b ("KVM: MMU: try to
-fix up page faults before giving up", 2016-07-05), using follow_pte()
-and fixup_user_fault() to determine the correct address to use for
-memremap().  To do this, one could for example extract hva_to_pfn()
-for use outside virt/kvm/kvm_main.c.  But really there is no reason to
-do that either, because there is already a perfectly valid address to
-do the cmpxchg() on, only it is a userspace address.  That means doing
-user_access_begin()/user_access_end() and writing the code in assembly
-to handle exceptions correctly.  Worse, the guest PTE can be 8-byte
-even on i686 so there is the extra complication of using cmpxchg8b to
-account for.  But at least it is an efficient mess.
-
-(Thanks to Linus for suggesting improvement on the inline assembly).
-
-Reported-by: Qiuhao Li <qiuhao@sysec.org>
-Reported-by: Gaoning Pan <pgn@zju.edu.cn>
-Reported-by: Yongkang Jia <kangel@zju.edu.cn>
-Reported-by: syzbot+6cde2282daa792c49ab8@syzkaller.appspotmail.com
-Debugged-by: Tadeusz Struk <tadeusz.struk@linaro.org>
-Tested-by: Maxim Levitsky <mlevitsk@redhat.com>
-Cc: stable@vger.kernel.org
-Fixes: bd53cb35a3e9 ("X86/KVM: Handle PFNs outside of kernel reach when touching GPTEs")
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: David Stevens <stevensd@chromium.org>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Robin Murphy <robin.murphy@arm.com>
+Link: https://lore.kernel.org/r/20210929023300.335969-4-stevensd@google.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Cc: Mario Limonciello <Mario.Limonciello@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/mmu/paging_tmpl.h |   77 +++++++++++++++++++----------------------
- 1 file changed, 37 insertions(+), 40 deletions(-)
+ drivers/iommu/dma-iommu.c |   11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
---- a/arch/x86/kvm/mmu/paging_tmpl.h
-+++ b/arch/x86/kvm/mmu/paging_tmpl.h
-@@ -34,9 +34,8 @@
- 	#define PT_HAVE_ACCESSED_DIRTY(mmu) true
- 	#ifdef CONFIG_X86_64
- 	#define PT_MAX_FULL_LEVELS PT64_ROOT_MAX_LEVEL
--	#define CMPXCHG cmpxchg
-+	#define CMPXCHG "cmpxchgq"
- 	#else
--	#define CMPXCHG cmpxchg64
- 	#define PT_MAX_FULL_LEVELS 2
- 	#endif
- #elif PTTYPE == 32
-@@ -52,7 +51,7 @@
- 	#define PT_GUEST_DIRTY_SHIFT PT_DIRTY_SHIFT
- 	#define PT_GUEST_ACCESSED_SHIFT PT_ACCESSED_SHIFT
- 	#define PT_HAVE_ACCESSED_DIRTY(mmu) true
--	#define CMPXCHG cmpxchg
-+	#define CMPXCHG "cmpxchgl"
- #elif PTTYPE == PTTYPE_EPT
- 	#define pt_element_t u64
- 	#define guest_walker guest_walkerEPT
-@@ -65,7 +64,9 @@
- 	#define PT_GUEST_DIRTY_SHIFT 9
- 	#define PT_GUEST_ACCESSED_SHIFT 8
- 	#define PT_HAVE_ACCESSED_DIRTY(mmu) ((mmu)->ept_ad)
--	#define CMPXCHG cmpxchg64
-+	#ifdef CONFIG_X86_64
-+	#define CMPXCHG "cmpxchgq"
-+	#endif
- 	#define PT_MAX_FULL_LEVELS PT64_ROOT_MAX_LEVEL
- #else
- 	#error Invalid PTTYPE value
-@@ -147,43 +148,39 @@ static int FNAME(cmpxchg_gpte)(struct kv
- 			       pt_element_t __user *ptep_user, unsigned index,
- 			       pt_element_t orig_pte, pt_element_t new_pte)
- {
--	int npages;
--	pt_element_t ret;
--	pt_element_t *table;
--	struct page *page;
--
--	npages = get_user_pages_fast((unsigned long)ptep_user, 1, FOLL_WRITE, &page);
--	if (likely(npages == 1)) {
--		table = kmap_atomic(page);
--		ret = CMPXCHG(&table[index], orig_pte, new_pte);
--		kunmap_atomic(table);
--
--		kvm_release_page_dirty(page);
--	} else {
--		struct vm_area_struct *vma;
--		unsigned long vaddr = (unsigned long)ptep_user & PAGE_MASK;
--		unsigned long pfn;
--		unsigned long paddr;
--
--		mmap_read_lock(current->mm);
--		vma = find_vma_intersection(current->mm, vaddr, vaddr + PAGE_SIZE);
--		if (!vma || !(vma->vm_flags & VM_PFNMAP)) {
--			mmap_read_unlock(current->mm);
--			return -EFAULT;
--		}
--		pfn = ((vaddr - vma->vm_start) >> PAGE_SHIFT) + vma->vm_pgoff;
--		paddr = pfn << PAGE_SHIFT;
--		table = memremap(paddr, PAGE_SIZE, MEMREMAP_WB);
--		if (!table) {
--			mmap_read_unlock(current->mm);
--			return -EFAULT;
--		}
--		ret = CMPXCHG(&table[index], orig_pte, new_pte);
--		memunmap(table);
--		mmap_read_unlock(current->mm);
--	}
-+	int r = -EFAULT;
-+
-+	if (!user_access_begin(ptep_user, sizeof(pt_element_t)))
-+		return -EFAULT;
-+
-+#ifdef CMPXCHG
-+	asm volatile("1:" LOCK_PREFIX CMPXCHG " %[new], %[ptr]\n"
-+		     "mov $0, %[r]\n"
-+		     "setnz %b[r]\n"
-+		     "2:"
-+		     _ASM_EXTABLE_UA(1b, 2b)
-+		     : [ptr] "+m" (*ptep_user),
-+		       [old] "+a" (orig_pte),
-+		       [r] "+q" (r)
-+		     : [new] "r" (new_pte)
-+		     : "memory");
-+#else
-+	asm volatile("1:" LOCK_PREFIX "cmpxchg8b %[ptr]\n"
-+		     "movl $0, %[r]\n"
-+		     "jz 2f\n"
-+		     "incl %[r]\n"
-+		     "2:"
-+		     _ASM_EXTABLE_UA(1b, 2b)
-+		     : [ptr] "+m" (*ptep_user),
-+		       [old] "+A" (orig_pte),
-+		       [r] "+rm" (r)
-+		     : [new_lo] "b" ((u32)new_pte),
-+		       [new_hi] "c" ((u32)(new_pte >> 32))
-+		     : "memory");
-+#endif
+--- a/drivers/iommu/dma-iommu.c
++++ b/drivers/iommu/dma-iommu.c
+@@ -521,6 +521,9 @@ static void __iommu_dma_unmap_swiotlb(st
+ 	if (WARN_ON(!phys))
+ 		return;
  
--	return (ret != orig_pte);
-+	user_access_end();
-+	return r;
++	if (!(attrs & DMA_ATTR_SKIP_CPU_SYNC) && !dev_is_dma_coherent(dev))
++		arch_sync_dma_for_cpu(phys, size, dir);
++
+ 	__iommu_dma_unmap(dev, dma_addr, size);
+ 
+ 	if (unlikely(is_swiotlb_buffer(dev, phys)))
+@@ -871,8 +874,6 @@ static dma_addr_t iommu_dma_map_page(str
+ static void iommu_dma_unmap_page(struct device *dev, dma_addr_t dma_handle,
+ 		size_t size, enum dma_data_direction dir, unsigned long attrs)
+ {
+-	if (!(attrs & DMA_ATTR_SKIP_CPU_SYNC))
+-		iommu_dma_sync_single_for_cpu(dev, dma_handle, size, dir);
+ 	__iommu_dma_unmap_swiotlb(dev, dma_handle, size, dir, attrs);
  }
  
- static bool FNAME(prefetch_invalid_gpte)(struct kvm_vcpu *vcpu,
+@@ -1089,14 +1090,14 @@ static void iommu_dma_unmap_sg(struct de
+ 	struct scatterlist *tmp;
+ 	int i;
+ 
+-	if (!(attrs & DMA_ATTR_SKIP_CPU_SYNC))
+-		iommu_dma_sync_sg_for_cpu(dev, sg, nents, dir);
+-
+ 	if (dev_is_untrusted(dev)) {
+ 		iommu_dma_unmap_sg_swiotlb(dev, sg, nents, dir, attrs);
+ 		return;
+ 	}
+ 
++	if (!(attrs & DMA_ATTR_SKIP_CPU_SYNC))
++		iommu_dma_sync_sg_for_cpu(dev, sg, nents, dir);
++
+ 	/*
+ 	 * The scatterlist segments are mapped into a single
+ 	 * contiguous IOVA allocation, so this is incredibly easy.
 
 
