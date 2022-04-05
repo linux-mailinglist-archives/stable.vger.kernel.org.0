@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C2C234F3FC7
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:05:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C6124F3F2D
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 22:57:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353163AbiDEMIs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:08:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50492 "EHLO
+        id S1352615AbiDEMIi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:08:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50518 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358094AbiDEK16 (ORCPT
+        with ESMTP id S1358091AbiDEK16 (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:27:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4719A65D16;
-        Tue,  5 Apr 2022 03:15:06 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6191F66C8C;
+        Tue,  5 Apr 2022 03:15:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 02AD5B81BC5;
-        Tue,  5 Apr 2022 10:15:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B19EC385A0;
-        Tue,  5 Apr 2022 10:15:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 011C7617AC;
+        Tue,  5 Apr 2022 10:15:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D952C385A1;
+        Tue,  5 Apr 2022 10:15:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153703;
-        bh=KnJdLy0rfC+5TQliByoOokCxSz+HhubnSG7GlFBhA5E=;
+        s=korg; t=1649153712;
+        bh=do5Wi18Fah0j3dGa06fMFlms+yMjfqPHRKwBB8HgvdQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U0XGPKNa3QqMQq+BjqnQgprpmRmR/IFtH7Cp3CaZn8RVhP+ASeCJmGLrQ7fL3lNJ5
-         HfYEhfMfa9mdWliK2Nf4D4hCgc/wfsZugSeFWDcv8LSZXlA25/GkGbJxxjysUOMe7f
-         bMHy6TLcty8YcFGG+G5h8RVyEC3mxTW6KxDZg8T0=
+        b=bj33oiR0A/3U9oB6aw/mdcjk6e0+mJaONbeSV1N34tW1RLfz5QqVU5/LYzPRKg7Kz
+         Wa0wQy3QAU0TSbSrQdztNP0nvFF83r000mEwimUKswByW00G5uLLfhx7N3lgBsJbyL
+         GkRKbKMwJT0J8uJZJFwirqX1WrezXmezCNSJE14Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jack Wang <jinpu.wang@ionos.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Aharon Landau <aharonl@nvidia.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 316/599] scsi: pm8001: Fix NCQ NON DATA command task initialization
-Date:   Tue,  5 Apr 2022 09:30:10 +0200
-Message-Id: <20220405070308.236102330@linuxfoundation.org>
+Subject: [PATCH 5.10 319/599] RDMA/mlx5: Fix the flow of a miss in the allocation of a cache ODP MR
+Date:   Tue,  5 Apr 2022 09:30:13 +0200
+Message-Id: <20220405070308.325820580@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -55,99 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+From: Aharon Landau <aharonl@nvidia.com>
 
-[ Upstream commit aa028141ab0bc62c44a84d42f09db35d82df82a2 ]
+[ Upstream commit 2f0e60d5e9f96341a0c8a01be8878cdb3b29ff20 ]
 
-In the pm8001_chip_sata_req() and pm80xx_chip_sata_req() functions, all
-tasks with a DMA direction of DMA_NONE (no data transfer) are initialized
-using the ATAP value 0x04. However, NCQ NON DATA commands, while being
-DMA_NONE commands are NCQ commands and need to be initialized using the
-value 0x07 for ATAP, similarly to other NCQ commands.
+When an ODP MR cache entry is empty and trying to allocate it, increment
+the ent->miss counter and call to queue_adjust_cache_locked() to verify
+the entry is balanced.
 
-Make sure that NCQ NON DATA command tasks are initialized similarly to
-other NCQ commands by also testing the task "use_ncq" field in addition to
-the DMA direction. While at it, reorganize the code into a chain of if -
-else if - else to avoid useless affectations and debug messages.
-
-Link: https://lore.kernel.org/r/20220220031810.738362-15-damien.lemoal@opensource.wdc.com
-Fixes: dbf9bfe61571 ("[SCSI] pm8001: add SAS/SATA HBA driver")
-Reviewed-by: Jack Wang <jinpu.wang@ionos.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: aad719dcf379 ("RDMA/mlx5: Allow MRs to be created in the cache synchronously")
+Link: https://lore.kernel.org/r/09503e295276dcacc92cb1d8aef1ad0961c99dc1.1644947594.git.leonro@nvidia.com
+Signed-off-by: Aharon Landau <aharonl@nvidia.com>
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/pm8001/pm8001_hwi.c | 14 +++++++-------
- drivers/scsi/pm8001/pm80xx_hwi.c | 13 ++++++-------
- 2 files changed, 13 insertions(+), 14 deletions(-)
+ drivers/infiniband/hw/mlx5/mr.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/scsi/pm8001/pm8001_hwi.c b/drivers/scsi/pm8001/pm8001_hwi.c
-index 0e6a0b50bfb9..7b5ab0ff9bbd 100644
---- a/drivers/scsi/pm8001/pm8001_hwi.c
-+++ b/drivers/scsi/pm8001/pm8001_hwi.c
-@@ -4220,22 +4220,22 @@ static int pm8001_chip_sata_req(struct pm8001_hba_info *pm8001_ha,
- 	u32  opc = OPC_INB_SATA_HOST_OPSTART;
- 	memset(&sata_cmd, 0, sizeof(sata_cmd));
- 	circularQ = &pm8001_ha->inbnd_q_tbl[0];
--	if (task->data_dir == DMA_NONE) {
-+
-+	if (task->data_dir == DMA_NONE && !task->ata_task.use_ncq) {
- 		ATAP = 0x04;  /* no data*/
- 		pm8001_dbg(pm8001_ha, IO, "no data\n");
- 	} else if (likely(!task->ata_task.device_control_reg_update)) {
--		if (task->ata_task.dma_xfer) {
-+		if (task->ata_task.use_ncq &&
-+		    dev->sata_dev.class != ATA_DEV_ATAPI) {
-+			ATAP = 0x07; /* FPDMA */
-+			pm8001_dbg(pm8001_ha, IO, "FPDMA\n");
-+		} else if (task->ata_task.dma_xfer) {
- 			ATAP = 0x06; /* DMA */
- 			pm8001_dbg(pm8001_ha, IO, "DMA\n");
- 		} else {
- 			ATAP = 0x05; /* PIO*/
- 			pm8001_dbg(pm8001_ha, IO, "PIO\n");
- 		}
--		if (task->ata_task.use_ncq &&
--			dev->sata_dev.class != ATA_DEV_ATAPI) {
--			ATAP = 0x07; /* FPDMA */
--			pm8001_dbg(pm8001_ha, IO, "FPDMA\n");
--		}
- 	}
- 	if (task->ata_task.use_ncq && pm8001_get_ncq_tag(task, &hdr_tag)) {
- 		task->ata_task.fis.sector_count |= (u8) (hdr_tag << 3);
-diff --git a/drivers/scsi/pm8001/pm80xx_hwi.c b/drivers/scsi/pm8001/pm80xx_hwi.c
-index d620bb747a5b..7c02db9ba7f8 100644
---- a/drivers/scsi/pm8001/pm80xx_hwi.c
-+++ b/drivers/scsi/pm8001/pm80xx_hwi.c
-@@ -4479,22 +4479,21 @@ static int pm80xx_chip_sata_req(struct pm8001_hba_info *pm8001_ha,
- 	q_index = (u32) (cpu_id) % (pm8001_ha->max_q_num);
- 	circularQ = &pm8001_ha->inbnd_q_tbl[q_index];
- 
--	if (task->data_dir == DMA_NONE) {
-+	if (task->data_dir == DMA_NONE && !task->ata_task.use_ncq) {
- 		ATAP = 0x04; /* no data*/
- 		pm8001_dbg(pm8001_ha, IO, "no data\n");
- 	} else if (likely(!task->ata_task.device_control_reg_update)) {
--		if (task->ata_task.dma_xfer) {
-+		if (task->ata_task.use_ncq &&
-+		    dev->sata_dev.class != ATA_DEV_ATAPI) {
-+			ATAP = 0x07; /* FPDMA */
-+			pm8001_dbg(pm8001_ha, IO, "FPDMA\n");
-+		} else if (task->ata_task.dma_xfer) {
- 			ATAP = 0x06; /* DMA */
- 			pm8001_dbg(pm8001_ha, IO, "DMA\n");
- 		} else {
- 			ATAP = 0x05; /* PIO*/
- 			pm8001_dbg(pm8001_ha, IO, "PIO\n");
- 		}
--		if (task->ata_task.use_ncq &&
--		    dev->sata_dev.class != ATA_DEV_ATAPI) {
--			ATAP = 0x07; /* FPDMA */
--			pm8001_dbg(pm8001_ha, IO, "FPDMA\n");
--		}
- 	}
- 	if (task->ata_task.use_ncq && pm8001_get_ncq_tag(task, &hdr_tag)) {
- 		task->ata_task.fis.sector_count |= (u8) (hdr_tag << 3);
+diff --git a/drivers/infiniband/hw/mlx5/mr.c b/drivers/infiniband/hw/mlx5/mr.c
+index 19346693c1da..6cd0cbd4fc9f 100644
+--- a/drivers/infiniband/hw/mlx5/mr.c
++++ b/drivers/infiniband/hw/mlx5/mr.c
+@@ -575,6 +575,8 @@ struct mlx5_ib_mr *mlx5_mr_cache_alloc(struct mlx5_ib_dev *dev,
+ 	ent = &cache->ent[entry];
+ 	spin_lock_irq(&ent->lock);
+ 	if (list_empty(&ent->head)) {
++		queue_adjust_cache_locked(ent);
++		ent->miss++;
+ 		spin_unlock_irq(&ent->lock);
+ 		mr = create_cache_mr(ent);
+ 		if (IS_ERR(mr))
 -- 
 2.34.1
 
