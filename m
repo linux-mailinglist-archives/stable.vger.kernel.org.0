@@ -2,49 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 965574F33A2
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:21:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B2094F30F6
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:36:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347845AbiDEJ2e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:28:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47622 "EHLO
+        id S239030AbiDEJfM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:35:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244958AbiDEIwu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D3951C114;
-        Tue,  5 Apr 2022 01:47:52 -0700 (PDT)
+        with ESMTP id S235356AbiDEIQG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:16:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B1C5A5EB5;
+        Tue,  5 Apr 2022 01:03:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0094D60FFC;
-        Tue,  5 Apr 2022 08:47:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D665AC385A0;
-        Tue,  5 Apr 2022 08:47:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0777BB81BA7;
+        Tue,  5 Apr 2022 08:03:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5960CC385A0;
+        Tue,  5 Apr 2022 08:03:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148471;
-        bh=g/yUqTevTV8GciHyd7YeKtTHAieQUSEzbtaW7BPaBVs=;
+        s=korg; t=1649145797;
+        bh=1R95iKwLg6uykAlkrYJDXyi0yVHdPcfqRxwyL5W0GOQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l2zJ+2BviXbIYu/ULEe2uZs6gcbirQdV/lMvdMmDV+Z54AmsarlspHMTMVn2B6vqI
-         RLGTy0t3R++t+3S0t8wVq5LpDD37dYzO2BjepxCyA5JDjBRF45Uep87oJcib+xhsGf
-         X/V+K2yH+uzH1nqjxE5p9e9p6a/kajl5xVTXGCpA=
+        b=2MKtSL4wFyaeHtZVO9giCqlTxCblcGMSIptOMoHz0IBpQ1OaqZS/ne4ICLaXtHI3j
+         ZT5a/vJcwUo4yLTCEt+T2BOXqJpMJmmI1ovSMaqhAnIUjeopYZksdBLTJOkb4Qmzht
+         7s/000BNQ/xPpTC7Y5YuK0+0xdoSc4YUuBgPaajU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        kernel test robot <lkp@intel.com>,
-        Angelo Dureghello <angelo@sysam.it>,
-        Greg Ungerer <gerg@kernel.org>,
-        Greg Ungerer <gerg@linux-m68k.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        linux-m68k@lists.linux-m68k.org, uclinux-dev@uclinux.org,
+        stable@vger.kernel.org, Tianyu Lan <Tianyu.Lan@microsoft.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0367/1017] m68k: coldfire/device.c: only build for MCF_EDMA when h/w macros are defined
+Subject: [PATCH 5.17 0533/1126] Netvsc: Call hv_unmap_memory() in the netvsc_device_remove()
 Date:   Tue,  5 Apr 2022 09:21:20 +0200
-Message-Id: <20220405070405.179166748@linuxfoundation.org>
+Message-Id: <20220405070423.275859303@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,81 +54,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Tianyu Lan <Tianyu.Lan@microsoft.com>
 
-[ Upstream commit e6e1e7b19fa132d23d09c465942aab4c110d3da9 ]
+[ Upstream commit b539324f6fe798bdb186e4e91eafb37dd851db2a ]
 
-When CONFIG_MCF_EDMA is set (due to COMPILE_TEST, not due to
-CONFIG_M5441x), coldfire/device.c has compile errors due to
-missing MCFEDMA_* symbols. In the .config file that was provided,
-CONFIG_M5206=y, not CONFIG_M5441x, so <asm/m5441xsim.h> is not
-included in coldfire/device.c.
+netvsc_device_remove() calls vunmap() inside which should not be
+called in the interrupt context. Current code calls hv_unmap_memory()
+in the free_netvsc_device() which is rcu callback and maybe called
+in the interrupt context. This will trigger BUG_ON(in_interrupt())
+in the vunmap(). Fix it via moving hv_unmap_memory() to netvsc_device_
+remove().
 
-Only build the MCF_EDMA code in coldfire/device.c if the MCFEDMA_*
-hardware macros are defined.
-
-Fixes these build errors:
-
-../arch/m68k/coldfire/device.c:512:35: error: 'MCFEDMA_BASE' undeclared here (not in a function); did you mean 'MCFDMA_BASE1'?
-  512 |                 .start          = MCFEDMA_BASE,
-../arch/m68k/coldfire/device.c:513:50: error: 'MCFEDMA_SIZE' undeclared here (not in a function)
-  513 |                 .end            = MCFEDMA_BASE + MCFEDMA_SIZE - 1,
-../arch/m68k/coldfire/device.c:517:35: error: 'MCFEDMA_IRQ_INTR0' undeclared here (not in a function)
-  517 |                 .start          = MCFEDMA_IRQ_INTR0,
-../arch/m68k/coldfire/device.c:523:35: error: 'MCFEDMA_IRQ_INTR16' undeclared here (not in a function)
-  523 |                 .start          = MCFEDMA_IRQ_INTR16,
-../arch/m68k/coldfire/device.c:529:35: error: 'MCFEDMA_IRQ_INTR56' undeclared here (not in a function)
-  529 |                 .start          = MCFEDMA_IRQ_INTR56,
-../arch/m68k/coldfire/device.c:535:35: error: 'MCFEDMA_IRQ_ERR' undeclared here (not in a function)
-  535 |                 .start          = MCFEDMA_IRQ_ERR,
-
-Fixes: d7e9d01ac292 ("m68k: add ColdFire mcf5441x eDMA platform support")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: kernel test robot <lkp@intel.com>
-Link: lore.kernel.org/r/202203030252.P752DK46-lkp@intel.com
-Cc: Angelo Dureghello <angelo@sysam.it>
-Cc: Greg Ungerer <gerg@kernel.org>
-Cc: Greg Ungerer <gerg@linux-m68k.org>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: linux-m68k@lists.linux-m68k.org
-Cc: uclinux-dev@uclinux.org
-Signed-off-by: Greg Ungerer <gerg@linux-m68k.org>
+Fixes: 846da38de0e8 ("net: netvsc: Add Isolation VM support for netvsc driver")
+Signed-off-by: Tianyu Lan <Tianyu.Lan@microsoft.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/m68k/coldfire/device.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/hyperv/netvsc.c | 24 ++++++++++++++++--------
+ 1 file changed, 16 insertions(+), 8 deletions(-)
 
-diff --git a/arch/m68k/coldfire/device.c b/arch/m68k/coldfire/device.c
-index 0386252e9d04..4218750414bb 100644
---- a/arch/m68k/coldfire/device.c
-+++ b/arch/m68k/coldfire/device.c
-@@ -480,7 +480,7 @@ static struct platform_device mcf_i2c5 = {
- #endif /* MCFI2C_BASE5 */
- #endif /* IS_ENABLED(CONFIG_I2C_IMX) */
+diff --git a/drivers/net/hyperv/netvsc.c b/drivers/net/hyperv/netvsc.c
+index afa81a9480cc..e675d1016c3c 100644
+--- a/drivers/net/hyperv/netvsc.c
++++ b/drivers/net/hyperv/netvsc.c
+@@ -154,19 +154,15 @@ static void free_netvsc_device(struct rcu_head *head)
  
--#if IS_ENABLED(CONFIG_MCF_EDMA)
-+#ifdef MCFEDMA_BASE
+ 	kfree(nvdev->extension);
  
- static const struct dma_slave_map mcf_edma_map[] = {
- 	{ "dreq0", "rx-tx", MCF_EDMA_FILTER_PARAM(0) },
-@@ -552,7 +552,7 @@ static struct platform_device mcf_edma = {
- 		.platform_data = &mcf_edma_data,
+-	if (nvdev->recv_original_buf) {
+-		hv_unmap_memory(nvdev->recv_buf);
++	if (nvdev->recv_original_buf)
+ 		vfree(nvdev->recv_original_buf);
+-	} else {
++	else
+ 		vfree(nvdev->recv_buf);
+-	}
+ 
+-	if (nvdev->send_original_buf) {
+-		hv_unmap_memory(nvdev->send_buf);
++	if (nvdev->send_original_buf)
+ 		vfree(nvdev->send_original_buf);
+-	} else {
++	else
+ 		vfree(nvdev->send_buf);
+-	}
+ 
+ 	bitmap_free(nvdev->send_section_map);
+ 
+@@ -765,6 +761,12 @@ void netvsc_device_remove(struct hv_device *device)
+ 		netvsc_teardown_send_gpadl(device, net_device, ndev);
  	}
- };
--#endif /* IS_ENABLED(CONFIG_MCF_EDMA) */
-+#endif /* MCFEDMA_BASE */
  
- #ifdef MCFSDHC_BASE
- static struct mcf_esdhc_platform_data mcf_esdhc_data = {
-@@ -651,7 +651,7 @@ static struct platform_device *mcf_devices[] __initdata = {
- 	&mcf_i2c5,
- #endif
- #endif
--#if IS_ENABLED(CONFIG_MCF_EDMA)
-+#ifdef MCFEDMA_BASE
- 	&mcf_edma,
- #endif
- #ifdef MCFSDHC_BASE
++	if (net_device->recv_original_buf)
++		hv_unmap_memory(net_device->recv_buf);
++
++	if (net_device->send_original_buf)
++		hv_unmap_memory(net_device->send_buf);
++
+ 	/* Release all resources */
+ 	free_netvsc_device_rcu(net_device);
+ }
+@@ -1821,6 +1823,12 @@ struct netvsc_device *netvsc_device_add(struct hv_device *device,
+ 	netif_napi_del(&net_device->chan_table[0].napi);
+ 
+ cleanup2:
++	if (net_device->recv_original_buf)
++		hv_unmap_memory(net_device->recv_buf);
++
++	if (net_device->send_original_buf)
++		hv_unmap_memory(net_device->send_buf);
++
+ 	free_netvsc_device(&net_device->rcu);
+ 
+ 	return ERR_PTR(ret);
 -- 
 2.34.1
 
