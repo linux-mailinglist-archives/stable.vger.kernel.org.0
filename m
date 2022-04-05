@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A39234F3616
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:56:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 844AB4F30ED
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:36:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243520AbiDEK6Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:58:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39738 "EHLO
+        id S1347409AbiDEJ0S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:26:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46614 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346770AbiDEJp2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:45:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73B82C63;
-        Tue,  5 Apr 2022 02:31:44 -0700 (PDT)
+        with ESMTP id S245062AbiDEIxE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:53:04 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9AE0108F;
+        Tue,  5 Apr 2022 01:51:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 726226165C;
-        Tue,  5 Apr 2022 09:31:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81CF0C385A2;
-        Tue,  5 Apr 2022 09:31:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8E993B81B92;
+        Tue,  5 Apr 2022 08:51:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE187C385A1;
+        Tue,  5 Apr 2022 08:51:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151103;
-        bh=q+HweTIoMRUDs33SD84jX+bq8GXDyO/WMF9zN2kpg1M=;
+        s=korg; t=1649148662;
+        bh=5ViWBbsLPxdn3zqyYlQXpfb56RiI3TzY2TRM9WAalvU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gNrincy9k4gNxb96av4V6Jjcw+gmMAfS7JwgKJdPz/brkEGQNYlrSXWUVegTKkwqJ
-         VwQPm1AflMrgcrwavOTm8NdycLf6HspadO+sPsRkewBhShNSiMI5ZLrbGdY7zBtvT4
-         hvbzyXCPh2cxopgjTx964fjAKTz/50/L9gHK2huI=
+        b=sZX4BnRnxQNDXaP5qeat+8mNc49TakOcBJVR4Mui8+ZrbtF4Q0wAISAR+DKAH8s02
+         Eqps3PmHn6NmSrMY7nvuNdEMgJbqH9S3Px1erqas9HvD7pEI24Ssyiv4kWl7egAd9/
+         gOjAW0Lm9l6wfXsci212NzgHB6amqA1Yl4EgC/6E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Z. Liu" <liuzx@knownsec.com>,
-        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 288/913] video: fbdev: matroxfb: set maxvram of vbG200eW to the same as vbG200 to avoid black screen
+        stable@vger.kernel.org,
+        Gerhard Engleder <gerhard@engleder-embedded.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0437/1017] selftests/net: timestamping: Fix bind_phc check
 Date:   Tue,  5 Apr 2022 09:22:30 +0200
-Message-Id: <20220405070348.490797319@linuxfoundation.org>
+Message-Id: <20220405070407.265556676@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Z. Liu <liuzx@knownsec.com>
+From: Gerhard Engleder <gerhard@engleder-embedded.com>
 
-[ Upstream commit 62d89a7d49afe46e6b9bbe9e23b004ad848dbde4 ]
+[ Upstream commit 678dfd5280341d877ca646499bfdc82a3d8b4356 ]
 
-Start from commit 11be60bd66d54 "matroxfb: add Matrox MGA-G200eW board
-support", when maxvram is 0x800000, monitor become black w/ error message
-said: "The current input timing is not supported by the monitor display.
-Please change your input timing to 1920x1080@60Hz ...".
+timestamping checks socket options during initialisation. For the field
+bind_phc of the socket option SO_TIMESTAMPING it expects the value -1 if
+PHC is not bound. Actually the value of bind_phc is 0 if PHC is not
+bound. This results in the following output:
 
-Fixes: 11be60bd66d5 ("matroxfb: add Matrox MGA-G200eW board support")
-Signed-off-by: Z. Liu <liuzx@knownsec.com>
-Signed-off-by: Helge Deller <deller@gmx.de>
+SIOCSHWTSTAMP: tx_type 0 requested, got 0; rx_filter 0 requested, got 0
+SO_TIMESTAMP 0
+SO_TIMESTAMPNS 0
+SO_TIMESTAMPING flags 0, bind phc 0
+   not expected, flags 0, bind phc -1
+
+This is fixed by setting default value and expected value of bind_phc to
+0.
+
+Fixes: 2214d7032479 ("selftests/net: timestamping: support binding PHC")
+Signed-off-by: Gerhard Engleder <gerhard@engleder-embedded.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/matrox/matroxfb_base.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/testing/selftests/net/timestamping.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/video/fbdev/matrox/matroxfb_base.c b/drivers/video/fbdev/matrox/matroxfb_base.c
-index 5c82611e93d9..236521b19daf 100644
---- a/drivers/video/fbdev/matrox/matroxfb_base.c
-+++ b/drivers/video/fbdev/matrox/matroxfb_base.c
-@@ -1377,7 +1377,7 @@ static struct video_board vbG200 = {
- 	.lowlevel = &matrox_G100
- };
- static struct video_board vbG200eW = {
--	.maxvram = 0x800000,
-+	.maxvram = 0x100000,
- 	.maxdisplayable = 0x800000,
- 	.accelID = FB_ACCEL_MATROX_MGAG200,
- 	.lowlevel = &matrox_G100
+diff --git a/tools/testing/selftests/net/timestamping.c b/tools/testing/selftests/net/timestamping.c
+index aee631c5284e..044bc0e9ed81 100644
+--- a/tools/testing/selftests/net/timestamping.c
++++ b/tools/testing/selftests/net/timestamping.c
+@@ -325,8 +325,8 @@ int main(int argc, char **argv)
+ 	struct ifreq device;
+ 	struct ifreq hwtstamp;
+ 	struct hwtstamp_config hwconfig, hwconfig_requested;
+-	struct so_timestamping so_timestamping_get = { 0, -1 };
+-	struct so_timestamping so_timestamping = { 0, -1 };
++	struct so_timestamping so_timestamping_get = { 0, 0 };
++	struct so_timestamping so_timestamping = { 0, 0 };
+ 	struct sockaddr_in addr;
+ 	struct ip_mreq imr;
+ 	struct in_addr iaddr;
 -- 
 2.34.1
 
