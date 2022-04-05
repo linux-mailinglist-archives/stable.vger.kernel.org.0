@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 308D64F3449
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:26:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 233274F3329
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:13:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349691AbiDEKuv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:50:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59426 "EHLO
+        id S1347951AbiDEJ2u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:28:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345351AbiDEJnY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:43:24 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A9D0C3345;
-        Tue,  5 Apr 2022 02:28:53 -0700 (PDT)
+        with ESMTP id S244984AbiDEIw5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:57 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EDA8E0F6;
+        Tue,  5 Apr 2022 01:48:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A1B4AB81CAD;
-        Tue,  5 Apr 2022 09:28:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DFF50C385A0;
-        Tue,  5 Apr 2022 09:28:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2B377614F9;
+        Tue,  5 Apr 2022 08:48:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E272C385A0;
+        Tue,  5 Apr 2022 08:48:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150930;
-        bh=DgaIpDFEc+A61h9xhkJGjlT1kiDaci5Wzlmlp8QsmaA=;
+        s=korg; t=1649148512;
+        bh=5Hg19Sf4g8LcZB1PsHOkiazYrJEl4v16h4W0vZCs8H8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=InYYuFxXxrm4WjZIemceQyj/RLWV8glgLOB9BFbYwkhkAefnjsFASiXAgxCGoEuGR
-         8WKN0Ys/rv1IHyFw0t/2yE2tb+jKwAO5MBbD7kuH8aMPuwfBclOPztuXN08oO6+VJ3
-         Ds3xGHzVtBQ5qVipFOV2aYn1rYgodnBGDxyA3wXM=
+        b=D7lOEZ2Yj7O7spmBanUyDu6VeaBUV1clkT7JYnzfM2CK1lhbynA+47L57eD4iLHI+
+         DY3CL3wrqIEFfm36/gmjG5oIwkB4uWJ6PD7b6xumE+kuS4Oeh6Et06yUf+d6BhrJqE
+         IwQlheuUkk7eQ4f4gpytmDcEqY0Q06NAwI8bcPg4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guillaume Ranquet <granquet@baylibre.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        stable@vger.kernel.org, Tzung-Bi Shih <tzungbi@google.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 232/913] clocksource/drivers/timer-of: Check return value of of_iomap in timer_of_base_init()
+Subject: [PATCH 5.16 0381/1017] ASoC: mediatek: use of_device_get_match_data()
 Date:   Tue,  5 Apr 2022 09:21:34 +0200
-Message-Id: <20220405070346.810433611@linuxfoundation.org>
+Message-Id: <20220405070405.595516791@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +54,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guillaume Ranquet <granquet@baylibre.com>
+From: Tzung-Bi Shih <tzungbi@google.com>
 
-[ Upstream commit 4467b8bad2401794fb89a0268c8c8257180bf60f ]
+[ Upstream commit 3667a037e50a31555276a7989435126e501f0f15 ]
 
-of_base->base can either be iomapped using of_io_request_and_map() or
-of_iomap() depending whether or not an of_base->name has been set.
+Uses of_device_get_match_data() helper to clean some boilerplate code.
 
-Thus check of_base->base against NULL as of_iomap() does not return a
-PTR_ERR() in case of error.
-
-Fixes: 9aea417afa6b ("clocksource/drivers/timer-of: Don't request the resource by name")
-Signed-off-by: Guillaume Ranquet <granquet@baylibre.com>
-Link: https://lore.kernel.org/r/20220307172656.4836-1-granquet@baylibre.com
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Signed-off-by: Tzung-Bi Shih <tzungbi@google.com>
+Link: https://lore.kernel.org/r/20211227062153.3887447-1-tzungbi@google.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clocksource/timer-of.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ sound/soc/mediatek/mt8183/mt8183-da7219-max98357.c         | 7 ++-----
+ sound/soc/mediatek/mt8183/mt8183-mt6358-ts3a227-max98357.c | 7 ++-----
+ sound/soc/mediatek/mt8192/mt8192-mt6359-rt1015-rt5682.c    | 7 ++-----
+ 3 files changed, 6 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/clocksource/timer-of.c b/drivers/clocksource/timer-of.c
-index 529cc6a51cdb..c3f54d9912be 100644
---- a/drivers/clocksource/timer-of.c
-+++ b/drivers/clocksource/timer-of.c
-@@ -157,9 +157,9 @@ static __init int timer_of_base_init(struct device_node *np,
- 	of_base->base = of_base->name ?
- 		of_io_request_and_map(np, of_base->index, of_base->name) :
- 		of_iomap(np, of_base->index);
--	if (IS_ERR(of_base->base)) {
--		pr_err("Failed to iomap (%s)\n", of_base->name);
--		return PTR_ERR(of_base->base);
-+	if (IS_ERR_OR_NULL(of_base->base)) {
-+		pr_err("Failed to iomap (%s:%s)\n", np->name, of_base->name);
-+		return of_base->base ? PTR_ERR(of_base->base) : -ENOMEM;
+diff --git a/sound/soc/mediatek/mt8183/mt8183-da7219-max98357.c b/sound/soc/mediatek/mt8183/mt8183-da7219-max98357.c
+index bda103211e0b..0ab8b050b305 100644
+--- a/sound/soc/mediatek/mt8183/mt8183-da7219-max98357.c
++++ b/sound/soc/mediatek/mt8183/mt8183-da7219-max98357.c
+@@ -685,7 +685,6 @@ static int mt8183_da7219_max98357_dev_probe(struct platform_device *pdev)
+ 	struct snd_soc_dai_link *dai_link;
+ 	struct mt8183_da7219_max98357_priv *priv;
+ 	struct pinctrl *pinctrl;
+-	const struct of_device_id *match;
+ 	int ret, i;
+ 
+ 	platform_node = of_parse_phandle(pdev->dev.of_node,
+@@ -695,11 +694,9 @@ static int mt8183_da7219_max98357_dev_probe(struct platform_device *pdev)
+ 		return -EINVAL;
  	}
  
- 	return 0;
+-	match = of_match_device(pdev->dev.driver->of_match_table, &pdev->dev);
+-	if (!match || !match->data)
++	card = (struct snd_soc_card *)of_device_get_match_data(&pdev->dev);
++	if (!card)
+ 		return -EINVAL;
+-
+-	card = (struct snd_soc_card *)match->data;
+ 	card->dev = &pdev->dev;
+ 
+ 	hdmi_codec = of_parse_phandle(pdev->dev.of_node,
+diff --git a/sound/soc/mediatek/mt8183/mt8183-mt6358-ts3a227-max98357.c b/sound/soc/mediatek/mt8183/mt8183-mt6358-ts3a227-max98357.c
+index 9f0bf15fe465..8c81c5528f6e 100644
+--- a/sound/soc/mediatek/mt8183/mt8183-mt6358-ts3a227-max98357.c
++++ b/sound/soc/mediatek/mt8183/mt8183-mt6358-ts3a227-max98357.c
+@@ -637,7 +637,6 @@ mt8183_mt6358_ts3a227_max98357_dev_probe(struct platform_device *pdev)
+ 	struct device_node *platform_node, *ec_codec, *hdmi_codec;
+ 	struct snd_soc_dai_link *dai_link;
+ 	struct mt8183_mt6358_ts3a227_max98357_priv *priv;
+-	const struct of_device_id *match;
+ 	int ret, i;
+ 
+ 	platform_node = of_parse_phandle(pdev->dev.of_node,
+@@ -647,11 +646,9 @@ mt8183_mt6358_ts3a227_max98357_dev_probe(struct platform_device *pdev)
+ 		return -EINVAL;
+ 	}
+ 
+-	match = of_match_device(pdev->dev.driver->of_match_table, &pdev->dev);
+-	if (!match || !match->data)
++	card = (struct snd_soc_card *)of_device_get_match_data(&pdev->dev);
++	if (!card)
+ 		return -EINVAL;
+-
+-	card = (struct snd_soc_card *)match->data;
+ 	card->dev = &pdev->dev;
+ 
+ 	ec_codec = of_parse_phandle(pdev->dev.of_node, "mediatek,ec-codec", 0);
+diff --git a/sound/soc/mediatek/mt8192/mt8192-mt6359-rt1015-rt5682.c b/sound/soc/mediatek/mt8192/mt8192-mt6359-rt1015-rt5682.c
+index 24a5d0adec1b..ab449d0e4e9b 100644
+--- a/sound/soc/mediatek/mt8192/mt8192-mt6359-rt1015-rt5682.c
++++ b/sound/soc/mediatek/mt8192/mt8192-mt6359-rt1015-rt5682.c
+@@ -1106,7 +1106,6 @@ static int mt8192_mt6359_dev_probe(struct platform_device *pdev)
+ 	struct device_node *platform_node, *hdmi_codec;
+ 	int ret, i;
+ 	struct snd_soc_dai_link *dai_link;
+-	const struct of_device_id *match;
+ 	struct mt8192_mt6359_priv *priv;
+ 
+ 	platform_node = of_parse_phandle(pdev->dev.of_node,
+@@ -1116,11 +1115,9 @@ static int mt8192_mt6359_dev_probe(struct platform_device *pdev)
+ 		return -EINVAL;
+ 	}
+ 
+-	match = of_match_device(pdev->dev.driver->of_match_table, &pdev->dev);
+-	if (!match || !match->data)
++	card = (struct snd_soc_card *)of_device_get_match_data(&pdev->dev);
++	if (!card)
+ 		return -EINVAL;
+-
+-	card = (struct snd_soc_card *)match->data;
+ 	card->dev = &pdev->dev;
+ 
+ 	hdmi_codec = of_parse_phandle(pdev->dev.of_node,
 -- 
 2.34.1
 
