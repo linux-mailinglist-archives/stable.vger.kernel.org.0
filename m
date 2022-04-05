@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EA6B24F27A5
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:08:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 687774F2784
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:07:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233498AbiDEIHv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:07:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42768 "EHLO
+        id S233276AbiDEIHM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:07:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53020 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234999AbiDEH7H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:59:07 -0400
+        with ESMTP id S235039AbiDEH7U (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:59:20 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B9D655746;
-        Tue,  5 Apr 2022 00:53:38 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E34034BB9;
+        Tue,  5 Apr 2022 00:53:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BBD9261781;
-        Tue,  5 Apr 2022 07:53:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8A90C34113;
-        Tue,  5 Apr 2022 07:53:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1FA9761668;
+        Tue,  5 Apr 2022 07:53:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2FDD3C340EE;
+        Tue,  5 Apr 2022 07:53:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145217;
-        bh=kpMFCZrNN6TOA8oXc55oqKYTMyz2RYpeQi/NLaMZq4o=;
+        s=korg; t=1649145222;
+        bh=Yfa6Kmyb+1X+6X/9WKFe5fwbMvb+I65yU3dPuaielFA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LdpYGIl4Q68xTOb2FjY7mjB/IrgoFUtDsWASysbmj5JSm8btyMH6iQmifoEjeHjFj
-         WnNbaVMHv+xq8asJA99IeoiJn5pTn/1tN3x2idHyAj8XAKk64+2/UBjmRr3ifRIg+3
-         fp18SFfUHgIsAR8C93Bc20DMCjlzfbjuUbCMevuI=
+        b=JMTjb7EL1mncZdyrhbFE0Yf8jEg2BufO8r+mnBNjY1zd8pLNJekgJQ+QUiQbn0VH6
+         mXOrdVBGASoj5YclC7OEOJxmAczzeB0fi62VAm5cvFr1KJ4GiS6TddgeJ2uK/hC6oF
+         d4L2TszEnvKXBdMdIrwC/eQ8ROrDZ2Nm1PhweAD0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
         Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0327/1126] soc: qcom: rpmpd: Check for null return of devm_kcalloc
-Date:   Tue,  5 Apr 2022 09:17:54 +0200
-Message-Id: <20220405070417.217444639@linuxfoundation.org>
+Subject: [PATCH 5.17 0328/1126] soc: qcom: ocmem: Fix missing put_device() call in of_get_ocmem
+Date:   Tue,  5 Apr 2022 09:17:55 +0200
+Message-Id: <20220405070417.246268174@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -54,41 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 5a811126d38f9767a20cc271b34db7c8efc5a46c ]
+[ Upstream commit 0ff027027e05a866491bbb53494f0e2a61354c85 ]
 
-Because of the possible failure of the allocation, data->domains might
-be NULL pointer and will cause the dereference of the NULL pointer
-later.
-Therefore, it might be better to check it and directly return -ENOMEM
-without releasing data manually if fails, because the comment of the
-devm_kmalloc() says "Memory allocated with this function is
-automatically freed on driver detach.".
+The reference taken by 'of_find_device_by_node()' must be released when
+not needed anymore.
+Add the corresponding 'put_device()' in the error handling path.
 
-Fixes: bbe3a66c3f5a ("soc: qcom: rpmpd: Add a Power domain driver to model corners")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Fixes: 01f937ffc468 ("soc: qcom: ocmem: don't return NULL in of_get_ocmem")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
 Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20211231094419.1941054-1-jiasheng@iscas.ac.cn
+Link: https://lore.kernel.org/r/20220107073126.2335-1-linmq006@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/qcom/rpmpd.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/soc/qcom/ocmem.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/soc/qcom/rpmpd.c b/drivers/soc/qcom/rpmpd.c
-index 0a8d8d24bfb7..624b5630feb8 100644
---- a/drivers/soc/qcom/rpmpd.c
-+++ b/drivers/soc/qcom/rpmpd.c
-@@ -610,6 +610,9 @@ static int rpmpd_probe(struct platform_device *pdev)
- 
- 	data->domains = devm_kcalloc(&pdev->dev, num, sizeof(*data->domains),
- 				     GFP_KERNEL);
-+	if (!data->domains)
-+		return -ENOMEM;
-+
- 	data->num_domains = num;
- 
- 	for (i = 0; i < num; i++) {
+diff --git a/drivers/soc/qcom/ocmem.c b/drivers/soc/qcom/ocmem.c
+index d2dacbbaafbd..97fd24c178f8 100644
+--- a/drivers/soc/qcom/ocmem.c
++++ b/drivers/soc/qcom/ocmem.c
+@@ -206,6 +206,7 @@ struct ocmem *of_get_ocmem(struct device *dev)
+ 	ocmem = platform_get_drvdata(pdev);
+ 	if (!ocmem) {
+ 		dev_err(dev, "Cannot get ocmem\n");
++		put_device(&pdev->dev);
+ 		return ERR_PTR(-ENODEV);
+ 	}
+ 	return ocmem;
 -- 
 2.34.1
 
