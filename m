@@ -2,46 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F32094F3444
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:26:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D1244F30CF
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:35:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229780AbiDEKfp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:35:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59040 "EHLO
+        id S244403AbiDEKip (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:38:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240077AbiDEJeA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:34:00 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54D1A7EB29;
-        Tue,  5 Apr 2022 02:23:19 -0700 (PDT)
+        with ESMTP id S240045AbiDEJeB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:34:01 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B35C0811A1;
+        Tue,  5 Apr 2022 02:23:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 187D9B81C85;
-        Tue,  5 Apr 2022 09:23:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55646C385A0;
-        Tue,  5 Apr 2022 09:23:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E010C615E4;
+        Tue,  5 Apr 2022 09:23:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF16CC385A2;
+        Tue,  5 Apr 2022 09:23:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150596;
-        bh=apjxBybygWs5XX5nOChmSPCjl9DGNaveNPeCkY2/SaA=;
+        s=korg; t=1649150602;
+        bh=F2sXadztW3MARwarwpZlIp38N5A1LAVO17ur1+LgINs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xMcWm2YCnnVSIot4Z3PtAuiRFsgAxLEmQ0PCL2jz9dByxGspCNDyhj8DAbkW4WrPW
-         F50LMlaQojGrH59inyjrSlwcxVUVLz+AI5rujNFgcWpZMRK3iq+jTg6gczESR5kPEl
-         2C2FpppuxNCqCpKwqRUOJ4y5ujpMYbwTd7YfechQ=
+        b=ihZBfF/UwaZROb9R6rcCsdYRgyNCENTJdkpgjasUuKq3rOLqS0fNpoQlXfdaCEntR
+         lhYyAkM5esxT2U1WkrlFpNpmP21dNKlBWbUnofSU/CuYe1s1XaYj4/H60+Eken3Zn6
+         eOAxePca+qjUrasxsxu1waKLj7HijREORUed6z5Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuan-Ying Lee <Kuan-Ying.Lee@mediatek.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Chinwen Chang <chinwen.chang@mediatek.com>,
-        Nicholas Tang <nicholas.tang@mediatek.com>,
-        Yee Lee <yee.lee@mediatek.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.15 111/913] mm/kmemleak: reset tag when compare object pointer
-Date:   Tue,  5 Apr 2022 09:19:33 +0200
-Message-Id: <20220405070343.154445513@linuxfoundation.org>
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 5.15 112/913] dm stats: fix too short end duration_ns when using precise_timestamps
+Date:   Tue,  5 Apr 2022 09:19:34 +0200
+Message-Id: <20220405070343.184612912@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -59,99 +53,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuan-Ying Lee <Kuan-Ying.Lee@mediatek.com>
+From: Mike Snitzer <snitzer@redhat.com>
 
-commit bfc8089f00fa526dea983844c880fa8106c33ac4 upstream.
+commit 0cdb90f0f306384ecbc60dfd6dc48cdbc1f2d0d8 upstream.
 
-When we use HW-tag based kasan and enable vmalloc support, we hit the
-following bug.  It is due to comparison between tagged object and
-non-tagged pointer.
+dm_stats_account_io()'s STAT_PRECISE_TIMESTAMPS support doesn't handle
+the fact that with commit b879f915bc48 ("dm: properly fix redundant
+bio-based IO accounting") io->start_time _may_ be in the past (meaning
+the start_io_acct() was deferred until later).
 
-We need to reset the kasan tag when we need to compare tagged object and
-non-tagged pointer.
+Add a new dm_stats_recalc_precise_timestamps() helper that will
+set/clear a new 'precise_timestamps' flag in the dm_stats struct based
+on whether any configured stats enable STAT_PRECISE_TIMESTAMPS.
+And update DM core's alloc_io() to use dm_stats_record_start() to set
+stats_aux.duration_ns if stats->precise_timestamps is true.
 
-  kmemleak: [name:kmemleak&]Scan area larger than object 0xffffffe77076f440
-  CPU: 4 PID: 1 Comm: init Tainted: G S      W         5.15.25-android13-0-g5cacf919c2bc #1
-  Hardware name: MT6983(ENG) (DT)
-  Call trace:
-   add_scan_area+0xc4/0x244
-   kmemleak_scan_area+0x40/0x9c
-   layout_and_allocate+0x1e8/0x288
-   load_module+0x2c8/0xf00
-   __se_sys_finit_module+0x190/0x1d0
-   __arm64_sys_finit_module+0x20/0x30
-   invoke_syscall+0x60/0x170
-   el0_svc_common+0xc8/0x114
-   do_el0_svc+0x28/0xa0
-   el0_svc+0x60/0xf8
-   el0t_64_sync_handler+0x88/0xec
-   el0t_64_sync+0x1b4/0x1b8
-  kmemleak: [name:kmemleak&]Object 0xf5ffffe77076b000 (size 32768):
-  kmemleak: [name:kmemleak&]  comm "init", pid 1, jiffies 4294894197
-  kmemleak: [name:kmemleak&]  min_count = 0
-  kmemleak: [name:kmemleak&]  count = 0
-  kmemleak: [name:kmemleak&]  flags = 0x1
-  kmemleak: [name:kmemleak&]  checksum = 0
-  kmemleak: [name:kmemleak&]  backtrace:
-       module_alloc+0x9c/0x120
-       move_module+0x34/0x19c
-       layout_and_allocate+0x1c4/0x288
-       load_module+0x2c8/0xf00
-       __se_sys_finit_module+0x190/0x1d0
-       __arm64_sys_finit_module+0x20/0x30
-       invoke_syscall+0x60/0x170
-       el0_svc_common+0xc8/0x114
-       do_el0_svc+0x28/0xa0
-       el0_svc+0x60/0xf8
-       el0t_64_sync_handler+0x88/0xec
-       el0t_64_sync+0x1b4/0x1b8
+Also, remove unused 'last_sector' and 'last_rw' members from the
+dm_stats struct.
 
-Link: https://lkml.kernel.org/r/20220318034051.30687-1-Kuan-Ying.Lee@mediatek.com
-Signed-off-by: Kuan-Ying Lee <Kuan-Ying.Lee@mediatek.com>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Matthias Brugger <matthias.bgg@gmail.com>
-Cc: Chinwen Chang <chinwen.chang@mediatek.com>
-Cc: Nicholas Tang <nicholas.tang@mediatek.com>
-Cc: Yee Lee <yee.lee@mediatek.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: b879f915bc48 ("dm: properly fix redundant bio-based IO accounting")
+Cc: stable@vger.kernel.org
+Co-developed-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/kmemleak.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/md/dm-stats.c |   28 +++++++++++++++++++++++++---
+ drivers/md/dm-stats.h |    9 +++++++--
+ drivers/md/dm.c       |    2 ++
+ 3 files changed, 34 insertions(+), 5 deletions(-)
 
---- a/mm/kmemleak.c
-+++ b/mm/kmemleak.c
-@@ -789,6 +789,8 @@ static void add_scan_area(unsigned long
- 	unsigned long flags;
- 	struct kmemleak_object *object;
- 	struct kmemleak_scan_area *area = NULL;
-+	unsigned long untagged_ptr;
-+	unsigned long untagged_objp;
+--- a/drivers/md/dm-stats.c
++++ b/drivers/md/dm-stats.c
+@@ -195,6 +195,7 @@ void dm_stats_init(struct dm_stats *stat
  
- 	object = find_and_get_object(ptr, 1);
- 	if (!object) {
-@@ -797,6 +799,9 @@ static void add_scan_area(unsigned long
- 		return;
- 	}
+ 	mutex_init(&stats->mutex);
+ 	INIT_LIST_HEAD(&stats->list);
++	stats->precise_timestamps = false;
+ 	stats->last = alloc_percpu(struct dm_stats_last_position);
+ 	for_each_possible_cpu(cpu) {
+ 		last = per_cpu_ptr(stats->last, cpu);
+@@ -231,6 +232,22 @@ void dm_stats_cleanup(struct dm_stats *s
+ 	mutex_destroy(&stats->mutex);
+ }
  
-+	untagged_ptr = (unsigned long)kasan_reset_tag((void *)ptr);
-+	untagged_objp = (unsigned long)kasan_reset_tag((void *)object->pointer);
++static void dm_stats_recalc_precise_timestamps(struct dm_stats *stats)
++{
++	struct list_head *l;
++	struct dm_stat *tmp_s;
++	bool precise_timestamps = false;
 +
- 	if (scan_area_cache)
- 		area = kmem_cache_alloc(scan_area_cache, gfp_kmemleak_mask(gfp));
- 
-@@ -808,8 +813,8 @@ static void add_scan_area(unsigned long
- 		goto out_unlock;
++	list_for_each(l, &stats->list) {
++		tmp_s = container_of(l, struct dm_stat, list_entry);
++		if (tmp_s->stat_flags & STAT_PRECISE_TIMESTAMPS) {
++			precise_timestamps = true;
++			break;
++		}
++	}
++	stats->precise_timestamps = precise_timestamps;
++}
++
+ static int dm_stats_create(struct dm_stats *stats, sector_t start, sector_t end,
+ 			   sector_t step, unsigned stat_flags,
+ 			   unsigned n_histogram_entries,
+@@ -376,6 +393,9 @@ static int dm_stats_create(struct dm_sta
  	}
- 	if (size == SIZE_MAX) {
--		size = object->pointer + object->size - ptr;
--	} else if (ptr + size > object->pointer + object->size) {
-+		size = untagged_objp + object->size - untagged_ptr;
-+	} else if (untagged_ptr + size > untagged_objp + object->size) {
- 		kmemleak_warn("Scan area larger than object 0x%08lx\n", ptr);
- 		dump_object_info(object);
- 		kmem_cache_free(scan_area_cache, area);
+ 	ret_id = s->id;
+ 	list_add_tail_rcu(&s->list_entry, l);
++
++	dm_stats_recalc_precise_timestamps(stats);
++
+ 	mutex_unlock(&stats->mutex);
+ 
+ 	resume_callback(md);
+@@ -418,6 +438,9 @@ static int dm_stats_delete(struct dm_sta
+ 	}
+ 
+ 	list_del_rcu(&s->list_entry);
++
++	dm_stats_recalc_precise_timestamps(stats);
++
+ 	mutex_unlock(&stats->mutex);
+ 
+ 	/*
+@@ -654,9 +677,8 @@ void dm_stats_account_io(struct dm_stats
+ 	got_precise_time = false;
+ 	list_for_each_entry_rcu(s, &stats->list, list_entry) {
+ 		if (s->stat_flags & STAT_PRECISE_TIMESTAMPS && !got_precise_time) {
+-			if (!end)
+-				stats_aux->duration_ns = ktime_to_ns(ktime_get());
+-			else
++			/* start (!end) duration_ns is set by DM core's alloc_io() */
++			if (end)
+ 				stats_aux->duration_ns = ktime_to_ns(ktime_get()) - stats_aux->duration_ns;
+ 			got_precise_time = true;
+ 		}
+--- a/drivers/md/dm-stats.h
++++ b/drivers/md/dm-stats.h
+@@ -13,8 +13,7 @@ struct dm_stats {
+ 	struct mutex mutex;
+ 	struct list_head list;	/* list of struct dm_stat */
+ 	struct dm_stats_last_position __percpu *last;
+-	sector_t last_sector;
+-	unsigned last_rw;
++	bool precise_timestamps;
+ };
+ 
+ struct dm_stats_aux {
+@@ -40,4 +39,10 @@ static inline bool dm_stats_used(struct
+ 	return !list_empty(&st->list);
+ }
+ 
++static inline void dm_stats_record_start(struct dm_stats *stats, struct dm_stats_aux *aux)
++{
++	if (unlikely(stats->precise_timestamps))
++		aux->duration_ns = ktime_to_ns(ktime_get());
++}
++
+ #endif
+--- a/drivers/md/dm.c
++++ b/drivers/md/dm.c
+@@ -537,6 +537,8 @@ static struct dm_io *alloc_io(struct map
+ 
+ 	io->start_time = jiffies;
+ 
++	dm_stats_record_start(&md->stats, &io->stats_aux);
++
+ 	return io;
+ }
+ 
 
 
