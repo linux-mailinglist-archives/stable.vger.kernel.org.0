@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D28C4F4400
-	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 00:11:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B97D4F4663
+	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 01:12:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382694AbiDEMQc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:16:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47870 "EHLO
+        id S1382702AbiDEMQg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:16:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34838 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244381AbiDEKil (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:38:41 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B61426D4;
-        Tue,  5 Apr 2022 03:23:37 -0700 (PDT)
+        with ESMTP id S244475AbiDEKiw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:38:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 554A646172;
+        Tue,  5 Apr 2022 03:23:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 1A915CE0B18;
-        Tue,  5 Apr 2022 10:23:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37478C385A3;
-        Tue,  5 Apr 2022 10:23:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E7166617CC;
+        Tue,  5 Apr 2022 10:23:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A583C385A1;
+        Tue,  5 Apr 2022 10:23:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649154214;
-        bh=M1gU7GJAdKfEoxBo0mmxgvDmkAOM71wt/lDiYoCEucE=;
+        s=korg; t=1649154228;
+        bh=yD6j1fnTv8REaI/DYQ4/I9JyKfmStY72PLy1+LTQ6pg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ddVbKsMED+7c4CNoVNL13U7tp1WTIEI1fCE/x2k/I29fH1wz8BUvetyAd5rclusIH
-         nO31xiTd1vSKI/pTfDdYwF/wXkEFe1JrDji9BMdOCFQ1JLsvPfoMqAWj519dCKZRxs
-         Fx4VbpEE2dMEnoWMFbytvBEP1vzK8mV0uRRc6Rhs=
+        b=KaggEEvg78s3Xzls1aSH708LwYimuklkDDxySFOCfT5kei8h3QTfIoz2xWQlT+VqI
+         1NR22186z8GnIbwdrdVFZRAsdWtzs4ww9psBjcfMLLpq66I9tUddkljWJoLOJkIrf0
+         ZBlUMlO2gdW+KvARgPZfrYaJFZ/LDrWpqFn3M7Ow=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Daniel=20Gonz=C3=A1lez=20Cabanelas?= <dgcbueu@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 500/599] media: cx88-mpeg: clear interrupt status register before streaming video
-Date:   Tue,  5 Apr 2022 09:33:14 +0200
-Message-Id: <20220405070313.707864533@linuxfoundation.org>
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 505/599] video: fbdev: sm712fb: Fix crash in smtcfb_write()
+Date:   Tue,  5 Apr 2022 09:33:19 +0200
+Message-Id: <20220405070313.856556943@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -54,43 +53,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel González Cabanelas <dgcbueu@gmail.com>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit 56cb61f70e547e1b0cdfe6ff5a1f1ce6242e6d96 ]
+[ Upstream commit 4f01d09b2bbfbcb47b3eb305560a7f4857a32260 ]
 
-Some cx88 video cards may have transport stream status interrupts set
-to 1 from cold start, causing errors like this:
+When the sm712fb driver writes three bytes to the framebuffer, the
+driver will crash:
 
-  cx88xx: cx88_print_irqbits: core:irq mpeg  [0x100000] ts_err?*
-  cx8802: cx8802_mpeg_irq: mpeg:general errors: 0x00100000
+    BUG: unable to handle page fault for address: ffffc90001ffffff
+    RIP: 0010:smtcfb_write+0x454/0x5b0
+    Call Trace:
+     vfs_write+0x291/0xd60
+     ? do_sys_openat2+0x27d/0x350
+     ? __fget_light+0x54/0x340
+     ksys_write+0xce/0x190
+     do_syscall_64+0x43/0x90
+     entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-According to CX2388x datasheet, the interrupt status register should be
-cleared before enabling IRQs to stream video.
+Fix it by removing the open-coded endianness fixup-code.
 
-Fix it by clearing the Transport Stream Interrupt Status register.
-
-Signed-off-by: Daniel González Cabanelas <dgcbueu@gmail.com>
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/pci/cx88/cx88-mpeg.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/video/fbdev/sm712fb.c |   21 ++++-----------------
+ 1 file changed, 4 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/media/pci/cx88/cx88-mpeg.c b/drivers/media/pci/cx88/cx88-mpeg.c
-index a57c991b165b..10d2971ef062 100644
---- a/drivers/media/pci/cx88/cx88-mpeg.c
-+++ b/drivers/media/pci/cx88/cx88-mpeg.c
-@@ -162,6 +162,9 @@ int cx8802_start_dma(struct cx8802_dev    *dev,
- 	cx_write(MO_TS_GPCNTRL, GP_COUNT_CONTROL_RESET);
- 	q->count = 0;
+--- a/drivers/video/fbdev/sm712fb.c
++++ b/drivers/video/fbdev/sm712fb.c
+@@ -1119,7 +1119,7 @@ static ssize_t smtcfb_write(struct fb_in
+ 		count = total_size - p;
+ 	}
  
-+	/* clear interrupt status register */
-+	cx_write(MO_TS_INTSTAT,  0x1f1111);
-+
- 	/* enable irqs */
- 	dprintk(1, "setting the interrupt mask\n");
- 	cx_set(MO_PCI_INTMSK, core->pci_irqmask | PCI_INT_TSINT);
--- 
-2.34.1
-
+-	buffer = kmalloc((count > PAGE_SIZE) ? PAGE_SIZE : count, GFP_KERNEL);
++	buffer = kmalloc(PAGE_SIZE, GFP_KERNEL);
+ 	if (!buffer)
+ 		return -ENOMEM;
+ 
+@@ -1137,24 +1137,11 @@ static ssize_t smtcfb_write(struct fb_in
+ 			break;
+ 		}
+ 
+-		for (i = c >> 2; i--;) {
+-			fb_writel(big_swap(*src), dst++);
++		for (i = (c + 3) >> 2; i--;) {
++			fb_writel(big_swap(*src), dst);
++			dst++;
+ 			src++;
+ 		}
+-		if (c & 3) {
+-			u8 *src8 = (u8 *)src;
+-			u8 __iomem *dst8 = (u8 __iomem *)dst;
+-
+-			for (i = c & 3; i--;) {
+-				if (i & 1) {
+-					fb_writeb(*src8++, ++dst8);
+-				} else {
+-					fb_writeb(*src8++, --dst8);
+-					dst8 += 2;
+-				}
+-			}
+-			dst = (u32 __iomem *)dst8;
+-		}
+ 
+ 		*ppos += c;
+ 		buf += c;
 
 
