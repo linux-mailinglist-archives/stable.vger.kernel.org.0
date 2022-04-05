@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 980CF4F38E2
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:37:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EECA4F38E3
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:37:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377363AbiDEL2t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:28:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59578 "EHLO
+        id S1377367AbiDEL2v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:28:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349927AbiDEJwF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:52:05 -0400
+        with ESMTP id S1349953AbiDEJwJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:52:09 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B56DD31DEE;
-        Tue,  5 Apr 2022 02:50:07 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F0AD33EB4;
+        Tue,  5 Apr 2022 02:50:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6617EB81B97;
-        Tue,  5 Apr 2022 09:50:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BCDE6C385A1;
-        Tue,  5 Apr 2022 09:50:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 459AAB817D3;
+        Tue,  5 Apr 2022 09:50:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82DB9C385A2;
+        Tue,  5 Apr 2022 09:50:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152205;
-        bh=vb2rgtgo3AKuSL5FE0QmtfS6g/HFe+78n9tRIvZUl7Q=;
+        s=korg; t=1649152207;
+        bh=YCzwUFyhUEJ/GM5eR1opJD1pGTH09ZAKXiiX9wurdYo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pRAuGE6JMZD4vFVEj6AjQnMBUqvW/hXutHsQP1jIrdah/WYzdlHj4xEf8qNUySlBB
-         Zzxn3ofMxeaKOGRy08eVeTB2RB7sGwlxGnkyLC4yLP7OMpyRxGGC1wCuOaY2U7qqM/
-         VB7oi4JDahpO94TEEKP3qEBlB6ti9tRENFNK4puE=
+        b=Da1j+vhgOxpoe1fNCzlrNoNt6xhk4wZHFq0Z9CA/p7zlxNsFGDspWw9bZ8rEVVRKz
+         rLZdKImP6dU7uuqC6TGvxvV2ozVwEE1Ul/zKNXpLJtCzl8CDqiht8IZRPVk8PHA8G1
+         pCLnqtPB79Gzd/FlYKcM1ZFg3qjnfZn6/ysFaBD0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>,
-        Paul Moore <paul@paul-moore.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 692/913] selinux: use correct type for context length
-Date:   Tue,  5 Apr 2022 09:29:14 +0200
-Message-Id: <20220405070400.578773470@linuxfoundation.org>
+        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
+        Fangrui Song <maskray@google.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 693/913] arm64: module: remove (NOLOAD) from linker script
+Date:   Tue,  5 Apr 2022 09:29:15 +0200
+Message-Id: <20220405070400.608071989@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -55,42 +55,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Göttsche <cgzones@googlemail.com>
+From: Fangrui Song <maskray@google.com>
 
-[ Upstream commit b97df7c098c531010e445da88d02b7bf7bf59ef6 ]
+[ Upstream commit 4013e26670c590944abdab56c4fa797527b74325 ]
 
-security_sid_to_context() expects a pointer to an u32 as the address
-where to store the length of the computed context.
+On ELF, (NOLOAD) sets the section type to SHT_NOBITS[1]. It is conceptually
+inappropriate for .plt and .text.* sections which are always
+SHT_PROGBITS.
 
-Reported by sparse:
+In GNU ld, if PLT entries are needed, .plt will be SHT_PROGBITS anyway
+and (NOLOAD) will be essentially ignored. In ld.lld, since
+https://reviews.llvm.org/D118840 ("[ELF] Support (TYPE=<value>) to
+customize the output section type"), ld.lld will report a `section type
+mismatch` error. Just remove (NOLOAD) to fix the error.
 
-    security/selinux/xfrm.c:359:39: warning: incorrect type in arg 4
-                                    (different signedness)
-    security/selinux/xfrm.c:359:39:    expected unsigned int
-                                       [usertype] *scontext_len
-    security/selinux/xfrm.c:359:39:    got int *
+[1] https://lld.llvm.org/ELF/linker_script.html As of today, "The
+section should be marked as not loadable" on
+https://sourceware.org/binutils/docs/ld/Output-Section-Type.html is
+outdated for ELF.
 
-Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
-[PM: wrapped commit description]
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+Tested-by: Nathan Chancellor <nathan@kernel.org>
+Reported-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Fangrui Song <maskray@google.com>
+Acked-by: Ard Biesheuvel <ardb@kernel.org>
+Link: https://lore.kernel.org/r/20220218081209.354383-1-maskray@google.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/selinux/xfrm.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/include/asm/module.lds.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/security/selinux/xfrm.c b/security/selinux/xfrm.c
-index be83e5ce4469..debe15207d2b 100644
---- a/security/selinux/xfrm.c
-+++ b/security/selinux/xfrm.c
-@@ -347,7 +347,7 @@ int selinux_xfrm_state_alloc_acquire(struct xfrm_state *x,
- 	int rc;
- 	struct xfrm_sec_ctx *ctx;
- 	char *ctx_str = NULL;
--	int str_len;
-+	u32 str_len;
+diff --git a/arch/arm64/include/asm/module.lds.h b/arch/arm64/include/asm/module.lds.h
+index a11ccadd47d2..094701ec5500 100644
+--- a/arch/arm64/include/asm/module.lds.h
++++ b/arch/arm64/include/asm/module.lds.h
+@@ -1,8 +1,8 @@
+ SECTIONS {
+ #ifdef CONFIG_ARM64_MODULE_PLTS
+-	.plt 0 (NOLOAD) : { BYTE(0) }
+-	.init.plt 0 (NOLOAD) : { BYTE(0) }
+-	.text.ftrace_trampoline 0 (NOLOAD) : { BYTE(0) }
++	.plt 0 : { BYTE(0) }
++	.init.plt 0 : { BYTE(0) }
++	.text.ftrace_trampoline 0 : { BYTE(0) }
+ #endif
  
- 	if (!polsec)
- 		return 0;
+ #ifdef CONFIG_KASAN_SW_TAGS
 -- 
 2.34.1
 
