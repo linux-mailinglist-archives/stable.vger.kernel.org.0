@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A9854F2E17
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:49:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A3CE54F2BFA
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:21:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353489AbiDEKHy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:07:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44264 "EHLO
+        id S245313AbiDEIyx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:54:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60902 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344364AbiDEJTe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:19:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E798254;
-        Tue,  5 Apr 2022 02:07:58 -0700 (PDT)
+        with ESMTP id S240915AbiDEIci (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:32:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D00D8D688;
+        Tue,  5 Apr 2022 01:25:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BFF19614E4;
-        Tue,  5 Apr 2022 09:07:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA97BC385A1;
-        Tue,  5 Apr 2022 09:07:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5A8CD60FFC;
+        Tue,  5 Apr 2022 08:25:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68B84C385A1;
+        Tue,  5 Apr 2022 08:25:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149677;
-        bh=K/1JruDGt6uXiQBE2IgAYNU8fm+vGs7kPoKDYyu86Xs=;
+        s=korg; t=1649147118;
+        bh=Ytr58gnACPtIgX8wj6A+Rgu50Y/LfhHdm8jAbP6A5yc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RwqyLzOAj7g0mvsuBOmyVwzSoUqKQ6iNkvtjvwuei6aVuulcIfPvDaNhNC/h4O1vf
-         Ves+ltqaJ0IeNxkA9lwzlW9YmXS+zNy3/lxJD8CjMKDjkspLNWuxjLu5r9Ut7cGu6v
-         8zQVLJ+5BhuXXXb8U/KNUZJrEZg7iMP69K7Z21Dc=
+        b=bHBnmKL/AySjloMP3Y4tECs50M9+efQFOXPGXndCiYCGmjr3AC9MjDIhGcHLXsFJU
+         XdT9CJ6O1HK0F2fMPQ42pw0LvJpZnrRP81uqMgWXir+tyBlPJyd0QBN+1+fLFmijDV
+         7x9T96BPSh24QOcUrHIl1OAwLOf1y95VkvEQi5ZI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        Anand Jain <anand.jain@oracle.com>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0794/1017] btrfs: harden identification of a stale device
+        stable@vger.kernel.org, Chen Jingwen <chenjingwen6@huawei.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.17 0960/1126] powerpc/kasan: Fix early region not updated correctly
 Date:   Tue,  5 Apr 2022 09:28:27 +0200
-Message-Id: <20220405070417.820794180@linuxfoundation.org>
+Message-Id: <20220405070435.684837161@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,101 +54,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anand Jain <anand.jain@oracle.com>
+From: Chen Jingwen <chenjingwen6@huawei.com>
 
-[ Upstream commit 770c79fb65506fc7c16459855c3839429f46cb32 ]
+commit dd75080aa8409ce10d50fb58981c6b59bf8707d3 upstream.
 
-Identifying and removing the stale device from the fs_uuids list is done
-by btrfs_free_stale_devices().  btrfs_free_stale_devices() in turn
-depends on device_path_matched() to check if the device appears in more
-than one btrfs_device structure.
+The shadow's page table is not updated when PTE_RPN_SHIFT is 24
+and PAGE_SHIFT is 12. It not only causes false positives but
+also false negative as shown the following text.
 
-The matching of the device happens by its path, the device path. However,
-when device mapper is in use, the dm device paths are nothing but a link
-to the actual block device, which leads to the device_path_matched()
-failing to match.
+Fix it by bringing the logic of kasan_early_shadow_page_entry here.
 
-Fix this by matching the dev_t as provided by lookup_bdev() instead of
-plain string compare of the device paths.
+1. False Positive:
+==================================================================
+BUG: KASAN: vmalloc-out-of-bounds in pcpu_alloc+0x508/0xa50
+Write of size 16 at addr f57f3be0 by task swapper/0/1
 
-Reported-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Anand Jain <anand.jain@oracle.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.15.0-12267-gdebe436e77c7 #1
+Call Trace:
+[c80d1c20] [c07fe7b8] dump_stack_lvl+0x4c/0x6c (unreliable)
+[c80d1c40] [c02ff668] print_address_description.constprop.0+0x88/0x300
+[c80d1c70] [c02ff45c] kasan_report+0x1ec/0x200
+[c80d1cb0] [c0300b20] kasan_check_range+0x160/0x2f0
+[c80d1cc0] [c03018a4] memset+0x34/0x90
+[c80d1ce0] [c0280108] pcpu_alloc+0x508/0xa50
+[c80d1d40] [c02fd7bc] __kmem_cache_create+0xfc/0x570
+[c80d1d70] [c0283d64] kmem_cache_create_usercopy+0x274/0x3e0
+[c80d1db0] [c2036580] init_sd+0xc4/0x1d0
+[c80d1de0] [c00044a0] do_one_initcall+0xc0/0x33c
+[c80d1eb0] [c2001624] kernel_init_freeable+0x2c8/0x384
+[c80d1ef0] [c0004b14] kernel_init+0x24/0x170
+[c80d1f10] [c001b26c] ret_from_kernel_thread+0x5c/0x64
+
+Memory state around the buggy address:
+ f57f3a80: f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8
+ f57f3b00: f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8
+>f57f3b80: f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8
+                                               ^
+ f57f3c00: f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8
+ f57f3c80: f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8
+==================================================================
+
+2. False Negative (with KASAN tests):
+==================================================================
+Before fix:
+    ok 45 - kmalloc_double_kzfree
+    # vmalloc_oob: EXPECTATION FAILED at lib/test_kasan.c:1039
+    KASAN failure expected in "((volatile char *)area)[3100]", but none occurred
+    not ok 46 - vmalloc_oob
+    not ok 1 - kasan
+
+==================================================================
+After fix:
+    ok 1 - kasan
+
+Fixes: cbd18991e24fe ("powerpc/mm: Fix an Oops in kasan_mmu_init()")
+Cc: stable@vger.kernel.org # 5.4.x
+Signed-off-by: Chen Jingwen <chenjingwen6@huawei.com>
+Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20211229035226.59159-1-chenjingwen6@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/volumes.c | 45 ++++++++++++++++++++++++++++++++++++++-------
- 1 file changed, 38 insertions(+), 7 deletions(-)
+ arch/powerpc/mm/kasan/kasan_init_32.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/fs/btrfs/volumes.c b/fs/btrfs/volumes.c
-index 42391d4aeb11..02ee42d461be 100644
---- a/fs/btrfs/volumes.c
-+++ b/fs/btrfs/volumes.c
-@@ -530,15 +530,48 @@ btrfs_get_bdev_and_sb(const char *device_path, fmode_t flags, void *holder,
- 	return ret;
- }
- 
--static bool device_path_matched(const char *path, struct btrfs_device *device)
-+/*
-+ * Check if the device in the path matches the device in the given struct device.
-+ *
-+ * Returns:
-+ *   true  If it is the same device.
-+ *   false If it is not the same device or on error.
-+ */
-+static bool device_matched(const struct btrfs_device *device, const char *path)
+--- a/arch/powerpc/mm/kasan/kasan_init_32.c
++++ b/arch/powerpc/mm/kasan/kasan_init_32.c
+@@ -83,13 +83,12 @@ void __init
+ kasan_update_early_region(unsigned long k_start, unsigned long k_end, pte_t pte)
  {
--	int found;
-+	char *device_name;
-+	dev_t dev_old;
-+	dev_t dev_new;
-+	int ret;
-+
-+	/*
-+	 * If we are looking for a device with the matching dev_t, then skip
-+	 * device without a name (a missing device).
-+	 */
-+	if (!device->name)
-+		return false;
-+
-+	device_name = kzalloc(BTRFS_PATH_NAME_MAX, GFP_KERNEL);
-+	if (!device_name)
-+		return false;
+ 	unsigned long k_cur;
+-	phys_addr_t pa = __pa(kasan_early_shadow_page);
  
- 	rcu_read_lock();
--	found = strcmp(rcu_str_deref(device->name), path);
-+	scnprintf(device_name, BTRFS_PATH_NAME_MAX, "%s", rcu_str_deref(device->name));
- 	rcu_read_unlock();
+ 	for (k_cur = k_start; k_cur != k_end; k_cur += PAGE_SIZE) {
+ 		pmd_t *pmd = pmd_off_k(k_cur);
+ 		pte_t *ptep = pte_offset_kernel(pmd, k_cur);
  
--	return found == 0;
-+	ret = lookup_bdev(device_name, &dev_old);
-+	kfree(device_name);
-+	if (ret)
-+		return false;
-+
-+	ret = lookup_bdev(path, &dev_new);
-+	if (ret)
-+		return false;
-+
-+	if (dev_old == dev_new)
-+		return true;
-+
-+	return false;
- }
+-		if ((pte_val(*ptep) & PTE_RPN_MASK) != pa)
++		if (pte_page(*ptep) != virt_to_page(lm_alias(kasan_early_shadow_page)))
+ 			continue;
  
- /*
-@@ -571,9 +604,7 @@ static int btrfs_free_stale_devices(const char *path,
- 					 &fs_devices->devices, dev_list) {
- 			if (skip_device && skip_device == device)
- 				continue;
--			if (path && !device->name)
--				continue;
--			if (path && !device_path_matched(path, device))
-+			if (path && !device_matched(device, path))
- 				continue;
- 			if (fs_devices->opened) {
- 				/* for an already deleted device return 0 */
--- 
-2.34.1
-
+ 		__set_pte_at(&init_mm, k_cur, ptep, pte, 0);
 
 
