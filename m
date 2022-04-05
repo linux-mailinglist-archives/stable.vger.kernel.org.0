@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 64F634F31E0
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:46:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 76FFF4F3135
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:39:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355572AbiDEKUe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:20:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37840 "EHLO
+        id S237894AbiDEInb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:43:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58990 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346252AbiDEJXk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:23:40 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD8FBCA0E1;
-        Tue,  5 Apr 2022 02:13:13 -0700 (PDT)
+        with ESMTP id S241145AbiDEIcw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:32:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12E98F19;
+        Tue,  5 Apr 2022 01:28:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 15A5B61672;
-        Tue,  5 Apr 2022 09:13:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2388FC385A0;
-        Tue,  5 Apr 2022 09:13:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C1C70B81B18;
+        Tue,  5 Apr 2022 08:28:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F11EEC385A4;
+        Tue,  5 Apr 2022 08:28:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149992;
-        bh=SdJxWAh9cn5SWer6yPvtQ51y31r12iq2Iow3hSkJTFM=;
+        s=korg; t=1649147318;
+        bh=pXlaA9OMGP8WJ/kSu8kwlLxWk28p/wkhn0VdUYvIH2M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x4xoX4MfNcGpFt4FsZR2+5P2GJUmvS3Fnp5K7R9qusg+3G+WZRWlc90b6pbdd1iwN
-         96z1h82w2t38gjTp4f7/ieoLpy5X7pQQ9vThRnFQvh8x3jwdw6cbgoSUUZO/DgIjeI
-         wFJ26fHUVnOIwjwnEYKbqG+mKPiAGOAtCYV/224Y=
+        b=l2nYcSEz7aPrpWgUfyGzIYdWsVGBZ69HoKUG26M2Zh48PfFh0HwJbF84VM4kmtXbS
+         5iaYvFfJbizoFztZkJjY8uCe55clYyqmEPbb4MxI0HdcTRhxT/BoKHYX1uC/9boR6P
+         C2X8ZGRTXLLF2acYUBXcxFMAvSl6ZAiJ3MZPCAGw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chengsong Ke <kechengsong@huawei.com>,
-        Zhihao Cheng <chengzhihao1@huawei.com>,
-        Richard Weinberger <richard@nod.at>
-Subject: [PATCH 5.16 0914/1017] ubifs: Fix read out-of-bounds in ubifs_wbuf_write_nolock()
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Ben Dooks <ben-linux@fluff.org>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Alim Akhtar <alim.akhtar@samsung.com>,
+        linux-arm-kernel@lists.infradead.org,
+        linux-samsung-soc@vger.kernel.org, patches@armlinux.org.uk,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
+Subject: [PATCH 5.17 1080/1126] ARM: 9187/1: JIVE: fix return value of __setup handler
 Date:   Tue,  5 Apr 2022 09:30:27 +0200
-Message-Id: <20220405070421.351725476@linuxfoundation.org>
+Message-Id: <20220405070439.154726853@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,109 +58,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-commit 4f2262a334641e05f645364d5ade1f565c85f20b upstream.
+commit 8b2360c7157b462c4870d447d1e65d30ef31f9aa upstream.
 
-Function ubifs_wbuf_write_nolock() may access buf out of bounds in
-following process:
+__setup() handlers should return 1 to obsolete_checksetup() in
+init/main.c to indicate that the boot option has been handled.
+A return of 0 causes the boot option/value to be listed as an Unknown
+kernel parameter and added to init's (limited) argument or environment
+strings. Also, error return codes don't mean anything to
+obsolete_checksetup() -- only non-zero (usually 1) or zero.
+So return 1 from jive_mtdset().
 
-ubifs_wbuf_write_nolock():
-  aligned_len = ALIGN(len, 8);   // Assume len = 4089, aligned_len = 4096
-  if (aligned_len <= wbuf->avail) ... // Not satisfy
-  if (wbuf->used) {
-    ubifs_leb_write()  // Fill some data in avail wbuf
-    len -= wbuf->avail;   // len is still not 8-bytes aligned
-    aligned_len -= wbuf->avail;
-  }
-  n = aligned_len >> c->max_write_shift;
-  if (n) {
-    n <<= c->max_write_shift;
-    err = ubifs_leb_write(c, wbuf->lnum, buf + written,
-                          wbuf->offs, n);
-    // n > len, read out of bounds less than 8(n-len) bytes
-  }
-
-, which can be catched by KASAN:
-  =========================================================
-  BUG: KASAN: slab-out-of-bounds in ecc_sw_hamming_calculate+0x1dc/0x7d0
-  Read of size 4 at addr ffff888105594ff8 by task kworker/u8:4/128
-  Workqueue: writeback wb_workfn (flush-ubifs_0_0)
-  Call Trace:
-    kasan_report.cold+0x81/0x165
-    nand_write_page_swecc+0xa9/0x160
-    ubifs_leb_write+0xf2/0x1b0 [ubifs]
-    ubifs_wbuf_write_nolock+0x421/0x12c0 [ubifs]
-    write_head+0xdc/0x1c0 [ubifs]
-    ubifs_jnl_write_inode+0x627/0x960 [ubifs]
-    wb_workfn+0x8af/0xb80
-
-Function ubifs_wbuf_write_nolock() accepts that parameter 'len' is not 8
-bytes aligned, the 'len' represents the true length of buf (which is
-allocated in 'ubifs_jnl_xxx', eg. ubifs_jnl_write_inode), so
-ubifs_wbuf_write_nolock() must handle the length read from 'buf' carefully
-to write leb safely.
-
-Fetch a reproducer in [Link].
-
-Fixes: 1e51764a3c2ac0 ("UBIFS: add new flash file system")
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=214785
-Reported-by: Chengsong Ke <kechengsong@huawei.com>
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Fixes: 9db829f485c5 ("[ARM] JIVE: Initial machine support for Logitech Jive")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Ben Dooks <ben-linux@fluff.org>
+Cc: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: Alim Akhtar <alim.akhtar@samsung.com>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-samsung-soc@vger.kernel.org
+Cc: patches@armlinux.org.uk
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ubifs/io.c |   34 ++++++++++++++++++++++++++++++----
- 1 file changed, 30 insertions(+), 4 deletions(-)
+ arch/arm/mach-s3c/mach-jive.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/fs/ubifs/io.c
-+++ b/fs/ubifs/io.c
-@@ -833,16 +833,42 @@ int ubifs_wbuf_write_nolock(struct ubifs
- 	 */
- 	n = aligned_len >> c->max_write_shift;
- 	if (n) {
--		n <<= c->max_write_shift;
-+		int m = n - 1;
-+
- 		dbg_io("write %d bytes to LEB %d:%d", n, wbuf->lnum,
- 		       wbuf->offs);
--		err = ubifs_leb_write(c, wbuf->lnum, buf + written,
--				      wbuf->offs, n);
-+
-+		if (m) {
-+			/* '(n-1)<<c->max_write_shift < len' is always true. */
-+			m <<= c->max_write_shift;
-+			err = ubifs_leb_write(c, wbuf->lnum, buf + written,
-+					      wbuf->offs, m);
-+			if (err)
-+				goto out;
-+			wbuf->offs += m;
-+			aligned_len -= m;
-+			len -= m;
-+			written += m;
-+		}
-+
-+		/*
-+		 * The non-written len of buf may be less than 'n' because
-+		 * parameter 'len' is not 8 bytes aligned, so here we read
-+		 * min(len, n) bytes from buf.
-+		 */
-+		n = 1 << c->max_write_shift;
-+		memcpy(wbuf->buf, buf + written, min(len, n));
-+		if (n > len) {
-+			ubifs_assert(c, n - len < 8);
-+			ubifs_pad(c, wbuf->buf + len, n - len);
-+		}
-+
-+		err = ubifs_leb_write(c, wbuf->lnum, wbuf->buf, wbuf->offs, n);
- 		if (err)
- 			goto out;
- 		wbuf->offs += n;
- 		aligned_len -= n;
--		len -= n;
-+		len -= min(len, n);
- 		written += n;
+--- a/arch/arm/mach-s3c/mach-jive.c
++++ b/arch/arm/mach-s3c/mach-jive.c
+@@ -236,11 +236,11 @@ static int __init jive_mtdset(char *opti
+ 	unsigned long set;
+ 
+ 	if (options == NULL || options[0] == '\0')
+-		return 0;
++		return 1;
+ 
+ 	if (kstrtoul(options, 10, &set)) {
+ 		printk(KERN_ERR "failed to parse mtdset=%s\n", options);
+-		return 0;
++		return 1;
  	}
  
+ 	switch (set) {
+@@ -256,7 +256,7 @@ static int __init jive_mtdset(char *opti
+ 		       "using default.", set);
+ 	}
+ 
+-	return 0;
++	return 1;
+ }
+ 
+ /* parse the mtdset= option given to the kernel command line */
 
 
