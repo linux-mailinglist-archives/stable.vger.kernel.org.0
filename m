@@ -2,51 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 54F854F41B9
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:34:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B0E14F40B1
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:19:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354418AbiDEMWh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:22:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54354 "EHLO
+        id S1379317AbiDEMYH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:24:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39722 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344760AbiDEKkM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:40:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 247102C656;
-        Tue,  5 Apr 2022 03:25:18 -0700 (PDT)
+        with ESMTP id S1344780AbiDEKkN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:40:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5967D2CC84;
+        Tue,  5 Apr 2022 03:25:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B57CF61514;
-        Tue,  5 Apr 2022 10:25:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93349C385A0;
-        Tue,  5 Apr 2022 10:25:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 16995B81C8A;
+        Tue,  5 Apr 2022 10:25:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84E3AC385A0;
+        Tue,  5 Apr 2022 10:25:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649154317;
-        bh=NRI08BMC2mQMJAMCwOYu968Ay1sZqWVmKmribbWVRmc=;
+        s=korg; t=1649154319;
+        bh=kGwJY3ChgwKrJH3wgv8722md30dZcRAVn1RUxtVBoOk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J2R8z3JuWE8qgfRPOc9kmQfd5gb4AtE9kkhe+zdMfBWSROTnCFi1WgKn9LZAprkix
-         EZ4wi6X77/ww9EiZAgM9Aj3q8SoEEyz0S1t5+0IqJj1gCBoxpO1lulolPMsVWgpyja
-         OxBUcDeUaYdzQ8CJytBes6l3T6PMkmhXnzAHmYgg=
+        b=wPrLFDo6va+UOBGTou+gbJtKc/tn8kcERjz3GEKet6ksveNoU8GO5MSAp3pJ946+N
+         TG33vfmJkCzhypZPnpGMiD0ZrT7CLNJYH3ZXuyr26yDujhlpcAWSJnhoiYk7+ksbVk
+         fZcQji4MSIpwwZ8xc5mSNE/ZivyE40mQ+fBHgo5w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Baluta <daniel.baluta@nxp.com>,
-        Jaroslav Kysela <perex@perex.cz>,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Keyon Jie <yang.jie@linux.intel.com>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Rander Wang <rander.wang@intel.com>,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Takashi Iwai <tiwai@suse.com>,
-        sound-open-firmware@alsa-project.org, alsa-devel@alsa-project.org,
-        Peter Ujfalusi <peter.ujfalusi@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Ammar Faizi <ammarfaizi2@gnuweeb.org>
-Subject: [PATCH 5.10 537/599] ASoC: SOF: Intel: Fix NULL ptr dereference when ENOMEM
-Date:   Tue,  5 Apr 2022 09:33:51 +0200
-Message-Id: <20220405070314.821469619@linuxfoundation.org>
+        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
+        Richard Weinberger <richard@nod.at>
+Subject: [PATCH 5.10 538/599] ubifs: rename_whiteout: Fix double free for whiteout_ui->data
+Date:   Tue,  5 Apr 2022 09:33:52 +0200
+Message-Id: <20220405070314.852777176@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -64,108 +53,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ammar Faizi <ammarfaizi2@gnuweeb.org>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-commit b7fb0ae09009d076964afe4c1a2bde1ee2bd88a9 upstream.
+commit 40a8f0d5e7b3999f096570edab71c345da812e3e upstream.
 
-Do not call snd_dma_free_pages() when snd_dma_alloc_pages() returns
--ENOMEM because it leads to a NULL pointer dereference bug.
+'whiteout_ui->data' will be freed twice if space budget fail for
+rename whiteout operation as following process:
 
-The dmesg says:
+rename_whiteout
+  dev = kmalloc
+  whiteout_ui->data = dev
+  kfree(whiteout_ui->data)  // Free first time
+  iput(whiteout)
+    ubifs_free_inode
+      kfree(ui->data)	    // Double free!
 
-  [ T1387] sof-audio-pci-intel-tgl 0000:00:1f.3: error: memory alloc failed: -12
-  [ T1387] BUG: kernel NULL pointer dereference, address: 0000000000000000
-  [ T1387] #PF: supervisor read access in kernel mode
-  [ T1387] #PF: error_code(0x0000) - not-present page
-  [ T1387] PGD 0 P4D 0
-  [ T1387] Oops: 0000 [#1] PREEMPT SMP NOPTI
-  [ T1387] CPU: 6 PID: 1387 Comm: alsa-sink-HDA A Tainted: G        W         5.17.0-rc4-superb-owl-00055-g80d47f5de5e3
-  [ T1387] Hardware name: HP HP Laptop 14s-dq2xxx/87FD, BIOS F.15 09/15/2021
-  [ T1387] RIP: 0010:dma_free_noncontiguous+0x37/0x80
-  [ T1387] Code: [... snip ...]
-  [ T1387] RSP: 0000:ffffc90002b87770 EFLAGS: 00010246
-  [ T1387] RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
-  [ T1387] RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffff888101db30d0
-  [ T1387] RBP: 00000000fffffff4 R08: 0000000000000000 R09: 0000000000000000
-  [ T1387] R10: 0000000000000000 R11: ffffc90002b874d0 R12: 0000000000000001
-  [ T1387] R13: 0000000000058000 R14: ffff888105260c68 R15: ffff888105260828
-  [ T1387] FS:  00007f42e2ffd640(0000) GS:ffff888466b80000(0000) knlGS:0000000000000000
-  [ T1387] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  [ T1387] CR2: 0000000000000000 CR3: 000000014acf0003 CR4: 0000000000770ee0
-  [ T1387] PKRU: 55555554
-  [ T1387] Call Trace:
-  [ T1387]  <TASK>
-  [ T1387]  cl_stream_prepare+0x10a/0x120 [snd_sof_intel_hda_common 146addf995b9279ae7f509621078cccbe4f875e1]
-  [... snip ...]
-  [ T1387]  </TASK>
+KASAN reports:
+==================================================================
+BUG: KASAN: double-free or invalid-free in ubifs_free_inode+0x4f/0x70
+Call Trace:
+  kfree+0x117/0x490
+  ubifs_free_inode+0x4f/0x70 [ubifs]
+  i_callback+0x30/0x60
+  rcu_do_batch+0x366/0xac0
+  __do_softirq+0x133/0x57f
 
-Cc: Daniel Baluta <daniel.baluta@nxp.com>
-Cc: Jaroslav Kysela <perex@perex.cz>
-Cc: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Cc: Keyon Jie <yang.jie@linux.intel.com>
-Cc: Liam Girdwood <lgirdwood@gmail.com>
-Cc: Mark Brown <broonie@kernel.org>
-Cc: Rander Wang <rander.wang@intel.com>
-Cc: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Cc: Takashi Iwai <tiwai@suse.com>
-Cc: sound-open-firmware@alsa-project.org
-Cc: alsa-devel@alsa-project.org
-Cc: linux-kernel@vger.kernel.org
-Cc: stable@vger.kernel.org # v5.2+
-Fixes: d16046ffa6de040bf580a64d5f4d0aa18258a854 ("ASoC: SOF: Intel: Add Intel specific HDA firmware loader")
-Link: https://lore.kernel.org/lkml/20220224145124.15985-1-ammarfaizi2@gnuweeb.org/ # v1
-Link: https://lore.kernel.org/lkml/20220224180850.34592-1-ammarfaizi2@gnuweeb.org/ # v2
-Link: https://lore.kernel.org/lkml/20220224182818.40301-1-ammarfaizi2@gnuweeb.org/ # v3
-Reviewed-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Signed-off-by: Ammar Faizi <ammarfaizi2@gnuweeb.org>
-Link: https://lore.kernel.org/r/20220224185836.44907-1-ammarfaizi2@gnuweeb.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
-[ammarfaizi2: Backport to Linux 5.10 LTS]
-Signed-off-by: Ammar Faizi <ammarfaizi2@gnuweeb.org>
+Allocated by task 1506:
+  kmem_cache_alloc_trace+0x3c2/0x7a0
+  do_rename+0x9b7/0x1150 [ubifs]
+  ubifs_rename+0x106/0x1f0 [ubifs]
+  do_syscall_64+0x35/0x80
+
+Freed by task 1506:
+  kfree+0x117/0x490
+  do_rename.cold+0x53/0x8a [ubifs]
+  ubifs_rename+0x106/0x1f0 [ubifs]
+  do_syscall_64+0x35/0x80
+
+The buggy address belongs to the object at ffff88810238bed8 which
+belongs to the cache kmalloc-8 of size 8
+==================================================================
+
+Let ubifs_free_inode() free 'whiteout_ui->data'. BTW, delete unused
+assignment 'whiteout_ui->data_len = 0', process 'ubifs_evict_inode()
+-> ubifs_jnl_delete_inode() -> ubifs_jnl_write_inode()' doesn't need it
+(because 'inc_nlink(whiteout)' won't be excuted by 'goto out_release',
+ and the nlink of whiteout inode is 0).
+
+Fixes: 9e0a1fff8db56ea ("ubifs: Implement RENAME_WHITEOUT")
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/sof/intel/hda-loader.c |   11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ fs/ubifs/dir.c |    2 --
+ 1 file changed, 2 deletions(-)
 
---- a/sound/soc/sof/intel/hda-loader.c
-+++ b/sound/soc/sof/intel/hda-loader.c
-@@ -47,7 +47,7 @@ static struct hdac_ext_stream *cl_stream
- 	ret = snd_dma_alloc_pages(SNDRV_DMA_TYPE_DEV_SG, &pci->dev, size, dmab);
- 	if (ret < 0) {
- 		dev_err(sdev->dev, "error: memory alloc failed: %x\n", ret);
--		goto error;
-+		goto out_put;
- 	}
+--- a/fs/ubifs/dir.c
++++ b/fs/ubifs/dir.c
+@@ -1423,8 +1423,6 @@ static int do_rename(struct inode *old_d
  
- 	hstream->period_bytes = 0;/* initialize period_bytes */
-@@ -58,22 +58,23 @@ static struct hdac_ext_stream *cl_stream
- 		ret = hda_dsp_iccmax_stream_hw_params(sdev, dsp_stream, dmab, NULL);
- 		if (ret < 0) {
- 			dev_err(sdev->dev, "error: iccmax stream prepare failed: %x\n", ret);
--			goto error;
-+			goto out_free;
+ 		err = ubifs_budget_space(c, &wht_req);
+ 		if (err) {
+-			kfree(whiteout_ui->data);
+-			whiteout_ui->data_len = 0;
+ 			iput(whiteout);
+ 			goto out_release;
  		}
- 	} else {
- 		ret = hda_dsp_stream_hw_params(sdev, dsp_stream, dmab, NULL);
- 		if (ret < 0) {
- 			dev_err(sdev->dev, "error: hdac prepare failed: %x\n", ret);
--			goto error;
-+			goto out_free;
- 		}
- 		hda_dsp_stream_spib_config(sdev, dsp_stream, HDA_DSP_SPIB_ENABLE, size);
- 	}
- 
- 	return dsp_stream;
- 
--error:
--	hda_dsp_stream_put(sdev, direction, hstream->stream_tag);
-+out_free:
- 	snd_dma_free_pages(dmab);
-+out_put:
-+	hda_dsp_stream_put(sdev, direction, hstream->stream_tag);
- 	return ERR_PTR(ret);
- }
- 
 
 
