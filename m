@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 22ED34F3BEA
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:23:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD5ED4F38D7
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:37:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382178AbiDEMDY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:03:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58920 "EHLO
+        id S1377310AbiDEL2j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:28:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58038 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357976AbiDEK1h (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:27:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED799517E9;
-        Tue,  5 Apr 2022 03:12:02 -0700 (PDT)
+        with ESMTP id S1349819AbiDEJvl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:51:41 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5098A22284;
+        Tue,  5 Apr 2022 02:49:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A7C22B81C88;
-        Tue,  5 Apr 2022 10:12:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E01BC385A1;
-        Tue,  5 Apr 2022 10:11:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0D7B4B81B14;
+        Tue,  5 Apr 2022 09:49:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5338EC385A2;
+        Tue,  5 Apr 2022 09:49:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153520;
-        bh=JFyZZRADxfo9q+pfWdPtQ2PaP46k1OOMtNnAGLXwdyw=;
+        s=korg; t=1649152180;
+        bh=Gyix2CQ34Gq69PxjvLdjwTq82hEB1eQcP6V6TXWjEEk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ILiGCVJglfVwzitPKdszEfUPAlG+ne30GHUmQqnabYjvcTUWGpcq2Bxn4GV9JPhwU
-         M41oBNts5dn4LB9uqeq7bsOgpf4FsJuv7O+pftwFPTUM76DLHks6WFscGrVhOHikpS
-         2JztMlaqU37vHE95T8VYPO4DCqJX8hFiTe/pmf0c=
+        b=yN89FzAXwffcAxjDz+brsHj7sR6lPn1zdz8OFZiTWalbVt55Z+Kg6SoGOQcdS6flC
+         +AFTQD2sSt7b72h/VqXDDnrJSjle60os16EpMpr7XAVmT6IKgSX+wB+htNm4I0eSkx
+         yNMrZNMomAYdJ98356ajLtTZljhwrxG6s1r2xfRs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wang Wensheng <wangwensheng4@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Kai Ye <yekai13@huawei.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 252/599] ASoC: imx-es8328: Fix error return code in imx_es8328_probe()
+Subject: [PATCH 5.15 684/913] crypto: hisilicon/qm - cleanup warning in qm_vf_read_qos
 Date:   Tue,  5 Apr 2022 09:29:06 +0200
-Message-Id: <20220405070306.338606436@linuxfoundation.org>
+Message-Id: <20220405070400.337863588@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
-References: <20220405070258.802373272@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,34 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Wensheng <wangwensheng4@huawei.com>
+From: Kai Ye <yekai13@huawei.com>
 
-[ Upstream commit 3b891513f95cba3944e72c1139ea706d04f3781b ]
+[ Upstream commit 05b3bade290d6c940701f97f3233c07cfe27205d ]
 
-Fix to return a negative error code from the error handling case instead
-of 0, as done elsewhere in this function.
+The kernel test rebot report this warning: Uninitialized variable: ret.
+The code flow may return value of ret directly. This value is an
+uninitialized variable, here is fix it.
 
-Fixes: 7e7292dba215 ("ASoC: fsl: add imx-es8328 machine driver")
-Signed-off-by: Wang Wensheng <wangwensheng4@huawei.com>
-Link: https://lore.kernel.org/r/20220310091902.129299-1-wangwensheng4@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Kai Ye <yekai13@huawei.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/fsl/imx-es8328.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/crypto/hisilicon/qm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/fsl/imx-es8328.c b/sound/soc/fsl/imx-es8328.c
-index fad1eb6253d5..9e602c345619 100644
---- a/sound/soc/fsl/imx-es8328.c
-+++ b/sound/soc/fsl/imx-es8328.c
-@@ -87,6 +87,7 @@ static int imx_es8328_probe(struct platform_device *pdev)
- 	if (int_port > MUX_PORT_MAX || int_port == 0) {
- 		dev_err(dev, "mux-int-port: hardware only has %d mux ports\n",
- 			MUX_PORT_MAX);
-+		ret = -EINVAL;
- 		goto fail;
- 	}
+diff --git a/drivers/crypto/hisilicon/qm.c b/drivers/crypto/hisilicon/qm.c
+index ff1122153fbe..b616d2d8e773 100644
+--- a/drivers/crypto/hisilicon/qm.c
++++ b/drivers/crypto/hisilicon/qm.c
+@@ -4107,7 +4107,7 @@ static void qm_vf_get_qos(struct hisi_qm *qm, u32 fun_num)
+ static int qm_vf_read_qos(struct hisi_qm *qm)
+ {
+ 	int cnt = 0;
+-	int ret;
++	int ret = -EINVAL;
  
+ 	/* reset mailbox qos val */
+ 	qm->mb_qos = 0;
 -- 
 2.34.1
 
