@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 814D14F31BE
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:46:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AEF3D4F3103
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:36:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356088AbiDEKWy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:22:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44478 "EHLO
+        id S1356102AbiDEKW5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:22:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233741AbiDEJae (ORCPT
+        with ESMTP id S234094AbiDEJae (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:30:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4E71E388F;
-        Tue,  5 Apr 2022 02:17:18 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A966E388C;
+        Tue,  5 Apr 2022 02:17:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 45B2B615E5;
-        Tue,  5 Apr 2022 09:17:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50E94C385A2;
-        Tue,  5 Apr 2022 09:17:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E66F2615E4;
+        Tue,  5 Apr 2022 09:17:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 053B3C385A0;
+        Tue,  5 Apr 2022 09:17:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150237;
-        bh=+meF9PkKtpTanUbYRtKk8E3df2KpV2NIkMy3Tats4EA=;
+        s=korg; t=1649150240;
+        bh=2cT+2fN9BWDAbDMBdt2nyr/WEUKFueq/21+yNuMyO5Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hOACTtOCuXWmV+9lgCkEjgULsO57D8N8qx6GeSi7pYsGnpxNmapBQnm4qcOz06BjV
-         s+K9mcr7/UBMML0zYxT1sw9900tu0NXvipiWeV2kfYMfCE5ncVTTFwECTEX26YwE2m
-         5QrNyGrBy1QKpmHf3LAn7YqttwkHqz9qXJyEeTJU=
+        b=HAVTFq1+lq0LC0cyjqypNLXoNFR1MGfxa6RcLHTC/ZAf+XMIU3ZK5p94zoJd9c0CO
+         0HtrUKz7MfYmWUzDhmrd6uvLKW8MUxCagjfxHPT+plBc6sirhXAijKnoU8frqTXwON
+         TRFTC70x6n1kxM05/2cYgwF3n+RtLeqk+OF3s8W0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Will Deacon <will@kernel.org>
-Subject: [PATCH 5.16 0965/1017] arm64: mm: Drop const from conditional arm64_dma_phys_limit definition
-Date:   Tue,  5 Apr 2022 09:31:18 +0200
-Message-Id: <20220405070422.850997943@linuxfoundation.org>
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.16 0966/1017] ASoC: soc-compress: Change the check for codec_dai
+Date:   Tue,  5 Apr 2022 09:31:19 +0200
+Message-Id: <20220405070422.880179514@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -52,39 +56,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will@kernel.org>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-commit 770093459b9b333380aa71f2c31c60b14895c1df upstream.
+commit ccb4214f7f2a8b75acf493f31128e464ee1a3536 upstream.
 
-Commit 031495635b46 ("arm64: Do not defer reserve_crashkernel() for
-platforms with no DMA memory zones") introduced different definitions
-for 'arm64_dma_phys_limit' depending on CONFIG_ZONE_DMA{,32} based on
-a late suggestion from Pasha. Sadly, this results in a build error when
-passing W=1:
+It should be better to reverse the check on codec_dai
+and returned early in order to be easier to understand.
 
-  | arch/arm64/mm/init.c:90:19: error: conflicting type qualifiers for 'arm64_dma_phys_limit'
-
-Drop the 'const' for now and use '__ro_after_init' consistently.
-
-Link: https://lore.kernel.org/r/202203090241.aj7paWeX-lkp@intel.com
-Link: https://lore.kernel.org/r/CA+CK2bDbbx=8R=UthkMesWOST8eJMtOGJdfMRTFSwVmo0Vn0EA@mail.gmail.com
-Fixes: 031495635b46 ("arm64: Do not defer reserve_crashkernel() for platforms with no DMA memory zones")
-Signed-off-by: Will Deacon <will@kernel.org>
+Fixes: de2c6f98817f ("ASoC: soc-compress: prevent the potentially use of null pointer")
+Reported-by: kernel test robot <lkp@intel.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Reviewed-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20220310030041.1556323-1-jiasheng@iscas.ac.cn
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/mm/init.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/soc-compress.c |   19 +++++++++++--------
+ 1 file changed, 11 insertions(+), 8 deletions(-)
 
---- a/arch/arm64/mm/init.c
-+++ b/arch/arm64/mm/init.c
-@@ -87,7 +87,7 @@ EXPORT_SYMBOL(memstart_addr);
- #if IS_ENABLED(CONFIG_ZONE_DMA) || IS_ENABLED(CONFIG_ZONE_DMA32)
- phys_addr_t __ro_after_init arm64_dma_phys_limit;
- #else
--const phys_addr_t arm64_dma_phys_limit = PHYS_MASK + 1;
-+phys_addr_t __ro_after_init arm64_dma_phys_limit = PHYS_MASK + 1;
- #endif
+--- a/sound/soc/soc-compress.c
++++ b/sound/soc/soc-compress.c
+@@ -567,16 +567,19 @@ int snd_soc_new_compress(struct snd_soc_
+ 		return -EINVAL;
+ 	}
  
- #ifdef CONFIG_KEXEC_CORE
+-	/* check client and interface hw capabilities */
+-	if (codec_dai) {
+-		if (snd_soc_dai_stream_valid(codec_dai, SNDRV_PCM_STREAM_PLAYBACK) &&
+-		    snd_soc_dai_stream_valid(cpu_dai,   SNDRV_PCM_STREAM_PLAYBACK))
+-			playback = 1;
+-		if (snd_soc_dai_stream_valid(codec_dai, SNDRV_PCM_STREAM_CAPTURE) &&
+-		    snd_soc_dai_stream_valid(cpu_dai,   SNDRV_PCM_STREAM_CAPTURE))
+-			capture = 1;
++	if (!codec_dai) {
++		dev_err(rtd->card->dev, "Missing codec\n");
++		return -EINVAL;
+ 	}
+ 
++	/* check client and interface hw capabilities */
++	if (snd_soc_dai_stream_valid(codec_dai, SNDRV_PCM_STREAM_PLAYBACK) &&
++	    snd_soc_dai_stream_valid(cpu_dai,   SNDRV_PCM_STREAM_PLAYBACK))
++		playback = 1;
++	if (snd_soc_dai_stream_valid(codec_dai, SNDRV_PCM_STREAM_CAPTURE) &&
++	    snd_soc_dai_stream_valid(cpu_dai,   SNDRV_PCM_STREAM_CAPTURE))
++		capture = 1;
++
+ 	/*
+ 	 * Compress devices are unidirectional so only one of the directions
+ 	 * should be set, check for that (xor)
 
 
