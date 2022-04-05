@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D8EC4F2FEA
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:19:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C7CE14F2FCE
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:18:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241879AbiDEIfy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:35:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34812 "EHLO
+        id S242621AbiDEJho (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:37:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52158 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239280AbiDEIT5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:19:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A2C18020A;
-        Tue,  5 Apr 2022 01:10:51 -0700 (PDT)
+        with ESMTP id S236754AbiDEJDf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:03:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A72E110AF;
+        Tue,  5 Apr 2022 01:55:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B5B3F60B0E;
-        Tue,  5 Apr 2022 08:10:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB9C6C385A0;
-        Tue,  5 Apr 2022 08:10:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4294E61476;
+        Tue,  5 Apr 2022 08:55:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5303EC385A1;
+        Tue,  5 Apr 2022 08:55:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146250;
-        bh=FLjnvxz8s9HCbZ88y2UuuXe1fMhCc9/YAMzyiL3dHXY=;
+        s=korg; t=1649148924;
+        bh=0GaiB+fs3/r5BMqyaGf2qrj0KfNZbXWZmEmj9fOzrVs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SWpcHLX2tA/nFvJ705goaEVtqpq2ZfZtQHVDhVLJX0JenGAz+hErSYMpRqgY/1Rr/
-         jYkVBxUELYDq9Zw3Kndu965M16ocit3B96wDHKTBdJ0ZYRc+9VoM/pEjS6pQL4jCCt
-         JLddk6ghnMkEyviWZbzoOpy3Alt3uHrFeTNX3JSw=
+        b=cS8aYfGdE258eXBum2HFVmV5G67apVHhHzZsUbr1ib9FQEiFDAGzh8NvrrnV7cmLS
+         rf3IG+yuxnWWJtQQd3/Gh+CWu2CsWn5KtOZE4YUayWujv8li06E+zhpraHWduZ3+aJ
+         qKHrxRIOdjjnzk/0OnvUT5rODZF42PMOUQmNLaVM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Jos=C3=A9=20Roberto=20de=20Souza?= <jose.souza@intel.com>,
-        Matt Roper <matthew.d.roper@intel.com>,
-        Lucas De Marchi <lucas.demarchi@intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
+        stable@vger.kernel.org, John Garry <john.garry@huawei.com>,
+        Jack Wang <jinpu.wang@ionos.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0696/1126] drm/i915: Fix renamed struct field
+Subject: [PATCH 5.16 0530/1017] scsi: pm8001: Fix command initialization in pm80XX_send_read_log()
 Date:   Tue,  5 Apr 2022 09:24:03 +0200
-Message-Id: <20220405070428.039590417@linuxfoundation.org>
+Message-Id: <20220405070410.026316519@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,40 +56,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas De Marchi <lucas.demarchi@intel.com>
+From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 
-[ Upstream commit 00f4150d27d2c01eaeffe1091fc311a7c0872c69 ]
+[ Upstream commit 1a37b6738b58d86f6b144b3fc754ace0f2e0166d ]
 
-Earlier versions of commit a5b7ef27da60 ("drm/i915: Add struct to hold
-IP version") named "ver" as "arch" and then when it was renamed it
-missed the rename on MEDIA_VER_FULL() since it it's currently not used.
+Since the sata_cmd struct is zeroed out before its fields are initialized,
+there is no need for using "|=" to initialize the ncqtag_atap_dir_m
+field. Using a standard assignment removes the sparse warning:
 
-Fixes: a5b7ef27da60 ("drm/i915: Add struct to hold IP version")
-Cc: José Roberto de Souza <jose.souza@intel.com>
-Cc: Matt Roper <matthew.d.roper@intel.com>
-Signed-off-by: Lucas De Marchi <lucas.demarchi@intel.com>
-Reviewed-by: José Roberto de Souza <jose.souza@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220316234538.434357-1-lucas.demarchi@intel.com
-(cherry picked from commit b4ac33b973233dc08a56c8ef9d3c2edeab7a4370)
-Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+warning: invalid assignment: |=
+
+Also, since the ncqtag_atap_dir_m field has type __le32, use cpu_to_le32()
+to generate the assigned value.
+
+Link: https://lore.kernel.org/r/20220220031810.738362-5-damien.lemoal@opensource.wdc.com
+Fixes: c6b9ef5779c3 ("[SCSI] pm80xx: NCQ error handling changes")
+Reviewed-by: John Garry <john.garry@huawei.com>
+Reviewed-by: Jack Wang <jinpu.wang@ionos.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/i915_drv.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/pm8001/pm8001_hwi.c | 2 +-
+ drivers/scsi/pm8001/pm80xx_hwi.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/i915/i915_drv.h b/drivers/gpu/drm/i915/i915_drv.h
-index 0c70ab08fc0c..73efed2f30ca 100644
---- a/drivers/gpu/drm/i915/i915_drv.h
-+++ b/drivers/gpu/drm/i915/i915_drv.h
-@@ -1146,7 +1146,7 @@ static inline struct intel_gt *to_gt(struct drm_i915_private *i915)
- 	(GRAPHICS_VER(i915) >= (from) && GRAPHICS_VER(i915) <= (until))
+diff --git a/drivers/scsi/pm8001/pm8001_hwi.c b/drivers/scsi/pm8001/pm8001_hwi.c
+index 066290dd5756..f364495ab40e 100644
+--- a/drivers/scsi/pm8001/pm8001_hwi.c
++++ b/drivers/scsi/pm8001/pm8001_hwi.c
+@@ -1860,7 +1860,7 @@ static void pm8001_send_read_log(struct pm8001_hba_info *pm8001_ha,
  
- #define MEDIA_VER(i915)			(INTEL_INFO(i915)->media.ver)
--#define MEDIA_VER_FULL(i915)		IP_VER(INTEL_INFO(i915)->media.arch, \
-+#define MEDIA_VER_FULL(i915)		IP_VER(INTEL_INFO(i915)->media.ver, \
- 					       INTEL_INFO(i915)->media.rel)
- #define IS_MEDIA_VER(i915, from, until) \
- 	(MEDIA_VER(i915) >= (from) && MEDIA_VER(i915) <= (until))
+ 	sata_cmd.tag = cpu_to_le32(ccb_tag);
+ 	sata_cmd.device_id = cpu_to_le32(pm8001_ha_dev->device_id);
+-	sata_cmd.ncqtag_atap_dir_m |= ((0x1 << 7) | (0x5 << 9));
++	sata_cmd.ncqtag_atap_dir_m = cpu_to_le32((0x1 << 7) | (0x5 << 9));
+ 	memcpy(&sata_cmd.sata_fis, &fis, sizeof(struct host_to_dev_fis));
+ 
+ 	res = pm8001_mpi_build_cmd(pm8001_ha, circularQ, opc, &sata_cmd,
+diff --git a/drivers/scsi/pm8001/pm80xx_hwi.c b/drivers/scsi/pm8001/pm80xx_hwi.c
+index ca4820d99dc7..c56a726e1873 100644
+--- a/drivers/scsi/pm8001/pm80xx_hwi.c
++++ b/drivers/scsi/pm8001/pm80xx_hwi.c
+@@ -1881,7 +1881,7 @@ static void pm80xx_send_read_log(struct pm8001_hba_info *pm8001_ha,
+ 
+ 	sata_cmd.tag = cpu_to_le32(ccb_tag);
+ 	sata_cmd.device_id = cpu_to_le32(pm8001_ha_dev->device_id);
+-	sata_cmd.ncqtag_atap_dir_m_dad |= ((0x1 << 7) | (0x5 << 9));
++	sata_cmd.ncqtag_atap_dir_m_dad = cpu_to_le32(((0x1 << 7) | (0x5 << 9)));
+ 	memcpy(&sata_cmd.sata_fis, &fis, sizeof(struct host_to_dev_fis));
+ 
+ 	res = pm8001_mpi_build_cmd(pm8001_ha, circularQ, opc, &sata_cmd,
 -- 
 2.34.1
 
