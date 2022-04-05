@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DBBA4F3121
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:39:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 55AA14F3404
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:24:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245688AbiDEKjc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:39:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57274 "EHLO
+        id S238105AbiDEJEj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:04:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238743AbiDEJcp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:32:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CC7C2709;
-        Tue,  5 Apr 2022 02:19:59 -0700 (PDT)
+        with ESMTP id S243671AbiDEIuz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:50:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1653DF1;
+        Tue,  5 Apr 2022 01:39:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2921161654;
-        Tue,  5 Apr 2022 09:19:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E083C385A3;
-        Tue,  5 Apr 2022 09:19:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7BA6B61003;
+        Tue,  5 Apr 2022 08:39:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85637C385A0;
+        Tue,  5 Apr 2022 08:39:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150398;
-        bh=YUCc5UqSEUaFbLJxDPjS3UTbOuylShiOg0+98LUc49c=;
+        s=korg; t=1649147957;
+        bh=rxSC1Q8UZg6s7D6ZuFhMZ73XWIIqRVLONcnqQ9q8kC4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B99IpNuDbtcSg8RjORkuJmwcD1vKs3ECnJwn/mxUUMKovGZYuNnxk+loWGhcciYe4
-         wuhG+axQ7fcQNpQuPF5C/XQqKMZ++OVot4lrvGD5+ZKzXeKlfluD2Qt3mFXL5AoYYk
-         MkjeOL/gkdQvItuH5lGwOEw7NMDyhxjpluoXTlB8=
+        b=SmccdRGUXT24fzpCDrJd+vWQ5/b4OLMxFhYGistHAY1qLkzdbS7uwCPog7yrWp70G
+         XBw0Q4G1J+el8Lx/BBicY8GW6e1kp4/5yVCV2f5NcXDLfHGqqWOVwPVTBPplyN9Tkz
+         eeOj4EXnczGnb+4D3GnKm8VwE0opOXC5/2v6zFaU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+f8c45ccc7d5d45fc5965@syzkaller.appspotmail.com,
-        Muchun Song <songmuchun@bytedance.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Marco Elver <elver@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.15 006/913] mm: kfence: fix missing objcg housekeeping for SLAB
-Date:   Tue,  5 Apr 2022 09:17:48 +0200
-Message-Id: <20220405070340.002225263@linuxfoundation.org>
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Alim Akhtar <alim.akhtar@samsung.com>
+Subject: [PATCH 5.16 0156/1017] ARM: dts: exynos: fix UART3 pins configuration in Exynos5250
+Date:   Tue,  5 Apr 2022 09:17:49 +0200
+Message-Id: <20220405070358.845178264@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,43 +55,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Muchun Song <songmuchun@bytedance.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 
-commit ae085d7f9365de7da27ab5c0d16b12d51ea7fca9 upstream.
+commit 372d7027fed43c8570018e124cf78b89523a1f8e upstream.
 
-The objcg is not cleared and put for kfence object when it is freed,
-which could lead to memory leak for struct obj_cgroup and wrong
-statistics of NR_SLAB_RECLAIMABLE_B or NR_SLAB_UNRECLAIMABLE_B.
+The gpa1-4 pin was put twice in UART3 pin configuration of Exynos5250,
+instead of proper pin gpa1-5.
 
-Since the last freed object's objcg is not cleared,
-mem_cgroup_from_obj() could return the wrong memcg when this kfence
-object, which is not charged to any objcgs, is reallocated to other
-users.
-
-A real word issue [1] is caused by this bug.
-
-Link: https://lore.kernel.org/all/000000000000cabcb505dae9e577@google.com/ [1]
-Reported-by: syzbot+f8c45ccc7d5d45fc5965@syzkaller.appspotmail.com
-Fixes: d3fb45f370d9 ("mm, kfence: insert KFENCE hooks for SLAB")
-Signed-off-by: Muchun Song <songmuchun@bytedance.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Cc: Marco Elver <elver@google.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: f8bfe2b050f3 ("ARM: dts: add pin state information in client nodes for Exynos5 platforms")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Reviewed-by: Alim Akhtar <alim.akhtar@samsung.com>
+Link: https://lore.kernel.org/r/20211230195325.328220-1-krzysztof.kozlowski@canonical.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/slab.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/boot/dts/exynos5250-pinctrl.dtsi |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/mm/slab.c
-+++ b/mm/slab.c
-@@ -3429,6 +3429,7 @@ static __always_inline void __cache_free
+--- a/arch/arm/boot/dts/exynos5250-pinctrl.dtsi
++++ b/arch/arm/boot/dts/exynos5250-pinctrl.dtsi
+@@ -260,7 +260,7 @@
+ 	};
  
- 	if (is_kfence_address(objp)) {
- 		kmemleak_free_recursive(objp, cachep->flags);
-+		memcg_slab_free_hook(cachep, &objp, 1);
- 		__kfence_free(objp);
- 		return;
- 	}
+ 	uart3_data: uart3-data {
+-		samsung,pins = "gpa1-4", "gpa1-4";
++		samsung,pins = "gpa1-4", "gpa1-5";
+ 		samsung,pin-function = <EXYNOS_PIN_FUNC_2>;
+ 		samsung,pin-pud = <EXYNOS_PIN_PULL_NONE>;
+ 		samsung,pin-drv = <EXYNOS4_PIN_DRV_LV1>;
 
 
