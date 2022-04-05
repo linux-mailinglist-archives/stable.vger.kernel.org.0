@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 503E64F3830
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:31:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DF5B4F3B22
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:15:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376405AbiDELVv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:21:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39548 "EHLO
+        id S235247AbiDELu6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:50:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44238 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349415AbiDEJtt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:49 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88D631C920;
-        Tue,  5 Apr 2022 02:45:14 -0700 (PDT)
+        with ESMTP id S1356190AbiDEKXU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:23:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE8F7BAB81;
+        Tue,  5 Apr 2022 03:07:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4790DB817D3;
-        Tue,  5 Apr 2022 09:45:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 942C4C385A4;
-        Tue,  5 Apr 2022 09:45:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6AD9E6172B;
+        Tue,  5 Apr 2022 10:07:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72691C385A2;
+        Tue,  5 Apr 2022 10:07:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151912;
-        bh=07VNWO8H9YlwU0pqnXEKrNMaQkGMU5st7eEL9fMQ2pM=;
+        s=korg; t=1649153251;
+        bh=PCrH6URjmuB5guwZhaskUFJLccnRisVbZQOv3UYszQI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=icC7z32n4BrQfpi11GhCW8qAl8W7maThS6N/XqW1X9JDJgt7QSkMAMXssg8MpHr+j
-         FdyhnALdUwW4sPzX0ovLXGy6I+/u/EhjtIOgv6VWZwQTKQjDLAOqA/9h/mUxv/vg/+
-         1F/XPXCyhLaxMOUTMORl5q+N8wuAWX5mUeseVuOo=
+        b=Osjra9+o8VJYNUMxq45/7+qjwnTS+yR4Edj72KM1tNa0eILBGWaxsn08z7ndOThCe
+         GCjlvamcru7XH+NcjMGfXi29DOetpc5exdFHD9lc9qwB88WwTjbBHoVmEb+ohidzXT
+         2Z+PtZPATZl6Sj8u1sUJKrfwrlliz1Uf9QAzA4Pc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Libin Yang <libin.yang@intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Rander Wang <rander.wang@intel.com>,
-        Bard Liao <yung-chuan.liao@linux.intel.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 587/913] soundwire: intel: fix wrong register name in intel_shim_wake
+        stable@vger.kernel.org, Nicolai Stange <nstange@suse.de>,
+        Petr Vorel <pvorel@suse.cz>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 155/599] crypto: vmx - add missing dependencies
 Date:   Tue,  5 Apr 2022 09:27:29 +0200
-Message-Id: <20220405070357.439541450@linuxfoundation.org>
+Message-Id: <20220405070303.455481280@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070258.802373272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,39 +55,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Libin Yang <libin.yang@intel.com>
+From: Petr Vorel <pvorel@suse.cz>
 
-[ Upstream commit 3957db3ae3dae6f8b8168791f154567fe49e1fd7 ]
+[ Upstream commit 647d41d3952d726d4ae49e853a9eff68ebad3b3f ]
 
-When clearing the sdw wakests status, we should use SDW_SHIM_WAKESTS.
+vmx-crypto module depends on CRYPTO_AES, CRYPTO_CBC, CRYPTO_CTR or
+CRYPTO_XTS, thus add them.
 
-Fixes: 4a17c441c7cb ("soundwire: intel: revisit SHIM programming sequences.")
-Signed-off-by: Libin Yang <libin.yang@intel.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Rander Wang <rander.wang@intel.com>
-Signed-off-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Link: https://lore.kernel.org/r/20220126011451.27853-1-yung-chuan.liao@linux.intel.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+These dependencies are likely to be enabled, but if
+CRYPTO_DEV_VMX=y && !CRYPTO_MANAGER_DISABLE_TESTS
+and either of CRYPTO_AES, CRYPTO_CBC, CRYPTO_CTR or CRYPTO_XTS is built
+as module or disabled, alg_test() from crypto/testmgr.c complains during
+boot about failing to allocate the generic fallback implementations
+(2 == ENOENT):
+
+[    0.540953] Failed to allocate xts(aes) fallback: -2
+[    0.541014] alg: skcipher: failed to allocate transform for p8_aes_xts: -2
+[    0.541120] alg: self-tests for p8_aes_xts (xts(aes)) failed (rc=-2)
+[    0.544440] Failed to allocate ctr(aes) fallback: -2
+[    0.544497] alg: skcipher: failed to allocate transform for p8_aes_ctr: -2
+[    0.544603] alg: self-tests for p8_aes_ctr (ctr(aes)) failed (rc=-2)
+[    0.547992] Failed to allocate cbc(aes) fallback: -2
+[    0.548052] alg: skcipher: failed to allocate transform for p8_aes_cbc: -2
+[    0.548156] alg: self-tests for p8_aes_cbc (cbc(aes)) failed (rc=-2)
+[    0.550745] Failed to allocate transformation for 'aes': -2
+[    0.550801] alg: cipher: Failed to load transform for p8_aes: -2
+[    0.550892] alg: self-tests for p8_aes (aes) failed (rc=-2)
+
+Fixes: c07f5d3da643 ("crypto: vmx - Adding support for XTS")
+Fixes: d2e3ae6f3aba ("crypto: vmx - Enabling VMX module for PPC64")
+
+Suggested-by: Nicolai Stange <nstange@suse.de>
+Signed-off-by: Petr Vorel <pvorel@suse.cz>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soundwire/intel.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/crypto/vmx/Kconfig | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/soundwire/intel.c b/drivers/soundwire/intel.c
-index 78037ffdb09b..f72d36654ac2 100644
---- a/drivers/soundwire/intel.c
-+++ b/drivers/soundwire/intel.c
-@@ -448,8 +448,8 @@ static void intel_shim_wake(struct sdw_intel *sdw, bool wake_enable)
- 
- 		/* Clear wake status */
- 		wake_sts = intel_readw(shim, SDW_SHIM_WAKESTS);
--		wake_sts |= (SDW_SHIM_WAKEEN_ENABLE << link_id);
--		intel_writew(shim, SDW_SHIM_WAKESTS_STATUS, wake_sts);
-+		wake_sts |= (SDW_SHIM_WAKESTS_STATUS << link_id);
-+		intel_writew(shim, SDW_SHIM_WAKESTS, wake_sts);
- 	}
- 	mutex_unlock(sdw->link_res->shim_lock);
- }
+diff --git a/drivers/crypto/vmx/Kconfig b/drivers/crypto/vmx/Kconfig
+index c85fab7ef0bd..b2c28b87f14b 100644
+--- a/drivers/crypto/vmx/Kconfig
++++ b/drivers/crypto/vmx/Kconfig
+@@ -2,7 +2,11 @@
+ config CRYPTO_DEV_VMX_ENCRYPT
+ 	tristate "Encryption acceleration support on P8 CPU"
+ 	depends on CRYPTO_DEV_VMX
++	select CRYPTO_AES
++	select CRYPTO_CBC
++	select CRYPTO_CTR
+ 	select CRYPTO_GHASH
++	select CRYPTO_XTS
+ 	default m
+ 	help
+ 	  Support for VMX cryptographic acceleration instructions on Power8 CPU.
 -- 
 2.34.1
 
