@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 67A6E4F2C01
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:22:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB5514F2DA6
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:45:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242840AbiDEJiN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:38:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41500 "EHLO
+        id S242832AbiDEJiM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:38:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52778 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238332AbiDEJE5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:04:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EED3C2E0BF;
-        Tue,  5 Apr 2022 01:55:57 -0700 (PDT)
+        with ESMTP id S238413AbiDEJFD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:05:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01F772FE75;
+        Tue,  5 Apr 2022 01:55:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 010D3B81BAE;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 209C7614E4;
+        Tue,  5 Apr 2022 08:55:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A3F3C385A1;
         Tue,  5 Apr 2022 08:55:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 665B5C385A1;
-        Tue,  5 Apr 2022 08:55:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148954;
-        bh=ZWvgAqBtVuc4/CF/EAQd2akqIqkeQlbhlqYypL92EFA=;
+        s=korg; t=1649148957;
+        bh=kseVb9iJ6OvlNooBTvY7IHJklc5qGVwqkw1XALp37OQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aF2cVI5O+SFYiJIBlQi2ZlNYENLV14ACNQUD9PSnVDMTnPcHB3b2cQgz5QJGGtxaN
-         A7a2m0ugvl3YXZv2X9RpLlhTiDBxqBedEnI7UcnMLeByH+SRp928mElo4PJu0kTdqY
-         UQCPAgMKsBtiBJj/rT6gShj71FsMuytYpjvIaJcQ=
+        b=gZ+7/W8joFhwWZdR/hgjXDim5CiWEgTJhLrFPuMafS1gGOcrQxYk4kRwVVeIHl4Bu
+         ex0ZDVCXZG1HRgEptFL7PYzuCKBCoExF7oQ14qTcI2S9c0OXZ00Laqxs/yaF2OAl/m
+         XA+1BlKZMi5ZhD9EmIMJ355oefTkvPS3Br8FMqF8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Wang <sean.wang@mediatek.com>,
-        Leon Yen <Leon.Yen@mediatek.com>,
-        Deren Wu <deren.wu@mediatek.com>,
-        Lorenzo Bianconi <lorenzo@kernel.org>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0540/1017] mt76: mt7921s: fix missing fc type/sub-type for 802.11 pkts
-Date:   Tue,  5 Apr 2022 09:24:13 +0200
-Message-Id: <20220405070410.318118777@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Luiz Angelo Daros de Luca <luizluca@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0541/1017] net: dsa: realtek-smi: fix kdoc warnings
+Date:   Tue,  5 Apr 2022 09:24:14 +0200
+Message-Id: <20220405070410.347730704@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -56,62 +55,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Deren Wu <deren.wu@mediatek.com>
+From: Luiz Angelo Daros de Luca <luizluca@gmail.com>
 
-[ Upstream commit 355c060d5f38a784822d544e969121a273bcf545 ]
+[ Upstream commit 0f0c6da03ba37739901ca5db4361c1ef1ae9463f ]
 
-For non-mmio devices, should set fc values to proper txwi config
+Removed kdoc mark for incomplete struct description.
+Added a return description for rtl8366rb_drop_untagged.
 
-Fixes: 48fab5bbef40 ("mt76: mt7921: introduce mt7921s support")
-Tested-by: Sean Wang <sean.wang@mediatek.com>
-Co-developed-by: Leon Yen <Leon.Yen@mediatek.com>
-Signed-off-by: Leon Yen <Leon.Yen@mediatek.com>
-Signed-off-by: Deren Wu <deren.wu@mediatek.com>
-Acked-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Signed-off-by: Luiz Angelo Daros de Luca <luizluca@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt7921/mac.c | 12 +++++++++---
- drivers/net/wireless/mediatek/mt76/mt7921/mac.h |  3 +++
- 2 files changed, 12 insertions(+), 3 deletions(-)
+ drivers/net/dsa/realtek-smi-core.h | 4 ++--
+ drivers/net/dsa/rtl8366rb.c        | 2 ++
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/mac.c b/drivers/net/wireless/mediatek/mt76/mt7921/mac.c
-index ea5ae0fc8f54..57fd626b40da 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7921/mac.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7921/mac.c
-@@ -836,9 +836,15 @@ mt7921_mac_write_txwi_80211(struct mt7921_dev *dev, __le32 *txwi,
- 		txwi[3] |= cpu_to_le32(val);
- 	}
+diff --git a/drivers/net/dsa/realtek-smi-core.h b/drivers/net/dsa/realtek-smi-core.h
+index 5bfa53e2480a..faed387d8db3 100644
+--- a/drivers/net/dsa/realtek-smi-core.h
++++ b/drivers/net/dsa/realtek-smi-core.h
+@@ -25,7 +25,7 @@ struct rtl8366_mib_counter {
+ 	const char	*name;
+ };
  
--	val = FIELD_PREP(MT_TXD7_TYPE, fc_type) |
--	      FIELD_PREP(MT_TXD7_SUB_TYPE, fc_stype);
--	txwi[7] |= cpu_to_le32(val);
-+	if (mt76_is_mmio(&dev->mt76)) {
-+		val = FIELD_PREP(MT_TXD7_TYPE, fc_type) |
-+		      FIELD_PREP(MT_TXD7_SUB_TYPE, fc_stype);
-+		txwi[7] |= cpu_to_le32(val);
-+	} else {
-+		val = FIELD_PREP(MT_TXD8_L_TYPE, fc_type) |
-+		      FIELD_PREP(MT_TXD8_L_SUB_TYPE, fc_stype);
-+		txwi[8] |= cpu_to_le32(val);
-+	}
- }
+-/**
++/*
+  * struct rtl8366_vlan_mc - Virtual LAN member configuration
+  */
+ struct rtl8366_vlan_mc {
+@@ -74,7 +74,7 @@ struct realtek_smi {
+ 	void			*chip_data; /* Per-chip extra variant data */
+ };
  
- void mt7921_mac_write_txwi(struct mt7921_dev *dev, __le32 *txwi,
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/mac.h b/drivers/net/wireless/mediatek/mt76/mt7921/mac.h
-index 544a1c33126a..12e1cf8abe6e 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7921/mac.h
-+++ b/drivers/net/wireless/mediatek/mt76/mt7921/mac.h
-@@ -284,6 +284,9 @@ enum tx_mcu_port_q_idx {
- #define MT_TXD7_HW_AMSDU		BIT(10)
- #define MT_TXD7_TX_TIME			GENMASK(9, 0)
- 
-+#define MT_TXD8_L_TYPE			GENMASK(5, 4)
-+#define MT_TXD8_L_SUB_TYPE		GENMASK(3, 0)
-+
- #define MT_TX_RATE_STBC			BIT(13)
- #define MT_TX_RATE_NSS			GENMASK(12, 10)
- #define MT_TX_RATE_MODE			GENMASK(9, 6)
+-/**
++/*
+  * struct realtek_smi_ops - vtable for the per-SMI-chiptype operations
+  * @detect: detects the chiptype
+  */
+diff --git a/drivers/net/dsa/rtl8366rb.c b/drivers/net/dsa/rtl8366rb.c
+index 03deacd83e61..2a523a33529b 100644
+--- a/drivers/net/dsa/rtl8366rb.c
++++ b/drivers/net/dsa/rtl8366rb.c
+@@ -1251,6 +1251,8 @@ rtl8366rb_port_bridge_leave(struct dsa_switch *ds, int port,
+  * @smi: SMI state container
+  * @port: the port to drop untagged and C-tagged frames on
+  * @drop: whether to drop or pass untagged and C-tagged frames
++ *
++ * Return: zero for success, a negative number on error.
+  */
+ static int rtl8366rb_drop_untagged(struct realtek_smi *smi, int port, bool drop)
+ {
 -- 
 2.34.1
 
