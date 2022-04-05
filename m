@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 78C674F3429
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:25:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D4524F336C
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:16:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241746AbiDEKcB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:32:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38508 "EHLO
+        id S1347631AbiDEJ1z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:27:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239503AbiDEJdj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:33:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B80284DF76;
-        Tue,  5 Apr 2022 02:22:17 -0700 (PDT)
+        with ESMTP id S244693AbiDEIwe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:34 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01690D8F4E;
+        Tue,  5 Apr 2022 01:42:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 539C661645;
-        Tue,  5 Apr 2022 09:22:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F4F7C385A3;
-        Tue,  5 Apr 2022 09:22:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8B1F1B81C15;
+        Tue,  5 Apr 2022 08:42:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6CB0C385A1;
+        Tue,  5 Apr 2022 08:42:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150536;
-        bh=+fd6IcVV3sVSyDeoS5cMLPM/fvYGvsOrG+EQ72qtiCs=;
+        s=korg; t=1649148122;
+        bh=bgJm6wH0LQOptKnK7GXaPPAhDXn78DplyNlwQZkCo08=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p0BuOOHrrG4BlKzoCZq7IT1qutn6Ix2aWLW8VqZSFcrTXI2Wu894sRlBjbOdgGSt8
-         jsPTRGpZNMJ3DIAw4iK2khgMbEuiAd9EMwZPJCUKd5mxX79ECmtEXJWIvuiaJ4Cy1G
-         x6ENdqqo1bDDlFCiAMn+oMDqhKPb8ppzelBL3EEE=
+        b=ThAiFEGcpxZFgDgk7K5QyAmRfLQ+bs1BBNyA0z82tZPtWHz39VTWuzisUNDyXJWAo
+         fr4M7jBOm2pqJCbLfcgH3miuhlpmusBNSSoPZoJ+fK4mcY2YPSrnP25EyaTp+pAf7J
+         m6Ei8yUXujmF7HhRk35hiXyXPhZVU1zdhUjZzKTk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Manish Chopra <manishc@marvell.com>,
-        Ariel Elior <aelior@marvell.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.15 092/913] qed: validate and restrict untrusted VFs vlan promisc mode
-Date:   Tue,  5 Apr 2022 09:19:14 +0200
-Message-Id: <20220405070342.581550961@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Sam Protsenko <semen.protsenko@linaro.org>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0242/1017] clocksource/drivers/exynos_mct: Refactor resources allocation
+Date:   Tue,  5 Apr 2022 09:19:15 +0200
+Message-Id: <20220405070401.441469213@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,108 +58,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manish Chopra <manishc@marvell.com>
+From: Marek Szyprowski <m.szyprowski@samsung.com>
 
-commit cbcc44db2cf7b836896733acc0e5ea966136ed22 upstream.
+[ Upstream commit 7cd925a8823d16de5614d3f0aabea9948747accd ]
 
-Today when VFs are put in promiscuous mode, they can request PF
-to configure device for them to receive all VLANs traffic regardless
-of what vlan is configured by the PF (via ip link) and PF allows this
-config request regardless of whether VF is trusted or not.
+Move interrupts allocation from exynos4_timer_resources() into separate
+function together with the interrupt number parsing code from
+mct_init_dt(), so the code for managing interrupts is kept together.
+While touching exynos4_timer_resources() function, move of_iomap() to it.
+No functional changes.
 
->From security POV, when VLAN is configured for VF through PF (via ip link),
-honour such config requests from VF only when they are configured to be
-trusted, otherwise restrict such VFs vlan promisc mode config.
-
-Cc: stable@vger.kernel.org
-Fixes: f990c82c385b ("qed*: Add support for ndo_set_vf_trust")
-Signed-off-by: Manish Chopra <manishc@marvell.com>
-Signed-off-by: Ariel Elior <aelior@marvell.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Reviewed-by: Chanwoo Choi <cw00.choi@samsung.com>
+Tested-by: Chanwoo Choi <cw00.choi@samsung.com>
+Reviewed-by: Krzysztof Kozlowski <krzk@kernel.org>
+Signed-off-by: Sam Protsenko <semen.protsenko@linaro.org>
+Link: https://lore.kernel.org/r/20211101193531.15078-2-semen.protsenko@linaro.org
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qed/qed_sriov.c |   28 ++++++++++++++++++++++++++--
- drivers/net/ethernet/qlogic/qed/qed_sriov.h |    1 +
- 2 files changed, 27 insertions(+), 2 deletions(-)
+ drivers/clocksource/exynos_mct.c | 50 +++++++++++++++++++-------------
+ 1 file changed, 30 insertions(+), 20 deletions(-)
 
---- a/drivers/net/ethernet/qlogic/qed/qed_sriov.c
-+++ b/drivers/net/ethernet/qlogic/qed/qed_sriov.c
-@@ -2982,12 +2982,16 @@ static int qed_iov_pre_update_vport(stru
- 	u8 mask = QED_ACCEPT_UCAST_UNMATCHED | QED_ACCEPT_MCAST_UNMATCHED;
- 	struct qed_filter_accept_flags *flags = &params->accept_flags;
- 	struct qed_public_vf_info *vf_info;
-+	u16 tlv_mask;
-+
-+	tlv_mask = BIT(QED_IOV_VP_UPDATE_ACCEPT_PARAM) |
-+		   BIT(QED_IOV_VP_UPDATE_ACCEPT_ANY_VLAN);
- 
- 	/* Untrusted VFs can't even be trusted to know that fact.
- 	 * Simply indicate everything is configured fine, and trace
- 	 * configuration 'behind their back'.
- 	 */
--	if (!(*tlvs & BIT(QED_IOV_VP_UPDATE_ACCEPT_PARAM)))
-+	if (!(*tlvs & tlv_mask))
- 		return 0;
- 
- 	vf_info = qed_iov_get_public_vf_info(hwfn, vfid, true);
-@@ -3004,6 +3008,13 @@ static int qed_iov_pre_update_vport(stru
- 			flags->tx_accept_filter &= ~mask;
- 	}
- 
-+	if (params->update_accept_any_vlan_flg) {
-+		vf_info->accept_any_vlan = params->accept_any_vlan;
-+
-+		if (vf_info->forced_vlan && !vf_info->is_trusted_configured)
-+			params->accept_any_vlan = false;
-+	}
-+
+diff --git a/drivers/clocksource/exynos_mct.c b/drivers/clocksource/exynos_mct.c
+index 5e3e96d3d1b9..857cf12ebe57 100644
+--- a/drivers/clocksource/exynos_mct.c
++++ b/drivers/clocksource/exynos_mct.c
+@@ -504,11 +504,14 @@ static int exynos4_mct_dying_cpu(unsigned int cpu)
  	return 0;
  }
  
-@@ -5122,6 +5133,12 @@ static void qed_iov_handle_trust_change(
+-static int __init exynos4_timer_resources(struct device_node *np, void __iomem *base)
++static int __init exynos4_timer_resources(struct device_node *np)
+ {
+-	int err, cpu;
+ 	struct clk *mct_clk, *tick_clk;
  
- 		params.update_ctl_frame_check = 1;
- 		params.mac_chk_en = !vf_info->is_trusted_configured;
-+		params.update_accept_any_vlan_flg = 0;
++	reg_base = of_iomap(np, 0);
++	if (!reg_base)
++		panic("%s: unable to ioremap mct address space\n", __func__);
 +
-+		if (vf_info->accept_any_vlan && vf_info->forced_vlan) {
-+			params.update_accept_any_vlan_flg = 1;
-+			params.accept_any_vlan = vf_info->accept_any_vlan;
-+		}
+ 	tick_clk = of_clk_get_by_name(np, "fin_pll");
+ 	if (IS_ERR(tick_clk))
+ 		panic("%s: unable to determine tick clock rate\n", __func__);
+@@ -519,9 +522,27 @@ static int __init exynos4_timer_resources(struct device_node *np, void __iomem *
+ 		panic("%s: unable to retrieve mct clock instance\n", __func__);
+ 	clk_prepare_enable(mct_clk);
  
- 		if (vf_info->rx_accept_mode & mask) {
- 			flags->update_rx_mode_config = 1;
-@@ -5137,13 +5154,20 @@ static void qed_iov_handle_trust_change(
- 		if (!vf_info->is_trusted_configured) {
- 			flags->rx_accept_filter &= ~mask;
- 			flags->tx_accept_filter &= ~mask;
-+			params.accept_any_vlan = false;
- 		}
+-	reg_base = base;
+-	if (!reg_base)
+-		panic("%s: unable to ioremap mct address space\n", __func__);
++	return 0;
++}
++
++static int __init exynos4_timer_interrupts(struct device_node *np,
++					   unsigned int int_type)
++{
++	int nr_irqs, i, err, cpu;
++
++	mct_int_type = int_type;
++
++	/* This driver uses only one global timer interrupt */
++	mct_irqs[MCT_G0_IRQ] = irq_of_parse_and_map(np, MCT_G0_IRQ);
++
++	/*
++	 * Find out the number of local irqs specified. The local
++	 * timer irqs are specified after the four global timer
++	 * irqs are specified.
++	 */
++	nr_irqs = of_irq_count(np);
++	for (i = MCT_L0_IRQ; i < nr_irqs; i++)
++		mct_irqs[i] = irq_of_parse_and_map(np, i);
  
- 		if (flags->update_rx_mode_config ||
- 		    flags->update_tx_mode_config ||
--		    params.update_ctl_frame_check)
-+		    params.update_ctl_frame_check ||
-+		    params.update_accept_any_vlan_flg) {
-+			DP_VERBOSE(hwfn, QED_MSG_IOV,
-+				   "vport update config for %s VF[abs 0x%x rel 0x%x]\n",
-+				   vf_info->is_trusted_configured ? "trusted" : "untrusted",
-+				   vf->abs_vf_id, vf->relative_vf_id);
- 			qed_sp_vport_update(hwfn, &params,
- 					    QED_SPQ_MODE_EBLOCK, NULL);
-+		}
- 	}
- }
+ 	if (mct_int_type == MCT_INT_PPI) {
  
---- a/drivers/net/ethernet/qlogic/qed/qed_sriov.h
-+++ b/drivers/net/ethernet/qlogic/qed/qed_sriov.h
-@@ -62,6 +62,7 @@ struct qed_public_vf_info {
- 	bool is_trusted_request;
- 	u8 rx_accept_mode;
- 	u8 tx_accept_mode;
-+	bool accept_any_vlan;
- };
+@@ -581,24 +602,13 @@ static int __init exynos4_timer_resources(struct device_node *np, void __iomem *
  
- struct qed_iov_vf_init_params {
+ static int __init mct_init_dt(struct device_node *np, unsigned int int_type)
+ {
+-	u32 nr_irqs, i;
+ 	int ret;
+ 
+-	mct_int_type = int_type;
+-
+-	/* This driver uses only one global timer interrupt */
+-	mct_irqs[MCT_G0_IRQ] = irq_of_parse_and_map(np, MCT_G0_IRQ);
+-
+-	/*
+-	 * Find out the number of local irqs specified. The local
+-	 * timer irqs are specified after the four global timer
+-	 * irqs are specified.
+-	 */
+-	nr_irqs = of_irq_count(np);
+-	for (i = MCT_L0_IRQ; i < nr_irqs; i++)
+-		mct_irqs[i] = irq_of_parse_and_map(np, i);
++	ret = exynos4_timer_resources(np);
++	if (ret)
++		return ret;
+ 
+-	ret = exynos4_timer_resources(np, of_iomap(np, 0));
++	ret = exynos4_timer_interrupts(np, int_type);
+ 	if (ret)
+ 		return ret;
+ 
+-- 
+2.34.1
+
 
 
