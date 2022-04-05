@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1776C4F3998
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:50:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC23A4F3C2B
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:24:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244499AbiDELgD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:36:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35054 "EHLO
+        id S239607AbiDEMFc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:05:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58278 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353360AbiDEKGC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:06:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4E14BF523;
-        Tue,  5 Apr 2022 02:54:49 -0700 (PDT)
+        with ESMTP id S1358237AbiDEK2K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:28:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB1BE26F7;
+        Tue,  5 Apr 2022 03:17:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 701EEB818F3;
-        Tue,  5 Apr 2022 09:54:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D315CC385A1;
-        Tue,  5 Apr 2022 09:54:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 88D9961777;
+        Tue,  5 Apr 2022 10:17:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FEACC385A0;
+        Tue,  5 Apr 2022 10:17:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152487;
-        bh=BAenPI3zniYQ1aDVr0sckXD6pqxgQvsfzeAhizKzmqo=;
+        s=korg; t=1649153839;
+        bh=4pqGxkskrWE83X7/O4wtvxnLKOLOnMpMjiOgycSXnrY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iqTozbOuTRE0Cfa8183oCmOO+g5th4prOSniKTHBl4vFugZ+MEoe9U50f0znPU0Ll
-         30tu7Dxq4Cs/l6/XndMuVqpwWHN/jaIGx4Ju+YltKatvQHIIZS54yt4kbxkzb/UIaF
-         KWYJiNqsqEBAsrAMwLHfUCyTVzPH/MsrPpcxiug8=
+        b=mjz33JUEOOpXn7e5jTI/4DLfUU+xRvJNkXlJ0LK3GeIh5ro7fAN5rlDyySVEdtoh5
+         DeQtra9AGg/hJUjRlysqTgZcxrTC4I0Xj5nnN46P93dWr/ejRPclDglJkqgNML5vbD
+         ORvvVJ/TbUG/N9PtC7aejJ1FhrleziUaee29MNt0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Arun Easi <aeasi@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.15 795/913] scsi: qla2xxx: Fix device reconnect in loop topology
+        stable@vger.kernel.org, Jianlin Shi <jishi@redhat.com>,
+        Hangbin Liu <liuhangbin@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 363/599] bareudp: use ipv6_mod_enabled to check if IPv6 enabled
 Date:   Tue,  5 Apr 2022 09:30:57 +0200
-Message-Id: <20220405070403.663121467@linuxfoundation.org>
+Message-Id: <20220405070309.633052193@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070258.802373272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,78 +55,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arun Easi <aeasi@marvell.com>
+From: Hangbin Liu <liuhangbin@gmail.com>
 
-commit 8ad4be3d15cf144b5834bdb00d5bbe4050938dc7 upstream.
+[ Upstream commit e077ed58c243afc197bc2a2ba0e1ff61135e4ec2 ]
 
-A device logout in loop topology initiates a device connection teardown
-which loses the FW device handle. In loop topo, the device handle is not
-regrabbed leading to device login failures and eventually to loss of the
-device. Fix this by taking the main login path that does it.
+bareudp_create_sock() use AF_INET6 by default if IPv6 CONFIG enabled.
+But if user start kernel with ipv6.disable=1, the bareudp sock will
+created failed, which cause the interface open failed even with ethertype
+ip. e.g.
 
-Link: https://lore.kernel.org/r/20220110050218.3958-11-njavali@marvell.com
-Cc: stable@vger.kernel.org
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Arun Easi <aeasi@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+ # ip link add bareudp1 type bareudp dstport 2 ethertype ip
+ # ip link set bareudp1 up
+ RTNETLINK answers: Address family not supported by protocol
+
+Fix it by using ipv6_mod_enabled() to check if IPv6 enabled. There is
+no need to check IS_ENABLED(CONFIG_IPV6) as ipv6_mod_enabled() will
+return false when CONFIG_IPV6 no enabled in include/linux/ipv6.h.
+
+Reported-by: Jianlin Shi <jishi@redhat.com>
+Fixes: 571912c69f0e ("net: UDP tunnel encapsulation module for tunnelling different protocols like MPLS, IP, NSH etc.")
+Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
+Link: https://lore.kernel.org/r/20220315062618.156230-1-liuhangbin@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_init.c |   15 +++++++++++++++
- drivers/scsi/qla2xxx/qla_os.c   |    5 +++++
- 2 files changed, 20 insertions(+)
+ drivers/net/bareudp.c |   19 ++++++++++---------
+ 1 file changed, 10 insertions(+), 9 deletions(-)
 
---- a/drivers/scsi/qla2xxx/qla_init.c
-+++ b/drivers/scsi/qla2xxx/qla_init.c
-@@ -975,6 +975,9 @@ static void qla24xx_handle_gnl_done_even
- 				set_bit(RELOGIN_NEEDED, &vha->dpc_flags);
- 			}
- 			break;
-+		case ISP_CFG_NL:
-+			qla24xx_fcport_handle_login(vha, fcport);
-+			break;
- 		default:
- 			break;
- 		}
-@@ -1564,6 +1567,11 @@ static void qla_chk_n2n_b4_login(struct
- 	u8 login = 0;
- 	int rc;
+--- a/drivers/net/bareudp.c
++++ b/drivers/net/bareudp.c
+@@ -140,14 +140,14 @@ static int bareudp_udp_encap_recv(struct
+ 	oiph = skb_network_header(skb);
+ 	skb_reset_network_header(skb);
  
-+	ql_dbg(ql_dbg_disc, vha, 0x307b,
-+	    "%s %8phC DS %d LS %d lid %d retries=%d\n",
-+	    __func__, fcport->port_name, fcport->disc_state,
-+	    fcport->fw_login_state, fcport->loop_id, fcport->login_retry);
+-	if (!IS_ENABLED(CONFIG_IPV6) || family == AF_INET)
++	if (!ipv6_mod_enabled() || family == AF_INET)
+ 		err = IP_ECN_decapsulate(oiph, skb);
+ 	else
+ 		err = IP6_ECN_decapsulate(oiph, skb);
+ 
+ 	if (unlikely(err)) {
+ 		if (log_ecn_error) {
+-			if  (!IS_ENABLED(CONFIG_IPV6) || family == AF_INET)
++			if  (!ipv6_mod_enabled() || family == AF_INET)
+ 				net_info_ratelimited("non-ECT from %pI4 "
+ 						     "with TOS=%#x\n",
+ 						     &((struct iphdr *)oiph)->saddr,
+@@ -213,11 +213,12 @@ static struct socket *bareudp_create_soc
+ 	int err;
+ 
+ 	memset(&udp_conf, 0, sizeof(udp_conf));
+-#if IS_ENABLED(CONFIG_IPV6)
+-	udp_conf.family = AF_INET6;
+-#else
+-	udp_conf.family = AF_INET;
+-#endif
 +
- 	if (qla_tgt_mode_enabled(vha))
- 		return;
++	if (ipv6_mod_enabled())
++		udp_conf.family = AF_INET6;
++	else
++		udp_conf.family = AF_INET;
++
+ 	udp_conf.local_udp_port = port;
+ 	/* Open UDP socket */
+ 	err = udp_sock_create(net, &udp_conf, &sock);
+@@ -439,7 +440,7 @@ static netdev_tx_t bareudp_xmit(struct s
+ 	}
  
-@@ -5586,6 +5594,13 @@ qla2x00_configure_local_loop(scsi_qla_ho
- 			memcpy(fcport->node_name, new_fcport->node_name,
- 			    WWN_SIZE);
- 			fcport->scan_state = QLA_FCPORT_FOUND;
-+			if (fcport->login_retry == 0) {
-+				fcport->login_retry = vha->hw->login_retry_count;
-+				ql_dbg(ql_dbg_disc, vha, 0x2135,
-+				    "Port login retry %8phN, lid 0x%04x retry cnt=%d.\n",
-+				    fcport->port_name, fcport->loop_id,
-+				    fcport->login_retry);
-+			}
- 			found++;
- 			break;
- 		}
---- a/drivers/scsi/qla2xxx/qla_os.c
-+++ b/drivers/scsi/qla2xxx/qla_os.c
-@@ -5518,6 +5518,11 @@ void qla2x00_relogin(struct scsi_qla_hos
- 					ea.fcport = fcport;
- 					qla24xx_handle_relogin_event(vha, &ea);
- 				} else if (vha->hw->current_topology ==
-+					 ISP_CFG_NL &&
-+					IS_QLA2XXX_MIDTYPE(vha->hw)) {
-+					(void)qla24xx_fcport_handle_login(vha,
-+									fcport);
-+				} else if (vha->hw->current_topology ==
- 				    ISP_CFG_NL) {
- 					fcport->login_retry--;
- 					status =
+ 	rcu_read_lock();
+-	if (IS_ENABLED(CONFIG_IPV6) && info->mode & IP_TUNNEL_INFO_IPV6)
++	if (ipv6_mod_enabled() && info->mode & IP_TUNNEL_INFO_IPV6)
+ 		err = bareudp6_xmit_skb(skb, dev, bareudp, info);
+ 	else
+ 		err = bareudp_xmit_skb(skb, dev, bareudp, info);
+@@ -469,7 +470,7 @@ static int bareudp_fill_metadata_dst(str
+ 
+ 	use_cache = ip_tunnel_dst_cache_usable(skb, info);
+ 
+-	if (!IS_ENABLED(CONFIG_IPV6) || ip_tunnel_info_af(info) == AF_INET) {
++	if (!ipv6_mod_enabled() || ip_tunnel_info_af(info) == AF_INET) {
+ 		struct rtable *rt;
+ 		__be32 saddr;
+ 
 
 
