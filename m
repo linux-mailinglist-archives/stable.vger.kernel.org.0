@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A21054F28E3
+	by mail.lfdr.de (Postfix) with ESMTP id 31B784F28E2
 	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:22:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240123AbiDEIXl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:23:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33820 "EHLO
+        id S240126AbiDEIXm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:23:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54462 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237133AbiDEIRn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:17:43 -0400
+        with ESMTP id S237168AbiDEIRp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:17:45 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9421F689A6;
-        Tue,  5 Apr 2022 01:05:23 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC25EB0D2B;
+        Tue,  5 Apr 2022 01:05:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0A519617ED;
-        Tue,  5 Apr 2022 08:05:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14F96C385A0;
-        Tue,  5 Apr 2022 08:05:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6EE5F6167A;
+        Tue,  5 Apr 2022 08:05:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DDFDC385A0;
+        Tue,  5 Apr 2022 08:05:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145922;
-        bh=JtOMfaEbVXd2i/CdfdprYFI1BoQI8cBSV7rn34byu2U=;
+        s=korg; t=1649145930;
+        bh=VqGjegZfHHnvDHqgx50NeDfYYPQ+7pDQWp2m+VwfD28=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QQBnMmkyEHa4EQyd2Z+0Vv59TERPYjrAyyI2XuwWSnCr8qDkgatJL/PXBhgxD+Ei+
-         GxHgNDYUbnHOgF+hgPm3thdkEERuh8HqZaTKjhrKmeGguoZesaW4EuoniQGKTdDRhP
-         kGJfy74sUB/LNrHzIXVcsjmiSYHaX86vSQIdQjjc=
+        b=U7syJFVFa8QhK38cekiqYQJkEmCiRLf9SQIBNSGfVQ6I0gvWRxMALUGCqsOefDzKp
+         2QrH3/MOetgV+qDG1ub9qAwzFzuZjF5snJ/qSyhaghIerWvyRgcT9xlQ49R0u9Vbeu
+         COLRr/GwfBmXqD0SH2zv4s4iXB7LuIBrwTuPbZGg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Rameshkumar Sundaram <quic_ramess@quicinc.com>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
+        stable@vger.kernel.org, Abhishek Sahu <abhsahu@nvidia.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0577/1126] ath11k: Invalidate cached reo ring entry before accessing it
-Date:   Tue,  5 Apr 2022 09:22:04 +0200
-Message-Id: <20220405070424.568803354@linuxfoundation.org>
+Subject: [PATCH 5.17 0580/1126] vfio/pci: fix memory leak during D3hot to D0 transition
+Date:   Tue,  5 Apr 2022 09:22:07 +0200
+Message-Id: <20220405070424.656793434@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -55,52 +54,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rameshkumar Sundaram <quic_ramess@quicinc.com>
+From: Abhishek Sahu <abhsahu@nvidia.com>
 
-[ Upstream commit f2180ccb52b5fd0876291ad2df37e2898cac18cf ]
+[ Upstream commit eadf88ecf6ac7d6a9f47a76c6055d9a1987a8991 ]
 
-REO2SW ring descriptor is currently allocated in cacheable memory.
-While reaping reo ring entries on second trial after updating head
-pointer, first entry is not invalidated before accessing it.
+If 'vfio_pci_core_device::needs_pm_restore' is set (PCI device does
+not have No_Soft_Reset bit set in its PMCSR config register), then
+the current PCI state will be saved locally in
+'vfio_pci_core_device::pm_save' during D0->D3hot transition and same
+will be restored back during D3hot->D0 transition.
+For saving the PCI state locally, pci_store_saved_state() is being
+used and the pci_load_and_free_saved_state() will free the allocated
+memory.
 
-This results in host reaping and using cached descriptor which is
-already overwritten in memory by DMA device (HW).
-Since the contents of descriptor(buffer id, peer info and other information
-bits) are outdated host throws errors like below while parsing corresponding
-MSDU's and drops them.
+But for reset related IOCTLs, vfio driver calls PCI reset-related
+API's which will internally change the PCI power state back to D0. So,
+when the guest resumes, then it will get the current state as D0 and it
+will skip the call to vfio_pci_set_power_state() for changing the
+power state to D0 explicitly. In this case, the memory pointed by
+'pm_save' will never be freed. In a malicious sequence, the state changing
+to D3hot followed by VFIO_DEVICE_RESET/VFIO_DEVICE_PCI_HOT_RESET can be
+run in a loop and it can cause an OOM situation.
 
-[347712.048904] ath11k_pci 0004:01:00.0: msdu_done bit in attention is not set
-[349173.355503] ath11k_pci 0004:01:00.0: frame rx with invalid buf_id 962
+This patch frees the earlier allocated memory first before overwriting
+'pm_save' to prevent the mentioned memory leak.
 
-Move the try_again: label above  ath11k_hal_srng_access_begin()
-so that first entry will be invalidated and prefetched.
-
-Tested-on: QCN9074 hw1.0 PCI WLAN.HK.2.5.0.1-01100-QCAHKSWPL_SILICONZ-1
-
-Fixes: 6452f0a3d565 ("ath11k: allocate dst ring descriptors from cacheable memory")
-Signed-off-by: Rameshkumar Sundaram <quic_ramess@quicinc.com>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/1645000354-32558-1-git-send-email-quic_ramess@quicinc.com
+Fixes: 51ef3a004b1e ("vfio/pci: Restore device state on PM transition")
+Signed-off-by: Abhishek Sahu <abhsahu@nvidia.com>
+Link: https://lore.kernel.org/r/20220217122107.22434-2-abhsahu@nvidia.com
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath11k/dp_rx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/vfio/pci/vfio_pci_core.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/drivers/net/wireless/ath/ath11k/dp_rx.c b/drivers/net/wireless/ath/ath11k/dp_rx.c
-index c212a789421e..e432f8dc05d6 100644
---- a/drivers/net/wireless/ath/ath11k/dp_rx.c
-+++ b/drivers/net/wireless/ath/ath11k/dp_rx.c
-@@ -2642,9 +2642,9 @@ int ath11k_dp_process_rx(struct ath11k_base *ab, int ring_id,
- 
- 	spin_lock_bh(&srng->lock);
- 
-+try_again:
- 	ath11k_hal_srng_access_begin(ab, srng);
- 
--try_again:
- 	while (likely(desc =
- 	      (struct hal_reo_dest_ring *)ath11k_hal_srng_dst_get_next_entry(ab,
- 									     srng))) {
+diff --git a/drivers/vfio/pci/vfio_pci_core.c b/drivers/vfio/pci/vfio_pci_core.c
+index f948e6cd2993..87b288affc13 100644
+--- a/drivers/vfio/pci/vfio_pci_core.c
++++ b/drivers/vfio/pci/vfio_pci_core.c
+@@ -228,6 +228,19 @@ int vfio_pci_set_power_state(struct vfio_pci_core_device *vdev, pci_power_t stat
+ 	if (!ret) {
+ 		/* D3 might be unsupported via quirk, skip unless in D3 */
+ 		if (needs_save && pdev->current_state >= PCI_D3hot) {
++			/*
++			 * The current PCI state will be saved locally in
++			 * 'pm_save' during the D3hot transition. When the
++			 * device state is changed to D0 again with the current
++			 * function, then pci_store_saved_state() will restore
++			 * the state and will free the memory pointed by
++			 * 'pm_save'. There are few cases where the PCI power
++			 * state can be changed to D0 without the involvement
++			 * of the driver. For these cases, free the earlier
++			 * allocated memory first before overwriting 'pm_save'
++			 * to prevent the memory leak.
++			 */
++			kfree(vdev->pm_save);
+ 			vdev->pm_save = pci_store_saved_state(pdev);
+ 		} else if (needs_restore) {
+ 			pci_load_and_free_saved_state(pdev, &vdev->pm_save);
 -- 
 2.34.1
 
