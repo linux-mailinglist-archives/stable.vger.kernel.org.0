@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E9B9D4F325F
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:57:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CAB24F31F9
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:53:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356356AbiDEKXj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:23:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58718 "EHLO
+        id S1356187AbiDEKXS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:23:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55108 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235973AbiDEJbC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:31:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98CF122516;
-        Tue,  5 Apr 2022 02:18:16 -0700 (PDT)
+        with ESMTP id S234872AbiDEJah (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:30:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80150E41F8;
+        Tue,  5 Apr 2022 02:17:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2256E61645;
-        Tue,  5 Apr 2022 09:18:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24BA8C385A3;
-        Tue,  5 Apr 2022 09:18:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E3E6D615E4;
+        Tue,  5 Apr 2022 09:17:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E60BEC385A0;
+        Tue,  5 Apr 2022 09:17:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150295;
-        bh=WZ5lqIiERkhZAxCxhfRzo1GoFdYeuXgZNAeBjIF+Bag=;
+        s=korg; t=1649150251;
+        bh=lAtKoaS9HUgr0Lm7QE70qsSO+vReFYiIsn0xRlig5Ig=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zygDkcHVZXC91C5rT9n10pkr6xnktd45bJR1PCj1BD4e0dbQ2kZN7sRhsp/OpgXl5
-         WvqTiyjNnPbJcsjT6RhC/RevWaW6Y2JqldHNhE7thbuqgop//J1fSb0VHsUj+vn+Fy
-         F9wm/fhj/itpTxwAiGHaAJdgyTigT5WTtUrWXShU=
+        b=ZUQK+g6nxsc1PlUZIKu5d64SXG7zgCdH62akODO6q+LULZsvOXtP1GbLsG4UsmNgd
+         IwmFymvBBcsi0BNGSFQ+lmXzZI/Yt5OmFe0MYiLkVgyAwVP78IJHEpNtYN16zRBbVo
+         eEcdyZZRPBkfQEtSnesSN4LYNQhizOz+MUhdlH70=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Menzel <pmenzel@molgen.mpg.de>,
-        "Paul E. McKenney" <paulmck@kernel.org>
-Subject: [PATCH 5.16 1008/1017] torture: Make torture.sh help message match reality
-Date:   Tue,  5 Apr 2022 09:32:01 +0200
-Message-Id: <20220405070424.120579418@linuxfoundation.org>
+        stable@vger.kernel.org, k2ci <kernel-bot@kylinos.cn>,
+        Jackie Liu <liuyun01@kylinos.cn>,
+        Chaitanya Kulkarni <kch@nvidia.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.16 1009/1017] n64cart: convert bi_disk to bi_bdev->bd_disk fix build
+Date:   Tue,  5 Apr 2022 09:32:02 +0200
+Message-Id: <20220405070424.149130175@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -53,35 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul E. McKenney <paulmck@kernel.org>
+From: Jackie Liu <liuyun01@kylinos.cn>
 
-commit f233673cd32a048f2eed69e56b61174c33fb740b upstream.
+commit b2479de38d8fc7ef13d5c78ff5ded6e5a1a4eac0 upstream.
 
-This commit fixes a couple of typos: s/--doall/--do-all/ and
-s/--doallmodconfig/--do-allmodconfig/.
+My kernel robot report below:
 
-[ paulmck: Add Fixes: supplied by Paul Menzel. ]
+  drivers/block/n64cart.c: In function ‘n64cart_submit_bio’:
+  drivers/block/n64cart.c:91:26: error: ‘struct bio’ has no member named ‘bi_disk’
+     91 |  struct device *dev = bio->bi_disk->private_data;
+        |                          ^~
+    CC      drivers/slimbus/qcom-ctrl.o
+    CC      drivers/auxdisplay/hd44780.o
+    CC      drivers/watchdog/watchdog_core.o
+    CC      drivers/nvme/host/fault_inject.o
+    AR      drivers/accessibility/braille/built-in.a
+  make[2]: *** [scripts/Makefile.build:288: drivers/block/n64cart.o] Error 1
 
-Fixes: a115a775a8d5 ("torture: Add "make allmodconfig" to torture.sh")
-Reported-by: Paul Menzel <pmenzel@molgen.mpg.de>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Fixes: 309dca309fc3 ("block: store a block_device pointer in struct bio");
+Reported-by: k2ci <kernel-bot@kylinos.cn>
+Signed-off-by: Jackie Liu <liuyun01@kylinos.cn>
+Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
+Link: https://lore.kernel.org/r/20220321071216.1549596-1-liu.yun@linux.dev
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/rcutorture/bin/torture.sh |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/block/n64cart.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/tools/testing/selftests/rcutorture/bin/torture.sh
-+++ b/tools/testing/selftests/rcutorture/bin/torture.sh
-@@ -71,8 +71,8 @@ usage () {
- 	echo "       --configs-rcutorture \"config-file list w/ repeat factor (3*TINY01)\""
- 	echo "       --configs-locktorture \"config-file list w/ repeat factor (10*LOCK01)\""
- 	echo "       --configs-scftorture \"config-file list w/ repeat factor (2*CFLIST)\""
--	echo "       --doall"
--	echo "       --doallmodconfig / --do-no-allmodconfig"
-+	echo "       --do-all"
-+	echo "       --do-allmodconfig / --do-no-allmodconfig"
- 	echo "       --do-clocksourcewd / --do-no-clocksourcewd"
- 	echo "       --do-kasan / --do-no-kasan"
- 	echo "       --do-kcsan / --do-no-kcsan"
+--- a/drivers/block/n64cart.c
++++ b/drivers/block/n64cart.c
+@@ -88,7 +88,7 @@ static void n64cart_submit_bio(struct bi
+ {
+ 	struct bio_vec bvec;
+ 	struct bvec_iter iter;
+-	struct device *dev = bio->bi_disk->private_data;
++	struct device *dev = bio->bi_bdev->bd_disk->private_data;
+ 	u32 pos = bio->bi_iter.bi_sector << SECTOR_SHIFT;
+ 
+ 	bio_for_each_segment(bvec, bio, iter) {
 
 
