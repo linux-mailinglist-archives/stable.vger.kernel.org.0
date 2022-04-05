@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 424134F3BD5
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:22:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 12FC44F3917
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:44:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354782AbiDEMCf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:02:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50762 "EHLO
+        id S1377579AbiDEL3u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:29:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39024 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358024AbiDEK1w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:27:52 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F2D8689A2;
-        Tue,  5 Apr 2022 03:13:07 -0700 (PDT)
+        with ESMTP id S1351860AbiDEKDZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:03:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FDB084EC1;
+        Tue,  5 Apr 2022 02:52:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F0223B81C88;
-        Tue,  5 Apr 2022 10:13:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6AD05C385A1;
-        Tue,  5 Apr 2022 10:13:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D54236165C;
+        Tue,  5 Apr 2022 09:52:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E819DC385A2;
+        Tue,  5 Apr 2022 09:52:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153584;
-        bh=ZIOmT5Slk2G++mQSpDt+ZoovSPZ+Y40/5YBoKMtkjkM=;
+        s=korg; t=1649152348;
+        bh=CV240FBWJ+J/RE78ZouTlWfvTag+OZii7101escWnGk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HbNbov6nPpmtVU4GakahqqLNM2fa3+AOqQ6icYx7FBl9RMQYm9YIrKaEmoU9gwiwB
-         Aw7a98Qw+Y3WY+L87a0+0xdhkEm8HuP24f5+oQ5+s7HqQA1I4lIqcL6hHKhh6c1kkm
-         0iFFQbAjgQnqx0FaN6QgkgjhqHnDX/gnu/Cjm5I0=
+        b=odYx+DzG+kW7XD424NoO0rwVE7Gh+4p4/Wqu/xX8J33ucBROu0HIPkr1rx+8LxtEN
+         mROqrJW7ocapFFW6L7IZKnwHcCalgWWiFxhVvxl8maX9iFqjh/4+i/jry5qPQ7Jfml
+         zXADytHwMoJwNi4If9nZJ0HrR2/fRCNof6ZsT+VI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shannon Nelson <snelson@pensando.io>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 273/599] ionic: fix type complaint in ionic_dev_cmd_clean()
-Date:   Tue,  5 Apr 2022 09:29:27 +0200
-Message-Id: <20220405070306.962301309@linuxfoundation.org>
+        stable@vger.kernel.org, John David Anglin <dave.anglin@bell.net>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 706/913] parisc: Fix handling off probe non-access faults
+Date:   Tue,  5 Apr 2022 09:29:28 +0200
+Message-Id: <20220405070400.997396038@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
-References: <20220405070258.802373272@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,49 +53,166 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shannon Nelson <snelson@pensando.io>
+From: John David Anglin <dave.anglin@bell.net>
 
-[ Upstream commit bc0bf9de6f48268f4ee59e57fb42ac751be3ecda ]
+[ Upstream commit e00b0a2ab8ec019c344e53bfc76e31c18bb587b7 ]
 
-Sparse seems to have gotten a little more picky lately and
-we need to revisit this bit of code to make sparse happy.
+Currently, the parisc kernel does not fully support non-access TLB
+fault handling for probe instructions. In the fast path, we set the
+target register to zero if it is not a shadowed register. The slow
+path is not implemented, so we call do_page_fault. The architecture
+indicates that non-access faults should not cause a page fault from
+disk.
 
-warning: incorrect type in initializer (different address spaces)
-   expected union ionic_dev_cmd_regs *regs
-   got union ionic_dev_cmd_regs [noderef] __iomem *dev_cmd_regs
-warning: incorrect type in argument 2 (different address spaces)
-   expected void [noderef] __iomem *
-   got unsigned int *
-warning: incorrect type in argument 1 (different address spaces)
-   expected void volatile [noderef] __iomem *
-   got union ionic_dev_cmd *
+This change adds to code to provide non-access fault support for
+probe instructions. It also modifies the handling of faults on
+userspace so that if the address lies in a valid VMA and the access
+type matches that for the VMA, the probe target register is set to
+one. Otherwise, the target register is set to zero.
 
-Fixes: d701ec326a31 ("ionic: clean up sparse complaints")
-Signed-off-by: Shannon Nelson <snelson@pensando.io>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This was done to make probe instructions more useful for userspace.
+Probe instructions are not very useful if they set the target register
+to zero whenever a page is not present in memory. Nominally, the
+purpose of the probe instruction is determine whether read or write
+access to a given address is allowed.
+
+This fixes a problem in function pointer comparison noticed in the
+glibc testsuite (stdio-common/tst-vfprintf-user-type). The same
+problem is likely in glibc (_dl_lookup_address).
+
+V2 adds flush and lpa instruction support to handle_nadtlb_fault.
+
+Signed-off-by: John David Anglin <dave.anglin@bell.net>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/pensando/ionic/ionic_main.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/parisc/include/asm/traps.h |  1 +
+ arch/parisc/kernel/traps.c      |  2 +
+ arch/parisc/mm/fault.c          | 89 +++++++++++++++++++++++++++++++++
+ 3 files changed, 92 insertions(+)
 
-diff --git a/drivers/net/ethernet/pensando/ionic/ionic_main.c b/drivers/net/ethernet/pensando/ionic/ionic_main.c
-index d355676f6c16..e14869a2e24a 100644
---- a/drivers/net/ethernet/pensando/ionic/ionic_main.c
-+++ b/drivers/net/ethernet/pensando/ionic/ionic_main.c
-@@ -311,10 +311,10 @@ int ionic_adminq_post_wait(struct ionic_lif *lif, struct ionic_admin_ctx *ctx)
+diff --git a/arch/parisc/include/asm/traps.h b/arch/parisc/include/asm/traps.h
+index 8ecc1f0c0483..d0e090a2c000 100644
+--- a/arch/parisc/include/asm/traps.h
++++ b/arch/parisc/include/asm/traps.h
+@@ -17,6 +17,7 @@ void die_if_kernel(char *str, struct pt_regs *regs, long err);
+ const char *trap_name(unsigned long code);
+ void do_page_fault(struct pt_regs *regs, unsigned long code,
+ 		unsigned long address);
++int handle_nadtlb_fault(struct pt_regs *regs);
+ #endif
  
- static void ionic_dev_cmd_clean(struct ionic *ionic)
- {
--	union __iomem ionic_dev_cmd_regs *regs = ionic->idev.dev_cmd_regs;
-+	struct ionic_dev *idev = &ionic->idev;
- 
--	iowrite32(0, &regs->doorbell);
--	memset_io(&regs->cmd, 0, sizeof(regs->cmd));
-+	iowrite32(0, &idev->dev_cmd_regs->doorbell);
-+	memset_io(&idev->dev_cmd_regs->cmd, 0, sizeof(idev->dev_cmd_regs->cmd));
+ #endif
+diff --git a/arch/parisc/kernel/traps.c b/arch/parisc/kernel/traps.c
+index afe8b902a8fc..6fe5a3e98edc 100644
+--- a/arch/parisc/kernel/traps.c
++++ b/arch/parisc/kernel/traps.c
+@@ -661,6 +661,8 @@ void notrace handle_interruption(int code, struct pt_regs *regs)
+ 			 by hand. Technically we need to emulate:
+ 			 fdc,fdce,pdc,"fic,4f",prober,probeir,probew, probeiw
+ 		*/
++		if (code == 17 && handle_nadtlb_fault(regs))
++			return;
+ 		fault_address = regs->ior;
+ 		fault_space = regs->isr;
+ 		break;
+diff --git a/arch/parisc/mm/fault.c b/arch/parisc/mm/fault.c
+index 716960f5d92e..5faa3cff4738 100644
+--- a/arch/parisc/mm/fault.c
++++ b/arch/parisc/mm/fault.c
+@@ -424,3 +424,92 @@ void do_page_fault(struct pt_regs *regs, unsigned long code,
+ 		goto no_context;
+ 	pagefault_out_of_memory();
  }
- 
- int ionic_dev_cmd_wait(struct ionic *ionic, unsigned long max_seconds)
++
++/* Handle non-access data TLB miss faults.
++ *
++ * For probe instructions, accesses to userspace are considered allowed
++ * if they lie in a valid VMA and the access type matches. We are not
++ * allowed to handle MM faults here so there may be situations where an
++ * actual access would fail even though a probe was successful.
++ */
++int
++handle_nadtlb_fault(struct pt_regs *regs)
++{
++	unsigned long insn = regs->iir;
++	int breg, treg, xreg, val = 0;
++	struct vm_area_struct *vma, *prev_vma;
++	struct task_struct *tsk;
++	struct mm_struct *mm;
++	unsigned long address;
++	unsigned long acc_type;
++
++	switch (insn & 0x380) {
++	case 0x280:
++		/* FDC instruction */
++		fallthrough;
++	case 0x380:
++		/* PDC and FIC instructions */
++		if (printk_ratelimit()) {
++			pr_warn("BUG: nullifying cache flush/purge instruction\n");
++			show_regs(regs);
++		}
++		if (insn & 0x20) {
++			/* Base modification */
++			breg = (insn >> 21) & 0x1f;
++			xreg = (insn >> 16) & 0x1f;
++			if (breg && xreg)
++				regs->gr[breg] += regs->gr[xreg];
++		}
++		regs->gr[0] |= PSW_N;
++		return 1;
++
++	case 0x180:
++		/* PROBE instruction */
++		treg = insn & 0x1f;
++		if (regs->isr) {
++			tsk = current;
++			mm = tsk->mm;
++			if (mm) {
++				/* Search for VMA */
++				address = regs->ior;
++				mmap_read_lock(mm);
++				vma = find_vma_prev(mm, address, &prev_vma);
++				mmap_read_unlock(mm);
++
++				/*
++				 * Check if access to the VMA is okay.
++				 * We don't allow for stack expansion.
++				 */
++				acc_type = (insn & 0x40) ? VM_WRITE : VM_READ;
++				if (vma
++				    && address >= vma->vm_start
++				    && (vma->vm_flags & acc_type) == acc_type)
++					val = 1;
++			}
++		}
++		if (treg)
++			regs->gr[treg] = val;
++		regs->gr[0] |= PSW_N;
++		return 1;
++
++	case 0x300:
++		/* LPA instruction */
++		if (insn & 0x20) {
++			/* Base modification */
++			breg = (insn >> 21) & 0x1f;
++			xreg = (insn >> 16) & 0x1f;
++			if (breg && xreg)
++				regs->gr[breg] += regs->gr[xreg];
++		}
++		treg = insn & 0x1f;
++		if (treg)
++			regs->gr[treg] = 0;
++		regs->gr[0] |= PSW_N;
++		return 1;
++
++	default:
++		break;
++	}
++
++	return 0;
++}
 -- 
 2.34.1
 
