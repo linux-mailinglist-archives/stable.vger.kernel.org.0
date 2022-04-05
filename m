@@ -2,46 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E2A464F3752
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:19:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 22C0A4F3A63
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:01:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352742AbiDELMf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:12:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39192 "EHLO
+        id S1352545AbiDELpE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:45:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43206 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348963AbiDEJsu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:48:50 -0400
+        with ESMTP id S1354628AbiDEKO5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:14:57 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC5A5A5EBC;
-        Tue,  5 Apr 2022 02:38:13 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E28F6BDEC;
+        Tue,  5 Apr 2022 03:01:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 74962B818F3;
-        Tue,  5 Apr 2022 09:38:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9032C385A2;
-        Tue,  5 Apr 2022 09:38:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AF6DEB81B96;
+        Tue,  5 Apr 2022 10:01:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 203BCC385A2;
+        Tue,  5 Apr 2022 10:01:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151491;
-        bh=AEl70rgRIX6ycKBzAnX8mfWMqz7yCVPj6kI/kOyW0y8=;
+        s=korg; t=1649152902;
+        bh=j5OThtCkKw8wixPROr3bHPlF7VL+nQO2b6T38K84FyM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mge7iQ8QCyDRIV2jZXfIXupON/tfFweNsMxv2r3lH9d+hTn5Zu5woPNebNoJA5tm4
-         0bq2qR45lGi22ZTRpKbYt9UxBGVaZdTTy81kGYkSJv32H4dDXt+U8sf4ssImPUY5BZ
-         11kzu9xKO6jQomoO4q4nBijOkfofLZKsc7QOeDW8=
+        b=zZv/Lqv7Jg7KcklVQW4krWaN+0tQMGr5hM23DcBzl74f/jrjScO9rVLplM4FxDnAl
+         CCHKmGmMqrgD+rPxNVcjFhklT51PqheoxaNw1bjHWyeSrmWiuXMkzT92s3ixYy2Oz9
+         fwr2ZoZz8Rez9XXpfaHfIGgzB86vt3r9BYM1NBYw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        Oleksij Rempel <o.rempel@pengutronix.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+6ca9f7867b77c2d316ac@syzkaller.appspotmail.com
-Subject: [PATCH 5.15 434/913] net: asix: add proper error handling of usb read errors
-Date:   Tue,  5 Apr 2022 09:24:56 +0200
-Message-Id: <20220405070352.854721527@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.10 003/599] USB: serial: simple: add Nokia phone driver
+Date:   Tue,  5 Apr 2022 09:24:57 +0200
+Message-Id: <20220405070258.912898995@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070258.802373272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,146 +52,150 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit 920a9fa27e7805499cfe78491b36fed2322c02ec ]
+commit c4b9c570965f75d0d55e639747f1e5ccdad2fae0 upstream.
 
-Syzbot once again hit uninit value in asix driver. The problem still the
-same -- asix_read_cmd() reads less bytes, than was requested by caller.
+Add a new "simple" driver for certain Nokia phones, including Nokia 130
+(RM-1035) which exposes two serial ports in "charging only" mode:
 
-Since all read requests are performed via asix_read_cmd() let's catch
-usb related error there and add __must_check notation to be sure all
-callers actually check return value.
+Bus 001 Device 009: ID 0421:069a Nokia Mobile Phones 130 [RM-1035] (Charging only)
+Device Descriptor:
+  bLength                18
+  bDescriptorType         1
+  bcdUSB               2.00
+  bDeviceClass            0
+  bDeviceSubClass         0
+  bDeviceProtocol         0
+  bMaxPacketSize0         8
+  idVendor           0x0421 Nokia Mobile Phones
+  idProduct          0x069a 130 [RM-1035] (Charging only)
+  bcdDevice            1.00
+  iManufacturer           1 Nokia
+  iProduct                2 Nokia 130 (RM-1035)
+  iSerial                 0
+  bNumConfigurations      1
+  Configuration Descriptor:
+    bLength                 9
+    bDescriptorType         2
+    wTotalLength       0x0037
+    bNumInterfaces          2
+    bConfigurationValue     1
+    iConfiguration          0
+    bmAttributes         0x80
+      (Bus Powered)
+    MaxPower              500mA
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        0
+      bAlternateSetting       0
+      bNumEndpoints           2
+      bInterfaceClass       255 Vendor Specific Class
+      bInterfaceSubClass    255 Vendor Specific Subclass
+      bInterfaceProtocol    255 Vendor Specific Protocol
+      iInterface              0
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x81  EP 1 IN
+        bmAttributes            2
+          Transfer Type            Bulk
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0040  1x 64 bytes
+        bInterval               0
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x01  EP 1 OUT
+        bmAttributes            2
+          Transfer Type            Bulk
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0040  1x 64 bytes
+        bInterval               0
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        1
+      bAlternateSetting       0
+      bNumEndpoints           2
+      bInterfaceClass       255 Vendor Specific Class
+      bInterfaceSubClass    255 Vendor Specific Subclass
+      bInterfaceProtocol    255 Vendor Specific Protocol
+      iInterface              0
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x82  EP 2 IN
+        bmAttributes            2
+          Transfer Type            Bulk
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0040  1x 64 bytes
+        bInterval               0
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x02  EP 2 OUT
+        bmAttributes            2
+          Transfer Type            Bulk
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0040  1x 64 bytes
+        bInterval               0
+Device Status:     0x0000
+  (Bus Powered)
 
-So, this patch adds sanity check inside asix_read_cmd(), that simply
-checks if bytes read are not less, than was requested and adds missing
-error handling of asix_read_cmd() all across the driver code.
-
-Fixes: d9fe64e51114 ("net: asix: Add in_pm parameter")
-Reported-and-tested-by: syzbot+6ca9f7867b77c2d316ac@syzkaller.appspotmail.com
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Tested-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20220228084919.10656-1-johan@kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/asix.h         |  4 ++--
- drivers/net/usb/asix_common.c  | 19 +++++++++++++------
- drivers/net/usb/asix_devices.c | 21 ++++++++++++++++++---
- 3 files changed, 33 insertions(+), 11 deletions(-)
+ drivers/usb/serial/Kconfig             |    1 +
+ drivers/usb/serial/usb-serial-simple.c |    7 +++++++
+ 2 files changed, 8 insertions(+)
 
-diff --git a/drivers/net/usb/asix.h b/drivers/net/usb/asix.h
-index 2a1e31defe71..4334aafab59a 100644
---- a/drivers/net/usb/asix.h
-+++ b/drivers/net/usb/asix.h
-@@ -192,8 +192,8 @@ extern const struct driver_info ax88172a_info;
- /* ASIX specific flags */
- #define FLAG_EEPROM_MAC		(1UL << 0)  /* init device MAC from eeprom */
+--- a/drivers/usb/serial/Kconfig
++++ b/drivers/usb/serial/Kconfig
+@@ -66,6 +66,7 @@ config USB_SERIAL_SIMPLE
+ 		- Libtransistor USB console
+ 		- a number of Motorola phones
+ 		- Motorola Tetra devices
++		- Nokia mobile phones
+ 		- Novatel Wireless GPS receivers
+ 		- Siemens USB/MPI adapter.
+ 		- ViVOtech ViVOpay USB device.
+--- a/drivers/usb/serial/usb-serial-simple.c
++++ b/drivers/usb/serial/usb-serial-simple.c
+@@ -91,6 +91,11 @@ DEVICE(moto_modem, MOTO_IDS);
+ 	{ USB_DEVICE(0x0cad, 0x9016) }	/* TPG2200 */
+ DEVICE(motorola_tetra, MOTOROLA_TETRA_IDS);
  
--int asix_read_cmd(struct usbnet *dev, u8 cmd, u16 value, u16 index,
--		  u16 size, void *data, int in_pm);
-+int __must_check asix_read_cmd(struct usbnet *dev, u8 cmd, u16 value, u16 index,
-+			       u16 size, void *data, int in_pm);
- 
- int asix_write_cmd(struct usbnet *dev, u8 cmd, u16 value, u16 index,
- 		   u16 size, void *data, int in_pm);
-diff --git a/drivers/net/usb/asix_common.c b/drivers/net/usb/asix_common.c
-index 9aa92076500a..f39188b7717a 100644
---- a/drivers/net/usb/asix_common.c
-+++ b/drivers/net/usb/asix_common.c
-@@ -11,8 +11,8 @@
- 
- #define AX_HOST_EN_RETRIES	30
- 
--int asix_read_cmd(struct usbnet *dev, u8 cmd, u16 value, u16 index,
--		  u16 size, void *data, int in_pm)
-+int __must_check asix_read_cmd(struct usbnet *dev, u8 cmd, u16 value, u16 index,
-+			       u16 size, void *data, int in_pm)
- {
- 	int ret;
- 	int (*fn)(struct usbnet *, u8, u8, u16, u16, void *, u16);
-@@ -27,9 +27,12 @@ int asix_read_cmd(struct usbnet *dev, u8 cmd, u16 value, u16 index,
- 	ret = fn(dev, cmd, USB_DIR_IN | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
- 		 value, index, data, size);
- 
--	if (unlikely(ret < 0))
-+	if (unlikely(ret < size)) {
-+		ret = ret < 0 ? ret : -ENODATA;
++/* Nokia mobile phone driver */
++#define NOKIA_IDS()			\
++	{ USB_DEVICE(0x0421, 0x069a) }	/* Nokia 130 (RM-1035) */
++DEVICE(nokia, NOKIA_IDS);
 +
- 		netdev_warn(dev->net, "Failed to read reg index 0x%04x: %d\n",
- 			    index, ret);
-+	}
- 
- 	return ret;
- }
-@@ -79,7 +82,7 @@ static int asix_check_host_enable(struct usbnet *dev, int in_pm)
- 				    0, 0, 1, &smsr, in_pm);
- 		if (ret == -ENODEV)
- 			break;
--		else if (ret < sizeof(smsr))
-+		else if (ret < 0)
- 			continue;
- 		else if (smsr & AX_HOST_EN)
- 			break;
-@@ -579,8 +582,12 @@ int asix_mdio_read_nopm(struct net_device *netdev, int phy_id, int loc)
- 		return ret;
- 	}
- 
--	asix_read_cmd(dev, AX_CMD_READ_MII_REG, phy_id,
--		      (__u16)loc, 2, &res, 1);
-+	ret = asix_read_cmd(dev, AX_CMD_READ_MII_REG, phy_id,
-+			    (__u16)loc, 2, &res, 1);
-+	if (ret < 0) {
-+		mutex_unlock(&dev->phy_mutex);
-+		return ret;
-+	}
- 	asix_set_hw_mii(dev, 1);
- 	mutex_unlock(&dev->phy_mutex);
- 
-diff --git a/drivers/net/usb/asix_devices.c b/drivers/net/usb/asix_devices.c
-index 30821f6a6d7a..bd8f8619ad6f 100644
---- a/drivers/net/usb/asix_devices.c
-+++ b/drivers/net/usb/asix_devices.c
-@@ -755,7 +755,12 @@ static int ax88772_bind(struct usbnet *dev, struct usb_interface *intf)
- 	priv->phy_addr = ret;
- 	priv->embd_phy = ((priv->phy_addr & 0x1f) == 0x10);
- 
--	asix_read_cmd(dev, AX_CMD_STATMNGSTS_REG, 0, 0, 1, &chipcode, 0);
-+	ret = asix_read_cmd(dev, AX_CMD_STATMNGSTS_REG, 0, 0, 1, &chipcode, 0);
-+	if (ret < 0) {
-+		netdev_dbg(dev->net, "Failed to read STATMNGSTS_REG: %d\n", ret);
-+		return ret;
-+	}
-+
- 	chipcode &= AX_CHIPCODE_MASK;
- 
- 	ret = (chipcode == AX_AX88772_CHIPCODE) ? ax88772_hw_reset(dev, 0) :
-@@ -920,11 +925,21 @@ static int ax88178_reset(struct usbnet *dev)
- 	int gpio0 = 0;
- 	u32 phyid;
- 
--	asix_read_cmd(dev, AX_CMD_READ_GPIOS, 0, 0, 1, &status, 0);
-+	ret = asix_read_cmd(dev, AX_CMD_READ_GPIOS, 0, 0, 1, &status, 0);
-+	if (ret < 0) {
-+		netdev_dbg(dev->net, "Failed to read GPIOS: %d\n", ret);
-+		return ret;
-+	}
-+
- 	netdev_dbg(dev->net, "GPIO Status: 0x%04x\n", status);
- 
- 	asix_write_cmd(dev, AX_CMD_WRITE_ENABLE, 0, 0, 0, NULL, 0);
--	asix_read_cmd(dev, AX_CMD_READ_EEPROM, 0x0017, 0, 2, &eeprom, 0);
-+	ret = asix_read_cmd(dev, AX_CMD_READ_EEPROM, 0x0017, 0, 2, &eeprom, 0);
-+	if (ret < 0) {
-+		netdev_dbg(dev->net, "Failed to read EEPROM: %d\n", ret);
-+		return ret;
-+	}
-+
- 	asix_write_cmd(dev, AX_CMD_WRITE_DISABLE, 0, 0, 0, NULL, 0);
- 
- 	netdev_dbg(dev->net, "EEPROM index 0x17 is 0x%04x\n", eeprom);
--- 
-2.34.1
-
+ /* Novatel Wireless GPS driver */
+ #define NOVATEL_IDS()			\
+ 	{ USB_DEVICE(0x09d7, 0x0100) }	/* NovAtel FlexPack GPS */
+@@ -123,6 +128,7 @@ static struct usb_serial_driver * const
+ 	&vivopay_device,
+ 	&moto_modem_device,
+ 	&motorola_tetra_device,
++	&nokia_device,
+ 	&novatel_gps_device,
+ 	&hp4x_device,
+ 	&suunto_device,
+@@ -140,6 +146,7 @@ static const struct usb_device_id id_tab
+ 	VIVOPAY_IDS(),
+ 	MOTO_IDS(),
+ 	MOTOROLA_TETRA_IDS(),
++	NOKIA_IDS(),
+ 	NOVATEL_IDS(),
+ 	HP4X_IDS(),
+ 	SUUNTO_IDS(),
 
 
