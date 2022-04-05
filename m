@@ -2,86 +2,287 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C4DA4F31CB
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:46:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E5804F32F2
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:01:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344733AbiDEKkL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:40:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41934 "EHLO
+        id S1343732AbiDEJMk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:12:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46852 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243769AbiDEJkV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:40:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE2C7B82C0;
-        Tue,  5 Apr 2022 02:25:01 -0700 (PDT)
+        with ESMTP id S244843AbiDEIwm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9066722B10;
+        Tue,  5 Apr 2022 01:44:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6F6CC614F9;
-        Tue,  5 Apr 2022 09:25:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F091C385A0;
-        Tue,  5 Apr 2022 09:25:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2EBF2609D0;
+        Tue,  5 Apr 2022 08:44:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37963C385A0;
+        Tue,  5 Apr 2022 08:44:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150700;
-        bh=/maTMZpPyHrPXM73DSYyKjXwq5K+XsJdIA6vi+YbTEU=;
+        s=korg; t=1649148279;
+        bh=leSf3GxWHfIMm9Uxk5RMI2sOS+9VSqtrVZCVADOtH/U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1CdFXc0HHymc35UXVFfCiYzU8ELPE8CNW3acW7w2ASH8Tw21AdaBQfm8nuivj7dSP
-         18J7KSw2R1Y5y6qTlPVZkMefy4xDNB9OdV5W58XaDACX6LovFTiPq5f+Tj1jVu3IO0
-         5lqFKc6LFcv/AoK+3v65xcihOz7zJJa4hdxm5arI=
+        b=1hSuKGf8N6LYkhCRP18bl2ZArJP7O50jJjDKMgzqXhwxtKsKnVvZRupqa2n4inGvE
+         6A4kzjtKFIbdxRt5u5s1cvLWuJ/K+R50/W9+9+OMlrYDGYBop5Rix5Lbd7bytxUi2Q
+         whPmV63EAJzz0un8SjUFcEKcj16Z4lHd8tIpt/ec=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Alim Akhtar <alim.akhtar@samsung.com>
-Subject: [PATCH 5.15 149/913] ARM: dts: exynos: add missing HDMI supplies on SMDK5250
+        stable@vger.kernel.org, Janusz Krzysztofik <jmkrzyszt@gmail.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0298/1017] media: ov6650: Fix set format try processing path
 Date:   Tue,  5 Apr 2022 09:20:11 +0200
-Message-Id: <20220405070344.302310449@linuxfoundation.org>
+Message-Id: <20220405070403.120895208@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-5.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,PDS_OTHER_BAD_TLD,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+From: Janusz Krzysztofik <jmkrzyszt@gmail.com>
 
-commit 60a9914cb2061ba612a3f14f6ad329912b486360 upstream.
+[ Upstream commit 1f6f1e959a85ee999fbc86f4b094827f63194c7f ]
 
-Add required VDD supplies to HDMI block on SMDK5250.  Without them, the
-HDMI driver won't probe.  Because of lack of schematics, use same
-supplies as on Arndale 5250 board (voltage matches).
+According to subdevice interface specification found in V4L2 API
+documentation, set format pad operations should not affect image
+geometry set in preceding image processing steps. Unfortunately, that
+requirement is not respected by the driver implementation of set format
+as it was not the case when that code was still implementing a pair of
+now obsolete .s_mbus_fmt() / .try_mbus_fmt() video operations before
+they have been merged and reused as an implementation of .set_fmt() pad
+operation by commit 717fd5b4907a ("[media] v4l2: replace try_mbus_fmt
+by set_fmt").
 
-Cc: <stable@vger.kernel.org> # v3.15+
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Reviewed-by: Alim Akhtar <alim.akhtar@samsung.com>
-Link: https://lore.kernel.org/r/20220208171823.226211-2-krzysztof.kozlowski@canonical.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+In case of set format active processing path the issue can be fixed
+easily by excluding a call to set active selection from that path. That
+will effectively limit frame size processing to optimal frame scaling
+against active crop rectangle without touching it.  Users can just call
+set active selection themselves to obtain desired frame size.  However,
+set format try processing path needs more work.
+
+First of all, the driver should be extended with set try selection
+support.  Lack of it constraints video device drivers to not use
+subdevice cropping at all while processing user requested active frame
+size, otherwise their set try format results might differ from active.
+
+Next, set format try processing path should use pad config crop
+rectangle as a reference, not the active one as it does now.  That
+issue can be resolved easily as soon as set try selection support is
+added to the driver so pad config crop rectangle can be maintained by
+users via selection API.
+
+Last, set format try processing path should give the same results as
+active in respect to active vs. pad config crop rectangle geometry.
+Both rectangles should be either not touched by set format (that's what
+we are going to achieve) or modified the same way, otherwise users
+won't be able to obtain equal results from both paths while iterating
+through set format and set selection operations in order to obtain
+desired frame size.
+
+We can't begin with modifying set format pad operation as not to touch
+crop rectangle since that depends on availability of set try selection
+for symmetry.  Neither can we begin with adding set try selection since
+that in turn depends on equal handling of active and pad config crop
+rectangles by set format.  We can either implement all required
+modifications in a single patch, or begin with fixing current set
+format try processing path to appropriately handle pad config crop
+rectangle.  This patch implements the latter approach as believed to
+be more readable.
+
+Move crop rectangle adjustments code from a helper (the former
+implementation of .s_fmt(), now called from set format active
+processing path) to the body of set format pad operation function
+where it can be also used for processing try requests for symmetry with
+active ones.  As the helper no longer processes frame geometry, only
+frame format and half scaling, simplify its API accordingly and update
+its users.
+
+Moreover, extract code that applies crop rectangle hardware limits
+(now a part of .set_selection() operation which is called from set
+format active processing path) to a new helper and call that helper
+from set format try processing path as well for symmetry with active.
+
+[Sakari Ailus: Rebase on subdev state patches]
+
+Fixes: 717fd5b4907a ("[media] v4l2: replace try_mbus_fmt by set_fmt")
+Signed-off-by: Janusz Krzysztofik <jmkrzyszt@gmail.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/exynos5250-smdk5250.dts |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/media/i2c/ov6650.c | 83 ++++++++++++++++++++++----------------
+ 1 file changed, 48 insertions(+), 35 deletions(-)
 
---- a/arch/arm/boot/dts/exynos5250-smdk5250.dts
-+++ b/arch/arm/boot/dts/exynos5250-smdk5250.dts
-@@ -118,6 +118,9 @@
- 	status = "okay";
- 	ddc = <&i2c_2>;
- 	hpd-gpios = <&gpx3 7 GPIO_ACTIVE_HIGH>;
-+	vdd-supply = <&ldo8_reg>;
-+	vdd_osc-supply = <&ldo10_reg>;
-+	vdd_pll-supply = <&ldo8_reg>;
- };
+diff --git a/drivers/media/i2c/ov6650.c b/drivers/media/i2c/ov6650.c
+index f67412150b16..8b7540e80685 100644
+--- a/drivers/media/i2c/ov6650.c
++++ b/drivers/media/i2c/ov6650.c
+@@ -491,6 +491,17 @@ static int ov6650_get_selection(struct v4l2_subdev *sd,
+ 	}
+ }
  
- &i2c_0 {
++static void ov6650_bind_align_crop_rectangle(struct v4l2_rect *rect)
++{
++	v4l_bound_align_image(&rect->width, 2, W_CIF, 1,
++			      &rect->height, 2, H_CIF, 1, 0);
++	v4l_bound_align_image(&rect->left, DEF_HSTRT << 1,
++			      (DEF_HSTRT << 1) + W_CIF - (__s32)rect->width, 1,
++			      &rect->top, DEF_VSTRT << 1,
++			      (DEF_VSTRT << 1) + H_CIF - (__s32)rect->height,
++			      1, 0);
++}
++
+ static int ov6650_set_selection(struct v4l2_subdev *sd,
+ 		struct v4l2_subdev_state *sd_state,
+ 		struct v4l2_subdev_selection *sel)
+@@ -503,13 +514,7 @@ static int ov6650_set_selection(struct v4l2_subdev *sd,
+ 	    sel->target != V4L2_SEL_TGT_CROP)
+ 		return -EINVAL;
+ 
+-	v4l_bound_align_image(&sel->r.width, 2, W_CIF, 1,
+-			      &sel->r.height, 2, H_CIF, 1, 0);
+-	v4l_bound_align_image(&sel->r.left, DEF_HSTRT << 1,
+-			      (DEF_HSTRT << 1) + W_CIF - (__s32)sel->r.width, 1,
+-			      &sel->r.top, DEF_VSTRT << 1,
+-			      (DEF_VSTRT << 1) + H_CIF - (__s32)sel->r.height,
+-			      1, 0);
++	ov6650_bind_align_crop_rectangle(&sel->r);
+ 
+ 	ret = ov6650_reg_write(client, REG_HSTRT, sel->r.left >> 1);
+ 	if (!ret) {
+@@ -570,22 +575,10 @@ static bool is_unscaled_ok(int width, int height, struct v4l2_rect *rect)
+ #define to_clkrc(div)	((div) - 1)
+ 
+ /* set the format we will capture in */
+-static int ov6650_s_fmt(struct v4l2_subdev *sd, struct v4l2_mbus_framefmt *mf)
++static int ov6650_s_fmt(struct v4l2_subdev *sd, u32 code, bool half_scale)
+ {
+ 	struct i2c_client *client = v4l2_get_subdevdata(sd);
+ 	struct ov6650 *priv = to_ov6650(client);
+-	bool half_scale = !is_unscaled_ok(mf->width, mf->height, &priv->rect);
+-	struct v4l2_subdev_selection sel = {
+-		.which = V4L2_SUBDEV_FORMAT_ACTIVE,
+-		.target = V4L2_SEL_TGT_CROP,
+-		.r.left = priv->rect.left + (priv->rect.width >> 1) -
+-			(mf->width >> (1 - half_scale)),
+-		.r.top = priv->rect.top + (priv->rect.height >> 1) -
+-			(mf->height >> (1 - half_scale)),
+-		.r.width = mf->width << half_scale,
+-		.r.height = mf->height << half_scale,
+-	};
+-	u32 code = mf->code;
+ 	u8 coma_set = 0, coma_mask = 0, coml_set, coml_mask;
+ 	int ret;
+ 
+@@ -653,9 +646,7 @@ static int ov6650_s_fmt(struct v4l2_subdev *sd, struct v4l2_mbus_framefmt *mf)
+ 		coma_mask |= COMA_QCIF;
+ 	}
+ 
+-	ret = ov6650_set_selection(sd, NULL, &sel);
+-	if (!ret)
+-		ret = ov6650_reg_rmw(client, REG_COMA, coma_set, coma_mask);
++	ret = ov6650_reg_rmw(client, REG_COMA, coma_set, coma_mask);
+ 	if (!ret) {
+ 		priv->half_scale = half_scale;
+ 
+@@ -674,14 +665,16 @@ static int ov6650_set_fmt(struct v4l2_subdev *sd,
+ 	struct v4l2_mbus_framefmt *mf = &format->format;
+ 	struct i2c_client *client = v4l2_get_subdevdata(sd);
+ 	struct ov6650 *priv = to_ov6650(client);
++	struct v4l2_subdev_selection sel = {
++		.which = V4L2_SUBDEV_FORMAT_ACTIVE,
++		.target = V4L2_SEL_TGT_CROP,
++	};
++	struct v4l2_rect *crop = &sel.r;
++	bool half_scale;
+ 
+ 	if (format->pad)
+ 		return -EINVAL;
+ 
+-	if (is_unscaled_ok(mf->width, mf->height, &priv->rect))
+-		v4l_bound_align_image(&mf->width, 2, W_CIF, 1,
+-				&mf->height, 2, H_CIF, 1, 0);
+-
+ 	switch (mf->code) {
+ 	case MEDIA_BUS_FMT_Y10_1X10:
+ 		mf->code = MEDIA_BUS_FMT_Y8_1X8;
+@@ -699,10 +692,24 @@ static int ov6650_set_fmt(struct v4l2_subdev *sd,
+ 		break;
+ 	}
+ 
++	*crop = priv->rect;
++	half_scale = !is_unscaled_ok(mf->width, mf->height, crop);
++
++	/* adjust new crop rectangle position against its current center */
++	crop->left += (crop->width - (mf->width << half_scale)) / 2;
++	crop->top += (crop->height - (mf->height << half_scale)) / 2;
++	/* adjust new crop rectangle size */
++	crop->width = mf->width << half_scale;
++	crop->height = mf->height << half_scale;
++
+ 	if (format->which == V4L2_SUBDEV_FORMAT_TRY) {
+-		/* store media bus format code and frame size in pad config */
+-		sd_state->pads->try_fmt.width = mf->width;
+-		sd_state->pads->try_fmt.height = mf->height;
++		/* store new crop rectangle, hadware bound, in pad config */
++		ov6650_bind_align_crop_rectangle(crop);
++		sd_state->pads->try_crop = *crop;
++
++		/* store new mbus frame format code and size in pad config */
++		sd_state->pads->try_fmt.width = crop->width >> half_scale;
++		sd_state->pads->try_fmt.height = crop->height >> half_scale;
+ 		sd_state->pads->try_fmt.code = mf->code;
+ 
+ 		/* return default mbus frame format updated with pad config */
+@@ -712,9 +719,16 @@ static int ov6650_set_fmt(struct v4l2_subdev *sd,
+ 		mf->code = sd_state->pads->try_fmt.code;
+ 
+ 	} else {
+-		/* apply new media bus format code and frame size */
+-		int ret = ov6650_s_fmt(sd, mf);
++		int ret;
+ 
++		/* apply new crop rectangle */
++		ret = ov6650_set_selection(sd, NULL, &sel);
++		if (ret)
++			return ret;
++
++		/* apply new media bus frame format and scaling if changed */
++		if (mf->code != priv->code || half_scale != priv->half_scale)
++			ret = ov6650_s_fmt(sd, mf->code, half_scale);
+ 		if (ret)
+ 			return ret;
+ 
+@@ -890,9 +904,8 @@ static int ov6650_video_probe(struct v4l2_subdev *sd)
+ 	if (!ret)
+ 		ret = ov6650_prog_dflt(client, xclk->clkrc);
+ 	if (!ret) {
+-		struct v4l2_mbus_framefmt mf = ov6650_def_fmt;
+-
+-		ret = ov6650_s_fmt(sd, &mf);
++		/* driver default frame format, no scaling */
++		ret = ov6650_s_fmt(sd, ov6650_def_fmt.code, false);
+ 	}
+ 	if (!ret)
+ 		ret = v4l2_ctrl_handler_setup(&priv->hdl);
+-- 
+2.34.1
+
 
 
