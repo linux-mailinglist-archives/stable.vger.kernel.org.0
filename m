@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AEDE24F3133
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:39:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 486354F31AC
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:45:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245103AbiDEJLZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:11:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50832 "EHLO
+        id S244346AbiDEKie (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:38:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39964 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244676AbiDEIwc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EC73D76EF;
-        Tue,  5 Apr 2022 01:41:52 -0700 (PDT)
+        with ESMTP id S240484AbiDEJe1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:34:27 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBFF48595F;
+        Tue,  5 Apr 2022 02:24:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ABF7F60FFC;
-        Tue,  5 Apr 2022 08:41:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6797C385A0;
-        Tue,  5 Apr 2022 08:41:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9CC42B81C9A;
+        Tue,  5 Apr 2022 09:24:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE26AC385A2;
+        Tue,  5 Apr 2022 09:23:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148111;
-        bh=oRLN2IlqOxkWoTJkzS7xdz28eTe0nNxu9oZttJFSR0E=;
+        s=korg; t=1649150640;
+        bh=upjup/PH9p+NOiB48oXfZdK7fKPqGxjGolVx04MBn/8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hwOBg8VXCT8b4x46l8y1rno4qistkLIWBOirQHJuz/UFQ6tcsCsoUvTcMypzV4S4J
-         C8DISbFYx5ulY+emrL0p826FCngzABKElUXThSsUZPrk+Oz/VZE0zQaX2OUkqLjhVn
-         Us5a49x2X4ieRb3D5f71uZuB0eGZ2Db6ui4iTrI4=
+        b=0twTTazuZcd/h3Kxb+95JP6UYCGgM5hbMpHGqEqQgEvLobsoL0azjCyn/XZHinnES
+         28rTp55D72EU5DQVZwyezWbbmc5QQJtbPfYr/Nay+XYP/AINv+7lggVBBXOi77rgvI
+         V4SGVMUii1+89EC2tOEeHWAUEBRbAxU4k86xUCpk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Corentin Labbe <clabbe@baylibre.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0238/1017] crypto: amlogic - call finalize with bh disabled
+        stable@vger.kernel.org, Shyam Sundar <ssundar@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        James Smart <jsmart2021@gmail.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.15 089/913] scsi: scsi_transport_fc: Fix FPIN Link Integrity statistics counters
 Date:   Tue,  5 Apr 2022 09:19:11 +0200
-Message-Id: <20220405070401.321973828@linuxfoundation.org>
+Message-Id: <20220405070342.490913973@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +56,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corentin Labbe <clabbe@baylibre.com>
+From: James Smart <jsmart2021@gmail.com>
 
-[ Upstream commit dba633342994ce47d347bcf5522ba28301247b79 ]
+commit 07e0984b96ec1ba8c6de1c092b986b00ea0c114c upstream.
 
-Doing ipsec produces a spinlock recursion warning.
-This is due to not disabling BH during crypto completion function.
+In the original FPIN commit, stats were incremented by the event_count.
+Event_count is the minimum # of events that must occur before an FPIN is
+sent. Thus, its not the actual number of events, and could be significantly
+off (too low) as it doesn't reflect anything not reported.  Rather than
+attempt to count events, have the statistic count how many FPINS cross the
+threshold and were reported.
 
-Fixes: 48fe583fe541 ("crypto: amlogic - Add crypto accelerator for amlogic GXL")
-Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/20220301175536.60250-1-jsmart2021@gmail.com
+Fixes: 3dcfe0de5a97 ("scsi: fc: Parse FPIN packets and update statistics")
+Cc: <stable@vger.kernel.org> # v5.11+
+Cc: Shyam Sundar <ssundar@marvell.com>
+Cc: Nilesh Javali <njavali@marvell.com>
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/crypto/amlogic/amlogic-gxl-cipher.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/scsi/scsi_transport_fc.c |   39 ++++++++++++++++-----------------------
+ 1 file changed, 16 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/crypto/amlogic/amlogic-gxl-cipher.c b/drivers/crypto/amlogic/amlogic-gxl-cipher.c
-index c6865cbd334b..e79514fce731 100644
---- a/drivers/crypto/amlogic/amlogic-gxl-cipher.c
-+++ b/drivers/crypto/amlogic/amlogic-gxl-cipher.c
-@@ -265,7 +265,9 @@ static int meson_handle_cipher_request(struct crypto_engine *engine,
- 	struct skcipher_request *breq = container_of(areq, struct skcipher_request, base);
+--- a/drivers/scsi/scsi_transport_fc.c
++++ b/drivers/scsi/scsi_transport_fc.c
+@@ -34,7 +34,7 @@ static int fc_bsg_hostadd(struct Scsi_Ho
+ static int fc_bsg_rportadd(struct Scsi_Host *, struct fc_rport *);
+ static void fc_bsg_remove(struct request_queue *);
+ static void fc_bsg_goose_queue(struct fc_rport *);
+-static void fc_li_stats_update(struct fc_fn_li_desc *li_desc,
++static void fc_li_stats_update(u16 event_type,
+ 			       struct fc_fpin_stats *stats);
+ static void fc_delivery_stats_update(u32 reason_code,
+ 				     struct fc_fpin_stats *stats);
+@@ -670,42 +670,34 @@ fc_find_rport_by_wwpn(struct Scsi_Host *
+ EXPORT_SYMBOL(fc_find_rport_by_wwpn);
  
- 	err = meson_cipher(breq);
-+	local_bh_disable();
- 	crypto_finalize_skcipher_request(engine, breq, err);
-+	local_bh_enable();
- 
- 	return 0;
+ static void
+-fc_li_stats_update(struct fc_fn_li_desc *li_desc,
++fc_li_stats_update(u16 event_type,
+ 		   struct fc_fpin_stats *stats)
+ {
+-	stats->li += be32_to_cpu(li_desc->event_count);
+-	switch (be16_to_cpu(li_desc->event_type)) {
++	stats->li++;
++	switch (event_type) {
+ 	case FPIN_LI_UNKNOWN:
+-		stats->li_failure_unknown +=
+-		    be32_to_cpu(li_desc->event_count);
++		stats->li_failure_unknown++;
+ 		break;
+ 	case FPIN_LI_LINK_FAILURE:
+-		stats->li_link_failure_count +=
+-		    be32_to_cpu(li_desc->event_count);
++		stats->li_link_failure_count++;
+ 		break;
+ 	case FPIN_LI_LOSS_OF_SYNC:
+-		stats->li_loss_of_sync_count +=
+-		    be32_to_cpu(li_desc->event_count);
++		stats->li_loss_of_sync_count++;
+ 		break;
+ 	case FPIN_LI_LOSS_OF_SIG:
+-		stats->li_loss_of_signals_count +=
+-		    be32_to_cpu(li_desc->event_count);
++		stats->li_loss_of_signals_count++;
+ 		break;
+ 	case FPIN_LI_PRIM_SEQ_ERR:
+-		stats->li_prim_seq_err_count +=
+-		    be32_to_cpu(li_desc->event_count);
++		stats->li_prim_seq_err_count++;
+ 		break;
+ 	case FPIN_LI_INVALID_TX_WD:
+-		stats->li_invalid_tx_word_count +=
+-		    be32_to_cpu(li_desc->event_count);
++		stats->li_invalid_tx_word_count++;
+ 		break;
+ 	case FPIN_LI_INVALID_CRC:
+-		stats->li_invalid_crc_count +=
+-		    be32_to_cpu(li_desc->event_count);
++		stats->li_invalid_crc_count++;
+ 		break;
+ 	case FPIN_LI_DEVICE_SPEC:
+-		stats->li_device_specific +=
+-		    be32_to_cpu(li_desc->event_count);
++		stats->li_device_specific++;
+ 		break;
+ 	}
  }
--- 
-2.34.1
-
+@@ -767,6 +759,7 @@ fc_fpin_li_stats_update(struct Scsi_Host
+ 	struct fc_rport *attach_rport = NULL;
+ 	struct fc_host_attrs *fc_host = shost_to_fc_host(shost);
+ 	struct fc_fn_li_desc *li_desc = (struct fc_fn_li_desc *)tlv;
++	u16 event_type = be16_to_cpu(li_desc->event_type);
+ 	u64 wwpn;
+ 
+ 	rport = fc_find_rport_by_wwpn(shost,
+@@ -775,7 +768,7 @@ fc_fpin_li_stats_update(struct Scsi_Host
+ 	    (rport->roles & FC_PORT_ROLE_FCP_TARGET ||
+ 	     rport->roles & FC_PORT_ROLE_NVME_TARGET)) {
+ 		attach_rport = rport;
+-		fc_li_stats_update(li_desc, &attach_rport->fpin_stats);
++		fc_li_stats_update(event_type, &attach_rport->fpin_stats);
+ 	}
+ 
+ 	if (be32_to_cpu(li_desc->pname_count) > 0) {
+@@ -789,14 +782,14 @@ fc_fpin_li_stats_update(struct Scsi_Host
+ 			    rport->roles & FC_PORT_ROLE_NVME_TARGET)) {
+ 				if (rport == attach_rport)
+ 					continue;
+-				fc_li_stats_update(li_desc,
++				fc_li_stats_update(event_type,
+ 						   &rport->fpin_stats);
+ 			}
+ 		}
+ 	}
+ 
+ 	if (fc_host->port_name == be64_to_cpu(li_desc->attached_wwpn))
+-		fc_li_stats_update(li_desc, &fc_host->fpin_stats);
++		fc_li_stats_update(event_type, &fc_host->fpin_stats);
+ }
+ 
+ /*
 
 
