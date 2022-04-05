@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 565524F2A4B
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 12:54:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A76C04F2C26
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:23:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237105AbiDEJD4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:03:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34720 "EHLO
+        id S238416AbiDEJQF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:16:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50874 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236376AbiDEIQn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:16:43 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC8557092D;
-        Tue,  5 Apr 2022 01:04:10 -0700 (PDT)
+        with ESMTP id S244998AbiDEIxA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:53:00 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4839BE3F;
+        Tue,  5 Apr 2022 01:49:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CE9CDB81B9C;
-        Tue,  5 Apr 2022 08:03:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44BDAC385A0;
-        Tue,  5 Apr 2022 08:03:53 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 0D140CE1C2B;
+        Tue,  5 Apr 2022 08:48:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 246FEC385A1;
+        Tue,  5 Apr 2022 08:48:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145833;
-        bh=fCRnFLF8zwtu51VJX15c89qRwAQ61q0ACsOM/VyssFw=;
+        s=korg; t=1649148537;
+        bh=dUPMWY3No3ZtlmW5feTBsUwdpyUR2ssd5bqEdS1TjXY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZqAZFxT2edDh/HPyK8yBUfMmLqd5hcXJ3VCL/ewHuJUWWpJpX7RmmtM7jAxkipwib
-         L2wl+FH4WeYXhU18NojSR9eGap9bIbDK1tywItAbAAwOedgOr9e4F6ASmbhWNz42o2
-         +A/XxBoeQ7qeidU2LBbL1U6hWeFvQYms1fw+mFsM=
+        b=fl0dC/Iy96KmL0TKHoU1eg7Io/rjcAIzPrzy529NxlewwRXP02E9z065klMH6XceV
+         1uQ3D5Acq+tXL6X5zhVsxHgkrrVeW3P5B8BuWLwvoPCbH8YmQp5kfgKTzL8iegs30v
+         H7+Zgo3rPMdevAdzwe2bPckaWtkFOKrC8Lnvvd9U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ryder Lee <ryder.lee@mediatek.com>,
-        MeiChia Chiu <meichia.chiu@mediatek.com>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0509/1126] mt76: mt7915: fix the nss setting in bitrates
+        stable@vger.kernel.org,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0343/1017] ASoC: codecs: wcd934x: fix kcontrol max values
 Date:   Tue,  5 Apr 2022 09:20:56 +0200
-Message-Id: <20220405070422.568385584@linuxfoundation.org>
+Message-Id: <20220405070404.464710729@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: MeiChia Chiu <meichia.chiu@mediatek.com>
+From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 
-[ Upstream commit c41d2a075206fcbdc89695b874a6ac06160b4f1a ]
+[ Upstream commit 61163c3e7480106804269182e24db05244866493 ]
 
-without this change, the fixed MCS only supports 1 Nss.
+set "HPH Type" Kcontrol max value of WCD_MBHC_HPH_STEREO instead of UINT_MAX.
+set "HPHL/R Impedance" Kcontrols max value to INT_MAX instead of UINT_MAX as
+max field is integer type.
 
-Fixes: 70fd1333cd32f ("mt76: mt7915: rework .set_bitrate_mask() to support more options")
-Reviewed-by: Ryder Lee <ryder.lee@mediatek.com>
-Signed-off-by: MeiChia Chiu <meichia.chiu@mediatek.com>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Without this patch amixer for these controls will show -1 as max value to userspace.
+
+Fixes: 9fb9b1690f0b ("ASoC: codecs: wcd934x: add mbhc support")
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20220222183212.11580-9-srinivas.kandagatla@linaro.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt7915/mcu.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ sound/soc/codecs/wcd934x.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c b/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c
-index f7b97b7ab21f..8ff2402c4817 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c
-@@ -2126,9 +2126,12 @@ mt7915_mcu_add_rate_ctrl_fixed(struct mt7915_dev *dev,
- 			phy.sgi |= gi << (i << (_he));				\
- 			phy.he_ltf |= mask->control[band].he_ltf << (i << (_he));\
- 		}								\
--		for (i = 0; i < ARRAY_SIZE(mask->control[band]._mcs); i++) 	\
--			nrates += hweight16(mask->control[band]._mcs[i]);  	\
--		phy.mcs = ffs(mask->control[band]._mcs[0]) - 1;			\
-+		for (i = 0; i < ARRAY_SIZE(mask->control[band]._mcs); i++) {	\
-+			if (!mask->control[band]._mcs[i])			\
-+				continue;					\
-+			nrates += hweight16(mask->control[band]._mcs[i]);	\
-+			phy.mcs = ffs(mask->control[band]._mcs[i]) - 1;		\
-+		}								\
- 	} while (0)
+diff --git a/sound/soc/codecs/wcd934x.c b/sound/soc/codecs/wcd934x.c
+index e63c6b723d76..68c9d694d379 100644
+--- a/sound/soc/codecs/wcd934x.c
++++ b/sound/soc/codecs/wcd934x.c
+@@ -3023,14 +3023,14 @@ static int wcd934x_hph_impedance_get(struct snd_kcontrol *kcontrol,
+ 	return 0;
+ }
+ static const struct snd_kcontrol_new hph_type_detect_controls[] = {
+-	SOC_SINGLE_EXT("HPH Type", 0, 0, UINT_MAX, 0,
++	SOC_SINGLE_EXT("HPH Type", 0, 0, WCD_MBHC_HPH_STEREO, 0,
+ 		       wcd934x_get_hph_type, NULL),
+ };
  
- 	if (sta->he_cap.has_he) {
+ static const struct snd_kcontrol_new impedance_detect_controls[] = {
+-	SOC_SINGLE_EXT("HPHL Impedance", 0, 0, UINT_MAX, 0,
++	SOC_SINGLE_EXT("HPHL Impedance", 0, 0, INT_MAX, 0,
+ 		       wcd934x_hph_impedance_get, NULL),
+-	SOC_SINGLE_EXT("HPHR Impedance", 0, 1, UINT_MAX, 0,
++	SOC_SINGLE_EXT("HPHR Impedance", 0, 1, INT_MAX, 0,
+ 		       wcd934x_hph_impedance_get, NULL),
+ };
+ 
 -- 
 2.34.1
 
