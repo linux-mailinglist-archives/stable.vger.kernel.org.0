@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DEE934F3B2F
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:15:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D12B44F3844
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:32:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243799AbiDELvb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:51:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42278 "EHLO
+        id S1376507AbiDELWP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:22:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356467AbiDEKXz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:23:55 -0400
+        with ESMTP id S1349450AbiDEJtx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:53 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1FE2BC87C;
-        Tue,  5 Apr 2022 03:08:22 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B23BB27B20;
+        Tue,  5 Apr 2022 02:46:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 400726167E;
-        Tue,  5 Apr 2022 10:08:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50916C385A1;
-        Tue,  5 Apr 2022 10:08:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4C4956164D;
+        Tue,  5 Apr 2022 09:46:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E93AC385A3;
+        Tue,  5 Apr 2022 09:46:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153301;
-        bh=xLZ0g/VqrKpcqSVcW8pSHG+RRfkKMtUdbYig9w7nVn8=;
+        s=korg; t=1649151972;
+        bh=Erirp5qaLkmT2KhloGasa14482cQS95b1zyeEUKtpyc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EX7tuzCINvLe9TaTKfksA28nv11farQwWnVYCXCyEhrDbz5OW4qrKDzcEWFtw9jik
-         yn/TleKcKpPJs3uWQi4756+HRu0j4U19AgYGPWMN9UMobBVAYd/d3M6CJKNJYK10dk
-         mwDC8H7SPGgqjBDxC9wwuPxWn75wr5yrRAA331UI=
+        b=mMr+n9w61cnl0LydRa2hhEDZgoMDJxB9UfThttNvQxhU8JqbmlWJqQ4aRlDXMGo83
+         mY2OdxT9pA8El8y7ivf/baSZ7d1PyXGQR5pZW2yVoz6obpVcm6Ha8oI8q4mx4qw7CG
+         LayLWgfc6lIh0aTB7vqe5UmBL5ilMrHlLDXOi5Go=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        Martin Kaiser <martin@kaiser.cx>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 175/599] rseq: Optimise rseq_get_rseq_cs() and clear_rseq_cs()
+Subject: [PATCH 5.15 607/913] staging: r8188eu: fix endless loop in recv_func
 Date:   Tue,  5 Apr 2022 09:27:49 +0200
-Message-Id: <20220405070304.050051081@linuxfoundation.org>
+Message-Id: <20220405070358.036454946@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
-References: <20220405070258.802373272@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,59 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Martin Kaiser <martin@kaiser.cx>
 
-[ Upstream commit 5e0ccd4a3b01c5a71732a13186ca110a138516ea ]
+[ Upstream commit 1327fcf175fa63d3b7a058b8148ed7714acdc035 ]
 
-Commit ec9c82e03a74 ("rseq: uapi: Declare rseq_cs field as union,
-update includes") added regressions for our servers.
+Fix an endless loop in recv_func. If pending_frame is not NULL, we're
+stuck in the while loop forever. We have to call rtw_alloc_recvframe
+each time we loop.
 
-Using copy_from_user() and clear_user() for 64bit values
-is suboptimal.
-
-We can use faster put_user() and get_user() on 64bit arches.
-
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Link: https://lkml.kernel.org/r/20210413203352.71350-4-eric.dumazet@gmail.com
+Fixes: 15865124feed ("staging: r8188eu: introduce new core dir for RTL8188eu driver")
+Reported-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: Martin Kaiser <martin@kaiser.cx>
+Link: https://lore.kernel.org/r/20220226181457.1138035-4-martin@kaiser.cx
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/rseq.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/staging/r8188eu/core/rtw_recv.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/kernel/rseq.c b/kernel/rseq.c
-index 0077713bf240..1b4547e0d841 100644
---- a/kernel/rseq.c
-+++ b/kernel/rseq.c
-@@ -120,8 +120,13 @@ static int rseq_get_rseq_cs(struct task_struct *t, struct rseq_cs *rseq_cs)
- 	u32 sig;
- 	int ret;
+diff --git a/drivers/staging/r8188eu/core/rtw_recv.c b/drivers/staging/r8188eu/core/rtw_recv.c
+index e082edfbaad8..30ca9f1e0363 100644
+--- a/drivers/staging/r8188eu/core/rtw_recv.c
++++ b/drivers/staging/r8188eu/core/rtw_recv.c
+@@ -1942,8 +1942,7 @@ static int recv_func(struct adapter *padapter, struct recv_frame *rframe)
+ 		struct recv_frame *pending_frame;
+ 		int cnt = 0;
  
-+#ifdef CONFIG_64BIT
-+	if (get_user(ptr, &t->rseq->rseq_cs.ptr64))
-+		return -EFAULT;
-+#else
- 	if (copy_from_user(&ptr, &t->rseq->rseq_cs.ptr64, sizeof(ptr)))
- 		return -EFAULT;
-+#endif
- 	if (!ptr) {
- 		memset(rseq_cs, 0, sizeof(*rseq_cs));
- 		return 0;
-@@ -204,9 +209,13 @@ static int clear_rseq_cs(struct task_struct *t)
- 	 *
- 	 * Set rseq_cs to NULL.
- 	 */
-+#ifdef CONFIG_64BIT
-+	return put_user(0UL, &t->rseq->rseq_cs.ptr64);
-+#else
- 	if (clear_user(&t->rseq->rseq_cs.ptr64, sizeof(t->rseq->rseq_cs.ptr64)))
- 		return -EFAULT;
- 	return 0;
-+#endif
- }
- 
- /*
+-		pending_frame = rtw_alloc_recvframe(&padapter->recvpriv.uc_swdec_pending_queue);
+-		while (pending_frame) {
++		while ((pending_frame = rtw_alloc_recvframe(&padapter->recvpriv.uc_swdec_pending_queue))) {
+ 			cnt++;
+ 			recv_func_posthandle(padapter, pending_frame);
+ 		}
 -- 
 2.34.1
 
