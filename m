@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DD26C4F318F
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:45:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D45F4F35EC
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:55:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234566AbiDEIlR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:41:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34732 "EHLO
+        id S241134AbiDEKz4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:55:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59292 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237541AbiDEISG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:18:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE62369CF4;
-        Tue,  5 Apr 2022 01:06:45 -0700 (PDT)
+        with ESMTP id S1346496AbiDEJpI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:45:08 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB913DA6EA;
+        Tue,  5 Apr 2022 02:30:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6B97EB81BB4;
-        Tue,  5 Apr 2022 08:06:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6A07C385A2;
-        Tue,  5 Apr 2022 08:06:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 742C6B81CB3;
+        Tue,  5 Apr 2022 09:30:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6695C385A0;
+        Tue,  5 Apr 2022 09:30:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146003;
-        bh=qzAvW9RzyCaxJmIAsvW53z2dGPFwCk7vahVtiI2QiTU=;
+        s=korg; t=1649151048;
+        bh=ILHz7ulA5x04gj7iYCp96oECxga7eMHwl9e/gQq2a24=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fevHj2Ilqid/Pcu1j0W5qg8YDacnmTfsCjZuuskpt1Z5cV5NpSLYAxC2AeYciQBJ4
-         D/mqI7U9+2rEf2DkRdpo9jxqDp+Zt2yCk1svcsxjN61hrzasBKPAZr1qAXK0SJdL0X
-         8myg3pWs7+iwN7IDiuocWX1ohsoSoKaIPvlf9CyY=
+        b=saLO13AtUVyYeMBtU9tQMWTG35YsOhXaSIDPB6zF8DK44pZ8C4FFUIpnTEQeXHJDa
+         xl7vi+jLfbcznc9+vLDbUGwQ4Xd14PSiE4m7CEr3C4J/rMNnOCA0TvD9luCqRhQWGr
+         F92R7ENtiqxeh74BgGUGItJnk9FtLxxNQma/TayI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jack Wang <jinpu.wang@ionos.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Ondrej Zary <linux@zary.sk>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0590/1126] scsi: pm8001: Fix NCQ NON DATA command task initialization
+Subject: [PATCH 5.15 275/913] media: bttv: fix WARNING regression on tunerless devices
 Date:   Tue,  5 Apr 2022 09:22:17 +0200
-Message-Id: <20220405070424.950686770@linuxfoundation.org>
+Message-Id: <20220405070348.100992793@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,99 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+From: Ondrej Zary <linux@zary.sk>
 
-[ Upstream commit aa028141ab0bc62c44a84d42f09db35d82df82a2 ]
+[ Upstream commit ef058cc8b7193d15a771272359c7454839ae74ee ]
 
-In the pm8001_chip_sata_req() and pm80xx_chip_sata_req() functions, all
-tasks with a DMA direction of DMA_NONE (no data transfer) are initialized
-using the ATAP value 0x04. However, NCQ NON DATA commands, while being
-DMA_NONE commands are NCQ commands and need to be initialized using the
-value 0x07 for ATAP, similarly to other NCQ commands.
+Commit 2161536516ed ("media: media/pci: set device_caps in struct video_device")
+introduced a regression: V4L2_CAP_TUNER is always present in device_caps,
+even when the device has no tuner.
 
-Make sure that NCQ NON DATA command tasks are initialized similarly to
-other NCQ commands by also testing the task "use_ncq" field in addition to
-the DMA direction. While at it, reorganize the code into a chain of if -
-else if - else to avoid useless affectations and debug messages.
+This causes a warning:
+WARNING: CPU: 0 PID: 249 at drivers/media/v4l2-core/v4l2-ioctl.c:1102 v4l_querycap+0xa0/0xb0 [videodev]
 
-Link: https://lore.kernel.org/r/20220220031810.738362-15-damien.lemoal@opensource.wdc.com
-Fixes: dbf9bfe61571 ("[SCSI] pm8001: add SAS/SATA HBA driver")
-Reviewed-by: Jack Wang <jinpu.wang@ionos.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 2161536516ed ("media: media/pci: set device_caps in struct video_device")
+Signed-off-by: Ondrej Zary <linux@zary.sk>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/pm8001/pm8001_hwi.c | 14 +++++++-------
- drivers/scsi/pm8001/pm80xx_hwi.c | 13 ++++++-------
- 2 files changed, 13 insertions(+), 14 deletions(-)
+ drivers/media/pci/bt8xx/bttv-driver.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/pm8001/pm8001_hwi.c b/drivers/scsi/pm8001/pm8001_hwi.c
-index 43c2ab90f711..9d982eb970fe 100644
---- a/drivers/scsi/pm8001/pm8001_hwi.c
-+++ b/drivers/scsi/pm8001/pm8001_hwi.c
-@@ -4271,22 +4271,22 @@ static int pm8001_chip_sata_req(struct pm8001_hba_info *pm8001_ha,
- 	u32  opc = OPC_INB_SATA_HOST_OPSTART;
- 	memset(&sata_cmd, 0, sizeof(sata_cmd));
- 	circularQ = &pm8001_ha->inbnd_q_tbl[0];
--	if (task->data_dir == DMA_NONE) {
-+
-+	if (task->data_dir == DMA_NONE && !task->ata_task.use_ncq) {
- 		ATAP = 0x04;  /* no data*/
- 		pm8001_dbg(pm8001_ha, IO, "no data\n");
- 	} else if (likely(!task->ata_task.device_control_reg_update)) {
--		if (task->ata_task.dma_xfer) {
-+		if (task->ata_task.use_ncq &&
-+		    dev->sata_dev.class != ATA_DEV_ATAPI) {
-+			ATAP = 0x07; /* FPDMA */
-+			pm8001_dbg(pm8001_ha, IO, "FPDMA\n");
-+		} else if (task->ata_task.dma_xfer) {
- 			ATAP = 0x06; /* DMA */
- 			pm8001_dbg(pm8001_ha, IO, "DMA\n");
- 		} else {
- 			ATAP = 0x05; /* PIO*/
- 			pm8001_dbg(pm8001_ha, IO, "PIO\n");
- 		}
--		if (task->ata_task.use_ncq &&
--			dev->sata_dev.class != ATA_DEV_ATAPI) {
--			ATAP = 0x07; /* FPDMA */
--			pm8001_dbg(pm8001_ha, IO, "FPDMA\n");
--		}
- 	}
- 	if (task->ata_task.use_ncq && pm8001_get_ncq_tag(task, &hdr_tag)) {
- 		task->ata_task.fis.sector_count |= (u8) (hdr_tag << 3);
-diff --git a/drivers/scsi/pm8001/pm80xx_hwi.c b/drivers/scsi/pm8001/pm80xx_hwi.c
-index 0b4261735c03..4c19691a2bce 100644
---- a/drivers/scsi/pm8001/pm80xx_hwi.c
-+++ b/drivers/scsi/pm8001/pm80xx_hwi.c
-@@ -4552,22 +4552,21 @@ static int pm80xx_chip_sata_req(struct pm8001_hba_info *pm8001_ha,
- 	q_index = (u32) (cpu_id) % (pm8001_ha->max_q_num);
- 	circularQ = &pm8001_ha->inbnd_q_tbl[q_index];
+diff --git a/drivers/media/pci/bt8xx/bttv-driver.c b/drivers/media/pci/bt8xx/bttv-driver.c
+index 0e9df8b35ac6..661ebfa7bf3f 100644
+--- a/drivers/media/pci/bt8xx/bttv-driver.c
++++ b/drivers/media/pci/bt8xx/bttv-driver.c
+@@ -3890,7 +3890,7 @@ static int bttv_register_video(struct bttv *btv)
  
--	if (task->data_dir == DMA_NONE) {
-+	if (task->data_dir == DMA_NONE && !task->ata_task.use_ncq) {
- 		ATAP = 0x04; /* no data*/
- 		pm8001_dbg(pm8001_ha, IO, "no data\n");
- 	} else if (likely(!task->ata_task.device_control_reg_update)) {
--		if (task->ata_task.dma_xfer) {
-+		if (task->ata_task.use_ncq &&
-+		    dev->sata_dev.class != ATA_DEV_ATAPI) {
-+			ATAP = 0x07; /* FPDMA */
-+			pm8001_dbg(pm8001_ha, IO, "FPDMA\n");
-+		} else if (task->ata_task.dma_xfer) {
- 			ATAP = 0x06; /* DMA */
- 			pm8001_dbg(pm8001_ha, IO, "DMA\n");
- 		} else {
- 			ATAP = 0x05; /* PIO*/
- 			pm8001_dbg(pm8001_ha, IO, "PIO\n");
- 		}
--		if (task->ata_task.use_ncq &&
--		    dev->sata_dev.class != ATA_DEV_ATAPI) {
--			ATAP = 0x07; /* FPDMA */
--			pm8001_dbg(pm8001_ha, IO, "FPDMA\n");
--		}
- 	}
- 	if (task->ata_task.use_ncq && pm8001_get_ncq_tag(task, &hdr_tag)) {
- 		task->ata_task.fis.sector_count |= (u8) (hdr_tag << 3);
+ 	/* video */
+ 	vdev_init(btv, &btv->video_dev, &bttv_video_template, "video");
+-	btv->video_dev.device_caps = V4L2_CAP_VIDEO_CAPTURE | V4L2_CAP_TUNER |
++	btv->video_dev.device_caps = V4L2_CAP_VIDEO_CAPTURE |
+ 				     V4L2_CAP_READWRITE | V4L2_CAP_STREAMING;
+ 	if (btv->tuner_type != TUNER_ABSENT)
+ 		btv->video_dev.device_caps |= V4L2_CAP_TUNER;
+@@ -3911,7 +3911,7 @@ static int bttv_register_video(struct bttv *btv)
+ 	/* vbi */
+ 	vdev_init(btv, &btv->vbi_dev, &bttv_video_template, "vbi");
+ 	btv->vbi_dev.device_caps = V4L2_CAP_VBI_CAPTURE | V4L2_CAP_READWRITE |
+-				   V4L2_CAP_STREAMING | V4L2_CAP_TUNER;
++				   V4L2_CAP_STREAMING;
+ 	if (btv->tuner_type != TUNER_ABSENT)
+ 		btv->vbi_dev.device_caps |= V4L2_CAP_TUNER;
+ 
 -- 
 2.34.1
 
