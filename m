@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7899D4F3743
+	by mail.lfdr.de (Postfix) with ESMTP id C3FB44F3744
 	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:19:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352633AbiDELL7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:11:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39718 "EHLO
+        id S1352658AbiDELMF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:12:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39896 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348924AbiDEJss (ORCPT
+        with ESMTP id S1348923AbiDEJss (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:48:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAFDAEE4F1;
-        Tue,  5 Apr 2022 02:37:38 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A584EE4F2;
+        Tue,  5 Apr 2022 02:37:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6891661577;
-        Tue,  5 Apr 2022 09:37:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B90AC385A2;
-        Tue,  5 Apr 2022 09:37:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 364B66164D;
+        Tue,  5 Apr 2022 09:37:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 438BFC385A0;
+        Tue,  5 Apr 2022 09:37:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151457;
-        bh=XSfy//YYcopjlaHQsWH9cy6ABdbOfQiF+txQ3zMQlmQ=;
+        s=korg; t=1649151460;
+        bh=FsqVb7UY4dwPIR3FljaqZy0qpdr4pSnoSN/L8zEspPU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XMmxQcEhfjmuGwb1GWrwo18lraIAVbzBZajDB40bP3mwN8jKyCc+2uEYMSDniqPq7
-         OmwqZ0dLZEjtSXVq6+cO5/LjMcnm+R0tIvd5udgr4f960b9fVTAcw3ssgJlozJVK3s
-         y/mrazUHDc/eY6jToowZUBQ5tDUxDGv2GfQCnRdE=
+        b=grJ19rz0icPRHRPlUAGg4Ko8/e8hXQnMo1YHSokXGaGtvdzavduBsOS0KngDesZT6
+         sdGM2trRwAbeKycC1Y8UlvLCNubV5ZLCN1oex67UzMPM/qoKSXzpoEVUyjvCalx+yB
+         hpKJcwQ0Jgco7p44UjD8wmchhl/EsTcWr7V0lk8U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
         Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 423/913] mt76: mt7915: use proper aid value in mt7915_mcu_sta_basic_tlv
-Date:   Tue,  5 Apr 2022 09:24:45 +0200
-Message-Id: <20220405070352.525143221@linuxfoundation.org>
+Subject: [PATCH 5.15 424/913] mt76: mt7921: fix a leftover race in runtime-pm
+Date:   Tue,  5 Apr 2022 09:24:46 +0200
+Message-Id: <20220405070352.554938115@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -55,47 +55,39 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-[ Upstream commit abdb8bc94be4cf68aa71c9a8ee0bad9b3e6f52d3 ]
+[ Upstream commit 591cdccebdd4d02eb46d400dea911136400cc567 ]
 
-Similar to mt7915_mcu_wtbl_generic_tlv, rely on vif->bss_conf.aid for
-aid in sta mode and not on sta->aid.
+Fix a possible race in mt7921_pm_power_save_work() if rx/tx napi
+schedules ps_work and we are currently accessing device register
+on a different cpu.
 
-Fixes: e57b7901469fc ("mt76: add mac80211 driver for MT7915 PCIe-based chipsets")
+Fixes: 1d8efc741df8 ("mt76: mt7921: introduce Runtime PM support")
 Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
 Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt7915/mcu.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/wireless/mediatek/mt76/mt7921/mac.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c b/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c
-index b157db9f8903..e9d854e3293e 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c
-@@ -1454,12 +1454,15 @@ mt7915_mcu_sta_basic_tlv(struct sk_buff *skb, struct ieee80211_vif *vif,
- 	case NL80211_IFTYPE_MESH_POINT:
- 	case NL80211_IFTYPE_AP:
- 		basic->conn_type = cpu_to_le32(CONNECTION_INFRA_STA);
-+		basic->aid = cpu_to_le16(sta->aid);
- 		break;
- 	case NL80211_IFTYPE_STATION:
- 		basic->conn_type = cpu_to_le32(CONNECTION_INFRA_AP);
-+		basic->aid = cpu_to_le16(vif->bss_conf.aid);
- 		break;
- 	case NL80211_IFTYPE_ADHOC:
- 		basic->conn_type = cpu_to_le32(CONNECTION_IBSS_ADHOC);
-+		basic->aid = cpu_to_le16(sta->aid);
- 		break;
- 	default:
- 		WARN_ON(1);
-@@ -1467,7 +1470,6 @@ mt7915_mcu_sta_basic_tlv(struct sk_buff *skb, struct ieee80211_vif *vif,
- 	}
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/mac.c b/drivers/net/wireless/mediatek/mt76/mt7921/mac.c
+index 04a288029c98..c093920a597d 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7921/mac.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7921/mac.c
+@@ -1550,6 +1550,14 @@ void mt7921_pm_power_save_work(struct work_struct *work)
+ 	    test_bit(MT76_HW_SCHED_SCANNING, &mphy->state))
+ 		goto out;
  
- 	memcpy(basic->peer_addr, sta->addr, ETH_ALEN);
--	basic->aid = cpu_to_le16(sta->aid);
- 	basic->qos = sta->wme;
- }
- 
++	if (mutex_is_locked(&dev->mt76.mutex))
++		/* if mt76 mutex is held we should not put the device
++		 * to sleep since we are currently accessing device
++		 * register map. We need to wait for the next power_save
++		 * trigger.
++		 */
++		goto out;
++
+ 	if (time_is_after_jiffies(dev->pm.last_activity + delta)) {
+ 		delta = dev->pm.last_activity + delta - jiffies;
+ 		goto out;
 -- 
 2.34.1
 
