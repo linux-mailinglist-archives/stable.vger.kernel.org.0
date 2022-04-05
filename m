@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FA574F3125
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:39:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2FC64F2FE9
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:18:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353588AbiDEKIQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:08:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34658 "EHLO
+        id S237465AbiDEIm1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:42:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52872 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344402AbiDEJTv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:19:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC567305;
-        Tue,  5 Apr 2022 02:08:10 -0700 (PDT)
+        with ESMTP id S240169AbiDEIbq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:31:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F634B869;
+        Tue,  5 Apr 2022 01:23:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 729D6B81A12;
-        Tue,  5 Apr 2022 09:08:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D856BC385A0;
-        Tue,  5 Apr 2022 09:08:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 70F4CB81B13;
+        Tue,  5 Apr 2022 08:23:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7B0FC385A0;
+        Tue,  5 Apr 2022 08:23:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149688;
-        bh=5UMlgXP9Kt7zNY8E5AlJDpLF7i4vLGx8OtzMkKu8RiA=;
+        s=korg; t=1649147018;
+        bh=T3kgODDX5p1Yhno/gHslKFRgBU4Q7T8204hWf0ApzHI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IsLzvvlGNtGRTgGRf3H/T+PZbnXtdzxkTv1ueBaCYcKTMbOKdWDOpnlR505+k6d4D
-         gaH1qPxIay9iBXc8/Q4Y4fcOFbr0euTWWk++IcAkHPig9OGZq/edDd/Qoy3Tl5elRw
-         LDzJ6hhII1x4igqjROkmnwK2/qX5wJ67/s41iDYo=
+        b=hQgQHGpN9ywztDluNPDHEWHZFZnso54BiPo0hVPRyEWfjsM4VpstD1j5UJRd1+3II
+         XxDVCmQTJSOorZyFJIRKGD5iz/qoa5rLrBNK8K4M/1VToVhVGvlxVXTnCweDDeeoIV
+         6rxE278tyyLfBgUCCBnPtKFTPNPD2BEPnUJcPYtw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Eugen Hristev <eugen.hristev@microchip.com>,
-        Jacopo Mondi <jacopo@jmondi.org>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0806/1017] media: atmel: atmel-isc-base: report frame sizes as full supported range
-Date:   Tue,  5 Apr 2022 09:28:39 +0200
-Message-Id: <20220405070418.173782477@linuxfoundation.org>
+        stable@vger.kernel.org, Abdul Haleem <abdhalee@linux.vnet.ibm.com>,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Quinn Tran <qutran@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.17 0973/1126] scsi: qla2xxx: Fix warning message due to adisc being flushed
+Date:   Tue,  5 Apr 2022 09:28:40 +0200
+Message-Id: <20220405070436.064129548@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,73 +56,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eugen Hristev <eugen.hristev@microchip.com>
+From: Quinn Tran <qutran@marvell.com>
 
-[ Upstream commit 72802a86e11c34e819fbfb38f58c5aef668f833d ]
+commit 64f24af75b79cba3b86b0760e27e0fa904db570f upstream.
 
-The ISC supports a full broad range of frame sizes.
-Until now, the subdevice was queried for possible frame sizes and these
-were reported to the user space.
-However, the ISC should not care about which frame sizes the subdev
-supports, as long as this frame size is supported.
-Thus, report a continuous range from smallest frame size up to the max
-resolution.
+Fix warning message due to adisc being flushed.  Linux kernel triggered a
+warning message where a different error code type is not matching up with
+the expected type. Add additional translation of one error code type to
+another.
 
-Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
-Reviewed-by: Jacopo Mondi <jacopo@jmondi.org>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+WARNING: CPU: 2 PID: 1131623 at drivers/scsi/qla2xxx/qla_init.c:498
+qla2x00_async_adisc_sp_done+0x294/0x2b0 [qla2xxx]
+CPU: 2 PID: 1131623 Comm: drmgr Not tainted 5.13.0-rc1-autotest #1
+..
+GPR28: c000000aaa9c8890 c0080000079ab678 c00000140a104800 c00000002bd19000
+NIP [c00800000790857c] qla2x00_async_adisc_sp_done+0x294/0x2b0 [qla2xxx]
+LR [c008000007908578] qla2x00_async_adisc_sp_done+0x290/0x2b0 [qla2xxx]
+Call Trace:
+[c00000001cdc3620] [c008000007908578] qla2x00_async_adisc_sp_done+0x290/0x2b0 [qla2xxx] (unreliable)
+[c00000001cdc3710] [c0080000078f3080] __qla2x00_abort_all_cmds+0x1b8/0x580 [qla2xxx]
+[c00000001cdc3840] [c0080000078f589c] qla2x00_abort_all_cmds+0x34/0xd0 [qla2xxx]
+[c00000001cdc3880] [c0080000079153d8] qla2x00_abort_isp_cleanup+0x3f0/0x570 [qla2xxx]
+[c00000001cdc3920] [c0080000078fb7e8] qla2x00_remove_one+0x3d0/0x480 [qla2xxx]
+[c00000001cdc39b0] [c00000000071c274] pci_device_remove+0x64/0x120
+[c00000001cdc39f0] [c0000000007fb818] device_release_driver_internal+0x168/0x2a0
+[c00000001cdc3a30] [c00000000070e304] pci_stop_bus_device+0xb4/0x100
+[c00000001cdc3a70] [c00000000070e4f0] pci_stop_and_remove_bus_device+0x20/0x40
+[c00000001cdc3aa0] [c000000000073940] pci_hp_remove_devices+0x90/0x130
+[c00000001cdc3b30] [c0080000070704d0] disable_slot+0x38/0x90 [rpaphp] [
+c00000001cdc3b60] [c00000000073eb4c] power_write_file+0xcc/0x180
+[c00000001cdc3be0] [c0000000007354bc] pci_slot_attr_store+0x3c/0x60
+[c00000001cdc3c00] [c00000000055f820] sysfs_kf_write+0x60/0x80 [c00000001cdc3c20]
+[c00000000055df10] kernfs_fop_write_iter+0x1a0/0x290
+[c00000001cdc3c70] [c000000000447c4c] new_sync_write+0x14c/0x1d0
+[c00000001cdc3d10] [c00000000044b134] vfs_write+0x224/0x330
+[c00000001cdc3d60] [c00000000044b3f4] ksys_write+0x74/0x130
+[c00000001cdc3db0] [c00000000002df70] system_call_exception+0x150/0x2d0
+[c00000001cdc3e10] [c00000000000d45c] system_call_common+0xec/0x278
+
+Link: https://lore.kernel.org/r/20220110050218.3958-5-njavali@marvell.com
+Cc: stable@vger.kernel.org
+Reported-by: Abdul Haleem <abdhalee@linux.vnet.ibm.com>
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Quinn Tran <qutran@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/platform/atmel/atmel-isc-base.c | 22 +++++++++----------
- 1 file changed, 10 insertions(+), 12 deletions(-)
+ drivers/scsi/qla2xxx/qla_init.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/media/platform/atmel/atmel-isc-base.c b/drivers/media/platform/atmel/atmel-isc-base.c
-index 660cd0ab6749..24807782c9e5 100644
---- a/drivers/media/platform/atmel/atmel-isc-base.c
-+++ b/drivers/media/platform/atmel/atmel-isc-base.c
-@@ -1369,14 +1369,12 @@ static int isc_enum_framesizes(struct file *file, void *fh,
- 			       struct v4l2_frmsizeenum *fsize)
- {
- 	struct isc_device *isc = video_drvdata(file);
--	struct v4l2_subdev_frame_size_enum fse = {
--		.code = isc->config.sd_format->mbus_code,
--		.index = fsize->index,
--		.which = V4L2_SUBDEV_FORMAT_ACTIVE,
--	};
- 	int ret = -EINVAL;
- 	int i;
+--- a/drivers/scsi/qla2xxx/qla_init.c
++++ b/drivers/scsi/qla2xxx/qla_init.c
+@@ -295,6 +295,8 @@ static void qla2x00_async_login_sp_done(
+ 		ea.iop[0] = lio->u.logio.iop[0];
+ 		ea.iop[1] = lio->u.logio.iop[1];
+ 		ea.sp = sp;
++		if (res)
++			ea.data[0] = MBS_COMMAND_ERROR;
+ 		qla24xx_handle_plogi_done_event(vha, &ea);
+ 	}
  
-+	if (fsize->index)
-+		return -EINVAL;
-+
- 	for (i = 0; i < isc->num_user_formats; i++)
- 		if (isc->user_formats[i]->fourcc == fsize->pixel_format)
- 			ret = 0;
-@@ -1388,14 +1386,14 @@ static int isc_enum_framesizes(struct file *file, void *fh,
- 	if (ret)
- 		return ret;
+@@ -557,6 +559,8 @@ static void qla2x00_async_adisc_sp_done(
+ 	ea.iop[1] = lio->u.logio.iop[1];
+ 	ea.fcport = sp->fcport;
+ 	ea.sp = sp;
++	if (res)
++		ea.data[0] = MBS_COMMAND_ERROR;
  
--	ret = v4l2_subdev_call(isc->current_subdev->sd, pad, enum_frame_size,
--			       NULL, &fse);
--	if (ret)
--		return ret;
-+	fsize->type = V4L2_FRMSIZE_TYPE_CONTINUOUS;
+ 	qla24xx_handle_adisc_event(vha, &ea);
+ 	/* ref: INIT */
+@@ -1237,6 +1241,8 @@ static void qla2x00_async_prli_sp_done(s
+ 		ea.sp = sp;
+ 		if (res == QLA_OS_TIMER_EXPIRED)
+ 			ea.data[0] = QLA_OS_TIMER_EXPIRED;
++		else if (res)
++			ea.data[0] = MBS_COMMAND_ERROR;
  
--	fsize->type = V4L2_FRMSIZE_TYPE_DISCRETE;
--	fsize->discrete.width = fse.max_width;
--	fsize->discrete.height = fse.max_height;
-+	fsize->stepwise.min_width = 16;
-+	fsize->stepwise.max_width = isc->max_width;
-+	fsize->stepwise.min_height = 16;
-+	fsize->stepwise.max_height = isc->max_height;
-+	fsize->stepwise.step_width = 1;
-+	fsize->stepwise.step_height = 1;
- 
- 	return 0;
- }
--- 
-2.34.1
-
+ 		qla24xx_handle_prli_done_event(vha, &ea);
+ 	}
 
 
