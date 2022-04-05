@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 930864F2C6B
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:30:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B6074F2E48
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:59:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343888AbiDEJOt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:14:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46800 "EHLO
+        id S1349007AbiDEKuB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:50:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50288 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244896AbiDEIwp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:45 -0400
+        with ESMTP id S1344477AbiDEJmF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:42:05 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6C5F2458A;
-        Tue,  5 Apr 2022 01:45:50 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7F16BE9C7;
+        Tue,  5 Apr 2022 02:27:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5028FB81BAE;
-        Tue,  5 Apr 2022 08:45:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96818C385A0;
-        Tue,  5 Apr 2022 08:45:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E0CB2B81C6E;
+        Tue,  5 Apr 2022 09:27:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37BB6C385A0;
+        Tue,  5 Apr 2022 09:27:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148348;
-        bh=HWxjACHl9Ir8KVcVfW8mCP3H8HhaV08T+cFUkUDcZTQ=;
+        s=korg; t=1649150863;
+        bh=XQzzdibhL0otRHSkdbIMNyKyXU70t8rbk4JAHgEy2QE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WU8vSjhxfwUfKs9jwEym2vAk9tTId714y+au48/IY7aOnPNeRHE6IxhN8XDXNRcEa
-         HfLo0AcGokHdzlkdEDK5+XbNSn4HNLRiAFhSOTMwdxDeI1CP/uT2rOHd0bn3u7ett7
-         EGf/lYRA2f8kt5hLkW9t3kM8cpnuEr0psNWjMRT8=
+        b=ZhvooKbzbUQx943pCD5TtNdk8IXIAiys6v0E3/Db5nvZn2lP49jKJcHb0pAa8V2S4
+         1UXayNxAygKWbAbeUmPWjTbmQU7EhVuP8aM1xRstVdGlqUJGke2WUTBgdQDx+DaNIr
+         WlfYWRxj+YE/FNilEO7u6l1YG6Nhr14mJE/ynt0A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Nishanth Menon <nm@ti.com>, Dave Gerlach <d-gerlach@ti.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0324/1017] soc: ti: wkup_m3_ipc: Fix IRQ check in wkup_m3_ipc_probe
-Date:   Tue,  5 Apr 2022 09:20:37 +0200
-Message-Id: <20220405070403.897260482@linuxfoundation.org>
+        stable@vger.kernel.org, Lyude Paul <lyude@redhat.com>,
+        Karol Herbst <kherbst@redhat.com>
+Subject: [PATCH 5.15 176/913] drm/nouveau/backlight: Fix LVDS backlight detection on some laptops
+Date:   Tue,  5 Apr 2022 09:20:38 +0200
+Message-Id: <20220405070345.127736150@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Lyude Paul <lyude@redhat.com>
 
-[ Upstream commit c3d66a164c726cc3b072232d3b6d87575d194084 ]
+commit 6b0076540faffd47f5a899bf12f3528c4f0e726b upstream.
 
-platform_get_irq() returns negative error number instead 0 on failure.
-And the doc of platform_get_irq() provides a usage example:
+It seems that some laptops will report having both an eDP and LVDS
+connector, even though only the LVDS connector is actually hooked up. This
+can lead to issues with backlight registration if the eDP connector ends up
+getting registered before the LVDS connector, as the backlight device will
+then be registered to the eDP connector instead of the LVDS connector.
 
-    int irq = platform_get_irq(pdev, 0);
-    if (irq < 0)
-        return irq;
+So, fix this by only registering the backlight on connectors that are
+reported as being connected.
 
-Fix the check of return value to catch errors correctly.
-
-Fixes: cdd5de500b2c ("soc: ti: Add wkup_m3_ipc driver")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: Nishanth Menon <nm@ti.com>
-Acked-by: Dave Gerlach <d-gerlach@ti.com>
-Link: https://lore.kernel.org/r/20220114062840.16620-1-linmq006@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Lyude Paul <lyude@redhat.com>
+Fixes: 6eca310e8924 ("drm/nouveau/kms/nv50-: Add basic DPCD backlight support for nouveau")
+Bugzilla: https://gitlab.freedesktop.org/drm/nouveau/-/issues/137
+Cc: <stable@vger.kernel.org> # v5.15+
+Reviewed-by: Karol Herbst <kherbst@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220204180504.328999-1-lyude@redhat.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/soc/ti/wkup_m3_ipc.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/nouveau/nouveau_backlight.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/soc/ti/wkup_m3_ipc.c b/drivers/soc/ti/wkup_m3_ipc.c
-index 72386bd393fe..2f03ced0f411 100644
---- a/drivers/soc/ti/wkup_m3_ipc.c
-+++ b/drivers/soc/ti/wkup_m3_ipc.c
-@@ -450,9 +450,9 @@ static int wkup_m3_ipc_probe(struct platform_device *pdev)
- 		return PTR_ERR(m3_ipc->ipc_mem_base);
+--- a/drivers/gpu/drm/nouveau/nouveau_backlight.c
++++ b/drivers/gpu/drm/nouveau/nouveau_backlight.c
+@@ -294,7 +294,8 @@ nv50_backlight_init(struct nouveau_backl
+ 	struct nouveau_drm *drm = nouveau_drm(nv_encoder->base.base.dev);
+ 	struct nvif_object *device = &drm->client.device.object;
  
- 	irq = platform_get_irq(pdev, 0);
--	if (!irq) {
-+	if (irq < 0) {
- 		dev_err(&pdev->dev, "no irq resource\n");
--		return -ENXIO;
-+		return irq;
- 	}
+-	if (!nvif_rd32(device, NV50_PDISP_SOR_PWM_CTL(ffs(nv_encoder->dcb->or) - 1)))
++	if (!nvif_rd32(device, NV50_PDISP_SOR_PWM_CTL(ffs(nv_encoder->dcb->or) - 1)) ||
++	    nv_conn->base.status != connector_status_connected)
+ 		return -ENODEV;
  
- 	ret = devm_request_irq(dev, irq, wkup_m3_txev_handler,
--- 
-2.34.1
-
+ 	if (nv_conn->type == DCB_CONNECTOR_eDP) {
 
 
