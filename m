@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B9A34F3BB9
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:21:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 300A24F38F0
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:37:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241972AbiDEMBW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:01:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52112 "EHLO
+        id S1377420AbiDEL3J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:29:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33260 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357826AbiDEK1S (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:27:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C92733CA47;
-        Tue,  5 Apr 2022 03:10:49 -0700 (PDT)
+        with ESMTP id S1350071AbiDEJwk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:52:40 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8ED5148893;
+        Tue,  5 Apr 2022 02:50:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 28DB3B81C8B;
-        Tue,  5 Apr 2022 10:10:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CE4BC385A0;
-        Tue,  5 Apr 2022 10:10:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 180B7615E3;
+        Tue,  5 Apr 2022 09:50:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28E26C385A1;
+        Tue,  5 Apr 2022 09:50:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153446;
-        bh=w7dKSlwXBA/ixEwcf1zFa8OnnuZoUm3ObPb+9ezhVoU=;
+        s=korg; t=1649152241;
+        bh=pONLUX1/XreyVe65IKeyG1wQLSMZqhZ3jM/+bDVog24=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=14FJl2GJ2lZVEKlXMURi6WCw2Ow5yGebgToDX2Xpwk118zf6sTDaZGqjEpctR+eUZ
-         t2l7XZvviqPuJ1kLcRBuAAWhgt0VsIkhCAV7V6FXVZGNPYXHZTyNUiQ/IO0tjASmkt
-         SAkbxJNHRHrDJTyqAyUSqi1PTXteW2T9mOfenPV0=
+        b=DzusMr6dAkVj+bAMRNOIm13oh6H3/1pmIxhMS/IMKeUfzuDY8wPRsImVr6WW8lERd
+         VLrtjmtCWfpZbAbW7ocAEVGGzqNVRw5GUuaToUyg3Bz5bks1LhT5C9AgKk461hwAqU
+         kTg0KBEGPs8ywN+V3AZ/3WQPF/8Y2rgOc/nCGbJ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Frank Wunderlich <frank-w@public-files.de>,
-        Florian Fainelli <f.fainelli@gmail.com>,
+        stable@vger.kernel.org,
+        Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+        Maxime Ripard <maxime@cerno.tech>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 226/599] arm64: dts: broadcom: Fix sata nodename
+Subject: [PATCH 5.15 658/913] clk: Initialize orphan req_rate
 Date:   Tue,  5 Apr 2022 09:28:40 +0200
-Message-Id: <20220405070305.566941929@linuxfoundation.org>
+Message-Id: <20220405070359.561641377@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
-References: <20220405070258.802373272@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +56,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frank Wunderlich <frank-w@public-files.de>
+From: Maxime Ripard <maxime@cerno.tech>
 
-[ Upstream commit 55927cb44db43a57699fa652e2437a91620385dc ]
+[ Upstream commit 5f7e2af00807f2117650e711a58b7f0e986ce1df ]
 
-After converting ahci-platform txt binding to yaml nodename is reported
-as not matching the standard:
+When registering a clock that doesn't have a recalc_rate implementation,
+and doesn't have its parent registered yet, we initialize the clk_core
+rate and 'req_rate' fields to 0.
 
-arch/arm64/boot/dts/broadcom/northstar2/ns2-svk.dt.yaml:
-ahci@663f2000: $nodename:0: 'ahci@663f2000' does not match '^sata(@.*)?$'
+The rate field is later updated when the parent is registered in
+clk_core_reparent_orphans_nolock() using __clk_recalc_rates(), but the
+'req_rate' field is never updated.
 
-Fix it to match binding.
+This leads to an issue in clk_set_rate_range() and clk_put(), since
+those functions will call clk_set_rate() with the content of 'req_rate'
+to provide drivers with the opportunity to change the rate based on the
+new boundaries. In this case, we would call clk_set_rate() with a rate
+of 0, effectively enforcing the minimum allowed for this clock whenever
+we would call one of those two functions, even though the actual rate
+might be within range.
 
-Fixes: ac9aae00f0fc ("arm64: dts: Add SATA3 AHCI and SATA3 PHY DT nodes for NS2")
-Signed-off-by: Frank Wunderlich <frank-w@public-files.de>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Let's fix this by setting 'req_rate' in
+clk_core_reparent_orphans_nolock() with the rate field content just
+updated by the call to __clk_recalc_rates().
+
+Fixes: 1c8e600440c7 ("clk: Add rate constraints to clocks")
+Reported-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Tested-by: Dmitry Osipenko <dmitry.osipenko@collabora.com> # T30 Nexus7
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://lore.kernel.org/r/20220325161144.1901695-2-maxime@cerno.tech
+[sboyd@kernel.org: Reword comment]
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/broadcom/northstar2/ns2.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/clk/clk.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/broadcom/northstar2/ns2.dtsi b/arch/arm64/boot/dts/broadcom/northstar2/ns2.dtsi
-index 2cfeaf3b0a87..8c218689fef7 100644
---- a/arch/arm64/boot/dts/broadcom/northstar2/ns2.dtsi
-+++ b/arch/arm64/boot/dts/broadcom/northstar2/ns2.dtsi
-@@ -687,7 +687,7 @@
- 			};
- 		};
- 
--		sata: ahci@663f2000 {
-+		sata: sata@663f2000 {
- 			compatible = "brcm,iproc-ahci", "generic-ahci";
- 			reg = <0x663f2000 0x1000>;
- 			dma-coherent;
+diff --git a/drivers/clk/clk.c b/drivers/clk/clk.c
+index 32fd2853e8b2..5cef73a85901 100644
+--- a/drivers/clk/clk.c
++++ b/drivers/clk/clk.c
+@@ -3410,6 +3410,19 @@ static void clk_core_reparent_orphans_nolock(void)
+ 			__clk_set_parent_after(orphan, parent, NULL);
+ 			__clk_recalc_accuracies(orphan);
+ 			__clk_recalc_rates(orphan, 0);
++
++			/*
++			 * __clk_init_parent() will set the initial req_rate to
++			 * 0 if the clock doesn't have clk_ops::recalc_rate and
++			 * is an orphan when it's registered.
++			 *
++			 * 'req_rate' is used by clk_set_rate_range() and
++			 * clk_put() to trigger a clk_set_rate() call whenever
++			 * the boundaries are modified. Let's make sure
++			 * 'req_rate' is set to something non-zero so that
++			 * clk_set_rate_range() doesn't drop the frequency.
++			 */
++			orphan->req_rate = orphan->rate;
+ 		}
+ 	}
+ }
 -- 
 2.34.1
 
