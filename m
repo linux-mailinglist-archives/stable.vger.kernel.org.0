@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AD5F84F3187
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:44:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 309CF4F2FED
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:19:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343617AbiDEI5N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:57:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32902 "EHLO
+        id S234328AbiDEKGg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:06:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38482 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239189AbiDEIbM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:31:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6437580FB;
-        Tue,  5 Apr 2022 01:23:21 -0700 (PDT)
+        with ESMTP id S1344239AbiDEJSz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:18:55 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8F9349266;
+        Tue,  5 Apr 2022 02:06:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4B9ABB81BAF;
-        Tue,  5 Apr 2022 08:23:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 973A4C385C4;
-        Tue,  5 Apr 2022 08:23:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8F8D6B81BBF;
+        Tue,  5 Apr 2022 09:06:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFEF2C385A5;
+        Tue,  5 Apr 2022 09:06:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146999;
-        bh=22FrN/fWz3S0ZkinV5860q4c/43ru8CkhvglXdQ49sk=;
+        s=korg; t=1649149566;
+        bh=4iVXIPkT3ePxCznX2ZMKrI8so8HKS+0aauaqn24SB9c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bt33Jq7kFXP8Je1VZnuvztUEZ6pWubuwQbJPfUfQ/F+1/MQbanj+SqYgh3tpuNG+A
-         sa0StejS7Na11tILjbQRkug/dYfQsRofBxdRd0S9g9KriO7/VD7Ww2xqu83gcY0Psv
-         Ma2jDOfp4D/nELeT3UV9vk6JCXVWeRxthxh90/dY=
+        b=l+zQD2h5kYgWVs9fqIC1UriKd5ZtwHYYqcjnD2auAbERw2oyVtUWi1rBcr24VgqNL
+         EjncbdkYKtB5EtvO5B1/lIB5z02J/IQAazXvsIvBU6KpT3GB3Rqx71xIkIs6WUOjfM
+         5m7QMAB2YX7yrkrLRRRI2ayMpvOkmK1EffDl+iAk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Richard Leitner <richard.leitner@skidata.com>,
-        Thierry Reding <treding@nvidia.com>,
+        stable@vger.kernel.org, Kai Ye <yekai13@huawei.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0927/1126] ARM: tegra: tamonten: Fix I2C3 pad setting
-Date:   Tue,  5 Apr 2022 09:27:54 +0200
-Message-Id: <20220405070434.728378583@linuxfoundation.org>
+Subject: [PATCH 5.16 0762/1017] crypto: hisilicon/sec - not need to enable sm4 extra mode at HW V3
+Date:   Tue,  5 Apr 2022 09:27:55 +0200
+Message-Id: <20220405070416.877684130@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,44 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Richard Leitner <richard.leitner@skidata.com>
+From: Kai Ye <yekai13@huawei.com>
 
-[ Upstream commit 0092c25b541a5422d7e71892a13c55ee91abc34b ]
+[ Upstream commit f8a2652826444d13181061840b96a5d975d5b6c6 ]
 
-This patch fixes the tristate configuration for i2c3 function assigned
-to the dtf pins on the Tamonten Tegra20 SoM.
+It is not need to enable sm4 extra mode in at HW V3. Here is fix it.
 
-Signed-off-by: Richard Leitner <richard.leitner@skidata.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+Signed-off-by: Kai Ye <yekai13@huawei.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/tegra20-tamonten.dtsi | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/crypto/hisilicon/sec2/sec_main.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/boot/dts/tegra20-tamonten.dtsi b/arch/arm/boot/dts/tegra20-tamonten.dtsi
-index de39c5465c0a..0e19bd0a847c 100644
---- a/arch/arm/boot/dts/tegra20-tamonten.dtsi
-+++ b/arch/arm/boot/dts/tegra20-tamonten.dtsi
-@@ -183,8 +183,8 @@
- 			};
- 			conf_ata {
- 				nvidia,pins = "ata", "atb", "atc", "atd", "ate",
--					"cdev1", "cdev2", "dap1", "dtb", "gma",
--					"gmb", "gmc", "gmd", "gme", "gpu7",
-+					"cdev1", "cdev2", "dap1", "dtb", "dtf",
-+					"gma", "gmb", "gmc", "gmd", "gme", "gpu7",
- 					"gpv", "i2cp", "irrx", "irtx", "pta",
- 					"rm", "slxa", "slxk", "spia", "spib",
- 					"uac";
-@@ -203,7 +203,7 @@
- 			};
- 			conf_crtp {
- 				nvidia,pins = "crtp", "dap2", "dap3", "dap4",
--					"dtc", "dte", "dtf", "gpu", "sdio1",
-+					"dtc", "dte", "gpu", "sdio1",
- 					"slxc", "slxd", "spdi", "spdo", "spig",
- 					"uda";
- 				nvidia,pull = <TEGRA_PIN_PULL_NONE>;
+diff --git a/drivers/crypto/hisilicon/sec2/sec_main.c b/drivers/crypto/hisilicon/sec2/sec_main.c
+index 90551bf38b52..03d239cfdf8c 100644
+--- a/drivers/crypto/hisilicon/sec2/sec_main.c
++++ b/drivers/crypto/hisilicon/sec2/sec_main.c
+@@ -443,9 +443,11 @@ static int sec_engine_init(struct hisi_qm *qm)
+ 
+ 	writel(SEC_SAA_ENABLE, qm->io_base + SEC_SAA_EN_REG);
+ 
+-	/* Enable sm4 extra mode, as ctr/ecb */
+-	writel_relaxed(SEC_BD_ERR_CHK_EN0,
+-		       qm->io_base + SEC_BD_ERR_CHK_EN_REG0);
++	/* HW V2 enable sm4 extra mode, as ctr/ecb */
++	if (qm->ver < QM_HW_V3)
++		writel_relaxed(SEC_BD_ERR_CHK_EN0,
++			       qm->io_base + SEC_BD_ERR_CHK_EN_REG0);
++
+ 	/* Enable sm4 xts mode multiple iv */
+ 	writel_relaxed(SEC_BD_ERR_CHK_EN1,
+ 		       qm->io_base + SEC_BD_ERR_CHK_EN_REG1);
 -- 
 2.34.1
 
