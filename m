@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 26AA24F3AB2
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:03:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C51774F3ACB
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:05:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381654AbiDELqv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:46:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59182 "EHLO
+        id S236772AbiDELsX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:48:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59282 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355358AbiDEKTZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:19:25 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B926D13F4F;
-        Tue,  5 Apr 2022 03:04:41 -0700 (PDT)
+        with ESMTP id S1355833AbiDEKWI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:22:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E51DB9F6C7;
+        Tue,  5 Apr 2022 03:05:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2621BB81BC0;
-        Tue,  5 Apr 2022 10:04:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8ED03C385A1;
-        Tue,  5 Apr 2022 10:04:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 29C956172B;
+        Tue,  5 Apr 2022 10:05:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A2C6C385A2;
+        Tue,  5 Apr 2022 10:05:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153078;
-        bh=eIHtbjrdsYsyO9vjQmEJzlYHgDTIqtUdRD6j/Q59o9U=;
+        s=korg; t=1649153109;
+        bh=MSTbhPiz+0gIdLuJbCp8xgfsyCNe3dcUzSOKZ3PzUac=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lPjcY0BM4ZDsw+RrJ+nCdbXd0iRmhmK3j6QGDYSq9RbDkUUBVkdB6B52X1YwL11uJ
-         vjbKDM5D2ouKFM6/xBto6hQq+uv8UHB6wNd4LOEF+ZgNFRyw27oISPJzz5of6nP0DL
-         WVxNRn+d/8Jo6vf3WD9A8vxuMcmG9uTWQH5ov7qY=
+        b=lnKPSqQ1PP6ZLhBthUQjLUPe+oa9LUZ600hkdiFrBtwtmuHUuZWZyS1fiJMqV6pUT
+         WzEMlaqElnSA/65kRilAWWZJmKRXrNXpIzqOLTBODXniAalUiDaPOpWlReUj9g+gMQ
+         QF/ZWF2nSsUysyCx1dOtyBq2/Isrcbig+b3doFtk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rik van Riel <riel@surriel.com>,
-        Miaohe Lin <linmiaohe@huawei.com>,
-        Naoya Horiguchi <naoya.horiguchi@nec.com>,
-        Oscar Salvador <osalvador@suse.de>,
-        Mel Gorman <mgorman@suse.de>,
-        Johannes Weiner <hannes@cmpxchg.org>,
+        stable@vger.kernel.org, Kuan-Ying Lee <Kuan-Ying.Lee@mediatek.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Chinwen Chang <chinwen.chang@mediatek.com>,
+        Nicholas Tang <nicholas.tang@mediatek.com>,
+        Yee Lee <yee.lee@mediatek.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 077/599] mm,hwpoison: unmap poisoned page before invalidation
-Date:   Tue,  5 Apr 2022 09:26:11 +0200
-Message-Id: <20220405070301.117379793@linuxfoundation.org>
+Subject: [PATCH 5.10 078/599] mm/kmemleak: reset tag when compare object pointer
+Date:   Tue,  5 Apr 2022 09:26:12 +0200
+Message-Id: <20220405070301.147117364@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -59,67 +59,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rik van Riel <riel@surriel.com>
+From: Kuan-Ying Lee <Kuan-Ying.Lee@mediatek.com>
 
-commit 3149c79f3cb0e2e3bafb7cfadacec090cbd250d3 upstream.
+commit bfc8089f00fa526dea983844c880fa8106c33ac4 upstream.
 
-In some cases it appears the invalidation of a hwpoisoned page fails
-because the page is still mapped in another process.  This can cause a
-program to be continuously restarted and die when it page faults on the
-page that was not invalidated.  Avoid that problem by unmapping the
-hwpoisoned page when we find it.
+When we use HW-tag based kasan and enable vmalloc support, we hit the
+following bug.  It is due to comparison between tagged object and
+non-tagged pointer.
 
-Another issue is that sometimes we end up oopsing in finish_fault, if
-the code tries to do something with the now-NULL vmf->page.  I did not
-hit this error when submitting the previous patch because there are
-several opportunities for alloc_set_pte to bail out before accessing
-vmf->page, and that apparently happened on those systems, and most of
-the time on other systems, too.
+We need to reset the kasan tag when we need to compare tagged object and
+non-tagged pointer.
 
-However, across several million systems that error does occur a handful
-of times a day.  It can be avoided by returning VM_FAULT_NOPAGE which
-will cause do_read_fault to return before calling finish_fault.
+  kmemleak: [name:kmemleak&]Scan area larger than object 0xffffffe77076f440
+  CPU: 4 PID: 1 Comm: init Tainted: G S      W         5.15.25-android13-0-g5cacf919c2bc #1
+  Hardware name: MT6983(ENG) (DT)
+  Call trace:
+   add_scan_area+0xc4/0x244
+   kmemleak_scan_area+0x40/0x9c
+   layout_and_allocate+0x1e8/0x288
+   load_module+0x2c8/0xf00
+   __se_sys_finit_module+0x190/0x1d0
+   __arm64_sys_finit_module+0x20/0x30
+   invoke_syscall+0x60/0x170
+   el0_svc_common+0xc8/0x114
+   do_el0_svc+0x28/0xa0
+   el0_svc+0x60/0xf8
+   el0t_64_sync_handler+0x88/0xec
+   el0t_64_sync+0x1b4/0x1b8
+  kmemleak: [name:kmemleak&]Object 0xf5ffffe77076b000 (size 32768):
+  kmemleak: [name:kmemleak&]  comm "init", pid 1, jiffies 4294894197
+  kmemleak: [name:kmemleak&]  min_count = 0
+  kmemleak: [name:kmemleak&]  count = 0
+  kmemleak: [name:kmemleak&]  flags = 0x1
+  kmemleak: [name:kmemleak&]  checksum = 0
+  kmemleak: [name:kmemleak&]  backtrace:
+       module_alloc+0x9c/0x120
+       move_module+0x34/0x19c
+       layout_and_allocate+0x1c4/0x288
+       load_module+0x2c8/0xf00
+       __se_sys_finit_module+0x190/0x1d0
+       __arm64_sys_finit_module+0x20/0x30
+       invoke_syscall+0x60/0x170
+       el0_svc_common+0xc8/0x114
+       do_el0_svc+0x28/0xa0
+       el0_svc+0x60/0xf8
+       el0t_64_sync_handler+0x88/0xec
+       el0t_64_sync+0x1b4/0x1b8
 
-Link: https://lkml.kernel.org/r/20220325161428.5068d97e@imladris.surriel.com
-Fixes: e53ac7374e64 ("mm: invalidate hwpoison page cache page in fault path")
-Signed-off-by: Rik van Riel <riel@surriel.com>
-Reviewed-by: Miaohe Lin <linmiaohe@huawei.com>
-Tested-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
-Reviewed-by: Oscar Salvador <osalvador@suse.de>
-Cc: Mel Gorman <mgorman@suse.de>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
+Link: https://lkml.kernel.org/r/20220318034051.30687-1-Kuan-Ying.Lee@mediatek.com
+Signed-off-by: Kuan-Ying Lee <Kuan-Ying.Lee@mediatek.com>
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Matthias Brugger <matthias.bgg@gmail.com>
+Cc: Chinwen Chang <chinwen.chang@mediatek.com>
+Cc: Nicholas Tang <nicholas.tang@mediatek.com>
+Cc: Yee Lee <yee.lee@mediatek.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/memory.c |   12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ mm/kmemleak.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -3676,14 +3676,18 @@ static vm_fault_t __do_fault(struct vm_f
- 		return ret;
+--- a/mm/kmemleak.c
++++ b/mm/kmemleak.c
+@@ -787,6 +787,8 @@ static void add_scan_area(unsigned long
+ 	unsigned long flags;
+ 	struct kmemleak_object *object;
+ 	struct kmemleak_scan_area *area = NULL;
++	unsigned long untagged_ptr;
++	unsigned long untagged_objp;
  
- 	if (unlikely(PageHWPoison(vmf->page))) {
-+		struct page *page = vmf->page;
- 		vm_fault_t poisonret = VM_FAULT_HWPOISON;
- 		if (ret & VM_FAULT_LOCKED) {
-+			if (page_mapped(page))
-+				unmap_mapping_pages(page_mapping(page),
-+						    page->index, 1, false);
- 			/* Retry if a clean page was removed from the cache. */
--			if (invalidate_inode_page(vmf->page))
--				poisonret = 0;
--			unlock_page(vmf->page);
-+			if (invalidate_inode_page(page))
-+				poisonret = VM_FAULT_NOPAGE;
-+			unlock_page(page);
- 		}
--		put_page(vmf->page);
-+		put_page(page);
- 		vmf->page = NULL;
- 		return poisonret;
+ 	object = find_and_get_object(ptr, 1);
+ 	if (!object) {
+@@ -795,6 +797,9 @@ static void add_scan_area(unsigned long
+ 		return;
  	}
+ 
++	untagged_ptr = (unsigned long)kasan_reset_tag((void *)ptr);
++	untagged_objp = (unsigned long)kasan_reset_tag((void *)object->pointer);
++
+ 	if (scan_area_cache)
+ 		area = kmem_cache_alloc(scan_area_cache, gfp_kmemleak_mask(gfp));
+ 
+@@ -806,8 +811,8 @@ static void add_scan_area(unsigned long
+ 		goto out_unlock;
+ 	}
+ 	if (size == SIZE_MAX) {
+-		size = object->pointer + object->size - ptr;
+-	} else if (ptr + size > object->pointer + object->size) {
++		size = untagged_objp + object->size - untagged_ptr;
++	} else if (untagged_ptr + size > untagged_objp + object->size) {
+ 		kmemleak_warn("Scan area larger than object 0x%08lx\n", ptr);
+ 		dump_object_info(object);
+ 		kmem_cache_free(scan_area_cache, area);
 
 
