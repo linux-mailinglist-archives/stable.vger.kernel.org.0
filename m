@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B30BE4F330D
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:08:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D0914F336E
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:16:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353889AbiDEKJn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1353892AbiDEKJn (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 5 Apr 2022 06:09:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59908 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43064 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345761AbiDEJXA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:23:00 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3B398BE3E;
-        Tue,  5 Apr 2022 02:12:07 -0700 (PDT)
+        with ESMTP id S1345771AbiDEJXB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:23:01 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04A718CCFB;
+        Tue,  5 Apr 2022 02:12:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F2D73B80DA1;
-        Tue,  5 Apr 2022 09:12:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4965DC385A6;
-        Tue,  5 Apr 2022 09:12:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B1939B81A12;
+        Tue,  5 Apr 2022 09:12:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1AC69C385A3;
+        Tue,  5 Apr 2022 09:12:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149923;
-        bh=xOIsufLeQocMH3kgT/ty/OAH67nEMnuadhiPTuYHCw8=;
+        s=korg; t=1649149926;
+        bh=CtNUPttv43ymyB/SUDL/IvZBJI2TaBEMgGHG76F1Mz0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=162noxdT30QFx1o+1e3DPu7w8TySm7LM4jGc0V44tO4PYJ7eOciKErdZs/OYS/F7m
-         azlXig2NqcuBwCSvl2oFjKuZA0xrL1OkNkmmoHgsFSwZyoXYc/AavxsUXq+K2Uf1Az
-         AZvgs3RB6Dc+7SXmZShzsoJZvzFIZs4494JFwSyA=
+        b=Wp3ArhXInp6yc3/7i6/nZAq1mesovDRq+irpz8CmbBb2jS1Vg0tHiX53YWRgudXt6
+         hE3oIajVdHAC3fc04tJO4ks9lO7sGCAMkBnw+kH4KDtwCMQsoFfuFawS7y+IwLE/+W
+         70j4T7QrmuW9V4FgWZcOSnilglBeBEQaXKr6sLQY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,9 +36,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Quinn Tran <qutran@marvell.com>,
         Nilesh Javali <njavali@marvell.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.16 0891/1017] scsi: qla2xxx: Fix hang due to session stuck
-Date:   Tue,  5 Apr 2022 09:30:04 +0200
-Message-Id: <20220405070420.677274467@linuxfoundation.org>
+Subject: [PATCH 5.16 0892/1017] scsi: qla2xxx: Fix laggy FC remote port session recovery
+Date:   Tue,  5 Apr 2022 09:30:05 +0200
+Message-Id: <20220405070420.706251110@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -46,10 +46,10 @@ User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,PDS_OTHER_BAD_TLD,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -58,20 +58,17 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Quinn Tran <qutran@marvell.com>
 
-commit c02aada06d19a215c8291bd968a99a270e96f734 upstream.
+commit 713b415726f100f6644971e75ebfe1edbef1a390 upstream.
 
-User experienced device lost. The log shows Get port data base command was
-queued up, failed, and requeued again. Every time it is requeued, it set
-the FCF_ASYNC_ACTIVE. This prevents any recovery code from occurring
-because driver thinks a recovery is in progress for this session. In
-essence, this session is hung.  The reason it gets into this place is the
-session deletion got in front of this call due to link perturbation.
+For session recovery, driver relies on the dpc thread to initiate certain
+operations. The dpc thread runs exclusively without the Mailbox interface
+being occupied. A recent code change for heartbeat check via mailbox cmd 0
+is preventing the dpc thread from carrying out its operation. This patch
+allows the higher priority error recovery to run first before running the
+lower priority heartbeat check.
 
-Break the requeue cycle and exit.  The session deletion code will trigger a
-session relogin.
-
-Link: https://lore.kernel.org/r/20220310092604.22950-8-njavali@marvell.com
-Fixes: 726b85487067 ("qla2xxx: Add framework for async fabric discovery")
+Link: https://lore.kernel.org/r/20220310092604.22950-9-njavali@marvell.com
+Fixes: d94d8158e184 ("scsi: qla2xxx: Add heartbeat check")
 Cc: stable@vger.kernel.org
 Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
 Signed-off-by: Quinn Tran <qutran@marvell.com>
@@ -79,55 +76,72 @@ Signed-off-by: Nilesh Javali <njavali@marvell.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/qla2xxx/qla_def.h  |    4 ++++
- drivers/scsi/qla2xxx/qla_init.c |   19 +++++++++++++++++--
- 2 files changed, 21 insertions(+), 2 deletions(-)
+ drivers/scsi/qla2xxx/qla_def.h |    1 +
+ drivers/scsi/qla2xxx/qla_os.c  |   20 +++++++++++++++++---
+ 2 files changed, 18 insertions(+), 3 deletions(-)
 
 --- a/drivers/scsi/qla2xxx/qla_def.h
 +++ b/drivers/scsi/qla2xxx/qla_def.h
-@@ -5438,4 +5438,8 @@ struct ql_vnd_tgt_stats_resp {
- #include "qla_gbl.h"
- #include "qla_dbg.h"
- #include "qla_inline.h"
-+
-+#define IS_SESSION_DELETED(_fcport) (_fcport->disc_state == DSC_DELETE_PEND || \
-+				      _fcport->disc_state == DSC_DELETED)
-+
- #endif
---- a/drivers/scsi/qla2xxx/qla_init.c
-+++ b/drivers/scsi/qla2xxx/qla_init.c
-@@ -575,6 +575,14 @@ qla2x00_async_adisc(struct scsi_qla_host
- 	struct srb_iocb *lio;
- 	int rval = QLA_FUNCTION_FAILED;
+@@ -4621,6 +4621,7 @@ struct qla_hw_data {
+ 	struct workqueue_struct *wq;
+ 	struct work_struct heartbeat_work;
+ 	struct qlfc_fw fw_buf;
++	unsigned long last_heartbeat_run_jiffies;
  
-+	if (IS_SESSION_DELETED(fcport)) {
-+		ql_log(ql_log_warn, vha, 0xffff,
-+		       "%s: %8phC is being delete - not sending command.\n",
-+		       __func__, fcport->port_name);
-+		fcport->flags &= ~FCF_ASYNC_ACTIVE;
-+		return rval;
-+	}
-+
- 	if (!vha->flags.online || (fcport->flags & FCF_ASYNC_SENT))
- 		return rval;
+ 	/* FCP_CMND priority support */
+ 	struct qla_fcp_prio_cfg *fcp_prio_cfg;
+--- a/drivers/scsi/qla2xxx/qla_os.c
++++ b/drivers/scsi/qla2xxx/qla_os.c
+@@ -7209,7 +7209,7 @@ skip:
+ 	return do_heartbeat;
+ }
  
-@@ -1338,8 +1346,15 @@ int qla24xx_async_gpdb(struct scsi_qla_h
- 	struct port_database_24xx *pd;
+-static void qla_heart_beat(struct scsi_qla_host *vha)
++static void qla_heart_beat(struct scsi_qla_host *vha, u16 dpc_started)
+ {
  	struct qla_hw_data *ha = vha->hw;
  
--	if (!vha->flags.online || (fcport->flags & FCF_ASYNC_SENT) ||
--	    fcport->loop_id == FC_NO_LOOP_ID) {
-+	if (IS_SESSION_DELETED(fcport)) {
-+		ql_log(ql_log_warn, vha, 0xffff,
-+		       "%s: %8phC is being delete - not sending command.\n",
-+		       __func__, fcport->port_name);
-+		fcport->flags &= ~FCF_ASYNC_ACTIVE;
-+		return rval;
-+	}
+@@ -7219,8 +7219,19 @@ static void qla_heart_beat(struct scsi_q
+ 	if (vha->hw->flags.eeh_busy || qla2x00_chip_is_down(vha))
+ 		return;
+ 
+-	if (qla_do_heartbeat(vha))
++	/*
++	 * dpc thread cannot run if heartbeat is running at the same time.
++	 * We also do not want to starve heartbeat task. Therefore, do
++	 * heartbeat task at least once every 5 seconds.
++	 */
++	if (dpc_started &&
++	    time_before(jiffies, ha->last_heartbeat_run_jiffies + 5 * HZ))
++		return;
 +
-+	if (!vha->flags.online || fcport->flags & FCF_ASYNC_SENT) {
- 		ql_log(ql_log_warn, vha, 0xffff,
- 		    "%s: %8phC online %d flags %x - not sending command.\n",
- 		    __func__, fcport->port_name, vha->flags.online, fcport->flags);
++	if (qla_do_heartbeat(vha)) {
++		ha->last_heartbeat_run_jiffies = jiffies;
+ 		queue_work(ha->wq, &ha->heartbeat_work);
++	}
+ }
+ 
+ /**************************************************************************
+@@ -7411,6 +7422,8 @@ qla2x00_timer(struct timer_list *t)
+ 		start_dpc++;
+ 	}
+ 
++	/* borrowing w to signify dpc will run */
++	w = 0;
+ 	/* Schedule the DPC routine if needed */
+ 	if ((test_bit(ISP_ABORT_NEEDED, &vha->dpc_flags) ||
+ 	    test_bit(LOOP_RESYNC_NEEDED, &vha->dpc_flags) ||
+@@ -7443,9 +7456,10 @@ qla2x00_timer(struct timer_list *t)
+ 		    test_bit(RELOGIN_NEEDED, &vha->dpc_flags),
+ 		    test_bit(PROCESS_PUREX_IOCB, &vha->dpc_flags));
+ 		qla2xxx_wake_dpc(vha);
++		w = 1;
+ 	}
+ 
+-	qla_heart_beat(vha);
++	qla_heart_beat(vha, w);
+ 
+ 	qla2x00_restart_timer(vha, WATCH_INTERVAL);
+ }
 
 
