@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A4FA34F2AF0
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:07:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C0C204F2D44
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:36:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237586AbiDEJKY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:10:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47636 "EHLO
+        id S239468AbiDEJKn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:10:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46600 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244164AbiDEIvr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:51:47 -0400
+        with ESMTP id S244433AbiDEIwG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:06 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA7BBD3AC4;
-        Tue,  5 Apr 2022 01:40:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A832AD5E9A;
+        Tue,  5 Apr 2022 01:41:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 465D9B81BBF;
-        Tue,  5 Apr 2022 08:40:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98C9EC385A1;
-        Tue,  5 Apr 2022 08:40:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CBA1FB81C15;
+        Tue,  5 Apr 2022 08:40:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CF6CC385A1;
+        Tue,  5 Apr 2022 08:40:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148025;
-        bh=EIqZGIC3MEY6zK++/3lavNvUv7djR+iZn/Z4aFTomR0=;
+        s=korg; t=1649148033;
+        bh=mosdTcOT6RSLCeVL6avH9J0yKmMDzV2xBu0IjWr+Kk8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r/vHtTnmCOWrGPF/ynyA0PZfOtZCMTuVm4vCfKV/hJJy04q8f687FPSrn+OZPwu+l
-         5mpAYyZWUWVQH05kxmIN6AeXy0GWNbGNEBW9Jyh3viexeOGaHNWcaEK2q1AQlZw2O9
-         Ph4j8ny6q7gxBQkJUtniVRSTf+f8YHkel8SQWXEw=
+        b=Uah0iEzbLFDgQNs8NFbmWv0SmQOEdCqkhbKO5ZRMWQESkhlKxjX4dVCUm1dcHgyvP
+         94hF0okC9sYqHy6ho9r7zhC01a8tOPqRrq05vzEyr7rCUcrlmA26iL+PLqq+d3mGWa
+         nkA5tqNGs3AKRPHxz55YMLWlprNIpREu6a2uD0eY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Corentin Labbe <clabbe.montjoie@gmail.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0207/1017] crypto: authenc - Fix sleep in atomic context in decrypt_tail
-Date:   Tue,  5 Apr 2022 09:18:40 +0200
-Message-Id: <20220405070400.395510344@linuxfoundation.org>
+Subject: [PATCH 5.16 0210/1017] thermal: int340x: Check for NULL after calling kmemdup()
+Date:   Tue,  5 Apr 2022 09:18:43 +0200
+Message-Id: <20220405070400.484742119@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -54,40 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit 66eae850333d639fc278d6f915c6fc01499ea893 ]
+[ Upstream commit 38b16d6cfe54c820848bcfc999bc5e8a7da1cefb ]
 
-The function crypto_authenc_decrypt_tail discards its flags
-argument and always relies on the flags from the original request
-when starting its sub-request.
+As the potential failure of the allocation, kmemdup() may return NULL.
 
-This is clearly wrong as it may cause the SLEEPABLE flag to be
-set when it shouldn't.
+Then, 'bin_attr_data_vault.private' will be NULL, but
+'bin_attr_data_vault.size' is not 0, which is not consistent.
 
-Fixes: 92d95ba91772 ("crypto: authenc - Convert to new AEAD interface")
-Reported-by: Corentin Labbe <clabbe.montjoie@gmail.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Tested-by: Corentin Labbe <clabbe.montjoie@gmail.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Therefore, it is better to check the return value of kmemdup() to
+avoid the confusion.
+
+Fixes: 0ba13c763aac ("thermal/int340x_thermal: Export GDDV")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+[ rjw: Subject and changelog edits ]
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/authenc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/thermal/intel/int340x_thermal/int3400_thermal.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/crypto/authenc.c b/crypto/authenc.c
-index 670bf1a01d00..17f674a7cdff 100644
---- a/crypto/authenc.c
-+++ b/crypto/authenc.c
-@@ -253,7 +253,7 @@ static int crypto_authenc_decrypt_tail(struct aead_request *req,
- 		dst = scatterwalk_ffwd(areq_ctx->dst, req->dst, req->assoclen);
- 
- 	skcipher_request_set_tfm(skreq, ctx->enc);
--	skcipher_request_set_callback(skreq, aead_request_flags(req),
-+	skcipher_request_set_callback(skreq, flags,
- 				      req->base.complete, req->base.data);
- 	skcipher_request_set_crypt(skreq, src, dst,
- 				   req->cryptlen - authsize, req->iv);
+diff --git a/drivers/thermal/intel/int340x_thermal/int3400_thermal.c b/drivers/thermal/intel/int340x_thermal/int3400_thermal.c
+index 68f61a738930..7ec2d6c7fe42 100644
+--- a/drivers/thermal/intel/int340x_thermal/int3400_thermal.c
++++ b/drivers/thermal/intel/int340x_thermal/int3400_thermal.c
+@@ -468,6 +468,11 @@ static void int3400_setup_gddv(struct int3400_thermal_priv *priv)
+ 	priv->data_vault = kmemdup(obj->package.elements[0].buffer.pointer,
+ 				   obj->package.elements[0].buffer.length,
+ 				   GFP_KERNEL);
++	if (!priv->data_vault) {
++		kfree(buffer.pointer);
++		return;
++	}
++
+ 	bin_attr_data_vault.private = priv->data_vault;
+ 	bin_attr_data_vault.size = obj->package.elements[0].buffer.length;
+ 	kfree(buffer.pointer);
 -- 
 2.34.1
 
