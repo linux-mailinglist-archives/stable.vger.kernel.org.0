@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F56D4F28C0
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:21:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E3374F28B1
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:21:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239884AbiDEIVo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:21:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44586 "EHLO
+        id S234954AbiDEIVY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:21:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57652 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232630AbiDEIHQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:07:16 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26A0A6A401;
-        Tue,  5 Apr 2022 01:01:55 -0700 (PDT)
+        with ESMTP id S233574AbiDEIIg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:08:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAF1C6A421;
+        Tue,  5 Apr 2022 01:02:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 75F22617CB;
-        Tue,  5 Apr 2022 08:01:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83F38C385B6;
-        Tue,  5 Apr 2022 08:01:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 14078B81BBF;
+        Tue,  5 Apr 2022 08:01:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53687C385A0;
+        Tue,  5 Apr 2022 08:01:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145714;
-        bh=7kMRIe5E5plW+zWdx27wKfaHpZNnvpROlbcE8cgadSo=;
+        s=korg; t=1649145717;
+        bh=iRZhfegcR9wOj2IRcSvTiB9hONvbP48FB4loBl2ZR7s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1gKkRu951TRGn8bDOB87PcXj4wGRVRIcI5dARq7fKGQDwDmUA/TqXaJ4KlnB3OrZF
-         GbLRg4CPIdSR0BlEW/fhJWxmT377OMflxKiGodurz80UNlHB0wiYoLllGuRR2Jqa9F
-         yGybahiIpJYZmtDbY7OX+Z98bmHv0yWmS37FSvWM=
+        b=ajFa3MmSyo4Q5szxWQZJIDgKd3j/zq8X4H/ozGDtO0ePSYaGMV64AWOe5+UvgofVF
+         vYCHqahuU3Kqsel4wz7MVh1jU8x4Z/1hGBqPuCl31ADBz6i7OkjCBKlOq9/3aeDH4A
+         HbZmgshmajVHgWMoUznOG837quChSsV2DC1qKyl8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Wang <sean.wang@mediatek.com>,
-        Leon Yen <leon.yen@mediatek.com>, Felix Fietkau <nbd@nbd.name>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0502/1126] mt76: mt7921s: fix mt7921s_mcu_[fw|drv]_pmctrl
-Date:   Tue,  5 Apr 2022 09:20:49 +0200
-Message-Id: <20220405070422.362109384@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Kai-Chuan Hsieh <kaichuan.hsieh@canonical.com>,
+        Deren Wu <deren.wu@mediatek.com>,
+        Sean Wang <sean.wang@mediatek.com>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 0503/1126] mt76: mt7921e: fix possible probe failure after reboot
+Date:   Tue,  5 Apr 2022 09:20:50 +0200
+Message-Id: <20220405070422.391670502@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -54,119 +56,382 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Yen <leon.yen@mediatek.com>
+From: Sean Wang <sean.wang@mediatek.com>
 
-[ Upstream commit b12deb5e86fa36dc6f3aa3321f5da27addec4f1f ]
+[ Upstream commit 602cc0c9618a819ab00ea3c9400742a0ca318380 ]
 
-According to the firmware behavior (even the oldest one in linux-firmware)
-If the firmware is downloaded, MT7921S must rely on the additional mailbox
-mechanism that resides in firmware to check if the device is the right
-state for mt7921s_mcu_[fw|drv]_pmctrl. Otherwise, we still apply the old
-way for that.
+It doesn't guarantee the mt7921e gets started with ASPM L0 after each
+machine reboot on every platform.
 
-That is a necessary patch before we enable runtime pm for mt7921s as
-default.
+If mt7921e gets started with not ASPM L0, it would be possible that the
+driver encounters time to time failure in mt7921_pci_probe, like a
+weird chip identifier is read
 
-Fixes: 48fab5bbef40 ("mt76: mt7921: introduce mt7921s support")
-Co-developed-by: Sean Wang <sean.wang@mediatek.com>
+[  215.514503] mt7921e 0000:05:00.0: ASIC revision: feed0000
+[  216.604741] mt7921e: probe of 0000:05:00.0 failed with error -110
+
+or failing to init hardware because the driver is not allowed to access the
+register until the device is in ASPM L0 state. So, we call
+__mt7921e_mcu_drv_pmctrl in early mt7921_pci_probe to force the device
+to bring back to the L0 state for we can safely access registers in any
+case.
+
+In the patch, we move all functions from dma.c to pci.c and register mt76
+bus operation earilier, that is the __mt7921e_mcu_drv_pmctrl depends on.
+
+Fixes: bf3747ae2e25 ("mt76: mt7921: enable aspm by default")
+Reported-by: Kai-Chuan Hsieh <kaichuan.hsieh@canonical.com>
+Co-developed-by: Deren Wu <deren.wu@mediatek.com>
+Signed-off-by: Deren Wu <deren.wu@mediatek.com>
 Signed-off-by: Sean Wang <sean.wang@mediatek.com>
-Signed-off-by: Leon Yen <leon.yen@mediatek.com>
 Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../wireless/mediatek/mt76/mt7921/sdio_mcu.c  | 38 +++++++++++++++++++
- drivers/net/wireless/mediatek/mt76/sdio.h     |  2 +
- 2 files changed, 40 insertions(+)
+ .../net/wireless/mediatek/mt76/mt7921/dma.c   | 119 -----------------
+ .../wireless/mediatek/mt76/mt7921/mt7921.h    |   1 +
+ .../net/wireless/mediatek/mt76/mt7921/pci.c   | 124 ++++++++++++++++++
+ .../wireless/mediatek/mt76/mt7921/pci_mcu.c   |  18 ++-
+ 4 files changed, 139 insertions(+), 123 deletions(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/sdio_mcu.c b/drivers/net/wireless/mediatek/mt76/mt7921/sdio_mcu.c
-index d20f2ff01be1..5d8af18c7026 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7921/sdio_mcu.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7921/sdio_mcu.c
-@@ -49,6 +49,26 @@ mt7921s_mcu_send_message(struct mt76_dev *mdev, struct sk_buff *skb,
- 	return ret;
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/dma.c b/drivers/net/wireless/mediatek/mt76/mt7921/dma.c
+index cdff1fd52d93..39d6ce4ecddd 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7921/dma.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7921/dma.c
+@@ -78,110 +78,6 @@ static void mt7921_dma_prefetch(struct mt7921_dev *dev)
+ 	mt76_wr(dev, MT_WFDMA0_TX_RING17_EXT_CTRL, PREFETCH(0x380, 0x4));
  }
  
-+static u32 mt7921s_read_rm3r(struct mt7921_dev *dev)
-+{
-+	struct mt76_sdio *sdio = &dev->mt76.sdio;
-+
-+	return sdio_readl(sdio->func, MCR_D2HRM3R, NULL);
-+}
-+
-+static u32 mt7921s_clear_rm3r_drv_own(struct mt7921_dev *dev)
-+{
-+	struct mt76_sdio *sdio = &dev->mt76.sdio;
-+	u32 val;
-+
-+	val = sdio_readl(sdio->func, MCR_D2HRM3R, NULL);
-+	if (val)
-+		sdio_writel(sdio->func, H2D_SW_INT_CLEAR_MAILBOX_ACK,
-+			    MCR_WSICR, NULL);
-+
-+	return val;
-+}
-+
- int mt7921s_mcu_init(struct mt7921_dev *dev)
+-static u32 __mt7921_reg_addr(struct mt7921_dev *dev, u32 addr)
+-{
+-	static const struct {
+-		u32 phys;
+-		u32 mapped;
+-		u32 size;
+-	} fixed_map[] = {
+-		{ 0x820d0000, 0x30000, 0x10000 }, /* WF_LMAC_TOP (WF_WTBLON) */
+-		{ 0x820ed000, 0x24800, 0x0800 }, /* WF_LMAC_TOP BN0 (WF_MIB) */
+-		{ 0x820e4000, 0x21000, 0x0400 }, /* WF_LMAC_TOP BN0 (WF_TMAC) */
+-		{ 0x820e7000, 0x21e00, 0x0200 }, /* WF_LMAC_TOP BN0 (WF_DMA) */
+-		{ 0x820eb000, 0x24200, 0x0400 }, /* WF_LMAC_TOP BN0 (WF_LPON) */
+-		{ 0x820e2000, 0x20800, 0x0400 }, /* WF_LMAC_TOP BN0 (WF_AGG) */
+-		{ 0x820e3000, 0x20c00, 0x0400 }, /* WF_LMAC_TOP BN0 (WF_ARB) */
+-		{ 0x820e5000, 0x21400, 0x0800 }, /* WF_LMAC_TOP BN0 (WF_RMAC) */
+-		{ 0x00400000, 0x80000, 0x10000 }, /* WF_MCU_SYSRAM */
+-		{ 0x00410000, 0x90000, 0x10000 }, /* WF_MCU_SYSRAM (configure register) */
+-		{ 0x40000000, 0x70000, 0x10000 }, /* WF_UMAC_SYSRAM */
+-		{ 0x54000000, 0x02000, 0x1000 }, /* WFDMA PCIE0 MCU DMA0 */
+-		{ 0x55000000, 0x03000, 0x1000 }, /* WFDMA PCIE0 MCU DMA1 */
+-		{ 0x58000000, 0x06000, 0x1000 }, /* WFDMA PCIE1 MCU DMA0 (MEM_DMA) */
+-		{ 0x59000000, 0x07000, 0x1000 }, /* WFDMA PCIE1 MCU DMA1 */
+-		{ 0x7c000000, 0xf0000, 0x10000 }, /* CONN_INFRA */
+-		{ 0x7c020000, 0xd0000, 0x10000 }, /* CONN_INFRA, WFDMA */
+-		{ 0x7c060000, 0xe0000, 0x10000 }, /* CONN_INFRA, conn_host_csr_top */
+-		{ 0x80020000, 0xb0000, 0x10000 }, /* WF_TOP_MISC_OFF */
+-		{ 0x81020000, 0xc0000, 0x10000 }, /* WF_TOP_MISC_ON */
+-		{ 0x820c0000, 0x08000, 0x4000 }, /* WF_UMAC_TOP (PLE) */
+-		{ 0x820c8000, 0x0c000, 0x2000 }, /* WF_UMAC_TOP (PSE) */
+-		{ 0x820cc000, 0x0e000, 0x1000 }, /* WF_UMAC_TOP (PP) */
+-		{ 0x820cd000, 0x0f000, 0x1000 }, /* WF_MDP_TOP */
+-		{ 0x820ce000, 0x21c00, 0x0200 }, /* WF_LMAC_TOP (WF_SEC) */
+-		{ 0x820cf000, 0x22000, 0x1000 }, /* WF_LMAC_TOP (WF_PF) */
+-		{ 0x820e0000, 0x20000, 0x0400 }, /* WF_LMAC_TOP BN0 (WF_CFG) */
+-		{ 0x820e1000, 0x20400, 0x0200 }, /* WF_LMAC_TOP BN0 (WF_TRB) */
+-		{ 0x820e9000, 0x23400, 0x0200 }, /* WF_LMAC_TOP BN0 (WF_WTBLOFF) */
+-		{ 0x820ea000, 0x24000, 0x0200 }, /* WF_LMAC_TOP BN0 (WF_ETBF) */
+-		{ 0x820ec000, 0x24600, 0x0200 }, /* WF_LMAC_TOP BN0 (WF_INT) */
+-		{ 0x820f0000, 0xa0000, 0x0400 }, /* WF_LMAC_TOP BN1 (WF_CFG) */
+-		{ 0x820f1000, 0xa0600, 0x0200 }, /* WF_LMAC_TOP BN1 (WF_TRB) */
+-		{ 0x820f2000, 0xa0800, 0x0400 }, /* WF_LMAC_TOP BN1 (WF_AGG) */
+-		{ 0x820f3000, 0xa0c00, 0x0400 }, /* WF_LMAC_TOP BN1 (WF_ARB) */
+-		{ 0x820f4000, 0xa1000, 0x0400 }, /* WF_LMAC_TOP BN1 (WF_TMAC) */
+-		{ 0x820f5000, 0xa1400, 0x0800 }, /* WF_LMAC_TOP BN1 (WF_RMAC) */
+-		{ 0x820f7000, 0xa1e00, 0x0200 }, /* WF_LMAC_TOP BN1 (WF_DMA) */
+-		{ 0x820f9000, 0xa3400, 0x0200 }, /* WF_LMAC_TOP BN1 (WF_WTBLOFF) */
+-		{ 0x820fa000, 0xa4000, 0x0200 }, /* WF_LMAC_TOP BN1 (WF_ETBF) */
+-		{ 0x820fb000, 0xa4200, 0x0400 }, /* WF_LMAC_TOP BN1 (WF_LPON) */
+-		{ 0x820fc000, 0xa4600, 0x0200 }, /* WF_LMAC_TOP BN1 (WF_INT) */
+-		{ 0x820fd000, 0xa4800, 0x0800 }, /* WF_LMAC_TOP BN1 (WF_MIB) */
+-	};
+-	int i;
+-
+-	if (addr < 0x100000)
+-		return addr;
+-
+-	for (i = 0; i < ARRAY_SIZE(fixed_map); i++) {
+-		u32 ofs;
+-
+-		if (addr < fixed_map[i].phys)
+-			continue;
+-
+-		ofs = addr - fixed_map[i].phys;
+-		if (ofs > fixed_map[i].size)
+-			continue;
+-
+-		return fixed_map[i].mapped + ofs;
+-	}
+-
+-	if ((addr >= 0x18000000 && addr < 0x18c00000) ||
+-	    (addr >= 0x70000000 && addr < 0x78000000) ||
+-	    (addr >= 0x7c000000 && addr < 0x7c400000))
+-		return mt7921_reg_map_l1(dev, addr);
+-
+-	dev_err(dev->mt76.dev, "Access currently unsupported address %08x\n",
+-		addr);
+-
+-	return 0;
+-}
+-
+-static u32 mt7921_rr(struct mt76_dev *mdev, u32 offset)
+-{
+-	struct mt7921_dev *dev = container_of(mdev, struct mt7921_dev, mt76);
+-	u32 addr = __mt7921_reg_addr(dev, offset);
+-
+-	return dev->bus_ops->rr(mdev, addr);
+-}
+-
+-static void mt7921_wr(struct mt76_dev *mdev, u32 offset, u32 val)
+-{
+-	struct mt7921_dev *dev = container_of(mdev, struct mt7921_dev, mt76);
+-	u32 addr = __mt7921_reg_addr(dev, offset);
+-
+-	dev->bus_ops->wr(mdev, addr, val);
+-}
+-
+-static u32 mt7921_rmw(struct mt76_dev *mdev, u32 offset, u32 mask, u32 val)
+-{
+-	struct mt7921_dev *dev = container_of(mdev, struct mt7921_dev, mt76);
+-	u32 addr = __mt7921_reg_addr(dev, offset);
+-
+-	return dev->bus_ops->rmw(mdev, addr, mask, val);
+-}
+-
+ static int mt7921_dma_disable(struct mt7921_dev *dev, bool force)
  {
- 	static const struct mt76_mcu_ops mt7921s_mcu_ops = {
-@@ -88,6 +108,12 @@ int mt7921s_mcu_drv_pmctrl(struct mt7921_dev *dev)
+ 	if (force) {
+@@ -341,23 +237,8 @@ int mt7921_wpdma_reinit_cond(struct mt7921_dev *dev)
  
- 	err = readx_poll_timeout(mt76s_read_pcr, &dev->mt76, status,
- 				 status & WHLPCR_IS_DRIVER_OWN, 2000, 1000000);
+ int mt7921_dma_init(struct mt7921_dev *dev)
+ {
+-	struct mt76_bus_ops *bus_ops;
+ 	int ret;
+ 
+-	dev->phy.dev = dev;
+-	dev->phy.mt76 = &dev->mt76.phy;
+-	dev->mt76.phy.priv = &dev->phy;
+-	dev->bus_ops = dev->mt76.bus;
+-	bus_ops = devm_kmemdup(dev->mt76.dev, dev->bus_ops, sizeof(*bus_ops),
+-			       GFP_KERNEL);
+-	if (!bus_ops)
+-		return -ENOMEM;
+-
+-	bus_ops->rr = mt7921_rr;
+-	bus_ops->wr = mt7921_wr;
+-	bus_ops->rmw = mt7921_rmw;
+-	dev->mt76.bus = bus_ops;
+-
+ 	mt76_dma_attach(&dev->mt76);
+ 
+ 	ret = mt7921_dma_disable(dev, true);
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/mt7921.h b/drivers/net/wireless/mediatek/mt76/mt7921/mt7921.h
+index 96647801850a..33f8e5b541b3 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7921/mt7921.h
++++ b/drivers/net/wireless/mediatek/mt76/mt7921/mt7921.h
+@@ -452,6 +452,7 @@ int mt7921e_mcu_init(struct mt7921_dev *dev);
+ int mt7921s_wfsys_reset(struct mt7921_dev *dev);
+ int mt7921s_mac_reset(struct mt7921_dev *dev);
+ int mt7921s_init_reset(struct mt7921_dev *dev);
++int __mt7921e_mcu_drv_pmctrl(struct mt7921_dev *dev);
+ int mt7921e_mcu_drv_pmctrl(struct mt7921_dev *dev);
+ int mt7921e_mcu_fw_pmctrl(struct mt7921_dev *dev);
+ 
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/pci.c b/drivers/net/wireless/mediatek/mt76/mt7921/pci.c
+index 9dae2f5972bf..9a71a5d86481 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7921/pci.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7921/pci.c
+@@ -121,6 +121,110 @@ static void mt7921e_unregister_device(struct mt7921_dev *dev)
+ 	mt76_free_device(&dev->mt76);
+ }
+ 
++static u32 __mt7921_reg_addr(struct mt7921_dev *dev, u32 addr)
++{
++	static const struct {
++		u32 phys;
++		u32 mapped;
++		u32 size;
++	} fixed_map[] = {
++		{ 0x820d0000, 0x30000, 0x10000 }, /* WF_LMAC_TOP (WF_WTBLON) */
++		{ 0x820ed000, 0x24800, 0x0800 }, /* WF_LMAC_TOP BN0 (WF_MIB) */
++		{ 0x820e4000, 0x21000, 0x0400 }, /* WF_LMAC_TOP BN0 (WF_TMAC) */
++		{ 0x820e7000, 0x21e00, 0x0200 }, /* WF_LMAC_TOP BN0 (WF_DMA) */
++		{ 0x820eb000, 0x24200, 0x0400 }, /* WF_LMAC_TOP BN0 (WF_LPON) */
++		{ 0x820e2000, 0x20800, 0x0400 }, /* WF_LMAC_TOP BN0 (WF_AGG) */
++		{ 0x820e3000, 0x20c00, 0x0400 }, /* WF_LMAC_TOP BN0 (WF_ARB) */
++		{ 0x820e5000, 0x21400, 0x0800 }, /* WF_LMAC_TOP BN0 (WF_RMAC) */
++		{ 0x00400000, 0x80000, 0x10000 }, /* WF_MCU_SYSRAM */
++		{ 0x00410000, 0x90000, 0x10000 }, /* WF_MCU_SYSRAM (configure register) */
++		{ 0x40000000, 0x70000, 0x10000 }, /* WF_UMAC_SYSRAM */
++		{ 0x54000000, 0x02000, 0x1000 }, /* WFDMA PCIE0 MCU DMA0 */
++		{ 0x55000000, 0x03000, 0x1000 }, /* WFDMA PCIE0 MCU DMA1 */
++		{ 0x58000000, 0x06000, 0x1000 }, /* WFDMA PCIE1 MCU DMA0 (MEM_DMA) */
++		{ 0x59000000, 0x07000, 0x1000 }, /* WFDMA PCIE1 MCU DMA1 */
++		{ 0x7c000000, 0xf0000, 0x10000 }, /* CONN_INFRA */
++		{ 0x7c020000, 0xd0000, 0x10000 }, /* CONN_INFRA, WFDMA */
++		{ 0x7c060000, 0xe0000, 0x10000 }, /* CONN_INFRA, conn_host_csr_top */
++		{ 0x80020000, 0xb0000, 0x10000 }, /* WF_TOP_MISC_OFF */
++		{ 0x81020000, 0xc0000, 0x10000 }, /* WF_TOP_MISC_ON */
++		{ 0x820c0000, 0x08000, 0x4000 }, /* WF_UMAC_TOP (PLE) */
++		{ 0x820c8000, 0x0c000, 0x2000 }, /* WF_UMAC_TOP (PSE) */
++		{ 0x820cc000, 0x0e000, 0x1000 }, /* WF_UMAC_TOP (PP) */
++		{ 0x820cd000, 0x0f000, 0x1000 }, /* WF_MDP_TOP */
++		{ 0x820ce000, 0x21c00, 0x0200 }, /* WF_LMAC_TOP (WF_SEC) */
++		{ 0x820cf000, 0x22000, 0x1000 }, /* WF_LMAC_TOP (WF_PF) */
++		{ 0x820e0000, 0x20000, 0x0400 }, /* WF_LMAC_TOP BN0 (WF_CFG) */
++		{ 0x820e1000, 0x20400, 0x0200 }, /* WF_LMAC_TOP BN0 (WF_TRB) */
++		{ 0x820e9000, 0x23400, 0x0200 }, /* WF_LMAC_TOP BN0 (WF_WTBLOFF) */
++		{ 0x820ea000, 0x24000, 0x0200 }, /* WF_LMAC_TOP BN0 (WF_ETBF) */
++		{ 0x820ec000, 0x24600, 0x0200 }, /* WF_LMAC_TOP BN0 (WF_INT) */
++		{ 0x820f0000, 0xa0000, 0x0400 }, /* WF_LMAC_TOP BN1 (WF_CFG) */
++		{ 0x820f1000, 0xa0600, 0x0200 }, /* WF_LMAC_TOP BN1 (WF_TRB) */
++		{ 0x820f2000, 0xa0800, 0x0400 }, /* WF_LMAC_TOP BN1 (WF_AGG) */
++		{ 0x820f3000, 0xa0c00, 0x0400 }, /* WF_LMAC_TOP BN1 (WF_ARB) */
++		{ 0x820f4000, 0xa1000, 0x0400 }, /* WF_LMAC_TOP BN1 (WF_TMAC) */
++		{ 0x820f5000, 0xa1400, 0x0800 }, /* WF_LMAC_TOP BN1 (WF_RMAC) */
++		{ 0x820f7000, 0xa1e00, 0x0200 }, /* WF_LMAC_TOP BN1 (WF_DMA) */
++		{ 0x820f9000, 0xa3400, 0x0200 }, /* WF_LMAC_TOP BN1 (WF_WTBLOFF) */
++		{ 0x820fa000, 0xa4000, 0x0200 }, /* WF_LMAC_TOP BN1 (WF_ETBF) */
++		{ 0x820fb000, 0xa4200, 0x0400 }, /* WF_LMAC_TOP BN1 (WF_LPON) */
++		{ 0x820fc000, 0xa4600, 0x0200 }, /* WF_LMAC_TOP BN1 (WF_INT) */
++		{ 0x820fd000, 0xa4800, 0x0800 }, /* WF_LMAC_TOP BN1 (WF_MIB) */
++	};
++	int i;
 +
-+	if (!err && test_bit(MT76_STATE_MCU_RUNNING, &dev->mphy.state))
-+		err = readx_poll_timeout(mt7921s_read_rm3r, dev, status,
-+					 status & D2HRM3R_IS_DRIVER_OWN,
-+					 2000, 1000000);
++	if (addr < 0x100000)
++		return addr;
 +
- 	sdio_release_host(func);
- 
- 	if (err < 0) {
-@@ -115,12 +141,24 @@ int mt7921s_mcu_fw_pmctrl(struct mt7921_dev *dev)
- 
- 	sdio_claim_host(func);
- 
-+	if (test_bit(MT76_STATE_MCU_RUNNING, &dev->mphy.state)) {
-+		err = readx_poll_timeout(mt7921s_clear_rm3r_drv_own,
-+					 dev, status,
-+					 !(status & D2HRM3R_IS_DRIVER_OWN),
-+					 2000, 1000000);
-+		if (err < 0) {
-+			dev_err(dev->mt76.dev, "mailbox ACK not cleared\n");
-+			goto err;
-+		}
++	for (i = 0; i < ARRAY_SIZE(fixed_map); i++) {
++		u32 ofs;
++
++		if (addr < fixed_map[i].phys)
++			continue;
++
++		ofs = addr - fixed_map[i].phys;
++		if (ofs > fixed_map[i].size)
++			continue;
++
++		return fixed_map[i].mapped + ofs;
 +	}
 +
- 	sdio_writel(func, WHLPCR_FW_OWN_REQ_SET, MCR_WHLPCR, NULL);
++	if ((addr >= 0x18000000 && addr < 0x18c00000) ||
++	    (addr >= 0x70000000 && addr < 0x78000000) ||
++	    (addr >= 0x7c000000 && addr < 0x7c400000))
++		return mt7921_reg_map_l1(dev, addr);
++
++	dev_err(dev->mt76.dev, "Access currently unsupported address %08x\n",
++		addr);
++
++	return 0;
++}
++
++static u32 mt7921_rr(struct mt76_dev *mdev, u32 offset)
++{
++	struct mt7921_dev *dev = container_of(mdev, struct mt7921_dev, mt76);
++	u32 addr = __mt7921_reg_addr(dev, offset);
++
++	return dev->bus_ops->rr(mdev, addr);
++}
++
++static void mt7921_wr(struct mt76_dev *mdev, u32 offset, u32 val)
++{
++	struct mt7921_dev *dev = container_of(mdev, struct mt7921_dev, mt76);
++	u32 addr = __mt7921_reg_addr(dev, offset);
++
++	dev->bus_ops->wr(mdev, addr, val);
++}
++
++static u32 mt7921_rmw(struct mt76_dev *mdev, u32 offset, u32 mask, u32 val)
++{
++	struct mt7921_dev *dev = container_of(mdev, struct mt7921_dev, mt76);
++	u32 addr = __mt7921_reg_addr(dev, offset);
++
++	return dev->bus_ops->rmw(mdev, addr, mask, val);
++}
++
+ static int mt7921_pci_probe(struct pci_dev *pdev,
+ 			    const struct pci_device_id *id)
+ {
+@@ -151,6 +255,7 @@ static int mt7921_pci_probe(struct pci_dev *pdev,
+ 		.fw_own = mt7921e_mcu_fw_pmctrl,
+ 	};
  
- 	err = readx_poll_timeout(mt76s_read_pcr, &dev->mt76, status,
- 				 !(status & WHLPCR_IS_DRIVER_OWN), 2000, 1000000);
- 	sdio_release_host(func);
++	struct mt76_bus_ops *bus_ops;
+ 	struct mt7921_dev *dev;
+ 	struct mt76_dev *mdev;
+ 	int ret;
+@@ -188,6 +293,25 @@ static int mt7921_pci_probe(struct pci_dev *pdev,
  
-+err:
- 	if (err < 0) {
- 		dev_err(dev->mt76.dev, "firmware own failed\n");
- 		clear_bit(MT76_STATE_PM, &mphy->state);
-diff --git a/drivers/net/wireless/mediatek/mt76/sdio.h b/drivers/net/wireless/mediatek/mt76/sdio.h
-index 99db4ad93b7c..27d5d2077eba 100644
---- a/drivers/net/wireless/mediatek/mt76/sdio.h
-+++ b/drivers/net/wireless/mediatek/mt76/sdio.h
-@@ -65,6 +65,7 @@
- #define MCR_H2DSM0R			0x0070
- #define H2D_SW_INT_READ			BIT(16)
- #define H2D_SW_INT_WRITE		BIT(17)
-+#define H2D_SW_INT_CLEAR_MAILBOX_ACK	BIT(22)
+ 	mt76_mmio_init(&dev->mt76, pcim_iomap_table(pdev)[0]);
+ 	tasklet_init(&dev->irq_tasklet, mt7921_irq_tasklet, (unsigned long)dev);
++
++	dev->phy.dev = dev;
++	dev->phy.mt76 = &dev->mt76.phy;
++	dev->mt76.phy.priv = &dev->phy;
++	dev->bus_ops = dev->mt76.bus;
++	bus_ops = devm_kmemdup(dev->mt76.dev, dev->bus_ops, sizeof(*bus_ops),
++			       GFP_KERNEL);
++	if (!bus_ops)
++		return -ENOMEM;
++
++	bus_ops->rr = mt7921_rr;
++	bus_ops->wr = mt7921_wr;
++	bus_ops->rmw = mt7921_rmw;
++	dev->mt76.bus = bus_ops;
++
++	ret = __mt7921e_mcu_drv_pmctrl(dev);
++	if (ret)
++		return ret;
++
+ 	mdev->rev = (mt7921_l1_rr(dev, MT_HW_CHIPID) << 16) |
+ 		    (mt7921_l1_rr(dev, MT_HW_REV) & 0xff);
+ 	dev_info(mdev->dev, "ASIC revision: %04x\n", mdev->rev);
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/pci_mcu.c b/drivers/net/wireless/mediatek/mt76/mt7921/pci_mcu.c
+index a020352122a1..daa73c92426c 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7921/pci_mcu.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7921/pci_mcu.c
+@@ -59,10 +59,8 @@ int mt7921e_mcu_init(struct mt7921_dev *dev)
+ 	return err;
+ }
  
- #define MCR_H2DSM1R			0x0074
- #define MCR_D2HRM0R			0x0078
-@@ -109,6 +110,7 @@
- #define MCR_H2DSM2R			0x0160 /* supported in CONNAC2 */
- #define MCR_H2DSM3R			0x0164 /* supported in CONNAC2 */
- #define MCR_D2HRM3R			0x0174 /* supported in CONNAC2 */
-+#define D2HRM3R_IS_DRIVER_OWN		BIT(0)
- #define MCR_WTQCR8			0x0190 /* supported in CONNAC2 */
- #define MCR_WTQCR9			0x0194 /* supported in CONNAC2 */
- #define MCR_WTQCR10			0x0198 /* supported in CONNAC2 */
+-int mt7921e_mcu_drv_pmctrl(struct mt7921_dev *dev)
++int __mt7921e_mcu_drv_pmctrl(struct mt7921_dev *dev)
+ {
+-	struct mt76_phy *mphy = &dev->mt76.phy;
+-	struct mt76_connac_pm *pm = &dev->pm;
+ 	int i, err = 0;
+ 
+ 	for (i = 0; i < MT7921_DRV_OWN_RETRY_COUNT; i++) {
+@@ -75,9 +73,21 @@ int mt7921e_mcu_drv_pmctrl(struct mt7921_dev *dev)
+ 	if (i == MT7921_DRV_OWN_RETRY_COUNT) {
+ 		dev_err(dev->mt76.dev, "driver own failed\n");
+ 		err = -EIO;
+-		goto out;
+ 	}
+ 
++	return err;
++}
++
++int mt7921e_mcu_drv_pmctrl(struct mt7921_dev *dev)
++{
++	struct mt76_phy *mphy = &dev->mt76.phy;
++	struct mt76_connac_pm *pm = &dev->pm;
++	int err;
++
++	err = __mt7921e_mcu_drv_pmctrl(dev);
++	if (err < 0)
++		goto out;
++
+ 	mt7921_wpdma_reinit_cond(dev);
+ 	clear_bit(MT76_STATE_PM, &mphy->state);
+ 
 -- 
 2.34.1
 
