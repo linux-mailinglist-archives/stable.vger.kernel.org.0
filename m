@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DCDDE4F2C98
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:31:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 254174F2BC0
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:21:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235421AbiDEJCB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:02:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45546 "EHLO
+        id S235464AbiDEJCI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:02:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45574 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237568AbiDEImt (ORCPT
+        with ESMTP id S237572AbiDEImt (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:42:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B9F213DEF;
-        Tue,  5 Apr 2022 01:35:14 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1EC3816589;
+        Tue,  5 Apr 2022 01:35:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DC4E9614E4;
-        Tue,  5 Apr 2022 08:35:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED8CAC385A0;
-        Tue,  5 Apr 2022 08:35:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B0592614E4;
+        Tue,  5 Apr 2022 08:35:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C29BBC385A2;
+        Tue,  5 Apr 2022 08:35:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147713;
-        bh=3+T0dHYlWnxkv9+tQQbQeXrBLw+wctKVVybJaCYl/y0=;
+        s=korg; t=1649147727;
+        bh=U6NPccItde/lV+Aupb+80yWZKd2ruP1llhPD9xnH5U8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jEOhF+U5KeCf7k0RJWBY0Ey/mqjCjjms7nF2rX8visNrRQywkpDKbAqPgAwYRO5pv
-         La6799c19nGJT9rKP/KwvCwS8CAg4u/iInMQxYJVNmrdk5K7Ktve0KNuVcCcBElHSz
-         LHSb8NBqmB6V/g70qodgK4KXqGpt2KPu1PN7kuJM=
+        b=Iis+WPexVF9uHGrR2yP/D5lzDJiyy6i8UogRFSqF6nAMqyElmknzQY7/SHoKMHFE3
+         QjzGcttQiveCoYaOPe4qZe0Ek+Bfp/y9uZqA1GF4eVgYH9NmNxFim9pERX0Cq2IGy7
+         TATV6H14Fjm2k6Vj8uPRmMOduB7ErFnaGyaZ0HJ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Manish Chopra <manishc@marvell.com>,
-        Ariel Elior <aelior@marvell.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.16 0095/1017] qed: display VF trust config
-Date:   Tue,  5 Apr 2022 09:16:48 +0200
-Message-Id: <20220405070357.016230077@linuxfoundation.org>
+        stable@vger.kernel.org, Dmitry Vyukov <dvyukov@google.com>,
+        syzbot+0600986d88e2d4d7ebb8@syzkaller.appspotmail.com,
+        Palmer Dabbelt <palmer@rivosinc.com>
+Subject: [PATCH 5.16 0099/1017] riscv: Increase stack size under KASAN
+Date:   Tue,  5 Apr 2022 09:16:52 +0200
+Message-Id: <20220405070357.135672401@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -54,32 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manish Chopra <manishc@marvell.com>
+From: Dmitry Vyukov <dvyukov@google.com>
 
-commit 4e6e6bec7440b9b76f312f28b1f4e944eebb3abc upstream.
+commit b81d591386c3a50b96dddcf663628ea0df0bf2b3 upstream.
 
-Driver does support SR-IOV VFs trust configuration but
-it does not display it when queried via ip link utility.
+KASAN requires more stack space because of compiler instrumentation.
+Increase stack size as other arches do.
 
+Signed-off-by: Dmitry Vyukov <dvyukov@google.com>
+Reported-by: syzbot+0600986d88e2d4d7ebb8@syzkaller.appspotmail.com
+Fixes: 8ad8b72721d0 ("riscv: Add KASAN support")
 Cc: stable@vger.kernel.org
-Fixes: f990c82c385b ("qed*: Add support for ndo_set_vf_trust")
-Signed-off-by: Manish Chopra <manishc@marvell.com>
-Signed-off-by: Ariel Elior <aelior@marvell.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/qlogic/qed/qed_sriov.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/riscv/include/asm/thread_info.h |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/qlogic/qed/qed_sriov.c
-+++ b/drivers/net/ethernet/qlogic/qed/qed_sriov.c
-@@ -4719,6 +4719,7 @@ static int qed_get_vf_config(struct qed_
- 	tx_rate = vf_info->tx_rate;
- 	ivi->max_tx_rate = tx_rate ? tx_rate : link.speed;
- 	ivi->min_tx_rate = qed_iov_get_vf_min_rate(hwfn, vf_id);
-+	ivi->trusted = vf_info->is_trusted_request;
+--- a/arch/riscv/include/asm/thread_info.h
++++ b/arch/riscv/include/asm/thread_info.h
+@@ -11,11 +11,17 @@
+ #include <asm/page.h>
+ #include <linux/const.h>
  
- 	return 0;
- }
++#ifdef CONFIG_KASAN
++#define KASAN_STACK_ORDER 1
++#else
++#define KASAN_STACK_ORDER 0
++#endif
++
+ /* thread information allocation */
+ #ifdef CONFIG_64BIT
+-#define THREAD_SIZE_ORDER	(2)
++#define THREAD_SIZE_ORDER	(2 + KASAN_STACK_ORDER)
+ #else
+-#define THREAD_SIZE_ORDER	(1)
++#define THREAD_SIZE_ORDER	(1 + KASAN_STACK_ORDER)
+ #endif
+ #define THREAD_SIZE		(PAGE_SIZE << THREAD_SIZE_ORDER)
+ 
 
 
