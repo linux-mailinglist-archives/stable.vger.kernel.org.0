@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1931A4F4193
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:33:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A2AF94F40E1
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:24:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382569AbiDEMP4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:15:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46440 "EHLO
+        id S1382349AbiDEMOz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:14:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242776AbiDEKfS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:35:18 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56D77FE2;
+        with ESMTP id S242763AbiDEKfQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:35:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4B3427CDB;
         Tue,  5 Apr 2022 03:20:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id B14B5CE1C9D;
-        Tue,  5 Apr 2022 10:19:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4F3BC385A0;
-        Tue,  5 Apr 2022 10:19:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 647D961562;
+        Tue,  5 Apr 2022 10:20:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75524C385A1;
+        Tue,  5 Apr 2022 10:19:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153997;
-        bh=72/1zqUEYhLiiFXk5O7/0IVjc40AnVuaZl0aTzjZ4qE=;
+        s=korg; t=1649153999;
+        bh=hU7IAzgSohg8OgB98cEtIW0zSlPV5Cpe9Y4qKRpwVsw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QXXX8E8y4GFrf/lvP8K6pW/aGSMqZyYNNoPSveBf6+JYhvZio3kYWXprdAtNowMUK
-         emR+qekOdwgv8+4+6GYMVsHgWFouFu7mFFDR8YG9S7uOv0VeMV+a/03EuB6SEOLyJl
-         z5USPVMj6TitlArUfmrvXRr1MA5FYbbYwRoG8DJs=
+        b=aXE4ZYAYXimQ1AsXV6eHd0uH/MULTeo/nzlx6Gv10pfkDDj1KQIjLoSFTpVG++VUw
+         VSdepAWvpDB4qHCxhvMC87pzcUsi6aYhQomMQFXFfKkWPikxFVwgzF/hhhkVawHWRE
+         z22aFUw8Z/x3LlxpJ2HMra7hpMC2qJRhXwMTKF6Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,9 +36,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         <angelogioacchino.delregno@collabora.com>,
         Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 421/599] pinctrl: mediatek: paris: Fix pingroup pin config state readback
-Date:   Tue,  5 Apr 2022 09:31:55 +0200
-Message-Id: <20220405070311.361696989@linuxfoundation.org>
+Subject: [PATCH 5.10 422/599] pinctrl: mediatek: paris: Skip custom extra pin config dump for virtual GPIOs
+Date:   Tue,  5 Apr 2022 09:31:56 +0200
+Message-Id: <20220405070311.391652110@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -58,57 +58,38 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Chen-Yu Tsai <wenst@chromium.org>
 
-[ Upstream commit 54fe55fb384ade630ef20b9a8b8f3b2a89ad97f2 ]
+[ Upstream commit 1763933d377ecb05454f8d20e3c8922480db2ac0 ]
 
-mtk_pconf_group_get(), used to read back pingroup pin config state,
-simply returns a set of configs saved from a previous invocation of
-mtk_pconf_group_set(). This is an unfiltered, unvalidated set passed
-in from the pinconf core, which does not match the current hardware
-state.
+Virtual GPIOs do not have any hardware state associated with them. Any
+attempt to read back hardware state for these pins result in error
+codes.
 
-Since the driver library is designed to have one pin per group, pass
-through mtk_pconf_group_get() to mtk_pinconf_get(), to read back the
-current pin config state of the only pin in the group.
+Skip dumping extra pin config information for these virtual GPIOs.
 
-Also drop the assignment of pin config state to the group.
-
-Fixes: 805250982bb5 ("pinctrl: mediatek: add pinctrl-paris that implements the vendor dt-bindings")
+Fixes: 184d8e13f9b1 ("pinctrl: mediatek: Add support for pin configuration dump via debugfs.")
 Signed-off-by: Chen-Yu Tsai <wenst@chromium.org>
 Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Link: https://lore.kernel.org/r/20220308100956.2750295-5-wenst@chromium.org
+Link: https://lore.kernel.org/r/20220308100956.2750295-7-wenst@chromium.org
 Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/mediatek/pinctrl-paris.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/pinctrl/mediatek/pinctrl-paris.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
 diff --git a/drivers/pinctrl/mediatek/pinctrl-paris.c b/drivers/pinctrl/mediatek/pinctrl-paris.c
-index 9b268ad4e1b8..2f3c65265e23 100644
+index 2f3c65265e23..d0a4ebbe1e7e 100644
 --- a/drivers/pinctrl/mediatek/pinctrl-paris.c
 +++ b/drivers/pinctrl/mediatek/pinctrl-paris.c
-@@ -714,10 +714,10 @@ static int mtk_pconf_group_get(struct pinctrl_dev *pctldev, unsigned group,
- 			       unsigned long *config)
- {
- 	struct mtk_pinctrl *hw = pinctrl_dev_get_drvdata(pctldev);
-+	struct mtk_pinctrl_group *grp = &hw->groups[group];
+@@ -580,6 +580,9 @@ ssize_t mtk_pctrl_show_one_pin(struct mtk_pinctrl *hw,
+ 	if (gpio >= hw->soc->npins)
+ 		return -EINVAL;
  
--	*config = hw->groups[group].config;
--
--	return 0;
-+	 /* One pin per group only */
-+	return mtk_pinconf_get(pctldev, grp->pin, config);
- }
- 
- static int mtk_pconf_group_set(struct pinctrl_dev *pctldev, unsigned group,
-@@ -733,8 +733,6 @@ static int mtk_pconf_group_set(struct pinctrl_dev *pctldev, unsigned group,
- 				      pinconf_to_config_argument(configs[i]));
- 		if (ret < 0)
- 			return ret;
--
--		grp->config = configs[i];
- 	}
- 
- 	return 0;
++	if (mtk_is_virt_gpio(hw, gpio))
++		return -EINVAL;
++
+ 	desc = (const struct mtk_pin_desc *)&hw->soc->pins[gpio];
+ 	pinmux = mtk_pctrl_get_pinmux(hw, gpio);
+ 	if (pinmux >= hw->soc->nfuncs)
 -- 
 2.34.1
 
