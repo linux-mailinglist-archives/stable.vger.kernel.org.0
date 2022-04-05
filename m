@@ -2,94 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 530844F317D
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:44:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 406494F2EBC
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:03:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353865AbiDEKJj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:09:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44250 "EHLO
+        id S237768AbiDEInU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:43:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33828 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345815AbiDEJXD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:23:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 139E19F6C8;
-        Tue,  5 Apr 2022 02:12:16 -0700 (PDT)
+        with ESMTP id S241094AbiDEIcs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:32:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EA19140F6;
+        Tue,  5 Apr 2022 01:27:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7FFF3615E5;
-        Tue,  5 Apr 2022 09:12:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FEADC385A0;
-        Tue,  5 Apr 2022 09:12:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D09C461001;
+        Tue,  5 Apr 2022 08:27:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE6B2C385A2;
+        Tue,  5 Apr 2022 08:27:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149934;
-        bh=BBrYdWG++MCLrSKzmXHsgOOi+WKZDpUEzM+K/Ckpuzk=;
+        s=korg; t=1649147237;
+        bh=AxMd18gbofm6w4krU29ftLJswZhLQ32cx6ujG2KM8Xk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O3AZt9CfWXCFATLnR2WXKGi6oFmlV3LKR/H/VGoJgQBf0Ak4mCFWyp7rVrwS1kGp9
-         iF3ebIKS29AGvUaJCtN8S4J4eJzquUI79eC7LqPMjcTcQPhoWi/GXyHWA7kVM7H9FX
-         oZ0o4Ha90E3UBwcprNEufJbbFlgtsP0IDD5Am+68=
+        b=A4gmTpRyN1b9/jjzOAekH0kQK8tBhGdPya5qrfToy0H8HkDmW4vh4yiabyemK+vGq
+         xkWZc5UsrSX4UTw3QK21eLqodFvDexafv99XIgs+BOdRxgXzJjaeNnLHQEtHfxRH3M
+         6KwQ8fw89IRTI1c2ePNCRr4kbgwlZzuc0W4Qs3zg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Quinn Tran <qutran@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.16 0877/1017] scsi: qla2xxx: Fix stuck session in gpdb
-Date:   Tue,  5 Apr 2022 09:29:50 +0200
-Message-Id: <20220405070420.267537180@linuxfoundation.org>
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        =?UTF-8?q?Jonathan=20Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 5.17 1044/1126] pinctrl: nuvoton: npcm7xx: Use %zu printk format for ARRAY_SIZE()
+Date:   Tue,  5 Apr 2022 09:29:51 +0200
+Message-Id: <20220405070438.116405741@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,PDS_OTHER_BAD_TLD,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quinn Tran <qutran@marvell.com>
+From: Jonathan Neuschäfer <j.neuschaefer@gmx.net>
 
-commit 725d3a0d31a51c0debf970011e05f585e805165b upstream.
+commit 9d0f18bca3b557ae5d2128661ac06d33b3f45c0a upstream.
 
-Fix stuck sessions in get port database. When a thread is in the process of
-re-establishing a session, a flag is set to prevent multiple threads /
-triggers from doing the same task. This flag was left on, where any attempt
-to relogin was locked out. Clear this flag, if the attempt has failed.
+When compile-testing on 64-bit architectures, GCC complains about the
+mismatch of types between the %d format specifier and value returned by
+ARRAY_LENGTH(). Use %zu, which is correct everywhere.
 
-Link: https://lore.kernel.org/r/20220110050218.3958-4-njavali@marvell.com
-Cc: stable@vger.kernel.org
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Quinn Tran <qutran@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Fixes: 3b588e43ee5c7 ("pinctrl: nuvoton: add NPCM7xx pinctrl and GPIO driver")
+Signed-off-by: Jonathan Neuschäfer <j.neuschaefer@gmx.net>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/20220205155332.1308899-2-j.neuschaefer@gmx.net
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/qla2xxx/qla_init.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/pinctrl/nuvoton/pinctrl-npcm7xx.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/scsi/qla2xxx/qla_init.c
-+++ b/drivers/scsi/qla2xxx/qla_init.c
-@@ -1332,9 +1332,9 @@ int qla24xx_async_gpdb(struct scsi_qla_h
- 	if (!vha->flags.online || (fcport->flags & FCF_ASYNC_SENT) ||
- 	    fcport->loop_id == FC_NO_LOOP_ID) {
- 		ql_log(ql_log_warn, vha, 0xffff,
--		    "%s: %8phC - not sending command.\n",
--		    __func__, fcport->port_name);
--		return rval;
-+		    "%s: %8phC online %d flags %x - not sending command.\n",
-+		    __func__, fcport->port_name, vha->flags.online, fcport->flags);
-+		goto done;
- 	}
+--- a/drivers/pinctrl/nuvoton/pinctrl-npcm7xx.c
++++ b/drivers/pinctrl/nuvoton/pinctrl-npcm7xx.c
+@@ -1560,7 +1560,7 @@ static int npcm7xx_get_groups_count(stru
+ {
+ 	struct npcm7xx_pinctrl *npcm = pinctrl_dev_get_drvdata(pctldev);
  
- 	sp = qla2x00_get_sp(vha, fcport, GFP_KERNEL);
+-	dev_dbg(npcm->dev, "group size: %d\n", ARRAY_SIZE(npcm7xx_groups));
++	dev_dbg(npcm->dev, "group size: %zu\n", ARRAY_SIZE(npcm7xx_groups));
+ 	return ARRAY_SIZE(npcm7xx_groups);
+ }
+ 
 
 
