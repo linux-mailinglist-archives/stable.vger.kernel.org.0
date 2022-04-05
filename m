@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A2B64F324B
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:54:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CEF134F311A
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:39:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343644AbiDEI5T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:57:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58464 "EHLO
+        id S234137AbiDEI57 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:57:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45536 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234136AbiDEIiS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:38:18 -0400
+        with ESMTP id S234119AbiDEIjT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:39:19 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E25E41D0DD;
-        Tue,  5 Apr 2022 01:32:49 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 558101EAFF;
+        Tue,  5 Apr 2022 01:32:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8CDE4B81B13;
-        Tue,  5 Apr 2022 08:32:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04390C385A0;
-        Tue,  5 Apr 2022 08:32:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E4E9BB81A32;
+        Tue,  5 Apr 2022 08:32:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C9C7C385A1;
+        Tue,  5 Apr 2022 08:32:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147567;
-        bh=z0MZUq/cr6LSD5n9+SgDZwG8ExGGT+HKRqHuTFk8Ndk=;
+        s=korg; t=1649147572;
+        bh=g4fyN2qoHyGpxXNxZZ707m4eEwBL7Q2b400w2aH4EFg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z/K4k+WR7ftFSqRKhU9WNBRTIuMRPwCw8OBnF6+tnWBS0YCj9Wzl0b4WoFCEyHxLl
-         FMcZts4yaUM4OqiuByzqrU0Gn6g3y0AC3hjcS8VzMRyJYJq/3/sbzlnNxE0zwgmzhO
-         GBlzKpHS9engaOPWQghYOJM0YYroepon7bXv+hVw=
+        b=kAV2iUaYkedzOrwRNN5/fD0F6BkCMJTIPWMnMheQSmhenUoA7jz8oG3ndlHUMgBAH
+         9JDd/xzYpCzzC1rHlBcdjiIRqkORLuU4NPPSf1TIXLaQtoJdKVVeLOWrFKFiXbUilI
+         fz5HlzN1RYF83I6mcbX91In2XMkr6qSKvXgsFQus=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Akira Yokosawa <akiyks@gmail.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Jonathan Corbet <corbet@lwn.net>
-Subject: [PATCH 5.16 0043/1017] docs: sphinx/requirements: Limit jinja2<3.1
-Date:   Tue,  5 Apr 2022 09:15:56 +0200
-Message-Id: <20220405070355.460162240@linuxfoundation.org>
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>
+Subject: [PATCH 5.16 0045/1017] coresight: syscfg: Fix memleak on registration failure in cscfg_create_device
+Date:   Tue,  5 Apr 2022 09:15:58 +0200
+Message-Id: <20220405070355.520237785@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -54,33 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Akira Yokosawa <akiyks@gmail.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-commit be78837ca3c88eebd405103a7a2ce891c466b0db upstream.
+commit cfa5dbcdd7aece76f3415284569f2f384aff0253 upstream.
 
-jinja2 release 3.1.0 (March 24, 2022) broke Sphinx<4.0.
-This looks like the result of deprecating Python 3.6.
-It has been tested against Sphinx 4.3.0 and later.
+device_register() calls device_initialize(),
+according to doc of device_initialize:
 
-Setting an upper limit of <3.1 to junja2 can unbreak Sphinx<4.0
-including Sphinx 2.4.4.
+    Use put_device() to give up your reference instead of freeing
+    * @dev directly once you have called this function.
 
-Signed-off-by: Akira Yokosawa <akiyks@gmail.com>
-Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
-Cc: stable@vger.kernel.org # v5.15+
-Link: https://lore.kernel.org/r/7dbff8a0-f4ff-34a0-71c7-1987baf471f9@gmail.com
-Signed-off-by: Jonathan Corbet <corbet@lwn.net>
+To prevent potential memleak, use put_device() for error handling.
+
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Fixes: 85e2414c518a ("coresight: syscfg: Initial coresight system configuration")
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20220124124121.8888-1-linmq006@gmail.com
+Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/sphinx/requirements.txt |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/hwtracing/coresight/coresight-syscfg.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/Documentation/sphinx/requirements.txt
-+++ b/Documentation/sphinx/requirements.txt
-@@ -1,2 +1,4 @@
-+# jinja2>=3.1 is not compatible with Sphinx<4.0
-+jinja2<3.1
- sphinx_rtd_theme
- Sphinx==2.4.4
+--- a/drivers/hwtracing/coresight/coresight-syscfg.c
++++ b/drivers/hwtracing/coresight/coresight-syscfg.c
+@@ -791,7 +791,7 @@ static int cscfg_create_device(void)
+ 
+ 	err = device_register(dev);
+ 	if (err)
+-		cscfg_dev_release(dev);
++		put_device(dev);
+ 
+ create_dev_exit_unlock:
+ 	mutex_unlock(&cscfg_mutex);
 
 
