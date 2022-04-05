@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A7D784F41DB
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:37:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 524104F4078
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:16:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349608AbiDEMHy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:07:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50434 "EHLO
+        id S1348356AbiDEMHi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:07:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357991AbiDEK1j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:27:39 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CAB6D4456;
-        Tue,  5 Apr 2022 03:12:22 -0700 (PDT)
+        with ESMTP id S1358007AbiDEK1m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:27:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1491D9EB6;
+        Tue,  5 Apr 2022 03:12:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0C0F0B81C89;
-        Tue,  5 Apr 2022 10:12:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74510C385A1;
-        Tue,  5 Apr 2022 10:12:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6D29A61777;
+        Tue,  5 Apr 2022 10:12:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81423C385A1;
+        Tue,  5 Apr 2022 10:12:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153539;
-        bh=Df5cw4uZOewNOibhwguds9r4nlmhDAJTRW1n8V1PLUM=;
+        s=korg; t=1649153567;
+        bh=ZgLDfPyvIdJTTM2KlzuPc6Q78su2GBwEKJtd6o6xQEM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ar+7zCg3OZzSuz0OsBk1/cY0RtXZsu7BSIOHvOC6PPG6tSgUbhDPZd/60DkDpvF5X
-         B2Pl/BRd+ID72bMvhLXTbzMfWodPGsx6MRX5X/AfPzGnDXgKSVVtgaaiCTNHKJHu7M
-         KWvARFrPBHxW1Yq5IZfOrX/mG3AI8mm6+vJx0F+c=
+        b=Mf1/7sim1cdx8b/kPQU8kGsxmBykq4OD2cu/vA67LF4eXAUk/7pvwVZZFRa0U2kHe
+         yKxQXorjADZJsWc0vribhDaKTG4jIBNZtMVAKf4Edp5Pd/UeYTW/FtY00JbJ3k2Nn1
+         Y3BLmyfhU2eevhfEaaPkO2n0f1JhiiziCsQV5R/0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andre Przywara <andre.przywara@arm.com>,
-        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 259/599] ARM: configs: multi_v5_defconfig: re-enable CONFIG_V4L_PLATFORM_DRIVERS
-Date:   Tue,  5 Apr 2022 09:29:13 +0200
-Message-Id: <20220405070306.545970135@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        Gerd Hoffmann <kraxel@redhat.com>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+2c56b725ec547fa9cb29@syzkaller.appspotmail.com
+Subject: [PATCH 5.10 268/599] udmabuf: validate ubuf->pagecount
+Date:   Tue,  5 Apr 2022 09:29:22 +0200
+Message-Id: <20220405070306.811711198@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -53,41 +55,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andre Przywara <andre.przywara@arm.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit f5eb04d7a0e419d61f784de3ced708259ddb71d7 ]
+[ Upstream commit 2b6dd600dd72573c23ea180b5b0b2f1813405882 ]
 
-Commit 06b93644f4d1 ("media: Kconfig: add an option to filter in/out
-platform drivers") introduced CONFIG_MEDIA_PLATFORM_SUPPORT, to allow
-more fine grained control over the inclusion of certain Kconfig files.
-multi_v5_defconfig was selecting some drivers described in
-drivers/media/platform/Kconfig, which now wasn't included anymore.
+Syzbot has reported GPF in sg_alloc_append_table_from_pages(). The
+problem was in ubuf->pages == ZERO_PTR.
 
-Explicitly set the new symbol in multi_v5_defconfig to bring those
-drivers back.
-This enables some new V4L2 and VIDEOBUF2 features, but as modules only.
+ubuf->pagecount is calculated from arguments passed from user-space. If
+user creates udmabuf with list.size == 0 then ubuf->pagecount will be
+also equal to zero; it causes kmalloc_array() to return ZERO_PTR.
 
-Fixes: 06b93644f4d1 ("media: Kconfig: add an option to filter in/out platform drivers")
-Signed-off-by: Andre Przywara <andre.przywara@arm.com>
-Link: https://lore.kernel.org/r/20220317183043.948432-3-andre.przywara@arm.com'
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Fix it by validating ubuf->pagecount before passing it to
+kmalloc_array().
+
+Fixes: fbb0de795078 ("Add udmabuf misc device")
+Reported-and-tested-by: syzbot+2c56b725ec547fa9cb29@syzkaller.appspotmail.com
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Link: http://patchwork.freedesktop.org/patch/msgid/20211230142649.23022-1-paskripkin@gmail.com
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/configs/multi_v5_defconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/dma-buf/udmabuf.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/arch/arm/configs/multi_v5_defconfig b/arch/arm/configs/multi_v5_defconfig
-index e00be9faa23b..4393e689f235 100644
---- a/arch/arm/configs/multi_v5_defconfig
-+++ b/arch/arm/configs/multi_v5_defconfig
-@@ -187,6 +187,7 @@ CONFIG_REGULATOR=y
- CONFIG_REGULATOR_FIXED_VOLTAGE=y
- CONFIG_MEDIA_SUPPORT=y
- CONFIG_MEDIA_CAMERA_SUPPORT=y
-+CONFIG_MEDIA_PLATFORM_SUPPORT=y
- CONFIG_V4L_PLATFORM_DRIVERS=y
- CONFIG_VIDEO_ASPEED=m
- CONFIG_VIDEO_ATMEL_ISI=m
+diff --git a/drivers/dma-buf/udmabuf.c b/drivers/dma-buf/udmabuf.c
+index db732f71e59a..cfbf10128aae 100644
+--- a/drivers/dma-buf/udmabuf.c
++++ b/drivers/dma-buf/udmabuf.c
+@@ -181,6 +181,10 @@ static long udmabuf_create(struct miscdevice *device,
+ 		if (ubuf->pagecount > pglimit)
+ 			goto err;
+ 	}
++
++	if (!ubuf->pagecount)
++		goto err;
++
+ 	ubuf->pages = kmalloc_array(ubuf->pagecount, sizeof(*ubuf->pages),
+ 				    GFP_KERNEL);
+ 	if (!ubuf->pages) {
 -- 
 2.34.1
 
