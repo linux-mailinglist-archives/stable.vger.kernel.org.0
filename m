@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC3FB4F2500
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 09:42:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EBD94F2502
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 09:42:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232090AbiDEHoV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 03:44:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57032 "EHLO
+        id S231431AbiDEHoX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 03:44:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34128 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231829AbiDEHoK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:44:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54455939D2;
-        Tue,  5 Apr 2022 00:40:35 -0700 (PDT)
+        with ESMTP id S232019AbiDEHoR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:44:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D243995482;
+        Tue,  5 Apr 2022 00:40:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D999E6167B;
-        Tue,  5 Apr 2022 07:40:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB3B9C340EE;
-        Tue,  5 Apr 2022 07:40:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5A977B81B92;
+        Tue,  5 Apr 2022 07:40:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B51C8C340EE;
+        Tue,  5 Apr 2022 07:40:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649144434;
-        bh=n293qt+mrQy6zxOTmDT6x5dcOxeBBh/NnsqIl81K/6U=;
+        s=korg; t=1649144437;
+        bh=Fb4riB0jEURomykj+1J8g5qsThUapKp//UiRoyJN0MM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h1XEiTqeQnSBoC92pQ/U4rbb6WSxE7hXGDSwddCt27nfL8/Tvgz1gcpLXyE5mQ7Rl
-         r9ncjGWe1IHq9QSgRCPw5thC0UuAWA4FNCW8/ub7wVbVbyUIPR51uXgrYowSmhS/YR
-         SlFUpX35aQUe1IfjNnMVLNzzxx7CXqdzDmQDl/wU=
+        b=jXw9+tCks2dFhMp9GTqXiEq3P1IvbjaiiEy3Hc1nzLhm0pIh9kwiHXTx7eWWVmfXO
+         zg7oSm/nCRQiC3JlHGU/XogHCp5IdrFH1GyZXMuTqTAD/2EQjTLEjO/W2vXD9edMsF
+         GwPXybsRUPypZjAHON4p87lzWQbT3pZS0TSEGR2o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Jann Horn <jannh@google.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 5.17 0042/1126] ptrace: Check PTRACE_O_SUSPEND_SECCOMP permission on PTRACE_SEIZE
-Date:   Tue,  5 Apr 2022 09:13:09 +0200
-Message-Id: <20220405070408.793958394@linuxfoundation.org>
+        stable@vger.kernel.org, Xiaoli Feng <xifeng@redhat.com>,
+        kernel test robot <lkp@intel.com>,
+        Ronnie Sahlberg <lsahlber@redhat.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.17 0043/1126] cifs: truncate the inode and mapping when we simulate fcollapse
+Date:   Tue,  5 Apr 2022 09:13:10 +0200
+Message-Id: <20220405070408.823275754@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -54,105 +55,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jann Horn <jannh@google.com>
+From: Ronnie Sahlberg <lsahlber@redhat.com>
 
-commit ee1fee900537b5d9560e9f937402de5ddc8412f3 upstream.
+commit 84330d41efb12bc227899e54dbdbe7d9590cb2b7 upstream.
 
-Setting PTRACE_O_SUSPEND_SECCOMP is supposed to be a highly privileged
-operation because it allows the tracee to completely bypass all seccomp
-filters on kernels with CONFIG_CHECKPOINT_RESTORE=y. It is only supposed to
-be settable by a process with global CAP_SYS_ADMIN, and only if that
-process is not subject to any seccomp filters at all.
+RHBZ:1997367
 
-However, while these permission checks were done on the PTRACE_SETOPTIONS
-path, they were missing on the PTRACE_SEIZE path, which also sets
-user-specified ptrace flags.
+When we collapse a range in smb3_collapse_range() we must make sure
+we update the inode size and pagecache accordingly.
 
-Move the permissions checks out into a helper function and let both
-ptrace_attach() and ptrace_setoptions() call it.
+If not, both inode size and pagecahce may be stale until it is refreshed.
 
-Cc: stable@kernel.org
-Fixes: 13c4a90119d2 ("seccomp: add ptrace options for suspend/resume")
-Signed-off-by: Jann Horn <jannh@google.com>
-Link: https://lkml.kernel.org/r/20220319010838.1386861-1-jannh@google.com
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+This can be demonstrated for the inode size by running :
+
+xfs_io -i -f -c "truncate 320k" -c "fcollapse 64k 128k" -c "fiemap -v"  \
+/mnt/testfile
+
+where we can see the result of stale data in the fiemap output.
+The third line of the output is wrong, all this data should be truncated.
+
+ EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
+   0: [0..127]:        hole               128
+   1: [128..383]:      128..383           256   0x1
+   2: [384..639]:      hole               256
+
+And the correct output, when the inode size has been updated correctly should
+look like this:
+
+ EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
+   0: [0..127]:        hole               128
+   1: [128..383]:      128..383           256   0x1
+
+Reported-by: Xiaoli Feng <xifeng@redhat.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/ptrace.c |   47 ++++++++++++++++++++++++++++++++---------------
- 1 file changed, 32 insertions(+), 15 deletions(-)
+ fs/cifs/smb2ops.c |   18 ++++++++++++++----
+ 1 file changed, 14 insertions(+), 4 deletions(-)
 
---- a/kernel/ptrace.c
-+++ b/kernel/ptrace.c
-@@ -371,6 +371,26 @@ bool ptrace_may_access(struct task_struc
- 	return !err;
- }
+--- a/fs/cifs/smb2ops.c
++++ b/fs/cifs/smb2ops.c
+@@ -25,6 +25,7 @@
+ #include "smb2glob.h"
+ #include "cifs_ioctl.h"
+ #include "smbdirect.h"
++#include "fscache.h"
+ #include "fs_context.h"
  
-+static int check_ptrace_options(unsigned long data)
-+{
-+	if (data & ~(unsigned long)PTRACE_O_MASK)
-+		return -EINVAL;
-+
-+	if (unlikely(data & PTRACE_O_SUSPEND_SECCOMP)) {
-+		if (!IS_ENABLED(CONFIG_CHECKPOINT_RESTORE) ||
-+		    !IS_ENABLED(CONFIG_SECCOMP))
-+			return -EINVAL;
-+
-+		if (!capable(CAP_SYS_ADMIN))
-+			return -EPERM;
-+
-+		if (seccomp_mode(&current->seccomp) != SECCOMP_MODE_DISABLED ||
-+		    current->ptrace & PT_SUSPEND_SECCOMP)
-+			return -EPERM;
-+	}
-+	return 0;
-+}
-+
- static int ptrace_attach(struct task_struct *task, long request,
- 			 unsigned long addr,
- 			 unsigned long flags)
-@@ -382,8 +402,16 @@ static int ptrace_attach(struct task_str
- 	if (seize) {
- 		if (addr != 0)
- 			goto out;
-+		/*
-+		 * This duplicates the check in check_ptrace_options() because
-+		 * ptrace_attach() and ptrace_setoptions() have historically
-+		 * used different error codes for unknown ptrace options.
-+		 */
- 		if (flags & ~(unsigned long)PTRACE_O_MASK)
- 			goto out;
-+		retval = check_ptrace_options(flags);
-+		if (retval)
-+			return retval;
- 		flags = PT_PTRACED | PT_SEIZED | (flags << PT_OPT_FLAG_SHIFT);
- 	} else {
- 		flags = PT_PTRACED;
-@@ -654,22 +682,11 @@ int ptrace_writedata(struct task_struct
- static int ptrace_setoptions(struct task_struct *child, unsigned long data)
+ /* Change credits for different ops and return the total number of credits */
+@@ -3887,29 +3888,38 @@ static long smb3_collapse_range(struct f
  {
- 	unsigned flags;
-+	int ret;
+ 	int rc;
+ 	unsigned int xid;
++	struct inode *inode;
+ 	struct cifsFileInfo *cfile = file->private_data;
++	struct cifsInodeInfo *cifsi;
+ 	__le64 eof;
  
--	if (data & ~(unsigned long)PTRACE_O_MASK)
--		return -EINVAL;
--
--	if (unlikely(data & PTRACE_O_SUSPEND_SECCOMP)) {
--		if (!IS_ENABLED(CONFIG_CHECKPOINT_RESTORE) ||
--		    !IS_ENABLED(CONFIG_SECCOMP))
--			return -EINVAL;
--
--		if (!capable(CAP_SYS_ADMIN))
--			return -EPERM;
--
--		if (seccomp_mode(&current->seccomp) != SECCOMP_MODE_DISABLED ||
--		    current->ptrace & PT_SUSPEND_SECCOMP)
--			return -EPERM;
--	}
-+	ret = check_ptrace_options(data);
-+	if (ret)
-+		return ret;
+ 	xid = get_xid();
  
- 	/* Avoid intermediate state when all opts are cleared */
- 	flags = child->ptrace;
+-	if (off >= i_size_read(file->f_inode) ||
+-	    off + len >= i_size_read(file->f_inode)) {
++	inode = d_inode(cfile->dentry);
++	cifsi = CIFS_I(inode);
++
++	if (off >= i_size_read(inode) ||
++	    off + len >= i_size_read(inode)) {
+ 		rc = -EINVAL;
+ 		goto out;
+ 	}
+ 
+ 	rc = smb2_copychunk_range(xid, cfile, cfile, off + len,
+-				  i_size_read(file->f_inode) - off - len, off);
++				  i_size_read(inode) - off - len, off);
+ 	if (rc < 0)
+ 		goto out;
+ 
+-	eof = cpu_to_le64(i_size_read(file->f_inode) - len);
++	eof = cpu_to_le64(i_size_read(inode) - len);
+ 	rc = SMB2_set_eof(xid, tcon, cfile->fid.persistent_fid,
+ 			  cfile->fid.volatile_fid, cfile->pid, &eof);
+ 	if (rc < 0)
+ 		goto out;
+ 
+ 	rc = 0;
++
++	cifsi->server_eof = i_size_read(inode) - len;
++	truncate_setsize(inode, cifsi->server_eof);
++	fscache_resize_cookie(cifs_inode_cookie(inode), cifsi->server_eof);
+  out:
+ 	free_xid(xid);
+ 	return rc;
 
 
