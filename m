@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D4524F3BE7
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:22:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28B704F38FF
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:40:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382169AbiDEMDQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:03:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58500 "EHLO
+        id S1377469AbiDEL3U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:29:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48094 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358052AbiDEK15 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:27:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08DF8403D8;
-        Tue,  5 Apr 2022 03:13:52 -0700 (PDT)
+        with ESMTP id S1350462AbiDEJ63 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:58:29 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5481C57156;
+        Tue,  5 Apr 2022 02:51:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B2A06B81BC5;
-        Tue,  5 Apr 2022 10:13:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A1DCC385A0;
-        Tue,  5 Apr 2022 10:13:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 04713B81B97;
+        Tue,  5 Apr 2022 09:51:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4AD5FC385A3;
+        Tue,  5 Apr 2022 09:51:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153629;
-        bh=enzqPginarj/QnU6H8pla220r9cEFqVA6qz1/mBHTDc=;
+        s=korg; t=1649152266;
+        bh=AJfBjKjh2+RRkrw2MJojNVGL7DPhthwNBpPtrMeZIT8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0L0q+YKJuZf6sfF8ktogHZxBJcNzTAy6VygyOwjNPWaeyBcHxJW/pwoVZ6bbOJ77m
-         diEvUibtbi0FsYBCLbI3/SF+ev2r12vgWexoK1zSIXKlRwk1ayrCmv7l5++2Xw+jEO
-         NWSZvJKjNYl+WYhokZjxBdF64rFjg+Yn86wqd7Ew=
+        b=D/2GSQj6Ix+3JMMYhOU7l5LlSxalF+izRKEcatVQbGWPpRJqtBcTe8LZD83aBpYlo
+         C1c0cGwWvPa16/d7Oy4Lqkc+XKxXbVHlqCjipFZvfxxmJ/gmGSBYo0/P1rGav3hKmT
+         2PKydorTHwM7Mh7Vz32OM5bcfNuutcgtcajSMsW8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 283/599] ray_cs: Check ioremap return value
-Date:   Tue,  5 Apr 2022 09:29:37 +0200
-Message-Id: <20220405070307.257230649@linuxfoundation.org>
+        stable@vger.kernel.org, Chao Yu <chao@kernel.org>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 716/913] f2fs: fix to do sanity check on curseg->alloc_type
+Date:   Tue,  5 Apr 2022 09:29:38 +0200
+Message-Id: <20220405070401.296433124@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
-References: <20220405070258.802373272@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,55 +54,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Chao Yu <chao@kernel.org>
 
-[ Upstream commit 7e4760713391ee46dc913194b33ae234389a174e ]
+[ Upstream commit f41ee8b91c00770d718be2ff4852a80017ae9ab3 ]
 
-As the possible failure of the ioremap(), the 'local->sram' and other
-two could be NULL.
-Therefore it should be better to check it in order to avoid the later
-dev_dbg.
+As Wenqing Liu reported in bugzilla:
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20211230022926.1846757-1-jiasheng@iscas.ac.cn
+https://bugzilla.kernel.org/show_bug.cgi?id=215657
+
+- Overview
+UBSAN: array-index-out-of-bounds in fs/f2fs/segment.c:3460:2 when mount and operate a corrupted image
+
+- Reproduce
+tested on kernel 5.17-rc4, 5.17-rc6
+
+1. mkdir test_crash
+2. cd test_crash
+3. unzip tmp2.zip
+4. mkdir mnt
+5. ./single_test.sh f2fs 2
+
+- Kernel dump
+[   46.434454] loop0: detected capacity change from 0 to 131072
+[   46.529839] F2FS-fs (loop0): Mounted with checkpoint version = 7548c2d9
+[   46.738319] ================================================================================
+[   46.738412] UBSAN: array-index-out-of-bounds in fs/f2fs/segment.c:3460:2
+[   46.738475] index 231 is out of range for type 'unsigned int [2]'
+[   46.738539] CPU: 2 PID: 939 Comm: umount Not tainted 5.17.0-rc6 #1
+[   46.738547] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.13.0-1ubuntu1.1 04/01/2014
+[   46.738551] Call Trace:
+[   46.738556]  <TASK>
+[   46.738563]  dump_stack_lvl+0x47/0x5c
+[   46.738581]  ubsan_epilogue+0x5/0x50
+[   46.738592]  __ubsan_handle_out_of_bounds+0x68/0x80
+[   46.738604]  f2fs_allocate_data_block+0xdff/0xe60 [f2fs]
+[   46.738819]  do_write_page+0xef/0x210 [f2fs]
+[   46.738934]  f2fs_do_write_node_page+0x3f/0x80 [f2fs]
+[   46.739038]  __write_node_page+0x2b7/0x920 [f2fs]
+[   46.739162]  f2fs_sync_node_pages+0x943/0xb00 [f2fs]
+[   46.739293]  f2fs_write_checkpoint+0x7bb/0x1030 [f2fs]
+[   46.739405]  kill_f2fs_super+0x125/0x150 [f2fs]
+[   46.739507]  deactivate_locked_super+0x60/0xc0
+[   46.739517]  deactivate_super+0x70/0xb0
+[   46.739524]  cleanup_mnt+0x11a/0x200
+[   46.739532]  __cleanup_mnt+0x16/0x20
+[   46.739538]  task_work_run+0x67/0xa0
+[   46.739547]  exit_to_user_mode_prepare+0x18c/0x1a0
+[   46.739559]  syscall_exit_to_user_mode+0x26/0x40
+[   46.739568]  do_syscall_64+0x46/0xb0
+[   46.739584]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+The root cause is we missed to do sanity check on curseg->alloc_type,
+result in out-of-bound accessing on sbi->block_count[] array, fix it.
+
+Signed-off-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ray_cs.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ fs/f2fs/segment.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/net/wireless/ray_cs.c b/drivers/net/wireless/ray_cs.c
-index bf3fbd14eda3..091eea0d958d 100644
---- a/drivers/net/wireless/ray_cs.c
-+++ b/drivers/net/wireless/ray_cs.c
-@@ -382,6 +382,8 @@ static int ray_config(struct pcmcia_device *link)
- 		goto failed;
- 	local->sram = ioremap(link->resource[2]->start,
- 			resource_size(link->resource[2]));
-+	if (!local->sram)
-+		goto failed;
+diff --git a/fs/f2fs/segment.c b/fs/f2fs/segment.c
+index d716553bdc02..338a57360bb8 100644
+--- a/fs/f2fs/segment.c
++++ b/fs/f2fs/segment.c
+@@ -4747,6 +4747,13 @@ static int sanity_check_curseg(struct f2fs_sb_info *sbi)
  
- /*** Set up 16k window for shared memory (receive buffer) ***************/
- 	link->resource[3]->flags |=
-@@ -396,6 +398,8 @@ static int ray_config(struct pcmcia_device *link)
- 		goto failed;
- 	local->rmem = ioremap(link->resource[3]->start,
- 			resource_size(link->resource[3]));
-+	if (!local->rmem)
-+		goto failed;
+ 		sanity_check_seg_type(sbi, curseg->seg_type);
  
- /*** Set up window for attribute memory ***********************************/
- 	link->resource[4]->flags |=
-@@ -410,6 +414,8 @@ static int ray_config(struct pcmcia_device *link)
- 		goto failed;
- 	local->amem = ioremap(link->resource[4]->start,
- 			resource_size(link->resource[4]));
-+	if (!local->amem)
-+		goto failed;
++		if (curseg->alloc_type != LFS && curseg->alloc_type != SSR) {
++			f2fs_err(sbi,
++				 "Current segment has invalid alloc_type:%d",
++				 curseg->alloc_type);
++			return -EFSCORRUPTED;
++		}
++
+ 		if (f2fs_test_bit(blkofs, se->cur_valid_map))
+ 			goto out;
  
- 	dev_dbg(&link->dev, "ray_config sram=%p\n", local->sram);
- 	dev_dbg(&link->dev, "ray_config rmem=%p\n", local->rmem);
 -- 
 2.34.1
 
