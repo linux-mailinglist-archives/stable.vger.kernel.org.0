@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BB064F2A3E
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 12:53:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EDAD4F2ABA
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:05:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241457AbiDEKsv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:48:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43050 "EHLO
+        id S244281AbiDEJPh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:15:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46832 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244529AbiDEJl1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:41:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45ACDBB93C;
-        Tue,  5 Apr 2022 02:26:49 -0700 (PDT)
+        with ESMTP id S244927AbiDEIws (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:48 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89E1424969;
+        Tue,  5 Apr 2022 01:46:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D57AB6144D;
-        Tue,  5 Apr 2022 09:26:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCA44C385A0;
-        Tue,  5 Apr 2022 09:26:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 444CEB81B18;
+        Tue,  5 Apr 2022 08:46:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E4E3C385A1;
+        Tue,  5 Apr 2022 08:46:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150808;
-        bh=RcmNMbGFK3/mzonQQ96fbN2BOo1kqIFuF7vkACSwxRg=;
+        s=korg; t=1649148400;
+        bh=UtAF4TJdgd6LI56pIhGRnVTmygJzn7Y55xHYTWv0Fco=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HVlPQ48G7c9RdQxK0xKKGzd3/jH1zIY9Cldgli+8jJivBlOTnq9qvy6+0UyA9/lxU
-         nebBbAZxvfxF4v2MQCp+FW9U/+r4vNn0XZBuFw47vSAob2+oOVbAsKjyX9490qCIEW
-         jst6gJpFbbGFmwo3T4O3/HK7EeSQkH5hT120aNgQ=
+        b=a2Rcp6fX8is9IxRhFFCWU8nSP8i6RiONqb7kCvwWuST7h7+czE4olmiscTi8ktZai
+         wI3u93/grtqKvYQG6LOz4uPhn/Q7V4ymDnpBqbcRvSy7Is8n/vj+MrGYILTw76fUNk
+         L/rMMyox1PbwZGg3T//za1ai0IqYf4uDV0gDg+5Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Konrad Dybcio <konrad.dybcio@somainline.org>,
-        kernel test robot <lkp@intel.com>,
-        Julia Lawall <julia.lawall@inria.fr>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 189/913] regulator: qcom_smd: fix for_each_child.cocci warnings
-Date:   Tue,  5 Apr 2022 09:20:51 +0200
-Message-Id: <20220405070345.523470308@linuxfoundation.org>
+Subject: [PATCH 5.16 0341/1017] ASoC: codecs: wc938x: fix accessing array out of bounds for enum type
+Date:   Tue,  5 Apr 2022 09:20:54 +0200
+Message-Id: <20220405070404.405359777@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,46 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: kernel test robot <lkp@intel.com>
+From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 
-[ Upstream commit 6390d42c21efff0b4c10956a38e341f4e84ecd3d ]
+[ Upstream commit cc587b7c8fbbe128f6bd0dad025a0caea5e6d164 ]
 
-drivers/regulator/qcom_smd-regulator.c:1318:1-33: WARNING: Function "for_each_available_child_of_node" should have of_node_put() before return around line 1321.
+Accessing enums using integer would result in array out of bounds access
+on platforms like aarch64 where sizeof(long) is 8 compared to enum size
+which is 4 bytes.
 
-Semantic patch information:
- False positives can be due to function calls within the for_each
- loop that may encapsulate an of_node_put.
+Fix this by using enumerated items instead of integers.
 
-Generated by: scripts/coccinelle/iterators/for_each_child.cocci
-
-Fixes: 14e2976fbabd ("regulator: qcom_smd: Align probe function with rpmh-regulator")
-CC: Konrad Dybcio <konrad.dybcio@somainline.org>
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Julia Lawall <julia.lawall@inria.fr>
-Link: https://lore.kernel.org/r/alpine.DEB.2.22.394.2201151210170.3051@hadrien
+Fixes: e8ba1e05bdc0 ("ASoC: codecs: wcd938x: add basic controls")
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20220222183212.11580-7-srinivas.kandagatla@linaro.org
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/qcom_smd-regulator.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ sound/soc/codecs/wcd938x.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/regulator/qcom_smd-regulator.c b/drivers/regulator/qcom_smd-regulator.c
-index 8e077792bddd..b6287f7e78f4 100644
---- a/drivers/regulator/qcom_smd-regulator.c
-+++ b/drivers/regulator/qcom_smd-regulator.c
-@@ -1268,8 +1268,10 @@ static int rpm_reg_probe(struct platform_device *pdev)
+diff --git a/sound/soc/codecs/wcd938x.c b/sound/soc/codecs/wcd938x.c
+index bbc261ab2025..54671bbf7471 100644
+--- a/sound/soc/codecs/wcd938x.c
++++ b/sound/soc/codecs/wcd938x.c
+@@ -2504,7 +2504,7 @@ static int wcd938x_tx_mode_get(struct snd_kcontrol *kcontrol,
+ 	struct soc_enum *e = (struct soc_enum *)kcontrol->private_value;
+ 	int path = e->shift_l;
  
- 	for_each_available_child_of_node(dev->of_node, node) {
- 		vreg = devm_kzalloc(&pdev->dev, sizeof(*vreg), GFP_KERNEL);
--		if (!vreg)
-+		if (!vreg) {
-+			of_node_put(node);
- 			return -ENOMEM;
-+		}
+-	ucontrol->value.integer.value[0] = wcd938x->tx_mode[path];
++	ucontrol->value.enumerated.item[0] = wcd938x->tx_mode[path];
  
- 		ret = rpm_regulator_init_vreg(vreg, dev, node, rpm, vreg_data);
+ 	return 0;
+ }
+@@ -2528,7 +2528,7 @@ static int wcd938x_rx_hph_mode_get(struct snd_kcontrol *kcontrol,
+ 	struct snd_soc_component *component = snd_soc_kcontrol_component(kcontrol);
+ 	struct wcd938x_priv *wcd938x = snd_soc_component_get_drvdata(component);
  
+-	ucontrol->value.integer.value[0] = wcd938x->hph_mode;
++	ucontrol->value.enumerated.item[0] = wcd938x->hph_mode;
+ 
+ 	return 0;
+ }
 -- 
 2.34.1
 
