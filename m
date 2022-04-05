@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 96E2C4F3478
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:37:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB2944F3129
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:39:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350698AbiDEJ7a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:59:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44330 "EHLO
+        id S237173AbiDEIlp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:41:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52918 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344208AbiDEJSi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:18:38 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DC2F46160;
-        Tue,  5 Apr 2022 02:05:41 -0700 (PDT)
+        with ESMTP id S237059AbiDEI3F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:29:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1E9315FC9;
+        Tue,  5 Apr 2022 01:21:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 04E8FB80DA1;
-        Tue,  5 Apr 2022 09:05:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 528F8C385A0;
-        Tue,  5 Apr 2022 09:05:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1F55561001;
+        Tue,  5 Apr 2022 08:21:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33467C385A0;
+        Tue,  5 Apr 2022 08:21:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149538;
-        bh=3KGFa6EC32xjqdgLhOOEcMv8VXMCN8d2FHi3RO5nQi4=;
+        s=korg; t=1649146871;
+        bh=hP7Ta8lHWxh6NeT9h5JeWb6KQ3S+wTrRwcg0WqNvRtc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dFTnPohZziTFSJSK4RzKjZ+Q4q0RtAiKLHWkfsiDNvXcYzN5WlMzltHmX5y5WN8My
-         BfdmSQzcYt31skI/W4pK4oRn0I42L/WXklgjP9lQvq3tixZJhlCVelQuTO3sjFMzA6
-         X7ONEw6FuImwOf9AL2AuAGc5/wB5j3ulsRlHsHGo=
+        b=maMqZ1VJ+BT0/sHcM4x/Dvmnr8F3Bra5KY35fhaKqKfe/+sGip7FqK29MAKpMKCe9
+         PJM2Y1Ghvxqn66Gtzmd6W0zmt5WiRcgY+1zfweLsZM6KXsiLwJBBIO/Gg6ZcBV3v2d
+         J22m3hPAuAn2Q1jYtTMiYPuBt2PW81h0H6hFfnKc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fedor Pchelkin <aissur0002@gmail.com>,
-        Alexey Khoroshilov <khoroshilov@ispras.ru>,
-        Christian Brauner <brauner@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        "Jason A . Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.16 0750/1017] fs: fix fd table size alignment properly
-Date:   Tue,  5 Apr 2022 09:27:43 +0200
-Message-Id: <20220405070416.523221428@linuxfoundation.org>
+        stable@vger.kernel.org, Zeal Robot <zealci@zte.com.cn>,
+        Jing Yao <yao.jing2@zte.com.cn>, Helge Deller <deller@gmx.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 0917/1126] video: fbdev: udlfb: replace snprintf in show functions with sysfs_emit
+Date:   Tue,  5 Apr 2022 09:27:44 +0200
+Message-Id: <20220405070434.437944181@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,53 +54,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Jing Yao <yao.jing2@zte.com.cn>
 
-[ Upstream commit d888c83fcec75194a8a48ccd283953bdba7b2550 ]
+[ Upstream commit 81a998288956d09d7a7a2303d47e4d60ad55c401 ]
 
-Jason Donenfeld reports that my commit 1c24a186398f ("fs: fd tables have
-to be multiples of BITS_PER_LONG") doesn't work, and the reason is an
-embarrassing brown-paper-bag bug.
+Use sysfs_emit instead of scnprintf, snprintf or sprintf.
 
-Yes, we want to align the number of fds to BITS_PER_LONG, and yes, the
-reason they might not be aligned is because the incoming 'max_fd'
-argument might not be aligned.
-
-But aligining the argument - while simple - will cause a "infinitely
-big" maxfd (eg NR_OPEN_MAX) to just overflow to zero.  Which most
-definitely isn't what we want either.
-
-The obvious fix was always just to do the alignment last, but I had
-moved it earlier just to make the patch smaller and the code look
-simpler.  Duh.  It certainly made _me_ look simple.
-
-Fixes: 1c24a186398f ("fs: fd tables have to be multiples of BITS_PER_LONG")
-Reported-and-tested-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Cc: Fedor Pchelkin <aissur0002@gmail.com>
-Cc: Alexey Khoroshilov <khoroshilov@ispras.ru>
-Cc: Christian Brauner <brauner@kernel.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Reported-by: Zeal Robot <zealci@zte.com.cn>
+Signed-off-by: Jing Yao <yao.jing2@zte.com.cn>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/file.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/video/fbdev/udlfb.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/fs/file.c b/fs/file.c
-index c01c29417ae6..ee9317346702 100644
---- a/fs/file.c
-+++ b/fs/file.c
-@@ -303,10 +303,9 @@ static unsigned int sane_fdtable_size(struct fdtable *fdt, unsigned int max_fds)
- 	unsigned int count;
- 
- 	count = count_open_files(fdt);
--	max_fds = ALIGN(max_fds, BITS_PER_LONG);
- 	if (max_fds < NR_OPEN_DEFAULT)
- 		max_fds = NR_OPEN_DEFAULT;
--	return min(count, max_fds);
-+	return ALIGN(min(count, max_fds), BITS_PER_LONG);
+diff --git a/drivers/video/fbdev/udlfb.c b/drivers/video/fbdev/udlfb.c
+index b9cdd02c1000..90f48b71fd8f 100644
+--- a/drivers/video/fbdev/udlfb.c
++++ b/drivers/video/fbdev/udlfb.c
+@@ -1426,7 +1426,7 @@ static ssize_t metrics_bytes_rendered_show(struct device *fbdev,
+ 				   struct device_attribute *a, char *buf) {
+ 	struct fb_info *fb_info = dev_get_drvdata(fbdev);
+ 	struct dlfb_data *dlfb = fb_info->par;
+-	return snprintf(buf, PAGE_SIZE, "%u\n",
++	return sysfs_emit(buf, "%u\n",
+ 			atomic_read(&dlfb->bytes_rendered));
  }
  
- /*
+@@ -1434,7 +1434,7 @@ static ssize_t metrics_bytes_identical_show(struct device *fbdev,
+ 				   struct device_attribute *a, char *buf) {
+ 	struct fb_info *fb_info = dev_get_drvdata(fbdev);
+ 	struct dlfb_data *dlfb = fb_info->par;
+-	return snprintf(buf, PAGE_SIZE, "%u\n",
++	return sysfs_emit(buf, "%u\n",
+ 			atomic_read(&dlfb->bytes_identical));
+ }
+ 
+@@ -1442,7 +1442,7 @@ static ssize_t metrics_bytes_sent_show(struct device *fbdev,
+ 				   struct device_attribute *a, char *buf) {
+ 	struct fb_info *fb_info = dev_get_drvdata(fbdev);
+ 	struct dlfb_data *dlfb = fb_info->par;
+-	return snprintf(buf, PAGE_SIZE, "%u\n",
++	return sysfs_emit(buf, "%u\n",
+ 			atomic_read(&dlfb->bytes_sent));
+ }
+ 
+@@ -1450,7 +1450,7 @@ static ssize_t metrics_cpu_kcycles_used_show(struct device *fbdev,
+ 				   struct device_attribute *a, char *buf) {
+ 	struct fb_info *fb_info = dev_get_drvdata(fbdev);
+ 	struct dlfb_data *dlfb = fb_info->par;
+-	return snprintf(buf, PAGE_SIZE, "%u\n",
++	return sysfs_emit(buf, "%u\n",
+ 			atomic_read(&dlfb->cpu_kcycles_used));
+ }
+ 
 -- 
 2.34.1
 
