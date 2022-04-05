@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BE61A4F3354
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:15:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 19F9E4F3224
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:54:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343625AbiDEI5O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:57:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53000 "EHLO
+        id S1353533AbiDEKII (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:08:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44180 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239142AbiDEIbL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:31:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6ED534EA1A;
-        Tue,  5 Apr 2022 01:23:16 -0700 (PDT)
+        with ESMTP id S1344357AbiDEJTe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:19:34 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0A3BBA1;
+        Tue,  5 Apr 2022 02:07:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D840CB81B13;
-        Tue,  5 Apr 2022 08:23:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44D8FC385A0;
-        Tue,  5 Apr 2022 08:23:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7BD9861573;
+        Tue,  5 Apr 2022 09:07:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85C7AC385A0;
+        Tue,  5 Apr 2022 09:07:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146993;
-        bh=/P0Gworf+MZWqn8uVYF0WQI5NDcHE43hF8WNqe7l7NA=;
+        s=korg; t=1649149668;
+        bh=P/lxEK3xXgM2nxhjaAHZNVVhYk11eH/eKFXBmOkQsxo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jmmwv83QljcgOXO7+nExpckgqmwrqgmua3szNWECAk0yL9rfOOknsfS1YX8XEOqV5
-         U2814sbpZvHNGaPMfXiTRIaF7rL+0RYMJYO6WKIWP4+6737WPa7ogiDYWuRNxoSSq2
-         lgBgnv2zFQSQQ5cUX2S9RWgy8mOcig16S8+C1THI=
+        b=uOsrNKfHV/Zdp76lY7oq14/x5KBgu47WSiKkPhy5xt5E/GlpJ4Z7vnLg5ZdxIZxBR
+         1hZiL6SF9L7ZuzqJIdt3ruNDQbHVYxenhAINeW6ZyLVocizTSO39AsB6jfH+bOs+Y7
+         zuqw4LMg0277I/rjkGdAHxyxciLjXoSahyyPPEt4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0925/1126] uaccess: fix type mismatch warnings from access_ok()
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0759/1017] memstick/mspro_block: fix handling of read-only devices
 Date:   Tue,  5 Apr 2022 09:27:52 +0200
-Message-Id: <20220405070434.670791292@linuxfoundation.org>
+Message-Id: <20220405070416.789172716@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,230 +53,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit 23fc539e81295b14b50c6ccc5baeb4f3d59d822d ]
+[ Upstream commit 6dab421bfe06a59bf8f212a72e34673e8acf2018 ]
 
-On some architectures, access_ok() does not do any argument type
-checking, so replacing the definition with a generic one causes
-a few warnings for harmless issues that were never caught before.
+Use set_disk_ro to propagate the read-only state to the block layer
+instead of checking for it in ->open and leaking a reference in case
+of a read-only device.
 
-Fix the ones that I found either through my own test builds or
-that were reported by the 0-day bot.
-
-Reported-by: kernel test robot <lkp@intel.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Acked-by: Dinh Nguyen <dinguyen@kernel.org>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/20220215094514.3828912-4-hch@lst.de
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arc/kernel/process.c          |  2 +-
- arch/arm/kernel/swp_emulate.c      |  2 +-
- arch/arm/kernel/traps.c            |  2 +-
- arch/csky/kernel/perf_callchain.c  |  2 +-
- arch/csky/kernel/signal.c          |  2 +-
- arch/nios2/kernel/signal.c         | 20 +++++++++++---------
- arch/powerpc/lib/sstep.c           |  4 ++--
- arch/riscv/kernel/perf_callchain.c |  4 ++--
- arch/sparc/kernel/signal_32.c      |  2 +-
- lib/test_lockup.c                  |  4 ++--
- 10 files changed, 23 insertions(+), 21 deletions(-)
+ drivers/memstick/core/mspro_block.c | 10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
-diff --git a/arch/arc/kernel/process.c b/arch/arc/kernel/process.c
-index 8e90052f6f05..5f7f5aab361f 100644
---- a/arch/arc/kernel/process.c
-+++ b/arch/arc/kernel/process.c
-@@ -43,7 +43,7 @@ SYSCALL_DEFINE0(arc_gettls)
- 	return task_thread_info(current)->thr_ptr;
- }
+diff --git a/drivers/memstick/core/mspro_block.c b/drivers/memstick/core/mspro_block.c
+index c0450397b673..7ea312f0840e 100644
+--- a/drivers/memstick/core/mspro_block.c
++++ b/drivers/memstick/core/mspro_block.c
+@@ -186,13 +186,8 @@ static int mspro_block_bd_open(struct block_device *bdev, fmode_t mode)
  
--SYSCALL_DEFINE3(arc_usr_cmpxchg, int *, uaddr, int, expected, int, new)
-+SYSCALL_DEFINE3(arc_usr_cmpxchg, int __user *, uaddr, int, expected, int, new)
- {
- 	struct pt_regs *regs = current_pt_regs();
- 	u32 uval;
-diff --git a/arch/arm/kernel/swp_emulate.c b/arch/arm/kernel/swp_emulate.c
-index 6166ba38bf99..b74bfcf94fb1 100644
---- a/arch/arm/kernel/swp_emulate.c
-+++ b/arch/arm/kernel/swp_emulate.c
-@@ -195,7 +195,7 @@ static int swp_handler(struct pt_regs *regs, unsigned int instr)
- 		 destreg, EXTRACT_REG_NUM(instr, RT2_OFFSET), data);
+ 	mutex_lock(&mspro_block_disk_lock);
  
- 	/* Check access in reasonable access range for both SWP and SWPB */
--	if (!access_ok((address & ~3), 4)) {
-+	if (!access_ok((void __user *)(address & ~3), 4)) {
- 		pr_debug("SWP{B} emulation: access to %p not allowed!\n",
- 			 (void *)address);
- 		res = -EFAULT;
-diff --git a/arch/arm/kernel/traps.c b/arch/arm/kernel/traps.c
-index cae4a748811f..5d58aee24087 100644
---- a/arch/arm/kernel/traps.c
-+++ b/arch/arm/kernel/traps.c
-@@ -577,7 +577,7 @@ do_cache_op(unsigned long start, unsigned long end, int flags)
- 	if (end < start || flags)
- 		return -EINVAL;
+-	if (msb && msb->card) {
++	if (msb && msb->card)
+ 		msb->usage_count++;
+-		if ((mode & FMODE_WRITE) && msb->read_only)
+-			rc = -EROFS;
+-		else
+-			rc = 0;
+-	}
  
--	if (!access_ok(start, end - start))
-+	if (!access_ok((void __user *)start, end - start))
- 		return -EFAULT;
+ 	mutex_unlock(&mspro_block_disk_lock);
  
- 	return __do_cache_op(start, end);
-diff --git a/arch/csky/kernel/perf_callchain.c b/arch/csky/kernel/perf_callchain.c
-index 92057de08f4f..1612f4354087 100644
---- a/arch/csky/kernel/perf_callchain.c
-+++ b/arch/csky/kernel/perf_callchain.c
-@@ -49,7 +49,7 @@ static unsigned long user_backtrace(struct perf_callchain_entry_ctx *entry,
- {
- 	struct stackframe buftail;
- 	unsigned long lr = 0;
--	unsigned long *user_frame_tail = (unsigned long *)fp;
-+	unsigned long __user *user_frame_tail = (unsigned long __user *)fp;
+@@ -1239,6 +1234,9 @@ static int mspro_block_init_disk(struct memstick_dev *card)
+ 	set_capacity(msb->disk, capacity);
+ 	dev_dbg(&card->dev, "capacity set %ld\n", capacity);
  
- 	/* Check accessibility of one struct frame_tail beyond */
- 	if (!access_ok(user_frame_tail, sizeof(buftail)))
-diff --git a/arch/csky/kernel/signal.c b/arch/csky/kernel/signal.c
-index c7b763d2f526..8867ddf3e6c7 100644
---- a/arch/csky/kernel/signal.c
-+++ b/arch/csky/kernel/signal.c
-@@ -136,7 +136,7 @@ static inline void __user *get_sigframe(struct ksignal *ksig,
- static int
- setup_rt_frame(struct ksignal *ksig, sigset_t *set, struct pt_regs *regs)
- {
--	struct rt_sigframe *frame;
-+	struct rt_sigframe __user *frame;
- 	int err = 0;
- 
- 	frame = get_sigframe(ksig, regs, sizeof(*frame));
-diff --git a/arch/nios2/kernel/signal.c b/arch/nios2/kernel/signal.c
-index 2009ae2d3c3b..386e46443b60 100644
---- a/arch/nios2/kernel/signal.c
-+++ b/arch/nios2/kernel/signal.c
-@@ -36,10 +36,10 @@ struct rt_sigframe {
- 
- static inline int rt_restore_ucontext(struct pt_regs *regs,
- 					struct switch_stack *sw,
--					struct ucontext *uc, int *pr2)
-+					struct ucontext __user *uc, int *pr2)
- {
- 	int temp;
--	unsigned long *gregs = uc->uc_mcontext.gregs;
-+	unsigned long __user *gregs = uc->uc_mcontext.gregs;
- 	int err;
- 
- 	/* Always make any pending restarted system calls return -EINTR */
-@@ -102,10 +102,11 @@ asmlinkage int do_rt_sigreturn(struct switch_stack *sw)
- {
- 	struct pt_regs *regs = (struct pt_regs *)(sw + 1);
- 	/* Verify, can we follow the stack back */
--	struct rt_sigframe *frame = (struct rt_sigframe *) regs->sp;
-+	struct rt_sigframe __user *frame;
- 	sigset_t set;
- 	int rval;
- 
-+	frame = (struct rt_sigframe __user *) regs->sp;
- 	if (!access_ok(frame, sizeof(*frame)))
- 		goto badframe;
- 
-@@ -124,10 +125,10 @@ asmlinkage int do_rt_sigreturn(struct switch_stack *sw)
- 	return 0;
- }
- 
--static inline int rt_setup_ucontext(struct ucontext *uc, struct pt_regs *regs)
-+static inline int rt_setup_ucontext(struct ucontext __user *uc, struct pt_regs *regs)
- {
- 	struct switch_stack *sw = (struct switch_stack *)regs - 1;
--	unsigned long *gregs = uc->uc_mcontext.gregs;
-+	unsigned long __user *gregs = uc->uc_mcontext.gregs;
- 	int err = 0;
- 
- 	err |= __put_user(MCONTEXT_VERSION, &uc->uc_mcontext.version);
-@@ -162,8 +163,9 @@ static inline int rt_setup_ucontext(struct ucontext *uc, struct pt_regs *regs)
- 	return err;
- }
- 
--static inline void *get_sigframe(struct ksignal *ksig, struct pt_regs *regs,
--				 size_t frame_size)
-+static inline void __user *get_sigframe(struct ksignal *ksig,
-+					struct pt_regs *regs,
-+					size_t frame_size)
- {
- 	unsigned long usp;
- 
-@@ -174,13 +176,13 @@ static inline void *get_sigframe(struct ksignal *ksig, struct pt_regs *regs,
- 	usp = sigsp(usp, ksig);
- 
- 	/* Verify, is it 32 or 64 bit aligned */
--	return (void *)((usp - frame_size) & -8UL);
-+	return (void __user *)((usp - frame_size) & -8UL);
- }
- 
- static int setup_rt_frame(struct ksignal *ksig, sigset_t *set,
- 			  struct pt_regs *regs)
- {
--	struct rt_sigframe *frame;
-+	struct rt_sigframe __user *frame;
- 	int err = 0;
- 
- 	frame = get_sigframe(ksig, regs, sizeof(*frame));
-diff --git a/arch/powerpc/lib/sstep.c b/arch/powerpc/lib/sstep.c
-index bd3734d5be89..5ed88fbee0db 100644
---- a/arch/powerpc/lib/sstep.c
-+++ b/arch/powerpc/lib/sstep.c
-@@ -112,9 +112,9 @@ static nokprobe_inline long address_ok(struct pt_regs *regs,
- {
- 	if (!user_mode(regs))
- 		return 1;
--	if (__access_ok(ea, nb))
-+	if (access_ok((void __user *)ea, nb))
- 		return 1;
--	if (__access_ok(ea, 1))
-+	if (access_ok((void __user *)ea, 1))
- 		/* Access overlaps the end of the user region */
- 		regs->dar = TASK_SIZE_MAX - 1;
- 	else
-diff --git a/arch/riscv/kernel/perf_callchain.c b/arch/riscv/kernel/perf_callchain.c
-index 7aca6a238173..3348a61de7d9 100644
---- a/arch/riscv/kernel/perf_callchain.c
-+++ b/arch/riscv/kernel/perf_callchain.c
-@@ -15,8 +15,8 @@ static unsigned long user_backtrace(struct perf_callchain_entry_ctx *entry,
- {
- 	struct stackframe buftail;
- 	unsigned long ra = 0;
--	unsigned long *user_frame_tail =
--			(unsigned long *)(fp - sizeof(struct stackframe));
-+	unsigned long __user *user_frame_tail =
-+		(unsigned long __user *)(fp - sizeof(struct stackframe));
- 
- 	/* Check accessibility of one struct frame_tail beyond */
- 	if (!access_ok(user_frame_tail, sizeof(buftail)))
-diff --git a/arch/sparc/kernel/signal_32.c b/arch/sparc/kernel/signal_32.c
-index ffab16369bea..74f80443b195 100644
---- a/arch/sparc/kernel/signal_32.c
-+++ b/arch/sparc/kernel/signal_32.c
-@@ -65,7 +65,7 @@ struct rt_signal_frame {
-  */
- static inline bool invalid_frame_pointer(void __user *fp, int fplen)
- {
--	if ((((unsigned long) fp) & 15) || !__access_ok((unsigned long)fp, fplen))
-+	if ((((unsigned long) fp) & 15) || !access_ok(fp, fplen))
- 		return true;
- 
- 	return false;
-diff --git a/lib/test_lockup.c b/lib/test_lockup.c
-index 906b598740a7..6a0f329a794a 100644
---- a/lib/test_lockup.c
-+++ b/lib/test_lockup.c
-@@ -417,8 +417,8 @@ static bool test_kernel_ptr(unsigned long addr, int size)
- 		return false;
- 
- 	/* should be at least readable kernel address */
--	if (access_ok(ptr, 1) ||
--	    access_ok(ptr + size - 1, 1) ||
-+	if (access_ok((void __user *)ptr, 1) ||
-+	    access_ok((void __user *)ptr + size - 1, 1) ||
- 	    get_kernel_nofault(buf, ptr) ||
- 	    get_kernel_nofault(buf, ptr + size - 1)) {
- 		pr_err("invalid kernel ptr: %#lx\n", addr);
++	if (msb->read_only)
++		set_disk_ro(msb->disk, true);
++
+ 	rc = device_add_disk(&card->dev, msb->disk, NULL);
+ 	if (rc)
+ 		goto out_cleanup_disk;
 -- 
 2.34.1
 
