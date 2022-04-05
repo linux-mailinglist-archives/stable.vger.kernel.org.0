@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A5934F3175
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:44:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 781DA4F353F
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:49:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238940AbiDEKds (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:33:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55700 "EHLO
+        id S1347669AbiDEJ2H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:28:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46854 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238995AbiDEJdP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:33:15 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B4C89FD7;
-        Tue,  5 Apr 2022 02:21:17 -0700 (PDT)
+        with ESMTP id S244747AbiDEIwh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:37 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37B1F140E9;
+        Tue,  5 Apr 2022 01:43:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 07A5961659;
-        Tue,  5 Apr 2022 09:21:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 187D0C385A2;
-        Tue,  5 Apr 2022 09:21:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D92BBB81BC5;
+        Tue,  5 Apr 2022 08:43:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3AFC0C385A1;
+        Tue,  5 Apr 2022 08:43:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150476;
-        bh=h3+920vsgBKX/DUE/ZduiegpdnGRM1DQ4JHPzMqKf7I=;
+        s=korg; t=1649148191;
+        bh=fCtaAU0Jwkpe5VJXjEJlmk4GWzEwU3EnMdsNKAGNJQI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UgxE5zmnR4nq/zQY6NST6nfslvO80/rALzw63b+ZBv3J5Slwk09OeRBDPXgFy8K/L
-         Ibev1lLup4LNAFSjTNQvb52ZsBtgWDVm37GwZ7OIQJhNXypW/bYpHVi+37s/Ctd8Ey
-         TjCZhv7ZpepVe7u2sxwtsohps5M2MQZhhSYbrCAw=
+        b=gaUwhU7iKrxipl9v8vCnau38AGrJJh+f9EDnfs+zqafj6P7K6D19NzAs992uegMC5
+         VvGFW9uZEbXFLmTfssduyfD98LKBBRZgXOVXe6y6D3z21TGej+GZKxAY0lgAs9rGRl
+         jAPToL3TKMUzhf67eQTe5vDAb1neibES8jrqKU8o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <chao.yu@oppo.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>
-Subject: [PATCH 5.15 069/913] f2fs: fix to do sanity check on .cp_pack_total_block_count
+        stable@vger.kernel.org,
+        Chengming Zhou <zhouchengming@bytedance.com>,
+        Tejun Heo <tj@kernel.org>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0218/1017] blk-cgroup: set blkg iostat after percpu stat aggregation
 Date:   Tue,  5 Apr 2022 09:18:51 +0200
-Message-Id: <20220405070341.892160051@linuxfoundation.org>
+Message-Id: <20220405070400.722250723@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,76 +55,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <chao@kernel.org>
+From: Chengming Zhou <zhouchengming@bytedance.com>
 
-commit 5b5b4f85b01604389f7a0f11ef180a725bf0e2d4 upstream.
+[ Upstream commit f122d103b564e5fb7c82de902c6f8f6cbdf50ec9 ]
 
-As bughunter reported in bugzilla:
+Don't need to do blkg_iostat_set for top blkg iostat on each CPU,
+so move it after percpu stat aggregation.
 
-https://bugzilla.kernel.org/show_bug.cgi?id=215709
-
-f2fs may hang when mounting a fuzzed image, the dmesg shows as below:
-
-__filemap_get_folio+0x3a9/0x590
-pagecache_get_page+0x18/0x60
-__get_meta_page+0x95/0x460 [f2fs]
-get_checkpoint_version+0x2a/0x1e0 [f2fs]
-validate_checkpoint+0x8e/0x2a0 [f2fs]
-f2fs_get_valid_checkpoint+0xd0/0x620 [f2fs]
-f2fs_fill_super+0xc01/0x1d40 [f2fs]
-mount_bdev+0x18a/0x1c0
-f2fs_mount+0x15/0x20 [f2fs]
-legacy_get_tree+0x28/0x50
-vfs_get_tree+0x27/0xc0
-path_mount+0x480/0xaa0
-do_mount+0x7c/0xa0
-__x64_sys_mount+0x8b/0xe0
-do_syscall_64+0x38/0xc0
-entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-The root cause is cp_pack_total_block_count field in checkpoint was fuzzed
-to one, as calcuated, two cp pack block locates in the same block address,
-so then read latter cp pack block, it will block on the page lock due to
-the lock has already held when reading previous cp pack block, fix it by
-adding sanity check for cp_pack_total_block_count.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Chao Yu <chao.yu@oppo.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: ef45fe470e1e ("blk-cgroup: show global disk stats in root cgroup io.stat")
+Signed-off-by: Chengming Zhou <zhouchengming@bytedance.com>
+Acked-by: Tejun Heo <tj@kernel.org>
+Link: https://lore.kernel.org/r/20220213085902.88884-1-zhouchengming@bytedance.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/checkpoint.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ block/blk-cgroup.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/fs/f2fs/checkpoint.c
-+++ b/fs/f2fs/checkpoint.c
-@@ -867,6 +867,7 @@ static struct page *validate_checkpoint(
- 	struct page *cp_page_1 = NULL, *cp_page_2 = NULL;
- 	struct f2fs_checkpoint *cp_block = NULL;
- 	unsigned long long cur_version = 0, pre_version = 0;
-+	unsigned int cp_blocks;
- 	int err;
+diff --git a/block/blk-cgroup.c b/block/blk-cgroup.c
+index 663aabfeba18..f896f4982665 100644
+--- a/block/blk-cgroup.c
++++ b/block/blk-cgroup.c
+@@ -856,11 +856,11 @@ static void blkcg_fill_root_iostats(void)
+ 			blk_queue_root_blkg(bdev_get_queue(bdev));
+ 		struct blkg_iostat tmp;
+ 		int cpu;
++		unsigned long flags;
  
- 	err = get_checkpoint_version(sbi, cp_addr, &cp_block,
-@@ -874,15 +875,16 @@ static struct page *validate_checkpoint(
- 	if (err)
- 		return NULL;
+ 		memset(&tmp, 0, sizeof(tmp));
+ 		for_each_possible_cpu(cpu) {
+ 			struct disk_stats *cpu_dkstats;
+-			unsigned long flags;
  
--	if (le32_to_cpu(cp_block->cp_pack_total_block_count) >
--					sbi->blocks_per_seg) {
-+	cp_blocks = le32_to_cpu(cp_block->cp_pack_total_block_count);
+ 			cpu_dkstats = per_cpu_ptr(bdev->bd_stats, cpu);
+ 			tmp.ios[BLKG_IOSTAT_READ] +=
+@@ -876,11 +876,11 @@ static void blkcg_fill_root_iostats(void)
+ 				cpu_dkstats->sectors[STAT_WRITE] << 9;
+ 			tmp.bytes[BLKG_IOSTAT_DISCARD] +=
+ 				cpu_dkstats->sectors[STAT_DISCARD] << 9;
+-
+-			flags = u64_stats_update_begin_irqsave(&blkg->iostat.sync);
+-			blkg_iostat_set(&blkg->iostat.cur, &tmp);
+-			u64_stats_update_end_irqrestore(&blkg->iostat.sync, flags);
+ 		}
 +
-+	if (cp_blocks > sbi->blocks_per_seg || cp_blocks <= F2FS_CP_PACKS) {
- 		f2fs_warn(sbi, "invalid cp_pack_total_block_count:%u",
- 			  le32_to_cpu(cp_block->cp_pack_total_block_count));
- 		goto invalid_cp;
++		flags = u64_stats_update_begin_irqsave(&blkg->iostat.sync);
++		blkg_iostat_set(&blkg->iostat.cur, &tmp);
++		u64_stats_update_end_irqrestore(&blkg->iostat.sync, flags);
  	}
- 	pre_version = *version;
+ }
  
--	cp_addr += le32_to_cpu(cp_block->cp_pack_total_block_count) - 1;
-+	cp_addr += cp_blocks - 1;
- 	err = get_checkpoint_version(sbi, cp_addr, &cp_block,
- 					&cp_page_2, version);
- 	if (err)
+-- 
+2.34.1
+
 
 
