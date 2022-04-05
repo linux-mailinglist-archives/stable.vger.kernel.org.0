@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 24D5A4F3A2F
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:59:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 89A424F3A2C
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:58:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379280AbiDELkl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:40:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36678 "EHLO
+        id S1379265AbiDELkj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:40:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36680 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354469AbiDEKOU (ORCPT
+        with ESMTP id S1354468AbiDEKOU (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:14:20 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C24F69481;
-        Tue,  5 Apr 2022 03:00:25 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 595066A421;
+        Tue,  5 Apr 2022 03:00:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 009F4B81C83;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EA70361673;
+        Tue,  5 Apr 2022 10:00:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07D4CC385A2;
         Tue,  5 Apr 2022 10:00:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54756C385A2;
-        Tue,  5 Apr 2022 10:00:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152822;
-        bh=6eCefiu0qU3wHhPgqE6IGn/CVT8lbZBRCHYxck/xt6c=;
+        s=korg; t=1649152825;
+        bh=tgcIH8ngRpuHjfV9wDFrK09HvAFQoY9C83lectSVLG4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MczamD5pWusMNAdZe/rjLlRy5EQRat7xyCfRzZTJ33H8DMYRTAaSycVGwVnhabMtM
-         waiZAkZRV+lUA72wpm8GJ7Eaxw5BZra34uxRP0tYiuWqyNgwPkJESnz0jF7vrhN7UE
-         gpnhRaucxLlkI7b5jkGCZ/6iMKoe0CjR1i/R+KRI=
+        b=GKHP+DhnKkl1zwsoRvwhCRnzaUxpvvtbJTkl6Pm4tXHLGMXmSDO+L74nSt5cF1ftx
+         7W47oRb3dC0qXjlP7wO0ajObkVI8hw43dUG33C9tN/LwF8poj9UK4JOh6Q+YBrcIDf
+         MEa71GzEd1n35n1m4mZoJjH66130LTp9gA3EiMNs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, David Stevens <stevensd@chromium.org>,
-        Christoph Hellwig <hch@lst.de>, Joerg Roedel <jroedel@suse.de>,
-        Mario Limonciello <Mario.Limonciello@amd.com>
-Subject: [PATCH 5.15 908/913] swiotlb: Support aligned swiotlb buffers
-Date:   Tue,  5 Apr 2022 09:32:50 +0200
-Message-Id: <20220405070407.037113146@linuxfoundation.org>
+        Joerg Roedel <jroedel@suse.de>
+Subject: [PATCH 5.15 909/913] iommu/dma: Account for min_align_mask w/swiotlb
+Date:   Tue,  5 Apr 2022 09:32:51 +0200
+Message-Id: <20220405070407.067298408@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -56,120 +55,59 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: David Stevens <stevensd@chromium.org>
 
-commit e81e99bacc9f9347bda7808a949c1ce9fcc2bbf4 upstream.
+commit 2cbc61a1b1665c84282dbf2b1747ffa0b6248639 upstream.
 
-Add an argument to swiotlb_tbl_map_single that specifies the desired
-alignment of the allocated buffer. This is used by dma-iommu to ensure
-the buffer is aligned to the iova granule size when using swiotlb with
-untrusted sub-granule mappings. This addresses an issue where adjacent
-slots could be exposed to the untrusted device if IO_TLB_SIZE < iova
-granule < PAGE_SIZE.
+Pass the non-aligned size to __iommu_dma_map when using swiotlb bounce
+buffers in iommu_dma_map_page, to account for min_align_mask.
 
+To deal with granule alignment, __iommu_dma_map maps iova_align(size +
+iova_off) bytes starting at phys - iova_off. If iommu_dma_map_page
+passes aligned size when using swiotlb, then this becomes
+iova_align(iova_align(orig_size) + iova_off). Normally iova_off will be
+zero when using swiotlb. However, this is not the case for devices that
+set min_align_mask. When iova_off is non-zero, __iommu_dma_map ends up
+mapping an extra page at the end of the buffer. Beyond just being a
+security issue, the extra page is not cleaned up by __iommu_dma_unmap.
+This causes problems when the IOVA is reused, due to collisions in the
+iommu driver.  Just passing the original size is sufficient, since
+__iommu_dma_map will take care of granule alignment.
+
+Fixes: 1f221a0d0dbf ("swiotlb: respect min_align_mask")
 Signed-off-by: David Stevens <stevensd@chromium.org>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/20210929023300.335969-7-stevensd@google.com
+Link: https://lore.kernel.org/r/20210929023300.335969-8-stevensd@google.com
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Cc: Mario Limonciello <Mario.Limonciello@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iommu/dma-iommu.c |    4 ++--
- drivers/xen/swiotlb-xen.c |    2 +-
- include/linux/swiotlb.h   |    3 ++-
- kernel/dma/swiotlb.c      |   13 ++++++++-----
- 4 files changed, 13 insertions(+), 9 deletions(-)
+ drivers/iommu/dma-iommu.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
 --- a/drivers/iommu/dma-iommu.c
 +++ b/drivers/iommu/dma-iommu.c
-@@ -818,8 +818,8 @@ static dma_addr_t iommu_dma_map_page(str
- 		size_t padding_size;
+@@ -806,7 +806,6 @@ static dma_addr_t iommu_dma_map_page(str
+ 	struct iommu_domain *domain = iommu_get_dma_domain(dev);
+ 	struct iommu_dma_cookie *cookie = domain->iova_cookie;
+ 	struct iova_domain *iovad = &cookie->iovad;
+-	size_t aligned_size = size;
+ 	dma_addr_t iova, dma_mask = dma_get_mask(dev);
+ 
+ 	/*
+@@ -815,7 +814,7 @@ static dma_addr_t iommu_dma_map_page(str
+ 	 */
+ 	if (dev_use_swiotlb(dev) && iova_offset(iovad, phys | size)) {
+ 		void *padding_start;
+-		size_t padding_size;
++		size_t padding_size, aligned_size;
  
  		aligned_size = iova_align(iovad, size);
--		phys = swiotlb_tbl_map_single(dev, phys, size,
--					      aligned_size, dir, attrs);
-+		phys = swiotlb_tbl_map_single(dev, phys, size, aligned_size,
-+					      iova_mask(iovad), dir, attrs);
+ 		phys = swiotlb_tbl_map_single(dev, phys, size, aligned_size,
+@@ -840,7 +839,7 @@ static dma_addr_t iommu_dma_map_page(str
+ 	if (!coherent && !(attrs & DMA_ATTR_SKIP_CPU_SYNC))
+ 		arch_sync_dma_for_device(phys, size, dir);
  
- 		if (phys == DMA_MAPPING_ERROR)
- 			return DMA_MAPPING_ERROR;
---- a/drivers/xen/swiotlb-xen.c
-+++ b/drivers/xen/swiotlb-xen.c
-@@ -380,7 +380,7 @@ static dma_addr_t xen_swiotlb_map_page(s
- 	 */
- 	trace_swiotlb_bounced(dev, dev_addr, size, swiotlb_force);
- 
--	map = swiotlb_tbl_map_single(dev, phys, size, size, dir, attrs);
-+	map = swiotlb_tbl_map_single(dev, phys, size, size, 0, dir, attrs);
- 	if (map == (phys_addr_t)DMA_MAPPING_ERROR)
- 		return DMA_MAPPING_ERROR;
- 
---- a/include/linux/swiotlb.h
-+++ b/include/linux/swiotlb.h
-@@ -45,7 +45,8 @@ extern void __init swiotlb_update_mem_at
- 
- phys_addr_t swiotlb_tbl_map_single(struct device *hwdev, phys_addr_t phys,
- 		size_t mapping_size, size_t alloc_size,
--		enum dma_data_direction dir, unsigned long attrs);
-+		unsigned int alloc_aligned_mask, enum dma_data_direction dir,
-+		unsigned long attrs);
- 
- extern void swiotlb_tbl_unmap_single(struct device *hwdev,
- 				     phys_addr_t tlb_addr,
---- a/kernel/dma/swiotlb.c
-+++ b/kernel/dma/swiotlb.c
-@@ -459,7 +459,7 @@ static unsigned int wrap_index(struct io
-  * allocate a buffer from that IO TLB pool.
-  */
- static int swiotlb_find_slots(struct device *dev, phys_addr_t orig_addr,
--			      size_t alloc_size)
-+			      size_t alloc_size, unsigned int alloc_align_mask)
- {
- 	struct io_tlb_mem *mem = dev->dma_io_tlb_mem;
- 	unsigned long boundary_mask = dma_get_seg_boundary(dev);
-@@ -483,6 +483,7 @@ static int swiotlb_find_slots(struct dev
- 	stride = (iotlb_align_mask >> IO_TLB_SHIFT) + 1;
- 	if (alloc_size >= PAGE_SIZE)
- 		stride = max(stride, stride << (PAGE_SHIFT - IO_TLB_SHIFT));
-+	stride = max(stride, (alloc_align_mask >> IO_TLB_SHIFT) + 1);
- 
- 	spin_lock_irqsave(&mem->lock, flags);
- 	if (unlikely(nslots > mem->nslabs - mem->used))
-@@ -541,7 +542,8 @@ found:
- 
- phys_addr_t swiotlb_tbl_map_single(struct device *dev, phys_addr_t orig_addr,
- 		size_t mapping_size, size_t alloc_size,
--		enum dma_data_direction dir, unsigned long attrs)
-+		unsigned int alloc_align_mask, enum dma_data_direction dir,
-+		unsigned long attrs)
- {
- 	struct io_tlb_mem *mem = dev->dma_io_tlb_mem;
- 	unsigned int offset = swiotlb_align_offset(dev, orig_addr);
-@@ -561,7 +563,8 @@ phys_addr_t swiotlb_tbl_map_single(struc
- 		return (phys_addr_t)DMA_MAPPING_ERROR;
- 	}
- 
--	index = swiotlb_find_slots(dev, orig_addr, alloc_size + offset);
-+	index = swiotlb_find_slots(dev, orig_addr,
-+				   alloc_size + offset, alloc_align_mask);
- 	if (index == -1) {
- 		if (!(attrs & DMA_ATTR_NO_WARN))
- 			dev_warn_ratelimited(dev,
-@@ -680,7 +683,7 @@ dma_addr_t swiotlb_map(struct device *de
- 	trace_swiotlb_bounced(dev, phys_to_dma(dev, paddr), size,
- 			      swiotlb_force);
- 
--	swiotlb_addr = swiotlb_tbl_map_single(dev, paddr, size, size, dir,
-+	swiotlb_addr = swiotlb_tbl_map_single(dev, paddr, size, size, 0, dir,
- 			attrs);
- 	if (swiotlb_addr == (phys_addr_t)DMA_MAPPING_ERROR)
- 		return DMA_MAPPING_ERROR;
-@@ -764,7 +767,7 @@ struct page *swiotlb_alloc(struct device
- 	if (!mem)
- 		return NULL;
- 
--	index = swiotlb_find_slots(dev, 0, size);
-+	index = swiotlb_find_slots(dev, 0, size, 0);
- 	if (index == -1)
- 		return NULL;
- 
+-	iova = __iommu_dma_map(dev, phys, aligned_size, prot, dma_mask);
++	iova = __iommu_dma_map(dev, phys, size, prot, dma_mask);
+ 	if (iova == DMA_MAPPING_ERROR && is_swiotlb_buffer(dev, phys))
+ 		swiotlb_tbl_unmap_single(dev, phys, size, dir, attrs);
+ 	return iova;
 
 
