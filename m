@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C633C4F3356
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:15:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E2F74F31A6
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:45:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244133AbiDEKiC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:38:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59028 "EHLO
+        id S244024AbiDEKhs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:37:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238955AbiDEJdN (ORCPT
+        with ESMTP id S238956AbiDEJdN (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:33:13 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E075656B;
-        Tue,  5 Apr 2022 02:21:09 -0700 (PDT)
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F869659B;
+        Tue,  5 Apr 2022 02:21:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DC18361574;
-        Tue,  5 Apr 2022 09:21:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E87FBC385A2;
-        Tue,  5 Apr 2022 09:21:07 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 9A0A5CE1C6A;
+        Tue,  5 Apr 2022 09:21:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC0C9C385A0;
+        Tue,  5 Apr 2022 09:21:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150468;
-        bh=YZdqkHxdou06xEwB5O8wkX6sBT8EGjd1hPU579OKop8=;
+        s=korg; t=1649150471;
+        bh=WaWtMQ1moedWleGc2K2Obq1MHj8BngFuX5HUmVv0cSk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z7ByhxvO57KrmiqMxSn+6JjcxJkX1RbGD8xDLq3fGln+aR4n/yQ95TdE9seqGrXSq
-         sI67NYbUn3RVwmtqGn6u9KidGHHLQMuWGCYDSB2+0cQ0DOGO5vbkbMTfO5xFhYYidN
-         N/PNjzdtS/Jot8t8Q0h3LszJ4vpn5QKlTFdMWs20=
+        b=XH6KaJVqj/62SjNfYpAw+pUoN7RQm0ncNHlYQkD99PQSM1GBj3nu2IuZ0eTJjaiWH
+         keHdp/awUgeItESOVToFI+aVrpyUwlpbUi0NuwhNvBOePdxIp343n57iu6mXAdwNmZ
+         eEuZCi9F2o43Geu8oR22Q8buoDoC/mQ0BzfEMIhM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Chuck Lever <chuck.lever@oracle.com>
-Subject: [PATCH 5.15 066/913] NFSD: prevent integer overflow on 32 bit systems
-Date:   Tue,  5 Apr 2022 09:18:48 +0200
-Message-Id: <20220405070341.801304195@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Machek <pavel@denx.de>,
+        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>
+Subject: [PATCH 5.15 067/913] f2fs: fix to unlock page correctly in error path of is_alive()
+Date:   Tue,  5 Apr 2022 09:18:49 +0200
+Message-Id: <20220405070341.831433895@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -53,31 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Chao Yu <chao@kernel.org>
 
-commit 23a9dbbe0faf124fc4c139615633b9d12a3a89ef upstream.
+commit 6d18762ed5cd549fde74fd0e05d4d87bac5a3beb upstream.
 
-On a 32 bit system, the "len * sizeof(*p)" operation can have an
-integer overflow.
+As Pavel Machek reported in below link [1]:
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+After commit 77900c45ee5c ("f2fs: fix to do sanity check in is_alive()"),
+node page should be unlock via calling f2fs_put_page() in the error path
+of is_alive(), otherwise, f2fs may hang when it tries to lock the node
+page, fix it.
+
+[1] https://lore.kernel.org/stable/20220124203637.GA19321@duo.ucw.cz/
+
+Fixes: 77900c45ee5c ("f2fs: fix to do sanity check in is_alive()")
+Cc: <stable@vger.kernel.org>
+Reported-by: Pavel Machek <pavel@denx.de>
+Signed-off-by: Pavel Machek <pavel@denx.de>
+Signed-off-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/sunrpc/xdr.h |    2 ++
- 1 file changed, 2 insertions(+)
+ fs/f2fs/gc.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/include/linux/sunrpc/xdr.h
-+++ b/include/linux/sunrpc/xdr.h
-@@ -731,6 +731,8 @@ xdr_stream_decode_uint32_array(struct xd
+--- a/fs/f2fs/gc.c
++++ b/fs/f2fs/gc.c
+@@ -1023,8 +1023,10 @@ static bool is_alive(struct f2fs_sb_info
+ 		set_sbi_flag(sbi, SBI_NEED_FSCK);
+ 	}
  
- 	if (unlikely(xdr_stream_decode_u32(xdr, &len) < 0))
- 		return -EBADMSG;
-+	if (len > SIZE_MAX / sizeof(*p))
-+		return -EBADMSG;
- 	p = xdr_inline_decode(xdr, len * sizeof(*p));
- 	if (unlikely(!p))
- 		return -EBADMSG;
+-	if (f2fs_check_nid_range(sbi, dni->ino))
++	if (f2fs_check_nid_range(sbi, dni->ino)) {
++		f2fs_put_page(node_page, 1);
+ 		return false;
++	}
+ 
+ 	*nofs = ofs_of_node(node_page);
+ 	source_blkaddr = data_blkaddr(NULL, node_page, ofs_in_node);
 
 
