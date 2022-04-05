@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E92664F27AA
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:08:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A81F34F26D4
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:05:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233514AbiDEIHy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:07:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48140 "EHLO
+        id S232887AbiDEIE0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:04:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55612 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234899AbiDEH7D (ORCPT
+        with ESMTP id S234926AbiDEH7D (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:59:03 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51770E094;
-        Tue,  5 Apr 2022 00:53:23 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0280C37BD3;
+        Tue,  5 Apr 2022 00:53:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6D6CBB81BAF;
-        Tue,  5 Apr 2022 07:53:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF488C340EE;
-        Tue,  5 Apr 2022 07:53:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2A474B81B14;
+        Tue,  5 Apr 2022 07:53:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D7D7C340EE;
+        Tue,  5 Apr 2022 07:53:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145201;
-        bh=zEeKefMZYRslSx40JLS5O+6+t08QoeqPa7ZuL/Iyqg4=;
+        s=korg; t=1649145203;
+        bh=p3fs+r28lnStow8fQ64ZRjbA9lfbA6oqU9NjoM6wbho=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U/C3R/o9zsgn5VKBMfkfq65/ar2+WqOhIPAJx59dHD8H2zYbU8CxEqS9ADGMh7mtX
-         efQaaXDQIYrDRLMnSjtKyh8O+qX7LcDtm3wgsoZac0pQqBadzyhWqONc+szHsUHcA0
-         eZdeE8u3yQdSpfozk7MQR/G5ylP8F6XJlvagY+ow=
+        b=iJ6JOve10bmhHaNGrx5EeMl7W5y151KtsgxUcvnoW0Xm4Yb/zCYSIUO7x/psk3gJj
+         1BudwjuqmoBulr2g6a6ioCZd9tFI1H4JJ4baANoFlfOCCq52O44JVLXp8Oc6IH59FE
+         JOEuvJmnG1P+HIqiUtpLcaJ0BHCWbi+1JKrqm+GI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0321/1126] video: fbdev: fbcvt.c: fix printing in fb_cvt_print_name()
-Date:   Tue,  5 Apr 2022 09:17:48 +0200
-Message-Id: <20220405070417.037970983@linuxfoundation.org>
+        stable@vger.kernel.org, Zev Weiss <zev@bewilderbeest.net>,
+        Lei YU <yulei.sh@bytedance.com>, Joel Stanley <joel@jms.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 0322/1126] ARM: dts: Fix OpenBMC flash layout label addresses
+Date:   Tue,  5 Apr 2022 09:17:49 +0200
+Message-Id: <20220405070417.067287493@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -53,109 +54,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Zev Weiss <zev@bewilderbeest.net>
 
-[ Upstream commit 78482af095abd9f4f29f1aa3fe575d25c6ae3028 ]
+[ Upstream commit e011df3579ac980d840db8e8c3b9431f88ebddab ]
 
-This code has two bugs:
-1) "cnt" is 255 but the size of the buffer is 256 so the last byte is
-   not used.
-2) If we try to print more than 255 characters then "cnt" will be
-   negative and that will trigger a WARN() in snprintf(). The fix for
-   this is to use scnprintf() instead of snprintf().
+We've ended up with some inconsistencies between the addresses in the
+DT node labels and the actual offsets of the partitions; this brings
+them back in sync.
 
-We can re-write this code to be cleaner:
-1) Rename "offset" to "off" because that's shorter.
-2) Get rid of the "cnt" variable and just use "size - off" directly.
-3) Get rid of the "read" variable and just increment "off" directly.
-
-Fixes: 96fe6a2109db ("fbdev: Add VESA Coordinated Video Timings (CVT) support")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Helge Deller <deller@gmx.de>
+Signed-off-by: Zev Weiss <zev@bewilderbeest.net>
+Fixes: 529022738c8e ("ARM: dts: Add OpenBMC flash layout")
+Fixes: 8dec60e7b8d0 ("ARM: dts: aspeed: Grow u-boot partition 64MiB OpenBMC flash layout")
+Reviewed-by: Lei YU <yulei.sh@bytedance.com>
+Link: https://lore.kernel.org/r/20220105003718.19888-1-zev@bewilderbeest.net
+Signed-off-by: Joel Stanley <joel@jms.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/core/fbcvt.c | 53 +++++++++++++-------------------
- 1 file changed, 21 insertions(+), 32 deletions(-)
+ arch/arm/boot/dts/openbmc-flash-layout-64.dtsi | 2 +-
+ arch/arm/boot/dts/openbmc-flash-layout.dtsi    | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/video/fbdev/core/fbcvt.c b/drivers/video/fbdev/core/fbcvt.c
-index 55d2bd0ce5c0..64843464c661 100644
---- a/drivers/video/fbdev/core/fbcvt.c
-+++ b/drivers/video/fbdev/core/fbcvt.c
-@@ -214,9 +214,11 @@ static u32 fb_cvt_aspect_ratio(struct fb_cvt_data *cvt)
- static void fb_cvt_print_name(struct fb_cvt_data *cvt)
- {
- 	u32 pixcount, pixcount_mod;
--	int cnt = 255, offset = 0, read = 0;
--	u8 *buf = kzalloc(256, GFP_KERNEL);
-+	int size = 256;
-+	int off = 0;
-+	u8 *buf;
+diff --git a/arch/arm/boot/dts/openbmc-flash-layout-64.dtsi b/arch/arm/boot/dts/openbmc-flash-layout-64.dtsi
+index 31f59de5190b..7af41361c480 100644
+--- a/arch/arm/boot/dts/openbmc-flash-layout-64.dtsi
++++ b/arch/arm/boot/dts/openbmc-flash-layout-64.dtsi
+@@ -28,7 +28,7 @@ partitions {
+ 		label = "rofs";
+ 	};
  
-+	buf = kzalloc(size, GFP_KERNEL);
- 	if (!buf)
- 		return;
+-	rwfs@6000000 {
++	rwfs@2a00000 {
+ 		reg = <0x2a00000 0x1600000>; // 22MB
+ 		label = "rwfs";
+ 	};
+diff --git a/arch/arm/boot/dts/openbmc-flash-layout.dtsi b/arch/arm/boot/dts/openbmc-flash-layout.dtsi
+index 6c26524e93e1..b47e14063c38 100644
+--- a/arch/arm/boot/dts/openbmc-flash-layout.dtsi
++++ b/arch/arm/boot/dts/openbmc-flash-layout.dtsi
+@@ -20,7 +20,7 @@ partitions {
+ 		label = "kernel";
+ 	};
  
-@@ -224,43 +226,30 @@ static void fb_cvt_print_name(struct fb_cvt_data *cvt)
- 	pixcount_mod = (cvt->xres * (cvt->yres/cvt->interlace)) % 1000000;
- 	pixcount_mod /= 1000;
- 
--	read = snprintf(buf+offset, cnt, "fbcvt: %dx%d@%d: CVT Name - ",
--			cvt->xres, cvt->yres, cvt->refresh);
--	offset += read;
--	cnt -= read;
-+	off += scnprintf(buf + off, size - off, "fbcvt: %dx%d@%d: CVT Name - ",
-+			    cvt->xres, cvt->yres, cvt->refresh);
- 
--	if (cvt->status)
--		snprintf(buf+offset, cnt, "Not a CVT standard - %d.%03d Mega "
--			 "Pixel Image\n", pixcount, pixcount_mod);
--	else {
--		if (pixcount) {
--			read = snprintf(buf+offset, cnt, "%d", pixcount);
--			cnt -= read;
--			offset += read;
--		}
-+	if (cvt->status) {
-+		off += scnprintf(buf + off, size - off,
-+				 "Not a CVT standard - %d.%03d Mega Pixel Image\n",
-+				 pixcount, pixcount_mod);
-+	} else {
-+		if (pixcount)
-+			off += scnprintf(buf + off, size - off, "%d", pixcount);
- 
--		read = snprintf(buf+offset, cnt, ".%03dM", pixcount_mod);
--		cnt -= read;
--		offset += read;
-+		off += scnprintf(buf + off, size - off, ".%03dM", pixcount_mod);
- 
- 		if (cvt->aspect_ratio == 0)
--			read = snprintf(buf+offset, cnt, "3");
-+			off += scnprintf(buf + off, size - off, "3");
- 		else if (cvt->aspect_ratio == 3)
--			read = snprintf(buf+offset, cnt, "4");
-+			off += scnprintf(buf + off, size - off, "4");
- 		else if (cvt->aspect_ratio == 1 || cvt->aspect_ratio == 4)
--			read = snprintf(buf+offset, cnt, "9");
-+			off += scnprintf(buf + off, size - off, "9");
- 		else if (cvt->aspect_ratio == 2)
--			read = snprintf(buf+offset, cnt, "A");
--		else
--			read = 0;
--		cnt -= read;
--		offset += read;
--
--		if (cvt->flags & FB_CVT_FLAG_REDUCED_BLANK) {
--			read = snprintf(buf+offset, cnt, "-R");
--			cnt -= read;
--			offset += read;
--		}
-+			off += scnprintf(buf + off, size - off, "A");
-+
-+		if (cvt->flags & FB_CVT_FLAG_REDUCED_BLANK)
-+			off += scnprintf(buf + off, size - off, "-R");
- 	}
- 
- 	printk(KERN_INFO "%s\n", buf);
+-	rofs@c0000 {
++	rofs@4c0000 {
+ 		reg = <0x4c0000 0x1740000>;
+ 		label = "rofs";
+ 	};
 -- 
 2.34.1
 
