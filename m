@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 337D34F2E86
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:01:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B9984F2E0A
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:49:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239160AbiDEIol (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:44:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33832 "EHLO
+        id S1355596AbiDEKUs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:20:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43984 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241206AbiDEIcy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:32:54 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CFA417A97;
-        Tue,  5 Apr 2022 01:29:36 -0700 (PDT)
+        with ESMTP id S1347153AbiDEJZS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:25:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F7FFAA018;
+        Tue,  5 Apr 2022 02:14:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D88ECB81BC6;
-        Tue,  5 Apr 2022 08:29:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C1EEC385A2;
-        Tue,  5 Apr 2022 08:29:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1405961659;
+        Tue,  5 Apr 2022 09:14:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2456BC385A0;
+        Tue,  5 Apr 2022 09:14:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147373;
-        bh=edHvhWt4iLm2OPP6xPUH7et3os8yqttfATwOvklfX6k=;
+        s=korg; t=1649150052;
+        bh=aVUBwy5ixGJpNkudBT7QG5qe2UFBdxE/HFTF2miR6uw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D0anh5nuvoUPvbIOGN3dK7WRmX4ZgZwkz94fmk2S2G2vdXwA8daSykLT0Yc0TJhzX
-         7nWULBoQPRFiE2LutyCVawSGXBmZtX3qRQEUmUJAPeJjEAshgw+ns6hlhvlwg6nJ3r
-         W2zGiiarlT9JW2ZCqZFvTKdWx/KucDaQGoofnkeY=
+        b=Gb2svhWrgPuGQ0BmRVqDy1irybc6a77A7wgOTkSF6Y+rYf+X55k57kNU74R5elzRW
+         HR5spq1jQVCNl4Xz5qCBpzJ4PxZ31Mwpg/BmUiIXKqR4myR+YZ7RSIKQrl+tZwC1SG
+         HirqyRnnVg0pNbbtsZWVcexNWj0+/GeCvOEYNK44=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Amadeusz=20S=C5=82awi=C5=84ski?= 
-        <amadeuszx.slawinski@linux.intel.com>,
-        Cezary Rojewski <cezary.rojewski@intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.17 1102/1126] ASoC: topology: Allow TLV control to be either read or write
-Date:   Tue,  5 Apr 2022 09:30:49 +0200
-Message-Id: <20220405070439.784836453@linuxfoundation.org>
+        stable@vger.kernel.org, Jacky Bai <ping.bai@nxp.com>,
+        Peng Fan <peng.fan@nxp.com>, Robin Gong <yibin.gong@nxp.com>,
+        Jassi Brar <jaswinder.singh@linaro.org>
+Subject: [PATCH 5.16 0937/1017] mailbox: imx: fix wakeup failure from freeze mode
+Date:   Tue,  5 Apr 2022 09:30:50 +0200
+Message-Id: <20220405070422.027277386@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,40 +54,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
+From: Robin Gong <yibin.gong@nxp.com>
 
-commit feb00b736af64875560f371fe7f58b0b7f239046 upstream.
+commit 892cb524ae8a27bf5e42f711318371acd9a9f74a upstream.
 
-There is no reason to force readwrite access on TLV controls. It can be
-either read, write or both. This is further evidenced in code where it
-performs following checks:
-                if ((k->access & SNDRV_CTL_ELEM_ACCESS_TLV_READ) && !sbe->get)
-                        return -EINVAL;
-                if ((k->access & SNDRV_CTL_ELEM_ACCESS_TLV_WRITE) && !sbe->put)
-                        return -EINVAL;
+Since IRQF_NO_SUSPEND used for imx mailbox driver, that means this irq
+can't be used for wakeup source so that can't wakeup from freeze mode.
+Add pm_system_wakeup() to wakeup from freeze mode.
 
-Fixes: 1a3232d2f61d ("ASoC: topology: Add support for TLV bytes controls")
-Signed-off-by: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
-Reviewed-by: Cezary Rojewski <cezary.rojewski@intel.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20220112170030.569712-3-amadeuszx.slawinski@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: b7b2796b9b31e("mailbox: imx: ONLY IPC MU needs IRQF_NO_SUSPEND flag")
+Reviewed-by: Jacky Bai <ping.bai@nxp.com>
+Reviewed-by: Peng Fan <peng.fan@nxp.com>
+Signed-off-by: Robin Gong <yibin.gong@nxp.com>
+Signed-off-by: Peng Fan <peng.fan@nxp.com>
+Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/soc-topology.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/mailbox/imx-mailbox.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/sound/soc/soc-topology.c
-+++ b/sound/soc/soc-topology.c
-@@ -512,7 +512,8 @@ static int soc_tplg_kcontrol_bind_io(str
+--- a/drivers/mailbox/imx-mailbox.c
++++ b/drivers/mailbox/imx-mailbox.c
+@@ -14,6 +14,7 @@
+ #include <linux/module.h>
+ #include <linux/of_device.h>
+ #include <linux/pm_runtime.h>
++#include <linux/suspend.h>
+ #include <linux/slab.h>
  
- 	if (le32_to_cpu(hdr->ops.info) == SND_SOC_TPLG_CTL_BYTES
- 		&& k->iface & SNDRV_CTL_ELEM_IFACE_MIXER
--		&& k->access & SNDRV_CTL_ELEM_ACCESS_TLV_READWRITE
-+		&& (k->access & SNDRV_CTL_ELEM_ACCESS_TLV_READ
-+		    || k->access & SNDRV_CTL_ELEM_ACCESS_TLV_WRITE)
- 		&& k->access & SNDRV_CTL_ELEM_ACCESS_TLV_CALLBACK) {
- 		struct soc_bytes_ext *sbe;
- 		struct snd_soc_tplg_bytes_control *be;
+ #define IMX_MU_CHANS		16
+@@ -76,6 +77,7 @@ struct imx_mu_priv {
+ 	const struct imx_mu_dcfg	*dcfg;
+ 	struct clk		*clk;
+ 	int			irq;
++	bool			suspend;
+ 
+ 	u32 xcr[4];
+ 
+@@ -334,6 +336,9 @@ static irqreturn_t imx_mu_isr(int irq, v
+ 		return IRQ_NONE;
+ 	}
+ 
++	if (priv->suspend)
++		pm_system_wakeup();
++
+ 	return IRQ_HANDLED;
+ }
+ 
+@@ -702,6 +707,8 @@ static int __maybe_unused imx_mu_suspend
+ 			priv->xcr[i] = imx_mu_read(priv, priv->dcfg->xCR[i]);
+ 	}
+ 
++	priv->suspend = true;
++
+ 	return 0;
+ }
+ 
+@@ -723,6 +730,8 @@ static int __maybe_unused imx_mu_resume_
+ 			imx_mu_write(priv, priv->xcr[i], priv->dcfg->xCR[i]);
+ 	}
+ 
++	priv->suspend = false;
++
+ 	return 0;
+ }
+ 
 
 
