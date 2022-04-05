@@ -2,212 +2,224 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B61CD4F47CC
-	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 01:43:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF7B84F47DE
+	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 01:44:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240202AbiDEVVI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 17:21:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40436 "EHLO
+        id S1346361AbiDEVWW convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Tue, 5 Apr 2022 17:22:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47622 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1457827AbiDEQvT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 12:51:19 -0400
-Received: from mout.gmx.net (mout.gmx.net [212.227.17.20])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7AE2E1EEF7;
-        Tue,  5 Apr 2022 09:49:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1649177350;
-        bh=1vKIY1gt3vNVn9t8j/gQpo9Svf0e2HT6996YcqD20j0=;
-        h=X-UI-Sender-Class:Date:From:To:Cc:Subject:In-Reply-To:References;
-        b=Rdvc3SUdaMu6xlV9oRqJf63w+sA/Ev6pmXyhr6xsCvd3u7wJgj5sdBeF+qN7rpwnR
-         XmE09JmpVH39ujD0tBH9U6sx95qfQw33fsXbtmlAcryy5QZI+hVFtk0IldxntZGYYa
-         VYwiBl/DRlN7gnBwT8rGrVJhVg4ACOJ+zDkLLnt8=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from localhost ([62.216.209.249]) by mail.gmx.net (mrgmx105
- [212.227.17.168]) with ESMTPSA (Nemesis) id 1Mwfac-1nwBdU00K2-00yAw9; Tue, 05
- Apr 2022 18:49:10 +0200
-Date:   Tue, 5 Apr 2022 18:49:08 +0200
-From:   Peter Seiderer <ps.report@gmx.net>
-To:     Toke =?UTF-8?B?SMO4aWxhbmQtSsO4cmdlbnNlbg==?= <toke@toke.dk>
-Cc:     Kalle Valo <kvalo@kernel.org>, linux-wireless@vger.kernel.org,
-        Toke =?UTF-8?B?SMO4aWxhbmQtSsO4cmdlbnNlbg==?= <toke@redhat.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH for-5.18 v3] ath9k: Fix usage of driver-private space in
- tx_info
-Message-ID: <20220405184908.7fb44111@gmx.net>
-In-Reply-To: <20220404204800.2681133-1-toke@toke.dk>
-References: <20220404204800.2681133-1-toke@toke.dk>
-X-Mailer: Claws Mail 4.0.0 (GTK+ 3.24.33; x86_64-suse-linux-gnu)
+        with ESMTP id S1457863AbiDEQxP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 12:53:15 -0400
+Received: from mail-ej1-f50.google.com (mail-ej1-f50.google.com [209.85.218.50])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2428326E9
+        for <stable@vger.kernel.org>; Tue,  5 Apr 2022 09:51:14 -0700 (PDT)
+Received: by mail-ej1-f50.google.com with SMTP id l26so11644365ejx.1
+        for <stable@vger.kernel.org>; Tue, 05 Apr 2022 09:51:14 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=IPrQE+Xi3gKFHtaa4iFeqv2z1Mz1gUVNTO0GQNazrug=;
+        b=HHXCmD+uVuM8aSPM3qus4jJSl49EU+QEeSxf0WVF7zBYMsi8HLY7qqK2rtHEhdevzs
+         A++iwC+/XGGzLye9c202RHsQYbfsdh4Z+6Ki3rSHhvFGdJj7J3lJ2lFDOpJYeEf+Yfsz
+         deWZZVrLvf0ekrD+KTI1I5V79Xhwm/3sZo/auQ8P/i8GJjWYDQjSkD6PTGEn3B5X/2tv
+         ZEykWZ0Y+FBuStoJ/vBWM8+FVbZjfhCQLslnEcX7JYgvTkOsFDV+OpZyvpRcG7ATcQlD
+         uHIta7XP1YQR8NAGMQaJjLLMM3kEnxtkgvgQL67dImGmejR+ZkOm4yj6Ap8xQ13Genqk
+         0VIg==
+X-Gm-Message-State: AOAM531euZa2J0ys7WOFyTpS4sEBT5kYklppuo2isinhLY56IRhq9RQt
+        vjkVKaEOPI5cIYhKRthp5rEmK63K1ISgXADyFpdxyQ==
+X-Google-Smtp-Source: ABdhPJyZW/jtaBf+smr/b2HpqbwulVx0oqg/WWEhSXUKh3LtpTZgEBwALPc6rzivGSbB+HNhFhDLiW9iIutaI4bUvA0=
+X-Received: by 2002:a17:907:1b20:b0:6da:649b:d99e with SMTP id
+ mp32-20020a1709071b2000b006da649bd99emr4506275ejc.712.1649177473217; Tue, 05
+ Apr 2022 09:51:13 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:ceKWhUrIGRqutIOUnCDDKP1g11zL2it54z2JX7OfhXfiQGUXDKo
- onAaeaJSvRSxxI/JYGus9IQpCXIFjLXGZsBgTnqlnYBmXQ0284XKHHqVkh5Pu3KX560NH9A
- C1Uh+J0AYaNE/+yDhPFJRZTz3fBV7cZt0zZAQBXnWPOxt1mu4cBlFWjKxo9OSNw4+ce/Rx5
- JgaOXpGkECgXlUrWTTSWA==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:Y4mTKqgVeVM=:m5SnoiftRPvZflGXeSlutK
- +Qa7CahFsT41kQLd2kudItf5vW0qCEzYjfeb5T4/Hfq7TtB/XL5TfSUB7H12tEdjNroRLNRBD
- JClwaVBvFd309cfG8ossvKHMXbxlPabQDAniTTTcAIlWn5C+iTEe8yGfbjA6sCEL2hKwrVkH0
- p23GUWuorbFimRX87yU87h/iAKCtmm4ZsmW4sCmZH2EqkLv3CSDEDIIBI7IekYXQQuy+++OTj
- atUnefx6ownpemtoNZZBdqsR9WAg9FflZ9p6OmP882FK2NtnklPPU88EqXbc3rAikLKeUeuUU
- xJgjUZICB0AzDOpvZDw7Vcv4rQw9j+YYHRKRS1b3wQaaYLGLVnk3QOfYpX5wgf8yV8Saqo632
- BPY09nTXsAM8vEmnHGoQ+OgSmiMssetySiOwPG3lGIoFlFjMPTJ7+eBUlSyJOB37vraL2sMST
- MvIMT6OSu48lyCW3UFSefZ9W4t4Q/mwq7r42rJvlU3BsPsTfXNPmVpCK/L/LqsjzFFYVUEI7g
- IPz2/9HGlpdMuoxwNlUR1aY8SjZfMkZ6jPMOThGFR5Z04nnNJ2DVa8EmY5vei0HJbffhcriaW
- UQS9zOXKTYM3PiddQxzIyFCB+87A23HKQ639xwht90Czz/wD1AeZ11NWy2Iqq4oV1EteDvBQ3
- aYDTk/7N3gHbAXflQuNZ1lC3bgVkWRsX48Dt6UFpKftQD3Y52Ji1/f8tnuLDVkzJf5eL40p6B
- KZIOH7AcrxxCs2IDI+5bzVgr4b3Hb6OKx24+mULUdY3qHie3Pz4D5EhZMK3ojJ84aximjdJYl
- 9sNAGwiw0eI7Moa/qjrKEVZpXsk1Qq/eCw7jijZr0Ov0MRSR70lZ4gOEtGstIZ3P/wf5ZwvJ3
- BHC8wvsPXJrQbnp/A8BfSByvFeYuRSkGRS455PvJR14xDPS1DJ+8GFau4iRePT0y3VUs8GVhM
- 4CM7YbskC2Jt7Qp5V3sZi3NzCnoHWpuMa+J/bIByYSa22y7XgxYu6OJWo2rzD/Jff5wzBpsvR
- hjDDSPneM5dIM8h5PPH16ldAkfqkE2ufpHbCr7u19ekzrj6PeB/tBWya9djRlTE7ns96VeEOH
- x1QXP9oNjvewLw=
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+References: <20220405070407.513532867@linuxfoundation.org> <20220405070435.188697055@linuxfoundation.org>
+In-Reply-To: <20220405070435.188697055@linuxfoundation.org>
+From:   Justin Forbes <jforbes@fedoraproject.org>
+Date:   Tue, 5 Apr 2022 11:51:02 -0500
+Message-ID: <CAFxkdAov41sA0V7D82BVophn8Nn6RPyLwPz-VmW5mLOXg1NYEw@mail.gmail.com>
+Subject: Re: [PATCH 5.17 0943/1126] ASoC: Intel: sof_es8336: use NHLT
+ information to set dmic and SSP
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     LKML <linux-kernel@vger.kernel.org>,
+        Stable <stable@vger.kernel.org>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        =?UTF-8?Q?P=C3=A9ter_Ujfalusi?= <peter.ujfalusi@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
+X-Spam-Status: No, score=-1.7 required=5.0 tests=BAYES_00,
+        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H3,
+        RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello Toke,
+On Tue, Apr 5, 2022 at 4:14 AM Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+>
+> [ Upstream commit 651c304df7f6e3fbb4779527efa3eb128ef91329 ]
+>
+> Since we see a proliferation of devices with various configurations,
+> we want to automatically set the DMIC and SSP information. This patch
+> relies on the information extracted from NHLT and partially reverts
+> existing DMI quirks added by commit a164137ce91a ("ASoC: Intel: add
+> machine driver for SOF+ES8336")
+>
+> Note that NHLT can report multiple SSPs, choosing from the
+> ssp_link_mask in an MSB-first manner was found experimentally to work
+> fine.
+>
+> The only thing that cannot be detected is the GPIO type, and users may
+> want to use the quirk override parameter if the 'wrong' solution is
+> provided.
+>
+> Tested-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+> Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+> Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+> Reviewed-by: Péter Ujfalusi <peter.ujfalusi@linux.intel.com>
+> Link: https://lore.kernel.org/r/20220308192610.392950-15-pierre-louis.bossart@linux.intel.com
+> Signed-off-by: Mark Brown <broonie@kernel.org>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
 
-On Mon,  4 Apr 2022 22:48:00 +0200, Toke H=C3=B8iland-J=C3=B8rgensen <toke@=
-toke.dk> wrote:
+It seems this patch is missing a dependent patch in the backport,
+specifically commit
+679aa83a0fb70dcbf9e97cbdfd573e6fc8bf9b1a ASoC: soc-acpi: add
+information on I2S/TDM link mask
 
-> From: Toke H=C3=B8iland-J=C3=B8rgensen <toke@redhat.com>
->=20
-> The ieee80211_tx_info_clear_status() helper also clears the rate counts a=
-nd
-> the driver-private part of struct ieee80211_tx_info, so using it breaks
-> quite a few other things. So back out of using it, and instead define a
-> ath-internal helper that only clears the area between the
-> status_driver_data and the rates info. Combined with moving the
-> ath_frame_info struct to status_driver_data, this avoids clearing anything
-> we shouldn't be, and so we can keep the existing code for handling the ra=
-te
-> information.
->=20
-> While fixing this I also noticed that the setting of
-> tx_info->status.rates[tx_rateindex].count on hardware underrun errors was
-> always immediately overridden by the normal setting of the same fields, so
-> rearrange the code so that the underrun detection actually takes effect.
->=20
-> The new helper could be generalised to a 'memset_between()' helper, but
-> leave it as a driver-internal helper for now since this needs to go to
-> stable.
->=20
-> Cc: stable@vger.kernel.org
-> Reported-by: Peter Seiderer <ps.report@gmx.net>
-> Fixes: 037250f0a45c ("ath9k: Properly clear TX status area before reporti=
-ng to mac80211")
-> Signed-off-by: Toke H=C3=B8iland-J=C3=B8rgensen <toke@redhat.com>
+sound/soc/intel/boards/sof_es8336.c: In function 'sof_es8336_probe':
+sound/soc/intel/boards/sof_es8336.c:482:32: error: 'struct
+snd_soc_acpi_mach_params' has no member named 'i2s_link_mask'; did you
+mean 'link_mask'?
+  482 |         if (!mach->mach_params.i2s_link_mask) {
+      |                                ^~~~~~~~~~~~~
+      |                                link_mask
+sound/soc/intel/boards/sof_es8336.c:494:39: error: 'struct
+snd_soc_acpi_mach_params' has no member named 'i2s_link_mask'; did you
+mean 'link_mask'?
+  494 |                 if (mach->mach_params.i2s_link_mask & BIT(2))
+      |                                       ^~~~~~~~~~~~~
+      |                                       link_mask
+sound/soc/intel/boards/sof_es8336.c:496:44: error: 'struct
+snd_soc_acpi_mach_params' has no member named 'i2s_link_mask'; did you
+mean 'link_mask'?
+  496 |                 else if (mach->mach_params.i2s_link_mask & BIT(1))
+      |                                            ^~~~~~~~~~~~~
+      |                                            link_mask
+sound/soc/intel/boards/sof_es8336.c:498:45: error: 'struct
+snd_soc_acpi_mach_params' has no member named 'i2s_link_mask'; did you
+mean 'link_mask'?
+  498 |                 else  if (mach->mach_params.i2s_link_mask & BIT(0))
+      |                                             ^~~~~~~~~~~~~
+      |                                             link_mask
+make[4]: *** [scripts/Makefile.build:288:
+sound/soc/intel/boards/sof_es8336.o] Error 1
 
-And finally found time to test your latest version of the patch, you can ad=
-d my
+Justin
 
-Reviewed-by: Peter Seiderer <ps.report@gmx.net>
-Tested-by: Peter Seiderer <ps.report@gmx.net>
-
-Thanks,
-
-Peter Seiderer
-
-
-> ---
->  drivers/net/wireless/ath/ath9k/main.c |  2 +-
->  drivers/net/wireless/ath/ath9k/xmit.c | 30 ++++++++++++++++++---------
->  2 files changed, 21 insertions(+), 11 deletions(-)
->=20
-> diff --git a/drivers/net/wireless/ath/ath9k/main.c b/drivers/net/wireless=
-/ath/ath9k/main.c
-> index 98090e40e1cf..e2791d45f5f5 100644
-> --- a/drivers/net/wireless/ath/ath9k/main.c
-> +++ b/drivers/net/wireless/ath/ath9k/main.c
-> @@ -839,7 +839,7 @@ static bool ath9k_txq_list_has_key(struct list_head *=
-txq_list, u32 keyix)
->  			continue;
-> =20
->  		txinfo =3D IEEE80211_SKB_CB(bf->bf_mpdu);
-> -		fi =3D (struct ath_frame_info *)&txinfo->rate_driver_data[0];
-> +		fi =3D (struct ath_frame_info *)&txinfo->status.status_driver_data[0];
->  		if (fi->keyix =3D=3D keyix)
->  			return true;
->  	}
-> diff --git a/drivers/net/wireless/ath/ath9k/xmit.c b/drivers/net/wireless=
-/ath/ath9k/xmit.c
-> index cbcf96ac303e..db83cc4ba810 100644
-> --- a/drivers/net/wireless/ath/ath9k/xmit.c
-> +++ b/drivers/net/wireless/ath/ath9k/xmit.c
-> @@ -141,8 +141,8 @@ static struct ath_frame_info *get_frame_info(struct s=
-k_buff *skb)
->  {
->  	struct ieee80211_tx_info *tx_info =3D IEEE80211_SKB_CB(skb);
->  	BUILD_BUG_ON(sizeof(struct ath_frame_info) >
-> -		     sizeof(tx_info->rate_driver_data));
-> -	return (struct ath_frame_info *) &tx_info->rate_driver_data[0];
-> +		     sizeof(tx_info->status.status_driver_data));
-> +	return (struct ath_frame_info *) &tx_info->status.status_driver_data[0];
+>  sound/soc/intel/boards/sof_es8336.c | 56 +++++++++++++++++++++--------
+>  1 file changed, 41 insertions(+), 15 deletions(-)
+>
+> diff --git a/sound/soc/intel/boards/sof_es8336.c b/sound/soc/intel/boards/sof_es8336.c
+> index 20d577eaab6d..46e453915f82 100644
+> --- a/sound/soc/intel/boards/sof_es8336.c
+> +++ b/sound/soc/intel/boards/sof_es8336.c
+> @@ -228,24 +228,25 @@ static int sof_es8336_quirk_cb(const struct dmi_system_id *id)
+>         return 1;
 >  }
-> =20
->  static void ath_send_bar(struct ath_atx_tid *tid, u16 seqno)
-> @@ -2542,6 +2542,16 @@ static void ath_tx_complete_buf(struct ath_softc *=
-sc, struct ath_buf *bf,
->  	spin_unlock_irqrestore(&sc->tx.txbuflock, flags);
->  }
-> =20
-> +static void ath_clear_tx_status(struct ieee80211_tx_info *tx_info)
-> +{
-> +	void *ptr =3D &tx_info->status;
+>
+> +/*
+> + * this table should only be used to add GPIO or jack-detection quirks
+> + * that cannot be detected from ACPI tables. The SSP and DMIC
+> + * information are providing by the platform driver and are aligned
+> + * with the topology used.
+> + *
+> + * If the GPIO support is missing, the quirk parameter can be used to
+> + * enable speakers. In that case it's recommended to keep the SSP and DMIC
+> + * information consistent, overriding the SSP and DMIC can only be done
+> + * if the topology file is modified as well.
+> + */
+>  static const struct dmi_system_id sof_es8336_quirk_table[] = {
+> -       {
+> -               .callback = sof_es8336_quirk_cb,
+> -               .matches = {
+> -                       DMI_MATCH(DMI_SYS_VENDOR, "CHUWI Innovation And Technology"),
+> -                       DMI_MATCH(DMI_BOARD_NAME, "Hi10 X"),
+> -               },
+> -               .driver_data = (void *)SOF_ES8336_SSP_CODEC(2)
+> -       },
+>         {
+>                 .callback = sof_es8336_quirk_cb,
+>                 .matches = {
+>                         DMI_MATCH(DMI_SYS_VENDOR, "IP3 tech"),
+>                         DMI_MATCH(DMI_BOARD_NAME, "WN1"),
+>                 },
+> -               .driver_data = (void *)(SOF_ES8336_SSP_CODEC(0) |
+> -                                       SOF_ES8336_TGL_GPIO_QUIRK |
+> -                                       SOF_ES8336_ENABLE_DMIC)
+> +               .driver_data = (void *)(SOF_ES8336_TGL_GPIO_QUIRK)
+>         },
+>         {}
+>  };
+> @@ -470,11 +471,33 @@ static int sof_es8336_probe(struct platform_device *pdev)
+>         card = &sof_es8336_card;
+>         card->dev = dev;
+>
+> -       if (!dmi_check_system(sof_es8336_quirk_table))
+> -               quirk = SOF_ES8336_SSP_CODEC(2);
+> +       /* check GPIO DMI quirks */
+> +       dmi_check_system(sof_es8336_quirk_table);
+>
+> -       if (quirk & SOF_ES8336_ENABLE_DMIC)
+> -               dmic_be_num = 2;
+> +       if (!mach->mach_params.i2s_link_mask) {
+> +               dev_warn(dev, "No I2S link information provided, using SSP0. This may need to be modified with the quirk module parameter\n");
+> +       } else {
+> +               /*
+> +                * Set configuration based on platform NHLT.
+> +                * In this machine driver, we can only support one SSP for the
+> +                * ES8336 link, the else-if below are intentional.
+> +                * In some cases multiple SSPs can be reported by NHLT, starting MSB-first
+> +                * seems to pick the right connection.
+> +                */
+> +               unsigned long ssp = 0;
 > +
-> +	memset(ptr + sizeof(tx_info->status.rates), 0,
-> +	       sizeof(tx_info->status) -
-> +	       sizeof(tx_info->status.rates) -
-> +	       sizeof(tx_info->status.status_driver_data));
-> +}
+> +               if (mach->mach_params.i2s_link_mask & BIT(2))
+> +                       ssp = SOF_ES8336_SSP_CODEC(2);
+> +               else if (mach->mach_params.i2s_link_mask & BIT(1))
+> +                       ssp = SOF_ES8336_SSP_CODEC(1);
+> +               else  if (mach->mach_params.i2s_link_mask & BIT(0))
+> +                       ssp = SOF_ES8336_SSP_CODEC(0);
 > +
->  static void ath_tx_rc_status(struct ath_softc *sc, struct ath_buf *bf,
->  			     struct ath_tx_status *ts, int nframes, int nbad,
->  			     int txok)
-> @@ -2553,7 +2563,7 @@ static void ath_tx_rc_status(struct ath_softc *sc, =
-struct ath_buf *bf,
->  	struct ath_hw *ah =3D sc->sc_ah;
->  	u8 i, tx_rateindex;
-> =20
-> -	ieee80211_tx_info_clear_status(tx_info);
-> +	ath_clear_tx_status(tx_info);
-> =20
->  	if (txok)
->  		tx_info->status.ack_signal =3D ts->ts_rssi;
-> @@ -2569,6 +2579,13 @@ static void ath_tx_rc_status(struct ath_softc *sc,=
- struct ath_buf *bf,
->  	tx_info->status.ampdu_len =3D nframes;
->  	tx_info->status.ampdu_ack_len =3D nframes - nbad;
-> =20
-> +	tx_info->status.rates[tx_rateindex].count =3D ts->ts_longretry + 1;
+> +               quirk |= ssp;
+> +       }
 > +
-> +	for (i =3D tx_rateindex + 1; i < hw->max_rates; i++) {
-> +		tx_info->status.rates[i].count =3D 0;
-> +		tx_info->status.rates[i].idx =3D -1;
-> +	}
+> +       if (mach->mach_params.dmic_num)
+> +               quirk |= SOF_ES8336_ENABLE_DMIC;
+>
+>         if (quirk_override != -1) {
+>                 dev_info(dev, "Overriding quirk 0x%lx => 0x%x\n",
+> @@ -483,6 +506,9 @@ static int sof_es8336_probe(struct platform_device *pdev)
+>         }
+>         log_quirks(dev);
+>
+> +       if (quirk & SOF_ES8336_ENABLE_DMIC)
+> +               dmic_be_num = 2;
 > +
->  	if ((ts->ts_status & ATH9K_TXERR_FILT) =3D=3D 0 &&
->  	    (tx_info->flags & IEEE80211_TX_CTL_NO_ACK) =3D=3D 0) {
->  		/*
-> @@ -2590,13 +2607,6 @@ static void ath_tx_rc_status(struct ath_softc *sc,=
- struct ath_buf *bf,
->  			tx_info->status.rates[tx_rateindex].count =3D
->  				hw->max_rate_tries;
->  	}
-> -
-> -	for (i =3D tx_rateindex + 1; i < hw->max_rates; i++) {
-> -		tx_info->status.rates[i].count =3D 0;
-> -		tx_info->status.rates[i].idx =3D -1;
-> -	}
-> -
-> -	tx_info->status.rates[tx_rateindex].count =3D ts->ts_longretry + 1;
->  }
-> =20
->  static void ath_tx_processq(struct ath_softc *sc, struct ath_txq *txq)
-
+>         sof_es8336_card.num_links += dmic_be_num + hdmi_num;
+>         dai_links = sof_card_dai_links_create(dev,
+>                                               SOF_ES8336_SSP_CODEC(quirk),
+> --
+> 2.34.1
+>
+>
+>
