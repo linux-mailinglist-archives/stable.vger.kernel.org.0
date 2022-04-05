@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E85004F33C2
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:22:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B4324F332D
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:14:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245352AbiDEIzL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:55:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51070 "EHLO
+        id S245634AbiDEI4k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:56:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52206 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241466AbiDEIdm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:33:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12AD7C4;
-        Tue,  5 Apr 2022 01:31:45 -0700 (PDT)
+        with ESMTP id S234409AbiDEIdz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:33:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFEE3DE7;
+        Tue,  5 Apr 2022 01:31:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A0C1460FFC;
-        Tue,  5 Apr 2022 08:31:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FFFFC385A0;
-        Tue,  5 Apr 2022 08:31:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1970F61001;
+        Tue,  5 Apr 2022 08:31:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 264CCC385A1;
+        Tue,  5 Apr 2022 08:31:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147504;
-        bh=iwUeLQxCDC7OEVPT2rElS4J+zZ+Rdy4pMjpsoROH3zg=;
+        s=korg; t=1649147514;
+        bh=tzu4ubjxmqozK98KomH+7/MS5yAMop4h8j39lIkn8Dk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=or76U1zCcPTgSJpi/fj2g8M/CVROHbxmiTJc2XaEoCANJ8wjt7D1h6BOqhoV16OCW
-         XFWSWNwp5g0Ud9T2rJQf6s1mGNtOojoaAQsZRcE44MHDXbd6HKjaM0qXYN24VjPUnI
-         ECroj1ZBN8Smns/JEP0b3R7ZYYcpBWOeSj8sGHwQ=
+        b=sp2ayaC7Q0UOMT7+2UrkmAnJayYWkziRqIhhif8wrVoGo9x+8rFqBf66oHiMIX38W
+         OOImkwqV/L5j0nfCTWUpCO/ogdY6+RIX5Jm+pvzLQQLvYKdU9V6QTgqRtWxUpZo5Mm
+         s+nF/OrJ4y59Qlv2wf2bcvzIpM9Za61nHiHXDdFQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, TCS Robot <tcs_robot@tencent.com>,
-        Haimin Zhang <tcs_kernel@tencent.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
+        stable@vger.kernel.org, Laurence Oberman <loberman@redhat.com>,
+        Ming Lei <ming.lei@redhat.com>,
+        David Jeffery <djeffery@redhat.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0021/1017] af_key: add __GFP_ZERO flag for compose_sadb_supported in function pfkey_register
-Date:   Tue,  5 Apr 2022 09:15:34 +0200
-Message-Id: <20220405070354.804367282@linuxfoundation.org>
+Subject: [PATCH 5.16 0023/1017] scsi: fnic: Finish scsi_cmnd before dropping the spinlock
+Date:   Tue,  5 Apr 2022 09:15:36 +0200
+Message-Id: <20220405070354.863867911@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -55,40 +56,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haimin Zhang <tcs_kernel@tencent.com>
+From: David Jeffery <djeffery@redhat.com>
 
-[ Upstream commit 9a564bccb78a76740ea9d75a259942df8143d02c ]
+[ Upstream commit 733ab7e1b5d1041204c4ca7373f6e6f9d08e3283 ]
 
-Add __GFP_ZERO flag for compose_sadb_supported in function pfkey_register
-to initialize the buffer of supp_skb to fix a kernel-info-leak issue.
-1) Function pfkey_register calls compose_sadb_supported to request
-a sk_buff. 2) compose_sadb_supported calls alloc_sbk to allocate
-a sk_buff, but it doesn't zero it. 3) If auth_len is greater 0, then
-compose_sadb_supported treats the memory as a struct sadb_supported and
-begins to initialize. But it just initializes the field sadb_supported_len
-and field sadb_supported_exttype without field sadb_supported_reserved.
+When aborting a SCSI command through fnic, there is a race with the fnic
+interrupt handler which can result in the SCSI command and its request
+being completed twice. If the interrupt handler claims the command by
+setting CMD_SP to NULL first, the abort handler assumes the interrupt
+handler has completed the command and returns SUCCESS, causing the request
+for the scsi_cmnd to be re-queued.
 
-Reported-by: TCS Robot <tcs_robot@tencent.com>
-Signed-off-by: Haimin Zhang <tcs_kernel@tencent.com>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+But the interrupt handler may not have finished the command yet. After it
+drops the spinlock protecting CMD_SP, it does memory cleanup before finally
+calling scsi_done() to complete the scsi_cmnd. If the call to scsi_done
+occurs after the abort handler finishes and re-queues the request, the
+completion of the scsi_cmnd will advance and try to double complete a
+request already queued for retry.
+
+This patch fixes the issue by moving scsi_done() and any other use of
+scsi_cmnd to before the spinlock is released by the interrupt handler.
+
+Link: https://lore.kernel.org/r/20220311184359.2345319-1-djeffery@redhat.com
+Reviewed-by: Laurence Oberman <loberman@redhat.com>
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: David Jeffery <djeffery@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/key/af_key.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/fnic/fnic_scsi.c | 13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
 
-diff --git a/net/key/af_key.c b/net/key/af_key.c
-index 9bf52a09b5ff..fd51db3be91c 100644
---- a/net/key/af_key.c
-+++ b/net/key/af_key.c
-@@ -1699,7 +1699,7 @@ static int pfkey_register(struct sock *sk, struct sk_buff *skb, const struct sad
+diff --git a/drivers/scsi/fnic/fnic_scsi.c b/drivers/scsi/fnic/fnic_scsi.c
+index 88c549f257db..40a52feb315d 100644
+--- a/drivers/scsi/fnic/fnic_scsi.c
++++ b/drivers/scsi/fnic/fnic_scsi.c
+@@ -986,8 +986,6 @@ static void fnic_fcpio_icmnd_cmpl_handler(struct fnic *fnic,
+ 	CMD_SP(sc) = NULL;
+ 	CMD_FLAGS(sc) |= FNIC_IO_DONE;
  
- 	xfrm_probe_algs();
+-	spin_unlock_irqrestore(io_lock, flags);
+-
+ 	if (hdr_status != FCPIO_SUCCESS) {
+ 		atomic64_inc(&fnic_stats->io_stats.io_failures);
+ 		shost_printk(KERN_ERR, fnic->lport->host, "hdr status = %s\n",
+@@ -996,8 +994,6 @@ static void fnic_fcpio_icmnd_cmpl_handler(struct fnic *fnic,
  
--	supp_skb = compose_sadb_supported(hdr, GFP_KERNEL);
-+	supp_skb = compose_sadb_supported(hdr, GFP_KERNEL | __GFP_ZERO);
- 	if (!supp_skb) {
- 		if (hdr->sadb_msg_satype != SADB_SATYPE_UNSPEC)
- 			pfk->registered &= ~(1<<hdr->sadb_msg_satype);
+ 	fnic_release_ioreq_buf(fnic, io_req, sc);
+ 
+-	mempool_free(io_req, fnic->io_req_pool);
+-
+ 	cmd_trace = ((u64)hdr_status << 56) |
+ 		  (u64)icmnd_cmpl->scsi_status << 48 |
+ 		  (u64)icmnd_cmpl->flags << 40 | (u64)sc->cmnd[0] << 32 |
+@@ -1021,6 +1017,12 @@ static void fnic_fcpio_icmnd_cmpl_handler(struct fnic *fnic,
+ 	} else
+ 		fnic->lport->host_stats.fcp_control_requests++;
+ 
++	/* Call SCSI completion function to complete the IO */
++	scsi_done(sc);
++	spin_unlock_irqrestore(io_lock, flags);
++
++	mempool_free(io_req, fnic->io_req_pool);
++
+ 	atomic64_dec(&fnic_stats->io_stats.active_ios);
+ 	if (atomic64_read(&fnic->io_cmpl_skip))
+ 		atomic64_dec(&fnic->io_cmpl_skip);
+@@ -1049,9 +1051,6 @@ static void fnic_fcpio_icmnd_cmpl_handler(struct fnic *fnic,
+ 		if(io_duration_time > atomic64_read(&fnic_stats->io_stats.current_max_io_time))
+ 			atomic64_set(&fnic_stats->io_stats.current_max_io_time, io_duration_time);
+ 	}
+-
+-	/* Call SCSI completion function to complete the IO */
+-	scsi_done(sc);
+ }
+ 
+ /* fnic_fcpio_itmf_cmpl_handler
 -- 
 2.34.1
 
