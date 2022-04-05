@@ -2,42 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 76A634F30B7
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:34:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D7C094F3015
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:26:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234947AbiDEIkY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:40:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57956 "EHLO
+        id S245382AbiDEIzX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:55:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234132AbiDEIYQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:24:16 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 888BC636C;
-        Tue,  5 Apr 2022 01:20:04 -0700 (PDT)
+        with ESMTP id S233337AbiDEIYg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:24:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C56E12753;
+        Tue,  5 Apr 2022 01:20:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EF65260B12;
-        Tue,  5 Apr 2022 08:20:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 047A7C385A0;
-        Tue,  5 Apr 2022 08:20:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4B1A6B81BB0;
+        Tue,  5 Apr 2022 08:20:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC59BC385A1;
+        Tue,  5 Apr 2022 08:20:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146803;
-        bh=l3oxgia/AH524WfPDCJYya+1eJReQrdeKfEHcOOgSqc=;
+        s=korg; t=1649146806;
+        bh=a+hYV3dWe1oVsX+cvNgh7RLaS51GSRre3hs0wbTB+k0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dlzG5vEFQDlGKnshNMsnk9GHqp4ihxwLdDR9Okt9lP5NdL/IT7YI0HOkJMe9NXlgT
-         xX35vtZ8trGpmtE781vPN8iHEWTEsNgTeJGV+sLOMZ1r0ZDqv8+FjYQPScmNqHxKhb
-         /mnEBeAo5HGEa5RFlPBBkKFn7A5o9VcS8NzTnoJE=
+        b=GAr1qwiOt4MUhXQZLdDYOMfmr4CqQqVw38OytPPEVtLi65u96WkKuoO44bLzv2vr1
+         y+ZHqM6mjHH7BBOvo6qInTzGFwOkrTAlBxakzs/fJ8pQnmdvtuJy5zLP2vlHzZXq6p
+         GkhG+CPVKcHW/pYZs/CBe9/LS2bK+odSLSmZq2dM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Richard Fitzgerald <rf@opensource.cirrus.com>,
+        Reddy Muralidhar <muralidhar.reddy@intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Rander Wang <rander.wang@intel.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0895/1126] ASoC: cs42l42: Report full jack status when plug is detected
-Date:   Tue,  5 Apr 2022 09:27:22 +0200
-Message-Id: <20220405070433.794774788@linuxfoundation.org>
+Subject: [PATCH 5.17 0896/1126] ASoC: SOF: Intel: match sdw version on link_slaves_found
+Date:   Tue,  5 Apr 2022 09:27:23 +0200
+Message-Id: <20220405070433.822977108@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -55,65 +59,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Richard Fitzgerald <rf@opensource.cirrus.com>
+From: Bard Liao <yung-chuan.liao@linux.intel.com>
 
-[ Upstream commit 8d06f797f844d04a961f201f886f7f9985edc9bf ]
+[ Upstream commit f67c0c0d3b9048d86ea6ae52e36a2b78c48f265d ]
 
-When a plug event is detect report the full state of all status
-bits, don't assume that there will have been a previous unplug
-event to clear all the bits. Report the state of both HEADPHONE
-and MICROPHONE bits according to detected type, and clear all the
-button status bits. The current button status is already checked
-and reported at the end of the function.
+Codecs with the same part id, manufacturer id and part id, but different
+sdw version should be treated as different codecs. For example, rt711 and
+rt711-sdca are different. So, we should match sdw version as well.
 
-During a system suspend the jack could be unplugged and plugged,
-possibly changing the jack type. On resume the interrupt status will
-indicate a plug event - there will not be an unplug event to clear
-the bits.
-
-Signed-off-by: Richard Fitzgerald <rf@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20220121120412.672284-2-rf@opensource.cirrus.com
+Reported-by: Reddy Muralidhar <muralidhar.reddy@intel.com>
+Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Reviewed-by: Rander Wang <rander.wang@intel.com>
+Signed-off-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20220120232157.199919-2-pierre-louis.bossart@linux.intel.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/cs42l42.c | 14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ sound/soc/sof/intel/hda.c | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
-diff --git a/sound/soc/codecs/cs42l42.c b/sound/soc/codecs/cs42l42.c
-index 43d98bdb5b5b..2c294868008e 100644
---- a/sound/soc/codecs/cs42l42.c
-+++ b/sound/soc/codecs/cs42l42.c
-@@ -1637,7 +1637,11 @@ static irqreturn_t cs42l42_irq_thread(int irq, void *data)
+diff --git a/sound/soc/sof/intel/hda.c b/sound/soc/sof/intel/hda.c
+index 1385695d7745..848d1d563170 100644
+--- a/sound/soc/sof/intel/hda.c
++++ b/sound/soc/sof/intel/hda.c
+@@ -1188,7 +1188,7 @@ static bool link_slaves_found(struct snd_sof_dev *sdev,
+ 	struct hdac_bus *bus = sof_to_bus(sdev);
+ 	struct sdw_intel_slave_id *ids = sdw->ids;
+ 	int num_slaves = sdw->num_slaves;
+-	unsigned int part_id, link_id, unique_id, mfg_id;
++	unsigned int part_id, link_id, unique_id, mfg_id, version;
+ 	int i, j, k;
  
- 	mutex_lock(&cs42l42->jack_detect_mutex);
+ 	for (i = 0; i < link->num_adr; i++) {
+@@ -1198,12 +1198,14 @@ static bool link_slaves_found(struct snd_sof_dev *sdev,
+ 		mfg_id = SDW_MFG_ID(adr);
+ 		part_id = SDW_PART_ID(adr);
+ 		link_id = SDW_DISCO_LINK_ID(adr);
++		version = SDW_VERSION(adr);
  
--	/* Check auto-detect status */
-+	/*
-+	 * Check auto-detect status. Don't assume a previous unplug event has
-+	 * cleared the flags. If the jack is unplugged and plugged during
-+	 * system suspend there won't have been an unplug event.
-+	 */
- 	if ((~masks[5]) & irq_params_table[5].mask) {
- 		if (stickies[5] & CS42L42_HSDET_AUTO_DONE_MASK) {
- 			cs42l42_process_hs_type_detect(cs42l42);
-@@ -1645,11 +1649,15 @@ static irqreturn_t cs42l42_irq_thread(int irq, void *data)
- 			case CS42L42_PLUG_CTIA:
- 			case CS42L42_PLUG_OMTP:
- 				snd_soc_jack_report(cs42l42->jack, SND_JACK_HEADSET,
--						    SND_JACK_HEADSET);
-+						    SND_JACK_HEADSET |
-+						    SND_JACK_BTN_0 | SND_JACK_BTN_1 |
-+						    SND_JACK_BTN_2 | SND_JACK_BTN_3);
- 				break;
- 			case CS42L42_PLUG_HEADPHONE:
- 				snd_soc_jack_report(cs42l42->jack, SND_JACK_HEADPHONE,
--						    SND_JACK_HEADPHONE);
-+						    SND_JACK_HEADSET |
-+						    SND_JACK_BTN_0 | SND_JACK_BTN_1 |
-+						    SND_JACK_BTN_2 | SND_JACK_BTN_3);
- 				break;
- 			default:
- 				break;
+ 		for (j = 0; j < num_slaves; j++) {
+ 			/* find out how many identical parts were reported on that link */
+ 			if (ids[j].link_id == link_id &&
+ 			    ids[j].id.part_id == part_id &&
+-			    ids[j].id.mfg_id == mfg_id)
++			    ids[j].id.mfg_id == mfg_id &&
++			    ids[j].id.sdw_version == version)
+ 				reported_part_count++;
+ 		}
+ 
+@@ -1212,21 +1214,24 @@ static bool link_slaves_found(struct snd_sof_dev *sdev,
+ 
+ 			if (ids[j].link_id != link_id ||
+ 			    ids[j].id.part_id != part_id ||
+-			    ids[j].id.mfg_id != mfg_id)
++			    ids[j].id.mfg_id != mfg_id ||
++			    ids[j].id.sdw_version != version)
+ 				continue;
+ 
+ 			/* find out how many identical parts are expected */
+ 			for (k = 0; k < link->num_adr; k++) {
+ 				u64 adr2 = link->adr_d[k].adr;
+-				unsigned int part_id2, link_id2, mfg_id2;
++				unsigned int part_id2, link_id2, mfg_id2, version2;
+ 
+ 				mfg_id2 = SDW_MFG_ID(adr2);
+ 				part_id2 = SDW_PART_ID(adr2);
+ 				link_id2 = SDW_DISCO_LINK_ID(adr2);
++				version2 = SDW_VERSION(adr2);
+ 
+ 				if (link_id2 == link_id &&
+ 				    part_id2 == part_id &&
+-				    mfg_id2 == mfg_id)
++				    mfg_id2 == mfg_id &&
++				    version2 == version)
+ 					expected_part_count++;
+ 			}
+ 
 -- 
 2.34.1
 
