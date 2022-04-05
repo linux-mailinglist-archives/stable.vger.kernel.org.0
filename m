@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E6CBA4F36F6
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:10:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 653B94F3717
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:17:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240631AbiDELJN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:09:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43986 "EHLO
+        id S1347432AbiDELJ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:09:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232972AbiDEJsi (ORCPT
+        with ESMTP id S1348812AbiDEJsi (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:48:38 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AFEB9285C;
-        Tue,  5 Apr 2022 02:35:57 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC9AC95A36;
+        Tue,  5 Apr 2022 02:35:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 47C35B81B75;
-        Tue,  5 Apr 2022 09:35:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99996C385A2;
-        Tue,  5 Apr 2022 09:35:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 48419615E5;
+        Tue,  5 Apr 2022 09:35:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F77DC385A0;
+        Tue,  5 Apr 2022 09:35:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151355;
-        bh=GltpdBVeULqUGpBO1nAxh639HFSQaoT6tOmZcNXQin4=;
+        s=korg; t=1649151357;
+        bh=hE0+M1yHyMNF+b58TMcf0wEYVHccPRvtpndBkcpj1nU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aMi1m1bFpYsX3FR/wzkQdbKww6JeAYOoo6oi87k4NkgXLt/blrVPPLF86leV5MRQC
-         w9LYo3bxBiFVbNDKBgPPFdl9wWmD5CNpFzID6uRYegFIfzvt7++0AVM2k5CkeJsHWH
-         Y0tPnSSrOOFUTCDGYvX7e8tyYCoaBTMUEvMM8PME=
+        b=hi0uxZeq+nukjseWr2Ug73wXu/b72jncipxVpywC2ormglUG9kWBsYpP50Aizz5RT
+         6NBVusC0vn0giAyFXDQaoMzTdLi/RXER4TjsJwfYv5Y+CRVTYjG/oLH0yFKnn/GalT
+         DNgnddgpIAIGKoRkRbvu5do64gmwwDclS7/Eclos=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wei Fu <fuweid89@gmail.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 386/913] bpftool: Only set obj->skeleton on complete success
-Date:   Tue,  5 Apr 2022 09:24:08 +0200
-Message-Id: <20220405070351.417249214@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        Gerd Hoffmann <kraxel@redhat.com>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+2c56b725ec547fa9cb29@syzkaller.appspotmail.com
+Subject: [PATCH 5.15 387/913] udmabuf: validate ubuf->pagecount
+Date:   Tue,  5 Apr 2022 09:24:09 +0200
+Message-Id: <20220405070351.447460224@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -54,49 +55,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Fu <fuweid89@gmail.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit 0991f6a38f576aa9a5e34713e23c998a3310d4d0 ]
+[ Upstream commit 2b6dd600dd72573c23ea180b5b0b2f1813405882 ]
 
-After `bpftool gen skeleton`, the ${bpf_app}.skel.h will provide that
-${bpf_app_name}__open helper to load bpf. If there is some error
-like ENOMEM, the ${bpf_app_name}__open will rollback(free) the allocated
-object, including `bpf_object_skeleton`.
+Syzbot has reported GPF in sg_alloc_append_table_from_pages(). The
+problem was in ubuf->pages == ZERO_PTR.
 
-Since the ${bpf_app_name}__create_skeleton set the obj->skeleton first
-and not rollback it when error, it will cause double-free in
-${bpf_app_name}__destory at ${bpf_app_name}__open. Therefore, we should
-set the obj->skeleton before return 0;
+ubuf->pagecount is calculated from arguments passed from user-space. If
+user creates udmabuf with list.size == 0 then ubuf->pagecount will be
+also equal to zero; it causes kmalloc_array() to return ZERO_PTR.
 
-Fixes: 5dc7a8b21144 ("bpftool, selftests/bpf: Embed object file inside skeleton")
-Signed-off-by: Wei Fu <fuweid89@gmail.com>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/bpf/20220108084008.1053111-1-fuweid89@gmail.com
+Fix it by validating ubuf->pagecount before passing it to
+kmalloc_array().
+
+Fixes: fbb0de795078 ("Add udmabuf misc device")
+Reported-and-tested-by: syzbot+2c56b725ec547fa9cb29@syzkaller.appspotmail.com
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Link: http://patchwork.freedesktop.org/patch/msgid/20211230142649.23022-1-paskripkin@gmail.com
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/bpf/bpftool/gen.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/dma-buf/udmabuf.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/tools/bpf/bpftool/gen.c b/tools/bpf/bpftool/gen.c
-index d40d92bbf0e4..07fa502a4ac1 100644
---- a/tools/bpf/bpftool/gen.c
-+++ b/tools/bpf/bpftool/gen.c
-@@ -870,7 +870,6 @@ static int do_skeleton(int argc, char **argv)
- 			s = (struct bpf_object_skeleton *)calloc(1, sizeof(*s));\n\
- 			if (!s)						    \n\
- 				goto err;				    \n\
--			obj->skeleton = s;				    \n\
- 									    \n\
- 			s->sz = sizeof(*s);				    \n\
- 			s->name = \"%1$s\";				    \n\
-@@ -955,6 +954,7 @@ static int do_skeleton(int argc, char **argv)
- 		\n\
- 		\";							    \n\
- 									    \n\
-+			obj->skeleton = s;				    \n\
- 			return 0;					    \n\
- 		err:							    \n\
- 			bpf_object__destroy_skeleton(s);		    \n\
+diff --git a/drivers/dma-buf/udmabuf.c b/drivers/dma-buf/udmabuf.c
+index c57a609db75b..e7330684d3b8 100644
+--- a/drivers/dma-buf/udmabuf.c
++++ b/drivers/dma-buf/udmabuf.c
+@@ -190,6 +190,10 @@ static long udmabuf_create(struct miscdevice *device,
+ 		if (ubuf->pagecount > pglimit)
+ 			goto err;
+ 	}
++
++	if (!ubuf->pagecount)
++		goto err;
++
+ 	ubuf->pages = kmalloc_array(ubuf->pagecount, sizeof(*ubuf->pages),
+ 				    GFP_KERNEL);
+ 	if (!ubuf->pages) {
 -- 
 2.34.1
 
