@@ -2,47 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D7C404F3289
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:58:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F6FA4F35E0
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:55:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344047AbiDEJRJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:17:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46546 "EHLO
+        id S241078AbiDEKzp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:55:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37666 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245038AbiDEIxC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:53:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F6E9E10;
-        Tue,  5 Apr 2022 01:50:20 -0700 (PDT)
+        with ESMTP id S1346408AbiDEJo7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:44:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 764AADA098;
+        Tue,  5 Apr 2022 02:30:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1E4E8B81B92;
-        Tue,  5 Apr 2022 08:50:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68E8FC385A0;
-        Tue,  5 Apr 2022 08:50:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1066A61680;
+        Tue,  5 Apr 2022 09:30:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CA17C385A2;
+        Tue,  5 Apr 2022 09:30:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148617;
-        bh=8byxPXwxejjXlkL2TpUmT+yCJ0uneYeRDygEpoPrvLA=;
+        s=korg; t=1649151034;
+        bh=qHfZR3XOEbdpOjmMWZoUuZZmMk1njjr2FLMPPXofQL0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j4fxY5Y8v7FhkNzBnIFFxyBzynQEJFetrc/vVb1eOLh5oUYewrmLC5C6KpQUl9BNS
-         wjbvGc/32UMF/ZEV3VLBQo1RYmZfwYDBrc6dQQj1cgjkNNpqEYUv62eYlHlhoSGYdw
-         TR+FRaecyC/TPcpj7LSImj6bVx6DnI0RS323J6UM=
+        b=KtRdRypgfDTaGdCbOm8xerS4XUJY+To2ydVnhTWvvDvxPBF81yz0avqDjMgQ5qwsV
+         0iSc+Rix7PFxgjjEaszNmsXwZTBaRqq7km/x2lpJ/9CWCt155m+qoslPSemf2iMaN8
+         8esyVPcSttwzQHGvt/fPGxiag//FecxFghFueJ1E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Michael Trimarchi <michael@amarulasolutions.com>,
-        Dario Binacchi <dario.binacchi@amarulasolutions.com>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Rui Miguel Silva <rmfrfs@gmail.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Jerome Brunet <jbrunet@baylibre.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0419/1017] mtd: rawnand: gpmi: fix controller timings setting
+Subject: [PATCH 5.15 270/913] media: staging: media: imx: imx7-mipi-csis: Make subdev name unique
 Date:   Tue,  5 Apr 2022 09:22:12 +0200
-Message-Id: <20220405070406.726487734@linuxfoundation.org>
+Message-Id: <20220405070347.951212421@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,57 +58,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dario Binacchi <dario.binacchi@amarulasolutions.com>
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 
-[ Upstream commit 2970bf5a32f079e1e9197411db4fe9faccb1503a ]
+[ Upstream commit 5be7f8c91d25089be847a71b336c13b5bb0db772 ]
 
-Set the controller registers according to the real clock rate. The
-controller registers configuration (setup, hold, timeout, ... cycles)
-depends on the clock rate of the GPMI. Using the real rate instead of
-the ideal one, avoids that this inaccuracy (required_rate - real_rate)
-affects the registers setting.
+When multiple CSIS instances are present in a single graph, they are
+currently all named "imx7-mipi-csis.0", which breaks the entity name
+uniqueness requirement. Fix it by using the device name to create the
+subdev name.
 
-This patch has been tested on two custom boards with i.MX28 and i.MX6
-SOCs:
-- i.MX28:
-  required rate 100MHz, real rate 99.3MHz
-- i.MX6
-  required rate 100MHz, real rate 99MHz
-
-Fixes: b1206122069a ("mtd: rawnand: gpmi: use core timings instead of an empirical derivation")
-Co-developed-by: Michael Trimarchi <michael@amarulasolutions.com>
-Signed-off-by: Michael Trimarchi <michael@amarulasolutions.com>
-Signed-off-by: Dario Binacchi <dario.binacchi@amarulasolutions.com>
-Tested-by: Sascha Hauer <s.hauer@pengutronix.de>
-Reviewed-by: Sascha Hauer <s.hauer@pengutronix.de>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20220118095434.35081-3-dario.binacchi@amarulasolutions.com
+Fixes: 7807063b862b ("media: staging/imx7: add MIPI CSI-2 receiver subdev for i.MX7")
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Reviewed-by: Rui Miguel Silva <rmfrfs@gmail.com>
+Reviewed-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Reviewed-by: Jerome Brunet <jbrunet@baylibre.com>
+Tested-by: Jerome Brunet <jbrunet@baylibre.com> # On i.MX8MP
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/staging/media/imx/imx7-mipi-csis.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c b/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c
-index 5eb20dfe4186..42e0aab1a00c 100644
---- a/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c
-+++ b/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c
-@@ -648,6 +648,7 @@ static void gpmi_nfc_compute_timings(struct gpmi_nand_data *this,
- 				     const struct nand_sdr_timings *sdr)
- {
- 	struct gpmi_nfc_hardware_timing *hw = &this->hw;
-+	struct resources *r = &this->resources;
- 	unsigned int dll_threshold_ps = this->devdata->max_chain_delay;
- 	unsigned int period_ps, reference_period_ps;
- 	unsigned int data_setup_cycles, data_hold_cycles, addr_setup_cycles;
-@@ -671,6 +672,8 @@ static void gpmi_nfc_compute_timings(struct gpmi_nand_data *this,
- 		wrn_dly_sel = BV_GPMI_CTRL1_WRN_DLY_SEL_NO_DELAY;
- 	}
+diff --git a/drivers/staging/media/imx/imx7-mipi-csis.c b/drivers/staging/media/imx/imx7-mipi-csis.c
+index 41e33535de55..d35e52374116 100644
+--- a/drivers/staging/media/imx/imx7-mipi-csis.c
++++ b/drivers/staging/media/imx/imx7-mipi-csis.c
+@@ -32,7 +32,6 @@
+ #include <media/v4l2-subdev.h>
  
-+	hw->clk_rate = clk_round_rate(r->clock[0], hw->clk_rate);
-+
- 	/* SDR core timings are given in picoseconds */
- 	period_ps = div_u64((u64)NSEC_PER_SEC * 1000, hw->clk_rate);
+ #define CSIS_DRIVER_NAME			"imx7-mipi-csis"
+-#define CSIS_SUBDEV_NAME			CSIS_DRIVER_NAME
  
+ #define CSIS_PAD_SINK				0
+ #define CSIS_PAD_SOURCE				1
+@@ -311,7 +310,6 @@ struct csi_state {
+ 	struct reset_control *mrst;
+ 	struct regulator *mipi_phy_regulator;
+ 	const struct mipi_csis_info *info;
+-	u8 index;
+ 
+ 	struct v4l2_subdev sd;
+ 	struct media_pad pads[CSIS_PADS_NUM];
+@@ -1303,8 +1301,8 @@ static int mipi_csis_subdev_init(struct csi_state *state)
+ 
+ 	v4l2_subdev_init(sd, &mipi_csis_subdev_ops);
+ 	sd->owner = THIS_MODULE;
+-	snprintf(sd->name, sizeof(sd->name), "%s.%d",
+-		 CSIS_SUBDEV_NAME, state->index);
++	snprintf(sd->name, sizeof(sd->name), "csis-%s",
++		 dev_name(state->dev));
+ 
+ 	sd->flags |= V4L2_SUBDEV_FL_HAS_DEVNODE;
+ 	sd->ctrl_handler = NULL;
 -- 
 2.34.1
 
