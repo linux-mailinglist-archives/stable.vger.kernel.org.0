@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D99984F36FB
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:10:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6935F4F3723
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:18:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241502AbiDELJ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:09:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39510 "EHLO
+        id S1349902AbiDELKP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:10:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348813AbiDEJsj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:48:39 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9BA09F6C7;
-        Tue,  5 Apr 2022 02:36:02 -0700 (PDT)
+        with ESMTP id S1348833AbiDEJsk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:48:40 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5679AB3DEC;
+        Tue,  5 Apr 2022 02:36:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9CD1DB81C86;
-        Tue,  5 Apr 2022 09:36:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17D36C385A0;
-        Tue,  5 Apr 2022 09:35:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E386361675;
+        Tue,  5 Apr 2022 09:36:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE380C385A2;
+        Tue,  5 Apr 2022 09:36:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151360;
-        bh=vfQKJU19UMrW5LwepiqtiviNOCGXgKRJ9KQlocnkT/4=;
+        s=korg; t=1649151391;
+        bh=SzrysxvBq5ZNLxqpDPYaIE3D44TsoqwU/9BTGFVVG8w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ocq8ImcJ2WEHHTw0gASsHdFerZLGRemAoMjf5ioEQQ/ll4UBd1W7vZPuwhVQHNrAK
-         NQ3IcjYT/d4BN9L2qGwQPGIzF44zUQkrG9MxgAiV4P81wad66en5SaNk7qWy3Ng36J
-         HscK7w3jeklX+MA+D82iPRBG/FhTSnUR0g6d6+hI=
+        b=nyce7OYoMeaoGfSx9h4JKgz8gRHe8w4JiQFBb77lUHtp/UAVI1+3Lt3tMCqrIqnXw
+         ixLQeA2hH2rZn4MtqegRldfb/bZdb5BU9eUH3DWrm5V4KyCPyrpGtI5I9bm7XSvmYI
+         bigut6eLGU4iF7s/n8VQhy//cD6Wshc2o52MONpc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        stable@vger.kernel.org, Meng Tang <tangmeng@uniontech.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 370/913] ASoC: codecs: wcd934x: Add missing of_node_put() in wcd934x_codec_parse_data
-Date:   Tue,  5 Apr 2022 09:23:52 +0200
-Message-Id: <20220405070350.937503010@linuxfoundation.org>
+Subject: [PATCH 5.15 371/913] ASoC: amd: Fix reference to PCM buffer address
+Date:   Tue,  5 Apr 2022 09:23:53 +0200
+Message-Id: <20220405070350.967960528@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -54,36 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Meng Tang <tangmeng@uniontech.com>
 
-[ Upstream commit 9531a631379169d57756b2411178c6238655df88 ]
+[ Upstream commit 54e1bf9f6177a3ffbd920474f4481a25361163aa ]
 
-The device_node pointer is returned by of_parse_phandle()  with refcount
-incremented. We should use of_node_put() on it when done.
-This is similar to commit 64b92de9603f
-("ASoC: wcd9335: fix a leaked reference by adding missing of_node_put")
+PCM buffers might be allocated dynamically when the buffer
+preallocation failed or a larger buffer is requested, and it's not
+guaranteed that substream->dma_buffer points to the actually used
+buffer.  The driver needs to refer to substream->runtime->dma_addr
+instead for the buffer address.
 
-Fixes: a61f3b4f476e ("ASoC: wcd934x: add support to wcd9340/wcd9341 codec")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220316083631.14103-1-linmq006@gmail.com
+Fixes: cab396d8b22c1 ("ASoC: amd: add ACP5x pcm dma driver ops")
+Signed-off-by: Meng Tang <tangmeng@uniontech.com>
+Link: https://lore.kernel.org/r/20220316091303.9745-1-tangmeng@uniontech.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/wcd934x.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/soc/amd/vangogh/acp5x-pcm-dma.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/wcd934x.c b/sound/soc/codecs/wcd934x.c
-index 654d847a050e..7b99318070cf 100644
---- a/sound/soc/codecs/wcd934x.c
-+++ b/sound/soc/codecs/wcd934x.c
-@@ -5888,6 +5888,7 @@ static int wcd934x_codec_parse_data(struct wcd934x_codec *wcd)
- 	}
- 
- 	wcd->sidev = of_slim_get_device(wcd->sdev->ctrl, ifc_dev_np);
-+	of_node_put(ifc_dev_np);
- 	if (!wcd->sidev) {
- 		dev_err(dev, "Unable to get SLIM Interface device\n");
+diff --git a/sound/soc/amd/vangogh/acp5x-pcm-dma.c b/sound/soc/amd/vangogh/acp5x-pcm-dma.c
+index f10de38976cb..6abcc2133a2c 100644
+--- a/sound/soc/amd/vangogh/acp5x-pcm-dma.c
++++ b/sound/soc/amd/vangogh/acp5x-pcm-dma.c
+@@ -281,7 +281,7 @@ static int acp5x_dma_hw_params(struct snd_soc_component *component,
  		return -EINVAL;
+ 	}
+ 	size = params_buffer_bytes(params);
+-	rtd->dma_addr = substream->dma_buffer.addr;
++	rtd->dma_addr = substream->runtime->dma_addr;
+ 	rtd->num_pages = (PAGE_ALIGN(size) >> PAGE_SHIFT);
+ 	config_acp5x_dma(rtd, substream->stream);
+ 	return 0;
 -- 
 2.34.1
 
