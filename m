@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D3C514F2A5D
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 12:55:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E1444F2E54
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:00:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245141AbiDEJLe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:11:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49668 "EHLO
+        id S243620AbiDEKhM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:37:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48460 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244698AbiDEIwe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:34 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CC9FD95C9;
-        Tue,  5 Apr 2022 01:42:08 -0700 (PDT)
+        with ESMTP id S239603AbiDEJd6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:33:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAD485881E;
+        Tue,  5 Apr 2022 02:22:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 731B2CE1C6B;
-        Tue,  5 Apr 2022 08:42:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C43FC385A1;
-        Tue,  5 Apr 2022 08:42:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7A8396165C;
+        Tue,  5 Apr 2022 09:22:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82E8CC385A2;
+        Tue,  5 Apr 2022 09:22:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148124;
-        bh=VAF5i6aKP1e/tf2Wm8Jq42UU+785ciOTpaHVQGl6Dug=;
+        s=korg; t=1649150547;
+        bh=Qkn4rQuY4vULlZ9kn3jjxMjdNkDLJ4Z9oqzqzL5TrYc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qsA+2ZDBBesq+GoigwpnvQbKNkVgDRcIKi3SF/OIHg8Qj2OZ6Ol1YFhaHU+zYMVx0
-         ieSVcmZfVYWuZY7V6bQD0MdnleigdnyAro7d4X2WELFp+q53+hcri3Bjh86CWM4NDr
-         sUQKH3bKd4wOq48SJ+osYs2cgbcA5B1AYRXj++10=
+        b=p1UxiOtnkbJ3QR7pz5ao1aA3GbaK6T3vHSyQ7HMI+GQmdI4781mJV+pm+nh3d+Vza
+         YMVNnsgYOFF8k4g21fMB3NehpqRcnXU7fHzHZXDp9G3NvCqntcWL7CxWbAU2F8l/s0
+         bAJQMEe0JUY8HMui/Bt8v93XDCn2Dv2pKMiw3GSk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Alim Akhtar <alim.akhtar@samsung.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0243/1017] clocksource/drivers/exynos_mct: Handle DTS with higher number of interrupts
-Date:   Tue,  5 Apr 2022 09:19:16 +0200
-Message-Id: <20220405070401.471413745@linuxfoundation.org>
+        =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Peter Hutterer <peter.hutterer@who-t.net>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 5.15 096/913] Revert "Input: clear BTN_RIGHT/MIDDLE on buttonpads"
+Date:   Tue,  5 Apr 2022 09:19:18 +0200
+Message-Id: <20220405070342.706069485@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,64 +57,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+From: José Expósito <jose.exposito89@gmail.com>
 
-[ Upstream commit ab8da93dc06d82f464c47ab30e6c75190702f369 ]
+commit 8b188fba75195745026e11d408e4a7e94e01d701 upstream.
 
-The driver statically defines maximum number of interrupts it can
-handle, however it does not respect that limit when configuring them.
-When provided with a DTS with more interrupts than assumed, the driver
-will overwrite static array mct_irqs leading to silent memory
-corruption.
+This reverts commit 37ef4c19b4c659926ce65a7ac709ceaefb211c40.
 
-Validate the interrupts coming from DTS to avoid this.  This does not
-change the fact that such DTS might not boot at all, because it is
-simply incompatible, however at least some warning will be printed.
+The touchpad present in the Dell Precision 7550 and 7750 laptops
+reports a HID_DG_BUTTONTYPE of type MT_BUTTONTYPE_CLICKPAD. However,
+the device is not a clickpad, it is a touchpad with physical buttons.
 
-Fixes: 36ba5d527e95 ("ARM: EXYNOS: add device tree support for MCT controller driver")
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Reviewed-by: Alim Akhtar <alim.akhtar@samsung.com>
-Link: https://lore.kernel.org/r/20220220103815.135380-1-krzysztof.kozlowski@canonical.com
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+In order to fix this issue, a quirk for the device was introduced in
+libinput [1] [2] to disable the INPUT_PROP_BUTTONPAD property:
+
+	[Precision 7x50 Touchpad]
+	MatchBus=i2c
+	MatchUdevType=touchpad
+	MatchDMIModalias=dmi:*svnDellInc.:pnPrecision7?50*
+	AttrInputPropDisable=INPUT_PROP_BUTTONPAD
+
+However, because of the change introduced in 37ef4c19b4 ("Input: clear
+BTN_RIGHT/MIDDLE on buttonpads") the BTN_RIGHT key bit is not mapped
+anymore breaking the device right click button and making impossible to
+workaround it in user space.
+
+In order to avoid breakage on other present or future devices, revert
+the patch causing the issue.
+
+Signed-off-by: José Expósito <jose.exposito89@gmail.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Acked-by: Peter Hutterer <peter.hutterer@who-t.net>
+Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20220321184404.20025-1-jose.exposito89@gmail.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/clocksource/exynos_mct.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/input/input.c |    6 ------
+ 1 file changed, 6 deletions(-)
 
-diff --git a/drivers/clocksource/exynos_mct.c b/drivers/clocksource/exynos_mct.c
-index 857cf12ebe57..cc2a961ddd3b 100644
---- a/drivers/clocksource/exynos_mct.c
-+++ b/drivers/clocksource/exynos_mct.c
-@@ -541,6 +541,11 @@ static int __init exynos4_timer_interrupts(struct device_node *np,
- 	 * irqs are specified.
- 	 */
- 	nr_irqs = of_irq_count(np);
-+	if (nr_irqs > ARRAY_SIZE(mct_irqs)) {
-+		pr_err("exynos-mct: too many (%d) interrupts configured in DT\n",
-+			nr_irqs);
-+		nr_irqs = ARRAY_SIZE(mct_irqs);
-+	}
- 	for (i = MCT_L0_IRQ; i < nr_irqs; i++)
- 		mct_irqs[i] = irq_of_parse_and_map(np, i);
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -2285,12 +2285,6 @@ int input_register_device(struct input_d
+ 	/* KEY_RESERVED is not supposed to be transmitted to userspace. */
+ 	__clear_bit(KEY_RESERVED, dev->keybit);
  
-@@ -553,11 +558,14 @@ static int __init exynos4_timer_interrupts(struct device_node *np,
- 		     mct_irqs[MCT_L0_IRQ], err);
- 	} else {
- 		for_each_possible_cpu(cpu) {
--			int mct_irq = mct_irqs[MCT_L0_IRQ + cpu];
-+			int mct_irq;
- 			struct mct_clock_event_device *pcpu_mevt =
- 				per_cpu_ptr(&percpu_mct_tick, cpu);
+-	/* Buttonpads should not map BTN_RIGHT and/or BTN_MIDDLE. */
+-	if (test_bit(INPUT_PROP_BUTTONPAD, dev->propbit)) {
+-		__clear_bit(BTN_RIGHT, dev->keybit);
+-		__clear_bit(BTN_MIDDLE, dev->keybit);
+-	}
+-
+ 	/* Make sure that bitmasks not mentioned in dev->evbit are clean. */
+ 	input_cleanse_bitmasks(dev);
  
- 			pcpu_mevt->evt.irq = -1;
-+			if (MCT_L0_IRQ + cpu >= ARRAY_SIZE(mct_irqs))
-+				break;
-+			mct_irq = mct_irqs[MCT_L0_IRQ + cpu];
- 
- 			irq_set_status_flags(mct_irq, IRQ_NOAUTOEN);
- 			if (request_irq(mct_irq,
--- 
-2.34.1
-
 
 
