@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6871A4F33F4
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:24:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A6564F2FCB
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:18:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241916AbiDEIgD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:36:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34720 "EHLO
+        id S242901AbiDEJiU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:38:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41902 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239087AbiDEITr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:19:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0F5F765A8;
-        Tue,  5 Apr 2022 01:10:11 -0700 (PDT)
+        with ESMTP id S241897AbiDEJHW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:07:22 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18C1852E7D;
+        Tue,  5 Apr 2022 01:56:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6A88960AFB;
-        Tue,  5 Apr 2022 08:10:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D7A9C385A1;
-        Tue,  5 Apr 2022 08:10:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A9F6BB81C19;
+        Tue,  5 Apr 2022 08:56:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 043FFC385A0;
+        Tue,  5 Apr 2022 08:56:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146210;
-        bh=o7xH8q1QcBDjg+NQiSO+r0qpDbFOAcGSWY82F81nOho=;
+        s=korg; t=1649148990;
+        bh=D9X4N7CjniGGLjHiUlduDQRYx7n6Zjs8euUw2wDCyR0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zlvgrOfCbkP/kSHaVGKfO3aMiqx9nSccgMdOB+6uMs203cdvTHZxU9YRnyVGuXS+O
-         vUm7WtUkkoqUizBRHSNAMcuGhVmgDRSLY8/WjonlXQfzkdj9MHXliYD6sfaZll4R++
-         azlMYmso5AlGXxwXx2WYAmAk7m+iHQeCOkf7ejBs=
+        b=uGrufnHeXkiOm6q6IcoPee3lH5hI6wrNTtUzEVw33gtMOt3Ze2oXP/TCQU6A2CalQ
+         xYWFBkD6pqDKE/Nbvn5MGHKW14emKuvuEtuZhT159T+JuPzCA7k2re6IdBp2YHTTvw
+         dMl2HZ4e8c5rHFKZGHDTF594K39vYPl+8Z7mksgE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+b9bd12fbed3485a3e51f@syzkaller.appspotmail.com,
-        Pavel Skripkin <paskripkin@gmail.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org, Kuogee Hsieh <quic_khsieh@quicinc.com>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0683/1126] Bluetooth: hci_uart: add missing NULL check in h5_enqueue
+Subject: [PATCH 5.16 0517/1017] drm/msm/dp: stop link training after link training 2 failed
 Date:   Tue,  5 Apr 2022 09:23:50 +0200
-Message-Id: <20220405070427.665899043@linuxfoundation.org>
+Message-Id: <20220405070409.643315294@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,44 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Kuogee Hsieh <quic_khsieh@quicinc.com>
 
-[ Upstream commit 32cb08e958696908a9aad5e49a78d74f7e32fffb ]
+[ Upstream commit 9051d629dbf7a998a40f7eac65a9512b01bc3bb8 ]
 
-Syzbot hit general protection fault in __pm_runtime_resume(). The problem
-was in missing NULL check.
+Each DP link training contains link training 1 followed by link
+training 2.  There is maximum of 5 retries of DP link training
+before declared link training failed. It is required to stop link
+training at end of link training 2 if it is failed so that next
+link training 1 can start freshly. This patch fixes link compliance
+test  case 4.3.1.13 (Source Device Link Training EQ Fallback Test).
 
-hu->serdev can be NULL and we should not blindly pass &serdev->dev
-somewhere, since it will cause GPF.
+Changes in v10:
+--  group into one series
 
-Reported-by: syzbot+b9bd12fbed3485a3e51f@syzkaller.appspotmail.com
-Fixes: d9dd833cf6d2 ("Bluetooth: hci_h5: Add runtime suspend")
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Changes in v11:
+-- drop drm/msm/dp: dp_link_parse_sink_count() return immediately if aux read
+
+Fixes: 2e0adc765d88 ("drm/msm/dp: do not end dp link training until video is ready")
+Signed-off-by: Kuogee Hsieh <quic_khsieh@quicinc.com>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Link: https://lore.kernel.org/r/1642531648-8448-5-git-send-email-quic_khsieh@quicinc.com
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/hci_h5.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/msm/dp/dp_ctrl.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/bluetooth/hci_h5.c b/drivers/bluetooth/hci_h5.c
-index 34286ffe0568..7ac6908a4dfb 100644
---- a/drivers/bluetooth/hci_h5.c
-+++ b/drivers/bluetooth/hci_h5.c
-@@ -629,9 +629,11 @@ static int h5_enqueue(struct hci_uart *hu, struct sk_buff *skb)
- 		break;
+diff --git a/drivers/gpu/drm/msm/dp/dp_ctrl.c b/drivers/gpu/drm/msm/dp/dp_ctrl.c
+index 62e75dc8afc6..4af281d97493 100644
+--- a/drivers/gpu/drm/msm/dp/dp_ctrl.c
++++ b/drivers/gpu/drm/msm/dp/dp_ctrl.c
+@@ -1744,6 +1744,9 @@ int dp_ctrl_on_link(struct dp_ctrl *dp_ctrl)
+ 				/* end with failure */
+ 				break; /* lane == 1 already */
+ 			}
++
++			/* stop link training before start re training  */
++			dp_ctrl_clear_training_pattern(ctrl);
+ 		}
  	}
  
--	pm_runtime_get_sync(&hu->serdev->dev);
--	pm_runtime_mark_last_busy(&hu->serdev->dev);
--	pm_runtime_put_autosuspend(&hu->serdev->dev);
-+	if (hu->serdev) {
-+		pm_runtime_get_sync(&hu->serdev->dev);
-+		pm_runtime_mark_last_busy(&hu->serdev->dev);
-+		pm_runtime_put_autosuspend(&hu->serdev->dev);
-+	}
- 
- 	return 0;
- }
 -- 
 2.34.1
 
