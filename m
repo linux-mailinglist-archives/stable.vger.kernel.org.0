@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4923F4F2F06
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:05:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0BBA4F3140
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:40:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239132AbiDEIoc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:44:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48850 "EHLO
+        id S238942AbiDEIoa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:44:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48926 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241290AbiDEIdL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:33:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31069C4;
-        Tue,  5 Apr 2022 01:31:13 -0700 (PDT)
+        with ESMTP id S241297AbiDEIdM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:33:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 456F1E7;
+        Tue,  5 Apr 2022 01:31:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B318CB81C13;
-        Tue,  5 Apr 2022 08:31:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2342CC385A0;
-        Tue,  5 Apr 2022 08:31:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D765961001;
+        Tue,  5 Apr 2022 08:31:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2D7DC385A0;
+        Tue,  5 Apr 2022 08:31:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147470;
-        bh=8/YNMu7+LX6RHTLGnnonVq5mzG5eSceZVaeyn/2kX5Q=;
+        s=korg; t=1649147473;
+        bh=9wWJhCGjvW+gmTlJp+TCJdNc4BV7i04JGaPkDNZvWZE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NEKEYyENUwUNHvub+wWekDVAUWzh+hGRvecg0uOWKHuDMuAfam+p+iUnS5DLuzGxv
-         FAReWQn4rSrI4dbEyx3yDnEhMJoi4mEFkhM8QqeG/tJsVrkWDYVpiBrwCrbXyZdSju
-         P34HVUweHGcBKTSgaisB6gfPb9pnfSYJBYFcPS7k=
+        b=lZZIE4OvhHAkP8CKVU2/qAkav+FtthyZzAm/XSviy4QiCjAcNXFtuH2DJr13IoVUA
+         ewYqKTabKUNMUGPxGwywuSj3B/JW0ASDmSz0Mdb2Ms7nCRoJW3dSajbGiZNS1tFAAu
+         4mhrGVeYSV6ZorTFKdGxMFJzMg6MnTiTTsfZe6rw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Palmer <daniel@0x0f.com>,
-        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0010/1017] ARM: mstar: Select HAVE_ARM_ARCH_TIMER
-Date:   Tue,  5 Apr 2022 09:15:23 +0200
-Message-Id: <20220405070354.477448879@linuxfoundation.org>
+        stable@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0011/1017] virtio_console: break out of buf poll on remove
+Date:   Tue,  5 Apr 2022 09:15:24 +0200
+Message-Id: <20220405070354.506955546@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -53,34 +53,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Palmer <daniel@0x0f.com>
+From: Michael S. Tsirkin <mst@redhat.com>
 
-[ Upstream commit ea49432d184a6a09f84461604b7711a4e9f5ec9c ]
+[ Upstream commit 0e7174b9d5877130fec41fb4a16e0c2ee4958d44 ]
 
-The mstar SoCs have an arch timer but HAVE_ARM_ARCH_TIMER wasn't
-selected. If MSC313E_TIMER isn't selected then the kernel gets
-stuck at boot because there are no timers available.
+A common pattern for device reset is currently:
+vdev->config->reset(vdev);
+.. cleanup ..
 
-Signed-off-by: Daniel Palmer <daniel@0x0f.com>
-Link: https://lore.kernel.org/r/20220301104349.3040422-1-daniel@0x0f.com'
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+reset prevents new interrupts from arriving and waits for interrupt
+handlers to finish.
+
+However if - as is common - the handler queues a work request which is
+flushed during the cleanup stage, we have code adding buffers / trying
+to get buffers while device is reset. Not good.
+
+This was reproduced by running
+	modprobe virtio_console
+	modprobe -r virtio_console
+in a loop.
+
+Fix this up by calling virtio_break_device + flush before reset.
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1786239
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-mstar/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/char/virtio_console.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/arch/arm/mach-mstar/Kconfig b/arch/arm/mach-mstar/Kconfig
-index cd300eeedc20..0bf4d312bcfd 100644
---- a/arch/arm/mach-mstar/Kconfig
-+++ b/arch/arm/mach-mstar/Kconfig
-@@ -3,6 +3,7 @@ menuconfig ARCH_MSTARV7
- 	depends on ARCH_MULTI_V7
- 	select ARM_GIC
- 	select ARM_HEAVY_MB
-+	select HAVE_ARM_ARCH_TIMER
- 	select MST_IRQ
- 	select MSTAR_MSC313_MPLL
- 	help
+diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+index 660c5c388c29..f864b17be7e3 100644
+--- a/drivers/char/virtio_console.c
++++ b/drivers/char/virtio_console.c
+@@ -1957,6 +1957,13 @@ static void virtcons_remove(struct virtio_device *vdev)
+ 	list_del(&portdev->list);
+ 	spin_unlock_irq(&pdrvdata_lock);
+ 
++	/* Device is going away, exit any polling for buffers */
++	virtio_break_device(vdev);
++	if (use_multiport(portdev))
++		flush_work(&portdev->control_work);
++	else
++		flush_work(&portdev->config_work);
++
+ 	/* Disable interrupts for vqs */
+ 	vdev->config->reset(vdev);
+ 	/* Finish up work that's lined up */
 -- 
 2.34.1
 
