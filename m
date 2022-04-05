@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 478004F3008
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:20:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ABF204F3154
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:42:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238323AbiDEIoE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:44:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45884 "EHLO
+        id S1355744AbiDEKVs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:21:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44964 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241249AbiDEIc5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:32:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B23CA614E;
-        Tue,  5 Apr 2022 01:30:34 -0700 (PDT)
+        with ESMTP id S1347393AbiDEJ0M (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:26:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7673C9682D;
+        Tue,  5 Apr 2022 02:15:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6307FB81C13;
-        Tue,  5 Apr 2022 08:30:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B718FC385A1;
-        Tue,  5 Apr 2022 08:30:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5694861576;
+        Tue,  5 Apr 2022 09:15:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61FA4C385A0;
+        Tue,  5 Apr 2022 09:15:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147432;
-        bh=WzivcXSmnyAyLc6VtEfU3zcYJ5LcHw/WrmshFZPnr7s=;
+        s=korg; t=1649150110;
+        bh=uJf7pj87pn7mUSWMH3sAg8R4hUfURYzVn3VcFRGN990=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GyV6SCuWdhBFWLus8u020KuAIJhit8VP1coIReA3u3Ab44yT2NvdwRjD8ZiuLOIPx
-         KH1t70B6ShWJ/elcx9Uv2YflfIf+i+u25ESPU6xmOQ/2tJ84iebFSZNKEvdnB178b9
-         Yp1GI0QW4LWmyO7cWOoABT+3XHn7CZ7aUlKJq/9c=
+        b=V1C4j26T7gnyJA8QLDh/4cv3NGCO3yyQKF66ikTrb/JGvxI7D9ZEQtjo7Z24E/AGy
+         JFSF4CmTVRtqN4N7HWlPWTmiSxR16dfjSWvMCIu1T8924kr2eSR0Alk51UEB8c0/Ix
+         kZMUhgECtqe399Urav8e7ojDHy+5NKLZRVLo8WK8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ulf Hansson <ulf.hansson@linaro.org>,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>
-Subject: [PATCH 5.17 1121/1126] mmc: rtsx: Let MMC core handle runtime PM
-Date:   Tue,  5 Apr 2022 09:31:08 +0200
-Message-Id: <20220405070440.331222310@linuxfoundation.org>
+        stable@vger.kernel.org, Anirudh Rayabharam <mail@anirudhrb.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Stefano Garzarella <sgarzare@redhat.com>
+Subject: [PATCH 5.16 0956/1017] vhost: handle error while adding split ranges to iotlb
+Date:   Tue,  5 Apr 2022 09:31:09 +0200
+Message-Id: <20220405070422.586330529@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,128 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Anirudh Rayabharam <mail@anirudhrb.com>
 
-commit 7570fb41e450ba37bf9335fe3751fa9f502c30fa upstream.
+commit 03a91c9af2c42ae14afafb829a4b7e6589ab5892 upstream.
 
-Since MMC core handles runtime PM reference counting, we can avoid doing
-redundant runtime PM work in the driver. That means the only thing
-commit 5b4258f6721f ("misc: rtsx: rts5249 support runtime PM") misses is
-to always enable runtime PM, to let its parent driver enable ASPM in the
-runtime idle routine.
+vhost_iotlb_add_range_ctx() handles the range [0, ULONG_MAX] by
+splitting it into two ranges and adding them separately. The return
+value of adding the first range to the iotlb is currently ignored.
+Check the return value and bail out in case of an error.
 
-Fixes: 7499b529d97f ("mmc: rtsx: Use pm_runtime_{get,put}() to handle runtime PM")
-Reviewed-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Link: https://lore.kernel.org/r/20220216055435.2335297-1-kai.heng.feng@canonical.com
+Signed-off-by: Anirudh Rayabharam <mail@anirudhrb.com>
+Link: https://lore.kernel.org/r/20220312141121.4981-1-mail@anirudhrb.com
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Fixes: e2ae38cf3d91 ("vhost: fix hung thread due to erroneous iotlb entries")
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/rtsx_pci_sdmmc.c |   18 ------------------
- 1 file changed, 18 deletions(-)
+ drivers/vhost/iotlb.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/mmc/host/rtsx_pci_sdmmc.c
-+++ b/drivers/mmc/host/rtsx_pci_sdmmc.c
-@@ -823,7 +823,6 @@ static void sd_request(struct work_struc
+--- a/drivers/vhost/iotlb.c
++++ b/drivers/vhost/iotlb.c
+@@ -62,8 +62,12 @@ int vhost_iotlb_add_range_ctx(struct vho
+ 	 */
+ 	if (start == 0 && last == ULONG_MAX) {
+ 		u64 mid = last / 2;
++		int err = vhost_iotlb_add_range_ctx(iotlb, start, mid, addr,
++				perm, opaque);
++
++		if (err)
++			return err;
+ 
+-		vhost_iotlb_add_range_ctx(iotlb, start, mid, addr, perm, opaque);
+ 		addr += mid + 1;
+ 		start = mid + 1;
  	}
- 
- 	mutex_lock(&pcr->pcr_mutex);
--	pm_runtime_get_sync(dev);
- 
- 	rtsx_pci_start_run(pcr);
- 
-@@ -860,8 +859,6 @@ static void sd_request(struct work_struc
- 			data->bytes_xfered = data->blocks * data->blksz;
- 	}
- 
--	pm_runtime_mark_last_busy(dev);
--	pm_runtime_put_autosuspend(dev);
- 	mutex_unlock(&pcr->pcr_mutex);
- 
- finish:
-@@ -1093,7 +1090,6 @@ static void sdmmc_set_ios(struct mmc_hos
- 		return;
- 
- 	mutex_lock(&pcr->pcr_mutex);
--	pm_runtime_get_sync(dev);
- 
- 	rtsx_pci_start_run(pcr);
- 
-@@ -1127,8 +1123,6 @@ static void sdmmc_set_ios(struct mmc_hos
- 	rtsx_pci_switch_clock(pcr, ios->clock, host->ssc_depth,
- 			host->initial_mode, host->double_clk, host->vpclk);
- 
--	pm_runtime_mark_last_busy(dev);
--	pm_runtime_put_autosuspend(dev);
- 	mutex_unlock(&pcr->pcr_mutex);
- }
- 
-@@ -1144,7 +1138,6 @@ static int sdmmc_get_ro(struct mmc_host
- 		return -ENOMEDIUM;
- 
- 	mutex_lock(&pcr->pcr_mutex);
--	pm_runtime_get_sync(dev);
- 
- 	rtsx_pci_start_run(pcr);
- 
-@@ -1154,8 +1147,6 @@ static int sdmmc_get_ro(struct mmc_host
- 	if (val & SD_WRITE_PROTECT)
- 		ro = 1;
- 
--	pm_runtime_mark_last_busy(dev);
--	pm_runtime_put_autosuspend(dev);
- 	mutex_unlock(&pcr->pcr_mutex);
- 
- 	return ro;
-@@ -1173,7 +1164,6 @@ static int sdmmc_get_cd(struct mmc_host
- 		return cd;
- 
- 	mutex_lock(&pcr->pcr_mutex);
--	pm_runtime_get_sync(dev);
- 
- 	rtsx_pci_start_run(pcr);
- 
-@@ -1183,8 +1173,6 @@ static int sdmmc_get_cd(struct mmc_host
- 	if (val & SD_EXIST)
- 		cd = 1;
- 
--	pm_runtime_mark_last_busy(dev);
--	pm_runtime_put_autosuspend(dev);
- 	mutex_unlock(&pcr->pcr_mutex);
- 
- 	return cd;
-@@ -1282,7 +1270,6 @@ static int sdmmc_switch_voltage(struct m
- 		return err;
- 
- 	mutex_lock(&pcr->pcr_mutex);
--	pm_runtime_get_sync(dev);
- 
- 	rtsx_pci_start_run(pcr);
- 
-@@ -1312,8 +1299,6 @@ out:
- 	err = rtsx_pci_write_register(pcr, SD_BUS_STAT,
- 			SD_CLK_TOGGLE_EN | SD_CLK_FORCE_STOP, 0);
- 
--	pm_runtime_mark_last_busy(dev);
--	pm_runtime_put_autosuspend(dev);
- 	mutex_unlock(&pcr->pcr_mutex);
- 
- 	return err;
-@@ -1334,7 +1319,6 @@ static int sdmmc_execute_tuning(struct m
- 		return err;
- 
- 	mutex_lock(&pcr->pcr_mutex);
--	pm_runtime_get_sync(dev);
- 
- 	rtsx_pci_start_run(pcr);
- 
-@@ -1367,8 +1351,6 @@ static int sdmmc_execute_tuning(struct m
- 		err = sd_change_phase(host, DDR50_RX_PHASE(pcr), true);
- 
- out:
--	pm_runtime_mark_last_busy(dev);
--	pm_runtime_put_autosuspend(dev);
- 	mutex_unlock(&pcr->pcr_mutex);
- 
- 	return err;
 
 
