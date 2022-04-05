@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 31CFE4F3ACC
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:05:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15F1E4F3803
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:27:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235137AbiDELsg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:48:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41188 "EHLO
+        id S1359838AbiDELVA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:21:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39810 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355724AbiDEKVn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:21:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20E3B83031;
-        Tue,  5 Apr 2022 03:05:04 -0700 (PDT)
+        with ESMTP id S1349288AbiDEJtd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:33 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45AF810FDA;
+        Tue,  5 Apr 2022 02:43:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4EF58616E7;
-        Tue,  5 Apr 2022 10:05:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C3A8C385A1;
-        Tue,  5 Apr 2022 10:05:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F01BBB818F3;
+        Tue,  5 Apr 2022 09:43:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D1CBC385A3;
+        Tue,  5 Apr 2022 09:43:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153103;
-        bh=WNP6Khvhm5d3jm0balr1Rh0ZzmOjXFEoQMP607kv07Y=;
+        s=korg; t=1649151820;
+        bh=K42QkayVvGfoqUO3AMD2fmm46tyYo/VhVx5kCxI5O6w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LZaaORXGZrzM8ACna2UqYMCn+X5a5WJdVs75my7PK07Tt9Tb/M10I2HXO8C7FeRyA
-         7ZJ3qBOhkt8Hy1+XlVjk/Q5u2YlzL5kdt2RZUk8yFuLc1GJ1N1BZlCThVip8x8XamD
-         8uMV3lna+ryZgURKTl71iHsyMOj1C/mqqEbUDgZg=
+        b=Qw7GAi+EhIpsWQWFKwAvNrqUGl146OHTkFru69AM7JXWxQZn1lf4WfazidhQIhWAJ
+         O9AJnxlfdg/Dz51kCz7gxzhnuIzRv6Mr0G0Sb184gM+3XXv8TsoZB8Ijj/BZcmPluq
+         ri7DreL5KtY5hs/eYqhZv/7FmdiOpjIFRh9YUr+A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jocelyn Falempe <jfalempe@redhat.com>,
-        Javier Martinez Canillas <javierm@redhat.com>,
-        Lyude Paul <lyude@redhat.com>,
-        Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH 5.10 103/599] mgag200 fix memmapsl configuration in GCTL6 register
-Date:   Tue,  5 Apr 2022 09:26:37 +0200
-Message-Id: <20220405070301.898742921@linuxfoundation.org>
+        stable@vger.kernel.org, Lee Jones <lee.jones@linaro.org>,
+        Matti Vaittinen <mazziesaccount@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 536/913] power: ab8500_chargalg: Use CLOCK_MONOTONIC
+Date:   Tue,  5 Apr 2022 09:26:38 +0200
+Message-Id: <20220405070355.916061620@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
-References: <20220405070258.802373272@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,80 +57,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jocelyn Falempe <jfalempe@redhat.com>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-commit 028a73e10705af1ffd51f2537460f616dc58680e upstream.
+[ Upstream commit c22fca40522e2be8af168f3087d87d85e404ea72 ]
 
-On some servers with MGA G200_SE_A (rev 42), booting with Legacy BIOS,
-the hardware hangs when using kdump and kexec into the kdump kernel.
-This happens when the uncompress code tries to write "Decompressing Linux"
-to the VGA Console.
+The HRTimer in the AB8500 charging code is using CLOCK_REALTIME
+to set an alarm some hours forward in time +/- 5 min for a safety
+timer.
 
-It can be reproduced by writing to the VGA console (0xB8000) after
-booting to graphic mode, it generates the following error:
+I have observed that this will sometimes fire sporadically
+early when charging a battery with the result that
+charging stops.
 
-kernel:NMI: PCI system error (SERR) for reason a0 on CPU 0.
-kernel:Dazed and confused, but trying to continue
+As CLOCK_REALTIME can be subject to adjustments of time from
+sources such as NTP, this cannot be trusted and will likely
+for example fire events if the clock is set forward some hours
+by say NTP.
 
-The root cause is the configuration of the MGA GCTL6 register
+Use CLOCK_MONOTONIC as indicated in other instances and the
+problem goes away. Also initialize the timer to REL mode
+as this is what will be used later.
 
-According to the GCTL6 register documentation:
-
-bit 0 is gcgrmode:
-    0: Enables alpha mode, and the character generator addressing system is
-     activated.
-    1: Enables graphics mode, and the character addressing system is not
-     used.
-
-bit 1 is chainodd even:
-    0: The A0 signal of the memory address bus is used during system memory
-     addressing.
-    1: Allows A0 to be replaced by either the A16 signal of the system
-     address (ifmemmapsl is ‘00’), or by the hpgoddev (MISC<5>, odd/even
-     page select) field, described on page 3-294).
-
-bit 3-2 are memmapsl:
-    Memory map select bits 1 and 0. VGA.
-    These bits select where the video memory is mapped, as shown below:
-        00 => A0000h - BFFFFh
-        01 => A0000h - AFFFFh
-        10 => B0000h - B7FFFh
-        11 => B8000h - BFFFFh
-
-bit 7-4 are reserved.
-
-Current code set it to 0x05 => memmapsl to b01 => 0xa0000 (graphic mode)
-But on x86, the VGA console is at 0xb8000 (text mode)
-In arch/x86/boot/compressed/misc.c debug strings are written to 0xb8000
-As the driver doesn't use this mapping at 0xa0000, it is safe to set it to
-0xb8000 instead, to avoid kernel hang on G200_SE_A rev42, with kexec/kdump.
-
-Thus changing the value 0x05 to 0x0d
-
-Signed-off-by: Jocelyn Falempe <jfalempe@redhat.com>
-Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
-Acked-by: Lyude Paul <lyude@redhat.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220119102905.1194787-1-jfalempe@redhat.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 257107ae6b9b ("ab8500-chargalg: Use hrtimer")
+Cc: Lee Jones <lee.jones@linaro.org>
+Suggested-by: Matti Vaittinen <mazziesaccount@gmail.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Reviewed-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/mgag200/mgag200_mode.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/power/supply/ab8500_chargalg.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/mgag200/mgag200_mode.c
-+++ b/drivers/gpu/drm/mgag200/mgag200_mode.c
-@@ -1243,7 +1243,10 @@ static void mgag200_set_format_regs(stru
- 	WREG_GFX(3, 0x00);
- 	WREG_GFX(4, 0x00);
- 	WREG_GFX(5, 0x40);
--	WREG_GFX(6, 0x05);
-+	/* GCTL6 should be 0x05, but we configure memmapsl to 0xb8000 (text mode),
-+	 * so that it doesn't hang when running kexec/kdump on G200_SE rev42.
-+	 */
-+	WREG_GFX(6, 0x0d);
- 	WREG_GFX(7, 0x0f);
- 	WREG_GFX(8, 0x0f);
+diff --git a/drivers/power/supply/ab8500_chargalg.c b/drivers/power/supply/ab8500_chargalg.c
+index ff4b26b1ceca..b809fa5abbba 100644
+--- a/drivers/power/supply/ab8500_chargalg.c
++++ b/drivers/power/supply/ab8500_chargalg.c
+@@ -2019,11 +2019,11 @@ static int ab8500_chargalg_probe(struct platform_device *pdev)
+ 	psy_cfg.drv_data = di;
  
+ 	/* Initilialize safety timer */
+-	hrtimer_init(&di->safety_timer, CLOCK_REALTIME, HRTIMER_MODE_ABS);
++	hrtimer_init(&di->safety_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
+ 	di->safety_timer.function = ab8500_chargalg_safety_timer_expired;
+ 
+ 	/* Initilialize maintenance timer */
+-	hrtimer_init(&di->maintenance_timer, CLOCK_REALTIME, HRTIMER_MODE_ABS);
++	hrtimer_init(&di->maintenance_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
+ 	di->maintenance_timer.function =
+ 		ab8500_chargalg_maintenance_timer_expired;
+ 
+-- 
+2.34.1
+
 
 
