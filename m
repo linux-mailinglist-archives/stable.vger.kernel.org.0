@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C6F44F3E8F
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 22:44:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E7CBB4F42FE
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:53:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358517AbiDEMXW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:23:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59190 "EHLO
+        id S1383275AbiDEMZS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:25:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356159AbiDEKXC (ORCPT
+        with ESMTP id S1356163AbiDEKXC (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:23:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A487BA333;
-        Tue,  5 Apr 2022 03:07:16 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B7A1BA336;
+        Tue,  5 Apr 2022 03:07:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CA4196172B;
-        Tue,  5 Apr 2022 10:07:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4108C385A1;
-        Tue,  5 Apr 2022 10:07:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 515F0B81B7A;
+        Tue,  5 Apr 2022 10:07:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2301C385A1;
+        Tue,  5 Apr 2022 10:07:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153235;
-        bh=b8Qd5YjBw56ZuJkM45Vc+wnfV5Hs4Cwi5z4/YAVLJ+M=;
+        s=korg; t=1649153238;
+        bh=AaFYa00Ma6AmyJcieok/RX9YdAizD7Cu65u7n1BBs5I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j9XIr9/+RPVq6lHIbK3Cbp4fSe+cky0tk0lFUH3QLXjXq0Zj3uourPwrys3nArRX6
-         xj8CoERnZZR6DRhlC3hO856ZqhFcR50No5TFnwIK/r6OEqbfpQrbRkmNcrQttx5NYT
-         Xc+v6YVqFpuFNXUBgBUmu7aGbPZh5LB5ozCW7//4=
+        b=SmaAKmiPlidkwmykdThkk2O4zBrNv6jERosrDmU4AkLlF6IAMX5xju1Z5o0TkMORy
+         046Yya2/+pb4Qfs7jZKatCd+FbB3Dg9rOgOcFtb/nZCJ1WbOWU/OUhanYGiuZBe3xn
+         aETl31E8rruqPv7DXaIPrLxLDzSDl/6E5hYZgtpc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Igor Zhbanov <i.zhbanov@omprussia.ru>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 149/599] PM: suspend: fix return value of __setup handler
-Date:   Tue,  5 Apr 2022 09:27:23 +0200
-Message-Id: <20220405070303.276849651@linuxfoundation.org>
+Subject: [PATCH 5.10 150/599] spi: spi-zynqmp-gqspi: Handle error for dma_set_mask
+Date:   Tue,  5 Apr 2022 09:27:24 +0200
+Message-Id: <20220405070303.306722182@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -55,71 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit 7a64ca17e4dd50d5f910769167f3553902777844 ]
+[ Upstream commit 13262fc26c1837c51a5131dbbdd67a2387f8bfc7 ]
 
-If an invalid option is given for "test_suspend=<option>", the entire
-string is added to init's environment, so return 1 instead of 0 from
-the __setup handler.
+As the potential failure of the dma_set_mask(),
+it should be better to check it and return error
+if fails.
 
-  Unknown kernel command line parameters "BOOT_IMAGE=/boot/bzImage-517rc5
-    test_suspend=invalid"
-
-and
-
- Run /sbin/init as init process
-   with arguments:
-     /sbin/init
-   with environment:
-     HOME=/
-     TERM=linux
-     BOOT_IMAGE=/boot/bzImage-517rc5
-     test_suspend=invalid
-
-Fixes: 2ce986892faf ("PM / sleep: Enhance test_suspend option with repeat capability")
-Fixes: 27ddcc6596e5 ("PM / sleep: Add state field to pm_states[] entries")
-Fixes: a9d7052363a6 ("PM: Separate suspend to RAM functionality from core")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
-Link: lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: 126bdb606fd2 ("spi: spi-zynqmp-gqspi: return -ENOMEM if dma_map_single fails")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Link: https://lore.kernel.org/r/20220302092051.121343-1-jiasheng@iscas.ac.cn
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/power/suspend_test.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/spi/spi-zynqmp-gqspi.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/power/suspend_test.c b/kernel/power/suspend_test.c
-index e1ed58adb69e..be480ae5cb2a 100644
---- a/kernel/power/suspend_test.c
-+++ b/kernel/power/suspend_test.c
-@@ -157,22 +157,22 @@ static int __init setup_test_suspend(char *value)
- 	value++;
- 	suspend_type = strsep(&value, ",");
- 	if (!suspend_type)
--		return 0;
-+		return 1;
- 
- 	repeat = strsep(&value, ",");
- 	if (repeat) {
- 		if (kstrtou32(repeat, 0, &test_repeat_count_max))
--			return 0;
-+			return 1;
+diff --git a/drivers/spi/spi-zynqmp-gqspi.c b/drivers/spi/spi-zynqmp-gqspi.c
+index 1dd2af9cc237..3d3ac48243eb 100644
+--- a/drivers/spi/spi-zynqmp-gqspi.c
++++ b/drivers/spi/spi-zynqmp-gqspi.c
+@@ -1165,7 +1165,10 @@ static int zynqmp_qspi_probe(struct platform_device *pdev)
+ 		goto clk_dis_all;
  	}
  
- 	for (i = PM_SUSPEND_MIN; i < PM_SUSPEND_MAX; i++)
- 		if (!strcmp(pm_labels[i], suspend_type)) {
- 			test_state_label = pm_labels[i];
--			return 0;
-+			return 1;
- 		}
- 
- 	printk(warn_bad_state, suspend_type);
--	return 0;
-+	return 1;
- }
- __setup("test_suspend", setup_test_suspend);
- 
+-	dma_set_mask(&pdev->dev, DMA_BIT_MASK(44));
++	ret = dma_set_mask(&pdev->dev, DMA_BIT_MASK(44));
++	if (ret)
++		goto clk_dis_all;
++
+ 	ctlr->bits_per_word_mask = SPI_BPW_MASK(8);
+ 	ctlr->num_chipselect = GQSPI_DEFAULT_NUM_CS;
+ 	ctlr->mem_ops = &zynqmp_qspi_mem_ops;
 -- 
 2.34.1
 
