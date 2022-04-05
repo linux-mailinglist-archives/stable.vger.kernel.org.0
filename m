@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D17CA4F3E58
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 22:43:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BEB34F3F96
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:04:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349540AbiDEMHv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:07:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58938 "EHLO
+        id S1349015AbiDEMHo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:07:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50688 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357992AbiDEK1j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:27:39 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54C3CD4CB5;
-        Tue,  5 Apr 2022 03:12:28 -0700 (PDT)
+        with ESMTP id S1358043AbiDEK15 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:27:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D108215718;
+        Tue,  5 Apr 2022 03:13:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0C897B81C88;
-        Tue,  5 Apr 2022 10:12:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4EA68C385A1;
-        Tue,  5 Apr 2022 10:12:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8EBF2B81C88;
+        Tue,  5 Apr 2022 10:13:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCEE2C385A1;
+        Tue,  5 Apr 2022 10:13:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153545;
-        bh=hZx8lNDD4pMclzbGy8TuPGTNGQCoy+kcAgApRpooPG8=;
+        s=korg; t=1649153615;
+        bh=GsolYSPlHhWAfeel7KjePnristkFCtITfePfCm1xO3Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S9ufgXm5O1bBcJpgJTGjqFoiy4cBZefBtzfCFzOzwRIVPmd8+YkC5PUHd1Wvn/3eo
-         Gwnwo330exoFjZDk6jOIRYUIwAIyAwybdjfjI9B8HMsbs6R/QvapjWTiaPQfmp3KYA
-         RtE9RWGdFV8bvTBdRibBn4EzjLjJrMiWdx9GtCLg=
+        b=xJ1GhW2lvynYmltQhqrB8w3It15QsAPvT+y1tszj8xG4f5bapMsZIZ4LMhOMg0bjT
+         gD1yELBlXiSRZUKq8sji9Lt3+ztasX9+uhRLYAc5Sb8X5MYfTXVLihBkaOZykcgwmS
+         MLDpT/u0JT5SonGTPdt4I/BonlJBkRehuC7V0Ez0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 243/599] media: saa7134: convert list_for_each to entry variant
-Date:   Tue,  5 Apr 2022 09:28:57 +0200
-Message-Id: <20220405070306.072598205@linuxfoundation.org>
+Subject: [PATCH 5.10 247/599] ASoC: rockchip: i2s: Fix missing clk_disable_unprepare() in rockchip_i2s_probe
+Date:   Tue,  5 Apr 2022 09:29:01 +0200
+Message-Id: <20220405070306.190608961@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -55,42 +54,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 3f3475a5c77e9eabab43537f713b90f1d19258b7 ]
+[ Upstream commit f725d20579807a68afbe5dba69e78b8fa05f5ef0 ]
 
-Convert list_for_each() to list_for_each_entry() where
-applicable.
+Fix the missing clk_disable_unprepare() before return
+from rockchip_i2s_probe() in the error handling case.
 
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: 01605ad12875 ("ASoC: rockchip-i2s: enable "hclk" for rockchip I2S controller")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220307083553.26009-1-linmq006@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/pci/saa7134/saa7134-alsa.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ sound/soc/rockchip/rockchip_i2s.c | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/media/pci/saa7134/saa7134-alsa.c b/drivers/media/pci/saa7134/saa7134-alsa.c
-index 7a1fb067b0e0..fb24d2ed3621 100644
---- a/drivers/media/pci/saa7134/saa7134-alsa.c
-+++ b/drivers/media/pci/saa7134/saa7134-alsa.c
-@@ -1215,15 +1215,13 @@ static int alsa_device_exit(struct saa7134_dev *dev)
- static int saa7134_alsa_init(void)
- {
- 	struct saa7134_dev *dev = NULL;
--	struct list_head *list;
+diff --git a/sound/soc/rockchip/rockchip_i2s.c b/sound/soc/rockchip/rockchip_i2s.c
+index 18f13bf1021c..785baf98f9da 100644
+--- a/sound/soc/rockchip/rockchip_i2s.c
++++ b/sound/soc/rockchip/rockchip_i2s.c
+@@ -624,19 +624,23 @@ static int rockchip_i2s_probe(struct platform_device *pdev)
+ 	i2s->mclk = devm_clk_get(&pdev->dev, "i2s_clk");
+ 	if (IS_ERR(i2s->mclk)) {
+ 		dev_err(&pdev->dev, "Can't retrieve i2s master clock\n");
+-		return PTR_ERR(i2s->mclk);
++		ret = PTR_ERR(i2s->mclk);
++		goto err_clk;
+ 	}
  
- 	saa7134_dmasound_init = alsa_device_init;
- 	saa7134_dmasound_exit = alsa_device_exit;
+ 	regs = devm_platform_get_and_ioremap_resource(pdev, 0, &res);
+-	if (IS_ERR(regs))
+-		return PTR_ERR(regs);
++	if (IS_ERR(regs)) {
++		ret = PTR_ERR(regs);
++		goto err_clk;
++	}
  
- 	pr_info("saa7134 ALSA driver for DMA sound loaded\n");
+ 	i2s->regmap = devm_regmap_init_mmio(&pdev->dev, regs,
+ 					    &rockchip_i2s_regmap_config);
+ 	if (IS_ERR(i2s->regmap)) {
+ 		dev_err(&pdev->dev,
+ 			"Failed to initialise managed register map\n");
+-		return PTR_ERR(i2s->regmap);
++		ret = PTR_ERR(i2s->regmap);
++		goto err_clk;
+ 	}
  
--	list_for_each(list,&saa7134_devlist) {
--		dev = list_entry(list, struct saa7134_dev, devlist);
-+	list_for_each_entry(dev, &saa7134_devlist, devlist) {
- 		if (dev->pci->device == PCI_DEVICE_ID_PHILIPS_SAA7130)
- 			pr_info("%s/alsa: %s doesn't support digital audio\n",
- 				dev->name, saa7134_boards[dev->board].name);
+ 	i2s->playback_dma_data.addr = res->start + I2S_TXDR;
+@@ -695,7 +699,8 @@ static int rockchip_i2s_probe(struct platform_device *pdev)
+ 		i2s_runtime_suspend(&pdev->dev);
+ err_pm_disable:
+ 	pm_runtime_disable(&pdev->dev);
+-
++err_clk:
++	clk_disable_unprepare(i2s->hclk);
+ 	return ret;
+ }
+ 
 -- 
 2.34.1
 
