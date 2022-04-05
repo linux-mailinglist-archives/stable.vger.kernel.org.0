@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 132F04F28AF
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:21:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE3CE4F2817
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:19:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234525AbiDEIVS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:21:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58414 "EHLO
+        id S232541AbiDEIKn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:10:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55296 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233770AbiDEIIx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:08:53 -0400
+        with ESMTP id S236482AbiDEIC3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:02:29 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D04BE6C498;
-        Tue,  5 Apr 2022 01:02:22 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 667E854690;
+        Tue,  5 Apr 2022 01:00:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2C8C4B81B16;
-        Tue,  5 Apr 2022 08:02:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 963C5C385A0;
-        Tue,  5 Apr 2022 08:02:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 176F0B81B16;
+        Tue,  5 Apr 2022 08:00:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C2C5C340EE;
+        Tue,  5 Apr 2022 08:00:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145740;
-        bh=0C40SgLp/lwFglandYY9iJGkhMxzFWz9IyNwKsYpjig=;
+        s=korg; t=1649145628;
+        bh=xnCLe8WR4aa/BspKUAe/SBZxBvdfsMHkSHtzbeQuAIQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Eoh+4BWmoCZUKMF7LHyio//bVv8YJrKjMYc/0zDYt1CH6w+eJHLFf3CGmfyjhmWmK
-         rKf7m4nh7PZK896YDf/MXA3jl5f3fm/8UT6tMqJQBNjvE3t+PuLWOklKfMKtVyw7pO
-         bHGHG2ZejeRDRLZs34JdPUzcqK5sp8GxbrZ22kvo=
+        b=tllbR29JdvSShlYIUQE5QKErSvky/skYroBwaLR60g3yPwA68jaiAkpuJja2WXdKz
+         pNxjgCmY+V6zSOGdWVMYG0CPcSauE3wXhDsBCPEc2GrtjdzVuzmXgIhqZYclGehEWO
+         yCGHj+xmAxoO+GM6sOpzcgMxHs050HK9Np3O4Qys=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhou Qingyang <zhou1615@umn.edu>,
-        Lyude Paul <lyude@redhat.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0464/1126] drm/nouveau/acr: Fix undefined behavior in nvkm_acr_hsfw_load_bl()
-Date:   Tue,  5 Apr 2022 09:20:11 +0200
-Message-Id: <20220405070421.245619603@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
+        Harry Wentland <harry.wentland@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 0465/1126] drm/amd/display: Call dc_stream_release for remove link enc assignment
+Date:   Tue,  5 Apr 2022 09:20:12 +0200
+Message-Id: <20220405070421.275608057@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -53,52 +56,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhou Qingyang <zhou1615@umn.edu>
+From: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
 
-[ Upstream commit 2343bcdb4747d4f418a4daf2e898b94f86c24a59 ]
+[ Upstream commit f2bde8349c35d01d7c50456ea06a5c7d5e0e5ed0 ]
 
-In nvkm_acr_hsfw_load_bl(), the return value of kmalloc() is directly
-passed to memcpy(), which could lead to undefined behavior on failure
-of kmalloc().
+[Why]
+A porting error resulted in the stream assignment for the link
+being retained without being released - a memory leak.
 
-Fix this bug by using kmemdup() instead of kmalloc()+memcpy().
+[How]
+Fix the porting error by adding back the dc_stream_release() intended
+as part of the original patch.
 
-This bug was found by a static analyzer.
+Fixes: 0bb245558584 ("drm/amd/display: retain/release at proper places in link_enc assignment")
 
-Builds with 'make allyesconfig' show no new warnings,
-and our static analyzer no longer warns about this code.
-
-Fixes: 22dcda45a3d1 ("drm/nouveau/acr: implement new subdev to replace "secure boot"")
-Signed-off-by: Zhou Qingyang <zhou1615@umn.edu>
-Reviewed-by: Lyude Paul <lyude@redhat.com>
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220124165856.57022-1-zhou1615@umn.edu
+Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+Reviewed-by: Harry Wentland <harry.wentland@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/nouveau/nvkm/subdev/acr/hsfw.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/amd/display/dc/core/dc_link_enc_cfg.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/acr/hsfw.c b/drivers/gpu/drm/nouveau/nvkm/subdev/acr/hsfw.c
-index 667fa016496e..a6ea89a5d51a 100644
---- a/drivers/gpu/drm/nouveau/nvkm/subdev/acr/hsfw.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/subdev/acr/hsfw.c
-@@ -142,11 +142,12 @@ nvkm_acr_hsfw_load_bl(struct nvkm_acr *acr, const char *name, int ver,
- 
- 	hsfw->imem_size = desc->code_size;
- 	hsfw->imem_tag = desc->start_tag;
--	hsfw->imem = kmalloc(desc->code_size, GFP_KERNEL);
--	memcpy(hsfw->imem, data + desc->code_off, desc->code_size);
--
-+	hsfw->imem = kmemdup(data + desc->code_off, desc->code_size, GFP_KERNEL);
- 	nvkm_firmware_put(fw);
--	return 0;
-+	if (!hsfw->imem)
-+		return -ENOMEM;
-+	else
-+		return 0;
- }
- 
- int
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link_enc_cfg.c b/drivers/gpu/drm/amd/display/dc/core/dc_link_enc_cfg.c
+index a55944da8d53..00f72f66a7ef 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc_link_enc_cfg.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc_link_enc_cfg.c
+@@ -122,6 +122,7 @@ static void remove_link_enc_assignment(
+ 				stream->link_enc = NULL;
+ 				state->res_ctx.link_enc_cfg_ctx.link_enc_assignments[i].eng_id = ENGINE_ID_UNKNOWN;
+ 				state->res_ctx.link_enc_cfg_ctx.link_enc_assignments[i].stream = NULL;
++				dc_stream_release(stream);
+ 				break;
+ 			}
+ 		}
 -- 
 2.34.1
 
