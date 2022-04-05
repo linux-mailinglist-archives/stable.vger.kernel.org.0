@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8141C4F342C
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:25:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 10FE64F3522
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:48:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237350AbiDEIls (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:41:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56482 "EHLO
+        id S1350166AbiDEKvR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:51:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60902 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237344AbiDEIR4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:17:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB9AEB53C1;
-        Tue,  5 Apr 2022 01:06:05 -0700 (PDT)
+        with ESMTP id S1345640AbiDEJnm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:43:42 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E978C1CBE;
+        Tue,  5 Apr 2022 02:29:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C3E66617EF;
-        Tue,  5 Apr 2022 08:06:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4DB0C385A0;
-        Tue,  5 Apr 2022 08:06:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 64201B81CAC;
+        Tue,  5 Apr 2022 09:29:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA834C385A0;
+        Tue,  5 Apr 2022 09:29:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145964;
-        bh=0e3l9pPzVkeZhdzgF8J8i/OJrfVilyJRrXcXUlIX+qI=;
+        s=korg; t=1649150957;
+        bh=xMuBtpSMi0tR4uqVjAuMkRQrPn1kVymN+i1l75YiSig=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hgTuIMyd0XREv43M0W93tpK/fMWNHI4SIojMKG5dx31xvV/D3HxFtae7/TI/W0Xwd
-         MOY1f05r8QAy0/tjbB69le7r30FbF5fOiMM3e680YRmLXXkA7W+Taa+tJukbTXzqcQ
-         ofmOKpbPNRsil1lWx89dgs3ixbBJmUTZJ9vPIg2Q=
+        b=nBWUqc2oeU7PLo/X8jlJefJvXVBRqfFRJfCcmQRvUiRwLTVXNa2P1ksF/B2BK9ksO
+         OROciOf4OIHXZc5AUvJPtwh19QUMW8xIIOlSVXQTGM1NnCIhNlb6bEgZ9YfjgXgjHI
+         Vl+mQMycoJSPGUgc/VerCYNSRGPGxtDWsom4IqSA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tong Zhang <ztong0001@gmail.com>,
-        Ira Weiny <ira.weiny@intel.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Dan Williams <dan.j.williams@intel.com>,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Igor Zhbanov <i.zhbanov@omprussia.ru>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0555/1126] dax: make sure inodes are flushed before destroy cache
-Date:   Tue,  5 Apr 2022 09:21:42 +0200
-Message-Id: <20220405070423.923849328@linuxfoundation.org>
+Subject: [PATCH 5.15 241/913] clocksource: acpi_pm: fix return value of __setup handler
+Date:   Tue,  5 Apr 2022 09:21:43 +0200
+Message-Id: <20220405070347.080719624@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,49 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tong Zhang <ztong0001@gmail.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit a7e8de822e0b1979f08767c751f6c8a9c1d4ad86 ]
+[ Upstream commit 6a861abceecb68497dd82a324fee45a5332dcece ]
 
-A bug can be triggered by following command
+__setup() handlers should return 1 to obsolete_checksetup() in
+init/main.c to indicate that the boot option has been handled.
+A return of 0 causes the boot option/value to be listed as an Unknown
+kernel parameter and added to init's (limited) environment strings.
 
-$ modprobe nd_pmem && modprobe -r nd_pmem
+The __setup() handler interface isn't meant to handle negative return
+values -- they are non-zero, so they mean "handled" (like a return
+value of 1 does), but that's just a quirk. So return 1 from
+parse_pmtmr(). Also print a warning message if kstrtouint() returns
+an error.
 
-[   10.060014] BUG dax_cache (Not tainted): Objects remaining in dax_cache on __kmem_cache_shutdown()
-[   10.060938] Slab 0x0000000085b729ac objects=9 used=1 fp=0x000000004f5ae469 flags=0x200000000010200(slab|head|node)
-[   10.062433] Call Trace:
-[   10.062673]  dump_stack_lvl+0x34/0x44
-[   10.062865]  slab_err+0x90/0xd0
-[   10.063619]  __kmem_cache_shutdown+0x13b/0x2f0
-[   10.063848]  kmem_cache_destroy+0x4a/0x110
-[   10.064058]  __x64_sys_delete_module+0x265/0x300
-
-This is caused by dax_fs_exit() not flushing inodes before destroy cache.
-To fix this issue, call rcu_barrier() before destroy cache.
-
-Signed-off-by: Tong Zhang <ztong0001@gmail.com>
-Reviewed-by: Ira Weiny <ira.weiny@intel.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/20220212071111.148575-1-ztong0001@gmail.com
-Fixes: 7b6be8444e0f ("dax: refactor dax-fs into a generic provider of 'struct dax_device' instances")
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Fixes: 6b148507d3d0 ("pmtmr: allow command line override of ioport")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
+Link: lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dax/super.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/clocksource/acpi_pm.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/dax/super.c b/drivers/dax/super.c
-index e3029389d809..6bd565fe2e63 100644
---- a/drivers/dax/super.c
-+++ b/drivers/dax/super.c
-@@ -476,6 +476,7 @@ static int dax_fs_init(void)
- static void dax_fs_exit(void)
- {
- 	kern_unmount(dax_mnt);
-+	rcu_barrier();
- 	kmem_cache_destroy(dax_cache);
- }
+diff --git a/drivers/clocksource/acpi_pm.c b/drivers/clocksource/acpi_pm.c
+index eb596ff9e7bb..279ddff81ab4 100644
+--- a/drivers/clocksource/acpi_pm.c
++++ b/drivers/clocksource/acpi_pm.c
+@@ -229,8 +229,10 @@ static int __init parse_pmtmr(char *arg)
+ 	int ret;
  
+ 	ret = kstrtouint(arg, 16, &base);
+-	if (ret)
+-		return ret;
++	if (ret) {
++		pr_warn("PMTMR: invalid 'pmtmr=' value: '%s'\n", arg);
++		return 1;
++	}
+ 
+ 	pr_info("PMTMR IOPort override: 0x%04x -> 0x%04x\n", pmtmr_ioport,
+ 		base);
 -- 
 2.34.1
 
