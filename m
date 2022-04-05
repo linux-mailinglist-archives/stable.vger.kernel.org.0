@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 80BCE4F3344
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:15:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1DE74F3485
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:38:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244733AbiDEJKx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:10:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47606 "EHLO
+        id S238521AbiDEKdk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:33:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55688 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244555AbiDEIwZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:25 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F7C4D64FE;
-        Tue,  5 Apr 2022 01:41:19 -0700 (PDT)
+        with ESMTP id S239002AbiDEJdP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:33:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA77AAE76;
+        Tue,  5 Apr 2022 02:21:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 00F47B81C14;
-        Tue,  5 Apr 2022 08:41:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65195C385A1;
-        Tue,  5 Apr 2022 08:41:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7655B61659;
+        Tue,  5 Apr 2022 09:21:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 785F6C385A2;
+        Tue,  5 Apr 2022 09:21:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148077;
-        bh=Jc+JzbY33FN9h8pyG2ldw03fJ9OJVncRfFwxDY8PMaw=;
+        s=korg; t=1649150484;
+        bh=GI69kqRZ/96tdDLJ7TS13wmPucNv5WoL1rV8SBNQJ00=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ONP/nt/g4ich7ac3IGo01oKbzgzPK4T0XZqzVZ33bWHzod1pVGzxjPp8NQmATb6sa
-         +A7C8sYSXqTM+eadk3Wc/BVmtz5ynI3cuuplkvu5piU+2jBl1OcBs9bYPw0BEChUNN
-         fesFfEkahL0DjiS4wztXJBZPju2oqJV90m7BcNfs=
+        b=zsJkViU49TlXaCs0rCheEHZCaYhfeHBW/hnWN6x63hBbwxvGgEMTdOmvOOV7OYqAr
+         MErQOL10/cndXoA+1Aa4XBvu1IK6h+5Qbg+IHdzscM/N01YqsrYHtb3DReyhnwyEtm
+         U9E7itOgSmktWRHZ1boLMx5FIhpwx0QBeHIw20ec=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "kernelci.org bot" <bot@kernelci.org>,
-        Muhammad Usama Anjum <usama.anjum@collabora.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0219/1017] selftests/x86: Add validity check and allow field splitting
-Date:   Tue,  5 Apr 2022 09:18:52 +0200
-Message-Id: <20220405070400.752338025@linuxfoundation.org>
+        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: [PATCH 5.15 071/913] mm/mlock: fix two bugs in user_shm_lock()
+Date:   Tue,  5 Apr 2022 09:18:53 +0200
+Message-Id: <20220405070341.952843038@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,40 +53,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Muhammad Usama Anjum <usama.anjum@collabora.com>
+From: Miaohe Lin <linmiaohe@huawei.com>
 
-[ Upstream commit b06e15ebd5bfb670f93c7f11a29b8299c1178bc6 ]
+commit e97824ff663ce3509fe040431c713182c2f058b1 upstream.
 
-Add check to test if CC has a string. CC can have multiple sub-strings
-like "ccache gcc". Erorr pops up if it is treated as single string and
-double quotes are used around it. This can be fixed by removing the
-quotes and not treating CC as a single string.
+user_shm_lock forgets to set allowed to 0 when get_ucounts fails. So the
+later user_shm_unlock might do the extra dec_rlimit_ucounts. Also in the
+RLIM_INFINITY case, user_shm_lock will success regardless of the value of
+memlock where memblock == LONG_MAX && !capable(CAP_IPC_LOCK) should fail.
+Fix all of these by changing the code to leave lock_limit at ULONG_MAX aka
+RLIM_INFINITY, leave "allowed" initialized to 0 and remove the special case
+of RLIM_INFINITY as nothing can be greater than ULONG_MAX.
 
-Fixes: e9886ace222e ("selftests, x86: Rework x86 target architecture detection")
-Reported-by: "kernelci.org bot" <bot@kernelci.org>
-Signed-off-by: Muhammad Usama Anjum <usama.anjum@collabora.com>
-Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
-Link: https://lkml.kernel.org/r/20220214184109.3739179-2-usama.anjum@collabora.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Credit goes to Eric W. Biederman for proposing simplifying the code and
+thus catching the later bug.
+
+Fixes: d7c9e99aee48 ("Reimplement RLIMIT_MEMLOCK on top of ucounts")
+Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
+Cc: stable@vger.kernel.org
+v1: https://lkml.kernel.org/r/20220310132417.41189-1-linmiaohe@huawei.com
+v2: https://lkml.kernel.org/r/20220314064039.62972-1-linmiaohe@huawei.com
+Link: https://lkml.kernel.org/r/20220322080918.59861-1-linmiaohe@huawei.com
+Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/x86/check_cc.sh | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ mm/mlock.c |    7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/tools/testing/selftests/x86/check_cc.sh b/tools/testing/selftests/x86/check_cc.sh
-index 3e2089c8cf54..8c669c0d662e 100755
---- a/tools/testing/selftests/x86/check_cc.sh
-+++ b/tools/testing/selftests/x86/check_cc.sh
-@@ -7,7 +7,7 @@ CC="$1"
- TESTPROG="$2"
- shift 2
+--- a/mm/mlock.c
++++ b/mm/mlock.c
+@@ -826,13 +826,12 @@ int user_shm_lock(size_t size, struct uc
  
--if "$CC" -o /dev/null "$TESTPROG" -O0 "$@" 2>/dev/null; then
-+if [ -n "$CC" ] && $CC -o /dev/null "$TESTPROG" -O0 "$@" 2>/dev/null; then
-     echo 1
- else
-     echo 0
--- 
-2.34.1
-
+ 	locked = (size + PAGE_SIZE - 1) >> PAGE_SHIFT;
+ 	lock_limit = rlimit(RLIMIT_MEMLOCK);
+-	if (lock_limit == RLIM_INFINITY)
+-		allowed = 1;
+-	lock_limit >>= PAGE_SHIFT;
++	if (lock_limit != RLIM_INFINITY)
++		lock_limit >>= PAGE_SHIFT;
+ 	spin_lock(&shmlock_user_lock);
+ 	memlock = inc_rlimit_ucounts(ucounts, UCOUNT_RLIMIT_MEMLOCK, locked);
+ 
+-	if (!allowed && (memlock == LONG_MAX || memlock > lock_limit) && !capable(CAP_IPC_LOCK)) {
++	if ((memlock == LONG_MAX || memlock > lock_limit) && !capable(CAP_IPC_LOCK)) {
+ 		dec_rlimit_ucounts(ucounts, UCOUNT_RLIMIT_MEMLOCK, locked);
+ 		goto out;
+ 	}
 
 
