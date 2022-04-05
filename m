@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C334C4F3DDE
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 22:36:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E90644F4223
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:40:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382517AbiDEMPk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:15:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56634 "EHLO
+        id S1382552AbiDEMPv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:15:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34856 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243466AbiDEKgr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:36:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEBB3546A5;
-        Tue,  5 Apr 2022 03:22:12 -0700 (PDT)
+        with ESMTP id S243475AbiDEKgs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:36:48 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21E53546AB;
+        Tue,  5 Apr 2022 03:22:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 14598B81B96;
-        Tue,  5 Apr 2022 10:22:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84B3FC385A0;
-        Tue,  5 Apr 2022 10:22:09 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 93DDCCE0B18;
+        Tue,  5 Apr 2022 10:22:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A608BC385A1;
+        Tue,  5 Apr 2022 10:22:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649154129;
-        bh=o8wKoUb2M1W9qRi7fF9bUG326XYmoANmb7pml3OIOJs=;
+        s=korg; t=1649154138;
+        bh=zxWq7PkrMpndvDnwYkItpxVvHPTOTfn5VcI31JDhtUg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W/upWr6XmbA7LU08offxO3GPhKjJd2kvwKPj8ucgN4l7TWm92H29JAxOrKeVbf8b/
-         uiEJCe+azpCxK5Lo/q3TpLEqmMk1cTLKAxJvBb5S03ZjwjiTvBE/R0wyD8y3VIcgcU
-         z4ArtYb1ah2Nx98YPSooy/bhSngS0KbRt+w6x3wg=
+        b=aj/D/Dq/I5C/1ATmJBHNe0KDxWMLz7/et30+tVMroqYolC9XJ+kBSzAe+Etyk1mt2
+         GLSTuW6Xd8Yigug4tnoWJumLYRuMtCQn789HdTzM2WOdW3gDjaiQnQZDBMwLhGnZ23
+         FPYGKSkJkLy/qfUx4D5KPW9tgAQaAQ54Uanlnk/U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Leech <cleech@redhat.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 468/599] nvme-tcp: lockdep: annotate in-kernel sockets
-Date:   Tue,  5 Apr 2022 09:32:42 +0200
-Message-Id: <20220405070312.754073685@linuxfoundation.org>
+        stable@vger.kernel.org, Ritesh Harjani <riteshh@linux.ibm.com>,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 471/599] ext4: correct cluster len and clusters changed accounting in ext4_mb_mark_bb
+Date:   Tue,  5 Apr 2022 09:32:45 +0200
+Message-Id: <20220405070312.841903314@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -53,125 +54,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Leech <cleech@redhat.com>
+From: Ritesh Harjani <riteshh@linux.ibm.com>
 
-[ Upstream commit 841aee4d75f18fdfb53935080b03de0c65e9b92c ]
+[ Upstream commit a5c0e2fdf7cea535ba03259894dc184e5a4c2800 ]
 
-Put NVMe/TCP sockets in their own class to avoid some lockdep warnings.
-Sockets created by nvme-tcp are not exposed to user-space, and will not
-trigger certain code paths that the general socket API exposes.
+ext4_mb_mark_bb() currently wrongly calculates cluster len (clen) and
+flex_group->free_clusters. This patch fixes that.
 
-Lockdep complains about a circular dependency between the socket and
-filesystem locks, because setsockopt can trigger a page fault with a
-socket lock held, but nvme-tcp sends requests on the socket while file
-system locks are held.
+Identified based on code review of ext4_mb_mark_bb() function.
 
-  ======================================================
-  WARNING: possible circular locking dependency detected
-  5.15.0-rc3 #1 Not tainted
-  ------------------------------------------------------
-  fio/1496 is trying to acquire lock:
-  (sk_lock-AF_INET){+.+.}-{0:0}, at: tcp_sendpage+0x23/0x80
-
-  but task is already holding lock:
-  (&xfs_dir_ilock_class/5){+.+.}-{3:3}, at: xfs_ilock+0xcf/0x290 [xfs]
-
-  which lock already depends on the new lock.
-
-  other info that might help us debug this:
-
-  chain exists of:
-   sk_lock-AF_INET --> sb_internal --> &xfs_dir_ilock_class/5
-
-  Possible unsafe locking scenario:
-
-        CPU0                    CPU1
-        ----                    ----
-   lock(&xfs_dir_ilock_class/5);
-                                lock(sb_internal);
-                                lock(&xfs_dir_ilock_class/5);
-   lock(sk_lock-AF_INET);
-
-  *** DEADLOCK ***
-
-  6 locks held by fio/1496:
-   #0: (sb_writers#13){.+.+}-{0:0}, at: path_openat+0x9fc/0xa20
-   #1: (&inode->i_sb->s_type->i_mutex_dir_key){++++}-{3:3}, at: path_openat+0x296/0xa20
-   #2: (sb_internal){.+.+}-{0:0}, at: xfs_trans_alloc_icreate+0x41/0xd0 [xfs]
-   #3: (&xfs_dir_ilock_class/5){+.+.}-{3:3}, at: xfs_ilock+0xcf/0x290 [xfs]
-   #4: (hctx->srcu){....}-{0:0}, at: hctx_lock+0x51/0xd0
-   #5: (&queue->send_mutex){+.+.}-{3:3}, at: nvme_tcp_queue_rq+0x33e/0x380 [nvme_tcp]
-
-This annotation lets lockdep analyze nvme-tcp controlled sockets
-independently of what the user-space sockets API does.
-
-Link: https://lore.kernel.org/linux-nvme/CAHj4cs9MDYLJ+q+2_GXUK9HxFizv2pxUryUR0toX974M040z7g@mail.gmail.com/
-
-Signed-off-by: Chris Leech <cleech@redhat.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Ritesh Harjani <riteshh@linux.ibm.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/a0b035d536bafa88110b74456853774b64c8ac40.1644992609.git.riteshh@linux.ibm.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/tcp.c | 40 ++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 40 insertions(+)
+ fs/ext4/mballoc.c | 19 ++++++++++++-------
+ 1 file changed, 12 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/nvme/host/tcp.c b/drivers/nvme/host/tcp.c
-index 6105894a218a..7e3932033707 100644
---- a/drivers/nvme/host/tcp.c
-+++ b/drivers/nvme/host/tcp.c
-@@ -30,6 +30,44 @@ static int so_priority;
- module_param(so_priority, int, 0644);
- MODULE_PARM_DESC(so_priority, "nvme tcp socket optimize priority");
+diff --git a/fs/ext4/mballoc.c b/fs/ext4/mballoc.c
+index 110c25824a67..41a115c53bf6 100644
+--- a/fs/ext4/mballoc.c
++++ b/fs/ext4/mballoc.c
+@@ -3320,10 +3320,11 @@ void ext4_mb_mark_bb(struct super_block *sb, ext4_fsblk_t block,
+ 	struct ext4_sb_info *sbi = EXT4_SB(sb);
+ 	ext4_group_t group;
+ 	ext4_grpblk_t blkoff;
+-	int i, clen, err;
++	int i, err;
+ 	int already;
++	unsigned int clen, clen_changed;
  
-+#ifdef CONFIG_DEBUG_LOCK_ALLOC
-+/* lockdep can detect a circular dependency of the form
-+ *   sk_lock -> mmap_lock (page fault) -> fs locks -> sk_lock
-+ * because dependencies are tracked for both nvme-tcp and user contexts. Using
-+ * a separate class prevents lockdep from conflating nvme-tcp socket use with
-+ * user-space socket API use.
-+ */
-+static struct lock_class_key nvme_tcp_sk_key[2];
-+static struct lock_class_key nvme_tcp_slock_key[2];
-+
-+static void nvme_tcp_reclassify_socket(struct socket *sock)
-+{
-+	struct sock *sk = sock->sk;
-+
-+	if (WARN_ON_ONCE(!sock_allow_reclassification(sk)))
-+		return;
-+
-+	switch (sk->sk_family) {
-+	case AF_INET:
-+		sock_lock_init_class_and_name(sk, "slock-AF_INET-NVME",
-+					      &nvme_tcp_slock_key[0],
-+					      "sk_lock-AF_INET-NVME",
-+					      &nvme_tcp_sk_key[0]);
-+		break;
-+	case AF_INET6:
-+		sock_lock_init_class_and_name(sk, "slock-AF_INET6-NVME",
-+					      &nvme_tcp_slock_key[1],
-+					      "sk_lock-AF_INET6-NVME",
-+					      &nvme_tcp_sk_key[1]);
-+		break;
-+	default:
-+		WARN_ON_ONCE(1);
-+	}
-+}
-+#else
-+static void nvme_tcp_reclassify_socket(struct socket *sock) { }
-+#endif
-+
- enum nvme_tcp_send_state {
- 	NVME_TCP_SEND_CMD_PDU = 0,
- 	NVME_TCP_SEND_H2C_PDU,
-@@ -1422,6 +1460,8 @@ static int nvme_tcp_alloc_queue(struct nvme_ctrl *nctrl,
- 		goto err_destroy_mutex;
+-	clen = EXT4_B2C(sbi, len);
++	clen = EXT4_NUM_B2C(sbi, len);
+ 
+ 	ext4_get_group_no_and_offset(sb, block, &group, &blkoff);
+ 	bitmap_bh = ext4_read_block_bitmap(sb, group);
+@@ -3344,6 +3345,7 @@ void ext4_mb_mark_bb(struct super_block *sb, ext4_fsblk_t block,
+ 		if (!mb_test_bit(blkoff + i, bitmap_bh->b_data) == !state)
+ 			already++;
+ 
++	clen_changed = clen - already;
+ 	if (state)
+ 		ext4_set_bits(bitmap_bh->b_data, blkoff, clen);
+ 	else
+@@ -3356,9 +3358,9 @@ void ext4_mb_mark_bb(struct super_block *sb, ext4_fsblk_t block,
+ 						group, gdp));
+ 	}
+ 	if (state)
+-		clen = ext4_free_group_clusters(sb, gdp) - clen + already;
++		clen = ext4_free_group_clusters(sb, gdp) - clen_changed;
+ 	else
+-		clen = ext4_free_group_clusters(sb, gdp) + clen - already;
++		clen = ext4_free_group_clusters(sb, gdp) + clen_changed;
+ 
+ 	ext4_free_group_clusters_set(sb, gdp, clen);
+ 	ext4_block_bitmap_csum_set(sb, group, gdp, bitmap_bh);
+@@ -3368,10 +3370,13 @@ void ext4_mb_mark_bb(struct super_block *sb, ext4_fsblk_t block,
+ 
+ 	if (sbi->s_log_groups_per_flex) {
+ 		ext4_group_t flex_group = ext4_flex_group(sbi, group);
++		struct flex_groups *fg = sbi_array_rcu_deref(sbi,
++					   s_flex_groups, flex_group);
+ 
+-		atomic64_sub(len,
+-			     &sbi_array_rcu_deref(sbi, s_flex_groups,
+-						  flex_group)->free_clusters);
++		if (state)
++			atomic64_sub(clen_changed, &fg->free_clusters);
++		else
++			atomic64_add(clen_changed, &fg->free_clusters);
  	}
  
-+	nvme_tcp_reclassify_socket(queue->sock);
-+
- 	/* Single syn retry */
- 	tcp_sock_set_syncnt(queue->sock->sk, 1);
- 
+ 	err = ext4_handle_dirty_metadata(NULL, NULL, bitmap_bh);
 -- 
 2.34.1
 
