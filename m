@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C9B74F381E
+	by mail.lfdr.de (Postfix) with ESMTP id 57DB14F381F
 	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:27:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376335AbiDELVg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:21:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39858 "EHLO
+        id S1376341AbiDELVh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:21:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39896 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349392AbiDEJtr (ORCPT
+        with ESMTP id S1349393AbiDEJtr (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:47 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A908B15A38;
-        Tue,  5 Apr 2022 02:44:50 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5638C15FFD;
+        Tue,  5 Apr 2022 02:44:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 462BE6164D;
-        Tue,  5 Apr 2022 09:44:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57A56C385A2;
-        Tue,  5 Apr 2022 09:44:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E739761675;
+        Tue,  5 Apr 2022 09:44:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05FAEC385A1;
+        Tue,  5 Apr 2022 09:44:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151889;
-        bh=/QAlbnO1eNnDrzOkcmzLTG7zRvW4gaOjytGF8jHWc7s=;
+        s=korg; t=1649151892;
+        bh=vjsrtqUyE3qmQ6zDoHeGzm8tnzALeS3OuodQrayDuPM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e3Ur3uDdjlOuyAs0X5oEXcoKhRs6rtdPaiEPeeZ5X8cVz+aDlcby8mKXR56V6QTQH
-         xgPrGr23N1VPNM54Ut8gUi/aCHd5xOnnmIs3wdUlM3gHmxe5wQ9pHFIsAfEeE5BaLz
-         FwwO4vOEclhLEAGinD3ugvfOeeWkrUEv5C2zCLOs=
+        b=0mV/OJUF344rRvnJLmR5K4+YFhU2M4zbTPjx9s6jn4VW62NpA6PoOh21ybmvV1W+4
+         qxIry2+CD+Oh5K3jWrjc1bqfDNMNNf4lPlB9oFHlLWBQKA2rnUVQIvYFIUHCDQbMn/
+         Lj5USYsK7TMLTdhjxevFLp47JpkD/uGdnwv7321o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Daniel Borkmann <daniel@iogearbox.net>,
         John Fastabend <john.fastabend@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 540/913] bpf, sockmap: Fix memleak in sk_psock_queue_msg
-Date:   Tue,  5 Apr 2022 09:26:42 +0200
-Message-Id: <20220405070356.035060358@linuxfoundation.org>
+Subject: [PATCH 5.15 541/913] bpf, sockmap: Fix memleak in tcp_bpf_sendmsg while sk msg is full
+Date:   Tue,  5 Apr 2022 09:26:43 +0200
+Message-Id: <20220405070356.064605865@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -57,112 +57,104 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Wang Yufen <wangyufen@huawei.com>
 
-[ Upstream commit 938d3480b92fa5e454b7734294f12a7b75126f09 ]
+[ Upstream commit 9c34e38c4a870eb30b13f42f5b44f42e9d19ccb8 ]
 
-If tcp_bpf_sendmsg is running during a tear down operation we may enqueue
-data on the ingress msg queue while tear down is trying to free it.
+If tcp_bpf_sendmsg() is running while sk msg is full. When sk_msg_alloc()
+returns -ENOMEM error, tcp_bpf_sendmsg() goes to wait_for_memory. If partial
+memory has been alloced by sk_msg_alloc(), that is, msg_tx->sg.size is
+greater than osize after sk_msg_alloc(), memleak occurs. To fix we use
+sk_msg_trim() to release the allocated memory, then goto wait for memory.
 
- sk1 (redirect sk2)                         sk2
- -------------------                      ---------------
-tcp_bpf_sendmsg()
- tcp_bpf_send_verdict()
-  tcp_bpf_sendmsg_redir()
-   bpf_tcp_ingress()
-                                          sock_map_close()
-                                           lock_sock()
-    lock_sock() ... blocking
-                                           sk_psock_stop
-                                            sk_psock_clear_state(psock, SK_PSOCK_TX_ENABLED);
-                                           release_sock(sk);
-    lock_sock()
-    sk_mem_charge()
-    get_page()
-    sk_psock_queue_msg()
-     sk_psock_test_state(psock, SK_PSOCK_TX_ENABLED);
-      drop_sk_msg()
-    release_sock()
-
-While drop_sk_msg(), the msg has charged memory form sk by sk_mem_charge
-and has sg pages need to put. To fix we use sk_msg_free() and then kfee()
-msg.
+Other call paths of sk_msg_alloc() have the similar issue, such as
+tls_sw_sendmsg(), so handle sk_msg_trim logic inside sk_msg_alloc(),
+as Cong Wang suggested.
 
 This issue can cause the following info:
-WARNING: CPU: 0 PID: 9202 at net/core/stream.c:205 sk_stream_kill_queues+0xc8/0xe0
+WARNING: CPU: 3 PID: 7950 at net/core/stream.c:208 sk_stream_kill_queues+0xd4/0x1a0
 Call Trace:
- <IRQ>
+ <TASK>
  inet_csk_destroy_sock+0x55/0x110
- tcp_rcv_state_process+0xe5f/0xe90
- ? sk_filter_trim_cap+0x10d/0x230
- ? tcp_v4_do_rcv+0x161/0x250
- tcp_v4_do_rcv+0x161/0x250
- tcp_v4_rcv+0xc3a/0xce0
- ip_protocol_deliver_rcu+0x3d/0x230
- ip_local_deliver_finish+0x54/0x60
- ip_local_deliver+0xfd/0x110
- ? ip_protocol_deliver_rcu+0x230/0x230
- ip_rcv+0xd6/0x100
- ? ip_local_deliver+0x110/0x110
- __netif_receive_skb_one_core+0x85/0xa0
- process_backlog+0xa4/0x160
- __napi_poll+0x29/0x1b0
- net_rx_action+0x287/0x300
- __do_softirq+0xff/0x2fc
- do_softirq+0x79/0x90
- </IRQ>
+ __tcp_close+0x279/0x470
+ tcp_close+0x1f/0x60
+ inet_release+0x3f/0x80
+ __sock_release+0x3d/0xb0
+ sock_close+0x11/0x20
+ __fput+0x92/0x250
+ task_work_run+0x6a/0xa0
+ do_exit+0x33b/0xb60
+ do_group_exit+0x2f/0xa0
+ get_signal+0xb6/0x950
+ arch_do_signal_or_restart+0xac/0x2a0
+ exit_to_user_mode_prepare+0xa9/0x200
+ syscall_exit_to_user_mode+0x12/0x30
+ do_syscall_64+0x46/0x80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+ </TASK>
 
-WARNING: CPU: 0 PID: 531 at net/ipv4/af_inet.c:154 inet_sock_destruct+0x175/0x1b0
+WARNING: CPU: 3 PID: 2094 at net/ipv4/af_inet.c:155 inet_sock_destruct+0x13c/0x260
 Call Trace:
  <TASK>
  __sk_destruct+0x24/0x1f0
  sk_psock_destroy+0x19b/0x1c0
  process_one_work+0x1b3/0x3c0
- ? process_one_work+0x3c0/0x3c0
- worker_thread+0x30/0x350
- ? process_one_work+0x3c0/0x3c0
  kthread+0xe6/0x110
- ? kthread_complete_and_exit+0x20/0x20
  ret_from_fork+0x22/0x30
  </TASK>
 
-Fixes: 9635720b7c88 ("bpf, sockmap: Fix memleak on ingress msg enqueue")
+Fixes: 604326b41a6f ("bpf, sockmap: convert to generic sk_msg interface")
 Signed-off-by: Wang Yufen <wangyufen@huawei.com>
 Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
 Acked-by: John Fastabend <john.fastabend@gmail.com>
-Link: https://lore.kernel.org/bpf/20220304081145.2037182-2-wangyufen@huawei.com
+Link: https://lore.kernel.org/bpf/20220304081145.2037182-3-wangyufen@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/skmsg.h | 13 ++++---------
- 1 file changed, 4 insertions(+), 9 deletions(-)
+ net/core/skmsg.c | 17 +++++++++++++----
+ 1 file changed, 13 insertions(+), 4 deletions(-)
 
-diff --git a/include/linux/skmsg.h b/include/linux/skmsg.h
-index b4256847c707..73bedd128d52 100644
---- a/include/linux/skmsg.h
-+++ b/include/linux/skmsg.h
-@@ -310,21 +310,16 @@ static inline void sock_drop(struct sock *sk, struct sk_buff *skb)
- 	kfree_skb(skb);
- }
- 
--static inline void drop_sk_msg(struct sk_psock *psock, struct sk_msg *msg)
--{
--	if (msg->skb)
--		sock_drop(psock->sk, msg->skb);
--	kfree(msg);
--}
--
- static inline void sk_psock_queue_msg(struct sk_psock *psock,
- 				      struct sk_msg *msg)
+diff --git a/net/core/skmsg.c b/net/core/skmsg.c
+index 929a2b096b04..cc381165ea08 100644
+--- a/net/core/skmsg.c
++++ b/net/core/skmsg.c
+@@ -27,6 +27,7 @@ int sk_msg_alloc(struct sock *sk, struct sk_msg *msg, int len,
+ 		 int elem_first_coalesce)
  {
- 	spin_lock_bh(&psock->ingress_lock);
- 	if (sk_psock_test_state(psock, SK_PSOCK_TX_ENABLED))
- 		list_add_tail(&msg->list, &psock->ingress_msg);
--	else
--		drop_sk_msg(psock, msg);
-+	else {
-+		sk_msg_free(psock->sk, msg);
-+		kfree(msg);
-+	}
- 	spin_unlock_bh(&psock->ingress_lock);
+ 	struct page_frag *pfrag = sk_page_frag(sk);
++	u32 osize = msg->sg.size;
+ 	int ret = 0;
+ 
+ 	len -= msg->sg.size;
+@@ -35,13 +36,17 @@ int sk_msg_alloc(struct sock *sk, struct sk_msg *msg, int len,
+ 		u32 orig_offset;
+ 		int use, i;
+ 
+-		if (!sk_page_frag_refill(sk, pfrag))
+-			return -ENOMEM;
++		if (!sk_page_frag_refill(sk, pfrag)) {
++			ret = -ENOMEM;
++			goto msg_trim;
++		}
+ 
+ 		orig_offset = pfrag->offset;
+ 		use = min_t(int, len, pfrag->size - orig_offset);
+-		if (!sk_wmem_schedule(sk, use))
+-			return -ENOMEM;
++		if (!sk_wmem_schedule(sk, use)) {
++			ret = -ENOMEM;
++			goto msg_trim;
++		}
+ 
+ 		i = msg->sg.end;
+ 		sk_msg_iter_var_prev(i);
+@@ -71,6 +76,10 @@ int sk_msg_alloc(struct sock *sk, struct sk_msg *msg, int len,
+ 	}
+ 
+ 	return ret;
++
++msg_trim:
++	sk_msg_trim(sk, msg, osize);
++	return ret;
  }
+ EXPORT_SYMBOL_GPL(sk_msg_alloc);
  
 -- 
 2.34.1
