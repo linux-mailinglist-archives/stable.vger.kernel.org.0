@@ -2,48 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A6AC34F374D
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:19:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 374324F3A57
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:00:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352713AbiDELMZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:12:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48090 "EHLO
+        id S244723AbiDELoZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:44:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55164 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348953AbiDEJst (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:48:49 -0400
+        with ESMTP id S1354573AbiDEKOj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:14:39 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F38EA66C0;
-        Tue,  5 Apr 2022 02:38:09 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 044E56BDC2;
+        Tue,  5 Apr 2022 03:01:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0838561577;
-        Tue,  5 Apr 2022 09:38:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17ED5C385A0;
-        Tue,  5 Apr 2022 09:38:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9460961676;
+        Tue,  5 Apr 2022 10:01:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F159C385A1;
+        Tue,  5 Apr 2022 10:01:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151488;
-        bh=I6VMpa5qO10NI83gO4a4CfkLjhd4lXYlFeykmMzwh50=;
+        s=korg; t=1649152872;
+        bh=mofzU+Ioylql3jwYOzUHQ6X/mwJ6eaP22Z7z4ZDyVcA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rXm0ifKP2DSsgbnWZEj0KwTM7sm+eBYnKmIJN4Yud9y4s53GKGj63MPWDDM0N3u5G
-         MswFhJSci6IhPRIE5bhgbFCUX5MxXUsZ9+mLS2SWo3R7wnwy6iLgOZG5mONAyWN59d
-         Iha2AcFvn/8kePaQ5CIJuO0jeCgnJNTw66gDOTMU=
+        b=1AhEkmqC9y0wvksfX+j6RsmuiDrmAdBJ5+5+9+VW1VYnWWgR/DBYhIUGJaXvzw35Y
+         zehDdKAyE8rCeVJPTwfb/F6vHadtkJEZ/fgJZo7FaQfXDjXyllq+cFG7O+AfEQLono
+         w3FXpChg8XzPWTdvlr2neU/z1QhYm/mUOMRUyisM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Petr Mladek <pmladek@suse.com>,
-        Joe Lawrence <joe.lawrence@redhat.com>,
-        Miroslav Benes <mbenes@suse.cz>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 433/913] livepatch: Fix build failure on 32 bits processors
-Date:   Tue,  5 Apr 2022 09:24:55 +0200
-Message-Id: <20220405070352.824515747@linuxfoundation.org>
+        stable@vger.kernel.org, Eddie James <eajames@linux.ibm.com>,
+        Joel Stanley <joel@jms.id.au>, Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.10 002/599] USB: serial: pl2303: add IBM device IDs
+Date:   Tue,  5 Apr 2022 09:24:56 +0200
+Message-Id: <20220405070258.882801139@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070258.802373272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,67 +53,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Eddie James <eajames@linux.ibm.com>
 
-[ Upstream commit 2f293651eca3eacaeb56747dede31edace7329d2 ]
+commit e1d15646565b284e9ef2433234d6cfdaf66695f1 upstream.
 
-Trying to build livepatch on powerpc/32 results in:
+IBM manufactures a PL2303 device for UPS communications. Add the vendor
+and product IDs so that the PL2303 driver binds to the device.
 
-	kernel/livepatch/core.c: In function 'klp_resolve_symbols':
-	kernel/livepatch/core.c:221:23: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
-	  221 |                 sym = (Elf64_Sym *)sechdrs[symndx].sh_addr + ELF_R_SYM(relas[i].r_info);
-	      |                       ^
-	kernel/livepatch/core.c:221:21: error: assignment to 'Elf32_Sym *' {aka 'struct elf32_sym *'} from incompatible pointer type 'Elf64_Sym *' {aka 'struct elf64_sym *'} [-Werror=incompatible-pointer-types]
-	  221 |                 sym = (Elf64_Sym *)sechdrs[symndx].sh_addr + ELF_R_SYM(relas[i].r_info);
-	      |                     ^
-	kernel/livepatch/core.c: In function 'klp_apply_section_relocs':
-	kernel/livepatch/core.c:312:35: error: passing argument 1 of 'klp_resolve_symbols' from incompatible pointer type [-Werror=incompatible-pointer-types]
-	  312 |         ret = klp_resolve_symbols(sechdrs, strtab, symndx, sec, sec_objname);
-	      |                                   ^~~~~~~
-	      |                                   |
-	      |                                   Elf32_Shdr * {aka struct elf32_shdr *}
-	kernel/livepatch/core.c:193:44: note: expected 'Elf64_Shdr *' {aka 'struct elf64_shdr *'} but argument is of type 'Elf32_Shdr *' {aka 'struct elf32_shdr *'}
-	  193 | static int klp_resolve_symbols(Elf64_Shdr *sechdrs, const char *strtab,
-	      |                                ~~~~~~~~~~~~^~~~~~~
-
-Fix it by using the right types instead of forcing 64 bits types.
-
-Fixes: 7c8e2bdd5f0d ("livepatch: Apply vmlinux-specific KLP relocations early")
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Acked-by: Petr Mladek <pmladek@suse.com>
-Acked-by: Joe Lawrence <joe.lawrence@redhat.com>
-Acked-by: Miroslav Benes <mbenes@suse.cz>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/5288e11b018a762ea3351cc8fb2d4f15093a4457.1640017960.git.christophe.leroy@csgroup.eu
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Eddie James <eajames@linux.ibm.com>
+Signed-off-by: Joel Stanley <joel@jms.id.au>
+Signed-off-by: Eddie James <eajames@linux.ibm.com>
+Link: https://lore.kernel.org/r/20220301224446.21236-1-eajames@linux.ibm.com
+Cc: stable@vger.kernel.org
+[ johan: amend the SoB chain ]
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/livepatch/core.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/serial/pl2303.c |    1 +
+ drivers/usb/serial/pl2303.h |    3 +++
+ 2 files changed, 4 insertions(+)
 
-diff --git a/kernel/livepatch/core.c b/kernel/livepatch/core.c
-index 335d988bd811..c0789383807b 100644
---- a/kernel/livepatch/core.c
-+++ b/kernel/livepatch/core.c
-@@ -190,7 +190,7 @@ static int klp_find_object_symbol(const char *objname, const char *name,
- 	return -EINVAL;
- }
+--- a/drivers/usb/serial/pl2303.c
++++ b/drivers/usb/serial/pl2303.c
+@@ -116,6 +116,7 @@ static const struct usb_device_id id_tab
+ 	{ USB_DEVICE(ADLINK_VENDOR_ID, ADLINK_ND6530GC_PRODUCT_ID) },
+ 	{ USB_DEVICE(SMART_VENDOR_ID, SMART_PRODUCT_ID) },
+ 	{ USB_DEVICE(AT_VENDOR_ID, AT_VTKIT3_PRODUCT_ID) },
++	{ USB_DEVICE(IBM_VENDOR_ID, IBM_PRODUCT_ID) },
+ 	{ }					/* Terminating entry */
+ };
  
--static int klp_resolve_symbols(Elf64_Shdr *sechdrs, const char *strtab,
-+static int klp_resolve_symbols(Elf_Shdr *sechdrs, const char *strtab,
- 			       unsigned int symndx, Elf_Shdr *relasec,
- 			       const char *sec_objname)
- {
-@@ -218,7 +218,7 @@ static int klp_resolve_symbols(Elf64_Shdr *sechdrs, const char *strtab,
- 	relas = (Elf_Rela *) relasec->sh_addr;
- 	/* For each rela in this klp relocation section */
- 	for (i = 0; i < relasec->sh_size / sizeof(Elf_Rela); i++) {
--		sym = (Elf64_Sym *)sechdrs[symndx].sh_addr + ELF_R_SYM(relas[i].r_info);
-+		sym = (Elf_Sym *)sechdrs[symndx].sh_addr + ELF_R_SYM(relas[i].r_info);
- 		if (sym->st_shndx != SHN_LIVEPATCH) {
- 			pr_err("symbol %s is not marked as a livepatch symbol\n",
- 			       strtab + sym->st_name);
--- 
-2.34.1
-
+--- a/drivers/usb/serial/pl2303.h
++++ b/drivers/usb/serial/pl2303.h
+@@ -35,6 +35,9 @@
+ #define ATEN_PRODUCT_UC232B	0x2022
+ #define ATEN_PRODUCT_ID2	0x2118
+ 
++#define IBM_VENDOR_ID		0x04b3
++#define IBM_PRODUCT_ID		0x4016
++
+ #define IODATA_VENDOR_ID	0x04bb
+ #define IODATA_PRODUCT_ID	0x0a03
+ #define IODATA_PRODUCT_ID_RSAQ5	0x0a0e
 
 
