@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EDA94F3A7C
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:01:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BCFCB4F3A7D
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:01:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381473AbiDELpy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:45:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46864 "EHLO
+        id S1381478AbiDELp4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:45:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38736 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354828AbiDEKQJ (ORCPT
+        with ESMTP id S1354824AbiDEKQJ (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:16:09 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C05476C93D;
-        Tue,  5 Apr 2022 03:02:59 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 081556C942;
+        Tue,  5 Apr 2022 03:03:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7B0B0B81BC0;
-        Tue,  5 Apr 2022 10:02:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E368CC385A2;
-        Tue,  5 Apr 2022 10:02:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 27995B81BC0;
+        Tue,  5 Apr 2022 10:03:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 982CDC385A2;
+        Tue,  5 Apr 2022 10:02:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152977;
-        bh=5IqUjJTSOJ5iA71G3v7PMy802c6wfxcw7Yd0aVsWReA=;
+        s=korg; t=1649152980;
+        bh=sKywzZUH5FV82mHccsP45ibhee3xzG3cgiuNbnWvg4U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mJjKbHsoO3GUe++/kLFqcD2SzKBmBUqiFEDb8vXvjWpYciufNHxT/8uo7stwnI10o
-         9mew8m/PYgT+gm6dmgC2uR6a+xON2tq5Xc2bnMtJikUtvh5kR70S/+iK4R961Ku7Lg
-         7V9+I0K7LToev98L+SW8DIWLk05bxFuWYcxK+vH0=
+        b=UcfPgjcOAPrnugsFHpSatzjYB4H2pqVlDPfCD/AevaMvHNwrpIN16dSsSGVu7DAYC
+         keG1EU1d3PcrcyPXvvF4hJKykdvVKPMNwzMG5x/yqGzzYaHbcWPfYJyAcOcJgscw45
+         frdxn37v6uTEqUQ2KpwhXluDSHnb3yNIYRxlw8kg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Baokun Li <libaokun1@huawei.com>,
         Richard Weinberger <richard@nod.at>
-Subject: [PATCH 5.10 057/599] jffs2: fix memory leak in jffs2_do_mount_fs
-Date:   Tue,  5 Apr 2022 09:25:51 +0200
-Message-Id: <20220405070300.524656148@linuxfoundation.org>
+Subject: [PATCH 5.10 058/599] jffs2: fix memory leak in jffs2_scan_medium
+Date:   Tue,  5 Apr 2022 09:25:52 +0200
+Message-Id: <20220405070300.554274469@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -55,69 +55,108 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Baokun Li <libaokun1@huawei.com>
 
-commit d051cef784de4d54835f6b6836d98a8f6935772c upstream.
+commit 9cdd3128874f5fe759e2c4e1360ab7fb96a8d1df upstream.
 
-If jffs2_build_filesystem() in jffs2_do_mount_fs() returns an error,
-we can observe the following kmemleak report:
+If an error is returned in jffs2_scan_eraseblock() and some memory
+has been added to the jffs2_summary *s, we can observe the following
+kmemleak report:
 
 --------------------------------------------
-unreferenced object 0xffff88811b25a640 (size 64):
-  comm "mount", pid 691, jiffies 4294957728 (age 71.952s)
+unreferenced object 0xffff88812b889c40 (size 64):
+  comm "mount", pid 692, jiffies 4294838325 (age 34.288s)
   hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    40 48 b5 14 81 88 ff ff 01 e0 31 00 00 00 50 00  @H........1...P.
+    00 00 01 00 00 00 01 00 00 00 02 00 00 00 09 08  ................
   backtrace:
-    [<ffffffffa493be24>] kmem_cache_alloc_trace+0x584/0x880
-    [<ffffffffa5423a06>] jffs2_sum_init+0x86/0x130
-    [<ffffffffa5400e58>] jffs2_do_mount_fs+0x798/0xac0
-    [<ffffffffa540acf3>] jffs2_do_fill_super+0x383/0xc30
-    [<ffffffffa540c00a>] jffs2_fill_super+0x2ea/0x4c0
+    [<ffffffffae93a3a3>] __kmalloc+0x613/0x910
+    [<ffffffffaf423b9c>] jffs2_sum_add_dirent_mem+0x5c/0xa0
+    [<ffffffffb0f3afa8>] jffs2_scan_medium.cold+0x36e5/0x4794
+    [<ffffffffb0f3dbe1>] jffs2_do_mount_fs.cold+0xa7/0x2267
+    [<ffffffffaf40acf3>] jffs2_do_fill_super+0x383/0xc30
+    [<ffffffffaf40c00a>] jffs2_fill_super+0x2ea/0x4c0
+    [<ffffffffb0315d64>] mtd_get_sb+0x254/0x400
+    [<ffffffffb0315f5f>] mtd_get_sb_by_nr+0x4f/0xd0
+    [<ffffffffb0316478>] get_tree_mtd+0x498/0x840
+    [<ffffffffaf40bd15>] jffs2_get_tree+0x25/0x30
+    [<ffffffffae9f358d>] vfs_get_tree+0x8d/0x2e0
+    [<ffffffffaea7a98f>] path_mount+0x50f/0x1e50
+    [<ffffffffaea7c3d7>] do_mount+0x107/0x130
+    [<ffffffffaea7c5c5>] __se_sys_mount+0x1c5/0x2f0
+    [<ffffffffaea7c917>] __x64_sys_mount+0xc7/0x160
+    [<ffffffffb10142f5>] do_syscall_64+0x45/0x70
+unreferenced object 0xffff888114b54840 (size 32):
+  comm "mount", pid 692, jiffies 4294838325 (age 34.288s)
+  hex dump (first 32 bytes):
+    c0 75 b5 14 81 88 ff ff 02 e0 02 00 00 00 02 00  .u..............
+    00 00 84 00 00 00 44 00 00 00 6b 6b 6b 6b 6b a5  ......D...kkkkk.
+  backtrace:
+    [<ffffffffae93be24>] kmem_cache_alloc_trace+0x584/0x880
+    [<ffffffffaf423b04>] jffs2_sum_add_inode_mem+0x54/0x90
+    [<ffffffffb0f3bd44>] jffs2_scan_medium.cold+0x4481/0x4794
     [...]
-unreferenced object 0xffff88812c760000 (size 65536):
-  comm "mount", pid 691, jiffies 4294957728 (age 71.952s)
+unreferenced object 0xffff888114b57280 (size 32):
+  comm "mount", pid 692, jiffies 4294838393 (age 34.357s)
   hex dump (first 32 bytes):
-    bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb  ................
-    bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb  ................
+    10 d5 6c 11 81 88 ff ff 08 e0 05 00 00 00 01 00  ..l.............
+    00 00 38 02 00 00 28 00 00 00 6b 6b 6b 6b 6b a5  ..8...(...kkkkk.
   backtrace:
-    [<ffffffffa493a449>] __kmalloc+0x6b9/0x910
-    [<ffffffffa5423a57>] jffs2_sum_init+0xd7/0x130
-    [<ffffffffa5400e58>] jffs2_do_mount_fs+0x798/0xac0
-    [<ffffffffa540acf3>] jffs2_do_fill_super+0x383/0xc30
-    [<ffffffffa540c00a>] jffs2_fill_super+0x2ea/0x4c0
+    [<ffffffffae93be24>] kmem_cache_alloc_trace+0x584/0x880
+    [<ffffffffaf423c34>] jffs2_sum_add_xattr_mem+0x54/0x90
+    [<ffffffffb0f3a24f>] jffs2_scan_medium.cold+0x298c/0x4794
+    [...]
+unreferenced object 0xffff8881116cd510 (size 16):
+  comm "mount", pid 692, jiffies 4294838395 (age 34.355s)
+  hex dump (first 16 bytes):
+    00 00 00 00 00 00 00 00 09 e0 60 02 00 00 6b a5  ..........`...k.
+  backtrace:
+    [<ffffffffae93be24>] kmem_cache_alloc_trace+0x584/0x880
+    [<ffffffffaf423cc4>] jffs2_sum_add_xref_mem+0x54/0x90
+    [<ffffffffb0f3b2e3>] jffs2_scan_medium.cold+0x3a20/0x4794
     [...]
 --------------------------------------------
 
-This is because the resources allocated in jffs2_sum_init() are not
-released. Call jffs2_sum_exit() to release these resources to solve
-the problem.
+Therefore, we should call jffs2_sum_reset_collected(s) on exit to
+release the memory added in s. In addition, a new tag "out_buf" is
+added to prevent the NULL pointer reference caused by s being NULL.
+(thanks to Zhang Yi for this analysis)
 
 Fixes: e631ddba5887 ("[JFFS2] Add erase block summary support (mount time improvement)")
 Cc: stable@vger.kernel.org
+Co-developed-with: Zhihao Cheng <chengzhihao1@huawei.com>
 Signed-off-by: Baokun Li <libaokun1@huawei.com>
 Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/jffs2/build.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/jffs2/scan.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/fs/jffs2/build.c
-+++ b/fs/jffs2/build.c
-@@ -415,13 +415,15 @@ int jffs2_do_mount_fs(struct jffs2_sb_in
- 		jffs2_free_ino_caches(c);
- 		jffs2_free_raw_node_refs(c);
- 		ret = -EIO;
--		goto out_free;
-+		goto out_sum_exit;
+--- a/fs/jffs2/scan.c
++++ b/fs/jffs2/scan.c
+@@ -136,7 +136,7 @@ int jffs2_scan_medium(struct jffs2_sb_in
+ 		if (!s) {
+ 			JFFS2_WARNING("Can't allocate memory for summary\n");
+ 			ret = -ENOMEM;
+-			goto out;
++			goto out_buf;
+ 		}
  	}
  
- 	jffs2_calc_trigger_levels(c);
- 
- 	return 0;
- 
-+ out_sum_exit:
-+	jffs2_sum_exit(c);
-  out_free:
- 	kvfree(c->blocks);
+@@ -275,13 +275,15 @@ int jffs2_scan_medium(struct jffs2_sb_in
+ 	}
+ 	ret = 0;
+  out:
++	jffs2_sum_reset_collected(s);
++	kfree(s);
++ out_buf:
+ 	if (buf_size)
+ 		kfree(flashbuf);
+ #ifndef __ECOS
+ 	else
+ 		mtd_unpoint(c->mtd, 0, c->mtd->size);
+ #endif
+-	kfree(s);
+ 	return ret;
+ }
  
 
 
