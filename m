@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C1C64F30DA
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:35:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F130F4F301C
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:26:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343597AbiDEI5J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:57:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52854 "EHLO
+        id S245647AbiDEI4o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:56:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53274 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241492AbiDEIeB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:34:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02BB165AD;
-        Tue,  5 Apr 2022 01:32:01 -0700 (PDT)
+        with ESMTP id S241517AbiDEIeF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:34:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B5F565BD;
+        Tue,  5 Apr 2022 01:32:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8CCDC60AFB;
-        Tue,  5 Apr 2022 08:32:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E413C385A0;
-        Tue,  5 Apr 2022 08:31:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0871DB81BB1;
+        Tue,  5 Apr 2022 08:32:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50963C385A5;
+        Tue,  5 Apr 2022 08:32:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147520;
-        bh=x+MfrSWBfQ88jjgjPsoU0dTJnhaZQ+91OiSyJnCtbyQ=;
+        s=korg; t=1649147522;
+        bh=IUm2yfGBO7rEUNDX0xPbof/nJHCqzO3rRyRuqsdo2uU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ir98MPPbSVBAt74HAJQnfX7lCOHja21LEXzk/X6GI6K3ZKa63/6NhU88kUZAUyPPt
-         mnhtld2e9fMXcydTEZIzHDEfdegqFeOqfNWvXPx61o5wHeAgWDPDsWGVl6o/t7/NiO
-         iEI5ICq4XJoPG4ZmrxmR1hBQH7zJWDKBQz0e1TR0=
+        b=Wtx2UWn6ws7dlqhVxNerauz2IgCbBmmbHBJy29LLCPqlY9BsD2WayUmE6jNKCqdNm
+         FlEalhetKMD4nOE0RuPoZ6OH4t4dB5p6MosW2UtgYMW51ofRvCDUgJDLMOEYeDmgW3
+         fND8Z0lMWRr8ZY13ombdgZ6IJZYlx1eMz/DZvp/o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
-        Waiman Long <longman@redhat.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Cheng-Jui Wang <cheng-jui.wang@mediatek.com>
-Subject: [PATCH 5.16 0025/1017] locking/lockdep: Avoid potential access of invalid memory in lock_class
-Date:   Tue,  5 Apr 2022 09:15:38 +0200
-Message-Id: <20220405070354.923625558@linuxfoundation.org>
+        stable@vger.kernel.org, Evan Quan <evan.quan@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Mario Limonciello <mario.limonciello@amd.com>
+Subject: [PATCH 5.16 0026/1017] drm/amdgpu: move PX checking into amdgpu_device_ip_early_init
+Date:   Tue,  5 Apr 2022 09:15:39 +0200
+Message-Id: <20220405070354.953822658@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -57,87 +54,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Waiman Long <longman@redhat.com>
+From: Alex Deucher <alexander.deucher@amd.com>
 
-commit 61cc4534b6550997c97a03759ab46b29d44c0017 upstream.
+commit 901e2be20dc55079997ea1885ea77fc72e6826e7 upstream.
 
-It was found that reading /proc/lockdep after a lockdep splat may
-potentially cause an access to freed memory if lockdep_unregister_key()
-is called after the splat but before access to /proc/lockdep [1]. This
-is due to the fact that graph_lock() call in lockdep_unregister_key()
-fails after the clearing of debug_locks by the splat process.
+We need to set the APU flag from IP discovery before
+we evaluate this code.
 
-After lockdep_unregister_key() is called, the lock_name may be freed
-but the corresponding lock_class structure still have a reference to
-it. That invalid memory pointer will then be accessed when /proc/lockdep
-is read by a user and a use-after-free (UAF) error will be reported if
-KASAN is enabled.
-
-To fix this problem, lockdep_unregister_key() is now modified to always
-search for a matching key irrespective of the debug_locks state and
-zap the corresponding lock class if a matching one is found.
-
-[1] https://lore.kernel.org/lkml/77f05c15-81b6-bddd-9650-80d5f23fe330@i-love.sakura.ne.jp/
-
-Fixes: 8b39adbee805 ("locking/lockdep: Make lockdep_unregister_key() honor 'debug_locks' again")
-Reported-by: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-Signed-off-by: Waiman Long <longman@redhat.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Cc: Cheng-Jui Wang <cheng-jui.wang@mediatek.com>
-Link: https://lkml.kernel.org/r/20220103023558.1377055-1-longman@redhat.com
+Acked-by: Evan Quan <evan.quan@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/locking/lockdep.c |   24 +++++++++++++++---------
- 1 file changed, 15 insertions(+), 9 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_device.c |   13 +++++++++++++
+ drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c    |   11 -----------
+ 2 files changed, 13 insertions(+), 11 deletions(-)
 
---- a/kernel/locking/lockdep.c
-+++ b/kernel/locking/lockdep.c
-@@ -6288,7 +6288,13 @@ void lockdep_reset_lock(struct lockdep_m
- 		lockdep_reset_lock_reg(lock);
- }
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
+@@ -30,6 +30,7 @@
+ #include <linux/module.h>
+ #include <linux/console.h>
+ #include <linux/slab.h>
++#include <linux/pci.h>
  
--/* Unregister a dynamically allocated key. */
-+/*
-+ * Unregister a dynamically allocated key.
-+ *
-+ * Unlike lockdep_register_key(), a search is always done to find a matching
-+ * key irrespective of debug_locks to avoid potential invalid access to freed
-+ * memory in lock_class entry.
-+ */
- void lockdep_unregister_key(struct lock_class_key *key)
+ #include <drm/drm_atomic_helper.h>
+ #include <drm/drm_probe_helper.h>
+@@ -2070,6 +2071,8 @@ out:
+  */
+ static int amdgpu_device_ip_early_init(struct amdgpu_device *adev)
  {
- 	struct hlist_head *hash_head = keyhashentry(key);
-@@ -6303,10 +6309,8 @@ void lockdep_unregister_key(struct lock_
- 		return;
++	struct drm_device *dev = adev_to_drm(adev);
++	struct pci_dev *parent;
+ 	int i, r;
  
- 	raw_local_irq_save(flags);
--	if (!graph_lock())
--		goto out_irq;
-+	lockdep_lock();
- 
--	pf = get_pending_free();
- 	hlist_for_each_entry_rcu(k, hash_head, hash_entry) {
- 		if (k == key) {
- 			hlist_del_rcu(&k->hash_entry);
-@@ -6314,11 +6318,13 @@ void lockdep_unregister_key(struct lock_
- 			break;
- 		}
+ 	amdgpu_device_enable_virtual_display(adev);
+@@ -2134,6 +2137,16 @@ static int amdgpu_device_ip_early_init(s
+ 		break;
  	}
--	WARN_ON_ONCE(!found);
--	__lockdep_free_key_range(pf, key, 1);
--	call_rcu_zapped(pf);
--	graph_unlock();
--out_irq:
-+	WARN_ON_ONCE(!found && debug_locks);
-+	if (found) {
-+		pf = get_pending_free();
-+		__lockdep_free_key_range(pf, key, 1);
-+		call_rcu_zapped(pf);
-+	}
-+	lockdep_unlock();
- 	raw_local_irq_restore(flags);
  
- 	/* Wait until is_dynamic_key() has finished accessing k->hash_entry. */
++	if (amdgpu_has_atpx() &&
++	    (amdgpu_is_atpx_hybrid() ||
++	     amdgpu_has_atpx_dgpu_power_cntl()) &&
++	    ((adev->flags & AMD_IS_APU) == 0) &&
++	    !pci_is_thunderbolt_attached(to_pci_dev(dev->dev)))
++		adev->flags |= AMD_IS_PX;
++
++	parent = pci_upstream_bridge(adev->pdev);
++	adev->has_pr3 = parent ? pci_pr3_present(parent) : false;
++
+ 	amdgpu_amdkfd_device_probe(adev);
+ 
+ 	adev->pm.pp_feature = amdgpu_pp_feature_mask;
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
+@@ -152,21 +152,10 @@ static void amdgpu_get_audio_func(struct
+ int amdgpu_driver_load_kms(struct amdgpu_device *adev, unsigned long flags)
+ {
+ 	struct drm_device *dev;
+-	struct pci_dev *parent;
+ 	int r, acpi_status;
+ 
+ 	dev = adev_to_drm(adev);
+ 
+-	if (amdgpu_has_atpx() &&
+-	    (amdgpu_is_atpx_hybrid() ||
+-	     amdgpu_has_atpx_dgpu_power_cntl()) &&
+-	    ((flags & AMD_IS_APU) == 0) &&
+-	    !pci_is_thunderbolt_attached(to_pci_dev(dev->dev)))
+-		flags |= AMD_IS_PX;
+-
+-	parent = pci_upstream_bridge(adev->pdev);
+-	adev->has_pr3 = parent ? pci_pr3_present(parent) : false;
+-
+ 	/* amdgpu_device_init should report only fatal error
+ 	 * like memory allocation failure or iomapping failure,
+ 	 * or memory manager initialization failure, it must
 
 
