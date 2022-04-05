@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 209F14F2E08
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:48:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 09CA74F2AE9
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:06:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239281AbiDEJKj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:10:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52206 "EHLO
+        id S244426AbiDEKis (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:38:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55416 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244431AbiDEIwF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E6CBD5EA0;
-        Tue,  5 Apr 2022 01:41:03 -0700 (PDT)
+        with ESMTP id S238971AbiDEJdN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:33:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6578264FC;
+        Tue,  5 Apr 2022 02:21:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1D58DB81C14;
-        Tue,  5 Apr 2022 08:40:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78AECC385A1;
-        Tue,  5 Apr 2022 08:40:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0F696B81C6F;
+        Tue,  5 Apr 2022 09:21:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FE7DC385A0;
+        Tue,  5 Apr 2022 09:21:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148041;
-        bh=ChCoChCJ+bm2s/23Tdv+MYjgZvCiKzNdR0c3alOGOmQ=;
+        s=korg; t=1649150462;
+        bh=EuNKLs0j/ektBoCOSqte+2f5ggiogIwjGgtIIGQzbsI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gTbGMc62rPkmj4V2DPdxHynrb45Y8KSqN4sgGVsAul1jADhCNmecOltvM1MpjGWLl
-         b1f7IBDPXYZZNR8XQWndX7YUL4dpG7ieuGnYEUrS0eFanbI+fVZTQ765oYTUKGXFEs
-         M/trcpXkfMRYCZJY4//MmmhKiYgiaze2YktCzHAY=
+        b=ZIislnPfCduxYPHAKzlO4pqFEz5O4TzhxCTFcQCPLtIUHQSpWrTl/hZuyO+72IUfm
+         ZQ1P6/iZvSoOUlvbHfYICXK1MBvLd7D0T5JLfozWBl9qH71Um5QikbznYz0rBRjSpk
+         WDDBUS3nB7WQL+JoDvYYlp/ubXTnjjAUOVZUCeWE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0212/1017] spi: tegra114: Add missing IRQ check in tegra_spi_probe
-Date:   Tue,  5 Apr 2022 09:18:45 +0200
-Message-Id: <20220405070400.544121890@linuxfoundation.org>
+        stable@vger.kernel.org, Olga Kornievskaia <kolga@netapp.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>
+Subject: [PATCH 5.15 064/913] NFS: NFSv2/v3 clients should never be setting NFS_CAP_XATTR
+Date:   Tue,  5 Apr 2022 09:18:46 +0200
+Message-Id: <20220405070341.742201694@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +53,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit 4f92724d4b92c024e721063f520d66e11ca4b54b ]
+commit b622ffe1d9ecbac71f0cddb52ff0831efdf8fb83 upstream.
 
-This func misses checking for platform_get_irq()'s call and may passes the
-negative error codes to request_threaded_irq(), which takes unsigned IRQ #,
-causing it to fail with -EINVAL, overriding an original error code.
-Stop calling request_threaded_irq() with invalid IRQ #s.
+Ensure that we always initialise the 'xattr_support' field in struct
+nfs_fsinfo, so that nfs_server_set_fsinfo() doesn't declare our NFSv2/v3
+client to be capable of supporting the NFSv4.2 xattr protocol by setting
+the NFS_CAP_XATTR capability.
 
-Fixes: f333a331adfa ("spi/tegra114: add spi driver")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220128165238.25615-1-linmq006@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This configuration can cause nfs_do_access() to set access mode bits
+that are unsupported by the NFSv3 ACCESS call, which may confuse
+spec-compliant servers.
+
+Reported-by: Olga Kornievskaia <kolga@netapp.com>
+Fixes: b78ef845c35d ("NFSv4.2: query the server for extended attribute support")
+Cc: stable@vger.kernel.org
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/spi/spi-tegra114.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ fs/nfs/nfs3xdr.c |    1 +
+ fs/nfs/proc.c    |    1 +
+ 2 files changed, 2 insertions(+)
 
-diff --git a/drivers/spi/spi-tegra114.c b/drivers/spi/spi-tegra114.c
-index e9de1d958bbd..8f345247a8c3 100644
---- a/drivers/spi/spi-tegra114.c
-+++ b/drivers/spi/spi-tegra114.c
-@@ -1352,6 +1352,10 @@ static int tegra_spi_probe(struct platform_device *pdev)
- 	tspi->phys = r->start;
+--- a/fs/nfs/nfs3xdr.c
++++ b/fs/nfs/nfs3xdr.c
+@@ -2228,6 +2228,7 @@ static int decode_fsinfo3resok(struct xd
+ 	/* ignore properties */
+ 	result->lease_time = 0;
+ 	result->change_attr_type = NFS4_CHANGE_TYPE_IS_UNDEFINED;
++	result->xattr_support = 0;
+ 	return 0;
+ }
  
- 	spi_irq = platform_get_irq(pdev, 0);
-+	if (spi_irq < 0) {
-+		ret = spi_irq;
-+		goto exit_free_master;
-+	}
- 	tspi->irq = spi_irq;
+--- a/fs/nfs/proc.c
++++ b/fs/nfs/proc.c
+@@ -92,6 +92,7 @@ nfs_proc_get_root(struct nfs_server *ser
+ 	info->maxfilesize = 0x7FFFFFFF;
+ 	info->lease_time = 0;
+ 	info->change_attr_type = NFS4_CHANGE_TYPE_IS_UNDEFINED;
++	info->xattr_support = 0;
+ 	return 0;
+ }
  
- 	tspi->clk = devm_clk_get(&pdev->dev, "spi");
--- 
-2.34.1
-
 
 
