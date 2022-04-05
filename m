@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A3FF64F337D
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:16:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C4DA4F31CB
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:46:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343601AbiDEJMg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:12:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46598 "EHLO
+        id S1344733AbiDEKkL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:40:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41934 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244840AbiDEIwm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:42 -0400
+        with ESMTP id S243769AbiDEJkV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:40:21 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA4A7205F1;
-        Tue,  5 Apr 2022 01:44:37 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE2C7B82C0;
+        Tue,  5 Apr 2022 02:25:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6821060FFC;
-        Tue,  5 Apr 2022 08:44:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B69AC385A1;
-        Tue,  5 Apr 2022 08:44:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6F6CC614F9;
+        Tue,  5 Apr 2022 09:25:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F091C385A0;
+        Tue,  5 Apr 2022 09:25:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148276;
-        bh=p0yrrYaEW8mSo8kS3j473PpFIUaa3apm+1xjXPAWWIs=;
+        s=korg; t=1649150700;
+        bh=/maTMZpPyHrPXM73DSYyKjXwq5K+XsJdIA6vi+YbTEU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OlnmONkrkS5E1PD45HO04mHzmDw54LnM/2Xtu5AonuXbOXcNYT0zLq4igzG+X87gl
-         54bEyExsKzipyDG7JGmEkJAKtW65QpWNK+SDC70mgB1znMcG6Xya1/QDXx4tKsE7v2
-         isFEAiVDv8l5iiEvY5x13HxSVq8RFG/ZhZQ1H+So=
+        b=1CdFXc0HHymc35UXVFfCiYzU8ELPE8CNW3acW7w2ASH8Tw21AdaBQfm8nuivj7dSP
+         18J7KSw2R1Y5y6qTlPVZkMefy4xDNB9OdV5W58XaDACX6LovFTiPq5f+Tj1jVu3IO0
+         5lqFKc6LFcv/AoK+3v65xcihOz7zJJa4hdxm5arI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen-Yu Tsai <wenst@chromium.org>,
-        Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0297/1017] media: hantro: Fix overfill bottom register field name
-Date:   Tue,  5 Apr 2022 09:20:10 +0200
-Message-Id: <20220405070403.091355350@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Alim Akhtar <alim.akhtar@samsung.com>
+Subject: [PATCH 5.15 149/913] ARM: dts: exynos: add missing HDMI supplies on SMDK5250
+Date:   Tue,  5 Apr 2022 09:20:11 +0200
+Message-Id: <20220405070344.302310449@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,64 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen-Yu Tsai <wenst@chromium.org>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 
-[ Upstream commit 89d78e0133e71ba324fb67ca776223fba4353418 ]
+commit 60a9914cb2061ba612a3f14f6ad329912b486360 upstream.
 
-The Hantro H1 hardware can crop off pixels from the right and bottom of
-the source frame. These are controlled with the H1_REG_IN_IMG_CTRL_OVRFLB
-and H1_REG_IN_IMG_CTRL_OVRFLR in the H1_REG_IN_IMG_CTRL register.
+Add required VDD supplies to HDMI block on SMDK5250.  Without them, the
+HDMI driver won't probe.  Because of lack of schematics, use same
+supplies as on Arndale 5250 board (voltage matches).
 
-The ChromeOS kernel driver that this was based on incorrectly added the
-_D4 suffix H1_REG_IN_IMG_CTRL_OVRFLB. This field crops the bottom of the
-input frame, and the number is _not_ divided by 4. [1]
-
-Correct the name to avoid confusion when crop support with the selection
-API is added.
-
-[1] https://chromium.googlesource.com/chromiumos/third_party/kernel/+/refs/ \
-	heads/chromeos-4.19/drivers/staging/media/hantro/hantro_h1_vp8_enc.c#377
-
-Fixes: 775fec69008d ("media: add Rockchip VPU JPEG encoder driver")
-Fixes: a29add8c9bb2 ("media: rockchip/vpu: rename from rockchip to hantro")
-Signed-off-by: Chen-Yu Tsai <wenst@chromium.org>
-Reviewed-by: Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: <stable@vger.kernel.org> # v3.15+
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Reviewed-by: Alim Akhtar <alim.akhtar@samsung.com>
+Link: https://lore.kernel.org/r/20220208171823.226211-2-krzysztof.kozlowski@canonical.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/media/hantro/hantro_h1_jpeg_enc.c | 2 +-
- drivers/staging/media/hantro/hantro_h1_regs.h     | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/exynos5250-smdk5250.dts |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/staging/media/hantro/hantro_h1_jpeg_enc.c b/drivers/staging/media/hantro/hantro_h1_jpeg_enc.c
-index 9cd713c02a45..686d813f5c62 100644
---- a/drivers/staging/media/hantro/hantro_h1_jpeg_enc.c
-+++ b/drivers/staging/media/hantro/hantro_h1_jpeg_enc.c
-@@ -23,7 +23,7 @@ static void hantro_h1_set_src_img_ctrl(struct hantro_dev *vpu,
+--- a/arch/arm/boot/dts/exynos5250-smdk5250.dts
++++ b/arch/arm/boot/dts/exynos5250-smdk5250.dts
+@@ -118,6 +118,9 @@
+ 	status = "okay";
+ 	ddc = <&i2c_2>;
+ 	hpd-gpios = <&gpx3 7 GPIO_ACTIVE_HIGH>;
++	vdd-supply = <&ldo8_reg>;
++	vdd_osc-supply = <&ldo10_reg>;
++	vdd_pll-supply = <&ldo8_reg>;
+ };
  
- 	reg = H1_REG_IN_IMG_CTRL_ROW_LEN(pix_fmt->width)
- 		| H1_REG_IN_IMG_CTRL_OVRFLR_D4(0)
--		| H1_REG_IN_IMG_CTRL_OVRFLB_D4(0)
-+		| H1_REG_IN_IMG_CTRL_OVRFLB(0)
- 		| H1_REG_IN_IMG_CTRL_FMT(ctx->vpu_src_fmt->enc_fmt);
- 	vepu_write_relaxed(vpu, reg, H1_REG_IN_IMG_CTRL);
- }
-diff --git a/drivers/staging/media/hantro/hantro_h1_regs.h b/drivers/staging/media/hantro/hantro_h1_regs.h
-index d6e9825bb5c7..30e7e7b920b5 100644
---- a/drivers/staging/media/hantro/hantro_h1_regs.h
-+++ b/drivers/staging/media/hantro/hantro_h1_regs.h
-@@ -47,7 +47,7 @@
- #define H1_REG_IN_IMG_CTRL				0x03c
- #define     H1_REG_IN_IMG_CTRL_ROW_LEN(x)		((x) << 12)
- #define     H1_REG_IN_IMG_CTRL_OVRFLR_D4(x)		((x) << 10)
--#define     H1_REG_IN_IMG_CTRL_OVRFLB_D4(x)		((x) << 6)
-+#define     H1_REG_IN_IMG_CTRL_OVRFLB(x)		((x) << 6)
- #define     H1_REG_IN_IMG_CTRL_FMT(x)			((x) << 2)
- #define H1_REG_ENC_CTRL0				0x040
- #define    H1_REG_ENC_CTRL0_INIT_QP(x)			((x) << 26)
--- 
-2.34.1
-
+ &i2c_0 {
 
 
