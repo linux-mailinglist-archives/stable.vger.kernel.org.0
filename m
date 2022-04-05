@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 741184F2AE2
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:06:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74DD94F2A4E
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 12:54:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343513AbiDEJM3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:12:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51052 "EHLO
+        id S1344625AbiDEKkD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:40:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48056 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244804AbiDEIwk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:40 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6AF292229F;
-        Tue,  5 Apr 2022 01:44:14 -0700 (PDT)
+        with ESMTP id S243265AbiDEJjW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:39:22 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F5FCA94D1;
+        Tue,  5 Apr 2022 02:24:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2519EB81A0C;
-        Tue,  5 Apr 2022 08:44:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F974C385A0;
-        Tue,  5 Apr 2022 08:44:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DBF1C614F9;
+        Tue,  5 Apr 2022 09:24:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDCE3C385A0;
+        Tue,  5 Apr 2022 09:24:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148251;
-        bh=4El5mLzPV5FIUFM4OPSsk5ycPZQtCJ+BCLlcToLdjSI=;
+        s=korg; t=1649150676;
+        bh=vIzNfLPHv86EVpqrEr5FpS9SdANNFWCj2c/9f6tkOZA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EKVkSJMig3Cpd3oVtToQcApbO2VkKBsgZdpbJJAgghnYED4rzYbN3OZ+TWo5yA7PH
-         VQdUTSgKCxk0l4Gn8vsT/USr82axEQ3/z9XR/dY9yiHyFewcilp1KUkx84VcJwoBMH
-         cTxmeZjgC5U4daSRfSuuYiT10MvM3fE012fH6fT4=
+        b=oBsrHHwlmkYeEEgQCo9vQHSXOGRplAwsdcW9kcsHfLuLPMtTyLOqyNvv6xQYjxqcU
+         IQuL5pBDtYgHB9Fl6Uo7CymVKkEglSjZIniD4fYqwHpV2z4+Qs1xBwkPOeNbdLk3lS
+         qWeht2DijNcLQzg0bHz7pDwyuVfIPTa/Ivsglzuk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Eugen Hristev <eugen.hristev@microchip.com>,
-        Jacopo Mondi <jacopo@jmondi.org>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0289/1017] media: atmel: atmel-sama7g5-isc: fix ispck leftover
-Date:   Tue,  5 Apr 2022 09:20:02 +0200
-Message-Id: <20220405070402.850159720@linuxfoundation.org>
+        stable@vger.kernel.org, Jani Nikula <jani.nikula@intel.com>,
+        Shawn C Lee <shawn.c.lee@intel.com>,
+        intel-gfx <intel-gfx@lists.freedesktop.org>,
+        Cooper Chiou <cooper.chiou@intel.com>
+Subject: [PATCH 5.15 141/913] drm/edid: check basic audio support on CEA extension block
+Date:   Tue,  5 Apr 2022 09:20:03 +0200
+Message-Id: <20220405070344.059817840@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,56 +55,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eugen Hristev <eugen.hristev@microchip.com>
+From: Cooper Chiou <cooper.chiou@intel.com>
 
-[ Upstream commit 1b52ce99e9f2dcda868a1a7026bfb58d04bd6bc8 ]
+commit 5662abf6e21338be6d085d6375d3732ac6147fd2 upstream.
 
-The ispck is not used for sama7g5 variant of the ISC.
-Calls to ispck have to be removed also from module insert/removal.
+Tag code stored in bit7:5 for CTA block byte[3] is not the same as
+CEA extension block definition. Only check CEA block has
+basic audio support.
 
-Fixes: d7f26849ed7c ("media: atmel: fix the ispck initialization")
-Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
-Reviewed-by: Jacopo Mondi <jacopo@jmondi.org>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+v3: update commit message.
+
+Cc: stable@vger.kernel.org
+Cc: Jani Nikula <jani.nikula@intel.com>
+Cc: Shawn C Lee <shawn.c.lee@intel.com>
+Cc: intel-gfx <intel-gfx@lists.freedesktop.org>
+Signed-off-by: Cooper Chiou <cooper.chiou@intel.com>
+Signed-off-by: Lee Shawn C <shawn.c.lee@intel.com>
+Fixes: e28ad544f462 ("drm/edid: parse CEA blocks embedded in DisplayID")
+Reviewed-by: Jani Nikula <jani.nikula@intel.com>
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220324061218.32739-1-shawn.c.lee@intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/platform/atmel/atmel-sama7g5-isc.c | 6 ------
- 1 file changed, 6 deletions(-)
+ drivers/gpu/drm/drm_edid.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/atmel/atmel-sama7g5-isc.c b/drivers/media/platform/atmel/atmel-sama7g5-isc.c
-index 5d1c76f680f3..2b1082295c13 100644
---- a/drivers/media/platform/atmel/atmel-sama7g5-isc.c
-+++ b/drivers/media/platform/atmel/atmel-sama7g5-isc.c
-@@ -556,7 +556,6 @@ static int microchip_xisc_remove(struct platform_device *pdev)
+--- a/drivers/gpu/drm/drm_edid.c
++++ b/drivers/gpu/drm/drm_edid.c
+@@ -4776,7 +4776,8 @@ bool drm_detect_monitor_audio(struct edi
+ 	if (!edid_ext)
+ 		goto end;
  
- 	v4l2_device_unregister(&isc->v4l2_dev);
+-	has_audio = ((edid_ext[3] & EDID_BASIC_AUDIO) != 0);
++	has_audio = (edid_ext[0] == CEA_EXT &&
++		    (edid_ext[3] & EDID_BASIC_AUDIO) != 0);
  
--	clk_disable_unprepare(isc->ispck);
- 	clk_disable_unprepare(isc->hclock);
- 
- 	isc_clk_cleanup(isc);
-@@ -568,7 +567,6 @@ static int __maybe_unused xisc_runtime_suspend(struct device *dev)
- {
- 	struct isc_device *isc = dev_get_drvdata(dev);
- 
--	clk_disable_unprepare(isc->ispck);
- 	clk_disable_unprepare(isc->hclock);
- 
- 	return 0;
-@@ -583,10 +581,6 @@ static int __maybe_unused xisc_runtime_resume(struct device *dev)
- 	if (ret)
- 		return ret;
- 
--	ret = clk_prepare_enable(isc->ispck);
--	if (ret)
--		clk_disable_unprepare(isc->hclock);
--
- 	return ret;
- }
- 
--- 
-2.34.1
-
+ 	if (has_audio) {
+ 		DRM_DEBUG_KMS("Monitor has basic audio support\n");
 
 
