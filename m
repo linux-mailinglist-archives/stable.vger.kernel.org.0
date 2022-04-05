@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B0EAD4F3486
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:38:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 083DF4F33B9
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:21:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237757AbiDEJER (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:04:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38380 "EHLO
+        id S237878AbiDEJEY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:04:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39666 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242743AbiDEIt3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:49:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E839470F70;
-        Tue,  5 Apr 2022 01:37:39 -0700 (PDT)
+        with ESMTP id S242794AbiDEItd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:49:33 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27B4674DEE;
+        Tue,  5 Apr 2022 01:37:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BA5A9614E2;
-        Tue,  5 Apr 2022 08:37:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF48AC385A0;
-        Tue,  5 Apr 2022 08:37:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 317A1B81C19;
+        Tue,  5 Apr 2022 08:37:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96157C385A0;
+        Tue,  5 Apr 2022 08:37:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147850;
-        bh=S9aXtfEKDGdBQZkVkd+a1yTaeGJtvtEgjUrZ0wayzj4=;
+        s=korg; t=1649147853;
+        bh=7Rkrs3sSrSyd8jDFyNshJ53iysc72CbfSpCQdoARRUk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L+v2fXqiy9ax9kTB/1Kdi6r6Gj9Q4QumHYW2/s2d1BXvmjAY94/GPcUVxWAjl71ab
-         YMuvQvG4SvIIRJ2QB50+fcgcQMYLjJMZuV1IPAD7ehq9P8CWi5UYS/tDHEsx2B0NV3
-         aGIb51stzuuPvgrHeGmAQMcgvXi6ZsJQLf5ubIug=
+        b=b9e87uoSquDRaT56EJKvhdH8/aUes8C/o+qQKiDgywRkVw69w5r8gWeOIghDH5Van
+         vqzVa8b1WfhYY/F63E+M8QMtkWOLOt5tf71NQ3Zgm1d7n2/K+WLEVnbBhbKl2nIaAs
+         1WZKoeqe8iytUEFyx+86N3gQ4hcIEWCNMOntvruw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, linux-security-module@vger.kernel.org,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@linux.microsoft.com>
-Subject: [PATCH 5.16 0143/1017] landlock: Use square brackets around "landlock-ruleset"
-Date:   Tue,  5 Apr 2022 09:17:36 +0200
-Message-Id: <20220405070358.448959069@linuxfoundation.org>
+        stable@vger.kernel.org, Pekka Pessi <ppessi@nvidia.com>,
+        Jon Hunter <jonathanh@nvidia.com>,
+        Thierry Reding <treding@nvidia.com>,
+        Jassi Brar <jaswinder.singh@linaro.org>
+Subject: [PATCH 5.16 0144/1017] mailbox: tegra-hsp: Flush whole channel
+Date:   Tue,  5 Apr 2022 09:17:37 +0200
+Message-Id: <20220405070358.478359288@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -54,49 +55,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Brauner <christian.brauner@ubuntu.com>
+From: Pekka Pessi <ppessi@nvidia.com>
 
-commit aea0b9f2486da8497f35c7114b764bf55e17c7ea upstream.
+commit 60de2d2dc284e0dd1c2c897d08625bde24ef3454 upstream.
 
-Make the name of the anon inode fd "[landlock-ruleset]" instead of
-"landlock-ruleset". This is minor but most anon inode fds already
-carry square brackets around their name:
+The txdone can re-fill the mailbox. Keep polling the mailbox during the
+flush until all the messages have been delivered.
 
-    [eventfd]
-    [eventpoll]
-    [fanotify]
-    [fscontext]
-    [io_uring]
-    [pidfd]
-    [signalfd]
-    [timerfd]
-    [userfaultfd]
+This fixes an issue with the Tegra Combined UART (TCU) where output can
+get truncated under high traffic load.
 
-For the sake of consistency lets do the same for the landlock-ruleset anon
-inode fd that comes with landlock. We did the same in
-1cdc415f1083 ("uapi, fsopen: use square brackets around "fscontext" [ver #2]")
-for the new mount api.
-
-Cc: linux-security-module@vger.kernel.org
-Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
-Link: https://lore.kernel.org/r/20211011133704.1704369-1-brauner@kernel.org
+Signed-off-by: Pekka Pessi <ppessi@nvidia.com>
+Tested-by: Jon Hunter <jonathanh@nvidia.com>
+Fixes: 91b1b1c3da8a ("mailbox: tegra-hsp: Add support for shared mailboxes")
 Cc: stable@vger.kernel.org
-Signed-off-by: Mickaël Salaün <mic@linux.microsoft.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
+Reviewed-by: Jon Hunter <jonathanh@nvidia.com>
+Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- security/landlock/syscalls.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mailbox/tegra-hsp.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/security/landlock/syscalls.c
-+++ b/security/landlock/syscalls.c
-@@ -192,7 +192,7 @@ SYSCALL_DEFINE3(landlock_create_ruleset,
- 		return PTR_ERR(ruleset);
+--- a/drivers/mailbox/tegra-hsp.c
++++ b/drivers/mailbox/tegra-hsp.c
+@@ -412,6 +412,11 @@ static int tegra_hsp_mailbox_flush(struc
+ 		value = tegra_hsp_channel_readl(ch, HSP_SM_SHRD_MBOX);
+ 		if ((value & HSP_SM_SHRD_MBOX_FULL) == 0) {
+ 			mbox_chan_txdone(chan, 0);
++
++			/* Wait until channel is empty */
++			if (chan->active_req != NULL)
++				continue;
++
+ 			return 0;
+ 		}
  
- 	/* Creates anonymous FD referring to the ruleset. */
--	ruleset_fd = anon_inode_getfd("landlock-ruleset", &ruleset_fops,
-+	ruleset_fd = anon_inode_getfd("[landlock-ruleset]", &ruleset_fops,
- 			ruleset, O_RDWR | O_CLOEXEC);
- 	if (ruleset_fd < 0)
- 		landlock_put_ruleset(ruleset);
 
 
