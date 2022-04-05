@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EB2944F3129
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:39:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F29C4F320C
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:54:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237173AbiDEIlp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:41:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52918 "EHLO
+        id S237135AbiDEIlm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:41:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53140 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237059AbiDEI3F (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:29:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1E9315FC9;
-        Tue,  5 Apr 2022 01:21:12 -0700 (PDT)
+        with ESMTP id S237186AbiDEI3J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:29:09 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0D9519C39;
+        Tue,  5 Apr 2022 01:21:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1F55561001;
-        Tue,  5 Apr 2022 08:21:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33467C385A0;
-        Tue,  5 Apr 2022 08:21:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A90C4B81BBC;
+        Tue,  5 Apr 2022 08:21:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC4E5C385A0;
+        Tue,  5 Apr 2022 08:21:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146871;
-        bh=hP7Ta8lHWxh6NeT9h5JeWb6KQ3S+wTrRwcg0WqNvRtc=;
+        s=korg; t=1649146874;
+        bh=93YLaa0zQ7hqgghUl04JHh02d/eZiQqyJBOIBGaKxuc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=maMqZ1VJ+BT0/sHcM4x/Dvmnr8F3Bra5KY35fhaKqKfe/+sGip7FqK29MAKpMKCe9
-         PJM2Y1Ghvxqn66Gtzmd6W0zmt5WiRcgY+1zfweLsZM6KXsiLwJBBIO/Gg6ZcBV3v2d
-         J22m3hPAuAn2Q1jYtTMiYPuBt2PW81h0H6hFfnKc=
+        b=PfxRSfsYV69vJkmDX/9wgmGjhgHVCZ03CI4kcNnTtJHRr2a2v4KN/b3OfjB2d+TQr
+         y/UNu+X15jaOavY6HalitYi7Myj+ZOujWP7989PHyPX+rUPmEFEIsy7kPXDGfDlrz1
+         57E7rCYSrBqrqO2E/nGzWL5FNcoSuXydySdz8RYs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zeal Robot <zealci@zte.com.cn>,
-        Jing Yao <yao.jing2@zte.com.cn>, Helge Deller <deller@gmx.de>,
+        stable@vger.kernel.org, Richard Schleich <rs@noreya.tech>,
+        Stefan Wahren <stefan.wahren@i2se.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0917/1126] video: fbdev: udlfb: replace snprintf in show functions with sysfs_emit
-Date:   Tue,  5 Apr 2022 09:27:44 +0200
-Message-Id: <20220405070434.437944181@linuxfoundation.org>
+Subject: [PATCH 5.17 0918/1126] ARM: dts: bcm2711: Add the missing L1/L2 cache information
+Date:   Tue,  5 Apr 2022 09:27:45 +0200
+Message-Id: <20220405070434.466920225@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -54,59 +55,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jing Yao <yao.jing2@zte.com.cn>
+From: Richard Schleich <rs@noreya.tech>
 
-[ Upstream commit 81a998288956d09d7a7a2303d47e4d60ad55c401 ]
+[ Upstream commit 618682b350990f8f1bee718949c4b3858711eb58 ]
 
-Use sysfs_emit instead of scnprintf, snprintf or sprintf.
+This patch fixes the kernel warning
+"cacheinfo: Unable to detect cache hierarchy for CPU 0"
+for the bcm2711 on newer kernel versions.
 
-Reported-by: Zeal Robot <zealci@zte.com.cn>
-Signed-off-by: Jing Yao <yao.jing2@zte.com.cn>
-Signed-off-by: Helge Deller <deller@gmx.de>
+Signed-off-by: Richard Schleich <rs@noreya.tech>
+Tested-by: Stefan Wahren <stefan.wahren@i2se.com>
+[florian: Align and remove comments matching property values]
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/udlfb.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/arm/boot/dts/bcm2711.dtsi | 50 ++++++++++++++++++++++++++++++++++
+ 1 file changed, 50 insertions(+)
 
-diff --git a/drivers/video/fbdev/udlfb.c b/drivers/video/fbdev/udlfb.c
-index b9cdd02c1000..90f48b71fd8f 100644
---- a/drivers/video/fbdev/udlfb.c
-+++ b/drivers/video/fbdev/udlfb.c
-@@ -1426,7 +1426,7 @@ static ssize_t metrics_bytes_rendered_show(struct device *fbdev,
- 				   struct device_attribute *a, char *buf) {
- 	struct fb_info *fb_info = dev_get_drvdata(fbdev);
- 	struct dlfb_data *dlfb = fb_info->par;
--	return snprintf(buf, PAGE_SIZE, "%u\n",
-+	return sysfs_emit(buf, "%u\n",
- 			atomic_read(&dlfb->bytes_rendered));
- }
+diff --git a/arch/arm/boot/dts/bcm2711.dtsi b/arch/arm/boot/dts/bcm2711.dtsi
+index 21294f775a20..89af57482bc8 100644
+--- a/arch/arm/boot/dts/bcm2711.dtsi
++++ b/arch/arm/boot/dts/bcm2711.dtsi
+@@ -459,12 +459,26 @@
+ 		#size-cells = <0>;
+ 		enable-method = "brcm,bcm2836-smp"; // for ARM 32-bit
  
-@@ -1434,7 +1434,7 @@ static ssize_t metrics_bytes_identical_show(struct device *fbdev,
- 				   struct device_attribute *a, char *buf) {
- 	struct fb_info *fb_info = dev_get_drvdata(fbdev);
- 	struct dlfb_data *dlfb = fb_info->par;
--	return snprintf(buf, PAGE_SIZE, "%u\n",
-+	return sysfs_emit(buf, "%u\n",
- 			atomic_read(&dlfb->bytes_identical));
- }
++		/* Source for d/i-cache-line-size and d/i-cache-sets
++		 * https://developer.arm.com/documentation/100095/0003
++		 * /Level-1-Memory-System/About-the-L1-memory-system?lang=en
++		 * Source for d/i-cache-size
++		 * https://www.raspberrypi.com/documentation/computers
++		 * /processors.html#bcm2711
++		 */
+ 		cpu0: cpu@0 {
+ 			device_type = "cpu";
+ 			compatible = "arm,cortex-a72";
+ 			reg = <0>;
+ 			enable-method = "spin-table";
+ 			cpu-release-addr = <0x0 0x000000d8>;
++			d-cache-size = <0x8000>;
++			d-cache-line-size = <64>;
++			d-cache-sets = <256>; // 32KiB(size)/64(line-size)=512ways/2-way set
++			i-cache-size = <0xc000>;
++			i-cache-line-size = <64>;
++			i-cache-sets = <256>; // 48KiB(size)/64(line-size)=768ways/3-way set
++			next-level-cache = <&l2>;
+ 		};
  
-@@ -1442,7 +1442,7 @@ static ssize_t metrics_bytes_sent_show(struct device *fbdev,
- 				   struct device_attribute *a, char *buf) {
- 	struct fb_info *fb_info = dev_get_drvdata(fbdev);
- 	struct dlfb_data *dlfb = fb_info->par;
--	return snprintf(buf, PAGE_SIZE, "%u\n",
-+	return sysfs_emit(buf, "%u\n",
- 			atomic_read(&dlfb->bytes_sent));
- }
+ 		cpu1: cpu@1 {
+@@ -473,6 +487,13 @@
+ 			reg = <1>;
+ 			enable-method = "spin-table";
+ 			cpu-release-addr = <0x0 0x000000e0>;
++			d-cache-size = <0x8000>;
++			d-cache-line-size = <64>;
++			d-cache-sets = <256>; // 32KiB(size)/64(line-size)=512ways/2-way set
++			i-cache-size = <0xc000>;
++			i-cache-line-size = <64>;
++			i-cache-sets = <256>; // 48KiB(size)/64(line-size)=768ways/3-way set
++			next-level-cache = <&l2>;
+ 		};
  
-@@ -1450,7 +1450,7 @@ static ssize_t metrics_cpu_kcycles_used_show(struct device *fbdev,
- 				   struct device_attribute *a, char *buf) {
- 	struct fb_info *fb_info = dev_get_drvdata(fbdev);
- 	struct dlfb_data *dlfb = fb_info->par;
--	return snprintf(buf, PAGE_SIZE, "%u\n",
-+	return sysfs_emit(buf, "%u\n",
- 			atomic_read(&dlfb->cpu_kcycles_used));
- }
+ 		cpu2: cpu@2 {
+@@ -481,6 +502,13 @@
+ 			reg = <2>;
+ 			enable-method = "spin-table";
+ 			cpu-release-addr = <0x0 0x000000e8>;
++			d-cache-size = <0x8000>;
++			d-cache-line-size = <64>;
++			d-cache-sets = <256>; // 32KiB(size)/64(line-size)=512ways/2-way set
++			i-cache-size = <0xc000>;
++			i-cache-line-size = <64>;
++			i-cache-sets = <256>; // 48KiB(size)/64(line-size)=768ways/3-way set
++			next-level-cache = <&l2>;
+ 		};
+ 
+ 		cpu3: cpu@3 {
+@@ -489,6 +517,28 @@
+ 			reg = <3>;
+ 			enable-method = "spin-table";
+ 			cpu-release-addr = <0x0 0x000000f0>;
++			d-cache-size = <0x8000>;
++			d-cache-line-size = <64>;
++			d-cache-sets = <256>; // 32KiB(size)/64(line-size)=512ways/2-way set
++			i-cache-size = <0xc000>;
++			i-cache-line-size = <64>;
++			i-cache-sets = <256>; // 48KiB(size)/64(line-size)=768ways/3-way set
++			next-level-cache = <&l2>;
++		};
++
++		/* Source for d/i-cache-line-size and d/i-cache-sets
++		 *  https://developer.arm.com/documentation/100095/0003
++		 *  /Level-2-Memory-System/About-the-L2-memory-system?lang=en
++		 *  Source for d/i-cache-size
++		 *  https://www.raspberrypi.com/documentation/computers
++		 *  /processors.html#bcm2711
++		 */
++		l2: l2-cache0 {
++			compatible = "cache";
++			cache-size = <0x100000>;
++			cache-line-size = <64>;
++			cache-sets = <1024>; // 1MiB(size)/64(line-size)=16384ways/16-way set
++			cache-level = <2>;
+ 		};
+ 	};
  
 -- 
 2.34.1
