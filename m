@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0764D4F37F1
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:26:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 36D0B4F3AA8
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:03:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359735AbiDELUl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:20:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39510 "EHLO
+        id S1381650AbiDELqv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:46:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43774 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349080AbiDEJtF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:05 -0400
+        with ESMTP id S1354717AbiDEKPQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:15:16 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FA26A9951;
-        Tue,  5 Apr 2022 02:40:17 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74D0D6C489;
+        Tue,  5 Apr 2022 03:02:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 35188B818F3;
-        Tue,  5 Apr 2022 09:40:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 915B2C385A1;
-        Tue,  5 Apr 2022 09:40:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1FC1FB81C83;
+        Tue,  5 Apr 2022 10:02:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 706B3C385A2;
+        Tue,  5 Apr 2022 10:02:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151615;
-        bh=pmz8VFRznL4qWCoGOrrIxTyP3DntmYhPsBWgkc/K+O4=;
+        s=korg; t=1649152946;
+        bh=i2lYnXvB9uh7beCesqpoNaBCXU6jLSBPvK+0DaTe7dc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jv4kdyUfQbQx9VfLwtLmLRBraBjP2aSKAERWqWq2DENO6gGyMWFeAgMUjMFFXiBK5
-         UG45qrneNjYksFRGL4Ems5NOBpePw3yU/aRpegCtLJCK+c3fo05KJ5dMzrsK3plkzm
-         kX26tHWMqN53QRohwAJRUQIIbZxwbWno89Vv7sac=
+        b=vvv1cTdqG9HW99q5+q7gEG2wMBuZ/M5AUsad5VjMv18pP6F93IyoFH5M3LjZKXi2c
+         S19C3X2iyP8NbrXp7qumd/eBOXH1TnwUacpjoE8TJzz+YqRXyKj3jrQHvcDfZ9tSgw
+         cu6jQJROQLe/7w8Dbuh8lob1CKQQW8AdwAXFlmo0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hiral Patel <hiralpat@cisco.com>,
-        Hannes Reinecke <hare@suse.de>,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 479/913] scsi: fnic: Fix a tracing statement
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Chuck Lever <chuck.lever@oracle.com>
+Subject: [PATCH 5.10 047/599] NFSD: prevent integer overflow on 32 bit systems
 Date:   Tue,  5 Apr 2022 09:25:41 +0200
-Message-Id: <20220405070354.212134655@linuxfoundation.org>
+Message-Id: <20220405070300.228545542@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070258.802373272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,40 +53,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 3032ed77a28913203a4fe0ab8f05752331af79b3 ]
+commit 23a9dbbe0faf124fc4c139615633b9d12a3a89ef upstream.
 
-Report both the command flags and command state instead of only the
-command state.
+On a 32 bit system, the "len * sizeof(*p)" operation can have an
+integer overflow.
 
-Link: https://lore.kernel.org/r/20220218195117.25689-22-bvanassche@acm.org
-Fixes: 4d7007b49d52 ("[SCSI] fnic: Fnic Trace Utility")
-Cc: Hiral Patel <hiralpat@cisco.com>
-Reviewed-by: Hannes Reinecke <hare@suse.de>
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/fnic/fnic_scsi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/sunrpc/xdr.h |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/scsi/fnic/fnic_scsi.c b/drivers/scsi/fnic/fnic_scsi.c
-index f8afbfb468dc..d084a7db3925 100644
---- a/drivers/scsi/fnic/fnic_scsi.c
-+++ b/drivers/scsi/fnic/fnic_scsi.c
-@@ -604,7 +604,7 @@ static int fnic_queuecommand_lck(struct scsi_cmnd *sc, void (*done)(struct scsi_
+--- a/include/linux/sunrpc/xdr.h
++++ b/include/linux/sunrpc/xdr.h
+@@ -603,6 +603,8 @@ xdr_stream_decode_uint32_array(struct xd
  
- 	FNIC_TRACE(fnic_queuecommand, sc->device->host->host_no,
- 		  tag, sc, io_req, sg_count, cmd_trace,
--		  (((u64)CMD_FLAGS(sc) >> 32) | CMD_STATE(sc)));
-+		  (((u64)CMD_FLAGS(sc) << 32) | CMD_STATE(sc)));
- 
- 	/* if only we issued IO, will we have the io lock */
- 	if (io_lock_acquired)
--- 
-2.34.1
-
+ 	if (unlikely(xdr_stream_decode_u32(xdr, &len) < 0))
+ 		return -EBADMSG;
++	if (len > SIZE_MAX / sizeof(*p))
++		return -EBADMSG;
+ 	p = xdr_inline_decode(xdr, len * sizeof(*p));
+ 	if (unlikely(!p))
+ 		return -EBADMSG;
 
 
