@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C9B594F34BE
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:39:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E0DF64F2F17
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:05:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343632AbiDEI5Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:57:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52206 "EHLO
+        id S1343651AbiDEI5V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:57:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52830 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242271AbiDEIhS (ORCPT
+        with ESMTP id S242277AbiDEIhS (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:37:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5F8D1C915;
-        Tue,  5 Apr 2022 01:32:35 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A0A51C928;
+        Tue,  5 Apr 2022 01:32:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7B085B81C69;
-        Tue,  5 Apr 2022 08:32:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA976C385A0;
-        Tue,  5 Apr 2022 08:32:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AABB260FF5;
+        Tue,  5 Apr 2022 08:32:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B75C9C385A0;
+        Tue,  5 Apr 2022 08:32:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147553;
-        bh=03Ws9qQgvQwf9mtv7tPWt+LryrlarzUFcRPDufIyokE=;
+        s=korg; t=1649147556;
+        bh=JAcNIEr1LPWrk+L53Ncmi4AbV1sJxXCTFWiNjxRRQuQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kGX27FcRvhPjMCW0rtlLb1Mldk8bVzVRr7cU7WpsQAllQV7y030Vd12+pFFmBrTWr
-         nqST0stx204WeMAVPiTWo4ZZkP589dPYJM3kaJKJ5DI/rKmxDH6GddIy7CQqg8BMat
-         pqP6g6gxL8Pikb7LkeATYVqFik6Oz8K+YgV1gb4o=
+        b=FpkoPBDob5ySX1D74Kb+uQIQrtrFKO6+3b2e2YjHOXO86aRTJJMm7bH0gCWCHHVYe
+         0FLixkoiZjJXZ8EqxH5p1M+QGcRaUUgOIsd1bGkFaXMEc46NcMHp3wQdn6djIJRgx+
+         nTIYdvGJvxLJZGLqZ7EkUhSKdhwPQSZYev+MCLDI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Alexander Usyskin <alexander.usyskin@intel.com>,
         Tomas Winkler <tomas.winkler@intel.com>
-Subject: [PATCH 5.16 0038/1017] mei: me: disable driver on the ign firmware
-Date:   Tue,  5 Apr 2022 09:15:51 +0200
-Message-Id: <20220405070355.310457936@linuxfoundation.org>
+Subject: [PATCH 5.16 0039/1017] mei: me: add Alder Lake N device id.
+Date:   Tue,  5 Apr 2022 09:15:52 +0200
+Message-Id: <20220405070355.339716085@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -56,100 +56,39 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Alexander Usyskin <alexander.usyskin@intel.com>
 
-commit ccdf6f806fbf559f7c29ed9302a7c1b4da7fd37f upstream.
+commit 7bbbd0845818cffa9fa8ccfe52fa1cad58e7e4f2 upstream.
 
-Add a quirk to disable MEI interface on Intel PCH Ignition (IGN)
-as the IGN firmware doesn't support the protocol.
+Add Alder Lake N device ID.
 
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
 Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
-Link: https://lore.kernel.org/r/20220215080438.264876-1-tomas.winkler@intel.com
+Link: https://lore.kernel.org/r/20220301071115.96145-1-tomas.winkler@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
  drivers/misc/mei/hw-me-regs.h |    1 +
- drivers/misc/mei/hw-me.c      |   23 ++++++++++++-----------
- 2 files changed, 13 insertions(+), 11 deletions(-)
+ drivers/misc/mei/pci-me.c     |    1 +
+ 2 files changed, 2 insertions(+)
 
 --- a/drivers/misc/mei/hw-me-regs.h
 +++ b/drivers/misc/mei/hw-me-regs.h
-@@ -120,6 +120,7 @@
- #define PCI_CFG_HFS_2         0x48
- #define PCI_CFG_HFS_3         0x60
- #  define PCI_CFG_HFS_3_FW_SKU_MSK   0x00000070
-+#  define PCI_CFG_HFS_3_FW_SKU_IGN   0x00000000
- #  define PCI_CFG_HFS_3_FW_SKU_SPS   0x00000060
- #define PCI_CFG_HFS_4         0x64
- #define PCI_CFG_HFS_5         0x68
---- a/drivers/misc/mei/hw-me.c
-+++ b/drivers/misc/mei/hw-me.c
-@@ -1405,16 +1405,16 @@ static bool mei_me_fw_type_sps_4(const s
- 	.quirk_probe = mei_me_fw_type_sps_4
- 
- /**
-- * mei_me_fw_type_sps() - check for sps sku
-+ * mei_me_fw_type_sps_ign() - check for sps or ign sku
-  *
-- * Read ME FW Status register to check for SPS Firmware.
-- * The SPS FW is only signaled in pci function 0
-+ * Read ME FW Status register to check for SPS or IGN Firmware.
-+ * The SPS/IGN FW is only signaled in pci function 0
-  *
-  * @pdev: pci device
-  *
-- * Return: true in case of SPS firmware
-+ * Return: true in case of SPS/IGN firmware
-  */
--static bool mei_me_fw_type_sps(const struct pci_dev *pdev)
-+static bool mei_me_fw_type_sps_ign(const struct pci_dev *pdev)
- {
- 	u32 reg;
- 	u32 fw_type;
-@@ -1427,14 +1427,15 @@ static bool mei_me_fw_type_sps(const str
- 
- 	dev_dbg(&pdev->dev, "fw type is %d\n", fw_type);
- 
--	return fw_type == PCI_CFG_HFS_3_FW_SKU_SPS;
-+	return fw_type == PCI_CFG_HFS_3_FW_SKU_IGN ||
-+	       fw_type == PCI_CFG_HFS_3_FW_SKU_SPS;
- }
- 
- #define MEI_CFG_KIND_ITOUCH                     \
- 	.kind = "itouch"
- 
--#define MEI_CFG_FW_SPS                          \
--	.quirk_probe = mei_me_fw_type_sps
-+#define MEI_CFG_FW_SPS_IGN                      \
-+	.quirk_probe = mei_me_fw_type_sps_ign
- 
- #define MEI_CFG_FW_VER_SUPP                     \
- 	.fw_ver_supported = 1
-@@ -1535,7 +1536,7 @@ static const struct mei_cfg mei_me_pch12
- 	MEI_CFG_PCH8_HFS,
- 	MEI_CFG_FW_VER_SUPP,
- 	MEI_CFG_DMA_128,
--	MEI_CFG_FW_SPS,
-+	MEI_CFG_FW_SPS_IGN,
- };
- 
- /* Cannon Lake itouch with quirk for SPS 5.0 and newer Firmware exclusion
-@@ -1545,7 +1546,7 @@ static const struct mei_cfg mei_me_pch12
- 	MEI_CFG_KIND_ITOUCH,
- 	MEI_CFG_PCH8_HFS,
- 	MEI_CFG_FW_VER_SUPP,
--	MEI_CFG_FW_SPS,
-+	MEI_CFG_FW_SPS_IGN,
- };
- 
- /* Tiger Lake and newer devices */
-@@ -1562,7 +1563,7 @@ static const struct mei_cfg mei_me_pch15
- 	MEI_CFG_FW_VER_SUPP,
- 	MEI_CFG_DMA_128,
- 	MEI_CFG_TRC,
--	MEI_CFG_FW_SPS,
-+	MEI_CFG_FW_SPS_IGN,
- };
+@@ -107,6 +107,7 @@
+ #define MEI_DEV_ID_ADP_S      0x7AE8  /* Alder Lake Point S */
+ #define MEI_DEV_ID_ADP_LP     0x7A60  /* Alder Lake Point LP */
+ #define MEI_DEV_ID_ADP_P      0x51E0  /* Alder Lake Point P */
++#define MEI_DEV_ID_ADP_N      0x54E0  /* Alder Lake Point N */
  
  /*
+  * MEI HW Section
+--- a/drivers/misc/mei/pci-me.c
++++ b/drivers/misc/mei/pci-me.c
+@@ -113,6 +113,7 @@ static const struct pci_device_id mei_me
+ 	{MEI_PCI_DEVICE(MEI_DEV_ID_ADP_S, MEI_ME_PCH15_CFG)},
+ 	{MEI_PCI_DEVICE(MEI_DEV_ID_ADP_LP, MEI_ME_PCH15_CFG)},
+ 	{MEI_PCI_DEVICE(MEI_DEV_ID_ADP_P, MEI_ME_PCH15_CFG)},
++	{MEI_PCI_DEVICE(MEI_DEV_ID_ADP_N, MEI_ME_PCH15_CFG)},
+ 
+ 	/* required last entry */
+ 	{0, }
 
 
