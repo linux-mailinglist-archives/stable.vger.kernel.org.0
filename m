@@ -2,48 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AF6BA4F34EA
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:42:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 29F1D4F2F5B
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:11:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234121AbiDEI0C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:26:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43750 "EHLO
+        id S242398AbiDEJgw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:36:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52156 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238941AbiDEITc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:19:32 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BECA37563A;
-        Tue,  5 Apr 2022 01:09:50 -0700 (PDT)
+        with ESMTP id S235430AbiDEJCB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:02:01 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D843CCE;
+        Tue,  5 Apr 2022 01:53:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 64E2FB81B18;
-        Tue,  5 Apr 2022 08:09:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFDC7C385A1;
-        Tue,  5 Apr 2022 08:09:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EDC4D609D0;
+        Tue,  5 Apr 2022 08:53:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02667C385A1;
+        Tue,  5 Apr 2022 08:53:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146188;
-        bh=4kehsUoFuHZvf+v386mFHnSayBJJEsioJWxUk8t19Es=;
+        s=korg; t=1649148832;
+        bh=sdZSVqqIUKYImkqKfFXcls0oMxfp3eb4lHqdIelvcyQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iLPkSAPAqHbqqM5LTeaxVNcovjo4S6lHFuTJBwz7mzSriNQ/MSDBw3NCm92JiMisc
-         IcEpnVw3yyzxWBpilHe2dUuyUnbijpc3CxTFQMd8vNxgz9zVLEuDVFshiApZHYV/FR
-         EKAifcCXq+0jMrlzTLKsbPS4JQeMTetkK7DVWEig=
+        b=nlKIHTwpaRWOv1ZtPIjIVJ+KPWihWUPePQxe8ajcFzR2H6CpoNmspHBmostWb+QvF
+         TP4lvM9YBLMJ3qGiDvr+1wpq1W5Mk6rqnKgSQXOKVDtuuoUc1FdEBEAJ6vpGtLQIXp
+         9zZNqFBhIMZWbdW4W3px+uVhS8s52h0tU+b90n7E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bjorn Helgaas <helgaas@kernel.org>,
-        Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Rob Herring <robh@kernel.org>,
-        Scott Branden <scott.branden@broadcom.com>,
+        stable@vger.kernel.org,
+        syzbot+53619be9444215e785ed@syzkaller.appspotmail.com,
+        Yonghong Song <yhs@fb.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Martin KaFai Lau <kafai@fb.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0635/1126] PCI: Reduce warnings on possible RW1C corruption
-Date:   Tue,  5 Apr 2022 09:23:02 +0200
-Message-Id: <20220405070426.276000207@linuxfoundation.org>
+Subject: [PATCH 5.16 0470/1017] bpf: Fix a btf decl_tag bug when tagging a function
+Date:   Tue,  5 Apr 2022 09:23:03 +0200
+Message-Id: <20220405070408.249913058@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,69 +57,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
+From: Yonghong Song <yhs@fb.com>
 
-[ Upstream commit 92c45b63ce22c8898aa41806e8d6692bcd577510 ]
+[ Upstream commit d7e7b42f4f956f2c68ad8cda87d750093dbba737 ]
 
-For hardware that only supports 32-bit writes to PCI there is the
-possibility of clearing RW1C (write-one-to-clear) bits. A rate-limited
-messages was introduced by fb2659230120, but rate-limiting is not the best
-choice here. Some devices may not show the warnings they should if another
-device has just produced a bunch of warnings. Also, the number of messages
-can be a nuisance on devices which are otherwise working fine.
+syzbot reported a btf decl_tag bug with stack trace below:
 
-Change the ratelimit to a single warning per bus. This ensures no bus is
-'starved' of emitting a warning and also that there isn't a continuous
-stream of warnings. It would be preferable to have a warning per device,
-but the pci_dev structure is not available here, and a lookup from devfn
-would be far too slow.
+  general protection fault, probably for non-canonical address 0xdffffc0000000000: 0000 [#1] PREEMPT SMP KASAN
+  KASAN: null-ptr-deref in range [0x0000000000000000-0x0000000000000007]
+  CPU: 0 PID: 3592 Comm: syz-executor914 Not tainted 5.16.0-syzkaller-11424-gb7892f7d5cb2 #0
+  Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+  RIP: 0010:btf_type_vlen include/linux/btf.h:231 [inline]
+  RIP: 0010:btf_decl_tag_resolve+0x83e/0xaa0 kernel/bpf/btf.c:3910
+  ...
+  Call Trace:
+   <TASK>
+   btf_resolve+0x251/0x1020 kernel/bpf/btf.c:4198
+   btf_check_all_types kernel/bpf/btf.c:4239 [inline]
+   btf_parse_type_sec kernel/bpf/btf.c:4280 [inline]
+   btf_parse kernel/bpf/btf.c:4513 [inline]
+   btf_new_fd+0x19fe/0x2370 kernel/bpf/btf.c:6047
+   bpf_btf_load kernel/bpf/syscall.c:4039 [inline]
+   __sys_bpf+0x1cbb/0x5970 kernel/bpf/syscall.c:4679
+   __do_sys_bpf kernel/bpf/syscall.c:4738 [inline]
+   __se_sys_bpf kernel/bpf/syscall.c:4736 [inline]
+   __x64_sys_bpf+0x75/0xb0 kernel/bpf/syscall.c:4736
+   do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+   do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+   entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-Suggested-by: Bjorn Helgaas <helgaas@kernel.org>
-Fixes: fb2659230120 ("PCI: Warn on possible RW1C corruption for sub-32 bit config writes")
-Link: https://lore.kernel.org/r/20200806041455.11070-1-mark.tomlinson@alliedtelesis.co.nz
-Signed-off-by: Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Reviewed-by: Rob Herring <robh@kernel.org>
-Acked-by: Scott Branden <scott.branden@broadcom.com>
+The kasan error is triggered with an illegal BTF like below:
+   type 0: void
+   type 1: int
+   type 2: decl_tag to func type 3
+   type 3: func to func_proto type 8
+The total number of types is 4 and the type 3 is illegal
+since its func_proto type is out of range.
+
+Currently, the target type of decl_tag can be struct/union, var or func.
+Both struct/union and var implemented their own 'resolve' callback functions
+and hence handled properly in kernel.
+But func type doesn't have 'resolve' callback function. When
+btf_decl_tag_resolve() tries to check func type, it tries to get
+vlen of its func_proto type, which triggered the above kasan error.
+
+To fix the issue, btf_decl_tag_resolve() needs to do btf_func_check()
+before trying to accessing func_proto type.
+In the current implementation, func type is checked with
+btf_func_check() in the main checking function btf_check_all_types().
+To fix the above kasan issue, let us implement 'resolve' callback
+func type properly. The 'resolve' callback will be also called
+in btf_check_all_types() for func types.
+
+Fixes: b5ea834dde6b ("bpf: Support for new btf kind BTF_KIND_TAG")
+Reported-by: syzbot+53619be9444215e785ed@syzkaller.appspotmail.com
+Signed-off-by: Yonghong Song <yhs@fb.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Acked-by: Martin KaFai Lau <kafai@fb.com>
+Link: https://lore.kernel.org/bpf/20220203191727.741862-1-yhs@fb.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/access.c | 9 ++++++---
- include/linux/pci.h  | 1 +
- 2 files changed, 7 insertions(+), 3 deletions(-)
+ kernel/bpf/btf.c | 29 +++++++++++++++++++++--------
+ 1 file changed, 21 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/pci/access.c b/drivers/pci/access.c
-index 0d9f6b21babb..708c7529647f 100644
---- a/drivers/pci/access.c
-+++ b/drivers/pci/access.c
-@@ -159,9 +159,12 @@ int pci_generic_config_write32(struct pci_bus *bus, unsigned int devfn,
- 	 * write happen to have any RW1C (write-one-to-clear) bits set, we
- 	 * just inadvertently cleared something we shouldn't have.
- 	 */
--	dev_warn_ratelimited(&bus->dev, "%d-byte config write to %04x:%02x:%02x.%d offset %#x may corrupt adjacent RW1C bits\n",
--			     size, pci_domain_nr(bus), bus->number,
--			     PCI_SLOT(devfn), PCI_FUNC(devfn), where);
-+	if (!bus->unsafe_warn) {
-+		dev_warn(&bus->dev, "%d-byte config write to %04x:%02x:%02x.%d offset %#x may corrupt adjacent RW1C bits\n",
-+			 size, pci_domain_nr(bus), bus->number,
-+			 PCI_SLOT(devfn), PCI_FUNC(devfn), where);
-+		bus->unsafe_warn = 1;
-+	}
+diff --git a/kernel/bpf/btf.c b/kernel/bpf/btf.c
+index 1f7967ab9e46..ebbb2f4d3b9c 100644
+--- a/kernel/bpf/btf.c
++++ b/kernel/bpf/btf.c
+@@ -401,6 +401,9 @@ static struct btf_type btf_void;
+ static int btf_resolve(struct btf_verifier_env *env,
+ 		       const struct btf_type *t, u32 type_id);
  
- 	mask = ~(((1 << (size * 8)) - 1) << ((where & 0x3) * 8));
- 	tmp = readl(addr) & mask;
-diff --git a/include/linux/pci.h b/include/linux/pci.h
-index 8253a5413d7c..678fecdf6b81 100644
---- a/include/linux/pci.h
-+++ b/include/linux/pci.h
-@@ -668,6 +668,7 @@ struct pci_bus {
- 	struct bin_attribute	*legacy_io;	/* Legacy I/O for this bus */
- 	struct bin_attribute	*legacy_mem;	/* Legacy mem */
- 	unsigned int		is_added:1;
-+	unsigned int		unsafe_warn:1;	/* warned about RW1C config write */
- };
++static int btf_func_check(struct btf_verifier_env *env,
++			  const struct btf_type *t);
++
+ static bool btf_type_is_modifier(const struct btf_type *t)
+ {
+ 	/* Some of them is not strictly a C modifier
+@@ -576,6 +579,7 @@ static bool btf_type_needs_resolve(const struct btf_type *t)
+ 	       btf_type_is_struct(t) ||
+ 	       btf_type_is_array(t) ||
+ 	       btf_type_is_var(t) ||
++	       btf_type_is_func(t) ||
+ 	       btf_type_is_decl_tag(t) ||
+ 	       btf_type_is_datasec(t);
+ }
+@@ -3521,9 +3525,24 @@ static s32 btf_func_check_meta(struct btf_verifier_env *env,
+ 	return 0;
+ }
  
- #define to_pci_bus(n)	container_of(n, struct pci_bus, dev)
++static int btf_func_resolve(struct btf_verifier_env *env,
++			    const struct resolve_vertex *v)
++{
++	const struct btf_type *t = v->t;
++	u32 next_type_id = t->type;
++	int err;
++
++	err = btf_func_check(env, t);
++	if (err)
++		return err;
++
++	env_stack_pop_resolved(env, next_type_id, 0);
++	return 0;
++}
++
+ static struct btf_kind_operations func_ops = {
+ 	.check_meta = btf_func_check_meta,
+-	.resolve = btf_df_resolve,
++	.resolve = btf_func_resolve,
+ 	.check_member = btf_df_check_member,
+ 	.check_kflag_member = btf_df_check_kflag_member,
+ 	.log_details = btf_ref_type_log,
+@@ -4143,7 +4162,7 @@ static bool btf_resolve_valid(struct btf_verifier_env *env,
+ 		return !btf_resolved_type_id(btf, type_id) &&
+ 		       !btf_resolved_type_size(btf, type_id);
+ 
+-	if (btf_type_is_decl_tag(t))
++	if (btf_type_is_decl_tag(t) || btf_type_is_func(t))
+ 		return btf_resolved_type_id(btf, type_id) &&
+ 		       !btf_resolved_type_size(btf, type_id);
+ 
+@@ -4233,12 +4252,6 @@ static int btf_check_all_types(struct btf_verifier_env *env)
+ 			if (err)
+ 				return err;
+ 		}
+-
+-		if (btf_type_is_func(t)) {
+-			err = btf_func_check(env, t);
+-			if (err)
+-				return err;
+-		}
+ 	}
+ 
+ 	return 0;
 -- 
 2.34.1
 
