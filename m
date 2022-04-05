@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C1994F37A0
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:21:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CEF24F3AE5
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:06:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359403AbiDELSm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:18:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39194 "EHLO
+        id S240560AbiDELtw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:49:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59278 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349152AbiDEJtP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:15 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4110B21BA;
-        Tue,  5 Apr 2022 02:41:39 -0700 (PDT)
+        with ESMTP id S1356050AbiDEKWu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:22:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 827C2AC044;
+        Tue,  5 Apr 2022 03:05:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D4C5061368;
-        Tue,  5 Apr 2022 09:41:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4CBDC385A2;
-        Tue,  5 Apr 2022 09:41:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E35C56167E;
+        Tue,  5 Apr 2022 10:05:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 018ECC385A2;
+        Tue,  5 Apr 2022 10:05:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151698;
-        bh=CeZr6ICdh2BiYtwNF0fyFtjLR6iV2iC7gHrnHqzEX1Q=;
+        s=korg; t=1649153140;
+        bh=9ZFDDhY/swhbtnUTI1swTrMLKGNPHHThkWr5qPxbwOQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s+GODKJiw3DtzGamskswd6GepnB8PozlrmwaS400116v3HMD5f7dWvVmo7C3Ia02t
-         19TLldsiLbC8/yxpBc/3sDrE+4PR8BjXreRa3WSeGfuq7RgI7jkoYmv97uC/LTkEBD
-         3asVXg9MnRAnXI9b52tcAuOilfrdDsKMUo/AOEu0=
+        b=f6XievaABNZMfONiAbv7emK3iXl6bwBXnTP+KT0LLjU+bLLL59PGD6dNFcDrW21y/
+         Xk2uRXGQux8cn3+BBOWH6KRuW540EmnMMBuTeZ16W3vtDqo8Sy6qkD230WT9q1tbea
+         vWxDQQU0Lk04o/o2pUT2ufhJ7AUsbUk0VO3Utwvw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
-        Hou Wenlong <houwenlong.hwl@antgroup.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 510/913] KVM: x86/emulator: Defer not-present segment check in __load_segment_descriptor()
-Date:   Tue,  5 Apr 2022 09:26:12 +0200
-Message-Id: <20220405070355.142132025@linuxfoundation.org>
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Milan Broz <gmazyland@gmail.com>,
+        Mike Snitzer <snitzer@kernel.org>
+Subject: [PATCH 5.10 079/599] dm integrity: set journal entry unused when shrinking device
+Date:   Tue,  5 Apr 2022 09:26:13 +0200
+Message-Id: <20220405070301.176421140@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070258.802373272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,68 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hou Wenlong <houwenlong.hwl@antgroup.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-[ Upstream commit ca85f002258fdac3762c57d12d5e6e401b6a41af ]
+commit cc09e8a9dec4f0e8299e80a7a2a8e6f54164a10b upstream.
 
-Per Intel's SDM on the "Instruction Set Reference", when
-loading segment descriptor, not-present segment check should
-be after all type and privilege checks. But the emulator checks
-it first, then #NP is triggered instead of #GP if privilege fails
-and segment is not present. Put not-present segment check after
-type and privilege checks in __load_segment_descriptor().
+Commit f6f72f32c22c ("dm integrity: don't replay journal data past the
+end of the device") skips journal replay if the target sector points
+beyond the end of the device. Unfortunatelly, it doesn't set the
+journal entry unused, which resulted in this BUG being triggered:
+BUG_ON(!journal_entry_is_unused(je))
 
-Fixes: 38ba30ba51a00 (KVM: x86 emulator: Emulate task switch in emulator.c)
-Reviewed-by: Sean Christopherson <seanjc@google.com>
-Signed-off-by: Hou Wenlong <houwenlong.hwl@antgroup.com>
-Message-Id: <52573c01d369f506cadcf7233812427cf7db81a7.1644292363.git.houwenlong.hwl@antgroup.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix this by calling journal_entry_set_unused() for this case.
+
+Fixes: f6f72f32c22c ("dm integrity: don't replay journal data past the end of the device")
+Cc: stable@vger.kernel.org # v5.7+
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Tested-by: Milan Broz <gmazyland@gmail.com>
+[snitzer: revised header]
+Signed-off-by: Mike Snitzer <snitzer@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/emulate.c | 14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+ drivers/md/dm-integrity.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/kvm/emulate.c b/arch/x86/kvm/emulate.c
-index 9a144ca8e146..4cf0938a876b 100644
---- a/arch/x86/kvm/emulate.c
-+++ b/arch/x86/kvm/emulate.c
-@@ -1614,11 +1614,6 @@ static int __load_segment_descriptor(struct x86_emulate_ctxt *ctxt,
- 		goto exception;
- 	}
- 
--	if (!seg_desc.p) {
--		err_vec = (seg == VCPU_SREG_SS) ? SS_VECTOR : NP_VECTOR;
--		goto exception;
--	}
--
- 	dpl = seg_desc.dpl;
- 
- 	switch (seg) {
-@@ -1658,6 +1653,10 @@ static int __load_segment_descriptor(struct x86_emulate_ctxt *ctxt,
- 	case VCPU_SREG_TR:
- 		if (seg_desc.s || (seg_desc.type != 1 && seg_desc.type != 9))
- 			goto exception;
-+		if (!seg_desc.p) {
-+			err_vec = NP_VECTOR;
-+			goto exception;
-+		}
- 		old_desc = seg_desc;
- 		seg_desc.type |= 2; /* busy */
- 		ret = ctxt->ops->cmpxchg_emulated(ctxt, desc_addr, &old_desc, &seg_desc,
-@@ -1682,6 +1681,11 @@ static int __load_segment_descriptor(struct x86_emulate_ctxt *ctxt,
- 		break;
- 	}
- 
-+	if (!seg_desc.p) {
-+		err_vec = (seg == VCPU_SREG_SS) ? SS_VECTOR : NP_VECTOR;
-+		goto exception;
-+	}
-+
- 	if (seg_desc.s) {
- 		/* mark segment as accessed */
- 		if (!(seg_desc.type & 1)) {
--- 
-2.34.1
-
+--- a/drivers/md/dm-integrity.c
++++ b/drivers/md/dm-integrity.c
+@@ -2354,9 +2354,11 @@ static void do_journal_write(struct dm_i
+ 					dm_integrity_io_error(ic, "invalid sector in journal", -EIO);
+ 					sec &= ~(sector_t)(ic->sectors_per_block - 1);
+ 				}
++				if (unlikely(sec >= ic->provided_data_sectors)) {
++					journal_entry_set_unused(je);
++					continue;
++				}
+ 			}
+-			if (unlikely(sec >= ic->provided_data_sectors))
+-				continue;
+ 			get_area_and_offset(ic, sec, &area, &offset);
+ 			restore_last_bytes(ic, access_journal_data(ic, i, j), je);
+ 			for (k = j + 1; k < ic->journal_section_entries; k++) {
 
 
