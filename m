@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A0DA4F30FE
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:36:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E3434F339A
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:21:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236836AbiDEI2m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:28:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34692 "EHLO
+        id S236721AbiDEI2U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:28:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33066 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239633AbiDEIUU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:20:20 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B696220;
-        Tue,  5 Apr 2022 01:17:58 -0700 (PDT)
+        with ESMTP id S239635AbiDEIUW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:20:22 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFDCB23D;
+        Tue,  5 Apr 2022 01:17:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5E383B81A32;
-        Tue,  5 Apr 2022 08:17:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BCC16C385A1;
-        Tue,  5 Apr 2022 08:17:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6CF93609D0;
+        Tue,  5 Apr 2022 08:17:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C11DC385A0;
+        Tue,  5 Apr 2022 08:17:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146676;
-        bh=YCzwUFyhUEJ/GM5eR1opJD1pGTH09ZAKXiiX9wurdYo=;
+        s=korg; t=1649146678;
+        bh=d3YXV1SN896TgSNYx8CBoSddmJC+I78AzDBukYVlFqk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w5hh1n7Xs/MzlwJLUN28xVdz3bi8A8rzNqZDIdzGRErvWAufyH1TcaaO2dKQDSEty
-         T8REizvK0O9rVkUw8MC3hmII1HvXYbb/gcFvXCyK6+7/zP+3dMcIluPTFQUy0/WQrZ
-         35sXPlqb1a/KH5VkqzvwRfgcmaURJTDUkABT9vy0=
+        b=mzakvXoHbYEYuS0914goaNCy+tl17MZ9sGZEjMcLOmhA3UC7K04uXDKR5lO+y/viq
+         fmTQycVTiaxCPd/fQYU+txQRioiGR+NurkC5sxpBZCiW93kD5/sVqcdMAIxQ41S+J+
+         gys8ZIvEK10p3FL1QFD9fMGg3iuftkQPy+vaGSeo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        Fangrui Song <maskray@google.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0849/1126] arm64: module: remove (NOLOAD) from linker script
-Date:   Tue,  5 Apr 2022 09:26:36 +0200
-Message-Id: <20220405070432.469188454@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Richard Haines <richard_c_haines@btinternet.com>,
+        Paul Moore <paul@paul-moore.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Demi Marie Obenour <demiobenour@gmail.com>
+Subject: [PATCH 5.17 0850/1126] selinux: allow FIOCLEX and FIONCLEX with policy capability
+Date:   Tue,  5 Apr 2022 09:26:37 +0200
+Message-Id: <20220405070432.497470634@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -55,52 +56,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fangrui Song <maskray@google.com>
+From: Richard Haines <richard_c_haines@btinternet.com>
 
-[ Upstream commit 4013e26670c590944abdab56c4fa797527b74325 ]
+[ Upstream commit 65881e1db4e948614d9eb195b8e1197339822949 ]
 
-On ELF, (NOLOAD) sets the section type to SHT_NOBITS[1]. It is conceptually
-inappropriate for .plt and .text.* sections which are always
-SHT_PROGBITS.
+These ioctls are equivalent to fcntl(fd, F_SETFD, flags), which SELinux
+always allows too.  Furthermore, a failed FIOCLEX could result in a file
+descriptor being leaked to a process that should not have access to it.
 
-In GNU ld, if PLT entries are needed, .plt will be SHT_PROGBITS anyway
-and (NOLOAD) will be essentially ignored. In ld.lld, since
-https://reviews.llvm.org/D118840 ("[ELF] Support (TYPE=<value>) to
-customize the output section type"), ld.lld will report a `section type
-mismatch` error. Just remove (NOLOAD) to fix the error.
+As this patch removes access controls, a policy capability needs to be
+enabled in policy to always allow these ioctls.
 
-[1] https://lld.llvm.org/ELF/linker_script.html As of today, "The
-section should be marked as not loadable" on
-https://sourceware.org/binutils/docs/ld/Output-Section-Type.html is
-outdated for ELF.
-
-Tested-by: Nathan Chancellor <nathan@kernel.org>
-Reported-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Fangrui Song <maskray@google.com>
-Acked-by: Ard Biesheuvel <ardb@kernel.org>
-Link: https://lore.kernel.org/r/20220218081209.354383-1-maskray@google.com
-Signed-off-by: Will Deacon <will@kernel.org>
+Based-on-patch-by: Demi Marie Obenour <demiobenour@gmail.com>
+Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+[PM: subject line tweak]
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/module.lds.h | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ security/selinux/hooks.c                   | 6 ++++++
+ security/selinux/include/policycap.h       | 1 +
+ security/selinux/include/policycap_names.h | 3 ++-
+ security/selinux/include/security.h        | 7 +++++++
+ 4 files changed, 16 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/include/asm/module.lds.h b/arch/arm64/include/asm/module.lds.h
-index a11ccadd47d2..094701ec5500 100644
---- a/arch/arm64/include/asm/module.lds.h
-+++ b/arch/arm64/include/asm/module.lds.h
-@@ -1,8 +1,8 @@
- SECTIONS {
- #ifdef CONFIG_ARM64_MODULE_PLTS
--	.plt 0 (NOLOAD) : { BYTE(0) }
--	.init.plt 0 (NOLOAD) : { BYTE(0) }
--	.text.ftrace_trampoline 0 (NOLOAD) : { BYTE(0) }
-+	.plt 0 : { BYTE(0) }
-+	.init.plt 0 : { BYTE(0) }
-+	.text.ftrace_trampoline 0 : { BYTE(0) }
- #endif
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 047c63f923b8..ea725891e566 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -3751,6 +3751,12 @@ static int selinux_file_ioctl(struct file *file, unsigned int cmd,
+ 					    CAP_OPT_NONE, true);
+ 		break;
  
- #ifdef CONFIG_KASAN_SW_TAGS
++	case FIOCLEX:
++	case FIONCLEX:
++		if (!selinux_policycap_ioctl_skip_cloexec())
++			error = ioctl_has_perm(cred, file, FILE__IOCTL, (u16) cmd);
++		break;
++
+ 	/* default case assumes that the command will go
+ 	 * to the file's ioctl() function.
+ 	 */
+diff --git a/security/selinux/include/policycap.h b/security/selinux/include/policycap.h
+index 2ec038efbb03..a9e572ca4fd9 100644
+--- a/security/selinux/include/policycap.h
++++ b/security/selinux/include/policycap.h
+@@ -11,6 +11,7 @@ enum {
+ 	POLICYDB_CAPABILITY_CGROUPSECLABEL,
+ 	POLICYDB_CAPABILITY_NNP_NOSUID_TRANSITION,
+ 	POLICYDB_CAPABILITY_GENFS_SECLABEL_SYMLINKS,
++	POLICYDB_CAPABILITY_IOCTL_SKIP_CLOEXEC,
+ 	__POLICYDB_CAPABILITY_MAX
+ };
+ #define POLICYDB_CAPABILITY_MAX (__POLICYDB_CAPABILITY_MAX - 1)
+diff --git a/security/selinux/include/policycap_names.h b/security/selinux/include/policycap_names.h
+index b89289f092c9..ebd64afe1def 100644
+--- a/security/selinux/include/policycap_names.h
++++ b/security/selinux/include/policycap_names.h
+@@ -12,7 +12,8 @@ const char *selinux_policycap_names[__POLICYDB_CAPABILITY_MAX] = {
+ 	"always_check_network",
+ 	"cgroup_seclabel",
+ 	"nnp_nosuid_transition",
+-	"genfs_seclabel_symlinks"
++	"genfs_seclabel_symlinks",
++	"ioctl_skip_cloexec"
+ };
+ 
+ #endif /* _SELINUX_POLICYCAP_NAMES_H_ */
+diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+index ac0ece01305a..c0d966020ebd 100644
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -219,6 +219,13 @@ static inline bool selinux_policycap_genfs_seclabel_symlinks(void)
+ 	return READ_ONCE(state->policycap[POLICYDB_CAPABILITY_GENFS_SECLABEL_SYMLINKS]);
+ }
+ 
++static inline bool selinux_policycap_ioctl_skip_cloexec(void)
++{
++	struct selinux_state *state = &selinux_state;
++
++	return READ_ONCE(state->policycap[POLICYDB_CAPABILITY_IOCTL_SKIP_CLOEXEC]);
++}
++
+ struct selinux_policy_convert_data;
+ 
+ struct selinux_load_state {
 -- 
 2.34.1
 
