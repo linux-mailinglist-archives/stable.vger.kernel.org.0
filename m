@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D78F4F28BE
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:21:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB2564F28BB
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:21:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239875AbiDEIVm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:21:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58414 "EHLO
+        id S235686AbiDEIVe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:21:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41944 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233679AbiDEIJW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:09:22 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5917C6C978;
-        Tue,  5 Apr 2022 01:02:35 -0700 (PDT)
+        with ESMTP id S233769AbiDEIJ2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:09:28 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90B936CA4C;
+        Tue,  5 Apr 2022 01:02:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B52A3B81B16;
-        Tue,  5 Apr 2022 08:02:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 119A0C385A0;
-        Tue,  5 Apr 2022 08:02:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 628BDB81B14;
+        Tue,  5 Apr 2022 08:02:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C40A2C385A0;
+        Tue,  5 Apr 2022 08:02:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145753;
-        bh=UjJLc0HP9py4xCM5JPQjlI5Xwf3NoCf93kB8Yyy5PnA=;
+        s=korg; t=1649145756;
+        bh=PCOovBywQjdfs89+FJpIp3nsalzk5qELoJAhclxvLXw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Shs838LtOXNnemxUboMA15DBHPpJ+dgEHtPFasRkTDDhrJzQIonemMTEkSmeFONcs
-         3qEQQcPdvs+8KG60uDE9xJDDYnI65jSHe8GKayAzUNE0oCZlkIJvJCB9ZBF9bZmzI3
-         YWcd/5zm+Q+eH7H4yrVNUs0gqGea+hJFN2h8MJzw=
+        b=JtTz+MvjoBwJ722tyK8kyJINkzq61/+J47MNfP3yBjtgVnFyEBkU+JwKZkzABa3vm
+         Z3shctA66laNdJv7wwXA5hM8wJiLWBYyvFax4z03ZP0BFNTeSBFHPixe97hnSJ3ap5
+         vGoKLasd8lZLbbOSV8zWUiDiYn5YgYmYCsKO9vME=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Michael Walle <michael@walle.cc>,
         Miquel Raynal <miquel.raynal@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0518/1126] mtd: mchp23k256: Add SPI ID table
-Date:   Tue,  5 Apr 2022 09:21:05 +0200
-Message-Id: <20220405070422.833998709@linuxfoundation.org>
+Subject: [PATCH 5.17 0519/1126] mtd: mchp48l640: Add SPI ID table
+Date:   Tue,  5 Apr 2022 09:21:06 +0200
+Message-Id: <20220405070422.863091512@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -57,7 +57,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mark Brown <broonie@kernel.org>
 
-[ Upstream commit bc7ee2e34b219da6813c17a1680dd20766648883 ]
+[ Upstream commit 69a6d06878f05d63673b0dcdc3c3ef1af2996d46 ]
 
 Currently autoloading for SPI devices does not use the DT ID table, it uses
 SPI modalises. Supporting OF modalises is going to be difficult if not
@@ -69,44 +69,40 @@ Fixes: 96c8395e2166 ("spi: Revert modalias changes")
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Reviewed-by: Michael Walle <michael@walle.cc>
 Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20220202143404.16070-3-broonie@kernel.org
+Link: https://lore.kernel.org/linux-mtd/20220202143404.16070-4-broonie@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/devices/mchp23k256.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ drivers/mtd/devices/mchp48l640.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/mtd/devices/mchp23k256.c b/drivers/mtd/devices/mchp23k256.c
-index a8b31bddf14b..1a840db207b5 100644
---- a/drivers/mtd/devices/mchp23k256.c
-+++ b/drivers/mtd/devices/mchp23k256.c
-@@ -231,6 +231,19 @@ static const struct of_device_id mchp23k256_of_table[] = {
+diff --git a/drivers/mtd/devices/mchp48l640.c b/drivers/mtd/devices/mchp48l640.c
+index 231a10790196..b9cf2b4415a5 100644
+--- a/drivers/mtd/devices/mchp48l640.c
++++ b/drivers/mtd/devices/mchp48l640.c
+@@ -359,6 +359,15 @@ static const struct of_device_id mchp48l640_of_table[] = {
  };
- MODULE_DEVICE_TABLE(of, mchp23k256_of_table);
+ MODULE_DEVICE_TABLE(of, mchp48l640_of_table);
  
-+static const struct spi_device_id mchp23k256_spi_ids[] = {
++static const struct spi_device_id mchp48l640_spi_ids[] = {
 +	{
-+		.name = "mchp23k256",
-+		.driver_data = (kernel_ulong_t)&mchp23k256_caps,
-+	},
-+	{
-+		.name = "mchp23lcv1024",
-+		.driver_data = (kernel_ulong_t)&mchp23lcv1024_caps,
++		.name = "48l640",
++		.driver_data = (kernel_ulong_t)&mchp48l640_caps,
 +	},
 +	{}
 +};
-+MODULE_DEVICE_TABLE(spi, mchp23k256_spi_ids);
++MODULE_DEVICE_TABLE(spi, mchp48l640_spi_ids);
 +
- static struct spi_driver mchp23k256_driver = {
+ static struct spi_driver mchp48l640_driver = {
  	.driver = {
- 		.name	= "mchp23k256",
-@@ -238,6 +251,7 @@ static struct spi_driver mchp23k256_driver = {
+ 		.name	= "mchp48l640",
+@@ -366,6 +375,7 @@ static struct spi_driver mchp48l640_driver = {
  	},
- 	.probe		= mchp23k256_probe,
- 	.remove		= mchp23k256_remove,
-+	.id_table	= mchp23k256_spi_ids,
+ 	.probe		= mchp48l640_probe,
+ 	.remove		= mchp48l640_remove,
++	.id_table	= mchp48l640_spi_ids,
  };
  
- module_spi_driver(mchp23k256_driver);
+ module_spi_driver(mchp48l640_driver);
 -- 
 2.34.1
 
