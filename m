@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CEE444F3C04
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:23:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F49C4F3930
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:45:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382269AbiDEMD7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:03:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50688 "EHLO
+        id S1377704AbiDELaT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:30:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35096 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358147AbiDEK2C (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:28:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 759DF9BBB8;
-        Tue,  5 Apr 2022 03:15:56 -0700 (PDT)
+        with ESMTP id S1352649AbiDEKEv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:04:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B36DBB93B;
+        Tue,  5 Apr 2022 02:53:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2ECB7B81C98;
-        Tue,  5 Apr 2022 10:15:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97DE9C385A0;
-        Tue,  5 Apr 2022 10:15:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F18F661741;
+        Tue,  5 Apr 2022 09:53:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAF58C385A2;
+        Tue,  5 Apr 2022 09:53:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153754;
-        bh=pllJwSg82srfAKyDgvJ4BWWLH9Horfff9Wx5+FML3QA=;
+        s=korg; t=1649152417;
+        bh=f5kwN4S2vdesuUj/xzMZWQjyIOdPLVM7/VR9lrPVkig=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XtravBLMLz5dcQzsfBBzSsz6ZqUf7TThda3enjHf3DokVi2C5rJReiRwnJSOV2/li
-         H/tSNOAjr5V6Mn8lAPZJXqLUiy/KCCjofpGSaNuKliovM6pYs4vJea+CAqwvCTM6D7
-         3qyxNAJ6IYX/Z3KGR2+kX6ISoc/rEiJn2s0mAlxM=
+        b=BuSg87JuxayP3ctVQis9jOmJ7kKvOxCvjLi4d5sf8P/Lv21Y6y7e7d3xDmzIcO4jZ
+         xDJ72ADbLX0uaooCc5PqFq6Eg8+adM+ti8LqV3122x0RL/2uy8+n2ugVikmG5BJWyQ
+         N2lWlWmZLDysOG2lHOGaxLkoFL82DCIw9L4fEWns=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert Hancock <robert.hancock@calian.com>,
-        Michal Simek <michal.simek@xilinx.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 336/599] i2c: xiic: Make bus names unique
-Date:   Tue,  5 Apr 2022 09:30:30 +0200
-Message-Id: <20220405070308.830822507@linuxfoundation.org>
+        stable@vger.kernel.org, Matt Kramer <mccleetus@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 769/913] ALSA: hda/realtek: Add alc256-samsung-headphone fixup
+Date:   Tue,  5 Apr 2022 09:30:31 +0200
+Message-Id: <20220405070402.883278443@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
-References: <20220405070258.802373272@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +53,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Hancock <robert.hancock@calian.com>
+From: Matt Kramer <mccleetus@gmail.com>
 
-[ Upstream commit 1d366c2f9df8279df2adbb60471f86fc40a1c39e ]
+[ Upstream commit ef248d9bd616b04df8be25539a4dc5db4b6c56f4 ]
 
-This driver is for an FPGA logic core, so there can be arbitrarily many
-instances of the bus on a given system. Previously all of the I2C bus
-names were "xiic-i2c" which caused issues with lm_sensors when trying to
-map human-readable names to sensor inputs because it could not properly
-distinguish the busses, for example. Append the platform device name to
-the I2C bus name so it is unique between different instances.
+This fixes the near-silence of the headphone jack on the ALC256-based
+Samsung Galaxy Book Flex Alpha (NP730QCJ). The magic verbs were found
+through trial and error, using known ALC298 hacks as inspiration. The
+fixup is auto-enabled only when the NP730QCJ is detected. It can be
+manually enabled using model=alc256-samsung-headphone.
 
-Fixes: e1d5b6598cdc ("i2c: Add support for Xilinx XPS IIC Bus Interface")
-Signed-off-by: Robert Hancock <robert.hancock@calian.com>
-Tested-by: Michal Simek <michal.simek@xilinx.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Matt Kramer <mccleetus@gmail.com>
+Link: https://lore.kernel.org/r/3168355.aeNJFYEL58@linus
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-xiic.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ Documentation/sound/hd-audio/models.rst |  4 ++++
+ sound/pci/hda/patch_realtek.c           | 11 +++++++++++
+ 2 files changed, 15 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
-index 2a8568b97c14..8dabb6ffb1a4 100644
---- a/drivers/i2c/busses/i2c-xiic.c
-+++ b/drivers/i2c/busses/i2c-xiic.c
-@@ -756,7 +756,6 @@ static const struct i2c_adapter_quirks xiic_quirks = {
+diff --git a/Documentation/sound/hd-audio/models.rst b/Documentation/sound/hd-audio/models.rst
+index d25335993e55..9b52f50a6854 100644
+--- a/Documentation/sound/hd-audio/models.rst
++++ b/Documentation/sound/hd-audio/models.rst
+@@ -261,6 +261,10 @@ alc-sense-combo
+ huawei-mbx-stereo
+     Enable initialization verbs for Huawei MBX stereo speakers;
+     might be risky, try this at your own risk
++alc298-samsung-headphone
++    Samsung laptops with ALC298
++alc256-samsung-headphone
++    Samsung laptops with ALC256
  
- static const struct i2c_adapter xiic_adapter = {
- 	.owner = THIS_MODULE,
--	.name = DRIVER_NAME,
- 	.class = I2C_CLASS_DEPRECATED,
- 	.algo = &xiic_algorithm,
- 	.quirks = &xiic_quirks,
-@@ -793,6 +792,8 @@ static int xiic_i2c_probe(struct platform_device *pdev)
- 	i2c_set_adapdata(&i2c->adap, i2c);
- 	i2c->adap.dev.parent = &pdev->dev;
- 	i2c->adap.dev.of_node = pdev->dev.of_node;
-+	snprintf(i2c->adap.name, sizeof(i2c->adap.name),
-+		 DRIVER_NAME " %s", pdev->name);
- 
- 	mutex_init(&i2c->lock);
- 	init_waitqueue_head(&i2c->wait);
+ ALC66x/67x/892
+ ==============
+diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
+index 888d049d5304..f6e5ed34dd09 100644
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -6816,6 +6816,7 @@ enum {
+ 	ALC236_FIXUP_HP_MUTE_LED,
+ 	ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF,
+ 	ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET,
++	ALC256_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET,
+ 	ALC295_FIXUP_ASUS_MIC_NO_PRESENCE,
+ 	ALC269VC_FIXUP_ACER_VCOPPERBOX_PINS,
+ 	ALC269VC_FIXUP_ACER_HEADSET_MIC,
+@@ -8138,6 +8139,14 @@ static const struct hda_fixup alc269_fixups[] = {
+ 			{ }
+ 		},
+ 	},
++	[ALC256_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET] = {
++		.type = HDA_FIXUP_VERBS,
++		.v.verbs = (const struct hda_verb[]) {
++			{ 0x20, AC_VERB_SET_COEF_INDEX, 0x08},
++			{ 0x20, AC_VERB_SET_PROC_COEF, 0x2fcf},
++			{ }
++		},
++	},
+ 	[ALC295_FIXUP_ASUS_MIC_NO_PRESENCE] = {
+ 		.type = HDA_FIXUP_PINS,
+ 		.v.pins = (const struct hda_pintbl[]) {
+@@ -8900,6 +8909,7 @@ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
+ 	SND_PCI_QUIRK(0x144d, 0xc740, "Samsung Ativ book 8 (NP870Z5G)", ALC269_FIXUP_ATIV_BOOK_8),
+ 	SND_PCI_QUIRK(0x144d, 0xc812, "Samsung Notebook Pen S (NT950SBE-X58)", ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
+ 	SND_PCI_QUIRK(0x144d, 0xc830, "Samsung Galaxy Book Ion (NT950XCJ-X716A)", ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
++	SND_PCI_QUIRK(0x144d, 0xc832, "Samsung Galaxy Book Flex Alpha (NP730QCJ)", ALC256_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
+ 	SND_PCI_QUIRK(0x1458, 0xfa53, "Gigabyte BXBT-2807", ALC283_FIXUP_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x1462, 0xb120, "MSI Cubi MS-B120", ALC283_FIXUP_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x1462, 0xb171, "Cubi N 8GL (MS-B171)", ALC283_FIXUP_HEADSET_MIC),
+@@ -9242,6 +9252,7 @@ static const struct hda_model_fixup alc269_fixup_models[] = {
+ 	{.id = ALC298_FIXUP_HUAWEI_MBX_STEREO, .name = "huawei-mbx-stereo"},
+ 	{.id = ALC256_FIXUP_MEDION_HEADSET_NO_PRESENCE, .name = "alc256-medion-headset"},
+ 	{.id = ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET, .name = "alc298-samsung-headphone"},
++	{.id = ALC256_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET, .name = "alc256-samsung-headphone"},
+ 	{.id = ALC255_FIXUP_XIAOMI_HEADSET_MIC, .name = "alc255-xiaomi-headset"},
+ 	{.id = ALC274_FIXUP_HP_MIC, .name = "alc274-hp-mic-detect"},
+ 	{.id = ALC245_FIXUP_HP_X360_AMP, .name = "alc245-hp-x360-amp"},
 -- 
 2.34.1
 
