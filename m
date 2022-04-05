@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FEE24F3128
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:39:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 27FBD4F2F9F
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:17:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355858AbiDEKWK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:22:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46088 "EHLO
+        id S1356038AbiDEKWs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:22:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55266 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347892AbiDEJ2j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:28:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE44ADFF98;
-        Tue,  5 Apr 2022 02:15:56 -0700 (PDT)
+        with ESMTP id S1347989AbiDEJ3A (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:29:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E4E6DFFB1;
+        Tue,  5 Apr 2022 02:16:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 87B8E61645;
-        Tue,  5 Apr 2022 09:15:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99FD4C385A0;
-        Tue,  5 Apr 2022 09:15:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3BA73B81B14;
+        Tue,  5 Apr 2022 09:16:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84A48C385A2;
+        Tue,  5 Apr 2022 09:15:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150156;
-        bh=+I1kIkWfWuQyDHUH07N7TM2+SinRMRMesn+il5ED1Oo=;
+        s=korg; t=1649150158;
+        bh=YyaqKt4emR4QrHkLMVt4S1mW679qGg2lM39pkxvrAYY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xbGWWZlSh7iC5kHKxzH7RqRjxdmCNjZdBYmjSIz8xNgZLMiQSeGqXYi/ap4q5XcCu
-         lrEVLVorQlggEaxw6kb1ijutM4KklDccvhlOHoigg8oLzt0mujN80+7I/Rg8oQs63j
-         +02x0m1FWsoyjHbCW9nw4lu7LwRm7WqSBtzaYCwc=
+        b=n0CMHKrPpyjVeD2FLMXVjvr89shnEb5OMWXfohD+xpCTnlw6au8qSDZIIW/13WsHC
+         XGG2w5ggrApZIh9NQv8gs5QwolJ0CfUsUosx5F0P/XU7OtnpvO92k5nTbF01kYzpMh
+         2XomJjLnx4+EKQRcEkzm4Xj1w/bM4NfqRWhUY67Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.co.jp>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.16 0975/1017] af_unix: Support POLLPRI for OOB.
-Date:   Tue,  5 Apr 2022 09:31:28 +0200
-Message-Id: <20220405070423.146405004@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 5.16 0976/1017] libbpf: Define BTF_KIND_* constants in btf.h to avoid compilation errors
+Date:   Tue,  5 Apr 2022 09:31:29 +0200
+Message-Id: <20220405070423.175749554@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -53,55 +55,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.co.jp>
+From: Toke Høiland-Jørgensen <toke@redhat.com>
 
-commit d9a232d435dcc966738b0f414a86f7edf4f4c8c4 upstream.
+commit eaa266d83a3730a15de2ceebcc89e8f6290e8cf6 upstream.
 
-The commit 314001f0bf92 ("af_unix: Add OOB support") introduced OOB for
-AF_UNIX, but it lacks some changes for POLLPRI.  Let's add the missing
-piece.
+The btf.h header included with libbpf contains inline helper functions to
+check for various BTF kinds. These helpers directly reference the
+BTF_KIND_* constants defined in the kernel header, and because the header
+file is included in user applications, this happens in the user application
+compile units.
 
-In the selftest, normal datagrams are sent followed by OOB data, so this
-commit replaces `POLLIN | POLLPRI` with just `POLLPRI` in the first test
-case.
+This presents a problem if a user application is compiled on a system with
+older kernel headers because the constants are not available. To avoid
+this, add #defines of the constants directly in btf.h before using them.
 
-Fixes: 314001f0bf92 ("af_unix: Add OOB support")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.co.jp>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Since the kernel header moved to an enum for BTF_KIND_*, the #defines can
+shadow the enum values without any errors, so we only need #ifndef guards
+for the constants that predates the conversion to enum. We group these so
+there's only one guard for groups of values that were added together.
+
+  [0] Closes: https://github.com/libbpf/libbpf/issues/436
+
+Fixes: 223f903e9c83 ("bpf: Rename BTF_KIND_TAG to BTF_KIND_DECL_TAG")
+Fixes: 5b84bd10363e ("libbpf: Add support for BTF_KIND_TAG")
+Signed-off-by: Toke Høiland-Jørgensen <toke@redhat.com>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Acked-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Link: https://lore.kernel.org/bpf/20220118141327.34231-1-toke@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/unix/af_unix.c                                  |    4 ++++
- tools/testing/selftests/net/af_unix/test_unix_oob.c |    6 +++---
- 2 files changed, 7 insertions(+), 3 deletions(-)
+ tools/lib/bpf/btf.h |   22 +++++++++++++++++++++-
+ 1 file changed, 21 insertions(+), 1 deletion(-)
 
---- a/net/unix/af_unix.c
-+++ b/net/unix/af_unix.c
-@@ -3049,6 +3049,10 @@ static __poll_t unix_poll(struct file *f
- 		mask |= EPOLLIN | EPOLLRDNORM;
- 	if (sk_is_readable(sk))
- 		mask |= EPOLLIN | EPOLLRDNORM;
-+#if IS_ENABLED(CONFIG_AF_UNIX_OOB)
-+	if (READ_ONCE(unix_sk(sk)->oob_skb))
-+		mask |= EPOLLPRI;
+--- a/tools/lib/bpf/btf.h
++++ b/tools/lib/bpf/btf.h
+@@ -313,8 +313,28 @@ btf_dump__dump_type_data(struct btf_dump
+ 			 const struct btf_dump_type_data_opts *opts);
+ 
+ /*
+- * A set of helpers for easier BTF types handling
++ * A set of helpers for easier BTF types handling.
++ *
++ * The inline functions below rely on constants from the kernel headers which
++ * may not be available for applications including this header file. To avoid
++ * compilation errors, we define all the constants here that were added after
++ * the initial introduction of the BTF_KIND* constants.
+  */
++#ifndef BTF_KIND_FUNC
++#define BTF_KIND_FUNC		12	/* Function	*/
++#define BTF_KIND_FUNC_PROTO	13	/* Function Proto	*/
 +#endif
- 
- 	/* Connection-based need to check for termination and startup */
- 	if ((sk->sk_type == SOCK_STREAM || sk->sk_type == SOCK_SEQPACKET) &&
---- a/tools/testing/selftests/net/af_unix/test_unix_oob.c
-+++ b/tools/testing/selftests/net/af_unix/test_unix_oob.c
-@@ -218,10 +218,10 @@ main(int argc, char **argv)
- 
- 	/* Test 1:
- 	 * veriyf that SIGURG is
--	 * delivered and 63 bytes are
--	 * read and oob is '@'
-+	 * delivered, 63 bytes are
-+	 * read, oob is '@', and POLLPRI works.
- 	 */
--	wait_for_data(pfd, POLLIN | POLLPRI);
-+	wait_for_data(pfd, POLLPRI);
- 	read_oob(pfd, &oob);
- 	len = read_data(pfd, buf, 1024);
- 	if (!signal_recvd || len != 63 || oob != '@') {
++#ifndef BTF_KIND_VAR
++#define BTF_KIND_VAR		14	/* Variable	*/
++#define BTF_KIND_DATASEC	15	/* Section	*/
++#endif
++#ifndef BTF_KIND_FLOAT
++#define BTF_KIND_FLOAT		16	/* Floating point	*/
++#endif
++/* The kernel header switched to enums, so these two were never #defined */
++#define BTF_KIND_DECL_TAG	17	/* Decl Tag */
++#define BTF_KIND_TYPE_TAG	18	/* Type Tag */
++
+ static inline __u16 btf_kind(const struct btf_type *t)
+ {
+ 	return BTF_INFO_KIND(t->info);
 
 
