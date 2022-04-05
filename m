@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 702614F3A62
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:01:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE3894F376F
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:20:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344433AbiDELo7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:44:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43208 "EHLO
+        id S1352959AbiDELNU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:13:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48136 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354630AbiDEKO5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:14:57 -0400
+        with ESMTP id S1349055AbiDEJtC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:02 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A88376BDCA;
-        Tue,  5 Apr 2022 03:01:40 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1D5EA94E6;
+        Tue,  5 Apr 2022 02:39:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 45B3A61676;
-        Tue,  5 Apr 2022 10:01:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 520BDC385A2;
-        Tue,  5 Apr 2022 10:01:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 41C51615E5;
+        Tue,  5 Apr 2022 09:39:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53CC4C385A2;
+        Tue,  5 Apr 2022 09:39:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152899;
-        bh=TOHOU80nAEDJOHOVA9Ggqo7X+R5Neb+VHBK7nnlSFOE=;
+        s=korg; t=1649151561;
+        bh=b9CmBkPoTzeTLTQ03P0MF8/xi7jAsA2piHfG702kMsQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fmzBSymc2f13GiJzw/EQ13ujlJ8Acuz0t2KCDR8Are6ww1yhbS0xrNJLN8h/MplD/
-         lTtiFvXSoMvM/iMPjZWwP6FwgUDg4WsCnSdc0uDAZiTflWZ5gO276XgA8tmVxnYcAE
-         j+5rciAHdzGe0Jb3gPSNLHA9J/yLs0ZGmxtxiqLM=
+        b=1scPs9izTJkIW6jFdO22FVoV2DrdK/dNVeL4ISpH4cxK2ziQ6V6BeH6dNHBYysx70
+         ujZ5Ws4SAPGQlOO+vTa7sxeT/VAqXp+uCVE4kNio2SF6l2lw4rulFTt0uPZQpQl19C
+         i+EfYn6XLpfl0ZSvCv+0ilfWqczhmY3Pa51ZU5xI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anssi Hannula <anssi.hannula@bitwise.fi>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 5.10 029/599] xhci: fix uninitialized string returned by xhci_decode_ctrl_ctx()
+        stable@vger.kernel.org, Geliang Tang <geliang.tang@suse.com>,
+        Mat Martineau <mathew.j.martineau@linux.intel.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 461/913] selftests: mptcp: add csum mib check for mptcp_connect
 Date:   Tue,  5 Apr 2022 09:25:23 +0200
-Message-Id: <20220405070259.689734553@linuxfoundation.org>
+Message-Id: <20220405070353.667445310@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
-References: <20220405070258.802373272@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,43 +55,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anssi Hannula <anssi.hannula@bitwise.fi>
+From: Geliang Tang <geliang.tang@suse.com>
 
-commit 05519b8589a679edb8fa781259893d20bece04ad upstream.
+[ Upstream commit 24720d7452df2dff2e539d9dff28904e25bb1c6d ]
 
-xhci_decode_ctrl_ctx() returns the untouched buffer as-is if both "drop"
-and "add" parameters are zero.
+This patch added the data checksum error mib counters check for the
+script mptcp_connect.sh when the data checksum is enabled.
 
-Fix the function to return an empty string in that case.
+In do_transfer(), got the mib counters twice, before and after running
+the mptcp_connect commands. The latter minus the former is the actual
+number of the data checksum mib counter.
 
-It was not immediately clear from the possible call chains whether this
-issue is currently actually triggerable or not.
+The output looks like this:
 
-Note that before commit 4843b4b5ec64 ("xhci: fix even more unsafe memory
-usage in xhci tracing") the result effect in the failure case was different
-as a static buffer was used here, but the code still worked incorrectly.
+ns1 MPTCP -> ns2 (dead:beef:1::2:10007) MPTCP   (duration    86ms) [ OK ]
+ns1 MPTCP -> ns2 (10.0.2.1:10008      ) MPTCP   (duration    66ms) [ FAIL ]
+server got 1 data checksum error[s]
 
-Fixes: 90d6d5731da7 ("xhci: Add tracing for input control context")
-Cc: stable@vger.kernel.org
-Signed-off-by: Anssi Hannula <anssi.hannula@bitwise.fi>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-commit 4843b4b5ec64 ("xhci: fix even more unsafe memory usage in xhci tracing")
-Link: https://lore.kernel.org/r/20220303110903.1662404-4-mathias.nyman@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 94d66ba1d8e48 ("selftests: mptcp: enable checksum in mptcp_connect.sh")
+Closes: https://github.com/multipath-tcp/mptcp_net-next/issues/255
+Signed-off-by: Geliang Tang <geliang.tang@suse.com>
+Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/xhci.h |    2 ++
- 1 file changed, 2 insertions(+)
+ .../selftests/net/mptcp/mptcp_connect.sh      | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
 
---- a/drivers/usb/host/xhci.h
-+++ b/drivers/usb/host/xhci.h
-@@ -2458,6 +2458,8 @@ static inline const char *xhci_decode_ct
- 	unsigned int	bit;
- 	int		ret = 0;
+diff --git a/tools/testing/selftests/net/mptcp/mptcp_connect.sh b/tools/testing/selftests/net/mptcp/mptcp_connect.sh
+index 559173a8e387..d75fa97609c1 100755
+--- a/tools/testing/selftests/net/mptcp/mptcp_connect.sh
++++ b/tools/testing/selftests/net/mptcp/mptcp_connect.sh
+@@ -445,6 +445,8 @@ do_transfer()
+ 	local stat_ackrx_last_l=$(get_mib_counter "${listener_ns}" "MPTcpExtMPCapableACKRX")
+ 	local stat_cookietx_last=$(get_mib_counter "${listener_ns}" "TcpExtSyncookiesSent")
+ 	local stat_cookierx_last=$(get_mib_counter "${listener_ns}" "TcpExtSyncookiesRecv")
++	local stat_csum_err_s=$(get_mib_counter "${listener_ns}" "MPTcpExtDataCsumErr")
++	local stat_csum_err_c=$(get_mib_counter "${connector_ns}" "MPTcpExtDataCsumErr")
  
-+	str[0] = '\0';
+ 	timeout ${timeout_test} \
+ 		ip netns exec ${listener_ns} \
+@@ -537,6 +539,23 @@ do_transfer()
+ 		fi
+ 	fi
+ 
++	if $checksum; then
++		local csum_err_s=$(get_mib_counter "${listener_ns}" "MPTcpExtDataCsumErr")
++		local csum_err_c=$(get_mib_counter "${connector_ns}" "MPTcpExtDataCsumErr")
 +
- 	if (drop) {
- 		ret = sprintf(str, "Drop:");
- 		for_each_set_bit(bit, &drop, 32)
++		local csum_err_s_nr=$((csum_err_s - stat_csum_err_s))
++		if [ $csum_err_s_nr -gt 0 ]; then
++			printf "[ FAIL ]\nserver got $csum_err_s_nr data checksum error[s]"
++			rets=1
++		fi
++
++		local csum_err_c_nr=$((csum_err_c - stat_csum_err_c))
++		if [ $csum_err_c_nr -gt 0 ]; then
++			printf "[ FAIL ]\nclient got $csum_err_c_nr data checksum error[s]"
++			retc=1
++		fi
++	fi
++
+ 	if [ $retc -eq 0 ] && [ $rets -eq 0 ]; then
+ 		printf "[ OK ]"
+ 	fi
+-- 
+2.34.1
+
 
 
