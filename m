@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DE06C4F39EA
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:57:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 572EF4F39EC
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:57:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378865AbiDELjc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:39:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51744 "EHLO
+        id S1378869AbiDELjf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:39:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55192 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354131AbiDEKLw (ORCPT
+        with ESMTP id S1354132AbiDEKLw (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:11:52 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 117764D9F5;
-        Tue,  5 Apr 2022 02:57:35 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2186C49925;
+        Tue,  5 Apr 2022 02:57:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AE6B5B81B13;
-        Tue,  5 Apr 2022 09:57:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B63BC385A2;
-        Tue,  5 Apr 2022 09:57:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AB0336167E;
+        Tue,  5 Apr 2022 09:57:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEC7AC385A2;
+        Tue,  5 Apr 2022 09:57:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152652;
-        bh=APJ33ZcyptEY6LH63toIiRLFoQnqhYnaWleZfgvO5SQ=;
+        s=korg; t=1649152655;
+        bh=LuZ72yR3zA8xYuhPdNlrC+HdmP3HwSUgVvw+BOohrac=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eZCIfOwFmF8Xy5HAXjTGoPRS8+3PJkKfSBS2XvPlUolaGzP92qMtqqHBi+hB5S08h
-         IP2KL0QK9Shnx49aBKJIOSgZSzNrhmXiiSQxOhNuxfonVgraCIDOOmgwu1sDVwJEJZ
-         wNGyVGTopW8ROw1oDRoWj9paA6CoBCv5VIuUEwjg=
+        b=WUDYOzl6RVYpb9q5PNx5N1ETw+o3tq2K/erJwsN56fepq/zqAlGnIY8aOvWg0ghza
+         7jOr1UO8j90LE357XTxbdBAHhQalGvg3kb7qD5xaZB2Kmrpa+Gt/JG2NeJUGDP+aCC
+         ztOrzJEljUp0NpxitkjqmfHCQsiDODi4l1qHkeeI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Baokun Li <libaokun1@huawei.com>,
-        Richard Weinberger <richard@nod.at>
-Subject: [PATCH 5.15 853/913] ubi: Fix race condition between ctrl_cdev_ioctl and ubi_cdev_ioctl
-Date:   Tue,  5 Apr 2022 09:31:55 +0200
-Message-Id: <20220405070405.397017145@linuxfoundation.org>
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Marc Zyngier <maz@kernel.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Vladimir Murzin <vladimir.murzin@arm.com>
+Subject: [PATCH 5.15 854/913] ARM: iop32x: offset IRQ numbers by 1
+Date:   Tue,  5 Apr 2022 09:31:56 +0200
+Message-Id: <20220405070405.426878489@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -54,192 +56,152 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baokun Li <libaokun1@huawei.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 3cbf0e392f173ba0ce425968c8374a6aa3e90f2e upstream.
+commit 9d67412f24cc3a2c05f35f7c856addb07a2960ce upstream.
 
-Hulk Robot reported a KASAN report about use-after-free:
- ==================================================================
- BUG: KASAN: use-after-free in __list_del_entry_valid+0x13d/0x160
- Read of size 8 at addr ffff888035e37d98 by task ubiattach/1385
- [...]
- Call Trace:
-  klist_dec_and_del+0xa7/0x4a0
-  klist_put+0xc7/0x1a0
-  device_del+0x4d4/0xed0
-  cdev_device_del+0x1a/0x80
-  ubi_attach_mtd_dev+0x2951/0x34b0 [ubi]
-  ctrl_cdev_ioctl+0x286/0x2f0 [ubi]
+iop32x is one of the last platforms to use IRQ 0, and this has apparently
+stopped working in a 2014 cleanup without anyone noticing. This interrupt
+is used for the DMA engine, so most likely this has not actually worked
+in the past 7 years, but it's also not essential for using this board.
 
- Allocated by task 1414:
-  device_add+0x60a/0x18b0
-  cdev_device_add+0x103/0x170
-  ubi_create_volume+0x1118/0x1a10 [ubi]
-  ubi_cdev_ioctl+0xb7f/0x1ba0 [ubi]
+I'm splitting out this change from my GENERIC_IRQ_MULTI_HANDLER
+conversion so it can be backported if anyone cares.
 
- Freed by task 1385:
-  cdev_device_del+0x1a/0x80
-  ubi_remove_volume+0x438/0x6c0 [ubi]
-  ubi_cdev_ioctl+0xbf4/0x1ba0 [ubi]
- [...]
- ==================================================================
-
-The lock held by ctrl_cdev_ioctl is ubi_devices_mutex, but the lock held
-by ubi_cdev_ioctl is ubi->device_mutex. Therefore, the two locks can be
-concurrent.
-
-ctrl_cdev_ioctl contains two operations: ubi_attach and ubi_detach.
-ubi_detach is bug-free because it uses reference counting to prevent
-concurrency. However, uif_init and uif_close in ubi_attach may race with
-ubi_cdev_ioctl.
-
-uif_init will race with ubi_cdev_ioctl as in the following stack.
-           cpu1                   cpu2                  cpu3
-_______________________|________________________|______________________
-ctrl_cdev_ioctl
- ubi_attach_mtd_dev
-  uif_init
-                           ubi_cdev_ioctl
-                            ubi_create_volume
-                             cdev_device_add
-   ubi_add_volume
-   // sysfs exist
-   kill_volumes
-                                                    ubi_cdev_ioctl
-                                                     ubi_remove_volume
-                                                      cdev_device_del
-                                                       // first free
-    ubi_free_volume
-     cdev_del
-     // double free
-   cdev_device_del
-
-And uif_close will race with ubi_cdev_ioctl as in the following stack.
-           cpu1                   cpu2                  cpu3
-_______________________|________________________|______________________
-ctrl_cdev_ioctl
- ubi_attach_mtd_dev
-  uif_init
-                           ubi_cdev_ioctl
-                            ubi_create_volume
-                             cdev_device_add
-  ubi_debugfs_init_dev
-  //error goto out_uif;
-  uif_close
-   kill_volumes
-                                                    ubi_cdev_ioctl
-                                                     ubi_remove_volume
-                                                      cdev_device_del
-                                                       // first free
-    ubi_free_volume
-    // double free
-
-The cause of this problem is that commit 714fb87e8bc0 make device
-"available" before it becomes accessible via sysfs. Therefore, we
-roll back the modification. We will fix the race condition between
-ubi device creation and udev by removing ubi_get_device in
-vol_attribute_show and dev_attribute_show.This avoids accessing
-uninitialized ubi_devices[ubi_num].
-
-ubi_get_device is used to prevent devices from being deleted during
-sysfs execution. However, now kernfs ensures that devices will not
-be deleted before all reference counting are released.
-The key process is shown in the following stack.
-
-device_del
-  device_remove_attrs
-    device_remove_groups
-      sysfs_remove_groups
-        sysfs_remove_group
-          remove_files
-            kernfs_remove_by_name
-              kernfs_remove_by_name_ns
-                __kernfs_remove
-                  kernfs_drain
-
-Fixes: 714fb87e8bc0 ("ubi: Fix race condition between ubi device creation and udev")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Baokun Li <libaokun1@huawei.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Fixes: a71b092a9c68 ("ARM: Convert handle_IRQ to use __handle_domain_irq")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+[ardb: take +1 offset into account in mask/unmask and init as well]
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Tested-by: Marc Zyngier <maz@kernel.org>
+Tested-by: Vladimir Murzin <vladimir.murzin@arm.com> # ARMv7M
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mtd/ubi/build.c |    9 +--------
- drivers/mtd/ubi/vmt.c   |    8 +-------
- 2 files changed, 2 insertions(+), 15 deletions(-)
+ arch/arm/mach-iop32x/include/mach/entry-macro.S |    2 
+ arch/arm/mach-iop32x/include/mach/irqs.h        |    2 
+ arch/arm/mach-iop32x/irq.c                      |    6 +-
+ arch/arm/mach-iop32x/irqs.h                     |   60 ++++++++++++------------
+ 4 files changed, 37 insertions(+), 33 deletions(-)
 
---- a/drivers/mtd/ubi/build.c
-+++ b/drivers/mtd/ubi/build.c
-@@ -351,9 +351,6 @@ static ssize_t dev_attribute_show(struct
- 	 * we still can use 'ubi->ubi_num'.
- 	 */
- 	ubi = container_of(dev, struct ubi_device, dev);
--	ubi = ubi_get_device(ubi->ubi_num);
--	if (!ubi)
--		return -ENODEV;
+--- a/arch/arm/mach-iop32x/include/mach/entry-macro.S
++++ b/arch/arm/mach-iop32x/include/mach/entry-macro.S
+@@ -20,7 +20,7 @@
+ 	mrc     p6, 0, \irqstat, c8, c0, 0	@ Read IINTSRC
+ 	cmp     \irqstat, #0
+ 	clzne   \irqnr, \irqstat
+-	rsbne   \irqnr, \irqnr, #31
++	rsbne   \irqnr, \irqnr, #32
+ 	.endm
  
- 	if (attr == &dev_eraseblock_size)
- 		ret = sprintf(buf, "%d\n", ubi->leb_size);
-@@ -382,7 +379,6 @@ static ssize_t dev_attribute_show(struct
- 	else
- 		ret = -EINVAL;
+ 	.macro arch_ret_to_user, tmp1, tmp2
+--- a/arch/arm/mach-iop32x/include/mach/irqs.h
++++ b/arch/arm/mach-iop32x/include/mach/irqs.h
+@@ -9,6 +9,6 @@
+ #ifndef __IRQS_H
+ #define __IRQS_H
  
--	ubi_put_device(ubi);
- 	return ret;
- }
+-#define NR_IRQS			32
++#define NR_IRQS			33
  
-@@ -979,9 +975,6 @@ int ubi_attach_mtd_dev(struct mtd_info *
- 			goto out_detach;
- 	}
- 
--	/* Make device "available" before it becomes accessible via sysfs */
--	ubi_devices[ubi_num] = ubi;
--
- 	err = uif_init(ubi);
- 	if (err)
- 		goto out_detach;
-@@ -1026,6 +1019,7 @@ int ubi_attach_mtd_dev(struct mtd_info *
- 	wake_up_process(ubi->bgt_thread);
- 	spin_unlock(&ubi->wl_lock);
- 
-+	ubi_devices[ubi_num] = ubi;
- 	ubi_notify_all(ubi, UBI_VOLUME_ADDED, NULL);
- 	return ubi_num;
- 
-@@ -1034,7 +1028,6 @@ out_debugfs:
- out_uif:
- 	uif_close(ubi);
- out_detach:
--	ubi_devices[ubi_num] = NULL;
- 	ubi_wl_close(ubi);
- 	ubi_free_all_volumes(ubi);
- 	vfree(ubi->vtbl);
---- a/drivers/mtd/ubi/vmt.c
-+++ b/drivers/mtd/ubi/vmt.c
-@@ -56,16 +56,11 @@ static ssize_t vol_attribute_show(struct
+ #endif
+--- a/arch/arm/mach-iop32x/irq.c
++++ b/arch/arm/mach-iop32x/irq.c
+@@ -32,14 +32,14 @@ static void intstr_write(u32 val)
+ static void
+ iop32x_irq_mask(struct irq_data *d)
  {
- 	int ret;
- 	struct ubi_volume *vol = container_of(dev, struct ubi_volume, dev);
--	struct ubi_device *ubi;
--
--	ubi = ubi_get_device(vol->ubi->ubi_num);
--	if (!ubi)
--		return -ENODEV;
-+	struct ubi_device *ubi = vol->ubi;
- 
- 	spin_lock(&ubi->volumes_lock);
- 	if (!ubi->volumes[vol->vol_id]) {
- 		spin_unlock(&ubi->volumes_lock);
--		ubi_put_device(ubi);
- 		return -ENODEV;
- 	}
- 	/* Take a reference to prevent volume removal */
-@@ -103,7 +98,6 @@ static ssize_t vol_attribute_show(struct
- 	vol->ref_count -= 1;
- 	ubi_assert(vol->ref_count >= 0);
- 	spin_unlock(&ubi->volumes_lock);
--	ubi_put_device(ubi);
- 	return ret;
+-	iop32x_mask &= ~(1 << d->irq);
++	iop32x_mask &= ~(1 << (d->irq - 1));
+ 	intctl_write(iop32x_mask);
  }
  
+ static void
+ iop32x_irq_unmask(struct irq_data *d)
+ {
+-	iop32x_mask |= 1 << d->irq;
++	iop32x_mask |= 1 << (d->irq - 1);
+ 	intctl_write(iop32x_mask);
+ }
+ 
+@@ -65,7 +65,7 @@ void __init iop32x_init_irq(void)
+ 	    machine_is_em7210())
+ 		*IOP3XX_PCIIRSR = 0x0f;
+ 
+-	for (i = 0; i < NR_IRQS; i++) {
++	for (i = 1; i < NR_IRQS; i++) {
+ 		irq_set_chip_and_handler(i, &ext_chip, handle_level_irq);
+ 		irq_clear_status_flags(i, IRQ_NOREQUEST | IRQ_NOPROBE);
+ 	}
+--- a/arch/arm/mach-iop32x/irqs.h
++++ b/arch/arm/mach-iop32x/irqs.h
+@@ -7,36 +7,40 @@
+ #ifndef __IOP32X_IRQS_H
+ #define __IOP32X_IRQS_H
+ 
++/* Interrupts in Linux start at 1, hardware starts at 0 */
++
++#define IOP_IRQ(x) ((x) + 1)
++
+ /*
+  * IOP80321 chipset interrupts
+  */
+-#define IRQ_IOP32X_DMA0_EOT	0
+-#define IRQ_IOP32X_DMA0_EOC	1
+-#define IRQ_IOP32X_DMA1_EOT	2
+-#define IRQ_IOP32X_DMA1_EOC	3
+-#define IRQ_IOP32X_AA_EOT	6
+-#define IRQ_IOP32X_AA_EOC	7
+-#define IRQ_IOP32X_CORE_PMON	8
+-#define IRQ_IOP32X_TIMER0	9
+-#define IRQ_IOP32X_TIMER1	10
+-#define IRQ_IOP32X_I2C_0	11
+-#define IRQ_IOP32X_I2C_1	12
+-#define IRQ_IOP32X_MESSAGING	13
+-#define IRQ_IOP32X_ATU_BIST	14
+-#define IRQ_IOP32X_PERFMON	15
+-#define IRQ_IOP32X_CORE_PMU	16
+-#define IRQ_IOP32X_BIU_ERR	17
+-#define IRQ_IOP32X_ATU_ERR	18
+-#define IRQ_IOP32X_MCU_ERR	19
+-#define IRQ_IOP32X_DMA0_ERR	20
+-#define IRQ_IOP32X_DMA1_ERR	21
+-#define IRQ_IOP32X_AA_ERR	23
+-#define IRQ_IOP32X_MSG_ERR	24
+-#define IRQ_IOP32X_SSP		25
+-#define IRQ_IOP32X_XINT0	27
+-#define IRQ_IOP32X_XINT1	28
+-#define IRQ_IOP32X_XINT2	29
+-#define IRQ_IOP32X_XINT3	30
+-#define IRQ_IOP32X_HPI		31
++#define IRQ_IOP32X_DMA0_EOT	IOP_IRQ(0)
++#define IRQ_IOP32X_DMA0_EOC	IOP_IRQ(1)
++#define IRQ_IOP32X_DMA1_EOT	IOP_IRQ(2)
++#define IRQ_IOP32X_DMA1_EOC	IOP_IRQ(3)
++#define IRQ_IOP32X_AA_EOT	IOP_IRQ(6)
++#define IRQ_IOP32X_AA_EOC	IOP_IRQ(7)
++#define IRQ_IOP32X_CORE_PMON	IOP_IRQ(8)
++#define IRQ_IOP32X_TIMER0	IOP_IRQ(9)
++#define IRQ_IOP32X_TIMER1	IOP_IRQ(10)
++#define IRQ_IOP32X_I2C_0	IOP_IRQ(11)
++#define IRQ_IOP32X_I2C_1	IOP_IRQ(12)
++#define IRQ_IOP32X_MESSAGING	IOP_IRQ(13)
++#define IRQ_IOP32X_ATU_BIST	IOP_IRQ(14)
++#define IRQ_IOP32X_PERFMON	IOP_IRQ(15)
++#define IRQ_IOP32X_CORE_PMU	IOP_IRQ(16)
++#define IRQ_IOP32X_BIU_ERR	IOP_IRQ(17)
++#define IRQ_IOP32X_ATU_ERR	IOP_IRQ(18)
++#define IRQ_IOP32X_MCU_ERR	IOP_IRQ(19)
++#define IRQ_IOP32X_DMA0_ERR	IOP_IRQ(20)
++#define IRQ_IOP32X_DMA1_ERR	IOP_IRQ(21)
++#define IRQ_IOP32X_AA_ERR	IOP_IRQ(23)
++#define IRQ_IOP32X_MSG_ERR	IOP_IRQ(24)
++#define IRQ_IOP32X_SSP		IOP_IRQ(25)
++#define IRQ_IOP32X_XINT0	IOP_IRQ(27)
++#define IRQ_IOP32X_XINT1	IOP_IRQ(28)
++#define IRQ_IOP32X_XINT2	IOP_IRQ(29)
++#define IRQ_IOP32X_XINT3	IOP_IRQ(30)
++#define IRQ_IOP32X_HPI		IOP_IRQ(31)
+ 
+ #endif
 
 
