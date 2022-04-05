@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AF7D54F2C49
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:25:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D50E44F2C88
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:31:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353700AbiDEKI5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:08:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45834 "EHLO
+        id S237618AbiDEIm4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:42:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45702 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345262AbiDEJWX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:22:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78CB03F8B7;
-        Tue,  5 Apr 2022 02:10:01 -0700 (PDT)
+        with ESMTP id S240969AbiDEIcl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:32:41 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 950BD9398C;
+        Tue,  5 Apr 2022 01:25:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2E77FB81A22;
-        Tue,  5 Apr 2022 09:10:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8038EC385A2;
-        Tue,  5 Apr 2022 09:09:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1BBF3B81BAF;
+        Tue,  5 Apr 2022 08:25:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 727A1C385A2;
+        Tue,  5 Apr 2022 08:25:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149798;
-        bh=Cah0xlxi9vX/JXqn6RvksIYmQRGk5+CJsMN43zZ9Jn4=;
+        s=korg; t=1649147129;
+        bh=jl6Snp2v0QTf7bMzCJgP0Dv9BzB/beZVOt0Nxq39c78=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jgn4sJdczJ9fV/yjdFXrbYAiDJurA5XtG+nsbNjwk6+bGhjAK7mD/XJNe0GdwDyAK
-         YCVCfhhoB3Hsrj3yp6HVvioEQsUjAQpQ17h0JMcfxhOrJOvhHHpG73GjshMTSjLlGU
-         y3VYlD8J5o5GKW3p9TzEJs/teih9h2c/lUB/+M5o=
+        b=kQs5mbcNLQ/ejN12DlwQUq4HvYymnLwz8ofM9ugq7xaZcJwHDMaNyPbCCx5l2Hzmp
+         CEFelsStbz76IDNnyf8OrzTvFX+Y8rjgDv/15FsD9Ha3LYgmhQcKXO6iXUcVDrjW7R
+         32CkYXHhEbrlFfswvUKVzUuqO1tLO8y1oUmWK4GQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Maximilian=20B=C3=B6hm?= <maximilian.boehm@elbmurf.de>,
-        Pavel Skripkin <paskripkin@gmail.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0846/1017] media: Revert "media: em28xx: add missing em28xx_close_extension"
-Date:   Tue,  5 Apr 2022 09:29:19 +0200
-Message-Id: <20220405070419.352052052@linuxfoundation.org>
+        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
+        Baokun Li <libaokun1@huawei.com>,
+        Richard Weinberger <richard@nod.at>
+Subject: [PATCH 5.17 1013/1126] ubifs: rename_whiteout: correct old_dir size computing
+Date:   Tue,  5 Apr 2022 09:29:20 +0200
+Message-Id: <20220405070437.222069130@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,47 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Baokun Li <libaokun1@huawei.com>
 
-[ Upstream commit fde18c3bac3f964d8333ae53b304d8fee430502b ]
+commit 705757274599e2e064dd3054aabc74e8af31a095 upstream.
 
-This reverts commit 2c98b8a3458df03abdc6945bbef67ef91d181938.
+When renaming the whiteout file, the old whiteout file is not deleted.
+Therefore, we add the old dentry size to the old dir like XFS.
+Otherwise, an error may be reported due to `fscki->calc_sz != fscki->size`
+in check_indes.
 
-Reverted patch causes problems with Hauppauge WinTV dualHD as Maximilian
-reported [1]. Since quick solution didn't come up let's just revert it
-to make this device work with upstream kernels.
-
-Link: https://lore.kernel.org/all/6a72a37b-e972-187d-0322-16336e12bdc5@elbmurf.de/ [1]
-
-Reported-by: Maximilian Böhm <maximilian.boehm@elbmurf.de>
-Tested-by: Maximilian Böhm <maximilian.boehm@elbmurf.de>
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 9e0a1fff8db56ea ("ubifs: Implement RENAME_WHITEOUT")
+Reported-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Signed-off-by: Baokun Li <libaokun1@huawei.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/usb/em28xx/em28xx-cards.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ fs/ubifs/dir.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/media/usb/em28xx/em28xx-cards.c b/drivers/media/usb/em28xx/em28xx-cards.c
-index f3b56c065ee1..ae25d2cbfdfe 100644
---- a/drivers/media/usb/em28xx/em28xx-cards.c
-+++ b/drivers/media/usb/em28xx/em28xx-cards.c
-@@ -4150,11 +4150,8 @@ static void em28xx_usb_disconnect(struct usb_interface *intf)
+--- a/fs/ubifs/dir.c
++++ b/fs/ubifs/dir.c
+@@ -1402,6 +1402,9 @@ static int do_rename(struct inode *old_d
+ 			iput(whiteout);
+ 			goto out_release;
+ 		}
++
++		/* Add the old_dentry size to the old_dir size. */
++		old_sz -= CALC_DENT_SIZE(fname_len(&old_nm));
+ 	}
  
- 	em28xx_close_extension(dev);
- 
--	if (dev->dev_next) {
--		em28xx_close_extension(dev->dev_next);
-+	if (dev->dev_next)
- 		em28xx_release_resources(dev->dev_next);
--	}
--
- 	em28xx_release_resources(dev);
- 
- 	if (dev->dev_next) {
--- 
-2.34.1
-
+ 	lock_4_inodes(old_dir, new_dir, new_inode, whiteout);
 
 
