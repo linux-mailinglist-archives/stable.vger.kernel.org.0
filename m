@@ -2,44 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CAAD94F2B81
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:10:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC4704F2E1E
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:49:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353655AbiDEKIs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:08:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44262 "EHLO
+        id S245441AbiDEIzp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:55:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45842 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345209AbiDEJWV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:22:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A98D22A279;
-        Tue,  5 Apr 2022 02:09:39 -0700 (PDT)
+        with ESMTP id S240909AbiDEIci (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:32:38 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F8C113D60;
+        Tue,  5 Apr 2022 01:25:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4A57CB81B75;
-        Tue,  5 Apr 2022 09:09:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6A34C385A0;
-        Tue,  5 Apr 2022 09:09:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E8503B81BAF;
+        Tue,  5 Apr 2022 08:25:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A587C385A1;
+        Tue,  5 Apr 2022 08:25:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149777;
-        bh=Ho/BjnVNGfweAgBtMiS7dBtzUEAbt0AM1Wjb60i/UUs=;
+        s=korg; t=1649147107;
+        bh=cpsnT1zebhl17DiwBKb127RWcxcMG89F+sCYUs5gNuA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rJrlhjx6HtNl8kX1O9S4Vmp6mh//BgjyYS2eDrFhWaIKnMz5OSg+n75XAi/hDz8Od
-         /0LtaH50NhomImW2XuPidQEbIjxWP6gLq6MU2i2hCIT0izVDErQq4tWM2LRfnc+/KV
-         1rHDAtrw+6MmLInpmGf+jXuC0FPDNBct7gA0L2oc=
+        b=R8zdsxufEmf7NeRBqE98Vv2PWEGmoCrNEj2ELnIHPxul20pgWcvzufuJKngxnQh/T
+         K7IpTguOu2L36FC/Lt7o7zy9Lw0rgt2ipThkMKEf8nkPB02n2TSYD2TcSt1UDt/Fsf
+         jIJf7ctHvTzElOuNzx5vEw9oE8n6/CNtHlcbRkkw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <chao@kernel.org>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0799/1017] f2fs: use spin_lock to avoid hang
-Date:   Tue,  5 Apr 2022 09:28:32 +0200
-Message-Id: <20220405070417.968186571@linuxfoundation.org>
+        stable@vger.kernel.org, Daniel Vetter <daniel@ffwll.ch>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Maxime Ripard <mripard@kernel.org>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        David Airlie <airlied@linux.ie>,
+        dri-devel@lists.freedesktop.org,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Thierry Reding <treding@nvidia.com>
+Subject: [PATCH 5.17 0966/1126] drm/dp: Fix off-by-one in register cache size
+Date:   Tue,  5 Apr 2022 09:28:33 +0200
+Message-Id: <20220405070435.860956354@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,141 +60,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jaegeuk Kim <jaegeuk@kernel.org>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 98237fcda4a24e67b0a4498c17d5aa4ad4537bc7 ]
+commit d4da1f27396fb1dde079447a3612f4f512caed07 upstream.
 
-[14696.634553] task:cat             state:D stack:    0 pid:1613738 ppid:1613735 flags:0x00000004
-[14696.638285] Call Trace:
-[14696.639038]  <TASK>
-[14696.640032]  __schedule+0x302/0x930
-[14696.640969]  schedule+0x58/0xd0
-[14696.641799]  schedule_preempt_disabled+0x18/0x30
-[14696.642890]  __mutex_lock.constprop.0+0x2fb/0x4f0
-[14696.644035]  ? mod_objcg_state+0x10c/0x310
-[14696.645040]  ? obj_cgroup_charge+0xe1/0x170
-[14696.646067]  __mutex_lock_slowpath+0x13/0x20
-[14696.647126]  mutex_lock+0x34/0x40
-[14696.648070]  stat_show+0x25/0x17c0 [f2fs]
-[14696.649218]  seq_read_iter+0x120/0x4b0
-[14696.650289]  ? aa_file_perm+0x12a/0x500
-[14696.651357]  ? lru_cache_add+0x1c/0x20
-[14696.652470]  seq_read+0xfd/0x140
-[14696.653445]  full_proxy_read+0x5c/0x80
-[14696.654535]  vfs_read+0xa0/0x1a0
-[14696.655497]  ksys_read+0x67/0xe0
-[14696.656502]  __x64_sys_read+0x1a/0x20
-[14696.657580]  do_syscall_64+0x3b/0xc0
-[14696.658671]  entry_SYSCALL_64_after_hwframe+0x44/0xae
-[14696.660068] RIP: 0033:0x7efe39df1cb2
-[14696.661133] RSP: 002b:00007ffc8badd948 EFLAGS: 00000246 ORIG_RAX: 0000000000000000
-[14696.662958] RAX: ffffffffffffffda RBX: 0000000000020000 RCX: 00007efe39df1cb2
-[14696.664757] RDX: 0000000000020000 RSI: 00007efe399df000 RDI: 0000000000000003
-[14696.666542] RBP: 00007efe399df000 R08: 00007efe399de010 R09: 00007efe399de010
-[14696.668363] R10: 0000000000000022 R11: 0000000000000246 R12: 0000000000000000
-[14696.670155] R13: 0000000000000003 R14: 0000000000020000 R15: 0000000000020000
-[14696.671965]  </TASK>
-[14696.672826] task:umount          state:D stack:    0 pid:1614985 ppid:1614984 flags:0x00004000
-[14696.674930] Call Trace:
-[14696.675903]  <TASK>
-[14696.676780]  __schedule+0x302/0x930
-[14696.677927]  schedule+0x58/0xd0
-[14696.679019]  schedule_preempt_disabled+0x18/0x30
-[14696.680412]  __mutex_lock.constprop.0+0x2fb/0x4f0
-[14696.681783]  ? destroy_inode+0x65/0x80
-[14696.683006]  __mutex_lock_slowpath+0x13/0x20
-[14696.684305]  mutex_lock+0x34/0x40
-[14696.685442]  f2fs_destroy_stats+0x1e/0x60 [f2fs]
-[14696.686803]  f2fs_put_super+0x158/0x390 [f2fs]
-[14696.688238]  generic_shutdown_super+0x7a/0x120
-[14696.689621]  kill_block_super+0x27/0x50
-[14696.690894]  kill_f2fs_super+0x7f/0x100 [f2fs]
-[14696.692311]  deactivate_locked_super+0x35/0xa0
-[14696.693698]  deactivate_super+0x40/0x50
-[14696.694985]  cleanup_mnt+0x139/0x190
-[14696.696209]  __cleanup_mnt+0x12/0x20
-[14696.697390]  task_work_run+0x64/0xa0
-[14696.698587]  exit_to_user_mode_prepare+0x1b7/0x1c0
-[14696.700053]  syscall_exit_to_user_mode+0x27/0x50
-[14696.701418]  do_syscall_64+0x48/0xc0
-[14696.702630]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+The pcon_dsc_dpcd array holds 13 registers (0x92 through 0x9E). Fix the
+math to calculate the max size. Found from a -Warray-bounds build:
 
-Reviewed-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+drivers/gpu/drm/drm_dp_helper.c: In function 'drm_dp_pcon_dsc_bpp_incr':
+drivers/gpu/drm/drm_dp_helper.c:3130:28: error: array subscript 12 is outside array bounds of 'const u8[12]' {aka 'const unsigned char[12]'} [-Werror=array-bounds]
+ 3130 |         buf = pcon_dsc_dpcd[DP_PCON_DSC_BPP_INCR - DP_PCON_DSC_ENCODER];
+      |               ~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+drivers/gpu/drm/drm_dp_helper.c:3126:39: note: while referencing 'pcon_dsc_dpcd'
+ 3126 | int drm_dp_pcon_dsc_bpp_incr(const u8 pcon_dsc_dpcd[DP_PCON_DSC_ENCODER_CAP_SIZE])
+      |                              ~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Cc: Maxime Ripard <mripard@kernel.org>
+Cc: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: David Airlie <airlied@linux.ie>
+Cc: dri-devel@lists.freedesktop.org
+Fixes: e2e16da398d9 ("drm/dp_helper: Add support for Configuring DSC for HDMI2.1 Pcon")
+Cc: stable@vger.kernel.org
+Reviewed-by: Gustavo A. R. Silva <gustavoars@kernel.org>
+Link: https://lore.kernel.org/lkml/20211214001849.GA62559@embeddedor/
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20220105173310.2420598-1-keescook@chromium.org
+Signed-off-by: Thierry Reding <treding@nvidia.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220225035610.2552144-2-keescook@chromium.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/f2fs/debug.c | 17 ++++++++++-------
- 1 file changed, 10 insertions(+), 7 deletions(-)
+ include/drm/drm_dp_helper.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/f2fs/debug.c b/fs/f2fs/debug.c
-index 07ad0d81f0c5..b449c7a372a4 100644
---- a/fs/f2fs/debug.c
-+++ b/fs/f2fs/debug.c
-@@ -21,7 +21,7 @@
- #include "gc.h"
+--- a/include/drm/drm_dp_helper.h
++++ b/include/drm/drm_dp_helper.h
+@@ -456,7 +456,7 @@ struct drm_panel;
+ #define DP_FEC_CAPABILITY_1			0x091   /* 2.0 */
  
- static LIST_HEAD(f2fs_stat_list);
--static DEFINE_MUTEX(f2fs_stat_mutex);
-+static DEFINE_RAW_SPINLOCK(f2fs_stat_lock);
- #ifdef CONFIG_DEBUG_FS
- static struct dentry *f2fs_debugfs_root;
- #endif
-@@ -345,8 +345,9 @@ static int stat_show(struct seq_file *s, void *v)
- {
- 	struct f2fs_stat_info *si;
- 	int i = 0, j = 0;
-+	unsigned long flags;
- 
--	mutex_lock(&f2fs_stat_mutex);
-+	raw_spin_lock_irqsave(&f2fs_stat_lock, flags);
- 	list_for_each_entry(si, &f2fs_stat_list, stat_list) {
- 		update_general_status(si->sbi);
- 
-@@ -574,7 +575,7 @@ static int stat_show(struct seq_file *s, void *v)
- 		seq_printf(s, "  - paged : %llu KB\n",
- 				si->page_mem >> 10);
- 	}
--	mutex_unlock(&f2fs_stat_mutex);
-+	raw_spin_unlock_irqrestore(&f2fs_stat_lock, flags);
- 	return 0;
- }
- 
-@@ -585,6 +586,7 @@ int f2fs_build_stats(struct f2fs_sb_info *sbi)
- {
- 	struct f2fs_super_block *raw_super = F2FS_RAW_SUPER(sbi);
- 	struct f2fs_stat_info *si;
-+	unsigned long flags;
- 	int i;
- 
- 	si = f2fs_kzalloc(sbi, sizeof(struct f2fs_stat_info), GFP_KERNEL);
-@@ -620,9 +622,9 @@ int f2fs_build_stats(struct f2fs_sb_info *sbi)
- 	atomic_set(&sbi->max_aw_cnt, 0);
- 	atomic_set(&sbi->max_vw_cnt, 0);
- 
--	mutex_lock(&f2fs_stat_mutex);
-+	raw_spin_lock_irqsave(&f2fs_stat_lock, flags);
- 	list_add_tail(&si->stat_list, &f2fs_stat_list);
--	mutex_unlock(&f2fs_stat_mutex);
-+	raw_spin_unlock_irqrestore(&f2fs_stat_lock, flags);
- 
- 	return 0;
- }
-@@ -630,10 +632,11 @@ int f2fs_build_stats(struct f2fs_sb_info *sbi)
- void f2fs_destroy_stats(struct f2fs_sb_info *sbi)
- {
- 	struct f2fs_stat_info *si = F2FS_STAT(sbi);
-+	unsigned long flags;
- 
--	mutex_lock(&f2fs_stat_mutex);
-+	raw_spin_lock_irqsave(&f2fs_stat_lock, flags);
- 	list_del(&si->stat_list);
--	mutex_unlock(&f2fs_stat_mutex);
-+	raw_spin_unlock_irqrestore(&f2fs_stat_lock, flags);
- 
- 	kfree(si);
- }
--- 
-2.34.1
-
+ /* DP-HDMI2.1 PCON DSC ENCODER SUPPORT */
+-#define DP_PCON_DSC_ENCODER_CAP_SIZE        0xC	/* 0x9E - 0x92 */
++#define DP_PCON_DSC_ENCODER_CAP_SIZE        0xD	/* 0x92 through 0x9E */
+ #define DP_PCON_DSC_ENCODER                 0x092
+ # define DP_PCON_DSC_ENCODER_SUPPORTED      (1 << 0)
+ # define DP_PCON_DSC_PPS_ENC_OVERRIDE       (1 << 1)
 
 
