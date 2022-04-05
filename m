@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 600454F274E
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:07:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD2DB4F2818
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:19:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233268AbiDEIFk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:05:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48404 "EHLO
+        id S233725AbiDEIKo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:10:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48172 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233967AbiDEH5y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:57:54 -0400
+        with ESMTP id S234011AbiDEH54 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:57:56 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 387B593990;
-        Tue,  5 Apr 2022 00:51:43 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C150995493;
+        Tue,  5 Apr 2022 00:51:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 260A6B81B14;
-        Tue,  5 Apr 2022 07:51:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80E7DC340EE;
-        Tue,  5 Apr 2022 07:51:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 00177B81BAF;
+        Tue,  5 Apr 2022 07:51:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FAC3C36AE2;
+        Tue,  5 Apr 2022 07:51:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145093;
-        bh=DAqiT5fbEGmGnuHSi20a1pRvj1HdznkOlj3MSEFwgEo=;
+        s=korg; t=1649145096;
+        bh=PZMsmzT6BSo0SeQiQCTkI9aQkCqrgOpS7jo8q0bRA3g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=06Pdlx8vE7sj5ri+qw9GAEVReN22YZZBnxc3P1zC7diIPoGR17K2b2YiVWhpRvgjG
-         Qr8yTWfytHN6xi/eL/99FnbrMq2RHoUm39oipDCcilEHGluL9ITk0zlib4joYAjyZE
-         fRgdCyJORyOhb/9Ui7CWVZrrm1V4ejMw7xq16B6g=
+        b=09QhgCn2RNWO1nELDetAkxFe4cCAs9j0B6bDS19aKCwpbPMDX26QARstiisHxkEJ4
+         nb8HcYAKoMvfT6NVhcl2mPz0IRjfBMeqkL5fMv1y8mmQT3172Z7wLcW13/o98sJnt/
+         J40gfqlbS4UK2eS5NMR4SLmwSZb+RiCrXVRT+7Xw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhiguo Niu <zhiguo.niu@unisoc.com>,
-        Jing Xia <jing.xia@unisoc.com>, Chao Yu <chao@kernel.org>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0282/1126] f2fs: fix to avoid potential deadlock
-Date:   Tue,  5 Apr 2022 09:17:09 +0200
-Message-Id: <20220405070415.887878964@linuxfoundation.org>
+Subject: [PATCH 5.17 0283/1126] btrfs: fix unexpected error path when reflinking an inline extent
+Date:   Tue,  5 Apr 2022 09:17:10 +0200
+Message-Id: <20220405070415.917263053@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -55,86 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <chao@kernel.org>
+From: Filipe Manana <fdmanana@suse.com>
 
-[ Upstream commit 344150999b7fc88502a65bbb147a47503eca2033 ]
+[ Upstream commit 1f4613cdbe7739ce291554b316bff8e551383389 ]
 
-Quoted from Jing Xia's report, there is a potential deadlock may happen
-between kworker and checkpoint as below:
+When reflinking an inline extent, we assert that its file offset is 0 and
+that its uncompressed length is not greater than the sector size. We then
+return an error if one of those conditions is not satisfied. However we
+use a return statement, which results in returning from btrfs_clone()
+without freeing the path and buffer that were allocated before, as well as
+not clearing the flag BTRFS_INODE_NO_DELALLOC_FLUSH for the destination
+inode.
 
-[T:writeback]				[T:checkpoint]
-- wb_writeback
- - blk_start_plug
-bio contains NodeA was plugged in writeback threads
-					- do_writepages  -- sync write inodeB, inc wb_sync_req[DATA]
-					 - f2fs_write_data_pages
-					  - f2fs_write_single_data_page -- write last dirty page
-					   - f2fs_do_write_data_page
-					    - set_page_writeback  -- clear page dirty flag and
-					    PAGECACHE_TAG_DIRTY tag in radix tree
-					    - f2fs_outplace_write_data
-					     - f2fs_update_data_blkaddr
-					      - f2fs_wait_on_page_writeback -- wait NodeA to writeback here
-					   - inode_dec_dirty_pages
- - writeback_sb_inodes
-  - writeback_single_inode
-   - do_writepages
-    - f2fs_write_data_pages -- skip writepages due to wb_sync_req[DATA]
-     - wbc->pages_skipped += get_dirty_pages() -- PAGECACHE_TAG_DIRTY is not set but get_dirty_pages() returns one
-  - requeue_inode -- requeue inode to wb->b_dirty queue due to non-zero.pages_skipped
- - blk_finish_plug
+Fix that by jumping to the 'out' label instead, and also add a WARN_ON()
+for each condition so that in case assertions are disabled, we get to
+known which of the unexpected conditions triggered the error.
 
-Let's try to avoid deadlock condition by forcing unplugging previous bio via
-blk_finish_plug(current->plug) once we'v skipped writeback in writepages()
-due to valid sbi->wb_sync_req[DATA/NODE].
-
-Fixes: 687de7f1010c ("f2fs: avoid IO split due to mixed WB_SYNC_ALL and WB_SYNC_NONE")
-Signed-off-by: Zhiguo Niu <zhiguo.niu@unisoc.com>
-Signed-off-by: Jing Xia <jing.xia@unisoc.com>
-Signed-off-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Fixes: a61e1e0df9f321 ("Btrfs: simplify inline extent handling when doing reflinks")
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/data.c | 6 +++++-
- fs/f2fs/node.c | 6 +++++-
- 2 files changed, 10 insertions(+), 2 deletions(-)
+ fs/btrfs/reflink.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/fs/f2fs/data.c b/fs/f2fs/data.c
-index 8c417864c66a..e1ef925be60c 100644
---- a/fs/f2fs/data.c
-+++ b/fs/f2fs/data.c
-@@ -3163,8 +3163,12 @@ static int __f2fs_write_data_pages(struct address_space *mapping,
- 	/* to avoid spliting IOs due to mixed WB_SYNC_ALL and WB_SYNC_NONE */
- 	if (wbc->sync_mode == WB_SYNC_ALL)
- 		atomic_inc(&sbi->wb_sync_req[DATA]);
--	else if (atomic_read(&sbi->wb_sync_req[DATA]))
-+	else if (atomic_read(&sbi->wb_sync_req[DATA])) {
-+		/* to avoid potential deadlock */
-+		if (current->plug)
-+			blk_finish_plug(current->plug);
- 		goto skip_write;
-+	}
+diff --git a/fs/btrfs/reflink.c b/fs/btrfs/reflink.c
+index a3930da4eb3f..e437238cc603 100644
+--- a/fs/btrfs/reflink.c
++++ b/fs/btrfs/reflink.c
+@@ -505,8 +505,11 @@ static int btrfs_clone(struct inode *src, struct inode *inode,
+ 			 */
+ 			ASSERT(key.offset == 0);
+ 			ASSERT(datal <= fs_info->sectorsize);
+-			if (key.offset != 0 || datal > fs_info->sectorsize)
+-				return -EUCLEAN;
++			if (WARN_ON(key.offset != 0) ||
++			    WARN_ON(datal > fs_info->sectorsize)) {
++				ret = -EUCLEAN;
++				goto out;
++			}
  
- 	if (__should_serialize_io(inode, wbc)) {
- 		mutex_lock(&sbi->writepages);
-diff --git a/fs/f2fs/node.c b/fs/f2fs/node.c
-index 50b2874e758c..4ff7dfb54250 100644
---- a/fs/f2fs/node.c
-+++ b/fs/f2fs/node.c
-@@ -2111,8 +2111,12 @@ static int f2fs_write_node_pages(struct address_space *mapping,
- 
- 	if (wbc->sync_mode == WB_SYNC_ALL)
- 		atomic_inc(&sbi->wb_sync_req[NODE]);
--	else if (atomic_read(&sbi->wb_sync_req[NODE]))
-+	else if (atomic_read(&sbi->wb_sync_req[NODE])) {
-+		/* to avoid potential deadlock */
-+		if (current->plug)
-+			blk_finish_plug(current->plug);
- 		goto skip_write;
-+	}
- 
- 	trace_f2fs_writepages(mapping->host, wbc, NODE);
- 
+ 			ret = clone_copy_inline_extent(inode, path, &new_key,
+ 						       drop_start, datal, size,
 -- 
 2.34.1
 
