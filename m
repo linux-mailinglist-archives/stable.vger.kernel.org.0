@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 989ED4F2EC9
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:04:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 184F24F3565
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:50:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239156AbiDEIoi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:44:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45878 "EHLO
+        id S1355609AbiDEKU5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:20:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37838 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241247AbiDEIc5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:32:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BE0C60E8;
-        Tue,  5 Apr 2022 01:30:29 -0700 (PDT)
+        with ESMTP id S1347261AbiDEJZY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:25:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D947DCAB0;
+        Tue,  5 Apr 2022 02:15:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D8070B81BB1;
-        Tue,  5 Apr 2022 08:30:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DFCAC385A1;
-        Tue,  5 Apr 2022 08:30:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1E3FE61659;
+        Tue,  5 Apr 2022 09:15:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AD13C385A0;
+        Tue,  5 Apr 2022 09:15:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147426;
-        bh=lAtKoaS9HUgr0Lm7QE70qsSO+vReFYiIsn0xRlig5Ig=;
+        s=korg; t=1649150102;
+        bh=4djunoAxJHOaDgEd2iZ0RMBXmqeYYQMugjYVYuIJyBs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q4ekw+tIOnrBly1sz2cVMn7rCfeTMLTBui3S5KgJq5sggua/OEdFuEZwRH3Bfmua0
-         +aUU3yXiT7cY3opub/p735aJnFYMiSfdiYOOkmTqXGjz4NQAGj4ksXGbDK15JgB4fk
-         FX+tmeLPQJ3FEoGNeaPyvAUobcK7aSLQjStfEiR0=
+        b=VDYIdw22qhOhK0A9LFH4yO1dWKTBnNBCzXh2qQGiQus/H2dH3cjvubrYRpz4hNG5i
+         C6TuafokJNnmH5fc7o4LnBKa16mLE9lz/1gqMXCdJwDRBG+0A3bjy2vqvxtiD/uAWR
+         qR9/0x9zz3Plh8XQMywhaAPrQ0uOPyb2/Kn/JZKU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, k2ci <kernel-bot@kylinos.cn>,
-        Jackie Liu <liuyun01@kylinos.cn>,
-        Chaitanya Kulkarni <kch@nvidia.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.17 1119/1126] n64cart: convert bi_disk to bi_bdev->bd_disk fix build
-Date:   Tue,  5 Apr 2022 09:31:06 +0200
-Message-Id: <20220405070440.274077725@linuxfoundation.org>
+        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
+        Fangrui Song <maskray@google.com>,
+        Palmer Dabbelt <palmer@rivosinc.com>
+Subject: [PATCH 5.16 0954/1017] riscv module: remove (NOLOAD)
+Date:   Tue,  5 Apr 2022 09:31:07 +0200
+Message-Id: <20220405070422.528094436@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,44 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jackie Liu <liuyun01@kylinos.cn>
+From: Fangrui Song <maskray@google.com>
 
-commit b2479de38d8fc7ef13d5c78ff5ded6e5a1a4eac0 upstream.
+commit 60210a3d86dc57ce4a76a366e7841dda746a33f7 upstream.
 
-My kernel robot report below:
+On ELF, (NOLOAD) sets the section type to SHT_NOBITS[1]. It is conceptually
+inappropriate for .plt, .got, and .got.plt sections which are always
+SHT_PROGBITS.
 
-  drivers/block/n64cart.c: In function ‘n64cart_submit_bio’:
-  drivers/block/n64cart.c:91:26: error: ‘struct bio’ has no member named ‘bi_disk’
-     91 |  struct device *dev = bio->bi_disk->private_data;
-        |                          ^~
-    CC      drivers/slimbus/qcom-ctrl.o
-    CC      drivers/auxdisplay/hd44780.o
-    CC      drivers/watchdog/watchdog_core.o
-    CC      drivers/nvme/host/fault_inject.o
-    AR      drivers/accessibility/braille/built-in.a
-  make[2]: *** [scripts/Makefile.build:288: drivers/block/n64cart.o] Error 1
+In GNU ld, if PLT entries are needed, .plt will be SHT_PROGBITS anyway
+and (NOLOAD) will be essentially ignored. In ld.lld, since
+https://reviews.llvm.org/D118840 ("[ELF] Support (TYPE=<value>) to
+customize the output section type"), ld.lld will report a `section type
+mismatch` error (later changed to a warning). Just remove (NOLOAD) to
+fix the warning.
 
-Fixes: 309dca309fc3 ("block: store a block_device pointer in struct bio");
-Reported-by: k2ci <kernel-bot@kylinos.cn>
-Signed-off-by: Jackie Liu <liuyun01@kylinos.cn>
-Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
-Link: https://lore.kernel.org/r/20220321071216.1549596-1-liu.yun@linux.dev
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+[1] https://lld.llvm.org/ELF/linker_script.html As of today, "The
+section should be marked as not loadable" on
+https://sourceware.org/binutils/docs/ld/Output-Section-Type.html is
+outdated for ELF.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/1597
+Fixes: ab1ef68e5401 ("RISC-V: Add sections of PLT and GOT for kernel module")
+Reported-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Fangrui Song <maskray@google.com>
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/block/n64cart.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/riscv/include/asm/module.lds.h |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/block/n64cart.c
-+++ b/drivers/block/n64cart.c
-@@ -88,7 +88,7 @@ static void n64cart_submit_bio(struct bi
- {
- 	struct bio_vec bvec;
- 	struct bvec_iter iter;
--	struct device *dev = bio->bi_disk->private_data;
-+	struct device *dev = bio->bi_bdev->bd_disk->private_data;
- 	u32 pos = bio->bi_iter.bi_sector << SECTOR_SHIFT;
- 
- 	bio_for_each_segment(bvec, bio, iter) {
+--- a/arch/riscv/include/asm/module.lds.h
++++ b/arch/riscv/include/asm/module.lds.h
+@@ -2,8 +2,8 @@
+ /* Copyright (C) 2017 Andes Technology Corporation */
+ #ifdef CONFIG_MODULE_SECTIONS
+ SECTIONS {
+-	.plt (NOLOAD) : { BYTE(0) }
+-	.got (NOLOAD) : { BYTE(0) }
+-	.got.plt (NOLOAD) : { BYTE(0) }
++	.plt : { BYTE(0) }
++	.got : { BYTE(0) }
++	.got.plt : { BYTE(0) }
+ }
+ #endif
 
 
