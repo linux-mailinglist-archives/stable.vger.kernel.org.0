@@ -2,47 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B061A4F3533
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:49:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FEE24F3128
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:39:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355832AbiDEKWI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:22:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44530 "EHLO
+        id S1355858AbiDEKWK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:22:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46088 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347857AbiDEJ2f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:28:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EEDFDFD4F;
-        Tue,  5 Apr 2022 02:15:51 -0700 (PDT)
+        with ESMTP id S1347892AbiDEJ2j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:28:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE44ADFF98;
+        Tue,  5 Apr 2022 02:15:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2D171615E4;
-        Tue,  5 Apr 2022 09:15:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A503C385A2;
-        Tue,  5 Apr 2022 09:15:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 87B8E61645;
+        Tue,  5 Apr 2022 09:15:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99FD4C385A0;
+        Tue,  5 Apr 2022 09:15:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150150;
-        bh=nIM1c3gvFD3F2h3Drdwt8b+LZz1eR9jb73WTtYMM+ZM=;
+        s=korg; t=1649150156;
+        bh=+I1kIkWfWuQyDHUH07N7TM2+SinRMRMesn+il5ED1Oo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hWd+qT+RIdV+fYPd6jqLr+oGzimallXbelnp/SqOJ9VJNf5dK8Bfjvr5XBMgm15Yp
-         7Fy3eyBnaeBHLgnWPy/EuzKzKj993o4Agvh9vGrlYHLcWZsAMkKqcgM2A6KraHcDbT
-         qR0uhBrY7aY5Tm/dYkVpKL0QY3W/rP7noKU/0i9M=
+        b=xbGWWZlSh7iC5kHKxzH7RqRjxdmCNjZdBYmjSIz8xNgZLMiQSeGqXYi/ap4q5XcCu
+         lrEVLVorQlggEaxw6kb1ijutM4KklDccvhlOHoigg8oLzt0mujN80+7I/Rg8oQs63j
+         +02x0m1FWsoyjHbCW9nw4lu7LwRm7WqSBtzaYCwc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Igor Zhbanov <i.zhbanov@omprussia.ru>,
-        =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Michal Hocko <mhocko@kernel.org>,
-        Vladimir Davydov <vdavydov.dev@gmail.com>,
-        Roman Gushchin <roman.gushchin@linux.dev>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.16 0973/1017] mm/memcontrol: return 1 from cgroup.memory __setup() handler
-Date:   Tue,  5 Apr 2022 09:31:26 +0200
-Message-Id: <20220405070423.087138970@linuxfoundation.org>
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.co.jp>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.16 0975/1017] af_unix: Support POLLPRI for OOB.
+Date:   Tue,  5 Apr 2022 09:31:28 +0200
+Message-Id: <20220405070423.146405004@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -60,55 +53,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Kuniyuki Iwashima <kuniyu@amazon.co.jp>
 
-commit 460a79e18842caca6fa0c415de4a3ac1e671ac50 upstream.
+commit d9a232d435dcc966738b0f414a86f7edf4f4c8c4 upstream.
 
-__setup() handlers should return 1 if the command line option is handled
-and 0 if not (or maybe never return 0; it just pollutes init's
-environment).
+The commit 314001f0bf92 ("af_unix: Add OOB support") introduced OOB for
+AF_UNIX, but it lacks some changes for POLLPRI.  Let's add the missing
+piece.
 
-The only reason that this particular __setup handler does not pollute
-init's environment is that the setup string contains a '.', as in
-"cgroup.memory".  This causes init/main.c::unknown_boottoption() to
-consider it to be an "Unused module parameter" and ignore it.  (This is
-for parsing of loadable module parameters any time after kernel init.)
-Otherwise the string "cgroup.memory=whatever" would be added to init's
-environment strings.
+In the selftest, normal datagrams are sent followed by OOB data, so this
+commit replaces `POLLIN | POLLPRI` with just `POLLPRI` in the first test
+case.
 
-Instead of relying on this '.' quirk, just return 1 to indicate that the
-boot option has been handled.
-
-Note that there is no warning message if someone enters:
-	cgroup.memory=anything_invalid
-
-Link: https://lkml.kernel.org/r/20220222005811.10672-1-rdunlap@infradead.org
-Fixes: f7e1cb6ec51b0 ("mm: memcontrol: account socket memory in unified hierarchy memory controller")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
-Link: lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
-Reviewed-by: Michal Koutný <mkoutny@suse.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
-Cc: Roman Gushchin <roman.gushchin@linux.dev>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 314001f0bf92 ("af_unix: Add OOB support")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.co.jp>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/memcontrol.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/unix/af_unix.c                                  |    4 ++++
+ tools/testing/selftests/net/af_unix/test_unix_oob.c |    6 +++---
+ 2 files changed, 7 insertions(+), 3 deletions(-)
 
---- a/mm/memcontrol.c
-+++ b/mm/memcontrol.c
-@@ -7038,7 +7038,7 @@ static int __init cgroup_memory(char *s)
- 		if (!strcmp(token, "nokmem"))
- 			cgroup_memory_nokmem = true;
- 	}
--	return 0;
-+	return 1;
- }
- __setup("cgroup.memory=", cgroup_memory);
+--- a/net/unix/af_unix.c
++++ b/net/unix/af_unix.c
+@@ -3049,6 +3049,10 @@ static __poll_t unix_poll(struct file *f
+ 		mask |= EPOLLIN | EPOLLRDNORM;
+ 	if (sk_is_readable(sk))
+ 		mask |= EPOLLIN | EPOLLRDNORM;
++#if IS_ENABLED(CONFIG_AF_UNIX_OOB)
++	if (READ_ONCE(unix_sk(sk)->oob_skb))
++		mask |= EPOLLPRI;
++#endif
  
+ 	/* Connection-based need to check for termination and startup */
+ 	if ((sk->sk_type == SOCK_STREAM || sk->sk_type == SOCK_SEQPACKET) &&
+--- a/tools/testing/selftests/net/af_unix/test_unix_oob.c
++++ b/tools/testing/selftests/net/af_unix/test_unix_oob.c
+@@ -218,10 +218,10 @@ main(int argc, char **argv)
+ 
+ 	/* Test 1:
+ 	 * veriyf that SIGURG is
+-	 * delivered and 63 bytes are
+-	 * read and oob is '@'
++	 * delivered, 63 bytes are
++	 * read, oob is '@', and POLLPRI works.
+ 	 */
+-	wait_for_data(pfd, POLLIN | POLLPRI);
++	wait_for_data(pfd, POLLPRI);
+ 	read_oob(pfd, &oob);
+ 	len = read_data(pfd, buf, 1024);
+ 	if (!signal_recvd || len != 63 || oob != '@') {
 
 
