@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D90A74F30C5
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:35:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC7204F35B4
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:53:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347416AbiDEJ0Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:26:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46572 "EHLO
+        id S232679AbiDEKx7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:53:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245057AbiDEIxE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:53:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4F74F76;
-        Tue,  5 Apr 2022 01:50:53 -0700 (PDT)
+        with ESMTP id S1345697AbiDEJnr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:43:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FF4AC5586;
+        Tue,  5 Apr 2022 02:29:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7A006B81BBF;
-        Tue,  5 Apr 2022 08:50:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE210C385A0;
-        Tue,  5 Apr 2022 08:50:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 349986165E;
+        Tue,  5 Apr 2022 09:29:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4298AC385A2;
+        Tue,  5 Apr 2022 09:29:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148651;
-        bh=RuudkV80NbnUWQJ3ZBBUJ5p0VXcyoR2tIBAnss2jxn8=;
+        s=korg; t=1649150965;
+        bh=o27kHmOtOvotRFc51Tl3DglrijIVdbuDH53J86XD31o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y+5HSTldipMgndUHybpyArCf1H8eEkbTfjbGyxf/ZS+3W/xAxQRqmNoH3hYgCzgJw
-         sO6f6aJLraM82JIcwzOTGlqSlOoXumgjK5AWOjcufdPTXwec0r35TgSTkwJ/poMXCV
-         gytzNH+UcPDsvI5C28jIX+RnSmmuWHDMJT2BWKHo=
+        b=zonLh71yI4hIjwMEfXWO/wNY3PAKzRqQOzl1zBeMBNDLgv4JLdjUL0iC0js8hwKc3
+         AoWmcSu9IB8vZSlh95/BQC85467b9/XRN4R2bPBUxYJhxj75QvSHHqPjXoSMaiYuf+
+         idya2L/zuKR8UVwy8/Ka0SmL5hwSNyx3DKjPfgyA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0393/1017] ASoC: msm8916-wcd-analog: Fix error handling in pm8916_wcd_analog_spmi_probe
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        "Fabio M. De Francesco" <fmdefrancesco@gmail.com>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+d55757faa9b80590767b@syzkaller.appspotmail.com
+Subject: [PATCH 5.15 244/913] watch_queue: Fix NULL dereference in error cleanup
 Date:   Tue,  5 Apr 2022 09:21:46 +0200
-Message-Id: <20220405070405.951366644@linuxfoundation.org>
+Message-Id: <20220405070347.171054946@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,77 +55,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit 9ebd62d60edcd4d9c75485e5ccd0b79581ad3c49 ]
+[ Upstream commit a635415a064e77bcfbf43da413fd9dfe0bbed9cb ]
 
-In the error handling path, the clk_prepare_enable() function
-call should be balanced by a corresponding 'clk_disable_unprepare()'
-call , as already done in the remove function.
+In watch_queue_set_size(), the error cleanup code doesn't take account of
+the fact that __free_page() can't handle a NULL pointer when trying to free
+up buffer pages that did get allocated.
 
-Fixes: de66b3455023 ("ASoC: codecs: msm8916-wcd-analog: add MBHC support")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220316041924.17560-1-linmq006@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fix this by only calling __free_page() on the pages actually allocated.
+
+Without the fix, this can lead to something like the following:
+
+BUG: KASAN: null-ptr-deref in __free_pages+0x1f/0x1b0 mm/page_alloc.c:5473
+Read of size 4 at addr 0000000000000034 by task syz-executor168/3599
+...
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:88 [inline]
+ dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
+ __kasan_report mm/kasan/report.c:446 [inline]
+ kasan_report.cold+0x66/0xdf mm/kasan/report.c:459
+ check_region_inline mm/kasan/generic.c:183 [inline]
+ kasan_check_range+0x13d/0x180 mm/kasan/generic.c:189
+ instrument_atomic_read include/linux/instrumented.h:71 [inline]
+ atomic_read include/linux/atomic/atomic-instrumented.h:27 [inline]
+ page_ref_count include/linux/page_ref.h:67 [inline]
+ put_page_testzero include/linux/mm.h:717 [inline]
+ __free_pages+0x1f/0x1b0 mm/page_alloc.c:5473
+ watch_queue_set_size+0x499/0x630 kernel/watch_queue.c:275
+ pipe_ioctl+0xac/0x2b0 fs/pipe.c:632
+ vfs_ioctl fs/ioctl.c:51 [inline]
+ __do_sys_ioctl fs/ioctl.c:874 [inline]
+ __se_sys_ioctl fs/ioctl.c:860 [inline]
+ __x64_sys_ioctl+0x193/0x200 fs/ioctl.c:860
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Fixes: c73be61cede5 ("pipe: Add general notification queue support")
+Reported-and-tested-by: syzbot+d55757faa9b80590767b@syzkaller.appspotmail.com
+Signed-off-by: David Howells <dhowells@redhat.com>
+Reviewed-by: Fabio M. De Francesco <fmdefrancesco@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/msm8916-wcd-analog.c | 22 ++++++++++++++++------
- 1 file changed, 16 insertions(+), 6 deletions(-)
+ kernel/watch_queue.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/msm8916-wcd-analog.c b/sound/soc/codecs/msm8916-wcd-analog.c
-index 3ddd822240e3..971b8360b5b1 100644
---- a/sound/soc/codecs/msm8916-wcd-analog.c
-+++ b/sound/soc/codecs/msm8916-wcd-analog.c
-@@ -1221,8 +1221,10 @@ static int pm8916_wcd_analog_spmi_probe(struct platform_device *pdev)
- 	}
+diff --git a/kernel/watch_queue.c b/kernel/watch_queue.c
+index 055bc20ecdda..12348b41d7ad 100644
+--- a/kernel/watch_queue.c
++++ b/kernel/watch_queue.c
+@@ -274,7 +274,7 @@ long watch_queue_set_size(struct pipe_inode_info *pipe, unsigned int nr_notes)
+ 	return 0;
  
- 	irq = platform_get_irq_byname(pdev, "mbhc_switch_int");
--	if (irq < 0)
--		return irq;
-+	if (irq < 0) {
-+		ret = irq;
-+		goto err_disable_clk;
-+	}
- 
- 	ret = devm_request_threaded_irq(dev, irq, NULL,
- 			       pm8916_mbhc_switch_irq_handler,
-@@ -1234,8 +1236,10 @@ static int pm8916_wcd_analog_spmi_probe(struct platform_device *pdev)
- 
- 	if (priv->mbhc_btn_enabled) {
- 		irq = platform_get_irq_byname(pdev, "mbhc_but_press_det");
--		if (irq < 0)
--			return irq;
-+		if (irq < 0) {
-+			ret = irq;
-+			goto err_disable_clk;
-+		}
- 
- 		ret = devm_request_threaded_irq(dev, irq, NULL,
- 				       mbhc_btn_press_irq_handler,
-@@ -1246,8 +1250,10 @@ static int pm8916_wcd_analog_spmi_probe(struct platform_device *pdev)
- 			dev_err(dev, "cannot request mbhc button press irq\n");
- 
- 		irq = platform_get_irq_byname(pdev, "mbhc_but_rel_det");
--		if (irq < 0)
--			return irq;
-+		if (irq < 0) {
-+			ret = irq;
-+			goto err_disable_clk;
-+		}
- 
- 		ret = devm_request_threaded_irq(dev, irq, NULL,
- 				       mbhc_btn_release_irq_handler,
-@@ -1264,6 +1270,10 @@ static int pm8916_wcd_analog_spmi_probe(struct platform_device *pdev)
- 	return devm_snd_soc_register_component(dev, &pm8916_wcd_analog,
- 				      pm8916_wcd_analog_dai,
- 				      ARRAY_SIZE(pm8916_wcd_analog_dai));
-+
-+err_disable_clk:
-+	clk_disable_unprepare(priv->mclk);
-+	return ret;
- }
- 
- static int pm8916_wcd_analog_spmi_remove(struct platform_device *pdev)
+ error_p:
+-	for (i = 0; i < nr_pages; i++)
++	while (--i >= 0)
+ 		__free_page(pages[i]);
+ 	kfree(pages);
+ error:
 -- 
 2.34.1
 
