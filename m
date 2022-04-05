@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A7A04F399D
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:50:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 511C14F39A4
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:50:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348120AbiDELgW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:36:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33938 "EHLO
+        id S1354303AbiDELgw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:36:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40434 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353453AbiDEKGN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:06:13 -0400
+        with ESMTP id S1353526AbiDEKIF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:08:05 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8194BF979;
-        Tue,  5 Apr 2022 02:55:06 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00EE7C12F9;
+        Tue,  5 Apr 2022 02:55:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 22FD4B818F3;
-        Tue,  5 Apr 2022 09:55:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75321C385A3;
-        Tue,  5 Apr 2022 09:55:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B64E1B818F6;
+        Tue,  5 Apr 2022 09:55:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2078EC385A2;
+        Tue,  5 Apr 2022 09:55:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152503;
-        bh=JvjyQbqzGBHoo/fnIR59SnE5qGnqo560ZSO1/q6vJIc=;
+        s=korg; t=1649152509;
+        bh=/I/zLdzm2gsuJ9WWc/ryxB706G+Iv3NgRS+greiYe5M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hoOgbezBodw+wT0ewOVqlBWrpkCYnfhg+S6sW6w6NxG7QznKmUxCm/F5R9EWjddch
-         5YETxjSqIOOPj+GEE3PzZp2C/vtH7MktPmR2zXDukwAUCZ3ItvjEEGiorEdJ8+Cs7f
-         rVPbdCjFRp5bLjdNs5egQ95rqQo/db6jT/9Uz2dY=
+        b=S6yWCc3zcJCd33u/oeR9H5QHxAU5Wu08cTLbGiH5f2Qo+nNM04orCZPKKPqz1G9T4
+         tk+C3rTWTm3yps9vobgVIeJJels+cO2MrTrhYQ2xq4Piwshz/Ez/7bl4KhtjrQyay3
+         eUtc7AQptr1eUexODYzlbaFkv0G/xnbyyTyrHHWc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,9 +36,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Quinn Tran <qutran@marvell.com>,
         Nilesh Javali <njavali@marvell.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.15 801/913] scsi: qla2xxx: Fix disk failure to rediscover
-Date:   Tue,  5 Apr 2022 09:31:03 +0200
-Message-Id: <20220405070403.842354690@linuxfoundation.org>
+Subject: [PATCH 5.15 802/913] scsi: qla2xxx: Fix incorrect reporting of task management failure
+Date:   Tue,  5 Apr 2022 09:31:04 +0200
+Message-Id: <20220405070403.871983146@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -58,20 +58,16 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Quinn Tran <qutran@marvell.com>
 
-commit 6a45c8e137d4e2c72eecf1ac7cf64f2fdfcead99 upstream.
+commit 58ca5999e0367d131de82a75257fbfd5aed0195d upstream.
 
-User experienced some of the LUN failed to get rediscovered after long
-cable pull test. The issue is triggered by a race condition between driver
-setting session online state vs starting the LUN scan process at the same
-time. Current code set the online state after notifying the session is
-available. In this case, trigger to start the LUN scan process happened
-before driver could set the session in online state.  LUN scan ends up with
-failure due to the session online check was failing.
+User experienced no task management error while target device is responding
+with error. The RSP_CODE field in the status IOCB is in little endian.
+Driver assumes it's big endian and it picked up erroneous data.
 
-Set the online state before reporting of the availability of the session.
+Convert the data back to big endian as is on the wire.
 
-Link: https://lore.kernel.org/r/20220310092604.22950-3-njavali@marvell.com
-Fixes: aecf043443d3 ("scsi: qla2xxx: Fix Remote port registration")
+Link: https://lore.kernel.org/r/20220310092604.22950-2-njavali@marvell.com
+Fixes: faef62d13463 ("[SCSI] qla2xxx: Fix Task Management command asynchronous handling")
 Cc: stable@vger.kernel.org
 Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
 Signed-off-by: Quinn Tran <qutran@marvell.com>
@@ -79,51 +75,18 @@ Signed-off-by: Nilesh Javali <njavali@marvell.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/qla2xxx/qla_init.c |    5 +++--
- drivers/scsi/qla2xxx/qla_nvme.c |    5 +++++
- 2 files changed, 8 insertions(+), 2 deletions(-)
+ drivers/scsi/qla2xxx/qla_isr.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/scsi/qla2xxx/qla_init.c
-+++ b/drivers/scsi/qla2xxx/qla_init.c
-@@ -5740,6 +5740,8 @@ qla2x00_reg_remote_port(scsi_qla_host_t
- 	if (atomic_read(&fcport->state) == FCS_ONLINE)
- 		return;
- 
-+	qla2x00_set_fcport_state(fcport, FCS_ONLINE);
-+
- 	rport_ids.node_name = wwn_to_u64(fcport->node_name);
- 	rport_ids.port_name = wwn_to_u64(fcport->port_name);
- 	rport_ids.port_id = fcport->d_id.b.domain << 16 |
-@@ -5847,6 +5849,7 @@ qla2x00_update_fcport(scsi_qla_host_t *v
- 		qla2x00_reg_remote_port(vha, fcport);
- 		break;
- 	case MODE_TARGET:
-+		qla2x00_set_fcport_state(fcport, FCS_ONLINE);
- 		if (!vha->vha_tgt.qla_tgt->tgt_stop &&
- 			!vha->vha_tgt.qla_tgt->tgt_stopped)
- 			qlt_fc_port_added(vha, fcport);
-@@ -5861,8 +5864,6 @@ qla2x00_update_fcport(scsi_qla_host_t *v
- 		break;
- 	}
- 
--	qla2x00_set_fcport_state(fcport, FCS_ONLINE);
--
- 	if (IS_IIDMA_CAPABLE(vha->hw) && vha->hw->flags.gpsc_supported) {
- 		if (fcport->id_changed) {
- 			fcport->id_changed = 0;
---- a/drivers/scsi/qla2xxx/qla_nvme.c
-+++ b/drivers/scsi/qla2xxx/qla_nvme.c
-@@ -35,6 +35,11 @@ int qla_nvme_register_remote(struct scsi
- 		(fcport->nvme_flag & NVME_FLAG_REGISTERED))
- 		return 0;
- 
-+	if (atomic_read(&fcport->state) == FCS_ONLINE)
-+		return 0;
-+
-+	qla2x00_set_fcport_state(fcport, FCS_ONLINE);
-+
- 	fcport->nvme_flag &= ~NVME_FLAG_RESETTING;
- 
- 	memset(&req, 0, sizeof(struct nvme_fc_port_info));
+--- a/drivers/scsi/qla2xxx/qla_isr.c
++++ b/drivers/scsi/qla2xxx/qla_isr.c
+@@ -2494,6 +2494,7 @@ qla24xx_tm_iocb_entry(scsi_qla_host_t *v
+ 		iocb->u.tmf.data = QLA_FUNCTION_FAILED;
+ 	} else if ((le16_to_cpu(sts->scsi_status) &
+ 	    SS_RESPONSE_INFO_LEN_VALID)) {
++		host_to_fcp_swap(sts->data, sizeof(sts->data));
+ 		if (le32_to_cpu(sts->rsp_data_len) < 4) {
+ 			ql_log(ql_log_warn, fcport->vha, 0x503b,
+ 			    "Async-%s error - hdl=%x not enough response(%d).\n",
 
 
