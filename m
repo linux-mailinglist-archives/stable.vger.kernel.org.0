@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E2644F39A8
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:50:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69D104F3C37
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:25:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354996AbiDELhI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:37:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52352 "EHLO
+        id S243710AbiDEMG2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:06:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50692 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353574AbiDEKIO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:08:14 -0400
+        with ESMTP id S1358267AbiDEK2L (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:28:11 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD6BEC3343;
-        Tue,  5 Apr 2022 02:55:25 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E80810FE0;
+        Tue,  5 Apr 2022 03:17:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6CF4CB81B93;
-        Tue,  5 Apr 2022 09:55:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3B92C385A1;
-        Tue,  5 Apr 2022 09:55:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2C3CEB81B18;
+        Tue,  5 Apr 2022 10:17:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DA3FC385A0;
+        Tue,  5 Apr 2022 10:17:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152523;
-        bh=1UUYMi3bjzdKnIhkTnNEObHL0h8mDv9RYUxrh2kdPcQ=;
+        s=korg; t=1649153863;
+        bh=uKH24HtaFBqLmO+xSRD692UsORjzvXc4qTmIGqH7/4s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kd0SjV2z568E2Q967ecQjJFetzKZGa94E6tslovWmhr5BeodAcGErYQZOmDD8tYzq
-         5lthR83LTRJOXYUE1ujgqr2zWH5Ziig9oXd2yGH/P5MDsxHDzh5gq4jwHFUzP/7pRX
-         2c7RjLNXYCVl3RIg3tRy6vPQ6FkpGu/gleSUn8EQ=
+        b=MHHGXp/0nX0yfXRdFUSdYju79Sr4xc1WEFOcIgchwn8HDuzlilzyogHrKUVdH0X/W
+         NqbbodQ5ev7Hx3IB1ZIJwv4Kk0rVkKgSbY/1ID1RavJGvbndulTMXKVMvRHzBQxhiP
+         LZln7WG+Ho64is92utOw/U0zv7+3+JuDCfsP70O8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Quinn Tran <qutran@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.15 807/913] scsi: qla2xxx: Reduce false trigger to login
+        stable@vger.kernel.org, Dumitru Ceara <dceara@redhat.com>,
+        Numan Siddique <nusiddiq@redhat.com>,
+        Aaron Conole <aconole@redhat.com>,
+        Eelco Chaudron <echaudro@redhat.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 375/599] openvswitch: always update flow key after nat
 Date:   Tue,  5 Apr 2022 09:31:09 +0200
-Message-Id: <20220405070404.022001020@linuxfoundation.org>
+Message-Id: <20220405070309.989261762@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070258.802373272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,47 +57,200 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quinn Tran <qutran@marvell.com>
+From: Aaron Conole <aconole@redhat.com>
 
-commit d2646eed7b19a206912f49101178cbbaa507256c upstream.
+[ Upstream commit 60b44ca6bd7518dd38fa2719bc9240378b6172c3 ]
 
-While a session is in the middle of a relogin, a late RSCN can be delivered
-from switch. RSCN trigger fabric scan where the scan logic can trigger
-another session login while a login is in progress.  Reduce the extra
-trigger to prevent multiple logins to the same session.
+During NAT, a tuple collision may occur.  When this happens, openvswitch
+will make a second pass through NAT which will perform additional packet
+modification.  This will update the skb data, but not the flow key that
+OVS uses.  This means that future flow lookups, and packet matches will
+have incorrect data.  This has been supported since
+5d50aa83e2c8 ("openvswitch: support asymmetric conntrack").
 
-Link: https://lore.kernel.org/r/20220310092604.22950-10-njavali@marvell.com
-Fixes: bee8b84686c4 ("scsi: qla2xxx: Reduce redundant ADISC command for RSCNs")
-Cc: stable@vger.kernel.org
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Quinn Tran <qutran@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+That commit failed to properly update the sw_flow_key attributes, since
+it only called the ovs_ct_nat_update_key once, rather than each time
+ovs_ct_nat_execute was called.  As these two operations are linked, the
+ovs_ct_nat_execute() function should always make sure that the
+sw_flow_key is updated after a successful call through NAT infrastructure.
+
+Fixes: 5d50aa83e2c8 ("openvswitch: support asymmetric conntrack")
+Cc: Dumitru Ceara <dceara@redhat.com>
+Cc: Numan Siddique <nusiddiq@redhat.com>
+Signed-off-by: Aaron Conole <aconole@redhat.com>
+Acked-by: Eelco Chaudron <echaudro@redhat.com>
+Link: https://lore.kernel.org/r/20220318124319.3056455-1-aconole@redhat.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_init.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ net/openvswitch/conntrack.c | 118 ++++++++++++++++++------------------
+ 1 file changed, 59 insertions(+), 59 deletions(-)
 
---- a/drivers/scsi/qla2xxx/qla_init.c
-+++ b/drivers/scsi/qla2xxx/qla_init.c
-@@ -1645,7 +1645,8 @@ int qla24xx_fcport_handle_login(struct s
- 	    fcport->login_gen, fcport->loop_id, fcport->scan_state,
- 	    fcport->fc4_type);
+diff --git a/net/openvswitch/conntrack.c b/net/openvswitch/conntrack.c
+index a11b558813c1..7ff98d39ec94 100644
+--- a/net/openvswitch/conntrack.c
++++ b/net/openvswitch/conntrack.c
+@@ -730,6 +730,57 @@ static bool skb_nfct_cached(struct net *net,
+ }
  
--	if (fcport->scan_state != QLA_FCPORT_FOUND)
-+	if (fcport->scan_state != QLA_FCPORT_FOUND ||
-+	    fcport->disc_state == DSC_DELETE_PEND)
- 		return 0;
+ #if IS_ENABLED(CONFIG_NF_NAT)
++static void ovs_nat_update_key(struct sw_flow_key *key,
++			       const struct sk_buff *skb,
++			       enum nf_nat_manip_type maniptype)
++{
++	if (maniptype == NF_NAT_MANIP_SRC) {
++		__be16 src;
++
++		key->ct_state |= OVS_CS_F_SRC_NAT;
++		if (key->eth.type == htons(ETH_P_IP))
++			key->ipv4.addr.src = ip_hdr(skb)->saddr;
++		else if (key->eth.type == htons(ETH_P_IPV6))
++			memcpy(&key->ipv6.addr.src, &ipv6_hdr(skb)->saddr,
++			       sizeof(key->ipv6.addr.src));
++		else
++			return;
++
++		if (key->ip.proto == IPPROTO_UDP)
++			src = udp_hdr(skb)->source;
++		else if (key->ip.proto == IPPROTO_TCP)
++			src = tcp_hdr(skb)->source;
++		else if (key->ip.proto == IPPROTO_SCTP)
++			src = sctp_hdr(skb)->source;
++		else
++			return;
++
++		key->tp.src = src;
++	} else {
++		__be16 dst;
++
++		key->ct_state |= OVS_CS_F_DST_NAT;
++		if (key->eth.type == htons(ETH_P_IP))
++			key->ipv4.addr.dst = ip_hdr(skb)->daddr;
++		else if (key->eth.type == htons(ETH_P_IPV6))
++			memcpy(&key->ipv6.addr.dst, &ipv6_hdr(skb)->daddr,
++			       sizeof(key->ipv6.addr.dst));
++		else
++			return;
++
++		if (key->ip.proto == IPPROTO_UDP)
++			dst = udp_hdr(skb)->dest;
++		else if (key->ip.proto == IPPROTO_TCP)
++			dst = tcp_hdr(skb)->dest;
++		else if (key->ip.proto == IPPROTO_SCTP)
++			dst = sctp_hdr(skb)->dest;
++		else
++			return;
++
++		key->tp.dst = dst;
++	}
++}
++
+ /* Modelled after nf_nat_ipv[46]_fn().
+  * range is only used for new, uninitialized NAT state.
+  * Returns either NF_ACCEPT or NF_DROP.
+@@ -737,7 +788,7 @@ static bool skb_nfct_cached(struct net *net,
+ static int ovs_ct_nat_execute(struct sk_buff *skb, struct nf_conn *ct,
+ 			      enum ip_conntrack_info ctinfo,
+ 			      const struct nf_nat_range2 *range,
+-			      enum nf_nat_manip_type maniptype)
++			      enum nf_nat_manip_type maniptype, struct sw_flow_key *key)
+ {
+ 	int hooknum, nh_off, err = NF_ACCEPT;
  
- 	if ((fcport->loop_id != FC_NO_LOOP_ID) &&
-@@ -1666,7 +1667,7 @@ int qla24xx_fcport_handle_login(struct s
- 	if (vha->host->active_mode == MODE_TARGET && !N2N_TOPO(vha->hw))
- 		return 0;
+@@ -810,58 +861,11 @@ static int ovs_ct_nat_execute(struct sk_buff *skb, struct nf_conn *ct,
+ 	skb_push(skb, nh_off);
+ 	skb_postpush_rcsum(skb, skb->data, nh_off);
  
--	if (fcport->flags & FCF_ASYNC_SENT) {
-+	if (fcport->flags & (FCF_ASYNC_SENT | FCF_ASYNC_ACTIVE)) {
- 		set_bit(RELOGIN_NEEDED, &vha->dpc_flags);
- 		return 0;
+-	return err;
+-}
+-
+-static void ovs_nat_update_key(struct sw_flow_key *key,
+-			       const struct sk_buff *skb,
+-			       enum nf_nat_manip_type maniptype)
+-{
+-	if (maniptype == NF_NAT_MANIP_SRC) {
+-		__be16 src;
+-
+-		key->ct_state |= OVS_CS_F_SRC_NAT;
+-		if (key->eth.type == htons(ETH_P_IP))
+-			key->ipv4.addr.src = ip_hdr(skb)->saddr;
+-		else if (key->eth.type == htons(ETH_P_IPV6))
+-			memcpy(&key->ipv6.addr.src, &ipv6_hdr(skb)->saddr,
+-			       sizeof(key->ipv6.addr.src));
+-		else
+-			return;
+-
+-		if (key->ip.proto == IPPROTO_UDP)
+-			src = udp_hdr(skb)->source;
+-		else if (key->ip.proto == IPPROTO_TCP)
+-			src = tcp_hdr(skb)->source;
+-		else if (key->ip.proto == IPPROTO_SCTP)
+-			src = sctp_hdr(skb)->source;
+-		else
+-			return;
+-
+-		key->tp.src = src;
+-	} else {
+-		__be16 dst;
+-
+-		key->ct_state |= OVS_CS_F_DST_NAT;
+-		if (key->eth.type == htons(ETH_P_IP))
+-			key->ipv4.addr.dst = ip_hdr(skb)->daddr;
+-		else if (key->eth.type == htons(ETH_P_IPV6))
+-			memcpy(&key->ipv6.addr.dst, &ipv6_hdr(skb)->daddr,
+-			       sizeof(key->ipv6.addr.dst));
+-		else
+-			return;
+-
+-		if (key->ip.proto == IPPROTO_UDP)
+-			dst = udp_hdr(skb)->dest;
+-		else if (key->ip.proto == IPPROTO_TCP)
+-			dst = tcp_hdr(skb)->dest;
+-		else if (key->ip.proto == IPPROTO_SCTP)
+-			dst = sctp_hdr(skb)->dest;
+-		else
+-			return;
++	/* Update the flow key if NAT successful. */
++	if (err == NF_ACCEPT)
++		ovs_nat_update_key(key, skb, maniptype);
+ 
+-		key->tp.dst = dst;
+-	}
++	return err;
+ }
+ 
+ /* Returns NF_DROP if the packet should be dropped, NF_ACCEPT otherwise. */
+@@ -903,7 +907,7 @@ static int ovs_ct_nat(struct net *net, struct sw_flow_key *key,
+ 	} else {
+ 		return NF_ACCEPT; /* Connection is not NATed. */
  	}
+-	err = ovs_ct_nat_execute(skb, ct, ctinfo, &info->range, maniptype);
++	err = ovs_ct_nat_execute(skb, ct, ctinfo, &info->range, maniptype, key);
+ 
+ 	if (err == NF_ACCEPT && ct->status & IPS_DST_NAT) {
+ 		if (ct->status & IPS_SRC_NAT) {
+@@ -913,17 +917,13 @@ static int ovs_ct_nat(struct net *net, struct sw_flow_key *key,
+ 				maniptype = NF_NAT_MANIP_SRC;
+ 
+ 			err = ovs_ct_nat_execute(skb, ct, ctinfo, &info->range,
+-						 maniptype);
++						 maniptype, key);
+ 		} else if (CTINFO2DIR(ctinfo) == IP_CT_DIR_ORIGINAL) {
+ 			err = ovs_ct_nat_execute(skb, ct, ctinfo, NULL,
+-						 NF_NAT_MANIP_SRC);
++						 NF_NAT_MANIP_SRC, key);
+ 		}
+ 	}
+ 
+-	/* Mark NAT done if successful and update the flow key. */
+-	if (err == NF_ACCEPT)
+-		ovs_nat_update_key(key, skb, maniptype);
+-
+ 	return err;
+ }
+ #else /* !CONFIG_NF_NAT */
+-- 
+2.34.1
+
 
 
