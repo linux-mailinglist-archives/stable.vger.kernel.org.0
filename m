@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 85E454F38B8
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:36:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 837274F3B45
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:16:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377125AbiDEL1h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:27:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54324 "EHLO
+        id S1347043AbiDELw3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:52:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46620 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349584AbiDEJu1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:50:27 -0400
+        with ESMTP id S1356829AbiDEKY5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:24:57 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14A859B;
-        Tue,  5 Apr 2022 02:48:29 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31844C0545;
+        Tue,  5 Apr 2022 03:09:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B8FDDB817D3;
-        Tue,  5 Apr 2022 09:48:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35856C385A2;
-        Tue,  5 Apr 2022 09:48:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D52C0B81C88;
+        Tue,  5 Apr 2022 10:09:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4325FC385A0;
+        Tue,  5 Apr 2022 10:09:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152106;
-        bh=GJWTx2va9kVPJ+UsHarwUFYycQHMaT1jG3zkI1xGkhM=;
+        s=korg; t=1649153344;
+        bh=ZTic4zvL01xfAw3poXzKuNGU8kOgFdNA7qhJdx2enBQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T6W8Cs4BB1gdE6cJqy2ROGdxvhPagUTCuclfzyV5lHE2zCtIZFy7+QgPAY3NA7ojs
-         3hXEWD2/ANK5oIL+SMh3UzaHYeQePdJ9cY8pUB5b8Sj20DpiBPY2FOExo0zEDQQNkP
-         SRraaANVHnY1veg5NsmqVg8jz6J2usaCu+MnsC4Q=
+        b=oFNLn3bLWEjjp4xIOMkJHeMpHZuG7rifXg92RZLrsdXHMR/N2cLVk+JQuxQzUIKpD
+         jEswL8pt88orwrIecoOzRMW0czLCfUwD0gLVkdFxThoIXpubklkDYmmTm0v9atdM9A
+         1XAqiFY9LB5LKJh29otZ+YkbaSTtWeyFIDqNp0ng=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Jonathan=20Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>,
-        =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <f4bug@amsat.org>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Chen-Yu Tsai <wenst@chromium.org>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 620/913] clk: loongson1: Terminate clk_div_table with sentinel element
+Subject: [PATCH 5.10 188/599] media: v4l2-mem2mem: Apply DST_QUEUE_OFF_BASE on MMAP buffers across ioctls
 Date:   Tue,  5 Apr 2022 09:28:02 +0200
-Message-Id: <20220405070358.424889663@linuxfoundation.org>
+Message-Id: <20220405070304.436627021@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070258.802373272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,35 +55,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Neuschäfer <j.neuschaefer@gmx.net>
+From: Chen-Yu Tsai <wenst@chromium.org>
 
-[ Upstream commit 3eb00f89162e80083dfcaa842468b510462cfeaa ]
+[ Upstream commit 8310ca94075e784bbb06593cd6c068ee6b6e4ca6 ]
 
-In order that the end of a clk_div_table can be detected, it must be
-terminated with a sentinel element (.div = 0).
+DST_QUEUE_OFF_BASE is applied to offset/mem_offset on MMAP capture buffers
+only for the VIDIOC_QUERYBUF ioctl, while the userspace fields (including
+offset/mem_offset) are filled in for VIDIOC_{QUERY,PREPARE,Q,DQ}BUF
+ioctls. This leads to differences in the values presented to userspace.
+If userspace attempts to mmap the capture buffer directly using values
+from DQBUF, it will fail.
 
-Fixes: b4626a7f4892 ("CLK: Add Loongson1C clock support")
-Signed-off-by: Jonathan Neuschäfer <j.neuschaefer@gmx.net>
-Reviewed-by: Philippe Mathieu-Daudé <f4bug@amsat.org>
-Link: https://lore.kernel.org/r/20220218000922.134857-3-j.neuschaefer@gmx.net
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Move the code that applies the magic offset into a helper, and call
+that helper from all four ioctl entry points.
+
+[hverkuil: drop unnecessary '= 0' in v4l2_m2m_querybuf() for ret]
+
+Fixes: 7f98639def42 ("V4L/DVB: add memory-to-memory device helper framework for videobuf")
+Fixes: 908a0d7c588e ("[media] v4l: mem2mem: port to videobuf2")
+Signed-off-by: Chen-Yu Tsai <wenst@chromium.org>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/loongson1/clk-loongson1c.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/media/v4l2-core/v4l2-mem2mem.c | 53 ++++++++++++++++++++------
+ 1 file changed, 41 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/clk/loongson1/clk-loongson1c.c b/drivers/clk/loongson1/clk-loongson1c.c
-index 703f87622cf5..1ebf740380ef 100644
---- a/drivers/clk/loongson1/clk-loongson1c.c
-+++ b/drivers/clk/loongson1/clk-loongson1c.c
-@@ -37,6 +37,7 @@ static const struct clk_div_table ahb_div_table[] = {
- 	[1] = { .val = 1, .div = 4 },
- 	[2] = { .val = 2, .div = 3 },
- 	[3] = { .val = 3, .div = 3 },
-+	[4] = { /* sentinel */ }
- };
+diff --git a/drivers/media/v4l2-core/v4l2-mem2mem.c b/drivers/media/v4l2-core/v4l2-mem2mem.c
+index b221b4e438a1..73190652c267 100644
+--- a/drivers/media/v4l2-core/v4l2-mem2mem.c
++++ b/drivers/media/v4l2-core/v4l2-mem2mem.c
+@@ -585,19 +585,14 @@ int v4l2_m2m_reqbufs(struct file *file, struct v4l2_m2m_ctx *m2m_ctx,
+ }
+ EXPORT_SYMBOL_GPL(v4l2_m2m_reqbufs);
  
- void __init ls1x_clk_init(void)
+-int v4l2_m2m_querybuf(struct file *file, struct v4l2_m2m_ctx *m2m_ctx,
+-		      struct v4l2_buffer *buf)
++static void v4l2_m2m_adjust_mem_offset(struct vb2_queue *vq,
++				       struct v4l2_buffer *buf)
+ {
+-	struct vb2_queue *vq;
+-	int ret = 0;
+-	unsigned int i;
+-
+-	vq = v4l2_m2m_get_vq(m2m_ctx, buf->type);
+-	ret = vb2_querybuf(vq, buf);
+-
+ 	/* Adjust MMAP memory offsets for the CAPTURE queue */
+ 	if (buf->memory == V4L2_MEMORY_MMAP && V4L2_TYPE_IS_CAPTURE(vq->type)) {
+ 		if (V4L2_TYPE_IS_MULTIPLANAR(vq->type)) {
++			unsigned int i;
++
+ 			for (i = 0; i < buf->length; ++i)
+ 				buf->m.planes[i].m.mem_offset
+ 					+= DST_QUEUE_OFF_BASE;
+@@ -605,8 +600,23 @@ int v4l2_m2m_querybuf(struct file *file, struct v4l2_m2m_ctx *m2m_ctx,
+ 			buf->m.offset += DST_QUEUE_OFF_BASE;
+ 		}
+ 	}
++}
+ 
+-	return ret;
++int v4l2_m2m_querybuf(struct file *file, struct v4l2_m2m_ctx *m2m_ctx,
++		      struct v4l2_buffer *buf)
++{
++	struct vb2_queue *vq;
++	int ret;
++
++	vq = v4l2_m2m_get_vq(m2m_ctx, buf->type);
++	ret = vb2_querybuf(vq, buf);
++	if (ret)
++		return ret;
++
++	/* Adjust MMAP memory offsets for the CAPTURE queue */
++	v4l2_m2m_adjust_mem_offset(vq, buf);
++
++	return 0;
+ }
+ EXPORT_SYMBOL_GPL(v4l2_m2m_querybuf);
+ 
+@@ -763,6 +773,9 @@ int v4l2_m2m_qbuf(struct file *file, struct v4l2_m2m_ctx *m2m_ctx,
+ 	if (ret)
+ 		return ret;
+ 
++	/* Adjust MMAP memory offsets for the CAPTURE queue */
++	v4l2_m2m_adjust_mem_offset(vq, buf);
++
+ 	/*
+ 	 * If the capture queue is streaming, but streaming hasn't started
+ 	 * on the device, but was asked to stop, mark the previously queued
+@@ -784,9 +797,17 @@ int v4l2_m2m_dqbuf(struct file *file, struct v4l2_m2m_ctx *m2m_ctx,
+ 		   struct v4l2_buffer *buf)
+ {
+ 	struct vb2_queue *vq;
++	int ret;
+ 
+ 	vq = v4l2_m2m_get_vq(m2m_ctx, buf->type);
+-	return vb2_dqbuf(vq, buf, file->f_flags & O_NONBLOCK);
++	ret = vb2_dqbuf(vq, buf, file->f_flags & O_NONBLOCK);
++	if (ret)
++		return ret;
++
++	/* Adjust MMAP memory offsets for the CAPTURE queue */
++	v4l2_m2m_adjust_mem_offset(vq, buf);
++
++	return 0;
+ }
+ EXPORT_SYMBOL_GPL(v4l2_m2m_dqbuf);
+ 
+@@ -795,9 +816,17 @@ int v4l2_m2m_prepare_buf(struct file *file, struct v4l2_m2m_ctx *m2m_ctx,
+ {
+ 	struct video_device *vdev = video_devdata(file);
+ 	struct vb2_queue *vq;
++	int ret;
+ 
+ 	vq = v4l2_m2m_get_vq(m2m_ctx, buf->type);
+-	return vb2_prepare_buf(vq, vdev->v4l2_dev->mdev, buf);
++	ret = vb2_prepare_buf(vq, vdev->v4l2_dev->mdev, buf);
++	if (ret)
++		return ret;
++
++	/* Adjust MMAP memory offsets for the CAPTURE queue */
++	v4l2_m2m_adjust_mem_offset(vq, buf);
++
++	return 0;
+ }
+ EXPORT_SYMBOL_GPL(v4l2_m2m_prepare_buf);
+ 
 -- 
 2.34.1
 
