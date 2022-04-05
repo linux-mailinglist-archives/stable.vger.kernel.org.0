@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B16DB4F2A00
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 12:51:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AEF24F2C99
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:31:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347653AbiDEJ2C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:28:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46614 "EHLO
+        id S244510AbiDEKi5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:38:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244759AbiDEIwh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF3731D323;
-        Tue,  5 Apr 2022 01:43:24 -0700 (PDT)
+        with ESMTP id S237179AbiDEJey (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:34:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85C6E888C5;
+        Tue,  5 Apr 2022 02:24:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 91312B81A32;
-        Tue,  5 Apr 2022 08:43:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B649C385A0;
-        Tue,  5 Apr 2022 08:43:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1038161674;
+        Tue,  5 Apr 2022 09:24:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 219EBC385A4;
+        Tue,  5 Apr 2022 09:24:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148202;
-        bh=f2TE95cmaLwf4mI8zvdr2vVpjO4xQUs/2IcFqLWNt1g=;
+        s=korg; t=1649150651;
+        bh=CivaMEJcjGKzvh+1Jmorpx4K3eBk7/KE099dJ8YzTMc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fjvTOgB3dtAX1SBpK9YAkBMLhfu3JeUgTPVSoHuQQMEexme3QoQAo9Jese9norKQQ
-         MN1OyQ10oV9cCt3awkvkbf1GlSi3lWXiZpuWqMP8Rqf1iTSWVdKL5FbGRgaEAIpVzT
-         Z9ZEeEjuNzGAfc62ShOpGn06zJRB3TQdWMUq++m4=
+        b=hM3NgalpK7kdsiQijBdvjhb2EHOudbEk+wLNBAFIyVBK3DVrj/emglQwKtLkjjQvQ
+         Dn/t0hWYiKr9beQYggb5/54LHhiu3/RaxmxCZ25RwzZSC1p06NW0149h7tPs8H57S9
+         Qw0UCq52iX8x/wQJ3whaXPpSJhGzZGEWQ/aBNtl8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0272/1017] btrfs: fix unexpected error path when reflinking an inline extent
-Date:   Tue,  5 Apr 2022 09:19:45 +0200
-Message-Id: <20220405070402.340137634@linuxfoundation.org>
+        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+        Nishanth Menon <nm@ti.com>
+Subject: [PATCH 5.15 124/913] arm64: dts: ti: k3-am65: Fix gic-v3 compatible regs
+Date:   Tue,  5 Apr 2022 09:19:46 +0200
+Message-Id: <20220405070343.544601532@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,50 +53,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Nishanth Menon <nm@ti.com>
 
-[ Upstream commit 1f4613cdbe7739ce291554b316bff8e551383389 ]
+commit 8cae268b70f387ff9e697ccd62fb2384079124e7 upstream.
 
-When reflinking an inline extent, we assert that its file offset is 0 and
-that its uncompressed length is not greater than the sector size. We then
-return an error if one of those conditions is not satisfied. However we
-use a return statement, which results in returning from btrfs_clone()
-without freeing the path and buffer that were allocated before, as well as
-not clearing the flag BTRFS_INODE_NO_DELALLOC_FLUSH for the destination
-inode.
+Though GIC ARE option is disabled for no GIC-v2 compatibility,
+Cortex-A53 is free to implement the CPU interface as long as it
+communicates with the GIC using the stream protocol. This requires
+that the SoC integration mark out the PERIPHBASE[1] as reserved area
+within the SoC. See longer discussion in [2] for further information.
 
-Fix that by jumping to the 'out' label instead, and also add a WARN_ON()
-for each condition so that in case assertions are disabled, we get to
-known which of the unexpected conditions triggered the error.
+Update the GIC register map to indicate offsets from PERIPHBASE based
+on [3]. Without doing this, systems like kvm will not function with
+gic-v2 emulation.
 
-Fixes: a61e1e0df9f321 ("Btrfs: simplify inline extent handling when doing reflinks")
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+[1] https://developer.arm.com/documentation/ddi0500/e/system-control/aarch64-register-descriptions/configuration-base-address-register--el1
+[2] https://lore.kernel.org/all/87k0e0tirw.wl-maz@kernel.org/
+[3] https://developer.arm.com/documentation/ddi0500/e/generic-interrupt-controller-cpu-interface/gic-programmers-model/memory-map
+
+Cc: stable@vger.kernel.org # 5.10+
+Fixes: ea47eed33a3f ("arm64: dts: ti: Add Support for AM654 SoC")
+Reported-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Nishanth Menon <nm@ti.com>
+Acked-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20220215201008.15235-2-nm@ti.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/reflink.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ arch/arm64/boot/dts/ti/k3-am65-main.dtsi |    5 ++++-
+ arch/arm64/boot/dts/ti/k3-am65.dtsi      |    1 +
+ 2 files changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/fs/btrfs/reflink.c b/fs/btrfs/reflink.c
-index e0f93b357548..157d72e330d6 100644
---- a/fs/btrfs/reflink.c
-+++ b/fs/btrfs/reflink.c
-@@ -505,8 +505,11 @@ static int btrfs_clone(struct inode *src, struct inode *inode,
- 			 */
- 			ASSERT(key.offset == 0);
- 			ASSERT(datal <= fs_info->sectorsize);
--			if (key.offset != 0 || datal > fs_info->sectorsize)
--				return -EUCLEAN;
-+			if (WARN_ON(key.offset != 0) ||
-+			    WARN_ON(datal > fs_info->sectorsize)) {
-+				ret = -EUCLEAN;
-+				goto out;
-+			}
- 
- 			ret = clone_copy_inline_extent(inode, path, &new_key,
- 						       drop_start, datal, size,
--- 
-2.34.1
-
+--- a/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
++++ b/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
+@@ -35,7 +35,10 @@
+ 		#interrupt-cells = <3>;
+ 		interrupt-controller;
+ 		reg = <0x00 0x01800000 0x00 0x10000>,	/* GICD */
+-		      <0x00 0x01880000 0x00 0x90000>;	/* GICR */
++		      <0x00 0x01880000 0x00 0x90000>,	/* GICR */
++		      <0x00 0x6f000000 0x00 0x2000>,	/* GICC */
++		      <0x00 0x6f010000 0x00 0x1000>,	/* GICH */
++		      <0x00 0x6f020000 0x00 0x2000>;	/* GICV */
+ 		/*
+ 		 * vcpumntirq:
+ 		 * virtual CPU interface maintenance interrupt
+--- a/arch/arm64/boot/dts/ti/k3-am65.dtsi
++++ b/arch/arm64/boot/dts/ti/k3-am65.dtsi
+@@ -84,6 +84,7 @@
+ 			 <0x00 0x46000000 0x00 0x46000000 0x00 0x00200000>,
+ 			 <0x00 0x47000000 0x00 0x47000000 0x00 0x00068400>,
+ 			 <0x00 0x50000000 0x00 0x50000000 0x00 0x8000000>,
++			 <0x00 0x6f000000 0x00 0x6f000000 0x00 0x00310000>, /* A53 PERIPHBASE */
+ 			 <0x00 0x70000000 0x00 0x70000000 0x00 0x200000>,
+ 			 <0x05 0x00000000 0x05 0x00000000 0x01 0x0000000>,
+ 			 <0x07 0x00000000 0x07 0x00000000 0x01 0x0000000>;
 
 
