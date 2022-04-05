@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B5F7B4F3C41
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:25:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 235884F39A6
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:50:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245354AbiDEMGz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:06:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51882 "EHLO
+        id S1354840AbiDELhB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:37:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40626 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358269AbiDEK2L (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:28:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA20D12624;
-        Tue,  5 Apr 2022 03:17:47 -0700 (PDT)
+        with ESMTP id S1353587AbiDEKIQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:08:16 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7012FC3352;
+        Tue,  5 Apr 2022 02:55:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 56F19617C2;
-        Tue,  5 Apr 2022 10:17:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E748C385A2;
-        Tue,  5 Apr 2022 10:17:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 28035B818F3;
+        Tue,  5 Apr 2022 09:55:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 762E0C385A2;
+        Tue,  5 Apr 2022 09:55:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153866;
-        bh=UI518gNvZYc7Bl5O77cnb5llWvp/Mku9p8fq+HkHNQs=;
+        s=korg; t=1649152525;
+        bh=oAdNRWc6ezwx/T1ieSO3Pl7lslBK6T8faLtEp4lHgAY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fg1BMkxtFtLXaC+vTReXOaWHvm2K36H5yET5T/eQ8xRy5Ymx8fSIKEwfzvs4uU0UB
-         LdlO8+aK/Wi39Wn93iIMg8i9f5N1s547OHwiLvRxYDOndvFlrJp7dMO4PsUcn3ypC+
-         AdTrZohoXL8GHljCWA96U6cyw7+4Os1FNPc9O2o0=
+        b=GVNCJ57gIVrCLXaFFn+/AFd2FMr1+kAYMJXXqc5EqMu7uZmu9hrqTbyWe95pbNloc
+         NBCRS/ZsrqD4eOVhvqmfbuFWMbpKcMm+l15clxB8JnOVuc1NYi2brVqlAAWCXT2LHu
+         24cgqXfhNFK1HDYIYXvHpVBzqN7LQUYnwlraVsME=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ying Xue <ying.xue@windriver.com>,
-        Hoang Le <hoang.h.le@dektech.com.au>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 376/599] tipc: fix the timer expires after interval 100ms
+        stable@vger.kernel.org,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Manish Rangankar <mrangankar@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.15 808/913] scsi: qla2xxx: Use correct feature type field during RFF_ID processing
 Date:   Tue,  5 Apr 2022 09:31:10 +0200
-Message-Id: <20220405070310.019726757@linuxfoundation.org>
+Message-Id: <20220405070404.052198580@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
-References: <20220405070258.802373272@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,45 +56,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hoang Le <hoang.h.le@dektech.com.au>
+From: Manish Rangankar <mrangankar@marvell.com>
 
-[ Upstream commit 6a7d8cff4a3301087dd139293e9bddcf63827282 ]
+commit a7e05f7a1bcbe4ee055479242de46c5c16ab03b1 upstream.
 
-In the timer callback function tipc_sk_timeout(), we're trying to
-reschedule another timeout to retransmit a setup request if destination
-link is congested. But we use the incorrect timeout value
-(msecs_to_jiffies(100)) instead of (jiffies + msecs_to_jiffies(100)),
-so that the timer expires immediately, it's irrelevant for original
-description.
+During SNS Register FC-4 Features (RFF_ID) the initiator driver was sending
+incorrect type field for NVMe supported device. Use correct feature type
+field.
 
-In this commit we correct the timeout value in sk_reset_timer()
-
-Fixes: 6787927475e5 ("tipc: buffer overflow handling in listener socket")
-Acked-by: Ying Xue <ying.xue@windriver.com>
-Signed-off-by: Hoang Le <hoang.h.le@dektech.com.au>
-Link: https://lore.kernel.org/r/20220321042229.314288-1-hoang.h.le@dektech.com.au
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/20220310092604.22950-12-njavali@marvell.com
+Fixes: e374f9f59281 ("scsi: qla2xxx: Migrate switch registration commands away from mailbox interface")
+Cc: stable@vger.kernel.org
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Manish Rangankar <mrangankar@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/tipc/socket.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/scsi/qla2xxx/qla_gs.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/net/tipc/socket.c b/net/tipc/socket.c
-index 8d2c98531af4..42283dc6c5b7 100644
---- a/net/tipc/socket.c
-+++ b/net/tipc/socket.c
-@@ -2846,7 +2846,8 @@ static void tipc_sk_retry_connect(struct sock *sk, struct sk_buff_head *list)
- 
- 	/* Try again later if dest link is congested */
- 	if (tsk->cong_link_cnt) {
--		sk_reset_timer(sk, &sk->sk_timer, msecs_to_jiffies(100));
-+		sk_reset_timer(sk, &sk->sk_timer,
-+			       jiffies + msecs_to_jiffies(100));
- 		return;
+--- a/drivers/scsi/qla2xxx/qla_gs.c
++++ b/drivers/scsi/qla2xxx/qla_gs.c
+@@ -676,8 +676,7 @@ qla2x00_rff_id(scsi_qla_host_t *vha, u8
+ 		return (QLA_SUCCESS);
  	}
- 	/* Prepare SYN for retransmit */
--- 
-2.34.1
-
+ 
+-	return qla_async_rffid(vha, &vha->d_id, qlt_rff_id(vha),
+-	    FC4_TYPE_FCP_SCSI);
++	return qla_async_rffid(vha, &vha->d_id, qlt_rff_id(vha), type);
+ }
+ 
+ static int qla_async_rffid(scsi_qla_host_t *vha, port_id_t *d_id,
+@@ -729,7 +728,7 @@ static int qla_async_rffid(scsi_qla_host
+ 	/* Prepare CT arguments -- port_id, FC-4 feature, FC-4 type */
+ 	ct_req->req.rff_id.port_id = port_id_to_be_id(*d_id);
+ 	ct_req->req.rff_id.fc4_feature = fc4feature;
+-	ct_req->req.rff_id.fc4_type = fc4type;		/* SCSI - FCP */
++	ct_req->req.rff_id.fc4_type = fc4type;		/* SCSI-FCP or FC-NVMe */
+ 
+ 	sp->u.iocb_cmd.u.ctarg.req_size = RFF_ID_REQ_SIZE;
+ 	sp->u.iocb_cmd.u.ctarg.rsp_size = RFF_ID_RSP_SIZE;
 
 
