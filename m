@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 406494F2EBC
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:03:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AAA6C4F3263
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:57:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237768AbiDEInU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:43:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33828 "EHLO
+        id S1353950AbiDEKJz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:09:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59714 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241094AbiDEIcs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:32:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EA19140F6;
-        Tue,  5 Apr 2022 01:27:18 -0700 (PDT)
+        with ESMTP id S1346365AbiDEJXp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:23:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C706DDA08B;
+        Tue,  5 Apr 2022 02:13:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D09C461001;
-        Tue,  5 Apr 2022 08:27:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE6B2C385A2;
-        Tue,  5 Apr 2022 08:27:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 086246164D;
+        Tue,  5 Apr 2022 09:13:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B2CFC385A0;
+        Tue,  5 Apr 2022 09:13:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147237;
-        bh=AxMd18gbofm6w4krU29ftLJswZhLQ32cx6ujG2KM8Xk=;
+        s=korg; t=1649150000;
+        bh=qIGizFA1So/4gOkhV+bGgAnGtnZEuu2fx1vA0Iew7P0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A4gmTpRyN1b9/jjzOAekH0kQK8tBhGdPya5qrfToy0H8HkDmW4vh4yiabyemK+vGq
-         xkWZc5UsrSX4UTw3QK21eLqodFvDexafv99XIgs+BOdRxgXzJjaeNnLHQEtHfxRH3M
-         6KwQ8fw89IRTI1c2ePNCRr4kbgwlZzuc0W4Qs3zg=
+        b=KnXmdi6/3OJBdcH2cIHVJ7aW/HzUII42SGSIriL8lbrtEiO6W7R4UwO0eOlrvSQP5
+         njXjgWIjqkaAx+jhyMT4nlNMbpg4ekImTXb9bXfKfeTdAS7r894vwG39YaVI2waexD
+         Uagk6ODy7Iget47ci7oyYqPyavY3lo1njDHRixds=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        =?UTF-8?q?Jonathan=20Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 5.17 1044/1126] pinctrl: nuvoton: npcm7xx: Use %zu printk format for ARRAY_SIZE()
-Date:   Tue,  5 Apr 2022 09:29:51 +0200
-Message-Id: <20220405070438.116405741@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Quinn Tran <qutran@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.16 0880/1017] scsi: qla2xxx: Fix premature hw access after PCI error
+Date:   Tue,  5 Apr 2022 09:29:53 +0200
+Message-Id: <20220405070420.355462480@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,35 +56,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Neuschäfer <j.neuschaefer@gmx.net>
+From: Quinn Tran <qutran@marvell.com>
 
-commit 9d0f18bca3b557ae5d2128661ac06d33b3f45c0a upstream.
+commit e35920ab7874d5e2faeb4f958a74bfa793f1ce5a upstream.
 
-When compile-testing on 64-bit architectures, GCC complains about the
-mismatch of types between the %d format specifier and value returned by
-ARRAY_LENGTH(). Use %zu, which is correct everywhere.
+After a recoverable PCI error has been detected and recovered, qla driver
+needs to check to see if the error condition still persist and/or wait
+for the OS to give the resume signal.
 
-Reported-by: kernel test robot <lkp@intel.com>
-Fixes: 3b588e43ee5c7 ("pinctrl: nuvoton: add NPCM7xx pinctrl and GPIO driver")
-Signed-off-by: Jonathan Neuschäfer <j.neuschaefer@gmx.net>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20220205155332.1308899-2-j.neuschaefer@gmx.net
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Sep  8 22:26:03 localhost kernel: WARNING: CPU: 9 PID: 124606 at qla_tmpl.c:440
+qla27xx_fwdt_entry_t266+0x55/0x60 [qla2xxx]
+Sep  8 22:26:03 localhost kernel: RIP: 0010:qla27xx_fwdt_entry_t266+0x55/0x60
+[qla2xxx]
+Sep  8 22:26:03 localhost kernel: Call Trace:
+Sep  8 22:26:03 localhost kernel: ? qla27xx_walk_template+0xb1/0x1b0 [qla2xxx]
+Sep  8 22:26:03 localhost kernel: ? qla27xx_execute_fwdt_template+0x12a/0x160
+[qla2xxx]
+Sep  8 22:26:03 localhost kernel: ? qla27xx_fwdump+0xa0/0x1c0 [qla2xxx]
+Sep  8 22:26:03 localhost kernel: ? qla2xxx_pci_mmio_enabled+0xfb/0x120
+[qla2xxx]
+Sep  8 22:26:03 localhost kernel: ? report_mmio_enabled+0x44/0x80
+Sep  8 22:26:03 localhost kernel: ? report_slot_reset+0x80/0x80
+Sep  8 22:26:03 localhost kernel: ? pci_walk_bus+0x70/0x90
+Sep  8 22:26:03 localhost kernel: ? aer_dev_correctable_show+0xc0/0xc0
+Sep  8 22:26:03 localhost kernel: ? pcie_do_recovery+0x1bb/0x240
+Sep  8 22:26:03 localhost kernel: ? aer_recover_work_func+0xaa/0xd0
+Sep  8 22:26:03 localhost kernel: ? process_one_work+0x1a7/0x360
+..
+Sep  8 22:26:03 localhost kernel: qla2xxx [0000:42:00.2]-8041:22: detected PCI
+disconnect.
+Sep  8 22:26:03 localhost kernel: qla2xxx [0000:42:00.2]-107ff:22:
+qla27xx_fwdt_entry_t262: dump ram MB failed. Area 5h start 198013h end 198013h
+Sep  8 22:26:03 localhost kernel: qla2xxx [0000:42:00.2]-107ff:22: Unable to
+capture FW dump
+Sep  8 22:26:03 localhost kernel: qla2xxx [0000:42:00.2]-1015:22: cmd=0x0,
+waited 5221 msecs
+Sep  8 22:26:03 localhost kernel: qla2xxx [0000:42:00.2]-680d:22: mmio
+enabled returning.
+Sep  8 22:26:03 localhost kernel: qla2xxx [0000:42:00.2]-d04c:22: MBX
+Command timeout for cmd 0, iocontrol=ffffffff jiffies=10140f2e5
+mb[0-3]=[0xffff 0xffff 0xffff 0xffff]
+
+Link: https://lore.kernel.org/r/20220110050218.3958-6-njavali@marvell.com
+Cc: stable@vger.kernel.org
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Quinn Tran <qutran@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pinctrl/nuvoton/pinctrl-npcm7xx.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/qla2xxx/qla_os.c   |   10 +++++++++-
+ drivers/scsi/qla2xxx/qla_tmpl.c |    9 +++++++--
+ 2 files changed, 16 insertions(+), 3 deletions(-)
 
---- a/drivers/pinctrl/nuvoton/pinctrl-npcm7xx.c
-+++ b/drivers/pinctrl/nuvoton/pinctrl-npcm7xx.c
-@@ -1560,7 +1560,7 @@ static int npcm7xx_get_groups_count(stru
+--- a/drivers/scsi/qla2xxx/qla_os.c
++++ b/drivers/scsi/qla2xxx/qla_os.c
+@@ -7639,7 +7639,7 @@ qla2xxx_pci_error_detected(struct pci_de
+ 
+ 	switch (state) {
+ 	case pci_channel_io_normal:
+-		ha->flags.eeh_busy = 0;
++		qla_pci_set_eeh_busy(vha);
+ 		if (ql2xmqsupport || ql2xnvmeenable) {
+ 			set_bit(QPAIR_ONLINE_CHECK_NEEDED, &vha->dpc_flags);
+ 			qla2xxx_wake_dpc(vha);
+@@ -7680,9 +7680,16 @@ qla2xxx_pci_mmio_enabled(struct pci_dev
+ 	       "mmio enabled\n");
+ 
+ 	ha->pci_error_state = QLA_PCI_MMIO_ENABLED;
++
+ 	if (IS_QLA82XX(ha))
+ 		return PCI_ERS_RESULT_RECOVERED;
+ 
++	if (qla2x00_isp_reg_stat(ha)) {
++		ql_log(ql_log_info, base_vha, 0x803f,
++		    "During mmio enabled, PCI/Register disconnect still detected.\n");
++		goto out;
++	}
++
+ 	spin_lock_irqsave(&ha->hardware_lock, flags);
+ 	if (IS_QLA2100(ha) || IS_QLA2200(ha)){
+ 		stat = rd_reg_word(&reg->hccr);
+@@ -7704,6 +7711,7 @@ qla2xxx_pci_mmio_enabled(struct pci_dev
+ 		    "RISC paused -- mmio_enabled, Dumping firmware.\n");
+ 		qla2xxx_dump_fw(base_vha);
+ 	}
++out:
+ 	/* set PCI_ERS_RESULT_NEED_RESET to trigger call to qla2xxx_pci_slot_reset */
+ 	ql_dbg(ql_dbg_aer, base_vha, 0x600d,
+ 	       "mmio enabled returning.\n");
+--- a/drivers/scsi/qla2xxx/qla_tmpl.c
++++ b/drivers/scsi/qla2xxx/qla_tmpl.c
+@@ -435,8 +435,13 @@ qla27xx_fwdt_entry_t266(struct scsi_qla_
  {
- 	struct npcm7xx_pinctrl *npcm = pinctrl_dev_get_drvdata(pctldev);
+ 	ql_dbg(ql_dbg_misc, vha, 0xd20a,
+ 	    "%s: reset risc [%lx]\n", __func__, *len);
+-	if (buf)
+-		WARN_ON_ONCE(qla24xx_soft_reset(vha->hw) != QLA_SUCCESS);
++	if (buf) {
++		if (qla24xx_soft_reset(vha->hw) != QLA_SUCCESS) {
++			ql_dbg(ql_dbg_async, vha, 0x5001,
++			    "%s: unable to soft reset\n", __func__);
++			return INVALID_ENTRY;
++		}
++	}
  
--	dev_dbg(npcm->dev, "group size: %d\n", ARRAY_SIZE(npcm7xx_groups));
-+	dev_dbg(npcm->dev, "group size: %zu\n", ARRAY_SIZE(npcm7xx_groups));
- 	return ARRAY_SIZE(npcm7xx_groups);
+ 	return qla27xx_next_entry(ent);
  }
- 
 
 
