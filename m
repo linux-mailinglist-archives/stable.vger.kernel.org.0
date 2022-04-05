@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ABE1B4F2F9C
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:17:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EE4D4F3172
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:43:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236297AbiDEI1i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:27:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46454 "EHLO
+        id S243075AbiDEJiw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:38:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41902 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239523AbiDEIUM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:20:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68152EB9;
-        Tue,  5 Apr 2022 01:15:10 -0700 (PDT)
+        with ESMTP id S244530AbiDEJKD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:10:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7923125EBB;
+        Tue,  5 Apr 2022 01:59:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 278DDB81B92;
-        Tue,  5 Apr 2022 08:15:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67C3BC385A0;
-        Tue,  5 Apr 2022 08:15:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B26E3B81A22;
+        Tue,  5 Apr 2022 08:59:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28815C385A0;
+        Tue,  5 Apr 2022 08:59:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146507;
-        bh=+ZIW8t4x0ThwpjfSahCA2lfR+DiLR6YdOj+9nIWr+Hs=;
+        s=korg; t=1649149182;
+        bh=da01Yu1VRcc/0ZM/zmhrzof8NG1WHBs1WVz1sV/nRo4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=01IrfS9HBh6obgO7d3C+95ltjPVtF/RZ36g2I8PMLAxCuCAn1n7mNecZHfokygMBE
-         HELzv9LWjEDnaE7NuwpG0ejNhwkVNq+Aaxp7/eTKs6obxPAGPQ6yVARHW+gwFg87eG
-         n6ujp7vEf3aRpiW0HHyICHdMNh1iSgfu3BSW2Wlc=
+        b=meRpfhKkskr0noF+WQ6ltGty2TRg/ZvmUkvPs5urNMIA8jOxu26RRrGy84l2Tnuj0
+         Gk1w0D+57pgfgVBNk4cSBo9yCC87zeh4WaN/eQXimrD+tx7472vK8YQ5MuRY1KEaKe
+         PxSPiV5SXuYerCriJU3n9Ww3idJ8EZFmSGWLd63o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        Dave Kleikamp <dave.kleikamp@oracle.com>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+46f5c25af73eb8330eb6@syzkaller.appspotmail.com
-Subject: [PATCH 5.17 0788/1126] jfs: fix divide error in dbNextAG
-Date:   Tue,  5 Apr 2022 09:25:35 +0200
-Message-Id: <20220405070430.703717287@linuxfoundation.org>
+        stable@vger.kernel.org, Petr Machata <petrm@nvidia.com>,
+        Ido Schimmel <idosch@nvidia.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0623/1017] af_netlink: Fix shift out of bounds in group mask calculation
+Date:   Tue,  5 Apr 2022 09:25:36 +0200
+Message-Id: <20220405070412.775282745@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,54 +55,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Petr Machata <petrm@nvidia.com>
 
-[ Upstream commit 2cc7cc01c15f57d056318c33705647f87dcd4aab ]
+[ Upstream commit 0caf6d9922192dd1afa8dc2131abfb4df1443b9f ]
 
-Syzbot reported divide error in dbNextAG(). The problem was in missing
-validation check for malicious image.
+When a netlink message is received, netlink_recvmsg() fills in the address
+of the sender. One of the fields is the 32-bit bitfield nl_groups, which
+carries the multicast group on which the message was received. The least
+significant bit corresponds to group 1, and therefore the highest group
+that the field can represent is 32. Above that, the UB sanitizer flags the
+out-of-bounds shift attempts.
 
-Syzbot crafted an image with bmp->db_numag equal to 0. There wasn't any
-validation checks, but dbNextAG() blindly use bmp->db_numag in divide
-expression
+Which bits end up being set in such case is implementation defined, but
+it's either going to be a wrong non-zero value, or zero, which is at least
+not misleading. Make the latter choice deterministic by always setting to 0
+for higher-numbered multicast groups.
 
-Fix it by validating bmp->db_numag in dbMount() and return an error if
-image is malicious
+To get information about membership in groups >= 32, userspace is expected
+to use nl_pktinfo control messages[0], which are enabled by NETLINK_PKTINFO
+socket option.
+[0] https://lwn.net/Articles/147608/
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-and-tested-by: syzbot+46f5c25af73eb8330eb6@syzkaller.appspotmail.com
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: Dave Kleikamp <dave.kleikamp@oracle.com>
+The way to trigger this issue is e.g. through monitoring the BRVLAN group:
+
+	# bridge monitor vlan &
+	# ip link add name br type bridge
+
+Which produces the following citation:
+
+	UBSAN: shift-out-of-bounds in net/netlink/af_netlink.c:162:19
+	shift exponent 32 is too large for 32-bit type 'int'
+
+Fixes: f7fa9b10edbb ("[NETLINK]: Support dynamic number of multicast groups per netlink family")
+Signed-off-by: Petr Machata <petrm@nvidia.com>
+Reviewed-by: Ido Schimmel <idosch@nvidia.com>
+Link: https://lore.kernel.org/r/2bef6aabf201d1fc16cca139a744700cff9dcb04.1647527635.git.petrm@nvidia.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/jfs/jfs_dmap.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ net/netlink/af_netlink.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/fs/jfs/jfs_dmap.c b/fs/jfs/jfs_dmap.c
-index 91f4ec93dab1..d8502f4989d9 100644
---- a/fs/jfs/jfs_dmap.c
-+++ b/fs/jfs/jfs_dmap.c
-@@ -148,6 +148,7 @@ static const s8 budtab[256] = {
-  *	0	- success
-  *	-ENOMEM	- insufficient memory
-  *	-EIO	- i/o error
-+ *	-EINVAL - wrong bmap data
-  */
- int dbMount(struct inode *ipbmap)
+diff --git a/net/netlink/af_netlink.c b/net/netlink/af_netlink.c
+index 9eba2e648385..6fbc3ea735e5 100644
+--- a/net/netlink/af_netlink.c
++++ b/net/netlink/af_netlink.c
+@@ -157,6 +157,8 @@ EXPORT_SYMBOL(do_trace_netlink_extack);
+ 
+ static inline u32 netlink_group_mask(u32 group)
  {
-@@ -179,6 +180,12 @@ int dbMount(struct inode *ipbmap)
- 	bmp->db_nfree = le64_to_cpu(dbmp_le->dn_nfree);
- 	bmp->db_l2nbperpage = le32_to_cpu(dbmp_le->dn_l2nbperpage);
- 	bmp->db_numag = le32_to_cpu(dbmp_le->dn_numag);
-+	if (!bmp->db_numag) {
-+		release_metapage(mp);
-+		kfree(bmp);
-+		return -EINVAL;
-+	}
-+
- 	bmp->db_maxlevel = le32_to_cpu(dbmp_le->dn_maxlevel);
- 	bmp->db_maxag = le32_to_cpu(dbmp_le->dn_maxag);
- 	bmp->db_agpref = le32_to_cpu(dbmp_le->dn_agpref);
++	if (group > 32)
++		return 0;
+ 	return group ? 1 << (group - 1) : 0;
+ }
+ 
 -- 
 2.34.1
 
