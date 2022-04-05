@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EE9044F29FC
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 12:51:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 54E404F2C1D
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:22:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355591AbiDEKUo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:20:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60042 "EHLO
+        id S238779AbiDEIo2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:44:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47170 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347031AbiDEJYz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:24:55 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84403A94C1;
-        Tue,  5 Apr 2022 02:14:41 -0700 (PDT)
+        with ESMTP id S241223AbiDEIc4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:32:56 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFF5F2AB;
+        Tue,  5 Apr 2022 01:29:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 72204B81C6D;
-        Tue,  5 Apr 2022 09:14:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3351C385A0;
-        Tue,  5 Apr 2022 09:14:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 95BA6B81A32;
+        Tue,  5 Apr 2022 08:29:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BF63C385A2;
+        Tue,  5 Apr 2022 08:29:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150058;
-        bh=GkMbuM0N3bx8zk89Q8KBknMKfuJoWp/romGhKcSfTfs=;
+        s=korg; t=1649147390;
+        bh=/yt+JKhK1iOBl6Kc9z8/VMaIFaoyhQMuQvEUN61MtuY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kgbkzFZVy7a5SVtecpCW1e9iJcnJW12qMp/+74q4l95h0izTuaCR6MI9RzPIK3WHb
-         G6y7tqiN4VKfeBf2jovtpme647V+oKImwF+0Hb5XBfsDTJKNF4VVcF6ph4xigqMziZ
-         1s5AGdPLZ9HziskTzZzRbLWfOt63NJUzzKzY869M=
+        b=dAlnEfPTIM68bdQvbC1wtLOpc18vCL51HRTJYf8DyO4BvKZ4QBPo7rQ64GVqMS1Ux
+         iZ/nh1a99IDHG25ftd1I8LaOQ+Ez3ORahJQrPuke/fHVBxxyjqBU2KT5aoYfEzNIH1
+         xd0hKT5ASTe8trrtykhucl2kXbNH+pPOrTzfSo7E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+25ea042ae28f3888727a@syzkaller.appspotmail.com,
-        Eric Dumazet <edumazet@google.com>,
-        David Howells <dhowells@redhat.com>,
-        Jann Horn <jannh@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.16 0939/1017] watch_queue: Free the page array when watch_queue is dismantled
-Date:   Tue,  5 Apr 2022 09:30:52 +0200
-Message-Id: <20220405070422.088329614@linuxfoundation.org>
+        stable@vger.kernel.org, Leilk Liu <leilk.liu@mediatek.com>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.17 1107/1126] spi: mediatek: support tick_delay without enhance_timing
+Date:   Tue,  5 Apr 2022 09:30:54 +0200
+Message-Id: <20220405070439.931731785@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,52 +55,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Leilk Liu <leilk.liu@mediatek.com>
 
-commit b490207017ba237d97b735b2aa66dc241ccd18f5 upstream.
+commit 03b1be379dcee2e9c866c2a455a1a4a9581b3efd upstream.
 
-Commit 7ea1a0124b6d ("watch_queue: Free the alloc bitmap when the
-watch_queue is torn down") took care of the bitmap, but not the page
-array.
+this patch support tick_delay bit[31:30] without enhance_timing feature.
 
-  BUG: memory leak
-  unreferenced object 0xffff88810d9bc140 (size 32):
-  comm "syz-executor335", pid 3603, jiffies 4294946994 (age 12.840s)
-  hex dump (first 32 bytes):
-    40 a7 40 04 00 ea ff ff 00 00 00 00 00 00 00 00  @.@.............
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-     kmalloc_array include/linux/slab.h:621 [inline]
-     kcalloc include/linux/slab.h:652 [inline]
-     watch_queue_set_size+0x12f/0x2e0 kernel/watch_queue.c:251
-     pipe_ioctl+0x82/0x140 fs/pipe.c:632
-     vfs_ioctl fs/ioctl.c:51 [inline]
-     __do_sys_ioctl fs/ioctl.c:874 [inline]
-     __se_sys_ioctl fs/ioctl.c:860 [inline]
-     __x64_sys_ioctl+0xfc/0x140 fs/ioctl.c:860
-     do_syscall_x64 arch/x86/entry/common.c:50 [inline]
-
-Reported-by: syzbot+25ea042ae28f3888727a@syzkaller.appspotmail.com
-Fixes: c73be61cede5 ("pipe: Add general notification queue support")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-Cc: Jann Horn <jannh@google.com>
-Link: https://lore.kernel.org/r/20220322004654.618274-1-eric.dumazet@gmail.com/
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: f84d866ab43f("spi: mediatek: add tick_delay support")
+Signed-off-by: Leilk Liu <leilk.liu@mediatek.com>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Link: https://lore.kernel.org/r/20220315032411.2826-2-leilk.liu@mediatek.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/watch_queue.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/spi/spi-mt65xx.c |   15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
---- a/kernel/watch_queue.c
-+++ b/kernel/watch_queue.c
-@@ -373,6 +373,7 @@ static void __put_watch_queue(struct kre
+--- a/drivers/spi/spi-mt65xx.c
++++ b/drivers/spi/spi-mt65xx.c
+@@ -43,8 +43,11 @@
+ #define SPI_CFG1_PACKET_LOOP_OFFSET       8
+ #define SPI_CFG1_PACKET_LENGTH_OFFSET     16
+ #define SPI_CFG1_GET_TICK_DLY_OFFSET      29
++#define SPI_CFG1_GET_TICK_DLY_OFFSET_V1   30
  
- 	for (i = 0; i < wqueue->nr_pages; i++)
- 		__free_page(wqueue->notes[i]);
-+	kfree(wqueue->notes);
- 	bitmap_free(wqueue->notes_bitmap);
+ #define SPI_CFG1_GET_TICK_DLY_MASK        0xe0000000
++#define SPI_CFG1_GET_TICK_DLY_MASK_V1     0xc0000000
++
+ #define SPI_CFG1_CS_IDLE_MASK             0xff
+ #define SPI_CFG1_PACKET_LOOP_MASK         0xff00
+ #define SPI_CFG1_PACKET_LENGTH_MASK       0x3ff0000
+@@ -346,9 +349,15 @@ static int mtk_spi_prepare_message(struc
  
- 	wfilter = rcu_access_pointer(wqueue->filter);
+ 	/* tick delay */
+ 	reg_val = readl(mdata->base + SPI_CFG1_REG);
+-	reg_val &= ~SPI_CFG1_GET_TICK_DLY_MASK;
+-	reg_val |= ((chip_config->tick_delay & 0x7)
+-		<< SPI_CFG1_GET_TICK_DLY_OFFSET);
++	if (mdata->dev_comp->enhance_timing) {
++		reg_val &= ~SPI_CFG1_GET_TICK_DLY_MASK;
++		reg_val |= ((chip_config->tick_delay & 0x7)
++			    << SPI_CFG1_GET_TICK_DLY_OFFSET);
++	} else {
++		reg_val &= ~SPI_CFG1_GET_TICK_DLY_MASK_V1;
++		reg_val |= ((chip_config->tick_delay & 0x3)
++			    << SPI_CFG1_GET_TICK_DLY_OFFSET_V1);
++	}
+ 	writel(reg_val, mdata->base + SPI_CFG1_REG);
+ 
+ 	/* set hw cs timing */
 
 
