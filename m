@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 701874F2A90
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:04:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B32914F2B5F
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:10:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244036AbiDEKhv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:37:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59042 "EHLO
+        id S244488AbiDEKix (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:38:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40174 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238970AbiDEJdN (ORCPT
+        with ESMTP id S238963AbiDEJdN (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:33:13 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1A9F6370;
-        Tue,  5 Apr 2022 02:20:59 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99CD063FD;
+        Tue,  5 Apr 2022 02:21:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 73B3BB81B75;
-        Tue,  5 Apr 2022 09:20:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B99D1C385A3;
-        Tue,  5 Apr 2022 09:20:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5170BB81C77;
+        Tue,  5 Apr 2022 09:21:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93A8BC385A3;
+        Tue,  5 Apr 2022 09:20:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150457;
-        bh=2mbQAsg1ojvN2fz5ehSmAEL4IcrsYT0ZF5XIupg9S1g=;
+        s=korg; t=1649150460;
+        bh=mIYdWx0WBpNnvt8DHmteblO2kXpl0mYYQv47KMUPvpU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wXPgXdnV6ewqp/iTpaBEN39/lEiGkUP/RSIlnABon3Hm7H22dfwNVpg7GTWPXxIjw
-         oIQk1aAEbbqNrWu/EpMc16K/u0S68nThUlMYcn6G3jsafpPivyAAlkI6/KtESKGlHb
-         Xf6ZdvOERciO+gm9k77axFuzDX9DDSUc6HA+NPYQ=
+        b=bpADlPwX4RpdO+mJsvCpdrmzgoOASS1hX9NIW82kUn2csq3nSPd1JDUi2xRiHV9zv
+         S9FNTtN0jguyxxbtGSDDpXpxI3RSha7qvPZoWSdkhnzcyNxR9T5kCLULC/D7MlaoFK
+         O2pHxE93gWm3KModYejT88yLR8R5ja9JGHzvqVQk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gwendal Grignou <gwendal@chromium.org>,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 5.15 062/913] HID: intel-ish-hid: Use dma_alloc_coherent for firmware update
-Date:   Tue,  5 Apr 2022 09:18:44 +0200
-Message-Id: <20220405070341.682757585@linuxfoundation.org>
+        stable@vger.kernel.org, NeilBrown <neilb@suse.de>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>
+Subject: [PATCH 5.15 063/913] SUNRPC: avoid race between mod_timer() and del_timer_sync()
+Date:   Tue,  5 Apr 2022 09:18:45 +0200
+Message-Id: <20220405070341.712316511@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -54,92 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gwendal Grignou <gwendal@chromium.org>
+From: NeilBrown <neilb@suse.de>
 
-commit f97ec5d75e9261a5da78dc28a8955b7cc0c4468b upstream.
+commit 3848e96edf4788f772d83990022fa7023a233d83 upstream.
 
-Allocating memory with kmalloc and GPF_DMA32 is not allowed, the
-allocator will ignore the attribute.
+xprt_destory() claims XPRT_LOCKED and then calls del_timer_sync().
+Both xprt_unlock_connect() and xprt_release() call
+ ->release_xprt()
+which drops XPRT_LOCKED and *then* xprt_schedule_autodisconnect()
+which calls mod_timer().
 
-Instead, use dma_alloc_coherent() API as we allocate a small amount of
-memory to transfer firmware fragment to the ISH.
+This may result in mod_timer() being called *after* del_timer_sync().
+When this happens, the timer may fire long after the xprt has been freed,
+and run_timer_softirq() will probably crash.
 
-On Arcada chromebook, after the patch the warning:
-"Unexpected gfp: 0x4 (GFP_DMA32). Fixing up to gfp: 0xcc0 (GFP_KERNEL).  Fix your code!"
-is gone. The ISH firmware is loaded properly and we can interact with
-the ISH:
-> ectool  --name cros_ish version
-...
-Build info:    arcada_ish_v2.0.3661+3c1a1c1ae0 2022-02-08 05:37:47 @localhost
-Tool version:  v2.0.12300-900b03ec7f 2022-02-08 10:01:48 @localhost
+The pairing of ->release_xprt() and xprt_schedule_autodisconnect() is
+always called under ->transport_lock.  So if we take ->transport_lock to
+call del_timer_sync(), we can be sure that mod_timer() will run first
+(if it runs at all).
 
-Fixes: commit 91b228107da3 ("HID: intel-ish-hid: ISH firmware loader client driver")
-Signed-off-by: Gwendal Grignou <gwendal@chromium.org>
-Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: NeilBrown <neilb@suse.de>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hid/intel-ish-hid/ishtp-fw-loader.c |   29 ++--------------------------
- 1 file changed, 3 insertions(+), 26 deletions(-)
+ net/sunrpc/xprt.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/drivers/hid/intel-ish-hid/ishtp-fw-loader.c
-+++ b/drivers/hid/intel-ish-hid/ishtp-fw-loader.c
-@@ -657,21 +657,12 @@ static int ish_fw_xfer_direct_dma(struct
+--- a/net/sunrpc/xprt.c
++++ b/net/sunrpc/xprt.c
+@@ -2111,7 +2111,14 @@ static void xprt_destroy(struct rpc_xprt
  	 */
- 	payload_max_size &= ~(L1_CACHE_BYTES - 1);
+ 	wait_on_bit_lock(&xprt->state, XPRT_LOCKED, TASK_UNINTERRUPTIBLE);
  
--	dma_buf = kmalloc(payload_max_size, GFP_KERNEL | GFP_DMA32);
-+	dma_buf = dma_alloc_coherent(devc, payload_max_size, &dma_buf_phy, GFP_KERNEL);
- 	if (!dma_buf) {
- 		client_data->flag_retry = true;
- 		return -ENOMEM;
- 	}
++	/*
++	 * xprt_schedule_autodisconnect() can run after XPRT_LOCKED
++	 * is cleared.  We use ->transport_lock to ensure the mod_timer()
++	 * can only run *before* del_time_sync(), never after.
++	 */
++	spin_lock(&xprt->transport_lock);
+ 	del_timer_sync(&xprt->timer);
++	spin_unlock(&xprt->transport_lock);
  
--	dma_buf_phy = dma_map_single(devc, dma_buf, payload_max_size,
--				     DMA_TO_DEVICE);
--	if (dma_mapping_error(devc, dma_buf_phy)) {
--		dev_err(cl_data_to_dev(client_data), "DMA map failed\n");
--		client_data->flag_retry = true;
--		rv = -ENOMEM;
--		goto end_err_dma_buf_release;
--	}
--
- 	ldr_xfer_dma_frag.fragment.hdr.command = LOADER_CMD_XFER_FRAGMENT;
- 	ldr_xfer_dma_frag.fragment.xfer_mode = LOADER_XFER_MODE_DIRECT_DMA;
- 	ldr_xfer_dma_frag.ddr_phys_addr = (u64)dma_buf_phy;
-@@ -691,14 +682,7 @@ static int ish_fw_xfer_direct_dma(struct
- 		ldr_xfer_dma_frag.fragment.size = fragment_size;
- 		memcpy(dma_buf, &fw->data[fragment_offset], fragment_size);
- 
--		dma_sync_single_for_device(devc, dma_buf_phy,
--					   payload_max_size,
--					   DMA_TO_DEVICE);
--
--		/*
--		 * Flush cache here because the dma_sync_single_for_device()
--		 * does not do for x86.
--		 */
-+		/* Flush cache to be sure the data is in main memory. */
- 		clflush_cache_range(dma_buf, payload_max_size);
- 
- 		dev_dbg(cl_data_to_dev(client_data),
-@@ -721,15 +705,8 @@ static int ish_fw_xfer_direct_dma(struct
- 		fragment_offset += fragment_size;
- 	}
- 
--	dma_unmap_single(devc, dma_buf_phy, payload_max_size, DMA_TO_DEVICE);
--	kfree(dma_buf);
--	return 0;
--
- end_err_resp_buf_release:
--	/* Free ISH buffer if not done already, in error case */
--	dma_unmap_single(devc, dma_buf_phy, payload_max_size, DMA_TO_DEVICE);
--end_err_dma_buf_release:
--	kfree(dma_buf);
-+	dma_free_coherent(devc, payload_max_size, dma_buf, dma_buf_phy);
- 	return rv;
- }
- 
+ 	/*
+ 	 * Destroy sockets etc from the system workqueue so they can
 
 
