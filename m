@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 206654F3295
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:59:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C633C4F3356
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:15:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347600AbiDEJ1r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:27:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46610 "EHLO
+        id S244133AbiDEKiC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:38:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244466AbiDEIwI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10BB8D64C2;
-        Tue,  5 Apr 2022 01:41:07 -0700 (PDT)
+        with ESMTP id S238955AbiDEJdN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:33:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E075656B;
+        Tue,  5 Apr 2022 02:21:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 18838B81B92;
-        Tue,  5 Apr 2022 08:40:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 843D7C385A0;
-        Tue,  5 Apr 2022 08:40:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DC18361574;
+        Tue,  5 Apr 2022 09:21:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E87FBC385A2;
+        Tue,  5 Apr 2022 09:21:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148049;
-        bh=nK806L/HXQjI0JbXIYqotYrEiT9JChqTmGRmHJKNS4I=;
+        s=korg; t=1649150468;
+        bh=YZdqkHxdou06xEwB5O8wkX6sBT8EGjd1hPU579OKop8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jKdu1ir8SB/e0ciR+/XAH/4DD8U+kMiG3SOA6nj+dGD/EuWtUtCn3AY0fW99y+21/
-         qqk6IDiuuqgEVLvsPg+dEFE7Bo3bAW9p6fNjcmILOZGDwEVwXGsPsQ4Is8ROBAPUjr
-         qu3NnEFvJt4nKPvrKIktYHO0YY/wGL9QoDU1cZwk=
+        b=z7ByhxvO57KrmiqMxSn+6JjcxJkX1RbGD8xDLq3fGln+aR4n/yQ95TdE9seqGrXSq
+         sI67NYbUn3RVwmtqGn6u9KidGHHLQMuWGCYDSB2+0cQ0DOGO5vbkbMTfO5xFhYYidN
+         N/PNjzdtS/Jot8t8Q0h3LszJ4vpn5QKlTFdMWs20=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jianyong Wu <jianyong.wu@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0215/1017] arm64/mm: avoid fixmap race condition when create pud mapping
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Chuck Lever <chuck.lever@oracle.com>
+Subject: [PATCH 5.15 066/913] NFSD: prevent integer overflow on 32 bit systems
 Date:   Tue,  5 Apr 2022 09:18:48 +0200
-Message-Id: <20220405070400.633299036@linuxfoundation.org>
+Message-Id: <20220405070341.801304195@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,75 +53,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jianyong Wu <jianyong.wu@arm.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit ee017ee353506fcec58e481673e4331ff198a80e ]
+commit 23a9dbbe0faf124fc4c139615633b9d12a3a89ef upstream.
 
-The 'fixmap' is a global resource and is used recursively by
-create pud mapping(), leading to a potential race condition in the
-presence of a concurrent call to alloc_init_pud():
+On a 32 bit system, the "len * sizeof(*p)" operation can have an
+integer overflow.
 
-kernel_init thread                          virtio-mem workqueue thread
-==================                          ===========================
-
-  alloc_init_pud(...)                       alloc_init_pud(...)
-  pudp = pud_set_fixmap_offset(...)         pudp = pud_set_fixmap_offset(...)
-  READ_ONCE(*pudp)
-  pud_clear_fixmap(...)
-                                            READ_ONCE(*pudp) // CRASH!
-
-As kernel may sleep during creating pud mapping, introduce a mutex lock to
-serialise use of the fixmap entries by alloc_init_pud(). However, there is
-no need for locking in early boot stage and it doesn't work well with
-KASLR enabled when early boot. So, enable lock when system_state doesn't
-equal to "SYSTEM_BOOTING".
-
-Signed-off-by: Jianyong Wu <jianyong.wu@arm.com>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Fixes: f4710445458c ("arm64: mm: use fixmap when creating page tables")
-Link: https://lore.kernel.org/r/20220201114400.56885-1-jianyong.wu@arm.com
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/mm/mmu.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ include/linux/sunrpc/xdr.h |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/arm64/mm/mmu.c b/arch/arm64/mm/mmu.c
-index 044d2021c20c..37b8230cda6a 100644
---- a/arch/arm64/mm/mmu.c
-+++ b/arch/arm64/mm/mmu.c
-@@ -63,6 +63,7 @@ static pmd_t bm_pmd[PTRS_PER_PMD] __page_aligned_bss __maybe_unused;
- static pud_t bm_pud[PTRS_PER_PUD] __page_aligned_bss __maybe_unused;
+--- a/include/linux/sunrpc/xdr.h
++++ b/include/linux/sunrpc/xdr.h
+@@ -731,6 +731,8 @@ xdr_stream_decode_uint32_array(struct xd
  
- static DEFINE_SPINLOCK(swapper_pgdir_lock);
-+static DEFINE_MUTEX(fixmap_lock);
- 
- void set_swapper_pgd(pgd_t *pgdp, pgd_t pgd)
- {
-@@ -329,6 +330,12 @@ static void alloc_init_pud(pgd_t *pgdp, unsigned long addr, unsigned long end,
- 	}
- 	BUG_ON(p4d_bad(p4d));
- 
-+	/*
-+	 * No need for locking during early boot. And it doesn't work as
-+	 * expected with KASLR enabled.
-+	 */
-+	if (system_state != SYSTEM_BOOTING)
-+		mutex_lock(&fixmap_lock);
- 	pudp = pud_set_fixmap_offset(p4dp, addr);
- 	do {
- 		pud_t old_pud = READ_ONCE(*pudp);
-@@ -359,6 +366,8 @@ static void alloc_init_pud(pgd_t *pgdp, unsigned long addr, unsigned long end,
- 	} while (pudp++, addr = next, addr != end);
- 
- 	pud_clear_fixmap();
-+	if (system_state != SYSTEM_BOOTING)
-+		mutex_unlock(&fixmap_lock);
- }
- 
- static void __create_pgd_mapping(pgd_t *pgdir, phys_addr_t phys,
--- 
-2.34.1
-
+ 	if (unlikely(xdr_stream_decode_u32(xdr, &len) < 0))
+ 		return -EBADMSG;
++	if (len > SIZE_MAX / sizeof(*p))
++		return -EBADMSG;
+ 	p = xdr_inline_decode(xdr, len * sizeof(*p));
+ 	if (unlikely(!p))
+ 		return -EBADMSG;
 
 
