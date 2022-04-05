@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EA5BB4F33A8
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:21:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ACEF54F353E
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:49:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353754AbiDEKJO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:09:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43064 "EHLO
+        id S245234AbiDEIyQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:54:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45626 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345369AbiDEJWa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:22:30 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0710E47AFE;
-        Tue,  5 Apr 2022 02:10:51 -0700 (PDT)
+        with ESMTP id S241058AbiDEIcq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:32:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8424FB7C7C;
+        Tue,  5 Apr 2022 01:26:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6982B614FC;
-        Tue,  5 Apr 2022 09:10:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70701C385A0;
-        Tue,  5 Apr 2022 09:10:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3382CB81BB1;
+        Tue,  5 Apr 2022 08:26:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 980D4C385A2;
+        Tue,  5 Apr 2022 08:26:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149849;
-        bh=/p/QGkqFrVHeKYeBLGiVWuOarMb63B3rSefqJ+v6prw=;
+        s=korg; t=1649147177;
+        bh=TXAqIdFMEEkScL85/37F5/yeRh/4iZdkkLq9HqytGa8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VTEUyZpWVqUVh3SKnxuGZcUCXANT/LAreRybYOpbXCEYWGD2v62Q/fQlYNxKOmGbX
-         EkBGgs5NAruoDrnloQHkklTR2MN2x8WR2m5FgSYw71DIe7WkKLOqG/ac1w+TOOr3My
-         6oWpnV+8OfRDOCLF3HM5Eb2wowtnd89+TufIpVdE=
+        b=LQcilQWJXya6mjReHbV//yGvNvg7ejB6Y8fPl3IZxw7luRh4890T+H3JAQFOxkfq7
+         jX3eQVFepsoXFnvBb8kEDW5jOxWpD1HLYhV1x6yMfcQcGA2thmG2WQySMShS/eq5lO
+         droya/RAvbbY+oh2syOgo2p2tSTfgl6mnD3n0tQU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.16 0863/1017] KVM: x86: hyper-v: Drop redundant ex parameter from kvm_hv_flush_tlb()
+        stable@vger.kernel.org, Andreas Gruenbacher <agruenba@redhat.com>
+Subject: [PATCH 5.17 1029/1126] gfs2: gfs2_setattr_size error path fix
 Date:   Tue,  5 Apr 2022 09:29:36 +0200
-Message-Id: <20220405070419.850999746@linuxfoundation.org>
+Message-Id: <20220405070437.682711332@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,80 +52,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
+From: Andreas Gruenbacher <agruenba@redhat.com>
 
-commit 82c1ead0d678af31e5d883656c12096a0004178b upstream.
+commit 7336905a89f19173bf9301cd50a24421162f417c upstream.
 
-'struct kvm_hv_hcall' has all the required information already,
-there's no need to pass 'ex' additionally.
+When gfs2_setattr_size() fails, it calls gfs2_rs_delete(ip, NULL) to get
+rid of any reservations the inode may have.  Instead, it should pass in
+the inode's write count as the second parameter to allow
+gfs2_rs_delete() to figure out if the inode has any writers left.
 
-No functional change intended.
+In a next step, there are two instances of gfs2_rs_delete(ip, NULL) left
+where we know that there can be no other users of the inode.  Replace
+those with gfs2_rs_deltree(&ip->i_res) to avoid the unnecessary write
+count check.
 
-Cc: stable@vger.kernel.org # 5.14.x
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Message-Id: <20220222154642.684285-3-vkuznets@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+With that, gfs2_rs_delete() is only called with the inode's actual write
+count, so get rid of the second parameter.
+
+Fixes: a097dc7e24cb ("GFS2: Make rgrp reservations part of the gfs2_inode structure")
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/hyperv.c |   23 ++++++-----------------
- 1 file changed, 6 insertions(+), 17 deletions(-)
+ fs/gfs2/bmap.c  |    2 +-
+ fs/gfs2/file.c  |    2 +-
+ fs/gfs2/inode.c |    2 +-
+ fs/gfs2/rgrp.c  |    7 ++++---
+ fs/gfs2/rgrp.h  |    2 +-
+ fs/gfs2/super.c |    2 +-
+ 6 files changed, 9 insertions(+), 8 deletions(-)
 
---- a/arch/x86/kvm/hyperv.c
-+++ b/arch/x86/kvm/hyperv.c
-@@ -1749,7 +1749,7 @@ struct kvm_hv_hcall {
- 	sse128_t xmm[HV_HYPERCALL_MAX_XMM_REGISTERS];
- };
+--- a/fs/gfs2/bmap.c
++++ b/fs/gfs2/bmap.c
+@@ -2146,7 +2146,7 @@ int gfs2_setattr_size(struct inode *inod
  
--static u64 kvm_hv_flush_tlb(struct kvm_vcpu *vcpu, struct kvm_hv_hcall *hc, bool ex)
-+static u64 kvm_hv_flush_tlb(struct kvm_vcpu *vcpu, struct kvm_hv_hcall *hc)
+ 	ret = do_shrink(inode, newsize);
+ out:
+-	gfs2_rs_delete(ip, NULL);
++	gfs2_rs_delete(ip);
+ 	gfs2_qa_put(ip);
+ 	return ret;
+ }
+--- a/fs/gfs2/file.c
++++ b/fs/gfs2/file.c
+@@ -706,7 +706,7 @@ static int gfs2_release(struct inode *in
+ 
+ 	if (file->f_mode & FMODE_WRITE) {
+ 		if (gfs2_rs_active(&ip->i_res))
+-			gfs2_rs_delete(ip, &inode->i_writecount);
++			gfs2_rs_delete(ip);
+ 		gfs2_qa_put(ip);
+ 	}
+ 	return 0;
+--- a/fs/gfs2/inode.c
++++ b/fs/gfs2/inode.c
+@@ -793,7 +793,7 @@ fail_free_inode:
+ 		if (free_vfs_inode) /* else evict will do the put for us */
+ 			gfs2_glock_put(ip->i_gl);
+ 	}
+-	gfs2_rs_delete(ip, NULL);
++	gfs2_rs_deltree(&ip->i_res);
+ 	gfs2_qa_put(ip);
+ fail_free_acls:
+ 	posix_acl_release(default_acl);
+--- a/fs/gfs2/rgrp.c
++++ b/fs/gfs2/rgrp.c
+@@ -680,13 +680,14 @@ void gfs2_rs_deltree(struct gfs2_blkrese
+ /**
+  * gfs2_rs_delete - delete a multi-block reservation
+  * @ip: The inode for this reservation
+- * @wcount: The inode's write count, or NULL
+  *
+  */
+-void gfs2_rs_delete(struct gfs2_inode *ip, atomic_t *wcount)
++void gfs2_rs_delete(struct gfs2_inode *ip)
  {
- 	int i;
- 	gpa_t gpa;
-@@ -1764,7 +1764,8 @@ static u64 kvm_hv_flush_tlb(struct kvm_v
- 	int sparse_banks_len;
- 	bool all_cpus;
++	struct inode *inode = &ip->i_inode;
++
+ 	down_write(&ip->i_rw_mutex);
+-	if ((wcount == NULL) || (atomic_read(wcount) <= 1))
++	if (atomic_read(&inode->i_writecount) <= 1)
+ 		gfs2_rs_deltree(&ip->i_res);
+ 	up_write(&ip->i_rw_mutex);
+ }
+--- a/fs/gfs2/rgrp.h
++++ b/fs/gfs2/rgrp.h
+@@ -45,7 +45,7 @@ extern int gfs2_alloc_blocks(struct gfs2
+ 			     bool dinode, u64 *generation);
  
--	if (!ex) {
-+	if (hc->code == HVCALL_FLUSH_VIRTUAL_ADDRESS_LIST ||
-+	    hc->code == HVCALL_FLUSH_VIRTUAL_ADDRESS_SPACE) {
- 		if (hc->fast) {
- 			flush.address_space = hc->ingpa;
- 			flush.flags = hc->outgpa;
-@@ -2246,32 +2247,20 @@ int kvm_hv_hypercall(struct kvm_vcpu *vc
- 				kvm_hv_hypercall_complete_userspace;
- 		return 0;
- 	case HVCALL_FLUSH_VIRTUAL_ADDRESS_LIST:
--		if (unlikely(!hc.rep_cnt || hc.rep_idx)) {
--			ret = HV_STATUS_INVALID_HYPERCALL_INPUT;
--			break;
--		}
--		ret = kvm_hv_flush_tlb(vcpu, &hc, false);
--		break;
--	case HVCALL_FLUSH_VIRTUAL_ADDRESS_SPACE:
--		if (unlikely(hc.rep)) {
--			ret = HV_STATUS_INVALID_HYPERCALL_INPUT;
--			break;
--		}
--		ret = kvm_hv_flush_tlb(vcpu, &hc, false);
--		break;
- 	case HVCALL_FLUSH_VIRTUAL_ADDRESS_LIST_EX:
- 		if (unlikely(!hc.rep_cnt || hc.rep_idx)) {
- 			ret = HV_STATUS_INVALID_HYPERCALL_INPUT;
- 			break;
- 		}
--		ret = kvm_hv_flush_tlb(vcpu, &hc, true);
-+		ret = kvm_hv_flush_tlb(vcpu, &hc);
- 		break;
-+	case HVCALL_FLUSH_VIRTUAL_ADDRESS_SPACE:
- 	case HVCALL_FLUSH_VIRTUAL_ADDRESS_SPACE_EX:
- 		if (unlikely(hc.rep)) {
- 			ret = HV_STATUS_INVALID_HYPERCALL_INPUT;
- 			break;
- 		}
--		ret = kvm_hv_flush_tlb(vcpu, &hc, true);
-+		ret = kvm_hv_flush_tlb(vcpu, &hc);
- 		break;
- 	case HVCALL_SEND_IPI:
- 		if (unlikely(hc.rep)) {
+ extern void gfs2_rs_deltree(struct gfs2_blkreserv *rs);
+-extern void gfs2_rs_delete(struct gfs2_inode *ip, atomic_t *wcount);
++extern void gfs2_rs_delete(struct gfs2_inode *ip);
+ extern void __gfs2_free_blocks(struct gfs2_inode *ip, struct gfs2_rgrpd *rgd,
+ 			       u64 bstart, u32 blen, int meta);
+ extern void gfs2_free_meta(struct gfs2_inode *ip, struct gfs2_rgrpd *rgd,
+--- a/fs/gfs2/super.c
++++ b/fs/gfs2/super.c
+@@ -1396,7 +1396,7 @@ out:
+ 	truncate_inode_pages_final(&inode->i_data);
+ 	if (ip->i_qadata)
+ 		gfs2_assert_warn(sdp, ip->i_qadata->qa_ref == 0);
+-	gfs2_rs_delete(ip, NULL);
++	gfs2_rs_deltree(&ip->i_res);
+ 	gfs2_ordered_del_inode(ip);
+ 	clear_inode(inode);
+ 	gfs2_dir_hash_inval(ip);
 
 
