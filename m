@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 02FAA4F2A36
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 12:53:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D37D34F2C94
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:31:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245640AbiDEI4m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:56:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33760 "EHLO
+        id S1355500AbiDEKUI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:20:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45322 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240609AbiDEIcM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:32:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11DC775E48;
-        Tue,  5 Apr 2022 01:24:40 -0700 (PDT)
+        with ESMTP id S1345133AbiDEJWS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:22:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65C981AF33;
+        Tue,  5 Apr 2022 02:09:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6A8E4B81B92;
-        Tue,  5 Apr 2022 08:24:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCF2FC385A0;
-        Tue,  5 Apr 2022 08:24:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CCC6261527;
+        Tue,  5 Apr 2022 09:09:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD0B9C385A0;
+        Tue,  5 Apr 2022 09:09:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147074;
-        bh=cMqtRYjZEQdWC8J/EteWdfFdurSZ5k0jH4EvAFujZW0=;
+        s=korg; t=1649149749;
+        bh=SXDpUl53LOcvA7vl1vjJ+tv7O0zHMaTxiH6T79oerk8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HpaJI5ScOCcPDv2fpUznB3va1/MMDMUq9v5CaOuGFKrd2+oe21vw3huCCx3p+O2rp
-         QlQauPnwznaEO/XLKuoDCLuAq68BDa4tbvRjlmkuy8lTxb4ent81fXEn43s8gI52i1
-         ich5QAMaXM+jdnH64s/ey+oH+a4RE5xV6b5OIaWo=
+        b=TNzFMWzTggSyFycs2rGopa3fidi+5BDWAzAnJT3ideUkZn+HpswQdl211kHb7CNw2
+         vAqX9+V2fAWKcPDwlSw4zU5GuKw5vLpXO7O5v0QxuieTkfHE3Rf57DqaVZLbBzpFsr
+         WEL7cz2W53TauL89ol/QzzQvGSVsKW/v+tz/PDHs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Quinn Tran <qutran@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.17 0991/1126] scsi: qla2xxx: Fix stuck session of PRLI reject
-Date:   Tue,  5 Apr 2022 09:28:58 +0200
-Message-Id: <20220405070436.582506710@linuxfoundation.org>
+        stable@vger.kernel.org, Alexander Sergeyev <sergeev917@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0826/1017] ALSA: hda: Fix driver index handling at re-binding
+Date:   Tue,  5 Apr 2022 09:28:59 +0200
+Message-Id: <20220405070418.764497965@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,39 +53,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quinn Tran <qutran@marvell.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit f3502e2e98a92981601edc3dadf4b0f43c79836b upstream.
+[ Upstream commit 69458e2c27800da7697c87ed908b65323ef3f3bd ]
 
-Remove stale recovery code that prevents normal path recovery.
+HD-audio driver handles the multiple instances and keeps the static
+index that is incremented at each probe.  This becomes a problem when
+user tries to re-bind the device via sysfs multiple times; as the
+device index isn't cleared unlike rmmod case, it points to the next
+element at re-binding, and eventually later you can't probe any more
+when it reaches to SNDRV_CARDS_MAX (usually 32).
 
-Link: https://lore.kernel.org/r/20220310092604.22950-11-njavali@marvell.com
-Fixes: 1cbc0efcd9be ("scsi: qla2xxx: Fix retry for PRLI RJT with reason of BUSY")
-Cc: stable@vger.kernel.org
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Quinn Tran <qutran@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This patch is an attempt to improve the handling at rebinding.
+Instead of a static device index, now we keep a bitmap and assigns to
+the first zero bit position.  At the driver remove, in return, the
+bitmap slot is cleared again, so that it'll be available for the next
+probe.
+
+Reported-by: Alexander Sergeyev <sergeev917@gmail.com>
+Link: https://lore.kernel.org/r/20220209081912.20687-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_init.c |    7 -------
- 1 file changed, 7 deletions(-)
+ sound/pci/hda/hda_intel.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
---- a/drivers/scsi/qla2xxx/qla_init.c
-+++ b/drivers/scsi/qla2xxx/qla_init.c
-@@ -2104,13 +2104,6 @@ qla24xx_handle_prli_done_event(struct sc
- 		qla24xx_post_gpdb_work(vha, ea->fcport, 0);
- 		break;
- 	default:
--		if ((ea->iop[0] == LSC_SCODE_ELS_REJECT) &&
--		    (ea->iop[1] == 0x50000)) {   /* reson 5=busy expl:0x0 */
--			set_bit(RELOGIN_NEEDED, &vha->dpc_flags);
--			ea->fcport->fw_login_state = DSC_LS_PLOGI_COMP;
--			break;
--		}
--
- 		sp = ea->sp;
- 		ql_dbg(ql_dbg_disc, vha, 0x2118,
- 		       "%s %d %8phC priority %s, fc4type %x prev try %s\n",
+diff --git a/sound/pci/hda/hda_intel.c b/sound/pci/hda/hda_intel.c
+index 3b6f2aacda45..1ffd96fbf230 100644
+--- a/sound/pci/hda/hda_intel.c
++++ b/sound/pci/hda/hda_intel.c
+@@ -2061,14 +2061,16 @@ static const struct hda_controller_ops pci_hda_ops = {
+ 	.position_check = azx_position_check,
+ };
+ 
++static DECLARE_BITMAP(probed_devs, SNDRV_CARDS);
++
+ static int azx_probe(struct pci_dev *pci,
+ 		     const struct pci_device_id *pci_id)
+ {
+-	static int dev;
+ 	struct snd_card *card;
+ 	struct hda_intel *hda;
+ 	struct azx *chip;
+ 	bool schedule_probe;
++	int dev;
+ 	int err;
+ 
+ 	if (pci_match_id(driver_denylist, pci)) {
+@@ -2076,10 +2078,11 @@ static int azx_probe(struct pci_dev *pci,
+ 		return -ENODEV;
+ 	}
+ 
++	dev = find_first_zero_bit(probed_devs, SNDRV_CARDS);
+ 	if (dev >= SNDRV_CARDS)
+ 		return -ENODEV;
+ 	if (!enable[dev]) {
+-		dev++;
++		set_bit(dev, probed_devs);
+ 		return -ENOENT;
+ 	}
+ 
+@@ -2146,7 +2149,7 @@ static int azx_probe(struct pci_dev *pci,
+ 	if (schedule_probe)
+ 		schedule_delayed_work(&hda->probe_work, 0);
+ 
+-	dev++;
++	set_bit(dev, probed_devs);
+ 	if (chip->disabled)
+ 		complete_all(&hda->probe_wait);
+ 	return 0;
+@@ -2369,6 +2372,7 @@ static void azx_remove(struct pci_dev *pci)
+ 		cancel_delayed_work_sync(&hda->probe_work);
+ 		device_lock(&pci->dev);
+ 
++		clear_bit(chip->dev_index, probed_devs);
+ 		pci_set_drvdata(pci, NULL);
+ 		snd_card_free(card);
+ 	}
+-- 
+2.34.1
+
 
 
