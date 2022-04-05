@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 633274F3249
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:54:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 195204F306C
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:27:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349033AbiDEJyi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:54:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51034 "EHLO
+        id S242083AbiDEIgm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:36:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45380 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343802AbiDEJOP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:14:15 -0400
+        with ESMTP id S239557AbiDEIUO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:20:14 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 825F13DA53;
-        Tue,  5 Apr 2022 02:00:41 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1B5221AD;
+        Tue,  5 Apr 2022 01:16:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 35393B81A12;
-        Tue,  5 Apr 2022 09:00:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EF54C385A0;
-        Tue,  5 Apr 2022 09:00:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5EC63B81BAC;
+        Tue,  5 Apr 2022 08:16:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3748C385A1;
+        Tue,  5 Apr 2022 08:16:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149238;
-        bh=5dFCK/bwE+X+xrItH9sMlwXXPJaUtIAhj7mXcM9iEas=;
+        s=korg; t=1649146567;
+        bh=kIr5JhcaLshk79hym1GPm/MZv8EVmOacLbwDOQPyUlw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1LLRPp4gfYMklETkqAg+h745PHFvPKw2uUS4oYv09soX9C6H8NgzmKrqT16Pog2kP
-         HXfH4ATRV/R+xJhq+luQFOANuZLkcfDjgZN6lq5FC9BZe57CKzu9PPcHEHYqjz2Lfi
-         1e6rw5Fp3MKnGHt24dbHj3PWx3V7qnQYDpgA7mQY=
+        b=f69BunrHFl3tM9/ukbZXt6dQeCuVy4hPL8c23sTfJyokubWk+uZXv9YK52ABHcFZQ
+         NFQvHf3ZmgkAjWTXrVlJFE5drC04ash+2zvHW/WYqyf7OepSt1hTuw//zytenOGfOe
+         HP7gCtpjQ0dKPtmGUFm9szf2o4HhFojgKmiOdGTA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Joel Stanley <joel@jms.id.au>,
-        Eddie James <eajames@linux.ibm.com>,
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0645/1017] fsi: scom: Fix error handling
+Subject: [PATCH 5.17 0811/1126] net: phy: broadcom: Fix brcm_fet_config_init()
 Date:   Tue,  5 Apr 2022 09:25:58 +0200
-Message-Id: <20220405070413.429006117@linuxfoundation.org>
+Message-Id: <20220405070431.371012514@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,68 +54,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joel Stanley <joel@jms.id.au>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit d46fddd52d11eb6a3a7ed836f9f273e9cf8cd01c ]
+[ Upstream commit bf8bfc4336f7a34e48b3bbd19b1542bf085bdc3d ]
 
-SCOM error handling is made complex by trying to pass around two bits of
-information: the function return code, and a status parameter that
-represents the CFAM error status register.
+A Broadcom AC201 PHY (same entry as 5241) would be flagged by the
+Broadcom UniMAC MDIO controller as not completing the turn around
+properly since the PHY expects 65 MDC clock cycles to complete a write
+cycle, and the MDIO controller was only sending 64 MDC clock cycles as
+determined by looking at a scope shot.
 
-The commit f72ddbe1d7b7 ("fsi: scom: Remove retries") removed the
-"hidden" retries in the SCOM driver, in preference of allowing the
-calling code (userspace or driver) to decide how to handle a failed
-SCOM. However it introduced a bug by attempting to be smart about the
-return codes that were "errors" and which were ok to fall through to the
-status register parsing.
+This would make the subsequent read fail with the UniMAC MDIO controller
+command field having MDIO_READ_FAIL set and we would abort the
+brcm_fet_config_init() function and thus not probe the PHY at all.
 
-We get the following errors:
+After issuing a software reset, wait for at least 1ms which is well
+above the 1us reset delay advertised by the datasheet and issue a dummy
+read to let the PHY turn around the line properly. This read
+specifically ignores -EIO which would be returned by MDIO controllers
+checking for the line being turned around.
 
- - EINVAL or ENXIO, for indirect scoms where the value is invalid
- - EINVAL, where the size or address is incorrect
- - EIO or ETIMEOUT, where FSI write failed (aspeed master)
- - EAGAIN, where the master detected a crc error (GPIO master only)
- - EBUSY, where the bus is disabled (GPIO master in external mode)
+If we have a genuine reaad failure, the next read of the interrupt
+status register would pick it up anyway.
 
-In all of these cases we should fail the SCOM read/write and return the
-error.
-
-Thanks to Dan Carpenter for the detailed bug report.
-
-Fixes: f72ddbe1d7b7 ("fsi: scom: Remove retries")
-Link: https://lists.ozlabs.org/pipermail/linux-fsi/2021-November/000235.html
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Joel Stanley <joel@jms.id.au>
-Reviewed-by: Eddie James <eajames@linux.ibm.com>
-Link: https://lore.kernel.org/r/20211207033811.518981-2-joel@jms.id.au
-Signed-off-by: Joel Stanley <joel@jms.id.au>
+Fixes: d7a2ed9248a3 ("broadcom: Add AC131 phy support")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/20220324232438.1156812-1-f.fainelli@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/fsi/fsi-scom.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/phy/broadcom.c | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
 
-diff --git a/drivers/fsi/fsi-scom.c b/drivers/fsi/fsi-scom.c
-index da1486bb6a14..3b427f7e9027 100644
---- a/drivers/fsi/fsi-scom.c
-+++ b/drivers/fsi/fsi-scom.c
-@@ -289,7 +289,7 @@ static int put_scom(struct scom_device *scom, uint64_t value,
- 	int rc;
+diff --git a/drivers/net/phy/broadcom.c b/drivers/net/phy/broadcom.c
+index 3c683e0e40e9..e36809aa6d30 100644
+--- a/drivers/net/phy/broadcom.c
++++ b/drivers/net/phy/broadcom.c
+@@ -11,6 +11,7 @@
+  */
  
- 	rc = raw_put_scom(scom, value, addr, &status);
--	if (rc == -ENODEV)
-+	if (rc)
- 		return rc;
+ #include "bcm-phy-lib.h"
++#include <linux/delay.h>
+ #include <linux/module.h>
+ #include <linux/phy.h>
+ #include <linux/brcmphy.h>
+@@ -602,6 +603,26 @@ static int brcm_fet_config_init(struct phy_device *phydev)
+ 	if (err < 0)
+ 		return err;
  
- 	rc = handle_fsi2pib_status(scom, status);
-@@ -308,7 +308,7 @@ static int get_scom(struct scom_device *scom, uint64_t *value,
- 	int rc;
- 
- 	rc = raw_get_scom(scom, value, addr, &status);
--	if (rc == -ENODEV)
-+	if (rc)
- 		return rc;
- 
- 	rc = handle_fsi2pib_status(scom, status);
++	/* The datasheet indicates the PHY needs up to 1us to complete a reset,
++	 * build some slack here.
++	 */
++	usleep_range(1000, 2000);
++
++	/* The PHY requires 65 MDC clock cycles to complete a write operation
++	 * and turnaround the line properly.
++	 *
++	 * We ignore -EIO here as the MDIO controller (e.g.: mdio-bcm-unimac)
++	 * may flag the lack of turn-around as a read failure. This is
++	 * particularly true with this combination since the MDIO controller
++	 * only used 64 MDC cycles. This is not a critical failure in this
++	 * specific case and it has no functional impact otherwise, so we let
++	 * that one go through. If there is a genuine bus error, the next read
++	 * of MII_BRCM_FET_INTREG will error out.
++	 */
++	err = phy_read(phydev, MII_BMCR);
++	if (err < 0 && err != -EIO)
++		return err;
++
+ 	reg = phy_read(phydev, MII_BRCM_FET_INTREG);
+ 	if (reg < 0)
+ 		return reg;
 -- 
 2.34.1
 
