@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 209A94F310B
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:36:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9BCB94F3210
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:54:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242061AbiDEIge (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:36:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45378 "EHLO
+        id S236791AbiDEI23 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:28:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37814 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239644AbiDEIUX (ORCPT
+        with ESMTP id S239646AbiDEIUX (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:20:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9F47254;
-        Tue,  5 Apr 2022 01:18:06 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CC6E29D;
+        Tue,  5 Apr 2022 01:18:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 96EB0B81A37;
-        Tue,  5 Apr 2022 08:18:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 072F8C385A1;
-        Tue,  5 Apr 2022 08:18:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D084960B0E;
+        Tue,  5 Apr 2022 08:18:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB8ACC385A0;
+        Tue,  5 Apr 2022 08:18:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146684;
-        bh=GH4tvnJqzHy/GV+ENS19CUUuBijp1Yt8XgYpVSEgxSo=;
+        s=korg; t=1649146687;
+        bh=5KA/8ySZ2n1/KKSMcoJazR7rOJ6n1FuR1d09mg0Xu70=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QMQMq7uOEpCuS/KmY7+LSYS0e8hG0OvdUC64o6EVDm8BzwapikvftY/OmPitSmkhT
-         M2roc5VpBiHluFU4yTrF1faQol3pUTebSED1XcxnsMZXQGzQ5cezcTYJHyZAKs9Dpr
-         dFbK+LBB6fZIvXYBdFZO2homaDoMEKKcrY9CCug8=
+        b=tDwy2r+rdcwZMLaOlS8f09x2qP66P2gf2ehog2pwOz5xmISB+6UugXjpVjBxwNS6R
+         yh13wzM2WXEG6V80iytvLhvID8yHgZPyYrAvnmDISVofDXg4wo65q3T28owah+O3LJ
+         vNZ25keN4L8WHcR54ybgFt4W7CEBjPRXUJy6tsHQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
+        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+        Maulik Shah <quic_mkshah@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0852/1126] Fix incorrect type in assignment of ipv6 port for audit
-Date:   Tue,  5 Apr 2022 09:26:39 +0200
-Message-Id: <20220405070432.554730668@linuxfoundation.org>
+Subject: [PATCH 5.17 0853/1126] irqchip/qcom-pdc: Fix broken locking
+Date:   Tue,  5 Apr 2022 09:26:40 +0200
+Message-Id: <20220405070432.582854799@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -54,33 +54,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Casey Schaufler <casey@schaufler-ca.com>
+From: Marc Zyngier <maz@kernel.org>
 
-[ Upstream commit a5cd1ab7ab679d252a6d2f483eee7d45ebf2040c ]
+[ Upstream commit a6aca2f460e203781dc41391913cc5b54f4bc0ce ]
 
-Remove inappropriate use of ntohs() and assign the
-port value directly.
+pdc_enable_intr() serves as a primitive to qcom_pdc_gic_{en,dis}able,
+and has a raw spinlock for mutual exclusion, which is uses with
+interruptible primitives.
 
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+This means that this critical section can itself be interrupted.
+Should the interrupt also be a PDC interrupt, and the endpoint driver
+perform an irq_disable() on that interrupt, we end-up in a deadlock.
+
+Fix this by using the irqsave/irqrestore variants of the locking
+primitives.
+
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Reviewed-by: Maulik Shah <quic_mkshah@quicinc.com>
+Link: https://lore.kernel.org/r/20220224101226.88373-5-maz@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/smack/smack_lsm.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/irqchip/qcom-pdc.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-index 14b279cc75c9..6207762dbdb1 100644
---- a/security/smack/smack_lsm.c
-+++ b/security/smack/smack_lsm.c
-@@ -2510,7 +2510,7 @@ static int smk_ipv6_check(struct smack_known *subject,
- #ifdef CONFIG_AUDIT
- 	smk_ad_init_net(&ad, __func__, LSM_AUDIT_DATA_NET, &net);
- 	ad.a.u.net->family = PF_INET6;
--	ad.a.u.net->dport = ntohs(address->sin6_port);
-+	ad.a.u.net->dport = address->sin6_port;
- 	if (act == SMK_RECEIVING)
- 		ad.a.u.net->v6info.saddr = address->sin6_addr;
- 	else
+diff --git a/drivers/irqchip/qcom-pdc.c b/drivers/irqchip/qcom-pdc.c
+index 173e6520e06e..c0b457f26ec4 100644
+--- a/drivers/irqchip/qcom-pdc.c
++++ b/drivers/irqchip/qcom-pdc.c
+@@ -56,17 +56,18 @@ static u32 pdc_reg_read(int reg, u32 i)
+ static void pdc_enable_intr(struct irq_data *d, bool on)
+ {
+ 	int pin_out = d->hwirq;
++	unsigned long flags;
+ 	u32 index, mask;
+ 	u32 enable;
+ 
+ 	index = pin_out / 32;
+ 	mask = pin_out % 32;
+ 
+-	raw_spin_lock(&pdc_lock);
++	raw_spin_lock_irqsave(&pdc_lock, flags);
+ 	enable = pdc_reg_read(IRQ_ENABLE_BANK, index);
+ 	enable = on ? ENABLE_INTR(enable, mask) : CLEAR_INTR(enable, mask);
+ 	pdc_reg_write(IRQ_ENABLE_BANK, index, enable);
+-	raw_spin_unlock(&pdc_lock);
++	raw_spin_unlock_irqrestore(&pdc_lock, flags);
+ }
+ 
+ static void qcom_pdc_gic_disable(struct irq_data *d)
 -- 
 2.34.1
 
