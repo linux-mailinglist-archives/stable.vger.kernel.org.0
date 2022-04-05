@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D56A64F31DE
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:46:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 491A54F34CD
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:39:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355505AbiDEKUK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:20:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59912 "EHLO
+        id S245286AbiDEIyj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:54:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345323AbiDEJW0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:22:26 -0400
+        with ESMTP id S241019AbiDEIcn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:32:43 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B69F443C6;
-        Tue,  5 Apr 2022 02:10:33 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57F21B1888;
+        Tue,  5 Apr 2022 01:26:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EE5BD61576;
-        Tue,  5 Apr 2022 09:10:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05BE0C385A0;
-        Tue,  5 Apr 2022 09:10:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E12DD60FF7;
+        Tue,  5 Apr 2022 08:26:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0409CC385A1;
+        Tue,  5 Apr 2022 08:25:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149832;
-        bh=H/g05GSqYLVNe7009eSkpVEVcdTs0rLY9M5I/WTcBDs=;
+        s=korg; t=1649147160;
+        bh=ydGyx4p7///FDvur9+HuzBOOVf6P4H0f186iZTVpZG8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zZo2WCKK6YexZBxkd6aceRG4LT5N3NIsrRZuzgbKO72rgJ4XlwuHXKA/SQTt60GVr
-         xo0G2h1qt0PIxWuF/6+9yEBWhI/lPCFbV/KHeJCJzF7b6MWoP8PXM94NdgXC/ecPjI
-         a0Of1IrkOTD6Kg9x1ah2735yQu5jl87m/aSHIsUA=
+        b=KvEcyEZrD/f0amiMEL+RSYCqw/7Nho+m+UzysgRRz17ELmGHr3gzPIyc9AwZ2PFhy
+         acKsZJNQBwZzGSztfXJZzOrTJ3Ky6TDsb6xsoDfSTO6bAuohQvh18g62J/mUzY9/kq
+         eixAbFAWXdspQqL+KgekXY0y9mQ2ZEpmpMdCvVJY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.16 0857/1017] KVM: x86: Reinitialize context if host userspace toggles EFER.LME
+        stable@vger.kernel.org, Liam Howlett <liam.howlett@oracle.com>,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>
+Subject: [PATCH 5.17 1023/1126] XArray: Include bitmap.h from xarray.h
 Date:   Tue,  5 Apr 2022 09:29:30 +0200
-Message-Id: <20220405070419.674290454@linuxfoundation.org>
+Message-Id: <20220405070437.510674310@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,46 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Matthew Wilcox (Oracle) <willy@infradead.org>
 
-commit d6174299365ddbbf491620c0b8c5ca1a6ef2eea5 upstream.
+commit 22f56b8e890d4e2835951b437bb6eeebfd1cb18b upstream.
 
-While the guest runs, EFER.LME cannot change unless CR0.PG is clear, and
-therefore EFER.NX is the only bit that can affect the MMU role.  However,
-set_efer accepts a host-initiated change to EFER.LME even with CR0.PG=1.
-In that case, the MMU has to be reset.
+xas_find_chunk() calls find_next_bit(), which is defined in find.h,
+included from bitmap.h.  Inside the kernel, this isn't a problem because
+bitmap.h is included from cpumask.h which is dragged in (eventually)
+by gfp.h.  When building the test-suite, that doesn't happen, so we need
+to include bitmap.h explicitly.
 
-Fixes: 11988499e62b ("KVM: x86: Skip EFER vs. guest CPUID checks for host-initiated writes")
-Cc: stable@vger.kernel.org
-Reviewed-by: Sean Christopherson <seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: 4ade0818cf04 ("tools: sync tools/bitmap with mother linux")
+Reported-by: Liam Howlett <liam.howlett@oracle.com>
+Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/mmu.h |    1 +
- arch/x86/kvm/x86.c |    3 +--
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ include/linux/xarray.h | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/x86/kvm/mmu.h
-+++ b/arch/x86/kvm/mmu.h
-@@ -48,6 +48,7 @@
- 			       X86_CR4_SMEP | X86_CR4_SMAP | X86_CR4_PKE)
+diff --git a/include/linux/xarray.h b/include/linux/xarray.h
+index d6d5da6ed735..66e28bc1a023 100644
+--- a/include/linux/xarray.h
++++ b/include/linux/xarray.h
+@@ -9,6 +9,7 @@
+  * See Documentation/core-api/xarray.rst for how to use the XArray.
+  */
  
- #define KVM_MMU_CR0_ROLE_BITS (X86_CR0_PG | X86_CR0_WP)
-+#define KVM_MMU_EFER_ROLE_BITS (EFER_LME | EFER_NX)
- 
- static __always_inline u64 rsvd_bits(int s, int e)
- {
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -1614,8 +1614,7 @@ static int set_efer(struct kvm_vcpu *vcp
- 		return r;
- 	}
- 
--	/* Update reserved bits */
--	if ((efer ^ old_efer) & EFER_NX)
-+	if ((efer ^ old_efer) & KVM_MMU_EFER_ROLE_BITS)
- 		kvm_mmu_reset_context(vcpu);
- 
- 	return 0;
++#include <linux/bitmap.h>
+ #include <linux/bug.h>
+ #include <linux/compiler.h>
+ #include <linux/gfp.h>
+-- 
+2.35.1
+
 
 
