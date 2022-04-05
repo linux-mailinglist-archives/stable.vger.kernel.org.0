@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 724994F2E56
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:00:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 781594F2B6D
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:10:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229804AbiDEKaK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:30:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38508 "EHLO
+        id S230361AbiDEK3c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:29:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55108 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238422AbiDEJce (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:32:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 499E4C63;
-        Tue,  5 Apr 2022 02:19:26 -0700 (PDT)
+        with ESMTP id S238524AbiDEJci (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:32:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23B92CF2;
+        Tue,  5 Apr 2022 02:19:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D9DC761654;
-        Tue,  5 Apr 2022 09:19:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8D1CC385A2;
-        Tue,  5 Apr 2022 09:19:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B442D61574;
+        Tue,  5 Apr 2022 09:19:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C145BC385A2;
+        Tue,  5 Apr 2022 09:19:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150365;
-        bh=c+FG7iJzWa+YhFtQZcmp9ygilmOryfiOe9Td4wmRm6U=;
+        s=korg; t=1649150368;
+        bh=pqyCCTrhe5vZ7ug0CKbXdyFqbSvs0f9tVv+alM+FO8k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mRWM1NGqEY83OR5ysqwKNHiwByqJR73ncAm4W1trrgsuO+6AiBNgq1m22jliX9q3P
-         q8uXzJoyvygAL5+wnIvvwaocLeiWUrICidnMKAt467GtweRP5zuBIguFYD7mgDSAxR
-         jwph+GvGSNFNTBumjAkysuEtxq/PZ6b/rZaCRQ4k=
+        b=Io/VyoIsLTQJVR79d0jF8JNR6H4G3mOvuRIQjj3AQzf20YNIwUAbvrVntSqabOJXF
+         VInp3nPv2zpM2cZsZBuNr8dZfyQHwM74SaTe1sMunbow0eZBQYJgO5WiY3sJByx+Wm
+         fc0fEbm4gyxf03WziOSXy16z10cWnVsL0drRQvD8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Gunthorpe <jgg@ziepe.ca>,
-        Lino Sanfilippo <LinoSanfilippo@gmx.de>,
-        Stefan Berger <stefanb@linux.ibm.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>
-Subject: [PATCH 5.15 030/913] tpm: fix reference counting for struct tpm_chip
-Date:   Tue,  5 Apr 2022 09:18:12 +0200
-Message-Id: <20220405070340.719991256@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Sven Peter <sven@svenpeter.dev>
+Subject: [PATCH 5.15 031/913] usb: typec: tipd: Forward plug orientation to typec subsystem
+Date:   Tue,  5 Apr 2022 09:18:13 +0200
+Message-Id: <20220405070340.749540342@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -56,273 +54,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lino Sanfilippo <LinoSanfilippo@gmx.de>
+From: Sven Peter <sven@svenpeter.dev>
 
-commit 7e0438f83dc769465ee663bb5dcf8cc154940712 upstream.
+commit 676748389f5db74e7d28f9d630eebd75cb8a11b4 upstream.
 
-The following sequence of operations results in a refcount warning:
+In order to bring up the USB3 PHY on the Apple M1 we need to know the
+orientation of the Type-C cable. Extract it from the status register and
+forward it to the typec subsystem.
 
-1. Open device /dev/tpmrm.
-2. Remove module tpm_tis_spi.
-3. Write a TPM command to the file descriptor opened at step 1.
-
-------------[ cut here ]------------
-WARNING: CPU: 3 PID: 1161 at lib/refcount.c:25 kobject_get+0xa0/0xa4
-refcount_t: addition on 0; use-after-free.
-Modules linked in: tpm_tis_spi tpm_tis_core tpm mdio_bcm_unimac brcmfmac
-sha256_generic libsha256 sha256_arm hci_uart btbcm bluetooth cfg80211 vc4
-brcmutil ecdh_generic ecc snd_soc_core crc32_arm_ce libaes
-raspberrypi_hwmon ac97_bus snd_pcm_dmaengine bcm2711_thermal snd_pcm
-snd_timer genet snd phy_generic soundcore [last unloaded: spi_bcm2835]
-CPU: 3 PID: 1161 Comm: hold_open Not tainted 5.10.0ls-main-dirty #2
-Hardware name: BCM2711
-[<c0410c3c>] (unwind_backtrace) from [<c040b580>] (show_stack+0x10/0x14)
-[<c040b580>] (show_stack) from [<c1092174>] (dump_stack+0xc4/0xd8)
-[<c1092174>] (dump_stack) from [<c0445a30>] (__warn+0x104/0x108)
-[<c0445a30>] (__warn) from [<c0445aa8>] (warn_slowpath_fmt+0x74/0xb8)
-[<c0445aa8>] (warn_slowpath_fmt) from [<c08435d0>] (kobject_get+0xa0/0xa4)
-[<c08435d0>] (kobject_get) from [<bf0a715c>] (tpm_try_get_ops+0x14/0x54 [tpm])
-[<bf0a715c>] (tpm_try_get_ops [tpm]) from [<bf0a7d6c>] (tpm_common_write+0x38/0x60 [tpm])
-[<bf0a7d6c>] (tpm_common_write [tpm]) from [<c05a7ac0>] (vfs_write+0xc4/0x3c0)
-[<c05a7ac0>] (vfs_write) from [<c05a7ee4>] (ksys_write+0x58/0xcc)
-[<c05a7ee4>] (ksys_write) from [<c04001a0>] (ret_fast_syscall+0x0/0x4c)
-Exception stack(0xc226bfa8 to 0xc226bff0)
-bfa0:                   00000000 000105b4 00000003 beafe664 00000014 00000000
-bfc0: 00000000 000105b4 000103f8 00000004 00000000 00000000 b6f9c000 beafe684
-bfe0: 0000006c beafe648 0001056c b6eb6944
----[ end trace d4b8409def9b8b1f ]---
-
-The reason for this warning is the attempt to get the chip->dev reference
-in tpm_common_write() although the reference counter is already zero.
-
-Since commit 8979b02aaf1d ("tpm: Fix reference count to main device") the
-extra reference used to prevent a premature zero counter is never taken,
-because the required TPM_CHIP_FLAG_TPM2 flag is never set.
-
-Fix this by moving the TPM 2 character device handling from
-tpm_chip_alloc() to tpm_add_char_device() which is called at a later point
-in time when the flag has been set in case of TPM2.
-
-Commit fdc915f7f719 ("tpm: expose spaces via a device link /dev/tpmrm<n>")
-already introduced function tpm_devs_release() to release the extra
-reference but did not implement the required put on chip->devs that results
-in the call of this function.
-
-Fix this by putting chip->devs in tpm_chip_unregister().
-
-Finally move the new implementation for the TPM 2 handling into a new
-function to avoid multiple checks for the TPM_CHIP_FLAG_TPM2 flag in the
-good case and error cases.
-
-Cc: stable@vger.kernel.org
-Fixes: fdc915f7f719 ("tpm: expose spaces via a device link /dev/tpmrm<n>")
-Fixes: 8979b02aaf1d ("tpm: Fix reference count to main device")
-Co-developed-by: Jason Gunthorpe <jgg@ziepe.ca>
-Signed-off-by: Jason Gunthorpe <jgg@ziepe.ca>
-Signed-off-by: Lino Sanfilippo <LinoSanfilippo@gmx.de>
-Tested-by: Stefan Berger <stefanb@linux.ibm.com>
-Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
-Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
-Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Sven Peter <sven@svenpeter.dev>
+Link: https://lore.kernel.org/r/20220226125912.59828-1-sven@svenpeter.dev
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/tpm/tpm-chip.c   |   46 +++++------------------------
- drivers/char/tpm/tpm.h        |    2 +
- drivers/char/tpm/tpm2-space.c |   65 ++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 75 insertions(+), 38 deletions(-)
+ drivers/usb/typec/tipd/core.c     |    5 +++++
+ drivers/usb/typec/tipd/tps6598x.h |    1 +
+ 2 files changed, 6 insertions(+)
 
---- a/drivers/char/tpm/tpm-chip.c
-+++ b/drivers/char/tpm/tpm-chip.c
-@@ -274,14 +274,6 @@ static void tpm_dev_release(struct devic
- 	kfree(chip);
- }
+--- a/drivers/usb/typec/tipd/core.c
++++ b/drivers/usb/typec/tipd/core.c
+@@ -246,6 +246,10 @@ static int tps6598x_connect(struct tps65
+ 	typec_set_pwr_opmode(tps->port, mode);
+ 	typec_set_pwr_role(tps->port, TPS_STATUS_TO_TYPEC_PORTROLE(status));
+ 	typec_set_vconn_role(tps->port, TPS_STATUS_TO_TYPEC_VCONN(status));
++	if (TPS_STATUS_TO_UPSIDE_DOWN(status))
++		typec_set_orientation(tps->port, TYPEC_ORIENTATION_REVERSE);
++	else
++		typec_set_orientation(tps->port, TYPEC_ORIENTATION_NORMAL);
+ 	tps6598x_set_data_role(tps, TPS_STATUS_TO_TYPEC_DATAROLE(status), true);
  
--static void tpm_devs_release(struct device *dev)
--{
--	struct tpm_chip *chip = container_of(dev, struct tpm_chip, devs);
--
--	/* release the master device reference */
--	put_device(&chip->dev);
--}
--
- /**
-  * tpm_class_shutdown() - prepare the TPM device for loss of power.
-  * @dev: device to which the chip is associated.
-@@ -344,7 +336,6 @@ struct tpm_chip *tpm_chip_alloc(struct d
- 	chip->dev_num = rc;
+ 	tps->partner = typec_register_partner(tps->port, &desc);
+@@ -268,6 +272,7 @@ static void tps6598x_disconnect(struct t
+ 	typec_set_pwr_opmode(tps->port, TYPEC_PWR_MODE_USB);
+ 	typec_set_pwr_role(tps->port, TPS_STATUS_TO_TYPEC_PORTROLE(status));
+ 	typec_set_vconn_role(tps->port, TPS_STATUS_TO_TYPEC_VCONN(status));
++	typec_set_orientation(tps->port, TYPEC_ORIENTATION_NONE);
+ 	tps6598x_set_data_role(tps, TPS_STATUS_TO_TYPEC_DATAROLE(status), false);
  
- 	device_initialize(&chip->dev);
--	device_initialize(&chip->devs);
- 
- 	chip->dev.class = tpm_class;
- 	chip->dev.class->shutdown_pre = tpm_class_shutdown;
-@@ -352,39 +343,20 @@ struct tpm_chip *tpm_chip_alloc(struct d
- 	chip->dev.parent = pdev;
- 	chip->dev.groups = chip->groups;
- 
--	chip->devs.parent = pdev;
--	chip->devs.class = tpmrm_class;
--	chip->devs.release = tpm_devs_release;
--	/* get extra reference on main device to hold on
--	 * behalf of devs.  This holds the chip structure
--	 * while cdevs is in use.  The corresponding put
--	 * is in the tpm_devs_release (TPM2 only)
--	 */
--	if (chip->flags & TPM_CHIP_FLAG_TPM2)
--		get_device(&chip->dev);
--
- 	if (chip->dev_num == 0)
- 		chip->dev.devt = MKDEV(MISC_MAJOR, TPM_MINOR);
- 	else
- 		chip->dev.devt = MKDEV(MAJOR(tpm_devt), chip->dev_num);
- 
--	chip->devs.devt =
--		MKDEV(MAJOR(tpm_devt), chip->dev_num + TPM_NUM_DEVICES);
--
- 	rc = dev_set_name(&chip->dev, "tpm%d", chip->dev_num);
- 	if (rc)
- 		goto out;
--	rc = dev_set_name(&chip->devs, "tpmrm%d", chip->dev_num);
--	if (rc)
--		goto out;
- 
- 	if (!pdev)
- 		chip->flags |= TPM_CHIP_FLAG_VIRTUAL;
- 
- 	cdev_init(&chip->cdev, &tpm_fops);
--	cdev_init(&chip->cdevs, &tpmrm_fops);
- 	chip->cdev.owner = THIS_MODULE;
--	chip->cdevs.owner = THIS_MODULE;
- 
- 	rc = tpm2_init_space(&chip->work_space, TPM2_SPACE_BUFFER_SIZE);
- 	if (rc) {
-@@ -396,7 +368,6 @@ struct tpm_chip *tpm_chip_alloc(struct d
- 	return chip;
- 
- out:
--	put_device(&chip->devs);
- 	put_device(&chip->dev);
- 	return ERR_PTR(rc);
- }
-@@ -445,14 +416,9 @@ static int tpm_add_char_device(struct tp
- 	}
- 
- 	if (chip->flags & TPM_CHIP_FLAG_TPM2) {
--		rc = cdev_device_add(&chip->cdevs, &chip->devs);
--		if (rc) {
--			dev_err(&chip->devs,
--				"unable to cdev_device_add() %s, major %d, minor %d, err=%d\n",
--				dev_name(&chip->devs), MAJOR(chip->devs.devt),
--				MINOR(chip->devs.devt), rc);
--			return rc;
--		}
-+		rc = tpm_devs_add(chip);
-+		if (rc)
-+			goto err_del_cdev;
- 	}
- 
- 	/* Make the chip available. */
-@@ -460,6 +426,10 @@ static int tpm_add_char_device(struct tp
- 	idr_replace(&dev_nums_idr, chip, chip->dev_num);
- 	mutex_unlock(&idr_lock);
- 
-+	return 0;
-+
-+err_del_cdev:
-+	cdev_device_del(&chip->cdev, &chip->dev);
- 	return rc;
- }
- 
-@@ -649,7 +619,7 @@ void tpm_chip_unregister(struct tpm_chip
- 		hwrng_unregister(&chip->hwrng);
- 	tpm_bios_log_teardown(chip);
- 	if (chip->flags & TPM_CHIP_FLAG_TPM2)
--		cdev_device_del(&chip->cdevs, &chip->devs);
-+		tpm_devs_remove(chip);
- 	tpm_del_char_device(chip);
- }
- EXPORT_SYMBOL_GPL(tpm_chip_unregister);
---- a/drivers/char/tpm/tpm.h
-+++ b/drivers/char/tpm/tpm.h
-@@ -234,6 +234,8 @@ int tpm2_prepare_space(struct tpm_chip *
- 		       size_t cmdsiz);
- int tpm2_commit_space(struct tpm_chip *chip, struct tpm_space *space, void *buf,
- 		      size_t *bufsiz);
-+int tpm_devs_add(struct tpm_chip *chip);
-+void tpm_devs_remove(struct tpm_chip *chip);
- 
- void tpm_bios_log_setup(struct tpm_chip *chip);
- void tpm_bios_log_teardown(struct tpm_chip *chip);
---- a/drivers/char/tpm/tpm2-space.c
-+++ b/drivers/char/tpm/tpm2-space.c
-@@ -574,3 +574,68 @@ out:
- 	dev_err(&chip->dev, "%s: error %d\n", __func__, rc);
- 	return rc;
- }
-+
-+/*
-+ * Put the reference to the main device.
-+ */
-+static void tpm_devs_release(struct device *dev)
-+{
-+	struct tpm_chip *chip = container_of(dev, struct tpm_chip, devs);
-+
-+	/* release the master device reference */
-+	put_device(&chip->dev);
-+}
-+
-+/*
-+ * Remove the device file for exposed TPM spaces and release the device
-+ * reference. This may also release the reference to the master device.
-+ */
-+void tpm_devs_remove(struct tpm_chip *chip)
-+{
-+	cdev_device_del(&chip->cdevs, &chip->devs);
-+	put_device(&chip->devs);
-+}
-+
-+/*
-+ * Add a device file to expose TPM spaces. Also take a reference to the
-+ * main device.
-+ */
-+int tpm_devs_add(struct tpm_chip *chip)
-+{
-+	int rc;
-+
-+	device_initialize(&chip->devs);
-+	chip->devs.parent = chip->dev.parent;
-+	chip->devs.class = tpmrm_class;
-+
-+	/*
-+	 * Get extra reference on main device to hold on behalf of devs.
-+	 * This holds the chip structure while cdevs is in use. The
-+	 * corresponding put is in the tpm_devs_release.
-+	 */
-+	get_device(&chip->dev);
-+	chip->devs.release = tpm_devs_release;
-+	chip->devs.devt = MKDEV(MAJOR(tpm_devt), chip->dev_num + TPM_NUM_DEVICES);
-+	cdev_init(&chip->cdevs, &tpmrm_fops);
-+	chip->cdevs.owner = THIS_MODULE;
-+
-+	rc = dev_set_name(&chip->devs, "tpmrm%d", chip->dev_num);
-+	if (rc)
-+		goto err_put_devs;
-+
-+	rc = cdev_device_add(&chip->cdevs, &chip->devs);
-+	if (rc) {
-+		dev_err(&chip->devs,
-+			"unable to cdev_device_add() %s, major %d, minor %d, err=%d\n",
-+			dev_name(&chip->devs), MAJOR(chip->devs.devt),
-+			MINOR(chip->devs.devt), rc);
-+		goto err_put_devs;
-+	}
-+
-+	return 0;
-+
-+err_put_devs:
-+	put_device(&chip->devs);
-+
-+	return rc;
-+}
+ 	power_supply_changed(tps->psy);
+--- a/drivers/usb/typec/tipd/tps6598x.h
++++ b/drivers/usb/typec/tipd/tps6598x.h
+@@ -17,6 +17,7 @@
+ /* TPS_REG_STATUS bits */
+ #define TPS_STATUS_PLUG_PRESENT		BIT(0)
+ #define TPS_STATUS_PLUG_UPSIDE_DOWN	BIT(4)
++#define TPS_STATUS_TO_UPSIDE_DOWN(s)	(!!((s) & TPS_STATUS_PLUG_UPSIDE_DOWN))
+ #define TPS_STATUS_PORTROLE		BIT(5)
+ #define TPS_STATUS_TO_TYPEC_PORTROLE(s) (!!((s) & TPS_STATUS_PORTROLE))
+ #define TPS_STATUS_DATAROLE		BIT(6)
 
 
