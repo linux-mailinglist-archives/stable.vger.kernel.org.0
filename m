@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 810CB4F3528
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:48:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 23D4D4F3489
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:38:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237419AbiDEImK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:42:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52922 "EHLO
+        id S1353477AbiDEKHs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:07:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34074 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238693AbiDEIax (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:30:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B5A5340DB;
-        Tue,  5 Apr 2022 01:22:40 -0700 (PDT)
+        with ESMTP id S1344283AbiDEJTE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:19:04 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27AC3237D1;
+        Tue,  5 Apr 2022 02:07:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1FB7AB81BC0;
-        Tue,  5 Apr 2022 08:22:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FB8CC385A0;
-        Tue,  5 Apr 2022 08:22:37 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 97359CE1C6C;
+        Tue,  5 Apr 2022 09:07:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DE66C385A1;
+        Tue,  5 Apr 2022 09:07:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146957;
-        bh=XBhe4vqBgXyB671ZuqpkXp89YqTRRxpxJDnJqlGK3kw=;
+        s=korg; t=1649149633;
+        bh=yg6WkGRZiXN6RT05fbnMqWKZL4qp2s5qQM6TuONT29E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gmDR8AUDML6Gt+LqqsrfMTxnV3TNV904R1h23DxJQs9YB8QGgtwAu0J0hOkH7xEpA
-         zd+W8sc6f0S2EA5ERNt0ucIV6sbLmslsirTs/Ovdp8rzgjvd6HjJcXRbB2zPbhCZcA
-         41RXVFk/c0M3mIyewgQoCWi0hvRrNu6I30/8Ta1Q=
+        b=BtSz9G2SemYlwPolhKJPmKtgUPuCWD2W0Q+t7HMLyRQoyiiZRoS20YkXc1fcMfUCO
+         br+76XyIBNm+Y2ED63Lb+EiojxHqw6sL1xuqLiBGqEN1unJlPXRS/vOFzDIIj8pGwD
+         86/YWdkNg/H4Ueq4cxuHDMmb7Ch6Hx52dOqtS6Z0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matt Kramer <mccleetus@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0949/1126] ALSA: hda/realtek: Add alc256-samsung-headphone fixup
-Date:   Tue,  5 Apr 2022 09:28:16 +0200
-Message-Id: <20220405070435.360633407@linuxfoundation.org>
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Mark Rutland <mark.rutland@arm.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Boqun Feng <boqun.feng@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0784/1017] atomics: Fix atomic64_{read_acquire,set_release} fallbacks
+Date:   Tue,  5 Apr 2022 09:28:17 +0200
+Message-Id: <20220405070417.527112826@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,83 +57,219 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matt Kramer <mccleetus@gmail.com>
+From: Mark Rutland <mark.rutland@arm.com>
 
-[ Upstream commit ef248d9bd616b04df8be25539a4dc5db4b6c56f4 ]
+[ Upstream commit dc1b4df09acdca7a89806b28f235cd6d8dcd3d24 ]
 
-This fixes the near-silence of the headphone jack on the ALC256-based
-Samsung Galaxy Book Flex Alpha (NP730QCJ). The magic verbs were found
-through trial and error, using known ALC298 hacks as inspiration. The
-fixup is auto-enabled only when the NP730QCJ is detected. It can be
-manually enabled using model=alc256-samsung-headphone.
+Arnd reports that on 32-bit architectures, the fallbacks for
+atomic64_read_acquire() and atomic64_set_release() are broken as they
+use smp_load_acquire() and smp_store_release() respectively, which do
+not work on types larger than the native word size.
 
-Signed-off-by: Matt Kramer <mccleetus@gmail.com>
-Link: https://lore.kernel.org/r/3168355.aeNJFYEL58@linus
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Since those contain compiletime_assert_atomic_type(), any attempt to use
+those fallbacks will result in a build-time error. e.g. with the
+following added to arch/arm/kernel/setup.c:
+
+| void test_atomic64(atomic64_t *v)
+| {
+|        atomic64_set_release(v, 5);
+|        atomic64_read_acquire(v);
+| }
+
+The compiler will complain as follows:
+
+| In file included from <command-line>:
+| In function 'arch_atomic64_set_release',
+|     inlined from 'test_atomic64' at ./include/linux/atomic/atomic-instrumented.h:669:2:
+| ././include/linux/compiler_types.h:346:38: error: call to '__compiletime_assert_9' declared with attribute error: Need native word sized stores/loads for atomicity.
+|   346 |  _compiletime_assert(condition, msg, __compiletime_assert_, __COUNTER__)
+|       |                                      ^
+| ././include/linux/compiler_types.h:327:4: note: in definition of macro '__compiletime_assert'
+|   327 |    prefix ## suffix();    \
+|       |    ^~~~~~
+| ././include/linux/compiler_types.h:346:2: note: in expansion of macro '_compiletime_assert'
+|   346 |  _compiletime_assert(condition, msg, __compiletime_assert_, __COUNTER__)
+|       |  ^~~~~~~~~~~~~~~~~~~
+| ././include/linux/compiler_types.h:349:2: note: in expansion of macro 'compiletime_assert'
+|   349 |  compiletime_assert(__native_word(t),    \
+|       |  ^~~~~~~~~~~~~~~~~~
+| ./include/asm-generic/barrier.h:133:2: note: in expansion of macro 'compiletime_assert_atomic_type'
+|   133 |  compiletime_assert_atomic_type(*p);    \
+|       |  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+| ./include/asm-generic/barrier.h:164:55: note: in expansion of macro '__smp_store_release'
+|   164 | #define smp_store_release(p, v) do { kcsan_release(); __smp_store_release(p, v); } while (0)
+|       |                                                       ^~~~~~~~~~~~~~~~~~~
+| ./include/linux/atomic/atomic-arch-fallback.h:1270:2: note: in expansion of macro 'smp_store_release'
+|  1270 |  smp_store_release(&(v)->counter, i);
+|       |  ^~~~~~~~~~~~~~~~~
+| make[2]: *** [scripts/Makefile.build:288: arch/arm/kernel/setup.o] Error 1
+| make[1]: *** [scripts/Makefile.build:550: arch/arm/kernel] Error 2
+| make: *** [Makefile:1831: arch/arm] Error 2
+
+Fix this by only using smp_load_acquire() and smp_store_release() for
+native atomic types, and otherwise falling back to the regular barriers
+necessary for acquire/release semantics, as we do in the more generic
+acquire and release fallbacks.
+
+Since the fallback templates are used to generate the atomic64_*() and
+atomic_*() operations, the __native_word() check is added to both. For
+the atomic_*() operations, which are always 32-bit, the __native_word()
+check is redundant but not harmful, as it is always true.
+
+For the example above this works as expected on 32-bit, e.g. for arm
+multi_v7_defconfig:
+
+| <test_atomic64>:
+|         push    {r4, r5}
+|         dmb     ish
+|         pldw    [r0]
+|         mov     r2, #5
+|         mov     r3, #0
+|         ldrexd  r4, [r0]
+|         strexd  r4, r2, [r0]
+|         teq     r4, #0
+|         bne     484 <test_atomic64+0x14>
+|         ldrexd  r2, [r0]
+|         dmb     ish
+|         pop     {r4, r5}
+|         bx      lr
+
+... and also on 64-bit, e.g. for arm64 defconfig:
+
+| <test_atomic64>:
+|         bti     c
+|         paciasp
+|         mov     x1, #0x5
+|         stlr    x1, [x0]
+|         ldar    x0, [x0]
+|         autiasp
+|         ret
+
+Reported-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Mark Rutland <mark.rutland@arm.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
+Reviewed-by: Boqun Feng <boqun.feng@gmail.com>
+Link: https://lore.kernel.org/r/20220207101943.439825-1-mark.rutland@arm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/sound/hd-audio/models.rst |  4 ++++
- sound/pci/hda/patch_realtek.c           | 11 +++++++++++
- 2 files changed, 15 insertions(+)
+ include/linux/atomic/atomic-arch-fallback.h | 38 ++++++++++++++++++---
+ scripts/atomic/fallbacks/read_acquire       | 11 +++++-
+ scripts/atomic/fallbacks/set_release        |  7 +++-
+ 3 files changed, 49 insertions(+), 7 deletions(-)
 
-diff --git a/Documentation/sound/hd-audio/models.rst b/Documentation/sound/hd-audio/models.rst
-index d25335993e55..9b52f50a6854 100644
---- a/Documentation/sound/hd-audio/models.rst
-+++ b/Documentation/sound/hd-audio/models.rst
-@@ -261,6 +261,10 @@ alc-sense-combo
- huawei-mbx-stereo
-     Enable initialization verbs for Huawei MBX stereo speakers;
-     might be risky, try this at your own risk
-+alc298-samsung-headphone
-+    Samsung laptops with ALC298
-+alc256-samsung-headphone
-+    Samsung laptops with ALC256
+diff --git a/include/linux/atomic/atomic-arch-fallback.h b/include/linux/atomic/atomic-arch-fallback.h
+index a3dba31df01e..6db58d180866 100644
+--- a/include/linux/atomic/atomic-arch-fallback.h
++++ b/include/linux/atomic/atomic-arch-fallback.h
+@@ -151,7 +151,16 @@
+ static __always_inline int
+ arch_atomic_read_acquire(const atomic_t *v)
+ {
+-	return smp_load_acquire(&(v)->counter);
++	int ret;
++
++	if (__native_word(atomic_t)) {
++		ret = smp_load_acquire(&(v)->counter);
++	} else {
++		ret = arch_atomic_read(v);
++		__atomic_acquire_fence();
++	}
++
++	return ret;
+ }
+ #define arch_atomic_read_acquire arch_atomic_read_acquire
+ #endif
+@@ -160,7 +169,12 @@ arch_atomic_read_acquire(const atomic_t *v)
+ static __always_inline void
+ arch_atomic_set_release(atomic_t *v, int i)
+ {
+-	smp_store_release(&(v)->counter, i);
++	if (__native_word(atomic_t)) {
++		smp_store_release(&(v)->counter, i);
++	} else {
++		__atomic_release_fence();
++		arch_atomic_set(v, i);
++	}
+ }
+ #define arch_atomic_set_release arch_atomic_set_release
+ #endif
+@@ -1258,7 +1272,16 @@ arch_atomic_dec_if_positive(atomic_t *v)
+ static __always_inline s64
+ arch_atomic64_read_acquire(const atomic64_t *v)
+ {
+-	return smp_load_acquire(&(v)->counter);
++	s64 ret;
++
++	if (__native_word(atomic64_t)) {
++		ret = smp_load_acquire(&(v)->counter);
++	} else {
++		ret = arch_atomic64_read(v);
++		__atomic_acquire_fence();
++	}
++
++	return ret;
+ }
+ #define arch_atomic64_read_acquire arch_atomic64_read_acquire
+ #endif
+@@ -1267,7 +1290,12 @@ arch_atomic64_read_acquire(const atomic64_t *v)
+ static __always_inline void
+ arch_atomic64_set_release(atomic64_t *v, s64 i)
+ {
+-	smp_store_release(&(v)->counter, i);
++	if (__native_word(atomic64_t)) {
++		smp_store_release(&(v)->counter, i);
++	} else {
++		__atomic_release_fence();
++		arch_atomic64_set(v, i);
++	}
+ }
+ #define arch_atomic64_set_release arch_atomic64_set_release
+ #endif
+@@ -2358,4 +2386,4 @@ arch_atomic64_dec_if_positive(atomic64_t *v)
+ #endif
  
- ALC66x/67x/892
- ==============
-diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
-index 6ff41d9b5bc9..16e90524a497 100644
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -6948,6 +6948,7 @@ enum {
- 	ALC236_FIXUP_HP_MUTE_LED,
- 	ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF,
- 	ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET,
-+	ALC256_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET,
- 	ALC295_FIXUP_ASUS_MIC_NO_PRESENCE,
- 	ALC269VC_FIXUP_ACER_VCOPPERBOX_PINS,
- 	ALC269VC_FIXUP_ACER_HEADSET_MIC,
-@@ -8273,6 +8274,14 @@ static const struct hda_fixup alc269_fixups[] = {
- 			{ }
- 		},
- 	},
-+	[ALC256_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET] = {
-+		.type = HDA_FIXUP_VERBS,
-+		.v.verbs = (const struct hda_verb[]) {
-+			{ 0x20, AC_VERB_SET_COEF_INDEX, 0x08},
-+			{ 0x20, AC_VERB_SET_PROC_COEF, 0x2fcf},
-+			{ }
-+		},
-+	},
- 	[ALC295_FIXUP_ASUS_MIC_NO_PRESENCE] = {
- 		.type = HDA_FIXUP_PINS,
- 		.v.pins = (const struct hda_pintbl[]) {
-@@ -9054,6 +9063,7 @@ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
- 	SND_PCI_QUIRK(0x144d, 0xc740, "Samsung Ativ book 8 (NP870Z5G)", ALC269_FIXUP_ATIV_BOOK_8),
- 	SND_PCI_QUIRK(0x144d, 0xc812, "Samsung Notebook Pen S (NT950SBE-X58)", ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
- 	SND_PCI_QUIRK(0x144d, 0xc830, "Samsung Galaxy Book Ion (NT950XCJ-X716A)", ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
-+	SND_PCI_QUIRK(0x144d, 0xc832, "Samsung Galaxy Book Flex Alpha (NP730QCJ)", ALC256_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
- 	SND_PCI_QUIRK(0x1458, 0xfa53, "Gigabyte BXBT-2807", ALC283_FIXUP_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x1462, 0xb120, "MSI Cubi MS-B120", ALC283_FIXUP_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x1462, 0xb171, "Cubi N 8GL (MS-B171)", ALC283_FIXUP_HEADSET_MIC),
-@@ -9400,6 +9410,7 @@ static const struct hda_model_fixup alc269_fixup_models[] = {
- 	{.id = ALC298_FIXUP_HUAWEI_MBX_STEREO, .name = "huawei-mbx-stereo"},
- 	{.id = ALC256_FIXUP_MEDION_HEADSET_NO_PRESENCE, .name = "alc256-medion-headset"},
- 	{.id = ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET, .name = "alc298-samsung-headphone"},
-+	{.id = ALC256_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET, .name = "alc256-samsung-headphone"},
- 	{.id = ALC255_FIXUP_XIAOMI_HEADSET_MIC, .name = "alc255-xiaomi-headset"},
- 	{.id = ALC274_FIXUP_HP_MIC, .name = "alc274-hp-mic-detect"},
- 	{.id = ALC245_FIXUP_HP_X360_AMP, .name = "alc245-hp-x360-amp"},
+ #endif /* _LINUX_ATOMIC_FALLBACK_H */
+-// cca554917d7ea73d5e3e7397dd70c484cad9b2c4
++// 8e2cc06bc0d2c0967d2f8424762bd48555ee40ae
+diff --git a/scripts/atomic/fallbacks/read_acquire b/scripts/atomic/fallbacks/read_acquire
+index 803ba7561076..a0ea1d26e6b2 100755
+--- a/scripts/atomic/fallbacks/read_acquire
++++ b/scripts/atomic/fallbacks/read_acquire
+@@ -2,6 +2,15 @@ cat <<EOF
+ static __always_inline ${ret}
+ arch_${atomic}_read_acquire(const ${atomic}_t *v)
+ {
+-	return smp_load_acquire(&(v)->counter);
++	${int} ret;
++
++	if (__native_word(${atomic}_t)) {
++		ret = smp_load_acquire(&(v)->counter);
++	} else {
++		ret = arch_${atomic}_read(v);
++		__atomic_acquire_fence();
++	}
++
++	return ret;
+ }
+ EOF
+diff --git a/scripts/atomic/fallbacks/set_release b/scripts/atomic/fallbacks/set_release
+index 86ede759f24e..05cdb7f42477 100755
+--- a/scripts/atomic/fallbacks/set_release
++++ b/scripts/atomic/fallbacks/set_release
+@@ -2,6 +2,11 @@ cat <<EOF
+ static __always_inline void
+ arch_${atomic}_set_release(${atomic}_t *v, ${int} i)
+ {
+-	smp_store_release(&(v)->counter, i);
++	if (__native_word(${atomic}_t)) {
++		smp_store_release(&(v)->counter, i);
++	} else {
++		__atomic_release_fence();
++		arch_${atomic}_set(v, i);
++	}
+ }
+ EOF
 -- 
 2.34.1
 
