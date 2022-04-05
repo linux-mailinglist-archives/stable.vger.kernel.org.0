@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 53D874F2F26
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:06:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 911F44F33BB
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:21:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238216AbiDEJEs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:04:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46834 "EHLO
+        id S230083AbiDEKaT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:30:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46096 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243821AbiDEIvH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:51:07 -0400
+        with ESMTP id S238296AbiDEJcT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:32:19 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A325CC8BFA;
-        Tue,  5 Apr 2022 01:39:29 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46EE92F6;
+        Tue,  5 Apr 2022 02:19:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 12204B81C15;
-        Tue,  5 Apr 2022 08:39:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F33DC385A1;
-        Tue,  5 Apr 2022 08:38:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0A0E9B81B14;
+        Tue,  5 Apr 2022 09:19:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69995C385A0;
+        Tue,  5 Apr 2022 09:19:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147938;
-        bh=G6i5haVbj2OduWENChWdZ9mhaLevM6O81fzdyfMMJVU=;
+        s=korg; t=1649150356;
+        bh=DpptYNvzmaQips2U1GttCoBegXwuOEZ0c9LRe8FGdjQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S7I+qgbtsojzs2lBkQj/UikNzMlc0VMK1xaJvqvFgXQOrma8+Ww98fGGx6VLSmV6D
-         baZ0lcWdml2+a6VYSk7jFGom8uWC/XYkHuQ1SZCRM880RS1umYstD7CqA/yymHzcLc
-         gTWEl6xPaUuJA5LTFM4WzPvpSpr+XNInRRD+BpAY=
+        b=B94tKboAlKFLT5NCWJSCqe6kFOj1RX3VSiyEZn4Hkc926WHsn8PsewLC3O/Wc7xah
+         l4PVzuzaCjpBj5g7fz7A1xGmLEv7LmcqtqysRcRXD3PzoFQLIlMFV8yyyZSU8wn0RJ
+         jkBuWM0f/bXX57ACPtvGSDTnIjyEj6ULcTgRgQbY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Stanimir Varbanov <stanimir.varbanov@linaro.org>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>
-Subject: [PATCH 5.16 0176/1017] media: venus: venc: Fix h264 8x8 transform control
-Date:   Tue,  5 Apr 2022 09:18:09 +0200
-Message-Id: <20220405070359.455799626@linuxfoundation.org>
+        stable@vger.kernel.org, Yunfei Wang <yf.wang@mediatek.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Miles Chen <miles.chen@mediatek.com>,
+        Joerg Roedel <jroedel@suse.de>
+Subject: [PATCH 5.15 028/913] iommu/iova: Improve 32-bit free space estimate
+Date:   Tue,  5 Apr 2022 09:18:10 +0200
+Message-Id: <20220405070340.659782345@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,66 +55,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stanimir Varbanov <stanimir.varbanov@linaro.org>
+From: Robin Murphy <robin.murphy@arm.com>
 
-commit 61b3317dd424a3488b6754d7ff8301944d9d17d7 upstream.
+commit 5b61343b50590fb04a3f6be2cdc4868091757262 upstream.
 
-During encoder driver open controls are initialized via a call
-to v4l2_ctrl_handler_setup which returns EINVAL error for
-V4L2_CID_MPEG_VIDEO_H264_8X8_TRANSFORM v4l2 control. The control
-default value is disabled and because of firmware limitations
-8x8 transform cannot be disabled for the supported HIGH and
-CONSTRAINED_HIGH profiles.
+For various reasons based on the allocator behaviour and typical
+use-cases at the time, when the max32_alloc_size optimisation was
+introduced it seemed reasonable to couple the reset of the tracked
+size to the update of cached32_node upon freeing a relevant IOVA.
+However, since subsequent optimisations focused on helping genuine
+32-bit devices make best use of even more limited address spaces, it
+is now a lot more likely for cached32_node to be anywhere in a "full"
+32-bit address space, and as such more likely for space to become
+available from IOVAs below that node being freed.
 
-To fix the issue change the control default value to enabled
-(this is fine because the firmware enables 8x8 transform for
-high and constrained_high profiles by default). Also, correct
-the checking of profile ids in s_ctrl from hfi to v4l2 ids.
+At this point, the short-cut in __cached_rbnode_delete_update() really
+doesn't hold up any more, and we need to fix the logic to reliably
+provide the expected behaviour. We still want cached32_node to only move
+upwards, but we should reset the allocation size if *any* 32-bit space
+has become available.
 
-cc: stable@vger.kernel.org # 5.15+
-Fixes: bfee75f73c37 ("media: venus: venc: add support for V4L2_CID_MPEG_VIDEO_H264_8X8_TRANSFORM control")
-Signed-off-by: Stanimir Varbanov <stanimir.varbanov@linaro.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Reported-by: Yunfei Wang <yf.wang@mediatek.com>
+Signed-off-by: Robin Murphy <robin.murphy@arm.com>
+Reviewed-by: Miles Chen <miles.chen@mediatek.com>
+Link: https://lore.kernel.org/r/033815732d83ca73b13c11485ac39336f15c3b40.1646318408.git.robin.murphy@arm.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Cc: Miles Chen <miles.chen@mediatek.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/platform/qcom/venus/venc.c       |    4 ++--
- drivers/media/platform/qcom/venus/venc_ctrls.c |    6 +++---
- 2 files changed, 5 insertions(+), 5 deletions(-)
+ drivers/iommu/iova.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/media/platform/qcom/venus/venc.c
-+++ b/drivers/media/platform/qcom/venus/venc.c
-@@ -662,8 +662,8 @@ static int venc_set_properties(struct ve
+--- a/drivers/iommu/iova.c
++++ b/drivers/iommu/iova.c
+@@ -154,10 +154,11 @@ __cached_rbnode_delete_update(struct iov
+ 	cached_iova = to_iova(iovad->cached32_node);
+ 	if (free == cached_iova ||
+ 	    (free->pfn_hi < iovad->dma_32bit_pfn &&
+-	     free->pfn_lo >= cached_iova->pfn_lo)) {
++	     free->pfn_lo >= cached_iova->pfn_lo))
+ 		iovad->cached32_node = rb_next(&free->node);
++
++	if (free->pfn_lo < iovad->dma_32bit_pfn)
+ 		iovad->max32_alloc_size = iovad->dma_32bit_pfn;
+-	}
  
- 		ptype = HFI_PROPERTY_PARAM_VENC_H264_TRANSFORM_8X8;
- 		h264_transform.enable_type = 0;
--		if (ctr->profile.h264 == HFI_H264_PROFILE_HIGH ||
--		    ctr->profile.h264 == HFI_H264_PROFILE_CONSTRAINED_HIGH)
-+		if (ctr->profile.h264 == V4L2_MPEG_VIDEO_H264_PROFILE_HIGH ||
-+		    ctr->profile.h264 == V4L2_MPEG_VIDEO_H264_PROFILE_CONSTRAINED_HIGH)
- 			h264_transform.enable_type = ctr->h264_8x8_transform;
- 
- 		ret = hfi_session_set_property(inst, ptype, &h264_transform);
---- a/drivers/media/platform/qcom/venus/venc_ctrls.c
-+++ b/drivers/media/platform/qcom/venus/venc_ctrls.c
-@@ -320,8 +320,8 @@ static int venc_op_s_ctrl(struct v4l2_ct
- 		ctr->intra_refresh_period = ctrl->val;
- 		break;
- 	case V4L2_CID_MPEG_VIDEO_H264_8X8_TRANSFORM:
--		if (ctr->profile.h264 != HFI_H264_PROFILE_HIGH &&
--		    ctr->profile.h264 != HFI_H264_PROFILE_CONSTRAINED_HIGH)
-+		if (ctr->profile.h264 != V4L2_MPEG_VIDEO_H264_PROFILE_HIGH &&
-+		    ctr->profile.h264 != V4L2_MPEG_VIDEO_H264_PROFILE_CONSTRAINED_HIGH)
- 			return -EINVAL;
- 
- 		/*
-@@ -457,7 +457,7 @@ int venc_ctrl_init(struct venus_inst *in
- 			  V4L2_CID_MPEG_VIDEO_H264_I_FRAME_MIN_QP, 1, 51, 1, 1);
- 
- 	v4l2_ctrl_new_std(&inst->ctrl_handler, &venc_ctrl_ops,
--			  V4L2_CID_MPEG_VIDEO_H264_8X8_TRANSFORM, 0, 1, 1, 0);
-+			  V4L2_CID_MPEG_VIDEO_H264_8X8_TRANSFORM, 0, 1, 1, 1);
- 
- 	v4l2_ctrl_new_std(&inst->ctrl_handler, &venc_ctrl_ops,
- 			  V4L2_CID_MPEG_VIDEO_H264_P_FRAME_MIN_QP, 1, 51, 1, 1);
+ 	cached_iova = to_iova(iovad->cached_node);
+ 	if (free->pfn_lo >= cached_iova->pfn_lo)
 
 
