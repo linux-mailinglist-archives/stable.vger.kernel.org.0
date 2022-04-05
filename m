@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6292C4F280A
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:19:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE4594F27BF
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:08:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232157AbiDEIKG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:10:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44084 "EHLO
+        id S233815AbiDEIIx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:08:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235679AbiDEIAA (ORCPT
+        with ESMTP id S235677AbiDEIAA (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:00:00 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D37B193E8;
-        Tue,  5 Apr 2022 00:57:41 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C072193F1;
+        Tue,  5 Apr 2022 00:57:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1A22B615CD;
-        Tue,  5 Apr 2022 07:57:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F88BC340EE;
-        Tue,  5 Apr 2022 07:57:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BCD6C61668;
+        Tue,  5 Apr 2022 07:57:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2148C340EE;
+        Tue,  5 Apr 2022 07:57:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145460;
-        bh=9xEAKMpxGzf2culwYA+lPprUuDTBQpTKmsGMIu0d/v0=;
+        s=korg; t=1649145463;
+        bh=iRMLrCcmHK2o0zFZt5G8QCNBCZd5OLcLajl8zPkZ1nU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZUT/0MhVEsF1LSkoVR3YUQ2U2vbEXzGMefbLgvlY5W8LoEQp3PzviqkHFNxI2gzTc
-         tMioP31PSvMay5FPtfX0R+WMOvm7By8Ujw0PSAj/3IoUarkZEe2nkPQJDiQtFWW1Um
-         nBO9lO8aeFceZzaIR5In4haR0UhACy2dowcQVKxI=
+        b=K+Q0eFR5CHjpBlThgkVMPqN1HKVYZf6XV3mtgRjnQ3drT4sET1q+YWm7PqqqzxmSF
+         SUIzb+qI3778vIWRfJ8or+lT3uGdMaS1DMMXKynXGd3KZORjToaB4WtVwduu8xF2AW
+         saFFwJRjuWhmyiicykWoKU45k/3k7QJU7i64PO4s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        stable@vger.kernel.org,
+        Daniel Bristot de Oliveira <bristot@kernel.org>,
+        Clark Williams <williams@redhat.com>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0412/1126] mmc: davinci_mmc: Handle error for clk_enable
-Date:   Tue,  5 Apr 2022 09:19:19 +0200
-Message-Id: <20220405070419.719535298@linuxfoundation.org>
+Subject: [PATCH 5.17 0413/1126] rtla/osnoise: Fix osnoise hist stop tracing message
+Date:   Tue,  5 Apr 2022 09:19:20 +0200
+Message-Id: <20220405070419.748490721@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -54,41 +58,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Daniel Bristot de Oliveira <bristot@kernel.org>
 
-[ Upstream commit 09e7af76db02c74f2a339b3cb2d95460fa2ddbe4 ]
+[ Upstream commit 7d38c35167c58153e8b5bea839616d00e90564b9 ]
 
-As the potential failure of the clk_enable(),
-it should be better to check it and return error
-if fails.
+rtla osnoise hist is printing the following message when hitting stop
+tracing:
 
-Fixes: bbce5802afc5 ("davinci: mmc: updates to suspend/resume implementation")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Link: https://lore.kernel.org/r/20220308071415.1093393-1-jiasheng@iscas.ac.cn
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+  printf("rtla timelat hit stop tracing\n");
+
+which is obviosly wrong.
+
+s/timerlat/osnoise/ fixing the printf.
+
+Link: https://lkml.kernel.org/r/2b8f090556fe37b81d183b74ce271421f131c77b.1646247211.git.bristot@kernel.org
+
+Fixes: 829a6c0b5698 ("rtla/osnoise: Add the hist mode")
+Cc: Daniel Bristot de Oliveira <bristot@kernel.org>
+Cc: Clark Williams <williams@redhat.com>
+Cc: Juri Lelli <juri.lelli@redhat.com>
+Cc: Jonathan Corbet <corbet@lwn.net>
+Signed-off-by: Daniel Bristot de Oliveira <bristot@kernel.org>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/davinci_mmc.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ tools/tracing/rtla/src/osnoise_hist.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mmc/host/davinci_mmc.c b/drivers/mmc/host/davinci_mmc.c
-index 2a757c88f9d2..80de660027d8 100644
---- a/drivers/mmc/host/davinci_mmc.c
-+++ b/drivers/mmc/host/davinci_mmc.c
-@@ -1375,8 +1375,12 @@ static int davinci_mmcsd_suspend(struct device *dev)
- static int davinci_mmcsd_resume(struct device *dev)
- {
- 	struct mmc_davinci_host *host = dev_get_drvdata(dev);
-+	int ret;
-+
-+	ret = clk_enable(host->clk);
-+	if (ret)
-+		return ret;
+diff --git a/tools/tracing/rtla/src/osnoise_hist.c b/tools/tracing/rtla/src/osnoise_hist.c
+index 52c053cc1789..e88f5c870141 100644
+--- a/tools/tracing/rtla/src/osnoise_hist.c
++++ b/tools/tracing/rtla/src/osnoise_hist.c
+@@ -782,7 +782,7 @@ int osnoise_hist_main(int argc, char *argv[])
+ 	return_value = 0;
  
--	clk_enable(host->clk);
- 	mmc_davinci_reset_ctrl(host, 0);
- 
- 	return 0;
+ 	if (!tracefs_trace_is_on(trace->inst)) {
+-		printf("rtla timelat hit stop tracing\n");
++		printf("rtla osnoise hit stop tracing\n");
+ 		if (params->trace_output) {
+ 			printf("  Saving trace to %s\n", params->trace_output);
+ 			save_trace_to_file(record->trace.inst, params->trace_output);
 -- 
 2.34.1
 
