@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 01CBC4F2DF8
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:48:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 841CC4F2D40
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:36:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235794AbiDEJCl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:02:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59556 "EHLO
+        id S1354156AbiDEKMJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:12:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34474 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238677AbiDEIar (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:30:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 832813298E;
-        Tue,  5 Apr 2022 01:22:37 -0700 (PDT)
+        with ESMTP id S1344351AbiDEJTe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:19:34 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 956AA2A1;
+        Tue,  5 Apr 2022 02:07:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 32B4BB81B92;
-        Tue,  5 Apr 2022 08:22:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CAD8C385A0;
-        Tue,  5 Apr 2022 08:22:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E9466614E4;
+        Tue,  5 Apr 2022 09:07:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 029A9C385A1;
+        Tue,  5 Apr 2022 09:07:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146954;
-        bh=BS9+xBaILP2NTve/YGTy5aoxWamiPKm3xneZ2z7LGuc=;
+        s=korg; t=1649149663;
+        bh=aHqT1HFZ5CvSbqfy/C/L/NOwod6STlMUwvXPGsSKQro=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Iqr6Wy0xeQpbO836nrDAtRh7Poh0PoIgD2Aed1UBtAGui+6cpcxieD5k232JqacGJ
-         wnYHjPq2IMnlWIzHvX66NcgIvwGM1NR8LJVnlsbYYd5mxxSaxW3/b+cloelmODUeAb
-         9evwFFS7BmTiYb04rSCAUr43xJS3dKUM5IW3n+2w=
+        b=2gTgpYkSEGPPLWsbv8mYgCYWIKpy1on72Zaavmc9yslEegKPvzwODsO//xZQDOwyj
+         T3iSPy6dfQbvpiW3esawNarHAb6iu2UzFcEknO00Ccy+mz0XiDVjLdj+AsASMdLIeA
+         xJq8Z2JuRWOClJNxYZDjfeXt7tseXiJMBTW5GUc8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Daniel=20Gonz=C3=A1lez=20Cabanelas?= <dgcbueu@gmail.com>,
+        stable@vger.kernel.org, Zhouyi Zhou <zhouzhouyi@gmail.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Frederic Weisbecker <frederic@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0922/1126] media: cx88-mpeg: clear interrupt status register before streaming video
-Date:   Tue,  5 Apr 2022 09:27:49 +0200
-Message-Id: <20220405070434.582365145@linuxfoundation.org>
+Subject: [PATCH 5.16 0757/1017] rcu: Mark writes to the rcu_segcblist structures ->flags field
+Date:   Tue,  5 Apr 2022 09:27:50 +0200
+Message-Id: <20220405070416.729358398@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +55,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel González Cabanelas <dgcbueu@gmail.com>
+From: Paul E. McKenney <paulmck@kernel.org>
 
-[ Upstream commit 56cb61f70e547e1b0cdfe6ff5a1f1ce6242e6d96 ]
+[ Upstream commit c09929031018913b5783872a8b8cdddef4a543c7 ]
 
-Some cx88 video cards may have transport stream status interrupts set
-to 1 from cold start, causing errors like this:
+KCSAN reports data races between the rcu_segcblist_clear_flags() and
+rcu_segcblist_set_flags() functions, though misreporting the latter
+as a call to rcu_segcblist_is_enabled() from call_rcu().  This commit
+converts the updates of this field to WRITE_ONCE(), relying on the
+resulting unmarked reads to continue to detect buggy concurrent writes
+to this field.
 
-  cx88xx: cx88_print_irqbits: core:irq mpeg  [0x100000] ts_err?*
-  cx8802: cx8802_mpeg_irq: mpeg:general errors: 0x00100000
-
-According to CX2388x datasheet, the interrupt status register should be
-cleared before enabling IRQs to stream video.
-
-Fix it by clearing the Transport Stream Interrupt Status register.
-
-Signed-off-by: Daniel González Cabanelas <dgcbueu@gmail.com>
+Reported-by: Zhouyi Zhou <zhouzhouyi@gmail.com>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Cc: Frederic Weisbecker <frederic@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/pci/cx88/cx88-mpeg.c | 3 +++
- 1 file changed, 3 insertions(+)
+ kernel/rcu/rcu_segcblist.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/pci/cx88/cx88-mpeg.c b/drivers/media/pci/cx88/cx88-mpeg.c
-index 680e1e3fe89b..2c1d5137ac47 100644
---- a/drivers/media/pci/cx88/cx88-mpeg.c
-+++ b/drivers/media/pci/cx88/cx88-mpeg.c
-@@ -162,6 +162,9 @@ int cx8802_start_dma(struct cx8802_dev    *dev,
- 	cx_write(MO_TS_GPCNTRL, GP_COUNT_CONTROL_RESET);
- 	q->count = 0;
+diff --git a/kernel/rcu/rcu_segcblist.h b/kernel/rcu/rcu_segcblist.h
+index 9a19328ff251..5d405943823e 100644
+--- a/kernel/rcu/rcu_segcblist.h
++++ b/kernel/rcu/rcu_segcblist.h
+@@ -56,13 +56,13 @@ static inline long rcu_segcblist_n_cbs(struct rcu_segcblist *rsclp)
+ static inline void rcu_segcblist_set_flags(struct rcu_segcblist *rsclp,
+ 					   int flags)
+ {
+-	rsclp->flags |= flags;
++	WRITE_ONCE(rsclp->flags, rsclp->flags | flags);
+ }
  
-+	/* clear interrupt status register */
-+	cx_write(MO_TS_INTSTAT,  0x1f1111);
-+
- 	/* enable irqs */
- 	dprintk(1, "setting the interrupt mask\n");
- 	cx_set(MO_PCI_INTMSK, core->pci_irqmask | PCI_INT_TSINT);
+ static inline void rcu_segcblist_clear_flags(struct rcu_segcblist *rsclp,
+ 					     int flags)
+ {
+-	rsclp->flags &= ~flags;
++	WRITE_ONCE(rsclp->flags, rsclp->flags & ~flags);
+ }
+ 
+ static inline bool rcu_segcblist_test_flags(struct rcu_segcblist *rsclp,
 -- 
 2.34.1
 
