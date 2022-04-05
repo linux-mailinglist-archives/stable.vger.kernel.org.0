@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 912424F2D2E
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:36:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E15C4F2BD7
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:21:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350289AbiDEJ5I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:57:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60606 "EHLO
+        id S1350328AbiDEJ5V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:57:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60612 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242542AbiDEJQR (ORCPT
+        with ESMTP id S239586AbiDEJQR (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:16:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C081D3AD1;
-        Tue,  5 Apr 2022 02:01:57 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43F09D444E;
+        Tue,  5 Apr 2022 02:02:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 385BC61562;
-        Tue,  5 Apr 2022 09:01:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CB0AC385A3;
-        Tue,  5 Apr 2022 09:01:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D017F61573;
+        Tue,  5 Apr 2022 09:02:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E298AC385A1;
+        Tue,  5 Apr 2022 09:02:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149316;
-        bh=Uqapr5P17Sv4fI+1b5OJTs44048ts5T1CAzqAFqOcrs=;
+        s=korg; t=1649149322;
+        bh=xtIMnYy/oN7Xfj9rTXRq6O2uWaiAM06WmjSw/S5HbOU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E3Fux2HqfNTi39CbYItzUSBjg40lrUTKEHn+AD6X3OYRMVo2kTF602uF85iyomPXH
-         2CIwf8xXNIr43zvNkmMH8qiCkAo8/SexSlKJDy4epHAbYTl+DfJGaDCehbiWioZFyq
-         Fl7Q+N5/wghT+6qL2vk44aiN+jzunGFhTi/cRD/g=
+        b=B4orbou8AWStV1MWdmeCyfDwsGTslHduHpEVzS/C/RVfcZbKp2yfOoqQhN+i5c+3Y
+         RyJhrnOTgb+BxQ2sdnKQds2NpGzHrSk4A6xDdZedX8YsC823Cf/AgRGyWPnY8Irr9h
+         bKU5Ec47S6BNSWCiOV+DiKfOLyV8fhVFRcdRKdfU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Lee Jones <lee.jones@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0634/1017] net: dsa: fix panic on shutdown if multi-chip tree failed to probe
-Date:   Tue,  5 Apr 2022 09:25:47 +0200
-Message-Id: <20220405070413.103148911@linuxfoundation.org>
+Subject: [PATCH 5.16 0636/1017] mfd: asic3: Add missing iounmap() on error asic3_mfd_probe
+Date:   Tue,  5 Apr 2022 09:25:49 +0200
+Message-Id: <20220405070413.162413585@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -54,62 +54,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 8fd36358ce82382519b50b05f437493e1e00c4a9 ]
+[ Upstream commit e84ee1a75f944a0fe3c277aaa10c426603d2b0bc ]
 
-DSA probing is atypical because a tree of devices must probe all at
-once, so out of N switches which call dsa_tree_setup_routing_table()
-during probe, for (N - 1) of them, "complete" will return false and they
-will exit probing early. The Nth switch will set up the whole tree on
-their behalf.
+Add the missing iounmap() before return from asic3_mfd_probe
+in the error handling case.
 
-The implication is that for (N - 1) switches, the driver binds to the
-device successfully, without doing anything. When the driver is bound,
-the ->shutdown() method may run. But if the Nth switch has failed to
-initialize the tree, there is nothing to do for the (N - 1) driver
-instances, since the slave devices have not been created, etc. Moreover,
-dsa_switch_shutdown() expects that the calling @ds has been in fact
-initialized, so it jumps at dereferencing the various data structures,
-which is incorrect.
-
-Avoid the ensuing NULL pointer dereferences by simply checking whether
-the Nth switch has previously set "ds->setup = true" for the switch
-which is currently shutting down. The entire setup is serialized under
-dsa2_mutex which we already hold.
-
-Fixes: 0650bf52b31f ("net: dsa: be compatible with masters which unregister on shutdown")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Link: https://lore.kernel.org/r/20220318195443.275026-1-vladimir.oltean@nxp.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 64e8867ba809 ("mfd: tmio_mmc hardware abstraction for CNF area")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Link: https://lore.kernel.org/r/20220307072947.5369-1-linmq006@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/dsa/dsa2.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/mfd/asic3.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/net/dsa/dsa2.c b/net/dsa/dsa2.c
-index e64ef196a984..ff29a5a3e4c1 100644
---- a/net/dsa/dsa2.c
-+++ b/net/dsa/dsa2.c
-@@ -1613,6 +1613,10 @@ void dsa_switch_shutdown(struct dsa_switch *ds)
- 	struct dsa_port *dp;
+diff --git a/drivers/mfd/asic3.c b/drivers/mfd/asic3.c
+index 8d58c8df46cf..56338f9dbd0b 100644
+--- a/drivers/mfd/asic3.c
++++ b/drivers/mfd/asic3.c
+@@ -906,14 +906,14 @@ static int __init asic3_mfd_probe(struct platform_device *pdev,
+ 		ret = mfd_add_devices(&pdev->dev, pdev->id,
+ 			&asic3_cell_ds1wm, 1, mem, asic->irq_base, NULL);
+ 		if (ret < 0)
+-			goto out;
++			goto out_unmap;
+ 	}
  
- 	mutex_lock(&dsa2_mutex);
-+
-+	if (!ds->setup)
-+		goto out;
-+
- 	rtnl_lock();
+ 	if (mem_sdio && (irq >= 0)) {
+ 		ret = mfd_add_devices(&pdev->dev, pdev->id,
+ 			&asic3_cell_mmc, 1, mem_sdio, irq, NULL);
+ 		if (ret < 0)
+-			goto out;
++			goto out_unmap;
+ 	}
  
- 	dsa_switch_for_each_user_port(dp, ds) {
-@@ -1629,6 +1633,7 @@ void dsa_switch_shutdown(struct dsa_switch *ds)
- 		dp->master->dsa_ptr = NULL;
+ 	ret = 0;
+@@ -927,8 +927,12 @@ static int __init asic3_mfd_probe(struct platform_device *pdev,
+ 		ret = mfd_add_devices(&pdev->dev, 0,
+ 			asic3_cell_leds, ASIC3_NUM_LEDS, NULL, 0, NULL);
+ 	}
++	return ret;
  
- 	rtnl_unlock();
+- out:
++out_unmap:
++	if (asic->tmio_cnf)
++		iounmap(asic->tmio_cnf);
 +out:
- 	mutex_unlock(&dsa2_mutex);
+ 	return ret;
  }
- EXPORT_SYMBOL_GPL(dsa_switch_shutdown);
+ 
 -- 
 2.34.1
 
