@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DC8B84F337A
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:16:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 05E624F301A
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:26:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241727AbiDEJPO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:15:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52206 "EHLO
+        id S1349384AbiDEKun (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:50:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54984 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244942AbiDEIwt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:49 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B03124BC1;
-        Tue,  5 Apr 2022 01:47:18 -0700 (PDT)
+        with ESMTP id S1345112AbiDEJnB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:43:01 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8949D6550;
+        Tue,  5 Apr 2022 02:28:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 0AEF5CE1C6C;
-        Tue,  5 Apr 2022 08:47:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 118F8C385A0;
-        Tue,  5 Apr 2022 08:47:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1209AB81CB8;
+        Tue,  5 Apr 2022 09:28:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73139C385A6;
+        Tue,  5 Apr 2022 09:28:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148435;
-        bh=w7dKSlwXBA/ixEwcf1zFa8OnnuZoUm3ObPb+9ezhVoU=;
+        s=korg; t=1649150910;
+        bh=dXBza7TD+YoPMa9zfIkCunjP9xDZ6gtzlNfgpEIYRcc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QUW6cSOdzBVklP27cuSHx1yOov6gfarmEBTrYhlouNzryStjxefCmcZ6v8UO7JwVv
-         N75mIxvDDt0rLOmG8+O9y73I+QjRrs40S2SCesZmO55KT/exMyOXIx5JkguiIT2L0f
-         +iNn+oiJws+FjSSsjj5VX+tfkRetWmNozP6yfbFg=
+        b=0bx28xq61BwuO9utTe+wFfhcBidoDaHRl7MpT3Dix7VFZ5m83exAclrEToQkxcfgG
+         o3ECGZl7gPPnyAV8ZF9QnHQflrGc8GtMNERtGIkOj/87ZcPFZ+23CtwCPpE1LJUaDa
+         wI5WtlHr3l2oAYT/t2Vs2AtUj/CHp/wVLTw5AK44=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Frank Wunderlich <frank-w@public-files.de>,
-        Florian Fainelli <f.fainelli@gmail.com>,
+        stable@vger.kernel.org, Corentin Labbe <clabbe@baylibre.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0357/1017] arm64: dts: broadcom: Fix sata nodename
+Subject: [PATCH 5.15 208/913] crypto: rockchip - ECB does not need IV
 Date:   Tue,  5 Apr 2022 09:21:10 +0200
-Message-Id: <20220405070404.882684996@linuxfoundation.org>
+Message-Id: <20220405070346.093524500@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frank Wunderlich <frank-w@public-files.de>
+From: Corentin Labbe <clabbe@baylibre.com>
 
-[ Upstream commit 55927cb44db43a57699fa652e2437a91620385dc ]
+[ Upstream commit 973d74e93820d99d8ea203882631c76edab699c9 ]
 
-After converting ahci-platform txt binding to yaml nodename is reported
-as not matching the standard:
+When loading rockchip crypto module, testmgr complains that ivsize of ecb-des3-ede-rk
+is not the same than generic implementation.
+In fact ECB does not use an IV.
 
-arch/arm64/boot/dts/broadcom/northstar2/ns2-svk.dt.yaml:
-ahci@663f2000: $nodename:0: 'ahci@663f2000' does not match '^sata(@.*)?$'
-
-Fix it to match binding.
-
-Fixes: ac9aae00f0fc ("arm64: dts: Add SATA3 AHCI and SATA3 PHY DT nodes for NS2")
-Signed-off-by: Frank Wunderlich <frank-w@public-files.de>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Fixes: ce0183cb6464b ("crypto: rockchip - switch to skcipher API")
+Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/broadcom/northstar2/ns2.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/crypto/rockchip/rk3288_crypto_skcipher.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/broadcom/northstar2/ns2.dtsi b/arch/arm64/boot/dts/broadcom/northstar2/ns2.dtsi
-index 2cfeaf3b0a87..8c218689fef7 100644
---- a/arch/arm64/boot/dts/broadcom/northstar2/ns2.dtsi
-+++ b/arch/arm64/boot/dts/broadcom/northstar2/ns2.dtsi
-@@ -687,7 +687,7 @@
- 			};
- 		};
- 
--		sata: ahci@663f2000 {
-+		sata: sata@663f2000 {
- 			compatible = "brcm,iproc-ahci", "generic-ahci";
- 			reg = <0x663f2000 0x1000>;
- 			dma-coherent;
+diff --git a/drivers/crypto/rockchip/rk3288_crypto_skcipher.c b/drivers/crypto/rockchip/rk3288_crypto_skcipher.c
+index 1cece1a7d3f0..5bbf0d2722e1 100644
+--- a/drivers/crypto/rockchip/rk3288_crypto_skcipher.c
++++ b/drivers/crypto/rockchip/rk3288_crypto_skcipher.c
+@@ -506,7 +506,6 @@ struct rk_crypto_tmp rk_ecb_des3_ede_alg = {
+ 		.exit			= rk_ablk_exit_tfm,
+ 		.min_keysize		= DES3_EDE_KEY_SIZE,
+ 		.max_keysize		= DES3_EDE_KEY_SIZE,
+-		.ivsize			= DES_BLOCK_SIZE,
+ 		.setkey			= rk_tdes_setkey,
+ 		.encrypt		= rk_des3_ede_ecb_encrypt,
+ 		.decrypt		= rk_des3_ede_ecb_decrypt,
 -- 
 2.34.1
 
