@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BB6F4F349C
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:38:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B1834F336A
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:16:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237272AbiDEJEI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:04:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42516 "EHLO
+        id S237254AbiDEJEF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:04:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38110 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242454AbiDEIsp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:48:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CBA44090C;
-        Tue,  5 Apr 2022 01:37:12 -0700 (PDT)
+        with ESMTP id S242460AbiDEIsq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:48:46 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E321C47AC9;
+        Tue,  5 Apr 2022 01:37:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A2E9C61517;
-        Tue,  5 Apr 2022 08:37:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9DD2C385A0;
-        Tue,  5 Apr 2022 08:37:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 75FE7614E5;
+        Tue,  5 Apr 2022 08:37:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85DF1C385A0;
+        Tue,  5 Apr 2022 08:37:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147828;
-        bh=V+55jqt3IyHFsKthzO2N2W+UTW06gaSYVGI+xjHVEU4=;
+        s=korg; t=1649147830;
+        bh=r4l+owIcrNQ3efGn/1bGA3KGQMB6wEfh4CiEt6UHA3Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qg8ciYpzG5ela0lx6/SmrSifhiNdoZ19mW/7UDPS1kqdCnWpwtChphWnNxUA7533r
-         6kUR8ySKzWqXT5xTeXVvd7VcQxmnHUJReswfdwmnbvKsLYpVVyTxEhXUXvWHxKIjNx
-         7LRRO82FWTBtAYwNrfS8uBdjYn4JDER3QBtxk4wM=
+        b=cg3yWkgPg7np8Odtz6SLHCG0sktf+qMKgAHtGMwQZa77PTt4d0mGkDnaNoZUR+BRW
+         Pb+aQA9bDUAcCuqR08D6SHi6PW5z6Olr/TlvAQ/TFvLO7u2/mJkET5cUEorboSDrXb
+         1TQL8MMWfw/+ko8OnRudg4tDTMUt5FaoCocjY+F8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Mario Limonciello <Mario.Limonciello@amd.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        Huang Rui <ray.huang@amd.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: [PATCH 5.16 0136/1017] Revert "ACPI: Pass the same capabilities to the _OSC regardless of the query flag"
-Date:   Tue,  5 Apr 2022 09:17:29 +0200
-Message-Id: <20220405070358.239892744@linuxfoundation.org>
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.16 0137/1017] ACPI: properties: Consistently return -ENOENT if there are no more references
+Date:   Tue,  5 Apr 2022 09:17:30 +0200
+Message-Id: <20220405070358.269527930@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -57,72 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Sakari Ailus <sakari.ailus@linux.intel.com>
 
-commit 2ca8e6285250c07a2e5a22ecbfd59b5a4ef73484 upstream.
+commit babc92da5928f81af951663fc436997352e02d3a upstream.
 
-Revert commit 159d8c274fd9 ("ACPI: Pass the same capabilities to the
-_OSC regardless of the query flag") which caused legitimate usage
-scenarios (when the platform firmware does not want the OS to control
-certain platform features controlled by the system bus scope _OSC) to
-break and was misguided by some misleading language in the _OSC
-definition in the ACPI specification (in particular, Section 6.2.11.1.3
-"Sequence of _OSC Calls" that contradicts other perts of the _OSC
-definition).
+__acpi_node_get_property_reference() is documented to return -ENOENT if
+the caller requests a property reference at an index that does not exist,
+not -EINVAL which it actually does.
 
-Link: https://lore.kernel.org/linux-acpi/CAJZ5v0iStA0JmO0H3z+VgQsVuQONVjKPpw0F5HKfiq=Gb6B5yw@mail.gmail.com
-Reported-by: Mario Limonciello <Mario.Limonciello@amd.com>
+Fix this by returning -ENOENT consistenly, independently of whether the
+property value is a plain reference or a package.
+
+Fixes: c343bc2ce2c6 ("ACPI: properties: Align return codes of __acpi_node_get_property_reference()")
+Cc: 4.14+ <stable@vger.kernel.org> # 4.14+
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
 Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Tested-by: Mario Limonciello <mario.limonciello@amd.com>
-Acked-by: Huang Rui <ray.huang@amd.com>
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/acpi/bus.c |   27 +++++++++++++++++++--------
- 1 file changed, 19 insertions(+), 8 deletions(-)
+ drivers/acpi/property.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/acpi/bus.c
-+++ b/drivers/acpi/bus.c
-@@ -332,21 +332,32 @@ static void acpi_bus_osc_negotiate_platf
- 	if (ACPI_FAILURE(acpi_run_osc(handle, &context)))
- 		return;
+--- a/drivers/acpi/property.c
++++ b/drivers/acpi/property.c
+@@ -685,7 +685,7 @@ int __acpi_node_get_property_reference(c
+ 	 */
+ 	if (obj->type == ACPI_TYPE_LOCAL_REFERENCE) {
+ 		if (index)
+-			return -EINVAL;
++			return -ENOENT;
  
--	kfree(context.ret.pointer);
-+	capbuf_ret = context.ret.pointer;
-+	if (context.ret.length <= OSC_SUPPORT_DWORD) {
-+		kfree(context.ret.pointer);
-+		return;
-+	}
- 
--	/* Now run _OSC again with query flag clear */
-+	/*
-+	 * Now run _OSC again with query flag clear and with the caps
-+	 * supported by both the OS and the platform.
-+	 */
- 	capbuf[OSC_QUERY_DWORD] = 0;
-+	capbuf[OSC_SUPPORT_DWORD] = capbuf_ret[OSC_SUPPORT_DWORD];
-+	kfree(context.ret.pointer);
- 
- 	if (ACPI_FAILURE(acpi_run_osc(handle, &context)))
- 		return;
- 
- 	capbuf_ret = context.ret.pointer;
--	osc_sb_apei_support_acked =
--		capbuf_ret[OSC_SUPPORT_DWORD] & OSC_SB_APEI_SUPPORT;
--	osc_pc_lpi_support_confirmed =
--		capbuf_ret[OSC_SUPPORT_DWORD] & OSC_SB_PCLPI_SUPPORT;
--	osc_sb_native_usb4_support_confirmed =
--		capbuf_ret[OSC_SUPPORT_DWORD] & OSC_SB_NATIVE_USB4_SUPPORT;
-+	if (context.ret.length > OSC_SUPPORT_DWORD) {
-+		osc_sb_apei_support_acked =
-+			capbuf_ret[OSC_SUPPORT_DWORD] & OSC_SB_APEI_SUPPORT;
-+		osc_pc_lpi_support_confirmed =
-+			capbuf_ret[OSC_SUPPORT_DWORD] & OSC_SB_PCLPI_SUPPORT;
-+		osc_sb_native_usb4_support_confirmed =
-+			capbuf_ret[OSC_SUPPORT_DWORD] & OSC_SB_NATIVE_USB4_SUPPORT;
-+	}
- 
- 	kfree(context.ret.pointer);
- }
+ 		ret = acpi_bus_get_device(obj->reference.handle, &device);
+ 		if (ret)
 
 
