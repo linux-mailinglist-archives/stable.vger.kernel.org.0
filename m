@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A46754F35E5
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:55:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD26C4F318F
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:45:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238235AbiDEKzs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:55:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55204 "EHLO
+        id S234566AbiDEIlR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:41:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34732 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232992AbiDEJpG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:45:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C63EDA6D0;
-        Tue,  5 Apr 2022 02:30:46 -0700 (PDT)
+        with ESMTP id S237541AbiDEISG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:18:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE62369CF4;
+        Tue,  5 Apr 2022 01:06:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0A8F76165C;
-        Tue,  5 Apr 2022 09:30:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 197CAC385A3;
-        Tue,  5 Apr 2022 09:30:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6B97EB81BB4;
+        Tue,  5 Apr 2022 08:06:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6A07C385A2;
+        Tue,  5 Apr 2022 08:06:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151045;
-        bh=eq3ZBF1JZS1UzMpL2QLRecaScYABzVJdy4iizGT45Wo=;
+        s=korg; t=1649146003;
+        bh=qzAvW9RzyCaxJmIAsvW53z2dGPFwCk7vahVtiI2QiTU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hMOsik+PqZ+PojgyNZCquXFA9UrjY/KuswUL3xNsB8yek+g9DT8C8sEfG0QWHKqNi
-         9325S+uMmi3o7vrxVaWzwRFTlvSOY+tPWH+U9QpsLoo0+aOzlOX3cSaMYF2MCV2dvl
-         MxnnxKbUoWUwsoy5lzN3GACG54jTQOKxglEFeumA=
+        b=fevHj2Ilqid/Pcu1j0W5qg8YDacnmTfsCjZuuskpt1Z5cV5NpSLYAxC2AeYciQBJ4
+         D/mqI7U9+2rEf2DkRdpo9jxqDp+Zt2yCk1svcsxjN61hrzasBKPAZr1qAXK0SJdL0X
+         8myg3pWs7+iwN7IDiuocWX1ohsoSoKaIPvlf9CyY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Martin Kepplinger <martin.kepplinger@puri.sm>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        stable@vger.kernel.org, Jack Wang <jinpu.wang@ionos.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 274/913] media: imx: imx8mq-mipi_csi2: fix system resume
-Date:   Tue,  5 Apr 2022 09:22:16 +0200
-Message-Id: <20220405070348.071452687@linuxfoundation.org>
+Subject: [PATCH 5.17 0590/1126] scsi: pm8001: Fix NCQ NON DATA command task initialization
+Date:   Tue,  5 Apr 2022 09:22:17 +0200
+Message-Id: <20220405070424.950686770@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,171 +55,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Kepplinger <martin.kepplinger@puri.sm>
+From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 
-[ Upstream commit f0c2ba1ed4ad868331d8c6ea9119669a729b01a9 ]
+[ Upstream commit aa028141ab0bc62c44a84d42f09db35d82df82a2 ]
 
-during system resume, interconnect bandwidth would currently be requested
-even though the device is runtime suspended. This leaves the system in an
-unbalanced state.
+In the pm8001_chip_sata_req() and pm80xx_chip_sata_req() functions, all
+tasks with a DMA direction of DMA_NONE (no data transfer) are initialized
+using the ATAP value 0x04. However, NCQ NON DATA commands, while being
+DMA_NONE commands are NCQ commands and need to be initialized using the
+value 0x07 for ATAP, similarly to other NCQ commands.
 
-Fix that by only doing that in runtimem pm and splitting up runtime and
-system suspend to be a more readable:
-imx8mq_mipi_csi_pm_*() does the generic things called from system- and
-runtime functions that each do specific things on top.
+Make sure that NCQ NON DATA command tasks are initialized similarly to
+other NCQ commands by also testing the task "use_ncq" field in addition to
+the DMA direction. While at it, reorganize the code into a chain of if -
+else if - else to avoid useless affectations and debug messages.
 
-Fixes: f33fd8d77dd0 ("media: imx: add a driver for i.MX8MQ mipi csi rx phy and controller")
-Signed-off-by: Martin Kepplinger <martin.kepplinger@puri.sm>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Link: https://lore.kernel.org/r/20220220031810.738362-15-damien.lemoal@opensource.wdc.com
+Fixes: dbf9bfe61571 ("[SCSI] pm8001: add SAS/SATA HBA driver")
+Reviewed-by: Jack Wang <jinpu.wang@ionos.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/imx/imx8mq-mipi-csi2.c | 71 +++++++++++++-------
- 1 file changed, 47 insertions(+), 24 deletions(-)
+ drivers/scsi/pm8001/pm8001_hwi.c | 14 +++++++-------
+ drivers/scsi/pm8001/pm80xx_hwi.c | 13 ++++++-------
+ 2 files changed, 13 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/staging/media/imx/imx8mq-mipi-csi2.c b/drivers/staging/media/imx/imx8mq-mipi-csi2.c
-index e9e771717120..1d28313dbed7 100644
---- a/drivers/staging/media/imx/imx8mq-mipi-csi2.c
-+++ b/drivers/staging/media/imx/imx8mq-mipi-csi2.c
-@@ -693,7 +693,7 @@ static int imx8mq_mipi_csi_async_register(struct csi_state *state)
-  * Suspend/resume
-  */
- 
--static int imx8mq_mipi_csi_pm_suspend(struct device *dev, bool runtime)
-+static int imx8mq_mipi_csi_pm_suspend(struct device *dev)
- {
- 	struct v4l2_subdev *sd = dev_get_drvdata(dev);
- 	struct csi_state *state = mipi_sd_to_csi2_state(sd);
-@@ -705,36 +705,21 @@ static int imx8mq_mipi_csi_pm_suspend(struct device *dev, bool runtime)
- 		imx8mq_mipi_csi_stop_stream(state);
- 		imx8mq_mipi_csi_clk_disable(state);
- 		state->state &= ~ST_POWERED;
--		if (!runtime)
--			state->state |= ST_SUSPENDED;
+diff --git a/drivers/scsi/pm8001/pm8001_hwi.c b/drivers/scsi/pm8001/pm8001_hwi.c
+index 43c2ab90f711..9d982eb970fe 100644
+--- a/drivers/scsi/pm8001/pm8001_hwi.c
++++ b/drivers/scsi/pm8001/pm8001_hwi.c
+@@ -4271,22 +4271,22 @@ static int pm8001_chip_sata_req(struct pm8001_hba_info *pm8001_ha,
+ 	u32  opc = OPC_INB_SATA_HOST_OPSTART;
+ 	memset(&sata_cmd, 0, sizeof(sata_cmd));
+ 	circularQ = &pm8001_ha->inbnd_q_tbl[0];
+-	if (task->data_dir == DMA_NONE) {
++
++	if (task->data_dir == DMA_NONE && !task->ata_task.use_ncq) {
+ 		ATAP = 0x04;  /* no data*/
+ 		pm8001_dbg(pm8001_ha, IO, "no data\n");
+ 	} else if (likely(!task->ata_task.device_control_reg_update)) {
+-		if (task->ata_task.dma_xfer) {
++		if (task->ata_task.use_ncq &&
++		    dev->sata_dev.class != ATA_DEV_ATAPI) {
++			ATAP = 0x07; /* FPDMA */
++			pm8001_dbg(pm8001_ha, IO, "FPDMA\n");
++		} else if (task->ata_task.dma_xfer) {
+ 			ATAP = 0x06; /* DMA */
+ 			pm8001_dbg(pm8001_ha, IO, "DMA\n");
+ 		} else {
+ 			ATAP = 0x05; /* PIO*/
+ 			pm8001_dbg(pm8001_ha, IO, "PIO\n");
+ 		}
+-		if (task->ata_task.use_ncq &&
+-			dev->sata_dev.class != ATA_DEV_ATAPI) {
+-			ATAP = 0x07; /* FPDMA */
+-			pm8001_dbg(pm8001_ha, IO, "FPDMA\n");
+-		}
  	}
+ 	if (task->ata_task.use_ncq && pm8001_get_ncq_tag(task, &hdr_tag)) {
+ 		task->ata_task.fis.sector_count |= (u8) (hdr_tag << 3);
+diff --git a/drivers/scsi/pm8001/pm80xx_hwi.c b/drivers/scsi/pm8001/pm80xx_hwi.c
+index 0b4261735c03..4c19691a2bce 100644
+--- a/drivers/scsi/pm8001/pm80xx_hwi.c
++++ b/drivers/scsi/pm8001/pm80xx_hwi.c
+@@ -4552,22 +4552,21 @@ static int pm80xx_chip_sata_req(struct pm8001_hba_info *pm8001_ha,
+ 	q_index = (u32) (cpu_id) % (pm8001_ha->max_q_num);
+ 	circularQ = &pm8001_ha->inbnd_q_tbl[q_index];
  
- 	mutex_unlock(&state->lock);
- 
--	ret = icc_set_bw(state->icc_path, 0, 0);
--	if (ret)
--		dev_err(dev, "icc_set_bw failed with %d\n", ret);
--
- 	return ret ? -EAGAIN : 0;
- }
- 
--static int imx8mq_mipi_csi_pm_resume(struct device *dev, bool runtime)
-+static int imx8mq_mipi_csi_pm_resume(struct device *dev)
- {
- 	struct v4l2_subdev *sd = dev_get_drvdata(dev);
- 	struct csi_state *state = mipi_sd_to_csi2_state(sd);
- 	int ret = 0;
- 
--	ret = icc_set_bw(state->icc_path, 0, state->icc_path_bw);
--	if (ret) {
--		dev_err(dev, "icc_set_bw failed with %d\n", ret);
--		return ret;
--	}
--
- 	mutex_lock(&state->lock);
- 
--	if (!runtime && !(state->state & ST_SUSPENDED))
--		goto unlock;
--
- 	if (!(state->state & ST_POWERED)) {
- 		state->state |= ST_POWERED;
- 		ret = imx8mq_mipi_csi_clk_enable(state);
-@@ -755,22 +740,60 @@ static int imx8mq_mipi_csi_pm_resume(struct device *dev, bool runtime)
- 
- static int __maybe_unused imx8mq_mipi_csi_suspend(struct device *dev)
- {
--	return imx8mq_mipi_csi_pm_suspend(dev, false);
-+	struct v4l2_subdev *sd = dev_get_drvdata(dev);
-+	struct csi_state *state = mipi_sd_to_csi2_state(sd);
-+	int ret;
-+
-+	ret = imx8mq_mipi_csi_pm_suspend(dev);
-+	if (ret)
-+		return ret;
-+
-+	state->state |= ST_SUSPENDED;
-+
-+	return ret;
- }
- 
- static int __maybe_unused imx8mq_mipi_csi_resume(struct device *dev)
- {
--	return imx8mq_mipi_csi_pm_resume(dev, false);
-+	struct v4l2_subdev *sd = dev_get_drvdata(dev);
-+	struct csi_state *state = mipi_sd_to_csi2_state(sd);
-+
-+	if (!(state->state & ST_SUSPENDED))
-+		return 0;
-+
-+	return imx8mq_mipi_csi_pm_resume(dev);
- }
- 
- static int __maybe_unused imx8mq_mipi_csi_runtime_suspend(struct device *dev)
- {
--	return imx8mq_mipi_csi_pm_suspend(dev, true);
-+	struct v4l2_subdev *sd = dev_get_drvdata(dev);
-+	struct csi_state *state = mipi_sd_to_csi2_state(sd);
-+	int ret;
-+
-+	ret = imx8mq_mipi_csi_pm_suspend(dev);
-+	if (ret)
-+		return ret;
-+
-+	ret = icc_set_bw(state->icc_path, 0, 0);
-+	if (ret)
-+		dev_err(dev, "icc_set_bw failed with %d\n", ret);
-+
-+	return ret;
- }
- 
- static int __maybe_unused imx8mq_mipi_csi_runtime_resume(struct device *dev)
- {
--	return imx8mq_mipi_csi_pm_resume(dev, true);
-+	struct v4l2_subdev *sd = dev_get_drvdata(dev);
-+	struct csi_state *state = mipi_sd_to_csi2_state(sd);
-+	int ret;
-+
-+	ret = icc_set_bw(state->icc_path, 0, state->icc_path_bw);
-+	if (ret) {
-+		dev_err(dev, "icc_set_bw failed with %d\n", ret);
-+		return ret;
-+	}
-+
-+	return imx8mq_mipi_csi_pm_resume(dev);
- }
- 
- static const struct dev_pm_ops imx8mq_mipi_csi_pm_ops = {
-@@ -918,7 +941,7 @@ static int imx8mq_mipi_csi_probe(struct platform_device *pdev)
- 	/* Enable runtime PM. */
- 	pm_runtime_enable(dev);
- 	if (!pm_runtime_enabled(dev)) {
--		ret = imx8mq_mipi_csi_pm_resume(dev, true);
-+		ret = imx8mq_mipi_csi_runtime_resume(dev);
- 		if (ret < 0)
- 			goto icc;
+-	if (task->data_dir == DMA_NONE) {
++	if (task->data_dir == DMA_NONE && !task->ata_task.use_ncq) {
+ 		ATAP = 0x04; /* no data*/
+ 		pm8001_dbg(pm8001_ha, IO, "no data\n");
+ 	} else if (likely(!task->ata_task.device_control_reg_update)) {
+-		if (task->ata_task.dma_xfer) {
++		if (task->ata_task.use_ncq &&
++		    dev->sata_dev.class != ATA_DEV_ATAPI) {
++			ATAP = 0x07; /* FPDMA */
++			pm8001_dbg(pm8001_ha, IO, "FPDMA\n");
++		} else if (task->ata_task.dma_xfer) {
+ 			ATAP = 0x06; /* DMA */
+ 			pm8001_dbg(pm8001_ha, IO, "DMA\n");
+ 		} else {
+ 			ATAP = 0x05; /* PIO*/
+ 			pm8001_dbg(pm8001_ha, IO, "PIO\n");
+ 		}
+-		if (task->ata_task.use_ncq &&
+-		    dev->sata_dev.class != ATA_DEV_ATAPI) {
+-			ATAP = 0x07; /* FPDMA */
+-			pm8001_dbg(pm8001_ha, IO, "FPDMA\n");
+-		}
  	}
-@@ -931,7 +954,7 @@ static int imx8mq_mipi_csi_probe(struct platform_device *pdev)
- 
- cleanup:
- 	pm_runtime_disable(&pdev->dev);
--	imx8mq_mipi_csi_pm_suspend(&pdev->dev, true);
-+	imx8mq_mipi_csi_runtime_suspend(&pdev->dev);
- 
- 	media_entity_cleanup(&state->sd.entity);
- 	v4l2_async_notifier_unregister(&state->notifier);
-@@ -955,7 +978,7 @@ static int imx8mq_mipi_csi_remove(struct platform_device *pdev)
- 	v4l2_async_unregister_subdev(&state->sd);
- 
- 	pm_runtime_disable(&pdev->dev);
--	imx8mq_mipi_csi_pm_suspend(&pdev->dev, true);
-+	imx8mq_mipi_csi_runtime_suspend(&pdev->dev);
- 	media_entity_cleanup(&state->sd.entity);
- 	mutex_destroy(&state->lock);
- 	pm_runtime_set_suspended(&pdev->dev);
+ 	if (task->ata_task.use_ncq && pm8001_get_ncq_tag(task, &hdr_tag)) {
+ 		task->ata_task.fis.sector_count |= (u8) (hdr_tag << 3);
 -- 
 2.34.1
 
