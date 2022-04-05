@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 11D1C4F2A48
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 12:54:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B973F4F29F8
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 12:51:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235568AbiDEJwx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:52:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58064 "EHLO
+        id S236523AbiDEI17 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:27:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45418 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244603AbiDEJKF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:10:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66E9D2AC4E;
-        Tue,  5 Apr 2022 01:59:51 -0700 (PDT)
+        with ESMTP id S239560AbiDEIUO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:20:14 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F2C52601;
+        Tue,  5 Apr 2022 01:16:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 65652B81BBF;
-        Tue,  5 Apr 2022 08:59:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B26B3C385A0;
-        Tue,  5 Apr 2022 08:59:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C011260B0A;
+        Tue,  5 Apr 2022 08:16:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C95CDC385A1;
+        Tue,  5 Apr 2022 08:16:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149188;
-        bh=WsW6LYCcpbPQgKzCuxo3ZJJAg7nrkIEDruFN5ptLGag=;
+        s=korg; t=1649146575;
+        bh=OlZgfNfWqUL2kkWzmZuqYmPzg9dSfeyZHARzCMt+jF4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J8ADRWG/Z4AxqrDBKuZ43p/Y4GPm+0qcKg16IPM0OD4GrsRPPOzJ2ELVUNMDMDkYZ
-         ps7lBLj57zoCyZ+C/mNMl0p9lPBreA4HfNafUoh2vosq699HN02dyj1RzKWjb8imza
-         r7ncXYQpLcBdlnAnbKuYzyIhgxCp7zdP2QYW4EHM=
+        b=gIUJjZPD/3ImHcvScAY0DPcDwwqDM+PNvBr+m6eNujOmxak3NdhtNgh5Y6ULUPPeP
+         zFC2SMj9CEc14YzoPFqaRu7rXppeOI3BONZ0+d/DXAYsjS1nIN8kgqF6ZvHwI/FAqX
+         dek76Fxg1hi934kSbkpZCvjiHRe3RA8bgg0wIjlY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Phil Sutter <phil@nwl.cc>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Olga Kornievskaia <kolga@netapp.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0625/1017] netfilter: conntrack: Add and use nf_ct_set_auto_assign_helper_warned()
-Date:   Tue,  5 Apr 2022 09:25:38 +0200
-Message-Id: <20220405070412.833959655@linuxfoundation.org>
+Subject: [PATCH 5.17 0796/1126] NFSv4.1: dont retry BIND_CONN_TO_SESSION on session error
+Date:   Tue,  5 Apr 2022 09:25:43 +0200
+Message-Id: <20220405070430.936067121@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,64 +54,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phil Sutter <phil@nwl.cc>
+From: Olga Kornievskaia <kolga@netapp.com>
 
-[ Upstream commit 31d0bb9763efad30377505f3467f958d1ebe1e3d ]
+[ Upstream commit 1d15d121cc2ad4d016a7dc1493132a9696f91fc5 ]
 
-The function sets the pernet boolean to avoid the spurious warning from
-nf_ct_lookup_helper() when assigning conntrack helpers via nftables.
+There is no reason to retry the operation if a session error had
+occurred in such case result structure isn't filled out.
 
-Fixes: 1a64edf54f55 ("netfilter: nft_ct: add helper set support")
-Signed-off-by: Phil Sutter <phil@nwl.cc>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: dff58530c4ca ("NFSv4.1: fix handling of backchannel binding in BIND_CONN_TO_SESSION")
+Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/netfilter/nf_conntrack_helper.h | 1 +
- net/netfilter/nf_conntrack_helper.c         | 6 ++++++
- net/netfilter/nft_ct.c                      | 3 +++
- 3 files changed, 10 insertions(+)
+ fs/nfs/nfs4proc.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/include/net/netfilter/nf_conntrack_helper.h b/include/net/netfilter/nf_conntrack_helper.h
-index 37f0fbefb060..9939c366f720 100644
---- a/include/net/netfilter/nf_conntrack_helper.h
-+++ b/include/net/netfilter/nf_conntrack_helper.h
-@@ -177,4 +177,5 @@ void nf_nat_helper_unregister(struct nf_conntrack_nat_helper *nat);
- int nf_nat_helper_try_module_get(const char *name, u16 l3num,
- 				 u8 protonum);
- void nf_nat_helper_put(struct nf_conntrack_helper *helper);
-+void nf_ct_set_auto_assign_helper_warned(struct net *net);
- #endif /*_NF_CONNTRACK_HELPER_H*/
-diff --git a/net/netfilter/nf_conntrack_helper.c b/net/netfilter/nf_conntrack_helper.c
-index ae4488a13c70..ceb38a7b37cb 100644
---- a/net/netfilter/nf_conntrack_helper.c
-+++ b/net/netfilter/nf_conntrack_helper.c
-@@ -556,6 +556,12 @@ static const struct nf_ct_ext_type helper_extend = {
- 	.id	= NF_CT_EXT_HELPER,
- };
- 
-+void nf_ct_set_auto_assign_helper_warned(struct net *net)
-+{
-+	nf_ct_pernet(net)->auto_assign_helper_warned = true;
-+}
-+EXPORT_SYMBOL_GPL(nf_ct_set_auto_assign_helper_warned);
-+
- void nf_conntrack_helper_pernet_init(struct net *net)
- {
- 	struct nf_conntrack_net *cnet = nf_ct_pernet(net);
-diff --git a/net/netfilter/nft_ct.c b/net/netfilter/nft_ct.c
-index 99b1de14ff7e..54ecb9fbf2de 100644
---- a/net/netfilter/nft_ct.c
-+++ b/net/netfilter/nft_ct.c
-@@ -1040,6 +1040,9 @@ static int nft_ct_helper_obj_init(const struct nft_ctx *ctx,
- 	if (err < 0)
- 		goto err_put_helper;
- 
-+	/* Avoid the bogus warning, helper will be assigned after CT init */
-+	nf_ct_set_auto_assign_helper_warned(ctx->net);
-+
- 	return 0;
- 
- err_put_helper:
+diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
+index 0e0db6c27619..c36fa0d0d438 100644
+--- a/fs/nfs/nfs4proc.c
++++ b/fs/nfs/nfs4proc.c
+@@ -8333,6 +8333,7 @@ nfs4_bind_one_conn_to_session_done(struct rpc_task *task, void *calldata)
+ 	case -NFS4ERR_DEADSESSION:
+ 		nfs4_schedule_session_recovery(clp->cl_session,
+ 				task->tk_status);
++		return;
+ 	}
+ 	if (args->dir == NFS4_CDFC4_FORE_OR_BOTH &&
+ 			res->dir != NFS4_CDFS4_BOTH) {
 -- 
 2.34.1
 
