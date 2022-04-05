@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E6CEB4F30B6
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:34:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 21F0C4F30D4
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:35:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239137AbiDEIoe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:44:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60900 "EHLO
+        id S1355653AbiDEKVQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:21:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37372 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241240AbiDEIc5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:32:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 729E95FE7;
-        Tue,  5 Apr 2022 01:30:16 -0700 (PDT)
+        with ESMTP id S1347323AbiDEJZ2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:25:28 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B64D6DCE38;
+        Tue,  5 Apr 2022 02:15:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0F9B260FF5;
-        Tue,  5 Apr 2022 08:30:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2066AC385A2;
-        Tue,  5 Apr 2022 08:30:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5227C6165E;
+        Tue,  5 Apr 2022 09:14:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61E3FC385A2;
+        Tue,  5 Apr 2022 09:14:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147415;
-        bh=W5KT8gJMhEm4bt1ufYnqIkD9RSkVG+G0ErDT+4VMW4U=;
+        s=korg; t=1649150088;
+        bh=XcJJsTcZIwH4Md28xUo15wxWFf4rvGuUqJK1WLRjavM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=01F8xcqDx6AMbu6X9FjLNf8QKXt2HzY7JGVgxG5rnQLinwpW93e6lbk5K/JHYRg9l
-         pFtwpZ9Zotm0+9eumjqlOXO20MQ2ZHHuh+D4y+HtxZe8+PcldTz8Lye8QlMLccQR1R
-         WD9zOyRLq5mpFgaf0pTqfDMTfs+/1kwcrqrmj7yU=
+        b=yyntjx403V4oL1y/RszOhwlt3z3L5TUp0xKO/Hxc3Jo0bpEng3WZWSuN3wP7rhDQz
+         i5kT5i2IpHU/RmE9/Rcw2IqDgw7Lyg3uZcHdB3YEoCYkzbAvYtDI6AMXeaiD/H4oLs
+         2kA1JG1f9zZxPqetLfmAhMqVJ/zW19N0TH7G69Dw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
-        Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 5.17 1115/1126] ice: xsk: Fix indexing in ice_tx_xsk_pool()
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Jan Kara <jack@suse.cz>, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.16 0949/1017] block: Fix the maximum minor value is blk_alloc_ext_minor()
 Date:   Tue,  5 Apr 2022 09:31:02 +0200
-Message-Id: <20220405070440.159433907@linuxfoundation.org>
+Message-Id: <20220405070422.382772594@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,48 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit 1ac2524de7b366633fc336db6c94062768d0ab03 upstream.
+commit d1868328dec5ae2cf210111025fcbc71f78dd5ca upstream.
 
-Ice driver tries to always create XDP rings array to be
-num_possible_cpus() sized, regardless of user's queue count setting that
-can be changed via ethtool -L for example.
+ida_alloc_range(..., min, max, ...) returns values from min to max,
+inclusive.
 
-Currently, ice_tx_xsk_pool() calculates the qid by decrementing the
-ring->q_index by the count of XDP queues, but ring->q_index is set to 'i
-+ vsi->alloc_txq'.
+So, NR_EXT_DEVT is a valid idx returned by blk_alloc_ext_minor().
 
-When user did ethtool -L $IFACE combined 1, alloc_txq is 1, but
-vsi->num_xdp_txq is still num_possible_cpus(). Then, ice_tx_xsk_pool()
-will do OOB access and in the final result ring would not get xsk_pool
-pointer assigned. Then, each ice_xsk_wakeup() call will fail with error
-and it will not be possible to get into NAPI and do the processing from
-driver side.
+This is an issue because in device_add_disk(), this value is used in:
+   ddev->devt = MKDEV(disk->major, disk->first_minor);
+and NR_EXT_DEVT is '(1 << MINORBITS)'.
 
-Fix this by decrementing vsi->alloc_txq instead of vsi->num_xdp_txq from
-ring-q_index in ice_tx_xsk_pool() so the calculation is reflected to the
-setting of ring->q_index.
+So, should 'disk->first_minor' be NR_EXT_DEVT, it would overflow.
 
-Fixes: 22bf877e528f ("ice: introduce XDP_TX fallback path")
-Signed-off-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20220328142123.170157-5-maciej.fijalkowski@intel.com
+Fixes: 22ae8ce8b892 ("block: simplify bdev/disk lookup in blkdev_get")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/cc17199798312406b90834e433d2cefe8266823d.1648306232.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/ice/ice.h |    2 +-
+ block/genhd.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/intel/ice/ice.h
-+++ b/drivers/net/ethernet/intel/ice/ice.h
-@@ -712,7 +712,7 @@ static inline struct xsk_buff_pool *ice_
- 	struct ice_vsi *vsi = ring->vsi;
- 	u16 qid;
+--- a/block/genhd.c
++++ b/block/genhd.c
+@@ -328,7 +328,7 @@ int blk_alloc_ext_minor(void)
+ {
+ 	int idx;
  
--	qid = ring->q_index - vsi->num_xdp_txq;
-+	qid = ring->q_index - vsi->alloc_txq;
- 
- 	if (!ice_is_xdp_ena_vsi(vsi) || !test_bit(qid, vsi->af_xdp_zc_qps))
- 		return NULL;
+-	idx = ida_alloc_range(&ext_devt_ida, 0, NR_EXT_DEVT, GFP_KERNEL);
++	idx = ida_alloc_range(&ext_devt_ida, 0, NR_EXT_DEVT - 1, GFP_KERNEL);
+ 	if (idx == -ENOSPC)
+ 		return -EBUSY;
+ 	return idx;
 
 
