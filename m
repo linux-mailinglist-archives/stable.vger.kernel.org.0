@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 682784F27CE
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:08:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 596174F26E5
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:05:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233682AbiDEIJG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:09:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52758 "EHLO
+        id S232901AbiDEIEk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:04:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52996 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236232AbiDEIBo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:01:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 049A34B431;
-        Tue,  5 Apr 2022 00:59:47 -0700 (PDT)
+        with ESMTP id S236250AbiDEIBt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:01:49 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 487FF49FB3;
+        Tue,  5 Apr 2022 00:59:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 95FDB61748;
-        Tue,  5 Apr 2022 07:59:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A484FC340EE;
-        Tue,  5 Apr 2022 07:59:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 02DD9B81B14;
+        Tue,  5 Apr 2022 07:59:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CDCBC340EE;
+        Tue,  5 Apr 2022 07:59:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145586;
-        bh=0Dg7CYB7xn8BcJUfpIWrYJsGfvLqYxZJacs/FazW+sQ=;
+        s=korg; t=1649145588;
+        bh=MWm4SF4vTdAg8YYiuLtbAmzMG7TK3H/DsZTmry+1Ino=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UmSjyDYpIm9FnpLHDuLcT72R+wCTSgmoWJpBdq2ljklCh7B7eRXmNk5zclRC05seD
-         PADrka+ZqBA92sdzjZ0tKg2lhUCZJX1UQ7vY1uqky5ATmn/OADCuRcVAlFF0t0WT+/
-         RcMFzwgiSASvklwbfBQkz0hKS0vqPPslauZhXiK8=
+        b=M4gzGXxUI4l7J0bFCHV6B+ogDCttU9rw0vC1hl+OyslU5uBAul7aetE0G9yu1w4IG
+         Dp+62CGbBe/3wC4rO+5O1UTcgxOllLs3/LQ2MeORM6NtJBHkGmdISgCsQWuH6RbR3U
+         xXM4mk476DVGDsPYbqVZROVFz8xAAp4RX+mYHoAU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Shannon Nelson <snelson@pensando.io>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0456/1126] ionic: fix type complaint in ionic_dev_cmd_clean()
-Date:   Tue,  5 Apr 2022 09:20:03 +0200
-Message-Id: <20220405070421.009558887@linuxfoundation.org>
+Subject: [PATCH 5.17 0457/1126] ionic: start watchdog after all is setup
+Date:   Tue,  5 Apr 2022 09:20:04 +0200
+Message-Id: <20220405070421.039984806@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -56,47 +56,58 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Shannon Nelson <snelson@pensando.io>
 
-[ Upstream commit bc0bf9de6f48268f4ee59e57fb42ac751be3ecda ]
+[ Upstream commit 9ad2939a1525962a79a2fd974ec7e3a71455b964 ]
 
-Sparse seems to have gotten a little more picky lately and
-we need to revisit this bit of code to make sparse happy.
+The watchdog expects the lif to fully exist when it goes off,
+so lets not start the watchdog until all is ready in case there
+is some quirky time dialation that makes probe take multiple
+seconds.
 
-warning: incorrect type in initializer (different address spaces)
-   expected union ionic_dev_cmd_regs *regs
-   got union ionic_dev_cmd_regs [noderef] __iomem *dev_cmd_regs
-warning: incorrect type in argument 2 (different address spaces)
-   expected void [noderef] __iomem *
-   got unsigned int *
-warning: incorrect type in argument 1 (different address spaces)
-   expected void volatile [noderef] __iomem *
-   got union ionic_dev_cmd *
-
-Fixes: d701ec326a31 ("ionic: clean up sparse complaints")
+Fixes: 089406bc5ad6 ("ionic: add a watchdog timer to monitor heartbeat")
 Signed-off-by: Shannon Nelson <snelson@pensando.io>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/pensando/ionic/ionic_main.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/pensando/ionic/ionic_bus_pci.c | 4 +++-
+ drivers/net/ethernet/pensando/ionic/ionic_dev.c     | 3 ---
+ 2 files changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/pensando/ionic/ionic_main.c b/drivers/net/ethernet/pensando/ionic/ionic_main.c
-index 875f4ec42efe..a89ad768e4a0 100644
---- a/drivers/net/ethernet/pensando/ionic/ionic_main.c
-+++ b/drivers/net/ethernet/pensando/ionic/ionic_main.c
-@@ -370,10 +370,10 @@ int ionic_adminq_post_wait_nomsg(struct ionic_lif *lif, struct ionic_admin_ctx *
+diff --git a/drivers/net/ethernet/pensando/ionic/ionic_bus_pci.c b/drivers/net/ethernet/pensando/ionic/ionic_bus_pci.c
+index 7e296fa71b36..40fa5bce2ac2 100644
+--- a/drivers/net/ethernet/pensando/ionic/ionic_bus_pci.c
++++ b/drivers/net/ethernet/pensando/ionic/ionic_bus_pci.c
+@@ -331,6 +331,9 @@ static int ionic_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 		goto err_out_deregister_lifs;
+ 	}
  
- static void ionic_dev_cmd_clean(struct ionic *ionic)
- {
--	union __iomem ionic_dev_cmd_regs *regs = ionic->idev.dev_cmd_regs;
-+	struct ionic_dev *idev = &ionic->idev;
++	mod_timer(&ionic->watchdog_timer,
++		  round_jiffies(jiffies + ionic->watchdog_period));
++
+ 	return 0;
  
--	iowrite32(0, &regs->doorbell);
--	memset_io(&regs->cmd, 0, sizeof(regs->cmd));
-+	iowrite32(0, &idev->dev_cmd_regs->doorbell);
-+	memset_io(&idev->dev_cmd_regs->cmd, 0, sizeof(idev->dev_cmd_regs->cmd));
- }
+ err_out_deregister_lifs:
+@@ -348,7 +351,6 @@ static int ionic_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ err_out_reset:
+ 	ionic_reset(ionic);
+ err_out_teardown:
+-	del_timer_sync(&ionic->watchdog_timer);
+ 	pci_clear_master(pdev);
+ 	/* Don't fail the probe for these errors, keep
+ 	 * the hw interface around for inspection
+diff --git a/drivers/net/ethernet/pensando/ionic/ionic_dev.c b/drivers/net/ethernet/pensando/ionic/ionic_dev.c
+index d57e80d44c9d..4044c630f8b4 100644
+--- a/drivers/net/ethernet/pensando/ionic/ionic_dev.c
++++ b/drivers/net/ethernet/pensando/ionic/ionic_dev.c
+@@ -122,9 +122,6 @@ int ionic_dev_setup(struct ionic *ionic)
+ 	idev->fw_generation = IONIC_FW_STS_F_GENERATION &
+ 			      ioread8(&idev->dev_info_regs->fw_status);
  
- int ionic_dev_cmd_wait(struct ionic *ionic, unsigned long max_seconds)
+-	mod_timer(&ionic->watchdog_timer,
+-		  round_jiffies(jiffies + ionic->watchdog_period));
+-
+ 	idev->db_pages = bar->vaddr;
+ 	idev->phy_db_pages = bar->bus_addr;
+ 
 -- 
 2.34.1
 
