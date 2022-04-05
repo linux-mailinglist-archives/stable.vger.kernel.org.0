@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 758954F3783
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:20:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED0894F3A8D
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:02:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353081AbiDELNx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:13:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39192 "EHLO
+        id S1381549AbiDELqT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:46:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43736 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348938AbiDEJtM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96066B55;
-        Tue,  5 Apr 2022 02:41:25 -0700 (PDT)
+        with ESMTP id S1354907AbiDEKQe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:16:34 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09E44101E;
+        Tue,  5 Apr 2022 03:03:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 099E361576;
-        Tue,  5 Apr 2022 09:41:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13E35C385A2;
-        Tue,  5 Apr 2022 09:41:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9A1A461673;
+        Tue,  5 Apr 2022 10:03:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9B21C385A1;
+        Tue,  5 Apr 2022 10:03:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151684;
-        bh=uRP3lPFh83fo86mszzm6oL6vhfxl+Y9k7IkMaSWOLwQ=;
+        s=korg; t=1649153024;
+        bh=6+YGF0hCD/pWlHdjsLpdbUkPVcBYuxgy1fm5r8lcUk8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Dvwbc+8x/D/uWOt/j+Ltw6obUvsjyzNW3v6JAiu3rMsvmtHX60y1feDKOp9SlU/9E
-         Na6RUC+FqameQ93BOLkxbZUR/DpdF0Ei+9/KQomQqdfSKz4X3FGCbmRuNr/JzMALP+
-         2ovbOBfaHGIyHC/kWWaIZ2EloZxY1R6R1ZW0BxBM=
+        b=Rr+kRtr31DbQlaSc+qWdhyDzF3nl5AB7updI3yzHAwTNv0vZsTQqr/R1aSvc3fotg
+         pHQZno/oWqkF1C8N92HrTOZ1eqSng7/IHnc2sXdga7acNjoVYT6zZ7JeD3KFrY94KD
+         ZpsZDW8zc3zZhpSY8LVXlDtXDD/3c1wANNtCDJsg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Thierry Reding <treding@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 505/913] gpu: host1x: Fix a memory leak in host1x_remove()
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 073/599] ALSA: hda/realtek: Fix audio regression on Mi Notebook Pro 2020
 Date:   Tue,  5 Apr 2022 09:26:07 +0200
-Message-Id: <20220405070354.994527002@linuxfoundation.org>
+Message-Id: <20220405070300.998662975@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070258.802373272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,35 +55,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-[ Upstream commit 025c6643a81564f066d8381b9e2f4603e0f8438f ]
+commit f30741cded62f87bb4b1cc58bc627f076abcaba8 upstream.
 
-Add a missing 'host1x_channel_list_free()' call in the remove function,
-as already done in the error handling path of the probe function.
+Commit 5aec98913095 ("ALSA: hda/realtek - ALC236 headset MIC recording
+issue") is to solve recording issue met on AL236, by matching codec
+variant ALC269_TYPE_ALC257 and ALC269_TYPE_ALC256.
 
-Fixes: 8474b02531c4 ("gpu: host1x: Refactor channel allocation code")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This match can be too broad and Mi Notebook Pro 2020 is broken by the
+patch.
+
+Instead, use codec ID to be narrow down the scope, in order to make
+ALC256 unaffected.
+
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=215484
+Fixes: 5aec98913095 ("ALSA: hda/realtek - ALC236 headset MIC recording issue")
+Reported-by: kernel test robot <lkp@intel.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Link: https://lore.kernel.org/r/20220330061335.1015533-1-kai.heng.feng@canonical.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/host1x/dev.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/pci/hda/patch_realtek.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/host1x/dev.c b/drivers/gpu/host1x/dev.c
-index 3872e4cd2698..fc9f54282f7d 100644
---- a/drivers/gpu/host1x/dev.c
-+++ b/drivers/gpu/host1x/dev.c
-@@ -526,6 +526,7 @@ static int host1x_remove(struct platform_device *pdev)
- 	host1x_syncpt_deinit(host);
- 	reset_control_assert(host->rst);
- 	clk_disable_unprepare(host->clk);
-+	host1x_channel_list_free(&host->channel_list);
- 	host1x_iommu_exit(host);
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -3615,8 +3615,8 @@ static void alc256_shutup(struct hda_cod
+ 	/* If disable 3k pulldown control for alc257, the Mic detection will not work correctly
+ 	 * when booting with headset plugged. So skip setting it for the codec alc257
+ 	 */
+-	if (spec->codec_variant != ALC269_TYPE_ALC257 &&
+-	    spec->codec_variant != ALC269_TYPE_ALC256)
++	if (codec->core.vendor_id != 0x10ec0236 &&
++	    codec->core.vendor_id != 0x10ec0257)
+ 		alc_update_coef_idx(codec, 0x46, 0, 3 << 12);
  
- 	return 0;
--- 
-2.34.1
-
+ 	if (!spec->no_shutup_pins)
 
 
