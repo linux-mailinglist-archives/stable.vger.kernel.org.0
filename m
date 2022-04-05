@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 15BBF4F30BA
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:34:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1015B4F301F
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:26:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355461AbiDEKT4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:19:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44180 "EHLO
+        id S237656AbiDEInA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:43:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33774 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345297AbiDEJWY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:22:24 -0400
+        with ESMTP id S241001AbiDEIcn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:32:43 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A91372BB18;
-        Tue,  5 Apr 2022 02:10:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72978ADD5B;
+        Tue,  5 Apr 2022 01:25:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CCAA3B81A12;
-        Tue,  5 Apr 2022 09:10:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42C26C385A2;
-        Tue,  5 Apr 2022 09:10:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1905DB81BC0;
+        Tue,  5 Apr 2022 08:25:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FB55C385A2;
+        Tue,  5 Apr 2022 08:25:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149815;
-        bh=hpbWX8YBC6s4oo45QHF2m7r8EsVxECiMVkMLp+Qwi3A=;
+        s=korg; t=1649147146;
+        bh=a6oPxCJzwFg+auaLybS3Cz5xCfoOmB6qPAWpGmmbt78=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aC6G91vk1Uhlq/gGclet39VO0a6a2olxo5y4P01VDLLN/HOgh4NcHvHiMv3pZbkyF
-         IeVOJAa4gmcAa5N+qaghBmP1lfrhbCuUpwxD1pIAIgSo9uzvVSuuCiY00RVFmnHFGW
-         4bDA9XFkimBt96XjUXuIyi4ASIudsxDs3jhyFsQs=
+        b=N91c7Y01IR6qkEH8JTZ947WX6iFcibstd+3E8wtrKu+kQlm6N21+UGFXIilNkjKRP
+         nLfXwQfcdEyeTL4cfC7iyVWLYFeuJ/MHKk5txlM1y8G1SkK5LF3/yawzCZyuGYFMnN
+         1oujSNWzwUk4t31bm9mg1tldin1TKIMj+JfCmapQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Bard Liao <yung-chuan.liao@linux.intel.com>,
-        =?UTF-8?q?P=C3=A9ter=20Ujfalusi?= <peter.ujfalusi@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0852/1017] ASoC: Intel: sof_es8336: log all quirks
-Date:   Tue,  5 Apr 2022 09:29:25 +0200
-Message-Id: <20220405070419.527635255@linuxfoundation.org>
+        syzbot+0d2b0bf32ca5cfd09f2e@syzkaller.appspotmail.com,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>
+Subject: [PATCH 5.17 1019/1126] XArray: Fix xas_create_range() when multi-order entry present
+Date:   Tue,  5 Apr 2022 09:29:26 +0200
+Message-Id: <20220405070437.395747905@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,43 +54,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Matthew Wilcox (Oracle) <willy@infradead.org>
 
-[ Upstream commit 9c818d849192491a8799b1cb14ca0f7aead4fb09 ]
+commit 3e3c658055c002900982513e289398a1aad4a488 upstream.
 
-We only logged the SSP quirk, make sure the GPIO and DMIC quirks are
-exposed.
+If there is already an entry present that is of order >= XA_CHUNK_SHIFT
+when we call xas_create_range(), xas_create_range() will misinterpret
+that entry as a node and dereference xa_node->parent, generally leading
+to a crash that looks something like this:
 
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Reviewed-by: Péter Ujfalusi <peter.ujfalusi@linux.intel.com>
-Link: https://lore.kernel.org/r/20220308192610.392950-16-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+general protection fault, probably for non-canonical address 0xdffffc0000000001:
+0000 [#1] PREEMPT SMP KASAN
+KASAN: null-ptr-deref in range [0x0000000000000008-0x000000000000000f]
+CPU: 0 PID: 32 Comm: khugepaged Not tainted 5.17.0-rc8-syzkaller-00003-g56e337f2cf13 #0
+RIP: 0010:xa_parent_locked include/linux/xarray.h:1207 [inline]
+RIP: 0010:xas_create_range+0x2d9/0x6e0 lib/xarray.c:725
+
+It's deterministically reproducable once you know what the problem is,
+but producing it in a live kernel requires khugepaged to hit a race.
+While the problem has been present since xas_create_range() was
+introduced, I'm not aware of a way to hit it before the page cache was
+converted to use multi-index entries.
+
+Fixes: 6b24ca4a1a8d ("mm: Use multi-index entries in the page cache")
+Reported-by: syzbot+0d2b0bf32ca5cfd09f2e@syzkaller.appspotmail.com
+Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/intel/boards/sof_es8336.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ lib/test_xarray.c |   22 ++++++++++++++++++++++
+ lib/xarray.c      |    2 ++
+ 2 files changed, 24 insertions(+)
 
-diff --git a/sound/soc/intel/boards/sof_es8336.c b/sound/soc/intel/boards/sof_es8336.c
-index 46e453915f82..764560439d46 100644
---- a/sound/soc/intel/boards/sof_es8336.c
-+++ b/sound/soc/intel/boards/sof_es8336.c
-@@ -63,7 +63,12 @@ static const struct acpi_gpio_mapping *gpio_mapping = acpi_es8336_gpios;
- 
- static void log_quirks(struct device *dev)
- {
--	dev_info(dev, "quirk SSP%ld",  SOF_ES8336_SSP_CODEC(quirk));
-+	dev_info(dev, "quirk mask %#lx\n", quirk);
-+	dev_info(dev, "quirk SSP%ld\n",  SOF_ES8336_SSP_CODEC(quirk));
-+	if (quirk & SOF_ES8336_ENABLE_DMIC)
-+		dev_info(dev, "quirk DMIC enabled\n");
-+	if (quirk & SOF_ES8336_TGL_GPIO_QUIRK)
-+		dev_info(dev, "quirk TGL GPIO enabled\n");
+--- a/lib/test_xarray.c
++++ b/lib/test_xarray.c
+@@ -1463,6 +1463,25 @@ unlock:
+ 	XA_BUG_ON(xa, !xa_empty(xa));
  }
  
- static int sof_es8316_speaker_power_event(struct snd_soc_dapm_widget *w,
--- 
-2.34.1
-
++static noinline void check_create_range_5(struct xarray *xa,
++		unsigned long index, unsigned int order)
++{
++	XA_STATE_ORDER(xas, xa, index, order);
++	unsigned int i;
++
++	xa_store_order(xa, index, order, xa_mk_index(index), GFP_KERNEL);
++
++	for (i = 0; i < order + 10; i++) {
++		do {
++			xas_lock(&xas);
++			xas_create_range(&xas);
++			xas_unlock(&xas);
++		} while (xas_nomem(&xas, GFP_KERNEL));
++	}
++
++	xa_destroy(xa);
++}
++
+ static noinline void check_create_range(struct xarray *xa)
+ {
+ 	unsigned int order;
+@@ -1490,6 +1509,9 @@ static noinline void check_create_range(
+ 		check_create_range_4(xa, (3U << order) + 1, order);
+ 		check_create_range_4(xa, (3U << order) - 1, order);
+ 		check_create_range_4(xa, (1U << 24) + 1, order);
++
++		check_create_range_5(xa, 0, order);
++		check_create_range_5(xa, (1U << order), order);
+ 	}
+ 
+ 	check_create_range_3();
+--- a/lib/xarray.c
++++ b/lib/xarray.c
+@@ -722,6 +722,8 @@ void xas_create_range(struct xa_state *x
+ 
+ 		for (;;) {
+ 			struct xa_node *node = xas->xa_node;
++			if (node->shift >= shift)
++				break;
+ 			xas->xa_node = xa_parent_locked(xas->xa, node);
+ 			xas->xa_offset = node->offset - 1;
+ 			if (node->offset != 0)
 
 
