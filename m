@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DF97F4F2E28
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:58:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EC2E4F2AA7
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:05:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349045AbiDEKuI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:50:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46028 "EHLO
+        id S1347797AbiDEJ2W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:28:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49668 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344638AbiDEJmI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:42:08 -0400
+        with ESMTP id S244905AbiDEIwq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:46 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41835BE9F7;
-        Tue,  5 Apr 2022 02:27:53 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C83824596;
+        Tue,  5 Apr 2022 01:46:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D27916144D;
-        Tue,  5 Apr 2022 09:27:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAA8BC385A0;
-        Tue,  5 Apr 2022 09:27:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9C0F7614E4;
+        Tue,  5 Apr 2022 08:45:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A406DC385A0;
+        Tue,  5 Apr 2022 08:45:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150872;
-        bh=o65J34RLJto+GKz4V0046wtNQI+MbpXjeDjAO3L02e8=;
+        s=korg; t=1649148359;
+        bh=7PbildU4fVy2AP3yvxFY7nRP8gtRqmn3F61F8jyqIRQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VTpo/l9xdcvwjoByhnn7+Fukf7jDPO4PhVh5V1AZXffhwao4NJbhUbrdRJGmiVCZY
-         KQkLQTdB8cHgqHIwscJCiA/MhZW7/EyAbK0TW1BkuzE27HyeofA60ZArMCx6i/67U+
-         zA8PAvzzax1QHnHoN4HePTgGvR3H2zhadWxnAtlM=
+        b=wUGGQ4QPs1B2nRaLUaY5XTS7QhIzSbkvKS/JEg16nkVqcn5tmf46/a1/7Vv83DP5I
+         4ME7RbiSqT40Yb7hV0wVl9/qjXZIosyiwm5+x/sTU+QvET2iA2vKPWknLBLiZU82pl
+         mOQGgtVa7ncpeTDdUi6hmlhdiEDH9SCd5/Z6e00A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Arend van Spriel <arend.vanspriel@broadcom.com>,
-        Hector Martin <marcan@marcan.st>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Kalle Valo <kvalo@kernel.org>
-Subject: [PATCH 5.15 179/913] brcmfmac: firmware: Allocate space for default boardrev in nvram
+        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0328/1017] ARM: ftrace: ensure that ADR takes the Thumb bit into account
 Date:   Tue,  5 Apr 2022 09:20:41 +0200
-Message-Id: <20220405070345.220598639@linuxfoundation.org>
+Message-Id: <20220405070404.017836188@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,36 +56,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hector Martin <marcan@marcan.st>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-commit d19d8e3ba256f81ea4a27209dbbd1f0a00ef1903 upstream.
+[ Upstream commit dd88b03ff0c84f4bcbe1419b93a4bed429fed3be ]
 
-If boardrev is missing from the NVRAM we add a default one, but this
-might need more space in the output buffer than was allocated. Ensure
-we have enough padding for this in the buffer.
+Using ADR to take the address of 'ftrace_stub' via a local label
+produces an address that has the Thumb bit cleared, which means the
+subsequent comparison is guaranteed to fail. Instead, use the badr
+macro, which forces the Thumb bit to be set.
 
-Fixes: 46f2b38a91b0 ("brcmfmac: insert default boardrev in nvram data if missing")
-Reviewed-by: Arend van Spriel <arend.vanspriel@broadcom.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Hector Martin <marcan@marcan.st>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20220131160713.245637-3-marcan@marcan.st
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: a3ba87a61499 ("ARM: 6316/1: ftrace: add Thumb-2 support")
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/broadcom/brcm80211/brcmfmac/firmware.c |    2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm/kernel/entry-ftrace.S | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/firmware.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/firmware.c
-@@ -207,6 +207,8 @@ static int brcmf_init_nvram_parser(struc
- 		size = BRCMF_FW_MAX_NVRAM_SIZE;
- 	else
- 		size = data_len;
-+	/* Add space for properties we may add */
-+	size += strlen(BRCMF_FW_DEFAULT_BOARDREV) + 1;
- 	/* Alloc for extra 0 byte + roundup by 4 + length field */
- 	size += 1 + 3 + sizeof(u32);
- 	nvp->nvram = kzalloc(size, GFP_KERNEL);
+diff --git a/arch/arm/kernel/entry-ftrace.S b/arch/arm/kernel/entry-ftrace.S
+index a74289ebc803..f4886fb6e9ba 100644
+--- a/arch/arm/kernel/entry-ftrace.S
++++ b/arch/arm/kernel/entry-ftrace.S
+@@ -40,7 +40,7 @@
+ 	mcount_enter
+ 	ldr	r0, =ftrace_trace_function
+ 	ldr	r2, [r0]
+-	adr	r0, .Lftrace_stub
++	badr	r0, .Lftrace_stub
+ 	cmp	r0, r2
+ 	bne	1f
+ 
+-- 
+2.34.1
+
 
 
