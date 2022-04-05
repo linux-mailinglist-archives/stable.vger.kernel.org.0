@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 235884F39A6
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:50:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69E244F3C45
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:25:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354840AbiDELhB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:37:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40626 "EHLO
+        id S1343737AbiDEMHA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:07:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53670 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353587AbiDEKIQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:08:16 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7012FC3352;
-        Tue,  5 Apr 2022 02:55:28 -0700 (PDT)
+        with ESMTP id S1358291AbiDEK2N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:28:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78F2513FB8;
+        Tue,  5 Apr 2022 03:17:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 28035B818F3;
-        Tue,  5 Apr 2022 09:55:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 762E0C385A2;
-        Tue,  5 Apr 2022 09:55:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0796261777;
+        Tue,  5 Apr 2022 10:17:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18708C385A0;
+        Tue,  5 Apr 2022 10:17:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152525;
-        bh=oAdNRWc6ezwx/T1ieSO3Pl7lslBK6T8faLtEp4lHgAY=;
+        s=korg; t=1649153869;
+        bh=STE1V4eBIELbzwjKqO/RVxava5O5udGBwQKcKktC430=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GVNCJ57gIVrCLXaFFn+/AFd2FMr1+kAYMJXXqc5EqMu7uZmu9hrqTbyWe95pbNloc
-         NBCRS/ZsrqD4eOVhvqmfbuFWMbpKcMm+l15clxB8JnOVuc1NYi2brVqlAAWCXT2LHu
-         24cgqXfhNFK1HDYIYXvHpVBzqN7LQUYnwlraVsME=
+        b=N8kEsqRP7gQyhBcFT4VHqM0DPzllUTklF7s04fzrp9YApyldWzTILveCGfHmyGfG1
+         7r2dCMbi6GOkKMC9YpIT80HnQJRZLT2itIxVc0FnFCqEW2Bwg5faCDEN/GO3ri5chf
+         sLMueyqevBAkymZDtFppmtA9/MeTRFBNwIjamWlk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Manish Rangankar <mrangankar@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.15 808/913] scsi: qla2xxx: Use correct feature type field during RFF_ID processing
-Date:   Tue,  5 Apr 2022 09:31:10 +0200
-Message-Id: <20220405070404.052198580@linuxfoundation.org>
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 377/599] mfd: asic3: Add missing iounmap() on error asic3_mfd_probe
+Date:   Tue,  5 Apr 2022 09:31:11 +0200
+Message-Id: <20220405070310.048907715@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070258.802373272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,46 +54,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manish Rangankar <mrangankar@marvell.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-commit a7e05f7a1bcbe4ee055479242de46c5c16ab03b1 upstream.
+[ Upstream commit e84ee1a75f944a0fe3c277aaa10c426603d2b0bc ]
 
-During SNS Register FC-4 Features (RFF_ID) the initiator driver was sending
-incorrect type field for NVMe supported device. Use correct feature type
-field.
+Add the missing iounmap() before return from asic3_mfd_probe
+in the error handling case.
 
-Link: https://lore.kernel.org/r/20220310092604.22950-12-njavali@marvell.com
-Fixes: e374f9f59281 ("scsi: qla2xxx: Migrate switch registration commands away from mailbox interface")
-Cc: stable@vger.kernel.org
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Manish Rangankar <mrangankar@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 64e8867ba809 ("mfd: tmio_mmc hardware abstraction for CNF area")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Link: https://lore.kernel.org/r/20220307072947.5369-1-linmq006@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_gs.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/mfd/asic3.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
---- a/drivers/scsi/qla2xxx/qla_gs.c
-+++ b/drivers/scsi/qla2xxx/qla_gs.c
-@@ -676,8 +676,7 @@ qla2x00_rff_id(scsi_qla_host_t *vha, u8
- 		return (QLA_SUCCESS);
+diff --git a/drivers/mfd/asic3.c b/drivers/mfd/asic3.c
+index a6bd2134cea2..14e4bbe6a9da 100644
+--- a/drivers/mfd/asic3.c
++++ b/drivers/mfd/asic3.c
+@@ -914,14 +914,14 @@ static int __init asic3_mfd_probe(struct platform_device *pdev,
+ 		ret = mfd_add_devices(&pdev->dev, pdev->id,
+ 			&asic3_cell_ds1wm, 1, mem, asic->irq_base, NULL);
+ 		if (ret < 0)
+-			goto out;
++			goto out_unmap;
  	}
  
--	return qla_async_rffid(vha, &vha->d_id, qlt_rff_id(vha),
--	    FC4_TYPE_FCP_SCSI);
-+	return qla_async_rffid(vha, &vha->d_id, qlt_rff_id(vha), type);
+ 	if (mem_sdio && (irq >= 0)) {
+ 		ret = mfd_add_devices(&pdev->dev, pdev->id,
+ 			&asic3_cell_mmc, 1, mem_sdio, irq, NULL);
+ 		if (ret < 0)
+-			goto out;
++			goto out_unmap;
+ 	}
+ 
+ 	ret = 0;
+@@ -935,8 +935,12 @@ static int __init asic3_mfd_probe(struct platform_device *pdev,
+ 		ret = mfd_add_devices(&pdev->dev, 0,
+ 			asic3_cell_leds, ASIC3_NUM_LEDS, NULL, 0, NULL);
+ 	}
++	return ret;
+ 
+- out:
++out_unmap:
++	if (asic->tmio_cnf)
++		iounmap(asic->tmio_cnf);
++out:
+ 	return ret;
  }
  
- static int qla_async_rffid(scsi_qla_host_t *vha, port_id_t *d_id,
-@@ -729,7 +728,7 @@ static int qla_async_rffid(scsi_qla_host
- 	/* Prepare CT arguments -- port_id, FC-4 feature, FC-4 type */
- 	ct_req->req.rff_id.port_id = port_id_to_be_id(*d_id);
- 	ct_req->req.rff_id.fc4_feature = fc4feature;
--	ct_req->req.rff_id.fc4_type = fc4type;		/* SCSI - FCP */
-+	ct_req->req.rff_id.fc4_type = fc4type;		/* SCSI-FCP or FC-NVMe */
- 
- 	sp->u.iocb_cmd.u.ctarg.req_size = RFF_ID_REQ_SIZE;
- 	sp->u.iocb_cmd.u.ctarg.rsp_size = RFF_ID_RSP_SIZE;
+-- 
+2.34.1
+
 
 
