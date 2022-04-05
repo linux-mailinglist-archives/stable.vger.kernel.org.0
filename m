@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 638A24F2D22
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:35:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B4C6E4F2A8C
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:04:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235991AbiDEI1O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:27:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45478 "EHLO
+        id S243010AbiDEJio (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:38:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41500 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239483AbiDEIUH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:20:07 -0400
+        with ESMTP id S243806AbiDEJJR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:09:17 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FDF0B0D26;
-        Tue,  5 Apr 2022 01:14:08 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7BF8C7F;
+        Tue,  5 Apr 2022 01:58:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9C3AC60AFB;
-        Tue,  5 Apr 2022 08:14:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADD4FC385A0;
-        Tue,  5 Apr 2022 08:14:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6AC4361594;
+        Tue,  5 Apr 2022 08:58:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B777C385A8;
+        Tue,  5 Apr 2022 08:58:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146447;
-        bh=WHog4N/cB+r7Q5qVBu/VTZU2oQBTeZ6/4VO5wSsfzc0=;
+        s=korg; t=1649149119;
+        bh=vZCYosMR3xAeEcqaIxxhaQzuSAuF9vWSVdw/VukUcbY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GtoolzIK+OJdHI1CLlmRp5Zl5yPEyrNHUl9su5HHf1FFzZ7wllLvddw0cmTsZYMBu
-         A/5V6tECpd14rCoxMXYXdf6qNDSL9soHsscnAUMewCpE9VjkZfq2lPwgZaKQMqQz9+
-         2yxhAVuhCoYYkv8OjOukk1tAxSOP1zYh88NO7mMM=
+        b=Qgef9G6xTu7DjiJe3WKC7Tn9qII7H5VrISoBSLM/wJy3ny3LIfB3/AKxnI3X02Cz0
+         qtWP2yeI15DQqqpNFxmOjQ2yTrwpYVi4+wFLoE+sJXBHiaR7OtsZoiBT02x0M6qnq8
+         /RRAjIJ1fWIgVNpOUxrzPZP2rJ9/7aXDlZqFcvdI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
-        Colin Foster <colin.foster@in-advantage.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org, Wang Yufen <wangyufen@huawei.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        John Fastabend <john.fastabend@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0768/1126] pinctrl: ocelot: fix duplicate debugfs entry
+Subject: [PATCH 5.16 0602/1017] bpf, sockmap: Fix double uncharge the mem of sk_msg
 Date:   Tue,  5 Apr 2022 09:25:15 +0200
-Message-Id: <20220405070430.125185334@linuxfoundation.org>
+Message-Id: <20220405070412.147578366@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,40 +55,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Walle <michael@walle.cc>
+From: Wang Yufen <wangyufen@huawei.com>
 
-[ Upstream commit 359afd90fef3ec9285432f50720c813987df4a89 ]
+[ Upstream commit 2486ab434b2c2a14e9237296db00b1e1b7ae3273 ]
 
-This driver can have up to two regmaps. If the second one is registered
-its debugfs entry will have the same name as the first one and the
-following error will be printed:
+If tcp_bpf_sendmsg is running during a tear down operation, psock may be
+freed.
 
-[    2.242568] debugfs: Directory 'e2004064.pinctrl' with parent 'regmap' already present!
+tcp_bpf_sendmsg()
+ tcp_bpf_send_verdict()
+  sk_msg_return()
+  tcp_bpf_sendmsg_redir()
+   unlikely(!psock))
+     sk_msg_free()
 
-Give the second regmap a name to avoid this.
+The mem of msg has been uncharged in tcp_bpf_send_verdict() by
+sk_msg_return(), and would be uncharged by sk_msg_free() again. When psock
+is null, we can simply returning an error code, this would then trigger
+the sk_msg_free_nocharge in the error path of __SK_REDIRECT and would have
+the side effect of throwing an error up to user space. This would be a
+slight change in behavior from user side but would look the same as an
+error if the redirect on the socket threw an error.
 
-Fixes: 076d9e71bcf8 ("pinctrl: ocelot: convert pinctrl to regmap")
-Signed-off-by: Michael Walle <michael@walle.cc>
-Reviewed-by: Colin Foster <colin.foster@in-advantage.com>
-Link: https://lore.kernel.org/r/20220216122727.1005041-1-michael@walle.cc
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+This issue can cause the following info:
+WARNING: CPU: 0 PID: 2136 at net/ipv4/af_inet.c:155 inet_sock_destruct+0x13c/0x260
+Call Trace:
+ <TASK>
+ __sk_destruct+0x24/0x1f0
+ sk_psock_destroy+0x19b/0x1c0
+ process_one_work+0x1b3/0x3c0
+ worker_thread+0x30/0x350
+ ? process_one_work+0x3c0/0x3c0
+ kthread+0xe6/0x110
+ ? kthread_complete_and_exit+0x20/0x20
+ ret_from_fork+0x22/0x30
+ </TASK>
+
+Fixes: 604326b41a6f ("bpf, sockmap: convert to generic sk_msg interface")
+Signed-off-by: Wang Yufen <wangyufen@huawei.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: John Fastabend <john.fastabend@gmail.com>
+Link: https://lore.kernel.org/bpf/20220304081145.2037182-5-wangyufen@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/pinctrl-ocelot.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/ipv4/tcp_bpf.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/pinctrl/pinctrl-ocelot.c b/drivers/pinctrl/pinctrl-ocelot.c
-index a719c0bfbc91..9c13a7c90fc3 100644
---- a/drivers/pinctrl/pinctrl-ocelot.c
-+++ b/drivers/pinctrl/pinctrl-ocelot.c
-@@ -1788,6 +1788,7 @@ static struct regmap *ocelot_pinctrl_create_pincfg(struct platform_device *pdev)
- 		.val_bits = 32,
- 		.reg_stride = 4,
- 		.max_register = 32,
-+		.name = "pincfg",
- 	};
+diff --git a/net/ipv4/tcp_bpf.c b/net/ipv4/tcp_bpf.c
+index 304800c60427..1cdcb4df0eb7 100644
+--- a/net/ipv4/tcp_bpf.c
++++ b/net/ipv4/tcp_bpf.c
+@@ -138,10 +138,9 @@ int tcp_bpf_sendmsg_redir(struct sock *sk, struct sk_msg *msg,
+ 	struct sk_psock *psock = sk_psock_get(sk);
+ 	int ret;
  
- 	base = devm_platform_ioremap_resource(pdev, 1);
+-	if (unlikely(!psock)) {
+-		sk_msg_free(sk, msg);
+-		return 0;
+-	}
++	if (unlikely(!psock))
++		return -EPIPE;
++
+ 	ret = ingress ? bpf_tcp_ingress(sk, psock, msg, bytes, flags) :
+ 			tcp_bpf_push_locked(sk, msg, bytes, flags, false);
+ 	sk_psock_put(sk, psock);
 -- 
 2.34.1
 
