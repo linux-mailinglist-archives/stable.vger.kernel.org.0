@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 75AF94F2AB0
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:05:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 307B04F2D4F
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:36:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243096AbiDEJiz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:38:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41940 "EHLO
+        id S235125AbiDEI0k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:26:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33102 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239084AbiDEJFh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:05:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E355F4090C;
-        Tue,  5 Apr 2022 01:56:17 -0700 (PDT)
+        with ESMTP id S239360AbiDEIUA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:20:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8F89BD897;
+        Tue,  5 Apr 2022 01:11:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 296DE61572;
-        Tue,  5 Apr 2022 08:56:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2FB73C385A0;
-        Tue,  5 Apr 2022 08:56:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8FB9CB81B90;
+        Tue,  5 Apr 2022 08:11:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9670C385A0;
+        Tue,  5 Apr 2022 08:11:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148976;
-        bh=sguz78huzTlJ+6AdEbFDuzyeDjf7ZrfKYEM3mGzXiZQ=;
+        s=korg; t=1649146308;
+        bh=lHHOGHVmr7qWwaPYUHQ99Hm9LnXzzyxu1DtucskLisY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WTdn0gfF3X3Yp7CZPVDupN2GZvnUnEFxa/DoqhzhMW90xJ4JJmchloT+SorQTaO8P
-         XsmX+eyXPX61Ef1ZShtJsOBajn+W8ayTOqMSzZhS5lSiAxzE2qrGt5hhaqNWqQqAa4
-         0BMO2jZTm1FkA2OcsSQUlEm5MIceEk6+EJx6jaKc=
+        b=GLbKGDLfBZWcJ+kylj0xGw3jOJ2QDi2/tezIO2SZK4STsLBu9C5OLk03QQF3ZiYV7
+         LqqEs/xAMavRgQhq03p6qM+WD2gWlpsaU5sseBoah/vWbPDGmJ6ovQ9LhbFK4DLA5f
+         XDBy3XA5GB5nU6Clf6jeC9VEDW9bnZD7idwqj7G4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mukesh Sisodiya <mukesh.sisodiya@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
+        stable@vger.kernel.org, Richard Zhu <hongxing.zhu@nxp.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Lucas Stach <l.stach@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0512/1017] iwlwifi: yoyo: Avoid using dram data if allocation failed
-Date:   Tue,  5 Apr 2022 09:23:45 +0200
-Message-Id: <20220405070409.496667498@linuxfoundation.org>
+Subject: [PATCH 5.17 0679/1126] PCI: imx6: Assert i.MX8MM CLKREQ# even if no device present
+Date:   Tue,  5 Apr 2022 09:23:46 +0200
+Message-Id: <20220405070427.551805233@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,51 +55,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mukesh Sisodiya <mukesh.sisodiya@intel.com>
+From: Richard Zhu <hongxing.zhu@nxp.com>
 
-[ Upstream commit e2d53d10ef666859517360e711fd7761e7e984ce ]
+[ Upstream commit 45514f78c65cc9a09437f20e180625f94f769863 ]
 
-The config set TLV setting depend on dram allocation
-and if allocation failed the data used in config set tlv
-should not set this.
-Adding the check if dram fragment is available or not.
+The CLKREQ# signal is an open drain, active low signal that is driven
+low by the remote Endpoint device. But it might not be driven low if no
+Endpoint device is connected.
 
-Signed-off-by: Mukesh Sisodiya <mukesh.sisodiya@intel.com>
-Fixes: 1a5daead217c ("iwlwifi: yoyo: support for ROM usniffer")
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20220204122220.44835d181528.I3e78ba29c13bbeada017fcb2a620f3552c1dfa30@changeid
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+On i.MX8MM PCIe, phy_init() may fail and system boot may hang if no
+Endpoint is connected to assert CLKREQ#.
+
+Handle this as on i.MX8MQ, where we explicitly assert CLKREQ# so the
+PHY can be initialized.
+
+Link: https://lore.kernel.org/r/1645672013-8949-1-git-send-email-hongxing.zhu@nxp.com
+Fixes: 178e244cb6e2 ("PCI: imx: Add the imx8mm pcie support")
+Signed-off-by: Richard Zhu <hongxing.zhu@nxp.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Lucas Stach <l.stach@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/iwl-dbg-tlv.c | 13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ drivers/pci/controller/dwc/pci-imx6.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/iwl-dbg-tlv.c b/drivers/net/wireless/intel/iwlwifi/iwl-dbg-tlv.c
-index 7ab98b419cc1..d412b6d0b28e 100644
---- a/drivers/net/wireless/intel/iwlwifi/iwl-dbg-tlv.c
-+++ b/drivers/net/wireless/intel/iwlwifi/iwl-dbg-tlv.c
-@@ -849,11 +849,18 @@ static void iwl_dbg_tlv_apply_config(struct iwl_fw_runtime *fwrt,
- 		case IWL_FW_INI_CONFIG_SET_TYPE_DBGC_DRAM_ADDR: {
- 			struct iwl_dbgc1_info dram_info = {};
- 			struct iwl_dram_data *frags = &fwrt->trans->dbg.fw_mon_ini[1].frags[0];
--			__le64 dram_base_addr = cpu_to_le64(frags->physical);
--			__le32 dram_size = cpu_to_le32(frags->size);
--			u64  dram_addr = le64_to_cpu(dram_base_addr);
-+			__le64 dram_base_addr;
-+			__le32 dram_size;
-+			u64 dram_addr;
- 			u32 ret;
- 
-+			if (!frags)
-+				break;
-+
-+			dram_base_addr = cpu_to_le64(frags->physical);
-+			dram_size = cpu_to_le32(frags->size);
-+			dram_addr = le64_to_cpu(dram_base_addr);
-+
- 			IWL_DEBUG_FW(fwrt, "WRT: dram_base_addr 0x%016llx, dram_size 0x%x\n",
- 				     dram_base_addr, dram_size);
- 			IWL_DEBUG_FW(fwrt, "WRT: config_list->addr_offset: %u\n",
+diff --git a/drivers/pci/controller/dwc/pci-imx6.c b/drivers/pci/controller/dwc/pci-imx6.c
+index 77fc510c6d0d..d09ad4e1f432 100644
+--- a/drivers/pci/controller/dwc/pci-imx6.c
++++ b/drivers/pci/controller/dwc/pci-imx6.c
+@@ -453,10 +453,6 @@ static int imx6_pcie_enable_ref_clk(struct imx6_pcie *imx6_pcie)
+ 	case IMX7D:
+ 		break;
+ 	case IMX8MM:
+-		ret = clk_prepare_enable(imx6_pcie->pcie_aux);
+-		if (ret)
+-			dev_err(dev, "unable to enable pcie_aux clock\n");
+-		break;
+ 	case IMX8MQ:
+ 		ret = clk_prepare_enable(imx6_pcie->pcie_aux);
+ 		if (ret) {
 -- 
 2.34.1
 
