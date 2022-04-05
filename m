@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B9EC4F2792
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:08:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0ECD4F27EE
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:09:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233448AbiDEIHd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:07:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49918 "EHLO
+        id S232471AbiDEIJq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:09:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50136 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235967AbiDEIAx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:00:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A55A49243;
-        Tue,  5 Apr 2022 00:58:55 -0700 (PDT)
+        with ESMTP id S236003AbiDEIBB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:01:01 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCE0B49FB3;
+        Tue,  5 Apr 2022 00:59:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3682C61545;
-        Tue,  5 Apr 2022 07:58:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F0DFC3410F;
-        Tue,  5 Apr 2022 07:58:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 95A98B81B18;
+        Tue,  5 Apr 2022 07:59:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3008C340EE;
+        Tue,  5 Apr 2022 07:58:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145534;
-        bh=mMs8cEwxxXca6Fv/Ju+e15x+v/0X/GOCyC5VUwCK5YA=;
+        s=korg; t=1649145540;
+        bh=DqpbXeSy2wz6V4vXfGJ2xZky/5rTxcMKW6nSQNRNDwA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pBWNBlqI+J/gtxITJDyCgpV2X/1dcjG/KwY8FoWsauC9cFk3cbDG/Uyr6qHOcBuca
-         p7z/r6ogqCtWlGmj4wpwUMRVYo2jMjDRw02j6jge2hrMmLh/OM/PtqTR4zrJZNLIB/
-         C6PjTWvIguou0tsmvjjwNgHxB0tEo8kDOVo12Seg=
+        b=RrJyibYJ2JlzQr9GmK110m3SkwHDdWVl93a1Y/UN5RnQ23mcZFWvWlIYeKlCy6213
+         lStInfXjL0Id7bY0RvN4yfqCz/ecE8/haVbd/DDbGThKP8FplOa/xMX4ycOeFvX4+4
+         zqyrZWBjihqphgnqfBBnS2Nxmbrjchn6a1H5rpyo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
+        stable@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>,
+        Jani Nikula <jani.nikula@intel.com>,
         Daniel Vetter <daniel.vetter@ffwll.ch>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0441/1126] drm/selftests/test-drm_dp_mst_helper: Fix memory leak in sideband_msg_req_encode_decode
-Date:   Tue,  5 Apr 2022 09:19:48 +0200
-Message-Id: <20220405070420.567913454@linuxfoundation.org>
+Subject: [PATCH 5.17 0442/1126] drm/locking: fix drm_modeset_acquire_ctx kernel-doc
+Date:   Tue,  5 Apr 2022 09:19:49 +0200
+Message-Id: <20220405070420.597737979@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -55,39 +55,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: José Expósito <jose.exposito89@gmail.com>
+From: Jani Nikula <jani.nikula@intel.com>
 
-[ Upstream commit ba3a5ddcf1e5df31f2291006d5297ca62035584f ]
+[ Upstream commit 6f043b5969a4d6d385ca429388ded37e30e0d179 ]
 
-Avoid leaking the "out" variable if it is not possible to allocate
-the "txmsg" variable.
+The stack_depot member was added without kernel-doc, leading to below
+warning. Fix it.
 
-Fixes: 09234b88ef55 ("drm/selftests/test-drm_dp_mst_helper: Move 'sideband_msg_req_encode_decode' onto the heap")
-Addresses-Coverity-ID: 1475685 ("Resource leak")
-Signed-off-by: José Expósito <jose.exposito89@gmail.com>
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220108165812.46797-1-jose.exposito89@gmail.com
+./include/drm/drm_modeset_lock.h:74: warning: Function parameter or
+member 'stack_depot' not described in 'drm_modeset_acquire_ctx'
+
+Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
+Fixes: cd06ab2fd48f ("drm/locking: add backtrace for locking contended locks without backoff")
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Tested-by: Stephen Rothwell <sfr@canb.auug.org.au>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220120094856.3004147-1-jani.nikula@intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/selftests/test-drm_dp_mst_helper.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ include/drm/drm_modeset_lock.h | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/selftests/test-drm_dp_mst_helper.c b/drivers/gpu/drm/selftests/test-drm_dp_mst_helper.c
-index 6b4759ed6bfd..c491429f1a02 100644
---- a/drivers/gpu/drm/selftests/test-drm_dp_mst_helper.c
-+++ b/drivers/gpu/drm/selftests/test-drm_dp_mst_helper.c
-@@ -131,8 +131,10 @@ sideband_msg_req_encode_decode(struct drm_dp_sideband_msg_req_body *in)
- 		return false;
- 
- 	txmsg = kzalloc(sizeof(*txmsg), GFP_KERNEL);
--	if (!txmsg)
-+	if (!txmsg) {
-+		kfree(out);
- 		return false;
-+	}
- 
- 	drm_dp_encode_sideband_req(in, txmsg);
- 	ret = drm_dp_decode_sideband_req(txmsg, out);
+diff --git a/include/drm/drm_modeset_lock.h b/include/drm/drm_modeset_lock.h
+index b84693fbd2b5..ec4f543c3d95 100644
+--- a/include/drm/drm_modeset_lock.h
++++ b/include/drm/drm_modeset_lock.h
+@@ -34,6 +34,7 @@ struct drm_modeset_lock;
+  * struct drm_modeset_acquire_ctx - locking context (see ww_acquire_ctx)
+  * @ww_ctx: base acquire ctx
+  * @contended: used internally for -EDEADLK handling
++ * @stack_depot: used internally for contention debugging
+  * @locked: list of held locks
+  * @trylock_only: trylock mode used in atomic contexts/panic notifiers
+  * @interruptible: whether interruptible locking should be used.
 -- 
 2.34.1
 
