@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A79264F3A58
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:00:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 071374F37CF
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:25:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244740AbiDELo3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:44:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41600 "EHLO
+        id S1359551AbiDELT7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:19:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354567AbiDEKOj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:14:39 -0400
+        with ESMTP id S1349132AbiDEJtM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:12 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44EEA6BDC0;
-        Tue,  5 Apr 2022 03:01:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 714C4AC044;
+        Tue,  5 Apr 2022 02:41:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D53876172B;
-        Tue,  5 Apr 2022 10:01:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2B02C385A2;
-        Tue,  5 Apr 2022 10:01:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0F31161675;
+        Tue,  5 Apr 2022 09:41:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1AD2BC385A3;
+        Tue,  5 Apr 2022 09:41:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152869;
-        bh=d/cY7PKqDZsO7roqJnKo+pFXp8Zl8yqMxxZoCi2Jn6o=;
+        s=korg; t=1649151670;
+        bh=s0Xl/tDZ/nn9ljOEmMoDjIHW5BTj9WeUhGDK0Dd9ojI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IOscMeEr3J+uvHlOJw1W1YMSeaEpr83PYtJEVDicnVI12qlJOLBJ2nHqNnvVqjhw/
-         Z7SYWeHChm5GF4x81ufWS2JynMExa8TUcAWGCUaXZVfHJ0KxPKi/KccwZUU1tunfWU
-         wNVFr6cm6cx0NijgpRe64Wudc+iBUMWdL1eMecCE=
+        b=fpROFFrMfgDvr6ZNya6F5LqqYvdPTDSH1nOQHwjvl9D0pBw6TmgwUEVFcVRNXL51c
+         naPp+XOtTq/VdYhBwkPpVTOrGHc7xhS4IEQ5/v+PDDpfOB+HQazKK5mpFbtmNVfVqv
+         4AAO5TGg4XfrFSHicsaGYJemn+WJy0DwTWI8UhyE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, TCS Robot <tcs_robot@tencent.com>,
-        Haimin Zhang <tcs_kernel@tencent.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 019/599] af_key: add __GFP_ZERO flag for compose_sadb_supported in function pfkey_register
+Subject: [PATCH 5.15 451/913] power: supply: ab8500: Fix memory leak in ab8500_fg_sysfs_init
 Date:   Tue,  5 Apr 2022 09:25:13 +0200
-Message-Id: <20220405070259.388646405@linuxfoundation.org>
+Message-Id: <20220405070353.367451209@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
-References: <20220405070258.802373272@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,40 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haimin Zhang <tcs_kernel@tencent.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 9a564bccb78a76740ea9d75a259942df8143d02c ]
+[ Upstream commit 6a4760463dbc6b603690938c468839985189ce0a ]
 
-Add __GFP_ZERO flag for compose_sadb_supported in function pfkey_register
-to initialize the buffer of supp_skb to fix a kernel-info-leak issue.
-1) Function pfkey_register calls compose_sadb_supported to request
-a sk_buff. 2) compose_sadb_supported calls alloc_sbk to allocate
-a sk_buff, but it doesn't zero it. 3) If auth_len is greater 0, then
-compose_sadb_supported treats the memory as a struct sadb_supported and
-begins to initialize. But it just initializes the field sadb_supported_len
-and field sadb_supported_exttype without field sadb_supported_reserved.
+kobject_init_and_add() takes reference even when it fails.
+According to the doc of kobject_init_and_add()：
 
-Reported-by: TCS Robot <tcs_robot@tencent.com>
-Signed-off-by: Haimin Zhang <tcs_kernel@tencent.com>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+   If this function returns an error, kobject_put() must be called to
+   properly clean up the memory associated with the object.
+
+Fix memory leak by calling kobject_put().
+
+Fixes: 8c0984e5a753 ("power: move power supply drivers to power/supply")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/key/af_key.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/power/supply/ab8500_fg.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/net/key/af_key.c b/net/key/af_key.c
-index d1364b858fdf..bd9b5c573b5a 100644
---- a/net/key/af_key.c
-+++ b/net/key/af_key.c
-@@ -1703,7 +1703,7 @@ static int pfkey_register(struct sock *sk, struct sk_buff *skb, const struct sad
+diff --git a/drivers/power/supply/ab8500_fg.c b/drivers/power/supply/ab8500_fg.c
+index 05fe9724ba50..57799a8079d4 100644
+--- a/drivers/power/supply/ab8500_fg.c
++++ b/drivers/power/supply/ab8500_fg.c
+@@ -2545,8 +2545,10 @@ static int ab8500_fg_sysfs_init(struct ab8500_fg *di)
+ 	ret = kobject_init_and_add(&di->fg_kobject,
+ 		&ab8500_fg_ktype,
+ 		NULL, "battery");
+-	if (ret < 0)
++	if (ret < 0) {
++		kobject_put(&di->fg_kobject);
+ 		dev_err(di->dev, "failed to create sysfs entry\n");
++	}
  
- 	xfrm_probe_algs();
- 
--	supp_skb = compose_sadb_supported(hdr, GFP_KERNEL);
-+	supp_skb = compose_sadb_supported(hdr, GFP_KERNEL | __GFP_ZERO);
- 	if (!supp_skb) {
- 		if (hdr->sadb_msg_satype != SADB_SATYPE_UNSPEC)
- 			pfk->registered &= ~(1<<hdr->sadb_msg_satype);
+ 	return ret;
+ }
 -- 
 2.34.1
 
