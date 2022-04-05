@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 77BAE4F32D7
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:00:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 722504F300D
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:20:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355741AbiDEKVp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:21:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60036 "EHLO
+        id S238581AbiDEIoT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:44:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46000 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347348AbiDEJ0M (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:26:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0563DE93A;
-        Tue,  5 Apr 2022 02:15:23 -0700 (PDT)
+        with ESMTP id S241259AbiDEIc6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:32:58 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09E3B62E7;
+        Tue,  5 Apr 2022 01:30:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 794426164E;
-        Tue,  5 Apr 2022 09:15:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83CA3C385A0;
-        Tue,  5 Apr 2022 09:15:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C345EB81BC0;
+        Tue,  5 Apr 2022 08:30:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A638C385A1;
+        Tue,  5 Apr 2022 08:30:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150121;
-        bh=ILBucAii6L59KbluEJs9UfkSEPcuI0aO3O8zzJAmlug=;
+        s=korg; t=1649147448;
+        bh=+1uthk7lYAmO9wnvrPL07V5fVwTvslmy0jK66nFRxSs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vap5HGclvTVNBJ4j3sLXsnnrwQ5498yRBhg1x6+fVqJ8loxHRh9syOvFxbxqvMTn5
-         JGXt8+SrW5VM6xZYsR6iw2WSbr3lFkjDRDLYf8CszFQmwBAVk/lLaeZ8D9guBWri3y
-         i70wukyzrKhW7pLpoqncdhCgArj2z5K5zKADTFps=
+        b=KOuy0ZbkdOYAwGAeRdjF1q+cNfGzra1iJp4b1QwOk6ovYMBQEHg/Qvb4tNGGdKxAn
+         zLkAtKIiz7G4nHprXbF3tG8+3OsD25aC3VP32mWFHXrmVnXhhcQZ5nkpZ7mTtNSYJX
+         GL1qG+DYM/Z1aHlgn/+7qTig+w1FCxuqhah++JsY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.16 0923/1017] can: mcba_usb: mcba_usb_start_xmit(): fix double dev_kfree_skb in error path
+        stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>,
+        Rob Herring <robh@kernel.org>
+Subject: [PATCH 5.17 1089/1126] dt-bindings: mtd: nand-controller: Fix the reg property description
 Date:   Tue,  5 Apr 2022 09:30:36 +0200
-Message-Id: <20220405070421.615707346@linuxfoundation.org>
+Message-Id: <20220405070439.413895406@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,32 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangyu Hua <hbh25y@gmail.com>
+From: Miquel Raynal <miquel.raynal@bootlin.com>
 
-commit 04c9b00ba83594a29813d6b1fb8fdc93a3915174 upstream.
+commit 93f2ec9e401276fb4ea9903194a5bfcf175f9a2c upstream.
 
-There is no need to call dev_kfree_skb() when usb_submit_urb() fails
-because can_put_echo_skb() deletes original skb and
-can_free_echo_skb() deletes the cloned skb.
+The reg property of a NAND device always references the chip-selects.
+The ready/busy lines are described in the nand-rb property. I believe
+this was a harmless copy/paste error during the conversion to yaml.
 
-Fixes: 51f3baad7de9 ("can: mcba_usb: Add support for Microchip CAN BUS Analyzer")
-Link: https://lore.kernel.org/all/20220311080208.45047-1-hbh25y@gmail.com
-Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fixes: 212e49693592 ("dt-bindings: mtd: Add YAML schemas for the generic NAND options")
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Acked-by: Rob Herring <robh@kernel.org>
+Link: https://lore.kernel.org/linux-mtd/20211216111654.238086-2-miquel.raynal@bootlin.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/usb/mcba_usb.c |    1 -
- 1 file changed, 1 deletion(-)
+ Documentation/devicetree/bindings/mtd/nand-controller.yaml |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/can/usb/mcba_usb.c
-+++ b/drivers/net/can/usb/mcba_usb.c
-@@ -368,7 +368,6 @@ static netdev_tx_t mcba_usb_start_xmit(s
- xmit_failed:
- 	can_free_echo_skb(priv->netdev, ctx->ndx, NULL);
- 	mcba_usb_free_ctx(ctx);
--	dev_kfree_skb(skb);
- 	stats->tx_dropped++;
+--- a/Documentation/devicetree/bindings/mtd/nand-controller.yaml
++++ b/Documentation/devicetree/bindings/mtd/nand-controller.yaml
+@@ -55,7 +55,7 @@ patternProperties:
+     properties:
+       reg:
+         description:
+-          Contains the native Ready/Busy IDs.
++          Contains the chip-select IDs.
  
- 	return NETDEV_TX_OK;
+       nand-ecc-engine:
+         allOf:
 
 
