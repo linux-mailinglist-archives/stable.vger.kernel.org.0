@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CE9E4F2DEA
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:47:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B6E304F29DC
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 12:50:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244182AbiDEKiL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:38:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40998 "EHLO
+        id S1343765AbiDEJMr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:12:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51496 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240305AbiDEJeC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:34:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AA936E34B;
-        Tue,  5 Apr 2022 02:23:42 -0700 (PDT)
+        with ESMTP id S244865AbiDEIwo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:44 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DECF7237EF;
+        Tue,  5 Apr 2022 01:45:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A6CB16165C;
-        Tue,  5 Apr 2022 09:23:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2FCEC385A2;
-        Tue,  5 Apr 2022 09:23:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8F0C8B81BC5;
+        Tue,  5 Apr 2022 08:45:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8FB4C385A1;
+        Tue,  5 Apr 2022 08:45:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150621;
-        bh=/vSptA5YddKrMRYEVwozcLIsPiINX27TrXq69pfeqmQ=;
+        s=korg; t=1649148301;
+        bh=f7lk/uatWZehCCEatvm6qnumEhlCGUuUHdGZqbrb3Fw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zFBOHa2fxaiXd01QzwZCuF+2ArZcMEqmsscE9Y/145DO9e8VHVbb2zPHcOdZS+Ref
-         jQeqjgnfAkI9Ce5O5Mok6nYJsWmPRWOCAdXx08MiTU05ApUkDTJU5nENQ96MOizu4k
-         NBWzs69g/ya+wCG4zZ/rc+O0eyuc+zKN12YqnT4o=
+        b=vgrS8Vp4HRlWT7ZdRtE3HtqgUW+0JzTrgs4O+zOjaJnTDzSYCD8woN6W9wG0ocbU/
+         wREti6KD0araK0Ewmq+e4WClou+Mm7WwmyHulR6PL1VnqB2z0KOiL/BQCcN6IAr/sJ
+         Jjqw1K2/MGqj/I0/TG5g+E//Sk21KS83KnkvWJDg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Gruenbacher <agruenba@redhat.com>,
-        Anand Jain <anand.jain@oracle.com>
-Subject: [PATCH 5.15 119/913] powerpc/kvm: Fix kvm_use_magic_page
-Date:   Tue,  5 Apr 2022 09:19:41 +0200
-Message-Id: <20220405070343.394194028@linuxfoundation.org>
+        stable@vger.kernel.org, Minye Zhu <zhuminye@bytedance.com>,
+        Chengming Zhou <zhouchengming@bytedance.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Tejun Heo <tj@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0269/1017] sched/cpuacct: Fix charge percpu cpuusage
+Date:   Tue,  5 Apr 2022 09:19:42 +0200
+Message-Id: <20220405070402.249536522@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,33 +55,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Gruenbacher <agruenba@redhat.com>
+From: Chengming Zhou <zhouchengming@bytedance.com>
 
-commit 0c8eb2884a42d992c7726539328b7d3568f22143 upstream.
+[ Upstream commit 248cc9993d1cc12b8e9ed716cc3fc09f6c3517dd ]
 
-When switching from __get_user to fault_in_pages_readable, commit
-9f9eae5ce717 broke kvm_use_magic_page: like __get_user,
-fault_in_pages_readable returns 0 on success.
+The cpuacct_account_field() is always called by the current task
+itself, so it's ok to use __this_cpu_add() to charge the tick time.
 
-Fixes: 9f9eae5ce717 ("powerpc/kvm: Prefer fault_in_pages_readable function")
-Cc: stable@vger.kernel.org # v4.18+
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
-Signed-off-by: Anand Jain <anand.jain@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+But cpuacct_charge() maybe called by update_curr() in load_balance()
+on a random CPU, different from the CPU on which the task is running.
+So __this_cpu_add() will charge that cputime to a random incorrect CPU.
+
+Fixes: 73e6aafd9ea8 ("sched/cpuacct: Simplify the cpuacct code")
+Reported-by: Minye Zhu <zhuminye@bytedance.com>
+Signed-off-by: Chengming Zhou <zhouchengming@bytedance.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Tejun Heo <tj@kernel.org>
+Link: https://lore.kernel.org/r/20220220051426.5274-1-zhouchengming@bytedance.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/kvm.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/sched/cpuacct.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/arch/powerpc/kernel/kvm.c
-+++ b/arch/powerpc/kernel/kvm.c
-@@ -669,7 +669,7 @@ static void __init kvm_use_magic_page(vo
- 	on_each_cpu(kvm_map_magic_page, &features, 1);
+diff --git a/kernel/sched/cpuacct.c b/kernel/sched/cpuacct.c
+index ab67d97a8442..cacc2076ad21 100644
+--- a/kernel/sched/cpuacct.c
++++ b/kernel/sched/cpuacct.c
+@@ -328,12 +328,13 @@ static struct cftype files[] = {
+  */
+ void cpuacct_charge(struct task_struct *tsk, u64 cputime)
+ {
++	unsigned int cpu = task_cpu(tsk);
+ 	struct cpuacct *ca;
  
- 	/* Quick self-test to see if the mapping works */
--	if (!fault_in_pages_readable((const char *)KVM_MAGIC_PAGE, sizeof(u32))) {
-+	if (fault_in_pages_readable((const char *)KVM_MAGIC_PAGE, sizeof(u32))) {
- 		kvm_patching_worked = false;
- 		return;
- 	}
+ 	rcu_read_lock();
+ 
+ 	for (ca = task_ca(tsk); ca; ca = parent_ca(ca))
+-		__this_cpu_add(*ca->cpuusage, cputime);
++		*per_cpu_ptr(ca->cpuusage, cpu) += cputime;
+ 
+ 	rcu_read_unlock();
+ }
+-- 
+2.34.1
+
 
 
