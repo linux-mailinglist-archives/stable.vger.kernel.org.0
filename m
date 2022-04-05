@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 444DB4F2AC3
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:05:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5903E4F2A2B
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 12:53:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347559AbiDEJ1c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:27:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46808 "EHLO
+        id S238198AbiDEJEr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:04:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42510 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244101AbiDEIvk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:51:40 -0400
+        with ESMTP id S243929AbiDEIvT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:51:19 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08689D1CFD;
-        Tue,  5 Apr 2022 01:40:20 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA242CFBB7;
+        Tue,  5 Apr 2022 01:40:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7947DB81C19;
-        Tue,  5 Apr 2022 08:39:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C712CC385A0;
-        Tue,  5 Apr 2022 08:39:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E8AB8B81C6A;
+        Tue,  5 Apr 2022 08:39:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43BD4C385A0;
+        Tue,  5 Apr 2022 08:39:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147955;
-        bh=EUPH0vkDEVeXCVAVBEpenWoJnK05JcGiufawvmrh8I0=;
+        s=korg; t=1649147960;
+        bh=/maTMZpPyHrPXM73DSYyKjXwq5K+XsJdIA6vi+YbTEU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BfaxsX/NMFlO7nyURaZNyK6rg+8dvysoBS5NSuWOscuJbiwdCApEqX9YutkNm2w6D
-         WDlxKKcEQzaaOzQDeZaFZeVi19MdnbjHhBnD71KK6ZFTQ4DBktmdV78EIppDaUNuwc
-         SOHPV/6ZPJcrrR7SpGHnK7dJ+kNfpHFJ9MxZnKL0=
+        b=ovjZ/K2l3QZLzlPQjcRwceOwb2RW5AFHNF8o8MW41WRghnsIoYbYqjuNwcxefxKyV
+         ZwukAR8eRzbDd57lHqYwXxLDrn6P7f891XcdTto0vNENjbQ6Nx9TW6Xpyyf8fzAAZ+
+         8Y8v49FGuSS+eMWuYWT9OspU1km9QTaxaY6oIZJE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Tudor Ambarus <tudor.ambarus@microchip.com>,
-        Alexander Dahl <ada@thorsis.com>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>
-Subject: [PATCH 5.16 0155/1017] ARM: dts: at91: sama5d2: Fix PMERRLOC resource size
-Date:   Tue,  5 Apr 2022 09:17:48 +0200
-Message-Id: <20220405070358.813382618@linuxfoundation.org>
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Alim Akhtar <alim.akhtar@samsung.com>
+Subject: [PATCH 5.16 0157/1017] ARM: dts: exynos: add missing HDMI supplies on SMDK5250
+Date:   Tue,  5 Apr 2022 09:17:50 +0200
+Message-Id: <20220405070358.875453073@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -55,36 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tudor Ambarus <tudor.ambarus@microchip.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 
-commit 0fb578a529ac7aca326a9fa475b4a6f58a756fda upstream.
+commit 60a9914cb2061ba612a3f14f6ad329912b486360 upstream.
 
-PMERRLOC resource size was set to 0x100, which resulted in HSMC_ERRLOCx
-register being truncated to offset x = 21, causing error correction to
-fail if more than 22 bit errors and if 24 or 32 bit error correction
-was supported.
+Add required VDD supplies to HDMI block on SMDK5250.  Without them, the
+HDMI driver won't probe.  Because of lack of schematics, use same
+supplies as on Arndale 5250 board (voltage matches).
 
-Fixes: d9c41bf30cf8 ("ARM: dts: at91: Declare EBI/NAND controllers")
-Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
-Cc: <stable@vger.kernel.org> # 4.13.x
-Acked-by: Alexander Dahl <ada@thorsis.com>
-Signed-off-by: Nicolas Ferre <nicolas.ferre@microchip.com>
-Link: https://lore.kernel.org/r/20220111132301.906712-1-tudor.ambarus@microchip.com
+Cc: <stable@vger.kernel.org> # v3.15+
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Reviewed-by: Alim Akhtar <alim.akhtar@samsung.com>
+Link: https://lore.kernel.org/r/20220208171823.226211-2-krzysztof.kozlowski@canonical.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/sama5d2.dtsi |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/dts/exynos5250-smdk5250.dts |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/arch/arm/boot/dts/sama5d2.dtsi
-+++ b/arch/arm/boot/dts/sama5d2.dtsi
-@@ -413,7 +413,7 @@
- 				pmecc: ecc-engine@f8014070 {
- 					compatible = "atmel,sama5d2-pmecc";
- 					reg = <0xf8014070 0x490>,
--					      <0xf8014500 0x100>;
-+					      <0xf8014500 0x200>;
- 				};
- 			};
+--- a/arch/arm/boot/dts/exynos5250-smdk5250.dts
++++ b/arch/arm/boot/dts/exynos5250-smdk5250.dts
+@@ -118,6 +118,9 @@
+ 	status = "okay";
+ 	ddc = <&i2c_2>;
+ 	hpd-gpios = <&gpx3 7 GPIO_ACTIVE_HIGH>;
++	vdd-supply = <&ldo8_reg>;
++	vdd_osc-supply = <&ldo10_reg>;
++	vdd_pll-supply = <&ldo8_reg>;
+ };
  
+ &i2c_0 {
 
 
