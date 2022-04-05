@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B1334F3C2A
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:24:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CEBC4F398E
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:49:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240913AbiDEMFS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:05:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53668 "EHLO
+        id S242147AbiDELf3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:35:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33930 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358231AbiDEK2J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:28:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6511AD93;
-        Tue,  5 Apr 2022 03:17:14 -0700 (PDT)
+        with ESMTP id S1353352AbiDEKGB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:06:01 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DA3CBF508;
+        Tue,  5 Apr 2022 02:54:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 024FB617AA;
-        Tue,  5 Apr 2022 10:17:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0EADCC385A2;
-        Tue,  5 Apr 2022 10:17:12 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 0E3CBCE1C9C;
+        Tue,  5 Apr 2022 09:54:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21289C385A1;
+        Tue,  5 Apr 2022 09:54:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153833;
-        bh=Wu9EoBb4bBXtOyqt/h2vb+Y/ya1Bxiwt1yRBhqJpw4w=;
+        s=korg; t=1649152484;
+        bh=UAK0kOTAZzJ3osgfxruwduiyoCZIcrnooyC7WYDw5bQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OdYN2DlMqgj/qwdQZJxrSVxlxKAQP0tznHEJip5uhDDw1l4p2VVhGRX1UtRyePF98
-         WRppTgzWXx8BNjq5gEGAqnMuyd0ZZMyoYv2Ex0hc7H03N7MDw7izM0H9af0OaKmuOs
-         jxDv1cnGpvq/c55WFxgsAxf3BzaRaxeQSXGbZpB4=
+        b=WIfRXCL1T8u+U9Pyq7I6gnH2aIzfGzJq88jr487dtKAR/UTPuM9iUVkCfN4yYVza3
+         7mhCNHGN/rlulaKHg6v3P3JCtsjBX3ADb/JXv/nPKWRQNHCpyQUa7H9MdWO8Q+JCx5
+         5gaSfO/lt6Z/ELob+BfRGGvYlDZcayXNS6Rm6jAs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Derek Will <derekrobertwill@gmail.com>,
-        Oliver Hartkopp <socketcan@hartkopp.net>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 362/599] can: isotp: support MSG_TRUNC flag when reading from socket
+        stable@vger.kernel.org,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.15 794/913] scsi: qla2xxx: Fix warning for missing error code
 Date:   Tue,  5 Apr 2022 09:30:56 +0200
-Message-Id: <20220405070309.604358102@linuxfoundation.org>
+Message-Id: <20220405070403.633572309@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
-References: <20220405070258.802373272@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,86 +55,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Hartkopp <socketcan@hartkopp.net>
+From: Nilesh Javali <njavali@marvell.com>
 
-[ Upstream commit 42bf50a1795a1854d48717b7361dbdbce496b16b ]
+commit 14cb838d245ae0d523b2f7804af5a02c22e79f5a upstream.
 
-When providing the MSG_TRUNC flag via recvmsg() syscall the return value
-provides the real length of the packet or datagram, even when it was longer
-than the passed buffer.
+Fix smatch-reported warning message:
 
-Fixes: e057dd3fc20f ("can: add ISO 15765-2:2016 transport protocol")
-Link: https://github.com/linux-can/can-utils/issues/347#issuecomment-1065932671
-Link: https://lore.kernel.org/all/20220316164258.54155-3-socketcan@hartkopp.net
-Suggested-by: Derek Will <derekrobertwill@gmail.com>
-Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+drivers/scsi/qla2xxx/qla_target.c:3324 qlt_xmit_response() warn: missing error
+code 'res'
+
+Link: https://lore.kernel.org/r/20220110050218.3958-12-njavali@marvell.com
+Fixes: 4a8f71014b4d ("scsi: qla2xxx: Fix unmap of already freed sgl")
+Cc: stable@vger.kernel.org
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/can/isotp.c | 27 +++++++++++++++------------
- 1 file changed, 15 insertions(+), 12 deletions(-)
+ drivers/scsi/qla2xxx/qla_target.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/can/isotp.c b/net/can/isotp.c
-index cb5546c186bc..518014506fff 100644
---- a/net/can/isotp.c
-+++ b/net/can/isotp.c
-@@ -1004,29 +1004,28 @@ static int isotp_recvmsg(struct socket *sock, struct msghdr *msg, size_t size,
- 	struct sock *sk = sock->sk;
- 	struct sk_buff *skb;
- 	struct isotp_sock *so = isotp_sk(sk);
--	int err = 0;
--	int noblock;
-+	int noblock = flags & MSG_DONTWAIT;
-+	int ret = 0;
- 
--	noblock = flags & MSG_DONTWAIT;
--	flags &= ~MSG_DONTWAIT;
-+	if (flags & ~(MSG_DONTWAIT | MSG_TRUNC))
-+		return -EINVAL;
- 
- 	if (!so->bound)
- 		return -EADDRNOTAVAIL;
- 
--	skb = skb_recv_datagram(sk, flags, noblock, &err);
-+	flags &= ~MSG_DONTWAIT;
-+	skb = skb_recv_datagram(sk, flags, noblock, &ret);
- 	if (!skb)
--		return err;
-+		return ret;
- 
- 	if (size < skb->len)
- 		msg->msg_flags |= MSG_TRUNC;
- 	else
- 		size = skb->len;
- 
--	err = memcpy_to_msg(msg, skb->data, size);
--	if (err < 0) {
--		skb_free_datagram(sk, skb);
--		return err;
--	}
-+	ret = memcpy_to_msg(msg, skb->data, size);
-+	if (ret < 0)
-+		goto out_err;
- 
- 	sock_recv_timestamp(msg, sk, skb);
- 
-@@ -1036,9 +1035,13 @@ static int isotp_recvmsg(struct socket *sock, struct msghdr *msg, size_t size,
- 		memcpy(msg->msg_name, skb->cb, msg->msg_namelen);
+--- a/drivers/scsi/qla2xxx/qla_target.c
++++ b/drivers/scsi/qla2xxx/qla_target.c
+@@ -3318,6 +3318,7 @@ int qlt_xmit_response(struct qla_tgt_cmd
+ 			"RESET-RSP online/active/old-count/new-count = %d/%d/%d/%d.\n",
+ 			vha->flags.online, qla2x00_reset_active(vha),
+ 			cmd->reset_count, qpair->chip_reset);
++		res = 0;
+ 		goto out_unmap_unlock;
  	}
  
-+	/* set length of return value */
-+	ret = (flags & MSG_TRUNC) ? skb->len : size;
-+
-+out_err:
- 	skb_free_datagram(sk, skb);
- 
--	return size;
-+	return ret;
- }
- 
- static int isotp_release(struct socket *sock)
--- 
-2.34.1
-
 
 
