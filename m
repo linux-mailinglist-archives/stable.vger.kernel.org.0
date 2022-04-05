@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7519B4F28D6
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:22:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C89D4F28D7
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:22:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233845AbiDEIXQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:23:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37238 "EHLO
+        id S233856AbiDEIXS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:23:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56426 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236837AbiDEIRE (ORCPT
+        with ESMTP id S236821AbiDEIRE (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:17:04 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 222D8AF1C7;
-        Tue,  5 Apr 2022 01:04:42 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA77FAF1C6;
+        Tue,  5 Apr 2022 01:04:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2F761617D4;
-        Tue,  5 Apr 2022 08:04:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F492C385A0;
-        Tue,  5 Apr 2022 08:04:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 37D4A617C6;
+        Tue,  5 Apr 2022 08:04:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 429E6C385A0;
+        Tue,  5 Apr 2022 08:04:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145866;
-        bh=twxBK/6R6dVTxHmZ166iGr8sl7qWopCJphQL1m4A06A=;
+        s=korg; t=1649145877;
+        bh=NAF+/mvkE5mniULEoXlQw3jnfQqX1ycYWJpfYP5xMoQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z9NpW8LjDz3pcYIpmktpqJ+zVPRV9BPuLfhuv8tX3Gg70QvuwxUnpFLWmeFmAEh5C
-         Qszt7zu60TInsFMAFO8NAhe35PinHvzKS3LuRve2lLurlhdL99xL9Kp9UUioQrDVJZ
-         AVxNuHZT4G7Z6QoFHG1b0duiHSTdE5EqacXQKnFY=
+        b=wUOeH1+r9Y41WMapFucVDHg3/FMp9zC/dSrKzoEg26yqCg3CSWRWFdn2B3T1bf3se
+         E8CZVvDOxaMCrlf+Y8Ov5v891KTzITNS40f/lU3YgV1Y5GGeQDDVf7a1yP8ZIX9vvW
+         jv583NjBWgXvTmWzQYCA8AQCtShcYI5kqix/A/YY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
         Luca Coelho <luciano.coelho@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0559/1126] iwlwifi: mvm: align locking in D3 test debugfs
-Date:   Tue,  5 Apr 2022 09:21:46 +0200
-Message-Id: <20220405070424.041684544@linuxfoundation.org>
+Subject: [PATCH 5.17 0563/1126] iwlwifi: Fix -EIO error code that is never returned
+Date:   Tue,  5 Apr 2022 09:21:50 +0200
+Message-Id: <20220405070424.158741836@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -54,51 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 59e1221f470c2e5d2f2d4c95153edd577a7071c5 ]
+[ Upstream commit c305c94bdc18e45b5ad1db54da4269f8cbfdff6b ]
 
-Since commit a05829a7222e ("cfg80211: avoid holding the RTNL when
-calling the driver") we're not only holding the RTNL when going
-in and out of suspend, but also the wiphy->mtx. Add that to the
-D3 test debugfs in iwlwifi since it's required for various calls
-to mac80211.
+Currently the error -EIO is being assinged to variable ret when
+the READY_BIT is not set but the function iwlagn_mac_start returns
+0 rather than ret. Fix this by returning ret instead of 0.
 
-Fixes: a05829a7222e ("cfg80211: avoid holding the RTNL when calling the driver")
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Fixes: a05829a7222e ("cfg80211: avoid holding the RTNL when calling the driver")
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20220129105618.fcec0204e162.Ib73bf787ab4d83581de20eb89b1f8dbfcaaad0e3@changeid
+Addresses-Coverity: ("Unused value")
+Fixes: 7335613ae27a ("iwlwifi: move all mac80211 related functions to one place")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Link: https://lore.kernel.org/r/20210907104658.14706-1-colin.king@canonical.com
 Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/mvm/d3.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/wireless/intel/iwlwifi/dvm/mac80211.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/d3.c b/drivers/net/wireless/intel/iwlwifi/mvm/d3.c
-index b400867e94f0..3f284836e707 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/d3.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/d3.c
-@@ -2704,7 +2704,9 @@ static int iwl_mvm_d3_test_open(struct inode *inode, struct file *file)
+diff --git a/drivers/net/wireless/intel/iwlwifi/dvm/mac80211.c b/drivers/net/wireless/intel/iwlwifi/dvm/mac80211.c
+index 754876cd27ce..e8bd4f0e3d2d 100644
+--- a/drivers/net/wireless/intel/iwlwifi/dvm/mac80211.c
++++ b/drivers/net/wireless/intel/iwlwifi/dvm/mac80211.c
+@@ -299,7 +299,7 @@ static int iwlagn_mac_start(struct ieee80211_hw *hw)
  
- 	/* start pseudo D3 */
- 	rtnl_lock();
-+	wiphy_lock(mvm->hw->wiphy);
- 	err = __iwl_mvm_suspend(mvm->hw, mvm->hw->wiphy->wowlan_config, true);
-+	wiphy_unlock(mvm->hw->wiphy);
- 	rtnl_unlock();
- 	if (err > 0)
- 		err = -EINVAL;
-@@ -2760,7 +2762,9 @@ static int iwl_mvm_d3_test_release(struct inode *inode, struct file *file)
- 	iwl_fw_dbg_read_d3_debug_data(&mvm->fwrt);
+ 	priv->is_open = 1;
+ 	IWL_DEBUG_MAC80211(priv, "leave\n");
+-	return 0;
++	return ret;
+ }
  
- 	rtnl_lock();
-+	wiphy_lock(mvm->hw->wiphy);
- 	__iwl_mvm_resume(mvm, true);
-+	wiphy_unlock(mvm->hw->wiphy);
- 	rtnl_unlock();
- 
- 	iwl_mvm_resume_tcm(mvm);
+ static void iwlagn_mac_stop(struct ieee80211_hw *hw)
 -- 
 2.34.1
 
