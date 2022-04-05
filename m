@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 440E84F37F7
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:26:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2742F4F3A99
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:02:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359786AbiDELUr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:20:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39826 "EHLO
+        id S1381596AbiDELq0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:46:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43776 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349075AbiDEJtE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:04 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 414BCA94FF;
-        Tue,  5 Apr 2022 02:40:02 -0700 (PDT)
+        with ESMTP id S1354930AbiDEKQg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:16:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E367521810;
+        Tue,  5 Apr 2022 03:04:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D12006164D;
-        Tue,  5 Apr 2022 09:40:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEDC0C385A2;
-        Tue,  5 Apr 2022 09:40:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 93F8BB81C83;
+        Tue,  5 Apr 2022 10:04:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B7BCC385A2;
+        Tue,  5 Apr 2022 10:03:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151601;
-        bh=bpHXttM/e3cLQHkW0j8q0tlu0YafmBGpQxC5mr2uDeU=;
+        s=korg; t=1649153040;
+        bh=GHdBnWH3UX1Xlg0sRoZEr/y66U2ZsPElXuujtK71+AE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d6gv/HOmPK+xo3CK4lElpZG+QSGtrTSRzZdwFmPL+07AsCj1M07rjtBULvpEcBob1
-         rYhQBibbmzwl0+k79Im4Y/Bo9IR9gnEm8KObOGta6XLbaOyY4g9YZ6+zK+eKEzWDXj
-         LyFAjBao1J7zt5eKiU4JKbtJxxIKdVU+JuF52iMs=
+        b=i3rF14GhoSeL6bKWctbdAT5E3HXMbO7x0viTfRfgQ2Z/vUjrGq3YqQ/ODDXKhE5cy
+         7FgxPUjgYlPN/EnAGITw1/7zQWeUZX19Va9MwSqnGOneA9NPpwODxlCHrbmZUvzxt+
+         nf6iG0Gj079TVPkA3Qc4b6cM38KgDVpSkI7+xojY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Abhinav Kumar <quic_abhinavk@quicinc.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 474/913] drm/msm/dpu: add DSPP blocks teardown
+        stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Bagas Sanjaya <bagasdotme@gmail.com>
+Subject: [PATCH 5.10 042/599] Documentation: update stable tree link
 Date:   Tue,  5 Apr 2022 09:25:36 +0200
-Message-Id: <20220405070354.063763780@linuxfoundation.org>
+Message-Id: <20220405070300.079386711@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070258.802373272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,45 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+From: Bagas Sanjaya <bagasdotme@gmail.com>
 
-[ Upstream commit d5c5e78f217172e87d8fb2c3418dd8b58b4adfcb ]
+commit 555d44932c67e617d89bc13c81c7efac5b51fcfa upstream.
 
-Add missing calls to dpu_hw_dspp_destroy() to free resources allocated
-for DSPP hardware blocks.
+The link to stable tree is redirected to
+https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git. Update
+accordingly.
 
-Fixes: e47616df008b ("drm/msm/dpu: add support for color processing blocks in dpu driver")
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
-Link: https://lore.kernel.org/r/20220121210618.3482550-3-dmitry.baryshkov@linaro.org
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Sasha Levin <sashal@kernel.org>
+Cc: Jonathan Corbet <corbet@lwn.net>
+Cc: stable@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Bagas Sanjaya <bagasdotme@gmail.com>
+Link: https://lore.kernel.org/r/20220314113329.485372-6-bagasdotme@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/msm/disp/dpu1/dpu_rm.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ Documentation/process/stable-kernel-rules.rst |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_rm.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_rm.c
-index f9c83d6e427a..24fbaf562d41 100644
---- a/drivers/gpu/drm/msm/disp/dpu1/dpu_rm.c
-+++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_rm.c
-@@ -35,6 +35,14 @@ int dpu_rm_destroy(struct dpu_rm *rm)
- {
- 	int i;
+--- a/Documentation/process/stable-kernel-rules.rst
++++ b/Documentation/process/stable-kernel-rules.rst
+@@ -168,7 +168,7 @@ Trees
+  - The finalized and tagged releases of all stable kernels can be found
+    in separate branches per version at:
  
-+	for (i = 0; i < ARRAY_SIZE(rm->dspp_blks); i++) {
-+		struct dpu_hw_dspp *hw;
-+
-+		if (rm->dspp_blks[i]) {
-+			hw = to_dpu_hw_dspp(rm->dspp_blks[i]);
-+			dpu_hw_dspp_destroy(hw);
-+		}
-+	}
- 	for (i = 0; i < ARRAY_SIZE(rm->pingpong_blks); i++) {
- 		struct dpu_hw_pingpong *hw;
+-	https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git
++	https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
  
--- 
-2.34.1
-
+  - The release candidate of all stable kernel versions can be found at:
+ 
 
 
