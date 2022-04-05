@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F2BC04F2826
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:19:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E88A4F26EC
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:06:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233638AbiDEIKz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:10:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51766 "EHLO
+        id S233238AbiDEIF1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:05:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48428 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233418AbiDEH5H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:57:07 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF1D747AF4;
-        Tue,  5 Apr 2022 00:51:01 -0700 (PDT)
+        with ESMTP id S233506AbiDEH5N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:57:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5484E4B438;
+        Tue,  5 Apr 2022 00:51:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ECE736172C;
-        Tue,  5 Apr 2022 07:50:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07099C340EE;
-        Tue,  5 Apr 2022 07:50:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 82476B81B90;
+        Tue,  5 Apr 2022 07:51:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D97FCC340EE;
+        Tue,  5 Apr 2022 07:51:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145058;
-        bh=RSj97UFE//PTCX00jDoDuPMtwr11f/zKAjzxUqGW5EE=;
+        s=korg; t=1649145061;
+        bh=RtY08vAV+n8Bb3+pI7h3rZV2KlUk36Dc4tx+NtF9oTc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jjaeAQ1IxBq1bSM91jHdnHY9YZHWsCv7UBAb6ThPu9jjth10GhtonkDCgVw4nS+Wx
-         gpuRR2aTskttV96fErwv1zngs3EYt2KigMzPWr3EvrMplFp50AWXoQefoThjZ8C4Nj
-         GI/1jAfcocEmxA7HP6Kdq5eC6j5QU3y5CbhdNzOI=
+        b=B6sL5Zls41N62MFP2xtSCxExNCVIfqKEoVHZtOmYXmjgvz6M/xbGjf2AwHN+DsbO5
+         8D3y3fqx/XwtM2Veho/T+v0bbKFIliz35Dx96iz1LcaPNx1MGVZ7vKSzN6M8tKYdAn
+         bK+B/3y4vFH4RNpwH/+ZK9VhyD1QwWU3xjCU1BHI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Qais Yousef <qais.yousef@arm.com>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0270/1126] sched/core: Export pelt_thermal_tp
-Date:   Tue,  5 Apr 2022 09:16:57 +0200
-Message-Id: <20220405070415.536147077@linuxfoundation.org>
+Subject: [PATCH 5.17 0271/1126] sched/sugov: Ignore busy filter when rq is capped by uclamp_max
+Date:   Tue,  5 Apr 2022 09:16:58 +0200
+Message-Id: <20220405070415.565553606@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -56,32 +56,286 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Qais Yousef <qais.yousef@arm.com>
 
-[ Upstream commit 77cf151b7bbdfa3577b3c3f3a5e267a6c60a263b ]
+[ Upstream commit 7a17e1db1265471f7718af100cfc5e41280d53a7 ]
 
-We can't use this tracepoint in modules without having the symbol
-exported first, fix that.
+sugov_update_single_{freq, perf}() contains a 'busy' filter that ensures
+we don't bring the frqeuency down if there's no idle time (CPU is busy).
 
-Fixes: 765047932f15 ("sched/pelt: Add support to track thermal pressure")
+The problem is that with uclamp_max we will have scenarios where a busy
+task is capped to run at a lower frequency and this filter prevents
+applying the capping when this task starts running.
+
+We handle this by skipping the filter when uclamp is enabled and the rq
+is being capped by uclamp_max.
+
+We introduce a new function uclamp_rq_is_capped() to help detecting when
+this capping is taking effect. Some code shuffling was required to allow
+using cpu_util_{cfs, rt}() in this new function.
+
+On 2 Core SMT2 Intel laptop I see:
+
+Without this patch:
+
+	uclampset -M 0 sysbench --test=cpu --threads = 4 run
+
+produces a score of ~3200 consistently. Which is the highest possible.
+
+Compiling the kernel also results in frequency running at max 3.1GHz all
+the time - running uclampset -M 400 to cap it has no effect without this
+patch.
+
+With this patch:
+
+	uclampset -M 0 sysbench --test=cpu --threads = 4 run
+
+produces a score of ~1100 with some outliers in ~1700. Uclamp max
+aggregates the performance requirements, so having high values sometimes
+is expected if some other task happens to require that frequency starts
+running at the same time.
+
+When compiling the kernel with uclampset -M 400 I can see the
+frequencies mostly in the ~2GHz region. Helpful to conserve power and
+prevent heating when not plugged in.
+
+Fixes: 982d9cdc22c9 ("sched/cpufreq, sched/uclamp: Add clamps for FAIR and RT tasks")
 Signed-off-by: Qais Yousef <qais.yousef@arm.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20211028115005.873539-1-qais.yousef@arm.com
+Link: https://lkml.kernel.org/r/20211216225320.2957053-2-qais.yousef@arm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/core.c | 1 +
- 1 file changed, 1 insertion(+)
+ kernel/sched/cpufreq_schedutil.c |  10 +-
+ kernel/sched/sched.h             | 181 +++++++++++++++++--------------
+ 2 files changed, 107 insertions(+), 84 deletions(-)
 
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index 9745613d531c..1620ae8535dc 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -36,6 +36,7 @@ EXPORT_TRACEPOINT_SYMBOL_GPL(pelt_rt_tp);
- EXPORT_TRACEPOINT_SYMBOL_GPL(pelt_dl_tp);
- EXPORT_TRACEPOINT_SYMBOL_GPL(pelt_irq_tp);
- EXPORT_TRACEPOINT_SYMBOL_GPL(pelt_se_tp);
-+EXPORT_TRACEPOINT_SYMBOL_GPL(pelt_thermal_tp);
- EXPORT_TRACEPOINT_SYMBOL_GPL(sched_cpu_capacity_tp);
- EXPORT_TRACEPOINT_SYMBOL_GPL(sched_overutilized_tp);
- EXPORT_TRACEPOINT_SYMBOL_GPL(sched_util_est_cfs_tp);
+diff --git a/kernel/sched/cpufreq_schedutil.c b/kernel/sched/cpufreq_schedutil.c
+index 26778884d9ab..62d98b09aaa5 100644
+--- a/kernel/sched/cpufreq_schedutil.c
++++ b/kernel/sched/cpufreq_schedutil.c
+@@ -348,8 +348,11 @@ static void sugov_update_single_freq(struct update_util_data *hook, u64 time,
+ 	/*
+ 	 * Do not reduce the frequency if the CPU has not been idle
+ 	 * recently, as the reduction is likely to be premature then.
++	 *
++	 * Except when the rq is capped by uclamp_max.
+ 	 */
+-	if (sugov_cpu_is_busy(sg_cpu) && next_f < sg_policy->next_freq) {
++	if (!uclamp_rq_is_capped(cpu_rq(sg_cpu->cpu)) &&
++	    sugov_cpu_is_busy(sg_cpu) && next_f < sg_policy->next_freq) {
+ 		next_f = sg_policy->next_freq;
+ 
+ 		/* Restore cached freq as next_freq has changed */
+@@ -395,8 +398,11 @@ static void sugov_update_single_perf(struct update_util_data *hook, u64 time,
+ 	/*
+ 	 * Do not reduce the target performance level if the CPU has not been
+ 	 * idle recently, as the reduction is likely to be premature then.
++	 *
++	 * Except when the rq is capped by uclamp_max.
+ 	 */
+-	if (sugov_cpu_is_busy(sg_cpu) && sg_cpu->util < prev_util)
++	if (!uclamp_rq_is_capped(cpu_rq(sg_cpu->cpu)) &&
++	    sugov_cpu_is_busy(sg_cpu) && sg_cpu->util < prev_util)
+ 		sg_cpu->util = prev_util;
+ 
+ 	cpufreq_driver_adjust_perf(sg_cpu->cpu, map_util_perf(sg_cpu->bw_dl),
+diff --git a/kernel/sched/sched.h b/kernel/sched/sched.h
+index de53be905739..9b33ba9c3c42 100644
+--- a/kernel/sched/sched.h
++++ b/kernel/sched/sched.h
+@@ -2841,88 +2841,6 @@ static inline void cpufreq_update_util(struct rq *rq, unsigned int flags)
+ static inline void cpufreq_update_util(struct rq *rq, unsigned int flags) {}
+ #endif /* CONFIG_CPU_FREQ */
+ 
+-#ifdef CONFIG_UCLAMP_TASK
+-unsigned long uclamp_eff_value(struct task_struct *p, enum uclamp_id clamp_id);
+-
+-/**
+- * uclamp_rq_util_with - clamp @util with @rq and @p effective uclamp values.
+- * @rq:		The rq to clamp against. Must not be NULL.
+- * @util:	The util value to clamp.
+- * @p:		The task to clamp against. Can be NULL if you want to clamp
+- *		against @rq only.
+- *
+- * Clamps the passed @util to the max(@rq, @p) effective uclamp values.
+- *
+- * If sched_uclamp_used static key is disabled, then just return the util
+- * without any clamping since uclamp aggregation at the rq level in the fast
+- * path is disabled, rendering this operation a NOP.
+- *
+- * Use uclamp_eff_value() if you don't care about uclamp values at rq level. It
+- * will return the correct effective uclamp value of the task even if the
+- * static key is disabled.
+- */
+-static __always_inline
+-unsigned long uclamp_rq_util_with(struct rq *rq, unsigned long util,
+-				  struct task_struct *p)
+-{
+-	unsigned long min_util = 0;
+-	unsigned long max_util = 0;
+-
+-	if (!static_branch_likely(&sched_uclamp_used))
+-		return util;
+-
+-	if (p) {
+-		min_util = uclamp_eff_value(p, UCLAMP_MIN);
+-		max_util = uclamp_eff_value(p, UCLAMP_MAX);
+-
+-		/*
+-		 * Ignore last runnable task's max clamp, as this task will
+-		 * reset it. Similarly, no need to read the rq's min clamp.
+-		 */
+-		if (rq->uclamp_flags & UCLAMP_FLAG_IDLE)
+-			goto out;
+-	}
+-
+-	min_util = max_t(unsigned long, min_util, READ_ONCE(rq->uclamp[UCLAMP_MIN].value));
+-	max_util = max_t(unsigned long, max_util, READ_ONCE(rq->uclamp[UCLAMP_MAX].value));
+-out:
+-	/*
+-	 * Since CPU's {min,max}_util clamps are MAX aggregated considering
+-	 * RUNNABLE tasks with _different_ clamps, we can end up with an
+-	 * inversion. Fix it now when the clamps are applied.
+-	 */
+-	if (unlikely(min_util >= max_util))
+-		return min_util;
+-
+-	return clamp(util, min_util, max_util);
+-}
+-
+-/*
+- * When uclamp is compiled in, the aggregation at rq level is 'turned off'
+- * by default in the fast path and only gets turned on once userspace performs
+- * an operation that requires it.
+- *
+- * Returns true if userspace opted-in to use uclamp and aggregation at rq level
+- * hence is active.
+- */
+-static inline bool uclamp_is_used(void)
+-{
+-	return static_branch_likely(&sched_uclamp_used);
+-}
+-#else /* CONFIG_UCLAMP_TASK */
+-static inline
+-unsigned long uclamp_rq_util_with(struct rq *rq, unsigned long util,
+-				  struct task_struct *p)
+-{
+-	return util;
+-}
+-
+-static inline bool uclamp_is_used(void)
+-{
+-	return false;
+-}
+-#endif /* CONFIG_UCLAMP_TASK */
+-
+ #ifdef arch_scale_freq_capacity
+ # ifndef arch_scale_freq_invariant
+ #  define arch_scale_freq_invariant()	true
+@@ -3020,6 +2938,105 @@ static inline unsigned long cpu_util_rt(struct rq *rq)
+ }
+ #endif
+ 
++#ifdef CONFIG_UCLAMP_TASK
++unsigned long uclamp_eff_value(struct task_struct *p, enum uclamp_id clamp_id);
++
++/**
++ * uclamp_rq_util_with - clamp @util with @rq and @p effective uclamp values.
++ * @rq:		The rq to clamp against. Must not be NULL.
++ * @util:	The util value to clamp.
++ * @p:		The task to clamp against. Can be NULL if you want to clamp
++ *		against @rq only.
++ *
++ * Clamps the passed @util to the max(@rq, @p) effective uclamp values.
++ *
++ * If sched_uclamp_used static key is disabled, then just return the util
++ * without any clamping since uclamp aggregation at the rq level in the fast
++ * path is disabled, rendering this operation a NOP.
++ *
++ * Use uclamp_eff_value() if you don't care about uclamp values at rq level. It
++ * will return the correct effective uclamp value of the task even if the
++ * static key is disabled.
++ */
++static __always_inline
++unsigned long uclamp_rq_util_with(struct rq *rq, unsigned long util,
++				  struct task_struct *p)
++{
++	unsigned long min_util = 0;
++	unsigned long max_util = 0;
++
++	if (!static_branch_likely(&sched_uclamp_used))
++		return util;
++
++	if (p) {
++		min_util = uclamp_eff_value(p, UCLAMP_MIN);
++		max_util = uclamp_eff_value(p, UCLAMP_MAX);
++
++		/*
++		 * Ignore last runnable task's max clamp, as this task will
++		 * reset it. Similarly, no need to read the rq's min clamp.
++		 */
++		if (rq->uclamp_flags & UCLAMP_FLAG_IDLE)
++			goto out;
++	}
++
++	min_util = max_t(unsigned long, min_util, READ_ONCE(rq->uclamp[UCLAMP_MIN].value));
++	max_util = max_t(unsigned long, max_util, READ_ONCE(rq->uclamp[UCLAMP_MAX].value));
++out:
++	/*
++	 * Since CPU's {min,max}_util clamps are MAX aggregated considering
++	 * RUNNABLE tasks with _different_ clamps, we can end up with an
++	 * inversion. Fix it now when the clamps are applied.
++	 */
++	if (unlikely(min_util >= max_util))
++		return min_util;
++
++	return clamp(util, min_util, max_util);
++}
++
++/* Is the rq being capped/throttled by uclamp_max? */
++static inline bool uclamp_rq_is_capped(struct rq *rq)
++{
++	unsigned long rq_util;
++	unsigned long max_util;
++
++	if (!static_branch_likely(&sched_uclamp_used))
++		return false;
++
++	rq_util = cpu_util_cfs(cpu_of(rq)) + cpu_util_rt(rq);
++	max_util = READ_ONCE(rq->uclamp[UCLAMP_MAX].value);
++
++	return max_util != SCHED_CAPACITY_SCALE && rq_util >= max_util;
++}
++
++/*
++ * When uclamp is compiled in, the aggregation at rq level is 'turned off'
++ * by default in the fast path and only gets turned on once userspace performs
++ * an operation that requires it.
++ *
++ * Returns true if userspace opted-in to use uclamp and aggregation at rq level
++ * hence is active.
++ */
++static inline bool uclamp_is_used(void)
++{
++	return static_branch_likely(&sched_uclamp_used);
++}
++#else /* CONFIG_UCLAMP_TASK */
++static inline
++unsigned long uclamp_rq_util_with(struct rq *rq, unsigned long util,
++				  struct task_struct *p)
++{
++	return util;
++}
++
++static inline bool uclamp_rq_is_capped(struct rq *rq) { return false; }
++
++static inline bool uclamp_is_used(void)
++{
++	return false;
++}
++#endif /* CONFIG_UCLAMP_TASK */
++
+ #ifdef CONFIG_HAVE_SCHED_AVG_IRQ
+ static inline unsigned long cpu_util_irq(struct rq *rq)
+ {
 -- 
 2.34.1
 
