@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0230D4F37B6
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:22:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C22E4F37BB
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:24:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359476AbiDELTX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:19:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48558 "EHLO
+        id S1359479AbiDELT0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:19:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49232 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349204AbiDEJt0 (ORCPT
+        with ESMTP id S1349206AbiDEJt0 (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:26 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67EB02252B;
-        Tue,  5 Apr 2022 02:42:38 -0700 (PDT)
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 787572253A;
+        Tue,  5 Apr 2022 02:42:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CAFF3B81C19;
-        Tue,  5 Apr 2022 09:42:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B418C385A3;
-        Tue,  5 Apr 2022 09:42:35 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id EF202CE1C9A;
+        Tue,  5 Apr 2022 09:42:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDE44C385A1;
+        Tue,  5 Apr 2022 09:42:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151755;
-        bh=coUnbwtMgy4IhV9sRORvYZJQFoFUkg3DcYgYPIf8ovE=;
+        s=korg; t=1649151758;
+        bh=765nafgncPzYKlYm6M6NLm/ZoKn9hQoPlzRpDgfuRZE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P6zabTxVJm9pBHnFZJ+949wevXnTF4oQpAznZoIjPW9bNT1nDUTBbvyA3iL4VKar0
-         8QVknQGG/2RLbFQM0SGaQVnhMquNRo1WKdAHDXNOePoRfCJlZMYiOCkGSdppCjOThU
-         865uspWnnb3VsLe35ZTRJAbUaikeY5PHEsu9Heqo=
+        b=EjHxxEsd97FKVNjnzSmRPbjVnfdWsTxtecqimh1MnOHCJ/81g/sXRp0HBL54ivDgj
+         bb2keKrrkjhpuU+cGA7/Y61+h09/vnOLGtvFHcULTIVX4a+qBzXiqbhVhR7rMltoLR
+         h4DiebnyNwSkbHmV2hOpJuRpJVe4TROkcYs9G9uE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Oliver Hartkopp <socketcan@hartkopp.net>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 529/913] powerpc: 8xx: fix a return value error in mpc8xx_pic_init
-Date:   Tue,  5 Apr 2022 09:26:31 +0200
-Message-Id: <20220405070355.707719868@linuxfoundation.org>
+Subject: [PATCH 5.15 530/913] vxcan: enable local echo for sent CAN frames
+Date:   Tue,  5 Apr 2022 09:26:32 +0200
+Message-Id: <20220405070355.737824509@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -55,36 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangyu Hua <hbh25y@gmail.com>
+From: Oliver Hartkopp <socketcan@hartkopp.net>
 
-[ Upstream commit 3fd46e551f67f4303c3276a0d6cd20baf2d192c4 ]
+[ Upstream commit 259bdba27e32368b4404f69d613b1c1014c07cbf ]
 
-mpc8xx_pic_init() should return -ENOMEM instead of 0 when
-irq_domain_add_linear() return NULL. This cause mpc8xx_pics_init to continue
-executing even if mpc8xx_pic_host is NULL.
+The vxcan driver provides a pair of virtual CAN interfaces to exchange
+CAN traffic between different namespaces - analogue to veth.
 
-Fixes: cc76404feaed ("powerpc/8xx: Fix possible device node reference leak")
-Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
-Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220223070223.26845-1-hbh25y@gmail.com
+In opposite to the vcan driver the local sent CAN traffic on this interface
+is not echo'ed back but only sent to the remote peer. This is unusual and
+can be easily fixed by removing IFF_ECHO from the netdevice flags that
+are set for vxcan interfaces by default at startup.
+
+Without IFF_ECHO set on driver level, the local sent CAN frames are echo'ed
+in af_can.c in can_send(). This patch makes vxcan interfaces adopt the
+same local echo behavior and procedures as known from the vcan interfaces.
+
+Fixes: a8f820a380a2 ("can: add Virtual CAN Tunnel driver (vxcan)")
+Link: https://lore.kernel.org/all/20220309120416.83514-5-socketcan@hartkopp.net
+Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/8xx/pic.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/can/vxcan.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/platforms/8xx/pic.c b/arch/powerpc/platforms/8xx/pic.c
-index f2ba837249d6..04a6abf14c29 100644
---- a/arch/powerpc/platforms/8xx/pic.c
-+++ b/arch/powerpc/platforms/8xx/pic.c
-@@ -153,6 +153,7 @@ int __init mpc8xx_pic_init(void)
- 	if (mpc8xx_pic_host == NULL) {
- 		printk(KERN_ERR "MPC8xx PIC: failed to allocate irq host!\n");
- 		ret = -ENOMEM;
-+		goto out;
- 	}
+diff --git a/drivers/net/can/vxcan.c b/drivers/net/can/vxcan.c
+index 8861a7d875e7..be5566168d0f 100644
+--- a/drivers/net/can/vxcan.c
++++ b/drivers/net/can/vxcan.c
+@@ -148,7 +148,7 @@ static void vxcan_setup(struct net_device *dev)
+ 	dev->hard_header_len	= 0;
+ 	dev->addr_len		= 0;
+ 	dev->tx_queue_len	= 0;
+-	dev->flags		= (IFF_NOARP|IFF_ECHO);
++	dev->flags		= IFF_NOARP;
+ 	dev->netdev_ops		= &vxcan_netdev_ops;
+ 	dev->needs_free_netdev	= true;
  
- 	ret = 0;
 -- 
 2.34.1
 
