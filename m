@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 32FFB4F41EF
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:38:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 187B44F40D6
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:24:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239973AbiDEMSU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:18:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33782 "EHLO
+        id S238637AbiDEMSR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:18:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33866 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244837AbiDEKjG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:39:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CF04A56CF;
-        Tue,  5 Apr 2022 03:24:21 -0700 (PDT)
+        with ESMTP id S245744AbiDEKjg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:39:36 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95370A5EA9;
+        Tue,  5 Apr 2022 03:24:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1A179B81B18;
-        Tue,  5 Apr 2022 10:24:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56967C385A1;
-        Tue,  5 Apr 2022 10:24:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 31C066141B;
+        Tue,  5 Apr 2022 10:24:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 428FEC385A0;
+        Tue,  5 Apr 2022 10:24:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649154258;
-        bh=wHyyD1j+rtVNRgjNRVprUD2XKkYLjpE3fRupRb474Sw=;
+        s=korg; t=1649154264;
+        bh=7uyU7E8nxC0nXViS7KVUZ+a1glED64j3pQUfJQJfqB4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zRPITcFEjgAkBtyCozfbcVwSHPJ0PCDxb1AuGQ/2NydfgympYzsJxs16M7zcjmSp+
-         dwjSuaXJpVlaVFmRVnVxW130MCOzokwO3vSFAoacdhDWlAulqXKdqi9xZntexX2F5o
-         Lvq/6HW0625217442ViHOZtpIf6XXcGi5vmihsUA=
+        b=HrbfMGZUKNoy0wX6J+3cZ4PHfy+oXBoWzPE/loGIMjJBJhonqJCV7MFoxbAeOMKti
+         MQK/w7eNK4mplM56VFusWBpL+acRZRpMgUbHIdOqyeWH0h5Wq5o5q7TTpkECT3KIRl
+         WYFO3HULeC0FdiKvTlGDzCErWG5HZGzTtgxzA48I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Anders Roxell <anders.roxell@linaro.org>,
         Segher Boessenkool <segher@kernel.crashing.org>,
         Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.10 515/599] powerpc/lib/sstep: Fix build errors with newer binutils
-Date:   Tue,  5 Apr 2022 09:33:29 +0200
-Message-Id: <20220405070314.164078381@linuxfoundation.org>
+Subject: [PATCH 5.10 516/599] powerpc: Fix build errors with newer binutils
+Date:   Tue,  5 Apr 2022 09:33:30 +0200
+Message-Id: <20220405070314.194613614@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -57,59 +57,162 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Anders Roxell <anders.roxell@linaro.org>
 
-commit 8219d31effa7be5dbc7ff915d7970672e028c701 upstream.
+commit 8667d0d64dd1f84fd41b5897fd87fa9113ae05e3 upstream.
 
 Building tinyconfig with gcc (Debian 11.2.0-16) and assembler (Debian
 2.37.90.20220207) the following build error shows up:
 
   {standard input}: Assembler messages:
-  {standard input}:10576: Error: unrecognized opcode: `stbcx.'
-  {standard input}:10680: Error: unrecognized opcode: `lharx'
-  {standard input}:10694: Error: unrecognized opcode: `lbarx'
+  {standard input}:1190: Error: unrecognized opcode: `stbcix'
+  {standard input}:1433: Error: unrecognized opcode: `lwzcix'
+  {standard input}:1453: Error: unrecognized opcode: `stbcix'
+  {standard input}:1460: Error: unrecognized opcode: `stwcix'
+  {standard input}:1596: Error: unrecognized opcode: `stbcix'
+  ...
 
-Rework to add assembler directives [1] around the instruction.  The
-problem with this might be that we can trick a power6 into
-single-stepping through an stbcx. for instance, and it will execute that
-in kernel mode.
+Rework to add assembler directives [1] around the instruction. Going
+through them one by one shows that the changes should be safe.  Like
+__get_user_atomic_128_aligned() is only called in p9_hmi_special_emu(),
+which according to the name is specific to power9.  And __raw_rm_read*()
+are only called in things that are powernv or book3s_hv specific.
 
 [1] https://sourceware.org/binutils/docs/as/PowerPC_002dPseudo.html#PowerPC_002dPseudo
 
-Fixes: 350779a29f11 ("powerpc: Handle most loads and stores in instruction emulation code")
-Cc: stable@vger.kernel.org # v4.14+
+Cc: stable@vger.kernel.org
 Co-developed-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
 Reviewed-by: Segher Boessenkool <segher@kernel.crashing.org>
+[mpe: Make commit subject more descriptive]
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220224162215.3406642-3-anders.roxell@linaro.org
+Link: https://lore.kernel.org/r/20220224162215.3406642-2-anders.roxell@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/lib/sstep.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/powerpc/include/asm/io.h        |   40 ++++++++++++++++++++++++++++-------
+ arch/powerpc/include/asm/uaccess.h   |    3 ++
+ arch/powerpc/platforms/powernv/rng.c |    6 ++++-
+ 3 files changed, 40 insertions(+), 9 deletions(-)
 
---- a/arch/powerpc/lib/sstep.c
-+++ b/arch/powerpc/lib/sstep.c
-@@ -949,7 +949,10 @@ NOKPROBE_SYMBOL(emulate_dcbz);
+--- a/arch/powerpc/include/asm/io.h
++++ b/arch/powerpc/include/asm/io.h
+@@ -344,25 +344,37 @@ static inline void __raw_writeq_be(unsig
+  */
+ static inline void __raw_rm_writeb(u8 val, volatile void __iomem *paddr)
+ {
+-	__asm__ __volatile__("stbcix %0,0,%1"
++	__asm__ __volatile__(".machine push;   \
++			      .machine power6; \
++			      stbcix %0,0,%1;  \
++			      .machine pop;"
+ 		: : "r" (val), "r" (paddr) : "memory");
+ }
  
- #define __put_user_asmx(x, addr, err, op, cr)		\
+ static inline void __raw_rm_writew(u16 val, volatile void __iomem *paddr)
+ {
+-	__asm__ __volatile__("sthcix %0,0,%1"
++	__asm__ __volatile__(".machine push;   \
++			      .machine power6; \
++			      sthcix %0,0,%1;  \
++			      .machine pop;"
+ 		: : "r" (val), "r" (paddr) : "memory");
+ }
+ 
+ static inline void __raw_rm_writel(u32 val, volatile void __iomem *paddr)
+ {
+-	__asm__ __volatile__("stwcix %0,0,%1"
++	__asm__ __volatile__(".machine push;   \
++			      .machine power6; \
++			      stwcix %0,0,%1;  \
++			      .machine pop;"
+ 		: : "r" (val), "r" (paddr) : "memory");
+ }
+ 
+ static inline void __raw_rm_writeq(u64 val, volatile void __iomem *paddr)
+ {
+-	__asm__ __volatile__("stdcix %0,0,%1"
++	__asm__ __volatile__(".machine push;   \
++			      .machine power6; \
++			      stdcix %0,0,%1;  \
++			      .machine pop;"
+ 		: : "r" (val), "r" (paddr) : "memory");
+ }
+ 
+@@ -374,7 +386,10 @@ static inline void __raw_rm_writeq_be(u6
+ static inline u8 __raw_rm_readb(volatile void __iomem *paddr)
+ {
+ 	u8 ret;
+-	__asm__ __volatile__("lbzcix %0,0, %1"
++	__asm__ __volatile__(".machine push;   \
++			      .machine power6; \
++			      lbzcix %0,0, %1; \
++			      .machine pop;"
+ 			     : "=r" (ret) : "r" (paddr) : "memory");
+ 	return ret;
+ }
+@@ -382,7 +397,10 @@ static inline u8 __raw_rm_readb(volatile
+ static inline u16 __raw_rm_readw(volatile void __iomem *paddr)
+ {
+ 	u16 ret;
+-	__asm__ __volatile__("lhzcix %0,0, %1"
++	__asm__ __volatile__(".machine push;   \
++			      .machine power6; \
++			      lhzcix %0,0, %1; \
++			      .machine pop;"
+ 			     : "=r" (ret) : "r" (paddr) : "memory");
+ 	return ret;
+ }
+@@ -390,7 +408,10 @@ static inline u16 __raw_rm_readw(volatil
+ static inline u32 __raw_rm_readl(volatile void __iomem *paddr)
+ {
+ 	u32 ret;
+-	__asm__ __volatile__("lwzcix %0,0, %1"
++	__asm__ __volatile__(".machine push;   \
++			      .machine power6; \
++			      lwzcix %0,0, %1; \
++			      .machine pop;"
+ 			     : "=r" (ret) : "r" (paddr) : "memory");
+ 	return ret;
+ }
+@@ -398,7 +419,10 @@ static inline u32 __raw_rm_readl(volatil
+ static inline u64 __raw_rm_readq(volatile void __iomem *paddr)
+ {
+ 	u64 ret;
+-	__asm__ __volatile__("ldcix %0,0, %1"
++	__asm__ __volatile__(".machine push;   \
++			      .machine power6; \
++			      ldcix %0,0, %1;  \
++			      .machine pop;"
+ 			     : "=r" (ret) : "r" (paddr) : "memory");
+ 	return ret;
+ }
+--- a/arch/powerpc/include/asm/uaccess.h
++++ b/arch/powerpc/include/asm/uaccess.h
+@@ -229,8 +229,11 @@ extern long __get_user_bad(void);
+  */
+ #define __get_user_atomic_128_aligned(kaddr, uaddr, err)		\
  	__asm__ __volatile__(				\
 +		".machine push\n"			\
-+		".machine power8\n"			\
- 		"1:	" op " %2,0,%3\n"		\
++		".machine altivec\n"			\
+ 		"1:	lvx  0,0,%1	# get user\n"	\
+ 		" 	stvx 0,0,%2	# put kernel\n"	\
 +		".machine pop\n"			\
- 		"	mfcr	%1\n"			\
  		"2:\n"					\
  		".section .fixup,\"ax\"\n"		\
-@@ -962,7 +965,10 @@ NOKPROBE_SYMBOL(emulate_dcbz);
+ 		"3:	li %0,%3\n"			\
+--- a/arch/powerpc/platforms/powernv/rng.c
++++ b/arch/powerpc/platforms/powernv/rng.c
+@@ -43,7 +43,11 @@ static unsigned long rng_whiten(struct p
+ 	unsigned long parity;
  
- #define __get_user_asmx(x, addr, err, op)		\
- 	__asm__ __volatile__(				\
-+		".machine push\n"			\
-+		".machine power8\n"			\
- 		"1:	"op" %1,0,%2\n"			\
-+		".machine pop\n"			\
- 		"2:\n"					\
- 		".section .fixup,\"ax\"\n"		\
- 		"3:	li	%0,%3\n"		\
+ 	/* Calculate the parity of the value */
+-	asm ("popcntd %0,%1" : "=r" (parity) : "r" (val));
++	asm (".machine push;   \
++	      .machine power7; \
++	      popcntd %0,%1;   \
++	      .machine pop;"
++	     : "=r" (parity) : "r" (val));
+ 
+ 	/* xor our value with the previous mask */
+ 	val ^= rng->mask;
 
 
