@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7ACE84F380C
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:27:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D0804F380F
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:27:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359872AbiDELVL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:21:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39130 "EHLO
+        id S1376277AbiDELVQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:21:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39398 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349333AbiDEJtk (ORCPT
+        with ESMTP id S1349336AbiDEJtk (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:40 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 332005FD3;
-        Tue,  5 Apr 2022 02:44:06 -0700 (PDT)
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A84E632C;
+        Tue,  5 Apr 2022 02:44:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5BD1B615E5;
-        Tue,  5 Apr 2022 09:44:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65FA1C385A1;
-        Tue,  5 Apr 2022 09:44:05 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 13629CE1C90;
+        Tue,  5 Apr 2022 09:44:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 281E6C385A1;
+        Tue,  5 Apr 2022 09:44:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151845;
-        bh=WsW6LYCcpbPQgKzCuxo3ZJJAg7nrkIEDruFN5ptLGag=;
+        s=korg; t=1649151848;
+        bh=mNrzE2y4jaCJIXuG3CMdKKY1QnNmRPTne+P4BnMs2vQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xjqXxcB8ykg3qrypjRYLMaimJxe+X2sZjjBSp++2OBFqGvm5urkZuX2jM+3+CxjSm
-         5+Jy9G4c0VMub8O/UroZCtoURmHUbNGQvICn813PtKvJzhYv5i2skNTpGoKeqfMC8X
-         pF4WqLHOIZ/GH8mkbgs50M0VHoGsZYKsA5EE3keY=
+        b=gQoMCsctWs2MwpVCDY8LRzlewIHTGNjswaGoZeNNbNW7GhmEybycHRuZMZ9S829Qj
+         1NJMeqSkcQ1wy3Xs8oYT5bB+QahQ4+G4Xe0xG93B73D7kCgmoGAytc3uL98Vx4ZlPf
+         wQNbgbwf3gEn+jfMmQqYr+4LolLirxVIWB5vKT4Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Phil Sutter <phil@nwl.cc>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 562/913] netfilter: conntrack: Add and use nf_ct_set_auto_assign_helper_warned()
-Date:   Tue,  5 Apr 2022 09:27:04 +0200
-Message-Id: <20220405070356.691019707@linuxfoundation.org>
+        stable@vger.kernel.org, Peter Rosin <peda@axentia.se>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 563/913] i2c: mux: demux-pinctrl: do not deactivate a master that is not active
+Date:   Tue,  5 Apr 2022 09:27:05 +0200
+Message-Id: <20220405070356.721002310@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
 References: <20220405070339.801210740@linuxfoundation.org>
@@ -54,64 +53,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phil Sutter <phil@nwl.cc>
+From: Peter Rosin <peda@axentia.se>
 
-[ Upstream commit 31d0bb9763efad30377505f3467f958d1ebe1e3d ]
+[ Upstream commit 1a22aabf20adf89cb216f566913196128766f25b ]
 
-The function sets the pernet boolean to avoid the spurious warning from
-nf_ct_lookup_helper() when assigning conntrack helpers via nftables.
+Attempting to rollback the activation of the current master when
+the current master has not been activated is bad. priv->cur_chan
+and priv->cur_adap are both still zeroed out and the rollback
+may result in attempts to revert an of changeset that has not been
+applied and do result in calls to both del and put the zeroed out
+i2c_adapter. Maybe it crashes, or whatever, but it's bad in any
+case.
 
-Fixes: 1a64edf54f55 ("netfilter: nft_ct: add helper set support")
-Signed-off-by: Phil Sutter <phil@nwl.cc>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: e9d1a0a41d44 ("i2c: mux: demux-pinctrl: Fix an error handling path in 'i2c_demux_pinctrl_probe()'")
+Signed-off-by: Peter Rosin <peda@axentia.se>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/netfilter/nf_conntrack_helper.h | 1 +
- net/netfilter/nf_conntrack_helper.c         | 6 ++++++
- net/netfilter/nft_ct.c                      | 3 +++
- 3 files changed, 10 insertions(+)
+ drivers/i2c/muxes/i2c-demux-pinctrl.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/include/net/netfilter/nf_conntrack_helper.h b/include/net/netfilter/nf_conntrack_helper.h
-index 37f0fbefb060..9939c366f720 100644
---- a/include/net/netfilter/nf_conntrack_helper.h
-+++ b/include/net/netfilter/nf_conntrack_helper.h
-@@ -177,4 +177,5 @@ void nf_nat_helper_unregister(struct nf_conntrack_nat_helper *nat);
- int nf_nat_helper_try_module_get(const char *name, u16 l3num,
- 				 u8 protonum);
- void nf_nat_helper_put(struct nf_conntrack_helper *helper);
-+void nf_ct_set_auto_assign_helper_warned(struct net *net);
- #endif /*_NF_CONNTRACK_HELPER_H*/
-diff --git a/net/netfilter/nf_conntrack_helper.c b/net/netfilter/nf_conntrack_helper.c
-index ae4488a13c70..ceb38a7b37cb 100644
---- a/net/netfilter/nf_conntrack_helper.c
-+++ b/net/netfilter/nf_conntrack_helper.c
-@@ -556,6 +556,12 @@ static const struct nf_ct_ext_type helper_extend = {
- 	.id	= NF_CT_EXT_HELPER,
- };
+diff --git a/drivers/i2c/muxes/i2c-demux-pinctrl.c b/drivers/i2c/muxes/i2c-demux-pinctrl.c
+index 5365199a31f4..f7a7405d4350 100644
+--- a/drivers/i2c/muxes/i2c-demux-pinctrl.c
++++ b/drivers/i2c/muxes/i2c-demux-pinctrl.c
+@@ -261,7 +261,7 @@ static int i2c_demux_pinctrl_probe(struct platform_device *pdev)
  
-+void nf_ct_set_auto_assign_helper_warned(struct net *net)
-+{
-+	nf_ct_pernet(net)->auto_assign_helper_warned = true;
-+}
-+EXPORT_SYMBOL_GPL(nf_ct_set_auto_assign_helper_warned);
-+
- void nf_conntrack_helper_pernet_init(struct net *net)
- {
- 	struct nf_conntrack_net *cnet = nf_ct_pernet(net);
-diff --git a/net/netfilter/nft_ct.c b/net/netfilter/nft_ct.c
-index 99b1de14ff7e..54ecb9fbf2de 100644
---- a/net/netfilter/nft_ct.c
-+++ b/net/netfilter/nft_ct.c
-@@ -1040,6 +1040,9 @@ static int nft_ct_helper_obj_init(const struct nft_ctx *ctx,
- 	if (err < 0)
- 		goto err_put_helper;
+ 	err = device_create_file(&pdev->dev, &dev_attr_available_masters);
+ 	if (err)
+-		goto err_rollback;
++		goto err_rollback_activation;
  
-+	/* Avoid the bogus warning, helper will be assigned after CT init */
-+	nf_ct_set_auto_assign_helper_warned(ctx->net);
-+
- 	return 0;
+ 	err = device_create_file(&pdev->dev, &dev_attr_current_master);
+ 	if (err)
+@@ -271,8 +271,9 @@ static int i2c_demux_pinctrl_probe(struct platform_device *pdev)
  
- err_put_helper:
+ err_rollback_available:
+ 	device_remove_file(&pdev->dev, &dev_attr_available_masters);
+-err_rollback:
++err_rollback_activation:
+ 	i2c_demux_deactivate_master(priv);
++err_rollback:
+ 	for (j = 0; j < i; j++) {
+ 		of_node_put(priv->chan[j].parent_np);
+ 		of_changeset_destroy(&priv->chan[j].chgset);
 -- 
 2.34.1
 
