@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 215DB4F4368
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:59:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F6E54F41BB
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 23:34:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382486AbiDEMPd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:15:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35276 "EHLO
+        id S1381213AbiDEMOj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:14:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57674 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243444AbiDEKfe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:35:34 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3965A33886;
-        Tue,  5 Apr 2022 03:20:35 -0700 (PDT)
+        with ESMTP id S242159AbiDEKfQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:35:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C894B36B49;
+        Tue,  5 Apr 2022 03:20:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CD643B81C6C;
-        Tue,  5 Apr 2022 10:20:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1FF26C385A1;
-        Tue,  5 Apr 2022 10:20:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 652E2616D7;
+        Tue,  5 Apr 2022 10:20:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 745DAC385A1;
+        Tue,  5 Apr 2022 10:20:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649154032;
-        bh=tn3oV95hj2cGFdS6S3E/vvbtOLleHeDX+ydYbf8M3tc=;
+        s=korg; t=1649154040;
+        bh=HQpRMrAehDtWeCK0JY9A9/XHa20QiNq1aSYK6C2zu8A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lqtl3kAestwAEdmimKGGCWZPPoOQVUwUOjDrcEl+xTuZSsTikohpU9k3oS72hi+UV
-         GVevb00S9AVJy83C5Kx+O35NpDkmJVu0kfK/HXHnPL8yX4nYF+iDOK8DXDC1tduWaD
-         7yww9parTCfJm4eLN9+2OD/XsLDgG07Fv5SH3N7w=
+        b=rkOnGlKWBwSJKrjDCSefmzxS8FQWRIi2nKo0p5GZb4twQriwTPBJptxG0ms9714uq
+         DBfibbxkbhYBLGpffn45NDe9ZJBv9PFwAN/FP3OXqDHo2P9jthA2Li03ER0ZANsTfC
+         ryIwb/sqyajIglb0agmjlonB6yASmJPUuBPD4B/k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Olga Kornievskaia <kolga@netapp.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        stable@vger.kernel.org,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        Petr Vorel <petr.vorel@gmail.com>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 433/599] NFSv4.1: dont retry BIND_CONN_TO_SESSION on session error
-Date:   Tue,  5 Apr 2022 09:32:07 +0200
-Message-Id: <20220405070311.718223497@linuxfoundation.org>
+Subject: [PATCH 5.10 435/599] clk: qcom: gcc-msm8994: Fix gpll4 width
+Date:   Tue,  5 Apr 2022 09:32:09 +0200
+Message-Id: <20220405070311.777210676@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -54,33 +56,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Olga Kornievskaia <kolga@netapp.com>
+From: Konrad Dybcio <konrad.dybcio@somainline.org>
 
-[ Upstream commit 1d15d121cc2ad4d016a7dc1493132a9696f91fc5 ]
+[ Upstream commit 71021db1c532c2545ae53b9ee85b37b7154f51d4 ]
 
-There is no reason to retry the operation if a session error had
-occurred in such case result structure isn't filled out.
+The gpll4 postdiv is actually a div4, so make sure that Linux is aware of
+this.
 
-Fixes: dff58530c4ca ("NFSv4.1: fix handling of backchannel binding in BIND_CONN_TO_SESSION")
-Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+This fixes the following error messages:
+
+ mmc1: Card appears overclocked; req 200000000 Hz, actual 343999999 Hz
+ mmc1: Card appears overclocked; req 400000000 Hz, actual 687999999 Hz
+
+Fixes: aec89f78cf01 ("clk: qcom: Add support for msm8994 global clock controller")
+Signed-off-by: Konrad Dybcio <konrad.dybcio@somainline.org>
+Link: https://lore.kernel.org/r/20220319174940.341137-1-konrad.dybcio@somainline.org
+Tested-by: Petr Vorel <petr.vorel@gmail.com>
+Reviewed-by: Petr Vorel <petr.vorel@gmail.com>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4proc.c | 1 +
+ drivers/clk/qcom/gcc-msm8994.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
-index d222a980164b..77199d356042 100644
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -8205,6 +8205,7 @@ nfs4_bind_one_conn_to_session_done(struct rpc_task *task, void *calldata)
- 	case -NFS4ERR_DEADSESSION:
- 		nfs4_schedule_session_recovery(clp->cl_session,
- 				task->tk_status);
-+		return;
- 	}
- 	if (args->dir == NFS4_CDFC4_FORE_OR_BOTH &&
- 			res->dir != NFS4_CDFS4_BOTH) {
+diff --git a/drivers/clk/qcom/gcc-msm8994.c b/drivers/clk/qcom/gcc-msm8994.c
+index 144d2ba7a9be..463a444c8a7e 100644
+--- a/drivers/clk/qcom/gcc-msm8994.c
++++ b/drivers/clk/qcom/gcc-msm8994.c
+@@ -108,6 +108,7 @@ static struct clk_alpha_pll gpll4_early = {
+ 
+ static struct clk_alpha_pll_postdiv gpll4 = {
+ 	.offset = 0x1dc0,
++	.width = 4,
+ 	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
+ 	.clkr.hw.init = &(struct clk_init_data)
+ 	{
 -- 
 2.34.1
 
