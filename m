@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1185B4F2F3E
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:11:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4D5E4F31D0
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:46:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349741AbiDEKuy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:50:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59386 "EHLO
+        id S1343943AbiDEJP6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:15:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46796 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345342AbiDEJnY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:43:24 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FD46C1CA7;
-        Tue,  5 Apr 2022 02:28:41 -0700 (PDT)
+        with ESMTP id S244975AbiDEIww (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A26D71D0D1;
+        Tue,  5 Apr 2022 01:48:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 785A8B81CA4;
-        Tue,  5 Apr 2022 09:28:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD733C385A2;
-        Tue,  5 Apr 2022 09:28:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 417B2614F9;
+        Tue,  5 Apr 2022 08:48:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C9CEC385A1;
+        Tue,  5 Apr 2022 08:48:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150919;
-        bh=/i6LEHp6MXl/1B5p7zXt1iozGUaMzCHOMQj1xftmfPU=;
+        s=korg; t=1649148501;
+        bh=Ps1nATeswKaRTByy9Vpj0FarmADqO69/M4NEGtVD1Cc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JBZB81hkqcC3czE8HZmZZCltYXL/v9cgIi3udtFwqM1HQXyUt/W32JImwt07bIHPY
-         JnEfY+ldUGMzozLg9z7ydqvC2sCFsmT+cpOU5LLubwjDhKiMz46qSgwrJGyquHsFJI
-         b5la54OUl/E2I8JzZilIOlpYkCIRCrG/8rHTPY8Y=
+        b=0VzTKqrVVBpR4DDQxAYYNTdWVgUpHWxeBsPpS3GOsr/pCUj0q0oSpO2/F43eTZpCe
+         0Fqzc5Ewc9RuzmWa7uAKUjvcS06JlYqdzIMT6GCK4RokIAmBKPnM61uNvEUBkec1N4
+         OiZ2hzfszJ8OYqvMg/s45TVz9Z/Lfsvur6kh7uvs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Suman Anna <s-anna@ti.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Drew Fustini <dfustini@baylibre.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Martin Dauskardt <martin.dauskardt@gmx.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 228/913] clocksource/drivers/timer-ti-dm: Fix regression from errata i940 fix
+Subject: [PATCH 5.16 0377/1017] ivtv: fix incorrect device_caps for ivtvfb
 Date:   Tue,  5 Apr 2022 09:21:30 +0200
-Message-Id: <20220405070346.690998149@linuxfoundation.org>
+Message-Id: <20220405070405.476917127@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,131 +54,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Drew Fustini <dfustini@baylibre.com>
+From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 
-[ Upstream commit bceaae3bac0ce27c549bb050336d8d08abc2ee54 ]
+[ Upstream commit 25e94139218c0293b4375233c14f2256d7dcfaa8 ]
 
-The existing fix for errata i940 causes a conflict for IPU2 which is
-using timer 3 and 4. From arch/arm/boot/dts/dra7-ipu-dsp-common.dtsi:
+The VIDIOC_G_FBUF and related overlay ioctls no longer worked (-ENOTTY was
+returned).
 
-  &ipu2 {
-          mboxes = <&mailbox6 &mbox_ipu2_ipc3x>;
-          ti,timers = <&timer3>;
-          ti,watchdog-timers = <&timer4>, <&timer9>;
-  };
+The root cause was the introduction of the caps field in ivtv-driver.h.
+While loading the ivtvfb module would update the video_device device_caps
+field with V4L2_CAP_VIDEO_OUTPUT_OVERLAY it would not update that caps
+field, and that's what the overlay ioctls would look at.
 
-The conflict was noticed when booting mainline on the BeagleBoard X15
-which has a TI AM5728 SoC:
+It's a bad idea to keep information in two places, so drop the caps field
+and only use vdev.device_caps.
 
-  remoteproc remoteproc1: 55020000.ipu is available
-  remoteproc remoteproc1: powering up 55020000.ipu
-  remoteproc remoteproc1: Booting fw image dra7-ipu2-fw.xem4
-  omap-rproc 55020000.ipu: could not get timer platform device
-  omap-rproc 55020000.ipu: omap_rproc_enable_timers failed: -19
-  remoteproc remoteproc1: can't start rproc 55020000.ipu: -19
-
-This change modifies the errata fix to instead use timer 15 and 16 which
-resolves the timer conflict.
-
-It does not appear to introduce any latency regression. Results from
-cyclictest with original errata fix using dmtimer 3 and 4:
-
-  # cyclictest --mlockall --smp --priority=80 --interval=200 --distance=0
-  policy: fifo: loadavg: 0.02 0.03 0.05
-
-  T: 0 ( 1449) P:80 I:200 C: 800368 Min:   0 Act:   32 Avg:   22 Max:  128
-  T: 1 ( 1450) P:80 I:200 C: 800301 Min:   0 Act:   12 Avg:   23 Max:   70
-
-The results after the change to dmtimer 15 and 16:
-
-  # cyclictest --mlockall --smp --priority=80 --interval=200 --distance=0
-  policy: fifo: loadavg: 0.36 0.19 0.07
-
-  T: 0 ( 1711) P:80 I:200 C: 759599 Min:   0 Act:    6 Avg:   22 Max:  108
-  T: 1 ( 1712) P:80 I:200 C: 759539 Min:   0 Act:   19 Avg:   23 Max:   79
-
-Fixes: 25de4ce5ed02 ("clocksource/drivers/timer-ti-dm: Handle dra7 timer wrap errata i940")
-Link: https://lore.kernel.org/linux-omap/YfWsG0p6to3IJuvE@x1/
-Suggested-by: Suman Anna <s-anna@ti.com>
-Reviewed-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Drew Fustini <dfustini@baylibre.com>
-Link: https://lore.kernel.org/r/20220204053503.1409162-1-dfustini@baylibre.com
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Reported-by: Martin Dauskardt <martin.dauskardt@gmx.de>
+Fixes: 2161536516ed (media: media/pci: set device_caps in struct video_device)
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/dra7-l4.dtsi             | 5 ++---
- arch/arm/boot/dts/dra7.dtsi                | 8 ++++----
- drivers/clocksource/timer-ti-dm-systimer.c | 4 ++--
- 3 files changed, 8 insertions(+), 9 deletions(-)
+ drivers/media/pci/ivtv/ivtv-driver.h  |  1 -
+ drivers/media/pci/ivtv/ivtv-ioctl.c   | 10 +++++-----
+ drivers/media/pci/ivtv/ivtv-streams.c | 11 ++++-------
+ 3 files changed, 9 insertions(+), 13 deletions(-)
 
-diff --git a/arch/arm/boot/dts/dra7-l4.dtsi b/arch/arm/boot/dts/dra7-l4.dtsi
-index 956a26d52a4c..0a11bacffc1f 100644
---- a/arch/arm/boot/dts/dra7-l4.dtsi
-+++ b/arch/arm/boot/dts/dra7-l4.dtsi
-@@ -3482,8 +3482,7 @@
- 				ti,timer-pwm;
- 			};
- 		};
--
--		target-module@2c000 {			/* 0x4882c000, ap 17 02.0 */
-+		timer15_target: target-module@2c000 {	/* 0x4882c000, ap 17 02.0 */
- 			compatible = "ti,sysc-omap4-timer", "ti,sysc";
- 			reg = <0x2c000 0x4>,
- 			      <0x2c010 0x4>;
-@@ -3511,7 +3510,7 @@
- 			};
- 		};
+diff --git a/drivers/media/pci/ivtv/ivtv-driver.h b/drivers/media/pci/ivtv/ivtv-driver.h
+index 4cf92dee6527..ce3a7ca51736 100644
+--- a/drivers/media/pci/ivtv/ivtv-driver.h
++++ b/drivers/media/pci/ivtv/ivtv-driver.h
+@@ -330,7 +330,6 @@ struct ivtv_stream {
+ 	struct ivtv *itv;		/* for ease of use */
+ 	const char *name;		/* name of the stream */
+ 	int type;			/* stream type */
+-	u32 caps;			/* V4L2 capabilities */
  
--		target-module@2e000 {			/* 0x4882e000, ap 19 14.0 */
-+		timer16_target: target-module@2e000 {	/* 0x4882e000, ap 19 14.0 */
- 			compatible = "ti,sysc-omap4-timer", "ti,sysc";
- 			reg = <0x2e000 0x4>,
- 			      <0x2e010 0x4>;
-diff --git a/arch/arm/boot/dts/dra7.dtsi b/arch/arm/boot/dts/dra7.dtsi
-index dfc1ef8ef6ae..61a3fb3e2a2f 100644
---- a/arch/arm/boot/dts/dra7.dtsi
-+++ b/arch/arm/boot/dts/dra7.dtsi
-@@ -1320,20 +1320,20 @@
- };
+ 	struct v4l2_fh *fh;		/* pointer to the streaming filehandle */
+ 	spinlock_t qlock;		/* locks access to the queues */
+diff --git a/drivers/media/pci/ivtv/ivtv-ioctl.c b/drivers/media/pci/ivtv/ivtv-ioctl.c
+index 0cdf6b3210c2..fee460e2ca86 100644
+--- a/drivers/media/pci/ivtv/ivtv-ioctl.c
++++ b/drivers/media/pci/ivtv/ivtv-ioctl.c
+@@ -438,7 +438,7 @@ static int ivtv_g_fmt_vid_out_overlay(struct file *file, void *fh, struct v4l2_f
+ 	struct ivtv_stream *s = &itv->streams[fh2id(fh)->type];
+ 	struct v4l2_window *winfmt = &fmt->fmt.win;
  
- /* Local timers, see ARM architected timer wrap erratum i940 */
--&timer3_target {
-+&timer15_target {
- 	ti,no-reset-on-init;
- 	ti,no-idle;
- 	timer@0 {
--		assigned-clocks = <&l4per_clkctrl DRA7_L4PER_TIMER3_CLKCTRL 24>;
-+		assigned-clocks = <&l4per3_clkctrl DRA7_L4PER3_TIMER15_CLKCTRL 24>;
- 		assigned-clock-parents = <&timer_sys_clk_div>;
+-	if (!(s->caps & V4L2_CAP_VIDEO_OUTPUT_OVERLAY))
++	if (!(s->vdev.device_caps & V4L2_CAP_VIDEO_OUTPUT_OVERLAY))
+ 		return -EINVAL;
+ 	if (!itv->osd_video_pbase)
+ 		return -EINVAL;
+@@ -549,7 +549,7 @@ static int ivtv_try_fmt_vid_out_overlay(struct file *file, void *fh, struct v4l2
+ 	u32 chromakey = fmt->fmt.win.chromakey;
+ 	u8 global_alpha = fmt->fmt.win.global_alpha;
+ 
+-	if (!(s->caps & V4L2_CAP_VIDEO_OUTPUT_OVERLAY))
++	if (!(s->vdev.device_caps & V4L2_CAP_VIDEO_OUTPUT_OVERLAY))
+ 		return -EINVAL;
+ 	if (!itv->osd_video_pbase)
+ 		return -EINVAL;
+@@ -1383,7 +1383,7 @@ static int ivtv_g_fbuf(struct file *file, void *fh, struct v4l2_framebuffer *fb)
+ 		0,
  	};
- };
  
--&timer4_target {
-+&timer16_target {
- 	ti,no-reset-on-init;
- 	ti,no-idle;
- 	timer@0 {
--		assigned-clocks = <&l4per_clkctrl DRA7_L4PER_TIMER4_CLKCTRL 24>;
-+		assigned-clocks = <&l4per3_clkctrl DRA7_L4PER3_TIMER16_CLKCTRL 24>;
- 		assigned-clock-parents = <&timer_sys_clk_div>;
- 	};
- };
-diff --git a/drivers/clocksource/timer-ti-dm-systimer.c b/drivers/clocksource/timer-ti-dm-systimer.c
-index 1fccb457fcc5..2737407ff069 100644
---- a/drivers/clocksource/timer-ti-dm-systimer.c
-+++ b/drivers/clocksource/timer-ti-dm-systimer.c
-@@ -694,9 +694,9 @@ static int __init dmtimer_percpu_quirk_init(struct device_node *np, u32 pa)
- 		return 0;
+-	if (!(s->caps & V4L2_CAP_VIDEO_OUTPUT_OVERLAY))
++	if (!(s->vdev.device_caps & V4L2_CAP_VIDEO_OUTPUT_OVERLAY))
+ 		return -ENOTTY;
+ 	if (!itv->osd_video_pbase)
+ 		return -ENOTTY;
+@@ -1450,7 +1450,7 @@ static int ivtv_s_fbuf(struct file *file, void *fh, const struct v4l2_framebuffe
+ 	struct ivtv_stream *s = &itv->streams[fh2id(fh)->type];
+ 	struct yuv_playback_info *yi = &itv->yuv_info;
+ 
+-	if (!(s->caps & V4L2_CAP_VIDEO_OUTPUT_OVERLAY))
++	if (!(s->vdev.device_caps & V4L2_CAP_VIDEO_OUTPUT_OVERLAY))
+ 		return -ENOTTY;
+ 	if (!itv->osd_video_pbase)
+ 		return -ENOTTY;
+@@ -1470,7 +1470,7 @@ static int ivtv_overlay(struct file *file, void *fh, unsigned int on)
+ 	struct ivtv *itv = id->itv;
+ 	struct ivtv_stream *s = &itv->streams[fh2id(fh)->type];
+ 
+-	if (!(s->caps & V4L2_CAP_VIDEO_OUTPUT_OVERLAY))
++	if (!(s->vdev.device_caps & V4L2_CAP_VIDEO_OUTPUT_OVERLAY))
+ 		return -ENOTTY;
+ 	if (!itv->osd_video_pbase)
+ 		return -ENOTTY;
+diff --git a/drivers/media/pci/ivtv/ivtv-streams.c b/drivers/media/pci/ivtv/ivtv-streams.c
+index 6e455948cc77..13d7d55e6594 100644
+--- a/drivers/media/pci/ivtv/ivtv-streams.c
++++ b/drivers/media/pci/ivtv/ivtv-streams.c
+@@ -176,7 +176,7 @@ static void ivtv_stream_init(struct ivtv *itv, int type)
+ 	s->itv = itv;
+ 	s->type = type;
+ 	s->name = ivtv_stream_info[type].name;
+-	s->caps = ivtv_stream_info[type].v4l2_caps;
++	s->vdev.device_caps = ivtv_stream_info[type].v4l2_caps;
+ 
+ 	if (ivtv_stream_info[type].pio)
+ 		s->dma = DMA_NONE;
+@@ -299,12 +299,9 @@ static int ivtv_reg_dev(struct ivtv *itv, int type)
+ 		if (s_mpg->vdev.v4l2_dev)
+ 			num = s_mpg->vdev.num + ivtv_stream_info[type].num_offset;
  	}
- 
--	if (pa == 0x48034000)		/* dra7 dmtimer3 */
-+	if (pa == 0x4882c000)           /* dra7 dmtimer15 */
- 		return dmtimer_percpu_timer_init(np, 0);
--	else if (pa == 0x48036000)	/* dra7 dmtimer4 */
-+	else if (pa == 0x4882e000)      /* dra7 dmtimer16 */
- 		return dmtimer_percpu_timer_init(np, 1);
- 
- 	return 0;
+-	s->vdev.device_caps = s->caps;
+-	if (itv->osd_video_pbase) {
+-		itv->streams[IVTV_DEC_STREAM_TYPE_YUV].vdev.device_caps |=
+-			V4L2_CAP_VIDEO_OUTPUT_OVERLAY;
+-		itv->streams[IVTV_DEC_STREAM_TYPE_MPG].vdev.device_caps |=
+-			V4L2_CAP_VIDEO_OUTPUT_OVERLAY;
++	if (itv->osd_video_pbase && (type == IVTV_DEC_STREAM_TYPE_YUV ||
++				     type == IVTV_DEC_STREAM_TYPE_MPG)) {
++		s->vdev.device_caps |= V4L2_CAP_VIDEO_OUTPUT_OVERLAY;
+ 		itv->v4l2_cap |= V4L2_CAP_VIDEO_OUTPUT_OVERLAY;
+ 	}
+ 	video_set_drvdata(&s->vdev, s);
 -- 
 2.34.1
 
