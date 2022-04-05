@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 988754F31B4
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:45:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80D764F2FE2
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:18:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235608AbiDEJes (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:34:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57302 "EHLO
+        id S238386AbiDEJe7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:34:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36300 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245712AbiDEI4x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:56:53 -0400
+        with ESMTP id S245730AbiDEI4y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:56:54 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88E8A1A3A6;
-        Tue,  5 Apr 2022 01:52:39 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C9B919C0B;
+        Tue,  5 Apr 2022 01:52:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2B31AB81B92;
-        Tue,  5 Apr 2022 08:52:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D30FC385A1;
-        Tue,  5 Apr 2022 08:52:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 02751B81B75;
+        Tue,  5 Apr 2022 08:52:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65569C385A0;
+        Tue,  5 Apr 2022 08:52:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148757;
-        bh=zm6JjuvnyZuylzaFd5qdpfTbBniT0d81g3XjdXWjT/U=;
+        s=korg; t=1649148759;
+        bh=6teVxoPhBawGeWELxNYk1AiLJDt6H6dR+P6fL/PEkA8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MFdivL3KqFWaCMN0+RTO+Pu65/Xrbr85V580wR1HXFG4eJOAB/kxfrDE/AVkUnVp2
-         zxSOsNROQK/93vOjG1Asa1nYBSQ9cnlJYN2ZPH+lw3FrFFB6FXN2XZbP/fDmD5c+qf
-         erpOQrksN4ddRcMjmFRWxZp97sYth3uNIP9Yujn0=
+        b=tHhrAPbWlRY3eS/WAnf5LPpuKVDigGHSt0bJRafZSyL4kRyQ+QsGvB5+6NPVl7w6A
+         Wr413+bF3Bgcq3pUDse8zLEP9H8j0F0PRvOhMafWNTVVbIoO7GH/b69FFDw7Jgn7LO
+         MxHqoAHZtKF9k2wcGuB9m9tnSdiLoM+Ljnb5rdRM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hangbin Liu <liuhangbin@gmail.com>,
-        William Tu <u9012063@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>,
+        stable@vger.kernel.org,
+        syzbot+f83a1df1ed4f67e8d8ad@syzkaller.appspotmail.com,
+        Pavel Skripkin <paskripkin@gmail.com>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0432/1017] selftests/bpf/test_xdp_redirect_multi: use temp netns for testing
-Date:   Tue,  5 Apr 2022 09:22:25 +0200
-Message-Id: <20220405070407.118131248@linuxfoundation.org>
+Subject: [PATCH 5.16 0433/1017] ath9k_htc: fix uninit value bugs
+Date:   Tue,  5 Apr 2022 09:22:26 +0200
+Message-Id: <20220405070407.147717925@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -55,157 +56,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangbin Liu <liuhangbin@gmail.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit cec74489a8dee93053340ec88ea938ff4008c3c0 ]
+[ Upstream commit d1e0df1c57bd30871dd1c855742a7c346dbca853 ]
 
-Use temp netns instead of hard code name for testing in case the netns
-already exists.
+Syzbot reported 2 KMSAN bugs in ath9k. All of them are caused by missing
+field initialization.
 
-Remove the hard code interface index when creating the veth interfaces.
-Because when the system loads some virtual interface modules, e.g. tunnels.
-the ifindex of 2 will be used and the cmd will fail.
+In htc_connect_service() svc_meta_len and pad are not initialized. Based
+on code it looks like in current skb there is no service data, so simply
+initialize svc_meta_len to 0.
 
-As the netns has not created if checking environment failed. Trap the
-clean up function after checking env.
+htc_issue_send() does not initialize htc_frame_hdr::control array. Based
+on firmware code, it will initialize it by itself, so simply zero whole
+array to make KMSAN happy
 
-Fixes: 8955c1a32987 ("selftests/bpf/xdp_redirect_multi: Limit the tests in netns")
-Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
-Acked-by: William Tu <u9012063@gmail.com>
-Link: https://lore.kernel.org/r/20220125081717.1260849-2-liuhangbin@gmail.com
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Fail logs:
+
+BUG: KMSAN: kernel-usb-infoleak in usb_submit_urb+0x6c1/0x2aa0 drivers/usb/core/urb.c:430
+ usb_submit_urb+0x6c1/0x2aa0 drivers/usb/core/urb.c:430
+ hif_usb_send_regout drivers/net/wireless/ath/ath9k/hif_usb.c:127 [inline]
+ hif_usb_send+0x5f0/0x16f0 drivers/net/wireless/ath/ath9k/hif_usb.c:479
+ htc_issue_send drivers/net/wireless/ath/ath9k/htc_hst.c:34 [inline]
+ htc_connect_service+0x143e/0x1960 drivers/net/wireless/ath/ath9k/htc_hst.c:275
+...
+
+Uninit was created at:
+ slab_post_alloc_hook mm/slab.h:524 [inline]
+ slab_alloc_node mm/slub.c:3251 [inline]
+ __kmalloc_node_track_caller+0xe0c/0x1510 mm/slub.c:4974
+ kmalloc_reserve net/core/skbuff.c:354 [inline]
+ __alloc_skb+0x545/0xf90 net/core/skbuff.c:426
+ alloc_skb include/linux/skbuff.h:1126 [inline]
+ htc_connect_service+0x1029/0x1960 drivers/net/wireless/ath/ath9k/htc_hst.c:258
+...
+
+Bytes 4-7 of 18 are uninitialized
+Memory access of size 18 starts at ffff888027377e00
+
+BUG: KMSAN: kernel-usb-infoleak in usb_submit_urb+0x6c1/0x2aa0 drivers/usb/core/urb.c:430
+ usb_submit_urb+0x6c1/0x2aa0 drivers/usb/core/urb.c:430
+ hif_usb_send_regout drivers/net/wireless/ath/ath9k/hif_usb.c:127 [inline]
+ hif_usb_send+0x5f0/0x16f0 drivers/net/wireless/ath/ath9k/hif_usb.c:479
+ htc_issue_send drivers/net/wireless/ath/ath9k/htc_hst.c:34 [inline]
+ htc_connect_service+0x143e/0x1960 drivers/net/wireless/ath/ath9k/htc_hst.c:275
+...
+
+Uninit was created at:
+ slab_post_alloc_hook mm/slab.h:524 [inline]
+ slab_alloc_node mm/slub.c:3251 [inline]
+ __kmalloc_node_track_caller+0xe0c/0x1510 mm/slub.c:4974
+ kmalloc_reserve net/core/skbuff.c:354 [inline]
+ __alloc_skb+0x545/0xf90 net/core/skbuff.c:426
+ alloc_skb include/linux/skbuff.h:1126 [inline]
+ htc_connect_service+0x1029/0x1960 drivers/net/wireless/ath/ath9k/htc_hst.c:258
+...
+
+Bytes 16-17 of 18 are uninitialized
+Memory access of size 18 starts at ffff888027377e00
+
+Fixes: fb9987d0f748 ("ath9k_htc: Support for AR9271 chipset.")
+Reported-by: syzbot+f83a1df1ed4f67e8d8ad@syzkaller.appspotmail.com
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/20220115122733.11160-1-paskripkin@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../selftests/bpf/test_xdp_redirect_multi.sh  | 60 ++++++++++---------
- 1 file changed, 31 insertions(+), 29 deletions(-)
+ drivers/net/wireless/ath/ath9k/htc_hst.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/tools/testing/selftests/bpf/test_xdp_redirect_multi.sh b/tools/testing/selftests/bpf/test_xdp_redirect_multi.sh
-index 05f872740999..cc57cb87e65f 100755
---- a/tools/testing/selftests/bpf/test_xdp_redirect_multi.sh
-+++ b/tools/testing/selftests/bpf/test_xdp_redirect_multi.sh
-@@ -32,6 +32,11 @@ DRV_MODE="xdpgeneric xdpdrv xdpegress"
- PASS=0
- FAIL=0
- LOG_DIR=$(mktemp -d)
-+declare -a NS
-+NS[0]="ns0-$(mktemp -u XXXXXX)"
-+NS[1]="ns1-$(mktemp -u XXXXXX)"
-+NS[2]="ns2-$(mktemp -u XXXXXX)"
-+NS[3]="ns3-$(mktemp -u XXXXXX)"
+diff --git a/drivers/net/wireless/ath/ath9k/htc_hst.c b/drivers/net/wireless/ath/ath9k/htc_hst.c
+index 510e61e97dbc..994ec48b2f66 100644
+--- a/drivers/net/wireless/ath/ath9k/htc_hst.c
++++ b/drivers/net/wireless/ath/ath9k/htc_hst.c
+@@ -30,6 +30,7 @@ static int htc_issue_send(struct htc_target *target, struct sk_buff* skb,
+ 	hdr->endpoint_id = epid;
+ 	hdr->flags = flags;
+ 	hdr->payload_len = cpu_to_be16(len);
++	memset(hdr->control, 0, sizeof(hdr->control));
  
- test_pass()
- {
-@@ -47,11 +52,9 @@ test_fail()
+ 	status = target->hif->send(target->hif_dev, endpoint->ul_pipeid, skb);
  
- clean_up()
- {
--	for i in $(seq $NUM); do
--		ip link del veth$i 2> /dev/null
--		ip netns del ns$i 2> /dev/null
-+	for i in $(seq 0 $NUM); do
-+		ip netns del ${NS[$i]} 2> /dev/null
- 	done
--	ip netns del ns0 2> /dev/null
- }
+@@ -272,6 +273,10 @@ int htc_connect_service(struct htc_target *target,
+ 	conn_msg->dl_pipeid = endpoint->dl_pipeid;
+ 	conn_msg->ul_pipeid = endpoint->ul_pipeid;
  
- # Kselftest framework requirement - SKIP code is 4.
-@@ -79,23 +82,22 @@ setup_ns()
- 		mode="xdpdrv"
- 	fi
- 
--	ip netns add ns0
-+	ip netns add ${NS[0]}
- 	for i in $(seq $NUM); do
--	        ip netns add ns$i
--		ip -n ns$i link add veth0 index 2 type veth \
--			peer name veth$i netns ns0 index $((1 + $i))
--		ip -n ns0 link set veth$i up
--		ip -n ns$i link set veth0 up
--
--		ip -n ns$i addr add 192.0.2.$i/24 dev veth0
--		ip -n ns$i addr add 2001:db8::$i/64 dev veth0
-+	        ip netns add ${NS[$i]}
-+		ip -n ${NS[$i]} link add veth0 type veth peer name veth$i netns ${NS[0]}
-+		ip -n ${NS[$i]} link set veth0 up
-+		ip -n ${NS[0]} link set veth$i up
++	/* To prevent infoleak */
++	conn_msg->svc_meta_len = 0;
++	conn_msg->pad = 0;
 +
-+		ip -n ${NS[$i]} addr add 192.0.2.$i/24 dev veth0
-+		ip -n ${NS[$i]} addr add 2001:db8::$i/64 dev veth0
- 		# Add a neigh entry for IPv4 ping test
--		ip -n ns$i neigh add 192.0.2.253 lladdr 00:00:00:00:00:01 dev veth0
--		ip -n ns$i link set veth0 $mode obj \
-+		ip -n ${NS[$i]} neigh add 192.0.2.253 lladdr 00:00:00:00:00:01 dev veth0
-+		ip -n ${NS[$i]} link set veth0 $mode obj \
- 			xdp_dummy.o sec xdp &> /dev/null || \
- 			{ test_fail "Unable to load dummy xdp" && exit 1; }
- 		IFACES="$IFACES veth$i"
--		veth_mac[$i]=$(ip -n ns0 link show veth$i | awk '/link\/ether/ {print $2}')
-+		veth_mac[$i]=$(ip -n ${NS[0]} link show veth$i | awk '/link\/ether/ {print $2}')
- 	done
- }
- 
-@@ -104,10 +106,10 @@ do_egress_tests()
- 	local mode=$1
- 
- 	# mac test
--	ip netns exec ns2 tcpdump -e -i veth0 -nn -l -e &> ${LOG_DIR}/mac_ns1-2_${mode}.log &
--	ip netns exec ns3 tcpdump -e -i veth0 -nn -l -e &> ${LOG_DIR}/mac_ns1-3_${mode}.log &
-+	ip netns exec ${NS[2]} tcpdump -e -i veth0 -nn -l -e &> ${LOG_DIR}/mac_ns1-2_${mode}.log &
-+	ip netns exec ${NS[3]} tcpdump -e -i veth0 -nn -l -e &> ${LOG_DIR}/mac_ns1-3_${mode}.log &
- 	sleep 0.5
--	ip netns exec ns1 ping 192.0.2.254 -i 0.1 -c 4 &> /dev/null
-+	ip netns exec ${NS[1]} ping 192.0.2.254 -i 0.1 -c 4 &> /dev/null
- 	sleep 0.5
- 	pkill tcpdump
- 
-@@ -123,18 +125,18 @@ do_ping_tests()
- 	local mode=$1
- 
- 	# ping6 test: echo request should be redirect back to itself, not others
--	ip netns exec ns1 ip neigh add 2001:db8::2 dev veth0 lladdr 00:00:00:00:00:02
-+	ip netns exec ${NS[1]} ip neigh add 2001:db8::2 dev veth0 lladdr 00:00:00:00:00:02
- 
--	ip netns exec ns1 tcpdump -i veth0 -nn -l -e &> ${LOG_DIR}/ns1-1_${mode}.log &
--	ip netns exec ns2 tcpdump -i veth0 -nn -l -e &> ${LOG_DIR}/ns1-2_${mode}.log &
--	ip netns exec ns3 tcpdump -i veth0 -nn -l -e &> ${LOG_DIR}/ns1-3_${mode}.log &
-+	ip netns exec ${NS[1]} tcpdump -i veth0 -nn -l -e &> ${LOG_DIR}/ns1-1_${mode}.log &
-+	ip netns exec ${NS[2]} tcpdump -i veth0 -nn -l -e &> ${LOG_DIR}/ns1-2_${mode}.log &
-+	ip netns exec ${NS[3]} tcpdump -i veth0 -nn -l -e &> ${LOG_DIR}/ns1-3_${mode}.log &
- 	sleep 0.5
- 	# ARP test
--	ip netns exec ns1 arping -q -c 2 -I veth0 192.0.2.254
-+	ip netns exec ${NS[1]} arping -q -c 2 -I veth0 192.0.2.254
- 	# IPv4 test
--	ip netns exec ns1 ping 192.0.2.253 -i 0.1 -c 4 &> /dev/null
-+	ip netns exec ${NS[1]} ping 192.0.2.253 -i 0.1 -c 4 &> /dev/null
- 	# IPv6 test
--	ip netns exec ns1 ping6 2001:db8::2 -i 0.1 -c 2 &> /dev/null
-+	ip netns exec ${NS[1]} ping6 2001:db8::2 -i 0.1 -c 2 &> /dev/null
- 	sleep 0.5
- 	pkill tcpdump
- 
-@@ -180,7 +182,7 @@ do_tests()
- 		xdpgeneric) drv_p="-S";;
- 	esac
- 
--	ip netns exec ns0 ./xdp_redirect_multi $drv_p $IFACES &> ${LOG_DIR}/xdp_redirect_${mode}.log &
-+	ip netns exec ${NS[0]} ./xdp_redirect_multi $drv_p $IFACES &> ${LOG_DIR}/xdp_redirect_${mode}.log &
- 	xdp_pid=$!
- 	sleep 1
- 	if ! ps -p $xdp_pid > /dev/null; then
-@@ -197,10 +199,10 @@ do_tests()
- 	kill $xdp_pid
- }
- 
--trap clean_up EXIT
--
- check_env
- 
-+trap clean_up EXIT
-+
- for mode in ${DRV_MODE}; do
- 	setup_ns $mode
- 	do_tests $mode
+ 	ret = htc_issue_send(target, skb, skb->len, 0, ENDPOINT0);
+ 	if (ret)
+ 		goto err;
 -- 
 2.34.1
 
