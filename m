@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D7C44F33CA
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:23:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA9B64F3626
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:57:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240250AbiDEJeC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:34:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58136 "EHLO
+        id S244514AbiDEK7H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:59:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59294 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245208AbiDEIyN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:54:13 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12C315FB5;
-        Tue,  5 Apr 2022 01:52:06 -0700 (PDT)
+        with ESMTP id S1347105AbiDEJqB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:46:01 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D24A7484B;
+        Tue,  5 Apr 2022 02:32:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A79D8B81BC0;
-        Tue,  5 Apr 2022 08:52:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4CB8C385A1;
-        Tue,  5 Apr 2022 08:52:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 00C13B81CC1;
+        Tue,  5 Apr 2022 09:32:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56F31C385A2;
+        Tue,  5 Apr 2022 09:32:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148723;
-        bh=ZpYxQzMbWq9VFdzbyTTC+uP5ynNLub8AhNQdYd8W74o=;
+        s=korg; t=1649151142;
+        bh=dzWhcPIWdsa4A39sNEcEVgjZ6v05Z816/SN2s+i6y/Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zx+bAoK7wfYOQNaWmj1B9YdS044gGFrP6V4hUkxo06CfTDUg8DhPadwPvcur16h3c
-         svAA574J0Bot3s0l7csdx115TED66Pr8ghYmK02cczmtwTMNoB504O7Fwp2ZQREHDF
-         QovkXVB0nSpNvtJNCkYV7EFNuUGuC/M0T7h5VrpQ=
+        b=gNx7KQnOSR6WvFaV1umoYXGDkWlhTS36jexLwyWfOxKXLuub9B7xnxwBErFj3rJtn
+         F0YMkkOT+URrXjPhGPtX092L1A45fZVZA9D2AW6ZUpk6C9QyDkM+vFCQdDAdWkmSQC
+         apCK59F2g19XCzCWCbhdJOIgfr2bJ6S9xJfmJPpg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0457/1017] mt76: mt7921: fix a leftover race in runtime-pm
-Date:   Tue,  5 Apr 2022 09:22:50 +0200
-Message-Id: <20220405070407.864554065@linuxfoundation.org>
+        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Fabio Estevam <festevam@gmail.com>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 309/913] ARM: dts: imx: Add missing LVDS decoder on M53Menlo
+Date:   Tue,  5 Apr 2022 09:22:51 +0200
+Message-Id: <20220405070349.117037153@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,41 +56,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Bianconi <lorenzo@kernel.org>
+From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit 591cdccebdd4d02eb46d400dea911136400cc567 ]
+[ Upstream commit 0c6f71176ea43d6f4003a4d57f7bb518c5ad6145 ]
 
-Fix a possible race in mt7921_pm_power_save_work() if rx/tx napi
-schedules ps_work and we are currently accessing device register
-on a different cpu.
+The M53Menlo display unit uses an LVDS-to-DPI bridge, TI DS90CF364A.
+Describe this bridge in DT, otherwise the DT incorrectly describes
+DPI panel attached directly to LVDS source.
 
-Fixes: 1d8efc741df8 ("mt76: mt7921: introduce Runtime PM support")
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Fixes: 716be61d1869 ("ARM: dts: imx53: Add Menlosystems M53 board")
+Signed-off-by: Marek Vasut <marex@denx.de>
+Cc: Shawn Guo <shawnguo@kernel.org>
+Cc: Fabio Estevam <festevam@gmail.com>
+Cc: NXP Linux Team <linux-imx@nxp.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt7921/mac.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ arch/arm/boot/dts/imx53-m53menlo.dts | 29 ++++++++++++++++++++++++++--
+ 1 file changed, 27 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/mac.c b/drivers/net/wireless/mediatek/mt76/mt7921/mac.c
-index fc21a78b37c4..1fea9266d4b8 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7921/mac.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7921/mac.c
-@@ -1472,6 +1472,14 @@ void mt7921_pm_power_save_work(struct work_struct *work)
- 	    test_bit(MT76_HW_SCHED_SCANNING, &mphy->state))
- 		goto out;
+diff --git a/arch/arm/boot/dts/imx53-m53menlo.dts b/arch/arm/boot/dts/imx53-m53menlo.dts
+index 4f88e96d81dd..d5c68d1ea707 100644
+--- a/arch/arm/boot/dts/imx53-m53menlo.dts
++++ b/arch/arm/boot/dts/imx53-m53menlo.dts
+@@ -53,6 +53,31 @@
+ 		};
+ 	};
  
-+	if (mutex_is_locked(&dev->mt76.mutex))
-+		/* if mt76 mutex is held we should not put the device
-+		 * to sleep since we are currently accessing device
-+		 * register map. We need to wait for the next power_save
-+		 * trigger.
-+		 */
-+		goto out;
++	lvds-decoder {
++		compatible = "ti,ds90cf364a", "lvds-decoder";
 +
- 	if (time_is_after_jiffies(dev->pm.last_activity + delta)) {
- 		delta = dev->pm.last_activity + delta - jiffies;
- 		goto out;
++		ports {
++			#address-cells = <1>;
++			#size-cells = <0>;
++
++			port@0 {
++				reg = <0>;
++
++				lvds_decoder_in: endpoint {
++					remote-endpoint = <&lvds0_out>;
++				};
++			};
++
++			port@1 {
++				reg = <1>;
++
++				lvds_decoder_out: endpoint {
++					remote-endpoint = <&panel_in>;
++				};
++			};
++		};
++	};
++
+ 	panel {
+ 		compatible = "edt,etm0700g0dh6";
+ 		pinctrl-0 = <&pinctrl_display_gpio>;
+@@ -61,7 +86,7 @@
+ 
+ 		port {
+ 			panel_in: endpoint {
+-				remote-endpoint = <&lvds0_out>;
++				remote-endpoint = <&lvds_decoder_out>;
+ 			};
+ 		};
+ 	};
+@@ -450,7 +475,7 @@
+ 			reg = <2>;
+ 
+ 			lvds0_out: endpoint {
+-				remote-endpoint = <&panel_in>;
++				remote-endpoint = <&lvds_decoder_in>;
+ 			};
+ 		};
+ 	};
 -- 
 2.34.1
 
