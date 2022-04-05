@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E05F4F2DA1
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:45:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90DC14F2DD6
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:47:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237196AbiDEJEC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:04:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40846 "EHLO
+        id S237205AbiDEJED (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:04:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240908AbiDEIsL (ORCPT
+        with ESMTP id S240913AbiDEIsL (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:48:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3ADB9275EF;
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE3B027B09;
         Tue,  5 Apr 2022 01:36:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 14CA8614E5;
-        Tue,  5 Apr 2022 08:36:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D059C385A2;
-        Tue,  5 Apr 2022 08:36:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 71EADB81BBF;
+        Tue,  5 Apr 2022 08:36:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7865C385A0;
+        Tue,  5 Apr 2022 08:36:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147786;
-        bh=tc1+Yv2GOq+ZKImm9w8ZFfKeGbt6glujw2APy6YB0UQ=;
+        s=korg; t=1649147789;
+        bh=WPAbJuu1jDixVIN1IUwnVaASv9TrrMbMCgWrVhN0jmw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GjIy16lgOutbgOd5eLbyArYRJ0voxAx+RkDO0aXUq6DuuDeqgakyxI04YG2nXIBOV
-         rfG/BXOY3r0STdBPOup9i1CN9ENsE97Hk+GxJoC+/lCwolkRUD+ALzRPN8B08AWH57
-         2ATHJgDyvKzFjTCjPTg6fty/cRYDLVnmHP3UePHU=
+        b=t1KDgrn045LuAXBOKxi/3XEBJ6vWgzJwaNSGyk6hbyKzNtvk70tLD5EVvvijW0mXe
+         20eaQ7rWo7pIuJJ5BlyftDej3QaBwEYt/LeHKTbhWhIrgjBRnyBdBrHYGcY41dOBSg
+         IxFwDV5MjsVVDe8a8MdWqzWIZC9IK5wOkTsKc6wk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Milan Broz <gmazyland@gmail.com>,
-        Mike Snitzer <snitzer@kernel.org>
-Subject: [PATCH 5.16 0122/1017] dm integrity: set journal entry unused when shrinking device
-Date:   Tue,  5 Apr 2022 09:17:15 +0200
-Message-Id: <20220405070357.819427084@linuxfoundation.org>
+        stable@vger.kernel.org, Brian Foster <bfoster@redhat.com>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 5.16 0123/1017] tracing: Have trace event string test handle zero length strings
+Date:   Tue,  5 Apr 2022 09:17:16 +0200
+Message-Id: <20220405070357.849805803@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
 References: <20220405070354.155796697@linuxfoundation.org>
@@ -54,44 +53,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-commit cc09e8a9dec4f0e8299e80a7a2a8e6f54164a10b upstream.
+commit eca344a7362e0f34f179298fd8366bcd556eede1 upstream.
 
-Commit f6f72f32c22c ("dm integrity: don't replay journal data past the
-end of the device") skips journal replay if the target sector points
-beyond the end of the device. Unfortunatelly, it doesn't set the
-journal entry unused, which resulted in this BUG being triggered:
-BUG_ON(!journal_entry_is_unused(je))
+If a trace event has in its TP_printk():
 
-Fix this by calling journal_entry_set_unused() for this case.
+ "%*.s", len, len ? __get_str(string) : NULL
 
-Fixes: f6f72f32c22c ("dm integrity: don't replay journal data past the end of the device")
-Cc: stable@vger.kernel.org # v5.7+
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Tested-by: Milan Broz <gmazyland@gmail.com>
-[snitzer: revised header]
-Signed-off-by: Mike Snitzer <snitzer@kernel.org>
+It is perfectly valid if len is zero and passing in the NULL.
+Unfortunately, the runtime string check at time of reading the trace sees
+the NULL and flags it as a bad string and produces a WARN_ON().
+
+Handle this case by passing into the test function if the format has an
+asterisk (star) and if so, if the length is zero, then mark it as safe.
+
+Link: https://lore.kernel.org/all/YjsWzuw5FbWPrdqq@bfoster/
+
+Cc: stable@vger.kernel.org
+Reported-by: Brian Foster <bfoster@redhat.com>
+Tested-by: Brian Foster <bfoster@redhat.com>
+Fixes: 9a6944fee68e2 ("tracing: Add a verifier to check string pointers for trace events")
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/dm-integrity.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ kernel/trace/trace.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/drivers/md/dm-integrity.c
-+++ b/drivers/md/dm-integrity.c
-@@ -2471,9 +2471,11 @@ static void do_journal_write(struct dm_i
- 					dm_integrity_io_error(ic, "invalid sector in journal", -EIO);
- 					sec &= ~(sector_t)(ic->sectors_per_block - 1);
- 				}
-+				if (unlikely(sec >= ic->provided_data_sectors)) {
-+					journal_entry_set_unused(je);
-+					continue;
-+				}
- 			}
--			if (unlikely(sec >= ic->provided_data_sectors))
--				continue;
- 			get_area_and_offset(ic, sec, &area, &offset);
- 			restore_last_bytes(ic, access_journal_data(ic, i, j), je);
- 			for (k = j + 1; k < ic->journal_section_entries; k++) {
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -3654,12 +3654,17 @@ static char *trace_iter_expand_format(st
+ }
+ 
+ /* Returns true if the string is safe to dereference from an event */
+-static bool trace_safe_str(struct trace_iterator *iter, const char *str)
++static bool trace_safe_str(struct trace_iterator *iter, const char *str,
++			   bool star, int len)
+ {
+ 	unsigned long addr = (unsigned long)str;
+ 	struct trace_event *trace_event;
+ 	struct trace_event_call *event;
+ 
++	/* Ignore strings with no length */
++	if (star && !len)
++		return true;
++
+ 	/* OK if part of the event data */
+ 	if ((addr >= (unsigned long)iter->ent) &&
+ 	    (addr < (unsigned long)iter->ent + iter->ent_size))
+@@ -3845,7 +3850,7 @@ void trace_check_vprintf(struct trace_it
+ 		 * instead. See samples/trace_events/trace-events-sample.h
+ 		 * for reference.
+ 		 */
+-		if (WARN_ONCE(!trace_safe_str(iter, str),
++		if (WARN_ONCE(!trace_safe_str(iter, str, star, len),
+ 			      "fmt: '%s' current_buffer: '%s'",
+ 			      fmt, show_buffer(&iter->seq))) {
+ 			int ret;
 
 
