@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CCC34F44BA
-	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 00:26:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77DCA4F4428
+	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 00:13:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356322AbiDEMXH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 08:23:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59196 "EHLO
+        id S1383269AbiDEMZR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:25:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60622 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356220AbiDEKXa (ORCPT
+        with ESMTP id S1356219AbiDEKXa (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:23:30 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60BE8BAB88;
-        Tue,  5 Apr 2022 03:07:57 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B10354AE3E;
+        Tue,  5 Apr 2022 03:07:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F09B46167E;
-        Tue,  5 Apr 2022 10:07:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 105EFC385A1;
-        Tue,  5 Apr 2022 10:07:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4C1D06172B;
+        Tue,  5 Apr 2022 10:07:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CA61C385A2;
+        Tue,  5 Apr 2022 10:07:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153276;
-        bh=sUjtqpLKMHu18jX7PBFfofAGO5LsbRcb2dWLAoSItpw=;
+        s=korg; t=1649153273;
+        bh=x/BbDqLS16fO//8ZLAlr4JSJFLAy2lcDbX54ZoBLp9w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VWHCwsj4NkcRgOdQMPRrc/YVAgHKnowNtgLY/c96OdWLAEXfQeclrxU8+zPzY+iXs
-         oKN7lwrLbL3tDhWwEPhD+8/KM0e5nl+jY8mIN0obkhPlwMVAU7faaBi5hYEIa8LJPJ
-         Gs7hydBweaMw4CDI60DAYsEV6mKR2j1mMJ2bFeCg=
+        b=qzJIlItemYtHABHJH3NE5rupX2FkYiB8h5e1eJyRBc53TuC0AoBZnBSY8MfxV/8dd
+         o60D9XDdxNf+9DPn5/hvePDZm3eobhkPDXr5qbWIcLgvNid8Ikd9+r1WXy3uP5bDXS
+         T5ZaRTdVczrnheXrszcRARR0j6rCgjRwPoeH/imM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kevin Hilman <khilman@baylibre.com>,
-        Johan Hovold <johan@kernel.org>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>
-Subject: [PATCH 5.10 117/599] media: davinci: vpif: fix unbalanced runtime PM enable
-Date:   Tue,  5 Apr 2022 09:26:51 +0200
-Message-Id: <20220405070302.322672550@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Liguang Zhang <zhangliguang@linux.alibaba.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Lukas Wunner <lukas@wunner.de>
+Subject: [PATCH 5.10 126/599] PCI: pciehp: Clear cmd_busy bit in polling mode
+Date:   Tue,  5 Apr 2022 09:27:00 +0200
+Message-Id: <20220405070302.589741179@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
 References: <20220405070258.802373272@linuxfoundation.org>
@@ -55,56 +55,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Liguang Zhang <zhangliguang@linux.alibaba.com>
 
-commit d42b3ad105b5d3481f6a56bc789aa2b27aa09325 upstream.
+commit 92912b175178c7e895f5e5e9f1e30ac30319162b upstream.
 
-Make sure to disable runtime PM before returning on probe errors.
+Writes to a Downstream Port's Slot Control register are PCIe hotplug
+"commands."  If the Port supports Command Completed events, software must
+wait for a command to complete before writing to Slot Control again.
 
-Fixes: 479f7a118105 ("[media] davinci: vpif: adaptions for DT support")
-Cc: stable@vger.kernel.org
-Cc: Kevin Hilman <khilman@baylibre.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+pcie_do_write_cmd() sets ctrl->cmd_busy when it writes to Slot Control.  If
+software notification is enabled, i.e., PCI_EXP_SLTCTL_HPIE and
+PCI_EXP_SLTCTL_CCIE are set, ctrl->cmd_busy is cleared by pciehp_isr().
+
+But when software notification is disabled, as it is when pcie_init()
+powers off an empty slot, pcie_wait_cmd() uses pcie_poll_cmd() to poll for
+command completion, and it neglects to clear ctrl->cmd_busy, which leads to
+spurious timeouts:
+
+  pcieport 0000:00:03.0: pciehp: Timeout on hotplug command 0x01c0 (issued 2264 msec ago)
+  pcieport 0000:00:03.0: pciehp: Timeout on hotplug command 0x05c0 (issued 2288 msec ago)
+
+Clear ctrl->cmd_busy in pcie_poll_cmd() when it detects a Command Completed
+event (PCI_EXP_SLTSTA_CC).
+
+[bhelgaas: commit log]
+Fixes: a5dd4b4b0570 ("PCI: pciehp: Wait for hotplug command completion where necessary")
+Link: https://lore.kernel.org/r/20211111054258.7309-1-zhangliguang@linux.alibaba.com
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=215143
+Link: https://lore.kernel.org/r/20211126173309.GA12255@wunner.de
+Signed-off-by: Liguang Zhang <zhangliguang@linux.alibaba.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Lukas Wunner <lukas@wunner.de>
+Cc: stable@vger.kernel.org	# v4.19+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/platform/davinci/vpif.c |   11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ drivers/pci/hotplug/pciehp_hpc.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/media/platform/davinci/vpif.c
-+++ b/drivers/media/platform/davinci/vpif.c
-@@ -428,6 +428,7 @@ static int vpif_probe(struct platform_de
- 	static struct resource	*res, *res_irq;
- 	struct platform_device *pdev_capture, *pdev_display;
- 	struct device_node *endpoint = NULL;
-+	int ret;
- 
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	vpif_base = devm_ioremap_resource(&pdev->dev, res);
-@@ -458,8 +459,8 @@ static int vpif_probe(struct platform_de
- 	res_irq = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
- 	if (!res_irq) {
- 		dev_warn(&pdev->dev, "Missing IRQ resource.\n");
--		pm_runtime_put(&pdev->dev);
--		return -EINVAL;
-+		ret = -EINVAL;
-+		goto err_put_rpm;
- 	}
- 
- 	pdev_capture = devm_kzalloc(&pdev->dev, sizeof(*pdev_capture),
-@@ -493,6 +494,12 @@ static int vpif_probe(struct platform_de
- 	}
- 
- 	return 0;
-+
-+err_put_rpm:
-+	pm_runtime_put(&pdev->dev);
-+	pm_runtime_disable(&pdev->dev);
-+
-+	return ret;
- }
- 
- static int vpif_remove(struct platform_device *pdev)
+--- a/drivers/pci/hotplug/pciehp_hpc.c
++++ b/drivers/pci/hotplug/pciehp_hpc.c
+@@ -98,6 +98,8 @@ static int pcie_poll_cmd(struct controll
+ 		if (slot_status & PCI_EXP_SLTSTA_CC) {
+ 			pcie_capability_write_word(pdev, PCI_EXP_SLTSTA,
+ 						   PCI_EXP_SLTSTA_CC);
++			ctrl->cmd_busy = 0;
++			smp_mb();
+ 			return 1;
+ 		}
+ 		msleep(10);
 
 
