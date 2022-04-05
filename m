@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 551D44F34CB
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:39:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 899A84F3506
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:42:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245591AbiDEI4Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:56:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45624 "EHLO
+        id S245220AbiDEIyN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:54:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58576 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241060AbiDEIcq (ORCPT
+        with ESMTP id S241063AbiDEIcq (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:32:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BF60B820A;
-        Tue,  5 Apr 2022 01:26:20 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F55AB9192;
+        Tue,  5 Apr 2022 01:26:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3C26A60FFC;
-        Tue,  5 Apr 2022 08:26:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B527C385A4;
-        Tue,  5 Apr 2022 08:26:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0F34DB81BCE;
+        Tue,  5 Apr 2022 08:26:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59E94C385A4;
+        Tue,  5 Apr 2022 08:26:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147179;
-        bh=Sa1kMv1sdCnfZFoBz5fJjwVY0FENvkmbuFF3lGAys4I=;
+        s=korg; t=1649147187;
+        bh=q9reCg0Q/4GU8MiDT8PeLNp2EtR568uj8DjkLKywS8Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jvoJA7wKO/A/lVy8R0d0OtRBeGVgef/NAuwt/TooroqU/XJvRXdCt9cTv5C93r8ge
-         moc4ItCq+zDePZDTY/LC5qtE/YWaG0hRYeT/aHNotkqZZJ+dmpucqEWz5BEyaWK6Hh
-         ftlA6rX0JQmI/oV9TiEPjlL9rzDRH72kJZvGzoR8=
+        b=W3FuWfcQ55FeuFiH0rUNTX3fALz27VQwbBK99UTcWkklirXp6z6Bv8t6lB9c3xdK7
+         uhJAXsX3+FQh91WHS8bTcaTOxP4sybHbCISGlwsQkPEiMEoHhZ+IcmMGx430fKZbpb
+         OOgzVTccKbJcBDLzvq832CIUeDBNjRekObpAWnTg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Gruenbacher <agruenba@redhat.com>
-Subject: [PATCH 5.17 1030/1126] gfs2: Fix gfs2_file_buffered_write endless loop workaround
-Date:   Tue,  5 Apr 2022 09:29:37 +0200
-Message-Id: <20220405070437.712017452@linuxfoundation.org>
+        stable@vger.kernel.org, Yufeng Mo <moyufeng@huawei.com>,
+        Guangbin Huang <huangguangbin2@huawei.com>,
+        Paolo Abeni <pabeni@redhat.com>
+Subject: [PATCH 5.17 1032/1126] net: hns3: fix the concurrency between functions reading debugfs
+Date:   Tue,  5 Apr 2022 09:29:39 +0200
+Message-Id: <20220405070437.768858431@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -52,29 +54,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Gruenbacher <agruenba@redhat.com>
+From: Yufeng Mo <moyufeng@huawei.com>
 
-commit 46f3e0421ccb5474b5c006b0089b9dfd42534bb6 upstream.
+commit 9c9a04212fa380d2e7d1412bb281309955c0a781 upstream.
 
-Since commit 554c577cee95b, gfs2_file_buffered_write() can accidentally
-return a truncated iov_iter, which might confuse callers.  Fix that.
+Currently, the debugfs mechanism is that all functions share a
+global variable to save the pointer for obtaining data. When
+different functions concurrently access the same file node,
+repeated release exceptions occur. Therefore, the granularity
+of the pointer for storing the obtained data is adjusted to be
+private for each function.
 
-Fixes: 554c577cee95b ("gfs2: Prevent endless loops in gfs2_file_buffered_write")
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Fixes: 5e69ea7ee2a6 ("net: hns3: refactor the debugfs process")
+Signed-off-by: Yufeng Mo <moyufeng@huawei.com>
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/gfs2/file.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/hisilicon/hns3/hnae3.h        |    1 +
+ drivers/net/ethernet/hisilicon/hns3/hns3_debugfs.c |   15 +++++++++++----
+ drivers/net/ethernet/hisilicon/hns3/hns3_debugfs.h |    1 -
+ 3 files changed, 12 insertions(+), 5 deletions(-)
 
---- a/fs/gfs2/file.c
-+++ b/fs/gfs2/file.c
-@@ -1083,6 +1083,7 @@ out_uninit:
- 	gfs2_holder_uninit(gh);
- 	if (statfs_gh)
- 		kfree(statfs_gh);
-+	from->count = orig_count - read;
- 	return read ? read : ret;
- }
+--- a/drivers/net/ethernet/hisilicon/hns3/hnae3.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hnae3.h
+@@ -844,6 +844,7 @@ struct hnae3_handle {
+ 	struct dentry *hnae3_dbgfs;
+ 	/* protects concurrent contention between debugfs commands */
+ 	struct mutex dbgfs_lock;
++	char **dbgfs_buf;
+ 
+ 	/* Network interface message level enabled bits */
+ 	u32 msg_enable;
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_debugfs.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_debugfs.c
+@@ -1227,7 +1227,7 @@ static ssize_t hns3_dbg_read(struct file
+ 		return ret;
+ 
+ 	mutex_lock(&handle->dbgfs_lock);
+-	save_buf = &hns3_dbg_cmd[index].buf;
++	save_buf = &handle->dbgfs_buf[index];
+ 
+ 	if (!test_bit(HNS3_NIC_STATE_INITED, &priv->state) ||
+ 	    test_bit(HNS3_NIC_STATE_RESETTING, &priv->state)) {
+@@ -1332,6 +1332,13 @@ int hns3_dbg_init(struct hnae3_handle *h
+ 	int ret;
+ 	u32 i;
+ 
++	handle->dbgfs_buf = devm_kcalloc(&handle->pdev->dev,
++					 ARRAY_SIZE(hns3_dbg_cmd),
++					 sizeof(*handle->dbgfs_buf),
++					 GFP_KERNEL);
++	if (!handle->dbgfs_buf)
++		return -ENOMEM;
++
+ 	hns3_dbg_dentry[HNS3_DBG_DENTRY_COMMON].dentry =
+ 				debugfs_create_dir(name, hns3_dbgfs_root);
+ 	handle->hnae3_dbgfs = hns3_dbg_dentry[HNS3_DBG_DENTRY_COMMON].dentry;
+@@ -1380,9 +1387,9 @@ void hns3_dbg_uninit(struct hnae3_handle
+ 	u32 i;
+ 
+ 	for (i = 0; i < ARRAY_SIZE(hns3_dbg_cmd); i++)
+-		if (hns3_dbg_cmd[i].buf) {
+-			kvfree(hns3_dbg_cmd[i].buf);
+-			hns3_dbg_cmd[i].buf = NULL;
++		if (handle->dbgfs_buf[i]) {
++			kvfree(handle->dbgfs_buf[i]);
++			handle->dbgfs_buf[i] = NULL;
+ 		}
+ 
+ 	mutex_destroy(&handle->dbgfs_lock);
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_debugfs.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_debugfs.h
+@@ -49,7 +49,6 @@ struct hns3_dbg_cmd_info {
+ 	enum hnae3_dbg_cmd cmd;
+ 	enum hns3_dbg_dentry_type dentry;
+ 	u32 buf_len;
+-	char *buf;
+ 	int (*init)(struct hnae3_handle *handle, unsigned int cmd);
+ };
  
 
 
