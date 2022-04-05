@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 70FED4F3824
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:27:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A00CD4F3AC9
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:05:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376359AbiDELVn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:21:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39084 "EHLO
+        id S235506AbiDELsQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:48:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60386 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349411AbiDEJts (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94FB0186D7;
-        Tue,  5 Apr 2022 02:45:01 -0700 (PDT)
+        with ESMTP id S1355712AbiDEKVn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:21:43 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C3FC7C15B;
+        Tue,  5 Apr 2022 03:05:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 31D29615E5;
-        Tue,  5 Apr 2022 09:45:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D745C385A1;
-        Tue,  5 Apr 2022 09:45:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 46863B81B7A;
+        Tue,  5 Apr 2022 10:05:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9458EC385A2;
+        Tue,  5 Apr 2022 10:05:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151900;
-        bh=lLUB6/PLO7CaoHTOodfcqfI4F641Ksv26ccVQ4WLnvA=;
+        s=korg; t=1649153101;
+        bh=kHivgI89ExcwhIzHs0s0eahszGcG5QZveN98bO2rNkA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JYKQn4xx321XcxPobA/oYu/gyaM0gzfa9V0RN78QslUcICh7HOTdzVBOZQuDXkXd5
-         8StZochu6tvWq8IchEXd86cig2+4xhL8zhHp70Ywt/71b3fMxf3VTsSUBTXqpF375k
-         r1lo24NQ6nhnbaA2AM2YIAntuIZo7NXdvBYZhgPI=
+        b=ZakrJ9BKjDOHGl480Db8DJ7JsIukLr0vRbcvXY8U5HpfhqPkSKtFDl8Hl0VeGujc7
+         z9HS+d1GrEImsq6DTPDkEF+BLT6TYJcWtb2iM2VgLKL5Rgs3tIWIkfiVCslzwPuRxV
+         TIITbasITW2kAMiDkyjoWgId5BQteAwydT4tWP4M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yaliang Wang <Yaliang.Wang@windriver.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 534/913] MIPS: pgalloc: fix memory leak caused by pgd_free()
+        stable@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Alim Akhtar <alim.akhtar@samsung.com>
+Subject: [PATCH 5.10 102/599] ARM: dts: exynos: add missing HDMI supplies on SMDK5420
 Date:   Tue,  5 Apr 2022 09:26:36 +0200
-Message-Id: <20220405070355.856117025@linuxfoundation.org>
+Message-Id: <20220405070301.868219337@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070258.802373272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,57 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yaliang Wang <Yaliang.Wang@windriver.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 
-[ Upstream commit 2bc5bab9a763d520937e4f3fe8df51c6a1eceb97 ]
+commit 453a24ded415f7fce0499c6b0a2c7b28f84911f2 upstream.
 
-pgd page is freed by generic implementation pgd_free() since commit
-f9cb654cb550 ("asm-generic: pgalloc: provide generic pgd_free()"),
-however, there are scenarios that the system uses more than one page as
-the pgd table, in such cases the generic implementation pgd_free() won't
-be applicable anymore. For example, when PAGE_SIZE_4KB is enabled and
-MIPS_VA_BITS_48 is not enabled in a 64bit system, the macro "PGD_ORDER"
-will be set as "1", which will cause allocating two pages as the pgd
-table. Well, at the same time, the generic implementation pgd_free()
-just free one pgd page, which will result in the memory leak.
+Add required VDD supplies to HDMI block on SMDK5420.  Without them, the
+HDMI driver won't probe.  Because of lack of schematics, use same
+supplies as on Arndale Octa and Odroid XU3 boards (voltage matches).
 
-The memory leak can be easily detected by executing shell command:
-"while true; do ls > /dev/null; grep MemFree /proc/meminfo; done"
-
-Fixes: f9cb654cb550 ("asm-generic: pgalloc: provide generic pgd_free()")
-Signed-off-by: Yaliang Wang <Yaliang.Wang@windriver.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: <stable@vger.kernel.org> # v3.15+
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Reviewed-by: Alim Akhtar <alim.akhtar@samsung.com>
+Link: https://lore.kernel.org/r/20220208171823.226211-3-krzysztof.kozlowski@canonical.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/mips/include/asm/pgalloc.h | 6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/arm/boot/dts/exynos5420-smdk5420.dts |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/mips/include/asm/pgalloc.h b/arch/mips/include/asm/pgalloc.h
-index c7925d0e9874..867e9c3db76e 100644
---- a/arch/mips/include/asm/pgalloc.h
-+++ b/arch/mips/include/asm/pgalloc.h
-@@ -15,6 +15,7 @@
+--- a/arch/arm/boot/dts/exynos5420-smdk5420.dts
++++ b/arch/arm/boot/dts/exynos5420-smdk5420.dts
+@@ -124,6 +124,9 @@
+ 	hpd-gpios = <&gpx3 7 GPIO_ACTIVE_HIGH>;
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&hdmi_hpd_irq>;
++	vdd-supply = <&ldo6_reg>;
++	vdd_osc-supply = <&ldo7_reg>;
++	vdd_pll-supply = <&ldo6_reg>;
+ };
  
- #define __HAVE_ARCH_PMD_ALLOC_ONE
- #define __HAVE_ARCH_PUD_ALLOC_ONE
-+#define __HAVE_ARCH_PGD_FREE
- #include <asm-generic/pgalloc.h>
- 
- static inline void pmd_populate_kernel(struct mm_struct *mm, pmd_t *pmd,
-@@ -48,6 +49,11 @@ static inline void pud_populate(struct mm_struct *mm, pud_t *pud, pmd_t *pmd)
- extern void pgd_init(unsigned long page);
- extern pgd_t *pgd_alloc(struct mm_struct *mm);
- 
-+static inline void pgd_free(struct mm_struct *mm, pgd_t *pgd)
-+{
-+	free_pages((unsigned long)pgd, PGD_ORDER);
-+}
-+
- #define __pte_free_tlb(tlb,pte,address)			\
- do {							\
- 	pgtable_pte_page_dtor(pte);			\
--- 
-2.34.1
-
+ &hsi2c_4 {
 
 
