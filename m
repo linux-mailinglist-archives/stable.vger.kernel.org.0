@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 897C34F32D4
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:00:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E23A84F338B
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:16:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353847AbiDEKJi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:09:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60048 "EHLO
+        id S245517AbiDEI4J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:56:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60898 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345794AbiDEJXC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:23:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E12D99D0E8;
-        Tue,  5 Apr 2022 02:12:14 -0700 (PDT)
+        with ESMTP id S241110AbiDEIct (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:32:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C17A1573E;
+        Tue,  5 Apr 2022 01:27:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 85C82B80DA1;
-        Tue,  5 Apr 2022 09:12:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA3B2C385A0;
-        Tue,  5 Apr 2022 09:12:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BD4BB609D0;
+        Tue,  5 Apr 2022 08:27:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1645C385A2;
+        Tue,  5 Apr 2022 08:27:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649149932;
-        bh=Y1PEmIAZMnzpISyH6SBsQsjo9DqagN4V+23i6TnvIKo=;
+        s=korg; t=1649147261;
+        bh=ju9FU22MfB+ePx543AKTfSg4v7Ler6NNa/m0AdVhx4Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pn+YF36P/YHALl7dIVHsuby+A8dAOxIXXFc8pGo8Aw7G67CQhQtDrfG8SbuRd9JxC
-         ggYK+9gKuULOfn0XTpuRljGwaYoz6aq0tiMThY56Em+1pVcFte7yOpddAOVrEVCwhX
-         JKJbVAd27fAL4PXHeHG7kryh8HJuQOgwFizA2Tv0=
+        b=2sMW2+tBuPz7ujereR4yeCmG8LAzXf39iH5kBqRy5OcCU8ex3F9VBjIYleyq5hS0A
+         1bHadjhHZZ35BTzWrT/1Mw4jUaWT3XvOr1N0dqZjD/ID2ZWm4wFP+6ydCJ9E0kUEwX
+         WKJix49uwd3T7qXsIsUpPwAqE7Q2M6rkO/HcvIYk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marco Patalano <mpatalan@redhat.com>,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Arun Easi <aeasi@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.16 0894/1017] scsi: qla2xxx: Fix crash during module load unload test
-Date:   Tue,  5 Apr 2022 09:30:07 +0200
-Message-Id: <20220405070420.764804490@linuxfoundation.org>
+        stable@vger.kernel.org, Alyssa Ross <hi@alyssa.is>,
+        Tzung-Bi Shih <tzungbi@google.com>,
+        Prashant Malani <pmalani@chromium.org>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Benson Leung <bleung@chromium.org>
+Subject: [PATCH 5.17 1061/1126] platform/chrome: cros_ec_typec: Check for EC device
+Date:   Tue,  5 Apr 2022 09:30:08 +0200
+Message-Id: <20220405070438.604049387@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,58 +56,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arun Easi <aeasi@marvell.com>
+From: Prashant Malani <pmalani@chromium.org>
 
-commit 0972252450f90db56dd5415a20e2aec21a08d036 upstream.
+commit ffebd90532728086007038986900426544e3df4e upstream.
 
-During purex packet handling the driver was incorrectly freeing a
-pre-allocated structure. Fix this by skipping that entry.
+The Type C ACPI device on older Chromebooks is not generated correctly
+(since their EC firmware doesn't support the new commands required). In
+such cases, the crafted ACPI device doesn't have an EC parent, and it is
+therefore not useful (it shouldn't be generated in the first place since
+the EC firmware doesn't support any of the Type C commands).
 
-System crashed with the following stack during a module unload test.
+To handle devices which use these older firmware revisions, check for
+the parent EC device handle, and fail the probe if it's not found.
 
-Call Trace:
-	sbitmap_init_node+0x7f/0x1e0
-	sbitmap_queue_init_node+0x24/0x150
-	blk_mq_init_bitmaps+0x3d/0xa0
-	blk_mq_init_tags+0x68/0x90
-	blk_mq_alloc_map_and_rqs+0x44/0x120
-	blk_mq_alloc_set_map_and_rqs+0x63/0x150
-	blk_mq_alloc_tag_set+0x11b/0x230
-	scsi_add_host_with_dma.cold+0x3f/0x245
-	qla2x00_probe_one+0xd5a/0x1b80 [qla2xxx]
-
-Call Trace with slub_debug and debug kernel:
-	kasan_report_invalid_free+0x50/0x80
-	__kasan_slab_free+0x137/0x150
-	slab_free_freelist_hook+0xc6/0x190
-	kfree+0xe8/0x2e0
-	qla2x00_free_device+0x3bb/0x5d0 [qla2xxx]
-	qla2x00_remove_one+0x668/0xcf0 [qla2xxx]
-
-Link: https://lore.kernel.org/r/20220310092604.22950-6-njavali@marvell.com
-Fixes: 62e9dd177732 ("scsi: qla2xxx: Change in PUREX to handle FPIN ELS requests")
-Cc: stable@vger.kernel.org
-Reported-by: Marco Patalano <mpatalan@redhat.com>
-Tested-by: Marco Patalano <mpatalan@redhat.com>
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Arun Easi <aeasi@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: fdc6b21e2444 ("platform/chrome: Add Type C connector class driver")
+Reported-by: Alyssa Ross <hi@alyssa.is>
+Reviewed-by: Tzung-Bi Shih <tzungbi@google.com>
+Signed-off-by: Prashant Malani <pmalani@chromium.org>
+Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Reviewed-by: Alyssa Ross <hi@alyssa.is>
+Tested-by: Alyssa Ross <hi@alyssa.is>
+Link: https://lore.kernel.org/r/20220126190219.3095419-1-pmalani@chromium.org
+Signed-off-by: Benson Leung <bleung@chromium.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/qla2xxx/qla_os.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/platform/chrome/cros_ec_typec.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/scsi/qla2xxx/qla_os.c
-+++ b/drivers/scsi/qla2xxx/qla_os.c
-@@ -3896,6 +3896,8 @@ qla24xx_free_purex_list(struct purex_lis
- 	spin_lock_irqsave(&list->lock, flags);
- 	list_for_each_entry_safe(item, next, &list->head, list) {
- 		list_del(&item->list);
-+		if (item == &item->vha->default_item)
-+			continue;
- 		kfree(item);
- 	}
- 	spin_unlock_irqrestore(&list->lock, flags);
+--- a/drivers/platform/chrome/cros_ec_typec.c
++++ b/drivers/platform/chrome/cros_ec_typec.c
+@@ -1075,7 +1075,13 @@ static int cros_typec_probe(struct platf
+ 		return -ENOMEM;
+ 
+ 	typec->dev = dev;
++
+ 	typec->ec = dev_get_drvdata(pdev->dev.parent);
++	if (!typec->ec) {
++		dev_err(dev, "couldn't find parent EC device\n");
++		return -ENODEV;
++	}
++
+ 	platform_set_drvdata(pdev, typec);
+ 
+ 	ret = cros_typec_get_cmd_version(typec);
 
 
