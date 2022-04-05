@@ -2,52 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 815124F3052
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:27:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A211C4F316D
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:43:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236851AbiDEI2o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:28:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45752 "EHLO
+        id S1350134AbiDEJz1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:55:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40110 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239570AbiDEIUO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:20:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 072956384;
-        Tue,  5 Apr 2022 01:16:38 -0700 (PDT)
+        with ESMTP id S1343895AbiDEJOv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:14:51 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19C46532FB;
+        Tue,  5 Apr 2022 02:01:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 983AE60AFB;
-        Tue,  5 Apr 2022 08:16:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82316C385A0;
-        Tue,  5 Apr 2022 08:16:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C82E2B818F3;
+        Tue,  5 Apr 2022 09:01:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EE11C385A0;
+        Tue,  5 Apr 2022 09:01:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146597;
-        bh=skwGjJleA6WjxDdMKnkBNDhJLVUBgPnr7tJN0zUUfos=;
+        s=korg; t=1649149272;
+        bh=3AAfmV1E7ZyolsYIXp/JwPHq9XUWn1MBMJ+mufJjPQw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rERXY6cI4vcy2iob7q2RfjO0RM/VIz4caK9hpFica1Y5NOViV51GcK/w0ogzMjqvb
-         Hh9ChAwPQEYhIsPOocB9/D593yf7UxC0n1l4gmDNUMO61pvGgLgFW05fUAimr6WbXa
-         WrHxMvqm3eHbsy2ukx7Q4urywXKSmg2McYdlj7Es=
+        b=YSrE6CEGW1Y83FVjG3ONkRb94fVRrU2NEtOWJylDN1jcFIPupMOsMWKQ7wA9XCSQq
+         MmRS6v+oPMYbNzMblDFSoFImoqnnbRkX3bqTcWrYP6up4FvfiEloDfQz5IclQ+Oscw
+         d5hT0MzrJ744Vs2hwBaRsbcSOpLO97O42KhUWM+M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        kernel test robot <lkp@intel.com>,
-        Horatiu Vultur <horatiu.vultur@microchip.com>,
-        UNGLinuxDriver@microchip.com,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Steen Hegelund <steen.hegelund@microchip.com>,
-        Bjarni Jonasson <bjarni.jonasson@microchip.com>,
-        Lars Povlsen <lars.povlsen@microchip.com>,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0821/1126] net: sparx5: depends on PTP_1588_CLOCK_OPTIONAL
-Date:   Tue,  5 Apr 2022 09:26:08 +0200
-Message-Id: <20220405070431.660045388@linuxfoundation.org>
+Subject: [PATCH 5.16 0656/1017] iio: mma8452: Fix probe failing when an i2c_device_id is used
+Date:   Tue,  5 Apr 2022 09:26:09 +0200
+Message-Id: <20220405070413.755996961@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -62,54 +54,141 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 08be6b13db23f68146c600dd5adfd92e99d9ec6e ]
+[ Upstream commit a47ac019e7e8129b93a0b991e04b2a59872e053d ]
 
-Fix build errors when PTP_1588_CLOCK=m and SPARX5_SWTICH=y.
+The mma8452_driver declares both of_match_table and i2c_driver.id_table
+match-tables, but its probe() function only checked for of matches.
 
-arc-linux-ld: drivers/net/ethernet/microchip/sparx5/sparx5_ethtool.o: in function `sparx5_get_ts_info':
-sparx5_ethtool.c:(.text+0x146): undefined reference to `ptp_clock_index'
-arc-linux-ld: sparx5_ethtool.c:(.text+0x146): undefined reference to `ptp_clock_index'
-arc-linux-ld: drivers/net/ethernet/microchip/sparx5/sparx5_ptp.o: in function `sparx5_ptp_init':
-sparx5_ptp.c:(.text+0xd56): undefined reference to `ptp_clock_register'
-arc-linux-ld: sparx5_ptp.c:(.text+0xd56): undefined reference to `ptp_clock_register'
-arc-linux-ld: drivers/net/ethernet/microchip/sparx5/sparx5_ptp.o: in function `sparx5_ptp_deinit':
-sparx5_ptp.c:(.text+0xf30): undefined reference to `ptp_clock_unregister'
-arc-linux-ld: sparx5_ptp.c:(.text+0xf30): undefined reference to `ptp_clock_unregister'
-arc-linux-ld: sparx5_ptp.c:(.text+0xf38): undefined reference to `ptp_clock_unregister'
-arc-linux-ld: sparx5_ptp.c:(.text+0xf46): undefined reference to `ptp_clock_unregister'
-arc-linux-ld: drivers/net/ethernet/microchip/sparx5/sparx5_ptp.o:sparx5_ptp.c:(.text+0xf46): more undefined references to `ptp_clock_unregister' follow
+Add support for i2c_device_id matches. This fixes the driver not loading
+on some x86 tablets (e.g. the Nextbook Ares 8) where the i2c_client is
+instantiated by platform code using an i2c_device_id.
 
-Fixes: 3cfa11bac9bb ("net: sparx5: add the basic sparx5 driver")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: kernel test robot <lkp@intel.com>
-Cc: Horatiu Vultur <horatiu.vultur@microchip.com>
-Cc: UNGLinuxDriver@microchip.com
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: Paolo Abeni <pabeni@redhat.com>
-Cc: Steen Hegelund <steen.hegelund@microchip.com>
-Cc: Bjarni Jonasson <bjarni.jonasson@microchip.com>
-Cc: Lars Povlsen <lars.povlsen@microchip.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Drop of_match_ptr() protection to avoid unused warning.
+
+Fixes: c3cdd6e48e35 ("iio: mma8452: refactor for seperating chip specific data")
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20220208124336.511884-1-hdegoede@redhat.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/microchip/sparx5/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/iio/accel/mma8452.c | 29 ++++++++++++++++++-----------
+ 1 file changed, 18 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/net/ethernet/microchip/sparx5/Kconfig b/drivers/net/ethernet/microchip/sparx5/Kconfig
-index 7bdbb2d09a14..85b24edb65d5 100644
---- a/drivers/net/ethernet/microchip/sparx5/Kconfig
-+++ b/drivers/net/ethernet/microchip/sparx5/Kconfig
-@@ -4,6 +4,7 @@ config SPARX5_SWITCH
- 	depends on HAS_IOMEM
- 	depends on OF
- 	depends on ARCH_SPARX5 || COMPILE_TEST
-+	depends on PTP_1588_CLOCK_OPTIONAL
- 	select PHYLINK
- 	select PHY_SPARX5_SERDES
- 	select RESET_CONTROLLER
+diff --git a/drivers/iio/accel/mma8452.c b/drivers/iio/accel/mma8452.c
+index 09c7f10fefb6..21a99467f364 100644
+--- a/drivers/iio/accel/mma8452.c
++++ b/drivers/iio/accel/mma8452.c
+@@ -176,6 +176,7 @@ static const struct mma8452_event_regs trans_ev_regs = {
+  * @enabled_events:		event flags enabled and handled by this driver
+  */
+ struct mma_chip_info {
++	const char *name;
+ 	u8 chip_id;
+ 	const struct iio_chan_spec *channels;
+ 	int num_channels;
+@@ -1301,6 +1302,7 @@ enum {
+ 
+ static const struct mma_chip_info mma_chip_info_table[] = {
+ 	[mma8451] = {
++		.name = "mma8451",
+ 		.chip_id = MMA8451_DEVICE_ID,
+ 		.channels = mma8451_channels,
+ 		.num_channels = ARRAY_SIZE(mma8451_channels),
+@@ -1325,6 +1327,7 @@ static const struct mma_chip_info mma_chip_info_table[] = {
+ 					MMA8452_INT_FF_MT,
+ 	},
+ 	[mma8452] = {
++		.name = "mma8452",
+ 		.chip_id = MMA8452_DEVICE_ID,
+ 		.channels = mma8452_channels,
+ 		.num_channels = ARRAY_SIZE(mma8452_channels),
+@@ -1341,6 +1344,7 @@ static const struct mma_chip_info mma_chip_info_table[] = {
+ 					MMA8452_INT_FF_MT,
+ 	},
+ 	[mma8453] = {
++		.name = "mma8453",
+ 		.chip_id = MMA8453_DEVICE_ID,
+ 		.channels = mma8453_channels,
+ 		.num_channels = ARRAY_SIZE(mma8453_channels),
+@@ -1357,6 +1361,7 @@ static const struct mma_chip_info mma_chip_info_table[] = {
+ 					MMA8452_INT_FF_MT,
+ 	},
+ 	[mma8652] = {
++		.name = "mma8652",
+ 		.chip_id = MMA8652_DEVICE_ID,
+ 		.channels = mma8652_channels,
+ 		.num_channels = ARRAY_SIZE(mma8652_channels),
+@@ -1366,6 +1371,7 @@ static const struct mma_chip_info mma_chip_info_table[] = {
+ 		.enabled_events = MMA8452_INT_FF_MT,
+ 	},
+ 	[mma8653] = {
++		.name = "mma8653",
+ 		.chip_id = MMA8653_DEVICE_ID,
+ 		.channels = mma8653_channels,
+ 		.num_channels = ARRAY_SIZE(mma8653_channels),
+@@ -1380,6 +1386,7 @@ static const struct mma_chip_info mma_chip_info_table[] = {
+ 		.enabled_events = MMA8452_INT_FF_MT,
+ 	},
+ 	[fxls8471] = {
++		.name = "fxls8471",
+ 		.chip_id = FXLS8471_DEVICE_ID,
+ 		.channels = mma8451_channels,
+ 		.num_channels = ARRAY_SIZE(mma8451_channels),
+@@ -1522,13 +1529,6 @@ static int mma8452_probe(struct i2c_client *client,
+ 	struct mma8452_data *data;
+ 	struct iio_dev *indio_dev;
+ 	int ret;
+-	const struct of_device_id *match;
+-
+-	match = of_match_device(mma8452_dt_ids, &client->dev);
+-	if (!match) {
+-		dev_err(&client->dev, "unknown device model\n");
+-		return -ENODEV;
+-	}
+ 
+ 	indio_dev = devm_iio_device_alloc(&client->dev, sizeof(*data));
+ 	if (!indio_dev)
+@@ -1537,7 +1537,14 @@ static int mma8452_probe(struct i2c_client *client,
+ 	data = iio_priv(indio_dev);
+ 	data->client = client;
+ 	mutex_init(&data->lock);
+-	data->chip_info = match->data;
++
++	data->chip_info = device_get_match_data(&client->dev);
++	if (!data->chip_info && id) {
++		data->chip_info = &mma_chip_info_table[id->driver_data];
++	} else {
++		dev_err(&client->dev, "unknown device model\n");
++		return -ENODEV;
++	}
+ 
+ 	data->vdd_reg = devm_regulator_get(&client->dev, "vdd");
+ 	if (IS_ERR(data->vdd_reg))
+@@ -1581,11 +1588,11 @@ static int mma8452_probe(struct i2c_client *client,
+ 	}
+ 
+ 	dev_info(&client->dev, "registering %s accelerometer; ID 0x%x\n",
+-		 match->compatible, data->chip_info->chip_id);
++		 data->chip_info->name, data->chip_info->chip_id);
+ 
+ 	i2c_set_clientdata(client, indio_dev);
+ 	indio_dev->info = &mma8452_info;
+-	indio_dev->name = id->name;
++	indio_dev->name = data->chip_info->name;
+ 	indio_dev->modes = INDIO_DIRECT_MODE;
+ 	indio_dev->channels = data->chip_info->channels;
+ 	indio_dev->num_channels = data->chip_info->num_channels;
+@@ -1810,7 +1817,7 @@ MODULE_DEVICE_TABLE(i2c, mma8452_id);
+ static struct i2c_driver mma8452_driver = {
+ 	.driver = {
+ 		.name	= "mma8452",
+-		.of_match_table = of_match_ptr(mma8452_dt_ids),
++		.of_match_table = mma8452_dt_ids,
+ 		.pm	= &mma8452_pm_ops,
+ 	},
+ 	.probe = mma8452_probe,
 -- 
 2.34.1
 
