@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BB8014F2D33
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:36:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8017A4F2C0D
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:22:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236907AbiDEJDo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:03:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54274 "EHLO
+        id S1344041AbiDEJRD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:17:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51136 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237068AbiDEIRl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:17:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F715B0A4A;
-        Tue,  5 Apr 2022 01:05:03 -0700 (PDT)
+        with ESMTP id S245019AbiDEIxC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:53:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4844D9D;
+        Tue,  5 Apr 2022 01:49:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E95A3B81B14;
-        Tue,  5 Apr 2022 08:05:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6242DC385A0;
-        Tue,  5 Apr 2022 08:04:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 81EA160FFB;
+        Tue,  5 Apr 2022 08:49:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96349C385A1;
+        Tue,  5 Apr 2022 08:49:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145899;
-        bh=UH8qcrciRiLN4wLZoKUH6pVekFxw8lYmaixyJYH8+Cc=;
+        s=korg; t=1649148576;
+        bh=m0gxXestR9TuCF6pwebEyOfHf08GivCI31KBId5HBac=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MtmXxXcCxHJxIApqMPGC/AWc0/95u/LlKDGfK5tA7kmlxRGt9ZgcdQpINhv02Wj42
-         61QjYgBVOWRmk0WkRRYO1O8C1bc7KFu7EMFkbkHMeO3/HptVJx/0mk5Cp98MeY8hqu
-         XIdXzQVAR1j0h2OYycbeQ/BfsoLtyCNWgB5bouX8=
+        b=CwXOhh2jae1aaO0AzlLf6CAo6z0BIwPCQk0s2Np/wjeVxcV2Hdprq02iDWYoPjaFr
+         LhAX9a3slRIX/kke3H45VZ81pvmpgPYBlMVcwv4t5ICw5uBhhimvLukl0Ii/UxLuYz
+         jfhP2x6oZZe9q4syd/GzfLkZEOeQPAljwj2e83XA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Marijn Suijten <marijn.suijten@somainline.org>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@somainline.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        stable@vger.kernel.org, Wen Gong <quic_wgong@quicinc.com>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0570/1126] drm/msm/dsi: Use "ref" fw clock instead of global name for VCO parent
-Date:   Tue,  5 Apr 2022 09:21:57 +0200
-Message-Id: <20220405070424.364871790@linuxfoundation.org>
+Subject: [PATCH 5.16 0405/1017] ath10k: fix memory overwrite of the WoWLAN wakeup packet pattern
+Date:   Tue,  5 Apr 2022 09:21:58 +0200
+Message-Id: <20220405070406.310457627@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,133 +54,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marijn Suijten <marijn.suijten@somainline.org>
+From: Wen Gong <quic_wgong@quicinc.com>
 
-[ Upstream commit 3a3ee71bd8e14c5e852c71f317eebfda8f88dff0 ]
+[ Upstream commit e3fb3d4418fce5484dfe7995fcd94c18b10a431a ]
 
-All DSI PHY/PLL drivers were referencing their VCO parent clock by a
-global name, most of which don't exist or have been renamed.  These
-clock drivers seem to function fine without that except the 14nm driver
-for sdm6xx [1].
+In function ath10k_wow_convert_8023_to_80211(), it will do memcpy for
+the new->pattern, and currently the new->pattern and new->mask is same
+with the old, then the memcpy of new->pattern will also overwrite the
+old->pattern, because the header format of new->pattern is 802.11,
+its length is larger than the old->pattern which is 802.3. Then the
+operation of "Copy frame body" will copy a mistake value because the
+body memory has been overwrite when memcpy the new->pattern.
 
-At the same time all DTs provide a "ref" clock as per the requirements
-of dsi-phy-common.yaml, but the clock is never used.  This patchset puts
-that clock to use without relying on a global clock name, so that all
-dependencies are explicitly defined in DT (the firmware) in the end.
+Assign another empty value to new_pattern to avoid the overwrite issue.
 
-Note that this patch intentionally breaks older firmware (DT) that
-relies on the clock to be found globally instead.  The only affected
-platform is msm8974 [2] for whose dsi_phy_28nm a .name="xo" fallback is
-left in place to accommodate a more graceful transition period.  All
-other platforms had the "ref" clock added to their phy node since its
-inception, or in a followup patch some time after.  These patches
-wrongly assumed that the "ref" clock was actively used and have hence
-been listed as "Fixes:" below.
-Furthermore apq8064 was providing the wrong 19.2MHz cxo instead of
-27MHz pxo clock, which has been addressed in [3].
+Tested-on: QCA6174 hw3.2 SDIO WLAN.RMH.4.4.1-00049
 
-It is expected that both [2] and [3] are applied to the tree well in
-advance of this patch such that any actual breakage is extremely
-unlikely, but might still occur if kernel upgrades are performed without
-the DT to match.  After some time the fallback for msm8974 can be
-removed again as well.
-
-[1]: https://lore.kernel.org/linux-arm-msm/386db1a6-a1cd-3c7d-a88e-dc83f8a1be96@somainline.org/
-[2]: https://lore.kernel.org/linux-arm-msm/20210830175739.143401-1-marijn.suijten@somainline.org/
-[3]: https://lore.kernel.org/linux-arm-msm/20210829203027.276143-2-marijn.suijten@somainline.org/
-
-Fixes: 79e51645a1dd ("arm64: dts: qcom: msm8916: Set 'xo_board' as ref clock of the DSI PHY")
-Fixes: 6969d1d9c615 ("ARM: dts: qcom-apq8064: Set 'cxo_board' as ref clock of the DSI PHY")
-Fixes: 0c0e72705a33 ("arm64: dts: sdm845: Set 'bi_tcxo' as ref clock of the DSI PHYs")
-Signed-off-by: Marijn Suijten <marijn.suijten@somainline.org>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@somainline.org>
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Link: https://lore.kernel.org/r/20210911131922.387964-2-marijn.suijten@somainline.org
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Fixes: fa3440fa2fa1 ("ath10k: convert wow pattern from 802.3 to 802.11")
+Signed-off-by: Wen Gong <quic_wgong@quicinc.com>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/20211222031347.25463-1-quic_wgong@quicinc.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/dsi/phy/dsi_phy_10nm.c      | 4 +++-
- drivers/gpu/drm/msm/dsi/phy/dsi_phy_14nm.c      | 4 +++-
- drivers/gpu/drm/msm/dsi/phy/dsi_phy_28nm.c      | 4 +++-
- drivers/gpu/drm/msm/dsi/phy/dsi_phy_28nm_8960.c | 4 +++-
- drivers/gpu/drm/msm/dsi/phy/dsi_phy_7nm.c       | 4 +++-
- 5 files changed, 15 insertions(+), 5 deletions(-)
+ drivers/net/wireless/ath/ath10k/wow.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/dsi/phy/dsi_phy_10nm.c b/drivers/gpu/drm/msm/dsi/phy/dsi_phy_10nm.c
-index d8128f50b0dd..0b782cc18b3f 100644
---- a/drivers/gpu/drm/msm/dsi/phy/dsi_phy_10nm.c
-+++ b/drivers/gpu/drm/msm/dsi/phy/dsi_phy_10nm.c
-@@ -562,7 +562,9 @@ static int pll_10nm_register(struct dsi_pll_10nm *pll_10nm, struct clk_hw **prov
- 	char clk_name[32], parent[32], vco_name[32];
- 	char parent2[32], parent3[32], parent4[32];
- 	struct clk_init_data vco_init = {
--		.parent_names = (const char *[]){ "xo" },
-+		.parent_data = &(const struct clk_parent_data) {
-+			.fw_name = "ref",
-+		},
- 		.num_parents = 1,
- 		.name = vco_name,
- 		.flags = CLK_IGNORE_UNUSED,
-diff --git a/drivers/gpu/drm/msm/dsi/phy/dsi_phy_14nm.c b/drivers/gpu/drm/msm/dsi/phy/dsi_phy_14nm.c
-index 7414966f198e..75557ac99adf 100644
---- a/drivers/gpu/drm/msm/dsi/phy/dsi_phy_14nm.c
-+++ b/drivers/gpu/drm/msm/dsi/phy/dsi_phy_14nm.c
-@@ -802,7 +802,9 @@ static int pll_14nm_register(struct dsi_pll_14nm *pll_14nm, struct clk_hw **prov
- {
- 	char clk_name[32], parent[32], vco_name[32];
- 	struct clk_init_data vco_init = {
--		.parent_names = (const char *[]){ "xo" },
-+		.parent_data = &(const struct clk_parent_data) {
-+			.fw_name = "ref",
-+		},
- 		.num_parents = 1,
- 		.name = vco_name,
- 		.flags = CLK_IGNORE_UNUSED,
-diff --git a/drivers/gpu/drm/msm/dsi/phy/dsi_phy_28nm.c b/drivers/gpu/drm/msm/dsi/phy/dsi_phy_28nm.c
-index 2da673a2add6..48eab80b548e 100644
---- a/drivers/gpu/drm/msm/dsi/phy/dsi_phy_28nm.c
-+++ b/drivers/gpu/drm/msm/dsi/phy/dsi_phy_28nm.c
-@@ -521,7 +521,9 @@ static int pll_28nm_register(struct dsi_pll_28nm *pll_28nm, struct clk_hw **prov
- {
- 	char clk_name[32], parent1[32], parent2[32], vco_name[32];
- 	struct clk_init_data vco_init = {
--		.parent_names = (const char *[]){ "xo" },
-+		.parent_data = &(const struct clk_parent_data) {
-+			.fw_name = "ref", .name = "xo",
-+		},
- 		.num_parents = 1,
- 		.name = vco_name,
- 		.flags = CLK_IGNORE_UNUSED,
-diff --git a/drivers/gpu/drm/msm/dsi/phy/dsi_phy_28nm_8960.c b/drivers/gpu/drm/msm/dsi/phy/dsi_phy_28nm_8960.c
-index 71ed4aa0dc67..fc56cdcc9ad6 100644
---- a/drivers/gpu/drm/msm/dsi/phy/dsi_phy_28nm_8960.c
-+++ b/drivers/gpu/drm/msm/dsi/phy/dsi_phy_28nm_8960.c
-@@ -385,7 +385,9 @@ static int pll_28nm_register(struct dsi_pll_28nm *pll_28nm, struct clk_hw **prov
- {
- 	char *clk_name, *parent_name, *vco_name;
- 	struct clk_init_data vco_init = {
--		.parent_names = (const char *[]){ "pxo" },
-+		.parent_data = &(const struct clk_parent_data) {
-+			.fw_name = "ref",
-+		},
- 		.num_parents = 1,
- 		.flags = CLK_IGNORE_UNUSED,
- 		.ops = &clk_ops_dsi_pll_28nm_vco,
-diff --git a/drivers/gpu/drm/msm/dsi/phy/dsi_phy_7nm.c b/drivers/gpu/drm/msm/dsi/phy/dsi_phy_7nm.c
-index 079613d2aaa9..36eb6109cb88 100644
---- a/drivers/gpu/drm/msm/dsi/phy/dsi_phy_7nm.c
-+++ b/drivers/gpu/drm/msm/dsi/phy/dsi_phy_7nm.c
-@@ -588,7 +588,9 @@ static int pll_7nm_register(struct dsi_pll_7nm *pll_7nm, struct clk_hw **provide
- 	char clk_name[32], parent[32], vco_name[32];
- 	char parent2[32], parent3[32], parent4[32];
- 	struct clk_init_data vco_init = {
--		.parent_names = (const char *[]){ "bi_tcxo" },
-+		.parent_data = &(const struct clk_parent_data) {
-+			.fw_name = "ref",
-+		},
- 		.num_parents = 1,
- 		.name = vco_name,
- 		.flags = CLK_IGNORE_UNUSED,
+diff --git a/drivers/net/wireless/ath/ath10k/wow.c b/drivers/net/wireless/ath/ath10k/wow.c
+index 7d65c115669f..20b9aa8ddf7d 100644
+--- a/drivers/net/wireless/ath/ath10k/wow.c
++++ b/drivers/net/wireless/ath/ath10k/wow.c
+@@ -337,14 +337,15 @@ static int ath10k_vif_wow_set_wakeups(struct ath10k_vif *arvif,
+ 			if (patterns[i].mask[j / 8] & BIT(j % 8))
+ 				bitmask[j] = 0xff;
+ 		old_pattern.mask = bitmask;
+-		new_pattern = old_pattern;
+ 
+ 		if (ar->wmi.rx_decap_mode == ATH10K_HW_TXRX_NATIVE_WIFI) {
+-			if (patterns[i].pkt_offset < ETH_HLEN)
++			if (patterns[i].pkt_offset < ETH_HLEN) {
+ 				ath10k_wow_convert_8023_to_80211(&new_pattern,
+ 								 &old_pattern);
+-			else
++			} else {
++				new_pattern = old_pattern;
+ 				new_pattern.pkt_offset += WOW_HDR_LEN - ETH_HLEN;
++			}
+ 		}
+ 
+ 		if (WARN_ON(new_pattern.pattern_len > WOW_MAX_PATTERN_SIZE))
 -- 
 2.34.1
 
