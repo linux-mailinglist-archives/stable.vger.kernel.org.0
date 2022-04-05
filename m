@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 26D8A4F341C
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:25:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 875DB4F33E1
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:24:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241504AbiDEIeC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:34:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34822 "EHLO
+        id S239330AbiDEJxZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:53:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239538AbiDEIUN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:20:13 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B66611002;
-        Tue,  5 Apr 2022 01:15:37 -0700 (PDT)
+        with ESMTP id S245431AbiDEJLt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:11:49 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C50472DA98;
+        Tue,  5 Apr 2022 02:00:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5165A60B0B;
-        Tue,  5 Apr 2022 08:15:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62669C385A0;
-        Tue,  5 Apr 2022 08:15:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7A42EB81BBF;
+        Tue,  5 Apr 2022 09:00:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5AD7C385A1;
+        Tue,  5 Apr 2022 09:00:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146536;
-        bh=q1UeRlLEWK3JLoRsaXN04m0q8F3HuCNVdsPigD7nWpE=;
+        s=korg; t=1649149205;
+        bh=K42QkayVvGfoqUO3AMD2fmm46tyYo/VhVx5kCxI5O6w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MLKOIZDUUYsKln3U0g2kjC/7j6tee7hSCt5teuAw5f2nnUpS0m0xRXH+b/1pQnm1L
-         d4wjBLQF7u3uxGHRt6pHZF6SGZ5vI/52A483V079SNBwfWR5WrorVa8x+nMPBmMGk0
-         0tpOPY9fye8mwu6Dqihz8p2+pLg4r6APdzz4RYmk=
+        b=BgEeJxrrZIMg05Xw/GTuYpdq4LEZOYsWv7rMnVlOAETVZ7GJMCsJ/2EkKNOis6YwX
+         LlCopsMzzeUUfSvNIdrZ7Oe66sBpndEJqrIGBVLShuRSYKDZRsHLvsVp9DmZRzXpeC
+         ybP6y77YWTk95s7gRIdsxFOBKy2bAOWzaHMSi32k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jacky Bai <ping.bai@nxp.com>,
-        Robin Gong <yibin.gong@nxp.com>, Peng Fan <peng.fan@nxp.com>,
-        Jassi Brar <jaswinder.singh@linaro.org>,
+        stable@vger.kernel.org, Lee Jones <lee.jones@linaro.org>,
+        Matti Vaittinen <mazziesaccount@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0761/1126] mailbox: imx: fix crash in resume on i.mx8ulp
+Subject: [PATCH 5.16 0595/1017] power: ab8500_chargalg: Use CLOCK_MONOTONIC
 Date:   Tue,  5 Apr 2022 09:25:08 +0200
-Message-Id: <20220405070429.919368725@linuxfoundation.org>
+Message-Id: <20220405070411.939121688@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
-References: <20220405070407.513532867@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,36 +57,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robin Gong <yibin.gong@nxp.com>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-[ Upstream commit 8219efd08a0aa1d7944bdb66d84ba57549258968 ]
+[ Upstream commit c22fca40522e2be8af168f3087d87d85e404ea72 ]
 
-check 'priv->clk' before 'imx_mu_read()' otherwise crash happens on
-i.mx8ulp, since clock not enabled.
+The HRTimer in the AB8500 charging code is using CLOCK_REALTIME
+to set an alarm some hours forward in time +/- 5 min for a safety
+timer.
 
-Fixes: 4f0b776ef5831 ("mailbox: imx-mailbox: support i.MX8ULP MU")
-Reviewed-by: Jacky Bai <ping.bai@nxp.com>
-Signed-off-by: Robin Gong <yibin.gong@nxp.com>
-Signed-off-by: Peng Fan <peng.fan@nxp.com>
-Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
+I have observed that this will sometimes fire sporadically
+early when charging a battery with the result that
+charging stops.
+
+As CLOCK_REALTIME can be subject to adjustments of time from
+sources such as NTP, this cannot be trusted and will likely
+for example fire events if the clock is set forward some hours
+by say NTP.
+
+Use CLOCK_MONOTONIC as indicated in other instances and the
+problem goes away. Also initialize the timer to REL mode
+as this is what will be used later.
+
+Fixes: 257107ae6b9b ("ab8500-chargalg: Use hrtimer")
+Cc: Lee Jones <lee.jones@linaro.org>
+Suggested-by: Matti Vaittinen <mazziesaccount@gmail.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Reviewed-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mailbox/imx-mailbox.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/power/supply/ab8500_chargalg.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/mailbox/imx-mailbox.c b/drivers/mailbox/imx-mailbox.c
-index 544de2db6453..3c9c87b9c872 100644
---- a/drivers/mailbox/imx-mailbox.c
-+++ b/drivers/mailbox/imx-mailbox.c
-@@ -718,7 +718,7 @@ static int __maybe_unused imx_mu_resume_noirq(struct device *dev)
- 	 * send failed, may lead to system freeze. This issue
- 	 * is observed by testing freeze mode suspend.
- 	 */
--	if (!imx_mu_read(priv, priv->dcfg->xCR[0]) && !priv->clk) {
-+	if (!priv->clk && !imx_mu_read(priv, priv->dcfg->xCR[0])) {
- 		for (i = 0; i < IMX_MU_xCR_MAX; i++)
- 			imx_mu_write(priv, priv->xcr[i], priv->dcfg->xCR[i]);
- 	}
+diff --git a/drivers/power/supply/ab8500_chargalg.c b/drivers/power/supply/ab8500_chargalg.c
+index ff4b26b1ceca..b809fa5abbba 100644
+--- a/drivers/power/supply/ab8500_chargalg.c
++++ b/drivers/power/supply/ab8500_chargalg.c
+@@ -2019,11 +2019,11 @@ static int ab8500_chargalg_probe(struct platform_device *pdev)
+ 	psy_cfg.drv_data = di;
+ 
+ 	/* Initilialize safety timer */
+-	hrtimer_init(&di->safety_timer, CLOCK_REALTIME, HRTIMER_MODE_ABS);
++	hrtimer_init(&di->safety_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
+ 	di->safety_timer.function = ab8500_chargalg_safety_timer_expired;
+ 
+ 	/* Initilialize maintenance timer */
+-	hrtimer_init(&di->maintenance_timer, CLOCK_REALTIME, HRTIMER_MODE_ABS);
++	hrtimer_init(&di->maintenance_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
+ 	di->maintenance_timer.function =
+ 		ab8500_chargalg_maintenance_timer_expired;
+ 
 -- 
 2.34.1
 
