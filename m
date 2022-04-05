@@ -2,46 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 553CE4F38C2
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:36:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE10D4F3BBC
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:21:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377169AbiDEL2G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:28:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55764 "EHLO
+        id S244830AbiDEMBb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 08:01:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50492 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349668AbiDEJux (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:50:53 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 529BB2ACD;
-        Tue,  5 Apr 2022 02:48:54 -0700 (PDT)
+        with ESMTP id S1357834AbiDEK1T (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:27:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC4043FD85;
+        Tue,  5 Apr 2022 03:10:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id B60EDCE1C9C;
-        Tue,  5 Apr 2022 09:48:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC3B9C385A1;
-        Tue,  5 Apr 2022 09:48:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 261B06172B;
+        Tue,  5 Apr 2022 10:10:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F7A9C385A1;
+        Tue,  5 Apr 2022 10:10:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649152131;
-        bh=LL/EEp53RF9eVwI7qf0wllMnj83ttsqbz4+mIqsT8cY=;
+        s=korg; t=1649153449;
+        bh=snFwEXRVi+rH5Kfk1ZLVOv0Z4MbhVqryYgzUp1zleHQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZaVUhLC1ewE9m1oOZYr/YFfbHDuiq7ZVcwSq+i7dfI2pezArRIn6SLWcQiSoUL8JU
-         X3wJsISt1hEfwUF7s4epRXbYSHeEKUiuQVOZapEe86euQUtE9khKxOfArPeQJawZkf
-         Xu0+py3AQ640DQWmOySxE9poEJEgRuSQzR08vTAI=
+        b=wd5tNbLh+AtAVRkOYpH7qMWZP9yS64VlyjzUsJYLjQMIjC1wj9/fPVMlD6/26kjXY
+         qKH7dnQGa1YVw2RwMe0u6S56KFepEc7S/piJVNr1NEqmBYsY/MkXvrEnTHjP78VUn2
+         0bF2QGWr6DzsdTmPxk0W+rDsAOAfkVxNn0AhGBdU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Marek=20Marczykowski-G=C3=B3recki?= 
-        <marmarek@invisiblethingslab.com>, Juergen Gross <jgross@suse.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Igor Zhbanov <i.zhbanov@omprussia.ru>,
+        Borislav Petkov <bp@suse.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Petr Mladek <pmladek@suse.com>,
+        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        John Ogness <john.ogness@linutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 659/913] xen: fix is_xen_pmu()
+Subject: [PATCH 5.10 227/599] printk: fix return value of printk.devkmsg __setup handler
 Date:   Tue,  5 Apr 2022 09:28:41 +0200
-Message-Id: <20220405070359.592000476@linuxfoundation.org>
+Message-Id: <20220405070305.596926678@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
+References: <20220405070258.802373272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,122 +60,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit de2ae403b4c0e79a3410e63bc448542fbb9f9bfc ]
+[ Upstream commit b665eae7a788c5e2bc10f9ac3c0137aa0ad1fc97 ]
 
-is_xen_pmu() is taking the cpu number as parameter, but it is not using
-it. Instead it just tests whether the Xen PMU initialization on the
-current cpu did succeed. As this test is done by checking a percpu
-pointer, preemption needs to be disabled in order to avoid switching
-the cpu while doing the test. While resuming from suspend() this seems
-not to be the case:
+If an invalid option value is used with "printk.devkmsg=<value>",
+it is silently ignored.
+If a valid option value is used, it is honored but the wrong return
+value (0) is used, indicating that the command line option had an
+error and was not handled. This string is not added to init's
+environment strings due to init/main.c::unknown_bootoption()
+checking for a '.' in the boot option string and then considering
+that string to be an "Unused module parameter".
 
-[   88.082751] ACPI: PM: Low-level resume complete
-[   88.087933] ACPI: EC: EC started
-[   88.091464] ACPI: PM: Restoring platform NVS memory
-[   88.097166] xen_acpi_processor: Uploading Xen processor PM info
-[   88.103850] Enabling non-boot CPUs ...
-[   88.108128] installing Xen timer for CPU 1
-[   88.112763] BUG: using smp_processor_id() in preemptible [00000000] code: systemd-sleep/7138
-[   88.122256] caller is is_xen_pmu+0x12/0x30
-[   88.126937] CPU: 0 PID: 7138 Comm: systemd-sleep Tainted: G        W         5.16.13-2.fc32.qubes.x86_64 #1
-[   88.137939] Hardware name: Star Labs StarBook/StarBook, BIOS 7.97 03/21/2022
-[   88.145930] Call Trace:
-[   88.148757]  <TASK>
-[   88.151193]  dump_stack_lvl+0x48/0x5e
-[   88.155381]  check_preemption_disabled+0xde/0xe0
-[   88.160641]  is_xen_pmu+0x12/0x30
-[   88.164441]  xen_smp_intr_init_pv+0x75/0x100
+Print a warning message if a bad option string is used.
+Always return 1 from the __setup handler to indicate that the command
+line option has been handled.
 
-Fix that by replacing is_xen_pmu() by a simple boolean variable which
-reflects the Xen PMU initialization state on cpu 0.
-
-Modify xen_pmu_init() to return early in case it is being called for a
-cpu other than cpu 0 and the boolean variable not being set.
-
-Fixes: bf6dfb154d93 ("xen/PMU: PMU emulation code")
-Reported-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Link: https://lore.kernel.org/r/20220325142002.31789-1-jgross@suse.com
-Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Fixes: 750afe7babd1 ("printk: add kernel parameter to control writes to /dev/kmsg")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
+Link: lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
+Cc: Borislav Petkov <bp@suse.de>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Petr Mladek <pmladek@suse.com>
+Cc: Sergey Senozhatsky <senozhatsky@chromium.org>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Cc: John Ogness <john.ogness@linutronix.de>
+Reviewed-by: John Ogness <john.ogness@linutronix.de>
+Reviewed-by: Sergey Senozhatsky <senozhatsky@chromium.org>
+Reviewed-by: Petr Mladek <pmladek@suse.com>
+Signed-off-by: Petr Mladek <pmladek@suse.com>
+Link: https://lore.kernel.org/r/20220228220556.23484-1-rdunlap@infradead.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/xen/pmu.c    | 10 ++++------
- arch/x86/xen/pmu.h    |  3 ++-
- arch/x86/xen/smp_pv.c |  2 +-
- 3 files changed, 7 insertions(+), 8 deletions(-)
+ kernel/printk/printk.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/xen/pmu.c b/arch/x86/xen/pmu.c
-index e13b0b49fcdf..d7249f4c90f1 100644
---- a/arch/x86/xen/pmu.c
-+++ b/arch/x86/xen/pmu.c
-@@ -512,10 +512,7 @@ irqreturn_t xen_pmu_irq_handler(int irq, void *dev_id)
- 	return ret;
- }
+diff --git a/kernel/printk/printk.c b/kernel/printk/printk.c
+index 85351a12c85d..17a310dcb6d9 100644
+--- a/kernel/printk/printk.c
++++ b/kernel/printk/printk.c
+@@ -146,8 +146,10 @@ static int __control_devkmsg(char *str)
  
--bool is_xen_pmu(int cpu)
--{
--	return (get_xenpmu_data() != NULL);
--}
-+bool is_xen_pmu;
- 
- void xen_pmu_init(int cpu)
+ static int __init control_devkmsg(char *str)
  {
-@@ -526,7 +523,7 @@ void xen_pmu_init(int cpu)
+-	if (__control_devkmsg(str) < 0)
++	if (__control_devkmsg(str) < 0) {
++		pr_warn("printk.devkmsg: bad option string '%s'\n", str);
+ 		return 1;
++	}
  
- 	BUILD_BUG_ON(sizeof(struct xen_pmu_data) > PAGE_SIZE);
+ 	/*
+ 	 * Set sysctl string accordingly:
+@@ -166,7 +168,7 @@ static int __init control_devkmsg(char *str)
+ 	 */
+ 	devkmsg_log |= DEVKMSG_LOG_MASK_LOCK;
  
--	if (xen_hvm_domain())
-+	if (xen_hvm_domain() || (cpu != 0 && !is_xen_pmu))
- 		return;
+-	return 0;
++	return 1;
+ }
+ __setup("printk.devkmsg=", control_devkmsg);
  
- 	xenpmu_data = (struct xen_pmu_data *)get_zeroed_page(GFP_KERNEL);
-@@ -547,7 +544,8 @@ void xen_pmu_init(int cpu)
- 	per_cpu(xenpmu_shared, cpu).xenpmu_data = xenpmu_data;
- 	per_cpu(xenpmu_shared, cpu).flags = 0;
- 
--	if (cpu == 0) {
-+	if (!is_xen_pmu) {
-+		is_xen_pmu = true;
- 		perf_register_guest_info_callbacks(&xen_guest_cbs);
- 		xen_pmu_arch_init();
- 	}
-diff --git a/arch/x86/xen/pmu.h b/arch/x86/xen/pmu.h
-index 0e83a160589b..65c58894fc79 100644
---- a/arch/x86/xen/pmu.h
-+++ b/arch/x86/xen/pmu.h
-@@ -4,6 +4,8 @@
- 
- #include <xen/interface/xenpmu.h>
- 
-+extern bool is_xen_pmu;
-+
- irqreturn_t xen_pmu_irq_handler(int irq, void *dev_id);
- #ifdef CONFIG_XEN_HAVE_VPMU
- void xen_pmu_init(int cpu);
-@@ -12,7 +14,6 @@ void xen_pmu_finish(int cpu);
- static inline void xen_pmu_init(int cpu) {}
- static inline void xen_pmu_finish(int cpu) {}
- #endif
--bool is_xen_pmu(int cpu);
- bool pmu_msr_read(unsigned int msr, uint64_t *val, int *err);
- bool pmu_msr_write(unsigned int msr, uint32_t low, uint32_t high, int *err);
- int pmu_apic_update(uint32_t reg);
-diff --git a/arch/x86/xen/smp_pv.c b/arch/x86/xen/smp_pv.c
-index 477c484eb202..cd5539fc5eb4 100644
---- a/arch/x86/xen/smp_pv.c
-+++ b/arch/x86/xen/smp_pv.c
-@@ -129,7 +129,7 @@ int xen_smp_intr_init_pv(unsigned int cpu)
- 	per_cpu(xen_irq_work, cpu).irq = rc;
- 	per_cpu(xen_irq_work, cpu).name = callfunc_name;
- 
--	if (is_xen_pmu(cpu)) {
-+	if (is_xen_pmu) {
- 		pmu_name = kasprintf(GFP_KERNEL, "pmu%d", cpu);
- 		rc = bind_virq_to_irqhandler(VIRQ_XENPMU, cpu,
- 					     xen_pmu_irq_handler,
 -- 
 2.34.1
 
