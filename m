@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 809664F3AC0
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 17:04:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 228614F37B4
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 16:22:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243514AbiDELr0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 07:47:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43806 "EHLO
+        id S1359469AbiDELTT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 07:19:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39718 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355232AbiDEKSh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 06:18:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40D52D93;
-        Tue,  5 Apr 2022 03:04:33 -0700 (PDT)
+        with ESMTP id S1349184AbiDEJtZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:49:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3C31205D8;
+        Tue,  5 Apr 2022 02:42:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EFB86B81C86;
-        Tue,  5 Apr 2022 10:04:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65696C385A1;
-        Tue,  5 Apr 2022 10:04:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 61090615E5;
+        Tue,  5 Apr 2022 09:42:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 682FDC385A3;
+        Tue,  5 Apr 2022 09:42:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649153070;
-        bh=Y44RZZtZoW5GEwA5ktM/IoJ5Tnlzo8j8Re6ddG35/IE=;
+        s=korg; t=1649151744;
+        bh=WrBVVqM10/J6lxBsgTkDsZRT45DDOW82ezoBdJUPxIM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xRA2GAmk89KJENgJ2KGbAOfr+vwO3x+FSmkbhiTMJQcv+wyX9MSZ0bN1M5Go9LYLc
-         qczhe1FuiISYolCCdA7vQpw/Y+1OEpRJe9Z1hfn1DKa1FRND8HGP3QBM9Z6knffBTh
-         OebHQbwEY8+TlQM7Wj4GUuc30mH2D4chzRJwD0es=
+        b=O0I/PHvAC7/4dIWHQCHsWx3Dz8KiYKuHxsQTrAK6OtZkvfkDlDZYJC9JblBlzgQLt
+         NF1ICxm6uivZ5Uub9nTgsE5QhjWn4POOyFvqD2CaoLaGdr9Mzt+0tg+Ziw8Nr1e1XY
+         3biVHR+aR1JFLdEzyTosZ3oIRJsBx1yFNmvlsXpA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
-        Lin Ma <linma@zju.edu.cn>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 092/599] drivers: hamradio: 6pack: fix UAF bug caused by mod_timer()
-Date:   Tue,  5 Apr 2022 09:26:26 +0200
-Message-Id: <20220405070301.566657774@linuxfoundation.org>
+        stable@vger.kernel.org, Cheng Li <lic121@chinatelecom.cn>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 525/913] libbpf: Unmap rings when umem deleted
+Date:   Tue,  5 Apr 2022 09:26:27 +0200
+Message-Id: <20220405070355.588417863@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070258.802373272@linuxfoundation.org>
-References: <20220405070258.802373272@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,87 +54,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duoming Zhou <duoming@zju.edu.cn>
+From: lic121 <lic121@chinatelecom.cn>
 
-commit efe4186e6a1b54bf38b9e05450d43b0da1fd7739 upstream.
+[ Upstream commit 9c6e6a80ee741adf6cb3cfd8eef7d1554f91fceb ]
 
-When a 6pack device is detaching, the sixpack_close() will act to cleanup
-necessary resources. Although del_timer_sync() in sixpack_close()
-won't return if there is an active timer, one could use mod_timer() in
-sp_xmit_on_air() to wake up timer again by calling userspace syscall such
-as ax25_sendmsg(), ax25_connect() and ax25_ioctl().
+xsk_umem__create() does mmap for fill/comp rings, but xsk_umem__delete()
+doesn't do the unmap. This works fine for regular cases, because
+xsk_socket__delete() does unmap for the rings. But for the case that
+xsk_socket__create_shared() fails, umem rings are not unmapped.
 
-This unexpected waked handler, sp_xmit_on_air(), realizes nothing about
-the undergoing cleanup and may still call pty_write() to use driver layer
-resources that have already been released.
+fill_save/comp_save are checked to determine if rings have already be
+unmapped by xsk. If fill_save and comp_save are NULL, it means that the
+rings have already been used by xsk. Then they are supposed to be
+unmapped by xsk_socket__delete(). Otherwise, xsk_umem__delete() does the
+unmap.
 
-One of the possible race conditions is shown below:
-
-      (USE)                      |      (FREE)
-ax25_sendmsg()                   |
- ax25_queue_xmit()               |
-  ...                            |
-  sp_xmit()                      |
-   sp_encaps()                   | sixpack_close()
-    sp_xmit_on_air()             |  del_timer_sync(&sp->tx_t)
-     mod_timer(&sp->tx_t,...)    |  ...
-                                 |  unregister_netdev()
-                                 |  ...
-     (wait a while)              | tty_release()
-                                 |  tty_release_struct()
-                                 |   release_tty()
-    sp_xmit_on_air()             |    tty_kref_put(tty_struct) //FREE
-     pty_write(tty_struct) //USE |    ...
-
-The corresponding fail log is shown below:
-===============================================================
-BUG: KASAN: use-after-free in __run_timers.part.0+0x170/0x470
-Write of size 8 at addr ffff88800a652ab8 by task swapper/2/0
-...
-Call Trace:
-  ...
-  queue_work_on+0x3f/0x50
-  pty_write+0xcd/0xe0pty_write+0xcd/0xe0
-  sp_xmit_on_air+0xb2/0x1f0
-  call_timer_fn+0x28/0x150
-  __run_timers.part.0+0x3c2/0x470
-  run_timer_softirq+0x3b/0x80
-  __do_softirq+0xf1/0x380
-  ...
-
-This patch reorders the del_timer_sync() after the unregister_netdev()
-to avoid UAF bugs. Because the unregister_netdev() is well synchronized,
-it flushs out any pending queues, waits the refcount of net_device
-decreases to zero and removes net_device from kernel. There is not any
-running routines after executing unregister_netdev(). Therefore, we could
-not arouse timer from userspace again.
-
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
-Reviewed-by: Lin Ma <linma@zju.edu.cn>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 2f6324a3937f ("libbpf: Support shared umems between queues and devices")
+Signed-off-by: Cheng Li <lic121@chinatelecom.cn>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/bpf/20220301132623.GA19995@vscode.7~
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/hamradio/6pack.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ tools/lib/bpf/xsk.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
---- a/drivers/net/hamradio/6pack.c
-+++ b/drivers/net/hamradio/6pack.c
-@@ -674,14 +674,14 @@ static void sixpack_close(struct tty_str
- 	 */
- 	netif_stop_queue(sp->dev);
+diff --git a/tools/lib/bpf/xsk.c b/tools/lib/bpf/xsk.c
+index e9b619aa0cdf..a27b3141463a 100644
+--- a/tools/lib/bpf/xsk.c
++++ b/tools/lib/bpf/xsk.c
+@@ -1210,12 +1210,23 @@ int xsk_socket__create(struct xsk_socket **xsk_ptr, const char *ifname,
  
-+	unregister_netdev(sp->dev);
+ int xsk_umem__delete(struct xsk_umem *umem)
+ {
++	struct xdp_mmap_offsets off;
++	int err;
 +
- 	del_timer_sync(&sp->tx_t);
- 	del_timer_sync(&sp->resync_t);
+ 	if (!umem)
+ 		return 0;
  
- 	/* Free all 6pack frame buffers. */
- 	kfree(sp->rbuff);
- 	kfree(sp->xbuff);
--
--	unregister_netdev(sp->dev);
- }
+ 	if (umem->refcount)
+ 		return -EBUSY;
  
- /* Perform I/O control on an active 6pack channel. */
++	err = xsk_get_mmap_offsets(umem->fd, &off);
++	if (!err && umem->fill_save && umem->comp_save) {
++		munmap(umem->fill_save->ring - off.fr.desc,
++		       off.fr.desc + umem->config.fill_size * sizeof(__u64));
++		munmap(umem->comp_save->ring - off.cr.desc,
++		       off.cr.desc + umem->config.comp_size * sizeof(__u64));
++	}
++
+ 	close(umem->fd);
+ 	free(umem);
+ 
+-- 
+2.34.1
+
 
 
