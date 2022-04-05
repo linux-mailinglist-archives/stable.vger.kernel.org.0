@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DAD94F2789
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:07:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D47AD4F2755
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 10:07:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233423AbiDEIHS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:07:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55610 "EHLO
+        id S233250AbiDEIFd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:05:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48686 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234947AbiDEH7E (ORCPT
+        with ESMTP id S234954AbiDEH7E (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 03:59:04 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 129A654BD6;
-        Tue,  5 Apr 2022 00:53:29 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D15954FA2;
+        Tue,  5 Apr 2022 00:53:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BD59CB81A32;
-        Tue,  5 Apr 2022 07:53:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A252C340EE;
-        Tue,  5 Apr 2022 07:53:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 61FC1B81B9C;
+        Tue,  5 Apr 2022 07:53:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9257C340EE;
+        Tue,  5 Apr 2022 07:53:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649145206;
-        bh=6/cQjaXqq6vyOdwI/I7vG3d/NAXAZj9v3wIcWjLZh04=;
+        s=korg; t=1649145209;
+        bh=U807mwT5uLeYFhAzrjf6WOAwsLXfnFIitsstvV5q7cs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a6QAf1iIPl5avnxNFi5kzuBZ/vELNDk9wzIqHElQOXji2FiwGAzW+l6iMSeXVh69V
-         OifnVep1deg2yBH5i4J54/9/DZMDz2lAO7mOM3xf+BO4FgHYMEt+Lg/mzy2YPYU2ze
-         AXehbpy9v8KwmLiU+jcdyfPXkWSi1ZMbxAMykUgQ=
+        b=Jzy/BqY9RwCaC8Xc48eTuAg60y6NcoBQ0C5CP+B9nbQOgBRhz2azuT9xw423CEgjq
+         Qq72Qqzkh1l6ouODxnVlukSG8+jPW+gJAU9YJm+0RygSPiZg1tI+3XwTbfuN7XoVDC
+         gz0++7B6q+e242Ow2KbmDGzeCJa2ZLYAWH+7Qfoc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        kernel test robot <lkp@intel.com>,
-        Alejandro Tafalla <atafalla@dnyon.com>,
-        Mark Brown <broonie@kernel.org>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Takashi Iwai <tiwai@suse.com>, alsa-devel@alsa-project.org,
+        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Matthias Kaehlcke <mka@chromium.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0323/1126] ASoC: max98927: add missing header file
-Date:   Tue,  5 Apr 2022 09:17:50 +0200
-Message-Id: <20220405070417.098371956@linuxfoundation.org>
+Subject: [PATCH 5.17 0324/1126] arm64: dts: qcom: sc7280: Fix gmu unit address
+Date:   Tue,  5 Apr 2022 09:17:51 +0200
+Message-Id: <20220405070417.128317271@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -58,51 +56,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Douglas Anderson <dianders@chromium.org>
 
-[ Upstream commit bb45f689fa62110c263c86070bfcb9ecbb6e1e23 ]
+[ Upstream commit 142a4d995c6adb6bf5b22166f51b525e83c96661 ]
 
-Add a header file that provides the missing function prototypes
-and macro to fix these build errors (seen on arch/alpha/):
+When processing sc7280 device trees, I can see:
 
-../sound/soc/codecs/max98927.c: In function 'max98927_i2c_probe':
-../sound/soc/codecs/max98927.c:902:19: error: implicit declaration of function 'devm_gpiod_get_optional'; did you mean 'devm_regulator_get_optional'? [-Werror=implicit-function-declaration]
-  902 |                 = devm_gpiod_get_optional(&i2c->dev, "reset", GPIOD_OUT_HIGH);
-      |                   ^~~~~~~~~~~~~~~~~~~~~~~
-../sound/soc/codecs/max98927.c:902:63: error: 'GPIOD_OUT_HIGH' undeclared (first use in this function); did you mean 'GPIOF_INIT_HIGH'?
-  902 |                 = devm_gpiod_get_optional(&i2c->dev, "reset", GPIOD_OUT_HIGH);
-      |                                                               ^~~~~~~~~~~~~~
-../sound/soc/codecs/max98927.c:909:17: error: implicit declaration of function 'gpiod_set_value_cansleep'; did you mean 'gpio_set_value_cansleep'? [-Werror=implicit-function-declaration]
-  909 |                 gpiod_set_value_cansleep(max98927->reset_gpio, 0);
-      |                 ^~~~~~~~~~~~~~~~~~~~~~~~
+  Warning (simple_bus_reg): /soc@0/gmu@3d69000:
+    simple-bus unit address format error, expected "3d6a000"
 
-Fixes: 4d67dc1998f1 ("ASoC: max98927: Handle reset gpio when probing i2c")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: kernel test robot <lkp@intel.com>
-Cc: Alejandro Tafalla <atafalla@dnyon.com>
-Cc: Mark Brown <broonie@kernel.org>
-Cc: Liam Girdwood <lgirdwood@gmail.com>
-Cc: Takashi Iwai <tiwai@suse.com>
-Cc: alsa-devel@alsa-project.org
-Link: https://lore.kernel.org/r/20220129080259.19964-1-rdunlap@infradead.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+There's a clear typo in the node name. Fix it.
+
+Fixes: 96c471970b7b ("arm64: dts: qcom: sc7280: Add gpu support")
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220125144316.v2.1.I19f60014e9be4b9dda4d66b5d56ef3d9600b6e10@changeid
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/max98927.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm64/boot/dts/qcom/sc7280.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/max98927.c b/sound/soc/codecs/max98927.c
-index 5ba5f876eab8..fd84780bf689 100644
---- a/sound/soc/codecs/max98927.c
-+++ b/sound/soc/codecs/max98927.c
-@@ -16,6 +16,7 @@
- #include <sound/pcm_params.h>
- #include <sound/soc.h>
- #include <linux/gpio.h>
-+#include <linux/gpio/consumer.h>
- #include <linux/of_gpio.h>
- #include <sound/tlv.h>
- #include "max98927.h"
+diff --git a/arch/arm64/boot/dts/qcom/sc7280.dtsi b/arch/arm64/boot/dts/qcom/sc7280.dtsi
+index 937c2e0e93eb..eab7a8505053 100644
+--- a/arch/arm64/boot/dts/qcom/sc7280.dtsi
++++ b/arch/arm64/boot/dts/qcom/sc7280.dtsi
+@@ -1790,7 +1790,7 @@
+ 			};
+ 		};
+ 
+-		gmu: gmu@3d69000 {
++		gmu: gmu@3d6a000 {
+ 			compatible="qcom,adreno-gmu-635.0", "qcom,adreno-gmu";
+ 			reg = <0 0x03d6a000 0 0x34000>,
+ 				<0 0x3de0000 0 0x10000>,
 -- 
 2.34.1
 
