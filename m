@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 55ACB4F3439
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:25:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FBBE4F3213
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:54:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241100AbiDEKsc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:48:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41634 "EHLO
+        id S1347489AbiDEJ0y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:26:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57716 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244571AbiDEJl2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:41:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9977BBBE10;
-        Tue,  5 Apr 2022 02:27:07 -0700 (PDT)
+        with ESMTP id S236594AbiDEIQv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:16:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5DCE71ECD;
+        Tue,  5 Apr 2022 01:04:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 485A5B81C9A;
-        Tue,  5 Apr 2022 09:27:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89B53C385A3;
-        Tue,  5 Apr 2022 09:27:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8575461748;
+        Tue,  5 Apr 2022 08:04:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D2F4C385A0;
+        Tue,  5 Apr 2022 08:04:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649150824;
-        bh=DIBJSdJ7/F1mbe5TZyxhKa2m2oXkLeHOlDu9Swx2JDw=;
+        s=korg; t=1649145841;
+        bh=N+zWu7AI5IWaUS3GUluxulWeUVNUFJ71l/5vn5pCO2g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t79tZO/xwwMHu7M4hprZpY5pzs4t+/gG0SmA3PcpvfBuEijV6n/PSQjDbs9rrhDPE
-         V0QAwpmaucdYtDcbVAu+BMGeRC1n/7dno4or4Dhd2SQozl7ve8zVCYgaeovBfzLkCu
-         PbJj224P8fpYTuReCR3jSJcVNAQeiFOiM33/fxYY=
+        b=KWzrGFLo44xPE86VgQ0sOS+0LtDFJPw58Ex13f7y1XCc75HPPmaxJdblYdj73q9rN
+         7f2I3lphzh3sslG1Pz+0Fw9fLAvmCoknWJembadGUHVpGSQKepcYjnLA1S/HWfGhjM
+         kzlFnKtH5N8BNAxyWM2EPzEJON9sgZh0PL962L/k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Miroslav Lichvar <mlichvar@redhat.com>,
+        Richard Cochran <richardcochran@gmail.com>,
+        Yangbo Lu <yangbo.lu@nxp.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 194/913] hwrng: cavium - HW_RANDOM_CAVIUM should depend on ARCH_THUNDER
-Date:   Tue,  5 Apr 2022 09:20:56 +0200
-Message-Id: <20220405070345.674142051@linuxfoundation.org>
+Subject: [PATCH 5.17 0510/1126] ptp: unregister virtual clocks when unregistering physical clock.
+Date:   Tue,  5 Apr 2022 09:20:57 +0200
+Message-Id: <20220405070422.597451327@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+References: <20220405070407.513532867@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,36 +57,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Miroslav Lichvar <mlichvar@redhat.com>
 
-[ Upstream commit ab7d88549e2f7ae116afd303f32e1950cb790a1d ]
+[ Upstream commit bfcbb76b0f595ea9ede9f7a218086fef85242f10 ]
 
-The Cavium ThunderX Random Number Generator is only present on Cavium
-ThunderX SoCs, and not available as an independent PCIe endpoint.  Hence
-add a dependency on ARCH_THUNDER, to prevent asking the user about this
-driver when configuring a kernel without Cavium Thunder SoC  support.
+When unregistering a physical clock which has some virtual clocks,
+unregister the virtual clocks with it.
 
-Fixes: cc2f1908c6b8f625 ("hwrng: cavium - Add Cavium HWRNG driver for ThunderX SoC.")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+This fixes the following oops, which can be triggered by unloading
+a driver providing a PTP clock when it has enabled virtual clocks:
+
+BUG: unable to handle page fault for address: ffffffffc04fc4d8
+Oops: 0000 [#1] PREEMPT SMP NOPTI
+RIP: 0010:ptp_vclock_read+0x31/0xb0
+Call Trace:
+ timecounter_read+0xf/0x50
+ ptp_vclock_refresh+0x2c/0x50
+ ? ptp_clock_release+0x40/0x40
+ ptp_aux_kworker+0x17/0x30
+ kthread_worker_fn+0x9b/0x240
+ ? kthread_should_park+0x30/0x30
+ kthread+0xe2/0x110
+ ? kthread_complete_and_exit+0x20/0x20
+ ret_from_fork+0x22/0x30
+
+Fixes: 73f37068d540 ("ptp: support ptp physical/virtual clocks conversion")
+Signed-off-by: Miroslav Lichvar <mlichvar@redhat.com>
+Acked-by: Richard Cochran <richardcochran@gmail.com>
+Cc: Yangbo Lu <yangbo.lu@nxp.com>
+Cc: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/hw_random/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/ptp/ptp_clock.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/char/hw_random/Kconfig b/drivers/char/hw_random/Kconfig
-index d71c5f570932..650c7d918080 100644
---- a/drivers/char/hw_random/Kconfig
-+++ b/drivers/char/hw_random/Kconfig
-@@ -414,7 +414,7 @@ config HW_RANDOM_MESON
+diff --git a/drivers/ptp/ptp_clock.c b/drivers/ptp/ptp_clock.c
+index 0e4bc8b9329d..b6f2cfd15dd2 100644
+--- a/drivers/ptp/ptp_clock.c
++++ b/drivers/ptp/ptp_clock.c
+@@ -317,11 +317,18 @@ struct ptp_clock *ptp_clock_register(struct ptp_clock_info *info,
+ }
+ EXPORT_SYMBOL(ptp_clock_register);
  
- config HW_RANDOM_CAVIUM
- 	tristate "Cavium ThunderX Random Number Generator support"
--	depends on HW_RANDOM && PCI && ARM64
-+	depends on HW_RANDOM && PCI && ARCH_THUNDER
- 	default HW_RANDOM
- 	help
- 	  This driver provides kernel-side support for the Random Number
++static int unregister_vclock(struct device *dev, void *data)
++{
++	struct ptp_clock *ptp = dev_get_drvdata(dev);
++
++	ptp_vclock_unregister(info_to_vclock(ptp->info));
++	return 0;
++}
++
+ int ptp_clock_unregister(struct ptp_clock *ptp)
+ {
+ 	if (ptp_vclock_in_use(ptp)) {
+-		pr_err("ptp: virtual clock in use\n");
+-		return -EBUSY;
++		device_for_each_child(&ptp->dev, NULL, unregister_vclock);
+ 	}
+ 
+ 	ptp->defunct = 1;
 -- 
 2.34.1
 
