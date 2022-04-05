@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BD0B84F2A4C
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 12:54:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD2454F2B4B
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 13:09:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242353AbiDEIh3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 04:37:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45236 "EHLO
+        id S242296AbiDEIhT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 04:37:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45580 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238619AbiDEITO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:19:14 -0400
+        with ESMTP id S238653AbiDEITQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:19:16 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3E6B10FDD;
-        Tue,  5 Apr 2022 01:09:11 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E15A6D195;
+        Tue,  5 Apr 2022 01:09:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7C893B81B18;
-        Tue,  5 Apr 2022 08:09:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5801C385A1;
-        Tue,  5 Apr 2022 08:09:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 11103B81A37;
+        Tue,  5 Apr 2022 08:09:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52437C385A0;
+        Tue,  5 Apr 2022 08:09:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649146149;
-        bh=HNGI4In+9emjSe41kyPORwvUlyYnDXuBY4KQw+sNLoI=;
+        s=korg; t=1649146154;
+        bh=vjsrtqUyE3qmQ6zDoHeGzm8tnzALeS3OuodQrayDuPM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i0fjCUAQciEQmHRjGlTyChHrqvQWS+7GpM/uJmq363cigXrRyMYaDMNRLiw0AY4Mx
-         PvxZKOpCzPn1cTdC83Y+H5Aat5aEcinT4UzSeED4tOd86lw78YbbxwY5uPEAFY8TZc
-         6dy5nLdilkY5kOlf5LJszKQUdjXtMuiJMOxi5KhI=
+        b=DJmH4ocsROX649+5ifZzoswys5rcJ+c4KPzSw6GHAq91ld/d3GpslGwlkXjz7twCI
+         2FbjXdTDOX0AVkMDEAPCOTUVSBlC/OvgZQNXW8bxbFeHAhBPyCoR5u+I/Va72YfJuS
+         mtMU/k03wSSQeGY5xCoM08nJFfo/NuTf81OHJei8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yongzhi Liu <lyz_cs@pku.edu.cn>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Wang Yufen <wangyufen@huawei.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        John Fastabend <john.fastabend@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 0659/1126] RDMA/mlx5: Fix memory leak in error flow for subscribe event routine
-Date:   Tue,  5 Apr 2022 09:23:26 +0200
-Message-Id: <20220405070426.972565560@linuxfoundation.org>
+Subject: [PATCH 5.17 0661/1126] bpf, sockmap: Fix memleak in tcp_bpf_sendmsg while sk msg is full
+Date:   Tue,  5 Apr 2022 09:23:28 +0200
+Message-Id: <20220405070427.030507667@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
 References: <20220405070407.513532867@linuxfoundation.org>
@@ -54,37 +55,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yongzhi Liu <lyz_cs@pku.edu.cn>
+From: Wang Yufen <wangyufen@huawei.com>
 
-[ Upstream commit 087f9c3f2309ed183f7e4b85ae57121d8663224d ]
+[ Upstream commit 9c34e38c4a870eb30b13f42f5b44f42e9d19ccb8 ]
 
-In case the second xa_insert() fails, the obj_event is not released.  Fix
-the error unwind flow to free that memory to avoid a memory leak.
+If tcp_bpf_sendmsg() is running while sk msg is full. When sk_msg_alloc()
+returns -ENOMEM error, tcp_bpf_sendmsg() goes to wait_for_memory. If partial
+memory has been alloced by sk_msg_alloc(), that is, msg_tx->sg.size is
+greater than osize after sk_msg_alloc(), memleak occurs. To fix we use
+sk_msg_trim() to release the allocated memory, then goto wait for memory.
 
-Fixes: 759738537142 ("IB/mlx5: Enable subscription for device events over DEVX")
-Link: https://lore.kernel.org/r/1647018361-18266-1-git-send-email-lyz_cs@pku.edu.cn
-Signed-off-by: Yongzhi Liu <lyz_cs@pku.edu.cn>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Other call paths of sk_msg_alloc() have the similar issue, such as
+tls_sw_sendmsg(), so handle sk_msg_trim logic inside sk_msg_alloc(),
+as Cong Wang suggested.
+
+This issue can cause the following info:
+WARNING: CPU: 3 PID: 7950 at net/core/stream.c:208 sk_stream_kill_queues+0xd4/0x1a0
+Call Trace:
+ <TASK>
+ inet_csk_destroy_sock+0x55/0x110
+ __tcp_close+0x279/0x470
+ tcp_close+0x1f/0x60
+ inet_release+0x3f/0x80
+ __sock_release+0x3d/0xb0
+ sock_close+0x11/0x20
+ __fput+0x92/0x250
+ task_work_run+0x6a/0xa0
+ do_exit+0x33b/0xb60
+ do_group_exit+0x2f/0xa0
+ get_signal+0xb6/0x950
+ arch_do_signal_or_restart+0xac/0x2a0
+ exit_to_user_mode_prepare+0xa9/0x200
+ syscall_exit_to_user_mode+0x12/0x30
+ do_syscall_64+0x46/0x80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+ </TASK>
+
+WARNING: CPU: 3 PID: 2094 at net/ipv4/af_inet.c:155 inet_sock_destruct+0x13c/0x260
+Call Trace:
+ <TASK>
+ __sk_destruct+0x24/0x1f0
+ sk_psock_destroy+0x19b/0x1c0
+ process_one_work+0x1b3/0x3c0
+ kthread+0xe6/0x110
+ ret_from_fork+0x22/0x30
+ </TASK>
+
+Fixes: 604326b41a6f ("bpf, sockmap: convert to generic sk_msg interface")
+Signed-off-by: Wang Yufen <wangyufen@huawei.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: John Fastabend <john.fastabend@gmail.com>
+Link: https://lore.kernel.org/bpf/20220304081145.2037182-3-wangyufen@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/mlx5/devx.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/core/skmsg.c | 17 +++++++++++++----
+ 1 file changed, 13 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/infiniband/hw/mlx5/devx.c b/drivers/infiniband/hw/mlx5/devx.c
-index 08b7f6bc56c3..15c0884d1f49 100644
---- a/drivers/infiniband/hw/mlx5/devx.c
-+++ b/drivers/infiniband/hw/mlx5/devx.c
-@@ -1886,8 +1886,10 @@ subscribe_event_xa_alloc(struct mlx5_devx_event_table *devx_event_table,
- 				key_level2,
- 				obj_event,
- 				GFP_KERNEL);
--		if (err)
-+		if (err) {
-+			kfree(obj_event);
- 			return err;
+diff --git a/net/core/skmsg.c b/net/core/skmsg.c
+index 929a2b096b04..cc381165ea08 100644
+--- a/net/core/skmsg.c
++++ b/net/core/skmsg.c
+@@ -27,6 +27,7 @@ int sk_msg_alloc(struct sock *sk, struct sk_msg *msg, int len,
+ 		 int elem_first_coalesce)
+ {
+ 	struct page_frag *pfrag = sk_page_frag(sk);
++	u32 osize = msg->sg.size;
+ 	int ret = 0;
+ 
+ 	len -= msg->sg.size;
+@@ -35,13 +36,17 @@ int sk_msg_alloc(struct sock *sk, struct sk_msg *msg, int len,
+ 		u32 orig_offset;
+ 		int use, i;
+ 
+-		if (!sk_page_frag_refill(sk, pfrag))
+-			return -ENOMEM;
++		if (!sk_page_frag_refill(sk, pfrag)) {
++			ret = -ENOMEM;
++			goto msg_trim;
 +		}
- 		INIT_LIST_HEAD(&obj_event->obj_sub_list);
+ 
+ 		orig_offset = pfrag->offset;
+ 		use = min_t(int, len, pfrag->size - orig_offset);
+-		if (!sk_wmem_schedule(sk, use))
+-			return -ENOMEM;
++		if (!sk_wmem_schedule(sk, use)) {
++			ret = -ENOMEM;
++			goto msg_trim;
++		}
+ 
+ 		i = msg->sg.end;
+ 		sk_msg_iter_var_prev(i);
+@@ -71,6 +76,10 @@ int sk_msg_alloc(struct sock *sk, struct sk_msg *msg, int len,
  	}
+ 
+ 	return ret;
++
++msg_trim:
++	sk_msg_trim(sk, msg, osize);
++	return ret;
+ }
+ EXPORT_SYMBOL_GPL(sk_msg_alloc);
  
 -- 
 2.34.1
