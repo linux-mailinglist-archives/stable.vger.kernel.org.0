@@ -2,48 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EBAE4F2EAC
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:03:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 879DD4F34F5
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:42:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347660AbiDEJ2E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:28:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51496 "EHLO
+        id S1345099AbiDEKkn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:40:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49358 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244756AbiDEIwh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:52:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E030DFB3;
-        Tue,  5 Apr 2022 01:43:31 -0700 (PDT)
+        with ESMTP id S244220AbiDEJlK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:41:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26D8EBB08A;
+        Tue,  5 Apr 2022 02:25:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 23C60609D0;
-        Tue,  5 Apr 2022 08:43:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B61DC385A0;
-        Tue,  5 Apr 2022 08:43:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D31E9B81C9C;
+        Tue,  5 Apr 2022 09:25:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19A86C385A2;
+        Tue,  5 Apr 2022 09:25:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649148210;
-        bh=6rWeWZOC3ktBYreoC88HJB7ZluW+5NlAEBSobv0dqyQ=;
+        s=korg; t=1649150741;
+        bh=3oCwlJRD8vj5QipKcGadNX91kWBh0Lg0s35g0LB+Nho=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1G3KapPe3gNRLLPToJaTprNcP02D0flenlCGX3yM771/HxzjzxlrtrH1ZwirBqePi
-         OLDUQj++P2REEEXRv8A+y9fSdBjDItJq+YVXR1AFevRx72DyD0MzzBo9fclb/m3DgA
-         rSAJ7UPOp2IcoUdqYSIrocGzYV3I2xBhGcT7Bn7o=
+        b=AUqml6CB942Uz+TcM2tEP71YXgSwq+u+2n+8N53Aqk48GB2Z6pH52NQPqj3sspkzX
+         0PCA9UtwvU+5kcFInIEH4mzngmnOAl0A1EGJNULV/g+MroNAw5SijAI761/aFY1AnA
+         JRDTw6MONsFsjGEa2EnhdEN/QM2BCpVK9DQp2zvc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
-        Oscar Salvador <osalvador@suse.de>,
-        Michal Hocko <mhocko@suse.com>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0275/1017] drivers/base/memory: add memory block to memory group after registration succeeded
-Date:   Tue,  5 Apr 2022 09:19:48 +0200
-Message-Id: <20220405070402.429332890@linuxfoundation.org>
+        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+        Nishanth Menon <nm@ti.com>
+Subject: [PATCH 5.15 127/913] arm64: dts: ti: k3-am64: Fix gic-v3 compatible regs
+Date:   Tue,  5 Apr 2022 09:19:49 +0200
+Message-Id: <20220405070343.636808466@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,57 +53,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Hildenbrand <david@redhat.com>
+From: Nishanth Menon <nm@ti.com>
 
-[ Upstream commit 7ea0d2d79da09d1f7d71c96a9c9bc1b5229360b5 ]
+commit de60edf1be3d42d4a1b303b41c7c53b2f865726e upstream.
 
-If register_memory() fails, we freed the memory block but already added
-the memory block to the group list, not good.  Let's defer adding the
-block to the memory group to after registering the memory block device.
+Though GIC ARE option is disabled for no GIC-v2 compatibility,
+Cortex-A53 is free to implement the CPU interface as long as it
+communicates with the GIC using the stream protocol. This requires
+that the SoC integration mark out the PERIPHBASE[1] as reserved area
+within the SoC. See longer discussion in [2] for further information.
 
-We do handle it properly during unregister_memory(), but that's not
-called when the registration fails.
+Update the GIC register map to indicate offsets from PERIPHBASE based
+on [3]. Without doing this, systems like kvm will not function with
+gic-v2 emulation.
 
-Link: https://lkml.kernel.org/r/20220128144540.153902-1-david@redhat.com
-Fixes: 028fc57a1c36 ("drivers/base/memory: introduce "memory groups" to logically group memory blocks")
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Oscar Salvador <osalvador@suse.de>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: "Rafael J. Wysocki" <rafael@kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+[1] https://developer.arm.com/documentation/ddi0500/e/system-control/aarch64-register-descriptions/configuration-base-address-register--el1
+[2] https://lore.kernel.org/all/87k0e0tirw.wl-maz@kernel.org/
+[3] https://developer.arm.com/documentation/ddi0500/e/generic-interrupt-controller-cpu-interface/gic-programmers-model/memory-map
+
+Cc: stable@vger.kernel.org
+Fixes: 8abae9389bdb ("arm64: dts: ti: Add support for AM642 SoC")
+Reported-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Nishanth Menon <nm@ti.com>
+Acked-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20220215201008.15235-5-nm@ti.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/base/memory.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ arch/arm64/boot/dts/ti/k3-am64-main.dtsi |    5 ++++-
+ arch/arm64/boot/dts/ti/k3-am64.dtsi      |    1 +
+ 2 files changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/base/memory.c b/drivers/base/memory.c
-index 365cd4a7f239..60c38f9cf1a7 100644
---- a/drivers/base/memory.c
-+++ b/drivers/base/memory.c
-@@ -663,14 +663,16 @@ static int init_memory_block(unsigned long block_id, unsigned long state,
- 	mem->nr_vmemmap_pages = nr_vmemmap_pages;
- 	INIT_LIST_HEAD(&mem->group_next);
+--- a/arch/arm64/boot/dts/ti/k3-am64-main.dtsi
++++ b/arch/arm64/boot/dts/ti/k3-am64-main.dtsi
+@@ -59,7 +59,10 @@
+ 		#interrupt-cells = <3>;
+ 		interrupt-controller;
+ 		reg = <0x00 0x01800000 0x00 0x10000>,	/* GICD */
+-		      <0x00 0x01840000 0x00 0xC0000>;	/* GICR */
++		      <0x00 0x01840000 0x00 0xC0000>,	/* GICR */
++		      <0x01 0x00000000 0x00 0x2000>,	/* GICC */
++		      <0x01 0x00010000 0x00 0x1000>,	/* GICH */
++		      <0x01 0x00020000 0x00 0x2000>;	/* GICV */
+ 		/*
+ 		 * vcpumntirq:
+ 		 * virtual CPU interface maintenance interrupt
+--- a/arch/arm64/boot/dts/ti/k3-am64.dtsi
++++ b/arch/arm64/boot/dts/ti/k3-am64.dtsi
+@@ -85,6 +85,7 @@
+ 			 <0x00 0x68000000 0x00 0x68000000 0x00 0x08000000>, /* PCIe DAT0 */
+ 			 <0x00 0x70000000 0x00 0x70000000 0x00 0x00200000>, /* OC SRAM */
+ 			 <0x00 0x78000000 0x00 0x78000000 0x00 0x00800000>, /* Main R5FSS */
++			 <0x01 0x00000000 0x01 0x00000000 0x00 0x00310000>, /* A53 PERIPHBASE */
+ 			 <0x06 0x00000000 0x06 0x00000000 0x01 0x00000000>, /* PCIe DAT1 */
+ 			 <0x05 0x00000000 0x05 0x00000000 0x01 0x00000000>, /* FSS0 DAT3 */
  
-+	ret = register_memory(mem);
-+	if (ret)
-+		return ret;
-+
- 	if (group) {
- 		mem->group = group;
- 		list_add(&mem->group_next, &group->memory_blocks);
- 	}
- 
--	ret = register_memory(mem);
--
--	return ret;
-+	return 0;
- }
- 
- static int add_memory_block(unsigned long base_section_nr)
--- 
-2.34.1
-
 
 
