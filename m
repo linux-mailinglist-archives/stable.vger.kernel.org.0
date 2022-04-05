@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F33E14F35A5
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:52:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B4794F2FBB
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:17:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230461AbiDEKxQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 06:53:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33310 "EHLO
+        id S235981AbiDEJ3Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 05:29:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49752 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346057AbiDEJoX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:44:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 814C1C6EF5;
-        Tue,  5 Apr 2022 02:30:04 -0700 (PDT)
+        with ESMTP id S245024AbiDEIxC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:53:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2838FDBD;
+        Tue,  5 Apr 2022 01:49:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EB59EB81C9A;
-        Tue,  5 Apr 2022 09:30:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35ADBC385A0;
-        Tue,  5 Apr 2022 09:30:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BA92460FFB;
+        Tue,  5 Apr 2022 08:49:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C95F6C385A1;
+        Tue,  5 Apr 2022 08:49:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649151001;
-        bh=/Fq1gwqrLUmliP1W1v3pB/zvWHZ8E/6r9pL/5AHf0sc=;
+        s=korg; t=1649148584;
+        bh=R4dI9hTV80OQykwVVQtO313Vn6qxHNVLb43uj8YjSb8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EiNb5h63Lp61rCQ1I/HGh6ER1F8kpbXn3h84/Y5VvTTs35qVED6jaboIXoX5Y/L3F
-         j2JCLi9IDDhn3hj0JZ73/9TMBcERaZYYYZvqPNbPe0LtyhMOWwGqePRWFP8Sf2Qa9t
-         5JccoTRfBsh/t2k7D/v44TIlu8Sh0scvoMZpu0ok=
+        b=i6W9JTQv8eYFLJdy2wgfNLa3/uoIc7FTn1mg/ff81SYqw4QJeBb7XAdgzXwjvcdvE
+         AIkYNOVFPTch/3La3hgQxoCXEoemB6dhHil2IQ29slqafRNp88M1zyR+xGsydHHRaR
+         ETK05zVX4JNsD2G4mgWFrRlL8rpj9HiFw0rKmNC4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Mauricio=20V=C3=A1squez?= <mauricio@kinvolk.io>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Quentin Monnet <quentin@isovalent.com>,
+        Song Liu <songliubraving@fb.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 259/913] btrfs: fix unexpected error path when reflinking an inline extent
+Subject: [PATCH 5.16 0408/1017] bpftool: Fix error check when calling hashmap__new()
 Date:   Tue,  5 Apr 2022 09:22:01 +0200
-Message-Id: <20220405070347.619409658@linuxfoundation.org>
+Message-Id: <20220405070406.399155518@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-References: <20220405070339.801210740@linuxfoundation.org>
+In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
+References: <20220405070354.155796697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,48 +57,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Mauricio Vásquez <mauricio@kinvolk.io>
 
-[ Upstream commit 1f4613cdbe7739ce291554b316bff8e551383389 ]
+[ Upstream commit 622a5b582cc27d3deedc38fcef68da2972e8e58d ]
 
-When reflinking an inline extent, we assert that its file offset is 0 and
-that its uncompressed length is not greater than the sector size. We then
-return an error if one of those conditions is not satisfied. However we
-use a return statement, which results in returning from btrfs_clone()
-without freeing the path and buffer that were allocated before, as well as
-not clearing the flag BTRFS_INODE_NO_DELALLOC_FLUSH for the destination
-inode.
+hashmap__new() encodes errors with ERR_PTR(), hence it's not valid to
+check the returned pointer against NULL and IS_ERR() has to be used
+instead.
 
-Fix that by jumping to the 'out' label instead, and also add a WARN_ON()
-for each condition so that in case assertions are disabled, we get to
-known which of the unexpected conditions triggered the error.
+libbpf_get_error() can't be used in this case as hashmap__new() is not
+part of the public libbpf API and it'll continue using ERR_PTR() after
+libbpf 1.0.
 
-Fixes: a61e1e0df9f321 ("Btrfs: simplify inline extent handling when doing reflinks")
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: 8f184732b60b ("bpftool: Switch to libbpf's hashmap for pinned paths of BPF objects")
+Fixes: 2828d0d75b73 ("bpftool: Switch to libbpf's hashmap for programs/maps in BTF listing")
+Fixes: d6699f8e0f83 ("bpftool: Switch to libbpf's hashmap for PIDs/names references")
+Signed-off-by: Mauricio Vásquez <mauricio@kinvolk.io>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Reviewed-by: Quentin Monnet <quentin@isovalent.com>
+Acked-by: Song Liu <songliubraving@fb.com>
+Link: https://lore.kernel.org/bpf/20220107152620.192327-2-mauricio@kinvolk.io
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/reflink.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ tools/bpf/bpftool/btf.c  | 2 +-
+ tools/bpf/bpftool/link.c | 3 ++-
+ tools/bpf/bpftool/map.c  | 2 +-
+ tools/bpf/bpftool/pids.c | 3 ++-
+ tools/bpf/bpftool/prog.c | 2 +-
+ 5 files changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/fs/btrfs/reflink.c b/fs/btrfs/reflink.c
-index c71e49782e86..fa60af00ebca 100644
---- a/fs/btrfs/reflink.c
-+++ b/fs/btrfs/reflink.c
-@@ -505,8 +505,11 @@ static int btrfs_clone(struct inode *src, struct inode *inode,
- 			 */
- 			ASSERT(key.offset == 0);
- 			ASSERT(datal <= fs_info->sectorsize);
--			if (key.offset != 0 || datal > fs_info->sectorsize)
--				return -EUCLEAN;
-+			if (WARN_ON(key.offset != 0) ||
-+			    WARN_ON(datal > fs_info->sectorsize)) {
-+				ret = -EUCLEAN;
-+				goto out;
-+			}
+diff --git a/tools/bpf/bpftool/btf.c b/tools/bpf/bpftool/btf.c
+index 015d2758f826..4a561ec848c0 100644
+--- a/tools/bpf/bpftool/btf.c
++++ b/tools/bpf/bpftool/btf.c
+@@ -899,7 +899,7 @@ static int do_show(int argc, char **argv)
+ 				      equal_fn_for_key_as_id, NULL);
+ 	btf_map_table = hashmap__new(hash_fn_for_key_as_id,
+ 				     equal_fn_for_key_as_id, NULL);
+-	if (!btf_prog_table || !btf_map_table) {
++	if (IS_ERR(btf_prog_table) || IS_ERR(btf_map_table)) {
+ 		hashmap__free(btf_prog_table);
+ 		hashmap__free(btf_map_table);
+ 		if (fd >= 0)
+diff --git a/tools/bpf/bpftool/link.c b/tools/bpf/bpftool/link.c
+index 2c258db0d352..97dec81950e5 100644
+--- a/tools/bpf/bpftool/link.c
++++ b/tools/bpf/bpftool/link.c
+@@ -2,6 +2,7 @@
+ /* Copyright (C) 2020 Facebook */
  
- 			ret = clone_copy_inline_extent(inode, path, &new_key,
- 						       drop_start, datal, size,
+ #include <errno.h>
++#include <linux/err.h>
+ #include <net/if.h>
+ #include <stdio.h>
+ #include <unistd.h>
+@@ -306,7 +307,7 @@ static int do_show(int argc, char **argv)
+ 	if (show_pinned) {
+ 		link_table = hashmap__new(hash_fn_for_key_as_id,
+ 					  equal_fn_for_key_as_id, NULL);
+-		if (!link_table) {
++		if (IS_ERR(link_table)) {
+ 			p_err("failed to create hashmap for pinned paths");
+ 			return -1;
+ 		}
+diff --git a/tools/bpf/bpftool/map.c b/tools/bpf/bpftool/map.c
+index cae1f1119296..af83ae37d247 100644
+--- a/tools/bpf/bpftool/map.c
++++ b/tools/bpf/bpftool/map.c
+@@ -698,7 +698,7 @@ static int do_show(int argc, char **argv)
+ 	if (show_pinned) {
+ 		map_table = hashmap__new(hash_fn_for_key_as_id,
+ 					 equal_fn_for_key_as_id, NULL);
+-		if (!map_table) {
++		if (IS_ERR(map_table)) {
+ 			p_err("failed to create hashmap for pinned paths");
+ 			return -1;
+ 		}
+diff --git a/tools/bpf/bpftool/pids.c b/tools/bpf/bpftool/pids.c
+index 56b598eee043..7c384d10e95f 100644
+--- a/tools/bpf/bpftool/pids.c
++++ b/tools/bpf/bpftool/pids.c
+@@ -1,6 +1,7 @@
+ // SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+ /* Copyright (C) 2020 Facebook */
+ #include <errno.h>
++#include <linux/err.h>
+ #include <stdbool.h>
+ #include <stdio.h>
+ #include <stdlib.h>
+@@ -101,7 +102,7 @@ int build_obj_refs_table(struct hashmap **map, enum bpf_obj_type type)
+ 	libbpf_print_fn_t default_print;
+ 
+ 	*map = hashmap__new(hash_fn_for_key_as_id, equal_fn_for_key_as_id, NULL);
+-	if (!*map) {
++	if (IS_ERR(*map)) {
+ 		p_err("failed to create hashmap for PID references");
+ 		return -1;
+ 	}
+diff --git a/tools/bpf/bpftool/prog.c b/tools/bpf/bpftool/prog.c
+index 6ccd17b8eb56..41ed566e8c73 100644
+--- a/tools/bpf/bpftool/prog.c
++++ b/tools/bpf/bpftool/prog.c
+@@ -571,7 +571,7 @@ static int do_show(int argc, char **argv)
+ 	if (show_pinned) {
+ 		prog_table = hashmap__new(hash_fn_for_key_as_id,
+ 					  equal_fn_for_key_as_id, NULL);
+-		if (!prog_table) {
++		if (IS_ERR(prog_table)) {
+ 			p_err("failed to create hashmap for pinned paths");
+ 			return -1;
+ 		}
 -- 
 2.34.1
 
