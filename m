@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 215374F2EBB
-	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 14:03:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F2C84F3365
+	for <lists+stable@lfdr.de>; Tue,  5 Apr 2022 15:16:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238138AbiDEJEo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Apr 2022 05:04:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41310 "EHLO
+        id S241231AbiDEK24 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Apr 2022 06:28:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243858AbiDEIvM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 04:51:12 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A79EDCA0FA;
-        Tue,  5 Apr 2022 01:39:48 -0700 (PDT)
+        with ESMTP id S237937AbiDEJcH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 05:32:07 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D50D32E5;
+        Tue,  5 Apr 2022 02:19:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id BBD5CCE1BCE;
-        Tue,  5 Apr 2022 08:38:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A95FFC385A3;
-        Tue,  5 Apr 2022 08:38:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 712516144D;
+        Tue,  5 Apr 2022 09:19:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A01BC385A3;
+        Tue,  5 Apr 2022 09:19:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649147936;
-        bh=e1bQVDK7ZCYqbZ5aVCcAEwCJB5LlrMPnBXSml3bLJm0=;
+        s=korg; t=1649150353;
+        bh=80uFsQUPPQey6gmqzFrvrYIR2Wecj3/7tPqFrUDtep8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qBR/QQPNDugl4/Rt0tY0cBRKTshRbWERZPjPQcyT73sWw71sKCY/t4E71Baa8dPhS
-         tUA6P42aqh7j/T/p14c17wvlGM0d+ZFPOznovCtZBjvfi4zTxenVEehIQhbc64koaX
-         EDvBM1ESwoYQtA5eiFt5qA8yfrrEhGTc2cghzo8E=
+        b=yjpxTMkxv0S0+ZxYeuchz1AZLZLyK9UmybrdHCISMMzGmubxQrsfQktw6X3bl6l4h
+         gt2x0eWr+/URnyDAdaJrZvVg3of27RS1hO+SYmPfoxNJexZcHGHHs7oDkZjDWocsdj
+         W+xoBu+4aMYYUX+WPsUOrrnLvai91aoAV2O1lnW8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Stanimir Varbanov <stanimir.varbanov@linaro.org>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>
-Subject: [PATCH 5.16 0175/1017] media: venus: hfi_cmds: List HDR10 property as unsupported for v1 and v3
-Date:   Tue,  5 Apr 2022 09:18:08 +0200
-Message-Id: <20220405070359.425255248@linuxfoundation.org>
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.15 027/913] drm/amdgpu: only check for _PR3 on dGPUs
+Date:   Tue,  5 Apr 2022 09:18:09 +0200
+Message-Id: <20220405070340.629555726@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-References: <20220405070354.155796697@linuxfoundation.org>
+In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
+References: <20220405070339.801210740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,32 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stanimir Varbanov <stanimir.varbanov@linaro.org>
+From: Alex Deucher <alexander.deucher@amd.com>
 
-commit 22beb839f48d841ec75974872863dc253d37c21c upstream.
+commit 85ac2021fe3ace59cc0afd6edf005abad35625b0 upstream.
 
-The HFI_PROPERTY_PARAM_VENC_HDR10_PQ_SEI HFI property is not supported
-on Venus v1 and v3.
+We don't support runtime pm on APUs.  They support more
+dynamic power savings using clock and powergating.
 
-cc: stable@vger.kernel.org # 5.13+
-Fixes: 9172652d72f8 ("media: venus: venc: Add support for CLL and Mastering display controls")
-Signed-off-by: Stanimir Varbanov <stanimir.varbanov@linaro.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Reviewed-by: Mario Limonciello <mario.limonciello@amd.com>
+Tested-by: Mario Limonciello <mario.limonciello@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/platform/qcom/venus/hfi_cmds.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_device.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/media/platform/qcom/venus/hfi_cmds.c
-+++ b/drivers/media/platform/qcom/venus/hfi_cmds.c
-@@ -1054,6 +1054,8 @@ static int pkt_session_set_property_1x(s
- 		pkt->shdr.hdr.size += sizeof(u32) + sizeof(*info);
- 		break;
- 	}
-+	case HFI_PROPERTY_PARAM_VENC_HDR10_PQ_SEI:
-+		return -ENOTSUPP;
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
+@@ -2178,8 +2178,10 @@ static int amdgpu_device_ip_early_init(s
+ 	    !pci_is_thunderbolt_attached(to_pci_dev(dev->dev)))
+ 		adev->flags |= AMD_IS_PX;
  
- 	/* FOLLOWING PROPERTIES ARE NOT IMPLEMENTED IN CORE YET */
- 	case HFI_PROPERTY_CONFIG_BUFFER_REQUIREMENTS:
+-	parent = pci_upstream_bridge(adev->pdev);
+-	adev->has_pr3 = parent ? pci_pr3_present(parent) : false;
++	if (!(adev->flags & AMD_IS_APU)) {
++		parent = pci_upstream_bridge(adev->pdev);
++		adev->has_pr3 = parent ? pci_pr3_present(parent) : false;
++	}
+ 
+ 	amdgpu_amdkfd_device_probe(adev);
+ 
 
 
