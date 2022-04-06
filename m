@@ -2,140 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1178D4F65F9
-	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 18:52:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57B004F65F1
+	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 18:52:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237801AbiDFQxD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Apr 2022 12:53:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33152 "EHLO
+        id S237980AbiDFQyF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Apr 2022 12:54:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51662 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238257AbiDFQw3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 12:52:29 -0400
-Received: from mail-pg1-x52c.google.com (mail-pg1-x52c.google.com [IPv6:2607:f8b0:4864:20::52c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B35721F0454
-        for <stable@vger.kernel.org>; Wed,  6 Apr 2022 07:16:33 -0700 (PDT)
-Received: by mail-pg1-x52c.google.com with SMTP id h5so1368305pgc.7
-        for <stable@vger.kernel.org>; Wed, 06 Apr 2022 07:16:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=jUiPsKMfq8R49tzQx4iobqmZ99vPJeLus6Ut7vrAlpg=;
-        b=WvNSIUhhQIMm/KrQAHfztxGcQyk3McmS771LGwYQ0fQfiF5kzTo3In+/uC/IiXvQp9
-         bVqgRE+Lw5ZsdWzLxegr2bVEf9MQXWKjw+84rv0GXCrlIHoIahDJJJlKngOswdiAmMg3
-         9PzMtzD2OInAC8LdyTf4bW4BYH4EQTo/bQPXB4AEeU1HNg8QFHGEGVwLcZB8COEsYbXR
-         WNRbIkEejXuoCHAxEKW2G9AMr0wKR/4/YEl7PIFm7YejKH/45OCUR3GQMDa5uXYyT+Fy
-         ncVzHxZKkajzslXJ2VaixR9EGjJb53x7UlVvibXxIdwBx+xOMQxlKOGWGQEpdTu4NY1v
-         CUrQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=jUiPsKMfq8R49tzQx4iobqmZ99vPJeLus6Ut7vrAlpg=;
-        b=oOoDGnG0Rzs/UKc0xagiGh8R/QoEtbV6+FUQboVSbdZWcTDhmqCz5IjxuMvovn7LPM
-         W5AiB5hKPZdO7cXSew0U+//T9QC+Bc06I8zg/1XffEs2v+y3HUIGAzZbR4EKWMz+XN2H
-         8fP1iUiYIBG13LBrbF7BBnR0KFF1HbBrQujlC/iDKe+F9OS1I2fmQf+5ljpc3jLceMBA
-         rMVEz16KtMYV7lUrcPuROQNlBp95l/26bY9mOJt1fusFdn8coyFIkscO9xp6kMp5du96
-         2Ea0AY3hX0ZEtq//ou90jtNN24LR4/1yQNJ6/t7ZRplx7X9emP0Zse3MDqxk0zkKOK63
-         iWng==
-X-Gm-Message-State: AOAM5309QmUr1e/tmcS+qMb3oPPKH1B7Jb+rjRAQ/VWoTDnPoT+yuO8v
-        M1D3Zjvn5HgSFI5htGd3lPyjVR9RwykH6ra7
-X-Google-Smtp-Source: ABdhPJx8ixcVD+JBl8sqkyQGp2pu800JFtdZFPw4JRyK5YT+sm54eNHQ+rMBnuQ8Ha8PZCrXaKwfBQ==
-X-Received: by 2002:a63:4945:0:b0:398:efe8:3b7a with SMTP id y5-20020a634945000000b00398efe83b7amr7357019pgk.106.1649254593078;
-        Wed, 06 Apr 2022 07:16:33 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id f19-20020a056a00229300b004fb157f136asm20240180pfe.153.2022.04.06.07.16.32
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 06 Apr 2022 07:16:32 -0700 (PDT)
-Message-ID: <624da0c0.1c69fb81.2c86f.48e2@mx.google.com>
-Date:   Wed, 06 Apr 2022 07:16:32 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S238133AbiDFQxF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 12:53:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 014DF21799B;
+        Wed,  6 Apr 2022 07:17:07 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C3B44B82426;
+        Wed,  6 Apr 2022 14:17:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE8C6C385A3;
+        Wed,  6 Apr 2022 14:17:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1649254625;
+        bh=OMfx41/031A0MP+RHm+KFwlRg5XT4Op6fvW1GZ75ZuQ=;
+        h=From:To:Cc:Subject:Date:From;
+        b=ie+v5zV3XbfY5P59UHcq+VjkI8jYwX+M798YCErKW4mWwv0QnMTzYY0jffAZsFU3G
+         NlvREmST3Mo+7tk9Vp8tFVLhFCiuSyJIkSpUxz6C4lQp7KkFTVq4pylTTO7CbyOB8b
+         qQtOHKG+zvk0IRBtTWkeqALBoUjyzccmtfUr63v+sODqL7mIXCl97wfuhgbOegKmjx
+         SrKL4NSIwcwdfxICNvyal+YIFKmN+GtAtnmrPXerskHsKWm1LUkZ7REub0s/5tBAkg
+         paiu7LCYgtynayD8d832/BWLmBKdP9cKgoHq5Bdon9dXOufgzpTLpqeIsn36OZqjYH
+         /rQKYtCcfkKVg==
+From:   guoren@kernel.org
+To:     guoren@kernel.org, arnd@arndb.de, palmer@dabbelt.com
+Cc:     linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-riscv@lists.infradead.org,
+        Guo Ren <guoren@linux.alibaba.com>,
+        Palmer Dabbelt <palmer@rivosinc.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>, stable@vger.kernel.org
+Subject: [PATCH V3] riscv: patch_text: Fixup last cpu should be master
+Date:   Wed,  6 Apr 2022 22:16:49 +0800
+Message-Id: <20220406141649.728971-1-guoren@kernel.org>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.10
-X-Kernelci-Kernel: v5.10.109-598-g8bc400ada1ffc
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/5.10 baseline: 67 runs,
- 1 regressions (v5.10.109-598-g8bc400ada1ffc)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.10 baseline: 67 runs, 1 regressions (v5.10.109-598-g8bc40=
-0ada1ffc)
+From: Guo Ren <guoren@linux.alibaba.com>
 
-Regressions Summary
--------------------
+These patch_text implementations are using stop_machine_cpuslocked
+infrastructure with atomic cpu_count. The original idea: When the
+master CPU patch_text, the others should wait for it. But current
+implementation is using the first CPU as master, which couldn't
+guarantee the remaining CPUs are waiting. This patch changes the
+last CPU as the master to solve the potential risk.
 
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+Signed-off-by: Guo Ren <guoren@kernel.org>
+Acked-by: Palmer Dabbelt <palmer@rivosinc.com>
+Reviewed-by: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: <stable@vger.kernel.org>
+---
+ arch/riscv/kernel/patch.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/arch/riscv/kernel/patch.c b/arch/riscv/kernel/patch.c
+index 0b552873a577..765004b60513 100644
+--- a/arch/riscv/kernel/patch.c
++++ b/arch/riscv/kernel/patch.c
+@@ -104,7 +104,7 @@ static int patch_text_cb(void *data)
+ 	struct patch_insn *patch = data;
+ 	int ret = 0;
+ 
+-	if (atomic_inc_return(&patch->cpu_count) == 1) {
++	if (atomic_inc_return(&patch->cpu_count) == num_online_cpus()) {
+ 		ret =
+ 		    patch_text_nosync(patch->addr, &patch->insn,
+ 					    GET_INSN_LENGTH(patch->insn));
+-- 
+2.25.1
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
-nel/v5.10.109-598-g8bc400ada1ffc/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.10
-  Describe: v5.10.109-598-g8bc400ada1ffc
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      8bc400ada1ffcb232114207449ce7e84c4b390ae =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/624d6e2c6405e10d1fae06a7
-
-  Results:     90 PASS, 2 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.109=
--598-g8bc400ada1ffc/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/b=
-aseline-rk3399-gru-kevin.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.109=
--598-g8bc400ada1ffc/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/b=
-aseline-rk3399-gru-kevin.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220401.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
-/624d6e2c6405e10d1fae06c9
-        failing since 29 days (last pass: v5.10.103-56-ge5a40f18f4ce, first=
- fail: v5.10.103-105-gf074cce6ae0d)
-
-    2022-04-06T10:40:31.315120  <8>[   32.997848] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-i2s0-probed RESULT=3Dpass>
-    2022-04-06T10:40:32.341735  /lava-6037103/1/../bin/lava-test-case
-    2022-04-06T10:40:32.352548  <8>[   34.036786] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-i2s1-probed RESULT=3Dfail>   =
-
- =20
