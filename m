@@ -2,82 +2,170 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 272A44F6E18
-	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 00:52:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 780BA4F6E21
+	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 00:57:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237367AbiDFWyS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Apr 2022 18:54:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56084 "EHLO
+        id S234948AbiDFW7m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Apr 2022 18:59:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48510 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234513AbiDFWyR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 18:54:17 -0400
-Received: from mout.gmx.net (mout.gmx.net [212.227.15.18])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A139AC6EC1;
-        Wed,  6 Apr 2022 15:52:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1649285536;
-        bh=TtLwKAcrHVgXjNMYc4F1qJ3uS3sjFBx9JkXE/llyLCs=;
-        h=X-UI-Sender-Class:Date:From:Subject:To:Cc;
-        b=YUJwc28mHKOocLAG5ZJ3K+xL6X0cK72P/b4i5eTrlrY9rKs6P5+EV+zvaWE33ItUn
-         zB4PKHdLSqzCU2rYtMpJwtWzd6ZqzAE+fsSxoAMwKLGitCR0FVugHlu9lGqiYrCsS7
-         ooHoqvHqHuXTbF0qLqyo8EboFpI0OGLJVzL9obeg=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from [192.168.100.20] ([46.142.32.10]) by mail.gmx.net (mrgmx005
- [212.227.17.190]) with ESMTPSA (Nemesis) id 1M26rD-1naIZN34TB-002Tsx; Thu, 07
- Apr 2022 00:52:16 +0200
-Message-ID: <4e52dc01-175a-eff8-89bd-2782d61d523f@gmx.de>
-Date:   Thu, 7 Apr 2022 00:52:16 +0200
+        with ESMTP id S234084AbiDFW7l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 18:59:41 -0400
+Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDC8D6212E
+        for <stable@vger.kernel.org>; Wed,  6 Apr 2022 15:57:42 -0700 (PDT)
+Received: by mail-pj1-x1031.google.com with SMTP id o5-20020a17090ad20500b001ca8a1dc47aso7229950pju.1
+        for <stable@vger.kernel.org>; Wed, 06 Apr 2022 15:57:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=HTOpwYEoVeAZSWFosnAW887jX3r1FqsXmOqgZWuvlpY=;
+        b=j3UTEnW+jiqmgFhyn+t4R+7YunvHJLzT59oJOWsq8e4bzTB1h9Pde+0l7Bv5wLduRg
+         mKO1mIv3qCedoa/l1pr8SigJsaNieDGSxjgkODyFFbJn1ZmB3bvK0W85+y9i8DUu1kqp
+         hxDSx62CUgU5dod2XmkhYRE23KE3NPlW5Sciru9yyiN9yvH4tp+H09GOIm2yxbrK4o19
+         rQlCKDJgPExtmj3Z5cItIUJsF7RkpjIAvf7V9HEBn/Twy0BPp9zk53rSvX6TZE44wRne
+         6S7C3JlWSxLq4Oyv5Zc/RCltfF8Zz1WykCcMRMBXpbkWTWEA6L6piz/uXroWOiCjRBJq
+         a8kA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=HTOpwYEoVeAZSWFosnAW887jX3r1FqsXmOqgZWuvlpY=;
+        b=J6tARqNPp0oFaVVdC5DBCA1QGk8aHzPy3iS4ewPpmSYmEBV2992nxCqUdv8d2Y3lxa
+         +3/3KjVfzVSa5QAaRA8bDXTqr8oxObtHNSZv/z1PDOAM/ni8LxS7u+kp4x1HuVn4KIvQ
+         P21M2wQRkiUNTun/Ge0NwMQkrdulJO+0Ainmotn9wrEI6FjyE9RvOKGQMjN2BEcTkeeT
+         K1aJIZRcpWsczM+P2msGJ3uDRYNU6W1OaACS9Rw4ZDZ+rV12lDfxzXA/7gR6oUeK0kUT
+         hI8UQXmU0b92XOgGXf5OeH97NsgtyB/jlEHQPpFnlScc4KE6jB6yDo5MYMTt2vhqSfen
+         al1g==
+X-Gm-Message-State: AOAM530rlX1cpNBhFplzZJLgxEQfrRnPYFeE+Yi5qGUakuzoBcSXXroe
+        +Fu8A/VLi6uBTgvHUPskhkqy1rdHogz+Z8DZ5Fw=
+X-Google-Smtp-Source: ABdhPJwy6WkSuoPxNCosqkHCApjsCANXOj2M0SJG10whluDc/haoHE3+pnbf9ScKXyzHFok6ZRPHQw==
+X-Received: by 2002:a17:903:2284:b0:154:3b97:8156 with SMTP id b4-20020a170903228400b001543b978156mr10847626plh.95.1649285862250;
+        Wed, 06 Apr 2022 15:57:42 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id w13-20020a17090a5e0d00b001c7d4099670sm6613921pjf.28.2022.04.06.15.57.41
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 06 Apr 2022 15:57:41 -0700 (PDT)
+Message-ID: <624e1ae5.1c69fb81.b2e88.2c6d@mx.google.com>
+Date:   Wed, 06 Apr 2022 15:57:41 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.7.0
-From:   Ronald Warsow <rwarsow@gmx.de>
-Subject: Re: [PATCH 5.17 0000/1123] 5.17.2-rc2 review
-To:     linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org
-Content-Language: de-DE
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Provags-ID: V03:K1:NMj8tLIfVDjsisGDkERt7Qo+doEEs0euFAEE2DUf1bwzh8jSeAP
- 2DeU0YKeNc6xvusjxMRlUqw/C4kU5stEDhu51sawPuV5gIRE/XMPLFu53tjYErnURRbT+p5
- yR2oSDDxyzhO8122CzwmoXkc1d4Xb4XpzcdaJCXVyG/MsnUXhzjU3x2M9J2ReZaQZGE/ik4
- Vj70YmbKD7XcCklogE+DA==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:hCLxCtGuEa0=:2foKtnaR7VhoP0V9DTkd8M
- 5xpl1i7ySVQ2YRPDTY7Y3eiBepoDaKeTDqwNb4tR1Ib1VEQOi5Y7+/i5GuWFJlZpstAgNPvgF
- TEZvlEcFiRwyAD9VUi848v7LBjjt3zi0BS14yqcITqQsIWu7Y6A7DuS0xjWZtQR+d8xTqoS7h
- J5x2mH/rSc7HGnmn5BBtPL+27Hi2V3Yoz0UbaDg8zYH5RcrNClmyekzUok8R582ujWm3/KLmZ
- sAWbJdugeEr/XHX6JmxNxcoIVcO0VciMPuWjIwHDte/275vi22MqzAb7AxhhKuwjsXewpjOAu
- GLueDxVOaSOQ7SZ4XQxXOeHc6eE+6yHg7HrOb0uP88Xprub9ExKYHgxq0G2yrQ6+o4LjPbGN2
- OkpQ4/+6HgpLmm5g/ZMAbpldrWzWUI9jVP61RJp/0l6SiTq70v07WNXBrswMXJKK+BqMvqcJB
- EvaQ34tnRq1k0ShW0YFPvYaoIDu21IrCC1+wHRMPoFhu7Vhs+a3TH/qPd5cZUkeCk1eGZwtX2
- pqb3V+Zk/HjjQe7QNSNsfix/S30LnaB/1eIkBaZVQDHIjj0mtv3RCp0p2Ixp9/9FLeZKQAjCg
- McflYusuMl4ZVLN9Mf7VogiebBAPk7bQKsF57U5LBYuHSdWeJfa6ajMGCfBd3i5lrMAfv1Cmu
- YvPxUlTItakhqc6h/JtBQu5Bl7iMrk1X4V9xR9xe6nlvXjO0K6vNxK5EsjgNL1Snh6NO7OkAY
- kZq414mgPfkzuu1ggnkh64mnY1NGxvFcUz3TUVpMqBjUUi93za8dAYhmhmT84KLIPya7ZLKMP
- i9G3NBRL34GW+G/tn7PGHundBp5P7Ls0wRBbpmdVDuRwivZ+ULW/Xnf3cRXtF9oG/NM9U5kH+
- BwRrpmueVhjFhjXkpzJcttn3W0jVZQgklSvytiUUAcy/9zxN2X20K8TF92VJNSqx32lk3sxVo
- EPmdnEYv1aQj483rtjX0olLYEaC29PpdNJExv2Bmp66fAFxa1YZ6h03pyS75zVc02nATNblTT
- S/2tbY2qRjDBCSTR8vzAGk/X0p1fHL2SpuaG4Prob7d3T42D6EKGOo05WhoCcXFY4nckYBQlV
- Rotfx5Xhx3yw0Y=
-X-Spam-Status: No, score=-0.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,FAKE_REPLY_A1,FREEMAIL_FROM,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=no autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Kernel: v4.14.275-206-ge3a5894d7697d
+X-Kernelci-Report-Type: test
+Subject: stable-rc/linux-4.14.y baseline: 50 runs,
+ 2 regressions (v4.14.275-206-ge3a5894d7697d)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-hallo Greg
+stable-rc/linux-4.14.y baseline: 50 runs, 2 regressions (v4.14.275-206-ge3a=
+5894d7697d)
 
-5.17.2-rc2
+Regressions Summary
+-------------------
 
-compiles, boots and runs on my x86_64
-(Intel i5-11400, Fedora 36 Beta)
+platform             | arch  | lab          | compiler | defconfig         =
+ | regressions
+---------------------+-------+--------------+----------+-------------------=
+-+------------
+meson-gxl-s905d-p230 | arm64 | lab-baylibre | gcc-10   | defconfig         =
+ | 1          =
 
-Thanks
+meson8b-odroidc1     | arm   | lab-baylibre | gcc-10   | multi_v7_defconfig=
+ | 1          =
 
-Tested-by: Ronald Warsow <rwarsow@gmx.de>
 
-Ronald
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.14.y/ker=
+nel/v4.14.275-206-ge3a5894d7697d/plan/baseline/
 
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.14.y
+  Describe: v4.14.275-206-ge3a5894d7697d
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      e3a5894d7697dcb0d8d6ac0b8c3b793bf817f371 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch  | lab          | compiler | defconfig         =
+ | regressions
+---------------------+-------+--------------+----------+-------------------=
+-+------------
+meson-gxl-s905d-p230 | arm64 | lab-baylibre | gcc-10   | defconfig         =
+ | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/624de40ae2ee02898fae0690
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+75-206-ge3a5894d7697d/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gx=
+l-s905d-p230.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+75-206-ge3a5894d7697d/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gx=
+l-s905d-p230.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220401.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/624de40ae2ee02898fae0=
+691
+        new failure (last pass: v4.14.271-23-ge991f498ccbf) =
+
+ =
+
+
+
+platform             | arch  | lab          | compiler | defconfig         =
+ | regressions
+---------------------+-------+--------------+----------+-------------------=
+-+------------
+meson8b-odroidc1     | arm   | lab-baylibre | gcc-10   | multi_v7_defconfig=
+ | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/624de2ce082b53496aae0695
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+75-206-ge3a5894d7697d/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-m=
+eson8b-odroidc1.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+75-206-ge3a5894d7697d/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-m=
+eson8b-odroidc1.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220401.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/624de2ce082b53496aae0=
+696
+        failing since 51 days (last pass: v4.14.266, first fail: v4.14.266-=
+45-gce409501ca5f) =
+
+ =20
