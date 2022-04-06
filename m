@@ -2,84 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F35E4F5E02
-	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 14:46:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B6C564F5E9A
+	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 15:04:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231135AbiDFMaw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Apr 2022 08:30:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52318 "EHLO
+        id S231488AbiDFMu1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Apr 2022 08:50:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44254 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230444AbiDFMaN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 08:30:13 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B96B5B6452;
-        Wed,  6 Apr 2022 01:23:06 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        with ESMTP id S231790AbiDFMtk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 08:49:40 -0400
+Received: from mx1.molgen.mpg.de (mx3.molgen.mpg.de [141.14.17.11])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D755C4BF330;
+        Wed,  6 Apr 2022 02:00:18 -0700 (PDT)
+Received: from [192.168.0.2] (ip5f5aef4f.dynamic.kabel-deutschland.de [95.90.239.79])
+        (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5F036B82135;
-        Wed,  6 Apr 2022 08:23:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77E86C385A3;
-        Wed,  6 Apr 2022 08:23:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649233384;
-        bh=sq3H6Y68IxCy6XDLwf9nPN3WruxOabxFCXyYvvYXp2Q=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=WBx6WHDPkc7INkMbmlwQv7NxKLn5fQBLTF69gBKXT70LBdDQ+QTfyhWjclLKb5vin
-         I941vWtgSohplbx37nEhQ1rfw8L9LVp+t8XxUKvwnxlp61ycPa1V0Rerd43RVGZ9aT
-         RHgTRUL5fgXkGhq75jGUGHr1hsYVTsTuYYREZMhI=
-Date:   Wed, 6 Apr 2022 10:23:01 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Steven Rostedt <rostedt@goodmis.org>
-Cc:     Guenter Roeck <linux@roeck-us.net>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com, Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 5.10 000/599] 5.10.110-rc1 review
-Message-ID: <Yk1N5Vg+YrGxrfVo@kroah.com>
-References: <20220405070258.802373272@linuxfoundation.org>
- <20220406010749.GA1133386@roeck-us.net>
- <20220406023025.GA1926389@roeck-us.net>
- <20220405225212.061852f9@gandalf.local.home>
- <20220405230812.2feca4ed@gandalf.local.home>
- <20220405232413.6b38e966@gandalf.local.home>
- <Yk1LMYzEOv7vmEHR@kroah.com>
+        (Authenticated sender: pmenzel)
+        by mx.molgen.mpg.de (Postfix) with ESMTPSA id 9A31D61E64846;
+        Wed,  6 Apr 2022 11:00:15 +0200 (CEST)
+Message-ID: <d8571528-4202-e6d7-e8b2-f9feb7e6f8f7@molgen.mpg.de>
+Date:   Wed, 6 Apr 2022 11:00:15 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Yk1LMYzEOv7vmEHR@kroah.com>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.7.0
+Subject: Re: [Intel-wired-lan] [PATCH net 0/2] ixgbe: fix promiscuous mode on
+ VF
+Content-Language: en-US
+To:     Olivier Matz <olivier.matz@6wind.com>
+Cc:     netdev@vger.kernel.org,
+        Hiroshi Shimamoto <h-shimamoto@ct.jp.nec.com>,
+        intel-wired-lan@osuosl.org, stable@vger.kernel.org,
+        Jakub Kicinski <kuba@kernel.org>,
+        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        "David S . Miller" <davem@davemloft.net>
+References: <20220325140250.21663-1-olivier.matz@6wind.com>
+ <Yk1MxlsbGi810tgb@arsenic.home>
+From:   Paul Menzel <pmenzel@molgen.mpg.de>
+In-Reply-To: <Yk1MxlsbGi810tgb@arsenic.home>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Apr 06, 2022 at 10:11:29AM +0200, Greg Kroah-Hartman wrote:
-> On Tue, Apr 05, 2022 at 11:24:13PM -0400, Steven Rostedt wrote:
-> > On Tue, 5 Apr 2022 23:08:12 -0400
-> > Steven Rostedt <rostedt@goodmis.org> wrote:
-> > 
-> > > Here's a thought, if you decide to backport a patch to stable, and you see
-> > > that there's another commit with a "Fixes" tag to the automatically
-> > > selected commit. DO NOT BACKPORT IF THE FIXES PATCH FAILS TO GO BACK TOO!
-> > 
-> > Seriously. This should be the case for *all* backported patches, not just
-> > the AUTOSEL ones.
-> > 
-> > Otherwise you are backporting a commit to "stable" that is KNOWN TO BE
-> > BROKEN!
+Dear Olivier,
+
+
+Am 06.04.22 um 10:18 schrieb Olivier Matz:
+
+> On Fri, Mar 25, 2022 at 03:02:48PM +0100, Olivier Matz wrote:
+>> These 2 patches fix issues related to the promiscuous mode on VF.
+>>
+>> Comments are welcome,
+>> Olivier
+>>
+>> Cc: stable@vger.kernel.org
+>> Cc: Hiroshi Shimamoto <h-shimamoto@ct.jp.nec.com>
+>> Cc: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+>>
+>> Olivier Matz (2):
+>>    ixgbe: fix bcast packets Rx on VF after promisc removal
+>>    ixgbe: fix unexpected VLAN Rx in promisc mode on VF
+>>
+>>   drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c | 8 ++++----
+>>   1 file changed, 4 insertions(+), 4 deletions(-)
 > 
-> My scripts usually do catch this, let me go see what went wrong...
+> Sorry, the intel-wired-lan mailing list was not CC'ed initially.
+> 
+> Please let me know if I need to resend the patchset.
 
-Ok, my fault, my scripts _did_ catch this, but I ignored it as it was
-filled with other noise.  I've now queued this commit up.
+Yes, please resend.
 
-thanks for catching this and sorry for missing it the first time around.
 
-greg k-h
+Kind regards,
+
+Paul
