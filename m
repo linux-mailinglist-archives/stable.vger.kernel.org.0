@@ -2,92 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C59504F632B
-	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 17:34:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B01714F6354
+	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 17:34:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236010AbiDFP0C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Apr 2022 11:26:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33572 "EHLO
+        id S235784AbiDFP0y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Apr 2022 11:26:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50862 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236006AbiDFPZQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 11:25:16 -0400
-Received: from mail-pg1-x52f.google.com (mail-pg1-x52f.google.com [IPv6:2607:f8b0:4864:20::52f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EA0048237A;
-        Wed,  6 Apr 2022 05:24:15 -0700 (PDT)
-Received: by mail-pg1-x52f.google.com with SMTP id z128so2084256pgz.2;
-        Wed, 06 Apr 2022 05:24:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=wIbRrcBu3wiJi2dQAUZF70F3o+wrjYSVUUIbW23yRI8=;
-        b=SqYJt3Vz0vUPFawK/Pii4cibHzamqUQMEuiw8YfsKSBBXiPkNUDLcXoaXpWtQSZhj3
-         BJ1DkVMCDpPwZUaZ5rrb81v13Pwlc6d1ef7BHjKaNinS+usOL0WBN0Oqojq9EqL2lIVU
-         fjMwuwKi6I2S12D0r9bwxd8imK0WPa0cmPgH9vFTd2PrFgl55K4K4G98dkut6zDp5hex
-         L9baKVQB/oUtn1d/uj6iUNBJl+OA0GFIz/2NFco2JAzy/JAqfsutrIiHWk59RaSGh4Sd
-         8qSmlAanzGyBoOiwptXWDv//a/3X8lgZ+JEwz+ue8/ekGWbABd1S3kunfik8MRQ5nLTE
-         wXGA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=wIbRrcBu3wiJi2dQAUZF70F3o+wrjYSVUUIbW23yRI8=;
-        b=4mFT4CEH4/wo/FStEuAYSJlXaA6mXIvTcRBf2xDcvzrSwUTw8uIbW/gOgQJEqw+Eda
-         URcMrdOhwj+ZMV6eh2ilanS9hQTt+8qutAwVMuYExzvw0FAaVPVjK1ZBGr3J/eN54+9J
-         1nNxAlKHeRhTlsMCv3NREIM7YG1v90ZueP8Exm4bJ9jqzCe9ADGDrKFMft4AYY/WEie0
-         pZGZbOW8VFG3ugOKvL2RIFWJJa0oD5uGCZ1X14SFkUPop3h1MnpVytUYBBQcLXrDlqk9
-         BATe0vM9ICxMB7ptikjIHlOW4VRf2Ys/BWqVltmpP40Xm2Kcxm67K9NLQg2BXe70JTAr
-         q26Q==
-X-Gm-Message-State: AOAM530ryJRPzI3enCNq/iMQ6icAiSqR0UH0HDwPwqJ1HvV6Hs9mCH6e
-        qSgNrIUnRhsvSlSYBdqgbRk=
-X-Google-Smtp-Source: ABdhPJwtn/a2AijiiLVSK02GoxH2lVtQhB5yHUWMaOSediMlGyq/Ei67ayB/sBEDIUjA+8mcbX8Lyw==
-X-Received: by 2002:a62:402:0:b0:4f7:81a3:7c47 with SMTP id 2-20020a620402000000b004f781a37c47mr8665028pfe.9.1649247855054;
-        Wed, 06 Apr 2022 05:24:15 -0700 (PDT)
-Received: from [192.168.43.80] (subs28-116-206-12-40.three.co.id. [116.206.12.40])
-        by smtp.gmail.com with ESMTPSA id j22-20020a056a00235600b004faed937407sm20769712pfj.19.2022.04.06.05.24.10
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 06 Apr 2022 05:24:14 -0700 (PDT)
-Message-ID: <6c722445-d5cb-dd28-c001-159a64909788@gmail.com>
-Date:   Wed, 6 Apr 2022 19:24:09 +0700
+        with ESMTP id S236090AbiDFP0U (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 11:26:20 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B5775F90B1;
+        Wed,  6 Apr 2022 05:24:53 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 186BAB8232A;
+        Wed,  6 Apr 2022 12:24:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4107FC385A7;
+        Wed,  6 Apr 2022 12:24:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1649247890;
+        bh=VXAqwleH/9FZW2pL8a52fjF/WAWTJuJF9KN83znJwp0=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=HxfZK3niCIpttqDTvrn+MhcnImqotYL7Z8+P8+ovfuMJxUiznMKGrln66zonahKVE
+         dXkrKrly7b3rYB8L7Skwd9NRQr9oB9V4mqugE466H0xmS4nkwNPVr8CDbmFRO8/Zpu
+         QQpru43kcyWvP97u/p0e1+sGS9ufH/5kMlt0HO1g=
+Date:   Wed, 6 Apr 2022 14:24:48 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Shuah Khan <skhan@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+Subject: Re: [PATCH 5.16 0000/1017] 5.16.19-rc1 review
+Message-ID: <Yk2GkNTTc3XYDU2X@kroah.com>
+References: <20220405070354.155796697@linuxfoundation.org>
+ <9882445d-ef29-689a-33de-ce66dfc79d31@linuxfoundation.org>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.7.0
-Subject: Re: [PATCH 5.15 000/913] 5.15.33-rc1 review
-Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-References: <20220405070339.801210740@linuxfoundation.org>
-From:   Bagas Sanjaya <bagasdotme@gmail.com>
-In-Reply-To: <20220405070339.801210740@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-5.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9882445d-ef29-689a-33de-ce66dfc79d31@linuxfoundation.org>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 05/04/22 14.17, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.15.33 release.
-> There are 913 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Tue, Apr 05, 2022 at 05:03:24PM -0600, Shuah Khan wrote:
+> On 4/5/22 1:15 AM, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 5.16.19 release.
+> > There are 1017 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> > 
+> > Responses should be made by Thu, 07 Apr 2022 07:01:33 +0000.
+> > Anything received after that time might be too late.
+> > 
+> > The whole patch series can be found in one patch at:
+> > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.16.19-rc1.gz
+> > or in the git tree and branch at:
+> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.16.y
+> > and the diffstat can be found below.
+> > 
+> > thanks,
+> > 
+> > greg k-h
+> > 
+> Build failed on my system. The following is the problem commit. There
+> are no changes to the config between 5.16.18 and this build.
 > 
+> Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+>     ASoC: SOF: Intel: hda: Remove link assignment limitation
 
-Successfully cross-compiled for arm64 (bcm2711_defconfig, gcc 10.2.0) and
-powerpc (ps3_defconfig, gcc 11.2.0).
+Now dropped from 5.10, 5.15, and 5.16 queues, thanks!
 
-Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
-
--- 
-An old man doll... just what I always wanted! - Clara
+greg k-h
