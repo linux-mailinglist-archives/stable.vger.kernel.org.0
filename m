@@ -2,172 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 932FC4F6E8E
-	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 01:33:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 360274F6ED2
+	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 01:39:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237780AbiDFXfd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Apr 2022 19:35:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44652 "EHLO
+        id S238105AbiDFXk4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Apr 2022 19:40:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33944 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229748AbiDFXfb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 19:35:31 -0400
-Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4794E223205;
-        Wed,  6 Apr 2022 16:33:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1649288013; x=1680824013;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=pRwkOMm0qHu0lOS5zpitn48/SuLkUxM71YjsDbeCfgU=;
-  b=j6Jo/5NdXON1TidgY6q+3RBApHgZOYNNK3aFQPluLBd0mDgm/oPBw6/P
-   b4kx3mf7AotZyhvUOsYFDZbMu4my0ZFhQm5crDbkA2uHvnejgmRyLEaZo
-   EJ+R0LTFrPmYHDPtU3MeSubh7B540ExBWGSuHFMQsg//4Rf7ZQAfYwVj3
-   J+Hbh95EuC5Q4sS42dQVyT3xfAk4BAmZ89f9hOar0JxrFn5Q2O2ND8K5K
-   PxbBIlpbTBRMNSNrkDtMZsXmEPP+VJQcB2cVqa6B19qeJX7YHVRvbwqYz
-   MXxsr7RZnf7+ErnQnfOu8KWUBRuFaQleGFW6pE50ziQ25NvlqqigxjPr2
-   A==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10309"; a="260022035"
-X-IronPort-AV: E=Sophos;i="5.90,240,1643702400"; 
-   d="scan'208";a="260022035"
-Received: from orsmga005.jf.intel.com ([10.7.209.41])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Apr 2022 16:32:45 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.90,240,1643702400"; 
-   d="scan'208";a="722721744"
-Received: from lkp-server02.sh.intel.com (HELO a44fdfb70b94) ([10.239.97.151])
-  by orsmga005.jf.intel.com with ESMTP; 06 Apr 2022 16:32:42 -0700
-Received: from kbuild by a44fdfb70b94 with local (Exim 4.95)
-        (envelope-from <lkp@intel.com>)
-        id 1ncF8j-0004r5-Sb;
-        Wed, 06 Apr 2022 23:32:41 +0000
-Date:   Thu, 7 Apr 2022 07:31:44 +0800
-From:   kernel test robot <lkp@intel.com>
-To:     Juergen Gross <jgross@suse.com>, xen-devel@lists.xenproject.org,
-        linux-kernel@vger.kernel.org
-Cc:     kbuild-all@lists.01.org, Juergen Gross <jgross@suse.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        stable@vger.kernel.org,
-        Marek =?iso-8859-1?Q?Marczykowski-G=F3recki?= 
-        <marmarek@invisiblethingslab.com>
-Subject: Re: [PATCH] xen/balloon: fix page onlining when populating new zone
-Message-ID: <202204070706.PKz2Th7L-lkp@intel.com>
-References: <20220406133229.15979-1-jgross@suse.com>
+        with ESMTP id S238212AbiDFXkn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 19:40:43 -0400
+Received: from mail-pg1-x52d.google.com (mail-pg1-x52d.google.com [IPv6:2607:f8b0:4864:20::52d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDCAB208300;
+        Wed,  6 Apr 2022 16:38:08 -0700 (PDT)
+Received: by mail-pg1-x52d.google.com with SMTP id k14so3538008pga.0;
+        Wed, 06 Apr 2022 16:38:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=rhS7OTxGR6L+t64q04L0IHm02DXhCb8gCMHEf6NnkpI=;
+        b=X70yDAE5D4pJzAsx6N9bvcw8fc5FAxSbzKdC+8JZug5OVVhB38wxgmBHOc9aq77Ofa
+         2qcpDVXmCD4xXBR3UrGQFLsjgEI5DjupVh4vg/MTNJ4/avk+6+eTluRyiT8NxTfPSSUG
+         e7/SukrLtwAVsIwouAm8IoyJz3azcrW0dJF6VbOTWqdLPGbb02Pd2P/Z3egWI4i0nXnx
+         UMw4Rg5SvoYnZ5NXKOXWVv3zh67omcj3dwwRwVMI4RuAtI72PyPaq8Sg3pzLDgDNlgbn
+         DfdNWhRoDjGI0AL3NxscGwQqvAFeAkJS2v5gCdqyxMnBT7XxRBrYYecko0EBHsRxRRgI
+         K5Sg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=rhS7OTxGR6L+t64q04L0IHm02DXhCb8gCMHEf6NnkpI=;
+        b=UXwsCj4oWlJ3nsYCAnv32rPtu5AjIpAtkzEwS+5O8MqeMzYSDU2QiS2rG96pmUQdF/
+         cUtYzNkrTYeS5r14WEjzk9XzflqN3cp57Z3tbtUVR6aP3qv+pCmZDXZWM7auttSKfWHW
+         dInZ7fu5kxe0gyi2BWz/fFaHrD2EAaSYoddiXCkmASezuM7b05sdDWgkopJPlqiiKbcG
+         NGYV9f3WYbv6W6VCCMDmKVw/x6LcRciSZktWsfUSgBTlvdDOw7gsssiQV90e8WT9hU3k
+         lt8EtM7y9V3j0Xe9N2eTlEyInMEsaQMgD5cxsRQsHrJhsGkQrIwLfD3APv4kRvMYwL1A
+         wWqQ==
+X-Gm-Message-State: AOAM531rW9mVUSbajFJjHlNrPGE95Zc9AjVKhnLacdOglBmfa9yePSqZ
+        EBBHIw91P0TxRR7jpBdKqgk=
+X-Google-Smtp-Source: ABdhPJyBBC+LDZ0ftU/2Gv9xlfVyDt3T+i5Nlh0ZBYVNAEic1LjKx5i7fmHZQOAGzN21xpSbb28bIQ==
+X-Received: by 2002:a65:5083:0:b0:382:3b02:9799 with SMTP id r3-20020a655083000000b003823b029799mr9295626pgp.302.1649288288270;
+        Wed, 06 Apr 2022 16:38:08 -0700 (PDT)
+Received: from [10.67.48.245] ([192.19.223.252])
+        by smtp.googlemail.com with ESMTPSA id om16-20020a17090b3a9000b001c7bc91a89bsm6904938pjb.52.2022.04.06.16.38.05
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 06 Apr 2022 16:38:07 -0700 (PDT)
+Message-ID: <bdc2073a-9adf-db20-bed0-54e88d9beb81@gmail.com>
+Date:   Wed, 6 Apr 2022 16:38:04 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220406133229.15979-1-jgross@suse.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Subject: Re: [PATCH 5.16 0000/1014] 5.16.19-rc2 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+References: <20220406133109.570377390@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+In-Reply-To: <20220406133109.570377390@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-5.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Juergen,
+On 4/6/22 06:44, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.16.19 release.
+> There are 1014 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Fri, 08 Apr 2022 13:27:53 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.16.19-rc2.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.16.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-I love your patch! Perhaps something to improve:
+On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels:
 
-[auto build test WARNING on xen-tip/linux-next]
-[also build test WARNING on linus/master linux/master v5.18-rc1 next-20220406]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch]
-
-url:    https://github.com/intel-lab-lkp/linux/commits/Juergen-Gross/xen-balloon-fix-page-onlining-when-populating-new-zone/20220407-000935
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/xen/tip.git linux-next
-config: arm64-randconfig-r011-20220406 (https://download.01.org/0day-ci/archive/20220407/202204070706.PKz2Th7L-lkp@intel.com/config)
-compiler: aarch64-linux-gcc (GCC) 11.2.0
-reproduce (this is a W=1 build):
-        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
-        chmod +x ~/bin/make.cross
-        # https://github.com/intel-lab-lkp/linux/commit/b3deb59d5386ade4fb227038f202a9bdb8ade4ab
-        git remote add linux-review https://github.com/intel-lab-lkp/linux
-        git fetch --no-tags linux-review Juergen-Gross/xen-balloon-fix-page-onlining-when-populating-new-zone/20220407-000935
-        git checkout b3deb59d5386ade4fb227038f202a9bdb8ade4ab
-        # save the config file to linux build tree
-        mkdir build_dir
-        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-11.2.0 make.cross O=build_dir ARCH=arm64 SHELL=/bin/bash drivers/xen/
-
-If you fix the issue, kindly add following tag as appropriate
-Reported-by: kernel test robot <lkp@intel.com>
-
-All warnings (new ones prefixed by >>):
-
-   drivers/xen/balloon.c: In function 'decrease_reservation':
-   drivers/xen/balloon.c:518:24: error: implicit declaration of function 'alloc_page_for_balloon' [-Werror=implicit-function-declaration]
-     518 |                 page = alloc_page_for_balloon(gfp);
-         |                        ^~~~~~~~~~~~~~~~~~~~~~
->> drivers/xen/balloon.c:518:22: warning: assignment to 'struct page *' from 'int' makes pointer from integer without a cast [-Wint-conversion]
-     518 |                 page = alloc_page_for_balloon(gfp);
-         |                      ^
-   drivers/xen/balloon.c:545:17: error: implicit declaration of function 'add_page_to_balloon' [-Werror=implicit-function-declaration]
-     545 |                 add_page_to_balloon(page);
-         |                 ^~~~~~~~~~~~~~~~~~~
-   cc1: some warnings being treated as errors
-
-
-vim +518 drivers/xen/balloon.c
-
-   505	
-   506	static enum bp_state decrease_reservation(unsigned long nr_pages, gfp_t gfp)
-   507	{
-   508		enum bp_state state = BP_DONE;
-   509		unsigned long i;
-   510		struct page *page, *tmp;
-   511		int ret;
-   512		LIST_HEAD(pages);
-   513	
-   514		if (nr_pages > ARRAY_SIZE(frame_list))
-   515			nr_pages = ARRAY_SIZE(frame_list);
-   516	
-   517		for (i = 0; i < nr_pages; i++) {
- > 518			page = alloc_page_for_balloon(gfp);
-   519			if (page == NULL) {
-   520				nr_pages = i;
-   521				state = BP_EAGAIN;
-   522				break;
-   523			}
-   524			list_add(&page->lru, &pages);
-   525		}
-   526	
-   527		/*
-   528		 * Ensure that ballooned highmem pages don't have kmaps.
-   529		 *
-   530		 * Do this before changing the p2m as kmap_flush_unused()
-   531		 * reads PTEs to obtain pages (and hence needs the original
-   532		 * p2m entry).
-   533		 */
-   534		kmap_flush_unused();
-   535	
-   536		/*
-   537		 * Setup the frame, update direct mapping, invalidate P2M,
-   538		 * and add to balloon.
-   539		 */
-   540		i = 0;
-   541		list_for_each_entry_safe(page, tmp, &pages, lru) {
-   542			frame_list[i++] = xen_page_to_gfn(page);
-   543	
-   544			list_del(&page->lru);
-   545			add_page_to_balloon(page);
-   546		}
-   547	
-   548		flush_tlb_all();
-   549	
-   550		ret = xenmem_reservation_decrease(nr_pages, frame_list);
-   551		BUG_ON(ret != nr_pages);
-   552	
-   553		balloon_stats.current_pages -= nr_pages;
-   554	
-   555		return state;
-   556	}
-   557	
-
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
 -- 
-0-DAY CI Kernel Test Service
-https://01.org/lkp
+Florian
