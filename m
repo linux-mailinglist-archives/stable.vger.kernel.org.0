@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 999374F68B1
-	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 20:18:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 83E1E4F6910
+	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 20:19:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239966AbiDFSI4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Apr 2022 14:08:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42934 "EHLO
+        id S240155AbiDFSI6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Apr 2022 14:08:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42952 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240467AbiDFSHz (ORCPT
+        with ESMTP id S240473AbiDFSHz (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 14:07:55 -0400
 Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 83D08180229;
-        Wed,  6 Apr 2022 09:46:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 65FB2B89BD;
+        Wed,  6 Apr 2022 09:46:19 -0700 (PDT)
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 6B15F23A;
-        Wed,  6 Apr 2022 09:46:18 -0700 (PDT)
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 4CC5112FC;
+        Wed,  6 Apr 2022 09:46:19 -0700 (PDT)
 Received: from eglon.cambridge.arm.com (eglon.cambridge.arm.com [10.1.196.218])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id BDC633F73B;
-        Wed,  6 Apr 2022 09:46:17 -0700 (PDT)
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 9FBEE3F73B;
+        Wed,  6 Apr 2022 09:46:18 -0700 (PDT)
 From:   James Morse <james.morse@arm.com>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     James Morse <james.morse@arm.com>,
         Catalin Marinas <catalin.marinas@arm.com>
-Subject: [stable:PATCH v4.9.309 18/43] arm64: Add silicon-errata.txt entry for ARM erratum 1188873
-Date:   Wed,  6 Apr 2022 17:45:21 +0100
-Message-Id: <20220406164546.1888528-18-james.morse@arm.com>
+Subject: [stable:PATCH v4.9.309 19/43] arm64: Make ARM64_ERRATUM_1188873 depend on COMPAT
+Date:   Wed,  6 Apr 2022 17:45:22 +0100
+Message-Id: <20220406164546.1888528-19-james.morse@arm.com>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20220406164546.1888528-1-james.morse@arm.com>
 References: <0220406164217.1888053-1-james.morse@arm.com>
@@ -44,30 +44,30 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Marc Zyngier <marc.zyngier@arm.com>
 
-commit e03a4e5bb7430f9294c12f02c69eb045d010e942 upstream.
+commit c2b5bba3967a000764e9148e6f020d776b7ecd82 upstream.
 
-Document that we actually work around ARM erratum 1188873
+Since ARM64_ERRATUM_1188873 only affects AArch32 EL0, it makes some
+sense that it should depend on COMPAT.
 
-Fixes: 95b861a4a6d9 ("arm64: arch_timer: Add workaround for ARM erratum 1188873")
 Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Will Deacon <will.deacon@arm.com>
 Signed-off-by: James Morse <james.morse@arm.com>
 ---
- Documentation/arm64/silicon-errata.txt | 1 +
+ arch/arm64/Kconfig | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/Documentation/arm64/silicon-errata.txt b/Documentation/arm64/silicon-errata.txt
-index ac9489fad31b..47df2c25302a 100644
---- a/Documentation/arm64/silicon-errata.txt
-+++ b/Documentation/arm64/silicon-errata.txt
-@@ -55,6 +55,7 @@ stable kernels.
- | ARM            | Cortex-A57      | #834220         | ARM64_ERRATUM_834220        |
- | ARM            | Cortex-A72      | #853709         | N/A                         |
- | ARM            | Cortex-A55      | #1024718        | ARM64_ERRATUM_1024718       |
-+| ARM            | Cortex-A76      | #1188873        | ARM64_ERRATUM_1188873       |
- | ARM            | MMU-500         | #841119,#826419 | N/A                         |
- |                |                 |                 |                             |
- | Cavium         | ThunderX ITS    | #22375, #24313  | CAVIUM_ERRATUM_22375        |
+diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
+index 93bf53aa02d4..42719bd58046 100644
+--- a/arch/arm64/Kconfig
++++ b/arch/arm64/Kconfig
+@@ -444,6 +444,7 @@ config ARM64_ERRATUM_1024718
+ config ARM64_ERRATUM_1188873
+ 	bool "Cortex-A76: MRC read following MRRC read of specific Generic Timer in AArch32 might give incorrect result"
+ 	default y
++	depends on COMPAT
+ 	select ARM_ARCH_TIMER_OOL_WORKAROUND
+ 	help
+ 	  This option adds work arounds for ARM Cortex-A76 erratum 1188873
 -- 
 2.30.2
 
