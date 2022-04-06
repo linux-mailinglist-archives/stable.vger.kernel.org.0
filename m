@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7886F4F6916
-	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 20:19:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE03F4F6952
+	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 20:19:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239804AbiDFSIK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Apr 2022 14:08:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47628 "EHLO
+        id S239902AbiDFSIM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Apr 2022 14:08:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56730 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240310AbiDFSHq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 14:07:46 -0400
+        with ESMTP id S240353AbiDFSHs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 14:07:48 -0400
 Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 300F1100A6D;
-        Wed,  6 Apr 2022 09:45:57 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 65BB71081A5;
+        Wed,  6 Apr 2022 09:46:02 -0700 (PDT)
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id ED41823A;
-        Wed,  6 Apr 2022 09:45:56 -0700 (PDT)
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 205CF23A;
+        Wed,  6 Apr 2022 09:46:02 -0700 (PDT)
 Received: from eglon.cambridge.arm.com (eglon.cambridge.arm.com [10.1.196.218])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 4AE5C3F73B;
-        Wed,  6 Apr 2022 09:45:56 -0700 (PDT)
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 72DC83F73B;
+        Wed,  6 Apr 2022 09:46:01 -0700 (PDT)
 From:   James Morse <james.morse@arm.com>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     James Morse <james.morse@arm.com>,
         Catalin Marinas <catalin.marinas@arm.com>
-Subject: [stable:PATCH v4.9.309 01/43] arm64: errata: Provide macro for major and minor cpu revisions
-Date:   Wed,  6 Apr 2022 17:45:04 +0100
-Message-Id: <20220406164546.1888528-1-james.morse@arm.com>
+Subject: [stable:PATCH v4.9.309 02/43] arm64: Remove useless UAO IPI and describe how this gets enabled
+Date:   Wed,  6 Apr 2022 17:45:05 +0100
+Message-Id: <20220406164546.1888528-2-james.morse@arm.com>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <0220406164217.1888053-1-james.morse@arm.com>
+In-Reply-To: <20220406164546.1888528-1-james.morse@arm.com>
 References: <0220406164217.1888053-1-james.morse@arm.com>
+ <20220406164546.1888528-1-james.morse@arm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-6.9 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_HI,
@@ -41,85 +42,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Richter <rrichter@cavium.com>
+commit c8b06e3fddddaae1a87ed479edcb8b3d85caecc7 upstream.
 
-commit fa5ce3d1928c441c3d241c34a00c07c8f5880b1a upstream
+Since its introduction, the UAO enable call was broken, and useless.
+commit 2a6dcb2b5f3e ("arm64: cpufeature: Schedule enable() calls instead
+of calling them via IPI"), fixed the framework so that these calls
+are scheduled, so that they can modify PSTATE.
 
-Definition of cpu ranges are hard to read if the cpu variant is not
-zero. Provide MIDR_CPU_VAR_REV() macro to describe the full hardware
-revision of a cpu including variant and (minor) revision.
+Now it is just useless. Remove it. UAO is enabled by the code patching
+which causes get_user() and friends to use the 'ldtr' family of
+instructions. This relies on the PSTATE.UAO bit being set to match
+addr_limit, which we do in uao_thread_switch() called via __switch_to().
 
-Signed-off-by: Robert Richter <rrichter@cavium.com>
-Signed-off-by: Will Deacon <will.deacon@arm.com>
-[ morse: some parts of this patch were already backported as part of
-  b8c320884eff003581ee61c5970a2e83f513eff1 ]
+All that is needed to enable UAO is patch the code, and call schedule().
+__apply_alternatives_multi_stop() calls stop_machine() when it modifies
+the kernel text to enable the alternatives, (including the UAO code in
+uao_thread_switch()). Once stop_machine() has finished __switch_to() is
+called to reschedule the original task, this causes PSTATE.UAO to be set
+appropriately. An explicit enable() call is not needed.
+
+Reported-by: Vladimir Murzin <vladimir.murzin@arm.com>
 Signed-off-by: James Morse <james.morse@arm.com>
 ---
- arch/arm64/kernel/cpu_errata.c | 15 +++++++++------
- arch/arm64/kernel/cpufeature.c |  8 +++-----
- 2 files changed, 12 insertions(+), 11 deletions(-)
+ arch/arm64/include/asm/processor.h |  1 -
+ arch/arm64/kernel/cpufeature.c     |  5 ++++-
+ arch/arm64/mm/fault.c              | 14 --------------
+ 3 files changed, 4 insertions(+), 16 deletions(-)
 
-diff --git a/arch/arm64/kernel/cpu_errata.c b/arch/arm64/kernel/cpu_errata.c
-index 3b680a32886b..bf4da33d77e3 100644
---- a/arch/arm64/kernel/cpu_errata.c
-+++ b/arch/arm64/kernel/cpu_errata.c
-@@ -408,8 +408,9 @@ const struct arm64_cpu_capabilities arm64_errata[] = {
- 	/* Cortex-A57 r0p0 - r1p2 */
- 		.desc = "ARM erratum 832075",
- 		.capability = ARM64_WORKAROUND_DEVICE_LOAD_ACQUIRE,
--		MIDR_RANGE(MIDR_CORTEX_A57, 0x00,
--			   (1 << MIDR_VARIANT_SHIFT) | 2),
-+		MIDR_RANGE(MIDR_CORTEX_A57,
-+			   MIDR_CPU_VAR_REV(0, 0),
-+			   MIDR_CPU_VAR_REV(1, 2)),
- 	},
+diff --git a/arch/arm64/include/asm/processor.h b/arch/arm64/include/asm/processor.h
+index 9ee660013e5c..d27e472bbbf1 100644
+--- a/arch/arm64/include/asm/processor.h
++++ b/arch/arm64/include/asm/processor.h
+@@ -220,7 +220,6 @@ static inline void spin_lock_prefetch(const void *ptr)
  #endif
- #ifdef CONFIG_ARM64_ERRATUM_834220
-@@ -417,8 +418,9 @@ const struct arm64_cpu_capabilities arm64_errata[] = {
- 	/* Cortex-A57 r0p0 - r1p2 */
- 		.desc = "ARM erratum 834220",
- 		.capability = ARM64_WORKAROUND_834220,
--		MIDR_RANGE(MIDR_CORTEX_A57, 0x00,
--			   (1 << MIDR_VARIANT_SHIFT) | 2),
-+		MIDR_RANGE(MIDR_CORTEX_A57,
-+			   MIDR_CPU_VAR_REV(0, 0),
-+			   MIDR_CPU_VAR_REV(1, 2)),
- 	},
- #endif
- #ifdef CONFIG_ARM64_ERRATUM_845719
-@@ -442,8 +444,9 @@ const struct arm64_cpu_capabilities arm64_errata[] = {
- 	/* Cavium ThunderX, T88 pass 1.x - 2.1 */
- 		.desc = "Cavium erratum 27456",
- 		.capability = ARM64_WORKAROUND_CAVIUM_27456,
--		MIDR_RANGE(MIDR_THUNDERX, 0x00,
--			   (1 << MIDR_VARIANT_SHIFT) | 1),
-+		MIDR_RANGE(MIDR_THUNDERX,
-+			   MIDR_CPU_VAR_REV(0, 0),
-+			   MIDR_CPU_VAR_REV(1, 1)),
- 	},
- 	{
- 	/* Cavium ThunderX, T81 pass 1.0 */
+ 
+ int cpu_enable_pan(void *__unused);
+-int cpu_enable_uao(void *__unused);
+ int cpu_enable_cache_maint_trap(void *__unused);
+ 
+ #endif /* __ASSEMBLY__ */
 diff --git a/arch/arm64/kernel/cpufeature.c b/arch/arm64/kernel/cpufeature.c
-index 8cf001baee21..4130a901ae0d 100644
+index 4130a901ae0d..6601dd4005c3 100644
 --- a/arch/arm64/kernel/cpufeature.c
 +++ b/arch/arm64/kernel/cpufeature.c
-@@ -728,13 +728,11 @@ static bool has_useable_gicv3_cpuif(const struct arm64_cpu_capabilities *entry,
- static bool has_no_hw_prefetch(const struct arm64_cpu_capabilities *entry, int __unused)
- {
- 	u32 midr = read_cpuid_id();
--	u32 rv_min, rv_max;
- 
- 	/* Cavium ThunderX pass 1.x and 2.x */
--	rv_min = 0;
--	rv_max = (1 << MIDR_VARIANT_SHIFT) | MIDR_REVISION_MASK;
--
--	return MIDR_IS_CPU_MODEL_RANGE(midr, MIDR_THUNDERX, rv_min, rv_max);
-+	return MIDR_IS_CPU_MODEL_RANGE(midr, MIDR_THUNDERX,
-+		MIDR_CPU_VAR_REV(0, 0),
-+		MIDR_CPU_VAR_REV(1, MIDR_REVISION_MASK));
+@@ -905,7 +905,10 @@ static const struct arm64_cpu_capabilities arm64_features[] = {
+ 		.sys_reg = SYS_ID_AA64MMFR2_EL1,
+ 		.field_pos = ID_AA64MMFR2_UAO_SHIFT,
+ 		.min_field_value = 1,
+-		.enable = cpu_enable_uao,
++		/*
++		 * We rely on stop_machine() calling uao_thread_switch() to set
++		 * UAO immediately after patching.
++		 */
+ 	},
+ #endif /* CONFIG_ARM64_UAO */
+ #ifdef CONFIG_ARM64_PAN
+diff --git a/arch/arm64/mm/fault.c b/arch/arm64/mm/fault.c
+index f3d3f2e97add..e973002530de 100644
+--- a/arch/arm64/mm/fault.c
++++ b/arch/arm64/mm/fault.c
+@@ -740,17 +740,3 @@ int cpu_enable_pan(void *__unused)
+ 	return 0;
  }
- 
- static bool runs_at_el2(const struct arm64_cpu_capabilities *entry, int __unused)
+ #endif /* CONFIG_ARM64_PAN */
+-
+-#ifdef CONFIG_ARM64_UAO
+-/*
+- * Kernel threads have fs=KERNEL_DS by default, and don't need to call
+- * set_fs(), devtmpfs in particular relies on this behaviour.
+- * We need to enable the feature at runtime (instead of adding it to
+- * PSR_MODE_EL1h) as the feature may not be implemented by the cpu.
+- */
+-int cpu_enable_uao(void *__unused)
+-{
+-	asm(SET_PSTATE_UAO(1));
+-	return 0;
+-}
+-#endif /* CONFIG_ARM64_UAO */
 -- 
 2.30.2
 
