@@ -2,133 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A047C4F6B96
-	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 22:48:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 282954F6B9D
+	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 22:49:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234069AbiDFUuU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Apr 2022 16:50:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49262 "EHLO
+        id S229828AbiDFUvN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Apr 2022 16:51:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60186 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233209AbiDFUuJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 16:50:09 -0400
-Received: from mail-ej1-x634.google.com (mail-ej1-x634.google.com [IPv6:2a00:1450:4864:20::634])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB0733C3DD4
-        for <stable@vger.kernel.org>; Wed,  6 Apr 2022 12:05:28 -0700 (PDT)
-Received: by mail-ej1-x634.google.com with SMTP id p15so6218973ejc.7
-        for <stable@vger.kernel.org>; Wed, 06 Apr 2022 12:05:28 -0700 (PDT)
+        with ESMTP id S229810AbiDFUu7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 16:50:59 -0400
+Received: from mail-pg1-x52d.google.com (mail-pg1-x52d.google.com [IPv6:2607:f8b0:4864:20::52d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E214C30CB91
+        for <stable@vger.kernel.org>; Wed,  6 Apr 2022 12:06:31 -0700 (PDT)
+Received: by mail-pg1-x52d.google.com with SMTP id h5so2035681pgc.7
+        for <stable@vger.kernel.org>; Wed, 06 Apr 2022 12:06:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linbit-com.20210112.gappssmtp.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=CYx1gEnJeFhX0hcBMvC6AbJqvsenlxSyXFJsv+MoaHE=;
-        b=kUkwYXgtmkDRKIJ/rtwUxe+JUh+m7l723YKS7NVAlM4StAuUXqmH8xc+3BCN0MHlEz
-         ojUrzjlZiFQQfaOPd7p38msq28KtcXjTX2T0LDE+zuKmbsIV6oiasyOfB92H7rflKIhP
-         FtXo2rFXLOuuuqU/qujPVFyIjJfqmql0/7CkgL+Sx+7g2k6kN06saRQS2fvCF0CBeQLL
-         BQP4oIlfAOTN069s/oiVibATpiZ6X9l85PUOlK61LmXbnx+vxR3ktqtGotc28uLJOSwH
-         U5red2z2ZKWt2Ob2iwMGMDdsUBvYSUwuiPJHwjkIyo9HdpdVIbfguhVU7uGPxqLTKBRh
-         yrKg==
+        d=rivosinc-com.20210112.gappssmtp.com; s=20210112;
+        h=date:subject:in-reply-to:cc:from:to:message-id:mime-version
+         :content-transfer-encoding;
+        bh=xEHjPFbG2l95vT/9TUf5xFEmrU+wbLDsR7mssjGd3t0=;
+        b=0eKouJ7hzOepoVSRqRsRB5ISeXx5Nnlsh14Z1+53rddDy3I8jc5eKeLb6eDXtzkKGc
+         L525OQvHPL8S530OfqYvY+irHpGV2xABBSf+IDUZy2TIx9o0HOVcskxU+vys6yD+o+Uk
+         Lney/6JQGjjx8pDVxo6Qj7fyU0sRt2PlviBAiMEBMttx/TSlRs4qvlYSqS2wx7NT5UNX
+         6cmLXSroLEDYa5BKLtbFZugvXcSdfLritrR1NnsKzh2QJzb4zlZHUAOjbdDGEm9522jw
+         5U7yEwauEC4gC1bJpv/7tuwrw/e/YsognCW0wblaH9nEZnSZUbabNx9XD62+MGGfEK65
+         IZCg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=CYx1gEnJeFhX0hcBMvC6AbJqvsenlxSyXFJsv+MoaHE=;
-        b=iiEieIpLAIJqtX8C35MVsJSFp2IEozjksj0d8RuQt8+WetC4A8dm7O7r+YQPMOWepW
-         aQvvYDLMXDwHtO1yu9JA+YXtLb1OGQMVrqOGMLvUJTQzNIHW39tyK0XzTSfqKa76xJyj
-         XXJwWhBRwO8am859lT6bcq3duOqnyK3648QpARcuBfgVazxsZHYcesOyhpughvh2O+MB
-         EhDj3SbT4T2Q+U4v1uQlGzkXygdZDLIrQjrrebUwF7C/263hJ2UO9oNjUmrOg0NUIG7l
-         bt9mszPJBPuFzJf3hClePBHVeOB1s7T4M00JN3P+IHArrX8cC59TjabpJ/23Uil2PfP8
-         laXA==
-X-Gm-Message-State: AOAM532tDMCghhj1RtxE0LW8woX5yrCXmW1C341I7WFB0V6Ya4sgybNc
-        +GjXD6i4k4FiDs0n8OJPuoVAczdui9UkxzrSODY=
-X-Google-Smtp-Source: ABdhPJx2iJvY96w2dmyQ/WbuQP4igjP3LilGuDdSc+3WWSR6MKk809HJ8Ox4pZZZnwIVh0jaGqwoNA==
-X-Received: by 2002:a17:907:8a09:b0:6df:f1c6:bfc4 with SMTP id sc9-20020a1709078a0900b006dff1c6bfc4mr9926952ejc.550.1649271926937;
-        Wed, 06 Apr 2022 12:05:26 -0700 (PDT)
-Received: from localhost (85-127-190-169.dsl.dynamic.surfer.at. [85.127.190.169])
-        by smtp.gmail.com with ESMTPSA id n27-20020a1709062bdb00b006da975173bfsm6973025ejg.170.2022.04.06.12.05.26
+        h=x-gm-message-state:date:subject:in-reply-to:cc:from:to:message-id
+         :mime-version:content-transfer-encoding;
+        bh=xEHjPFbG2l95vT/9TUf5xFEmrU+wbLDsR7mssjGd3t0=;
+        b=ke/ai6ZdGMjeEm0B1fTI6NG/C1adJalDU8Gl9Dz6boyBdGL/EvtOjNmcU57NP9pGUu
+         QCAT7NKR6RW6MqPhuC5vaQUHSEdZzdxYjbd2ve/HDLBDYWxtR1FP57bfPylw12P1JypO
+         Fv447FLbKCstgNHibJ0OwTjHdasZKo5mS7lSPdu2Xnq373e7JWhDR0d/1O65ATpr+0KO
+         J2uwtnj6LwlQ5vP8Ln5b/USCow+83Hr1sN9pzfQd3Gh8ynia+bm7G9/8sOWeUtuXMtAA
+         OumpbERPxHNINUnbpKAP8NZYM9DAFhuo8JTts7q3sjRkDnuRtNnA6qUWrVsuKi1IGLi0
+         Kt9w==
+X-Gm-Message-State: AOAM531xRGI5Oc3PqWtqoMFPpi7q3vEALCcIdK9DCqazGrMMddmnnPGc
+        s6tkdH58oWxZBkfy9bLcasVOsIlw0ZYjAg==
+X-Google-Smtp-Source: ABdhPJzzIPquNU49pHdFoqAJuy/FaFv3mvXL+ipftmawmoH39R144bhpC5RIr4bImN+8/rAtsHhEjA==
+X-Received: by 2002:a05:6a00:190a:b0:4fa:e4e9:7126 with SMTP id y10-20020a056a00190a00b004fae4e97126mr10336457pfi.65.1649271991420;
+        Wed, 06 Apr 2022 12:06:31 -0700 (PDT)
+Received: from localhost (76-210-143-223.lightspeed.sntcca.sbcglobal.net. [76.210.143.223])
+        by smtp.gmail.com with ESMTPSA id z16-20020aa78890000000b004fad8469f88sm20788500pfe.38.2022.04.06.12.06.30
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 06 Apr 2022 12:05:26 -0700 (PDT)
-From:   =?UTF-8?q?Christoph=20B=C3=B6hmwalder?= 
-        <christoph.boehmwalder@linbit.com>
-To:     Jens Axboe <axboe@kernel.dk>
-Cc:     drbd-dev@lists.linbit.com, linux-kernel@vger.kernel.org,
-        Lars Ellenberg <lars.ellenberg@linbit.com>,
-        Philipp Reisner <philipp.reisner@linbit.com>,
-        linux-block@vger.kernel.org,
-        Xiaomeng Tong <xiam0nd.tong@gmail.com>, stable@vger.kernel.org,
-        =?UTF-8?q?Christoph=20B=C3=B6hmwalder?= 
-        <christoph.boehmwalder@linbit.com>
-Subject: [PATCH 2/3] drbd: fix an invalid memory access caused by incorrect use of list iterator
-Date:   Wed,  6 Apr 2022 21:04:44 +0200
-Message-Id: <20220406190445.1937206-3-christoph.boehmwalder@linbit.com>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220406190445.1937206-1-christoph.boehmwalder@linbit.com>
-References: <20220406190445.1937206-1-christoph.boehmwalder@linbit.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+        Wed, 06 Apr 2022 12:06:31 -0700 (PDT)
+Date:   Wed, 06 Apr 2022 12:06:31 -0700 (PDT)
+X-Google-Original-Date: Wed, 06 Apr 2022 12:06:29 PDT (-0700)
+Subject:     Re: [PATCH V3] riscv: patch_text: Fixup last cpu should be master
+In-Reply-To: <Yk3YUFfvEszb+cXT@kroah.com>
+CC:     guoren@kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-riscv@lists.infradead.org, guoren@linux.alibaba.com,
+        mhiramat@kernel.org, stable@vger.kernel.org
+From:   Palmer Dabbelt <palmer@rivosinc.com>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Message-ID: <mhng-492e449b-ad90-4725-86a0-d5d84e4c35be@palmer-mbp2014>
+Mime-Version: 1.0 (MHng)
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=unavailable autolearn_force=no
-        version=3.4.6
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+On Wed, 06 Apr 2022 11:13:36 PDT (-0700), Greg KH wrote:
+> On Wed, Apr 06, 2022 at 10:16:49PM +0800, guoren@kernel.org wrote:
+>> From: Guo Ren <guoren@linux.alibaba.com>
+>>
+>> These patch_text implementations are using stop_machine_cpuslocked
+>> infrastructure with atomic cpu_count. The original idea: When the
+>> master CPU patch_text, the others should wait for it. But current
+>> implementation is using the first CPU as master, which couldn't
+>> guarantee the remaining CPUs are waiting. This patch changes the
+>> last CPU as the master to solve the potential risk.
+>>
+>> Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+>> Signed-off-by: Guo Ren <guoren@kernel.org>
+>> Acked-by: Palmer Dabbelt <palmer@rivosinc.com>
+>> Reviewed-by: Masami Hiramatsu <mhiramat@kernel.org>
+>> Cc: <stable@vger.kernel.org>
+>> ---
+>>  arch/riscv/kernel/patch.c | 2 +-
+>>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> What commit id does this change fix?
 
-The bug is here:
-	idr_remove(&connection->peer_devices, vnr);
+I think it's been there since the beginning of our text patching, so
 
-If the previous for_each_connection() don't exit early (no goto hit
-inside the loop), the iterator 'connection' after the loop will be a
-bogus pointer to an invalid structure object containing the HEAD
-(&resource->connections). As a result, the use of 'connection' above
-will lead to a invalid memory access (including a possible invalid free
-as idr_remove could call free_layer).
+Fixes: 043cb41a85de ("riscv: introduce interfaces to patch kernel code")
 
-The original intention should have been to remove all peer_devices,
-but the following lines have already done the work. So just remove
-this line and the unneeded label, to fix this bug.
+seems like the best bet, but I'll go take another look before merging 
+it.  That's confusing here, as I acked it, but that was for an earlier 
+version that touched more than one arch so it was more ambiguous as to 
+which tree it was going through (IIRC I said one of those "LMK if you 
+want it through my tree, but here's an Ack in case someone else wants to 
+take it" sort of things, as I usually do when it's ambiguous).
 
-Cc: stable@vger.kernel.org
-Fixes: c06ece6ba6f1b ("drbd: Turn connection->volumes into connection->peer_devices")
-Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
-Reviewed-by: Christoph Böhmwalder <christoph.boehmwalder@linbit.com>
-Reviewed-by: Lars Ellenberg <lars.ellenberg@linbit.com>
----
- drivers/block/drbd/drbd_main.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/block/drbd/drbd_main.c b/drivers/block/drbd/drbd_main.c
-index 9676a1d214bc..d6dfa286ddb3 100644
---- a/drivers/block/drbd/drbd_main.c
-+++ b/drivers/block/drbd/drbd_main.c
-@@ -2773,12 +2773,12 @@ enum drbd_ret_code drbd_create_device(struct drbd_config_context *adm_ctx, unsig
- 
- 	if (init_submitter(device)) {
- 		err = ERR_NOMEM;
--		goto out_idr_remove_vol;
-+		goto out_idr_remove_from_resource;
- 	}
- 
- 	err = add_disk(disk);
- 	if (err)
--		goto out_idr_remove_vol;
-+		goto out_idr_remove_from_resource;
- 
- 	/* inherit the connection state */
- 	device->state.conn = first_connection(resource)->cstate;
-@@ -2792,8 +2792,6 @@ enum drbd_ret_code drbd_create_device(struct drbd_config_context *adm_ctx, unsig
- 	drbd_debugfs_device_add(device);
- 	return NO_ERROR;
- 
--out_idr_remove_vol:
--	idr_remove(&connection->peer_devices, vnr);
- out_idr_remove_from_resource:
- 	for_each_connection(connection, resource) {
- 		peer_device = idr_remove(&connection->peer_devices, vnr);
--- 
-2.35.1
-
+Without a changelog, cover letter, or the other patches in the set it's 
+kind of hard to tell, though ;)
