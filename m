@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 68C6E4F6A68
-	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 21:49:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 13FFF4F69D2
+	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 21:27:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230289AbiDFTvl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Apr 2022 15:51:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48410 "EHLO
+        id S231174AbiDFT3B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Apr 2022 15:29:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48512 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232250AbiDFTvT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 15:51:19 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E554D27E845;
-        Wed,  6 Apr 2022 11:28:09 -0700 (PDT)
+        with ESMTP id S229572AbiDFT1K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 15:27:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB5D3B53F4;
+        Wed,  6 Apr 2022 11:28:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7F01FB8253A;
-        Wed,  6 Apr 2022 18:28:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0BD6C385A1;
-        Wed,  6 Apr 2022 18:28:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 81929B8253D;
+        Wed,  6 Apr 2022 18:28:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9A24C385A3;
+        Wed,  6 Apr 2022 18:28:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649269687;
-        bh=JDqhD44nCKOMlUd87YawuqgKhSYVuiKQQnwneW96lvA=;
+        s=korg; t=1649269690;
+        bh=3207PX1bCCiNBnTyir6/vytaoStzuPc8YRYrS1GA3n4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dEDlYF9aD+3c3deo1LIoY6jV5Isi7919glA093rfMLVHNSEcIwF/cTpAWOUZuwTXE
-         p7HKH8w2J9gq8fpFXtkxyTHpSigulJJnSLiL3/qacmdUTJBpOeH+cQzaOod+Q2wKHg
-         N0v1q/kBSXqDs1fZkn4ZPNH1LlYjT20q+3eoO5Ic=
+        b=FlGI1FV6ZKsXbFcLVIMX2CvUnii022xUvjAgrWceDCeJ4iXNZ/9taqHCYjk6D+3tI
+         KYp/e1OUrFt9ycI1OMmMUfk464082IW3dOOi9ArXB/ss4GdUqxVdjXLjvJQgcQ+TXx
+         pu2QhVxnt4I+WF2ABFaq7vAtQdnJ37b6pa6198ao=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
+        stable@vger.kernel.org, Will Deacon <will.deacon@arm.com>,
+        Mark Rutland <mark.rutland@arm.com>,
         Dave Martin <dave.martin@arm.com>,
         Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
         Ard Biesheuvel <ard.biesheuvel@linaro.org>,
         James Morse <james.morse@arm.com>
-Subject: [PATCH 4.9 07/43] arm64: capabilities: Prepare for fine grained capabilities
-Date:   Wed,  6 Apr 2022 20:26:16 +0200
-Message-Id: <20220406182436.894315694@linuxfoundation.org>
+Subject: [PATCH 4.9 08/43] arm64: capabilities: Add flags to handle the conflicts on late CPU
+Date:   Wed,  6 Apr 2022 20:26:17 +0200
+Message-Id: <20220406182436.925544626@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220406182436.675069715@linuxfoundation.org>
 References: <20220406182436.675069715@linuxfoundation.org>
@@ -59,64 +59,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Suzuki K Poulose <suzuki.poulose@arm.com>
 
-[ Upstream commit 143ba05d867af34827faf99e0eed4de27106c7cb ]
+[ Upstream commit 5b4747c5dce7a873e1e7fe1608835825f714267a ]
 
-We use arm64_cpu_capabilities to represent CPU ELF HWCAPs exposed
-to the userspace and the CPU hwcaps used by the kernel, which
-include cpu features and CPU errata work arounds. Capabilities
-have some properties that decide how they should be treated :
-
- 1) Detection, i.e scope : A cap could be "detected" either :
-    - if it is present on at least one CPU (SCOPE_LOCAL_CPU)
-	Or
-    - if it is present on all the CPUs (SCOPE_SYSTEM)
-
- 2) When is it enabled ? - A cap is treated as "enabled" when the
-  system takes some action based on whether the capability is detected or
-  not. e.g, setting some control register, patching the kernel code.
-  Right now, we treat all caps are enabled at boot-time, after all
-  the CPUs are brought up by the kernel. But there are certain caps,
-  which are enabled early during the boot (e.g, VHE, GIC_CPUIF for NMI)
-  and kernel starts using them, even before the secondary CPUs are brought
-  up. We would need a way to describe this for each capability.
-
- 3) Conflict on a late CPU - When a CPU is brought up, it is checked
-  against the caps that are known to be enabled on the system (via
-  verify_local_cpu_capabilities()). Based on the state of the capability
-  on the CPU vs. that of System we could have the following combinations
-  of conflict.
+When a CPU is brought up, it is checked against the caps that are
+known to be enabled on the system (via verify_local_cpu_capabilities()).
+Based on the state of the capability on the CPU vs. that of System we
+could have the following combinations of conflict.
 
 	x-----------------------------x
-	| Type	| System   | Late CPU |
-	------------------------------|
+	| Type  | System   | Late CPU |
+	|-----------------------------|
 	|  a    |   y      |    n     |
-	------------------------------|
+	|-----------------------------|
 	|  b    |   n      |    y     |
 	x-----------------------------x
 
-  Case (a) is not permitted for caps which are system features, which the
-  system expects all the CPUs to have (e.g VHE). While (a) is ignored for
-  all errata work arounds. However, there could be exceptions to the plain
-  filtering approach. e.g, KPTI is an optional feature for a late CPU as
-  long as the system already enables it.
+Case (a) is not permitted for caps which are system features, which the
+system expects all the CPUs to have (e.g VHE). While (a) is ignored for
+all errata work arounds. However, there could be exceptions to the plain
+filtering approach. e.g, KPTI is an optional feature for a late CPU as
+long as the system already enables it.
 
-  Case (b) is not permitted for errata work arounds which requires some
-  work around, which cannot be delayed. And we ignore (b) for features.
-  Here, yet again, KPTI is an exception, where if a late CPU needs KPTI we
-  are too late to enable it (because we change the allocation of ASIDs
-  etc).
+Case (b) is not permitted for errata work arounds that cannot be activated
+after the kernel has finished booting.And we ignore (b) for features. Here,
+yet again, KPTI is an exception, where if a late CPU needs KPTI we are too
+late to enable it (because we change the allocation of ASIDs etc).
 
-So this calls for a lot more fine grained behavior for each capability.
-And if we define all the attributes to control their behavior properly,
-we may be able to use a single table for the CPU hwcaps (which cover
-errata and features, not the ELF HWCAPs). This is a prepartory step
-to get there. More bits would be added for the properties listed above.
+Add two different flags to indicate how the conflict should be handled.
 
-We are going to use a bit-mask to encode all the properties of a
-capabilities. This patch encodes the "SCOPE" of the capability.
+ ARM64_CPUCAP_PERMITTED_FOR_LATE_CPU - CPUs may have the capability
+ ARM64_CPUCAP_OPTIONAL_FOR_LATE_CPU - CPUs may not have the cappability.
 
-As such there is no change in how the capabilities are treated.
+Now that we have the flags to describe the behavior of the errata and
+the features, as we treat them, define types for ERRATUM and FEATURE.
 
+Cc: Will Deacon <will.deacon@arm.com>
 Cc: Mark Rutland <mark.rutland@arm.com>
 Reviewed-by: Dave Martin <dave.martin@arm.com>
 Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
@@ -126,131 +103,104 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: James Morse <james.morse@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/include/asm/cpufeature.h |  105 +++++++++++++++++++++++++++++++++---
- arch/arm64/kernel/cpu_errata.c      |   10 +--
- arch/arm64/kernel/cpufeature.c      |   30 +++++-----
- 3 files changed, 119 insertions(+), 26 deletions(-)
+ arch/arm64/include/asm/cpufeature.h |   68 ++++++++++++++++++++++++++++++++++++
+ arch/arm64/kernel/cpu_errata.c      |   10 ++---
+ arch/arm64/kernel/cpufeature.c      |   22 +++++------
+ 3 files changed, 84 insertions(+), 16 deletions(-)
 
 --- a/arch/arm64/include/asm/cpufeature.h
 +++ b/arch/arm64/include/asm/cpufeature.h
-@@ -66,16 +66,104 @@ struct arm64_ftr_reg {
+@@ -130,6 +130,7 @@ extern struct arm64_ftr_reg arm64_ftr_re
+  *    an action, based on the severity (e.g, a CPU could be prevented from
+  *    booting or cause a kernel panic). The CPU is allowed to "affect" the
+  *    state of the capability, if it has not been finalised already.
++ *    See section 5 for more details on conflicts.
+  *
+  * 4) Action: As mentioned in (2), the kernel can take an action for each
+  *    detected capability, on all CPUs on the system. Appropriate actions
+@@ -147,6 +148,34 @@ extern struct arm64_ftr_reg arm64_ftr_re
+  *
+  *	  check_local_cpu_capabilities() -> verify_local_cpu_capabilities()
+  *
++ * 5) Conflicts: Based on the state of the capability on a late CPU vs.
++ *    the system state, we could have the following combinations :
++ *
++ *		x-----------------------------x
++ *		| Type  | System   | Late CPU |
++ *		|-----------------------------|
++ *		|  a    |   y      |    n     |
++ *		|-----------------------------|
++ *		|  b    |   n      |    y     |
++ *		x-----------------------------x
++ *
++ *     Two separate flag bits are defined to indicate whether each kind of
++ *     conflict can be allowed:
++ *		ARM64_CPUCAP_OPTIONAL_FOR_LATE_CPU - Case(a) is allowed
++ *		ARM64_CPUCAP_PERMITTED_FOR_LATE_CPU - Case(b) is allowed
++ *
++ *     Case (a) is not permitted for a capability that the system requires
++ *     all CPUs to have in order for the capability to be enabled. This is
++ *     typical for capabilities that represent enhanced functionality.
++ *
++ *     Case (b) is not permitted for a capability that must be enabled
++ *     during boot if any CPU in the system requires it in order to run
++ *     safely. This is typical for erratum work arounds that cannot be
++ *     enabled after the corresponding capability is finalised.
++ *
++ *     In some non-typical cases either both (a) and (b), or neither,
++ *     should be permitted. This can be described by including neither
++ *     or both flags in the capability's type field.
+  */
  
- extern struct arm64_ftr_reg arm64_ftr_reg_ctrel0;
  
--/* scope of capability check */
--enum {
--	SCOPE_SYSTEM,
--	SCOPE_LOCAL_CPU,
--};
+@@ -160,6 +189,33 @@ extern struct arm64_ftr_reg arm64_ftr_re
+ #define SCOPE_SYSTEM				ARM64_CPUCAP_SCOPE_SYSTEM
+ #define SCOPE_LOCAL_CPU				ARM64_CPUCAP_SCOPE_LOCAL_CPU
+ 
 +/*
-+ * CPU capabilities:
-+ *
-+ * We use arm64_cpu_capabilities to represent system features, errata work
-+ * arounds (both used internally by kernel and tracked in cpu_hwcaps) and
-+ * ELF HWCAPs (which are exposed to user).
-+ *
-+ * To support systems with heterogeneous CPUs, we need to make sure that we
-+ * detect the capabilities correctly on the system and take appropriate
-+ * measures to ensure there are no incompatibilities.
-+ *
-+ * This comment tries to explain how we treat the capabilities.
-+ * Each capability has the following list of attributes :
-+ *
-+ * 1) Scope of Detection : The system detects a given capability by
-+ *    performing some checks at runtime. This could be, e.g, checking the
-+ *    value of a field in CPU ID feature register or checking the cpu
-+ *    model. The capability provides a call back ( @matches() ) to
-+ *    perform the check. Scope defines how the checks should be performed.
-+ *    There are two cases:
-+ *
-+ *     a) SCOPE_LOCAL_CPU: check all the CPUs and "detect" if at least one
-+ *        matches. This implies, we have to run the check on all the
-+ *        booting CPUs, until the system decides that state of the
-+ *        capability is finalised. (See section 2 below)
-+ *		Or
-+ *     b) SCOPE_SYSTEM: check all the CPUs and "detect" if all the CPUs
-+ *        matches. This implies, we run the check only once, when the
-+ *        system decides to finalise the state of the capability. If the
-+ *        capability relies on a field in one of the CPU ID feature
-+ *        registers, we use the sanitised value of the register from the
-+ *        CPU feature infrastructure to make the decision.
-+ *
-+ *    The process of detection is usually denoted by "update" capability
-+ *    state in the code.
-+ *
-+ * 2) Finalise the state : The kernel should finalise the state of a
-+ *    capability at some point during its execution and take necessary
-+ *    actions if any. Usually, this is done, after all the boot-time
-+ *    enabled CPUs are brought up by the kernel, so that it can make
-+ *    better decision based on the available set of CPUs. However, there
-+ *    are some special cases, where the action is taken during the early
-+ *    boot by the primary boot CPU. (e.g, running the kernel at EL2 with
-+ *    Virtualisation Host Extensions). The kernel usually disallows any
-+ *    changes to the state of a capability once it finalises the capability
-+ *    and takes any action, as it may be impossible to execute the actions
-+ *    safely. A CPU brought up after a capability is "finalised" is
-+ *    referred to as "Late CPU" w.r.t the capability. e.g, all secondary
-+ *    CPUs are treated "late CPUs" for capabilities determined by the boot
-+ *    CPU.
-+ *
-+ * 3) Verification: When a CPU is brought online (e.g, by user or by the
-+ *    kernel), the kernel should make sure that it is safe to use the CPU,
-+ *    by verifying that the CPU is compliant with the state of the
-+ *    capabilities finalised already. This happens via :
-+ *
-+ *	secondary_start_kernel()-> check_local_cpu_capabilities()
-+ *
-+ *    As explained in (2) above, capabilities could be finalised at
-+ *    different points in the execution. Each CPU is verified against the
-+ *    "finalised" capabilities and if there is a conflict, the kernel takes
-+ *    an action, based on the severity (e.g, a CPU could be prevented from
-+ *    booting or cause a kernel panic). The CPU is allowed to "affect" the
-+ *    state of the capability, if it has not been finalised already.
-+ *
-+ * 4) Action: As mentioned in (2), the kernel can take an action for each
-+ *    detected capability, on all CPUs on the system. Appropriate actions
-+ *    include, turning on an architectural feature, modifying the control
-+ *    registers (e.g, SCTLR, TCR etc.) or patching the kernel via
-+ *    alternatives. The kernel patching is batched and performed at later
-+ *    point. The actions are always initiated only after the capability
-+ *    is finalised. This is usally denoted by "enabling" the capability.
-+ *    The actions are initiated as follows :
-+ *	a) Action is triggered on all online CPUs, after the capability is
-+ *	finalised, invoked within the stop_machine() context from
-+ *	enable_cpu_capabilitie().
-+ *
-+ *	b) Any late CPU, brought up after (1), the action is triggered via:
-+ *
-+ *	  check_local_cpu_capabilities() -> verify_local_cpu_capabilities()
-+ *
++ * Is it permitted for a late CPU to have this capability when system
++ * hasn't already enabled it ?
 + */
++#define ARM64_CPUCAP_PERMITTED_FOR_LATE_CPU	((u16)BIT(4))
++/* Is it safe for a late CPU to miss this capability when system has it */
++#define ARM64_CPUCAP_OPTIONAL_FOR_LATE_CPU	((u16)BIT(5))
 +
++/*
++ * CPU errata workarounds that need to be enabled at boot time if one or
++ * more CPUs in the system requires it. When one of these capabilities
++ * has been enabled, it is safe to allow any CPU to boot that doesn't
++ * require the workaround. However, it is not safe if a "late" CPU
++ * requires a workaround and the system hasn't enabled it already.
++ */
++#define ARM64_CPUCAP_LOCAL_CPU_ERRATUM		\
++	(ARM64_CPUCAP_SCOPE_LOCAL_CPU | ARM64_CPUCAP_OPTIONAL_FOR_LATE_CPU)
++/*
++ * CPU feature detected at boot time based on system-wide value of a
++ * feature. It is safe for a late CPU to have this feature even though
++ * the system hasn't enabled it, although the featuer will not be used
++ * by Linux in this case. If the system has enabled this feature already,
++ * then every late CPU must have it.
++ */
++#define ARM64_CPUCAP_SYSTEM_FEATURE	\
++	(ARM64_CPUCAP_SCOPE_SYSTEM | ARM64_CPUCAP_PERMITTED_FOR_LATE_CPU)
 +
-+/* Decide how the capability is detected. On a local CPU vs System wide */
-+#define ARM64_CPUCAP_SCOPE_LOCAL_CPU		((u16)BIT(0))
-+#define ARM64_CPUCAP_SCOPE_SYSTEM		((u16)BIT(1))
-+#define ARM64_CPUCAP_SCOPE_MASK			\
-+	(ARM64_CPUCAP_SCOPE_SYSTEM	|	\
-+	 ARM64_CPUCAP_SCOPE_LOCAL_CPU)
-+
-+#define SCOPE_SYSTEM				ARM64_CPUCAP_SCOPE_SYSTEM
-+#define SCOPE_LOCAL_CPU				ARM64_CPUCAP_SCOPE_LOCAL_CPU
- 
  struct arm64_cpu_capabilities {
  	const char *desc;
  	u16 capability;
--	int def_scope;			/* default scope */
-+	u16 type;
- 	bool (*matches)(const struct arm64_cpu_capabilities *caps, int scope);
- 	/*
- 	 * Take the appropriate actions to enable this capability for this CPU.
-@@ -100,6 +188,11 @@ struct arm64_cpu_capabilities {
- 	};
- };
+@@ -193,6 +249,18 @@ static inline int cpucap_default_scope(c
+ 	return cap->type & ARM64_CPUCAP_SCOPE_MASK;
+ }
  
-+static inline int cpucap_default_scope(const struct arm64_cpu_capabilities *cap)
++static inline bool
++cpucap_late_cpu_optional(const struct arm64_cpu_capabilities *cap)
 +{
-+	return cap->type & ARM64_CPUCAP_SCOPE_MASK;
++	return !!(cap->type & ARM64_CPUCAP_OPTIONAL_FOR_LATE_CPU);
++}
++
++static inline bool
++cpucap_late_cpu_permitted(const struct arm64_cpu_capabilities *cap)
++{
++	return !!(cap->type & ARM64_CPUCAP_PERMITTED_FOR_LATE_CPU);
 +}
 +
  extern DECLARE_BITMAP(cpu_hwcaps, ARM64_NCAPS);
@@ -262,16 +212,16 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  #endif	/* CONFIG_ARM64_SSBD */
  
  #define MIDR_RANGE(model, min, max) \
--	.def_scope = SCOPE_LOCAL_CPU, \
-+	.type = ARM64_CPUCAP_SCOPE_LOCAL_CPU, \
+-	.type = ARM64_CPUCAP_SCOPE_LOCAL_CPU, \
++	.type = ARM64_CPUCAP_LOCAL_CPU_ERRATUM, \
  	.matches = is_affected_midr_range, \
  	.midr_model = model, \
  	.midr_range_min = min, \
  	.midr_range_max = max
  
  #define MIDR_ALL_VERSIONS(model) \
--	.def_scope = SCOPE_LOCAL_CPU, \
-+	.type = ARM64_CPUCAP_SCOPE_LOCAL_CPU, \
+-	.type = ARM64_CPUCAP_SCOPE_LOCAL_CPU, \
++	.type = ARM64_CPUCAP_LOCAL_CPU_ERRATUM, \
  	.matches = is_affected_midr_range, \
  	.midr_model = model, \
  	.midr_range_min = 0, \
@@ -279,16 +229,16 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		.desc = "Mismatched cache line size",
  		.capability = ARM64_MISMATCHED_CACHE_LINE_SIZE,
  		.matches = has_mismatched_cache_type,
--		.def_scope = SCOPE_LOCAL_CPU,
-+		.type = ARM64_CPUCAP_SCOPE_LOCAL_CPU,
+-		.type = ARM64_CPUCAP_SCOPE_LOCAL_CPU,
++		.type = ARM64_CPUCAP_LOCAL_CPU_ERRATUM,
  		.cpu_enable = cpu_enable_trap_ctr_access,
  	},
  	{
  		.desc = "Mismatched cache type",
  		.capability = ARM64_MISMATCHED_CACHE_TYPE,
  		.matches = has_mismatched_cache_type,
--		.def_scope = SCOPE_LOCAL_CPU,
-+		.type = ARM64_CPUCAP_SCOPE_LOCAL_CPU,
+-		.type = ARM64_CPUCAP_SCOPE_LOCAL_CPU,
++		.type = ARM64_CPUCAP_LOCAL_CPU_ERRATUM,
  		.cpu_enable = cpu_enable_trap_ctr_access,
  	},
  #ifdef CONFIG_HARDEN_BRANCH_PREDICTOR
@@ -296,8 +246,8 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  #ifdef CONFIG_ARM64_SSBD
  	{
  		.desc = "Speculative Store Bypass Disable",
--		.def_scope = SCOPE_LOCAL_CPU,
-+		.type = ARM64_CPUCAP_SCOPE_LOCAL_CPU,
+-		.type = ARM64_CPUCAP_SCOPE_LOCAL_CPU,
++		.type = ARM64_CPUCAP_LOCAL_CPU_ERRATUM,
  		.capability = ARM64_SSBD,
  		.matches = has_ssbd_mitigation,
  	},
@@ -307,8 +257,8 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	{
  		.desc = "GIC system register CPU interface",
  		.capability = ARM64_HAS_SYSREG_GIC_CPUIF,
--		.def_scope = SCOPE_SYSTEM,
-+		.type = ARM64_CPUCAP_SCOPE_SYSTEM,
+-		.type = ARM64_CPUCAP_SCOPE_SYSTEM,
++		.type = ARM64_CPUCAP_SYSTEM_FEATURE,
  		.matches = has_useable_gicv3_cpuif,
  		.sys_reg = SYS_ID_AA64PFR0_EL1,
  		.field_pos = ID_AA64PFR0_GIC_SHIFT,
@@ -316,8 +266,8 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	{
  		.desc = "Privileged Access Never",
  		.capability = ARM64_HAS_PAN,
--		.def_scope = SCOPE_SYSTEM,
-+		.type = ARM64_CPUCAP_SCOPE_SYSTEM,
+-		.type = ARM64_CPUCAP_SCOPE_SYSTEM,
++		.type = ARM64_CPUCAP_SYSTEM_FEATURE,
  		.matches = has_cpuid_feature,
  		.sys_reg = SYS_ID_AA64MMFR1_EL1,
  		.field_pos = ID_AA64MMFR1_PAN_SHIFT,
@@ -325,8 +275,8 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	{
  		.desc = "LSE atomic instructions",
  		.capability = ARM64_HAS_LSE_ATOMICS,
--		.def_scope = SCOPE_SYSTEM,
-+		.type = ARM64_CPUCAP_SCOPE_SYSTEM,
+-		.type = ARM64_CPUCAP_SCOPE_SYSTEM,
++		.type = ARM64_CPUCAP_SYSTEM_FEATURE,
  		.matches = has_cpuid_feature,
  		.sys_reg = SYS_ID_AA64ISAR0_EL1,
  		.field_pos = ID_AA64ISAR0_ATOMICS_SHIFT,
@@ -334,16 +284,16 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	{
  		.desc = "Software prefetching using PRFM",
  		.capability = ARM64_HAS_NO_HW_PREFETCH,
--		.def_scope = SCOPE_SYSTEM,
-+		.type = ARM64_CPUCAP_SCOPE_SYSTEM,
+-		.type = ARM64_CPUCAP_SCOPE_SYSTEM,
++		.type = ARM64_CPUCAP_SYSTEM_FEATURE,
  		.matches = has_no_hw_prefetch,
  	},
  #ifdef CONFIG_ARM64_UAO
  	{
  		.desc = "User Access Override",
  		.capability = ARM64_HAS_UAO,
--		.def_scope = SCOPE_SYSTEM,
-+		.type = ARM64_CPUCAP_SCOPE_SYSTEM,
+-		.type = ARM64_CPUCAP_SCOPE_SYSTEM,
++		.type = ARM64_CPUCAP_SYSTEM_FEATURE,
  		.matches = has_cpuid_feature,
  		.sys_reg = SYS_ID_AA64MMFR2_EL1,
  		.field_pos = ID_AA64MMFR2_UAO_SHIFT,
@@ -351,24 +301,24 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  #ifdef CONFIG_ARM64_PAN
  	{
  		.capability = ARM64_ALT_PAN_NOT_UAO,
--		.def_scope = SCOPE_SYSTEM,
-+		.type = ARM64_CPUCAP_SCOPE_SYSTEM,
+-		.type = ARM64_CPUCAP_SCOPE_SYSTEM,
++		.type = ARM64_CPUCAP_SYSTEM_FEATURE,
  		.matches = cpufeature_pan_not_uao,
  	},
  #endif /* CONFIG_ARM64_PAN */
  	{
  		.desc = "Virtualization Host Extensions",
  		.capability = ARM64_HAS_VIRT_HOST_EXTN,
--		.def_scope = SCOPE_SYSTEM,
-+		.type = ARM64_CPUCAP_SCOPE_SYSTEM,
+-		.type = ARM64_CPUCAP_SCOPE_SYSTEM,
++		.type = ARM64_CPUCAP_SYSTEM_FEATURE,
  		.matches = runs_at_el2,
  		.cpu_enable = cpu_copy_el2regs,
  	},
  	{
  		.desc = "32-bit EL0 Support",
  		.capability = ARM64_HAS_32BIT_EL0,
--		.def_scope = SCOPE_SYSTEM,
-+		.type = ARM64_CPUCAP_SCOPE_SYSTEM,
+-		.type = ARM64_CPUCAP_SCOPE_SYSTEM,
++		.type = ARM64_CPUCAP_SYSTEM_FEATURE,
  		.matches = has_cpuid_feature,
  		.sys_reg = SYS_ID_AA64PFR0_EL1,
  		.sign = FTR_UNSIGNED,
@@ -376,56 +326,27 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	{
  		.desc = "Reduced HYP mapping offset",
  		.capability = ARM64_HYP_OFFSET_LOW,
--		.def_scope = SCOPE_SYSTEM,
-+		.type = ARM64_CPUCAP_SCOPE_SYSTEM,
+-		.type = ARM64_CPUCAP_SCOPE_SYSTEM,
++		.type = ARM64_CPUCAP_SYSTEM_FEATURE,
  		.matches = hyp_offset_low,
  	},
  #ifdef CONFIG_UNMAP_KERNEL_AT_EL0
  	{
  		.desc = "Kernel page table isolation (KPTI)",
  		.capability = ARM64_UNMAP_KERNEL_AT_EL0,
--		.def_scope = SCOPE_SYSTEM,
-+		.type = ARM64_CPUCAP_SCOPE_SYSTEM,
+-		.type = ARM64_CPUCAP_SCOPE_SYSTEM,
++		.type = ARM64_CPUCAP_SYSTEM_FEATURE,
  		.matches = unmap_kernel_at_el0,
  		.cpu_enable = kpti_install_ng_mappings,
  	},
-@@ -960,16 +960,16 @@ static const struct arm64_cpu_capabiliti
- 	{},
- };
- 
--#define HWCAP_CAP(reg, field, s, min_value, type, cap)	\
-+#define HWCAP_CAP(reg, field, s, min_value, cap_type, cap)	\
+@@ -963,7 +963,7 @@ static const struct arm64_cpu_capabiliti
+ #define HWCAP_CAP(reg, field, s, min_value, cap_type, cap)	\
  	{							\
  		.desc = #cap,					\
--		.def_scope = SCOPE_SYSTEM,			\
-+		.type = ARM64_CPUCAP_SCOPE_SYSTEM,		\
+-		.type = ARM64_CPUCAP_SCOPE_SYSTEM,		\
++		.type = ARM64_CPUCAP_SYSTEM_FEATURE,		\
  		.matches = has_cpuid_feature,			\
  		.sys_reg = reg,					\
  		.field_pos = field,				\
- 		.sign = s,					\
- 		.min_field_value = min_value,			\
--		.hwcap_type = type,				\
-+		.hwcap_type = cap_type,				\
- 		.hwcap = cap,					\
- 	}
- 
-@@ -1046,7 +1046,7 @@ static bool cpus_have_elf_hwcap(const st
- static void __init setup_elf_hwcaps(const struct arm64_cpu_capabilities *hwcaps)
- {
- 	for (; hwcaps->matches; hwcaps++)
--		if (hwcaps->matches(hwcaps, hwcaps->def_scope))
-+		if (hwcaps->matches(hwcaps, cpucap_default_scope(hwcaps)))
- 			cap_set_elf_hwcap(hwcaps);
- }
- 
-@@ -1073,7 +1073,7 @@ static void update_cpu_capabilities(cons
- 				    const char *info)
- {
- 	for (; caps->matches; caps++) {
--		if (!caps->matches(caps, caps->def_scope))
-+		if (!caps->matches(caps, cpucap_default_scope(caps)))
- 			continue;
- 
- 		if (!cpus_have_cap(caps->capability) && caps->desc)
 
 
