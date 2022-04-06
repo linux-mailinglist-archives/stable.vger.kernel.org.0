@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BA0E4F69B0
-	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 21:18:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E2474F69CC
+	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 21:27:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229569AbiDFTUo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Apr 2022 15:20:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41188 "EHLO
+        id S229613AbiDFT2w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Apr 2022 15:28:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47168 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229813AbiDFTTv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 15:19:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC21BCB014;
-        Wed,  6 Apr 2022 11:27:40 -0700 (PDT)
+        with ESMTP id S231419AbiDFT1C (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 15:27:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 266722706C8;
+        Wed,  6 Apr 2022 11:27:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 88C8861CAF;
-        Wed,  6 Apr 2022 18:27:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E1B6C385A3;
-        Wed,  6 Apr 2022 18:27:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C5CF1B8253D;
+        Wed,  6 Apr 2022 18:27:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15EEAC385A1;
+        Wed,  6 Apr 2022 18:27:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649269660;
-        bh=5QGqmIOiPwdFlNzxrmBfw5JiQh6nPBsLiPK0p4wy6D0=;
+        s=korg; t=1649269665;
+        bh=D8VjMSLV7J+BhyvDpS/RzYuVt06tHFYRtIsaCv/TRl0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vlSTqo5Td8NwH4EcMYvGkfXJA1N5gySRs7bZ4S8L5D72rr0Z0xzkAvV9DlNhdvqTq
-         bp/wSagta3jnFnX8YOM7qWx1IQKvpHf6r79WnbBkVT3YE7X4Ilu55cJIuQT6lFLIaY
-         4L0WCQa2RfFhSIJyvNoScnfy2u5zA93BQQWOq5Ag=
+        b=H1C9n8kuCwAMn+rqRALD+EYJXtSPB7tSmYYFIGctPu+bhYq5DGewgWrtZTEft3hgQ
+         GRVuvhtlbh8HJz5wcWRslR88t8ud73QOG1wHcoJkxRdw+ZziQaVzJW22Tg2hfiF0o1
+         /0zwhM4Kup1APOtUb0CaWIORGf7AyJI8T9VugIkE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
         Mark Rutland <mark.rutland@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
         Suzuki K Poulose <suzuki.poulose@arm.com>,
         James Morse <james.morse@arm.com>
-Subject: [PATCH 4.9 22/43] arm64: Add Neoverse-N2, Cortex-A710 CPU part definition
-Date:   Wed,  6 Apr 2022 20:26:31 +0200
-Message-Id: <20220406182437.326405168@linuxfoundation.org>
+Subject: [PATCH 4.9 24/43] arm64: Add helper to decode register from instruction
+Date:   Wed,  6 Apr 2022 20:26:33 +0200
+Message-Id: <20220406182437.383541735@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220406182436.675069715@linuxfoundation.org>
 References: <20220406182436.675069715@linuxfoundation.org>
@@ -59,43 +58,72 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Suzuki K Poulose <suzuki.poulose@arm.com>
 
-commit 2d0d656700d67239a57afaf617439143d8dac9be upstream.
+commit 8c2dcbd2c4443bad0b4242fb62baa47b260b8f79 upstream.
 
-Add the CPU Partnumbers for the new Arm designs.
+Add a helper to extract the register field from a given
+instruction.
 
 Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Will Deacon <will.deacon@arm.com>
 Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Acked-by: Catalin Marinas <catalin.marinas@arm.com>
-Reviewed-by: Anshuman Khandual <anshuman.khandual@arm.com>
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Link: https://lore.kernel.org/r/20211019163153.3692640-2-suzuki.poulose@arm.com
-Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Will Deacon <will.deacon@arm.com>
 Signed-off-by: James Morse <james.morse@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/include/asm/cputype.h |    4 ++++
- 1 file changed, 4 insertions(+)
+ arch/arm64/include/asm/insn.h |    2 ++
+ arch/arm64/kernel/insn.c      |   29 +++++++++++++++++++++++++++++
+ 2 files changed, 31 insertions(+)
 
---- a/arch/arm64/include/asm/cputype.h
-+++ b/arch/arm64/include/asm/cputype.h
-@@ -88,6 +88,8 @@
- #define ARM_CPU_PART_CORTEX_A76		0xD0B
- #define ARM_CPU_PART_NEOVERSE_N1	0xD0C
- #define ARM_CPU_PART_CORTEX_A77		0xD0D
-+#define ARM_CPU_PART_CORTEX_A710	0xD47
-+#define ARM_CPU_PART_NEOVERSE_N2	0xD49
+--- a/arch/arm64/include/asm/insn.h
++++ b/arch/arm64/include/asm/insn.h
+@@ -332,6 +332,8 @@ bool aarch64_insn_is_branch(u32 insn);
+ u64 aarch64_insn_decode_immediate(enum aarch64_insn_imm_type type, u32 insn);
+ u32 aarch64_insn_encode_immediate(enum aarch64_insn_imm_type type,
+ 				  u32 insn, u64 imm);
++u32 aarch64_insn_decode_register(enum aarch64_insn_register_type type,
++					 u32 insn);
+ u32 aarch64_insn_gen_branch_imm(unsigned long pc, unsigned long addr,
+ 				enum aarch64_insn_branch_type type);
+ u32 aarch64_insn_gen_comp_branch_imm(unsigned long pc, unsigned long addr,
+--- a/arch/arm64/kernel/insn.c
++++ b/arch/arm64/kernel/insn.c
+@@ -418,6 +418,35 @@ u32 __kprobes aarch64_insn_encode_immedi
+ 	return insn;
+ }
  
- #define APM_CPU_PART_POTENZA		0x000
- 
-@@ -108,6 +110,8 @@
- #define MIDR_CORTEX_A76	MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A76)
- #define MIDR_NEOVERSE_N1 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_NEOVERSE_N1)
- #define MIDR_CORTEX_A77	MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A77)
-+#define MIDR_CORTEX_A710 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A710)
-+#define MIDR_NEOVERSE_N2 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_NEOVERSE_N2)
- #define MIDR_THUNDERX	MIDR_CPU_MODEL(ARM_CPU_IMP_CAVIUM, CAVIUM_CPU_PART_THUNDERX)
- #define MIDR_THUNDERX_81XX MIDR_CPU_MODEL(ARM_CPU_IMP_CAVIUM, CAVIUM_CPU_PART_THUNDERX_81XX)
- #define MIDR_CAVIUM_THUNDERX2 MIDR_CPU_MODEL(ARM_CPU_IMP_CAVIUM, CAVIUM_CPU_PART_THUNDERX2)
++u32 aarch64_insn_decode_register(enum aarch64_insn_register_type type,
++					u32 insn)
++{
++	int shift;
++
++	switch (type) {
++	case AARCH64_INSN_REGTYPE_RT:
++	case AARCH64_INSN_REGTYPE_RD:
++		shift = 0;
++		break;
++	case AARCH64_INSN_REGTYPE_RN:
++		shift = 5;
++		break;
++	case AARCH64_INSN_REGTYPE_RT2:
++	case AARCH64_INSN_REGTYPE_RA:
++		shift = 10;
++		break;
++	case AARCH64_INSN_REGTYPE_RM:
++		shift = 16;
++		break;
++	default:
++		pr_err("%s: unknown register type encoding %d\n", __func__,
++		       type);
++		return 0;
++	}
++
++	return (insn >> shift) & GENMASK(4, 0);
++}
++
+ static u32 aarch64_insn_encode_register(enum aarch64_insn_register_type type,
+ 					u32 insn,
+ 					enum aarch64_insn_register reg)
 
 
