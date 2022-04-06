@@ -2,171 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D7F844F6A26
-	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 21:41:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E3BE14F6A91
+	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 21:52:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231745AbiDFTng (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Apr 2022 15:43:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41234 "EHLO
+        id S229516AbiDFTyn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Apr 2022 15:54:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48592 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233178AbiDFTm7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 15:42:59 -0400
-Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CD7418CD31
-        for <stable@vger.kernel.org>; Wed,  6 Apr 2022 10:50:30 -0700 (PDT)
-Received: by mail-pj1-x1031.google.com with SMTP id 2so3267443pjw.2
-        for <stable@vger.kernel.org>; Wed, 06 Apr 2022 10:50:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=KsbyiUom51SYp+5Mb/5nUfIDL1uwtXorJ/8u2G8ozCo=;
-        b=I8DP2XQth/U5JLc+S8gk9GiucPwfOryCnbtOaqjz1sL2DE4TLBxeGKiDWY01OI9heS
-         LcE9TRJ3u9GQELFRUeTIhD9XWFhISTgwyAHI6HG2YU6J/ygHPNMMtCHokTf3Unc7SorI
-         fq66gSmHnYCEy3P3lPEMeVa24hqKq2NlunYM6YECaWZmO5IgAkcLQ2h4cfpvmsOQHrxt
-         7Gy9p2kWnTU9MJqfK22wyPq3ipa0FDeqnWU8AU87etEp/jr7Z9fwDkofjQ1lwm6j39Vn
-         /gkgEKCZBRE6X0r/KChrSvf7KXhY7fY61FrguhtMC4VMLFSbyfPcQbKq6vFWgSG+vQhW
-         dpNA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=KsbyiUom51SYp+5Mb/5nUfIDL1uwtXorJ/8u2G8ozCo=;
-        b=urVanaisaWEo0E9tX1DL3gwrEQNGz2lcIBGLq/JOtgOi/1xbF/DKOwaCTpazjnufZc
-         bm6b0IWnHf1n4ESc/tp049TDoUvg4DGojXyY5BugjE/QbOaD/PmBowRp62jwO41TBx4u
-         KQrcnbbtR9Ml6Po0MXxk8oQTdAmkwelvPC2vacfbDjzAlZRAY2aqIYbGBi1cBVYDQXiR
-         QjvOyCQQtHEao8LAY7JprbFORYOkb/09i5tovVHTDqjnee1xtqi5if0NGARiRsrQh0g2
-         ra4XhM+Yw+79L8eyk/HATPjsOH1sA4a5nMv/H+tEDiqQ2xZBRRKzKBZkIenwFvkdGDDq
-         c1Aw==
-X-Gm-Message-State: AOAM531NntISmsDLXATkhnp+HRLX/RoTsSu1IzDzTQ8BIW4VFhpj2QyV
-        RjCSm7tGHGMYQSighBpHagBF8LLPnkPnbxxXt7w=
-X-Google-Smtp-Source: ABdhPJwnvC6Wv50FCfJ6+giB6srNRPW+uSLofL/p78yKOJTJD6w24zZxh1rOkrdoclRu8cPCzXHm0w==
-X-Received: by 2002:a17:902:c105:b0:154:81e0:529d with SMTP id 5-20020a170902c10500b0015481e0529dmr9851395pli.1.1649267429958;
-        Wed, 06 Apr 2022 10:50:29 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id h10-20020a056a001a4a00b004f7c76f29c3sm20676421pfv.24.2022.04.06.10.50.29
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 06 Apr 2022 10:50:29 -0700 (PDT)
-Message-ID: <624dd2e5.1c69fb81.b9d8a.5c68@mx.google.com>
-Date:   Wed, 06 Apr 2022 10:50:29 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S234295AbiDFTxG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 15:53:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41D9519316D;
+        Wed,  6 Apr 2022 11:27:32 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D3DC361C57;
+        Wed,  6 Apr 2022 18:27:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E012EC385A3;
+        Wed,  6 Apr 2022 18:27:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1649269651;
+        bh=4PDQbNjEWgyzjgN+9Ms2UXb1BtWf2djd8Z39TxrINqs=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=t4pWES0BVK2Ay0bVHAfCahl5HKu3uECEWavXm/yeCTEA9sD4MQ+cwf0EluCCl0UBv
+         LpF5zVoiuN7+wn4sYSpWAf6mT8PoLZozq7/obpNS062RDLwbAX7k9yHJzwus0/FbrM
+         5hQ+SKX+NfdCBKtEOLurhXiFqejJ7zzWfTZ6mt/A=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, Vladimir Murzin <vladimir.murzin@arm.com>,
+        James Morse <james.morse@arm.com>
+Subject: [PATCH 4.9 02/43] arm64: Remove useless UAO IPI and describe how this gets enabled
+Date:   Wed,  6 Apr 2022 20:26:11 +0200
+Message-Id: <20220406182436.748478940@linuxfoundation.org>
+X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220406182436.675069715@linuxfoundation.org>
+References: <20220406182436.675069715@linuxfoundation.org>
+User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.4
-X-Kernelci-Kernel: v5.4.188-367-g999e2e13ea75f
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/5.4 baseline: 61 runs,
- 2 regressions (v5.4.188-367-g999e2e13ea75f)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.4 baseline: 61 runs, 2 regressions (v5.4.188-367-g999e2e1=
-3ea75f)
+From: James Morse <james.morse@arm.com>
 
-Regressions Summary
--------------------
+commit c8b06e3fddddaae1a87ed479edcb8b3d85caecc7 upstream.
 
-platform                 | arch | lab         | compiler | defconfig       =
-   | regressions
--------------------------+------+-------------+----------+-----------------=
----+------------
-qemu_arm-virt-gicv2-uefi | arm  | lab-broonie | gcc-10   | multi_v7_defconf=
-ig | 1          =
+Since its introduction, the UAO enable call was broken, and useless.
+commit 2a6dcb2b5f3e ("arm64: cpufeature: Schedule enable() calls instead
+of calling them via IPI"), fixed the framework so that these calls
+are scheduled, so that they can modify PSTATE.
 
-qemu_arm-virt-gicv3-uefi | arm  | lab-broonie | gcc-10   | multi_v7_defconf=
-ig | 1          =
+Now it is just useless. Remove it. UAO is enabled by the code patching
+which causes get_user() and friends to use the 'ldtr' family of
+instructions. This relies on the PSTATE.UAO bit being set to match
+addr_limit, which we do in uao_thread_switch() called via __switch_to().
 
+All that is needed to enable UAO is patch the code, and call schedule().
+__apply_alternatives_multi_stop() calls stop_machine() when it modifies
+the kernel text to enable the alternatives, (including the UAO code in
+uao_thread_switch()). Once stop_machine() has finished __switch_to() is
+called to reschedule the original task, this causes PSTATE.UAO to be set
+appropriately. An explicit enable() call is not needed.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
-el/v5.4.188-367-g999e2e13ea75f/plan/baseline/
+Reported-by: Vladimir Murzin <vladimir.murzin@arm.com>
+Signed-off-by: James Morse <james.morse@arm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ arch/arm64/include/asm/processor.h |    1 -
+ arch/arm64/kernel/cpufeature.c     |    5 ++++-
+ arch/arm64/mm/fault.c              |   14 --------------
+ 3 files changed, 4 insertions(+), 16 deletions(-)
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.4
-  Describe: v5.4.188-367-g999e2e13ea75f
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      999e2e13ea75f28b915b769d36e19aaffd2a5cce =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform                 | arch | lab         | compiler | defconfig       =
-   | regressions
--------------------------+------+-------------+----------+-----------------=
----+------------
-qemu_arm-virt-gicv2-uefi | arm  | lab-broonie | gcc-10   | multi_v7_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/624da071224f231458ae06a9
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.188-3=
-67-g999e2e13ea75f/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_a=
-rm-virt-gicv2-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.188-3=
-67-g999e2e13ea75f/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_a=
-rm-virt-gicv2-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220401.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/624da072224f231458ae0=
-6aa
-        failing since 111 days (last pass: v5.4.165-9-g27d736c7bdee, first =
-fail: v5.4.165-18-ge938927511cb) =
-
- =
-
-
-
-platform                 | arch | lab         | compiler | defconfig       =
-   | regressions
--------------------------+------+-------------+----------+-----------------=
----+------------
-qemu_arm-virt-gicv3-uefi | arm  | lab-broonie | gcc-10   | multi_v7_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/624da073200fc5854bae0686
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.188-3=
-67-g999e2e13ea75f/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_a=
-rm-virt-gicv3-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.188-3=
-67-g999e2e13ea75f/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_a=
-rm-virt-gicv3-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220401.0/armel/rootfs.cpio.gz =
+--- a/arch/arm64/include/asm/processor.h
++++ b/arch/arm64/include/asm/processor.h
+@@ -220,7 +220,6 @@ static inline void spin_lock_prefetch(co
+ #endif
+ 
+ int cpu_enable_pan(void *__unused);
+-int cpu_enable_uao(void *__unused);
+ int cpu_enable_cache_maint_trap(void *__unused);
+ 
+ #endif /* __ASSEMBLY__ */
+--- a/arch/arm64/kernel/cpufeature.c
++++ b/arch/arm64/kernel/cpufeature.c
+@@ -905,7 +905,10 @@ static const struct arm64_cpu_capabiliti
+ 		.sys_reg = SYS_ID_AA64MMFR2_EL1,
+ 		.field_pos = ID_AA64MMFR2_UAO_SHIFT,
+ 		.min_field_value = 1,
+-		.enable = cpu_enable_uao,
++		/*
++		 * We rely on stop_machine() calling uao_thread_switch() to set
++		 * UAO immediately after patching.
++		 */
+ 	},
+ #endif /* CONFIG_ARM64_UAO */
+ #ifdef CONFIG_ARM64_PAN
+--- a/arch/arm64/mm/fault.c
++++ b/arch/arm64/mm/fault.c
+@@ -740,17 +740,3 @@ int cpu_enable_pan(void *__unused)
+ 	return 0;
+ }
+ #endif /* CONFIG_ARM64_PAN */
+-
+-#ifdef CONFIG_ARM64_UAO
+-/*
+- * Kernel threads have fs=KERNEL_DS by default, and don't need to call
+- * set_fs(), devtmpfs in particular relies on this behaviour.
+- * We need to enable the feature at runtime (instead of adding it to
+- * PSR_MODE_EL1h) as the feature may not be implemented by the cpu.
+- */
+-int cpu_enable_uao(void *__unused)
+-{
+-	asm(SET_PSTATE_UAO(1));
+-	return 0;
+-}
+-#endif /* CONFIG_ARM64_UAO */
 
 
-
-  * baseline.login: https://kernelci.org/test/case/id/624da073200fc5854bae0=
-687
-        failing since 111 days (last pass: v5.4.165-9-g27d736c7bdee, first =
-fail: v5.4.165-18-ge938927511cb) =
-
- =20
