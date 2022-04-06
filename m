@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 590F14F6B33
-	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 22:19:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F26F04F6B01
+	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 22:12:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234233AbiDFUVW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Apr 2022 16:21:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60054 "EHLO
+        id S234093AbiDFUOg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Apr 2022 16:14:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34804 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231738AbiDFUU1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 16:20:27 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2D69220E6;
-        Wed,  6 Apr 2022 11:26:58 -0700 (PDT)
+        with ESMTP id S236453AbiDFUNm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 16:13:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C661FA216;
+        Wed,  6 Apr 2022 11:27:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 607DEB8252B;
-        Wed,  6 Apr 2022 18:26:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 947C9C385A3;
-        Wed,  6 Apr 2022 18:26:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CBAF061C57;
+        Wed,  6 Apr 2022 18:27:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8935C385A1;
+        Wed,  6 Apr 2022 18:27:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649269616;
-        bh=EG86lUMKTGds4UWGtqE3tllOSx9i5zBcjo9UGNZOtQU=;
+        s=korg; t=1649269676;
+        bh=FR0wyzzcRBc8I1oJlAOaq4otxm8Uxctpbe4QISIxzHM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dAwaEtcT6NpXgrGL2ac1I7tjX5a0AhK1MwM+leBERA9a/dCL024gn7QEpQXd2Vpva
-         vGca3RRPtsF8Pd2br0AOltk8xD88NX3oBzRf0CmCfxAEfALKFYJmu5LMI27WDkHZYY
-         Aej9O+T7tZVfQdWvkPCsR6kZSDmvE4HQ3WRp5CWc=
+        b=UiL9YME9p3w6wTd1erfK4Rh1CZNKUFuxVemTNLJ++Ad++Bnwh1AlkdOE3FTo6wTdG
+         V8K9cGdmBli9kQH8IOm02vxXbWcRE7QRHcLVSpqe8JJeDmxBzEhnk2WC5y/IdhX7Pd
+         6zFkGXIFKj8vBnkOV0ULVGN7WO7z2lsHZhjAi1Cw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert Richter <rrichter@cavium.com>,
+        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
+        Dave Martin <dave.martin@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
         Will Deacon <will.deacon@arm.com>,
         James Morse <james.morse@arm.com>
-Subject: [PATCH 4.9 01/43] arm64: errata: Provide macro for major and minor cpu revisions
-Date:   Wed,  6 Apr 2022 20:26:10 +0200
-Message-Id: <20220406182436.719643148@linuxfoundation.org>
+Subject: [PATCH 4.9 03/43] arm64: Add MIDR encoding for Arm Cortex-A55 and Cortex-A35
+Date:   Wed,  6 Apr 2022 20:26:12 +0200
+Message-Id: <20220406182436.776830404@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220406182436.675069715@linuxfoundation.org>
 References: <20220406182436.675069715@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -56,81 +56,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Richter <rrichter@cavium.com>
+From: Suzuki K Poulose <suzuki.poulose@arm.com>
 
-commit fa5ce3d1928c441c3d241c34a00c07c8f5880b1a upstream
+commit 6e616864f21160d8d503523b60a53a29cecc6f24 upstream.
 
-Definition of cpu ranges are hard to read if the cpu variant is not
-zero. Provide MIDR_CPU_VAR_REV() macro to describe the full hardware
-revision of a cpu including variant and (minor) revision.
+Update the MIDR encodings for the Cortex-A55 and Cortex-A35
 
-Signed-off-by: Robert Richter <rrichter@cavium.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Reviewed-by: Dave Martin <dave.martin@arm.com>
+Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
 Signed-off-by: Will Deacon <will.deacon@arm.com>
-[ morse: some parts of this patch were already backported as part of
-  b8c320884eff003581ee61c5970a2e83f513eff1 ]
 Signed-off-by: James Morse <james.morse@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kernel/cpu_errata.c |   15 +++++++++------
- arch/arm64/kernel/cpufeature.c |    8 +++-----
- 2 files changed, 12 insertions(+), 11 deletions(-)
+ arch/arm64/include/asm/cputype.h |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/arch/arm64/kernel/cpu_errata.c
-+++ b/arch/arm64/kernel/cpu_errata.c
-@@ -408,8 +408,9 @@ const struct arm64_cpu_capabilities arm6
- 	/* Cortex-A57 r0p0 - r1p2 */
- 		.desc = "ARM erratum 832075",
- 		.capability = ARM64_WORKAROUND_DEVICE_LOAD_ACQUIRE,
--		MIDR_RANGE(MIDR_CORTEX_A57, 0x00,
--			   (1 << MIDR_VARIANT_SHIFT) | 2),
-+		MIDR_RANGE(MIDR_CORTEX_A57,
-+			   MIDR_CPU_VAR_REV(0, 0),
-+			   MIDR_CPU_VAR_REV(1, 2)),
- 	},
- #endif
- #ifdef CONFIG_ARM64_ERRATUM_834220
-@@ -417,8 +418,9 @@ const struct arm64_cpu_capabilities arm6
- 	/* Cortex-A57 r0p0 - r1p2 */
- 		.desc = "ARM erratum 834220",
- 		.capability = ARM64_WORKAROUND_834220,
--		MIDR_RANGE(MIDR_CORTEX_A57, 0x00,
--			   (1 << MIDR_VARIANT_SHIFT) | 2),
-+		MIDR_RANGE(MIDR_CORTEX_A57,
-+			   MIDR_CPU_VAR_REV(0, 0),
-+			   MIDR_CPU_VAR_REV(1, 2)),
- 	},
- #endif
- #ifdef CONFIG_ARM64_ERRATUM_845719
-@@ -442,8 +444,9 @@ const struct arm64_cpu_capabilities arm6
- 	/* Cavium ThunderX, T88 pass 1.x - 2.1 */
- 		.desc = "Cavium erratum 27456",
- 		.capability = ARM64_WORKAROUND_CAVIUM_27456,
--		MIDR_RANGE(MIDR_THUNDERX, 0x00,
--			   (1 << MIDR_VARIANT_SHIFT) | 1),
-+		MIDR_RANGE(MIDR_THUNDERX,
-+			   MIDR_CPU_VAR_REV(0, 0),
-+			   MIDR_CPU_VAR_REV(1, 1)),
- 	},
- 	{
- 	/* Cavium ThunderX, T81 pass 1.0 */
---- a/arch/arm64/kernel/cpufeature.c
-+++ b/arch/arm64/kernel/cpufeature.c
-@@ -728,13 +728,11 @@ static bool has_useable_gicv3_cpuif(cons
- static bool has_no_hw_prefetch(const struct arm64_cpu_capabilities *entry, int __unused)
- {
- 	u32 midr = read_cpuid_id();
--	u32 rv_min, rv_max;
+--- a/arch/arm64/include/asm/cputype.h
++++ b/arch/arm64/include/asm/cputype.h
+@@ -83,6 +83,8 @@
+ #define ARM_CPU_PART_CORTEX_A53		0xD03
+ #define ARM_CPU_PART_CORTEX_A73		0xD09
+ #define ARM_CPU_PART_CORTEX_A75		0xD0A
++#define ARM_CPU_PART_CORTEX_A35		0xD04
++#define ARM_CPU_PART_CORTEX_A55		0xD05
  
- 	/* Cavium ThunderX pass 1.x and 2.x */
--	rv_min = 0;
--	rv_max = (1 << MIDR_VARIANT_SHIFT) | MIDR_REVISION_MASK;
--
--	return MIDR_IS_CPU_MODEL_RANGE(midr, MIDR_THUNDERX, rv_min, rv_max);
-+	return MIDR_IS_CPU_MODEL_RANGE(midr, MIDR_THUNDERX,
-+		MIDR_CPU_VAR_REV(0, 0),
-+		MIDR_CPU_VAR_REV(1, MIDR_REVISION_MASK));
- }
+ #define APM_CPU_PART_POTENZA		0x000
  
- static bool runs_at_el2(const struct arm64_cpu_capabilities *entry, int __unused)
+@@ -98,6 +100,8 @@
+ #define MIDR_CORTEX_A72 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A72)
+ #define MIDR_CORTEX_A73 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A73)
+ #define MIDR_CORTEX_A75 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A75)
++#define MIDR_CORTEX_A35 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A35)
++#define MIDR_CORTEX_A55 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A55)
+ #define MIDR_THUNDERX	MIDR_CPU_MODEL(ARM_CPU_IMP_CAVIUM, CAVIUM_CPU_PART_THUNDERX)
+ #define MIDR_THUNDERX_81XX MIDR_CPU_MODEL(ARM_CPU_IMP_CAVIUM, CAVIUM_CPU_PART_THUNDERX_81XX)
+ #define MIDR_CAVIUM_THUNDERX2 MIDR_CPU_MODEL(ARM_CPU_IMP_CAVIUM, CAVIUM_CPU_PART_THUNDERX2)
 
 
