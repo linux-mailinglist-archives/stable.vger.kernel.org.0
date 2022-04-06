@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8654A4F68DA
-	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 20:19:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 342BF4F6909
+	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 20:19:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240296AbiDFSJo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Apr 2022 14:09:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54268 "EHLO
+        id S240325AbiDFSJp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Apr 2022 14:09:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54290 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240531AbiDFSIG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 14:08:06 -0400
+        with ESMTP id S240544AbiDFSII (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 14:08:08 -0400
 Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 68FAF19456B;
-        Wed,  6 Apr 2022 09:46:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 68FCD194FDC;
+        Wed,  6 Apr 2022 09:46:27 -0700 (PDT)
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 505A923A;
-        Wed,  6 Apr 2022 09:46:26 -0700 (PDT)
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 321CE1516;
+        Wed,  6 Apr 2022 09:46:27 -0700 (PDT)
 Received: from eglon.cambridge.arm.com (eglon.cambridge.arm.com [10.1.196.218])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id A31B93F73B;
-        Wed,  6 Apr 2022 09:46:25 -0700 (PDT)
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 851C53F73B;
+        Wed,  6 Apr 2022 09:46:26 -0700 (PDT)
 From:   James Morse <james.morse@arm.com>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     James Morse <james.morse@arm.com>,
         Catalin Marinas <catalin.marinas@arm.com>
-Subject: [stable:PATCH v4.9.309 27/43] arm64: entry: Free up another register on kpti's tramp_exit path
-Date:   Wed,  6 Apr 2022 17:45:30 +0100
-Message-Id: <20220406164546.1888528-27-james.morse@arm.com>
+Subject: [stable:PATCH v4.9.309 28/43] arm64: entry: Move the trampoline data page before the text page
+Date:   Wed,  6 Apr 2022 17:45:31 +0100
+Message-Id: <20220406164546.1888528-28-james.morse@arm.com>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20220406164546.1888528-1-james.morse@arm.com>
 References: <0220406164217.1888053-1-james.morse@arm.com>
@@ -42,72 +42,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 03aff3a77a58b5b52a77e00537a42090ad57b80b upstream.
+commit c091fb6ae059cda563b2a4d93fdbc548ef34e1d6 upstream.
 
-Kpti stashes x30 in far_el1 while it uses x30 for all its work.
+The trampoline code has a data page that holds the address of the vectors,
+which is unmapped when running in user-space. This ensures that with
+CONFIG_RANDOMIZE_BASE, the randomised address of the kernel can't be
+discovered until after the kernel has been mapped.
 
-Making the vectors a per-cpu data structure will require a second
-register.
+If the trampoline text page is extended to include multiple sets of
+vectors, it will be larger than a single page, making it tricky to
+find the data page without knowing the size of the trampoline text
+pages, which will vary with PAGE_SIZE.
 
-Allow tramp_exit two registers before it unmaps the kernel, by
-leaving x30 on the stack, and stashing x29 in far_el1.
+Move the data page to appear before the text page. This allows the
+data page to be found without knowing the size of the trampoline text
+pages. 'tramp_vectors' is used to refer to the beginning of the
+.entry.tramp.text section, do that explicitly.
 
 Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+[ removed SDEI for backport ]
 Signed-off-by: James Morse <james.morse@arm.com>
 ---
- arch/arm64/kernel/entry.S | 18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
+ arch/arm64/include/asm/fixmap.h | 2 +-
+ arch/arm64/kernel/entry.S       | 7 ++++++-
+ 2 files changed, 7 insertions(+), 2 deletions(-)
 
+diff --git a/arch/arm64/include/asm/fixmap.h b/arch/arm64/include/asm/fixmap.h
+index d8e58051f32d..feee38303afe 100644
+--- a/arch/arm64/include/asm/fixmap.h
++++ b/arch/arm64/include/asm/fixmap.h
+@@ -53,8 +53,8 @@ enum fixed_addresses {
+ 	FIX_TEXT_POKE0,
+ 
+ #ifdef CONFIG_UNMAP_KERNEL_AT_EL0
+-	FIX_ENTRY_TRAMP_DATA,
+ 	FIX_ENTRY_TRAMP_TEXT,
++	FIX_ENTRY_TRAMP_DATA,
+ #define TRAMP_VALIAS		(__fix_to_virt(FIX_ENTRY_TRAMP_TEXT))
+ #endif /* CONFIG_UNMAP_KERNEL_AT_EL0 */
+ 	__end_of_permanent_fixed_addresses,
 diff --git a/arch/arm64/kernel/entry.S b/arch/arm64/kernel/entry.S
-index 160a3131a190..40647b5e279e 100644
+index 40647b5e279e..d665714cdca6 100644
 --- a/arch/arm64/kernel/entry.S
 +++ b/arch/arm64/kernel/entry.S
-@@ -244,14 +244,16 @@ alternative_else_nop_endif
- 	ldp	x24, x25, [sp, #16 * 12]
- 	ldp	x26, x27, [sp, #16 * 13]
- 	ldp	x28, x29, [sp, #16 * 14]
--	ldr	lr, [sp, #S_LR]
--	add	sp, sp, #S_FRAME_SIZE		// restore sp
- 
- 	.if	\el == 0
--alternative_insn eret, nop, ARM64_UNMAP_KERNEL_AT_EL0
-+alternative_if_not ARM64_UNMAP_KERNEL_AT_EL0
-+	ldr	lr, [sp, #S_LR]
-+	add	sp, sp, #S_FRAME_SIZE		// restore sp
-+	eret
-+alternative_else_nop_endif
- #ifdef CONFIG_UNMAP_KERNEL_AT_EL0
- 	bne	4f
--	msr	far_el1, x30
-+	msr	far_el1, x29
- 	tramp_alias	x30, tramp_exit_native
- 	br	x30
- 4:
-@@ -259,6 +261,8 @@ alternative_insn eret, nop, ARM64_UNMAP_KERNEL_AT_EL0
- 	br	x30
- #endif
- 	.else
-+	ldr	lr, [sp, #S_LR]
-+	add	sp, sp, #S_FRAME_SIZE		// restore sp
- 	eret
- 	.endif
- 	.endm
-@@ -947,10 +951,12 @@ __ni_sys_trace:
- 	.macro tramp_exit, regsize = 64
- 	adr	x30, tramp_vectors
- 	msr	vbar_el1, x30
--	tramp_unmap_kernel	x30
-+	ldr	lr, [sp, #S_LR]
-+	tramp_unmap_kernel	x29
- 	.if	\regsize == 64
--	mrs	x30, far_el1
-+	mrs	x29, far_el1
- 	.endif
-+	add	sp, sp, #S_FRAME_SIZE		// restore sp
- 	eret
+@@ -918,6 +918,11 @@ __ni_sys_trace:
+ 	 */
  	.endm
  
++	.macro tramp_data_page	dst
++	adr	\dst, .entry.tramp.text
++	sub	\dst, \dst, PAGE_SIZE
++	.endm
++
+ 	.macro tramp_ventry, regsize = 64
+ 	.align	7
+ 1:
+@@ -934,7 +939,7 @@ __ni_sys_trace:
+ 2:
+ 	tramp_map_kernel	x30
+ #ifdef CONFIG_RANDOMIZE_BASE
+-	adr	x30, tramp_vectors + PAGE_SIZE
++	tramp_data_page		x30
+ 	isb
+ 	ldr	x30, [x30]
+ #else
 -- 
 2.30.2
 
