@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 867C34F6B09
-	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 22:13:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 350554F6AE8
+	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 22:09:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234227AbiDFUO6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Apr 2022 16:14:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43596 "EHLO
+        id S233884AbiDFULL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Apr 2022 16:11:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48674 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237205AbiDFUOA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 16:14:00 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 818B1206ECC;
-        Wed,  6 Apr 2022 11:27:29 -0700 (PDT)
+        with ESMTP id S234061AbiDFUKz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 16:10:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BA3726F929;
+        Wed,  6 Apr 2022 11:27:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1A29461B89;
-        Wed,  6 Apr 2022 18:27:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23A61C385A3;
-        Wed,  6 Apr 2022 18:27:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BE3CE61C57;
+        Wed,  6 Apr 2022 18:27:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4FD0C385A5;
+        Wed,  6 Apr 2022 18:27:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649269648;
-        bh=ido5XWirC7wGX5X7OFgAK+kAjOjCTzq4qFG7/JRJ8ds=;
+        s=korg; t=1649269654;
+        bh=He5wpN2K61rN0aW8YwOVvM2cmVmHcFS7KdICBew3aCQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XjCrRLspXuECB1DXnVvxblNXIRtA+fv6BaguUie0mUWCXdoo49pr5URg7qc89Yo0M
-         OVAfRJkylGsfOkF/Wi+xSztdj57bOgXfCGOa72xRCu4oDmGHLbcFZFZshAGBKPNgRD
-         Xvnesj8RtrQotnqomj/DRKiUbXl0+R/aBP/CY6lY=
+        b=gc/V8GWi7akfddhE/gLZGkMCV0/xgukODcp+UnZvlcwo1pi8D/VdSRe27w2m0DOB6
+         FcWDQxX8lY/wiVruK37t/UQZKKenN1q8jkpjhnVFX+2lnX6eyOTjiUIIGFKf0B9hW9
+         XbNcjhrcWVXB0Lzm8gmrCRycedy1X7yB7SFyFnP4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Marc Zyngier <marc.zyngier@arm.com>,
         Will Deacon <will.deacon@arm.com>,
         James Morse <james.morse@arm.com>
-Subject: [PATCH 4.9 19/43] arm64: Make ARM64_ERRATUM_1188873 depend on COMPAT
-Date:   Wed,  6 Apr 2022 20:26:28 +0200
-Message-Id: <20220406182437.241430826@linuxfoundation.org>
+Subject: [PATCH 4.9 20/43] arm64: Add part number for Neoverse N1
+Date:   Wed,  6 Apr 2022 20:26:29 +0200
+Message-Id: <20220406182437.269599770@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220406182436.675069715@linuxfoundation.org>
 References: <20220406182436.675069715@linuxfoundation.org>
@@ -56,28 +56,35 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Marc Zyngier <marc.zyngier@arm.com>
 
-commit c2b5bba3967a000764e9148e6f020d776b7ecd82 upstream.
+commit 0cf57b86859c49381addb3ce47be70aadf5fd2c0 upstream.
 
-Since ARM64_ERRATUM_1188873 only affects AArch32 EL0, it makes some
-sense that it should depend on COMPAT.
+New CPU, new part number. You know the drill.
 
 Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
 Signed-off-by: Will Deacon <will.deacon@arm.com>
 Signed-off-by: James Morse <james.morse@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/Kconfig |    1 +
- 1 file changed, 1 insertion(+)
+ arch/arm64/include/asm/cputype.h |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/arch/arm64/Kconfig
-+++ b/arch/arm64/Kconfig
-@@ -444,6 +444,7 @@ config ARM64_ERRATUM_1024718
- config ARM64_ERRATUM_1188873
- 	bool "Cortex-A76: MRC read following MRRC read of specific Generic Timer in AArch32 might give incorrect result"
- 	default y
-+	depends on COMPAT
- 	select ARM_ARCH_TIMER_OOL_WORKAROUND
- 	help
- 	  This option adds work arounds for ARM Cortex-A76 erratum 1188873
+--- a/arch/arm64/include/asm/cputype.h
++++ b/arch/arm64/include/asm/cputype.h
+@@ -86,6 +86,7 @@
+ #define ARM_CPU_PART_CORTEX_A35		0xD04
+ #define ARM_CPU_PART_CORTEX_A55		0xD05
+ #define ARM_CPU_PART_CORTEX_A76		0xD0B
++#define ARM_CPU_PART_NEOVERSE_N1	0xD0C
+ 
+ #define APM_CPU_PART_POTENZA		0x000
+ 
+@@ -104,6 +105,7 @@
+ #define MIDR_CORTEX_A35 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A35)
+ #define MIDR_CORTEX_A55 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A55)
+ #define MIDR_CORTEX_A76	MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A76)
++#define MIDR_NEOVERSE_N1 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_NEOVERSE_N1)
+ #define MIDR_THUNDERX	MIDR_CPU_MODEL(ARM_CPU_IMP_CAVIUM, CAVIUM_CPU_PART_THUNDERX)
+ #define MIDR_THUNDERX_81XX MIDR_CPU_MODEL(ARM_CPU_IMP_CAVIUM, CAVIUM_CPU_PART_THUNDERX_81XX)
+ #define MIDR_CAVIUM_THUNDERX2 MIDR_CPU_MODEL(ARM_CPU_IMP_CAVIUM, CAVIUM_CPU_PART_THUNDERX2)
 
 
