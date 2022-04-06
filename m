@@ -2,115 +2,152 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 256E34F5F7E
-	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 15:29:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79B5D4F5FCE
+	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 15:30:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232068AbiDFNJs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Apr 2022 09:09:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57282 "EHLO
+        id S232499AbiDFNQf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Apr 2022 09:16:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232721AbiDFNJl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 09:09:41 -0400
-Received: from gproxy4-pub.mail.unifiedlayer.com (gproxy4-pub.mail.unifiedlayer.com [69.89.23.142])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BE93238D0A
-        for <stable@vger.kernel.org>; Wed,  6 Apr 2022 02:42:32 -0700 (PDT)
-Received: from cmgw11.mail.unifiedlayer.com (unknown [10.0.90.126])
-        by progateway6.mail.pro1.eigbox.com (Postfix) with ESMTP id C7B3610047288
-        for <stable@vger.kernel.org>; Wed,  6 Apr 2022 09:42:31 +0000 (UTC)
-Received: from box5620.bluehost.com ([162.241.219.59])
-        by cmsmtp with ESMTP
-        id c2BLn7Nttwm8ic2BLn8wwo; Wed, 06 Apr 2022 09:42:31 +0000
-X-Authority-Reason: nr=8
-X-Authority-Analysis: v=2.4 cv=DpSTREz+ c=1 sm=1 tr=0 ts=624d6087
- a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
- a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
- a=z0gMJWrwH1QA:10:nop_rcvd_month_year
- a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
- a=HaFmDPmJAAAA:8 a=ZeFZwYX2NddpyQBIYx0A:9 a=QEXdDO2ut3YA:10:nop_charset_2
- a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
-        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
-        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=nmw3pI3LAC2JpacL0WZdZQOTCVHYle8oGUHMFCNDJh4=; b=McpS05w/vt13v6O5ArkwMUT9tS
-        z0wNqFZIxzs6/OTOebOus1dzDjX16KZHudYXKIokPQBeon3kifcgJFQ0lkB1kyXZNROv4i/RMuMH7
-        uhw78oineNtkFNbTvTNe6qD6BwPu9iUEaRP65o//p8xYXwAFhCMlfAkw8vjs0NF7/smmgQBukwPlL
-        s3JYezY8IrlODLYu/LIX1JD5yGe4fTtO8xWDRo+tXGDtaI4pQmKy+d+wbZB5dWyKcxrxmVFFS/pEc
-        exMtK9ZnXp23xq99QB486XQrAv7xArf59bf0a+wPZaT39oPRvjnJDLQCrXdpIgpTu3gM06l38ADGx
-        awxSTB1A==;
-Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:36042 helo=[10.0.1.48])
-        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.94.2)
-        (envelope-from <re@w6rz.net>)
-        id 1nc2BK-003htt-Gw; Wed, 06 Apr 2022 03:42:30 -0600
-Subject: Re: [PATCH 5.16 0000/1017] 5.16.19-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-References: <20220405070354.155796697@linuxfoundation.org>
-In-Reply-To: <20220405070354.155796697@linuxfoundation.org>
-From:   Ron Economos <re@w6rz.net>
-Message-ID: <19cab1db-e972-e25d-c306-bab51406289d@w6rz.net>
-Date:   Wed, 6 Apr 2022 02:42:28 -0700
-User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        with ESMTP id S232728AbiDFNPm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 09:15:42 -0400
+Received: from mail-yw1-x112a.google.com (mail-yw1-x112a.google.com [IPv6:2607:f8b0:4864:20::112a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D08C558302
+        for <stable@vger.kernel.org>; Wed,  6 Apr 2022 02:52:53 -0700 (PDT)
+Received: by mail-yw1-x112a.google.com with SMTP id 00721157ae682-2eb57fd3f56so19969137b3.8
+        for <stable@vger.kernel.org>; Wed, 06 Apr 2022 02:52:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=/yHrnn97lLsdzLQ/tiQKfs1ZiFY5fV3TRpR81okhiyk=;
+        b=IcLxWDEf7+C8DspiQndRuhI1XrlNQ2QQ/vDOajpEGHJu3NRx9sfwGDTDtS0WUu6sqZ
+         wBo+d0lDWjRBzFlNTZXFyWhgilrFzdFEoegRa+TpnTQiLI6UPGPZ29VYj7LPEdhCQpfK
+         tpenov1vJgo/oau07ISFuxSGQ+UTG5ZXwUjsj1XXVqy5MEytputwLCTU5CxnFzpUwdYP
+         KDBxJXcw0GaepeCI1sz8aoqzwBz+wpNkCG81WKJ4l/Y+1eiupXw7+EnP/14GM5v6lnuI
+         80XpGQIVj1QEVUWpHIBgOevRQbVwbcfilrR2Sk7BLLwSfnCK9FgOnK8sur+wEm6j/n4P
+         5/7A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=/yHrnn97lLsdzLQ/tiQKfs1ZiFY5fV3TRpR81okhiyk=;
+        b=KuyAeAgocAv8wbMw4gdCxuraAddeUu/VPqd162W+kJd9MTtdp9r0+xdl3oQlaMXZMm
+         vvEuHN3JHuwy+GJk3FqyVkWjxehXUxlK1CLyLfXKTuxBSx/nWnJLqRpDv26EF6RX8K2+
+         uLzWO/yftzH5M+omj9gSXDwL0fSV53t6Dv1Y8gAVMmIt8+GN2CO6FBbqQuBmw7HbdNYX
+         McaPsewRkLRTeOT1atTXr74y0cr+U73ElKdAfJJD2Sm+WLnqml8xVxcSrPXsLgo22iPh
+         KVONlLBNUyBTD1eToXO7q6o0aqnOwGO723uvYccixYaPnGOwDkDxcDY29pU9s+MXDJXP
+         E77Q==
+X-Gm-Message-State: AOAM532uA9uzki/fAsYU8p8mWiBTWhUhYTgUabSl7xRQa/RXw6E+umzI
+        OR7TNHLmRJIvltWzfZjkdnlpL0LxuS5QtfOsczcYvQ==
+X-Google-Smtp-Source: ABdhPJxKvEHiCkKRBJfSRTHKYHTAYUapsFaOhZ68x2epxJghJ37F36ttuJtyOr4x6Yonqn3l7MHm9HrN2VXKDeTCpTc=
+X-Received: by 2002:a0d:d0c1:0:b0:2dc:5950:c72f with SMTP id
+ s184-20020a0dd0c1000000b002dc5950c72fmr6000563ywd.185.1649238748644; Wed, 06
+ Apr 2022 02:52:28 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - box5620.bluehost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - w6rz.net
-X-BWhitelist: no
-X-Source-IP: 73.162.232.9
-X-Source-L: No
-X-Exim-ID: 1nc2BK-003htt-Gw
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.48]) [73.162.232.9]:36042
-X-Source-Auth: re@w6rz.net
-X-Email-Count: 17
-X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
-X-Local-Domain: yes
-X-Spam-Status: No, score=-5.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+References: <20220405070339.801210740@linuxfoundation.org> <4273d632-9686-3809-2ef0-e87bb431f798@linuxfoundation.org>
+In-Reply-To: <4273d632-9686-3809-2ef0-e87bb431f798@linuxfoundation.org>
+From:   Anders Roxell <anders.roxell@linaro.org>
+Date:   Wed, 6 Apr 2022 11:52:18 +0200
+Message-ID: <CADYN=9+=Z=9g2r6-14kY9OQets+K=tzVeejiqTJyDJgKctddYw@mail.gmail.com>
+Subject: Re: [PATCH 5.15 000/913] 5.15.33-rc1 review
+To:     Shuah Khan <skhan@linuxfoundation.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        ranjani.sridharan@linux.intel.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 4/5/22 12:15 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.16.19 release.
-> There are 1017 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Wed, 6 Apr 2022 at 01:06, Shuah Khan <skhan@linuxfoundation.org> wrote:
 >
-> Responses should be made by Thu, 07 Apr 2022 07:01:33 +0000.
-> Anything received after that time might be too late.
+> On 4/5/22 1:17 AM, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 5.15.33 release.
+> > There are 913 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> >
+> > Responses should be made by Thu, 07 Apr 2022 07:01:33 +0000.
+> > Anything received after that time might be too late.
+> >
+> > The whole patch series can be found in one patch at:
+> >       https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.15.33-rc1.gz
+> > or in the git tree and branch at:
+> >       git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.15.y
+> > and the diffstat can be found below.
+> >
+> > thanks,
+> >
+> > greg k-h
+> >
 >
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.16.19-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.16.y
-> and the diffstat can be found below.
+> Build failed on my system. The following is the problem commit. There
+> are no changes to the config between 5.15.32 and this build.
+>
+> Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+>      ASoC: SOF: Intel: hda: Remove link assignment limitation
+
+I saw the same build error, after applying the following patches it
+builds fine again.
+
+a792bfc1c2bc ("ASoC: SOF: Intel: hda-stream: limit PROCEN workaround")
+81ed6770ba67 ("ASoC: SOF: Intel: hda: expose get_chip_info()")
+
+
+Cheers,
+Anders
+
+>
+>    CC [M]  sound/soc/sof/intel/hda-dai.o
+> sound/soc/sof/intel/hda-dai.c: In function =E2=80=98hda_link_stream_assig=
+n=E2=80=99:
+> sound/soc/sof/intel/hda-dai.c:86:24: error: implicit declaration of funct=
+ion =E2=80=98get_chip_info=E2=80=99; did you mean =E2=80=98get_group_info=
+=E2=80=99? [-Werror=3Dimplicit-function-declaration]
+>     86 |                 chip =3D get_chip_info(sdev->pdata);
+>        |                        ^~~~~~~~~~~~~
+>        |                        get_group_info
+> sound/soc/sof/intel/hda-dai.c:86:22: error: assignment to =E2=80=98const =
+struct sof_intel_dsp_desc *=E2=80=99 from =E2=80=98int=E2=80=99 makes point=
+er from integer without a cast [-Werror=3Dint-conversion]
+>     86 |                 chip =3D get_chip_info(sdev->pdata);
+>        |                      ^
+> sound/soc/sof/intel/hda-dai.c:94:35: error: =E2=80=98const struct sof_int=
+el_dsp_desc=E2=80=99 has no member named =E2=80=98quirks=E2=80=99
+>     94 |                         if (!(chip->quirks & SOF_INTEL_PROCEN_FM=
+T_QUIRK)) {
+>        |                                   ^~
+> sound/soc/sof/intel/hda-dai.c:94:46: error: =E2=80=98SOF_INTEL_PROCEN_FMT=
+_QUIRK=E2=80=99 undeclared (first use in this function)
+>     94 |                         if (!(chip->quirks & SOF_INTEL_PROCEN_FM=
+T_QUIRK)) {
+>        |                                              ^~~~~~~~~~~~~~~~~~~=
+~~~~~~~
+> sound/soc/sof/intel/hda-dai.c:94:46: note: each undeclared identifier is =
+reported only once for each function it appears in
+> cc1: all warnings being treated as errors
+> make[4]: *** [scripts/Makefile.build:287: sound/soc/sof/intel/hda-dai.o] =
+Error 1
+> make[3]: *** [scripts/Makefile.build:549: sound/soc/sof/intel] Error 2
+> make[2]: *** [scripts/Makefile.build:549: sound/soc/sof] Error 2
+> make[1]: *** [scripts/Makefile.build:549: sound/soc] Error 2
+> make: *** [Makefile:1846: sound] Error 2
 >
 > thanks,
->
-> greg k-h
-
-Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
-
-Tested-by: Ron Economos <re@w6rz.net>
-
+> -- Shuah
