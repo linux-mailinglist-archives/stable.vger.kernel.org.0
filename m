@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 67ACF4F6653
-	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 19:07:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 829F84F66D7
+	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 19:19:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238417AbiDFRFr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Apr 2022 13:05:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58152 "EHLO
+        id S238357AbiDFRLZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Apr 2022 13:11:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50960 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238255AbiDFRFh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 13:05:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 151C34961FB;
-        Wed,  6 Apr 2022 07:28:39 -0700 (PDT)
+        with ESMTP id S238594AbiDFRK6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 13:10:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A93E1FAA22;
+        Wed,  6 Apr 2022 07:32:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9EA4EB82353;
-        Wed,  6 Apr 2022 14:28:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9470DC385A3;
-        Wed,  6 Apr 2022 14:28:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DD3DD61A35;
+        Wed,  6 Apr 2022 14:32:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D74BC385A3;
+        Wed,  6 Apr 2022 14:32:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1649255316;
-        bh=6ilL6lDyJxwwFSqe1lKQGv1TTtCGzwxuY6CWzqW3O/c=;
+        s=k20201202; t=1649255561;
+        bh=Rhb8TyRe2vNjt7n+l907Rhf1+1/HlhpR5h4bXpZTsMo=;
         h=From:To:Cc:Subject:Date:From;
-        b=hgjDMg8XINxqdmkR9f8AdMKEfhxzsrPumb8XbUGwhvsXdS8enBomrRCBxL1/fdeo5
-         HJXRIG5UrwQhajTiMS5314t15cGqDyjEvjRWm5qzPCBqqZ1f+lT9+TrWA0HWOjVclP
-         IA4bL8acXWbzqz2lbWLWN1OcqKnUVTpACzoQ8UL0ZJwB7KH9REsfITVpxRtYvIXmsJ
-         +okbrVHjHzaBSkbpT5+heKmhrQQfLxLFCFQVuj8mWVe7GC1QISj6XJhMA98RzCrJAq
-         atD8tYueuk2mvgnMMjuCNWsuJ3Ze9nxiNIZytrDh035g383swaQ/RKiqxAtRqvp9nQ
-         JkjUqGSadJQTA==
+        b=RQxFqh0rxmr6J9/CaU/1Cjum7EMd9XJWxItIpVqY+AzgkuLO9Yca1Ju0vdECnq9lG
+         tcT0UtA++x/p6FgORIn2U3nekai3FtMhDqkpBYztoJdGXL3V6uFOIzB5CiB66Ohp1r
+         3kWEyPvVoYN168XzQZ1JLkdM9Me2zmc4j4TY52QqQud4IT4xNwNQy059v4ZYrFNjMu
+         jj2WGePORhQoCQueTisSKF8xdrGfI4e12zx+q8+i5Gqw5J3o9w9JcOKWCU3m+eFkBt
+         7zycGrplLbySgtIDn+/CUMWPoWLrb4+GfVuqGEpto8CahPrZ/fh6vEI+sWwCzw8WIb
+         tjr72ylikca4w==
 From:   guoren@kernel.org
-To:     guoren@kernel.org, arnd@arndb.de, jcmvbkbc@gmail.com,
-        chris@zankel.net
+To:     guoren@kernel.org, arnd@arndb.de
 Cc:     linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-xtensa@linux-xtensa.org, Guo Ren <guoren@linux.alibaba.com>,
+        linux-csky@vger.kernel.org, Guo Ren <guoren@linux.alibaba.com>,
         Masami Hiramatsu <mhiramat@kernel.org>, stable@vger.kernel.org
-Subject: [PATCH V3] xtensa: patch_text: Fixup last cpu should be master
-Date:   Wed,  6 Apr 2022 22:28:19 +0800
-Message-Id: <20220406142819.730238-1-guoren@kernel.org>
+Subject: [PATCH V3] csky: patch_text: Fixup last cpu should be master
+Date:   Wed,  6 Apr 2022 22:32:27 +0800
+Message-Id: <20220406143227.731004-1-guoren@kernel.org>
 X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -64,26 +63,25 @@ last CPU as the master to solve the potential risk.
 
 Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
 Signed-off-by: Guo Ren <guoren@kernel.org>
-Reviewed-by: Max Filippov <jcmvbkbc@gmail.com>
 Reviewed-by: Masami Hiramatsu <mhiramat@kernel.org>
 Cc: <stable@vger.kernel.org>
 ---
- arch/xtensa/kernel/jump_label.c | 2 +-
+ arch/csky/kernel/probes/kprobes.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/xtensa/kernel/jump_label.c b/arch/xtensa/kernel/jump_label.c
-index 0dde21e0d3de..ad1841cecdfb 100644
---- a/arch/xtensa/kernel/jump_label.c
-+++ b/arch/xtensa/kernel/jump_label.c
-@@ -40,7 +40,7 @@ static int patch_text_stop_machine(void *data)
- {
- 	struct patch *patch = data;
+diff --git a/arch/csky/kernel/probes/kprobes.c b/arch/csky/kernel/probes/kprobes.c
+index 42920f25e73c..34ba684d5962 100644
+--- a/arch/csky/kernel/probes/kprobes.c
++++ b/arch/csky/kernel/probes/kprobes.c
+@@ -30,7 +30,7 @@ static int __kprobes patch_text_cb(void *priv)
+ 	struct csky_insn_patch *param = priv;
+ 	unsigned int addr = (unsigned int)param->addr;
  
--	if (atomic_inc_return(&patch->cpu_count) == 1) {
-+	if (atomic_inc_return(&patch->cpu_count) == num_online_cpus()) {
- 		local_patch_text(patch->addr, patch->data, patch->sz);
- 		atomic_inc(&patch->cpu_count);
- 	} else {
+-	if (atomic_inc_return(&param->cpu_count) == 1) {
++	if (atomic_inc_return(&param->cpu_count) == num_online_cpus()) {
+ 		*(u16 *) addr = cpu_to_le16(param->opcode);
+ 		dcache_wb_range(addr, addr + 2);
+ 		atomic_inc(&param->cpu_count);
 -- 
 2.25.1
 
