@@ -2,83 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D8304F5438
-	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 06:53:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A06E64F544C
+	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 06:54:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344858AbiDFEpb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Apr 2022 00:45:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50252 "EHLO
+        id S1392518AbiDFEqq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Apr 2022 00:46:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55772 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2360966AbiDFDoF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Apr 2022 23:44:05 -0400
-Received: from mout.gmx.net (mout.gmx.net [212.227.17.22])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C71B816B152;
-        Tue,  5 Apr 2022 17:12:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1649203919;
-        bh=lQZC9KF3fkpp3qkV+BLTCo7NkUkmtr0bB09V3SZnVCY=;
-        h=X-UI-Sender-Class:Date:From:To:Cc:Subject;
-        b=cnGDvje0keNcFijjyhXnLHAG8r/nL0zsJTCxsXIMcILiclPaf+JAm9c6frMQJ9q+I
-         GMTutl8pRgHhaXeeXnxJvVMdm5uUxFzE5MBIv+M6A4Q4/ukFPBgl5wdwbeLfWFFHvI
-         xNgj/ZpADI9aCTmc02Qe10uXActUd0m8OG5tweLY=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from [192.168.100.20] ([46.142.34.239]) by mail.gmx.net (mrgmx104
- [212.227.17.168]) with ESMTPSA (Nemesis) id 1N49lJ-1o2OOE2uGn-0105Zq; Wed, 06
- Apr 2022 02:11:59 +0200
-Message-ID: <ca184e4d-1691-f44a-6054-b7cae52f5077@gmx.de>
-Date:   Wed, 6 Apr 2022 02:11:58 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.7.0
-From:   Ronald Warsow <rwarsow@gmx.de>
-To:     linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org
-Content-Language: de-DE
+        with ESMTP id S2361412AbiDFEaj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 00:30:39 -0400
+Received: from mail-oi1-x231.google.com (mail-oi1-x231.google.com [IPv6:2607:f8b0:4864:20::231])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A1FB253
+        for <stable@vger.kernel.org>; Tue,  5 Apr 2022 17:35:39 -0700 (PDT)
+Received: by mail-oi1-x231.google.com with SMTP id 12so824365oix.12
+        for <stable@vger.kernel.org>; Tue, 05 Apr 2022 17:35:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linuxtx.org; s=google;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=mWFuKJuXH3JpCWyGBa6xx2LmvwEnKcbXduTsw7Z7YIU=;
+        b=MoK0YPGtjdXPrEZkSIakvUvOkhjS8gFgVHjaXfyedLGWqCMMWcU91qZsRHV/h9d791
+         sx/VPcDjdNXlb6E2kw+w0SchCneFkGqcrRzFje8O3lmg5zK/Du2gF4ky2iPmmUSThLAL
+         lM4rEnMOotds5JL+QC1zcz5Y0IOYwjHBDMN1U=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to;
+        bh=mWFuKJuXH3JpCWyGBa6xx2LmvwEnKcbXduTsw7Z7YIU=;
+        b=El766+yg90+wcUKZ3o/Hma7mmAC5tBZiiWOEK47a6DqsBbGlg2Qp38Z8+JiOevwoel
+         d42itWHJqdcJ8sdQuzExpx0GZ1FvFDzqDM8PX00LoE4a1fnbQz2ru3+07GIY8KfBTB0D
+         qrjX4Ywrk6EHBNZVMMuLMyOk0xq1cxlkNQ1ZIiC3R5ejg1RissvRg7IbryYBBOR+3ITp
+         yQd7GeQzsTCNR53uhk7v/nZo7bhu3LQ8ie8sG3tPXpWBgPhSviriDE7b9J9lRLPLmqjx
+         VvwdpCF5LkqlYpM+3YxLwiWLmvMXyNXc1dG1ijhjUIyhQUQhkeik1gwVYkjZ+ANL/YsS
+         xd8A==
+X-Gm-Message-State: AOAM53113esFLQWXM1eE5Gnb7nAP0ewBKz5cn07ioKdY3St6g5FVNlRL
+        om1JmmnI6u+49S8K1A/evE/MZA==
+X-Google-Smtp-Source: ABdhPJwliHIC9NE7w1F7CKSJlSP+1lFiaaLewtPfqwixit7GxL6/WB3UnFvvPC9MtZEUbujO4o8ANQ==
+X-Received: by 2002:aca:61c1:0:b0:2ec:d091:ff53 with SMTP id v184-20020aca61c1000000b002ecd091ff53mr2617124oib.235.1649205339029;
+        Tue, 05 Apr 2022 17:35:39 -0700 (PDT)
+Received: from fedora64.linuxtx.org (104-189-158-32.lightspeed.rcsntx.sbcglobal.net. [104.189.158.32])
+        by smtp.gmail.com with ESMTPSA id r19-20020a056830121300b005cdb11a7b85sm6385572otp.29.2022.04.05.17.35.38
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 05 Apr 2022 17:35:38 -0700 (PDT)
+Sender: Justin Forbes <jmforbes@linuxtx.org>
+Date:   Tue, 5 Apr 2022 19:35:36 -0500
+From:   Justin Forbes <jforbes@fedoraproject.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
 Subject: Re: [PATCH 5.17 0000/1126] 5.17.2-rc1 review
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Provags-ID: V03:K1:cYu9JdORc1SmR6BiCGPQiPskdZm+eavF6AOJyRHFXDBuita0uCy
- bHTYWxbw+Z/KjUN+XDezDDimJupB61QO/covhoz8VMbH7n3PPHf0hbbqitmkmoIvsflcHAR
- uk8uYDYjgRAJ/CXul5bKLbayP+pvPjYkDNGHb22DRTP721+5IaMRECB82MbiQzjZ+/f8XnP
- sWWZIj7ulfSdcy806baRQ==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:qnKmeB+oY6I=:MZ26Fl6Oiw4udMXe9NQlPC
- lM1BKFUII6Eh9f53H1c7laOrQcXDySDgkVqBF1epo/y3JuEPVQRuUMpbyZ4mnHbwJVAPtsIyR
- mrlTUNswGPGeBilTlDvuW/ggAOCwFToYCzWq1TbdQTjhZ1i6HpMSlF15sYutchgBON/MNx3Qi
- MjtP8MvH16tj9a3yMoKZe10gnsbNlyRw8J2qe3Z/hfB+ynBnKWbqyaOpUOGcBCGrChbYNdCd5
- nXHLbvVtK3+M77c1SIFUUQiuQjs2Ons5vucAD5gWheZ3PDMQU02bXPBjCg1wQkLaEjbujxJ9z
- peWVPz9n8PrwIf05DAl5Rg8TVSgfJcb92TtMoiXJH8LH2Rp/evPFBEas+G4W8neuZoVUjglsr
- LH31gUSpFIdQVOFzEjhyqyaCns9ysMe5mrnkzXPQ8hWJyzkO2PIMCV3rGhMYX+KgpqioDsPNr
- oIbJbQU4bKNd2v+CZtd3pwUqQpXSlMHBd9KhNsBz4aJjzN9GKtOiJOzbD0DpWMJUXKucBjlp6
- Hhsno3FhFtv8RLma7tfbq2JTkcQXNIfBYD9a8oGFkbDKWB+8h4s3YSLDq4tLSnFzUadPEdJsH
- 1BiHMu3Ll6yK71SNF7+xUsiMl3XzRyz5ACwBlMR5usA2Q2IgZapnsI7XcnyQw5BNeYpY2T8uQ
- 5kUh68CKf8L0L8uggNGMWXklu+2n0JM1FIPXLqjv8bgT/Lt0f3EvXB8B0Zc7fdPI+lsJxJjrH
- 25METSOyJpU4FacHYroEzzPOaez794jW53z2pq4MhEhp4FNYBy2i72tY/7thUKxannniM6h/m
- GLTqW4zfdZxGGeDgC944r6YTcH8Nv6ynH66P8MIkVeLaq4JC1suv8p3RF16eqKWd+4wP0ZI7/
- soVKmCxfZjaIzsV3r/ojHW6maz5puLgBNTwdeVnkYQdZ/IacQjUsdJlvswmn2q+n7Tpt73cp8
- C8ZC6Ex9GEZP1mKvPQ/axtPrHetWwDsWO2592BHu4ZaqJJX8/A3/rChASd2YoyUcEScTvXe7Z
- kJ7sCxJlrvzYd9CLHXr775XIkqw+gkEx1UjfCoOI6n4H48pMwL65JeTtegkzVxJjSPDxuljcY
- IGd7+NCbSEsWBU=
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,FAKE_REPLY_A1,FREEMAIL_FROM,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H4,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Message-ID: <YkzgWEyDZXFrCbju@fedora64.linuxtx.org>
+References: <20220405070407.513532867@linuxfoundation.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220405070407.513532867@linuxfoundation.org>
+X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-hallo Greg
+On Tue, Apr 05, 2022 at 09:12:27AM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.17.2 release.
+> There are 1126 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Thu, 07 Apr 2022 07:01:33 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.17.2-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.17.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-5.17.2-rc1
+This fails to build on x86_64, but builds on all other architectures for
+Fedora using the fedora configs. Specifically 
+[PATCH 5.17 0943/1126] ASoC: Intel: sof_es8336: use NHLT information to set dmic and SSP
+is missing a dependent patch, upstream commit 679aa83a0fb70dcbf9e97cbdfd573e6fc8bf9b1a
+ASoC: soc-acpi: add information on I2S/TDM link mask.  Applying this
+patch makes x86_64 build again.
 
-compiles, boots and runs on my x86_64
-(Intel i5-11400, Fedora 36 Beta)
-
-Thanks
-
-Tested-by: Ronald Warsow <rwarsow@gmx.de>
-
-
-Ronald
+Justin
 
