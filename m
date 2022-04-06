@@ -2,205 +2,291 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B980D4F6C79
-	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 23:20:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E33D74F6C8F
+	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 23:23:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235601AbiDFVWR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Apr 2022 17:22:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44642 "EHLO
+        id S235621AbiDFVZX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Apr 2022 17:25:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235705AbiDFVV6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 17:21:58 -0400
-Received: from mout.kundenserver.de (mout.kundenserver.de [212.227.17.10])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D840E25FA;
-        Wed,  6 Apr 2022 13:15:54 -0700 (PDT)
-Received: from quad ([82.142.17.26]) by mrelayeu.kundenserver.de (mreue107
- [212.227.15.183]) with ESMTPSA (Nemesis) id 1M2fM1-1nZAzA0k1P-0048Ka; Wed, 06
- Apr 2022 22:15:27 +0200
-From:   Laurent Vivier <laurent@vivier.eu>
-To:     linux-kernel@vger.kernel.org
-Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-m68k@lists.linux-m68k.org,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        linux-rtc@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        John Stultz <john.stultz@linaro.org>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Laurent Vivier <laurent@vivier.eu>, stable@vger.kernel.org
-Subject: [PATCH v16 1/4] tty: goldfish: introduce gf_ioread32()/gf_iowrite32()
-Date:   Wed,  6 Apr 2022 22:15:20 +0200
-Message-Id: <20220406201523.243733-2-laurent@vivier.eu>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220406201523.243733-1-laurent@vivier.eu>
-References: <20220406201523.243733-1-laurent@vivier.eu>
+        with ESMTP id S235992AbiDFVYl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 17:24:41 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 523651CCACC
+        for <stable@vger.kernel.org>; Wed,  6 Apr 2022 13:20:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1649276403;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=Y6AHHLD9ALvMEWgiEVKcbVnhb1N4MGAMpb0FIQGAfjo=;
+        b=jQ2UBh4r2o2nBHuDe8yxJYivahc2zrGSJLYDooxHmFrY8Ia2dH9iu4qgIVEso1t4GBiVml
+        8EEcJs24dL0cGLk/0nFCj4H5xAItoPN2cChkvq6Lly2oe7vB67Pge7mqt1757YcGAEF8Ep
+        EG2AxeBynLJInOAMV2o4akK8qAuLO+8=
+Received: from mail-il1-f200.google.com (mail-il1-f200.google.com
+ [209.85.166.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-186-15o-5UhbNkWBZeVNdGVEXw-1; Wed, 06 Apr 2022 16:20:02 -0400
+X-MC-Unique: 15o-5UhbNkWBZeVNdGVEXw-1
+Received: by mail-il1-f200.google.com with SMTP id x1-20020a056e020f0100b002c98fce9c13so2482018ilj.3
+        for <stable@vger.kernel.org>; Wed, 06 Apr 2022 13:20:02 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=Y6AHHLD9ALvMEWgiEVKcbVnhb1N4MGAMpb0FIQGAfjo=;
+        b=jBHBPAlgnwtT8FKyRF2RsqMjFftC0MKiNN73a90VHEuPaUdgpUT0AiBlEGN1Jqh5dY
+         qPKEM0iHr3iv71ObuLKw1F6612Tk6iVYUsricZLDe5OcfbVd9IK4gjpUAWv3fQEYwhiL
+         QXywdWtxCP1gc5QW/nhPifrZvfRIq3zYZ60iJ8AJInVYyttRXgKJOnwpHFiXTDiU0hI9
+         kTlIHgAm6C0hBRSbfdvElPvO/4Zgrt5j/tfYX3M6IrRvdrRHwbBrkslaHFKaD/ZBz3it
+         b0I77pjPFhN4CO6zZM9CjP8/immiUMuS5x/eSy0TpD7KuXKUziTRf5CNgtqR7DBerPPI
+         3E1w==
+X-Gm-Message-State: AOAM532hD5HAeNdfNeVCXKi7bmUhH4J1jr920bjiFPBVyYN1UfAB9fZM
+        1Ecct3NE3j+K67FhIH1veS5a7Q0814T8p0NujQR7KBRkuiFwYhOoVIU3HCb0buFGdpMFV4EyvHL
+        SuSm/CAokz2bBy32A
+X-Received: by 2002:a05:6602:26cd:b0:649:2bae:a63a with SMTP id g13-20020a05660226cd00b006492baea63amr4963770ioo.148.1649276401580;
+        Wed, 06 Apr 2022 13:20:01 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJy/MS3eBdeTZJ2bpXKl9PxSXDAHXQI7KRoOUCjnjywmKg+Y4g9oEHXI8KDmMj550EjuP7HR1Q==
+X-Received: by 2002:a05:6602:26cd:b0:649:2bae:a63a with SMTP id g13-20020a05660226cd00b006492baea63amr4963760ioo.148.1649276401319;
+        Wed, 06 Apr 2022 13:20:01 -0700 (PDT)
+Received: from xz-m1.local (cpec09435e3e0ee-cmc09435e3e0ec.cpe.net.cable.rogers.com. [99.241.198.116])
+        by smtp.gmail.com with ESMTPSA id x186-20020a6bc7c3000000b00648deae6630sm11248491iof.54.2022.04.06.13.20.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 06 Apr 2022 13:20:00 -0700 (PDT)
+Date:   Wed, 6 Apr 2022 16:19:59 -0400
+From:   Peter Xu <peterx@redhat.com>
+To:     gregkh@linuxfoundation.org
+Cc:     aarcange@redhat.com, akpm@linux-foundation.org, apopple@nvidia.com,
+        david@redhat.com, hughd@google.com, jhubbard@nvidia.com,
+        kirill@shutemov.name, shy828301@gmail.com, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, vbabka@suse.cz, willy@infradead.org
+Subject: Re: FAILED: patch "[PATCH] mm: don't skip swap entry even if
+ zap_details specified" failed to apply to 5.15-stable tree
+Message-ID: <Yk31709QxFzKHPta@xz-m1.local>
+References: <1648817504102234@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Provags-ID: V03:K1:wuMO2Bh7JAmDELr/j2NzHCRZ260mn/HqS+sJXz/8jvBcByBBXwy
- S7CZAkWwnx0U1+myzlDfJLYeHpvPCI/JDsILXuAccjpkXr43IFT2vdWn0sNETcmyjn3sE6l
- YD9cWUFzJ18/HFRDs8Hw7Lt3aCqcPSN/+f5GOo0wII+h7sifC2CoSGbxMkJ6anzl7b+dPO2
- DGYZE9upQ5mQZ8YmEzaww==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:xJPwScI8HxM=:ENWHau2Mj8CE2+sESobuKu
- Mh7z1XIxRbSqwkfy0XepjQIZL16EL740mmjcYSfJx969Qh606ciPOVdr61W7C2BTPIm3M64fT
- ySuBVL5xAsgY/ZnXSo8UfWqLAtOXsijUuaaOQNu6nv8qKOEyoIaBck9xBPD0UaF7LMm4+pjtn
- wTKm6b4CX0LxTCXocExh4I1icDeJR/+n3Azh1jBjdRuhbheOPFXvEL+BCAAwE3Y0za/5KaeVg
- eThR/S3jmlF3pFHINWsCf2zK5aSYEVKQ1HXJK53Z30IcC2t4l72ryjtCmDpWjJdwUVkNCbJk/
- j2JWsKkksI9NvIj6gf9nugPqKnwhw/weaE9kjtEifA+Tu3txNb4vnzJ8ChLh+ggF9bJlu4uym
- i8hLut2SX1b7o7GRsTYLj37Ib0Y7CJlsVuPKLZXFGfQHh7OWZcfuBwdaaSZ9sAlTOVquYFJUb
- c3/ELoq3MTzUHkpB/k/rR9YeAriaDTZG3nzVz/qKFDwbQR7Hw9zNKmMCtpt5CteyKa75CNZWC
- Y7wfpqUeOdY18Shm4fOm1E8AUw7wPFtV2Szn/HPjr3s9VcCnnlIVmAOQD7iqsrRT8eSS/EZ5k
- D5hJs56RX17IUPJ4VX7OAvhXOJbVhnyXPU1pb95iscz6AG/JXifer30v1biSx/4A97f701W9l
- zh0hyUazQT82417wyBg5CnyHOBZUHu2R1uLhObaXzjERJGZwdwgrksaXlD5CN2kMUpWo=
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,RCVD_IN_MSPIKE_H2,
-        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: multipart/mixed; boundary="/WFeP7NRMf8M9+cU"
+Content-Disposition: inline
+In-Reply-To: <1648817504102234@kroah.com>
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Revert
-commit da31de35cd2f ("tty: goldfish: use __raw_writel()/__raw_readl()")
 
-and define gf_ioread32()/gf_iowrite32() to be able to use accessors
-defined by the architecture.
+--/WFeP7NRMf8M9+cU
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 
-Cc: stable@vger.kernel.org # v5.11+
-Fixes: da31de35cd2f ("tty: goldfish: use __raw_writel()/__raw_readl()")
-Signed-off-by: Laurent Vivier <laurent@vivier.eu>
-Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
+
+
+--/WFeP7NRMf8M9+cU
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: attachment; filename="patch-5.15.y"
+
+From 11fad3a3088d5059cc6b12314c679ba1547a7224 Mon Sep 17 00:00:00 2001
+From: Peter Xu <peterx@redhat.com>
+Date: Tue, 22 Mar 2022 14:42:15 -0700
+Subject: [PATCH] mm: don't skip swap entry even if zap_details specified
+
+NOTE: this is cherry-picked from 5abfd71d936a8aefd9f9ccd299dea7a164a5d455
+but backported explicitly to stable branch.
+
+A few notes:
+
+  - zap_mapping used to be called check_mapping.
+
+  - The patch is simplified, e.g. we don't add hwpoison handling or
+    explicit WARN_ON_ONCE() but only start to look after all swap entries.
+
+  - There was no zap_skip_check_mapping() yet in the branch, so it's
+    written in the full form to check against zap_details.check_mapping for
+    the migration entry checks.
+
+Original commit message below.
+
+=============================
+
+Patch series "mm: Rework zap ptes on swap entries", v5.
+
+Patch 1 should fix a long standing bug for zap_pte_range() on
+zap_details usage.  The risk is we could have some swap entries skipped
+while we should have zapped them.
+
+Migration entries are not the major concern because file backed memory
+always zap in the pattern that "first time without page lock, then
+re-zap with page lock" hence the 2nd zap will always make sure all
+migration entries are already recovered.
+
+However there can be issues with real swap entries got skipped
+errornoously.  There's a reproducer provided in commit message of patch
+1 for that.
+
+Patch 2-4 are cleanups that are based on patch 1.  After the whole
+patchset applied, we should have a very clean view of zap_pte_range().
+
+Only patch 1 needs to be backported to stable if necessary.
+
+This patch (of 4):
+
+The "details" pointer shouldn't be the token to decide whether we should
+skip swap entries.
+
+For example, when the callers specified details->zap_mapping==NULL, it
+means the user wants to zap all the pages (including COWed pages), then
+we need to look into swap entries because there can be private COWed
+pages that was swapped out.
+
+Skipping some swap entries when details is non-NULL may lead to wrongly
+leaving some of the swap entries while we should have zapped them.
+
+A reproducer of the problem:
+
+===8<===
+        #define _GNU_SOURCE         /* See feature_test_macros(7) */
+        #include <stdio.h>
+        #include <assert.h>
+        #include <unistd.h>
+        #include <sys/mman.h>
+        #include <sys/types.h>
+
+        int page_size;
+        int shmem_fd;
+        char *buffer;
+
+        void main(void)
+        {
+                int ret;
+                char val;
+
+                page_size = getpagesize();
+                shmem_fd = memfd_create("test", 0);
+                assert(shmem_fd >= 0);
+
+                ret = ftruncate(shmem_fd, page_size * 2);
+                assert(ret == 0);
+
+                buffer = mmap(NULL, page_size * 2, PROT_READ | PROT_WRITE,
+                                MAP_PRIVATE, shmem_fd, 0);
+                assert(buffer != MAP_FAILED);
+
+                /* Write private page, swap it out */
+                buffer[page_size] = 1;
+                madvise(buffer, page_size * 2, MADV_PAGEOUT);
+
+                /* This should drop private buffer[page_size] already */
+                ret = ftruncate(shmem_fd, page_size);
+                assert(ret == 0);
+                /* Recover the size */
+                ret = ftruncate(shmem_fd, page_size * 2);
+                assert(ret == 0);
+
+                /* Re-read the data, it should be all zero */
+                val = buffer[page_size];
+                if (val == 0)
+                        printf("Good\n");
+                else
+                        printf("BUG\n");
+        }
+===8<===
+
+We don't need to touch up the pmd path, because pmd never had a issue with
+swap entries.  For example, shmem pmd migration will always be split into
+pte level, and same to swapping on anonymous.
+
+Add another helper should_zap_cows() so that we can also check whether we
+should zap private mappings when there's no page pointer specified.
+
+This patch drops that trick, so we handle swap ptes coherently.  Meanwhile
+we should do the same check upon migration entry, hwpoison entry and
+genuine swap entries too.
+
+To be explicit, we should still remember to keep the private entries if
+even_cows==false, and always zap them when even_cows==true.
+
+The issue seems to exist starting from the initial commit of git.
+
+[peterx@redhat.com: comment tweaks]
+  Link: https://lkml.kernel.org/r/20220217060746.71256-2-peterx@redhat.com
+
+Link: https://lkml.kernel.org/r/20220217060746.71256-1-peterx@redhat.com
+Link: https://lkml.kernel.org/r/20220216094810.60572-1-peterx@redhat.com
+Link: https://lkml.kernel.org/r/20220216094810.60572-2-peterx@redhat.com
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Peter Xu <peterx@redhat.com>
+Reviewed-by: John Hubbard <jhubbard@nvidia.com>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: Alistair Popple <apopple@nvidia.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: "Kirill A . Shutemov" <kirill@shutemov.name>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: Yang Shi <shy828301@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+(cherry picked from commit 5abfd71d936a8aefd9f9ccd299dea7a164a5d455)
+Signed-off-by: Peter Xu <peterx@redhat.com>
 ---
- drivers/tty/goldfish.c   | 20 ++++++++++----------
- include/linux/goldfish.h | 15 +++++++++++----
- 2 files changed, 21 insertions(+), 14 deletions(-)
+ mm/memory.c | 25 +++++++++++++++++++------
+ 1 file changed, 19 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/tty/goldfish.c b/drivers/tty/goldfish.c
-index ad13532e92fe..9e8ccb8ed6d6 100644
---- a/drivers/tty/goldfish.c
-+++ b/drivers/tty/goldfish.c
-@@ -61,13 +61,13 @@ static void do_rw_io(struct goldfish_tty *qtty,
- 	spin_lock_irqsave(&qtty->lock, irq_flags);
- 	gf_write_ptr((void *)address, base + GOLDFISH_TTY_REG_DATA_PTR,
- 		     base + GOLDFISH_TTY_REG_DATA_PTR_HIGH);
--	__raw_writel(count, base + GOLDFISH_TTY_REG_DATA_LEN);
-+	gf_iowrite32(count, base + GOLDFISH_TTY_REG_DATA_LEN);
- 
- 	if (is_write)
--		__raw_writel(GOLDFISH_TTY_CMD_WRITE_BUFFER,
-+		gf_iowrite32(GOLDFISH_TTY_CMD_WRITE_BUFFER,
- 		       base + GOLDFISH_TTY_REG_CMD);
- 	else
--		__raw_writel(GOLDFISH_TTY_CMD_READ_BUFFER,
-+		gf_iowrite32(GOLDFISH_TTY_CMD_READ_BUFFER,
- 		       base + GOLDFISH_TTY_REG_CMD);
- 
- 	spin_unlock_irqrestore(&qtty->lock, irq_flags);
-@@ -142,7 +142,7 @@ static irqreturn_t goldfish_tty_interrupt(int irq, void *dev_id)
- 	unsigned char *buf;
- 	u32 count;
- 
--	count = __raw_readl(base + GOLDFISH_TTY_REG_BYTES_READY);
-+	count = gf_ioread32(base + GOLDFISH_TTY_REG_BYTES_READY);
- 	if (count == 0)
- 		return IRQ_NONE;
- 
-@@ -159,7 +159,7 @@ static int goldfish_tty_activate(struct tty_port *port, struct tty_struct *tty)
- {
- 	struct goldfish_tty *qtty = container_of(port, struct goldfish_tty,
- 									port);
--	__raw_writel(GOLDFISH_TTY_CMD_INT_ENABLE, qtty->base + GOLDFISH_TTY_REG_CMD);
-+	gf_iowrite32(GOLDFISH_TTY_CMD_INT_ENABLE, qtty->base + GOLDFISH_TTY_REG_CMD);
- 	return 0;
+diff --git a/mm/memory.c b/mm/memory.c
+index c52be6d6b605..13a5b8bea918 100644
+--- a/mm/memory.c
++++ b/mm/memory.c
+@@ -1301,6 +1301,17 @@ copy_page_range(struct vm_area_struct *dst_vma, struct vm_area_struct *src_vma)
+ 	return ret;
  }
  
-@@ -167,7 +167,7 @@ static void goldfish_tty_shutdown(struct tty_port *port)
- {
- 	struct goldfish_tty *qtty = container_of(port, struct goldfish_tty,
- 									port);
--	__raw_writel(GOLDFISH_TTY_CMD_INT_DISABLE, qtty->base + GOLDFISH_TTY_REG_CMD);
-+	gf_iowrite32(GOLDFISH_TTY_CMD_INT_DISABLE, qtty->base + GOLDFISH_TTY_REG_CMD);
- }
- 
- static int goldfish_tty_open(struct tty_struct *tty, struct file *filp)
-@@ -202,7 +202,7 @@ static unsigned int goldfish_tty_chars_in_buffer(struct tty_struct *tty)
- {
- 	struct goldfish_tty *qtty = &goldfish_ttys[tty->index];
- 	void __iomem *base = qtty->base;
--	return __raw_readl(base + GOLDFISH_TTY_REG_BYTES_READY);
-+	return gf_ioread32(base + GOLDFISH_TTY_REG_BYTES_READY);
- }
- 
- static void goldfish_tty_console_write(struct console *co, const char *b,
-@@ -355,7 +355,7 @@ static int goldfish_tty_probe(struct platform_device *pdev)
- 	 * on Ranchu emulator (qemu2) returns 1 here and
- 	 * driver will use physical addresses.
- 	 */
--	qtty->version = __raw_readl(base + GOLDFISH_TTY_REG_VERSION);
-+	qtty->version = gf_ioread32(base + GOLDFISH_TTY_REG_VERSION);
- 
- 	/*
- 	 * Goldfish TTY device on Ranchu emulator (qemu2)
-@@ -374,7 +374,7 @@ static int goldfish_tty_probe(struct platform_device *pdev)
- 		}
- 	}
- 
--	__raw_writel(GOLDFISH_TTY_CMD_INT_DISABLE, base + GOLDFISH_TTY_REG_CMD);
-+	gf_iowrite32(GOLDFISH_TTY_CMD_INT_DISABLE, base + GOLDFISH_TTY_REG_CMD);
- 
- 	ret = request_irq(irq, goldfish_tty_interrupt, IRQF_SHARED,
- 			  "goldfish_tty", qtty);
-@@ -436,7 +436,7 @@ static int goldfish_tty_remove(struct platform_device *pdev)
- #ifdef CONFIG_GOLDFISH_TTY_EARLY_CONSOLE
- static void gf_early_console_putchar(struct uart_port *port, unsigned char ch)
- {
--	__raw_writel(ch, port->membase);
-+	gf_iowrite32(ch, port->membase);
- }
- 
- static void gf_early_write(struct console *con, const char *s, unsigned int n)
-diff --git a/include/linux/goldfish.h b/include/linux/goldfish.h
-index 12be1601fd84..bcc17f95b906 100644
---- a/include/linux/goldfish.h
-+++ b/include/linux/goldfish.h
-@@ -8,14 +8,21 @@
- 
- /* Helpers for Goldfish virtual platform */
- 
-+#ifndef gf_ioread32
-+#define gf_ioread32 ioread32
-+#endif
-+#ifndef gf_iowrite32
-+#define gf_iowrite32 iowrite32
-+#endif
++/* Whether we should zap all COWed (private) pages too */
++static inline bool should_zap_cows(struct zap_details *details)
++{
++	/* By default, zap all pages */
++	if (!details)
++		return true;
 +
- static inline void gf_write_ptr(const void *ptr, void __iomem *portl,
- 				void __iomem *porth)
- {
- 	const unsigned long addr = (unsigned long)ptr;
++	/* Or, we zap COWed pages only if the caller wants to */
++	return !details->check_mapping;
++}
++
+ static unsigned long zap_pte_range(struct mmu_gather *tlb,
+ 				struct vm_area_struct *vma, pmd_t *pmd,
+ 				unsigned long addr, unsigned long end,
+@@ -1396,16 +1407,18 @@ static unsigned long zap_pte_range(struct mmu_gather *tlb,
+ 			continue;
+ 		}
  
--	__raw_writel(lower_32_bits(addr), portl);
-+	gf_iowrite32(lower_32_bits(addr), portl);
- #ifdef CONFIG_64BIT
--	__raw_writel(upper_32_bits(addr), porth);
-+	gf_iowrite32(upper_32_bits(addr), porth);
- #endif
- }
+-		/* If details->check_mapping, we leave swap entries. */
+-		if (unlikely(details))
+-			continue;
+-
+-		if (!non_swap_entry(entry))
++		if (!non_swap_entry(entry)) {
++			/* Genuine swap entry, hence a private anon page */
++			if (!should_zap_cows(details))
++				continue;
+ 			rss[MM_SWAPENTS]--;
+-		else if (is_migration_entry(entry)) {
++		} else if (is_migration_entry(entry)) {
+ 			struct page *page;
  
-@@ -23,9 +30,9 @@ static inline void gf_write_dma_addr(const dma_addr_t addr,
- 				     void __iomem *portl,
- 				     void __iomem *porth)
- {
--	__raw_writel(lower_32_bits(addr), portl);
-+	gf_iowrite32(lower_32_bits(addr), portl);
- #ifdef CONFIG_ARCH_DMA_ADDR_T_64BIT
--	__raw_writel(upper_32_bits(addr), porth);
-+	gf_iowrite32(upper_32_bits(addr), porth);
- #endif
- }
- 
+ 			page = pfn_swap_entry_to_page(entry);
++			if (details && details->check_mapping &&
++			    details->check_mapping != page_rmapping(page))
++				continue;
+ 			rss[mm_counter(page)]--;
+ 		}
+ 		if (unlikely(!free_swap_and_cache(entry)))
 -- 
-2.35.1
+2.32.0
+
+
+--/WFeP7NRMf8M9+cU--
 
