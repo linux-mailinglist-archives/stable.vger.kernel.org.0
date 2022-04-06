@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 83E1E4F6910
-	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 20:19:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F71D4F68C7
+	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 20:19:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240155AbiDFSI6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Apr 2022 14:08:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42952 "EHLO
+        id S240198AbiDFSJK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Apr 2022 14:09:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52224 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240473AbiDFSHz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 14:07:55 -0400
+        with ESMTP id S240483AbiDFSH7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 14:07:59 -0400
 Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 65FB2B89BD;
-        Wed,  6 Apr 2022 09:46:19 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 47F9E140F7;
+        Wed,  6 Apr 2022 09:46:20 -0700 (PDT)
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 4CC5112FC;
-        Wed,  6 Apr 2022 09:46:19 -0700 (PDT)
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 2ED7223A;
+        Wed,  6 Apr 2022 09:46:20 -0700 (PDT)
 Received: from eglon.cambridge.arm.com (eglon.cambridge.arm.com [10.1.196.218])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 9FBEE3F73B;
-        Wed,  6 Apr 2022 09:46:18 -0700 (PDT)
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 819993F73B;
+        Wed,  6 Apr 2022 09:46:19 -0700 (PDT)
 From:   James Morse <james.morse@arm.com>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     James Morse <james.morse@arm.com>,
         Catalin Marinas <catalin.marinas@arm.com>
-Subject: [stable:PATCH v4.9.309 19/43] arm64: Make ARM64_ERRATUM_1188873 depend on COMPAT
-Date:   Wed,  6 Apr 2022 17:45:22 +0100
-Message-Id: <20220406164546.1888528-19-james.morse@arm.com>
+Subject: [stable:PATCH v4.9.309 20/43] arm64: Add part number for Neoverse N1
+Date:   Wed,  6 Apr 2022 17:45:23 +0100
+Message-Id: <20220406164546.1888528-20-james.morse@arm.com>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20220406164546.1888528-1-james.morse@arm.com>
 References: <0220406164217.1888053-1-james.morse@arm.com>
@@ -44,30 +44,37 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Marc Zyngier <marc.zyngier@arm.com>
 
-commit c2b5bba3967a000764e9148e6f020d776b7ecd82 upstream.
+commit 0cf57b86859c49381addb3ce47be70aadf5fd2c0 upstream.
 
-Since ARM64_ERRATUM_1188873 only affects AArch32 EL0, it makes some
-sense that it should depend on COMPAT.
+New CPU, new part number. You know the drill.
 
 Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
 Signed-off-by: Will Deacon <will.deacon@arm.com>
 Signed-off-by: James Morse <james.morse@arm.com>
 ---
- arch/arm64/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm64/include/asm/cputype.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
-index 93bf53aa02d4..42719bd58046 100644
---- a/arch/arm64/Kconfig
-+++ b/arch/arm64/Kconfig
-@@ -444,6 +444,7 @@ config ARM64_ERRATUM_1024718
- config ARM64_ERRATUM_1188873
- 	bool "Cortex-A76: MRC read following MRRC read of specific Generic Timer in AArch32 might give incorrect result"
- 	default y
-+	depends on COMPAT
- 	select ARM_ARCH_TIMER_OOL_WORKAROUND
- 	help
- 	  This option adds work arounds for ARM Cortex-A76 erratum 1188873
+diff --git a/arch/arm64/include/asm/cputype.h b/arch/arm64/include/asm/cputype.h
+index 76b551e83f2d..ae467bc65aab 100644
+--- a/arch/arm64/include/asm/cputype.h
++++ b/arch/arm64/include/asm/cputype.h
+@@ -86,6 +86,7 @@
+ #define ARM_CPU_PART_CORTEX_A35		0xD04
+ #define ARM_CPU_PART_CORTEX_A55		0xD05
+ #define ARM_CPU_PART_CORTEX_A76		0xD0B
++#define ARM_CPU_PART_NEOVERSE_N1	0xD0C
+ 
+ #define APM_CPU_PART_POTENZA		0x000
+ 
+@@ -104,6 +105,7 @@
+ #define MIDR_CORTEX_A35 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A35)
+ #define MIDR_CORTEX_A55 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A55)
+ #define MIDR_CORTEX_A76	MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A76)
++#define MIDR_NEOVERSE_N1 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_NEOVERSE_N1)
+ #define MIDR_THUNDERX	MIDR_CPU_MODEL(ARM_CPU_IMP_CAVIUM, CAVIUM_CPU_PART_THUNDERX)
+ #define MIDR_THUNDERX_81XX MIDR_CPU_MODEL(ARM_CPU_IMP_CAVIUM, CAVIUM_CPU_PART_THUNDERX_81XX)
+ #define MIDR_CAVIUM_THUNDERX2 MIDR_CPU_MODEL(ARM_CPU_IMP_CAVIUM, CAVIUM_CPU_PART_THUNDERX2)
 -- 
 2.30.2
 
