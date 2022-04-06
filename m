@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A67D4F6E0B
-	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 00:50:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3056C4F6E0E
+	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 00:51:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237318AbiDFWwL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Apr 2022 18:52:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47902 "EHLO
+        id S237328AbiDFWw6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Apr 2022 18:52:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50736 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237317AbiDFWwK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 18:52:10 -0400
-Received: from mail-il1-x12c.google.com (mail-il1-x12c.google.com [IPv6:2607:f8b0:4864:20::12c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B43B20034E
-        for <stable@vger.kernel.org>; Wed,  6 Apr 2022 15:50:12 -0700 (PDT)
-Received: by mail-il1-x12c.google.com with SMTP id k15so3062061ils.0
-        for <stable@vger.kernel.org>; Wed, 06 Apr 2022 15:50:12 -0700 (PDT)
+        with ESMTP id S237338AbiDFWw4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 18:52:56 -0400
+Received: from mail-io1-xd32.google.com (mail-io1-xd32.google.com [IPv6:2607:f8b0:4864:20::d32])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CD61200364
+        for <stable@vger.kernel.org>; Wed,  6 Apr 2022 15:50:56 -0700 (PDT)
+Received: by mail-io1-xd32.google.com with SMTP id k25so4787521iok.8
+        for <stable@vger.kernel.org>; Wed, 06 Apr 2022 15:50:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linuxfoundation.org; s=google;
         h=subject:to:cc:references:from:message-id:date:user-agent
          :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=HJBCefI8myvkV7QqgDDpUVtIKJjZbX/3glh4aMBj2Io=;
-        b=h+cdaWXASY9gywq29DGmcHJoZZu4w82evaLpfFDdTtk3vMKDQ0hAytSKJmhhyr17/D
-         rIsI2dhxYEnZlgRjCVdf3meuSBKQCjIxQ+NFC6k2Dxc27T57i+FhgQa4OMExnd7wVtaT
-         s0GqxF2qpyB27SJov6+BbRCoyBdPaTr3diL3I=
+        bh=3qjN15LildAkA1UcTUK0Pb+T2oa5XZIOoRf6nmgevRk=;
+        b=hSkS4doEGHqz4km3BOFtuZF5E82VjRRSbLKkI3q/kdUjojOc8WZPJxjGNVWwoEJlJN
+         sJ84kxuKZmJRCxJyVAXGv35p+dlAKCiHjO41rauBicQH+2ZpKUA1dynaPUkLzG6bFnhb
+         kNy/2t6UCVA9CC/0howpicuRxdwOi6FcA397g=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:subject:to:cc:references:from:message-id:date
          :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=HJBCefI8myvkV7QqgDDpUVtIKJjZbX/3glh4aMBj2Io=;
-        b=6KhTejNxip6cBKlOqGY6n1Oz91cPFmlRLpydZh4XCoMjHm5Eie5LmRr7rZwHbcaRvE
-         PxwgXFWV3khnHmVWY/19/GXVwbEFVnBJ5xt0rbTnz42Slj007CHMVKUioZ+u2nQgNFAP
-         kb4EHJ+QsY+55eoZLCzSnwmmpzVPPSTXudsrNhsVVlz7YFBZ0k31rsmB10Mp5tKzSvy0
-         Vq5aVB5wMvzOjQv3IKYxXZa+YZNMOfKlScUh4eBSKHXkxP+fTUwdKHbyoO1R/OxfIKBF
-         xh5g5e53APnnAAahIX/Lpn6/AfG6GanrwYR7pNnKxQzsWm+AB4uJfCsIpfQCjyjQVuH7
-         /llQ==
-X-Gm-Message-State: AOAM5311oA6PpeYwHzly3j+4SUiPLr5oKC3B3zLjWT3XH1bgda0czsHB
-        SbF0EQ0kEW2I7DuEQqVq7Ngt6g==
-X-Google-Smtp-Source: ABdhPJyWaPH02/pqQWKtOEi+t4CkGehHvBUZ/S4uaRObcAiKb8jqO6mRoYJD54yoEn8XaGY513SM6g==
-X-Received: by 2002:a05:6e02:164b:b0:2ca:255e:acf1 with SMTP id v11-20020a056e02164b00b002ca255eacf1mr5474861ilu.243.1649285411861;
-        Wed, 06 Apr 2022 15:50:11 -0700 (PDT)
+        bh=3qjN15LildAkA1UcTUK0Pb+T2oa5XZIOoRf6nmgevRk=;
+        b=ozTDqKcjQ6AvbE0ikn+MgrHiYOD23jkpkqYn9gRb+5H+XhpRvAPuETjYsw7kYj1Q8p
+         oVYTllMulws0rbyTK4YC+tXao1bP6V1mulG08PDMUvxOF5pQ9p3qwm4l4JeyApJTSrR6
+         Ez+9+7wV+wd6CWDXAl9/Rp5so2Fc3uEOmzbgCbqSTWVfuvv4CMo2yNX1X2MrGZtZiVZ1
+         /UriG4ZFy0nHLLoxwRnyntSYhgEMewhuqo+JdV0iWPRnZLhdgpRbf6bxrbwvqv/pwfQB
+         bKO+Y5TD7D8QU+y3X1qt6a5l6dwZTjZUyA6OVYzSb7Vmrdxr2dmIctgM383qXkTcdch4
+         qbYw==
+X-Gm-Message-State: AOAM531k7MbjgW1gkJqLnRly0qrW9rxsO5BnoWVYrlsJM+Jhcga5jyYY
+        R2MQgjLmaI6Wyw1vXWCVz4b4UQ==
+X-Google-Smtp-Source: ABdhPJzXH6rNGUKQlqhPfN5d+8YuFyoy0E9/BL1l2eDxtbtzbimDP0lRRdXCkrNHV7yHMAv43N2IJA==
+X-Received: by 2002:a05:6638:1352:b0:321:547b:daa2 with SMTP id u18-20020a056638135200b00321547bdaa2mr5372535jad.128.1649285455605;
+        Wed, 06 Apr 2022 15:50:55 -0700 (PDT)
 Received: from [192.168.1.128] ([71.205.29.0])
-        by smtp.gmail.com with ESMTPSA id t6-20020a6b0906000000b0064963285af2sm11285969ioi.51.2022.04.06.15.50.11
+        by smtp.gmail.com with ESMTPSA id m8-20020a92d708000000b002c6381d9144sm10383514iln.59.2022.04.06.15.50.54
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 06 Apr 2022 15:50:11 -0700 (PDT)
-Subject: Re: [PATCH 5.15 000/911] 5.15.33-rc2 review
+        Wed, 06 Apr 2022 15:50:55 -0700 (PDT)
+Subject: Re: [PATCH 5.10 000/597] 5.10.110-rc2 review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         linux-kernel@vger.kernel.org
 Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
@@ -54,30 +54,30 @@ Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
         jonathanh@nvidia.com, f.fainelli@gmail.com,
         sudipm.mukherjee@gmail.com, slade@sladewatkins.com,
         Shuah Khan <skhan@linuxfoundation.org>
-References: <20220406133055.820319940@linuxfoundation.org>
+References: <20220406133013.264188813@linuxfoundation.org>
 From:   Shuah Khan <skhan@linuxfoundation.org>
-Message-ID: <62c6b184-8a47-cf25-b33e-63513fd6ee2f@linuxfoundation.org>
-Date:   Wed, 6 Apr 2022 16:50:10 -0600
+Message-ID: <028a0284-f939-4d62-3d42-06a2835942c7@linuxfoundation.org>
+Date:   Wed, 6 Apr 2022 16:50:54 -0600
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
  Thunderbird/78.8.1
 MIME-Version: 1.0
-In-Reply-To: <20220406133055.820319940@linuxfoundation.org>
+In-Reply-To: <20220406133013.264188813@linuxfoundation.org>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 X-Spam-Status: No, score=-5.0 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
         RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=unavailable autolearn_force=no version=3.4.6
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 4/6/22 7:44 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.15.33 release.
-> There are 911 patches in this series, all will be posted as a response
+On 4/6/22 7:43 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.110 release.
+> There are 597 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 > 
@@ -85,9 +85,9 @@ On 4/6/22 7:44 AM, Greg Kroah-Hartman wrote:
 > Anything received after that time might be too late.
 > 
 > The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.33-rc2.gz
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.110-rc2.gz
 > or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
 > and the diffstat can be found below.
 > 
 > thanks,
@@ -101,3 +101,4 @@ Tested-by: Shuah Khan <skhan@linuxfoundation.org>
 
 thanks,
 -- Shuah
+
