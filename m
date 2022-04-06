@@ -2,58 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 181E74F6288
-	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 17:08:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 814844F62FA
+	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 17:19:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235360AbiDFPB5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Apr 2022 11:01:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41692 "EHLO
+        id S235480AbiDFPLw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Apr 2022 11:11:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53866 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235443AbiDFPBt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 11:01:49 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A54BA2102A8;
-        Wed,  6 Apr 2022 04:46:11 -0700 (PDT)
+        with ESMTP id S235759AbiDFPL0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 11:11:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 098611DF875;
+        Wed,  6 Apr 2022 05:11:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 078E6B8225B;
-        Wed,  6 Apr 2022 11:44:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC284C385A3;
-        Wed,  6 Apr 2022 11:44:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1649245443;
-        bh=NxeimgFKXbpME/i8GbhGeyomnmNXOaXJQCJ3je+GzkE=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=Ib9hdNGGYkrCQaXv+Wa1skJOD2XxfidXfz1pqcxFsyXCCzxmlx4Q3Iv3zMczs0oKa
-         FQe0DNtq44xqgLu38lKgQlYFw3Ij795WPlkExr4Ro8+jAkTyioR9A9BMIhk91q9J+R
-         QabboGRB4qGh2cnlhPER2Onwrw5Q/VSEu3RqX41pc3se7y9sXoIwT3O2RDYpgi6Z8l
-         CNg8ObMUpX+4Zv4u9Bk/mM3AAvhsbWPbeyNFTQSoXvExtLE6vXtR5ciAv6Yh1XrMBw
-         O1wSUjRp0lg0zIDtO2k54+FomdDRCXHT/n5i7rQLiEC8H5aU6PZ2AIaF9+r4Ajgm4Q
-         iJs2PmQtEfQ7A==
-Received: by mail-ot1-f52.google.com with SMTP id x8-20020a9d6288000000b005b22c373759so1519896otk.8;
-        Wed, 06 Apr 2022 04:44:03 -0700 (PDT)
-X-Gm-Message-State: AOAM533HDRs+1aVPN4Log4NvSw4lyrz6mEWkVlB0UFC7qu6e/WVj85nf
-        l1xJEwSD2btu6yqjLqvrcQk+d5RhKHpwj0Adn7Q=
-X-Google-Smtp-Source: ABdhPJwgIpRNFG6qcoAVBzxDEl4cLier8VLEXG9sCYAAHpDzoTvzxVWsFwYD+jTe+LzI54KUubxiebLt/6VhtToTqKA=
-X-Received: by 2002:a05:6830:2e7:b0:5b2:68c1:182a with SMTP id
- r7-20020a05683002e700b005b268c1182amr2838747ote.71.1649245442897; Wed, 06 Apr
- 2022 04:44:02 -0700 (PDT)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7FEB06179E;
+        Wed,  6 Apr 2022 12:07:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65B24C385A1;
+        Wed,  6 Apr 2022 12:07:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1649246823;
+        bh=29FlFNXkq27syBNmf9v5tb8A1L9rU05KZSllftSB3hU=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=kVy1iQrsTySgS5FxZTXzmnZ5tx01hAkemwsko9mFzQ/aI7nTEFV/bjRvB0oKgk3TC
+         P9QcVAfk4JbrbLJspRRr2Vrr/8hemxPrcSCZ0GznQZD7Pmo0qqw/ucaQERYqD8o2Lt
+         zTAmACYIgMa+QKBnaI6wd2yOZON1bC4DhfbjK5KI=
+Date:   Wed, 6 Apr 2022 14:07:01 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+Subject: Re: [PATCH 5.10 000/599] 5.10.110-rc1 review
+Message-ID: <Yk2CZY8AuzSjgwMx@kroah.com>
+References: <20220405070258.802373272@linuxfoundation.org>
+ <e80a3eb4-335c-5f8c-dc22-e33176b225da@roeck-us.net>
 MIME-Version: 1.0
-References: <20220405070339.801210740@linuxfoundation.org> <20220405070402.195698649@linuxfoundation.org>
- <CAMj1kXFL4abn9xg1ZrNpFg54Pmw1Kw8OPbDpMevSjQDNg0r5Pg@mail.gmail.com> <Yk14LhswMSlPGrmJ@sashalap>
-In-Reply-To: <Yk14LhswMSlPGrmJ@sashalap>
-From:   Ard Biesheuvel <ardb@kernel.org>
-Date:   Wed, 6 Apr 2022 13:43:51 +0200
-X-Gmail-Original-Message-ID: <CAMj1kXHxGjO9ctZ5kSd0MZztOTZz8j02rTPJgPdANODqUH5JGg@mail.gmail.com>
-Message-ID: <CAMj1kXHxGjO9ctZ5kSd0MZztOTZz8j02rTPJgPdANODqUH5JGg@mail.gmail.com>
-Subject: Re: [PATCH 5.15 746/913] ARM: ftrace: avoid redundant loads or
- clobbering IP
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <e80a3eb4-335c-5f8c-dc22-e33176b225da@roeck-us.net>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -64,45 +55,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 6 Apr 2022 at 13:23, Sasha Levin <sashal@kernel.org> wrote:
->
-> On Tue, Apr 05, 2022 at 12:01:19PM +0200, Ard Biesheuvel wrote:
-> >On Tue, 5 Apr 2022 at 11:54, Greg Kroah-Hartman
-> ><gregkh@linuxfoundation.org> wrote:
-> >>
-> >> From: Ard Biesheuvel <ardb@kernel.org>
-> >>
-> >> [ Upstream commit d11967870815b5ab89843980e35aab616c97c463 ]
-> >>
-> >> Tweak the ftrace return paths to avoid redundant loads of SP, as well as
-> >> unnecessary clobbering of IP.
-> >>
-> >> This also fixes the inconsistency of using MOV to perform a function
-> >> return, which is sub-optimal on recent micro-architectures but more
-> >> importantly, does not perform an interworking return, unlike compiler
-> >> generated function returns in Thumb2 builds.
-> >>
-> >> Let's fix this by popping PC from the stack like most ordinary code
-> >> does.
-> >>
-> >> Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-> >> Reviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-> >> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> >
-> >Please drop all the 32-bit ARM patches authored by me from the stable
-> >queues except the ones that have fixes tags. These are highly likely
->
-> I can drop you from future selections as well.
->
+On Tue, Apr 05, 2022 at 06:08:44AM -0700, Guenter Roeck wrote:
+> On 4/5/22 00:24, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 5.10.110 release.
+> > There are 599 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> > 
+> > Responses should be made by Thu, 07 Apr 2022 07:01:33 +0000.
+> > Anything received after that time might be too late.
+> > 
+> 
+> Building um:defconfig ... failed
+> Building csky:defconfig ... failed
+> Building microblaze:mmu_defconfig ... failed
+> ------
+> Error log:
+> 
+> fs/binfmt_elf.c: In function 'fill_note_info':
+> fs/binfmt_elf.c:2050:45: error: 'siginfo' undeclared (first use in this function)
+>  2050 |                 sz = elf_dump_thread_status(siginfo->si_signo, ets);
+>       |                                             ^~~~~~~
+> fs/binfmt_elf.c:2050:45: note: each undeclared identifier is reported only once for each function it appears in
+> fs/binfmt_elf.c:2056:53: error: 'regs' undeclared (first use in this function)
+>  2056 |         elf_core_copy_regs(&info->prstatus->pr_reg, regs);
+>       |                                                     ^~~~
+> 
+> Build just started, so there are likely going to be more failures.
 
-Yes, please. Just disregard all of my patches, unless they have a
-fixes or cc:stable, or someone suggests them explicitly.
+Thanks, I missed this in my backport.  Now should be fixed up, I'll push
+out a -rc2 after this goes through some local build tests.
 
-> >to cause an explosion of regressions, and they should have never been
-> >selected, as I don't remember anyone proposing these for stable.
->
-> They were proposed by the bot last week
-> (https://lore.kernel.org/lkml/20220330115005.1671090-22-sashal@kernel.org/).
->
-
-Yeah, we should really not be using a bot for that.
+greg k-h
