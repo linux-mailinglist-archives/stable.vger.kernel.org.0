@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AB0C14F6B2F
-	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 22:19:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB81C4F6ABF
+	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 22:02:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232685AbiDFUVK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Apr 2022 16:21:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35408 "EHLO
+        id S233463AbiDFUEQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Apr 2022 16:04:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60274 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233807AbiDFUUa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 16:20:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6414160479;
-        Wed,  6 Apr 2022 11:27:50 -0700 (PDT)
+        with ESMTP id S235593AbiDFUDx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 16:03:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB6F21FF205;
+        Wed,  6 Apr 2022 11:27:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8DB83B8252B;
-        Wed,  6 Apr 2022 18:27:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB5EBC385A3;
-        Wed,  6 Apr 2022 18:27:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 84FE761B89;
+        Wed,  6 Apr 2022 18:27:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 935F9C385A5;
+        Wed,  6 Apr 2022 18:27:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649269668;
-        bh=ms8DKPPccNuD/4jD9tYlkCtvQOsvj2iMy99LDZoFne0=;
+        s=korg; t=1649269670;
+        bh=TEO1ws/joQIZlBlf0QTXMmwaDURYuXSVRVRTRhqI9DI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tECjaeMWJVhvD1ZrPngkjdOpHGVI3P0deLy3p/SIN1L6nsdIeFIRg5vwa2uZOby7m
-         pd9juI/Gol2JmljNxVQVY31bL1m6My/IA344q2loFh5udMp5xR9mKePBoMyNweBYTg
-         95n66KAyckyEOY5vZIgoOgMP8e3v1/1FIcwxVW1Q=
+        b=znpkq99dOhVAghgYw7ANzbsqI0s7urmGc5oUtuPlinSgyI1lOmOzeYMFgyVzz8vAT
+         j386/XoQOF0n07g7YoDsHAVVaadXguQd03WQfB1ML7ECaM0Jh5BG2swc6S/eGbydWp
+         /7VhCSfpLAvlmhz8o6QEsE7YfdnD3UFeSxuxrN1k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
         Catalin Marinas <catalin.marinas@arm.com>,
         James Morse <james.morse@arm.com>
-Subject: [PATCH 4.9 25/43] arm64: entry.S: Add ventry overflow sanity checks
-Date:   Wed,  6 Apr 2022 20:26:34 +0200
-Message-Id: <20220406182437.412264208@linuxfoundation.org>
+Subject: [PATCH 4.9 26/43] arm64: entry: Make the trampoline cleanup optional
+Date:   Wed,  6 Apr 2022 20:26:35 +0200
+Message-Id: <20220406182437.441263260@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220406182436.675069715@linuxfoundation.org>
 References: <20220406182436.675069715@linuxfoundation.org>
@@ -57,44 +57,64 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: James Morse <james.morse@arm.com>
 
-commit 4330e2c5c04c27bebf89d34e0bc14e6943413067 upstream.
+commit d739da1694a0eaef0358a42b76904b611539b77b upstream.
 
-Subsequent patches add even more code to the ventry slots.
-Ensure kernels that overflow a ventry slot don't get built.
+Subsequent patches will add additional sets of vectors that use
+the same tricks as the kpti vectors to reach the full-fat vectors.
+The full-fat vectors contain some cleanup for kpti that is patched
+in by alternatives when kpti is in use. Once there are additional
+vectors, the cleanup will be needed in more cases.
+
+But on big/little systems, the cleanup would be harmful if no
+trampoline vector were in use. Instead of forcing CPUs that don't
+need a trampoline vector to use one, make the trampoline cleanup
+optional.
+
+Entry at the top of the vectors will skip the cleanup. The trampoline
+vectors can then skip the first instruction, triggering the cleanup
+to run.
 
 Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: James Morse <james.morse@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kernel/entry.S |    3 +++
- 1 file changed, 3 insertions(+)
+ arch/arm64/kernel/entry.S |   10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
 --- a/arch/arm64/kernel/entry.S
 +++ b/arch/arm64/kernel/entry.S
-@@ -74,6 +74,7 @@
- 
- 	.macro kernel_ventry, el, label, regsize = 64
+@@ -76,16 +76,20 @@
  	.align 7
-+.Lventry_start\@:
+ .Lventry_start\@:
  #ifdef CONFIG_UNMAP_KERNEL_AT_EL0
- alternative_if ARM64_UNMAP_KERNEL_AT_EL0
+-alternative_if ARM64_UNMAP_KERNEL_AT_EL0
  	.if	\el == 0
-@@ -89,6 +90,7 @@ alternative_else_nop_endif
++	/*
++	 * This must be the first instruction of the EL0 vector entries. It is
++	 * skipped by the trampoline vectors, to trigger the cleanup.
++	 */
++	b	.Lskip_tramp_vectors_cleanup\@
+ 	.if	\regsize == 64
+ 	mrs	x30, tpidrro_el0
+ 	msr	tpidrro_el0, xzr
+ 	.else
+ 	mov	x30, xzr
+ 	.endif
++.Lskip_tramp_vectors_cleanup\@:
+ 	.endif
+-alternative_else_nop_endif
+ #endif
  
  	sub	sp, sp, #S_FRAME_SIZE
- 	b	el\()\el\()_\label
-+.org .Lventry_start\@ + 128	// Did we overflow the ventry slot?
- 	.endm
- 
- 	.macro tramp_alias, dst, sym
-@@ -935,6 +937,7 @@ __ni_sys_trace:
- 	add	x30, x30, #(1b - tramp_vectors)
+@@ -934,7 +938,7 @@ __ni_sys_trace:
+ #endif
+ 	prfm	plil1strm, [x30, #(1b - tramp_vectors)]
+ 	msr	vbar_el1, x30
+-	add	x30, x30, #(1b - tramp_vectors)
++	add	x30, x30, #(1b - tramp_vectors + 4)
  	isb
  	ret
-+.org 1b + 128	// Did we overflow the ventry slot?
- 	.endm
- 
- 	.macro tramp_exit, regsize = 64
+ .org 1b + 128	// Did we overflow the ventry slot?
 
 
