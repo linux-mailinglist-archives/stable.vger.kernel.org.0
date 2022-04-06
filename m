@@ -2,102 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A00114F6E13
-	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 00:51:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 272A44F6E18
+	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 00:52:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237407AbiDFWxU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Apr 2022 18:53:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52268 "EHLO
+        id S237367AbiDFWyS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Apr 2022 18:54:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56084 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237401AbiDFWxT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 18:53:19 -0400
-Received: from mail-io1-xd29.google.com (mail-io1-xd29.google.com [IPv6:2607:f8b0:4864:20::d29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1515200978
-        for <stable@vger.kernel.org>; Wed,  6 Apr 2022 15:51:21 -0700 (PDT)
-Received: by mail-io1-xd29.google.com with SMTP id g21so4767893iom.13
-        for <stable@vger.kernel.org>; Wed, 06 Apr 2022 15:51:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxfoundation.org; s=google;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=LhLrFcTJdN0MyQgGqik/pDNO2Tmd3bn5F2SfDE9sxYg=;
-        b=B5VmOhGKEDfBwkHfDjI6SdGmK4QTmThmIB6r44KJkU3FbHwjDCROIF7vqYXWnupMrm
-         JHGnaEdp8s/tIxoI3rHstf/+ly4in0+RPOoz8FXM493hBRqlqhhSpcPkOuqEiRfpvDQg
-         Q3eXyohXkNQ3i3ZcjQgplA88u+eVpMynuc+5c=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=LhLrFcTJdN0MyQgGqik/pDNO2Tmd3bn5F2SfDE9sxYg=;
-        b=2z0oIXnkiJEW3t2Fmzb9vWEYw1pWPxIhX+iQGmR/HAtsrdvH1kEXj2jJpOX7pIcBFz
-         DUes2wBq9rqJJSJwIiTMmhMMAy3UEyXbNCiLMVwEBYpNkDJMLy8a1rcjaNjUixkO03hz
-         DjwyrXUXjwtACCP510lLV/uGUU98K68tBMjMgF4/lXaftI7F+ko0xmc8ubLRoOiKod1R
-         JrkBRoHw+3U5deVxi4T8O6P6TgkMSccqt9ujp2RCE/4NIfZxjnajc8Am+sChMe0Ovcpa
-         Ks7pTsmRZHlNKh3BT474+uu9KLjJAFfnmmyL+6PXjOnOJZuU3jkJODWMA1QERyzuQgf/
-         yOpQ==
-X-Gm-Message-State: AOAM531oCSfrNWCr/zEq51+d/FnUo6SPjWEvjN6fUa5OmIdaEo7lHety
-        32glWtE1EzNydXxq23OFomQJLA==
-X-Google-Smtp-Source: ABdhPJwBou2hJHn5g+qBkuPsN4yU0hqUunMANuO3+MiQlhNjNpnUhn1XJA6tmla0UZK4c0tmYk9e4g==
-X-Received: by 2002:a5e:dd08:0:b0:645:d3ba:b9fb with SMTP id t8-20020a5edd08000000b00645d3bab9fbmr4976646iop.35.1649285481029;
-        Wed, 06 Apr 2022 15:51:21 -0700 (PDT)
-Received: from [192.168.1.128] ([71.205.29.0])
-        by smtp.gmail.com with ESMTPSA id a9-20020a926609000000b002ca50234d00sm4809521ilc.2.2022.04.06.15.51.20
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 06 Apr 2022 15:51:20 -0700 (PDT)
-Subject: Re: [PATCH 4.9 00/43] 4.9.310-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com,
-        Shuah Khan <skhan@linuxfoundation.org>
-References: <20220406182436.675069715@linuxfoundation.org>
-From:   Shuah Khan <skhan@linuxfoundation.org>
-Message-ID: <a4adfaed-24d4-f47b-cbb3-eea8010e57df@linuxfoundation.org>
-Date:   Wed, 6 Apr 2022 16:51:19 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.8.1
+        with ESMTP id S234513AbiDFWyR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 18:54:17 -0400
+Received: from mout.gmx.net (mout.gmx.net [212.227.15.18])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A139AC6EC1;
+        Wed,  6 Apr 2022 15:52:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
+        s=badeba3b8450; t=1649285536;
+        bh=TtLwKAcrHVgXjNMYc4F1qJ3uS3sjFBx9JkXE/llyLCs=;
+        h=X-UI-Sender-Class:Date:From:Subject:To:Cc;
+        b=YUJwc28mHKOocLAG5ZJ3K+xL6X0cK72P/b4i5eTrlrY9rKs6P5+EV+zvaWE33ItUn
+         zB4PKHdLSqzCU2rYtMpJwtWzd6ZqzAE+fsSxoAMwKLGitCR0FVugHlu9lGqiYrCsS7
+         ooHoqvHqHuXTbF0qLqyo8EboFpI0OGLJVzL9obeg=
+X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
+Received: from [192.168.100.20] ([46.142.32.10]) by mail.gmx.net (mrgmx005
+ [212.227.17.190]) with ESMTPSA (Nemesis) id 1M26rD-1naIZN34TB-002Tsx; Thu, 07
+ Apr 2022 00:52:16 +0200
+Message-ID: <4e52dc01-175a-eff8-89bd-2782d61d523f@gmx.de>
+Date:   Thu, 7 Apr 2022 00:52:16 +0200
 MIME-Version: 1.0
-In-Reply-To: <20220406182436.675069715@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.7.0
+From:   Ronald Warsow <rwarsow@gmx.de>
+Subject: Re: [PATCH 5.17 0000/1123] 5.17.2-rc2 review
+To:     linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org
+Content-Language: de-DE
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-5.0 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+X-Provags-ID: V03:K1:NMj8tLIfVDjsisGDkERt7Qo+doEEs0euFAEE2DUf1bwzh8jSeAP
+ 2DeU0YKeNc6xvusjxMRlUqw/C4kU5stEDhu51sawPuV5gIRE/XMPLFu53tjYErnURRbT+p5
+ yR2oSDDxyzhO8122CzwmoXkc1d4Xb4XpzcdaJCXVyG/MsnUXhzjU3x2M9J2ReZaQZGE/ik4
+ Vj70YmbKD7XcCklogE+DA==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:hCLxCtGuEa0=:2foKtnaR7VhoP0V9DTkd8M
+ 5xpl1i7ySVQ2YRPDTY7Y3eiBepoDaKeTDqwNb4tR1Ib1VEQOi5Y7+/i5GuWFJlZpstAgNPvgF
+ TEZvlEcFiRwyAD9VUi848v7LBjjt3zi0BS14yqcITqQsIWu7Y6A7DuS0xjWZtQR+d8xTqoS7h
+ J5x2mH/rSc7HGnmn5BBtPL+27Hi2V3Yoz0UbaDg8zYH5RcrNClmyekzUok8R582ujWm3/KLmZ
+ sAWbJdugeEr/XHX6JmxNxcoIVcO0VciMPuWjIwHDte/275vi22MqzAb7AxhhKuwjsXewpjOAu
+ GLueDxVOaSOQ7SZ4XQxXOeHc6eE+6yHg7HrOb0uP88Xprub9ExKYHgxq0G2yrQ6+o4LjPbGN2
+ OkpQ4/+6HgpLmm5g/ZMAbpldrWzWUI9jVP61RJp/0l6SiTq70v07WNXBrswMXJKK+BqMvqcJB
+ EvaQ34tnRq1k0ShW0YFPvYaoIDu21IrCC1+wHRMPoFhu7Vhs+a3TH/qPd5cZUkeCk1eGZwtX2
+ pqb3V+Zk/HjjQe7QNSNsfix/S30LnaB/1eIkBaZVQDHIjj0mtv3RCp0p2Ixp9/9FLeZKQAjCg
+ McflYusuMl4ZVLN9Mf7VogiebBAPk7bQKsF57U5LBYuHSdWeJfa6ajMGCfBd3i5lrMAfv1Cmu
+ YvPxUlTItakhqc6h/JtBQu5Bl7iMrk1X4V9xR9xe6nlvXjO0K6vNxK5EsjgNL1Snh6NO7OkAY
+ kZq414mgPfkzuu1ggnkh64mnY1NGxvFcUz3TUVpMqBjUUi93za8dAYhmhmT84KLIPya7ZLKMP
+ i9G3NBRL34GW+G/tn7PGHundBp5P7Ls0wRBbpmdVDuRwivZ+ULW/Xnf3cRXtF9oG/NM9U5kH+
+ BwRrpmueVhjFhjXkpzJcttn3W0jVZQgklSvytiUUAcy/9zxN2X20K8TF92VJNSqx32lk3sxVo
+ EPmdnEYv1aQj483rtjX0olLYEaC29PpdNJExv2Bmp66fAFxa1YZ6h03pyS75zVc02nATNblTT
+ S/2tbY2qRjDBCSTR8vzAGk/X0p1fHL2SpuaG4Prob7d3T42D6EKGOo05WhoCcXFY4nckYBQlV
+ Rotfx5Xhx3yw0Y=
+X-Spam-Status: No, score=-0.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,FAKE_REPLY_A1,FREEMAIL_FROM,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 4/6/22 12:26 PM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.9.310 release.
-> There are 43 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Fri, 08 Apr 2022 18:24:27 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.310-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+hallo Greg
 
-Compiled and booted on my test system. No dmesg regressions.
+5.17.2-rc2
 
-Tested-by: Shuah Khan <skhan@linuxfoundation.org>
+compiles, boots and runs on my x86_64
+(Intel i5-11400, Fedora 36 Beta)
 
-thanks,
--- Shuah
+Thanks
+
+Tested-by: Ronald Warsow <rwarsow@gmx.de>
+
+Ronald
+
