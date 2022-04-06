@@ -2,78 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 73ECA4F6967
-	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 20:53:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 271D34F6AB2
+	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 21:58:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229526AbiDFSpM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Apr 2022 14:45:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58180 "EHLO
+        id S233011AbiDFUAl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Apr 2022 16:00:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37378 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230379AbiDFSnV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 14:43:21 -0400
-Received: from mail-oa1-x35.google.com (mail-oa1-x35.google.com [IPv6:2001:4860:4864:20::35])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABA7E10E056
-        for <stable@vger.kernel.org>; Wed,  6 Apr 2022 10:14:02 -0700 (PDT)
-Received: by mail-oa1-x35.google.com with SMTP id 586e51a60fabf-dacc470e03so3620449fac.5
-        for <stable@vger.kernel.org>; Wed, 06 Apr 2022 10:14:02 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=mime-version:in-reply-to:references:from:user-agent:date:message-id
-         :subject:to:cc;
-        bh=2yxIHdSniEBfLfiIcgeVHAibkiH/0T+8iYozr27DbcY=;
-        b=DIDZJozu6kfJB/vlpeMZEHmCp2KoYk2TnctteVe5VjssokFpexrrLukTsFlmTgeEX0
-         YdqFxuGoCocE6JJGCiVRCm7Mcc+rkBPCq69TclWm9VxhFETtltg9EnZ1WY4C29+VUObg
-         /SO9xkY2849lc9evDh4CDH3ZL03JyjDT87yyI=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:in-reply-to:references:from
-         :user-agent:date:message-id:subject:to:cc;
-        bh=2yxIHdSniEBfLfiIcgeVHAibkiH/0T+8iYozr27DbcY=;
-        b=QKzFoG48ZoGzuBsJh1gktKXn8ZeUi8q5awP4e2kp8RgBwyumDJ6kAOLuAIO8zj0Lm8
-         tmMd5tT1QznpoRP5N+mXyEnCHLlGsO2mv9Q2Y8mimvLP7NMlMDTThgPpBV7n5FZolhd8
-         VPQskqIMIayXKdmiqWJhUHnQoZxtb1qkGuC3+2VLFcjHFwjh0C98JxSwJGiqF671xIhw
-         4bC92MTCKlSNqaemIEwjiVWNyhvDWC7tvFaYcQ9siRQNx9uHp2mM3JFe4JPUugHb2iTK
-         NG0mZWCTOlEWzkDnz4DNCWQWLLDmtN3sDvLs20GuoiZ4HTXwx7RQOwYH5W/x++jvByBy
-         kmRg==
-X-Gm-Message-State: AOAM532EPUrpc0WHVkzI9RBMHO+jecYFchOEhHH4tSg6AB6+T0+SVSYi
-        Jcg0i7cCyhFcUMhq461rDi3qO07ZEZfq9wu5gly2Qg==
-X-Google-Smtp-Source: ABdhPJzza78cOie+/jWrIh6BHMqq0rRkvnFS14aj9FFqa1rBdt8zhxHRvhWUZMbJt9Kz0Wuf7nyK8/iZfAOrN782P50=
-X-Received: by 2002:a05:6870:558e:b0:e1:db7c:26aa with SMTP id
- n14-20020a056870558e00b000e1db7c26aamr4434923oao.63.1649265242083; Wed, 06
- Apr 2022 10:14:02 -0700 (PDT)
-Received: from 753933720722 named unknown by gmailapi.google.com with
- HTTPREST; Wed, 6 Apr 2022 10:14:01 -0700
+        with ESMTP id S232717AbiDFT7z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 15:59:55 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id D1669939B7
+        for <stable@vger.kernel.org>; Wed,  6 Apr 2022 10:34:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1649266460;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=IyvFf+DCL2hc/t3WsFdKzZll3I/o2aU4yKX6j4s525g=;
+        b=PnBdfTCjIfCG22AZXBLnLDNA1mQ13b5MG+xvdcCIxkX2myX2oPy+0xtN/sf/BUx0rUMila
+        3ieMKp2Qc/S2dAJdmQTxjsp2LeFLrwTfGULJJxiI4K44gWcMv+L/ChByko2DPCn5V55iH/
+        l4WkEPrhBeeTpQpbZ3iBpJ8s8Ve9pOE=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-656-6WLyUdY9PD6WFmBA_VIRgg-1; Wed, 06 Apr 2022 13:34:18 -0400
+X-MC-Unique: 6WLyUdY9PD6WFmBA_VIRgg-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.rdu2.redhat.com [10.11.54.2])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 681CF899EDA
+        for <stable@vger.kernel.org>; Wed,  6 Apr 2022 17:34:18 +0000 (UTC)
+Received: from fs-i40c-03.fs.lab.eng.bos.redhat.com (fs-i40c-03.fs.lab.eng.bos.redhat.com [10.16.224.23])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 7905640D2825;
+        Wed,  6 Apr 2022 17:34:17 +0000 (UTC)
+From:   Alexander Aring <aahringo@redhat.com>
+To:     teigland@redhat.com
+Cc:     cluster-devel@redhat.com, stable@vger.kernel.org,
+        aahringo@redhat.com
+Subject: [PATCH dlm/next 1/2] fs: dlm: fix wake_up() calls for pending remove
+Date:   Wed,  6 Apr 2022 13:34:15 -0400
+Message-Id: <20220406173416.3882304-1-aahringo@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20220406165011.10202-2-gwendal@chromium.org>
-References: <20220406165011.10202-1-gwendal@chromium.org> <20220406165011.10202-2-gwendal@chromium.org>
-From:   Stephen Boyd <swboyd@chromium.org>
-User-Agent: alot/0.10
-Date:   Wed, 6 Apr 2022 10:14:01 -0700
-Message-ID: <CAE-0n532f37UD8OyiFc0_ROzgc24Hb=aOYN+ALgruiehiNTfuQ@mail.gmail.com>
-Subject: Re: [PATCH v4 1/8] iio: sx9324: Fix default precharge internal
- resistance register
-To:     Gwendal Grignou <gwendal@chromium.org>, jic23@kernel.org,
-        robh+dt@kernel.org
-Cc:     linux-iio@vger.kernel.org, devicetree@vger.kernel.org,
-        stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.84 on 10.11.54.2
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Quoting Gwendal Grignou (2022-04-06 09:50:04)
-> Fix the default value for the register that set the resistance:
-> it has to be 0x10 per datasheet.
->
-> Fixes: 4c18a890dff8d ("iio:proximity:sx9324: Add SX9324 support")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Gwendal Grignou <gwendal@chromium.org>
-> ---
+This patch move the wake_up() call at the point when a remove message
+completed. Before it was only when a remove message was going to be
+sent. The possible waiter in wait_pending_remove() waits until a remove
+is done if the resource name matches with the per ls variable
+ls->ls_remove_name. If this is the case we must wait until a pending
+remove is done which is indicated if DLM_WAIT_PENDING_COND() returns
+false which will always be the case when ls_remove_len and
+ls_remove_name are unset to indicate that a remove is not going on
+anymore.
 
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Fixes: 21d9ac1a5376 ("fs: dlm: use event based wait for pending remove")
+Cc: stable@vger.kernel.org
+Signed-off-by: Alexander Aring <aahringo@redhat.com>
+---
+ fs/dlm/lock.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/fs/dlm/lock.c b/fs/dlm/lock.c
+index 29e80039e7ca..137cf09b51e5 100644
+--- a/fs/dlm/lock.c
++++ b/fs/dlm/lock.c
+@@ -1810,7 +1810,6 @@ static void shrink_bucket(struct dlm_ls *ls, int b)
+ 		memcpy(ls->ls_remove_name, name, DLM_RESNAME_MAXLEN);
+ 		spin_unlock(&ls->ls_remove_spin);
+ 		spin_unlock(&ls->ls_rsbtbl[b].lock);
+-		wake_up(&ls->ls_remove_wait);
+ 
+ 		send_remove(r);
+ 
+@@ -1819,6 +1818,7 @@ static void shrink_bucket(struct dlm_ls *ls, int b)
+ 		ls->ls_remove_len = 0;
+ 		memset(ls->ls_remove_name, 0, DLM_RESNAME_MAXLEN);
+ 		spin_unlock(&ls->ls_remove_spin);
++		wake_up(&ls->ls_remove_wait);
+ 
+ 		dlm_free_rsb(r);
+ 	}
+@@ -4096,7 +4096,6 @@ static void send_repeat_remove(struct dlm_ls *ls, char *ms_name, int len)
+ 	memcpy(ls->ls_remove_name, name, DLM_RESNAME_MAXLEN);
+ 	spin_unlock(&ls->ls_remove_spin);
+ 	spin_unlock(&ls->ls_rsbtbl[b].lock);
+-	wake_up(&ls->ls_remove_wait);
+ 
+ 	rv = _create_message(ls, sizeof(struct dlm_message) + len,
+ 			     dir_nodeid, DLM_MSG_REMOVE, &ms, &mh);
+@@ -4112,6 +4111,7 @@ static void send_repeat_remove(struct dlm_ls *ls, char *ms_name, int len)
+ 	ls->ls_remove_len = 0;
+ 	memset(ls->ls_remove_name, 0, DLM_RESNAME_MAXLEN);
+ 	spin_unlock(&ls->ls_remove_spin);
++	wake_up(&ls->ls_remove_wait);
+ }
+ 
+ static int receive_request(struct dlm_ls *ls, struct dlm_message *ms)
+-- 
+2.31.1
+
