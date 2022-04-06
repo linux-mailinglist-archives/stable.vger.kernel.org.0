@@ -2,58 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 712254F6C93
-	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 23:24:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 136164F6C96
+	for <lists+stable@lfdr.de>; Wed,  6 Apr 2022 23:24:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235575AbiDFVZz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Apr 2022 17:25:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51316 "EHLO
+        id S235639AbiDFVZ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Apr 2022 17:25:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41116 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235381AbiDFVZn (ORCPT
+        with ESMTP id S235660AbiDFVZn (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 17:25:43 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id D1DA246160
-        for <stable@vger.kernel.org>; Wed,  6 Apr 2022 13:20:58 -0700 (PDT)
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 02558BA6
+        for <stable@vger.kernel.org>; Wed,  6 Apr 2022 13:21:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1649276457;
+        s=mimecast20190719; t=1649276479;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=QAx2SSp7zCkgZuknG991vtPMpZJznKxzgffQrgP47FE=;
-        b=ZV0/SY/REdQcElZyVCVxSgWfdkhPzFpoYvzGE/IF+oUgvOrZ9mBd6zdH2dXVsKWHgo8kpm
-        8+RYjwF25UyWKHTGWNRiEcVUnlHLJmzNmsQwxaS+YgAla9K9gN1afDQksSYn6oghZ7OCM9
-        d3nXL+HkFivRsUZtD1/rwx2kN5XwlWw=
-Received: from mail-io1-f70.google.com (mail-io1-f70.google.com
- [209.85.166.70]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=fRJ4rMy5k3CvTqS0oZ8+MVHunj8v/ly+L+CgzAOxdE4=;
+        b=HLr7ZuQaQjhqukyZOy4f/WD5RSeyMGlpVAOcqZ8pypkgRhr/GzdvQAoRNpItplUS71xFZM
+        jlixTy1zwvSYlfbLaBxc7a0PYKXtElWKi8CwWuHdsU4snYxAyqHaYAH1/IrwPz/5YQONA8
+        T48GHzGHxrYy4Mf6hV1/8VCWyByCeos=
+Received: from mail-io1-f72.google.com (mail-io1-f72.google.com
+ [209.85.166.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-605-CV3LK8isOAmD-2Iq18sHsQ-1; Wed, 06 Apr 2022 16:20:56 -0400
-X-MC-Unique: CV3LK8isOAmD-2Iq18sHsQ-1
-Received: by mail-io1-f70.google.com with SMTP id e27-20020a056602045b00b00645bd576184so2339371iov.3
-        for <stable@vger.kernel.org>; Wed, 06 Apr 2022 13:20:56 -0700 (PDT)
+ us-mta-646-dBeEFdkbNmyfsqeKZyvbVA-1; Wed, 06 Apr 2022 16:21:17 -0400
+X-MC-Unique: dBeEFdkbNmyfsqeKZyvbVA-1
+Received: by mail-io1-f72.google.com with SMTP id z23-20020a6b0a17000000b00649f13ea3a7so2287951ioi.23
+        for <stable@vger.kernel.org>; Wed, 06 Apr 2022 13:21:17 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to;
-        bh=QAx2SSp7zCkgZuknG991vtPMpZJznKxzgffQrgP47FE=;
-        b=Vo6qr0uOA3BNeleY6vfNet2rvkFg8jqFBdvxA0p86aD96VBKjv/WYtM5vlMDyv2m6f
-         k3CyEGoyq0KgEzN81y40RqgZ1QC+Pigutx5vr28yj1ggbgbnI5iKbk1AnEuiFwnCiGi7
-         cUPntXZViSxwHoa9PRz3swpRiF8ZwBdSNl3laYFH6jcH9gue7pSRwEE0ufAZ4HTN+5Zb
-         faYtxsxioBZ/rgTwChNdp1k134zX69gl6FySS2jeM2phkLi1gx1ZfNyKpIFSb+zYNOxd
-         6g5GGlkaPRbh5o9Y/PRTMPOX4jZE76XZ5chaQsWt+Nwjh5CUDbYjpIRdNPi2Q/XGN6I5
-         S5vw==
-X-Gm-Message-State: AOAM530qFf2tIE80xhGs4X9hd09diDj7jefUJjGfJKghxb0grxddMRsO
-        80MyMBZTUZwOvZkvoVjJGzlc+h97yYGwLr3wl7o71vTiybjccrTNvT0GKmGzN2Zu3nqPWqODbVd
-        XNWz4DkuNY21OCSp9
-X-Received: by 2002:a5e:990b:0:b0:645:e9e5:3a9b with SMTP id t11-20020a5e990b000000b00645e9e53a9bmr4712098ioj.164.1649276456128;
-        Wed, 06 Apr 2022 13:20:56 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJx4TB2U6LOk6fyrjf8P6U9S56yKfnuflAwHV2uU3Bmp+4tNe9ZoLnd/Estp52isxYyU7FVlRQ==
-X-Received: by 2002:a5e:990b:0:b0:645:e9e5:3a9b with SMTP id t11-20020a5e990b000000b00645e9e53a9bmr4712084ioj.164.1649276455879;
-        Wed, 06 Apr 2022 13:20:55 -0700 (PDT)
+        bh=fRJ4rMy5k3CvTqS0oZ8+MVHunj8v/ly+L+CgzAOxdE4=;
+        b=JHUw6sXqOjxiziKPJ+71Skc7nfA31Nf7tJ/PBgB6kZ3Gg0iwsmad6uz++VeFqD/BBJ
+         jkjNI6V8aPoKs4559Br98wpQJlOw1ETqEER9NbZgWAu82H4qJS6z1ZaKpz4ZVQHqVKVD
+         PYFqKyga0yT6lflfe80Y48UAy8ZcweNcpJTHvzNNnVIH5wfi5/Fak1a4QCcdbX8HoApI
+         RKM8HOLwi+YPlmh59TrIuFa9fUKJzgWs+cmZKci6CXOqHwkt/T2PNQCY+yf5iNEbeOia
+         TYWNaS1p+XgHfq/9tEbW/fL6gIlJt5XHmJFAtqo0N/8BMrUopZmhCjX9vEzQmGglQkhp
+         +H8Q==
+X-Gm-Message-State: AOAM532i9kClRuJkgF1GL3gzhnxpmNpI37hxpiDziEce9yhs30irt24t
+        Lwtq5o5ITRWoQbF2Xg7QFpnNPcHjqPG1/ulIZ5rLaQQ2yI3Vb/9GKwjLSrqE0cc+kLN42knRiRP
+        EYNe5wOBDXyZlF/rw
+X-Received: by 2002:a05:6602:2a45:b0:648:b21c:6f49 with SMTP id k5-20020a0566022a4500b00648b21c6f49mr4987817iov.206.1649276477186;
+        Wed, 06 Apr 2022 13:21:17 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzdnBAkwcxEZHzD7Fd4ICbr+i8cdPKq3m6MTsSy0uEHqDxEBLxc9ORplLLk0n4RcFJUvPKcsQ==
+X-Received: by 2002:a05:6602:2a45:b0:648:b21c:6f49 with SMTP id k5-20020a0566022a4500b00648b21c6f49mr4987807iov.206.1649276476931;
+        Wed, 06 Apr 2022 13:21:16 -0700 (PDT)
 Received: from xz-m1.local (cpec09435e3e0ee-cmc09435e3e0ec.cpe.net.cable.rogers.com. [99.241.198.116])
-        by smtp.gmail.com with ESMTPSA id t16-20020a92ca90000000b002ca4e87c8besm4888750ilo.19.2022.04.06.13.20.54
+        by smtp.gmail.com with ESMTPSA id u15-20020a92d1cf000000b002ca56804ec4sm3897964ilg.23.2022.04.06.13.21.15
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 06 Apr 2022 13:20:55 -0700 (PDT)
-Date:   Wed, 6 Apr 2022 16:20:54 -0400
+        Wed, 06 Apr 2022 13:21:16 -0700 (PDT)
+Date:   Wed, 6 Apr 2022 16:21:14 -0400
 From:   Peter Xu <peterx@redhat.com>
 To:     gregkh@linuxfoundation.org
 Cc:     aarcange@redhat.com, akpm@linux-foundation.org, apopple@nvidia.com,
@@ -61,16 +61,16 @@ Cc:     aarcange@redhat.com, akpm@linux-foundation.org, apopple@nvidia.com,
         kirill@shutemov.name, shy828301@gmail.com, stable@vger.kernel.org,
         torvalds@linux-foundation.org, vbabka@suse.cz, willy@infradead.org
 Subject: Re: FAILED: patch "[PATCH] mm: don't skip swap entry even if
- zap_details specified" failed to apply to 4.9-stable tree
-Message-ID: <Yk32JnHEwFzU6+0e@xz-m1.local>
-References: <164881751212299@kroah.com>
+ zap_details specified" failed to apply to 4.14-stable tree
+Message-ID: <Yk32OpfbcU17zGLu@xz-m1.local>
+References: <1648817515199205@kroah.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="lg67v2Aa2at1aZiB"
+Content-Type: multipart/mixed; boundary="kFzuvrLR6rl8ccuM"
 Content-Disposition: inline
-In-Reply-To: <164881751212299@kroah.com>
+In-Reply-To: <1648817515199205@kroah.com>
 X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H4,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
+        RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
         T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -79,17 +79,17 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---lg67v2Aa2at1aZiB
+--kFzuvrLR6rl8ccuM
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 
 
 
---lg67v2Aa2at1aZiB
+--kFzuvrLR6rl8ccuM
 Content-Type: text/plain; charset=utf-8
-Content-Disposition: attachment; filename="patch-4.9.y"
+Content-Disposition: attachment; filename="patch-4.14.y"
 
-From f4b76680ee69b3147344c9152d10ea7a8e4a89b2 Mon Sep 17 00:00:00 2001
+From 4bee8277eb6135aeb5b910a73c42446bde20e123 Mon Sep 17 00:00:00 2001
 From: Peter Xu <peterx@redhat.com>
 Date: Tue, 22 Mar 2022 14:42:15 -0700
 Subject: [PATCH] mm: don't skip swap entry even if zap_details specified
@@ -100,12 +100,6 @@ but backported explicitly to stable branch.
 A few notes:
 
   - zap_mapping used to be called check_mapping.
-
-  - check_swap_entries existed in 4.9.y, this patch removed its major
-    reference in zap_pte_range() then we'll check swap entry with/without
-    specifying check_swap_entries=Y.  Logically we can drop the field
-    check_swap_entries (which was introduced for oom killer scenario)
-    altogether but this patch kept it for simplicity.
 
   - The patch is simplified too, e.g. we don't add hwpoison or
     WARN_ON_ONCE() but only start to look after all the swap entries.
@@ -239,14 +233,14 @@ Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 (cherry picked from commit 5abfd71d936a8aefd9f9ccd299dea7a164a5d455)
 Signed-off-by: Peter Xu <peterx@redhat.com>
 ---
- mm/memory.c | 24 +++++++++++++++++++-----
- 1 file changed, 19 insertions(+), 5 deletions(-)
+ mm/memory.c | 25 +++++++++++++++++++------
+ 1 file changed, 19 insertions(+), 6 deletions(-)
 
 diff --git a/mm/memory.c b/mm/memory.c
-index 2b2cc69ddcce..1b31cdce936e 100644
+index b001670c9615..cec495ecffae 100644
 --- a/mm/memory.c
 +++ b/mm/memory.c
-@@ -1113,6 +1113,17 @@ int copy_page_range(struct mm_struct *dst_mm, struct mm_struct *src_mm,
+@@ -1306,6 +1306,17 @@ int copy_page_range(struct mm_struct *dst_mm, struct mm_struct *src_mm,
  	return ret;
  }
  
@@ -264,14 +258,14 @@ index 2b2cc69ddcce..1b31cdce936e 100644
  static unsigned long zap_pte_range(struct mmu_gather *tlb,
  				struct vm_area_struct *vma, pmd_t *pmd,
  				unsigned long addr, unsigned long end,
-@@ -1186,17 +1197,20 @@ static unsigned long zap_pte_range(struct mmu_gather *tlb,
- 			}
+@@ -1394,17 +1405,19 @@ static unsigned long zap_pte_range(struct mmu_gather *tlb,
  			continue;
  		}
--		/* only check swap_entries if explicitly asked for in details */
--		if (unlikely(details && !details->check_swap_entries))
--			continue;
  
+-		/* If details->check_mapping, we leave swap entries. */
+-		if (unlikely(details))
+-			continue;
+-
  		entry = pte_to_swp_entry(ptent);
 -		if (!non_swap_entry(entry))
 +		if (!non_swap_entry(entry)) {
@@ -294,5 +288,5 @@ index 2b2cc69ddcce..1b31cdce936e 100644
 2.32.0
 
 
---lg67v2Aa2at1aZiB--
+--kFzuvrLR6rl8ccuM--
 
