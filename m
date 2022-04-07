@@ -2,65 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EF1874F87E5
-	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 21:15:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51D164F87E3
+	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 21:15:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230280AbiDGTRH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Apr 2022 15:17:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40656 "EHLO
+        id S229646AbiDGTRD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Apr 2022 15:17:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40170 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240354AbiDGTRC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 Apr 2022 15:17:02 -0400
+        with ESMTP id S236954AbiDGTQ4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 Apr 2022 15:16:56 -0400
 Received: from smtp-relay-internal-1.canonical.com (smtp-relay-internal-1.canonical.com [185.125.188.123])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B53391A82B
-        for <stable@vger.kernel.org>; Thu,  7 Apr 2022 12:14:59 -0700 (PDT)
-Received: from mail-ot1-f72.google.com (mail-ot1-f72.google.com [209.85.210.72])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1555124A8A3
+        for <stable@vger.kernel.org>; Thu,  7 Apr 2022 12:14:55 -0700 (PDT)
+Received: from mail-oa1-f72.google.com (mail-oa1-f72.google.com [209.85.160.72])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
         (No client certificate requested)
-        by smtp-relay-internal-1.canonical.com (Postfix) with ESMTPS id AABA93F1CA
-        for <stable@vger.kernel.org>; Thu,  7 Apr 2022 19:14:57 +0000 (UTC)
+        by smtp-relay-internal-1.canonical.com (Postfix) with ESMTPS id D90CA3F31D
+        for <stable@vger.kernel.org>; Thu,  7 Apr 2022 19:14:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-        s=20210705; t=1649358897;
-        bh=bY7rzXWmHGpXCug+lggM4WFow+tn7S6G+2FrtCPNxL0=;
+        s=20210705; t=1649358892;
+        bh=j3q73/KCI+WqR07x0DNeQJL3Ovi3eCfX2O2JUwMyPaw=;
         h=From:To:Subject:Date:Message-Id:In-Reply-To:References:
          MIME-Version;
-        b=qv6sQxU9shg7dEJYzjvGiE5fp3Lb7fRxfFv0HHaa1x+7y86tX7P1DI6wrhGnnfTgf
-         rvRoQE66pMI4/+Hmbo4H5sUZJFJR3NaCwYa3ygsIkARr5LxvCNgKpz5FRaJ4Hak/U9
-         XG4jAjHP8VA8Bz8HAxEGrwaDK1SJPCIZcn+WjODp+3aALl+0IPvffuz+DVVAb98U50
-         nIwJPfeb3UYovE8yQ6yHqiVoCv3YJPhjFsJ4xXVPowJ5quS1Hq9aOqRueQJ1dIJMFY
-         fYylCYW1lin5hneoFJ6HF/X0mIup/+P2pRWKuic8DHSKBfzK3LUBSidqEjGjH/N0P3
-         DsSXxFVJfR4Kw==
-Received: by mail-ot1-f72.google.com with SMTP id v24-20020a056830091800b005cda775ef7fso3229648ott.11
-        for <stable@vger.kernel.org>; Thu, 07 Apr 2022 12:14:57 -0700 (PDT)
+        b=SpAYByTgqZrajDQhmggTlfWf2IfwIGt138mIzC/7Q5zrBh+SqUaO6PIkJ6ojOczYT
+         lSlATy3aktphAoPGMXgNh24O7rfHLppadbtk2ERpLRbOZs/DAKdpWFr0jZDDCSTs5s
+         bQtySZPFQBwE4CyPMLdTyQWq+HlMs4R1k90Y7JOZYJlFJhpxD3iyIHppFzlwAMl7xk
+         wxRx318TaM+mcaQZP1JCIKh9nux1m6xrn+5F703mK6HfNpdM8Ao2GDtaq4YMepqDJj
+         Go9LymZ2LQs8wAlF9yGZ0CY9hcY2AV4K0Js2faPdeau2m9YTbsGOjjlDGrwxrV7No5
+         UC2E0MilppCDg==
+Received: by mail-oa1-f72.google.com with SMTP id 586e51a60fabf-de023091b1so3481026fac.18
+        for <stable@vger.kernel.org>; Thu, 07 Apr 2022 12:14:52 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=bY7rzXWmHGpXCug+lggM4WFow+tn7S6G+2FrtCPNxL0=;
-        b=QyaiFEwJws0UFFFaR1193z18DCys3xmwym4+fZ1a/u0ZmGtCdD66ELHk1FXzzIGzCz
-         5fat3DQrbVQ2c1Q+xUhQ1Alf3lLu+6D7ARJsKVjPBiqSVYMw+r/CNPPDOWNwtCllEEcO
-         ojWeuGmC+fzzjOcD60OSqNbXSkaCHSl/LjkKVH7T42meqoeTXcyw5XB9n9dHvxsOgNRS
-         MKvBXVxhbGJ8+ICiuEMDOM0MKlad1KzMr0pP+YRAhlnQOkFEpqYF7m85RjBSJk9PTcDg
-         FzKffr3UtYEloJB8Lb6m1whL/PGjesvfIGzVkf63X2Or2EY3yBx2Xz2Ic2PZ23nIT7ji
-         TiRw==
-X-Gm-Message-State: AOAM533GgF/gyu1kMmz9OiiIb17AR9DG+n73iPJTwAW2zCovIZ0MKJOu
-        XGYpwr5+YVBk0/DmEv3Iip2LR98ejl+1q2eykbZbCwUTAuaZCI8JRYuxk3+YVzOMhuXINgp8C9b
-        gXrCRLEbu/V4C2IpZG5GfCohiMpEcMXYzbA==
-X-Received: by 2002:a05:6830:1af8:b0:5b2:4e36:ad5f with SMTP id c24-20020a0568301af800b005b24e36ad5fmr5401513otd.257.1649358893222;
-        Thu, 07 Apr 2022 12:14:53 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwgs7OQHPl83K61N2ev8w2Xv7CFJwuHfturRUdvDnXosc2Mc/gz5SMwR/owob+kYmlXtm5Juw==
-X-Received: by 2002:a05:6830:1af8:b0:5b2:4e36:ad5f with SMTP id c24-20020a0568301af800b005b24e36ad5fmr5401429otd.257.1649358889186;
-        Thu, 07 Apr 2022 12:14:49 -0700 (PDT)
+        bh=j3q73/KCI+WqR07x0DNeQJL3Ovi3eCfX2O2JUwMyPaw=;
+        b=B8Vnr3kAvcy0oRnx5HXaIuWTMPDcdjo7RmPwZxNgHdRKxmVPxv7pU/e5tEHKtXu8VO
+         ezlJZYOcbso5aOhjRphnWV3YiamJCIgBC+cxiEnT+S50OZ40yLZewAAk3vEUKdfWL+dA
+         nAkZDhJbEEdRSBxlh1FqN+rLy/Y9ho/t4/QOXkXbUvuo+9ylZtKsU9xTbM9ArYHizUnZ
+         DWg3VWYd8xJr9I33CvCPfQScin7WPMs33ZeEzpY7ML95pWBcvnzYdASIIvZ1vUar2h3d
+         KTyEKBKMuI6mTdySwyGCydslH2bTTavGVUQ5xb1aZItwL1+5V6EYRXNWMob8V6V+q2hk
+         0w2g==
+X-Gm-Message-State: AOAM530Htn2gxXdlRXrGownHoFhJHrrOhoxJjPcNqoFMenqmaM/bzf/z
+        wgpOQSidZEqfjm/a4aYCpMWLaZmMi5QEszTmykvnHIbSJ+++5OW4lnLfs0UGnUfE2BgqhnTKOtf
+        HT7ECEQUC+qqdj6MO9Ycv3unyj3mWSqiigA==
+X-Received: by 2002:a05:6808:218a:b0:2f9:65d4:898a with SMTP id be10-20020a056808218a00b002f965d4898amr6510766oib.27.1649358891258;
+        Thu, 07 Apr 2022 12:14:51 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzvTf8NxVBBtIwy/mF2FEfI/qo5RPzJhSSg3Giybwvga3ctCdL1UughBMOURY4hDoqu/5Hm+Q==
+X-Received: by 2002:a05:6808:218a:b0:2f9:65d4:898a with SMTP id be10-20020a056808218a00b002f965d4898amr6510753oib.27.1649358890724;
+        Thu, 07 Apr 2022 12:14:50 -0700 (PDT)
 Received: from mfo-t470.. ([2804:14c:4e1:8732:bf86:1224:e21c:d4ae])
-        by smtp.gmail.com with ESMTPSA id m5-20020a056870194500b000d9a0818925sm7844120oak.25.2022.04.07.12.14.47
+        by smtp.gmail.com with ESMTPSA id m5-20020a056870194500b000d9a0818925sm7844120oak.25.2022.04.07.12.14.49
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 07 Apr 2022 12:14:48 -0700 (PDT)
+        Thu, 07 Apr 2022 12:14:50 -0700 (PDT)
 From:   Mauricio Faria de Oliveira <mfo@canonical.com>
 To:     stable@vger.kernel.org
-Subject: [PATCH 4.14] mm: fix race between MADV_FREE reclaim and blkdev direct IO read
-Date:   Thu,  7 Apr 2022 16:14:31 -0300
-Message-Id: <20220407191432.1456219-8-mfo@canonical.com>
+Subject: [PATCH 4.9] mm: fix race between MADV_FREE reclaim and blkdev direct IO read
+Date:   Thu,  7 Apr 2022 16:14:32 -0300
+Message-Id: <20220407191432.1456219-9-mfo@canonical.com>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20220407191432.1456219-1-mfo@canonical.com>
 References: <20220407191432.1456219-1-mfo@canonical.com>
@@ -486,49 +486,59 @@ Cc: Christoph Hellwig <hch@infradead.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 [mfo: backport: replace folio/test_flag with page/flag equivalents;
- mmu_notifier_invalidate_range() is called in the 'discard:' label;
+ different conditional needed: from PageSwapBacked() to TTU_LZFREE;
  real Fixes: 854e9ed09ded ("mm: support madvise(MADV_FREE)") in v4.]
 Signed-off-by: Mauricio Faria de Oliveira <mfo@canonical.com>
 ---
- mm/rmap.c | 25 ++++++++++++++++++++++++-
- 1 file changed, 24 insertions(+), 1 deletion(-)
+ mm/rmap.c | 35 ++++++++++++++++++++++++++++++-----
+ 1 file changed, 30 insertions(+), 5 deletions(-)
 
 diff --git a/mm/rmap.c b/mm/rmap.c
-index 8ed8ec113d5a..65de683e7f7c 100644
+index a7276d8c96f3..0a5310b76ec8 100644
 --- a/mm/rmap.c
 +++ b/mm/rmap.c
-@@ -1564,7 +1564,30 @@ static bool try_to_unmap_one(struct page *page, struct vm_area_struct *vma,
+@@ -1638,11 +1638,36 @@ static int try_to_unmap_one(struct page *page, struct vm_area_struct *vma,
+ 		 */
+ 		VM_BUG_ON_PAGE(!PageSwapCache(page), page);
  
- 			/* MADV_FREE page check */
- 			if (!PageSwapBacked(page)) {
--				if (!PageDirty(page)) {
-+				int ref_count, map_count;
+-		if (!PageDirty(page) && (flags & TTU_LZFREE)) {
+-			/* It's a freeable page by MADV_FREE */
+-			dec_mm_counter(mm, MM_ANONPAGES);
+-			rp->lazyfreed++;
+-			goto discard;
++		if (flags & TTU_LZFREE) {
++			int ref_count, map_count;
 +
-+				/*
-+				 * Synchronize with gup_pte_range():
-+				 * - clear PTE; barrier; read refcount
-+				 * - inc refcount; barrier; read PTE
-+				 */
-+				smp_mb();
++			/*
++			 * Synchronize with gup_pte_range():
++			 * - clear PTE; barrier; read refcount
++			 * - inc refcount; barrier; read PTE
++			 */
++			smp_mb();
 +
-+				ref_count = page_ref_count(page);
-+				map_count = page_mapcount(page);
++			ref_count = page_ref_count(page);
++			map_count = page_mapcount(page);
 +
-+				/*
-+				 * Order reads for page refcount and dirty flag
-+				 * (see comments in __remove_mapping()).
-+				 */
-+				smp_rmb();
++			/*
++			 * Order reads for page refcount and dirty flag
++			 * (see comments in __remove_mapping()).
++			 */
++			smp_rmb();
 +
-+				/*
-+				 * The only page refs must be one from isolation
-+				 * plus the rmap(s) (dropped by discard:).
-+				 */
-+				if (ref_count == 1 + map_count &&
-+				    !PageDirty(page)) {
- 					dec_mm_counter(mm, MM_ANONPAGES);
- 					goto discard;
- 				}
++			/*
++			 * The only page refs must be one from isolation
++			 * plus the rmap(s) (dropped by discard:).
++			 */
++			if (ref_count == 1 + map_count &&
++			    !PageDirty(page)) {
++				/* It's a freeable page by MADV_FREE */
++				dec_mm_counter(mm, MM_ANONPAGES);
++				rp->lazyfreed++;
++				goto discard;
++			}
+ 		}
+ 
+ 		if (swap_duplicate(entry) < 0) {
 -- 
 2.32.0
 
