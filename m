@@ -2,158 +2,180 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ECA7D4F7E12
-	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 13:30:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B45164F7E2B
+	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 13:40:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234973AbiDGLcq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Apr 2022 07:32:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56454 "EHLO
+        id S237556AbiDGLma (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Apr 2022 07:42:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40370 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232481AbiDGLcp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 Apr 2022 07:32:45 -0400
-Received: from mail-qv1-xf2c.google.com (mail-qv1-xf2c.google.com [IPv6:2607:f8b0:4864:20::f2c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A89686E28;
-        Thu,  7 Apr 2022 04:30:46 -0700 (PDT)
-Received: by mail-qv1-xf2c.google.com with SMTP id kd21so4703206qvb.6;
-        Thu, 07 Apr 2022 04:30:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=kFSuB7sswMV4SFOXW3tqsCHlWXHHfatJ8gHc/ZBJ388=;
-        b=Z4qFaF73uq9WtjjgTsnR+JigYGrV7tuUE0TtZjlDJS+14JOHjQRJPxmqcXOHQtbzjp
-         NPZhB48Jzy6DcDWMLQYHu7ib24D616wQr6nt09ARH4nYufNeidAQBLYAzUvupPRrSLaL
-         n98rgfYZ73pQacdlbg/5X7WQrvzYycbeGgbB+JPhJrPd1kMCz9TqtEZEaIITIPtylDJ4
-         GFIczgDNoWk5J1H1yeaQ4Zwii6EtuPJnp1pfxU+SWKahkbZka3dcLeH6CPZRXigajtxr
-         rv6hbyNoQPNJ26euxXQxeBNKQZ2+kV1pr71dl8NXzO16YvQBb9LcJp1HRc/C6KSiGNMl
-         iUwg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=kFSuB7sswMV4SFOXW3tqsCHlWXHHfatJ8gHc/ZBJ388=;
-        b=hrILrIt+HvAu/A+L3uUeMgRcFswOm3it1Fwms5bTOs0npTSwAGzhbwovhwoe5jW1Cz
-         ihF3mNHM2874lM4rUPDHedrjJIAV5XKcJVjuINYJzg2rElfoh7AHzz0kdpCFetVwEkYx
-         AnOujKiovKQnYOUqbpHAM6wsKSZGhsWdFvi6yaaEK16hDEQqB3diEBh4nintLFrRmVV7
-         GqzlNtYmWxsDjHd1QsLfG251xc9sDslougcz6ZP4Z63eMxtYJ/mEu4qSHkM+OKr4U7Ej
-         s6B1Hh5HMwnMg8jVowVFgcrkSS69g1B0jEQKxf8sZF29BA9T82IaCT7vTwqqWEMTyx1W
-         +FBw==
-X-Gm-Message-State: AOAM531Eehxw54RvVLSLNecZ71mqE5JtVcvTm/hB8fwdO9PF0LgLDYxB
-        FkcdKVHWO1GgBn+1NCLNOBJIanySo+Xyswpy/LydAUC9
-X-Google-Smtp-Source: ABdhPJyeh0RNO1UHBnBwX6WRfZM+0LBpVt+smYzpQqwYPWHr7fpL/0nxM4axUqQXoMrecprd3cnt1DiSq8pFZpDIu/U=
-X-Received: by 2002:a05:6214:2409:b0:432:bf34:362f with SMTP id
- fv9-20020a056214240900b00432bf34362fmr11138280qvb.66.1649331045235; Thu, 07
- Apr 2022 04:30:45 -0700 (PDT)
+        with ESMTP id S244866AbiDGLm2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 Apr 2022 07:42:28 -0400
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23F3D8FE7E;
+        Thu,  7 Apr 2022 04:40:27 -0700 (PDT)
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out2.suse.de (Postfix) with ESMTP id D40A81F85A;
+        Thu,  7 Apr 2022 11:40:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1649331625; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=+hp8aAhVzpbG5JIjzC8mz1QFVXZDRqkDj1g7csHIECc=;
+        b=UIULFBvyzCxIs+7UbHxsZU7G2yAOeXkpELPQc+nmPKjeexqyi8swlls9C2ojcKahaK5b3t
+        H2rxtpzuFFtpGMGJpXEU5E76BZSQt2awxD3msEz2Thesrt8aivfxwdWHp/v4GBEKCgW960
+        uNCcf9e9ZxHHc3A916CLQlkqYgm5LL8=
+Received: from suse.cz (unknown [10.100.201.86])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by relay2.suse.de (Postfix) with ESMTPS id 95BB4A3B95;
+        Thu,  7 Apr 2022 11:40:25 +0000 (UTC)
+Date:   Thu, 7 Apr 2022 13:40:25 +0200
+From:   Michal Hocko <mhocko@suse.com>
+To:     Juergen Gross <jgross@suse.com>
+Cc:     xen-devel@lists.xenproject.org, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        stable@vger.kernel.org,
+        Marek =?iso-8859-1?Q?Marczykowski-G=F3recki?= 
+        <marmarek@invisiblethingslab.com>, Mel Gorman <mgorman@suse.de>
+Subject: Re: [PATCH] mm, page_alloc: fix build_zonerefs_node()
+Message-ID: <Yk7NqTlw7lmFzpKb@dhcp22.suse.cz>
+References: <20220407093221.1090-1-jgross@suse.com>
+ <Yk6+QBacbb6oI8lW@dhcp22.suse.cz>
+ <f08c1493-9238-0009-56b4-dc0ab3571b33@suse.com>
+ <Yk7F2KzRrhLjYw4Z@dhcp22.suse.cz>
+ <5e97a7f5-1fc9-d0b4-006e-6894d5653c06@suse.com>
 MIME-Version: 1.0
-References: <20220407011257.114287-1-sashal@kernel.org> <20220407011257.114287-21-sashal@kernel.org>
- <CAOQ4uxi+Z_YDga+fkcuOjwo5EKfRkhsCp4SwxMHK0ARdJ_-+Aw@mail.gmail.com>
-In-Reply-To: <CAOQ4uxi+Z_YDga+fkcuOjwo5EKfRkhsCp4SwxMHK0ARdJ_-+Aw@mail.gmail.com>
-From:   Amir Goldstein <amir73il@gmail.com>
-Date:   Thu, 7 Apr 2022 14:30:33 +0300
-Message-ID: <CAOQ4uxg2c+MtCaA6+how4WOP3a3EAYfR1Rzz-PB9fxX411t3+Q@mail.gmail.com>
-Subject: Re: [PATCH AUTOSEL 5.15 21/27] fs: fix an infinite loop in iomap_fiemap
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     stable <stable@vger.kernel.org>, Guo Xuenan <guoxuenan@huawei.com>,
-        Hulk Robot <hulkci@huawei.com>, Christoph Hellwig <hch@lst.de>,
-        "Darrick J . Wong" <djwong@kernel.org>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        "Luis R. Rodriguez" <mcgrof@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5e97a7f5-1fc9-d0b4-006e-6894d5653c06@suse.com>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Apr 7, 2022 at 2:28 PM Amir Goldstein <amir73il@gmail.com> wrote:
->
-> On Thu, Apr 7, 2022 at 7:26 AM Sasha Levin <sashal@kernel.org> wrote:
-> >
-> > From: Guo Xuenan <guoxuenan@huawei.com>
-> >
-> > [ Upstream commit 49df34221804cfd6384135b28b03c9461a31d024 ]
-> >
-> > when get fiemap starting from MAX_LFS_FILESIZE, (maxbytes - *len) < start
-> > will always true , then *len set zero. because of start offset is beyond
-> > file size, for erofs filesystem it will always return iomap.length with
-> > zero,iomap iterate will enter infinite loop. it is necessary cover this
-> > corner case to avoid this situation.
-> >
-> > ------------[ cut here ]------------
-> > WARNING: CPU: 7 PID: 905 at fs/iomap/iter.c:35 iomap_iter+0x97f/0xc70
-> > Modules linked in: xfs erofs
-> > CPU: 7 PID: 905 Comm: iomap Tainted: G        W         5.17.0-rc8 #27
-> > Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1ubuntu1.1 04/01/2014
-> > RIP: 0010:iomap_iter+0x97f/0xc70
-> > Code: 85 a1 fc ff ff e8 71 be 9c ff 0f 1f 44 00 00 e9 92 fc ff ff e8 62 be 9c ff 0f 0b b8 fb ff ff ff e9 fc f8 ff ff e8 51 be 9c ff <0f> 0b e9 2b fc ff ff e8 45 be 9c ff 0f 0b e9 e1 fb ff ff e8 39 be
-> > RSP: 0018:ffff888060a37ab0 EFLAGS: 00010293
-> > RAX: 0000000000000000 RBX: ffff888060a37bb0 RCX: 0000000000000000
-> > RDX: ffff88807e19a900 RSI: ffffffff81a7da7f RDI: ffff888060a37be0
-> > RBP: 7fffffffffffffff R08: 0000000000000000 R09: ffff888060a37c20
-> > R10: ffff888060a37c67 R11: ffffed100c146f8c R12: 7fffffffffffffff
-> > R13: 0000000000000000 R14: ffff888060a37bd8 R15: ffff888060a37c20
-> > FS:  00007fd3cca01540(0000) GS:ffff888108780000(0000) knlGS:0000000000000000
-> > CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> > CR2: 0000000020010820 CR3: 0000000054b92000 CR4: 00000000000006e0
-> > DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-> > DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-> > Call Trace:
-> >  <TASK>
-> >  iomap_fiemap+0x1c9/0x2f0
-> >  erofs_fiemap+0x64/0x90 [erofs]
-> >  do_vfs_ioctl+0x40d/0x12e0
-> >  __x64_sys_ioctl+0xaa/0x1c0
-> >  do_syscall_64+0x35/0x80
-> >  entry_SYSCALL_64_after_hwframe+0x44/0xae
-> >  </TASK>
-> > ---[ end trace 0000000000000000 ]---
-> > watchdog: BUG: soft lockup - CPU#7 stuck for 26s! [iomap:905]
-> >
-> > Reported-by: Hulk Robot <hulkci@huawei.com>
-> > Signed-off-by: Guo Xuenan <guoxuenan@huawei.com>
-> > Reviewed-by: Christoph Hellwig <hch@lst.de>
-> > [djwong: fix some typos]
-> > Reviewed-by: Darrick J. Wong <djwong@kernel.org>
-> > Signed-off-by: Darrick J. Wong <djwong@kernel.org>
-> > Signed-off-by: Sasha Levin <sashal@kernel.org>
-> > ---
-> >  fs/ioctl.c | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> >
-> > diff --git a/fs/ioctl.c b/fs/ioctl.c
-> > index 504e69578112..e0a3455f9a0f 100644
-> > --- a/fs/ioctl.c
-> > +++ b/fs/ioctl.c
-> > @@ -173,7 +173,7 @@ int fiemap_prep(struct inode *inode, struct fiemap_extent_info *fieinfo,
-> >
-> >         if (*len == 0)
-> >                 return -EINVAL;
-> > -       if (start > maxbytes)
-> > +       if (start >= maxbytes)
-> >                 return -EFBIG;
-> >
-> >         /*
-> > --
-> > 2.35.1
-> >
->
-> Sasha,
->
-> Any reason why I didn't see this patch posted for 5.10.y?
-> I happen to know that it applies cleanly to 5.10.109 and I also included it in
-> my xfs-5.10.y patch candidates branch [1] which has gone through some
-> xfstests cycles already.
->
+On Thu 07-04-22 13:17:19, Juergen Gross wrote:
+> On 07.04.22 13:07, Michal Hocko wrote:
+> > On Thu 07-04-22 12:45:41, Juergen Gross wrote:
+> > > On 07.04.22 12:34, Michal Hocko wrote:
+> > > > Ccing Mel
+> > > > 
+> > > > On Thu 07-04-22 11:32:21, Juergen Gross wrote:
+> > > > > Since commit 9d3be21bf9c0 ("mm, page_alloc: simplify zonelist
+> > > > > initialization") only zones with free memory are included in a built
+> > > > > zonelist. This is problematic when e.g. all memory of a zone has been
+> > > > > ballooned out.
+> > > > 
+> > > > What is the actual problem there?
+> > > 
+> > > When running as Xen guest new hotplugged memory will not be onlined
+> > > automatically, but only on special request. This is done in order to
+> > > support adding e.g. the possibility to use another GB of memory, while
+> > > adding only a part of that memory initially.
+> > > 
+> > > In case adding that memory is populating a new zone, the page allocator
+> > > won't be able to use this memory when it is onlined, as the zone wasn't
+> > > added to the zonelist, due to managed_zone() returning 0.
+> > 
+> > How is that memory onlined? Because "regular" onlining (online_pages())
+> > does rebuild zonelists if their zone hasn't been populated before.
+> 
+> The Xen balloon driver has an own callback for onlining pages. The pages
+> are just added to the ballooned-out page list without handing them to the
+> allocator. This is done only when the guest is ballooned up.
 
-Nevermind, I see it was just posted :)
+OK, I see. Let me just rephrase to see whether we are on the same page.
+Xen is overriding the online_page_callback to xen_online_page which
+doesn't free pages to the page allocator which means that a zone might
+remain unpopulated after onlining. This means that the default zone
+lists rebuild is not done and later on when those pages are finally
+released to the allocator there is no build_all_zonelists happening so
+those freed pages are not really visible to the allocator via zonelists
+fallback allocation.
 
-Thanks,
-Amir.
+Now to your patch. I suspect this is not sufficient for the full hotplug
+situation. Consider a new NUMA node to be hotadded. hotadd_new_pgdat
+will call build_all_zonelists but the zone is not populated yet at that
+moment unless I am missing something. We do rely on online_pages to
+rebuild once pages are onlined - which usually means they are freed to
+the page allocator.
 
->
-> [1] https://github.com/amir73il/linux/commits/xfs-5.10.y
+The zonelists building is kinda messy TBH. I have to say that I am not
+really clear on Mel's 6aa303defb74 ("mm, vmscan: only allocate and
+reclaim from zones with pages managed by the buddy allocator") because
+as you have said unpoppulated zone is not (or shouldn't be) really all
+that different from a depleted zone.
+
+I think a better and more complete fix would be the following. In other
+words the zonelists will be built for all present zones. Not sure
+whether that is going to break 6aa303defb74 though.
+
+diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
+index 2a9627dc784c..880c455e2557 100644
+--- a/mm/memory_hotplug.c
++++ b/mm/memory_hotplug.c
+@@ -1062,7 +1062,6 @@ int __ref online_pages(unsigned long pfn, unsigned long nr_pages,
+ 		       struct zone *zone, struct memory_group *group)
+ {
+ 	unsigned long flags;
+-	int need_zonelists_rebuild = 0;
+ 	const int nid = zone_to_nid(zone);
+ 	int ret;
+ 	struct memory_notify arg;
+@@ -1106,17 +1105,13 @@ int __ref online_pages(unsigned long pfn, unsigned long nr_pages,
+ 	 * This means the page allocator ignores this zone.
+ 	 * So, zonelist must be updated after online.
+ 	 */
+-	if (!populated_zone(zone)) {
+-		need_zonelists_rebuild = 1;
++	if (!populated_zone(zone))
+ 		setup_zone_pageset(zone);
+-	}
+ 
+ 	online_pages_range(pfn, nr_pages);
+ 	adjust_present_page_count(pfn_to_page(pfn), group, nr_pages);
+ 
+ 	node_states_set_node(nid, &arg);
+-	if (need_zonelists_rebuild)
+-		build_all_zonelists(NULL);
+ 
+ 	/* Basic onlining is complete, allow allocation of onlined pages. */
+ 	undo_isolate_page_range(pfn, pfn + nr_pages, MIGRATE_MOVABLE);
+@@ -1985,10 +1980,8 @@ int __ref offline_pages(unsigned long start_pfn, unsigned long nr_pages,
+ 	/* reinitialise watermarks and update pcp limits */
+ 	init_per_zone_wmark_min();
+ 
+-	if (!populated_zone(zone)) {
++	if (!populated_zone(zone))
+ 		zone_pcp_reset(zone);
+-		build_all_zonelists(NULL);
+-	}
+ 
+ 	node_states_clear_node(node, &arg);
+ 	if (arg.status_change_nid >= 0) {
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index 3589febc6d31..130a2feceddc 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -6112,10 +6112,8 @@ static int build_zonerefs_node(pg_data_t *pgdat, struct zoneref *zonerefs)
+ 	do {
+ 		zone_type--;
+ 		zone = pgdat->node_zones + zone_type;
+-		if (managed_zone(zone)) {
+-			zoneref_set_zone(zone, &zonerefs[nr_zones++]);
+-			check_highest_zone(zone_type);
+-		}
++		zoneref_set_zone(zone, &zonerefs[nr_zones++]);
++		check_highest_zone(zone_type);
+ 	} while (zone_type);
+ 
+ 	return nr_zones;
+-- 
+Michal Hocko
+SUSE Labs
