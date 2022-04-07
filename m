@@ -2,141 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A82A4F6F5A
-	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 02:55:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 619A74F6F74
+	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 03:10:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232916AbiDGA5c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Apr 2022 20:57:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56034 "EHLO
+        id S233754AbiDGBMe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Apr 2022 21:12:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59634 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232800AbiDGA53 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 20:57:29 -0400
-Received: from mail-pg1-x529.google.com (mail-pg1-x529.google.com [IPv6:2607:f8b0:4864:20::529])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B93B1C9B68
-        for <stable@vger.kernel.org>; Wed,  6 Apr 2022 17:55:31 -0700 (PDT)
-Received: by mail-pg1-x529.google.com with SMTP id r66so3644405pgr.3
-        for <stable@vger.kernel.org>; Wed, 06 Apr 2022 17:55:31 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=j158tqm/GZZmzJujnpGknRKsvGx0xxubTVyuZ9JTIkA=;
-        b=nT0ViW4Fioo4KF+ni9Cl6mcnfBTOFlBTufeusIN0f1P7ttHTgBikwY2beEM5mG4JKz
-         7GpnPVF9C99vbjLbIvV8omh5qGUFZIa4a387dqKp49Idcaq08KU91qS3oQqauy/j8u9t
-         L+qdQ2myY0nZLDzv4pbbHtfHhFAA/PGMm5UOMLimttAQX3pzjCRd63m5foach8WYYmjB
-         NFg6opZV3W26wn0hludjDsXDYrPR5pp4+HzOtPBekCHcwnb7r9I/pP2sZG74q0GZqO6F
-         zV2XZp7kVIqrdU+TbLWacbaRczRFymSFks36D1PYJR2568DOjC7NC2EeteQRd/XFONjE
-         6qSg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=j158tqm/GZZmzJujnpGknRKsvGx0xxubTVyuZ9JTIkA=;
-        b=3ok1h1W8yzPOceEyu7jH3dltKuCj3pS3cVSk7PGRbwp4CTosIV4je7ZUDgXIdR7TO5
-         eDWi5s5aQLpEVwJY2aMgi10ej0Wrr3c9qBdxvTmpl1QmVCdbljy0bxnbpKUFjJYn0C0N
-         BzT0V8V4rpR6lJ8IVpMtMDv0FCnogvzq2ybRf5Y60gJUIm5LTxYG+AmTrj+dLLGZjAjz
-         TFcE5yKqRQaw/0v/bRJxq07jKOjmPoLsbEakgJ+F0nhdCXM81nJfzGU4B+oeuE9dlSV9
-         CE2aHKJ3rpSLBBazho+O7n7VPGov581fvDSPEALrvpQsQ4gcq3zzDPJtM672U0/Gq/Nh
-         VzCQ==
-X-Gm-Message-State: AOAM530OGip5dHi9dBuWwAvwoBdIICMcDdH7aDhc+Eg87/fNes5zkGzr
-        TG5ns0/TK+IGkZFzRHJ96jsqdNnnHe+1IElrHaY=
-X-Google-Smtp-Source: ABdhPJx7gony659yzEdGcWXn6fUuPuP8m0bQpSMs76wjmweLTpJ/GxFJ28XwGXNlq35YhFgZdaEi6g==
-X-Received: by 2002:a63:5145:0:b0:381:4051:1f5a with SMTP id r5-20020a635145000000b0038140511f5amr9439773pgl.300.1649292931134;
-        Wed, 06 Apr 2022 17:55:31 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id d21-20020a056a0024d500b004fb0e7c7c3bsm21666977pfv.161.2022.04.06.17.55.30
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 06 Apr 2022 17:55:30 -0700 (PDT)
-Message-ID: <624e3682.1c69fb81.dc978.9472@mx.google.com>
-Date:   Wed, 06 Apr 2022 17:55:30 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S233676AbiDGBMb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 21:12:31 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E46A17A82;
+        Wed,  6 Apr 2022 18:10:33 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D9F7F61DAF;
+        Thu,  7 Apr 2022 01:10:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F1C5C385A3;
+        Thu,  7 Apr 2022 01:10:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1649293832;
+        bh=dNBBmOrwd9sRRiNUWAwVJJWRbDKlXfwwdOm3mfpwp1E=;
+        h=From:To:Cc:Subject:Date:From;
+        b=GRxPg5SvcNEsrj3WTv9XqmAGeuTRpALpOP+XUY4jIx0YhR4egVgUMexjBleWj6LYW
+         Go8QZlw8Y7onlgX+40t+HSTb8BWlIZBDQ3sYbYU1ucDL7y6aSw9539KKwAjp+q69Ce
+         Jp6cXZoJcVB7JLzjtOwSpvnFWkCVHBp2sewZ71ZzdyccE9LxRJ/0SwBIUyPBBio66t
+         Ctnl1gOOrI25MBGGvZgIa9ZOglGzEWXTjzvEqu7OH7qfCE91tB1QG70BA4xR8gk60Z
+         zaeMI8/aHI6LvKGHjRtoh5Wu3nBYLcv9B2/gfotCaekRQEWB4igpiVbRk3n1TqzIkZ
+         +uayuxNLMFzQw==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Bob Peterson <rpeterso@redhat.com>,
+        syzbot+c6fd14145e2f62ca0784@syzkaller.appspotmail.com,
+        Andreas Gruenbacher <agruenba@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
+Subject: [PATCH AUTOSEL 5.17 01/31] gfs2: assign rgrp glock before compute_bitstructs
+Date:   Wed,  6 Apr 2022 21:09:59 -0400
+Message-Id: <20220407011029.113321-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-5.16.y
-X-Kernelci-Kernel: v5.16.18-1015-g18299e64680a0
-X-Kernelci-Report-Type: test
-Subject: stable-rc/linux-5.16.y baseline: 77 runs,
- 1 regressions (v5.16.18-1015-g18299e64680a0)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=ham autolearn_force=no
-        version=3.4.6
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.16.y baseline: 77 runs, 1 regressions (v5.16.18-1015-g182=
-99e64680a0)
+From: Bob Peterson <rpeterso@redhat.com>
 
-Regressions Summary
--------------------
+[ Upstream commit 428f651cb80b227af47fc302e4931791f2fb4741 ]
 
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
+Before this patch, function read_rindex_entry called compute_bitstructs
+before it allocated a glock for the rgrp. But if compute_bitstructs found
+a problem with the rgrp, it called gfs2_consist_rgrpd, and that called
+gfs2_dump_glock for rgd->rd_gl which had not yet been assigned.
 
+read_rindex_entry
+   compute_bitstructs
+      gfs2_consist_rgrpd
+         gfs2_dump_glock <---------rgd->rd_gl was not set.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.16.y/ker=
-nel/v5.16.18-1015-g18299e64680a0/plan/baseline/
+This patch changes read_rindex_entry so it assigns an rgrp glock before
+calling compute_bitstructs so gfs2_dump_glock does not reference an
+unassigned pointer. If an error is discovered, the glock must also be
+put, so a new goto and label were added.
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.16.y
-  Describe: v5.16.18-1015-g18299e64680a0
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      18299e64680a0cbdf745fd73c5345d9a029928b9 =
+Reported-by: syzbot+c6fd14145e2f62ca0784@syzkaller.appspotmail.com
+Signed-off-by: Bob Peterson <rpeterso@redhat.com>
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ fs/gfs2/rgrp.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
+diff --git a/fs/gfs2/rgrp.c b/fs/gfs2/rgrp.c
+index 0fb3c01bc557..9b04a570c582 100644
+--- a/fs/gfs2/rgrp.c
++++ b/fs/gfs2/rgrp.c
+@@ -922,15 +922,15 @@ static int read_rindex_entry(struct gfs2_inode *ip)
+ 	spin_lock_init(&rgd->rd_rsspin);
+ 	mutex_init(&rgd->rd_mutex);
+ 
+-	error = compute_bitstructs(rgd);
+-	if (error)
+-		goto fail;
+-
+ 	error = gfs2_glock_get(sdp, rgd->rd_addr,
+ 			       &gfs2_rgrp_glops, CREATE, &rgd->rd_gl);
+ 	if (error)
+ 		goto fail;
+ 
++	error = compute_bitstructs(rgd);
++	if (error)
++		goto fail_glock;
++
+ 	rgd->rd_rgl = (struct gfs2_rgrp_lvb *)rgd->rd_gl->gl_lksb.sb_lvbptr;
+ 	rgd->rd_flags &= ~GFS2_RDF_PREFERRED;
+ 	if (rgd->rd_data > sdp->sd_max_rg_data)
+@@ -944,6 +944,7 @@ static int read_rindex_entry(struct gfs2_inode *ip)
+ 	}
+ 
+ 	error = 0; /* someone else read in the rgrp; free it and ignore it */
++fail_glock:
+ 	gfs2_glock_put(rgd->rd_gl);
+ 
+ fail:
+-- 
+2.35.1
 
-
-Test Regressions
----------------- =
-
-
-
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/624e05fc602177fd5bae067f
-
-  Results:     88 PASS, 4 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.16.y/v5.16.1=
-8-1015-g18299e64680a0/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora=
-/baseline-rk3399-gru-kevin.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.16.y/v5.16.1=
-8-1015-g18299e64680a0/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora=
-/baseline-rk3399-gru-kevin.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220401.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
-/624e05fc602177fd5bae06a1
-        failing since 31 days (last pass: v5.16.12, first fail: v5.16.12-16=
-6-g373826da847f)
-
-    2022-04-06T21:28:15.100899  <8>[   32.739889] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-i2s0-probed RESULT=3Dpass>
-    2022-04-06T21:28:16.122948  /lava-6041095/1/../bin/lava-test-case
-    2022-04-06T21:28:16.134163  <8>[   33.774753] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-i2s1-probed RESULT=3Dfail>   =
-
- =20
