@@ -2,65 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 42CD84F87E6
-	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 21:16:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF1874F87E5
+	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 21:15:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230441AbiDGTRE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Apr 2022 15:17:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40284 "EHLO
+        id S230280AbiDGTRH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Apr 2022 15:17:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40656 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238663AbiDGTQ6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 Apr 2022 15:16:58 -0400
-Received: from smtp-relay-internal-0.canonical.com (smtp-relay-internal-0.canonical.com [185.125.188.122])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2541724A8A9
-        for <stable@vger.kernel.org>; Thu,  7 Apr 2022 12:14:55 -0700 (PDT)
-Received: from mail-ot1-f69.google.com (mail-ot1-f69.google.com [209.85.210.69])
+        with ESMTP id S240354AbiDGTRC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 Apr 2022 15:17:02 -0400
+Received: from smtp-relay-internal-1.canonical.com (smtp-relay-internal-1.canonical.com [185.125.188.123])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B53391A82B
+        for <stable@vger.kernel.org>; Thu,  7 Apr 2022 12:14:59 -0700 (PDT)
+Received: from mail-ot1-f72.google.com (mail-ot1-f72.google.com [209.85.210.72])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
         (No client certificate requested)
-        by smtp-relay-internal-0.canonical.com (Postfix) with ESMTPS id C0A8F3F10B
-        for <stable@vger.kernel.org>; Thu,  7 Apr 2022 19:14:53 +0000 (UTC)
+        by smtp-relay-internal-1.canonical.com (Postfix) with ESMTPS id AABA93F1CA
+        for <stable@vger.kernel.org>; Thu,  7 Apr 2022 19:14:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-        s=20210705; t=1649358893;
-        bh=qW2+WYUiOJu9IzAa0hXIdhMbx7ZWUHJPacKAbo5Ihm0=;
+        s=20210705; t=1649358897;
+        bh=bY7rzXWmHGpXCug+lggM4WFow+tn7S6G+2FrtCPNxL0=;
         h=From:To:Subject:Date:Message-Id:In-Reply-To:References:
          MIME-Version;
-        b=sYAfWfYvUH91hE/XDvb/YeyhwiNQ/dX6fTUo4fXbvGKg0YNsbhVOZyZ5Akvw3em3F
-         u501l/CYk7RlK7t2YFLmtkXmwKQ2KrjmPI++WOeuFjbWB4IDqtjnkbp6QK+9hYqu6m
-         PtGv9ADOQPhj6Exm0wtS5gHrcHM2TlgBqYweuL/p5NKMWIjRuJ2eJ2lCp1rs5hdsjE
-         fgNK4ZKw7PVAGGIzirlIn9gbo81sqlpzVopwKUgTTY6asGgV0xQSRuShvDmwfgX5f3
-         YIT5Y5mg8wMGV+CI8CRGzb9kn500GjFnTLBFgJ19jsyGXEjXc3CLErpguDxZ7W3hLr
-         0MmQNTDVBFHHg==
-Received: by mail-ot1-f69.google.com with SMTP id a6-20020a9d5c86000000b005cb42f070c3so3213087oti.18
-        for <stable@vger.kernel.org>; Thu, 07 Apr 2022 12:14:53 -0700 (PDT)
+        b=qv6sQxU9shg7dEJYzjvGiE5fp3Lb7fRxfFv0HHaa1x+7y86tX7P1DI6wrhGnnfTgf
+         rvRoQE66pMI4/+Hmbo4H5sUZJFJR3NaCwYa3ygsIkARr5LxvCNgKpz5FRaJ4Hak/U9
+         XG4jAjHP8VA8Bz8HAxEGrwaDK1SJPCIZcn+WjODp+3aALl+0IPvffuz+DVVAb98U50
+         nIwJPfeb3UYovE8yQ6yHqiVoCv3YJPhjFsJ4xXVPowJ5quS1Hq9aOqRueQJ1dIJMFY
+         fYylCYW1lin5hneoFJ6HF/X0mIup/+P2pRWKuic8DHSKBfzK3LUBSidqEjGjH/N0P3
+         DsSXxFVJfR4Kw==
+Received: by mail-ot1-f72.google.com with SMTP id v24-20020a056830091800b005cda775ef7fso3229648ott.11
+        for <stable@vger.kernel.org>; Thu, 07 Apr 2022 12:14:57 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=qW2+WYUiOJu9IzAa0hXIdhMbx7ZWUHJPacKAbo5Ihm0=;
-        b=OU/CPZxPe3P8kKKoReevcpjde+/13JyHsSFsxXWKv+chbevW3uifLCxI7v4xfl4Z2A
-         7Jnj5Ocge9GOZekcAoSA0WaOYyPYfr6SrgFw/F0BMOcTOFv2M0LAwv9uln3ky1FHu+vI
-         wcv9KlxvlsQ+hyD6xl9gKhqAKEIL/iAG39UYfKl0ARzTodg0hAlwG440IIowjyz+L8wi
-         1nXOVC/LNYTepJ5WQd5wUJ738TZUwJcPHCmNB33DNF9TKfoH2+jXWR5W7exjpGwcB5Y8
-         0+zzMR6iYkJ3V69MKLOVSZYc4uw8m6MjmQ1BC1BTeN26ELCqgLebYRmONNPaY22TlNsY
-         9I7Q==
-X-Gm-Message-State: AOAM531oDSdoLw9vL1zjc74VJNTcJLd0fa8q6mtxNHRW6AlNRbn0jJQr
-        0oXVVqWBqr1CODyRjHoqn0EJr2J0+8VLlKWWhGTIo2qmNz8CHCk8V/iG7NWzHjPphgZwphfNJFT
-        71N9RqxPRs2p5/Ye74kFvjmy+iN0z3w5r2A==
-X-Received: by 2002:a9d:b85:0:b0:5cb:3eeb:d188 with SMTP id 5-20020a9d0b85000000b005cb3eebd188mr5345396oth.77.1649358892271;
-        Thu, 07 Apr 2022 12:14:52 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJw0WbFS4ahrqMHOSOPYha+cYnQa5/qYQfqWy6s3MtPv0mMbHI+7v2Z5LQInUQ+UlPiCQd3HQQ==
-X-Received: by 2002:a9d:b85:0:b0:5cb:3eeb:d188 with SMTP id 5-20020a9d0b85000000b005cb3eebd188mr5345295oth.77.1649358887280;
-        Thu, 07 Apr 2022 12:14:47 -0700 (PDT)
+        bh=bY7rzXWmHGpXCug+lggM4WFow+tn7S6G+2FrtCPNxL0=;
+        b=QyaiFEwJws0UFFFaR1193z18DCys3xmwym4+fZ1a/u0ZmGtCdD66ELHk1FXzzIGzCz
+         5fat3DQrbVQ2c1Q+xUhQ1Alf3lLu+6D7ARJsKVjPBiqSVYMw+r/CNPPDOWNwtCllEEcO
+         ojWeuGmC+fzzjOcD60OSqNbXSkaCHSl/LjkKVH7T42meqoeTXcyw5XB9n9dHvxsOgNRS
+         MKvBXVxhbGJ8+ICiuEMDOM0MKlad1KzMr0pP+YRAhlnQOkFEpqYF7m85RjBSJk9PTcDg
+         FzKffr3UtYEloJB8Lb6m1whL/PGjesvfIGzVkf63X2Or2EY3yBx2Xz2Ic2PZ23nIT7ji
+         TiRw==
+X-Gm-Message-State: AOAM533GgF/gyu1kMmz9OiiIb17AR9DG+n73iPJTwAW2zCovIZ0MKJOu
+        XGYpwr5+YVBk0/DmEv3Iip2LR98ejl+1q2eykbZbCwUTAuaZCI8JRYuxk3+YVzOMhuXINgp8C9b
+        gXrCRLEbu/V4C2IpZG5GfCohiMpEcMXYzbA==
+X-Received: by 2002:a05:6830:1af8:b0:5b2:4e36:ad5f with SMTP id c24-20020a0568301af800b005b24e36ad5fmr5401513otd.257.1649358893222;
+        Thu, 07 Apr 2022 12:14:53 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwgs7OQHPl83K61N2ev8w2Xv7CFJwuHfturRUdvDnXosc2Mc/gz5SMwR/owob+kYmlXtm5Juw==
+X-Received: by 2002:a05:6830:1af8:b0:5b2:4e36:ad5f with SMTP id c24-20020a0568301af800b005b24e36ad5fmr5401429otd.257.1649358889186;
+        Thu, 07 Apr 2022 12:14:49 -0700 (PDT)
 Received: from mfo-t470.. ([2804:14c:4e1:8732:bf86:1224:e21c:d4ae])
-        by smtp.gmail.com with ESMTPSA id m5-20020a056870194500b000d9a0818925sm7844120oak.25.2022.04.07.12.14.46
+        by smtp.gmail.com with ESMTPSA id m5-20020a056870194500b000d9a0818925sm7844120oak.25.2022.04.07.12.14.47
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 07 Apr 2022 12:14:46 -0700 (PDT)
+        Thu, 07 Apr 2022 12:14:48 -0700 (PDT)
 From:   Mauricio Faria de Oliveira <mfo@canonical.com>
 To:     stable@vger.kernel.org
-Subject: [PATCH 4.19] mm: fix race between MADV_FREE reclaim and blkdev direct IO read
-Date:   Thu,  7 Apr 2022 16:14:30 -0300
-Message-Id: <20220407191432.1456219-7-mfo@canonical.com>
+Subject: [PATCH 4.14] mm: fix race between MADV_FREE reclaim and blkdev direct IO read
+Date:   Thu,  7 Apr 2022 16:14:31 -0300
+Message-Id: <20220407191432.1456219-8-mfo@canonical.com>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20220407191432.1456219-1-mfo@canonical.com>
 References: <20220407191432.1456219-1-mfo@canonical.com>
@@ -486,6 +486,7 @@ Cc: Christoph Hellwig <hch@infradead.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 [mfo: backport: replace folio/test_flag with page/flag equivalents;
+ mmu_notifier_invalidate_range() is called in the 'discard:' label;
  real Fixes: 854e9ed09ded ("mm: support madvise(MADV_FREE)") in v4.]
 Signed-off-by: Mauricio Faria de Oliveira <mfo@canonical.com>
 ---
@@ -493,10 +494,10 @@ Signed-off-by: Mauricio Faria de Oliveira <mfo@canonical.com>
  1 file changed, 24 insertions(+), 1 deletion(-)
 
 diff --git a/mm/rmap.c b/mm/rmap.c
-index 699f445e3e78..e578eb942317 100644
+index 8ed8ec113d5a..65de683e7f7c 100644
 --- a/mm/rmap.c
 +++ b/mm/rmap.c
-@@ -1594,7 +1594,30 @@ static bool try_to_unmap_one(struct page *page, struct vm_area_struct *vma,
+@@ -1564,7 +1564,30 @@ static bool try_to_unmap_one(struct page *page, struct vm_area_struct *vma,
  
  			/* MADV_FREE page check */
  			if (!PageSwapBacked(page)) {
@@ -525,9 +526,9 @@ index 699f445e3e78..e578eb942317 100644
 +				 */
 +				if (ref_count == 1 + map_count &&
 +				    !PageDirty(page)) {
- 					/* Invalidate as we cleared the pte */
- 					mmu_notifier_invalidate_range(mm,
- 						address, address + PAGE_SIZE);
+ 					dec_mm_counter(mm, MM_ANONPAGES);
+ 					goto discard;
+ 				}
 -- 
 2.32.0
 
