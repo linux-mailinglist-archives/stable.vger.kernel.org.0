@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 28D674F70E4
-	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 03:21:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E42D4F7107
+	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 03:22:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239550AbiDGBXL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Apr 2022 21:23:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60590 "EHLO
+        id S238665AbiDGBXv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Apr 2022 21:23:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60704 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238756AbiDGBSf (ORCPT
+        with ESMTP id S238761AbiDGBSf (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 21:18:35 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 229E319BE42;
-        Wed,  6 Apr 2022 18:13:28 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22A4519BE54;
+        Wed,  6 Apr 2022 18:13:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 873F8B81E79;
-        Thu,  7 Apr 2022 01:13:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1ABCC385A1;
-        Thu,  7 Apr 2022 01:13:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D76A161DB0;
+        Thu,  7 Apr 2022 01:13:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BAAD9C385A7;
+        Thu,  7 Apr 2022 01:13:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1649294006;
-        bh=kyCpt+kxit9oAreUT89imPW8qUa5FVx/lcfqw+8Zcqo=;
+        s=k20201202; t=1649294008;
+        bh=+bwDGyDJKCF8LB9fJwHxTM4vlvD9HScCpYl69iObhuI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BIvEnjqDbZIhoF3UiaDYKDnqt/+223xLqf60mrsyj11RW/8b7ZWVLilE4mleJVK6d
-         ri4pj07B3mPFBKxulr6ZF8pWwsSZf0e/AhONsMv5o0mXvG87ghP05XTDqE+giE8ELW
-         bW/UX7HYBXTVnEvImRUxCVQ9bL4xYm2zMyn2h7u6RHWU3+qQJQ8uaPRR4dOiPSaGtz
-         mBckfuO3ykB4G7FIMBKGGeKkzdWyEjcVnhs3Smyt8CvuiPDay+8PMLRGpjpP+Rwu7W
-         m9wpqqwbB/pB45oCyyGZkrxU0LaMuSP7lpQOy6hz0Pg0oBL/vfNtNhaFegt1ib3fH/
-         Zc5odHUIiohiw==
+        b=PfD7nxEAHS1PrsX5olp8G7j98cRIS44147AQLKGJsyM3yXwq3iAvUiBFl6l9QalHY
+         Cj2N3gecg0ohJzu2ZGtH8w+Sr7JY+rsrSdHOmekuimmLprOu2Bj6ut2+omH5ZmkBxX
+         GTPztSJXM0ApoRIhmUciecPIBeMpbAMJDEgzm2QjCJZvnovBLXbJkZzUP9fGo1zeC4
+         diS3aF4mrMVSW8fs7O3xY/coA8UrHFDVdIdH0ThptHHqaC2BZQlzvExTDgo18e4ebS
+         1SAHXOATuRuTkj/Ec0zhLDbrPTxnmQ3u70o/U3sOV7CxIQoAqOEOb6kiDZ+Aw/Wt2v
+         rYB11usvThv3Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zheng Yongjun <zhengyongjun3@huawei.com>,
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
+        Martin Willi <martin@strongswan.org>,
         Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
-        mcoquelin.stm32@gmail.com, alexandre.torgue@foss.st.com,
-        nicolas.toromanoff@foss.st.com, marex@denx.de,
-        linux-crypto@vger.kernel.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.15 11/27] crypto: stm32 - fix reference leak in stm32_crc_remove
-Date:   Wed,  6 Apr 2022 21:12:41 -0400
-Message-Id: <20220407011257.114287-11-sashal@kernel.org>
+        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
+        dave.hansen@linux.intel.com, x86@kernel.org,
+        linux-crypto@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 12/27] crypto: x86/chacha20 - Avoid spurious jumps to other functions
+Date:   Wed,  6 Apr 2022 21:12:42 -0400
+Message-Id: <20220407011257.114287-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220407011257.114287-1-sashal@kernel.org>
 References: <20220407011257.114287-1-sashal@kernel.org>
@@ -61,37 +61,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Yongjun <zhengyongjun3@huawei.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit e9a36feecee0ee5845f2e0656f50f9942dd0bed3 ]
+[ Upstream commit 4327d168515fd8b5b92fa1efdf1d219fb6514460 ]
 
-pm_runtime_get_sync() will increment pm usage counter even it
-failed. Forgetting to call pm_runtime_put_noidle will result
-in reference leak in stm32_crc_remove, so we should fix it.
+The chacha_Nblock_xor_avx512vl() functions all have their own,
+identical, .LdoneN label, however in one particular spot {2,4} jump to
+the 8 version instead of their own. Resulting in:
 
-Signed-off-by: Zheng Yongjun <zhengyongjun3@huawei.com>
+  arch/x86/crypto/chacha-x86_64.o: warning: objtool: chacha_2block_xor_avx512vl() falls through to next function chacha_8block_xor_avx512vl()
+  arch/x86/crypto/chacha-x86_64.o: warning: objtool: chacha_4block_xor_avx512vl() falls through to next function chacha_8block_xor_avx512vl()
+
+Make each function consistently use its own done label.
+
+Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Martin Willi <martin@strongswan.org>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/stm32/stm32-crc32.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/x86/crypto/chacha-avx512vl-x86_64.S | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/crypto/stm32/stm32-crc32.c b/drivers/crypto/stm32/stm32-crc32.c
-index be1bf39a317d..90a920e7f664 100644
---- a/drivers/crypto/stm32/stm32-crc32.c
-+++ b/drivers/crypto/stm32/stm32-crc32.c
-@@ -384,8 +384,10 @@ static int stm32_crc_remove(struct platform_device *pdev)
- 	struct stm32_crc *crc = platform_get_drvdata(pdev);
- 	int ret = pm_runtime_get_sync(crc->dev);
+diff --git a/arch/x86/crypto/chacha-avx512vl-x86_64.S b/arch/x86/crypto/chacha-avx512vl-x86_64.S
+index bb193fde123a..8713c16c2501 100644
+--- a/arch/x86/crypto/chacha-avx512vl-x86_64.S
++++ b/arch/x86/crypto/chacha-avx512vl-x86_64.S
+@@ -172,7 +172,7 @@ SYM_FUNC_START(chacha_2block_xor_avx512vl)
+ 	# xor remaining bytes from partial register into output
+ 	mov		%rcx,%rax
+ 	and		$0xf,%rcx
+-	jz		.Ldone8
++	jz		.Ldone2
+ 	mov		%rax,%r9
+ 	and		$~0xf,%r9
  
--	if (ret < 0)
-+	if (ret < 0) {
-+		pm_runtime_put_noidle(crc->dev);
- 		return ret;
-+	}
+@@ -438,7 +438,7 @@ SYM_FUNC_START(chacha_4block_xor_avx512vl)
+ 	# xor remaining bytes from partial register into output
+ 	mov		%rcx,%rax
+ 	and		$0xf,%rcx
+-	jz		.Ldone8
++	jz		.Ldone4
+ 	mov		%rax,%r9
+ 	and		$~0xf,%r9
  
- 	spin_lock(&crc_list.lock);
- 	list_del(&crc->list);
 -- 
 2.35.1
 
