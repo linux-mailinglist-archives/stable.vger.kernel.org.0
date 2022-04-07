@@ -2,58 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 06A914F8070
-	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 15:24:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B8BA4F8075
+	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 15:24:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239581AbiDGN0C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Apr 2022 09:26:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49960 "EHLO
+        id S237910AbiDGN03 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Apr 2022 09:26:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52094 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343643AbiDGNZx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 Apr 2022 09:25:53 -0400
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA958EBAF5;
-        Thu,  7 Apr 2022 06:23:49 -0700 (PDT)
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out2.suse.de (Postfix) with ESMTP id 134C21F85A;
-        Thu,  7 Apr 2022 13:23:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1649337828; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
+        with ESMTP id S242932AbiDGN02 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 Apr 2022 09:26:28 -0400
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C36AE7E0AD;
+        Thu,  7 Apr 2022 06:24:26 -0700 (PDT)
+Date:   Thu, 07 Apr 2022 13:24:22 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1649337864;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=6kx9n4k18EeAoUx1f5fom/mHD05wbK+BXq9P0qrUE0s=;
-        b=CBAIxuyfQWJKGRJKMV4AiNEBZCl0yC6CKa9+31uIG8KGlgrDvozgdg9H1WZA0Oo1Qzsgle
-        64ixAZFYMZlAuBacbmCFiMKqUs10OgYbsUUINBsozhl49g8dtsH3VltZo2pH0YoMF6NF4N
-        pxfOnpdtge2avIwq0hr1p2OkqbUYSgY=
-Received: from suse.cz (unknown [10.100.201.86])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by relay2.suse.de (Postfix) with ESMTPS id D2BE9A3B9C;
-        Thu,  7 Apr 2022 13:23:47 +0000 (UTC)
-Date:   Thu, 7 Apr 2022 15:23:44 +0200
-From:   Michal Hocko <mhocko@suse.com>
-To:     David Hildenbrand <david@redhat.com>
-Cc:     Juergen Gross <jgross@suse.com>, xen-devel@lists.xenproject.org,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        stable@vger.kernel.org,
-        Marek =?iso-8859-1?Q?Marczykowski-G=F3recki?= 
-        <marmarek@invisiblethingslab.com>, Mel Gorman <mgorman@suse.de>
-Subject: Re: [PATCH] mm, page_alloc: fix build_zonerefs_node()
-Message-ID: <Yk7l4CEpQFoPnYB/@dhcp22.suse.cz>
-References: <20220407093221.1090-1-jgross@suse.com>
- <Yk6+QBacbb6oI8lW@dhcp22.suse.cz>
- <f08c1493-9238-0009-56b4-dc0ab3571b33@suse.com>
- <Yk7F2KzRrhLjYw4Z@dhcp22.suse.cz>
- <5e97a7f5-1fc9-d0b4-006e-6894d5653c06@suse.com>
- <Yk7NqTlw7lmFzpKb@dhcp22.suse.cz>
- <770d8283-4315-3d83-4f8b-723308fffe5c@redhat.com>
- <Yk7TMKBAkuSVZRLT@dhcp22.suse.cz>
- <ca22625e-b72c-059a-9242-f10b291be4fe@redhat.com>
+        bh=1gZ4m2zNzDyVcoPXjOKdtQUGnrDRHFfhbm516qp77oQ=;
+        b=3Q0XR3s+3mjWH+hP3ZbXv7r7BKi6PkFiPhgUWN9qPZOT3egzzVOJzHWuQLbVeS/kggWKeo
+        kEoUDKdX/tsOPzkFmHALBVUaBfHNlJO3MgAtJsXGuEzSshsOfFKaW1YGE8f/0Tw/Dq4TAh
+        7F9SMnfq8j++MTgWi5/odSqPkr0Pk0ayCJMzlIzb5Pl8E7lQuvorw18iym/deTTNxD9ADQ
+        uU3O9B+3z2Q3vFFgsvCA1xZHLHznHsNq0veblNl1BZRhflndTgPWlyoNquM9GpcuTFY5Nm
+        pwrDE0O6CEJk4czSGmF8LVprcWQJAWGlhpEuWTOo21gVlao7cJ97BW8Q6dfl7Q==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1649337864;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=1gZ4m2zNzDyVcoPXjOKdtQUGnrDRHFfhbm516qp77oQ=;
+        b=hubg/0plHzphf01UH/D3BKoOoGNGAT3LC+Pdo4FJ/rXCLSUpeGBy7dv9CyAYOd/qVFd+/t
+        XtD/TBGQv71jVsAw==
+From:   "tip-bot2 for Reto Buerki" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: x86/urgent] x86/msi: Fix msi message data shadow struct
+Cc:     "Adrian-Ken Rueegsegger" <ken@codelabs.ch>,
+        Reto Buerki <reet@codelabs.ch>,
+        Thomas Gleixner <tglx@linutronix.de>, stable@vger.kernel.org,
+        x86@kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20220407110647.67372-1-reet@codelabs.ch>
+References: <20220407110647.67372-1-reet@codelabs.ch>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ca22625e-b72c-059a-9242-f10b291be4fe@redhat.com>
+Message-ID: <164933786279.389.13684586731676061391.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2@linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=ham
@@ -64,76 +65,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu 07-04-22 14:12:38, David Hildenbrand wrote:
-> On 07.04.22 14:04, Michal Hocko wrote:
-> > On Thu 07-04-22 13:58:44, David Hildenbrand wrote:
-> > [...]
-> >>> diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-> >>> index 3589febc6d31..130a2feceddc 100644
-> >>> --- a/mm/page_alloc.c
-> >>> +++ b/mm/page_alloc.c
-> >>> @@ -6112,10 +6112,8 @@ static int build_zonerefs_node(pg_data_t *pgdat, struct zoneref *zonerefs)
-> >>>  	do {
-> >>>  		zone_type--;
-> >>>  		zone = pgdat->node_zones + zone_type;
-> >>> -		if (managed_zone(zone)) {
-> >>> -			zoneref_set_zone(zone, &zonerefs[nr_zones++]);
-> >>> -			check_highest_zone(zone_type);
-> >>> -		}
-> >>> +		zoneref_set_zone(zone, &zonerefs[nr_zones++]);
-> >>> +		check_highest_zone(zone_type);
-> >>>  	} while (zone_type);
-> >>>  
-> >>>  	return nr_zones;
-> >>
-> >> I don't think having !populated zones in the zonelist is a particularly
-> >> good idea. Populated vs !populated changes only during page
-> >> onlininge/offlining.
-> >>
-> >> If I'm not wrong, with your patch we'd even include ZONE_DEVICE here ...
-> > 
-> > What kind of problem that would cause? The allocator wouldn't see any
-> > pages at all so it would fallback to the next one. Maybe kswapd would
-> > need some tweak to have a bail out condition but as mentioned in the
-> > thread already. !populated or !managed for that matter are not all that
-> > much different from completely depleted zones. The fact that we are
-> > making that distinction has led to some bugs and I suspect it makes the
-> > code more complex without a very good reason.
-> 
-> I assume performance problems. Assume you have an ordinary system with
-> multiple NUMA nodes and no MOVABLE memory. Most nodes will only have
-> ZONE_NORMAL. Yet, you'd include ZONE_DMA* and ZONE_MOVABLE that will
-> always remain empty to be traversed on each and every allocation
-> fallback. Of course, we could measure, but IMHO at least *that* part of
-> memory onlining/offlining is not the complicated part :D
+The following commit has been merged into the x86/urgent branch of tip:
 
-You've got a good point here. I guess there will be usecases that really
-benefit from every single CPU cycle spared in the allocator hot path
-which really depends on the zonelists traversing.
+Commit-ID:     59b18a1e65b7a2134814106d0860010e10babe18
+Gitweb:        https://git.kernel.org/tip/59b18a1e65b7a2134814106d0860010e10babe18
+Author:        Reto Buerki <reet@codelabs.ch>
+AuthorDate:    Thu, 07 Apr 2022 13:06:47 +02:00
+Committer:     Thomas Gleixner <tglx@linutronix.de>
+CommitterDate: Thu, 07 Apr 2022 15:19:32 +02:00
 
-I have very briefly had a look at our remaining usage of managed_zone()
-and there are not that many left. We have 2 in page_alloc.c via
-has_managed_dma(). I guess we could drop that one and use __GFP_NOWARN
-in dma_atomic_pool_init but this is nothing really earth shattering.
-The remaining occurances are in vmscan.c:
-	- should_continue_reclaim, pgdat_balanced - required because
-	  they iterate all zones withing the zoneindex and need to
-	  decide whether they are balanced or not. We can make empty
-	  zones special case and make them always balanced
-	- kswapd_shrink_node - required because we would be increasing
-	  reclaim target for empty zones
-	- update_reclaim_active - required because we do not want to
-	  alter zone state if it is not a subject of the reclaim which
-	  empty zones are not by definition.
-	- balance_pgdat - first check is likely a microoptimization,
-	  reclaim_idx is needed to have a populated zone there
-	- wakeup_kswapd - I dunno
-	- shrink_node, allow_direct_reclaim, lruvec_lru_size - microptimizations
-	- pgdat_watermark_boosted - microptimizations I suspect as empty
-	  zone shouldn't ever get watermark_boost
-	- pgdat_balanced - functionally dd
+x86/msi: Fix msi message data shadow struct
 
-So we can get rid of quite some but we will still need some of them.
--- 
-Michal Hocko
-SUSE Labs
+The x86 MSI message data is 32 bits in total and is either in
+compatibility or remappable format, see Intel Virtualization Technology
+for Directed I/O, section 5.1.2.
+
+Fixes: 6285aa50736 ("x86/msi: Provide msi message shadow structs")
+Co-developed-by: Adrian-Ken Rueegsegger <ken@codelabs.ch>
+Signed-off-by: Adrian-Ken Rueegsegger <ken@codelabs.ch>
+Signed-off-by: Reto Buerki <reet@codelabs.ch>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20220407110647.67372-1-reet@codelabs.ch
+---
+ arch/x86/include/asm/msi.h | 19 +++++++++++--------
+ 1 file changed, 11 insertions(+), 8 deletions(-)
+
+diff --git a/arch/x86/include/asm/msi.h b/arch/x86/include/asm/msi.h
+index b85147d..d71c7e8 100644
+--- a/arch/x86/include/asm/msi.h
++++ b/arch/x86/include/asm/msi.h
+@@ -12,14 +12,17 @@ int pci_msi_prepare(struct irq_domain *domain, struct device *dev, int nvec,
+ /* Structs and defines for the X86 specific MSI message format */
+ 
+ typedef struct x86_msi_data {
+-	u32	vector			:  8,
+-		delivery_mode		:  3,
+-		dest_mode_logical	:  1,
+-		reserved		:  2,
+-		active_low		:  1,
+-		is_level		:  1;
+-
+-	u32	dmar_subhandle;
++	union {
++		struct {
++			u32	vector			:  8,
++				delivery_mode		:  3,
++				dest_mode_logical	:  1,
++				reserved		:  2,
++				active_low		:  1,
++				is_level		:  1;
++		};
++		u32	dmar_subhandle;
++	};
+ } __attribute__ ((packed)) arch_msi_msg_data_t;
+ #define arch_msi_msg_data	x86_msi_data
+ 
