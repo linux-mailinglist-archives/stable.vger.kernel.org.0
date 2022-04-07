@@ -2,122 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B8BA4F8075
-	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 15:24:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B355E4F812D
+	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 16:00:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237910AbiDGN03 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Apr 2022 09:26:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52094 "EHLO
+        id S234576AbiDGOCv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Apr 2022 10:02:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44578 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242932AbiDGN02 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 Apr 2022 09:26:28 -0400
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C36AE7E0AD;
-        Thu,  7 Apr 2022 06:24:26 -0700 (PDT)
-Date:   Thu, 07 Apr 2022 13:24:22 -0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1649337864;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=1gZ4m2zNzDyVcoPXjOKdtQUGnrDRHFfhbm516qp77oQ=;
-        b=3Q0XR3s+3mjWH+hP3ZbXv7r7BKi6PkFiPhgUWN9qPZOT3egzzVOJzHWuQLbVeS/kggWKeo
-        kEoUDKdX/tsOPzkFmHALBVUaBfHNlJO3MgAtJsXGuEzSshsOfFKaW1YGE8f/0Tw/Dq4TAh
-        7F9SMnfq8j++MTgWi5/odSqPkr0Pk0ayCJMzlIzb5Pl8E7lQuvorw18iym/deTTNxD9ADQ
-        uU3O9B+3z2Q3vFFgsvCA1xZHLHznHsNq0veblNl1BZRhflndTgPWlyoNquM9GpcuTFY5Nm
-        pwrDE0O6CEJk4czSGmF8LVprcWQJAWGlhpEuWTOo21gVlao7cJ97BW8Q6dfl7Q==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1649337864;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=1gZ4m2zNzDyVcoPXjOKdtQUGnrDRHFfhbm516qp77oQ=;
-        b=hubg/0plHzphf01UH/D3BKoOoGNGAT3LC+Pdo4FJ/rXCLSUpeGBy7dv9CyAYOd/qVFd+/t
-        XtD/TBGQv71jVsAw==
-From:   "tip-bot2 for Reto Buerki" <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: x86/urgent] x86/msi: Fix msi message data shadow struct
-Cc:     "Adrian-Ken Rueegsegger" <ken@codelabs.ch>,
-        Reto Buerki <reet@codelabs.ch>,
-        Thomas Gleixner <tglx@linutronix.de>, stable@vger.kernel.org,
-        x86@kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20220407110647.67372-1-reet@codelabs.ch>
-References: <20220407110647.67372-1-reet@codelabs.ch>
+        with ESMTP id S1343807AbiDGOC2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 Apr 2022 10:02:28 -0400
+Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 442D64ECDC
+        for <stable@vger.kernel.org>; Thu,  7 Apr 2022 07:00:28 -0700 (PDT)
+Received: by mail-pj1-x1034.google.com with SMTP id 2so5706758pjw.2
+        for <stable@vger.kernel.org>; Thu, 07 Apr 2022 07:00:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=ilRZ4ek+6KKKYFW419BEN9rdb9L/EYrhdFBp0/hmrUo=;
+        b=HwJDof5YSaWRbe0KrDpNtb2vyys012Tla6FVJeqfBFkpIwiK/lgZkwibLPvftaGvE3
+         IvtDVbmOleQx7jby+JKRyynJN01kNpGQ46O0q9i3QVBPC6iDtnR97XRqyJfkr3AG5bcY
+         AL7zygZ3cCJJTxhuGpho8lWd0glBno8gn1gydMS0jAyWTNBNkc2OFXmvnzMCVKlyddOO
+         +nT83uVha6jRW+cPUwhC9sPv6kJb15hdfq61d8jFmQzlbYsdhgbpOKg44Y8vrhIGueGu
+         GQV9SsJGVrMNdraRFniUYWANhsD96yuvw8oQ4DLKk73Hpf2A1tU+bB2eS0dJygOTXMMt
+         sltQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=ilRZ4ek+6KKKYFW419BEN9rdb9L/EYrhdFBp0/hmrUo=;
+        b=lIvg5yaUcpmuhdSgQ+gxY4GrpaVh19O22IE/CUS7L3IjJ51wjS190hkxcPgj8CjV0A
+         e+Sl8iFAJpom36dyf4wcnWaT9sgn24b1Z5B0shHhjw+mHS4b2zyJwVZl5jLk5wO91iDw
+         fsKdEvJ0vuAlFsXtusuDu9eU2UtQcDGCSGyIJvLAjmDa7OiITHmyr6IOzQVkrN6SxHnY
+         GnzYWTogWutWap6d7W7TMpG2OG3Te0SEhRVYAe5nAScD1ifbv7raHPdw7f+SvgVbEeKD
+         iBi+ftddeqZevt/4J9ODPuDIPYjhWmaZ22HQwrHi0r4c5htDlgveW2tFu8Xzt3CUhJo9
+         R3Rw==
+X-Gm-Message-State: AOAM531BnhSwCEqZOFg0KjEQjYFVgYNO8L9N8aIC+M3u5TgvWGOrA2VQ
+        ffdKPfO177Os0mJATlUpVLds
+X-Google-Smtp-Source: ABdhPJxEtFDjxi+tT5tmyYEIpEPga6hkRXXTZUaElIv8mgWuQu9ZKsYcnyxSEj7onHYXcxi9a+WBzQ==
+X-Received: by 2002:a17:90b:164f:b0:1c7:8d20:ff6d with SMTP id il15-20020a17090b164f00b001c78d20ff6dmr16240981pjb.64.1649340027203;
+        Thu, 07 Apr 2022 07:00:27 -0700 (PDT)
+Received: from thinkpad ([59.92.99.101])
+        by smtp.gmail.com with ESMTPSA id mn18-20020a17090b189200b001cac1781bb4sm9269222pjb.35.2022.04.07.07.00.23
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 07 Apr 2022 07:00:26 -0700 (PDT)
+Date:   Thu, 7 Apr 2022 19:30:21 +0530
+From:   Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+To:     Bhaumik Vasav Bhatt <quic_bbhatt@quicinc.com>
+Cc:     mhi@lists.linux.dev, quic_hemantk@quicinc.com,
+        linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        loic.poulain@linaro.org, stable@vger.kernel.org
+Subject: Re: [PATCH v2] bus: mhi: host: pci_generic: Add missing poweroff()
+ PM callback
+Message-ID: <20220407140021.GA118957@thinkpad>
+References: <20220405125907.5644-1-manivannan.sadhasivam@linaro.org>
+ <daafdfd8-312e-cf42-d7bb-3fb914d443dc@quicinc.com>
 MIME-Version: 1.0
-Message-ID: <164933786279.389.13684586731676061391.tip-bot2@tip-bot2>
-Robot-ID: <tip-bot2@linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <daafdfd8-312e-cf42-d7bb-3fb914d443dc@quicinc.com>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the x86/urgent branch of tip:
+On Tue, Apr 05, 2022 at 01:23:22PM -0700, Bhaumik Vasav Bhatt wrote:
+> 
+> On 4/5/2022 5:59 AM, Manivannan Sadhasivam wrote:
+> > During hibernation process, once thaw() stage completes, the MHI endpoint
+> > devices will be in M0 state post recovery. After that, the devices will be
+> > powered down so that the system can enter the target sleep state. During
+> > this stage, the PCI core will put the devices in D3hot. But this transition
+> > is allowed by the MHI spec. The devices can only enter D3hot when it is in
+> > M3 state.
+> > 
+> > So for fixing this issue, let's add the poweroff() callback that will get
+> > executed before putting the system in target sleep state during
+> > hibernation. This callback will power down the device properly so that it
+> > could be restored during restore() or thaw() stage.
+> > 
+> > Cc: stable@vger.kernel.org
+> > Fixes: 5f0c2ee1fe8d ("bus: mhi: pci-generic: Fix hibernation")
+> > Reported-by: Hemant Kumar <quic_hemantk@quicinc.com>
+> > Suggested-by: Hemant Kumar <quic_hemantk@quicinc.com>
+> > Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+> > ---
+> > 
+> > Changes in v2:
+> > 
+> > * Hemant suggested to use restore function for poweroff() callback as we can
+> > make sure that the device gets powered down properly.
+> > 
+> >   drivers/bus/mhi/host/pci_generic.c | 1 +
+> >   1 file changed, 1 insertion(+)
+> > 
+> > diff --git a/drivers/bus/mhi/host/pci_generic.c b/drivers/bus/mhi/host/pci_generic.c
+> > index 9527b7d63840..ef85dbfb3216 100644
+> > --- a/drivers/bus/mhi/host/pci_generic.c
+> > +++ b/drivers/bus/mhi/host/pci_generic.c
+> > @@ -1085,6 +1085,7 @@ static const struct dev_pm_ops mhi_pci_pm_ops = {
+> >   	.resume = mhi_pci_resume,
+> >   	.freeze = mhi_pci_freeze,
+> >   	.thaw = mhi_pci_restore,
+> > +	.poweroff = mhi_pci_freeze,
+> 
+> It is possible that .thaw() queues recovery work and recovery work is still
+> running
+> 
+> while .poweroff() is called. I would suggest adding a flush_work() in freeze
+> such that
+> 
+> we don't try to power off while we're also trying to power on MHI from
+> recovery work.
+> 
 
-Commit-ID:     59b18a1e65b7a2134814106d0860010e10babe18
-Gitweb:        https://git.kernel.org/tip/59b18a1e65b7a2134814106d0860010e10babe18
-Author:        Reto Buerki <reet@codelabs.ch>
-AuthorDate:    Thu, 07 Apr 2022 13:06:47 +02:00
-Committer:     Thomas Gleixner <tglx@linutronix.de>
-CommitterDate: Thu, 07 Apr 2022 15:19:32 +02:00
+These two cannot run in parallel because the power down will only happen if the
+MHI_PCI_DEV_STARTED bit is set in mhi_pdev->status and that's the last step of
+recovery. But the real issue I found is, if the recovery didn't finish during
+powerdown() stage, then the function will just return and the device might be
+powered on later.
 
-x86/msi: Fix msi message data shadow struct
+So to avoid this scenario, we should have the flush_workqueue() in freeze.
 
-The x86 MSI message data is 32 bits in total and is either in
-compatibility or remappable format, see Intel Virtualization Technology
-for Directed I/O, section 5.1.2.
+I'll submit a different patch for that.
 
-Fixes: 6285aa50736 ("x86/msi: Provide msi message shadow structs")
-Co-developed-by: Adrian-Ken Rueegsegger <ken@codelabs.ch>
-Signed-off-by: Adrian-Ken Rueegsegger <ken@codelabs.ch>
-Signed-off-by: Reto Buerki <reet@codelabs.ch>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220407110647.67372-1-reet@codelabs.ch
----
- arch/x86/include/asm/msi.h | 19 +++++++++++--------
- 1 file changed, 11 insertions(+), 8 deletions(-)
+Thanks,
+Mani
 
-diff --git a/arch/x86/include/asm/msi.h b/arch/x86/include/asm/msi.h
-index b85147d..d71c7e8 100644
---- a/arch/x86/include/asm/msi.h
-+++ b/arch/x86/include/asm/msi.h
-@@ -12,14 +12,17 @@ int pci_msi_prepare(struct irq_domain *domain, struct device *dev, int nvec,
- /* Structs and defines for the X86 specific MSI message format */
- 
- typedef struct x86_msi_data {
--	u32	vector			:  8,
--		delivery_mode		:  3,
--		dest_mode_logical	:  1,
--		reserved		:  2,
--		active_low		:  1,
--		is_level		:  1;
--
--	u32	dmar_subhandle;
-+	union {
-+		struct {
-+			u32	vector			:  8,
-+				delivery_mode		:  3,
-+				dest_mode_logical	:  1,
-+				reserved		:  2,
-+				active_low		:  1,
-+				is_level		:  1;
-+		};
-+		u32	dmar_subhandle;
-+	};
- } __attribute__ ((packed)) arch_msi_msg_data_t;
- #define arch_msi_msg_data	x86_msi_data
- 
+> >   	.restore = mhi_pci_restore,
+> >   #endif
+> >   };
