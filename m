@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E7824F7042
-	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 03:19:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 25D7A4F7054
+	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 03:19:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237910AbiDGBUu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Apr 2022 21:20:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32908 "EHLO
+        id S237586AbiDGBVP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Apr 2022 21:21:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239475AbiDGBTR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 21:19:17 -0400
+        with ESMTP id S239511AbiDGBTT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 21:19:19 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CD0F1A8444;
-        Wed,  6 Apr 2022 18:14:36 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D3271A8FCD;
+        Wed,  6 Apr 2022 18:14:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B1813B81E79;
-        Thu,  7 Apr 2022 01:14:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65ABDC385A3;
-        Thu,  7 Apr 2022 01:14:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DA8E4B8268C;
+        Thu,  7 Apr 2022 01:14:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2618C385A8;
+        Thu,  7 Apr 2022 01:14:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1649294073;
-        bh=AgQK3J32JdPM0WF5hb3hT7jpj9cVjRmVVJoMbuUb9lk=;
+        s=k20201202; t=1649294074;
+        bh=i1rmuZh5hZEvDCOlszuy6i5fQ1cllSFKwzYfLfTBv0Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nIyT+1BVRZVGTQUTpir5nNFwGgq9xiLqsnPsUQwEh1h0ZZOwotwwGVFPB3JDaxCq/
-         ZlcnPKVnmMNjU5YS2pbewqBMHa7v3qR/Wzy7sZGxhdL3I3iYYPp0pYyph1lKedZav8
-         YQaSA5HLTbVadbrdRBLPnpkenwIugB9664VCVj5LLMrM2XbQLk0/aErY6xqhrT5wC7
-         7uFCfoAoyCrWx/cjMryDF+nuAFJyixlt+NVM8Y2/AhjH6HqZqsgMUMeqIAdzWlpNG1
-         32EwdoAEwIOb/jvjVV3KMVcmMoD4iJgy04k7yO2IEqTYvTjMfDq1QwAX7lA03JT2Ts
-         2FahKJokdM/XQ==
+        b=eJdQuA8g0wmvWTESIsTE3rDuA8uN3dc1xZMZwVQJqFoSMEzUZzJSa0z08f9TGojSc
+         2fAxUHroSwCpzbvEhzNp7S7gnKJ7Prx6JvVHncaOEzKqW3mvNbfhgpb3AFAFT1E7bK
+         1eHEArkLpa1X4cVdVOkHb7G+rhdnH1X1+N8dm9OOluvL7wyrcVQVuZCRAqoKC0IkFu
+         +xxjvpZjJuVndh02OkwU3hsrpX0S3mjgdipLmsZKyAelggsplK43Zqarv4iv7EniN7
+         VxKk9o6MZoOI93M9anTkmatlian/bp2dN5giKNhEVpgu68/qiJK1me2M1yDU2pHaMN
+         YZh+khQelGxuw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Monish Kumar R <monish.kumar.r@intel.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Sasha Levin <sashal@kernel.org>, kbusch@kernel.org,
-        axboe@fb.com, sagi@grimberg.me, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.10 08/25] nvme-pci: add quirks for Samsung X5 SSDs
-Date:   Wed,  6 Apr 2022 21:13:56 -0400
-Message-Id: <20220407011413.114662-8-sashal@kernel.org>
+Cc:     Andreas Gruenbacher <agruenba@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, rpeterso@redhat.com,
+        cluster-devel@redhat.com
+Subject: [PATCH AUTOSEL 5.10 09/25] gfs2: Disable page faults during lockless buffered reads
+Date:   Wed,  6 Apr 2022 21:13:57 -0400
+Message-Id: <20220407011413.114662-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220407011413.114662-1-sashal@kernel.org>
 References: <20220407011413.114662-1-sashal@kernel.org>
@@ -57,36 +56,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Monish Kumar R <monish.kumar.r@intel.com>
+From: Andreas Gruenbacher <agruenba@redhat.com>
 
-[ Upstream commit bc360b0b1611566e1bd47384daf49af6a1c51837 ]
+[ Upstream commit 52f3f033a5dbd023307520af1ff551cadfd7f037 ]
 
-Add quirks to not fail the initialization and to have quick resume
-latency after cold/warm reboot.
+During lockless buffered reads, filemap_read() holds page cache page
+references while trying to copy data to the user-space buffer.  The
+calling process isn't holding the inode glock, but the page references
+it holds prevent those pages from being removed from the page cache, and
+that prevents the underlying inode glock from being moved to another
+node.  Thus, we can end up in the same kinds of distributed deadlock
+situations as with normal (non-lockless) buffered reads.
 
-Signed-off-by: Monish Kumar R <monish.kumar.r@intel.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Fix that by disabling page faults during lockless reads as well.
+
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/pci.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ fs/gfs2/file.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index 97afeb898b25..ba067c1a6cf6 100644
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -3262,7 +3262,10 @@ static const struct pci_device_id nvme_id_table[] = {
- 				NVME_QUIRK_128_BYTES_SQES |
- 				NVME_QUIRK_SHARED_TAGS |
- 				NVME_QUIRK_SKIP_CID_GEN },
--
-+	{ PCI_DEVICE(0x144d, 0xa808),   /* Samsung X5 */
-+		.driver_data =  NVME_QUIRK_DELAY_BEFORE_CHK_RDY|
-+				NVME_QUIRK_NO_DEEPEST_PS |
-+				NVME_QUIRK_IGNORE_DEV_SUBNQN, },
- 	{ PCI_DEVICE_CLASS(PCI_CLASS_STORAGE_EXPRESS, 0xffffff) },
- 	{ 0, }
- };
+diff --git a/fs/gfs2/file.c b/fs/gfs2/file.c
+index cfd9d03f604f..d56a1ab4a186 100644
+--- a/fs/gfs2/file.c
++++ b/fs/gfs2/file.c
+@@ -857,14 +857,16 @@ static ssize_t gfs2_file_read_iter(struct kiocb *iocb, struct iov_iter *to)
+ 			return ret;
+ 		iocb->ki_flags &= ~IOCB_DIRECT;
+ 	}
++	pagefault_disable();
+ 	iocb->ki_flags |= IOCB_NOIO;
+ 	ret = generic_file_read_iter(iocb, to);
+ 	iocb->ki_flags &= ~IOCB_NOIO;
++	pagefault_enable();
+ 	if (ret >= 0) {
+ 		if (!iov_iter_count(to))
+ 			return ret;
+ 		written = ret;
+-	} else {
++	} else if (ret != -EFAULT) {
+ 		if (ret != -EAGAIN)
+ 			return ret;
+ 		if (iocb->ki_flags & IOCB_NOWAIT)
 -- 
 2.35.1
 
