@@ -2,46 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AF8864F7045
-	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 03:19:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2421B4F70A7
+	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 03:20:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237994AbiDGBUv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Apr 2022 21:20:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60698 "EHLO
+        id S238976AbiDGBWL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Apr 2022 21:22:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60796 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240502AbiDGBUC (ORCPT
+        with ESMTP id S240503AbiDGBUC (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 21:20:02 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57662E9C8A;
-        Wed,  6 Apr 2022 18:17:44 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B331BDE7;
+        Wed,  6 Apr 2022 18:17:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E6ECA61DA8;
-        Thu,  7 Apr 2022 01:17:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86189C385A1;
-        Thu,  7 Apr 2022 01:17:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4E9AB61DA4;
+        Thu,  7 Apr 2022 01:17:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C568C385A3;
+        Thu,  7 Apr 2022 01:17:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1649294263;
-        bh=3ppEylpC7rhu28q+aEoJtZCc0LGAVmNPdASS3x9Q/nI=;
-        h=From:To:Cc:Subject:Date:From;
-        b=Y/3yPw88I2TXt40rMhZPAVWgh4ui+Z05YBlFoIKU3EGf/RiTaWSALXcAf36konCws
-         mI5S3z7TfFvB6KdPbAJMjMZOynyl2od4AW78xGv/qniZjaxq4qQ1UzkMmuRci6tmFz
-         SNip0y8cCnIVFkzpWizTgzT0ZdgyQCqPJ7WbWvzCDkCCcWsJQ/soINEVBLL8iFu0Et
-         QnWUtNA4nQfESy441GGvpAotkfbs5dIEAKZ2pWwkbkaEeBJxIeVOosSZNhKbqPt+Jc
-         AEBq8P1md4dJSnFrVK77PJ0Pw7w8iBxZ0RpCQ6tR1EDpJUP+0yv+39s7s5Px7iA4ps
-         RTtu8OJwuc17w==
+        s=k20201202; t=1649294267;
+        bh=xhmdDEoKotcUO/7eHbPi3dL9BFugG1l1EDjl/avpqzE=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=odhGwP4SmwJfsZK3ciyyjVPytoUNTvbjCYua8F3Lri+s+s+sKIZifpZYtprRaTcQn
+         Kvvf/5Zbi6ZfUgnNWc/n+HoLsvqsSgHCrMGhU20goRMVXYru166Jh2sGVl8bJ5Czx8
+         hYJUhwbqWobV0LFXaIgs+JJCH0xDoUMDD20wZii9wk3oO475YDxVA/RXLgM4ruBPIf
+         VPC5O6dxzwCWB+Iolh2kvohDB0sNizoug1gljruNjcNv2D2a6cp9PERhPhz+QK3Twj
+         3cC9aBgLdWragZlTDD+wDc/DDv9X3SLNf6T4jstEaiOo0WEsWqDTzw8/cwz6nnQt2j
+         IszOf7Xs0s7iw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bob Peterson <rpeterso@redhat.com>,
-        syzbot+c6fd14145e2f62ca0784@syzkaller.appspotmail.com,
-        Andreas Gruenbacher <agruenba@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
-Subject: [PATCH AUTOSEL 4.9 1/7] gfs2: assign rgrp glock before compute_bitstructs
-Date:   Wed,  6 Apr 2022 21:17:34 -0400
-Message-Id: <20220407011740.115717-1-sashal@kernel.org>
+Cc:     David Gow <davidgow@google.com>,
+        Richard Weinberger <richard@nod.at>,
+        Sasha Levin <sashal@kernel.org>,
+        anton.ivanov@cambridgegreys.com, johannes@sipsolutions.net,
+        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
+        dave.hansen@linux.intel.com, x86@kernel.org,
+        viro@zeniv.linux.org.uk, linux-um@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.9 2/7] um: Cleanup syscall_handler_t definition/cast, fix warning
+Date:   Wed,  6 Apr 2022 21:17:35 -0400
+Message-Id: <20220407011740.115717-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220407011740.115717-1-sashal@kernel.org>
+References: <20220407011740.115717-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -55,65 +61,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Peterson <rpeterso@redhat.com>
+From: David Gow <davidgow@google.com>
 
-[ Upstream commit 428f651cb80b227af47fc302e4931791f2fb4741 ]
+[ Upstream commit f4f03f299a56ce4d73c5431e0327b3b6cb55ebb9 ]
 
-Before this patch, function read_rindex_entry called compute_bitstructs
-before it allocated a glock for the rgrp. But if compute_bitstructs found
-a problem with the rgrp, it called gfs2_consist_rgrpd, and that called
-gfs2_dump_glock for rgd->rd_gl which had not yet been assigned.
+The syscall_handler_t type for x86_64 was defined as 'long (*)(void)',
+but always cast to 'long (*)(long, long, long, long, long, long)' before
+use. This now triggers a warning (see below).
 
-read_rindex_entry
-   compute_bitstructs
-      gfs2_consist_rgrpd
-         gfs2_dump_glock <---------rgd->rd_gl was not set.
+Define syscall_handler_t as the latter instead, and remove the cast.
+This simplifies the code, and fixes the warning.
 
-This patch changes read_rindex_entry so it assigns an rgrp glock before
-calling compute_bitstructs so gfs2_dump_glock does not reference an
-unassigned pointer. If an error is discovered, the glock must also be
-put, so a new goto and label were added.
+Warning:
+In file included from ../arch/um/include/asm/processor-generic.h:13
+                 from ../arch/x86/um/asm/processor.h:41
+                 from ../include/linux/rcupdate.h:30
+                 from ../include/linux/rculist.h:11
+                 from ../include/linux/pid.h:5
+                 from ../include/linux/sched.h:14
+                 from ../include/linux/ptrace.h:6
+                 from ../arch/um/kernel/skas/syscall.c:7:
+../arch/um/kernel/skas/syscall.c: In function ‘handle_syscall’:
+../arch/x86/um/shared/sysdep/syscalls_64.h:18:11: warning: cast between incompatible function types from ‘long int (*)(void)’ to ‘long int (*)(long int,  long int,  long int,  long int,  long int,  long int)’ [
+-Wcast-function-type]
+   18 |         (((long (*)(long, long, long, long, long, long)) \
+      |           ^
+../arch/x86/um/asm/ptrace.h:36:62: note: in definition of macro ‘PT_REGS_SET_SYSCALL_RETURN’
+   36 | #define PT_REGS_SET_SYSCALL_RETURN(r, res) (PT_REGS_AX(r) = (res))
+      |                                                              ^~~
+../arch/um/kernel/skas/syscall.c:46:33: note: in expansion of macro ‘EXECUTE_SYSCALL’
+   46 |                                 EXECUTE_SYSCALL(syscall, regs));
+      |                                 ^~~~~~~~~~~~~~~
 
-Reported-by: syzbot+c6fd14145e2f62ca0784@syzkaller.appspotmail.com
-Signed-off-by: Bob Peterson <rpeterso@redhat.com>
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Signed-off-by: David Gow <davidgow@google.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/rgrp.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ arch/x86/um/shared/sysdep/syscalls_64.h | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/fs/gfs2/rgrp.c b/fs/gfs2/rgrp.c
-index 56a94535c246..7a7dc8ea93ea 100644
---- a/fs/gfs2/rgrp.c
-+++ b/fs/gfs2/rgrp.c
-@@ -917,15 +917,15 @@ static int read_rindex_entry(struct gfs2_inode *ip)
- 	rgd->rd_bitbytes = be32_to_cpu(buf.ri_bitbytes);
- 	spin_lock_init(&rgd->rd_rsspin);
+diff --git a/arch/x86/um/shared/sysdep/syscalls_64.h b/arch/x86/um/shared/sysdep/syscalls_64.h
+index 8a7d5e1da98e..1e6875b4ffd8 100644
+--- a/arch/x86/um/shared/sysdep/syscalls_64.h
++++ b/arch/x86/um/shared/sysdep/syscalls_64.h
+@@ -10,13 +10,12 @@
+ #include <linux/msg.h>
+ #include <linux/shm.h>
  
--	error = compute_bitstructs(rgd);
--	if (error)
--		goto fail;
--
- 	error = gfs2_glock_get(sdp, rgd->rd_addr,
- 			       &gfs2_rgrp_glops, CREATE, &rgd->rd_gl);
- 	if (error)
- 		goto fail;
+-typedef long syscall_handler_t(void);
++typedef long syscall_handler_t(long, long, long, long, long, long);
  
-+	error = compute_bitstructs(rgd);
-+	if (error)
-+		goto fail_glock;
-+
- 	rgd->rd_rgl = (struct gfs2_rgrp_lvb *)rgd->rd_gl->gl_lksb.sb_lvbptr;
- 	rgd->rd_flags &= ~(GFS2_RDF_UPTODATE | GFS2_RDF_PREFERRED);
- 	if (rgd->rd_data > sdp->sd_max_rg_data)
-@@ -942,6 +942,7 @@ static int read_rindex_entry(struct gfs2_inode *ip)
- 	}
+ extern syscall_handler_t *sys_call_table[];
  
- 	error = 0; /* someone else read in the rgrp; free it and ignore it */
-+fail_glock:
- 	gfs2_glock_put(rgd->rd_gl);
- 
- fail:
+ #define EXECUTE_SYSCALL(syscall, regs) \
+-	(((long (*)(long, long, long, long, long, long)) \
+-	  (*sys_call_table[syscall]))(UPT_SYSCALL_ARG1(&regs->regs), \
++	(((*sys_call_table[syscall]))(UPT_SYSCALL_ARG1(&regs->regs), \
+ 		 		      UPT_SYSCALL_ARG2(&regs->regs), \
+ 				      UPT_SYSCALL_ARG3(&regs->regs), \
+ 				      UPT_SYSCALL_ARG4(&regs->regs), \
 -- 
 2.35.1
 
