@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 96CBF4F7103
-	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 03:22:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EEE694F7063
+	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 03:19:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238547AbiDGBXr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Apr 2022 21:23:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60770 "EHLO
+        id S238519AbiDGBVb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Apr 2022 21:21:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240144AbiDGBTt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 21:19:49 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E5461B72EC;
-        Wed,  6 Apr 2022 18:15:27 -0700 (PDT)
+        with ESMTP id S240196AbiDGBTv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 21:19:51 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F241193206;
+        Wed,  6 Apr 2022 18:15:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E8AA4B82690;
-        Thu,  7 Apr 2022 01:15:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2793C385A6;
-        Thu,  7 Apr 2022 01:15:23 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 5ECCDCE25B2;
+        Thu,  7 Apr 2022 01:15:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F26DC385AF;
+        Thu,  7 Apr 2022 01:15:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1649294124;
-        bh=KDyBu00OoGqVZJyw1V+wQek+wRt9uM3e6Q3Id61XIKI=;
-        h=From:To:Cc:Subject:Date:From;
-        b=r0fwh12cxdtaBHmj0rkU5YSh1mM3s99wnFrx6eRfkvOFnYFJE8nCrWfGUDPRKKyBk
-         3zlFcsYf7lX07iTlbp4vVm/FI7jeyXfT4Qp/cQ6mpFGauxKN5n2JbyiCNK3JbSpghX
-         RcrlFlN0BPLfJsGMtOXU58w/PzzWk+cNd8govzknkjKwD+aLdNa63IWyrRlXiOnnj7
-         SjV8gL8mKa9uCd99ISmFliR7Y3RNdo634Y1ZxxBqlUClBmVU9psgSy/dQXH8pZZq1U
-         mVeeWfCGG7miofKgYxvM77MmHqcGQGUhfE51j7tDhnJDSqKA5eANPEgipKjmyio5ss
-         Gk3XdmJ0LXNDQ==
+        s=k20201202; t=1649294125;
+        bh=ASIjV+pChRoTXWfJg0esXtdUYY+xsNmlwSH37KNsLMM=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=B8AYelZ7XjnbT/PIdqLH0kyAEkl5ktuoXP6yRrRXsdwkghBLtHWxtcL2R5d2beyRD
+         di8LTkynaNIV8EPEmh4VEc5f4AQsBt3hhmLU+WoCvjGoggqHIgSO/IroX4NsSDsJk9
+         TZmZBkc0H6g0A+gz+0u89EBzTi4r79KVAtuWOX/81an6IcY4R7VMCr23RvbuFjOKg7
+         0Bdotsiq4Z0Hx+R/I7rJnKYP4So7MJG5LsEP89cusVLRCStMEXCTdTUBArnuajZqtp
+         1k7Ciik2Qb85H0lppNM3Pgmm77A15gDNAknzXkO539fm3Zhk9owDYrXmCtcPi2q6uP
+         56kStJnrcVfXw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bob Peterson <rpeterso@redhat.com>,
-        syzbot+c6fd14145e2f62ca0784@syzkaller.appspotmail.com,
-        Andreas Gruenbacher <agruenba@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
-Subject: [PATCH AUTOSEL 5.4 01/17] gfs2: assign rgrp glock before compute_bitstructs
-Date:   Wed,  6 Apr 2022 21:15:05 -0400
-Message-Id: <20220407011521.115014-1-sashal@kernel.org>
+Cc:     Vincent Whitchurch <vincent.whitchurch@axis.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>, a.zummo@towertech.it,
+        linux-rtc@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 02/17] rtc: fix use-after-free on device removal
+Date:   Wed,  6 Apr 2022 21:15:06 -0400
+Message-Id: <20220407011521.115014-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220407011521.115014-1-sashal@kernel.org>
+References: <20220407011521.115014-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -55,65 +57,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Peterson <rpeterso@redhat.com>
+From: Vincent Whitchurch <vincent.whitchurch@axis.com>
 
-[ Upstream commit 428f651cb80b227af47fc302e4931791f2fb4741 ]
+[ Upstream commit c8fa17d9f08a448184f03d352145099b5beb618e ]
 
-Before this patch, function read_rindex_entry called compute_bitstructs
-before it allocated a glock for the rgrp. But if compute_bitstructs found
-a problem with the rgrp, it called gfs2_consist_rgrpd, and that called
-gfs2_dump_glock for rgd->rd_gl which had not yet been assigned.
+If the irqwork is still scheduled or running while the RTC device is
+removed, a use-after-free occurs in rtc_timer_do_work().  Cleanup the
+timerqueue and ensure the work is stopped to fix this.
 
-read_rindex_entry
-   compute_bitstructs
-      gfs2_consist_rgrpd
-         gfs2_dump_glock <---------rgd->rd_gl was not set.
+ BUG: KASAN: use-after-free in mutex_lock+0x94/0x110
+ Write of size 8 at addr ffffff801d846338 by task kworker/3:1/41
 
-This patch changes read_rindex_entry so it assigns an rgrp glock before
-calling compute_bitstructs so gfs2_dump_glock does not reference an
-unassigned pointer. If an error is discovered, the glock must also be
-put, so a new goto and label were added.
+ Workqueue: events rtc_timer_do_work
+ Call trace:
+  mutex_lock+0x94/0x110
+  rtc_timer_do_work+0xec/0x630
+  process_one_work+0x5fc/0x1344
+  ...
 
-Reported-by: syzbot+c6fd14145e2f62ca0784@syzkaller.appspotmail.com
-Signed-off-by: Bob Peterson <rpeterso@redhat.com>
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+ Allocated by task 551:
+  kmem_cache_alloc_trace+0x384/0x6e0
+  devm_rtc_allocate_device+0xf0/0x574
+  devm_rtc_device_register+0x2c/0x12c
+  ...
+
+ Freed by task 572:
+  kfree+0x114/0x4d0
+  rtc_device_release+0x64/0x80
+  device_release+0x8c/0x1f4
+  kobject_put+0x1c4/0x4b0
+  put_device+0x20/0x30
+  devm_rtc_release_device+0x1c/0x30
+  devm_action_release+0x54/0x90
+  release_nodes+0x124/0x310
+  devres_release_group+0x170/0x240
+  i2c_device_remove+0xd8/0x314
+  ...
+
+ Last potentially related work creation:
+  insert_work+0x5c/0x330
+  queue_work_on+0xcc/0x154
+  rtc_set_time+0x188/0x5bc
+  rtc_dev_ioctl+0x2ac/0xbd0
+  ...
+
+Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: https://lore.kernel.org/r/20211210160951.7718-1-vincent.whitchurch@axis.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/rgrp.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/rtc/class.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/fs/gfs2/rgrp.c b/fs/gfs2/rgrp.c
-index c056ed5c6df3..767d188e5e50 100644
---- a/fs/gfs2/rgrp.c
-+++ b/fs/gfs2/rgrp.c
-@@ -925,15 +925,15 @@ static int read_rindex_entry(struct gfs2_inode *ip)
- 	rgd->rd_bitbytes = be32_to_cpu(buf.ri_bitbytes);
- 	spin_lock_init(&rgd->rd_rsspin);
- 
--	error = compute_bitstructs(rgd);
--	if (error)
--		goto fail;
--
- 	error = gfs2_glock_get(sdp, rgd->rd_addr,
- 			       &gfs2_rgrp_glops, CREATE, &rgd->rd_gl);
- 	if (error)
- 		goto fail;
- 
-+	error = compute_bitstructs(rgd);
-+	if (error)
-+		goto fail_glock;
+diff --git a/drivers/rtc/class.c b/drivers/rtc/class.c
+index 9458e6d6686a..8b434213bc7a 100644
+--- a/drivers/rtc/class.c
++++ b/drivers/rtc/class.c
+@@ -26,6 +26,15 @@ struct class *rtc_class;
+ static void rtc_device_release(struct device *dev)
+ {
+ 	struct rtc_device *rtc = to_rtc_device(dev);
++	struct timerqueue_head *head = &rtc->timerqueue;
++	struct timerqueue_node *node;
 +
- 	rgd->rd_rgl = (struct gfs2_rgrp_lvb *)rgd->rd_gl->gl_lksb.sb_lvbptr;
- 	rgd->rd_flags &= ~(GFS2_RDF_UPTODATE | GFS2_RDF_PREFERRED);
- 	if (rgd->rd_data > sdp->sd_max_rg_data)
-@@ -950,6 +950,7 @@ static int read_rindex_entry(struct gfs2_inode *ip)
- 	}
++	mutex_lock(&rtc->ops_lock);
++	while ((node = timerqueue_getnext(head)))
++		timerqueue_del(head, node);
++	mutex_unlock(&rtc->ops_lock);
++
++	cancel_work_sync(&rtc->irqwork);
  
- 	error = 0; /* someone else read in the rgrp; free it and ignore it */
-+fail_glock:
- 	gfs2_glock_put(rgd->rd_gl);
- 
- fail:
+ 	ida_simple_remove(&rtc_ida, rtc->id);
+ 	kfree(rtc);
 -- 
 2.35.1
 
