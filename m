@@ -2,233 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E54B4F7A64
-	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 10:51:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FA154F7A91
+	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 10:55:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243437AbiDGIxW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Apr 2022 04:53:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41470 "EHLO
+        id S234278AbiDGI5I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Apr 2022 04:57:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56076 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243521AbiDGIxD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 Apr 2022 04:53:03 -0400
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FAB7E92;
-        Thu,  7 Apr 2022 01:50:58 -0700 (PDT)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out1.suse.de (Postfix) with ESMTPS id 5A5EC21117;
-        Thu,  7 Apr 2022 08:50:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1649321457; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=6SzK6SzOgNWz1m/SzosRnb7vWlnb02hg+E4YETlNzYU=;
-        b=Fv7RgqTwrGDFRVK8OyrzYTjVn6wJQjiS3DmVe55+4UZu/AlxWAmlwWwXrxBUzDtnt18eit
-        PWpp4aawl7rCmHQPgJojrn2Ogw1gptw5r+02Wj1fBq0Q+F6flTQzAB5O0aRpOZARDK3/uc
-        0dbBqCiH+jIHx63L2+TxOEuQw8vgAXA=
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id F1BF213A66;
-        Thu,  7 Apr 2022 08:50:56 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id CCuBOfClTmKqGAAAMHmgww
-        (envelope-from <jgross@suse.com>); Thu, 07 Apr 2022 08:50:56 +0000
-Message-ID: <4f1908b5-5674-a772-3cd9-78e4dc40f776@suse.com>
-Date:   Thu, 7 Apr 2022 10:50:56 +0200
+        with ESMTP id S234575AbiDGI5G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 Apr 2022 04:57:06 -0400
+Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D04DE1C7F26;
+        Thu,  7 Apr 2022 01:55:05 -0700 (PDT)
+Received: by mail-pj1-x1032.google.com with SMTP id ch16-20020a17090af41000b001ca867ef52bso6035448pjb.0;
+        Thu, 07 Apr 2022 01:55:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=e/SRJZVa+pnGFAQo/DwKcWQpRPq+V+tMl7YCYye8ky8=;
+        b=Za5XoHpE3z6/fpXB3ca8tbDAq9xX0zhpil4PKZb0dvl/rgE7sgQg/bkx4mHJY/IH6P
+         cxjXlZrvDwbZsfqacuCmxrQTj/qqlcy0c7kC9y7DUMM7hER+FC6zVmEghCMBeQo1s9uG
+         U3FLUTf0zpoFMszLWUbyisyJzur9Z/1hWs9jg6yYjkWVNcxYJZRyO8YptFBnwLPM0YNb
+         Nc3MEaFgzw6zKKzbbcU0ghuGBbxJYjMxb34t16Alh+BkliXaf088ALOrs+vuWYh8mMpa
+         i8a92U9ExfWjLS+/1QSgKbjwNxdnZZs288jgwSFDt+WF0iwMmV8ye4lQBiYuvsHUYZWz
+         6sXA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=e/SRJZVa+pnGFAQo/DwKcWQpRPq+V+tMl7YCYye8ky8=;
+        b=HbCig1hR2hMG33ps6PxVk5vNDuC/IW2A8L9yNNu/hvcir36CgrdD4fh/DKzqDu6HyD
+         YtmzbyFutirf1CBMQyRwrMXseM08lMzlrSXUp6I65XFsGyXV3L3/xZUeA2EjZPfkvOV+
+         0HpIThUJVD2ocY1a5scqdq1yCY/CYswpmJu+Hv7ZCj6GJGlqR/2DP7aZmg6vLS0Y0z7T
+         v388i9Vdll3q9WplcKwhRVWVdMH3H1J9Wof+nSKl15oUih1Su0EkyK4XNvqeEOvF/v7H
+         +BXbI0ArZh3v0Cmi5q7CvmjIn0NkHyEkuaigWlOwXvOnSqFwJATB8PvZdIPpSoEtJC+S
+         KKlw==
+X-Gm-Message-State: AOAM531EWXuGSB1pw7gHF5JSGgazxcH8iAJvfdAqSepGkcAUZBnOxD0s
+        fOdChWDwet8SxbR7BgIl68U=
+X-Google-Smtp-Source: ABdhPJzq6mIJdzeGR7PpscKazLC0a0+GeljWRO9npUDAFsvbjAAsjD2jwiPFr4UEIWuK3k51pQoe7A==
+X-Received: by 2002:a17:90a:7f94:b0:1cb:1853:da1b with SMTP id m20-20020a17090a7f9400b001cb1853da1bmr1334040pjl.14.1649321705066;
+        Thu, 07 Apr 2022 01:55:05 -0700 (PDT)
+Received: from [192.168.43.80] (subs32-116-206-28-43.three.co.id. [116.206.28.43])
+        by smtp.gmail.com with ESMTPSA id t38-20020a634626000000b0039cc30b7c93sm1672908pga.82.2022.04.07.01.55.00
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 07 Apr 2022 01:55:04 -0700 (PDT)
+Message-ID: <7a7fbb50-2f6f-ad99-2bf5-68b2b4028acc@gmail.com>
+Date:   Thu, 7 Apr 2022 15:54:58 +0700
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.7.0
+Subject: Re: [PATCH 5.16 0000/1014] 5.16.19-rc2 review
 Content-Language: en-US
-To:     David Hildenbrand <david@redhat.com>,
-        xen-devel@lists.xenproject.org, linux-kernel@vger.kernel.org
-Cc:     Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?Q?Marek_Marczykowski-G=c3=b3recki?= 
-        <marmarek@invisiblethingslab.com>,
-        Wei Yang <richard.weiyang@gmail.com>,
-        Michal Hocko <mhocko@kernel.org>
-References: <20220406133229.15979-1-jgross@suse.com>
- <89ad978d-e95e-d3ea-5c8f-acf4b28f992c@redhat.com>
-From:   Juergen Gross <jgross@suse.com>
-Subject: Re: [PATCH] xen/balloon: fix page onlining when populating new zone
-In-Reply-To: <89ad978d-e95e-d3ea-5c8f-acf4b28f992c@redhat.com>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="------------OMFgksYuijuhI3hZ2iAJlos0"
-X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
-        autolearn=ham autolearn_force=no version=3.4.6
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
+References: <20220406133109.570377390@linuxfoundation.org>
+From:   Bagas Sanjaya <bagasdotme@gmail.com>
+In-Reply-To: <20220406133109.570377390@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-3.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---------------OMFgksYuijuhI3hZ2iAJlos0
-Content-Type: multipart/mixed; boundary="------------Pgc0gcsWI2D0D5pFykv836Uc";
- protected-headers="v1"
-From: Juergen Gross <jgross@suse.com>
-To: David Hildenbrand <david@redhat.com>, xen-devel@lists.xenproject.org,
- linux-kernel@vger.kernel.org
-Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>,
- Stefano Stabellini <sstabellini@kernel.org>, stable@vger.kernel.org,
- =?UTF-8?Q?Marek_Marczykowski-G=c3=b3recki?=
- <marmarek@invisiblethingslab.com>, Wei Yang <richard.weiyang@gmail.com>,
- Michal Hocko <mhocko@kernel.org>
-Message-ID: <4f1908b5-5674-a772-3cd9-78e4dc40f776@suse.com>
-Subject: Re: [PATCH] xen/balloon: fix page onlining when populating new zone
-References: <20220406133229.15979-1-jgross@suse.com>
- <89ad978d-e95e-d3ea-5c8f-acf4b28f992c@redhat.com>
-In-Reply-To: <89ad978d-e95e-d3ea-5c8f-acf4b28f992c@redhat.com>
+On 06/04/22 20.44, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.16.19 release.
+> There are 1014 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
 
---------------Pgc0gcsWI2D0D5pFykv836Uc
-Content-Type: multipart/mixed; boundary="------------lBWdgohUpDbOpCr4EznLRraE"
+Successfully cross-compiled for arm64 (bcm2711_defconfig, gcc 10.2.0) and
+powerpc (ps3_defconfig, gcc 11.2.0).
 
---------------lBWdgohUpDbOpCr4EznLRraE
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: base64
+Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
 
-T24gMDcuMDQuMjIgMTA6MjMsIERhdmlkIEhpbGRlbmJyYW5kIHdyb3RlOg0KPiBPbiAwNi4w
-NC4yMiAxNTozMiwgSnVlcmdlbiBHcm9zcyB3cm90ZToNCj4+IFdoZW4gb25saW5pbmcgYSBu
-ZXcgbWVtb3J5IHBhZ2UgaW4gYSBndWVzdCB0aGUgWGVuIGJhbGxvb24gZHJpdmVyIGlzDQo+
-PiBhZGRpbmcgaXQgdG8gdGhlIGJhbGxvb25lZCBwYWdlcyBpbnN0ZWFkIG1ha2luZyBpdCBh
-dmFpbGFibGUgdG8gYmUNCj4+IHVzZWQgaW1tZWRpYXRlbHkuIFRoaXMgaXMgbWVhbnQgdG8g
-ZW5hYmxlIHRvIGFkZCBhIG5ldyB1cHBlciBtZW1vcnkNCj4+IGxpbWl0IHRvIGEgZ3Vlc3Qg
-dmlhIGhvdHBsdWdnaW5nIG1lbW9yeSwgd2l0aG91dCBoYXZpbmcgdG8gYXNzaWduIHRoZQ0K
-Pj4gbmV3IG1lbW9yeSBpbiBvbmUgZ28uDQo+Pg0KPj4gSW4gY2FzZSB0aGUgdXBwZXIgbWVt
-b3J5IGxpbWl0IHdpbGwgYmUgcmFpc2VkIGFib3ZlIDRHLCB0aGUgbmV3IG1lbW9yeQ0KPj4g
-d2lsbCBwb3B1bGF0ZSB0aGUgWk9ORV9OT1JNQUwgbWVtb3J5IHpvbmUsIHdoaWNoIHdhc24n
-dCBwb3B1bGF0ZWQNCj4+IGJlZm9yZS4gVGhlIG5ld2x5IHBvcHVsYXRlZCB6b25lIHdvbid0
-IGJlIGFkZGVkIHRvIHRoZSBsaXN0IG9mIHpvbmVzDQo+PiBsb29rZWQgYXQgYnkgdGhlIHBh
-Z2UgYWxsb2NhdG9yIHRob3VnaCwgYXMgb25seSB6b25lcyB3aXRoIGF2YWlsYWJsZQ0KPj4g
-bWVtb3J5IGFyZSBiZWluZyBhZGRlZCwgYW5kIHRoZSBtZW1vcnkgaXNuJ3QgeWV0IGF2YWls
-YWJsZSBhcyBpdCBpcw0KPj4gYmFsbG9vbmVkIG91dC4NCj4gDQo+IEkgdGhpbmsgd2UganVz
-dCByZWNlbnRseSBkaXNjdXNzZWQgdGhlc2UgY29ybmVyIGNhc2VzIG9uIHRoZSAtbW0gbGlz
-dC4NCg0KSW5kZWVkLg0KDQo+IFRoZSBpc3N1ZSBpcyBoYXZpbmcgZWZmZWN0aXZlbHkgcG9w
-dWxhdGVkIHpvbmVzIHdpdGhvdXQgbWFuYWdlcyBwYWdlcw0KPiBiZWNhdXNlIGV2ZXJ5dGhp
-bmcgaXMgaW5mbGF0ZWQgaW4gYSBiYWxsb29uLg0KDQpDb3JyZWN0Lg0KDQo+IFRoYXQgY2Fu
-IHRoZW9yZXRpY2FsbHkgYWxzbyBoYXBwZW4gd2hlbiBtYW5hZ2luZyB0byBmdWxseSBpbmZs
-YXRlIHRoZQ0KPiBiYWxsb29uIGluIG9uZSB6b25lIGFuZCB0aGVuLCBzb21laG93LCB0aGUg
-em9uZXMgZ2V0IHJlYnVpbHQuDQoNCkkgdGhpbmsgeW91IGFyZSByaWdodC4gSSBkaWRuJ3Qg
-dGhpbmsgb2YgdGhhdCBzY2VuYXJpby4NCg0KPiBidWlsZF96b25lcmVmc19ub2RlKCkgZG9j
-dW1lbnRzICJBZGQgYWxsIHBvcHVsYXRlZCB6b25lcyBvZiBhIG5vZGUgdG8NCj4gdGhlIHpv
-bmVsaXN0IiBidXQgY2hlY2tzIGZvciBtYW5hZ2VkIHpvbmVzLCB3aGljaCBpcyB3cm9uZy4N
-Cj4gDQo+IFNlZSBodHRwczovL2xrbWwua2VybmVsLm9yZy9yLzIwMjIwMjAxMDcwMDQ0Lnpi
-bTNvYnNvaW1oejN4ZDNAbWFzdGVyDQoNCkkgZm91bmQgY29tbWl0IDZhYTMwM2RlZmI3NDU0
-IHdoaWNoIGludHJvZHVjZWQgdGhpcyB0ZXN0LiBJIHRob3VnaHQNCml0IHdhcyBuZWVkZWQg
-ZHVlIHRvIHRoZSBwcm9ibGVtIHRoaXMgY29tbWl0IHRyaWVkIHRvIHNvbHZlLiBNYXliZSBJ
-DQp3YXMgd3JvbmcgYW5kIHRoYXQgY29tbWl0IHNob3VsZG4ndCBoYXZlIGNoYW5nZWQgdGhl
-IGNvbmRpdGlvbiB3aGVuDQpidWlsZGluZyB0aGUgem9uZWxpc3QsIGJ1dCBqdXN0IHRoZSBv
-bmVzIGluIHRoZSBhbGxvY2F0aW9uIHBhdGhzLg0KDQo+IA0KPj4NCj4+IFRoaXMgd2lsbCBy
-ZXN1bHQgaW4gdGhlIG5ldyBtZW1vcnkgYmVpbmcgYXNzaWduZWQgdG8gdGhlIGd1ZXN0LCBi
-dXQNCj4+IHdpdGhvdXQgdGhlIGFsbG9jYXRvciBiZWluZyBhYmxlIHRvIHVzZSBpdC4NCj4+
-DQo+PiBXaGVuIHJ1bm5pbmcgYXMgYSBQViBndWVzdCB0aGUgc2l0dWF0aW9uIGlzIGV2ZW4g
-d29yc2U6IHdoZW4gaGF2aW5nDQo+PiBiZWVuIHN0YXJ0ZWQgd2l0aCBsZXNzIG1lbW9yeSB0
-aGFuIGFsbG93ZWQsIGFuZCB0aGUgdXBwZXIgbGltaXQgYmVpbmcNCj4+IGxvd2VyIHRoYW4g
-NEcsIGJhbGxvb25pbmcgdXAgd2lsbCBoYXZlIHRoZSBzYW1lIGVmZmVjdCBhcyBob3RwbHVn
-Z2luZw0KPj4gbmV3IG1lbW9yeS4gVGhpcyBpcyBkdWUgdG8gdGhlIHVzYWdlIG9mIHRoZSB6
-b25lIGRldmljZSBmdW5jdGlvbmFsaXR5DQo+PiBzaW5jZSBjb21taXQgOWUyMzY5YzA2Yzhh
-ICgieGVuOiBhZGQgaGVscGVycyB0byBhbGxvY2F0ZSB1bnBvcHVsYXRlZA0KPj4gbWVtb3J5
-IikgZm9yIGNyZWF0aW5nIG1hcHBpbmdzIG9mIG90aGVyIGd1ZXN0J3MgcGFnZXMsIHdoaWNo
-IGFzIGEgc2lkZQ0KPj4gZWZmZWN0IGlzIGJlaW5nIHVzZWQgZm9yIFBWIGd1ZXN0IGJhbGxv
-b25pbmcsIHRvby4NCj4+DQo+PiBGaXggdGhpcyBieSBjaGVja2luZyBpbiB4ZW5fb25saW5l
-X3BhZ2UoKSB3aGV0aGVyIHRoZSBuZXcgbWVtb3J5IHBhZ2UNCj4+IHdpbGwgYmUgdGhlIGZp
-cnN0IGluIGEgbmV3IHpvbmUuIElmIHRoaXMgaXMgdGhlIGNhc2UsIGFkZCBhbm90aGVyIHBh
-Z2UNCj4+IHRvIHRoZSBiYWxsb29uIGFuZCB1c2UgdGhlIGZpcnN0IG1lbW9yeSBwYWdlIG9m
-IHRoZSBuZXcgY2h1bmsgYXMgYQ0KPj4gcmVwbGFjZW1lbnQgZm9yIHRoaXMgbm93IGJhbGxv
-b25lZCBvdXQgcGFnZS4gVGhpcyB3aWxsIHJlc3VsdCBpbiB0aGUNCj4+IG5ld2x5IHBvcHVs
-YXRlZCB6b25lIGNvbnRhaW5pbmcgb25lIHBhZ2UgYmVpbmcgYXZhaWxhYmxlIGZvciB0aGUg
-cGFnZQ0KPj4gYWxsb2NhdG9yLCB3aGljaCBpbiB0dXJuIHdpbGwgbGVhZCB0byB0aGUgem9u
-ZSBiZWluZyBhZGRlZCB0byB0aGUNCj4+IGFsbG9jYXRvci4NCj4gDQo+IFRoaXMgc29tZWhv
-dyBmZWVscyBsaWtlIGEgaGFjayBmb3Igc29tZXRoaW5nIHRoYXQgc2hvdWxkIGJlIGhhbmRs
-ZWQgaW4NCj4gdGhlIGNvcmUgaW5zdGVhZCA6Lw0KDQpPa2F5LCBJJ2xsIHJld29yayB0aGUg
-cGF0Y2ggKGJldHRlciB3b3JkaW5nIG1pZ2h0IGJlOiByZXBsYWNlKSB0byBzd2l0Y2gNCmJ1
-aWxkX3pvbmVyZWZzX25vZGUoKSB0byB1c2UgcG9wdWxhdGVkX3pvbmUoKSBpbnN0ZWFkIG9m
-IG1hbmFnZWRfem9uZSgpLg0KDQoNCkp1ZXJnZW4NCg==
---------------lBWdgohUpDbOpCr4EznLRraE
-Content-Type: application/pgp-keys; name="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Disposition: attachment; filename="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Description: OpenPGP public key
-Content-Transfer-Encoding: quoted-printable
-
------BEGIN PGP PUBLIC KEY BLOCK-----
-
-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
-jR/i1DG86lem3iBDXzXsZDn8R38=3D
-=3D2wuH
------END PGP PUBLIC KEY BLOCK-----
-
---------------lBWdgohUpDbOpCr4EznLRraE--
-
---------------Pgc0gcsWI2D0D5pFykv836Uc--
-
---------------OMFgksYuijuhI3hZ2iAJlos0
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature"
-
------BEGIN PGP SIGNATURE-----
-
-wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmJOpfAFAwAAAAAACgkQsN6d1ii/Ey+N
-tAf+OKaLICMk6ZJi29vD8L8v6HtVrz+K0ZW3vob8jSe0Gl1bjadVddpD4A+zG1tLW2gQWaCnqLUP
-kjS4x44UWX3qhV/piaXve2Qcd2iyy6WOvp/ZTfihXD5w6aStLo2sfPHTY5OtExk6TlflmaZzUEr9
-ePBxQMyUd8ApPirAaybmOPrK+ler5ppLftCbH9VGcJuXCNdgIoeAuMDA7Gg3pM06AkhwE0jhljGL
-50T7v0nY548SF9jKaDQ+Op0aQr36JYgKkvEAsSAE0+0A/KSbrFiQk5POUpUlHlbDkeqja234ekPl
-tvyQ1SS//5iSGhQd1bd7sQ3YgmBU+k3WN0f7+xbheQ==
-=xIhG
------END PGP SIGNATURE-----
-
---------------OMFgksYuijuhI3hZ2iAJlos0--
+-- 
+An old man doll... just what I always wanted! - Clara
