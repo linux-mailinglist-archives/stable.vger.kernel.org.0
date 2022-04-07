@@ -2,46 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C3C544F70C0
-	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 03:21:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28D674F70E4
+	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 03:21:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239047AbiDGBW3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Apr 2022 21:22:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60990 "EHLO
+        id S239550AbiDGBXL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Apr 2022 21:23:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60590 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238670AbiDGBS1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 21:18:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCE2F199E07;
-        Wed,  6 Apr 2022 18:13:22 -0700 (PDT)
+        with ESMTP id S238756AbiDGBSf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 21:18:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 229E319BE42;
+        Wed,  6 Apr 2022 18:13:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3888961DA8;
-        Thu,  7 Apr 2022 01:13:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 495A1C385A3;
-        Thu,  7 Apr 2022 01:13:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 873F8B81E79;
+        Thu,  7 Apr 2022 01:13:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1ABCC385A1;
+        Thu,  7 Apr 2022 01:13:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1649294001;
-        bh=o4q0gVs0gfviaTGGB5AnUBByDUtGawb79C5sVvmKWRI=;
+        s=k20201202; t=1649294006;
+        bh=kyCpt+kxit9oAreUT89imPW8qUa5FVx/lcfqw+8Zcqo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K7sFwUUWUqGOFUWPYDrDiw0ylWYeSDTrw3+Q3UnnSJF0SrcnJqeUuHWzLOjh8TP6w
-         4hsMclFU5mhXqjnvg+Gsi6FmeKjHK2NUfOybX+jHLnEA9xr/vYS4e0tvI1ySZdQFmg
-         Ci0vfkxo5WXgrzHnk/n4huRdfJNZCZOTVviZahfYsG27xVrLiXKDdM14CNhRFNaT4r
-         Jc4sisVw5MiF51k/kP73but/CqIKJ47sj/zgcpqSYyNOY2xkvHyYJ8xLTjYqjhlpyP
-         uT7eEAoIK7VyoeUdTD7cmixd5sAnBuvp4ZleVs3mDxLjIs91tcbe9FxW1vvsjRR4In
-         jeJtxPs4v+sAw==
+        b=BIvEnjqDbZIhoF3UiaDYKDnqt/+223xLqf60mrsyj11RW/8b7ZWVLilE4mleJVK6d
+         ri4pj07B3mPFBKxulr6ZF8pWwsSZf0e/AhONsMv5o0mXvG87ghP05XTDqE+giE8ELW
+         bW/UX7HYBXTVnEvImRUxCVQ9bL4xYm2zMyn2h7u6RHWU3+qQJQ8uaPRR4dOiPSaGtz
+         mBckfuO3ykB4G7FIMBKGGeKkzdWyEjcVnhs3Smyt8CvuiPDay+8PMLRGpjpP+Rwu7W
+         m9wpqqwbB/pB45oCyyGZkrxU0LaMuSP7lpQOy6hz0Pg0oBL/vfNtNhaFegt1ib3fH/
+         Zc5odHUIiohiw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andre Przywara <andre.przywara@arm.com>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>, a.zummo@towertech.it,
-        wens@csie.org, samuel@sholland.org, linux-rtc@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-sunxi@lists.linux.dev
-Subject: [PATCH AUTOSEL 5.15 10/27] rtc: sun6i: Fix time overflow handling
-Date:   Wed,  6 Apr 2022 21:12:40 -0400
-Message-Id: <20220407011257.114287-10-sashal@kernel.org>
+Cc:     Zheng Yongjun <zhengyongjun3@huawei.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
+        mcoquelin.stm32@gmail.com, alexandre.torgue@foss.st.com,
+        nicolas.toromanoff@foss.st.com, marex@denx.de,
+        linux-crypto@vger.kernel.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.15 11/27] crypto: stm32 - fix reference leak in stm32_crc_remove
+Date:   Wed,  6 Apr 2022 21:12:41 -0400
+Message-Id: <20220407011257.114287-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220407011257.114287-1-sashal@kernel.org>
 References: <20220407011257.114287-1-sashal@kernel.org>
@@ -59,78 +61,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andre Przywara <andre.przywara@arm.com>
+From: Zheng Yongjun <zhengyongjun3@huawei.com>
 
-[ Upstream commit 9f6cd82eca7e91a0d0311242a87c6aa3c2737968 ]
+[ Upstream commit e9a36feecee0ee5845f2e0656f50f9942dd0bed3 ]
 
-Using "unsigned long" for UNIX timestamps is never a good idea, and
-comparing the value of such a variable against U32_MAX does not do
-anything useful on 32-bit systems.
+pm_runtime_get_sync() will increment pm usage counter even it
+failed. Forgetting to call pm_runtime_put_noidle will result
+in reference leak in stm32_crc_remove, so we should fix it.
 
-Use the proper time64_t type when dealing with timestamps, and avoid
-cutting down the time range unnecessarily. This also fixes the flawed
-check for the alarm time being too far into the future.
-
-The check for this condition is actually somewhat theoretical, as the
-RTC counts till 2033 only anyways, and 2^32 seconds from now is not
-before the year 2157 - at which point I hope nobody will be using this
-hardware anymore.
-
-Signed-off-by: Andre Przywara <andre.przywara@arm.com>
-Reviewed-by: Jernej Skrabec <jernej.skrabec@gmail.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/20220211122643.1343315-4-andre.przywara@arm.com
+Signed-off-by: Zheng Yongjun <zhengyongjun3@huawei.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-sun6i.c | 14 +++++---------
- 1 file changed, 5 insertions(+), 9 deletions(-)
+ drivers/crypto/stm32/stm32-crc32.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-sun6i.c b/drivers/rtc/rtc-sun6i.c
-index adec1b14a8de..c551ebf0ac00 100644
---- a/drivers/rtc/rtc-sun6i.c
-+++ b/drivers/rtc/rtc-sun6i.c
-@@ -138,7 +138,7 @@ struct sun6i_rtc_dev {
- 	const struct sun6i_rtc_clk_data *data;
- 	void __iomem *base;
- 	int irq;
--	unsigned long alarm;
-+	time64_t alarm;
+diff --git a/drivers/crypto/stm32/stm32-crc32.c b/drivers/crypto/stm32/stm32-crc32.c
+index be1bf39a317d..90a920e7f664 100644
+--- a/drivers/crypto/stm32/stm32-crc32.c
++++ b/drivers/crypto/stm32/stm32-crc32.c
+@@ -384,8 +384,10 @@ static int stm32_crc_remove(struct platform_device *pdev)
+ 	struct stm32_crc *crc = platform_get_drvdata(pdev);
+ 	int ret = pm_runtime_get_sync(crc->dev);
  
- 	struct clk_hw hw;
- 	struct clk_hw *int_osc;
-@@ -510,10 +510,8 @@ static int sun6i_rtc_setalarm(struct device *dev, struct rtc_wkalrm *wkalrm)
- 	struct sun6i_rtc_dev *chip = dev_get_drvdata(dev);
- 	struct rtc_time *alrm_tm = &wkalrm->time;
- 	struct rtc_time tm_now;
--	unsigned long time_now = 0;
--	unsigned long time_set = 0;
--	unsigned long time_gap = 0;
--	int ret = 0;
-+	time64_t time_now, time_set;
-+	int ret;
+-	if (ret < 0)
++	if (ret < 0) {
++		pm_runtime_put_noidle(crc->dev);
+ 		return ret;
++	}
  
- 	ret = sun6i_rtc_gettime(dev, &tm_now);
- 	if (ret < 0) {
-@@ -528,9 +526,7 @@ static int sun6i_rtc_setalarm(struct device *dev, struct rtc_wkalrm *wkalrm)
- 		return -EINVAL;
- 	}
- 
--	time_gap = time_set - time_now;
--
--	if (time_gap > U32_MAX) {
-+	if ((time_set - time_now) > U32_MAX) {
- 		dev_err(dev, "Date too far in the future\n");
- 		return -EINVAL;
- 	}
-@@ -539,7 +535,7 @@ static int sun6i_rtc_setalarm(struct device *dev, struct rtc_wkalrm *wkalrm)
- 	writel(0, chip->base + SUN6I_ALRM_COUNTER);
- 	usleep_range(100, 300);
- 
--	writel(time_gap, chip->base + SUN6I_ALRM_COUNTER);
-+	writel(time_set - time_now, chip->base + SUN6I_ALRM_COUNTER);
- 	chip->alarm = time_set;
- 
- 	sun6i_rtc_setaie(wkalrm->enabled, chip);
+ 	spin_lock(&crc_list.lock);
+ 	list_del(&crc->list);
 -- 
 2.35.1
 
