@@ -2,68 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 51D164F87E3
-	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 21:15:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C4B5C4F888D
+	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 22:33:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229646AbiDGTRD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Apr 2022 15:17:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40170 "EHLO
+        id S229533AbiDGUcZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Apr 2022 16:32:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33508 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236954AbiDGTQ4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 Apr 2022 15:16:56 -0400
-Received: from smtp-relay-internal-1.canonical.com (smtp-relay-internal-1.canonical.com [185.125.188.123])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1555124A8A3
-        for <stable@vger.kernel.org>; Thu,  7 Apr 2022 12:14:55 -0700 (PDT)
-Received: from mail-oa1-f72.google.com (mail-oa1-f72.google.com [209.85.160.72])
+        with ESMTP id S229685AbiDGUcY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 Apr 2022 16:32:24 -0400
+Received: from smtp-relay-internal-0.canonical.com (smtp-relay-internal-0.canonical.com [185.125.188.122])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BBFB48E206
+        for <stable@vger.kernel.org>; Thu,  7 Apr 2022 13:17:02 -0700 (PDT)
+Received: from mail-io1-f70.google.com (mail-io1-f70.google.com [209.85.166.70])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
         (No client certificate requested)
-        by smtp-relay-internal-1.canonical.com (Postfix) with ESMTPS id D90CA3F31D
-        for <stable@vger.kernel.org>; Thu,  7 Apr 2022 19:14:52 +0000 (UTC)
+        by smtp-relay-internal-0.canonical.com (Postfix) with ESMTPS id 0A1FF3F9AB
+        for <stable@vger.kernel.org>; Thu,  7 Apr 2022 20:16:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-        s=20210705; t=1649358892;
-        bh=j3q73/KCI+WqR07x0DNeQJL3Ovi3eCfX2O2JUwMyPaw=;
-        h=From:To:Subject:Date:Message-Id:In-Reply-To:References:
-         MIME-Version;
-        b=SpAYByTgqZrajDQhmggTlfWf2IfwIGt138mIzC/7Q5zrBh+SqUaO6PIkJ6ojOczYT
-         lSlATy3aktphAoPGMXgNh24O7rfHLppadbtk2ERpLRbOZs/DAKdpWFr0jZDDCSTs5s
-         bQtySZPFQBwE4CyPMLdTyQWq+HlMs4R1k90Y7JOZYJlFJhpxD3iyIHppFzlwAMl7xk
-         wxRx318TaM+mcaQZP1JCIKh9nux1m6xrn+5F703mK6HfNpdM8Ao2GDtaq4YMepqDJj
-         Go9LymZ2LQs8wAlF9yGZ0CY9hcY2AV4K0Js2faPdeau2m9YTbsGOjjlDGrwxrV7No5
-         UC2E0MilppCDg==
-Received: by mail-oa1-f72.google.com with SMTP id 586e51a60fabf-de023091b1so3481026fac.18
-        for <stable@vger.kernel.org>; Thu, 07 Apr 2022 12:14:52 -0700 (PDT)
+        s=20210705; t=1649362618;
+        bh=oXbDH3jf9DCCtADiw9ZiV+oTwRq1LbJ3hddxIrjTof0=;
+        h=From:To:Cc:Subject:Date:Message-Id:MIME-Version;
+        b=EZW5/9wfPKR8LuVUQ5BgJdDz6HUjflhAwoBb3TkLx2i6pjCD90ZFH/PBSg+YVOlwJ
+         dSdHAOAb0u50FISn9xGwRyMg047BSWkW2a9X+ESHQqvNBjyS1xLpdMtknYnK8z7gIc
+         yZ52CWwAFtvOhdtoYZKJzqKaIS7gwhX+shUY0U57GNpTVN4ej1GOI0DzjImYAsQM+k
+         t1JynsqhTbDZeZ2MJ7IwZlPKvUDkWt/6R0YTzLyQb4YTcWZh3RtsyGbOXKt9S9aE4L
+         SMt9PxMOaTiBC06rkl27+jNmsjZrGwKlFHY0bTi2wDpQEKSQrHIZkG6HoS21w3y4Oa
+         3ghRjBwrkjcjw==
+Received: by mail-io1-f70.google.com with SMTP id y4-20020a6bd804000000b0064c68fa4f70so4364283iob.2
+        for <stable@vger.kernel.org>; Thu, 07 Apr 2022 13:16:57 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=j3q73/KCI+WqR07x0DNeQJL3Ovi3eCfX2O2JUwMyPaw=;
-        b=B8Vnr3kAvcy0oRnx5HXaIuWTMPDcdjo7RmPwZxNgHdRKxmVPxv7pU/e5tEHKtXu8VO
-         ezlJZYOcbso5aOhjRphnWV3YiamJCIgBC+cxiEnT+S50OZ40yLZewAAk3vEUKdfWL+dA
-         nAkZDhJbEEdRSBxlh1FqN+rLy/Y9ho/t4/QOXkXbUvuo+9ylZtKsU9xTbM9ArYHizUnZ
-         DWg3VWYd8xJr9I33CvCPfQScin7WPMs33ZeEzpY7ML95pWBcvnzYdASIIvZ1vUar2h3d
-         KTyEKBKMuI6mTdySwyGCydslH2bTTavGVUQ5xb1aZItwL1+5V6EYRXNWMob8V6V+q2hk
-         0w2g==
-X-Gm-Message-State: AOAM530Htn2gxXdlRXrGownHoFhJHrrOhoxJjPcNqoFMenqmaM/bzf/z
-        wgpOQSidZEqfjm/a4aYCpMWLaZmMi5QEszTmykvnHIbSJ+++5OW4lnLfs0UGnUfE2BgqhnTKOtf
-        HT7ECEQUC+qqdj6MO9Ycv3unyj3mWSqiigA==
-X-Received: by 2002:a05:6808:218a:b0:2f9:65d4:898a with SMTP id be10-20020a056808218a00b002f965d4898amr6510766oib.27.1649358891258;
-        Thu, 07 Apr 2022 12:14:51 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzvTf8NxVBBtIwy/mF2FEfI/qo5RPzJhSSg3Giybwvga3ctCdL1UughBMOURY4hDoqu/5Hm+Q==
-X-Received: by 2002:a05:6808:218a:b0:2f9:65d4:898a with SMTP id be10-20020a056808218a00b002f965d4898amr6510753oib.27.1649358890724;
-        Thu, 07 Apr 2022 12:14:50 -0700 (PDT)
-Received: from mfo-t470.. ([2804:14c:4e1:8732:bf86:1224:e21c:d4ae])
-        by smtp.gmail.com with ESMTPSA id m5-20020a056870194500b000d9a0818925sm7844120oak.25.2022.04.07.12.14.49
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=oXbDH3jf9DCCtADiw9ZiV+oTwRq1LbJ3hddxIrjTof0=;
+        b=Glw2YrtdXO5CWwBOicp38KD6CrugwuFS/QHNGO1Bt1XzzkAeENPLSaOCmX9ZtB1MgU
+         qszjpmPeesoICKDAL9mhjQajXSVO5ncofndbu2F/KYyPzw8EGmVTl5fZw8Z8m4pEsaLI
+         /oL6tGp4BTsDu4CbP4dV2NqYOGEBD0huNnaKoPCPxe8oagA7Td2V/wqnvey2waTX1Dkq
+         0mJyttni5pQvLCntZj7T9A0EzSJsuNVa89UMKWRKa5jMDyCdScxug0+IBvyuptcr3m9l
+         Ib9ghW4yx/rgdx/QWZ+LVfkMIUdFrzTWDDEudbARsuJT2XxzBAIUmT9Ol2oDTamKAyAj
+         JR8Q==
+X-Gm-Message-State: AOAM532tTIcJ7NzwJOgYHu2qFudxLBOQG3jPNQEsVaEeNkmCis5zaeIS
+        qQW0d403Cvl0qwdIawdP7fzfVJVD2L/mbPcsfxRDCCpqzFJQbXnlbnx3MhQHZvDLvjOEAjKFgBs
+        RIcC3ODusHigiCA+FTBlIsfJzZkQU1YV6eQ==
+X-Received: by 2002:a5d:860d:0:b0:649:be05:7b0b with SMTP id f13-20020a5d860d000000b00649be057b0bmr7108007iol.22.1649362615857;
+        Thu, 07 Apr 2022 13:16:55 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwzDnxY2sxNHrVnCIDUBu6DT18zGmV/COtDfuaVDyowEIA+b5xF6Hd/5UWi/TDV68Dkx3UGzg==
+X-Received: by 2002:a5d:860d:0:b0:649:be05:7b0b with SMTP id f13-20020a5d860d000000b00649be057b0bmr7107998iol.22.1649362615642;
+        Thu, 07 Apr 2022 13:16:55 -0700 (PDT)
+Received: from localhost (c-73-14-97-161.hsd1.co.comcast.net. [73.14.97.161])
+        by smtp.gmail.com with ESMTPSA id y6-20020a056e02174600b002c7f247b3a7sm13185975ill.54.2022.04.07.13.16.54
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 07 Apr 2022 12:14:50 -0700 (PDT)
-From:   Mauricio Faria de Oliveira <mfo@canonical.com>
-To:     stable@vger.kernel.org
-Subject: [PATCH 4.9] mm: fix race between MADV_FREE reclaim and blkdev direct IO read
-Date:   Thu,  7 Apr 2022 16:14:32 -0300
-Message-Id: <20220407191432.1456219-9-mfo@canonical.com>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20220407191432.1456219-1-mfo@canonical.com>
-References: <20220407191432.1456219-1-mfo@canonical.com>
+        Thu, 07 Apr 2022 13:16:54 -0700 (PDT)
+From:   dann frazier <dann.frazier@canonical.com>
+To:     stable@vger.kernel.org, Leon Romanovsky <leonro@nvidia.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Cc:     amirtz@nvidia.com
+Subject: [PATCH 5.15.y] Revert "net/mlx5: Accept devlink user input after driver initialization complete"
+Date:   Thu,  7 Apr 2022 14:16:42 -0600
+Message-Id: <20220407201642.1770157-1-dann.frazier@canonical.com>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
@@ -76,469 +76,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 6c8e2a256915a223f6289f651d6b926cd7135c9e upstream.
+This reverts commit 9cc25e8529d567e08da98d11f092b21449763144.
 
-Problem:
-=======
+This patch was shown to introduce a regression:
 
-Userspace might read the zero-page instead of actual data from a direct IO
-read on a block device if the buffers have been called madvise(MADV_FREE)
-on earlier (this is discussed below) due to a race between page reclaim on
-MADV_FREE and blkdev direct IO read.
+  # devlink dev param show pci/0000:24:00.0 name flow_steering_mode
+  pci/0000:24:00.0:
+    name flow_steering_mode type driver-specific
+      values:
 
-- Race condition:
-  ==============
+  (flow steering mode description is missing beneath "values:")
 
-During page reclaim, the MADV_FREE page check in try_to_unmap_one() checks
-if the page is not dirty, then discards its rmap PTE(s) (vs.  remap back
-if the page is dirty).
+  # devlink dev param set pci/0000:24:00.0 name flow_steering_mode value smfs cmode runtime
+  Segmentation fault (core dumped)
 
-However, after try_to_unmap_one() returns to shrink_page_list(), it might
-keep the page _anyway_ if page_ref_freeze() fails (it expects exactly
-_one_ page reference, from the isolation for page reclaim).
+  and also with upstream iproute
+  # ./iproute2/devlink/devlink dev param set pci/0000:24:00.0 name flow_steering_mode value smfs cmode runtime
+  Configuration mode not supported
 
-Well, blkdev_direct_IO() gets references for all pages, and on READ
-operations it only sets them dirty _later_.
+Note: Instead of reverting, we could instead also backport commit cf530217408e
+("devlink: Notify users when objects are accessible"). However, that makes
+changes to core devlink code that I'm not sure are suitable for a stable
+backport.
 
-So, if MADV_FREE'd pages (i.e., not dirty) are used as buffers for direct
-IO read from block devices, and page reclaim happens during
-__blkdev_direct_IO[_simple]() exactly AFTER bio_iov_iter_get_pages()
-returns, but BEFORE the pages are set dirty, the situation happens.
-
-The direct IO read eventually completes.  Now, when userspace reads the
-buffers, the PTE is no longer there and the page fault handler
-do_anonymous_page() services that with the zero-page, NOT the data!
-
-A synthetic reproducer is provided.
-
-- Page faults:
-  ===========
-
-If page reclaim happens BEFORE bio_iov_iter_get_pages() the issue doesn't
-happen, because that faults-in all pages as writeable, so
-do_anonymous_page() sets up a new page/rmap/PTE, and that is used by
-direct IO.  The userspace reads don't fault as the PTE is there (thus
-zero-page is not used/setup).
-
-But if page reclaim happens AFTER it / BEFORE setting pages dirty, the PTE
-is no longer there; the subsequent page faults can't help:
-
-The data-read from the block device probably won't generate faults due to
-DMA (no MMU) but even in the case it wouldn't use DMA, that happens on
-different virtual addresses (not user-mapped addresses) because `struct
-bio_vec` stores `struct page` to figure addresses out (which are different
-from user-mapped addresses) for the read.
-
-Thus userspace reads (to user-mapped addresses) still fault, then
-do_anonymous_page() gets another `struct page` that would address/ map to
-other memory than the `struct page` used by `struct bio_vec` for the read.
-(The original `struct page` is not available, since it wasn't freed, as
-page_ref_freeze() failed due to more page refs.  And even if it were
-available, its data cannot be trusted anymore.)
-
-Solution:
-========
-
-One solution is to check for the expected page reference count in
-try_to_unmap_one().
-
-There should be one reference from the isolation (that is also checked in
-shrink_page_list() with page_ref_freeze()) plus one or more references
-from page mapping(s) (put in discard: label).  Further references mean
-that rmap/PTE cannot be unmapped/nuked.
-
-(Note: there might be more than one reference from mapping due to
-fork()/clone() without CLONE_VM, which use the same `struct page` for
-references, until the copy-on-write page gets copied.)
-
-So, additional page references (e.g., from direct IO read) now prevent the
-rmap/PTE from being unmapped/dropped; similarly to the page is not freed
-per shrink_page_list()/page_ref_freeze()).
-
-- Races and Barriers:
-  ==================
-
-The new check in try_to_unmap_one() should be safe in races with
-bio_iov_iter_get_pages() in get_user_pages() fast and slow paths, as it's
-done under the PTE lock.
-
-The fast path doesn't take the lock, but it checks if the PTE has changed
-and if so, it drops the reference and leaves the page for the slow path
-(which does take that lock).
-
-The fast path requires synchronization w/ full memory barrier: it writes
-the page reference count first then it reads the PTE later, while
-try_to_unmap() writes PTE first then it reads page refcount.
-
-And a second barrier is needed, as the page dirty flag should not be read
-before the page reference count (as in __remove_mapping()).  (This can be
-a load memory barrier only; no writes are involved.)
-
-Call stack/comments:
-
-- try_to_unmap_one()
-  - page_vma_mapped_walk()
-    - map_pte()			# see pte_offset_map_lock():
-        pte_offset_map()
-        spin_lock()
-
-  - ptep_get_and_clear()	# write PTE
-  - smp_mb()			# (new barrier) GUP fast path
-  - page_ref_count()		# (new check) read refcount
-
-  - page_vma_mapped_walk_done()	# see pte_unmap_unlock():
-      pte_unmap()
-      spin_unlock()
-
-- bio_iov_iter_get_pages()
-  - __bio_iov_iter_get_pages()
-    - iov_iter_get_pages()
-      - get_user_pages_fast()
-        - internal_get_user_pages_fast()
-
-          # fast path
-          - lockless_pages_from_mm()
-            - gup_{pgd,p4d,pud,pmd,pte}_range()
-                ptep = pte_offset_map()		# not _lock()
-                pte = ptep_get_lockless(ptep)
-
-                page = pte_page(pte)
-                try_grab_compound_head(page)	# inc refcount
-                                            	# (RMW/barrier
-                                             	#  on success)
-
-                if (pte_val(pte) != pte_val(*ptep)) # read PTE
-                        put_compound_head(page) # dec refcount
-                        			# go slow path
-
-          # slow path
-          - __gup_longterm_unlocked()
-            - get_user_pages_unlocked()
-              - __get_user_pages_locked()
-                - __get_user_pages()
-                  - follow_{page,p4d,pud,pmd}_mask()
-                    - follow_page_pte()
-                        ptep = pte_offset_map_lock()
-                        pte = *ptep
-                        page = vm_normal_page(pte)
-                        try_grab_page(page)	# inc refcount
-                        pte_unmap_unlock()
-
-- Huge Pages:
-  ==========
-
-Regarding transparent hugepages, that logic shouldn't change, as MADV_FREE
-(aka lazyfree) pages are PageAnon() && !PageSwapBacked()
-(madvise_free_pte_range() -> mark_page_lazyfree() -> lru_lazyfree_fn())
-thus should reach shrink_page_list() -> split_huge_page_to_list() before
-try_to_unmap[_one](), so it deals with normal pages only.
-
-(And in case unlikely/TTU_SPLIT_HUGE_PMD/split_huge_pmd_address() happens,
-which should not or be rare, the page refcount should be greater than
-mapcount: the head page is referenced by tail pages.  That also prevents
-checking the head `page` then incorrectly call page_remove_rmap(subpage)
-for a tail page, that isn't even in the shrink_page_list()'s page_list (an
-effect of split huge pmd/pmvw), as it might happen today in this unlikely
-scenario.)
-
-MADV_FREE'd buffers:
-===================
-
-So, back to the "if MADV_FREE pages are used as buffers" note.  The case
-is arguable, and subject to multiple interpretations.
-
-The madvise(2) manual page on the MADV_FREE advice value says:
-
-1) 'After a successful MADV_FREE ... data will be lost when
-   the kernel frees the pages.'
-2) 'the free operation will be canceled if the caller writes
-   into the page' / 'subsequent writes ... will succeed and
-   then [the] kernel cannot free those dirtied pages'
-3) 'If there is no subsequent write, the kernel can free the
-   pages at any time.'
-
-Thoughts, questions, considerations... respectively:
-
-1) Since the kernel didn't actually free the page (page_ref_freeze()
-   failed), should the data not have been lost? (on userspace read.)
-2) Should writes performed by the direct IO read be able to cancel
-   the free operation?
-   - Should the direct IO read be considered as 'the caller' too,
-     as it's been requested by 'the caller'?
-   - Should the bio technique to dirty pages on return to userspace
-     (bio_check_pages_dirty() is called/used by __blkdev_direct_IO())
-     be considered in another/special way here?
-3) Should an upcoming write from a previously requested direct IO
-   read be considered as a subsequent write, so the kernel should
-   not free the pages? (as it's known at the time of page reclaim.)
-
-And lastly:
-
-Technically, the last point would seem a reasonable consideration and
-balance, as the madvise(2) manual page apparently (and fairly) seem to
-assume that 'writes' are memory access from the userspace process (not
-explicitly considering writes from the kernel or its corner cases; again,
-fairly)..  plus the kernel fix implementation for the corner case of the
-largely 'non-atomic write' encompassed by a direct IO read operation, is
-relatively simple; and it helps.
-
-Reproducer:
-==========
-
-@ test.c (simplified, but works)
-
-	#define _GNU_SOURCE
-	#include <fcntl.h>
-	#include <stdio.h>
-	#include <unistd.h>
-	#include <sys/mman.h>
-
-	int main() {
-		int fd, i;
-		char *buf;
-
-		fd = open(DEV, O_RDONLY | O_DIRECT);
-
-		buf = mmap(NULL, BUF_SIZE, PROT_READ | PROT_WRITE,
-                	   MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-
-		for (i = 0; i < BUF_SIZE; i += PAGE_SIZE)
-			buf[i] = 1; // init to non-zero
-
-		madvise(buf, BUF_SIZE, MADV_FREE);
-
-		read(fd, buf, BUF_SIZE);
-
-		for (i = 0; i < BUF_SIZE; i += PAGE_SIZE)
-			printf("%p: 0x%x\n", &buf[i], buf[i]);
-
-		return 0;
-	}
-
-@ block/fops.c (formerly fs/block_dev.c)
-
-	+#include <linux/swap.h>
-	...
-	... __blkdev_direct_IO[_simple](...)
-	{
-	...
-	+	if (!strcmp(current->comm, "good"))
-	+		shrink_all_memory(ULONG_MAX);
-	+
-         	ret = bio_iov_iter_get_pages(...);
-	+
-	+	if (!strcmp(current->comm, "bad"))
-	+		shrink_all_memory(ULONG_MAX);
-	...
-	}
-
-@ shell
-
-        # NUM_PAGES=4
-        # PAGE_SIZE=$(getconf PAGE_SIZE)
-
-        # yes | dd of=test.img bs=${PAGE_SIZE} count=${NUM_PAGES}
-        # DEV=$(losetup -f --show test.img)
-
-        # gcc -DDEV=\"$DEV\" \
-              -DBUF_SIZE=$((PAGE_SIZE * NUM_PAGES)) \
-              -DPAGE_SIZE=${PAGE_SIZE} \
-               test.c -o test
-
-        # od -tx1 $DEV
-        0000000 79 0a 79 0a 79 0a 79 0a 79 0a 79 0a 79 0a 79 0a
-        *
-        0040000
-
-        # mv test good
-        # ./good
-        0x7f7c10418000: 0x79
-        0x7f7c10419000: 0x79
-        0x7f7c1041a000: 0x79
-        0x7f7c1041b000: 0x79
-
-        # mv good bad
-        # ./bad
-        0x7fa1b8050000: 0x0
-        0x7fa1b8051000: 0x0
-        0x7fa1b8052000: 0x0
-        0x7fa1b8053000: 0x0
-
-Note: the issue is consistent on v5.17-rc3, but it's intermittent with the
-support of MADV_FREE on v4.5 (60%-70% error; needs swap).  [wrap
-do_direct_IO() in do_blockdev_direct_IO() @ fs/direct-io.c].
-
-- v5.17-rc3:
-
-        # for i in {1..1000}; do ./good; done \
-            | cut -d: -f2 | sort | uniq -c
-           4000  0x79
-
-        # mv good bad
-        # for i in {1..1000}; do ./bad; done \
-            | cut -d: -f2 | sort | uniq -c
-           4000  0x0
-
-        # free | grep Swap
-        Swap:             0           0           0
-
-- v4.5:
-
-        # for i in {1..1000}; do ./good; done \
-            | cut -d: -f2 | sort | uniq -c
-           4000  0x79
-
-        # mv good bad
-        # for i in {1..1000}; do ./bad; done \
-            | cut -d: -f2 | sort | uniq -c
-           2702  0x0
-           1298  0x79
-
-        # swapoff -av
-        swapoff /swap
-
-        # for i in {1..1000}; do ./bad; done \
-            | cut -d: -f2 | sort | uniq -c
-           4000  0x79
-
-Ceph/TCMalloc:
-=============
-
-For documentation purposes, the use case driving the analysis/fix is Ceph
-on Ubuntu 18.04, as the TCMalloc library there still uses MADV_FREE to
-release unused memory to the system from the mmap'ed page heap (might be
-committed back/used again; it's not munmap'ed.) - PageHeap::DecommitSpan()
--> TCMalloc_SystemRelease() -> madvise() - PageHeap::CommitSpan() ->
-TCMalloc_SystemCommit() -> do nothing.
-
-Note: TCMalloc switched back to MADV_DONTNEED a few commits after the
-release in Ubuntu 18.04 (google-perftools/gperftools 2.5), so the issue
-just 'disappeared' on Ceph on later Ubuntu releases but is still present
-in the kernel, and can be hit by other use cases.
-
-The observed issue seems to be the old Ceph bug #22464 [1], where checksum
-mismatches are observed (and instrumentation with buffer dumps shows
-zero-pages read from mmap'ed/MADV_FREE'd page ranges).
-
-The issue in Ceph was reasonably deemed a kernel bug (comment #50) and
-mostly worked around with a retry mechanism, but other parts of Ceph could
-still hit that (rocksdb).  Anyway, it's less likely to be hit again as
-TCMalloc switched out of MADV_FREE by default.
-
-(Some kernel versions/reports from the Ceph bug, and relation with
-the MADV_FREE introduction/changes; TCMalloc versions not checked.)
-- 4.4 good
-- 4.5 (madv_free: introduction)
-- 4.9 bad
-- 4.10 good? maybe a swapless system
-- 4.12 (madv_free: no longer free instantly on swapless systems)
-- 4.13 bad
-
-[1] https://tracker.ceph.com/issues/22464
-
-Thanks:
-======
-
-Several people contributed to analysis/discussions/tests/reproducers in
-the first stages when drilling down on ceph/tcmalloc/linux kernel:
-
-- Dan Hill
-- Dan Streetman
-- Dongdong Tao
-- Gavin Guo
-- Gerald Yang
-- Heitor Alves de Siqueira
-- Ioanna Alifieraki
-- Jay Vosburgh
-- Matthew Ruffell
-- Ponnuvel Palaniyappan
-
-Reviews, suggestions, corrections, comments:
-
-- Minchan Kim
-- Yu Zhao
-- Huang, Ying
-- John Hubbard
-- Christoph Hellwig
-
-[mfo@canonical.com: v4]
-  Link: https://lkml.kernel.org/r/20220209202659.183418-1-mfo@canonical.comLink: https://lkml.kernel.org/r/20220131230255.789059-1-mfo@canonical.com
-
-Fixes: 802a3a92ad7a ("mm: reclaim MADV_FREE pages")
-Signed-off-by: Mauricio Faria de Oliveira <mfo@canonical.com>
-Reviewed-by: "Huang, Ying" <ying.huang@intel.com>
-Cc: Minchan Kim <minchan@kernel.org>
-Cc: Yu Zhao <yuzhao@google.com>
-Cc: Yang Shi <shy828301@gmail.com>
-Cc: Miaohe Lin <linmiaohe@huawei.com>
-Cc: Dan Hill <daniel.hill@canonical.com>
-Cc: Dan Streetman <dan.streetman@canonical.com>
-Cc: Dongdong Tao <dongdong.tao@canonical.com>
-Cc: Gavin Guo <gavin.guo@canonical.com>
-Cc: Gerald Yang <gerald.yang@canonical.com>
-Cc: Heitor Alves de Siqueira <halves@canonical.com>
-Cc: Ioanna Alifieraki <ioanna-maria.alifieraki@canonical.com>
-Cc: Jay Vosburgh <jay.vosburgh@canonical.com>
-Cc: Matthew Ruffell <matthew.ruffell@canonical.com>
-Cc: Ponnuvel Palaniyappan <ponnuvel.palaniyappan@canonical.com>
-Cc: <stable@vger.kernel.org>
-Cc: Christoph Hellwig <hch@infradead.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-[mfo: backport: replace folio/test_flag with page/flag equivalents;
- different conditional needed: from PageSwapBacked() to TTU_LZFREE;
- real Fixes: 854e9ed09ded ("mm: support madvise(MADV_FREE)") in v4.]
-Signed-off-by: Mauricio Faria de Oliveira <mfo@canonical.com>
+Signed-off-by: dann frazier <dann.frazier@canonical.com>
 ---
- mm/rmap.c | 35 ++++++++++++++++++++++++++++++-----
- 1 file changed, 30 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/devlink.c    | 12 ++++++++++--
+ drivers/net/ethernet/mellanox/mlx5/core/main.c       |  2 --
+ .../net/ethernet/mellanox/mlx5/core/sf/dev/driver.c  |  2 --
+ 3 files changed, 10 insertions(+), 6 deletions(-)
 
-diff --git a/mm/rmap.c b/mm/rmap.c
-index a7276d8c96f3..0a5310b76ec8 100644
---- a/mm/rmap.c
-+++ b/mm/rmap.c
-@@ -1638,11 +1638,36 @@ static int try_to_unmap_one(struct page *page, struct vm_area_struct *vma,
- 		 */
- 		VM_BUG_ON_PAGE(!PageSwapCache(page), page);
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/devlink.c b/drivers/net/ethernet/mellanox/mlx5/core/devlink.c
+index d7576b6fa43b..7d56a927081d 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/devlink.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/devlink.c
+@@ -793,11 +793,14 @@ int mlx5_devlink_register(struct devlink *devlink)
+ {
+ 	int err;
  
--		if (!PageDirty(page) && (flags & TTU_LZFREE)) {
--			/* It's a freeable page by MADV_FREE */
--			dec_mm_counter(mm, MM_ANONPAGES);
--			rp->lazyfreed++;
--			goto discard;
-+		if (flags & TTU_LZFREE) {
-+			int ref_count, map_count;
-+
-+			/*
-+			 * Synchronize with gup_pte_range():
-+			 * - clear PTE; barrier; read refcount
-+			 * - inc refcount; barrier; read PTE
-+			 */
-+			smp_mb();
-+
-+			ref_count = page_ref_count(page);
-+			map_count = page_mapcount(page);
-+
-+			/*
-+			 * Order reads for page refcount and dirty flag
-+			 * (see comments in __remove_mapping()).
-+			 */
-+			smp_rmb();
-+
-+			/*
-+			 * The only page refs must be one from isolation
-+			 * plus the rmap(s) (dropped by discard:).
-+			 */
-+			if (ref_count == 1 + map_count &&
-+			    !PageDirty(page)) {
-+				/* It's a freeable page by MADV_FREE */
-+				dec_mm_counter(mm, MM_ANONPAGES);
-+				rp->lazyfreed++;
-+				goto discard;
-+			}
- 		}
+-	err = devlink_params_register(devlink, mlx5_devlink_params,
+-				      ARRAY_SIZE(mlx5_devlink_params));
++	err = devlink_register(devlink);
+ 	if (err)
+ 		return err;
  
- 		if (swap_duplicate(entry) < 0) {
++	err = devlink_params_register(devlink, mlx5_devlink_params,
++				      ARRAY_SIZE(mlx5_devlink_params));
++	if (err)
++		goto params_reg_err;
+ 	mlx5_devlink_set_params_init_values(devlink);
+ 
+ 	err = mlx5_devlink_auxdev_params_register(devlink);
+@@ -808,6 +811,7 @@ int mlx5_devlink_register(struct devlink *devlink)
+ 	if (err)
+ 		goto traps_reg_err;
+ 
++	devlink_params_publish(devlink);
+ 	return 0;
+ 
+ traps_reg_err:
+@@ -815,13 +819,17 @@ int mlx5_devlink_register(struct devlink *devlink)
+ auxdev_reg_err:
+ 	devlink_params_unregister(devlink, mlx5_devlink_params,
+ 				  ARRAY_SIZE(mlx5_devlink_params));
++params_reg_err:
++	devlink_unregister(devlink);
+ 	return err;
+ }
+ 
+ void mlx5_devlink_unregister(struct devlink *devlink)
+ {
++	devlink_params_unpublish(devlink);
+ 	mlx5_devlink_traps_unregister(devlink);
+ 	mlx5_devlink_auxdev_params_unregister(devlink);
+ 	devlink_params_unregister(devlink, mlx5_devlink_params,
+ 				  ARRAY_SIZE(mlx5_devlink_params));
++	devlink_unregister(devlink);
+ }
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/main.c b/drivers/net/ethernet/mellanox/mlx5/core/main.c
+index 097ab6fe371c..4ed740994279 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/main.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/main.c
+@@ -1541,7 +1541,6 @@ static int probe_one(struct pci_dev *pdev, const struct pci_device_id *id)
+ 		dev_err(&pdev->dev, "mlx5_crdump_enable failed with error code %d\n", err);
+ 
+ 	pci_save_state(pdev);
+-	devlink_register(devlink);
+ 	if (!mlx5_core_is_mp_slave(dev))
+ 		devlink_reload_enable(devlink);
+ 	return 0;
+@@ -1564,7 +1563,6 @@ static void remove_one(struct pci_dev *pdev)
+ 	struct devlink *devlink = priv_to_devlink(dev);
+ 
+ 	devlink_reload_disable(devlink);
+-	devlink_unregister(devlink);
+ 	mlx5_crdump_disable(dev);
+ 	mlx5_drain_health_wq(dev);
+ 	mlx5_uninit_one(dev);
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/sf/dev/driver.c b/drivers/net/ethernet/mellanox/mlx5/core/sf/dev/driver.c
+index 3cf272fa2164..052f48068dc1 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/sf/dev/driver.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/sf/dev/driver.c
+@@ -46,7 +46,6 @@ static int mlx5_sf_dev_probe(struct auxiliary_device *adev, const struct auxilia
+ 		mlx5_core_warn(mdev, "mlx5_init_one err=%d\n", err);
+ 		goto init_one_err;
+ 	}
+-	devlink_register(devlink);
+ 	devlink_reload_enable(devlink);
+ 	return 0;
+ 
+@@ -66,7 +65,6 @@ static void mlx5_sf_dev_remove(struct auxiliary_device *adev)
+ 
+ 	devlink = priv_to_devlink(sf_dev->mdev);
+ 	devlink_reload_disable(devlink);
+-	devlink_unregister(devlink);
+ 	mlx5_uninit_one(sf_dev->mdev);
+ 	iounmap(sf_dev->mdev->iseg);
+ 	mlx5_mdev_uninit(sf_dev->mdev);
 -- 
-2.32.0
+2.35.1
 
