@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C477F4F6FC9
-	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 03:13:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C85324F6FD7
+	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 03:14:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235141AbiDGBPI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Apr 2022 21:15:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35966 "EHLO
+        id S235568AbiDGBPO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Apr 2022 21:15:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36018 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236099AbiDGBOe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 21:14:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70476188545;
-        Wed,  6 Apr 2022 18:11:30 -0700 (PDT)
+        with ESMTP id S236135AbiDGBOf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 21:14:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96DDF188A38;
+        Wed,  6 Apr 2022 18:11:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 045DA61DA8;
-        Thu,  7 Apr 2022 01:11:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93696C385A3;
-        Thu,  7 Apr 2022 01:11:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 43CB0B8268C;
+        Thu,  7 Apr 2022 01:11:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E050CC385AC;
+        Thu,  7 Apr 2022 01:11:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1649293889;
-        bh=+hvFGhRv7JXTAIlNlbFiWSfGMIKu61Lv92E9gIjona0=;
+        s=k20201202; t=1649293890;
+        bh=dSK9yAemeUsSX+KHHm11m3GLKp6uaBrh9a90DIUvMoY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J6c3BrhllnPRj1bAkZuBqOafEjNHIeTPZQZ7azoljjiJcFiywohQ5XBYhjVLXMDwr
-         AmVdbl2J42p7M7Oukp5UPDku/MZj4hSB+oFC0LX1JoIV4JynFgmmQBZx5lI9OnBdBE
-         S/IQllr3PTMMDuVtzByJ0bdO5/To2RcHus//FjCZXgOWmrb6yW8O/EmZegryR2jJBs
-         A8fS2T1/fe8STah1510y9e1G1+qZICu0mX6FbZExGqBTmMEkiiS/b+lCvvXQPU8YOJ
-         cXr0IGGIvZ1zibcUfUVVR1YFRQUK0Hz+A3ikCpS2jkzOvtxr14swKEDHfjTa45tTp4
-         eu1hEXp1brHwA==
+        b=Sbs16ccZboy/68pQJ1t2Aga3j5yXXQgkEMfVhE0Hzh7ogJ7bwbUpbpFtLJjCOjoHf
+         S1prKisWe6blMB6KrTQ7AwjNEQVrEXJ99I6almTnyDPKx40gA95GIZSli/T6EKEWOY
+         wTrJ+pNzjK+0oYblMKPVC8SB0vxkheFT8nASov9Ich6KfLgtoMRdxcEKOY8dxnMpFD
+         O6PGnr5SvNztoRXP0S2yxEolNQBMm0cqSxTIvRXUf/Is64mVa05BKtaq4trK2Z96Bx
+         EwGmrKPmiMNEnmMxWMyhho7etvuW+Udax4vqM3nspeeugGgMppEIwN4+j6R3JNiUdZ
+         Q28ex0YR/7aAg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xiaoke Wang <xkernel.wang@foxmail.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Sasha Levin <sashal@kernel.org>, john@phrozen.org,
-        wangborong@cdjrlc.com, linux-mips@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.17 26/31] MIPS: lantiq: check the return value of kzalloc()
-Date:   Wed,  6 Apr 2022 21:10:24 -0400
-Message-Id: <20220407011029.113321-26-sashal@kernel.org>
+Cc:     Jakob Koschel <jakobkoschel@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        philipp.reisner@linbit.com, lars.ellenberg@linbit.com,
+        christoph.boehmwalder@linbit.com, drbd-dev@lists.linbit.com,
+        linux-block@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.17 27/31] drbd: remove usage of list iterator variable after loop
+Date:   Wed,  6 Apr 2022 21:10:25 -0400
+Message-Id: <20220407011029.113321-27-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220407011029.113321-1-sashal@kernel.org>
 References: <20220407011029.113321-1-sashal@kernel.org>
@@ -57,133 +58,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaoke Wang <xkernel.wang@foxmail.com>
+From: Jakob Koschel <jakobkoschel@gmail.com>
 
-[ Upstream commit 34123208bbcc8c884a0489f543a23fe9eebb5514 ]
+[ Upstream commit 901aeda62efa21f2eae937bccb71b49ae531be06 ]
 
-kzalloc() is a memory allocation function which can return NULL when
-some internal memory errors happen. So it is better to check the
-return value of it to prevent potential wrong memory access or
-memory leak.
+In preparation to limit the scope of a list iterator to the list
+traversal loop, use a dedicated pointer to iterate through the list [1].
 
-Signed-off-by: Xiaoke Wang <xkernel.wang@foxmail.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Since that variable should not be used past the loop iteration, a
+separate variable is used to 'remember the current location within the
+loop'.
+
+To either continue iterating from that position or skip the iteration
+(if the previous iteration was complete) list_prepare_entry() is used.
+
+Link: https://lore.kernel.org/all/CAHk-=wgRr_D8CB-D9Kg-c=EHreAsk5SqXPwr9Y7k9sA6cWXJ6w@mail.gmail.com/ [1]
+Signed-off-by: Jakob Koschel <jakobkoschel@gmail.com>
+Link: https://lore.kernel.org/r/20220331220349.885126-1-jakobkoschel@gmail.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/lantiq/falcon/sysctrl.c |  2 ++
- arch/mips/lantiq/xway/gptu.c      |  2 ++
- arch/mips/lantiq/xway/sysctrl.c   | 46 ++++++++++++++++++++-----------
- 3 files changed, 34 insertions(+), 16 deletions(-)
+ drivers/block/drbd/drbd_main.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/arch/mips/lantiq/falcon/sysctrl.c b/arch/mips/lantiq/falcon/sysctrl.c
-index 64726c670ca6..5204fc6d6d50 100644
---- a/arch/mips/lantiq/falcon/sysctrl.c
-+++ b/arch/mips/lantiq/falcon/sysctrl.c
-@@ -167,6 +167,8 @@ static inline void clkdev_add_sys(const char *dev, unsigned int module,
+diff --git a/drivers/block/drbd/drbd_main.c b/drivers/block/drbd/drbd_main.c
+index 6f450816c4fa..6831ddbae49d 100644
+--- a/drivers/block/drbd/drbd_main.c
++++ b/drivers/block/drbd/drbd_main.c
+@@ -171,7 +171,7 @@ void tl_release(struct drbd_connection *connection, unsigned int barrier_nr,
+ 		unsigned int set_size)
  {
- 	struct clk *clk = kzalloc(sizeof(struct clk), GFP_KERNEL);
+ 	struct drbd_request *r;
+-	struct drbd_request *req = NULL;
++	struct drbd_request *req = NULL, *tmp = NULL;
+ 	int expect_epoch = 0;
+ 	int expect_size = 0;
  
-+	if (!clk)
-+		return;
- 	clk->cl.dev_id = dev;
- 	clk->cl.con_id = NULL;
- 	clk->cl.clk = clk;
-diff --git a/arch/mips/lantiq/xway/gptu.c b/arch/mips/lantiq/xway/gptu.c
-index 3d5683e75cf1..200fe9ff641d 100644
---- a/arch/mips/lantiq/xway/gptu.c
-+++ b/arch/mips/lantiq/xway/gptu.c
-@@ -122,6 +122,8 @@ static inline void clkdev_add_gptu(struct device *dev, const char *con,
- {
- 	struct clk *clk = kzalloc(sizeof(struct clk), GFP_KERNEL);
- 
-+	if (!clk)
-+		return;
- 	clk->cl.dev_id = dev_name(dev);
- 	clk->cl.con_id = con;
- 	clk->cl.clk = clk;
-diff --git a/arch/mips/lantiq/xway/sysctrl.c b/arch/mips/lantiq/xway/sysctrl.c
-index 917fac1636b7..084f6caba5f2 100644
---- a/arch/mips/lantiq/xway/sysctrl.c
-+++ b/arch/mips/lantiq/xway/sysctrl.c
-@@ -315,6 +315,8 @@ static void clkdev_add_pmu(const char *dev, const char *con, bool deactivate,
- {
- 	struct clk *clk = kzalloc(sizeof(struct clk), GFP_KERNEL);
- 
-+	if (!clk)
-+		return;
- 	clk->cl.dev_id = dev;
- 	clk->cl.con_id = con;
- 	clk->cl.clk = clk;
-@@ -338,6 +340,8 @@ static void clkdev_add_cgu(const char *dev, const char *con,
- {
- 	struct clk *clk = kzalloc(sizeof(struct clk), GFP_KERNEL);
- 
-+	if (!clk)
-+		return;
- 	clk->cl.dev_id = dev;
- 	clk->cl.con_id = con;
- 	clk->cl.clk = clk;
-@@ -356,24 +360,28 @@ static void clkdev_add_pci(void)
- 	struct clk *clk_ext = kzalloc(sizeof(struct clk), GFP_KERNEL);
- 
- 	/* main pci clock */
--	clk->cl.dev_id = "17000000.pci";
--	clk->cl.con_id = NULL;
--	clk->cl.clk = clk;
--	clk->rate = CLOCK_33M;
--	clk->rates = valid_pci_rates;
--	clk->enable = pci_enable;
--	clk->disable = pmu_disable;
--	clk->module = 0;
--	clk->bits = PMU_PCI;
--	clkdev_add(&clk->cl);
-+	if (clk) {
-+		clk->cl.dev_id = "17000000.pci";
-+		clk->cl.con_id = NULL;
-+		clk->cl.clk = clk;
-+		clk->rate = CLOCK_33M;
-+		clk->rates = valid_pci_rates;
-+		clk->enable = pci_enable;
-+		clk->disable = pmu_disable;
-+		clk->module = 0;
-+		clk->bits = PMU_PCI;
-+		clkdev_add(&clk->cl);
-+	}
- 
- 	/* use internal/external bus clock */
--	clk_ext->cl.dev_id = "17000000.pci";
--	clk_ext->cl.con_id = "external";
--	clk_ext->cl.clk = clk_ext;
--	clk_ext->enable = pci_ext_enable;
--	clk_ext->disable = pci_ext_disable;
--	clkdev_add(&clk_ext->cl);
-+	if (clk_ext) {
-+		clk_ext->cl.dev_id = "17000000.pci";
-+		clk_ext->cl.con_id = "external";
-+		clk_ext->cl.clk = clk_ext;
-+		clk_ext->enable = pci_ext_enable;
-+		clk_ext->disable = pci_ext_disable;
-+		clkdev_add(&clk_ext->cl);
-+	}
- }
- 
- /* xway socs can generate clocks on gpio pins */
-@@ -393,9 +401,15 @@ static void clkdev_add_clkout(void)
- 		char *name;
- 
- 		name = kzalloc(sizeof("clkout0"), GFP_KERNEL);
-+		if (!name)
-+			continue;
- 		sprintf(name, "clkout%d", i);
- 
- 		clk = kzalloc(sizeof(struct clk), GFP_KERNEL);
-+		if (!clk) {
-+			kfree(name);
-+			continue;
+@@ -225,8 +225,11 @@ void tl_release(struct drbd_connection *connection, unsigned int barrier_nr,
+ 	 * to catch requests being barrier-acked "unexpectedly".
+ 	 * It usually should find the same req again, or some READ preceding it. */
+ 	list_for_each_entry(req, &connection->transfer_log, tl_requests)
+-		if (req->epoch == expect_epoch)
++		if (req->epoch == expect_epoch) {
++			tmp = req;
+ 			break;
 +		}
- 		clk->cl.dev_id = "1f103000.cgu";
- 		clk->cl.con_id = name;
- 		clk->cl.clk = clk;
++	req = list_prepare_entry(tmp, &connection->transfer_log, tl_requests);
+ 	list_for_each_entry_safe_from(req, r, &connection->transfer_log, tl_requests) {
+ 		if (req->epoch != expect_epoch)
+ 			break;
 -- 
 2.35.1
 
