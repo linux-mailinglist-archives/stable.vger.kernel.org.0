@@ -2,103 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9AF884F7E48
-	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 13:45:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 02AC94F7E5B
+	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 13:48:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244934AbiDGLrQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Apr 2022 07:47:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33770 "EHLO
+        id S238692AbiDGLuO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Apr 2022 07:50:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244931AbiDGLrP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 Apr 2022 07:47:15 -0400
-Received: from mail-pl1-x62a.google.com (mail-pl1-x62a.google.com [IPv6:2607:f8b0:4864:20::62a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB043EDF11;
-        Thu,  7 Apr 2022 04:45:12 -0700 (PDT)
-Received: by mail-pl1-x62a.google.com with SMTP id d15so4620059pll.10;
-        Thu, 07 Apr 2022 04:45:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=1Uc0BM32ZTi1+WjAOOFvA0Vn17NtYHSEPmAHlrLfRw8=;
-        b=SiDPvvp8FkRM1URdWpiilu1tfaXdIrtRVOpqy580GzrRAsYXF5sy7QIQr9mZQ/bB/G
-         EdX+6OmosuduFl+HkDAtH8GMA3y3b6GmV2bFP+lA6VpFmfomvrco+Wz816A9uqtMkisq
-         knEhIDpUo1SlTCsr+/XnUnXGjyW9pxKKOHaHIICQRhcqWrtML8UW4cLm1ILjQ5l2i5D5
-         leSU9gyyX+C/eI8dXGVBQ/faAlQkiF8rk5103Oy+0hoRWvHQxPu6CL2V2aruZbOECJRH
-         WLtyfzWHHWizHNxLP/aKhJqyTtHQhrM9PCnBNqRy3Wo0NZsU1tuxlhTClbU8zfWF8CJ8
-         u9yQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=1Uc0BM32ZTi1+WjAOOFvA0Vn17NtYHSEPmAHlrLfRw8=;
-        b=mheuKOmAGaR0+TCCLL/wnhWdxc5Xp6wHtn13jWfK5lJgvZxP+iDkTZTsNSVVTMj1l0
-         oql4naqvhGTLOuwu29OOGhUseZJbfgjMgVJLmTwIPOz2cZiXSCqqH6StstK3wc8u7pIV
-         qd2dtxgP98IC2vXPwG0zATWFwDeIO74M4WuQawrRblE4wRfQQgnW0upj9XVjqacJN/WT
-         qGf7jL/YlKn7ZZ9VjhN3rFKQPGAQe5Y4NB+M7qJ0nQfScmUEjQTDsC9qwfySgMZN14yi
-         UXVBFA0rPw/K+1lLSJo4nSj2zLc5urNUSdgSQbCltDkg6THS2fAXolszBFm9gwAuwDns
-         P1YQ==
-X-Gm-Message-State: AOAM533XTsReAFzhOJeuCaslNz7lmOhkqfbp73lleMyGhQ2vKh2GELaU
-        kHSteeyEkACYAOEnxV8ynFg=
-X-Google-Smtp-Source: ABdhPJxFRfdRuSTt84Y2H6Vhjim23/auAT1jJhvor5XaPDPHnX2PadRDVaYbqCXfCx1V2qLWjssXiw==
-X-Received: by 2002:a17:902:d4d0:b0:157:c14:12a6 with SMTP id o16-20020a170902d4d000b001570c1412a6mr1927195plg.165.1649331912460;
-        Thu, 07 Apr 2022 04:45:12 -0700 (PDT)
-Received: from [192.168.43.80] (subs03-180-214-233-65.three.co.id. [180.214.233.65])
-        by smtp.gmail.com with ESMTPSA id bt18-20020a056a00439200b004faad3ae59esm21887761pfb.95.2022.04.07.04.45.08
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 07 Apr 2022 04:45:12 -0700 (PDT)
-Message-ID: <d12e1f2e-bcad-e7d5-5d14-e435340ffc2c@gmail.com>
-Date:   Thu, 7 Apr 2022 18:45:06 +0700
+        with ESMTP id S244962AbiDGLuM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 Apr 2022 07:50:12 -0400
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36A661728BA;
+        Thu,  7 Apr 2022 04:48:11 -0700 (PDT)
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out2.suse.de (Postfix) with ESMTP id A5A361F859;
+        Thu,  7 Apr 2022 11:48:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1649332090; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=hzzsqE3lHhZNTb0uSMaOKkro2CJhyy2oCUvOJqbqZYE=;
+        b=LRhI4GBAtx/ASTu7jlVvYU6iX4vVt2LFIwag927OFBVZh0Lr1jMIOfEGw9c9SxZNVzFQha
+        xg7kb97zo3WZEJKBe2Wv6WIhoduV9gMh9VFa634GDpd0fIs7PH2Z4rZb+cA1AixjYxlkAm
+        hEI1iPyd5PLXUAREH5GDnfoMbvX/Fgk=
+Received: from suse.cz (unknown [10.100.201.86])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by relay2.suse.de (Postfix) with ESMTPS id 74176A3B88;
+        Thu,  7 Apr 2022 11:48:10 +0000 (UTC)
+Date:   Thu, 7 Apr 2022 13:48:09 +0200
+From:   Michal Hocko <mhocko@suse.com>
+To:     Juergen Gross <jgross@suse.com>
+Cc:     xen-devel@lists.xenproject.org, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        stable@vger.kernel.org,
+        Marek =?iso-8859-1?Q?Marczykowski-G=F3recki?= 
+        <marmarek@invisiblethingslab.com>, Mel Gorman <mgorman@suse.de>
+Subject: Re: [PATCH] mm, page_alloc: fix build_zonerefs_node()
+Message-ID: <Yk7PeQ8sClX5VVWa@dhcp22.suse.cz>
+References: <20220407093221.1090-1-jgross@suse.com>
+ <Yk6+QBacbb6oI8lW@dhcp22.suse.cz>
+ <f08c1493-9238-0009-56b4-dc0ab3571b33@suse.com>
+ <Yk7F2KzRrhLjYw4Z@dhcp22.suse.cz>
+ <5e97a7f5-1fc9-d0b4-006e-6894d5653c06@suse.com>
+ <Yk7NqTlw7lmFzpKb@dhcp22.suse.cz>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.7.0
-Subject: Re: [PATCH 5.17 0000/1123] 5.17.2-rc2 review
-Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-References: <20220406133122.897434068@linuxfoundation.org>
-From:   Bagas Sanjaya <bagasdotme@gmail.com>
-In-Reply-To: <20220406133122.897434068@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-3.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Yk7NqTlw7lmFzpKb@dhcp22.suse.cz>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 06/04/22 20.44, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.17.2 release.
-> There are 1123 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
+On Thu 07-04-22 13:40:25, Michal Hocko wrote:
+[...]
+> Now to your patch. I suspect this is not sufficient for the full hotplug
+> situation. Consider a new NUMA node to be hotadded. hotadd_new_pgdat
+> will call build_all_zonelists but the zone is not populated yet at that
+> moment unless I am missing something. We do rely on online_pages to
+> rebuild once pages are onlined - which usually means they are freed to
+> the page allocator.
 
-Successfully cross-compiled for arm64 (bcm2711_defconfig, gcc 10.2.0).
+OK, I've managed to get lost in the code and misread the onlining part.
+After re-reading the code I have concluded that the patch is good as is.
+online_pages relies on zone_populated so it will pass and zonelists will
+be regenerated even without any pages freed to the allocator. Sorry for
+the confusion. But I guess this still proves my other point that the
+code is really subtle and messy so I guess the less rebuilding we do the
+better. There are two ways, go with your patch and do the clean up on
+top or merge the two.
 
-Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
+That being said
+Acked-by: Michal Hocko <mhocko@suse.com>
+to your patch with an improved changelog to be more specific about the
+underlying problem.
 
-powerpc build (ps3_defconfig, gcc 11.2.0) returned error:
-
-   CC [M]  arch/powerpc/kvm/book3s_hv.o
-   CC      kernel/kexec_file.o
-Cannot find symbol for section 11: .text.unlikely.
-kernel/kexec_file.o: failed
-make[1]: *** [scripts/Makefile.build:288: kernel/kexec_file.o] Error 1
-make[1]: *** Deleting file 'kernel/kexec_file.o'
-make: *** [Makefile:1831: kernel] Error 2
-
-Reported-by: Bagas Sanjaya <bagasdotme@gmail.com>
-
+Thanks and sorry for the confusion.
 -- 
-An old man doll... just what I always wanted! - Clara
+Michal Hocko
+SUSE Labs
