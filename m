@@ -2,48 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 30F854F6FFA
-	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 03:14:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A265D4F702D
+	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 03:18:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235988AbiDGBQL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Apr 2022 21:16:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33210 "EHLO
+        id S237004AbiDGBRY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Apr 2022 21:17:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35766 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235961AbiDGBQA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 21:16:00 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4392A186151;
-        Wed,  6 Apr 2022 18:12:15 -0700 (PDT)
+        with ESMTP id S237302AbiDGBQH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 21:16:07 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 610CF1925BD;
+        Wed,  6 Apr 2022 18:12:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B13F3B81E7F;
-        Thu,  7 Apr 2022 01:12:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6AC0C385A7;
-        Thu,  7 Apr 2022 01:12:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 45DCFB8268A;
+        Thu,  7 Apr 2022 01:12:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 542DEC385A3;
+        Thu,  7 Apr 2022 01:12:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1649293932;
-        bh=+bwDGyDJKCF8LB9fJwHxTM4vlvD9HScCpYl69iObhuI=;
+        s=k20201202; t=1649293936;
+        bh=zYBeZSmWVUsvZOrwcGFWfuK0yc2qJdKqXYxquMyxDZ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qhHTPs746zO7E0cEX4SMdGZcrjSWFBqE5d4DbMWSleBrwtLKj5OgBKMNQbI+xxRIO
-         knt7KXT07n/9xkSOoCfpa1njV1TTOR0jYcm57/VE/XEgzMmJbNbftbis9a/CR5eXuo
-         g88RHMPaPZEyGNgFfX9mzk+lz/V/dHH3rNczB6b6IPmqZ2Bf6uwhW0svUeFtrWnu2i
-         e45zbdWh2ZRRsA3XGIoKoKOh2bbq+XDWxnmc6Uq+BBAGZymZDdA2EPZpG+nN1jUXnh
-         vy5OoT38RFrJo8swD4qr/XGcBWQttsQVFRoj0RrCpxvbzeH7ERxoDP+AyisYulIJwT
-         iq2HqL6TkqXwA==
+        b=T3AaJzLM/kaxiiyvX83swa6VtRe903nJeBnNMuitKiQ27TEhWyQt64+7dB95sAE/L
+         9EqbJ/bggihVqHY8rfp2Wv0ry68hVlZ0/2X7J6y92vgGAo2mhVZlFNcod8IfRqxdAu
+         fWnPYFmaPeMbbQ6cfXFbEFmfzYqCqw2LWnCIBLYhor2QnXQ34zHKhUs4AD1Sr1n6dq
+         SEpNf4P+Bc7LGmSPUwstEyAsWaRh8UO8W6D4PWOgWA8B7IFOjmocxxODDG3OxsxYIF
+         NfVybfH2Hq3wLI+8xPSQpK3AlJkLznfBVvVBgtdcWEhNb2+r6CrvwfPPasi732nS/n
+         k9Bzp3t4A2f7w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        Martin Willi <martin@strongswan.org>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
-        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
-        dave.hansen@linux.intel.com, x86@kernel.org,
-        linux-crypto@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.16 15/30] crypto: x86/chacha20 - Avoid spurious jumps to other functions
-Date:   Wed,  6 Apr 2022 21:11:25 -0400
-Message-Id: <20220407011140.113856-15-sashal@kernel.org>
+Cc:     Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
+        perex@perex.cz, tiwai@suse.com, jeremy.szu@canonical.com,
+        wse@tuxedocomputers.com, hui.wang@canonical.com,
+        tanureal@opensource.cirrus.com, cam@neo-zeon.de,
+        kailang@realtek.com, sami@loone.fi, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.16 16/30] ALSA: hda/realtek: Enable headset mic on Lenovo P360
+Date:   Wed,  6 Apr 2022 21:11:26 -0400
+Message-Id: <20220407011140.113856-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220407011140.113856-1-sashal@kernel.org>
 References: <20220407011140.113856-1-sashal@kernel.org>
@@ -61,50 +59,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-[ Upstream commit 4327d168515fd8b5b92fa1efdf1d219fb6514460 ]
+[ Upstream commit 5a8738571747c1e275a40b69a608657603867b7e ]
 
-The chacha_Nblock_xor_avx512vl() functions all have their own,
-identical, .LdoneN label, however in one particular spot {2,4} jump to
-the 8 version instead of their own. Resulting in:
+Lenovo P360 is another platform equipped with ALC897, and it needs
+ALC897_FIXUP_HEADSET_MIC_PIN quirk to make its headset mic work.
 
-  arch/x86/crypto/chacha-x86_64.o: warning: objtool: chacha_2block_xor_avx512vl() falls through to next function chacha_8block_xor_avx512vl()
-  arch/x86/crypto/chacha-x86_64.o: warning: objtool: chacha_4block_xor_avx512vl() falls through to next function chacha_8block_xor_avx512vl()
-
-Make each function consistently use its own done label.
-
-Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Martin Willi <martin@strongswan.org>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Link: https://lore.kernel.org/r/20220325160501.705221-1-kai.heng.feng@canonical.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/crypto/chacha-avx512vl-x86_64.S | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/pci/hda/patch_realtek.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/x86/crypto/chacha-avx512vl-x86_64.S b/arch/x86/crypto/chacha-avx512vl-x86_64.S
-index bb193fde123a..8713c16c2501 100644
---- a/arch/x86/crypto/chacha-avx512vl-x86_64.S
-+++ b/arch/x86/crypto/chacha-avx512vl-x86_64.S
-@@ -172,7 +172,7 @@ SYM_FUNC_START(chacha_2block_xor_avx512vl)
- 	# xor remaining bytes from partial register into output
- 	mov		%rcx,%rax
- 	and		$0xf,%rcx
--	jz		.Ldone8
-+	jz		.Ldone2
- 	mov		%rax,%r9
- 	and		$~0xf,%r9
- 
-@@ -438,7 +438,7 @@ SYM_FUNC_START(chacha_4block_xor_avx512vl)
- 	# xor remaining bytes from partial register into output
- 	mov		%rcx,%rax
- 	and		$0xf,%rcx
--	jz		.Ldone8
-+	jz		.Ldone4
- 	mov		%rax,%r9
- 	and		$~0xf,%r9
- 
+diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
+index 08bf8a77a3e4..31228896638f 100644
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -10931,6 +10931,7 @@ static const struct snd_pci_quirk alc662_fixup_tbl[] = {
+ 	SND_PCI_QUIRK(0x144d, 0xc051, "Samsung R720", ALC662_FIXUP_IDEAPAD),
+ 	SND_PCI_QUIRK(0x14cd, 0x5003, "USI", ALC662_FIXUP_USI_HEADSET_MODE),
+ 	SND_PCI_QUIRK(0x17aa, 0x1036, "Lenovo P520", ALC662_FIXUP_LENOVO_MULTI_CODECS),
++	SND_PCI_QUIRK(0x17aa, 0x1057, "Lenovo P360", ALC897_FIXUP_HEADSET_MIC_PIN),
+ 	SND_PCI_QUIRK(0x17aa, 0x32ca, "Lenovo ThinkCentre M80", ALC897_FIXUP_HEADSET_MIC_PIN),
+ 	SND_PCI_QUIRK(0x17aa, 0x32cb, "Lenovo ThinkCentre M70", ALC897_FIXUP_HEADSET_MIC_PIN),
+ 	SND_PCI_QUIRK(0x17aa, 0x32cf, "Lenovo ThinkCentre M950", ALC897_FIXUP_HEADSET_MIC_PIN),
 -- 
 2.35.1
 
