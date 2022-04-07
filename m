@@ -2,116 +2,155 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 435BE4F7EB6
-	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 14:06:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77DD14F7EC4
+	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 14:12:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237067AbiDGMIo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Apr 2022 08:08:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44606 "EHLO
+        id S232700AbiDGMOo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Apr 2022 08:14:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43016 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237148AbiDGMIl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 Apr 2022 08:08:41 -0400
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 131EAB0A4C;
-        Thu,  7 Apr 2022 05:06:40 -0700 (PDT)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out2.suse.de (Postfix) with ESMTPS id C4B5F1F85A;
-        Thu,  7 Apr 2022 12:06:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1649333198; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=UpuTzjjU3dwrDNlWUgU1m4VL7JE5wjWtlut0wOZ6+Us=;
-        b=bamm/WXnOVYE8ZOho6XQUe7FCEZovOUuJfhlzWNhhXeUA04h7c/K9EahBbNmRzY3a1B0GV
-        PYCeX6iSGlyPLVgg+TcAICaXy7ccBN1LFAaAz/36KVQU1wVrrWfK5NFQkqu3UV7fDyUDHl
-        I7ddY451v2TFm/p8DP18Y42M5VrwxQE=
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 851E113485;
-        Thu,  7 Apr 2022 12:06:38 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id 1/lNH87TTmIFBQAAMHmgww
-        (envelope-from <jgross@suse.com>); Thu, 07 Apr 2022 12:06:38 +0000
-From:   Juergen Gross <jgross@suse.com>
-To:     xen-devel@lists.xenproject.org, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org
-Cc:     Juergen Gross <jgross@suse.com>,
+        with ESMTP id S238712AbiDGMOn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 Apr 2022 08:14:43 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 789FF1EC625
+        for <stable@vger.kernel.org>; Thu,  7 Apr 2022 05:12:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1649333562;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=He8h+g9gcpriqclLdlbV5LzBn0WlLmTvUFHHwXaoICE=;
+        b=GxmHoz3mvqVkuOjk50fkuE1bi4h4MZKOWFLKa8nWsAp4YZeFb+45Jq3XxZW8Ch4/bqxTCH
+        NiSizmijzHDzMGDBd2VjGmFse/ElX8XZmscI9WhNXKHw3EiJQhL/mgoijBx40taApubI6I
+        /svwLnGe2oH6OIOks9qZNBG3rOYe4mg=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-614-SZw6S6uwOHK6HUBILXxytA-1; Thu, 07 Apr 2022 08:12:41 -0400
+X-MC-Unique: SZw6S6uwOHK6HUBILXxytA-1
+Received: by mail-wm1-f72.google.com with SMTP id j6-20020a05600c1c0600b0038e7d07ebcaso1434392wms.0
+        for <stable@vger.kernel.org>; Thu, 07 Apr 2022 05:12:40 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:organization:in-reply-to
+         :content-transfer-encoding;
+        bh=He8h+g9gcpriqclLdlbV5LzBn0WlLmTvUFHHwXaoICE=;
+        b=w/WRmTxgVk/kPO8K58YsCVjWiei6nAO7luYcqRMYnSulfMGGWCe9cEebcZfvAVagLy
+         q0ujZs1JFdBjmCJZwUGUeyCQBLZPJf4fLfG4UT5/PfJkMVfaOjLT2BEwTMvp2kyAsRwt
+         hN+lzd+NHfSa7PaEtDyvHtgy+D988ANiKpDAHXJNAtTQ9QOzaXOg8GapOLpI/hqEfuym
+         dPW8jts8soOGe00CXqu8OklMJZkdeh9+65tiRi+I7hvlOnxu29TD5TBcfWJu7vEigPqh
+         cVnjyqh20PP8eL4oG7sX3VZHYD7t8DtMbWsRGlHm4+DZE4+S8BmOLyKiGxQ94G+L1slB
+         ie6A==
+X-Gm-Message-State: AOAM532IEE7FGtzL4ior6IKue3EGaw6sxaJ5s/6t8mvxZQykWFbNMUKA
+        q6ZPdVUerR8AkFW7ztF85owpkNSxn51qHYUBtFMY6oMYgGesTXbYadM/3YhvWhkVTIgMimm/3No
+        orftYTr2iXFqhr6q9
+X-Received: by 2002:a05:600c:4f08:b0:38c:93fd:570f with SMTP id l8-20020a05600c4f0800b0038c93fd570fmr12048346wmq.136.1649333559830;
+        Thu, 07 Apr 2022 05:12:39 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJx8VD2jmyYCLdT1LS37dFQHExBQz5m/CcSM2lhqIzro2UScARspuOQOmGyPtwzTU/phPmvvNw==
+X-Received: by 2002:a05:600c:4f08:b0:38c:93fd:570f with SMTP id l8-20020a05600c4f0800b0038c93fd570fmr12048327wmq.136.1649333559539;
+        Thu, 07 Apr 2022 05:12:39 -0700 (PDT)
+Received: from ?IPV6:2a09:80c0:192:0:20af:34be:985b:b6c8? ([2a09:80c0:192:0:20af:34be:985b:b6c8])
+        by smtp.gmail.com with ESMTPSA id b8-20020a05600c4e0800b0038c6c37efc3sm7370765wmq.12.2022.04.07.05.12.38
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 07 Apr 2022 05:12:38 -0700 (PDT)
+Message-ID: <ca22625e-b72c-059a-9242-f10b291be4fe@redhat.com>
+Date:   Thu, 7 Apr 2022 14:12:38 +0200
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.6.2
+Subject: Re: [PATCH] mm, page_alloc: fix build_zonerefs_node()
+Content-Language: en-US
+To:     Michal Hocko <mhocko@suse.com>
+Cc:     Juergen Gross <jgross@suse.com>, xen-devel@lists.xenproject.org,
+        linux-mm@kvack.org, linux-kernel@vger.kernel.org,
         Andrew Morton <akpm@linux-foundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Marek=20Marczykowski-G=C3=B3recki?= 
-        <marmarek@invisiblethingslab.com>, Michal Hocko <mhocko@suse.com>
-Subject: [PATCH v2] mm, page_alloc: fix build_zonerefs_node()
-Date:   Thu,  7 Apr 2022 14:06:37 +0200
-Message-Id: <20220407120637.9035-1-jgross@suse.com>
-X-Mailer: git-send-email 2.34.1
-MIME-Version: 1.0
+        =?UTF-8?Q?Marek_Marczykowski-G=c3=b3recki?= 
+        <marmarek@invisiblethingslab.com>, Mel Gorman <mgorman@suse.de>
+References: <20220407093221.1090-1-jgross@suse.com>
+ <Yk6+QBacbb6oI8lW@dhcp22.suse.cz>
+ <f08c1493-9238-0009-56b4-dc0ab3571b33@suse.com>
+ <Yk7F2KzRrhLjYw4Z@dhcp22.suse.cz>
+ <5e97a7f5-1fc9-d0b4-006e-6894d5653c06@suse.com>
+ <Yk7NqTlw7lmFzpKb@dhcp22.suse.cz>
+ <770d8283-4315-3d83-4f8b-723308fffe5c@redhat.com>
+ <Yk7TMKBAkuSVZRLT@dhcp22.suse.cz>
+From:   David Hildenbrand <david@redhat.com>
+Organization: Red Hat
+In-Reply-To: <Yk7TMKBAkuSVZRLT@dhcp22.suse.cz>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-5.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_LOW,RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,
+        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Since commit 6aa303defb74 ("mm, vmscan: only allocate and reclaim from
-zones with pages managed by the buddy allocator") only zones with free
-memory are included in a built zonelist. This is problematic when e.g.
-all memory of a zone has been ballooned out when zonelists are being
-rebuilt.
+On 07.04.22 14:04, Michal Hocko wrote:
+> On Thu 07-04-22 13:58:44, David Hildenbrand wrote:
+> [...]
+>>> diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+>>> index 3589febc6d31..130a2feceddc 100644
+>>> --- a/mm/page_alloc.c
+>>> +++ b/mm/page_alloc.c
+>>> @@ -6112,10 +6112,8 @@ static int build_zonerefs_node(pg_data_t *pgdat, struct zoneref *zonerefs)
+>>>  	do {
+>>>  		zone_type--;
+>>>  		zone = pgdat->node_zones + zone_type;
+>>> -		if (managed_zone(zone)) {
+>>> -			zoneref_set_zone(zone, &zonerefs[nr_zones++]);
+>>> -			check_highest_zone(zone_type);
+>>> -		}
+>>> +		zoneref_set_zone(zone, &zonerefs[nr_zones++]);
+>>> +		check_highest_zone(zone_type);
+>>>  	} while (zone_type);
+>>>  
+>>>  	return nr_zones;
+>>
+>> I don't think having !populated zones in the zonelist is a particularly
+>> good idea. Populated vs !populated changes only during page
+>> onlininge/offlining.
+>>
+>> If I'm not wrong, with your patch we'd even include ZONE_DEVICE here ...
+> 
+> What kind of problem that would cause? The allocator wouldn't see any
+> pages at all so it would fallback to the next one. Maybe kswapd would
+> need some tweak to have a bail out condition but as mentioned in the
+> thread already. !populated or !managed for that matter are not all that
+> much different from completely depleted zones. The fact that we are
+> making that distinction has led to some bugs and I suspect it makes the
+> code more complex without a very good reason.
 
-The decision whether to rebuild the zonelists when onlining new memory
-is done based on populated_zone() returning 0 for the zone the memory
-will be added to. The new zone is added to the zonelists only, if it
-has free memory pages (managed_zone() returns a non-zero value) after
-the memory has been onlined. This implies, that onlining memory will
-always free the added pages to the allocator immediately, but this is
-not true in all cases: when e.g. running as a Xen guest the onlined
-new memory will be added only to the ballooned memory list, it will be
-freed only when the guest is being ballooned up afterwards.
+I assume performance problems. Assume you have an ordinary system with
+multiple NUMA nodes and no MOVABLE memory. Most nodes will only have
+ZONE_NORMAL. Yet, you'd include ZONE_DMA* and ZONE_MOVABLE that will
+always remain empty to be traversed on each and every allocation
+fallback. Of course, we could measure, but IMHO at least *that* part of
+memory onlining/offlining is not the complicated part :D
 
-Another problem with using managed_zone() for the decision whether a
-zone is being added to the zonelists is, that a zone with all memory
-used will in fact be removed from all zonelists in case the zonelists
-happen to be rebuilt.
+Populated vs. !populated is under pretty good control via page
+onlining/offlining. We have to be careful with "managed pages", because
+that's a moving target, especially with memory ballooning. And I assume
+that's the bigger source of bugs.
 
-Use populated_zone() when building a zonelist as it has been done
-before that commit.
+> 
+>> I'd vote for going with the simple fix first, which should be good
+>> enough AFAIKT.
+> 
+> yes, see the other reply
+> 
 
-Cc: stable@vger.kernel.org
-Fixes: 6aa303defb74 ("mm, vmscan: only allocate and reclaim from zones with pages managed by the buddy allocator")
-Reported-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
----
-V2:
-- updated commit message (Michal Hocko)
----
- mm/page_alloc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+I think we were composing almost simultaneously :)
 
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index bdc8f60ae462..3d0662af3289 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -6128,7 +6128,7 @@ static int build_zonerefs_node(pg_data_t *pgdat, struct zoneref *zonerefs)
- 	do {
- 		zone_type--;
- 		zone = pgdat->node_zones + zone_type;
--		if (managed_zone(zone)) {
-+		if (populated_zone(zone)) {
- 			zoneref_set_zone(zone, &zonerefs[nr_zones++]);
- 			check_highest_zone(zone_type);
- 		}
 -- 
-2.34.1
+Thanks,
+
+David / dhildenb
 
