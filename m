@@ -2,73 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D86C4F7BE6
-	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 11:41:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59F8D4F7C00
+	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 11:43:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229612AbiDGJnU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Apr 2022 05:43:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48696 "EHLO
+        id S243913AbiDGJpt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Apr 2022 05:45:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33192 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243954AbiDGJmm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 Apr 2022 05:42:42 -0400
-Received: from mail-oi1-x22a.google.com (mail-oi1-x22a.google.com [IPv6:2607:f8b0:4864:20::22a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA2BABE9D0;
-        Thu,  7 Apr 2022 02:40:42 -0700 (PDT)
-Received: by mail-oi1-x22a.google.com with SMTP id a19so582870oie.7;
-        Thu, 07 Apr 2022 02:40:42 -0700 (PDT)
+        with ESMTP id S243922AbiDGJps (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 Apr 2022 05:45:48 -0400
+Received: from mail-oi1-x230.google.com (mail-oi1-x230.google.com [IPv6:2607:f8b0:4864:20::230])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BF06210467;
+        Thu,  7 Apr 2022 02:43:49 -0700 (PDT)
+Received: by mail-oi1-x230.google.com with SMTP id r8so5079976oib.5;
+        Thu, 07 Apr 2022 02:43:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=sender:date:from:to:cc:subject:message-id:references:mime-version
          :content-disposition:in-reply-to;
-        bh=FcHUUuQouyt/oY/Z43CP8YAaehl/b4UABsbX648Cgqw=;
-        b=kBXvEADXYwY9BuAhBBmGchud4VtpU+9Lx9yTtwSP8/g3Hec0qg42N61sBeBSCYW8jC
-         ux0tIR1TwlGJLD+RFvHbuaBYNmqKECfoqoLfaZm6QhtXezxd6dDMX5hVN3dxX0FQ2ffF
-         MoujfsLpP6CVygYGjFkN5vxvsNVwhz+tdcvDQW+3l/mmeCcCDnaOFrTUOEVPzGcWhTXL
-         I7tTEM0Iv05tnvclQxPvffVRZPviEGlpx0SD25bn8JiQO8w/U/cDwlgmn0nkJrNhzgIF
-         3fFAd1m4sxb5UzRKdnQ27vl7uMrRsjFkJVN3NfsJh+RwrsDjwCCvWCV6nOcUo4qBD88r
-         IrtQ==
+        bh=VSEFLOExCyQUhFnACa2BSWzmg7POZ6UFZ/jx4eqf+zk=;
+        b=CJEwFG0a36iqSebndAcR8KGnK41oTi5GwmdcbMTyt3mfmT780TAdTL7u5gNX/bBm5Q
+         EUudfYjYSGDTs89+AK1PgwmAKarpn1lFVGOzp9QK9YY0V1ZMm11D4y97AZHBS+4R4rxl
+         uSXh15NH88G8PAseZsTmIhF7entba4sKzgFGK3DPq6aFGihgrSOI6AIAB+LDgYi6DDRR
+         LergO4yQXfpMUZPIA/XJKJxiXqWqWmWiADPwNKnFSB3KNoPwsYsxWPzRWqshtkzIGo4x
+         ThkeY/c1W32G6KCCPRtB2jUucOVXR6FhL8lpRrH5vLhGGZopGnN9CjCn7Ju7Z2CUVB8i
+         EiSw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
          :references:mime-version:content-disposition:in-reply-to;
-        bh=FcHUUuQouyt/oY/Z43CP8YAaehl/b4UABsbX648Cgqw=;
-        b=G38HdHlp7TNZsIGKVupaGpnsK6R6aRBh66wFb5qRbWArfB5NSAmnC5+gsr0JBHVnRl
-         vIBUujWY4Bq6t2yGD7cxMXbKNIlmRRMHJGDjSdE/0iOhjXebJLMr+Fv/cpoetu5lTAk0
-         oGimRnsE9VGu4nZw0EYZV5nJsGV+h8rAdP24o7kz/ZBzmK03QzVb4ElsNc6HrPyt9hjI
-         DSf6FrFatnS+/eNghFzARDT3U03qiWTDkft2WWClKO0Vri8SQCi6/z292csp+Enf9ReA
-         A53CbWL+yTr3kj72QlQaXpQP5ABVXU6CX5rC3uae6sx9piFQxEd1lCkkUialEMka0BJC
-         KsUg==
-X-Gm-Message-State: AOAM533I8zfTQBINcTHFN4SsQkq/O+4+hYW/4rHaWL7+rw7rbWGtaUZW
-        ClVDyPtHuffQ+b0wWGj5YWc=
-X-Google-Smtp-Source: ABdhPJwvBfUmqwK9rfS2jeAGA7uvk8UX3yAunbKvOTQM+QhppJvvPmT+e/wpWG2NQevnNdYHxurrng==
-X-Received: by 2002:a05:6808:1719:b0:2f9:ab58:73db with SMTP id bc25-20020a056808171900b002f9ab5873dbmr974460oib.201.1649324442287;
-        Thu, 07 Apr 2022 02:40:42 -0700 (PDT)
+        bh=VSEFLOExCyQUhFnACa2BSWzmg7POZ6UFZ/jx4eqf+zk=;
+        b=YuFC3/1YcQHCi/X8ZfzI70bwvNgKzgFCy/JpqeFlR1DbmPhpsKzyNZ1X9uh3qgyknN
+         jawbo5qyEmwMUAv56jMIBFz7qJKVmSkcMPDvX6Oe41OmZEIihg5h8m9LpHkMw9sOOvDt
+         1DEs5lwEqOVXdIvsVZiz6mM6C14MU4u8EPipTZFwFTejJXwI5yreVvdVDQYUb9ALGs39
+         BhTk6GTvYlaXlIPzDu6uEA5fBu93OaaVBAI6FkR7U/S2PjVPS4fkws0SsP9nx/ZcGhtf
+         R754NsDEZdb/vOQD92Wanmttsc9FMT6GunsqGj8n+GhDqlhURkt0J3f8Ho7repfW1lX0
+         NxAA==
+X-Gm-Message-State: AOAM53245jBZdW+FDyCNzbXVcS1x8FRafC68LFkRfyuzHDcY8g/wPhyi
+        ow8B9GC0YZkePSBIl3qQDOU=
+X-Google-Smtp-Source: ABdhPJwrovIBOQK3LcHjK4/h3qV4B61asDpcPkVig9yBg8+keh4y5GU3K1TZLVeoOznzlxVhX+WeCQ==
+X-Received: by 2002:a05:6808:d4:b0:2da:503b:40a with SMTP id t20-20020a05680800d400b002da503b040amr5404878oic.121.1649324628833;
+        Thu, 07 Apr 2022 02:43:48 -0700 (PDT)
 Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id r6-20020a0568301ac600b005cdbc6e62a9sm7665966otc.39.2022.04.07.02.40.41
+        by smtp.gmail.com with ESMTPSA id i67-20020acaea46000000b002efa121b127sm7334398oih.46.2022.04.07.02.43.47
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 07 Apr 2022 02:40:41 -0700 (PDT)
+        Thu, 07 Apr 2022 02:43:48 -0700 (PDT)
 Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Thu, 7 Apr 2022 02:40:40 -0700
+Date:   Thu, 7 Apr 2022 02:43:47 -0700
 From:   Guenter Roeck <linux@roeck-us.net>
-To:     Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Stable <stable@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Florian Fainelli <f.fainelli@gmail.com>, slade@sladewatkins.com
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
 Subject: Re: [PATCH 5.10 000/597] 5.10.110-rc2 review
-Message-ID: <20220407094040.GC3041848@roeck-us.net>
+Message-ID: <20220407094347.GA3044306@roeck-us.net>
 References: <20220406133013.264188813@linuxfoundation.org>
- <fce71421-6afc-9f8c-31a2-a71fccb3259d@roeck-us.net>
- <CADVatmPpDpcX-0NYBUgVjNtgB_EjXL7GO5bfuTH2yGR6DB5_jg@mail.gmail.com>
+ <20220407093659.GB3041848@roeck-us.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CADVatmPpDpcX-0NYBUgVjNtgB_EjXL7GO5bfuTH2yGR6DB5_jg@mail.gmail.com>
+In-Reply-To: <20220407093659.GB3041848@roeck-us.net>
 X-Spam-Status: No, score=-1.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
         FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
@@ -80,31 +76,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Apr 07, 2022 at 10:35:27AM +0100, Sudip Mukherjee wrote:
-> On Thu, Apr 7, 2022 at 10:10 AM Guenter Roeck <linux@roeck-us.net> wrote:
-> >
-> > On 4/6/22 06:43, Greg Kroah-Hartman wrote:
-> > > This is the start of the stable review cycle for the 5.10.110 release.
-> > > There are 597 patches in this series, all will be posted as a response
-> > > to this one.  If anyone has any issues with these being applied, please
-> > > let me know.
-> > >
-> > > Responses should be made by Fri, 08 Apr 2022 13:27:53 +0000.
-> > > Anything received after that time might be too late.
-> > >
-> >
-> > I still see the same build error. This is with v5.10.109-600-g45fdcc9dc72a.
+On Thu, Apr 07, 2022 at 02:37:01AM -0700, Guenter Roeck wrote:
+> On Wed, Apr 06, 2022 at 03:43:51PM +0200, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 5.10.110 release.
+> > There are 597 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> > 
+> > Responses should be made by Fri, 08 Apr 2022 13:27:53 +0000.
+> > Anything received after that time might be too late.
+> > 
 > 
-> 45fdcc9dc72a was rc1.
+> Build results:
+> 	total: 161 pass: 150 fail: 11
+> Failed builds:
+> 	alpha:defconfig
+> 	alpha:allmodconfig
+> 	csky:defconfig
+> 	m68k:defconfig
+> 	m68k:allmodconfig
+> 	m68k:sun3_defconfig
+> 	m68k_nommu:m5475evb_defconfig
+> 	microblaze:mmu_defconfig
+> 	nds32:defconfig
+> 	nds32:allmodconfig
+> 	um:defconfig
+> Qemu test results:
+> 	total: 477 pass: 448 fail: 29
+> Failed tests:
+> 	alpha:defconfig:initrd
+> 	alpha:defconfig:devtmpfs:ide:net,e1000:rootfs
+> 	alpha:defconfig:devtmpfs:sdhci:mmc:net,ne2k_pci:rootfs
+> 	alpha:defconfig:devtmpfs:usb-ohci:net,pcnet:rootfs
+> 	alpha:defconfig:devtmpfs:usb-ehci:net,virtio-net:rootfs
+> 	alpha:defconfig:devtmpfs:pci-bridge:usb-xhci:net,pcnet:rootfs
+> 	alpha:defconfig:devtmpfs:usb-uas-ehci:net,e1000:rootfs
+> 	alpha:defconfig:devtmpfs:usb-uas-xhci:net,e1000:rootfs
+> 	alpha:defconfig:devtmpfs:pci-bridge:scsi[AM53C974]:net,tulip:rootfs
+> 	alpha:defconfig:devtmpfs:scsi[DC395]:net,e1000-82545em:rootfs
+> 	alpha:defconfig:devtmpfs:scsi[MEGASAS]:net,rtl8139:rootfs
+> 	alpha:defconfig:devtmpfs:scsi[MEGASAS2]:net,e1000-82544gc:rootfs
+> 	alpha:defconfig:devtmpfs:scsi[FUSION]:net,usb-ohci:rootfs
+> 	alpha:defconfig:devtmpfs:nvme:net,e1000:rootfs
+> 	q800:m68040:mac_defconfig:initrd
+> 	q800:m68040:mac_defconfig:rootfs
+> 	microblaze:petalogix-s3adsp1800:initrd
+> 	microblaze:petalogix-s3adsp1800:rootfs
+> 	microblaze:petalogix-ml605:initrd
+> 	microblaze:petalogix-ml605:rootfs
+> 	microblazeel:petalogix-s3adsp1800:initrd
+> 	microblazeel:petalogix-s3adsp1800:rootfs
+> 	microblazeel:petalogix-ml605:initrd
+> 	microblazeel:petalogix-ml605:rootfs
+> 	s390:defconfig:nolocktests:smp2:net,default:initrd
+> 	s390:defconfig:nolocktests:smp2:virtio-blk-ccw:net,virtio-net-pci:rootfs
+> 	s390:defconfig:nolocktests:smp2:scsi[virtio-ccw]:net,default:rootfs
+> 	s390:defconfig:nolocktests:virtio-pci:net,virtio-net-pci:rootfs
+> 	s390:defconfig:nolocktests:scsi[virtio-pci]:net,default:rootfs
 > 
-> rc2 is f8a7d8111f45 which is v5.10.109-598-gf8a7d8111f45
+> Errors:
+> 
+> fs/binfmt_elf.c: In function 'fill_note_info':
+> fs/binfmt_elf.c:2050:45: error: 'siginfo' undeclared
+> fs/binfmt_elf.c:2056:53: error: 'regs' undeclared
+> 
+> Plus there are the same s390 crashes as with -rc1.
+> 
+> No idea what I am missing here, but the failures are exactly the same as for -rc1.
+> 
 
-Hmm, you are correct, but I just tried v5.10.109-598-gf8a7d8111f45 and
-get (almost) the same error.
-
-fs/binfmt_elf.c: In function 'fill_note_info':
-fs/binfmt_elf.c:2056:53: error: 'regs' undeclared
-
-I'll restart my build server; it seems to have missed some of the changes.
+Sorry, something went wrong. Please disregard. I still see failures,
+but different ones. I'll resend my report after repeating the test.
 
 Guenter
