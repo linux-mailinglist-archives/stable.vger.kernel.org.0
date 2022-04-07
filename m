@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ACC904F70E7
-	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 03:21:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A36144F7089
+	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 03:20:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239580AbiDGBXP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Apr 2022 21:23:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60704 "EHLO
+        id S238840AbiDGBVv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Apr 2022 21:21:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60792 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240350AbiDGBT4 (ORCPT
+        with ESMTP id S240348AbiDGBT4 (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 21:19:56 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B828182AD9;
-        Wed,  6 Apr 2022 18:15:49 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C112194783;
+        Wed,  6 Apr 2022 18:15:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1B8F9B8261D;
-        Thu,  7 Apr 2022 01:15:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62B17C385A1;
-        Thu,  7 Apr 2022 01:15:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AD2F8B82690;
+        Thu,  7 Apr 2022 01:15:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50667C385A6;
+        Thu,  7 Apr 2022 01:15:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1649294146;
-        bh=cgsJW/lQPZmV/rD41uAn4aKxYHvrVPnYbrDnAmwpIEY=;
+        s=k20201202; t=1649294148;
+        bh=8LPEfYxQenpH9D4InrKCnPBnl7PAFBo+jj2AGNeJ0tc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m64ieoaHyxpBVVZq0O1VOrFS9maaPDnKn9mjNv4XDxKDZy3y0W8L+XHmoY5pe4O1E
-         DXMtl6kpeDoXFbU0TkGdIwpi+9Q3hppzO8aTSKteiYwsc3R926Gkbaj8k1tLlN4NOG
-         bz8t9sYN979YC3MdWRF5ytZCys+5zcA11bb8YBCd1hzVCT1tJS+BnvhbnLomfNBw0R
-         5Z+i0isf6Re/CG4HafpmraBQeUONf1zYHTAQRlyk+Yu31OjkmrC4pA0rIXvdnYAdfr
-         matVd/ZclebBVMFehrHKKxgDt/OLgLatOn4qQBxFIgSrkJaAssuGWV3MUtLREHtLbA
-         3oKni8AyaFl7A==
+        b=sfVYpwccwSzove12wbRlrrehbWbI0EXIoeslqkCvktrt1gFmu4An05YTXP2rp4YMU
+         wA038JJkiOh/wp3bHeVo0IOJycRBOm1oy+NO1LzCIbjoeKngZ9zei8ghcuf0QsTWSJ
+         SPIV8QFnPrx5fg439vltpEwvf/Swk1KRI7Kpo7Tu2bChXqzm8Fbcr0skcEx4/wHisQ
+         BMytLtAiu7uRccgouRX/tFuUOmXnDwJvkEj4xT+vdthT4OR3lgfHg+5+oWErwV0A51
+         rUOctlY2yifheQWgK37MvCwgoJslGunhgG+mPNGAyRhfAnhKLzsV4zfpaZ3uWflJq9
+         GQyqnJne2DfdA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
-        perex@perex.cz, tiwai@suse.com, jeremy.szu@canonical.com,
-        wse@tuxedocomputers.com, hui.wang@canonical.com,
-        tanureal@opensource.cirrus.com, cam@neo-zeon.de,
-        kailang@realtek.com, sami@loone.fi, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.4 09/17] ALSA: hda/realtek: Enable headset mic on Lenovo P360
-Date:   Wed,  6 Apr 2022 21:15:13 -0400
-Message-Id: <20220407011521.115014-9-sashal@kernel.org>
+Cc:     Anton Eidelman <anton.eidelman@gmail.com>,
+        Anton Eidelman <anton@lightbitslabs.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Christoph Hellwig <hch@lst.de>,
+        Sasha Levin <sashal@kernel.org>, kbusch@kernel.org,
+        axboe@fb.com, linux-nvme@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 10/17] nvme-multipath: fix hang when disk goes live over reconnect
+Date:   Wed,  6 Apr 2022 21:15:14 -0400
+Message-Id: <20220407011521.115014-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220407011521.115014-1-sashal@kernel.org>
 References: <20220407011521.115014-1-sashal@kernel.org>
@@ -59,33 +59,163 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Anton Eidelman <anton.eidelman@gmail.com>
 
-[ Upstream commit 5a8738571747c1e275a40b69a608657603867b7e ]
+[ Upstream commit a4a6f3c8f61c3cfbda4998ad94596059ad7e4332 ]
 
-Lenovo P360 is another platform equipped with ALC897, and it needs
-ALC897_FIXUP_HEADSET_MIC_PIN quirk to make its headset mic work.
+nvme_mpath_init_identify() invoked from nvme_init_identify() fetches a
+fresh ANA log from the ctrl.  This is essential to have an up to date
+path states for both existing namespaces and for those scan_work may
+discover once the ctrl is up.
 
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Link: https://lore.kernel.org/r/20220325160501.705221-1-kai.heng.feng@canonical.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+This happens in the following cases:
+  1) A new ctrl is being connected.
+  2) An existing ctrl is successfully reconnected.
+  3) An existing ctrl is being reset.
+
+While in (1) ctrl->namespaces is empty, (2 & 3) may have namespaces, and
+nvme_read_ana_log() may call nvme_update_ns_ana_state().
+
+This result in a hang when the ANA state of an existing namespace changes
+and makes the disk live: nvme_mpath_set_live() issues IO to the namespace
+through the ctrl, which does NOT have IO queues yet.
+
+See sample hang below.
+
+Solution:
+- nvme_update_ns_ana_state() to call set_live only if ctrl is live
+- nvme_read_ana_log() call from nvme_mpath_init_identify()
+  therefore only fetches and parses the ANA log;
+  any erros in this process will fail the ctrl setup as appropriate;
+- a separate function nvme_mpath_update()
+  is called in nvme_start_ctrl();
+  this parses the ANA log without fetching it.
+  At this point the ctrl is live,
+  therefore, disks can be set live normally.
+
+Sample failure:
+    nvme nvme0: starting error recovery
+    nvme nvme0: Reconnecting in 10 seconds...
+    block nvme0n6: no usable path - requeuing I/O
+    INFO: task kworker/u8:3:312 blocked for more than 122 seconds.
+          Tainted: G            E     5.14.5-1.el7.elrepo.x86_64 #1
+    Workqueue: nvme-wq nvme_tcp_reconnect_ctrl_work [nvme_tcp]
+    Call Trace:
+     __schedule+0x2a2/0x7e0
+     schedule+0x4e/0xb0
+     io_schedule+0x16/0x40
+     wait_on_page_bit_common+0x15c/0x3e0
+     do_read_cache_page+0x1e0/0x410
+     read_cache_page+0x12/0x20
+     read_part_sector+0x46/0x100
+     read_lba+0x121/0x240
+     efi_partition+0x1d2/0x6a0
+     bdev_disk_changed.part.0+0x1df/0x430
+     bdev_disk_changed+0x18/0x20
+     blkdev_get_whole+0x77/0xe0
+     blkdev_get_by_dev+0xd2/0x3a0
+     __device_add_disk+0x1ed/0x310
+     device_add_disk+0x13/0x20
+     nvme_mpath_set_live+0x138/0x1b0 [nvme_core]
+     nvme_update_ns_ana_state+0x2b/0x30 [nvme_core]
+     nvme_update_ana_state+0xca/0xe0 [nvme_core]
+     nvme_parse_ana_log+0xac/0x170 [nvme_core]
+     nvme_read_ana_log+0x7d/0xe0 [nvme_core]
+     nvme_mpath_init_identify+0x105/0x150 [nvme_core]
+     nvme_init_identify+0x2df/0x4d0 [nvme_core]
+     nvme_init_ctrl_finish+0x8d/0x3b0 [nvme_core]
+     nvme_tcp_setup_ctrl+0x337/0x390 [nvme_tcp]
+     nvme_tcp_reconnect_ctrl_work+0x24/0x40 [nvme_tcp]
+     process_one_work+0x1bd/0x360
+     worker_thread+0x50/0x3d0
+
+Signed-off-by: Anton Eidelman <anton@lightbitslabs.com>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/nvme/host/core.c      |  1 +
+ drivers/nvme/host/multipath.c | 25 +++++++++++++++++++++++--
+ drivers/nvme/host/nvme.h      |  4 ++++
+ 3 files changed, 28 insertions(+), 2 deletions(-)
 
-diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
-index d201043d661c..4bcf833781bd 100644
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -10221,6 +10221,7 @@ static const struct snd_pci_quirk alc662_fixup_tbl[] = {
- 	SND_PCI_QUIRK(0x144d, 0xc051, "Samsung R720", ALC662_FIXUP_IDEAPAD),
- 	SND_PCI_QUIRK(0x14cd, 0x5003, "USI", ALC662_FIXUP_USI_HEADSET_MODE),
- 	SND_PCI_QUIRK(0x17aa, 0x1036, "Lenovo P520", ALC662_FIXUP_LENOVO_MULTI_CODECS),
-+	SND_PCI_QUIRK(0x17aa, 0x1057, "Lenovo P360", ALC897_FIXUP_HEADSET_MIC_PIN),
- 	SND_PCI_QUIRK(0x17aa, 0x32ca, "Lenovo ThinkCentre M80", ALC897_FIXUP_HEADSET_MIC_PIN),
- 	SND_PCI_QUIRK(0x17aa, 0x32cb, "Lenovo ThinkCentre M70", ALC897_FIXUP_HEADSET_MIC_PIN),
- 	SND_PCI_QUIRK(0x17aa, 0x32cf, "Lenovo ThinkCentre M950", ALC897_FIXUP_HEADSET_MIC_PIN),
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index 6a9a42809f97..79e22618817d 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -4047,6 +4047,7 @@ void nvme_start_ctrl(struct nvme_ctrl *ctrl)
+ 	if (ctrl->queue_count > 1) {
+ 		nvme_queue_scan(ctrl);
+ 		nvme_start_queues(ctrl);
++		nvme_mpath_update(ctrl);
+ 	}
+ 	ctrl->created = true;
+ }
+diff --git a/drivers/nvme/host/multipath.c b/drivers/nvme/host/multipath.c
+index 4d615337e6e2..811f7b96b551 100644
+--- a/drivers/nvme/host/multipath.c
++++ b/drivers/nvme/host/multipath.c
+@@ -501,8 +501,17 @@ static void nvme_update_ns_ana_state(struct nvme_ana_group_desc *desc,
+ 	ns->ana_grpid = le32_to_cpu(desc->grpid);
+ 	ns->ana_state = desc->state;
+ 	clear_bit(NVME_NS_ANA_PENDING, &ns->flags);
+-
+-	if (nvme_state_is_live(ns->ana_state))
++	/*
++	 * nvme_mpath_set_live() will trigger I/O to the multipath path device
++	 * and in turn to this path device.  However we cannot accept this I/O
++	 * if the controller is not live.  This may deadlock if called from
++	 * nvme_mpath_init_identify() and the ctrl will never complete
++	 * initialization, preventing I/O from completing.  For this case we
++	 * will reprocess the ANA log page in nvme_mpath_update() once the
++	 * controller is ready.
++	 */
++	if (nvme_state_is_live(ns->ana_state) &&
++	    ns->ctrl->state == NVME_CTRL_LIVE)
+ 		nvme_mpath_set_live(ns);
+ }
+ 
+@@ -586,6 +595,18 @@ static void nvme_ana_work(struct work_struct *work)
+ 	nvme_read_ana_log(ctrl);
+ }
+ 
++void nvme_mpath_update(struct nvme_ctrl *ctrl)
++{
++	u32 nr_change_groups = 0;
++
++	if (!ctrl->ana_log_buf)
++		return;
++
++	mutex_lock(&ctrl->ana_lock);
++	nvme_parse_ana_log(ctrl, &nr_change_groups, nvme_update_ana_state);
++	mutex_unlock(&ctrl->ana_lock);
++}
++
+ static void nvme_anatt_timeout(struct timer_list *t)
+ {
+ 	struct nvme_ctrl *ctrl = from_timer(ctrl, t, anatt_timer);
+diff --git a/drivers/nvme/host/nvme.h b/drivers/nvme/host/nvme.h
+index 2df90d4355b9..1d1431dd4f9e 100644
+--- a/drivers/nvme/host/nvme.h
++++ b/drivers/nvme/host/nvme.h
+@@ -551,6 +551,7 @@ void nvme_mpath_add_disk(struct nvme_ns *ns, struct nvme_id_ns *id);
+ void nvme_mpath_remove_disk(struct nvme_ns_head *head);
+ int nvme_mpath_init_identify(struct nvme_ctrl *ctrl, struct nvme_id_ctrl *id);
+ void nvme_mpath_init_ctrl(struct nvme_ctrl *ctrl);
++void nvme_mpath_update(struct nvme_ctrl *ctrl);
+ void nvme_mpath_uninit(struct nvme_ctrl *ctrl);
+ void nvme_mpath_stop(struct nvme_ctrl *ctrl);
+ bool nvme_mpath_clear_current_path(struct nvme_ns *ns);
+@@ -648,6 +649,9 @@ static inline int nvme_mpath_init_identify(struct nvme_ctrl *ctrl,
+ "Please enable CONFIG_NVME_MULTIPATH for full support of multi-port devices.\n");
+ 	return 0;
+ }
++static inline void nvme_mpath_update(struct nvme_ctrl *ctrl)
++{
++}
+ static inline void nvme_mpath_uninit(struct nvme_ctrl *ctrl)
+ {
+ }
 -- 
 2.35.1
 
