@@ -2,48 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EEE694F7063
-	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 03:19:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 792DD4F7086
+	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 03:20:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238519AbiDGBVb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Apr 2022 21:21:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60916 "EHLO
+        id S238501AbiDGBVt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Apr 2022 21:21:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32822 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240196AbiDGBTv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 21:19:51 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F241193206;
-        Wed,  6 Apr 2022 18:15:29 -0700 (PDT)
+        with ESMTP id S240223AbiDGBTw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 21:19:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 635A81B74EE;
+        Wed,  6 Apr 2022 18:15:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 5ECCDCE25B2;
+        by ams.source.kernel.org (Postfix) with ESMTPS id AA703B81E7F;
+        Thu,  7 Apr 2022 01:15:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E68E0C385A1;
         Thu,  7 Apr 2022 01:15:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F26DC385AF;
-        Thu,  7 Apr 2022 01:15:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1649294125;
-        bh=ASIjV+pChRoTXWfJg0esXtdUYY+xsNmlwSH37KNsLMM=;
+        s=k20201202; t=1649294129;
+        bh=xhmdDEoKotcUO/7eHbPi3dL9BFugG1l1EDjl/avpqzE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B8AYelZ7XjnbT/PIdqLH0kyAEkl5ktuoXP6yRrRXsdwkghBLtHWxtcL2R5d2beyRD
-         di8LTkynaNIV8EPEmh4VEc5f4AQsBt3hhmLU+WoCvjGoggqHIgSO/IroX4NsSDsJk9
-         TZmZBkc0H6g0A+gz+0u89EBzTi4r79KVAtuWOX/81an6IcY4R7VMCr23RvbuFjOKg7
-         0Bdotsiq4Z0Hx+R/I7rJnKYP4So7MJG5LsEP89cusVLRCStMEXCTdTUBArnuajZqtp
-         1k7Ciik2Qb85H0lppNM3Pgmm77A15gDNAknzXkO539fm3Zhk9owDYrXmCtcPi2q6uP
-         56kStJnrcVfXw==
+        b=brgCYRhtc/L4zvhjnbdjORt/3jG1mxketjIzAqGIjIZ8OqhhPYc92ZTXuQQez0zsF
+         2CQ/NmbcWDE95fmkDMyjUs8+vlX1vYg7H3b7+v6QJyN8BPLGCYXjMLc/THv6r672uK
+         fwQZAUnWssLwRwDbLVEJ6yF4qFadtZewCaLaYgR9MXJTeaPOIZAC8zcX0QPMKVzqsX
+         9oqwhVx3I+d9qSOUMGSjlUoOj6fFfWlmyv7eKo/mW5U9wFvZnJaNSdGk7OPj3/F4MM
+         33fdb1vPIsRvCfgy1kuc2cFf7ymyG5rpav3zd7B83T0vBFIb0GtZVPJLMuccoisYx9
+         qiQCaACuCQAuA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vincent Whitchurch <vincent.whitchurch@axis.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>, a.zummo@towertech.it,
-        linux-rtc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 02/17] rtc: fix use-after-free on device removal
-Date:   Wed,  6 Apr 2022 21:15:06 -0400
-Message-Id: <20220407011521.115014-2-sashal@kernel.org>
+Cc:     David Gow <davidgow@google.com>,
+        Richard Weinberger <richard@nod.at>,
+        Sasha Levin <sashal@kernel.org>,
+        anton.ivanov@cambridgegreys.com, johannes@sipsolutions.net,
+        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
+        dave.hansen@linux.intel.com, x86@kernel.org,
+        viro@zeniv.linux.org.uk, linux-um@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 03/17] um: Cleanup syscall_handler_t definition/cast, fix warning
+Date:   Wed,  6 Apr 2022 21:15:07 -0400
+Message-Id: <20220407011521.115014-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220407011521.115014-1-sashal@kernel.org>
 References: <20220407011521.115014-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -57,78 +61,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Whitchurch <vincent.whitchurch@axis.com>
+From: David Gow <davidgow@google.com>
 
-[ Upstream commit c8fa17d9f08a448184f03d352145099b5beb618e ]
+[ Upstream commit f4f03f299a56ce4d73c5431e0327b3b6cb55ebb9 ]
 
-If the irqwork is still scheduled or running while the RTC device is
-removed, a use-after-free occurs in rtc_timer_do_work().  Cleanup the
-timerqueue and ensure the work is stopped to fix this.
+The syscall_handler_t type for x86_64 was defined as 'long (*)(void)',
+but always cast to 'long (*)(long, long, long, long, long, long)' before
+use. This now triggers a warning (see below).
 
- BUG: KASAN: use-after-free in mutex_lock+0x94/0x110
- Write of size 8 at addr ffffff801d846338 by task kworker/3:1/41
+Define syscall_handler_t as the latter instead, and remove the cast.
+This simplifies the code, and fixes the warning.
 
- Workqueue: events rtc_timer_do_work
- Call trace:
-  mutex_lock+0x94/0x110
-  rtc_timer_do_work+0xec/0x630
-  process_one_work+0x5fc/0x1344
-  ...
+Warning:
+In file included from ../arch/um/include/asm/processor-generic.h:13
+                 from ../arch/x86/um/asm/processor.h:41
+                 from ../include/linux/rcupdate.h:30
+                 from ../include/linux/rculist.h:11
+                 from ../include/linux/pid.h:5
+                 from ../include/linux/sched.h:14
+                 from ../include/linux/ptrace.h:6
+                 from ../arch/um/kernel/skas/syscall.c:7:
+../arch/um/kernel/skas/syscall.c: In function ‘handle_syscall’:
+../arch/x86/um/shared/sysdep/syscalls_64.h:18:11: warning: cast between incompatible function types from ‘long int (*)(void)’ to ‘long int (*)(long int,  long int,  long int,  long int,  long int,  long int)’ [
+-Wcast-function-type]
+   18 |         (((long (*)(long, long, long, long, long, long)) \
+      |           ^
+../arch/x86/um/asm/ptrace.h:36:62: note: in definition of macro ‘PT_REGS_SET_SYSCALL_RETURN’
+   36 | #define PT_REGS_SET_SYSCALL_RETURN(r, res) (PT_REGS_AX(r) = (res))
+      |                                                              ^~~
+../arch/um/kernel/skas/syscall.c:46:33: note: in expansion of macro ‘EXECUTE_SYSCALL’
+   46 |                                 EXECUTE_SYSCALL(syscall, regs));
+      |                                 ^~~~~~~~~~~~~~~
 
- Allocated by task 551:
-  kmem_cache_alloc_trace+0x384/0x6e0
-  devm_rtc_allocate_device+0xf0/0x574
-  devm_rtc_device_register+0x2c/0x12c
-  ...
-
- Freed by task 572:
-  kfree+0x114/0x4d0
-  rtc_device_release+0x64/0x80
-  device_release+0x8c/0x1f4
-  kobject_put+0x1c4/0x4b0
-  put_device+0x20/0x30
-  devm_rtc_release_device+0x1c/0x30
-  devm_action_release+0x54/0x90
-  release_nodes+0x124/0x310
-  devres_release_group+0x170/0x240
-  i2c_device_remove+0xd8/0x314
-  ...
-
- Last potentially related work creation:
-  insert_work+0x5c/0x330
-  queue_work_on+0xcc/0x154
-  rtc_set_time+0x188/0x5bc
-  rtc_dev_ioctl+0x2ac/0xbd0
-  ...
-
-Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/20211210160951.7718-1-vincent.whitchurch@axis.com
+Signed-off-by: David Gow <davidgow@google.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/class.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ arch/x86/um/shared/sysdep/syscalls_64.h | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/rtc/class.c b/drivers/rtc/class.c
-index 9458e6d6686a..8b434213bc7a 100644
---- a/drivers/rtc/class.c
-+++ b/drivers/rtc/class.c
-@@ -26,6 +26,15 @@ struct class *rtc_class;
- static void rtc_device_release(struct device *dev)
- {
- 	struct rtc_device *rtc = to_rtc_device(dev);
-+	struct timerqueue_head *head = &rtc->timerqueue;
-+	struct timerqueue_node *node;
-+
-+	mutex_lock(&rtc->ops_lock);
-+	while ((node = timerqueue_getnext(head)))
-+		timerqueue_del(head, node);
-+	mutex_unlock(&rtc->ops_lock);
-+
-+	cancel_work_sync(&rtc->irqwork);
+diff --git a/arch/x86/um/shared/sysdep/syscalls_64.h b/arch/x86/um/shared/sysdep/syscalls_64.h
+index 8a7d5e1da98e..1e6875b4ffd8 100644
+--- a/arch/x86/um/shared/sysdep/syscalls_64.h
++++ b/arch/x86/um/shared/sysdep/syscalls_64.h
+@@ -10,13 +10,12 @@
+ #include <linux/msg.h>
+ #include <linux/shm.h>
  
- 	ida_simple_remove(&rtc_ida, rtc->id);
- 	kfree(rtc);
+-typedef long syscall_handler_t(void);
++typedef long syscall_handler_t(long, long, long, long, long, long);
+ 
+ extern syscall_handler_t *sys_call_table[];
+ 
+ #define EXECUTE_SYSCALL(syscall, regs) \
+-	(((long (*)(long, long, long, long, long, long)) \
+-	  (*sys_call_table[syscall]))(UPT_SYSCALL_ARG1(&regs->regs), \
++	(((*sys_call_table[syscall]))(UPT_SYSCALL_ARG1(&regs->regs), \
+ 		 		      UPT_SYSCALL_ARG2(&regs->regs), \
+ 				      UPT_SYSCALL_ARG3(&regs->regs), \
+ 				      UPT_SYSCALL_ARG4(&regs->regs), \
 -- 
 2.35.1
 
