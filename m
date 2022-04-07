@@ -2,142 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B8C714F79E8
-	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 10:36:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 54A764F79EA
+	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 10:36:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242813AbiDGIgm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Apr 2022 04:36:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52908 "EHLO
+        id S243170AbiDGIhF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Apr 2022 04:37:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54876 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243158AbiDGIgj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 Apr 2022 04:36:39 -0400
-Received: from gofer.mess.org (gofer.mess.org [IPv6:2a02:8011:d000:212::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A08A24A121;
-        Thu,  7 Apr 2022 01:34:40 -0700 (PDT)
-Received: by gofer.mess.org (Postfix, from userid 1000)
-        id BF869101C60; Thu,  7 Apr 2022 08:34:37 +0000 (UTC)
-Date:   Thu, 7 Apr 2022 09:34:37 +0100
-From:   Sean Young <sean@mess.org>
-To:     Geert Uytterhoeven <geert@linux-m68k.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>,
-        =?utf-8?B?0JzQuNGF0LDQuNC7?= <vrserver1@gmail.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>
-Subject: Re: [PATCH 5.16 0172/1017] media: gpio-ir-tx: fix transmit with long
- spaces on Orange Pi PC
-Message-ID: <Yk6iHfvLffyocjrK@gofer.mess.org>
-References: <20220405070354.155796697@linuxfoundation.org>
- <20220405070359.334460978@linuxfoundation.org>
- <CAMuHMdUovU-zaPPCV0tbOMEy3GsH6heSe+21koW3Ti3S+4qD5g@mail.gmail.com>
+        with ESMTP id S243173AbiDGIhE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 Apr 2022 04:37:04 -0400
+Received: from mail-ej1-f52.google.com (mail-ej1-f52.google.com [209.85.218.52])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9EF27660;
+        Thu,  7 Apr 2022 01:35:03 -0700 (PDT)
+Received: by mail-ej1-f52.google.com with SMTP id i27so9277248ejd.9;
+        Thu, 07 Apr 2022 01:35:03 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=Tr4Zz32fDjxFzXKC0Q2/00xloV2k6LUv3oxEGpw4WnE=;
+        b=S1etPt28JB531Qq9crVPdg8jmPDGDy9X1CK2ssE3EY1ZF4iuS783rEcyHJK6dlTydA
+         rxQiaeFagFL7LCd2x/7S9BDH1k3NyypWvz+ahAIzB/HLeGd7BTyjpIPQeO3dHhVAzJk2
+         RAouvfyktd8yE2NVQIIkxYcyQnxWkr+Ylrp8+OtJcnwa0aCjvWBdlpsArZwqMdj6AStb
+         WlWGO6s4ZrJtko0bsobkVFnoM7OVgGYJOtP2i9OKLhPnE842RxyMSgnra8preo0h9k5m
+         l9PyEIzl4u0E/JVZ4DQ1eo0357tPRzEGcfEIlxiZZ6uDR4uCy4S1hs4HEL1AsH+em4rZ
+         k7ew==
+X-Gm-Message-State: AOAM532gC1HqVlH8zr8NZ7EsbVZoyO+Slme8jAnv77wh/4nSLixY6XQd
+        RqXvp5pdMP4V9r95HyrUaMI=
+X-Google-Smtp-Source: ABdhPJy+qjxdbstLkjc+zvK1U7WerGYjW6YueKSrNFS2Ewd+J4jF9ZW90Wae8sB2BBDjppOaqDgmVA==
+X-Received: by 2002:a17:906:ae57:b0:6e8:30cb:2596 with SMTP id lf23-20020a170906ae5700b006e830cb2596mr2507515ejb.204.1649320502308;
+        Thu, 07 Apr 2022 01:35:02 -0700 (PDT)
+Received: from ?IPV6:2a0b:e7c0:0:107::70f? ([2a0b:e7c0:0:107::70f])
+        by smtp.gmail.com with ESMTPSA id kb28-20020a1709070f9c00b006d5d8bf1b72sm7340288ejc.78.2022.04.07.01.35.00
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 07 Apr 2022 01:35:01 -0700 (PDT)
+Message-ID: <f0f09501-6d78-3e6e-bcf0-085806b59bc3@kernel.org>
+Date:   Thu, 7 Apr 2022 10:35:00 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAMuHMdUovU-zaPPCV0tbOMEy3GsH6heSe+21koW3Ti3S+4qD5g@mail.gmail.com>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.7.0
+Subject: Re: [PATCH 5.17 0000/1123] 5.17.2-rc2 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
+References: <20220406133122.897434068@linuxfoundation.org>
+From:   Jiri Slaby <jirislaby@kernel.org>
+In-Reply-To: <20220406133122.897434068@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        NICE_REPLY_A,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Apr 05, 2022 at 03:16:07PM +0200, Geert Uytterhoeven wrote:
-> On Tue, Apr 5, 2022 at 1:33 PM Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> > From: Sean Young <sean@mess.org>
-> >
-> > commit 5ad05ecad4326ddaa26a83ba2233a67be24c1aaa upstream.
-> >
-> > Calling udelay for than 1000us does not always yield the correct
-> > results.
-> >
-> > Cc: stable@vger.kernel.org
-> > Reported-by: Михаил <vrserver1@gmail.com>
-> > Signed-off-by: Sean Young <sean@mess.org>
-> > Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-> > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > ---
-> >  drivers/media/rc/gpio-ir-tx.c |   28 +++++++++++++++++++++-------
-> >  1 file changed, 21 insertions(+), 7 deletions(-)
-> >
-> > --- a/drivers/media/rc/gpio-ir-tx.c
-> > +++ b/drivers/media/rc/gpio-ir-tx.c
-> > @@ -48,11 +48,29 @@ static int gpio_ir_tx_set_carrier(struct
-> >         return 0;
-> >  }
-> >
-> > +static void delay_until(ktime_t until)
-> > +{
-> > +       /*
-> > +        * delta should never exceed 0.5 seconds (IR_MAX_DURATION) and on
-> > +        * m68k ndelay(s64) does not compile; so use s32 rather than s64.
-> > +        */
-> > +       s32 delta;
-> > +
-> > +       while (true) {
-> > +               delta = ktime_us_delta(until, ktime_get());
-> > +               if (delta <= 0)
-> > +                       return;
-> > +
-> > +               /* udelay more than 1ms may not work */
-> > +               delta = min(delta, 1000);
-> > +               udelay(delta);
-> > +       }
+On 06. 04. 22, 15:44, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.17.2 release.
+> There are 1123 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> Yeah, that's why we have mdelay(), which loops around udelay() if no
-> arch-specific implementation is provided.
+> Responses should be made by Fri, 08 Apr 2022 13:27:53 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.17.2-rc2.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.17.y
 
-That is a good point. That doesn't make this patch incorrect, just a bit ugly.
-Can this patch be merged as-is please, and I'll write an patch upstream that
-simplifies the code.
+All green with openSUSE configs now again.
 
-Thanks
-Sean
+Tested-by: Jiri Slaby <jirislaby@kernel.org>
 
-> 
-> > +}
-> > +
-> >  static void gpio_ir_tx_unmodulated(struct gpio_ir *gpio_ir, uint *txbuf,
-> >                                    uint count)
-> >  {
-> >         ktime_t edge;
-> > -       s32 delta;
-> >         int i;
-> >
-> >         local_irq_disable();
-> > @@ -63,9 +81,7 @@ static void gpio_ir_tx_unmodulated(struc
-> >                 gpiod_set_value(gpio_ir->gpio, !(i % 2));
-> >
-> >                 edge = ktime_add_us(edge, txbuf[i]);
-> > -               delta = ktime_us_delta(edge, ktime_get());
-> > -               if (delta > 0)
-> > -                       udelay(delta);
-> > +               delay_until(edge);
-> >         }
-> >
-> >         gpiod_set_value(gpio_ir->gpio, 0);
-> > @@ -97,9 +113,7 @@ static void gpio_ir_tx_modulated(struct
-> >                 if (i % 2) {
-> >                         // space
-> >                         edge = ktime_add_us(edge, txbuf[i]);
-> > -                       delta = ktime_us_delta(edge, ktime_get());
-> > -                       if (delta > 0)
-> > -                               udelay(delta);
-> > +                       delay_until(edge);
-> >                 } else {
-> >                         // pulse
-> >                         ktime_t last = ktime_add_us(edge, txbuf[i]);
-> 
-> Gr{oetje,eeting}s,
-> 
->                         Geert
-> 
-> --
-> Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-> 
-> In personal conversations with technical people, I call myself a hacker. But
-> when I'm talking to journalists I just say "programmer" or something like that.
->                                 -- Linus Torvalds
+thanks,
+-- 
+js
+suse labs
