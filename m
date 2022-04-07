@@ -2,92 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D2C434F77A4
-	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 09:36:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28AB94F784C
+	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 09:56:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241869AbiDGHgx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Apr 2022 03:36:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47142 "EHLO
+        id S237940AbiDGH5Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Apr 2022 03:57:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240343AbiDGHgo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 Apr 2022 03:36:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DEF119E396;
-        Thu,  7 Apr 2022 00:34:36 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 89E4CB826C8;
-        Thu,  7 Apr 2022 07:34:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1673CC385A4;
-        Thu,  7 Apr 2022 07:34:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1649316873;
-        bh=1ucMhnW8irziJNfuECEH3MHXjDK0nSaVyUwaETtw+gM=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KelGW/uTUVx5N9Sv2N8w8R9JRf21b8/HoKoyaUYPNOJgWfIKzQiF7OA1rp6QJv+BJ
-         ytq/FiqmKFGSs0Sfa/N6mEuTZZcNJZCxF2cXvcwjhXcqSOTZQOSw+U0ZP4WPx9hrTG
-         Igt3l6DJxAD6TkFv//g0cb7uzlxGM9LBCU/dDhX1u+m2/qq5O7bjJE8Kir697/BF/C
-         gPykEqhRL5iAJtMqzxMZC1C51u9klzBs0AiIiqvKs+dxQdsK35GL29VVfT3QNbarg4
-         8fcYqEARmNuNjvOoZkd1vpBFpU1v2Bx7dFPjVeYLo38goAcOYyknOr6/WuWAhMceSM
-         MC/wBEJ5daT5A==
-From:   guoren@kernel.org
-To:     guoren@kernel.org, arnd@arndb.de, gregkh@linuxfoundation.org
-Cc:     linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-csky@vger.kernel.org, linux-xtensa@linux-xtensa.org,
-        linux-riscv@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org,
-        Guo Ren <guoren@linux.alibaba.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>, stable@vger.kernel.org
-Subject: [PATCH V4 4/4] csky: patch_text: Fixup last cpu should be master
-Date:   Thu,  7 Apr 2022 15:33:23 +0800
-Message-Id: <20220407073323.743224-5-guoren@kernel.org>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20220407073323.743224-1-guoren@kernel.org>
-References: <20220407073323.743224-1-guoren@kernel.org>
+        with ESMTP id S232102AbiDGH5X (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 Apr 2022 03:57:23 -0400
+Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 600F211408F;
+        Thu,  7 Apr 2022 00:55:23 -0700 (PDT)
+Received: by mail-pj1-x1032.google.com with SMTP id h23-20020a17090a051700b001c9c1dd3acbso5444671pjh.3;
+        Thu, 07 Apr 2022 00:55:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=hXFL6dt8fzomsRfTKg2cZXYSU0EaDUXh0qhqf00N78s=;
+        b=cB/9zbGxVzgJtrojzRPPWewU3eQT7WraZRZMYHPPVF3YkemFCXxs5BavHD8YHmgCAu
+         LKe2uxkoHiDtzmEKYrwowY1P3wcaVF+QckKuuBBYRrbBrk3NFagCZwH4huLYgMp1eU8g
+         YX1ox4lWaPX5h84FvyWyRodBnBaxdzdKEHsCklwEcRFBRokQaXtgW3hnuPgOMiMfg5+U
+         idTaNmvVvVHnoODKvwGwZJSW/T/JlCgxoUTNhzo/bSWaHx3rehbuhoyvt7JbIYST0wdH
+         Y54ZWhnM8AVIcojJkOpW2iwcBezpBLNw8v1V3AAKEZd2YUdYNzoPO8pgqo7LceJUFoIz
+         DRVw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=hXFL6dt8fzomsRfTKg2cZXYSU0EaDUXh0qhqf00N78s=;
+        b=yZbLB7tK0sknNNx1MwPNhvXFIx9aQVJkpCgt7aaF29FoPD35uqJ9Fkz0xOb89p/3H3
+         u7wHpukkL/070g3vuDprVy+IxDxdx64rTePi9ivyYTe09SMwEX6jJCy5TzgteD3BJDV2
+         OxvWk7wSdW3eKw/zYYXweNJPzmP1kgjSqhtMRIRG4a92NjsFLwRoPQK30uvOq6a5TUv/
+         +WXom6GpFT9xLprp/kkWZQkC+eDEFp77aItwtdGgsIlpcXgJxDOW4xTFQoVXzbJhSXxE
+         IXxTyLMwO0FP+wgTJlhApWyHWba3HWi3963KqF4Q3rapr9bHpDGXjqeJzHRe28sVS6pA
+         bp/w==
+X-Gm-Message-State: AOAM530lMdtnN9vv+nZceFnvF9eOPt2R3hHGotVGAiDN+y4Iiq1dORaZ
+        jJkON/0+F3LsJQRYcZ9pJDk=
+X-Google-Smtp-Source: ABdhPJw34TPpqd8Fk7OJJK8jvwwIKFltZPgezXY8lsOChy5En/uMzCJ8DdIp/oXuGletRxOJvN6Nhg==
+X-Received: by 2002:a17:902:ce85:b0:156:bf3d:55e8 with SMTP id f5-20020a170902ce8500b00156bf3d55e8mr12860314plg.22.1649318122885;
+        Thu, 07 Apr 2022 00:55:22 -0700 (PDT)
+Received: from [192.168.43.80] (subs03-180-214-233-88.three.co.id. [180.214.233.88])
+        by smtp.gmail.com with ESMTPSA id 83-20020a621556000000b004fe5d8c5cf3sm3584147pfv.156.2022.04.07.00.55.19
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 07 Apr 2022 00:55:22 -0700 (PDT)
+Message-ID: <67ad4f44-1968-333e-cca3-b496ed251f66@gmail.com>
+Date:   Thu, 7 Apr 2022 14:55:16 +0700
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.7.0
+Subject: Re: [PATCH 5.10 000/597] 5.10.110-rc2 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
+References: <20220406133013.264188813@linuxfoundation.org>
+From:   Bagas Sanjaya <bagasdotme@gmail.com>
+In-Reply-To: <20220406133013.264188813@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-3.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guo Ren <guoren@linux.alibaba.com>
+On 06/04/22 20.43, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.110 release.
+> There are 597 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
 
-These patch_text implementations are using stop_machine_cpuslocked
-infrastructure with atomic cpu_count. The original idea: When the
-master CPU patch_text, the others should wait for it. But current
-implementation is using the first CPU as master, which couldn't
-guarantee the remaining CPUs are waiting. This patch changes the
-last CPU as the master to solve the potential risk.
+Successfully cross-compiled for arm64 (bcm2711_defconfig, gcc 10.2.0) and
+powerpc (ps3_defconfig, gcc 11.2.0).
 
-Fixes: 33e53ae1ce41 ("csky: Add kprobes supported")
-Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
-Signed-off-by: Guo Ren <guoren@kernel.org>
-Reviewed-by: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: <stable@vger.kernel.org>
----
- arch/csky/kernel/probes/kprobes.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
 
-diff --git a/arch/csky/kernel/probes/kprobes.c b/arch/csky/kernel/probes/kprobes.c
-index 42920f25e73c..34ba684d5962 100644
---- a/arch/csky/kernel/probes/kprobes.c
-+++ b/arch/csky/kernel/probes/kprobes.c
-@@ -30,7 +30,7 @@ static int __kprobes patch_text_cb(void *priv)
- 	struct csky_insn_patch *param = priv;
- 	unsigned int addr = (unsigned int)param->addr;
- 
--	if (atomic_inc_return(&param->cpu_count) == 1) {
-+	if (atomic_inc_return(&param->cpu_count) == num_online_cpus()) {
- 		*(u16 *) addr = cpu_to_le16(param->opcode);
- 		dcache_wb_range(addr, addr + 2);
- 		atomic_inc(&param->cpu_count);
 -- 
-2.25.1
-
+An old man doll... just what I always wanted! - Clara
