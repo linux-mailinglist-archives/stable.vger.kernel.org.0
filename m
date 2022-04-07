@@ -2,96 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 392A04F7BB2
-	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 11:32:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EBE6B4F7BB6
+	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 11:32:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229595AbiDGJeZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Apr 2022 05:34:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40320 "EHLO
+        id S243810AbiDGJeu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Apr 2022 05:34:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233500AbiDGJeY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 Apr 2022 05:34:24 -0400
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E147D888C0;
-        Thu,  7 Apr 2022 02:32:24 -0700 (PDT)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out1.suse.de (Postfix) with ESMTPS id 94A37212C2;
-        Thu,  7 Apr 2022 09:32:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1649323943; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=iMz/fVk+XpC4IDojCtgZdhSbgaH5sJ66FU6YyYC0dAU=;
-        b=srp3svmAJ66vDcJogBKiIGdVGuq5CEJs6NzN+Dq5b4+v+huIvNyS5C2rdiaVbhfch0DbrT
-        75BoiGD0hZpc6CLImwmff34i2BgedTfCkHnIdUGSlX2blYRSglJ9ApB8mrYmE1yFAMAhOC
-        HK7B66ciQOpkaSSp/7AQBiyKBcgA1u8=
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 5B6E913A66;
-        Thu,  7 Apr 2022 09:32:23 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id 5vzuFKevTmJVLgAAMHmgww
-        (envelope-from <jgross@suse.com>); Thu, 07 Apr 2022 09:32:23 +0000
-From:   Juergen Gross <jgross@suse.com>
-To:     xen-devel@lists.xenproject.org, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org
-Cc:     Juergen Gross <jgross@suse.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Marek=20Marczykowski-G=C3=B3recki?= 
-        <marmarek@invisiblethingslab.com>
-Subject: [PATCH] mm, page_alloc: fix build_zonerefs_node()
-Date:   Thu,  7 Apr 2022 11:32:21 +0200
-Message-Id: <20220407093221.1090-1-jgross@suse.com>
-X-Mailer: git-send-email 2.34.1
+        with ESMTP id S243809AbiDGJeq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 Apr 2022 05:34:46 -0400
+Received: from mail-oi1-x22e.google.com (mail-oi1-x22e.google.com [IPv6:2607:f8b0:4864:20::22e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29CDA113D29;
+        Thu,  7 Apr 2022 02:32:41 -0700 (PDT)
+Received: by mail-oi1-x22e.google.com with SMTP id z8so5070632oix.3;
+        Thu, 07 Apr 2022 02:32:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=Ki3aFUkfa/hYhXGKcxrSTgut7tX0oEYaBor2VxuoPfQ=;
+        b=bxp6Gri8o+/lC4w71i2SH86SerM7v5q9sJ44t/ctydWnb3aZcF/PUjPrneW6hbfg5f
+         CeDXFVs0YymkSP0C42Yj5S5Hs0/OpDrFMjty1i/DJ02SjQLO35ESODXZs7de0cYMolZ0
+         3vu97B1sO4XZ67rORVN7eL0wNx7v4WN55QFQMasu/ujHfY9ok/av3Ynm6BLdhVR1+mDK
+         tIUCr7q0n0CR0fgY3+9BzOZRyUvkCgC81+W9RXdk5tG0kUpApC17gCG7Wg8mrRE9YeQj
+         LDa5FjvgbflnVRtUnGxuxvfVNiGevMSHDcKGh/BJxMUzEuvtv+6vbjomMAN0ChwxiK0r
+         ssEw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to;
+        bh=Ki3aFUkfa/hYhXGKcxrSTgut7tX0oEYaBor2VxuoPfQ=;
+        b=ZP4vuceZqpvHKWwu34dEYCyzUoS/wql8wWKHhtOEJL5B6hO0AahF+aVHFGfFp9H1cY
+         okCu4H2Ahlw70HvjZ1dF18xTOqLZJ/msO6MSpwKVceaRfqGvf8/qDtjHW+ZuFfpWl+mc
+         9e0Zd850ARfQ00etAdy5Kw2feu7HtzpQ5yX9e6/cIUE9AIAdw2hytIdBEBeDpTq5XAhZ
+         /lrDUDNct4vX5u09rsOvmfC/T8/o7ye+woaw4mEAVfPQLz4+vQskKqrFZohTty9XC1Is
+         SYtuKEpE3XNflv68652HwYtZGMLxo5l/YR613pApUOnzgpC47y6u0Ho10jAs8u7l8Uvu
+         kYXA==
+X-Gm-Message-State: AOAM533W79n5RNSoQybsDmSZ+Mm95MuE1xPkKStu3M91R94zhVkAe62F
+        1ALhGtksLCeHqzO3YiG651A=
+X-Google-Smtp-Source: ABdhPJz3rOPAJ9zdDgpQ5CxxG3fQ0AEe+TLUq9Xu3mJv9MqWsjo29/yfJn31XR1whemmprWjOQ1lWw==
+X-Received: by 2002:a05:6808:2023:b0:2da:5b6a:a526 with SMTP id q35-20020a056808202300b002da5b6aa526mr5511859oiw.264.1649323960499;
+        Thu, 07 Apr 2022 02:32:40 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id i21-20020a056830011500b005cdc3cdacb5sm7859527otp.57.2022.04.07.02.32.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 07 Apr 2022 02:32:39 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Thu, 7 Apr 2022 02:32:38 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+Subject: Re: [PATCH 4.9 00/43] 4.9.310-rc1 review
+Message-ID: <20220407093238.GA3041848@roeck-us.net>
+References: <20220406182436.675069715@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220406182436.675069715@linuxfoundation.org>
+X-Spam-Status: No, score=-1.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Since commit 9d3be21bf9c0 ("mm, page_alloc: simplify zonelist
-initialization") only zones with free memory are included in a built
-zonelist. This is problematic when e.g. all memory of a zone has been
-ballooned out.
+On Wed, Apr 06, 2022 at 08:26:09PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.9.310 release.
+> There are 43 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Fri, 08 Apr 2022 18:24:27 +0000.
+> Anything received after that time might be too late.
+> 
 
-Use populated_zone() when building a zonelist as it has been done
-before that commit.
+Build results:
+	total: 163 pass: 161 fail: 2
+Failed builds:
+	arm64:allnoconfig
+	arm64:tinyconfig
+Qemu test results:
+	total: 397 pass: 397 fail: 0
 
-Cc: stable@vger.kernel.org
-Fixes: 9d3be21bf9c0 ("mm, page_alloc: simplify zonelist initialization")
-Reported-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
----
- mm/page_alloc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+arch/arm64/kernel/cpu_errata.c: In function 'is_spectrev2_safe':
+arch/arm64/kernel/cpu_errata.c:829:39: error: 'arm64_bp_harden_smccc_cpus' undeclared 
 
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index bdc8f60ae462..3d0662af3289 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -6128,7 +6128,7 @@ static int build_zonerefs_node(pg_data_t *pgdat, struct zoneref *zonerefs)
- 	do {
- 		zone_type--;
- 		zone = pgdat->node_zones + zone_type;
--		if (managed_zone(zone)) {
-+		if (populated_zone(zone)) {
- 			zoneref_set_zone(zone, &zonerefs[nr_zones++]);
- 			check_highest_zone(zone_type);
- 		}
--- 
-2.34.1
+arch/arm64/kernel/cpu_errata.c: In function 'spectre_bhb_enable_mitigation':
+arch/arm64/kernel/cpu_errata.c:839:39: error: '__hardenbp_enab' undeclared
 
+arch/arm64/kernel/cpu_errata.c:879:42: error: 'bp_hardening_data' undeclared
+
+Guenter
