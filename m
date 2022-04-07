@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9ADBA4F706B
-	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 03:19:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B80FA4F705D
+	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 03:19:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238583AbiDGBVd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Apr 2022 21:21:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60862 "EHLO
+        id S237542AbiDGBV1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Apr 2022 21:21:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60792 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240498AbiDGBUC (ORCPT
+        with ESMTP id S240500AbiDGBUC (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 21:20:02 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0992FAAB5A;
-        Wed,  6 Apr 2022 18:17:39 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACDD8B8989;
+        Wed,  6 Apr 2022 18:17:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B0F8DB8268C;
-        Thu,  7 Apr 2022 01:17:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69954C385A1;
-        Thu,  7 Apr 2022 01:17:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5EE20B82689;
+        Thu,  7 Apr 2022 01:17:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F238AC385A1;
+        Thu,  7 Apr 2022 01:17:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1649294256;
-        bh=UQmEn963an1N+8324q6nVW42Vd6cGd++y0TYi1GY9Vo=;
+        s=k20201202; t=1649294260;
+        bh=SeSmQ+uLUyNgWxEtfTN/t7TMP/onjGdHY1SS7jcAxtw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V2nn+8AWgMU/UvMnl5M73iHmAu/4OdJj3K5v3AyVLS/4iisjss0EQesqn9Mt6Yo4J
-         O5TV1CNa6B57SBrwbAUJmN7l750dTONz7Ws+2QACkBrGtfdEH3II2HMrGG9J0cgtw+
-         80GJQARPsP70dPvmWnnTipJMbP0gh1j+KXzTPJvpAV5OvJMldHSz3o2xM7HbuyHw8s
-         +mqJum3JSsoODVpmBDdrkv4wJqRNOLdJc5xPp2AOkke8z97zIY5qAmhELRzbsMKDO7
-         NNtWxiMxMmp7bjItBoUchwA0au+yWwwsetDmJ4eBwnjGHYOxh1864LheA57H8S2XI7
-         TXX5TaCTfaaFA==
+        b=k6khPUz8dBR9ClOQ2iEGx+MHd+l2ahsim/szIEbeAvtpQE9fwGuvYkgjEvvaU20dH
+         JLGSF/iWTaFBQ6CHhkaFvGB/eCwJKKkaoO9/XpQzfKdsRgnRjTUGMgmxqvZizPZb/x
+         t9kNktpCGlZ0hG91Zej3h7TaML9PNijetn4R7TUaT4/INDUXpXz5G2APA2PJ0HgSNW
+         HqXroDQ/GxrWU6iBJ9mlfPin5//6cRAue5dIIznISHXIAyGVk9BHuO9ieCikvcHrn1
+         ZVXd/RzIqyhMz1hk4/N8nXsYYxg7grjQRlCu2JgOG2FUhzBJQCudBH8f/iabXj2zzv
+         F1ZJEzTjkuJHw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jakob Koschel <jakobkoschel@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        philipp.reisner@linbit.com, lars.ellenberg@linbit.com,
-        christoph.boehmwalder@linbit.com, drbd-dev@lists.linbit.com,
-        linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 7/8] drbd: remove usage of list iterator variable after loop
-Date:   Wed,  6 Apr 2022 21:16:44 -0400
-Message-Id: <20220407011645.115412-7-sashal@kernel.org>
+Cc:     linyujun <linyujun809@huawei.com>, He Ying <heying24@huawei.com>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Sasha Levin <sashal@kernel.org>, linux@armlinux.org.uk,
+        mhiramat@kernel.org, rostedt@goodmis.org, ast@kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.14 8/8] ARM: 9191/1: arm/stacktrace, kasan: Silence KASAN warnings in unwind_frame()
+Date:   Wed,  6 Apr 2022 21:16:45 -0400
+Message-Id: <20220407011645.115412-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220407011645.115412-1-sashal@kernel.org>
 References: <20220407011645.115412-1-sashal@kernel.org>
@@ -58,55 +58,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakob Koschel <jakobkoschel@gmail.com>
+From: linyujun <linyujun809@huawei.com>
 
-[ Upstream commit 901aeda62efa21f2eae937bccb71b49ae531be06 ]
+[ Upstream commit 9be4c88bb7924f68f88cfd47d925c2d046f51a73 ]
 
-In preparation to limit the scope of a list iterator to the list
-traversal loop, use a dedicated pointer to iterate through the list [1].
+The following KASAN warning is detected by QEMU.
 
-Since that variable should not be used past the loop iteration, a
-separate variable is used to 'remember the current location within the
-loop'.
+==================================================================
+BUG: KASAN: stack-out-of-bounds in unwind_frame+0x508/0x870
+Read of size 4 at addr c36bba90 by task cat/163
 
-To either continue iterating from that position or skip the iteration
-(if the previous iteration was complete) list_prepare_entry() is used.
+CPU: 1 PID: 163 Comm: cat Not tainted 5.10.0-rc1 #40
+Hardware name: ARM-Versatile Express
+[<c0113fac>] (unwind_backtrace) from [<c010e71c>] (show_stack+0x10/0x14)
+[<c010e71c>] (show_stack) from [<c0b805b4>] (dump_stack+0x98/0xb0)
+[<c0b805b4>] (dump_stack) from [<c0b7d658>] (print_address_description.constprop.0+0x58/0x4bc)
+[<c0b7d658>] (print_address_description.constprop.0) from [<c031435c>] (kasan_report+0x154/0x170)
+[<c031435c>] (kasan_report) from [<c0113c44>] (unwind_frame+0x508/0x870)
+[<c0113c44>] (unwind_frame) from [<c010e298>] (__save_stack_trace+0x110/0x134)
+[<c010e298>] (__save_stack_trace) from [<c01ce0d8>] (stack_trace_save+0x8c/0xb4)
+[<c01ce0d8>] (stack_trace_save) from [<c0313520>] (kasan_set_track+0x38/0x60)
+[<c0313520>] (kasan_set_track) from [<c0314cb8>] (kasan_set_free_info+0x20/0x2c)
+[<c0314cb8>] (kasan_set_free_info) from [<c0313474>] (__kasan_slab_free+0xec/0x120)
+[<c0313474>] (__kasan_slab_free) from [<c0311e20>] (kmem_cache_free+0x7c/0x334)
+[<c0311e20>] (kmem_cache_free) from [<c01c35dc>] (rcu_core+0x390/0xccc)
+[<c01c35dc>] (rcu_core) from [<c01013a8>] (__do_softirq+0x180/0x518)
+[<c01013a8>] (__do_softirq) from [<c0135214>] (irq_exit+0x9c/0xe0)
+[<c0135214>] (irq_exit) from [<c01a40e4>] (__handle_domain_irq+0xb0/0x110)
+[<c01a40e4>] (__handle_domain_irq) from [<c0691248>] (gic_handle_irq+0xa0/0xb8)
+[<c0691248>] (gic_handle_irq) from [<c0100b0c>] (__irq_svc+0x6c/0x94)
+Exception stack(0xc36bb928 to 0xc36bb970)
+b920:                   c36bb9c0 00000000 c0126919 c0101228 c36bb9c0 b76d7730
+b940: c36b8000 c36bb9a0 c3335b00 c01ce0d8 00000003 c36bba3c c36bb940 c36bb978
+b960: c010e298 c011373c 60000013 ffffffff
+[<c0100b0c>] (__irq_svc) from [<c011373c>] (unwind_frame+0x0/0x870)
+[<c011373c>] (unwind_frame) from [<00000000>] (0x0)
 
-Link: https://lore.kernel.org/all/CAHk-=wgRr_D8CB-D9Kg-c=EHreAsk5SqXPwr9Y7k9sA6cWXJ6w@mail.gmail.com/ [1]
-Signed-off-by: Jakob Koschel <jakobkoschel@gmail.com>
-Link: https://lore.kernel.org/r/20220331220349.885126-1-jakobkoschel@gmail.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+The buggy address belongs to the page:
+page:(ptrval) refcount:0 mapcount:0 mapping:00000000 index:0x0 pfn:0x636bb
+flags: 0x0()
+raw: 00000000 00000000 ef867764 00000000 00000000 00000000 ffffffff 00000000
+page dumped because: kasan: bad access detected
+
+addr c36bba90 is located in stack of task cat/163 at offset 48 in frame:
+ stack_trace_save+0x0/0xb4
+
+this frame has 1 object:
+ [32, 48) 'trace'
+
+Memory state around the buggy address:
+ c36bb980: f1 f1 f1 f1 00 04 f2 f2 00 00 f3 f3 00 00 00 00
+ c36bba00: 00 00 00 00 00 00 00 00 00 00 00 00 f1 f1 f1 f1
+>c36bba80: 00 00 f3 f3 00 00 00 00 00 00 00 00 00 00 00 00
+                 ^
+ c36bbb00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ c36bbb80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+==================================================================
+
+There is a same issue on x86 and has been resolved by the commit f7d27c35ddff
+("x86/mm, kasan: Silence KASAN warnings in get_wchan()").
+The solution could be applied to arm architecture too.
+
+Signed-off-by: Lin Yujun <linyujun809@huawei.com>
+Reported-by: He Ying <heying24@huawei.com>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/drbd/drbd_main.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ arch/arm/kernel/stacktrace.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/block/drbd/drbd_main.c b/drivers/block/drbd/drbd_main.c
-index b998e3abca7a..1e02cb60b65b 100644
---- a/drivers/block/drbd/drbd_main.c
-+++ b/drivers/block/drbd/drbd_main.c
-@@ -195,7 +195,7 @@ void tl_release(struct drbd_connection *connection, unsigned int barrier_nr,
- 		unsigned int set_size)
- {
- 	struct drbd_request *r;
--	struct drbd_request *req = NULL;
-+	struct drbd_request *req = NULL, *tmp = NULL;
- 	int expect_epoch = 0;
- 	int expect_size = 0;
+diff --git a/arch/arm/kernel/stacktrace.c b/arch/arm/kernel/stacktrace.c
+index 31af81d46aae..21c49d3559db 100644
+--- a/arch/arm/kernel/stacktrace.c
++++ b/arch/arm/kernel/stacktrace.c
+@@ -51,17 +51,17 @@ int notrace unwind_frame(struct stackframe *frame)
+ 		return -EINVAL;
  
-@@ -249,8 +249,11 @@ void tl_release(struct drbd_connection *connection, unsigned int barrier_nr,
- 	 * to catch requests being barrier-acked "unexpectedly".
- 	 * It usually should find the same req again, or some READ preceding it. */
- 	list_for_each_entry(req, &connection->transfer_log, tl_requests)
--		if (req->epoch == expect_epoch)
-+		if (req->epoch == expect_epoch) {
-+			tmp = req;
- 			break;
-+		}
-+	req = list_prepare_entry(tmp, &connection->transfer_log, tl_requests);
- 	list_for_each_entry_safe_from(req, r, &connection->transfer_log, tl_requests) {
- 		if (req->epoch != expect_epoch)
- 			break;
+ 	frame->sp = frame->fp;
+-	frame->fp = *(unsigned long *)(fp);
+-	frame->pc = *(unsigned long *)(fp + 4);
++	frame->fp = READ_ONCE_NOCHECK(*(unsigned long *)(fp));
++	frame->pc = READ_ONCE_NOCHECK(*(unsigned long *)(fp + 4));
+ #else
+ 	/* check current frame pointer is within bounds */
+ 	if (fp < low + 12 || fp > high - 4)
+ 		return -EINVAL;
+ 
+ 	/* restore the registers from the stack frame */
+-	frame->fp = *(unsigned long *)(fp - 12);
+-	frame->sp = *(unsigned long *)(fp - 8);
+-	frame->pc = *(unsigned long *)(fp - 4);
++	frame->fp = READ_ONCE_NOCHECK(*(unsigned long *)(fp - 12));
++	frame->sp = READ_ONCE_NOCHECK(*(unsigned long *)(fp - 8));
++	frame->pc = READ_ONCE_NOCHECK(*(unsigned long *)(fp - 4));
+ #endif
+ 
+ 	return 0;
 -- 
 2.35.1
 
