@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A5B6C4F7092
-	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 03:20:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C7694F70FB
+	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 03:22:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238950AbiDGBV4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Apr 2022 21:21:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60392 "EHLO
+        id S238203AbiDGBXd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Apr 2022 21:23:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60906 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240402AbiDGBT7 (ORCPT
+        with ESMTP id S240407AbiDGBT7 (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 21:19:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D79DD1864A7;
-        Wed,  6 Apr 2022 18:16:03 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EE2D186490;
+        Wed,  6 Apr 2022 18:16:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 44710B8268E;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E13C661DDF;
+        Thu,  7 Apr 2022 01:16:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15B8DC385A1;
         Thu,  7 Apr 2022 01:16:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 410CEC385A1;
-        Thu,  7 Apr 2022 01:16:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1649294161;
-        bh=S/Zdde9w7eGhMCb2EOeDau2/KI1ORtneBg9rdIFvyok=;
+        s=k20201202; t=1649294164;
+        bh=z+Jn+M7wh7vmsuLFk1mgAF1yMw1bwX154BNorZBOq6A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lnviVo36HLRF9L+fKVYcLroICDTebQvTvDU2WpUaXXGPA0xXNLI3/UDRSFgral0Ky
-         UoPJ9Gel352z3M0zCZztMb8tvJKww7a1s0vKTk2+DicFn748jiLSh7lwjHt4WxNtIF
-         6UwmUqknkyZo3tIWeAoJ+MT4cT7RcWTwRLJrUi7cqFYCgTPapRICUrt0Ad+3oXQmqM
-         mDpwMvYxP5g8MFG1C/M+vIOEXS6he0IdHQrZcNJssPckxzStuf4b8dheLFMYc2U3vt
-         mAh0Y0hjK9Ygi8zUwaYB3mlxlQQpZGPPQcxQlU5zOUHkGoa2tGXEW8TUrxo1VFNfB7
-         ChCn/U2UbKImQ==
+        b=GF7LY9fdZ7SHvTcVSwErdjQXtTbXB+rDdEWa2f03KiV12zl79EpJC3Iks/GlJNtyr
+         W/566OrEhCLuO16OKZ8sfd5hZNpQwepCnNDuJeo/LhNjfeGBVS4ZRUR267KURl9uBl
+         J9cYlGJMd4UUewlJfafGLhZS4IeA1J4wSGJBpCFW8M5RDlsREuZ2jVRaUDKDUgYcqR
+         YYvZu3K8/YAONOszAp5vLGeshRDc1j1JvP7aA12lsjppc8mcM1FdW0S1/6q+qAK9t8
+         fKvQ7OHGulNXvYMxH92nBpgnsHEURVKTg4uSLKBxpzwJG2DVfnILgBgXY/sbXqvTFF
+         MVLzwFarzcedA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tzung-Bi Shih <tzungbi@google.com>,
-        Guenter Roeck <groeck@google.com>,
-        Benson Leung <bleung@chromium.org>,
-        Sasha Levin <sashal@kernel.org>,
-        chrome-platform@lists.linux.dev
-Subject: [PATCH AUTOSEL 5.4 14/17] platform/chrome: cros_ec_debugfs: detach log reader wq from devm
-Date:   Wed,  6 Apr 2022 21:15:18 -0400
-Message-Id: <20220407011521.115014-14-sashal@kernel.org>
+Cc:     linyujun <linyujun809@huawei.com>, He Ying <heying24@huawei.com>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Sasha Levin <sashal@kernel.org>, linux@armlinux.org.uk,
+        rostedt@goodmis.org, mhiramat@kernel.org, ast@kernel.org,
+        ardb@kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 15/17] ARM: 9191/1: arm/stacktrace, kasan: Silence KASAN warnings in unwind_frame()
+Date:   Wed,  6 Apr 2022 21:15:19 -0400
+Message-Id: <20220407011521.115014-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220407011521.115014-1-sashal@kernel.org>
 References: <20220407011521.115014-1-sashal@kernel.org>
@@ -58,118 +58,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tzung-Bi Shih <tzungbi@google.com>
+From: linyujun <linyujun809@huawei.com>
 
-[ Upstream commit 0e8eb5e8acbad19ac2e1856b2fb2320184299b33 ]
+[ Upstream commit 9be4c88bb7924f68f88cfd47d925c2d046f51a73 ]
 
-Debugfs console_log uses devm memory (e.g. debug_info in
-cros_ec_console_log_poll()).  However, lifecycles of device and debugfs
-are independent.  An use-after-free issue is observed if userland
-program operates the debugfs after the memory has been freed.
+The following KASAN warning is detected by QEMU.
 
-The call trace:
- do_raw_spin_lock
- _raw_spin_lock_irqsave
- remove_wait_queue
- ep_unregister_pollwait
- ep_remove
- do_epoll_ctl
+==================================================================
+BUG: KASAN: stack-out-of-bounds in unwind_frame+0x508/0x870
+Read of size 4 at addr c36bba90 by task cat/163
 
-A Python example to reproduce the issue:
-... import select
-... p = select.epoll()
-... f = open('/sys/kernel/debug/cros_scp/console_log')
-... p.register(f, select.POLLIN)
-... p.poll(1)
-[(4, 1)]                    # 4=fd, 1=select.POLLIN
+CPU: 1 PID: 163 Comm: cat Not tainted 5.10.0-rc1 #40
+Hardware name: ARM-Versatile Express
+[<c0113fac>] (unwind_backtrace) from [<c010e71c>] (show_stack+0x10/0x14)
+[<c010e71c>] (show_stack) from [<c0b805b4>] (dump_stack+0x98/0xb0)
+[<c0b805b4>] (dump_stack) from [<c0b7d658>] (print_address_description.constprop.0+0x58/0x4bc)
+[<c0b7d658>] (print_address_description.constprop.0) from [<c031435c>] (kasan_report+0x154/0x170)
+[<c031435c>] (kasan_report) from [<c0113c44>] (unwind_frame+0x508/0x870)
+[<c0113c44>] (unwind_frame) from [<c010e298>] (__save_stack_trace+0x110/0x134)
+[<c010e298>] (__save_stack_trace) from [<c01ce0d8>] (stack_trace_save+0x8c/0xb4)
+[<c01ce0d8>] (stack_trace_save) from [<c0313520>] (kasan_set_track+0x38/0x60)
+[<c0313520>] (kasan_set_track) from [<c0314cb8>] (kasan_set_free_info+0x20/0x2c)
+[<c0314cb8>] (kasan_set_free_info) from [<c0313474>] (__kasan_slab_free+0xec/0x120)
+[<c0313474>] (__kasan_slab_free) from [<c0311e20>] (kmem_cache_free+0x7c/0x334)
+[<c0311e20>] (kmem_cache_free) from [<c01c35dc>] (rcu_core+0x390/0xccc)
+[<c01c35dc>] (rcu_core) from [<c01013a8>] (__do_softirq+0x180/0x518)
+[<c01013a8>] (__do_softirq) from [<c0135214>] (irq_exit+0x9c/0xe0)
+[<c0135214>] (irq_exit) from [<c01a40e4>] (__handle_domain_irq+0xb0/0x110)
+[<c01a40e4>] (__handle_domain_irq) from [<c0691248>] (gic_handle_irq+0xa0/0xb8)
+[<c0691248>] (gic_handle_irq) from [<c0100b0c>] (__irq_svc+0x6c/0x94)
+Exception stack(0xc36bb928 to 0xc36bb970)
+b920:                   c36bb9c0 00000000 c0126919 c0101228 c36bb9c0 b76d7730
+b940: c36b8000 c36bb9a0 c3335b00 c01ce0d8 00000003 c36bba3c c36bb940 c36bb978
+b960: c010e298 c011373c 60000013 ffffffff
+[<c0100b0c>] (__irq_svc) from [<c011373c>] (unwind_frame+0x0/0x870)
+[<c011373c>] (unwind_frame) from [<00000000>] (0x0)
 
-[ shutdown cros_scp at the point ]
+The buggy address belongs to the page:
+page:(ptrval) refcount:0 mapcount:0 mapping:00000000 index:0x0 pfn:0x636bb
+flags: 0x0()
+raw: 00000000 00000000 ef867764 00000000 00000000 00000000 ffffffff 00000000
+page dumped because: kasan: bad access detected
 
-... p.poll(1)
-[(4, 16)]                   # 4=fd, 16=select.POLLHUP
-... p.unregister(f)
+addr c36bba90 is located in stack of task cat/163 at offset 48 in frame:
+ stack_trace_save+0x0/0xb4
 
-An use-after-free issue raises here.  It called epoll_ctl with
-EPOLL_CTL_DEL which in turn to use the workqueue in the devm (i.e.
-log_wq).
+this frame has 1 object:
+ [32, 48) 'trace'
 
-Detaches log reader's workqueue from devm to make sure it is persistent
-even if the device has been removed.
+Memory state around the buggy address:
+ c36bb980: f1 f1 f1 f1 00 04 f2 f2 00 00 f3 f3 00 00 00 00
+ c36bba00: 00 00 00 00 00 00 00 00 00 00 00 00 f1 f1 f1 f1
+>c36bba80: 00 00 f3 f3 00 00 00 00 00 00 00 00 00 00 00 00
+                 ^
+ c36bbb00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ c36bbb80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+==================================================================
 
-Signed-off-by: Tzung-Bi Shih <tzungbi@google.com>
-Reviewed-by: Guenter Roeck <groeck@google.com>
-Link: https://lore.kernel.org/r/20220209051130.386175-1-tzungbi@google.com
-Signed-off-by: Benson Leung <bleung@chromium.org>
+There is a same issue on x86 and has been resolved by the commit f7d27c35ddff
+("x86/mm, kasan: Silence KASAN warnings in get_wchan()").
+The solution could be applied to arm architecture too.
+
+Signed-off-by: Lin Yujun <linyujun809@huawei.com>
+Reported-by: He Ying <heying24@huawei.com>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/chrome/cros_ec_debugfs.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ arch/arm/kernel/stacktrace.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/platform/chrome/cros_ec_debugfs.c b/drivers/platform/chrome/cros_ec_debugfs.c
-index 6ae484989d1f..c4b57e1df192 100644
---- a/drivers/platform/chrome/cros_ec_debugfs.c
-+++ b/drivers/platform/chrome/cros_ec_debugfs.c
-@@ -26,6 +26,9 @@
+diff --git a/arch/arm/kernel/stacktrace.c b/arch/arm/kernel/stacktrace.c
+index db798eac7431..824774999825 100644
+--- a/arch/arm/kernel/stacktrace.c
++++ b/arch/arm/kernel/stacktrace.c
+@@ -53,17 +53,17 @@ int notrace unwind_frame(struct stackframe *frame)
+ 		return -EINVAL;
  
- #define CIRC_ADD(idx, size, value)	(((idx) + (value)) & ((size) - 1))
+ 	frame->sp = frame->fp;
+-	frame->fp = *(unsigned long *)(fp);
+-	frame->pc = *(unsigned long *)(fp + 4);
++	frame->fp = READ_ONCE_NOCHECK(*(unsigned long *)(fp));
++	frame->pc = READ_ONCE_NOCHECK(*(unsigned long *)(fp + 4));
+ #else
+ 	/* check current frame pointer is within bounds */
+ 	if (fp < low + 12 || fp > high - 4)
+ 		return -EINVAL;
  
-+/* waitqueue for log readers */
-+static DECLARE_WAIT_QUEUE_HEAD(cros_ec_debugfs_log_wq);
-+
- /**
-  * struct cros_ec_debugfs - EC debugging information.
-  *
-@@ -34,7 +37,6 @@
-  * @log_buffer: circular buffer for console log information
-  * @read_msg: preallocated EC command and buffer to read console log
-  * @log_mutex: mutex to protect circular buffer
-- * @log_wq: waitqueue for log readers
-  * @log_poll_work: recurring task to poll EC for new console log data
-  * @panicinfo_blob: panicinfo debugfs blob
-  */
-@@ -45,7 +47,6 @@ struct cros_ec_debugfs {
- 	struct circ_buf log_buffer;
- 	struct cros_ec_command *read_msg;
- 	struct mutex log_mutex;
--	wait_queue_head_t log_wq;
- 	struct delayed_work log_poll_work;
- 	/* EC panicinfo */
- 	struct debugfs_blob_wrapper panicinfo_blob;
-@@ -108,7 +109,7 @@ static void cros_ec_console_log_work(struct work_struct *__work)
- 			buf_space--;
- 		}
+ 	/* restore the registers from the stack frame */
+-	frame->fp = *(unsigned long *)(fp - 12);
+-	frame->sp = *(unsigned long *)(fp - 8);
+-	frame->pc = *(unsigned long *)(fp - 4);
++	frame->fp = READ_ONCE_NOCHECK(*(unsigned long *)(fp - 12));
++	frame->sp = READ_ONCE_NOCHECK(*(unsigned long *)(fp - 8));
++	frame->pc = READ_ONCE_NOCHECK(*(unsigned long *)(fp - 4));
+ #endif
  
--		wake_up(&debug_info->log_wq);
-+		wake_up(&cros_ec_debugfs_log_wq);
- 	}
- 
- 	mutex_unlock(&debug_info->log_mutex);
-@@ -142,7 +143,7 @@ static ssize_t cros_ec_console_log_read(struct file *file, char __user *buf,
- 
- 		mutex_unlock(&debug_info->log_mutex);
- 
--		ret = wait_event_interruptible(debug_info->log_wq,
-+		ret = wait_event_interruptible(cros_ec_debugfs_log_wq,
- 					CIRC_CNT(cb->head, cb->tail, LOG_SIZE));
- 		if (ret < 0)
- 			return ret;
-@@ -174,7 +175,7 @@ static __poll_t cros_ec_console_log_poll(struct file *file,
- 	struct cros_ec_debugfs *debug_info = file->private_data;
- 	__poll_t mask = 0;
- 
--	poll_wait(file, &debug_info->log_wq, wait);
-+	poll_wait(file, &cros_ec_debugfs_log_wq, wait);
- 
- 	mutex_lock(&debug_info->log_mutex);
- 	if (CIRC_CNT(debug_info->log_buffer.head,
-@@ -359,7 +360,6 @@ static int cros_ec_create_console_log(struct cros_ec_debugfs *debug_info)
- 	debug_info->log_buffer.tail = 0;
- 
- 	mutex_init(&debug_info->log_mutex);
--	init_waitqueue_head(&debug_info->log_wq);
- 
- 	debugfs_create_file("console_log", S_IFREG | 0444, debug_info->dir,
- 			    debug_info, &cros_ec_console_log_fops);
+ 	return 0;
 -- 
 2.35.1
 
