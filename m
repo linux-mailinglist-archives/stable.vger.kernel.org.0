@@ -2,52 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B8ED44F7119
-	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 03:24:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D274E4F7114
+	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 03:24:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239619AbiDGBXU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Apr 2022 21:23:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60992 "EHLO
+        id S237857AbiDGBVZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Apr 2022 21:21:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60392 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238508AbiDGBSW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 21:18:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73C2D1834E3;
-        Wed,  6 Apr 2022 18:13:07 -0700 (PDT)
+        with ESMTP id S238571AbiDGBSX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 21:18:23 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43C871834E1;
+        Wed,  6 Apr 2022 18:13:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0D12E61D5B;
-        Thu,  7 Apr 2022 01:13:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E28D9C385A7;
-        Thu,  7 Apr 2022 01:13:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DA236B81E79;
+        Thu,  7 Apr 2022 01:13:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C915C385A6;
+        Thu,  7 Apr 2022 01:13:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1649293986;
-        bh=xhmdDEoKotcUO/7eHbPi3dL9BFugG1l1EDjl/avpqzE=;
+        s=k20201202; t=1649293990;
+        bh=JGTxfCZOOghgkyjf3BWnR1x9TbNLIoiVYqZlPvou4Fk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fzqv95nxup/b11z+/sSsJ7FGmLnfPxryPzuMFL9PnVf2jCcsRI09V50LSNZ4mx1TH
-         Xe0km1EGCgt+H5t6HVPg438G2nnOSdCEJPjn713pzk9FS5AvJEW6hT9G+DEWyXHjpt
-         Zto/dThZwHyQiSYFNNLdvGTIyzh1uY62l4fjNvVJVOtFiJLxmqKSQGyBWxoI90y/N1
-         6N75t1sThmSgmYGkRmI9JKmCy2qY+rdabAqg5E7HJm6+RrLRY9gD0uaUM/iSs2jmEP
-         VGhZSBPeoowOWMWh9zZpSB3u1ZsVX4b2ylf9VS0fqascdGa0tepKBxVnj+2G50pUJh
-         E2Tgs8Su03RZw==
+        b=gzOWhxMLyFvUmbiJTj48idLWMvvcpHQrcosYSwu6+8vuozeXgxVp36Y7z94WLBSH/
+         4z9dkeR58BNQgFHhOqaL9izpAxtYfjyQTsos5Qn6VrN7EzwbRxDsIDccuaN5XwGQAc
+         kchvCMWiOAVFVHRtMc94Ms6CY0wuirufkBL8qcogpQQU4zPm5G1paOsqZhXUDJBTAR
+         GbztCJwhS4XjUB34L+XytqY63nIegvBRpIKzyTHPHSeDr4/g5SakHfuwDLDAqcBkdg
+         oklJrYJ3i4V2W2ncbPihUsiNXFSodwA6VoXfMQlB8vckVBPhQbZbqO4Hr49EssY6tZ
+         mTaWk1DZWDdrA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Gow <davidgow@google.com>,
+Cc:     Glenn Washburn <development@efficientek.com>,
         Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>,
         anton.ivanov@cambridgegreys.com, johannes@sipsolutions.net,
-        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
-        dave.hansen@linux.intel.com, x86@kernel.org,
-        viro@zeniv.linux.org.uk, linux-um@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.15 04/27] um: Cleanup syscall_handler_t definition/cast, fix warning
-Date:   Wed,  6 Apr 2022 21:12:34 -0400
-Message-Id: <20220407011257.114287-4-sashal@kernel.org>
+        linux-um@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.15 05/27] um: port_user: Improve error handling when port-helper is not found
+Date:   Wed,  6 Apr 2022 21:12:35 -0400
+Message-Id: <20220407011257.114287-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220407011257.114287-1-sashal@kernel.org>
 References: <20220407011257.114287-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -61,65 +58,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Gow <davidgow@google.com>
+From: Glenn Washburn <development@efficientek.com>
 
-[ Upstream commit f4f03f299a56ce4d73c5431e0327b3b6cb55ebb9 ]
+[ Upstream commit 3cb5a7f167c620a8b0e38b0446df2e024d2243dc ]
 
-The syscall_handler_t type for x86_64 was defined as 'long (*)(void)',
-but always cast to 'long (*)(long, long, long, long, long, long)' before
-use. This now triggers a warning (see below).
+Check if port-helper exists and is executable. If not, write an error
+message to the kernel log with information to help the user diagnose the
+issue and exit with an error. If UML_PORT_HELPER was not set, write a
+message suggesting that the user set it. This makes it easier to understand
+why telneting to the UML instance is failing and what can be done to fix it.
 
-Define syscall_handler_t as the latter instead, and remove the cast.
-This simplifies the code, and fixes the warning.
-
-Warning:
-In file included from ../arch/um/include/asm/processor-generic.h:13
-                 from ../arch/x86/um/asm/processor.h:41
-                 from ../include/linux/rcupdate.h:30
-                 from ../include/linux/rculist.h:11
-                 from ../include/linux/pid.h:5
-                 from ../include/linux/sched.h:14
-                 from ../include/linux/ptrace.h:6
-                 from ../arch/um/kernel/skas/syscall.c:7:
-../arch/um/kernel/skas/syscall.c: In function ‘handle_syscall’:
-../arch/x86/um/shared/sysdep/syscalls_64.h:18:11: warning: cast between incompatible function types from ‘long int (*)(void)’ to ‘long int (*)(long int,  long int,  long int,  long int,  long int,  long int)’ [
--Wcast-function-type]
-   18 |         (((long (*)(long, long, long, long, long, long)) \
-      |           ^
-../arch/x86/um/asm/ptrace.h:36:62: note: in definition of macro ‘PT_REGS_SET_SYSCALL_RETURN’
-   36 | #define PT_REGS_SET_SYSCALL_RETURN(r, res) (PT_REGS_AX(r) = (res))
-      |                                                              ^~~
-../arch/um/kernel/skas/syscall.c:46:33: note: in expansion of macro ‘EXECUTE_SYSCALL’
-   46 |                                 EXECUTE_SYSCALL(syscall, regs));
-      |                                 ^~~~~~~~~~~~~~~
-
-Signed-off-by: David Gow <davidgow@google.com>
+Signed-off-by: Glenn Washburn <development@efficientek.com>
 Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/um/shared/sysdep/syscalls_64.h | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ arch/um/drivers/port_user.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/arch/x86/um/shared/sysdep/syscalls_64.h b/arch/x86/um/shared/sysdep/syscalls_64.h
-index 8a7d5e1da98e..1e6875b4ffd8 100644
---- a/arch/x86/um/shared/sysdep/syscalls_64.h
-+++ b/arch/x86/um/shared/sysdep/syscalls_64.h
-@@ -10,13 +10,12 @@
- #include <linux/msg.h>
- #include <linux/shm.h>
+diff --git a/arch/um/drivers/port_user.c b/arch/um/drivers/port_user.c
+index 5b5b64cb1071..133ca7bf2d91 100644
+--- a/arch/um/drivers/port_user.c
++++ b/arch/um/drivers/port_user.c
+@@ -5,6 +5,7 @@
  
--typedef long syscall_handler_t(void);
-+typedef long syscall_handler_t(long, long, long, long, long, long);
+ #include <stdio.h>
+ #include <stdlib.h>
++#include <string.h>
+ #include <errno.h>
+ #include <termios.h>
+ #include <unistd.h>
+@@ -175,6 +176,17 @@ int port_connection(int fd, int *socket, int *pid_out)
+ 	if (new < 0)
+ 		return -errno;
  
- extern syscall_handler_t *sys_call_table[];
- 
- #define EXECUTE_SYSCALL(syscall, regs) \
--	(((long (*)(long, long, long, long, long, long)) \
--	  (*sys_call_table[syscall]))(UPT_SYSCALL_ARG1(&regs->regs), \
-+	(((*sys_call_table[syscall]))(UPT_SYSCALL_ARG1(&regs->regs), \
- 		 		      UPT_SYSCALL_ARG2(&regs->regs), \
- 				      UPT_SYSCALL_ARG3(&regs->regs), \
- 				      UPT_SYSCALL_ARG4(&regs->regs), \
++	err = os_access(argv[2], X_OK);
++	if (err < 0) {
++		printk(UM_KERN_ERR "port_connection : error accessing port-helper "
++		       "executable at %s: %s\n", argv[2], strerror(-err));
++		if (env == NULL)
++			printk(UM_KERN_ERR "Set UML_PORT_HELPER environment "
++				"variable to path to uml-utilities port-helper "
++				"binary\n");
++		goto out_close;
++	}
++
+ 	err = os_pipe(socket, 0, 0);
+ 	if (err < 0)
+ 		goto out_close;
 -- 
 2.35.1
 
