@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B2DA4F6FDC
+	by mail.lfdr.de (Postfix) with ESMTP id 930D14F6FDD
 	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 03:14:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235511AbiDGBPv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Apr 2022 21:15:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33260 "EHLO
+        id S236526AbiDGBPw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Apr 2022 21:15:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35270 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236391AbiDGBPH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 21:15:07 -0400
+        with ESMTP id S236079AbiDGBPI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 21:15:08 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4482218B79E;
-        Wed,  6 Apr 2022 18:11:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96E1518BCF7;
+        Wed,  6 Apr 2022 18:11:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D259861DB6;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2252161DAE;
+        Thu,  7 Apr 2022 01:11:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9AD6C385A8;
         Thu,  7 Apr 2022 01:11:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DF84C385A1;
-        Thu,  7 Apr 2022 01:11:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1649293904;
-        bh=OGXDnjSv/Z8qV6JPXoCrwuLS8j7UjPE3K1VbZyL6+7o=;
+        s=k20201202; t=1649293905;
+        bh=wG7g1wXAwxjxIoONuKJIf9AWVdYvw9kwTURwbFlNKlQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pWYTnN5pYIu6pCWBy265wHXBjEwwM7dxZHrTYTBipwiUVX/DHHbbad7JYkVrQ8DmT
-         mg+KJJ47RPpKv7rE/RGvbLXBQmE2g5Ilwoy5G8FdieFxkdo0v1g6gmQ9Kcb40+YS0k
-         b6unqR5+5FpMSzdjv3XGoZ0bKR5vtmIedAK2v5nsH6mjuBhS0WaurxrRos3RvRfxFc
-         F1J0VifNS8mns5by4oJQ8bycNV+LGIXV6pz0Tu43gYlT5qfc1FLNbdIeZJVX6htNNM
-         9d2Wntyl4ntBu5gnhyPtr++gR3Va0CPUDTYQxLGmhtsRTTTxp/nKdHhaIkMROzGSAj
-         /svPpcOvCXoOQ==
+        b=ZdJs4PSYiOexpPUQypLPYMLfVs07Rod6hZkoXnOMWQ+IwkfrMS/pi8aQ9+9Kms8pS
+         kP5X9615MVcPFFwEptF+TZU71ynXqvsWGt1Y67JneQCHvkOyzwQ3ZawTl365NM9Wxd
+         TxD/hCJOg8XhosvqXOT1MSh3wNFBzoOsy7OEaNcA2hMuzhlnfO/Saks0QErbCJPVom
+         wPz2/xHigCSmkllFLWmOP/ly2HxRsL+pU8L4Nj+MyZySmdRxblIdzIILUsN4aYkQ1z
+         +/TErlhVuNXJIfu0GnLoXR4x1xyqwtYVzeHeZAtz8TyzNDJ6LV8PhLvJpizj+MnQ/Y
+         qsUERRRVNSqOw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Andreas Gruenbacher <agruenba@redhat.com>,
         Bob Peterson <rpeterso@redhat.com>,
         Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
-Subject: [PATCH AUTOSEL 5.16 02/30] gfs2: cancel timed-out glock requests
-Date:   Wed,  6 Apr 2022 21:11:12 -0400
-Message-Id: <20220407011140.113856-2-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.16 03/30] gfs2: Switch lock order of inode and iopen glock
+Date:   Wed,  6 Apr 2022 21:11:13 -0400
+Message-Id: <20220407011140.113856-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220407011140.113856-1-sashal@kernel.org>
 References: <20220407011140.113856-1-sashal@kernel.org>
@@ -58,48 +58,138 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Andreas Gruenbacher <agruenba@redhat.com>
 
-[ Upstream commit 1fc05c8d8426d4085a219c23f8855c4aaf9e3ffb ]
+[ Upstream commit 29464ee36bcaaee2691249f49b9592b8d5c97ece ]
 
-The gfs2 evict code tries to upgrade the iopen glock from SH to EX. If
-the attempt to upgrade times out, gfs2 needs to tell dlm to cancel the
-lock request or it can deadlock. We also need to wake up the process
-waiting for the lock when dlm sends its AST back to gfs2.
+This patch tries to fix the continual ABBA deadlocks we keep having
+between the iopen and inode glocks. This switches the lock order in
+gfs2_inode_lookup and gfs2_create_inode so the iopen glock is always
+locked first.
 
 Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 Signed-off-by: Bob Peterson <rpeterso@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/glock.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ fs/gfs2/inode.c | 49 +++++++++++++++++++++++++++----------------------
+ 1 file changed, 27 insertions(+), 22 deletions(-)
 
-diff --git a/fs/gfs2/glock.c b/fs/gfs2/glock.c
-index e946ccba384c..20f2df1ac4d7 100644
---- a/fs/gfs2/glock.c
-+++ b/fs/gfs2/glock.c
-@@ -669,6 +669,8 @@ static void finish_xmote(struct gfs2_glock *gl, unsigned int ret)
+diff --git a/fs/gfs2/inode.c b/fs/gfs2/inode.c
+index 89905f4f29bb..b30ff50d17f3 100644
+--- a/fs/gfs2/inode.c
++++ b/fs/gfs2/inode.c
+@@ -131,7 +131,21 @@ struct inode *gfs2_inode_lookup(struct super_block *sb, unsigned int type,
+ 		struct gfs2_sbd *sdp = GFS2_SB(inode);
+ 		struct gfs2_glock *io_gl;
  
- 	/* Check for state != intended state */
- 	if (unlikely(state != gl->gl_target)) {
-+		if (gh && (ret & LM_OUT_CANCELED))
-+			gfs2_holder_wake(gh);
- 		if (gh && !test_bit(GLF_DEMOTE_IN_PROGRESS, &gl->gl_flags)) {
- 			/* move to back of queue and try next entry */
- 			if (ret & LM_OUT_CANCELED) {
-@@ -1691,6 +1693,14 @@ void gfs2_glock_dq(struct gfs2_holder *gh)
- 	struct gfs2_glock *gl = gh->gh_gl;
- 
- 	spin_lock(&gl->gl_lockref.lock);
-+	if (list_is_first(&gh->gh_list, &gl->gl_holders) &&
-+	    !test_bit(HIF_HOLDER, &gh->gh_iflags)) {
-+		spin_unlock(&gl->gl_lockref.lock);
-+		gl->gl_name.ln_sbd->sd_lockstruct.ls_ops->lm_cancel(gl);
-+		wait_on_bit(&gh->gh_iflags, HIF_WAIT, TASK_UNINTERRUPTIBLE);
-+		spin_lock(&gl->gl_lockref.lock);
-+	}
+-		error = gfs2_glock_get(sdp, no_addr, &gfs2_inode_glops, CREATE, &ip->i_gl);
++		error = gfs2_glock_get(sdp, no_addr, &gfs2_inode_glops, CREATE,
++				       &ip->i_gl);
++		if (unlikely(error))
++			goto fail;
 +
- 	__gfs2_glock_dq(gh);
- 	spin_unlock(&gl->gl_lockref.lock);
- }
++		error = gfs2_glock_get(sdp, no_addr, &gfs2_iopen_glops, CREATE,
++				       &io_gl);
++		if (unlikely(error))
++			goto fail;
++
++		if (blktype != GFS2_BLKST_UNLINKED)
++			gfs2_cancel_delete_work(io_gl);
++		error = gfs2_glock_nq_init(io_gl, LM_ST_SHARED, GL_EXACT,
++					   &ip->i_iopen_gh);
++		gfs2_glock_put(io_gl);
+ 		if (unlikely(error))
+ 			goto fail;
+ 
+@@ -161,16 +175,6 @@ struct inode *gfs2_inode_lookup(struct super_block *sb, unsigned int type,
+ 
+ 		set_bit(GLF_INSTANTIATE_NEEDED, &ip->i_gl->gl_flags);
+ 
+-		error = gfs2_glock_get(sdp, no_addr, &gfs2_iopen_glops, CREATE, &io_gl);
+-		if (unlikely(error))
+-			goto fail;
+-		if (blktype != GFS2_BLKST_UNLINKED)
+-			gfs2_cancel_delete_work(io_gl);
+-		error = gfs2_glock_nq_init(io_gl, LM_ST_SHARED, GL_EXACT, &ip->i_iopen_gh);
+-		gfs2_glock_put(io_gl);
+-		if (unlikely(error))
+-			goto fail;
+-
+ 		/* Lowest possible timestamp; will be overwritten in gfs2_dinode_in. */
+ 		inode->i_atime.tv_sec = 1LL << (8 * sizeof(inode->i_atime.tv_sec) - 1);
+ 		inode->i_atime.tv_nsec = 0;
+@@ -716,13 +720,17 @@ static int gfs2_create_inode(struct inode *dir, struct dentry *dentry,
+ 	error = insert_inode_locked4(inode, ip->i_no_addr, iget_test, &ip->i_no_addr);
+ 	BUG_ON(error);
+ 
+-	error = gfs2_glock_nq_init(ip->i_gl, LM_ST_EXCLUSIVE, GL_SKIP, ghs + 1);
++	error = gfs2_glock_nq_init(io_gl, LM_ST_SHARED, GL_EXACT, &ip->i_iopen_gh);
+ 	if (error)
+ 		goto fail_gunlock2;
+ 
++	error = gfs2_glock_nq_init(ip->i_gl, LM_ST_EXCLUSIVE, GL_SKIP, ghs + 1);
++	if (error)
++		goto fail_gunlock3;
++
+ 	error = gfs2_trans_begin(sdp, blocks, 0);
+ 	if (error)
+-		goto fail_gunlock2;
++		goto fail_gunlock3;
+ 
+ 	if (blocks > 1) {
+ 		ip->i_eattr = ip->i_no_addr + 1;
+@@ -731,10 +739,6 @@ static int gfs2_create_inode(struct inode *dir, struct dentry *dentry,
+ 	init_dinode(dip, ip, symname);
+ 	gfs2_trans_end(sdp);
+ 
+-	error = gfs2_glock_nq_init(io_gl, LM_ST_SHARED, GL_EXACT, &ip->i_iopen_gh);
+-	if (error)
+-		goto fail_gunlock2;
+-
+ 	glock_set_object(ip->i_gl, ip);
+ 	glock_set_object(io_gl, ip);
+ 	gfs2_set_iop(inode);
+@@ -745,14 +749,14 @@ static int gfs2_create_inode(struct inode *dir, struct dentry *dentry,
+ 	if (default_acl) {
+ 		error = __gfs2_set_acl(inode, default_acl, ACL_TYPE_DEFAULT);
+ 		if (error)
+-			goto fail_gunlock3;
++			goto fail_gunlock4;
+ 		posix_acl_release(default_acl);
+ 		default_acl = NULL;
+ 	}
+ 	if (acl) {
+ 		error = __gfs2_set_acl(inode, acl, ACL_TYPE_ACCESS);
+ 		if (error)
+-			goto fail_gunlock3;
++			goto fail_gunlock4;
+ 		posix_acl_release(acl);
+ 		acl = NULL;
+ 	}
+@@ -760,11 +764,11 @@ static int gfs2_create_inode(struct inode *dir, struct dentry *dentry,
+ 	error = security_inode_init_security(&ip->i_inode, &dip->i_inode, name,
+ 					     &gfs2_initxattrs, NULL);
+ 	if (error)
+-		goto fail_gunlock3;
++		goto fail_gunlock4;
+ 
+ 	error = link_dinode(dip, name, ip, &da);
+ 	if (error)
+-		goto fail_gunlock3;
++		goto fail_gunlock4;
+ 
+ 	mark_inode_dirty(inode);
+ 	d_instantiate(dentry, inode);
+@@ -782,9 +786,10 @@ static int gfs2_create_inode(struct inode *dir, struct dentry *dentry,
+ 	unlock_new_inode(inode);
+ 	return error;
+ 
+-fail_gunlock3:
++fail_gunlock4:
+ 	glock_clear_object(ip->i_gl, ip);
+ 	glock_clear_object(io_gl, ip);
++fail_gunlock3:
+ 	gfs2_glock_dq_uninit(&ip->i_iopen_gh);
+ fail_gunlock2:
+ 	gfs2_glock_put(io_gl);
 -- 
 2.35.1
 
