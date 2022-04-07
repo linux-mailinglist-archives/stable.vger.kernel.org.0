@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 303A74F70E2
-	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 03:21:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9681C4F70CA
+	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 03:21:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239529AbiDGBXF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Apr 2022 21:23:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60868 "EHLO
+        id S239192AbiDGBWi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Apr 2022 21:22:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60914 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240385AbiDGBT6 (ORCPT
+        with ESMTP id S240381AbiDGBT6 (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 21:19:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 084EE182DB5;
-        Wed,  6 Apr 2022 18:15:55 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40BD9184B4A;
+        Wed,  6 Apr 2022 18:15:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A6393B8268C;
-        Thu,  7 Apr 2022 01:15:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15E1CC385A3;
-        Thu,  7 Apr 2022 01:15:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D261561DA8;
+        Thu,  7 Apr 2022 01:15:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6653BC385A3;
+        Thu,  7 Apr 2022 01:15:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1649294152;
-        bh=9+gK3EfVe4i70R1qceW78UceKAnxu03KRWGw5bq5nDs=;
+        s=k20201202; t=1649294158;
+        bh=lsTQfPcjQ3GMPoVWgE/XB3ejk49g6YF+BtG3dlMGAVs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zk84X7WTv90DPjwZlOrP+7v6A+IL8QqN6psSPw3BMuewPUFOPiTM3IVXK/WXNJWv7
-         dEfQeap8pB9ZtZ4QZB85tsSTq4oadHcezfG0yAIUPF8ca9XBvaQzVeCsv5oWEgbpbf
-         vFbFei6Fk7LxUabNcTAQ+zfOCbuLiWykuT5NWM+lIICCziambJqTY6qHFgJSBYIfNJ
-         z7TTIy+nKc2kPddRYQHWMe9guGHqH+tOivpToVw7GjQYQo9dPaY/crGYepzMPjLVz/
-         aYVtFbIwCSyQo8NhDSTfRkU+h/JYD2xOT6SBEM4JRSQmlzRpBfyJNWgDFYheNU4rgL
-         Cnj81TuuKE5HA==
+        b=lsJDXnW5UkbOa24PlNX3viMnmhIlXvnR3mX0yOeKhFtyxYWeF8o/hnT8H4BVq330m
+         a0mS5ipRgBHyAjGCdT3futPMKiUTWGGXcuxRuS7zS4i8rsh+8o/Y/6Uv+pLKOs05Jk
+         vwSKCO3AvbC57I9IEHn6LTbGOrHBXjJcTxuE1NM7ajXGkdq0GRPgQ7xL+ewPovHDT5
+         5BI39GzqFEiqZiouiOs1immHrT4yNC1oGuwEOWX1qxp/qy2e8JLJ1o6ie3CU20M1df
+         cCdAGgJzI1Yn4M/4rWx56qityP5WmTxKv0yVKa8z4kXYFRr5btol0rUE0RYWUv9q6t
+         MxGZ21A99WA+A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mario Limonciello <mario.limonciello@amd.com>,
-        Jinke Fan <fanjinke@hygon.cn>,
-        Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>,
-        Raul E Rangel <rrangel@chromium.org>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>, a.zummo@towertech.it,
-        mat.jonczyk@o2.pl, dan.carpenter@oracle.com,
-        linux-rtc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 11/17] rtc: mc146818-lib: Fix the AltCentury for AMD platforms
-Date:   Wed,  6 Apr 2022 21:15:15 -0400
-Message-Id: <20220407011521.115014-11-sashal@kernel.org>
+Cc:     Xiaoke Wang <xkernel.wang@foxmail.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Sasha Levin <sashal@kernel.org>, john@phrozen.org,
+        wangborong@cdjrlc.com, linux-mips@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 12/17] MIPS: lantiq: check the return value of kzalloc()
+Date:   Wed,  6 Apr 2022 21:15:16 -0400
+Message-Id: <20220407011521.115014-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220407011521.115014-1-sashal@kernel.org>
 References: <20220407011521.115014-1-sashal@kernel.org>
@@ -53,115 +49,141 @@ X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
-        autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Limonciello <mario.limonciello@amd.com>
+From: Xiaoke Wang <xkernel.wang@foxmail.com>
 
-[ Upstream commit 3ae8fd41573af4fb3a490c9ed947fc936ba87190 ]
+[ Upstream commit 34123208bbcc8c884a0489f543a23fe9eebb5514 ]
 
-Setting the century forward has been failing on AMD platforms.
-There was a previous attempt at fixing this for family 0x17 as part of
-commit 7ad295d5196a ("rtc: Fix the AltCentury value on AMD/Hygon
-platform") but this was later reverted due to some problems reported
-that appeared to stem from an FW bug on a family 0x17 desktop system.
+kzalloc() is a memory allocation function which can return NULL when
+some internal memory errors happen. So it is better to check the
+return value of it to prevent potential wrong memory access or
+memory leak.
 
-The same comments mentioned in the previous commit continue to apply
-to the newer platforms as well.
-
-```
-MC146818 driver use function mc146818_set_time() to set register
-RTC_FREQ_SELECT(RTC_REG_A)'s bit4-bit6 field which means divider stage
-reset value on Intel platform to 0x7.
-
-While AMD/Hygon RTC_REG_A(0Ah)'s bit4 is defined as DV0 [Reference]:
-DV0 = 0 selects Bank 0, DV0 = 1 selects Bank 1. Bit5-bit6 is defined
-as reserved.
-
-DV0 is set to 1, it will select Bank 1, which will disable AltCentury
-register(0x32) access. As UEFI pass acpi_gbl_FADT.century 0x32
-(AltCentury), the CMOS write will be failed on code:
-CMOS_WRITE(century, acpi_gbl_FADT.century).
-
-Correct RTC_REG_A bank select bit(DV0) to 0 on AMD/Hygon CPUs, it will
-enable AltCentury(0x32) register writing and finally setup century as
-expected.
-```
-
-However in closer examination the change previously submitted was also
-modifying bits 5 & 6 which are declared reserved in the AMD documentation.
-So instead modify just the DV0 bank selection bit.
-
-Being cognizant that there was a failure reported before, split the code
-change out to a static function that can also be used for exclusions if
-any regressions such as Mikhail's pop up again.
-
-Cc: Jinke Fan <fanjinke@hygon.cn>
-Cc: Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
-Link: https://lore.kernel.org/all/CABXGCsMLob0DC25JS8wwAYydnDoHBSoMh2_YLPfqm3TTvDE-Zw@mail.gmail.com/
-Link: https://www.amd.com/system/files/TechDocs/51192_Bolton_FCH_RRG.pdf
-Signed-off-by: Raul E Rangel <rrangel@chromium.org>
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/20220111225750.1699-1-mario.limonciello@amd.com
+Signed-off-by: Xiaoke Wang <xkernel.wang@foxmail.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-mc146818-lib.c | 16 +++++++++++++++-
- include/linux/mc146818rtc.h    |  2 ++
- 2 files changed, 17 insertions(+), 1 deletion(-)
+ arch/mips/lantiq/falcon/sysctrl.c |  2 ++
+ arch/mips/lantiq/xway/gptu.c      |  2 ++
+ arch/mips/lantiq/xway/sysctrl.c   | 46 ++++++++++++++++++++-----------
+ 3 files changed, 34 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/rtc/rtc-mc146818-lib.c b/drivers/rtc/rtc-mc146818-lib.c
-index 5add637c9ad2..b036ff33fbe6 100644
---- a/drivers/rtc/rtc-mc146818-lib.c
-+++ b/drivers/rtc/rtc-mc146818-lib.c
-@@ -99,6 +99,17 @@ unsigned int mc146818_get_time(struct rtc_time *time)
- }
- EXPORT_SYMBOL_GPL(mc146818_get_time);
- 
-+/* AMD systems don't allow access to AltCentury with DV1 */
-+static bool apply_amd_register_a_behavior(void)
-+{
-+#ifdef CONFIG_X86
-+	if (boot_cpu_data.x86_vendor == X86_VENDOR_AMD ||
-+	    boot_cpu_data.x86_vendor == X86_VENDOR_HYGON)
-+		return true;
-+#endif
-+	return false;
-+}
-+
- /* Set the current date and time in the real time clock. */
- int mc146818_set_time(struct rtc_time *time)
+diff --git a/arch/mips/lantiq/falcon/sysctrl.c b/arch/mips/lantiq/falcon/sysctrl.c
+index 037b08f3257e..a2837a54d972 100644
+--- a/arch/mips/lantiq/falcon/sysctrl.c
++++ b/arch/mips/lantiq/falcon/sysctrl.c
+@@ -167,6 +167,8 @@ static inline void clkdev_add_sys(const char *dev, unsigned int module,
  {
-@@ -172,7 +183,10 @@ int mc146818_set_time(struct rtc_time *time)
- 	save_control = CMOS_READ(RTC_CONTROL);
- 	CMOS_WRITE((save_control|RTC_SET), RTC_CONTROL);
- 	save_freq_select = CMOS_READ(RTC_FREQ_SELECT);
--	CMOS_WRITE((save_freq_select|RTC_DIV_RESET2), RTC_FREQ_SELECT);
-+	if (apply_amd_register_a_behavior())
-+		CMOS_WRITE((save_freq_select & ~RTC_AMD_BANK_SELECT), RTC_FREQ_SELECT);
-+	else
-+		CMOS_WRITE((save_freq_select|RTC_DIV_RESET2), RTC_FREQ_SELECT);
+ 	struct clk *clk = kzalloc(sizeof(struct clk), GFP_KERNEL);
  
- #ifdef CONFIG_MACH_DECSTATION
- 	CMOS_WRITE(real_yrs, RTC_DEC_YEAR);
-diff --git a/include/linux/mc146818rtc.h b/include/linux/mc146818rtc.h
-index 0661af17a758..1e0205811394 100644
---- a/include/linux/mc146818rtc.h
-+++ b/include/linux/mc146818rtc.h
-@@ -86,6 +86,8 @@ struct cmos_rtc_board_info {
-    /* 2 values for divider stage reset, others for "testing purposes only" */
- #  define RTC_DIV_RESET1	0x60
- #  define RTC_DIV_RESET2	0x70
-+   /* In AMD BKDG bit 5 and 6 are reserved, bit 4 is for select dv0 bank */
-+#  define RTC_AMD_BANK_SELECT	0x10
-   /* Periodic intr. / Square wave rate select. 0=none, 1=32.8kHz,... 15=2Hz */
- # define RTC_RATE_SELECT 	0x0F
++	if (!clk)
++		return;
+ 	clk->cl.dev_id = dev;
+ 	clk->cl.con_id = NULL;
+ 	clk->cl.clk = clk;
+diff --git a/arch/mips/lantiq/xway/gptu.c b/arch/mips/lantiq/xway/gptu.c
+index 3d5683e75cf1..200fe9ff641d 100644
+--- a/arch/mips/lantiq/xway/gptu.c
++++ b/arch/mips/lantiq/xway/gptu.c
+@@ -122,6 +122,8 @@ static inline void clkdev_add_gptu(struct device *dev, const char *con,
+ {
+ 	struct clk *clk = kzalloc(sizeof(struct clk), GFP_KERNEL);
  
++	if (!clk)
++		return;
+ 	clk->cl.dev_id = dev_name(dev);
+ 	clk->cl.con_id = con;
+ 	clk->cl.clk = clk;
+diff --git a/arch/mips/lantiq/xway/sysctrl.c b/arch/mips/lantiq/xway/sysctrl.c
+index 2ee68d6e8bb9..6c2d9779ac72 100644
+--- a/arch/mips/lantiq/xway/sysctrl.c
++++ b/arch/mips/lantiq/xway/sysctrl.c
+@@ -311,6 +311,8 @@ static void clkdev_add_pmu(const char *dev, const char *con, bool deactivate,
+ {
+ 	struct clk *clk = kzalloc(sizeof(struct clk), GFP_KERNEL);
+ 
++	if (!clk)
++		return;
+ 	clk->cl.dev_id = dev;
+ 	clk->cl.con_id = con;
+ 	clk->cl.clk = clk;
+@@ -334,6 +336,8 @@ static void clkdev_add_cgu(const char *dev, const char *con,
+ {
+ 	struct clk *clk = kzalloc(sizeof(struct clk), GFP_KERNEL);
+ 
++	if (!clk)
++		return;
+ 	clk->cl.dev_id = dev;
+ 	clk->cl.con_id = con;
+ 	clk->cl.clk = clk;
+@@ -352,24 +356,28 @@ static void clkdev_add_pci(void)
+ 	struct clk *clk_ext = kzalloc(sizeof(struct clk), GFP_KERNEL);
+ 
+ 	/* main pci clock */
+-	clk->cl.dev_id = "17000000.pci";
+-	clk->cl.con_id = NULL;
+-	clk->cl.clk = clk;
+-	clk->rate = CLOCK_33M;
+-	clk->rates = valid_pci_rates;
+-	clk->enable = pci_enable;
+-	clk->disable = pmu_disable;
+-	clk->module = 0;
+-	clk->bits = PMU_PCI;
+-	clkdev_add(&clk->cl);
++	if (clk) {
++		clk->cl.dev_id = "17000000.pci";
++		clk->cl.con_id = NULL;
++		clk->cl.clk = clk;
++		clk->rate = CLOCK_33M;
++		clk->rates = valid_pci_rates;
++		clk->enable = pci_enable;
++		clk->disable = pmu_disable;
++		clk->module = 0;
++		clk->bits = PMU_PCI;
++		clkdev_add(&clk->cl);
++	}
+ 
+ 	/* use internal/external bus clock */
+-	clk_ext->cl.dev_id = "17000000.pci";
+-	clk_ext->cl.con_id = "external";
+-	clk_ext->cl.clk = clk_ext;
+-	clk_ext->enable = pci_ext_enable;
+-	clk_ext->disable = pci_ext_disable;
+-	clkdev_add(&clk_ext->cl);
++	if (clk_ext) {
++		clk_ext->cl.dev_id = "17000000.pci";
++		clk_ext->cl.con_id = "external";
++		clk_ext->cl.clk = clk_ext;
++		clk_ext->enable = pci_ext_enable;
++		clk_ext->disable = pci_ext_disable;
++		clkdev_add(&clk_ext->cl);
++	}
+ }
+ 
+ /* xway socs can generate clocks on gpio pins */
+@@ -389,9 +397,15 @@ static void clkdev_add_clkout(void)
+ 		char *name;
+ 
+ 		name = kzalloc(sizeof("clkout0"), GFP_KERNEL);
++		if (!name)
++			continue;
+ 		sprintf(name, "clkout%d", i);
+ 
+ 		clk = kzalloc(sizeof(struct clk), GFP_KERNEL);
++		if (!clk) {
++			kfree(name);
++			continue;
++		}
+ 		clk->cl.dev_id = "1f103000.cgu";
+ 		clk->cl.con_id = name;
+ 		clk->cl.clk = clk;
 -- 
 2.35.1
 
