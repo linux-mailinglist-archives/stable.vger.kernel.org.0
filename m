@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C85324F6FD7
-	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 03:14:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D387C4F6FD1
+	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 03:13:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235568AbiDGBPO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Apr 2022 21:15:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36018 "EHLO
+        id S236450AbiDGBPJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Apr 2022 21:15:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236135AbiDGBOf (ORCPT
+        with ESMTP id S236130AbiDGBOf (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 21:14:35 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96DDF188A38;
-        Wed,  6 Apr 2022 18:11:33 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96B99188A2D;
+        Wed,  6 Apr 2022 18:11:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 43CB0B8268C;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BA6E961DAF;
         Thu,  7 Apr 2022 01:11:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E050CC385AC;
-        Thu,  7 Apr 2022 01:11:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64F38C385A1;
+        Thu,  7 Apr 2022 01:11:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1649293890;
-        bh=dSK9yAemeUsSX+KHHm11m3GLKp6uaBrh9a90DIUvMoY=;
+        s=k20201202; t=1649293892;
+        bh=DhR6AeTKiLjq/3nWP2sq4FthZdkWvOrag8B25MAR0RQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sbs16ccZboy/68pQJ1t2Aga3j5yXXQgkEMfVhE0Hzh7ogJ7bwbUpbpFtLJjCOjoHf
-         S1prKisWe6blMB6KrTQ7AwjNEQVrEXJ99I6almTnyDPKx40gA95GIZSli/T6EKEWOY
-         wTrJ+pNzjK+0oYblMKPVC8SB0vxkheFT8nASov9Ich6KfLgtoMRdxcEKOY8dxnMpFD
-         O6PGnr5SvNztoRXP0S2yxEolNQBMm0cqSxTIvRXUf/Is64mVa05BKtaq4trK2Z96Bx
-         EwGmrKPmiMNEnmMxWMyhho7etvuW+Udax4vqM3nspeeugGgMppEIwN4+j6R3JNiUdZ
-         Q28ex0YR/7aAg==
+        b=PgXCFHMXRunaPbzi0jgEo4S1unF3c0YJA7lQe/9A2gkJt8j+Q8sEL32S3rr/u2GBl
+         REjkC39yxbLEVSnx8oNZwZ3ICKqrhRh6+mKrsEYnOKjg6w9XkxCNkjVJ9zzqKZmRhz
+         OgeaxOoHpwmK9DPly0z2hZbajtV+S0+60CIMdAQE46ShB4r1LYtgHRAJK+1KTHlYQs
+         qUqW2rIGQEZ59sL7BPOlY10xHHLr9NqFfOIccPlm3++cxYy8NJHCa7upws7/wJ0jkD
+         SsaDmx8WnZvBYj9h3EZZ2ih1Mf486Lj2Ncx5EL367ItZgV4EisFhA4gKTYk/CfHnH/
+         hVTJXt6RJ5nKg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jakob Koschel <jakobkoschel@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        philipp.reisner@linbit.com, lars.ellenberg@linbit.com,
-        christoph.boehmwalder@linbit.com, drbd-dev@lists.linbit.com,
-        linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.17 27/31] drbd: remove usage of list iterator variable after loop
-Date:   Wed,  6 Apr 2022 21:10:25 -0400
-Message-Id: <20220407011029.113321-27-sashal@kernel.org>
+Cc:     Tzung-Bi Shih <tzungbi@google.com>,
+        Guenter Roeck <groeck@google.com>,
+        Benson Leung <bleung@chromium.org>,
+        Sasha Levin <sashal@kernel.org>,
+        chrome-platform@lists.linux.dev
+Subject: [PATCH AUTOSEL 5.17 28/31] platform/chrome: cros_ec_debugfs: detach log reader wq from devm
+Date:   Wed,  6 Apr 2022 21:10:26 -0400
+Message-Id: <20220407011029.113321-28-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220407011029.113321-1-sashal@kernel.org>
 References: <20220407011029.113321-1-sashal@kernel.org>
@@ -58,55 +58,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakob Koschel <jakobkoschel@gmail.com>
+From: Tzung-Bi Shih <tzungbi@google.com>
 
-[ Upstream commit 901aeda62efa21f2eae937bccb71b49ae531be06 ]
+[ Upstream commit 0e8eb5e8acbad19ac2e1856b2fb2320184299b33 ]
 
-In preparation to limit the scope of a list iterator to the list
-traversal loop, use a dedicated pointer to iterate through the list [1].
+Debugfs console_log uses devm memory (e.g. debug_info in
+cros_ec_console_log_poll()).  However, lifecycles of device and debugfs
+are independent.  An use-after-free issue is observed if userland
+program operates the debugfs after the memory has been freed.
 
-Since that variable should not be used past the loop iteration, a
-separate variable is used to 'remember the current location within the
-loop'.
+The call trace:
+ do_raw_spin_lock
+ _raw_spin_lock_irqsave
+ remove_wait_queue
+ ep_unregister_pollwait
+ ep_remove
+ do_epoll_ctl
 
-To either continue iterating from that position or skip the iteration
-(if the previous iteration was complete) list_prepare_entry() is used.
+A Python example to reproduce the issue:
+... import select
+... p = select.epoll()
+... f = open('/sys/kernel/debug/cros_scp/console_log')
+... p.register(f, select.POLLIN)
+... p.poll(1)
+[(4, 1)]                    # 4=fd, 1=select.POLLIN
 
-Link: https://lore.kernel.org/all/CAHk-=wgRr_D8CB-D9Kg-c=EHreAsk5SqXPwr9Y7k9sA6cWXJ6w@mail.gmail.com/ [1]
-Signed-off-by: Jakob Koschel <jakobkoschel@gmail.com>
-Link: https://lore.kernel.org/r/20220331220349.885126-1-jakobkoschel@gmail.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+[ shutdown cros_scp at the point ]
+
+... p.poll(1)
+[(4, 16)]                   # 4=fd, 16=select.POLLHUP
+... p.unregister(f)
+
+An use-after-free issue raises here.  It called epoll_ctl with
+EPOLL_CTL_DEL which in turn to use the workqueue in the devm (i.e.
+log_wq).
+
+Detaches log reader's workqueue from devm to make sure it is persistent
+even if the device has been removed.
+
+Signed-off-by: Tzung-Bi Shih <tzungbi@google.com>
+Reviewed-by: Guenter Roeck <groeck@google.com>
+Link: https://lore.kernel.org/r/20220209051130.386175-1-tzungbi@google.com
+Signed-off-by: Benson Leung <bleung@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/drbd/drbd_main.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/platform/chrome/cros_ec_debugfs.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/block/drbd/drbd_main.c b/drivers/block/drbd/drbd_main.c
-index 6f450816c4fa..6831ddbae49d 100644
---- a/drivers/block/drbd/drbd_main.c
-+++ b/drivers/block/drbd/drbd_main.c
-@@ -171,7 +171,7 @@ void tl_release(struct drbd_connection *connection, unsigned int barrier_nr,
- 		unsigned int set_size)
- {
- 	struct drbd_request *r;
--	struct drbd_request *req = NULL;
-+	struct drbd_request *req = NULL, *tmp = NULL;
- 	int expect_epoch = 0;
- 	int expect_size = 0;
+diff --git a/drivers/platform/chrome/cros_ec_debugfs.c b/drivers/platform/chrome/cros_ec_debugfs.c
+index 272c89837d74..0dbceee87a4b 100644
+--- a/drivers/platform/chrome/cros_ec_debugfs.c
++++ b/drivers/platform/chrome/cros_ec_debugfs.c
+@@ -25,6 +25,9 @@
  
-@@ -225,8 +225,11 @@ void tl_release(struct drbd_connection *connection, unsigned int barrier_nr,
- 	 * to catch requests being barrier-acked "unexpectedly".
- 	 * It usually should find the same req again, or some READ preceding it. */
- 	list_for_each_entry(req, &connection->transfer_log, tl_requests)
--		if (req->epoch == expect_epoch)
-+		if (req->epoch == expect_epoch) {
-+			tmp = req;
- 			break;
-+		}
-+	req = list_prepare_entry(tmp, &connection->transfer_log, tl_requests);
- 	list_for_each_entry_safe_from(req, r, &connection->transfer_log, tl_requests) {
- 		if (req->epoch != expect_epoch)
- 			break;
+ #define CIRC_ADD(idx, size, value)	(((idx) + (value)) & ((size) - 1))
+ 
++/* waitqueue for log readers */
++static DECLARE_WAIT_QUEUE_HEAD(cros_ec_debugfs_log_wq);
++
+ /**
+  * struct cros_ec_debugfs - EC debugging information.
+  *
+@@ -33,7 +36,6 @@
+  * @log_buffer: circular buffer for console log information
+  * @read_msg: preallocated EC command and buffer to read console log
+  * @log_mutex: mutex to protect circular buffer
+- * @log_wq: waitqueue for log readers
+  * @log_poll_work: recurring task to poll EC for new console log data
+  * @panicinfo_blob: panicinfo debugfs blob
+  */
+@@ -44,7 +46,6 @@ struct cros_ec_debugfs {
+ 	struct circ_buf log_buffer;
+ 	struct cros_ec_command *read_msg;
+ 	struct mutex log_mutex;
+-	wait_queue_head_t log_wq;
+ 	struct delayed_work log_poll_work;
+ 	/* EC panicinfo */
+ 	struct debugfs_blob_wrapper panicinfo_blob;
+@@ -107,7 +108,7 @@ static void cros_ec_console_log_work(struct work_struct *__work)
+ 			buf_space--;
+ 		}
+ 
+-		wake_up(&debug_info->log_wq);
++		wake_up(&cros_ec_debugfs_log_wq);
+ 	}
+ 
+ 	mutex_unlock(&debug_info->log_mutex);
+@@ -141,7 +142,7 @@ static ssize_t cros_ec_console_log_read(struct file *file, char __user *buf,
+ 
+ 		mutex_unlock(&debug_info->log_mutex);
+ 
+-		ret = wait_event_interruptible(debug_info->log_wq,
++		ret = wait_event_interruptible(cros_ec_debugfs_log_wq,
+ 					CIRC_CNT(cb->head, cb->tail, LOG_SIZE));
+ 		if (ret < 0)
+ 			return ret;
+@@ -173,7 +174,7 @@ static __poll_t cros_ec_console_log_poll(struct file *file,
+ 	struct cros_ec_debugfs *debug_info = file->private_data;
+ 	__poll_t mask = 0;
+ 
+-	poll_wait(file, &debug_info->log_wq, wait);
++	poll_wait(file, &cros_ec_debugfs_log_wq, wait);
+ 
+ 	mutex_lock(&debug_info->log_mutex);
+ 	if (CIRC_CNT(debug_info->log_buffer.head,
+@@ -377,7 +378,6 @@ static int cros_ec_create_console_log(struct cros_ec_debugfs *debug_info)
+ 	debug_info->log_buffer.tail = 0;
+ 
+ 	mutex_init(&debug_info->log_mutex);
+-	init_waitqueue_head(&debug_info->log_wq);
+ 
+ 	debugfs_create_file("console_log", S_IFREG | 0444, debug_info->dir,
+ 			    debug_info, &cros_ec_console_log_fops);
 -- 
 2.35.1
 
