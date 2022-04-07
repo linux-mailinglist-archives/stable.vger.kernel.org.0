@@ -2,103 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4951F4F765B
-	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 08:39:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 102054F7682
+	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 08:44:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241255AbiDGGkb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Apr 2022 02:40:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49262 "EHLO
+        id S239804AbiDGGqQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Apr 2022 02:46:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46858 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241375AbiDGGkL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 Apr 2022 02:40:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABFA07487F;
-        Wed,  6 Apr 2022 23:38:11 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D87C8B826C8;
-        Thu,  7 Apr 2022 06:38:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C414C385A4;
-        Thu,  7 Apr 2022 06:38:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1649313488;
-        bh=Gux6lWZnh1FCuzmez/42YXdKcrwefRFpEz+LdkFz5x4=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=aiyIuSfpcG1qz6EGNC86MrI3RdvIauFp9sq1Oqv7W+J6KKvsLjM6HG/PRX/xGG01g
-         7g7fm0z6o/qfCGrKUeRbTZn6zoeK7yZdqSSus0pMCD+e3l/uT+JXhBVhAkfro/AAmO
-         YPtdbfnazds93BKkX57L7BCql1I4ds/n231CFFjKXNLpNr9iG4npZaQSrpTgQawtM/
-         yC3U+px6Ua/tNEuGE/3z1x4b+tMEp7RIzGJjsU/PRmVQBtROFinwCNYYCDzkWhGoSK
-         LVet4cYqS5CEtpVnvmCfA5/3AoFImoPOHeoi/GowBuWWRK3hBFad7qgjVwPT1XDDCw
-         qRWovNhiPVi/Q==
-Received: by mail-vs1-f54.google.com with SMTP id i186so2711793vsc.9;
-        Wed, 06 Apr 2022 23:38:08 -0700 (PDT)
-X-Gm-Message-State: AOAM531W20gciLl3dFssKC9peA0ruBujGNzJd4Q1zd+15cjieZZOLv+b
-        89b6kQ8zWl8FN3URu5vFI2oJPX+IUbIbPVCa0a0=
-X-Google-Smtp-Source: ABdhPJylGTAuJqUgFINt36UMdY4cxe8//+64nyYwPKu/po3UjzHUT7TwO3ZZR2flKLlmn1dbTBE+65LpjyZAsdhtZdU=
-X-Received: by 2002:a05:6102:dd1:b0:325:80a9:b5d7 with SMTP id
- e17-20020a0561020dd100b0032580a9b5d7mr3705620vst.51.1649313487469; Wed, 06
- Apr 2022 23:38:07 -0700 (PDT)
+        with ESMTP id S241317AbiDGGqO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 Apr 2022 02:46:14 -0400
+Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF8DF100A53
+        for <stable@vger.kernel.org>; Wed,  6 Apr 2022 23:44:14 -0700 (PDT)
+Received: by mail-pj1-x1036.google.com with SMTP id kw18so4712915pjb.5
+        for <stable@vger.kernel.org>; Wed, 06 Apr 2022 23:44:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=V6IYfquQ4BCyl/d//EyLTFKIsvBfz6pJT0t49N6QPK8=;
+        b=lr0L8aSMBmqLHuS8OVENVwyhMdomIxU/UgTOlGnaEm0iAWdEf8CJ8tU6ONnQ4Rx7hj
+         5Hl9ucVcUPVlTWU9WngdpBTDgnpf8DYKmvQwIG5pjr9APqZjCpfLPDm5ZbiuTd8fzAnn
+         g6+7i5bMpUwwTJY2Aii/F4V3PD6o4FT4H7Q4PYH+Pfxnj4LH/bz1J07w8CzMCmVnsXYo
+         jFm9DXd7Z3fOgXr18C2cTWjPiMLBoH3++nbQ56ZTMcjCsDhQ/E3IQOuBiEqvnChcP1lr
+         mBjYYmHcwO4XsFjqffp+ASfgAePRutGvTYLQxFUTjbo1ccxWiK3+T/7pqINJIvDL8/eL
+         jCbg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=V6IYfquQ4BCyl/d//EyLTFKIsvBfz6pJT0t49N6QPK8=;
+        b=gChZdaxEKs4erdxhVaBGWd/4LV4VhPFiMqlRQX+li5BnA2gUDWwyT3UfewvUEnM02e
+         PyEmLjsgfUHbZ1CKC7UHKWRj7aIJZfwn8mLcLbhnqb2aXcknOKqD9yUd5bNKjof1yzOG
+         ynIWo1VpUEz6W7PF7yYJVMDVh0BzKB1Dc2B3UQ13Mx+3y/ynnC7HsQgytHYs0TFGLoBz
+         80Cn+Qka8DA7el90IFiBH+a0IJC6/Khs2Eu6gjGHxg510x60b5oqDCzfrWeYE5QxjMCR
+         0hK81/YIU4cr3Bk7HfDrm2H34ziYewLaG9GOUUFLPh1sav0XAyJ46U0TlcH0Rnbrf164
+         MRNw==
+X-Gm-Message-State: AOAM531Dp1/H1pPRZFqXHESHOleu5H041nsMulvtpx2PKpq67HKlE1yF
+        dIyXUfHepoUH2/C3jsdXuLLGX67Oj3v/5Aktx90=
+X-Google-Smtp-Source: ABdhPJwGFWiUsPVxzy2QStlaFdVwg/EGlrewAT4G/3u/xFfYw1WaNcYDoA96BDn3elEJGHuEHPCL+Q==
+X-Received: by 2002:a17:902:ce81:b0:156:ad26:78b1 with SMTP id f1-20020a170902ce8100b00156ad2678b1mr12553023plg.144.1649313853113;
+        Wed, 06 Apr 2022 23:44:13 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id c9-20020a056a00248900b004fb05c0f32bsm22182788pfv.185.2022.04.06.23.44.12
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 06 Apr 2022 23:44:12 -0700 (PDT)
+Message-ID: <624e883c.1c69fb81.99591.adbf@mx.google.com>
+Date:   Wed, 06 Apr 2022 23:44:12 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20220406142819.730238-1-guoren@kernel.org> <CAMo8BfK6uo5fPCbo8Wp3oRYOUXoz0jv_zJMHuVHhFgh3DSSqNQ@mail.gmail.com>
-In-Reply-To: <CAMo8BfK6uo5fPCbo8Wp3oRYOUXoz0jv_zJMHuVHhFgh3DSSqNQ@mail.gmail.com>
-From:   Guo Ren <guoren@kernel.org>
-Date:   Thu, 7 Apr 2022 14:37:56 +0800
-X-Gmail-Original-Message-ID: <CAJF2gTQ5zPrEtaxowmQOj5gBMtinB1NbuVUG9qvuDfB9vNvG5A@mail.gmail.com>
-Message-ID: <CAJF2gTQ5zPrEtaxowmQOj5gBMtinB1NbuVUG9qvuDfB9vNvG5A@mail.gmail.com>
-Subject: Re: [PATCH V3] xtensa: patch_text: Fixup last cpu should be master
-To:     Max Filippov <jcmvbkbc@gmail.com>
-Cc:     Arnd Bergmann <arnd@arndb.de>, Chris Zankel <chris@zankel.net>,
-        Linux-Arch <linux-arch@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        "open list:TENSILICA XTENSA PORT (xtensa)" 
-        <linux-xtensa@linux-xtensa.org>,
-        Guo Ren <guoren@linux.alibaba.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.17
+X-Kernelci-Kernel: v5.17.1-1123-g788cd6072fa15
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/5.17 baseline: 75 runs,
+ 1 regressions (v5.17.1-1123-g788cd6072fa15)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Apr 7, 2022 at 11:35 AM Max Filippov <jcmvbkbc@gmail.com> wrote:
->
-> On Wed, Apr 6, 2022 at 7:28 AM <guoren@kernel.org> wrote:
-> >
-> > From: Guo Ren <guoren@linux.alibaba.com>
-> >
-> > These patch_text implementations are using stop_machine_cpuslocked
-> > infrastructure with atomic cpu_count. The original idea: When the
-> > master CPU patch_text, the others should wait for it. But current
-> > implementation is using the first CPU as master, which couldn't
-> > guarantee the remaining CPUs are waiting. This patch changes the
-> > last CPU as the master to solve the potential risk.
-> >
-> > Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
-> > Signed-off-by: Guo Ren <guoren@kernel.org>
-> > Reviewed-by: Max Filippov <jcmvbkbc@gmail.com>
-> > Reviewed-by: Masami Hiramatsu <mhiramat@kernel.org>
-> > Cc: <stable@vger.kernel.org>
-> > ---
-> >  arch/xtensa/kernel/jump_label.c | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> Thanks. Applied to my xtensa tree.
-I've missed the "Fixes:" for stable@vger.kernel.org, so I would update
-v3 to fix it.
+stable-rc/queue/5.17 baseline: 75 runs, 1 regressions (v5.17.1-1123-g788cd6=
+072fa15)
 
->
-> -- Max
+Regressions Summary
+-------------------
+
+platform           | arch  | lab         | compiler | defconfig | regressio=
+ns
+-------------------+-------+-------------+----------+-----------+----------=
+--
+kontron-pitx-imx8m | arm64 | lab-kontron | gcc-10   | defconfig | 1        =
+  =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.17/ker=
+nel/v5.17.1-1123-g788cd6072fa15/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.17
+  Describe: v5.17.1-1123-g788cd6072fa15
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      788cd6072fa15b0b6e0a73269fda3d714c1e97d6 =
 
 
 
--- 
-Best Regards
- Guo Ren
+Test Regressions
+---------------- =
 
-ML: https://lore.kernel.org/linux-csky/
+
+
+platform           | arch  | lab         | compiler | defconfig | regressio=
+ns
+-------------------+-------+-------------+----------+-----------+----------=
+--
+kontron-pitx-imx8m | arm64 | lab-kontron | gcc-10   | defconfig | 1        =
+  =
+
+
+  Details:     https://kernelci.org/test/plan/id/624e5566f24784261aae067c
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.17/v5.17.1-1=
+123-g788cd6072fa15/arm64/defconfig/gcc-10/lab-kontron/baseline-kontron-pitx=
+-imx8m.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.17/v5.17.1-1=
+123-g788cd6072fa15/arm64/defconfig/gcc-10/lab-kontron/baseline-kontron-pitx=
+-imx8m.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220401.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/624e5566f24784261aae0=
+67d
+        new failure (last pass: v5.17.1-1123-ge757891cb39a3) =
+
+ =20
