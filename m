@@ -2,139 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B355E4F812D
-	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 16:00:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A48AC4F8167
+	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 16:18:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234576AbiDGOCv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Apr 2022 10:02:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44578 "EHLO
+        id S1343849AbiDGOTc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Apr 2022 10:19:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343807AbiDGOC2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 Apr 2022 10:02:28 -0400
-Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 442D64ECDC
-        for <stable@vger.kernel.org>; Thu,  7 Apr 2022 07:00:28 -0700 (PDT)
-Received: by mail-pj1-x1034.google.com with SMTP id 2so5706758pjw.2
-        for <stable@vger.kernel.org>; Thu, 07 Apr 2022 07:00:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=ilRZ4ek+6KKKYFW419BEN9rdb9L/EYrhdFBp0/hmrUo=;
-        b=HwJDof5YSaWRbe0KrDpNtb2vyys012Tla6FVJeqfBFkpIwiK/lgZkwibLPvftaGvE3
-         IvtDVbmOleQx7jby+JKRyynJN01kNpGQ46O0q9i3QVBPC6iDtnR97XRqyJfkr3AG5bcY
-         AL7zygZ3cCJJTxhuGpho8lWd0glBno8gn1gydMS0jAyWTNBNkc2OFXmvnzMCVKlyddOO
-         +nT83uVha6jRW+cPUwhC9sPv6kJb15hdfq61d8jFmQzlbYsdhgbpOKg44Y8vrhIGueGu
-         GQV9SsJGVrMNdraRFniUYWANhsD96yuvw8oQ4DLKk73Hpf2A1tU+bB2eS0dJygOTXMMt
-         sltQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=ilRZ4ek+6KKKYFW419BEN9rdb9L/EYrhdFBp0/hmrUo=;
-        b=lIvg5yaUcpmuhdSgQ+gxY4GrpaVh19O22IE/CUS7L3IjJ51wjS190hkxcPgj8CjV0A
-         e+Sl8iFAJpom36dyf4wcnWaT9sgn24b1Z5B0shHhjw+mHS4b2zyJwVZl5jLk5wO91iDw
-         fsKdEvJ0vuAlFsXtusuDu9eU2UtQcDGCSGyIJvLAjmDa7OiITHmyr6IOzQVkrN6SxHnY
-         GnzYWTogWutWap6d7W7TMpG2OG3Te0SEhRVYAe5nAScD1ifbv7raHPdw7f+SvgVbEeKD
-         iBi+ftddeqZevt/4J9ODPuDIPYjhWmaZ22HQwrHi0r4c5htDlgveW2tFu8Xzt3CUhJo9
-         R3Rw==
-X-Gm-Message-State: AOAM531BnhSwCEqZOFg0KjEQjYFVgYNO8L9N8aIC+M3u5TgvWGOrA2VQ
-        ffdKPfO177Os0mJATlUpVLds
-X-Google-Smtp-Source: ABdhPJxEtFDjxi+tT5tmyYEIpEPga6hkRXXTZUaElIv8mgWuQu9ZKsYcnyxSEj7onHYXcxi9a+WBzQ==
-X-Received: by 2002:a17:90b:164f:b0:1c7:8d20:ff6d with SMTP id il15-20020a17090b164f00b001c78d20ff6dmr16240981pjb.64.1649340027203;
-        Thu, 07 Apr 2022 07:00:27 -0700 (PDT)
-Received: from thinkpad ([59.92.99.101])
-        by smtp.gmail.com with ESMTPSA id mn18-20020a17090b189200b001cac1781bb4sm9269222pjb.35.2022.04.07.07.00.23
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 07 Apr 2022 07:00:26 -0700 (PDT)
-Date:   Thu, 7 Apr 2022 19:30:21 +0530
-From:   Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-To:     Bhaumik Vasav Bhatt <quic_bbhatt@quicinc.com>
-Cc:     mhi@lists.linux.dev, quic_hemantk@quicinc.com,
-        linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        loic.poulain@linaro.org, stable@vger.kernel.org
-Subject: Re: [PATCH v2] bus: mhi: host: pci_generic: Add missing poweroff()
- PM callback
-Message-ID: <20220407140021.GA118957@thinkpad>
-References: <20220405125907.5644-1-manivannan.sadhasivam@linaro.org>
- <daafdfd8-312e-cf42-d7bb-3fb914d443dc@quicinc.com>
+        with ESMTP id S231286AbiDGOTa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 Apr 2022 10:19:30 -0400
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37C9D182AC1;
+        Thu,  7 Apr 2022 07:17:31 -0700 (PDT)
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out2.suse.de (Postfix) with ESMTP id 61C2D1F85F;
+        Thu,  7 Apr 2022 14:07:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+        t=1649340469; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+        bh=ZeyhWDWe3VQJDbVFe6ALa/xuqG9ur0lFXdtYBiNjvF4=;
+        b=rNJj0vahzMBzkVeyWABeOvfPZ+gwVL8jFq73tfory1t83lvPjPrMYYUj9+ERa0LDE5U2Hl
+        CMj29hnmoIcBKkCmv+XiJxJEJIwkRSYbbYUGK7l0bDhsjEiooqQrXU/ZRZAD/TQnIcDFNA
+        qCVaN1J+377XNAW4LHylAlY+NVrQlAY=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+        s=susede2_ed25519; t=1649340469;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+        bh=ZeyhWDWe3VQJDbVFe6ALa/xuqG9ur0lFXdtYBiNjvF4=;
+        b=6Umfv4ZjAG6g9cUpr3+QcujVZ0SXQLjgqSR9cnSlZ8OyjGkgoFVwmgYjSKaVVwe2ZqiuRP
+        NzzsfptJqx1yy+DQ==
+Received: from quack3.suse.cz (unknown [10.163.43.118])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by relay2.suse.de (Postfix) with ESMTPS id 3C54DA3B87;
+        Thu,  7 Apr 2022 14:07:49 +0000 (UTC)
+Received: by quack3.suse.cz (Postfix, from userid 1000)
+        id C5863A061A; Thu,  7 Apr 2022 16:07:48 +0200 (CEST)
+From:   Jan Kara <jack@suse.cz>
+To:     Paolo Valente <paolo.valente@linaro.org>
+Cc:     <linux-block@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>,
+        Chris Murphy <lists@colorremedies.com>,
+        "yukuai (C)" <yukuai3@huawei.com>, Jan Kara <jack@suse.cz>,
+        stable@vger.kernel.org
+Subject: [PATCH] bfq: Fix warning in bfqq_request_over_limit()
+Date:   Thu,  7 Apr 2022 16:07:38 +0200
+Message-Id: <20220407140738.9723-1-jack@suse.cz>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <daafdfd8-312e-cf42-d7bb-3fb914d443dc@quicinc.com>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
-        autolearn=ham autolearn_force=no version=3.4.6
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2227; h=from:subject; bh=RGBELGd9kRiiBqyO8iLOf/EMYrWHMTI9dTyXfqVDzHw=; b=owEBbQGS/pANAwAIAZydqgc/ZEDZAcsmYgBiTvAj+ioUFsElYUHwAQ0Gjj0yDsHmUM8Nv8iHKzOT Y/4aL8qJATMEAAEIAB0WIQSrWdEr1p4yirVVKBycnaoHP2RA2QUCYk7wIwAKCRCcnaoHP2RA2VXgCA CJh7DB3gmlXPCQBvwW5OXLtIiPwN4fui2KYgLJM2UktZcajLfOq+kq888HYbqClId2sv/ztqgTfNlK aF6NwMq61KVoOQYz6fNRCcO2HObts2jNvJ3fvYdkGAtSDqI8jqgJz8d4eBTyskblpnWet6tOhDUMwe Lm8mf4LIIvPYfaJ1mICkKHZB+j4IhWnb/kFJtyq/j/Hn8A9iNkCcMI+un3Wo4APd9jGBQyKFJLrqCx zFbBjvr0b9bGHf5OupDNEmSCNGEMXCp2PwQ5NW7nqLJuqAreiVcd6/QlyNcqfYxnMT8Lrwr8LlCD7z dzjvOFEMdd5IJLYNh0gQoHmXa14veV
+X-Developer-Key: i=jack@suse.cz; a=openpgp; fpr=93C6099A142276A28BBE35D815BC833443038D8C
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Apr 05, 2022 at 01:23:22PM -0700, Bhaumik Vasav Bhatt wrote:
-> 
-> On 4/5/2022 5:59 AM, Manivannan Sadhasivam wrote:
-> > During hibernation process, once thaw() stage completes, the MHI endpoint
-> > devices will be in M0 state post recovery. After that, the devices will be
-> > powered down so that the system can enter the target sleep state. During
-> > this stage, the PCI core will put the devices in D3hot. But this transition
-> > is allowed by the MHI spec. The devices can only enter D3hot when it is in
-> > M3 state.
-> > 
-> > So for fixing this issue, let's add the poweroff() callback that will get
-> > executed before putting the system in target sleep state during
-> > hibernation. This callback will power down the device properly so that it
-> > could be restored during restore() or thaw() stage.
-> > 
-> > Cc: stable@vger.kernel.org
-> > Fixes: 5f0c2ee1fe8d ("bus: mhi: pci-generic: Fix hibernation")
-> > Reported-by: Hemant Kumar <quic_hemantk@quicinc.com>
-> > Suggested-by: Hemant Kumar <quic_hemantk@quicinc.com>
-> > Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-> > ---
-> > 
-> > Changes in v2:
-> > 
-> > * Hemant suggested to use restore function for poweroff() callback as we can
-> > make sure that the device gets powered down properly.
-> > 
-> >   drivers/bus/mhi/host/pci_generic.c | 1 +
-> >   1 file changed, 1 insertion(+)
-> > 
-> > diff --git a/drivers/bus/mhi/host/pci_generic.c b/drivers/bus/mhi/host/pci_generic.c
-> > index 9527b7d63840..ef85dbfb3216 100644
-> > --- a/drivers/bus/mhi/host/pci_generic.c
-> > +++ b/drivers/bus/mhi/host/pci_generic.c
-> > @@ -1085,6 +1085,7 @@ static const struct dev_pm_ops mhi_pci_pm_ops = {
-> >   	.resume = mhi_pci_resume,
-> >   	.freeze = mhi_pci_freeze,
-> >   	.thaw = mhi_pci_restore,
-> > +	.poweroff = mhi_pci_freeze,
-> 
-> It is possible that .thaw() queues recovery work and recovery work is still
-> running
-> 
-> while .poweroff() is called. I would suggest adding a flush_work() in freeze
-> such that
-> 
-> we don't try to power off while we're also trying to power on MHI from
-> recovery work.
-> 
+People are occasionally reporting a warning bfqq_request_over_limit()
+triggering reporting that BFQ's idea of cgroup hierarchy (and its depth)
+does not match what generic blkcg code thinks. This can actually happen
+when bfqq gets moved between BFQ groups while bfqq_request_over_limit()
+is running. Make sure the code is safe against BFQ queue being moved to
+a different BFQ group.
 
-These two cannot run in parallel because the power down will only happen if the
-MHI_PCI_DEV_STARTED bit is set in mhi_pdev->status and that's the last step of
-recovery. But the real issue I found is, if the recovery didn't finish during
-powerdown() stage, then the function will just return and the device might be
-powered on later.
+Fixes: 76f1df88bbc2 ("bfq: Limit number of requests consumed by each cgroup")
+CC: stable@vger.kernel.org
+Link: https://lore.kernel.org/all/CAJCQCtTw_2C7ZSz7as5Gvq=OmnDiio=HRkQekqWpKot84sQhFA@mail.gmail.com/
+Reported-by: Chris Murphy <lists@colorremedies.com>
+Reported-by: "yukuai (C)" <yukuai3@huawei.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
+---
+ block/bfq-iosched.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-So to avoid this scenario, we should have the flush_workqueue() in freeze.
+diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
+index e47c75f1fa0f..272d48d8f326 100644
+--- a/block/bfq-iosched.c
++++ b/block/bfq-iosched.c
+@@ -569,7 +569,7 @@ static bool bfqq_request_over_limit(struct bfq_queue *bfqq, int limit)
+ 	struct bfq_entity *entity = &bfqq->entity;
+ 	struct bfq_entity *inline_entities[BFQ_LIMIT_INLINE_DEPTH];
+ 	struct bfq_entity **entities = inline_entities;
+-	int depth, level;
++	int depth, level, alloc_depth = BFQ_LIMIT_INLINE_DEPTH;
+ 	int class_idx = bfqq->ioprio_class - 1;
+ 	struct bfq_sched_data *sched_data;
+ 	unsigned long wsum;
+@@ -578,15 +578,21 @@ static bool bfqq_request_over_limit(struct bfq_queue *bfqq, int limit)
+ 	if (!entity->on_st_or_in_serv)
+ 		return false;
+ 
++retry:
++	spin_lock_irq(&bfqd->lock);
+ 	/* +1 for bfqq entity, root cgroup not included */
+ 	depth = bfqg_to_blkg(bfqq_group(bfqq))->blkcg->css.cgroup->level + 1;
+-	if (depth > BFQ_LIMIT_INLINE_DEPTH) {
++	if (depth > alloc_depth) {
++		spin_unlock_irq(&bfqd->lock);
++		if (entities != inline_entities)
++			kfree(entities);
+ 		entities = kmalloc_array(depth, sizeof(*entities), GFP_NOIO);
+ 		if (!entities)
+ 			return false;
++		alloc_depth = depth;
++		goto retry;
+ 	}
+ 
+-	spin_lock_irq(&bfqd->lock);
+ 	sched_data = entity->sched_data;
+ 	/* Gather our ancestors as we need to traverse them in reverse order */
+ 	level = 0;
+-- 
+2.34.1
 
-I'll submit a different patch for that.
-
-Thanks,
-Mani
-
-> >   	.restore = mhi_pci_restore,
-> >   #endif
-> >   };
