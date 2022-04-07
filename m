@@ -2,125 +2,151 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B6734F7DED
-	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 13:22:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E7004F7E0E
+	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 13:29:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244752AbiDGLY3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Apr 2022 07:24:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49206 "EHLO
+        id S234993AbiDGLbC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Apr 2022 07:31:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49408 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244740AbiDGLY1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 Apr 2022 07:24:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82DA56E8D2;
-        Thu,  7 Apr 2022 04:22:28 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1830A61CF0;
-        Thu,  7 Apr 2022 11:22:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DD77C385A0;
-        Thu,  7 Apr 2022 11:22:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1649330547;
-        bh=3SB3NHl1PuAXJFmpwSTU6c82ytSgfL6twncwZKuVsLM=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JcXVARvMW6cm3/E4vvW5yXRVKux8kASyP20uPZbyKxQ6dbXfnWJ3xEwQq5kdN6l2y
-         d9v9pm2XvzmZiC4oHO73kEZ3fvvqe7wAYvgrloTHcSCYvnKt+GL81iIqBVMy1806Ke
-         6hXZKYLbWDoxrtebli6AeVoJPD3IKBkome7GGe5NQ5xZTdIUDcUCpOq8lbewhQ6g5a
-         zXAE2BY3L8MjFhJiD6GaLyOHduy22Tx7FO+viAH1yq9/0paSsZQzWDlUK7CiGGIMTg
-         LayYwJ0BAVUGgTx7DsW1Da0f4uE7u44rl+5vZy9Ukb/NboVq2b0BYI4+O8FBaoW/5i
-         G26gWp9BAc6kw==
-From:   Christian Brauner <brauner@kernel.org>
-To:     Amir Goldstein <amir73il@gmail.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Miklos Szeredi <mszeredi@redhat.com>,
-        Al Viro <viro@zeniv.linux.org.uk>
-Cc:     Christian Brauner <brauner@kernel.org>,
-        linux-fsdevel@vger.kernel.org, linux-unionfs@vger.kernel.org,
-        Aleksa Sarai <cyphar@cyphar.com>,
-        Giuseppe Scrivano <gscrivan@redhat.com>,
-        Rodrigo Campos Catelin <rodrigo@sdfg.com.ar>,
-        Seth Forshee <sforshee@digitalocean.com>,
-        Luca Bocassi <luca.boccassi@microsoft.com>,
-        Lennart Poettering <mzxreary@0pointer.de>,
-        =?UTF-8?q?St=C3=A9phane=20Graber?= <stgraber@ubuntu.com>,
-        stable@vger.kernel.org
-Subject: [PATCH v5 02/19] exportfs: support idmapped mounts
-Date:   Thu,  7 Apr 2022 13:21:39 +0200
-Message-Id: <20220407112157.1775081-3-brauner@kernel.org>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20220407112157.1775081-1-brauner@kernel.org>
-References: <20220407112157.1775081-1-brauner@kernel.org>
+        with ESMTP id S234204AbiDGLbB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 Apr 2022 07:31:01 -0400
+Received: from mail-qv1-xf34.google.com (mail-qv1-xf34.google.com [IPv6:2607:f8b0:4864:20::f34])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD1A5326D6;
+        Thu,  7 Apr 2022 04:29:01 -0700 (PDT)
+Received: by mail-qv1-xf34.google.com with SMTP id i15so4748706qvh.0;
+        Thu, 07 Apr 2022 04:29:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=ZVHIuCpOGMkcuyXwH31qsEPghbWmviK44s7TDP75wQE=;
+        b=baEIIjOKBveh+s7vsmSTQmPNEwe7qWnekdt5d+2I+lUk2b7LvxMm//NjcZTqtNpwP8
+         xW8iOHmi6kLfr11g0MkhqvY9THMrUyTkDL8TYyLtzyBAUuAgGWzcn0ws9Da31hzPnLBu
+         CAPZmUO7B0QdbwF4tNprf1nq1nP+UDCOxmfQoONqTS28I8T+4HWlsuLXFyyL2tETiwyG
+         1ACjdBchGpXuwxgeQe5I8iN+yU6aIga4WrEVc7tpa0Ga8Iat9bcWkJu+ra6CAhTvV0E2
+         vc1pwqqPHIAPPccBRqAit+/Qql8uzctISB+PtZSfKTfsBLxxKtGb+Ub4z/btDMX6TW9g
+         5qjQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=ZVHIuCpOGMkcuyXwH31qsEPghbWmviK44s7TDP75wQE=;
+        b=XOP3kaYmO9fka0nnPG4fMyELz2U8dYaZu6u+9TQ5SmEaDb42iGd5DqVOUyxhkhc2f8
+         kr2nJ7/1ACWkjcRQFLVGSYjeETwSuYtA14Z4MRSyATHQkNu2nrUaNho0YJo8oZb4pFnQ
+         UBrQwlotIdQSDFgymPDkMf14CN4nKTW7/ExWAgntSUT7eo+edPfPyH05IOkKF3wCjVUg
+         M4NO9rBUFtYjH2qw42bgd0/BKD3TKtlOIz9xQax1awbqx3YA+kKW8HMxmFy29Ie+i7x1
+         XTBrOqNyuI894NEhuLY0IUmNfhArT+q5Ynk5kiWMrEfty7vP4UEE7aNk0z6zQtpsotUK
+         mmtw==
+X-Gm-Message-State: AOAM533U/Fp/7U9Dz4HFAqzxb20vwMu/bgtN+0lTgVvq8Vf58N5fwnEG
+        N8tepcdzso2ftz5H0AxIYaIsn8lHZQZDwGI2cdAZnlSdzrM=
+X-Google-Smtp-Source: ABdhPJziolhLY9l3pbdyGGS5PO9rrQ5Jyk//P1wr+Ax1DDF5OtbuXOVLWuKjO/zH9AsLiwAB6lUCt8T4lknZR6ZtEZM=
+X-Received: by 2002:a05:6214:1c83:b0:443:6749:51f8 with SMTP id
+ ib3-20020a0562141c8300b00443674951f8mr10768213qvb.74.1649330940950; Thu, 07
+ Apr 2022 04:29:00 -0700 (PDT)
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1973; h=from:subject; bh=3SB3NHl1PuAXJFmpwSTU6c82ytSgfL6twncwZKuVsLM=; b=owGbwMvMwCU28Zj0gdSKO4sYT6slMST5nfR0zv4T2/5vedIlYY7D0uXFW81+ygcfyq1SSjo4k3HJ 6XyxjlIWBjEuBlkxRRaHdpNwueU8FZuNMjVg5rAygQxh4OIUgIlk3WL4H1ehLXP9aNeP/Vanrq/Uu7 qAd7LRZYekl1316+0CPl08Y8PIcLDnW+D7psVrtjtpLTI89t2q4Q3/n85vj249f3RN08dzHjsA
-X-Developer-Key: i=brauner@kernel.org; a=openpgp; fpr=4880B8C9BD0E5106FC070F4F7B3C391EFEA93624
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+References: <20220407011257.114287-1-sashal@kernel.org> <20220407011257.114287-21-sashal@kernel.org>
+In-Reply-To: <20220407011257.114287-21-sashal@kernel.org>
+From:   Amir Goldstein <amir73il@gmail.com>
+Date:   Thu, 7 Apr 2022 14:28:49 +0300
+Message-ID: <CAOQ4uxi+Z_YDga+fkcuOjwo5EKfRkhsCp4SwxMHK0ARdJ_-+Aw@mail.gmail.com>
+Subject: Re: [PATCH AUTOSEL 5.15 21/27] fs: fix an infinite loop in iomap_fiemap
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     stable <stable@vger.kernel.org>, Guo Xuenan <guoxuenan@huawei.com>,
+        Hulk Robot <hulkci@huawei.com>, Christoph Hellwig <hch@lst.de>,
+        "Darrick J . Wong" <djwong@kernel.org>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        "Luis R. Rodriguez" <mcgrof@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Make the two locations where exportfs helpers check permission to lookup
-a given inode idmapped mount aware by switching it to the lookup_one()
-helper. This is a bugfix for the open_by_handle_at() system call which
-doesn't take idmapped mounts into account currently. It's not tied to a
-specific commit so we'll just Cc stable.
+On Thu, Apr 7, 2022 at 7:26 AM Sasha Levin <sashal@kernel.org> wrote:
+>
+> From: Guo Xuenan <guoxuenan@huawei.com>
+>
+> [ Upstream commit 49df34221804cfd6384135b28b03c9461a31d024 ]
+>
+> when get fiemap starting from MAX_LFS_FILESIZE, (maxbytes - *len) < start
+> will always true , then *len set zero. because of start offset is beyond
+> file size, for erofs filesystem it will always return iomap.length with
+> zero,iomap iterate will enter infinite loop. it is necessary cover this
+> corner case to avoid this situation.
+>
+> ------------[ cut here ]------------
+> WARNING: CPU: 7 PID: 905 at fs/iomap/iter.c:35 iomap_iter+0x97f/0xc70
+> Modules linked in: xfs erofs
+> CPU: 7 PID: 905 Comm: iomap Tainted: G        W         5.17.0-rc8 #27
+> Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1ubuntu1.1 04/01/2014
+> RIP: 0010:iomap_iter+0x97f/0xc70
+> Code: 85 a1 fc ff ff e8 71 be 9c ff 0f 1f 44 00 00 e9 92 fc ff ff e8 62 be 9c ff 0f 0b b8 fb ff ff ff e9 fc f8 ff ff e8 51 be 9c ff <0f> 0b e9 2b fc ff ff e8 45 be 9c ff 0f 0b e9 e1 fb ff ff e8 39 be
+> RSP: 0018:ffff888060a37ab0 EFLAGS: 00010293
+> RAX: 0000000000000000 RBX: ffff888060a37bb0 RCX: 0000000000000000
+> RDX: ffff88807e19a900 RSI: ffffffff81a7da7f RDI: ffff888060a37be0
+> RBP: 7fffffffffffffff R08: 0000000000000000 R09: ffff888060a37c20
+> R10: ffff888060a37c67 R11: ffffed100c146f8c R12: 7fffffffffffffff
+> R13: 0000000000000000 R14: ffff888060a37bd8 R15: ffff888060a37c20
+> FS:  00007fd3cca01540(0000) GS:ffff888108780000(0000) knlGS:0000000000000000
+> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> CR2: 0000000020010820 CR3: 0000000054b92000 CR4: 00000000000006e0
+> DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+> DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+> Call Trace:
+>  <TASK>
+>  iomap_fiemap+0x1c9/0x2f0
+>  erofs_fiemap+0x64/0x90 [erofs]
+>  do_vfs_ioctl+0x40d/0x12e0
+>  __x64_sys_ioctl+0xaa/0x1c0
+>  do_syscall_64+0x35/0x80
+>  entry_SYSCALL_64_after_hwframe+0x44/0xae
+>  </TASK>
+> ---[ end trace 0000000000000000 ]---
+> watchdog: BUG: soft lockup - CPU#7 stuck for 26s! [iomap:905]
+>
+> Reported-by: Hulk Robot <hulkci@huawei.com>
+> Signed-off-by: Guo Xuenan <guoxuenan@huawei.com>
+> Reviewed-by: Christoph Hellwig <hch@lst.de>
+> [djwong: fix some typos]
+> Reviewed-by: Darrick J. Wong <djwong@kernel.org>
+> Signed-off-by: Darrick J. Wong <djwong@kernel.org>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  fs/ioctl.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/fs/ioctl.c b/fs/ioctl.c
+> index 504e69578112..e0a3455f9a0f 100644
+> --- a/fs/ioctl.c
+> +++ b/fs/ioctl.c
+> @@ -173,7 +173,7 @@ int fiemap_prep(struct inode *inode, struct fiemap_extent_info *fieinfo,
+>
+>         if (*len == 0)
+>                 return -EINVAL;
+> -       if (start > maxbytes)
+> +       if (start >= maxbytes)
+>                 return -EFBIG;
+>
+>         /*
+> --
+> 2.35.1
+>
 
-In addition this is required to support idmapped base layers in overlay.
-The overlay filesystem uses exportfs to encode and decode file handles
-for its index=on mount option and when nfs_export=on.
+Sasha,
 
-Cc: <stable@vger.kernel.org>
-Cc: <linux-fsdevel@vger.kernel.org>
-Tested-by: Giuseppe Scrivano <gscrivan@redhat.com>
-Reviewed-by: Amir Goldstein <amir73il@gmail.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Christian Brauner (Microsoft) <brauner@kernel.org>
----
-/* v2 */
-unchanged
+Any reason why I didn't see this patch posted for 5.10.y?
+I happen to know that it applies cleanly to 5.10.109 and I also included it in
+my xfs-5.10.y patch candidates branch [1] which has gone through some
+xfstests cycles already.
 
-/* v3 */
-unchanged
+Thanks,
+Amir.
 
-/* v4 */
-unchanged
-
-/* v5 */
-unchanged
----
- fs/exportfs/expfs.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
-
-diff --git a/fs/exportfs/expfs.c b/fs/exportfs/expfs.c
-index 0106eba46d5a..3ef80d000e13 100644
---- a/fs/exportfs/expfs.c
-+++ b/fs/exportfs/expfs.c
-@@ -145,7 +145,7 @@ static struct dentry *reconnect_one(struct vfsmount *mnt,
- 	if (err)
- 		goto out_err;
- 	dprintk("%s: found name: %s\n", __func__, nbuf);
--	tmp = lookup_one_len_unlocked(nbuf, parent, strlen(nbuf));
-+	tmp = lookup_one_unlocked(mnt_user_ns(mnt), nbuf, parent, strlen(nbuf));
- 	if (IS_ERR(tmp)) {
- 		dprintk("%s: lookup failed: %d\n", __func__, PTR_ERR(tmp));
- 		err = PTR_ERR(tmp);
-@@ -525,7 +525,8 @@ exportfs_decode_fh_raw(struct vfsmount *mnt, struct fid *fid, int fh_len,
- 		}
- 
- 		inode_lock(target_dir->d_inode);
--		nresult = lookup_one_len(nbuf, target_dir, strlen(nbuf));
-+		nresult = lookup_one(mnt_user_ns(mnt), nbuf,
-+				     target_dir, strlen(nbuf));
- 		if (!IS_ERR(nresult)) {
- 			if (unlikely(nresult->d_inode != result->d_inode)) {
- 				dput(nresult);
--- 
-2.32.0
-
+[1] https://github.com/amir73il/linux/commits/xfs-5.10.y
