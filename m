@@ -2,46 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AFD8A4F70EF
-	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 03:22:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 55FE94F70D2
+	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 03:21:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237238AbiDGBXX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Apr 2022 21:23:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60570 "EHLO
+        id S239420AbiDGBWp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Apr 2022 21:22:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60690 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240301AbiDGBTy (ORCPT
+        with ESMTP id S240310AbiDGBTy (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 21:19:54 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C22F194549;
-        Wed,  6 Apr 2022 18:15:40 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87D1018021D;
+        Wed,  6 Apr 2022 18:15:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id CA371CE25B9;
-        Thu,  7 Apr 2022 01:15:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21AE8C385A1;
-        Thu,  7 Apr 2022 01:15:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 38EBFB81E79;
+        Thu,  7 Apr 2022 01:15:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97A86C385A1;
+        Thu,  7 Apr 2022 01:15:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1649294137;
-        bh=KuFUgf9ktp4busrSOKUHZR6BbW7z2IoxN0dCsE+i6NY=;
+        s=k20201202; t=1649294140;
+        bh=EWPceXRr9n6C5+usxhB70r1p1I7AsLGL6Q2JN/tDL8c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uVqAwFKjf4HJqtiqAe4tvJvcErs6rwHpxG78ELS26V/OYiOqWuZHQlZncU+K2umIw
-         KnuTDluy8mj/Q+cO0yfVBlAgTfCQtKmspO5tQzTjEF/MYmdzAtGTGpQO+Y/LlU6jNo
-         b4FyDdvR0Gwi29DOhvDOIJrbZ5mSGWyp7bGJtZzD04bRwYjNEihnLfgp4Mfwem6mea
-         GEpWskejsmxFrYYX/vwL25MVdPq8kpxDI+aeAWD6cxc3lnMBZEsEZY91HhB5X+jA8p
-         mgJdNhpQOykUzQlFxDKE0QoK6pvOgCidZDQxwMDZ/UOys/Wfo2p99LF/N62t7624FE
-         9o7mNl64snMLQ==
+        b=Z1Y5CEWWWVsjnYqHX0tPy8399NX908Q+3jvDzKNaRXAvDvcBJ/esV8wXM71dR8U2V
+         3k3OiyGSA5mUDhLzbjhAsZZIZ8mVm/wxOLx8m8YO/mQwP3ME64GiCIxwXVC5qqUzUR
+         svfcG1C0uJ15855GHH8Ubprg9fEjj6NKjqE7ECctPxZBXdTYN2HStO+OeLDS6HPOWK
+         q51/zXIz9LqT+wq7fgWaWpY08b1f5Ss6xbOBkpe5NmTrjqEnQV7E4g9up+CgxBcBbt
+         t2A4vmFWc5CQoUyymLEmntC/82c88YcVe6WnmKPldIypX5tAJi3dP8uW9J8f2lq2wJ
+         mUJIir0aCpFxA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Zheng Yongjun <zhengyongjun3@huawei.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, mcoquelin.stm32@gmail.com,
-        alexandre.torgue@foss.st.com, linux-input@vger.kernel.org,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
+        mcoquelin.stm32@gmail.com, alexandre.torgue@foss.st.com,
+        marex@denx.de, nicolas.toromanoff@foss.st.com,
+        linux-crypto@vger.kernel.org,
         linux-stm32@st-md-mailman.stormreply.com,
         linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 06/17] Input: stmfts - fix reference leak in stmfts_input_open
-Date:   Wed,  6 Apr 2022 21:15:10 -0400
-Message-Id: <20220407011521.115014-6-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 07/17] crypto: stm32 - fix reference leak in stm32_crc_remove
+Date:   Wed,  6 Apr 2022 21:15:11 -0400
+Message-Id: <20220407011521.115014-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220407011521.115014-1-sashal@kernel.org>
 References: <20220407011521.115014-1-sashal@kernel.org>
@@ -61,49 +63,35 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Zheng Yongjun <zhengyongjun3@huawei.com>
 
-[ Upstream commit 26623eea0da3476446909af96c980768df07bbd9 ]
+[ Upstream commit e9a36feecee0ee5845f2e0656f50f9942dd0bed3 ]
 
 pm_runtime_get_sync() will increment pm usage counter even it
 failed. Forgetting to call pm_runtime_put_noidle will result
-in reference leak in stmfts_input_open, so we should fix it.
+in reference leak in stm32_crc_remove, so we should fix it.
 
 Signed-off-by: Zheng Yongjun <zhengyongjun3@huawei.com>
-Link: https://lore.kernel.org/r/20220317131604.53538-1-zhengyongjun3@huawei.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/touchscreen/stmfts.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/crypto/stm32/stm32-crc32.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/input/touchscreen/stmfts.c b/drivers/input/touchscreen/stmfts.c
-index cd8805d71d97..be1dd504d5b1 100644
---- a/drivers/input/touchscreen/stmfts.c
-+++ b/drivers/input/touchscreen/stmfts.c
-@@ -339,11 +339,11 @@ static int stmfts_input_open(struct input_dev *dev)
+diff --git a/drivers/crypto/stm32/stm32-crc32.c b/drivers/crypto/stm32/stm32-crc32.c
+index fb640e0ea614..2ecc970f5cae 100644
+--- a/drivers/crypto/stm32/stm32-crc32.c
++++ b/drivers/crypto/stm32/stm32-crc32.c
+@@ -332,8 +332,10 @@ static int stm32_crc_remove(struct platform_device *pdev)
+ 	struct stm32_crc *crc = platform_get_drvdata(pdev);
+ 	int ret = pm_runtime_get_sync(crc->dev);
  
- 	err = pm_runtime_get_sync(&sdata->client->dev);
- 	if (err < 0)
--		return err;
-+		goto out;
+-	if (ret < 0)
++	if (ret < 0) {
++		pm_runtime_put_noidle(crc->dev);
+ 		return ret;
++	}
  
- 	err = i2c_smbus_write_byte(sdata->client, STMFTS_MS_MT_SENSE_ON);
- 	if (err)
--		return err;
-+		goto out;
- 
- 	mutex_lock(&sdata->mutex);
- 	sdata->running = true;
-@@ -366,7 +366,9 @@ static int stmfts_input_open(struct input_dev *dev)
- 				 "failed to enable touchkey\n");
- 	}
- 
--	return 0;
-+out:
-+	pm_runtime_put_noidle(&sdata->client->dev);
-+	return err;
- }
- 
- static void stmfts_input_close(struct input_dev *dev)
+ 	spin_lock(&crc_list.lock);
+ 	list_del(&crc->list);
 -- 
 2.35.1
 
