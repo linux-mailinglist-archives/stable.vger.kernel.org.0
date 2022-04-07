@@ -2,49 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AA46A4F70B4
-	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 03:21:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 903694F7070
+	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 03:19:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239012AbiDGBWT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Apr 2022 21:22:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60912 "EHLO
+        id S238660AbiDGBVh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Apr 2022 21:21:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60914 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240517AbiDGBUD (ORCPT
+        with ESMTP id S240522AbiDGBUD (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 6 Apr 2022 21:20:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FB5E3EBAF;
-        Wed,  6 Apr 2022 18:17:52 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 086EDE9978;
+        Wed,  6 Apr 2022 18:17:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BC85B61DA4;
+        by ams.source.kernel.org (Postfix) with ESMTPS id B6CDFB81E7F;
+        Thu,  7 Apr 2022 01:17:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2682C385A6;
         Thu,  7 Apr 2022 01:17:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40069C385A1;
-        Thu,  7 Apr 2022 01:17:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1649294271;
-        bh=/9/EoeSHUACmbJ7HvXHZB554Rh0bzWIVC1Sfe8QGiZQ=;
+        s=k20201202; t=1649294272;
+        bh=vSlTdS4frT8Mjmykvy79Ms7L46FQR7yZhRuJyxtB7tU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Id9F8qHtctjTYhTw8PRQKs0NKolNDaMfeydFLAyBtH5UgD1L2Ir6Gec0RoJdrcceM
-         cYu3HvbISXd6Y0cAvJQP/Ak8XfEeduCELwaD7eurEun1D2Ux5Me2TCvbkqelPxcajB
-         dtEPgkhX+WakeRsjoizkscPwVQ/Sml5JLJRnKx1YfI02Upotjqp+wXdeputdADdoEc
-         xOU5skwLdh5z9Uob6xNqOkuApP/Ke3e7rqcac7TuU7eWbTiZ2A7S0TuxwqHUegMV5g
-         F7JlKdrx32cEBG11GHnz0XkFpbLqGw7uFN/0MOjKb8eg1DPaahUP1wqOQFHdO5xGXh
-         uJibc62EZuRZg==
+        b=RMAhFhCOB/2hMrxoZeQ9ayY9I4b7HfrojgdfxKziTvKVN8r24YWPrFMABWPC57cvi
+         8juaaQRvVHflBSCv7W6bIGyk1dgPvunnGp0ifxJ+wxx2KvB5QihHRHpP8/Of97gGqh
+         V8TDo+TMpMcQ/gYsg2YsaY3TYo7MIk1s0WbPcAix5DpNkrT7Tz75VC0pZHyXWSx8JZ
+         Gl5CemoVNaL6QQvKaWqOj2ZwxhIF41PVTBkwymgtqUUUDclfPa48cRcFDAOYsQ+3Y/
+         xvpRi7s7YmPFZvOiJ4qLLcgZcuki/TseeDbp1D0DMfOwhj0wT0Bjm7NyZt/uHyodlT
+         1qCPg7OCF6xHQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Glenn Washburn <development@efficientek.com>,
-        Richard Weinberger <richard@nod.at>,
-        Sasha Levin <sashal@kernel.org>,
-        anton.ivanov@cambridgegreys.com, johannes@sipsolutions.net,
-        linux-um@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.9 3/7] um: port_user: Improve error handling when port-helper is not found
-Date:   Wed,  6 Apr 2022 21:17:36 -0400
-Message-Id: <20220407011740.115717-3-sashal@kernel.org>
+Cc:     Jeff LaBundy <jeff@labundy.com>,
+        =?UTF-8?q?Tomasz=20Mo=C5=84?= <tomasz.mon@camlingroup.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 4/7] Input: add bounds checking to input_set_capability()
+Date:   Wed,  6 Apr 2022 21:17:37 -0400
+Message-Id: <20220407011740.115717-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220407011740.115717-1-sashal@kernel.org>
 References: <20220407011740.115717-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -58,53 +58,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Glenn Washburn <development@efficientek.com>
+From: Jeff LaBundy <jeff@labundy.com>
 
-[ Upstream commit 3cb5a7f167c620a8b0e38b0446df2e024d2243dc ]
+[ Upstream commit 409353cbe9fe48f6bc196114c442b1cff05a39bc ]
 
-Check if port-helper exists and is executable. If not, write an error
-message to the kernel log with information to help the user diagnose the
-issue and exit with an error. If UML_PORT_HELPER was not set, write a
-message suggesting that the user set it. This makes it easier to understand
-why telneting to the UML instance is failing and what can be done to fix it.
+Update input_set_capability() to prevent kernel panic in case the
+event code exceeds the bitmap for the given event type.
 
-Signed-off-by: Glenn Washburn <development@efficientek.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Suggested-by: Tomasz Moń <tomasz.mon@camlingroup.com>
+Signed-off-by: Jeff LaBundy <jeff@labundy.com>
+Reviewed-by: Tomasz Moń <tomasz.mon@camlingroup.com>
+Link: https://lore.kernel.org/r/20220320032537.545250-1-jeff@labundy.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/um/drivers/port_user.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/input/input.c | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
 
-diff --git a/arch/um/drivers/port_user.c b/arch/um/drivers/port_user.c
-index 9a8e1b64c22e..d3cf5db1350a 100644
---- a/arch/um/drivers/port_user.c
-+++ b/arch/um/drivers/port_user.c
-@@ -5,6 +5,7 @@
+diff --git a/drivers/input/input.c b/drivers/input/input.c
+index cb31236425a1..f65306f74339 100644
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -50,6 +50,17 @@ static DEFINE_MUTEX(input_mutex);
  
- #include <stdio.h>
- #include <stdlib.h>
-+#include <string.h>
- #include <errno.h>
- #include <termios.h>
- #include <unistd.h>
-@@ -175,6 +176,17 @@ int port_connection(int fd, int *socket, int *pid_out)
- 	if (new < 0)
- 		return -errno;
+ static const struct input_value input_value_sync = { EV_SYN, SYN_REPORT, 1 };
  
-+	err = os_access(argv[2], X_OK);
-+	if (err < 0) {
-+		printk(UM_KERN_ERR "port_connection : error accessing port-helper "
-+		       "executable at %s: %s\n", argv[2], strerror(-err));
-+		if (env == NULL)
-+			printk(UM_KERN_ERR "Set UML_PORT_HELPER environment "
-+				"variable to path to uml-utilities port-helper "
-+				"binary\n");
-+		goto out_close;
++static const unsigned int input_max_code[EV_CNT] = {
++	[EV_KEY] = KEY_MAX,
++	[EV_REL] = REL_MAX,
++	[EV_ABS] = ABS_MAX,
++	[EV_MSC] = MSC_MAX,
++	[EV_SW] = SW_MAX,
++	[EV_LED] = LED_MAX,
++	[EV_SND] = SND_MAX,
++	[EV_FF] = FF_MAX,
++};
++
+ static inline int is_event_supported(unsigned int code,
+ 				     unsigned long *bm, unsigned int max)
+ {
+@@ -1913,6 +1924,14 @@ EXPORT_SYMBOL(input_free_device);
+  */
+ void input_set_capability(struct input_dev *dev, unsigned int type, unsigned int code)
+ {
++	if (type < EV_CNT && input_max_code[type] &&
++	    code > input_max_code[type]) {
++		pr_err("%s: invalid code %u for type %u\n", __func__, code,
++		       type);
++		dump_stack();
++		return;
 +	}
 +
- 	err = os_pipe(socket, 0, 0);
- 	if (err < 0)
- 		goto out_close;
+ 	switch (type) {
+ 	case EV_KEY:
+ 		__set_bit(code, dev->keybit);
 -- 
 2.35.1
 
