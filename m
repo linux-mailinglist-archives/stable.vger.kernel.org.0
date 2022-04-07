@@ -2,60 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E1E14F75D4
-	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 08:18:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 280CF4F7601
+	for <lists+stable@lfdr.de>; Thu,  7 Apr 2022 08:27:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239153AbiDGGUl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Apr 2022 02:20:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35186 "EHLO
+        id S230464AbiDGG3H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Apr 2022 02:29:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39978 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236654AbiDGGUk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 Apr 2022 02:20:40 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4222D1A8C17;
-        Wed,  6 Apr 2022 23:18:41 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CAE0A61D0D;
-        Thu,  7 Apr 2022 06:18:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DB1AC385A0;
-        Thu,  7 Apr 2022 06:18:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649312320;
-        bh=WNjt/W0EC5NHsxTNHptluiTrADyC31f+9oWaPnEp5d0=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=HYerDy/KYCFxq39gnJ4RAqvZZ3raYPvCXbukjYlfWMfdsehpkjbkcRJoWGFl8Qv/K
-         Jc3iEUV7A/EAEiqc1uacaPN04am8D5R3JmocyWfL5fkyjLY/ShDRa8KeBmTGJYrhed
-         GSvUer54e2rVTaXRQqVnoMl2kZifHYi6YCgYhJQY=
-Date:   Thu, 7 Apr 2022 08:18:35 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Laurent Vivier <laurent@vivier.eu>
-Cc:     linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-m68k@lists.linux-m68k.org,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        linux-rtc@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        John Stultz <john.stultz@linaro.org>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Alessandro Zummo <a.zummo@towertech.it>, stable@vger.kernel.org
-Subject: Re: [PATCH v16 1/4] tty: goldfish: introduce
- gf_ioread32()/gf_iowrite32()
-Message-ID: <Yk6CO11wyo86ylee@kroah.com>
-References: <20220406201523.243733-1-laurent@vivier.eu>
- <20220406201523.243733-2-laurent@vivier.eu>
- <Yk5tNOPE4b2QbHLG@kroah.com>
- <198be9ea-a8c2-0f9e-6ae5-a7358035def4@vivier.eu>
+        with ESMTP id S241077AbiDGG3G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 Apr 2022 02:29:06 -0400
+Received: from mail-yb1-xb29.google.com (mail-yb1-xb29.google.com [IPv6:2607:f8b0:4864:20::b29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00AC023140
+        for <stable@vger.kernel.org>; Wed,  6 Apr 2022 23:27:06 -0700 (PDT)
+Received: by mail-yb1-xb29.google.com with SMTP id o62so7926226ybo.2
+        for <stable@vger.kernel.org>; Wed, 06 Apr 2022 23:27:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=5mKuLfEu/XgxaX2jy+hBrSqJETshC2bp0HB62gqa9as=;
+        b=ijWyXBIU2gTvhFS1E8a8eFBl4dLddumMhFj95hUgEpPnrsAdxvDOez3JKjfVLmCDC8
+         pT5X4PU16JZNf1Xwn8+1qSFdC/anxn+LfFM/2SAb9FV1OKsWDT5C1qJYNGu3U+H9ZbXh
+         pRzSN5chWjRGaG+91pr+97QccPnWzoGd1/GdcaeRTIT3LmKGnzaZNgmwE4Ub3gqFLJ6/
+         VtJ4UQID0YojRhupDZ9D2ryu9KP16I43NCK+obhrag6lWUfUR87hyvRz/OCVa+YZUxXQ
+         ZGTKdlkgVx7ZEmgEOyV5bX/FMrms9wD2hol7mbseJ84CoLvQZKsEYjCasGQbYTYpEpmR
+         3+jw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=5mKuLfEu/XgxaX2jy+hBrSqJETshC2bp0HB62gqa9as=;
+        b=8BaMHvPCnXPUw3vM1yi09uKf28y00JzpSc1mGLDxkWzzYWjgkviVcnx8e5lUCDrspy
+         3AQJsK5KNqWVuVkrz4hWifGTUpEFt9wouN5MYBGBxPkYuDwnirymtgFD78X5dINE3y0n
+         +HkVuiesfT076WNQtYaFCabPOyv5dVFOuLG/hXHR6opABearvBp/SYFYtKD/3fAgxkrs
+         fMO9JK0YVjo5OU72U6+7dtp0HcR++5LJvLHXDJ93fMMaSG38NgL019lsH9hqKGX2S6a2
+         TlMm9Z0yBFX5jdaop78jviRtOQxEDzycEZc4GYbAJpvnhroczmqjl9J+zkQ4kr2QY5vh
+         brTw==
+X-Gm-Message-State: AOAM532USFYJOgGbxyh8qpB2A6CLy/YFXMl4MBJ/A3/VbNO3lcF6OCyd
+        g4PTd05j4wc2uErhQTh6JlskS5ZhQ7YlmJZBPRTZBw==
+X-Google-Smtp-Source: ABdhPJyROADdkMq9pW7+A1qoOWOj6ZUsJeKyNaQKPXuuR9mtzSUEzntyZ/5alX+/W3USXgYeX9zTgHL2suqfY9ixmtw=
+X-Received: by 2002:a25:dfc4:0:b0:63d:b28e:93ec with SMTP id
+ w187-20020a25dfc4000000b0063db28e93ecmr9426015ybg.474.1649312826038; Wed, 06
+ Apr 2022 23:27:06 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <198be9ea-a8c2-0f9e-6ae5-a7358035def4@vivier.eu>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+References: <20220406133109.570377390@linuxfoundation.org>
+In-Reply-To: <20220406133109.570377390@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Thu, 7 Apr 2022 11:56:54 +0530
+Message-ID: <CA+G9fYv+-ZGGkX288PzupW9c5CnWTK8d_=2j=0zJNd3=A5oy4g@mail.gmail.com>
+Subject: Re: [PATCH 5.16 0000/1014] 5.16.19-rc2 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -64,32 +70,182 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Apr 07, 2022 at 08:00:08AM +0200, Laurent Vivier wrote:
-> Le 07/04/2022 à 06:48, Greg KH a écrit :
-> > On Wed, Apr 06, 2022 at 10:15:20PM +0200, Laurent Vivier wrote:
-> > > Revert
-> > > commit da31de35cd2f ("tty: goldfish: use __raw_writel()/__raw_readl()")
-> > > 
-> > > and define gf_ioread32()/gf_iowrite32() to be able to use accessors
-> > > defined by the architecture.
-> > > 
-> > > Cc: stable@vger.kernel.org # v5.11+
-> > > Fixes: da31de35cd2f ("tty: goldfish: use __raw_writel()/__raw_readl()")
-> > > Signed-off-by: Laurent Vivier <laurent@vivier.eu>
-> > > Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
-> > > ---
-> > >   drivers/tty/goldfish.c   | 20 ++++++++++----------
-> > >   include/linux/goldfish.h | 15 +++++++++++----
-> > >   2 files changed, 21 insertions(+), 14 deletions(-)
-> > > 
-> > 
-> > Why is this a commit for the stable trees?  What bug does it fix?  You
-> > did not describe the problem in the changelog text at all, this looks
-> > like a housekeeping change only.
-> 
-> Arnd asked for that in:
-> 
->   Re: [PATCH v11 2/5] tty: goldfish: introduce gf_ioread32()/gf_iowrite32()
->   https://lore.kernel.org/lkml/CAK8P3a1oN8NrUjkh2X8jHQbyz42Xo6GSa=5n0gD6vQcXRjmq1Q@mail.gmail.com/
+On Wed, 6 Apr 2022 at 19:14, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.16.19 release.
+> There are 1014 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Fri, 08 Apr 2022 13:27:53 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.16.19-rc2.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.16.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-You did not provide a reason in this changelog to explain any of that :(
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
+
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+
+## Build
+* kernel: 5.16.19-rc2
+* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
+rc.git
+* git branch: linux-5.16.y
+* git commit: 18299e64680a0cbdf745fd73c5345d9a029928b9
+* git describe: v5.16.18-1015-g18299e64680a
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.16.y/build/v5.16=
+.18-1015-g18299e64680a
+
+## Test Regressions (compared to v5.16.18-959-gef4d007f65de)
+No test regressions found.
+
+## Metric Regressions (compared to v5.16.18-959-gef4d007f65de)
+No metric regressions found.
+
+## Test Fixes (compared to v5.16.18-959-gef4d007f65de)
+No test regressions found.
+
+## Metric Fixes (compared to v5.16.18-959-gef4d007f65de)
+No metric fixes found.
+
+## Test result summary
+total: 104242, pass: 87607, fail: 1089, skip: 14348, xfail: 1198
+
+## Build Summary
+* arc: 10 total, 10 passed, 0 failed
+* arm: 291 total, 291 passed, 0 failed
+* arm64: 41 total, 41 passed, 0 failed
+* dragonboard-410c: 1 total, 1 passed, 0 failed
+* hi6220-hikey: 1 total, 1 passed, 0 failed
+* i386: 40 total, 40 passed, 0 failed
+* juno-r2: 1 total, 1 passed, 0 failed
+* mips: 37 total, 37 passed, 0 failed
+* parisc: 12 total, 12 passed, 0 failed
+* powerpc: 60 total, 54 passed, 6 failed
+* riscv: 27 total, 22 passed, 5 failed
+* s390: 21 total, 21 passed, 0 failed
+* sh: 24 total, 24 passed, 0 failed
+* sparc: 12 total, 12 passed, 0 failed
+* x15: 1 total, 1 passed, 0 failed
+* x86: 1 total, 1 passed, 0 failed
+* x86_64: 41 total, 41 passed, 0 failed
+
+## Test suites summary
+* fwts
+* igt-gpu-tools
+* kself[
+* kselftest-
+* kselftest-android
+* kselftest-arm64
+* kselftest-bpf
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-drivers
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-memory-hotplug
+* kselftest-mincore
+* kselftest-mount
+* kselftest-mqueue
+* kselftest-net
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-x86
+* kselftest-zram
+* kunit
+* kvm-unit-tests
+* libgpiod
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-open-posix-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* network-basic-tests
+* packetdrill
+* perf
+* perf/Zstd-perf.data-compression
+* rcutorture
+* ssuite
+* v4l2-compliance
+* vdso
+
+--
+Linaro LKFT
+https://lkft.linaro.org
