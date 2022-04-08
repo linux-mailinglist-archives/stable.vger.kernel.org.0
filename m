@@ -2,211 +2,193 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FB954F8F64
-	for <lists+stable@lfdr.de>; Fri,  8 Apr 2022 09:18:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2CB84F8F91
+	for <lists+stable@lfdr.de>; Fri,  8 Apr 2022 09:26:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229823AbiDHHUt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Apr 2022 03:20:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59750 "EHLO
+        id S229966AbiDHH2A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Apr 2022 03:28:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58254 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229800AbiDHHUr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 8 Apr 2022 03:20:47 -0400
-Received: from mail-pl1-x629.google.com (mail-pl1-x629.google.com [IPv6:2607:f8b0:4864:20::629])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 710E125F672
-        for <stable@vger.kernel.org>; Fri,  8 Apr 2022 00:18:36 -0700 (PDT)
-Received: by mail-pl1-x629.google.com with SMTP id k13so1931101plk.12
-        for <stable@vger.kernel.org>; Fri, 08 Apr 2022 00:18:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:mime-version:content-disposition;
-        bh=co5p7yRLCSx9j8/2orMZ/a65NN70Y/hDxlRk7f3v2ok=;
-        b=cAMsJS+RTVnYONCydincirhbTiKfpU79UzC5HmgS8HfK2pGzignQyozf0oXt6XEB3H
-         0+SN4WGpmZ/8H2z6jW3Quoyjd/Rfi7oy49b0eDLRe21zJ4O0gUpEx5g+LJAXXObtEhfm
-         Qcm+jHwXgFHXKdAbqLCpYEgbv/5Raz5qNQ4wx06QuPbAikoPutkpQMG8FlsRh1beFzF0
-         nxKuo8L3ked66x4jdsCOjnEq1rP3y8tJgPOn7UMHcvnV+juHCKdiXKEPgspfLTEnlDPU
-         u5U4Dp7T5FwuIEe/zR9QwL6ulcHRnJ+TEhZ4RE/zfqdZAJrie8XgcwUhPHkFPQ6YadWI
-         uzng==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
-         :content-disposition;
-        bh=co5p7yRLCSx9j8/2orMZ/a65NN70Y/hDxlRk7f3v2ok=;
-        b=f2yLeewBzNkJhIy9DuQAjC3OPDQqueMJ6unrsxNu2kiUDW2m0EYgU4mR/VkYpDv9oN
-         FYLkxkzQjPkeX3fBTDLMl0OHd7Qj/q20ylDhR+nXf6InxHaAsP8LMxT5AaX7uaB3BuIt
-         AUPzu+P6Jeji+UxEjOuUkyMrwbjRjG5rGvsszptutpyP8Mb9IQ7BTeSRMpgUi6U/oUhW
-         Erk/NoqvauigvfOT/Uscrvyp0OeI+ftToEAxV/xb24DvouFYhYLDyeKkXcVN21b9hAjg
-         rl1n/stlFJXPSAiGeUiSz4SKMbyYjTsmLNaOeeTZ5ksIBDdGFSBb9rT/VTwflebHeWpm
-         +2SA==
-X-Gm-Message-State: AOAM5310YE9/5qouveZMzeTlrjFSB6NJ0XZAWrao3SsZ1/f/ihmfQsD2
-        Fyy6vceRhhbpHR87yDvIXFUus50C8GjaPQfSKtM=
-X-Google-Smtp-Source: ABdhPJyRxmEZNxTm9ueSOpScy2SaOPAhHOV/2k23k+QSht9hYh8igX+QzqlBMdJDwtswwj7CwOzggg==
-X-Received: by 2002:a17:902:8a8d:b0:157:ab0:a07 with SMTP id p13-20020a1709028a8d00b001570ab00a07mr6405805plo.77.1649402315839;
-        Fri, 08 Apr 2022 00:18:35 -0700 (PDT)
-Received: from localhost ([118.33.58.238])
-        by smtp.gmail.com with ESMTPSA id b17-20020a056a000a9100b004e1b7cdb8fdsm27255997pfl.70.2022.04.08.00.18.34
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 08 Apr 2022 00:18:35 -0700 (PDT)
-Date:   Fri, 8 Apr 2022 16:18:33 +0900
-From:   Paran Lee <p4ranlee@gmail.com>
-To:     colin.i.king@gmail.com
-Cc:     stable@vger.kernel.org, Austin Kim <austindh.kim@gmail.com>
-Subject: [PATCH] writeback: expired dirty inodes can lead to a NULL
- dereference kernel panic issue in 'move_expired_inodes' function
-Message-ID: <20220408071833.GA14552@DESKTOP-S4LJL03.localdomain>
+        with ESMTP id S230466AbiDHH1n (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 8 Apr 2022 03:27:43 -0400
+Received: from pegase2.c-s.fr (pegase2.c-s.fr [93.17.235.10])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BDDC37A193;
+        Fri,  8 Apr 2022 00:25:40 -0700 (PDT)
+Received: from localhost (mailhub3.si.c-s.fr [172.26.127.67])
+        by localhost (Postfix) with ESMTP id 4KZVC73w15z9sSf;
+        Fri,  8 Apr 2022 09:25:23 +0200 (CEST)
+X-Virus-Scanned: amavisd-new at c-s.fr
+Received: from pegase2.c-s.fr ([172.26.127.65])
+        by localhost (pegase2.c-s.fr [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id OFz_adhvoOUO; Fri,  8 Apr 2022 09:25:23 +0200 (CEST)
+Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
+        by pegase2.c-s.fr (Postfix) with ESMTP id 4KZVC41rh3z9sSl;
+        Fri,  8 Apr 2022 09:25:20 +0200 (CEST)
+Received: from localhost (localhost [127.0.0.1])
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id 29B368B765;
+        Fri,  8 Apr 2022 09:25:20 +0200 (CEST)
+X-Virus-Scanned: amavisd-new at c-s.fr
+Received: from messagerie.si.c-s.fr ([127.0.0.1])
+        by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
+        with ESMTP id aoZjZs1bH04T; Fri,  8 Apr 2022 09:25:20 +0200 (CEST)
+Received: from PO20335.IDSI0.si.c-s.fr (unknown [192.168.203.13])
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id A18DC8B794;
+        Fri,  8 Apr 2022 09:25:19 +0200 (CEST)
+Received: from PO20335.IDSI0.si.c-s.fr (localhost [127.0.0.1])
+        by PO20335.IDSI0.si.c-s.fr (8.17.1/8.16.1) with ESMTPS id 2387PCPY637071
+        (version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+        Fri, 8 Apr 2022 09:25:12 +0200
+Received: (from chleroy@localhost)
+        by PO20335.IDSI0.si.c-s.fr (8.17.1/8.17.1/Submit) id 2387PCEZ637070;
+        Fri, 8 Apr 2022 09:25:12 +0200
+X-Authentication-Warning: PO20335.IDSI0.si.c-s.fr: chleroy set sender to christophe.leroy@csgroup.eu using -f
+From:   Christophe Leroy <christophe.leroy@csgroup.eu>
+To:     Andrew Morton <akpm@linux-foundation.org>
+Cc:     Christophe Leroy <christophe.leroy@csgroup.eu>,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        linuxppc-dev@lists.ozlabs.org, Steve Capper <steve.capper@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        stable@vger.kernel.org
+Subject: [PATCH v9 4/4] mm, hugetlbfs: Allow for "high" userspace addresses
+Date:   Fri,  8 Apr 2022 09:25:02 +0200
+Message-Id: <3bb944642140841c065f1cd6eae73f084fc026d2.1649401201.git.christophe.leroy@csgroup.eu>
+X-Mailer: git-send-email 2.35.1
+In-Reply-To: <cover.1649401201.git.christophe.leroy@csgroup.eu>
+References: <cover.1649401201.git.christophe.leroy@csgroup.eu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1649402687; l=4559; s=20211009; h=from:subject:message-id; bh=uY4G1h69dirfHjauOTANKqPVW/ZOXHhWEEz9KnkD6qc=; b=5T4hBRKI8Mwb/cfvustmlLB/cT0IvtzsbpNggUGKsdxg3XNHDehfQ56Hja3EWJNstq5s7T0QTFDi AP/jNppmD9iBNAo2EP5isqwXKPmx6ihSnUjB9dbqdT3tZ9dQjeNY
+X-Developer-Key: i=christophe.leroy@csgroup.eu; a=ed25519; pk=HIzTzUj91asvincQGOFx6+ZF5AoUuP9GdOtQChs7Mm0=
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-writeback: expired dirty inodes can lead to a NULL dereference kernel panic issue in 'move_expired_inodes' function
+This is a complement of f6795053dac8 ("mm: mmap: Allow for "high"
+userspace addresses") for hugetlb.
 
-Hello, Colin Ian King.
+This patch adds support for "high" userspace addresses that are
+optionally supported on the system and have to be requested via a hint
+mechanism ("high" addr parameter to mmap).
 
-I am Paran Lee.
+Architectures such as powerpc and x86 achieve this by making changes to
+their architectural versions of hugetlb_get_unmapped_area() function.
+However, arm64 uses the generic version of that function.
 
-While tracing the null dereference kernel panic issue during the stress-ng(stress-ng-proc) test,
-I found the inode code block that could cause a null dereference kernel panic.
+So take into account arch_get_mmap_base() and arch_get_mmap_end() in
+hugetlb_get_unmapped_area(). To allow that, move those two macros
+out of mm/mmap.c into include/linux/sched/mm.h
 
-If this issue is confirmed as a bug that may have occurred in the past, wouldn't it be added to the link below?
+If these macros are not defined in architectural code then they default
+to (TASK_SIZE) and (base) so should not introduce any behavioural
+changes to architectures that do not define them.
 
-@ Bugs found with stress-ng
-- https://github.com/ColinIanKing/stress-ng#bugs-found-with-stress-ng
+For the time being, only ARM64 is affected by this change.
 
-* kernel log
-
-[21881.096120] ICMPv6: process `stress-ng-procf' is using deprecated sysctl (syscall) net.ipv6.neigh.default.base_reachable_time - use net.ipv6.neigh.default.base_reachable_time_ms instead
-[22009.051158] BUG: unable to handle kernel NULL pointer dereference at 0000000000000008
-[22009.051167] IP: move_expired_inodes+0x59/0x1a0
-[22009.051168] PGD 0 P4D 0
-[22009.051170] Oops: 0002 [#1] SMP NOPTI
-...
-[22009.051221] RIP: 0010:move_expired_inodes+0x59/0x1a0
-...
-[22009.051257] Call Trace:
-[22009.051260]  queue_io+0x66/0x110
-[22009.051262]  wb_writeback+0x253/0x300
-[22009.051264]  wb_workfn+0xc0/0x400
-[22009.051265]  ? wb_workfn+0xc0/0x400
-[22009.051268]  ? __switch_to_asm+0x35/0x70
-[22009.051272]  process_one_work+0x1de/0x420
-[22009.051274]  worker_thread+0x32/0x410
-[22009.051276]  kthread+0x121/0x140
-[22009.051277]  ? process_one_work+0x420/0x420
-[22009.051279]  ? kthread_create_worker_on_cpu+0x70/0x70
-[22009.051280]  ret_from_fork+0x1f/0x40
-[22009.051282] Code: 04 25 28 00 00 00 48 89 45 d0 31 c0 4c 89 75 c8 c7 45 b0 00 00 00 00 c7 45 b4 00 00 00 00 eb 76 48 8b 3b 48 8b 43 08 83 45 b0 01 <48> 89 47 08 48 89 38 48 8b 45 c0 48 89 58 08 48 89 03 48 8d 43
-[22009.051293] RIP: move_expired_inodes+0x59/0x1a0 RSP: ffffa2f68413bcb0
-
-* trace log on crash utility
-
-      KERNEL: vmlinux-4.15.0-166-generic
-    DUMPFILE: 202204072123-wb_inode-delaying_queue-list-null-check/dump.202204072123  [PARTIAL DUMP]
-        CPUS: 4
-        DATE: Fri Apr  8 06:23:30 2022
-      UPTIME: 01:35:27
-LOAD AVERAGE: 8.30, 8.37, 9.17
-       TASKS: 668
-    NODENAME: ubuntu1804
-     RELEASE: 4.15.0-166-generic
-     VERSION: #174-Ubuntu SMP Wed Dec 8 19:07:44 UTC 2021
-     MACHINE: x86_64  (2394 Mhz)
-      MEMORY: 16 GB
-       PANIC: "BUG: unable to handle kernel NULL pointer dereference at 0000000000000008"
-         PID: 22864
-     COMMAND: "kworker/u8:0"
-        TASK: ffff91490b55d880  [THREAD_INFO: ffff91490b55d880]
-         CPU: 0
-       STATE: TASK_RUNNING (PANIC)
-
-crash> bt
-...
- #9 [ffffa2f68413bc00] page_fault at ffffffffae401615
-    [exception RIP: move_expired_inodes+89]
-    RIP: ffffffffadcb11f9  RSP: ffffa2f68413bcb0  RFLAGS: 00010202
-    RAX: 0000000000000000  RBX: ffff9148083af9b8  RCX: ffff91496659a090
-    RDX: 000000010052d046  RSI: ffff91496659a080  RDI: 0000000000000000
-    RBP: ffffa2f68413bd08   R8: ffff91496676727f   R9: ffff914951111f76
-    R10: ffffa2f68413bdf8  R11: 0000000000000334  R12: 0000000000000000
-    R13: ffff91496659a070  R14: ffffa2f68413bcc8  R15: ffff91496659a080
-    ORIG_RAX: ffffffffffffffff  CS: 0010  SS: 0018
-#10 [ffffa2f68413bd10] queue_io at ffffffffadcb32d6
-#11 [ffffa2f68413bd48] wb_writeback at ffffffffadcb77a3
-#12 [ffffa2f68413bde8] wb_workfn at ffffffffadcb7eb0
-#13 [ffffa2f68413be80] process_one_work at ffffffffadaaa68e
-#14 [ffffa2f68413bec8] worker_thread at ffffffffadaaa902
-#15 [ffffa2f68413bf08] kthread at ffffffffadab1361
-#16 [ffffa2f68413bf50] ret_from_fork at ffffffffae4001ef
-
-crash> dis ffffffffadcb32c6 20
-...
-0xffffffffadcb32c6 <queue_io+86>:       jg     0xffffffffadcb32e0 <queue_io+112>
-0xffffffffadcb32c8 <queue_io+88>:       mov    %rsi,%r14
-0xffffffffadcb32cb <queue_io+91>:       mov    %r12,%rsi
-0xffffffffadcb32ce <queue_io+94>:       mov    %rdx,%r13
-0xffffffffadcb32d1 <queue_io+97>:       callq  0xffffffffadcb11a0 <move_expired_inodes>
-
-crash> dis 0xffffffffadcb11a0
-0xffffffffadcb11a0 <move_expired_inodes>:       nopl   0x0(%rax,%rax,1) [FTRACE NOP]
-...
-0xffffffffadcb11ec <move_expired_inodes+76>:    jmp    0xffffffffadcb1264 <move_expired_inodes+196>
-0xffffffffadcb11ee <move_expired_inodes+78>:    mov    (%rbx),%rdi
-0xffffffffadcb11f1 <move_expired_inodes+81>:    mov    0x8(%rbx),%rax
-0xffffffffadcb11f5 <move_expired_inodes+85>:    addl   $0x1,-0x50(%rbp)
-0xffffffffadcb11f9 <move_expired_inodes+89>:    mov    %rax,0x8(%rdi)    <<<<<< Don't you think this is the NULL dereference RIP point of it?
-0xffffffffadcb11fd <move_expired_inodes+93>:    mov    %rdi,(%rax)
-...
-0xffffffffadcb121e <move_expired_inodes+126>:   callq  0xffffffffae3cd460 <_raw_spin_lock>
-
-Have a good day.
-Paran Lee.
-
-Signed-off-by: Paran Lee <p4ranlee@gmail.com>
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Cc: Steve Capper <steve.capper@arm.com>
+Cc: Will Deacon <will.deacon@arm.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Fixes: f6795053dac8 ("mm: mmap: Allow for "high" userspace addresses")
+Cc: <stable@vger.kernel.org> # 5.0.x
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
 ---
- fs/fs-writeback.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ fs/hugetlbfs/inode.c     | 9 +++++----
+ include/linux/sched/mm.h | 8 ++++++++
+ mm/mmap.c                | 8 --------
+ 3 files changed, 13 insertions(+), 12 deletions(-)
 
-diff --git a/fs/fs-writeback.c b/fs/fs-writeback.c
-index 591fe9cf1659..23a7a567e443 100644
---- a/fs/fs-writeback.c
-+++ b/fs/fs-writeback.c
-@@ -1357,12 +1357,14 @@ static int move_expired_inodes(struct list_head *delaying_queue,
- 	LIST_HEAD(tmp);
- 	struct list_head *pos, *node;
- 	struct super_block *sb = NULL;
--	struct inode *inode;
-+	struct inode *inode = NULL;
- 	int do_sb_sort = 0;
- 	int moved = 0;
+diff --git a/fs/hugetlbfs/inode.c b/fs/hugetlbfs/inode.c
+index 09c8313ee1c4..6f863497bd69 100644
+--- a/fs/hugetlbfs/inode.c
++++ b/fs/hugetlbfs/inode.c
+@@ -205,7 +205,7 @@ hugetlb_get_unmapped_area_bottomup(struct file *file, unsigned long addr,
+ 	info.flags = 0;
+ 	info.length = len;
+ 	info.low_limit = current->mm->mmap_base;
+-	info.high_limit = TASK_SIZE;
++	info.high_limit = arch_get_mmap_end(addr, len, flags);
+ 	info.align_mask = PAGE_MASK & ~huge_page_mask(h);
+ 	info.align_offset = 0;
+ 	return vm_unmapped_area(&info);
+@@ -221,7 +221,7 @@ hugetlb_get_unmapped_area_topdown(struct file *file, unsigned long addr,
+ 	info.flags = VM_UNMAPPED_AREA_TOPDOWN;
+ 	info.length = len;
+ 	info.low_limit = max(PAGE_SIZE, mmap_min_addr);
+-	info.high_limit = current->mm->mmap_base;
++	info.high_limit = arch_get_mmap_base(addr, current->mm->mmap_base);
+ 	info.align_mask = PAGE_MASK & ~huge_page_mask(h);
+ 	info.align_offset = 0;
+ 	addr = vm_unmapped_area(&info);
+@@ -236,7 +236,7 @@ hugetlb_get_unmapped_area_topdown(struct file *file, unsigned long addr,
+ 		VM_BUG_ON(addr != -ENOMEM);
+ 		info.flags = 0;
+ 		info.low_limit = current->mm->mmap_base;
+-		info.high_limit = TASK_SIZE;
++		info.high_limit = arch_get_mmap_end(addr, len, flags);
+ 		addr = vm_unmapped_area(&info);
+ 	}
  
- 	while (!list_empty(delaying_queue)) {
- 		inode = wb_inode(delaying_queue->prev);
-+		if(!inode)
-+			continue;
- 		if (inode_dirtied_after(inode, dirtied_before))
- 			break;
- 		list_move(&inode->i_io_list, &tmp);
-@@ -1385,7 +1387,12 @@ static int move_expired_inodes(struct list_head *delaying_queue,
+@@ -251,6 +251,7 @@ generic_hugetlb_get_unmapped_area(struct file *file, unsigned long addr,
+ 	struct mm_struct *mm = current->mm;
+ 	struct vm_area_struct *vma;
+ 	struct hstate *h = hstate_file(file);
++	const unsigned long mmap_end = arch_get_mmap_end(addr, len, flags);
  
- 	/* Move inodes from one superblock together */
- 	while (!list_empty(&tmp)) {
--		sb = wb_inode(tmp.prev)->i_sb;
-+		inode = wb_inode(tmp.prev);
-+		if(!inode)
-+			continue;
-+		sb = inode->i_sb;
-+		if(!sb)
-+			continue;
- 		list_for_each_prev_safe(pos, node, &tmp) {
- 			inode = wb_inode(pos);
- 			if (inode->i_sb == sb)
+ 	if (len & ~huge_page_mask(h))
+ 		return -EINVAL;
+@@ -266,7 +267,7 @@ generic_hugetlb_get_unmapped_area(struct file *file, unsigned long addr,
+ 	if (addr) {
+ 		addr = ALIGN(addr, huge_page_size(h));
+ 		vma = find_vma(mm, addr);
+-		if (TASK_SIZE - len >= addr &&
++		if (mmap_end - len >= addr &&
+ 		    (!vma || addr + len <= vm_start_gap(vma)))
+ 			return addr;
+ 	}
+diff --git a/include/linux/sched/mm.h b/include/linux/sched/mm.h
+index 18b2d2b2e0ca..8cd975a8bfeb 100644
+--- a/include/linux/sched/mm.h
++++ b/include/linux/sched/mm.h
+@@ -136,6 +136,14 @@ static inline void mm_update_next_owner(struct mm_struct *mm)
+ #endif /* CONFIG_MEMCG */
+ 
+ #ifdef CONFIG_MMU
++#ifndef arch_get_mmap_end
++#define arch_get_mmap_end(addr, len, flags)	(TASK_SIZE)
++#endif
++
++#ifndef arch_get_mmap_base
++#define arch_get_mmap_base(addr, base) (base)
++#endif
++
+ extern void arch_pick_mmap_layout(struct mm_struct *mm,
+ 				  struct rlimit *rlim_stack);
+ extern unsigned long
+diff --git a/mm/mmap.c b/mm/mmap.c
+index 4d63e1cb3b52..e9b7d74e58bc 100644
+--- a/mm/mmap.c
++++ b/mm/mmap.c
+@@ -2117,14 +2117,6 @@ unsigned long vm_unmapped_area(struct vm_unmapped_area_info *info)
+ 	return addr;
+ }
+ 
+-#ifndef arch_get_mmap_end
+-#define arch_get_mmap_end(addr, len, flags)	(TASK_SIZE)
+-#endif
+-
+-#ifndef arch_get_mmap_base
+-#define arch_get_mmap_base(addr, base) (base)
+-#endif
+-
+ /* Get an address range which is currently unmapped.
+  * For shmat() with addr=0.
+  *
 -- 
-2.25.1
+2.35.1
 
