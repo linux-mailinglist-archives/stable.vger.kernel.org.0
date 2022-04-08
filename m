@@ -2,60 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A10634F9062
-	for <lists+stable@lfdr.de>; Fri,  8 Apr 2022 10:08:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB0AE4F9075
+	for <lists+stable@lfdr.de>; Fri,  8 Apr 2022 10:12:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230038AbiDHIKF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Apr 2022 04:10:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58188 "EHLO
+        id S231214AbiDHIOy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Apr 2022 04:14:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49018 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229520AbiDHIKE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 8 Apr 2022 04:10:04 -0400
-Received: from mail-pl1-x631.google.com (mail-pl1-x631.google.com [IPv6:2607:f8b0:4864:20::631])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C42022ED46;
-        Fri,  8 Apr 2022 01:07:59 -0700 (PDT)
-Received: by mail-pl1-x631.google.com with SMTP id m16so7246740plx.3;
-        Fri, 08 Apr 2022 01:07:59 -0700 (PDT)
+        with ESMTP id S230391AbiDHIOx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 8 Apr 2022 04:14:53 -0400
+Received: from mail-pf1-x42b.google.com (mail-pf1-x42b.google.com [IPv6:2607:f8b0:4864:20::42b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A27124D9D5;
+        Fri,  8 Apr 2022 01:12:49 -0700 (PDT)
+Received: by mail-pf1-x42b.google.com with SMTP id f3so7784046pfe.2;
+        Fri, 08 Apr 2022 01:12:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=message-id:date:mime-version:user-agent:subject:content-language
-         :from:to:cc:references:in-reply-to:content-transfer-encoding;
-        bh=B+JiRYo7agfKbKwTwituM6LMKiUxBumes3CKn2uzgf0=;
-        b=JJJTySUjRqBxzXWshidv8Dq5SyZUleW8gXMDV+vAfOOGz1TgbhjhtGHmPtzMO47Qpt
-         D17EodugP0xjW+fDLUTeAqNIh7wxWrkJk9tnTtoku4CdksjcFGiFtl6/vFpPv4SLsRCQ
-         XwLPwJjhPygOMhL10asvUVQrA08+Ws9G2hMOSZVWz1CGJasgAbq3BZLlfOkJd+6dmszK
-         GzenXbEwwAPgCrKyLvzWpXbA8tQl0FJCuWj+kh0YHFpqlCsGOqPIRROK+P9L7Pl1vqFx
-         UJiwD/g17eywATi1MbpKpmQX0AzJm4SrHOMXmnl6ZSbyB/5T3qC2RoiAeZ/tHinsEALE
-         LQKg==
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=i81WX7FswRmN0nILDi9RrrLL61mjGBMdEL5aeO/NWhs=;
+        b=U6hCdq2C2y+iUG2UPSevB61dRc2HSIIRYDKuvW+p9P4db98VcdhNUp+tEwSM3B0Xzi
+         vjrH23nCwj4DPG5m/XPuaI/M3Z2ZjnKjabHyqvr/T+6+/mpvtj9Injl9jBSVe9qJ5DYI
+         Ww6JHQjFzhU+UDoOe7fzyCimY7yNn68nDs9zEtHwmfEvwhwIr0EkL+JtdXuxIDMOaS3J
+         Yxy1+E5ydOpzJ65JTZpkm5j7u6kiOcwMjM/ANI9HO+l56FtBZdVvfHJYdt9Ejnf+z/o/
+         +qEisZGxMnaVtXKB8wjxEE+CsIQXKQRDbmFu9bFzLN9Wx8qhwxPLEefMjSKy1CFIixJY
+         6/0Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:from:to:cc:references:in-reply-to
+         :content-language:to:cc:references:from:in-reply-to
          :content-transfer-encoding;
-        bh=B+JiRYo7agfKbKwTwituM6LMKiUxBumes3CKn2uzgf0=;
-        b=HKbMJIlBvChywdq0GJuwnR/QNTorp7zcRtfZZEwNj357rqJeVUEGjwwNOAxfAPZpup
-         rAM6lJqS5EaJwNEOIAdIxkjdLedkt/PR0QNM9bsRFoE6kQ20nEgXfRC/+TytTS76Vjet
-         rq1SLO9X1I7yAdGgxZ3hdVvsfgl64S4NnPni/eOtGYqihDn6iDX8wXvD2spVWbp4JTuZ
-         B89Ezbg6NMUSxOLLHtQF4HYFYTVmvAjDJGgwdjrABlYCW81nLBSyf8H9DgQmhP6NAFGw
-         FjVYawmbnQU46ICc6s4x5uwM/yP7OelfayExiWLRHwEjW7f6aXzY933FhQRvlOddoXUA
-         IVGg==
-X-Gm-Message-State: AOAM530ovevkrXGr6LCOL4rNbKKtF2F7epqbSe2tdqU3vK8VC/0QgLJw
-        yyUYtNeeAUEELvf8G0kSQZs=
-X-Google-Smtp-Source: ABdhPJwIjs98+5uVAX+yPTUno0WmRkBvkNTKFkKcwI6jy/kJk6HmmnH8qAo29RwLToJ11X0msq374w==
-X-Received: by 2002:a17:90b:2242:b0:1c6:80e3:71b6 with SMTP id hk2-20020a17090b224200b001c680e371b6mr20340979pjb.152.1649405279225;
-        Fri, 08 Apr 2022 01:07:59 -0700 (PDT)
+        bh=i81WX7FswRmN0nILDi9RrrLL61mjGBMdEL5aeO/NWhs=;
+        b=gVn0/vQkJMrHhVWmCHW1dBs7jfas+o3JSqqwSj0o+THRYMvQxpIXKDKOmHFkcJsm5v
+         wDGYTM1jsKasAno54o399P1B86zSZZnrqlom842wLGBlut/kQXkr+8dAbpn2uRGGhAC8
+         oQBXC++kKRCG+8irSinbLSiodwtomwKFdLb51gGcRINA2Vnbh5ZV2/R9ekP/Dg/uR7Zi
+         zzAA1KGYaaxjYM4zjHsW5yUTy9iFcazyBXQSuurchFUonnbljHXjjTV4j4qkt5SgXkS5
+         GXcTr7MYssa5cEfA3V0K7P30Z5VJDWG/nO2Qciu1bVri4VN7tNHAjjrYMIqh1luqnAli
+         FLMg==
+X-Gm-Message-State: AOAM533m9nF/zczQ6xSjnH4KUPIDi6eumigwD9M5LMEQQAxv2fBTc2ee
+        84YcZv8CIqwE9/fwOEtleLE=
+X-Google-Smtp-Source: ABdhPJwGgnAbq+6WkP5vvu10B3UmeSluhoyU+rZLwCcJ2MbKbQXukjKNioViA6bFtiBt/cZCZsv9IA==
+X-Received: by 2002:a05:6a00:2392:b0:4fa:dcd2:5bc1 with SMTP id f18-20020a056a00239200b004fadcd25bc1mr18210652pfc.8.1649405569109;
+        Fri, 08 Apr 2022 01:12:49 -0700 (PDT)
 Received: from [192.168.43.80] (subs03-180-214-233-82.three.co.id. [180.214.233.82])
-        by smtp.gmail.com with ESMTPSA id 204-20020a6302d5000000b00385f29b02b2sm21412168pgc.50.2022.04.08.01.07.55
+        by smtp.gmail.com with ESMTPSA id i7-20020a628707000000b004fa6eb33b02sm24692846pfe.49.2022.04.08.01.12.45
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 08 Apr 2022 01:07:58 -0700 (PDT)
-Message-ID: <374de447-0d28-6b85-6abc-687d9a444b66@gmail.com>
-Date:   Fri, 8 Apr 2022 15:07:50 +0700
+        Fri, 08 Apr 2022 01:12:48 -0700 (PDT)
+Message-ID: <0811d6f9-1fd0-ca29-3c58-84f217b80d3d@gmail.com>
+Date:   Fri, 8 Apr 2022 15:12:43 +0700
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.7.0
-Subject: Re: [PATCH 5.17 0000/1123] 5.17.2-rc2 review
+Subject: Re: [PATCH 5.10 000/597] 5.10.110-rc3 review
 Content-Language: en-US
-From:   Bagas Sanjaya <bagasdotme@gmail.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         linux-kernel@vger.kernel.org
 Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
@@ -63,11 +62,11 @@ Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
         patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
         jonathanh@nvidia.com, f.fainelli@gmail.com,
         sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-References: <20220406133122.897434068@linuxfoundation.org>
- <d12e1f2e-bcad-e7d5-5d14-e435340ffc2c@gmail.com>
-In-Reply-To: <d12e1f2e-bcad-e7d5-5d14-e435340ffc2c@gmail.com>
+References: <20220407183749.142181327@linuxfoundation.org>
+From:   Bagas Sanjaya <bagasdotme@gmail.com>
+In-Reply-To: <20220407183749.142181327@linuxfoundation.org>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 X-Spam-Status: No, score=-3.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
         RCVD_IN_DNSWL_NONE,RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS,
@@ -78,27 +77,15 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 07/04/22 18.45, Bagas Sanjaya wrote:
-> Successfully cross-compiled for arm64 (bcm2711_defconfig, gcc 10.2.0).
-> 
-> Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
-> 
-> powerpc build (ps3_defconfig, gcc 11.2.0) returned error:
-> 
->    CC [M]  arch/powerpc/kvm/book3s_hv.o
->    CC      kernel/kexec_file.o
-> Cannot find symbol for section 11: .text.unlikely.
-> kernel/kexec_file.o: failed
-> make[1]: *** [scripts/Makefile.build:288: kernel/kexec_file.o] Error 1
-> make[1]: *** Deleting file 'kernel/kexec_file.o'
-> make: *** [Makefile:1831: kernel] Error 2
-> 
-> Reported-by: Bagas Sanjaya <bagasdotme@gmail.com>
+On 08/04/22 01.45, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.110 release.
+> There are 597 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
 
-Oops, I didn't do make mrproper before powerpc build.
-
-Now the powerpc build runs successfully.
+Successfully cross-compiled for arm64 (bcm2711_defconfig, gcc 10.2.0) and
+powerpc (ps3_defconfig, gcc 11.2.0).
 
 Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
 
