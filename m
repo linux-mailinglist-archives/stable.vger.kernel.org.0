@@ -2,248 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C0034F8E7D
-	for <lists+stable@lfdr.de>; Fri,  8 Apr 2022 08:27:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 36FEB4F8E22
+	for <lists+stable@lfdr.de>; Fri,  8 Apr 2022 08:26:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234364AbiDHFAO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Apr 2022 01:00:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33654 "EHLO
+        id S234996AbiDHFnL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Apr 2022 01:43:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43238 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234451AbiDHFAN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 8 Apr 2022 01:00:13 -0400
-Received: from mail-yw1-x1129.google.com (mail-yw1-x1129.google.com [IPv6:2607:f8b0:4864:20::1129])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C754124C0D
-        for <stable@vger.kernel.org>; Thu,  7 Apr 2022 21:58:08 -0700 (PDT)
-Received: by mail-yw1-x1129.google.com with SMTP id 00721157ae682-2eb3db5b172so83914437b3.6
-        for <stable@vger.kernel.org>; Thu, 07 Apr 2022 21:58:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=ZX5okEH0sxWRyDJLsGr6K2bum/cs4WAHaeg4beO8EcU=;
-        b=DAAhVYhLZCjI176h4Y/+Ew2tlsNKNXjaimnB3l8ghCIUm1eDG0517Z85L0qW8WMQeD
-         4ZtzKQXW2yzjBjf8ZnhpR2uBwXpE4CZxUM1KvK6RiUV+CHE95HpU8CB0Pt0q06fihBiB
-         KCA4j42R7SeJoeYNKGQsZHxrJ8pBzlZ4OywDNt8/TKU6SmjRt/4CXCfTIdZtKoUZUF6x
-         dbSmHcfQKB/chBQlIpnDZHnudWjZvSTcucrRPdkeaVIcEEUcqGKERrBQCfdihSOZhDaV
-         IOT8+J0A8ccUqY+9pMYL0Zv4DbfV3pzensCG/qeI6KvBl5iFxBT0DIZpjjh5xsVREvxt
-         q9IA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=ZX5okEH0sxWRyDJLsGr6K2bum/cs4WAHaeg4beO8EcU=;
-        b=vGh5SHa/PBE2dRvHVeVbFBaZrskp4IeVcz/toU0eQjYG0O8hn4hYVFPr5pz0PN9FPK
-         5QWUrM2YEXZcyZFBCwHgf1V7Z7u7jwIijTbAJu8TzOXcAExkzAapBODw1dOUIYjyUJHr
-         8ZOjMc3QC+aRk5MrxuUYBm3VfWR3CoCl+JIfWcjLeIxGiQbqA+P98q0g9oOFfi3m3ZWj
-         ONgaswOv43kTHLMwXmAo/h2DMUvGPNOsUEthjza4rObyaYvsgvZBOsxqs7aHm7WvAquG
-         90gKhV3QmBNM34kkGMep/VvYtG+Mt56ywo7knmNGDu0Grsc6CgV4yKRpZAD9tkBw/GwL
-         NCkw==
-X-Gm-Message-State: AOAM531cz3QI/dUXAFO/yZgaOSxqaKNX7gWwy7DNC4ciLiSsHNAnYpwd
-        lZgywPVVco9uwtV/Z4ZwbGkBe93DfO/oi2XH19GX8A==
-X-Google-Smtp-Source: ABdhPJz9wMmJWQtIFzqEg8rC3BctdinsPVGW0ai+XVLN52fMF1F3b2ZuQix/RS1NZrE5RkAOxtSou+z+GjdE8Mdq1yI=
-X-Received: by 2002:a81:478b:0:b0:2ea:da8c:5c21 with SMTP id
- u133-20020a81478b000000b002eada8c5c21mr15028974ywa.189.1649393887091; Thu, 07
- Apr 2022 21:58:07 -0700 (PDT)
-MIME-Version: 1.0
-References: <20220407183749.142181327@linuxfoundation.org>
-In-Reply-To: <20220407183749.142181327@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Fri, 8 Apr 2022 10:27:55 +0530
-Message-ID: <CA+G9fYvUptenwZkRPyiXKv9yK43Ornk1ptqgYL3-8zLMq2R7tg@mail.gmail.com>
+        with ESMTP id S234980AbiDHFnL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 8 Apr 2022 01:43:11 -0400
+Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFB34ED90E;
+        Thu,  7 Apr 2022 22:41:07 -0700 (PDT)
+Received: from kwepemi500012.china.huawei.com (unknown [172.30.72.56])
+        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4KZRrj3W20zgYQf;
+        Fri,  8 Apr 2022 13:39:17 +0800 (CST)
+Received: from kwepemm600013.china.huawei.com (7.193.23.68) by
+ kwepemi500012.china.huawei.com (7.221.188.12) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.24; Fri, 8 Apr 2022 13:41:03 +0800
+Received: from [10.174.178.208] (10.174.178.208) by
+ kwepemm600013.china.huawei.com (7.193.23.68) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2308.21; Fri, 8 Apr 2022 13:41:02 +0800
 Subject: Re: [PATCH 5.10 000/597] 5.10.110-rc3 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
-        autolearn=ham autolearn_force=no version=3.4.6
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <stable@vger.kernel.org>, <torvalds@linux-foundation.org>,
+        <akpm@linux-foundation.org>, <linux@roeck-us.net>,
+        <shuah@kernel.org>, <patches@kernelci.org>,
+        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
+        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
+        <sudipm.mukherjee@gmail.com>, <slade@sladewatkins.com>
+References: <20220407183749.142181327@linuxfoundation.org>
+From:   Samuel Zou <zou_wei@huawei.com>
+Message-ID: <54e63db8-8652-83a0-a445-3d0c715fddca@huawei.com>
+Date:   Fri, 8 Apr 2022 13:41:01 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
+MIME-Version: 1.0
+In-Reply-To: <20220407183749.142181327@linuxfoundation.org>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.174.178.208]
+X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
+ kwepemm600013.china.huawei.com (7.193.23.68)
+X-CFilter-Loop: Reflected
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        RCVD_IN_DNSWL_MED,RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 8 Apr 2022 at 00:15, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
+
+
+On 2022/4/8 2:45, Greg Kroah-Hartman wrote:
 > This is the start of the stable review cycle for the 5.10.110 release.
 > There are 597 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
->
+> 
 > Responses should be made by Sat, 09 Apr 2022 18:35:00 +0000.
 > Anything received after that time might be too late.
->
+> 
 > The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.10.110-rc3.gz
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.110-rc3.gz
 > or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.10.y
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
 > and the diffstat can be found below.
->
+> 
 > thanks,
->
+> 
 > greg k-h
+> 
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+Tested on arm64 and x86 for 5.10.110-rc3,
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+Kernel repo:
+https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+Branch: linux-5.10.y
+Version: 5.10.110-rc3
+Commit: 32dde4a44c8d6f6dd9cda13300bfda1468e13ec6
+Compiler: gcc version 7.3.0 (GCC)
 
-## Build
-* kernel: 5.10.110-rc3
-* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
-rc.git
-* git branch: linux-5.10.y
-* git commit: 32dde4a44c8d6f6dd9cda13300bfda1468e13ec6
-* git describe: v5.10.109-598-g32dde4a44c8d
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.10.y/build/v5.10=
-.109-598-g32dde4a44c8d
+arm64:
+--------------------------------------------------------------------
+Testcase Result Summary:
+total: 9031
+passed: 9031
+failed: 0
+timeout: 0
+--------------------------------------------------------------------
 
-## Test Regressions (compared to v5.10.109-593-gd189d4a7b878)
-No test regressions found.
+x86:
+--------------------------------------------------------------------
+Testcase Result Summary:
+total: 9031
+passed: 9031
+failed: 0
+timeout: 0
+--------------------------------------------------------------------
 
-## Metric Regressions (compared to v5.10.109-593-gd189d4a7b878)
-No metric regressions found.
-
-## Test Fixes (compared to v5.10.109-593-gd189d4a7b878)
-No test fixes found.
-
-## Metric Fixes (compared to v5.10.109-593-gd189d4a7b878)
-No metric fixes found.
-
-## Test result summary
-total: 99811, pass: 84222, fail: 869, skip: 13789, xfail: 931
-
-## Build Summary
-* arc: 10 total, 10 passed, 0 failed
-* arm: 291 total, 291 passed, 0 failed
-* arm64: 41 total, 41 passed, 0 failed
-* dragonboard-410c: 1 total, 1 passed, 0 failed
-* hi6220-hikey: 1 total, 1 passed, 0 failed
-* i386: 40 total, 40 passed, 0 failed
-* juno-r2: 1 total, 1 passed, 0 failed
-* mips: 37 total, 37 passed, 0 failed
-* parisc: 12 total, 12 passed, 0 failed
-* powerpc: 60 total, 51 passed, 9 failed
-* riscv: 27 total, 27 passed, 0 failed
-* s390: 21 total, 21 passed, 0 failed
-* sh: 24 total, 24 passed, 0 failed
-* sparc: 12 total, 12 passed, 0 failed
-* x15: 1 total, 1 passed, 0 failed
-* x86: 1 total, 1 passed, 0 failed
-* x86_64: 41 total, 41 passed, 0 failed
-
-## Test suites summary
-* fwts
-* igt-gpu-tools
-* kselftest-android
-* kselftest-arm64
-* kselftest-bpf
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-drivers
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-net
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-x86
-* kselftest-zram
-* kunit
-* kvm-unit-tests
-* libgpiod
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* packetdrill
-* perf
-* perf/Zstd-perf.data-compression
-* rcutorture
-* ssuite
-* v4l2-compliance
-* vdso
-
---
-Linaro LKFT
-https://lkft.linaro.org
+Tested-by: Hulk Robot <hulkrobot@huawei.com>
