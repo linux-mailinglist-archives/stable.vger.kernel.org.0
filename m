@@ -2,64 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C1DC4F8DA7
-	for <lists+stable@lfdr.de>; Fri,  8 Apr 2022 08:25:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FB954F8F64
+	for <lists+stable@lfdr.de>; Fri,  8 Apr 2022 09:18:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234976AbiDHFwK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Apr 2022 01:52:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45658 "EHLO
+        id S229823AbiDHHUt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Apr 2022 03:20:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59750 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229484AbiDHFwJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 8 Apr 2022 01:52:09 -0400
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECBFD1A5D6F;
-        Thu,  7 Apr 2022 22:50:06 -0700 (PDT)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out1.suse.de (Postfix) with ESMTPS id 92DD3215FF;
-        Fri,  8 Apr 2022 05:50:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1649397005; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=CCWJpKBkGkBtB6QKi+SIV4EeTDG+NjneafWSyWp8DjY=;
-        b=ElU7Gmkq8YB7VD4P/ytTyDkRrTrye9prti/xWakjXrFE93JsPT3eNBNpPJXbO6dK+JkDm1
-        vsk8mhNxecz7BdgaBFAzpMUhuJFrLeURrT1KhvSLatK2a9l6llBKTwAVvL4zPI7eLZ6RPQ
-        K2BqESUxFiA0wopZ9XQvaVgcF6wV6UY=
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 58C6113A9C;
-        Fri,  8 Apr 2022 05:50:05 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id xew+Ew3NT2JdbwAAMHmgww
-        (envelope-from <jgross@suse.com>); Fri, 08 Apr 2022 05:50:05 +0000
-Message-ID: <fa36ede3-3f5c-e10c-107d-0e4fae4af098@suse.com>
-Date:   Fri, 8 Apr 2022 07:50:04 +0200
+        with ESMTP id S229800AbiDHHUr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 8 Apr 2022 03:20:47 -0400
+Received: from mail-pl1-x629.google.com (mail-pl1-x629.google.com [IPv6:2607:f8b0:4864:20::629])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 710E125F672
+        for <stable@vger.kernel.org>; Fri,  8 Apr 2022 00:18:36 -0700 (PDT)
+Received: by mail-pl1-x629.google.com with SMTP id k13so1931101plk.12
+        for <stable@vger.kernel.org>; Fri, 08 Apr 2022 00:18:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:mime-version:content-disposition;
+        bh=co5p7yRLCSx9j8/2orMZ/a65NN70Y/hDxlRk7f3v2ok=;
+        b=cAMsJS+RTVnYONCydincirhbTiKfpU79UzC5HmgS8HfK2pGzignQyozf0oXt6XEB3H
+         0+SN4WGpmZ/8H2z6jW3Quoyjd/Rfi7oy49b0eDLRe21zJ4O0gUpEx5g+LJAXXObtEhfm
+         Qcm+jHwXgFHXKdAbqLCpYEgbv/5Raz5qNQ4wx06QuPbAikoPutkpQMG8FlsRh1beFzF0
+         nxKuo8L3ked66x4jdsCOjnEq1rP3y8tJgPOn7UMHcvnV+juHCKdiXKEPgspfLTEnlDPU
+         u5U4Dp7T5FwuIEe/zR9QwL6ulcHRnJ+TEhZ4RE/zfqdZAJrie8XgcwUhPHkFPQ6YadWI
+         uzng==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
+         :content-disposition;
+        bh=co5p7yRLCSx9j8/2orMZ/a65NN70Y/hDxlRk7f3v2ok=;
+        b=f2yLeewBzNkJhIy9DuQAjC3OPDQqueMJ6unrsxNu2kiUDW2m0EYgU4mR/VkYpDv9oN
+         FYLkxkzQjPkeX3fBTDLMl0OHd7Qj/q20ylDhR+nXf6InxHaAsP8LMxT5AaX7uaB3BuIt
+         AUPzu+P6Jeji+UxEjOuUkyMrwbjRjG5rGvsszptutpyP8Mb9IQ7BTeSRMpgUi6U/oUhW
+         Erk/NoqvauigvfOT/Uscrvyp0OeI+ftToEAxV/xb24DvouFYhYLDyeKkXcVN21b9hAjg
+         rl1n/stlFJXPSAiGeUiSz4SKMbyYjTsmLNaOeeTZ5ksIBDdGFSBb9rT/VTwflebHeWpm
+         +2SA==
+X-Gm-Message-State: AOAM5310YE9/5qouveZMzeTlrjFSB6NJ0XZAWrao3SsZ1/f/ihmfQsD2
+        Fyy6vceRhhbpHR87yDvIXFUus50C8GjaPQfSKtM=
+X-Google-Smtp-Source: ABdhPJyRxmEZNxTm9ueSOpScy2SaOPAhHOV/2k23k+QSht9hYh8igX+QzqlBMdJDwtswwj7CwOzggg==
+X-Received: by 2002:a17:902:8a8d:b0:157:ab0:a07 with SMTP id p13-20020a1709028a8d00b001570ab00a07mr6405805plo.77.1649402315839;
+        Fri, 08 Apr 2022 00:18:35 -0700 (PDT)
+Received: from localhost ([118.33.58.238])
+        by smtp.gmail.com with ESMTPSA id b17-20020a056a000a9100b004e1b7cdb8fdsm27255997pfl.70.2022.04.08.00.18.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 08 Apr 2022 00:18:35 -0700 (PDT)
+Date:   Fri, 8 Apr 2022 16:18:33 +0900
+From:   Paran Lee <p4ranlee@gmail.com>
+To:     colin.i.king@gmail.com
+Cc:     stable@vger.kernel.org, Austin Kim <austindh.kim@gmail.com>
+Subject: [PATCH] writeback: expired dirty inodes can lead to a NULL
+ dereference kernel panic issue in 'move_expired_inodes' function
+Message-ID: <20220408071833.GA14552@DESKTOP-S4LJL03.localdomain>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.7.0
-Subject: Re: [PATCH v2] mm, page_alloc: fix build_zonerefs_node()
-Content-Language: en-US
-To:     Andrew Morton <akpm@linux-foundation.org>
-Cc:     xen-devel@lists.xenproject.org, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        =?UTF-8?Q?Marek_Marczykowski-G=c3=b3recki?= 
-        <marmarek@invisiblethingslab.com>, Michal Hocko <mhocko@suse.com>
-References: <20220407120637.9035-1-jgross@suse.com>
- <20220407154426.7076e19f5b80d927dd715de9@linux-foundation.org>
-From:   Juergen Gross <jgross@suse.com>
-In-Reply-To: <20220407154426.7076e19f5b80d927dd715de9@linux-foundation.org>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="------------sl2QoL0SE9T9mqPa0uesbJXC"
-X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -67,143 +66,147 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---------------sl2QoL0SE9T9mqPa0uesbJXC
-Content-Type: multipart/mixed; boundary="------------nrdROtZnvzPMdkoaABz0zRfP";
- protected-headers="v1"
-From: Juergen Gross <jgross@suse.com>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: xen-devel@lists.xenproject.org, linux-mm@kvack.org,
- linux-kernel@vger.kernel.org, stable@vger.kernel.org,
- =?UTF-8?Q?Marek_Marczykowski-G=c3=b3recki?=
- <marmarek@invisiblethingslab.com>, Michal Hocko <mhocko@suse.com>
-Message-ID: <fa36ede3-3f5c-e10c-107d-0e4fae4af098@suse.com>
-Subject: Re: [PATCH v2] mm, page_alloc: fix build_zonerefs_node()
-References: <20220407120637.9035-1-jgross@suse.com>
- <20220407154426.7076e19f5b80d927dd715de9@linux-foundation.org>
-In-Reply-To: <20220407154426.7076e19f5b80d927dd715de9@linux-foundation.org>
+writeback: expired dirty inodes can lead to a NULL dereference kernel panic issue in 'move_expired_inodes' function
 
---------------nrdROtZnvzPMdkoaABz0zRfP
-Content-Type: multipart/mixed; boundary="------------5RLqE0Putz0HASSlv97z00ZA"
+Hello, Colin Ian King.
 
---------------5RLqE0Putz0HASSlv97z00ZA
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: base64
+I am Paran Lee.
 
-T24gMDguMDQuMjIgMDA6NDQsIEFuZHJldyBNb3J0b24gd3JvdGU6DQo+IE9uIFRodSwgIDcg
-QXByIDIwMjIgMTQ6MDY6MzcgKzAyMDAgSnVlcmdlbiBHcm9zcyA8amdyb3NzQHN1c2UuY29t
-PiB3cm90ZToNCj4gDQo+PiBTaW5jZSBjb21taXQgNmFhMzAzZGVmYjc0ICgibW0sIHZtc2Nh
-bjogb25seSBhbGxvY2F0ZSBhbmQgcmVjbGFpbSBmcm9tDQo+PiB6b25lcyB3aXRoIHBhZ2Vz
-IG1hbmFnZWQgYnkgdGhlIGJ1ZGR5IGFsbG9jYXRvciIpDQo+IA0KPiBTaXggeWVhcnMgYWdv
-IQ0KPiANCj4+IG9ubHkgem9uZXMgd2l0aCBmcmVlDQo+PiBtZW1vcnkgYXJlIGluY2x1ZGVk
-IGluIGEgYnVpbHQgem9uZWxpc3QuIFRoaXMgaXMgcHJvYmxlbWF0aWMgd2hlbiBlLmcuDQo+
-PiBhbGwgbWVtb3J5IG9mIGEgem9uZSBoYXMgYmVlbiBiYWxsb29uZWQgb3V0IHdoZW4gem9u
-ZWxpc3RzIGFyZSBiZWluZw0KPj4gcmVidWlsdC4NCj4+DQo+PiBUaGUgZGVjaXNpb24gd2hl
-dGhlciB0byByZWJ1aWxkIHRoZSB6b25lbGlzdHMgd2hlbiBvbmxpbmluZyBuZXcgbWVtb3J5
-DQo+PiBpcyBkb25lIGJhc2VkIG9uIHBvcHVsYXRlZF96b25lKCkgcmV0dXJuaW5nIDAgZm9y
-IHRoZSB6b25lIHRoZSBtZW1vcnkNCj4+IHdpbGwgYmUgYWRkZWQgdG8uIFRoZSBuZXcgem9u
-ZSBpcyBhZGRlZCB0byB0aGUgem9uZWxpc3RzIG9ubHksIGlmIGl0DQo+PiBoYXMgZnJlZSBt
-ZW1vcnkgcGFnZXMgKG1hbmFnZWRfem9uZSgpIHJldHVybnMgYSBub24temVybyB2YWx1ZSkg
-YWZ0ZXINCj4+IHRoZSBtZW1vcnkgaGFzIGJlZW4gb25saW5lZC4gVGhpcyBpbXBsaWVzLCB0
-aGF0IG9ubGluaW5nIG1lbW9yeSB3aWxsDQo+PiBhbHdheXMgZnJlZSB0aGUgYWRkZWQgcGFn
-ZXMgdG8gdGhlIGFsbG9jYXRvciBpbW1lZGlhdGVseSwgYnV0IHRoaXMgaXMNCj4+IG5vdCB0
-cnVlIGluIGFsbCBjYXNlczogd2hlbiBlLmcuIHJ1bm5pbmcgYXMgYSBYZW4gZ3Vlc3QgdGhl
-IG9ubGluZWQNCj4+IG5ldyBtZW1vcnkgd2lsbCBiZSBhZGRlZCBvbmx5IHRvIHRoZSBiYWxs
-b29uZWQgbWVtb3J5IGxpc3QsIGl0IHdpbGwgYmUNCj4+IGZyZWVkIG9ubHkgd2hlbiB0aGUg
-Z3Vlc3QgaXMgYmVpbmcgYmFsbG9vbmVkIHVwIGFmdGVyd2FyZHMuDQo+Pg0KPj4gQW5vdGhl
-ciBwcm9ibGVtIHdpdGggdXNpbmcgbWFuYWdlZF96b25lKCkgZm9yIHRoZSBkZWNpc2lvbiB3
-aGV0aGVyIGENCj4+IHpvbmUgaXMgYmVpbmcgYWRkZWQgdG8gdGhlIHpvbmVsaXN0cyBpcywg
-dGhhdCBhIHpvbmUgd2l0aCBhbGwgbWVtb3J5DQo+PiB1c2VkIHdpbGwgaW4gZmFjdCBiZSBy
-ZW1vdmVkIGZyb20gYWxsIHpvbmVsaXN0cyBpbiBjYXNlIHRoZSB6b25lbGlzdHMNCj4+IGhh
-cHBlbiB0byBiZSByZWJ1aWx0Lg0KPj4NCj4+IFVzZSBwb3B1bGF0ZWRfem9uZSgpIHdoZW4g
-YnVpbGRpbmcgYSB6b25lbGlzdCBhcyBpdCBoYXMgYmVlbiBkb25lDQo+PiBiZWZvcmUgdGhh
-dCBjb21taXQuDQo+Pg0KPj4gQ2M6IHN0YWJsZUB2Z2VyLmtlcm5lbC5vcmcNCj4gDQo+IFNv
-bWUgZGV0YWlscywgcGxlYXNlLiAgSXMgdGhpcyByZWFsbHkgc2VyaW91cyBlbm91Z2ggdG8g
-d2FycmFudA0KPiBiYWNrcG9ydGluZz8gIElzIHNvbWUgbmV3IHdvcmtsb2FkL3VzYWdlIHBh
-dHRlcm4gY2F1c2luZyBwZW9wbGUgdG8gaGl0DQo+IHRoaXM/DQoNClllcy4gVGhlcmUgd2Fz
-IGEgcmVwb3J0IHRoYXQgUXViZXNPUyAoYmFzZWQgb24gWGVuKSBpcyBoaXR0aW5nIHRoaXMN
-CnByb2JsZW0uIFhlbiBoYXMgc3dpdGNoZWQgdG8gdXNlIHRoZSB6b25lIGRldmljZSBmdW5j
-dGlvbmFsaXR5IGluDQprZXJuZWwgNS45IGFuZCBRdWJlc09TIHdhbnRzIHRvIHVzZSBtZW1v
-cnkgaG90cGx1Z2dpbmcgZm9yIGd1ZXN0cyBpbg0Kb3JkZXIgdG8gYmUgYWJsZSB0byBzdGFy
-dCBhIGd1ZXN0IHdpdGggbWluaW1hbCBtZW1vcnkgYW5kIGV4cGFuZCBpdA0KYXMgbmVlZGVk
-LiBUaGlzIHdhcyB0aGUgcmVwb3J0IGxlYWRpbmcgdG8gdGhlIHBhdGNoLg0KDQoNCkp1ZXJn
-ZW4NCg0K
---------------5RLqE0Putz0HASSlv97z00ZA
-Content-Type: application/pgp-keys; name="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Disposition: attachment; filename="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Description: OpenPGP public key
-Content-Transfer-Encoding: quoted-printable
+While tracing the null dereference kernel panic issue during the stress-ng(stress-ng-proc) test,
+I found the inode code block that could cause a null dereference kernel panic.
 
------BEGIN PGP PUBLIC KEY BLOCK-----
+If this issue is confirmed as a bug that may have occurred in the past, wouldn't it be added to the link below?
 
-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
-jR/i1DG86lem3iBDXzXsZDn8R38=3D
-=3D2wuH
------END PGP PUBLIC KEY BLOCK-----
+@ Bugs found with stress-ng
+- https://github.com/ColinIanKing/stress-ng#bugs-found-with-stress-ng
 
---------------5RLqE0Putz0HASSlv97z00ZA--
+* kernel log
 
---------------nrdROtZnvzPMdkoaABz0zRfP--
+[21881.096120] ICMPv6: process `stress-ng-procf' is using deprecated sysctl (syscall) net.ipv6.neigh.default.base_reachable_time - use net.ipv6.neigh.default.base_reachable_time_ms instead
+[22009.051158] BUG: unable to handle kernel NULL pointer dereference at 0000000000000008
+[22009.051167] IP: move_expired_inodes+0x59/0x1a0
+[22009.051168] PGD 0 P4D 0
+[22009.051170] Oops: 0002 [#1] SMP NOPTI
+...
+[22009.051221] RIP: 0010:move_expired_inodes+0x59/0x1a0
+...
+[22009.051257] Call Trace:
+[22009.051260]  queue_io+0x66/0x110
+[22009.051262]  wb_writeback+0x253/0x300
+[22009.051264]  wb_workfn+0xc0/0x400
+[22009.051265]  ? wb_workfn+0xc0/0x400
+[22009.051268]  ? __switch_to_asm+0x35/0x70
+[22009.051272]  process_one_work+0x1de/0x420
+[22009.051274]  worker_thread+0x32/0x410
+[22009.051276]  kthread+0x121/0x140
+[22009.051277]  ? process_one_work+0x420/0x420
+[22009.051279]  ? kthread_create_worker_on_cpu+0x70/0x70
+[22009.051280]  ret_from_fork+0x1f/0x40
+[22009.051282] Code: 04 25 28 00 00 00 48 89 45 d0 31 c0 4c 89 75 c8 c7 45 b0 00 00 00 00 c7 45 b4 00 00 00 00 eb 76 48 8b 3b 48 8b 43 08 83 45 b0 01 <48> 89 47 08 48 89 38 48 8b 45 c0 48 89 58 08 48 89 03 48 8d 43
+[22009.051293] RIP: move_expired_inodes+0x59/0x1a0 RSP: ffffa2f68413bcb0
 
---------------sl2QoL0SE9T9mqPa0uesbJXC
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature"
+* trace log on crash utility
 
------BEGIN PGP SIGNATURE-----
+      KERNEL: vmlinux-4.15.0-166-generic
+    DUMPFILE: 202204072123-wb_inode-delaying_queue-list-null-check/dump.202204072123  [PARTIAL DUMP]
+        CPUS: 4
+        DATE: Fri Apr  8 06:23:30 2022
+      UPTIME: 01:35:27
+LOAD AVERAGE: 8.30, 8.37, 9.17
+       TASKS: 668
+    NODENAME: ubuntu1804
+     RELEASE: 4.15.0-166-generic
+     VERSION: #174-Ubuntu SMP Wed Dec 8 19:07:44 UTC 2021
+     MACHINE: x86_64  (2394 Mhz)
+      MEMORY: 16 GB
+       PANIC: "BUG: unable to handle kernel NULL pointer dereference at 0000000000000008"
+         PID: 22864
+     COMMAND: "kworker/u8:0"
+        TASK: ffff91490b55d880  [THREAD_INFO: ffff91490b55d880]
+         CPU: 0
+       STATE: TASK_RUNNING (PANIC)
 
-wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmJPzQwFAwAAAAAACgkQsN6d1ii/Ey+q
-xwf+Nu5lwR5zq7N46XnDYJl+VsQfKsv7hOhxKwDvLg5gKUurgIIEMvrue6mUa240PbY69VmJYap+
-8TjtG0Ate4TKSO+a/XeBPAXI6A2RFHoVczzCPRXnS0LAPF0t9gHEWWnD9mle73VNQZrGCwbrdn9e
-1fii2ZPxyMGcEvJdZS+2Ef+bMMsqMlWo8MbSUdfEItKmr6pTdrKle9SJl/RO2o7OhP2LbO9hso+F
-XViLpw/Ej+BDPLtHO0umxQv2c8be5A9f2/uk4WAqTBezTgBopyFywodAwCNQ5T4G+szybMfb1ZKe
-fZ7eq6d8ml4alH/p80fqN0rC/8hHsJc4xLEOdAb7vg==
-=wRjz
------END PGP SIGNATURE-----
+crash> bt
+...
+ #9 [ffffa2f68413bc00] page_fault at ffffffffae401615
+    [exception RIP: move_expired_inodes+89]
+    RIP: ffffffffadcb11f9  RSP: ffffa2f68413bcb0  RFLAGS: 00010202
+    RAX: 0000000000000000  RBX: ffff9148083af9b8  RCX: ffff91496659a090
+    RDX: 000000010052d046  RSI: ffff91496659a080  RDI: 0000000000000000
+    RBP: ffffa2f68413bd08   R8: ffff91496676727f   R9: ffff914951111f76
+    R10: ffffa2f68413bdf8  R11: 0000000000000334  R12: 0000000000000000
+    R13: ffff91496659a070  R14: ffffa2f68413bcc8  R15: ffff91496659a080
+    ORIG_RAX: ffffffffffffffff  CS: 0010  SS: 0018
+#10 [ffffa2f68413bd10] queue_io at ffffffffadcb32d6
+#11 [ffffa2f68413bd48] wb_writeback at ffffffffadcb77a3
+#12 [ffffa2f68413bde8] wb_workfn at ffffffffadcb7eb0
+#13 [ffffa2f68413be80] process_one_work at ffffffffadaaa68e
+#14 [ffffa2f68413bec8] worker_thread at ffffffffadaaa902
+#15 [ffffa2f68413bf08] kthread at ffffffffadab1361
+#16 [ffffa2f68413bf50] ret_from_fork at ffffffffae4001ef
 
---------------sl2QoL0SE9T9mqPa0uesbJXC--
+crash> dis ffffffffadcb32c6 20
+...
+0xffffffffadcb32c6 <queue_io+86>:       jg     0xffffffffadcb32e0 <queue_io+112>
+0xffffffffadcb32c8 <queue_io+88>:       mov    %rsi,%r14
+0xffffffffadcb32cb <queue_io+91>:       mov    %r12,%rsi
+0xffffffffadcb32ce <queue_io+94>:       mov    %rdx,%r13
+0xffffffffadcb32d1 <queue_io+97>:       callq  0xffffffffadcb11a0 <move_expired_inodes>
+
+crash> dis 0xffffffffadcb11a0
+0xffffffffadcb11a0 <move_expired_inodes>:       nopl   0x0(%rax,%rax,1) [FTRACE NOP]
+...
+0xffffffffadcb11ec <move_expired_inodes+76>:    jmp    0xffffffffadcb1264 <move_expired_inodes+196>
+0xffffffffadcb11ee <move_expired_inodes+78>:    mov    (%rbx),%rdi
+0xffffffffadcb11f1 <move_expired_inodes+81>:    mov    0x8(%rbx),%rax
+0xffffffffadcb11f5 <move_expired_inodes+85>:    addl   $0x1,-0x50(%rbp)
+0xffffffffadcb11f9 <move_expired_inodes+89>:    mov    %rax,0x8(%rdi)    <<<<<< Don't you think this is the NULL dereference RIP point of it?
+0xffffffffadcb11fd <move_expired_inodes+93>:    mov    %rdi,(%rax)
+...
+0xffffffffadcb121e <move_expired_inodes+126>:   callq  0xffffffffae3cd460 <_raw_spin_lock>
+
+Have a good day.
+Paran Lee.
+
+Signed-off-by: Paran Lee <p4ranlee@gmail.com>
+---
+ fs/fs-writeback.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
+
+diff --git a/fs/fs-writeback.c b/fs/fs-writeback.c
+index 591fe9cf1659..23a7a567e443 100644
+--- a/fs/fs-writeback.c
++++ b/fs/fs-writeback.c
+@@ -1357,12 +1357,14 @@ static int move_expired_inodes(struct list_head *delaying_queue,
+ 	LIST_HEAD(tmp);
+ 	struct list_head *pos, *node;
+ 	struct super_block *sb = NULL;
+-	struct inode *inode;
++	struct inode *inode = NULL;
+ 	int do_sb_sort = 0;
+ 	int moved = 0;
+ 
+ 	while (!list_empty(delaying_queue)) {
+ 		inode = wb_inode(delaying_queue->prev);
++		if(!inode)
++			continue;
+ 		if (inode_dirtied_after(inode, dirtied_before))
+ 			break;
+ 		list_move(&inode->i_io_list, &tmp);
+@@ -1385,7 +1387,12 @@ static int move_expired_inodes(struct list_head *delaying_queue,
+ 
+ 	/* Move inodes from one superblock together */
+ 	while (!list_empty(&tmp)) {
+-		sb = wb_inode(tmp.prev)->i_sb;
++		inode = wb_inode(tmp.prev);
++		if(!inode)
++			continue;
++		sb = inode->i_sb;
++		if(!sb)
++			continue;
+ 		list_for_each_prev_safe(pos, node, &tmp) {
+ 			inode = wb_inode(pos);
+ 			if (inode->i_sb == sb)
+-- 
+2.25.1
+
