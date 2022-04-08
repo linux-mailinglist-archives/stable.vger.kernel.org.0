@@ -2,92 +2,145 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BB0AE4F9075
-	for <lists+stable@lfdr.de>; Fri,  8 Apr 2022 10:12:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3A1D4F90C6
+	for <lists+stable@lfdr.de>; Fri,  8 Apr 2022 10:29:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231214AbiDHIOy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Apr 2022 04:14:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49018 "EHLO
+        id S231764AbiDHIbo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Apr 2022 04:31:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60536 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230391AbiDHIOx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 8 Apr 2022 04:14:53 -0400
-Received: from mail-pf1-x42b.google.com (mail-pf1-x42b.google.com [IPv6:2607:f8b0:4864:20::42b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A27124D9D5;
-        Fri,  8 Apr 2022 01:12:49 -0700 (PDT)
-Received: by mail-pf1-x42b.google.com with SMTP id f3so7784046pfe.2;
-        Fri, 08 Apr 2022 01:12:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=i81WX7FswRmN0nILDi9RrrLL61mjGBMdEL5aeO/NWhs=;
-        b=U6hCdq2C2y+iUG2UPSevB61dRc2HSIIRYDKuvW+p9P4db98VcdhNUp+tEwSM3B0Xzi
-         vjrH23nCwj4DPG5m/XPuaI/M3Z2ZjnKjabHyqvr/T+6+/mpvtj9Injl9jBSVe9qJ5DYI
-         Ww6JHQjFzhU+UDoOe7fzyCimY7yNn68nDs9zEtHwmfEvwhwIr0EkL+JtdXuxIDMOaS3J
-         Yxy1+E5ydOpzJ65JTZpkm5j7u6kiOcwMjM/ANI9HO+l56FtBZdVvfHJYdt9Ejnf+z/o/
-         +qEisZGxMnaVtXKB8wjxEE+CsIQXKQRDbmFu9bFzLN9Wx8qhwxPLEefMjSKy1CFIixJY
-         6/0Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=i81WX7FswRmN0nILDi9RrrLL61mjGBMdEL5aeO/NWhs=;
-        b=gVn0/vQkJMrHhVWmCHW1dBs7jfas+o3JSqqwSj0o+THRYMvQxpIXKDKOmHFkcJsm5v
-         wDGYTM1jsKasAno54o399P1B86zSZZnrqlom842wLGBlut/kQXkr+8dAbpn2uRGGhAC8
-         oQBXC++kKRCG+8irSinbLSiodwtomwKFdLb51gGcRINA2Vnbh5ZV2/R9ekP/Dg/uR7Zi
-         zzAA1KGYaaxjYM4zjHsW5yUTy9iFcazyBXQSuurchFUonnbljHXjjTV4j4qkt5SgXkS5
-         GXcTr7MYssa5cEfA3V0K7P30Z5VJDWG/nO2Qciu1bVri4VN7tNHAjjrYMIqh1luqnAli
-         FLMg==
-X-Gm-Message-State: AOAM533m9nF/zczQ6xSjnH4KUPIDi6eumigwD9M5LMEQQAxv2fBTc2ee
-        84YcZv8CIqwE9/fwOEtleLE=
-X-Google-Smtp-Source: ABdhPJwGgnAbq+6WkP5vvu10B3UmeSluhoyU+rZLwCcJ2MbKbQXukjKNioViA6bFtiBt/cZCZsv9IA==
-X-Received: by 2002:a05:6a00:2392:b0:4fa:dcd2:5bc1 with SMTP id f18-20020a056a00239200b004fadcd25bc1mr18210652pfc.8.1649405569109;
-        Fri, 08 Apr 2022 01:12:49 -0700 (PDT)
-Received: from [192.168.43.80] (subs03-180-214-233-82.three.co.id. [180.214.233.82])
-        by smtp.gmail.com with ESMTPSA id i7-20020a628707000000b004fa6eb33b02sm24692846pfe.49.2022.04.08.01.12.45
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 08 Apr 2022 01:12:48 -0700 (PDT)
-Message-ID: <0811d6f9-1fd0-ca29-3c58-84f217b80d3d@gmail.com>
-Date:   Fri, 8 Apr 2022 15:12:43 +0700
+        with ESMTP id S231731AbiDHIbn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 8 Apr 2022 04:31:43 -0400
+Received: from mail.ispras.ru (mail.ispras.ru [83.149.199.84])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 915D82FDCBF;
+        Fri,  8 Apr 2022 01:29:40 -0700 (PDT)
+Received: from [10.10.2.52] (unknown [10.10.2.52])
+        by mail.ispras.ru (Postfix) with ESMTPSA id A57AE40D403D;
+        Fri,  8 Apr 2022 08:29:33 +0000 (UTC)
+From:   Alexey Khoroshilov <khoroshilov@ispras.ru>
+Subject: Re: Stable release process proposal (Was: Linux 5.10.109)
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, stable@vger.kernel.org, lwn@lwn.net,
+        jslaby@suse.cz
+References: <164845571613863@kroah.com>
+ <44e28591-873a-d873-e04a-78dda900a5de@ispras.ru> <YkPeTkf0sG/ns+L4@kroah.com>
+Autocrypt: addr=khoroshilov@ispras.ru; prefer-encrypt=mutual; keydata=
+ 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
+ kK2E04Fb+Zk1eJvHYRc=
+Message-ID: <cf4f2100-0518-56eb-29c8-393e2b49dc71@ispras.ru>
+Date:   Fri, 8 Apr 2022 11:29:33 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.7.0
-Subject: Re: [PATCH 5.10 000/597] 5.10.110-rc3 review
+In-Reply-To: <YkPeTkf0sG/ns+L4@kroah.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-References: <20220407183749.142181327@linuxfoundation.org>
-From:   Bagas Sanjaya <bagasdotme@gmail.com>
-In-Reply-To: <20220407183749.142181327@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-3.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-4.7 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 08/04/22 01.45, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.110 release.
-> There are 597 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
+On 30.03.2022 07:36, Greg Kroah-Hartman wrote:
+> On Wed, Mar 30, 2022 at 02:49:00AM +0300, Alexey Khoroshilov wrote:
+>> Dear Greg,
+>>
+>> First of all, thank you very much for keeping stable maintenance so well.
+>>
+>> We (Linux Verification Center of ISPRAS (linuxtesting.org)) are going to
+>> join a team of regular testers for releases in 5.10 stable branch (and
+>> other branches later). We are deploying some test automation for that
+>> and have met an oddity that would to discuss.
+>>
+>> Sometimes, like in 5.10.109 release, we have a situation when a
+>> released version (5.10.109) differs from the release candidate
+>> (5.10.109-rс1). In this case there was a patch "llc: only change
+>> llc->dev when bind()succeeds" added to fix a bug in another llc fix.
+>> Unfortunately, as Pavel noted, this patch does not fix a bug, but
+>> introduces a new one, because another commit b37a46683739 ("netdevice:
+>> add the case if dev is NULL") was missed in 5.10 branch.
+> This happens quite frequently due to issues found in testing.  It's not
+> a new thing.
+>
+>> The problem will be fixed in 5.10.110, but we still have a couple oddities:
+>> - we have a release that should not be recommended for use
+>> - we have a commit message misleading users when says:
+>>
+>>     Tested-by: Pavel Machek (CIP) <pavel@denx.de>
+>>     Tested-by: Fox Chen <foxhlchen@gmail.com>
+>>     Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+>>     Tested-by: Shuah Khan <skhan@linuxfoundation.org>
+>>     Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
+>>     Tested-by: Salvatore Bonaccorso <carnil@debian.org>
+>>     Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+>>     Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
+>>     Tested-by: Guenter Roeck <linux@roeck-us.net>
+>>
+>> but actually nobody tested that version.
+>>
+>> There are potential modifications in stable release process that can
+>> prevent such problems:
+>>
+>> (1) to always release rс2 when there are changes in rc1 introduced
+>>
+>> (2) to avoid Tested-by: section from release commits in such situations.
+>>
+>> Or may be it is overkill and it too complicates maintenance work to be
+>> worth. What do you think?
+> I think it's not worth the extra work on my side for this given the
+> already large workload.  What would benifit from this to justify it?
+I see, thank you.
 
-Successfully cross-compiled for arm64 (bcm2711_defconfig, gcc 10.2.0) and
-powerpc (ps3_defconfig, gcc 11.2.0).
+I believed the goal is to provide some minimal quality guarantees for a
+particular version of the code. But if the process of updates is quite
+intensive, it may make sense to transfer responsibility for particular
+release verification downstream.
 
-Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
+Best regards,
+Alexey
 
--- 
-An old man doll... just what I always wanted! - Clara
