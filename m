@@ -2,145 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C3A1D4F90C6
-	for <lists+stable@lfdr.de>; Fri,  8 Apr 2022 10:29:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 17F614F90F9
+	for <lists+stable@lfdr.de>; Fri,  8 Apr 2022 10:37:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231764AbiDHIbo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Apr 2022 04:31:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60536 "EHLO
+        id S231207AbiDHIjj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Apr 2022 04:39:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36280 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231731AbiDHIbn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 8 Apr 2022 04:31:43 -0400
-Received: from mail.ispras.ru (mail.ispras.ru [83.149.199.84])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 915D82FDCBF;
-        Fri,  8 Apr 2022 01:29:40 -0700 (PDT)
-Received: from [10.10.2.52] (unknown [10.10.2.52])
-        by mail.ispras.ru (Postfix) with ESMTPSA id A57AE40D403D;
-        Fri,  8 Apr 2022 08:29:33 +0000 (UTC)
-From:   Alexey Khoroshilov <khoroshilov@ispras.ru>
-Subject: Re: Stable release process proposal (Was: Linux 5.10.109)
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
-        torvalds@linux-foundation.org, stable@vger.kernel.org, lwn@lwn.net,
-        jslaby@suse.cz
-References: <164845571613863@kroah.com>
- <44e28591-873a-d873-e04a-78dda900a5de@ispras.ru> <YkPeTkf0sG/ns+L4@kroah.com>
-Autocrypt: addr=khoroshilov@ispras.ru; prefer-encrypt=mutual; keydata=
- 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
- kK2E04Fb+Zk1eJvHYRc=
-Message-ID: <cf4f2100-0518-56eb-29c8-393e2b49dc71@ispras.ru>
-Date:   Fri, 8 Apr 2022 11:29:33 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
-MIME-Version: 1.0
-In-Reply-To: <YkPeTkf0sG/ns+L4@kroah.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Content-Language: en-US
-X-Spam-Status: No, score=-4.7 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+        with ESMTP id S229638AbiDHIji (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 8 Apr 2022 04:39:38 -0400
+Received: from mail-pf1-x42b.google.com (mail-pf1-x42b.google.com [IPv6:2607:f8b0:4864:20::42b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FFBC3893;
+        Fri,  8 Apr 2022 01:37:35 -0700 (PDT)
+Received: by mail-pf1-x42b.google.com with SMTP id b15so7814493pfm.5;
+        Fri, 08 Apr 2022 01:37:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id;
+        bh=7K4+/b0R86ZT+hQk0J4XIxe35bIEDncPDFhNjSyqDJY=;
+        b=XasWnOzW95Uoedl03mI5VkKE+3O31vTqRQo+tSBRguQ4DlFo7RuUJ8gLEIO34tt8Ds
+         nBiXnGz2pAuDccybkVEA2PqtNcQh9ob6En+KywungX8WBKR6I3B/MSIOpTMV0eUjKn/L
+         DxlKMqzw4VAq6dRBS66Mz4sYJjMr1BKdR+J18YcnCKsHNtGLh1Nex7HC3zzT410EYNbQ
+         bTgCaiLpmTmyr85wiOSoL5RiG8j5EmxYhJNJVF3BGKW3Fw1Tjqq8cGkb7wyqPtFkPCIg
+         fUhTndUI8RxS9bycgTpPpu+VpKuCNIjzxsZsVg3/tWlNFSUPBEec113/b1pcHi0p5n2r
+         m/HQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=7K4+/b0R86ZT+hQk0J4XIxe35bIEDncPDFhNjSyqDJY=;
+        b=CiLCTJqo6rCp3X7wYjnQ4wxPdhFFymffn130Ze+SIv4Q4qoBQP51SYHZv6k4PyWDvp
+         nZcyN1K5Rng8osvkuMZa9ZBGNLvTMeZirAGrxq1fGhqojom3YorokbiKfJ2Wdnp8pE2N
+         F8NtCTMFWKSfzPE29T0KKPOsOswp2AnbVeVjC30o5eqX9BHHCQr3aDveB4ZWcZ0KLMdi
+         zjPNpBVLtc4mh0+wM7XUeFKpYUlj3+3MHLYuNv0DT7cDsvHt582B04hEt+ZUBD+Kjgjt
+         qe5x45bEyvdepCwEgZmdC/Wcw6QRpBCwwa/dTOqTjl+EGnKpTAG3H1h1Qaa5CHnJU5le
+         V79Q==
+X-Gm-Message-State: AOAM533o3wB4Mje2+crFX4ODN13uQ43R9zk0zqbXvO9ApOZX/crBJO/g
+        q0SLzemH8R4zPVbwbCvTGzs=
+X-Google-Smtp-Source: ABdhPJzPAAyCnfAkfDv0rkDk+TbHmnQVzxsOJFmo8rTcUWhL1aND4BHD874EYoaan+uMuo291m2vZg==
+X-Received: by 2002:a05:6a00:810:b0:4fa:e71f:7e40 with SMTP id m16-20020a056a00081000b004fae71f7e40mr18181684pfk.15.1649407055080;
+        Fri, 08 Apr 2022 01:37:35 -0700 (PDT)
+Received: from localhost.localdomain ([119.3.119.18])
+        by smtp.gmail.com with ESMTPSA id m7-20020a625807000000b004fe0a89f24fsm16536345pfb.112.2022.04.08.01.37.31
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 08 Apr 2022 01:37:34 -0700 (PDT)
+From:   Xiaomeng Tong <xiam0nd.tong@gmail.com>
+To:     song@kernel.org
+Cc:     rgoldwyn@suse.com, guoqing.jiang@linux.dev,
+        linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Xiaomeng Tong <xiam0nd.tong@gmail.com>
+Subject: [PATCH v3] md: fix an incorrect NULL check in does_sb_need_changing
+Date:   Fri,  8 Apr 2022 16:37:28 +0800
+Message-Id: <20220408083728.25701-1-xiam0nd.tong@gmail.com>
+X-Mailer: git-send-email 2.17.1
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 30.03.2022 07:36, Greg Kroah-Hartman wrote:
-> On Wed, Mar 30, 2022 at 02:49:00AM +0300, Alexey Khoroshilov wrote:
->> Dear Greg,
->>
->> First of all, thank you very much for keeping stable maintenance so well.
->>
->> We (Linux Verification Center of ISPRAS (linuxtesting.org)) are going to
->> join a team of regular testers for releases in 5.10 stable branch (and
->> other branches later). We are deploying some test automation for that
->> and have met an oddity that would to discuss.
->>
->> Sometimes, like in 5.10.109 release, we have a situation when a
->> released version (5.10.109) differs from the release candidate
->> (5.10.109-rс1). In this case there was a patch "llc: only change
->> llc->dev when bind()succeeds" added to fix a bug in another llc fix.
->> Unfortunately, as Pavel noted, this patch does not fix a bug, but
->> introduces a new one, because another commit b37a46683739 ("netdevice:
->> add the case if dev is NULL") was missed in 5.10 branch.
-> This happens quite frequently due to issues found in testing.  It's not
-> a new thing.
->
->> The problem will be fixed in 5.10.110, but we still have a couple oddities:
->> - we have a release that should not be recommended for use
->> - we have a commit message misleading users when says:
->>
->>     Tested-by: Pavel Machek (CIP) <pavel@denx.de>
->>     Tested-by: Fox Chen <foxhlchen@gmail.com>
->>     Tested-by: Florian Fainelli <f.fainelli@gmail.com>
->>     Tested-by: Shuah Khan <skhan@linuxfoundation.org>
->>     Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
->>     Tested-by: Salvatore Bonaccorso <carnil@debian.org>
->>     Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
->>     Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
->>     Tested-by: Guenter Roeck <linux@roeck-us.net>
->>
->> but actually nobody tested that version.
->>
->> There are potential modifications in stable release process that can
->> prevent such problems:
->>
->> (1) to always release rс2 when there are changes in rc1 introduced
->>
->> (2) to avoid Tested-by: section from release commits in such situations.
->>
->> Or may be it is overkill and it too complicates maintenance work to be
->> worth. What do you think?
-> I think it's not worth the extra work on my side for this given the
-> already large workload.  What would benifit from this to justify it?
-I see, thank you.
+The bug is here:
+	if (!rdev)
 
-I believed the goal is to provide some minimal quality guarantees for a
-particular version of the code. But if the process of updates is quite
-intensive, it may make sense to transfer responsibility for particular
-release verification downstream.
+The list iterator value 'rdev' will *always* be set and non-NULL
+by rdev_for_each(), so it is incorrect to assume that the iterator
+value will be NULL if the list is empty or no element found.
+Otherwise it will bypass the NULL check and lead to invalid memory
+access passing the check.
 
-Best regards,
-Alexey
+To fix the bug, use a new variable 'iter' as the list iterator,
+while using the original variable 'rdev' as a dedicated pointer to
+point to the found element.
+
+Cc: stable@vger.kernel.org
+Fixes: 2aa82191ac36 ("md-cluster: Perform a lazy update")
+Acked-by: Guoqing Jiang <guoqing.jiang@linux.dev>
+Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+---
+
+changes since v2:
+ - fix typo (Song Liu)
+
+changes since v1:
+ - rephrase the subject (Guoqing Jiang)
+ - add Acked-by: for Guoqing Jiang
+
+v2:https://lore.kernel.org/lkml/20220328081127.26148-1-xiam0nd.tong@gmail.com/
+v1:https://lore.kernel.org/lkml/20220327080002.11923-1-xiam0nd.tong@gmail.com/
+
+---
+ drivers/md/md.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/md/md.c b/drivers/md/md.c
+index 4d38bd7dadd6..7476fc204172 100644
+--- a/drivers/md/md.c
++++ b/drivers/md/md.c
+@@ -2629,14 +2629,16 @@ static void sync_sbs(struct mddev *mddev, int nospares)
+ 
+ static bool does_sb_need_changing(struct mddev *mddev)
+ {
+-	struct md_rdev *rdev;
++	struct md_rdev *rdev = NULL, *iter;
+ 	struct mdp_superblock_1 *sb;
+ 	int role;
+ 
+ 	/* Find a good rdev */
+-	rdev_for_each(rdev, mddev)
+-		if ((rdev->raid_disk >= 0) && !test_bit(Faulty, &rdev->flags))
++	rdev_for_each(iter, mddev)
++		if ((iter->raid_disk >= 0) && !test_bit(Faulty, &iter->flags)) {
++			rdev = iter;
+ 			break;
++		}
+ 
+ 	/* No good device found. */
+ 	if (!rdev)
+-- 
+2.17.1
 
