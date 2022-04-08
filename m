@@ -2,73 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FBB04FA003
-	for <lists+stable@lfdr.de>; Sat,  9 Apr 2022 01:16:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ACC574FA011
+	for <lists+stable@lfdr.de>; Sat,  9 Apr 2022 01:21:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229981AbiDHXSo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Apr 2022 19:18:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41956 "EHLO
+        id S235301AbiDHXXi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Apr 2022 19:23:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229473AbiDHXSn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 8 Apr 2022 19:18:43 -0400
-Received: from mail-ej1-x630.google.com (mail-ej1-x630.google.com [IPv6:2a00:1450:4864:20::630])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0E7B3134F;
-        Fri,  8 Apr 2022 16:16:38 -0700 (PDT)
-Received: by mail-ej1-x630.google.com with SMTP id bq8so20037801ejb.10;
-        Fri, 08 Apr 2022 16:16:38 -0700 (PDT)
+        with ESMTP id S229609AbiDHXXh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 8 Apr 2022 19:23:37 -0400
+Received: from mail-ej1-x62a.google.com (mail-ej1-x62a.google.com [IPv6:2a00:1450:4864:20::62a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 917BC37A84;
+        Fri,  8 Apr 2022 16:21:31 -0700 (PDT)
+Received: by mail-ej1-x62a.google.com with SMTP id u15so1443530ejf.11;
+        Fri, 08 Apr 2022 16:21:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=date:from:to:cc:subject:message-id:reply-to:references:mime-version
          :content-disposition:in-reply-to:user-agent;
-        bh=A2ZrlgJ+VrtokqXnuamBEtt/J5VIyMuX+6kPQRag0BE=;
-        b=N2tlbM5sjWAgO8qyd8xUS+x79WJ0ZseWclBiQ5Uph4APriR9kfGWaNYH2HjeaLpQbH
-         UJTVvDMt590jDOrwUeY+B/Xumz4rFwoxMNKI+BRRbmPbBetC1zBSvfMBBv1Eotr4E00p
-         roAu4eZNL5KzxxejvkI6WhuQ2ikCAunpCpNjNAu8uDwhxqremovJpTgAS6JsSCFfT3oh
-         XTnA/4/mDkG8TrTLjxvngKVHTS6evew0i/L9g+eyUiKwIxFFLEsV9JXidIOfAJA2D32s
-         nw8gj46C8yrXz0NA4Gwj7AqCOchIP5jp9nu3yM87aVy/eoDY0cH+6XOUTOTtBAaAr6Ts
-         GXwg==
+        bh=VeBo5MNmcNP8GgrnYnuxwD9C21s9NCSI0hQmRgeVZ2c=;
+        b=SwUdCASoZsLrVzHwYE9Q2w7j8anHVyABwID7GJeaxGfrbLM5k0Ll9QikJqmhJzldK2
+         DEhbbyAiFI6iSlauWF8t+jKysCy4/ituH373bOQYneDjgtlRMT6MU1S3YxRPtJMX4oX1
+         xiqUnHmj8t0fgyqR+02CHlzq+jgHtUhjPECIh0Ks3TbRC2E9CvqftD/OWYrUdEqNpZjp
+         3glxzcacU6WGhpBVaEXzCQ0oxQ8tSiZTZ4JCiNXATn1QSgRsiUvuhHZik+iIDX+IIXcf
+         8J9iJvcV6FOxsjwd8QIAaWSAR31c/r5e3ajAJURaZ6AV3A29bWAbfjYHTsvDoGioJU0U
+         luDQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:reply-to
          :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=A2ZrlgJ+VrtokqXnuamBEtt/J5VIyMuX+6kPQRag0BE=;
-        b=hqVwTjDaletqoVenZG8i133fCJIOtQbFox7ksOac35bvxRXWGg2gnJjBfWDm7aAf7n
-         PofsePFuaBfBSxmVcPPoOe1siJzboUUReBYso0WtTafa+WQU8xo4X4usFYLTaSK299Qj
-         JfGuGGPM8UyWYwKGudgLSJARkIv+efCuztr/oLg3LF8iYji20zoegWkpxkbqfTDoFd3c
-         DWtQOOw5p7O9qhcfG1lcuR7tpUX+s7m6zq8CtMbcIpUnb/KJqH9UMGb2oqJeDzUp8KnR
-         vL9xnmOlN/KB9oMbxgq76Ddq5q0fqC8Q3gjM5IchFdw590Fj17+iP6H2GNQB+apeD9OB
-         5/UQ==
-X-Gm-Message-State: AOAM531l/Y9awlwMCOoKEk/zPdgSBAsbMGmsnXHcsmtATUo62z5+Nfso
-        eWcDCaV+BVrZrl+kq9uczYM=
-X-Google-Smtp-Source: ABdhPJxxChRoxlprELOAqhnCawCzlD4GSAcZ0w3f3uVWj3UaU9JZ4tUDBqifGUtDHDOIU2hkiPJliA==
-X-Received: by 2002:a17:906:2991:b0:6cf:6b24:e92f with SMTP id x17-20020a170906299100b006cf6b24e92fmr20192204eje.748.1649459797553;
-        Fri, 08 Apr 2022 16:16:37 -0700 (PDT)
+        bh=VeBo5MNmcNP8GgrnYnuxwD9C21s9NCSI0hQmRgeVZ2c=;
+        b=LocO8QQASOg/2MlVENXwqXvko7M0Gyh1Q8rw2t21ZC8WE+asDd5XUA6w5btY24tQOW
+         excSungF3YW5SezEbbHfUlM6dqw6vbYNaiJit95QMI42ByKlqkJ7C8ymVpKQ6gfHRIlR
+         S2zAW4LCEEnZv18Bl0RHB/q4LiM0YgLjTHt3NlczevGIlJGp2EZdCHn0YFCrJsXIobK0
+         NxT9pecLK5WzOQGeNnfrCPp+e2jwe93aL4YVOROaBjkVxxn6YiliQyZLBxuXvUXqona6
+         RdoMIhFJVdbG+S+jGdCREHzkolyTWSVYs9HfwvOTn/9IZrUny+LxgJHb6Wtso5NabfoU
+         +j4A==
+X-Gm-Message-State: AOAM530fAMLsHsPbWJRGFrCsp+sHs7SrKst/uUNw7i/gkXChuGoX8575
+        MWblsKqZkcqUZUiSu5cE+c0=
+X-Google-Smtp-Source: ABdhPJw0QRTK6Xo+GwWqeZ539WFr3ViLkQZwB5m+GvauaxNMLcPszYUGFgrOGSqHLo80QDJyI0Moiw==
+X-Received: by 2002:a17:907:7da8:b0:6e0:5b94:5ed8 with SMTP id oz40-20020a1709077da800b006e05b945ed8mr19652474ejc.312.1649460090158;
+        Fri, 08 Apr 2022 16:21:30 -0700 (PDT)
 Received: from localhost ([185.92.221.13])
-        by smtp.gmail.com with ESMTPSA id z21-20020a1709063a1500b006da6436819dsm9098147eje.173.2022.04.08.16.16.37
+        by smtp.gmail.com with ESMTPSA id v8-20020a50d848000000b0041cb912717asm8936807edj.91.2022.04.08.16.21.29
         (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Fri, 08 Apr 2022 16:16:37 -0700 (PDT)
-Date:   Fri, 8 Apr 2022 23:16:36 +0000
+        Fri, 08 Apr 2022 16:21:29 -0700 (PDT)
+Date:   Fri, 8 Apr 2022 23:21:29 +0000
 From:   Wei Yang <richard.weiyang@gmail.com>
 To:     David Hildenbrand <david@redhat.com>
 Cc:     Juergen Gross <jgross@suse.com>, xen-devel@lists.xenproject.org,
-        linux-kernel@vger.kernel.org,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
+        linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>,
         stable@vger.kernel.org,
         Marek Marczykowski-G??recki <marmarek@invisiblethingslab.com>,
-        Wei Yang <richard.weiyang@gmail.com>,
-        Michal Hocko <mhocko@kernel.org>
-Subject: Re: [PATCH] xen/balloon: fix page onlining when populating new zone
-Message-ID: <20220408231636.dz3spgicntflr7wu@master>
+        Michal Hocko <mhocko@kernel.org>,
+        Wei Yang <richard.weiyang@gmail.com>
+Subject: Re: [PATCH] mm, page_alloc: fix build_zonerefs_node()
+Message-ID: <20220408232129.caboqxtw6s4nmgde@master>
 Reply-To: Wei Yang <richard.weiyang@gmail.com>
-References: <20220406133229.15979-1-jgross@suse.com>
- <89ad978d-e95e-d3ea-5c8f-acf4b28f992c@redhat.com>
- <4f1908b5-5674-a772-3cd9-78e4dc40f776@suse.com>
- <f423e210-3e28-73f8-1082-869ef680b9b0@redhat.com>
+References: <20220407093221.1090-1-jgross@suse.com>
+ <1028ca3c-5b6c-d95e-9372-ae64b1fcbc82@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <f423e210-3e28-73f8-1082-869ef680b9b0@redhat.com>
+In-Reply-To: <1028ca3c-5b6c-d95e-9372-ae64b1fcbc82@redhat.com>
 User-Agent: NeoMutt/20170113 (1.7.2)
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
@@ -80,56 +77,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Apr 07, 2022 at 11:00:33AM +0200, David Hildenbrand wrote:
->On 07.04.22 10:50, Juergen Gross wrote:
->> On 07.04.22 10:23, David Hildenbrand wrote:
->>> On 06.04.22 15:32, Juergen Gross wrote:
->>>> When onlining a new memory page in a guest the Xen balloon driver is
->>>> adding it to the ballooned pages instead making it available to be
->>>> used immediately. This is meant to enable to add a new upper memory
->>>> limit to a guest via hotplugging memory, without having to assign the
->>>> new memory in one go.
->>>>
->>>> In case the upper memory limit will be raised above 4G, the new memory
->>>> will populate the ZONE_NORMAL memory zone, which wasn't populated
->>>> before. The newly populated zone won't be added to the list of zones
->>>> looked at by the page allocator though, as only zones with available
->>>> memory are being added, and the memory isn't yet available as it is
->>>> ballooned out.
->>>
->>> I think we just recently discussed these corner cases on the -mm list.
+On Thu, Apr 07, 2022 at 11:46:13AM +0200, David Hildenbrand wrote:
+>On 07.04.22 11:32, Juergen Gross wrote:
+>> Since commit 9d3be21bf9c0 ("mm, page_alloc: simplify zonelist
+>> initialization") only zones with free memory are included in a built
+>> zonelist. This is problematic when e.g. all memory of a zone has been
+>> ballooned out.
 >> 
->> Indeed.
+>> Use populated_zone() when building a zonelist as it has been done
+>> before that commit.
 >> 
->>> The issue is having effectively populated zones without manages pages
->>> because everything is inflated in a balloon.
+>> Cc: stable@vger.kernel.org
+>> Fixes: 9d3be21bf9c0 ("mm, page_alloc: simplify zonelist initialization")
+>> Reported-by: Marek Marczykowski-G??recki <marmarek@invisiblethingslab.com>
+>> Signed-off-by: Juergen Gross <jgross@suse.com>
+>> ---
+>>  mm/page_alloc.c | 2 +-
+>>  1 file changed, 1 insertion(+), 1 deletion(-)
 >> 
->> Correct.
->> 
->>> That can theoretically also happen when managing to fully inflate the
->>> balloon in one zone and then, somehow, the zones get rebuilt.
->> 
->> I think you are right. I didn't think of that scenario.
->> 
->>> build_zonerefs_node() documents "Add all populated zones of a node to
->>> the zonelist" but checks for managed zones, which is wrong.
->>>
->>> See https://lkml.kernel.org/r/20220201070044.zbm3obsoimhz3xd3@master
->> 
->> I found commit 6aa303defb7454 which introduced this test. I thought
->> it was needed due to the problem this commit tried to solve. Maybe I
->> was wrong and that commit shouldn't have changed the condition when
->> building the zonelist, but just the ones in the allocation paths.
+>> diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+>> index bdc8f60ae462..3d0662af3289 100644
+>> --- a/mm/page_alloc.c
+>> +++ b/mm/page_alloc.c
+>> @@ -6128,7 +6128,7 @@ static int build_zonerefs_node(pg_data_t *pgdat, struct zoneref *zonerefs)
+>>  	do {
+>>  		zone_type--;
+>>  		zone = pgdat->node_zones + zone_type;
+>> -		if (managed_zone(zone)) {
+>> +		if (populated_zone(zone)) {
+>>  			zoneref_set_zone(zone, &zonerefs[nr_zones++]);
+>>  			check_highest_zone(zone_type);
+>>  		}
 >
->In regard to kswapd, that is currently being worked on via
+>Let's see if we have to find another way to properly handle fadump.
 >
->https://lkml.kernel.org/r/20220329010901.1654-2-richard.weiyang@gmail.com
+>Acked-by: David Hildenbrand <david@redhat.com>
+
+Ok, I see the point.
+
+Reviewed-by: Wei Yang <richard.weiyang@gmail.com>
+
 >
-
-Thanks, David
-
-Do you think it is the right time to repost the original fix?
-
 >-- 
 >Thanks,
 >
