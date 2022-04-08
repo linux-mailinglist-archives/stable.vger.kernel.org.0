@@ -2,169 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 27C874F9B23
-	for <lists+stable@lfdr.de>; Fri,  8 Apr 2022 18:56:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DE5E4F9B90
+	for <lists+stable@lfdr.de>; Fri,  8 Apr 2022 19:22:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232609AbiDHQ6u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Apr 2022 12:58:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58084 "EHLO
+        id S235014AbiDHRYc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Apr 2022 13:24:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40140 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234507AbiDHQ6o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 8 Apr 2022 12:58:44 -0400
+        with ESMTP id S238130AbiDHRYb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 8 Apr 2022 13:24:31 -0400
 Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 2151E255152;
-        Fri,  8 Apr 2022 09:56:39 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 7C639393DB
+        for <stable@vger.kernel.org>; Fri,  8 Apr 2022 10:22:26 -0700 (PDT)
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id E5A1D1042;
-        Fri,  8 Apr 2022 09:56:38 -0700 (PDT)
-Received: from [10.1.196.218] (eglon.cambridge.arm.com [10.1.196.218])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 76B343F5A1;
-        Fri,  8 Apr 2022 09:56:38 -0700 (PDT)
-Subject: Re: [stable:PATCH v4.9.309 40/43] arm64: Mitigate spectre style
- branch history side channels
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Catalin Marinas <catalin.marinas@arm.com>
-References: <0220406164217.1888053-1-james.morse@arm.com>
- <20220406164546.1888528-1-james.morse@arm.com>
- <20220406164546.1888528-40-james.morse@arm.com>
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id ED3631042;
+        Fri,  8 Apr 2022 10:22:25 -0700 (PDT)
+Received: from eglon.cambridge.arm.com (eglon.cambridge.arm.com [10.1.196.218])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 4B2CD3F5A1;
+        Fri,  8 Apr 2022 10:22:25 -0700 (PDT)
 From:   James Morse <james.morse@arm.com>
-Message-ID: <82b7cb2e-825a-0efc-daae-98aa556c5086@arm.com>
-Date:   Fri, 8 Apr 2022 17:56:34 +0100
-User-Agent: Mozilla/5.0 (X11; Linux aarch64; rv:78.0) Gecko/20100101
- Thunderbird/78.12.0
+To:     linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org
+Cc:     James Morse <james.morse@arm.com>, Will Deacon <will@kernel.org>
+Subject: [stable:PATCH v5.4.188] KVM: arm64: Check arm64_get_bp_hardening_data() didn't return NULL
+Date:   Fri,  8 Apr 2022 18:22:19 +0100
+Message-Id: <20220408172219.4152131-1-james.morse@arm.com>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
-In-Reply-To: <20220406164546.1888528-40-james.morse@arm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-GB
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-9.7 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-6.9 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
+Will reports that with CONFIG_EXPERT=y and CONFIG_HARDEN_BRANCH_PREDICTOR=n,
+the kernel dereferences a NULL pointer during boot:
 
-On 06/04/2022 17:45, James Morse wrote:
-> commit 558c303c9734af5a813739cd284879227f7297d2 upstream.
-> 
-> Speculation attacks against some high-performance processors can
-> make use of branch history to influence future speculation.
-> When taking an exception from user-space, a sequence of branches
-> or a firmware call overwrites or invalidates the branch history.
-> 
-> The sequence of branches is added to the vectors, and should appear
-> before the first indirect branch. For systems using KPTI the sequence
-> is added to the kpti trampoline where it has a free register as the exit
-> from the trampoline is via a 'ret'. For systems not using KPTI, the same
-> register tricks are used to free up a register in the vectors.
-> 
-> For the firmware call, arch-workaround-3 clobbers 4 registers, so
-> there is no choice but to save them to the EL1 stack. This only happens
-> for entry from EL0, so if we take an exception due to the stack access,
-> it will not become re-entrant.
-> 
-> For KVM, the existing branch-predictor-hardening vectors are used.
-> When a spectre version of these vectors is in use, the firmware call
-> is sufficient to mitigate against Spectre-BHB. For the non-spectre
-> versions, the sequence of branches is added to the indirect vector.
+[    2.384444] Internal error: Oops: 96000004 [#1] PREEMPT SMP
+[    2.384461] pstate: 20400085 (nzCv daIf +PAN -UAO)
+[    2.384472] pc : cpu_hyp_reinit+0x114/0x30c
+[    2.384476] lr : cpu_hyp_reinit+0x80/0x30c
 
+[    2.384529] Call trace:
+[    2.384533]  cpu_hyp_reinit+0x114/0x30c
+[    2.384537]  _kvm_arch_hardware_enable+0x30/0x54
+[    2.384541]  flush_smp_call_function_queue+0xe4/0x154
+[    2.384544]  generic_smp_call_function_single_interrupt+0x10/0x18
+[    2.384549]  ipi_handler+0x170/0x2b0
+[    2.384555]  handle_percpu_devid_fasteoi_ipi+0x120/0x1cc
+[    2.384560]  __handle_domain_irq+0x9c/0xf4
+[    2.384563]  gic_handle_irq+0x6c/0xe4
+[    2.384566]  el1_irq+0xf0/0x1c0
+[    2.384570]  arch_cpu_idle+0x28/0x44
+[    2.384574]  do_idle+0x100/0x2a8
+[    2.384577]  cpu_startup_entry+0x20/0x24
+[    2.384581]  secondary_start_kernel+0x1b0/0x1cc
+[    2.384589] Code: b9469d08 7100011f 540003ad 52800208 (f9400108)
+[    2.384600] ---[ end trace 266d08dbf96ff143 ]---
+[    2.385171] Kernel panic - not syncing: Fatal exception in interrupt
 
-> diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
-> index 42719bd58046..6d12c3b78777 100644
-> --- a/arch/arm64/Kconfig
-> +++ b/arch/arm64/Kconfig
-> @@ -799,6 +799,16 @@ config ARM64_SSBD
->  
->  	  If unsure, say Y.
->  
-> +config MITIGATE_SPECTRE_BRANCH_HISTORY
-> +	bool "Mitigate Spectre style attacks against branch history" if EXPERT
-> +	default y
-> +	depends on HARDEN_BRANCH_PREDICTOR || !KVM
-> +	help
-> +	  Speculation attacks against some high-performance processors can
-> +	  make use of branch history to influence future speculation.
-> +	  When taking an exception from user-space, a sequence of branches
-> +	  or a firmware call overwrites the branch history.
+In this configuration arm64_get_bp_hardening_data() returns NULL.
+Add a check in kvm_get_hyp_vector().
 
-The build problem reported here[]0 is due to enabling CONFIG_EXPERT, and disabling
-CONFIG_HARDEN_BRANCH_PREDICTOR and CONFIG_MITIGATE_SPECTRE_BRANCH_HISTORY: The harden_bp
-stuff uses #ifdef all over the place, whereas the BHB bits use IS_ENABLED(). As there are
-dependencies between the two, mixing them doesn't go well.
+Cc: Will Deacon <will@kernel.org>
+Link: https://lore.kernel.org/linux-arm-kernel/20220408120041.GB27685@willie-the-truck/
+Fixes: 26129ea2953b ("KVM: arm64: Add templates for BHB mitigation sequences")
+Cc: stable@vger.kernel.org # 5.4.x
+Signed-off-by: James Morse <james.morse@arm.com>
+---
+ arch/arm64/include/asm/kvm_mmu.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-The fix is a little noisy. The reason is the 'matches' support ought to be kept even if
-the feature is disabled so that the sysfs files still report Vulnerable on affected
-hardware, regardless of the Kconfig.
+diff --git a/arch/arm64/include/asm/kvm_mmu.h b/arch/arm64/include/asm/kvm_mmu.h
+index 78d110667c0c..ffe0aad96b17 100644
+--- a/arch/arm64/include/asm/kvm_mmu.h
++++ b/arch/arm64/include/asm/kvm_mmu.h
+@@ -479,7 +479,8 @@ static inline void *kvm_get_hyp_vector(void)
+ 	int slot = -1;
+ 
+ 	if ((cpus_have_const_cap(ARM64_HARDEN_BRANCH_PREDICTOR) ||
+-	     cpus_have_const_cap(ARM64_SPECTRE_BHB)) && data->template_start) {
++	     cpus_have_const_cap(ARM64_SPECTRE_BHB)) &&
++	    data && data->template_start) {
+ 		vect = kern_hyp_va(kvm_ksym_ref(__bp_harden_hyp_vecs_start));
+ 		slot = data->hyp_vectors_slot;
+ 	}
+-- 
+2.30.2
 
------------------------->%------------------------
-diff --git a/arch/arm64/kernel/cpu_errata.c b/arch/arm64/kernel/cpu_errata.c
-index d6bc44a7d471..ae364d6b37ac 100644
---- a/arch/arm64/kernel/cpu_errata.c
-+++ b/arch/arm64/kernel/cpu_errata.c
-@@ -561,7 +561,9 @@ const struct arm64_cpu_capabilities arm64_errata[] = {
-                .type = ARM64_CPUCAP_LOCAL_CPU_ERRATUM,
-                .capability = ARM64_SPECTRE_BHB,
-                .matches = is_spectre_bhb_affected,
-+#ifdef CONFIG_MITIGATE_SPECTRE_BRANCH_HISTORY
-                .cpu_enable = spectre_bhb_enable_mitigation,
-+#endif
-        },
-        {
-        }
-@@ -571,8 +573,8 @@ const struct arm64_cpu_capabilities arm64_errata[] = {
-  * We try to ensure that the mitigation state can never change as the result of
-  * onlining a late CPU.
-  */
--static void update_mitigation_state(enum mitigation_state *oldp,
--                                   enum mitigation_state new)
-+static void __maybe_unused update_mitigation_state(enum mitigation_state *oldp,
-+                                                  enum mitigation_state new)
- {
-        enum mitigation_state state;
-
-@@ -708,7 +710,7 @@ static bool is_spectre_bhb_fw_affected(int scope)
-        return false;
- }
-
--static bool supports_ecbhb(int scope)
-+static bool __maybe_unused supports_ecbhb(int scope)
- {
-        u64 mmfr1;
-
-@@ -738,6 +740,7 @@ bool is_spectre_bhb_affected(const struct arm64_cpu_capabilities *entry,
-        return false;
- }
-
-+#ifdef CONFIG_HARDEN_BRANCH_PREDICTOR
- static void this_cpu_set_vectors(enum arm64_bp_harden_el1_vectors slot)
- {
-        const char *v = arm64_get_bp_hardening_vector(slot);
-@@ -812,7 +815,7 @@ static void kvm_setup_bhb_slot(const char *hyp_vecs_start)
- #define __spectre_bhb_loop_k32_start NULL
-
- static void kvm_setup_bhb_slot(const char *hyp_vecs_start) { };
--#endif
-+#endif /* CONFIG_KVM */
-
- static bool is_spectrev2_safe(void)
- {
-@@ -891,3 +894,4 @@ void __init spectre_bhb_patch_loop_iter(struct alt_instr *alt,
-                                         AARCH64_INSN_MOVEWIDE_ZERO);
-        *updptr++ = cpu_to_le32(insn);
- }
-+#endif /* CONFIG_HARDEN_BRANCH_PREDICTOR */
------------------------->%------------------------
-
-
-This version of the backport isn't affected by Will's report here:
-https://lore.kernel.org/linux-arm-kernel/20220408120041.GB27685@willie-the-truck/
-as Kconfig describes that dependency as it was too hard to unpick with the helpers v4.9 has.
-
-
-Thanks,
-
-James
