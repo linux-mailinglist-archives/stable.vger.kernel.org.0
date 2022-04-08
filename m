@@ -2,224 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BE614F9F2B
-	for <lists+stable@lfdr.de>; Fri,  8 Apr 2022 23:30:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38B234F9F86
+	for <lists+stable@lfdr.de>; Sat,  9 Apr 2022 00:18:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239859AbiDHVcl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Apr 2022 17:32:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48306 "EHLO
+        id S235247AbiDHWUx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Apr 2022 18:20:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57484 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239867AbiDHVcj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 8 Apr 2022 17:32:39 -0400
-X-Greylist: delayed 398 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 08 Apr 2022 14:30:34 PDT
-Received: from mx-out.tlen.pl (mx-out.tlen.pl [193.222.135.148])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF547203
-        for <stable@vger.kernel.org>; Fri,  8 Apr 2022 14:30:34 -0700 (PDT)
-Received: (wp-smtpd smtp.tlen.pl 5197 invoked from network); 8 Apr 2022 23:23:50 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=o2.pl; s=1024a;
-          t=1649453031; bh=2sIEqzEpNmzlePZ1Bipmtwrr4+j3eZh0iyIXjAapuPM=;
-          h=From:To:Cc:Subject;
-          b=NiQ4+pVFxpx6dlwfCVyDCLgGEDXNq4LiiP6QGnxLcqh4opF9vQMkQAcWstF6D46IE
-           daVSmCBg8IQ2GtDC+8opz4Nog81QIz6sG4AyEJawuB1HMbdfKjNccWi5bVL+l0Wbhd
-           14l51m2oHiMQcZbjz2cf7LN88OFvTKldPRVU46Xw=
-Received: from aaff112.neoplus.adsl.tpnet.pl (HELO localhost.localdomain) (mat.jonczyk@o2.pl@[83.4.135.112])
-          (envelope-sender <mat.jonczyk@o2.pl>)
-          by smtp.tlen.pl (WP-SMTPD) with SMTP
-          for <linux-kernel@vger.kernel.org>; 8 Apr 2022 23:23:50 +0200
-From:   =?UTF-8?q?Mateusz=20Jo=C5=84czyk?= <mat.jonczyk@o2.pl>
-To:     linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org,
-        stable@vger.kernel.org
-Cc:     =?UTF-8?q?Mateusz=20Jo=C5=84czyk?= <mat.jonczyk@o2.pl>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH for STABLE] rtc: mc146818-lib: fix RTC presence check
-Date:   Fri,  8 Apr 2022 23:23:37 +0200
-Message-Id: <20220408212337.5713-1-mat.jonczyk@o2.pl>
-X-Mailer: git-send-email 2.25.1
+        with ESMTP id S231282AbiDHWUw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 8 Apr 2022 18:20:52 -0400
+Received: from mail-pf1-x433.google.com (mail-pf1-x433.google.com [IPv6:2607:f8b0:4864:20::433])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8699EBAFD;
+        Fri,  8 Apr 2022 15:18:46 -0700 (PDT)
+Received: by mail-pf1-x433.google.com with SMTP id x16so9543853pfa.10;
+        Fri, 08 Apr 2022 15:18:46 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=IxpsMpZ3C9rS1Rmh+iEYTARaz89fma8euHj3cZKcdEo=;
+        b=jBZVxb+4em7+l8gCZd9YFbA8lZkw2QKQpUC/Hiw16f536DnrbHtYt3BSg9E75BsnmQ
+         UvH+V/Mn4TkOiCoXloAvhAkYBo7muCtaby7CEt976ffu6s+GbtGtposlkDegrp3BPSeu
+         d3QMph6xB3HWu6Al663JTLqiPrAAfWH5Ql9auea7dIU00PdQkpnXlq7LpCEOfYKVyvzi
+         9TswkYMSEP8krHTt1adBdptE6A0Nrw0hH/hcNA2j3GWCeCRqxEj9w2pzhXzM3DhOYoKB
+         P21MeX8MI07LsJB0uSYmrQxt5z4JkULtlKmhRz262bwGGb66i5TmEc3xfKfTwQfh7L8f
+         cGEQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=IxpsMpZ3C9rS1Rmh+iEYTARaz89fma8euHj3cZKcdEo=;
+        b=x9tq/6XRLAodjclF9u2FoQOUO3mm+/uAckVYDk1DF/H/R4I6TnfVGiwhRtqouaSZf+
+         u28Na+t/IGGqO7Hsx3mMr9lcUPzfZQXq4/M2/qyD6u5GZu77982QO4tx/fyMai6SQIBz
+         3gup9NJ63DXVk83SYssCy9t0S72p14IzjHz6qQBs1HdzqipHlf6E94NBvIgADFDv/Zcm
+         t4QXXHxg4xBSFEmFjq0S+RPAtN4gKN+9sCEscpgcEEzZCOfzuckglgbU2uMhZG8UWBhk
+         8hajxT8XDtpBDCvh2P3A09MeWmF07V22gwRpw3bY7G09At/7yPMSlM9Dxv5m5kUYNlEi
+         FL4Q==
+X-Gm-Message-State: AOAM531s2QIENs9xFKpafAaQyJU8TAChUGcacVOBleBHpDwMVdbBpwF6
+        aTP55aGM7UOih4YNUSY/m6w=
+X-Google-Smtp-Source: ABdhPJwDswQ+YfAJ8JstMCAUjZGGGmOvBVl9QjD5DB5UTpf9OVO3GmmFKnD90oNpU+aq1YnwoxZseQ==
+X-Received: by 2002:a05:6a00:ccf:b0:4fa:abfe:e0f6 with SMTP id b15-20020a056a000ccf00b004faabfee0f6mr21823689pfv.67.1649456326356;
+        Fri, 08 Apr 2022 15:18:46 -0700 (PDT)
+Received: from [192.168.86.235] (c-73-241-150-58.hsd1.ca.comcast.net. [73.241.150.58])
+        by smtp.gmail.com with ESMTPSA id q3-20020a63ae03000000b003820cc3a451sm23070435pgf.45.2022.04.08.15.18.44
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 08 Apr 2022 15:18:46 -0700 (PDT)
+Message-ID: <85da2373-d8ec-0049-bd3d-6b8f4b044edc@gmail.com>
+Date:   Fri, 8 Apr 2022 15:18:43 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-WP-MailID: 3e58d5337cb99cf11eb0938c5e42571d
-X-WP-AV: skaner antywirusowy Poczty o2
-X-WP-SPAM: NO 0000000 [IQMk]                               
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,RCVD_IN_MSPIKE_H5,
-        RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,
-        URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.7.0
+Subject: Re: [PATCH net] ipv6: fix panic when forwarding a pkt with no in6 dev
+Content-Language: en-US
+To:     Nicolas Dichtel <nicolas.dichtel@6wind.com>,
+        Eric Dumazet <edumazet@google.com>,
+        kongweibin <kongweibin2@huawei.com>
+Cc:     David Miller <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Willem de Bruijn <willemb@google.com>,
+        Pavel Begunkov <asml.silence@gmail.com>,
+        David Ahern <dsahern@kernel.org>,
+        Vasily Averin <vvs@virtuozzo.com>,
+        Martin KaFai Lau <kafai@fb.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        netdev <netdev@vger.kernel.org>, rose.chen@huawei.com,
+        liaichun@huawei.com, stable@vger.kernel.org
+References: <59150cd5-9950-2479-a992-94dcdaa5e63c@6wind.com>
+ <20220408140342.19311-1-nicolas.dichtel@6wind.com>
+From:   Eric Dumazet <edumazet@gmail.com>
+In-Reply-To: <20220408140342.19311-1-nicolas.dichtel@6wind.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-4.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit ea6fa4961aab8f90a8aa03575a98b4bda368d4b6 upstream.
 
-Please apply to 5.15 and 5.16 trees.
+On 4/8/22 07:03, Nicolas Dichtel wrote:
+> kongweibin reported a kernel panic in ip6_forward() when input interface
+> has no in6 dev associated.
+>
+> The following tc commands were used to reproduce this panic:
+> tc qdisc del dev vxlan100 root
+> tc qdisc add dev vxlan100 root netem corrupt 5%
 
-To prevent an infinite loop in mc146818_get_time(),
-commit 211e5db19d15 ("rtc: mc146818: Detect and handle broken RTCs")
-added a check for RTC availability. Together with a later fix, it
-checked if bit 6 in register 0x0d is cleared.
+Not sure I understand how these qdisc changes can trigger a NULL idev ?
 
-This, however, caused a false negative on a motherboard with an AMD
-SB710 southbridge; according to the specification [1], bit 6 of register
-0x0d of this chipset is a scratchbit. This caused a regression in Linux
-5.11 - the RTC was determined broken by the kernel and not used by
-rtc-cmos.c [3]. This problem was also reported in Fedora [4].
+Do we have another bug, like skb->cb[] content being mangled ?
 
-As a better alternative, check whether the UIP ("Update-in-progress")
-bit is set for longer then 10ms. If that is the case, then apparently
-the RTC is either absent (and all register reads return 0xff) or broken.
-Also limit the number of loop iterations in mc146818_get_time() to 10 to
-prevent an infinite loop there.
 
-An equivalent patch has been in mainline since 5.17-rc1 and I have
-received no complaints (the patch was refactored by following patches in
-my mainline series, but the algorithm remained). Also, Google searches
-for appropriate error messages are giving no problem reports.
-Additionally, a more strigent test introduced by
-commit 2aaa36e95ea5 ("selftests/rtc: continuously read RTC in a loop for 30s")
-was added in merge window for kernel 5.18 and I have received no
-reports it was failing.
-
-Changes from the upstream commit:
-  - return values from mc146818_get_time() are different then in mainline,
-    so return a different value in case there is an error.
-  - print a warning in mc146818_get_time() if the RTC read fails.
-    In the mainline patch series this was done by callers of
-    mc146818_get_time(), for simplicity do this in mc146818_get_time() here.
-
-[1] AMD SB700/710/750 Register Reference Guide, page 308,
-https://developer.amd.com/wordpress/media/2012/10/43009_sb7xx_rrg_pub_1.00.pdf
-
-[2] 7th Generation Intel ® Processor Family I/O for U/Y Platforms [...] Datasheet
-Volume 1 of 2, page 209
-Intel's Document Number: 334658-006,
-https://www.intel.com/content/dam/www/public/us/en/documents/datasheets/7th-and-8th-gen-core-family-mobile-u-y-processor-lines-i-o-datasheet-vol-1.pdf
-
-[3] Functions in arch/x86/kernel/rtc.c apparently were using it.
-
-[4] https://bugzilla.redhat.com/show_bug.cgi?id=1936688
-
-Fixes: 211e5db19d15 ("rtc: mc146818: Detect and handle broken RTCs")
-Fixes: ebb22a059436 ("rtc: mc146818: Dont test for bit 0-5 in Register D")
-Signed-off-by: Mateusz Jończyk <mat.jonczyk@o2.pl>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/20211210200131.153887-5-mat.jonczyk@o2.pl
-
----
-
-Tested on 3 computers and 2 different VMs (amd64 and i386), both on
-kernel 5.15 and 5.16 stable releases. Then changed pr_err() to
-pr_err_ratelimited(), but did not retest so carefully.
-
- drivers/rtc/rtc-cmos.c         | 10 ++++------
- drivers/rtc/rtc-mc146818-lib.c | 35 ++++++++++++++++++++++++++++++----
- include/linux/mc146818rtc.h    |  1 +
- 3 files changed, 36 insertions(+), 10 deletions(-)
-
-diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
-index dc3f8b0dde98..9404f58ee01d 100644
---- a/drivers/rtc/rtc-cmos.c
-+++ b/drivers/rtc/rtc-cmos.c
-@@ -793,16 +793,14 @@ cmos_do_probe(struct device *dev, struct resource *ports, int rtc_irq)
- 
- 	rename_region(ports, dev_name(&cmos_rtc.rtc->dev));
- 
--	spin_lock_irq(&rtc_lock);
--
--	/* Ensure that the RTC is accessible. Bit 6 must be 0! */
--	if ((CMOS_READ(RTC_VALID) & 0x40) != 0) {
--		spin_unlock_irq(&rtc_lock);
--		dev_warn(dev, "not accessible\n");
-+	if (!mc146818_does_rtc_work()) {
-+		dev_warn(dev, "broken or not accessible\n");
- 		retval = -ENXIO;
- 		goto cleanup1;
- 	}
- 
-+	spin_lock_irq(&rtc_lock);
-+
- 	if (!(flags & CMOS_RTC_FLAGS_NOFREQ)) {
- 		/* force periodic irq to CMOS reset default of 1024Hz;
- 		 *
-diff --git a/drivers/rtc/rtc-mc146818-lib.c b/drivers/rtc/rtc-mc146818-lib.c
-index 04b05e3b68cb..f58b0d9dacca 100644
---- a/drivers/rtc/rtc-mc146818-lib.c
-+++ b/drivers/rtc/rtc-mc146818-lib.c
-@@ -8,10 +8,36 @@
- #include <linux/acpi.h>
- #endif
- 
-+/*
-+ * If the UIP (Update-in-progress) bit of the RTC is set for more then
-+ * 10ms, the RTC is apparently broken or not present.
-+ */
-+bool mc146818_does_rtc_work(void)
-+{
-+	int i;
-+	unsigned char val;
-+	unsigned long flags;
-+
-+	for (i = 0; i < 10; i++) {
-+		spin_lock_irqsave(&rtc_lock, flags);
-+		val = CMOS_READ(RTC_FREQ_SELECT);
-+		spin_unlock_irqrestore(&rtc_lock, flags);
-+
-+		if ((val & RTC_UIP) == 0)
-+			return true;
-+
-+		mdelay(1);
-+	}
-+
-+	return false;
-+}
-+EXPORT_SYMBOL_GPL(mc146818_does_rtc_work);
-+
- unsigned int mc146818_get_time(struct rtc_time *time)
- {
- 	unsigned char ctrl;
- 	unsigned long flags;
-+	unsigned int iter_count = 0;
- 	unsigned char century = 0;
- 	bool retry;
- 
-@@ -20,13 +46,14 @@ unsigned int mc146818_get_time(struct rtc_time *time)
- #endif
- 
- again:
--	spin_lock_irqsave(&rtc_lock, flags);
--	/* Ensure that the RTC is accessible. Bit 6 must be 0! */
--	if (WARN_ON_ONCE((CMOS_READ(RTC_VALID) & 0x40) != 0)) {
--		spin_unlock_irqrestore(&rtc_lock, flags);
-+	if (iter_count > 10) {
-+		pr_err_ratelimited("Unable to read current time from RTC\n");
- 		memset(time, 0xff, sizeof(*time));
- 		return 0;
- 	}
-+	iter_count++;
-+
-+	spin_lock_irqsave(&rtc_lock, flags);
- 
- 	/*
- 	 * Check whether there is an update in progress during which the
-diff --git a/include/linux/mc146818rtc.h b/include/linux/mc146818rtc.h
-index 0661af17a758..69c80c4325bf 100644
---- a/include/linux/mc146818rtc.h
-+++ b/include/linux/mc146818rtc.h
-@@ -123,6 +123,7 @@ struct cmos_rtc_board_info {
- #define RTC_IO_EXTENT_USED      RTC_IO_EXTENT
- #endif /* ARCH_RTC_LOCATION */
- 
-+bool mc146818_does_rtc_work(void);
- unsigned int mc146818_get_time(struct rtc_time *time);
- int mc146818_set_time(struct rtc_time *time);
- 
-
-base-commit: 06f50ca83ace219cb72213369d2be05bb0dd337e
--- 
-2.25.1
-
+>
+> CC: stable@vger.kernel.org
+> Fixes: ccd27f05ae7b ("ipv6: fix 'disable_policy' for fwd packets")
+> Reported-by: kongweibin <kongweibin2@huawei.com>
+> Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+> ---
+>
+> kongweibin, could you test this patch with your setup?
+>
+> Thanks,
+> Nicolas
+>
+>   net/ipv6/ip6_output.c | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/net/ipv6/ip6_output.c b/net/ipv6/ip6_output.c
+> index e23f058166af..fa63ef2bd99c 100644
+> --- a/net/ipv6/ip6_output.c
+> +++ b/net/ipv6/ip6_output.c
+> @@ -485,7 +485,7 @@ int ip6_forward(struct sk_buff *skb)
+>   		goto drop;
+>   
+>   	if (!net->ipv6.devconf_all->disable_policy &&
+> -	    !idev->cnf.disable_policy &&
+> +	    (!idev || !idev->cnf.disable_policy) &&
+>   	    !xfrm6_policy_check(NULL, XFRM_POLICY_FWD, skb)) {
+>   		__IP6_INC_STATS(net, idev, IPSTATS_MIB_INDISCARDS);
+>   		goto drop;
