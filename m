@@ -2,109 +2,377 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D3D24FA027
-	for <lists+stable@lfdr.de>; Sat,  9 Apr 2022 01:36:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 175184FA03A
+	for <lists+stable@lfdr.de>; Sat,  9 Apr 2022 01:45:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233948AbiDHXiN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Apr 2022 19:38:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56600 "EHLO
+        id S240065AbiDHXrA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Apr 2022 19:47:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60486 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230403AbiDHXiN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 8 Apr 2022 19:38:13 -0400
-Received: from mout.gmx.net (mout.gmx.net [212.227.17.22])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E53CAC6B4E;
-        Fri,  8 Apr 2022 16:36:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1649460959;
-        bh=PE93BArNOfspKWatWSSijWYxkhAMOPY4ZFX7FNX7uHQ=;
-        h=X-UI-Sender-Class:From:To:Cc:Subject:Date;
-        b=DVOU7uZJ0aWbIf5Fdt57sirk94Etp+kJguemPm2oQJnkiKn/VHl2zI/F9zSXe9/jX
-         w/WXaVwglLyCAaA6DqNdoGLqN5YQLP65MqT/C5W1zkM6KIrDRUAzHliNRpVewyjY+7
-         L2mZVKdts8qS8If7E/6aLPczbwL18wbWLvt41o8w=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from Venus.fritz.box ([46.223.2.213]) by mail.gmx.net (mrgmx105
- [212.227.17.168]) with ESMTPSA (Nemesis) id 1MdebB-1oCIxi15hB-00ZcVv; Sat, 09
- Apr 2022 01:35:59 +0200
-From:   Lino Sanfilippo <LinoSanfilippo@gmx.de>
-To:     gregkh@linuxfoundation.org
-Cc:     linux@armlinux.org.uk, jirislaby@kernel.org,
-        linux-serial@vger.kernel.org, linux-kernel@vger.kernel.org,
-        p.rosenberger@kunbus.com, lukas@wunner.de,
-        Lino Sanfilippo <LinoSanfilippo@gmx.de>, stable@vger.kernel.org
-Subject: [PATCH] serial: amba-pl011: do not time out prematurely when draining tx fifo
-Date:   Sat,  9 Apr 2022 01:35:02 +0200
-Message-Id: <20220408233503.7251-1-LinoSanfilippo@gmx.de>
-X-Mailer: git-send-email 2.35.1
-MIME-Version: 1.0
-Content-Transfer-Encoding: base64
-X-Provags-ID: V03:K1:2Pi391PVpa6mz3HDqrEJVvoWX3RP/HWxrw14lQr48Wx7DltIAtf
- 8FWeQrDo3ShvEexNvnNKwtwOrEBi8gnsakCStv2bg1751YJF/pJRO+1WCdm1aIRMWYNAOcI
- 4MqcCvYZHrIKZWYP0tAyQnBDHwTPv0KwBOajHxojwOiBbNn1woVMA2Hz+RPvSBMBX53tzEY
- rUtDV0HYRY7e9zGN9mPYA==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:1WIr7NdhmBo=:qrqZHMQgybDqyVMSBON3kN
- S0woaUywjvcNPEqa9b9/3SuSNqJgJku17bjnEdvGX2gFeyGshXwCzf2w3XjyKtdBuaJHVSPpw
- j9HTm2UtR0qqriWGJ96W5j2NKXdSa3p+6R9W4o98okDPGs4npj5JKbJGTQ0k3Etf50r5IeueL
- ADcZIgnissMobyr8nQgfOF+JdPJesYS7ZhUFPQKbH2d59fkYrhzlrOmJ81pSDat7KgIEF5Ueq
- V1/DXS8HSf7nlNv6tN9azg6sSuGKOSlE41X47gyHt7tv+gby5xuSfGtU5HMglEy6h/qpDAXu/
- rWqreuoLq1OB6Zz3y4MDe/LUK6a9n58T8zjmR+lO5D/DWvslM02bvkkD84nvZPsJVaktTn+fV
- SlBlBbMTzlA/kWH2u3mV6Zz/wkzfOjQsvATdeJn1hmNLSetksJvaKMw6ASL2FD0qBfVP/J5XU
- 2f9HdCPE4ik8KXhIAMqq20K/OjBv+AVUA3G+8EpFGsWPYQmYQonK+HNzL6r958k6MMpavt++A
- Ygn3LXN8ir3OcqQdR9Nn4FACi4wcbabctA/GDQRvH4KQEu0L5uEllZP0+3LxMtL+fIJL2Ql1O
- AJQJQ2rx3dB81I1sdrECC1Sa4n+RyUVwG7MIcb6n2E3BhhbTfVAXWBXub2/+E90ENqk1vvSzZ
- OBrWHB0wscwp51HR8wGPB3hKznZcxcisj2vzbxus/cm1zvSImc4NGJAtUY5ie//0KIqgPIrx6
- qvch+791bduXYUxRt1IsfmA5tZriDO+BjgNOzemegPnNlvcvLwtVm3z9jlyr0+D+KrjSotgS4
- kpLIOP9JRFwDaYCCnMm6yRqoNzt4oq0gTOAOQBjI6V9CsS7Z5H/9CKvoYO2cWRWbICi0Dwkyu
- wYF6unvYD4i2mSGavB+2wZm6LpSBEe6B1FhxSblTowCyuoBTj1f5j9bkhwShw5bfLIgMvnsZU
- Owf6d5tpXClOiwgmDSRl6viFMttoYcLbkffFsayHtrh4f9vng7vPTJ+Rgsi+m8rLqF3NW9OEQ
- 2HVHWEO+PzkQGt17QvxXUwbQtAK2k8VgN/LJKMU9SDCUQB9gN4SLIgmkk5ltT+EYlrIENg4AM
- MSoONKNBbSiWRE=
-X-Spam-Status: No, score=-0.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,FREEMAIL_FROM,MIME_BASE64_TEXT,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H4,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S239738AbiDHXq7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 8 Apr 2022 19:46:59 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F352A3010B7;
+        Fri,  8 Apr 2022 16:44:53 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7FABBB82DB9;
+        Fri,  8 Apr 2022 23:44:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07687C385A1;
+        Fri,  8 Apr 2022 23:44:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1649461491;
+        bh=Zz66XtRw0HBi0RaMQX4k84HTCTXDrrATkCRtU6VP4Qg=;
+        h=Date:To:From:Subject:From;
+        b=1NygGVw5cHCOsfOKVifBQ3hZdVcJWRaoqg/qEl3I64ARdNpYU1uL8opSVHgsPn/fk
+         PvgeL0IWS7GjfV/GIzyR5c1Wd/x9lxTeusZoah8KUE7ijYMelE9DWjVq4Ydy56pm+x
+         vhDDFSmYFrz0nylmzgnfdf8x+OTFEs1sIDa9cnt0=
+Date:   Fri, 08 Apr 2022 16:44:50 -0700
+To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
+        shy828301@gmail.com, mike.kravetz@oracle.com, linmiaohe@huawei.com,
+        dan.carpenter@oracle.com, naoya.horiguchi@nec.com,
+        akpm@linux-foundation.org
+From:   Andrew Morton <akpm@linux-foundation.org>
+Subject: + mm-hwpoison-fix-race-between-hugetlb-free-demotion-and-memory_failure_hugetlb.patch added to -mm tree
+Message-Id: <20220408234451.07687C385A1@smtp.kernel.org>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-VGhlIGN1cnJlbnQgdGltZW91dCBmb3IgZHJhaW5pbmcgdGhlIHR4IGZpZm8gaW4gUlM0ODUgbW9k
-ZSBpcyBjYWxjdWxhdGVkIGJ5Cm11bHRpcGx5aW5nIHRoZSB0aW1lIGl0IHRha2VzIHRvIHRyYW5z
-bWl0IG9uZSBjaGFyYWN0ZXIgKHdpdGggdGhlIGdpdmVuCmJhdWQgcmF0ZSkgd2l0aCB0aGUgbWF4
-aW1hbCBudW1iZXIgb2YgY2hhcmFjdGVycyBpbiB0aGUgdHggcXVldWUuCgpUaGlzIHRpbWVvdXQg
-aXMgdG9vIHNob3J0IGZvciB0d28gcmVhc29uczoKRmlyc3Qgd2hlbiBjYWxjdWxhdGluZyB0aGUg
-dGltZSB0byB0cmFuc21pdCBvbmUgY2hhcmFjdGVyIGludGVnZXIgZGl2aXNpb24KaXMgdXNlZCB3
-aGljaCBtYXkgcm91bmQgZG93biB0aGUgcmVzdWx0IGluIGNhc2Ugb2YgYSByZW1haW5kZXIgb2Yg
-dGhlCmRpdmlzaW9uLgoKRml4IHRoaXMgYnkgcm91bmRpbmcgdXAgdGhlIGRpdmlzaW9uIHJlc3Vs
-dC4KClNlY29uZCB0aGUgaGFyZHdhcmUgbWF5IG5lZWQgYWRkaXRpb25hbCB0aW1lIChlLmcgZm9y
-IGZpcnN0IHB1dHRpbmcgdGhlCmNoYXJhY3RlcnMgZnJvbSB0aGUgZmlmbyBpbnRvIHRoZSBzaGlm
-dCByZWdpc3RlcikgYmVmb3JlIHRoZSBjaGFyYWN0ZXJzIGFyZQphY3R1YWxseSBwdXQgb250byB0
-aGUgd2lyZS4KClRvIGJlIG9uIHRoZSBzYWZlIHNpZGUgZG91YmxlIHRoZSBjdXJyZW50IG1heGlt
-dW0gbnVtYmVyIG9mIGl0ZXJhdGlvbnMKdGhhdCBhcmUgdXNlZCB0byB3YWl0IGZvciB0aGUgcXVl
-dWUgZHJhaW5pbmcuCgpGaXhlczogOGQ0NzkyMzc3MjdjICgic2VyaWFsOiBhbWJhLXBsMDExOiBh
-ZGQgUlM0ODUgc3VwcG9ydCIpCkNjOiBzdGFibGVAdmdlci5rZXJuZWwub3JnClNpZ25lZC1vZmYt
-Ynk6IExpbm8gU2FuZmlsaXBwbyA8TGlub1NhbmZpbGlwcG9AZ214LmRlPgotLS0KIGRyaXZlcnMv
-dHR5L3NlcmlhbC9hbWJhLXBsMDExLmMgfCA5ICsrKysrKystLQogMSBmaWxlIGNoYW5nZWQsIDcg
-aW5zZXJ0aW9ucygrKSwgMiBkZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS9kcml2ZXJzL3R0eS9z
-ZXJpYWwvYW1iYS1wbDAxMS5jIGIvZHJpdmVycy90dHkvc2VyaWFsL2FtYmEtcGwwMTEuYwppbmRl
-eCA1MWVjYjA1MGFlNDAuLjRkMTFhM2U1NDdmOSAxMDA2NDQKLS0tIGEvZHJpdmVycy90dHkvc2Vy
-aWFsL2FtYmEtcGwwMTEuYworKysgYi9kcml2ZXJzL3R0eS9zZXJpYWwvYW1iYS1wbDAxMS5jCkBA
-IC0xMjU1LDEzICsxMjU1LDE4IEBAIHN0YXRpYyBpbmxpbmUgYm9vbCBwbDAxMV9kbWFfcnhfcnVu
-bmluZyhzdHJ1Y3QgdWFydF9hbWJhX3BvcnQgKnVhcCkKIAogc3RhdGljIHZvaWQgcGwwMTFfcnM0
-ODVfdHhfc3RvcChzdHJ1Y3QgdWFydF9hbWJhX3BvcnQgKnVhcCkKIHsKKwkvKgorCSAqIFRvIGJl
-IG9uIHRoZSBzYWZlIHNpZGUgb25seSB0aW1lIG91dCBhZnRlciB0d2ljZSBhcyBtYW55IGl0ZXJh
-dGlvbnMKKwkgKiBhcyBmaWZvIHNpemUuCisJICovCisJY29uc3QgaW50IE1BWF9UWF9EUkFJTl9J
-VEVSUyA9IHVhcC0+cG9ydC5maWZvc2l6ZSAqIDI7CiAJc3RydWN0IHVhcnRfcG9ydCAqcG9ydCA9
-ICZ1YXAtPnBvcnQ7CiAJaW50IGkgPSAwOwogCXUzMiBjcjsKIAogCS8qIFdhaXQgdW50aWwgaGFy
-ZHdhcmUgdHggcXVldWUgaXMgZW1wdHkgKi8KIAl3aGlsZSAoIXBsMDExX3R4X2VtcHR5KHBvcnQp
-KSB7Ci0JCWlmIChpID09IHBvcnQtPmZpZm9zaXplKSB7CisJCWlmIChpID4gTUFYX1RYX0RSQUlO
-X0lURVJTKSB7CiAJCQlkZXZfd2Fybihwb3J0LT5kZXYsCiAJCQkJICJ0aW1lb3V0IHdoaWxlIGRy
-YWluaW5nIGhhcmR3YXJlIHR4IHF1ZXVlXG4iKTsKIAkJCWJyZWFrOwpAQCAtMjA1Miw3ICsyMDU3
-LDcgQEAgcGwwMTFfc2V0X3Rlcm1pb3Moc3RydWN0IHVhcnRfcG9ydCAqcG9ydCwgc3RydWN0IGt0
-ZXJtaW9zICp0ZXJtaW9zLAogCSAqIHdpdGggdGhlIGdpdmVuIGJhdWQgcmF0ZS4gV2UgdXNlIHRo
-aXMgYXMgdGhlIHBvbGwgaW50ZXJ2YWwgd2hlbiB3ZQogCSAqIHdhaXQgZm9yIHRoZSB0eCBxdWV1
-ZSB0byBlbXB0eS4KIAkgKi8KLQl1YXAtPnJzNDg1X3R4X2RyYWluX2ludGVydmFsID0gKGJpdHMg
-KiAxMDAwICogMTAwMCkgLyBiYXVkOworCXVhcC0+cnM0ODVfdHhfZHJhaW5faW50ZXJ2YWwgPSBE
-SVZfUk9VTkRfVVAoYml0cyAqIDEwMDAgKiAxMDAwLCBiYXVkKTsKIAogCXBsMDExX3NldHVwX3N0
-YXR1c19tYXNrcyhwb3J0LCB0ZXJtaW9zKTsKIAoKYmFzZS1jb21taXQ6IDFhM2IxYmJhN2M3YTVl
-YjhhMTE1MTNjZjg4NDI3Y2I5ZDc3YmM2MGEKLS0gCjIuMzUuMQoK
+
+The patch titled
+     Subject: mm/hwpoison: fix race between hugetlb free/demotion and memory_failure_hugetlb()
+has been added to the -mm tree.  Its filename is
+     mm-hwpoison-fix-race-between-hugetlb-free-demotion-and-memory_failure_hugetlb.patch
+
+This patch should soon appear at
+    https://ozlabs.org/~akpm/mmots/broken-out/mm-hwpoison-fix-race-between-hugetlb-free-demotion-and-memory_failure_hugetlb.patch
+and later at
+    https://ozlabs.org/~akpm/mmotm/broken-out/mm-hwpoison-fix-race-between-hugetlb-free-demotion-and-memory_failure_hugetlb.patch
+
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
+
+------------------------------------------------------
+From: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Subject: mm/hwpoison: fix race between hugetlb free/demotion and memory_failure_hugetlb()
+
+There is a race condition between memory_failure_hugetlb() and hugetlb
+free/demotion, which causes setting PageHWPoison flag on the wrong page. 
+The one simple result is that wrong processes can be killed, but another
+(more serious) one is that the actual error is left unhandled, so no one
+prevents later access to it, and that might lead to more serious results
+like consuming corrupted data.
+
+Think about the below race window:
+
+  CPU 1                                   CPU 2
+  memory_failure_hugetlb
+  struct page *head = compound_head(p);
+                                          hugetlb page might be freed to
+                                          buddy, or even changed to another
+                                          compound page.
+
+  get_hwpoison_page -- page is not what we want now...
+
+The current code first does prechecks roughly and then reconfirms after
+taking refcount, but it's found that it makes code overly complicated, so
+move the prechecks in a single hugetlb_lock range.
+
+A newly introduced function, try_memory_failure_hugetlb(), always takes
+hugetlb_lock (even for non-hugetlb pages).  That can be improved, but
+memory_failure() is rare in principle, so should not be a big problem.
+
+Link: https://lkml.kernel.org/r/20220408135323.1559401-2-naoya.horiguchi@linux.dev
+Fixes: 761ad8d7c7b5 ("mm: hwpoison: introduce memory_failure_hugetlb()")
+Signed-off-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Reported-by: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Miaohe Lin <linmiaohe@huawei.com>
+Cc: Yang Shi <shy828301@gmail.com>
+Cc: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ include/linux/hugetlb.h |    6 +
+ include/linux/mm.h      |    8 ++
+ mm/hugetlb.c            |   10 ++
+ mm/memory-failure.c     |  145 ++++++++++++++++++++++++++------------
+ 4 files changed, 127 insertions(+), 42 deletions(-)
+
+--- a/include/linux/hugetlb.h~mm-hwpoison-fix-race-between-hugetlb-free-demotion-and-memory_failure_hugetlb
++++ a/include/linux/hugetlb.h
+@@ -169,6 +169,7 @@ long hugetlb_unreserve_pages(struct inod
+ 						long freed);
+ bool isolate_huge_page(struct page *page, struct list_head *list);
+ int get_hwpoison_huge_page(struct page *page, bool *hugetlb);
++int get_huge_page_for_hwpoison(unsigned long pfn, int flags);
+ void putback_active_hugepage(struct page *page);
+ void move_hugetlb_state(struct page *oldpage, struct page *newpage, int reason);
+ void free_huge_page(struct page *page);
+@@ -377,6 +378,11 @@ static inline int get_hwpoison_huge_page
+ {
+ 	return 0;
+ }
++
++static inline int get_huge_page_for_hwpoison(unsigned long pfn, int flags)
++{
++	return 0;
++}
+ 
+ static inline void putback_active_hugepage(struct page *page)
+ {
+--- a/include/linux/mm.h~mm-hwpoison-fix-race-between-hugetlb-free-demotion-and-memory_failure_hugetlb
++++ a/include/linux/mm.h
+@@ -3197,6 +3197,14 @@ extern int sysctl_memory_failure_recover
+ extern void shake_page(struct page *p);
+ extern atomic_long_t num_poisoned_pages __read_mostly;
+ extern int soft_offline_page(unsigned long pfn, int flags);
++#ifdef CONFIG_MEMORY_FAILURE
++extern int __get_huge_page_for_hwpoison(unsigned long pfn, int flags);
++#else
++static inline int __get_huge_page_for_hwpoison(unsigned long pfn, int flags)
++{
++	return 0;
++}
++#endif
+ 
+ #ifndef arch_memory_failure
+ static inline int arch_memory_failure(unsigned long pfn, int flags)
+--- a/mm/hugetlb.c~mm-hwpoison-fix-race-between-hugetlb-free-demotion-and-memory_failure_hugetlb
++++ a/mm/hugetlb.c
+@@ -6782,6 +6782,16 @@ int get_hwpoison_huge_page(struct page *
+ 	return ret;
+ }
+ 
++int get_huge_page_for_hwpoison(unsigned long pfn, int flags)
++{
++	int ret;
++
++	spin_lock_irq(&hugetlb_lock);
++	ret = __get_huge_page_for_hwpoison(pfn, flags);
++	spin_unlock_irq(&hugetlb_lock);
++	return ret;
++}
++
+ void putback_active_hugepage(struct page *page)
+ {
+ 	spin_lock_irq(&hugetlb_lock);
+--- a/mm/memory-failure.c~mm-hwpoison-fix-race-between-hugetlb-free-demotion-and-memory_failure_hugetlb
++++ a/mm/memory-failure.c
+@@ -1498,50 +1498,113 @@ static int try_to_split_thp_page(struct
+ 	return 0;
+ }
+ 
+-static int memory_failure_hugetlb(unsigned long pfn, int flags)
++/*
++ * Called from hugetlb code with hugetlb_lock held.
++ *
++ * Return values:
++ *   0             - free hugepage
++ *   1             - in-use hugepage
++ *   2             - not a hugepage
++ *   -EBUSY        - the hugepage is busy (try to retry)
++ *   -EHWPOISON    - the hugepage is already hwpoisoned
++ */
++int __get_huge_page_for_hwpoison(unsigned long pfn, int flags)
++{
++	struct page *page = pfn_to_page(pfn);
++	struct page *head = compound_head(page);
++	int ret = 2;	/* fallback to normal page handling */
++	bool count_increased = false;
++
++	if (!PageHeadHuge(head))
++		goto out;
++
++	if (flags & MF_COUNT_INCREASED) {
++		ret = 1;
++		count_increased = true;
++	} else if (HPageFreed(head) || HPageMigratable(head)) {
++		ret = get_page_unless_zero(head);
++		if (ret)
++			count_increased = true;
++	} else {
++		ret = -EBUSY;
++		goto out;
++	}
++
++	if (TestSetPageHWPoison(head)) {
++		ret = -EHWPOISON;
++		goto out;
++	}
++
++	return ret;
++out:
++	if (count_increased)
++		put_page(head);
++	return ret;
++}
++
++#ifdef CONFIG_HUGETLB_PAGE
++/*
++ * Taking refcount of hugetlb pages needs extra care about race conditions
++ * with basic operations like hugepage allocation/free/demotion.
++ * So some of prechecks for hwpoison (pinning, and testing/setting
++ * PageHWPoison) should be done in single hugetlb_lock range.
++ */
++static int try_memory_failure_hugetlb(unsigned long pfn, int flags, int *hugetlb)
+ {
+-	struct page *p = pfn_to_page(pfn);
+-	struct page *head = compound_head(p);
+ 	int res;
++	struct page *p = pfn_to_page(pfn);
++	struct page *head;
+ 	unsigned long page_flags;
++	bool retry = true;
+ 
+-	if (TestSetPageHWPoison(head)) {
+-		pr_err("Memory failure: %#lx: already hardware poisoned\n",
+-		       pfn);
+-		res = -EHWPOISON;
+-		if (flags & MF_ACTION_REQUIRED)
++	*hugetlb = 1;
++retry:
++	res = get_huge_page_for_hwpoison(pfn, flags);
++	if (res == 2) { /* fallback to normal page handling */
++		*hugetlb = 0;
++		return 0;
++	} else if (res == -EHWPOISON) {
++		pr_err("Memory failure: %#lx: already hardware poisoned\n", pfn);
++		if (flags & MF_ACTION_REQUIRED) {
++			head = compound_head(p);
+ 			res = kill_accessing_process(current, page_to_pfn(head), flags);
++		}
+ 		return res;
++	} else if (res == -EBUSY) {
++		if (retry) {
++			retry = false;
++			goto retry;
++		}
++		action_result(pfn, MF_MSG_UNKNOWN, MF_IGNORED);
++		return res;
++	}
++
++	head = compound_head(p);
++	lock_page(head);
++
++	if (hwpoison_filter(p)) {
++		ClearPageHWPoison(head);
++		res = -EOPNOTSUPP;
++		goto out;
+ 	}
+ 
+ 	num_poisoned_pages_inc();
+ 
+-	if (!(flags & MF_COUNT_INCREASED)) {
+-		res = get_hwpoison_page(p, flags);
+-		if (!res) {
+-			lock_page(head);
+-			if (hwpoison_filter(p)) {
+-				if (TestClearPageHWPoison(head))
+-					num_poisoned_pages_dec();
+-				unlock_page(head);
+-				return -EOPNOTSUPP;
+-			}
+-			unlock_page(head);
+-			res = MF_FAILED;
+-			if (__page_handle_poison(p)) {
+-				page_ref_inc(p);
+-				res = MF_RECOVERED;
+-			}
+-			action_result(pfn, MF_MSG_FREE_HUGE, res);
+-			return res == MF_RECOVERED ? 0 : -EBUSY;
+-		} else if (res < 0) {
+-			action_result(pfn, MF_MSG_UNKNOWN, MF_IGNORED);
+-			return -EBUSY;
++	/*
++	 * Handling free hugepage.  The possible race with hugepage allocation
++	 * or demotion can be prevented by PageHWPoison flag.
++	 */
++	if (res == 0) {
++		unlock_page(head);
++		res = MF_FAILED;
++		if (__page_handle_poison(p)) {
++			page_ref_inc(p);
++			res = MF_RECOVERED;
+ 		}
++		action_result(pfn, MF_MSG_FREE_HUGE, res);
++		return res == MF_RECOVERED ? 0 : -EBUSY;
+ 	}
+ 
+-	lock_page(head);
+-
+ 	/*
+ 	 * The page could have changed compound pages due to race window.
+ 	 * If this happens just bail out.
+@@ -1554,14 +1617,6 @@ static int memory_failure_hugetlb(unsign
+ 
+ 	page_flags = head->flags;
+ 
+-	if (hwpoison_filter(p)) {
+-		if (TestClearPageHWPoison(head))
+-			num_poisoned_pages_dec();
+-		put_page(p);
+-		res = -EOPNOTSUPP;
+-		goto out;
+-	}
+-
+ 	/*
+ 	 * TODO: hwpoison for pud-sized hugetlb doesn't work right now, so
+ 	 * simply disable it. In order to make it work properly, we need
+@@ -1588,6 +1643,12 @@ out:
+ 	unlock_page(head);
+ 	return res;
+ }
++#else
++static inline int try_memory_failure_hugetlb(unsigned long pfn, int flags, int *hugetlb)
++{
++	return 0;
++}
++#endif
+ 
+ static int memory_failure_dev_pagemap(unsigned long pfn, int flags,
+ 		struct dev_pagemap *pgmap)
+@@ -1712,6 +1773,7 @@ int memory_failure(unsigned long pfn, in
+ 	int res = 0;
+ 	unsigned long page_flags;
+ 	bool retry = true;
++	int hugetlb = 0;
+ 
+ 	if (!sysctl_memory_failure_recovery)
+ 		panic("Memory failure on page %lx", pfn);
+@@ -1739,10 +1801,9 @@ int memory_failure(unsigned long pfn, in
+ 	}
+ 
+ try_again:
+-	if (PageHuge(p)) {
+-		res = memory_failure_hugetlb(pfn, flags);
++	res = try_memory_failure_hugetlb(pfn, flags, &hugetlb);
++	if (hugetlb)
+ 		goto unlock_mutex;
+-	}
+ 
+ 	if (TestSetPageHWPoison(p)) {
+ 		pr_err("Memory failure: %#lx: already hardware poisoned\n",
+_
+
+Patches currently in -mm which might be from naoya.horiguchi@nec.com are
+
+mm-hwpoison-fix-race-between-hugetlb-free-demotion-and-memory_failure_hugetlb.patch
+revert-mm-memory-failurec-fix-race-with-changing-page-compound-again.patch
+
