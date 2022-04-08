@@ -2,49 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CF97F4F9730
-	for <lists+stable@lfdr.de>; Fri,  8 Apr 2022 15:46:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A1E594F9735
+	for <lists+stable@lfdr.de>; Fri,  8 Apr 2022 15:46:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231500AbiDHNsp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Apr 2022 09:48:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52786 "EHLO
+        id S236485AbiDHNsr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Apr 2022 09:48:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52886 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236478AbiDHNso (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 8 Apr 2022 09:48:44 -0400
+        with ESMTP id S236481AbiDHNsq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 8 Apr 2022 09:48:46 -0400
 Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DFE460CEF;
-        Fri,  8 Apr 2022 06:46:41 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FD0E8BF4F;
+        Fri,  8 Apr 2022 06:46:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1649425601; x=1680961601;
+  t=1649425602; x=1680961602;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=2RsBxvZgX52mmyvnnY0IE8cn0uckQN1XXAvC+D/+vJU=;
-  b=PGinHrV924gbEGL2gBBl0MGxH4PC4nRwU4fRJQtfze28igfPHDevDBt9
-   QswiQ2Hvbfc0yCphj5uTQdtdJBMfhe4tGWC3SSQpmMUnclk/D1MnwXxHw
-   uDCssu5m9m0AcZNKLiTFY3Z4vq7WwSvJuP3YyshI+kffWURGFjZm4RE4U
-   8lXiVtRpRYozGb+uokoBTdpFkEI7uyjLJAM/MPuomtnCVoSOunXH5YlRX
-   IzfhCtNw7LhwCyujsmbvDVE+bhaAFBtjKTvjW43gp0XUO3qMXpAol58my
-   4rrpUtqhyHHrAdNectONvJtq5SvD09v+PqNOmYsjAKBHTgbLqeYj/aWXo
-   Q==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10310"; a="260432091"
+  bh=l4VBFcXc3qAqGn+1Yb4l3Fd2gPYj10oSRfyXmwYf1JQ=;
+  b=HFswPf9erbKAZXdZA9yx0u/FTDIlTUOMIHOCTEcjhvlDQVGDkaFUk6N9
+   JsG+nhpRPxcVdFbDA86N64k/90OElu0rzYyN3Tpx0lLrxCTBOzftJQISM
+   aapgtqHAj1t/svw1+Pqea3I7wFfnO3YUpC/k7NuHKUnWsu+ih67KRoG8h
+   +SQXfBObNDW8KVKcTfhcz7DsBq23iDFJfCn0QUmkk7Sq9qB8XE+sHgN0y
+   4YtlNgGy+QW17+5csUvdHaae2S+uzavvtTmeBpgRd5zkzwDr6HmFAQCdP
+   5HFCmIOGSMLQjpiEGqM3jV3IL4cxXTvLTmDGND/aI5cV3Ta4femu6Ylcd
+   A==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10310"; a="260432095"
 X-IronPort-AV: E=Sophos;i="5.90,245,1643702400"; 
-   d="scan'208";a="260432091"
+   d="scan'208";a="260432095"
 Received: from fmsmga002.fm.intel.com ([10.253.24.26])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Apr 2022 06:46:40 -0700
+  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Apr 2022 06:46:42 -0700
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.90,245,1643702400"; 
-   d="scan'208";a="653263290"
+   d="scan'208";a="653263292"
 Received: from mattu-haswell.fi.intel.com ([10.237.72.199])
-  by fmsmga002.fm.intel.com with ESMTP; 08 Apr 2022 06:46:39 -0700
+  by fmsmga002.fm.intel.com with ESMTP; 08 Apr 2022 06:46:41 -0700
 From:   Mathias Nyman <mathias.nyman@linux.intel.com>
 To:     <gregkh@linuxfoundation.org>
-Cc:     <linux-usb@vger.kernel.org>, Henry Lin <henryl@nvidia.com>,
-        stable@vger.kernel.org,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 2/3] xhci: stop polling roothubs after shutdown
-Date:   Fri,  8 Apr 2022 16:48:22 +0300
-Message-Id: <20220408134823.2527272-3-mathias.nyman@linux.intel.com>
+Cc:     <linux-usb@vger.kernel.org>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>,
+        stable@vger.kernel.org
+Subject: [PATCH 3/3] xhci: increase usb U3 -> U0 link resume timeout from 100ms to 500ms
+Date:   Fri,  8 Apr 2022 16:48:23 +0300
+Message-Id: <20220408134823.2527272-4-mathias.nyman@linux.intel.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20220408134823.2527272-1-mathias.nyman@linux.intel.com>
 References: <20220408134823.2527272-1-mathias.nyman@linux.intel.com>
@@ -60,47 +60,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Henry Lin <henryl@nvidia.com>
+The first U3 wake signal by the host may be lost if the USB 3 connection is
+tunneled over USB4, with a runtime suspended USB4 host, and firmware
+implemented connection manager.
 
-While rebooting, XHCI controller and its bus device will be shut down
-in order by .shutdown callback. Stopping roothubs polling in
-xhci_shutdown() can prevent XHCI driver from accessing port status
-after its bus device shutdown.
+Specs state the host must wait 100ms (tU3WakeupRetryDelay) before
+resending a U3 wake signal if device doesn't respond, leading to U3 -> U0
+link transition times around 270ms in the tunneled case.
 
-Take PCIe XHCI controller as example, if XHCI driver doesn't stop roothubs
-polling, XHCI driver may access PCIe BAR register for port status after
-parent PCIe root port driver is shutdown and cause PCIe bus error.
-
-[check shared hcd exist before stopping its roothub polling -Mathias]
 Cc: stable@vger.kernel.org
-Signed-off-by: Henry Lin <henryl@nvidia.com>
+Fixes: 0200b9f790b0 ("xhci: Wait until link state trainsits to U0 after setting USB_SS_PORT_LS_U0")
 Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
 ---
- drivers/usb/host/xhci.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/usb/host/xhci-hub.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
-index 642610c78f58..25b87e99b4dd 100644
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -781,6 +781,17 @@ void xhci_shutdown(struct usb_hcd *hcd)
- 	if (xhci->quirks & XHCI_SPURIOUS_REBOOT)
- 		usb_disable_xhci_ports(to_pci_dev(hcd->self.sysdev));
- 
-+	/* Don't poll the roothubs after shutdown. */
-+	xhci_dbg(xhci, "%s: stopping usb%d port polling.\n",
-+			__func__, hcd->self.busnum);
-+	clear_bit(HCD_FLAG_POLL_RH, &hcd->flags);
-+	del_timer_sync(&hcd->rh_timer);
-+
-+	if (xhci->shared_hcd) {
-+		clear_bit(HCD_FLAG_POLL_RH, &xhci->shared_hcd->flags);
-+		del_timer_sync(&xhci->shared_hcd->rh_timer);
-+	}
-+
- 	spin_lock_irq(&xhci->lock);
- 	xhci_halt(xhci);
- 	/* Workaround for spurious wakeups at shutdown with HSW */
+diff --git a/drivers/usb/host/xhci-hub.c b/drivers/usb/host/xhci-hub.c
+index 1e7dc130c39a..f65f1ba2b592 100644
+--- a/drivers/usb/host/xhci-hub.c
++++ b/drivers/usb/host/xhci-hub.c
+@@ -1434,7 +1434,7 @@ int xhci_hub_control(struct usb_hcd *hcd, u16 typeReq, u16 wValue,
+ 				}
+ 				spin_unlock_irqrestore(&xhci->lock, flags);
+ 				if (!wait_for_completion_timeout(&bus_state->u3exit_done[wIndex],
+-								 msecs_to_jiffies(100)))
++								 msecs_to_jiffies(500)))
+ 					xhci_dbg(xhci, "missing U0 port change event for port %d-%d\n",
+ 						 hcd->self.busnum, wIndex + 1);
+ 				spin_lock_irqsave(&xhci->lock, flags);
 -- 
 2.25.1
 
