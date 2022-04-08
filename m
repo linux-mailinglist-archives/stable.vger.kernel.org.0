@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DE5E4F9B90
-	for <lists+stable@lfdr.de>; Fri,  8 Apr 2022 19:22:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 942474F9B91
+	for <lists+stable@lfdr.de>; Fri,  8 Apr 2022 19:22:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235014AbiDHRYc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Apr 2022 13:24:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40140 "EHLO
+        id S235019AbiDHRYn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Apr 2022 13:24:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40860 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238130AbiDHRYb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 8 Apr 2022 13:24:31 -0400
+        with ESMTP id S238128AbiDHRYm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 8 Apr 2022 13:24:42 -0400
 Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 7C639393DB
-        for <stable@vger.kernel.org>; Fri,  8 Apr 2022 10:22:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id AA99F10242D
+        for <stable@vger.kernel.org>; Fri,  8 Apr 2022 10:22:38 -0700 (PDT)
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id ED3631042;
-        Fri,  8 Apr 2022 10:22:25 -0700 (PDT)
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 7A3811042;
+        Fri,  8 Apr 2022 10:22:38 -0700 (PDT)
 Received: from eglon.cambridge.arm.com (eglon.cambridge.arm.com [10.1.196.218])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 4B2CD3F5A1;
-        Fri,  8 Apr 2022 10:22:25 -0700 (PDT)
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id CC4A03F5A1;
+        Fri,  8 Apr 2022 10:22:37 -0700 (PDT)
 From:   James Morse <james.morse@arm.com>
 To:     linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org
 Cc:     James Morse <james.morse@arm.com>, Will Deacon <will@kernel.org>
-Subject: [stable:PATCH v5.4.188] KVM: arm64: Check arm64_get_bp_hardening_data() didn't return NULL
-Date:   Fri,  8 Apr 2022 18:22:19 +0100
-Message-Id: <20220408172219.4152131-1-james.morse@arm.com>
+Subject: [stable:PATCH v4.19.237] KVM: arm64: Check arm64_get_bp_hardening_data() didn't return NULL
+Date:   Fri,  8 Apr 2022 18:22:32 +0100
+Message-Id: <20220408172232.4152184-1-james.morse@arm.com>
 X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -69,18 +69,18 @@ Add a check in kvm_get_hyp_vector().
 
 Cc: Will Deacon <will@kernel.org>
 Link: https://lore.kernel.org/linux-arm-kernel/20220408120041.GB27685@willie-the-truck/
-Fixes: 26129ea2953b ("KVM: arm64: Add templates for BHB mitigation sequences")
-Cc: stable@vger.kernel.org # 5.4.x
+Fixes: a68912a3ae3 ("KVM: arm64: Add templates for BHB mitigation sequences")
+Cc: stable@vger.kernel.org # 4.19
 Signed-off-by: James Morse <james.morse@arm.com>
 ---
  arch/arm64/include/asm/kvm_mmu.h | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/arch/arm64/include/asm/kvm_mmu.h b/arch/arm64/include/asm/kvm_mmu.h
-index 78d110667c0c..ffe0aad96b17 100644
+index 44d3fdbcdf62..0243b6d22453 100644
 --- a/arch/arm64/include/asm/kvm_mmu.h
 +++ b/arch/arm64/include/asm/kvm_mmu.h
-@@ -479,7 +479,8 @@ static inline void *kvm_get_hyp_vector(void)
+@@ -439,7 +439,8 @@ static inline void *kvm_get_hyp_vector(void)
  	int slot = -1;
  
  	if ((cpus_have_const_cap(ARM64_HARDEN_BRANCH_PREDICTOR) ||
