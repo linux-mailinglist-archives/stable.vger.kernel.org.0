@@ -2,54 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A43914F9AC5
+	by mail.lfdr.de (Postfix) with ESMTP id 0C55A4F9AC3
 	for <lists+stable@lfdr.de>; Fri,  8 Apr 2022 18:36:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232479AbiDHQiQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Apr 2022 12:38:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35792 "EHLO
+        id S232952AbiDHQie (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Apr 2022 12:38:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37054 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232671AbiDHQiP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 8 Apr 2022 12:38:15 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA9E0E886C;
-        Fri,  8 Apr 2022 09:36:08 -0700 (PDT)
+        with ESMTP id S232671AbiDHQic (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 8 Apr 2022 12:38:32 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DBF1ED917;
+        Fri,  8 Apr 2022 09:36:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6FDDDB82A1D;
-        Fri,  8 Apr 2022 16:36:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 263C7C385A3;
-        Fri,  8 Apr 2022 16:36:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 12E1B620D1;
+        Fri,  8 Apr 2022 16:36:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B7FEC385A1;
+        Fri,  8 Apr 2022 16:36:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1649435766;
-        bh=K5Kb3Xp0nCtSmnffNpkwtXLSVOyZuSrWwz3IcdaEMsg=;
+        s=k20201202; t=1649435786;
+        bh=TkwBDUzJ9YyBhxYoCFRlqcRWI7UV6YLdvwfBWpDoxkM=;
         h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=WoNz2bF6JO0f/m2ru+xTXSU2mwhtzBKkDAtQZn+Uaryd6WxxDeiYxn0a+MGIN4e+0
-         1F22ktcK6ICMlzaCXccBwbv79SK3QJdLiapBugH9E6tgGfD3EKmD+w5jqopJ73GCve
-         EyMxOp0ckbP6T19dkF3aKe7HpIegg0x/+dFEi4PaZpi2gaQ9HdLNEg5fixdSNwam4T
-         ddYGwQXQ5aHe9+BHkEjg/12Dw6YuZWerS9t0U23OsoDQarHu1pqd2FTzIz1gbhgl4C
-         e0rR/O9ZRq9yUxODI2O1CZ+2NZhyp6UuP4mVmcziWVlvGnPWqnFQ181ih/jOXTSjJn
-         TBt/gq1632CxQ==
-Received: by mail-yb1-f172.google.com with SMTP id w134so16029149ybe.10;
-        Fri, 08 Apr 2022 09:36:06 -0700 (PDT)
-X-Gm-Message-State: AOAM531FUb+y9ivPz2iB9PXHfGgol2+GUNbHuzv8t3TtjKJ5KMI7VjEk
-        FM1XZ7qkwLi/rYKBpX2TqnGJr6W1Uo3ped+/1H0=
-X-Google-Smtp-Source: ABdhPJyKLjZmpdguSVpuN09IKlc04KncOOIfRxhBm2fII7mzd2UxjW7i6caa6tBWW95cP9i+gMEge8We3t1NQBHRysw=
-X-Received: by 2002:a25:6909:0:b0:63d:afc8:8b01 with SMTP id
- e9-20020a256909000000b0063dafc88b01mr14441952ybc.561.1649435765226; Fri, 08
- Apr 2022 09:36:05 -0700 (PDT)
+        b=qw7sf9W6lt3RpDJwysfpT+r6eWzmBjwOklM08kfvAxsH09zK9Z7N81LfuSqO+ZpW0
+         bGff2jTH0wpqc4JIhk6m+W9Mx9dMriwrD2ZOh0okm75cNEy0C3Ko6G9JHkE5ynTPPa
+         G6ZG/hFe/DwTMGEV++XWjEeQ+PwnEueReLLet6B/1x6ncqWyyjxWCQ6S9gF5wUFXC3
+         BIHu0WSdmPsTuQtwIl5e8wGZfH/ss1IjXmMOHF6YPnQRhBEhJdzElF3LRxPL3mCTtt
+         T3iTE/B+n6KkCzP9Hsil1j2iClbeu/gzW5GwClPeqtIQL8lWkxLFghr/LafkrN55L+
+         yWG7NIGiQu5Uw==
+Received: by mail-yb1-f180.google.com with SMTP id d138so16016866ybc.13;
+        Fri, 08 Apr 2022 09:36:26 -0700 (PDT)
+X-Gm-Message-State: AOAM531RDa7P4bN4bilrXJvBuBi0GjPqP7cLkZCpWp3gvl/NQIFlNiW6
+        a7XgosQOD9rH+y78tbVf859yTrny6X2R57ixIHA=
+X-Google-Smtp-Source: ABdhPJyQCzENX7aSD7Xm1y3IHarGAd00OfvNz3MtCITUYG2YdmOP0Yp14ZXNlGZXyEFfqNQOqZ916X9Txnh0PrLZPX4=
+X-Received: by 2002:a25:d40e:0:b0:641:1842:ed4b with SMTP id
+ m14-20020a25d40e000000b006411842ed4bmr1124711ybf.257.1649435785548; Fri, 08
+ Apr 2022 09:36:25 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220408083728.25701-1-xiam0nd.tong@gmail.com> <20220408122348.bt7lkaumwhv36a2q@fiona>
-In-Reply-To: <20220408122348.bt7lkaumwhv36a2q@fiona>
+References: <20220408084715.26097-1-xiam0nd.tong@gmail.com>
+In-Reply-To: <20220408084715.26097-1-xiam0nd.tong@gmail.com>
 From:   Song Liu <song@kernel.org>
-Date:   Fri, 8 Apr 2022 09:35:54 -0700
-X-Gmail-Original-Message-ID: <CAPhsuW5qZiE4z0j_+pJbiHQ+zK9oVw3DLgEXdSQ0m=m5ULX1Mw@mail.gmail.com>
-Message-ID: <CAPhsuW5qZiE4z0j_+pJbiHQ+zK9oVw3DLgEXdSQ0m=m5ULX1Mw@mail.gmail.com>
-Subject: Re: [PATCH v3] md: fix an incorrect NULL check in does_sb_need_changing
-To:     Goldwyn Rodrigues <rgoldwyn@suse.de>
-Cc:     Xiaomeng Tong <xiam0nd.tong@gmail.com>,
-        Guoqing Jiang <guoqing.jiang@linux.dev>,
+Date:   Fri, 8 Apr 2022 09:36:14 -0700
+X-Gmail-Original-Message-ID: <CAPhsuW4dTNShcoHGL1_t_=6f-+P3CSLTexSy+Mv2+HZSk8skOA@mail.gmail.com>
+Message-ID: <CAPhsuW4dTNShcoHGL1_t_=6f-+P3CSLTexSy+Mv2+HZSk8skOA@mail.gmail.com>
+Subject: Re: [PATCH v3] md: fix an incorrect NULL check in md_reload_sb
+To:     Xiaomeng Tong <xiam0nd.tong@gmail.com>
+Cc:     rgoldwyn@suse.com, Guoqing Jiang <guoqing.jiang@linux.dev>,
         linux-raid <linux-raid@vger.kernel.org>,
         open list <linux-kernel@vger.kernel.org>,
         stable@vger.kernel.org
@@ -64,30 +63,24 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Apr 8, 2022 at 5:23 AM Goldwyn Rodrigues <rgoldwyn@suse.de> wrote:
+On Fri, Apr 8, 2022 at 1:47 AM Xiaomeng Tong <xiam0nd.tong@gmail.com> wrote:
 >
-> On 16:37 08/04, Xiaomeng Tong wrote:
-> > The bug is here:
-> >       if (!rdev)
-> >
-> > The list iterator value 'rdev' will *always* be set and non-NULL
-> > by rdev_for_each(), so it is incorrect to assume that the iterator
-> > value will be NULL if the list is empty or no element found.
-> > Otherwise it will bypass the NULL check and lead to invalid memory
-> > access passing the check.
-> >
-> > To fix the bug, use a new variable 'iter' as the list iterator,
-> > while using the original variable 'rdev' as a dedicated pointer to
-> > point to the found element.
-> >
-> > Cc: stable@vger.kernel.org
-> > Fixes: 2aa82191ac36 ("md-cluster: Perform a lazy update")
-> > Acked-by: Guoqing Jiang <guoqing.jiang@linux.dev>
-> > Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+> The bug is here:
+>         if (!rdev || rdev->desc_nr != nr) {
 >
-> Also safeguards from reading sb from a faulty device if all devices are
-> faulty.
+> The list iterator value 'rdev' will *always* be set and non-NULL
+> by rdev_for_each_rcu(), so it is incorrect to assume that the
+> iterator value will be NULL if the list is empty or no element
+> found (In fact, it will be a bogus pointer to an invalid struct
+> object containing the HEAD). Otherwise it will bypass the check
+> and lead to invalid memory access passing the check.
 >
-> Acked-by: Goldwyn Rodrigues <rgoldwyn@suse.com>
+> To fix the bug, use a new variable 'iter' as the list iterator,
+> while using the original variable 'pdev' as a dedicated pointer to
+> point to the found element.
+>
+> Cc: stable@vger.kernel.org
+> Fixes: 70bcecdb1534 ("md-cluster: Improve md_reload_sb to be less error prone")
+> Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
 
 Applied to md-next. Thanks!
