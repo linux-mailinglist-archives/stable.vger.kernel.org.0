@@ -2,125 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E28C24FA93B
-	for <lists+stable@lfdr.de>; Sat,  9 Apr 2022 17:18:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 557444FA95A
+	for <lists+stable@lfdr.de>; Sat,  9 Apr 2022 17:46:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234533AbiDIPUn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 9 Apr 2022 11:20:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50004 "EHLO
+        id S237884AbiDIPsW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 9 Apr 2022 11:48:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35398 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235205AbiDIPUm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 9 Apr 2022 11:20:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DF198AE67
-        for <stable@vger.kernel.org>; Sat,  9 Apr 2022 08:18:34 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A82F060A5A
-        for <stable@vger.kernel.org>; Sat,  9 Apr 2022 15:18:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEE5AC385A4;
-        Sat,  9 Apr 2022 15:18:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649517513;
-        bh=KB8WhoufbzScKCv74LM4rGDo887W+VVMTmT6mBGpqpM=;
-        h=Subject:To:From:Date:From;
-        b=WkpzuX0Q3pLskyvOE5BhkvyMae3Ytv8xOIyL1+mQsMQPl+om8zwEuRlvmWzkgvaGh
-         yl7TJkGhaWk8vu3grCAZw6wQr2NzKCdu30MqWKsiAE1ZfWct7gkY0sAr7j2uBEWwI2
-         03Y9qoQGrF1R6sXWuaWtpnG0yOoQEHQXjqBHASSY=
-Subject: patch "usb: cdns3: Fix issue for clear halt endpoint" added to usb-linus
-To:     pawell@cadence.com, gregkh@linuxfoundation.org,
-        peter.chen@kernel.org, stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 09 Apr 2022 17:18:20 +0200
-Message-ID: <164951750087124@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+        with ESMTP id S231217AbiDIPsV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 9 Apr 2022 11:48:21 -0400
+Received: from www.linuxtv.org (www.linuxtv.org [130.149.80.248])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EE80B7
+        for <stable@vger.kernel.org>; Sat,  9 Apr 2022 08:46:14 -0700 (PDT)
+Received: from mchehab by www.linuxtv.org with local (Exim 4.92)
+        (envelope-from <mchehab@linuxtv.org>)
+        id 1ndDHw-00AZfQ-Dr; Sat, 09 Apr 2022 15:46:12 +0000
+From:   Mauro Carvalho Chehab <mchehab@kernel.org>
+Date:   Sat, 09 Apr 2022 15:45:49 +0000
+Subject: [git:media_tree/fixes] media: si2157: unknown chip version Si2147-A30 ROM 0x50
+To:     linuxtv-commits@linuxtv.org
+Cc:     Robert Schlabbach <robert_s@gmx.net>, stable@vger.kernel.org,
+        Piotr Chmura <chmooreck@gmail.com>
+Mail-followup-to: linux-media@vger.kernel.org
+Forward-to: linux-media@vger.kernel.org
+Reply-to: linux-media@vger.kernel.org
+Message-Id: <E1ndDHw-00AZfQ-Dr@www.linuxtv.org>
+X-Spam-Status: No, score=-4.0 required=5.0 tests=BAYES_00,
+        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_MED,RCVD_IN_MSPIKE_H3,
+        RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+This is an automatic generated email to let you know that the following patch were queued:
 
-This is a note to let you know that I've just added the patch titled
+Subject: media: si2157: unknown chip version Si2147-A30 ROM 0x50
+Author:  Piotr Chmura <chmooreck@gmail.com>
+Date:    Thu Mar 31 17:55:50 2022 +0200
 
-    usb: cdns3: Fix issue for clear halt endpoint
+Fix firmware file names assignment in si2157 tuner, allow for running
+devices without firmware files needed.
 
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-linus branch.
+modprobe gives error: unknown chip version Si2147-A30 ROM 0x50
+Device initialization is interrupted.
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+Caused by:
+1. table si2157_tuners has swapped fields rom_id and required vs struct
+   si2157_tuner_info.
+2. both firmware file names can be null for devices with
+   required == false - device uses build-in firmware in this case
 
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
+Tested on this device:
+	m07ca:1871 AVerMedia Technologies, Inc. TD310 DVB-T/T2/C dongle
 
-If you have any questions about this process, please let me know.
+[mchehab: fix mangled patch]
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=215726
+Link: https://lore.kernel.org/lkml/5f660108-8812-383c-83e4-29ee0558d623@leemhuis.info/
+Link: https://lore.kernel.org/linux-media/c4bcaff8-fbad-969e-ad47-e2c487ac02a1@gmail.com
+Fixes: 1c35ba3bf972 ("media: si2157: use a different namespace for firmware")
+Cc: stable@vger.kernel.org # 5.17.x
+Signed-off-by: Piotr Chmura <chmooreck@gmail.com>
+Tested-by: Robert Schlabbach <robert_s@gmx.net>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 
+ drivers/media/tuners/si2157.c | 22 +++++++++++-----------
+ 1 file changed, 11 insertions(+), 11 deletions(-)
 
-From b3fa25de31fb7e9afebe9599b8ff32eda13d7c94 Mon Sep 17 00:00:00 2001
-From: Pawel Laszczak <pawell@cadence.com>
-Date: Tue, 29 Mar 2022 10:46:05 +0200
-Subject: usb: cdns3: Fix issue for clear halt endpoint
-
-Path fixes bug which occurs during resetting endpoint in
-__cdns3_gadget_ep_clear_halt function. During resetting endpoint
-controller will change HW/DMA owned TRB. It set Abort flag in
-trb->control and will change trb->length field. If driver want
-to use the aborted trb it must update the changed field in
-TRB.
-
-Fixes: 7733f6c32e36 ("usb: cdns3: Add Cadence USB3 DRD Driver")
-cc: <stable@vger.kernel.org>
-Acked-by: Peter Chen <peter.chen@kernel.org>
-Signed-off-by: Pawel Laszczak <pawell@cadence.com>
-Link: https://lore.kernel.org/r/20220329084605.4022-1-pawell@cadence.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/cdns3/cdns3-gadget.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/usb/cdns3/cdns3-gadget.c b/drivers/usb/cdns3/cdns3-gadget.c
-index f9af7ebe003d..d6d515d598dc 100644
---- a/drivers/usb/cdns3/cdns3-gadget.c
-+++ b/drivers/usb/cdns3/cdns3-gadget.c
-@@ -2684,6 +2684,7 @@ int __cdns3_gadget_ep_clear_halt(struct cdns3_endpoint *priv_ep)
- 	struct usb_request *request;
- 	struct cdns3_request *priv_req;
- 	struct cdns3_trb *trb = NULL;
-+	struct cdns3_trb trb_tmp;
- 	int ret;
- 	int val;
+diff --git a/drivers/media/tuners/si2157.c b/drivers/media/tuners/si2157.c
+index 47029746b89e..0de587b412d4 100644
+--- a/drivers/media/tuners/si2157.c
++++ b/drivers/media/tuners/si2157.c
+@@ -77,16 +77,16 @@ err_mutex_unlock:
+ }
  
-@@ -2693,8 +2694,10 @@ int __cdns3_gadget_ep_clear_halt(struct cdns3_endpoint *priv_ep)
- 	if (request) {
- 		priv_req = to_cdns3_request(request);
- 		trb = priv_req->trb;
--		if (trb)
-+		if (trb) {
-+			trb_tmp = *trb;
- 			trb->control = trb->control ^ cpu_to_le32(TRB_CYCLE);
-+		}
+ static const struct si2157_tuner_info si2157_tuners[] = {
+-	{ SI2141, false, 0x60, SI2141_60_FIRMWARE, SI2141_A10_FIRMWARE },
+-	{ SI2141, false, 0x61, SI2141_61_FIRMWARE, SI2141_A10_FIRMWARE },
+-	{ SI2146, false, 0x11, SI2146_11_FIRMWARE, NULL },
+-	{ SI2147, false, 0x50, SI2147_50_FIRMWARE, NULL },
+-	{ SI2148, true,  0x32, SI2148_32_FIRMWARE, SI2158_A20_FIRMWARE },
+-	{ SI2148, true,  0x33, SI2148_33_FIRMWARE, SI2158_A20_FIRMWARE },
+-	{ SI2157, false, 0x50, SI2157_50_FIRMWARE, SI2157_A30_FIRMWARE },
+-	{ SI2158, false, 0x50, SI2158_50_FIRMWARE, SI2158_A20_FIRMWARE },
+-	{ SI2158, false, 0x51, SI2158_51_FIRMWARE, SI2158_A20_FIRMWARE },
+-	{ SI2177, false, 0x50, SI2177_50_FIRMWARE, SI2157_A30_FIRMWARE },
++	{ SI2141, 0x60, false, SI2141_60_FIRMWARE, SI2141_A10_FIRMWARE },
++	{ SI2141, 0x61, false, SI2141_61_FIRMWARE, SI2141_A10_FIRMWARE },
++	{ SI2146, 0x11, false, SI2146_11_FIRMWARE, NULL },
++	{ SI2147, 0x50, false, SI2147_50_FIRMWARE, NULL },
++	{ SI2148, 0x32, true,  SI2148_32_FIRMWARE, SI2158_A20_FIRMWARE },
++	{ SI2148, 0x33, true,  SI2148_33_FIRMWARE, SI2158_A20_FIRMWARE },
++	{ SI2157, 0x50, false, SI2157_50_FIRMWARE, SI2157_A30_FIRMWARE },
++	{ SI2158, 0x50, false, SI2158_50_FIRMWARE, SI2158_A20_FIRMWARE },
++	{ SI2158, 0x51, false, SI2158_51_FIRMWARE, SI2158_A20_FIRMWARE },
++	{ SI2177, 0x50, false, SI2177_50_FIRMWARE, SI2157_A30_FIRMWARE },
+ };
+ 
+ static int si2157_load_firmware(struct dvb_frontend *fe,
+@@ -178,7 +178,7 @@ static int si2157_find_and_load_firmware(struct dvb_frontend *fe)
+ 		}
  	}
  
- 	writel(EP_CMD_CSTALL | EP_CMD_EPRST, &priv_dev->regs->ep_cmd);
-@@ -2709,7 +2712,7 @@ int __cdns3_gadget_ep_clear_halt(struct cdns3_endpoint *priv_ep)
- 
- 	if (request) {
- 		if (trb)
--			trb->control = trb->control ^ cpu_to_le32(TRB_CYCLE);
-+			*trb = trb_tmp;
- 
- 		cdns3_rearm_transfer(priv_ep, 1);
- 	}
--- 
-2.35.1
-
-
+-	if (!fw_name && !fw_alt_name) {
++	if (required && !fw_name && !fw_alt_name) {
+ 		dev_err(&client->dev,
+ 			"unknown chip version Si21%d-%c%c%c ROM 0x%02x\n",
+ 			part_id, cmd.args[1], cmd.args[3], cmd.args[4], rom_id);
