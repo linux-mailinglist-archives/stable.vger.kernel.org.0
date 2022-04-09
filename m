@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CBD64FA5F4
-	for <lists+stable@lfdr.de>; Sat,  9 Apr 2022 10:23:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 312C04FA5FB
+	for <lists+stable@lfdr.de>; Sat,  9 Apr 2022 10:28:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229987AbiDIIZq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 9 Apr 2022 04:25:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49938 "EHLO
+        id S231967AbiDIIaa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 9 Apr 2022 04:30:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38824 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230459AbiDIIZp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 9 Apr 2022 04:25:45 -0400
-Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B26A74DE5
-        for <stable@vger.kernel.org>; Sat,  9 Apr 2022 01:23:36 -0700 (PDT)
-Received: by mail-pj1-x1031.google.com with SMTP id bx5so10649334pjb.3
-        for <stable@vger.kernel.org>; Sat, 09 Apr 2022 01:23:36 -0700 (PDT)
+        with ESMTP id S230080AbiDIIa3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 9 Apr 2022 04:30:29 -0400
+Received: from mail-pf1-x42b.google.com (mail-pf1-x42b.google.com [IPv6:2607:f8b0:4864:20::42b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77B96B7EA
+        for <stable@vger.kernel.org>; Sat,  9 Apr 2022 01:28:21 -0700 (PDT)
+Received: by mail-pf1-x42b.google.com with SMTP id j17so8906797pfi.9
+        for <stable@vger.kernel.org>; Sat, 09 Apr 2022 01:28:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20210112.gappssmtp.com; s=20210112;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=rFO+oy1/cPHxVHd1IRRJpOrSewd8/TzEcs7cFT3rnVE=;
-        b=4nyviOrrz2BvSsN6oIqrf6GGd1id48i54GwEGC9C1YHMsbsntSF0WHBRmU378aZnCo
-         yfLCop8r90nWELLNXBWHR4NUWW8CPEgPb5CnvKHaXOGzyaAJvq4VJgsoiUE61Npq9GRV
-         +XeQ3mdmzPZei1w+PD16tnFj+W64Kz10eXBoG02DJCjz17V7kykrX217s2Yerc+Kbr1O
-         sRRBmwfR4SDfzOLECzKkG8GWpBAZeHUV8MAmUvCRVwhtDLJvAumYdJFa7BYnUnqcfyM8
-         IsfYAhe7qUyI9WRn7GkfiTiVtaVWkDEYxnPgaWTd9lDoZ707wjziSXDWg8zow2hLQMTu
-         4wmg==
+        bh=E0OFBwhszbbR9TTcYOUi9zQ51O+VDcfkkZ/O4S1SvOA=;
+        b=EdJEzeboIGDPk9PRSm5sWO4Tys/5g9D7uCH8ozg4bNyZ2Q0NAZQfmdt3+L6ynivV3D
+         1mM0tl4dWu/TPaajUv1RnfXVebf1nNRgf5Hj0f0pOkjXyY9z6Xo9VBhDtmUlLkIQzT40
+         u6Oc5C8l2sSHknXmw/sQIRWRvcllAwN8ergLoC8ANUc1eAhkkUTs/fZJf20pFQTwgc/b
+         jGaypTfDuJgj3VgECiNnrch/++Q4yHyRUAHsI4DcsmOLamkhezx6BTXMK5CT+O//HkBW
+         JUNqSQrYs/Q44tluiRtdnVMtVu2SJC23fV38d0WJAQoQVRVPFZKPnUaHeB+510mFOC1R
+         XUjA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=rFO+oy1/cPHxVHd1IRRJpOrSewd8/TzEcs7cFT3rnVE=;
-        b=bmmemnCLzNyeW080f7VqGa7FvK9Dt3HP49PYMWyIF2GFGPc81H1mOAEBWl3F9GzHfR
-         6OwA+b33v6Osd2WUO5Ej612+yyXub4YkNlEY0/RrVFBV94guc4LGw15VCpckFLYYnqZd
-         2PGFW5HceHn9RDeEICCzgP3A/0DAUmk/WnjgIblIO+T+UxcCIePX5BcgIZFEx+QvJlAa
-         m4j/VZCp8nlMpky94/nVsgnf7qRIAxFqjsBksXdhKDCcR4Mzur2V4V5bgjf6ubqwO2Fz
-         2vpeg7vT3rj/EFcLCypiVVLVgCAZcHRsrrul3Z2S/GZPOOhAjUgNb9C/Oi1ernF/qaaB
-         OFww==
-X-Gm-Message-State: AOAM532Ue5vXnqdZrBgeBdof90zr4ZnzqzSFI5xG+aIt/iZA/077+zJy
-        RNn+wghTXH73DXgIrSoCzclu4njFoopHFrg9
-X-Google-Smtp-Source: ABdhPJxWBJoWJifiYDl5ue28WjA1W2iwbsxa6LRLd7Fb3+rzd5RdePFDlQZ86wRhUeV+uVffcht7yA==
-X-Received: by 2002:a17:903:1104:b0:154:c628:e7c2 with SMTP id n4-20020a170903110400b00154c628e7c2mr23539858plh.54.1649492615412;
-        Sat, 09 Apr 2022 01:23:35 -0700 (PDT)
+        bh=E0OFBwhszbbR9TTcYOUi9zQ51O+VDcfkkZ/O4S1SvOA=;
+        b=Y4lIxxKG86HK6GTJInnY1ETwTopbmXTjXbJGIFfTcxKmzz6HsJsaiC+ERUO+BF6rU3
+         vujNGg9VVdqkzq6oBsrvfMdVlovpgkx4OFQSj4mwkeQ2Ea9WFtQRMxbwbuua7t3CzqP+
+         PxZmujm9AnNKBgnkDXBcji+I+RDQ6pDW72Ceo8PygZPTZUQSwKd3ww5QEzOhRZfhzXFn
+         N5o0mwdEFvQ+zkYrngDJpdqpdc2V336oU19Kt/2uwu367k8J+dXpolCN9Qf2wa4OnESs
+         l2x2T/EHehdaEwt5WcdnoChCBJz1hg/EJ/xm/jUBYBc7j0VuH61Q2rSYu/CTljzzyAm3
+         6DXQ==
+X-Gm-Message-State: AOAM530lkmTiD7+KDX5NBq4hT6L76gwxOXCH3sLSUSQb4JiJJQZgvuhQ
+        LbrwXVz6EQCqJhJjU0th15GDofTjVFZrlWoQ
+X-Google-Smtp-Source: ABdhPJyTauBxyznbsjCyDJjlHjF6B/IJBuVKDB0cwVmkG9aQVHCLx76y7PXBaizeasfcGbPg3QgRKw==
+X-Received: by 2002:a05:6a00:2450:b0:4f7:bf07:c063 with SMTP id d16-20020a056a00245000b004f7bf07c063mr23265088pfj.51.1649492900835;
+        Sat, 09 Apr 2022 01:28:20 -0700 (PDT)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id bc11-20020a656d8b000000b0039cc4dbb295sm6846433pgb.60.2022.04.09.01.23.35
+        by smtp.gmail.com with ESMTPSA id p64-20020a622943000000b004fdd5c07d0bsm26191436pfp.63.2022.04.09.01.28.20
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 09 Apr 2022 01:23:35 -0700 (PDT)
-Message-ID: <62514287.1c69fb81.610eb.368b@mx.google.com>
-Date:   Sat, 09 Apr 2022 01:23:35 -0700 (PDT)
+        Sat, 09 Apr 2022 01:28:20 -0700 (PDT)
+Message-ID: <625143a4.1c69fb81.ffda7.4e85@mx.google.com>
+Date:   Sat, 09 Apr 2022 01:28:20 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.9
-X-Kernelci-Kernel: v4.9.309-162-gda16f6b7fa54
-X-Kernelci-Report-Type: build
-Subject: stable-rc/queue/4.9 build: 62 builds: 3 failed, 59 passed, 2 errors,
- 19 warnings (v4.9.309-162-gda16f6b7fa54)
+X-Kernelci-Branch: queue/5.4
+X-Kernelci-Kernel: v5.4.188-367-gac3511f86474c
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/5.4 baseline: 111 runs,
+ 5 regressions (v5.4.188-367-gac3511f86474c)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -70,479 +70,218 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.9 build: 62 builds: 3 failed, 59 passed, 2 errors, 19 war=
-nings (v4.9.309-162-gda16f6b7fa54)
-
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F4.9=
-/kernel/v4.9.309-162-gda16f6b7fa54/
-
-Tree: stable-rc
-Branch: queue/4.9
-Git Describe: v4.9.309-162-gda16f6b7fa54
-Git Commit: da16f6b7fa54453519f8a6365f0944edc978da50
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Built: 5 unique architectures
-
-Build Failures Detected:
-
-arm:
-    rpc_defconfig: (gcc-10) FAIL
-
-mips:
-    ip27_defconfig: (gcc-10) FAIL
-    ip28_defconfig: (gcc-10) FAIL
-
-Errors and Warnings Detected:
-
-arc:
-
-arm:
-    rpc_defconfig (gcc-10): 2 errors
-    s3c2410_defconfig (gcc-10): 1 warning
-
-i386:
-    allnoconfig (gcc-10): 3 warnings
-    i386_defconfig (gcc-10): 3 warnings
-    tinyconfig (gcc-10): 3 warnings
-
-mips:
-
-x86_64:
-    allnoconfig (gcc-10): 5 warnings
-    tinyconfig (gcc-10): 4 warnings
-
-Errors summary:
-
-    1    arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3
-    1    arm-linux-gnueabihf-gcc: error: missing argument to =E2=80=98-marc=
-h=3D=E2=80=99
-
-Warnings summary:
-
-    5    ld: warning: creating DT_TEXTREL in a PIE
-    3    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in rea=
-d-only section `.head.text'
-    3    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic su=
-ffix given and no register operands; using default for `btr'
-    3    arch/x86/entry/entry_32.S:452: Warning: no instruction mnemonic su=
-ffix given and no register operands; using default for `btr'
-    2    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in rea=
-d-only section `.head.text'
-    2    arch/x86/entry/entry_64.S:1565: Warning: no instruction mnemonic s=
-uffix given and no register operands; using default for `sysret'
-
-Section mismatches summary:
-
-    2    WARNING: modpost: Found 1 section mismatch(es).
-
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D
-
-Detailed per-defconfig build reports:
-
----------------------------------------------------------------------------=
------
-acs5k_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-acs5k_tiny_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 5 warnings, 0 sectio=
-n mismatches
-
-Warnings:
-    arch/x86/entry/entry_64.S:1565: Warning: no instruction mnemonic suffix=
- given and no register operands; using default for `sysret'
-    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
-
----------------------------------------------------------------------------=
------
-allnoconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section =
-mismatches
-
-Warnings:
-    arch/x86/entry/entry_32.S:452: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
-
----------------------------------------------------------------------------=
------
-am200epdkit_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-ar7_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-ath25_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-axs103_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-bmips_be_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
-
----------------------------------------------------------------------------=
------
-bmips_stb_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
-
----------------------------------------------------------------------------=
------
-cerfcube_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-cm_x2xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-collie_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-e55_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-efm32_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-ep93xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-footbridge_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-h5000_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-hackkit_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-i386_defconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 secti=
-on mismatches
-
-Warnings:
-    arch/x86/entry/entry_32.S:452: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
-
----------------------------------------------------------------------------=
------
-imx_v4_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-iop13xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-iop33x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-ip22_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-ip27_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-ip28_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-ip32_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-ixp4xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-jornada720_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-lart_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-lasat_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-lemote2f_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-loongson1c_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-lpd270_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-lubbock_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-magician_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-maltasmvp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-mips_paravirt_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
-, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-mmp2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-mpc30x_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-mps2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-neponset_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-nhk8815_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-nsimosci_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-nuc950_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-nuc960_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-palmz72_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-pic32mzda_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-pnx8335_stb225_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warning=
-s, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-pxa255-idp_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-qi_lb60_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-rbtx49xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-realview_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-rpc_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 section=
- mismatches
-
-Errors:
-    arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3
-    arm-linux-gnueabihf-gcc: error: missing argument to =E2=80=98-march=3D=
-=E2=80=99
-
----------------------------------------------------------------------------=
------
-rt305x_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-s3c2410_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    drivers/tty/serial/samsung.c:1786:34: warning: array =E2=80=98s3c24xx_u=
-art_dt_match=E2=80=99 assumed to have one element
-
----------------------------------------------------------------------------=
------
-s5pv210_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-shannon_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-simpad_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-stm32_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-tct_hammer_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section m=
-ismatches
-
-Warnings:
-    arch/x86/entry/entry_32.S:452: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
-
----------------------------------------------------------------------------=
------
-tinyconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 4 warnings, 0 section=
- mismatches
-
-Warnings:
-    arch/x86/entry/entry_64.S:1565: Warning: no instruction mnemonic suffix=
- given and no register operands; using default for `sysret'
-    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
-
----------------------------------------------------------------------------=
------
-vf610m4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-vt8500_v6_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
-0 section mismatches
-
----------------------------------------------------------------------------=
------
-xilfpga_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-zebu_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----
-For more info write to <info@kernelci.org>
+stable-rc/queue/5.4 baseline: 111 runs, 5 regressions (v5.4.188-367-gac3511=
+f86474c)
+
+Regressions Summary
+-------------------
+
+platform                 | arch  | lab           | compiler | defconfig    =
+              | regressions
+-------------------------+-------+---------------+----------+--------------=
+--------------+------------
+qemu_arm-virt-gicv2-uefi | arm   | lab-baylibre  | gcc-10   | multi_v7_defc=
+onfig         | 1          =
+
+qemu_arm-virt-gicv2-uefi | arm   | lab-broonie   | gcc-10   | multi_v7_defc=
+onfig         | 1          =
+
+qemu_arm-virt-gicv3-uefi | arm   | lab-baylibre  | gcc-10   | multi_v7_defc=
+onfig         | 1          =
+
+qemu_arm-virt-gicv3-uefi | arm   | lab-broonie   | gcc-10   | multi_v7_defc=
+onfig         | 1          =
+
+rk3399-gru-kevin         | arm64 | lab-collabora | gcc-10   | defconfig+arm=
+64-chromebook | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
+el/v5.4.188-367-gac3511f86474c/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.4
+  Describe: v5.4.188-367-gac3511f86474c
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      ac3511f86474c98150294e7caed61ef43beb3726 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform                 | arch  | lab           | compiler | defconfig    =
+              | regressions
+-------------------------+-------+---------------+----------+--------------=
+--------------+------------
+qemu_arm-virt-gicv2-uefi | arm   | lab-baylibre  | gcc-10   | multi_v7_defc=
+onfig         | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/625112804ebc2a8c79ae0685
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.188-3=
+67-gac3511f86474c/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_=
+arm-virt-gicv2-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.188-3=
+67-gac3511f86474c/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_=
+arm-virt-gicv2-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220401.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/625112804ebc2a8c79ae0=
+686
+        failing since 114 days (last pass: v5.4.165-9-g27d736c7bdee, first =
+fail: v5.4.165-18-ge938927511cb) =
+
+ =
+
+
+
+platform                 | arch  | lab           | compiler | defconfig    =
+              | regressions
+-------------------------+-------+---------------+----------+--------------=
+--------------+------------
+qemu_arm-virt-gicv2-uefi | arm   | lab-broonie   | gcc-10   | multi_v7_defc=
+onfig         | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/625111a4843aa1f5d6ae0689
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.188-3=
+67-gac3511f86474c/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_a=
+rm-virt-gicv2-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.188-3=
+67-gac3511f86474c/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_a=
+rm-virt-gicv2-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220401.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/625111a4843aa1f5d6ae0=
+68a
+        failing since 114 days (last pass: v5.4.165-9-g27d736c7bdee, first =
+fail: v5.4.165-18-ge938927511cb) =
+
+ =
+
+
+
+platform                 | arch  | lab           | compiler | defconfig    =
+              | regressions
+-------------------------+-------+---------------+----------+--------------=
+--------------+------------
+qemu_arm-virt-gicv3-uefi | arm   | lab-baylibre  | gcc-10   | multi_v7_defc=
+onfig         | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6251128087c1120783ae0680
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.188-3=
+67-gac3511f86474c/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_=
+arm-virt-gicv3-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.188-3=
+67-gac3511f86474c/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_=
+arm-virt-gicv3-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220401.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6251128087c1120783ae0=
+681
+        failing since 114 days (last pass: v5.4.165-9-g27d736c7bdee, first =
+fail: v5.4.165-18-ge938927511cb) =
+
+ =
+
+
+
+platform                 | arch  | lab           | compiler | defconfig    =
+              | regressions
+-------------------------+-------+---------------+----------+--------------=
+--------------+------------
+qemu_arm-virt-gicv3-uefi | arm   | lab-broonie   | gcc-10   | multi_v7_defc=
+onfig         | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6251118db145fa150cae068e
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.188-3=
+67-gac3511f86474c/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_a=
+rm-virt-gicv3-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.188-3=
+67-gac3511f86474c/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_a=
+rm-virt-gicv3-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220401.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6251118db145fa150cae0=
+68f
+        failing since 114 days (last pass: v5.4.165-9-g27d736c7bdee, first =
+fail: v5.4.165-18-ge938927511cb) =
+
+ =
+
+
+
+platform                 | arch  | lab           | compiler | defconfig    =
+              | regressions
+-------------------------+-------+---------------+----------+--------------=
+--------------+------------
+rk3399-gru-kevin         | arm64 | lab-collabora | gcc-10   | defconfig+arm=
+64-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/625114fbf39f4afe28ae071a
+
+  Results:     88 PASS, 2 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.188-3=
+67-gac3511f86474c/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/bas=
+eline-rk3399-gru-kevin.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.188-3=
+67-gac3511f86474c/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/bas=
+eline-rk3399-gru-kevin.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220401.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
+/625114fbf39f4afe28ae073c
+        failing since 34 days (last pass: v5.4.182-30-g45ccd59cc16f, first =
+fail: v5.4.182-53-ge31c0b084082)
+
+    2022-04-09T05:09:00.096392  <8>[   31.737747] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Drockchip-i2s0-probed RESULT=3Dpass>
+    2022-04-09T05:09:01.108574  /lava-6053627/1/../bin/lava-test-case   =
+
+ =20
