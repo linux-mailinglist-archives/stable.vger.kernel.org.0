@@ -2,114 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 557444FA95A
-	for <lists+stable@lfdr.de>; Sat,  9 Apr 2022 17:46:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE1E94FA96B
+	for <lists+stable@lfdr.de>; Sat,  9 Apr 2022 18:08:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237884AbiDIPsW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 9 Apr 2022 11:48:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35398 "EHLO
+        id S232592AbiDIQKG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 9 Apr 2022 12:10:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58042 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231217AbiDIPsV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 9 Apr 2022 11:48:21 -0400
-Received: from www.linuxtv.org (www.linuxtv.org [130.149.80.248])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EE80B7
-        for <stable@vger.kernel.org>; Sat,  9 Apr 2022 08:46:14 -0700 (PDT)
-Received: from mchehab by www.linuxtv.org with local (Exim 4.92)
-        (envelope-from <mchehab@linuxtv.org>)
-        id 1ndDHw-00AZfQ-Dr; Sat, 09 Apr 2022 15:46:12 +0000
-From:   Mauro Carvalho Chehab <mchehab@kernel.org>
-Date:   Sat, 09 Apr 2022 15:45:49 +0000
-Subject: [git:media_tree/fixes] media: si2157: unknown chip version Si2147-A30 ROM 0x50
-To:     linuxtv-commits@linuxtv.org
-Cc:     Robert Schlabbach <robert_s@gmx.net>, stable@vger.kernel.org,
-        Piotr Chmura <chmooreck@gmail.com>
-Mail-followup-to: linux-media@vger.kernel.org
-Forward-to: linux-media@vger.kernel.org
-Reply-to: linux-media@vger.kernel.org
-Message-Id: <E1ndDHw-00AZfQ-Dr@www.linuxtv.org>
-X-Spam-Status: No, score=-4.0 required=5.0 tests=BAYES_00,
-        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_MED,RCVD_IN_MSPIKE_H3,
-        RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S229936AbiDIQKG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 9 Apr 2022 12:10:06 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1629B1B79C
+        for <stable@vger.kernel.org>; Sat,  9 Apr 2022 09:07:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:Content-Type:
+        Cc:Subject:From:To:MIME-Version:Date:Message-ID:Sender:Reply-To:Content-ID:
+        Content-Description:In-Reply-To:References;
+        bh=o2wOndsDrNZV1TEZFXjrrx+NBVItbE5z2+7u1kmlBY0=; b=Ydkt3iwBvEsoP/NQUKAelwM7nr
+        tFduHstYl6g/ViQNwUtj7+zOtV9Dn+dYPrHAuQMx538e3JsN2YSLC7wF/Y1JPLcxg/6YbZQFywMII
+        +EnBDI6Ewn9msnZZF5QO6774ykakR3rYb9GsVkb0yAgZtcRNKkHm0XlYHGPjY+tBGak8549MIJGxG
+        8Cqxg4wqcAOdT9ypvA0GCl7LjGcPCRqyqDunab+9J+sRUHbKd1eeA3dKmQx6N0NHCR9b7hPwczDf7
+        qStIUyfLlWn1KunDsfmt79e2ciKyLTkPMOfAgkOAvWRkXXOfRqlFH0gxitLni1fpHr/0yse/zeZ24
+        RiOppZng==;
+Received: from [2601:1c0:6280:3f0::aa0b]
+        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1ndDcw-00Ao4Y-7f; Sat, 09 Apr 2022 16:07:54 +0000
+Message-ID: <beaf8136-1c97-a65f-e64b-a98f23f024d2@infradead.org>
+Date:   Sat, 9 Apr 2022 09:07:51 -0700
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.7.0
+Content-Language: en-US
+To:     stable@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From:   Randy Dunlap <rdunlap@infradead.org>
+Subject: stable 5.10: please revert c4dc584a2d4c8d74b054f09d67e0a076767bdee5
+Cc:     nanericwang@gmail.com, KY Srinivasan <kys@microsoft.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is an automatic generated email to let you know that the following patch were queued:
+According to https://bugzilla.kernel.org/show_bug.cgi?id=215823,
+c4dc584a2d4c8d74b054f09d67e0a076767bdee5 ("hv: utils: add PTP_1588_CLOCK to Kconfig to fix build")
+is a problem for 5.10 since CONFIG_PTP_1588_CLOCK_OPTIONAL does not exist in 5.10.
+This prevents the hyper-V NIC timestamping from working, so please revert that commit.
 
-Subject: media: si2157: unknown chip version Si2147-A30 ROM 0x50
-Author:  Piotr Chmura <chmooreck@gmail.com>
-Date:    Thu Mar 31 17:55:50 2022 +0200
-
-Fix firmware file names assignment in si2157 tuner, allow for running
-devices without firmware files needed.
-
-modprobe gives error: unknown chip version Si2147-A30 ROM 0x50
-Device initialization is interrupted.
-
-Caused by:
-1. table si2157_tuners has swapped fields rom_id and required vs struct
-   si2157_tuner_info.
-2. both firmware file names can be null for devices with
-   required == false - device uses build-in firmware in this case
-
-Tested on this device:
-	m07ca:1871 AVerMedia Technologies, Inc. TD310 DVB-T/T2/C dongle
-
-[mchehab: fix mangled patch]
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=215726
-Link: https://lore.kernel.org/lkml/5f660108-8812-383c-83e4-29ee0558d623@leemhuis.info/
-Link: https://lore.kernel.org/linux-media/c4bcaff8-fbad-969e-ad47-e2c487ac02a1@gmail.com
-Fixes: 1c35ba3bf972 ("media: si2157: use a different namespace for firmware")
-Cc: stable@vger.kernel.org # 5.17.x
-Signed-off-by: Piotr Chmura <chmooreck@gmail.com>
-Tested-by: Robert Schlabbach <robert_s@gmx.net>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-
- drivers/media/tuners/si2157.c | 22 +++++++++++-----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
-
----
-
-diff --git a/drivers/media/tuners/si2157.c b/drivers/media/tuners/si2157.c
-index 47029746b89e..0de587b412d4 100644
---- a/drivers/media/tuners/si2157.c
-+++ b/drivers/media/tuners/si2157.c
-@@ -77,16 +77,16 @@ err_mutex_unlock:
- }
- 
- static const struct si2157_tuner_info si2157_tuners[] = {
--	{ SI2141, false, 0x60, SI2141_60_FIRMWARE, SI2141_A10_FIRMWARE },
--	{ SI2141, false, 0x61, SI2141_61_FIRMWARE, SI2141_A10_FIRMWARE },
--	{ SI2146, false, 0x11, SI2146_11_FIRMWARE, NULL },
--	{ SI2147, false, 0x50, SI2147_50_FIRMWARE, NULL },
--	{ SI2148, true,  0x32, SI2148_32_FIRMWARE, SI2158_A20_FIRMWARE },
--	{ SI2148, true,  0x33, SI2148_33_FIRMWARE, SI2158_A20_FIRMWARE },
--	{ SI2157, false, 0x50, SI2157_50_FIRMWARE, SI2157_A30_FIRMWARE },
--	{ SI2158, false, 0x50, SI2158_50_FIRMWARE, SI2158_A20_FIRMWARE },
--	{ SI2158, false, 0x51, SI2158_51_FIRMWARE, SI2158_A20_FIRMWARE },
--	{ SI2177, false, 0x50, SI2177_50_FIRMWARE, SI2157_A30_FIRMWARE },
-+	{ SI2141, 0x60, false, SI2141_60_FIRMWARE, SI2141_A10_FIRMWARE },
-+	{ SI2141, 0x61, false, SI2141_61_FIRMWARE, SI2141_A10_FIRMWARE },
-+	{ SI2146, 0x11, false, SI2146_11_FIRMWARE, NULL },
-+	{ SI2147, 0x50, false, SI2147_50_FIRMWARE, NULL },
-+	{ SI2148, 0x32, true,  SI2148_32_FIRMWARE, SI2158_A20_FIRMWARE },
-+	{ SI2148, 0x33, true,  SI2148_33_FIRMWARE, SI2158_A20_FIRMWARE },
-+	{ SI2157, 0x50, false, SI2157_50_FIRMWARE, SI2157_A30_FIRMWARE },
-+	{ SI2158, 0x50, false, SI2158_50_FIRMWARE, SI2158_A20_FIRMWARE },
-+	{ SI2158, 0x51, false, SI2158_51_FIRMWARE, SI2158_A20_FIRMWARE },
-+	{ SI2177, 0x50, false, SI2177_50_FIRMWARE, SI2157_A30_FIRMWARE },
- };
- 
- static int si2157_load_firmware(struct dvb_frontend *fe,
-@@ -178,7 +178,7 @@ static int si2157_find_and_load_firmware(struct dvb_frontend *fe)
- 		}
- 	}
- 
--	if (!fw_name && !fw_alt_name) {
-+	if (required && !fw_name && !fw_alt_name) {
- 		dev_err(&client->dev,
- 			"unknown chip version Si21%d-%c%c%c ROM 0x%02x\n",
- 			part_id, cmd.args[1], cmd.args[3], cmd.args[4], rom_id);
+-- 
+~Randy
