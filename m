@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 58109504C5E
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 07:38:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A451F504C5D
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 07:38:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231501AbiDRFkt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 01:40:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38684 "EHLO
+        id S230439AbiDRFkj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 01:40:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38614 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230291AbiDRFkr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 01:40:47 -0400
+        with ESMTP id S230291AbiDRFki (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 01:40:38 -0400
 Received: from www.linuxtv.org (www.linuxtv.org [130.149.80.248])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCD6115FCD
-        for <stable@vger.kernel.org>; Sun, 17 Apr 2022 22:38:09 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B9AB15FCB
+        for <stable@vger.kernel.org>; Sun, 17 Apr 2022 22:37:55 -0700 (PDT)
 Received: from mchehab by www.linuxtv.org with local (Exim 4.92)
         (envelope-from <mchehab@linuxtv.org>)
-        id 1ngK5P-005wrm-GN; Mon, 18 Apr 2022 05:38:07 +0000
+        id 1ngK5B-005viS-KJ; Mon, 18 Apr 2022 05:37:53 +0000
 From:   Mauro Carvalho Chehab <mchehab@kernel.org>
 Date:   Sat, 09 Apr 2022 15:45:49 +0000
-Subject: [git:media_tree/master] media: si2157: unknown chip version Si2147-A30 ROM 0x50
+Subject: [git:media_stage/master] media: si2157: unknown chip version Si2147-A30 ROM 0x50
 To:     linuxtv-commits@linuxtv.org
-Cc:     Piotr Chmura <chmooreck@gmail.com>,
-        Robert Schlabbach <robert_s@gmx.net>, stable@vger.kernel.org
+Cc:     Robert Schlabbach <robert_s@gmx.net>, stable@vger.kernel.org,
+        Piotr Chmura <chmooreck@gmail.com>
 Mail-followup-to: linux-media@vger.kernel.org
 Forward-to: linux-media@vger.kernel.org
 Reply-to: linux-media@vger.kernel.org
-Message-Id: <E1ngK5P-005wrm-GN@www.linuxtv.org>
+Message-Id: <E1ngK5B-005viS-KJ@www.linuxtv.org>
 X-Spam-Status: No, score=-0.6 required=5.0 tests=BAYES_00,DATE_IN_PAST_96_XX,
         HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_MED,RCVD_IN_MSPIKE_H3,
         RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE
-        autolearn=unavailable autolearn_force=no version=3.4.6
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
