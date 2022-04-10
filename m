@@ -2,91 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 424864FACF8
-	for <lists+stable@lfdr.de>; Sun, 10 Apr 2022 10:51:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 793C04FAD48
+	for <lists+stable@lfdr.de>; Sun, 10 Apr 2022 12:37:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229537AbiDJIxb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 10 Apr 2022 04:53:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50286 "EHLO
+        id S233932AbiDJKfP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 10 Apr 2022 06:35:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33148 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235902AbiDJIxa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 10 Apr 2022 04:53:30 -0400
-Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [IPv6:2a01:488:42:1000:50ed:8234::])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34BB31135
-        for <stable@vger.kernel.org>; Sun, 10 Apr 2022 01:51:20 -0700 (PDT)
-Received: from ip4d144895.dynamic.kabel-deutschland.de ([77.20.72.149] helo=[192.168.66.200]); authenticated
-        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        id 1ndTHx-0003Ca-U5; Sun, 10 Apr 2022 10:51:17 +0200
-Message-ID: <6b09d10e-2098-9fb7-be4c-ae67d802cd2d@leemhuis.info>
-Date:   Sun, 10 Apr 2022 10:51:17 +0200
+        with ESMTP id S233653AbiDJKfO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 10 Apr 2022 06:35:14 -0400
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55D53673C6;
+        Sun, 10 Apr 2022 03:33:04 -0700 (PDT)
+Date:   Sun, 10 Apr 2022 10:33:01 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1649586782;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=60Lfwzh0nAtHFcSVWbVw2y7ROX/9cN8agVJL8qXTZ+w=;
+        b=olLE6vPdCbJgJNxvvqrlDTs5gvaXAKVmPamzDz7CAZBmaUknR6tPcw3FhJL5WoLeI6Pcmz
+        BqrrtwUofoHrWAwTQ1qqfgWPkREaP4s9cHW0mxkGBzIt9l9KStjn1zSBLJqZMqAhj7QmJZ
+        2NgPNnQo2Jmdf/ia2+9IjsUKhZsy4DZekdGL6BD21fNfEtic7df8j3+ycizGbK6N0/TaN5
+        oJdYWFfnwPrQEvrjdCIQgrXCEw9kgAu6J8UqS4cG+M/48FAHeP/vmIqByD7xNfASCIFxYf
+        j2veZrATjFhvUB9SRGY4uiyfikLcU1Qe1Z6RushYiOx01d9NuA2BQ5eckyCCoA==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1649586782;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=60Lfwzh0nAtHFcSVWbVw2y7ROX/9cN8agVJL8qXTZ+w=;
+        b=0uRNVo9rYMkOmWY+Lo77BEMlbSc7IOTVMp3rUEtGXaKKGuCUiMY1UgCbGDQwh3WomDytT4
+        THIQg7RtOv4z02AA==
+From:   "tip-bot2 for Paul Gortmaker" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: timers/urgent] tick/nohz: Use WARN_ON_ONCE() to prevent console
+ saturation
+Cc:     Paul Gortmaker <paul.gortmaker@windriver.com>,
+        Thomas Gleixner <tglx@linutronix.de>, stable@vger.kernel.org,
+        x86@kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20211206145950.10927-3-paul.gortmaker@windriver.com>
+References: <20211206145950.10927-3-paul.gortmaker@windriver.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.7.0
-Subject: Re: [PATCH v7 0/4] mtd: cfi_cmdset_0002: Use chip_ready() for write
- on S29GL064N
-Content-Language: en-US
-To:     Tokunori Ikegami <ikegami.t@gmail.com>, miquel.raynal@bootlin.com
-Cc:     richard@nod.at, vigneshr@ti.com, linux-mtd@lists.infradead.org,
-        stable@vger.kernel.org
-References: <20220323170458.5608-1-ikegami.t@gmail.com>
-From:   Thorsten Leemhuis <regressions@leemhuis.info>
-In-Reply-To: <20220323170458.5608-1-ikegami.t@gmail.com>
-Content-Type: text/plain; charset=UTF-8
+Message-ID: <164958678121.4207.8216849655499016396.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2@linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1649580680;a8dc91e0;
-X-HE-SMSGID: 1ndTHx-0003Ca-U5
-X-Spam-Status: No, score=-5.0 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi, this is your Linux kernel regression tracker. Top-posting for once,
-to make this easily accessible to everyone.
+The following commit has been merged into the timers/urgent branch of tip:
 
-Miquel, Richard, Vignesh: what's up here? This patchset fixes a
-regression. It's quite old, so it's not that urgent, but it looked like
-nothing happened for two and a half week now. Or was progress made
-somewhere?
+Commit-ID:     40e97e42961f8c6cc7bd5fe67cc18417e02d78f1
+Gitweb:        https://git.kernel.org/tip/40e97e42961f8c6cc7bd5fe67cc18417e02d78f1
+Author:        Paul Gortmaker <paul.gortmaker@windriver.com>
+AuthorDate:    Mon, 06 Dec 2021 09:59:50 -05:00
+Committer:     Thomas Gleixner <tglx@linutronix.de>
+CommitterDate: Sun, 10 Apr 2022 12:23:34 +02:00
 
-Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker' hat)
+tick/nohz: Use WARN_ON_ONCE() to prevent console saturation
 
-P.S.: As the Linux kernel's regression tracker I'm getting a lot of
-reports on my table. I can only look briefly into most of them and lack
-knowledge about most of the areas they concern. I thus unfortunately
-will sometimes get things wrong or miss something important. I hope
-that's not the case here; if you think it is, don't hesitate to tell me
-in a public reply, it's in everyone's interest to set the public record
-straight.
+While running some testing on code that happened to allow the variable
+tick_nohz_full_running to get set but with no "possible" NOHZ cores to
+back up that setting, this warning triggered:
 
-#regzbot poke
+        if (unlikely(tick_do_timer_cpu == TICK_DO_TIMER_NONE))
+                WARN_ON(tick_nohz_full_running);
 
-On 23.03.22 18:04, Tokunori Ikegami wrote:
-> Since commit dfeae1073583("mtd: cfi_cmdset_0002: Change write buffer to
-> check correct value") buffered writes fail on S29GL064N. This is
-> because, on S29GL064N, reads return 0xFF at the end of DQ polling for
-> write completion, where as, chip_good() check expects actual data
-> written to the last location to be returned post DQ polling completion.
-> Fix is to revert to using chip_good() for S29GL064N which only checks
-> for DQ lines to settle down to determine write completion.
-> 
-> Fixes: dfeae1073583("mtd: cfi_cmdset_0002: Change write buffer to check correct value")
-> Signed-off-by: Tokunori Ikegami <ikegami.t@gmail.com>
-> Cc: stable@vger.kernel.org
-> Link: https://lore.kernel.org/r/b687c259-6413-26c9-d4c9-b3afa69ea124@pengutronix.de/
-> 
-> Tokunori Ikegami (4):
->   mtd: cfi_cmdset_0002: Move and rename
->     chip_check/chip_ready/chip_good_for_write
->   mtd: cfi_cmdset_0002: Use chip_ready() for write on S29GL064N
->   mtd: cfi_cmdset_0002: Add S29GL064N ID definition
->   mtd: cfi_cmdset_0002: Rename chip_ready variables
-> 
->  drivers/mtd/chips/cfi_cmdset_0002.c | 112 ++++++++++++++--------------
->  include/linux/mtd/cfi.h             |   1 +
->  2 files changed, 55 insertions(+), 58 deletions(-)
-> 
+The console was overwhemled with an endless stream of one WARN per tick
+per core and there was no way to even see what was going on w/o using a
+serial console to capture it and then trace it back to this.
 
+Change it to WARN_ON_ONCE().
+
+Fixes: 08ae95f4fd3b ("nohz_full: Allow the boot CPU to be nohz_full")
+Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20211206145950.10927-3-paul.gortmaker@windriver.com
+
+---
+ kernel/time/tick-sched.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/kernel/time/tick-sched.c b/kernel/time/tick-sched.c
+index 2d76c91..3506f6e 100644
+--- a/kernel/time/tick-sched.c
++++ b/kernel/time/tick-sched.c
+@@ -188,7 +188,7 @@ static void tick_sched_do_timer(struct tick_sched *ts, ktime_t now)
+ 	 */
+ 	if (unlikely(tick_do_timer_cpu == TICK_DO_TIMER_NONE)) {
+ #ifdef CONFIG_NO_HZ_FULL
+-		WARN_ON(tick_nohz_full_running);
++		WARN_ON_ONCE(tick_nohz_full_running);
+ #endif
+ 		tick_do_timer_cpu = cpu;
+ 	}
