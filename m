@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 02B484FAB77
-	for <lists+stable@lfdr.de>; Sun, 10 Apr 2022 04:07:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E335C4FAB79
+	for <lists+stable@lfdr.de>; Sun, 10 Apr 2022 04:07:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229618AbiDJCJN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 9 Apr 2022 22:09:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51726 "EHLO
+        id S229879AbiDJCKF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 9 Apr 2022 22:10:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54988 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229732AbiDJCJM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 9 Apr 2022 22:09:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7F83319
-        for <stable@vger.kernel.org>; Sat,  9 Apr 2022 19:07:03 -0700 (PDT)
+        with ESMTP id S229808AbiDJCKE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 9 Apr 2022 22:10:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BCC518D;
+        Sat,  9 Apr 2022 19:07:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 802B7B80AFE
-        for <stable@vger.kernel.org>; Sun, 10 Apr 2022 02:07:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18E28C385A4;
-        Sun, 10 Apr 2022 02:07:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 260F460E73;
+        Sun, 10 Apr 2022 02:07:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65019C385A5;
+        Sun, 10 Apr 2022 02:07:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1649556421;
-        bh=NOFe15za0I6PoKw94Nl0R43Wh7kd8LAz05rWU2sv9ao=;
+        s=k20201202; t=1649556474;
+        bh=+q7eq4tkkz6wGol2/JZxVyHuQyxO/HeZbkbaq1RKBWI=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=bEH+JboUnwhGP84vL8gD5d5MFgIttXdtvBv3kvl65Q4GdwLWe/+tUp8+Qj/bQEI7N
-         Ejvd3nJI9ZxxeIQAUBZuGfQu0m8/uPJTfDshNcpOIhYheroJq8bfS7IDOunZtrnIIE
-         ed1B967P6wIy4vyN5xTXYIXq4NYDM5uuSkjeXpCaJTq7oHSGo11pB7xja3WjMkY9yA
-         DanxQx1Zi/gxx+dzINKlR5xw2SS0t8YrUXq8tgqu+r25dIvDdN8h5jUsekmFGKPaV6
-         fmid05sftXeXuRfb4McaoEt1daAjv9eFMAxuUkKsdvQ+BKFcCX6Ul71kgjb7cizyqv
-         /iLl3UxjKuc7w==
-Date:   Sat, 9 Apr 2022 22:07:00 -0400
+        b=JsxKEVQq9MXEsljnZggogU/8WLetd2wdmiCN2t0YfniuWLcRYu30gQ/y+V6XHkA14
+         d3ANy5XruGXuWNh1yE36nMkK9IUNLmpQso0BpcbSg1FlCK6er2gsivXZON5JcMGJs/
+         Q0SYVhWQPYzp2l740qo4j2DTfp0B8gwQtIodFOo59+IkKr83eQHwSGEMPYMSJhQxex
+         SqPR0hmgwiH8LsVUUiSOM7z/T7d/B+dU6wxd5f9nFT6u56m9A3N3eYhePTo9QYYXcu
+         6glLcViBZM8W18KaO6z0YN4Memmx8gSoBkgk4xfIX0O2oR+Mq/ifWYpxSXQLyfW4xb
+         trwCQsfnj7n2Q==
+Date:   Sat, 9 Apr 2022 22:07:53 -0400
 From:   Sasha Levin <sashal@kernel.org>
-To:     Randy Dunlap <rdunlap@infradead.org>
-Cc:     stable@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        nanericwang@gmail.com, KY Srinivasan <kys@microsoft.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>
-Subject: Re: stable 5.10: please revert
- c4dc584a2d4c8d74b054f09d67e0a076767bdee5
-Message-ID: <YlI7xE0JFYZSqJUL@sashalap>
-References: <beaf8136-1c97-a65f-e64b-a98f23f024d2@infradead.org>
+To:     Mateusz =?utf-8?Q?Jo=C5=84czyk?= <mat.jonczyk@o2.pl>
+Cc:     linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org,
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: Re: [PATCH for STABLE] rtc: mc146818-lib: fix RTC presence check
+Message-ID: <YlI7+ZrdiAIGYwFU@sashalap>
+References: <20220408212337.5713-1-mat.jonczyk@o2.pl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Disposition: inline
-In-Reply-To: <beaf8136-1c97-a65f-e64b-a98f23f024d2@infradead.org>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20220408212337.5713-1-mat.jonczyk@o2.pl>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -56,13 +56,13 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Apr 09, 2022 at 09:07:51AM -0700, Randy Dunlap wrote:
->According to https://bugzilla.kernel.org/show_bug.cgi?id=215823,
->c4dc584a2d4c8d74b054f09d67e0a076767bdee5 ("hv: utils: add PTP_1588_CLOCK to Kconfig to fix build")
->is a problem for 5.10 since CONFIG_PTP_1588_CLOCK_OPTIONAL does not exist in 5.10.
->This prevents the hyper-V NIC timestamping from working, so please revert that commit.
+On Fri, Apr 08, 2022 at 11:23:37PM +0200, Mateusz Jończyk wrote:
+>commit ea6fa4961aab8f90a8aa03575a98b4bda368d4b6 upstream.
+>
+>Please apply to 5.15 and 5.16 trees.
 
-I've reverted it, thanks for the report.
+Instead of the backport, I took two dependencies and queued it for 5.16
+and 5.15. Thanks for reporting!
 
 -- 
 Thanks,
