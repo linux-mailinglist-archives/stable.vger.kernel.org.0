@@ -2,69 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F339E4FAC3D
-	for <lists+stable@lfdr.de>; Sun, 10 Apr 2022 08:14:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 424864FACF8
+	for <lists+stable@lfdr.de>; Sun, 10 Apr 2022 10:51:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229448AbiDJGQU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 10 Apr 2022 02:16:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42124 "EHLO
+        id S229537AbiDJIxb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 10 Apr 2022 04:53:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50286 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229994AbiDJGQT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 10 Apr 2022 02:16:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2F81BA3;
-        Sat,  9 Apr 2022 23:14:07 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0C1A260ED2;
-        Sun, 10 Apr 2022 06:14:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9DD8C385A1;
-        Sun, 10 Apr 2022 06:14:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649571246;
-        bh=riXjiNxoLF8mDSf3ncTuLYxn5erKsgT1pWzC0ZYs/yE=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=U64HF4HQ04+XF3DuslJ07g8B8r53kPQw0qbe6DDzegUIzwPraU9NpcoUTtn+Zjne7
-         on9wj0WjdSWqyKyU0pPiu5tqPmZMEmM1cULh87Gi3CoW1p2s4alhSAgzDkHr9NLst+
-         8/qFf7q/fsZ4ROBKgHwiTF9VAJe4ipFYoR0L4YYo=
-Date:   Sun, 10 Apr 2022 08:14:03 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Qais Yousef <qais.yousef@arm.com>
-Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Abhijeet Dharmapurikar <adharmap@quicinc.com>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Daniel Bristot de Oliveira <bristot@redhat.com>,
-        Kees Cook <keescook@chromium.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Alexey Gladkov <legion@kernel.org>,
-        "Kenta.Tada@sony.com" <Kenta.Tada@sony.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Ed Tsai <ed.tsai@mediatek.com>,
-        Valentin Schneider <valentin.schneider@arm.com>
-Subject: Re: [PATCH v3 2/2] sched/tracing: Report TASK_RTLOCK_WAIT tasks as
- TASK_UNINTERRUPTIBLE
-Message-ID: <YlJ1q0zohdPvQBUd@kroah.com>
-References: <20220120162520.570782-1-valentin.schneider@arm.com>
- <20220120162520.570782-3-valentin.schneider@arm.com>
- <20220409234224.q57dr43bpcll3ryv@airbuntu>
+        with ESMTP id S235902AbiDJIxa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 10 Apr 2022 04:53:30 -0400
+Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [IPv6:2a01:488:42:1000:50ed:8234::])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34BB31135
+        for <stable@vger.kernel.org>; Sun, 10 Apr 2022 01:51:20 -0700 (PDT)
+Received: from ip4d144895.dynamic.kabel-deutschland.de ([77.20.72.149] helo=[192.168.66.200]); authenticated
+        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        id 1ndTHx-0003Ca-U5; Sun, 10 Apr 2022 10:51:17 +0200
+Message-ID: <6b09d10e-2098-9fb7-be4c-ae67d802cd2d@leemhuis.info>
+Date:   Sun, 10 Apr 2022 10:51:17 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20220409234224.q57dr43bpcll3ryv@airbuntu>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.7.0
+Subject: Re: [PATCH v7 0/4] mtd: cfi_cmdset_0002: Use chip_ready() for write
+ on S29GL064N
+Content-Language: en-US
+To:     Tokunori Ikegami <ikegami.t@gmail.com>, miquel.raynal@bootlin.com
+Cc:     richard@nod.at, vigneshr@ti.com, linux-mtd@lists.infradead.org,
+        stable@vger.kernel.org
+References: <20220323170458.5608-1-ikegami.t@gmail.com>
+From:   Thorsten Leemhuis <regressions@leemhuis.info>
+In-Reply-To: <20220323170458.5608-1-ikegami.t@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1649580680;a8dc91e0;
+X-HE-SMSGID: 1ndTHx-0003Ca-U5
+X-Spam-Status: No, score=-5.0 required=5.0 tests=BAYES_00,NICE_REPLY_A,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -73,43 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Apr 10, 2022 at 12:42:24AM +0100, Qais Yousef wrote:
-> +CC stable
-> 
-> On 01/20/22 16:25, Valentin Schneider wrote:
-> > TASK_RTLOCK_WAIT currently isn't part of TASK_REPORT, thus a task blocking
-> > on an rtlock will appear as having a task state == 0, IOW TASK_RUNNING.
-> > 
-> > The actual state is saved in p->saved_state, but reading it after reading
-> > p->__state has a few issues:
-> > o that could still be TASK_RUNNING in the case of e.g. rt_spin_lock
-> > o ttwu_state_match() might have changed that to TASK_RUNNING
-> > 
-> > As pointed out by Eric, adding TASK_RTLOCK_WAIT to TASK_REPORT implies
-> > exposing a new state to userspace tools which way not know what to do with
-> > them. The only information that needs to be conveyed here is that a task is
-> > waiting on an rt_mutex, which matches TASK_UNINTERRUPTIBLE - there's no
-> > need for a new state.
-> > 
-> > Reported-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-> > Signed-off-by: Valentin Schneider <valentin.schneider@arm.com>
-> 
-> Any objection for this to be picked up by stable? We care about Patch 1 only in
-> this series for stable, but it seems sensible to pick this one too, no strong
-> feeling if it is omitted though.
-> 
-> AFAICT it seems the problem dates back since commit:
-> 
-> 	1593baab910d ("sched/debug: Implement consistent task-state printing")
-> 
-> or even before. I think v4.14+ is good enough.
+Hi, this is your Linux kernel regression tracker. Top-posting for once,
+to make this easily accessible to everyone.
 
+Miquel, Richard, Vignesh: what's up here? This patchset fixes a
+regression. It's quite old, so it's not that urgent, but it looked like
+nothing happened for two and a half week now. Or was progress made
+somewhere?
 
-<formletter>
+Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker' hat)
 
-This is not the correct way to submit patches for inclusion in the
-stable kernel tree.  Please read:
-    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-for how to do this properly.
+P.S.: As the Linux kernel's regression tracker I'm getting a lot of
+reports on my table. I can only look briefly into most of them and lack
+knowledge about most of the areas they concern. I thus unfortunately
+will sometimes get things wrong or miss something important. I hope
+that's not the case here; if you think it is, don't hesitate to tell me
+in a public reply, it's in everyone's interest to set the public record
+straight.
 
-</formletter>
+#regzbot poke
+
+On 23.03.22 18:04, Tokunori Ikegami wrote:
+> Since commit dfeae1073583("mtd: cfi_cmdset_0002: Change write buffer to
+> check correct value") buffered writes fail on S29GL064N. This is
+> because, on S29GL064N, reads return 0xFF at the end of DQ polling for
+> write completion, where as, chip_good() check expects actual data
+> written to the last location to be returned post DQ polling completion.
+> Fix is to revert to using chip_good() for S29GL064N which only checks
+> for DQ lines to settle down to determine write completion.
+> 
+> Fixes: dfeae1073583("mtd: cfi_cmdset_0002: Change write buffer to check correct value")
+> Signed-off-by: Tokunori Ikegami <ikegami.t@gmail.com>
+> Cc: stable@vger.kernel.org
+> Link: https://lore.kernel.org/r/b687c259-6413-26c9-d4c9-b3afa69ea124@pengutronix.de/
+> 
+> Tokunori Ikegami (4):
+>   mtd: cfi_cmdset_0002: Move and rename
+>     chip_check/chip_ready/chip_good_for_write
+>   mtd: cfi_cmdset_0002: Use chip_ready() for write on S29GL064N
+>   mtd: cfi_cmdset_0002: Add S29GL064N ID definition
+>   mtd: cfi_cmdset_0002: Rename chip_ready variables
+> 
+>  drivers/mtd/chips/cfi_cmdset_0002.c | 112 ++++++++++++++--------------
+>  include/linux/mtd/cfi.h             |   1 +
+>  2 files changed, 55 insertions(+), 58 deletions(-)
+> 
+
