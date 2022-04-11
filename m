@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 01D8A4FB753
-	for <lists+stable@lfdr.de>; Mon, 11 Apr 2022 11:24:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C81DF4FB754
+	for <lists+stable@lfdr.de>; Mon, 11 Apr 2022 11:24:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344349AbiDKJ0W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Apr 2022 05:26:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54640 "EHLO
+        id S1344350AbiDKJ0X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Apr 2022 05:26:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54714 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344346AbiDKJ0V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 05:26:21 -0400
+        with ESMTP id S1344346AbiDKJ0W (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 05:26:22 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C98DD3BA
-        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 02:24:05 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF5255F80
+        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 02:24:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 58684B81134
-        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 09:24:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1892C385A5;
-        Mon, 11 Apr 2022 09:24:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5F804B81190
+        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 09:24:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A42F1C385A3;
+        Mon, 11 Apr 2022 09:24:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649669043;
-        bh=rFdoM95EbxD8fEBQVOvjh7FcO5npD33P47+RtkHjng0=;
+        s=korg; t=1649669046;
+        bh=j1pCUjHiUF18YVEghX0ihDJ5++Imsr7lJou6/Hg0z+M=;
         h=Subject:To:Cc:From:Date:From;
-        b=j769ZyzihmIBrqi0YmNmNISPfUmBTmIuS8aDC2LZVvA3LSPeTCIKcisRgEBNT7bcu
-         hXM6zdPQjxOsqxM8EW/GVps5cgNGOTG4pIS2ZxN9eS3URC4rNEZD4rfOODaFVNVhz0
-         802oSOQySUxkZpNuyz748lSHNNOU2/QUeUwhvf3E=
-Subject: FAILED: patch "[PATCH] drm/amdgpu: add workarounds for VCN TMZ issue on CHIP_RAVEN" failed to apply to 5.10-stable tree
+        b=g6f+Sw2pwcvhgJkKrHTnIaqxTEoTFXX2oPKmFf9VNdwb+on/ghqNNKxhltvTXx5uP
+         ZJPekmApzDUnLgUBg7WIdKeRWtjBTq+RrQGJAWxYKrC7WbcYvh7fgINZFxNfT8ucXm
+         Ax2L58/XnQ82bPi1IjsXzbnGYll3dzGipty8gbew=
+Subject: FAILED: patch "[PATCH] drm/amdgpu: add workarounds for VCN TMZ issue on CHIP_RAVEN" failed to apply to 5.16-stable tree
 To:     Lang.Yu@amd.com, alexander.deucher@amd.com,
         christian.koenig@amd.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 11 Apr 2022 11:23:46 +0200
-Message-ID: <1649669026134145@kroah.com>
+Date:   Mon, 11 Apr 2022 11:23:47 +0200
+Message-ID: <1649669027133117@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.16-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
