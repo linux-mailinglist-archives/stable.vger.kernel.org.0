@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C547A4FC0FA
-	for <lists+stable@lfdr.de>; Mon, 11 Apr 2022 17:36:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 911044FC0F7
+	for <lists+stable@lfdr.de>; Mon, 11 Apr 2022 17:36:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348051AbiDKPit (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1348041AbiDKPit (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 11 Apr 2022 11:38:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57628 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57712 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348034AbiDKPir (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 11:38:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DE066586
-        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 08:36:32 -0700 (PDT)
+        with ESMTP id S1348050AbiDKPit (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 11:38:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 084A43818E
+        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 08:36:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 157FCB80758
-        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 15:36:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67598C385A3;
-        Mon, 11 Apr 2022 15:36:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8A744615B8
+        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 15:36:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A3A4C385A4;
+        Mon, 11 Apr 2022 15:36:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649691389;
-        bh=VA6bnR/Qjipnhk8SBX1/OmzUp0KbPsF7VNQxfSpUJAg=;
+        s=korg; t=1649691393;
+        bh=F5qv7ICvwH0Jjvk/rvxFfRSKUwPrkLYf7h8V4FIztG8=;
         h=Subject:To:Cc:From:Date:From;
-        b=o+MlokSmE4yIcaL7wDjAWsxqNl24R0Ijw+HyJzgmvWq+QOKhPNmDzwCAxSDJuLKdX
-         mNo8//pex2lqyG5DC04Q8JRJ02Bumd7acBJGT0vMVt6zpqMzfQHjqzvoES9LyQIFtR
-         qjZlPx87PsJJlo0hSc3C6LYWnHUHgAFmxGoNnKMY=
-Subject: FAILED: patch "[PATCH] perf/core: Fix perf_cgroup_switch()" failed to apply to 4.9-stable tree
-To:     zhouchengming@bytedance.com, peterz@infradead.org
+        b=nkq9Yj6plOejLZTV8DpbBuDXdzVngICRJSvemmhH8jhIcTy2oFTl6lpborLullQn+
+         A1R72PS4SDASTc7DAX6g5z+xzd+ifkWoCF6K8xCbyeVRLgPI2EWU6lwaC7355NKqe0
+         cwTl3Bo6EKoGrKDsrJdJNODTi29DruyEI5j5Riek=
+Subject: FAILED: patch "[PATCH] ice: Fix broken IFF_ALLMULTI handling" failed to apply to 5.17-stable tree
+To:     ivecera@redhat.com, alice.michael@intel.com, davem@davemloft.net,
+        jacob.e.keller@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 11 Apr 2022 17:36:09 +0200
-Message-ID: <1649691369124177@kroah.com>
+Date:   Mon, 11 Apr 2022 17:36:28 +0200
+Message-ID: <16496913881081@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.17-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,292 +60,404 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 96492a6c558acb56124844d1409d9ef8624a0322 Mon Sep 17 00:00:00 2001
-From: Chengming Zhou <zhouchengming@bytedance.com>
-Date: Tue, 29 Mar 2022 23:45:22 +0800
-Subject: [PATCH] perf/core: Fix perf_cgroup_switch()
+From 1273f89578f268ea705ddbad60c4bd2dcff80611 Mon Sep 17 00:00:00 2001
+From: Ivan Vecera <ivecera@redhat.com>
+Date: Thu, 31 Mar 2022 09:20:08 -0700
+Subject: [PATCH] ice: Fix broken IFF_ALLMULTI handling
 
-There is a race problem that can trigger WARN_ON_ONCE(cpuctx->cgrp)
-in perf_cgroup_switch().
+Handling of all-multicast flag and associated multicast promiscuous
+mode is broken in ice driver. When an user switches allmulticast
+flag on or off the driver checks whether any VLANs are configured
+over the interface (except default VLAN 0).
 
-CPU1						CPU2
-perf_cgroup_sched_out(prev, next)
-  cgrp1 = perf_cgroup_from_task(prev)
-  cgrp2 = perf_cgroup_from_task(next)
-  if (cgrp1 != cgrp2)
-    perf_cgroup_switch(prev, PERF_CGROUP_SWOUT)
-						cgroup_migrate_execute()
-						  task->cgroups = ?
-						  perf_cgroup_attach()
-						    task_function_call(task, __perf_cgroup_move)
-perf_cgroup_sched_in(prev, next)
-  cgrp1 = perf_cgroup_from_task(prev)
-  cgrp2 = perf_cgroup_from_task(next)
-  if (cgrp1 != cgrp2)
-    perf_cgroup_switch(next, PERF_CGROUP_SWIN)
-						__perf_cgroup_move()
-						  perf_cgroup_switch(task, PERF_CGROUP_SWOUT | PERF_CGROUP_SWIN)
+If any extra VLANs are registered it enables multicast promiscuous
+mode for all these VLANs (including default VLAN 0) using
+ICE_SW_LKUP_PROMISC_VLAN look-up type. In this situation all
+multicast packets tagged with known VLAN ID or untagged are received
+and multicast packets tagged with unknown VLAN ID ignored.
 
-The commit a8d757ef076f ("perf events: Fix slow and broken cgroup
-context switch code") want to skip perf_cgroup_switch() when the
-perf_cgroup of "prev" and "next" are the same.
+If no extra VLANs are registered (so only VLAN 0 exists) it enables
+multicast promiscuous mode for VLAN 0 and uses ICE_SW_LKUP_PROMISC
+look-up type. In this situation any multicast packets including
+tagged ones are received.
 
-But task->cgroups can change in concurrent with context_switch()
-in cgroup_migrate_execute(). If cgrp1 == cgrp2 in sched_out(),
-cpuctx won't do sched_out. Then task->cgroups changed cause
-cgrp1 != cgrp2 in sched_in(), cpuctx will do sched_in. So trigger
-WARN_ON_ONCE(cpuctx->cgrp).
+The driver handles IFF_ALLMULTI in ice_vsi_sync_fltr() this way:
 
-Even though __perf_cgroup_move() will be synchronized as the context
-switch disables the interrupt, context_switch() still can see the
-task->cgroups is changing in the middle, since task->cgroups changed
-before sending IPI.
+ice_vsi_sync_fltr() {
+  ...
+  if (changed_flags & IFF_ALLMULTI) {
+    if (netdev->flags & IFF_ALLMULTI) {
+      if (vsi->num_vlans > 1)
+        ice_set_promisc(..., ICE_MCAST_VLAN_PROMISC_BITS);
+      else
+        ice_set_promisc(..., ICE_MCAST_PROMISC_BITS);
+    } else {
+      if (vsi->num_vlans > 1)
+        ice_clear_promisc(..., ICE_MCAST_VLAN_PROMISC_BITS);
+      else
+        ice_clear_promisc(..., ICE_MCAST_PROMISC_BITS);
+    }
+  }
+  ...
+}
 
-So we have to combine perf_cgroup_sched_in() into perf_cgroup_sched_out(),
-unified into perf_cgroup_switch(), to fix the incosistency between
-perf_cgroup_sched_out() and perf_cgroup_sched_in().
+The code above depends on value vsi->num_vlan that specifies number
+of VLANs configured over the interface (including VLAN 0) and
+this is problem because that value is modified in NDO callbacks
+ice_vlan_rx_add_vid() and ice_vlan_rx_kill_vid().
 
-But we can't just compare prev->cgroups with next->cgroups to decide
-whether to skip cpuctx sched_out/in since the prev->cgroups is changing
-too. For example:
+Scenario 1:
+1. ip link set ens7f0 allmulticast on
+2. ip link add vlan10 link ens7f0 type vlan id 10
+3. ip link set ens7f0 allmulticast off
+4. ip link set ens7f0 allmulticast on
 
-CPU1					CPU2
-					cgroup_migrate_execute()
-					  prev->cgroups = ?
-					  perf_cgroup_attach()
-					    task_function_call(task, __perf_cgroup_move)
-perf_cgroup_switch(task)
-  cgrp1 = perf_cgroup_from_task(prev)
-  cgrp2 = perf_cgroup_from_task(next)
-  if (cgrp1 != cgrp2)
-    cpuctx sched_out/in ...
-					task_function_call() will return -ESRCH
+[1] In this scenario IFF_ALLMULTI is enabled and the driver calls
+    ice_set_promisc(..., ICE_MCAST_PROMISC_BITS) that installs
+    multicast promisc rule with non-VLAN look-up type.
+[2] Then VLAN with ID 10 is added and vsi->num_vlan incremented to 2
+[3] Command switches IFF_ALLMULTI off and the driver calls
+    ice_clear_promisc(..., ICE_MCAST_VLAN_PROMISC_BITS) but this
+    call is effectively NOP because it looks for multicast promisc
+    rules for VLAN 0 and VLAN 10 with VLAN look-up type but no such
+    rules exist. So the all-multicast remains enabled silently
+    in hardware.
+[4] Command tries to switch IFF_ALLMULTI on and the driver calls
+    ice_clear_promisc(..., ICE_MCAST_PROMISC_BITS) but this call
+    fails (-EEXIST) because non-VLAN multicast promisc rule already
+    exists.
 
-In the above example, prev->cgroups changing cause (cgrp1 == cgrp2)
-to be true, so skip cpuctx sched_out/in. And later task_function_call()
-would return -ESRCH since the prev task isn't running on cpu anymore.
-So we would leave perf_events of the old prev->cgroups still sched on
-the CPU, which is wrong.
+Scenario 2:
+1. ip link add vlan10 link ens7f0 type vlan id 10
+2. ip link set ens7f0 allmulticast on
+3. ip link add vlan20 link ens7f0 type vlan id 20
+4. ip link del vlan10 ; ip link del vlan20
+5. ip link set ens7f0 allmulticast off
 
-The solution is that we should use cpuctx->cgrp to compare with
-the next task's perf_cgroup. Since cpuctx->cgrp can only be changed
-on local CPU, and we have irq disabled, we can read cpuctx->cgrp to
-compare without holding ctx lock.
+[1] VLAN with ID 10 is added and vsi->num_vlan==2
+[2] Command switches IFF_ALLMULTI on and driver installs multicast
+    promisc rules with VLAN look-up type for VLAN 0 and 10
+[3] VLAN with ID 20 is added and vsi->num_vlan==3 but no multicast
+    promisc rules is added for this new VLAN so the interface does
+    not receive MC packets from VLAN 20
+[4] Both VLANs are removed but multicast rule for VLAN 10 remains
+    installed so interface receives multicast packets from VLAN 10
+[5] Command switches IFF_ALLMULTI off and because vsi->num_vlan is 1
+    the driver tries to remove multicast promisc rule for VLAN 0
+    with non-VLAN look-up that does not exist.
+    All-multicast looks disabled from user point of view but it
+    is partially enabled in HW (interface receives all multicast
+    packets either untagged or tagged with VLAN ID 10)
 
-Fixes: a8d757ef076f ("perf events: Fix slow and broken cgroup context switch code")
-Signed-off-by: Chengming Zhou <zhouchengming@bytedance.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lore.kernel.org/r/20220329154523.86438-4-zhouchengming@bytedance.com
+To resolve these issues the patch introduces these changes:
+1. Adds handling for IFF_ALLMULTI to ice_vlan_rx_add_vid() and
+   ice_vlan_rx_kill_vid() callbacks. So when VLAN is added/removed
+   and IFF_ALLMULTI is enabled an appropriate multicast promisc
+   rule for that VLAN ID is added/removed.
+2. In ice_vlan_rx_add_vid() when first VLAN besides VLAN 0 is added
+   so (vsi->num_vlan == 2) and IFF_ALLMULTI is enabled then look-up
+   type for existing multicast promisc rule for VLAN 0 is updated
+   to ICE_MCAST_VLAN_PROMISC_BITS.
+3. In ice_vlan_rx_kill_vid() when last VLAN besides VLAN 0 is removed
+   so (vsi->num_vlan == 1) and IFF_ALLMULTI is enabled then look-up
+   type for existing multicast promisc rule for VLAN 0 is updated
+   to ICE_MCAST_PROMISC_BITS.
+4. Both ice_vlan_rx_{add,kill}_vid() have to run under ICE_CFG_BUSY
+   bit protection to avoid races with ice_vsi_sync_fltr() that runs
+   in ice_service_task() context.
+5. Bit ICE_VSI_VLAN_FLTR_CHANGED is use-less and can be removed.
+6. Error messages added to ice_fltr_*_vsi_promisc() helper functions
+   to avoid them in their callers
+7. Small improvements to increase readability
 
-diff --git a/kernel/events/core.c b/kernel/events/core.c
-index a08fb92b3934..bdeb41fe7f15 100644
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -824,17 +824,12 @@ perf_cgroup_set_timestamp(struct perf_cpu_context *cpuctx)
- 
- static DEFINE_PER_CPU(struct list_head, cgrp_cpuctx_list);
- 
--#define PERF_CGROUP_SWOUT	0x1 /* cgroup switch out every event */
--#define PERF_CGROUP_SWIN	0x2 /* cgroup switch in events based on task */
--
- /*
-  * reschedule events based on the cgroup constraint of task.
-- *
-- * mode SWOUT : schedule out everything
-- * mode SWIN : schedule in based on cgroup for next
-  */
--static void perf_cgroup_switch(struct task_struct *task, int mode)
-+static void perf_cgroup_switch(struct task_struct *task)
+Fixes: 5eda8afd6bcc ("ice: Add support for PF/VF promiscuous mode")
+Signed-off-by: Ivan Vecera <ivecera@redhat.com>
+Reviewed-by: Jacob Keller <jacob.e.keller@intel.com>
+Signed-off-by: Alice Michael <alice.michael@intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+
+diff --git a/drivers/net/ethernet/intel/ice/ice.h b/drivers/net/ethernet/intel/ice/ice.h
+index d4f1874df7d0..26eaee0b6503 100644
+--- a/drivers/net/ethernet/intel/ice/ice.h
++++ b/drivers/net/ethernet/intel/ice/ice.h
+@@ -301,7 +301,6 @@ enum ice_vsi_state {
+ 	ICE_VSI_NETDEV_REGISTERED,
+ 	ICE_VSI_UMAC_FLTR_CHANGED,
+ 	ICE_VSI_MMAC_FLTR_CHANGED,
+-	ICE_VSI_VLAN_FLTR_CHANGED,
+ 	ICE_VSI_PROMISC_CHANGED,
+ 	ICE_VSI_STATE_NBITS		/* must be last */
+ };
+diff --git a/drivers/net/ethernet/intel/ice/ice_fltr.c b/drivers/net/ethernet/intel/ice/ice_fltr.c
+index af57eb114966..85a94483c2ed 100644
+--- a/drivers/net/ethernet/intel/ice/ice_fltr.c
++++ b/drivers/net/ethernet/intel/ice/ice_fltr.c
+@@ -58,7 +58,16 @@ int
+ ice_fltr_set_vlan_vsi_promisc(struct ice_hw *hw, struct ice_vsi *vsi,
+ 			      u8 promisc_mask)
  {
-+	struct perf_cgroup *cgrp;
- 	struct perf_cpu_context *cpuctx, *tmp;
- 	struct list_head *list;
- 	unsigned long flags;
-@@ -845,35 +840,31 @@ static void perf_cgroup_switch(struct task_struct *task, int mode)
- 	 */
- 	local_irq_save(flags);
- 
-+	cgrp = perf_cgroup_from_task(task, NULL);
+-	return ice_set_vlan_vsi_promisc(hw, vsi->idx, promisc_mask, false);
++	struct ice_pf *pf = hw->back;
++	int result;
 +
- 	list = this_cpu_ptr(&cgrp_cpuctx_list);
- 	list_for_each_entry_safe(cpuctx, tmp, list, cgrp_cpuctx_entry) {
- 		WARN_ON_ONCE(cpuctx->ctx.nr_cgroups == 0);
-+		if (READ_ONCE(cpuctx->cgrp) == cgrp)
-+			continue;
- 
- 		perf_ctx_lock(cpuctx, cpuctx->task_ctx);
- 		perf_pmu_disable(cpuctx->ctx.pmu);
- 
--		if (mode & PERF_CGROUP_SWOUT) {
--			cpu_ctx_sched_out(cpuctx, EVENT_ALL);
--			/*
--			 * must not be done before ctxswout due
--			 * to event_filter_match() in event_sched_out()
--			 */
--			cpuctx->cgrp = NULL;
--		}
-+		cpu_ctx_sched_out(cpuctx, EVENT_ALL);
-+		/*
-+		 * must not be done before ctxswout due
-+		 * to update_cgrp_time_from_cpuctx() in
-+		 * ctx_sched_out()
-+		 */
-+		cpuctx->cgrp = cgrp;
-+		/*
-+		 * set cgrp before ctxsw in to allow
-+		 * perf_cgroup_set_timestamp() in ctx_sched_in()
-+		 * to not have to pass task around
-+		 */
-+		cpu_ctx_sched_in(cpuctx, EVENT_ALL);
- 
--		if (mode & PERF_CGROUP_SWIN) {
--			WARN_ON_ONCE(cpuctx->cgrp);
--			/*
--			 * set cgrp before ctxsw in to allow
--			 * perf_cgroup_set_timestamp() in ctx_sched_in()
--			 * to not have to pass task around
--			 * we pass the cpuctx->ctx to perf_cgroup_from_task()
--			 * because cgorup events are only per-cpu
--			 */
--			cpuctx->cgrp = perf_cgroup_from_task(task,
--							     &cpuctx->ctx);
--			cpu_ctx_sched_in(cpuctx, EVENT_ALL);
--		}
- 		perf_pmu_enable(cpuctx->ctx.pmu);
- 		perf_ctx_unlock(cpuctx, cpuctx->task_ctx);
- 	}
-@@ -881,58 +872,6 @@ static void perf_cgroup_switch(struct task_struct *task, int mode)
- 	local_irq_restore(flags);
- }
- 
--static inline void perf_cgroup_sched_out(struct task_struct *task,
--					 struct task_struct *next)
--{
--	struct perf_cgroup *cgrp1;
--	struct perf_cgroup *cgrp2 = NULL;
--
--	rcu_read_lock();
--	/*
--	 * we come here when we know perf_cgroup_events > 0
--	 * we do not need to pass the ctx here because we know
--	 * we are holding the rcu lock
--	 */
--	cgrp1 = perf_cgroup_from_task(task, NULL);
--	cgrp2 = perf_cgroup_from_task(next, NULL);
--
--	/*
--	 * only schedule out current cgroup events if we know
--	 * that we are switching to a different cgroup. Otherwise,
--	 * do no touch the cgroup events.
--	 */
--	if (cgrp1 != cgrp2)
--		perf_cgroup_switch(task, PERF_CGROUP_SWOUT);
--
--	rcu_read_unlock();
--}
--
--static inline void perf_cgroup_sched_in(struct task_struct *prev,
--					struct task_struct *task)
--{
--	struct perf_cgroup *cgrp1;
--	struct perf_cgroup *cgrp2 = NULL;
--
--	rcu_read_lock();
--	/*
--	 * we come here when we know perf_cgroup_events > 0
--	 * we do not need to pass the ctx here because we know
--	 * we are holding the rcu lock
--	 */
--	cgrp1 = perf_cgroup_from_task(task, NULL);
--	cgrp2 = perf_cgroup_from_task(prev, NULL);
--
--	/*
--	 * only need to schedule in cgroup events if we are changing
--	 * cgroup during ctxsw. Cgroup events were not scheduled
--	 * out of ctxsw out if that was not the case.
--	 */
--	if (cgrp1 != cgrp2)
--		perf_cgroup_switch(task, PERF_CGROUP_SWIN);
--
--	rcu_read_unlock();
--}
--
- static int perf_cgroup_ensure_storage(struct perf_event *event,
- 				struct cgroup_subsys_state *css)
- {
-@@ -1096,16 +1035,6 @@ static inline void update_cgrp_time_from_cpuctx(struct perf_cpu_context *cpuctx,
- {
- }
- 
--static inline void perf_cgroup_sched_out(struct task_struct *task,
--					 struct task_struct *next)
--{
--}
--
--static inline void perf_cgroup_sched_in(struct task_struct *prev,
--					struct task_struct *task)
--{
--}
--
- static inline int perf_cgroup_connect(pid_t pid, struct perf_event *event,
- 				      struct perf_event_attr *attr,
- 				      struct perf_event *group_leader)
-@@ -1118,11 +1047,6 @@ perf_cgroup_set_timestamp(struct perf_cpu_context *cpuctx)
- {
- }
- 
--static inline void
--perf_cgroup_switch(struct task_struct *task, struct task_struct *next)
--{
--}
--
- static inline u64 perf_cgroup_event_time(struct perf_event *event)
- {
- 	return 0;
-@@ -1142,6 +1066,10 @@ static inline void
- perf_cgroup_event_disable(struct perf_event *event, struct perf_event_context *ctx)
- {
- }
++	result = ice_set_vlan_vsi_promisc(hw, vsi->idx, promisc_mask, false);
++	if (result)
++		dev_err(ice_pf_to_dev(pf),
++			"Error setting promisc mode on VSI %i (rc=%d)\n",
++			vsi->vsi_num, result);
 +
-+static void perf_cgroup_switch(struct task_struct *task)
-+{
-+}
- #endif
- 
- /*
-@@ -3661,7 +3589,7 @@ void __perf_event_task_sched_out(struct task_struct *task,
- 	 * cgroup event are system-wide mode only
- 	 */
- 	if (atomic_read(this_cpu_ptr(&perf_cgroup_events)))
--		perf_cgroup_sched_out(task, next);
-+		perf_cgroup_switch(next);
++	return result;
  }
  
- /*
-@@ -3975,16 +3903,6 @@ void __perf_event_task_sched_in(struct task_struct *prev,
- 	struct perf_event_context *ctx;
- 	int ctxn;
- 
--	/*
--	 * If cgroup events exist on this CPU, then we need to check if we have
--	 * to switch in PMU state; cgroup event are system-wide mode only.
--	 *
--	 * Since cgroup events are CPU events, we must schedule these in before
--	 * we schedule in the task events.
--	 */
--	if (atomic_read(this_cpu_ptr(&perf_cgroup_events)))
--		perf_cgroup_sched_in(prev, task);
--
- 	for_each_task_context_nr(ctxn) {
- 		ctx = task->perf_event_ctxp[ctxn];
- 		if (likely(!ctx))
-@@ -13556,7 +13474,7 @@ static int __perf_cgroup_move(void *info)
+ /**
+@@ -73,7 +82,16 @@ int
+ ice_fltr_clear_vlan_vsi_promisc(struct ice_hw *hw, struct ice_vsi *vsi,
+ 				u8 promisc_mask)
  {
- 	struct task_struct *task = info;
- 	rcu_read_lock();
--	perf_cgroup_switch(task, PERF_CGROUP_SWOUT | PERF_CGROUP_SWIN);
-+	perf_cgroup_switch(task);
- 	rcu_read_unlock();
- 	return 0;
+-	return ice_set_vlan_vsi_promisc(hw, vsi->idx, promisc_mask, true);
++	struct ice_pf *pf = hw->back;
++	int result;
++
++	result = ice_set_vlan_vsi_promisc(hw, vsi->idx, promisc_mask, true);
++	if (result)
++		dev_err(ice_pf_to_dev(pf),
++			"Error clearing promisc mode on VSI %i (rc=%d)\n",
++			vsi->vsi_num, result);
++
++	return result;
  }
+ 
+ /**
+@@ -87,7 +105,16 @@ int
+ ice_fltr_clear_vsi_promisc(struct ice_hw *hw, u16 vsi_handle, u8 promisc_mask,
+ 			   u16 vid)
+ {
+-	return ice_clear_vsi_promisc(hw, vsi_handle, promisc_mask, vid);
++	struct ice_pf *pf = hw->back;
++	int result;
++
++	result = ice_clear_vsi_promisc(hw, vsi_handle, promisc_mask, vid);
++	if (result)
++		dev_err(ice_pf_to_dev(pf),
++			"Error clearing promisc mode on VSI %i for VID %u (rc=%d)\n",
++			ice_get_hw_vsi_num(hw, vsi_handle), vid, result);
++
++	return result;
+ }
+ 
+ /**
+@@ -101,7 +128,16 @@ int
+ ice_fltr_set_vsi_promisc(struct ice_hw *hw, u16 vsi_handle, u8 promisc_mask,
+ 			 u16 vid)
+ {
+-	return ice_set_vsi_promisc(hw, vsi_handle, promisc_mask, vid);
++	struct ice_pf *pf = hw->back;
++	int result;
++
++	result = ice_set_vsi_promisc(hw, vsi_handle, promisc_mask, vid);
++	if (result)
++		dev_err(ice_pf_to_dev(pf),
++			"Error setting promisc mode on VSI %i for VID %u (rc=%d)\n",
++			ice_get_hw_vsi_num(hw, vsi_handle), vid, result);
++
++	return result;
+ }
+ 
+ /**
+diff --git a/drivers/net/ethernet/intel/ice/ice_main.c b/drivers/net/ethernet/intel/ice/ice_main.c
+index d755ce07869f..1d2ca39add95 100644
+--- a/drivers/net/ethernet/intel/ice/ice_main.c
++++ b/drivers/net/ethernet/intel/ice/ice_main.c
+@@ -243,8 +243,7 @@ static int ice_add_mac_to_unsync_list(struct net_device *netdev, const u8 *addr)
+ static bool ice_vsi_fltr_changed(struct ice_vsi *vsi)
+ {
+ 	return test_bit(ICE_VSI_UMAC_FLTR_CHANGED, vsi->state) ||
+-	       test_bit(ICE_VSI_MMAC_FLTR_CHANGED, vsi->state) ||
+-	       test_bit(ICE_VSI_VLAN_FLTR_CHANGED, vsi->state);
++	       test_bit(ICE_VSI_MMAC_FLTR_CHANGED, vsi->state);
+ }
+ 
+ /**
+@@ -260,10 +259,15 @@ static int ice_set_promisc(struct ice_vsi *vsi, u8 promisc_m)
+ 	if (vsi->type != ICE_VSI_PF)
+ 		return 0;
+ 
+-	if (ice_vsi_has_non_zero_vlans(vsi))
+-		status = ice_fltr_set_vlan_vsi_promisc(&vsi->back->hw, vsi, promisc_m);
+-	else
+-		status = ice_fltr_set_vsi_promisc(&vsi->back->hw, vsi->idx, promisc_m, 0);
++	if (ice_vsi_has_non_zero_vlans(vsi)) {
++		promisc_m |= (ICE_PROMISC_VLAN_RX | ICE_PROMISC_VLAN_TX);
++		status = ice_fltr_set_vlan_vsi_promisc(&vsi->back->hw, vsi,
++						       promisc_m);
++	} else {
++		status = ice_fltr_set_vsi_promisc(&vsi->back->hw, vsi->idx,
++						  promisc_m, 0);
++	}
++
+ 	return status;
+ }
+ 
+@@ -280,10 +284,15 @@ static int ice_clear_promisc(struct ice_vsi *vsi, u8 promisc_m)
+ 	if (vsi->type != ICE_VSI_PF)
+ 		return 0;
+ 
+-	if (ice_vsi_has_non_zero_vlans(vsi))
+-		status = ice_fltr_clear_vlan_vsi_promisc(&vsi->back->hw, vsi, promisc_m);
+-	else
+-		status = ice_fltr_clear_vsi_promisc(&vsi->back->hw, vsi->idx, promisc_m, 0);
++	if (ice_vsi_has_non_zero_vlans(vsi)) {
++		promisc_m |= (ICE_PROMISC_VLAN_RX | ICE_PROMISC_VLAN_TX);
++		status = ice_fltr_clear_vlan_vsi_promisc(&vsi->back->hw, vsi,
++							 promisc_m);
++	} else {
++		status = ice_fltr_clear_vsi_promisc(&vsi->back->hw, vsi->idx,
++						    promisc_m, 0);
++	}
++
+ 	return status;
+ }
+ 
+@@ -302,7 +311,6 @@ static int ice_vsi_sync_fltr(struct ice_vsi *vsi)
+ 	struct ice_pf *pf = vsi->back;
+ 	struct ice_hw *hw = &pf->hw;
+ 	u32 changed_flags = 0;
+-	u8 promisc_m;
+ 	int err;
+ 
+ 	if (!vsi->netdev)
+@@ -320,7 +328,6 @@ static int ice_vsi_sync_fltr(struct ice_vsi *vsi)
+ 	if (ice_vsi_fltr_changed(vsi)) {
+ 		clear_bit(ICE_VSI_UMAC_FLTR_CHANGED, vsi->state);
+ 		clear_bit(ICE_VSI_MMAC_FLTR_CHANGED, vsi->state);
+-		clear_bit(ICE_VSI_VLAN_FLTR_CHANGED, vsi->state);
+ 
+ 		/* grab the netdev's addr_list_lock */
+ 		netif_addr_lock_bh(netdev);
+@@ -369,29 +376,15 @@ static int ice_vsi_sync_fltr(struct ice_vsi *vsi)
+ 	/* check for changes in promiscuous modes */
+ 	if (changed_flags & IFF_ALLMULTI) {
+ 		if (vsi->current_netdev_flags & IFF_ALLMULTI) {
+-			if (ice_vsi_has_non_zero_vlans(vsi))
+-				promisc_m = ICE_MCAST_VLAN_PROMISC_BITS;
+-			else
+-				promisc_m = ICE_MCAST_PROMISC_BITS;
+-
+-			err = ice_set_promisc(vsi, promisc_m);
++			err = ice_set_promisc(vsi, ICE_MCAST_PROMISC_BITS);
+ 			if (err) {
+-				netdev_err(netdev, "Error setting Multicast promiscuous mode on VSI %i\n",
+-					   vsi->vsi_num);
+ 				vsi->current_netdev_flags &= ~IFF_ALLMULTI;
+ 				goto out_promisc;
+ 			}
+ 		} else {
+ 			/* !(vsi->current_netdev_flags & IFF_ALLMULTI) */
+-			if (ice_vsi_has_non_zero_vlans(vsi))
+-				promisc_m = ICE_MCAST_VLAN_PROMISC_BITS;
+-			else
+-				promisc_m = ICE_MCAST_PROMISC_BITS;
+-
+-			err = ice_clear_promisc(vsi, promisc_m);
++			err = ice_clear_promisc(vsi, ICE_MCAST_PROMISC_BITS);
+ 			if (err) {
+-				netdev_err(netdev, "Error clearing Multicast promiscuous mode on VSI %i\n",
+-					   vsi->vsi_num);
+ 				vsi->current_netdev_flags |= IFF_ALLMULTI;
+ 				goto out_promisc;
+ 			}
+@@ -3488,6 +3481,20 @@ ice_vlan_rx_add_vid(struct net_device *netdev, __be16 proto, u16 vid)
+ 	if (!vid)
+ 		return 0;
+ 
++	while (test_and_set_bit(ICE_CFG_BUSY, vsi->state))
++		usleep_range(1000, 2000);
++
++	/* Add multicast promisc rule for the VLAN ID to be added if
++	 * all-multicast is currently enabled.
++	 */
++	if (vsi->current_netdev_flags & IFF_ALLMULTI) {
++		ret = ice_fltr_set_vsi_promisc(&vsi->back->hw, vsi->idx,
++					       ICE_MCAST_VLAN_PROMISC_BITS,
++					       vid);
++		if (ret)
++			goto finish;
++	}
++
+ 	vlan_ops = ice_get_compat_vsi_vlan_ops(vsi);
+ 
+ 	/* Add a switch rule for this VLAN ID so its corresponding VLAN tagged
+@@ -3495,8 +3502,23 @@ ice_vlan_rx_add_vid(struct net_device *netdev, __be16 proto, u16 vid)
+ 	 */
+ 	vlan = ICE_VLAN(be16_to_cpu(proto), vid, 0);
+ 	ret = vlan_ops->add_vlan(vsi, &vlan);
+-	if (!ret)
+-		set_bit(ICE_VSI_VLAN_FLTR_CHANGED, vsi->state);
++	if (ret)
++		goto finish;
++
++	/* If all-multicast is currently enabled and this VLAN ID is only one
++	 * besides VLAN-0 we have to update look-up type of multicast promisc
++	 * rule for VLAN-0 from ICE_SW_LKUP_PROMISC to ICE_SW_LKUP_PROMISC_VLAN.
++	 */
++	if ((vsi->current_netdev_flags & IFF_ALLMULTI) &&
++	    ice_vsi_num_non_zero_vlans(vsi) == 1) {
++		ice_fltr_clear_vsi_promisc(&vsi->back->hw, vsi->idx,
++					   ICE_MCAST_PROMISC_BITS, 0);
++		ice_fltr_set_vsi_promisc(&vsi->back->hw, vsi->idx,
++					 ICE_MCAST_VLAN_PROMISC_BITS, 0);
++	}
++
++finish:
++	clear_bit(ICE_CFG_BUSY, vsi->state);
+ 
+ 	return ret;
+ }
+@@ -3522,6 +3544,9 @@ ice_vlan_rx_kill_vid(struct net_device *netdev, __be16 proto, u16 vid)
+ 	if (!vid)
+ 		return 0;
+ 
++	while (test_and_set_bit(ICE_CFG_BUSY, vsi->state))
++		usleep_range(1000, 2000);
++
+ 	vlan_ops = ice_get_compat_vsi_vlan_ops(vsi);
+ 
+ 	/* Make sure VLAN delete is successful before updating VLAN
+@@ -3530,10 +3555,33 @@ ice_vlan_rx_kill_vid(struct net_device *netdev, __be16 proto, u16 vid)
+ 	vlan = ICE_VLAN(be16_to_cpu(proto), vid, 0);
+ 	ret = vlan_ops->del_vlan(vsi, &vlan);
+ 	if (ret)
+-		return ret;
++		goto finish;
+ 
+-	set_bit(ICE_VSI_VLAN_FLTR_CHANGED, vsi->state);
+-	return 0;
++	/* Remove multicast promisc rule for the removed VLAN ID if
++	 * all-multicast is enabled.
++	 */
++	if (vsi->current_netdev_flags & IFF_ALLMULTI)
++		ice_fltr_clear_vsi_promisc(&vsi->back->hw, vsi->idx,
++					   ICE_MCAST_VLAN_PROMISC_BITS, vid);
++
++	if (!ice_vsi_has_non_zero_vlans(vsi)) {
++		/* Update look-up type of multicast promisc rule for VLAN 0
++		 * from ICE_SW_LKUP_PROMISC_VLAN to ICE_SW_LKUP_PROMISC when
++		 * all-multicast is enabled and VLAN 0 is the only VLAN rule.
++		 */
++		if (vsi->current_netdev_flags & IFF_ALLMULTI) {
++			ice_fltr_clear_vsi_promisc(&vsi->back->hw, vsi->idx,
++						   ICE_MCAST_VLAN_PROMISC_BITS,
++						   0);
++			ice_fltr_set_vsi_promisc(&vsi->back->hw, vsi->idx,
++						 ICE_MCAST_PROMISC_BITS, 0);
++		}
++	}
++
++finish:
++	clear_bit(ICE_CFG_BUSY, vsi->state);
++
++	return ret;
+ }
+ 
+ /**
 
