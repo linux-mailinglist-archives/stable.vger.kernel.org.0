@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 818EF4FB785
-	for <lists+stable@lfdr.de>; Mon, 11 Apr 2022 11:28:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6849C4FB7B1
+	for <lists+stable@lfdr.de>; Mon, 11 Apr 2022 11:37:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235185AbiDKJa4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Apr 2022 05:30:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40018 "EHLO
+        id S1344540AbiDKJi4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Apr 2022 05:38:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36656 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230477AbiDKJa4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 05:30:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 058A83FDB3
-        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 02:28:42 -0700 (PDT)
+        with ESMTP id S1344529AbiDKJiu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 05:38:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CC29403E0
+        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 02:36:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 901DC61014
-        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 09:28:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97B18C385A4;
-        Mon, 11 Apr 2022 09:28:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DD02860B60
+        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 09:36:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCA7FC385A5;
+        Mon, 11 Apr 2022 09:36:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649669322;
-        bh=C8tmwIzpIYGFgKavIFdIQiKyqfRep0AFdMVJDLNM/H0=;
-        h=Subject:To:Cc:From:Date:From;
-        b=fYAf1aeR1HzC77Z4Dc9ADXFJS6ZY1nsb1hyvl7m1HBsB4FDvYVraNT4ZtpShYKQST
-         QErpWqo+9yEuZARZJ+3nfaOrABDNJMmg5XrzB/RA018ApQav1VJTEAm+/WkypxLFin
-         5QpVUo+z7b1fjamVbta7ch/l2bCUhhtlUpTmkuNc=
-Subject: FAILED: patch "[PATCH] SUNRPC: Prevent immediate close+reconnect" failed to apply to 5.15-stable tree
-To:     trond.myklebust@hammerspace.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 11 Apr 2022 11:28:39 +0200
-Message-ID: <16496693198222@kroah.com>
+        s=korg; t=1649669791;
+        bh=2iDtxutVhicp4j5v/vtocvb00g9bQlFy562U0ETldMA=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=R8KBaNw4oXV5xzJRLTkLfx/djxIiZahuc280Y2HMqXqeazXRP1xNwB3mtMeCfr997
+         hJvEkHYjf0v6mnGeH55m4p+ebbbbXclYPQuhQ3TPaMqzNmL5QDQpUVDVtRKtUsavAp
+         pIoztA4YYY+xRCfvyi5ZInUGNOt+7XgKGlw8vgkg=
+Date:   Mon, 11 Apr 2022 11:36:28 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Ketsui <esgwpl@gmail.com>
+Cc:     stable@vger.kernel.org
+Subject: Re: Please backport commit dfbba2518aac4204203b0697a894d3b2f80134d3
+Message-ID: <YlP2nFAuSQ+JruQX@kroah.com>
+References: <YlHEbgyXT9crVF7O@mainframe.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YlHEbgyXT9crVF7O@mainframe.localdomain>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -47,53 +49,11 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Sun, Apr 10, 2022 at 12:37:50AM +0700, Ketsui wrote:
+> Commit 87ebbb8c612b broke suspend-to-ram on kernel 5.17, trying to resume
+> with it results in an unusable system. I've tried reverting it from 5.17
+> and found that resuming works once again.
 
-The patch below does not apply to the 5.15-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
-
-thanks,
+Now applied, thanks!
 
 greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 3be232f11a3cc9b0ef0795e39fa11bdb8e422a06 Mon Sep 17 00:00:00 2001
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
-Date: Tue, 26 Oct 2021 18:01:07 -0400
-Subject: [PATCH] SUNRPC: Prevent immediate close+reconnect
-
-If we have already set up the socket and are waiting for it to connect,
-then don't immediately close and retry.
-
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-
-diff --git a/net/sunrpc/xprt.c b/net/sunrpc/xprt.c
-index 691fe5a682b6..a02de2bddb28 100644
---- a/net/sunrpc/xprt.c
-+++ b/net/sunrpc/xprt.c
-@@ -767,7 +767,8 @@ EXPORT_SYMBOL_GPL(xprt_disconnect_done);
-  */
- static void xprt_schedule_autoclose_locked(struct rpc_xprt *xprt)
- {
--	set_bit(XPRT_CLOSE_WAIT, &xprt->state);
-+	if (test_and_set_bit(XPRT_CLOSE_WAIT, &xprt->state))
-+		return;
- 	if (test_and_set_bit(XPRT_LOCKED, &xprt->state) == 0)
- 		queue_work(xprtiod_workqueue, &xprt->task_cleanup);
- 	else if (xprt->snd_task && !test_bit(XPRT_SND_IS_COOKIE, &xprt->state))
-diff --git a/net/sunrpc/xprtsock.c b/net/sunrpc/xprtsock.c
-index 7fb302e202bc..ae48c9c84ee1 100644
---- a/net/sunrpc/xprtsock.c
-+++ b/net/sunrpc/xprtsock.c
-@@ -2314,7 +2314,7 @@ static void xs_connect(struct rpc_xprt *xprt, struct rpc_task *task)
- 
- 	WARN_ON_ONCE(!xprt_lock_connect(xprt, task, transport));
- 
--	if (transport->sock != NULL) {
-+	if (transport->sock != NULL && !xprt_connecting(xprt)) {
- 		dprintk("RPC:       xs_connect delayed xprt %p for %lu "
- 				"seconds\n",
- 				xprt, xprt->reestablish_timeout / HZ);
-
