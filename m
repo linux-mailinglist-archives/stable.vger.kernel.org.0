@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 53FE74FC1B5
-	for <lists+stable@lfdr.de>; Mon, 11 Apr 2022 17:59:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62DB04FC1F7
+	for <lists+stable@lfdr.de>; Mon, 11 Apr 2022 18:12:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242155AbiDKQB3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Apr 2022 12:01:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50132 "EHLO
+        id S1348473AbiDKQNV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Apr 2022 12:13:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41692 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348363AbiDKQB2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 12:01:28 -0400
-Received: from mail-pf1-x435.google.com (mail-pf1-x435.google.com [IPv6:2607:f8b0:4864:20::435])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8718D1707C
-        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 08:59:11 -0700 (PDT)
-Received: by mail-pf1-x435.google.com with SMTP id s8so14931583pfk.12
-        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 08:59:11 -0700 (PDT)
+        with ESMTP id S1348574AbiDKQM5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 12:12:57 -0400
+Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BB1C3CA62
+        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 09:09:33 -0700 (PDT)
+Received: by mail-pj1-x102e.google.com with SMTP id o5-20020a17090ad20500b001ca8a1dc47aso18845794pju.1
+        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 09:09:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20210112.gappssmtp.com; s=20210112;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=0gehztAX9hTPuCvoBK0cV+F4sL415wKUipf3+q1AzJU=;
-        b=ohNJBh1VymBfMwNoa3RlBh44lmRwuL1BmMG8Hh/Svef8TLl2yrw2D5qP7Q5n8T5ADU
-         ynStMJtt2ASA02Ftu1WgMQ3aMf8UbwEDzEIGTGgzZ1loAuwXfEkdZF6ZtKSuCyo/pmyp
-         z0lDQWlKDI4qPD7rOMDlpAueBbGKebYX7+CpfKvxtVmiaEBwpi5k1aVWRISJOqVJdyOg
-         otkNj+hxthKJhm/iH4iDWOMDAC3+ldr6chOcfzk+NItpQQNSpz2oamgcyzYctPBa7lCF
-         xPYkMe5GeW76ruoMJWrrRX74NsAsMHWO6AdCMfkkgUe/N6WyiPZ24A4rEvogjix3bDPE
-         F26A==
+        bh=obIjkUpUQTE8DSttUquueO9mWldWbYcqOK71ZIKM6g0=;
+        b=M8zvEzoNK/uA2iYahAQaysVoaYGsZxl9kPJGS+6pFJBAmO7K+pALrlVVUs12gWyS99
+         UfqpN1F7+YFB1hAHn0KC37f9P99z3C9nKssQvqPCOpnw0wSFGeWrn9HhD8NXvE1BGs3p
+         I9F/CSgFEZDY5B0ow+EK5pUIm2kGtTUd9NdDB/Awl5mvelLf8Ti6oduvCF+USzKOKNjh
+         RiLH+XAQj0+RLNFWSC5a+sEM0lGpXWuNjD1we6t6ySkqO858JUA22nyhXWa1XqxzRvCx
+         oPpoyvPliip2lwQ+eSzfJf4LLBBUfWaCWM3Go9s7ZP7VYYlPM324xHPPFgnqSkQXfVUV
+         04MQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=0gehztAX9hTPuCvoBK0cV+F4sL415wKUipf3+q1AzJU=;
-        b=DD7cZ4gNyGgfVfPX3rECZkpNisMaQlp9bfj6xcomaJ/tzVyWCKFxcMexqoKe9Yyb5v
-         sfqbVawekQ4IFFuv9wbq7SA3mw1vRT4Smj6+ICuB4sRwkNzxywoOHT/zzOqhYn9qpCwr
-         soQu57Y7GmNbBFeEcQ8s1PS9c0B+Vns7LVhCS2QaP3dqZWShLhNmJhsNrCUegbKwB3xn
-         1CG/PInDFe1IJNCGu0hpZsIogxdQ4cfPfPj6mVeQmxNhR5r+6/dLJtVysYgTOTO1DS/I
-         FpDRpH62GciLyQwgq7rb1131qCIGWPuiBdgfvEQ8SAxgy8c5mvO2rIxndAgCL6AHcxIT
-         +R6w==
-X-Gm-Message-State: AOAM533G2tCxCr3Au6VTYb2t49GDjtAQJCFW8+7QTFJXKer8eDQEPwMC
-        UhGGqzIFK/kV03iFK87rTKmD0YfdsqEJOT2F
-X-Google-Smtp-Source: ABdhPJz+vl5s8tVHyQu1g3iuweH0QS7hkbRxy69vryR61uL2KAEuI4+0mCiA5bFPniNza+Cousrb4w==
-X-Received: by 2002:a65:468d:0:b0:399:24bb:fdad with SMTP id h13-20020a65468d000000b0039924bbfdadmr26890826pgr.396.1649692749853;
-        Mon, 11 Apr 2022 08:59:09 -0700 (PDT)
+        bh=obIjkUpUQTE8DSttUquueO9mWldWbYcqOK71ZIKM6g0=;
+        b=J6SGxFtXowJYGtJgoa7jFz/zXjX7ETJrU1O+vjkesCNMNUlOtmqUycM2BFIGsPAy8G
+         m5QRUguQSu7tGA6deGCLF0FgX86KH6MUUhUweKC8PcZWLdEFqULqNZVR+FPXSIrf2R5Y
+         Z7xqAu7SQtWSO0lXJ61IKsOJ/dTMFZEmrzBuNtrkNSVnHTj3ZyGPl3wF/Qx5zdUN/asj
+         e4MmEJRt8pPhdWeDd6rNMxgNB2DLaoO+/Maov96c1PFQxo+NSEhCbBlfKrBScYrxX0CS
+         oHLzdV7TqE0a9RLx+7QRsbshyKLu4vPsVJUrCsu6GmRBts/mB65OFiohSPpOmilI5vTr
+         +HrA==
+X-Gm-Message-State: AOAM532vGm7Ew2FqyfHTqlx10OQR6I5Q+/4qYoxqZ8msCTf3GNTFVESR
+        nJcvupGkR0PGnpTslxMEqJ+uWzpUvL96Nv+x
+X-Google-Smtp-Source: ABdhPJxuEAotlqv32mxobpS6osPYoE1YoYBltlZN+nIkjqcHCWw84eWBKmS2Tsp/PqKAiOqNcE73Ow==
+X-Received: by 2002:a17:90a:d082:b0:1ca:be58:c692 with SMTP id k2-20020a17090ad08200b001cabe58c692mr55766pju.238.1649693371619;
+        Mon, 11 Apr 2022 09:09:31 -0700 (PDT)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id x7-20020aa784c7000000b005058d220b37sm11322166pfn.64.2022.04.11.08.59.09
+        by smtp.gmail.com with ESMTPSA id k3-20020a056a00168300b004f7e60da26csm36362079pfc.182.2022.04.11.09.09.30
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 11 Apr 2022 08:59:09 -0700 (PDT)
-Message-ID: <6254504d.1c69fb81.26a5.bb52@mx.google.com>
-Date:   Mon, 11 Apr 2022 08:59:09 -0700 (PDT)
+        Mon, 11 Apr 2022 09:09:31 -0700 (PDT)
+Message-ID: <625452bb.1c69fb81.969b2.e1a4@mx.google.com>
+Date:   Mon, 11 Apr 2022 09:09:31 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.4
-X-Kernelci-Kernel: v5.4.188-462-gd76f6c1bbfe99
+X-Kernelci-Branch: linux-5.4.y
+X-Kernelci-Kernel: v5.4.188
 X-Kernelci-Report-Type: build
-Subject: stable-rc/queue/5.4 build: 189 builds: 3 failed, 186 passed, 4 errors,
- 28 warnings (v5.4.188-462-gd76f6c1bbfe99)
+Subject: stable-rc/linux-5.4.y build: 189 builds: 3 failed, 186 passed,
+ 4 errors, 28 warnings (v5.4.188)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -70,16 +70,16 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.4 build: 189 builds: 3 failed, 186 passed, 4 errors, 28 w=
-arnings (v5.4.188-462-gd76f6c1bbfe99)
+stable-rc/linux-5.4.y build: 189 builds: 3 failed, 186 passed, 4 errors, 28=
+ warnings (v5.4.188)
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F5.4=
-/kernel/v5.4.188-462-gd76f6c1bbfe99/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.4.y=
+/kernel/v5.4.188/
 
 Tree: stable-rc
-Branch: queue/5.4
-Git Describe: v5.4.188-462-gd76f6c1bbfe99
-Git Commit: d76f6c1bbfe99760baafb020eb59cbe3d34cbc2b
+Branch: linux-5.4.y
+Git Describe: v5.4.188
+Git Commit: 2845ff3fd34499603249676495c524a35e795b45
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e-rc.git
 Built: 7 unique architectures
@@ -127,67 +127,70 @@ x86_64:
 
 Errors summary:
 
-    2    arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3m
-    2    arm-linux-gnueabihf-gcc: error: missing argument to =E2=80=98-marc=
+    4    arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3m
+    4    arm-linux-gnueabihf-gcc: error: missing argument to =E2=80=98-marc=
 h=3D=E2=80=99
 
 Warnings summary:
 
-    7    ld: warning: creating DT_TEXTREL in a PIE
-    5    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_=
+    14   ld: warning: creating DT_TEXTREL in a PIE
+    10   drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_=
 min_dma_period=E2=80=99 defined but not used [-Wunused-function]
-    4    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in rea=
+    8    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in rea=
 d-only section `.head.text'
-    4    arch/arm64/include/asm/memory.h:238:15: warning: cast from pointer=
+    8    arch/arm64/include/asm/memory.h:238:15: warning: cast from pointer=
  to integer of different size [-Wpointer-to-int-cast]
-    3    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in rea=
+    6    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in rea=
 d-only section `.head.text'
-    2    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 1073=
+    4    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 1073=
 741824 invokes undefined behavior [-Waggressive-loop-optimizations]
-    2    arch/x86/entry/entry_64.S:1732: Warning: no instruction mnemonic s=
+    4    arch/x86/entry/entry_64.S:1732: Warning: no instruction mnemonic s=
 uffix given and no register operands; using default for `sysret'
-    1    sound/pci/echoaudio/echoaudio_dsp.c:658:9: warning: iteration 1073=
+    2    sound/pci/echoaudio/echoaudio_dsp.c:658:9: warning: iteration 1073=
 741824 invokes undefined behavior [-Waggressive-loop-optimizations]
 
 Section mismatches summary:
 
-    2    WARNING: vmlinux.o(.text+0xcacc): Section mismatch in reference fr=
+    4    WARNING: vmlinux.o(.text+0xcacc): Section mismatch in reference fr=
 om the function __arm_ioremap_pfn_caller() to the function .meminit.text:me=
 mblock_is_map_memory()
-    1    WARNING: vmlinux.o(.text.unlikely+0x3774): Section mismatch in ref=
+    2    WARNING: vmlinux.o(.text.unlikely+0x3774): Section mismatch in ref=
 erence from the function pmax_setup_memory_region() to the function .init.t=
 ext:add_memory_region()
-    1    WARNING: vmlinux.o(.text+0xcf00): Section mismatch in reference fr=
+    2    WARNING: vmlinux.o(.text.unlikely+0x349c): Section mismatch in ref=
+erence from the function pmax_setup_memory_region() to the function .init.t=
+ext:add_memory_region()
+    2    WARNING: vmlinux.o(.text+0xcf00): Section mismatch in reference fr=
 om the function __arm_ioremap_pfn_caller() to the function .meminit.text:me=
 mblock_is_map_memory()
-    1    WARNING: vmlinux.o(.text+0xce00): Section mismatch in reference fr=
+    2    WARNING: vmlinux.o(.text+0xce00): Section mismatch in reference fr=
 om the function __arm_ioremap_pfn_caller() to the function .meminit.text:me=
 mblock_is_map_memory()
-    1    WARNING: vmlinux.o(.text+0xcd0c): Section mismatch in reference fr=
+    2    WARNING: vmlinux.o(.text+0xcd0c): Section mismatch in reference fr=
 om the function __arm_ioremap_pfn_caller() to the function .meminit.text:me=
 mblock_is_map_memory()
-    1    WARNING: vmlinux.o(.text+0xcc00): Section mismatch in reference fr=
+    2    WARNING: vmlinux.o(.text+0xcc00): Section mismatch in reference fr=
 om the function __arm_ioremap_pfn_caller() to the function .meminit.text:me=
 mblock_is_map_memory()
-    1    WARNING: vmlinux.o(.text+0xcad4): Section mismatch in reference fr=
+    2    WARNING: vmlinux.o(.text+0xcad4): Section mismatch in reference fr=
 om the function __arm_ioremap_pfn_caller() to the function .meminit.text:me=
 mblock_is_map_memory()
-    1    WARNING: vmlinux.o(.text+0xcaac): Section mismatch in reference fr=
+    2    WARNING: vmlinux.o(.text+0xcaac): Section mismatch in reference fr=
 om the function __arm_ioremap_pfn_caller() to the function .meminit.text:me=
 mblock_is_map_memory()
-    1    WARNING: vmlinux.o(.text+0xc978): Section mismatch in reference fr=
+    2    WARNING: vmlinux.o(.text+0xc978): Section mismatch in reference fr=
 om the function __arm_ioremap_pfn_caller() to the function .meminit.text:me=
 mblock_is_map_memory()
-    1    WARNING: vmlinux.o(.text+0xc834): Section mismatch in reference fr=
+    2    WARNING: vmlinux.o(.text+0xc834): Section mismatch in reference fr=
 om the function __arm_ioremap_pfn_caller() to the function .meminit.text:me=
 mblock_is_map_memory()
-    1    WARNING: vmlinux.o(.text+0xb8d0): Section mismatch in reference fr=
+    2    WARNING: vmlinux.o(.text+0xb8d0): Section mismatch in reference fr=
 om the function __arm_ioremap_pfn_caller() to the function .meminit.text:me=
 mblock_is_map_memory()
-    1    WARNING: vmlinux.o(.text+0x7ecc): Section mismatch in reference fr=
+    2    WARNING: vmlinux.o(.text+0x7ecc): Section mismatch in reference fr=
 om the function __arm_ioremap_pfn_caller() to the function .meminit.text:me=
 mblock_is_map_memory()
-    1    WARNING: vmlinux.o(.text+0x7530): Section mismatch in reference fr=
+    2    WARNING: vmlinux.o(.text+0x7530): Section mismatch in reference fr=
 om the function __arm_ioremap_pfn_caller() to the function .meminit.text:me=
 mblock_is_map_memory()
 
@@ -205,6 +208,16 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
+allnoconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section =
+mismatches
+
+Warnings:
+    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
 allnoconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
 ismatches
 
@@ -217,16 +230,6 @@ Warnings:
     arch/x86/entry/entry_64.S:1732: Warning: no instruction mnemonic suffix=
  given and no register operands; using default for `sysret'
     ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
-
----------------------------------------------------------------------------=
------
-allnoconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section =
-mismatches
-
-Warnings:
-    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
 y section `.head.text'
     ld: warning: creating DT_TEXTREL in a PIE
 
@@ -433,6 +436,16 @@ dd_memory_region()
 decstation_r4k_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warning=
 s, 0 section mismatches
 
+Section mismatches:
+    WARNING: vmlinux.o(.text.unlikely+0x349c): Section mismatch in referenc=
+e from the function pmax_setup_memory_region() to the function .init.text:a=
+dd_memory_region()
+
+---------------------------------------------------------------------------=
+-----
+defconfig (riscv, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
 ---------------------------------------------------------------------------=
 -----
 defconfig (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section m=
@@ -443,11 +456,6 @@ Warnings:
 nteger of different size [-Wpointer-to-int-cast]
     arch/arm64/include/asm/memory.h:238:15: warning: cast from pointer to i=
 nteger of different size [-Wpointer-to-int-cast]
-
----------------------------------------------------------------------------=
------
-defconfig (riscv, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1180,18 +1188,6 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section=
- mismatches
-
-Warnings:
-    arch/x86/entry/entry_64.S:1732: Warning: no instruction mnemonic suffix=
- given and no register operands; using default for `sysret'
-    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
-
----------------------------------------------------------------------------=
------
 tinyconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
 smatches
 
@@ -1202,6 +1198,18 @@ ismatches
 
 Warnings:
     ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section=
+ mismatches
+
+Warnings:
+    arch/x86/entry/entry_64.S:1732: Warning: no instruction mnemonic suffix=
+ given and no register operands; using default for `sysret'
+    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
 y section `.head.text'
     ld: warning: creating DT_TEXTREL in a PIE
 
