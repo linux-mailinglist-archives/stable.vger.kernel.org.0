@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2017F4FC0BE
+	by mail.lfdr.de (Postfix) with ESMTP id D416E4FC0C1
 	for <lists+stable@lfdr.de>; Mon, 11 Apr 2022 17:32:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244647AbiDKPeP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Apr 2022 11:34:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41724 "EHLO
+        id S1347836AbiDKPeQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Apr 2022 11:34:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42022 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348167AbiDKPdO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 11:33:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDE7E33E22
-        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 08:30:58 -0700 (PDT)
+        with ESMTP id S1348191AbiDKPdT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 11:33:19 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9034133E9B
+        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 08:31:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3456361504
-        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 15:30:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B577C385A3;
-        Mon, 11 Apr 2022 15:30:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2CB6DB816A7
+        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 15:31:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 532C0C385A4;
+        Mon, 11 Apr 2022 15:31:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649691057;
-        bh=oa4oTCngkKY4dRkbuZAyUJfsvr98qdlPOAvznKawfHU=;
+        s=korg; t=1649691060;
+        bh=4b5f40oMhgYSGDqJG64j7nAgwRQsGPYnQ5i/9TFxdco=;
         h=Subject:To:Cc:From:Date:From;
-        b=qmUP9FDXajk8T+acODLtxfuOnAreFxtVDAsZUo4g5CZMrpG9N0RbqeOOR0eBo1Pt6
-         B5ldIv/P5wUh960EqXj46HHtS4dG+WqIorCxEahVTsFlZqRYh4qU9D4ihy4So2Kz+S
-         Z/BegICXzfrX1MU34igaF/5S8TtRAjWT7HGO4+YU=
-Subject: FAILED: patch "[PATCH] static_call: Don't make __static_call_return0 static" failed to apply to 5.16-stable tree
+        b=DfDte57/2p3SIjubLumt5LrHHnt5sMA2Xz3b3LsvqTcWFG8Kn8lFVmbdxyqiNWu9N
+         MFdIWsOnBtXwvMOCcdIanoyRj77amAhC1mi+AmDttU+ThwiXGvG7kB2MRE9rlcXTDj
+         4AtsHIUo+zALixI86mA/cdMBJfT0WAvIhKpLJD/8=
+Subject: FAILED: patch "[PATCH] static_call: Don't make __static_call_return0 static" failed to apply to 5.15-stable tree
 To:     christophe.leroy@csgroup.eu, jpoimboe@redhat.com,
         peterz@infradead.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 11 Apr 2022 17:30:50 +0200
-Message-ID: <1649691050197237@kroah.com>
+Date:   Mon, 11 Apr 2022 17:30:53 +0200
+Message-ID: <1649691053122146@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.16-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
