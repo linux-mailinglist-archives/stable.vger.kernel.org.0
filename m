@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 64DE44FB4EA
-	for <lists+stable@lfdr.de>; Mon, 11 Apr 2022 09:33:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 563934FB4F6
+	for <lists+stable@lfdr.de>; Mon, 11 Apr 2022 09:33:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245464AbiDKHeQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Apr 2022 03:34:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50726 "EHLO
+        id S242696AbiDKHe2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Apr 2022 03:34:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51320 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245469AbiDKHeP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 03:34:15 -0400
+        with ESMTP id S245469AbiDKHe1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 03:34:27 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C3AD3D4A5
-        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 00:32:02 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEC933D4A2
+        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 00:32:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 326DB6145D
-        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 07:32:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3605EC385A3;
-        Mon, 11 Apr 2022 07:32:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6B3A661449
+        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 07:32:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EAB6C385A5;
+        Mon, 11 Apr 2022 07:32:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649662321;
-        bh=Xo8Y7L/7sd7+90a9T/37uD8eUE2n/wyMtG/kgn51zGA=;
+        s=korg; t=1649662332;
+        bh=hIuRAoykLqp70bAI53kz7UiKf5uzAkmj9htOZ7m76O4=;
         h=Subject:To:Cc:From:Date:From;
-        b=iCpyNOQCcXp7Kl3j+Kc+rWvqKm5BZR0h1eUfeiSj2YnaKuhr2PTvlTDu8iskAoxWt
-         TLjyeMTF2GzVBTc2V5AWEitF6NZnZMYU+/+im4GNCaG0LHIbjnygyAYM8vQIql68hY
-         ogM6dNpZyiE6NpLqIamTEt8QpWHL2ttKJroG4fKc=
-Subject: FAILED: patch "[PATCH] scsi: lpfc: Fix broken SLI4 abort path" failed to apply to 5.17-stable tree
+        b=R3pmSygbwNp5wZyMIJo+NcIzCx5HoIOiVIqBoxn5YY/ghde6+Tb4Nl7uEjFQzmX0A
+         4mxv+0slx06LuBcFEzvlSv2uYZKyMI+KVT3vNbtP+R44JlyNTH9UVZfsHuWInUUEqf
+         xar4V79rh3IY7moAoY86xRTELItprKL7dfYsUvrs=
+Subject: FAILED: patch "[PATCH] scsi: lpfc: Fix broken SLI4 abort path" failed to apply to 5.15-stable tree
 To:     jsmart2021@gmail.com, dick.kennedy@broadcom.com,
         martin.petersen@oracle.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 11 Apr 2022 09:31:58 +0200
-Message-ID: <164966231884128@kroah.com>
+Date:   Mon, 11 Apr 2022 09:31:59 +0200
+Message-ID: <164966231911081@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.17-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
