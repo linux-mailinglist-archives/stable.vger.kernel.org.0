@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A9D634FC0FD
+	by mail.lfdr.de (Postfix) with ESMTP id F1F8F4FC0FE
 	for <lists+stable@lfdr.de>; Mon, 11 Apr 2022 17:36:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348059AbiDKPi7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Apr 2022 11:38:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57994 "EHLO
+        id S1348061AbiDKPjA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Apr 2022 11:39:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57986 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348077AbiDKPi5 (ORCPT
+        with ESMTP id S1348050AbiDKPi5 (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 11:38:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A82393A715
-        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 08:36:41 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E25553A71A
+        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 08:36:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 33D1EB816C8
-        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 15:36:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97147C385A4;
-        Mon, 11 Apr 2022 15:36:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 69AC9610F4
+        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 15:36:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6ED37C385A4;
+        Mon, 11 Apr 2022 15:36:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649691399;
-        bh=2KGDaLr6Gy8CNFZzh7nqhoNbK8sIMMJWBeyElgLxz/o=;
+        s=korg; t=1649691401;
+        bh=D0XMs4UhHX/G50u6UYbaUEcdULKjtxqDhI6qXI2rAzw=;
         h=Subject:To:Cc:From:Date:From;
-        b=p+R3PkKAbflbm5ocHpMX7C+/gbOczMv9m1qf6vY1178s+Nh+y3zZYWMPm5cg7ro2h
-         R7Iu6FI4XmqyegbQVgNQsiLirDTuZVWJiRui4qij1jpFoBVu++ekf3i5tSy6RSkdEi
-         np4TQJi9d/5FgX/bXK5Zox+qIn3oDBDJTQAyklJ8=
-Subject: FAILED: patch "[PATCH] ice: Fix broken IFF_ALLMULTI handling" failed to apply to 5.15-stable tree
+        b=ezsU9lTFs+2IKduG659Z1GoyZ+F5UM9cABt44bHd0F54s2AnO34RzdS/PoYocEox3
+         i6gbyOJyiyLIfiDvKFouDhotJPuCIU1lPyfU373MfpTb4ntSnpCXyN1mCxAeIkHwHy
+         vM/+b40VDvnMNHhhZrzgiBsRgSaEgG8fZntUGl9w=
+Subject: FAILED: patch "[PATCH] ice: Fix broken IFF_ALLMULTI handling" failed to apply to 5.10-stable tree
 To:     ivecera@redhat.com, alice.michael@intel.com, davem@davemloft.net,
         jacob.e.keller@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 11 Apr 2022 17:36:32 +0200
-Message-ID: <164969139221115@kroah.com>
+Date:   Mon, 11 Apr 2022 17:36:35 +0200
+Message-ID: <16496913956250@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
