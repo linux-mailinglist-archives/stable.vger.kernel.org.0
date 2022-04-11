@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 015AF4FB409
-	for <lists+stable@lfdr.de>; Mon, 11 Apr 2022 08:53:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F1904FB40A
+	for <lists+stable@lfdr.de>; Mon, 11 Apr 2022 08:53:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245095AbiDKGzu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Apr 2022 02:55:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56778 "EHLO
+        id S245096AbiDKGz4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Apr 2022 02:55:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56828 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236025AbiDKGzs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 02:55:48 -0400
+        with ESMTP id S236025AbiDKGzy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 02:55:54 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB14D205F9
-        for <stable@vger.kernel.org>; Sun, 10 Apr 2022 23:53:35 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0F7E205F9
+        for <stable@vger.kernel.org>; Sun, 10 Apr 2022 23:53:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 918E6B80D1F
-        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 06:53:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB58CC385A3;
-        Mon, 11 Apr 2022 06:53:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 74774B810FD
+        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 06:53:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE865C385A3;
+        Mon, 11 Apr 2022 06:53:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649660013;
-        bh=fUG0PXV3GMgyc6qNxmQ01d9Vyj/8viPr3GEx2Dnw1iw=;
+        s=korg; t=1649660019;
+        bh=zOVvyKnzDQhTsygympmXbzFbyBDE2wGTR5SBA4mAaks=;
         h=Subject:To:Cc:From:Date:From;
-        b=za9oEkgrE20ssortuZpIAlEw/df3lCUSvL908Ha/C527pWFUy7vl2UOFKV3ZP84Gg
-         MwzylBBJHam12XDAfBhp2Ko64m0YjOoRBXMHEor1J1x55SxTIYowcfZYdf0Cebt8ny
-         Lg6NHzmUyiy9jaU3YjvuL9paN/pZ0Bacx8H8pdFs=
-Subject: FAILED: patch "[PATCH] arm64: Add part number for Arm Cortex-A78AE" failed to apply to 4.19-stable tree
+        b=zdNuCJ+MZitBcA0X08ZwIwf9UDPtcWNXk1Dt8293+vI924pMkl0GJzQ88RSnyYKyb
+         t9Q3/2m4gUrWqY9WXTEHaC9vREqfL4p2/E4PpHFc1/LwaPTC7h85pDbS4OzMYnSRfJ
+         iiN74b2ymwZv5pGn+nRSCCtpZBCY4h1bC5RMRSBs=
+Subject: FAILED: patch "[PATCH] arm64: Add part number for Arm Cortex-A78AE" failed to apply to 5.4-stable tree
 To:     chanho61.park@samsung.com, catalin.marinas@arm.com,
         james.morse@arm.com, mark.rutland@arm.com, will@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 11 Apr 2022 08:53:22 +0200
-Message-ID: <164966000210964@kroah.com>
+Date:   Mon, 11 Apr 2022 08:53:24 +0200
+Message-ID: <16496600042393@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
