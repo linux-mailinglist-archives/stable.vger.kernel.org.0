@@ -2,44 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BD314FBF68
-	for <lists+stable@lfdr.de>; Mon, 11 Apr 2022 16:42:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F3EA34FBF6E
+	for <lists+stable@lfdr.de>; Mon, 11 Apr 2022 16:44:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347378AbiDKOof (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Apr 2022 10:44:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34076 "EHLO
+        id S1347390AbiDKOqO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Apr 2022 10:46:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35012 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234947AbiDKOof (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 10:44:35 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA5BA30E
-        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 07:42:20 -0700 (PDT)
+        with ESMTP id S1344434AbiDKOqM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 10:46:12 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3299613CC8;
+        Mon, 11 Apr 2022 07:43:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7FAEDB81642
-        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 14:42:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC042C385A4;
-        Mon, 11 Apr 2022 14:42:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BD42FB81643;
+        Mon, 11 Apr 2022 14:43:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F802C385A4;
+        Mon, 11 Apr 2022 14:43:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649688138;
-        bh=X33M4aSP+1AYTJp820uVouTUaNHVVSXtmfkPWqUs2Os=;
+        s=korg; t=1649688235;
+        bh=Y3EfVQNNBs/0MytQNTHPYHrnCnnhOOTpdF06Qx+ClDs=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Gv1yrEuKOSAjPAlEv+Uh0HiG3RP1Oox7IJTkwESEdKlvXyS6f8LiBqtCgQ6/BzinE
-         4MyprNM8yTVV6dV6Z6e0WzHEEGJhOf8b8JNMf3RPr73xQhFjEEVBus22bR6TRpj8V1
-         nsq7pUnC9w6vAROuA+Kgpo5iMmQIX0xRlyiQqPGw=
-Date:   Mon, 11 Apr 2022 16:42:12 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Ovidiu Panait <ovidiu.panait@windriver.com>
-Cc:     stable@vger.kernel.org, tj@kernel.org, mkoutny@suse.com
-Subject: Re: [PATCH 5.10 0/5] cgroup: backports for CVE-2021-4197
-Message-ID: <YlQ+REbLLewnuCBO@kroah.com>
-References: <20220407072135.32441-1-ovidiu.panait@windriver.com>
+        b=faIHQj3pWM2LzvbpuXQNvIWWFousJEmGccimQP3wvJDnViaZpU8gaABucJE5IOd10
+         lyj+GTG4jX+avK4cSmQNRBgrfC6RE2tG2Cnw9IR+kAN8rUPdPqhEFP+QDsIgKq9u1q
+         sFnyo4j+QdblCzuPSmMZ5i7B0Wvr/zuMAAiTtHew=
+Date:   Mon, 11 Apr 2022 16:43:53 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Valentin Kleibel <valentin@vrvis.at>
+Cc:     stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        Justin Sanders <justin@coraid.com>, linux-block@vger.kernel.org
+Subject: Re: [PATCH v2 1/2] block: add blk_alloc_disk and blk_cleanup_disk
+ APIs
+Message-ID: <YlQ+qUjLjg5p33II@kroah.com>
+References: <c274db07-9c7d-d857-33ad-4a762819bcdd@vrvis.at>
+ <YinpIKY0HVlJ+TLR@kroah.com>
+ <50ddedf1-5ac3-91c3-0b50-645ceb541071@vrvis.at>
+ <YinufgnQtSeTA18w@kroah.com>
+ <9dd4a25a-7deb-fcdf-0c05-d37d4c894d86@vrvis.at>
+ <Yi8jO3Q+xbPx0JwF@kroah.com>
+ <b19953f8-2097-6962-eceb-5d41f4639ce4@vrvis.at>
+ <ab7167b6-8ea5-fd4a-66ea-b8aa93f68ee2@vrvis.at>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20220407072135.32441-1-ovidiu.panait@windriver.com>
+In-Reply-To: <ab7167b6-8ea5-fd4a-66ea-b8aa93f68ee2@vrvis.at>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -50,79 +58,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Apr 07, 2022 at 10:21:30AM +0300, Ovidiu Panait wrote:
-> CVE-2021-4197 patchset consists of:
-> [1] 1756d7994ad8 ("cgroup: Use open-time credentials for process migraton perm checks")
-> [2] 0d2b5955b362 ("cgroup: Allocate cgroup_file_ctx for kernfs_open_file->priv")
-> [3] e57457641613 ("cgroup: Use open-time cgroup namespace for process migration perm checks")
-> [4] b09c2baa5634 ("selftests: cgroup: Make cg_create() use 0755 for permission instead of 0644")
-> [5] 613e040e4dc2 ("selftests: cgroup: Test open-time credential usage for migration checks")
-> [6] bf35a7879f1d ("selftests: cgroup: Test open-time cgroup namespace usage for migration checks")
+On Thu, Mar 31, 2022 at 12:00:08PM +0200, Valentin Kleibel wrote:
+> Add two new APIs to allocate and free a gendisk including the
+> request_queue for use with BIO based drivers.  This is to avoid
+> boilerplate code in drivers.
 > 
-> Commits [2] and [3] are already preent in 5.10-stable, this patchset includes
-> backports for the other commits.
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> Reviewed-by: Hannes Reinecke <hare@suse.de>
+> Reviewed-by: Ulf Hansson <ulf.hansson@linaro.org>
+> Link: https://lore.kernel.org/r/20210521055116.1053587-6-hch@lst.de
+> Signed-off-by: Jens Axboe <axboe@kernel.dk>
+> (cherry picked from commit f525464a8000f092c20b00eead3eaa9d849c599e)
+> Fixes: 3582dd291788 (aoe: convert aoeblk to blk-mq)
+> Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=215647
+> Signed-off-by: Valentin Kleibel <valentin@vrvis.at>
+> ---
+>  block/genhd.c         | 15 +++++++++++++++
+>  include/linux/genhd.h |  1 +
+>  2 files changed, 16 insertions(+)
 > 
-> Backport summary
-> ----------------
-> 1756d7994ad8 ("cgroup: Use open-time credentials for process migraton perm checks")
-> 	* Refactoring commit da70862efe006 ("cgroup: cgroup.{procs,threads}
-> 	  factor out common parts") is not present in kernel versions < 5.12,
-> 	  so the original changes to __cgroup_procs_write() had to be applied
-> 	  in both cgroup_threads_write() and cgroup_procs_write() functions.
+> diff --git a/block/genhd.c b/block/genhd.c
+> index 796baf761202..421cad085502 100644
+> --- a/block/genhd.c
+> +++ b/block/genhd.c
+> @@ -1836,6 +1836,21 @@ void put_disk_and_module(struct gendisk *disk)
+>         }
+>  }
+>  EXPORT_SYMBOL(put_disk_and_module);
+> +/**
+> + * blk_cleanup_disk - shutdown a gendisk allocated by blk_alloc_disk
+> + * @disk: gendisk to shutdown
+> + *
+> + * Mark the queue hanging off @disk DYING, drain all pending requests, then
+> mark
+> + * the queue DEAD, destroy and put it and the gendisk structure.
+> + *
+> + * Context: can sleep
+> + */
+> +void blk_cleanup_disk(struct gendisk *disk)
+> +{
+> +       blk_cleanup_queue(disk->queue);
+> +       put_disk(disk);
+> +}
+> +EXPORT_SYMBOL(blk_cleanup_disk);
 > 
-> c2e46f6b3e35 ("selftests/cgroup: Fix build on older distros")
-> 	* This extra commit was added to fix the following selftest build
-> 	  failure, applies cleanly:
-> 	  ...
-> 	  cgroup_util.c: In function ‘clone_into_cgroup’:
-> 	  group_util.c:343:4: error: ‘struct clone_args’ has no member named ‘cgroup’
-> 	  343 |   .cgroup = cgroup_fd,
-> 	  |    ^~~~~~
+>  static void set_disk_ro_uevent(struct gendisk *gd, int ro)
+>  {
+> diff --git a/include/linux/genhd.h b/include/linux/genhd.h
+> index 03da3f603d30..b7b180d3734a 100644
+> --- a/include/linux/genhd.h
+> +++ b/include/linux/genhd.h
+> @@ -369,6 +369,7 @@ extern void blk_unregister_region(dev_t devt, unsigned
+> long range);
+>  #define alloc_disk(minors) alloc_disk_node(minors, NUMA_NO_NODE)
 > 
-> All other selftest changes are clean cherry-picks.
+>  int register_blkdev(unsigned int major, const char *name);
+> +void blk_cleanup_disk(struct gendisk *disk);
+>  void unregister_blkdev(unsigned int major, const char *name);
 > 
-> Testing
-> -------
-> The newly introduced selftests (test_cgcore_lesser_euid_open() and
-> test_cgcore_lesser_ns_open()) pass with this series applied:
-> 
-> root@intel-x86-64:~# ./test_core
-> ok 1 test_cgcore_internal_process_constraint
-> ok 2 test_cgcore_top_down_constraint_enable
-> ok 3 test_cgcore_top_down_constraint_disable
-> ok 4 test_cgcore_no_internal_process_constraint_os
-> ok 5 test_cgcore_parent_becomes_threaded
-> ok 6 test_cgcore_invalid_domain
-> ok 7 test_cgcore_populated
-> ok 8 test_cgcore_proc_migration
-> ok 9 test_cgcore_thread_migration
-> ok 10 test_cgcore_destroy
-> ok 11 test_cgcore_lesser_euid_open
-> ok 12 test_cgcore_lesser_ns_open
-> 
-> 
-> Sachin Sant (1):
->   selftests/cgroup: Fix build on older distros
-> 
-> Tejun Heo (4):
->   cgroup: Use open-time credentials for process migraton perm checks
->   selftests: cgroup: Make cg_create() use 0755 for permission instead of
->     0644
->   selftests: cgroup: Test open-time credential usage for migration
->     checks
->   selftests: cgroup: Test open-time cgroup namespace usage for migration
->     checks
-> 
->  kernel/cgroup/cgroup-v1.c                    |   7 +-
->  kernel/cgroup/cgroup.c                       |  17 +-
->  tools/testing/selftests/cgroup/cgroup_util.c |   6 +-
->  tools/testing/selftests/cgroup/test_core.c   | 165 +++++++++++++++++++
->  4 files changed, 188 insertions(+), 7 deletions(-)
-> 
-> -- 
-> 2.25.1
-> 
+>  void revalidate_disk_size(struct gendisk *disk, bool verbose);
 
-All now queued up, thanks.
+This backport looks to be incomplete, and is also totally whitespace
+damaged and can not be applied at all :(
+
+Please fix both up and resend.
+
+thanks,
 
 greg k-h
