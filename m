@@ -2,66 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E06E4FC539
-	for <lists+stable@lfdr.de>; Mon, 11 Apr 2022 21:39:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CB724FC54D
+	for <lists+stable@lfdr.de>; Mon, 11 Apr 2022 21:50:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349694AbiDKTlX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Apr 2022 15:41:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46348 "EHLO
+        id S1349750AbiDKTwo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Apr 2022 15:52:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39788 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349693AbiDKTlW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 15:41:22 -0400
-Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C5D5658F
-        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 12:39:06 -0700 (PDT)
-Received: by mail-pl1-x62c.google.com with SMTP id c23so14798722plo.0
-        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 12:39:06 -0700 (PDT)
+        with ESMTP id S1349738AbiDKTwg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 15:52:36 -0400
+Received: from mail-io1-xd30.google.com (mail-io1-xd30.google.com [IPv6:2607:f8b0:4864:20::d30])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84C17275CC
+        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 12:50:18 -0700 (PDT)
+Received: by mail-io1-xd30.google.com with SMTP id q11so19992678iod.6
+        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 12:50:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=m80lg+9iNbw/UjgorazphYn8/uBQ0EZiwZIUiI1/wzE=;
-        b=MEFfUzHcbiVBVQN4+v/Kgg1Dcxe2P5JHGMfIpzlDKQY/PUrgHHK6ohOQsm71AM5VOd
-         7be/AaxrESvAiVVFWixZQclXOOHSoW11Dw00N6pwwgaiRk/i55KpHqPkqlxRisyBsahZ
-         +CQide7fUx5rWwr3XUT58sFCBLSq6BR7xTO7YABuZ4mkKaVvGgTWjhTnYSsSPH1cucWO
-         RjK9O85O8a5HWyjJSWdMGeP3JOccUjAhXFcgPBKHWT+lmpQ2WFbeOb5HUFaHxBNNbZ2O
-         ATJblDI7KEX16K3SkwHWtAB5xLT/SBMcVNuXxrpTsqLhDsas72jKtt8XmDKSlQW72Dpv
-         /1kg==
+        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to;
+        bh=I5L9CkzdEdoeH8fpkOLjZdGMEHm//gFXixL/Cq9i9Wc=;
+        b=PM3lJ00jVWTCYSvJOrXV+/9GNpNPFbr/bc7CmzxrxXR6ZYOlwCQlUnHjiFoafcIFWi
+         S/gRMbFDuVX/IGj3ea6ifGX2mSZcD2RC3Z/XXuKiJ+VXgcRyhJhmRJgxyplv35lYlFy3
+         s7Iuc1MdeYb8PfMWMVCKiDzvr8FL1SiYdK6SiUTEj7HbR6dQ7oCt1htIr5FOn1lNDEXt
+         IU8Cg6BpEeSreL10/jUMtBaycgaC+35D3J1DdM6ulVRfNPq2jylCdCgd1znHbPoW3Zb4
+         CMbvnK5qwZMMQ3nSdI+ahYH3wEPycmjs6ACuqip0JJnkmjTAIo9X7Uwmu5mMcHhIfEQU
+         QTNw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=m80lg+9iNbw/UjgorazphYn8/uBQ0EZiwZIUiI1/wzE=;
-        b=H3lgcD1A9Cc3Wyqonun2QNF975NhqN+1zNT4Hh98ISxsmhhzxGdELdZ+d/Utund9Lp
-         ig32BNI5yR8z8fxtuWkeN43xy4c0EhNA4pszb/c8WEyHyl9LP4mZEiZIj5WMWK5X36Lj
-         m4kC1wOA6u5oLx32PVp2CLqwJqCVlt68tOpnOOWiaa79o9WxhjeIiW8nza46v6LS3RJB
-         pPSR5C6N+PyiKAVU6ykk5IIpXQFWPv63xZEDprcoWit18tgCJAvOmYkGgsmwMKRZKDiH
-         1vEW73NlKqDvqqvx5mq4nr38uCm4PdDC5FntG/4Tf106cNgBxpsFgiumGrkS22gW5VkQ
-         pKXg==
-X-Gm-Message-State: AOAM531JlCvPulIrEdiIsS6w6bAbSUyVZJGd6p3HHnVDhtniGUPapT4p
-        lKwVHnGVtiKsqQak5MAUWajpYkn8dEpKb+st
-X-Google-Smtp-Source: ABdhPJwn05AZKWnvGUIQ8Oo+apVcitce4E1sqGVhF3wzcc7N1YUlbUWLVQzezDL3xArP5VjMOHDbVg==
-X-Received: by 2002:a17:902:d5c3:b0:154:c472:de80 with SMTP id g3-20020a170902d5c300b00154c472de80mr34164394plh.87.1649705945810;
-        Mon, 11 Apr 2022 12:39:05 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id e13-20020a63370d000000b003810782e0cdsm485616pga.56.2022.04.11.12.39.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 11 Apr 2022 12:39:05 -0700 (PDT)
-Message-ID: <625483d9.1c69fb81.54132.1a5c@mx.google.com>
-Date:   Mon, 11 Apr 2022 12:39:05 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to;
+        bh=I5L9CkzdEdoeH8fpkOLjZdGMEHm//gFXixL/Cq9i9Wc=;
+        b=2UY5w4qngLsYmdUUAIqjabU6V8IsTjtmTslnlNWJMzetKf3YWkgsFq7EQfVsGVR95R
+         n+GArRrS/SeCWdRSWiek8xn94559D/geTIwKTso1J3MHCwK7qff48IJuiHNJaxFI2K2u
+         q0iUyjAIofqGJ5L6LZH00cRnBRv4tUtjA5xzdAyxFculgnBcnzm8mzP3pbPz/AflKub7
+         DlxwY2R2/EHF8NHl3i3NceFnGftSQ65+XMlHKs35t7eAjp1PmO3EPEiqily9ug4KlnSj
+         t8KhY1FZazih6XQeNBKUKR9H1QN3a57BKTErKK0jyadq1HM+sc45nl+3YfVI3ekyunMe
+         R0Gw==
+X-Gm-Message-State: AOAM533qwggJVrtt6u6DQR7JL78xeITlT3SW1qkvE7rsleK8bNazUflk
+        m3gW8IGvsN5afi8czZsryZRSkQ==
+X-Google-Smtp-Source: ABdhPJxIcs+HXe7NFDjG5fwJQ1IFksDfeXYoht1TEcb/nYTnfjkdpLHmdHOWUKvkiw+htlmUc9/B5A==
+X-Received: by 2002:a02:ccbb:0:b0:326:2c92:ad6b with SMTP id t27-20020a02ccbb000000b003262c92ad6bmr4160058jap.23.1649706617817;
+        Mon, 11 Apr 2022 12:50:17 -0700 (PDT)
+Received: from [192.168.1.172] ([207.135.234.126])
+        by smtp.gmail.com with ESMTPSA id a10-20020a92d34a000000b002ca7c6b6291sm8209879ilh.6.2022.04.11.12.50.16
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 11 Apr 2022 12:50:16 -0700 (PDT)
+Content-Type: multipart/mixed; boundary="------------chVLQTDPCqwNbpDkISBZLAk7"
+Message-ID: <5e7dc467-9736-5ae7-b198-3830a544d51d@kernel.dk>
+Date:   Mon, 11 Apr 2022 13:50:16 -0600
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-5.4.y
-X-Kernelci-Kernel: v5.4.188
-X-Kernelci-Report-Type: test
-Subject: stable-rc/linux-5.4.y baseline: 252 runs, 13 regressions (v5.4.188)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+User-Agent: Mozilla/5.0 (X11; Linux aarch64; rv:91.0) Gecko/20100101
+ Thunderbird/91.7.0
+Subject: Re: FAILED: patch "[PATCH] io_uring: move read/write file prep state
+ into actual opcode" failed to apply to 5.17-stable tree
+Content-Language: en-US
+To:     gregkh@linuxfoundation.org
+Cc:     stable@vger.kernel.org
+References: <1649663067150210@kroah.com>
+From:   Jens Axboe <axboe@kernel.dk>
+In-Reply-To: <1649663067150210@kroah.com>
+X-Spam-Status: No, score=-3.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
         T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -69,513 +70,531 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.4.y baseline: 252 runs, 13 regressions (v5.4.188)
-
-Regressions Summary
--------------------
-
-platform                 | arch  | lab           | compiler | defconfig    =
-              | regressions
--------------------------+-------+---------------+----------+--------------=
---------------+------------
-at91sam9g20ek            | arm   | lab-broonie   | gcc-10   | at91_dt_defco=
-nfig          | 1          =
-
-at91sam9g20ek            | arm   | lab-broonie   | gcc-10   | multi_v5_defc=
-onfig         | 1          =
-
-hifive-unleashed-a00     | riscv | lab-baylibre  | gcc-10   | defconfig    =
-              | 1          =
-
-qemu_arm-virt-gicv2-uefi | arm   | lab-baylibre  | gcc-10   | multi_v7_defc=
-onfig         | 1          =
-
-qemu_arm-virt-gicv2-uefi | arm   | lab-baylibre  | gcc-10   | multi_v7_defc=
-onfig         | 1          =
-
-qemu_arm-virt-gicv2-uefi | arm   | lab-broonie   | gcc-10   | multi_v7_defc=
-onfig         | 1          =
-
-qemu_arm-virt-gicv2-uefi | arm   | lab-broonie   | gcc-10   | multi_v7_defc=
-onfig         | 1          =
-
-qemu_arm-virt-gicv3-uefi | arm   | lab-baylibre  | gcc-10   | multi_v7_defc=
-onfig         | 1          =
-
-qemu_arm-virt-gicv3-uefi | arm   | lab-baylibre  | gcc-10   | multi_v7_defc=
-onfig         | 1          =
-
-qemu_arm-virt-gicv3-uefi | arm   | lab-broonie   | gcc-10   | multi_v7_defc=
-onfig         | 1          =
-
-qemu_arm-virt-gicv3-uefi | arm   | lab-broonie   | gcc-10   | multi_v7_defc=
-onfig         | 1          =
-
-rk3399-gru-kevin         | arm64 | lab-collabora | gcc-10   | defconfig+arm=
-64-chromebook | 1          =
-
-rk3399-gru-kevin         | arm64 | lab-collabora | gcc-10   | defconfig+arm=
-64-chromebook | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.4.y/kern=
-el/v5.4.188/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.4.y
-  Describe: v5.4.188
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      2845ff3fd34499603249676495c524a35e795b45 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform                 | arch  | lab           | compiler | defconfig    =
-              | regressions
--------------------------+-------+---------------+----------+--------------=
---------------+------------
-at91sam9g20ek            | arm   | lab-broonie   | gcc-10   | at91_dt_defco=
-nfig          | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/625452345beba27da2ae0689
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: at91_dt_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.188=
-/arm/at91_dt_defconfig/gcc-10/lab-broonie/baseline-at91sam9g20ek.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.188=
-/arm/at91_dt_defconfig/gcc-10/lab-broonie/baseline-at91sam9g20ek.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220401.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/625452345beba27da2ae0=
-68a
-        new failure (last pass: v5.4.188-368-ga24be10a1a9ef) =
-
- =
-
-
-
-platform                 | arch  | lab           | compiler | defconfig    =
-              | regressions
--------------------------+-------+---------------+----------+--------------=
---------------+------------
-at91sam9g20ek            | arm   | lab-broonie   | gcc-10   | multi_v5_defc=
-onfig         | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/625450e0dd6d7ed737ae0694
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v5_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.188=
-/arm/multi_v5_defconfig/gcc-10/lab-broonie/baseline-at91sam9g20ek.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.188=
-/arm/multi_v5_defconfig/gcc-10/lab-broonie/baseline-at91sam9g20ek.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220401.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/625450e0dd6d7ed737ae0=
-695
-        new failure (last pass: v5.4.188-368-ga24be10a1a9ef) =
-
- =
-
-
-
-platform                 | arch  | lab           | compiler | defconfig    =
-              | regressions
--------------------------+-------+---------------+----------+--------------=
---------------+------------
-hifive-unleashed-a00     | riscv | lab-baylibre  | gcc-10   | defconfig    =
-              | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6254501e0f5f5b679aae068e
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (riscv64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.188=
-/riscv/defconfig/gcc-10/lab-baylibre/baseline-hifive-unleashed-a00.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.188=
-/riscv/defconfig/gcc-10/lab-baylibre/baseline-hifive-unleashed-a00.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220401.0/riscv/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6254501e0f5f5b679aae0=
-68f
-        failing since 4 days (last pass: v5.4.188-371-g48b29a8f8ae0, first =
-fail: v5.4.188-368-ga24be10a1a9ef) =
-
- =
-
-
-
-platform                 | arch  | lab           | compiler | defconfig    =
-              | regressions
--------------------------+-------+---------------+----------+--------------=
---------------+------------
-qemu_arm-virt-gicv2-uefi | arm   | lab-baylibre  | gcc-10   | multi_v7_defc=
-onfig         | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6241bf98fc02f69164ae06f5
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.188=
-/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_arm-virt-gicv2-ue=
-fi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.188=
-/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_arm-virt-gicv2-ue=
-fi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220228.1/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6241bf98fc02f69164ae0=
-6f6
-        failing since 102 days (last pass: v5.4.165, first fail: v5.4.165-1=
-9-gb780ab989d60) =
-
- =
-
-
-
-platform                 | arch  | lab           | compiler | defconfig    =
-              | regressions
--------------------------+-------+---------------+----------+--------------=
---------------+------------
-qemu_arm-virt-gicv2-uefi | arm   | lab-baylibre  | gcc-10   | multi_v7_defc=
-onfig         | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/625452e1391a6660ecae069b
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.188=
-/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_arm-virt-gicv2-ue=
-fi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.188=
-/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_arm-virt-gicv2-ue=
-fi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220401.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/625452e1391a6660ecae0=
-69c
-        failing since 102 days (last pass: v5.4.165, first fail: v5.4.165-1=
-9-gb780ab989d60) =
-
- =
-
-
-
-platform                 | arch  | lab           | compiler | defconfig    =
-              | regressions
--------------------------+-------+---------------+----------+--------------=
---------------+------------
-qemu_arm-virt-gicv2-uefi | arm   | lab-broonie   | gcc-10   | multi_v7_defc=
-onfig         | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6241bfaddc555c1445ae06a5
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.188=
-/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm-virt-gicv2-uef=
-i.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.188=
-/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm-virt-gicv2-uef=
-i.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220228.1/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6241bfaddc555c1445ae0=
-6a6
-        failing since 102 days (last pass: v5.4.165, first fail: v5.4.165-1=
-9-gb780ab989d60) =
-
- =
-
-
-
-platform                 | arch  | lab           | compiler | defconfig    =
-              | regressions
--------------------------+-------+---------------+----------+--------------=
---------------+------------
-qemu_arm-virt-gicv2-uefi | arm   | lab-broonie   | gcc-10   | multi_v7_defc=
-onfig         | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/625452d105309c006aae06c0
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.188=
-/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm-virt-gicv2-uef=
-i.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.188=
-/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm-virt-gicv2-uef=
-i.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220401.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/625452d105309c006aae0=
-6c1
-        failing since 102 days (last pass: v5.4.165, first fail: v5.4.165-1=
-9-gb780ab989d60) =
-
- =
-
-
-
-platform                 | arch  | lab           | compiler | defconfig    =
-              | regressions
--------------------------+-------+---------------+----------+--------------=
---------------+------------
-qemu_arm-virt-gicv3-uefi | arm   | lab-baylibre  | gcc-10   | multi_v7_defc=
-onfig         | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6241bf6029449ce9e7ae06aa
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.188=
-/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_arm-virt-gicv3-ue=
-fi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.188=
-/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_arm-virt-gicv3-ue=
-fi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220228.1/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6241bf6029449ce9e7ae0=
-6ab
-        failing since 102 days (last pass: v5.4.165, first fail: v5.4.165-1=
-9-gb780ab989d60) =
-
- =
-
-
-
-platform                 | arch  | lab           | compiler | defconfig    =
-              | regressions
--------------------------+-------+---------------+----------+--------------=
---------------+------------
-qemu_arm-virt-gicv3-uefi | arm   | lab-baylibre  | gcc-10   | multi_v7_defc=
-onfig         | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/625452e0ef4d73a288ae0685
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.188=
-/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_arm-virt-gicv3-ue=
-fi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.188=
-/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_arm-virt-gicv3-ue=
-fi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220401.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/625452e0ef4d73a288ae0=
-686
-        failing since 102 days (last pass: v5.4.165, first fail: v5.4.165-1=
-9-gb780ab989d60) =
-
- =
-
-
-
-platform                 | arch  | lab           | compiler | defconfig    =
-              | regressions
--------------------------+-------+---------------+----------+--------------=
---------------+------------
-qemu_arm-virt-gicv3-uefi | arm   | lab-broonie   | gcc-10   | multi_v7_defc=
-onfig         | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6241bf707f152da392ae06b9
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.188=
-/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm-virt-gicv3-uef=
-i.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.188=
-/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm-virt-gicv3-uef=
-i.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220228.1/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6241bf707f152da392ae0=
-6ba
-        failing since 102 days (last pass: v5.4.165, first fail: v5.4.165-1=
-9-gb780ab989d60) =
-
- =
-
-
-
-platform                 | arch  | lab           | compiler | defconfig    =
-              | regressions
--------------------------+-------+---------------+----------+--------------=
---------------+------------
-qemu_arm-virt-gicv3-uefi | arm   | lab-broonie   | gcc-10   | multi_v7_defc=
-onfig         | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/625452cfc45ab824f5ae0694
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.188=
-/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm-virt-gicv3-uef=
-i.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.188=
-/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm-virt-gicv3-uef=
-i.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220401.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/625452cfc45ab824f5ae0=
-695
-        failing since 102 days (last pass: v5.4.165, first fail: v5.4.165-1=
-9-gb780ab989d60) =
-
- =
-
-
-
-platform                 | arch  | lab           | compiler | defconfig    =
-              | regressions
--------------------------+-------+---------------+----------+--------------=
---------------+------------
-rk3399-gru-kevin         | arm64 | lab-collabora | gcc-10   | defconfig+arm=
-64-chromebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6241bfc4b0e7e37dacae06a9
-
-  Results:     88 PASS, 2 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.188=
-/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-rk3399-gru-=
-kevin.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.188=
-/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-rk3399-gru-=
-kevin.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220228.1/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
-/6241bfc4b0e7e37dacae06cb
-        failing since 22 days (last pass: v5.4.181-51-gb77a12b8d613, first =
-fail: v5.4.182-54-gf27af6bf3c32)
-
-    2022-03-28T14:01:12.555343  <8>[   31.772183] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-i2s0-probed RESULT=3Dpass>
-    2022-03-28T14:01:13.566814  /lava-5959525/1/../bin/lava-test-case
-    2022-03-28T14:01:13.575245  <8>[   32.793032] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-i2s1-probed RESULT=3Dfail>   =
-
- =
-
-
-
-platform                 | arch  | lab           | compiler | defconfig    =
-              | regressions
--------------------------+-------+---------------+----------+--------------=
---------------+------------
-rk3399-gru-kevin         | arm64 | lab-collabora | gcc-10   | defconfig+arm=
-64-chromebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62545121821bddcaf1ae06ac
-
-  Results:     88 PASS, 2 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.188=
-/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-rk3399-gru-=
-kevin.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.188=
-/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-rk3399-gru-=
-kevin.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220401.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
-/62545122821bddcaf1ae06ce
-        failing since 22 days (last pass: v5.4.181-51-gb77a12b8d613, first =
-fail: v5.4.182-54-gf27af6bf3c32)
-
-    2022-04-11T16:02:17.630160  <8>[   32.089390] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-i2s0-probed RESULT=3Dpass>
-    2022-04-11T16:02:18.641184  /lava-6063711/1/../bin/lava-test-case
-    2022-04-11T16:02:18.649866  <8>[   33.110067] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-i2s1-probed RESULT=3Dfail>   =
-
- =20
+This is a multi-part message in MIME format.
+--------------chVLQTDPCqwNbpDkISBZLAk7
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+On 4/11/22 1:44 AM, gregkh@linuxfoundation.org wrote:
+> 
+> The patch below does not apply to the 5.17-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
+
+Here's this one and the following ones marked for 5.17-stable. The first
+two it looks like you, this is the rest.
+
+-- 
+Jens Axboe
+
+--------------chVLQTDPCqwNbpDkISBZLAk7
+Content-Type: text/x-patch; charset=UTF-8;
+ name="0004-io_uring-drop-the-old-style-inflight-file-tracking.patch"
+Content-Disposition: attachment;
+ filename*0="0004-io_uring-drop-the-old-style-inflight-file-tracking.patc";
+ filename*1="h"
+Content-Transfer-Encoding: base64
+
+RnJvbSBlYzY3M2YwOWFmYWJhYWFkODhlODYxODdmNzA5NjJhYjRhNDU2OTQwIE1vbiBTZXAg
+MTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBKZW5zIEF4Ym9lIDxheGJvZUBrZXJuZWwuZGs+CkRh
+dGU6IFRodSwgMzEgTWFyIDIwMjIgMTI6Mzg6NDYgLTA2MDAKU3ViamVjdDogW1BBVENIIDQv
+NF0gaW9fdXJpbmc6IGRyb3AgdGhlIG9sZCBzdHlsZSBpbmZsaWdodCBmaWxlIHRyYWNraW5n
+Cgpjb21taXQgZDUzNjEyMzNlOWFiOTIwZTEzNTgxOWY3M2RkODQ2NjM1NWYxZmRkZCB1cHN0
+cmVhbS4KCmlvX3VyaW5nIHRyYWNrcyByZXF1ZXN0cyB0aGF0IGFyZSByZWZlcmVuY2luZyBh
+biBpb191cmluZyBkZXNjcmlwdG9yIHRvCmJlIGFibGUgdG8gY2FuY2VsIHdpdGhvdXQgd29y
+cnlpbmcgYWJvdXQgbG9vcHMgaW4gdGhlIHJlZmVyZW5jZXMuIFNpbmNlCndlIG5vdyBhc3Np
+Z24gdGhlIGZpbGUgYXQgZXhlY3V0aW9uIHRpbWUsIHRoZSBlYXNpZXIgYXBwcm9hY2ggaXMg
+dG8gZHJvcAphIHBvdGVudGlhbGx5IHByb2JsZW1hdGljIHJlZmVyZW5jZSBiZWZvcmUgd2Ug
+cHVudCB0aGUgcmVxdWVzdC4gVGhpcwplbGltaW5hdGVzIHRoZSBuZWVkIHRvIHNwZWNpYWwg
+Y2FzZSB0aGVzZSB0eXBlcyBvZiBmaWxlcyBiZXlvbmQganVzdAptYXJraW5nIHRoZW0gYXMg
+c3VjaCwgYW5kIHNpbXBsaWZpZXMgY2FuY2VsYXRpb24gcXVpdGUgYSBiaXQuCgpUaGlzIGFs
+c28gZml4ZXMgYSByZWNlbnQgaXNzdWUgd2hlcmUgYW4gYXN5bmMgcHVudGVkIHRlZSBvcGVy
+YXRpb24gd291bGQKd2l0aCB0aGUgaW9fdXJpbmcgZGVzY3JpcHRvciBhcyB0aGUgb3V0cHV0
+IGZpbGUgd291bGQgY3Jhc2ggd2hlbgphdHRlbXB0aW5nIHRvIGdldCBhIHJlZmVyZW5jZSB0
+byB0aGUgZmlsZSBmcm9tIHRoZSBpby13cSB3b3JrZXIuIFdlCmNvdWxkIGhhdmUgd29ya2Vk
+IGFyb3VuZCB0aGF0LCBidXQgdGhpcyBpcyB0aGUgbXVjaCBjbGVhbmVyIGZpeC4KCkZpeGVz
+OiA2YmY5YzQ3YTM5ODkgKCJpb191cmluZzogZGVmZXIgZmlsZSBhc3NpZ25tZW50IikKUmVw
+b3J0ZWQtYnk6IHN5emJvdCtjNGI5MzAzNTAwYTIxNzUwYjI1MEBzeXprYWxsZXIuYXBwc3Bv
+dG1haWwuY29tClNpZ25lZC1vZmYtYnk6IEplbnMgQXhib2UgPGF4Ym9lQGtlcm5lbC5kaz4K
+LS0tCiBmcy9pb191cmluZy5jIHwgODUgKysrKysrKysrKysrKysrKy0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tCiAxIGZpbGUgY2hhbmdlZCwgMjcgaW5zZXJ0aW9ucygr
+KSwgNTggZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvZnMvaW9fdXJpbmcuYyBiL2ZzL2lv
+X3VyaW5nLmMKaW5kZXggMzdjYzRiYjdhNjU3Li5jYzQwOTYzOTk4ZDkgMTAwNjQ0Ci0tLSBh
+L2ZzL2lvX3VyaW5nLmMKKysrIGIvZnMvaW9fdXJpbmcuYwpAQCAtMTEyLDggKzExMiw3IEBA
+CiAJCQlJT1NRRV9JT19EUkFJTiB8IElPU1FFX0NRRV9TS0lQX1NVQ0NFU1MpCiAKICNkZWZp
+bmUgSU9fUkVRX0NMRUFOX0ZMQUdTIChSRVFfRl9CVUZGRVJfU0VMRUNURUQgfCBSRVFfRl9O
+RUVEX0NMRUFOVVAgfCBcCi0JCQkJUkVRX0ZfUE9MTEVEIHwgUkVRX0ZfSU5GTElHSFQgfCBS
+RVFfRl9DUkVEUyB8IFwKLQkJCQlSRVFfRl9BU1lOQ19EQVRBKQorCQkJCVJFUV9GX1BPTExF
+RCB8IFJFUV9GX0NSRURTIHwgUkVRX0ZfQVNZTkNfREFUQSkKIAogI2RlZmluZSBJT19UQ1RY
+X1JFRlNfQ0FDSEVfTlIJKDFVIDw8IDEwKQogCkBAIC00NjksNyArNDY4LDYgQEAgc3RydWN0
+IGlvX3VyaW5nX3Rhc2sgewogCWNvbnN0IHN0cnVjdCBpb19yaW5nX2N0eCAqbGFzdDsKIAlz
+dHJ1Y3QgaW9fd3EJCSppb193cTsKIAlzdHJ1Y3QgcGVyY3B1X2NvdW50ZXIJaW5mbGlnaHQ7
+Ci0JYXRvbWljX3QJCWluZmxpZ2h0X3RyYWNrZWQ7CiAJYXRvbWljX3QJCWluX2lkbGU7CiAK
+IAlzcGlubG9ja190CQl0YXNrX2xvY2s7CkBAIC0xMTMxLDYgKzExMjksOCBAQCBzdGF0aWMg
+dm9pZCBpb19jbGVhbl9vcChzdHJ1Y3QgaW9fa2lvY2IgKnJlcSk7CiBzdGF0aWMgaW5saW5l
+IHN0cnVjdCBmaWxlICppb19maWxlX2dldF9maXhlZChzdHJ1Y3QgaW9fa2lvY2IgKnJlcSwg
+aW50IGZkLAogCQkJCQkgICAgIHVuc2lnbmVkIGlzc3VlX2ZsYWdzKTsKIHN0YXRpYyBpbmxp
+bmUgc3RydWN0IGZpbGUgKmlvX2ZpbGVfZ2V0X25vcm1hbChzdHJ1Y3QgaW9fa2lvY2IgKnJl
+cSwgaW50IGZkKTsKK3N0YXRpYyB2b2lkIGlvX2Ryb3BfaW5mbGlnaHRfZmlsZShzdHJ1Y3Qg
+aW9fa2lvY2IgKnJlcSk7CitzdGF0aWMgYm9vbCBpb19hc3NpZ25fZmlsZShzdHJ1Y3QgaW9f
+a2lvY2IgKnJlcSwgdW5zaWduZWQgaW50IGlzc3VlX2ZsYWdzKTsKIHN0YXRpYyB2b2lkIF9f
+aW9fcXVldWVfc3FlKHN0cnVjdCBpb19raW9jYiAqcmVxKTsKIHN0YXRpYyB2b2lkIGlvX3Jz
+cmNfcHV0X3dvcmsoc3RydWN0IHdvcmtfc3RydWN0ICp3b3JrKTsKIApAQCAtMTMxMiwyOSAr
+MTMxMiw5IEBAIHN0YXRpYyBib29sIGlvX21hdGNoX3Rhc2soc3RydWN0IGlvX2tpb2NiICpo
+ZWFkLCBzdHJ1Y3QgdGFza19zdHJ1Y3QgKnRhc2ssCiAJCQkgIGJvb2wgY2FuY2VsX2FsbCkK
+IAlfX211c3RfaG9sZCgmcmVxLT5jdHgtPnRpbWVvdXRfbG9jaykKIHsKLQlzdHJ1Y3QgaW9f
+a2lvY2IgKnJlcTsKLQogCWlmICh0YXNrICYmIGhlYWQtPnRhc2sgIT0gdGFzaykKIAkJcmV0
+dXJuIGZhbHNlOwotCWlmIChjYW5jZWxfYWxsKQotCQlyZXR1cm4gdHJ1ZTsKLQotCWlvX2Zv
+cl9lYWNoX2xpbmsocmVxLCBoZWFkKSB7Ci0JCWlmIChyZXEtPmZsYWdzICYgUkVRX0ZfSU5G
+TElHSFQpCi0JCQlyZXR1cm4gdHJ1ZTsKLQl9Ci0JcmV0dXJuIGZhbHNlOwotfQotCi1zdGF0
+aWMgYm9vbCBpb19tYXRjaF9saW5rZWQoc3RydWN0IGlvX2tpb2NiICpoZWFkKQotewotCXN0
+cnVjdCBpb19raW9jYiAqcmVxOwotCi0JaW9fZm9yX2VhY2hfbGluayhyZXEsIGhlYWQpIHsK
+LQkJaWYgKHJlcS0+ZmxhZ3MgJiBSRVFfRl9JTkZMSUdIVCkKLQkJCXJldHVybiB0cnVlOwot
+CX0KLQlyZXR1cm4gZmFsc2U7CisJcmV0dXJuIGNhbmNlbF9hbGw7CiB9CiAKIC8qCkBAIC0x
+MzQ0LDI0ICsxMzI0LDkgQEAgc3RhdGljIGJvb2wgaW9fbWF0Y2hfbGlua2VkKHN0cnVjdCBp
+b19raW9jYiAqaGVhZCkKIHN0YXRpYyBib29sIGlvX21hdGNoX3Rhc2tfc2FmZShzdHJ1Y3Qg
+aW9fa2lvY2IgKmhlYWQsIHN0cnVjdCB0YXNrX3N0cnVjdCAqdGFzaywKIAkJCSAgICAgICBi
+b29sIGNhbmNlbF9hbGwpCiB7Ci0JYm9vbCBtYXRjaGVkOwotCiAJaWYgKHRhc2sgJiYgaGVh
+ZC0+dGFzayAhPSB0YXNrKQogCQlyZXR1cm4gZmFsc2U7Ci0JaWYgKGNhbmNlbF9hbGwpCi0J
+CXJldHVybiB0cnVlOwotCi0JaWYgKGhlYWQtPmZsYWdzICYgUkVRX0ZfTElOS19USU1FT1VU
+KSB7Ci0JCXN0cnVjdCBpb19yaW5nX2N0eCAqY3R4ID0gaGVhZC0+Y3R4OwotCi0JCS8qIHBy
+b3RlY3QgYWdhaW5zdCByYWNlcyB3aXRoIGxpbmtlZCB0aW1lb3V0cyAqLwotCQlzcGluX2xv
+Y2tfaXJxKCZjdHgtPnRpbWVvdXRfbG9jayk7Ci0JCW1hdGNoZWQgPSBpb19tYXRjaF9saW5r
+ZWQoaGVhZCk7Ci0JCXNwaW5fdW5sb2NrX2lycSgmY3R4LT50aW1lb3V0X2xvY2spOwotCX0g
+ZWxzZSB7Ci0JCW1hdGNoZWQgPSBpb19tYXRjaF9saW5rZWQoaGVhZCk7Ci0JfQotCXJldHVy
+biBtYXRjaGVkOworCXJldHVybiBjYW5jZWxfYWxsOwogfQogCiBzdGF0aWMgaW5saW5lIGJv
+b2wgcmVxX2hhc19hc3luY19kYXRhKHN0cnVjdCBpb19raW9jYiAqcmVxKQpAQCAtMTUwOSwx
+NCArMTQ3NCw2IEBAIHN0YXRpYyBpbmxpbmUgYm9vbCBpb19yZXFfZmZzX3NldChzdHJ1Y3Qg
+aW9fa2lvY2IgKnJlcSkKIAlyZXR1cm4gcmVxLT5mbGFncyAmIFJFUV9GX0ZJWEVEX0ZJTEU7
+CiB9CiAKLXN0YXRpYyBpbmxpbmUgdm9pZCBpb19yZXFfdHJhY2tfaW5mbGlnaHQoc3RydWN0
+IGlvX2tpb2NiICpyZXEpCi17Ci0JaWYgKCEocmVxLT5mbGFncyAmIFJFUV9GX0lORkxJR0hU
+KSkgewotCQlyZXEtPmZsYWdzIHw9IFJFUV9GX0lORkxJR0hUOwotCQlhdG9taWNfaW5jKCZj
+dXJyZW50LT5pb191cmluZy0+aW5mbGlnaHRfdHJhY2tlZCk7Ci0JfQotfQotCiBzdGF0aWMg
+c3RydWN0IGlvX2tpb2NiICpfX2lvX3ByZXBfbGlua2VkX3RpbWVvdXQoc3RydWN0IGlvX2tp
+b2NiICpyZXEpCiB7CiAJaWYgKFdBUk5fT05fT05DRSghcmVxLT5saW5rKSkKQEAgLTIzODIs
+NiArMjMzOSw4IEBAIHN0YXRpYyB2b2lkIGlvX3JlcV90YXNrX3dvcmtfYWRkKHN0cnVjdCBp
+b19raW9jYiAqcmVxLCBib29sIHByaW9yaXR5KQogCiAJV0FSTl9PTl9PTkNFKCF0Y3R4KTsK
+IAorCWlvX2Ryb3BfaW5mbGlnaHRfZmlsZShyZXEpOworCiAJc3Bpbl9sb2NrX2lycXNhdmUo
+JnRjdHgtPnRhc2tfbG9jaywgZmxhZ3MpOwogCWlmIChwcmlvcml0eSkKIAkJd3FfbGlzdF9h
+ZGRfdGFpbCgmcmVxLT5pb190YXNrX3dvcmsubm9kZSwgJnRjdHgtPnByaW9yX3Rhc2tfbGlz
+dCk7CkBAIC01NTUwLDcgKzU1MDksMTAgQEAgc3RhdGljIGludCBpb19wb2xsX2NoZWNrX2V2
+ZW50cyhzdHJ1Y3QgaW9fa2lvY2IgKnJlcSwgYm9vbCBsb2NrZWQpCiAJCWlmICghcmVxLT5y
+ZXN1bHQpIHsKIAkJCXN0cnVjdCBwb2xsX3RhYmxlX3N0cnVjdCBwdCA9IHsgLl9rZXkgPSBw
+b2xsLT5ldmVudHMgfTsKIAotCQkJcmVxLT5yZXN1bHQgPSB2ZnNfcG9sbChyZXEtPmZpbGUs
+ICZwdCkgJiBwb2xsLT5ldmVudHM7CisJCQlpZiAodW5saWtlbHkoIWlvX2Fzc2lnbl9maWxl
+KHJlcSwgSU9fVVJJTkdfRl9VTkxPQ0tFRCkpKQorCQkJCXJlcS0+cmVzdWx0ID0gLUVCQURG
+OworCQkJZWxzZQorCQkJCXJlcS0+cmVzdWx0ID0gdmZzX3BvbGwocmVxLT5maWxlLCAmcHQp
+ICYgcG9sbC0+ZXZlbnRzOwogCQl9CiAKIAkJLyogbXVsdGlzaG90LCBqdXN0IGZpbGwgYW4g
+Q1FFIGFuZCBwcm9jZWVkICovCkBAIC02NzMyLDExICs2Njk0LDYgQEAgc3RhdGljIHZvaWQg
+aW9fY2xlYW5fb3Aoc3RydWN0IGlvX2tpb2NiICpyZXEpCiAJCWtmcmVlKHJlcS0+YXBvbGwp
+OwogCQlyZXEtPmFwb2xsID0gTlVMTDsKIAl9Ci0JaWYgKHJlcS0+ZmxhZ3MgJiBSRVFfRl9J
+TkZMSUdIVCkgewotCQlzdHJ1Y3QgaW9fdXJpbmdfdGFzayAqdGN0eCA9IHJlcS0+dGFzay0+
+aW9fdXJpbmc7Ci0KLQkJYXRvbWljX2RlYygmdGN0eC0+aW5mbGlnaHRfdHJhY2tlZCk7Ci0J
+fQogCWlmIChyZXEtPmZsYWdzICYgUkVRX0ZfQ1JFRFMpCiAJCXB1dF9jcmVkKHJlcS0+Y3Jl
+ZHMpOwogCWlmIChyZXEtPmZsYWdzICYgUkVRX0ZfQVNZTkNfREFUQSkgewpAQCAtNzAyNSw2
+ICs2OTgyLDE5IEBAIHN0YXRpYyBpbmxpbmUgc3RydWN0IGZpbGUgKmlvX2ZpbGVfZ2V0X2Zp
+eGVkKHN0cnVjdCBpb19raW9jYiAqcmVxLCBpbnQgZmQsCiAJcmV0dXJuIGZpbGU7CiB9CiAK
+Ky8qCisgKiBEcm9wIHRoZSBmaWxlIGZvciByZXF1ZXVlIG9wZXJhdGlvbnMuIE9ubHkgdXNl
+ZCBvZiByZXEtPmZpbGUgaXMgdGhlCisgKiBpb191cmluZyBkZXNjcmlwdG9yIGl0c2VsZi4K
+KyAqLworc3RhdGljIHZvaWQgaW9fZHJvcF9pbmZsaWdodF9maWxlKHN0cnVjdCBpb19raW9j
+YiAqcmVxKQoreworCWlmICh1bmxpa2VseShyZXEtPmZsYWdzICYgUkVRX0ZfSU5GTElHSFQp
+KSB7CisJCWZwdXQocmVxLT5maWxlKTsKKwkJcmVxLT5maWxlID0gTlVMTDsKKwkJcmVxLT5m
+bGFncyAmPSB+UkVRX0ZfSU5GTElHSFQ7CisJfQorfQorCiBzdGF0aWMgc3RydWN0IGZpbGUg
+KmlvX2ZpbGVfZ2V0X25vcm1hbChzdHJ1Y3QgaW9fa2lvY2IgKnJlcSwgaW50IGZkKQogewog
+CXN0cnVjdCBmaWxlICpmaWxlID0gZmdldChmZCk7CkBAIC03MDMyLDggKzcwMDIsOCBAQCBz
+dGF0aWMgc3RydWN0IGZpbGUgKmlvX2ZpbGVfZ2V0X25vcm1hbChzdHJ1Y3QgaW9fa2lvY2Ig
+KnJlcSwgaW50IGZkKQogCXRyYWNlX2lvX3VyaW5nX2ZpbGVfZ2V0KHJlcS0+Y3R4LCBmZCk7
+CiAKIAkvKiB3ZSBkb24ndCBhbGxvdyBmaXhlZCBpb191cmluZyBmaWxlcyAqLwotCWlmIChm
+aWxlICYmIHVubGlrZWx5KGZpbGUtPmZfb3AgPT0gJmlvX3VyaW5nX2ZvcHMpKQotCQlpb19y
+ZXFfdHJhY2tfaW5mbGlnaHQocmVxKTsKKwlpZiAoZmlsZSAmJiBmaWxlLT5mX29wID09ICZp
+b191cmluZ19mb3BzKQorCQlyZXEtPmZsYWdzIHw9IFJFUV9GX0lORkxJR0hUOwogCXJldHVy
+biBmaWxlOwogfQogCkBAIC04ODAxLDcgKzg3NzEsNiBAQCBzdGF0aWMgX19jb2xkIGludCBp
+b191cmluZ19hbGxvY190YXNrX2NvbnRleHQoc3RydWN0IHRhc2tfc3RydWN0ICp0YXNrLAog
+CXhhX2luaXQoJnRjdHgtPnhhKTsKIAlpbml0X3dhaXRxdWV1ZV9oZWFkKCZ0Y3R4LT53YWl0
+KTsKIAlhdG9taWNfc2V0KCZ0Y3R4LT5pbl9pZGxlLCAwKTsKLQlhdG9taWNfc2V0KCZ0Y3R4
+LT5pbmZsaWdodF90cmFja2VkLCAwKTsKIAl0YXNrLT5pb191cmluZyA9IHRjdHg7CiAJc3Bp
+bl9sb2NrX2luaXQoJnRjdHgtPnRhc2tfbG9jayk7CiAJSU5JVF9XUV9MSVNUKCZ0Y3R4LT50
+YXNrX2xpc3QpOwpAQCAtOTkzOSw3ICs5OTA4LDcgQEAgc3RhdGljIF9fY29sZCB2b2lkIGlv
+X3VyaW5nX2NsZWFuX3RjdHgoc3RydWN0IGlvX3VyaW5nX3Rhc2sgKnRjdHgpCiBzdGF0aWMg
+czY0IHRjdHhfaW5mbGlnaHQoc3RydWN0IGlvX3VyaW5nX3Rhc2sgKnRjdHgsIGJvb2wgdHJh
+Y2tlZCkKIHsKIAlpZiAodHJhY2tlZCkKLQkJcmV0dXJuIGF0b21pY19yZWFkKCZ0Y3R4LT5p
+bmZsaWdodF90cmFja2VkKTsKKwkJcmV0dXJuIDA7CiAJcmV0dXJuIHBlcmNwdV9jb3VudGVy
+X3N1bSgmdGN0eC0+aW5mbGlnaHQpOwogfQogCi0tIAoyLjM1LjEKCg==
+--------------chVLQTDPCqwNbpDkISBZLAk7
+Content-Type: text/x-patch; charset=UTF-8;
+ name="0003-io_uring-defer-file-assignment.patch"
+Content-Disposition: attachment;
+ filename="0003-io_uring-defer-file-assignment.patch"
+Content-Transfer-Encoding: base64
+
+RnJvbSA1NWJmZDgyY2ZmNTA5NWM2Y2I4YjExYmQxYWJmNjkzYzAyNTg4MGE5IE1vbiBTZXAg
+MTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBKZW5zIEF4Ym9lIDxheGJvZUBrZXJuZWwuZGs+CkRh
+dGU6IFR1ZSwgMjkgTWFyIDIwMjIgMTA6MTA6MDggLTA2MDAKU3ViamVjdDogW1BBVENIIDMv
+NF0gaW9fdXJpbmc6IGRlZmVyIGZpbGUgYXNzaWdubWVudAoKY29tbWl0IDZiZjljNDdhMzk4
+OTExZTBhYjkyMGUzNjIxMTUxNTM1OTZjODA0MzIgdXBzdHJlYW0uCgpJZiBhbiBhcHBsaWNh
+dGlvbiB1c2VzIGRpcmVjdCBvcGVuIG9yIGFjY2VwdCwgaXQga25vd3MgaW4gYWR2YW5jZSB3
+aGF0CmRpcmVjdCBkZXNjcmlwdG9yIHZhbHVlIGl0IHdpbGwgZ2V0IGFzIGl0IHBpY2tzIGl0
+IGl0c2VsZi4gVGhpcyBhbGxvd3MKY29tYmluZWQgcmVxdWVzdHMgc3VjaCBhczoKCnNxZSA9
+IGlvX3VyaW5nX2dldF9zcWUocmluZyk7CmlvX3VyaW5nX3ByZXBfb3BlbmF0X2RpcmVjdChz
+cWUsIC4uLiwgZmlsZV9zbG90KTsKc3FlLT5mbGFncyB8PSBJT1NRRV9JT19MSU5LIHwgSU9T
+UUVfQ1FFX1NLSVBfU1VDQ0VTUzsKCnNxZSA9IGlvX3VyaW5nX2dldF9zcWUocmluZyk7Cmlv
+X3VyaW5nX3ByZXBfcmVhZChzcWUsZmlsZV9zbG90LCBidWYsIGJ1Zl9zaXplLCAwKTsKc3Fl
+LT5mbGFncyB8PSBJT1NRRV9GSVhFRF9GSUxFOwoKaW9fdXJpbmdfc3VibWl0KHJpbmcpOwoK
+d2hlcmUgd2UgcHJlcGFyZSBib3RoIGEgZmlsZSBvcGVuIGFuZCByZWFkLCBhbmQgb25seSBn
+ZXQgYSBjb21wbGV0aW9uCmV2ZW50IGZvciB0aGUgcmVhZCB3aGVuIGJvdGggaGF2ZSBjb21w
+bGV0ZWQgc3VjY2Vzc2Z1bGx5LgoKQ3VycmVudGx5IGxpbmtzIGFyZSBmdWxseSBwcmVwYXJl
+ZCBiZWZvcmUgdGhlIGhlYWQgaXMgaXNzdWVkLCBidXQgdGhhdApmYWlscyBpZiB0aGUgZGVw
+ZW5kZW50IGxpbmsgbmVlZHMgYSBmaWxlIGFzc2lnbmVkIHRoYXQgaXNuJ3QgdmFsaWQgdW50
+aWwKdGhlIGhlYWQgaGFzIGNvbXBsZXRlZC4KCkNvbnZlcnNlbHksIGlmIHRoZSBzYW1lIGNo
+YWluIGlzIHBlcmZvcm1lZCBidXQgdGhlIGZpeGVkIGZpbGUgc2xvdCBpcwphbHJlYWR5IHZh
+bGlkLCB0aGVuIHdlIHdvdWxkIGJlIHVuZXhwZWN0ZWRseSByZXR1cm5pbmcgZGF0YSBmcm9t
+IHRoZQpvbGQgZmlsZSBzbG90IHJhdGhlciB0aGFuIHRoZSBuZXdseSBvcGVuZWQgb25lLiBN
+YWtlIHN1cmUgd2UncmUKY29uc2lzdGVudCBoZXJlLgoKQWxsb3cgZGVmZXJyYWwgb2YgZmls
+ZSBzZXR1cCwgd2hpY2ggbWFrZXMgdGhpcyBkb2N1bWVudGVkIGNhc2Ugd29yay4KCkNjOiBz
+dGFibGVAdmdlci5rZXJuZWwub3JnICMgdjUuMTUrClNpZ25lZC1vZmYtYnk6IEplbnMgQXhi
+b2UgPGF4Ym9lQGtlcm5lbC5kaz4KLS0tCiBmcy9pby13cS5oICAgIHwgIDEgKwogZnMvaW9f
+dXJpbmcuYyB8IDM5ICsrKysrKysrKysrKysrKysrKysrKysrKysrKysrLS0tLS0tLS0tLQog
+MiBmaWxlcyBjaGFuZ2VkLCAzMCBpbnNlcnRpb25zKCspLCAxMCBkZWxldGlvbnMoLSkKCmRp
+ZmYgLS1naXQgYS9mcy9pby13cS5oIGIvZnMvaW8td3EuaAppbmRleCBkYmVjZDI3NjU2Yzcu
+LjA0ZDM3NGU2NWU1NCAxMDA2NDQKLS0tIGEvZnMvaW8td3EuaAorKysgYi9mcy9pby13cS5o
+CkBAIC0xNTUsNiArMTU1LDcgQEAgc3RydWN0IGlvX3dxX3dvcmtfbm9kZSAqd3Ffc3RhY2tf
+ZXh0cmFjdChzdHJ1Y3QgaW9fd3Ffd29ya19ub2RlICpzdGFjaykKIHN0cnVjdCBpb193cV93
+b3JrIHsKIAlzdHJ1Y3QgaW9fd3Ffd29ya19ub2RlIGxpc3Q7CiAJdW5zaWduZWQgZmxhZ3M7
+CisJaW50IGZkOwogfTsKIAogc3RhdGljIGlubGluZSBzdHJ1Y3QgaW9fd3Ffd29yayAqd3Ff
+bmV4dF93b3JrKHN0cnVjdCBpb193cV93b3JrICp3b3JrKQpkaWZmIC0tZ2l0IGEvZnMvaW9f
+dXJpbmcuYyBiL2ZzL2lvX3VyaW5nLmMKaW5kZXggZmU1YjRkOGQ5OTYxLi4zN2NjNGJiN2E2
+NTcgMTAwNjQ0Ci0tLSBhL2ZzL2lvX3VyaW5nLmMKKysrIGIvZnMvaW9fdXJpbmcuYwpAQCAt
+Njc0Niw2ICs2NzQ2LDIzIEBAIHN0YXRpYyB2b2lkIGlvX2NsZWFuX29wKHN0cnVjdCBpb19r
+aW9jYiAqcmVxKQogCXJlcS0+ZmxhZ3MgJj0gfklPX1JFUV9DTEVBTl9GTEFHUzsKIH0KIAor
+c3RhdGljIGJvb2wgaW9fYXNzaWduX2ZpbGUoc3RydWN0IGlvX2tpb2NiICpyZXEsIHVuc2ln
+bmVkIGludCBpc3N1ZV9mbGFncykKK3sKKwlpZiAocmVxLT5maWxlIHx8ICFpb19vcF9kZWZz
+W3JlcS0+b3Bjb2RlXS5uZWVkc19maWxlKQorCQlyZXR1cm4gdHJ1ZTsKKworCWlmIChyZXEt
+PmZsYWdzICYgUkVRX0ZfRklYRURfRklMRSkKKwkJcmVxLT5maWxlID0gaW9fZmlsZV9nZXRf
+Zml4ZWQocmVxLCByZXEtPndvcmsuZmQsIGlzc3VlX2ZsYWdzKTsKKwllbHNlCisJCXJlcS0+
+ZmlsZSA9IGlvX2ZpbGVfZ2V0X25vcm1hbChyZXEsIHJlcS0+d29yay5mZCk7CisJaWYgKHJl
+cS0+ZmlsZSkKKwkJcmV0dXJuIHRydWU7CisKKwlyZXFfc2V0X2ZhaWwocmVxKTsKKwlyZXEt
+PnJlc3VsdCA9IC1FQkFERjsKKwlyZXR1cm4gZmFsc2U7Cit9CisKIHN0YXRpYyBpbnQgaW9f
+aXNzdWVfc3FlKHN0cnVjdCBpb19raW9jYiAqcmVxLCB1bnNpZ25lZCBpbnQgaXNzdWVfZmxh
+Z3MpCiB7CiAJY29uc3Qgc3RydWN0IGNyZWQgKmNyZWRzID0gTlVMTDsKQEAgLTY3NTYsNiAr
+Njc3Myw4IEBAIHN0YXRpYyBpbnQgaW9faXNzdWVfc3FlKHN0cnVjdCBpb19raW9jYiAqcmVx
+LCB1bnNpZ25lZCBpbnQgaXNzdWVfZmxhZ3MpCiAKIAlpZiAoIWlvX29wX2RlZnNbcmVxLT5v
+cGNvZGVdLmF1ZGl0X3NraXApCiAJCWF1ZGl0X3VyaW5nX2VudHJ5KHJlcS0+b3Bjb2RlKTsK
+KwlpZiAodW5saWtlbHkoIWlvX2Fzc2lnbl9maWxlKHJlcSwgaXNzdWVfZmxhZ3MpKSkKKwkJ
+cmV0dXJuIC1FQkFERjsKIAogCXN3aXRjaCAocmVxLT5vcGNvZGUpIHsKIAljYXNlIElPUklO
+R19PUF9OT1A6CkBAIC02ODk3LDEwICs2OTE2LDExIEBAIHN0YXRpYyBzdHJ1Y3QgaW9fd3Ff
+d29yayAqaW9fd3FfZnJlZV93b3JrKHN0cnVjdCBpb193cV93b3JrICp3b3JrKQogc3RhdGlj
+IHZvaWQgaW9fd3Ffc3VibWl0X3dvcmsoc3RydWN0IGlvX3dxX3dvcmsgKndvcmspCiB7CiAJ
+c3RydWN0IGlvX2tpb2NiICpyZXEgPSBjb250YWluZXJfb2Yod29yaywgc3RydWN0IGlvX2tp
+b2NiLCB3b3JrKTsKKwljb25zdCBzdHJ1Y3QgaW9fb3BfZGVmICpkZWYgPSAmaW9fb3BfZGVm
+c1tyZXEtPm9wY29kZV07CiAJdW5zaWduZWQgaW50IGlzc3VlX2ZsYWdzID0gSU9fVVJJTkdf
+Rl9VTkxPQ0tFRDsKIAlib29sIG5lZWRzX3BvbGwgPSBmYWxzZTsKIAlzdHJ1Y3QgaW9fa2lv
+Y2IgKnRpbWVvdXQ7Ci0JaW50IHJldCA9IDA7CisJaW50IHJldCA9IDAsIGVyciA9IC1FQ0FO
+Q0VMRUQ7CiAKIAkvKiBvbmUgd2lsbCBiZSBkcm9wcGVkIGJ5IC0+aW9fZnJlZV93b3JrKCkg
+YWZ0ZXIgcmV0dXJuaW5nIHRvIGlvLXdxICovCiAJaWYgKCEocmVxLT5mbGFncyAmIFJFUV9G
+X1JFRkNPVU5UKSkKQEAgLTY5MTIsMTQgKzY5MzIsMTggQEAgc3RhdGljIHZvaWQgaW9fd3Ff
+c3VibWl0X3dvcmsoc3RydWN0IGlvX3dxX3dvcmsgKndvcmspCiAJaWYgKHRpbWVvdXQpCiAJ
+CWlvX3F1ZXVlX2xpbmtlZF90aW1lb3V0KHRpbWVvdXQpOwogCisJaWYgKCFpb19hc3NpZ25f
+ZmlsZShyZXEsIGlzc3VlX2ZsYWdzKSkgeworCQllcnIgPSAtRUJBREY7CisJCXdvcmstPmZs
+YWdzIHw9IElPX1dRX1dPUktfQ0FOQ0VMOworCX0KKwogCS8qIGVpdGhlciBjYW5jZWxsZWQg
+b3IgaW8td3EgaXMgZHlpbmcsIHNvIGRvbid0IHRvdWNoIHRjdHgtPmlvd3EgKi8KIAlpZiAo
+d29yay0+ZmxhZ3MgJiBJT19XUV9XT1JLX0NBTkNFTCkgewotCQlpb19yZXFfdGFza19xdWV1
+ZV9mYWlsKHJlcSwgLUVDQU5DRUxFRCk7CisJCWlvX3JlcV90YXNrX3F1ZXVlX2ZhaWwocmVx
+LCBlcnIpOwogCQlyZXR1cm47CiAJfQogCiAJaWYgKHJlcS0+ZmxhZ3MgJiBSRVFfRl9GT1JD
+RV9BU1lOQykgewotCQljb25zdCBzdHJ1Y3QgaW9fb3BfZGVmICpkZWYgPSAmaW9fb3BfZGVm
+c1tyZXEtPm9wY29kZV07CiAJCWJvb2wgb3Bjb2RlX3BvbGwgPSBkZWYtPnBvbGxpbiB8fCBk
+ZWYtPnBvbGxvdXQ7CiAKIAkJaWYgKG9wY29kZV9wb2xsICYmIGZpbGVfY2FuX3BvbGwocmVx
+LT5maWxlKSkgewpAQCAtNzI1MCw2ICs3Mjc0LDggQEAgc3RhdGljIGludCBpb19pbml0X3Jl
+cShzdHJ1Y3QgaW9fcmluZ19jdHggKmN0eCwgc3RydWN0IGlvX2tpb2NiICpyZXEsCiAJaWYg
+KGlvX29wX2RlZnNbb3Bjb2RlXS5uZWVkc19maWxlKSB7CiAJCXN0cnVjdCBpb19zdWJtaXRf
+c3RhdGUgKnN0YXRlID0gJmN0eC0+c3VibWl0X3N0YXRlOwogCisJCXJlcS0+d29yay5mZCA9
+IFJFQURfT05DRShzcWUtPmZkKTsKKwogCQkvKgogCQkgKiBQbHVnIG5vdyBpZiB3ZSBoYXZl
+IG1vcmUgdGhhbiAyIElPIGxlZnQgYWZ0ZXIgdGhpcywgYW5kIHRoZQogCQkgKiB0YXJnZXQg
+aXMgcG90ZW50aWFsbHkgYSByZWFkL3dyaXRlIHRvIGJsb2NrIGJhc2VkIHN0b3JhZ2UuCkBA
+IC03MjU5LDEzICs3Mjg1LDYgQEAgc3RhdGljIGludCBpb19pbml0X3JlcShzdHJ1Y3QgaW9f
+cmluZ19jdHggKmN0eCwgc3RydWN0IGlvX2tpb2NiICpyZXEsCiAJCQlzdGF0ZS0+bmVlZF9w
+bHVnID0gZmFsc2U7CiAJCQlibGtfc3RhcnRfcGx1Z19ucl9pb3MoJnN0YXRlLT5wbHVnLCBz
+dGF0ZS0+c3VibWl0X25yKTsKIAkJfQotCi0JCWlmIChyZXEtPmZsYWdzICYgUkVRX0ZfRklY
+RURfRklMRSkKLQkJCXJlcS0+ZmlsZSA9IGlvX2ZpbGVfZ2V0X2ZpeGVkKHJlcSwgUkVBRF9P
+TkNFKHNxZS0+ZmQpLCAwKTsKLQkJZWxzZQotCQkJcmVxLT5maWxlID0gaW9fZmlsZV9nZXRf
+bm9ybWFsKHJlcSwgUkVBRF9PTkNFKHNxZS0+ZmQpKTsKLQkJaWYgKHVubGlrZWx5KCFyZXEt
+PmZpbGUpKQotCQkJcmV0dXJuIC1FQkFERjsKIAl9CiAKIAlwZXJzb25hbGl0eSA9IFJFQURf
+T05DRShzcWUtPnBlcnNvbmFsaXR5KTsKLS0gCjIuMzUuMQoK
+--------------chVLQTDPCqwNbpDkISBZLAk7
+Content-Type: text/x-patch; charset=UTF-8;
+ name="0002-io_uring-propagate-issue_flags-state-down-to-file-as.patch"
+Content-Disposition: attachment;
+ filename*0="0002-io_uring-propagate-issue_flags-state-down-to-file-as.pa";
+ filename*1="tch"
+Content-Transfer-Encoding: base64
+
+RnJvbSBjNzFlYjJjYTUyNzZjN2Y4NzE5ZDM4YTVmNDdiM2IzMDliNmNiN2YzIE1vbiBTZXAg
+MTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBKZW5zIEF4Ym9lIDxheGJvZUBrZXJuZWwuZGs+CkRh
+dGU6IE1vbiwgNCBBcHIgMjAyMiAxNzoxODo0MyAtMDYwMApTdWJqZWN0OiBbUEFUQ0ggMi80
+XSBpb191cmluZzogcHJvcGFnYXRlIGlzc3VlX2ZsYWdzIHN0YXRlIGRvd24gdG8gZmlsZQog
+YXNzaWdubWVudAoKY29tbWl0IDUxMDZkZDZlNzRhYjZjOTRkYWFjMWMzNTcwOTRmMTFlNjkz
+NGIzNmYgdXBzdHJlYW0uCgpXZSdsbCBuZWVkIHRoaXMgaW4gYSBmdXR1cmUgcGF0Y2gsIHdo
+ZW4gd2UgY291bGQgYmUgYXNzaWduaW5nIHRoZSBmaWxlCmFmdGVyIHRoZSBwcmVwIHN0YWdl
+LiBXaGlsZSBhdCBpdCwgZ2V0IHJpZCBvZiB0aGUgaW9fZmlsZV9nZXQoKSBoZWxwZXIsCml0
+IGp1c3QgbWFrZXMgdGhlIGNvZGUgaGFyZGVyIHRvIHJlYWQuCgpTaWduZWQtb2ZmLWJ5OiBK
+ZW5zIEF4Ym9lIDxheGJvZUBrZXJuZWwuZGs+Ci0tLQogZnMvaW9fdXJpbmcuYyB8IDgyICsr
+KysrKysrKysrKysrKysrKysrKysrKysrKysrLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQogMSBm
+aWxlIGNoYW5nZWQsIDQ3IGluc2VydGlvbnMoKyksIDM1IGRlbGV0aW9ucygtKQoKZGlmZiAt
+LWdpdCBhL2ZzL2lvX3VyaW5nLmMgYi9mcy9pb191cmluZy5jCmluZGV4IDlmNDdiMGViZDQ4
+ZC4uZmU1YjRkOGQ5OTYxIDEwMDY0NAotLS0gYS9mcy9pb191cmluZy5jCisrKyBiL2ZzL2lv
+X3VyaW5nLmMKQEAgLTExMjgsOCArMTEyOCw5IEBAIHN0YXRpYyBpbnQgX19pb19yZWdpc3Rl
+cl9yc3JjX3VwZGF0ZShzdHJ1Y3QgaW9fcmluZ19jdHggKmN0eCwgdW5zaWduZWQgdHlwZSwK
+IAkJCQkgICAgIHN0cnVjdCBpb191cmluZ19yc3JjX3VwZGF0ZTIgKnVwLAogCQkJCSAgICAg
+dW5zaWduZWQgbnJfYXJncyk7CiBzdGF0aWMgdm9pZCBpb19jbGVhbl9vcChzdHJ1Y3QgaW9f
+a2lvY2IgKnJlcSk7Ci1zdGF0aWMgc3RydWN0IGZpbGUgKmlvX2ZpbGVfZ2V0KHN0cnVjdCBp
+b19yaW5nX2N0eCAqY3R4LAotCQkJCXN0cnVjdCBpb19raW9jYiAqcmVxLCBpbnQgZmQsIGJv
+b2wgZml4ZWQpOworc3RhdGljIGlubGluZSBzdHJ1Y3QgZmlsZSAqaW9fZmlsZV9nZXRfZml4
+ZWQoc3RydWN0IGlvX2tpb2NiICpyZXEsIGludCBmZCwKKwkJCQkJICAgICB1bnNpZ25lZCBp
+c3N1ZV9mbGFncyk7CitzdGF0aWMgaW5saW5lIHN0cnVjdCBmaWxlICppb19maWxlX2dldF9u
+b3JtYWwoc3RydWN0IGlvX2tpb2NiICpyZXEsIGludCBmZCk7CiBzdGF0aWMgdm9pZCBfX2lv
+X3F1ZXVlX3NxZShzdHJ1Y3QgaW9fa2lvY2IgKnJlcSk7CiBzdGF0aWMgdm9pZCBpb19yc3Jj
+X3B1dF93b3JrKHN0cnVjdCB3b3JrX3N0cnVjdCAqd29yayk7CiAKQEAgLTEyNTgsMTMgKzEy
+NTksMjAgQEAgc3RhdGljIHZvaWQgaW9fcnNyY19yZWZzX3JlZmlsbChzdHJ1Y3QgaW9fcmlu
+Z19jdHggKmN0eCkKIH0KIAogc3RhdGljIGlubGluZSB2b2lkIGlvX3JlcV9zZXRfcnNyY19u
+b2RlKHN0cnVjdCBpb19raW9jYiAqcmVxLAotCQkJCQlzdHJ1Y3QgaW9fcmluZ19jdHggKmN0
+eCkKKwkJCQkJc3RydWN0IGlvX3JpbmdfY3R4ICpjdHgsCisJCQkJCXVuc2lnbmVkIGludCBp
+c3N1ZV9mbGFncykKIHsKIAlpZiAoIXJlcS0+Zml4ZWRfcnNyY19yZWZzKSB7CiAJCXJlcS0+
+Zml4ZWRfcnNyY19yZWZzID0gJmN0eC0+cnNyY19ub2RlLT5yZWZzOwotCQljdHgtPnJzcmNf
+Y2FjaGVkX3JlZnMtLTsKLQkJaWYgKHVubGlrZWx5KGN0eC0+cnNyY19jYWNoZWRfcmVmcyA8
+IDApKQotCQkJaW9fcnNyY19yZWZzX3JlZmlsbChjdHgpOworCisJCWlmICghKGlzc3VlX2Zs
+YWdzICYgSU9fVVJJTkdfRl9VTkxPQ0tFRCkpIHsKKwkJCWxvY2tkZXBfYXNzZXJ0X2hlbGQo
+JmN0eC0+dXJpbmdfbG9jayk7CisJCQljdHgtPnJzcmNfY2FjaGVkX3JlZnMtLTsKKwkJCWlm
+ICh1bmxpa2VseShjdHgtPnJzcmNfY2FjaGVkX3JlZnMgPCAwKSkKKwkJCQlpb19yc3JjX3Jl
+ZnNfcmVmaWxsKGN0eCk7CisJCX0gZWxzZSB7CisJCQlwZXJjcHVfcmVmX2dldChyZXEtPmZp
+eGVkX3JzcmNfcmVmcyk7CisJCX0KIAl9CiB9CiAKQEAgLTMxMjQsNyArMzEzMiw4IEBAIHN0
+YXRpYyBpbnQgX19pb19pbXBvcnRfZml4ZWQoc3RydWN0IGlvX2tpb2NiICpyZXEsIGludCBy
+dywgc3RydWN0IGlvdl9pdGVyICppdGVyCiAJcmV0dXJuIDA7CiB9CiAKLXN0YXRpYyBpbnQg
+aW9faW1wb3J0X2ZpeGVkKHN0cnVjdCBpb19raW9jYiAqcmVxLCBpbnQgcncsIHN0cnVjdCBp
+b3ZfaXRlciAqaXRlcikKK3N0YXRpYyBpbnQgaW9faW1wb3J0X2ZpeGVkKHN0cnVjdCBpb19r
+aW9jYiAqcmVxLCBpbnQgcncsIHN0cnVjdCBpb3ZfaXRlciAqaXRlciwKKwkJCSAgIHVuc2ln
+bmVkIGludCBpc3N1ZV9mbGFncykKIHsKIAlzdHJ1Y3QgaW9fbWFwcGVkX3VidWYgKmltdSA9
+IHJlcS0+aW11OwogCXUxNiBpbmRleCwgYnVmX2luZGV4ID0gcmVxLT5idWZfaW5kZXg7CkBA
+IC0zMTM0LDcgKzMxNDMsNyBAQCBzdGF0aWMgaW50IGlvX2ltcG9ydF9maXhlZChzdHJ1Y3Qg
+aW9fa2lvY2IgKnJlcSwgaW50IHJ3LCBzdHJ1Y3QgaW92X2l0ZXIgKml0ZXIpCiAKIAkJaWYg
+KHVubGlrZWx5KGJ1Zl9pbmRleCA+PSBjdHgtPm5yX3VzZXJfYnVmcykpCiAJCQlyZXR1cm4g
+LUVGQVVMVDsKLQkJaW9fcmVxX3NldF9yc3JjX25vZGUocmVxLCBjdHgpOworCQlpb19yZXFf
+c2V0X3JzcmNfbm9kZShyZXEsIGN0eCwgaXNzdWVfZmxhZ3MpOwogCQlpbmRleCA9IGFycmF5
+X2luZGV4X25vc3BlYyhidWZfaW5kZXgsIGN0eC0+bnJfdXNlcl9idWZzKTsKIAkJaW11ID0g
+UkVBRF9PTkNFKGN0eC0+dXNlcl9idWZzW2luZGV4XSk7CiAJCXJlcS0+aW11ID0gaW11OwpA
+QCAtMzI5MCw3ICszMjk5LDcgQEAgc3RhdGljIHN0cnVjdCBpb3ZlYyAqX19pb19pbXBvcnRf
+aW92ZWMoaW50IHJ3LCBzdHJ1Y3QgaW9fa2lvY2IgKnJlcSwKIAlzc2l6ZV90IHJldDsKIAog
+CWlmIChvcGNvZGUgPT0gSU9SSU5HX09QX1JFQURfRklYRUQgfHwgb3Bjb2RlID09IElPUklO
+R19PUF9XUklURV9GSVhFRCkgewotCQlyZXQgPSBpb19pbXBvcnRfZml4ZWQocmVxLCBydywg
+aXRlcik7CisJCXJldCA9IGlvX2ltcG9ydF9maXhlZChyZXEsIHJ3LCBpdGVyLCBpc3N1ZV9m
+bGFncyk7CiAJCWlmIChyZXQpCiAJCQlyZXR1cm4gRVJSX1BUUihyZXQpOwogCQlyZXR1cm4g
+TlVMTDsKQEAgLTQxNjksOCArNDE3OCwxMCBAQCBzdGF0aWMgaW50IGlvX3RlZShzdHJ1Y3Qg
+aW9fa2lvY2IgKnJlcSwgdW5zaWduZWQgaW50IGlzc3VlX2ZsYWdzKQogCWlmIChpc3N1ZV9m
+bGFncyAmIElPX1VSSU5HX0ZfTk9OQkxPQ0spCiAJCXJldHVybiAtRUFHQUlOOwogCi0JaW4g
+PSBpb19maWxlX2dldChyZXEtPmN0eCwgcmVxLCBzcC0+c3BsaWNlX2ZkX2luLAotCQkJCSAg
+KHNwLT5mbGFncyAmIFNQTElDRV9GX0ZEX0lOX0ZJWEVEKSk7CisJaWYgKHNwLT5mbGFncyAm
+IFNQTElDRV9GX0ZEX0lOX0ZJWEVEKQorCQlpbiA9IGlvX2ZpbGVfZ2V0X2ZpeGVkKHJlcSwg
+c3AtPnNwbGljZV9mZF9pbiwgSU9fVVJJTkdfRl9VTkxPQ0tFRCk7CisJZWxzZQorCQlpbiA9
+IGlvX2ZpbGVfZ2V0X25vcm1hbChyZXEsIHNwLT5zcGxpY2VfZmRfaW4pOwogCWlmICghaW4p
+IHsKIAkJcmV0ID0gLUVCQURGOwogCQlnb3RvIGRvbmU7CkBAIC00MjA5LDggKzQyMjAsMTAg
+QEAgc3RhdGljIGludCBpb19zcGxpY2Uoc3RydWN0IGlvX2tpb2NiICpyZXEsIHVuc2lnbmVk
+IGludCBpc3N1ZV9mbGFncykKIAlpZiAoaXNzdWVfZmxhZ3MgJiBJT19VUklOR19GX05PTkJM
+T0NLKQogCQlyZXR1cm4gLUVBR0FJTjsKIAotCWluID0gaW9fZmlsZV9nZXQocmVxLT5jdHgs
+IHJlcSwgc3AtPnNwbGljZV9mZF9pbiwKLQkJCQkgIChzcC0+ZmxhZ3MgJiBTUExJQ0VfRl9G
+RF9JTl9GSVhFRCkpOworCWlmIChzcC0+ZmxhZ3MgJiBTUExJQ0VfRl9GRF9JTl9GSVhFRCkK
+KwkJaW4gPSBpb19maWxlX2dldF9maXhlZChyZXEsIHNwLT5zcGxpY2VfZmRfaW4sIElPX1VS
+SU5HX0ZfVU5MT0NLRUQpOworCWVsc2UKKwkJaW4gPSBpb19maWxlX2dldF9ub3JtYWwocmVx
+LCBzcC0+c3BsaWNlX2ZkX2luKTsKIAlpZiAoIWluKSB7CiAJCXJldCA9IC1FQkFERjsKIAkJ
+Z290byBkb25lOwpAQCAtNTUxNSw3ICs1NTI4LDcgQEAgc3RhdGljIHZvaWQgaW9fcG9sbF9y
+ZW1vdmVfZW50cmllcyhzdHJ1Y3QgaW9fa2lvY2IgKnJlcSkKICAqIGVpdGhlciBzcHVyaW91
+cyB3YWtldXAgb3IgbXVsdGlzaG90IENRRSBpcyBzZXJ2ZWQuIDAgd2hlbiBpdCdzIGRvbmUg
+d2l0aAogICogdGhlIHJlcXVlc3QsIHRoZW4gdGhlIG1hc2sgaXMgc3RvcmVkIGluIHJlcS0+
+cmVzdWx0LgogICovCi1zdGF0aWMgaW50IGlvX3BvbGxfY2hlY2tfZXZlbnRzKHN0cnVjdCBp
+b19raW9jYiAqcmVxKQorc3RhdGljIGludCBpb19wb2xsX2NoZWNrX2V2ZW50cyhzdHJ1Y3Qg
+aW9fa2lvY2IgKnJlcSwgYm9vbCBsb2NrZWQpCiB7CiAJc3RydWN0IGlvX3JpbmdfY3R4ICpj
+dHggPSByZXEtPmN0eDsKIAlzdHJ1Y3QgaW9fcG9sbF9pb2NiICpwb2xsID0gaW9fcG9sbF9n
+ZXRfc2luZ2xlKHJlcSk7CkBAIC01NTcxLDcgKzU1ODQsNyBAQCBzdGF0aWMgdm9pZCBpb19w
+b2xsX3Rhc2tfZnVuYyhzdHJ1Y3QgaW9fa2lvY2IgKnJlcSwgYm9vbCAqbG9ja2VkKQogCXN0
+cnVjdCBpb19yaW5nX2N0eCAqY3R4ID0gcmVxLT5jdHg7CiAJaW50IHJldDsKIAotCXJldCA9
+IGlvX3BvbGxfY2hlY2tfZXZlbnRzKHJlcSk7CisJcmV0ID0gaW9fcG9sbF9jaGVja19ldmVu
+dHMocmVxLCAqbG9ja2VkKTsKIAlpZiAocmV0ID4gMCkKIAkJcmV0dXJuOwogCkBAIC01NTk2
+LDcgKzU2MDksNyBAQCBzdGF0aWMgdm9pZCBpb19hcG9sbF90YXNrX2Z1bmMoc3RydWN0IGlv
+X2tpb2NiICpyZXEsIGJvb2wgKmxvY2tlZCkKIAlzdHJ1Y3QgaW9fcmluZ19jdHggKmN0eCA9
+IHJlcS0+Y3R4OwogCWludCByZXQ7CiAKLQlyZXQgPSBpb19wb2xsX2NoZWNrX2V2ZW50cyhy
+ZXEpOworCXJldCA9IGlvX3BvbGxfY2hlY2tfZXZlbnRzKHJlcSwgKmxvY2tlZCk7CiAJaWYg
+KHJldCA+IDApCiAJCXJldHVybjsKIApAQCAtNjk2MywzMCArNjk3NiwzNiBAQCBzdGF0aWMg
+dm9pZCBpb19maXhlZF9maWxlX3NldChzdHJ1Y3QgaW9fZml4ZWRfZmlsZSAqZmlsZV9zbG90
+LCBzdHJ1Y3QgZmlsZSAqZmlsZQogCWZpbGVfc2xvdC0+ZmlsZV9wdHIgPSBmaWxlX3B0cjsK
+IH0KIAotc3RhdGljIGlubGluZSBzdHJ1Y3QgZmlsZSAqaW9fZmlsZV9nZXRfZml4ZWQoc3Ry
+dWN0IGlvX3JpbmdfY3R4ICpjdHgsCi0JCQkJCSAgICAgc3RydWN0IGlvX2tpb2NiICpyZXEs
+IGludCBmZCkKK3N0YXRpYyBpbmxpbmUgc3RydWN0IGZpbGUgKmlvX2ZpbGVfZ2V0X2ZpeGVk
+KHN0cnVjdCBpb19raW9jYiAqcmVxLCBpbnQgZmQsCisJCQkJCSAgICAgdW5zaWduZWQgaW50
+IGlzc3VlX2ZsYWdzKQogewotCXN0cnVjdCBmaWxlICpmaWxlOworCXN0cnVjdCBpb19yaW5n
+X2N0eCAqY3R4ID0gcmVxLT5jdHg7CisJc3RydWN0IGZpbGUgKmZpbGUgPSBOVUxMOwogCXVu
+c2lnbmVkIGxvbmcgZmlsZV9wdHI7CiAKKwlpZiAoaXNzdWVfZmxhZ3MgJiBJT19VUklOR19G
+X1VOTE9DS0VEKQorCQltdXRleF9sb2NrKCZjdHgtPnVyaW5nX2xvY2spOworCiAJaWYgKHVu
+bGlrZWx5KCh1bnNpZ25lZCBpbnQpZmQgPj0gY3R4LT5ucl91c2VyX2ZpbGVzKSkKLQkJcmV0
+dXJuIE5VTEw7CisJCWdvdG8gb3V0OwogCWZkID0gYXJyYXlfaW5kZXhfbm9zcGVjKGZkLCBj
+dHgtPm5yX3VzZXJfZmlsZXMpOwogCWZpbGVfcHRyID0gaW9fZml4ZWRfZmlsZV9zbG90KCZj
+dHgtPmZpbGVfdGFibGUsIGZkKS0+ZmlsZV9wdHI7CiAJZmlsZSA9IChzdHJ1Y3QgZmlsZSAq
+KSAoZmlsZV9wdHIgJiBGRlNfTUFTSyk7CiAJZmlsZV9wdHIgJj0gfkZGU19NQVNLOwogCS8q
+IG1hc2sgaW4gb3ZlcmxhcHBpbmcgUkVRX0YgYW5kIEZGUyBiaXRzICovCiAJcmVxLT5mbGFn
+cyB8PSAoZmlsZV9wdHIgPDwgUkVRX0ZfU1VQUE9SVF9OT1dBSVRfQklUKTsKLQlpb19yZXFf
+c2V0X3JzcmNfbm9kZShyZXEsIGN0eCk7CisJaW9fcmVxX3NldF9yc3JjX25vZGUocmVxLCBj
+dHgsIDApOworb3V0OgorCWlmIChpc3N1ZV9mbGFncyAmIElPX1VSSU5HX0ZfVU5MT0NLRUQp
+CisJCW11dGV4X3VubG9jaygmY3R4LT51cmluZ19sb2NrKTsKIAlyZXR1cm4gZmlsZTsKIH0K
+IAotc3RhdGljIHN0cnVjdCBmaWxlICppb19maWxlX2dldF9ub3JtYWwoc3RydWN0IGlvX3Jp
+bmdfY3R4ICpjdHgsCi0JCQkJICAgICAgIHN0cnVjdCBpb19raW9jYiAqcmVxLCBpbnQgZmQp
+CitzdGF0aWMgc3RydWN0IGZpbGUgKmlvX2ZpbGVfZ2V0X25vcm1hbChzdHJ1Y3QgaW9fa2lv
+Y2IgKnJlcSwgaW50IGZkKQogewogCXN0cnVjdCBmaWxlICpmaWxlID0gZmdldChmZCk7CiAK
+LQl0cmFjZV9pb191cmluZ19maWxlX2dldChjdHgsIGZkKTsKKwl0cmFjZV9pb191cmluZ19m
+aWxlX2dldChyZXEtPmN0eCwgZmQpOwogCiAJLyogd2UgZG9uJ3QgYWxsb3cgZml4ZWQgaW9f
+dXJpbmcgZmlsZXMgKi8KIAlpZiAoZmlsZSAmJiB1bmxpa2VseShmaWxlLT5mX29wID09ICZp
+b191cmluZ19mb3BzKSkKQEAgLTY5OTQsMTUgKzcwMTMsNiBAQCBzdGF0aWMgc3RydWN0IGZp
+bGUgKmlvX2ZpbGVfZ2V0X25vcm1hbChzdHJ1Y3QgaW9fcmluZ19jdHggKmN0eCwKIAlyZXR1
+cm4gZmlsZTsKIH0KIAotc3RhdGljIGlubGluZSBzdHJ1Y3QgZmlsZSAqaW9fZmlsZV9nZXQo
+c3RydWN0IGlvX3JpbmdfY3R4ICpjdHgsCi0JCQkJICAgICAgIHN0cnVjdCBpb19raW9jYiAq
+cmVxLCBpbnQgZmQsIGJvb2wgZml4ZWQpCi17Ci0JaWYgKGZpeGVkKQotCQlyZXR1cm4gaW9f
+ZmlsZV9nZXRfZml4ZWQoY3R4LCByZXEsIGZkKTsKLQllbHNlCi0JCXJldHVybiBpb19maWxl
+X2dldF9ub3JtYWwoY3R4LCByZXEsIGZkKTsKLX0KLQogc3RhdGljIHZvaWQgaW9fcmVxX3Rh
+c2tfbGlua190aW1lb3V0KHN0cnVjdCBpb19raW9jYiAqcmVxLCBib29sICpsb2NrZWQpCiB7
+CiAJc3RydWN0IGlvX2tpb2NiICpwcmV2ID0gcmVxLT50aW1lb3V0LnByZXY7CkBAIC03MjUw
+LDggKzcyNjAsMTAgQEAgc3RhdGljIGludCBpb19pbml0X3JlcShzdHJ1Y3QgaW9fcmluZ19j
+dHggKmN0eCwgc3RydWN0IGlvX2tpb2NiICpyZXEsCiAJCQlibGtfc3RhcnRfcGx1Z19ucl9p
+b3MoJnN0YXRlLT5wbHVnLCBzdGF0ZS0+c3VibWl0X25yKTsKIAkJfQogCi0JCXJlcS0+Zmls
+ZSA9IGlvX2ZpbGVfZ2V0KGN0eCwgcmVxLCBSRUFEX09OQ0Uoc3FlLT5mZCksCi0JCQkJCShz
+cWVfZmxhZ3MgJiBJT1NRRV9GSVhFRF9GSUxFKSk7CisJCWlmIChyZXEtPmZsYWdzICYgUkVR
+X0ZfRklYRURfRklMRSkKKwkJCXJlcS0+ZmlsZSA9IGlvX2ZpbGVfZ2V0X2ZpeGVkKHJlcSwg
+UkVBRF9PTkNFKHNxZS0+ZmQpLCAwKTsKKwkJZWxzZQorCQkJcmVxLT5maWxlID0gaW9fZmls
+ZV9nZXRfbm9ybWFsKHJlcSwgUkVBRF9PTkNFKHNxZS0+ZmQpKTsKIAkJaWYgKHVubGlrZWx5
+KCFyZXEtPmZpbGUpKQogCQkJcmV0dXJuIC1FQkFERjsKIAl9Ci0tIAoyLjM1LjEKCg==
+--------------chVLQTDPCqwNbpDkISBZLAk7
+Content-Type: text/x-patch; charset=UTF-8;
+ name="0001-io_uring-move-read-write-file-prep-state-into-actual.patch"
+Content-Disposition: attachment;
+ filename*0="0001-io_uring-move-read-write-file-prep-state-into-actual.pa";
+ filename*1="tch"
+Content-Transfer-Encoding: base64
+
+RnJvbSA4NmE4MjI1YjUxZTE0YjlmZWU0MWJhOGMzMjEyYTg2YTRhNWM4YjhhIE1vbiBTZXAg
+MTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBKZW5zIEF4Ym9lIDxheGJvZUBrZXJuZWwuZGs+CkRh
+dGU6IFR1ZSwgMjkgTWFyIDIwMjIgMTA6NDg6MDUgLTA2MDAKU3ViamVjdDogW1BBVENIIDEv
+NF0gaW9fdXJpbmc6IG1vdmUgcmVhZC93cml0ZSBmaWxlIHByZXAgc3RhdGUgaW50byBhY3R1
+YWwKIG9wY29kZSBoYW5kbGVyCgpjb21taXQgNTg0YjAxODBmMGY0ZDY3ZDcxNDU5NTBmZTY4
+YzYyNWYwNmM4OGIxMCB1cHN0cmVhbS4KCkluIHByZXBhcmF0aW9uIGZvciBub3QgbmVjZXNz
+YXJpbHkgaGF2aW5nIGEgZmlsZSBhc3NpZ25lZCBhdCBwcmVwIHRpbWUsCmRlZmVyIGFueSBp
+bml0aWFsaXphdGlvbiBhc3NvY2lhdGVkIHdpdGggdGhlIGZpbGUgdG8gd2hlbiB0aGUgb3Bj
+b2RlCmhhbmRsZXIgaXMgcnVuLgoKQ2M6IHN0YWJsZUB2Z2VyLmtlcm5lbC5vcmcgIyB2NS4x
+NSsKU2lnbmVkLW9mZi1ieTogSmVucyBBeGJvZSA8YXhib2VAa2VybmVsLmRrPgotLS0KIGZz
+L2lvX3VyaW5nLmMgfCAxMTkgKysrKysrKysrKysrKysrKysrKysrKysrKystLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0KIDEgZmlsZSBjaGFuZ2VkLCA2MiBpbnNlcnRpb25zKCspLCA1NyBk
+ZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS9mcy9pb191cmluZy5jIGIvZnMvaW9fdXJpbmcu
+YwppbmRleCA0OTQzMTY0NmE3ZTAuLjlmNDdiMGViZDQ4ZCAxMDA2NDQKLS0tIGEvZnMvaW9f
+dXJpbmcuYworKysgYi9mcy9pb191cmluZy5jCkBAIC01NjAsNyArNTYwLDggQEAgc3RydWN0
+IGlvX3J3IHsKIAkvKiBOT1RFOiBraW9jYiBoYXMgdGhlIGZpbGUgYXMgdGhlIGZpcnN0IG1l
+bWJlciwgc28gZG9uJ3QgZG8gaXQgaGVyZSAqLwogCXN0cnVjdCBraW9jYgkJCWtpb2NiOwog
+CXU2NAkJCQlhZGRyOwotCXU2NAkJCQlsZW47CisJdTMyCQkJCWxlbjsKKwl1MzIJCQkJZmxh
+Z3M7CiB9OwogCiBzdHJ1Y3QgaW9fY29ubmVjdCB7CkBAIC0yOTg2LDUwICsyOTg3LDExIEBA
+IHN0YXRpYyBpbmxpbmUgYm9vbCBpb19maWxlX3N1cHBvcnRzX25vd2FpdChzdHJ1Y3QgaW9f
+a2lvY2IgKnJlcSkKIAogc3RhdGljIGludCBpb19wcmVwX3J3KHN0cnVjdCBpb19raW9jYiAq
+cmVxLCBjb25zdCBzdHJ1Y3QgaW9fdXJpbmdfc3FlICpzcWUpCiB7Ci0Jc3RydWN0IGlvX3Jp
+bmdfY3R4ICpjdHggPSByZXEtPmN0eDsKIAlzdHJ1Y3Qga2lvY2IgKmtpb2NiID0gJnJlcS0+
+cncua2lvY2I7Ci0Jc3RydWN0IGZpbGUgKmZpbGUgPSByZXEtPmZpbGU7CiAJdW5zaWduZWQg
+aW9wcmlvOwogCWludCByZXQ7CiAKLQlpZiAoIWlvX3JlcV9mZnNfc2V0KHJlcSkpCi0JCXJl
+cS0+ZmxhZ3MgfD0gaW9fZmlsZV9nZXRfZmxhZ3MoZmlsZSkgPDwgUkVRX0ZfU1VQUE9SVF9O
+T1dBSVRfQklUOwotCiAJa2lvY2ItPmtpX3BvcyA9IFJFQURfT05DRShzcWUtPm9mZik7Ci0J
+aWYgKGtpb2NiLT5raV9wb3MgPT0gLTEpIHsKLQkJaWYgKCEoZmlsZS0+Zl9tb2RlICYgRk1P
+REVfU1RSRUFNKSkgewotCQkJcmVxLT5mbGFncyB8PSBSRVFfRl9DVVJfUE9TOwotCQkJa2lv
+Y2ItPmtpX3BvcyA9IGZpbGUtPmZfcG9zOwotCQl9IGVsc2UgewotCQkJa2lvY2ItPmtpX3Bv
+cyA9IDA7Ci0JCX0KLQl9Ci0Ja2lvY2ItPmtpX2ZsYWdzID0gaW9jYl9mbGFncyhmaWxlKTsK
+LQlyZXQgPSBraW9jYl9zZXRfcndfZmxhZ3Moa2lvY2IsIFJFQURfT05DRShzcWUtPnJ3X2Zs
+YWdzKSk7Ci0JaWYgKHVubGlrZWx5KHJldCkpCi0JCXJldHVybiByZXQ7Ci0KLQkvKgotCSAq
+IElmIHRoZSBmaWxlIGlzIG1hcmtlZCBPX05PTkJMT0NLLCBzdGlsbCBhbGxvdyByZXRyeSBm
+b3IgaXQgaWYgaXQKLQkgKiBzdXBwb3J0cyBhc3luYy4gT3RoZXJ3aXNlIGl0J3MgaW1wb3Nz
+aWJsZSB0byB1c2UgT19OT05CTE9DSyBmaWxlcwotCSAqIHJlbGlhYmx5LiBJZiBub3QsIG9y
+IGl0IElPQ0JfTk9XQUlUIGlzIHNldCwgZG9uJ3QgcmV0cnkuCi0JICovCi0JaWYgKChraW9j
+Yi0+a2lfZmxhZ3MgJiBJT0NCX05PV0FJVCkgfHwKLQkgICAgKChmaWxlLT5mX2ZsYWdzICYg
+T19OT05CTE9DSykgJiYgIWlvX2ZpbGVfc3VwcG9ydHNfbm93YWl0KHJlcSkpKQotCQlyZXEt
+PmZsYWdzIHw9IFJFUV9GX05PV0FJVDsKLQotCWlmIChjdHgtPmZsYWdzICYgSU9SSU5HX1NF
+VFVQX0lPUE9MTCkgewotCQlpZiAoIShraW9jYi0+a2lfZmxhZ3MgJiBJT0NCX0RJUkVDVCkg
+fHwgIWZpbGUtPmZfb3AtPmlvcG9sbCkKLQkJCXJldHVybiAtRU9QTk9UU1VQUDsKLQotCQlr
+aW9jYi0+a2lfZmxhZ3MgfD0gSU9DQl9ISVBSSSB8IElPQ0JfQUxMT0NfQ0FDSEU7Ci0JCWtp
+b2NiLT5raV9jb21wbGV0ZSA9IGlvX2NvbXBsZXRlX3J3X2lvcG9sbDsKLQkJcmVxLT5pb3Bv
+bGxfY29tcGxldGVkID0gMDsKLQl9IGVsc2UgewotCQlpZiAoa2lvY2ItPmtpX2ZsYWdzICYg
+SU9DQl9ISVBSSSkKLQkJCXJldHVybiAtRUlOVkFMOwotCQlraW9jYi0+a2lfY29tcGxldGUg
+PSBpb19jb21wbGV0ZV9ydzsKLQl9CiAKIAlpb3ByaW8gPSBSRUFEX09OQ0Uoc3FlLT5pb3By
+aW8pOwogCWlmIChpb3ByaW8pIHsKQEAgLTMwNDUsNiArMzAwNyw3IEBAIHN0YXRpYyBpbnQg
+aW9fcHJlcF9ydyhzdHJ1Y3QgaW9fa2lvY2IgKnJlcSwgY29uc3Qgc3RydWN0IGlvX3VyaW5n
+X3NxZSAqc3FlKQogCXJlcS0+aW11ID0gTlVMTDsKIAlyZXEtPnJ3LmFkZHIgPSBSRUFEX09O
+Q0Uoc3FlLT5hZGRyKTsKIAlyZXEtPnJ3LmxlbiA9IFJFQURfT05DRShzcWUtPmxlbik7CisJ
+cmVxLT5ydy5mbGFncyA9IFJFQURfT05DRShzcWUtPnJ3X2ZsYWdzKTsKIAlyZXEtPmJ1Zl9p
+bmRleCA9IFJFQURfT05DRShzcWUtPmJ1Zl9pbmRleCk7CiAJcmV0dXJuIDA7CiB9CkBAIC0z
+NTI1LDEzICszNDg4LDYgQEAgc3RhdGljIGlubGluZSBpbnQgaW9fcndfcHJlcF9hc3luYyhz
+dHJ1Y3QgaW9fa2lvY2IgKnJlcSwgaW50IHJ3KQogCXJldHVybiAwOwogfQogCi1zdGF0aWMg
+aW50IGlvX3JlYWRfcHJlcChzdHJ1Y3QgaW9fa2lvY2IgKnJlcSwgY29uc3Qgc3RydWN0IGlv
+X3VyaW5nX3NxZSAqc3FlKQotewotCWlmICh1bmxpa2VseSghKHJlcS0+ZmlsZS0+Zl9tb2Rl
+ICYgRk1PREVfUkVBRCkpKQotCQlyZXR1cm4gLUVCQURGOwotCXJldHVybiBpb19wcmVwX3J3
+KHJlcSwgc3FlKTsKLX0KLQogLyoKICAqIFRoaXMgaXMgb3VyIHdhaXRxdWV1ZSBjYWxsYmFj
+ayBoYW5kbGVyLCByZWdpc3RlcmVkIHRocm91Z2ggX19mb2xpb19sb2NrX2FzeW5jKCkKICAq
+IHdoZW4gd2UgaW5pdGlhbGx5IHRyaWVkIHRvIGRvIHRoZSBJTyB3aXRoIHRoZSBpb2NiIGFy
+bWVkIG91ciB3YWl0cXVldWUuCkBAIC0zNjE5LDYgKzM1NzUsNTggQEAgc3RhdGljIGJvb2wg
+bmVlZF9yZWFkX2FsbChzdHJ1Y3QgaW9fa2lvY2IgKnJlcSkKIAkJU19JU0JMSyhmaWxlX2lu
+b2RlKHJlcS0+ZmlsZSktPmlfbW9kZSk7CiB9CiAKK3N0YXRpYyBpbnQgaW9fcndfaW5pdF9m
+aWxlKHN0cnVjdCBpb19raW9jYiAqcmVxLCBmbW9kZV90IG1vZGUpCit7CisJc3RydWN0IGtp
+b2NiICpraW9jYiA9ICZyZXEtPnJ3Lmtpb2NiOworCXN0cnVjdCBpb19yaW5nX2N0eCAqY3R4
+ID0gcmVxLT5jdHg7CisJc3RydWN0IGZpbGUgKmZpbGUgPSByZXEtPmZpbGU7CisJaW50IHJl
+dDsKKworCWlmICh1bmxpa2VseSghZmlsZSB8fCAhKGZpbGUtPmZfbW9kZSAmIG1vZGUpKSkK
+KwkJcmV0dXJuIC1FQkFERjsKKworCWlmICghaW9fcmVxX2Zmc19zZXQocmVxKSkKKwkJcmVx
+LT5mbGFncyB8PSBpb19maWxlX2dldF9mbGFncyhmaWxlKSA8PCBSRVFfRl9TVVBQT1JUX05P
+V0FJVF9CSVQ7CisKKwlpZiAoa2lvY2ItPmtpX3BvcyA9PSAtMSkgeworCQlpZiAoIShmaWxl
+LT5mX21vZGUgJiBGTU9ERV9TVFJFQU0pKSB7CisJCQlyZXEtPmZsYWdzIHw9IFJFUV9GX0NV
+Ul9QT1M7CisJCQlraW9jYi0+a2lfcG9zID0gZmlsZS0+Zl9wb3M7CisJCX0gZWxzZSB7CisJ
+CQlraW9jYi0+a2lfcG9zID0gMDsKKwkJfQorCX0KKworCWtpb2NiLT5raV9mbGFncyA9IGlv
+Y2JfZmxhZ3MoZmlsZSk7CisJcmV0ID0ga2lvY2Jfc2V0X3J3X2ZsYWdzKGtpb2NiLCByZXEt
+PnJ3LmZsYWdzKTsKKwlpZiAodW5saWtlbHkocmV0KSkKKwkJcmV0dXJuIHJldDsKKworCS8q
+CisJICogSWYgdGhlIGZpbGUgaXMgbWFya2VkIE9fTk9OQkxPQ0ssIHN0aWxsIGFsbG93IHJl
+dHJ5IGZvciBpdCBpZiBpdAorCSAqIHN1cHBvcnRzIGFzeW5jLiBPdGhlcndpc2UgaXQncyBp
+bXBvc3NpYmxlIHRvIHVzZSBPX05PTkJMT0NLIGZpbGVzCisJICogcmVsaWFibHkuIElmIG5v
+dCwgb3IgaXQgSU9DQl9OT1dBSVQgaXMgc2V0LCBkb24ndCByZXRyeS4KKwkgKi8KKwlpZiAo
+KGtpb2NiLT5raV9mbGFncyAmIElPQ0JfTk9XQUlUKSB8fAorCSAgICAoKGZpbGUtPmZfZmxh
+Z3MgJiBPX05PTkJMT0NLKSAmJiAhaW9fZmlsZV9zdXBwb3J0c19ub3dhaXQocmVxKSkpCisJ
+CXJlcS0+ZmxhZ3MgfD0gUkVRX0ZfTk9XQUlUOworCisJaWYgKGN0eC0+ZmxhZ3MgJiBJT1JJ
+TkdfU0VUVVBfSU9QT0xMKSB7CisJCWlmICghKGtpb2NiLT5raV9mbGFncyAmIElPQ0JfRElS
+RUNUKSB8fCAhZmlsZS0+Zl9vcC0+aW9wb2xsKQorCQkJcmV0dXJuIC1FT1BOT1RTVVBQOwor
+CisJCWtpb2NiLT5raV9mbGFncyB8PSBJT0NCX0hJUFJJIHwgSU9DQl9BTExPQ19DQUNIRTsK
+KwkJa2lvY2ItPmtpX2NvbXBsZXRlID0gaW9fY29tcGxldGVfcndfaW9wb2xsOworCQlyZXEt
+PmlvcG9sbF9jb21wbGV0ZWQgPSAwOworCX0gZWxzZSB7CisJCWlmIChraW9jYi0+a2lfZmxh
+Z3MgJiBJT0NCX0hJUFJJKQorCQkJcmV0dXJuIC1FSU5WQUw7CisJCWtpb2NiLT5raV9jb21w
+bGV0ZSA9IGlvX2NvbXBsZXRlX3J3OworCX0KKworCXJldHVybiAwOworfQorCiBzdGF0aWMg
+aW50IGlvX3JlYWQoc3RydWN0IGlvX2tpb2NiICpyZXEsIHVuc2lnbmVkIGludCBpc3N1ZV9m
+bGFncykKIHsKIAlzdHJ1Y3QgaW9fcndfc3RhdGUgX19zLCAqcyA9ICZfX3M7CkBAIC0zNjQz
+LDYgKzM2NTEsOSBAQCBzdGF0aWMgaW50IGlvX3JlYWQoc3RydWN0IGlvX2tpb2NiICpyZXEs
+IHVuc2lnbmVkIGludCBpc3N1ZV9mbGFncykKIAkJaW92X2l0ZXJfcmVzdG9yZSgmcy0+aXRl
+ciwgJnMtPml0ZXJfc3RhdGUpOwogCQlpb3ZlYyA9IE5VTEw7CiAJfQorCXJldCA9IGlvX3J3
+X2luaXRfZmlsZShyZXEsIEZNT0RFX1JFQUQpOworCWlmICh1bmxpa2VseShyZXQpKQorCQly
+ZXR1cm4gcmV0OwogCXJlcS0+cmVzdWx0ID0gaW92X2l0ZXJfY291bnQoJnMtPml0ZXIpOwog
+CiAJaWYgKGZvcmNlX25vbmJsb2NrKSB7CkBAIC0zNzQxLDE0ICszNzUyLDYgQEAgc3RhdGlj
+IGludCBpb19yZWFkKHN0cnVjdCBpb19raW9jYiAqcmVxLCB1bnNpZ25lZCBpbnQgaXNzdWVf
+ZmxhZ3MpCiAJcmV0dXJuIDA7CiB9CiAKLXN0YXRpYyBpbnQgaW9fd3JpdGVfcHJlcChzdHJ1
+Y3QgaW9fa2lvY2IgKnJlcSwgY29uc3Qgc3RydWN0IGlvX3VyaW5nX3NxZSAqc3FlKQotewot
+CWlmICh1bmxpa2VseSghKHJlcS0+ZmlsZS0+Zl9tb2RlICYgRk1PREVfV1JJVEUpKSkKLQkJ
+cmV0dXJuIC1FQkFERjsKLQlyZXEtPnJ3Lmtpb2NiLmtpX2hpbnQgPSBraV9oaW50X3ZhbGlk
+YXRlKGZpbGVfd3JpdGVfaGludChyZXEtPmZpbGUpKTsKLQlyZXR1cm4gaW9fcHJlcF9ydyhy
+ZXEsIHNxZSk7Ci19Ci0KIHN0YXRpYyBpbnQgaW9fd3JpdGUoc3RydWN0IGlvX2tpb2NiICpy
+ZXEsIHVuc2lnbmVkIGludCBpc3N1ZV9mbGFncykKIHsKIAlzdHJ1Y3QgaW9fcndfc3RhdGUg
+X19zLCAqcyA9ICZfX3M7CkBAIC0zNzY4LDYgKzM3NzEsOSBAQCBzdGF0aWMgaW50IGlvX3dy
+aXRlKHN0cnVjdCBpb19raW9jYiAqcmVxLCB1bnNpZ25lZCBpbnQgaXNzdWVfZmxhZ3MpCiAJ
+CWlvdl9pdGVyX3Jlc3RvcmUoJnMtPml0ZXIsICZzLT5pdGVyX3N0YXRlKTsKIAkJaW92ZWMg
+PSBOVUxMOwogCX0KKwlyZXQgPSBpb19yd19pbml0X2ZpbGUocmVxLCBGTU9ERV9XUklURSk7
+CisJaWYgKHVubGlrZWx5KHJldCkpCisJCXJldHVybiByZXQ7CiAJcmVxLT5yZXN1bHQgPSBp
+b3ZfaXRlcl9jb3VudCgmcy0+aXRlcik7CiAKIAlpZiAoZm9yY2Vfbm9uYmxvY2spIHsKQEAg
+LTY1MDIsMTEgKzY1MDgsMTAgQEAgc3RhdGljIGludCBpb19yZXFfcHJlcChzdHJ1Y3QgaW9f
+a2lvY2IgKnJlcSwgY29uc3Qgc3RydWN0IGlvX3VyaW5nX3NxZSAqc3FlKQogCWNhc2UgSU9S
+SU5HX09QX1JFQURWOgogCWNhc2UgSU9SSU5HX09QX1JFQURfRklYRUQ6CiAJY2FzZSBJT1JJ
+TkdfT1BfUkVBRDoKLQkJcmV0dXJuIGlvX3JlYWRfcHJlcChyZXEsIHNxZSk7CiAJY2FzZSBJ
+T1JJTkdfT1BfV1JJVEVWOgogCWNhc2UgSU9SSU5HX09QX1dSSVRFX0ZJWEVEOgogCWNhc2Ug
+SU9SSU5HX09QX1dSSVRFOgotCQlyZXR1cm4gaW9fd3JpdGVfcHJlcChyZXEsIHNxZSk7CisJ
+CXJldHVybiBpb19wcmVwX3J3KHJlcSwgc3FlKTsKIAljYXNlIElPUklOR19PUF9QT0xMX0FE
+RDoKIAkJcmV0dXJuIGlvX3BvbGxfYWRkX3ByZXAocmVxLCBzcWUpOwogCWNhc2UgSU9SSU5H
+X09QX1BPTExfUkVNT1ZFOgotLSAKMi4zNS4xCgo=
+
+--------------chVLQTDPCqwNbpDkISBZLAk7--
