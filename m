@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 214864FB529
-	for <lists+stable@lfdr.de>; Mon, 11 Apr 2022 09:44:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E70C24FB52A
+	for <lists+stable@lfdr.de>; Mon, 11 Apr 2022 09:44:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230179AbiDKHqp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Apr 2022 03:46:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49432 "EHLO
+        id S244576AbiDKHqv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Apr 2022 03:46:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49302 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245635AbiDKHqj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 03:46:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B08C53898
-        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 00:44:18 -0700 (PDT)
+        with ESMTP id S240455AbiDKHqq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 03:46:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5E2C5F88
+        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 00:44:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4B50C6146F
-        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 07:44:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CBD3C385A4;
-        Mon, 11 Apr 2022 07:44:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 73D30B80ED6
+        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 07:44:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBD36C385A5;
+        Mon, 11 Apr 2022 07:44:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649663057;
-        bh=DyiehznYdEH1O+3Ng7gEIEbAJxBZInXJF1gYee0MoaU=;
+        s=korg; t=1649663069;
+        bh=khgD3luToPekWrK2kxejVSS/gcSulswd+22g/lWf+4A=;
         h=Subject:To:Cc:From:Date:From;
-        b=Akf89bzcdFnAu9i5rBrQugmwQcA5VDmAIRYILWqaZYfww+4buoQqsfL6lG6oC064V
-         6vnJnGfkNtee8Y37Uh28oRb74kLP0LxqyzvsqF1LLdX+YVZd+pcTDSClcUbWk9VsNf
-         8CrE7o06kPQfkqv93RaMBCb6D8fqKWUja7fS/hOM=
-Subject: FAILED: patch "[PATCH] io_uring: defer file assignment" failed to apply to 5.15-stable tree
+        b=sbzPbZdwrzCFAOr74HFCu/8R9ZJP0kHRGzBc3S3gBlQV9D8VroPHJqS8t4dwq1ZNo
+         1fgqwt6wK+rNHlbnlMfcc0dWdYF0VJrqvSkq+qzYXglPjWsv2vpwPgsaQXs8wYUJ7e
+         FjbyMyLNEt3OOGtW7tp6CpXx2DEJlL3KbgIePoe0=
+Subject: FAILED: patch "[PATCH] io_uring: defer file assignment" failed to apply to 5.17-stable tree
 To:     axboe@kernel.dk
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 11 Apr 2022 09:44:15 +0200
-Message-ID: <1649663055250115@kroah.com>
+Date:   Mon, 11 Apr 2022 09:44:16 +0200
+Message-ID: <16496630567985@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.17-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
