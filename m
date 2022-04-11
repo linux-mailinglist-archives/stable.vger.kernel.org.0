@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 700D74FB55F
-	for <lists+stable@lfdr.de>; Mon, 11 Apr 2022 09:53:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC66F4FB560
+	for <lists+stable@lfdr.de>; Mon, 11 Apr 2022 09:53:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237440AbiDKHzQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Apr 2022 03:55:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44270 "EHLO
+        id S240647AbiDKH4K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Apr 2022 03:56:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44612 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230254AbiDKHzP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 03:55:15 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1110427CDA
-        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 00:53:02 -0700 (PDT)
+        with ESMTP id S230254AbiDKH4J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 03:56:09 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3741C27CDA
+        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 00:53:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A20F16144C
-        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 07:53:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A721CC385AC;
-        Mon, 11 Apr 2022 07:53:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DC67CB810A9
+        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 07:53:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 334B1C385AC;
+        Mon, 11 Apr 2022 07:53:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649663581;
-        bh=7Tx0DCW3sqpiJ/Si664a/b40uXqCffiC6r+ybF2Dk/M=;
+        s=korg; t=1649663633;
+        bh=KipijSTzm2C8CpX7PXuUxnflnLMgj5R43L/+aMTIpUA=;
         h=Subject:To:Cc:From:Date:From;
-        b=ZQJjbXoSx0TEOgM0ELOG2WdMps8Sf1M4wZX/Y21uuHtp5ivSLSyuFeKY0TwiYOjZB
-         HYMETR8DGEJkVu8U4CP0yd8mIzwJEqUmur+cMHc3aUqvuva6TFsges/U4askBpZDVY
-         5vL0ElODqoy9h6srHjxiFppYq1LG87+/kE1Y71XQ=
-Subject: FAILED: patch "[PATCH] btrfs: prevent subvol with swapfile from being deleted" failed to apply to 5.4-stable tree
-To:     kevinhu@synology.com, dsterba@suse.com, fdmanana@suse.com,
-        robbieko@synology.com, wqu@suse.com
+        b=XqT+dIJHQibV8XeKF+MN2BNwtNk8Ggqrq74/50vKSTjk92bAiixTJUhK/1lBp8btR
+         abWOYKo4E0Y5gfOS2fE1gIP5/LjggJWuXTQkyd3lgyQTPwY4A0XyWc7ldjoZ4CUZyI
+         FHRDgzzgZ8y2fLtG6fdhX1JwvZzMHjf0KLz39fPg=
+Subject: FAILED: patch "[PATCH] btrfs: zoned: remove left over ASSERT checking for single" failed to apply to 5.17-stable tree
+To:     johannes.thumshirn@wdc.com, dsterba@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 11 Apr 2022 09:52:58 +0200
-Message-ID: <164966357846155@kroah.com>
+Date:   Mon, 11 Apr 2022 09:53:50 +0200
+Message-ID: <164966363022185@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.17-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,88 +59,43 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 60021bd754c6ca0addc6817994f20290a321d8d6 Mon Sep 17 00:00:00 2001
-From: Kaiwen Hu <kevinhu@synology.com>
-Date: Wed, 23 Mar 2022 15:10:32 +0800
-Subject: [PATCH] btrfs: prevent subvol with swapfile from being deleted
+From 62ed0bf7315b524973bb5fb9174b60e353289835 Mon Sep 17 00:00:00 2001
+From: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Date: Mon, 7 Mar 2022 02:47:18 -0800
+Subject: [PATCH] btrfs: zoned: remove left over ASSERT checking for single
+ profile
 
-A subvolume with an active swapfile must not be deleted otherwise it
-would not be possible to deactivate it.
+With commit dcf5652291f6 ("btrfs: zoned: allow DUP on meta-data block
+groups") we started allowing DUP on metadata block groups, so the
+ASSERT()s in btrfs_can_activate_zone() and btrfs_zoned_get_device() are
+no longer valid and in fact even harmful.
 
-After the subvolume is deleted, we cannot swapoff the swapfile in this
-deleted subvolume because the path is unreachable.  The swapfile is
-still active and holding references, the filesystem cannot be unmounted.
-
-The test looks like this:
-
-  mkfs.btrfs -f $dev > /dev/null
-  mount $dev $mnt
-
-  btrfs sub create $mnt/subvol
-  touch $mnt/subvol/swapfile
-  chmod 600 $mnt/subvol/swapfile
-  chattr +C $mnt/subvol/swapfile
-  dd if=/dev/zero of=$mnt/subvol/swapfile bs=1K count=4096
-  mkswap $mnt/subvol/swapfile
-  swapon $mnt/subvol/swapfile
-
-  btrfs sub delete $mnt/subvol
-  swapoff $mnt/subvol/swapfile  # failed: No such file or directory
-  swapoff --all
-
-  unmount $mnt                  # target is busy.
-
-To prevent above issue, we simply check that whether the subvolume
-contains any active swapfile, and stop the deleting process.  This
-behavior is like snapshot ioctl dealing with a swapfile.
-
-CC: stable@vger.kernel.org # 5.4+
-Reviewed-by: Robbie Ko <robbieko@synology.com>
-Reviewed-by: Qu Wenruo <wqu@suse.com>
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: Kaiwen Hu <kevinhu@synology.com>
+Fixes: dcf5652291f6 ("btrfs: zoned: allow DUP on meta-data block groups")
+CC: stable@vger.kernel.org # 5.17
+Signed-off-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 
-diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
-index b976f757571f..5aab6af88349 100644
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -4487,6 +4487,13 @@ int btrfs_delete_subvolume(struct inode *dir, struct dentry *dentry)
- 			   dest->root_key.objectid);
- 		return -EPERM;
- 	}
-+	if (atomic_read(&dest->nr_swapfiles)) {
-+		spin_unlock(&dest->root_item_lock);
-+		btrfs_warn(fs_info,
-+			   "attempt to delete subvolume %llu with active swapfile",
-+			   root->root_key.objectid);
-+		return -EPERM;
-+	}
- 	root_flags = btrfs_root_flags(&dest->root_item);
- 	btrfs_set_root_flags(&dest->root_item,
- 			     root_flags | BTRFS_ROOT_SUBVOL_DEAD);
-@@ -11110,8 +11117,23 @@ static int btrfs_swap_activate(struct swap_info_struct *sis, struct file *file,
- 	 * set. We use this counter to prevent snapshots. We must increment it
- 	 * before walking the extents because we don't want a concurrent
- 	 * snapshot to run after we've already checked the extents.
-+	 *
-+	 * It is possible that subvolume is marked for deletion but still not
-+	 * removed yet. To prevent this race, we check the root status before
-+	 * activating the swapfile.
- 	 */
-+	spin_lock(&root->root_item_lock);
-+	if (btrfs_root_dead(root)) {
-+		spin_unlock(&root->root_item_lock);
-+
-+		btrfs_exclop_finish(fs_info);
-+		btrfs_warn(fs_info,
-+		"cannot activate swapfile because subvolume %llu is being deleted",
-+			root->root_key.objectid);
-+		return -EPERM;
-+	}
- 	atomic_inc(&root->nr_swapfiles);
-+	spin_unlock(&root->root_item_lock);
+diff --git a/fs/btrfs/zoned.c b/fs/btrfs/zoned.c
+index 61125aec8723..1b1b310c3c51 100644
+--- a/fs/btrfs/zoned.c
++++ b/fs/btrfs/zoned.c
+@@ -1801,7 +1801,6 @@ struct btrfs_device *btrfs_zoned_get_device(struct btrfs_fs_info *fs_info,
  
- 	isize = ALIGN_DOWN(inode->i_size, fs_info->sectorsize);
+ 	map = em->map_lookup;
+ 	/* We only support single profile for now */
+-	ASSERT(map->num_stripes == 1);
+ 	device = map->stripes[0].dev;
  
+ 	free_extent_map(em);
+@@ -1983,9 +1982,6 @@ bool btrfs_can_activate_zone(struct btrfs_fs_devices *fs_devices, u64 flags)
+ 	if (!btrfs_is_zoned(fs_info))
+ 		return true;
+ 
+-	/* Non-single profiles are not supported yet */
+-	ASSERT((flags & BTRFS_BLOCK_GROUP_PROFILE_MASK) == 0);
+-
+ 	/* Check if there is a device with active zones left */
+ 	mutex_lock(&fs_info->chunk_mutex);
+ 	list_for_each_entry(device, &fs_devices->alloc_list, dev_alloc_list) {
 
