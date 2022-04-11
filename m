@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E49D54FB407
-	for <lists+stable@lfdr.de>; Mon, 11 Apr 2022 08:53:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9A234FB408
+	for <lists+stable@lfdr.de>; Mon, 11 Apr 2022 08:53:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245088AbiDKGzf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Apr 2022 02:55:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56700 "EHLO
+        id S245089AbiDKGzp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Apr 2022 02:55:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56746 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236025AbiDKGze (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 02:55:34 -0400
+        with ESMTP id S236025AbiDKGzo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 02:55:44 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C89CF19015
-        for <stable@vger.kernel.org>; Sun, 10 Apr 2022 23:53:21 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C3D919015
+        for <stable@vger.kernel.org>; Sun, 10 Apr 2022 23:53:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5A78761347
-        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 06:53:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F36FC385A4;
-        Mon, 11 Apr 2022 06:53:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CBCD4612DC
+        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 06:53:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8EFFC385A3;
+        Mon, 11 Apr 2022 06:53:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649660000;
-        bh=DU0HBjG0MajGqZB9jQw2UTqquBcgCpfrZrIODaMZMmU=;
+        s=korg; t=1649660010;
+        bh=5sHSLayEBVwkZV7KO3Lbpp/iNROzuBQfgxtO57efD5w=;
         h=Subject:To:Cc:From:Date:From;
-        b=dwk1RRHiZJ25Y5M+TMkYLnm5EWFyuCr22CSk2pbBrF+p46lwLLrTN7d9dD0J7cBXi
-         5glV0lkQ54sLIybwIZLNvXwIRIJDNq2VN6GyvKeLTAhlhTNC/3hMzT6CVQB0KO9/r2
-         k/V/WFAUvP3ONCxN9jyus3Tsi/Z74yyGVtSZw6aA=
-Subject: FAILED: patch "[PATCH] arm64: Add part number for Arm Cortex-A78AE" failed to apply to 4.9-stable tree
+        b=i8y30f0M691ZfmYNoIyPnZDsvJV4+41wiQAEPSXbIxnmy6VKRYT3y34xe33Hcmr9K
+         GFhM1YEzup83o4lDlc9osWx2uuIcEDvacbCIa3dqDRiZ35m6AkiInVewDNCz+mYy5u
+         zAlOuh7pDIcYQOFdT0sKdoQ1+Q5SYm0lU6gJiQgQ=
+Subject: FAILED: patch "[PATCH] arm64: Add part number for Arm Cortex-A78AE" failed to apply to 4.14-stable tree
 To:     chanho61.park@samsung.com, catalin.marinas@arm.com,
         james.morse@arm.com, mark.rutland@arm.com, will@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 11 Apr 2022 08:53:17 +0200
-Message-ID: <1649659997222224@kroah.com>
+Date:   Mon, 11 Apr 2022 08:53:20 +0200
+Message-ID: <16496600005259@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
