@@ -2,91 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 726494FBF14
-	for <lists+stable@lfdr.de>; Mon, 11 Apr 2022 16:28:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF0954FBF53
+	for <lists+stable@lfdr.de>; Mon, 11 Apr 2022 16:36:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347047AbiDKOaN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Apr 2022 10:30:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56990 "EHLO
+        id S233269AbiDKOic (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Apr 2022 10:38:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50374 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347095AbiDKOaM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 10:30:12 -0400
-Received: from netrider.rowland.org (netrider.rowland.org [192.131.102.5])
-        by lindbergh.monkeyblade.net (Postfix) with SMTP id 435573B034
-        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 07:27:57 -0700 (PDT)
-Received: (qmail 342391 invoked by uid 1000); 11 Apr 2022 10:27:56 -0400
-Date:   Mon, 11 Apr 2022 10:27:56 -0400
-From:   Alan Stern <stern@rowland.harvard.edu>
-To:     Lin Ma <linma@zju.edu.cn>
-Cc:     gregkh@linuxfoundation.org, linux-usb@vger.kernel.org,
-        usb-storage@lists.one-eyed-alien.net,
-        mdharm-usb@one-eyed-alien.net, stable@vger.kernel.org
-Subject: Re: [PATCH v2] USB: storage: karma: fix rio_karma_init return
-Message-ID: <YlQ67AgfvMXkUWEZ@rowland.harvard.edu>
-References: <20220411060246.9887-1-linma@zju.edu.cn>
+        with ESMTP id S1347345AbiDKOib (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 10:38:31 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D55312BF4
+        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 07:36:16 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 72A1C6147E
+        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 14:36:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79CB0C385A3;
+        Mon, 11 Apr 2022 14:36:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1649687775;
+        bh=zwHJc8n2BZEsXOcfcwrS7mbergCueD0Mug0QYNnaU5s=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=F15JqDHzcBtrKYfMdqz+m/tlgYTn6345NHLPps7OVh1aM528YRD9v/nbvggcx6DqK
+         0ZxZs1obb9EoikW/3TLRMTbZGs4fE1Ejbb0oz/U5VI1T5+2ChqK6VIVrEBS+fhTjil
+         hfPFZyfFFu8Xix12EqAPuyCB4D+ebYPGWwQMtQGs=
+Date:   Mon, 11 Apr 2022 16:36:13 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Ovidiu Panait <ovidiu.panait@windriver.com>
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH 5.15 0/3] cgroup: backport selftests for CVE-2021-4197
+Message-ID: <YlQ83YwagyklVJYs@kroah.com>
+References: <20220407071901.32350-1-ovidiu.panait@windriver.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220411060246.9887-1-linma@zju.edu.cn>
-X-Spam-Status: No, score=-1.7 required=5.0 tests=BAYES_00,
-        HEADER_FROM_DIFFERENT_DOMAINS,SPF_HELO_PASS,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no version=3.4.6
+In-Reply-To: <20220407071901.32350-1-ovidiu.panait@windriver.com>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Apr 11, 2022 at 02:02:46PM +0800, Lin Ma wrote:
-> The function rio_karam_init() should return -ENOMEM instead of
-> value 0 (USB_STOR_TRANSPORT_GOOD) when allocation fails.
+On Thu, Apr 07, 2022 at 10:18:58AM +0300, Ovidiu Panait wrote:
+> CVE-2021-4197 patchset consists of:
+> [1] 1756d7994ad8 ("cgroup: Use open-time credentials for process migraton perm checks")
+> [2] 0d2b5955b362 ("cgroup: Allocate cgroup_file_ctx for kernfs_open_file->priv")
+> [3] e57457641613 ("cgroup: Use open-time cgroup namespace for process migration perm checks")
+> [4] b09c2baa5634 ("selftests: cgroup: Make cg_create() use 0755 for permission instead of 0644")
+> [5] 613e040e4dc2 ("selftests: cgroup: Test open-time credential usage for migration checks")
+> [6] bf35a7879f1d ("selftests: cgroup: Test open-time cgroup namespace usage for migration checks")
 > 
-> Simlarlly, it should return -EIO when rio_karma_send_command() fails.
+> Commits [1], [2] and [3] are already present in 5.15-stable, this patchset
+> includes backports for the selftests. All patches are clean cherry-picks.
 > 
-> Cc: stable@vger.kernel.org
-> Fixes: dfe0d3ba20e8 ("USB Storage: add rio karma eject support")
-> Signed-off-by: Lin Ma <linma@zju.edu.cn>
-> ---
+> The newly introduced selftests (test_cgcore_lesser_euid_open() and
+> test_cgcore_lesser_ns_open()) pass with this series applied:
+> 
+> root@intel-x86-64:~# ./test_core
+> ok 1 test_cgcore_internal_process_constraint
+> ok 2 test_cgcore_top_down_constraint_enable
+> ok 3 test_cgcore_top_down_constraint_disable
+> ok 4 test_cgcore_no_internal_process_constraint_os
+> ok 5 test_cgcore_parent_becomes_threaded
+> ok 6 test_cgcore_invalid_domain
+> ok 7 test_cgcore_populated
+> ok 8 test_cgcore_proc_migration
+> ok 9 test_cgcore_thread_migration
+> ok 10 test_cgcore_destroy
+> ok 11 test_cgcore_lesser_euid_open
+> ok 12 test_cgcore_lesser_ns_open
+> 
+> 
+> Tejun Heo (3):
+>   selftests: cgroup: Make cg_create() use 0755 for permission instead of
+>     0644
+>   selftests: cgroup: Test open-time credential usage for migration
+>     checks
+>   selftests: cgroup: Test open-time cgroup namespace usage for migration
+>     checks
+> 
+>  tools/testing/selftests/cgroup/cgroup_util.c |   2 +-
+>  tools/testing/selftests/cgroup/test_core.c   | 165 +++++++++++++++++++
+>  2 files changed, 166 insertions(+), 1 deletion(-)
+> 
+> -- 
+> 2.25.1
+> 
 
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
+All now queued up, thanks!
 
->  drivers/usb/storage/karma.c | 15 ++++++++-------
->  1 file changed, 8 insertions(+), 7 deletions(-)
-> 
-> diff --git a/drivers/usb/storage/karma.c b/drivers/usb/storage/karma.c
-> index 05cec81dcd3f..38ddfedef629 100644
-> --- a/drivers/usb/storage/karma.c
-> +++ b/drivers/usb/storage/karma.c
-> @@ -174,24 +174,25 @@ static void rio_karma_destructor(void *extra)
->  
->  static int rio_karma_init(struct us_data *us)
->  {
-> -	int ret = 0;
->  	struct karma_data *data = kzalloc(sizeof(struct karma_data), GFP_NOIO);
->  
->  	if (!data)
-> -		goto out;
-> +		return -ENOMEM;
->  
->  	data->recv = kmalloc(RIO_RECV_LEN, GFP_NOIO);
->  	if (!data->recv) {
->  		kfree(data);
-> -		goto out;
-> +		return -ENOMEM;
->  	}
->  
->  	us->extra = data;
->  	us->extra_destructor = rio_karma_destructor;
-> -	ret = rio_karma_send_command(RIO_ENTER_STORAGE, us);
-> -	data->in_storage = (ret == 0);
-> -out:
-> -	return ret;
-> +	if (rio_karma_send_command(RIO_ENTER_STORAGE, us))
-> +		return -EIO;
-> +
-> +	data->in_storage = 1;
-> +
-> +	return 0;
->  }
->  
->  static struct scsi_host_template karma_host_template;
+greg k-h
