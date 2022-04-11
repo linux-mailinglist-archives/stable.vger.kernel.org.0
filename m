@@ -2,136 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 793DD4FC646
-	for <lists+stable@lfdr.de>; Mon, 11 Apr 2022 23:01:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 369984FC650
+	for <lists+stable@lfdr.de>; Mon, 11 Apr 2022 23:06:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345823AbiDKVDt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Apr 2022 17:03:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50964 "EHLO
+        id S244116AbiDKVIb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Apr 2022 17:08:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58910 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239690AbiDKVDs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 17:03:48 -0400
-Received: from mail-pl1-x629.google.com (mail-pl1-x629.google.com [IPv6:2607:f8b0:4864:20::629])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E32D6149
-        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 14:01:33 -0700 (PDT)
-Received: by mail-pl1-x629.google.com with SMTP id c23so14972286plo.0
-        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 14:01:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=/kk9/0XEWFiRqfi5V84ef35P4c4tzoLInq5h6smYfDg=;
-        b=fIg5bLHpLAs1qjpKqCww4YkaSnXZAVHIBFAWFviQZyYAu5gbS+fndGu6PQCmrpesBo
-         Nz8amfqygGyYAFysx1i4P70c7VSV1D06wBiLxjjYLwVPUie8tsFeTCWZiIXdShYJEcLQ
-         HdVwJ0cLWfpYOz9QB3ibt9uXP9NiR5VcOwWBra4wkjLy/d6CXp7LURfd6gtoQT3peRyf
-         WchvO4E9RwOfiyVBnrJOlGHu5B2FtGXESTktArAPKr68yxMwL4Wr9EuSYCwMauH246x2
-         OaLIbWVWsKo+wt3CrXRStIGuoofxLchHIxEc39vnsoUcbFmK7mBofc3BAT/jcc0bgAnj
-         QZAQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=/kk9/0XEWFiRqfi5V84ef35P4c4tzoLInq5h6smYfDg=;
-        b=AnbO76fNTvwvZY97/amSwzHCslyIPOiOYstla7VE1BjwWpyCDh+muFPZVcVkKLjy7p
-         vDsGz664xxybwTpoCVG/Qz8up5ow5yXsnJ06BacrXm/M3aXU+/vzelqUWtklq5MLWFm7
-         EINFjxGUoHieHH0yKbFTS0KACiU1ZzUI4b812vC1XlbY5D81Ju5hCOcyAdEXew6onteD
-         rWwWpeTiH0q/9hTGpp7e7rGtFxXIAeE/IJ78ouOdxGFCroedB0cus6KSbZjBZ4ifOPH+
-         M9a7xcTFLSN2T7LXN8Edtdr7PNfV/cqqM17xr8xMU1KkoscRqOD7DOGyZ2F9pM1v0k4y
-         JAEQ==
-X-Gm-Message-State: AOAM531sdzhcFSWiCUDeWJUcUI7AXi5fFmg/4JWUy8xo4CRKs9EpGiXT
-        /jpL/Eog/uHMN67MLv0E21aaKFOiZVLyuUwz
-X-Google-Smtp-Source: ABdhPJwHR8/LN6WUOsHHmTp/qkt1+q+us49bDou2DvqoEmwb46fgu1gDjzoLtMaLxXdZ+beT1AIBqw==
-X-Received: by 2002:a17:902:8ec8:b0:156:847b:a8f8 with SMTP id x8-20020a1709028ec800b00156847ba8f8mr34915072plo.121.1649710891425;
-        Mon, 11 Apr 2022 14:01:31 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id y16-20020a637d10000000b00381268f2c6fsm598168pgc.4.2022.04.11.14.01.30
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 11 Apr 2022 14:01:30 -0700 (PDT)
-Message-ID: <6254972a.1c69fb81.5932f.223b@mx.google.com>
-Date:   Mon, 11 Apr 2022 14:01:30 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S230074AbiDKVIa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 17:08:30 -0400
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id B2D9BB1C3;
+        Mon, 11 Apr 2022 14:06:15 -0700 (PDT)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 602241570;
+        Mon, 11 Apr 2022 14:06:15 -0700 (PDT)
+Received: from airbuntu (unknown [172.31.20.19])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 2A6473F70D;
+        Mon, 11 Apr 2022 14:06:14 -0700 (PDT)
+Date:   Mon, 11 Apr 2022 22:06:04 +0100
+From:   Qais Yousef <qais.yousef@arm.com>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, linux-tip-commits@vger.kernel.org,
+        Abhijeet Dharmapurikar <adharmap@quicinc.com>,
+        Valentin Schneider <valentin.schneider@arm.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>, x86@kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [tip: sched/core] sched/tracing: Don't re-read p->state when
+ emitting sched_switch event
+Message-ID: <20220411210604.jskouzqxmi7oe7il@airbuntu>
+References: <20220120162520.570782-2-valentin.schneider@arm.com>
+ <164614827941.16921.4995078681021904041.tip-bot2@tip-bot2>
+ <20220308180240.qivyjdn4e3te3urm@wubuntu>
+ <YiecMTy8ckUdXTQO@kroah.com>
+ <20220308185138.ldxfqd242uxowymd@wubuntu>
+ <20220409233829.o2s6tffuzujkx6w2@airbuntu>
+ <YlQrf1KDjlidLAHl@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-5.15.y
-X-Kernelci-Kernel: v5.15.33
-X-Kernelci-Report-Type: test
-Subject: stable-rc/linux-5.15.y baseline: 128 runs, 1 regressions (v5.15.33)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <YlQrf1KDjlidLAHl@kroah.com>
+X-Spam-Status: No, score=-6.9 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.15.y baseline: 128 runs, 1 regressions (v5.15.33)
+On 04/11/22 15:22, Greg KH wrote:
+> On Sun, Apr 10, 2022 at 12:38:29AM +0100, Qais Yousef wrote:
+> > On 03/08/22 18:51, Qais Yousef wrote:
+> > > On 03/08/22 19:10, Greg KH wrote:
+> > > > On Tue, Mar 08, 2022 at 06:02:40PM +0000, Qais Yousef wrote:
+> > > > > +CC stable
+> > > > > 
+> > > > > On 03/01/22 15:24, tip-bot2 for Valentin Schneider wrote:
+> > > > > > The following commit has been merged into the sched/core branch of tip:
+> > > > > > 
+> > > > > > Commit-ID:     fa2c3254d7cfff5f7a916ab928a562d1165f17bb
+> > > > > > Gitweb:        https://git.kernel.org/tip/fa2c3254d7cfff5f7a916ab928a562d1165f17bb
+> > > > > > Author:        Valentin Schneider <valentin.schneider@arm.com>
+> > > > > > AuthorDate:    Thu, 20 Jan 2022 16:25:19 
+> > > > > > Committer:     Peter Zijlstra <peterz@infradead.org>
+> > > > > > CommitterDate: Tue, 01 Mar 2022 16:18:39 +01:00
+> > > > > > 
+> > > > > > sched/tracing: Don't re-read p->state when emitting sched_switch event
+> > > > > > 
+> > > > > > As of commit
+> > > > > > 
+> > > > > >   c6e7bd7afaeb ("sched/core: Optimize ttwu() spinning on p->on_cpu")
+> > > > > > 
+> > > > > > the following sequence becomes possible:
+> > > > > > 
+> > > > > > 		      p->__state = TASK_INTERRUPTIBLE;
+> > > > > > 		      __schedule()
+> > > > > > 			deactivate_task(p);
+> > > > > >   ttwu()
+> > > > > >     READ !p->on_rq
+> > > > > >     p->__state=TASK_WAKING
+> > > > > > 			trace_sched_switch()
+> > > > > > 			  __trace_sched_switch_state()
+> > > > > > 			    task_state_index()
+> > > > > > 			      return 0;
+> > > > > > 
+> > > > > > TASK_WAKING isn't in TASK_REPORT, so the task appears as TASK_RUNNING in
+> > > > > > the trace event.
+> > > > > > 
+> > > > > > Prevent this by pushing the value read from __schedule() down the trace
+> > > > > > event.
+> > > > > > 
+> > > > > > Reported-by: Abhijeet Dharmapurikar <adharmap@quicinc.com>
+> > > > > > Signed-off-by: Valentin Schneider <valentin.schneider@arm.com>
+> > > > > > Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> > > > > > Reviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+> > > > > > Link: https://lore.kernel.org/r/20220120162520.570782-2-valentin.schneider@arm.com
+> > > > > 
+> > > > > Any objection to picking this for stable? I'm interested in this one for some
+> > > > > Android users but prefer if it can be taken by stable rather than backport it
+> > > > > individually.
+> > > > > 
+> > > > > I think it makes sense to pick the next one in the series too.
+> > > > 
+> > > > What commit does this fix in Linus's tree?
+> > > 
+> > > It should be this one: c6e7bd7afaeb ("sched/core: Optimize ttwu() spinning on p->on_cpu")
+> > 
+> > Should this be okay to be picked up by stable now? I can see AUTOSEL has picked
+> > it up for v5.15+, but it impacts v5.10 too.
+> 
+> It does not apply to 5.10 at all, how did you test this?
+> 
+> {sigh}
+> 
+> Again, if you want this applied to any stable trees, please test that it
+> works and send the properly backported patches.
 
-Regressions Summary
--------------------
+Sorry. I'm picking up pieces after a colleague left and was under the
+impression that 5.10 Android users already use as-is, but due to GKI just need
+it formally in stable. Few things got lost in translation, I am very sorry!
 
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
+Let me sort all of this out properly including the testing part for 5.15 too.
 
+Thanks!
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.15.y/ker=
-nel/v5.15.33/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.15.y
-  Describe: v5.15.33
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      06f50ca83ace219cb72213369d2be05bb0dd337e =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/625466690d42289f07ae0680
-
-  Results:     88 PASS, 4 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.3=
-3/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-rk3399-gru=
--kevin.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.3=
-3/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-rk3399-gru=
--kevin.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220401.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
-/625466690d42289f07ae06a2
-        failing since 34 days (last pass: v5.15.26, first fail: v5.15.26-25=
-8-g7b9aacd770fa)
-
-    2022-04-11T17:33:06.508608  /lava-6064397/1/../bin/lava-test-case
-    2022-04-11T17:33:06.518873  <8>[   33.485844] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-i2s1-probed RESULT=3Dfail>   =
-
- =20
+--
+Qais Yousef
