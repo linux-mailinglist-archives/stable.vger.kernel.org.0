@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C3334FC0EE
-	for <lists+stable@lfdr.de>; Mon, 11 Apr 2022 17:35:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA3E84FC0EF
+	for <lists+stable@lfdr.de>; Mon, 11 Apr 2022 17:36:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348022AbiDKPiH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Apr 2022 11:38:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55352 "EHLO
+        id S1345449AbiDKPi0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Apr 2022 11:38:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348024AbiDKPiG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 11:38:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68B113916C
-        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 08:35:52 -0700 (PDT)
+        with ESMTP id S244853AbiDKPi0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 11:38:26 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 619DD3A1A6
+        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 08:36:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 16C8FB80758
-        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 15:35:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66065C385A4;
-        Mon, 11 Apr 2022 15:35:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 16C31B816C6
+        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 15:36:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5905BC385A4;
+        Mon, 11 Apr 2022 15:36:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649691349;
-        bh=8YeyeD6YYPgw5TneiYGyKm/Mc0Lf/LWuvPviMzAoA4U=;
+        s=korg; t=1649691368;
+        bh=7S7ID64LRQ5qr+Jn4o+JwOob5ayED9xjUR7mg2WVc4o=;
         h=Subject:To:Cc:From:Date:From;
-        b=aVEkj+x2UWSRrcPHiPREtXzsat21scM+CQXT0SDxUscJtA7fM8NPLz1K3FmNcJ5jD
-         cGgKuega/vTiFbMJBr1MGBvdiW5RDGXytSneXfb1y63K1CD3Cfx6N/GSLzIL/Il3ee
-         V5u1kMf4N9+lUu89KA/kUM1Zmnbql2S8/Hobk16A=
-Subject: FAILED: patch "[PATCH] bpf: Resolve to prog->aux->dst_prog->type only for" failed to apply to 5.10-stable tree
-To:     kafai@fb.com, ast@kernel.org, yhs@fb.com
+        b=iKNYTxVy4KTEee8m19uZtqktNho3kQFE97/YgyWv/d0c5hMNsPEywjp8xpv5fXKhM
+         cOnP0tNsL9Dj4f1T4RbBFzUM5TJEnmvpzICNOeNraDSEItfsc4foD5Pf4ilzWcu8Iu
+         p/IMPTm0z3wCIc7bexMUYBP+V4utPfyGRnnVUuZI=
+Subject: FAILED: patch "[PATCH] perf/core: Fix perf_cgroup_switch()" failed to apply to 5.17-stable tree
+To:     zhouchengming@bytedance.com, peterz@infradead.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 11 Apr 2022 17:35:35 +0200
-Message-ID: <16496913351895@kroah.com>
+Date:   Mon, 11 Apr 2022 17:36:01 +0200
+Message-ID: <164969136161195@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.17-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,56 +59,292 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 4a9c7bbe2ed4d2b240674b1fb606c41d3940c412 Mon Sep 17 00:00:00 2001
-From: Martin KaFai Lau <kafai@fb.com>
-Date: Tue, 29 Mar 2022 18:14:56 -0700
-Subject: [PATCH] bpf: Resolve to prog->aux->dst_prog->type only for
- BPF_PROG_TYPE_EXT
+From 96492a6c558acb56124844d1409d9ef8624a0322 Mon Sep 17 00:00:00 2001
+From: Chengming Zhou <zhouchengming@bytedance.com>
+Date: Tue, 29 Mar 2022 23:45:22 +0800
+Subject: [PATCH] perf/core: Fix perf_cgroup_switch()
 
-The commit 7e40781cc8b7 ("bpf: verifier: Use target program's type for access verifications")
-fixes the verifier checking for BPF_PROG_TYPE_EXT (extension)
-prog such that the verifier looks for things based
-on the target prog type that it is extending instead of
-the BPF_PROG_TYPE_EXT itself.
+There is a race problem that can trigger WARN_ON_ONCE(cpuctx->cgrp)
+in perf_cgroup_switch().
 
-The current resolve_prog_type() returns the target prog type.
-It checks for nullness on prog->aux->dst_prog.  However,
-when loading a BPF_PROG_TYPE_TRACING prog and it is tracing another
-bpf prog instead of a kernel function, prog->aux->dst_prog is not
-NULL also.  In this case, the verifier should still verify as the
-BPF_PROG_TYPE_TRACING type instead of the traced prog type in
-prog->aux->dst_prog->type.
+CPU1						CPU2
+perf_cgroup_sched_out(prev, next)
+  cgrp1 = perf_cgroup_from_task(prev)
+  cgrp2 = perf_cgroup_from_task(next)
+  if (cgrp1 != cgrp2)
+    perf_cgroup_switch(prev, PERF_CGROUP_SWOUT)
+						cgroup_migrate_execute()
+						  task->cgroups = ?
+						  perf_cgroup_attach()
+						    task_function_call(task, __perf_cgroup_move)
+perf_cgroup_sched_in(prev, next)
+  cgrp1 = perf_cgroup_from_task(prev)
+  cgrp2 = perf_cgroup_from_task(next)
+  if (cgrp1 != cgrp2)
+    perf_cgroup_switch(next, PERF_CGROUP_SWIN)
+						__perf_cgroup_move()
+						  perf_cgroup_switch(task, PERF_CGROUP_SWOUT | PERF_CGROUP_SWIN)
 
-An oops has been reported when tracing a struct_ops prog.  A NULL
-dereference happened in check_return_code() when accessing the
-prog->aux->attach_func_proto->type and prog->aux->attach_func_proto
-is NULL here because the traced struct_ops prog has the "unreliable" set.
+The commit a8d757ef076f ("perf events: Fix slow and broken cgroup
+context switch code") want to skip perf_cgroup_switch() when the
+perf_cgroup of "prev" and "next" are the same.
 
-This patch is to change the resolve_prog_type() to only
-return the target prog type if the prog being verified is
-BPF_PROG_TYPE_EXT.
+But task->cgroups can change in concurrent with context_switch()
+in cgroup_migrate_execute(). If cgrp1 == cgrp2 in sched_out(),
+cpuctx won't do sched_out. Then task->cgroups changed cause
+cgrp1 != cgrp2 in sched_in(), cpuctx will do sched_in. So trigger
+WARN_ON_ONCE(cpuctx->cgrp).
 
-Fixes: 7e40781cc8b7 ("bpf: verifier: Use target program's type for access verifications")
-Signed-off-by: Martin KaFai Lau <kafai@fb.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: Yonghong Song <yhs@fb.com>
-Link: https://lore.kernel.org/bpf/20220330011456.2984509-1-kafai@fb.com
+Even though __perf_cgroup_move() will be synchronized as the context
+switch disables the interrupt, context_switch() still can see the
+task->cgroups is changing in the middle, since task->cgroups changed
+before sending IPI.
 
-diff --git a/include/linux/bpf_verifier.h b/include/linux/bpf_verifier.h
-index c1fc4af47f69..3a9d2d7cc6b7 100644
---- a/include/linux/bpf_verifier.h
-+++ b/include/linux/bpf_verifier.h
-@@ -570,9 +570,11 @@ static inline u32 type_flag(u32 type)
- 	return type & ~BPF_BASE_TYPE_MASK;
- }
+So we have to combine perf_cgroup_sched_in() into perf_cgroup_sched_out(),
+unified into perf_cgroup_switch(), to fix the incosistency between
+perf_cgroup_sched_out() and perf_cgroup_sched_in().
+
+But we can't just compare prev->cgroups with next->cgroups to decide
+whether to skip cpuctx sched_out/in since the prev->cgroups is changing
+too. For example:
+
+CPU1					CPU2
+					cgroup_migrate_execute()
+					  prev->cgroups = ?
+					  perf_cgroup_attach()
+					    task_function_call(task, __perf_cgroup_move)
+perf_cgroup_switch(task)
+  cgrp1 = perf_cgroup_from_task(prev)
+  cgrp2 = perf_cgroup_from_task(next)
+  if (cgrp1 != cgrp2)
+    cpuctx sched_out/in ...
+					task_function_call() will return -ESRCH
+
+In the above example, prev->cgroups changing cause (cgrp1 == cgrp2)
+to be true, so skip cpuctx sched_out/in. And later task_function_call()
+would return -ESRCH since the prev task isn't running on cpu anymore.
+So we would leave perf_events of the old prev->cgroups still sched on
+the CPU, which is wrong.
+
+The solution is that we should use cpuctx->cgrp to compare with
+the next task's perf_cgroup. Since cpuctx->cgrp can only be changed
+on local CPU, and we have irq disabled, we can read cpuctx->cgrp to
+compare without holding ctx lock.
+
+Fixes: a8d757ef076f ("perf events: Fix slow and broken cgroup context switch code")
+Signed-off-by: Chengming Zhou <zhouchengming@bytedance.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lore.kernel.org/r/20220329154523.86438-4-zhouchengming@bytedance.com
+
+diff --git a/kernel/events/core.c b/kernel/events/core.c
+index a08fb92b3934..bdeb41fe7f15 100644
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -824,17 +824,12 @@ perf_cgroup_set_timestamp(struct perf_cpu_context *cpuctx)
  
-+/* only use after check_attach_btf_id() */
- static inline enum bpf_prog_type resolve_prog_type(struct bpf_prog *prog)
+ static DEFINE_PER_CPU(struct list_head, cgrp_cpuctx_list);
+ 
+-#define PERF_CGROUP_SWOUT	0x1 /* cgroup switch out every event */
+-#define PERF_CGROUP_SWIN	0x2 /* cgroup switch in events based on task */
+-
+ /*
+  * reschedule events based on the cgroup constraint of task.
+- *
+- * mode SWOUT : schedule out everything
+- * mode SWIN : schedule in based on cgroup for next
+  */
+-static void perf_cgroup_switch(struct task_struct *task, int mode)
++static void perf_cgroup_switch(struct task_struct *task)
  {
--	return prog->aux->dst_prog ? prog->aux->dst_prog->type : prog->type;
-+	return prog->type == BPF_PROG_TYPE_EXT ?
-+		prog->aux->dst_prog->type : prog->type;
++	struct perf_cgroup *cgrp;
+ 	struct perf_cpu_context *cpuctx, *tmp;
+ 	struct list_head *list;
+ 	unsigned long flags;
+@@ -845,35 +840,31 @@ static void perf_cgroup_switch(struct task_struct *task, int mode)
+ 	 */
+ 	local_irq_save(flags);
+ 
++	cgrp = perf_cgroup_from_task(task, NULL);
++
+ 	list = this_cpu_ptr(&cgrp_cpuctx_list);
+ 	list_for_each_entry_safe(cpuctx, tmp, list, cgrp_cpuctx_entry) {
+ 		WARN_ON_ONCE(cpuctx->ctx.nr_cgroups == 0);
++		if (READ_ONCE(cpuctx->cgrp) == cgrp)
++			continue;
+ 
+ 		perf_ctx_lock(cpuctx, cpuctx->task_ctx);
+ 		perf_pmu_disable(cpuctx->ctx.pmu);
+ 
+-		if (mode & PERF_CGROUP_SWOUT) {
+-			cpu_ctx_sched_out(cpuctx, EVENT_ALL);
+-			/*
+-			 * must not be done before ctxswout due
+-			 * to event_filter_match() in event_sched_out()
+-			 */
+-			cpuctx->cgrp = NULL;
+-		}
++		cpu_ctx_sched_out(cpuctx, EVENT_ALL);
++		/*
++		 * must not be done before ctxswout due
++		 * to update_cgrp_time_from_cpuctx() in
++		 * ctx_sched_out()
++		 */
++		cpuctx->cgrp = cgrp;
++		/*
++		 * set cgrp before ctxsw in to allow
++		 * perf_cgroup_set_timestamp() in ctx_sched_in()
++		 * to not have to pass task around
++		 */
++		cpu_ctx_sched_in(cpuctx, EVENT_ALL);
+ 
+-		if (mode & PERF_CGROUP_SWIN) {
+-			WARN_ON_ONCE(cpuctx->cgrp);
+-			/*
+-			 * set cgrp before ctxsw in to allow
+-			 * perf_cgroup_set_timestamp() in ctx_sched_in()
+-			 * to not have to pass task around
+-			 * we pass the cpuctx->ctx to perf_cgroup_from_task()
+-			 * because cgorup events are only per-cpu
+-			 */
+-			cpuctx->cgrp = perf_cgroup_from_task(task,
+-							     &cpuctx->ctx);
+-			cpu_ctx_sched_in(cpuctx, EVENT_ALL);
+-		}
+ 		perf_pmu_enable(cpuctx->ctx.pmu);
+ 		perf_ctx_unlock(cpuctx, cpuctx->task_ctx);
+ 	}
+@@ -881,58 +872,6 @@ static void perf_cgroup_switch(struct task_struct *task, int mode)
+ 	local_irq_restore(flags);
  }
  
- #endif /* _LINUX_BPF_VERIFIER_H */
+-static inline void perf_cgroup_sched_out(struct task_struct *task,
+-					 struct task_struct *next)
+-{
+-	struct perf_cgroup *cgrp1;
+-	struct perf_cgroup *cgrp2 = NULL;
+-
+-	rcu_read_lock();
+-	/*
+-	 * we come here when we know perf_cgroup_events > 0
+-	 * we do not need to pass the ctx here because we know
+-	 * we are holding the rcu lock
+-	 */
+-	cgrp1 = perf_cgroup_from_task(task, NULL);
+-	cgrp2 = perf_cgroup_from_task(next, NULL);
+-
+-	/*
+-	 * only schedule out current cgroup events if we know
+-	 * that we are switching to a different cgroup. Otherwise,
+-	 * do no touch the cgroup events.
+-	 */
+-	if (cgrp1 != cgrp2)
+-		perf_cgroup_switch(task, PERF_CGROUP_SWOUT);
+-
+-	rcu_read_unlock();
+-}
+-
+-static inline void perf_cgroup_sched_in(struct task_struct *prev,
+-					struct task_struct *task)
+-{
+-	struct perf_cgroup *cgrp1;
+-	struct perf_cgroup *cgrp2 = NULL;
+-
+-	rcu_read_lock();
+-	/*
+-	 * we come here when we know perf_cgroup_events > 0
+-	 * we do not need to pass the ctx here because we know
+-	 * we are holding the rcu lock
+-	 */
+-	cgrp1 = perf_cgroup_from_task(task, NULL);
+-	cgrp2 = perf_cgroup_from_task(prev, NULL);
+-
+-	/*
+-	 * only need to schedule in cgroup events if we are changing
+-	 * cgroup during ctxsw. Cgroup events were not scheduled
+-	 * out of ctxsw out if that was not the case.
+-	 */
+-	if (cgrp1 != cgrp2)
+-		perf_cgroup_switch(task, PERF_CGROUP_SWIN);
+-
+-	rcu_read_unlock();
+-}
+-
+ static int perf_cgroup_ensure_storage(struct perf_event *event,
+ 				struct cgroup_subsys_state *css)
+ {
+@@ -1096,16 +1035,6 @@ static inline void update_cgrp_time_from_cpuctx(struct perf_cpu_context *cpuctx,
+ {
+ }
+ 
+-static inline void perf_cgroup_sched_out(struct task_struct *task,
+-					 struct task_struct *next)
+-{
+-}
+-
+-static inline void perf_cgroup_sched_in(struct task_struct *prev,
+-					struct task_struct *task)
+-{
+-}
+-
+ static inline int perf_cgroup_connect(pid_t pid, struct perf_event *event,
+ 				      struct perf_event_attr *attr,
+ 				      struct perf_event *group_leader)
+@@ -1118,11 +1047,6 @@ perf_cgroup_set_timestamp(struct perf_cpu_context *cpuctx)
+ {
+ }
+ 
+-static inline void
+-perf_cgroup_switch(struct task_struct *task, struct task_struct *next)
+-{
+-}
+-
+ static inline u64 perf_cgroup_event_time(struct perf_event *event)
+ {
+ 	return 0;
+@@ -1142,6 +1066,10 @@ static inline void
+ perf_cgroup_event_disable(struct perf_event *event, struct perf_event_context *ctx)
+ {
+ }
++
++static void perf_cgroup_switch(struct task_struct *task)
++{
++}
+ #endif
+ 
+ /*
+@@ -3661,7 +3589,7 @@ void __perf_event_task_sched_out(struct task_struct *task,
+ 	 * cgroup event are system-wide mode only
+ 	 */
+ 	if (atomic_read(this_cpu_ptr(&perf_cgroup_events)))
+-		perf_cgroup_sched_out(task, next);
++		perf_cgroup_switch(next);
+ }
+ 
+ /*
+@@ -3975,16 +3903,6 @@ void __perf_event_task_sched_in(struct task_struct *prev,
+ 	struct perf_event_context *ctx;
+ 	int ctxn;
+ 
+-	/*
+-	 * If cgroup events exist on this CPU, then we need to check if we have
+-	 * to switch in PMU state; cgroup event are system-wide mode only.
+-	 *
+-	 * Since cgroup events are CPU events, we must schedule these in before
+-	 * we schedule in the task events.
+-	 */
+-	if (atomic_read(this_cpu_ptr(&perf_cgroup_events)))
+-		perf_cgroup_sched_in(prev, task);
+-
+ 	for_each_task_context_nr(ctxn) {
+ 		ctx = task->perf_event_ctxp[ctxn];
+ 		if (likely(!ctx))
+@@ -13556,7 +13474,7 @@ static int __perf_cgroup_move(void *info)
+ {
+ 	struct task_struct *task = info;
+ 	rcu_read_lock();
+-	perf_cgroup_switch(task, PERF_CGROUP_SWOUT | PERF_CGROUP_SWIN);
++	perf_cgroup_switch(task);
+ 	rcu_read_unlock();
+ 	return 0;
+ }
 
