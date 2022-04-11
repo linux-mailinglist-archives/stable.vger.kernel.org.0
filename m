@@ -2,74 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D9AEC4FB3BA
-	for <lists+stable@lfdr.de>; Mon, 11 Apr 2022 08:29:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EA544FB3F0
+	for <lists+stable@lfdr.de>; Mon, 11 Apr 2022 08:44:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244046AbiDKGbi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Apr 2022 02:31:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54436 "EHLO
+        id S242476AbiDKGqU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Apr 2022 02:46:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33098 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236576AbiDKGbh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 02:31:37 -0400
-X-Greylist: delayed 122 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sun, 10 Apr 2022 23:29:22 PDT
-Received: from mta-out-03.tin.it (mta-out-03.tin.it [217.169.118.6])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id C56FD103
-        for <stable@vger.kernel.org>; Sun, 10 Apr 2022 23:29:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=tin.it; s=20211207; t=1649658562; 
-        bh=aYnN2M2/J7LiDks3GtVfK/dknBgrlIPDu1xhTIZ5SQ0=;
-        h=Message-ID:Content-Type:MIME-Version:Content-Transfer-Encoding:Content-Description:Subject:To:From:Date:Reply-To;
-        b=qpdC3LcDu9WSi4FR1/Dycn0Yk5shrhRqj/wnozvdOP3u8Pr3L9XxtflmCU+tTqDdehQmtD6dY3J00MJAwJEaYybF6081JcxYU/kNNK2xPoN9+I6J/HGxz7CGZALhwMfYpW0N2DouKyLExANS06NpkGusLShMIenjT1a7brWgsBDIwEHOKrbMWg3gg0QicRugvjnpIhyZtKCskoskOVelmA7P+KJz6DYZrDawIHYSXdGk1AFriEWjdQlEj+DOZh3NeRSD0AwGAmvbM1i0vHwubF+7vjOKaGZM1cuf7bIhMBjg7ZZdQCik6hLXSaxFynlCrn7inpZQT/BJXHahgYK8iw==
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgedvvddrudekhedguddtfecutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfvgffngfevqffokffvtefnkfetpdfqfgfvnecuuegrihhlohhuthemuceftddunecunecujfgurheptggggffuvffhffhrsehtqhdttddttddunecuhfhrohhmpedfofgrthhthhgrihhsucfoihgthhgrvghlfdeoghhiohhrghhiohgsohhrrhgvlhhlihefsehtihhnrdhitheqnecuggftrfgrthhtvghrnhepieetteejheekhedtiefhtddvledvgedvgeduveeutdegvdefuedtleeigfeihfehnecukfhppedvtdejrdduheegrddvgedurddutdelnecuvehluhhsthgvrhfuihiivgepgeeltdenucfrrghrrghmpehhvghlohepfghsvghrqdfrvedrfedrhhhomhgvpdhinhgvthepvddtjedrudehgedrvdeguddruddtledpmhgrihhlfhhrohhmpehgihhorhhgihhosghorhhrvghllhhifeesthhinhdrihhtpdhnsggprhgtphhtthhopedupdhrtghpthhtohepshhtrggslhgvsehvghgvrhdrkhgvrhhnvghlrdhorhhg
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-Received: from User-PC.3.home (207.154.241.109) by mta-out-03.tin.it (5.8.807.04) (authenticated as giorgioborrelli3@tin.it)
-        id 624C2107010AABCE for stable@vger.kernel.org; Mon, 11 Apr 2022 08:27:14 +0200
-Message-ID: <624C2107010AABCE@mta-out-03.tin.it> (added by postmaster@tin.it)
-Content-Type: text/plain; charset="iso-8859-1"
+        with ESMTP id S237600AbiDKGqT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 02:46:19 -0400
+Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD64A62E3;
+        Sun, 10 Apr 2022 23:44:06 -0700 (PDT)
+Received: from kwepemi100007.china.huawei.com (unknown [172.30.72.56])
+        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4KcK601WsSzgYbf;
+        Mon, 11 Apr 2022 14:42:16 +0800 (CST)
+Received: from dggpeml500001.china.huawei.com (7.185.36.227) by
+ kwepemi100007.china.huawei.com (7.221.188.115) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.24; Mon, 11 Apr 2022 14:44:04 +0800
+Received: from dggpeml500001.china.huawei.com ([7.185.36.227]) by
+ dggpeml500001.china.huawei.com ([7.185.36.227]) with mapi id 15.01.2375.024;
+ Mon, 11 Apr 2022 14:44:03 +0800
+From:   "kongweibin (A)" <kongweibin2@huawei.com>
+To:     Eric Dumazet <edumazet@gmail.com>,
+        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
+        Eric Dumazet <edumazet@google.com>
+CC:     David Miller <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Willem de Bruijn <willemb@google.com>,
+        Pavel Begunkov <asml.silence@gmail.com>,
+        David Ahern <dsahern@kernel.org>,
+        Vasily Averin <vvs@virtuozzo.com>,
+        Martin KaFai Lau <kafai@fb.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        netdev <netdev@vger.kernel.org>,
+        "Chenxiang (EulerOS)" <rose.chen@huawei.com>,
+        liaichun <liaichun@huawei.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: =?utf-8?B?562U5aSNOiBbUEFUQ0ggbmV0XSBpcHY2OiBmaXggcGFuaWMgd2hlbiBmb3J3?=
+ =?utf-8?Q?arding_a_pkt_with_no_in6_dev?=
+Thread-Topic: [PATCH net] ipv6: fix panic when forwarding a pkt with no in6
+ dev
+Thread-Index: AQHYS1GFP5ZHyMlOhU6tOD3A4UEJUazmEHeAgAQvdFA=
+Date:   Mon, 11 Apr 2022 06:44:03 +0000
+Message-ID: <01f85507886e435e97cc86f19abf0661@huawei.com>
+References: <59150cd5-9950-2479-a992-94dcdaa5e63c@6wind.com>
+ <20220408140342.19311-1-nicolas.dichtel@6wind.com>
+ <85da2373-d8ec-0049-bd3d-6b8f4b044edc@gmail.com>
+In-Reply-To: <85da2373-d8ec-0049-bd3d-6b8f4b044edc@gmail.com>
+Accept-Language: zh-CN, en-US
+Content-Language: zh-CN
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-originating-ip: [10.136.112.250]
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Description: Mail message body
-Subject: reconfirm 
-To:     stable@vger.kernel.org
-From:   "Matthais Michael" <giorgioborrelli3@tin.it>
-Date:   Mon, 11 Apr 2022 07:27:10 +0100
-Reply-To: matthais.michael@cheapnet.it
-Sensitivity: Personal
-X-Spam-Status: No, score=3.0 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,FROM_MISSP_FREEMAIL,LOTS_OF_MONEY,MONEY_FROM_MISSP,
-        RCVD_IN_DNSWL_LOW,RCVD_IN_MSPIKE_BL,RCVD_IN_MSPIKE_L3,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no
-        version=3.4.6
-X-Spam-Level: ***
+X-CFilter-Loop: Reflected
+X-Spam-Status: No, score=-5.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
+        RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-My n a m e is Matthais Michael, the Director of Financial Security and Trus=
-t F u n d Builders, our company was contracted to release your Covid-19 Com=
-pensation p a y m e n t to you on behalf of the UNITED NATION (UN). Your pa=
-yment R e l e a s e Code is: CNG/3480/04/00. The Total amount payable to yo=
-u is US$7.5 Million.
-
-You are to reconfirm the following information to enable us determine that =
-we are dealing with the right b e n e f i c i a r y, also the receipt of yo=
-ur information  will facilitate the processing of your payment:
-
-1 F u l l Name:
-2 Residential address:
-3 A g e:
-4 Occupation:
-5 D i r e c t telephone n u m b e r s:
-
-After verification of your Information, you will be contacted with detailed=
- i n f o r m a t i o n of procedures for the immediate release of your paym=
-ent to y o u without any hitch whatsoever.
-
-Send the requested information so we can proceed accordingly.
-
-Regards
-
-Mr. Matthais Michael
+PiBrb25nd2VpYmluLCBjb3VsZCB5b3UgdGVzdCB0aGlzIHBhdGNoIHdpdGggeW91ciBzZXR1cD8N
+Cj4NCj4gVGhhbmtzLA0KPiBOaWNvbGFzDQo+DQo+ICAgbmV0L2lwdjYvaXA2X291dHB1dC5jIHwg
+MiArLQ0KPiAgIDEgZmlsZSBjaGFuZ2VkLCAxIGluc2VydGlvbigrKSwgMSBkZWxldGlvbigtKQ0K
+Pg0KPiBkaWZmIC0tZ2l0IGEvbmV0L2lwdjYvaXA2X291dHB1dC5jIGIvbmV0L2lwdjYvaXA2X291
+dHB1dC5jIGluZGV4IA0KPiBlMjNmMDU4MTY2YWYuLmZhNjNlZjJiZDk5YyAxMDA2NDQNCj4gLS0t
+IGEvbmV0L2lwdjYvaXA2X291dHB1dC5jDQo+ICsrKyBiL25ldC9pcHY2L2lwNl9vdXRwdXQuYw0K
+PiBAQCAtNDg1LDcgKzQ4NSw3IEBAIGludCBpcDZfZm9yd2FyZChzdHJ1Y3Qgc2tfYnVmZiAqc2ti
+KQ0KPiAgIAkJZ290byBkcm9wOw0KPiAgIA0KPiAgIAlpZiAoIW5ldC0+aXB2Ni5kZXZjb25mX2Fs
+bC0+ZGlzYWJsZV9wb2xpY3kgJiYNCj4gLQkgICAgIWlkZXYtPmNuZi5kaXNhYmxlX3BvbGljeSAm
+Jg0KPiArCSAgICAoIWlkZXYgfHwgIWlkZXYtPmNuZi5kaXNhYmxlX3BvbGljeSkgJiYNCj4gICAJ
+ICAgICF4ZnJtNl9wb2xpY3lfY2hlY2soTlVMTCwgWEZSTV9QT0xJQ1lfRldELCBza2IpKSB7DQo+
+ICAgCQlfX0lQNl9JTkNfU1RBVFMobmV0LCBpZGV2LCBJUFNUQVRTX01JQl9JTkRJU0NBUkRTKTsN
+Cj4gICAJCWdvdG8gZHJvcDsNCg0KSSBoYXZlIHRlc3QgdGhlIHBhdGNoIHdpdGggbXkgc2V0dXAs
+IGl0IGlzIE9LLg0KDQoNCg0KPj4ga29uZ3dlaWJpbiByZXBvcnRlZCBhIGtlcm5lbCBwYW5pYyBp
+biBpcDZfZm9yd2FyZCgpIHdoZW4gaW5wdXQgDQo+PiBpbnRlcmZhY2UgaGFzIG5vIGluNiBkZXYg
+YXNzb2NpYXRlZC4NCj4+DQo+PiBUaGUgZm9sbG93aW5nIHRjIGNvbW1hbmRzIHdlcmUgdXNlZCB0
+byByZXByb2R1Y2UgdGhpcyBwYW5pYzoNCj4+IHRjIHFkaXNjIGRlbCBkZXYgdnhsYW4xMDAgcm9v
+dA0KPj4gdGMgcWRpc2MgYWRkIGRldiB2eGxhbjEwMCByb290IG5ldGVtIGNvcnJ1cHQgNSUNCj4N
+Cj5Ob3Qgc3VyZSBJIHVuZGVyc3RhbmQgaG93IHRoZXNlIHFkaXNjIGNoYW5nZXMgY2FuIHRyaWdn
+ZXIgYSBOVUxMIGlkZXYgPw0KPg0KPkRvIHdlIGhhdmUgYW5vdGhlciBidWcsIGxpa2Ugc2tiLT5j
+YltdIGNvbnRlbnQgYmVpbmcgbWFuZ2xlZCA/DQo+DQoNCkFzIGZvciB3aHkgcWRpc2MgbWFrZXMg
+dGhlIGlkZXYgbnVsbCwgSSB0cmFja2VkIHdoZXJlIHRoZSBpaWYgYXNzaWduZWQgaW4gaXA2X3Jj
+dl9jb3JlLA0KdGhlcmUgaXMgbm8gcHJvYmxlbSB0aGVyZS4NCg0KTm90IHN1cmUgd2hhdCBoYXMg
+Y2hhbmdlZCB0aGF0IG1ha2VzIHRoZSBpaWYgdmFsdWUgd3JvbmcuDQoNCg0K
