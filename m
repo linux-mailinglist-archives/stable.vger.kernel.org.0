@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EA3E84FC0EF
-	for <lists+stable@lfdr.de>; Mon, 11 Apr 2022 17:36:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AF2E4FC0F0
+	for <lists+stable@lfdr.de>; Mon, 11 Apr 2022 17:36:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345449AbiDKPi0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Apr 2022 11:38:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56744 "EHLO
+        id S1346762AbiDKPi2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Apr 2022 11:38:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244853AbiDKPi0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 11:38:26 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 619DD3A1A6
-        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 08:36:11 -0700 (PDT)
+        with ESMTP id S244853AbiDKPi1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 11:38:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 550083A5F8
+        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 08:36:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 16C31B816C6
-        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 15:36:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5905BC385A4;
-        Mon, 11 Apr 2022 15:36:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D95D0615B8
+        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 15:36:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1645C385A4;
+        Mon, 11 Apr 2022 15:36:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649691368;
-        bh=7S7ID64LRQ5qr+Jn4o+JwOob5ayED9xjUR7mg2WVc4o=;
+        s=korg; t=1649691372;
+        bh=jj1bkOKsB/vS3RqABhdG8U2GkhADTww6Pr7yvrV49IY=;
         h=Subject:To:Cc:From:Date:From;
-        b=iKNYTxVy4KTEee8m19uZtqktNho3kQFE97/YgyWv/d0c5hMNsPEywjp8xpv5fXKhM
-         cOnP0tNsL9Dj4f1T4RbBFzUM5TJEnmvpzICNOeNraDSEItfsc4foD5Pf4ilzWcu8Iu
-         p/IMPTm0z3wCIc7bexMUYBP+V4utPfyGRnnVUuZI=
-Subject: FAILED: patch "[PATCH] perf/core: Fix perf_cgroup_switch()" failed to apply to 5.17-stable tree
+        b=XuWfQVQDmFjDFJMDYYFMGSueg4zEU07nYR7Yov7rDcygpATdn71S849w7uy/Wr3nr
+         aysB1sxjbVeczRf0FDTxeyaIbVdN6XsYxnS7EDd0EGAGVpUFXwP9mxz6vfVgQVV1gV
+         CVpTd0UEwVcXTHFmTuRqujNVod3TERiYtHIBZneg=
+Subject: FAILED: patch "[PATCH] perf/core: Fix perf_cgroup_switch()" failed to apply to 5.16-stable tree
 To:     zhouchengming@bytedance.com, peterz@infradead.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 11 Apr 2022 17:36:01 +0200
-Message-ID: <164969136161195@kroah.com>
+Date:   Mon, 11 Apr 2022 17:36:02 +0200
+Message-ID: <164969136225216@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.17-stable tree.
+The patch below does not apply to the 5.16-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
