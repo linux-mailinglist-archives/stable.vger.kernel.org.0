@@ -2,114 +2,162 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 94C374FB376
-	for <lists+stable@lfdr.de>; Mon, 11 Apr 2022 08:09:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 980A94FB37C
+	for <lists+stable@lfdr.de>; Mon, 11 Apr 2022 08:13:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240222AbiDKGLo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Apr 2022 02:11:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60628 "EHLO
+        id S236968AbiDKGP1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Apr 2022 02:15:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43408 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239022AbiDKGLn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 02:11:43 -0400
-Received: from mail-pg1-x530.google.com (mail-pg1-x530.google.com [IPv6:2607:f8b0:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17AF517E02
-        for <stable@vger.kernel.org>; Sun, 10 Apr 2022 23:09:26 -0700 (PDT)
-Received: by mail-pg1-x530.google.com with SMTP id t13so13289488pgn.8
-        for <stable@vger.kernel.org>; Sun, 10 Apr 2022 23:09:26 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=eYsU7WRE93drZwpg2UmtM51iMD33Wv0zBhClOLennSo=;
-        b=Mz07erur6e2ikl+2ye9ThqP56D56aL72/pPMeastiEBlqU4fJyPFvkRjb5Ew2ZCwiF
-         J17RUCBM/7MlDhjHmG9G12MSoK4Q1DocMN5JgwCa5l3072EJYGNnxo3iZCM4FOf5gsFt
-         vPaeCMClSHwzjxsXkS8N59UPxIjK591oLxDwZIJI7Peb6LemPbXkmLfQbyDGwvUxikoD
-         Z2RUH93uZCPrD/P0LS5y9qm7o4RcYbLr+q6WESmSpdqdY4sNo4bcRTxyVVLFIez/EI04
-         CGpS5+58uIUX3zjCuIYzhkcvDGKpOLd9Ne6LC+qebGgDbnLoTE9+S19kFfjCtfBAxl+Z
-         x9zQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=eYsU7WRE93drZwpg2UmtM51iMD33Wv0zBhClOLennSo=;
-        b=bfShJXZ4VKzOBCzBoTWdEV3GhgXyaI1xYDrZ+5+EUnWt6S3eL+TDKMzs4I7W+/DV9n
-         iYs4Gxtt7rDTtjrO6nM6SSqZStn+h6lmsrjdz7QUr6U3PDJ+x9PWq0IJYZF1DCjyoziF
-         FeMVLefTIGZqBwghbMoHvOS7M/S6sT+RVNUcUpb35DMVZNpBQXRQHFNUaEs4NFtDtihX
-         +ZCN9GkVLsHrPIjstoMqb+22ZAbn2G+W8RrgV2z+AHWaxnvc4wLI2R2Zq7pQNI9O1WCo
-         ytMWR3GFeUY9+sgBfqW4JvNsxepIMj01Epf33rqwenGBe1d1Hk07jJiIn9qVgg3Pm0YO
-         Pdtw==
-X-Gm-Message-State: AOAM531MUh6RnoM16Ld4QjWZGriD82Eo+Q23SiYnS4GK/ZbHKqRCXwqo
-        x2yp45humbi2ipsNyLDkLriw
-X-Google-Smtp-Source: ABdhPJwvcNOCbDiYurnD9wBA0ICQ8RITifSEinUCTPZXqdyKm+Kk7yV2hvDKolvn9dV8HelyuRRzAA==
-X-Received: by 2002:a63:f642:0:b0:386:53e:9cd4 with SMTP id u2-20020a63f642000000b00386053e9cd4mr24814896pgj.265.1649657366381;
-        Sun, 10 Apr 2022 23:09:26 -0700 (PDT)
-Received: from thinkpad ([117.217.182.106])
-        by smtp.gmail.com with ESMTPSA id a9-20020a056a000c8900b004fb37ecc6bbsm34922659pfv.65.2022.04.10.23.09.23
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 10 Apr 2022 23:09:25 -0700 (PDT)
-Date:   Mon, 11 Apr 2022 11:39:21 +0530
-From:   Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-To:     mhi@lists.linux.dev
-Cc:     quic_hemantk@quicinc.com, quic_bbhatt@quicinc.com,
-        linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        loic.poulain@linaro.org, stable@vger.kernel.org
-Subject: Re: [PATCH v2] bus: mhi: host: pci_generic: Flush recovery worker
- during freeze
-Message-ID: <20220411060921.GC16845@thinkpad>
-References: <20220408150039.17297-1-manivannan.sadhasivam@linaro.org>
+        with ESMTP id S232992AbiDKGP0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 02:15:26 -0400
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A336F38DBE;
+        Sun, 10 Apr 2022 23:13:13 -0700 (PDT)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out1.suse.de (Postfix) with ESMTPS id 5B073210EC;
+        Mon, 11 Apr 2022 06:13:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1649657592; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=SVHMNwREUmgpNU3ILszNiSRyo9cYwG0tgzjgpZMwvW0=;
+        b=T3RTnqxgLFAAFf2gKsez7A3MbTyN7l2SVGeB+N67Zg2IcqzXAvuskrd+5bzNLEC4tmaDJA
+        ItwUr8j05GbSpLCu468nqjj09d1vVp7Vpy/eISq3mXKgFw16TF3oHIz/i0HNl+qa1XZwu+
+        UxayycHU+u7MfIldinh/iQN+4Qp3nq0=
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 131B213AB5;
+        Mon, 11 Apr 2022 06:13:10 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id 2F3rM/bGU2LEfwAAMHmgww
+        (envelope-from <wqu@suse.com>); Mon, 11 Apr 2022 06:13:10 +0000
+From:   Qu Wenruo <wqu@suse.com>
+To:     linux-btrfs@vger.kernel.org
+Cc:     stable@vger.kernel.org
+Subject: [PATCH 1/4] btrfs: avoid double clean up when submit_one_bio() failed
+Date:   Mon, 11 Apr 2022 14:12:49 +0800
+Message-Id: <6b8983dd0a3a28155fa7d786bae0a8bf932cdbab.1649657016.git.wqu@suse.com>
+X-Mailer: git-send-email 2.35.1
+In-Reply-To: <cover.1649657016.git.wqu@suse.com>
+References: <cover.1649657016.git.wqu@suse.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220408150039.17297-1-manivannan.sadhasivam@linaro.org>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Apr 08, 2022 at 08:30:39PM +0530, Manivannan Sadhasivam wrote:
-> It is possible that the recovery work might be running while the freeze
-> gets executed (during hibernation etc.,). Currently, we don't powerdown
-> the stack if it is not up but if the recovery work completes after freeze,
-> then the device will be up afterwards. This will not be a sane situation.
-> 
-> So let's flush the recovery worker before trying to powerdown the device.
-> 
-> Cc: stable@vger.kernel.org
-> Fixes: 5f0c2ee1fe8d ("bus: mhi: pci-generic: Fix hibernation")
-> Reported-by: Bhaumik Vasav Bhatt <quic_bbhatt@quicinc.com>
-> Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+[BUG]
+When running generic/475 with 64K page size and 4K sector size, it has a
+very high chance (almost 100%) to hang, with mostly data page locked but
+no one is going to unlock it.
 
-Applied to mhi-next!
+[CAUSE]
+With commit 1784b7d502a9 ("btrfs: handle csum lookup errors properly on
+reads"), if we failed to lookup checksum due to metadata IO error, we
+will return error for btrfs_submit_data_bio().
 
-Thanks,
-Mani
+This will cause the page to be unlocked twice in btrfs_do_readpage():
 
-> ---
-> 
-> Changes in v2:
-> 
-> * Switched to flush_work() as the workqueue used is global one.
-> 
->  drivers/bus/mhi/host/pci_generic.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/drivers/bus/mhi/host/pci_generic.c b/drivers/bus/mhi/host/pci_generic.c
-> index ef85dbfb3216..541ced27d941 100644
-> --- a/drivers/bus/mhi/host/pci_generic.c
-> +++ b/drivers/bus/mhi/host/pci_generic.c
-> @@ -1060,6 +1060,7 @@ static int __maybe_unused mhi_pci_freeze(struct device *dev)
->  	 * the intermediate restore kernel reinitializes MHI device with new
->  	 * context.
->  	 */
-> +	flush_work(&mhi_pdev->recovery_work);
->  	if (test_and_clear_bit(MHI_PCI_DEV_STARTED, &mhi_pdev->status)) {
->  		mhi_power_down(mhi_cntrl, true);
->  		mhi_unprepare_after_power_down(mhi_cntrl);
-> -- 
-> 2.25.1
-> 
+ btrfs_do_readpage()
+ |- submit_extent_page()
+ |  |- submit_one_bio()
+ |     |- btrfs_submit_data_bio()
+ |        |- if (ret) {
+ |        |-     bio->bi_status = ret;
+ |        |-     bio_endio(bio); }
+ |               In the endio function, we will call end_page_read()
+ |               and unlock_extent() to cleanup the subpage range.
+ |
+ |- if (ret) {
+ |-        unlock_extent(); end_page_read() }
+           Here we unlock the extent and cleanup the subpage range
+           again.
+
+For unlock_extent(), it's mostly double unlock safe.
+
+But for end_page_read(), it's not, especially for subpage case,
+as for subpage case we will call btrfs_subpage_end_reader() to reduce
+the reader number, and use that to number to determine if we need to
+unlock the full page.
+
+If double accounted, it can underflow the number and leave the page
+locked without anyone to unlock it.
+
+[FIX]
+The commit 1784b7d502a9 ("btrfs: handle csum lookup errors properly on
+reads") itself is completely fine, it's our existing code not properly
+handling the error from bio submission hook properly.
+
+Since one and only one of the endio function or the submit_extent_page()
+caller should do the cleanup, let's just ignore the return value from
+bio submission hook.
+
+Before the hook, it's callers' responsibility to do cleanup, after the
+hook (including inside the hook), it's the endio doing the cleanup.
+
+This patch is makes submit_one_bio() always return 0, but still keep the
+old int return value to make minimal change for backport.
+
+CC: stable@vger.kernel.org # 5.18+
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+---
+ fs/btrfs/extent_io.c | 18 +++++++++++-------
+ 1 file changed, 11 insertions(+), 7 deletions(-)
+
+diff --git a/fs/btrfs/extent_io.c b/fs/btrfs/extent_io.c
+index 53b59944013f..34073b0ed6ca 100644
+--- a/fs/btrfs/extent_io.c
++++ b/fs/btrfs/extent_io.c
+@@ -165,24 +165,28 @@ static int add_extent_changeset(struct extent_state *state, u32 bits,
+ 	return ret;
+ }
+ 
+-int __must_check submit_one_bio(struct bio *bio, int mirror_num,
+-				unsigned long bio_flags)
++int submit_one_bio(struct bio *bio, int mirror_num, unsigned long bio_flags)
+ {
+-	blk_status_t ret = 0;
+ 	struct extent_io_tree *tree = bio->bi_private;
+ 
+ 	bio->bi_private = NULL;
+ 
+ 	/* Caller should ensure the bio has at least some range added */
+ 	ASSERT(bio->bi_iter.bi_size);
++
+ 	if (is_data_inode(tree->private_data))
+-		ret = btrfs_submit_data_bio(tree->private_data, bio, mirror_num,
++		btrfs_submit_data_bio(tree->private_data, bio, mirror_num,
+ 					    bio_flags);
+ 	else
+-		ret = btrfs_submit_metadata_bio(tree->private_data, bio,
++		btrfs_submit_metadata_bio(tree->private_data, bio,
+ 						mirror_num, bio_flags);
+-
+-	return blk_status_to_errno(ret);
++	/*
++	 * Above submission hooks will handle the error by ending the bio,
++	 * which will do the cleanup properly.
++	 * So here we should not return any error, or the caller of
++	 * submit_extent_page() will do cleanup again, causing problems.
++	 */
++	return 0;
+ }
+ 
+ /* Cleanup unsubmitted bios */
+-- 
+2.35.1
+
