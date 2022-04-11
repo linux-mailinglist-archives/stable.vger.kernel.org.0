@@ -2,49 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 356234FB37E
-	for <lists+stable@lfdr.de>; Mon, 11 Apr 2022 08:13:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C7404FB380
+	for <lists+stable@lfdr.de>; Mon, 11 Apr 2022 08:13:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239843AbiDKGP3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Apr 2022 02:15:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43414 "EHLO
+        id S232992AbiDKGPa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Apr 2022 02:15:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43428 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237415AbiDKGP1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 02:15:27 -0400
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA88238DBF;
-        Sun, 10 Apr 2022 23:13:14 -0700 (PDT)
+        with ESMTP id S230117AbiDKGP3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 02:15:29 -0400
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2927D38DBC;
+        Sun, 10 Apr 2022 23:13:16 -0700 (PDT)
 Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
         (No client certificate requested)
-        by smtp-out2.suse.de (Postfix) with ESMTPS id 981CF1F38C;
-        Mon, 11 Apr 2022 06:13:13 +0000 (UTC)
+        by smtp-out1.suse.de (Postfix) with ESMTPS id D8663210EC;
+        Mon, 11 Apr 2022 06:13:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1649657593; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+        t=1649657594; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
          mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=yfUZzJxXEU4CNcG2QMgZPPMb7vJB0B02X4kYNQ2tSds=;
-        b=CYFR8VI5MElTzammG383x/F4K4XBSJslW9U+hzZc10iBQjejHgINkSwv/HvGWDiKKEVYOs
-        /uNSJMQBnIbfq6WunQz7tVALWkLslFenWTCHbeItVG+xLWfl4W63+mhjI7gfGlEJ9CN0dd
-        YXKgZq5QlR7zsPlnsrQJ1U1DRbc1eA4=
+        bh=ebQBHorBIYKzROYUR6QOYwNo+6S2wzo9cGhxjpRe03I=;
+        b=TYQuQvZT0jxLI8Y24SDgaW5f23oq1q1BVz5DWYDpUWKQ3GdrXJKYHyNlRySez79LZwQmrW
+        VF6nGGtenMbaIdjm8LYu9/EDrjotS8gfFW7AFtF1uSnPna1+nAZ5JDKHMzXb13PeRJqXQ8
+        jTIYM5n02JtU23fhQ/7c7z2nwpgM5ls=
 Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
         (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id BC2A913AB5;
-        Mon, 11 Apr 2022 06:13:12 +0000 (UTC)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 0563613AB5;
+        Mon, 11 Apr 2022 06:13:13 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([192.168.254.65])
         by imap2.suse-dmz.suse.de with ESMTPSA
-        id sKp0IfjGU2LEfwAAMHmgww
-        (envelope-from <wqu@suse.com>); Mon, 11 Apr 2022 06:13:12 +0000
+        id IKFeMPnGU2LEfwAAMHmgww
+        (envelope-from <wqu@suse.com>); Mon, 11 Apr 2022 06:13:13 +0000
 From:   Qu Wenruo <wqu@suse.com>
 To:     linux-btrfs@vger.kernel.org
 Cc:     stable@vger.kernel.org
-Subject: [PATCH 2/4] btrfs: fix the error handling for submit_extent_page() for btrfs_do_readpage()
-Date:   Mon, 11 Apr 2022 14:12:50 +0800
-Message-Id: <2ce5b91dba107bba1ff56c9ebbadcd70e6d333e5.1649657016.git.wqu@suse.com>
+Subject: [PATCH 3/4] btrfs: return correct error number for __extent_writepage_io()
+Date:   Mon, 11 Apr 2022 14:12:51 +0800
+Message-Id: <1a271440a02c40b58d37391bd90ee92d72cfb1da.1649657016.git.wqu@suse.com>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <cover.1649657016.git.wqu@suse.com>
 References: <cover.1649657016.git.wqu@suse.com>
@@ -61,62 +61,84 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 [BUG]
-Test case generic/475 have a very high chance (almost 100%) to hit a fs
-hang, where a data page will never be unlocked and hang all later
-operations.
+If we hit an error from submit_extent_page() inside
+__extent_writepage_io(), we could still return 0 to the caller, and
+even trigger the warning in btrfs_page_assert_not_dirty().
 
 [CAUSE]
-In btrfs_do_readpage(), if we hit an error from submit_extent_page() we
-will try to do the cleanup for our current io range, and exit.
+In __extent_writepage_io(), if we hit an error from
+submit_extent_page(), we will just clean up the range and continue.
 
-This works fine for PAGE_SIZE == sectorsize cases, but not for subpage.
+This is completely fine for regular PAGE_SIZE == sectorsize, as we can
+only hit one sector in one page, thus after the error we're ensured to
+exit and @ret will be saved.
 
-For subpage btrfs_do_readpage() will lock the full page first, which can
-contain several different sectors and extents:
+But for subpage case, we may have other dirty subpage range in the page,
+and in the next loop, we may succeeded submitting the next range.
 
- btrfs_do_readpage()
- |- begin_page_read()
- |  |- btrfs_subpage_start_reader();
- |     Now the page will hage PAGE_SIZE / sectorsize reader pending,
- |     and the page is locked.
- |
- |- end_page_read() for different branches
- |  This function will reduce subpage readers, and when readers
- |  reach 0, it will unlock the page.
-
-But when submit_extent_page() failed, we only cleanup the current
-io range, while the remaining io range will never be cleaned up, and the
-page remains locked forever.
+In that case, @ret will be overwritten, and we return 0 to the caller,
+while we have hit some error.
 
 [FIX]
-Update the error handling of submit_extent_page() to cleanup all the
-remaining subpage range before exiting the loop.
+Introduce @has_error and @saved_ret to record the first error we hit, so
+we will never forget what error we hit.
 
 CC: stable@vger.kernel.org # 5.15+
 Signed-off-by: Qu Wenruo <wqu@suse.com>
 ---
- fs/btrfs/extent_io.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ fs/btrfs/extent_io.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
 diff --git a/fs/btrfs/extent_io.c b/fs/btrfs/extent_io.c
-index 34073b0ed6ca..8de25ce05606 100644
+index 8de25ce05606..b40bb544d301 100644
 --- a/fs/btrfs/extent_io.c
 +++ b/fs/btrfs/extent_io.c
-@@ -3735,8 +3735,12 @@ int btrfs_do_readpage(struct page *page, struct extent_map **em_cached,
- 					 this_bio_flag,
- 					 force_bio_submit);
- 		if (ret) {
--			unlock_extent(tree, cur, cur + iosize - 1);
--			end_page_read(page, false, cur, iosize);
-+			/*
-+			 * We have to unlock the remaining range, or the page
-+			 * will never be unlocked.
-+			 */
-+			unlock_extent(tree, cur, end);
-+			end_page_read(page, false, cur, end + 1 - cur);
- 			goto out;
+@@ -3916,10 +3916,12 @@ static noinline_for_stack int __extent_writepage_io(struct btrfs_inode *inode,
+ 	u64 extent_offset;
+ 	u64 block_start;
+ 	struct extent_map *em;
++	int saved_ret = 0;
+ 	int ret = 0;
+ 	int nr = 0;
+ 	u32 opf = REQ_OP_WRITE;
+ 	const unsigned int write_flags = wbc_to_write_flags(wbc);
++	bool has_error = false;
+ 	bool compressed;
+ 
+ 	ret = btrfs_writepage_cow_fixup(page);
+@@ -3969,6 +3971,9 @@ static noinline_for_stack int __extent_writepage_io(struct btrfs_inode *inode,
+ 		if (IS_ERR(em)) {
+ 			btrfs_page_set_error(fs_info, page, cur, end - cur + 1);
+ 			ret = PTR_ERR_OR_ZERO(em);
++			has_error = true;
++			if (!saved_ret)
++				saved_ret = ret;
+ 			break;
  		}
- 		cur = cur + iosize;
+ 
+@@ -4032,6 +4037,10 @@ static noinline_for_stack int __extent_writepage_io(struct btrfs_inode *inode,
+ 					 end_bio_extent_writepage,
+ 					 0, 0, false);
+ 		if (ret) {
++			has_error = true;
++			if (!saved_ret)
++				saved_ret = ret;
++
+ 			btrfs_page_set_error(fs_info, page, cur, iosize);
+ 			if (PageWriteback(page))
+ 				btrfs_page_clear_writeback(fs_info, page, cur,
+@@ -4045,8 +4054,10 @@ static noinline_for_stack int __extent_writepage_io(struct btrfs_inode *inode,
+ 	 * If we finish without problem, we should not only clear page dirty,
+ 	 * but also empty subpage dirty bits
+ 	 */
+-	if (!ret)
++	if (!has_error)
+ 		btrfs_page_assert_not_dirty(fs_info, page);
++	else
++		ret = saved_ret;
+ 	*nr_ret = nr;
+ 	return ret;
+ }
 -- 
 2.35.1
 
