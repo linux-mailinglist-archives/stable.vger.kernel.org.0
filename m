@@ -2,41 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 83AAC4FBAED
-	for <lists+stable@lfdr.de>; Mon, 11 Apr 2022 13:31:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA9A14FBCCC
+	for <lists+stable@lfdr.de>; Mon, 11 Apr 2022 15:09:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345797AbiDKLdI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Apr 2022 07:33:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41844 "EHLO
+        id S231196AbiDKNLj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Apr 2022 09:11:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50294 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344862AbiDKLc7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 07:32:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D87D43EF0
-        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 04:30:45 -0700 (PDT)
+        with ESMTP id S1345599AbiDKNLi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 09:11:38 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D12EB12ADD;
+        Mon, 11 Apr 2022 06:09:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E08E9B81598
-        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 11:30:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32B5CC385A4;
-        Mon, 11 Apr 2022 11:30:42 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 3DA16CE184A;
+        Mon, 11 Apr 2022 13:09:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C73CC385A4;
+        Mon, 11 Apr 2022 13:09:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649676642;
-        bh=7AyoTZAELgYQ9AaV1itYy4/TCkyQsDlCqBLYOZ+W3r8=;
-        h=Subject:To:Cc:From:Date:From;
-        b=K+Tp5XeW7qzOzaTT7AmHd2x5cD+8Z/n63BQ/YTLddBcTERHuMUxH5Ds/EHurYSi+w
-         dDPulPCEaVatML52QwB0m5FPPE0Ph6fpEJFPWv0POkyONUQ5UzKse/QuZ8RjJLSjlm
-         LQUNQifEbGhoY52oS/GycNm6kVC4WQvrA2OQ8N8o=
-Subject: FAILED: patch "[PATCH] bpf: Treat bpf_sk_lookup remote_port as a 2-byte field" failed to apply to 5.15-stable tree
-To:     jakub@cloudflare.com, ast@kernel.org, kafai@fb.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 11 Apr 2022 13:30:39 +0200
-Message-ID: <1649676639226216@kroah.com>
+        s=korg; t=1649682560;
+        bh=VSwGacvOIORYZ4p7jE5plCMbiYi86WyNmuPn5c91/U0=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=YGsWydM7UTNCSTpWl0qgNRrevYzXH25I4roxevR9uxu4JsKpMMBYvHSO1qQhAuKCV
+         IUfj7pmMAaghRAUeKpVrkLxqJcietZtgW0xVkjG0QhVgEySJlUpPr/QoNnCE8PkqZn
+         o7ebzr+tk3pN2c55sAMM4ZV9vCofyCiJXmQvfNGc=
+Date:   Mon, 11 Apr 2022 15:09:18 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Vinod Koul <vkoul@kernel.org>
+Cc:     Pavel Machek <pavel@denx.de>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Yongzhi Liu <lyz_cs@pku.edu.cn>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 5.10 012/105] dmaengine: shdma: Fix runtime PM imbalance
+ on error
+Message-ID: <YlQofqkmgKMeHCLW@kroah.com>
+References: <20220307091644.179885033@linuxfoundation.org>
+ <20220307091644.529997660@linuxfoundation.org>
+ <20220309105420.GA22677@duo.ucw.cz>
+ <YiiWduSVDz1yYA9z@kroah.com>
+ <20220309123509.GA30506@duo.ucw.cz>
+ <YiiuaHFKuAv30zxW@kroah.com>
+ <20220309135708.GB30506@duo.ucw.cz>
+ <Yii+KtAnZ3XSJtXg@kroah.com>
+ <YimAIPBs4FNlXIs3@matsya>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <YimAIPBs4FNlXIs3@matsya>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -47,98 +61,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, Mar 10, 2022 at 10:05:44AM +0530, Vinod Koul wrote:
+> On 09-03-22, 15:48, Greg Kroah-Hartman wrote:
+> > On Wed, Mar 09, 2022 at 02:57:08PM +0100, Pavel Machek wrote:
+> > > On Wed 2022-03-09 14:40:56, Greg Kroah-Hartman wrote:
+> > > > On Wed, Mar 09, 2022 at 01:35:09PM +0100, Pavel Machek wrote:
+> > > > > On Wed 2022-03-09 12:58:46, Greg Kroah-Hartman wrote:
+> > > > > > On Wed, Mar 09, 2022 at 11:54:20AM +0100, Pavel Machek wrote:
+> > > > > > > Hi!
+> > > > > > > 
+> > > > > > > > From: Yongzhi Liu <lyz_cs@pku.edu.cn>
+> > > > > > > > 
+> > > > > > > > [ Upstream commit 455896c53d5b803733ddd84e1bf8a430644439b6 ]
+> > > > > > > > 
+> > > > > > > > pm_runtime_get_() increments the runtime PM usage counter even
+> > > > > > > > when it returns an error code, thus a matching decrement is needed on
+> > > > > > > > the error handling path to keep the counter balanced.
+> > > > > > > 
+> > > > > > > This patch will break things.
+> > > > > > > 
+> > > > > > > Notice that -ret is ignored (checked 4.4 and 5.10), so we don't
+> > > > > > > actually abort/return error; we just printk. We'll do two
+> > > > > > > pm_runtime_put's after the "fix".
+> > > > > > > 
+> > > > > > > Please drop from -stable.
+> > > > > > > 
+> > > > > > > It was discussed during AUTOSEL review:
+> > > > > > > 
+> > > > > > > Date: Fri, 25 Feb 2022 14:25:10 +0800 (GMT+08:00)
+> > > > > > > From: 刘永志 <lyz_cs@pku.edu.cn>
+> > > > > > > To: pavel machek <pavel@denx.de>
+> > > > > > > Cc: sasha levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
+> > > > > > > Subject: Re: [PATCH AUTOSEL 5.16 24/30] dmaengine: shdma: Fix runtime PM
+> > > > > > > 	imbalance on error
+> > > > > > 
+> > > > > > So 5.15 and 5.16 is ok, but older is not?
+> > > > > 
+> > > > > I believe commit is wrong for mainline and all stable releases, and
+> > > > > author seems to agree. Drop from everywhere.
+> > > > 
+> > > > Is it reverted in Linus's tree yet?
+> > > 
+> > > It will take you a minute to check.
+> > > 
+> > > Take a look at the patch. There's no return in error path, thus doing
+> > > runtime_put is clearly bogus. Should take you less than minute to
+> > > verify.
+> > > 
+> > > Please drop the patch.
+> > 
+> > I want to have it reverted in Linus's tree as well, otherwise that's a
+> > regression that people will hit.
+> 
+> I have reverted now, it will be in -next tomorrow and in mainline during
+> upcoming merge window
 
-The patch below does not apply to the 5.15-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
-
-thanks,
+Thanks, now queued up.
 
 greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 058ec4a7d9cf77238c73ad9f1e1a3ed9a29afcab Mon Sep 17 00:00:00 2001
-From: Jakub Sitnicki <jakub@cloudflare.com>
-Date: Sat, 19 Mar 2022 19:33:54 +0100
-Subject: [PATCH] bpf: Treat bpf_sk_lookup remote_port as a 2-byte field
-
-In commit 9a69e2b385f4 ("bpf: Make remote_port field in struct
-bpf_sk_lookup 16-bit wide") the remote_port field has been split up and
-re-declared from u32 to be16.
-
-However, the accompanying changes to the context access converter have not
-been well thought through when it comes big-endian platforms.
-
-Today 2-byte wide loads from offsetof(struct bpf_sk_lookup, remote_port)
-are handled as narrow loads from a 4-byte wide field.
-
-This by itself is not enough to create a problem, but when we combine
-
- 1. 32-bit wide access to ->remote_port backed by a 16-wide wide load, with
- 2. inherent difference between litte- and big-endian in how narrow loads
-    need have to be handled (see bpf_ctx_narrow_access_offset),
-
-we get inconsistent results for a 2-byte loads from &ctx->remote_port on LE
-and BE architectures. This in turn makes BPF C code for the common case of
-2-byte load from ctx->remote_port not portable.
-
-To rectify it, inform the context access converter that remote_port is
-2-byte wide field, and only 1-byte loads need to be treated as narrow
-loads.
-
-At the same time, we special-case the 4-byte load from &ctx->remote_port to
-continue handling it the same way as do today, in order to keep the
-existing BPF programs working.
-
-Fixes: 9a69e2b385f4 ("bpf: Make remote_port field in struct bpf_sk_lookup 16-bit wide")
-Signed-off-by: Jakub Sitnicki <jakub@cloudflare.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: Martin KaFai Lau <kafai@fb.com>
-Link: https://lore.kernel.org/bpf/20220319183356.233666-2-jakub@cloudflare.com
-
-diff --git a/net/core/filter.c b/net/core/filter.c
-index 03655f2074ae..a7044e98765e 100644
---- a/net/core/filter.c
-+++ b/net/core/filter.c
-@@ -10989,13 +10989,24 @@ static bool sk_lookup_is_valid_access(int off, int size,
- 	case bpf_ctx_range(struct bpf_sk_lookup, local_ip4):
- 	case bpf_ctx_range_till(struct bpf_sk_lookup, remote_ip6[0], remote_ip6[3]):
- 	case bpf_ctx_range_till(struct bpf_sk_lookup, local_ip6[0], local_ip6[3]):
--	case offsetof(struct bpf_sk_lookup, remote_port) ...
--	     offsetof(struct bpf_sk_lookup, local_ip4) - 1:
- 	case bpf_ctx_range(struct bpf_sk_lookup, local_port):
- 	case bpf_ctx_range(struct bpf_sk_lookup, ingress_ifindex):
- 		bpf_ctx_record_field_size(info, sizeof(__u32));
- 		return bpf_ctx_narrow_access_ok(off, size, sizeof(__u32));
- 
-+	case bpf_ctx_range(struct bpf_sk_lookup, remote_port):
-+		/* Allow 4-byte access to 2-byte field for backward compatibility */
-+		if (size == sizeof(__u32))
-+			return true;
-+		bpf_ctx_record_field_size(info, sizeof(__be16));
-+		return bpf_ctx_narrow_access_ok(off, size, sizeof(__be16));
-+
-+	case offsetofend(struct bpf_sk_lookup, remote_port) ...
-+	     offsetof(struct bpf_sk_lookup, local_ip4) - 1:
-+		/* Allow access to zero padding for backward compatibility */
-+		bpf_ctx_record_field_size(info, sizeof(__u16));
-+		return bpf_ctx_narrow_access_ok(off, size, sizeof(__u16));
-+
- 	default:
- 		return false;
- 	}
-@@ -11077,6 +11088,11 @@ static u32 sk_lookup_convert_ctx_access(enum bpf_access_type type,
- 						     sport, 2, target_size));
- 		break;
- 
-+	case offsetofend(struct bpf_sk_lookup, remote_port):
-+		*target_size = 2;
-+		*insn++ = BPF_MOV32_IMM(si->dst_reg, 0);
-+		break;
-+
- 	case offsetof(struct bpf_sk_lookup, local_port):
- 		*insn++ = BPF_LDX_MEM(BPF_H, si->dst_reg, si->src_reg,
- 				      bpf_target_off(struct bpf_sk_lookup_kern,
-
