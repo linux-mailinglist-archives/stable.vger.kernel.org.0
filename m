@@ -2,97 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EE914FB46C
-	for <lists+stable@lfdr.de>; Mon, 11 Apr 2022 09:15:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B1C74FB475
+	for <lists+stable@lfdr.de>; Mon, 11 Apr 2022 09:18:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245214AbiDKHRx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Apr 2022 03:17:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33380 "EHLO
+        id S235503AbiDKHUg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Apr 2022 03:20:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39862 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245213AbiDKHRw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 03:17:52 -0400
-Received: from mout.gmx.net (mout.gmx.net [212.227.15.19])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 924CD12A84;
-        Mon, 11 Apr 2022 00:15:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1649661328;
-        bh=RDZvUfwf1irwgubSNfE5Vwdwci+3ZXlMB1TpY03wiyM=;
-        h=X-UI-Sender-Class:Date:Subject:To:Cc:References:From:In-Reply-To;
-        b=i2CXT4XbSy6pOuktI/Y4l5YtfzBHdzAyMzXF2ZcIM3pzbXi2/HXYVi2RP7YCTJBsE
-         WRa2pjSEvCQE7Y2mM01WuK4SPzoMXrpN+T9wJWNNrI5Hjqe1Acvinuj7lqgX+ZGGY4
-         s8dgLDbg/oE3YeKMSQE/Cqz/3KWxZoV7eYY7hjH0=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from [0.0.0.0] ([45.77.180.217]) by mail.gmx.net (mrgmx004
- [212.227.17.184]) with ESMTPSA (Nemesis) id 1MfpSl-1oANvy2i41-00gFJX; Mon, 11
- Apr 2022 09:15:28 +0200
-Message-ID: <63cca59f-5962-339c-db9d-c93255962a65@gmx.com>
-Date:   Mon, 11 Apr 2022 15:15:23 +0800
+        with ESMTP id S234453AbiDKHUf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 03:20:35 -0400
+X-Greylist: delayed 28521 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 11 Apr 2022 00:18:21 PDT
+Received: from mail.itouring.de (mail.itouring.de [85.10.202.141])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89FF824BE6;
+        Mon, 11 Apr 2022 00:18:21 -0700 (PDT)
+Received: from tux.applied-asynchrony.com (p5ddd7616.dip0.t-ipconnect.de [93.221.118.22])
+        by mail.itouring.de (Postfix) with ESMTPSA id 06CC2124EC0;
+        Mon, 11 Apr 2022 09:18:20 +0200 (CEST)
+Received: from [192.168.100.221] (hho.applied-asynchrony.com [192.168.100.221])
+        by tux.applied-asynchrony.com (Postfix) with ESMTP id A6389F01601;
+        Mon, 11 Apr 2022 09:18:19 +0200 (CEST)
+Subject: Re: [tip: sched/core] sched/tracing: Don't re-read p->state when
+ emitting sched_switch event
+From:   =?UTF-8?Q?Holger_Hoffst=c3=a4tte?= <holger@applied-asynchrony.com>
+To:     Qais Yousef <qais.yousef@arm.com>,
+        Greg KH <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, linux-tip-commits@vger.kernel.org,
+        Abhijeet Dharmapurikar <adharmap@quicinc.com>,
+        Valentin Schneider <valentin.schneider@arm.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>, x86@kernel.org,
+        stable@vger.kernel.org
+References: <20220120162520.570782-2-valentin.schneider@arm.com>
+ <164614827941.16921.4995078681021904041.tip-bot2@tip-bot2>
+ <20220308180240.qivyjdn4e3te3urm@wubuntu> <YiecMTy8ckUdXTQO@kroah.com>
+ <20220308185138.ldxfqd242uxowymd@wubuntu>
+ <20220409233829.o2s6tffuzujkx6w2@airbuntu>
+ <20220410220608.cdf6hmf5mwcqzwun@airbuntu>
+ <db6ec3a4-3ac9-e96b-d7a5-3e1b4de2adc8@applied-asynchrony.com>
+Organization: Applied Asynchrony, Inc.
+Message-ID: <ae117c69-68e2-93e3-1c0e-f2f4bb9ce03b@applied-asynchrony.com>
+Date:   Mon, 11 Apr 2022 09:18:19 +0200
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.8.0
-Subject: Re: [PATCH 1/4] btrfs: avoid double clean up when submit_one_bio()
- failed
+In-Reply-To: <db6ec3a4-3ac9-e96b-d7a5-3e1b4de2adc8@applied-asynchrony.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
-To:     Christoph Hellwig <hch@infradead.org>, Qu Wenruo <wqu@suse.com>
-Cc:     linux-btrfs@vger.kernel.org, stable@vger.kernel.org
-References: <cover.1649657016.git.wqu@suse.com>
- <6b8983dd0a3a28155fa7d786bae0a8bf932cdbab.1649657016.git.wqu@suse.com>
- <YlPVQtbeJ9qQVDzg@infradead.org>
-From:   Qu Wenruo <quwenruo.btrfs@gmx.com>
-In-Reply-To: <YlPVQtbeJ9qQVDzg@infradead.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:Cowf8zqqraFyAfUGW92fnrnFu8VpVN32FeomdnlCP8rOyTi/qC6
- 9F4mnkSI1qS6tKpppLBCdaBTIze66eRn0HXms4kgIR0UFNOfg2Q4aBBfUDC3A1c1lBYW9xt
- VK6+rP4uZ39XdRXkVYx3A7/Qqi4A93dvhD+8f1/zYfo/aODocFLsH37+wrm5mc5dzAI6Llf
- ac1keP0wJBqjiDzg5HzFA==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:9DNnUz+jNCg=:fif1XCwVN4rgdJJnoj5Jf6
- W/1/72WX9ZzN6HHKvSlPZluRW74T1JOpXfWNZ3YLYSf0Et65VzptG3uEBOg+NFOJNxu7QJZN6
- LCO0lsskOMHH4DZ5BldHRBMwPRQHtv0Re90aYdiq0d/+g2bSwQWhyqmqsUNynSxLAqOdrctjA
- r2/VFInIDXoD6hoa4SQUllFGKLGo2tr5e26evE1qx+0h4b5gHjgdU9DGbzYiqdmbl35ere6Dh
- Ajv3YsM3keoS8+A8UIkO1EYoUBEXVG7Zts0rgsp3ymYGSPLowNjxajdj1nZiabV3ItfnY0CeP
- imrdCOEOgk1kPyzpguT4+/plYF/lXzT2tI4JN6/8HR2vr6bm8wn+vrFE+mMDWRVYRN/oZCI2X
- ypxEa+zPaOZAQbg+TKFGYZAwANVG3XLR2bLL5dZ8lW6iMI49656P9bB4TPTTcr91a2VsmmtuL
- eat4p204ELggkJkI1tDddmUKIjadMpslCf5G6qIWVldCDR1YX+T8gLhtganwB5SR4KxinCcN5
- AioV9h4Pnav7DUHYxqBJ7g56fz7Su3r27eHzaoEkXcQXNuT6SDC34GweVcIN8c+QlSYRmzwjJ
- 9DPRmDfWL+Q3hlhlUuegPAIKSgryazn6/q8M3IojgI8JSQYAsI7fOJif6r6ZokVTYRBWdj2ym
- kIjwJiIkBR3fiwyCk2vEat3DjcfM8CZsjqRv5GknvXmesC6cPp6v1D1eLUd+rQO9mab0PrcHX
- /fTXmFaI45SuWe42yPNkgJAUJp/0tiT+ODXRndSmHidTeETyA+SIkafzJ8IHhNKBNmc8c4XkW
- m47uZAE8BvYgfFHDEzh8W2g533Id2rvu7Pf50Gv29DRd4Q8h6bqaiMGzdR+jkt8kOTbIrEcP6
- lp+rxjm/3ayrkCSOmqPyiY7OdVgzU0EVcJLHW1Ay9HCsJNbYDQNIU6DPCJrqw3NV77CFdciKW
- 6biMZcjtwPHXNLaAsRv7MLLo3czdKbG2TY4uSIAtiNsnVRvYNWUPKm0HHlFyzNnim7rDFOJl1
- 0DRFE9aKjEyWrihZ/I6xaSn/YVpzRI6qzWXszhStQWDdEbByWo+l6KIZK1AVHMyoX2LYM1m7l
- hhvScv6fvYXlbc=
-X-Spam-Status: No, score=-5.7 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,FREEMAIL_FROM,NICE_REPLY_A,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H4,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 2022-04-11 01:22, Holger Hoffstätte wrote:
+> On 2022-04-11 00:06, Qais Yousef wrote:
+>> On 04/10/22 00:38, Qais Yousef wrote:
+>>> On 03/08/22 18:51, Qais Yousef wrote:
+>>>> On 03/08/22 19:10, Greg KH wrote:
+>>>>> On Tue, Mar 08, 2022 at 06:02:40PM +0000, Qais Yousef wrote:
+>>>>>> +CC stable
+>>>>>>
+>>>>>> On 03/01/22 15:24, tip-bot2 for Valentin Schneider wrote:
+>>>>>>> The following commit has been merged into the sched/core branch of tip:
+>>>>>>>
+>>>>>>> Commit-ID:     fa2c3254d7cfff5f7a916ab928a562d1165f17bb
+>>>>>>> Gitweb:        https://git.kernel.org/tip/fa2c3254d7cfff5f7a916ab928a562d1165f17bb
+>>>>>>> Author:        Valentin Schneider <valentin.schneider@arm.com>
+>>>>>>> AuthorDate:    Thu, 20 Jan 2022 16:25:19
+>>>>>>> Committer:     Peter Zijlstra <peterz@infradead.org>
+>>>>>>> CommitterDate: Tue, 01 Mar 2022 16:18:39 +01:00
+>>>>>>>
+>>>>>>> sched/tracing: Don't re-read p->state when emitting sched_switch event
+>>>>>>>
+>>>>>>> As of commit
+>>>>>>>
+>>>>>>>    c6e7bd7afaeb ("sched/core: Optimize ttwu() spinning on p->on_cpu")
+>>>>>>>
+>>>>>>> the following sequence becomes possible:
+>>>>>>>
+>>>>>>>               p->__state = TASK_INTERRUPTIBLE;
+>>>>>>>               __schedule()
+>>>>>>>             deactivate_task(p);
+>>>>>>>    ttwu()
+>>>>>>>      READ !p->on_rq
+>>>>>>>      p->__state=TASK_WAKING
+>>>>>>>             trace_sched_switch()
+>>>>>>>               __trace_sched_switch_state()
+>>>>>>>                 task_state_index()
+>>>>>>>                   return 0;
+>>>>>>>
+>>>>>>> TASK_WAKING isn't in TASK_REPORT, so the task appears as TASK_RUNNING in
+>>>>>>> the trace event.
+>>>>>>>
+>>>>>>> Prevent this by pushing the value read from __schedule() down the trace
+>>>>>>> event.
+>>>>>>>
+>>>>>>> Reported-by: Abhijeet Dharmapurikar <adharmap@quicinc.com>
+>>>>>>> Signed-off-by: Valentin Schneider <valentin.schneider@arm.com>
+>>>>>>> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+>>>>>>> Reviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+>>>>>>> Link: https://lore.kernel.org/r/20220120162520.570782-2-valentin.schneider@arm.com
+>>>>>>
+>>>>>> Any objection to picking this for stable? I'm interested in this one for some
+>>>>>> Android users but prefer if it can be taken by stable rather than backport it
+>>>>>> individually.
+>>>>>>
+>>>>>> I think it makes sense to pick the next one in the series too.
+>>>>>
+>>>>> What commit does this fix in Linus's tree?
+>>>>
+>>>> It should be this one: c6e7bd7afaeb ("sched/core: Optimize ttwu() spinning on p->on_cpu")
+>>>
+>>> Should this be okay to be picked up by stable now? I can see AUTOSEL has picked
+>>> it up for v5.15+, but it impacts v5.10 too.
+>>
+>> commit: fa2c3254d7cfff5f7a916ab928a562d1165f17bb
+>> subject: sched/tracing: Don't re-read p->state when emitting sched_switch event
+>>
+>> This patch has an impact on Android 5.10 users who experience tooling breakage.
+>> Is it possible to include in 5.10 LTS please?
+>>
+>> It was already picked up for 5.15+ by AUTOSEL and only 5.10 is missing.
+>>
+> 
+> https://lore.kernel.org/stable/Yk2PQzynOVOzJdPo@kroah.com/
+> 
+> However, since then further investigation (still in progress) has shown that this
+> may have been the fault of the tool in question, so if you can verify that tracing
+> sched still works for you with this patch in 5.15.x then by all means
+> let's merge it.
 
+So it turns out the lockup is indeed the fault of the tool, which contains multiple
+kernel-version dependent tracepoint definitions and now fails with this
+patch.
 
-On 2022/4/11 15:14, Christoph Hellwig wrote:
-> On Mon, Apr 11, 2022 at 02:12:49PM +0800, Qu Wenruo wrote:
->> +	/*
->> +	 * Above submission hooks will handle the error by ending the bio,
->> +	 * which will do the cleanup properly.
->> +	 * So here we should not return any error, or the caller of
->> +	 * submit_extent_page() will do cleanup again, causing problems.
->> +	 */
->> +	return 0;
->
-> This should not return anything.  Similar to how e.g. submit_bio
-> works it needs to be a void return.  And yes, that will properly
-> fix all the double completion issues.
-
-Yes, check the last patch.
-
-This patch itself is for backport, thus I didn't change the return type
-to make backport easier.
-
-Thanks,
-Qu
+Greg, please re-enqueue this patch where necessary (5.10, 5.15+)
+  
+-h
