@@ -2,94 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EA544FB3F0
-	for <lists+stable@lfdr.de>; Mon, 11 Apr 2022 08:44:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E49D54FB407
+	for <lists+stable@lfdr.de>; Mon, 11 Apr 2022 08:53:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242476AbiDKGqU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Apr 2022 02:46:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33098 "EHLO
+        id S245088AbiDKGzf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Apr 2022 02:55:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56700 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237600AbiDKGqT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 02:46:19 -0400
-Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD64A62E3;
-        Sun, 10 Apr 2022 23:44:06 -0700 (PDT)
-Received: from kwepemi100007.china.huawei.com (unknown [172.30.72.56])
-        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4KcK601WsSzgYbf;
-        Mon, 11 Apr 2022 14:42:16 +0800 (CST)
-Received: from dggpeml500001.china.huawei.com (7.185.36.227) by
- kwepemi100007.china.huawei.com (7.221.188.115) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.24; Mon, 11 Apr 2022 14:44:04 +0800
-Received: from dggpeml500001.china.huawei.com ([7.185.36.227]) by
- dggpeml500001.china.huawei.com ([7.185.36.227]) with mapi id 15.01.2375.024;
- Mon, 11 Apr 2022 14:44:03 +0800
-From:   "kongweibin (A)" <kongweibin2@huawei.com>
-To:     Eric Dumazet <edumazet@gmail.com>,
-        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
-        Eric Dumazet <edumazet@google.com>
-CC:     David Miller <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Willem de Bruijn <willemb@google.com>,
-        Pavel Begunkov <asml.silence@gmail.com>,
-        David Ahern <dsahern@kernel.org>,
-        Vasily Averin <vvs@virtuozzo.com>,
-        Martin KaFai Lau <kafai@fb.com>,
-        LKML <linux-kernel@vger.kernel.org>,
-        netdev <netdev@vger.kernel.org>,
-        "Chenxiang (EulerOS)" <rose.chen@huawei.com>,
-        liaichun <liaichun@huawei.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: =?utf-8?B?562U5aSNOiBbUEFUQ0ggbmV0XSBpcHY2OiBmaXggcGFuaWMgd2hlbiBmb3J3?=
- =?utf-8?Q?arding_a_pkt_with_no_in6_dev?=
-Thread-Topic: [PATCH net] ipv6: fix panic when forwarding a pkt with no in6
- dev
-Thread-Index: AQHYS1GFP5ZHyMlOhU6tOD3A4UEJUazmEHeAgAQvdFA=
-Date:   Mon, 11 Apr 2022 06:44:03 +0000
-Message-ID: <01f85507886e435e97cc86f19abf0661@huawei.com>
-References: <59150cd5-9950-2479-a992-94dcdaa5e63c@6wind.com>
- <20220408140342.19311-1-nicolas.dichtel@6wind.com>
- <85da2373-d8ec-0049-bd3d-6b8f4b044edc@gmail.com>
-In-Reply-To: <85da2373-d8ec-0049-bd3d-6b8f4b044edc@gmail.com>
-Accept-Language: zh-CN, en-US
-Content-Language: zh-CN
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-originating-ip: [10.136.112.250]
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+        with ESMTP id S236025AbiDKGze (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 02:55:34 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C89CF19015
+        for <stable@vger.kernel.org>; Sun, 10 Apr 2022 23:53:21 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5A78761347
+        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 06:53:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F36FC385A4;
+        Mon, 11 Apr 2022 06:53:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1649660000;
+        bh=DU0HBjG0MajGqZB9jQw2UTqquBcgCpfrZrIODaMZMmU=;
+        h=Subject:To:Cc:From:Date:From;
+        b=dwk1RRHiZJ25Y5M+TMkYLnm5EWFyuCr22CSk2pbBrF+p46lwLLrTN7d9dD0J7cBXi
+         5glV0lkQ54sLIybwIZLNvXwIRIJDNq2VN6GyvKeLTAhlhTNC/3hMzT6CVQB0KO9/r2
+         k/V/WFAUvP3ONCxN9jyus3Tsi/Z74yyGVtSZw6aA=
+Subject: FAILED: patch "[PATCH] arm64: Add part number for Arm Cortex-A78AE" failed to apply to 4.9-stable tree
+To:     chanho61.park@samsung.com, catalin.marinas@arm.com,
+        james.morse@arm.com, mark.rutland@arm.com, will@kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 11 Apr 2022 08:53:17 +0200
+Message-ID: <1649659997222224@kroah.com>
 MIME-Version: 1.0
-X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-5.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
-        RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-PiBrb25nd2VpYmluLCBjb3VsZCB5b3UgdGVzdCB0aGlzIHBhdGNoIHdpdGggeW91ciBzZXR1cD8N
-Cj4NCj4gVGhhbmtzLA0KPiBOaWNvbGFzDQo+DQo+ICAgbmV0L2lwdjYvaXA2X291dHB1dC5jIHwg
-MiArLQ0KPiAgIDEgZmlsZSBjaGFuZ2VkLCAxIGluc2VydGlvbigrKSwgMSBkZWxldGlvbigtKQ0K
-Pg0KPiBkaWZmIC0tZ2l0IGEvbmV0L2lwdjYvaXA2X291dHB1dC5jIGIvbmV0L2lwdjYvaXA2X291
-dHB1dC5jIGluZGV4IA0KPiBlMjNmMDU4MTY2YWYuLmZhNjNlZjJiZDk5YyAxMDA2NDQNCj4gLS0t
-IGEvbmV0L2lwdjYvaXA2X291dHB1dC5jDQo+ICsrKyBiL25ldC9pcHY2L2lwNl9vdXRwdXQuYw0K
-PiBAQCAtNDg1LDcgKzQ4NSw3IEBAIGludCBpcDZfZm9yd2FyZChzdHJ1Y3Qgc2tfYnVmZiAqc2ti
-KQ0KPiAgIAkJZ290byBkcm9wOw0KPiAgIA0KPiAgIAlpZiAoIW5ldC0+aXB2Ni5kZXZjb25mX2Fs
-bC0+ZGlzYWJsZV9wb2xpY3kgJiYNCj4gLQkgICAgIWlkZXYtPmNuZi5kaXNhYmxlX3BvbGljeSAm
-Jg0KPiArCSAgICAoIWlkZXYgfHwgIWlkZXYtPmNuZi5kaXNhYmxlX3BvbGljeSkgJiYNCj4gICAJ
-ICAgICF4ZnJtNl9wb2xpY3lfY2hlY2soTlVMTCwgWEZSTV9QT0xJQ1lfRldELCBza2IpKSB7DQo+
-ICAgCQlfX0lQNl9JTkNfU1RBVFMobmV0LCBpZGV2LCBJUFNUQVRTX01JQl9JTkRJU0NBUkRTKTsN
-Cj4gICAJCWdvdG8gZHJvcDsNCg0KSSBoYXZlIHRlc3QgdGhlIHBhdGNoIHdpdGggbXkgc2V0dXAs
-IGl0IGlzIE9LLg0KDQoNCg0KPj4ga29uZ3dlaWJpbiByZXBvcnRlZCBhIGtlcm5lbCBwYW5pYyBp
-biBpcDZfZm9yd2FyZCgpIHdoZW4gaW5wdXQgDQo+PiBpbnRlcmZhY2UgaGFzIG5vIGluNiBkZXYg
-YXNzb2NpYXRlZC4NCj4+DQo+PiBUaGUgZm9sbG93aW5nIHRjIGNvbW1hbmRzIHdlcmUgdXNlZCB0
-byByZXByb2R1Y2UgdGhpcyBwYW5pYzoNCj4+IHRjIHFkaXNjIGRlbCBkZXYgdnhsYW4xMDAgcm9v
-dA0KPj4gdGMgcWRpc2MgYWRkIGRldiB2eGxhbjEwMCByb290IG5ldGVtIGNvcnJ1cHQgNSUNCj4N
-Cj5Ob3Qgc3VyZSBJIHVuZGVyc3RhbmQgaG93IHRoZXNlIHFkaXNjIGNoYW5nZXMgY2FuIHRyaWdn
-ZXIgYSBOVUxMIGlkZXYgPw0KPg0KPkRvIHdlIGhhdmUgYW5vdGhlciBidWcsIGxpa2Ugc2tiLT5j
-YltdIGNvbnRlbnQgYmVpbmcgbWFuZ2xlZCA/DQo+DQoNCkFzIGZvciB3aHkgcWRpc2MgbWFrZXMg
-dGhlIGlkZXYgbnVsbCwgSSB0cmFja2VkIHdoZXJlIHRoZSBpaWYgYXNzaWduZWQgaW4gaXA2X3Jj
-dl9jb3JlLA0KdGhlcmUgaXMgbm8gcHJvYmxlbSB0aGVyZS4NCg0KTm90IHN1cmUgd2hhdCBoYXMg
-Y2hhbmdlZCB0aGF0IG1ha2VzIHRoZSBpaWYgdmFsdWUgd3JvbmcuDQoNCg0K
+
+The patch below does not apply to the 4.9-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
+
+thanks,
+
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 83bea32ac7ed37bbda58733de61fc9369513f9f9 Mon Sep 17 00:00:00 2001
+From: Chanho Park <chanho61.park@samsung.com>
+Date: Thu, 7 Apr 2022 18:11:28 +0900
+Subject: [PATCH] arm64: Add part number for Arm Cortex-A78AE
+
+Add the MIDR part number info for the Arm Cortex-A78AE[1] and add it to
+spectre-BHB affected list[2].
+
+[1]: https://developer.arm.com/Processors/Cortex-A78AE
+[2]: https://developer.arm.com/Arm%20Security%20Center/Spectre-BHB
+
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: James Morse <james.morse@arm.com>
+Signed-off-by: Chanho Park <chanho61.park@samsung.com>
+Link: https://lore.kernel.org/r/20220407091128.8700-1-chanho61.park@samsung.com
+Signed-off-by: Will Deacon <will@kernel.org>
+
+diff --git a/arch/arm64/include/asm/cputype.h b/arch/arm64/include/asm/cputype.h
+index 232b439cbaf3..ff8f4511df71 100644
+--- a/arch/arm64/include/asm/cputype.h
++++ b/arch/arm64/include/asm/cputype.h
+@@ -75,6 +75,7 @@
+ #define ARM_CPU_PART_CORTEX_A77		0xD0D
+ #define ARM_CPU_PART_NEOVERSE_V1	0xD40
+ #define ARM_CPU_PART_CORTEX_A78		0xD41
++#define ARM_CPU_PART_CORTEX_A78AE	0xD42
+ #define ARM_CPU_PART_CORTEX_X1		0xD44
+ #define ARM_CPU_PART_CORTEX_A510	0xD46
+ #define ARM_CPU_PART_CORTEX_A710	0xD47
+@@ -130,6 +131,7 @@
+ #define MIDR_CORTEX_A77	MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A77)
+ #define MIDR_NEOVERSE_V1	MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_NEOVERSE_V1)
+ #define MIDR_CORTEX_A78	MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A78)
++#define MIDR_CORTEX_A78AE	MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A78AE)
+ #define MIDR_CORTEX_X1	MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_X1)
+ #define MIDR_CORTEX_A510 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A510)
+ #define MIDR_CORTEX_A710 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A710)
+diff --git a/arch/arm64/kernel/proton-pack.c b/arch/arm64/kernel/proton-pack.c
+index 5777929d35bf..40be3a7c2c53 100644
+--- a/arch/arm64/kernel/proton-pack.c
++++ b/arch/arm64/kernel/proton-pack.c
+@@ -853,6 +853,7 @@ u8 spectre_bhb_loop_affected(int scope)
+ 	if (scope == SCOPE_LOCAL_CPU) {
+ 		static const struct midr_range spectre_bhb_k32_list[] = {
+ 			MIDR_ALL_VERSIONS(MIDR_CORTEX_A78),
++			MIDR_ALL_VERSIONS(MIDR_CORTEX_A78AE),
+ 			MIDR_ALL_VERSIONS(MIDR_CORTEX_A78C),
+ 			MIDR_ALL_VERSIONS(MIDR_CORTEX_X1),
+ 			MIDR_ALL_VERSIONS(MIDR_CORTEX_A710),
+
