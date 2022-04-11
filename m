@@ -2,117 +2,203 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 559294FB518
-	for <lists+stable@lfdr.de>; Mon, 11 Apr 2022 09:41:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 921804FB52B
+	for <lists+stable@lfdr.de>; Mon, 11 Apr 2022 09:44:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245564AbiDKHnL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Apr 2022 03:43:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43314 "EHLO
+        id S240455AbiDKHqw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Apr 2022 03:46:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49054 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245678AbiDKHnE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 03:43:04 -0400
-Received: from relay12.mail.gandi.net (relay12.mail.gandi.net [IPv6:2001:4b98:dc4:8::232])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5442D559B
-        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 00:40:50 -0700 (PDT)
-Received: (Authenticated sender: miquel.raynal@bootlin.com)
-        by mail.gandi.net (Postfix) with ESMTPSA id 3B125200012;
-        Mon, 11 Apr 2022 07:40:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-        t=1649662848;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=zMslGI0Nk9+SOvYSj6cm9qNbzp4T8QUhXk3AKMJi01s=;
-        b=aoaiccUvduO6o44p0B1qYzKY0Wis3SgXfQ+09cO3ZHeQBe5nmVUeKuzHdtX+BrmUCv3uac
-        dIu/yEj9qgQAdlmTLtZTbWcHxhMVHf2gPbFFjq6PW1igag3YxxwSiPa1RlCbn8ele1NV30
-        FmOxhX8WKVhORHJKrcxC9gdac6eyddcdzhaWRjsZ8ezOC39iYXIouYdm/B15DMU9QSq/dZ
-        MxZ1/WHCRGRNN93S9T9QDjdrV3xHwrNo3bdCeLTdIhlV/EYLjgYozqW0irIW/4lLB9ZhAm
-        nyOm6IMpSTEPyP8D6ld74i+mmioeuieFa0WNPqqRkpZUmRw9XUVq5LOdksfiOw==
-Date:   Mon, 11 Apr 2022 09:40:47 +0200
-From:   Miquel Raynal <miquel.raynal@bootlin.com>
-To:     Thorsten Leemhuis <regressions@leemhuis.info>
-Cc:     Tokunori Ikegami <ikegami.t@gmail.com>, richard@nod.at,
-        vigneshr@ti.com, linux-mtd@lists.infradead.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v7 0/4] mtd: cfi_cmdset_0002: Use chip_ready() for write
- on S29GL064N
-Message-ID: <20220411094047.06556ee1@xps13>
-In-Reply-To: <6b09d10e-2098-9fb7-be4c-ae67d802cd2d@leemhuis.info>
-References: <20220323170458.5608-1-ikegami.t@gmail.com>
-        <6b09d10e-2098-9fb7-be4c-ae67d802cd2d@leemhuis.info>
-Organization: Bootlin
-X-Mailer: Claws Mail 3.17.7 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
+        with ESMTP id S245656AbiDKHqo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 03:46:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6516163DD
+        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 00:44:27 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 00B3A61477
+        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 07:44:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 107BBC385A4;
+        Mon, 11 Apr 2022 07:44:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1649663066;
+        bh=A1JYbgjjqbLTv50yrbU/v0qXkYaV8HsrgqkLFebreBI=;
+        h=Subject:To:Cc:From:Date:From;
+        b=U3UjAL5gotCRTpiL/n8RUWzSkquvDXGfCipF0pmcVxjuY68J765iINmHcmcFPYsEH
+         03RMFC9qGld+vzVo0ppzta8rvUFn5uzO2fLApwyw3iyIC+ncswcfrZHXMW5m+/OQCv
+         N5aEQAr3phxCeEwu2iwd+1CMuTh0sJAXdezxg5cQ=
+Subject: FAILED: patch "[PATCH] io_uring: defer file assignment" failed to apply to 5.16-stable tree
+To:     axboe@kernel.dk
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 11 Apr 2022 09:44:15 +0200
+Message-ID: <164966305521579@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
 
-regressions@leemhuis.info wrote on Sun, 10 Apr 2022 10:51:17 +0200:
+The patch below does not apply to the 5.16-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-> Hi, this is your Linux kernel regression tracker. Top-posting for once,
-> to make this easily accessible to everyone.
->=20
-> Miquel, Richard, Vignesh: what's up here? This patchset fixes a
-> regression. It's quite old, so it's not that urgent, but it looked like
-> nothing happened for two and a half week now. Or was progress made
-> somewhere?
+thanks,
 
-Vignesh, I'm waiting for your review/ack ;)
+greg k-h
 
-> Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker' hat)
+------------------ original commit in Linus's tree ------------------
 
-Nice 'tool' :)
+From 6bf9c47a398911e0ab920e362115153596c80432 Mon Sep 17 00:00:00 2001
+From: Jens Axboe <axboe@kernel.dk>
+Date: Tue, 29 Mar 2022 10:10:08 -0600
+Subject: [PATCH] io_uring: defer file assignment
 
-> P.S.: As the Linux kernel's regression tracker I'm getting a lot of
-> reports on my table. I can only look briefly into most of them and lack
-> knowledge about most of the areas they concern. I thus unfortunately
-> will sometimes get things wrong or miss something important. I hope
-> that's not the case here; if you think it is, don't hesitate to tell me
-> in a public reply, it's in everyone's interest to set the public record
-> straight.
->=20
-> #regzbot poke
->=20
-> On 23.03.22 18:04, Tokunori Ikegami wrote:
-> > Since commit dfeae1073583("mtd: cfi_cmdset_0002: Change write buffer to
-> > check correct value") buffered writes fail on S29GL064N. This is
-> > because, on S29GL064N, reads return 0xFF at the end of DQ polling for
-> > write completion, where as, chip_good() check expects actual data
-> > written to the last location to be returned post DQ polling completion.
-> > Fix is to revert to using chip_good() for S29GL064N which only checks
-> > for DQ lines to settle down to determine write completion.
-> >=20
-> > Fixes: dfeae1073583("mtd: cfi_cmdset_0002: Change write buffer to check=
- correct value")
-> > Signed-off-by: Tokunori Ikegami <ikegami.t@gmail.com>
-> > Cc: stable@vger.kernel.org
-> > Link: https://lore.kernel.org/r/b687c259-6413-26c9-d4c9-b3afa69ea124@pe=
-ngutronix.de/
-> >=20
-> > Tokunori Ikegami (4):
-> >   mtd: cfi_cmdset_0002: Move and rename
-> >     chip_check/chip_ready/chip_good_for_write
-> >   mtd: cfi_cmdset_0002: Use chip_ready() for write on S29GL064N
-> >   mtd: cfi_cmdset_0002: Add S29GL064N ID definition
-> >   mtd: cfi_cmdset_0002: Rename chip_ready variables
-> >=20
-> >  drivers/mtd/chips/cfi_cmdset_0002.c | 112 ++++++++++++++--------------
-> >  include/linux/mtd/cfi.h             |   1 +
-> >  2 files changed, 55 insertions(+), 58 deletions(-)
-> >  =20
->=20
+If an application uses direct open or accept, it knows in advance what
+direct descriptor value it will get as it picks it itself. This allows
+combined requests such as:
 
+sqe = io_uring_get_sqe(ring);
+io_uring_prep_openat_direct(sqe, ..., file_slot);
+sqe->flags |= IOSQE_IO_LINK | IOSQE_CQE_SKIP_SUCCESS;
 
-Thanks,
-Miqu=C3=A8l
+sqe = io_uring_get_sqe(ring);
+io_uring_prep_read(sqe,file_slot, buf, buf_size, 0);
+sqe->flags |= IOSQE_FIXED_FILE;
+
+io_uring_submit(ring);
+
+where we prepare both a file open and read, and only get a completion
+event for the read when both have completed successfully.
+
+Currently links are fully prepared before the head is issued, but that
+fails if the dependent link needs a file assigned that isn't valid until
+the head has completed.
+
+Conversely, if the same chain is performed but the fixed file slot is
+already valid, then we would be unexpectedly returning data from the
+old file slot rather than the newly opened one. Make sure we're
+consistent here.
+
+Allow deferral of file setup, which makes this documented case work.
+
+Cc: stable@vger.kernel.org # v5.15+
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+
+diff --git a/fs/io-wq.h b/fs/io-wq.h
+index dbecd27656c7..04d374e65e54 100644
+--- a/fs/io-wq.h
++++ b/fs/io-wq.h
+@@ -155,6 +155,7 @@ struct io_wq_work_node *wq_stack_extract(struct io_wq_work_node *stack)
+ struct io_wq_work {
+ 	struct io_wq_work_node list;
+ 	unsigned flags;
++	int fd;
+ };
+ 
+ static inline struct io_wq_work *wq_next_work(struct io_wq_work *work)
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 398128db9728..bdc090fec29c 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -7240,6 +7240,23 @@ static void io_clean_op(struct io_kiocb *req)
+ 	req->flags &= ~IO_REQ_CLEAN_FLAGS;
+ }
+ 
++static bool io_assign_file(struct io_kiocb *req, unsigned int issue_flags)
++{
++	if (req->file || !io_op_defs[req->opcode].needs_file)
++		return true;
++
++	if (req->flags & REQ_F_FIXED_FILE)
++		req->file = io_file_get_fixed(req, req->work.fd, issue_flags);
++	else
++		req->file = io_file_get_normal(req, req->work.fd);
++	if (req->file)
++		return true;
++
++	req_set_fail(req);
++	req->result = -EBADF;
++	return false;
++}
++
+ static int io_issue_sqe(struct io_kiocb *req, unsigned int issue_flags)
+ {
+ 	const struct cred *creds = NULL;
+@@ -7250,6 +7267,8 @@ static int io_issue_sqe(struct io_kiocb *req, unsigned int issue_flags)
+ 
+ 	if (!io_op_defs[req->opcode].audit_skip)
+ 		audit_uring_entry(req->opcode);
++	if (unlikely(!io_assign_file(req, issue_flags)))
++		return -EBADF;
+ 
+ 	switch (req->opcode) {
+ 	case IORING_OP_NOP:
+@@ -7394,10 +7413,11 @@ static struct io_wq_work *io_wq_free_work(struct io_wq_work *work)
+ static void io_wq_submit_work(struct io_wq_work *work)
+ {
+ 	struct io_kiocb *req = container_of(work, struct io_kiocb, work);
++	const struct io_op_def *def = &io_op_defs[req->opcode];
+ 	unsigned int issue_flags = IO_URING_F_UNLOCKED;
+ 	bool needs_poll = false;
+ 	struct io_kiocb *timeout;
+-	int ret = 0;
++	int ret = 0, err = -ECANCELED;
+ 
+ 	/* one will be dropped by ->io_free_work() after returning to io-wq */
+ 	if (!(req->flags & REQ_F_REFCOUNT))
+@@ -7409,14 +7429,18 @@ static void io_wq_submit_work(struct io_wq_work *work)
+ 	if (timeout)
+ 		io_queue_linked_timeout(timeout);
+ 
++	if (!io_assign_file(req, issue_flags)) {
++		err = -EBADF;
++		work->flags |= IO_WQ_WORK_CANCEL;
++	}
++
+ 	/* either cancelled or io-wq is dying, so don't touch tctx->iowq */
+ 	if (work->flags & IO_WQ_WORK_CANCEL) {
+-		io_req_task_queue_fail(req, -ECANCELED);
++		io_req_task_queue_fail(req, err);
+ 		return;
+ 	}
+ 
+ 	if (req->flags & REQ_F_FORCE_ASYNC) {
+-		const struct io_op_def *def = &io_op_defs[req->opcode];
+ 		bool opcode_poll = def->pollin || def->pollout;
+ 
+ 		if (opcode_poll && file_can_poll(req->file)) {
+@@ -7749,6 +7773,8 @@ static int io_init_req(struct io_ring_ctx *ctx, struct io_kiocb *req,
+ 	if (io_op_defs[opcode].needs_file) {
+ 		struct io_submit_state *state = &ctx->submit_state;
+ 
++		req->work.fd = READ_ONCE(sqe->fd);
++
+ 		/*
+ 		 * Plug now if we have more than 2 IO left after this, and the
+ 		 * target is potentially a read/write to block based storage.
+@@ -7758,13 +7784,6 @@ static int io_init_req(struct io_ring_ctx *ctx, struct io_kiocb *req,
+ 			state->need_plug = false;
+ 			blk_start_plug_nr_ios(&state->plug, state->submit_nr);
+ 		}
+-
+-		if (req->flags & REQ_F_FIXED_FILE)
+-			req->file = io_file_get_fixed(req, READ_ONCE(sqe->fd), 0);
+-		else
+-			req->file = io_file_get_normal(req, READ_ONCE(sqe->fd));
+-		if (unlikely(!req->file))
+-			return -EBADF;
+ 	}
+ 
+ 	personality = READ_ONCE(sqe->personality);
+
