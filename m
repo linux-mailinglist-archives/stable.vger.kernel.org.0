@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D58A94FB784
-	for <lists+stable@lfdr.de>; Mon, 11 Apr 2022 11:28:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 818EF4FB785
+	for <lists+stable@lfdr.de>; Mon, 11 Apr 2022 11:28:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344414AbiDKJao (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Apr 2022 05:30:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39888 "EHLO
+        id S235185AbiDKJa4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Apr 2022 05:30:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40018 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230477AbiDKJal (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 05:30:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 269F13FDB9
-        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 02:28:28 -0700 (PDT)
+        with ESMTP id S230477AbiDKJa4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 05:30:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 058A83FDB3
+        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 02:28:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D21C2B810E0
-        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 09:28:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F2CAC385A3;
-        Mon, 11 Apr 2022 09:28:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 901DC61014
+        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 09:28:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97B18C385A4;
+        Mon, 11 Apr 2022 09:28:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649669305;
-        bh=xLXBTGgZgPv8HmqFHIxwKPe2MrLolwXQK1AoxvNtt3Y=;
+        s=korg; t=1649669322;
+        bh=C8tmwIzpIYGFgKavIFdIQiKyqfRep0AFdMVJDLNM/H0=;
         h=Subject:To:Cc:From:Date:From;
-        b=UIhTOnRE0UDwKGWLCkjpKkWJwwDBAvvjL54O8gIemNHe431urK1ywkX34jCFDIlo9
-         E9jfeIbhUAsmlBsSNNfap89jz5a6+Msqj98MrA/nBGf+kreupz4MY0yKEL0RfDF40P
-         onRUUJg4RYArlt1gvNxK6jbfe+c8JyP7WdaGn9XI=
-Subject: FAILED: patch "[PATCH] SUNRPC: Don't call connect() more than once on a TCP socket" failed to apply to 5.15-stable tree
-To:     trond.myklebust@hammerspace.com, enrico.scholz@sigma-chemnitz.de
+        b=fYAf1aeR1HzC77Z4Dc9ADXFJS6ZY1nsb1hyvl7m1HBsB4FDvYVraNT4ZtpShYKQST
+         QErpWqo+9yEuZARZJ+3nfaOrABDNJMmg5XrzB/RA018ApQav1VJTEAm+/WkypxLFin
+         5QpVUo+z7b1fjamVbta7ch/l2bCUhhtlUpTmkuNc=
+Subject: FAILED: patch "[PATCH] SUNRPC: Prevent immediate close+reconnect" failed to apply to 5.15-stable tree
+To:     trond.myklebust@hammerspace.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 11 Apr 2022 11:28:23 +0200
-Message-ID: <164966930340199@kroah.com>
+Date:   Mon, 11 Apr 2022 11:28:39 +0200
+Message-ID: <16496693198222@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,77 +59,41 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 89f42494f92f448747bd8a7ab1ae8b5d5520577d Mon Sep 17 00:00:00 2001
+From 3be232f11a3cc9b0ef0795e39fa11bdb8e422a06 Mon Sep 17 00:00:00 2001
 From: Trond Myklebust <trond.myklebust@hammerspace.com>
-Date: Wed, 16 Mar 2022 19:10:43 -0400
-Subject: [PATCH] SUNRPC: Don't call connect() more than once on a TCP socket
+Date: Tue, 26 Oct 2021 18:01:07 -0400
+Subject: [PATCH] SUNRPC: Prevent immediate close+reconnect
 
-Avoid socket state races due to repeated calls to ->connect() using the
-same socket. If connect() returns 0 due to the connection having
-completed, but we are in fact in a closing state, then we may leave the
-XPRT_CONNECTING flag set on the transport.
+If we have already set up the socket and are waiting for it to connect,
+then don't immediately close and retry.
 
-Reported-by: Enrico Scholz <enrico.scholz@sigma-chemnitz.de>
-Fixes: 3be232f11a3c ("SUNRPC: Prevent immediate close+reconnect")
 Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-diff --git a/include/linux/sunrpc/xprtsock.h b/include/linux/sunrpc/xprtsock.h
-index 8c2a712cb242..689062afdd61 100644
---- a/include/linux/sunrpc/xprtsock.h
-+++ b/include/linux/sunrpc/xprtsock.h
-@@ -89,5 +89,6 @@ struct sock_xprt {
- #define XPRT_SOCK_WAKE_WRITE	(5)
- #define XPRT_SOCK_WAKE_PENDING	(6)
- #define XPRT_SOCK_WAKE_DISCONNECT	(7)
-+#define XPRT_SOCK_CONNECT_SENT	(8)
- 
- #endif /* _LINUX_SUNRPC_XPRTSOCK_H */
+diff --git a/net/sunrpc/xprt.c b/net/sunrpc/xprt.c
+index 691fe5a682b6..a02de2bddb28 100644
+--- a/net/sunrpc/xprt.c
++++ b/net/sunrpc/xprt.c
+@@ -767,7 +767,8 @@ EXPORT_SYMBOL_GPL(xprt_disconnect_done);
+  */
+ static void xprt_schedule_autoclose_locked(struct rpc_xprt *xprt)
+ {
+-	set_bit(XPRT_CLOSE_WAIT, &xprt->state);
++	if (test_and_set_bit(XPRT_CLOSE_WAIT, &xprt->state))
++		return;
+ 	if (test_and_set_bit(XPRT_LOCKED, &xprt->state) == 0)
+ 		queue_work(xprtiod_workqueue, &xprt->task_cleanup);
+ 	else if (xprt->snd_task && !test_bit(XPRT_SND_IS_COOKIE, &xprt->state))
 diff --git a/net/sunrpc/xprtsock.c b/net/sunrpc/xprtsock.c
-index 7e39f87cde2d..8f8a03c3315a 100644
+index 7fb302e202bc..ae48c9c84ee1 100644
 --- a/net/sunrpc/xprtsock.c
 +++ b/net/sunrpc/xprtsock.c
-@@ -2235,10 +2235,15 @@ static void xs_tcp_setup_socket(struct work_struct *work)
- 
- 	if (atomic_read(&xprt->swapper))
- 		current->flags |= PF_MEMALLOC;
--	if (!sock) {
--		sock = xs_create_sock(xprt, transport,
--				xs_addr(xprt)->sa_family, SOCK_STREAM,
--				IPPROTO_TCP, true);
-+
-+	if (xprt_connected(xprt))
-+		goto out;
-+	if (test_and_clear_bit(XPRT_SOCK_CONNECT_SENT,
-+			       &transport->sock_state) ||
-+	    !sock) {
-+		xs_reset_transport(transport);
-+		sock = xs_create_sock(xprt, transport, xs_addr(xprt)->sa_family,
-+				      SOCK_STREAM, IPPROTO_TCP, true);
- 		if (IS_ERR(sock)) {
- 			xprt_wake_pending_tasks(xprt, PTR_ERR(sock));
- 			goto out;
-@@ -2262,6 +2267,7 @@ static void xs_tcp_setup_socket(struct work_struct *work)
- 		fallthrough;
- 	case -EINPROGRESS:
- 		/* SYN_SENT! */
-+		set_bit(XPRT_SOCK_CONNECT_SENT, &transport->sock_state);
- 		if (xprt->reestablish_timeout < XS_TCP_INIT_REEST_TO)
- 			xprt->reestablish_timeout = XS_TCP_INIT_REEST_TO;
- 		fallthrough;
-@@ -2323,13 +2329,9 @@ static void xs_connect(struct rpc_xprt *xprt, struct rpc_task *task)
+@@ -2314,7 +2314,7 @@ static void xs_connect(struct rpc_xprt *xprt, struct rpc_task *task)
  
  	WARN_ON_ONCE(!xprt_lock_connect(xprt, task, transport));
  
--	if (transport->sock != NULL && !xprt_connecting(xprt)) {
-+	if (transport->sock != NULL) {
+-	if (transport->sock != NULL) {
++	if (transport->sock != NULL && !xprt_connecting(xprt)) {
  		dprintk("RPC:       xs_connect delayed xprt %p for %lu "
--				"seconds\n",
--				xprt, xprt->reestablish_timeout / HZ);
--
--		/* Start by resetting any existing state */
--		xs_reset_transport(transport);
-+			"seconds\n", xprt, xprt->reestablish_timeout / HZ);
- 
- 		delay = xprt_reconnect_delay(xprt);
- 		xprt_reconnect_backoff(xprt, XS_TCP_INIT_REEST_TO);
+ 				"seconds\n",
+ 				xprt, xprt->reestablish_timeout / HZ);
 
