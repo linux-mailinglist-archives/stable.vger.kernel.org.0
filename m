@@ -2,53 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A88444FB59A
-	for <lists+stable@lfdr.de>; Mon, 11 Apr 2022 10:05:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 781434FB59F
+	for <lists+stable@lfdr.de>; Mon, 11 Apr 2022 10:09:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343551AbiDKIIF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Apr 2022 04:08:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46012 "EHLO
+        id S239915AbiDKILX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Apr 2022 04:11:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53486 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343605AbiDKIHf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 04:07:35 -0400
-Received: from mail.itouring.de (mail.itouring.de [85.10.202.141])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E7E11AD9E;
-        Mon, 11 Apr 2022 01:05:21 -0700 (PDT)
-Received: from tux.applied-asynchrony.com (p5ddd7616.dip0.t-ipconnect.de [93.221.118.22])
-        by mail.itouring.de (Postfix) with ESMTPSA id D21EB124EC0;
-        Mon, 11 Apr 2022 10:05:19 +0200 (CEST)
-Received: from [192.168.100.221] (hho.applied-asynchrony.com [192.168.100.221])
-        by tux.applied-asynchrony.com (Postfix) with ESMTP id 9A4F4F01601;
-        Mon, 11 Apr 2022 10:05:19 +0200 (CEST)
-Subject: Re: [tip: sched/core] sched/tracing: Don't re-read p->state when
- emitting sched_switch event
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Qais Yousef <qais.yousef@arm.com>, linux-kernel@vger.kernel.org,
-        linux-tip-commits@vger.kernel.org,
-        Abhijeet Dharmapurikar <adharmap@quicinc.com>,
-        Valentin Schneider <valentin.schneider@arm.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>, x86@kernel.org,
-        stable@vger.kernel.org
-References: <20220120162520.570782-2-valentin.schneider@arm.com>
- <164614827941.16921.4995078681021904041.tip-bot2@tip-bot2>
- <20220308180240.qivyjdn4e3te3urm@wubuntu> <YiecMTy8ckUdXTQO@kroah.com>
- <20220308185138.ldxfqd242uxowymd@wubuntu>
- <20220409233829.o2s6tffuzujkx6w2@airbuntu>
- <20220410220608.cdf6hmf5mwcqzwun@airbuntu>
- <db6ec3a4-3ac9-e96b-d7a5-3e1b4de2adc8@applied-asynchrony.com>
- <ae117c69-68e2-93e3-1c0e-f2f4bb9ce03b@applied-asynchrony.com>
- <YlPYnvTHx5SHUIXt@kroah.com>
-From:   =?UTF-8?Q?Holger_Hoffst=c3=a4tte?= <holger@applied-asynchrony.com>
-Organization: Applied Asynchrony, Inc.
-Message-ID: <a80da288-4697-28eb-ee30-9d8ef10738f3@applied-asynchrony.com>
-Date:   Mon, 11 Apr 2022 10:05:19 +0200
+        with ESMTP id S235172AbiDKILU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 04:11:20 -0400
+Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0556C3;
+        Mon, 11 Apr 2022 01:09:06 -0700 (PDT)
+Date:   Mon, 11 Apr 2022 08:09:03 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1649664544;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=8Q/cLzqt8hbPDP/r8Xme0RmnOVKky9waF1u0fTBQPW8=;
+        b=x52nZXb3Ti/QiUJVh16HQD0PYbZ/YoqbEg5M1SfYYvtWMra+3PNmAasov5wi3oO0OtA6dk
+        026m9NxidHxiJpojzboh3cKUHihq2daZxFBQYJyYQc+pyGQNFjlW6XNPQQSlOX1vMA1zpW
+        xTKYCEE3uAVhysK/7gwEr0WI4V+yqekKCUbvy7Qr1s4rNZ5jHeAo5qSgFTnNx0odO94eBa
+        QhcS0m/kh0iy1PTQ2G4IDl1RIx3Tay+AOIFL+mOndDhiGyjjMf3bwdz70kS2LnKEuYB8yz
+        SnsFHw0cQmkRSkH2kWJzgkcPjwmAHVINlnpaFnqrdRmw3Yl+oHY9IeaztCNPWQ==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1649664544;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=8Q/cLzqt8hbPDP/r8Xme0RmnOVKky9waF1u0fTBQPW8=;
+        b=XCIKjdzpMmMgtZQLO6q2CLTsAEaouqCM43Lizmbcl7cI60y445sXG7BFs0nIqgGFIumOHQ
+        f7AUnIMr5KDxtwCg==
+From:   "tip-bot2 for Rei Yamamoto" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: irq/urgent] genirq/affinity: Consider that CPUs on nodes can be
+ unbalanced
+Cc:     Rei Yamamoto <yamamoto.rei@jp.fujitsu.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ming Lei <ming.lei@redhat.com>, stable@vger.kernel.org,
+        x86@kernel.org, linux-kernel@vger.kernel.org, maz@kernel.org
+In-Reply-To: <20220331003309.10891-1-yamamoto.rei@jp.fujitsu.com>
+References: <20220331003309.10891-1-yamamoto.rei@jp.fujitsu.com>
 MIME-Version: 1.0
-In-Reply-To: <YlPYnvTHx5SHUIXt@kroah.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+Message-ID: <164966454348.4207.142052541335966473.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2@linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -57,107 +66,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2022-04-11 09:28, Greg KH wrote:
-> On Mon, Apr 11, 2022 at 09:18:19AM +0200, Holger Hoffstätte wrote:
->> On 2022-04-11 01:22, Holger Hoffstätte wrote:
->>> On 2022-04-11 00:06, Qais Yousef wrote:
->>>> On 04/10/22 00:38, Qais Yousef wrote:
->>>>> On 03/08/22 18:51, Qais Yousef wrote:
->>>>>> On 03/08/22 19:10, Greg KH wrote:
->>>>>>> On Tue, Mar 08, 2022 at 06:02:40PM +0000, Qais Yousef wrote:
->>>>>>>> +CC stable
->>>>>>>>
->>>>>>>> On 03/01/22 15:24, tip-bot2 for Valentin Schneider wrote:
->>>>>>>>> The following commit has been merged into the sched/core branch of tip:
->>>>>>>>>
->>>>>>>>> Commit-ID:     fa2c3254d7cfff5f7a916ab928a562d1165f17bb
->>>>>>>>> Gitweb:        https://git.kernel.org/tip/fa2c3254d7cfff5f7a916ab928a562d1165f17bb
->>>>>>>>> Author:        Valentin Schneider <valentin.schneider@arm.com>
->>>>>>>>> AuthorDate:    Thu, 20 Jan 2022 16:25:19
->>>>>>>>> Committer:     Peter Zijlstra <peterz@infradead.org>
->>>>>>>>> CommitterDate: Tue, 01 Mar 2022 16:18:39 +01:00
->>>>>>>>>
->>>>>>>>> sched/tracing: Don't re-read p->state when emitting sched_switch event
->>>>>>>>>
->>>>>>>>> As of commit
->>>>>>>>>
->>>>>>>>>     c6e7bd7afaeb ("sched/core: Optimize ttwu() spinning on p->on_cpu")
->>>>>>>>>
->>>>>>>>> the following sequence becomes possible:
->>>>>>>>>
->>>>>>>>>                p->__state = TASK_INTERRUPTIBLE;
->>>>>>>>>                __schedule()
->>>>>>>>>              deactivate_task(p);
->>>>>>>>>     ttwu()
->>>>>>>>>       READ !p->on_rq
->>>>>>>>>       p->__state=TASK_WAKING
->>>>>>>>>              trace_sched_switch()
->>>>>>>>>                __trace_sched_switch_state()
->>>>>>>>>                  task_state_index()
->>>>>>>>>                    return 0;
->>>>>>>>>
->>>>>>>>> TASK_WAKING isn't in TASK_REPORT, so the task appears as TASK_RUNNING in
->>>>>>>>> the trace event.
->>>>>>>>>
->>>>>>>>> Prevent this by pushing the value read from __schedule() down the trace
->>>>>>>>> event.
->>>>>>>>>
->>>>>>>>> Reported-by: Abhijeet Dharmapurikar <adharmap@quicinc.com>
->>>>>>>>> Signed-off-by: Valentin Schneider <valentin.schneider@arm.com>
->>>>>>>>> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
->>>>>>>>> Reviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>
->>>>>>>>> Link: https://lore.kernel.org/r/20220120162520.570782-2-valentin.schneider@arm.com
->>>>>>>>
->>>>>>>> Any objection to picking this for stable? I'm interested in this one for some
->>>>>>>> Android users but prefer if it can be taken by stable rather than backport it
->>>>>>>> individually.
->>>>>>>>
->>>>>>>> I think it makes sense to pick the next one in the series too.
->>>>>>>
->>>>>>> What commit does this fix in Linus's tree?
->>>>>>
->>>>>> It should be this one: c6e7bd7afaeb ("sched/core: Optimize ttwu() spinning on p->on_cpu")
->>>>>
->>>>> Should this be okay to be picked up by stable now? I can see AUTOSEL has picked
->>>>> it up for v5.15+, but it impacts v5.10 too.
->>>>
->>>> commit: fa2c3254d7cfff5f7a916ab928a562d1165f17bb
->>>> subject: sched/tracing: Don't re-read p->state when emitting sched_switch event
->>>>
->>>> This patch has an impact on Android 5.10 users who experience tooling breakage.
->>>> Is it possible to include in 5.10 LTS please?
->>>>
->>>> It was already picked up for 5.15+ by AUTOSEL and only 5.10 is missing.
->>>>
->>>
->>> https://lore.kernel.org/stable/Yk2PQzynOVOzJdPo@kroah.com/
->>>
->>> However, since then further investigation (still in progress) has shown that this
->>> may have been the fault of the tool in question, so if you can verify that tracing
->>> sched still works for you with this patch in 5.15.x then by all means
->>> let's merge it.
->>
->> So it turns out the lockup is indeed the fault of the tool, which contains multiple
->> kernel-version dependent tracepoint definitions and now fails with this
->> patch.
-> 
-> What tools is this?
+The following commit has been merged into the irq/urgent branch of tip:
 
-sysdig - which uses a helper kernel module which accesses tracepoints, but of course
-(as I just found) with copypasta'd TP definitions, which broke with this patch due to
-the additional parameter in the function signature. It's been prone to breakage forever
-because of a lack of a stable kernel ABI.
+Commit-ID:     08d835dff916bfe8f45acc7b92c7af6c4081c8a7
+Gitweb:        https://git.kernel.org/tip/08d835dff916bfe8f45acc7b92c7af6c4081c8a7
+Author:        Rei Yamamoto <yamamoto.rei@jp.fujitsu.com>
+AuthorDate:    Thu, 31 Mar 2022 09:33:09 +09:00
+Committer:     Thomas Gleixner <tglx@linutronix.de>
+CommitterDate: Mon, 11 Apr 2022 09:58:03 +02:00
 
-Took me a while to find/figure out, but IMHO better safe than sorry. We've had
-autoselected scheduler patches before that looked fine but really were not.
+genirq/affinity: Consider that CPUs on nodes can be unbalanced
 
-> 
->> Greg, please re-enqueue this patch where necessary (5.10, 5.15+)
-> 
-> If I queue it up again, will the tools keep breaking?
+If CPUs on a node are offline at boot time, the number of nodes is
+different when building affinity masks for present cpus and when building
+affinity masks for possible cpus. This causes the following problem:
 
-Yes, but that's their problem with an out-of-tree module; a few more #ifdefs
-are not going to make a big difference.
+In the case that the number of vectors is less than the number of nodes
+there are cases where bits of masks for present cpus are overwritten when
+building masks for possible cpus.
 
-thanks
-Holger
+Fix this by excluding CPUs, which are not part of the current build mask
+(present/possible).
+
+[ tglx: Massaged changelog and added comment ]
+
+Fixes: b82592199032 ("genirq/affinity: Spread IRQs to all available NUMA nodes")
+Signed-off-by: Rei Yamamoto <yamamoto.rei@jp.fujitsu.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20220331003309.10891-1-yamamoto.rei@jp.fujitsu.com
+---
+ kernel/irq/affinity.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/kernel/irq/affinity.c b/kernel/irq/affinity.c
+index f7ff891..fdf1704 100644
+--- a/kernel/irq/affinity.c
++++ b/kernel/irq/affinity.c
+@@ -269,8 +269,9 @@ static int __irq_build_affinity_masks(unsigned int startvec,
+ 	 */
+ 	if (numvecs <= nodes) {
+ 		for_each_node_mask(n, nodemsk) {
+-			cpumask_or(&masks[curvec].mask, &masks[curvec].mask,
+-				   node_to_cpumask[n]);
++			/* Ensure that only CPUs which are in both masks are set */
++			cpumask_and(nmsk, cpu_mask, node_to_cpumask[n]);
++			cpumask_or(&masks[curvec].mask, &masks[curvec].mask, nmsk);
+ 			if (++curvec == last_affv)
+ 				curvec = firstvec;
+ 		}
