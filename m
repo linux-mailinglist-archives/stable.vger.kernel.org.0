@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E70C24FB52A
-	for <lists+stable@lfdr.de>; Mon, 11 Apr 2022 09:44:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A82E4FB52C
+	for <lists+stable@lfdr.de>; Mon, 11 Apr 2022 09:44:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244576AbiDKHqv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Apr 2022 03:46:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49302 "EHLO
+        id S240983AbiDKHqy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Apr 2022 03:46:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240455AbiDKHqq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 03:46:46 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5E2C5F88
-        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 00:44:31 -0700 (PDT)
+        with ESMTP id S242645AbiDKHqw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 03:46:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA47A64FB
+        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 00:44:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 73D30B80ED6
-        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 07:44:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBD36C385A5;
-        Mon, 11 Apr 2022 07:44:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7E814B80ED6
+        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 07:44:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD342C385A5;
+        Mon, 11 Apr 2022 07:44:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649663069;
-        bh=khgD3luToPekWrK2kxejVSS/gcSulswd+22g/lWf+4A=;
+        s=korg; t=1649663075;
+        bh=CwHuA5f6YxeYSzUmmaSBOU+zws0bwaRv5W9GO2cc34Y=;
         h=Subject:To:Cc:From:Date:From;
-        b=sbzPbZdwrzCFAOr74HFCu/8R9ZJP0kHRGzBc3S3gBlQV9D8VroPHJqS8t4dwq1ZNo
-         1fgqwt6wK+rNHlbnlMfcc0dWdYF0VJrqvSkq+qzYXglPjWsv2vpwPgsaQXs8wYUJ7e
-         FjbyMyLNEt3OOGtW7tp6CpXx2DEJlL3KbgIePoe0=
-Subject: FAILED: patch "[PATCH] io_uring: defer file assignment" failed to apply to 5.17-stable tree
+        b=XA/C1SU0oxdXr8cVAzu0uAITd93A7VhUaEisIf5WelnkrPBJ8AIZxwruyH5jXOTlR
+         ngjYTjC98hTiJ0s+6sRV1fIuc5xxPHVJC29npnnNIvZdWNH8A0BUIowiuAfIFLXoSh
+         oO8QEzmJKsPJtEHGaHosndmgsUCBZEAtXXAOJq1g=
+Subject: FAILED: patch "[PATCH] io_uring: move read/write file prep state into actual opcode" failed to apply to 5.16-stable tree
 To:     axboe@kernel.dk
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 11 Apr 2022 09:44:16 +0200
-Message-ID: <16496630567985@kroah.com>
+Date:   Mon, 11 Apr 2022 09:44:27 +0200
+Message-ID: <1649663067146119@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.17-stable tree.
+The patch below does not apply to the 5.16-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,146 +59,193 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 6bf9c47a398911e0ab920e362115153596c80432 Mon Sep 17 00:00:00 2001
+From 584b0180f0f4d67d7145950fe68c625f06c88b10 Mon Sep 17 00:00:00 2001
 From: Jens Axboe <axboe@kernel.dk>
-Date: Tue, 29 Mar 2022 10:10:08 -0600
-Subject: [PATCH] io_uring: defer file assignment
+Date: Tue, 29 Mar 2022 10:48:05 -0600
+Subject: [PATCH] io_uring: move read/write file prep state into actual opcode
+ handler
 
-If an application uses direct open or accept, it knows in advance what
-direct descriptor value it will get as it picks it itself. This allows
-combined requests such as:
-
-sqe = io_uring_get_sqe(ring);
-io_uring_prep_openat_direct(sqe, ..., file_slot);
-sqe->flags |= IOSQE_IO_LINK | IOSQE_CQE_SKIP_SUCCESS;
-
-sqe = io_uring_get_sqe(ring);
-io_uring_prep_read(sqe,file_slot, buf, buf_size, 0);
-sqe->flags |= IOSQE_FIXED_FILE;
-
-io_uring_submit(ring);
-
-where we prepare both a file open and read, and only get a completion
-event for the read when both have completed successfully.
-
-Currently links are fully prepared before the head is issued, but that
-fails if the dependent link needs a file assigned that isn't valid until
-the head has completed.
-
-Conversely, if the same chain is performed but the fixed file slot is
-already valid, then we would be unexpectedly returning data from the
-old file slot rather than the newly opened one. Make sure we're
-consistent here.
-
-Allow deferral of file setup, which makes this documented case work.
+In preparation for not necessarily having a file assigned at prep time,
+defer any initialization associated with the file to when the opcode
+handler is run.
 
 Cc: stable@vger.kernel.org # v5.15+
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 
-diff --git a/fs/io-wq.h b/fs/io-wq.h
-index dbecd27656c7..04d374e65e54 100644
---- a/fs/io-wq.h
-+++ b/fs/io-wq.h
-@@ -155,6 +155,7 @@ struct io_wq_work_node *wq_stack_extract(struct io_wq_work_node *stack)
- struct io_wq_work {
- 	struct io_wq_work_node list;
- 	unsigned flags;
-+	int fd;
- };
- 
- static inline struct io_wq_work *wq_next_work(struct io_wq_work *work)
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 398128db9728..bdc090fec29c 100644
+index 0152ef49cf46..969f65de9972 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -7240,6 +7240,23 @@ static void io_clean_op(struct io_kiocb *req)
- 	req->flags &= ~IO_REQ_CLEAN_FLAGS;
+@@ -592,7 +592,8 @@ struct io_rw {
+ 	/* NOTE: kiocb has the file as the first member, so don't do it here */
+ 	struct kiocb			kiocb;
+ 	u64				addr;
+-	u64				len;
++	u32				len;
++	u32				flags;
+ };
+ 
+ struct io_connect {
+@@ -3178,42 +3179,11 @@ static inline bool io_file_supports_nowait(struct io_kiocb *req)
+ 
+ static int io_prep_rw(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+ {
+-	struct io_ring_ctx *ctx = req->ctx;
+ 	struct kiocb *kiocb = &req->rw.kiocb;
+-	struct file *file = req->file;
+ 	unsigned ioprio;
+ 	int ret;
+ 
+-	if (!io_req_ffs_set(req))
+-		req->flags |= io_file_get_flags(file) << REQ_F_SUPPORT_NOWAIT_BIT;
+-
+ 	kiocb->ki_pos = READ_ONCE(sqe->off);
+-	kiocb->ki_flags = iocb_flags(file);
+-	ret = kiocb_set_rw_flags(kiocb, READ_ONCE(sqe->rw_flags));
+-	if (unlikely(ret))
+-		return ret;
+-
+-	/*
+-	 * If the file is marked O_NONBLOCK, still allow retry for it if it
+-	 * supports async. Otherwise it's impossible to use O_NONBLOCK files
+-	 * reliably. If not, or it IOCB_NOWAIT is set, don't retry.
+-	 */
+-	if ((kiocb->ki_flags & IOCB_NOWAIT) ||
+-	    ((file->f_flags & O_NONBLOCK) && !io_file_supports_nowait(req)))
+-		req->flags |= REQ_F_NOWAIT;
+-
+-	if (ctx->flags & IORING_SETUP_IOPOLL) {
+-		if (!(kiocb->ki_flags & IOCB_DIRECT) || !file->f_op->iopoll)
+-			return -EOPNOTSUPP;
+-
+-		kiocb->ki_flags |= IOCB_HIPRI | IOCB_ALLOC_CACHE;
+-		kiocb->ki_complete = io_complete_rw_iopoll;
+-		req->iopoll_completed = 0;
+-	} else {
+-		if (kiocb->ki_flags & IOCB_HIPRI)
+-			return -EINVAL;
+-		kiocb->ki_complete = io_complete_rw;
+-	}
+ 
+ 	ioprio = READ_ONCE(sqe->ioprio);
+ 	if (ioprio) {
+@@ -3229,6 +3199,7 @@ static int io_prep_rw(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+ 	req->imu = NULL;
+ 	req->rw.addr = READ_ONCE(sqe->addr);
+ 	req->rw.len = READ_ONCE(sqe->len);
++	req->rw.flags = READ_ONCE(sqe->rw_flags);
+ 	req->buf_index = READ_ONCE(sqe->buf_index);
+ 	return 0;
+ }
+@@ -3732,13 +3703,6 @@ static inline int io_rw_prep_async(struct io_kiocb *req, int rw)
+ 	return 0;
  }
  
-+static bool io_assign_file(struct io_kiocb *req, unsigned int issue_flags)
+-static int io_read_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+-{
+-	if (unlikely(!(req->file->f_mode & FMODE_READ)))
+-		return -EBADF;
+-	return io_prep_rw(req, sqe);
+-}
+-
+ /*
+  * This is our waitqueue callback handler, registered through __folio_lock_async()
+  * when we initially tried to do the IO with the iocb armed our waitqueue.
+@@ -3826,6 +3790,49 @@ static bool need_read_all(struct io_kiocb *req)
+ 		S_ISBLK(file_inode(req->file)->i_mode);
+ }
+ 
++static int io_rw_init_file(struct io_kiocb *req, fmode_t mode)
 +{
-+	if (req->file || !io_op_defs[req->opcode].needs_file)
-+		return true;
++	struct kiocb *kiocb = &req->rw.kiocb;
++	struct io_ring_ctx *ctx = req->ctx;
++	struct file *file = req->file;
++	int ret;
 +
-+	if (req->flags & REQ_F_FIXED_FILE)
-+		req->file = io_file_get_fixed(req, req->work.fd, issue_flags);
-+	else
-+		req->file = io_file_get_normal(req, req->work.fd);
-+	if (req->file)
-+		return true;
-+
-+	req_set_fail(req);
-+	req->result = -EBADF;
-+	return false;
-+}
-+
- static int io_issue_sqe(struct io_kiocb *req, unsigned int issue_flags)
- {
- 	const struct cred *creds = NULL;
-@@ -7250,6 +7267,8 @@ static int io_issue_sqe(struct io_kiocb *req, unsigned int issue_flags)
- 
- 	if (!io_op_defs[req->opcode].audit_skip)
- 		audit_uring_entry(req->opcode);
-+	if (unlikely(!io_assign_file(req, issue_flags)))
++	if (unlikely(!file || !(file->f_mode & mode)))
 +		return -EBADF;
- 
- 	switch (req->opcode) {
- 	case IORING_OP_NOP:
-@@ -7394,10 +7413,11 @@ static struct io_wq_work *io_wq_free_work(struct io_wq_work *work)
- static void io_wq_submit_work(struct io_wq_work *work)
- {
- 	struct io_kiocb *req = container_of(work, struct io_kiocb, work);
-+	const struct io_op_def *def = &io_op_defs[req->opcode];
- 	unsigned int issue_flags = IO_URING_F_UNLOCKED;
- 	bool needs_poll = false;
- 	struct io_kiocb *timeout;
--	int ret = 0;
-+	int ret = 0, err = -ECANCELED;
- 
- 	/* one will be dropped by ->io_free_work() after returning to io-wq */
- 	if (!(req->flags & REQ_F_REFCOUNT))
-@@ -7409,14 +7429,18 @@ static void io_wq_submit_work(struct io_wq_work *work)
- 	if (timeout)
- 		io_queue_linked_timeout(timeout);
- 
-+	if (!io_assign_file(req, issue_flags)) {
-+		err = -EBADF;
-+		work->flags |= IO_WQ_WORK_CANCEL;
++
++	if (!io_req_ffs_set(req))
++		req->flags |= io_file_get_flags(file) << REQ_F_SUPPORT_NOWAIT_BIT;
++
++	kiocb->ki_flags = iocb_flags(file);
++	ret = kiocb_set_rw_flags(kiocb, req->rw.flags);
++	if (unlikely(ret))
++		return ret;
++
++	/*
++	 * If the file is marked O_NONBLOCK, still allow retry for it if it
++	 * supports async. Otherwise it's impossible to use O_NONBLOCK files
++	 * reliably. If not, or it IOCB_NOWAIT is set, don't retry.
++	 */
++	if ((kiocb->ki_flags & IOCB_NOWAIT) ||
++	    ((file->f_flags & O_NONBLOCK) && !io_file_supports_nowait(req)))
++		req->flags |= REQ_F_NOWAIT;
++
++	if (ctx->flags & IORING_SETUP_IOPOLL) {
++		if (!(kiocb->ki_flags & IOCB_DIRECT) || !file->f_op->iopoll)
++			return -EOPNOTSUPP;
++
++		kiocb->ki_flags |= IOCB_HIPRI | IOCB_ALLOC_CACHE;
++		kiocb->ki_complete = io_complete_rw_iopoll;
++		req->iopoll_completed = 0;
++	} else {
++		if (kiocb->ki_flags & IOCB_HIPRI)
++			return -EINVAL;
++		kiocb->ki_complete = io_complete_rw;
 +	}
 +
- 	/* either cancelled or io-wq is dying, so don't touch tctx->iowq */
- 	if (work->flags & IO_WQ_WORK_CANCEL) {
--		io_req_task_queue_fail(req, -ECANCELED);
-+		io_req_task_queue_fail(req, err);
- 		return;
- 	}
- 
- 	if (req->flags & REQ_F_FORCE_ASYNC) {
--		const struct io_op_def *def = &io_op_defs[req->opcode];
- 		bool opcode_poll = def->pollin || def->pollout;
- 
- 		if (opcode_poll && file_can_poll(req->file)) {
-@@ -7749,6 +7773,8 @@ static int io_init_req(struct io_ring_ctx *ctx, struct io_kiocb *req,
- 	if (io_op_defs[opcode].needs_file) {
- 		struct io_submit_state *state = &ctx->submit_state;
- 
-+		req->work.fd = READ_ONCE(sqe->fd);
++	return 0;
++}
 +
- 		/*
- 		 * Plug now if we have more than 2 IO left after this, and the
- 		 * target is potentially a read/write to block based storage.
-@@ -7758,13 +7784,6 @@ static int io_init_req(struct io_ring_ctx *ctx, struct io_kiocb *req,
- 			state->need_plug = false;
- 			blk_start_plug_nr_ios(&state->plug, state->submit_nr);
- 		}
--
--		if (req->flags & REQ_F_FIXED_FILE)
--			req->file = io_file_get_fixed(req, READ_ONCE(sqe->fd), 0);
--		else
--			req->file = io_file_get_normal(req, READ_ONCE(sqe->fd));
--		if (unlikely(!req->file))
--			return -EBADF;
+ static int io_read(struct io_kiocb *req, unsigned int issue_flags)
+ {
+ 	struct io_rw_state __s, *s = &__s;
+@@ -3861,6 +3868,9 @@ static int io_read(struct io_kiocb *req, unsigned int issue_flags)
+ 		iov_iter_restore(&s->iter, &s->iter_state);
+ 		iovec = NULL;
  	}
++	ret = io_rw_init_file(req, FMODE_READ);
++	if (unlikely(ret))
++		return ret;
+ 	req->result = iov_iter_count(&s->iter);
  
- 	personality = READ_ONCE(sqe->personality);
+ 	if (force_nonblock) {
+@@ -3964,13 +3974,6 @@ static int io_read(struct io_kiocb *req, unsigned int issue_flags)
+ 	return 0;
+ }
+ 
+-static int io_write_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+-{
+-	if (unlikely(!(req->file->f_mode & FMODE_WRITE)))
+-		return -EBADF;
+-	return io_prep_rw(req, sqe);
+-}
+-
+ static int io_write(struct io_kiocb *req, unsigned int issue_flags)
+ {
+ 	struct io_rw_state __s, *s = &__s;
+@@ -3991,6 +3994,9 @@ static int io_write(struct io_kiocb *req, unsigned int issue_flags)
+ 		iov_iter_restore(&s->iter, &s->iter_state);
+ 		iovec = NULL;
+ 	}
++	ret = io_rw_init_file(req, FMODE_WRITE);
++	if (unlikely(ret))
++		return ret;
+ 	req->result = iov_iter_count(&s->iter);
+ 
+ 	if (force_nonblock) {
+@@ -6987,11 +6993,10 @@ static int io_req_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+ 	case IORING_OP_READV:
+ 	case IORING_OP_READ_FIXED:
+ 	case IORING_OP_READ:
+-		return io_read_prep(req, sqe);
+ 	case IORING_OP_WRITEV:
+ 	case IORING_OP_WRITE_FIXED:
+ 	case IORING_OP_WRITE:
+-		return io_write_prep(req, sqe);
++		return io_prep_rw(req, sqe);
+ 	case IORING_OP_POLL_ADD:
+ 		return io_poll_add_prep(req, sqe);
+ 	case IORING_OP_POLL_REMOVE:
 
