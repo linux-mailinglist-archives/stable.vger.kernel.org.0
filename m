@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C9C64FC0E1
-	for <lists+stable@lfdr.de>; Mon, 11 Apr 2022 17:35:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C567F4FC0E0
+	for <lists+stable@lfdr.de>; Mon, 11 Apr 2022 17:35:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237076AbiDKPhh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Apr 2022 11:37:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53368 "EHLO
+        id S237758AbiDKPhe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Apr 2022 11:37:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53196 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239063AbiDKPhg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 11:37:36 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98C9E37BD0
-        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 08:35:22 -0700 (PDT)
+        with ESMTP id S237076AbiDKPhd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 11:37:33 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A5A9165BD
+        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 08:35:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5016BB816C7
-        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 15:35:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95EC2C385A4;
-        Mon, 11 Apr 2022 15:35:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 35CDBB80B30
+        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 15:35:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9331AC385A3;
+        Mon, 11 Apr 2022 15:35:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649691320;
-        bh=t9338smvioWVJOdz4Fia5vZH/EOT4+Fg6Y1qbuXCeQ8=;
+        s=korg; t=1649691317;
+        bh=sIBiXeJDjNx0X7yXZEhFNnWQ4xWlRZemTvhSCrwARxY=;
         h=Subject:To:Cc:From:Date:From;
-        b=lMQP19A8vZ6f4dkDpQtK9VsEyNxdw+921/624ok5yuMtJzBvwMx+Kn7bXkxisSzSq
-         uvD94L/Nzd+hNrNTX32KzjcLghFYMkx3FjYFpf4sOTHv6NkyTFBHH/mLPWz67poFwC
-         XI9a3apJDPQ9GRiPP6Mb062LRCFL0fWP/ntDBd+g=
-Subject: FAILED: patch "[PATCH] random: check for signal_pending() outside of need_resched()" failed to apply to 5.16-stable tree
+        b=LxyTmZXygNtNYMU+duh6LngSvP6WROaaAA51xNHrZEERdR+3rjjqXyGoFSrcZEF1D
+         WDrsPUZnPIZvQkNGglLJs9X55kg2n+l/15fGaR6DBEYDhBCcsrc9VikA0/3It1U/EI
+         XtDGUgK7ZWatDbl8Mieuyunti1Twzs3VbyIPgCwk=
+Subject: FAILED: patch "[PATCH] random: check for signal_pending() outside of need_resched()" failed to apply to 5.17-stable tree
 To:     jannh@google.com, Jason@zx2c4.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 11 Apr 2022 17:35:14 +0200
-Message-ID: <1649691314580@kroah.com>
+Message-ID: <1649691314106137@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.16-stable tree.
+The patch below does not apply to the 5.17-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
