@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 040D04FC0EB
-	for <lists+stable@lfdr.de>; Mon, 11 Apr 2022 17:35:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C3334FC0EE
+	for <lists+stable@lfdr.de>; Mon, 11 Apr 2022 17:35:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348021AbiDKPiD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Apr 2022 11:38:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54930 "EHLO
+        id S1348022AbiDKPiH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Apr 2022 11:38:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55352 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348025AbiDKPiC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 11:38:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CD1D387A8
-        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 08:35:45 -0700 (PDT)
+        with ESMTP id S1348024AbiDKPiG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 11:38:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68B113916C
+        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 08:35:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 960E761546
-        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 15:35:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA5F2C385A4;
-        Mon, 11 Apr 2022 15:35:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 16C8FB80758
+        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 15:35:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66065C385A4;
+        Mon, 11 Apr 2022 15:35:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649691344;
-        bh=4NJRvNF6N9PxB/NhV5pAJWaBfOsE1f9ExAtz88auQ4k=;
+        s=korg; t=1649691349;
+        bh=8YeyeD6YYPgw5TneiYGyKm/Mc0Lf/LWuvPviMzAoA4U=;
         h=Subject:To:Cc:From:Date:From;
-        b=YF7kWPi2EDbb0C4XmE7dPVHXZpE5gQ4gJTErH6zZ7EOlT9tOCialXJb4OqJTmiWBu
-         ZC5ZynizaXh1SiwoPJWPbzr7NKE/9JM4/UPdnNNq1tSeFcYwP8rLNuzHUUXvNkAuw/
-         NWsbsMgS+DWLkpqn0eu6+2RswNSOA1xVcBGTiIxM=
-Subject: FAILED: patch "[PATCH] bpf: Resolve to prog->aux->dst_prog->type only for" failed to apply to 5.15-stable tree
+        b=aVEkj+x2UWSRrcPHiPREtXzsat21scM+CQXT0SDxUscJtA7fM8NPLz1K3FmNcJ5jD
+         cGgKuega/vTiFbMJBr1MGBvdiW5RDGXytSneXfb1y63K1CD3Cfx6N/GSLzIL/Il3ee
+         V5u1kMf4N9+lUu89KA/kUM1Zmnbql2S8/Hobk16A=
+Subject: FAILED: patch "[PATCH] bpf: Resolve to prog->aux->dst_prog->type only for" failed to apply to 5.10-stable tree
 To:     kafai@fb.com, ast@kernel.org, yhs@fb.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 11 Apr 2022 17:35:34 +0200
-Message-ID: <164969133445185@kroah.com>
+Date:   Mon, 11 Apr 2022 17:35:35 +0200
+Message-ID: <16496913351895@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
