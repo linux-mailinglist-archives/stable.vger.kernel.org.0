@@ -2,81 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AF12E4FB7EB
-	for <lists+stable@lfdr.de>; Mon, 11 Apr 2022 11:42:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 520174FB83E
+	for <lists+stable@lfdr.de>; Mon, 11 Apr 2022 11:50:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344650AbiDKJoX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Apr 2022 05:44:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51844 "EHLO
+        id S1344861AbiDKJwK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Apr 2022 05:52:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231818AbiDKJoV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 05:44:21 -0400
-Received: from sipsolutions.net (s3.sipsolutions.net [IPv6:2a01:4f8:191:4433::2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24F0C37A11;
-        Mon, 11 Apr 2022 02:42:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=sipsolutions.net; s=mail; h=Content-Transfer-Encoding:MIME-Version:
-        Message-Id:Date:Subject:Cc:To:From:Content-Type:Sender:Reply-To:Content-ID:
-        Content-Description:Resent-Date:Resent-From:Resent-To:Resent-Cc:
-        Resent-Message-ID:In-Reply-To:References;
-        bh=//CENzgbmsozcbwJyIoiHm22WQ8QVpiASXdzO6hbltU=; t=1649670128; x=1650879728; 
-        b=H4fDPilRQCzW1wofc5LI7JSWDm7cerpDb2vAHVDr7rlgieN788w3ljTLVkSgMkxzFaAJXpcCO9B
-        RfAmi1Oc70wzHY3ZmpHDrUSdkVFqozfqhMfuESeeMRBnsiaDRBKf17Rtsy/nx4Wm6k7u31usJS37O
-        /wHPOdFNNsmHqT6TLrqnzovbQuAgPbYx/PugFfq69zOFMTREHgvwsZfmFZTBjqMzMeKmn3DI2BPyF
-        GbqPM70AlPS5/QdzqVfhYy+tYnzobzt7npkfenBeqhcPqJS3K3uqmF2P68vMINVS1bt6w1Q8YSNC9
-        iDnAvDm72fvgoiT12Ip9wxy3s2jUTtfTd6PA==;
-Received: by sipsolutions.net with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-        (Exim 4.95)
-        (envelope-from <johannes@sipsolutions.net>)
-        id 1ndqYf-008ED8-0g;
-        Mon, 11 Apr 2022 11:42:05 +0200
-From:   Johannes Berg <johannes@sipsolutions.net>
-To:     linux-wireless@vger.kernel.org
-Cc:     Johannes Berg <johannes.berg@intel.com>, stable@vger.kernel.org,
-        Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH] nl80211: correctly check NL80211_ATTR_REG_ALPHA2 size
-Date:   Mon, 11 Apr 2022 11:42:03 +0200
-Message-Id: <20220411114201.fd4a31f06541.Ie7ff4be2cf348d8cc28ed0d626fc54becf7ea799@changeid>
-X-Mailer: git-send-email 2.35.1
+        with ESMTP id S1344815AbiDKJwA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 05:52:00 -0400
+Received: from mail-il1-f199.google.com (mail-il1-f199.google.com [209.85.166.199])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24009419B0
+        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 02:49:16 -0700 (PDT)
+Received: by mail-il1-f199.google.com with SMTP id y19-20020a056e02119300b002c2d3ef05bfso10228340ili.18
+        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 02:49:16 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:date:in-reply-to:message-id:subject
+         :from:to;
+        bh=sVvRetvU66viZg03zt42J481swUWQOVgkFgrLPfYY/8=;
+        b=3/OXRGO/p3xh1kYi3VQksBy21aG4n4poLN4RDTkYV9KEWuBSU7Jbeou2nD+b6dz840
+         0sdPgC8CYMNE5FjDYjSDuLqD5HileReJRznv0nd1vrvUCb26uYBsNE/ByN8rpWv0uLW2
+         27aSAeMXZ+ao9AP6eJ03byPo9Touv1yg71Sk8GO73WkxU15hD6MOwxVki3/jtbicwilQ
+         uRj16bt7dWD3ix6O3S+u9YvuxK1LdHMFraGt7xF97MVCLBRVTQ5gJfdGVn3R36VjbH5G
+         UjdMalD9mLnvgS/ZBb21IDwo8d856cDdypxO9YXaynpU1A0cNyax5UoFRmTYvilhzEmQ
+         PFYw==
+X-Gm-Message-State: AOAM5338x0vz00iK+IXZEtnK9H/oMBiv0ox4dy/pjc8BhNNUiqKjeLFh
+        nwqWzK35OOWAy2q3E85qFM8VxCkhTU5O/qiq0y8KcqD62gHL
+X-Google-Smtp-Source: ABdhPJya+VGlIXK8Qv5D3MtuNX7CtfRMHKNRzDlkUEXSiGRhE7Fv5uA9ytXlTU+u8AOfkoYFNe1JP+P7URjn2RXgsxZkCB59PiCe
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_PASS,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+X-Received: by 2002:a05:6e02:12e7:b0:2ca:b32b:f011 with SMTP id
+ l7-20020a056e0212e700b002cab32bf011mr1680425iln.284.1649670555093; Mon, 11
+ Apr 2022 02:49:15 -0700 (PDT)
+Date:   Mon, 11 Apr 2022 02:49:15 -0700
+In-Reply-To: <000000000000b960c00594598949@google.com>
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <0000000000006ed28805dc5ddb07@google.com>
+Subject: Re: KASAN: use-after-free Read in tc_chain_fill_node
+From:   syzbot <syzbot+5f229e48cccc804062c0@syzkaller.appspotmail.com>
+To:     davem@davemloft.net, gregkh@linuxfoundation.org, jiri@mellanox.com,
+        lee.jones@linaro.org, linux-kernel@vger.kernel.org,
+        stable-commits@vger.kernel.org, stable@vger.kernel.org,
+        syzkaller-lts-bugs@googlegroups.com, vladbu@mellanox.com
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=0.8 required=5.0 tests=BAYES_00,FROM_LOCAL_HEX,
+        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,
+        SORTED_RECIPS,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=no
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
-
-We need this to be at least two bytes, so we can access
-alpha2[0] and alpha2[1]. It may be three in case some
-userspace used NUL-termination since it was NLA_STRING
-(and we also push it out with NUL-termination).
-
-Cc: stable@vger.kernel.org
-Reported-by: Lee Jones <lee.jones@linaro.org>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
----
- net/wireless/nl80211.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
-index ee1c2b6b6971..21e808fcb676 100644
---- a/net/wireless/nl80211.c
-+++ b/net/wireless/nl80211.c
-@@ -528,7 +528,8 @@ static const struct nla_policy nl80211_policy[NUM_NL80211_ATTR] = {
- 				   .len = IEEE80211_MAX_MESH_ID_LEN },
- 	[NL80211_ATTR_MPATH_NEXT_HOP] = NLA_POLICY_ETH_ADDR_COMPAT,
- 
--	[NL80211_ATTR_REG_ALPHA2] = { .type = NLA_STRING, .len = 2 },
-+	/* allow 3 for NUL-termination, we used to declare this NLA_STRING */
-+	[NL80211_ATTR_REG_ALPHA2] = NLA_POLICY_RANGE(NLA_BINARY, 2, 3),
- 	[NL80211_ATTR_REG_RULES] = { .type = NLA_NESTED },
- 
- 	[NL80211_ATTR_BSS_CTS_PROT] = { .type = NLA_U8 },
--- 
-2.35.1
-
+This bug is marked as fixed by commit:
+net: core: netlink: add helper refcount dec and lock function
+net: sched: add helper function to take reference to Qdisc
+net: sched: extend Qdisc with rcu
+net: sched: rename qdisc_destroy() to qdisc_put()
+net: sched: use Qdisc rcu API instead of relying on rtnl lock
+But I can't find it in any tested tree for more than 90 days.
+Is it a correct commit? Please update it by replying:
+#syz fix: exact-commit-title
+Until then the bug is still considered open and
+new crashes with the same signature are ignored.
