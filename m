@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 99A3A4FD138
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:56:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 386C94FD190
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:57:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351141AbiDLG5o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 02:57:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48360 "EHLO
+        id S240752AbiDLG7I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 02:59:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351538AbiDLGx5 (ORCPT
+        with ESMTP id S1351543AbiDLGx5 (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:53:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6479183BC;
-        Mon, 11 Apr 2022 23:42:21 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE0C1186E8;
+        Mon, 11 Apr 2022 23:42:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 79EB0B81B43;
-        Tue, 12 Apr 2022 06:42:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA148C385A1;
-        Tue, 12 Apr 2022 06:42:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5A9C960A6A;
+        Tue, 12 Apr 2022 06:42:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C765C385A1;
+        Tue, 12 Apr 2022 06:42:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745739;
-        bh=yEpisErz6K+71iwfSBr0egtIMOIDymtqooPXz3MsouU=;
+        s=korg; t=1649745741;
+        bh=YR3Gir45XpiYiVz4aFLYM2r7cvyoBw6h4c40ccJ9T5U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gvdvEbZTEDh+R87TyqkPFABZ4SiBQhnGrsiBOh9ELurmW4FQy9nqT7/sOJ3ds+fvH
-         gq/k7M+debSiy5DZvrScPF87Z6NkNYZdOp5au9In6XCqha4scaVtZ/rVJMlcIFA0Wn
-         kfZecpsBon7qQ9jAo8PPgPrLxxbnPJnyxcU0m3uY=
+        b=RtvKMxNFhdbGhsVMoTBuaupHopX9amy7GZUfxB7vrrtgj3V+q9BeYDj5gsMUs1fzz
+         w6Ao7/9QS9BxGH56ISBnijgzAKoGOFtQN8DHLLizYxKhtpFfun3idRVmP1Nou1Q1/y
+         n/lNl5djXtDqlJqLHIgwe+0n1cFKAzXJmI8kc3j4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kalle Valo <quic_kvalo@quicinc.com>,
+        stable@vger.kernel.org, Tony Lu <tonylu@linux.alibaba.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 030/277] ath11k: mhi: use mhi_sync_power_up()
-Date:   Tue, 12 Apr 2022 08:27:13 +0200
-Message-Id: <20220412062942.915396612@linuxfoundation.org>
+Subject: [PATCH 5.15 031/277] net/smc: Send directly when TCP_CORK is cleared
+Date:   Tue, 12 Apr 2022 08:27:14 +0200
+Message-Id: <20220412062942.944407847@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
 References: <20220412062942.022903016@linuxfoundation.org>
@@ -53,85 +54,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kalle Valo <quic_kvalo@quicinc.com>
+From: Tony Lu <tonylu@linux.alibaba.com>
 
-[ Upstream commit 3df6d74aedfdca919cca475d15dfdbc8b05c9e5d ]
+[ Upstream commit ea785a1a573b390a150010b3c5b81e1ccd8c98a8 ]
 
-If amss.bin was missing ath11k would crash during 'rmmod ath11k_pci'. The
-reason for that was that we were using mhi_async_power_up() which does not
-check any errors. But mhi_sync_power_up() on the other hand does check for
-errors so let's use that to fix the crash.
+According to the man page of TCP_CORK [1], if set, don't send out
+partial frames. All queued partial frames are sent when option is
+cleared again.
 
-I was not able to find a reason why an async version was used.
-ath11k_mhi_start() (which enables state ATH11K_MHI_POWER_ON) is called from
-ath11k_hif_power_up(), which can sleep. So sync version should be safe to use
-here.
+When applications call setsockopt to disable TCP_CORK, this call is
+protected by lock_sock(), and tries to mod_delayed_work() to 0, in order
+to send pending data right now. However, the delayed work smc_tx_work is
+also protected by lock_sock(). There introduces lock contention for
+sending data.
 
-[  145.569731] general protection fault, probably for non-canonical address 0xdffffc0000000000: 0000 [#1] PREEMPT SMP DEBUG_PAGEALLOC KASAN PTI
-[  145.569789] KASAN: null-ptr-deref in range [0x0000000000000000-0x0000000000000007]
-[  145.569843] CPU: 2 PID: 1628 Comm: rmmod Kdump: loaded Tainted: G        W         5.16.0-wt-ath+ #567
-[  145.569898] Hardware name: Intel(R) Client Systems NUC8i7HVK/NUC8i7HVB, BIOS HNKBLi70.86A.0067.2021.0528.1339 05/28/2021
-[  145.569956] RIP: 0010:ath11k_hal_srng_access_begin+0xb5/0x2b0 [ath11k]
-[  145.570028] Code: df 48 89 fa 48 c1 ea 03 80 3c 02 00 0f 85 ec 01 00 00 48 8b ab a8 00 00 00 48 b8 00 00 00 00 00 fc ff df 48 89 ea 48 c1 ea 03 <0f> b6 14 02 48 89 e8 83 e0 07 83 c0 03 45 85 ed 75 48 38 d0 7c 08
-[  145.570089] RSP: 0018:ffffc900025d7ac0 EFLAGS: 00010246
-[  145.570144] RAX: dffffc0000000000 RBX: ffff88814fca2dd8 RCX: 1ffffffff50cb455
-[  145.570196] RDX: 0000000000000000 RSI: ffff88814fca2dd8 RDI: ffff88814fca2e80
-[  145.570252] RBP: 0000000000000000 R08: 0000000000000000 R09: ffffffffa8659497
-[  145.570329] R10: fffffbfff50cb292 R11: 0000000000000001 R12: ffff88814fca0000
-[  145.570410] R13: 0000000000000000 R14: ffff88814fca2798 R15: ffff88814fca2dd8
-[  145.570465] FS:  00007fa399988540(0000) GS:ffff888233e00000(0000) knlGS:0000000000000000
-[  145.570519] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  145.570571] CR2: 00007fa399b51421 CR3: 0000000137898002 CR4: 00000000003706e0
-[  145.570623] Call Trace:
-[  145.570675]  <TASK>
-[  145.570727]  ? ath11k_ce_tx_process_cb+0x34b/0x860 [ath11k]
-[  145.570797]  ath11k_ce_tx_process_cb+0x356/0x860 [ath11k]
-[  145.570864]  ? tasklet_init+0x150/0x150
-[  145.570919]  ? ath11k_ce_alloc_pipes+0x280/0x280 [ath11k]
-[  145.570986]  ? tasklet_clear_sched+0x42/0xe0
-[  145.571042]  ? tasklet_kill+0xe9/0x1b0
-[  145.571095]  ? tasklet_clear_sched+0xe0/0xe0
-[  145.571148]  ? irq_has_action+0x120/0x120
-[  145.571202]  ath11k_ce_cleanup_pipes+0x45a/0x580 [ath11k]
-[  145.571270]  ? ath11k_pci_stop+0x10e/0x170 [ath11k_pci]
-[  145.571345]  ath11k_core_stop+0x8a/0xc0 [ath11k]
-[  145.571434]  ath11k_core_deinit+0x9e/0x150 [ath11k]
-[  145.571499]  ath11k_pci_remove+0xd2/0x260 [ath11k_pci]
-[  145.571553]  pci_device_remove+0x9a/0x1c0
-[  145.571605]  __device_release_driver+0x332/0x660
-[  145.571659]  driver_detach+0x1e7/0x2c0
-[  145.571712]  bus_remove_driver+0xe2/0x2d0
-[  145.571772]  pci_unregister_driver+0x21/0x250
-[  145.571826]  __do_sys_delete_module+0x30a/0x4b0
-[  145.571879]  ? free_module+0xac0/0xac0
-[  145.571933]  ? lockdep_hardirqs_on_prepare.part.0+0x18c/0x370
-[  145.571986]  ? syscall_enter_from_user_mode+0x1d/0x50
-[  145.572039]  ? lockdep_hardirqs_on+0x79/0x100
-[  145.572097]  do_syscall_64+0x3b/0x90
-[  145.572153]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+To fix it, send pending data directly which acts like TCP, without
+lock_sock() protected in the context of setsockopt (already lock_sock()ed),
+and cancel unnecessary dealyed work, which is protected by lock.
 
-Tested-on: WCN6855 hw2.0 PCI WLAN.HSP.1.1-03003-QCAHSPSWPL_V1_V2_SILICONZ_LITE-2
+[1] https://linux.die.net/man/7/tcp
 
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/20220127090117.2024-2-kvalo@kernel.org
+Signed-off-by: Tony Lu <tonylu@linux.alibaba.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath11k/mhi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/smc/af_smc.c |  4 ++--
+ net/smc/smc_tx.c | 25 +++++++++++++++----------
+ net/smc/smc_tx.h |  1 +
+ 3 files changed, 18 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath11k/mhi.c b/drivers/net/wireless/ath/ath11k/mhi.c
-index 49c0b1ad40a0..f2149241fb13 100644
---- a/drivers/net/wireless/ath/ath11k/mhi.c
-+++ b/drivers/net/wireless/ath/ath11k/mhi.c
-@@ -519,7 +519,7 @@ static int ath11k_mhi_set_state(struct ath11k_pci *ab_pci,
- 		ret = 0;
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 5c4c0320e822..183b122807b6 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -2430,8 +2430,8 @@ static int smc_setsockopt(struct socket *sock, int level, int optname,
+ 		    sk->sk_state != SMC_CLOSED) {
+ 			if (!val) {
+ 				SMC_STAT_INC(smc, cork_cnt);
+-				mod_delayed_work(smc->conn.lgr->tx_wq,
+-						 &smc->conn.tx_work, 0);
++				smc_tx_pending(&smc->conn);
++				cancel_delayed_work(&smc->conn.tx_work);
+ 			}
+ 		}
  		break;
- 	case ATH11K_MHI_POWER_ON:
--		ret = mhi_async_power_up(ab_pci->mhi_ctrl);
-+		ret = mhi_sync_power_up(ab_pci->mhi_ctrl);
- 		break;
- 	case ATH11K_MHI_POWER_OFF:
- 		mhi_power_down(ab_pci->mhi_ctrl, true);
+diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
+index 738a4a99c827..31ee76131a79 100644
+--- a/net/smc/smc_tx.c
++++ b/net/smc/smc_tx.c
+@@ -594,27 +594,32 @@ int smc_tx_sndbuf_nonempty(struct smc_connection *conn)
+ 	return rc;
+ }
+ 
+-/* Wakeup sndbuf consumers from process context
+- * since there is more data to transmit
+- */
+-void smc_tx_work(struct work_struct *work)
++void smc_tx_pending(struct smc_connection *conn)
+ {
+-	struct smc_connection *conn = container_of(to_delayed_work(work),
+-						   struct smc_connection,
+-						   tx_work);
+ 	struct smc_sock *smc = container_of(conn, struct smc_sock, conn);
+ 	int rc;
+ 
+-	lock_sock(&smc->sk);
+ 	if (smc->sk.sk_err)
+-		goto out;
++		return;
+ 
+ 	rc = smc_tx_sndbuf_nonempty(conn);
+ 	if (!rc && conn->local_rx_ctrl.prod_flags.write_blocked &&
+ 	    !atomic_read(&conn->bytes_to_rcv))
+ 		conn->local_rx_ctrl.prod_flags.write_blocked = 0;
++}
++
++/* Wakeup sndbuf consumers from process context
++ * since there is more data to transmit
++ */
++void smc_tx_work(struct work_struct *work)
++{
++	struct smc_connection *conn = container_of(to_delayed_work(work),
++						   struct smc_connection,
++						   tx_work);
++	struct smc_sock *smc = container_of(conn, struct smc_sock, conn);
+ 
+-out:
++	lock_sock(&smc->sk);
++	smc_tx_pending(conn);
+ 	release_sock(&smc->sk);
+ }
+ 
+diff --git a/net/smc/smc_tx.h b/net/smc/smc_tx.h
+index 07e6ad76224a..a59f370b8b43 100644
+--- a/net/smc/smc_tx.h
++++ b/net/smc/smc_tx.h
+@@ -27,6 +27,7 @@ static inline int smc_tx_prepared_sends(struct smc_connection *conn)
+ 	return smc_curs_diff(conn->sndbuf_desc->len, &sent, &prep);
+ }
+ 
++void smc_tx_pending(struct smc_connection *conn);
+ void smc_tx_work(struct work_struct *work);
+ void smc_tx_init(struct smc_sock *smc);
+ int smc_tx_sendmsg(struct smc_sock *smc, struct msghdr *msg, size_t len);
 -- 
 2.35.1
 
