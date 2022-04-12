@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 02B914FD45D
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:03:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C54484FD6DD
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:25:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377619AbiDLHux (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:50:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49164 "EHLO
+        id S1377604AbiDLHuq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:50:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50434 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359395AbiDLHnA (ORCPT
+        with ESMTP id S1359396AbiDLHnA (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:43:00 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BED102C133;
-        Tue, 12 Apr 2022 00:22:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F05A2C664;
+        Tue, 12 Apr 2022 00:22:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6F7D3B81B4F;
-        Tue, 12 Apr 2022 07:22:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDF05C385A5;
-        Tue, 12 Apr 2022 07:22:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3D493B81B66;
+        Tue, 12 Apr 2022 07:22:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89DE3C385A5;
+        Tue, 12 Apr 2022 07:22:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649748136;
-        bh=uWWbWAFiJjTX83lC6DgCnZBOURJrl4U1pob1qP3NhQU=;
+        s=korg; t=1649748138;
+        bh=D9WIdFhluHES3x6ARYx49n7SFgTgXokZUrYuVIU6mVw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WaktoVgU4crXzxOARhUi+WVok4PMs26nb0sIAPC+RsXIgZ69CKNP/PRU0p/+M7gWb
-         J2seiakeMCn2/J8eLsBdEKukLkHkbuWhYsPvQQ+hsfvbm0N+tNnxbxHyLopyTCnf9Q
-         BHRsqYF2+oAwpg3j/zh/vyo1EsrwCqIPalqDMvAc=
+        b=KTolrNEnVeYMGNFVfcX6tP8qiU59h4KKR+Qbw9Jl64VyBJMKWJpHqnHAFzz8ztzUW
+         jS+Ygi8X0O80SXE5WnmQI/xUONJnyMJbH8FNNzKkzvPnfghDFn8CvNwE4/W4xUbPlv
+         pM2k49ZcMXpywmIaU4yhcnngOwb+bj8ZIXcDwwVY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 5.17 333/343] x86,static_call: Fix __static_call_return0 for i386
-Date:   Tue, 12 Apr 2022 08:32:31 +0200
-Message-Id: <20220412063000.930534859@linuxfoundation.org>
+        stable@vger.kernel.org, Bernardo Meurer Costa <beme@google.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Nathan Chancellor <nathan@kernel.org>
+Subject: [PATCH 5.17 334/343] x86/extable: Prefer local labels in .set directives
+Date:   Tue, 12 Apr 2022 08:32:32 +0200
+Message-Id: <20220412063000.959501433@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
 References: <20220412062951.095765152@linuxfoundation.org>
@@ -53,54 +55,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Nick Desaulniers <ndesaulniers@google.com>
 
-commit 1cd5f059d956e6f614ba6666ecdbcf95db05d5f5 upstream.
+commit 334865b2915c33080624e0d06f1c3e917036472c upstream.
 
-Paolo reported that the instruction sequence that is used to replace:
+Bernardo reported an error that Nathan bisected down to
+(x86_64) defconfig+LTO_CLANG_FULL+X86_PMEM_LEGACY.
 
-    call __static_call_return0
+    LTO     vmlinux.o
+  ld.lld: error: <instantiation>:1:13: redefinition of 'found'
+  .set found, 0
+              ^
 
-namely:
+  <inline asm>:29:1: while in macro instantiation
+  extable_type_reg reg=%eax, type=(17 | ((0) << 16))
+  ^
 
-    66 66 48 31 c0	data16 data16 xor %rax,%rax
+This appears to be another LTO specific issue similar to what was folded
+into commit 4b5305decc84 ("x86/extable: Extend extable functionality"),
+where the `.set found, 0` in DEFINE_EXTABLE_TYPE_REG in
+arch/x86/include/asm/asm.h conflicts with the symbol for the static
+function `found` in arch/x86/kernel/pmem.c.
 
-decodes to something else on i386, namely:
+Assembler .set directive declare symbols with global visibility, so the
+assembler may not rename such symbols in the event of a conflict. LTO
+could rename static functions if there was a conflict in C sources, but
+it cannot see into symbols defined in inline asm.
 
-    66 66 48		data16 dec %ax
-    31 c0		xor    %eax,%eax
+The symbols are also retained in the symbol table, regardless of LTO.
 
-Which is a nonsensical sequence that happens to have the same outcome.
-*However* an important distinction is that it consists of 2
-instructions which is a problem when the thing needs to be overwriten
-with a regular call instruction again.
+Give the symbols .L prefixes making them locally visible, so that they
+may be renamed for LTO to avoid conflicts, and to drop them from the
+symbol table regardless of LTO.
 
-As such, replace the instruction with something that decodes the same
-on both i386 and x86_64.
-
-Fixes: 3f2a8fc4b15d ("static_call/x86: Add __static_call_return0()")
-Reported-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: 4b5305decc84 ("x86/extable: Extend extable functionality")
+Reported-by: Bernardo Meurer Costa <beme@google.com>
+Debugged-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20220318204419.GT8939@worktop.programming.kicks-ass.net
+Reviewed-by: Nathan Chancellor <nathan@kernel.org>
+Tested-by: Nathan Chancellor <nathan@kernel.org>
+Link: https://lore.kernel.org/r/20220329202148.2379697-1-ndesaulniers@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/static_call.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ arch/x86/include/asm/asm.h |   20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
 
---- a/arch/x86/kernel/static_call.c
-+++ b/arch/x86/kernel/static_call.c
-@@ -12,10 +12,9 @@ enum insn_type {
- };
+--- a/arch/x86/include/asm/asm.h
++++ b/arch/x86/include/asm/asm.h
+@@ -154,24 +154,24 @@
  
- /*
-- * data16 data16 xorq %rax, %rax - a single 5 byte instruction that clears %rax
-- * The REX.W cancels the effect of any data16.
-+ * cs cs cs xorl %eax, %eax - a single 5 byte instruction that clears %[er]ax
-  */
--static const u8 xor5rax[] = { 0x66, 0x66, 0x48, 0x31, 0xc0 };
-+static const u8 xor5rax[] = { 0x2e, 0x2e, 0x2e, 0x31, 0xc0 };
- 
- static const u8 retinsn[] = { RET_INSN_OPCODE, 0xcc, 0xcc, 0xcc, 0xcc };
- 
+ # define DEFINE_EXTABLE_TYPE_REG \
+ 	".macro extable_type_reg type:req reg:req\n"						\
+-	".set found, 0\n"									\
+-	".set regnr, 0\n"									\
++	".set .Lfound, 0\n"									\
++	".set .Lregnr, 0\n"									\
+ 	".irp rs,rax,rcx,rdx,rbx,rsp,rbp,rsi,rdi,r8,r9,r10,r11,r12,r13,r14,r15\n"		\
+ 	".ifc \\reg, %%\\rs\n"									\
+-	".set found, found+1\n"									\
+-	".long \\type + (regnr << 8)\n"								\
++	".set .Lfound, .Lfound+1\n"								\
++	".long \\type + (.Lregnr << 8)\n"							\
+ 	".endif\n"										\
+-	".set regnr, regnr+1\n"									\
++	".set .Lregnr, .Lregnr+1\n"								\
+ 	".endr\n"										\
+-	".set regnr, 0\n"									\
++	".set .Lregnr, 0\n"									\
+ 	".irp rs,eax,ecx,edx,ebx,esp,ebp,esi,edi,r8d,r9d,r10d,r11d,r12d,r13d,r14d,r15d\n"	\
+ 	".ifc \\reg, %%\\rs\n"									\
+-	".set found, found+1\n"									\
+-	".long \\type + (regnr << 8)\n"								\
++	".set .Lfound, .Lfound+1\n"								\
++	".long \\type + (.Lregnr << 8)\n"							\
+ 	".endif\n"										\
+-	".set regnr, regnr+1\n"									\
++	".set .Lregnr, .Lregnr+1\n"								\
+ 	".endr\n"										\
+-	".if (found != 1)\n"									\
++	".if (.Lfound != 1)\n"									\
+ 	".error \"extable_type_reg: bad register argument\"\n"					\
+ 	".endif\n"										\
+ 	".endm\n"
 
 
