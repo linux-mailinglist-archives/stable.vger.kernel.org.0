@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D72B4FD3BD
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 11:59:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED2B14FD381
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 11:58:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377252AbiDLHtW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:49:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52762 "EHLO
+        id S1349831AbiDLHU1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:20:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57276 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358147AbiDLHlH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:41:07 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31A324248D;
-        Tue, 12 Apr 2022 00:17:28 -0700 (PDT)
+        with ESMTP id S1351755AbiDLHMx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:12:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BEE917AAB;
+        Mon, 11 Apr 2022 23:52:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9F5FDB81B7A;
-        Tue, 12 Apr 2022 07:17:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF046C385A5;
-        Tue, 12 Apr 2022 07:17:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ACD4A61045;
+        Tue, 12 Apr 2022 06:52:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9C81C385A6;
+        Tue, 12 Apr 2022 06:52:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747846;
-        bh=ZQJTxnWwxn1l0rfByrfBEHx7Ho3mbw7y5PfeVOo104Q=;
+        s=korg; t=1649746334;
+        bh=qVZQZO1froVUTZ6TwlksDchw3cHLrw0uS/UZVNIs+5k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UblLsF/Vx7zWInNl+uOxT6mRh/vB1paZrXR3JjXVL4QVEpo0Hh7sf7l8uZgqW79Im
-         OsWI8dx7NSEZlN0LUzW9lFhDDd5x6emBqHYGpHRaRv4scCpYUNTzIBc/mZlQ/FrCe3
-         f4+4CJuypQvK9ZEzY5TB4CQf9kNhSuDIZVUXPTJ8=
+        b=YM7rCiqBaAo5MMHhBIp2pXescf6KKq1lNp7Fj8Smnd0J23+jbJO7gwHZzfUn5LMmq
+         wcTHwKg/xTbK1gw39Zs7KUIRtGHjR/1rknkuuR13Is7cbR8waOwWPCJSRCjhzLNSPO
+         G6v+ygLSgRK0vmC0vA9nFhiozdxihnaVcY447tgo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aharon Landau <aharonl@nvidia.com>,
-        Shay Drory <shayd@nvidia.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 226/343] RDMA/mlx5: Dont remove cache MRs when a delay is needed
-Date:   Tue, 12 Apr 2022 08:30:44 +0200
-Message-Id: <20220412062957.861565246@linuxfoundation.org>
+        stable@vger.kernel.org, Ben Skeggs <bskeggs@redhat.com>,
+        Karol Herbst <kherbst@redhat.com>,
+        dri-devel@lists.freedesktop.org, nouveau@lists.freedesktop.org,
+        Lyude Paul <lyude@redhat.com>
+Subject: [PATCH 5.15 245/277] drm/nouveau/pmu: Add missing callbacks for Tegra devices
+Date:   Tue, 12 Apr 2022 08:30:48 +0200
+Message-Id: <20220412062949.132045062@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
+References: <20220412062942.022903016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,41 +55,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aharon Landau <aharonl@nvidia.com>
+From: Karol Herbst <kherbst@redhat.com>
 
-[ Upstream commit 84c2362fb65d69c721fec0974556378cbb36a62b ]
+commit 38d4e5cf5b08798f093374e53c2f4609d5382dd5 upstream.
 
-Don't remove MRs from the cache if need to delay the removal.
+Fixes a crash booting on those platforms with nouveau.
 
-Fixes: b9358bdbc713 ("RDMA/mlx5: Fix locking in MR cache work queue")
-Link: https://lore.kernel.org/r/c3087a90ff362c8796c7eaa2715128743ce36722.1649062436.git.leonro@nvidia.com
-Signed-off-by: Aharon Landau <aharonl@nvidia.com>
-Reviewed-by: Shay Drory <shayd@nvidia.com>
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 4cdd2450bf73 ("drm/nouveau/pmu/gm200-: use alternate falcon reset sequence")
+Cc: Ben Skeggs <bskeggs@redhat.com>
+Cc: Karol Herbst <kherbst@redhat.com>
+Cc: dri-devel@lists.freedesktop.org
+Cc: nouveau@lists.freedesktop.org
+Cc: <stable@vger.kernel.org> # v5.17+
+Signed-off-by: Karol Herbst <kherbst@redhat.com>
+Reviewed-by: Lyude Paul <lyude@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220322124800.2605463-1-kherbst@redhat.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/hw/mlx5/mr.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gm20b.c |    1 +
+ drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gp102.c |    2 +-
+ drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gp10b.c |    1 +
+ drivers/gpu/drm/nouveau/nvkm/subdev/pmu/priv.h  |    1 +
+ 4 files changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/hw/mlx5/mr.c b/drivers/infiniband/hw/mlx5/mr.c
-index 2910d7833313..d3b2d02a4872 100644
---- a/drivers/infiniband/hw/mlx5/mr.c
-+++ b/drivers/infiniband/hw/mlx5/mr.c
-@@ -541,8 +541,10 @@ static void __cache_work_func(struct mlx5_cache_ent *ent)
- 		spin_lock_irq(&ent->lock);
- 		if (ent->disabled)
- 			goto out;
--		if (need_delay)
-+		if (need_delay) {
- 			queue_delayed_work(cache->wq, &ent->dwork, 300 * HZ);
-+			goto out;
-+		}
- 		remove_cache_mr_locked(ent);
- 		queue_adjust_cache_locked(ent);
- 	}
--- 
-2.35.1
-
+--- a/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gm20b.c
++++ b/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gm20b.c
+@@ -216,6 +216,7 @@ gm20b_pmu = {
+ 	.intr = gt215_pmu_intr,
+ 	.recv = gm20b_pmu_recv,
+ 	.initmsg = gm20b_pmu_initmsg,
++	.reset = gf100_pmu_reset,
+ };
+ 
+ #if IS_ENABLED(CONFIG_ARCH_TEGRA_210_SOC)
+--- a/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gp102.c
++++ b/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gp102.c
+@@ -23,7 +23,7 @@
+  */
+ #include "priv.h"
+ 
+-static void
++void
+ gp102_pmu_reset(struct nvkm_pmu *pmu)
+ {
+ 	struct nvkm_device *device = pmu->subdev.device;
+--- a/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gp10b.c
++++ b/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gp10b.c
+@@ -83,6 +83,7 @@ gp10b_pmu = {
+ 	.intr = gt215_pmu_intr,
+ 	.recv = gm20b_pmu_recv,
+ 	.initmsg = gm20b_pmu_initmsg,
++	.reset = gp102_pmu_reset,
+ };
+ 
+ #if IS_ENABLED(CONFIG_ARCH_TEGRA_210_SOC)
+--- a/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/priv.h
++++ b/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/priv.h
+@@ -41,6 +41,7 @@ int gt215_pmu_send(struct nvkm_pmu *, u3
+ 
+ bool gf100_pmu_enabled(struct nvkm_pmu *);
+ void gf100_pmu_reset(struct nvkm_pmu *);
++void gp102_pmu_reset(struct nvkm_pmu *pmu);
+ 
+ void gk110_pmu_pgob(struct nvkm_pmu *, bool);
+ 
 
 
