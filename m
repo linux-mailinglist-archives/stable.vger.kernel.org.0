@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A99564FDA6C
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:50:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6125B4FD5E2
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:15:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354266AbiDLHvQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:51:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50170 "EHLO
+        id S1352123AbiDLHX1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:23:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45716 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357091AbiDLHjq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:39:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8708A9FCB;
-        Tue, 12 Apr 2022 00:11:45 -0700 (PDT)
+        with ESMTP id S1353160AbiDLHOx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:14:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92B9C37A3F;
+        Mon, 11 Apr 2022 23:56:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2105361708;
-        Tue, 12 Apr 2022 07:11:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28D66C385A5;
-        Tue, 12 Apr 2022 07:11:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3227561572;
+        Tue, 12 Apr 2022 06:56:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E0EBC385A1;
+        Tue, 12 Apr 2022 06:56:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747504;
-        bh=c07T1VKAgPFpXfFZqznD8JY4cifFxI9tOTKw0rt5/t0=;
+        s=korg; t=1649746598;
+        bh=4C9l3ozTCA7bF8Ub+SzXQVBfPrIj+YQioOgIA03OWB0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HH+NpbekPY+JO82vVv+odCKfOwHuPGXZrBoY/kid8/r691Us9rTKoGoF/VAWHqPws
-         Tn8ALgGODsaxld+ipPRGyWRxfXlZ83H1v7De0Rz2An3OdhMuy6/PcwO94cLnZrE6G1
-         IiQS5e/sc5fLQb6nQu/YiI88T8FxeDryJAoTRKeA=
+        b=2XoqtE/grAi92lWry2QkFjFZWbMKmWw9ByWTZyHQMKcRb1YbBGaU+cYTWqw2g8ctZ
+         jWauMuSPG5qurx+G+bQhxEwIRey1uB6xF5SMdczP7vWYJmy4zuoJlgRry6x34fxXgz
+         n58lB3DokZc8lqjITebu2rlQQi32XMBohVMQx7w4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jack Wang <jinpu.wang@ionos.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org,
+        Miri Korenblit <miriam.rachel.korenblit@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 101/343] scsi: pm8001: Fix pm80xx_pci_mem_copy() interface
+Subject: [PATCH 5.16 062/285] iwlwifi: mvm: move only to an enabled channel
 Date:   Tue, 12 Apr 2022 08:28:39 +0200
-Message-Id: <20220412062954.014428709@linuxfoundation.org>
+Message-Id: <20220412062945.459531152@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,59 +55,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+From: Miri Korenblit <miriam.rachel.korenblit@intel.com>
 
-[ Upstream commit 3762d8f6edcdb03994c919f9487fd6d336c06561 ]
+[ Upstream commit e04135c07755d001b5cde61048c69a7cc84bb94b ]
 
-The declaration of the local variable destination1 in pm80xx_pci_mem_copy()
-as a pointer to a u32 results in the sparse warning:
+During disassociation we're decreasing the phy's ref count.
+If the ref count becomes 0, we're configuring the phy ctxt
+to the default channel (the lowest channel which the device
+can operate on). Currently we're not checking whether the
+the default channel is enabled or not. Fix it by configuring
+the phy ctxt to the lowest channel which is enabled.
 
-warning: incorrect type in assignment (different base types)
-    expected unsigned int [usertype]
-    got restricted __le32 [usertype]
-
-Furthermore, the destination" argument of pm80xx_pci_mem_copy() is wrongly
-declared with the const attribute.
-
-Fix both problems by changing the type of the "destination" argument to
-"__le32 *" and use this argument directly inside the pm80xx_pci_mem_copy()
-function, thus removing the need for the destination1 local variable.
-
-Link: https://lore.kernel.org/r/20220220031810.738362-6-damien.lemoal@opensource.wdc.com
-Reviewed-by: Jack Wang <jinpu.wang@ionos.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Miri Korenblit <miriam.rachel.korenblit@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20220210181930.03f281b6a6bc.I5b63d43ec41996d599e6f37ec3f32e878b3e405e@changeid
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/pm8001/pm80xx_hwi.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ .../net/wireless/intel/iwlwifi/mvm/phy-ctxt.c | 31 +++++++++++++------
+ 1 file changed, 22 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/scsi/pm8001/pm80xx_hwi.c b/drivers/scsi/pm8001/pm80xx_hwi.c
-index 908dbac20b48..9a0d65ac0174 100644
---- a/drivers/scsi/pm8001/pm80xx_hwi.c
-+++ b/drivers/scsi/pm8001/pm80xx_hwi.c
-@@ -67,18 +67,16 @@ int pm80xx_bar4_shift(struct pm8001_hba_info *pm8001_ha, u32 shift_value)
- }
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/phy-ctxt.c b/drivers/net/wireless/intel/iwlwifi/mvm/phy-ctxt.c
+index 035336a9e755..6d82725cb87d 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/phy-ctxt.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/phy-ctxt.c
+@@ -1,6 +1,6 @@
+ // SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause
+ /*
+- * Copyright (C) 2012-2014, 2018-2021 Intel Corporation
++ * Copyright (C) 2012-2014, 2018-2022 Intel Corporation
+  * Copyright (C) 2013-2014 Intel Mobile Communications GmbH
+  * Copyright (C) 2017 Intel Deutschland GmbH
+  */
+@@ -295,18 +295,31 @@ void iwl_mvm_phy_ctxt_unref(struct iwl_mvm *mvm, struct iwl_mvm_phy_ctxt *ctxt)
+ 	 * otherwise we might not be able to reuse this phy.
+ 	 */
+ 	if (ctxt->ref == 0) {
+-		struct ieee80211_channel *chan;
++		struct ieee80211_channel *chan = NULL;
+ 		struct cfg80211_chan_def chandef;
+-		struct ieee80211_supported_band *sband = NULL;
+-		enum nl80211_band band = NL80211_BAND_2GHZ;
++		struct ieee80211_supported_band *sband;
++		enum nl80211_band band;
++		int channel;
  
- static void pm80xx_pci_mem_copy(struct pm8001_hba_info  *pm8001_ha, u32 soffset,
--				const void *destination,
-+				__le32 *destination,
- 				u32 dw_count, u32 bus_base_number)
- {
- 	u32 index, value, offset;
--	u32 *destination1;
--	destination1 = (u32 *)destination;
+-		while (!sband && band < NUM_NL80211_BANDS)
+-			sband = mvm->hw->wiphy->bands[band++];
++		for (band = NL80211_BAND_2GHZ; band < NUM_NL80211_BANDS; band++) {
++			sband = mvm->hw->wiphy->bands[band];
  
--	for (index = 0; index < dw_count; index += 4, destination1++) {
-+	for (index = 0; index < dw_count; index += 4, destination++) {
- 		offset = (soffset + index);
- 		if (offset < (64 * 1024)) {
- 			value = pm8001_cr32(pm8001_ha, bus_base_number, offset);
--			*destination1 =  cpu_to_le32(value);
-+			*destination = cpu_to_le32(value);
- 		}
- 	}
- 	return;
+-		if (WARN_ON(!sband))
+-			return;
++			if (!sband)
++				continue;
++
++			for (channel = 0; channel < sband->n_channels; channel++)
++				if (!(sband->channels[channel].flags &
++						IEEE80211_CHAN_DISABLED)) {
++					chan = &sband->channels[channel];
++					break;
++				}
+ 
+-		chan = &sband->channels[0];
++			if (chan)
++				break;
++		}
++
++		if (WARN_ON(!chan))
++			return;
+ 
+ 		cfg80211_chandef_create(&chandef, chan, NL80211_CHAN_NO_HT);
+ 		iwl_mvm_phy_ctxt_changed(mvm, ctxt, &chandef, 1, 1);
 -- 
 2.35.1
 
