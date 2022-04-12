@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E7CA4FD270
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 09:09:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 012D64FD042
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:44:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343813AbiDLHLa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:11:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57104 "EHLO
+        id S1350565AbiDLGqW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 02:46:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44974 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351431AbiDLHLJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:11:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E44449F87;
-        Mon, 11 Apr 2022 23:49:52 -0700 (PDT)
+        with ESMTP id S1351263AbiDLGoY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:44:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 643123A1A2;
+        Mon, 11 Apr 2022 23:37:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B4928B818BD;
-        Tue, 12 Apr 2022 06:49:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CC64C385A6;
-        Tue, 12 Apr 2022 06:49:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B805E61904;
+        Tue, 12 Apr 2022 06:37:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0EA0C385A1;
+        Tue, 12 Apr 2022 06:37:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746190;
-        bh=9tdgX1V5Bem82saVSSSJ4Hf097XhJQA6DN1w7j8Kulw=;
+        s=korg; t=1649745473;
+        bh=WQPdT61L77OVb/oZBxrfOG1gtx7/kjGwqlWm98rcr5Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gzIGvflABMn4YGVtmSLRaB2gIwIWhz6H8OkLGgc6B3aGpFu/qxHPxHrvKIcCtXmfp
-         S4lLZ5GUFTA4X147RlxoN1LnhTcrvPagJU4QHfN/upTHqIvRf76pzOTAhpdl+8KZVg
-         8DpHV2O7AMyoNuwbpZgj/1sgI83DuGcdWrrqWcUI=
+        b=B1ukZJWuAmoxB3kq3eZGWkL5KBjFEawZ2indr7qnqnw10WgZcAG5XwUyWcJd7uNTX
+         fPhTQ9CbDM70jkQ5UU4o0WJGR3wASI1rUzemVuMObiZSEmH0Fsii5WQb1FHzI4D9MY
+         8OKeYlLXIa6/E5yHrzMJM0Y1iOH0z3q7+0IcSs4k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Mikityanskiy <maximmi@nvidia.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Tariq Toukan <tariqt@nvidia.com>,
-        Arthur Fabre <afabre@cloudflare.com>,
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 194/277] bpf: Support dual-stack sockets in bpf_tcp_check_syncookie
-Date:   Tue, 12 Apr 2022 08:29:57 +0200
-Message-Id: <20220412062947.653712116@linuxfoundation.org>
+Subject: [PATCH 5.10 107/171] drm/imx: imx-ldb: Check for null pointer after calling kmemdup
+Date:   Tue, 12 Apr 2022 08:29:58 +0200
+Message-Id: <20220412062930.979711031@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
-References: <20220412062942.022903016@linuxfoundation.org>
+In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
+References: <20220412062927.870347203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,84 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Mikityanskiy <maximmi@nvidia.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit 2e8702cc0cfa1080f29fd64003c00a3e24ac38de ]
+[ Upstream commit 8027a9ad9b3568c5eb49c968ad6c97f279d76730 ]
 
-bpf_tcp_gen_syncookie looks at the IP version in the IP header and
-validates the address family of the socket. It supports IPv4 packets in
-AF_INET6 dual-stack sockets.
+As the possible failure of the allocation, kmemdup() may return NULL
+pointer.
+Therefore, it should be better to check the return value of kmemdup()
+and return error if fails.
 
-On the other hand, bpf_tcp_check_syncookie looks only at the address
-family of the socket, ignoring the real IP version in headers, and
-validates only the packet size. This implementation has some drawbacks:
-
-1. Packets are not validated properly, allowing a BPF program to trick
-   bpf_tcp_check_syncookie into handling an IPv6 packet on an IPv4
-   socket.
-
-2. Dual-stack sockets fail the checks on IPv4 packets. IPv4 clients end
-   up receiving a SYNACK with the cookie, but the following ACK gets
-   dropped.
-
-This patch fixes these issues by changing the checks in
-bpf_tcp_check_syncookie to match the ones in bpf_tcp_gen_syncookie. IP
-version from the header is taken into account, and it is validated
-properly with address family.
-
-Fixes: 399040847084 ("bpf: add helper to check for a valid SYN cookie")
-Signed-off-by: Maxim Mikityanskiy <maximmi@nvidia.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
-Acked-by: Arthur Fabre <afabre@cloudflare.com>
-Link: https://lore.kernel.org/bpf/20220406124113.2795730-1-maximmi@nvidia.com
+Fixes: dc80d7038883 ("drm/imx-ldb: Add support to drm-bridge")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+Link: https://lore.kernel.org/r/20220105074729.2363657-1-jiasheng@iscas.ac.cn
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/filter.c | 17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/imx/imx-ldb.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/net/core/filter.c b/net/core/filter.c
-index a65de7ac60aa..fbde862e3e82 100644
---- a/net/core/filter.c
-+++ b/net/core/filter.c
-@@ -6719,24 +6719,33 @@ BPF_CALL_5(bpf_tcp_check_syncookie, struct sock *, sk, void *, iph, u32, iph_len
- 	if (!th->ack || th->rst || th->syn)
- 		return -ENOENT;
- 
-+	if (unlikely(iph_len < sizeof(struct iphdr)))
-+		return -EINVAL;
-+
- 	if (tcp_synq_no_recent_overflow(sk))
- 		return -ENOENT;
- 
- 	cookie = ntohl(th->ack_seq) - 1;
- 
--	switch (sk->sk_family) {
--	case AF_INET:
--		if (unlikely(iph_len < sizeof(struct iphdr)))
-+	/* Both struct iphdr and struct ipv6hdr have the version field at the
-+	 * same offset so we can cast to the shorter header (struct iphdr).
-+	 */
-+	switch (((struct iphdr *)iph)->version) {
-+	case 4:
-+		if (sk->sk_family == AF_INET6 && ipv6_only_sock(sk))
- 			return -EINVAL;
- 
- 		ret = __cookie_v4_check((struct iphdr *)iph, th, cookie);
- 		break;
- 
- #if IS_BUILTIN(CONFIG_IPV6)
--	case AF_INET6:
-+	case 6:
- 		if (unlikely(iph_len < sizeof(struct ipv6hdr)))
- 			return -EINVAL;
- 
-+		if (sk->sk_family != AF_INET6)
-+			return -EINVAL;
-+
- 		ret = __cookie_v6_check((struct ipv6hdr *)iph, th, cookie);
- 		break;
- #endif /* CONFIG_IPV6 */
+diff --git a/drivers/gpu/drm/imx/imx-ldb.c b/drivers/gpu/drm/imx/imx-ldb.c
+index 75036aaa0c63..efd13e533726 100644
+--- a/drivers/gpu/drm/imx/imx-ldb.c
++++ b/drivers/gpu/drm/imx/imx-ldb.c
+@@ -553,6 +553,8 @@ static int imx_ldb_panel_ddc(struct device *dev,
+ 		edidp = of_get_property(child, "edid", &edid_len);
+ 		if (edidp) {
+ 			channel->edid = kmemdup(edidp, edid_len, GFP_KERNEL);
++			if (!channel->edid)
++				return -ENOMEM;
+ 		} else if (!channel->panel) {
+ 			/* fallback to display-timings node */
+ 			ret = of_get_drm_display_mode(child,
 -- 
 2.35.1
 
