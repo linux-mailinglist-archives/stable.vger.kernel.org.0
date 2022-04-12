@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 322FE4FDAE4
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:54:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 726624FD444
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:02:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346458AbiDLHsX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:48:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50434 "EHLO
+        id S1355874AbiDLH3e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:29:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42822 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357317AbiDLHj6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:39:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B1A1245AC;
-        Tue, 12 Apr 2022 00:15:05 -0700 (PDT)
+        with ESMTP id S1352967AbiDLHZI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:25:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 779CE4D259;
+        Tue, 12 Apr 2022 00:00:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C0B82B81B4F;
-        Tue, 12 Apr 2022 07:15:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EA89C385A1;
-        Tue, 12 Apr 2022 07:15:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B89160B2E;
+        Tue, 12 Apr 2022 07:00:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7996C385A6;
+        Tue, 12 Apr 2022 07:00:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747702;
-        bh=Rsjvxg+k8r2vza09ZjsYYA3qoPxRWtfGsNYwNg5EE+M=;
+        s=korg; t=1649746804;
+        bh=1YEvUP9NlFFBdqZn6SBtnrwsBJ7gRqODYMFSXLkxBKY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RmxTZHodww+JRVFMTlm8KhElpLOlSMZ9l4scSHTf8ma87llwwTQDGPLfRgRB+1L26
-         +gBlK2IhDdYCTiaCr9ZJVjUBQffctJAP1a8OHzo5pY2+fIw0j42E8n6EdeZr1Zzs3Y
-         ItsaQSX7tiAr6Eh4WQSpPMjciQHo7mr6t0Plma1I=
+        b=IepEqv46kGQlIlQv0RIMlfBa+dsmTfJ5pG8o0sXMMUvJw923OPVjl9xs2PUwoWU+k
+         nN3vFbXXcJeHkDHz6qcYpi38HPRXstbdn/AppzsqUbQjhrSF7HogoSnjFQfMQYjjX/
+         QPppqU/gM7uxRNAQ8dKO7O4Li/dElV/pbj8a7hHY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, NeilBrown <neilb@suse.de>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 175/343] clk: ti: Preserve node in ti_dt_clocks_register()
+Subject: [PATCH 5.16 136/285] NFS: swap-out must always use STABLE writes.
 Date:   Tue, 12 Apr 2022 08:29:53 +0200
-Message-Id: <20220412062956.418376336@linuxfoundation.org>
+Message-Id: <20220412062947.591753699@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,54 +54,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: NeilBrown <neilb@suse.de>
 
-[ Upstream commit 80864594ff2ad002e2755daf97d46ff0c86faf1f ]
+[ Upstream commit c265de257f558a05c1859ee9e3fed04883b9ec0e ]
 
-In preparation for making use of the clock-output-names, we want to
-keep node around in ti_dt_clocks_register().
+The commit handling code is not safe against memory-pressure deadlocks
+when writing to swap.  In particular, nfs_commitdata_alloc() blocks
+indefinitely waiting for memory, and this can consume all available
+workqueue threads.
 
-This change should not needed as a fix currently.
+swap-out most likely uses STABLE writes anyway as COND_STABLE indicates
+that a stable write should be used if the write fits in a single
+request, and it normally does.  However if we ever swap with a small
+wsize, or gather unusually large numbers of pages for a single write,
+this might change.
 
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Link: https://lore.kernel.org/r/20220204071449.16762-3-tony@atomide.com
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+For safety, make it explicit in the code that direct writes used for swap
+must always use FLUSH_STABLE.
+
+Signed-off-by: NeilBrown <neilb@suse.de>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/ti/clk.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ fs/nfs/direct.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/clk/ti/clk.c b/drivers/clk/ti/clk.c
-index 3da33c786d77..29eafab4353e 100644
---- a/drivers/clk/ti/clk.c
-+++ b/drivers/clk/ti/clk.c
-@@ -131,7 +131,7 @@ int ti_clk_setup_ll_ops(struct ti_clk_ll_ops *ops)
- void __init ti_dt_clocks_register(struct ti_dt_clk oclks[])
+diff --git a/fs/nfs/direct.c b/fs/nfs/direct.c
+index e6f104b6f065..737b30792ac4 100644
+--- a/fs/nfs/direct.c
++++ b/fs/nfs/direct.c
+@@ -793,7 +793,7 @@ static const struct nfs_pgio_completion_ops nfs_direct_write_completion_ops = {
+  */
+ static ssize_t nfs_direct_write_schedule_iovec(struct nfs_direct_req *dreq,
+ 					       struct iov_iter *iter,
+-					       loff_t pos)
++					       loff_t pos, int ioflags)
  {
- 	struct ti_dt_clk *c;
--	struct device_node *node, *parent;
-+	struct device_node *node, *parent, *child;
- 	struct clk *clk;
- 	struct of_phandle_args clkspec;
- 	char buf[64];
-@@ -171,10 +171,13 @@ void __init ti_dt_clocks_register(struct ti_dt_clk oclks[])
- 		node = of_find_node_by_name(NULL, buf);
- 		if (num_args && compat_mode) {
- 			parent = node;
--			node = of_get_child_by_name(parent, "clock");
--			if (!node)
--				node = of_get_child_by_name(parent, "clk");
--			of_node_put(parent);
-+			child = of_get_child_by_name(parent, "clock");
-+			if (!child)
-+				child = of_get_child_by_name(parent, "clk");
-+			if (child) {
-+				of_node_put(parent);
-+				node = child;
-+			}
- 		}
+ 	struct nfs_pageio_descriptor desc;
+ 	struct inode *inode = dreq->inode;
+@@ -801,7 +801,7 @@ static ssize_t nfs_direct_write_schedule_iovec(struct nfs_direct_req *dreq,
+ 	size_t requested_bytes = 0;
+ 	size_t wsize = max_t(size_t, NFS_SERVER(inode)->wsize, PAGE_SIZE);
  
- 		clkspec.np = node;
+-	nfs_pageio_init_write(&desc, inode, FLUSH_COND_STABLE, false,
++	nfs_pageio_init_write(&desc, inode, ioflags, false,
+ 			      &nfs_direct_write_completion_ops);
+ 	desc.pg_dreq = dreq;
+ 	get_dreq(dreq);
+@@ -947,11 +947,13 @@ ssize_t nfs_file_direct_write(struct kiocb *iocb, struct iov_iter *iter,
+ 	pnfs_init_ds_commit_info_ops(&dreq->ds_cinfo, inode);
+ 
+ 	if (swap) {
+-		requested = nfs_direct_write_schedule_iovec(dreq, iter, pos);
++		requested = nfs_direct_write_schedule_iovec(dreq, iter, pos,
++							    FLUSH_STABLE);
+ 	} else {
+ 		nfs_start_io_direct(inode);
+ 
+-		requested = nfs_direct_write_schedule_iovec(dreq, iter, pos);
++		requested = nfs_direct_write_schedule_iovec(dreq, iter, pos,
++							    FLUSH_COND_STABLE);
+ 
+ 		if (mapping->nrpages) {
+ 			invalidate_inode_pages2_range(mapping,
 -- 
 2.35.1
 
