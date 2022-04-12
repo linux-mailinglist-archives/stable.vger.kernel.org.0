@@ -2,55 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DEEA24FCC3F
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 04:16:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 907974FCC5B
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 04:24:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233714AbiDLCQ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Apr 2022 22:16:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43370 "EHLO
+        id S231268AbiDLCUB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Apr 2022 22:20:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49950 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230271AbiDLCQz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 22:16:55 -0400
-Received: from zju.edu.cn (mail.zju.edu.cn [61.164.42.155])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 57F8013F70;
-        Mon, 11 Apr 2022 19:14:38 -0700 (PDT)
-Received: by ajax-webmail-mail-app3 (Coremail) ; Tue, 12 Apr 2022 10:14:34
- +0800 (GMT+08:00)
-X-Originating-IP: [222.205.1.189]
-Date:   Tue, 12 Apr 2022 10:14:34 +0800 (GMT+08:00)
-X-CM-HeaderCharset: UTF-8
-From:   "Lin Ma" <linma@zju.edu.cn>
-To:     "Alan Stern" <stern@rowland.harvard.edu>
-Cc:     gregkh@linuxfoundation.org, linux-usb@vger.kernel.org,
-        usb-storage@lists.one-eyed-alien.net,
-        mdharm-usb@one-eyed-alien.net, stable@vger.kernel.org
-Subject: Re: [PATCH v2] USB: storage: karma: fix rio_karma_init return
-X-Priority: 3
-X-Mailer: Coremail Webmail Server Version XT5.0.13 build 20210104(ab8c30b6)
- Copyright (c) 2002-2022 www.mailtech.cn zju.edu.cn
-In-Reply-To: <YlQ67AgfvMXkUWEZ@rowland.harvard.edu>
-References: <20220411060246.9887-1-linma@zju.edu.cn>
- <YlQ67AgfvMXkUWEZ@rowland.harvard.edu>
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset=UTF-8
+        with ESMTP id S229921AbiDLCUA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 22:20:00 -0400
+Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A64833E26;
+        Mon, 11 Apr 2022 19:17:44 -0700 (PDT)
+Received: from dggpeml500024.china.huawei.com (unknown [172.30.72.56])
+        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4Kcq8B06N8zgYW7;
+        Tue, 12 Apr 2022 10:15:54 +0800 (CST)
+Received: from dggpeml500017.china.huawei.com (7.185.36.243) by
+ dggpeml500024.china.huawei.com (7.185.36.10) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.24; Tue, 12 Apr 2022 10:17:42 +0800
+Received: from linux-suspe12sp5.huawei.com (10.67.133.83) by
+ dggpeml500017.china.huawei.com (7.185.36.243) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.24; Tue, 12 Apr 2022 10:17:42 +0800
+From:   ChenJingwen <chenjingwen6@huawei.com>
+To:     <christophe.leroy@csgroup.eu>
+CC:     <chenjingwen6@huawei.com>, <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>, <linuxppc-dev@lists.ozlabs.org>,
+        <mpe@ellerman.id.au>, <stable@vger.kernel.org>
+Subject: Re: [PATCH] [Rebased for 5.4] powerpc/kasan: Fix early region not updated correctly
+Date:   Tue, 12 Apr 2022 10:17:41 +0800
+Message-ID: <20220412021741.127386-1-chenjingwen6@huawei.com>
+X-Mailer: git-send-email 2.12.3
+In-Reply-To: <fc39c36ea92e03ed5eb218ddbe83b34361034d9d.1648915982.git.christophe.leroy@csgroup.eu>
+References: <fc39c36ea92e03ed5eb218ddbe83b34361034d9d.1648915982.git.christophe.leroy@csgroup.eu>
 MIME-Version: 1.0
-Message-ID: <7fe78961.7c1e.1801b8d1dbd.Coremail.linma@zju.edu.cn>
-X-Coremail-Locale: en_US
-X-CM-TRANSID: cC_KCgDnHtSK4FRig4TuAQ--.35697W
-X-CM-SenderInfo: qtrwiiyqvtljo62m3hxhgxhubq/1tbiAwQRElNG3GSkJgAEsv
-X-Coremail-Antispam: 1Ur529EdanIXcx71UUUUU7IcSsGvfJ3iIAIbVAYjsxI4VW5Jw
-        CS07vEb4IE77IF4wCS07vE1I0E4x80FVAKz4kxMIAIbVAFxVCaYxvI4VCIwcAKzIAtYxBI
-        daVFxhVjvjDU=
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_PASS,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+Content-Type: text/plain
+X-Originating-IP: [10.67.133.83]
+X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
+ dggpeml500017.china.huawei.com (7.185.36.243)
+X-CFilter-Loop: Reflected
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
+        RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-SGVsbG8gQWxhbgoKPiAKPiBBY2tlZC1ieTogQWxhbiBTdGVybiA8c3Rlcm5Acm93bGFuZC5oYXJ2
-YXJkLmVkdT4KPiAKCkdvdGNoYSwgc29ycnkgYWdhaW4gZm9yIHRoZSBpbmNvbnZlbmllbmNlLgpU
-aGUgbmV3IG9uZTogaHR0cHM6Ly9tYXJjLmluZm8vP2w9bGludXgtdXNiJm09MTY0OTcyOTU5OTA3
-MDQ5Jnc9MgoKUmVnYXJkcwpMaW4gTWE=
+> This is backport for 5.4
+> 
+> Upstream commit 5647a94a26e352beed61788b46e035d9d12664cd
+
+Thank you for your rebase.
+I went on vacation and couldn't submit the code at that time
