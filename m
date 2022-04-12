@@ -2,44 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A3C764FD073
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:45:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 615B14FD094
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:46:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234339AbiDLGrD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 02:47:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41038 "EHLO
+        id S230170AbiDLGsa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 02:48:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42848 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351640AbiDLGp2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:45:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0567C3B3DB;
-        Mon, 11 Apr 2022 23:38:57 -0700 (PDT)
+        with ESMTP id S241616AbiDLGpe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:45:34 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32FB13B3ED;
+        Mon, 11 Apr 2022 23:39:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 953ED61890;
-        Tue, 12 Apr 2022 06:38:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A86E9C385A8;
-        Tue, 12 Apr 2022 06:38:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4B7B96190F;
+        Tue, 12 Apr 2022 06:38:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 312E6C385A6;
+        Tue, 12 Apr 2022 06:38:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745536;
-        bh=/yuEIPbt33KJon35HqzIrY/FhQnhpTOQIOvcSepHF9M=;
+        s=korg; t=1649745538;
+        bh=F+acL3xa1EfkY2fawv6oA63W8PIk67kvrjKFqX9XmFQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=03mM0dPqf78K7JQH3GqUlphvLGqh7Mee1CRJ7wc81ktkSmTIeVjg7VS+pNG/FQdsc
-         39a1OfAtIgoklcKejYl20LnoguwhuS/EKuIdJ7Ym6e0JfRU2Aap7B+BLmmN4nPgzJ7
-         NOh9QS83Sym2D0Ba2SOWdFNMv2eqiwQaGZpYKGXI=
+        b=J3jyCSIP0KrCjaronRYhFpUQj7SofD1BdfmqC5DtwJvxEf7Kv9Mdfduem8RPBbTbA
+         MAjv4stkHA6ilAfVmH5gWHd/z8DbeWbvFc3oNgSwCYkdaa1pN5yCtK9zbAfOIGsn47
+         w+iKKaxThAHzxZCVRdzfXVEu6pRW26WMKWNi9iI4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Drew Fustini <dfustini@baylibre.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Suman Anna <s-anna@ti.com>, Jason Gunthorpe <jgg@ziepe.ca>,
-        Tony Lindgren <tony@atomide.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 130/171] iommu/omap: Fix regression in probe for NULL pointer dereference
-Date:   Tue, 12 Apr 2022 08:30:21 +0200
-Message-Id: <20220412062931.646939080@linuxfoundation.org>
+        stable@vger.kernel.org, James Clark <james.clark@arm.com>,
+        Leo Yan <leo.yan@linaro.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        German Gomez <german.gomez@arm.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        John Garry <john.garry@huawei.com>,
+        linux-arm-kernel@lists.infradead.org,
+        Mark Rutland <mark.rutland@arm.com>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Ravi Bangoria <ravi.bangoria@linux.ibm.com>,
+        Will Deacon <will@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 131/171] perf: arm-spe: Fix perf report --mem-mode
+Date:   Tue, 12 Apr 2022 08:30:22 +0200
+Message-Id: <20220412062931.675777785@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
 References: <20220412062927.870347203@linuxfoundation.org>
@@ -57,56 +65,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: James Clark <james.clark@arm.com>
 
-[ Upstream commit 71ff461c3f41f6465434b9e980c01782763e7ad8 ]
+[ Upstream commit ffab487052054162b3b6c9c6005777ec6cfcea05 ]
 
-Commit 3f6634d997db ("iommu: Use right way to retrieve iommu_ops") started
-triggering a NULL pointer dereference for some omap variants:
+Since commit bb30acae4c4dacfa ("perf report: Bail out --mem-mode if mem
+info is not available") "perf mem report" and "perf report --mem-mode"
+don't allow opening the file unless one of the events has
+PERF_SAMPLE_DATA_SRC set.
 
-__iommu_probe_device from probe_iommu_group+0x2c/0x38
-probe_iommu_group from bus_for_each_dev+0x74/0xbc
-bus_for_each_dev from bus_iommu_probe+0x34/0x2e8
-bus_iommu_probe from bus_set_iommu+0x80/0xc8
-bus_set_iommu from omap_iommu_init+0x88/0xcc
-omap_iommu_init from do_one_initcall+0x44/0x24
+SPE doesn't have this set even though synthetic memory data is generated
+after it is decoded. Fix this issue by setting DATA_SRC on SPE events.
+This has no effect on the data collected because the SPE driver doesn't
+do anything with that flag and doesn't generate samples.
 
-This is caused by omap iommu probe returning 0 instead of ERR_PTR(-ENODEV)
-as noted by Jason Gunthorpe <jgg@ziepe.ca>.
-
-Looks like the regression already happened with an earlier commit
-6785eb9105e3 ("iommu/omap: Convert to probe/release_device() call-backs")
-that changed the function return type and missed converting one place.
-
-Cc: Drew Fustini <dfustini@baylibre.com>
-Cc: Lu Baolu <baolu.lu@linux.intel.com>
-Cc: Suman Anna <s-anna@ti.com>
-Suggested-by: Jason Gunthorpe <jgg@ziepe.ca>
-Fixes: 6785eb9105e3 ("iommu/omap: Convert to probe/release_device() call-backs")
-Fixes: 3f6634d997db ("iommu: Use right way to retrieve iommu_ops")
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Tested-by: Drew Fustini <dfustini@baylibre.com>
-Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
-Link: https://lore.kernel.org/r/20220331062301.24269-1-tony@atomide.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Fixes: bb30acae4c4dacfa ("perf report: Bail out --mem-mode if mem info is not available")
+Signed-off-by: James Clark <james.clark@arm.com>
+Tested-by: Leo Yan <leo.yan@linaro.org>
+Acked-by: Namhyung Kim <namhyung@kernel.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: German Gomez <german.gomez@arm.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: John Garry <john.garry@huawei.com>
+Cc: Leo Yan <leo.yan@linaro.org>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
+Cc: Ravi Bangoria <ravi.bangoria@linux.ibm.com>
+Cc: Will Deacon <will@kernel.org>
+Link: https://lore.kernel.org/r/20220408144056.1955535-1-james.clark@arm.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/omap-iommu.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/perf/arch/arm64/util/arm-spe.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/iommu/omap-iommu.c b/drivers/iommu/omap-iommu.c
-index 71f29c0927fc..ff2c692c0db4 100644
---- a/drivers/iommu/omap-iommu.c
-+++ b/drivers/iommu/omap-iommu.c
-@@ -1665,7 +1665,7 @@ static struct iommu_device *omap_iommu_probe_device(struct device *dev)
- 	num_iommus = of_property_count_elems_of_size(dev->of_node, "iommus",
- 						     sizeof(phandle));
- 	if (num_iommus < 0)
--		return 0;
-+		return ERR_PTR(-ENODEV);
+diff --git a/tools/perf/arch/arm64/util/arm-spe.c b/tools/perf/arch/arm64/util/arm-spe.c
+index e3593063b3d1..37765e2bd9dd 100644
+--- a/tools/perf/arch/arm64/util/arm-spe.c
++++ b/tools/perf/arch/arm64/util/arm-spe.c
+@@ -124,6 +124,12 @@ static int arm_spe_recording_options(struct auxtrace_record *itr,
+ 	evsel__set_sample_bit(arm_spe_evsel, TIME);
+ 	evsel__set_sample_bit(arm_spe_evsel, TID);
  
- 	arch_data = kcalloc(num_iommus + 1, sizeof(*arch_data), GFP_KERNEL);
- 	if (!arch_data)
++	/*
++	 * Set this only so that perf report knows that SPE generates memory info. It has no effect
++	 * on the opening of the event or the SPE data produced.
++	 */
++	evsel__set_sample_bit(arm_spe_evsel, DATA_SRC);
++
+ 	/* Add dummy event to keep tracking */
+ 	err = parse_events(evlist, "dummy:u", NULL);
+ 	if (err)
 -- 
 2.35.1
 
