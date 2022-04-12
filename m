@@ -2,45 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 16D9D4FD379
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 11:58:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49AB94FD39A
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 11:58:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353280AbiDLIDW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 04:03:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45804 "EHLO
+        id S1351922AbiDLHXB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:23:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45764 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357025AbiDLHjm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:39:42 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A136F52E62;
-        Tue, 12 Apr 2022 00:10:51 -0700 (PDT)
+        with ESMTP id S1353040AbiDLHOq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:14:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EC2B326F2;
+        Mon, 11 Apr 2022 23:55:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 60AFFB81B55;
-        Tue, 12 Apr 2022 07:10:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB389C385A8;
-        Tue, 12 Apr 2022 07:10:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5B26BB81B35;
+        Tue, 12 Apr 2022 06:55:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C55E8C385A1;
+        Tue, 12 Apr 2022 06:55:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747449;
-        bh=SNxsj0Sda60OXMqwWwNqNF+nUGirEVBwy2IM3bUSL9U=;
+        s=korg; t=1649746546;
+        bh=bWbmMtCwHDj7WBYZ7MqbFUn8n+43IBiBL0oK60/Kaac=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kuFYlrz5F9dp1iwyyvqL2Tc2m16NDKjGIQKZFCo0hQde9I3WdQLMdK8GRLjwkauiy
-         uxrvxvGiTchspbHxelbsrHM84sI9Ou9t4IOlQH9e1i6sdTFNgY5UJlqLIY3ABxFgFG
-         uQR0YDtvmOYFMze//yCpsYyO9k7lxP1leRh7njRc=
+        b=mXBYZ/aPWgxtkWB/2ETvNZnnwq3MwxVEmAnYcX3XOKM+G8iLckzYhsWwpHqufUIqd
+         kj4kwLfeWhat5fXKMywohkldvHjXuq1x9Z9xtVr0DTDZ0wk2ibkRvANgdNj2DngzHv
+         jXZkAUAC7RIceJinZhZMNDhmVP6ysb/8+OceI/UY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Mikityanskiy <maximmi@nvidia.com>,
-        Tariq Toukan <tariqt@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        stable@vger.kernel.org,
+        Kevin Barnett <kevin.barnett@microchip.com>,
+        Scott Benesh <scott.benesh@microchip.com>,
+        Scott Teel <scott.teel@microchip.com>,
+        Mahesh Rajashekhara <mahesh.rajashekhara@microchip.com>,
+        Don Brace <don.brace@microchip.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 083/343] net/mlx5e: Disable TX queues before registering the netdev
-Date:   Tue, 12 Apr 2022 08:28:21 +0200
-Message-Id: <20220412062953.496711938@linuxfoundation.org>
+Subject: [PATCH 5.16 045/285] scsi: smartpqi: Fix kdump issue when controller is locked up
+Date:   Tue, 12 Apr 2022 08:28:22 +0200
+Message-Id: <20220412062944.976618062@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,36 +59,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Mikityanskiy <maximmi@nvidia.com>
+From: Mahesh Rajashekhara <mahesh.rajashekhara@microchip.com>
 
-[ Upstream commit d08c6e2a4d0308a7922d7ef3b1b3af45d4096aad ]
+[ Upstream commit 3ada501d602abf02353445c03bb3258146445d90 ]
 
-Normally, the queues are disabled when the channels are deactivated, and
-enabled when the channels are activated. However, on register, the
-channels are not active, but the queues are enabled by default. This
-change fixes it, preventing mlx5e_xmit from running when the channels
-are deactivated in the beginning.
+Avoid dropping into shell if the controller is in locked up state.
 
-Signed-off-by: Maxim Mikityanskiy <maximmi@nvidia.com>
-Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Driver issues SIS soft reset to bring back the controller to SIS mode while
+OS boots into kdump mode.
+
+If the controller is in lockup state, SIS soft reset does not work.
+
+Since the controller lockup code has not been cleared, driver considers the
+firmware is no longer up and running. Driver returns back an error code to
+OS and the kdump fails.
+
+Link: https://lore.kernel.org/r/164375212337.440833.11955356190354940369.stgit@brunhilda.pdev.net
+Reviewed-by: Kevin Barnett <kevin.barnett@microchip.com>
+Reviewed-by: Scott Benesh <scott.benesh@microchip.com>
+Reviewed-by: Scott Teel <scott.teel@microchip.com>
+Signed-off-by: Mahesh Rajashekhara <mahesh.rajashekhara@microchip.com>
+Signed-off-by: Don Brace <don.brace@microchip.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_main.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/scsi/smartpqi/smartpqi_init.c | 39 ++++++++++++++++-----------
+ 1 file changed, 23 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-index 3667f5ef5990..169e3524bb1c 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-@@ -5345,6 +5345,7 @@ mlx5e_create_netdev(struct mlx5_core_dev *mdev, const struct mlx5e_profile *prof
- 	}
+diff --git a/drivers/scsi/smartpqi/smartpqi_init.c b/drivers/scsi/smartpqi/smartpqi_init.c
+index 2db9f874cc51..f3749e508673 100644
+--- a/drivers/scsi/smartpqi/smartpqi_init.c
++++ b/drivers/scsi/smartpqi/smartpqi_init.c
+@@ -7855,6 +7855,21 @@ static int pqi_force_sis_mode(struct pqi_ctrl_info *ctrl_info)
+ 	return pqi_revert_to_sis_mode(ctrl_info);
+ }
  
- 	netif_carrier_off(netdev);
-+	netif_tx_disable(netdev);
- 	dev_net_set(netdev, mlx5_core_net(mdev));
++static void pqi_perform_lockup_action(void)
++{
++	switch (pqi_lockup_action) {
++	case PANIC:
++		panic("FATAL: Smart Family Controller lockup detected");
++		break;
++	case REBOOT:
++		emergency_restart();
++		break;
++	case NONE:
++	default:
++		break;
++	}
++}
++
+ static int pqi_ctrl_init(struct pqi_ctrl_info *ctrl_info)
+ {
+ 	int rc;
+@@ -7879,8 +7894,15 @@ static int pqi_ctrl_init(struct pqi_ctrl_info *ctrl_info)
+ 	 * commands.
+ 	 */
+ 	rc = sis_wait_for_ctrl_ready(ctrl_info);
+-	if (rc)
++	if (rc) {
++		if (reset_devices) {
++			dev_err(&ctrl_info->pci_dev->dev,
++				"kdump init failed with error %d\n", rc);
++			pqi_lockup_action = REBOOT;
++			pqi_perform_lockup_action();
++		}
+ 		return rc;
++	}
  
- 	return netdev;
+ 	/*
+ 	 * Get the controller properties.  This allows us to determine
+@@ -8605,21 +8627,6 @@ static int pqi_ofa_ctrl_restart(struct pqi_ctrl_info *ctrl_info, unsigned int de
+ 	return pqi_ctrl_init_resume(ctrl_info);
+ }
+ 
+-static void pqi_perform_lockup_action(void)
+-{
+-	switch (pqi_lockup_action) {
+-	case PANIC:
+-		panic("FATAL: Smart Family Controller lockup detected");
+-		break;
+-	case REBOOT:
+-		emergency_restart();
+-		break;
+-	case NONE:
+-	default:
+-		break;
+-	}
+-}
+-
+ static struct pqi_raid_error_info pqi_ctrl_offline_raid_error_info = {
+ 	.data_out_result = PQI_DATA_IN_OUT_HARDWARE_ERROR,
+ 	.status = SAM_STAT_CHECK_CONDITION,
 -- 
 2.35.1
 
