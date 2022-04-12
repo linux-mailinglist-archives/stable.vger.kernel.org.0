@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AF4394FD3C8
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 11:59:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C0D4B4FD3A9
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 11:59:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354150AbiDLHvN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:51:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46356 "EHLO
+        id S1353215AbiDLHqZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:46:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46346 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357042AbiDLHjn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:39:43 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D68F165A5;
-        Tue, 12 Apr 2022 00:10:57 -0700 (PDT)
+        with ESMTP id S1357055AbiDLHjo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:39:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6923EEBE;
+        Tue, 12 Apr 2022 00:11:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C8EC2B81895;
-        Tue, 12 Apr 2022 07:10:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 291E9C385A1;
-        Tue, 12 Apr 2022 07:10:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 06D7A616B2;
+        Tue, 12 Apr 2022 07:11:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12171C385A5;
+        Tue, 12 Apr 2022 07:11:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747454;
-        bh=75XHWw54css5obuqON8cmpEPngRNcXM5PRhjE/n61S0=;
+        s=korg; t=1649747469;
+        bh=zgITDaPiAeLIf6/TWaZY2wCzKCFRSQVmMhsZTlPKrso=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ehsqCT31AYccLV1qEKz3UcsrcmwFLWOqWvnQy+kd43AHZ9i1B5ZiWjcUFV2lBB6r2
-         2RXSudOH51y1HTKjDfRvwYa71QUdlwg3HwvBz1+w948C2/FQH/eiEASxI+Ik5kZdyq
-         cma1pjZKY5ewLZTEfnzFGtAjnKqoNH/U4+S5saF0=
+        b=Zb05itzi60PoJFD3tjcR3EZil7eh3FY960Gw0/PsWTEywOMAvQHRUJIuFAYzTEHY5
+         0kVUar8JkalVWFNpENPJ0ZH4k04FdCG3C+5q05N0gQbgIyPDqAvHhjZ2TGxTANX4hL
+         qRC7TdGP+gBgxpka6lQsctIMeD9GYGfDqZbJOUC0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 085/343] HID: apple: Report Magic Keyboard 2021 with fingerprint reader battery over USB
-Date:   Tue, 12 Apr 2022 08:28:23 +0200
-Message-Id: <20220412062953.552831502@linuxfoundation.org>
+        stable@vger.kernel.org, syzbot <syzkaller@googlegroups.com>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 090/343] ipv6: annotate some data-races around sk->sk_prot
+Date:   Tue, 12 Apr 2022 08:28:28 +0200
+Message-Id: <20220412062953.705135357@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
 References: <20220412062951.095765152@linuxfoundation.org>
@@ -54,47 +55,168 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: José Expósito <jose.exposito89@gmail.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit cbfcfbfc384890a062a5d0cc4792df094a6cc7a8 ]
+[ Upstream commit 086d49058cd8471046ae9927524708820f5fd1c7 ]
 
-Like the Apple Magic Keyboard 2015, when connected over USB, the 2021
-version with fingerprint reader registers 2 different interfaces. One of
-them is used to report the battery level.
+IPv6 has this hack changing sk->sk_prot when an IPv6 socket
+is 'converted' to an IPv4 one with IPV6_ADDRFORM option.
 
-However, unlike when connected over Bluetooth, the battery level is not
-reported automatically and it is required to fetch it manually.
+This operation is only performed for TCP and UDP, knowing
+their 'struct proto' for the two network families are populated
+in the same way, and can not disappear while a reader
+might use and dereference sk->sk_prot.
 
-Add the APPLE_RDESC_BATTERY quirk to fix the battery report descriptor
-and manually fetch the battery level.
+If we think about it all reads of sk->sk_prot while
+either socket lock or RTNL is not acquired should be using READ_ONCE().
 
-Tested with the ANSI variant of the keyboard with and without numpad.
+Also note that other layers like MPTCP, XFRM, CHELSIO_TLS also
+write over sk->sk_prot.
 
-Signed-off-by: José Expósito <jose.exposito89@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+BUG: KCSAN: data-race in inet6_recvmsg / ipv6_setsockopt
+
+write to 0xffff8881386f7aa8 of 8 bytes by task 26932 on cpu 0:
+ do_ipv6_setsockopt net/ipv6/ipv6_sockglue.c:492 [inline]
+ ipv6_setsockopt+0x3758/0x3910 net/ipv6/ipv6_sockglue.c:1019
+ udpv6_setsockopt+0x85/0x90 net/ipv6/udp.c:1649
+ sock_common_setsockopt+0x5d/0x70 net/core/sock.c:3489
+ __sys_setsockopt+0x209/0x2a0 net/socket.c:2180
+ __do_sys_setsockopt net/socket.c:2191 [inline]
+ __se_sys_setsockopt net/socket.c:2188 [inline]
+ __x64_sys_setsockopt+0x62/0x70 net/socket.c:2188
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x44/0xd0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+read to 0xffff8881386f7aa8 of 8 bytes by task 26911 on cpu 1:
+ inet6_recvmsg+0x7a/0x210 net/ipv6/af_inet6.c:659
+ ____sys_recvmsg+0x16c/0x320
+ ___sys_recvmsg net/socket.c:2674 [inline]
+ do_recvmmsg+0x3f5/0xae0 net/socket.c:2768
+ __sys_recvmmsg net/socket.c:2847 [inline]
+ __do_sys_recvmmsg net/socket.c:2870 [inline]
+ __se_sys_recvmmsg net/socket.c:2863 [inline]
+ __x64_sys_recvmmsg+0xde/0x160 net/socket.c:2863
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x44/0xd0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+value changed: 0xffffffff85e0e980 -> 0xffffffff85e01580
+
+Reported by Kernel Concurrency Sanitizer on:
+CPU: 1 PID: 26911 Comm: syz-executor.3 Not tainted 5.17.0-rc2-syzkaller-00316-g0457e5153e0e-dirty #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-apple.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/ipv6/af_inet6.c      | 24 ++++++++++++++++++------
+ net/ipv6/ipv6_sockglue.c |  6 ++++--
+ 2 files changed, 22 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
-index 18de4ccb0fb2..590376d776a1 100644
---- a/drivers/hid/hid-apple.c
-+++ b/drivers/hid/hid-apple.c
-@@ -752,11 +752,11 @@ static const struct hid_device_id apple_devices[] = {
- 	{ HID_BLUETOOTH_DEVICE(BT_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_2021),
- 		.driver_data = APPLE_HAS_FN | APPLE_ISO_TILDE_QUIRK },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_FINGERPRINT_2021),
--		.driver_data = APPLE_HAS_FN | APPLE_ISO_TILDE_QUIRK },
-+		.driver_data = APPLE_HAS_FN | APPLE_ISO_TILDE_QUIRK | APPLE_RDESC_BATTERY },
- 	{ HID_BLUETOOTH_DEVICE(BT_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_FINGERPRINT_2021),
- 		.driver_data = APPLE_HAS_FN | APPLE_ISO_TILDE_QUIRK },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_NUMPAD_2021),
--		.driver_data = APPLE_HAS_FN | APPLE_ISO_TILDE_QUIRK },
-+		.driver_data = APPLE_HAS_FN | APPLE_ISO_TILDE_QUIRK | APPLE_RDESC_BATTERY },
- 	{ HID_BLUETOOTH_DEVICE(BT_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_NUMPAD_2021),
- 		.driver_data = APPLE_HAS_FN | APPLE_ISO_TILDE_QUIRK },
+diff --git a/net/ipv6/af_inet6.c b/net/ipv6/af_inet6.c
+index 8fe7900f1949..7d7b7523d126 100644
+--- a/net/ipv6/af_inet6.c
++++ b/net/ipv6/af_inet6.c
+@@ -441,11 +441,14 @@ int inet6_bind(struct socket *sock, struct sockaddr *uaddr, int addr_len)
+ {
+ 	struct sock *sk = sock->sk;
+ 	u32 flags = BIND_WITH_LOCK;
++	const struct proto *prot;
+ 	int err = 0;
  
++	/* IPV6_ADDRFORM can change sk->sk_prot under us. */
++	prot = READ_ONCE(sk->sk_prot);
+ 	/* If the socket has its own bind function then use it. */
+-	if (sk->sk_prot->bind)
+-		return sk->sk_prot->bind(sk, uaddr, addr_len);
++	if (prot->bind)
++		return prot->bind(sk, uaddr, addr_len);
+ 
+ 	if (addr_len < SIN6_LEN_RFC2133)
+ 		return -EINVAL;
+@@ -555,6 +558,7 @@ int inet6_ioctl(struct socket *sock, unsigned int cmd, unsigned long arg)
+ 	void __user *argp = (void __user *)arg;
+ 	struct sock *sk = sock->sk;
+ 	struct net *net = sock_net(sk);
++	const struct proto *prot;
+ 
+ 	switch (cmd) {
+ 	case SIOCADDRT:
+@@ -572,9 +576,11 @@ int inet6_ioctl(struct socket *sock, unsigned int cmd, unsigned long arg)
+ 	case SIOCSIFDSTADDR:
+ 		return addrconf_set_dstaddr(net, argp);
+ 	default:
+-		if (!sk->sk_prot->ioctl)
++		/* IPV6_ADDRFORM can change sk->sk_prot under us. */
++		prot = READ_ONCE(sk->sk_prot);
++		if (!prot->ioctl)
+ 			return -ENOIOCTLCMD;
+-		return sk->sk_prot->ioctl(sk, cmd, arg);
++		return prot->ioctl(sk, cmd, arg);
+ 	}
+ 	/*NOTREACHED*/
+ 	return 0;
+@@ -636,11 +642,14 @@ INDIRECT_CALLABLE_DECLARE(int udpv6_sendmsg(struct sock *, struct msghdr *,
+ int inet6_sendmsg(struct socket *sock, struct msghdr *msg, size_t size)
+ {
+ 	struct sock *sk = sock->sk;
++	const struct proto *prot;
+ 
+ 	if (unlikely(inet_send_prepare(sk)))
+ 		return -EAGAIN;
+ 
+-	return INDIRECT_CALL_2(sk->sk_prot->sendmsg, tcp_sendmsg, udpv6_sendmsg,
++	/* IPV6_ADDRFORM can change sk->sk_prot under us. */
++	prot = READ_ONCE(sk->sk_prot);
++	return INDIRECT_CALL_2(prot->sendmsg, tcp_sendmsg, udpv6_sendmsg,
+ 			       sk, msg, size);
+ }
+ 
+@@ -650,13 +659,16 @@ int inet6_recvmsg(struct socket *sock, struct msghdr *msg, size_t size,
+ 		  int flags)
+ {
+ 	struct sock *sk = sock->sk;
++	const struct proto *prot;
+ 	int addr_len = 0;
+ 	int err;
+ 
+ 	if (likely(!(flags & MSG_ERRQUEUE)))
+ 		sock_rps_record_flow(sk);
+ 
+-	err = INDIRECT_CALL_2(sk->sk_prot->recvmsg, tcp_recvmsg, udpv6_recvmsg,
++	/* IPV6_ADDRFORM can change sk->sk_prot under us. */
++	prot = READ_ONCE(sk->sk_prot);
++	err = INDIRECT_CALL_2(prot->recvmsg, tcp_recvmsg, udpv6_recvmsg,
+ 			      sk, msg, size, flags & MSG_DONTWAIT,
+ 			      flags & ~MSG_DONTWAIT, &addr_len);
+ 	if (err >= 0)
+diff --git a/net/ipv6/ipv6_sockglue.c b/net/ipv6/ipv6_sockglue.c
+index a733803a710c..222f6bf220ba 100644
+--- a/net/ipv6/ipv6_sockglue.c
++++ b/net/ipv6/ipv6_sockglue.c
+@@ -475,7 +475,8 @@ static int do_ipv6_setsockopt(struct sock *sk, int level, int optname,
+ 				sock_prot_inuse_add(net, sk->sk_prot, -1);
+ 				sock_prot_inuse_add(net, &tcp_prot, 1);
+ 
+-				sk->sk_prot = &tcp_prot;
++				/* Paired with READ_ONCE(sk->sk_prot) in net/ipv6/af_inet6.c */
++				WRITE_ONCE(sk->sk_prot, &tcp_prot);
+ 				icsk->icsk_af_ops = &ipv4_specific;
+ 				sk->sk_socket->ops = &inet_stream_ops;
+ 				sk->sk_family = PF_INET;
+@@ -489,7 +490,8 @@ static int do_ipv6_setsockopt(struct sock *sk, int level, int optname,
+ 				sock_prot_inuse_add(net, sk->sk_prot, -1);
+ 				sock_prot_inuse_add(net, prot, 1);
+ 
+-				sk->sk_prot = prot;
++				/* Paired with READ_ONCE(sk->sk_prot) in net/ipv6/af_inet6.c */
++				WRITE_ONCE(sk->sk_prot, prot);
+ 				sk->sk_socket->ops = &inet_dgram_ops;
+ 				sk->sk_family = PF_INET;
+ 			}
 -- 
 2.35.1
 
