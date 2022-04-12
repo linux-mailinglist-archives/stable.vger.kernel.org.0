@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 258934FD5CF
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:15:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BF754FDAD6
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:51:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353757AbiDLHeG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:34:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42856 "EHLO
+        id S1354725AbiDLH5x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:57:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48762 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354112AbiDLH0D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:26:03 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0D4337BE1;
-        Tue, 12 Apr 2022 00:05:49 -0700 (PDT)
+        with ESMTP id S1359250AbiDLHmw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:42:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8ECDA55773;
+        Tue, 12 Apr 2022 00:20:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 94505B81B4F;
-        Tue, 12 Apr 2022 07:05:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3F89C385A1;
-        Tue, 12 Apr 2022 07:05:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 43368B81A8F;
+        Tue, 12 Apr 2022 07:20:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A072EC385A5;
+        Tue, 12 Apr 2022 07:20:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747147;
-        bh=BGcNS4Cofk807Fee/aS4MB+5zhhGooOiqwxPm0+CL6k=;
+        s=korg; t=1649748047;
+        bh=Rar/Pvhk3v1amjKZ3zbecoGXlsJVu+XTVZ7Y/z39xqs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZN6INRJnGfs0yK7Qya4ACTlImg+IfVFxoJXW1han3M5qYMic0ahpHGGTbRwL1GsR5
-         HQ7M0B8XqcQJUFYuOLTJ3kk1KZZAGTofGVykPmDEEjfJheW9wGT1zYlNIPPY8xCLDU
-         3zOT6NiOv1CehVc2jR2AdHYSKv1s7I4qe610/sQg=
+        b=Tau6P5AdOZWWvEsZ/8WmEeaTUyc/Ys+ndetngZheo+U0D1yf81RzPVsJ+d2fb1aKu
+         /1G6LpVQIQMmxiWB5m2/OhnEdjZXWEbwXdkv2uCinQYpi5pM3Rf7aaIAHXoZK5VJEU
+         c2uD+ChJEro6YM/bievk4nmulkWaRRJ7nIuO2/WI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Philip Yang <Philip.Yang@amd.com>,
-        Harish Kasiviswanathan <Harish.Kasiviswanathan@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.16 261/285] drm/amdkfd: Fix variable set but not used warning
+        stable@vger.kernel.org, Namhyung Kim <namhyung@kernel.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Subject: [PATCH 5.17 300/343] perf/core: Inherit event_caps
 Date:   Tue, 12 Apr 2022 08:31:58 +0200
-Message-Id: <20220412062951.194185302@linuxfoundation.org>
+Message-Id: <20220412062959.982680382@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
-References: <20220412062943.670770901@linuxfoundation.org>
+In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
+References: <20220412062951.095765152@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,44 +53,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Philip Yang <Philip.Yang@amd.com>
+From: Namhyung Kim <namhyung@kernel.org>
 
-commit 90c44207cdd18091ac9aa7cab8a3e7b0ef00e847 upstream.
+commit e3265a4386428d3d157d9565bb520aabff8b4bf0 upstream.
 
-All warnings (new ones prefixed by >>):
+It was reported that some perf event setup can make fork failed on
+ARM64.  It was the case of a group of mixed hw and sw events and it
+failed in perf_event_init_task() due to armpmu_event_init().
 
-   drivers/gpu/drm/amd/amdgpu/../amdkfd/kfd_svm.c: In function
-'svm_range_deferred_list_work':
->> drivers/gpu/drm/amd/amdgpu/../amdkfd/kfd_svm.c:2067:22: warning:
-variable 'p' set but not used [-Wunused-but-set-variable]
-    2067 |  struct kfd_process *p;
-         |
+The ARM PMU code checks if all the events in a group belong to the
+same PMU except for software events.  But it didn't set the event_caps
+of inherited events and no longer identify them as software events.
+Therefore the test failed in a child process.
 
-Fixes: 367c9b0f1b8750 ("drm/amdkfd: Ensure mm remain valid in svm deferred_list work")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Philip Yang <Philip.Yang@amd.com>
-Reviewed-By: Harish Kasiviswanathan <Harish.Kasiviswanathan@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+A simple reproducer is:
+
+  $ perf stat -e '{cycles,cs,instructions}' perf bench sched messaging
+  # Running 'sched/messaging' benchmark:
+  perf: fork(): Invalid argument
+
+The perf stat was fine but the perf bench failed in fork().  Let's
+inherit the event caps from the parent.
+
+Signed-off-by: Namhyung Kim <namhyung@kernel.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/20220328200112.457740-1-namhyung@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdkfd/kfd_svm.c |    3 ---
- 1 file changed, 3 deletions(-)
+ kernel/events/core.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/gpu/drm/amd/amdkfd/kfd_svm.c
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_svm.c
-@@ -2008,13 +2008,10 @@ static void svm_range_deferred_list_work
- 	struct svm_range_list *svms;
- 	struct svm_range *prange;
- 	struct mm_struct *mm;
--	struct kfd_process *p;
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -11640,6 +11640,9 @@ perf_event_alloc(struct perf_event_attr
  
- 	svms = container_of(work, struct svm_range_list, deferred_list_work);
- 	pr_debug("enter svms 0x%p\n", svms);
+ 	event->state		= PERF_EVENT_STATE_INACTIVE;
  
--	p = container_of(svms, struct kfd_process, svms);
--
- 	spin_lock(&svms->deferred_list_lock);
- 	while (!list_empty(&svms->deferred_range_list)) {
- 		prange = list_first_entry(&svms->deferred_range_list,
++	if (parent_event)
++		event->event_caps = parent_event->event_caps;
++
+ 	if (event->attr.sigtrap)
+ 		atomic_set(&event->event_limit, 1);
+ 
 
 
