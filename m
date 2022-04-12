@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B4A14FD1FE
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 09:08:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 521384FD055
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:45:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351212AbiDLHJ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:09:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46894 "EHLO
+        id S1350274AbiDLGpi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 02:45:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352922AbiDLHGa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:06:30 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1359549258;
-        Mon, 11 Apr 2022 23:48:55 -0700 (PDT)
+        with ESMTP id S1350683AbiDLGm6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:42:58 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E829617E36;
+        Mon, 11 Apr 2022 23:36:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 191E5CE1C0C;
-        Tue, 12 Apr 2022 06:48:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E231C385A1;
-        Tue, 12 Apr 2022 06:48:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 68446B81B49;
+        Tue, 12 Apr 2022 06:36:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE089C385A6;
+        Tue, 12 Apr 2022 06:36:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746132;
-        bh=ANNSXt8p+vwOH2nDVXDkVOrFLzW4MwcEAcvLdHw4Z0w=;
+        s=korg; t=1649745396;
+        bh=ybLqq2JlpuKJF04INgQ7dIq+Q8rNuZfr5+6uW8wlq4g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Iw/goZIfRKY9hE/jRGlDjyq5qMX8yre8gl323WRvS9xde9UMEr07PSrmtPY7YBdRP
-         +GAtntvv2k0gly6FLt4OBJLlrp65addDQPWy2s6PqKR1L8j/Wqd5Ai4EZY4EWRjBQL
-         d9Cz1cmmPVJar5j7MDtoIYvUjvNJ4Jtg8gzKHBrg=
+        b=ihxuRtlzzty2LMA5XAgKbgWzzVhsw+MvTlgM6X+z4nGXbz73JaCLzAr+23p2ilRRp
+         GdrUnVwYAZiCLwsshsEhPEMrLwt8FT7pBIZWrWto7o9lqa0PR4NrVi2GymF0GaGF+Z
+         HaiiG3GletRZDbSnOrnOXxd4iUT4vfuPGwMOR02g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavan Chebbi <pavan.chebbi@broadcom.com>,
-        Michael Chan <michael.chan@broadcom.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, NeilBrown <neilb@suse.de>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 171/277] bnxt_en: Synchronize tx when xdp redirects happen on same ring
+Subject: [PATCH 5.10 083/171] SUNRPC/xprt: async tasks mustnt block waiting for memory
 Date:   Tue, 12 Apr 2022 08:29:34 +0200
-Message-Id: <20220412062946.987305074@linuxfoundation.org>
+Message-Id: <20220412062930.289655419@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
-References: <20220412062942.022903016@linuxfoundation.org>
+In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
+References: <20220412062927.870347203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,111 +54,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavan Chebbi <pavan.chebbi@broadcom.com>
+From: NeilBrown <neilb@suse.de>
 
-[ Upstream commit 4f81def272de17dc4bbd89ac38f49b2676c9b3d2 ]
+[ Upstream commit a721035477fb5fb8abc738fbe410b07c12af3dc5 ]
 
-If there are more CPUs than the number of TX XDP rings, multiple XDP
-redirects can select the same TX ring based on the CPU on which
-XDP redirect is called.  Add locking when needed and use static
-key to decide whether to take the lock.
+When memory is short, new worker threads cannot be created and we depend
+on the minimum one rpciod thread to be able to handle everything.  So it
+must not block waiting for memory.
 
-Fixes: f18c2b77b2e4 ("bnxt_en: optimized XDP_REDIRECT support")
-Signed-off-by: Pavan Chebbi <pavan.chebbi@broadcom.com>
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+xprt_dynamic_alloc_slot can block indefinitely.  This can tie up all
+workqueue threads and NFS can deadlock.  So when called from a
+workqueue, set __GFP_NORETRY.
+
+The rdma alloc_slot already does not block.  However it sets the error
+to -EAGAIN suggesting this will trigger a sleep.  It does not.  As we
+can see in call_reserveresult(), only -ENOMEM causes a sleep.  -EAGAIN
+causes immediate retry.
+
+Signed-off-by: NeilBrown <neilb@suse.de>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c     | 7 +++++++
- drivers/net/ethernet/broadcom/bnxt/bnxt.h     | 2 ++
- drivers/net/ethernet/broadcom/bnxt/bnxt_xdp.c | 8 ++++++++
- drivers/net/ethernet/broadcom/bnxt/bnxt_xdp.h | 2 ++
- 4 files changed, 19 insertions(+)
+ net/sunrpc/xprt.c               | 5 ++++-
+ net/sunrpc/xprtrdma/transport.c | 2 +-
+ 2 files changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-index ce36ee5a250f..8b078c319872 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -3234,6 +3234,7 @@ static int bnxt_alloc_tx_rings(struct bnxt *bp)
- 		}
- 		qidx = bp->tc_to_qidx[j];
- 		ring->queue_id = bp->q_info[qidx].queue_id;
-+		spin_lock_init(&txr->xdp_tx_lock);
- 		if (i < bp->tx_nr_rings_xdp)
- 			continue;
- 		if (i % bp->tx_nr_rings_per_tc == (bp->tx_nr_rings_per_tc - 1))
-@@ -10246,6 +10247,12 @@ static int __bnxt_open_nic(struct bnxt *bp, bool irq_re_init, bool link_re_init)
- 	if (irq_re_init)
- 		udp_tunnel_nic_reset_ntf(bp->dev);
+diff --git a/net/sunrpc/xprt.c b/net/sunrpc/xprt.c
+index 46304e647c49..441a8604c060 100644
+--- a/net/sunrpc/xprt.c
++++ b/net/sunrpc/xprt.c
+@@ -1635,12 +1635,15 @@ static bool xprt_throttle_congested(struct rpc_xprt *xprt, struct rpc_task *task
+ static struct rpc_rqst *xprt_dynamic_alloc_slot(struct rpc_xprt *xprt)
+ {
+ 	struct rpc_rqst *req = ERR_PTR(-EAGAIN);
++	gfp_t gfp_mask = GFP_KERNEL;
  
-+	if (bp->tx_nr_rings_xdp < num_possible_cpus()) {
-+		if (!static_key_enabled(&bnxt_xdp_locking_key))
-+			static_branch_enable(&bnxt_xdp_locking_key);
-+	} else if (static_key_enabled(&bnxt_xdp_locking_key)) {
-+		static_branch_disable(&bnxt_xdp_locking_key);
-+	}
- 	set_bit(BNXT_STATE_OPEN, &bp->state);
- 	bnxt_enable_int(bp);
- 	/* Enable TX queues */
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.h b/drivers/net/ethernet/broadcom/bnxt/bnxt.h
-index ca6fdf03e586..0aaaeecd67ea 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.h
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.h
-@@ -791,6 +791,8 @@ struct bnxt_tx_ring_info {
- 	u32			dev_state;
+ 	if (xprt->num_reqs >= xprt->max_reqs)
+ 		goto out;
+ 	++xprt->num_reqs;
+ 	spin_unlock(&xprt->reserve_lock);
+-	req = kzalloc(sizeof(struct rpc_rqst), GFP_NOFS);
++	if (current->flags & PF_WQ_WORKER)
++		gfp_mask |= __GFP_NORETRY | __GFP_NOWARN;
++	req = kzalloc(sizeof(*req), gfp_mask);
+ 	spin_lock(&xprt->reserve_lock);
+ 	if (req != NULL)
+ 		goto out;
+diff --git a/net/sunrpc/xprtrdma/transport.c b/net/sunrpc/xprtrdma/transport.c
+index fb7a0ab27899..9cf10cfb85c6 100644
+--- a/net/sunrpc/xprtrdma/transport.c
++++ b/net/sunrpc/xprtrdma/transport.c
+@@ -519,7 +519,7 @@ xprt_rdma_alloc_slot(struct rpc_xprt *xprt, struct rpc_task *task)
+ 	return;
  
- 	struct bnxt_ring_struct	tx_ring_struct;
-+	/* Synchronize simultaneous xdp_xmit on same ring */
-+	spinlock_t		xdp_tx_lock;
- };
- 
- #define BNXT_LEGACY_COAL_CMPL_PARAMS					\
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_xdp.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_xdp.c
-index c8083df5e0ab..c59e46c7a1ca 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt_xdp.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_xdp.c
-@@ -20,6 +20,8 @@
- #include "bnxt.h"
- #include "bnxt_xdp.h"
- 
-+DEFINE_STATIC_KEY_FALSE(bnxt_xdp_locking_key);
-+
- struct bnxt_sw_tx_bd *bnxt_xmit_bd(struct bnxt *bp,
- 				   struct bnxt_tx_ring_info *txr,
- 				   dma_addr_t mapping, u32 len)
-@@ -227,6 +229,9 @@ int bnxt_xdp_xmit(struct net_device *dev, int num_frames,
- 	ring = smp_processor_id() % bp->tx_nr_rings_xdp;
- 	txr = &bp->tx_ring[ring];
- 
-+	if (static_branch_unlikely(&bnxt_xdp_locking_key))
-+		spin_lock(&txr->xdp_tx_lock);
-+
- 	for (i = 0; i < num_frames; i++) {
- 		struct xdp_frame *xdp = frames[i];
- 
-@@ -250,6 +255,9 @@ int bnxt_xdp_xmit(struct net_device *dev, int num_frames,
- 		bnxt_db_write(bp, &txr->tx_db, txr->tx_prod);
- 	}
- 
-+	if (static_branch_unlikely(&bnxt_xdp_locking_key))
-+		spin_unlock(&txr->xdp_tx_lock);
-+
- 	return nxmit;
+ out_sleep:
+-	task->tk_status = -EAGAIN;
++	task->tk_status = -ENOMEM;
+ 	xprt_add_backlog(xprt, task);
  }
  
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_xdp.h b/drivers/net/ethernet/broadcom/bnxt/bnxt_xdp.h
-index 0df40c3beb05..067bb5e821f5 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt_xdp.h
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_xdp.h
-@@ -10,6 +10,8 @@
- #ifndef BNXT_XDP_H
- #define BNXT_XDP_H
- 
-+DECLARE_STATIC_KEY_FALSE(bnxt_xdp_locking_key);
-+
- struct bnxt_sw_tx_bd *bnxt_xmit_bd(struct bnxt *bp,
- 				   struct bnxt_tx_ring_info *txr,
- 				   dma_addr_t mapping, u32 len);
 -- 
 2.35.1
 
