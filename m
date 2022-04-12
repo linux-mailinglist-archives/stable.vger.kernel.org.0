@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AC49B4FD57A
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:13:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 130394FD450
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:02:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354692AbiDLIKU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 04:10:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46358 "EHLO
+        id S237550AbiDLHaq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:30:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32804 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357333AbiDLHkA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:40:00 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA36924BE9;
-        Tue, 12 Apr 2022 00:15:21 -0700 (PDT)
+        with ESMTP id S1353297AbiDLHZT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:25:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C52404E3A1;
+        Tue, 12 Apr 2022 00:00:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A3A8EB81B46;
-        Tue, 12 Apr 2022 07:15:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18DC4C385A5;
-        Tue, 12 Apr 2022 07:15:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 470B5615A4;
+        Tue, 12 Apr 2022 07:00:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4EC71C385A1;
+        Tue, 12 Apr 2022 07:00:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747719;
-        bh=vWX/olCOiZMgMIxLWD6bJ7lU8zBx3ops744NpZqiIiI=;
+        s=korg; t=1649746821;
+        bh=Rgi61zWahsZeOyCJSHtZu+TLZbL+bDSAlW85br4uN5Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=up/UhgkP5ZtVVoAqEBRv5NnGpmSFcDw4iWL2Tgb++se2qSri7f+7x/Jg0XdZ67K3T
-         FWS51rfbOgQMJFbKbnl3PkVIFhJVmjSoFDEczwENzXPPfDr33rGict86Hh/PUAgfLO
-         ycyGKRjOEKXgcjRrZ8zxlEPK5Gz1rYFEI237bzUo=
+        b=Dg0hzlEneC9fU7kMQNCraJrbW1X3MRFqPO8Inf5aE7QABZnw11eeABXOUTvraR1UG
+         iDkeXkhBIh3yQDDnoYoYwCs7OBlAvDE+JJVoQJXsHhAfK1e9eLv1Tdad0xIsQ+HjwN
+         n62G8SJI/nW5M14CIQIzsA78GmkjUSZiU8o9+/2o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, NeilBrown <neilb@suse.de>,
+        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>,
         Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 180/343] NFS: swap-out must always use STABLE writes.
-Date:   Tue, 12 Apr 2022 08:29:58 +0200
-Message-Id: <20220412062956.559664790@linuxfoundation.org>
+Subject: [PATCH 5.16 142/285] SUNRPC: Fix socket waits for write buffer space
+Date:   Tue, 12 Apr 2022 08:29:59 +0200
+Message-Id: <20220412062947.768562175@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,69 +54,126 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: NeilBrown <neilb@suse.de>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit c265de257f558a05c1859ee9e3fed04883b9ec0e ]
+[ Upstream commit 7496b59f588dd52886fdbac7633608097543a0a5 ]
 
-The commit handling code is not safe against memory-pressure deadlocks
-when writing to swap.  In particular, nfs_commitdata_alloc() blocks
-indefinitely waiting for memory, and this can consume all available
-workqueue threads.
+The socket layer requires that we use the socket lock to protect changes
+to the sock->sk_write_pending field and others.
 
-swap-out most likely uses STABLE writes anyway as COND_STABLE indicates
-that a stable write should be used if the write fits in a single
-request, and it normally does.  However if we ever swap with a small
-wsize, or gather unusually large numbers of pages for a single write,
-this might change.
-
-For safety, make it explicit in the code that direct writes used for swap
-must always use FLUSH_STABLE.
-
-Signed-off-by: NeilBrown <neilb@suse.de>
+Reported-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/direct.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ net/sunrpc/xprtsock.c | 54 +++++++++++++++++++++++++++++++------------
+ 1 file changed, 39 insertions(+), 15 deletions(-)
 
-diff --git a/fs/nfs/direct.c b/fs/nfs/direct.c
-index 04aaf39a05cb..11c566d8769f 100644
---- a/fs/nfs/direct.c
-+++ b/fs/nfs/direct.c
-@@ -794,7 +794,7 @@ static const struct nfs_pgio_completion_ops nfs_direct_write_completion_ops = {
+diff --git a/net/sunrpc/xprtsock.c b/net/sunrpc/xprtsock.c
+index 37d961c1a5c9..aaba1d8cf552 100644
+--- a/net/sunrpc/xprtsock.c
++++ b/net/sunrpc/xprtsock.c
+@@ -763,12 +763,12 @@ xs_stream_start_connect(struct sock_xprt *transport)
+ /**
+  * xs_nospace - handle transmit was incomplete
+  * @req: pointer to RPC request
++ * @transport: pointer to struct sock_xprt
+  *
   */
- static ssize_t nfs_direct_write_schedule_iovec(struct nfs_direct_req *dreq,
- 					       struct iov_iter *iter,
--					       loff_t pos)
-+					       loff_t pos, int ioflags)
+-static int xs_nospace(struct rpc_rqst *req)
++static int xs_nospace(struct rpc_rqst *req, struct sock_xprt *transport)
  {
- 	struct nfs_pageio_descriptor desc;
- 	struct inode *inode = dreq->inode;
-@@ -802,7 +802,7 @@ static ssize_t nfs_direct_write_schedule_iovec(struct nfs_direct_req *dreq,
- 	size_t requested_bytes = 0;
- 	size_t wsize = max_t(size_t, NFS_SERVER(inode)->wsize, PAGE_SIZE);
+-	struct rpc_xprt *xprt = req->rq_xprt;
+-	struct sock_xprt *transport = container_of(xprt, struct sock_xprt, xprt);
++	struct rpc_xprt *xprt = &transport->xprt;
+ 	struct sock *sk = transport->inet;
+ 	int ret = -EAGAIN;
  
--	nfs_pageio_init_write(&desc, inode, FLUSH_COND_STABLE, false,
-+	nfs_pageio_init_write(&desc, inode, ioflags, false,
- 			      &nfs_direct_write_completion_ops);
- 	desc.pg_dreq = dreq;
- 	get_dreq(dreq);
-@@ -948,11 +948,13 @@ ssize_t nfs_file_direct_write(struct kiocb *iocb, struct iov_iter *iter,
- 	pnfs_init_ds_commit_info_ops(&dreq->ds_cinfo, inode);
+@@ -779,25 +779,49 @@ static int xs_nospace(struct rpc_rqst *req)
  
- 	if (swap) {
--		requested = nfs_direct_write_schedule_iovec(dreq, iter, pos);
-+		requested = nfs_direct_write_schedule_iovec(dreq, iter, pos,
-+							    FLUSH_STABLE);
- 	} else {
- 		nfs_start_io_direct(inode);
+ 	/* Don't race with disconnect */
+ 	if (xprt_connected(xprt)) {
++		struct socket_wq *wq;
++
++		rcu_read_lock();
++		wq = rcu_dereference(sk->sk_wq);
++		set_bit(SOCKWQ_ASYNC_NOSPACE, &wq->flags);
++		rcu_read_unlock();
++
+ 		/* wait for more buffer space */
++		set_bit(SOCK_NOSPACE, &sk->sk_socket->flags);
+ 		sk->sk_write_pending++;
+ 		xprt_wait_for_buffer_space(xprt);
+ 	} else
+ 		ret = -ENOTCONN;
  
--		requested = nfs_direct_write_schedule_iovec(dreq, iter, pos);
-+		requested = nfs_direct_write_schedule_iovec(dreq, iter, pos,
-+							    FLUSH_COND_STABLE);
+ 	spin_unlock(&xprt->transport_lock);
++	return ret;
++}
  
- 		if (mapping->nrpages) {
- 			invalidate_inode_pages2_range(mapping,
+-	/* Race breaker in case memory is freed before above code is called */
+-	if (ret == -EAGAIN) {
+-		struct socket_wq *wq;
++static int xs_sock_nospace(struct rpc_rqst *req)
++{
++	struct sock_xprt *transport =
++		container_of(req->rq_xprt, struct sock_xprt, xprt);
++	struct sock *sk = transport->inet;
++	int ret = -EAGAIN;
+ 
+-		rcu_read_lock();
+-		wq = rcu_dereference(sk->sk_wq);
+-		set_bit(SOCKWQ_ASYNC_NOSPACE, &wq->flags);
+-		rcu_read_unlock();
++	lock_sock(sk);
++	if (!sock_writeable(sk))
++		ret = xs_nospace(req, transport);
++	release_sock(sk);
++	return ret;
++}
+ 
+-		sk->sk_write_space(sk);
+-	}
++static int xs_stream_nospace(struct rpc_rqst *req)
++{
++	struct sock_xprt *transport =
++		container_of(req->rq_xprt, struct sock_xprt, xprt);
++	struct sock *sk = transport->inet;
++	int ret = -EAGAIN;
++
++	lock_sock(sk);
++	if (!sk_stream_memory_free(sk))
++		ret = xs_nospace(req, transport);
++	release_sock(sk);
+ 	return ret;
+ }
+ 
+@@ -887,7 +911,7 @@ static int xs_local_send_request(struct rpc_rqst *req)
+ 	case -ENOBUFS:
+ 		break;
+ 	case -EAGAIN:
+-		status = xs_nospace(req);
++		status = xs_stream_nospace(req);
+ 		break;
+ 	default:
+ 		dprintk("RPC:       sendmsg returned unrecognized error %d\n",
+@@ -963,7 +987,7 @@ static int xs_udp_send_request(struct rpc_rqst *req)
+ 		/* Should we call xs_close() here? */
+ 		break;
+ 	case -EAGAIN:
+-		status = xs_nospace(req);
++		status = xs_sock_nospace(req);
+ 		break;
+ 	case -ENETUNREACH:
+ 	case -ENOBUFS:
+@@ -1083,7 +1107,7 @@ static int xs_tcp_send_request(struct rpc_rqst *req)
+ 		/* Should we call xs_close() here? */
+ 		break;
+ 	case -EAGAIN:
+-		status = xs_nospace(req);
++		status = xs_stream_nospace(req);
+ 		break;
+ 	case -ECONNRESET:
+ 	case -ECONNREFUSED:
 -- 
 2.35.1
 
