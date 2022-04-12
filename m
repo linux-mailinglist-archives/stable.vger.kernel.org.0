@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E8EA64FD9CA
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:46:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B9F84FDA69
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:50:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377065AbiDLHrS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:47:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45812 "EHLO
+        id S237413AbiDLHsN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:48:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49156 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357241AbiDLHjx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:39:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74978DB1;
-        Tue, 12 Apr 2022 00:14:12 -0700 (PDT)
+        with ESMTP id S1357293AbiDLHj4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:39:56 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFA9F1E3D4;
+        Tue, 12 Apr 2022 00:14:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2D937B81B4F;
-        Tue, 12 Apr 2022 07:14:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92C64C385A1;
-        Tue, 12 Apr 2022 07:14:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9EDB3B81B62;
+        Tue, 12 Apr 2022 07:14:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0577AC385A1;
+        Tue, 12 Apr 2022 07:14:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747650;
-        bh=qTmYQrOjWDd3Zahu3bZmLVJ06wcEPA21y1qIWN7atiA=;
+        s=korg; t=1649747680;
+        bh=ZqlXdUHFwKSPIS8dpBAWhiyXJFdqK6peU9QQ/0n3vBQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lKvfQ/Fs/BiNRpDgJPMA5u8a77nTTB/e9EViRGtdZERjVaU9K6C+CX2tCfSir/WwO
-         PO7yW9Sp2bc5yapK7BN8j7JtXYC4+rsSzK9TDc01cl9GAS2HfdMUIwxmB1FS7oGwec
-         BKeP88ltEe5fADP04UzGbPs6TzOjkORDNU02Hzs4=
+        b=iweCU7X67mX5vijQ1xv3ga5c6XANO0ldz1B6DCsal14ipc3uOWzYPOGRZ4M7jThxA
+         d2xYV/zG6QPsLCzX2ytzM4IpHR4R6mwtlA83fiFskGeQdbV1IVLtpy4zafs22J8BzS
+         WK7gWysLD6K400BUQppZFQDEdFiw+1wrPUJWBqlk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Karel Rericha <karel@maxtel.cz>,
-        Shmulik Ladkani <shmulik.ladkani@gmail.com>,
-        Eyal Birger <eyal.birger@gmail.com>,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wang Yufen <wangyufen@huawei.com>,
+        Paul Moore <paul@paul-moore.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 149/343] netfilter: conntrack: revisit gc autotuning
-Date:   Tue, 12 Apr 2022 08:29:27 +0200
-Message-Id: <20220412062955.680707128@linuxfoundation.org>
+Subject: [PATCH 5.17 150/343] netlabel: fix out-of-bounds memory accesses
+Date:   Tue, 12 Apr 2022 08:29:28 +0200
+Message-Id: <20220412062955.708919528@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
 References: <20220412062951.095765152@linuxfoundation.org>
@@ -57,206 +56,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Wang Yufen <wangyufen@huawei.com>
 
-[ Upstream commit 2cfadb761d3d0219412fd8150faea60c7e863833 ]
+[ Upstream commit f22881de730ebd472e15bcc2c0d1d46e36a87b9c ]
 
-as of commit 4608fdfc07e1
-("netfilter: conntrack: collect all entries in one cycle")
-conntrack gc was changed to run every 2 minutes.
+In calipso_map_cat_ntoh(), in the for loop, if the return value of
+netlbl_bitmap_walk() is equal to (net_clen_bits - 1), when
+netlbl_bitmap_walk() is called next time, out-of-bounds memory accesses
+of bitmap[byte_offset] occurs.
 
-On systems where conntrack hash table is set to large value, most evictions
-happen from gc worker rather than the packet path due to hash table
-distribution.
+The bug was found during fuzzing. The following is the fuzzing report
+ BUG: KASAN: slab-out-of-bounds in netlbl_bitmap_walk+0x3c/0xd0
+ Read of size 1 at addr ffffff8107bf6f70 by task err_OH/252
 
-This causes netlink event overflows when events are collected.
+ CPU: 7 PID: 252 Comm: err_OH Not tainted 5.17.0-rc7+ #17
+ Hardware name: linux,dummy-virt (DT)
+ Call trace:
+  dump_backtrace+0x21c/0x230
+  show_stack+0x1c/0x60
+  dump_stack_lvl+0x64/0x7c
+  print_address_description.constprop.0+0x70/0x2d0
+  __kasan_report+0x158/0x16c
+  kasan_report+0x74/0x120
+  __asan_load1+0x80/0xa0
+  netlbl_bitmap_walk+0x3c/0xd0
+  calipso_opt_getattr+0x1a8/0x230
+  calipso_sock_getattr+0x218/0x340
+  calipso_sock_getattr+0x44/0x60
+  netlbl_sock_getattr+0x44/0x80
+  selinux_netlbl_socket_setsockopt+0x138/0x170
+  selinux_socket_setsockopt+0x4c/0x60
+  security_socket_setsockopt+0x4c/0x90
+  __sys_setsockopt+0xbc/0x2b0
+  __arm64_sys_setsockopt+0x6c/0x84
+  invoke_syscall+0x64/0x190
+  el0_svc_common.constprop.0+0x88/0x200
+  do_el0_svc+0x88/0xa0
+  el0_svc+0x128/0x1b0
+  el0t_64_sync_handler+0x9c/0x120
+  el0t_64_sync+0x16c/0x170
 
-This change collects average expiry of scanned entries and
-reschedules to the average remaining value, within 1 to 60 second interval.
-
-To avoid event overflows, reschedule after each bucket and add a
-limit for both run time and number of evictions per run.
-
-If more entries have to be evicted, reschedule and restart 1 jiffy
-into the future.
-
-Reported-by: Karel Rericha <karel@maxtel.cz>
-Cc: Shmulik Ladkani <shmulik.ladkani@gmail.com>
-Cc: Eyal Birger <eyal.birger@gmail.com>
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wang Yufen <wangyufen@huawei.com>
+Acked-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_conntrack_core.c | 85 ++++++++++++++++++++++++-------
- 1 file changed, 68 insertions(+), 17 deletions(-)
+ net/netlabel/netlabel_kapi.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/net/netfilter/nf_conntrack_core.c b/net/netfilter/nf_conntrack_core.c
-index bf1e17c678f1..7552e1e9fd62 100644
---- a/net/netfilter/nf_conntrack_core.c
-+++ b/net/netfilter/nf_conntrack_core.c
-@@ -67,6 +67,8 @@ EXPORT_SYMBOL_GPL(nf_conntrack_hash);
- struct conntrack_gc_work {
- 	struct delayed_work	dwork;
- 	u32			next_bucket;
-+	u32			avg_timeout;
-+	u32			start_time;
- 	bool			exiting;
- 	bool			early_drop;
- };
-@@ -78,8 +80,19 @@ static __read_mostly bool nf_conntrack_locks_all;
- /* serialize hash resizes and nf_ct_iterate_cleanup */
- static DEFINE_MUTEX(nf_conntrack_mutex);
+diff --git a/net/netlabel/netlabel_kapi.c b/net/netlabel/netlabel_kapi.c
+index beb0e573266d..54c083003947 100644
+--- a/net/netlabel/netlabel_kapi.c
++++ b/net/netlabel/netlabel_kapi.c
+@@ -885,6 +885,8 @@ int netlbl_bitmap_walk(const unsigned char *bitmap, u32 bitmap_len,
+ 	unsigned char bitmask;
+ 	unsigned char byte;
  
--#define GC_SCAN_INTERVAL	(120u * HZ)
-+#define GC_SCAN_INTERVAL_MAX	(60ul * HZ)
-+#define GC_SCAN_INTERVAL_MIN	(1ul * HZ)
-+
-+/* clamp timeouts to this value (TCP unacked) */
-+#define GC_SCAN_INTERVAL_CLAMP	(300ul * HZ)
-+
-+/* large initial bias so that we don't scan often just because we have
-+ * three entries with a 1s timeout.
-+ */
-+#define GC_SCAN_INTERVAL_INIT	INT_MAX
-+
- #define GC_SCAN_MAX_DURATION	msecs_to_jiffies(10)
-+#define GC_SCAN_EXPIRED_MAX	(64000u / HZ)
- 
- #define MIN_CHAINLEN	8u
- #define MAX_CHAINLEN	(32u - MIN_CHAINLEN)
-@@ -1421,16 +1434,28 @@ static bool gc_worker_can_early_drop(const struct nf_conn *ct)
- 
- static void gc_worker(struct work_struct *work)
- {
--	unsigned long end_time = jiffies + GC_SCAN_MAX_DURATION;
- 	unsigned int i, hashsz, nf_conntrack_max95 = 0;
--	unsigned long next_run = GC_SCAN_INTERVAL;
-+	u32 end_time, start_time = nfct_time_stamp;
- 	struct conntrack_gc_work *gc_work;
-+	unsigned int expired_count = 0;
-+	unsigned long next_run;
-+	s32 delta_time;
-+
- 	gc_work = container_of(work, struct conntrack_gc_work, dwork.work);
- 
- 	i = gc_work->next_bucket;
- 	if (gc_work->early_drop)
- 		nf_conntrack_max95 = nf_conntrack_max / 100u * 95u;
- 
-+	if (i == 0) {
-+		gc_work->avg_timeout = GC_SCAN_INTERVAL_INIT;
-+		gc_work->start_time = start_time;
-+	}
-+
-+	next_run = gc_work->avg_timeout;
-+
-+	end_time = start_time + GC_SCAN_MAX_DURATION;
-+
- 	do {
- 		struct nf_conntrack_tuple_hash *h;
- 		struct hlist_nulls_head *ct_hash;
-@@ -1447,6 +1472,7 @@ static void gc_worker(struct work_struct *work)
- 
- 		hlist_nulls_for_each_entry_rcu(h, n, &ct_hash[i], hnnode) {
- 			struct nf_conntrack_net *cnet;
-+			unsigned long expires;
- 			struct net *net;
- 
- 			tmp = nf_ct_tuplehash_to_ctrack(h);
-@@ -1456,11 +1482,29 @@ static void gc_worker(struct work_struct *work)
- 				continue;
- 			}
- 
-+			if (expired_count > GC_SCAN_EXPIRED_MAX) {
-+				rcu_read_unlock();
-+
-+				gc_work->next_bucket = i;
-+				gc_work->avg_timeout = next_run;
-+
-+				delta_time = nfct_time_stamp - gc_work->start_time;
-+
-+				/* re-sched immediately if total cycle time is exceeded */
-+				next_run = delta_time < (s32)GC_SCAN_INTERVAL_MAX;
-+				goto early_exit;
-+			}
-+
- 			if (nf_ct_is_expired(tmp)) {
- 				nf_ct_gc_expired(tmp);
-+				expired_count++;
- 				continue;
- 			}
- 
-+			expires = clamp(nf_ct_expires(tmp), GC_SCAN_INTERVAL_MIN, GC_SCAN_INTERVAL_CLAMP);
-+			next_run += expires;
-+			next_run /= 2u;
-+
- 			if (nf_conntrack_max95 == 0 || gc_worker_skip_ct(tmp))
- 				continue;
- 
-@@ -1478,8 +1522,10 @@ static void gc_worker(struct work_struct *work)
- 				continue;
- 			}
- 
--			if (gc_worker_can_early_drop(tmp))
-+			if (gc_worker_can_early_drop(tmp)) {
- 				nf_ct_kill(tmp);
-+				expired_count++;
-+			}
- 
- 			nf_ct_put(tmp);
- 		}
-@@ -1492,33 +1538,38 @@ static void gc_worker(struct work_struct *work)
- 		cond_resched();
- 		i++;
- 
--		if (time_after(jiffies, end_time) && i < hashsz) {
-+		delta_time = nfct_time_stamp - end_time;
-+		if (delta_time > 0 && i < hashsz) {
-+			gc_work->avg_timeout = next_run;
- 			gc_work->next_bucket = i;
- 			next_run = 0;
--			break;
-+			goto early_exit;
- 		}
- 	} while (i < hashsz);
- 
-+	gc_work->next_bucket = 0;
-+
-+	next_run = clamp(next_run, GC_SCAN_INTERVAL_MIN, GC_SCAN_INTERVAL_MAX);
-+
-+	delta_time = max_t(s32, nfct_time_stamp - gc_work->start_time, 1);
-+	if (next_run > (unsigned long)delta_time)
-+		next_run -= delta_time;
-+	else
-+		next_run = 1;
-+
-+early_exit:
- 	if (gc_work->exiting)
- 		return;
- 
--	/*
--	 * Eviction will normally happen from the packet path, and not
--	 * from this gc worker.
--	 *
--	 * This worker is only here to reap expired entries when system went
--	 * idle after a busy period.
--	 */
--	if (next_run) {
-+	if (next_run)
- 		gc_work->early_drop = false;
--		gc_work->next_bucket = 0;
--	}
-+
- 	queue_delayed_work(system_power_efficient_wq, &gc_work->dwork, next_run);
- }
- 
- static void conntrack_gc_work_init(struct conntrack_gc_work *gc_work)
- {
--	INIT_DEFERRABLE_WORK(&gc_work->dwork, gc_worker);
-+	INIT_DELAYED_WORK(&gc_work->dwork, gc_worker);
- 	gc_work->exiting = false;
- }
- 
++	if (offset >= bitmap_len)
++		return -1;
+ 	byte_offset = offset / 8;
+ 	byte = bitmap[byte_offset];
+ 	bit_spot = offset;
 -- 
 2.35.1
 
