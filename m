@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E6014FD0F3
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:54:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D7D34FD0EC
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:54:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241616AbiDLG4X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 02:56:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48696 "EHLO
+        id S240103AbiDLG4W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 02:56:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48518 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351134AbiDLGwv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:52:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 705EF29C8F;
-        Mon, 11 Apr 2022 23:39:59 -0700 (PDT)
+        with ESMTP id S1351119AbiDLGwt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:52:49 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 241052B277;
+        Mon, 11 Apr 2022 23:40:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BBD99B81B40;
-        Tue, 12 Apr 2022 06:39:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 060E2C385A1;
-        Tue, 12 Apr 2022 06:39:55 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id D1ACBCE1C0A;
+        Tue, 12 Apr 2022 06:40:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5605C385A1;
+        Tue, 12 Apr 2022 06:39:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745596;
-        bh=UX6bhOKMuDPsMpBKzy4mAkBsTHAyZOt+YdWu+LuRswQ=;
+        s=korg; t=1649745599;
+        bh=Jh0HxlaHDCPkrzXaR6A0TjXlWJhTiro1dmjnLAkCRbA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YyOQq1QNN6iWOFFznQYKhptiCUZuGs0njIGEl8BGXA0c1tDgyrcaPuI6PCSccAxu8
-         Qz3fuNDR9uWd8uznjLeU8R7CwzrNgYZU+ADAFIQjg68TbHq7sGB5Yj+QJD47qKPPe+
-         hLyWsn+WuMIYQ6IE7e6grjICp8hkGrFPzUjzr7gA=
+        b=fDLBzEv6bt2AwvscQP8FioURAaWz6IFOgMVUczXVkpKWAe96Q8g+pyEaPpyjOvWPy
+         +SCF1QjkcCnOEr0WzL45PJSgBIpJudy+Jl/IDI+KZS1v6jOdwRsLJKY0Epg/cEvPps
+         IKxnNKeLHBfsaRP+AuY+DzdmboVj1UqICQ/cCKEg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaomeng Tong <xiam0nd.tong@gmail.com>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 5.10 150/171] perf: qcom_l2_pmu: fix an incorrect NULL check on list iterator
-Date:   Tue, 12 Apr 2022 08:30:41 +0200
-Message-Id: <20220412062932.234066729@linuxfoundation.org>
+        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+        Andre Przywara <andre.przywara@arm.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Subject: [PATCH 5.10 151/171] irqchip/gic-v3: Fix GICR_CTLR.RWP polling
+Date:   Tue, 12 Apr 2022 08:30:42 +0200
+Message-Id: <20220412062932.262917165@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
 References: <20220412062927.870347203@linuxfoundation.org>
@@ -53,53 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+From: Marc Zyngier <maz@kernel.org>
 
-commit 2012a9e279013933885983cbe0a5fe828052563b upstream.
+commit 0df6664531a12cdd8fc873f0cac0dcb40243d3e9 upstream.
 
-The bug is here:
-	return cluster;
+It turns out that our polling of RWP is totally wrong when checking
+for it in the redistributors, as we test the *distributor* bit index,
+whereas it is a different bit number in the RDs... Oopsie boo.
 
-The list iterator value 'cluster' will *always* be set and non-NULL
-by list_for_each_entry(), so it is incorrect to assume that the
-iterator value will be NULL if the list is empty or no element
-is found.
+This is embarassing. Not only because it is wrong, but also because
+it took *8 years* to notice the blunder...
 
-To fix the bug, return 'cluster' when found, otherwise return NULL.
+Just fix the damn thing.
 
+Fixes: 021f653791ad ("irqchip: gic-v3: Initial support for GICv3")
+Signed-off-by: Marc Zyngier <maz@kernel.org>
 Cc: stable@vger.kernel.org
-Fixes: 21bdbb7102ed ("perf: add qcom l2 cache perf events driver")
-Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
-Link: https://lore.kernel.org/r/20220327055733.4070-1-xiam0nd.tong@gmail.com
-Signed-off-by: Will Deacon <will@kernel.org>
+Reviewed-by: Andre Przywara <andre.przywara@arm.com>
+Reviewed-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Link: https://lore.kernel.org/r/20220315165034.794482-2-maz@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/perf/qcom_l2_pmu.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/irqchip/irq-gic-v3.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/perf/qcom_l2_pmu.c
-+++ b/drivers/perf/qcom_l2_pmu.c
-@@ -739,7 +739,7 @@ static struct cluster_pmu *l2_cache_asso
- {
- 	u64 mpidr;
- 	int cpu_cluster_id;
--	struct cluster_pmu *cluster = NULL;
-+	struct cluster_pmu *cluster;
- 
- 	/*
- 	 * This assumes that the cluster_id is in MPIDR[aff1] for
-@@ -761,10 +761,10 @@ static struct cluster_pmu *l2_cache_asso
- 			 cluster->cluster_id);
- 		cpumask_set_cpu(cpu, &cluster->cluster_cpus);
- 		*per_cpu_ptr(l2cache_pmu->pmu_cluster, cpu) = cluster;
--		break;
-+		return cluster;
+--- a/drivers/irqchip/irq-gic-v3.c
++++ b/drivers/irqchip/irq-gic-v3.c
+@@ -206,11 +206,11 @@ static inline void __iomem *gic_dist_bas
  	}
- 
--	return cluster;
-+	return NULL;
  }
  
- static int l2cache_pmu_online_cpu(unsigned int cpu, struct hlist_node *node)
+-static void gic_do_wait_for_rwp(void __iomem *base)
++static void gic_do_wait_for_rwp(void __iomem *base, u32 bit)
+ {
+ 	u32 count = 1000000;	/* 1s! */
+ 
+-	while (readl_relaxed(base + GICD_CTLR) & GICD_CTLR_RWP) {
++	while (readl_relaxed(base + GICD_CTLR) & bit) {
+ 		count--;
+ 		if (!count) {
+ 			pr_err_ratelimited("RWP timeout, gone fishing\n");
+@@ -224,13 +224,13 @@ static void gic_do_wait_for_rwp(void __i
+ /* Wait for completion of a distributor change */
+ static void gic_dist_wait_for_rwp(void)
+ {
+-	gic_do_wait_for_rwp(gic_data.dist_base);
++	gic_do_wait_for_rwp(gic_data.dist_base, GICD_CTLR_RWP);
+ }
+ 
+ /* Wait for completion of a redistributor change */
+ static void gic_redist_wait_for_rwp(void)
+ {
+-	gic_do_wait_for_rwp(gic_data_rdist_rd_base());
++	gic_do_wait_for_rwp(gic_data_rdist_rd_base(), GICR_CTLR_RWP);
+ }
+ 
+ #ifdef CONFIG_ARM64
 
 
