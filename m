@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 86EB34FD55D
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:12:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 820FC4FD93A
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:39:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347751AbiDLH5d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:57:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48712 "EHLO
+        id S1352604AbiDLHgb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:36:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359231AbiDLHmw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:42:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C58829CAA;
-        Tue, 12 Apr 2022 00:20:56 -0700 (PDT)
+        with ESMTP id S1354132AbiDLH0F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:26:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F05D44A14;
+        Tue, 12 Apr 2022 00:05:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CAAE56153F;
-        Tue, 12 Apr 2022 07:20:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE20DC385A1;
-        Tue, 12 Apr 2022 07:20:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C1AAF616B2;
+        Tue, 12 Apr 2022 07:05:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CAF3CC385CA;
+        Tue, 12 Apr 2022 07:05:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649748055;
-        bh=7zGoYeuoPi9RAdbiPKb+irnBIcgN9hLDgptYFZeAQdQ=;
+        s=korg; t=1649747158;
+        bh=2q29pr8mEm+erOMqO2aLbkxAV4h0guqZaTZONc0j35o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JIRfXK0piSvwh2Igu2goLn3TazXW5bdzf+wX4FviRxZ+elMG7D9oygKXl0UpwRZuF
-         DJXBsY5FMKD+97aNdRoZlA9eUiqiBm5lXamh/KiYgjLfCKeRXOL/El0p0njYeAdBhq
-         qaCsZQcA8oKjgNxs+qI6Bx9jeWh7IEsJFnrlY0MY=
+        b=E42xJuCbNWO2aLHVxvg91TuMFf2VcIK9T5elNhH3dFUK69xWnViIilAORcqnyYb0o
+         xh1AhmxUVaBlli1ZmUpKhfehSG0M/STzmZsyb+FEXoCigwxmVb8OvgALy+hYxYhlFJ
+         yZdoP7X7rsp6/K8DA2JJom1zPfEnxZdLA3PHq0O8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shirish S <shirish.s@amd.com>,
-        Harry Wentland <harry.wentland@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.17 303/343] amd/display: set backlight only if required
+        stable@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>,
+        Jakub Sitnicki <jakub@cloudflare.com>
+Subject: [PATCH 5.16 264/285] bpf: Make remote_port field in struct bpf_sk_lookup 16-bit wide
 Date:   Tue, 12 Apr 2022 08:32:01 +0200
-Message-Id: <20220412063000.070566639@linuxfoundation.org>
+Message-Id: <20220412062951.279798638@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,77 +53,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shirish S <shirish.s@amd.com>
+From: Jakub Sitnicki <jakub@cloudflare.com>
 
-commit 4052287a75eb3fc0f487fcc5f768a38bede455c8 upstream.
+commit 9a69e2b385f443f244a7e8b8bcafe5ccfb0866b4 upstream.
 
-[Why]
-comparing pwm bl values (coverted) with user brightness(converted)
-levels in commit_tail leads to continuous setting of backlight via dmub
-as they don't to match.
-This leads overdrive in queuing of commands to DMCU that sometimes lead
-to depending on load on DMCU fw:
+remote_port is another case of a BPF context field documented as a 32-bit
+value in network byte order for which the BPF context access converter
+generates a load of a zero-padded 16-bit integer in network byte order.
 
-"[drm:dc_dmub_srv_wait_idle] *ERROR* Error waiting for DMUB idle: status=3"
+First such case was dst_port in bpf_sock which got addressed in commit
+4421a582718a ("bpf: Make dst_port field in struct bpf_sock 16-bit wide").
 
-[How]
-Store last successfully set backlight value and compare with it instead
-of pwm reads which is not what we should compare with.
+Loading 4-bytes from the remote_port offset and converting the value with
+bpf_ntohl() leads to surprising results, as the expected value is shifted
+by 16 bits.
 
-Signed-off-by: Shirish S <shirish.s@amd.com>
-Reviewed-by: Harry Wentland <harry.wentland@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+Reduce the confusion by splitting the field in two - a 16-bit field holding
+a big-endian integer, and a 16-bit zero-padding anonymous field that
+follows it.
+
+Suggested-by: Alexei Starovoitov <ast@kernel.org>
+Signed-off-by: Jakub Sitnicki <jakub@cloudflare.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/20220209184333.654927-2-jakub@cloudflare.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c |    7 ++++---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.h |    6 ++++++
- 2 files changed, 10 insertions(+), 3 deletions(-)
+ include/uapi/linux/bpf.h |    3 ++-
+ net/bpf/test_run.c       |    4 ++--
+ net/core/filter.c        |    3 ++-
+ 3 files changed, 6 insertions(+), 4 deletions(-)
 
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -3951,7 +3951,7 @@ static u32 convert_brightness_to_user(co
- 				 max - min);
- }
+--- a/include/uapi/linux/bpf.h
++++ b/include/uapi/linux/bpf.h
+@@ -6293,7 +6293,8 @@ struct bpf_sk_lookup {
+ 	__u32 protocol;		/* IP protocol (IPPROTO_TCP, IPPROTO_UDP) */
+ 	__u32 remote_ip4;	/* Network byte order */
+ 	__u32 remote_ip6[4];	/* Network byte order */
+-	__u32 remote_port;	/* Network byte order */
++	__be16 remote_port;	/* Network byte order */
++	__u16 :16;		/* Zero padding */
+ 	__u32 local_ip4;	/* Network byte order */
+ 	__u32 local_ip6[4];	/* Network byte order */
+ 	__u32 local_port;	/* Host byte order */
+--- a/net/bpf/test_run.c
++++ b/net/bpf/test_run.c
+@@ -960,7 +960,7 @@ int bpf_prog_test_run_sk_lookup(struct b
+ 	if (!range_is_zero(user_ctx, offsetofend(typeof(*user_ctx), local_port), sizeof(*user_ctx)))
+ 		goto out;
  
--static int amdgpu_dm_backlight_set_level(struct amdgpu_display_manager *dm,
-+static void amdgpu_dm_backlight_set_level(struct amdgpu_display_manager *dm,
- 					 int bl_idx,
- 					 u32 user_brightness)
- {
-@@ -3982,7 +3982,8 @@ static int amdgpu_dm_backlight_set_level
- 			DRM_DEBUG("DM: Failed to update backlight on eDP[%d]\n", bl_idx);
+-	if (user_ctx->local_port > U16_MAX || user_ctx->remote_port > U16_MAX) {
++	if (user_ctx->local_port > U16_MAX) {
+ 		ret = -ERANGE;
+ 		goto out;
  	}
+@@ -968,7 +968,7 @@ int bpf_prog_test_run_sk_lookup(struct b
+ 	ctx.family = (u16)user_ctx->family;
+ 	ctx.protocol = (u16)user_ctx->protocol;
+ 	ctx.dport = (u16)user_ctx->local_port;
+-	ctx.sport = (__force __be16)user_ctx->remote_port;
++	ctx.sport = user_ctx->remote_port;
  
--	return rc ? 0 : 1;
-+	if (rc)
-+		dm->actual_brightness[bl_idx] = user_brightness;
- }
- 
- static int amdgpu_dm_backlight_update_status(struct backlight_device *bd)
-@@ -9914,7 +9915,7 @@ static void amdgpu_dm_atomic_commit_tail
- 	/* restore the backlight level */
- 	for (i = 0; i < dm->num_of_edps; i++) {
- 		if (dm->backlight_dev[i] &&
--		    (amdgpu_dm_backlight_get_level(dm, i) != dm->brightness[i]))
-+		    (dm->actual_brightness[i] != dm->brightness[i]))
- 			amdgpu_dm_backlight_set_level(dm, i, dm->brightness[i]);
- 	}
- #endif
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.h
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.h
-@@ -540,6 +540,12 @@ struct amdgpu_display_manager {
- 	 * cached backlight values.
- 	 */
- 	u32 brightness[AMDGPU_DM_MAX_NUM_EDP];
-+	/**
-+	 * @actual_brightness:
-+	 *
-+	 * last successfully applied backlight values.
-+	 */
-+	u32 actual_brightness[AMDGPU_DM_MAX_NUM_EDP];
- };
- 
- enum dsc_clock_force_state {
+ 	switch (ctx.family) {
+ 	case AF_INET:
+--- a/net/core/filter.c
++++ b/net/core/filter.c
+@@ -10563,7 +10563,8 @@ static bool sk_lookup_is_valid_access(in
+ 	case bpf_ctx_range(struct bpf_sk_lookup, local_ip4):
+ 	case bpf_ctx_range_till(struct bpf_sk_lookup, remote_ip6[0], remote_ip6[3]):
+ 	case bpf_ctx_range_till(struct bpf_sk_lookup, local_ip6[0], local_ip6[3]):
+-	case bpf_ctx_range(struct bpf_sk_lookup, remote_port):
++	case offsetof(struct bpf_sk_lookup, remote_port) ...
++	     offsetof(struct bpf_sk_lookup, local_ip4) - 1:
+ 	case bpf_ctx_range(struct bpf_sk_lookup, local_port):
+ 		bpf_ctx_record_field_size(info, sizeof(__u32));
+ 		return bpf_ctx_narrow_access_ok(off, size, sizeof(__u32));
 
 
