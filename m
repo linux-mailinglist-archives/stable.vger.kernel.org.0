@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 19EE14FD203
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 09:08:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3514C4FCFBC
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:36:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244169AbiDLHJB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:09:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60722 "EHLO
+        id S1349581AbiDLGik (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 02:38:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51820 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351230AbiDLHCp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:02:45 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 160242656C;
-        Mon, 11 Apr 2022 23:46:59 -0700 (PDT)
+        with ESMTP id S1350373AbiDLGh6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:37:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D637E16582;
+        Mon, 11 Apr 2022 23:34:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BA79FB81B35;
-        Tue, 12 Apr 2022 06:46:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AB98C385A1;
-        Tue, 12 Apr 2022 06:46:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 31EBE618E8;
+        Tue, 12 Apr 2022 06:34:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3EBE3C385A8;
+        Tue, 12 Apr 2022 06:34:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746016;
-        bh=cujhILB3y4EmBcmQA2MsmHaHwN6l2MKCzazXJMiUZUs=;
+        s=korg; t=1649745276;
+        bh=rzzAmT6fQbiP8oxPG7hBpZ1S7wtXC1T9IgCKxkkMd80=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mwfYcPWWG4DX6M6AXA5sl73dcRi0ElNolR+mcq/cN86gqURuJfS5n/8OfNApkQWHD
-         XdNzNGbc9cWtsHoB6vmKT00TOR306Supelcms75ii8YN5/L5VY5/IiQgprn4huoRll
-         cGWl8gpL/JKQwP1auSU5oA+wggoQXH99DLg/9xOg=
+        b=Uz9Vhki2z4/j+k9numtRdBsAkB7j5yTyg4IsRRL1x/iO77deoGMPJ70gfMbfPa9m7
+         A3MJ1ta/x9C1qQkhcpP4vmoiIRg0X2E9Y2C0WnAkP8UQj/LQI4PKInCZrZJLqpRbUZ
+         Uj59GMJ8LTHS4V8nfnWW11jHGK8H4Rx++eKuObpk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, NeilBrown <neilb@suse.de>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        stable@vger.kernel.org, Jack Wang <jinpu.wang@ionos.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 129/277] SUNRPC: remove scheduling boost for "SWAPPER" tasks.
+Subject: [PATCH 5.10 041/171] scsi: pm8001: Fix pm8001_mpi_task_abort_resp()
 Date:   Tue, 12 Apr 2022 08:28:52 +0200
-Message-Id: <20220412062945.771752748@linuxfoundation.org>
+Message-Id: <20220412062929.075043030@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
-References: <20220412062942.022903016@linuxfoundation.org>
+In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
+References: <20220412062927.870347203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,77 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: NeilBrown <neilb@suse.de>
+From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 
-[ Upstream commit a80a8461868905823609be97f91776a26befe839 ]
+[ Upstream commit 7e6b7e740addcea450041b5be8e42f0a4ceece0f ]
 
-Currently, tasks marked as "swapper" tasks get put to the front of
-non-priority rpc_queues, and are sorted earlier than non-swapper tasks on
-the transport's ->xmit_queue.
+The call to pm8001_ccb_task_free() at the end of
+pm8001_mpi_task_abort_resp() already frees the ccb tag. So when the device
+NCQ_ABORT_ALL_FLAG is set, the tag should not be freed again.  Also change
+the hardcoded 0xBFFFFFFF value to ~NCQ_ABORT_ALL_FLAG as it ought to be.
 
-This is pointless as currently *all* tasks for a mount that has swap
-enabled on *any* file are marked as "swapper" tasks.  So the net result
-is that the non-priority rpc_queues are reverse-ordered (LIFO).
-
-This scheduling boost is not necessary to avoid deadlocks, and hurts
-fairness, so remove it.  If there were a need to expedite some requests,
-the tk_priority mechanism is a more appropriate tool.
-
-Signed-off-by: NeilBrown <neilb@suse.de>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Link: https://lore.kernel.org/r/20220220031810.738362-19-damien.lemoal@opensource.wdc.com
+Reviewed-by: Jack Wang <jinpu.wang@ionos.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/sched.c |  7 -------
- net/sunrpc/xprt.c  | 11 -----------
- 2 files changed, 18 deletions(-)
+ drivers/scsi/pm8001/pm8001_hwi.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/net/sunrpc/sched.c b/net/sunrpc/sched.c
-index 6e4d476c6324..f0f55fbd1375 100644
---- a/net/sunrpc/sched.c
-+++ b/net/sunrpc/sched.c
-@@ -186,11 +186,6 @@ static void __rpc_add_wait_queue_priority(struct rpc_wait_queue *queue,
+diff --git a/drivers/scsi/pm8001/pm8001_hwi.c b/drivers/scsi/pm8001/pm8001_hwi.c
+index cd0e1d31db70..e0803ce2957b 100644
+--- a/drivers/scsi/pm8001/pm8001_hwi.c
++++ b/drivers/scsi/pm8001/pm8001_hwi.c
+@@ -3669,12 +3669,11 @@ int pm8001_mpi_task_abort_resp(struct pm8001_hba_info *pm8001_ha, void *piomb)
+ 	mb();
  
- /*
-  * Add new request to wait queue.
-- *
-- * Swapper tasks always get inserted at the head of the queue.
-- * This should avoid many nasty memory deadlocks and hopefully
-- * improve overall performance.
-- * Everyone else gets appended to the queue to ensure proper FIFO behavior.
-  */
- static void __rpc_add_wait_queue(struct rpc_wait_queue *queue,
- 		struct rpc_task *task,
-@@ -199,8 +194,6 @@ static void __rpc_add_wait_queue(struct rpc_wait_queue *queue,
- 	INIT_LIST_HEAD(&task->u.tk_wait.timer_list);
- 	if (RPC_IS_PRIORITY(queue))
- 		__rpc_add_wait_queue_priority(queue, task, queue_priority);
--	else if (RPC_IS_SWAPPER(task))
--		list_add(&task->u.tk_wait.list, &queue->tasks[0]);
- 	else
- 		list_add_tail(&task->u.tk_wait.list, &queue->tasks[0]);
- 	task->tk_waitqueue = queue;
-diff --git a/net/sunrpc/xprt.c b/net/sunrpc/xprt.c
-index 61603c2664a6..f5dff09154da 100644
---- a/net/sunrpc/xprt.c
-+++ b/net/sunrpc/xprt.c
-@@ -1353,17 +1353,6 @@ xprt_request_enqueue_transmit(struct rpc_task *task)
- 				INIT_LIST_HEAD(&req->rq_xmit2);
- 				goto out;
- 			}
--		} else if (RPC_IS_SWAPPER(task)) {
--			list_for_each_entry(pos, &xprt->xmit_queue, rq_xmit) {
--				if (pos->rq_cong || pos->rq_bytes_sent)
--					continue;
--				if (RPC_IS_SWAPPER(pos->rq_task))
--					continue;
--				/* Note: req is added _before_ pos */
--				list_add_tail(&req->rq_xmit, &pos->rq_xmit);
--				INIT_LIST_HEAD(&req->rq_xmit2);
--				goto out;
--			}
- 		} else if (!req->rq_seqno) {
- 			list_for_each_entry(pos, &xprt->xmit_queue, rq_xmit) {
- 				if (pos->rq_task->tk_owner != task->tk_owner)
+ 	if (pm8001_dev->id & NCQ_ABORT_ALL_FLAG) {
+-		pm8001_tag_free(pm8001_ha, tag);
+ 		sas_free_task(t);
+-		/* clear the flag */
+-		pm8001_dev->id &= 0xBFFFFFFF;
+-	} else
++		pm8001_dev->id &= ~NCQ_ABORT_ALL_FLAG;
++	} else {
+ 		t->task_done(t);
++	}
+ 
+ 	return 0;
+ }
 -- 
 2.35.1
 
