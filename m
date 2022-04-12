@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CFE974FD07E
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:45:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D6784FD214
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 09:09:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350596AbiDLGqq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 02:46:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42838 "EHLO
+        id S1351199AbiDLHJk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:09:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350767AbiDLGnV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:43:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAA4737BF5;
-        Mon, 11 Apr 2022 23:36:45 -0700 (PDT)
+        with ESMTP id S1353000AbiDLHGq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:06:46 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E084340DE;
+        Mon, 11 Apr 2022 23:49:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B92D161904;
-        Tue, 12 Apr 2022 06:36:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBBBFC385A6;
-        Tue, 12 Apr 2022 06:36:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8F1F560A6A;
+        Tue, 12 Apr 2022 06:49:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A08F3C385A6;
+        Tue, 12 Apr 2022 06:49:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745404;
-        bh=WsGVm2ifufobQw4sI2QEzE15gWhPGQlXBw2iENliwjU=;
+        s=korg; t=1649746141;
+        bh=6uhKsBVK/85T0zV+8oTAuD9p40iNznVFuvXgxUB+jLs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kcLhs1zks/XwgPvrOUBiXNMZpF2cUalK976K2HgF8a/wcrJyNqsh8xBj4dRaw4gJ/
-         cPZEM+3Rki1Fy9knMrVMMRehbJ2HFIda/MwgYKtfT1izsZ9V04WeGVNw/dvDJh9h6y
-         NaPXRyZOcY72fYsT4zf+mYTU5DPWujZIdLp54RnQ=
+        b=JiWmwkE43aH9w6MAJ5Gjl0hy+PbDWHRFp14pNwTNLO5YlAH+OCZ2Vixj0UivX8M7+
+         w8JMBcvq0DLxHH1vbv4QbYNL/9v3GyEacnTkVvli0a9CfzaV7tsNai6KcB1BWLd3aw
+         lgfGhn7ZjWqhEpesrwmrCjdl/2Tr6Ka7NyzK+FNE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, NeilBrown <neilb@suse.de>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
+        Martin Habets <habetsm.xilinx@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 086/171] NFS: swap-out must always use STABLE writes.
+Subject: [PATCH 5.15 174/277] sfc: Do not free an empty page_ring
 Date:   Tue, 12 Apr 2022 08:29:37 +0200
-Message-Id: <20220412062930.376791831@linuxfoundation.org>
+Message-Id: <20220412062947.073829722@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
-References: <20220412062927.870347203@linuxfoundation.org>
+In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
+References: <20220412062942.022903016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,69 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: NeilBrown <neilb@suse.de>
+From: Martin Habets <habetsm.xilinx@gmail.com>
 
-[ Upstream commit c265de257f558a05c1859ee9e3fed04883b9ec0e ]
+[ Upstream commit 458f5d92df4807e2a7c803ed928369129996bf96 ]
 
-The commit handling code is not safe against memory-pressure deadlocks
-when writing to swap.  In particular, nfs_commitdata_alloc() blocks
-indefinitely waiting for memory, and this can consume all available
-workqueue threads.
+When the page_ring is not used page_ptr_mask is 0.
+Do not dereference page_ring[0] in this case.
 
-swap-out most likely uses STABLE writes anyway as COND_STABLE indicates
-that a stable write should be used if the write fits in a single
-request, and it normally does.  However if we ever swap with a small
-wsize, or gather unusually large numbers of pages for a single write,
-this might change.
-
-For safety, make it explicit in the code that direct writes used for swap
-must always use FLUSH_STABLE.
-
-Signed-off-by: NeilBrown <neilb@suse.de>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Fixes: 2768935a4660 ("sfc: reuse pages to avoid DMA mapping/unmapping costs")
+Reported-by: Taehee Yoo <ap420073@gmail.com>
+Signed-off-by: Martin Habets <habetsm.xilinx@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/direct.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/sfc/rx_common.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/fs/nfs/direct.c b/fs/nfs/direct.c
-index 28afc315ec0c..c220810c61d1 100644
---- a/fs/nfs/direct.c
-+++ b/fs/nfs/direct.c
-@@ -793,7 +793,7 @@ static const struct nfs_pgio_completion_ops nfs_direct_write_completion_ops = {
-  */
- static ssize_t nfs_direct_write_schedule_iovec(struct nfs_direct_req *dreq,
- 					       struct iov_iter *iter,
--					       loff_t pos)
-+					       loff_t pos, int ioflags)
- {
- 	struct nfs_pageio_descriptor desc;
- 	struct inode *inode = dreq->inode;
-@@ -801,7 +801,7 @@ static ssize_t nfs_direct_write_schedule_iovec(struct nfs_direct_req *dreq,
- 	size_t requested_bytes = 0;
- 	size_t wsize = max_t(size_t, NFS_SERVER(inode)->wsize, PAGE_SIZE);
+diff --git a/drivers/net/ethernet/sfc/rx_common.c b/drivers/net/ethernet/sfc/rx_common.c
+index 633ca77a26fd..b925de9b4302 100644
+--- a/drivers/net/ethernet/sfc/rx_common.c
++++ b/drivers/net/ethernet/sfc/rx_common.c
+@@ -166,6 +166,9 @@ static void efx_fini_rx_recycle_ring(struct efx_rx_queue *rx_queue)
+ 	struct efx_nic *efx = rx_queue->efx;
+ 	int i;
  
--	nfs_pageio_init_write(&desc, inode, FLUSH_COND_STABLE, false,
-+	nfs_pageio_init_write(&desc, inode, ioflags, false,
- 			      &nfs_direct_write_completion_ops);
- 	desc.pg_dreq = dreq;
- 	get_dreq(dreq);
-@@ -947,11 +947,13 @@ ssize_t nfs_file_direct_write(struct kiocb *iocb, struct iov_iter *iter,
- 	pnfs_init_ds_commit_info_ops(&dreq->ds_cinfo, inode);
- 
- 	if (swap) {
--		requested = nfs_direct_write_schedule_iovec(dreq, iter, pos);
-+		requested = nfs_direct_write_schedule_iovec(dreq, iter, pos,
-+							    FLUSH_STABLE);
- 	} else {
- 		nfs_start_io_direct(inode);
- 
--		requested = nfs_direct_write_schedule_iovec(dreq, iter, pos);
-+		requested = nfs_direct_write_schedule_iovec(dreq, iter, pos,
-+							    FLUSH_COND_STABLE);
- 
- 		if (mapping->nrpages) {
- 			invalidate_inode_pages2_range(mapping,
++	if (unlikely(!rx_queue->page_ring))
++		return;
++
+ 	/* Unmap and release the pages in the recycle ring. Remove the ring. */
+ 	for (i = 0; i <= rx_queue->page_ptr_mask; i++) {
+ 		struct page *page = rx_queue->page_ring[i];
 -- 
 2.35.1
 
