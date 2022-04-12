@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D03F14FD4CD
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:09:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DCEE44FD816
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:35:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355727AbiDLH3I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:29:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45768 "EHLO
+        id S1354264AbiDLHvP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:51:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49164 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353247AbiDLHPF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:15:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D3803819B;
-        Mon, 11 Apr 2022 23:56:47 -0700 (PDT)
+        with ESMTP id S1357094AbiDLHjq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:39:46 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD35EAE42;
+        Tue, 12 Apr 2022 00:11:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B5950B81B35;
-        Tue, 12 Apr 2022 06:56:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F093C385A8;
-        Tue, 12 Apr 2022 06:56:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5680C61701;
+        Tue, 12 Apr 2022 07:11:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B8CCC385A1;
+        Tue, 12 Apr 2022 07:11:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746604;
-        bh=lHOQjj8wsM8Rw0SJlXTEMZjJ9tZupQBbWdMSsncZh8k=;
+        s=korg; t=1649747512;
+        bh=zA0v4Qy4WXC0LcGcBZlWZQSSdhxr+jTwE52o+vhjBOk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ALT1bUNjyszMKdBwsgTtddeYjNuMTfpnYj/MyHPr+tPF4cMBp8JKdbqIyw9nX1Rzg
-         bz6caEPpq3411s+rbjSUvspr0qgbIvC2bg0B+6wtzS6hIYOrvosj51lTAMQLxqh+de
-         RKJOe0tvKeqUaRkuHzVAT9okrOZvxHvHGOyRS+UQ=
+        b=wwPEUSnV3xAiUFwZuPIIfkj76wk8PLLhWRZCHvBZbgkSaMjlKLu78NDTwPj3uOF0n
+         +bPPHPPVpqTno366WtyPXce9cM6ltRn6B+u467Ji9i+DzgZJXjG6lwvhwTuAu91sRM
+         vRyIeRt+FXWk/MuRrloB0C8p2LAX4S/ubMJzconc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>,
-        Ping-Ke Shih <pkshih@realtek.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 064/285] rtw89: fix RCU usage in rtw89_core_txq_push()
-Date:   Tue, 12 Apr 2022 08:28:41 +0200
-Message-Id: <20220412062945.517435662@linuxfoundation.org>
+        stable@vger.kernel.org, John Garry <john.garry@huawei.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 104/343] scsi: pm8001: Fix task leak in pm8001_send_abort_all()
+Date:   Tue, 12 Apr 2022 08:28:42 +0200
+Message-Id: <20220412062954.099450979@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
-References: <20220412062943.670770901@linuxfoundation.org>
+In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
+References: <20220412062951.095765152@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,114 +55,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Kosina <jkosina@suse.cz>
+From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 
-[ Upstream commit f3d825a35920714fb7f73e4d4f36ea2328860660 ]
+[ Upstream commit f90a74892f3acf0cdec5844e90fc8686ca13e7d7 ]
 
-ieee80211_tx_h_select_key() is performing a series of RCU dereferences,
-but rtw89_core_txq_push() is calling it (via ieee80211_tx_dequeue_ni())
-without RCU read-side lock held; fix that.
+In pm8001_send_abort_all(), make sure to free the allocated sas task
+if pm8001_tag_alloc() or pm8001_mpi_build_cmd() fail.
 
-This addresses the splat below.
-
- =============================
- WARNING: suspicious RCU usage
- 5.17.0-rc4-00003-gccad664b7f14 #3 Tainted: G            E
- -----------------------------
- net/mac80211/tx.c:593 suspicious rcu_dereference_check() usage!
-
- other info that might help us debug this:
-
- rcu_scheduler_active = 2, debug_locks = 1
- 2 locks held by kworker/u33:0/184:
-  #0: ffff9c0b14811d38 ((wq_completion)rtw89_tx_wq){+.+.}-{0:0}, at: process_one_work+0x258/0x660
-  #1: ffffb97380cf3e78 ((work_completion)(&rtwdev->txq_work)){+.+.}-{0:0}, at: process_one_work+0x258/0x660
-
- stack backtrace:
- CPU: 8 PID: 184 Comm: kworker/u33:0 Tainted: G            E     5.17.0-rc4-00003-gccad664b7f14 #3 473b49ab0e7c2d6af2900c756bfd04efd7a9de13
- Hardware name: LENOVO 20UJS2B905/20UJS2B905, BIOS R1CET63W(1.32 ) 04/09/2021
- Workqueue: rtw89_tx_wq rtw89_core_txq_work [rtw89_core]
- Call Trace:
-  <TASK>
-  dump_stack_lvl+0x58/0x71
-  ieee80211_tx_h_select_key+0x2c0/0x530 [mac80211 911c23e2351c0ae60b597a67b1204a5ea955e365]
-  ieee80211_tx_dequeue+0x1a7/0x1260 [mac80211 911c23e2351c0ae60b597a67b1204a5ea955e365]
-  rtw89_core_txq_work+0x1a6/0x420 [rtw89_core b39ba493f2e517ad75e0f8187ecc24edf58bbbea]
-  process_one_work+0x2d8/0x660
-  worker_thread+0x39/0x3e0
-  ? process_one_work+0x660/0x660
-  kthread+0xe5/0x110
-  ? kthread_complete_and_exit+0x20/0x20
-  ret_from_fork+0x22/0x30
-  </TASK>
-
- =============================
- WARNING: suspicious RCU usage
- 5.17.0-rc4-00003-gccad664b7f14 #3 Tainted: G            E
- -----------------------------
- net/mac80211/tx.c:607 suspicious rcu_dereference_check() usage!
-
- other info that might help us debug this:
-
- rcu_scheduler_active = 2, debug_locks = 1
- 2 locks held by kworker/u33:0/184:
-  #0: ffff9c0b14811d38 ((wq_completion)rtw89_tx_wq){+.+.}-{0:0}, at: process_one_work+0x258/0x660
-  #1: ffffb97380cf3e78 ((work_completion)(&rtwdev->txq_work)){+.+.}-{0:0}, at: process_one_work+0x258/0x660
-
- stack backtrace:
- CPU: 8 PID: 184 Comm: kworker/u33:0 Tainted: G            E     5.17.0-rc4-00003-gccad664b7f14 #3 473b49ab0e7c2d6af2900c756bfd04efd7a9de13
- Hardware name: LENOVO 20UJS2B905/20UJS2B905, BIOS R1CET63W(1.32 ) 04/09/2021
- Workqueue: rtw89_tx_wq rtw89_core_txq_work [rtw89_core]
- Call Trace:
-  <TASK>
-  dump_stack_lvl+0x58/0x71
-  ieee80211_tx_h_select_key+0x464/0x530 [mac80211 911c23e2351c0ae60b597a67b1204a5ea955e365]
-  ieee80211_tx_dequeue+0x1a7/0x1260 [mac80211 911c23e2351c0ae60b597a67b1204a5ea955e365]
-  rtw89_core_txq_work+0x1a6/0x420 [rtw89_core b39ba493f2e517ad75e0f8187ecc24edf58bbbea]
-  process_one_work+0x2d8/0x660
-  worker_thread+0x39/0x3e0
-  ? process_one_work+0x660/0x660
-  kthread+0xe5/0x110
-  ? kthread_complete_and_exit+0x20/0x20
-  ret_from_fork+0x22/0x30
-  </TASK>
-
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Acked-by: Ping-Ke Shih <pkshih@realtek.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/nycvar.YFH.7.76.2202152037000.11721@cbobk.fhfr.pm
+Link: https://lore.kernel.org/r/20220220031810.738362-21-damien.lemoal@opensource.wdc.com
+Reviewed-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtw89/core.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/scsi/pm8001/pm8001_hwi.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/wireless/realtek/rtw89/core.c b/drivers/net/wireless/realtek/rtw89/core.c
-index d02ec5a735cb..9d9c0984903f 100644
---- a/drivers/net/wireless/realtek/rtw89/core.c
-+++ b/drivers/net/wireless/realtek/rtw89/core.c
-@@ -1501,11 +1501,12 @@ static void rtw89_core_txq_push(struct rtw89_dev *rtwdev,
- 	unsigned long i;
- 	int ret;
- 
-+	rcu_read_lock();
- 	for (i = 0; i < frame_cnt; i++) {
- 		skb = ieee80211_tx_dequeue_ni(rtwdev->hw, txq);
- 		if (!skb) {
- 			rtw89_debug(rtwdev, RTW89_DBG_TXRX, "dequeue a NULL skb\n");
--			return;
-+			goto out;
- 		}
- 		rtw89_core_txq_check_agg(rtwdev, rtwtxq, skb);
- 		ret = rtw89_core_tx_write(rtwdev, vif, sta, skb, NULL);
-@@ -1515,6 +1516,8 @@ static void rtw89_core_txq_push(struct rtw89_dev *rtwdev,
- 			break;
- 		}
+diff --git a/drivers/scsi/pm8001/pm8001_hwi.c b/drivers/scsi/pm8001/pm8001_hwi.c
+index d244231e62f9..5ec429cf1e20 100644
+--- a/drivers/scsi/pm8001/pm8001_hwi.c
++++ b/drivers/scsi/pm8001/pm8001_hwi.c
+@@ -1765,7 +1765,6 @@ static void pm8001_send_abort_all(struct pm8001_hba_info *pm8001_ha,
  	}
-+out:
-+	rcu_read_unlock();
+ 
+ 	task = sas_alloc_slow_task(GFP_ATOMIC);
+-
+ 	if (!task) {
+ 		pm8001_dbg(pm8001_ha, FAIL, "cannot allocate task\n");
+ 		return;
+@@ -1774,8 +1773,10 @@ static void pm8001_send_abort_all(struct pm8001_hba_info *pm8001_ha,
+ 	task->task_done = pm8001_task_done;
+ 
+ 	res = pm8001_tag_alloc(pm8001_ha, &ccb_tag);
+-	if (res)
++	if (res) {
++		sas_free_task(task);
+ 		return;
++	}
+ 
+ 	ccb = &pm8001_ha->ccb_info[ccb_tag];
+ 	ccb->device = pm8001_ha_dev;
+@@ -1792,8 +1793,10 @@ static void pm8001_send_abort_all(struct pm8001_hba_info *pm8001_ha,
+ 
+ 	ret = pm8001_mpi_build_cmd(pm8001_ha, circularQ, opc, &task_abort,
+ 			sizeof(task_abort), 0);
+-	if (ret)
++	if (ret) {
++		sas_free_task(task);
+ 		pm8001_tag_free(pm8001_ha, ccb_tag);
++	}
+ 
  }
  
- static u32 rtw89_check_and_reclaim_tx_resource(struct rtw89_dev *rtwdev, u8 tid)
 -- 
 2.35.1
 
