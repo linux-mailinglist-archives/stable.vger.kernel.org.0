@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E0F1F4FD8B0
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:37:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A73A34FDB37
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:55:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351245AbiDLHc6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:32:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60926 "EHLO
+        id S1377641AbiDLHvC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:51:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354029AbiDLH0A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:26:00 -0400
+        with ESMTP id S1359383AbiDLHm7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:42:59 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9707215722;
-        Tue, 12 Apr 2022 00:05:24 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EE102C113;
+        Tue, 12 Apr 2022 00:21:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9BBD5B81B4D;
-        Tue, 12 Apr 2022 07:05:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA116C385A6;
-        Tue, 12 Apr 2022 07:05:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CF714B81B4F;
+        Tue, 12 Apr 2022 07:21:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43330C385A5;
+        Tue, 12 Apr 2022 07:21:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747122;
-        bh=yqQ8br7MQ3MrgXQimt529wUVNzkOSYPYS0M367HdvJU=;
+        s=korg; t=1649748110;
+        bh=Sh3dOBmsLvqM/A9bPwyaG++I0BeeNMWpTYmy+3cxDe4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2bcEbQq/S3Wp3sTnywYSEHs4+bBeRcO7hEuHc8pjC21AfEb3l65FAnenLgkST1sNK
-         3FnbjzcvQiW907WjJxSemqtwf5/fSdqVtqdTDsEutAU9E/KxR7tuFHjDivFTJ3K49D
-         teLKHSnM+kIvoP9dGwP/Utn6NlKDnobkGAWM2V4A=
+        b=ueZHA8lOhHWsMUZJ/qealdLHjaVx+Wa43Oo7kvN1dWpfxp63Y5PXC9NAhYt6sEdvH
+         1kkW1eG8unvCHYuGgzPHzRwppRJzgR175OasBlg71TcYBivbsYGIZ0E2iUEBThXInt
+         DUTkqOUBcZ4ZxqwCBzmHTsjVzA1mYCnmUdjzxMKc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kan Liang <kan.liang@linux.intel.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 5.16 244/285] perf/x86/intel: Dont extend the pseudo-encoding to GP counters
+        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
+        Ethan Lien <ethanlien@synology.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.17 283/343] btrfs: fix qgroup reserve overflow the qgroup limit
 Date:   Tue, 12 Apr 2022 08:31:41 +0200
-Message-Id: <20220412062950.703096996@linuxfoundation.org>
+Message-Id: <20220412062959.491813829@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
-References: <20220412062943.670770901@linuxfoundation.org>
+In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
+References: <20220412062951.095765152@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,73 +54,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kan Liang <kan.liang@linux.intel.com>
+From: Ethan Lien <ethanlien@synology.com>
 
-commit 4a263bf331c512849062805ef1b4ac40301a9829 upstream.
+commit b642b52d0b50f4d398cb4293f64992d0eed2e2ce upstream.
 
-The INST_RETIRED.PREC_DIST event (0x0100) doesn't count on SPR.
-perf stat -e cpu/event=0xc0,umask=0x0/,cpu/event=0x0,umask=0x1/ -C0
+We use extent_changeset->bytes_changed in qgroup_reserve_data() to record
+how many bytes we set for EXTENT_QGROUP_RESERVED state. Currently the
+bytes_changed is set as "unsigned int", and it will overflow if we try to
+fallocate a range larger than 4GiB. The result is we reserve less bytes
+and eventually break the qgroup limit.
 
- Performance counter stats for 'CPU(s) 0':
+Unlike regular buffered/direct write, which we use one changeset for
+each ordered extent, which can never be larger than 256M.  For
+fallocate, we use one changeset for the whole range, thus it no longer
+respects the 256M per extent limit, and caused the problem.
 
-           607,246      cpu/event=0xc0,umask=0x0/
-                 0      cpu/event=0x0,umask=0x1/
+The following example test script reproduces the problem:
 
-The encoding for INST_RETIRED.PREC_DIST is pseudo-encoding, which
-doesn't work on the generic counters. However, current perf extends its
-mask to the generic counters.
+  $ cat qgroup-overflow.sh
+  #!/bin/bash
 
-The pseudo event-code for a fixed counter must be 0x00. Check and avoid
-extending the mask for the fixed counter event which using the
-pseudo-encoding, e.g., ref-cycles and PREC_DIST event.
+  DEV=/dev/sdj
+  MNT=/mnt/sdj
 
-With the patch,
-perf stat -e cpu/event=0xc0,umask=0x0/,cpu/event=0x0,umask=0x1/ -C0
+  mkfs.btrfs -f $DEV
+  mount $DEV $MNT
 
- Performance counter stats for 'CPU(s) 0':
+  # Set qgroup limit to 2GiB.
+  btrfs quota enable $MNT
+  btrfs qgroup limit 2G $MNT
 
-           583,184      cpu/event=0xc0,umask=0x0/
-           583,048      cpu/event=0x0,umask=0x1/
+  # Try to fallocate a 3GiB file. This should fail.
+  echo
+  echo "Try to fallocate a 3GiB file..."
+  fallocate -l 3G $MNT/3G.file
 
-Fixes: 2de71ee153ef ("perf/x86/intel: Fix ICL/SPR INST_RETIRED.PREC_DIST encodings")
-Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/1648482543-14923-1-git-send-email-kan.liang@linux.intel.com
+  # Try to fallocate a 5GiB file.
+  echo
+  echo "Try to fallocate a 5GiB file..."
+  fallocate -l 5G $MNT/5G.file
+
+  # See we break the qgroup limit.
+  echo
+  sync
+  btrfs qgroup show -r $MNT
+
+  umount $MNT
+
+When running the test:
+
+  $ ./qgroup-overflow.sh
+  (...)
+
+  Try to fallocate a 3GiB file...
+  fallocate: fallocate failed: Disk quota exceeded
+
+  Try to fallocate a 5GiB file...
+
+  qgroupid         rfer         excl     max_rfer
+  --------         ----         ----     --------
+  0/5           5.00GiB      5.00GiB      2.00GiB
+
+Since we have no control of how bytes_changed is used, it's better to
+set it to u64.
+
+CC: stable@vger.kernel.org # 4.14+
+Reviewed-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: Ethan Lien <ethanlien@synology.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/events/intel/core.c      |    6 +++++-
- arch/x86/include/asm/perf_event.h |    5 +++++
- 2 files changed, 10 insertions(+), 1 deletion(-)
+ fs/btrfs/extent_io.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/events/intel/core.c
-+++ b/arch/x86/events/intel/core.c
-@@ -5521,7 +5521,11 @@ static void intel_pmu_check_event_constr
- 			/* Disabled fixed counters which are not in CPUID */
- 			c->idxmsk64 &= intel_ctrl;
+--- a/fs/btrfs/extent_io.h
++++ b/fs/btrfs/extent_io.h
+@@ -118,7 +118,7 @@ struct btrfs_bio_ctrl {
+  */
+ struct extent_changeset {
+ 	/* How many bytes are set/cleared in this operation */
+-	unsigned int bytes_changed;
++	u64 bytes_changed;
  
--			if (c->idxmsk64 != INTEL_PMC_MSK_FIXED_REF_CYCLES)
-+			/*
-+			 * Don't extend the pseudo-encoding to the
-+			 * generic counters
-+			 */
-+			if (!use_fixed_pseudo_encoding(c->code))
- 				c->idxmsk64 |= (1ULL << num_counters) - 1;
- 		}
- 		c->idxmsk64 &=
---- a/arch/x86/include/asm/perf_event.h
-+++ b/arch/x86/include/asm/perf_event.h
-@@ -241,6 +241,11 @@ struct x86_pmu_capability {
- #define INTEL_PMC_IDX_FIXED_SLOTS	(INTEL_PMC_IDX_FIXED + 3)
- #define INTEL_PMC_MSK_FIXED_SLOTS	(1ULL << INTEL_PMC_IDX_FIXED_SLOTS)
- 
-+static inline bool use_fixed_pseudo_encoding(u64 code)
-+{
-+	return !(code & 0xff);
-+}
-+
- /*
-  * We model BTS tracing as another fixed-mode PMC.
-  *
+ 	/* Changed ranges */
+ 	struct ulist range_changed;
 
 
