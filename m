@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B29B24FD892
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:36:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E71184FD576
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:13:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237909AbiDLHbZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:31:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33760 "EHLO
+        id S1355831AbiDLH3Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:29:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45816 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353550AbiDLHZq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:25:46 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84F5C26100;
-        Tue, 12 Apr 2022 00:01:22 -0700 (PDT)
+        with ESMTP id S1354581AbiDLHS6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:18:58 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B41D31EEE6;
+        Mon, 11 Apr 2022 23:59:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 28E4CB81B35;
-        Tue, 12 Apr 2022 07:01:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97799C385A6;
-        Tue, 12 Apr 2022 07:01:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1552AB81B50;
+        Tue, 12 Apr 2022 06:59:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 635E9C385A6;
+        Tue, 12 Apr 2022 06:59:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746880;
-        bh=kUn2qAPqnhLi5OlFTb3kcm5yBG9tINbEWnBPKsnb0Rs=;
+        s=korg; t=1649746767;
+        bh=BJU3SoYaAQU5PGAAdKA5dXjOco3AbVhPcyDIW5TSjrA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fvD1R0xsGOFMGzCzY9MqOWkVKx8EclApREnhBeWbeZc5D/qLG36d+5Ojuybt7lmlA
-         kFEAiTOpZb9d8+TKvNkrihCFPeXEBLFKu1BMdhpFEJudACwP0B5ngeWZBNHTeEWxAh
-         cwX8h8eNu3f8jVMNR6knDVS/kAyfsMR4emxyFN4M=
+        b=yABkLnH4ASM+OhcoDh5JYaK0nW8523v/nr7cXM/10I46aAaSkRTQZX23XzQ6PGxu5
+         rVUsdHBk41TGNhUVXh5oYuRCdIJhhdT7gPG4lcpOgRz8jiiyfaaqQot7NnuPVTi03K
+         QPb6tZEGgb3u9t+WOW5NI4cvvXWBV5L/DT1Ko5nY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leo Yan <leo.yan@linaro.org>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?J=C3=A9r=C3=B4me=20Pouiller?= 
+        <jerome.pouiller@silabs.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Xiaoke Wang <xkernel.wang@foxmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 123/285] opp: Expose of-nodes name in debugfs
-Date:   Tue, 12 Apr 2022 08:29:40 +0200
-Message-Id: <20220412062947.215634701@linuxfoundation.org>
+Subject: [PATCH 5.16 124/285] staging: wfx: fix an error handling in wfx_init_common()
+Date:   Tue, 12 Apr 2022 08:29:41 +0200
+Message-Id: <20220412062947.245210572@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
 References: <20220412062943.670770901@linuxfoundation.org>
@@ -54,65 +57,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Viresh Kumar <viresh.kumar@linaro.org>
+From: Xiaoke Wang <xkernel.wang@foxmail.com>
 
-[ Upstream commit 021dbecabc93b1610b5db989d52a94e0c6671136 ]
+[ Upstream commit 60f1d3c92dc1ef1026e5b917a329a7fa947da036 ]
 
-It is difficult to find which OPPs are active at the moment, specially
-if there are multiple OPPs with same frequency available in the device
-tree (controlled by supported hardware feature).
+One error handler of wfx_init_common() return without calling
+ieee80211_free_hw(hw), which may result in memory leak. And I add
+one err label to unify the error handler, which is useful for the
+subsequent changes.
 
-Expose name of the DT node to find out the exact OPP.
-
-While at it, also expose level field.
-
-Reported-by: Leo Yan <leo.yan@linaro.org>
-Tested-by: Leo Yan <leo.yan@linaro.org>
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Suggested-by: Jérôme Pouiller <jerome.pouiller@silabs.com>
+Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Jérôme Pouiller <jerome.pouiller@silabs.com>
+Signed-off-by: Xiaoke Wang <xkernel.wang@foxmail.com>
+Link: https://lore.kernel.org/r/tencent_24A24A3EFF61206ECCC4B94B1C5C1454E108@qq.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/opp/debugfs.c | 5 +++++
- drivers/opp/opp.h     | 1 +
- 2 files changed, 6 insertions(+)
+ drivers/staging/wfx/main.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/opp/debugfs.c b/drivers/opp/debugfs.c
-index 596c185b5dda..b5f2f9f39392 100644
---- a/drivers/opp/debugfs.c
-+++ b/drivers/opp/debugfs.c
-@@ -10,6 +10,7 @@
- #include <linux/debugfs.h>
- #include <linux/device.h>
- #include <linux/err.h>
-+#include <linux/of.h>
- #include <linux/init.h>
- #include <linux/limits.h>
- #include <linux/slab.h>
-@@ -131,9 +132,13 @@ void opp_debug_create_one(struct dev_pm_opp *opp, struct opp_table *opp_table)
- 	debugfs_create_bool("suspend", S_IRUGO, d, &opp->suspend);
- 	debugfs_create_u32("performance_state", S_IRUGO, d, &opp->pstate);
- 	debugfs_create_ulong("rate_hz", S_IRUGO, d, &opp->rate);
-+	debugfs_create_u32("level", S_IRUGO, d, &opp->level);
- 	debugfs_create_ulong("clock_latency_ns", S_IRUGO, d,
- 			     &opp->clock_latency_ns);
- 
-+	opp->of_name = of_node_full_name(opp->np);
-+	debugfs_create_str("of_name", S_IRUGO, d, (char **)&opp->of_name);
+diff --git a/drivers/staging/wfx/main.c b/drivers/staging/wfx/main.c
+index 858d778cc589..e3999e95ce85 100644
+--- a/drivers/staging/wfx/main.c
++++ b/drivers/staging/wfx/main.c
+@@ -322,7 +322,8 @@ struct wfx_dev *wfx_init_common(struct device *dev,
+ 	wdev->pdata.gpio_wakeup = devm_gpiod_get_optional(dev, "wakeup",
+ 							  GPIOD_OUT_LOW);
+ 	if (IS_ERR(wdev->pdata.gpio_wakeup))
+-		return NULL;
++		goto err;
 +
- 	opp_debug_create_supplies(opp, opp_table, d);
- 	opp_debug_create_bw(opp, opp_table, d);
+ 	if (wdev->pdata.gpio_wakeup)
+ 		gpiod_set_consumer_name(wdev->pdata.gpio_wakeup, "wfx wakeup");
  
-diff --git a/drivers/opp/opp.h b/drivers/opp/opp.h
-index 407c3bfe51d9..45e3a55239a1 100644
---- a/drivers/opp/opp.h
-+++ b/drivers/opp/opp.h
-@@ -96,6 +96,7 @@ struct dev_pm_opp {
+@@ -341,6 +342,10 @@ struct wfx_dev *wfx_init_common(struct device *dev,
+ 		return NULL;
  
- #ifdef CONFIG_DEBUG_FS
- 	struct dentry *dentry;
-+	const char *of_name;
- #endif
- };
+ 	return wdev;
++
++err:
++	ieee80211_free_hw(hw);
++	return NULL;
+ }
  
+ int wfx_probe(struct wfx_dev *wdev)
 -- 
 2.35.1
 
