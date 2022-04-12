@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E4E64FD011
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:39:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E41884FD1AC
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:58:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349884AbiDLGls (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 02:41:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51754 "EHLO
+        id S234090AbiDLG74 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 02:59:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59164 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350223AbiDLGka (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:40:30 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F17A7E00E;
-        Mon, 11 Apr 2022 23:35:57 -0700 (PDT)
+        with ESMTP id S1351224AbiDLG56 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:57:58 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 846F9427C2;
+        Mon, 11 Apr 2022 23:46:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 5C137CE1C07;
-        Tue, 12 Apr 2022 06:35:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70949C385A1;
-        Tue, 12 Apr 2022 06:35:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8A87CB81B46;
+        Tue, 12 Apr 2022 06:46:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF2A8C385A6;
+        Tue, 12 Apr 2022 06:46:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745354;
-        bh=vor/x1Vk1slMCoHK3RHKNRK1cOTcYKMhZ/n9UA+fCvE=;
+        s=korg; t=1649745986;
+        bh=blzbmXLcpWyWEoRdYuaYSCqfl8++BoLBioFSyPVgcks=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EfGMu227U37v8+868ibft4XlGA0SD1CiAHjRtdRCw7lAeCQk/ehgMR6Q1ya61Tch0
-         QGSZrnuAaRYVAmjPTGOoDCqAvjKPQOXDLeYkftfAqTLlUf0wB/STNb9LXswRXF1R8Z
-         jfGQ2nrxLc8WulQHgSUzcrF37YdShferF69q/6s4=
+        b=Go0t88O2qoKODbtbVHD6qttBWOhY7Xs8fmcApB/Fh4vHqv8YWjkcTsXCts2e2pr7n
+         xJt9CkOftwz9U93+9f2HQZC0yPJd14fvgLK162XciyvYi+7/a2/haLykMMyNuAkXQL
+         p3e0ZrenQOfyJYijozHQPE3tUzMaG0vOFx8qCaYg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hou Zhiqiang <Zhiqiang.Hou@nxp.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Kishon Vijay Abraham I <kishon@ti.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?J=C3=A9r=C3=B4me=20Pouiller?= 
+        <jerome.pouiller@silabs.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Xiaoke Wang <xkernel.wang@foxmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 031/171] PCI: endpoint: Fix alignment fault error in copy tests
+Subject: [PATCH 5.15 119/277] staging: wfx: fix an error handling in wfx_init_common()
 Date:   Tue, 12 Apr 2022 08:28:42 +0200
-Message-Id: <20220412062928.785712693@linuxfoundation.org>
+Message-Id: <20220412062945.485141434@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
-References: <20220412062927.870347203@linuxfoundation.org>
+In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
+References: <20220412062942.022903016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,90 +57,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hou Zhiqiang <Zhiqiang.Hou@nxp.com>
+From: Xiaoke Wang <xkernel.wang@foxmail.com>
 
-[ Upstream commit 829cc0e2ea2d61fb6c54bc3f8a17f86c56e11864 ]
+[ Upstream commit 60f1d3c92dc1ef1026e5b917a329a7fa947da036 ]
 
-The copy test uses the memcpy() to copy data between IO memory spaces.
-This can trigger an alignment fault error (pasted the error logs below)
-because memcpy() may use unaligned accesses on a mapped memory that is
-just IO, which does not support unaligned memory accesses.
+One error handler of wfx_init_common() return without calling
+ieee80211_free_hw(hw), which may result in memory leak. And I add
+one err label to unify the error handler, which is useful for the
+subsequent changes.
 
-Fix it by using the correct memcpy API to copy from/to IO memory.
-
-Alignment fault error logs:
-   Unable to handle kernel paging request at virtual address ffff8000101cd3c1
-   Mem abort info:
-     ESR = 0x96000021
-     EC = 0x25: DABT (current EL), IL = 32 bits
-     SET = 0, FnV = 0
-     EA = 0, S1PTW = 0
-     FSC = 0x21: alignment fault
-   Data abort info:
-     ISV = 0, ISS = 0x00000021
-     CM = 0, WnR = 0
-   swapper pgtable: 4k pages, 48-bit VAs, pgdp=0000000081773000
-   [ffff8000101cd3c1] pgd=1000000082410003, p4d=1000000082410003, pud=1000000082411003, pmd=1000000082412003, pte=0068004000001f13
-   Internal error: Oops: 96000021 [#1] PREEMPT SMP
-   Modules linked in:
-   CPU: 0 PID: 6 Comm: kworker/0:0H Not tainted 5.15.0-rc1-next-20210914-dirty #2
-   Hardware name: LS1012A RDB Board (DT)
-   Workqueue: kpcitest pci_epf_test_cmd_handler
-   pstate: 80000005 (Nzcv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-   pc : __memcpy+0x168/0x230
-   lr : pci_epf_test_cmd_handler+0x6f0/0xa68
-   sp : ffff80001003bce0
-   x29: ffff80001003bce0 x28: ffff800010135000 x27: ffff8000101e5000
-   x26: ffff8000101cd000 x25: ffff6cda941cf6c8 x24: 0000000000000000
-   x23: ffff6cda863f2000 x22: ffff6cda9096c800 x21: ffff800010135000
-   x20: ffff6cda941cf680 x19: ffffaf39fd999000 x18: 0000000000000000
-   x17: 0000000000000000 x16: 0000000000000000 x15: ffffaf39fd2b6000
-   x14: 0000000000000000 x13: 15f5c8fa2f984d57 x12: 604d132b60275454
-   x11: 065cee5e5fb428b6 x10: aae662eb17d0cf3e x9 : 1d97c9a1b4ddef37
-   x8 : 7541b65edebf928c x7 : e71937c4fc595de0 x6 : b8a0e09562430d1c
-   x5 : ffff8000101e5401 x4 : ffff8000101cd401 x3 : ffff8000101e5380
-   x2 : fffffffffffffff1 x1 : ffff8000101cd3c0 x0 : ffff8000101e5000
-   Call trace:
-    __memcpy+0x168/0x230
-    process_one_work+0x1ec/0x370
-    worker_thread+0x44/0x478
-    kthread+0x154/0x160
-    ret_from_fork+0x10/0x20
-   Code: a984346c a9c4342c f1010042 54fffee8 (a97c3c8e)
-   ---[ end trace 568c28c7b6336335 ]---
-
-Link: https://lore.kernel.org/r/20211217094708.28678-1-Zhiqiang.Hou@nxp.com
-Signed-off-by: Hou Zhiqiang <Zhiqiang.Hou@nxp.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Kishon Vijay Abraham I <kishon@ti.com>
+Suggested-by: Jérôme Pouiller <jerome.pouiller@silabs.com>
+Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Jérôme Pouiller <jerome.pouiller@silabs.com>
+Signed-off-by: Xiaoke Wang <xkernel.wang@foxmail.com>
+Link: https://lore.kernel.org/r/tencent_24A24A3EFF61206ECCC4B94B1C5C1454E108@qq.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/endpoint/functions/pci-epf-test.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ drivers/staging/wfx/main.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/pci/endpoint/functions/pci-epf-test.c b/drivers/pci/endpoint/functions/pci-epf-test.c
-index d41570715dc7..b861840e867c 100644
---- a/drivers/pci/endpoint/functions/pci-epf-test.c
-+++ b/drivers/pci/endpoint/functions/pci-epf-test.c
-@@ -285,7 +285,17 @@ static int pci_epf_test_copy(struct pci_epf_test *epf_test)
- 		if (ret)
- 			dev_err(dev, "Data transfer failed\n");
- 	} else {
--		memcpy(dst_addr, src_addr, reg->size);
-+		void *buf;
+diff --git a/drivers/staging/wfx/main.c b/drivers/staging/wfx/main.c
+index 4b9fdf99981b..9ff69c5e0ae9 100644
+--- a/drivers/staging/wfx/main.c
++++ b/drivers/staging/wfx/main.c
+@@ -309,7 +309,8 @@ struct wfx_dev *wfx_init_common(struct device *dev,
+ 	wdev->pdata.gpio_wakeup = devm_gpiod_get_optional(dev, "wakeup",
+ 							  GPIOD_OUT_LOW);
+ 	if (IS_ERR(wdev->pdata.gpio_wakeup))
+-		return NULL;
++		goto err;
 +
-+		buf = kzalloc(reg->size, GFP_KERNEL);
-+		if (!buf) {
-+			ret = -ENOMEM;
-+			goto err_map_addr;
-+		}
+ 	if (wdev->pdata.gpio_wakeup)
+ 		gpiod_set_consumer_name(wdev->pdata.gpio_wakeup, "wfx wakeup");
+ 
+@@ -328,6 +329,10 @@ struct wfx_dev *wfx_init_common(struct device *dev,
+ 		return NULL;
+ 
+ 	return wdev;
 +
-+		memcpy_fromio(buf, src_addr, reg->size);
-+		memcpy_toio(dst_addr, buf, reg->size);
-+		kfree(buf);
- 	}
- 	ktime_get_ts64(&end);
- 	pci_epf_test_print_rate("COPY", reg->size, &start, &end, use_dma);
++err:
++	ieee80211_free_hw(hw);
++	return NULL;
+ }
+ 
+ int wfx_probe(struct wfx_dev *wdev)
 -- 
 2.35.1
 
