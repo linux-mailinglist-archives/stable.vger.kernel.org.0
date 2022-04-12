@@ -2,52 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D4B2E4FD9B5
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:44:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 471374FD54C
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:12:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377631AbiDLHu6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:50:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57772 "EHLO
+        id S1343532AbiDLHgJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:36:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42862 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359390AbiDLHnA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:43:00 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C07E2CCA3;
-        Tue, 12 Apr 2022 00:22:08 -0700 (PDT)
+        with ESMTP id S1355001AbiDLH1E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:27:04 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90A7F47577;
+        Tue, 12 Apr 2022 00:06:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 082EE616B2;
-        Tue, 12 Apr 2022 07:22:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DFD0EC385A5;
-        Tue, 12 Apr 2022 07:22:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8F300B81B4F;
+        Tue, 12 Apr 2022 07:06:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D89DCC385A6;
+        Tue, 12 Apr 2022 07:06:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649748127;
-        bh=JvIBDuRe0Vxz8C/p506SDPFuQzkiuVtuNyy6EPw/+RA=;
+        s=korg; t=1649747217;
+        bh=e9O41xtZGrmCpXGoo/uLMcFr7AIxfezKsEgG2L32/xc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V3YpFm48tsHK3wPfsrlCD3G7zyt1x1FJ9maxaM18de42cY9BXfj3Em9swcodVz+Tz
-         ZMWL5ao1HiLxg6Mm+W9Ixnkg85t3mNydDCDSN62u+eJJRYx/+2NOSvL+7PZvyt/Xxp
-         IHVVw8NkD/hpVZHhYZu4WO0Jvz8zF7x7GFuYU0FU=
+        b=zYowXFfCbVYkRg+eIoYwje1DbqEA/l0qPkiDZldM83CagylJ/auICgTFUhgDPXPg3
+         RsSoY7oneFz9HocKj5tgDFxZyZPjlWBfZILIx7Zbp15oaBdKyzKE7kdOKnK8kwWQMQ
+         i+b6DHrigiNpXweXS6aUOcFsrQQdx75x+g5Fbv/g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Fangrui Song <maskray@google.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@kernel.org>,
-        John Keeping <john@metanate.com>, Leo Yan <leo.yan@linaro.org>,
-        Michael Petlan <mpetlan@redhat.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sedat Dilek <sedat.dilek@gmail.com>
-Subject: [PATCH 5.17 322/343] tools build: Filter out options and warnings not supported by clang
+        stable@vger.kernel.org, Andre Przywara <andre.przywara@arm.com>,
+        Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 5.16 283/285] irqchip/gic, gic-v3: Prevent GSI to SGI translations
 Date:   Tue, 12 Apr 2022 08:32:20 +0200
-Message-Id: <20220412063000.614654949@linuxfoundation.org>
+Message-Id: <20220412062951.819340652@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -62,133 +53,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnaldo Carvalho de Melo <acme@redhat.com>
+From: Andre Przywara <andre.przywara@arm.com>
 
-commit 41caff459a5b956b3e23ba9ca759dd0629ad3dda upstream.
+commit 544808f7e21cb9ccdb8f3aa7de594c05b1419061 upstream.
 
-These make the feature check fail when using clang, so remove them just
-like is done in tools/perf/Makefile.config to build perf itself.
+At the moment the GIC IRQ domain translation routine happily converts
+ACPI table GSI numbers below 16 to GIC SGIs (Software Generated
+Interrupts aka IPIs). On the Devicetree side we explicitly forbid this
+translation, actually the function will never return HWIRQs below 16 when
+using a DT based domain translation.
 
-Adding -Wno-compound-token-split-by-macro to tools/perf/Makefile.config
-when building with clang is also necessary to avoid these warnings
-turned into errors (-Werror):
+We expect SGIs to be handled in the first part of the function, and any
+further occurrence should be treated as a firmware bug, so add a check
+and print to report this explicitly and avoid lengthy debug sessions.
 
-    CC      /tmp/build/perf/util/scripting-engines/trace-event-perl.o
-  In file included from util/scripting-engines/trace-event-perl.c:35:
-  In file included from /usr/lib64/perl5/CORE/perl.h:4085:
-  In file included from /usr/lib64/perl5/CORE/hv.h:659:
-  In file included from /usr/lib64/perl5/CORE/hv_func.h:34:
-  In file included from /usr/lib64/perl5/CORE/sbox32_hash.h:4:
-  /usr/lib64/perl5/CORE/zaphod32_hash.h:150:5: error: '(' and '{' tokens introducing statement expression appear in different macro expansion contexts [-Werror,-Wcompound-token-split-by-macro]
-      ZAPHOD32_SCRAMBLE32(state[0],0x9fade23b);
-      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  /usr/lib64/perl5/CORE/zaphod32_hash.h:80:38: note: expanded from macro 'ZAPHOD32_SCRAMBLE32'
-  #define ZAPHOD32_SCRAMBLE32(v,prime) STMT_START {  \
-                                       ^~~~~~~~~~
-  /usr/lib64/perl5/CORE/perl.h:737:29: note: expanded from macro 'STMT_START'
-  #   define STMT_START   (void)( /* gcc supports "({ STATEMENTS; })" */
-                                ^
-  /usr/lib64/perl5/CORE/zaphod32_hash.h:150:5: note: '{' token is here
-      ZAPHOD32_SCRAMBLE32(state[0],0x9fade23b);
-      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  /usr/lib64/perl5/CORE/zaphod32_hash.h:80:49: note: expanded from macro 'ZAPHOD32_SCRAMBLE32'
-  #define ZAPHOD32_SCRAMBLE32(v,prime) STMT_START {  \
-                                                  ^
-  /usr/lib64/perl5/CORE/zaphod32_hash.h:150:5: error: '}' and ')' tokens terminating statement expression appear in different macro expansion contexts [-Werror,-Wcompound-token-split-by-macro]
-      ZAPHOD32_SCRAMBLE32(state[0],0x9fade23b);
-      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  /usr/lib64/perl5/CORE/zaphod32_hash.h:87:41: note: expanded from macro 'ZAPHOD32_SCRAMBLE32'
-      v ^= (v>>23);                       \
-                                          ^
-  /usr/lib64/perl5/CORE/zaphod32_hash.h:150:5: note: ')' token is here
-      ZAPHOD32_SCRAMBLE32(state[0],0x9fade23b);
-      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  /usr/lib64/perl5/CORE/zaphod32_hash.h:88:3: note: expanded from macro 'ZAPHOD32_SCRAMBLE32'
-  } STMT_END
-    ^~~~~~~~
-  /usr/lib64/perl5/CORE/perl.h:738:21: note: expanded from macro 'STMT_END'
-  #   define STMT_END     )
-                          ^
-
-Please refer to the discussion on the Link: tag below, where Nathan
-clarifies the situation:
-
-<quote>
-acme> And then get to the problems at the end of this message, which seem
-acme> similar to the problem described here:
-acme>
-acme> From  Nathan Chancellor <>
-acme> Subject	[PATCH] mwifiex: Remove unnecessary braces from HostCmd_SET_SEQ_NO_BSS_INFO
-acme>
-acme> https://lkml.org/lkml/2020/9/1/135
-acme>
-acme> So perhaps in this case its better to disable that
-acme> -Werror,-Wcompound-token-split-by-macro when building with clang?
-
-Yes, I think that is probably the best solution. As far as I can tell,
-at least in this file and context, the warning appears harmless, as the
-"create a GNU C statement expression from two different macros" is very
-much intentional, based on the presence of PERL_USE_GCC_BRACE_GROUPS.
-The warning is fixed in upstream Perl by just avoiding creating GNU C
-statement expressions using STMT_START and STMT_END:
-
-  https://github.com/Perl/perl5/issues/18780
-  https://github.com/Perl/perl5/pull/18984
-
-If I am reading the source code correctly, an alternative to disabling
-the warning would be specifying -DPERL_GCC_BRACE_GROUPS_FORBIDDEN but it
-seems like that might end up impacting more than just this site,
-according to the issue discussion above.
-</quote>
-
-Based-on-a-patch-by: Sedat Dilek <sedat.dilek@gmail.com>
-Tested-by: Sedat Dilek <sedat.dilek@gmail.com> # Debian/Selfmade LLVM-14 (x86-64)
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Fangrui Song <maskray@google.com>
-Cc: Florian Fainelli <f.fainelli@gmail.com>
-Cc: Ian Rogers <irogers@google.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: John Keeping <john@metanate.com>
-Cc: Leo Yan <leo.yan@linaro.org>
-Cc: Michael Petlan <mpetlan@redhat.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Nathan Chancellor <nathan@kernel.org>
-Cc: Nick Desaulniers <ndesaulniers@google.com>
-Link: http://lore.kernel.org/lkml/YkxWcYzph5pC1EK8@kernel.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 64b499d8df40 ("irqchip/gic-v3: Configure SGIs as standard interrupts")
+Signed-off-by: Andre Przywara <andre.przywara@arm.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20220404110842.2882446-1-andre.przywara@arm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/build/feature/Makefile |    7 +++++++
- tools/perf/Makefile.config   |    3 +++
- 2 files changed, 10 insertions(+)
+ drivers/irqchip/irq-gic-v3.c |    6 ++++++
+ drivers/irqchip/irq-gic.c    |    6 ++++++
+ 2 files changed, 12 insertions(+)
 
---- a/tools/build/feature/Makefile
-+++ b/tools/build/feature/Makefile
-@@ -220,6 +220,13 @@ PERL_EMBED_LIBADD = $(call grep-libs,$(P
- PERL_EMBED_CCOPTS = `perl -MExtUtils::Embed -e ccopts 2>/dev/null`
- FLAGS_PERL_EMBED=$(PERL_EMBED_CCOPTS) $(PERL_EMBED_LDOPTS)
+--- a/drivers/irqchip/irq-gic-v3.c
++++ b/drivers/irqchip/irq-gic-v3.c
+@@ -1466,6 +1466,12 @@ static int gic_irq_domain_translate(stru
+ 		if(fwspec->param_count != 2)
+ 			return -EINVAL;
  
-+ifeq ($(CC_NO_CLANG), 0)
-+  PERL_EMBED_LDOPTS := $(filter-out -specs=%,$(PERL_EMBED_LDOPTS))
-+  PERL_EMBED_CCOPTS := $(filter-out -flto=auto -ffat-lto-objects, $(PERL_EMBED_CCOPTS))
-+  PERL_EMBED_CCOPTS := $(filter-out -specs=%,$(PERL_EMBED_CCOPTS))
-+  FLAGS_PERL_EMBED += -Wno-compound-token-split-by-macro
-+endif
++		if (fwspec->param[0] < 16) {
++			pr_err(FW_BUG "Illegal GSI%d translation request\n",
++			       fwspec->param[0]);
++			return -EINVAL;
++		}
 +
- $(OUTPUT)test-libperl.bin:
- 	$(BUILD) $(FLAGS_PERL_EMBED)
+ 		*hwirq = fwspec->param[0];
+ 		*type = fwspec->param[1];
  
---- a/tools/perf/Makefile.config
-+++ b/tools/perf/Makefile.config
-@@ -793,6 +793,9 @@ else
-     LDFLAGS += $(PERL_EMBED_LDFLAGS)
-     EXTLIBS += $(PERL_EMBED_LIBADD)
-     CFLAGS += -DHAVE_LIBPERL_SUPPORT
-+    ifeq ($(CC_NO_CLANG), 0)
-+      CFLAGS += -Wno-compound-token-split-by-macro
-+    endif
-     $(call detected,CONFIG_LIBPERL)
-   endif
- endif
+--- a/drivers/irqchip/irq-gic.c
++++ b/drivers/irqchip/irq-gic.c
+@@ -1085,6 +1085,12 @@ static int gic_irq_domain_translate(stru
+ 		if(fwspec->param_count != 2)
+ 			return -EINVAL;
+ 
++		if (fwspec->param[0] < 16) {
++			pr_err(FW_BUG "Illegal GSI%d translation request\n",
++			       fwspec->param[0]);
++			return -EINVAL;
++		}
++
+ 		*hwirq = fwspec->param[0];
+ 		*type = fwspec->param[1];
+ 
 
 
