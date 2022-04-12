@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A8964FD4E6
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:10:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8988A4FD5DC
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:15:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231350AbiDLH2C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:28:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45822 "EHLO
+        id S1377057AbiDLHrR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:47:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354122AbiDLHRD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:17:03 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9834D4B42A;
-        Mon, 11 Apr 2022 23:58:20 -0700 (PDT)
+        with ESMTP id S1357169AbiDLHju (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:39:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51AE613F70;
+        Tue, 12 Apr 2022 00:13:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1019FB81B49;
-        Tue, 12 Apr 2022 06:58:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B92FC385A8;
-        Tue, 12 Apr 2022 06:58:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DC8B56153F;
+        Tue, 12 Apr 2022 07:13:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9B44C385A1;
+        Tue, 12 Apr 2022 07:13:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746697;
+        s=korg; t=1649747603;
         bh=YgBs7SCqNKxfkEo9PqweIDQmp3ZWSfZhb89F6s7+12c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ipayGuo5GZWTCtDw8Hx60AyxKu2KHHYITf9NmnzdhOP5/lfz2to3Xwh3hTZrzgqtK
-         P11WfknbcPHhAuBHP0ajDBDLNamO2OqEfuSsHUXQjp8R0KzPhvAYBnK8ywm4W52sHr
-         ymxLWeZcJ7BT1fKAzR4UoxRNqgM3J0QulGnAVjm0=
+        b=sxsGcLuYm28rCDJxFsUD5y1Fl756+A7c1xBH6gju3YtzwnF75m46NVzjNx2sgqVq1
+         7XQuxW4851Z+MlOY/7ZQesS10muEuMGvj69wSi6NoVboCNM+CVBHZpzdYNqVyQdcj9
+         eOAfVoa2AUkN8KEamicmGujyGweS3xhHBv6p3y7I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,12 +36,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Maxim Mikityanskiy <maximmi@nvidia.com>,
         Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 098/285] net/mlx5e: Remove overzealous validations in netlink EEPROM query
-Date:   Tue, 12 Apr 2022 08:29:15 +0200
-Message-Id: <20220412062946.493988457@linuxfoundation.org>
+Subject: [PATCH 5.17 138/343] net/mlx5e: Remove overzealous validations in netlink EEPROM query
+Date:   Tue, 12 Apr 2022 08:29:16 +0200
+Message-Id: <20220412062955.369912798@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
-References: <20220412062943.670770901@linuxfoundation.org>
+In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
+References: <20220412062951.095765152@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
