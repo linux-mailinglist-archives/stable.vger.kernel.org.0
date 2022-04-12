@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A7A2F4FD158
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:56:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 931F84FD167
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:57:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351344AbiDLG6U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 02:58:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49008 "EHLO
+        id S1351412AbiDLG6a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 02:58:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48966 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351703AbiDLGyO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:54:14 -0400
+        with ESMTP id S1351807AbiDLGya (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:54:30 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE5BB387A7;
-        Mon, 11 Apr 2022 23:43:36 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E7EA60D2;
+        Mon, 11 Apr 2022 23:44:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3E90C60B65;
-        Tue, 12 Apr 2022 06:43:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DDABC385A1;
-        Tue, 12 Apr 2022 06:43:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DF7C36066C;
+        Tue, 12 Apr 2022 06:44:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0256AC385A6;
+        Tue, 12 Apr 2022 06:44:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745815;
-        bh=0YayfnkUy2I+QrBB3bErIM2mPZVoH6kOYYyCfUvQNM8=;
+        s=korg; t=1649745846;
+        bh=mYBPXfiKoBBdA1WyZbbXFvDEziCMpkccyQLo+01yjO8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2AEEpTDpSNfFqMFoUoDW2xkhVjGcKFt3rJP2awkvF9y9ojFX/Ckv4zzzT4iUTRrI0
-         5VB4rX4CrjxzYGMa+GVJeHNEBfVz3//cVWAtpTO1vYHU1mB7fZ/9Vy+iU6fJtV6SFa
-         1kriQYymiU9PLh2xGHiczL+6z/LQg2vig271ygT4=
+        b=ZjTU8PeLJk4Ta6yzcEqDLk1sfkUTfPbkV1xWQUlqlCob9oB2ekGDzFccxkxYH72Yc
+         n5YaSMmSRhBNwCuXYhUI6lSwcUvMArTX0+eBK7MG0Igm8oIhzUyKodvFnQjilY403f
+         We0J85gfQkh6dYnHz/6Ah8mBMZXene4hVmHzUK30=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mike Galbraith <efault@gmx.de>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Bjorn Helgaas <bhelgaas@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 051/277] tcp: Dont acquire inet_listen_hashbucket::lock with disabled BH.
-Date:   Tue, 12 Apr 2022 08:27:34 +0200
-Message-Id: <20220412062943.529253090@linuxfoundation.org>
+Subject: [PATCH 5.15 052/277] PCI: pciehp: Add Qualcomm quirk for Command Completed erratum
+Date:   Tue, 12 Apr 2022 08:27:35 +0200
+Message-Id: <20220412062943.557659988@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
 References: <20220412062942.022903016@linuxfoundation.org>
@@ -55,171 +55,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 
-[ Upstream commit 4f9bf2a2f5aacf988e6d5e56b961ba45c5a25248 ]
+[ Upstream commit 9f72d4757cbe4d1ed669192f6d23817c9e437c4b ]
 
-Commit
-   9652dc2eb9e40 ("tcp: relax listening_hash operations")
+The Qualcomm PCI bridge device (Device ID 0x0110) found in chipsets such as
+SM8450 does not set the Command Completed bit unless writes to the Slot
+Command register change "Control" bits.
 
-removed the need to disable bottom half while acquiring
-listening_hash.lock. There are still two callers left which disable
-bottom half before the lock is acquired.
+This results in timeouts like below:
 
-On PREEMPT_RT the softirqs are preemptible and local_bh_disable() acts
-as a lock to ensure that resources, that are protected by disabling
-bottom halves, remain protected.
-This leads to a circular locking dependency if the lock acquired with
-disabled bottom halves is also acquired with enabled bottom halves
-followed by disabling bottom halves. This is the reverse locking order.
-It has been observed with inet_listen_hashbucket::lock:
+  pcieport 0001:00:00.0: pciehp: Timeout on hotplug command 0x03c0 (issued 2020 msec ago)
 
-local_bh_disable() + spin_lock(&ilb->lock):
-  inet_listen()
-    inet_csk_listen_start()
-      sk->sk_prot->hash() := inet_hash()
-	local_bh_disable()
-	__inet_hash()
-	  spin_lock(&ilb->lock);
-	    acquire(&ilb->lock);
+Add the device to the Command Completed quirk to mark commands "completed"
+immediately unless they change the "Control" bits.
 
-Reverse order: spin_lock(&ilb2->lock) + local_bh_disable():
-  tcp_seq_next()
-    listening_get_next()
-      spin_lock(&ilb2->lock);
-	acquire(&ilb2->lock);
-
-  tcp4_seq_show()
-    get_tcp4_sock()
-      sock_i_ino()
-	read_lock_bh(&sk->sk_callback_lock);
-	  acquire(softirq_ctrl)	// <---- whoops
-	  acquire(&sk->sk_callback_lock)
-
-Drop local_bh_disable() around __inet_hash() which acquires
-listening_hash->lock. Split inet_unhash() and acquire the
-listen_hashbucket lock without disabling bottom halves; the inet_ehash
-lock with disabled bottom halves.
-
-Reported-by: Mike Galbraith <efault@gmx.de>
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Link: https://lkml.kernel.org/r/12d6f9879a97cd56c09fb53dee343cbb14f7f1f7.camel@gmx.de
-Link: https://lkml.kernel.org/r/X9CheYjuXWc75Spa@hirez.programming.kicks-ass.net
-Link: https://lore.kernel.org/r/YgQOebeZ10eNx1W6@linutronix.de
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Link: https://lore.kernel.org/r/20220210145003.135907-1-manivannan.sadhasivam@linaro.org
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/inet_hashtables.c  | 53 ++++++++++++++++++++++---------------
- net/ipv6/inet6_hashtables.c |  5 +---
- 2 files changed, 33 insertions(+), 25 deletions(-)
+ drivers/pci/hotplug/pciehp_hpc.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/net/ipv4/inet_hashtables.c b/net/ipv4/inet_hashtables.c
-index 75737267746f..7bd1e10086f0 100644
---- a/net/ipv4/inet_hashtables.c
-+++ b/net/ipv4/inet_hashtables.c
-@@ -637,7 +637,9 @@ int __inet_hash(struct sock *sk, struct sock *osk)
- 	int err = 0;
- 
- 	if (sk->sk_state != TCP_LISTEN) {
-+		local_bh_disable();
- 		inet_ehash_nolisten(sk, osk, NULL);
-+		local_bh_enable();
- 		return 0;
- 	}
- 	WARN_ON(!sk_unhashed(sk));
-@@ -669,45 +671,54 @@ int inet_hash(struct sock *sk)
- {
- 	int err = 0;
- 
--	if (sk->sk_state != TCP_CLOSE) {
--		local_bh_disable();
-+	if (sk->sk_state != TCP_CLOSE)
- 		err = __inet_hash(sk, NULL);
--		local_bh_enable();
--	}
- 
- 	return err;
+diff --git a/drivers/pci/hotplug/pciehp_hpc.c b/drivers/pci/hotplug/pciehp_hpc.c
+index c0985316649d..8bedbc77fe95 100644
+--- a/drivers/pci/hotplug/pciehp_hpc.c
++++ b/drivers/pci/hotplug/pciehp_hpc.c
+@@ -1060,6 +1060,8 @@ static void quirk_cmd_compl(struct pci_dev *pdev)
  }
- EXPORT_SYMBOL_GPL(inet_hash);
- 
--void inet_unhash(struct sock *sk)
-+static void __inet_unhash(struct sock *sk, struct inet_listen_hashbucket *ilb)
- {
--	struct inet_hashinfo *hashinfo = sk->sk_prot->h.hashinfo;
--	struct inet_listen_hashbucket *ilb = NULL;
--	spinlock_t *lock;
--
- 	if (sk_unhashed(sk))
- 		return;
- 
--	if (sk->sk_state == TCP_LISTEN) {
--		ilb = &hashinfo->listening_hash[inet_sk_listen_hashfn(sk)];
--		lock = &ilb->lock;
--	} else {
--		lock = inet_ehash_lockp(hashinfo, sk->sk_hash);
--	}
--	spin_lock_bh(lock);
--	if (sk_unhashed(sk))
--		goto unlock;
--
- 	if (rcu_access_pointer(sk->sk_reuseport_cb))
- 		reuseport_stop_listen_sock(sk);
- 	if (ilb) {
-+		struct inet_hashinfo *hashinfo = sk->sk_prot->h.hashinfo;
-+
- 		inet_unhash2(hashinfo, sk);
- 		ilb->count--;
- 	}
- 	__sk_nulls_del_node_init_rcu(sk);
- 	sock_prot_inuse_add(sock_net(sk), sk->sk_prot, -1);
--unlock:
--	spin_unlock_bh(lock);
-+}
-+
-+void inet_unhash(struct sock *sk)
-+{
-+	struct inet_hashinfo *hashinfo = sk->sk_prot->h.hashinfo;
-+
-+	if (sk_unhashed(sk))
-+		return;
-+
-+	if (sk->sk_state == TCP_LISTEN) {
-+		struct inet_listen_hashbucket *ilb;
-+
-+		ilb = &hashinfo->listening_hash[inet_sk_listen_hashfn(sk)];
-+		/* Don't disable bottom halves while acquiring the lock to
-+		 * avoid circular locking dependency on PREEMPT_RT.
-+		 */
-+		spin_lock(&ilb->lock);
-+		__inet_unhash(sk, ilb);
-+		spin_unlock(&ilb->lock);
-+	} else {
-+		spinlock_t *lock = inet_ehash_lockp(hashinfo, sk->sk_hash);
-+
-+		spin_lock_bh(lock);
-+		__inet_unhash(sk, NULL);
-+		spin_unlock_bh(lock);
-+	}
- }
- EXPORT_SYMBOL_GPL(inet_unhash);
- 
-diff --git a/net/ipv6/inet6_hashtables.c b/net/ipv6/inet6_hashtables.c
-index 67c9114835c8..0a2e7f228391 100644
---- a/net/ipv6/inet6_hashtables.c
-+++ b/net/ipv6/inet6_hashtables.c
-@@ -333,11 +333,8 @@ int inet6_hash(struct sock *sk)
- {
- 	int err = 0;
- 
--	if (sk->sk_state != TCP_CLOSE) {
--		local_bh_disable();
-+	if (sk->sk_state != TCP_CLOSE)
- 		err = __inet_hash(sk, NULL);
--		local_bh_enable();
--	}
- 
- 	return err;
- }
+ DECLARE_PCI_FIXUP_CLASS_EARLY(PCI_VENDOR_ID_INTEL, PCI_ANY_ID,
+ 			      PCI_CLASS_BRIDGE_PCI, 8, quirk_cmd_compl);
++DECLARE_PCI_FIXUP_CLASS_EARLY(PCI_VENDOR_ID_QCOM, 0x0110,
++			      PCI_CLASS_BRIDGE_PCI, 8, quirk_cmd_compl);
+ DECLARE_PCI_FIXUP_CLASS_EARLY(PCI_VENDOR_ID_QCOM, 0x0400,
+ 			      PCI_CLASS_BRIDGE_PCI, 8, quirk_cmd_compl);
+ DECLARE_PCI_FIXUP_CLASS_EARLY(PCI_VENDOR_ID_QCOM, 0x0401,
 -- 
 2.35.1
 
