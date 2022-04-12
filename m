@@ -2,53 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CBF94FD6B0
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:25:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B0A74FD8D5
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:38:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351648AbiDLHV2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:21:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58606 "EHLO
+        id S1353523AbiDLHdz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:33:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43078 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351847AbiDLHNB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:13:01 -0400
+        with ESMTP id S1353676AbiDLHZv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:25:51 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93A98386;
-        Mon, 11 Apr 2022 23:53:36 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC7572717D;
+        Tue, 12 Apr 2022 00:03:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 527F3B81B47;
-        Tue, 12 Apr 2022 06:53:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F4D9C385A6;
-        Tue, 12 Apr 2022 06:53:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5DB91B81B4D;
+        Tue, 12 Apr 2022 07:03:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDAC2C385A1;
+        Tue, 12 Apr 2022 07:03:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746414;
-        bh=dTR6SfiSLtwiyxMdwW4U/3rWA7waMXIis8gdthuGMos=;
+        s=korg; t=1649747014;
+        bh=yFy9U19sXHN41q82kKN50sXNb/tbKR+J5nGyLCB4Wqg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=knel5eCdo+9KV9yr6UtQIg9Y8IPIFeTuLZ1metKOj3iBr+of2EBjTX6NLiDDtfRNf
-         SJVupeiES1m4tsZvnoL8iBYnEveqFSFUfQRoFuc9g6uhrsd7VSNIo9CA8hiOCGwvtq
-         tX4ZJRGpicZeSHiOSacy+Ly+HqxQcalpTwzW09/M=
+        b=ROcjGT5hUlG1rckGrl9of1cGAMhOEedvXBbQKHRVkpuR4yL1I7nzU05NU8vEKQHmW
+         5svCEoT9hcuVwPkNSIwrdi8eOI8X9G340OzIO6i1Dij/V09leRS4T7FIPtWu6zCE+D
+         /8pjzijyNUri4mMn6YOAFkFXMUqXkFDxy5x/eiUY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Xu <peterx@redhat.com>,
-        John Hubbard <jhubbard@nvidia.com>,
-        David Hildenbrand <david@redhat.com>,
-        Hugh Dickins <hughd@google.com>,
-        Alistair Popple <apopple@nvidia.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        "Kirill A . Shutemov" <kirill@shutemov.name>,
-        Matthew Wilcox <willy@infradead.org>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Yang Shi <shy828301@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.15 267/277] mm: dont skip swap entry even if zap_details specified
+        stable@vger.kernel.org,
+        Sreekanth Reddy <sreekanth.reddy@broadcom.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.16 213/285] scsi: mpt3sas: Fix use after free in _scsih_expander_node_remove()
 Date:   Tue, 12 Apr 2022 08:31:10 +0200
-Message-Id: <20220412062949.770315294@linuxfoundation.org>
+Message-Id: <20220412062949.805433258@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
-References: <20220412062942.022903016@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -63,178 +55,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Xu <peterx@redhat.com>
+From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 
-commit 5abfd71d936a8aefd9f9ccd299dea7a164a5d455 upstream.
+commit 87d663d40801dffc99a5ad3b0188ad3e2b4d1557 upstream.
 
-Patch series "mm: Rework zap ptes on swap entries", v5.
+The function mpt3sas_transport_port_remove() called in
+_scsih_expander_node_remove() frees the port field of the sas_expander
+structure, leading to the following use-after-free splat from KASAN when
+the ioc_info() call following that function is executed (e.g. when doing
+rmmod of the driver module):
 
-Patch 1 should fix a long standing bug for zap_pte_range() on
-zap_details usage.  The risk is we could have some swap entries skipped
-while we should have zapped them.
+[ 3479.371167] ==================================================================
+[ 3479.378496] BUG: KASAN: use-after-free in _scsih_expander_node_remove+0x710/0x750 [mpt3sas]
+[ 3479.386936] Read of size 1 at addr ffff8881c037691c by task rmmod/1531
+[ 3479.393524]
+[ 3479.395035] CPU: 18 PID: 1531 Comm: rmmod Not tainted 5.17.0-rc8+ #1436
+[ 3479.401712] Hardware name: Supermicro Super Server/H12SSL-NT, BIOS 2.1 06/02/2021
+[ 3479.409263] Call Trace:
+[ 3479.411743]  <TASK>
+[ 3479.413875]  dump_stack_lvl+0x45/0x59
+[ 3479.417582]  print_address_description.constprop.0+0x1f/0x120
+[ 3479.423389]  ? _scsih_expander_node_remove+0x710/0x750 [mpt3sas]
+[ 3479.429469]  kasan_report.cold+0x83/0xdf
+[ 3479.433438]  ? _scsih_expander_node_remove+0x710/0x750 [mpt3sas]
+[ 3479.439514]  _scsih_expander_node_remove+0x710/0x750 [mpt3sas]
+[ 3479.445411]  ? _raw_spin_unlock_irqrestore+0x2d/0x40
+[ 3479.452032]  scsih_remove+0x525/0xc90 [mpt3sas]
+[ 3479.458212]  ? mpt3sas_expander_remove+0x1d0/0x1d0 [mpt3sas]
+[ 3479.465529]  ? down_write+0xde/0x150
+[ 3479.470746]  ? up_write+0x14d/0x460
+[ 3479.475840]  ? kernfs_find_ns+0x137/0x310
+[ 3479.481438]  pci_device_remove+0x65/0x110
+[ 3479.487013]  __device_release_driver+0x316/0x680
+[ 3479.493180]  driver_detach+0x1ec/0x2d0
+[ 3479.498499]  bus_remove_driver+0xe7/0x2d0
+[ 3479.504081]  pci_unregister_driver+0x26/0x250
+[ 3479.510033]  _mpt3sas_exit+0x2b/0x6cf [mpt3sas]
+[ 3479.516144]  __x64_sys_delete_module+0x2fd/0x510
+[ 3479.522315]  ? free_module+0xaa0/0xaa0
+[ 3479.527593]  ? __cond_resched+0x1c/0x90
+[ 3479.532951]  ? lockdep_hardirqs_on_prepare+0x273/0x3e0
+[ 3479.539607]  ? syscall_enter_from_user_mode+0x21/0x70
+[ 3479.546161]  ? trace_hardirqs_on+0x1c/0x110
+[ 3479.551828]  do_syscall_64+0x35/0x80
+[ 3479.556884]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+[ 3479.563402] RIP: 0033:0x7f1fc482483b
+...
+[ 3479.943087] ==================================================================
 
-Migration entries are not the major concern because file backed memory
-always zap in the pattern that "first time without page lock, then
-re-zap with page lock" hence the 2nd zap will always make sure all
-migration entries are already recovered.
+Fix this by introducing the local variable port_id to store the port ID
+value before executing mpt3sas_transport_port_remove(). This local variable
+is then used in the call to ioc_info() instead of dereferencing the freed
+port structure.
 
-However there can be issues with real swap entries got skipped
-errornoously.  There's a reproducer provided in commit message of patch
-1 for that.
-
-Patch 2-4 are cleanups that are based on patch 1.  After the whole
-patchset applied, we should have a very clean view of zap_pte_range().
-
-Only patch 1 needs to be backported to stable if necessary.
-
-This patch (of 4):
-
-The "details" pointer shouldn't be the token to decide whether we should
-skip swap entries.
-
-For example, when the callers specified details->zap_mapping==NULL, it
-means the user wants to zap all the pages (including COWed pages), then
-we need to look into swap entries because there can be private COWed
-pages that was swapped out.
-
-Skipping some swap entries when details is non-NULL may lead to wrongly
-leaving some of the swap entries while we should have zapped them.
-
-A reproducer of the problem:
-
-===8<===
-        #define _GNU_SOURCE         /* See feature_test_macros(7) */
-        #include <stdio.h>
-        #include <assert.h>
-        #include <unistd.h>
-        #include <sys/mman.h>
-        #include <sys/types.h>
-
-        int page_size;
-        int shmem_fd;
-        char *buffer;
-
-        void main(void)
-        {
-                int ret;
-                char val;
-
-                page_size = getpagesize();
-                shmem_fd = memfd_create("test", 0);
-                assert(shmem_fd >= 0);
-
-                ret = ftruncate(shmem_fd, page_size * 2);
-                assert(ret == 0);
-
-                buffer = mmap(NULL, page_size * 2, PROT_READ | PROT_WRITE,
-                                MAP_PRIVATE, shmem_fd, 0);
-                assert(buffer != MAP_FAILED);
-
-                /* Write private page, swap it out */
-                buffer[page_size] = 1;
-                madvise(buffer, page_size * 2, MADV_PAGEOUT);
-
-                /* This should drop private buffer[page_size] already */
-                ret = ftruncate(shmem_fd, page_size);
-                assert(ret == 0);
-                /* Recover the size */
-                ret = ftruncate(shmem_fd, page_size * 2);
-                assert(ret == 0);
-
-                /* Re-read the data, it should be all zero */
-                val = buffer[page_size];
-                if (val == 0)
-                        printf("Good\n");
-                else
-                        printf("BUG\n");
-        }
-===8<===
-
-We don't need to touch up the pmd path, because pmd never had a issue with
-swap entries.  For example, shmem pmd migration will always be split into
-pte level, and same to swapping on anonymous.
-
-Add another helper should_zap_cows() so that we can also check whether we
-should zap private mappings when there's no page pointer specified.
-
-This patch drops that trick, so we handle swap ptes coherently.  Meanwhile
-we should do the same check upon migration entry, hwpoison entry and
-genuine swap entries too.
-
-To be explicit, we should still remember to keep the private entries if
-even_cows==false, and always zap them when even_cows==true.
-
-The issue seems to exist starting from the initial commit of git.
-
-[peterx@redhat.com: comment tweaks]
-  Link: https://lkml.kernel.org/r/20220217060746.71256-2-peterx@redhat.com
-
-Link: https://lkml.kernel.org/r/20220217060746.71256-1-peterx@redhat.com
-Link: https://lkml.kernel.org/r/20220216094810.60572-1-peterx@redhat.com
-Link: https://lkml.kernel.org/r/20220216094810.60572-2-peterx@redhat.com
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Peter Xu <peterx@redhat.com>
-Reviewed-by: John Hubbard <jhubbard@nvidia.com>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Hugh Dickins <hughd@google.com>
-Cc: Alistair Popple <apopple@nvidia.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: "Kirill A . Shutemov" <kirill@shutemov.name>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Yang Shi <shy828301@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Link: https://lore.kernel.org/r/20220322055702.95276-1-damien.lemoal@opensource.wdc.com
+Fixes: 7d310f241001 ("scsi: mpt3sas: Get device objects using sas_address & portID")
+Cc: stable@vger.kernel.org
+Acked-by: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/memory.c |   25 +++++++++++++++++++------
- 1 file changed, 19 insertions(+), 6 deletions(-)
+ drivers/scsi/mpt3sas/mpt3sas_scsih.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -1301,6 +1301,17 @@ copy_page_range(struct vm_area_struct *d
- 	return ret;
- }
+--- a/drivers/scsi/mpt3sas/mpt3sas_scsih.c
++++ b/drivers/scsi/mpt3sas/mpt3sas_scsih.c
+@@ -11035,6 +11035,7 @@ _scsih_expander_node_remove(struct MPT3S
+ {
+ 	struct _sas_port *mpt3sas_port, *next;
+ 	unsigned long flags;
++	int port_id;
  
-+/* Whether we should zap all COWed (private) pages too */
-+static inline bool should_zap_cows(struct zap_details *details)
-+{
-+	/* By default, zap all pages */
-+	if (!details)
-+		return true;
+ 	/* remove sibling ports attached to this expander */
+ 	list_for_each_entry_safe(mpt3sas_port, next,
+@@ -11055,6 +11056,8 @@ _scsih_expander_node_remove(struct MPT3S
+ 			    mpt3sas_port->hba_port);
+ 	}
+ 
++	port_id = sas_expander->port->port_id;
 +
-+	/* Or, we zap COWed pages only if the caller wants to */
-+	return !details->check_mapping;
-+}
-+
- static unsigned long zap_pte_range(struct mmu_gather *tlb,
- 				struct vm_area_struct *vma, pmd_t *pmd,
- 				unsigned long addr, unsigned long end,
-@@ -1396,16 +1407,18 @@ again:
- 			continue;
- 		}
+ 	mpt3sas_transport_port_remove(ioc, sas_expander->sas_address,
+ 	    sas_expander->sas_address_parent, sas_expander->port);
  
--		/* If details->check_mapping, we leave swap entries. */
--		if (unlikely(details))
--			continue;
--
--		if (!non_swap_entry(entry))
-+		if (!non_swap_entry(entry)) {
-+			/* Genuine swap entry, hence a private anon page */
-+			if (!should_zap_cows(details))
-+				continue;
- 			rss[MM_SWAPENTS]--;
--		else if (is_migration_entry(entry)) {
-+		} else if (is_migration_entry(entry)) {
- 			struct page *page;
+@@ -11062,7 +11065,7 @@ _scsih_expander_node_remove(struct MPT3S
+ 	    "expander_remove: handle(0x%04x), sas_addr(0x%016llx), port:%d\n",
+ 	    sas_expander->handle, (unsigned long long)
+ 	    sas_expander->sas_address,
+-	    sas_expander->port->port_id);
++	    port_id);
  
- 			page = pfn_swap_entry_to_page(entry);
-+			if (details && details->check_mapping &&
-+			    details->check_mapping != page_rmapping(page))
-+				continue;
- 			rss[mm_counter(page)]--;
- 		}
- 		if (unlikely(!free_swap_and_cache(entry)))
+ 	spin_lock_irqsave(&ioc->sas_node_lock, flags);
+ 	list_del(&sas_expander->list);
 
 
