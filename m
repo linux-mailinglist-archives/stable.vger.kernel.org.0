@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CC0194FD09C
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:48:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 953404FD09E
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:48:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348193AbiDLGse (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 02:48:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58248 "EHLO
+        id S233506AbiDLGsd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 02:48:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58322 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350709AbiDLGrl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:47:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 464D424947;
-        Mon, 11 Apr 2022 23:39:18 -0700 (PDT)
+        with ESMTP id S1350724AbiDLGrm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:47:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA7A324F04;
+        Mon, 11 Apr 2022 23:39:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BA53AB81B29;
-        Tue, 12 Apr 2022 06:39:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CE88C385A1;
-        Tue, 12 Apr 2022 06:39:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CC26C61910;
+        Tue, 12 Apr 2022 06:39:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E254FC385A1;
+        Tue, 12 Apr 2022 06:39:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745555;
-        bh=QhsvxtWGhK5wtgUU105j/Ut1BdLJxJR/yoBWlg8U0ts=;
+        s=korg; t=1649745558;
+        bh=O4Q7iMYhGztqlp5ynInoHyNCuJYnTxVojEBSYkbHwHo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fw8gNdjdJhuTiy33vv2V8ZpBxlEr2ZsS7jJajGTw4x23fhHtCW7my7pr719sjvs9r
-         vibLlQl5yR3qVyCAzAPbSlocT9zmnQ1f167PElDJIs3QTFGtdXRahPGLR4QGTcf056
-         k0a5DuFqBKL8KuZJCkqMxcvtHQTehfkX9pTD8eWM=
+        b=1HeOhxkKffERb05/+JyVDrZgjE3Ohy/Y3fxpn4t3HrqLMQSDWjk9v4W3fiod13AEu
+         m5TzMFl2pKZI24jjqVVYFXYwhIhacEIBipemQwK9XL8t/FIamyNfUtK1/kNtVgeBC5
+         eiGZBmQul69s/6n/5SG/503UmxQwLVx1dRGui6S0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yann Gautier <yann.gautier@foss.st.com>,
+        stable@vger.kernel.org,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
         Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.10 136/171] mmc: mmci: stm32: correctly check all elements of sg list
-Date:   Tue, 12 Apr 2022 08:30:27 +0200
-Message-Id: <20220412062931.822488453@linuxfoundation.org>
+Subject: [PATCH 5.10 137/171] mmc: renesas_sdhi: dont overwrite TAP settings when HS400 tuning is complete
+Date:   Tue, 12 Apr 2022 08:30:28 +0200
+Message-Id: <20220412062931.850991912@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
 References: <20220412062927.870347203@linuxfoundation.org>
@@ -53,46 +55,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yann Gautier <yann.gautier@foss.st.com>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-commit 0d319dd5a27183b75d984e3dc495248e59f99334 upstream.
+commit 03e59b1e2f56245163b14c69e0a830c24b1a3a47 upstream.
 
-Use sg and not data->sg when checking sg list elements. Else only the
-first element alignment is checked.
-The last element should be checked the same way, for_each_sg already set
-sg to sg_next(sg).
+When HS400 tuning is complete and HS400 is going to be activated, we
+have to keep the current number of TAPs and should not overwrite them
+with a hardcoded value. This was probably a copy&paste mistake when
+upporting HS400 support from the BSP.
 
-Fixes: 46b723dd867d ("mmc: mmci: add stm32 sdmmc variant")
+Fixes: 26eb2607fa28 ("mmc: renesas_sdhi: add eMMC HS400 mode support")
+Reported-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Reviewed-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Yann Gautier <yann.gautier@foss.st.com>
-Link: https://lore.kernel.org/r/20220317111944.116148-2-yann.gautier@foss.st.com
+Link: https://lore.kernel.org/r/20220404114902.12175-1-wsa+renesas@sang-engineering.com
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/mmci_stm32_sdmmc.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/mmc/host/renesas_sdhi_core.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/mmc/host/mmci_stm32_sdmmc.c
-+++ b/drivers/mmc/host/mmci_stm32_sdmmc.c
-@@ -62,8 +62,8 @@ static int sdmmc_idma_validate_data(stru
- 	 * excepted the last element which has no constraint on idmasize
- 	 */
- 	for_each_sg(data->sg, sg, data->sg_len - 1, i) {
--		if (!IS_ALIGNED(data->sg->offset, sizeof(u32)) ||
--		    !IS_ALIGNED(data->sg->length, SDMMC_IDMA_BURST)) {
-+		if (!IS_ALIGNED(sg->offset, sizeof(u32)) ||
-+		    !IS_ALIGNED(sg->length, SDMMC_IDMA_BURST)) {
- 			dev_err(mmc_dev(host->mmc),
- 				"unaligned scatterlist: ofst:%x length:%d\n",
- 				data->sg->offset, data->sg->length);
-@@ -71,7 +71,7 @@ static int sdmmc_idma_validate_data(stru
- 		}
- 	}
+--- a/drivers/mmc/host/renesas_sdhi_core.c
++++ b/drivers/mmc/host/renesas_sdhi_core.c
+@@ -390,10 +390,10 @@ static void renesas_sdhi_hs400_complete(
+ 			SH_MOBILE_SDHI_SCC_TMPPORT2_HS400OSEL) |
+ 			sd_scc_read32(host, priv, SH_MOBILE_SDHI_SCC_TMPPORT2));
  
--	if (!IS_ALIGNED(data->sg->offset, sizeof(u32))) {
-+	if (!IS_ALIGNED(sg->offset, sizeof(u32))) {
- 		dev_err(mmc_dev(host->mmc),
- 			"unaligned last scatterlist: ofst:%x length:%d\n",
- 			data->sg->offset, data->sg->length);
+-	/* Set the sampling clock selection range of HS400 mode */
+ 	sd_scc_write32(host, priv, SH_MOBILE_SDHI_SCC_DTCNTL,
+ 		       SH_MOBILE_SDHI_SCC_DTCNTL_TAPEN |
+-		       0x4 << SH_MOBILE_SDHI_SCC_DTCNTL_TAPNUM_SHIFT);
++		       sd_scc_read32(host, priv,
++				     SH_MOBILE_SDHI_SCC_DTCNTL));
+ 
+ 	/* Avoid bad TAP */
+ 	if (bad_taps & BIT(priv->tap_set)) {
 
 
