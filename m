@@ -2,114 +2,184 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A68E4FE40E
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 16:44:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF8D84FE415
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 16:45:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234174AbiDLOqb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 10:46:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34500 "EHLO
+        id S1356733AbiDLOrO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 10:47:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37270 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241788AbiDLOqa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 10:46:30 -0400
-Received: from zju.edu.cn (spam.zju.edu.cn [61.164.42.155])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 96770120BD;
-        Tue, 12 Apr 2022 07:44:09 -0700 (PDT)
-Received: from localhost.localdomain (unknown [222.205.9.127])
-        by mail-app3 (Coremail) with SMTP id cC_KCgD3ScowkFViL2n8AQ--.1229S4;
-        Tue, 12 Apr 2022 22:44:01 +0800 (CST)
-From:   Lin Ma <linma@zju.edu.cn>
-To:     stern@rowland.harvard.edu, gregkh@linuxfoundation.org,
-        linux-usb@vger.kernel.org, usb-storage@lists.one-eyed-alien.net,
-        mdharm-usb@one-eyed-alien.net
-Cc:     Lin Ma <linma@zju.edu.cn>, stable@vger.kernel.org
-Subject: [PATCH v4] USB: storage: karma: fix rio_karma_init return
-Date:   Tue, 12 Apr 2022 22:43:59 +0800
-Message-Id: <20220412144359.28447-1-linma@zju.edu.cn>
-X-Mailer: git-send-email 2.35.1
+        with ESMTP id S239759AbiDLOrN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 10:47:13 -0400
+Received: from mail-pf1-x42f.google.com (mail-pf1-x42f.google.com [IPv6:2607:f8b0:4864:20::42f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D36791CB31
+        for <stable@vger.kernel.org>; Tue, 12 Apr 2022 07:44:55 -0700 (PDT)
+Received: by mail-pf1-x42f.google.com with SMTP id p8so17693127pfh.8
+        for <stable@vger.kernel.org>; Tue, 12 Apr 2022 07:44:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=btzB568iXxZj9oc1tZbDY7UAY4m0s81uXgV8WCBbWRs=;
+        b=dXdSmaigsQfS8iGJpoICwbRXz1FWNpMiL0cOtSsxpoStwnZDu8idR451LAKSFR0LbD
+         WBvG1gRSfyZYV+fpXfeukko3SJfNYwqBBWJGmH368YCyXpc3GjQLRHJq6vIV620Zi+C+
+         GFPN/IEJRPMpd56zrExzJS0jJiBWd21Z60iyUL/GM29N6qb53l1kbEHeybz26ZVz+ITV
+         URfnlKx+gP6pFW2MXUOvUqUzOrFbZF/+TM8xcIn+SIlL38WlpsDKUhhYuj6r1XUunWxP
+         nKp8mhXWh6RIxt006y1145LhvFYYhb+W9I8OAXs/+QfyIKGlec+ytOV/2nbRrfaHcQkU
+         OEQQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=btzB568iXxZj9oc1tZbDY7UAY4m0s81uXgV8WCBbWRs=;
+        b=PuoT5DuSpLBxv+33jziLeO/hmmk9M0lDSLBlxrg7Q5hgy+NHj9Wip8DWNmRk3m2pYp
+         tuD7ko5MxWVGOZRDwxCgpPBRuozCXU8d4oZU0D4an7BKEhJQd5V/U2riTo6Dq2Vo5s6W
+         VDT8cMVN7NHXsHeAZwbsivSKmzTg/OemYuscOyA9dgYe5q8ouErWYcqFziZlkiS1uvim
+         KOejgX8CP7/kY1ffgNT6TIF22IaoqGbthlvdKWleHlZqH7q2QbLkIgU0qiSO5cS5SDqV
+         PKadv6LQ+pXAVFmRUCKwwev753vtxb89tJPOkL6QaeIBuk83wmd+VwR1FMu4J082GRv+
+         xTkg==
+X-Gm-Message-State: AOAM532WJJ8Fk7HbXql2yoUSGoXVn1P3PZ9i79ymCBqmvvP7zad3ovLk
+        td1mI5nt/zkBmCeh39cHf63pKw==
+X-Google-Smtp-Source: ABdhPJyuBZy2IK9V/ErFnZBxqvPrcAs/xWo9/wak/gn6mPURlCcLf7O6F2HqUPE4EGla+ANGH2SvSg==
+X-Received: by 2002:a63:2f46:0:b0:382:230f:b155 with SMTP id v67-20020a632f46000000b00382230fb155mr31794155pgv.64.1649774695275;
+        Tue, 12 Apr 2022 07:44:55 -0700 (PDT)
+Received: from [192.168.254.17] ([50.39.160.154])
+        by smtp.gmail.com with ESMTPSA id w14-20020a63474e000000b0039cce486b9bsm3111136pgk.13.2022.04.12.07.44.54
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 12 Apr 2022 07:44:54 -0700 (PDT)
+Message-ID: <b20d6ee6-d1ba-5c15-a50a-2a49874d96b6@linaro.org>
+Date:   Tue, 12 Apr 2022 07:44:53 -0700
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID: cC_KCgD3ScowkFViL2n8AQ--.1229S4
-X-Coremail-Antispam: 1UD129KBjvJXoW7CrWUtw48GFW5XFWDtFyUtrb_yoW8Ar4Dpa
-        ykGry5CrWUJF1fXr9rXryUuFy5Can7tFWjga4fK3ZI9rsrtF18CF12v3W0g3ZYqrySk3Wx
-        tF1v9Fy2gr1DAFDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-        9KBjDU0xBIdaVrnRJUUUka1xkIjI8I6I8E6xAIw20EY4v20xvaj40_Wr0E3s1l1IIY67AE
-        w4v_Jr0_Jr4l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxSw2x7M28EF7xvwVC0I7IYx2
-        IY67AKxVWDJVCq3wA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxVW8Jr0_Cr1UM28EF7xvwVC2
-        z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcV
-        Aq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1j
-        6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64
-        vIr41lF7I21c0EjII2zVCS5cI20VAGYxC7MxAIw28IcxkI7VAKI48JMxAIw28IcVCjz48v
-        1sIEY20_GFWkJr1UJwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j6r
-        18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_JF0_Jw1lIxkGc2Ij64vI
-        r41lIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Jr0_Gr
-        1lIxAIcVCF04k26cxKx2IYs7xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvE
-        x4A2jsIEc7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x0JUdHUDUUUUU=
-X-CM-SenderInfo: qtrwiiyqvtljo62m3hxhgxhubq/
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_PASS,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.7.0
+Subject: Re: [PATCH] bpf: Fix KASAN use-after-free Read in
+ compute_effective_progs
+Content-Language: en-US
+To:     bpf@vger.kernel.org
+Cc:     Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        KP Singh <kpsingh@kernel.org>, netdev@vger.kernel.org,
+        stable@vger.kernel.org, linux-kernel@vger.kernel.org,
+        syzbot+f264bffdfbd5614f3bb2@syzkaller.appspotmail.com,
+        Alexei Starovoitov <ast@kernel.org>
+References: <20220405170356.43128-1-tadeusz.struk@linaro.org>
+From:   Tadeusz Struk <tadeusz.struk@linaro.org>
+In-Reply-To: <20220405170356.43128-1-tadeusz.struk@linaro.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-3.2 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The function rio_karam_init() should return -ENOMEM instead of
-value 0 (USB_STOR_TRANSPORT_GOOD) when allocation fails.
+On 4/5/22 10:03, Tadeusz Struk wrote:
+> Syzbot found a Use After Free bug in compute_effective_progs().
+> The reproducer creates a number of BPF links, and causes a fault
+> injected alloc to fail, while calling bpf_link_detach on them.
+> Link detach triggers the link to be freed by bpf_link_free(),
+> which calls __cgroup_bpf_detach() and update_effective_progs().
+> If the memory allocation in this function fails, the function restores
+> the pointer to the bpf_cgroup_link on the cgroup list, but the memory
+> gets freed just after it returns. After this, every subsequent call to
+> update_effective_progs() causes this already deallocated pointer to be
+> dereferenced in prog_list_length(), and triggers KASAN UAF error.
+> To fix this don't preserve the pointer to the link on the cgroup list
+> in __cgroup_bpf_detach(), but proceed with the cleanup and retry calling
+> update_effective_progs() again afterwards.
+> 
+> 
+> Cc: "Alexei Starovoitov" <ast@kernel.org>
+> Cc: "Daniel Borkmann" <daniel@iogearbox.net>
+> Cc: "Andrii Nakryiko" <andrii@kernel.org>
+> Cc: "Martin KaFai Lau" <kafai@fb.com>
+> Cc: "Song Liu" <songliubraving@fb.com>
+> Cc: "Yonghong Song" <yhs@fb.com>
+> Cc: "John Fastabend" <john.fastabend@gmail.com>
+> Cc: "KP Singh" <kpsingh@kernel.org>
+> Cc: <netdev@vger.kernel.org>
+> Cc: <bpf@vger.kernel.org>
+> Cc: <stable@vger.kernel.org>
+> Cc: <linux-kernel@vger.kernel.org>
+> 
+> Link: https://syzkaller.appspot.com/bug?id=8ebf179a95c2a2670f7cf1ba62429ec044369db4
+> Fixes: af6eea57437a ("bpf: Implement bpf_link-based cgroup BPF program attachment")
+> Reported-by: <syzbot+f264bffdfbd5614f3bb2@syzkaller.appspotmail.com>
+> Signed-off-by: Tadeusz Struk <tadeusz.struk@linaro.org>
+> ---
+>   kernel/bpf/cgroup.c | 25 ++++++++++++++-----------
+>   1 file changed, 14 insertions(+), 11 deletions(-)
+> 
+> diff --git a/kernel/bpf/cgroup.c b/kernel/bpf/cgroup.c
+> index 128028efda64..b6307337a3c7 100644
+> --- a/kernel/bpf/cgroup.c
+> +++ b/kernel/bpf/cgroup.c
+> @@ -723,10 +723,11 @@ static int __cgroup_bpf_detach(struct cgroup *cgrp, struct bpf_prog *prog,
+>   	pl->link = NULL;
+>   
+>   	err = update_effective_progs(cgrp, atype);
+> -	if (err)
+> -		goto cleanup;
+> -
+> -	/* now can actually delete it from this cgroup list */
+> +	/*
+> +	 * Proceed regardless of error. The link and/or prog will be freed
+> +	 * just after this function returns so just delete it from this
+> +	 * cgroup list and retry calling update_effective_progs again later.
+> +	 */
+>   	list_del(&pl->node);
+>   	kfree(pl);
+>   	if (list_empty(progs))
+> @@ -735,12 +736,11 @@ static int __cgroup_bpf_detach(struct cgroup *cgrp, struct bpf_prog *prog,
+>   	if (old_prog)
+>   		bpf_prog_put(old_prog);
+>   	static_branch_dec(&cgroup_bpf_enabled_key[atype]);
+> -	return 0;
+>   
+> -cleanup:
+> -	/* restore back prog or link */
+> -	pl->prog = old_prog;
+> -	pl->link = link;
+> +	/* In case of error call update_effective_progs again */
+> +	if (err)
+> +		err = update_effective_progs(cgrp, atype);
+> +
+>   	return err;
+>   }
+>   
+> @@ -881,6 +881,7 @@ static void bpf_cgroup_link_release(struct bpf_link *link)
+>   	struct bpf_cgroup_link *cg_link =
+>   		container_of(link, struct bpf_cgroup_link, link);
+>   	struct cgroup *cg;
+> +	int err;
+>   
+>   	/* link might have been auto-detached by dying cgroup already,
+>   	 * in that case our work is done here
+> @@ -896,8 +897,10 @@ static void bpf_cgroup_link_release(struct bpf_link *link)
+>   		return;
+>   	}
+>   
+> -	WARN_ON(__cgroup_bpf_detach(cg_link->cgroup, NULL, cg_link,
+> -				    cg_link->type));
+> +	err = __cgroup_bpf_detach(cg_link->cgroup, NULL, cg_link,
+> +				  cg_link->type);
+> +	if (err)
+> +		pr_warn("cgroup_bpf_detach() failed, err %d\n", err);
+>   
+>   	cg = cg_link->cgroup;
+>   	cg_link->cgroup = NULL;
 
-Similarly, it should return -EIO when rio_karma_send_command() fails.
+Hi,
+Any feedback/comments on this one?
 
-Cc: stable@vger.kernel.org
-Fixes: dfe0d3ba20e8 ("USB Storage: add rio karma eject support")
-Signed-off-by: Lin Ma <linma@zju.edu.cn>
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
----
-V3 -> V4: fix spelling mistake: Simlarly -> Similarly
-V2 -> V3: add Acked-by: Alan Stern <stern@rowland.harvard.edu>
-V1 -> V2: add Cc: stable@vger.kernel.org
-V0 -> V1: use -ENOMEM rather than USB_STOR_TRANSPORT_ERROR;
-          take care of rio_karma_send_command() too
-
- drivers/usb/storage/karma.c | 15 ++++++++-------
- 1 file changed, 8 insertions(+), 7 deletions(-)
-
-diff --git a/drivers/usb/storage/karma.c b/drivers/usb/storage/karma.c
-index 05cec81dcd3f..38ddfedef629 100644
---- a/drivers/usb/storage/karma.c
-+++ b/drivers/usb/storage/karma.c
-@@ -174,24 +174,25 @@ static void rio_karma_destructor(void *extra)
- 
- static int rio_karma_init(struct us_data *us)
- {
--	int ret = 0;
- 	struct karma_data *data = kzalloc(sizeof(struct karma_data), GFP_NOIO);
- 
- 	if (!data)
--		goto out;
-+		return -ENOMEM;
- 
- 	data->recv = kmalloc(RIO_RECV_LEN, GFP_NOIO);
- 	if (!data->recv) {
- 		kfree(data);
--		goto out;
-+		return -ENOMEM;
- 	}
- 
- 	us->extra = data;
- 	us->extra_destructor = rio_karma_destructor;
--	ret = rio_karma_send_command(RIO_ENTER_STORAGE, us);
--	data->in_storage = (ret == 0);
--out:
--	return ret;
-+	if (rio_karma_send_command(RIO_ENTER_STORAGE, us))
-+		return -EIO;
-+
-+	data->in_storage = 1;
-+
-+	return 0;
- }
- 
- static struct scsi_host_template karma_host_template;
 -- 
-2.35.1
-
+Thanks,
+Tadeusz
