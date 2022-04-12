@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 32E594FD430
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:02:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 733F04FD3CA
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 11:59:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352929AbiDLHqM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:46:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49120 "EHLO
+        id S240257AbiDLHvM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:51:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356566AbiDLHi7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:38:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE67851E7E;
-        Tue, 12 Apr 2022 00:09:52 -0700 (PDT)
+        with ESMTP id S1356826AbiDLHjX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:39:23 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 587B452E69;
+        Tue, 12 Apr 2022 00:10:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DF07A6171D;
-        Tue, 12 Apr 2022 07:09:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9EE8C385A6;
-        Tue, 12 Apr 2022 07:09:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 851DC616B2;
+        Tue, 12 Apr 2022 07:10:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 961D1C385A5;
+        Tue, 12 Apr 2022 07:10:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747391;
-        bh=zAEdai6cbaxAvjJX+0dGNKGh6l0UBG2suy9fMVtv2wY=;
+        s=korg; t=1649747416;
+        bh=/w61AelEsbUjYwIL6ru1+o8XctAGMaB5iEznL38kFIM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nw7vQFuoqFQb3b09+C/zI2W1IPxntRAM7+QT4VcTBJdFmEscFmWoZWRmH33zAEfDP
-         HfZiL6qdbNQdyeD6E2/3QQ89wtnQy7Ggvm/k5PVz+E89qyAfnnOkP/VXvjsvGylzgO
-         ij9/kuxjqYxihzUtun1yC+duDTrUfUNC4xz3RPJ8=
+        b=RdUVsh661K5zz1unvhDrMu7KU+wuKK7tXdAaCxm8ZA6iNHnxC5p+1AdYchXc6xSzv
+         3NTYlzONclVW6RRLkin3o3ZFeyo2+og45czQqiBZxztGFaPelVEYlqPCDVOyXW3ENz
+         c4EpgUs6HNQEx0+vFREPjVwOaalpdgdvnfBJO5uc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        stable@vger.kernel.org, Hou Zhiqiang <Zhiqiang.Hou@nxp.com>,
         Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Kishon Vijay Abraham I <kishon@ti.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 060/343] PCI: aardvark: Fix support for MSI interrupts
-Date:   Tue, 12 Apr 2022 08:27:58 +0200
-Message-Id: <20220412062952.835560550@linuxfoundation.org>
+Subject: [PATCH 5.17 072/343] PCI: endpoint: Fix alignment fault error in copy tests
+Date:   Tue, 12 Apr 2022 08:28:10 +0200
+Message-Id: <20220412062953.179936107@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
 References: <20220412062951.095765152@linuxfoundation.org>
@@ -56,79 +55,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Hou Zhiqiang <Zhiqiang.Hou@nxp.com>
 
-[ Upstream commit b0b0b8b897f8e12b2368e868bd7cdc5742d5c5a9 ]
+[ Upstream commit 829cc0e2ea2d61fb6c54bc3f8a17f86c56e11864 ]
 
-Aardvark hardware supports Multi-MSI and MSI_FLAG_MULTI_PCI_MSI is already
-set for the MSI chip. But when allocating MSI interrupt numbers for
-Multi-MSI, the numbers need to be properly aligned, otherwise endpoint
-devices send MSI interrupt with incorrect numbers.
+The copy test uses the memcpy() to copy data between IO memory spaces.
+This can trigger an alignment fault error (pasted the error logs below)
+because memcpy() may use unaligned accesses on a mapped memory that is
+just IO, which does not support unaligned memory accesses.
 
-Fix this issue by using function bitmap_find_free_region() instead of
-bitmap_find_next_zero_area().
+Fix it by using the correct memcpy API to copy from/to IO memory.
 
-To ensure that aligned MSI interrupt numbers are used by endpoint devices,
-we cannot use Linux virtual irq numbers (as they are random and not
-properly aligned). Instead we need to use the aligned hwirq numbers.
+Alignment fault error logs:
+   Unable to handle kernel paging request at virtual address ffff8000101cd3c1
+   Mem abort info:
+     ESR = 0x96000021
+     EC = 0x25: DABT (current EL), IL = 32 bits
+     SET = 0, FnV = 0
+     EA = 0, S1PTW = 0
+     FSC = 0x21: alignment fault
+   Data abort info:
+     ISV = 0, ISS = 0x00000021
+     CM = 0, WnR = 0
+   swapper pgtable: 4k pages, 48-bit VAs, pgdp=0000000081773000
+   [ffff8000101cd3c1] pgd=1000000082410003, p4d=1000000082410003, pud=1000000082411003, pmd=1000000082412003, pte=0068004000001f13
+   Internal error: Oops: 96000021 [#1] PREEMPT SMP
+   Modules linked in:
+   CPU: 0 PID: 6 Comm: kworker/0:0H Not tainted 5.15.0-rc1-next-20210914-dirty #2
+   Hardware name: LS1012A RDB Board (DT)
+   Workqueue: kpcitest pci_epf_test_cmd_handler
+   pstate: 80000005 (Nzcv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+   pc : __memcpy+0x168/0x230
+   lr : pci_epf_test_cmd_handler+0x6f0/0xa68
+   sp : ffff80001003bce0
+   x29: ffff80001003bce0 x28: ffff800010135000 x27: ffff8000101e5000
+   x26: ffff8000101cd000 x25: ffff6cda941cf6c8 x24: 0000000000000000
+   x23: ffff6cda863f2000 x22: ffff6cda9096c800 x21: ffff800010135000
+   x20: ffff6cda941cf680 x19: ffffaf39fd999000 x18: 0000000000000000
+   x17: 0000000000000000 x16: 0000000000000000 x15: ffffaf39fd2b6000
+   x14: 0000000000000000 x13: 15f5c8fa2f984d57 x12: 604d132b60275454
+   x11: 065cee5e5fb428b6 x10: aae662eb17d0cf3e x9 : 1d97c9a1b4ddef37
+   x8 : 7541b65edebf928c x7 : e71937c4fc595de0 x6 : b8a0e09562430d1c
+   x5 : ffff8000101e5401 x4 : ffff8000101cd401 x3 : ffff8000101e5380
+   x2 : fffffffffffffff1 x1 : ffff8000101cd3c0 x0 : ffff8000101e5000
+   Call trace:
+    __memcpy+0x168/0x230
+    process_one_work+0x1ec/0x370
+    worker_thread+0x44/0x478
+    kthread+0x154/0x160
+    ret_from_fork+0x10/0x20
+   Code: a984346c a9c4342c f1010042 54fffee8 (a97c3c8e)
+   ---[ end trace 568c28c7b6336335 ]---
 
-This change fixes receiving MSI interrupts on Armada 3720 boards and
-allows using NVMe disks which use Multi-MSI feature with 3 interrupts.
-
-Without this NVMe disks freeze booting as linux nvme-core.c is waiting
-60s for an interrupt.
-
-Link: https://lore.kernel.org/r/20220110015018.26359-4-kabel@kernel.org
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Marek Behún <kabel@kernel.org>
+Link: https://lore.kernel.org/r/20211217094708.28678-1-Zhiqiang.Hou@nxp.com
+Signed-off-by: Hou Zhiqiang <Zhiqiang.Hou@nxp.com>
 Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Kishon Vijay Abraham I <kishon@ti.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pci-aardvark.c | 16 ++++++----------
- 1 file changed, 6 insertions(+), 10 deletions(-)
+ drivers/pci/endpoint/functions/pci-epf-test.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/pci/controller/pci-aardvark.c b/drivers/pci/controller/pci-aardvark.c
-index 82e2c618d532..15348be1a8aa 100644
---- a/drivers/pci/controller/pci-aardvark.c
-+++ b/drivers/pci/controller/pci-aardvark.c
-@@ -1186,7 +1186,7 @@ static void advk_msi_irq_compose_msi_msg(struct irq_data *data,
- 
- 	msg->address_lo = lower_32_bits(msi_msg);
- 	msg->address_hi = upper_32_bits(msi_msg);
--	msg->data = data->irq;
-+	msg->data = data->hwirq;
- }
- 
- static int advk_msi_set_affinity(struct irq_data *irq_data,
-@@ -1203,15 +1203,11 @@ static int advk_msi_irq_domain_alloc(struct irq_domain *domain,
- 	int hwirq, i;
- 
- 	mutex_lock(&pcie->msi_used_lock);
--	hwirq = bitmap_find_next_zero_area(pcie->msi_used, MSI_IRQ_NUM,
--					   0, nr_irqs, 0);
--	if (hwirq >= MSI_IRQ_NUM) {
--		mutex_unlock(&pcie->msi_used_lock);
--		return -ENOSPC;
--	}
--
--	bitmap_set(pcie->msi_used, hwirq, nr_irqs);
-+	hwirq = bitmap_find_free_region(pcie->msi_used, MSI_IRQ_NUM,
-+					order_base_2(nr_irqs));
- 	mutex_unlock(&pcie->msi_used_lock);
-+	if (hwirq < 0)
-+		return -ENOSPC;
- 
- 	for (i = 0; i < nr_irqs; i++)
- 		irq_domain_set_info(domain, virq + i, hwirq + i,
-@@ -1229,7 +1225,7 @@ static void advk_msi_irq_domain_free(struct irq_domain *domain,
- 	struct advk_pcie *pcie = domain->host_data;
- 
- 	mutex_lock(&pcie->msi_used_lock);
--	bitmap_clear(pcie->msi_used, d->hwirq, nr_irqs);
-+	bitmap_release_region(pcie->msi_used, d->hwirq, order_base_2(nr_irqs));
- 	mutex_unlock(&pcie->msi_used_lock);
- }
- 
+diff --git a/drivers/pci/endpoint/functions/pci-epf-test.c b/drivers/pci/endpoint/functions/pci-epf-test.c
+index 90d84d3bc868..c7e45633beaf 100644
+--- a/drivers/pci/endpoint/functions/pci-epf-test.c
++++ b/drivers/pci/endpoint/functions/pci-epf-test.c
+@@ -285,7 +285,17 @@ static int pci_epf_test_copy(struct pci_epf_test *epf_test)
+ 		if (ret)
+ 			dev_err(dev, "Data transfer failed\n");
+ 	} else {
+-		memcpy(dst_addr, src_addr, reg->size);
++		void *buf;
++
++		buf = kzalloc(reg->size, GFP_KERNEL);
++		if (!buf) {
++			ret = -ENOMEM;
++			goto err_map_addr;
++		}
++
++		memcpy_fromio(buf, src_addr, reg->size);
++		memcpy_toio(dst_addr, buf, reg->size);
++		kfree(buf);
+ 	}
+ 	ktime_get_ts64(&end);
+ 	pci_epf_test_print_rate("COPY", reg->size, &start, &end, use_dma);
 -- 
 2.35.1
 
