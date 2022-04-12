@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E2F074FD3DF
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:00:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A1424FD3AA
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 11:59:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351685AbiDLHVd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:21:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57806 "EHLO
+        id S243253AbiDLHhk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:37:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60930 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351860AbiDLHNB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:13:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FF56E04;
-        Mon, 11 Apr 2022 23:53:48 -0700 (PDT)
+        with ESMTP id S1353694AbiDLHZw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:25:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B36C427B3B;
+        Tue, 12 Apr 2022 00:03:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B31E4B81B43;
-        Tue, 12 Apr 2022 06:53:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14E1DC385A1;
-        Tue, 12 Apr 2022 06:53:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4D6BF60B2B;
+        Tue, 12 Apr 2022 07:03:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57815C385A1;
+        Tue, 12 Apr 2022 07:03:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746425;
-        bh=jdSrlme+ldB8gp5g95tgqulfRXTKB43uz9/V2NDGTck=;
+        s=korg; t=1649747027;
+        bh=6iOz0h+rSag54oCMMWfVDb4JSipqbiqWgKKLZ5sy698=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NHcuyZIjDF385c0FsLIrLMqnMvKGtjduTPrH6WsGAyh/JhbFP/3CITd4O6e6iDnJ1
-         xkUjG80K7D+p58RXg145hGfyg1lhYbZf0gYqWyeBTntR+msM+wNw+GAPIbuivNuNUg
-         RRlH2fz/lH+r2ab2930tRC+7IxNWcaQ2o01X3QQQ=
+        b=fo2rGmEelyqGtkao5laJLy35HaZRbKHe7JpeKyL6b1lhNh5K5nrivhG2M3f8ZpBPn
+         nJamLr0YxNd4yeNPItam5+slZykRuwCmLqpm23Xzx1s8KpnI2T162KtfgiwqXDRGCF
+         7uaTU95JnrTLLSggAPNiOB0c/8kJId4dVVxS7FgU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Vincent Mailhol <mailhol.vincent@wanadoo.fr>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Josh Poimboeuf <jpoimboe@redhat.com>
-Subject: [PATCH 5.15 269/277] x86/bug: Prevent shadowing in __WARN_FLAGS
-Date:   Tue, 12 Apr 2022 08:31:12 +0200
-Message-Id: <20220412062949.827938666@linuxfoundation.org>
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.16 218/285] mmc: renesas_sdhi: dont overwrite TAP settings when HS400 tuning is complete
+Date:   Tue, 12 Apr 2022 08:31:15 +0200
+Message-Id: <20220412062949.949915916@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
-References: <20220412062942.022903016@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,83 +55,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-commit 9ce02f0fc68326dd1f87a0a3a4c6ae7fdd39e6f6 upstream.
+commit 03e59b1e2f56245163b14c69e0a830c24b1a3a47 upstream.
 
-The macro __WARN_FLAGS() uses a local variable named "f". This being a
-common name, there is a risk of shadowing other variables.
+When HS400 tuning is complete and HS400 is going to be activated, we
+have to keep the current number of TAPs and should not overwrite them
+with a hardcoded value. This was probably a copy&paste mistake when
+upporting HS400 support from the BSP.
 
-For example, GCC would yield:
-
-| In file included from ./include/linux/bug.h:5,
-|                  from ./include/linux/cpumask.h:14,
-|                  from ./arch/x86/include/asm/cpumask.h:5,
-|                  from ./arch/x86/include/asm/msr.h:11,
-|                  from ./arch/x86/include/asm/processor.h:22,
-|                  from ./arch/x86/include/asm/timex.h:5,
-|                  from ./include/linux/timex.h:65,
-|                  from ./include/linux/time32.h:13,
-|                  from ./include/linux/time.h:60,
-|                  from ./include/linux/stat.h:19,
-|                  from ./include/linux/module.h:13,
-|                  from virt/lib/irqbypass.mod.c:1:
-| ./include/linux/rcupdate.h: In function 'rcu_head_after_call_rcu':
-| ./arch/x86/include/asm/bug.h:80:21: warning: declaration of 'f' shadows a parameter [-Wshadow]
-|    80 |         __auto_type f = BUGFLAG_WARNING|(flags);                \
-|       |                     ^
-| ./include/asm-generic/bug.h:106:17: note: in expansion of macro '__WARN_FLAGS'
-|   106 |                 __WARN_FLAGS(BUGFLAG_ONCE |                     \
-|       |                 ^~~~~~~~~~~~
-| ./include/linux/rcupdate.h:1007:9: note: in expansion of macro 'WARN_ON_ONCE'
-|  1007 |         WARN_ON_ONCE(func != (rcu_callback_t)~0L);
-|       |         ^~~~~~~~~~~~
-| In file included from ./include/linux/rbtree.h:24,
-|                  from ./include/linux/mm_types.h:11,
-|                  from ./include/linux/buildid.h:5,
-|                  from ./include/linux/module.h:14,
-|                  from virt/lib/irqbypass.mod.c:1:
-| ./include/linux/rcupdate.h:1001:62: note: shadowed declaration is here
-|  1001 | rcu_head_after_call_rcu(struct rcu_head *rhp, rcu_callback_t f)
-|       |                                               ~~~~~~~~~~~~~~~^
-
-For reference, sparse also warns about it, c.f. [1].
-
-This patch renames the variable from f to __flags (with two underscore
-prefixes as suggested in the Linux kernel coding style [2]) in order
-to prevent collisions.
-
-[1] https://lore.kernel.org/all/CAFGhKbyifH1a+nAMCvWM88TK6fpNPdzFtUXPmRGnnQeePV+1sw@mail.gmail.com/
-
-[2] Linux kernel coding style, section 12) Macros, Enums and RTL,
-paragraph 5) namespace collisions when defining local variables in
-macros resembling functions
-https://www.kernel.org/doc/html/latest/process/coding-style.html#macros-enums-and-rtl
-
-Fixes: bfb1a7c91fb7 ("x86/bug: Merge annotate_reachable() into_BUG_FLAGS() asm")
-Signed-off-by: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Acked-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Link: https://lkml.kernel.org/r/20220324023742.106546-1-mailhol.vincent@wanadoo.fr
+Fixes: 26eb2607fa28 ("mmc: renesas_sdhi: add eMMC HS400 mode support")
+Reported-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Reviewed-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20220404114902.12175-1-wsa+renesas@sang-engineering.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/bug.h |    4 ++--
+ drivers/mmc/host/renesas_sdhi_core.c |    4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/x86/include/asm/bug.h
-+++ b/arch/x86/include/asm/bug.h
-@@ -77,9 +77,9 @@ do {								\
-  */
- #define __WARN_FLAGS(flags)					\
- do {								\
--	__auto_type f = BUGFLAG_WARNING|(flags);		\
-+	__auto_type __flags = BUGFLAG_WARNING|(flags);		\
- 	instrumentation_begin();				\
--	_BUG_FLAGS(ASM_UD2, f, ASM_REACHABLE);			\
-+	_BUG_FLAGS(ASM_UD2, __flags, ASM_REACHABLE);		\
- 	instrumentation_end();					\
- } while (0)
+--- a/drivers/mmc/host/renesas_sdhi_core.c
++++ b/drivers/mmc/host/renesas_sdhi_core.c
+@@ -382,10 +382,10 @@ static void renesas_sdhi_hs400_complete(
+ 			SH_MOBILE_SDHI_SCC_TMPPORT2_HS400OSEL) |
+ 			sd_scc_read32(host, priv, SH_MOBILE_SDHI_SCC_TMPPORT2));
  
+-	/* Set the sampling clock selection range of HS400 mode */
+ 	sd_scc_write32(host, priv, SH_MOBILE_SDHI_SCC_DTCNTL,
+ 		       SH_MOBILE_SDHI_SCC_DTCNTL_TAPEN |
+-		       0x4 << SH_MOBILE_SDHI_SCC_DTCNTL_TAPNUM_SHIFT);
++		       sd_scc_read32(host, priv,
++				     SH_MOBILE_SDHI_SCC_DTCNTL));
+ 
+ 	/* Avoid bad TAP */
+ 	if (bad_taps & BIT(priv->tap_set)) {
 
 
