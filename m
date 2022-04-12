@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DB624FCB25
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 03:02:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A8424FCAFA
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 03:01:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347139AbiDLBDP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Apr 2022 21:03:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34894 "EHLO
+        id S1344339AbiDLBCi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Apr 2022 21:02:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34824 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345226AbiDLA6a (ORCPT
+        with ESMTP id S1345225AbiDLA6a (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 20:58:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC0092FFE0;
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C66D833E1F;
         Mon, 11 Apr 2022 17:51:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 92ADDB819B4;
-        Tue, 12 Apr 2022 00:51:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55137C385AB;
-        Tue, 12 Apr 2022 00:51:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3066460B2B;
+        Tue, 12 Apr 2022 00:51:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7B42C385A4;
+        Tue, 12 Apr 2022 00:51:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1649724676;
-        bh=Qem81bJBJ4bXuldztS3i1EFkoRvyIMTGFYIioO0Ei+k=;
+        s=k20201202; t=1649724677;
+        bh=PdqZVzizgk6/NDj9Gpg1f+LUl/smdkF9TxT+ushn/pk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rgHpWfl4zoRwrXkX9yMzOD6N1iY0WDbYz0CJN9Me3pSM/zbvSlMf5IjeaM4YTxhvI
-         INs+tRa6vrFsz7EdmEfHJ4RFfvx5PSTCpOmv/4Zuamcb1p2iSvug+IJuHKntarg6Ys
-         VbmWNGybUry+GyKSq1QDB+Ns/0WhiPMoDvYrZf36bTvu7H80HLcpfKoG3GrfW/SFQu
-         JcU26/pPlwQZpBQlZdCiPJtI7nAG9uqhp4azeyAB9h7w8nR9M1ok5Z/XPiccdtipVN
-         HuswrDBm3b2m3f4oM0lUnT4PV2tUR2rqZHZdSBRz2T8SIALHVh0Dnl5RPgII8TONQ5
-         0osdVolVIWehw==
+        b=RY+QqqEqCRVgVm1N9ABdZRzdGXPhgkly+7qjPirUrcdy+LbnfNfPPq7BvYVXP/vpR
+         mS97s/rekjwiG/P1hbshRXiraoM8rPrD8poIR+j+VGsAinaNct6MJ+JiDdGjyV8s89
+         3XftJH0YgxfCo5vwh/0KC1pgsfaEtvfqlR8K8861BeOsSGBQrBMC1SwRRIMODrtbbU
+         QkYHhdDoTwLeHXZ75tm3iYXFfW7Yw7H+QlLbDDIf4lYHNsxt8wDa1LFsMoMLAnZyiy
+         vdi5yHGijxo6Ce3e94kYdoOhSrt8ISROYOt7O9QMztF1bZ/68oaPrLgAQAgF7idHxl
+         aEy9nqcO53e8A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Leo Ruan <tingquan.ruan@cn.bosch.com>,
-        Mark Jonas <mark.jonas@de.bosch.com>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        Sasha Levin <sashal@kernel.org>, airlied@linux.ie,
-        daniel@ffwll.ch, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.4 11/21] gpu: ipu-v3: Fix dev_dbg frequency output
-Date:   Mon, 11 Apr 2022 20:50:30 -0400
-Message-Id: <20220412005042.351105-11-sashal@kernel.org>
+Cc:     Jonathan Bakker <xc-racer2@live.ca>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
+        patches@opensource.cirrus.com
+Subject: [PATCH AUTOSEL 5.4 12/21] regulator: wm8994: Add an off-on delay for WM8994 variant
+Date:   Mon, 11 Apr 2022 20:50:31 -0400
+Message-Id: <20220412005042.351105-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412005042.351105-1-sashal@kernel.org>
 References: <20220412005042.351105-1-sashal@kernel.org>
@@ -58,51 +58,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leo Ruan <tingquan.ruan@cn.bosch.com>
+From: Jonathan Bakker <xc-racer2@live.ca>
 
-[ Upstream commit 070a88fd4a03f921b73a2059e97d55faaa447dab ]
+[ Upstream commit 92d96b603738ec4f35cde7198c303ae264dd47cb ]
 
-This commit corrects the printing of the IPU clock error percentage if
-it is between -0.1% to -0.9%. For example, if the pixel clock requested
-is 27.2 MHz but only 27.0 MHz can be achieved the deviation is -0.8%.
-But the fixed point math had a flaw and calculated error of 0.2%.
+As per Table 130 of the wm8994 datasheet at [1], there is an off-on
+delay for LDO1 and LDO2.  In the wm8958 datasheet [2], I could not
+find any reference to it.  I could not find a wm1811 datasheet to
+double-check there, but as no one has complained presumably it works
+without it.
 
-Before:
-  Clocks: IPU 270000000Hz DI 24716667Hz Needed 27200000Hz
-  IPU clock can give 27000000 with divider 10, error 0.2%
-  Want 27200000Hz IPU 270000000Hz DI 24716667Hz using IPU, 27000000Hz
+This solves the issue on Samsung Aries boards with a wm8994 where
+register writes fail when the device is powered off and back-on
+quickly.
 
-After:
-  Clocks: IPU 270000000Hz DI 24716667Hz Needed 27200000Hz
-  IPU clock can give 27000000 with divider 10, error -0.8%
-  Want 27200000Hz IPU 270000000Hz DI 24716667Hz using IPU, 27000000Hz
+[1] https://statics.cirrus.com/pubs/proDatasheet/WM8994_Rev4.6.pdf
+[2] https://statics.cirrus.com/pubs/proDatasheet/WM8958_v3.5.pdf
 
-Signed-off-by: Leo Ruan <tingquan.ruan@cn.bosch.com>
-Signed-off-by: Mark Jonas <mark.jonas@de.bosch.com>
-Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
-Link: https://lore.kernel.org/r/20220207151411.5009-1-mark.jonas@de.bosch.com
+Signed-off-by: Jonathan Bakker <xc-racer2@live.ca>
+Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/CY4PR04MB056771CFB80DC447C30D5A31CB1D9@CY4PR04MB0567.namprd04.prod.outlook.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/ipu-v3/ipu-di.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/regulator/wm8994-regulator.c | 42 ++++++++++++++++++++++++++--
+ 1 file changed, 39 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/ipu-v3/ipu-di.c b/drivers/gpu/ipu-v3/ipu-di.c
-index b4a31d506fcc..74eca68891ad 100644
---- a/drivers/gpu/ipu-v3/ipu-di.c
-+++ b/drivers/gpu/ipu-v3/ipu-di.c
-@@ -451,8 +451,9 @@ static void ipu_di_config_clock(struct ipu_di *di,
+diff --git a/drivers/regulator/wm8994-regulator.c b/drivers/regulator/wm8994-regulator.c
+index cadea0344486..40befdd9dfa9 100644
+--- a/drivers/regulator/wm8994-regulator.c
++++ b/drivers/regulator/wm8994-regulator.c
+@@ -71,6 +71,35 @@ static const struct regulator_ops wm8994_ldo2_ops = {
+ };
  
- 		error = rate / (sig->mode.pixelclock / 1000);
- 
--		dev_dbg(di->ipu->dev, "  IPU clock can give %lu with divider %u, error %d.%u%%\n",
--			rate, div, (signed)(error - 1000) / 10, error % 10);
-+		dev_dbg(di->ipu->dev, "  IPU clock can give %lu with divider %u, error %c%d.%d%%\n",
-+			rate, div, error < 1000 ? '-' : '+',
-+			abs(error - 1000) / 10, abs(error - 1000) % 10);
- 
- 		/* Allow a 1% error */
- 		if (error < 1010 && error >= 990) {
+ static const struct regulator_desc wm8994_ldo_desc[] = {
++	{
++		.name = "LDO1",
++		.id = 1,
++		.type = REGULATOR_VOLTAGE,
++		.n_voltages = WM8994_LDO1_MAX_SELECTOR + 1,
++		.vsel_reg = WM8994_LDO_1,
++		.vsel_mask = WM8994_LDO1_VSEL_MASK,
++		.ops = &wm8994_ldo1_ops,
++		.min_uV = 2400000,
++		.uV_step = 100000,
++		.enable_time = 3000,
++		.off_on_delay = 36000,
++		.owner = THIS_MODULE,
++	},
++	{
++		.name = "LDO2",
++		.id = 2,
++		.type = REGULATOR_VOLTAGE,
++		.n_voltages = WM8994_LDO2_MAX_SELECTOR + 1,
++		.vsel_reg = WM8994_LDO_2,
++		.vsel_mask = WM8994_LDO2_VSEL_MASK,
++		.ops = &wm8994_ldo2_ops,
++		.enable_time = 3000,
++		.off_on_delay = 36000,
++		.owner = THIS_MODULE,
++	},
++};
++
++static const struct regulator_desc wm8958_ldo_desc[] = {
+ 	{
+ 		.name = "LDO1",
+ 		.id = 1,
+@@ -172,9 +201,16 @@ static int wm8994_ldo_probe(struct platform_device *pdev)
+ 	 * regulator core and we need not worry about it on the
+ 	 * error path.
+ 	 */
+-	ldo->regulator = devm_regulator_register(&pdev->dev,
+-						 &wm8994_ldo_desc[id],
+-						 &config);
++	if (ldo->wm8994->type == WM8994) {
++		ldo->regulator = devm_regulator_register(&pdev->dev,
++							 &wm8994_ldo_desc[id],
++							 &config);
++	} else {
++		ldo->regulator = devm_regulator_register(&pdev->dev,
++							 &wm8958_ldo_desc[id],
++							 &config);
++	}
++
+ 	if (IS_ERR(ldo->regulator)) {
+ 		ret = PTR_ERR(ldo->regulator);
+ 		dev_err(wm8994->dev, "Failed to register LDO%d: %d\n",
 -- 
 2.35.1
 
