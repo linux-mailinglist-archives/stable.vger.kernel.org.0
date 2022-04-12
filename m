@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C169C4FD6DF
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:25:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C5E644FD467
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:03:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354498AbiDLHrE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:47:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46300 "EHLO
+        id S1352317AbiDLH2b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:28:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45944 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357222AbiDLHjx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:39:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF58BF6;
-        Tue, 12 Apr 2022 00:14:02 -0700 (PDT)
+        with ESMTP id S1354381AbiDLHRk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:17:40 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B08BCC66;
+        Mon, 11 Apr 2022 23:59:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4A8F36171C;
-        Tue, 12 Apr 2022 07:14:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58414C385A5;
-        Tue, 12 Apr 2022 07:14:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4B8B9615BE;
+        Tue, 12 Apr 2022 06:59:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 568C4C385A6;
+        Tue, 12 Apr 2022 06:59:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747641;
-        bh=fEaYpuKnP4mDHD7HHYhCWcISb75U1FDjOghhvQZ4igY=;
+        s=korg; t=1649746747;
+        bh=qEnDE3ATVJNaZOQiBVkB7f+Yq9IOQRiZuXbyKI+w+F4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XQm7l7ASfn8iEAxaUHkF2abXkFrAaqv2vVeUKnKqRRmhjuW+7fxQDVj5VLU54qLoN
-         dHvUZWnCQOXCVqmSYS5efbwb63Z95RGOYV/zoGnCd1DFVqu/K4CysUevh5UsNaaa5f
-         +bxlVM5yPyf41ivAzEWDBXbUZs453rfn/7PyQv+A=
+        b=H0zM+91R65huaoPytS70NGB7hglTgO5XekP8AxyEXjIV7aGfOC4e5p0RQEQzBv7h/
+         2/HXe+Qt787eWrNYR72LCMUcLobiV7774AMbk03URt2BcepwzVqV3cjewDxX1SxIlb
+         FdGRBaTWGy5vIu3UQeJ1DxpznEoGtg0cawh37K0w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Juergen E. Fischer" <fischer@norbit.de>,
-        "James E.J. Bottomley" <jejb@linux.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Igor Zhbanov <i.zhbanov@omprussia.ru>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 113/343] scsi: aha152x: Fix aha152x_setup() __setup handler return value
-Date:   Tue, 12 Apr 2022 08:28:51 +0200
-Message-Id: <20220412062954.652829312@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Johan Almbladh <johan.almbladh@anyfinetworks.com>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 075/285] mt76: mt7915: fix injected MPDU transmission to not use HW A-MSDU
+Date:   Tue, 12 Apr 2022 08:28:52 +0200
+Message-Id: <20220412062945.831058096@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,50 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Johan Almbladh <johan.almbladh@anyfinetworks.com>
 
-[ Upstream commit cc8294ec4738d25e2bb2d71f7d82a9bf7f4a157b ]
+[ Upstream commit 28225a6ef80ebf46c46e5fbd5b1ee231a0b2b5b7 ]
 
-__setup() handlers should return 1 if the command line option is handled
-and 0 if not (or maybe never return 0; doing so just pollutes init's
-environment with strings that are not init arguments/parameters).
+Before, the hardware would be allowed to transmit injected 802.11 MPDUs
+as A-MSDU. This resulted in corrupted frames being transmitted. Now,
+injected MPDUs are transmitted as-is, without A-MSDU.
 
-Return 1 from aha152x_setup() to indicate that the boot option has been
-handled.
+The fix was verified with frame injection on MT7915 hardware, both with
+and without the injected frame being encrypted.
 
-Link: lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
-Link: https://lore.kernel.org/r/20220223000623.5920-1-rdunlap@infradead.org
-Cc: "Juergen E. Fischer" <fischer@norbit.de>
-Cc: "James E.J. Bottomley" <jejb@linux.ibm.com>
-Cc: "Martin K. Petersen" <martin.petersen@oracle.com>
-Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+If the hardware cannot do A-MSDU aggregation on MPDUs, this problem
+would also be present in the TX path where mac80211 does the 802.11
+encapsulation. However, I have not observed any such problem when
+disabling IEEE80211_HW_SUPPORTS_TX_ENCAP_OFFLOAD to force that mode.
+Therefore this fix is isolated to injected frames only.
+
+The same A-MSDU logic is also present in the mt7921 driver, so it is
+likely that this fix should be applied there too. I do not have access
+to mt7921 hardware so I have not been able to test that.
+
+Signed-off-by: Johan Almbladh <johan.almbladh@anyfinetworks.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/aha152x.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/net/wireless/mediatek/mt76/mt7915/mac.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/scsi/aha152x.c b/drivers/scsi/aha152x.c
-index d17880b57d17..2449b4215b32 100644
---- a/drivers/scsi/aha152x.c
-+++ b/drivers/scsi/aha152x.c
-@@ -3375,13 +3375,11 @@ static int __init aha152x_setup(char *str)
- 	setup[setup_count].synchronous = ints[0] >= 6 ? ints[6] : 1;
- 	setup[setup_count].delay       = ints[0] >= 7 ? ints[7] : DELAY_DEFAULT;
- 	setup[setup_count].ext_trans   = ints[0] >= 8 ? ints[8] : 0;
--	if (ints[0] > 8) {                                                /*}*/
-+	if (ints[0] > 8)
- 		printk(KERN_NOTICE "aha152x: usage: aha152x=<IOBASE>[,<IRQ>[,<SCSI ID>"
- 		       "[,<RECONNECT>[,<PARITY>[,<SYNCHRONOUS>[,<DELAY>[,<EXT_TRANS>]]]]]]]\n");
--	} else {
-+	else
- 		setup_count++;
--		return 0;
--	}
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/mac.c b/drivers/net/wireless/mediatek/mt76/mt7915/mac.c
+index a1da514ca256..d1a00cd47073 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7915/mac.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7915/mac.c
+@@ -982,6 +982,7 @@ mt7915_mac_write_txwi_80211(struct mt7915_dev *dev, __le32 *txwi,
+ 		val = MT_TXD3_SN_VALID |
+ 		      FIELD_PREP(MT_TXD3_SEQ, IEEE80211_SEQ_TO_SN(seqno));
+ 		txwi[3] |= cpu_to_le32(val);
++		txwi[7] &= ~cpu_to_le32(MT_TXD7_HW_AMSDU);
+ 	}
  
- 	return 1;
- }
+ 	val = FIELD_PREP(MT_TXD7_TYPE, fc_type) |
 -- 
 2.35.1
 
