@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EA794FD21C
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 09:09:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57E3F4FD00D
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:39:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242096AbiDLHKE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:10:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45048 "EHLO
+        id S1350494AbiDLGlf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 02:41:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50832 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352140AbiDLHEz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:04:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5040D46B37;
-        Mon, 11 Apr 2022 23:47:44 -0700 (PDT)
+        with ESMTP id S239790AbiDLGkU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:40:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02739DF15;
+        Mon, 11 Apr 2022 23:35:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2A3F76103A;
-        Tue, 12 Apr 2022 06:47:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3704BC385A6;
-        Tue, 12 Apr 2022 06:47:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8FB396189D;
+        Tue, 12 Apr 2022 06:35:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9610BC385A1;
+        Tue, 12 Apr 2022 06:35:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746063;
-        bh=GPMcE/Z5TPn8lD0AfTRMCJGO/tcYseOLuUzJh3fgWPQ=;
+        s=korg; t=1649745335;
+        bh=VFdjXGQ/6cGdKoeVNndNiJe3QyRpni2e0a71PnnPGr4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sHuWzAhJvtVUejlAeCWhcVp4oEMkeSWMA+u6qK5KNN0yH1ou9Ns4CDCKG5y6RBzah
-         v27VNCYqjskC7zfddBSHtZ/WGB0grJnp+ZrmtzovyjOMyT8cPk/Cp6Hsjjb2tnKtkm
-         Q+kYG7feYsfZiS4m29g00uD2xvIcHPHdC4arZD9o=
+        b=noLchiIOv2HyY8V1bOuoe+87Czjj18Ve9VqHbtpYECpP4OaG3/nocH0LoLYBySy4U
+         p4ll8YynU8+tcYBm1mfeb91HoCcLcJxsSxgF2UT080hdY1HUIdCE731qPTakjCw9Cl
+         Xs5Tbu98wS6kgwMOJkidLZyh1hXavTdgprQClUeE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Guilherme G. Piccoli" <gpiccoli@igalia.com>,
-        Michael Kelley <mikelley@microsoft.com>,
-        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 148/277] Drivers: hv: vmbus: Fix potential crash on module unload
+        stable@vger.kernel.org, Oliver Hartkopp <socketcan@hartkopp.net>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 060/171] can: isotp: set default value for N_As to 50 micro seconds
 Date:   Tue, 12 Apr 2022 08:29:11 +0200
-Message-Id: <20220412062946.319702271@linuxfoundation.org>
+Message-Id: <20220412062929.619440616@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
-References: <20220412062942.022903016@linuxfoundation.org>
+In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
+References: <20220412062927.870347203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,56 +54,136 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guilherme G. Piccoli <gpiccoli@igalia.com>
+From: Oliver Hartkopp <socketcan@hartkopp.net>
 
-[ Upstream commit 792f232d57ff28bbd5f9c4abe0466b23d5879dc8 ]
+[ Upstream commit 530e0d46c61314c59ecfdb8d3bcb87edbc0f85d3 ]
 
-The vmbus driver relies on the panic notifier infrastructure to perform
-some operations when a panic event is detected. Since vmbus can be built
-as module, it is required that the driver handles both registering and
-unregistering such panic notifier callback.
+The N_As value describes the time a CAN frame needs on the wire when
+transmitted by the CAN controller. Even very short CAN FD frames need
+arround 100 usecs (bitrate 1Mbit/s, data bitrate 8Mbit/s).
 
-After commit 74347a99e73a ("x86/Hyper-V: Unload vmbus channel in hv panic callback")
-though, the panic notifier registration is done unconditionally in the module
-initialization routine whereas the unregistering procedure is conditionally
-guarded and executes only if HV_FEATURE_GUEST_CRASH_MSR_AVAILABLE capability
-is set.
+Having N_As to be zero (the former default) leads to 'no CAN frame
+separation' when STmin is set to zero by the receiving node. This 'burst
+mode' should not be enabled by default as it could potentially dump a high
+number of CAN frames into the netdev queue from the soft hrtimer context.
+This does not affect the system stability but is just not nice and
+cooperative.
 
-This patch fixes that by unconditionally unregistering the panic notifier
-in the module's exit routine as well.
+With this N_As/frame_txtime value the 'burst mode' is disabled by default.
 
-Fixes: 74347a99e73a ("x86/Hyper-V: Unload vmbus channel in hv panic callback")
-Signed-off-by: Guilherme G. Piccoli <gpiccoli@igalia.com>
-Reviewed-by: Michael Kelley <mikelley@microsoft.com>
-Link: https://lore.kernel.org/r/20220315203535.682306-1-gpiccoli@igalia.com
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
+As user space applications usually do not set the frame_txtime element
+of struct can_isotp_options the new in-kernel default is very likely
+overwritten with zero when the sockopt() CAN_ISOTP_OPTS is invoked.
+To make sure that a N_As value of zero is only set intentional the
+value '0' is now interpreted as 'do not change the current value'.
+When a frame_txtime of zero is required for testing purposes this
+CAN_ISOTP_FRAME_TXTIME_ZERO u32 value has to be set in frame_txtime.
+
+Link: https://lore.kernel.org/all/20220309120416.83514-2-socketcan@hartkopp.net
+Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hv/vmbus_drv.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ include/uapi/linux/can/isotp.h | 28 ++++++++++++++++++++++------
+ net/can/isotp.c                | 12 +++++++++++-
+ 2 files changed, 33 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/hv/vmbus_drv.c b/drivers/hv/vmbus_drv.c
-index 44bd0b6ff505..a939ca1a8d54 100644
---- a/drivers/hv/vmbus_drv.c
-+++ b/drivers/hv/vmbus_drv.c
-@@ -2776,10 +2776,15 @@ static void __exit vmbus_exit(void)
- 	if (ms_hyperv.misc_features & HV_FEATURE_GUEST_CRASH_MSR_AVAILABLE) {
- 		kmsg_dump_unregister(&hv_kmsg_dumper);
- 		unregister_die_notifier(&hyperv_die_block);
--		atomic_notifier_chain_unregister(&panic_notifier_list,
--						 &hyperv_panic_block);
- 	}
+diff --git a/include/uapi/linux/can/isotp.h b/include/uapi/linux/can/isotp.h
+index c55935b64ccc..590f8aea2b6d 100644
+--- a/include/uapi/linux/can/isotp.h
++++ b/include/uapi/linux/can/isotp.h
+@@ -137,20 +137,16 @@ struct can_isotp_ll_options {
+ #define CAN_ISOTP_WAIT_TX_DONE	0x400	/* wait for tx completion */
+ #define CAN_ISOTP_SF_BROADCAST	0x800	/* 1-to-N functional addressing */
  
-+	/*
-+	 * The panic notifier is always registered, hence we should
-+	 * also unconditionally unregister it here as well.
-+	 */
-+	atomic_notifier_chain_unregister(&panic_notifier_list,
-+					 &hyperv_panic_block);
+-/* default values */
++/* protocol machine default values */
+ 
+ #define CAN_ISOTP_DEFAULT_FLAGS		0
+ #define CAN_ISOTP_DEFAULT_EXT_ADDRESS	0x00
+ #define CAN_ISOTP_DEFAULT_PAD_CONTENT	0xCC /* prevent bit-stuffing */
+-#define CAN_ISOTP_DEFAULT_FRAME_TXTIME	0
++#define CAN_ISOTP_DEFAULT_FRAME_TXTIME	50000 /* 50 micro seconds */
+ #define CAN_ISOTP_DEFAULT_RECV_BS	0
+ #define CAN_ISOTP_DEFAULT_RECV_STMIN	0x00
+ #define CAN_ISOTP_DEFAULT_RECV_WFTMAX	0
+ 
+-#define CAN_ISOTP_DEFAULT_LL_MTU	CAN_MTU
+-#define CAN_ISOTP_DEFAULT_LL_TX_DL	CAN_MAX_DLEN
+-#define CAN_ISOTP_DEFAULT_LL_TX_FLAGS	0
+-
+ /*
+  * Remark on CAN_ISOTP_DEFAULT_RECV_* values:
+  *
+@@ -162,4 +158,24 @@ struct can_isotp_ll_options {
+  * consistency and copied directly into the flow control (FC) frame.
+  */
+ 
++/* link layer default values => make use of Classical CAN frames */
 +
- 	free_page((unsigned long)hv_panic_page);
- 	unregister_sysctl_table(hv_ctl_table_hdr);
- 	hv_ctl_table_hdr = NULL;
++#define CAN_ISOTP_DEFAULT_LL_MTU	CAN_MTU
++#define CAN_ISOTP_DEFAULT_LL_TX_DL	CAN_MAX_DLEN
++#define CAN_ISOTP_DEFAULT_LL_TX_FLAGS	0
++
++/*
++ * The CAN_ISOTP_DEFAULT_FRAME_TXTIME has become a non-zero value as
++ * it only makes sense for isotp implementation tests to run without
++ * a N_As value. As user space applications usually do not set the
++ * frame_txtime element of struct can_isotp_options the new in-kernel
++ * default is very likely overwritten with zero when the sockopt()
++ * CAN_ISOTP_OPTS is invoked.
++ * To make sure that a N_As value of zero is only set intentional the
++ * value '0' is now interpreted as 'do not change the current value'.
++ * When a frame_txtime of zero is required for testing purposes this
++ * CAN_ISOTP_FRAME_TXTIME_ZERO u32 value has to be set in frame_txtime.
++ */
++#define CAN_ISOTP_FRAME_TXTIME_ZERO	0xFFFFFFFF
++
+ #endif /* !_UAPI_CAN_ISOTP_H */
+diff --git a/net/can/isotp.c b/net/can/isotp.c
+index 63e6e8923200..9a4a9c5a9f24 100644
+--- a/net/can/isotp.c
++++ b/net/can/isotp.c
+@@ -141,6 +141,7 @@ struct isotp_sock {
+ 	struct can_isotp_options opt;
+ 	struct can_isotp_fc_options rxfc, txfc;
+ 	struct can_isotp_ll_options ll;
++	u32 frame_txtime;
+ 	u32 force_tx_stmin;
+ 	u32 force_rx_stmin;
+ 	struct tpcon rx, tx;
+@@ -360,7 +361,7 @@ static int isotp_rcv_fc(struct isotp_sock *so, struct canfd_frame *cf, int ae)
+ 
+ 		so->tx_gap = ktime_set(0, 0);
+ 		/* add transmission time for CAN frame N_As */
+-		so->tx_gap = ktime_add_ns(so->tx_gap, so->opt.frame_txtime);
++		so->tx_gap = ktime_add_ns(so->tx_gap, so->frame_txtime);
+ 		/* add waiting time for consecutive frames N_Cs */
+ 		if (so->opt.flags & CAN_ISOTP_FORCE_TXSTMIN)
+ 			so->tx_gap = ktime_add_ns(so->tx_gap,
+@@ -1245,6 +1246,14 @@ static int isotp_setsockopt_locked(struct socket *sock, int level, int optname,
+ 		/* no separate rx_ext_address is given => use ext_address */
+ 		if (!(so->opt.flags & CAN_ISOTP_RX_EXT_ADDR))
+ 			so->opt.rx_ext_address = so->opt.ext_address;
++
++		/* check for frame_txtime changes (0 => no changes) */
++		if (so->opt.frame_txtime) {
++			if (so->opt.frame_txtime == CAN_ISOTP_FRAME_TXTIME_ZERO)
++				so->frame_txtime = 0;
++			else
++				so->frame_txtime = so->opt.frame_txtime;
++		}
+ 		break;
+ 
+ 	case CAN_ISOTP_RECV_FC:
+@@ -1446,6 +1455,7 @@ static int isotp_init(struct sock *sk)
+ 	so->opt.rxpad_content = CAN_ISOTP_DEFAULT_PAD_CONTENT;
+ 	so->opt.txpad_content = CAN_ISOTP_DEFAULT_PAD_CONTENT;
+ 	so->opt.frame_txtime = CAN_ISOTP_DEFAULT_FRAME_TXTIME;
++	so->frame_txtime = CAN_ISOTP_DEFAULT_FRAME_TXTIME;
+ 	so->rxfc.bs = CAN_ISOTP_DEFAULT_RECV_BS;
+ 	so->rxfc.stmin = CAN_ISOTP_DEFAULT_RECV_STMIN;
+ 	so->rxfc.wftmax = CAN_ISOTP_DEFAULT_RECV_WFTMAX;
 -- 
 2.35.1
 
