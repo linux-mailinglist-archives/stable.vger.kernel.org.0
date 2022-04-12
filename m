@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C22C4FD75F
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:28:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C4024FD5CA
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:14:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353168AbiDLHdm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:33:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42900 "EHLO
+        id S1356098AbiDLHeU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:34:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42860 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355301AbiDLH1Z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:27:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E70664925A;
-        Tue, 12 Apr 2022 00:07:28 -0700 (PDT)
+        with ESMTP id S1355371AbiDLH1d (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:27:33 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D928496A4;
+        Tue, 12 Apr 2022 00:07:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0BCE76146F;
-        Tue, 12 Apr 2022 07:07:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19D90C385A6;
-        Tue, 12 Apr 2022 07:07:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A0795B81B5E;
+        Tue, 12 Apr 2022 07:07:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8118C385A8;
+        Tue, 12 Apr 2022 07:07:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747247;
-        bh=/uKbheoXCqGmE+l6GjoWxiFv0SNKT75bIlepXGZFYGQ=;
+        s=korg; t=1649747250;
+        bh=0zKCbHAONkY/vd2WJvNTYAVZp3uGT2GXWGlXpIL/qew=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IxAOVIySsfxypIR4Nc8w/NKrM8sDgmc5zrIqpF3LLYiqce6xCvY0YTZUt7kp9lRtk
-         rtW1ZemjtiB4qKlHy6qTNKpMT8IW8qu0aTvrFT2pDqFs0HJ/XsOvoldEY8PXvz8Nj9
-         5jZYFOGSC5uR9bbrTomesLGvZotQe2BrsMkCbVcg=
+        b=ZsoVXMsTVx/M5pzZXwVmUbufhSKfJukQGftOVE7p4GawT6FwED2OEOv/y7z9HmJGe
+         bTjCe8BQ0nIuWyBBMs1wfcYNn8X6j/VcOgMTBQ6BwZPmR6v9QOUz2rnFsgP+jBnkPU
+         O34ZZZANDJH3ksZRBYOPLyeZObuE9VU9A/1txSh0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anisse Astier <anisse@astier.eu>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Jani Nikula <jani.nikula@intel.com>,
+        stable@vger.kernel.org,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 011/343] drm: Add orientation quirk for GPD Win Max
-Date:   Tue, 12 Apr 2022 08:27:09 +0200
-Message-Id: <20220412062951.430895063@linuxfoundation.org>
+Subject: [PATCH 5.17 012/343] Bluetooth: hci_sync: Fix compilation warning
+Date:   Tue, 12 Apr 2022 08:27:10 +0200
+Message-Id: <20220412062951.459437651@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
 References: <20220412062951.095765152@linuxfoundation.org>
@@ -55,38 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anisse Astier <anisse@astier.eu>
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 
-[ Upstream commit 0b464ca3e0dd3cec65f28bc6d396d82f19080f69 ]
+[ Upstream commit 89a0b8b98f49ae34886e67624208c2898e1e4d7f ]
 
-Panel is 800x1280, but mounted on a laptop form factor, sideways.
+This fixes the following warning:
 
-Signed-off-by: Anisse Astier <anisse@astier.eu>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20211229222200.53128-3-anisse@astier.eu
+net/bluetooth/hci_sync.c:5143:5: warning: no previous prototype for
+‘hci_le_ext_create_conn_sync’ [-Wmissing-prototypes]
+
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_panel_orientation_quirks.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ net/bluetooth/hci_sync.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_panel_orientation_quirks.c b/drivers/gpu/drm/drm_panel_orientation_quirks.c
-index b910978d3e48..4e853acfd1e8 100644
---- a/drivers/gpu/drm/drm_panel_orientation_quirks.c
-+++ b/drivers/gpu/drm/drm_panel_orientation_quirks.c
-@@ -180,6 +180,12 @@ static const struct dmi_system_id orientation_data[] = {
- 		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "MicroPC"),
- 		},
- 		.driver_data = (void *)&lcd720x1280_rightside_up,
-+	}, {	/* GPD Win Max */
-+		.matches = {
-+		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "GPD"),
-+		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "G1619-01"),
-+		},
-+		.driver_data = (void *)&lcd800x1280_rightside_up,
- 	}, {	/*
- 		 * GPD Pocket, note that the the DMI data is less generic then
- 		 * it seems, devices with a board-vendor of "AMI Corporation"
+diff --git a/net/bluetooth/hci_sync.c b/net/bluetooth/hci_sync.c
+index 405d48c3e63e..48c837530a11 100644
+--- a/net/bluetooth/hci_sync.c
++++ b/net/bluetooth/hci_sync.c
+@@ -5156,8 +5156,8 @@ static void set_ext_conn_params(struct hci_conn *conn,
+ 	p->max_ce_len = cpu_to_le16(0x0000);
+ }
+ 
+-int hci_le_ext_create_conn_sync(struct hci_dev *hdev, struct hci_conn *conn,
+-				u8 own_addr_type)
++static int hci_le_ext_create_conn_sync(struct hci_dev *hdev,
++				       struct hci_conn *conn, u8 own_addr_type)
+ {
+ 	struct hci_cp_le_ext_create_conn *cp;
+ 	struct hci_cp_le_ext_conn_param *p;
 -- 
 2.35.1
 
