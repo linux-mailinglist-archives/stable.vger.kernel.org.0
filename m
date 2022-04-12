@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BD69E4FDB23
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:55:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91B754FDADA
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:54:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235473AbiDLIAw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 04:00:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45814 "EHLO
+        id S1344028AbiDLHi1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:38:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42842 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357683AbiDLHki (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:40:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EC5837A2B;
-        Tue, 12 Apr 2022 00:16:41 -0700 (PDT)
+        with ESMTP id S1353577AbiDLHZr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:25:47 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 828EC43AD2;
+        Tue, 12 Apr 2022 00:01:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B792F6171C;
-        Tue, 12 Apr 2022 07:16:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C45C1C385A5;
-        Tue, 12 Apr 2022 07:16:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2C3AAB81B35;
+        Tue, 12 Apr 2022 07:01:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 952B8C385A1;
+        Tue, 12 Apr 2022 07:01:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747800;
-        bh=5FCLa8SESKUYBJ4ATRRqzp9RiCWwoTSFcXkravvhKjg=;
+        s=korg; t=1649746905;
+        bh=LBlGdq6vz+9VNDx+bAUfEJCL60i/v7PjWpnupljX3dY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zw4olPOLZrsVCcfDOlxexaW/zcADpB3nuXEOOfceycSPi1Ds7tT/XGTDEFSVuigZo
-         MjdVoRAYzanLCV5HHDTaV0WeTRS4afSro7MS75c2pd6Ic6vjBqmHwJlzDHNSb101R3
-         L8OCXe1XCYgWi9DEhWy3GDU15EhYMq1DeiiymQ2s=
+        b=wjyZnbEg7WMB26+6kYGmgIpIbAIcnSuH4jIw8IWYC9mKM3XpMCjISOhgnPgaVYhJy
+         /Nzgvyi/Fw6DzwFCz4pGZG0ZWH+b4cU1JrAwbXZ8zLcf66DP5BBz/RT/RKiTCKkfAr
+         YGbi3witwnYd9DfnyLk/tMYK6Jj+FHk7HObEfYa0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matt Johnston <matt@codeconstruct.com.au>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Axel Lin <axel.lin@ingics.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 211/343] mctp: Fix check for dev_hard_header() result
-Date:   Tue, 12 Apr 2022 08:30:29 +0200
-Message-Id: <20220412062957.437294374@linuxfoundation.org>
+Subject: [PATCH 5.16 173/285] regulator: atc260x: Fix missing active_discharge_on setting
+Date:   Tue, 12 Apr 2022 08:30:30 +0200
+Message-Id: <20220412062948.660893885@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,34 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matt Johnston <matt@codeconstruct.com.au>
+From: Axel Lin <axel.lin@ingics.com>
 
-[ Upstream commit 60be976ac45137657b7b505d7e0d44d0e51accb7 ]
+[ Upstream commit 2316f0fc0ad2aa87a568ceaf3d76be983ee555c3 ]
 
-dev_hard_header() returns the length of the header, so
-we need to test for negative errors rather than non-zero.
+Without active_discharge_on setting, the SWITCH1 discharge enable control
+is always disabled. Fix it.
 
-Fixes: 889b7da23abf ("mctp: Add initial routing framework")
-Signed-off-by: Matt Johnston <matt@codeconstruct.com.au>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 3b15ccac161a ("regulator: Add regulator driver for ATC260x PMICs")
+Signed-off-by: Axel Lin <axel.lin@ingics.com>
+Link: https://lore.kernel.org/r/20220403132235.123727-1-axel.lin@ingics.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mctp/route.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/regulator/atc260x-regulator.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/mctp/route.c b/net/mctp/route.c
-index 05fbd318eb98..d47438f5233d 100644
---- a/net/mctp/route.c
-+++ b/net/mctp/route.c
-@@ -507,7 +507,7 @@ static int mctp_route_output(struct mctp_route *route, struct sk_buff *skb)
+diff --git a/drivers/regulator/atc260x-regulator.c b/drivers/regulator/atc260x-regulator.c
+index 05147d2c3842..485e58b264c0 100644
+--- a/drivers/regulator/atc260x-regulator.c
++++ b/drivers/regulator/atc260x-regulator.c
+@@ -292,6 +292,7 @@ enum atc2603c_reg_ids {
+ 	.bypass_mask = BIT(5), \
+ 	.active_discharge_reg = ATC2603C_PMU_SWITCH_CTL, \
+ 	.active_discharge_mask = BIT(1), \
++	.active_discharge_on = BIT(1), \
+ 	.owner = THIS_MODULE, \
+ }
  
- 	rc = dev_hard_header(skb, skb->dev, ntohs(skb->protocol),
- 			     daddr, skb->dev->dev_addr, skb->len);
--	if (rc) {
-+	if (rc < 0) {
- 		kfree_skb(skb);
- 		return -EHOSTUNREACH;
- 	}
 -- 
 2.35.1
 
