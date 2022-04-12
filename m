@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 40F074FD5F4
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:18:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 044AF4FD89D
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:37:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345457AbiDLH6g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:58:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48480 "EHLO
+        id S1351598AbiDLHUu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:20:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57428 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358769AbiDLHmL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:42:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02FB812ADB;
-        Tue, 12 Apr 2022 00:19:13 -0700 (PDT)
+        with ESMTP id S1351783AbiDLHM4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:12:56 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69B8EEA1;
+        Mon, 11 Apr 2022 23:52:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8B7BBB81B62;
-        Tue, 12 Apr 2022 07:19:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0592CC385A1;
-        Tue, 12 Apr 2022 07:19:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 27E13B81B47;
+        Tue, 12 Apr 2022 06:52:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7337CC385A6;
+        Tue, 12 Apr 2022 06:52:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747951;
-        bh=xQWayGB+6f6hpATCzHMRRQ/8HztQFzBaPi4TXBjj1bo=;
+        s=korg; t=1649746358;
+        bh=+KzC2is8F+hd1MCMYwzg3ElnC2qKzJPJ/WTEs6GkaaM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mV40kF5JrxJ39W8b0qg3mp0BK0/wQLUo02iXEuPFxlioswdT/jIZzo2Njk9dxx8vR
-         MnI6XQW5JjSVhltKwzVX6TifCd1LrBftUB/y2FxsxqxNvxWkQhGkM1taCNvLjC2CEO
-         yssuOQ8TX/8KXcdE0WzdXycAxiEdVCGlAo6nrOMQ=
+        b=qdrFP9eADYqK1iK96sU+H2IaHxyGA9qTOOnUICEYkjIYjd0wi1Vnx5eqVvTDyfvI/
+         16MIMSnJ2RC3NUGbpwYZ/rlh2pWPiA5Wn6UDXFld6Zw6uI7yeUoX01L88NU2CkQwzL
+         ImChAUVxmJwNug09D/StPKauR7oQie1nZ3v/MqyQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
-        Shwetha Nagaraju <shwetha.nagaraju@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 238/343] ice: clear cmd_type_offset_bsz for TX rings
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        =?UTF-8?q?Mateusz=20Jo=C5=84czyk?= <mat.jonczyk@o2.pl>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 5.15 253/277] rtc: mc146818-lib: fix signedness bug in mc146818_get_time()
 Date:   Tue, 12 Apr 2022 08:30:56 +0200
-Message-Id: <20220412062958.203119397@linuxfoundation.org>
+Message-Id: <20220412062949.363717273@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
+References: <20220412062942.022903016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,44 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit e19778e6c911691856447c3bf9617f00b3e1347f ]
+commit 7372971c1be5b7d4fdd8ad237798bdc1d1d54162 upstream.
 
-Currently when XDP rings are created, each descriptor gets its DD bit
-set, which turns out to be the wrong approach as it can lead to a
-situation where more descriptors get cleaned than it was supposed to,
-e.g. when AF_XDP busy poll is run with a large batch size. In this
-situation, the driver would request for more buffers than it is able to
-handle.
+The mc146818_get_time() function returns zero on success or negative
+a error code on failure.  It needs to be type int.
 
-Fix this by not setting the DD bits in ice_xdp_alloc_setup_rings(). They
-should be initialized to zero instead.
-
-Fixes: 9610bd988df9 ("ice: optimize XDP_TX workloads")
-Signed-off-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
-Tested-by: Shwetha Nagaraju <shwetha.nagaraju@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: d35786b3a28d ("rtc: mc146818-lib: change return values of mc146818_get_time()")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Mateusz Jończyk <mat.jonczyk@o2.pl>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: https://lore.kernel.org/r/20220111071922.GE11243@kili
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/ice/ice_main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/rtc/rtc-mc146818-lib.c |    2 +-
+ include/linux/mc146818rtc.h    |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_main.c b/drivers/net/ethernet/intel/ice/ice_main.c
-index 5229bce1a4ab..db2e02e673a7 100644
---- a/drivers/net/ethernet/intel/ice/ice_main.c
-+++ b/drivers/net/ethernet/intel/ice/ice_main.c
-@@ -2546,7 +2546,7 @@ static int ice_xdp_alloc_setup_rings(struct ice_vsi *vsi)
- 		spin_lock_init(&xdp_ring->tx_lock);
- 		for (j = 0; j < xdp_ring->count; j++) {
- 			tx_desc = ICE_TX_DESC(xdp_ring, j);
--			tx_desc->cmd_type_offset_bsz = cpu_to_le64(ICE_TX_DESC_DTYPE_DESC_DONE);
-+			tx_desc->cmd_type_offset_bsz = 0;
- 		}
- 	}
+--- a/drivers/rtc/rtc-mc146818-lib.c
++++ b/drivers/rtc/rtc-mc146818-lib.c
+@@ -33,7 +33,7 @@ bool mc146818_does_rtc_work(void)
+ }
+ EXPORT_SYMBOL_GPL(mc146818_does_rtc_work);
  
--- 
-2.35.1
-
+-unsigned int mc146818_get_time(struct rtc_time *time)
++int mc146818_get_time(struct rtc_time *time)
+ {
+ 	unsigned char ctrl;
+ 	unsigned long flags;
+--- a/include/linux/mc146818rtc.h
++++ b/include/linux/mc146818rtc.h
+@@ -124,7 +124,7 @@ struct cmos_rtc_board_info {
+ #endif /* ARCH_RTC_LOCATION */
+ 
+ bool mc146818_does_rtc_work(void);
+-unsigned int mc146818_get_time(struct rtc_time *time);
++int mc146818_get_time(struct rtc_time *time);
+ int mc146818_set_time(struct rtc_time *time);
+ 
+ #endif /* _MC146818RTC_H */
 
 
