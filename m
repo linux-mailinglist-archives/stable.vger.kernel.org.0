@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 94D784FD268
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 09:09:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA8924FCFFB
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:38:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348145AbiDLHLO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:11:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57146 "EHLO
+        id S1350331AbiDLGlD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 02:41:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51888 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346202AbiDLHJK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:09:10 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5D4E49C9C;
-        Mon, 11 Apr 2022 23:49:23 -0700 (PDT)
+        with ESMTP id S1350105AbiDLGkB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:40:01 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF62035A94;
+        Mon, 11 Apr 2022 23:35:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 7AF98CE1BE8;
-        Tue, 12 Apr 2022 06:49:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B07CC385B7;
-        Tue, 12 Apr 2022 06:49:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4AC3B618C8;
+        Tue, 12 Apr 2022 06:35:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5AA4FC385A6;
+        Tue, 12 Apr 2022 06:35:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746160;
-        bh=mR2O/g+rjFObtLuc8qXfsCZ+aho+SVwU90zDb6t0Px0=;
+        s=korg; t=1649745315;
+        bh=DdZeKzc+QPndM/Ysxc59jY95AVbW0kwoR8JLAb3cldk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s/h724lc7VhHEEUfvGBEclx75jTHmiOzCif+M7KUEntakEcr7+MUhKP8SH9dPZa+v
-         KtoYREBYd6I3e+mW8k41fs9qVfa3+kI+whIOSRFQ6uXN2amF5+kT1ix2W3+SmLueZf
-         jqQgheDWByRp2moRaF+pbshehp6Nn7mVcGLgN8ZM=
+        b=OnixiFay6I8zY8CD/yYx08NFQf1OZyjn2I8gzjos+XZ1cVd56NF9KBVE3U4WCLyF1
+         TxewEu7TajKtVKecsadQ5PStjE91QREzHPwmSdyrhwNiYVYX6BmcguS9ZRSYrIZlkJ
+         v4Zkim/22GWbu4gfiPGBshkZrqceIqdef1cvtcC4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John David Anglin <dave.anglin@bell.net>,
-        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 142/277] parisc: Fix patch code locking and flushing
+        stable@vger.kernel.org,
+        Colin Winegarden <colin.winegarden@broadcom.com>,
+        Pavan Chebbi <pavan.chebbi@broadcom.com>,
+        Michael Chan <michael.chan@broadcom.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 054/171] bnxt_en: Eliminate unintended link toggle during FW reset
 Date:   Tue, 12 Apr 2022 08:29:05 +0200
-Message-Id: <20220412062946.143865129@linuxfoundation.org>
+Message-Id: <20220412062929.446554751@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
-References: <20220412062942.022903016@linuxfoundation.org>
+In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
+References: <20220412062927.870347203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,95 +57,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John David Anglin <dave.anglin@bell.net>
+From: Michael Chan <michael.chan@broadcom.com>
 
-[ Upstream commit a9fe7fa7d874a536e0540469f314772c054a0323 ]
+[ Upstream commit 7c492a2530c1f05441da541307c2534230dfd59b ]
 
-This change fixes the following:
+If the flow control settings have been changed, a subsequent FW reset
+may cause the ethernet link to toggle unnecessarily.  This link toggle
+will increase the down time by a few seconds.
 
-1) The flags variable is not initialized. Always use raw_spin_lock_irqsave
-and raw_spin_unlock_irqrestore to serialize patching.
+The problem is caused by bnxt_update_phy_setting() detecting a false
+mismatch in the flow control settings between the stored software
+settings and the current FW settings after the FW reset.  This mismatch
+is caused by the AUTONEG bit added to link_info->req_flow_ctrl in an
+inconsistent way in bnxt_set_pauseparam() in autoneg mode.  The AUTONEG
+bit should not be added to link_info->req_flow_ctrl.
 
-2) flush_kernel_vmap_range is primarily intended for DMA flushes. Since
-__patch_text_multiple is often called with interrupts disabled, it is
-better to directly call flush_kernel_dcache_range_asm and
-flush_kernel_icache_range_asm. This avoids an extra call.
-
-3) The final call to flush_icache_range is unnecessary.
-
-Signed-off-by: John David Anglin <dave.anglin@bell.net>
-Signed-off-by: Helge Deller <deller@gmx.de>
+Reviewed-by: Colin Winegarden <colin.winegarden@broadcom.com>
+Reviewed-by: Pavan Chebbi <pavan.chebbi@broadcom.com>
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/parisc/kernel/patch.c | 25 +++++++++++--------------
- 1 file changed, 11 insertions(+), 14 deletions(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/arch/parisc/kernel/patch.c b/arch/parisc/kernel/patch.c
-index 80a0ab372802..e59574f65e64 100644
---- a/arch/parisc/kernel/patch.c
-+++ b/arch/parisc/kernel/patch.c
-@@ -40,10 +40,7 @@ static void __kprobes *patch_map(void *addr, int fixmap, unsigned long *flags,
- 
- 	*need_unmap = 1;
- 	set_fixmap(fixmap, page_to_phys(page));
--	if (flags)
--		raw_spin_lock_irqsave(&patch_lock, *flags);
--	else
--		__acquire(&patch_lock);
-+	raw_spin_lock_irqsave(&patch_lock, *flags);
- 
- 	return (void *) (__fix_to_virt(fixmap) + (uintaddr & ~PAGE_MASK));
- }
-@@ -52,10 +49,7 @@ static void __kprobes patch_unmap(int fixmap, unsigned long *flags)
- {
- 	clear_fixmap(fixmap);
- 
--	if (flags)
--		raw_spin_unlock_irqrestore(&patch_lock, *flags);
--	else
--		__release(&patch_lock);
-+	raw_spin_unlock_irqrestore(&patch_lock, *flags);
- }
- 
- void __kprobes __patch_text_multiple(void *addr, u32 *insn, unsigned int len)
-@@ -67,8 +61,9 @@ void __kprobes __patch_text_multiple(void *addr, u32 *insn, unsigned int len)
- 	int mapped;
- 
- 	/* Make sure we don't have any aliases in cache */
--	flush_kernel_vmap_range(addr, len);
--	flush_icache_range(start, end);
-+	flush_kernel_dcache_range_asm(start, end);
-+	flush_kernel_icache_range_asm(start, end);
-+	flush_tlb_kernel_range(start, end);
- 
- 	p = fixmap = patch_map(addr, FIX_TEXT_POKE0, &flags, &mapped);
- 
-@@ -81,8 +76,10 @@ void __kprobes __patch_text_multiple(void *addr, u32 *insn, unsigned int len)
- 			 * We're crossing a page boundary, so
- 			 * need to remap
- 			 */
--			flush_kernel_vmap_range((void *)fixmap,
--						(p-fixmap) * sizeof(*p));
-+			flush_kernel_dcache_range_asm((unsigned long)fixmap,
-+						      (unsigned long)p);
-+			flush_tlb_kernel_range((unsigned long)fixmap,
-+					       (unsigned long)p);
- 			if (mapped)
- 				patch_unmap(FIX_TEXT_POKE0, &flags);
- 			p = fixmap = patch_map(addr, FIX_TEXT_POKE0, &flags,
-@@ -90,10 +87,10 @@ void __kprobes __patch_text_multiple(void *addr, u32 *insn, unsigned int len)
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
+index 98087b278d1f..f8f775619520 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
+@@ -2041,9 +2041,7 @@ static int bnxt_set_pauseparam(struct net_device *dev,
  		}
- 	}
  
--	flush_kernel_vmap_range((void *)fixmap, (p-fixmap) * sizeof(*p));
-+	flush_kernel_dcache_range_asm((unsigned long)fixmap, (unsigned long)p);
-+	flush_tlb_kernel_range((unsigned long)fixmap, (unsigned long)p);
- 	if (mapped)
- 		patch_unmap(FIX_TEXT_POKE0, &flags);
--	flush_icache_range(start, end);
- }
- 
- void __kprobes __patch_text(void *addr, u32 insn)
+ 		link_info->autoneg |= BNXT_AUTONEG_FLOW_CTRL;
+-		if (bp->hwrm_spec_code >= 0x10201)
+-			link_info->req_flow_ctrl =
+-				PORT_PHY_CFG_REQ_AUTO_PAUSE_AUTONEG_PAUSE;
++		link_info->req_flow_ctrl = 0;
+ 	} else {
+ 		/* when transition from auto pause to force pause,
+ 		 * force a link change
 -- 
 2.35.1
 
