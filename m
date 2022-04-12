@@ -2,49 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 312B24FD47A
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:04:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B425D4FD5F7
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:18:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377608AbiDLHus (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:50:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58272 "EHLO
+        id S1377582AbiDLHui (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:50:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58276 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359405AbiDLHnB (ORCPT
+        with ESMTP id S1359411AbiDLHnB (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:43:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E333A2CE0A;
-        Tue, 12 Apr 2022 00:22:38 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9F862CE15;
+        Tue, 12 Apr 2022 00:22:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 80013616B2;
-        Tue, 12 Apr 2022 07:22:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B754C385A5;
-        Tue, 12 Apr 2022 07:22:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6C794B81B46;
+        Tue, 12 Apr 2022 07:22:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDAA2C385A6;
+        Tue, 12 Apr 2022 07:22:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649748157;
-        bh=PYNQeBE5FIvK7ttjTSwyhrldUg+LR6Jt9gF2vnHvEZc=;
+        s=korg; t=1649748169;
+        bh=QaNOR5RKZom6VvVT+7/5NSchd1phah1uvn1QBNxVMAE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2S8NPbnFTJx2Mjw+EPfbBfSfn4vCkcRGjyyYXjsIsiyx+HzlVAS5JStJ3JP/jZ9/E
-         RSOBhln0oxrqWMbCdoescdD40BT8S0TsQiNSgzPtPsCawAQFz4IefvA1ItYiSaLhTh
-         W4m+qoO8wYxNDkiWdtciTyu+7jZLIErgtl6Lb9w0=
+        b=xDiaTUuAmgtVtX2dIVqhxY4Njjm8cqgOw3kuumtbutgbdoyqsgqT1EdPNaBEx0nOV
+         DtQG8mIMnMON9CBNXPC1BGeXHVFo8zM/aLP3C0Knwmh3TPE8YDl5Vpn8xcH6m8oO/A
+         4T2Wg1R1N7ZE5mfZpnCDKqBnaA8QIOzBvX98yiAg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Fangrui Song <maskray@google.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@kernel.org>,
-        John Keeping <john@metanate.com>, Leo Yan <leo.yan@linaro.org>,
-        Michael Petlan <mpetlan@redhat.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sedat Dilek <sedat.dilek@gmail.com>
-Subject: [PATCH 5.17 323/343] tools build: Use $(shell ) instead of `` to get embedded libperls ccopts
-Date:   Tue, 12 Apr 2022 08:32:21 +0200
-Message-Id: <20220412063000.643931062@linuxfoundation.org>
+        stable@vger.kernel.org, Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 5.17 324/343] dmaengine: Revert "dmaengine: shdma: Fix runtime PM imbalance on error"
+Date:   Tue, 12 Apr 2022 08:32:22 +0200
+Message-Id: <20220412063000.673620530@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
 References: <20220412062951.095765152@linuxfoundation.org>
@@ -62,48 +52,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnaldo Carvalho de Melo <acme@redhat.com>
+From: Vinod Koul <vkoul@kernel.org>
 
-commit 541f695cbcb6932c22638b06e0cbe1d56177e2e9 upstream.
+commit d143f939a95696d38ff800ada14402fa50ebbd6c upstream.
 
-Just like its done for ldopts and for both in tools/perf/Makefile.config.
+This reverts commit 455896c53d5b ("dmaengine: shdma: Fix runtime PM
+imbalance on error") as the patch wrongly reduced the count on error and
+did not bail out. So drop the count by reverting the patch .
 
-Using `` to initialize PERL_EMBED_CCOPTS somehow precludes using:
-
-  $(filter-out SOMETHING_TO_FILTER,$(PERL_EMBED_CCOPTS))
-
-And we need to do it to allow for building with versions of clang where
-some gcc options selected by distros are not available.
-
-Tested-by: Sedat Dilek <sedat.dilek@gmail.com> # Debian/Selfmade LLVM-14 (x86-64)
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Fangrui Song <maskray@google.com>
-Cc: Florian Fainelli <f.fainelli@gmail.com>
-Cc: Ian Rogers <irogers@google.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: John Keeping <john@metanate.com>
-Cc: Leo Yan <leo.yan@linaro.org>
-Cc: Michael Petlan <mpetlan@redhat.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Nathan Chancellor <nathan@kernel.org>
-Cc: Nick Desaulniers <ndesaulniers@google.com>
-Link: http://lore.kernel.org/lkml/YktYX2OnLtyobRYD@kernel.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/build/feature/Makefile |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/dma/sh/shdma-base.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/tools/build/feature/Makefile
-+++ b/tools/build/feature/Makefile
-@@ -217,7 +217,7 @@ strip-libs = $(filter-out -l%,$(1))
- PERL_EMBED_LDOPTS = $(shell perl -MExtUtils::Embed -e ldopts 2>/dev/null)
- PERL_EMBED_LDFLAGS = $(call strip-libs,$(PERL_EMBED_LDOPTS))
- PERL_EMBED_LIBADD = $(call grep-libs,$(PERL_EMBED_LDOPTS))
--PERL_EMBED_CCOPTS = `perl -MExtUtils::Embed -e ccopts 2>/dev/null`
-+PERL_EMBED_CCOPTS = $(shell perl -MExtUtils::Embed -e ccopts 2>/dev/null)
- FLAGS_PERL_EMBED=$(PERL_EMBED_CCOPTS) $(PERL_EMBED_LDOPTS)
+--- a/drivers/dma/sh/shdma-base.c
++++ b/drivers/dma/sh/shdma-base.c
+@@ -115,10 +115,8 @@ static dma_cookie_t shdma_tx_submit(stru
+ 		ret = pm_runtime_get(schan->dev);
  
- ifeq ($(CC_NO_CLANG), 0)
+ 		spin_unlock_irq(&schan->chan_lock);
+-		if (ret < 0) {
++		if (ret < 0)
+ 			dev_err(schan->dev, "%s(): GET = %d\n", __func__, ret);
+-			pm_runtime_put(schan->dev);
+-		}
+ 
+ 		pm_runtime_barrier(schan->dev);
+ 
 
 
