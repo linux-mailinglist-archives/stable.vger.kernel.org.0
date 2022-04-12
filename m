@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F0A34FD601
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:18:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CA754FDB49
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:56:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352571AbiDLHqD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:46:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44852 "EHLO
+        id S1348779AbiDLHWY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:22:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352185AbiDLHhN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:37:13 -0400
+        with ESMTP id S1352259AbiDLHNl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:13:41 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6760517C5;
-        Tue, 12 Apr 2022 00:09:38 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 857A8186D5;
+        Mon, 11 Apr 2022 23:54:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0F82E61701;
-        Tue, 12 Apr 2022 07:09:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CC69C385A1;
-        Tue, 12 Apr 2022 07:09:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D990561472;
+        Tue, 12 Apr 2022 06:54:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E60FCC385A1;
+        Tue, 12 Apr 2022 06:54:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747377;
-        bh=0e/d5D+R6S4UcwLPGQgbNjXmPk3xN2N8EX8QHHUO7/k=;
+        s=korg; t=1649746472;
+        bh=CWMqiwxtlvgKbd+NivmB/OV5GOd11UOQAsCVPwOiIpw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dO4MxluPah4l814KyKPL5YFZKsZpG3dU374S5ApNJ8vDYiB6ede+4ZG788Vsx6KFD
-         XmG0eTIecErjeAn/BCLRsfpZcCc17CoxR+shGfGCdNzlngblJyUcMn/qnFax6a7gLR
-         s2RqF1jtvE6/KPkfBg/B2k6lFaKNjMYQeeew9uSc=
+        b=T1H9L9DL07n1z4bTGNayY5+OFxym4+FvkIZeAm/1k2+3rFhkIwxMHX35mN0RZqJ7c
+         A3SDtYE7UhHXQpx+x3a3yiQSXr9lk+g1HMvx/j5ZCptOvlij4swexfeXy9jjFi6ulm
+         Y/goW5Otu+sVeK1OMpJAP7PB97GeB3RbEHt3p6x0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Abdul haleem <abdhalee@linux.vnet.ibm.com>,
-        Sourabh Jain <sourabhjain@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Wayne Chang <waynec@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 056/343] powerpc: Set crashkernel offset to mid of RMA region
-Date:   Tue, 12 Apr 2022 08:27:54 +0200
-Message-Id: <20220412062952.721929501@linuxfoundation.org>
+Subject: [PATCH 5.16 018/285] usb: gadget: tegra-xudc: Fix control endpoints definitions
+Date:   Tue, 12 Apr 2022 08:27:55 +0200
+Message-Id: <20220412062944.202932620@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,88 +53,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sourabh Jain <sourabhjain@linux.ibm.com>
+From: Wayne Chang <waynec@nvidia.com>
 
-[ Upstream commit 7c5ed82b800d8615cdda00729e7b62e5899f0b13 ]
+[ Upstream commit 7bd42fb95eb4f98495ccadf467ad15124208ec49 ]
 
-On large config LPARs (having 192 and more cores), Linux fails to boot
-due to insufficient memory in the first memblock. It is due to the
-memory reservation for the crash kernel which starts at 128MB offset of
-the first memblock. This memory reservation for the crash kernel doesn't
-leave enough space in the first memblock to accommodate other essential
-system resources.
+According to the Tegra Technical Reference Manual, the seq_num
+field of control endpoint is not [31:24] but [31:27]. Bit 24
+is reserved and bit 26 is splitxstate.
 
-The crash kernel start address was set to 128MB offset by default to
-ensure that the crash kernel get some memory below the RMA region which
-is used to be of size 256MB. But given that the RMA region size can be
-512MB or more, setting the crash kernel offset to mid of RMA size will
-leave enough space for the kernel to allocate memory for other system
-resources.
+The change fixes the wrong control endpoint's definitions.
 
-Since the above crash kernel offset change is only applicable to the LPAR
-platform, the LPAR feature detection is pushed before the crash kernel
-reservation. The rest of LPAR specific initialization will still
-be done during pseries_probe_fw_features as usual.
-
-This patch is dependent on changes to paca allocation for boot CPU. It
-expect boot CPU to discover 1T segment support which is introduced by
-the patch posted here:
-https://lists.ozlabs.org/pipermail/linuxppc-dev/2022-January/239175.html
-
-Reported-by: Abdul haleem <abdhalee@linux.vnet.ibm.com>
-Signed-off-by: Sourabh Jain <sourabhjain@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220204085601.107257-1-sourabhjain@linux.ibm.com
+Signed-off-by: Wayne Chang <waynec@nvidia.com>
+Link: https://lore.kernel.org/r/20220107091349.149798-1-waynec@nvidia.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/rtas.c |  6 ++++++
- arch/powerpc/kexec/core.c  | 15 +++++++++++----
- 2 files changed, 17 insertions(+), 4 deletions(-)
+ drivers/usb/gadget/udc/tegra-xudc.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/kernel/rtas.c b/arch/powerpc/kernel/rtas.c
-index 733e6ef36758..1f42aabbbab3 100644
---- a/arch/powerpc/kernel/rtas.c
-+++ b/arch/powerpc/kernel/rtas.c
-@@ -1313,6 +1313,12 @@ int __init early_init_dt_scan_rtas(unsigned long node,
- 	entryp = of_get_flat_dt_prop(node, "linux,rtas-entry", NULL);
- 	sizep  = of_get_flat_dt_prop(node, "rtas-size", NULL);
+diff --git a/drivers/usb/gadget/udc/tegra-xudc.c b/drivers/usb/gadget/udc/tegra-xudc.c
+index 716d9ab2d2ff..be76f891b9c5 100644
+--- a/drivers/usb/gadget/udc/tegra-xudc.c
++++ b/drivers/usb/gadget/udc/tegra-xudc.c
+@@ -272,8 +272,10 @@ BUILD_EP_CONTEXT_RW(deq_hi, deq_hi, 0, 0xffffffff)
+ BUILD_EP_CONTEXT_RW(avg_trb_len, tx_info, 0, 0xffff)
+ BUILD_EP_CONTEXT_RW(max_esit_payload, tx_info, 16, 0xffff)
+ BUILD_EP_CONTEXT_RW(edtla, rsvd[0], 0, 0xffffff)
+-BUILD_EP_CONTEXT_RW(seq_num, rsvd[0], 24, 0xff)
++BUILD_EP_CONTEXT_RW(rsvd, rsvd[0], 24, 0x1)
+ BUILD_EP_CONTEXT_RW(partial_td, rsvd[0], 25, 0x1)
++BUILD_EP_CONTEXT_RW(splitxstate, rsvd[0], 26, 0x1)
++BUILD_EP_CONTEXT_RW(seq_num, rsvd[0], 27, 0x1f)
+ BUILD_EP_CONTEXT_RW(cerrcnt, rsvd[1], 18, 0x3)
+ BUILD_EP_CONTEXT_RW(data_offset, rsvd[2], 0, 0x1ffff)
+ BUILD_EP_CONTEXT_RW(numtrbs, rsvd[2], 22, 0x1f)
+@@ -1554,6 +1556,9 @@ static int __tegra_xudc_ep_set_halt(struct tegra_xudc_ep *ep, bool halt)
+ 		ep_reload(xudc, ep->index);
  
-+#ifdef CONFIG_PPC64
-+	/* need this feature to decide the crashkernel offset */
-+	if (of_get_flat_dt_prop(node, "ibm,hypertas-functions", NULL))
-+		powerpc_firmware_features |= FW_FEATURE_LPAR;
-+#endif
-+
- 	if (basep && entryp && sizep) {
- 		rtas.base = *basep;
- 		rtas.entry = *entryp;
-diff --git a/arch/powerpc/kexec/core.c b/arch/powerpc/kexec/core.c
-index 8b68d9f91a03..abf5897ae88c 100644
---- a/arch/powerpc/kexec/core.c
-+++ b/arch/powerpc/kexec/core.c
-@@ -134,11 +134,18 @@ void __init reserve_crashkernel(void)
- 	if (!crashk_res.start) {
- #ifdef CONFIG_PPC64
- 		/*
--		 * On 64bit we split the RMO in half but cap it at half of
--		 * a small SLB (128MB) since the crash kernel needs to place
--		 * itself and some stacks to be in the first segment.
-+		 * On the LPAR platform place the crash kernel to mid of
-+		 * RMA size (512MB or more) to ensure the crash kernel
-+		 * gets enough space to place itself and some stack to be
-+		 * in the first segment. At the same time normal kernel
-+		 * also get enough space to allocate memory for essential
-+		 * system resource in the first segment. Keep the crash
-+		 * kernel starts at 128MB offset on other platforms.
- 		 */
--		crashk_res.start = min(0x8000000ULL, (ppc64_rma_size / 2));
-+		if (firmware_has_feature(FW_FEATURE_LPAR))
-+			crashk_res.start = ppc64_rma_size / 2;
-+		else
-+			crashk_res.start = min(0x8000000ULL, (ppc64_rma_size / 2));
- #else
- 		crashk_res.start = KDUMP_KERNELBASE;
- #endif
+ 		ep_ctx_write_state(ep->context, EP_STATE_RUNNING);
++		ep_ctx_write_rsvd(ep->context, 0);
++		ep_ctx_write_partial_td(ep->context, 0);
++		ep_ctx_write_splitxstate(ep->context, 0);
+ 		ep_ctx_write_seq_num(ep->context, 0);
+ 
+ 		ep_reload(xudc, ep->index);
+@@ -2809,7 +2814,10 @@ static void tegra_xudc_reset(struct tegra_xudc *xudc)
+ 	xudc->setup_seq_num = 0;
+ 	xudc->queued_setup_packet = false;
+ 
+-	ep_ctx_write_seq_num(ep0->context, xudc->setup_seq_num);
++	ep_ctx_write_rsvd(ep0->context, 0);
++	ep_ctx_write_partial_td(ep0->context, 0);
++	ep_ctx_write_splitxstate(ep0->context, 0);
++	ep_ctx_write_seq_num(ep0->context, 0);
+ 
+ 	deq_ptr = trb_virt_to_phys(ep0, &ep0->transfer_ring[ep0->deq_ptr]);
+ 
 -- 
 2.35.1
 
