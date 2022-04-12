@@ -2,46 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B2754FCB36
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 03:02:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 367914FCB08
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 03:01:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344156AbiDLBDc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Apr 2022 21:03:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34938 "EHLO
+        id S1344866AbiDLBCt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Apr 2022 21:02:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34710 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347293AbiDLA7F (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 20:59:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70E4331DFA;
-        Mon, 11 Apr 2022 17:52:10 -0700 (PDT)
+        with ESMTP id S1347483AbiDLA7H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 20:59:07 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C613369D8;
+        Mon, 11 Apr 2022 17:52:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D43BB60B30;
-        Tue, 12 Apr 2022 00:52:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 391D6C385A9;
-        Tue, 12 Apr 2022 00:52:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 24389B819C5;
+        Tue, 12 Apr 2022 00:52:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB858C385A3;
+        Tue, 12 Apr 2022 00:52:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1649724726;
-        bh=h9/5KSj6OJA2aQ/9/6+/e4MfRq0HbHkAqRzBeWOfW0Q=;
+        s=k20201202; t=1649724731;
+        bh=N4oe4JkYZBbeeXFs6huyORVN6GlF6ckNaIQ+O7KQhT4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TRkCKf3H73zblppcaby7FNUMbFfA2tJ/qGzAfDxiBug32VOjqG8vQGdfTJHxIAp4N
-         IaVqSGCa32/8X3ukvX5DdV5cPnZ+Cdtx7fI9iPWCDDs0yBEGFJMwAehlLPzJpwwqo0
-         uCgwtQZW5nL7/FDdERoEoZbOdXuSlEgUhePrzDn/RlzNviim9HS2yzLruzyKGDWD6y
-         95se9cDkiVK7YlCVicj+Yaz5JoEOXB1IUqxO+nFuvxGhGFVzPbAgfzlfgNiQIY+Kl7
-         71x1Cbgyn9ePD+yoxdfU57pQW8No/W28HP143+8iOS5snnw6TYbz6QMYxqOLP4/StM
-         v6ZLKPLiFHjkg==
+        b=OA7VeqKKY+X9A6aWbzEloSJJwqbUhrQBE0dbmTAJGomE79yq0rs6T4pWEDw++P3mV
+         Gaj0QLXOSY0rGjmgsPgz5gMcAOb6aQ8N92p9NSF5gBKWFFEb7HLgwFTdsNfY4HDnS5
+         8dYDOwOl94gxErXe8cVQzymeMBLyVXriJ7wP2U12+OnPt8VfzafFyK/vKr7u0rxh5j
+         vWJw9rEtJsbnEWI8jc5vqbqP54xQnZLmmlyC8AoalR3MxGIQprLkPbf2yepR6NGsny
+         CFlMhCkL3047Lt3HY3eKvl6K8H7yMM1RT7ZanoHxMdhcf5svyUFNur4X4DXUgM4/UL
+         WdGF6Odb2LhNA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Joey Gouly <joey.gouly@arm.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        tabba@google.com, ardb@kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 09/12] arm64: alternatives: mark patch_alternative() as `noinstr`
-Date:   Mon, 11 Apr 2022 20:51:42 -0400
-Message-Id: <20220412005148.351391-9-sashal@kernel.org>
+Cc:     Roman Li <Roman.Li@amd.com>, Wayne Lin <Wayne.Lin@amd.com>,
+        Alex Hung <alex.hung@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, harry.wentland@amd.com,
+        sunpeng.li@amd.com, Rodrigo.Siqueira@amd.com,
+        christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@linux.ie,
+        daniel@ffwll.ch, nicholas.kazlauskas@amd.com,
+        qingqing.zhuo@amd.com, contact@emersion.fr, shenshih@amd.com,
+        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.19 10/12] drm/amd/display: Fix allocate_mst_payload assert on resume
+Date:   Mon, 11 Apr 2022 20:51:43 -0400
+Message-Id: <20220412005148.351391-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412005148.351391-1-sashal@kernel.org>
 References: <20220412005148.351391-1-sashal@kernel.org>
@@ -59,84 +63,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joey Gouly <joey.gouly@arm.com>
+From: Roman Li <Roman.Li@amd.com>
 
-[ Upstream commit a2c0b0fbe01419f8f5d1c0b9c581631f34ffce8b ]
+[ Upstream commit f4346fb3edf7720db3f7f5e1cab1f667cd024280 ]
 
-The alternatives code must be `noinstr` such that it does not patch itself,
-as the cache invalidation is only performed after all the alternatives have
-been applied.
+[Why]
+On resume we do link detection for all non-MST connectors.
+MST is handled separately. However the condition for telling
+if connector is on mst branch is not enough for mst hub case.
+Link detection for mst branch link leads to mst topology reset.
+That causes assert in dc_link_allocate_mst_payload()
 
-Mark patch_alternative() as `noinstr`. Mark branch_insn_requires_update()
-and get_alt_insn() with `__always_inline` since they are both only called
-through patch_alternative().
+[How]
+Use link type as indicator for mst link.
 
-Booting a kernel in QEMU TCG with KCSAN=y and ARM64_USE_LSE_ATOMICS=y caused
-a boot hang:
-[    0.241121] CPU: All CPU(s) started at EL2
-
-The alternatives code was patching the atomics in __tsan_read4() from LL/SC
-atomics to LSE atomics.
-
-The following fragment is using LL/SC atomics in the .text section:
-  | <__tsan_unaligned_read4+304>:     ldxr    x6, [x2]
-  | <__tsan_unaligned_read4+308>:     add     x6, x6, x5
-  | <__tsan_unaligned_read4+312>:     stxr    w7, x6, [x2]
-  | <__tsan_unaligned_read4+316>:     cbnz    w7, <__tsan_unaligned_read4+304>
-
-This LL/SC atomic sequence was to be replaced with LSE atomics. However since
-the alternatives code was instrumentable, __tsan_read4() was being called after
-only the first instruction was replaced, which led to the following code in memory:
-  | <__tsan_unaligned_read4+304>:     ldadd   x5, x6, [x2]
-  | <__tsan_unaligned_read4+308>:     add     x6, x6, x5
-  | <__tsan_unaligned_read4+312>:     stxr    w7, x6, [x2]
-  | <__tsan_unaligned_read4+316>:     cbnz    w7, <__tsan_unaligned_read4+304>
-
-This caused an infinite loop as the `stxr` instruction never completed successfully,
-so `w7` was always 0.
-
-Signed-off-by: Joey Gouly <joey.gouly@arm.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Link: https://lore.kernel.org/r/20220405104733.11476-1-joey.gouly@arm.com
-Signed-off-by: Will Deacon <will@kernel.org>
+Reviewed-by: Wayne Lin <Wayne.Lin@amd.com>
+Acked-by: Alex Hung <alex.hung@amd.com>
+Signed-off-by: Roman Li <Roman.Li@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/alternative.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/kernel/alternative.c b/arch/arm64/kernel/alternative.c
-index 0d345622bbba..3747c8d87bdb 100644
---- a/arch/arm64/kernel/alternative.c
-+++ b/arch/arm64/kernel/alternative.c
-@@ -42,7 +42,7 @@ struct alt_region {
- /*
-  * Check if the target PC is within an alternative block.
-  */
--static bool branch_insn_requires_update(struct alt_instr *alt, unsigned long pc)
-+static __always_inline bool branch_insn_requires_update(struct alt_instr *alt, unsigned long pc)
- {
- 	unsigned long replptr = (unsigned long)ALT_REPL_PTR(alt);
- 	return !(pc >= replptr && pc <= (replptr + alt->alt_len));
-@@ -50,7 +50,7 @@ static bool branch_insn_requires_update(struct alt_instr *alt, unsigned long pc)
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index ed02bb6b2cd0..1d1183c47beb 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -777,7 +777,8 @@ static int dm_resume(void *handle)
+ 		 * this is the case when traversing through already created
+ 		 * MST connectors, should be skipped
+ 		 */
+-		if (aconnector->mst_port)
++		if (aconnector->dc_link &&
++		    aconnector->dc_link->type == dc_connection_mst_branch)
+ 			continue;
  
- #define align_down(x, a)	((unsigned long)(x) & ~(((unsigned long)(a)) - 1))
- 
--static u32 get_alt_insn(struct alt_instr *alt, __le32 *insnptr, __le32 *altinsnptr)
-+static __always_inline u32 get_alt_insn(struct alt_instr *alt, __le32 *insnptr, __le32 *altinsnptr)
- {
- 	u32 insn;
- 
-@@ -95,7 +95,7 @@ static u32 get_alt_insn(struct alt_instr *alt, __le32 *insnptr, __le32 *altinsnp
- 	return insn;
- }
- 
--static void patch_alternative(struct alt_instr *alt,
-+static noinstr void patch_alternative(struct alt_instr *alt,
- 			      __le32 *origptr, __le32 *updptr, int nr_inst)
- {
- 	__le32 *replptr;
+ 		mutex_lock(&aconnector->hpd_lock);
 -- 
 2.35.1
 
