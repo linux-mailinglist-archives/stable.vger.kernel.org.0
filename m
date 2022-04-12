@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F19864FD55E
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:12:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 20E984FD751
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:28:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351721AbiDLHWk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:22:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59490 "EHLO
+        id S1356554AbiDLIKo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 04:10:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50678 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352682AbiDLHOP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:14:15 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B11082F038;
-        Mon, 11 Apr 2022 23:54:59 -0700 (PDT)
+        with ESMTP id S1357093AbiDLHjq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:39:46 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9FB79FC8;
+        Tue, 12 Apr 2022 00:11:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E5C29B81B50;
-        Tue, 12 Apr 2022 06:54:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 640F8C385A6;
-        Tue, 12 Apr 2022 06:54:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 54F35616E7;
+        Tue, 12 Apr 2022 07:11:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66F1CC385A1;
+        Tue, 12 Apr 2022 07:11:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746496;
-        bh=RgR/bhlckyUFWZryIL/9PaFrl2riAKvcRqAMLZbrrAo=;
+        s=korg; t=1649747501;
+        bh=Msr4Gq3pyulIUEyqR8XNczKHQK4bAvQ9hTJeI+N2L84=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mtSi/LyMDlDig9uquGV/2lXTpkwfYGEp+87sZ4dfpyGO7a+FihISeRgKodKL6v9qK
-         ScT3nND5nqVlu6Loqs4u0VkWvY+C9hZ9vylpNDcKYEtmFMsZ+DgwH3AwsFBgtO3qvy
-         0o9RUu840piTdJqY18wOM5F7qr5M3Xpa2Tt2p/CU=
+        b=csbulciRzku8ISBLutWHHcyr1LLb7Pnc5Iaa/SLLyNTaX/1CRT3jK123MTvlVBFe3
+         QEtpwC/NMBjtVI8P9NqkwFL6kUcU7EY5SflAP9LWOvYeSdeCd+qqQ2q1ie4KlptOGr
+         19NO/IefEEsyUe9pMXcJt1py6I/XJ8c8f2q4HSlc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Venkateswara Naralasetty <quic_vnaralas@quicinc.com>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 026/285] ath11k: fix kernel panic during unload/load ath11k modules
+        stable@vger.kernel.org, Ricardo Koller <ricarkol@google.com>,
+        Reiji Watanabe <reijiw@google.com>,
+        Andrew Jones <drjones@redhat.com>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 065/343] kvm: selftests: aarch64: use a tighter assert in vgic_poke_irq()
 Date:   Tue, 12 Apr 2022 08:28:03 +0200
-Message-Id: <20220412062944.433540459@linuxfoundation.org>
+Message-Id: <20220412062952.980826571@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
-References: <20220412062943.670770901@linuxfoundation.org>
+In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
+References: <20220412062951.095765152@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,63 +55,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Venkateswara Naralasetty <quic_vnaralas@quicinc.com>
+From: Ricardo Koller <ricarkol@google.com>
 
-[ Upstream commit 22b59cb965f79ee1accf83172441c9ca0ecb632a ]
+[ Upstream commit b53de63a89244c196d8a2ea76b6754e3fdb4b626 ]
 
-Call netif_napi_del() from ath11k_ahb_free_ext_irq() to fix
-the following kernel panic when unload/load ath11k modules
-for few iterations.
+vgic_poke_irq() checks that the attr argument passed to the vgic device
+ioctl is sane. Make this check tighter by moving it to after the last
+attr update.
 
-[  971.201365] Unable to handle kernel paging request at virtual address 6d97a208
-[  971.204227] pgd = 594c2919
-[  971.211478] [6d97a208] *pgd=00000000
-[  971.214120] Internal error: Oops: 5 [#1] PREEMPT SMP ARM
-[  971.412024] CPU: 2 PID: 4435 Comm: insmod Not tainted 5.4.89 #0
-[  971.434256] Hardware name: Generic DT based system
-[  971.440165] PC is at napi_by_id+0x10/0x40
-[  971.445019] LR is at netif_napi_add+0x160/0x1dc
-
-[  971.743127] (napi_by_id) from [<807d89a0>] (netif_napi_add+0x160/0x1dc)
-[  971.751295] (netif_napi_add) from [<7f1209ac>] (ath11k_ahb_config_irq+0xf8/0x414 [ath11k_ahb])
-[  971.759164] (ath11k_ahb_config_irq [ath11k_ahb]) from [<7f12135c>] (ath11k_ahb_probe+0x40c/0x51c [ath11k_ahb])
-[  971.768567] (ath11k_ahb_probe [ath11k_ahb]) from [<80666864>] (platform_drv_probe+0x48/0x94)
-[  971.779670] (platform_drv_probe) from [<80664718>] (really_probe+0x1c8/0x450)
-[  971.789389] (really_probe) from [<80664cc4>] (driver_probe_device+0x15c/0x1b8)
-[  971.797547] (driver_probe_device) from [<80664f60>] (device_driver_attach+0x44/0x60)
-[  971.805795] (device_driver_attach) from [<806650a0>] (__driver_attach+0x124/0x140)
-[  971.814822] (__driver_attach) from [<80662adc>] (bus_for_each_dev+0x58/0xa4)
-[  971.823328] (bus_for_each_dev) from [<80663a2c>] (bus_add_driver+0xf0/0x1e8)
-[  971.831662] (bus_add_driver) from [<806658a4>] (driver_register+0xa8/0xf0)
-[  971.839822] (driver_register) from [<8030269c>] (do_one_initcall+0x78/0x1ac)
-[  971.847638] (do_one_initcall) from [<80392524>] (do_init_module+0x54/0x200)
-[  971.855968] (do_init_module) from [<803945b0>] (load_module+0x1e30/0x1ffc)
-[  971.864126] (load_module) from [<803948b0>] (sys_init_module+0x134/0x17c)
-[  971.871852] (sys_init_module) from [<80301000>] (ret_fast_syscall+0x0/0x50)
-
-Tested-on: IPQ8074 hw2.0 AHB WLAN.HK.2.6.0.1-00760-QCAHKSWPL_SILICONZ-1
-
-Signed-off-by: Venkateswara Naralasetty <quic_vnaralas@quicinc.com>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/1642583973-21599-1-git-send-email-quic_vnaralas@quicinc.com
+Signed-off-by: Ricardo Koller <ricarkol@google.com>
+Reported-by: Reiji Watanabe <reijiw@google.com>
+Cc: Andrew Jones <drjones@redhat.com>
+Reviewed-by: Andrew Jones <drjones@redhat.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20220127030858.3269036-6-ricarkol@google.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath11k/ahb.c | 2 ++
- 1 file changed, 2 insertions(+)
+ tools/testing/selftests/kvm/lib/aarch64/vgic.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath11k/ahb.c b/drivers/net/wireless/ath/ath11k/ahb.c
-index 3fb0aa000825..24bd0520926b 100644
---- a/drivers/net/wireless/ath/ath11k/ahb.c
-+++ b/drivers/net/wireless/ath/ath11k/ahb.c
-@@ -391,6 +391,8 @@ static void ath11k_ahb_free_ext_irq(struct ath11k_base *ab)
+diff --git a/tools/testing/selftests/kvm/lib/aarch64/vgic.c b/tools/testing/selftests/kvm/lib/aarch64/vgic.c
+index 7c876ccf9294..5d45046c1b80 100644
+--- a/tools/testing/selftests/kvm/lib/aarch64/vgic.c
++++ b/tools/testing/selftests/kvm/lib/aarch64/vgic.c
+@@ -140,9 +140,6 @@ static void vgic_poke_irq(int gic_fd, uint32_t intid,
+ 	uint64_t val;
+ 	bool intid_is_private = INTID_IS_SGI(intid) || INTID_IS_PPI(intid);
  
- 		for (j = 0; j < irq_grp->num_irq; j++)
- 			free_irq(ab->irq_num[irq_grp->irqs[j]], irq_grp);
-+
-+		netif_napi_del(&irq_grp->napi);
+-	/* Check that the addr part of the attr is within 32 bits. */
+-	assert(attr <= KVM_DEV_ARM_VGIC_OFFSET_MASK);
+-
+ 	uint32_t group = intid_is_private ? KVM_DEV_ARM_VGIC_GRP_REDIST_REGS
+ 					  : KVM_DEV_ARM_VGIC_GRP_DIST_REGS;
+ 
+@@ -152,6 +149,9 @@ static void vgic_poke_irq(int gic_fd, uint32_t intid,
+ 		attr += SZ_64K;
  	}
- }
  
++	/* Check that the addr part of the attr is within 32 bits. */
++	assert((attr & ~KVM_DEV_ARM_VGIC_OFFSET_MASK) == 0);
++
+ 	/*
+ 	 * All calls will succeed, even with invalid intid's, as long as the
+ 	 * addr part of the attr is within 32 bits (checked above). An invalid
 -- 
 2.35.1
 
