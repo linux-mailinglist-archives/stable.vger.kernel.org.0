@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 108624FDAC2
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:51:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 345694FD53D
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:11:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229508AbiDLHpG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:45:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42620 "EHLO
+        id S1354686AbiDLH5v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:57:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50432 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354261AbiDLH0Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:26:16 -0400
+        with ESMTP id S1359241AbiDLHmw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:42:52 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1CDA4506A;
-        Tue, 12 Apr 2022 00:06:06 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 566422A268;
+        Tue, 12 Apr 2022 00:21:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 45B08B81B55;
-        Tue, 12 Apr 2022 07:06:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 207AAC385A1;
-        Tue, 12 Apr 2022 07:06:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 16542B81B62;
+        Tue, 12 Apr 2022 07:21:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C961C385A5;
+        Tue, 12 Apr 2022 07:21:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747164;
-        bh=+KzC2is8F+hd1MCMYwzg3ElnC2qKzJPJ/WTEs6GkaaM=;
+        s=korg; t=1649748063;
+        bh=LveDTNz49FYcxLOtDFHSOrot2rhbCYmOg4T9rw6dpMs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CIFHYBiQuh4Lqkr1jtZwaOBgDXy2vG/+7ge8kIWA1uxNa+SDDT0p+oLUwRhsCBmkr
-         HUdGx/SgeXLtQ+TEV2BFT/ife9bzJyqilYa7iS/Sx8bRBUwVPKJ8Au/ZNM54cM3eKO
-         s2/CRHawXSDN6+PlZS3MpHvfHXG/OrUmQxwF5nM4=
+        b=GVuE2r5KsUbeHJ4RT/lu9VHo4h6zxLR0EEVvri5IsU9rSkYE4mDzGp0St86SUMa1A
+         WwH/Heqw6vBV4fLw+duv5bXcpYr6DlzGoDF37IXeiIAsusAX8cb3bs8aPEIk3jXkm8
+         vI/gscOZvfRe8WXv331GaTY561uOcHw1FKOO8w+0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        =?UTF-8?q?Mateusz=20Jo=C5=84czyk?= <mat.jonczyk@o2.pl>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 5.16 266/285] rtc: mc146818-lib: fix signedness bug in mc146818_get_time()
-Date:   Tue, 12 Apr 2022 08:32:03 +0200
-Message-Id: <20220412062951.335764095@linuxfoundation.org>
+        stable@vger.kernel.org, Benjamin Marty <info@benjaminmarty.ch>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.17 306/343] drm/amdgpu/display: change pipe policy for DCN 2.1
+Date:   Tue, 12 Apr 2022 08:32:04 +0200
+Message-Id: <20220412063000.156159554@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
-References: <20220412062943.670770901@linuxfoundation.org>
+In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
+References: <20220412062951.095765152@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +53,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Benjamin Marty <info@benjaminmarty.ch>
 
-commit 7372971c1be5b7d4fdd8ad237798bdc1d1d54162 upstream.
+commit 879791ad8bf3dc5453061cad74776a617b6e3319 upstream.
 
-The mc146818_get_time() function returns zero on success or negative
-a error code on failure.  It needs to be type int.
+Fixes crash on MST Hub disconnect.
 
-Fixes: d35786b3a28d ("rtc: mc146818-lib: change return values of mc146818_get_time()")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Mateusz Jończyk <mat.jonczyk@o2.pl>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/20220111071922.GE11243@kili
+Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1849
+Fixes: ee2698cf79cc ("drm/amd/display: Changed pipe split policy to allow for multi-display pipe split")
+Signed-off-by: Benjamin Marty <info@benjaminmarty.ch>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/rtc/rtc-mc146818-lib.c |    2 +-
- include/linux/mc146818rtc.h    |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/rtc/rtc-mc146818-lib.c
-+++ b/drivers/rtc/rtc-mc146818-lib.c
-@@ -33,7 +33,7 @@ bool mc146818_does_rtc_work(void)
- }
- EXPORT_SYMBOL_GPL(mc146818_does_rtc_work);
- 
--unsigned int mc146818_get_time(struct rtc_time *time)
-+int mc146818_get_time(struct rtc_time *time)
- {
- 	unsigned char ctrl;
- 	unsigned long flags;
---- a/include/linux/mc146818rtc.h
-+++ b/include/linux/mc146818rtc.h
-@@ -124,7 +124,7 @@ struct cmos_rtc_board_info {
- #endif /* ARCH_RTC_LOCATION */
- 
- bool mc146818_does_rtc_work(void);
--unsigned int mc146818_get_time(struct rtc_time *time);
-+int mc146818_get_time(struct rtc_time *time);
- int mc146818_set_time(struct rtc_time *time);
- 
- #endif /* _MC146818RTC_H */
+--- a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
+@@ -873,7 +873,7 @@ static const struct dc_debug_options deb
+ 		.clock_trace = true,
+ 		.disable_pplib_clock_request = true,
+ 		.min_disp_clk_khz = 100000,
+-		.pipe_split_policy = MPC_SPLIT_DYNAMIC,
++		.pipe_split_policy = MPC_SPLIT_AVOID_MULT_DISP,
+ 		.force_single_disp_pipe_split = false,
+ 		.disable_dcc = DCC_ENABLE,
+ 		.vsr_support = true,
 
 
