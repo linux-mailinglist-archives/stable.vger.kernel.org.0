@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D359D4FD076
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:45:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E7CA4FD270
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 09:09:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239445AbiDLGqU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 02:46:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43098 "EHLO
+        id S1343813AbiDLHLa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:11:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57104 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351252AbiDLGoX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:44:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D065D3A19D;
-        Mon, 11 Apr 2022 23:37:52 -0700 (PDT)
+        with ESMTP id S1351431AbiDLHLJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:11:09 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E44449F87;
+        Mon, 11 Apr 2022 23:49:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 93758B81B29;
-        Tue, 12 Apr 2022 06:37:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A38AC385A1;
-        Tue, 12 Apr 2022 06:37:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B4928B818BD;
+        Tue, 12 Apr 2022 06:49:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CC64C385A6;
+        Tue, 12 Apr 2022 06:49:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745470;
-        bh=uh7VjpBKABOG/cam8KZIhW9PyMBPmi+m/4F7sPqmm0o=;
+        s=korg; t=1649746190;
+        bh=9tdgX1V5Bem82saVSSSJ4Hf097XhJQA6DN1w7j8Kulw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AqssODPWMrzQeVj/BCdQ2CGKoD5mgLWybE1Ygr5CRYDfRrPlZTdzwtGy4gZzqIVAv
-         Ei+OnvcL9Teg8URyC3RnJHqWsZndFiQP8WSgJBCP/5Np+8hwJZkc4ET0jcbbZShJVI
-         Z1E2P2fNHfs8bMA2h42mSjc9Mq6wJRZZ2bwKWC8M=
+        b=gzIGvflABMn4YGVtmSLRaB2gIwIWhz6H8OkLGgc6B3aGpFu/qxHPxHrvKIcCtXmfp
+         S4lLZ5GUFTA4X147RlxoN1LnhTcrvPagJU4QHfN/upTHqIvRf76pzOTAhpdl+8KZVg
+         8DpHV2O7AMyoNuwbpZgj/1sgI83DuGcdWrrqWcUI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Maxim Mikityanskiy <maximmi@nvidia.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Tariq Toukan <tariqt@nvidia.com>,
+        Arthur Fabre <afabre@cloudflare.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 106/171] net: stmmac: Fix unset max_speed difference between DT and non-DT platforms
+Subject: [PATCH 5.15 194/277] bpf: Support dual-stack sockets in bpf_tcp_check_syncookie
 Date:   Tue, 12 Apr 2022 08:29:57 +0200
-Message-Id: <20220412062930.950430920@linuxfoundation.org>
+Message-Id: <20220412062947.653712116@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
-References: <20220412062927.870347203@linuxfoundation.org>
+In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
+References: <20220412062942.022903016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,53 +56,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen-Yu Tsai <wens@csie.org>
+From: Maxim Mikityanskiy <maximmi@nvidia.com>
 
-[ Upstream commit c21cabb0fd0b54b8b54235fc1ecfe1195a23bcb2 ]
+[ Upstream commit 2e8702cc0cfa1080f29fd64003c00a3e24ac38de ]
 
-In commit 9cbadf094d9d ("net: stmmac: support max-speed device tree
-property"), when DT platforms don't set "max-speed", max_speed is set to
--1; for non-DT platforms, it stays the default 0.
+bpf_tcp_gen_syncookie looks at the IP version in the IP header and
+validates the address family of the socket. It supports IPv4 packets in
+AF_INET6 dual-stack sockets.
 
-Prior to commit eeef2f6b9f6e ("net: stmmac: Start adding phylink support"),
-the check for a valid max_speed setting was to check if it was greater
-than zero. This commit got it right, but subsequent patches just checked
-for non-zero, which is incorrect for DT platforms.
+On the other hand, bpf_tcp_check_syncookie looks only at the address
+family of the socket, ignoring the real IP version in headers, and
+validates only the packet size. This implementation has some drawbacks:
 
-In commit 92c3807b9ac3 ("net: stmmac: convert to phylink_get_linkmodes()")
-the conversion switched completely to checking for non-zero value as a
-valid value, which caused 1000base-T to stop getting advertised by
-default.
+1. Packets are not validated properly, allowing a BPF program to trick
+   bpf_tcp_check_syncookie into handling an IPv6 packet on an IPv4
+   socket.
 
-Instead of trying to fix all the checks, simply leave max_speed alone if
-DT property parsing fails.
+2. Dual-stack sockets fail the checks on IPv4 packets. IPv4 clients end
+   up receiving a SYNACK with the cookie, but the following ACK gets
+   dropped.
 
-Fixes: 9cbadf094d9d ("net: stmmac: support max-speed device tree property")
-Fixes: 92c3807b9ac3 ("net: stmmac: convert to phylink_get_linkmodes()")
-Signed-off-by: Chen-Yu Tsai <wens@csie.org>
-Acked-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Reviewed-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20220331184832.16316-1-wens@kernel.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+This patch fixes these issues by changing the checks in
+bpf_tcp_check_syncookie to match the ones in bpf_tcp_gen_syncookie. IP
+version from the header is taken into account, and it is validated
+properly with address family.
+
+Fixes: 399040847084 ("bpf: add helper to check for a valid SYN cookie")
+Signed-off-by: Maxim Mikityanskiy <maximmi@nvidia.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
+Acked-by: Arthur Fabre <afabre@cloudflare.com>
+Link: https://lore.kernel.org/bpf/20220406124113.2795730-1-maximmi@nvidia.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ net/core/filter.c | 17 +++++++++++++----
+ 1 file changed, 13 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
-index 3183d8826981..b40b962055fa 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
-@@ -432,8 +432,7 @@ stmmac_probe_config_dt(struct platform_device *pdev, const char **mac)
- 	plat->phylink_node = np;
+diff --git a/net/core/filter.c b/net/core/filter.c
+index a65de7ac60aa..fbde862e3e82 100644
+--- a/net/core/filter.c
++++ b/net/core/filter.c
+@@ -6719,24 +6719,33 @@ BPF_CALL_5(bpf_tcp_check_syncookie, struct sock *, sk, void *, iph, u32, iph_len
+ 	if (!th->ack || th->rst || th->syn)
+ 		return -ENOENT;
  
- 	/* Get max speed of operation from device tree */
--	if (of_property_read_u32(np, "max-speed", &plat->max_speed))
--		plat->max_speed = -1;
-+	of_property_read_u32(np, "max-speed", &plat->max_speed);
++	if (unlikely(iph_len < sizeof(struct iphdr)))
++		return -EINVAL;
++
+ 	if (tcp_synq_no_recent_overflow(sk))
+ 		return -ENOENT;
  
- 	plat->bus_id = of_alias_get_id(np, "ethernet");
- 	if (plat->bus_id < 0)
+ 	cookie = ntohl(th->ack_seq) - 1;
+ 
+-	switch (sk->sk_family) {
+-	case AF_INET:
+-		if (unlikely(iph_len < sizeof(struct iphdr)))
++	/* Both struct iphdr and struct ipv6hdr have the version field at the
++	 * same offset so we can cast to the shorter header (struct iphdr).
++	 */
++	switch (((struct iphdr *)iph)->version) {
++	case 4:
++		if (sk->sk_family == AF_INET6 && ipv6_only_sock(sk))
+ 			return -EINVAL;
+ 
+ 		ret = __cookie_v4_check((struct iphdr *)iph, th, cookie);
+ 		break;
+ 
+ #if IS_BUILTIN(CONFIG_IPV6)
+-	case AF_INET6:
++	case 6:
+ 		if (unlikely(iph_len < sizeof(struct ipv6hdr)))
+ 			return -EINVAL;
+ 
++		if (sk->sk_family != AF_INET6)
++			return -EINVAL;
++
+ 		ret = __cookie_v6_check((struct ipv6hdr *)iph, th, cookie);
+ 		break;
+ #endif /* CONFIG_IPV6 */
 -- 
 2.35.1
 
