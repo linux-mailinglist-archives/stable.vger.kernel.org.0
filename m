@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 777804FD721
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:27:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A1004FD43A
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:02:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354231AbiDLHvP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:51:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50272 "EHLO
+        id S1355721AbiDLH3G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:29:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45822 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357082AbiDLHjq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:39:46 -0400
+        with ESMTP id S1353073AbiDLHOs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:14:48 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 445CF63D6;
-        Tue, 12 Apr 2022 00:11:25 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E73F255B3;
+        Mon, 11 Apr 2022 23:56:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0773BB81895;
-        Tue, 12 Apr 2022 07:11:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75E15C385A5;
-        Tue, 12 Apr 2022 07:11:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D1B74B81B4D;
+        Tue, 12 Apr 2022 06:56:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A846C385A1;
+        Tue, 12 Apr 2022 06:56:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747482;
-        bh=2+ftSL5NcUXy6CE0F8SeFe0sjVAuEieqam5hcatJqBg=;
+        s=korg; t=1649746576;
+        bh=F6q0NgFn3EUSCj5ij3cTfIIF72wNVw0Hn/8yaYM1iPs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bqyNPDpnBUjmrint43xwBoBom0sRWANlfPIceKK8p5OneW5tHIajDNp0YUdFHhtyW
-         9pUFLEByYwUd4pPcaJh20M6K/6i3h/bGpBMdjRyAAIA16/GBmi/V/gKMzcCeNlkOZW
-         HcJqtRTmOhqiqhoaHyrbqLesYYwaROKf0dZ6/MtA=
+        b=D2QYaLFPXLCmnx6Xj6KDajFExLIq2+Ltic0WRF9lamwVuQwmV0Cvq1DXoNjsINgr/
+         BN8C6ysr0CDVRGs2P98k47XNihc+t03SvYID25aP3BNrPb+7i5robjU59YYB12hvVY
+         UVzCPTsLg2J93vrrkdMluiVuPqcY3AuxLRGZpXNU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Baochen Qiang <quic_bqiang@quicinc.com>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
+        stable@vger.kernel.org, Maxime Bizon <mbizon@freebox.fr>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 094/343] ath11k: Fix frames flush failure caused by deadlock
+Subject: [PATCH 5.16 055/285] powerpc/set_memory: Avoid spinlock recursion in change_page_attr()
 Date:   Tue, 12 Apr 2022 08:28:32 +0200
-Message-Id: <20220412062953.817595885@linuxfoundation.org>
+Message-Id: <20220412062945.259490786@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,134 +55,137 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baochen Qiang <quic_bqiang@quicinc.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-[ Upstream commit 261b07519518bd14cb168b287b17e1d195f8d0c8 ]
+[ Upstream commit a4c182ecf33584b9b2d1aa9dad073014a504c01f ]
 
-We are seeing below warnings:
+Commit 1f9ad21c3b38 ("powerpc/mm: Implement set_memory() routines")
+included a spin_lock() to change_page_attr() in order to
+safely perform the three step operations. But then
+commit 9f7853d7609d ("powerpc/mm: Fix set_memory_*() against
+concurrent accesses") modify it to use pte_update() and do
+the operation safely against concurrent access.
 
-kernel: [25393.301506] ath11k_pci 0000:01:00.0: failed to flush mgmt transmit queue 0
-kernel: [25398.421509] ath11k_pci 0000:01:00.0: failed to flush mgmt transmit queue 0
-kernel: [25398.421831] ath11k_pci 0000:01:00.0: dropping mgmt frame for vdev 0, is_started 0
+In the meantime, Maxime reported some spinlock recursion.
 
-this means ath11k fails to flush mgmt. frames because wmi_mgmt_tx_work
-has no chance to run in 5 seconds.
+[   15.351649] BUG: spinlock recursion on CPU#0, kworker/0:2/217
+[   15.357540]  lock: init_mm+0x3c/0x420, .magic: dead4ead, .owner: kworker/0:2/217, .owner_cpu: 0
+[   15.366563] CPU: 0 PID: 217 Comm: kworker/0:2 Not tainted 5.15.0+ #523
+[   15.373350] Workqueue: events do_free_init
+[   15.377615] Call Trace:
+[   15.380232] [e4105ac0] [800946a4] do_raw_spin_lock+0xf8/0x120 (unreliable)
+[   15.387340] [e4105ae0] [8001f4ec] change_page_attr+0x40/0x1d4
+[   15.393413] [e4105b10] [801424e0] __apply_to_page_range+0x164/0x310
+[   15.400009] [e4105b60] [80169620] free_pcp_prepare+0x1e4/0x4a0
+[   15.406045] [e4105ba0] [8016c5a0] free_unref_page+0x40/0x2b8
+[   15.411979] [e4105be0] [8018724c] kasan_depopulate_vmalloc_pte+0x6c/0x94
+[   15.418989] [e4105c00] [801424e0] __apply_to_page_range+0x164/0x310
+[   15.425451] [e4105c50] [80187834] kasan_release_vmalloc+0xbc/0x134
+[   15.431898] [e4105c70] [8015f7a8] __purge_vmap_area_lazy+0x4e4/0xdd8
+[   15.438560] [e4105d30] [80160d10] _vm_unmap_aliases.part.0+0x17c/0x24c
+[   15.445283] [e4105d60] [801642d0] __vunmap+0x2f0/0x5c8
+[   15.450684] [e4105db0] [800e32d0] do_free_init+0x68/0x94
+[   15.456181] [e4105dd0] [8005d094] process_one_work+0x4bc/0x7b8
+[   15.462283] [e4105e90] [8005d614] worker_thread+0x284/0x6e8
+[   15.468227] [e4105f00] [8006aaec] kthread+0x1f0/0x210
+[   15.473489] [e4105f40] [80017148] ret_from_kernel_thread+0x14/0x1c
 
-By setting /proc/sys/kernel/hung_task_timeout_secs to 20 and increasing
-ATH11K_FLUSH_TIMEOUT to 50 we get below warnings:
+Remove the read / modify / write sequence to make the operation atomic
+and remove the spin_lock() in change_page_attr().
 
-kernel: [  120.763160] INFO: task wpa_supplicant:924 blocked for more than 20 seconds.
-kernel: [  120.763169]       Not tainted 5.10.90 #12
-kernel: [  120.763177] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-kernel: [  120.763186] task:wpa_supplicant  state:D stack:    0 pid:  924 ppid:     1 flags:0x000043a0
-kernel: [  120.763201] Call Trace:
-kernel: [  120.763214]  __schedule+0x785/0x12fa
-kernel: [  120.763224]  ? lockdep_hardirqs_on_prepare+0xe2/0x1bb
-kernel: [  120.763242]  schedule+0x7e/0xa1
-kernel: [  120.763253]  schedule_timeout+0x98/0xfe
-kernel: [  120.763266]  ? run_local_timers+0x4a/0x4a
-kernel: [  120.763291]  ath11k_mac_flush_tx_complete+0x197/0x2b1 [ath11k 13c3a9bf37790f4ac8103b3decf7ab4008ac314a]
-kernel: [  120.763306]  ? init_wait_entry+0x2e/0x2e
-kernel: [  120.763343]  __ieee80211_flush_queues+0x167/0x21f [mac80211 335da900954f1c5ea7f1613d92088ce83342042c]
-kernel: [  120.763378]  __ieee80211_recalc_idle+0x105/0x125 [mac80211 335da900954f1c5ea7f1613d92088ce83342042c]
-kernel: [  120.763411]  ieee80211_recalc_idle+0x14/0x27 [mac80211 335da900954f1c5ea7f1613d92088ce83342042c]
-kernel: [  120.763441]  ieee80211_free_chanctx+0x77/0xa2 [mac80211 335da900954f1c5ea7f1613d92088ce83342042c]
-kernel: [  120.763473]  __ieee80211_vif_release_channel+0x100/0x131 [mac80211 335da900954f1c5ea7f1613d92088ce83342042c]
-kernel: [  120.763540]  ieee80211_vif_release_channel+0x66/0x81 [mac80211 335da900954f1c5ea7f1613d92088ce83342042c]
-kernel: [  120.763572]  ieee80211_destroy_auth_data+0xa3/0xe6 [mac80211 335da900954f1c5ea7f1613d92088ce83342042c]
-kernel: [  120.763612]  ieee80211_mgd_deauth+0x178/0x29b [mac80211 335da900954f1c5ea7f1613d92088ce83342042c]
-kernel: [  120.763654]  cfg80211_mlme_deauth+0x1a8/0x22c [cfg80211 8945aa5bc2af5f6972336665d8ad6f9c191ad5be]
-kernel: [  120.763697]  nl80211_deauthenticate+0xfa/0x123 [cfg80211 8945aa5bc2af5f6972336665d8ad6f9c191ad5be]
-kernel: [  120.763715]  genl_rcv_msg+0x392/0x3c2
-kernel: [  120.763750]  ? nl80211_associate+0x432/0x432 [cfg80211 8945aa5bc2af5f6972336665d8ad6f9c191ad5be]
-kernel: [  120.763782]  ? nl80211_associate+0x432/0x432 [cfg80211 8945aa5bc2af5f6972336665d8ad6f9c191ad5be]
-kernel: [  120.763802]  ? genl_rcv+0x36/0x36
-kernel: [  120.763814]  netlink_rcv_skb+0x89/0xf7
-kernel: [  120.763829]  genl_rcv+0x28/0x36
-kernel: [  120.763840]  netlink_unicast+0x179/0x24b
-kernel: [  120.763854]  netlink_sendmsg+0x393/0x401
-kernel: [  120.763872]  sock_sendmsg+0x72/0x76
-kernel: [  120.763886]  ____sys_sendmsg+0x170/0x1e6
-kernel: [  120.763897]  ? copy_msghdr_from_user+0x7a/0xa2
-kernel: [  120.763914]  ___sys_sendmsg+0x95/0xd1
-kernel: [  120.763940]  __sys_sendmsg+0x85/0xbf
-kernel: [  120.763956]  do_syscall_64+0x43/0x55
-kernel: [  120.763966]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-kernel: [  120.763977] RIP: 0033:0x79089f3fcc83
-kernel: [  120.763986] RSP: 002b:00007ffe604f0508 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
-kernel: [  120.763997] RAX: ffffffffffffffda RBX: 000059b40e987690 RCX: 000079089f3fcc83
-kernel: [  120.764006] RDX: 0000000000000000 RSI: 00007ffe604f0558 RDI: 0000000000000009
-kernel: [  120.764014] RBP: 00007ffe604f0540 R08: 0000000000000004 R09: 0000000000400000
-kernel: [  120.764023] R10: 00007ffe604f0638 R11: 0000000000000246 R12: 000059b40ea04980
-kernel: [  120.764032] R13: 00007ffe604f0638 R14: 000059b40e98c360 R15: 00007ffe604f0558
-...
-kernel: [  120.765230] INFO: task kworker/u32:26:4239 blocked for more than 20 seconds.
-kernel: [  120.765238]       Not tainted 5.10.90 #12
-kernel: [  120.765245] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-kernel: [  120.765253] task:kworker/u32:26  state:D stack:    0 pid: 4239 ppid:     2 flags:0x00004080
-kernel: [  120.765284] Workqueue: phy0 ieee80211_iface_work [mac80211]
-kernel: [  120.765295] Call Trace:
-kernel: [  120.765306]  __schedule+0x785/0x12fa
-kernel: [  120.765316]  ? find_held_lock+0x3d/0xb2
-kernel: [  120.765331]  schedule+0x7e/0xa1
-kernel: [  120.765340]  schedule_preempt_disabled+0x15/0x1e
-kernel: [  120.765349]  __mutex_lock_common+0x561/0xc0d
-kernel: [  120.765375]  ? ieee80211_sta_work+0x3e/0x1232 [mac80211 335da900954f1c5ea7f1613d92088ce83342042c]
-kernel: [  120.765390]  mutex_lock_nested+0x20/0x26
-kernel: [  120.765416]  ieee80211_sta_work+0x3e/0x1232 [mac80211 335da900954f1c5ea7f1613d92088ce83342042c]
-kernel: [  120.765430]  ? skb_dequeue+0x54/0x5e
-kernel: [  120.765456]  ? ieee80211_iface_work+0x7b/0x339 [mac80211 335da900954f1c5ea7f1613d92088ce83342042c]
-kernel: [  120.765485]  process_one_work+0x270/0x504
-kernel: [  120.765501]  worker_thread+0x215/0x376
-kernel: [  120.765514]  kthread+0x159/0x168
-kernel: [  120.765526]  ? pr_cont_work+0x5b/0x5b
-kernel: [  120.765536]  ? kthread_blkcg+0x31/0x31
-kernel: [  120.765550]  ret_from_fork+0x22/0x30
-...
-kernel: [  120.765867] Showing all locks held in the system:
-...
-kernel: [  120.766164] 5 locks held by wpa_supplicant/924:
-kernel: [  120.766172]  #0: ffffffffb1e63eb0 (cb_lock){++++}-{3:3}, at: genl_rcv+0x19/0x36
-kernel: [  120.766197]  #1: ffffffffb1e5b1c8 (rtnl_mutex){+.+.}-{3:3}, at: nl80211_pre_doit+0x2a/0x15c [cfg80211]
-kernel: [  120.766238]  #2: ffff99f08347cd08 (&wdev->mtx){+.+.}-{3:3}, at: nl80211_deauthenticate+0xde/0x123 [cfg80211]
-kernel: [  120.766279]  #3: ffff99f09df12a48 (&local->mtx){+.+.}-{3:3}, at: ieee80211_destroy_auth_data+0x9b/0xe6 [mac80211]
-kernel: [  120.766321]  #4: ffff99f09df12ce0 (&local->chanctx_mtx){+.+.}-{3:3}, at: ieee80211_vif_release_channel+0x5e/0x81 [mac80211]
-...
-kernel: [  120.766585] 3 locks held by kworker/u32:26/4239:
-kernel: [  120.766593]  #0: ffff99f04458f948 ((wq_completion)phy0){+.+.}-{0:0}, at: process_one_work+0x19a/0x504
-kernel: [  120.766621]  #1: ffffbad54b3cfe50 ((work_completion)(&sdata->work)){+.+.}-{0:0}, at: process_one_work+0x1c0/0x504
-kernel: [  120.766649]  #2: ffff99f08347cd08 (&wdev->mtx){+.+.}-{3:3}, at: ieee80211_sta_work+0x3e/0x1232 [mac80211]
+To do the operation atomically, we can't use pte modification helpers
+anymore. Because all platforms have different combination of bits, it
+is not easy to use those bits directly. But all have the
+_PAGE_KERNEL_{RO/ROX/RW/RWX} set of flags. All we need it to compare
+two sets to know which bits are set or cleared.
 
-With above info the issue is clear: First wmi_mgmt_tx_work is inserted
-to local->workqueue after sdata->work inserted, then wpa_supplicant
-acquires wdev->mtx in nl80211_deauthenticate and finally calls
-ath11k_mac_op_flush where it waits all mgmt. frames to be sent out by
-wmi_mgmt_tx_work. Meanwhile, sdata->work is blocked by wdev->mtx in
-ieee80211_sta_work, as a result wmi_mgmt_tx_work has no chance to run.
+For instance, by comparing _PAGE_KERNEL_ROX and _PAGE_KERNEL_RO you
+know which bit gets cleared and which bit get set when changing exec
+permission.
 
-Change to use ab->workqueue instead of local->workqueue to fix this issue.
-
-Signed-off-by: Baochen Qiang <quic_bqiang@quicinc.com>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/20220217084545.18844-1-quic_bqiang@quicinc.com
+Reported-by: Maxime Bizon <mbizon@freebox.fr>
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/all/20211212112152.GA27070@sakura/
+Link: https://lore.kernel.org/r/43c3c76a1175ae6dc1a3d3b5c3f7ecb48f683eea.1640344012.git.christophe.leroy@csgroup.eu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath11k/mac.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/mm/pageattr.c | 32 +++++++++++++-------------------
+ 1 file changed, 13 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath11k/mac.c b/drivers/net/wireless/ath/ath11k/mac.c
-index 08e33778f63b..28de877ad6c4 100644
---- a/drivers/net/wireless/ath/ath11k/mac.c
-+++ b/drivers/net/wireless/ath/ath11k/mac.c
-@@ -5574,7 +5574,7 @@ static int ath11k_mac_mgmt_tx(struct ath11k *ar, struct sk_buff *skb,
+diff --git a/arch/powerpc/mm/pageattr.c b/arch/powerpc/mm/pageattr.c
+index 3bb9d168e3b3..85753e32a4de 100644
+--- a/arch/powerpc/mm/pageattr.c
++++ b/arch/powerpc/mm/pageattr.c
+@@ -15,12 +15,14 @@
+ #include <asm/pgtable.h>
  
- 	skb_queue_tail(q, skb);
- 	atomic_inc(&ar->num_pending_mgmt_tx);
--	ieee80211_queue_work(ar->hw, &ar->wmi_mgmt_tx_work);
-+	queue_work(ar->ab->workqueue, &ar->wmi_mgmt_tx_work);
  
++static pte_basic_t pte_update_delta(pte_t *ptep, unsigned long addr,
++				    unsigned long old, unsigned long new)
++{
++	return pte_update(&init_mm, addr, ptep, old & ~new, new & ~old, 0);
++}
++
+ /*
+- * Updates the attributes of a page in three steps:
+- *
+- * 1. take the page_table_lock
+- * 2. install the new entry with the updated attributes
+- * 3. flush the TLB
++ * Updates the attributes of a page atomically.
+  *
+  * This sequence is safe against concurrent updates, and also allows updating the
+  * attributes of a page currently being executed or accessed.
+@@ -28,25 +30,21 @@
+ static int change_page_attr(pte_t *ptep, unsigned long addr, void *data)
+ {
+ 	long action = (long)data;
+-	pte_t pte;
+ 
+-	spin_lock(&init_mm.page_table_lock);
+-
+-	pte = ptep_get(ptep);
+-
+-	/* modify the PTE bits as desired, then apply */
++	/* modify the PTE bits as desired */
+ 	switch (action) {
+ 	case SET_MEMORY_RO:
+-		pte = pte_wrprotect(pte);
++		/* Don't clear DIRTY bit */
++		pte_update_delta(ptep, addr, _PAGE_KERNEL_RW & ~_PAGE_DIRTY, _PAGE_KERNEL_RO);
+ 		break;
+ 	case SET_MEMORY_RW:
+-		pte = pte_mkwrite(pte_mkdirty(pte));
++		pte_update_delta(ptep, addr, _PAGE_KERNEL_RO, _PAGE_KERNEL_RW);
+ 		break;
+ 	case SET_MEMORY_NX:
+-		pte = pte_exprotect(pte);
++		pte_update_delta(ptep, addr, _PAGE_KERNEL_ROX, _PAGE_KERNEL_RO);
+ 		break;
+ 	case SET_MEMORY_X:
+-		pte = pte_mkexec(pte);
++		pte_update_delta(ptep, addr, _PAGE_KERNEL_RO, _PAGE_KERNEL_ROX);
+ 		break;
+ 	case SET_MEMORY_NP:
+ 		pte_update(&init_mm, addr, ptep, _PAGE_PRESENT, 0, 0);
+@@ -59,16 +57,12 @@ static int change_page_attr(pte_t *ptep, unsigned long addr, void *data)
+ 		break;
+ 	}
+ 
+-	pte_update(&init_mm, addr, ptep, ~0UL, pte_val(pte), 0);
+-
+ 	/* See ptesync comment in radix__set_pte_at() */
+ 	if (radix_enabled())
+ 		asm volatile("ptesync": : :"memory");
+ 
+ 	flush_tlb_kernel_range(addr, addr + PAGE_SIZE);
+ 
+-	spin_unlock(&init_mm.page_table_lock);
+-
  	return 0;
  }
+ 
 -- 
 2.35.1
 
