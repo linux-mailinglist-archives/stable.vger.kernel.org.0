@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D79884FD6AD
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:24:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB7454FD593
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:13:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354360AbiDLHw0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:52:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55294 "EHLO
+        id S1351802AbiDLHgK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:36:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44290 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359373AbiDLHm7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:42:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B31CA55BF2;
-        Tue, 12 Apr 2022 00:21:47 -0700 (PDT)
+        with ESMTP id S1354857AbiDLH0y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:26:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 391FA47384;
+        Tue, 12 Apr 2022 00:06:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 667C4B81B4F;
-        Tue, 12 Apr 2022 07:21:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD053C385A5;
-        Tue, 12 Apr 2022 07:21:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B9DDD6146F;
+        Tue, 12 Apr 2022 07:06:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC1EFC385A6;
+        Tue, 12 Apr 2022 07:06:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649748105;
-        bh=igy8uFqpNJdtY8hu4KqetscYqZPH5xLN+xDl9o3slQc=;
+        s=korg; t=1649747206;
+        bh=9VK7Q9d8kUXkXOYxC5DYC7ucjglVOtJGawK4c7nKiDA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sG9lVvEAPiQtyg/8/19PsrfC8BNqo/pqD56oZKJTTX8ugYy+pseSPWUXvkoCmRliX
-         Knv5PPkJMuGS6PHbzAyNYB3+D6VgjbY4Xk00wJpbN29omXEHkDxkhsehkNORb2kgMS
-         E+tmTDKAiTR+FC5MNPqR5hr3gxuLL9egk+ZYqd68=
+        b=F43f+qRBYxl7s2JwFmOszL1eurK6nXct+5AkDg/zY5ZJIhvXv3Ier9mF0JbPUCVgP
+         f0TALr1TTQHxsUMkYkmbPLOGMAhX2PURKgfab1FUv46i32rS4C4V/P7nGJretUD/Eu
+         BL5zAp1c3Fog8TSYv5BZHzyARGstukvbp8swSRjc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Sitnicki <jakub@cloudflare.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Martin KaFai Lau <kafai@fb.com>
-Subject: [PATCH 5.17 319/343] bpf: Treat bpf_sk_lookup remote_port as a 2-byte field
+        stable@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Subject: [PATCH 5.16 280/285] x86,static_call: Fix __static_call_return0 for i386
 Date:   Tue, 12 Apr 2022 08:32:17 +0200
-Message-Id: <20220412063000.528180590@linuxfoundation.org>
+Message-Id: <20220412062951.734171923@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,88 +53,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Sitnicki <jakub@cloudflare.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-commit 058ec4a7d9cf77238c73ad9f1e1a3ed9a29afcab upstream.
+commit 1cd5f059d956e6f614ba6666ecdbcf95db05d5f5 upstream.
 
-In commit 9a69e2b385f4 ("bpf: Make remote_port field in struct
-bpf_sk_lookup 16-bit wide") the remote_port field has been split up and
-re-declared from u32 to be16.
+Paolo reported that the instruction sequence that is used to replace:
 
-However, the accompanying changes to the context access converter have not
-been well thought through when it comes big-endian platforms.
+    call __static_call_return0
 
-Today 2-byte wide loads from offsetof(struct bpf_sk_lookup, remote_port)
-are handled as narrow loads from a 4-byte wide field.
+namely:
 
-This by itself is not enough to create a problem, but when we combine
+    66 66 48 31 c0	data16 data16 xor %rax,%rax
 
- 1. 32-bit wide access to ->remote_port backed by a 16-wide wide load, with
- 2. inherent difference between litte- and big-endian in how narrow loads
-    need have to be handled (see bpf_ctx_narrow_access_offset),
+decodes to something else on i386, namely:
 
-we get inconsistent results for a 2-byte loads from &ctx->remote_port on LE
-and BE architectures. This in turn makes BPF C code for the common case of
-2-byte load from ctx->remote_port not portable.
+    66 66 48		data16 dec %ax
+    31 c0		xor    %eax,%eax
 
-To rectify it, inform the context access converter that remote_port is
-2-byte wide field, and only 1-byte loads need to be treated as narrow
-loads.
+Which is a nonsensical sequence that happens to have the same outcome.
+*However* an important distinction is that it consists of 2
+instructions which is a problem when the thing needs to be overwriten
+with a regular call instruction again.
 
-At the same time, we special-case the 4-byte load from &ctx->remote_port to
-continue handling it the same way as do today, in order to keep the
-existing BPF programs working.
+As such, replace the instruction with something that decodes the same
+on both i386 and x86_64.
 
-Fixes: 9a69e2b385f4 ("bpf: Make remote_port field in struct bpf_sk_lookup 16-bit wide")
-Signed-off-by: Jakub Sitnicki <jakub@cloudflare.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: Martin KaFai Lau <kafai@fb.com>
-Link: https://lore.kernel.org/bpf/20220319183356.233666-2-jakub@cloudflare.com
+Fixes: 3f2a8fc4b15d ("static_call/x86: Add __static_call_return0()")
+Reported-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20220318204419.GT8939@worktop.programming.kicks-ass.net
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/filter.c |   20 ++++++++++++++++++--
- 1 file changed, 18 insertions(+), 2 deletions(-)
+ arch/x86/kernel/static_call.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/net/core/filter.c
-+++ b/net/core/filter.c
-@@ -10621,13 +10621,24 @@ static bool sk_lookup_is_valid_access(in
- 	case bpf_ctx_range(struct bpf_sk_lookup, local_ip4):
- 	case bpf_ctx_range_till(struct bpf_sk_lookup, remote_ip6[0], remote_ip6[3]):
- 	case bpf_ctx_range_till(struct bpf_sk_lookup, local_ip6[0], local_ip6[3]):
--	case offsetof(struct bpf_sk_lookup, remote_port) ...
--	     offsetof(struct bpf_sk_lookup, local_ip4) - 1:
- 	case bpf_ctx_range(struct bpf_sk_lookup, local_port):
- 	case bpf_ctx_range(struct bpf_sk_lookup, ingress_ifindex):
- 		bpf_ctx_record_field_size(info, sizeof(__u32));
- 		return bpf_ctx_narrow_access_ok(off, size, sizeof(__u32));
+--- a/arch/x86/kernel/static_call.c
++++ b/arch/x86/kernel/static_call.c
+@@ -12,10 +12,9 @@ enum insn_type {
+ };
  
-+	case bpf_ctx_range(struct bpf_sk_lookup, remote_port):
-+		/* Allow 4-byte access to 2-byte field for backward compatibility */
-+		if (size == sizeof(__u32))
-+			return true;
-+		bpf_ctx_record_field_size(info, sizeof(__be16));
-+		return bpf_ctx_narrow_access_ok(off, size, sizeof(__be16));
-+
-+	case offsetofend(struct bpf_sk_lookup, remote_port) ...
-+	     offsetof(struct bpf_sk_lookup, local_ip4) - 1:
-+		/* Allow access to zero padding for backward compatibility */
-+		bpf_ctx_record_field_size(info, sizeof(__u16));
-+		return bpf_ctx_narrow_access_ok(off, size, sizeof(__u16));
-+
- 	default:
- 		return false;
- 	}
-@@ -10709,6 +10720,11 @@ static u32 sk_lookup_convert_ctx_access(
- 						     sport, 2, target_size));
- 		break;
+ /*
+- * data16 data16 xorq %rax, %rax - a single 5 byte instruction that clears %rax
+- * The REX.W cancels the effect of any data16.
++ * cs cs cs xorl %eax, %eax - a single 5 byte instruction that clears %[er]ax
+  */
+-static const u8 xor5rax[] = { 0x66, 0x66, 0x48, 0x31, 0xc0 };
++static const u8 xor5rax[] = { 0x2e, 0x2e, 0x2e, 0x31, 0xc0 };
  
-+	case offsetofend(struct bpf_sk_lookup, remote_port):
-+		*target_size = 2;
-+		*insn++ = BPF_MOV32_IMM(si->dst_reg, 0);
-+		break;
-+
- 	case offsetof(struct bpf_sk_lookup, local_port):
- 		*insn++ = BPF_LDX_MEM(BPF_H, si->dst_reg, si->src_reg,
- 				      bpf_target_off(struct bpf_sk_lookup_kern,
+ static void __ref __static_call_transform(void *insn, enum insn_type type, void *func)
+ {
 
 
