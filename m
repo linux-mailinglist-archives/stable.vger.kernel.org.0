@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A5E24FD04C
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:44:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2B9D4FD22C
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 09:09:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350556AbiDLGqI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 02:46:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38726 "EHLO
+        id S244793AbiDLHJQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:09:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47022 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351152AbiDLGoI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:44:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F88639816;
-        Mon, 11 Apr 2022 23:37:33 -0700 (PDT)
+        with ESMTP id S1352635AbiDLHFr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:05:47 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90FDB48329;
+        Mon, 11 Apr 2022 23:48:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EE440B81B43;
-        Tue, 12 Apr 2022 06:37:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CCD5C385A1;
-        Tue, 12 Apr 2022 06:37:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3D388B81B43;
+        Tue, 12 Apr 2022 06:48:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F661C385A1;
+        Tue, 12 Apr 2022 06:48:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745450;
-        bh=RvVN9NGk7CZW5sgzfkl0x8gZdQ/3SrM078EXa4GD8tQ=;
+        s=korg; t=1649746101;
+        bh=1SIj704ML9juyfIJP1582Cd5zsxHQq8kScnW9WrRb6A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EPCdSudRQlyW9WWMwJ8TcXTzvzQK4ivv8uQJLNB7Yy9bKRw9+UTak1wsnJNA0MIFC
-         DVid03Z67gW2ghnXS6l6Pkb8s8eIvck5L3MlumdN1vlg9tu8/LCxxsHMtPdSvFR/lQ
-         aGHYVQ2us1drYZxZkT8rx7HwPIesExARUGCO7N7M=
+        b=epmIXSBfzHhU7q0P4prKZMN4qFe1UxycS80p8jtglsY8xxy+upXYl7JGZiJwtqCuI
+         RaX6Hauf3OSbA5+PnddBcztOtdVI5oLhJJEDQBlW8jPZxeVixwseS0e96wq5TyXrlW
+         JjzJyymVVk2zD36PtDqTQvkB+/HU8U/n7zOBd13g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicolas Saenz Julienne <nsaenz@kernel.org>,
-        Stefan Wahren <stefan.wahren@i2se.com>,
+        stable@vger.kernel.org, Ivan Vecera <ivecera@redhat.com>,
+        Michal Swiatkowski <michal.swiatkowski@linux.intel.com>,
+        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
+        Alice Michael <alice.michael@intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 073/171] staging: vchiq_core: handle NULL result of find_service_by_handle
+Subject: [PATCH 5.15 161/277] ice: Clear default forwarding VSI during VSI release
 Date:   Tue, 12 Apr 2022 08:29:24 +0200
-Message-Id: <20220412062929.996163715@linuxfoundation.org>
+Message-Id: <20220412062946.697909342@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
-References: <20220412062927.870347203@linuxfoundation.org>
+In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
+References: <20220412062942.022903016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,46 +57,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Wahren <stefan.wahren@i2se.com>
+From: Ivan Vecera <ivecera@redhat.com>
 
-[ Upstream commit ca225857faf237234d2fffe5d1919467dfadd822 ]
+[ Upstream commit bd8c624c0cd59de0032752ba3001c107bba97f7b ]
 
-In case of an invalid handle the function find_servive_by_handle
-returns NULL. So take care of this and avoid a NULL pointer dereference.
+VSI is set as default forwarding one when promisc mode is set for
+PF interface, when PF is switched to switchdev mode or when VF
+driver asks to enable allmulticast or promisc mode for the VF
+interface (when vf-true-promisc-support priv flag is off).
+The third case is buggy because in that case VSI associated with
+VF remains as default one after VF removal.
 
-Reviewed-by: Nicolas Saenz Julienne <nsaenz@kernel.org>
-Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
-Link: https://lore.kernel.org/r/1642968143-19281-18-git-send-email-stefan.wahren@i2se.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reproducer:
+1. Create VF
+   echo 1 > sys/class/net/ens7f0/device/sriov_numvfs
+2. Enable allmulticast or promisc mode on VF
+   ip link set ens7f0v0 allmulticast on
+   ip link set ens7f0v0 promisc on
+3. Delete VF
+   echo 0 > sys/class/net/ens7f0/device/sriov_numvfs
+4. Try to enable promisc mode on PF
+   ip link set ens7f0 promisc on
+
+Although it looks that promisc mode on PF is enabled the opposite
+is true because ice_vsi_sync_fltr() responsible for IFF_PROMISC
+handling first checks if any other VSI is set as default forwarding
+one and if so the function does not do anything. At this point
+it is not possible to enable promisc mode on PF without re-probe
+device.
+
+To resolve the issue this patch clear default forwarding VSI
+during ice_vsi_release() when the VSI to be released is the default
+one.
+
+Fixes: 01b5e89aab49 ("ice: Add VF promiscuous support")
+Signed-off-by: Ivan Vecera <ivecera@redhat.com>
+Reviewed-by: Michal Swiatkowski <michal.swiatkowski@linux.intel.com>
+Reviewed-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
+Signed-off-by: Alice Michael <alice.michael@intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../staging/vc04_services/interface/vchiq_arm/vchiq_core.c  | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/net/ethernet/intel/ice/ice_lib.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_core.c b/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_core.c
-index 38b10fd5d992..95b91fe45cb3 100644
---- a/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_core.c
-+++ b/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_core.c
-@@ -2280,6 +2280,9 @@ void vchiq_msg_queue_push(unsigned int handle, struct vchiq_header *header)
- 	struct vchiq_service *service = find_service_by_handle(handle);
- 	int pos;
+diff --git a/drivers/net/ethernet/intel/ice/ice_lib.c b/drivers/net/ethernet/intel/ice/ice_lib.c
+index 8c08997dcef6..a5fd29ffdebe 100644
+--- a/drivers/net/ethernet/intel/ice/ice_lib.c
++++ b/drivers/net/ethernet/intel/ice/ice_lib.c
+@@ -2923,6 +2923,8 @@ int ice_vsi_release(struct ice_vsi *vsi)
+ 		}
+ 	}
  
-+	if (!service)
-+		return;
-+
- 	while (service->msg_queue_write == service->msg_queue_read +
- 		VCHIQ_MAX_SLOTS) {
- 		if (wait_for_completion_interruptible(&service->msg_queue_pop))
-@@ -2299,6 +2302,9 @@ struct vchiq_header *vchiq_msg_hold(unsigned int handle)
- 	struct vchiq_header *header;
- 	int pos;
- 
-+	if (!service)
-+		return NULL;
-+
- 	if (service->msg_queue_write == service->msg_queue_read)
- 		return NULL;
- 
++	if (ice_is_vsi_dflt_vsi(pf->first_sw, vsi))
++		ice_clear_dflt_vsi(pf->first_sw);
+ 	ice_fltr_remove_all(vsi);
+ 	ice_rm_vsi_lan_cfg(vsi->port_info, vsi->idx);
+ 	err = ice_rm_vsi_rdma_cfg(vsi->port_info, vsi->idx);
 -- 
 2.35.1
 
