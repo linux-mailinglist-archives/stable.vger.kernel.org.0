@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 510714FD03F
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:43:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BBE3C4FD23A
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 09:09:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350194AbiDLGpg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 02:45:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42762 "EHLO
+        id S230438AbiDLHKT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:10:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46978 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350627AbiDLGmj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:42:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81EB717A8A;
-        Mon, 11 Apr 2022 23:36:31 -0700 (PDT)
+        with ESMTP id S1352838AbiDLHGI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:06:08 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DB6448E57;
+        Mon, 11 Apr 2022 23:48:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E354F61910;
-        Tue, 12 Apr 2022 06:36:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C112CC385A6;
-        Tue, 12 Apr 2022 06:36:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4666BB81B43;
+        Tue, 12 Apr 2022 06:48:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94D1CC385A1;
+        Tue, 12 Apr 2022 06:48:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745390;
-        bh=l7KNRLuVOLNODXmB2fEIuwIo/lDJusxB1x0vOX/egec=;
+        s=korg; t=1649746127;
+        bh=LBlGdq6vz+9VNDx+bAUfEJCL60i/v7PjWpnupljX3dY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=arCca/9FBx4+X560Yrc/eN1UgOXqzv3TrzcZIwNRIpfTtIJJJ5Le+mDHVAf5j4a6C
-         J6gn1FkiV6mgEPcP3QnAza1cDFnitMNet4mcPaGzh2/PD1X7MnNwQc5ruF3NP4hzpk
-         aRoCCN3c69IoZGbKbhEG+nAwQcdIvNwKr7uC39dI=
+        b=eb4x+uv1OhmI5mDl6tNSuixpCSx0/KSvj9YaNXDzkOt+oHL3lgQUBzr8is41upYG2
+         VHNkCz4eUJA++coklMbNsg+/yyPoENkITFn/MwTs2lR3fYSpFjuXEv8nxEAegdFcH5
+         pPk4/Ulb8GpjfLNtHN1i7jxe/LGX0beNAhVJL80E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxime Ripard <maxime@cerno.tech>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Axel Lin <axel.lin@ingics.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 081/171] clk: Enforce that disjoints limits are invalid
+Subject: [PATCH 5.15 169/277] regulator: atc260x: Fix missing active_discharge_on setting
 Date:   Tue, 12 Apr 2022 08:29:32 +0200
-Message-Id: <20220412062930.230828098@linuxfoundation.org>
+Message-Id: <20220412062946.928515021@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
-References: <20220412062927.870347203@linuxfoundation.org>
+In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
+References: <20220412062942.022903016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,100 +54,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxime Ripard <maxime@cerno.tech>
+From: Axel Lin <axel.lin@ingics.com>
 
-[ Upstream commit 10c46f2ea914202482d19cf80dcc9c321c9ff59b ]
+[ Upstream commit 2316f0fc0ad2aa87a568ceaf3d76be983ee555c3 ]
 
-If we were to have two users of the same clock, doing something like:
+Without active_discharge_on setting, the SWITCH1 discharge enable control
+is always disabled. Fix it.
 
-clk_set_rate_range(user1, 1000, 2000);
-clk_set_rate_range(user2, 3000, 4000);
-
-The second call would fail with -EINVAL, preventing from getting in a
-situation where we end up with impossible limits.
-
-However, this is never explicitly checked against and enforced, and
-works by relying on an undocumented behaviour of clk_set_rate().
-
-Indeed, on the first clk_set_rate_range will make sure the current clock
-rate is within the new range, so it will be between 1000 and 2000Hz. On
-the second clk_set_rate_range(), it will consider (rightfully), that our
-current clock is outside of the 3000-4000Hz range, and will call
-clk_core_set_rate_nolock() to set it to 3000Hz.
-
-clk_core_set_rate_nolock() will then call clk_calc_new_rates() that will
-eventually check that our rate 3000Hz rate is outside the min 3000Hz max
-2000Hz range, will bail out, the error will propagate and we'll
-eventually return -EINVAL.
-
-This solely relies on the fact that clk_calc_new_rates(), and in
-particular clk_core_determine_round_nolock(), won't modify the new rate
-allowing the error to be reported. That assumption won't be true for all
-drivers, and most importantly we'll break that assumption in a later
-patch.
-
-It can also be argued that we shouldn't even reach the point where we're
-calling clk_core_set_rate_nolock().
-
-Let's make an explicit check for disjoints range before we're doing
-anything.
-
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://lore.kernel.org/r/20220225143534.405820-4-maxime@cerno.tech
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fixes: 3b15ccac161a ("regulator: Add regulator driver for ATC260x PMICs")
+Signed-off-by: Axel Lin <axel.lin@ingics.com>
+Link: https://lore.kernel.org/r/20220403132235.123727-1-axel.lin@ingics.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/clk.c | 24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
+ drivers/regulator/atc260x-regulator.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/clk/clk.c b/drivers/clk/clk.c
-index 92fc084203b7..2e56cc0a3bce 100644
---- a/drivers/clk/clk.c
-+++ b/drivers/clk/clk.c
-@@ -631,6 +631,24 @@ static void clk_core_get_boundaries(struct clk_core *core,
- 		*max_rate = min(*max_rate, clk_user->max_rate);
+diff --git a/drivers/regulator/atc260x-regulator.c b/drivers/regulator/atc260x-regulator.c
+index 05147d2c3842..485e58b264c0 100644
+--- a/drivers/regulator/atc260x-regulator.c
++++ b/drivers/regulator/atc260x-regulator.c
+@@ -292,6 +292,7 @@ enum atc2603c_reg_ids {
+ 	.bypass_mask = BIT(5), \
+ 	.active_discharge_reg = ATC2603C_PMU_SWITCH_CTL, \
+ 	.active_discharge_mask = BIT(1), \
++	.active_discharge_on = BIT(1), \
+ 	.owner = THIS_MODULE, \
  }
- 
-+static bool clk_core_check_boundaries(struct clk_core *core,
-+				      unsigned long min_rate,
-+				      unsigned long max_rate)
-+{
-+	struct clk *user;
-+
-+	lockdep_assert_held(&prepare_lock);
-+
-+	if (min_rate > core->max_rate || max_rate < core->min_rate)
-+		return false;
-+
-+	hlist_for_each_entry(user, &core->clks, clks_node)
-+		if (min_rate > user->max_rate || max_rate < user->min_rate)
-+			return false;
-+
-+	return true;
-+}
-+
- void clk_hw_set_rate_range(struct clk_hw *hw, unsigned long min_rate,
- 			   unsigned long max_rate)
- {
-@@ -2332,6 +2350,11 @@ int clk_set_rate_range(struct clk *clk, unsigned long min, unsigned long max)
- 	clk->min_rate = min;
- 	clk->max_rate = max;
- 
-+	if (!clk_core_check_boundaries(clk->core, min, max)) {
-+		ret = -EINVAL;
-+		goto out;
-+	}
-+
- 	rate = clk_core_get_rate_nolock(clk->core);
- 	if (rate < min || rate > max) {
- 		/*
-@@ -2360,6 +2383,7 @@ int clk_set_rate_range(struct clk *clk, unsigned long min, unsigned long max)
- 		}
- 	}
- 
-+out:
- 	if (clk->exclusive_count)
- 		clk_core_rate_protect(clk->core);
  
 -- 
 2.35.1
