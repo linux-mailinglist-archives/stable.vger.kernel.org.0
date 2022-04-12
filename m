@@ -2,160 +2,140 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E5E774FDDDB
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 13:43:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C91FD4FDDF6
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 13:43:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243515AbiDLLTR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 07:19:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35114 "EHLO
+        id S1345483AbiDLLZb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 07:25:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43558 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352854AbiDLLSh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 07:18:37 -0400
-Received: from esa2.hgst.iphmx.com (esa2.hgst.iphmx.com [68.232.143.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11D1D986C4;
-        Tue, 12 Apr 2022 03:03:45 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1649757826; x=1681293826;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=3TQDdDKv+/2Nw49GG6zX+ckjKkTqdRxGeiL8NxypWVM=;
-  b=MStD1NG59JQ/G5Mrbi1CE72dVJN7GfPecXvOeX2+SQXdxLQozLigK/J4
-   Qm1BBfoNnAkKwW8/HENNKfoQvi/ksbAzdotkAgUxxJOZfHD4FNgYKBxnX
-   u+rcC/AJI7QPLRwGVnp60m6zuB0BLJQkX+0znhnEisah3/+2ta1NKnekm
-   CcETlGqlZq4L6xBq1Fej2dDNzOeT8CfR3daQk0DRXAEdHvjdIHgXS3Rh4
-   OKEeTB0ZmnNrQ6HVJj8bj/FncbddMhLWsm/1M9CF5nCT51es9UZBrTKPY
-   76bnYF8BcYMklz23an3o/C4a9yIVTBsilko2e0DtXI97q0GeliOSu9Ugq
-   w==;
-X-IronPort-AV: E=Sophos;i="5.90,253,1643644800"; 
-   d="scan'208";a="301896809"
-Received: from h199-255-45-14.hgst.com (HELO uls-op-cesaep01.wdc.com) ([199.255.45.14])
-  by ob1.hgst.iphmx.com with ESMTP; 12 Apr 2022 18:03:45 +0800
-IronPort-SDR: 9w99oQV5wuUFdBLFZNhBomzZsPL3ey60hFa0eRqcReZx6xjT/jjky2b+ac79sfw+bIjAVUcxrg
- wsOdzu572Ucp10jzz7ygsfEQrNy+OoYg+jByxxiRa0TJm8+ha6ysOEuP5Twv90o//lczimPmLQ
- ik6UMtuL0mxH9tQcwVN1SP+qo0RYTMLq19XHPJrS5ZZVlmHKsSTn1rUWqr0Od9eB2P+fP6qKIm
- 8Eikq7YCXIGsG53CK0b9s2tn0Er9MFku/ZVN6cM52lmvBBTsDzvq7urFoOIn6Wm7meQDIO/jtR
- rRXh0vPZhwLXMOMmJBjKW57M
-Received: from uls-op-cesaip02.wdc.com ([10.248.3.37])
-  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 12 Apr 2022 02:35:00 -0700
-IronPort-SDR: Uo3VSS959+vgVAzuuoPugaw2AGcOb5AzVwNMZ6muqhLfY+2hmyMI0q/omZMZn72OHgau0Abq42
- QGIeU8/fIlPRG2lvaElIUsM2eZLcztSzJc1YsAxPIgjTxRuXXPwFQvY/Du7B3QqTSAk7g2hP2P
- LK5yMeoMrjP6oRySFuvh5X2b3C2WMKjhIZ6syvOTjxoTKXi5Kq7QoUwIbe7HP4cHnHegneiKXe
- Te2G2/RzHFUJoWgoIloujG4dYTCNolMO3oOb4cb5fkgNS5plzVPV6nWoCgIKl6rWHX1AqnMyYx
- Zvg=
-WDCIronportException: Internal
-Received: from unknown (HELO x1-carbon.cphwdc) ([10.225.164.111])
-  by uls-op-cesaip02.wdc.com with ESMTP; 12 Apr 2022 03:03:42 -0700
-From:   Niklas Cassel <niklas.cassel@wdc.com>
-To:     Alexander Viro <viro@zeniv.linux.org.uk>,
-        Eric Biederman <ebiederm@xmission.com>,
-        Kees Cook <keescook@chromium.org>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>
-Cc:     Greg Ungerer <gerg@linux-m68k.org>,
-        Mike Frysinger <vapier@gentoo.org>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        Niklas Cassel <niklas.cassel@wdc.com>, stable@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, linux-mm@kvack.org,
-        linux-riscv@lists.infradead.org
-Subject: [PATCH] binfmt_flat: do not stop relocating GOT entries prematurely
-Date:   Tue, 12 Apr 2022 12:03:38 +0200
-Message-Id: <20220412100338.437308-1-niklas.cassel@wdc.com>
-X-Mailer: git-send-email 2.35.1
+        with ESMTP id S1347403AbiDLLYu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 07:24:50 -0400
+Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B81A9D4EA
+        for <stable@vger.kernel.org>; Tue, 12 Apr 2022 03:05:34 -0700 (PDT)
+Received: by mail-pj1-x1036.google.com with SMTP id o5-20020a17090ad20500b001ca8a1dc47aso2318459pju.1
+        for <stable@vger.kernel.org>; Tue, 12 Apr 2022 03:05:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=QoGYLz4ME16BWCDSIkT8YgpkP2N0wUCi7BxSq31pM6A=;
+        b=f8eCMf30rov4ZnWxRhNb4Qu/qacuu9WzumflGqlPdfCHGgAt3+zfzOL8VP/4Ic/sph
+         9sZbTSW7tUhYsgiGY1Adb9cwOhmO4bv4DapbPRrLwV/rzbGOYYqKzWZv5OBvniOG3qE7
+         3UK0tcYVW78btTkqpuyN0upLWIkVBW8nilGUIYTbDHK7WQg3CciSbNxocwKNeilkqYXP
+         fU2Qbln8vhkUdj9iBoWdev9y21qWt72xjHgSUq9OM6XNbH3+V2jrLb14nuq1ssFZZ3Pj
+         I3osBqKhKk5HILiVCNWyHwVIOX77IzUIke8fAoqi+bxKouB7WX5EZVDo8SMRBg99MgTk
+         pMqw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=QoGYLz4ME16BWCDSIkT8YgpkP2N0wUCi7BxSq31pM6A=;
+        b=gVZciSKkCkexp+6di25EOokR6wQIpsDJxL2DW/mnuGiF5V61VvPbbqIX6h5C1WioNx
+         w56PU0/pK6xPSE8Wv1zb21qPXAqKKk9ANEFMdBSOSAqnOvpeNwxpmxpyaWuyMg7MbOso
+         jU9L6V33jCdRNIHYSQyOJ64f6oW7sNnXTXau6lEtpEEVn3W8aVrb+F5x/Y17RoDUvlP4
+         LZumZf42EOiSVj/1MYPTE0gK/F2oettHmtarXWAdzTOoqn/QT7nj/wp/h9qNNwXtmx3E
+         ZHpmRWhQgICHMWy5oOlTOkTiHtzDy0FFBwNX2Rd8oRu3zDzFKKM+TaKIpV9u/Owv8J4w
+         KbWw==
+X-Gm-Message-State: AOAM533mX5Mpd6wEke4CX9CENGXfmMFcpiQM9Apwd8sk3+4iRjXK/Gjn
+        g3gva6FkrWm3i8jdOkQ/rts+3/EhyIpdpiEO
+X-Google-Smtp-Source: ABdhPJxr9uqEPS8vkVx/mHd97ezgWySpACaUWYF5OSHTSZ+kaU73i1JZ/+7d5xIOGUVGvkBAeV+r7w==
+X-Received: by 2002:a17:902:ec83:b0:154:7cee:7722 with SMTP id x3-20020a170902ec8300b001547cee7722mr36893224plg.96.1649757933762;
+        Tue, 12 Apr 2022 03:05:33 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id i5-20020a17090a2a0500b001cba3ac9366sm2403009pjd.10.2022.04.12.03.05.32
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 12 Apr 2022 03:05:33 -0700 (PDT)
+Message-ID: <62554eed.1c69fb81.c11e1.6868@mx.google.com>
+Date:   Tue, 12 Apr 2022 03:05:33 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_NONE,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.19
+X-Kernelci-Kernel: v4.19.237-330-gbdfbd5df0daf
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/4.19 baseline: 99 runs,
+ 1 regressions (v4.19.237-330-gbdfbd5df0daf)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-bFLT binaries are usually created using elf2flt.
+stable-rc/queue/4.19 baseline: 99 runs, 1 regressions (v4.19.237-330-gbdfbd=
+5df0daf)
 
-The linker script used by elf2flt has defined the .data section like the
-following for the last 19 years:
+Regressions Summary
+-------------------
 
-.data : {
-	_sdata = . ;
-	__data_start = . ;
-	data_start = . ;
-	*(.got.plt)
-	*(.got)
-	FILL(0) ;
-	. = ALIGN(0x20) ;
-	LONG(-1)
-	. = ALIGN(0x20) ;
-	...
-}
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 1          =
 
-It places the .got.plt input section before the .got input section.
-The same is true for the default linker script (ld --verbose) on most
-architectures except x86/x86-64.
 
-The binfmt_flat loader should relocate all GOT entries until it encounters
-a -1 (the LONG(-1) in the linker script).
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
+nel/v4.19.237-330-gbdfbd5df0daf/plan/baseline/
 
-The problem is that the .got.plt input section starts with a GOTPLT header
-that has the first word (two u32 entries for 64-bit archs) set to -1.
-See e.g. the binutils implementation for architectures [1] [2] [3] [4].
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.19
+  Describe: v4.19.237-330-gbdfbd5df0daf
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      bdfbd5df0daf1748bef4501ce255ce594ee8d55f =
 
-This causes the binfmt_flat loader to stop relocating GOT entries
-prematurely and thus causes the application to crash when running.
 
-Fix this by ignoring -1 in the first two u32 entries in the .data section.
 
-A -1 will only be ignored for the first two entries for bFLT binaries with
-FLAT_FLAG_GOTPIC set, which is unconditionally set by elf2flt if the
-supplied ELF binary had the symbol _GLOBAL_OFFSET_TABLE_ defined, therefore
-ELF binaries without a .got input section should remain unaffected.
+Test Regressions
+---------------- =
 
-Tested on RISC-V Canaan Kendryte K210 and RISC-V QEMU nommu_virt_defconfig.
 
-[1] https://sourceware.org/git/?p=binutils-gdb.git;a=blob;f=bfd/elfnn-riscv.c;hb=binutils-2_38#l3275
-[2] https://sourceware.org/git/?p=binutils-gdb.git;a=blob;f=bfd/elfxx-tilegx.c;hb=binutils-2_38#l4023
-[3] https://sourceware.org/git/?p=binutils-gdb.git;a=blob;f=bfd/elf32-tilepro.c;hb=binutils-2_38#l3633
-[4] https://sourceware.org/git/?p=binutils-gdb.git;a=blob;f=bfd/elfnn-loongarch.c;hb=binutils-2_38#l2978
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
----
-RISC-V elf2flt patches are still not merged, they can be found here:
-https://github.com/floatious/elf2flt/tree/riscv
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 1          =
 
-buildroot branch for k210 nommu (including this patch and elf2flt patches):
-https://github.com/floatious/buildroot/tree/k210-v14
 
- fs/binfmt_flat.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+  Details:     https://kernelci.org/test/plan/id/62551de10e45c95be7ae0683
 
-diff --git a/fs/binfmt_flat.c b/fs/binfmt_flat.c
-index 626898150011..b80009e6392e 100644
---- a/fs/binfmt_flat.c
-+++ b/fs/binfmt_flat.c
-@@ -793,8 +793,17 @@ static int load_flat_file(struct linux_binprm *bprm,
- 			u32 addr, rp_val;
- 			if (get_user(rp_val, rp))
- 				return -EFAULT;
--			if (rp_val == 0xffffffff)
-+			/*
-+			 * The first word in the GOTPLT header is -1 on certain
-+			 * architechtures. (On 64-bit, that is two u32 entries.)
-+			 * Ignore these entries, so that we stop relocating GOT
-+			 * entries first when we encounter the -1 after the GOT.
-+			 */
-+			if (rp_val == 0xffffffff) {
-+				if (rp - (u32 __user *)datapos < 2)
-+					continue;
- 				break;
-+			}
- 			if (rp_val) {
- 				addr = calc_reloc(rp_val, libinfo, id, 0);
- 				if (addr == RELOC_FAILED) {
--- 
-2.35.1
+  Results:     83 PASS, 7 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.237=
+-330-gbdfbd5df0daf/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/ba=
+seline-rk3399-gru-kevin.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.237=
+-330-gbdfbd5df0daf/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/ba=
+seline-rk3399-gru-kevin.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220401.0/arm64/rootfs.cpio.gz =
 
+
+
+  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
+/62551de10e45c95be7ae06a5
+        failing since 36 days (last pass: v4.19.232-31-g5cf846953aa2, first=
+ fail: v4.19.232-44-gfd65e02206f4)
+
+    2022-04-12T06:36:09.674067  <8>[   35.855659] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Drockchip-i2s0-probed RESULT=3Dpass>
+    2022-04-12T06:36:10.685904  /lava-6070605/1/../bin/lava-test-case
+    2022-04-12T06:36:10.694128  <8>[   36.876328] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Drockchip-i2s1-probed RESULT=3Dfail>   =
+
+ =20
