@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CDFFD4FD9C4
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:45:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D5844FDB28
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:55:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349744AbiDLH2H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:28:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45752 "EHLO
+        id S1354063AbiDLHq7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:46:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49120 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354210AbiDLHRO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:17:14 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 745CF26557;
-        Mon, 11 Apr 2022 23:58:31 -0700 (PDT)
+        with ESMTP id S1357176AbiDLHjv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:39:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D948913F77;
+        Tue, 12 Apr 2022 00:13:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D3A3DB81B49;
-        Tue, 12 Apr 2022 06:58:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F10BC385A1;
-        Tue, 12 Apr 2022 06:58:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7455861708;
+        Tue, 12 Apr 2022 07:13:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FDFBC385A5;
+        Tue, 12 Apr 2022 07:13:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746708;
-        bh=Ueb/n5/degKcP/u90rkPTK409N1+OCvbJpRbir3mBN4=;
+        s=korg; t=1649747608;
+        bh=9xQ3uX4h9l1REPAIIrIh96bR7xnygsUSU5H1Cu9F32g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vhWrERdp8K7NfHvCiVgOi74u6i02y8xRyBxiQZ90I0JH/7PiKhR1i2tKaye0onAnc
-         QSbjj9aqju6gWN2SpWkrBZ2LNeq4LjGQ4fBDal7H205Pr0CRrMSQHwvkp6kfRbl/xk
-         HHnAyabiKVzdNTd/0cnQhpN/Huxg7VAR+iqOl+10=
+        b=FKCsTg5k+KAleHqAC7ViVP+z9u1P1tyXhi9KVoKQGq+XFtN/1aJe/ho5XN22uD8hx
+         UOw4zzsNY2LQYhYQdZrcYSMZOMPfooXYcqLBUb5RSZNAtvypy1tr1pSdRLfaRWup6O
+         NvZohir7O8Y+3f2v00DtoouwoAqde7W7ycn82qrQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
-        Paolo Abeni <pabeni@redhat.com>,
+        stable@vger.kernel.org, Jorge Lopez <jorge.lopez2@hp.com>,
+        Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 101/285] net: sfp: add 2500base-X quirk for Lantech SFP module
+Subject: [PATCH 5.17 140/343] platform/x86: hp-wmi: Fix 0x05 error code reported by several WMI calls
 Date:   Tue, 12 Apr 2022 08:29:18 +0200
-Message-Id: <20220412062946.580743373@linuxfoundation.org>
+Message-Id: <20220412062955.426856975@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
-References: <20220412062943.670770901@linuxfoundation.org>
+In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
+References: <20220412062951.095765152@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,51 +54,150 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Walle <michael@walle.cc>
+From: Jorge Lopez <jorge.lopez2@hp.com>
 
-[ Upstream commit 00eec9fe4f3b9588b4bfa8ef9dd0aae96407d5d7 ]
+[ Upstream commit be9d73e64957bbd31ee9a0d11adc0f720974c558 ]
 
-The Lantech 8330-262D-E module is 2500base-X capable, but it reports the
-nominal bitrate as 2500MBd instead of 3125MBd. Add a quirk for the
-module.
+Several WMI queries leverage hp_wmi_read_int function to read their
+data. hp_wmi_read_int function was corrected in a previous patch.
+Now, this function invokes hp_wmi_perform_query with input parameter
+of size zero and the output buffer of size 4.
 
-The following in an EEPROM dump of such a SFP with the serial number
-redacted:
+WMI commands calling hp_wmi_perform_query with input buffer size value
+of zero are listed below.
 
-00: 03 04 07 00 00 00 01 20 40 0c 05 01 19 00 00 00    ???...? @????...
-10: 1e 0f 00 00 4c 61 6e 74 65 63 68 20 20 20 20 20    ??..Lantech
-20: 20 20 20 20 00 00 00 00 38 33 33 30 2d 32 36 32        ....8330-262
-30: 44 2d 45 20 20 20 20 20 56 31 2e 30 03 52 00 cb    D-E     V1.0?R.?
-40: 00 1a 00 00 46 43 XX XX XX XX XX XX XX XX XX XX    .?..FCXXXXXXXXXX
-50: 20 20 20 20 32 32 30 32 31 34 20 20 68 b0 01 98        220214  h???
-60: 45 58 54 52 45 4d 45 4c 59 20 43 4f 4d 50 41 54    EXTREMELY COMPAT
-70: 49 42 4c 45 20 20 20 20 20 20 20 20 20 20 20 20    IBLE
+HPWMI_DISPLAY_QUERY
+HPWMI_HDDTEMP_QUERY
+HPWMI_ALS_QUERY
+HPWMI_HARDWARE_QUERY
+HPWMI_WIRELESS_QUERY
+HPWMI_BIOS_QUERY
+HPWMI_FEATURE_QUERY
+HPWMI_HOTKEY_QUERY
+HPWMI_FEATURE2_QUERY
+HPWMI_WIRELESS2_QUERY
+HPWMI_POSTCODEERROR_QUERY
+HPWMI_THERMAL_PROFILE_QUERY
+HPWMI_FAN_SPEED_MAX_GET_QUERY
 
-Signed-off-by: Michael Walle <michael@walle.cc>
-Link: https://lore.kernel.org/r/20220312205014.4154907-1-michael@walle.cc
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Invoking those WMI commands with an input buffer size greater
+than zero will cause error 0x05 to be returned.
+
+All WMI commands executed by the driver were reviewed and changes
+were made to ensure the expected input and output buffer size match
+the WMI specification.
+
+Changes were validated on a HP ZBook Workstation notebook,
+HP EliteBook x360, and HP EliteBook 850 G8.  Additional
+validation was included in the test process to ensure no other
+commands were incorrectly handled.
+
+Signed-off-by: Jorge Lopez <jorge.lopez2@hp.com>
+Link: https://lore.kernel.org/r/20220310210853.28367-4-jorge.lopez2@hp.com
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/sfp-bus.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/platform/x86/hp-wmi.c | 22 +++++++++++-----------
+ 1 file changed, 11 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/net/phy/sfp-bus.c b/drivers/net/phy/sfp-bus.c
-index c1512c9925a6..15aa5ac1ff49 100644
---- a/drivers/net/phy/sfp-bus.c
-+++ b/drivers/net/phy/sfp-bus.c
-@@ -74,6 +74,12 @@ static const struct sfp_quirk sfp_quirks[] = {
- 		.vendor = "HUAWEI",
- 		.part = "MA5671A",
- 		.modes = sfp_quirk_2500basex,
-+	}, {
-+		// Lantech 8330-262D-E can operate at 2500base-X, but
-+		// incorrectly report 2500MBd NRZ in their EEPROM
-+		.vendor = "Lantech",
-+		.part = "8330-262D-E",
-+		.modes = sfp_quirk_2500basex,
- 	}, {
- 		.vendor = "UBNT",
- 		.part = "UF-INSTANT",
+diff --git a/drivers/platform/x86/hp-wmi.c b/drivers/platform/x86/hp-wmi.c
+index f822ef6eb93c..88f0bfd6ecf1 100644
+--- a/drivers/platform/x86/hp-wmi.c
++++ b/drivers/platform/x86/hp-wmi.c
+@@ -330,7 +330,7 @@ static int hp_wmi_get_fan_speed(int fan)
+ 	char fan_data[4] = { fan, 0, 0, 0 };
+ 
+ 	int ret = hp_wmi_perform_query(HPWMI_FAN_SPEED_GET_QUERY, HPWMI_GM,
+-				       &fan_data, sizeof(fan_data),
++				       &fan_data, sizeof(char),
+ 				       sizeof(fan_data));
+ 
+ 	if (ret != 0)
+@@ -399,7 +399,7 @@ static int omen_thermal_profile_set(int mode)
+ 		return -EINVAL;
+ 
+ 	ret = hp_wmi_perform_query(HPWMI_SET_PERFORMANCE_MODE, HPWMI_GM,
+-				   &buffer, sizeof(buffer), sizeof(buffer));
++				   &buffer, sizeof(buffer), 0);
+ 
+ 	if (ret)
+ 		return ret < 0 ? ret : -EINVAL;
+@@ -436,7 +436,7 @@ static int hp_wmi_fan_speed_max_set(int enabled)
+ 	int ret;
+ 
+ 	ret = hp_wmi_perform_query(HPWMI_FAN_SPEED_MAX_SET_QUERY, HPWMI_GM,
+-				   &enabled, sizeof(enabled), sizeof(enabled));
++				   &enabled, sizeof(enabled), 0);
+ 
+ 	if (ret)
+ 		return ret < 0 ? ret : -EINVAL;
+@@ -449,7 +449,7 @@ static int hp_wmi_fan_speed_max_get(void)
+ 	int val = 0, ret;
+ 
+ 	ret = hp_wmi_perform_query(HPWMI_FAN_SPEED_MAX_GET_QUERY, HPWMI_GM,
+-				   &val, sizeof(val), sizeof(val));
++				   &val, 0, sizeof(val));
+ 
+ 	if (ret)
+ 		return ret < 0 ? ret : -EINVAL;
+@@ -461,7 +461,7 @@ static int __init hp_wmi_bios_2008_later(void)
+ {
+ 	int state = 0;
+ 	int ret = hp_wmi_perform_query(HPWMI_FEATURE_QUERY, HPWMI_READ, &state,
+-				       sizeof(state), sizeof(state));
++				       0, sizeof(state));
+ 	if (!ret)
+ 		return 1;
+ 
+@@ -472,7 +472,7 @@ static int __init hp_wmi_bios_2009_later(void)
+ {
+ 	u8 state[128];
+ 	int ret = hp_wmi_perform_query(HPWMI_FEATURE2_QUERY, HPWMI_READ, &state,
+-				       sizeof(state), sizeof(state));
++				       0, sizeof(state));
+ 	if (!ret)
+ 		return 1;
+ 
+@@ -550,7 +550,7 @@ static int hp_wmi_rfkill2_refresh(void)
+ 	int err, i;
+ 
+ 	err = hp_wmi_perform_query(HPWMI_WIRELESS2_QUERY, HPWMI_READ, &state,
+-				   sizeof(state), sizeof(state));
++				   0, sizeof(state));
+ 	if (err)
+ 		return err;
+ 
+@@ -639,7 +639,7 @@ static ssize_t als_store(struct device *dev, struct device_attribute *attr,
+ 		return ret;
+ 
+ 	ret = hp_wmi_perform_query(HPWMI_ALS_QUERY, HPWMI_WRITE, &tmp,
+-				       sizeof(tmp), sizeof(tmp));
++				       sizeof(tmp), 0);
+ 	if (ret)
+ 		return ret < 0 ? ret : -EINVAL;
+ 
+@@ -660,9 +660,9 @@ static ssize_t postcode_store(struct device *dev, struct device_attribute *attr,
+ 	if (clear == false)
+ 		return -EINVAL;
+ 
+-	/* Clear the POST error code. It is kept until until cleared. */
++	/* Clear the POST error code. It is kept until cleared. */
+ 	ret = hp_wmi_perform_query(HPWMI_POSTCODEERROR_QUERY, HPWMI_WRITE, &tmp,
+-				       sizeof(tmp), sizeof(tmp));
++				       sizeof(tmp), 0);
+ 	if (ret)
+ 		return ret < 0 ? ret : -EINVAL;
+ 
+@@ -952,7 +952,7 @@ static int __init hp_wmi_rfkill2_setup(struct platform_device *device)
+ 	int err, i;
+ 
+ 	err = hp_wmi_perform_query(HPWMI_WIRELESS2_QUERY, HPWMI_READ, &state,
+-				   sizeof(state), sizeof(state));
++				   0, sizeof(state));
+ 	if (err)
+ 		return err < 0 ? err : -EINVAL;
+ 
 -- 
 2.35.1
 
