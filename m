@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 185A74FD50D
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:10:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 099BD4FD86D
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:36:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352614AbiDLHgb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:36:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42860 "EHLO
+        id S1377638AbiDLHvB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:51:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49116 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354120AbiDLH0F (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:26:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4FAF443D3;
-        Tue, 12 Apr 2022 00:05:53 -0700 (PDT)
+        with ESMTP id S1359385AbiDLHm7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:42:59 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 967D52B26C;
+        Tue, 12 Apr 2022 00:21:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 525F860B65;
-        Tue, 12 Apr 2022 07:05:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5EB7EC385A1;
-        Tue, 12 Apr 2022 07:05:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 500E0B81B58;
+        Tue, 12 Apr 2022 07:21:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7812C385A5;
+        Tue, 12 Apr 2022 07:21:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747152;
-        bh=J+TnkjUnUJTPTjWdY0vnCLiIu4RAOPI2eSIf3Ml9EyI=;
+        s=korg; t=1649748116;
+        bh=17U5fxjfDHQoUCrXh9TImuMgn8x8tcs6hOXxEMC3CU8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WTGXDF779W1JkxqQXvkE5X0mKDkm/AeE4Nk58q9tiNT0MMLYmAiiq8X6Mw/yqVYbG
-         J5FW+Kupa9QuawAbR9qzmbPvLMB+M1i6PevfvkIOG0ZCH2BZQoLw2ujO4VPrskHLe6
-         QRaG2Pgpr+GewKJx7cOtiL20ZOktdyM9mzfdl6OQ=
+        b=PbO6MvSzvcGMFKYcRh077jsArKvSpW7ncEoBCZMj5hsby1O6bzZRFOE5lTVmAWq7P
+         saYrwkWLfhjzYpJ+6Ec/hypzDKgHyZrSh+zeJSi3flJ0++uuLbk73nG49Jenp1PCM0
+         yS7WAm6GXW8O0KJ+SH39eOrA1VsPtkWL0bo+UnDc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christian Lamparter <chunkeey@gmail.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        stable@kernel.org
-Subject: [PATCH 5.16 245/285] ata: sata_dwc_460ex: Fix crash due to OOB write
-Date:   Tue, 12 Apr 2022 08:31:42 +0200
-Message-Id: <20220412062950.730976971@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Luca=20B=C3=A9la=20Palkovics?= 
+        <luca.bela.palkovics@gmail.com>,
+        Anand Jain <anand.jain@oracle.com>, Qu Wenruo <wqu@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.17 285/343] btrfs: remove device item and update super block in the same transaction
+Date:   Tue, 12 Apr 2022 08:31:43 +0200
+Message-Id: <20220412062959.551154999@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
-References: <20220412062943.670770901@linuxfoundation.org>
+In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
+References: <20220412062951.095765152@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,83 +56,213 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Lamparter <chunkeey@gmail.com>
+From: Qu Wenruo <wqu@suse.com>
 
-commit 7aa8104a554713b685db729e66511b93d989dd6a upstream.
+commit bbac58698a55cc0a6f0c0d69a6dcd3f9f3134c11 upstream.
 
-the driver uses libata's "tag" values from in various arrays.
-Since the mentioned patch bumped the ATA_TAG_INTERNAL to 32,
-the value of the SATA_DWC_QCMD_MAX needs to account for that.
+[BUG]
+There is a report that a btrfs has a bad super block num devices.
 
-Otherwise ATA_TAG_INTERNAL usage cause similar crashes like
-this as reported by Tice Rex on the OpenWrt Forum and
-reproduced (with symbols) here:
+This makes btrfs to reject the fs completely.
 
-| BUG: Kernel NULL pointer dereference at 0x00000000
-| Faulting instruction address: 0xc03ed4b8
-| Oops: Kernel access of bad area, sig: 11 [#1]
-| BE PAGE_SIZE=4K PowerPC 44x Platform
-| CPU: 0 PID: 362 Comm: scsi_eh_1 Not tainted 5.4.163 #0
-| NIP:  c03ed4b8 LR: c03d27e8 CTR: c03ed36c
-| REGS: cfa59950 TRAP: 0300   Not tainted  (5.4.163)
-| MSR:  00021000 <CE,ME>  CR: 42000222  XER: 00000000
-| DEAR: 00000000 ESR: 00000000
-| GPR00: c03d27e8 cfa59a08 cfa55fe0 00000000 0fa46bc0 [...]
-| [..]
-| NIP [c03ed4b8] sata_dwc_qc_issue+0x14c/0x254
-| LR [c03d27e8] ata_qc_issue+0x1c8/0x2dc
-| Call Trace:
-| [cfa59a08] [c003f4e0] __cancel_work_timer+0x124/0x194 (unreliable)
-| [cfa59a78] [c03d27e8] ata_qc_issue+0x1c8/0x2dc
-| [cfa59a98] [c03d2b3c] ata_exec_internal_sg+0x240/0x524
-| [cfa59b08] [c03d2e98] ata_exec_internal+0x78/0xe0
-| [cfa59b58] [c03d30fc] ata_read_log_page.part.38+0x1dc/0x204
-| [cfa59bc8] [c03d324c] ata_identify_page_supported+0x68/0x130
-| [...]
+  BTRFS error (device sdd3): super_num_devices 3 mismatch with num_devices 2 found here
+  BTRFS error (device sdd3): failed to read chunk tree: -22
+  BTRFS error (device sdd3): open_ctree failed
 
-This is because sata_dwc_dma_xfer_complete() NULLs the
-dma_pending's next neighbour "chan" (a *dma_chan struct) in
-this '32' case right here (line ~735):
-> hsdevp->dma_pending[tag] = SATA_DWC_DMA_PENDING_NONE;
+[CAUSE]
+During btrfs device removal, chunk tree and super block num devs are
+updated in two different transactions:
 
-Then the next time, a dma gets issued; dma_dwc_xfer_setup() passes
-the NULL'd hsdevp->chan to the dmaengine_slave_config() which then
-causes the crash.
+  btrfs_rm_device()
+  |- btrfs_rm_dev_item(device)
+  |  |- trans = btrfs_start_transaction()
+  |  |  Now we got transaction X
+  |  |
+  |  |- btrfs_del_item()
+  |  |  Now device item is removed from chunk tree
+  |  |
+  |  |- btrfs_commit_transaction()
+  |     Transaction X got committed, super num devs untouched,
+  |     but device item removed from chunk tree.
+  |     (AKA, super num devs is already incorrect)
+  |
+  |- cur_devices->num_devices--;
+  |- cur_devices->total_devices--;
+  |- btrfs_set_super_num_devices()
+     All those operations are not in transaction X, thus it will
+     only be written back to disk in next transaction.
 
-With this patch, SATA_DWC_QCMD_MAX is now set to ATA_MAX_QUEUE + 1.
-This avoids the OOB. But please note, there was a worthwhile discussion
-on what ATA_TAG_INTERNAL and ATA_MAX_QUEUE is. And why there should not
-be a "fake" 33 command-long queue size.
+So after the transaction X in btrfs_rm_dev_item() committed, but before
+transaction X+1 (which can be minutes away), a power loss happen, then
+we got the super num mismatch.
 
-Ideally, the dw driver should account for the ATA_TAG_INTERNAL.
-In Damien Le Moal's words: "... having looked at the driver, it
-is a bigger change than just faking a 33rd "tag" that is in fact
-not a command tag at all."
+[FIX]
+Instead of starting and committing a transaction inside
+btrfs_rm_dev_item(), start a transaction in side btrfs_rm_device() and
+pass it to btrfs_rm_dev_item().
 
-Fixes: 28361c403683c ("libata: add extra internal command")
-Cc: stable@kernel.org # 4.18+
-BugLink: https://github.com/openwrt/openwrt/issues/9505
-Signed-off-by: Christian Lamparter <chunkeey@gmail.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+And only commit the transaction after everything is done.
+
+Reported-by: Luca Béla Palkovics <luca.bela.palkovics@gmail.com>
+Link: https://lore.kernel.org/linux-btrfs/CA+8xDSpvdm_U0QLBAnrH=zqDq_cWCOH5TiV46CKmp3igr44okQ@mail.gmail.com/
+CC: stable@vger.kernel.org # 4.14+
+Reviewed-by: Anand Jain <anand.jain@oracle.com>
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/ata/sata_dwc_460ex.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ fs/btrfs/volumes.c |   65 ++++++++++++++++++++++-------------------------------
+ 1 file changed, 28 insertions(+), 37 deletions(-)
 
---- a/drivers/ata/sata_dwc_460ex.c
-+++ b/drivers/ata/sata_dwc_460ex.c
-@@ -145,7 +145,11 @@ struct sata_dwc_device {
- #endif
- };
+--- a/fs/btrfs/volumes.c
++++ b/fs/btrfs/volumes.c
+@@ -1945,23 +1945,18 @@ static void update_dev_time(const char *
+ 	path_put(&path);
+ }
  
--#define SATA_DWC_QCMD_MAX	32
-+/*
-+ * Allow one extra special slot for commands and DMA management
-+ * to account for libata internal commands.
-+ */
-+#define SATA_DWC_QCMD_MAX	(ATA_MAX_QUEUE + 1)
+-static int btrfs_rm_dev_item(struct btrfs_device *device)
++static int btrfs_rm_dev_item(struct btrfs_trans_handle *trans,
++			     struct btrfs_device *device)
+ {
+ 	struct btrfs_root *root = device->fs_info->chunk_root;
+ 	int ret;
+ 	struct btrfs_path *path;
+ 	struct btrfs_key key;
+-	struct btrfs_trans_handle *trans;
  
- struct sata_dwc_device_port {
- 	struct sata_dwc_device	*hsdev;
+ 	path = btrfs_alloc_path();
+ 	if (!path)
+ 		return -ENOMEM;
+ 
+-	trans = btrfs_start_transaction(root, 0);
+-	if (IS_ERR(trans)) {
+-		btrfs_free_path(path);
+-		return PTR_ERR(trans);
+-	}
+ 	key.objectid = BTRFS_DEV_ITEMS_OBJECTID;
+ 	key.type = BTRFS_DEV_ITEM_KEY;
+ 	key.offset = device->devid;
+@@ -1972,21 +1967,12 @@ static int btrfs_rm_dev_item(struct btrf
+ 	if (ret) {
+ 		if (ret > 0)
+ 			ret = -ENOENT;
+-		btrfs_abort_transaction(trans, ret);
+-		btrfs_end_transaction(trans);
+ 		goto out;
+ 	}
+ 
+ 	ret = btrfs_del_item(trans, root, path);
+-	if (ret) {
+-		btrfs_abort_transaction(trans, ret);
+-		btrfs_end_transaction(trans);
+-	}
+-
+ out:
+ 	btrfs_free_path(path);
+-	if (!ret)
+-		ret = btrfs_commit_transaction(trans);
+ 	return ret;
+ }
+ 
+@@ -2127,6 +2113,7 @@ int btrfs_rm_device(struct btrfs_fs_info
+ 		    struct btrfs_dev_lookup_args *args,
+ 		    struct block_device **bdev, fmode_t *mode)
+ {
++	struct btrfs_trans_handle *trans;
+ 	struct btrfs_device *device;
+ 	struct btrfs_fs_devices *cur_devices;
+ 	struct btrfs_fs_devices *fs_devices = fs_info->fs_devices;
+@@ -2142,7 +2129,7 @@ int btrfs_rm_device(struct btrfs_fs_info
+ 
+ 	ret = btrfs_check_raid_min_devices(fs_info, num_devices - 1);
+ 	if (ret)
+-		goto out;
++		return ret;
+ 
+ 	device = btrfs_find_device(fs_info->fs_devices, args);
+ 	if (!device) {
+@@ -2150,27 +2137,22 @@ int btrfs_rm_device(struct btrfs_fs_info
+ 			ret = BTRFS_ERROR_DEV_MISSING_NOT_FOUND;
+ 		else
+ 			ret = -ENOENT;
+-		goto out;
++		return ret;
+ 	}
+ 
+ 	if (btrfs_pinned_by_swapfile(fs_info, device)) {
+ 		btrfs_warn_in_rcu(fs_info,
+ 		  "cannot remove device %s (devid %llu) due to active swapfile",
+ 				  rcu_str_deref(device->name), device->devid);
+-		ret = -ETXTBSY;
+-		goto out;
++		return -ETXTBSY;
+ 	}
+ 
+-	if (test_bit(BTRFS_DEV_STATE_REPLACE_TGT, &device->dev_state)) {
+-		ret = BTRFS_ERROR_DEV_TGT_REPLACE;
+-		goto out;
+-	}
++	if (test_bit(BTRFS_DEV_STATE_REPLACE_TGT, &device->dev_state))
++		return BTRFS_ERROR_DEV_TGT_REPLACE;
+ 
+ 	if (test_bit(BTRFS_DEV_STATE_WRITEABLE, &device->dev_state) &&
+-	    fs_info->fs_devices->rw_devices == 1) {
+-		ret = BTRFS_ERROR_DEV_ONLY_WRITABLE;
+-		goto out;
+-	}
++	    fs_info->fs_devices->rw_devices == 1)
++		return BTRFS_ERROR_DEV_ONLY_WRITABLE;
+ 
+ 	if (test_bit(BTRFS_DEV_STATE_WRITEABLE, &device->dev_state)) {
+ 		mutex_lock(&fs_info->chunk_mutex);
+@@ -2183,14 +2165,22 @@ int btrfs_rm_device(struct btrfs_fs_info
+ 	if (ret)
+ 		goto error_undo;
+ 
+-	/*
+-	 * TODO: the superblock still includes this device in its num_devices
+-	 * counter although write_all_supers() is not locked out. This
+-	 * could give a filesystem state which requires a degraded mount.
+-	 */
+-	ret = btrfs_rm_dev_item(device);
+-	if (ret)
++	trans = btrfs_start_transaction(fs_info->chunk_root, 0);
++	if (IS_ERR(trans)) {
++		ret = PTR_ERR(trans);
+ 		goto error_undo;
++	}
++
++	ret = btrfs_rm_dev_item(trans, device);
++	if (ret) {
++		/* Any error in dev item removal is critical */
++		btrfs_crit(fs_info,
++			   "failed to remove device item for devid %llu: %d",
++			   device->devid, ret);
++		btrfs_abort_transaction(trans, ret);
++		btrfs_end_transaction(trans);
++		return ret;
++	}
+ 
+ 	clear_bit(BTRFS_DEV_STATE_IN_FS_METADATA, &device->dev_state);
+ 	btrfs_scrub_cancel_dev(device);
+@@ -2273,7 +2263,8 @@ int btrfs_rm_device(struct btrfs_fs_info
+ 		free_fs_devices(cur_devices);
+ 	}
+ 
+-out:
++	ret = btrfs_commit_transaction(trans);
++
+ 	return ret;
+ 
+ error_undo:
+@@ -2284,7 +2275,7 @@ error_undo:
+ 		device->fs_devices->rw_devices++;
+ 		mutex_unlock(&fs_info->chunk_mutex);
+ 	}
+-	goto out;
++	return ret;
+ }
+ 
+ void btrfs_rm_dev_replace_remove_srcdev(struct btrfs_device *srcdev)
 
 
